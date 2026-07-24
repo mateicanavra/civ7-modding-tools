@@ -13,6 +13,8 @@ owns it rather than in this mod's test tree.
 - `recipes/swooper-physics-standard/fixtures/standard-recipe.ts` is the sole
   direct Standard recipe test runner. Whole-recipe tests select a static Civ7
   map-size preset through this fixture; they do not invent product dimensions.
+- `setup.ts` owns the suite-wide Civ7 preset, map seed, and game seed for tests
+  where those inputs are incidental rather than part of the behavioral oracle.
 - `recipes/swooper-physics-standard/metrics` owns Standard scenario capture and
   map-product metric behavior.
 - `recipes/swooper-physics-standard/trace` and `viz` own the recipe's optional
@@ -41,12 +43,14 @@ Direct operation, step, artifact, and fault-mechanics tests may use a small
 synthetic grid when its cardinality is the subject or fixture. Such dimensions
 must be named as synthetic and never presented as a Civ7 product map size.
 
-Map-size-independent behavior tests use the root `TEST_MAP_SIZE` selection,
-which defaults to Civ7 Tiny. Run that broad test regime against another shipped
-size with `SWOOPER_TEST_MAP_SIZE=MAPSIZE_STANDARD nx run mod-swooper-maps:test`.
-Keep an explicit preset only when size participates in the oracle, such as a
-cross-size matrix, a calibrated product study, map-size admission, or exact
-coordinate evidence.
+Map-size-independent behavior tests use `TEST_MAP_SIZE` from `test/setup.ts`,
+which defaults to Civ7 Tiny. The same fixture exports deliberately distinct
+`TEST_MAP_SEED` and `TEST_GAME_SEED` values so tests cannot silently conflate
+map generation with game setup. Switch the broad regime with
+`SWOOPER_TEST_MAP_SIZE`, `SWOOPER_TEST_MAP_SEED`, and `SWOOPER_TEST_GAME_SEED`.
+Keep an explicit preset or seed only when that input participates in the oracle,
+such as a cross-size matrix, seed cohort, deterministic RNG test, admission
+boundary, or exact coordinate evidence.
 
 ## Test Claims
 

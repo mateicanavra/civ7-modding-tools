@@ -16,14 +16,14 @@ import {
 import { BiomesStep as biomesStep } from "../../../../../../../../src/recipes/standard/stages/ecology/biomes/steps/biomes/step.js";
 import { artifacts as mapEcologyArtifacts } from "../../../../../../../../src/recipes/standard/stages/map/ecology/artifacts/index.js";
 import { PlotBiomesStep as plotBiomesStep } from "../../../../../../../../src/recipes/standard/stages/map/ecology/steps/plot-biomes/step.js";
-import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 
 describe("plot biomes step", () => {
   it("projects marine and land biome bindings into Civ7", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const setup = admitMapSetup({
-      mapSeed: 0,
+      mapSeed: TEST_MAP_SEED,
       dimensions: TEST_MAP_SIZE.dimensions,
       latitudeBounds: {
         topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,

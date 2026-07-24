@@ -2,14 +2,14 @@ import { describe, expect, it } from "bun:test";
 import { admitMapSetup } from "@swooper/mapgen-core";
 
 import standardRecipe from "../../../../../../../../../src/recipes/standard/recipe.js";
-import { TEST_MAP_SIZE } from "../../../../../../../../map-size.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../../setup.js";
 import {
   createStandardRecipeTestConfig,
   standardMapConfig,
 } from "../../../../../../fixtures/standard-recipe.js";
 
 const setup = admitMapSetup({
-  mapSeed: 123,
+  mapSeed: TEST_MAP_SEED,
   dimensions: TEST_MAP_SIZE.dimensions,
   latitudeBounds: standardMapConfig.latitudeBounds,
 });

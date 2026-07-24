@@ -12,8 +12,6 @@ function isKindEvent(value: unknown): value is KindEvent {
 
 describe("Morphology tracing (observability hardening smoke)", () => {
   it("emits required morphology.* kind events when steps are verbose", () => {
-    const seed = 424242;
-
     const full = (stageId: string, stepId: string) =>
       `mod-swooper-maps.standard.${stageId}.${stepId}`;
     const verboseSteps = [
@@ -31,7 +29,6 @@ describe("Morphology tracing (observability hardening smoke)", () => {
 
     const events: TraceEvent[] = [];
     runStandardRecipeTestMap({
-      seed,
       execution: {
         trace: {
           config: { steps: traceSteps },

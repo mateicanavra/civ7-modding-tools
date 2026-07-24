@@ -5,14 +5,14 @@ import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 import morphologyErosionStage from "../../../../../../../../src/recipes/standard/stages/morphology/erosion/index.js";
 import { GeomorphologyStepContract } from "../../../../../../../../src/recipes/standard/stages/morphology/erosion/steps/geomorphology/config.js";
 import { GeomorphologyStep } from "../../../../../../../../src/recipes/standard/stages/morphology/erosion/steps/geomorphology/step.js";
-import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import {
   createStandardRecipeTestConfig,
   standardMapConfig,
 } from "../../../../../fixtures/standard-recipe.js";
 
 const setup = admitMapSetup({
-  mapSeed: 123,
+  mapSeed: TEST_MAP_SEED,
   dimensions: TEST_MAP_SIZE.dimensions,
   latitudeBounds: standardMapConfig.latitudeBounds,
 });

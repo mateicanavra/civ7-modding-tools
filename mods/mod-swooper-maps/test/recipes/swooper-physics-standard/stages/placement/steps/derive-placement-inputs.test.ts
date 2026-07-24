@@ -9,7 +9,7 @@ import { captureEnginePlacementTypes } from "../../../../../../src/recipes/stand
 import { buildPlacementInputs } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/inputs.js";
 import { buildNaturalWonderPlanInputRuntimeTelemetry } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/natural-wonder-plan-input-telemetry.js";
 import { buildNaturalWonderPlanRuntimeTelemetry } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/natural-wonder-plan-telemetry.js";
-import { TEST_MAP_SIZE } from "../../../../../map-size.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
 
 const { featureTypes, terrainTypeIndices, biomeGlobals } = CIV7_BROWSER_TABLES_V0;
 const hugePreset = getCiv7StandardMapSizePreset("MAPSIZE_HUGE");
@@ -44,7 +44,7 @@ describe("derive placement inputs", () => {
     adapter.setFeatureType(0, 0, { Feature: 40_000, Direction: -1, Elevation: 0 });
     const context = createMapContext({
       setup: admitMapSetup({
-        mapSeed: 1,
+        mapSeed: TEST_MAP_SEED,
         dimensions: TEST_MAP_SIZE.dimensions,
         latitudeBounds: {
           topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
@@ -171,7 +171,7 @@ describe("derive placement inputs", () => {
     });
     const context = createMapContext({
       setup: admitMapSetup({
-        mapSeed: 1,
+        mapSeed: TEST_MAP_SEED,
         dimensions: TEST_MAP_SIZE.dimensions,
         latitudeBounds: {
           topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
@@ -341,7 +341,7 @@ describe("derive placement inputs", () => {
     blockedMask[5] = 1;
     const context = createMapContext({
       setup: admitMapSetup({
-        mapSeed: 1,
+        mapSeed: TEST_MAP_SEED,
         dimensions: TEST_MAP_SIZE.dimensions,
         latitudeBounds: {
           topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,

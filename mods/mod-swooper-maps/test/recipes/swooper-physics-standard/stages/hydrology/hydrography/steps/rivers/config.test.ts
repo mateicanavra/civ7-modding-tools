@@ -5,14 +5,14 @@ import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 import hydrologyHydrographyStage from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/index.js";
 import { RiversStepContract } from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/steps/rivers/config.js";
 import { RiversStep } from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/steps/rivers/step.js";
-import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import {
   createStandardRecipeTestConfig,
   standardMapConfig,
 } from "../../../../../fixtures/standard-recipe.js";
 
 const setup = admitMapSetup({
-  mapSeed: 123,
+  mapSeed: TEST_MAP_SEED,
   dimensions: TEST_MAP_SIZE.dimensions,
   latitudeBounds: standardMapConfig.latitudeBounds,
 });

@@ -8,10 +8,8 @@ import { buildStandardRecipeDefaultConfig } from "../../../src/recipes/standard/
 import type { StandardRecipeConfig } from "../../../src/recipes/standard/recipe.js";
 import { runStandardRecipeTestMap } from "./fixtures/standard-recipe.js";
 
-const seed = 123;
-
 function runStandardConfig(config: StandardRecipeConfig) {
-  return runStandardRecipeTestMap({ seed, recipeConfig: config }).context;
+  return runStandardRecipeTestMap({ recipeConfig: config }).context;
 }
 
 function mean(values: Uint8Array | Float32Array): number {

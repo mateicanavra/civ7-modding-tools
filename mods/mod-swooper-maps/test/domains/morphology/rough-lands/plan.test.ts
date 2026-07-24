@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import morphology from "@mapgen/domain/morphology/ops";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
-import { TEST_MAP_SIZE } from "../../../map-size.js";
+import { TEST_MAP_SIZE } from "../../../setup.js";
 
 const { planRoughLands } = morphology.ops;
 type RoughLandSelection = Extract<

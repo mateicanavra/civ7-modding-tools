@@ -6,9 +6,7 @@ import { runStandardRecipeTestMap, standardMapConfig } from "./fixtures/standard
 
 describe("Standard recipe generation", () => {
   it("runs the selected test map through terminal placement product evidence", () => {
-    const { context, adapter, preset } = runStandardRecipeTestMap({
-      seed: 1018,
-    });
+    const { context, adapter, preset } = runStandardRecipeTestMap({});
     const outputs = readValidatedArtifact(context, placementArtifacts.placementOutputs);
     const resources = readValidatedArtifact(context, placementArtifacts.resourcePlacementOutcomes);
     expect(outputs.startsAssigned).toBeGreaterThan(0);

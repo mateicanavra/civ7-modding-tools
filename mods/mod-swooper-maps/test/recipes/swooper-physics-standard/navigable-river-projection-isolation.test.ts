@@ -14,7 +14,7 @@ function runRiverProjection(input: {
   const recipeConfig = createStandardRecipeTestConfig();
   recipeConfig["hydrology-hydrography"].knobs.riverDensity = input.riverDensity;
   recipeConfig["map-rivers"].knobs.navigableRiverDensity = input.navigableRiverDensity;
-  const { context, adapter, preset } = runStandardRecipeTestMap({ seed: 123, recipeConfig });
+  const { context, adapter, preset } = runStandardRecipeTestMap({ recipeConfig });
   const projected = readValidatedArtifact(context, mapRiversArtifacts.projectedNavigableRivers);
 
   return {

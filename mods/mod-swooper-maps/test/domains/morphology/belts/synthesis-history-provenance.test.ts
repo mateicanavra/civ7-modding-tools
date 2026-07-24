@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import morphologyDomain from "@mapgen/domain/morphology/ops";
-import { TEST_MAP_SIZE } from "../../../map-size.js";
+import { TEST_MAP_SIZE } from "../../../setup.js";
 
 const { computeBeltDrivers } = morphologyDomain.ops;
 

@@ -52,11 +52,9 @@ type RegionAdapterFactory<TAdapter extends MockAdapter> = (
 ) => TAdapter;
 
 function runRecipeWithAdapter<TAdapter extends MockAdapter>(
-  seed: number,
   createAdapter: RegionAdapterFactory<TAdapter>
 ): Readonly<{ adapter: TAdapter; context: MapContext }> {
   return runStandardRecipeTestMap({
-    seed,
     mapInfo: {
       PlayersLandmass1: 1,
       PlayersLandmass2: 1,
@@ -78,15 +76,13 @@ function runRecipeWithAdapter<TAdapter extends MockAdapter>(
 
 describe("placement resources landmass-region restamp", () => {
   it("re-stamps landmass regions before typed resource materialization", () => {
-    const seed = 4242;
     const { adapter, context } = runRecipeWithAdapter(
-      seed,
-      ({ preset, mapInfo }) =>
+      ({ preset, mapInfo, mapSeed }) =>
         new RegionSensitiveResourceAdapter({
           ...preset.dimensions,
           mapInfo,
           mapSizeId: preset.id,
-          rng: createLabelRng(seed),
+          rng: createLabelRng(mapSeed),
         })
     );
 
@@ -105,16 +101,15 @@ describe("placement resources landmass-region restamp", () => {
   });
 
   it("aborts placement before resource materialization when region restamp fails", () => {
-    const seed = 99;
     let adapter: RestampFailingAdapter | undefined;
 
     expect(() =>
-      runRecipeWithAdapter(seed, ({ preset, mapInfo }) => {
+      runRecipeWithAdapter(({ preset, mapInfo, mapSeed }) => {
         adapter = new RestampFailingAdapter({
           ...preset.dimensions,
           mapInfo,
           mapSizeId: preset.id,
-          rng: createLabelRng(seed),
+          rng: createLabelRng(mapSeed),
         });
         return adapter;
       })

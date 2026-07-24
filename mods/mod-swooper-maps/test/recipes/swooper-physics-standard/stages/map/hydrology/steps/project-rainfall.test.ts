@@ -8,6 +8,7 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { ProjectRainfallStep } from "../../../../../../../src/recipes/standard/stages/map/hydrology/steps/project-rainfall/step.js";
+import { TEST_MAP_SEED } from "../../../../../../setup.js";
 
 const SYNTHETIC_DIMENSIONS = { width: 3, height: 2 } as const;
 
@@ -27,7 +28,7 @@ describe("map-hydrology/project-rainfall", () => {
     const adapter = new RainfallRecordingAdapter({ width, height });
     const context = createMapContext({
       setup: admitMapSetup({
-        mapSeed: 7,
+        mapSeed: TEST_MAP_SEED,
         dimensions: SYNTHETIC_DIMENSIONS,
         latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
       }),

@@ -6,14 +6,14 @@ import { Value } from "typebox/value";
 import morphologyShelfStage from "../../../../../../../../src/recipes/standard/stages/morphology/shelf/index.js";
 import { ComputeShelfStepContract } from "../../../../../../../../src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/config.js";
 import { ComputeShelfStep } from "../../../../../../../../src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/step.js";
-import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import {
   createStandardRecipeTestConfig,
   standardMapConfig,
 } from "../../../../../fixtures/standard-recipe.js";
 
 const setup = admitMapSetup({
-  mapSeed: 123,
+  mapSeed: TEST_MAP_SEED,
   dimensions: TEST_MAP_SIZE.dimensions,
   latitudeBounds: standardMapConfig.latitudeBounds,
 });

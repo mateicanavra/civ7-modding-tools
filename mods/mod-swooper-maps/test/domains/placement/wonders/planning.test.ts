@@ -4,7 +4,7 @@ import { NATURAL_WONDER_CATALOG } from "@civ7/map-policy";
 import { WONDER_GROUPS } from "@mapgen/domain/placement/model/policy/natural-wonder-groups.js";
 import placementDomain from "@mapgen/domain/placement/ops";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
-import { TEST_MAP_SIZE } from "../../../map-size.js";
+import { TEST_MAP_SIZE } from "../../../setup.js";
 
 const { planNaturalWonders, planWonders } = placementDomain.ops;
 

@@ -19,7 +19,7 @@ import {
   buildRiverResourceExclusionMask,
   resolveResourceRegionMinimumRequirement,
 } from "../../../../../../src/recipes/standard/stages/placement/steps/plan-resources/planning.js";
-import { TEST_MAP_SIZE } from "../../../../../map-size.js";
+import { TEST_MAP_SIZE } from "../../../../../setup.js";
 
 /**
  * Rivers product requirement re-expressed in the resources demand pipeline:

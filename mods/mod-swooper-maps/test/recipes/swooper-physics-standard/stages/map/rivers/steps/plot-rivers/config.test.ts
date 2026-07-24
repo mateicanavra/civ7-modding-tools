@@ -4,11 +4,11 @@ import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 
 import mapRiversStage from "../../../../../../../../src/recipes/standard/stages/map/rivers/index.js";
 import { PlotRiversStepContract } from "../../../../../../../../src/recipes/standard/stages/map/rivers/steps/plot-rivers/config.js";
-import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import { standardMapConfig } from "../../../../../fixtures/standard-recipe.js";
 
 const setup = admitMapSetup({
-  mapSeed: 123,
+  mapSeed: TEST_MAP_SEED,
   dimensions: TEST_MAP_SIZE.dimensions,
   latitudeBounds: standardMapConfig.latitudeBounds,
 });

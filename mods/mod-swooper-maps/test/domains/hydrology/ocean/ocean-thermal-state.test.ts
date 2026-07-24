@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import hydrologyOpsPublic from "@mapgen/domain/hydrology/router";
 import { forEachHexNeighborOddQWithDirection } from "@swooper/mapgen-core/lib/grid";
-import { TEST_MAP_SIZE } from "../../../map-size.js";
+import { TEST_MAP_SIZE } from "../../../setup.js";
 
 const { computeOceanThermalState } = hydrologyOpsPublic.ocean.ops;
 function idx(x: number, y: number, width: number): number {

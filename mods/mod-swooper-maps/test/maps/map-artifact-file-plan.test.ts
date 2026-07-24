@@ -18,6 +18,7 @@ import {
   buildStandardRecipeDefaultConfig,
   STANDARD_RECIPE_CONFIG_SCHEMA,
 } from "../../src/recipes/standard/artifacts";
+import { TEST_MAP_SEED } from "../setup.js";
 
 const recipeSchema = STANDARD_RECIPE_CONFIG_SCHEMA;
 const fixtureRecipeConfig = buildStandardRecipeDefaultConfig();
@@ -285,7 +286,7 @@ describe("Swooper map artifact file plan", () => {
     const fixtureConfig = buildFixtureConfig();
     const plan = buildSwooperRunGeneratedModFilePlan({
       config: fixtureConfig.canonicalConfig,
-      seed: 123,
+      seed: TEST_MAP_SEED,
       correlation: {
         requestId: "studio-run-in-game-action-groups",
         runArtifactId: "run-action-groups",

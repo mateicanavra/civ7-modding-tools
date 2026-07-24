@@ -12,7 +12,7 @@ import {
 } from "@swooper/mapgen-core/testing";
 import { PlotCoastsStep } from "../../../../../../../src/recipes/standard/stages/map/morphology/steps/plot-coasts/step.js";
 import { PlotContinentsStep } from "../../../../../../../src/recipes/standard/stages/map/morphology/steps/plot-continents/step.js";
-import { TEST_MAP_SIZE } from "../../../../../../map-size.js";
+import { TEST_MAP_SIZE } from "../../../../../../setup.js";
 
 function shelfFixture(size: number, shelfMask: Uint8Array, coastalWater: Uint8Array) {
   return {

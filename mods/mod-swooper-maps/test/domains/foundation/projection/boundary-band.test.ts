@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import foundation from "@mapgen/domain/foundation/router";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
-import { TEST_MAP_SIZE } from "../../../map-size.js";
+import { TEST_MAP_SIZE } from "../../../setup.js";
 import { runTectonicHistoryChain } from "../tectonics/fixtures/tectonics-history.js";
 
 const { computeMesh } = foundation.mesh.ops;

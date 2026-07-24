@@ -8,7 +8,7 @@ import {
   buildFeatureTypeVizCategories,
   FEATURE_TYPE_NONE_VALUE,
 } from "../../../../../../../src/recipes/standard/stages/map/ecology/steps/features-apply/viz.js";
-import { TEST_MAP_SIZE } from "../../../../../../map-size.js";
+import { TEST_MAP_SIZE } from "../../../../../../setup.js";
 
 describe("features apply viz meta (engine featureType)", () => {
   it("declares explicit stable categories/colors for engine featureType", () => {

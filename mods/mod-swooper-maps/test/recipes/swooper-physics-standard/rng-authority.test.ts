@@ -6,9 +6,7 @@ import { runStandardRecipeTestMap } from "./fixtures/standard-recipe.js";
 
 describe("standard recipe RNG authority", () => {
   it("runs without consuming adapter RNG for authored generation", () => {
-    const seed = 1337;
     const { context } = runStandardRecipeTestMap({
-      seed,
       createAdapter: ({ preset }) =>
         createMockAdapter({
           ...preset.dimensions,

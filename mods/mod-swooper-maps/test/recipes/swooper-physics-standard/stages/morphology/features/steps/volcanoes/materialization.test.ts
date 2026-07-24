@@ -12,7 +12,7 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { VolcanoesStep } from "../../../../../../../../src/recipes/standard/stages/morphology/features/steps/volcanoes/step.js";
-import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 
 describe("morphology-features volcano materialization", () => {
   it("filters invalid and water plans before deriving sorted tectonic evidence", () => {
@@ -34,7 +34,7 @@ describe("morphology-features volcano materialization", () => {
     volcanism[hotspotIndex] = 64;
 
     const setup = admitMapSetup({
-      mapSeed: 424242,
+      mapSeed: TEST_MAP_SEED,
       dimensions: TEST_MAP_SIZE.dimensions,
       latitudeBounds: { topLatitude: 70, bottomLatitude: -70 },
     });

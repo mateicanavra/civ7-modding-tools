@@ -17,7 +17,7 @@ import swooperEarthlikeConfigRaw from "../../../../src/maps/configs/swooper-eart
 import standardRecipe, {
   type StandardRecipeConfig,
 } from "../../../../src/recipes/standard/recipe.js";
-import { TEST_MAP_SIZE } from "../../../map-size.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../setup.js";
 
 type StandardRecipeExecutionOptions = NonNullable<Parameters<typeof standardRecipe.run>[2]>;
 type StandardRecipeTestMapInfoOverrides = Partial<
@@ -44,7 +44,7 @@ export function createStandardRecipeTestConfig(): StandardRecipeConfig {
 export type StandardRecipeTestAdapterInput = Readonly<{
   preset: Civ7StandardMapSizePreset;
   mapInfo: MapInfo;
-  seed: number;
+  mapSeed: number;
 }>;
 
 /** Inputs exposed to narrowly scoped setup performed immediately before recipe execution. */
@@ -56,7 +56,7 @@ export type StandardRecipeTestPreparation<TAdapter extends MockAdapter = MockAda
 
 type StandardRecipeTestBaseOptions = Readonly<{
   presetId?: Civ7StandardMapSizeId;
-  seed: number;
+  mapSeed?: number;
   mapConfig?: StandardMapConfigEnvelope;
   recipeConfig?: StandardRecipeConfig;
   mapInfo?: StandardRecipeTestMapInfoOverrides;
@@ -103,12 +103,12 @@ export function runStandardRecipeTestMap<TAdapter extends MockAdapter>(
   if (options.createAdapter) return runStandardRecipeTestMapWithAdapter(options);
   return runStandardRecipeTestMapWithAdapter({
     ...options,
-    createAdapter: ({ preset, mapInfo, seed }) =>
+    createAdapter: ({ preset, mapInfo, mapSeed }) =>
       createMockAdapter({
         ...preset.dimensions,
         mapInfo,
         mapSizeId: preset.id,
-        rng: createLabelRng(seed),
+        rng: createLabelRng(mapSeed),
       }),
   });
 }
@@ -117,6 +117,7 @@ function runStandardRecipeTestMapWithAdapter<TAdapter extends MockAdapter>(
   options: StandardRecipeTestOptionsWithAdapter<TAdapter>
 ): StandardRecipeTestPreparation<TAdapter> {
   const preset = getCiv7StandardMapSizePreset(options.presetId ?? TEST_MAP_SIZE.id);
+  const mapSeed = options.mapSeed ?? TEST_MAP_SEED;
   const mapConfig = options.mapConfig ?? standardMapConfig;
   const mapInfo: MapInfo = {
     ...preset.mapInfo,
@@ -127,11 +128,11 @@ function runStandardRecipeTestMapWithAdapter<TAdapter extends MockAdapter>(
     MaxLatitude: mapConfig.latitudeBounds.topLatitude,
   };
   const setup = admitMapSetup({
-    mapSeed: options.seed,
+    mapSeed,
     dimensions: preset.dimensions,
     latitudeBounds: mapConfig.latitudeBounds,
   });
-  const adapter = options.createAdapter({ preset, mapInfo, seed: options.seed });
+  const adapter = options.createAdapter({ preset, mapInfo, mapSeed });
   const context = createMapContext({ setup, adapter });
   const preparation = { preset, context, adapter } as const;
   options.prepare?.(preparation);

@@ -8,7 +8,7 @@ import {
 import resources from "@mapgen/domain/resources/router";
 
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
-import { TEST_MAP_SIZE } from "../../../map-size.js";
+import { TEST_MAP_SIZE } from "../../../setup.js";
 
 describe("derive-habitat-fields operation contract", () => {
   const { width, height } = TEST_MAP_SIZE.dimensions;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import morphologyOpsPublic from "@mapgen/domain/morphology/ops";
-import { TEST_MAP_SIZE } from "../../../map-size.js";
+import { TEST_MAP_SIZE } from "../../../setup.js";
 
 const { planFoothills, planRidges } = morphologyOpsPublic.ops;
 function countMask(mask: Uint8Array, start: number, end: number): number {

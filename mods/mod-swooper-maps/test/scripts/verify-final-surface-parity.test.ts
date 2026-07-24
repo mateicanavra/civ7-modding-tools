@@ -24,6 +24,7 @@ import {
   resolveFinalSurfaceParityReplay,
 } from "../../scripts/live/verify-final-surface-parity";
 import { admitStandardMapConfig } from "../../src/maps/configs/canonical";
+import { TEST_GAME_SEED, TEST_MAP_SEED, TEST_MAP_SIZE } from "../setup.js";
 
 const requestId = "studio-run-in-game-test";
 const diagnosticsId = "run-diagnostics-test";
@@ -40,9 +41,9 @@ const canonicalConfig = admitStandardMapConfig({
   config: STANDARD_RECIPE_CONFIG,
 });
 const launchEnvelope = {
-  seed: 1234,
-  gameSeed: -1234,
-  worldSettings: { mapSize: "MAPSIZE_TINY" },
+  seed: TEST_MAP_SEED,
+  gameSeed: TEST_GAME_SEED,
+  worldSettings: { mapSize: TEST_MAP_SIZE.id },
   setupConfig: {
     gameOptions: {},
     mapOptions: {},
@@ -93,9 +94,9 @@ function exactAuthorshipEvidencePacket(
     launchEnvelopeDigest,
     request: {
       recipeId: "mod-swooper-maps/standard",
-      seed: 1234,
-      gameSeed: -1234,
-      mapSize: "MAPSIZE_TINY",
+      seed: TEST_MAP_SEED,
+      gameSeed: TEST_GAME_SEED,
+      mapSize: TEST_MAP_SIZE.id,
     },
     materialization: {
       mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
@@ -114,13 +115,13 @@ function exactAuthorshipEvidencePacket(
     },
     civSetup: {
       mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
-      mapSize: "MAPSIZE_TINY",
-      mapSeed: 1234,
-      gameSeed: -1234,
+      mapSize: TEST_MAP_SIZE.id,
+      mapSeed: TEST_MAP_SEED,
+      gameSeed: TEST_GAME_SEED,
       rowCount: 1,
     },
     runtime: {
-      seed: 1234,
+      seed: TEST_MAP_SEED,
       ...SYNTHETIC_PARITY_DIMENSIONS,
       plotCount: SYNTHETIC_PARITY_CARDINALITY,
       turn: 1,
@@ -132,7 +133,7 @@ function exactAuthorshipEvidencePacket(
       requestId,
       canonicalConfigDigest,
       launchEnvelopeDigest: launchEnvelopeDigest,
-      seed: 1234,
+      seed: TEST_MAP_SEED,
       dimensions: SYNTHETIC_PARITY_DIMENSIONS,
       evidencePayload: {},
       completionPayload: {},

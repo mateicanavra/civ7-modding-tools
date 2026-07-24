@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import foundation from "@mapgen/domain/foundation/router";
 import { buildPlateTopology } from "@swooper/mapgen-core/lib/plates";
-import { TEST_MAP_SIZE } from "../../../map-size.js";
+import { TEST_MAP_SIZE } from "../../../setup.js";
 import {
   deriveMantleForcing,
   derivePlateMotion,

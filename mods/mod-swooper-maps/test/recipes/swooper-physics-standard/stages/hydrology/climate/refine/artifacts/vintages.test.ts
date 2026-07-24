@@ -4,6 +4,7 @@ import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { ArtifactValidationError } from "@swooper/mapgen-core/authoring";
 import { publishTestArtifact, withMapContextExecutionForTest } from "@swooper/mapgen-core/testing";
+import { TEST_MAP_SEED } from "../../../../../../../setup.js";
 
 const SYNTHETIC_DIMENSIONS = { width: 2, height: 2 } as const;
 const SYNTHETIC_CARDINALITY = SYNTHETIC_DIMENSIONS.width * SYNTHETIC_DIMENSIONS.height;
@@ -39,7 +40,7 @@ describe("Standard climate artifact vintages", () => {
   it("fails publication rather than coercing an out-of-domain producer result", () => {
     const mapContext = createMapContext({
       setup: admitMapSetup({
-        mapSeed: 1,
+        mapSeed: TEST_MAP_SEED,
         dimensions: SYNTHETIC_DIMENSIONS,
         latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
       }),

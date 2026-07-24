@@ -72,6 +72,12 @@
         "{workspaceRoot}/vitest.config.ts",
         {
           "env": "SWOOPER_TEST_MAP_SIZE"
+        },
+        {
+          "env": "SWOOPER_TEST_MAP_SEED"
+        },
+        {
+          "env": "SWOOPER_TEST_GAME_SEED"
         }
       ],
       "options": {
@@ -87,6 +93,12 @@
         "^default",
         {
           "env": "SWOOPER_TEST_MAP_SIZE"
+        },
+        {
+          "env": "SWOOPER_TEST_MAP_SEED"
+        },
+        {
+          "env": "SWOOPER_TEST_GAME_SEED"
         }
       ],
       "options": {

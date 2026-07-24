@@ -4,8 +4,6 @@ import type { VizLayerMeta } from "@swooper/mapgen-viz";
 
 import { runStandardRecipeTestMap } from "../fixtures/standard-recipe.js";
 
-const seed = 1337;
-
 describe("standard pipeline viz emissions", () => {
   it("emits expected dataTypeKeys across stages", () => {
     const seenLayers = new Set<string>();
@@ -13,10 +11,7 @@ describe("standard pipeline viz emissions", () => {
       for (const projection of projections) seenLayers.add(projection.dataTypeKey);
     };
 
-    runStandardRecipeTestMap({
-      seed,
-      execution: { facets: { viz: captureViz } },
-    });
+    runStandardRecipeTestMap({ execution: { facets: { viz: captureViz } } });
 
     // Regression guard: never encode temporal slices into `dataTypeKey`.
     // Those should be `variantKey` instead (e.g. `era:<n>`), so the UI can
@@ -75,10 +70,7 @@ describe("standard pipeline viz emissions", () => {
       }
     };
 
-    runStandardRecipeTestMap({
-      seed,
-      execution: { facets: { viz: captureViz } },
-    });
+    runStandardRecipeTestMap({ execution: { facets: { viz: captureViz } } });
 
     const historyBoundaryVariants =
       variantsByKey.get("foundation.history.boundaryType") ?? new Set<string>();
@@ -104,10 +96,7 @@ describe("standard pipeline viz emissions", () => {
       }
     };
 
-    runStandardRecipeTestMap({
-      seed,
-      execution: { facets: { viz: captureViz } },
-    });
+    runStandardRecipeTestMap({ execution: { facets: { viz: captureViz } } });
 
     const plateIdMetas = metasByKey.get("foundation.plates.tilePlateId");
     expect(plateIdMetas?.some((m) => m?.visibility === "default")).toBe(true);

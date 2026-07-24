@@ -95,15 +95,13 @@ class AreaSensitiveLakeAdapter extends MockAdapter {
 
 describe("map-hydrology lakes area/water ordering", () => {
   it("refreshes water caches before recipe-level typed resource materialization", () => {
-    const seed = 1234;
     const { context, adapter } = runStandardRecipeTestMap({
-      seed,
-      createAdapter: ({ preset }) =>
+      createAdapter: ({ preset, mapSeed }) =>
         new AreaSensitiveLakeAdapter({
           ...preset.dimensions,
           mapInfo: { ...preset.mapInfo },
           mapSizeId: preset.id,
-          rng: createLabelRng(seed),
+          rng: createLabelRng(mapSeed),
         }),
       prepare: ({ adapter, preset }) => {
         const flatTerrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_FLAT;

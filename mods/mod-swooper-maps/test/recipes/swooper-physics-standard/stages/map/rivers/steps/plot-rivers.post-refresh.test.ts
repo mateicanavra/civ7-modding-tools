@@ -17,7 +17,7 @@ import {
 } from "@swooper/mapgen-core/testing";
 import { artifacts as mapRiversArtifacts } from "../../../../../../../src/recipes/standard/stages/map/rivers/artifacts/index.js";
 import { PlotRiversStep } from "../../../../../../../src/recipes/standard/stages/map/rivers/steps/plot-rivers/step.js";
-import { TEST_MAP_SIZE } from "../../../../../../map-size.js";
+import { TEST_MAP_SIZE } from "../../../../../../setup.js";
 
 class RiverCacheRefreshAdapter extends MockAdapter {
   private cachedWater: Uint8Array;

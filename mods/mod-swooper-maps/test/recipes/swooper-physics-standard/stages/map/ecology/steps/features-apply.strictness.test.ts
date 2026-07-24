@@ -13,6 +13,7 @@ import {
 } from "@swooper/mapgen-core/testing";
 import { artifacts as mapEcologyArtifacts } from "../../../../../../../src/recipes/standard/stages/map/ecology/artifacts/index.js";
 import { FeaturesApplyStep as featuresApplyStep } from "../../../../../../../src/recipes/standard/stages/map/ecology/steps/features-apply/step.js";
+import { TEST_MAP_SEED } from "../../../../../../setup.js";
 
 const SYNTHETIC_DIMENSIONS = { width: 2, height: 2 } as const;
 
@@ -20,7 +21,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
   it("fails loudly when intents contain unknown feature keys", () => {
     const { width, height } = SYNTHETIC_DIMENSIONS;
     const setup = admitMapSetup({
-      mapSeed: 0,
+      mapSeed: TEST_MAP_SEED,
       dimensions: SYNTHETIC_DIMENSIONS,
       latitudeBounds: { topLatitude: 1, bottomLatitude: -1 },
     });
@@ -72,7 +73,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
   it("keeps canHaveFeature rejections non-fatal and publishes diagnostics", () => {
     const { width, height } = SYNTHETIC_DIMENSIONS;
     const setup = admitMapSetup({
-      mapSeed: 0,
+      mapSeed: TEST_MAP_SEED,
       dimensions: SYNTHETIC_DIMENSIONS,
       latitudeBounds: { topLatitude: 1, bottomLatitude: -1 },
     });
@@ -141,7 +142,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
   it("publishes the complete engine surface after terrain validation", () => {
     const { width, height } = SYNTHETIC_DIMENSIONS;
     const setup = admitMapSetup({
-      mapSeed: 0,
+      mapSeed: TEST_MAP_SEED,
       dimensions: SYNTHETIC_DIMENSIONS,
       latitudeBounds: { topLatitude: 1, bottomLatitude: -1 },
     });

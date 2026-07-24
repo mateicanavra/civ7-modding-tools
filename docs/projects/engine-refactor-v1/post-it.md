@@ -11,12 +11,25 @@ their destination kind is sealed.
 law -> source conformance -> verification. A niche may refine a kind but may not
 recreate, weaken, or hardcode its membership.
 
-**Current container:** Operation envelopes, named typed-array cardinality, and
-strategy authorship are sealed as positive kinds. Every semantic strategy owns
+**Current container:** Hydrology's module hierarchy, module policy boundary,
+closed module contract surfaces, and the strategy-authoring scaffolds are
+sealed. Active attention is the mod-local test setup authority: one switchable
+Civ7 preset, one map-seed default, and one deliberately distinct game-seed
+default for tests whose subject is not size or seed. Operation-local `rngSeed`
+remains derived entropy rather than setup identity, and production `MapSetup`
+does not pretend to carry game seed before the initial-setup authority layer
+actually admits it. Operation envelopes, named typed-array cardinality, and
+strategy authorship remain sealed as positive kinds. Every semantic strategy owns
 `strategies/<semantic-id>/{config.ts,index.ts}`; the operation contract remains
 the sole shared input/output authority; one strategy is necessarily the default
 and multiple strategies name their default explicitly. Core's obsolete
 schema-map, string-id, and implementation-map compatibility paths are deleted.
+Each module's paired `ops/contract.ts` and `ops/index.ts` is an intentional
+declaration/runtime phase boundary: contract composition never imports runtime
+implementations, while the implementation registry is typed exactly against
+the singular contract registry. Tests mirror semantic ownership: domain-wide
+behavior stays at the domain level and module/operation behavior descends to
+its actual module concern, never a generic operations cabinet.
 Ecology is sealed as semantic modules for pedology, biomes, features, and plot
 effects. Hydrology is sealed as climate, ocean, cryosphere, and hydrography
 modules. Engine-constrained river materialization belongs to map-rivers rather
@@ -37,11 +50,9 @@ state is adapter observation; metrics, diagnostics, trace, and visualization
 are separate capabilities. Core owns the generic authoring/execution and
 domain-composition SDK, not Swooper's domain model.
 
-**Gradient:** land the completed Hydrology hierarchy after its native Nx and
-focused kind proof, then seal the small strategy-authority wording/fixture
-cleanup as its own layer. Establish one mod-local test setup authority for the
-switchable Civ7 map-size, map-seed, and game-seed defaults while preserving
-explicit opt-outs for tests whose subject is size or seed. Then recompose
+**Gradient:** seal the mod-local test setup authority through the native Nx
+graph, preserving explicit opt-outs for tests whose subject is size, setup
+admission, seed correlation, or derived operation entropy. Then recompose
 Morphology into terrain, coasts, routing, erosion, landforms, and shelf modules,
 retaining producer-owned immutable topography vintages and burning its existing
 JSDoc baseline to zero. Placement waits for its protected user edit. Prove each
@@ -88,6 +99,12 @@ produce materially different work.
 **Protected context:** A.2 remains separate. User-owned root configuration,
 map-config edits, NOTE files, and unrelated worktrees stay outside this
 program's semantic cuts.
+
+**Generic primitive boundary:** Core may own only mechanically generic
+primitives such as clamps, hashes, interpolation/mixes, vectors, and grid/index
+mechanics. Humidity, rainfall, currents, river classes, and other semantic
+concepts remain with their owning domain or module; deduplication never grants
+Core ownership of domain meaning.
 
 <details>
 <summary>Prior focus pivots</summary>

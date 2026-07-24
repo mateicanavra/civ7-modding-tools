@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { biomeSymbolFromIndex } from "@mapgen/domain/ecology";
 import ecology from "@mapgen/domain/ecology/router";
 import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
-import { TEST_MAP_SIZE } from "../../../map-size.js";
+import { TEST_MAP_SIZE } from "../../../setup.js";
 
 describe("classifyBiomes operation", () => {
   it("maps temperature + moisture into biome symbols", () => {
@@ -69,9 +69,7 @@ describe("classifyBiomes operation", () => {
     expect(result.vegetationDensity.length).toBe(size);
     expect(result.effectiveMoisture.length).toBe(size);
 
-    expect(biomeSymbolFromIndex(result.biomeIndex[sampleTiles[0]!]!)).toBe(
-      "tropicalRainforest"
-    );
+    expect(biomeSymbolFromIndex(result.biomeIndex[sampleTiles[0]!]!)).toBe("tropicalRainforest");
     expect(biomeSymbolFromIndex(result.biomeIndex[sampleTiles[2]!]!)).toBe("temperateDry");
     expect(biomeSymbolFromIndex(result.biomeIndex[sampleTiles[3]!]!)).toBe("desert");
     expect(biomeSymbolFromIndex(result.biomeIndex[sampleTiles[4]!]!)).toBe("snow");
@@ -122,9 +120,7 @@ describe("classifyBiomes operation", () => {
     const localSmoothing = runWithRadius(1);
     const broadSmoothing = runWithRadius(3);
 
-    expect(biomeSymbolFromIndex(localSmoothing.biomeIndex[center]!)).toBe(
-      "tropicalRainforest"
-    );
+    expect(biomeSymbolFromIndex(localSmoothing.biomeIndex[center]!)).toBe("tropicalRainforest");
     expect(biomeSymbolFromIndex(broadSmoothing.biomeIndex[center]!)).toBe("temperateDry");
     expect(localSmoothing.biomeIndex[waterTile]).toBe(255);
     expect(broadSmoothing.biomeIndex[waterTile]).toBe(255);

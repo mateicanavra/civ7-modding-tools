@@ -3,7 +3,7 @@ import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "@mapgen/domain/resources";
 import resources from "@mapgen/domain/resources/router";
 
 import { normalizeOperationSelectionForTest, TestCompileError } from "@swooper/mapgen-core/testing";
-import { TEST_MAP_SIZE } from "../../../../map-size.js";
+import { TEST_MAP_SIZE } from "../../../../setup.js";
 
 const TERRESTRIAL_RESOURCE_TYPES = [
   "RESOURCE_CAMELS",
