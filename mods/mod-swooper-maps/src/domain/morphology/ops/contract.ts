@@ -18,6 +18,7 @@ import PlanRoughLandsContract from "./plan-rough-lands/contract.js";
 import PlanVolcanoesContract from "./plan-volcanoes/contract.js";
 import ReconcileHeightfieldFromCoastContract from "./reconcile-heightfield-from-coast/contract.js";
 
+/** Canonical Morphology operation contracts keyed by their stable runtime identities. */
 const contracts = {
   computeBaseTopography: ComputeBaseTopographyContract,
   computeBeltDrivers: ComputeBeltDriversContract,
