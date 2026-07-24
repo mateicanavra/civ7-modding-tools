@@ -1,0 +1,19 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "mapgen-core-authoring-root"
+root = "packages/mapgen-core/src/authoring"
+kind = "directory"
+mode = "closed"
+required = [
+  "index.ts",
+  "contracts.ts",
+  "artifact",
+  "domain",
+  "operation",
+  "recipe",
+  "schema",
+  "snapshot",
+  "stage",
+  "step",
+]

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "require_mapgen_authoring_source_topology",
+  "title": "Require MapGen Authoring Source Topology",
+  "placement": {
+    "niche": "civ7/mapgen/sdk/core",
+    "blueprint": "_self",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mapgen-core",
+  "lane": "advisory",
+  "forbids": "MapGen Core authoring concepts or private implementation files drifting outside the package-specific authoring SDK grammar",
+  "why": "The authoring SDK root mirrors its stable grammar so authors can see artifact, domain, operation, recipe, schema, snapshot, stage, and step as distinct concepts while only public facades remain as root files.",
+  "remediate": "Keep index.ts and contracts.ts as the root facades, move implementation into its owning authoring concept directory, and preserve existing published specifiers while the internals are recomposed.",
+  "message": "MapGen Core authoring sources must match the package-specific authoring SDK topology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["packages/mapgen-core/src/authoring"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/sdk/core/rules/require_mapgen_authoring_source_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/civ7/mapgen/sdk/core/rules/require_mapgen_authoring_source_topology/structure.toml"
+    }
+  }
+}
