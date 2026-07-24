@@ -5,7 +5,7 @@ import { type Artifact, assertArtifact } from "../artifact/contract.js";
 import { isCanonicalOpContract } from "../operation/contract.js";
 import { buildOpEnvelopeSchema } from "../operation/envelope.js";
 import type { OpTypeBagOf } from "../operation/types.js";
-import { applySchemaConventions } from "../schema.js";
+import { applySchemaConventions } from "../schema/conventions.js";
 import { freezeContractGraph, snapshotContractGraph } from "../snapshot/contract-graph.js";
 import { registerCanonicalStepContractInternal } from "./authority.js";
 import { assertNoStepStageIdentityAliases } from "./identity.js";
@@ -171,7 +171,7 @@ function normalizeOpsDecl<const Ops extends StepOpsDeclInput>(input: {
       contract.strategies,
       defaultStrategy
     );
-    applySchemaConventions(config, `op:${contract.id}.config`);
+    applySchemaConventions(config);
 
     const declaration = {
       ...contract,
@@ -598,7 +598,7 @@ export function defineStep(def: any): any {
     `step "${stepId}" schema`
   ) as TObject;
   const schema = ops ? buildSchemaWithOps({ stepId, schema: declaredSchema, ops }) : declaredSchema;
-  applySchemaConventions(schema, `step:${stepId}.schema`);
+  applySchemaConventions(schema);
 
   const contract = {
     id: stepId,

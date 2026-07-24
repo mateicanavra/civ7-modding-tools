@@ -4,9 +4,9 @@ This file defines the generic component owners admitted under
 `packages/mapgen-core/test`.
 
 - `authoring/artifact`, `authoring/operation`, `authoring/step`,
-  `authoring/stage`, and `authoring/recipe` own their corresponding public
-  authoring components and laws; `authoring/snapshot` owns descriptor-safe
-  caller-data capture and contract-graph detachment.
+  `authoring/stage`, `authoring/recipe`, and `authoring/schema` own their
+  corresponding authoring components and laws; `authoring/snapshot` owns
+  descriptor-safe caller-data capture and contract-graph detachment.
 - `compiler` owns normalization and compilation behavior.
 - `engine/*.test.ts` owns generic planning, dependency gating, execution, tag,
   and tracing behavior.
@@ -26,7 +26,9 @@ check that includes the relevant type cases.
 ## Current Runtime Schema Capability
 
 `TypedArraySchemas` uses `Type.Unsafe(Type.Any(...))` for raw structural typing and adds
-enumerable `x-runtime` metadata for the exact constructor and input-relative cardinality.
+enumerable `x-runtime` metadata for the exact constructor and input-relative cardinality. The
+schema owner also provides the sole exact-constructor registry and runtime guards; TypeBox's
+`instanceof`-based global guards cannot replace the subclass-refusing MapGen boundary.
 `createOp` compiles that metadata once, admits every annotated input before the selected strategy
 runs, and exposes admitted buffer types only inside the opaque strategy descriptor. Operation
 callers continue to provide raw typed arrays. Output validation remains outside this boundary.

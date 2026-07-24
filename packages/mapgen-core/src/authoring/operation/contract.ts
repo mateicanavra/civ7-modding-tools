@@ -1,6 +1,6 @@
 import type { SingleKeyObject } from "type-fest";
 import type { TSchema, TUnsafe } from "typebox";
-import { applySchemaConventions } from "../schema.js";
+import { applySchemaConventions } from "../schema/conventions.js";
 import { freezeContractGraph, snapshotContractGraph } from "../snapshot/contract-graph.js";
 import {
   captureOwnDataArray,
@@ -203,8 +203,8 @@ export function defineOp(definitionInput: any): any {
 
   const input = snapshotContractGraph(authoredInput, `op:${id}.input`) as TSchema;
   const output = snapshotContractGraph(authoredOutput, `op:${id}.output`) as TSchema;
-  applySchemaConventions(input, `op:${id}.input`);
-  applySchemaConventions(output, `op:${id}.output`);
+  applySchemaConventions(input);
+  applySchemaConventions(output);
   const strategyDefinitionAuthority = Object.freeze(
     authoredStrategyDefinitions.map(({ key, value }) => Object.freeze({ key, value }))
   );
@@ -215,7 +215,7 @@ export function defineOp(definitionInput: any): any {
     strategies,
     defaultStrategy
   );
-  applySchemaConventions(configSchema, `op:${id}.config`);
+  applySchemaConventions(configSchema);
 
   const contract = {
     kind,

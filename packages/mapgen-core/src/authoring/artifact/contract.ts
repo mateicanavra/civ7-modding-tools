@@ -1,7 +1,7 @@
 import type { ReadonlyDeep } from "type-fest";
 import type { Static, TSchema } from "typebox";
 
-import { applySchemaConventions } from "../schema.js";
+import { applySchemaConventions } from "../schema/conventions.js";
 import {
   type ArtifactRefinement,
   type ArtifactValidator,
@@ -204,7 +204,7 @@ export function defineArtifact<
   const name = admitted.name as Name;
   const id = admitted.id as Id;
   const schema = admitted.schema as Schema;
-  applySchemaConventions(schema, `artifact:${id}`);
+  applySchemaConventions(schema);
   freezeSchemaGraph(schema);
   const validate = createArtifactValidatorInternal(
     schema,

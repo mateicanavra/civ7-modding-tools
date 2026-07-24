@@ -8,8 +8,8 @@ import {
   Type,
 } from "typebox";
 import { Value } from "typebox/value";
-import { assertCompleteRecipeConfigSchema } from "./recipe-config-schema.js";
-import { applySchemaConventions } from "./schema.js";
+import { assertCompleteConfigSchema } from "./schema/config.js";
+import { applySchemaConventions } from "./schema/conventions.js";
 import { RESERVED_STAGE_KEY } from "./stage/reserved-key.js";
 import {
   type EmptyStageConfig,
@@ -306,8 +306,8 @@ export function createStage(def: RuntimeStageDefinition): StageObservation {
     throw new Error(`stage("${stageId}") defines "public" but does not define "compile"`);
   }
 
-  if (def.knobsSchema) applySchemaConventions(def.knobsSchema, `stage:${def.id}.knobs`);
-  if (def.public) applySchemaConventions(def.public, `stage:${def.id}.public`);
+  if (def.knobsSchema) applySchemaConventions(def.knobsSchema);
+  if (def.public) applySchemaConventions(def.public);
 
   for (const step of def.steps) {
     assertSchema(step.contract.schema, step.contract.id, stageId);
@@ -316,7 +316,7 @@ export function createStage(def: RuntimeStageDefinition): StageObservation {
   const surfaceSchema = isCompiled
     ? buildPublicSurfaceSchema(stageId, def.public ?? EMPTY_STAGE_SCHEMA, def.knobsSchema)
     : buildInternalAsPublicSurfaceSchema(stageId, def.steps, def.knobsSchema);
-  assertCompleteRecipeConfigSchema(surfaceSchema, `stage/${def.id}`);
+  assertCompleteConfigSchema(surfaceSchema, `stage/${def.id}`);
   const authoring = buildStageAuthoringModel({
     stageId,
     steps: def.steps,

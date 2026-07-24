@@ -1,6 +1,6 @@
 import type { IsStringLiteral, IsUnion } from "type-fest";
 import type { TSchema } from "typebox";
-import { applySchemaConventions } from "../schema.js";
+import { applySchemaConventions } from "../schema/conventions.js";
 import { snapshotContractGraph } from "../snapshot/contract-graph.js";
 import { captureOwnDataRecord } from "../snapshot/own-data.js";
 
@@ -69,8 +69,7 @@ function defineStrategyDefinition<Id extends string, ConfigSchema extends TSchem
   }
   const id = assertSemanticStrategyId(idEntry.value) as Id;
   const config = applySchemaConventions(
-    snapshotContractGraph(configEntry.value, `strategy:${id}.config`) as ConfigSchema,
-    `strategy:${id}.config`
+    snapshotContractGraph(configEntry.value, `strategy:${id}.config`) as ConfigSchema
   ) as ConfigSchema;
   const strategyDefinition = Object.freeze({ id, config });
   strategyDefinitionAuthority.add(strategyDefinition);

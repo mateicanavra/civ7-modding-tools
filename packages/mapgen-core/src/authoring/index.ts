@@ -89,6 +89,7 @@ export {
   defineStrategy,
   OperationInputAdmissionError,
 } from "./operation/index.js";
+export { deriveRecipeConfigSchema } from "./recipe/config-schema.js";
 export type {
   CompiledRecipeConfigOf,
   RecipeConfig,
@@ -97,7 +98,6 @@ export type {
   RecipePublicConfigOf,
 } from "./recipe/types.js";
 export { createRecipe } from "./recipe.js";
-export { deriveRecipeConfigSchema } from "./recipe-config-schema.js";
 export type {
   BuildRecipeDagInput,
   RecipeDag,
@@ -112,6 +112,25 @@ export type {
 } from "./recipe-dag.js";
 export { buildRecipeDag } from "./recipe-dag.js";
 export { stripSchemaMetadataRoot } from "./sanitize-config-root.js";
+export {
+  assertFloat32Array,
+  assertInt8Array,
+  assertInt16Array,
+  assertInt32Array,
+  assertTypedArrayOf,
+  assertUint8Array,
+  assertUint16Array,
+  assertUint32Array,
+  isFloat32Array,
+  isInt8Array,
+  isInt16Array,
+  isInt32Array,
+  isTypedArrayOf,
+  isUint8Array,
+  isUint16Array,
+  isUint32Array,
+  TypedArraySchemas,
+} from "./schema/typed-array.js";
 export type {
   Stage,
   StageAuthoringConfigLayer,
@@ -136,22 +155,3 @@ export type {
   StepDeps,
   StepModule,
 } from "./step/types.js";
-export { TypedArraySchemas } from "./typed-array-schemas.js";
-export {
-  assertFloat32Array,
-  assertInt8Array,
-  assertInt16Array,
-  assertInt32Array,
-  assertTypedArrayOf,
-  assertUint8Array,
-  assertUint16Array,
-  assertUint32Array,
-  isFloat32Array,
-  isInt8Array,
-  isInt16Array,
-  isInt32Array,
-  isTypedArrayOf,
-  isUint8Array,
-  isUint16Array,
-  isUint32Array,
-} from "./typed-arrays.js";

@@ -29,5 +29,5 @@ export { defineOp } from "./operation/contract.js";
 export type { StrategyDefinition } from "./operation/strategy-definition.js";
 export { defineStrategy } from "./operation/strategy-definition.js";
 export type { OpTypeBagOf } from "./operation/types.js";
+export { TypedArraySchemas } from "./schema/typed-array.js";
 export { defineStep } from "./step/contract.js";
-export { TypedArraySchemas } from "./typed-array-schemas.js";

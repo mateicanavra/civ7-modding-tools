@@ -5,12 +5,15 @@ import type {
   TTypedArraySchema,
   TypedArrayCardinality,
   TypedArrayCardinalityPaths,
-} from "../typed-array-schemas.js";
+} from "../schema/typed-array.js";
 import {
+  isSupportedTypedArrayName,
   isTypedArrayOf,
   type SupportedTypedArray,
+  type SupportedTypedArrayName,
   type TypedArrayConstructor,
-} from "../typed-arrays.js";
+  typedArrayConstructorFor,
+} from "../schema/typed-array.js";
 
 type PropertyPathSegment = Readonly<{
   kind: "property";
@@ -34,18 +37,6 @@ type TypedArrayRuntimeMetadata = Readonly<{
   ctor: SupportedTypedArrayName;
   cardinality: TypedArrayRuntimeCardinality;
 }>;
-
-type SupportedTypedArrayName = keyof typeof supportedTypedArrayConstructors;
-
-const supportedTypedArrayConstructors = Object.freeze({
-  Uint8Array,
-  Int8Array,
-  Uint16Array,
-  Uint32Array,
-  Int16Array,
-  Int32Array,
-  Float32Array,
-});
 
 type TypedArrayAdmissionCardinality =
   | Readonly<{ mode: "constructor-only" }>
@@ -365,7 +356,7 @@ function compileAlternative(
         });
   return Object.freeze({
     constructorName: metadata.ctor,
-    constructor: supportedTypedArrayConstructors[metadata.ctor],
+    constructor: typedArrayConstructorFor(metadata.ctor),
     cardinality,
   });
 }
@@ -434,11 +425,7 @@ function readTypedArrayMetadata(schema: TSchema): TypedArrayRuntimeMetadata | nu
   if (!hasOwn(runtime, "kind") || runtime.kind !== "typed-array") {
     throw new Error("Operation typed-array metadata kind must be an own property");
   }
-  if (
-    !hasOwn(runtime, "ctor") ||
-    typeof runtime.ctor !== "string" ||
-    !hasOwn(supportedTypedArrayConstructors, runtime.ctor)
-  ) {
+  if (!hasOwn(runtime, "ctor") || !isSupportedTypedArrayName(runtime.ctor)) {
     throw new Error(`Unsupported operation typed-array constructor: ${String(runtime.ctor)}`);
   }
   if (!hasOwn(runtime, "cardinality")) {
@@ -448,11 +435,11 @@ function readTypedArrayMetadata(schema: TSchema): TypedArrayRuntimeMetadata | nu
   if (cardinality === "constructor-only") {
     return {
       kind: "typed-array",
-      ctor: runtime.ctor as SupportedTypedArrayName,
+      ctor: runtime.ctor,
       cardinality: Object.freeze({ mode: "constructor-only" }),
     };
   }
-  const constructorName = runtime.ctor as SupportedTypedArrayName;
+  const constructorName = runtime.ctor;
   const relation = readTypedArrayCardinality(cardinality, constructorName);
   return {
     kind: "typed-array",
