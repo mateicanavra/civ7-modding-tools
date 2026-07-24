@@ -1,5 +1,5 @@
 import type { Artifact } from "./artifact/contract.js";
-import { assertStageIds } from "./stage.js";
+import { assertStageIds } from "./stage/identity.js";
 
 export type RecipeDagArtifactRef = Readonly<{
   id: string;

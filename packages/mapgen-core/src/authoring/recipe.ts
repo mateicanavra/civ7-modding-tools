@@ -33,8 +33,8 @@ import type {
   RecipeModule,
   RecipePublicConfigOf,
 } from "./recipe/types.js";
+import { assertStageIds } from "./stage/identity.js";
 import type { StageObservation } from "./stage/types.js";
-import { assertStageIds } from "./stage.js";
 import {
   copyCanonicalStepAuthorityInternal,
   isCanonicalStepContractInternal,

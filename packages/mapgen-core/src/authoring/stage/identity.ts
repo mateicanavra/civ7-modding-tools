@@ -12,3 +12,22 @@ export function assertStageId(value: unknown): asserts value is string {
     throw new TypeError(`stage id "${String(value)}" must be kebab-case (e.g. "map-hydrology")`);
   }
 }
+
+/**
+ * Admits the unique stage identities used by recipe composition.
+ *
+ * Identity validation happens before recipe compilation because later authoring and execution
+ * projections index each stage by this key.
+ *
+ * @internal
+ */
+export function assertStageIds(stageIds: readonly string[]): void {
+  const admitted = new Set<string>();
+  for (const stageId of stageIds) {
+    assertStageId(stageId);
+    if (admitted.has(stageId)) {
+      throw new Error(`duplicate stage id "${stageId}"`);
+    }
+    admitted.add(stageId);
+  }
+}

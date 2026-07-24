@@ -1,9 +1,4 @@
-import type {
-  RecipeModule,
-  Stage,
-  StageModule,
-  StageObservation,
-} from "@mapgen/authoring/index.js";
+import type { RecipeModule, StageObservation } from "@mapgen/authoring/index.js";
 import {
   createRecipe,
   createStage,
@@ -131,15 +126,6 @@ const genericStages: readonly StageObservation[] = [
   PublicWithKnobsStage,
 ];
 const genericEmptyInternal: StageObservation = EmptyInternalStage;
-const legacyStage: Stage<typeof TypeTestStage.steps, typeof TypeTestStage.knobsSchema, undefined> =
-  TypeTestStage;
-const legacyStageModule: StageModule<
-  typeof TypeTestStage.id,
-  typeof TypeTestStage.knobsSchema,
-  ReturnType<typeof TypeTestStage.toInternal>["knobs"],
-  typeof TypeTestStage.steps,
-  undefined
-> = TypeTestStage;
 
 type ConfigurationlessCompileInput = Parameters<typeof ConfigurationlessStage.compile>[0];
 const nonemptyStageInput = { extra: true } as const;
@@ -176,8 +162,6 @@ void PublicWithoutKnobsStage;
 void PublicWithKnobsStage;
 void genericStages;
 void genericEmptyInternal;
-void legacyStage;
-void legacyStageModule;
 
 const EmptyInternalRecipe = createRecipe({
   id: "test.empty-internal-recipe",

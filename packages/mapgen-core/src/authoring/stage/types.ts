@@ -160,34 +160,6 @@ export type StageContract<
 > = StageDef<Id, KnobsSchema, TSteps, PublicSchema, Compiled> &
   StageRuntimeView<Id, TSteps, StageKnobsOf<KnobsSchema>>;
 
-type LegacyStageCompileFn<PublicSchema extends TObject, StepId extends string, Knobs> = (args: {
-  setup: MapSetup;
-  knobs: Knobs;
-  config: Static<PublicSchema>;
-}) => Partial<Record<StepId, unknown>>;
-
-type LegacyStageContract<
-  Id extends string,
-  KnobsSchema extends TObject,
-  Knobs,
-  TSteps extends StageStepList,
-  PublicSchema extends TObject | undefined,
-> = Readonly<{
-  id: Id;
-  steps: TSteps;
-  knobsSchema: KnobsSchema;
-}> &
-  (PublicSchema extends TObject
-    ? Readonly<{
-        public: PublicSchema;
-        compile: LegacyStageCompileFn<PublicSchema, NonReservedStepIdOf<TSteps>, Knobs>;
-      }>
-    : Readonly<{
-        public?: undefined;
-        compile?: undefined;
-      }>) &
-  StageRuntimeView<Id, TSteps, Knobs>;
-
 type RecipeStepObservation = Readonly<{
   contract: Readonly<{
     id: string;
@@ -203,26 +175,7 @@ type RecipeStepObservation = Readonly<{
   viz?: (...args: never[]) => unknown;
 }>;
 
-/** Backward-compatible authored stage contract surface retained for SDK consumers. */
-export type StageContractAny = LegacyStageContract<any, any, any, any, any>;
-
 /** Normalized stage observation accepted by recipe composition regardless of authoring shape. */
 export type StageObservation<
   TSteps extends readonly RecipeStepObservation[] = readonly RecipeStepObservation[],
 > = StageRuntimeView<string, TSteps, unknown>;
-
-/** Backward-compatible authored stage alias with its established generic positions. */
-export type Stage<
-  TSteps extends StageStepList = StageStepList,
-  KnobsSchema extends TObject = TObject,
-  PublicSchema extends TObject | undefined = TObject | undefined,
-> = LegacyStageContract<any, KnobsSchema, Static<KnobsSchema>, TSteps, PublicSchema>;
-
-/** Backward-compatible authored stage module alias retaining established generic positions. */
-export type StageModule<
-  Id extends string = string,
-  KnobsSchema extends TObject = TObject,
-  Knobs = Static<KnobsSchema>,
-  TSteps extends StageStepList = StageStepList,
-  PublicSchema extends TObject | undefined = undefined,
-> = LegacyStageContract<Id, KnobsSchema, Knobs, TSteps, PublicSchema>;

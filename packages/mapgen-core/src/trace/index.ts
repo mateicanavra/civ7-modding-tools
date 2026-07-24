@@ -1,4 +1,4 @@
-import { StageIdSchema } from "@mapgen/authoring/stage-id.js";
+import { StageIdSchema } from "@mapgen/authoring/stage/identity.js";
 import { encodeUtf8 } from "@mapgen/lib/encoding/utf8.js";
 import { Type } from "typebox";
 

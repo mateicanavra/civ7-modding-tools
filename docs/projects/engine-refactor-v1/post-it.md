@@ -29,8 +29,11 @@ owners now conform. Dead operation schema, reference, and declaration-only
 strategy surfaces have retired rather than moving forward. Schema convention,
 complete authored-configuration admission, and exact typed-array identity now
 share the schema owner, while recipe-specific surface projection remains with
-the recipe. The remaining five topology diagnostics are the next migration
-inventory rather than a reason to reopen those sealed boundaries.
+the recipe. Stage creation, identity, and authoring metadata now share the stage
+owner; its public facade exposes the supported stage surface while recipe
+composition alone uses the multi-stage identity assertion. The remaining three
+topology diagnostics are the next migration inventory rather than a reason to
+reopen those sealed boundaries.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7

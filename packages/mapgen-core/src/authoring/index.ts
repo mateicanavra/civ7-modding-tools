@@ -132,16 +132,17 @@ export {
   TypedArraySchemas,
 } from "./schema/typed-array.js";
 export type {
-  Stage,
   StageAuthoringConfigLayer,
   StageAuthoringModel,
   StageAuthoringRuntimeStep,
-  StageContractAny,
-  StageModule,
   StageObservation,
-} from "./stage/types.js";
-export { createStage, deriveStageAuthoringModel } from "./stage.js";
-export { assertStageId, StageIdSchema } from "./stage-id.js";
+} from "./stage/index.js";
+export {
+  assertStageId,
+  createStage,
+  deriveStageAuthoringModel,
+  StageIdSchema,
+} from "./stage/index.js";
 export type {
   OpContractAny,
   StepContract,

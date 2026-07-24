@@ -8,9 +8,10 @@ import {
   Type,
 } from "typebox";
 import { Value } from "typebox/value";
-import { assertCompleteConfigSchema } from "./schema/config.js";
-import { applySchemaConventions } from "./schema/conventions.js";
-import { RESERVED_STAGE_KEY } from "./stage/reserved-key.js";
+import { assertCompleteConfigSchema } from "../schema/config.js";
+import { applySchemaConventions } from "../schema/conventions.js";
+import { assertStageId } from "./identity.js";
+import { RESERVED_STAGE_KEY } from "./reserved-key.js";
 import {
   type EmptyStageConfig,
   type StageAuthoringModel,
@@ -19,8 +20,7 @@ import {
   type StageObservation,
   type StageStepList,
   type StageToInternalResult,
-} from "./stage/types.js";
-import { assertStageId } from "./stage-id.js";
+} from "./types.js";
 
 function assertSchema(value: unknown, stepId?: string, stageId?: string): void {
   if (value == null) {
@@ -31,24 +31,6 @@ function assertSchema(value: unknown, stepId?: string, stageId?: string): void {
 }
 
 const STEP_ID_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-
-/**
- * Admits the stage identities used by recipe composition.
- *
- * Stage IDs share the authoring identifier grammar with step IDs so they remain safe inside
- * dotted execution identities and path-like presentation keys. A recipe may contain each stage
- * identity exactly once because later compilation indexes stages by that identity.
- */
-export function assertStageIds(stageIds: readonly string[]): void {
-  const admitted = new Set<string>();
-  for (const stageId of stageIds) {
-    assertStageId(stageId);
-    if (admitted.has(stageId)) {
-      throw new Error(`duplicate stage id "${stageId}"`);
-    }
-    admitted.add(stageId);
-  }
-}
 
 function assertKebabCaseStepIds(input: { stageId: string; stepIds: readonly string[] }): void {
   for (const id of input.stepIds) {
@@ -298,7 +280,7 @@ export function createStage(def: RuntimeStageDefinition): StageObservation {
   const isCompiled = typeof def.compile === "function";
   const compile = def.compile;
   const stepIds = def.steps.map((step) => step.contract.id);
-  assertStageIds([stageId]);
+  assertStageId(stageId);
   assertNoReservedStageKeys({ stageId, stepIds, publicSchema: def.public });
   assertKebabCaseStepIds({ stageId, stepIds });
 
@@ -345,6 +327,12 @@ export function createStage(def: RuntimeStageDefinition): StageObservation {
   return { ...def, surfaceSchema, authoring, toInternal } as StageObservation;
 }
 
+/**
+ * Projects the stable authoring metadata attached when a stage is admitted.
+ *
+ * Consumers use this view to describe author-facing configuration without inspecting the stage's
+ * compile function or rebuilding its step-to-config focus paths.
+ */
 export function deriveStageAuthoringModel<TStage extends Pick<StageObservation, "authoring">>(
   stage: TStage
 ): TStage["authoring"] {
