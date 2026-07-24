@@ -2,40 +2,29 @@
 
 ## Rolling Focus
 
-**Frame:** grammar before relocation. Recompose MapGen Core's authoring SDK from
-the concepts it promises authors, encode that package-specific grammar as a
-small positive niche law, then move implementation behind those stable public
-surfaces. Physical source moves are violation evidence until their destination
-concept is explicit.
+**Frame:** intent before test mechanics. A test earns its place by proving
+behavior that its named owner can change; SDK admission guarantees stay with
+the SDK, product targets stay with metrics studies, and exact operation,
+artifact, policy, module, and cross-module behaviors descend to those owners.
+Relocation follows classification, and deletion wins over a more elegant home
+for the wrong test category.
 
-**Authority order:** authoring model -> package ownership -> niche topology law
--> red corpus -> component burn-down -> verification. This container does not
-invent a generic library blueprint: it describes one SDK's stable grammar while
-preserving its published specifiers.
+**Authority order:** production behavior -> existing guarantee -> narrowest
+semantic owner -> test fixture -> recursive test topology -> verification.
+Positive structure closes each admitted test kind after the corpus expresses
+that model; source-to-test allowlists and generic `runtime`, `operations`,
+`recipe`, `support`, or `testing` cabinets remain forbidden.
 
-**Current container:** `packages/mapgen-core/src/authoring` is the authored
-language of the engine, so its physical hierarchy must reinforce the same
-mental model as its API. The package-specific root grammar is `artifact`,
-`domain`, `operation`, `recipe`, `schema`, `snapshot`, `stage`, and `step`, with
-only `index.ts` and `contracts.ts` as root facades. The niche law closes that
-root now, intentionally making the legacy flat helpers and abbreviated `op/`
-directory a red corpus. The burn-down will relocate each implementation to its
-conceptual owner while keeping public package specifiers stable; component
-internals remain open until their own shapes are actually settled. No generic
-blueprint changes or instance-shaped exceptions are admitted in this layer.
-The domain contract/router cluster, operation contract/runtime/binding owner,
-caller-data and contract-graph snapshot owner, and the step/stage/recipe type
-owners now conform. Dead operation schema, reference, and declaration-only
-strategy surfaces have retired rather than moving forward. Schema convention,
-complete authored-configuration admission, and exact typed-array identity now
-share the schema owner, while recipe-specific surface projection remains with
-the recipe. Stage creation, identity, and authoring metadata now share the stage
-owner; its public facade exposes the supported stage surface while recipe
-composition alone uses the multi-stage identity assertion. Recipe creation,
-public-config projection, contract-only DAG projection, and recipe types now
-share one explicit owner facade while the published recipe-DAG specifier stays
-stable. Dead root-schema sanitization retired rather than moving forward. The
-closed authoring-root grammar now has no migration inventory left to accommodate.
+**Current container:** first restore one executable Studio/MapGen test identity:
+Studio consumes the Nx-built MapGen package rather than mixing source aliases
+with bundled consumers, Core-generated stage and operation schemas carry their
+own contextual metadata, and stale visualization expectations follow current
+product layer identities. Then cash the recursive domain-test topology into
+Ecology, Hydrology, Foundation, Placement, and Resources in separate Graphite
+layers. Domain roots retain only cross-module behavior; module roots retain
+cross-operation behavior; exact behavior lives with the owning operation,
+artifact, or policy. Recipe-level product outcomes remain recipe-owned metrics
+targets or studies.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -43,34 +32,16 @@ state is adapter observation; metrics, diagnostics, trace, and visualization
 are separate capabilities. Core owns the generic authoring/execution and
 domain-composition SDK, not Swooper's domain model.
 
-**Gradient:** treat every unexpected root member as pressure to identify its
-real authoring concept, then relocate it behind that owner without changing the
-published import surface. Keep only the two public facades at the root. Do not
-pre-encode child filenames, split components speculatively, or weaken the law
-to accommodate legacy placement; the red corpus is the migration inventory.
-Once the root grammar is homogeneous, normalize repeated module/domain schema
-parts into small model atoms, admitting a cohesive model entity only
-when it has independent domain meaning rather than because two containers share
-a complete shape. This begins only after Core can express composition-safe
-local cardinality relations; a model atom must not bake in one consumer's
-root-relative path, weaken admission, or become a parameterized schema helper.
-The structural atom kind and human semantic review own that judgment; no broad
-duplicate-property scanner guesses identity from repeated field names. Collapse
-artifact authoring to one weighted definition, then
-reopen the domain, artifact, and pipeline graph as one design question. A
-subdomain remains a semantic router: operations expose swappable strategies,
-and strategies compose the module's rules, policy, and atoms through transparent
-dependencies. These structural corpora must settle before reopening
-operation-to-artifact or other pipeline relationship design.
-For every structural kind, `required` names only the fixed spine, `allowed`
-names optional or generative members, and `closed` rejects everything else.
-Relocate one semantic module at a time, hoisting vocabulary only when a real
-cross-module edge proves it shared. Then drain the remaining recipe artifacts
-into adapter observation, domain products, or metrics/diagnostics evidence.
-Retire a niche rule after a named generic or typed owner proves a live
-invariant, or when the current positive shape makes its historical subject
-nonexistent. The program ends only when generic laws, source tree, types,
-tests, Knip, and the boundary graph agree.
+**Gradient:** for each family, inventory by intent, identify the already-owned
+guarantee, delete duplicate schema/admission/cardinality proofs, split mixed
+tests, move surviving behavior to the narrowest causal owner, replace incidental
+dimensions and seeds with shared Civ7 presets, then run the full mod test owner
+and focused Habitat laws. Preserve synthetic geometry only where geometry is
+the subject. After the corpus is truthful, add only the smallest generic
+positive ratchet the repeated shape earns. Knip and JSDoc burn-down follow
+physical ownership so dead code is deleted before prose is repaired. The
+program ends only when generic laws, source tree, types, tests, Knip, and the
+boundary graph agree.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -94,6 +65,15 @@ Core ownership of domain meaning.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-24 - Authoring SDK Grammar
+
+MapGen Core's authored language was recomposed around `artifact`, `domain`,
+`operation`, `recipe`, `schema`, `snapshot`, `stage`, and `step`, leaving only
+the public root facades. A small package-specific positive law turned legacy
+flat helpers into migration inventory. Each owner was moved and sealed without
+changing published specifiers; dead schema, strategy, and sanitization surfaces
+retired instead of being carried forward.
 
 ### 2026-07-24 - Morphology Test Ownership
 

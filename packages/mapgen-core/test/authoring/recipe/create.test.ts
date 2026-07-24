@@ -308,8 +308,17 @@ describe("recipe authoring", () => {
     const configSchema = Type.Object(
       {
         foundation: Type.Object(
-          { knobs: EmptyKnobsSchema, alpha: schema },
-          { additionalProperties: false }
+          {
+            knobs: EmptyKnobsSchema,
+            alpha: Type.With(schema, {
+              description:
+                'Author-facing configuration for the "alpha" step in the "foundation" recipe stage.',
+            }),
+          },
+          {
+            additionalProperties: false,
+            description: 'Author-facing configuration for the "foundation" recipe stage.',
+          }
         ),
       },
       { additionalProperties: false }

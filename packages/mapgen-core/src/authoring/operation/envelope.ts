@@ -56,7 +56,10 @@ export function buildOpEnvelopeSchema(
         strategy: Type.Literal(key),
         config: value.config,
       },
-      { additionalProperties: false }
+      {
+        additionalProperties: false,
+        description: `Configuration for the "${key}" strategy of operation "${contractId}".`,
+      }
     )
   );
   const defaultStrategyConfig = Value.Create(defaultDefinition.config);
@@ -67,7 +70,10 @@ export function buildOpEnvelopeSchema(
   };
 
   return {
-    schema: Type.Union(cases, { default: defaultConfig }),
+    schema: Type.Union(cases, {
+      default: defaultConfig,
+      description: `Strategy selection for operation "${contractId}".`,
+    }),
     defaultConfig,
     strategyIds,
   };

@@ -7,7 +7,7 @@ import {
 } from "@mapgen/authoring/index.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
 import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
-import { type TObject, Type } from "typebox";
+import { IsObject, ObjectOptions, type TObject, Type } from "typebox";
 import { Value } from "typebox/value";
 
 const TEST_SETUP = admitMapSetup({
@@ -100,6 +100,33 @@ describe("authoring SDK", () => {
     const created = Value.Create(schema);
     expect(() => Value.Assert(schema, created)).not.toThrow();
     expect(created).toEqual({ "stage-a": { knobs: {}, "step-a": { value: 1 } } });
+    expect(ObjectOptions(stage.surfaceSchema).description).toBe(
+      'Author-facing configuration for the "stage-a" recipe stage.'
+    );
+    const stepSurface = stage.surfaceSchema.properties["step-a"];
+    if (!IsObject(stepSurface)) throw new Error("Expected an object step surface.");
+    expect(ObjectOptions(stepSurface).description).toBe(
+      'Author-facing configuration for the "step-a" step in the "stage-a" recipe stage.'
+    );
+  });
+
+  it("preserves a semantic description authored by an internal step", () => {
+    const stepSchema = Type.Object(
+      { amount: Type.Number({ default: 1 }) },
+      {
+        additionalProperties: false,
+        description: "Controls the amount of material deposited by this step.",
+      }
+    );
+    const step = createStep(makeContract("deposit-material", stepSchema), { run: () => {} });
+    const stage = createStage({ id: "morphology", steps: [step] });
+    const stepSurface = stage.surfaceSchema.properties["deposit-material"];
+    if (!IsObject(stepSurface)) throw new Error("Expected an object step surface.");
+
+    expect(stepSurface).not.toBe(step.contract.schema);
+    expect(ObjectOptions(stepSurface).description).toBe(
+      "Controls the amount of material deposited by this step."
+    );
   });
 
   it("represents configurationless compiled stages as one closed empty authored object", () => {

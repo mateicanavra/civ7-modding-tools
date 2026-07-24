@@ -71,6 +71,23 @@ function stageSurfaceDescription(stageId: string, propertyCount: number): string
     : `Author-facing configuration for the "${stageId}" recipe stage.`;
 }
 
+function internalStepSurfaceDescription(stageId: string, stepId: string): string {
+  return `Author-facing configuration for the "${stepId}" step in the "${stageId}" recipe stage.`;
+}
+
+function describeInternalStepSurface(stageId: string, stepId: string, schema: TSchema): TSchema {
+  let description: unknown;
+  if (IsObject(schema)) {
+    description = ObjectOptions(schema).description;
+  }
+  return Type.With(schema, {
+    description:
+      typeof description === "string" && description.trim().length > 0
+        ? description
+        : internalStepSurfaceDescription(stageId, stepId),
+  });
+}
+
 function buildInternalAsPublicSurfaceSchema(
   stageId: string,
   steps: readonly Readonly<{
@@ -85,12 +102,16 @@ function buildInternalAsPublicSurfaceSchema(
   if (knobsSchema) properties.knobs = knobsSchema;
   for (const step of steps) {
     if (step.contract.id === RESERVED_STAGE_KEY || hasClosedEmptyStepConfig(step)) continue;
-    properties[step.contract.id] = step.contract.schema;
+    properties[step.contract.id] = describeInternalStepSurface(
+      stageId,
+      step.contract.id,
+      step.contract.schema
+    );
   }
   const propertyCount = Object.keys(properties).length;
   return Type.Object(properties, {
     additionalProperties: false,
-    ...(propertyCount === 0 ? { description: stageSurfaceDescription(stageId, 0) } : {}),
+    description: stageSurfaceDescription(stageId, propertyCount),
   });
 }
 

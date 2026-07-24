@@ -152,9 +152,9 @@ describe("standard browser runner layer visibility", () => {
       );
       expect([...defaultVisibleDataTypeKeys]).toEqual(
         expect.arrayContaining([
-          "foundation.crustInit.cellType",
-          "foundation.crustInit.cellAge",
-          "foundation.crustInit.cellBaseElevation",
+          "foundation.initialCrust.cellType",
+          "foundation.initialCrust.cellAge",
+          "foundation.initialCrust.cellBaseElevation",
           "foundation.plates.tileMovement",
           "ecology.scoreLayers.forest",
           "map.placement.engine.landMask",
