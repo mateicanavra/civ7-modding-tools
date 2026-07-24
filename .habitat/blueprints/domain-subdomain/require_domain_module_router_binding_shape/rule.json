@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_module_router_binding_shape",
+  "title": "Require Domain Module Router Binding Shape",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-subdomain",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "advisory",
+  "forbids": "semantic-module router files exposing helpers, operation implementations, registries, or any authority besides their singular default createDomainSubdomainRouter result",
+  "why": "A semantic module router is the only runtime binding between its declared operation contracts and its implementation registry. Closing that file preserves one executable module authority without leaking operation internals.",
+  "remediate": "Import createDomainSubdomainRouter from @swooper/mapgen-core/authoring, the local ./contract.js default, and the ./ops/index.js implementation registry; bind them once and default-export only that router.",
+  "message": "Domain module router.ts must expose one default implementation binding only.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/*/src/domain/*/modules/*/router.ts"]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-subdomain/require_domain_module_router_binding_shape/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/domain-subdomain/require_domain_module_router_binding_shape/pattern.md"
+    },
+    "patternName": "require_domain_module_router_binding_shape",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["mods"]
+    }
+  }
+}

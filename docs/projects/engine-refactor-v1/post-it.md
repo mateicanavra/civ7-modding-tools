@@ -13,13 +13,16 @@ recreate, weaken, or hardcode its membership.
 
 **Current container:** Hydrology's module hierarchy, module policy boundary,
 closed module contract surfaces, and the strategy-authoring scaffolds are
-sealed. Active attention is the mod-local test setup authority: one switchable
-Civ7 preset, one map-seed default, and one deliberately distinct game-seed
-default for tests whose subject is not size or seed. Operation-local `rngSeed`
-remains derived entropy rather than setup identity, and production `MapSetup`
-does not pretend to carry game seed before the initial-setup authority layer
-actually admits it. Operation envelopes, named typed-array cardinality, and
-strategy authorship remain sealed as positive kinds. Every semantic strategy owns
+sealed. The mod-local test setup authority is also sealed: one switchable Civ7
+preset, one map-seed
+default, and one deliberately distinct game-seed default for tests whose
+subject is not size or seed. Active attention is Morphology's semantic module
+hierarchy, immutable topography vintages, and level-appropriate test ownership.
+Operation-local `rngSeed` remains derived entropy rather than setup identity,
+and production `MapSetup` does not pretend to carry game seed before the
+initial-setup authority layer actually admits it. Operation envelopes, named
+typed-array cardinality, and strategy authorship remain sealed as positive
+kinds. Every semantic strategy owns
 `strategies/<semantic-id>/{config.ts,index.ts}`; the operation contract remains
 the sole shared input/output authority; one strategy is necessarily the default
 and multiple strategies name their default explicitly. Core's obsolete
@@ -50,14 +53,13 @@ state is adapter observation; metrics, diagnostics, trace, and visualization
 are separate capabilities. Core owns the generic authoring/execution and
 domain-composition SDK, not Swooper's domain model.
 
-**Gradient:** seal the mod-local test setup authority through the native Nx
-graph, preserving explicit opt-outs for tests whose subject is size, setup
-admission, seed correlation, or derived operation entropy. Then recompose
-Morphology into terrain, coasts, routing, erosion, landforms, and shelf modules,
-retaining producer-owned immutable topography vintages and burning its existing
-JSDoc baseline to zero. Placement waits for its protected user edit. Prove each
-domain through the native Nx graph and focused kind owners before its semantic
-commit.
+**Gradient:** define Morphology's semantic module partition against the existing
+generic domain/module laws, make its flat corpus red, then recompose it into the
+smallest truthful modules. Retain producer-owned immutable topography vintages,
+move tests to their domain or module owner, import only mechanically generic
+Core primitives, and burn Morphology's existing JSDoc baseline to zero.
+Placement waits for its protected user edit. Prove each domain through the
+native Nx graph and focused kind owners before its semantic commit.
 After the mechanical kinds are homogeneous, semantically recompose
 `packages/mapgen-core/src/authoring` so its hierarchy truthfully expresses the
 authoring SDK's concepts, ownership, dependency direction, and public surfaces;
