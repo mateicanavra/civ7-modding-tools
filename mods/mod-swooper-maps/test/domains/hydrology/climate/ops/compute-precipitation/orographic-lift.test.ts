@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import hydrologyOpsPublic from "@mapgen/domain/hydrology/router";
+import { TEST_MAP_SEED } from "../../../../../setup.js";
 
 const { computePrecipitation } = hydrologyOpsPublic.climate.ops;
 function idx(x: number, y: number, width: number): number {
@@ -40,7 +41,7 @@ describe("hydrology/compute-precipitation (vector)", () => {
       {
         width,
         height,
-        perlinSeed: 123,
+        perlinSeed: TEST_MAP_SEED,
         latitudeByRow,
         elevation,
         landMask,

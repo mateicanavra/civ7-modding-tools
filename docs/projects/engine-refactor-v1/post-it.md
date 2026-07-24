@@ -15,13 +15,13 @@ Positive structure closes each admitted test kind after the corpus expresses
 that model; source-to-test allowlists and generic `runtime`, `operations`,
 `recipe`, `support`, or `testing` cabinets remain forbidden.
 
-**Current container:** cash the recursive domain-test topology into Ecology,
-then Hydrology, Foundation, Placement, and Resources in separate Graphite
-layers. Ecology is the first complete sieve: exact behavior descends to its
-operation, artifact, or policy owner; module roots retain only cross-operation
-behavior; recipe publication and engine projection remain with their steps;
-product outcomes remain recipe-owned metric targets or studies. A domain root
-stays empty when no genuine cross-module invariant exists.
+**Current container:** cash the recursive domain-test topology into Hydrology,
+then Foundation, Placement, and Resources in separate Graphite layers. Ecology
+is sealed as the reference sieve: exact behavior descends to its operation,
+artifact, or policy owner; module roots retain only cross-operation behavior;
+recipe publication and engine projection remain with their steps; product
+outcomes remain recipe-owned metric targets or studies. A domain root stays
+empty when no genuine cross-module invariant exists.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7

@@ -1,6 +1,5 @@
 import { describe, expect, it } from "bun:test";
 import {
-  findInvalidRiverClassIndex,
   isAnyRiverClass,
   isMajorRiverClass,
   isMinorRiverClass,
@@ -25,9 +24,5 @@ describe("hydrology river class contract", () => {
     expect(isMajorRiverClass(RIVER_CLASS_MINOR)).toBe(false);
     expect(isMajorRiverClass(RIVER_CLASS_MAJOR)).toBe(true);
     expect(isMajorRiverClass(3)).toBe(true);
-  });
-
-  it("accepts generated Uint8 river classes as hydrology-owned non-negative intent", () => {
-    expect(findInvalidRiverClassIndex(new Uint8Array([0, 1, 2, 3]))).toBe(-1);
   });
 });

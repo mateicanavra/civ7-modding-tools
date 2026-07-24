@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import hydrologyOpsPublic from "@mapgen/domain/hydrology/router";
-import { TEST_MAP_SIZE } from "../../../setup.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
 
 const { computeAtmosphericCirculation } = hydrologyOpsPublic.climate.ops;
 function idx(x: number, y: number, width: number): number {
@@ -29,7 +29,7 @@ describe("hydrology/compute-atmospheric-circulation (geostrophic-proxy)", () => 
 
     const run = () =>
       computeAtmosphericCirculation.run(
-        { width, height, latitudeByRow: lat, rngSeed: 123, seasonPhase01: 0.25 },
+        { width, height, latitudeByRow: lat, rngSeed: TEST_MAP_SEED, seasonPhase01: 0.25 },
         {
           strategy: "geostrophic-proxy",
           config: {

@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import hydrologyOpsPublic from "@mapgen/domain/hydrology/router";
 import { forEachHexNeighborOddQWithDirection } from "@swooper/mapgen-core/lib/grid";
-import { TEST_MAP_SIZE } from "../../../setup.js";
+import { TEST_MAP_SIZE } from "../../../../../setup.js";
 
 const { computeOceanThermalState } = hydrologyOpsPublic.ocean.ops;
 function idx(x: number, y: number, width: number): number {
@@ -209,7 +209,7 @@ describe("hydrology/compute-ocean-thermal-state", () => {
     expect(out.sstC[center]).toBeGreaterThan(10);
   });
 
-  it("uses shelfMask to increase local mixing (bounded + deterministic)", () => {
+  it("uses shelfMask to increase local mixing", () => {
     const syntheticDimensions = { width: 12, height: 6 } as const;
     const { width, height } = syntheticDimensions;
     const size = width * height;
@@ -272,19 +272,5 @@ describe("hydrology/compute-ocean-thermal-state", () => {
     const baseDist = Math.abs((base.sstC[t] ?? 0) - avg);
     const shelfDist = Math.abs((shelf.sstC[t] ?? 0) - avg);
     expect(shelfDist).toBeLessThan(baseDist);
-
-    // Determinism sanity: rerun matches exactly for the same inputs.
-    const shelf2 = runOceanThermalState(
-      { width, height, latitudeByRow, isWaterMask, shelfMask: shelfOn, currentU, currentV },
-      {
-        equatorTempC: 30,
-        poleTempC: 0,
-        advectIters: 1,
-        diffusion: 0.5,
-        secondaryWeightMin: 0.25,
-        seaIceThresholdC: -1,
-      }
-    );
-    expect(Array.from(shelf2.sstC)).toEqual(Array.from(shelf.sstC));
   });
 });

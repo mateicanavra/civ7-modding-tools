@@ -34,12 +34,22 @@ type OceanThermalInput = Parameters<
   typeof hydrologyDomain.ocean.ops.computeOceanThermalState.run
 >[0];
 type ThermalStateInput = Parameters<typeof hydrologyDomain.climate.ops.computeThermalState.run>[0];
+type AtmosphericCirculationInput = Parameters<
+  typeof hydrologyDomain.climate.ops.computeAtmosphericCirculation.run
+>[0];
+type PrecipitationInput = Parameters<
+  typeof hydrologyDomain.climate.ops.computePrecipitation.run
+>[0];
 
-function climateBaselineConfig() {
+function climateBaselineConfig(options: Readonly<{ axialTiltDeg?: number }> = {}) {
   if (!ClimateBaselineStep.normalize) {
     throw new Error("Climate baseline must normalize its authored configuration.");
   }
   const stageConfig = createStandardRecipeTestConfig()["hydrology-climate-baseline"];
+  if (options.axialTiltDeg !== undefined) {
+    stageConfig.knobs.seasonality = "normal";
+    stageConfig.seasonalCycle.axialTiltDeg = options.axialTiltDeg;
+  }
   const admitted = validateSchemaValueForTest(
     hydrologyClimateBaselineStage.surfaceSchema,
     stageConfig,
@@ -182,5 +192,84 @@ describe("hydrology climate-baseline composition", () => {
     expect(Array.from(currentField?.currentV ?? [])).toEqual(
       Array.from(new Int8Array(size).fill(expectedCurrentV))
     );
+  });
+
+  it("publishes zero seasonal amplitude when axial tilt disables seasonal forcing", () => {
+    const { width, height } = TEST_MAP_SIZE.dimensions;
+    const size = width * height;
+    const config = climateBaselineConfig({ axialTiltDeg: 0 });
+    const context = createMapContext({
+      setup,
+      adapter: createMockAdapter({ width, height }),
+    });
+    const dependencies = buildStepTestDependencies(ClimateBaselineStep);
+    const seasonPhases: number[] = [];
+
+    withMapContextExecutionForTest(context, (stepContext) => {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
+        elevation: new Int16Array(size),
+        seaLevel: 0,
+        landMask: new Uint8Array(size),
+        bathymetry: new Int16Array(size),
+      });
+      publishTestArtifact(stepContext, morphologyShelfArtifacts.shelf, {
+        shelfMask: new Uint8Array(size),
+        coastalLand: new Uint8Array(size),
+        coastalWater: new Uint8Array(size),
+        distanceToCoast: new Uint16Array(size),
+      });
+
+      const result = ClimateBaselineStep.run(
+        stepContext,
+        config,
+        {
+          computeOceanGeometry: () => ({
+            basinId: new Int32Array(size),
+            coastDistance: new Uint16Array(size),
+            coastNormalU: new Int8Array(size),
+            coastNormalV: new Int8Array(size),
+            coastTangentU: new Int8Array(size),
+            coastTangentV: new Int8Array(size),
+          }),
+          computeAtmosphericCirculation: (input: AtmosphericCirculationInput) => {
+            const seasonPhase = input.seasonPhase01 ?? 0;
+            seasonPhases.push(seasonPhase);
+            return {
+              windU: new Int8Array(size).fill(Math.round(seasonPhase * 100)),
+              windV: new Int8Array(size),
+            };
+          },
+          computeOceanSurfaceCurrents: () => ({
+            currentU: new Int8Array(size),
+            currentV: new Int8Array(size),
+          }),
+          computeOceanThermalState: () => ({
+            sstC: new Float32Array(size),
+            seaIceMask: new Uint8Array(size),
+          }),
+          computeRadiativeForcing: () => ({ insolation: new Float32Array(size) }),
+          computeThermalState: () => ({ surfaceTemperatureC: new Float32Array(size) }),
+          computeEvaporationSources: () => ({ evaporation: new Float32Array(size) }),
+          transportMoisture: () => ({ humidity: new Float32Array(size) }),
+          computePrecipitation: (input: PrecipitationInput) => {
+            const windSignal = Math.abs(input.windU[0] ?? 0);
+            return {
+              rainfall: new Uint8Array(size).fill(windSignal),
+              humidity: new Uint8Array(size).fill(windSignal),
+            };
+          },
+        },
+        dependencies
+      );
+      if (result instanceof Promise) {
+        throw new Error("Climate baseline composition is synchronous in the Standard recipe.");
+      }
+    });
+
+    expect(config.seasonality.axialTiltDeg).toBe(0);
+    expect(seasonPhases).toEqual(new Array(config.seasonality.modeCount).fill(0));
+    const seasonality = readValidatedArtifact(context, climateArtifacts.climateSeasonality);
+    expect(seasonality.rainfallAmplitude.every((value) => value === 0)).toBeTrue();
+    expect(seasonality.humidityAmplitude.every((value) => value === 0)).toBeTrue();
   });
 });

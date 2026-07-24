@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import hydrologyOpsPublic from "@mapgen/domain/hydrology/router";
 import { estimateDivergenceOddQ } from "@swooper/mapgen-core/lib/grid";
-import { TEST_MAP_SIZE } from "../../../setup.js";
+import { TEST_MAP_SIZE } from "../../../../../setup.js";
 
 const { computeOceanSurfaceCurrents } = hydrologyOpsPublic.ocean.ops;
 type WindGyreProjectionSelection = Extract<
