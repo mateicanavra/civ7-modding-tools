@@ -1,3 +1,4 @@
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 /// <reference types="@civ7/types" />
 
 import {
@@ -18,7 +19,6 @@ import {
 } from "@civ7/studio-contract";
 import type { StudioRunGenerationManifest } from "@civ7/studio-run-workspace";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
-import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import {
   createLabelRng,
@@ -762,7 +762,7 @@ function buildTerrainProjectionEvidence(context: ReturnType<typeof createMapCont
           coastalWater: shelf.coastalWater,
         })
       : undefined;
-  const hydrologyLakePlan = observeArtifact(context, hydrologyArtifacts.lakePlan);
+  const hydrologyLakePlan = observeArtifact(context, hydrographyArtifacts.lakePlan);
   const mapHydrologyProjection = observeArtifact(
     context,
     mapHydrologyArtifacts.engineProjectionLakes

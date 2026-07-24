@@ -450,12 +450,6 @@ const mapConfig = {
         "petBase": 19,
         "petTemperatureWeight": 82,
         "humidityDampening": 0.5
-      },
-      "diagnostics": {
-        "barrierSteps": 2,
-        "barrierElevationM": 1000,
-        "continentalityMaxDist": 14,
-        "convergenceNormalization": 78
       }
     },
     "ecology-pedology": {
@@ -521,15 +515,6 @@ const mapConfig = {
     "map-rivers": {
       "knobs": {
         "navigableRiverDensity": "normal"
-      },
-      "plot-rivers": {
-        "selectNavigableRiverTerrain": {
-          "strategy": "endpoint-chain-ranking",
-          "config": {
-            "endpointDischargePercentileMin": 0.94,
-            "targetMajorTileFraction": 0.28
-          }
-        }
       }
     },
     "ecology-features": {
@@ -825,7 +810,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountains-of-time-earthlike",
-  configHash: "455939ee09501f118d8a111c82bda17195773e40bbc747263721a99de73fda9b",
-  envelopeHash: "6b294e1e3f8ebcc5a7c048dc7628ffb98e59a64425fe1094870d97bbc0e2b7f8",
+  configHash: "55fe17efda7792dde0ccd080ea3aed00ef5b880c90dd9180e8b5070141eb7d5f",
+  envelopeHash: "623b224dacab4bd53d48bf09b4f9247e0389e946b26dce33c6d9cd92fd82ccf5",
   config: mapConfig.config,
 });

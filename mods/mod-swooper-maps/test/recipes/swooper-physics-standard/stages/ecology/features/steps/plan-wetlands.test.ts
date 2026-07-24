@@ -4,7 +4,7 @@ import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology";
 import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
 import ecology from "@mapgen/domain/ecology/router";
-import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
@@ -63,7 +63,7 @@ describe("ecology-features plan-wetlands step", () => {
         featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyArtifacts.hydrography, {
+      publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
         runoff: new Float32Array(size),
         discharge: new Float32Array(size),
         riverClass: new Uint8Array(size),
@@ -75,7 +75,7 @@ describe("ecology-features plan-wetlands step", () => {
         depressionDepth: new Float32Array(size),
         terminalType: new Uint8Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyArtifacts.lakePlan, {
+      publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, {
         width,
         height,
         lakeMask: new Uint8Array(size),

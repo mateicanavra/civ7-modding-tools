@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 
-import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/router";
 
-const { transportMoisture } = hydrologyOpsPublic.ops;
+const { transportMoisture } = hydrologyOpsPublic.climate.ops;
 function idx(x: number, y: number, width: number): number {
   return y * width + x;
 }

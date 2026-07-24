@@ -70,14 +70,20 @@ export default createStage({
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     rivers: {
       drainageRouting: defaultEnvelope(
-        hydrology.ops.computeDrainageRouting,
+        hydrology.hydrography.ops.computeDrainageRouting,
         config.drainageRouting
       ),
-      accumulateDischarge: defaultEnvelope(hydrology.ops.accumulateDischarge, config.runoff),
-      projectRiverNetwork: defaultEnvelope(hydrology.ops.projectRiverNetwork, config.riverNetwork),
+      accumulateDischarge: defaultEnvelope(
+        hydrology.hydrography.ops.accumulateDischarge,
+        config.runoff
+      ),
+      projectRiverNetwork: defaultEnvelope(
+        hydrology.hydrography.ops.projectRiverNetwork,
+        config.riverNetwork
+      ),
     },
     lakes: {
-      planLakes: defaultEnvelope(hydrology.ops.planLakes, config.lakes),
+      planLakes: defaultEnvelope(hydrology.hydrography.ops.planLakes, config.lakes),
     },
   }),
 } as const);

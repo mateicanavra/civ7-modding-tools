@@ -23,14 +23,20 @@
 
 ## Vocabulary (current, from live source)
 
-- **domain** — a named collection of pure-algorithm ops for one concern-family; `defineDomain`/`createDomain`. No recipe awareness. Seven domains: `foundation, morphology, hydrology, ecology, placement, resources, narrative`.
-- **op** — op-per-concern unit. `defineOp({ kind, id, input, output, strategies })` in `contract.ts`. Each op is its own directory `ops/<op-id>/{contract.ts, index.ts, types.ts, strategies/, rules?/}`. No cross-op reach-ins. Op id is `<domain>/<op-name>` kebab-case.
+- **domain** — a contract-composed collection of pure-algorithm modules for one concern-family. `domain/<domain>/contract.ts` uses `defineDomain`, `router.ts` binds the corresponding module routers, and `index.ts` exposes only the contract. Domains have no recipe awareness.
+- **module** — one cohesive domain capability under `modules/<module>/`. Its `contract.ts` declares the module's operation contracts, `router.ts` binds implementations, and `index.ts` exposes only the contract. Optional `artifacts/` and `model/` directories stay inside the module that owns them.
+- **op** — op-per-concern unit inside one module. `defineOp({ kind, id, input, output, strategies })` lives in `modules/<module>/ops/<op-id>/contract.ts`; `index.ts` binds the semantic strategy implementations. No cross-op reach-ins. Op id is `<domain>/<op-name>` kebab-case.
 - **strategy** — a semantically named variant inside an op's `strategies` record. A sole strategy is inferred as the default; a multi-strategy op declares `defaultStrategy` explicitly. The op envelope is `{ strategy: "<id>", config: {...} }` (TypeBox discriminated union built by `defineOp`). Most ops are single-strategy; multi-strategy ops live in hydrology + ecology (see strategy table below).
-- **rule** — pure function in an op's `rules/`, shared across that op's strategies (e.g. `computeWindsEarthlike`).
+- **rule** — pure implementation logic below a contract boundary. Operation-private rules live in
+  an op's `rules/`; rules genuinely shared across operations rise only to the nearest domain or
+  module `model/rules/` owner. Neither surface becomes a recipe shortcut around declared ops.
+  Before naming a local helper, search MapGen Core's public libraries and import an existing
+  primitive when semantics match. A deliberate divergence needs a distinct domain name and visible
+  rationale; silently redefining a Core helper such as `clamp01` is not domain logic.
 - **step** — executable contract boundary. `defineStep({ id, requires, provides, artifacts:{requires,provides}, ops, schema })` selects consumed artifact contracts and complete provider modules; `createStep(contract, { normalize?, run, viz?, metrics? })` binds behavior plus optional post-run observation facets. Recipe composition assigns the exact `stageId`; steps do not author a duplicate phase. `run(context, config, ops, deps)` publishes and reads through `deps.artifacts.<name>`, whose runtimes derive from the contract's provider modules.
 - **stage** — recipe-level authoring + ownership surface. `createStage({ id, steps, knobsSchema?, public?, compile? })`. Owns step composition and only the authoring surfaces that carry real semantic value. Empty knobs/public schemas and compilers that manufacture empty step objects are not authoring surfaces.
 - **recipe** — global stage/step order. `createRecipe({ id, namespace, tagDefinitions, stages, compileOpsById })`. Standard recipe id `mod-swooper-maps/standard`. Ordering is enforced by `contract-manifest.ts`, not by key order in `recipe.ts`.
-- **artifact** — named, typed, write-once causal data owned by the domain that defines the immutable product. One artifact module owns its `defineArtifact({ name, id, schema })` contract and its contract-bound `defineArtifactValidator`; `defineArtifactCatalog` derives runtime modules and consumer handles from that domain registry. Engine observation and metrics/viz/trace evidence remain those capabilities rather than becoming causal artifacts.
+- **artifact** — named, typed, write-once causal data owned by the domain module that defines the immutable product. One `*.artifact.ts` file owns one weighted `defineArtifact({ name, id, schema, refine? })` definition with its schema inline. `defineArtifactCatalog` closes the module catalog. Engine observation and metrics/viz/trace evidence remain those capabilities rather than becoming causal artifacts.
 - **knob** — an optional stage-wide semantic authoring control, applied through compilation only when it adds real authoring value.
 
 ---
@@ -99,48 +105,58 @@ collapse their registered runtime stages into one.
 
 ## The seven domains and their op counts
 
-Each domain registers its op contracts in `domain/<domain>/ops/contracts.ts` and implementations in `ops/index.ts` (typed `satisfies DomainOpImplementationsForContracts<typeof contracts>` — the two must stay in lockstep). Counts verified from the live registries:
+Each migrated domain composes module contracts from `domain/<domain>/contract.ts`; every module keeps its singular operation registry in `modules/<module>/ops/contract.ts` and implementation registry in `ops/index.ts`. Counts below are verified from the live contract registries:
 
 | Domain | Ops | Character |
 |---|---|---|
 | `foundation` | 17 | mesh, mantle potential/forcing, crust + evolution, plate graph/motion, tectonic segments, era membership, segment/hotspot events, era tectonic fields, history rollups, tectonics current, tracer advection, provenance, plate tensors |
 | `morphology` | 15 | base topography, belt drivers, coastline metrics, flow routing, geomorphic cycle, landmask, landmasses, sea level, shelf mask, substrate, island chains, foothills, ridges, rough lands, volcanoes |
-| `hydrology` | 19 | radiative forcing → thermal → circulation → ocean currents/geometry/thermal → evaporation → moisture transport → precipitation → cryosphere → albedo → land-water budget → climate diagnostics → drainage routing → discharge → river network project/metrics → plan lakes → navigable river select |
+| `hydrology` | 18 | Baseline climate composes radiative/thermal forcing, circulation, ocean coupling, evaporation, moisture transport, and precipitation; hydrography then solves drainage, discharge, river projection, lake intent, and causal classification; climate refinement closes with cryosphere/albedo, land-water budget, and advisory diagnostics. Navigable-river selection is a map-rivers rule. |
 | `ecology` | 32 | biome classify, pedology classify/aggregate, edge refine, feature/vegetation substrate, 5 vegetation + 5 wetland + 4 reef score ops, ice score, 4 plot-effects score ops, plan plot-effects, plan floodplains/wetlands/reefs/ice/vegetation, features apply. The most granular domain. |
 | `placement` | 4 | plan discoveries, plan natural wonders, plan starts, plan wonders |
 | `resources` | 8 | adjust resource support, derive habitat fields, plan aquatic/cultivated/geological/terrestrial resources, plan resource groups, select resource sites |
 | `narrative` | 0 | no ops, no stage (see above) |
 
-> Op counts = the number of `ops/<op-id>/` directories registered in that domain's `ops/contracts.ts`. To confirm, list `mods/mod-swooper-maps/src/domain/<domain>/ops/`.
+> Op counts = the operation contracts composed by the domain's module registries. To confirm a migrated domain, inspect `domain/<domain>/contract.ts` and each `modules/<module>/ops/contract.ts`.
 
 ---
 
-## Op-per-concern layout (the unit you'll most often touch)
+## Domain-module layout (the unit you'll most often touch)
 
-A single op is a directory. Using `morphology/compute-landmask` as the reference shape:
+A domain is a contract/router whose modules repeat the same contract/router shape at a narrower semantic level. A single operation then lives under its owning module:
 
 ```
-domain/morphology/
-  index.ts                  defineDomain (contract-only) — current step-contract owner surface
-  ops.ts                    createDomain (runtime) — current recipe runtime owner surface
-  ops/
-    contracts.ts            registry: { computeLandmask: MyContract, ... }  (contract-only)
-    index.ts                registry: { computeLandmask: myOp, ... } satisfies DomainOpImplementationsForContracts
-    compute-landmask/
-      contract.ts           defineOp({ kind, id, input, output, strategies })  — the schema/type surface
-      index.ts              createOp(contract, { strategies })                 — binds implementations
-      strategies/
-        tectonic-relief.ts  createStrategy(contract, "tectonic-relief", { run, normalize? })
-        index.ts            re-exports the strategy(ies)
-      rules/                pure helpers shared across this op's strategies (optional)
-      types.ts              OpTypeBagOf<Contract> — typed input/output/envelope bag
+domain/<domain>/
+  contract.ts               defineDomain("<domain>", { <module>: moduleContract })
+  router.ts                 createDomainRouter(contract, { <module>: moduleRouter })
+  index.ts                  exports the contract only
+  model/                    facts genuinely shared across multiple modules (optional)
+  modules/<module>/
+    contract.ts             defineDomainSubdomain({ id, ops })
+    router.ts               createDomainSubdomainRouter(contract, implementations)
+    index.ts                exports the module contract only
+    model/                  module-scoped atoms and policy (optional)
+    artifacts/
+      <name>.artifact.ts    one inline defineArtifact definition
+      index.ts              one defineArtifactCatalog
+    ops/
+      contract.ts           singular operation-contract registry
+      index.ts              exact implementation registry
+      <op-id>/
+        contract.ts         shared input/output contract plus strategy definitions
+        index.ts            createOp(contract, strategy tuple)
+        strategies/
+          index.ts          runtime implementation tuple
+          <semantic-id>/
+            config.ts       semantic id plus strategy configuration
+            index.ts        implementation of the shared operation contract
+        rules/              private pure helpers shared inside the operation (optional)
 ```
 
-Two current import faces of a domain are routed through the transitional
-`@mapgen/domain/*` alias: the contract root used by step contracts and the
-`/ops` runtime root used by `recipe.ts`. These exact roots are compatibility
-surfaces, not a pattern to extend: do not add alias mappings or deep imports.
-Package-ownership Slice 7 replaces them with real mod-owned dependency surfaces.
+The `@mapgen/domain/*` alias exposes two deliberate faces: the root contract for
+step authoring and `/router` for recipe runtime collection. Consumers import
+artifacts or model facts from the exact owning module; module indexes do not
+re-export those secondary surfaces.
 
 Visualization is owned by the step's optional `createStep(contract, { viz })`
 facet. Here `<stage-root>` means the stage's semantic physical path, such as
@@ -157,10 +173,10 @@ would promote to `stages/morphology/shelf/viz.ts`, not the residual
 `stages/morphology/` family container.
 
 **Registration points** when you add code (full skeletons in `assets/recipe-scaffolds.md`):
-- New **op** → create the `ops/<op-id>/` directory; add the contract to `ops/contracts.ts` and the impl to `ops/index.ts`.
+- New **op** → create `modules/<module>/ops/<op-id>/`; add its contract to the module's singular `ops/contract.ts` and its implementation to `ops/index.ts`.
 - New **step** → add the step contract to `standardStageContractManifest` (sets order) and the runtime step to the stage's `orderStandardStageSteps({...})`.
 - New **stage** → add to `standardStageContractManifest` (position = pipeline order), add to `orderStandardStages({...})` in `recipe.ts`; if it brings a new domain, add that domain to `collectCompileOps(...)`.
-- New **artifact** → add one `domain/<owner>/artifacts/<name>.artifact.ts` module containing the contract and its contract-bound validator; register that module once in the domain's `artifacts/index.ts` with `defineArtifactCatalog`; consumer contracts select derived `artifacts` handles, while producer contracts select `artifactModules`. `createStep` binds behavior only and derives publication runtimes from the producer contract.
+- New **artifact** → add one `domain/<domain>/modules/<owner>/artifacts/<name>.artifact.ts` file with one inline `defineArtifact({ name, id, schema, refine? })`; register it once in that module's `artifacts/index.ts` using `defineArtifactCatalog`. Step contracts select exact artifact definitions in `artifacts.requires` and `artifacts.provides`; `createStep` derives read/publish runtimes from that contract.
 
 ---
 
@@ -242,14 +258,13 @@ Immutable recipe setup and static projection policy own shared projection facts 
 Engine state is observed at the adapter boundary rather than snapshotted into cross-stage artifacts.
 
 Artifacts are **write-once**: a producer `publish`es once; consumers `read`. Every
-`*.artifact.ts` module pairs one contract with the complete structural/semantic validator used
-by publish and satisfaction checks. `defineArtifactValidator` owns structural schema validation;
-an optional local validator adds only relational or domain invariants. Its owning domain
-`artifacts/index.ts` calls
-`defineArtifactCatalog`, then exports `catalog.modules` as `artifactModules` and
-`catalog.artifacts` as `artifacts`; a producer contract selects the relevant module entries and
-`createStep` derives the validated runtimes from that contract. This keeps registration, handles,
-and admission under one authority.
+`*.artifact.ts` file contains one complete `defineArtifact` definition. Core derives
+structural admission from its inline TypeBox schema; an inline `refine` callback adds only
+cardinality, relational, or domain invariants the schema cannot express. There is no separate
+artifact-validator export. The owning module's `artifacts/index.ts` passes the definitions once to
+`defineArtifactCatalog`, and step contracts select those exact definitions. `createStep` then
+derives the validated read/publish runtimes from the contract. This keeps definition, admission,
+catalog membership, and step access under one authority.
 To find who produces/consumes a given key, grep its `artifact:` id across
 `src/domain/` and `src/recipes/standard/stages/`.
 
@@ -259,7 +274,7 @@ To find who produces/consumes a given key, grep its `artifact:` id across
 
 | `@swooper/mapgen-core` (engine substrate) owns | The mod (`mods/mod-swooper-maps`) authors |
 |---|---|
-| The authoring API (`defineOp/defineStep/defineArtifact/defineArtifactCatalog/defineDomain`, `createOp/createStep/createStage/createRecipe/createDomain/collectCompileOps`) | All domain algorithms (ops, strategies, rules) |
+| The authoring API (`defineOp/defineStep/defineArtifact/defineArtifactCatalog/defineDomain`, `createOp/createStep/createStage/createRecipe/createDomainRouter/collectCompileOps`) | All domain algorithms (modules, ops, strategies, rules) |
 | Execution infra: PipelineExecutor, StepRegistry, write-once artifact runtime, reusable TypeBox schema validation, trace/viz | Domain artifact schemas + ids + relational validators; stage orchestration; recipe ordering; real authoring schemas |
 | Strategy dispatch (`runtimeStrategies[cfg.strategy]`) | Game-facing entrypoints, map configs, presets |
 | Zero Civ7 knowledge | Civ7 enters only at map entrypoints + `map-*`/`placement` adapter calls |
@@ -283,7 +298,7 @@ These are enforced by tooling; respect them or CI/lint blocks the change. `civ7-
   check targets for owner or workspace scope. A future native fixture corpus
   would validate patterns separately, not replace this authority.
 - **Biome** (`biome.json`): double quotes, semicolons, ES5 trailing commas, 100-char lines, LF, 2-space indent. `src/maps/generated/**` is excluded; all recipe/domain source is linted.
-- **Normalized domain layout** (accepted 2026-06-10): `ops/<op-id>/{contract.ts,index.ts,types.ts,strategies/}`, optional `ops/<op-id>/{rules,policy}/`, domain-level `policy/`, `lib/`.
+- **Normalized domain layout**: domain and module contracts/routers form the spine; operations live only under `modules/<module>/ops/`; module-scoped artifacts and model facts live beside that module; domain-level model facts are reserved for genuine cross-module sharing.
 
 After any structural change: `nx run mod-swooper-maps:build` (tsup → `mod/`, not hand-editable) is the schema-compile gate; behavioral changes also need diagnostics + in-game verification (`assets/live-verification-runbook.md`).
 
@@ -298,7 +313,8 @@ Map configs are `.config.json` envelopes (`{ $schema, id, name, description, rec
 ## Verify-against-source checklist (do this before trusting any structural claim)
 
 - Stage order → `mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts` (`standardStageContractManifest`). NOT `recipe.ts` key order, NOT `STANDARD-RECIPE.md`.
-- Op inventory for a domain → `mods/mod-swooper-maps/src/domain/<domain>/ops/contracts.ts` + `ls .../ops/`.
-- Strategy keys for an op → that op's `contract.ts` `strategies` record + `index.ts` `createOp` binding.
+- Module inventory for a domain → `mods/mod-swooper-maps/src/domain/<domain>/contract.ts` plus `modules/`.
+- Op inventory for a module → `modules/<module>/ops/contract.ts` plus `ops/`.
+- Strategy keys for an op → that op's `contract.ts` strategy definitions plus `strategies/index.ts` implementation tuple.
 - Which step produces/consumes an artifact → grep its `artifact:` id under `src/domain/` and `src/recipes/standard/stages/`.
 - Authoring call shapes / import paths → `assets/recipe-scaffolds.md` (copy-paste, live-sourced).

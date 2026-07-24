@@ -1,5 +1,5 @@
+import { isAnyRiverClass } from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-class.js";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import { isAnyRiverClass } from "@mapgen/domain/hydrology";
 
 import Contract from "../../contract.js";
 import {

@@ -1,15 +1,28 @@
-import hydrology, { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
 import { artifacts as mapRiversArtifacts } from "../../artifacts/index.js";
 
 const PlotRiversStepConfigSchema = Type.Object(
-  {},
+  {
+    endpointDischargePercentileMin: Type.Number({
+      minimum: 0,
+      maximum: 1,
+      description:
+        "Minimum discharge percentile admitted as an engine-projectable navigable-river endpoint.",
+    }),
+    targetMajorTileFraction: Type.Number({
+      minimum: 0,
+      maximum: 1,
+      description:
+        "Target share of eligible major-river tiles retained in the engine-projectable subset.",
+    }),
+  },
   {
     additionalProperties: false,
     description:
-      "Map-rivers step config. Navigable-river selection semantics are owned by the Hydrology op envelope on this step.",
+      "Internal navigable-river projection thresholds compiled from the stage's authored density knob.",
   }
 );
 
@@ -35,16 +48,13 @@ export const PlotRiversStepContract = defineStep({
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted],
   artifacts: {
     requires: [
-      hydrologyArtifacts.hydrography,
-      hydrologyArtifacts.lakePlan,
-      hydrologyArtifacts.riverNetwork,
+      hydrographyArtifacts.hydrography,
+      hydrographyArtifacts.lakePlan,
+      hydrographyArtifacts.riverNetwork,
       morphologyArtifacts.shelf,
       morphologyArtifacts.topography,
     ],
     provides: [mapRiversArtifacts.projectedNavigableRivers],
-  },
-  ops: {
-    selectNavigableRiverTerrain: hydrology.ops.selectNavigableRiverTerrain,
   },
   schema: PlotRiversStepConfigSchema,
 });

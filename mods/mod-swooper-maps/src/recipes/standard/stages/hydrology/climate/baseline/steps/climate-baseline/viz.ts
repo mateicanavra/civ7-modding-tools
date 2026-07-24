@@ -1,3 +1,5 @@
+import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
+import type { ArtifactReadValueOf } from "@swooper/mapgen-core/authoring";
 import { estimateCurlZOddQ, estimateDivergenceOddQ } from "@swooper/mapgen-core/lib/grid";
 import {
   buildScalarFieldProjections,
@@ -14,18 +16,16 @@ const GROUP_CURRENT = "Hydrology / Currents";
 const GROUP_OCEAN = "Hydrology / Ocean";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
+type BaselineClimateField = ArtifactReadValueOf<typeof climateArtifacts.baselineClimateField>;
+type ClimateSeasonality = ArtifactReadValueOf<typeof climateArtifacts.climateSeasonality>;
+type WindField = ArtifactReadValueOf<typeof climateArtifacts.windField>;
+
 /** Completed baseline-climate evidence borrowed by the optional visualization facet. */
-export type ClimateBaselineVizEvidence = Readonly<{
-  baselineClimateField: Readonly<{ rainfall: Uint8Array; humidity: Uint8Array }>;
-  climateSeasonality: Readonly<{
-    modeCount: 2 | 4;
-    axialTiltDeg: number;
-    rainfallAmplitude: Uint8Array;
-    humidityAmplitude: Uint8Array;
-  }>;
-  windField: Readonly<{
-    windU: Int8Array;
-    windV: Int8Array;
+type ClimateBaselineVizEvidence = Readonly<{
+  baselineClimateField: BaselineClimateField;
+  climateSeasonality: ClimateSeasonality;
+  windField: WindField;
+  currentField: Readonly<{
     currentU: Int8Array;
     currentV: Int8Array;
   }>;
@@ -59,7 +59,7 @@ export function buildClimateBaselineVizProjections(
   dimensions: VizDims
 ): readonly VizProjection[] {
   const projections: VizProjection[] = [];
-  const { baselineClimateField, climateSeasonality, windField } = result;
+  const { baselineClimateField, climateSeasonality, windField, currentField } = result;
 
   if (result.oceanGeometry) {
     projections.push(
@@ -135,8 +135,8 @@ export function buildClimateBaselineVizProjections(
 
   const windU = toFloat32(windField.windU);
   const windV = toFloat32(windField.windV);
-  const currentU = toFloat32(windField.currentU);
-  const currentV = toFloat32(windField.currentV);
+  const currentU = toFloat32(currentField.currentU);
+  const currentV = toFloat32(currentField.currentV);
   projections.push(
     ...buildScalarFieldProjections({
       dataTypeKey: "hydrology.wind.divergence",
@@ -308,7 +308,7 @@ export function buildClimateBaselineVizProjections(
       dataTypeKey: "hydrology.current.currentU",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "i8", values: windField.currentU },
+      field: { format: "i8", values: currentField.currentU },
       meta: defineStandardVizMeta("hydrology.current.currentU", "field.signed", {
         label: "Current U",
         group: GROUP_CURRENT,
@@ -320,7 +320,7 @@ export function buildClimateBaselineVizProjections(
       dataTypeKey: "hydrology.current.currentV",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "i8", values: windField.currentV },
+      field: { format: "i8", values: currentField.currentV },
       meta: defineStandardVizMeta("hydrology.current.currentV", "field.signed", {
         label: "Current V",
         group: GROUP_CURRENT,
@@ -345,8 +345,8 @@ export function buildClimateBaselineVizProjections(
       dataTypeKey: "hydrology.current.current",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      u: { format: "i8", values: windField.currentU },
-      v: { format: "i8", values: windField.currentV },
+      u: { format: "i8", values: currentField.currentU },
+      v: { format: "i8", values: currentField.currentV },
       meta: defineStandardVizMeta("hydrology.current.current", "field.intensity", {
         label: "Current",
         group: GROUP_CURRENT,

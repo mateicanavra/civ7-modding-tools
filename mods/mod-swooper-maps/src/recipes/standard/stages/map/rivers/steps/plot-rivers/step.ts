@@ -9,14 +9,11 @@ import {
   HYDROLOGY_MOUTH_CLOSED_BASIN,
   HYDROLOGY_MOUTH_OCEAN,
   HYDROLOGY_MOUTH_SPILL_PATH,
-} from "@mapgen/domain/hydrology/model/policy/river-network-metrics.js";
+} from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-network-classification.js";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { restoreProjectedCoastTerrain } from "../../../../../water-surface-parity.js";
 import { PlotRiversStepContract } from "./config.js";
-import {
-  NAVIGABLE_RIVER_PROJECTION_POLICY,
-  type NavigableRiverDensityKnob,
-} from "./navigable-river-projection-policy.js";
+import { selectNavigableRiverTerrain } from "./rules/select-navigable-river-terrain.js";
 import { buildPlotRiversVizProjections, type PlotRiversVizEvidence } from "./viz.js";
 
 type ProjectionSignalStatus =
@@ -107,27 +104,10 @@ function classifyProjectionSignal(input: {
  * and publishes planned-versus-engine readbacks for parity diagnostics.
  */
 export const PlotRiversStep = createStep(PlotRiversStepContract, {
-  normalize: (config, ctx) => {
-    if (config.selectNavigableRiverTerrain.strategy !== "endpoint-chain-ranking") return config;
-    const { navigableRiverDensity } = ctx.knobs as {
-      navigableRiverDensity: NavigableRiverDensityKnob;
-    };
-
-    return {
-      ...config,
-      selectNavigableRiverTerrain: {
-        ...config.selectNavigableRiverTerrain,
-        config: {
-          ...config.selectNavigableRiverTerrain.config,
-          ...NAVIGABLE_RIVER_PROJECTION_POLICY[navigableRiverDensity],
-        },
-      },
-    };
-  },
-  run: (context, config, ops, deps) => {
+  run: (context, config, _ops, deps) => {
     const hydrography = deps.artifacts.hydrography.read(context);
     const lakePlan = deps.artifacts.lakePlan.read(context);
-    const riverNetworkMetrics = deps.artifacts.riverNetwork.read(context);
+    const riverNetwork = deps.artifacts.riverNetwork.read(context);
     const shelf = deps.artifacts.shelf.read(context);
     const topography = deps.artifacts.topography.read(context);
     const { width, height } = context.setup.dimensions;
@@ -188,18 +168,18 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
       }
     }
 
-    const materialized = ops.selectNavigableRiverTerrain(
+    const materialized = selectNavigableRiverTerrain(
       {
         width,
         height,
         riverClass: hydrography.riverClass,
         discharge: hydrography.discharge,
         flowDir: hydrography.flowDir,
-        mouthType: riverNetworkMetrics.mouthType,
+        mouthType: riverNetwork.mouthType,
         lakeMask: lakePlan.lakeMask,
         projectableLandMask,
       },
-      config.selectNavigableRiverTerrain
+      config
     );
 
     let majorDurableTileCount = 0;
@@ -208,10 +188,10 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
     let majorOceanMouthTileCount = 0;
     for (let i = 0; i < size; i++) {
       if (materialized.plannedMajorRiverMask[i] !== 1) continue;
-      const permanence = riverNetworkMetrics.flowPermanenceProxy[i] ?? 0;
+      const permanence = riverNetwork.flowPermanenceProxy[i] ?? 0;
       if (permanence >= HYDROLOGY_FLOW_INTERMITTENT) majorDurableTileCount += 1;
       if (permanence >= HYDROLOGY_FLOW_PERENNIAL) majorPerennialTileCount += 1;
-      const mouthType = riverNetworkMetrics.mouthType[i] ?? 0;
+      const mouthType = riverNetwork.mouthType[i] ?? 0;
       if (mouthType === HYDROLOGY_MOUTH_CLOSED_BASIN) majorClosedBasinTileCount += 1;
       if (mouthType === HYDROLOGY_MOUTH_OCEAN || mouthType === HYDROLOGY_MOUTH_SPILL_PATH) {
         majorOceanMouthTileCount += 1;
@@ -266,7 +246,7 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
 
     context.trace.event(() => ({
       type: "map.rivers.materialization",
-      policy: "hydrology.selectNavigableRiverTerrain.v0",
+      policy: "map-rivers.selectNavigableRiverTerrain.v0",
       selectedTileCount: materialized.selectedTileCount,
       targetTileCount: materialized.targetTileCount,
       selectedChainCount: materialized.selectedChainCount,

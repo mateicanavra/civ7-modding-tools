@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 
-import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/router";
 
-const { planLakes } = hydrologyOpsPublic.ops;
+const { planLakes } = hydrologyOpsPublic.hydrography.ops;
 function runPlanLakes(
   input: Parameters<typeof planLakes.run>[0],
   config: (typeof planLakes.defaultConfig)["config"]

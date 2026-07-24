@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
-
 import { createMockAdapter } from "@civ7/adapter";
-import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
-import hydrologyDomain from "@mapgen/domain/hydrology/ops";
+import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
+import hydrologyDomain from "@mapgen/domain/hydrology/router";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
@@ -27,9 +26,13 @@ const setup = admitMapSetup({
   latitudeBounds: standardMapConfig.latitudeBounds,
 });
 
-type OceanCurrentsInput = Parameters<typeof hydrologyDomain.ops.computeOceanSurfaceCurrents.run>[0];
-type OceanThermalInput = Parameters<typeof hydrologyDomain.ops.computeOceanThermalState.run>[0];
-type ThermalStateInput = Parameters<typeof hydrologyDomain.ops.computeThermalState.run>[0];
+type OceanCurrentsInput = Parameters<
+  typeof hydrologyDomain.ocean.ops.computeOceanSurfaceCurrents.run
+>[0];
+type OceanThermalInput = Parameters<
+  typeof hydrologyDomain.ocean.ops.computeOceanThermalState.run
+>[0];
+type ThermalStateInput = Parameters<typeof hydrologyDomain.climate.ops.computeThermalState.run>[0];
 
 function climateBaselineConfig() {
   if (!ClimateBaselineStep.normalize) {
@@ -91,6 +94,7 @@ describe("hydrology climate-baseline composition", () => {
     let currentCall = 0;
     let thermalCurrentU: Int8Array | undefined;
     let thermalCurrentV: Int8Array | undefined;
+    let currentField: Readonly<{ currentU: Int8Array; currentV: Int8Array }> | undefined;
     const thermalSstInputs: Array<Float32Array | undefined> = [];
 
     withMapContextExecutionForTest(context, (stepContext) => {
@@ -107,7 +111,7 @@ describe("hydrology climate-baseline composition", () => {
         distanceToCoast: new Uint16Array(size),
       });
 
-      ClimateBaselineStep.run(
+      const result = ClimateBaselineStep.run(
         stepContext,
         config,
         {
@@ -148,6 +152,10 @@ describe("hydrology climate-baseline composition", () => {
         },
         dependencies
       );
+      if (result instanceof Promise) {
+        throw new Error("Climate baseline composition is synchronous in the Standard recipe.");
+      }
+      currentField = result.currentField;
     });
 
     expect(currentInputs).toHaveLength(config.seasonality.modeCount);
@@ -164,13 +172,13 @@ describe("hydrology climate-baseline composition", () => {
     expect(thermalSstInputs).toHaveLength(config.seasonality.modeCount);
     for (const observedSst of thermalSstInputs) expect(observedSst).toBe(sstC);
 
-    const windField = readValidatedArtifact(context, hydrologyArtifacts.windField);
+    const windField = readValidatedArtifact(context, climateArtifacts.windField);
     expect(Array.from(windField.windU)).toEqual(Array.from(windU));
     expect(Array.from(windField.windV)).toEqual(Array.from(windV));
-    expect(Array.from(windField.currentU)).toEqual(
+    expect(Array.from(currentField?.currentU ?? [])).toEqual(
       Array.from(new Int8Array(size).fill(expectedCurrentU))
     );
-    expect(Array.from(windField.currentV)).toEqual(
+    expect(Array.from(currentField?.currentV ?? [])).toEqual(
       Array.from(new Int8Array(size).fill(expectedCurrentV))
     );
   });

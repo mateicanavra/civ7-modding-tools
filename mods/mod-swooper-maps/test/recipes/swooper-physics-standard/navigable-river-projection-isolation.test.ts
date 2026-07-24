@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import { artifacts as mapRiversArtifacts } from "../../../src/recipes/standard/stages/map/rivers/artifacts/index.js";
 import {
@@ -18,7 +18,7 @@ function runRiverProjection(input: {
   const projected = readValidatedArtifact(context, mapRiversArtifacts.projectedNavigableRivers);
 
   return {
-    hydrography: readValidatedArtifact(context, hydrologyArtifacts.hydrography),
+    hydrography: readValidatedArtifact(context, hydrographyArtifacts.hydrography),
     projected,
     readback: adapter.readRiverProjection(
       preset.dimensions.width,

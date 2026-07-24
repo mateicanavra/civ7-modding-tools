@@ -450,12 +450,6 @@ const mapConfig = {
         "petBase": 19,
         "petTemperatureWeight": 82,
         "humidityDampening": 0.5
-      },
-      "diagnostics": {
-        "barrierSteps": 2,
-        "barrierElevationM": 1000,
-        "continentalityMaxDist": 14,
-        "convergenceNormalization": 78
       }
     },
     "ecology-pedology": {
@@ -521,15 +515,6 @@ const mapConfig = {
     "map-rivers": {
       "knobs": {
         "navigableRiverDensity": "normal"
-      },
-      "plot-rivers": {
-        "selectNavigableRiverTerrain": {
-          "strategy": "endpoint-chain-ranking",
-          "config": {
-            "endpointDischargePercentileMin": 0.94,
-            "targetMajorTileFraction": 0.28
-          }
-        }
       }
     },
     "ecology-features": {
@@ -825,7 +810,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountain-rivers-patch",
-  configHash: "5730b914979ed24368f9c25d2294f8eeea63228fd19ffa4a2cc89ed45399ccc7",
-  envelopeHash: "5587bea0e60143b027732dfa94609d2c64041261b4fae0f9b783a818b7bea9e8",
+  configHash: "ce4e0c8229db7960d8df00c59bc102062a97807bf5f224aab6f28aaa5805e81c",
+  envelopeHash: "97ae639b4968fd47821b7726a4a66550934998861d576640796ba966394f263a",
   config: mapConfig.config,
 });

@@ -7,10 +7,8 @@ import {
 } from "@civ7/map-policy";
 import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
 import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
-import {
-  artifacts as hydrologyArtifacts,
-  RiverNetworkMeasurementsSchema,
-} from "@mapgen/domain/hydrology";
+import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext, type MapContext } from "@swooper/mapgen-core";
 import {
@@ -21,7 +19,6 @@ import {
   assertUint16Array,
   readValidatedArtifact,
 } from "@swooper/mapgen-core/authoring";
-import type { Static } from "typebox";
 import { Value } from "typebox/value";
 import { canonicalRecipeConfig } from "../../../maps/configs/canonical.js";
 import standardRecipe from "../recipe.js";
@@ -29,12 +26,15 @@ import { artifacts as mapEcologyArtifacts } from "../stages/map/ecology/artifact
 import { artifacts as mapHydrologyArtifacts } from "../stages/map/hydrology/artifacts/index.js";
 import { artifacts as mapRiversArtifacts } from "../stages/map/rivers/artifacts/index.js";
 import { artifacts as placementArtifacts } from "../stages/placement/artifacts/index.js";
+import {
+  type StandardRiverNetworkMeasurements,
+  StandardRiverNetworkMeasurementsSchema,
+} from "./families/hydrology/river-network.js";
 import { defineStandardMapMetricScenario, type StandardMapMetricScenario } from "./scenario.js";
 
 type Volcanoes = ArtifactReadValueOf<typeof morphologyArtifacts.volcanoes>;
 type Landmasses = ArtifactReadValueOf<typeof morphologyArtifacts.landmasses>;
 type Pedology = ArtifactReadValueOf<typeof pedologyArtifacts.pedology>;
-type RiverNetworkMeasurements = Static<typeof RiverNetworkMeasurementsSchema>;
 type ProjectedNavigableRivers = ArtifactReadValueOf<
   typeof mapRiversArtifacts.projectedNavigableRivers
 >;
@@ -124,7 +124,7 @@ export type StandardMapCapture = Readonly<{
     riverClass: Uint8Array;
     outletMask: Uint8Array;
     terminalType: Uint8Array;
-    riverNetworkSummary: RiverNetworkMeasurements;
+    riverNetworkSummary: StandardRiverNetworkMeasurements;
     biomeIndex: Uint8Array;
     vegetationDensity: Float32Array;
     fertility: Pedology["fertility"];
@@ -264,7 +264,7 @@ export function captureStandardMapScenario(
   });
 
   const context = createMapContext({ setup, adapter });
-  let riverNetworkSummary: RiverNetworkMeasurements | undefined;
+  let riverNetworkSummary: StandardRiverNetworkMeasurements | undefined;
   let metricFailure: unknown;
   standardRecipe.run(context, canonicalRecipeConfig(admittedScenario.config), {
     log: () => {},
@@ -272,7 +272,7 @@ export function captureStandardMapScenario(
       metrics: (projection) => {
         const candidate = projection["hydrology.riverNetwork"];
         if (candidate !== undefined) {
-          riverNetworkSummary = Value.Parse(RiverNetworkMeasurementsSchema, candidate);
+          riverNetworkSummary = Value.Parse(StandardRiverNetworkMeasurementsSchema, candidate);
         }
       },
       onError: ({ facet, error }) => {
@@ -292,7 +292,7 @@ function copyCompletedRun(
   scenario: StandardMapMetricScenario,
   context: MapContext,
   adapter: ReturnType<typeof createMockAdapter>,
-  riverNetworkSummary: RiverNetworkMeasurements
+  riverNetworkSummary: StandardRiverNetworkMeasurements
 ): StandardMapCapture {
   const selection = resolveMapSelection(scenario);
   const { width, height } = selection.dimensions;
@@ -302,9 +302,9 @@ function copyCompletedRun(
   const mountainsValue = readValidatedArtifact(context, morphologyArtifacts.mountains);
   const shelfValue = readValidatedArtifact(context, morphologyArtifacts.shelf);
   const volcanoesValue = readValidatedArtifact(context, morphologyArtifacts.volcanoes);
-  const lakePlanValue = readValidatedArtifact(context, hydrologyArtifacts.lakePlan);
-  const hydrographyValue = readValidatedArtifact(context, hydrologyArtifacts.hydrography);
-  const climateIndicesValue = readValidatedArtifact(context, hydrologyArtifacts.climateIndices);
+  const lakePlanValue = readValidatedArtifact(context, hydrographyArtifacts.lakePlan);
+  const hydrographyValue = readValidatedArtifact(context, hydrographyArtifacts.hydrography);
+  const climateIndicesValue = readValidatedArtifact(context, climateArtifacts.climateIndices);
   const lakeProjectionValue = readValidatedArtifact(
     context,
     mapHydrologyArtifacts.engineProjectionLakes

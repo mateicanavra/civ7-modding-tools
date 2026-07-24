@@ -1,17 +1,17 @@
 import {
-  HYDROLOGY_DRYNESS_WETNESS_SCALE,
-  HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C,
-} from "@mapgen/domain/hydrology/model/policy/climate-knob-policy.js";
-import { computeRiverAdjacencyMaskFromRiverClass } from "@mapgen/domain/hydrology/model/policy/river-adjacency.js";
-import {
   isMajorRiverClass,
   isMinorRiverClass,
   RIVER_CLASS_NONE,
-} from "@mapgen/domain/hydrology/model/policy/river-class.js";
+} from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-class.js";
 import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import {
+  HYDROLOGY_DRYNESS_WETNESS_SCALE,
+  HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C,
+} from "../../../model/policy/climate-knob-policy.js";
 import { ClimateRefineStepContract } from "./config.js";
-import { buildClimateRefineVizProjections, type ClimateRefineVizEvidence } from "./viz.js";
+import { computeRiverAdjacencyMaskFromRiverClass } from "./rules/river-adjacency.js";
+import { buildClimateRefineVizProjections } from "./viz.js";
 
 type HydrologyCryosphereKnob = "off" | "on";
 type HydrologyDrynessKnob = "wet" | "mix" | "dry";
@@ -113,11 +113,8 @@ export const ClimateRefineStep = createStep(ClimateRefineStepContract, {
   run: (context, config, ops, deps) => {
     const { width, height } = context.setup.dimensions;
     const windField = deps.artifacts.windField.read(context);
-    const hydrography = deps.artifacts.hydrography.read(context) as { riverClass: Uint8Array };
-    const topography = deps.artifacts.topography.read(context) as {
-      elevation: Int16Array;
-      landMask: Uint8Array;
-    };
+    const hydrography = deps.artifacts.hydrography.read(context);
+    const topography = deps.artifacts.topography.read(context);
 
     const baselineClimateField = deps.artifacts.baselineClimateField.read(context);
 
@@ -276,45 +273,36 @@ export const ClimateRefineStep = createStep(ClimateRefineStepContract, {
         windU: windField.windU,
         windV: windField.windV,
         rainfall: refined.rainfall,
-        humidity: refined.humidity,
       },
       config.computeClimateDiagnostics
     );
 
-    const climateField = {
+    const climateField = deps.artifacts.climateField.publish(context, {
       rainfall: new Uint8Array(refined.rainfall),
       humidity: new Uint8Array(refined.humidity),
-    };
-    const climateIndices = {
+    });
+    const climateIndices = deps.artifacts.climateIndices.publish(context, {
       surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,
       effectiveMoisture,
       pet: waterBudget.pet,
       aridityIndex: waterBudget.aridityIndex,
       freezeIndex: cryosphere.freezeIndex,
-    };
-    const publishedCryosphere = {
+    });
+    const publishedCryosphere = deps.artifacts.cryosphere.publish(context, {
       snowCover: cryosphere.snowCover,
       seaIceCover: cryosphere.seaIceCover,
       albedo: cryosphere.albedo,
       groundIce01: cryosphere.groundIce01,
       permafrost01: cryosphere.permafrost01,
       meltPotential01: cryosphere.meltPotential01,
-    };
-    const publishedDiagnostics = {
-      rainShadowIndex: diagnostics.rainShadowIndex,
-      continentalityIndex: diagnostics.continentalityIndex,
-      convergenceIndex: diagnostics.convergenceIndex,
-    };
-    deps.artifacts.climateField.publish(context, climateField);
-    deps.artifacts.climateIndices.publish(context, climateIndices);
-    deps.artifacts.cryosphere.publish(context, publishedCryosphere);
+    });
 
     return {
       climateField,
       climateIndices,
       cryosphere: publishedCryosphere,
-      diagnostics: publishedDiagnostics,
-    } satisfies ClimateRefineVizEvidence;
+      diagnostics,
+    };
   },
   viz: ({ result, dimensions }) => buildClimateRefineVizProjections(result, dimensions),
 });

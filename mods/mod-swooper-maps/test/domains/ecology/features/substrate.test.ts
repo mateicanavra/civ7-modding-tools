@@ -3,7 +3,7 @@ import ecology from "@mapgen/domain/ecology/router";
 import {
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_MINOR,
-} from "@mapgen/domain/hydrology/model/policy/river-class.js";
+} from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-class.js";
 import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
 
 describe("ecology feature substrate", () => {
@@ -47,14 +47,17 @@ describe("ecology feature substrate", () => {
     const riverClass = new Uint8Array(size);
     riverClass[7] = RIVER_CLASS_MAJOR;
 
-    const selection = normalizeOperationSelectionForTest(ecology.features.ops.computeFeatureSubstrate, {
-      ...ecology.features.ops.computeFeatureSubstrate.defaultConfig,
-      config: {
-        ...ecology.features.ops.computeFeatureSubstrate.defaultConfig.config,
-        lowlandMaxElevationAboveSeaM: 80,
-        floodplainDischargeMin: 96,
-      },
-    });
+    const selection = normalizeOperationSelectionForTest(
+      ecology.features.ops.computeFeatureSubstrate,
+      {
+        ...ecology.features.ops.computeFeatureSubstrate.defaultConfig,
+        config: {
+          ...ecology.features.ops.computeFeatureSubstrate.defaultConfig.config,
+          lowlandMaxElevationAboveSeaM: 80,
+          floodplainDischargeMin: 96,
+        },
+      }
+    );
     const result = ecology.features.ops.computeFeatureSubstrate.run(
       {
         width,

@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
 import ecology from "@mapgen/domain/ecology/router";
-import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -52,7 +52,7 @@ describe("ecology-features plan-reefs step", () => {
         featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyArtifacts.lakePlan, {
+      publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, {
         width,
         height,
         lakeMask: new Uint8Array(size),

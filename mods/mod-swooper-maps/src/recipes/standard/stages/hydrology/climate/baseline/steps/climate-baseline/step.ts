@@ -1,3 +1,5 @@
+import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
+import { createStep } from "@swooper/mapgen-core/authoring";
 import {
   HYDROLOGY_DRYNESS_WETNESS_SCALE,
   HYDROLOGY_OCEAN_COUPLING_CURRENT_STRENGTH,
@@ -10,11 +12,9 @@ import {
   HYDROLOGY_SEASONALITY_WIND_VARIANCE,
   HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C,
   HYDROLOGY_WATER_GRADIENT_PER_RING_BONUS_BASE,
-} from "@mapgen/domain/hydrology/model/policy/climate-knob-policy.js";
-import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
-import { createStep } from "@swooper/mapgen-core/authoring";
+} from "../../../model/policy/climate-knob-policy.js";
 import { ClimateBaselineStepContract } from "./config.js";
-import { buildClimateBaselineVizProjections, type ClimateBaselineVizEvidence } from "./viz.js";
+import { buildClimateBaselineVizProjections } from "./viz.js";
 
 type HydrologyDrynessKnob = "wet" | "mix" | "dry";
 type HydrologyOceanCouplingKnob = "off" | "simple" | "earthlike";
@@ -698,30 +698,29 @@ export const ClimateBaselineStep = createStep(ClimateBaselineStepContract, {
       humidityAmplitude[i] = Math.max(0, Math.min(255, Math.round((humidMax - humidMin) / 2)));
     }
 
-    const baselineClimateField = {
+    const baselineClimateField = deps.artifacts.baselineClimateField.publish(context, {
       rainfall: meanRainfall,
       humidity: meanHumidity,
-    };
-    const climateSeasonality = {
+    });
+    const climateSeasonality = deps.artifacts.climateSeasonality.publish(context, {
       modeCount,
       axialTiltDeg,
       rainfallAmplitude,
       humidityAmplitude,
-    };
-    const windField = {
+    });
+    const windField = deps.artifacts.windField.publish(context, {
       windU: meanWindU,
       windV: meanWindV,
+    });
+    const currentField = {
       currentU: meanCurrentU,
       currentV: meanCurrentV,
     };
-    deps.artifacts.baselineClimateField.publish(context, baselineClimateField);
-    deps.artifacts.climateSeasonality.publish(context, climateSeasonality);
-    deps.artifacts.windField.publish(context, windField);
-
     return {
       baselineClimateField,
       climateSeasonality,
       windField,
+      currentField,
       seasonalRainfall,
       seasonalHumidity,
       seasonalWindU,
@@ -730,7 +729,7 @@ export const ClimateBaselineStep = createStep(ClimateBaselineStepContract, {
       seasonalCurrentV,
       oceanGeometry,
       oceanThermal,
-    } satisfies ClimateBaselineVizEvidence;
+    };
   },
   viz: ({ result, dimensions }) => buildClimateBaselineVizProjections(result, dimensions),
 });

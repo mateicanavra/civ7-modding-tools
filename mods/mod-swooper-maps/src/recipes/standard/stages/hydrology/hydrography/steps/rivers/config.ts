@@ -1,4 +1,6 @@
-import hydrology, { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import hydrology from "@mapgen/domain/hydrology";
+import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
@@ -27,13 +29,13 @@ export const RiversStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [hydrologyArtifacts.baselineClimateField, morphologyArtifacts.topography],
-    provides: [hydrologyArtifacts.hydrography],
+    requires: [climateArtifacts.baselineClimateField, morphologyArtifacts.topography],
+    provides: [hydrographyArtifacts.hydrography],
   },
   ops: {
-    drainageRouting: hydrology.ops.computeDrainageRouting,
-    accumulateDischarge: hydrology.ops.accumulateDischarge,
-    projectRiverNetwork: hydrology.ops.projectRiverNetwork,
+    drainageRouting: hydrology.hydrography.ops.computeDrainageRouting,
+    accumulateDischarge: hydrology.hydrography.ops.accumulateDischarge,
+    projectRiverNetwork: hydrology.hydrography.ops.projectRiverNetwork,
   },
   schema: RiversStepConfigSchema,
 });

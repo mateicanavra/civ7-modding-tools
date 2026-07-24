@@ -1,5 +1,9 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../../contract-manifest.js";
+import {
+  NAVIGABLE_RIVER_PROJECTION_POLICY,
+  type NavigableRiverDensityKnob,
+} from "./model/policy/navigable-river-projection.js";
 import { PlotRiversStep } from "./steps/plot-rivers/step.js";
 
 const NavigableRiverDensityKnobSchema = Type.Union(
@@ -35,5 +39,8 @@ export default createStage({
   knobsSchema,
   steps: orderStandardStageSteps("map-rivers", {
     "plot-rivers": PlotRiversStep,
+  }),
+  compile: ({ knobs }: { knobs: { navigableRiverDensity: NavigableRiverDensityKnob } }) => ({
+    "plot-rivers": NAVIGABLE_RIVER_PROJECTION_POLICY[knobs.navigableRiverDensity],
   }),
 } as const);

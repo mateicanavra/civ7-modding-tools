@@ -1,6 +1,6 @@
 # Hydrology measurements
 
-**Executable authority:** [`families/hydrology.ts`](../../families/hydrology.ts)
+**Executable authority:** [`families/hydrology/index.ts`](../../families/hydrology/index.ts)
 
 This family measures modeled river coverage by minor and major class, outlet and
 ocean-terminal coverage, the published river-network summary, navigable-river

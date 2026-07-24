@@ -3,7 +3,7 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
 import ecology from "@mapgen/domain/ecology/router";
-import { RIVER_CLASS_MAJOR } from "@mapgen/domain/hydrology/model/policy/river-class.js";
+import { RIVER_CLASS_MAJOR } from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-class.js";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
@@ -102,13 +102,16 @@ describe("ecology-features plan-floodplains step", () => {
       PlanFloodplainsStep.run(
         stepContext,
         {
-          planFloodplains: normalizeOperationSelectionForTest(ecology.features.ops.planFloodplains, {
-            ...ecology.features.ops.planFloodplains.defaultConfig,
-            config: {
-              ...ecology.features.ops.planFloodplains.defaultConfig.config,
-              minConfidence01: 0.5,
-            },
-          }),
+          planFloodplains: normalizeOperationSelectionForTest(
+            ecology.features.ops.planFloodplains,
+            {
+              ...ecology.features.ops.planFloodplains.defaultConfig,
+              config: {
+                ...ecology.features.ops.planFloodplains.defaultConfig.config,
+                minConfidence01: 0.5,
+              },
+            }
+          ),
         },
         ecology.features.ops.bind(PlanFloodplainsStep.contract.ops!).runtime,
         dependencies

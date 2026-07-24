@@ -4,7 +4,8 @@ import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology";
 import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
 import ecology from "@mapgen/domain/ecology/router";
-import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
@@ -63,14 +64,14 @@ describe("ecology-features plan-vegetation step", () => {
         vegetationDensity: new Float32Array(size).fill(0.4),
         treeLine01: new Float32Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyArtifacts.climateIndices, {
+      publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
         effectiveMoisture: new Float32Array(size).fill(120),
         surfaceTemperatureC: new Float32Array(size).fill(20),
         aridityIndex: new Float32Array(size).fill(0.4),
         freezeIndex: new Float32Array(size),
         pet: new Float32Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyArtifacts.hydrography, {
+      publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
         runoff: new Float32Array(size),
         discharge: new Float32Array(size),
         riverClass: new Uint8Array(size),
@@ -82,7 +83,7 @@ describe("ecology-features plan-vegetation step", () => {
         depressionDepth: new Float32Array(size),
         terminalType: new Uint8Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyArtifacts.lakePlan, {
+      publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, {
         width,
         height,
         lakeMask: new Uint8Array(size),

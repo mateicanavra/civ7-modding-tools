@@ -67,17 +67,21 @@ export const GeomorphologyStepContract = defineStep({
 
 Notes:
 
-- `morphologyArtifacts.*` is the domain-owned artifact authority catalog used by this stage.
-- `morphology.ops.*` is the domain op contract surface consumed by the step.
+- Import operation contracts from the owning domain root, such as
+  `import hydrology from "@mapgen/domain/hydrology"`.
+- Import artifacts from the exact module catalog that owns them, such as
+  `@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js`; domain and
+  module contract indexes do not re-export artifact catalogs.
+- A step contract selects only the operation contracts and artifact definitions
+  that the step can actually execute, read, or publish.
 
 Representative example (dependency tags; excerpt; see full file in anchors):
 
 ```ts
-import hydrology from "@mapgen/domain/hydrology";
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
+import { artifacts as hydrologyHydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
-import { artifacts as hydrologyHydrographyArtifacts } from "../../../../hydrology/hydrography/artifacts/index.js";
 import { artifacts as mapRiversArtifacts } from "../../artifacts/index.js";
 
 /** Contract and compiled configuration boundary for Civ7 river projection. */
@@ -89,12 +93,19 @@ export const PlotRiversStepContract = defineStep({
     requires: [hydrologyHydrographyArtifacts.hydrography],
     provides: [mapRiversArtifacts.projectedNavigableRivers],
   },
-  ops: {
-    selectNavigableRiverTerrain: hydrology.ops.selectNavigableRiverTerrain,
-  },
-  schema: Type.Object({}),
+  schema: Type.Object({
+    endpointDischargePercentileMin: Type.Number({ minimum: 0, maximum: 1 }),
+    targetMajorTileFraction: Type.Number({ minimum: 0, maximum: 1 }),
+  }),
 });
 ```
+
+`plot-rivers` deliberately has no domain operation for engine-constrained
+navigable selection. Its `step.ts` calls the pure
+`steps/plot-rivers/rules/select-navigable-river-terrain.ts` rule using thresholds
+compiled from the stage-owned `model/policy/navigable-river-projection.ts`. Use
+the same distinction when behavior belongs to one recipe projection rather than
+the reusable domain model.
 
 ### 3) Implement the step (`createStep`)
 
@@ -226,6 +237,8 @@ If your step introduces a new required/provided dependency tag:
 - **Missing dependency tags**: the executor will fail early with `MissingDependencyError`; fix by adding tags/provides or adjusting ordering.
 - **Mutating consumed artifacts**: consumers must copy before mutation and publish a new, explicitly named vintage.
 - **Import drift**: prefer published entrypoints (see import policy); avoid workspace-only MapGen aliases in docs/examples unless explicitly internal.
+- **Promoting recipe projection into a domain op**: engine-constrained or stage-specific rules stay
+  with the recipe owner unless they define reusable domain behavior.
 
 ## Ground truth anchors
 

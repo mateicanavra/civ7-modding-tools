@@ -15,16 +15,21 @@ recreate, weaken, or hardcode its membership.
 strategy authorship are sealed as positive kinds. Every semantic strategy owns
 `strategies/<semantic-id>/{config.ts,index.ts}`; the operation contract remains
 the sole shared input/output authority; one strategy is necessarily the default
-and multiple strategies name their default explicitly. The immediate shrink-only
-cleanup removes Core's zero-production-consumer schema-map, string-id, and
-implementation-map compatibility paths after migrating its own test fixtures.
-The active structural burn-down then moves Ecology from its never-completed flat
-root into semantic modules for pedology, biomes, features, and plot effects.
-The existing generic domain and module blueprints define that destination: the
-domain root composes module contracts and routers, each operation and immutable
-product moves to its lowest rightful module, and vocabulary rises to the root
-model only when multiple modules prove the edge. No Ecology enumeration or
-niche-shaped substitute is admitted.
+and multiple strategies name their default explicitly. Core's obsolete
+schema-map, string-id, and implementation-map compatibility paths are deleted.
+Ecology is sealed as semantic modules for pedology, biomes, features, and plot
+effects. Hydrology is sealed as climate, ocean, cryosphere, and hydrography
+modules. Engine-constrained river materialization belongs to map-rivers rather
+than a counterfeit fifth domain module; aggregate river measurements belong to
+the Standard metrics facet rather than pipeline state. Climate algorithms and
+their advisory observation operation share module-owned physical rules, artifact
+publication returns the exact admitted evidence consumed by facets, and river
+classification follows admitted lake intent under its truthful operation
+identity. The existing generic domain and module blueprints define this
+destination: the domain root composes module contracts and routers, each
+operation and immutable product lives with its lowest rightful module, and
+vocabulary rises to the root model only when multiple modules prove the edge.
+No domain enumeration or niche-shaped substitute is admitted.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -32,15 +37,16 @@ state is adapter observation; metrics, diagnostics, trace, and visualization
 are separate capabilities. Core owns the generic authoring/execution and
 domain-composition SDK, not Swooper's domain model.
 
-**Gradient:** delete the retired strategy compatibility surface, prove the one
-canonical Core API, and commit that shrink-only boundary. Then recompose Ecology
-one complete semantic module at a time while preserving operation ids, strategy
-identities, artifact ids, authored defaults, and algorithms. Update the stale
-Ecology router guidance and turn the already-red generic domain/module laws
-green without weakening them or adding a niche exception. Hydrology follows;
-Placement waits for its protected user edit; Morphology follows the artifact-
-vintage decision last. Prove each domain through the native Nx graph and focused
-kind owners before its semantic commit.
+**Gradient:** land the completed Hydrology hierarchy after its native Nx and
+focused kind proof, then seal the small strategy-authority wording/fixture
+cleanup as its own layer. Establish one mod-local test setup authority for the
+switchable Civ7 map-size, map-seed, and game-seed defaults while preserving
+explicit opt-outs for tests whose subject is size or seed. Then recompose
+Morphology into terrain, coasts, routing, erosion, landforms, and shelf modules,
+retaining producer-owned immutable topography vintages and burning its existing
+JSDoc baseline to zero. Placement waits for its protected user edit. Prove each
+domain through the native Nx graph and focused kind owners before its semantic
+commit.
 After the mechanical kinds are homogeneous, semantically recompose
 `packages/mapgen-core/src/authoring` so its hierarchy truthfully expresses the
 authoring SDK's concepts, ownership, dependency direction, and public surfaces;

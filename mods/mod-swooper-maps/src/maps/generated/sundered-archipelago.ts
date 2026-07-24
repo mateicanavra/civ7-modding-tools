@@ -446,12 +446,6 @@ const mapConfig = {
         "petTemperatureWeight": 75,
         "humidityDampening": 0.55
       },
-      "diagnostics": {
-        "barrierSteps": 4,
-        "barrierElevationM": 500,
-        "continentalityMaxDist": 12,
-        "convergenceNormalization": 64
-      },
       "knobs": {
         "dryness": "mix",
         "temperature": "temperate",
@@ -712,15 +706,6 @@ const mapConfig = {
     "map-rivers": {
       "knobs": {
         "navigableRiverDensity": "dense"
-      },
-      "plot-rivers": {
-        "selectNavigableRiverTerrain": {
-          "strategy": "endpoint-chain-ranking",
-          "config": {
-            "endpointDischargePercentileMin": 0.94,
-            "targetMajorTileFraction": 0.28
-          }
-        }
       }
     },
     "map-ecology": {
@@ -825,7 +810,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "sundered-archipelago",
-  configHash: "2dbd581243dafd7d5d6f176a96787255aa7f17c479794640d36ff0fe29955cf3",
-  envelopeHash: "f9141c30ca8cadb050bd1d6be7be60e66fee1302c074f7f2073736a8932de8ee",
+  configHash: "2f04a8fe66aba575397ea42f813d4e693d393cc8de39ecfb8d13862fe749cbb9",
+  envelopeHash: "2ff2898c450d8efe25ffc9e67ddbc4bafe21eb419826a6d357dc5331b4e2d27d",
   config: mapConfig.config,
 });

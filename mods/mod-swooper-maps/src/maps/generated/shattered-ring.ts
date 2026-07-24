@@ -446,12 +446,6 @@ const mapConfig = {
         "petTemperatureWeight": 75,
         "humidityDampening": 0.55
       },
-      "diagnostics": {
-        "barrierSteps": 4,
-        "barrierElevationM": 500,
-        "continentalityMaxDist": 12,
-        "convergenceNormalization": 64
-      },
       "knobs": {
         "dryness": "mix",
         "temperature": "temperate",
@@ -713,15 +707,6 @@ const mapConfig = {
     "map-rivers": {
       "knobs": {
         "navigableRiverDensity": "dense"
-      },
-      "plot-rivers": {
-        "selectNavigableRiverTerrain": {
-          "strategy": "endpoint-chain-ranking",
-          "config": {
-            "endpointDischargePercentileMin": 0.94,
-            "targetMajorTileFraction": 0.28
-          }
-        }
       }
     },
     "map-ecology": {
@@ -826,7 +811,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "shattered-ring",
-  configHash: "8690ee614c8b27b63d98dcc0fda79b0929ab1643be2af9f2007780113562ebe7",
-  envelopeHash: "3d8c0bbe1eb19a1c2f909a93fc2cdfbfeeab3f42175e0d5084ff2173ba6bd840",
+  configHash: "9ad0af9678f7af140bebb82a3c48895d76df1bea6785a60730f8161d2dbb6e88",
+  envelopeHash: "89cee600ca2c5385053a67278de25f40c4388c2dacfbabb5e0abf3f78d7d1ad1",
   config: mapConfig.config,
 });

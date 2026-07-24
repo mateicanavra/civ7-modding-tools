@@ -1,4 +1,5 @@
-import hydrology, { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import hydrology from "@mapgen/domain/hydrology";
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
@@ -19,7 +20,7 @@ const LakesStepConfigSchema = Type.Object(
 );
 
 /**
- * Defines deterministic lake intent and river-network metrics from canonical hydrography and
+ * Defines deterministic lake intent and river-network classification from canonical hydrography and
  * topography. It plans Hydrology truth only; map-hydrology owns later Civ7 water
  * materialization.
  */
@@ -28,12 +29,12 @@ export const LakesStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [morphologyArtifacts.topography, hydrologyArtifacts.hydrography],
-    provides: [hydrologyArtifacts.lakePlan, hydrologyArtifacts.riverNetwork],
+    requires: [morphologyArtifacts.topography, hydrographyArtifacts.hydrography],
+    provides: [hydrographyArtifacts.lakePlan, hydrographyArtifacts.riverNetwork],
   },
   ops: {
-    planLakes: hydrology.ops.planLakes,
-    computeRiverNetworkMetrics: hydrology.ops.computeRiverNetworkMetrics,
+    planLakes: hydrology.hydrography.ops.planLakes,
+    classifyRiverNetwork: hydrology.hydrography.ops.classifyRiverNetwork,
   },
   schema: LakesStepConfigSchema,
 });

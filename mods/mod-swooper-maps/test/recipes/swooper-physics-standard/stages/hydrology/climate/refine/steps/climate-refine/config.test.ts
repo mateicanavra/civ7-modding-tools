@@ -1,10 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { admitMapSetup } from "@swooper/mapgen-core";
-import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 
-import hydrologyClimateRefineStage from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/refine/index.js";
-import { ClimateRefineStepContract } from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/refine/steps/climate-refine/config.js";
-import { ClimateRefineStep } from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/refine/steps/climate-refine/step.js";
+import standardRecipe from "../../../../../../../../../src/recipes/standard/recipe.js";
 import { TEST_MAP_SIZE } from "../../../../../../../../map-size.js";
 import {
   createStandardRecipeTestConfig,
@@ -18,31 +15,15 @@ const setup = admitMapSetup({
 });
 
 function normalizeDryness(dryness: "wet" | "mix") {
-  if (!ClimateRefineStep.normalize) throw new Error("Climate refine must normalize dryness.");
-  const stageConfig = createStandardRecipeTestConfig()["hydrology-climate-refine"];
+  const recipeConfig = createStandardRecipeTestConfig();
+  const stageConfig = recipeConfig["hydrology-climate-refine"];
   stageConfig.precipitationRefinement.riverCorridor.lowlandAdjacencyBonus = 20;
   stageConfig.knobs.dryness = dryness;
   stageConfig.knobs.temperature = "temperate";
   stageConfig.knobs.cryosphere = "on";
-  const admitted = validateSchemaValueForTest(
-    hydrologyClimateRefineStage.surfaceSchema,
-    stageConfig,
-    "/hydrology-climate-refine"
-  );
-  const { knobs, rawSteps } = hydrologyClimateRefineStage.toInternal({
-    setup,
-    stageConfig: admitted,
-  });
-  const config = validateSchemaValueForTest(
-    ClimateRefineStepContract.schema,
-    rawSteps["climate-refine"],
-    "/hydrology-climate-refine/climate-refine"
-  );
-  return validateSchemaValueForTest(
-    ClimateRefineStepContract.schema,
-    ClimateRefineStep.normalize(config, { setup, knobs }),
-    "/hydrology-climate-refine/climate-refine"
-  );
+  return standardRecipe.compileConfig(setup, recipeConfig)["hydrology-climate-refine"][
+    "climate-refine"
+  ];
 }
 
 describe("hydrology climate-refine authoring", () => {

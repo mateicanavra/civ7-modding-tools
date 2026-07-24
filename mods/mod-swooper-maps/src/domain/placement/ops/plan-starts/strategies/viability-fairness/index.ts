@@ -3,7 +3,11 @@ import {
   CIV7_START_PLACEMENT_POLICY_V0,
   feasibleStartCeiling,
 } from "@civ7/map-policy";
-import { isAnyRiverClass, RIVER_CLASS_MAJOR, RIVER_CLASS_NONE } from "@mapgen/domain/hydrology";
+import {
+  isAnyRiverClass,
+  RIVER_CLASS_MAJOR,
+  RIVER_CLASS_NONE,
+} from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-class.js";
 import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import {

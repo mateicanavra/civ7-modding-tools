@@ -459,12 +459,6 @@ const mapConfig = {
         "petBase": 19,
         "petTemperatureWeight": 82,
         "humidityDampening": 0.5
-      },
-      "diagnostics": {
-        "barrierSteps": 2,
-        "barrierElevationM": 1000,
-        "continentalityMaxDist": 14,
-        "convergenceNormalization": 78
       }
     },
     "ecology-pedology": {
@@ -530,15 +524,6 @@ const mapConfig = {
     "map-rivers": {
       "knobs": {
         "navigableRiverDensity": "normal"
-      },
-      "plot-rivers": {
-        "selectNavigableRiverTerrain": {
-          "strategy": "endpoint-chain-ranking",
-          "config": {
-            "endpointDischargePercentileMin": 0.94,
-            "targetMajorTileFraction": 0.28
-          }
-        }
       }
     },
     "ecology-features": {
@@ -825,7 +810,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-earthlike",
-  configHash: "efc10d2577d35557483709ce9de23f8bf17ed88d339ef55fec2d8aab16161e2b",
-  envelopeHash: "46dd63983079067b08000ba7786218743fd7edb56b433083d49a2eca603f429c",
+  configHash: "05ba736bca5b2d71be03647a17cf24591409e63e989f1058217e1465f3e853d6",
+  envelopeHash: "4529d9651ffc54095d958ec2c3a4941afdb0040444ff3852f382bd5b48009758",
   config: mapConfig.config,
 });

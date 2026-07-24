@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
-
 import { createMockAdapter } from "@civ7/adapter";
 import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
 import ecology from "@mapgen/domain/ecology/router";
-import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
+import { artifacts as cryosphereArtifacts } from "@mapgen/domain/hydrology/modules/cryosphere/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
@@ -48,7 +48,7 @@ describe("plot biomes step", () => {
         landMask,
         bathymetry: new Int16Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyArtifacts.cryosphere, {
+      publishTestArtifact(stepContext, cryosphereArtifacts.cryosphere, {
         snowCover: new Uint8Array(size),
         seaIceCover: new Uint8Array(size),
         albedo: new Uint8Array(size),
@@ -56,7 +56,7 @@ describe("plot biomes step", () => {
         permafrost01: new Float32Array(size),
         meltPotential01: new Float32Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyArtifacts.climateIndices, {
+      publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
         surfaceTemperatureC: new Float32Array(size).fill(15),
         effectiveMoisture: new Float32Array(size).fill(160),
         pet: new Float32Array(size),

@@ -9,6 +9,9 @@ Scope: `mods/mod-swooper-maps/**`
   game-facing entry files.
 - All six domain roots remain mod-owned; reusable SDK mechanics belong in the
   smallest named substrate package rather than moving a domain into Core.
+- Domain rules own semantic algorithms, not local copies of Core primitives.
+  Search `@swooper/mapgen-core/lib/*` before adding a helper; name and document
+  an intentional divergence so its distinct behavior is visible at the callsite.
 - `mod/` is generated build output for Civ VII; treat it as read‑only.
 
 ## Tooling Rules
@@ -32,6 +35,20 @@ Scope: `mods/mod-swooper-maps/**`
 - Pedology runs before biomes and shared feature scoring:
   `artifact:ecology.soils` feeds biome classification and the split
   feature-intent planners before the apply step writes features to the engine.
+
+## Hydrology domain
+
+- Hydrology composes the `ocean`, `climate`, `cryosphere`, and `hydrography`
+  modules. Contracts consume the root domain, runtime recipe composition
+  consumes `@mapgen/domain/hydrology/router`, and steps import artifacts or
+  model policy from the exact owning module.
+- Ocean state remains invocation-local until a causal downstream consumer
+  earns a durable product. Climate publishes atmospheric fields, cryosphere
+  publishes frozen-water state, and hydrography publishes drainage, river, and
+  lake intent.
+- Civ7-constrained river materialization belongs to the `map/rivers` projection
+  step. It consumes Hydrology evidence without becoming a Hydrology operation
+  or redefining the physical river model.
 
 ## Canonical Docs
 

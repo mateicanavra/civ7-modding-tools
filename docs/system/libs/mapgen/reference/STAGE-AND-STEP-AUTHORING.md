@@ -34,7 +34,7 @@ module migrations land. Do not reproduce those compatibility surfaces in a
 modular domain.
 
 ```ts
-import hydrology, { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import { artifacts as hydrologyHydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
@@ -59,18 +59,18 @@ export const PlotRiversStepContract = defineStep({
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted],
   artifacts: {
     requires: [
-      hydrologyArtifacts.hydrography,
-      hydrologyArtifacts.lakePlan,
-      hydrologyArtifacts.riverNetwork,
+      hydrologyHydrographyArtifacts.hydrography,
+      hydrologyHydrographyArtifacts.lakePlan,
+      hydrologyHydrographyArtifacts.riverNetwork,
       morphologyArtifacts.shelf,
       morphologyArtifacts.topography,
     ],
     provides: [mapRiversArtifacts.projectedNavigableRivers],
   },
-  ops: {
-    selectNavigableRiverTerrain: hydrology.ops.selectNavigableRiverTerrain,
-  },
-  schema: Type.Object({}, { additionalProperties: false }),
+  schema: Type.Object({
+    endpointDischargePercentileMin: Type.Number({ minimum: 0, maximum: 1 }),
+    targetMajorTileFraction: Type.Number({ minimum: 0, maximum: 1 }),
+  }),
 });
 ```
 
@@ -95,18 +95,13 @@ Representative example (createStep boundary; excerpt; see full file in anchors):
 ```ts
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { PlotRiversStepContract } from "./config.js";
+import { selectNavigableRiverTerrain } from "./rules/select-navigable-river-terrain.js";
 
 /** Projects admitted river evidence into Civ7 and captures engine readback. */
 export const PlotRiversStep = createStep(PlotRiversStepContract, {
-  normalize: (config, ctx) => {
-    // Shape-preserving; may use ctx.knobs deterministically. For rivers, this
-    // is where map-rivers navigableRiverDensity resolves the Hydrology-owned
-    // navigable-river projection policy without mutating Hydrology truth.
-    return config;
-  },
   run: (context, config, ops, deps) => {
     const hydrography = deps.artifacts.hydrography.read(context);
-    const projected = ops.selectNavigableRiverTerrain(
+    const projected = selectNavigableRiverTerrain(
       {
         width: context.setup.dimensions.width,
         height: context.setup.dimensions.height,
@@ -115,7 +110,7 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
         flowDir: hydrography.flowDir,
         projectableLandMask: /* finalized projectable terrain mask */,
       },
-      config.selectNavigableRiverTerrain
+      config
     );
     // ... stamp projected.riverMask through deps.engine.setTerrainType(context, ...) ...
     // ... refresh Civ caches, publish projected intent, and keep immediate readback as evidence ...
