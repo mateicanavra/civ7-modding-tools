@@ -15,16 +15,13 @@ Positive structure closes each admitted test kind after the corpus expresses
 that model; source-to-test allowlists and generic `runtime`, `operations`,
 `recipe`, `support`, or `testing` cabinets remain forbidden.
 
-**Current container:** first restore one executable Studio/MapGen test identity:
-Studio consumes the Nx-built MapGen package rather than mixing source aliases
-with bundled consumers, Core-generated stage and operation schemas carry their
-own contextual metadata, and stale visualization expectations follow current
-product layer identities. Then cash the recursive domain-test topology into
-Ecology, Hydrology, Foundation, Placement, and Resources in separate Graphite
-layers. Domain roots retain only cross-module behavior; module roots retain
-cross-operation behavior; exact behavior lives with the owning operation,
-artifact, or policy. Recipe-level product outcomes remain recipe-owned metrics
-targets or studies.
+**Current container:** cash the recursive domain-test topology into Ecology,
+then Hydrology, Foundation, Placement, and Resources in separate Graphite
+layers. Ecology is the first complete sieve: exact behavior descends to its
+operation, artifact, or policy owner; module roots retain only cross-operation
+behavior; recipe publication and engine projection remain with their steps;
+product outcomes remain recipe-owned metric targets or studies. A domain root
+stays empty when no genuine cross-module invariant exists.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7

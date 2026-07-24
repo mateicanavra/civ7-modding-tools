@@ -1,0 +1,151 @@
+import { describe, expect, it } from "bun:test";
+import { createMockAdapter } from "@civ7/adapter";
+import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
+import ecology from "@mapgen/domain/ecology/router";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
+import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
+import {
+  buildStepTestDependencies,
+  normalizeOperationSelectionForTest,
+  publishTestArtifact,
+  withMapContextExecutionForTest,
+} from "@swooper/mapgen-core/testing";
+import { artifacts as mapEcologyArtifacts } from "../../../../../../../../src/recipes/standard/stages/map/ecology/artifacts/index.js";
+import { FeaturesApplyStep as featuresApplyStep } from "../../../../../../../../src/recipes/standard/stages/map/ecology/steps/features-apply/step.js";
+import { TEST_MAP_SEED } from "../../../../../../../setup.js";
+
+const SYNTHETIC_DIMENSIONS = { width: 2, height: 2 } as const;
+
+describe("map-ecology features-apply step", () => {
+  it("preserves the engine surface when Civ7 rejects an authored feature placement", () => {
+    const { width, height } = SYNTHETIC_DIMENSIONS;
+    const setup = admitMapSetup({
+      mapSeed: TEST_MAP_SEED,
+      dimensions: SYNTHETIC_DIMENSIONS,
+      latitudeBounds: { topLatitude: 1, bottomLatitude: -1 },
+    });
+
+    const adapter = createMockAdapter({
+      width,
+      height,
+      canHaveFeature: () => false,
+    });
+    adapter.fillWater(false);
+    const existingFeature = 40_000;
+    adapter.setFeatureType(1, 1, { Feature: existingFeature, Direction: -1, Elevation: 0 });
+    const ctx = createMapContext({ setup, adapter });
+
+    withMapContextExecutionForTest(ctx, (stepContext) => {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
+        elevation: new Int16Array(width * height),
+        seaLevel: 0,
+        landMask: new Uint8Array(width * height).fill(1),
+        bathymetry: new Int16Array(width * height),
+      });
+
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsVegetation, [
+        { x: 0, y: 0, feature: "forest" },
+      ]);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsWetlands, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsFloodplains, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsReefs, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsIce, []);
+
+      const config = {
+        apply: normalizeOperationSelectionForTest(
+          ecology.features.ops.applyFeatures,
+          ecology.features.ops.applyFeatures.defaultConfig
+        ),
+      };
+      const ops = ecology.features.ops.bind(featuresApplyStep.contract.ops!).runtime;
+
+      featuresApplyStep.run(
+        stepContext,
+        config,
+        ops,
+        buildStepTestDependencies(featuresApplyStep, stepContext)
+      );
+    });
+
+    const diagnostics = readValidatedArtifact(ctx, mapEcologyArtifacts.featureApplyDiagnostics);
+    expect(diagnostics.attempted).toBe(1);
+    expect(diagnostics.applied).toBe(0);
+    expect(diagnostics.rejected).toBe(1);
+    expect(diagnostics.rejectedCanHaveFeature).toBe(1);
+    expect(diagnostics.rejectedOutOfBounds).toBe(0);
+    expect(diagnostics.rejectedUnknownFeature).toBe(0);
+    expect(diagnostics.rejectionMask[0]).toBe(1);
+
+    const snapshot = readValidatedArtifact(ctx, mapEcologyArtifacts.featureEngineSnapshot);
+    expect(snapshot.featureType).toEqual(
+      new Int32Array([adapter.NO_FEATURE, adapter.NO_FEATURE, adapter.NO_FEATURE, existingFeature])
+    );
+  });
+
+  it("publishes the complete engine surface after terrain validation", () => {
+    const { width, height } = SYNTHETIC_DIMENSIONS;
+    const setup = admitMapSetup({
+      mapSeed: TEST_MAP_SEED,
+      dimensions: SYNTHETIC_DIMENSIONS,
+      latitudeBounds: { topLatitude: 1, bottomLatitude: -1 },
+    });
+
+    const adapter = createMockAdapter({ width, height, canHaveFeature: () => true });
+    adapter.fillWater(false);
+    const validatedFeature = adapter.getFeatureTypeIndex("FEATURE_ICE");
+    const originalValidateAndFixTerrain = adapter.validateAndFixTerrain.bind(adapter);
+    adapter.validateAndFixTerrain = () => {
+      originalValidateAndFixTerrain();
+      adapter.setFeatureType(0, 1, {
+        Feature: validatedFeature,
+        Direction: -1,
+        Elevation: 0,
+      });
+    };
+    const ctx = createMapContext({ setup, adapter });
+
+    withMapContextExecutionForTest(ctx, (stepContext) => {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
+        elevation: new Int16Array(width * height),
+        seaLevel: 0,
+        landMask: new Uint8Array(width * height).fill(1),
+        bathymetry: new Int16Array(width * height),
+      });
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsVegetation, [
+        { x: 0, y: 0, feature: "forest" },
+      ]);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsWetlands, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsFloodplains, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsReefs, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsIce, []);
+
+      const config = {
+        apply: normalizeOperationSelectionForTest(
+          ecology.features.ops.applyFeatures,
+          ecology.features.ops.applyFeatures.defaultConfig
+        ),
+      };
+      const ops = ecology.features.ops.bind(featuresApplyStep.contract.ops!).runtime;
+
+      featuresApplyStep.run(
+        stepContext,
+        config,
+        ops,
+        buildStepTestDependencies(featuresApplyStep, stepContext)
+      );
+    });
+
+    const snapshot = readValidatedArtifact(ctx, mapEcologyArtifacts.featureEngineSnapshot);
+    expect(snapshot.featureType[0]).toBe(adapter.getFeatureTypeIndex("FEATURE_FOREST"));
+    expect(snapshot.featureType[width]).toBe(validatedFeature);
+    expect(snapshot.featureType).toEqual(
+      new Int32Array([
+        adapter.getFeatureType(0, 0),
+        adapter.getFeatureType(1, 0),
+        adapter.getFeatureType(0, 1),
+        adapter.getFeatureType(1, 1),
+      ])
+    );
+  });
+});
