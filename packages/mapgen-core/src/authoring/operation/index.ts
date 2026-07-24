@@ -8,10 +8,7 @@ export type {
   OperationInputAdmissionIssue,
 } from "./input-admission.js";
 export { OperationInputAdmissionError } from "./input-admission.js";
-export type { OpRef } from "./ref.js";
-export { opRef } from "./ref.js";
 export type {
-  OpStrategy,
   StrategyDescriptor,
   StrategyDescriptorFor,
   StrategyImpl,

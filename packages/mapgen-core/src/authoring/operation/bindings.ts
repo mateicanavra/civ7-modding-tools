@@ -1,13 +1,13 @@
 import type { TSchema } from "typebox";
-import type { OpContractAny } from "./op/contract.js";
-import { readCanonicalDomainOpContract } from "./op/create.js";
-import type { DomainOp } from "./op/types.js";
 import {
   captureOwnDataRecord,
   materializeOwnDataRecord,
   type OwnDataRecord,
-} from "./own-data-record.js";
-import { readStepOpBindingContractInternal } from "./step/ops.js";
+} from "../own-data-record.js";
+import { readStepOpBindingContractInternal } from "../step/ops.js";
+import type { OpContractAny } from "./contract.js";
+import { readCanonicalDomainOpContract } from "./create.js";
+import type { DomainOp } from "./types.js";
 
 export type OpId = string;
 export type OpsById<Op extends { id: OpId }> = Readonly<{
@@ -63,6 +63,7 @@ class DomainCompileRootToken<Op extends DomainOpCompileAny> {
 export type DomainCompileRoot<Op extends DomainOpCompileAny = DomainOpCompileAny> =
   DomainCompileRootToken<Op>;
 
+/** Reports that a declared operation contract has no implementation in the selected registry. */
 export class OpBindingError extends Error {
   readonly opKey: string;
   readonly opId: string;
@@ -210,6 +211,11 @@ export function createFlatDomainCompileRoot<
   return root;
 }
 
+/**
+ * Binds declared operation keys to their exact canonical compile implementations.
+ * Contract identity, registry key, and implementation id must all agree so compilation cannot
+ * silently substitute a shape-compatible operation from another authority.
+ */
 export function bindCompileOps<
   const Decl extends Readonly<Record<string, OpContractAny>>,
   const Registry extends Readonly<Record<string, DomainOpCompileAny>>,
@@ -219,6 +225,11 @@ export function bindCompileOps<
   return bindRecord(contracts, registry, readCanonicalDomainOpContract) as BoundOps<Decl, Registry>;
 }
 
+/**
+ * Binds declared operation keys to their exact runtime projections.
+ * Runtime wrappers retain the originating contract identity, preventing recipe execution from
+ * accepting an implementation that merely shares the same operation id.
+ */
 export function bindRuntimeOps<
   const Decl extends Readonly<Record<string, OpContractAny>>,
   const Registry extends Readonly<Record<string, DomainOpRuntimeAny>>,

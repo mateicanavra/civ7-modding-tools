@@ -1,7 +1,7 @@
 import type { TSchema } from "typebox";
 import { Value } from "typebox/value";
 
-import type { CompileOpsById } from "../authoring/bindings.js";
+import type { CompileOpsById } from "../authoring/operation/bindings.js";
 import type { CompiledRecipeConfigOf, RecipePublicConfigOf } from "../authoring/recipe/types.js";
 import { RESERVED_STAGE_KEY } from "../authoring/stage/reserved-key.js";
 import type { StepOpsDecl } from "../authoring/step/ops.js";

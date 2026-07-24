@@ -34,17 +34,6 @@ export {
   readValidatedArtifact,
 } from "./artifact/index.js";
 export type {
-  DomainCompileRoot,
-  DomainOpCompileAny,
-  DomainOpRuntime,
-  DomainOpRuntimeAny,
-  DomainOpsRouter,
-  DomainOpsSurface,
-  OpId,
-  OpsById,
-} from "./bindings.js";
-export { collectCompileOps, runtimeOp } from "./bindings.js";
-export type {
   DomainAggregateContract,
   DomainAggregateContractAny,
   DomainContract,
@@ -64,6 +53,17 @@ export {
   defineDomainSubdomain,
 } from "./domain/index.js";
 export type {
+  DomainCompileRoot,
+  DomainOpCompileAny,
+  DomainOpRuntime,
+  DomainOpRuntimeAny,
+  DomainOpsRouter,
+  DomainOpsSurface,
+  OpId,
+  OpsById,
+} from "./operation/bindings.js";
+export { collectCompileOps, runtimeOp } from "./operation/bindings.js";
+export type {
   AdmittedBuffer,
   AdmittedOperationInput,
   DomainOp,
@@ -72,8 +72,6 @@ export type {
   OpContract,
   OpContractLike,
   OperationInputAdmissionIssue,
-  OpRef,
-  OpStrategy,
   OpStrategyId,
   OpTypeBag,
   OpTypeBagOf,
@@ -83,15 +81,14 @@ export type {
   StrategyImpl,
   StrategyImplFor,
   StrategySelection,
-} from "./op/index.js";
+} from "./operation/index.js";
 export {
   createOp,
   createStrategy,
   defineOp,
   defineStrategy,
   OperationInputAdmissionError,
-  opRef,
-} from "./op/index.js";
+} from "./operation/index.js";
 export type {
   CompiledRecipeConfigOf,
   RecipeConfig,

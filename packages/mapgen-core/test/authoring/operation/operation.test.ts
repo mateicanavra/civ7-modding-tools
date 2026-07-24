@@ -13,7 +13,7 @@ import {
   TypedArraySchemas,
 } from "@mapgen/authoring/index.js";
 import { Type } from "typebox";
-import { bindCompileOps, bindRuntimeOps } from "../../../src/authoring/bindings.js";
+import { bindCompileOps, bindRuntimeOps } from "../../../src/authoring/operation/bindings.js";
 
 const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 

@@ -1,9 +1,9 @@
 import type { Static } from "typebox";
 
-import { isCanonicalOpContract, type OpContractAny } from "../op/contract.js";
-import type { OpTypeBagOf } from "../op/types.js";
+import { isCanonicalOpContract, type OpContractAny } from "../operation/contract.js";
+import type { OpTypeBagOf } from "../operation/types.js";
 
-export type { OpContractAny } from "../op/contract.js";
+export type { OpContractAny } from "../operation/contract.js";
 
 const sourceContractByScopedDeclaration = new WeakMap<object, OpContractAny>();
 

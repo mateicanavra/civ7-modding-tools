@@ -1,6 +1,4 @@
-import { type TSchema, Type } from "typebox";
-
-import type { DomainOpSchema } from "./op/schema.js";
+import type { TSchema } from "typebox";
 
 type SchemaNode = TSchema & {
   type?: string;
@@ -47,18 +45,4 @@ function enforceSchemaConventions(schema: TSchema, path: string): void {
 export function applySchemaConventions(schema: TSchema, path: string): TSchema {
   enforceSchemaConventions(schema, path);
   return schema;
-}
-
-/**
- * Creates the canonical operation schema bundle while preserving each member's TypeBox identity.
- */
-export function defineOpSchema<
-  const InputSchema extends TSchema,
-  const ConfigSchema extends TSchema,
-  const OutputSchema extends TSchema,
->(
-  schemas: Readonly<{ input: InputSchema; config: ConfigSchema; output: OutputSchema }>,
-  options?: Record<string, unknown>
-): DomainOpSchema<InputSchema, ConfigSchema, OutputSchema> {
-  return Type.Object(schemas as any, options as any) as any;
 }

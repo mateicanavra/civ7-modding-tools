@@ -18,11 +18,6 @@ type StrategyImplementationAuthority = Readonly<{
 }>;
 const strategyImplementationAuthority = new WeakMap<object, StrategyImplementationAuthority>();
 
-/** Public authoring surface for one strategy; executable behavior remains private to `createOp`. */
-export type OpStrategy<ConfigSchema extends TSchema> = Readonly<{
-  config: ConfigSchema;
-}>;
-
 /** Implementation admitted into an opaque strategy descriptor for one operation contract. */
 export type StrategyImpl<
   ConfigSchema extends TSchema,

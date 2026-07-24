@@ -1,8 +1,8 @@
 import { createPortableJsonSnapshot } from "@mapgen/lib/json/portable-snapshot.js";
 import type { TSchema } from "typebox";
 import { Value } from "typebox/value";
-import type { DomainOpCompileAny, OpsById } from "../authoring/bindings.js";
-import { bindCompileOps, OpBindingError } from "../authoring/bindings.js";
+import type { DomainOpCompileAny, OpsById } from "../authoring/operation/bindings.js";
+import { bindCompileOps, OpBindingError } from "../authoring/operation/bindings.js";
 import type { StepOpsDecl } from "../authoring/step/ops.js";
 import type { CompileErrorItem } from "./errors.js";
 

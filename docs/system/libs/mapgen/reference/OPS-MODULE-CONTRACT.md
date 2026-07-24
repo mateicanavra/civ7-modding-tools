@@ -153,11 +153,11 @@ export default createOp(ComputePlateTopologyContract, {
 
 ## Ground truth anchors
 
-- Op contract definition: `packages/mapgen-core/src/authoring/op/contract.ts`
-- Strategy definition factory: `packages/mapgen-core/src/authoring/op/strategy-definition.ts`
-- Op creation and strategy enforcement: `packages/mapgen-core/src/authoring/op/create.ts`
-- Strategy schema/envelope: `packages/mapgen-core/src/authoring/op/envelope.ts`
-- Binding compile-time ops by id: `packages/mapgen-core/src/authoring/bindings.ts`
+- Op contract definition: `packages/mapgen-core/src/authoring/operation/contract.ts`
+- Strategy definition factory: `packages/mapgen-core/src/authoring/operation/strategy-definition.ts`
+- Op creation and strategy enforcement: `packages/mapgen-core/src/authoring/operation/create.ts`
+- Strategy schema/envelope: `packages/mapgen-core/src/authoring/operation/envelope.ts`
+- Binding compile/runtime ops by canonical identity: `packages/mapgen-core/src/authoring/operation/bindings.ts`
 - Current operation-authoring guide: `docs/system/libs/mapgen/how-to/add-an-op.md`
 - Example module contract and router: `mods/mod-swooper-maps/src/domain/foundation/modules/mesh/contract.ts`, `mods/mod-swooper-maps/src/domain/foundation/modules/mesh/router.ts`
 - Example operation registry: `mods/mod-swooper-maps/src/domain/foundation/modules/mesh/ops/contract.ts`

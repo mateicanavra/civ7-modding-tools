@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { buildOpEnvelopeSchema } from "@mapgen/authoring/op/envelope.js";
-import { defineStrategy } from "@mapgen/authoring/op/strategy-definition.js";
+import { buildOpEnvelopeSchema } from "@mapgen/authoring/operation/envelope.js";
+import { defineStrategy } from "@mapgen/authoring/operation/strategy-definition.js";
 import { Type } from "typebox";
 import { Value } from "typebox/value";
 

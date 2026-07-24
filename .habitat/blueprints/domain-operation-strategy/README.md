@@ -29,9 +29,9 @@ Current source-backed anchors:
 - `docs/system/libs/mapgen/how-to/add-an-op.md`
 - `docs/system/libs/mapgen/reference/GLOSSARY.md`
 - `docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`
-- `packages/mapgen-core/src/authoring/op/contract.ts`
-- `packages/mapgen-core/src/authoring/op/create.ts`
-- `packages/mapgen-core/src/authoring/op/strategy.ts`
+- `packages/mapgen-core/src/authoring/operation/contract.ts`
+- `packages/mapgen-core/src/authoring/operation/create.ts`
+- `packages/mapgen-core/src/authoring/operation/strategy.ts`
 - `mods/*/src/domain/**/ops/*/strategies/*/{config.ts,index.ts}`
 
 The live source has concrete `createStrategy(...)` implementations across

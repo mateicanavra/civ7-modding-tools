@@ -23,8 +23,8 @@ import {
   registerDependencyTagsInternal,
 } from "../engine/tags.js";
 import { type Artifact, isArtifact } from "./artifact/contract.js";
-import { bindRuntimeOps, type DomainOpRuntimeAny, runtimeOp } from "./bindings.js";
-import { isCanonicalDomainOp } from "./op/create.js";
+import { bindRuntimeOps, type DomainOpRuntimeAny, runtimeOp } from "./operation/bindings.js";
+import { isCanonicalDomainOp } from "./operation/create.js";
 import type {
   CompiledRecipeConfigOf,
   RecipeAsyncExecutionOptions,

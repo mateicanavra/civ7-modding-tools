@@ -182,7 +182,7 @@ would promote to `stages/morphology/shelf/viz.ts`, not the residual
 
 ## Strategy selection
 
-The op envelope `{ strategy, config }` selects the algorithm. There are three control points; runtime dispatch is `runtimeStrategies[cfg.strategy].run(input, cfg.config)` in `packages/mapgen-core/src/authoring/op/create.ts`:
+The op envelope `{ strategy, config }` selects the algorithm. There are three control points; runtime dispatch is `runtimeStrategies[cfg.strategy].run(input, cfg.config)` in `packages/mapgen-core/src/authoring/operation/create.ts`:
 
 1. **Stage `compile()` literal (public stages)** — the primary production control point. `compile({ config })` hard-codes the strategy string, e.g. `computePrecipitation: { strategy: "refine", config: config.precipitationRefinement ?? {} }`. A `public` schema REQUIRES a `compile`; public config JSON never contains a `strategy` field — `compile()` injects it.
 2. **`defaultStrategy` on a `StepOpUse`** — a step contract can declare `myOp: { contract, defaultStrategy: "refine" }`; this changes the schema default when the author omits the envelope. It does not forbid an explicit override.

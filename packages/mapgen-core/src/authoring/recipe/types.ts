@@ -7,7 +7,7 @@ import type { DependencyTagDefinition } from "@mapgen/engine/tags.js";
 import type { ReadonlyDeep } from "type-fest";
 import type { Static, TObject, TSchema } from "typebox";
 
-import type { CompileOpsById, DomainOpRuntimeAny, OpsById } from "../bindings.js";
+import type { CompileOpsById, DomainOpRuntimeAny, OpsById } from "../operation/bindings.js";
 import type { ReservedStageKey } from "../stage/reserved-key.js";
 import type { EmptyStageConfig, StageObservation, StageStepList } from "../stage/types.js";
 
