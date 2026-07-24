@@ -1,50 +1,15 @@
 import { describe, expect, it } from "bun:test";
 
 import morphologyDomain from "@mapgen/domain/morphology/router";
+import { createBeltDriverEvidence } from "./fixtures/belt-driver-evidence.js";
 
 const { computeBeltDrivers } = morphologyDomain.terrain.ops;
-
-function buildHistoryTiles(width: number, height: number, eraCount: number) {
-  const size = width * height;
-  const perEra = Array.from({ length: eraCount }, () => ({
-    boundaryType: new Uint8Array(size),
-    upliftPotential: new Uint8Array(size),
-    collisionPotential: new Uint8Array(size),
-    subductionPotential: new Uint8Array(size),
-    riftPotential: new Uint8Array(size),
-    shearStress: new Uint8Array(size),
-  }));
-  const rollups = {
-    upliftTotal: new Uint8Array(size),
-    collisionTotal: new Uint8Array(size),
-    subductionTotal: new Uint8Array(size),
-    upliftRecentFraction: new Uint8Array(size),
-    collisionRecentFraction: new Uint8Array(size),
-    subductionRecentFraction: new Uint8Array(size),
-    lastActiveEra: new Uint8Array(size),
-  };
-  rollups.lastActiveEra.fill(255);
-  return { eraCount, perEra, rollups };
-}
-
-function buildProvenanceTiles(width: number, height: number) {
-  const size = width * height;
-  const provenance = {
-    originEra: new Uint8Array(size),
-    originPlateId: new Int16Array(size),
-    lastBoundaryType: new Uint8Array(size),
-  };
-  provenance.lastBoundaryType.fill(255);
-  provenance.originPlateId.fill(-1);
-  return provenance;
-}
 
 describe("belt drivers: boundaryCloseness semantics", () => {
   it("boundaryCloseness is pure proximity (seed tile is near-255 even when intensity is low)", () => {
     const syntheticDimensions = { width: 12, height: 1 } as const;
     const { width, height } = syntheticDimensions;
-    const historyTiles = buildHistoryTiles(width, height, 3);
-    const provenanceTiles = buildProvenanceTiles(width, height);
+    const { historyTiles, provenanceTiles } = createBeltDriverEvidence(width, height, 3);
 
     const era = historyTiles.perEra[2]!;
     // Make a small convergent corridor that survives MIN_BELT_LENGTH.

@@ -1,10 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import morphologyDomain from "@mapgen/domain/morphology/router";
-import {
-  runAdmittedOperationForTest,
-  validateSchemaValueForTest,
-} from "@swooper/mapgen-core/testing";
+import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 
 const { computeShelfMask } = morphologyDomain.shelf.ops;
 
@@ -84,23 +81,6 @@ describe("morphology/compute-shelf-mask (physical break: gentle-gradient gate + 
         },
       }
     );
-
-    validateSchemaValueForTest(
-      computeShelfMask.output,
-      result,
-      "/ops/morphology/compute-shelf-mask/output"
-    );
-    for (const key of [
-      "shelfMask",
-      "activeMarginMask",
-      "depthGateMask",
-      "nearshoreCandidateMask",
-    ] as const) {
-      expect(result[key]).toBeInstanceOf(Uint8Array);
-      expect(result[key].length).toBe(size);
-    }
-    expect(result.shelfBreakDepthByTile).toBeInstanceOf(Int16Array);
-    expect(result.shelfBreakDepthByTile.length).toBe(size);
 
     // Land is never shelf.
     for (let x = 0; x < width; x++) expect(result.shelfMask[x]).toBe(0);

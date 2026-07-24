@@ -1,8 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import morphologyOpsPublic from "@mapgen/domain/morphology/router";
+import morphology from "@mapgen/domain/morphology/router";
 
-const { computeSubstrate } = morphologyOpsPublic.terrain.ops;
-describe("m11 substrate (material-driven)", () => {
+const { computeSubstrate } = morphology.terrain.ops;
+
+describe("compute-substrate material response", () => {
   it("changes erodibilityK when crust/material differs (uplift/rift held constant)", () => {
     const syntheticDimensions = { width: 2, height: 1 } as const;
     const { width, height } = syntheticDimensions;
@@ -14,7 +15,7 @@ describe("m11 substrate (material-driven)", () => {
     const crustType = new Uint8Array([1, 0]);
     const crustAge = new Uint8Array([0, 0]);
 
-    const first = computeSubstrate.run(
+    const result = computeSubstrate.run(
       {
         width,
         height,
@@ -28,23 +29,6 @@ describe("m11 substrate (material-driven)", () => {
       computeSubstrate.defaultConfig
     );
 
-    const second = computeSubstrate.run(
-      {
-        width,
-        height,
-        upliftPotential,
-        riftPotential,
-        boundaryCloseness,
-        boundaryType,
-        crustType,
-        crustAge,
-      },
-      computeSubstrate.defaultConfig
-    );
-
-    expect(Array.from(first.erodibilityK)).toEqual(Array.from(second.erodibilityK));
-    expect(Array.from(first.sedimentDepth)).toEqual(Array.from(second.sedimentDepth));
-
-    expect(first.erodibilityK[0]).not.toBe(first.erodibilityK[1]);
+    expect(result.erodibilityK[0]).not.toBe(result.erodibilityK[1]);
   });
 });

@@ -1,14 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import morphology from "@mapgen/domain/morphology/router";
-import {
-  collectMaskComponentsOddQ,
-  forEachHexNeighborOddQ,
-  resolveTileAreaSpacingTarget,
-} from "@swooper/mapgen-core/lib/grid";
+import { collectMaskComponentsOddQ, forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 
-const { planFoothills, planRidges } = morphology.landforms.ops;
+const { planRidges } = morphology.landforms.ops;
 
 function countMask(mask: Uint8Array): number {
   let count = 0;
@@ -51,33 +47,8 @@ function createRidgeInput(width: number, height: number) {
   };
 }
 
-describe("morphology mountain-family controls", () => {
-  it("derives Civ map-size range-system counts from one spacing input", () => {
-    const hugePreset = getCiv7StandardMapSizePreset("MAPSIZE_HUGE");
-    const mountainRangeSpacingTiles = Math.sqrt(
-      (hugePreset.dimensions.width * hugePreset.dimensions.height) / 18
-    );
-    const officialMapSizes = [
-      { preset: getCiv7StandardMapSizePreset("MAPSIZE_TINY"), expected: 6 },
-      { preset: getCiv7StandardMapSizePreset("MAPSIZE_SMALL"), expected: 9 },
-      { preset: getCiv7StandardMapSizePreset("MAPSIZE_STANDARD"), expected: 12 },
-      { preset: getCiv7StandardMapSizePreset("MAPSIZE_LARGE"), expected: 15 },
-      { preset: hugePreset, expected: 18 },
-    ];
-
-    for (const { preset, expected } of officialMapSizes) {
-      expect(
-        resolveTileAreaSpacingTarget({
-          width: preset.dimensions.width,
-          height: preset.dimensions.height,
-          spacingTiles: mountainRangeSpacingTiles,
-        }),
-        preset.label
-      ).toBe(expected);
-    }
-  });
-
-  it("uses Earth-scaled range targets to create multiple multi-tile ridge components", () => {
+describe("plan-ridges range controls", () => {
+  it("uses authored range spacing to create multiple multi-tile ridge components", () => {
     const syntheticDimensions = { width: 30, height: 1 } as const;
     const { width, height } = syntheticDimensions;
     const input = createRidgeInput(width, height);
@@ -91,7 +62,7 @@ describe("morphology mountain-family controls", () => {
     const result = planRidges.run(input, {
       strategy: "orogenic-range-growth",
       config: {
-        ...(planRidges.defaultConfig as any).config,
+        ...planRidges.defaultConfig.config,
         mountainMaxFraction: 0.8,
         mountainMinFraction: 0,
         mountainSpineFraction: 0.01,
@@ -128,7 +99,7 @@ describe("morphology mountain-family controls", () => {
     const result = planRidges.run(input, {
       strategy: "orogenic-range-growth",
       config: {
-        ...(planRidges.defaultConfig as any).config,
+        ...planRidges.defaultConfig.config,
         mountainMaxFraction: 0.2,
         mountainMinFraction: 0,
         mountainSpineFraction: 0.01,
@@ -161,7 +132,7 @@ describe("morphology mountain-family controls", () => {
     expect(regionComponents[0]?.size ?? 0).toBeGreaterThan(mountainComponents[0]?.size ?? 0);
   });
 
-  it("distributes Earth-scaled range systems instead of collapsing them into the highest-score belts", () => {
+  it("distributes authored range systems instead of collapsing them into the highest-score belts", () => {
     const syntheticDimensions = { width: 60, height: 20 } as const;
     const { width, height } = syntheticDimensions;
     const input = createRidgeInput(width, height);
@@ -196,7 +167,7 @@ describe("morphology mountain-family controls", () => {
     const result = planRidges.run(input, {
       strategy: "orogenic-range-growth",
       config: {
-        ...(planRidges.defaultConfig as any).config,
+        ...planRidges.defaultConfig.config,
         mountainMaxFraction: 0.5,
         mountainMinFraction: 0.12,
         mountainSpineFraction: 0.01,
@@ -242,7 +213,7 @@ describe("morphology mountain-family controls", () => {
     const result = planRidges.run(input, {
       strategy: "orogenic-range-growth",
       config: {
-        ...(planRidges.defaultConfig as any).config,
+        ...planRidges.defaultConfig.config,
         mountainMaxFraction: 0.18,
         mountainMinFraction: 0,
         mountainRangeSpacingTiles: Math.sqrt((width * height) / 2),
@@ -286,7 +257,7 @@ describe("morphology mountain-family controls", () => {
     const result = planRidges.run(input, {
       strategy: "orogenic-range-growth",
       config: {
-        ...(planRidges.defaultConfig as any).config,
+        ...planRidges.defaultConfig.config,
         mountainMaxFraction: 0.4,
         mountainMinFraction: 0.25,
         mountainThreshold: 10,
@@ -298,40 +269,5 @@ describe("morphology mountain-family controls", () => {
     });
 
     expect(countMask(result.mountainMask)).toBeGreaterThanOrEqual(3);
-  });
-
-  it("uses foothillMinFraction as a local skirt around an existing ridge mask", () => {
-    const syntheticDimensions = { width: 9, height: 1 } as const;
-    const { width, height } = syntheticDimensions;
-    const size = width * height;
-    const mountainMask = new Uint8Array(size);
-    mountainMask[4] = 1;
-
-    const result = planFoothills.run(
-      {
-        ...createRidgeInput(width, height),
-        mountainMask,
-        mountainRegionMask: mountainMask,
-        mountainRegionIdByTile: Int32Array.from(mountainMask, (value) => (value === 1 ? 0 : -1)),
-        fractalHill: new Int16Array(size).fill(200),
-      },
-      {
-        strategy: "mountain-proximity",
-        config: {
-          ...(planFoothills.defaultConfig as any).config,
-          foothillMaxDistance: 2,
-          foothillMaxFraction: 0.5,
-          foothillMinFraction: 0.3,
-          hillThreshold: 10,
-          driverSignalByteMin: 1,
-          boundaryGate: 0,
-          boundaryExponent: 1,
-          rangeEnvelopeScale: 1,
-        },
-      }
-    );
-
-    expect(countMask(result.hillMask)).toBeGreaterThanOrEqual(3);
-    expect(result.hillMask[4]).toBe(0);
   });
 });

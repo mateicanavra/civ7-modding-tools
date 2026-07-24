@@ -1,48 +1,11 @@
 import { describe, expect, it } from "bun:test";
 
 import morphologyDomain from "@mapgen/domain/morphology/router";
-import { TEST_MAP_SIZE } from "../../../setup.js";
+import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
+import { TEST_MAP_SIZE } from "../../../../../setup.js";
+import { createBeltDriverEvidence } from "./fixtures/belt-driver-evidence.js";
 
 const { computeBeltDrivers } = morphologyDomain.terrain.ops;
-
-function buildHistoryTiles(width: number, height: number, eraCount: number) {
-  const size = width * height;
-  const perEra = Array.from({ length: eraCount }, () => ({
-    boundaryType: new Uint8Array(size),
-    upliftPotential: new Uint8Array(size),
-    collisionPotential: new Uint8Array(size),
-    subductionPotential: new Uint8Array(size),
-    riftPotential: new Uint8Array(size),
-    shearStress: new Uint8Array(size),
-  }));
-  const rollups = {
-    upliftTotal: new Uint8Array(size),
-    collisionTotal: new Uint8Array(size),
-    subductionTotal: new Uint8Array(size),
-    upliftRecentFraction: new Uint8Array(size),
-    collisionRecentFraction: new Uint8Array(size),
-    subductionRecentFraction: new Uint8Array(size),
-    lastActiveEra: new Uint8Array(size),
-  };
-  rollups.lastActiveEra.fill(255);
-  return {
-    eraCount,
-    perEra,
-    rollups,
-  };
-}
-
-function buildProvenanceTiles(width: number, height: number) {
-  const size = width * height;
-  const provenance = {
-    originEra: new Uint8Array(size),
-    originPlateId: new Int16Array(size),
-    lastBoundaryType: new Uint8Array(size),
-  };
-  provenance.lastBoundaryType.fill(255);
-  provenance.originPlateId.fill(-1);
-  return provenance;
-}
 
 function sumMask(mask: Uint8Array): number {
   let count = 0;
@@ -53,8 +16,7 @@ function sumMask(mask: Uint8Array): number {
 describe("morphology belt synthesis (history + provenance)", () => {
   it("noise-only inputs cannot create belts", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
-    const historyTiles = buildHistoryTiles(width, height, 3);
-    const provenanceTiles = buildProvenanceTiles(width, height);
+    const { historyTiles, provenanceTiles } = createBeltDriverEvidence(width, height, 3);
 
     const drivers = computeBeltDrivers.run(
       {
@@ -74,8 +36,7 @@ describe("morphology belt synthesis (history + provenance)", () => {
   it("belt corridors remain contiguous under gap filling", () => {
     const syntheticDimensions = { width: 20, height: 1 } as const;
     const { width, height } = syntheticDimensions;
-    const historyTiles = buildHistoryTiles(width, height, 3);
-    const provenanceTiles = buildProvenanceTiles(width, height);
+    const { historyTiles, provenanceTiles } = createBeltDriverEvidence(width, height, 3);
     const era = historyTiles.perEra[2]!;
 
     // Declare a boundary corridor, but shape intensity so we get stable, deterministic seed peaks.
@@ -108,8 +69,7 @@ describe("morphology belt synthesis (history + provenance)", () => {
   it("diffusion seeds only from positive-intensity sources (zero-intensity belt tiles do not suppress seeding)", () => {
     const syntheticDimensions = { width: 20, height: 1 } as const;
     const { width, height } = syntheticDimensions;
-    const historyTiles = buildHistoryTiles(width, height, 3);
-    const provenanceTiles = buildProvenanceTiles(width, height);
+    const { historyTiles, provenanceTiles } = createBeltDriverEvidence(width, height, 3);
     const era = historyTiles.perEra[2]!;
 
     // Declare a long convergent boundary corridor with intensity only on an interior segment.
@@ -143,23 +103,30 @@ describe("morphology belt synthesis (history + provenance)", () => {
   it("older belts diffuse wider than newer belts", () => {
     const syntheticDimensions = { width: 24, height: 1 } as const;
     const { width, height } = syntheticDimensions;
-    const historyTiles = buildHistoryTiles(width, height, 3);
-    const provenanceTiles = buildProvenanceTiles(width, height);
-    const era = historyTiles.perEra[2]!;
+    const { historyTiles, provenanceTiles } = createBeltDriverEvidence(width, height, 3);
+    const authorBelt = (input: {
+      start: number;
+      end: number;
+      seed: number;
+      eraIndex: number;
+      recentFraction: number;
+    }) => {
+      const era = historyTiles.perEra[input.eraIndex]!;
+      for (let index = input.start; index <= input.end; index++) {
+        era.boundaryType[index] = BOUNDARY_TYPE.convergent;
+        era.upliftPotential[index] = 1;
+        historyTiles.rollups.upliftTotal[index] = 1;
+        historyTiles.rollups.upliftRecentFraction[index] = input.recentFraction;
+        historyTiles.rollups.lastActiveEra[index] = input.eraIndex;
+        provenanceTiles.originEra[index] = input.eraIndex;
+        provenanceTiles.lastBoundaryType[index] = BOUNDARY_TYPE.convergent;
+      }
+      era.upliftPotential[input.seed] = 220;
+      historyTiles.rollups.upliftTotal[input.seed] = 220;
+    };
 
-    for (let i = 2; i <= 7; i++) {
-      era.boundaryType[i] = 1;
-      historyTiles.rollups.lastActiveEra[i] = 2;
-      historyTiles.rollups.upliftRecentFraction[i] = 255;
-    }
-    for (let i = 16; i <= 21; i++) {
-      era.boundaryType[i] = 1;
-      historyTiles.rollups.lastActiveEra[i] = 2;
-      historyTiles.rollups.upliftRecentFraction[i] = 0;
-    }
-    // Two peaked sources so both segments seed deterministically.
-    era.upliftPotential[4] = 220;
-    era.upliftPotential[18] = 220;
+    authorBelt({ start: 2, end: 7, seed: 4, eraIndex: 2, recentFraction: 255 });
+    authorBelt({ start: 16, end: 21, seed: 18, eraIndex: 0, recentFraction: 0 });
 
     const drivers = computeBeltDrivers.run(
       {

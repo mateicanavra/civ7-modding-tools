@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import morphologyDomain from "@mapgen/domain/morphology/router";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
-import { TEST_MAP_SIZE } from "../../../setup.js";
+import { TEST_MAP_SIZE } from "../../../../../setup.js";
 
 const { computeFlowRouting } = morphologyDomain.routing.ops;
 const { computeGeomorphicCycle } = morphologyDomain.erosion.ops;
@@ -60,7 +60,7 @@ function buildDeterministicTerrain(
   return { elevation, landMask };
 }
 
-describe("m11 geomorphology (stream-power erosion + sediment transport)", () => {
+describe("compute-geomorphic-cycle stream-power erosion and sediment transport", () => {
   it("is deterministic and correlates erosion/deposition with physics proxies (no noise)", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;

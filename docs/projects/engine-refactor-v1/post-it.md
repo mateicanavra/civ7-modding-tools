@@ -16,8 +16,10 @@ closed module contract surfaces, and the strategy-authoring scaffolds are
 sealed. The mod-local test setup authority is also sealed: one switchable Civ7
 preset, one map-seed
 default, and one deliberately distinct game-seed default for tests whose
-subject is not size or seed. Active attention is Morphology's semantic module
-hierarchy, immutable topography vintages, and level-appropriate test ownership.
+subject is not size or seed. Morphology's semantic production hierarchy and
+immutable topography vintages are sealed; active attention is cashing that
+ownership into the physical test corpus at domain, module, operation, and
+artifact levels.
 Operation-local `rngSeed` remains derived entropy rather than setup identity,
 and production `MapSetup` does not pretend to carry game seed before the
 initial-setup authority layer actually admits it. Operation envelopes, named
@@ -53,11 +55,15 @@ state is adapter observation; metrics, diagnostics, trace, and visualization
 are separate capabilities. Core owns the generic authoring/execution and
 domain-composition SDK, not Swooper's domain model.
 
-**Gradient:** define Morphology's semantic module partition against the existing
-generic domain/module laws, make its flat corpus red, then recompose it into the
-smallest truthful modules. Retain producer-owned immutable topography vintages,
-move tests to their domain or module owner, import only mechanically generic
-Core primitives, and burn Morphology's existing JSDoc baseline to zero.
+**Gradient:** mirror Morphology's sealed module partition in its tests. Keep
+only genuinely cross-module behavior at the domain root; descend module,
+operation, and artifact behavior to the matching owner; delete assertions that
+merely restate Core admission or primitive guarantees. Use the shared Civ7 map
+preset and test seeds wherever size and seed are incidental, while preserving
+explicit size/seed experiments as such. The sealed generic domain-test kind
+owns the recursive physical shape; semantic review proves that each directory
+names a real owner without a Morphology-specific path list or source-to-test
+allowlist.
 Placement waits for its protected user edit. Prove each domain through the
 native Nx graph and focused kind owners before its semantic commit.
 After the mechanical kinds are homogeneous, semantically recompose
