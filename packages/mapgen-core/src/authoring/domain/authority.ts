@@ -1,5 +1,5 @@
 import type { OpContractAny } from "../operation/contract.js";
-import type { OwnDataRecord } from "../own-data-record.js";
+import type { OwnDataRecord } from "../snapshot/own-data.js";
 
 type OperationContracts = OwnDataRecord<OpContractAny>;
 

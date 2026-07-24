@@ -1,11 +1,11 @@
 import type { Static, TSchema } from "typebox";
-import { captureOwnDataArray } from "../own-data-array.js";
 import {
   alignOwnDataRecords,
+  captureOwnDataArray,
   captureOwnDataRecord,
   materializeOwnDataRecord,
   type OwnDataRecord,
-} from "../own-data-record.js";
+} from "../snapshot/own-data.js";
 import {
   assertCanonicalOpContract,
   type OpContractAny,

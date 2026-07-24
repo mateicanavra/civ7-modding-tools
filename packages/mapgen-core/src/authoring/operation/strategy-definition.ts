@@ -1,9 +1,8 @@
 import type { IsStringLiteral, IsUnion } from "type-fest";
 import type { TSchema } from "typebox";
-
-import { snapshotContractGraph } from "../contract-graph.js";
-import { captureOwnDataRecord } from "../own-data-record.js";
 import { applySchemaConventions } from "../schema.js";
+import { snapshotContractGraph } from "../snapshot/contract-graph.js";
+import { captureOwnDataRecord } from "../snapshot/own-data.js";
 
 const strategyDefinitionAuthority = new WeakSet<object>();
 const RESERVED_STRATEGY_IDS = new Set(["__proto__", "constructor", "default", "prototype"]);

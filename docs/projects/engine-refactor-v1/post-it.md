@@ -24,10 +24,11 @@ conceptual owner while keeping public package specifiers stable; component
 internals remain open until their own shapes are actually settled. No generic
 blueprint changes or instance-shaped exceptions are admitted in this layer.
 The domain contract/router cluster, operation contract/runtime/binding owner,
-and the step/stage/recipe type owners now conform. Dead operation schema,
-reference, and declaration-only strategy surfaces have retired rather than
-moving forward. The remaining 13 topology diagnostics are the next migration
-inventory rather than a reason to reopen those sealed boundaries.
+caller-data and contract-graph snapshot owner, and the step/stage/recipe type
+owners now conform. Dead operation schema, reference, and declaration-only
+strategy surfaces have retired rather than moving forward. The remaining nine
+topology diagnostics are the next migration inventory rather than a reason to
+reopen those sealed boundaries.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7

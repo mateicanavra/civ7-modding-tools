@@ -2,11 +2,11 @@ import { type AuthoredEngineAdapterKey, isAuthoredEngineAdapterKey } from "@civ7
 import type { DependencyTag } from "@mapgen/engine/index.js";
 import { type TObject, type TSchema, Type } from "typebox";
 import { type Artifact, assertArtifact } from "../artifact/contract.js";
-import { freezeContractGraph, snapshotContractGraph } from "../contract-graph.js";
 import { isCanonicalOpContract } from "../operation/contract.js";
 import { buildOpEnvelopeSchema } from "../operation/envelope.js";
 import type { OpTypeBagOf } from "../operation/types.js";
 import { applySchemaConventions } from "../schema.js";
+import { freezeContractGraph, snapshotContractGraph } from "../snapshot/contract-graph.js";
 import { registerCanonicalStepContractInternal } from "./authority.js";
 import { assertNoStepStageIdentityAliases } from "./identity.js";
 import type {

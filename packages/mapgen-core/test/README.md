@@ -5,7 +5,8 @@ This file defines the generic component owners admitted under
 
 - `authoring/artifact`, `authoring/operation`, `authoring/step`,
   `authoring/stage`, and `authoring/recipe` own their corresponding public
-  authoring components and laws.
+  authoring components and laws; `authoring/snapshot` owns descriptor-safe
+  caller-data capture and contract-graph detachment.
 - `compiler` owns normalization and compilation behavior.
 - `engine/*.test.ts` owns generic planning, dependency gating, execution, tag,
   and tracing behavior.

@@ -1,6 +1,6 @@
 import { type TSchema, Type } from "typebox";
 import { Value } from "typebox/value";
-import { captureOwnDataRecord } from "../own-data-record.js";
+import { captureOwnDataRecord } from "../snapshot/own-data.js";
 import {
   assertCanonicalStrategyDefinition,
   type StrategyDefinitionAny,

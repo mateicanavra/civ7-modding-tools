@@ -1,11 +1,65 @@
 import { describe, expect, it } from "bun:test";
 import {
   alignOwnDataRecords,
+  captureOwnDataArray,
   captureOwnDataRecord,
   materializeOwnDataRecord,
-} from "../../src/authoring/own-data-record.js";
+} from "../../../src/authoring/snapshot/own-data.js";
 
-describe("own-data record authority", () => {
+describe("own-data snapshot authority", () => {
+  it("captures dense tuple order without invoking indexed property reads", () => {
+    let descriptorReads = 0;
+    let valueReads = 0;
+    const source = ["caller-first", "caller-second"];
+    const input = new Proxy(source, {
+      getOwnPropertyDescriptor: (target, key) => {
+        descriptorReads += 1;
+        const descriptor = Reflect.getOwnPropertyDescriptor(target, key);
+        if (!descriptor || key === "length") return descriptor;
+        return {
+          ...descriptor,
+          value: key === "0" ? "admitted-first" : "admitted-second",
+        };
+      },
+      get: (target, key, receiver) => {
+        valueReads += 1;
+        return Reflect.get(target, key, receiver);
+      },
+    });
+
+    const captured = captureOwnDataArray(input, "strategies");
+    source.push("later");
+
+    expect(captured).toEqual(["admitted-first", "admitted-second"]);
+    expect(Object.isFrozen(captured)).toBe(true);
+    expect(descriptorReads).toBe(3);
+    expect(valueReads).toBe(0);
+  });
+
+  it("refuses sparse, metadata-bearing, and accessor-backed tuple inputs", () => {
+    expect(() => captureOwnDataArray(Array(2), "strategies")).toThrow(
+      "must be a dense array without extra keys"
+    );
+
+    const metadataBearing = ["one"];
+    Object.defineProperty(metadataBearing, "metadata", { value: true });
+    expect(() => captureOwnDataArray(metadataBearing, "strategies")).toThrow(
+      "must be a dense array without extra keys"
+    );
+
+    const accessorBacked = ["one"];
+    Object.defineProperty(accessorBacked, "0", {
+      configurable: true,
+      enumerable: true,
+      get: () => {
+        throw new Error("must not run");
+      },
+    });
+    expect(() => captureOwnDataArray(accessorBacked, "strategies")).toThrow(
+      "must be an enumerable data property"
+    );
+  });
+
   it("captures each own descriptor once without invoking property reads", () => {
     let descriptorReads = 0;
     let valueReads = 0;

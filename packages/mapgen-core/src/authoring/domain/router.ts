@@ -14,7 +14,7 @@ import {
   alignOwnDataRecords,
   captureOwnDataRecord,
   type OwnDataRecord,
-} from "../own-data-record.js";
+} from "../snapshot/own-data.js";
 import { readDomainContractAuthority } from "./authority.js";
 import type {
   DomainAggregateContractAny,

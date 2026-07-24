@@ -1,14 +1,13 @@
 import type { SingleKeyObject } from "type-fest";
 import type { TSchema, TUnsafe } from "typebox";
-
-import { freezeContractGraph, snapshotContractGraph } from "../contract-graph.js";
-import { captureOwnDataArray } from "../own-data-array.js";
+import { applySchemaConventions } from "../schema.js";
+import { freezeContractGraph, snapshotContractGraph } from "../snapshot/contract-graph.js";
 import {
+  captureOwnDataArray,
   captureOwnDataRecord,
   materializeOwnDataRecord,
   type OwnDataRecord,
-} from "../own-data-record.js";
-import { applySchemaConventions } from "../schema.js";
+} from "../snapshot/own-data.js";
 import { buildOpEnvelopeSchema } from "./envelope.js";
 import {
   assertCanonicalStrategyDefinition,

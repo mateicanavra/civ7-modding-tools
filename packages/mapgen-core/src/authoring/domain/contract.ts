@@ -3,7 +3,7 @@ import {
   captureOwnDataRecord,
   materializeOwnDataRecord,
   type OwnDataRecord,
-} from "../own-data-record.js";
+} from "../snapshot/own-data.js";
 import type { StepOpsDecl } from "../step/ops.js";
 import { readDomainContractAuthority, registerDomainContractAuthority } from "./authority.js";
 
