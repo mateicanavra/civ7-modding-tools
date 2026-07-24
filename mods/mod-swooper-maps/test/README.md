@@ -6,8 +6,15 @@ owns it rather than in this mod's test tree.
 
 ## Ownership Roots
 
-- `domains/<domain>/<capability>` owns algorithm and policy behavior for one
-  Swooper domain. A generic `operations` cabinet is not an owner.
+- `domains/<domain>/*.test.ts` owns behavior that genuinely spans the domain
+  aggregate or multiple modules.
+- `domains/<domain>/<module>` owns algorithm, policy, and artifact behavior for
+  one semantic production module. Descend further by the concern or operation
+  behavior under test; generic `operations`, `runtime`, `support`, and `testing`
+  cabinets are not owners.
+- Artifact admission tests live under the exact module's `artifacts/`
+  directory. Reusable test setup lives under the smallest common semantic
+  owner's `fixtures/` directory rather than a domain-wide support cabinet.
 - `recipes/swooper-physics-standard` owns concrete Standard config,
   composition, cross-stage orchestration, and whole-product behavior.
 - `recipes/swooper-physics-standard/fixtures/standard-recipe.ts` is the sole
@@ -38,6 +45,10 @@ multiple targets without rerunning it.
 Classify a test by its SUT and behavioral owner. Execution labels such as unit,
 integration, conformance, offline, and live do not create ownership roots.
 Structural and import topology belongs to Habitat, not source-string tests.
+Habitat closes the generic physical shape of domain test trees; matching a test
+directory to its actual production module remains semantic review until
+first-class blueprint membership can prove that relationship without a
+source-to-test allowlist.
 
 Direct operation, step, artifact, and fault-mechanics tests may use a small
 synthetic grid when its cardinality is the subject or fixture. Such dimensions
