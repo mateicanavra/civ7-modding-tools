@@ -78,13 +78,11 @@ export type {
   OpStrategyId,
   OpTypeBag,
   OpTypeBagOf,
-  StrategyConfigSchemas,
   StrategyDefinition,
   StrategyDescriptor,
   StrategyDescriptorFor,
   StrategyImpl,
   StrategyImplFor,
-  StrategyImplMapFor,
   StrategySelection,
 } from "./op/index.js";
 export {

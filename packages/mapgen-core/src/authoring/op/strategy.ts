@@ -101,11 +101,6 @@ export type StrategyDescriptorFor<
   Id extends keyof C["strategies"] & string,
 > = StrategyDescriptorForDefinition<C, C["strategies"][Id]>;
 
-/** @deprecated Legacy id-keyed implementation map retained during strategy-leaf migration. */
-export type StrategyImplMapFor<C extends OpContractAny> = Readonly<{
-  [K in keyof C["strategies"] & string]: StrategyDescriptorFor<C, K>;
-}>;
-
 /** Any sealed strategy descriptor belonging to one operation contract. */
 export type StrategyDescriptorForOp<C extends OpContractAny> = {
   [K in keyof C["strategies"] & string]: StrategyDescriptorFor<C, K>;
@@ -121,25 +116,10 @@ export function createStrategy<
   implementation: StrategyImplForDefinition<C, Definition>
 ): StrategyDescriptorForDefinition<C, Definition>;
 
-/**
- * @deprecated Temporary identity bridge for implementation leaves that have not yet imported their
- * canonical `defineStrategy` definition directly.
- */
-export function createStrategy<
-  const C extends OpContractAny,
-  const Id extends keyof C["strategies"] & string,
->(contract: C, id: Id, implementation: StrategyImplFor<C, Id>): StrategyDescriptorFor<C, Id>;
-
 export function createStrategy(contract: any, strategyInput: any, implementation: any): any {
   assertCanonicalOpContract(contract);
   const strategyDefinitions = readCanonicalOpStrategyDefinitions(contract);
-  const definition =
-    typeof strategyInput === "string"
-      ? strategyDefinitions.find(({ key }) => key === strategyInput)?.value
-      : strategyInput;
-  if (!definition) {
-    throw new Error(`Operation ${contract.id} has no strategy "${String(strategyInput)}"`);
-  }
+  const definition = strategyInput;
   assertCanonicalStrategyDefinition(definition);
   if (!strategyDefinitions.some(({ value }) => value === definition)) {
     throw new Error(

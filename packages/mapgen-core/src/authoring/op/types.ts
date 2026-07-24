@@ -11,9 +11,6 @@ type RuntimeStrategiesLike = Readonly<Record<string, { config: TSchema }>>;
 
 type StrategyConfigSchemaOf<T> = T extends { config: infer C extends TSchema } ? C : never;
 
-/** @deprecated Legacy schema-map input retained only until strategy leaves adopt `defineStrategy`. */
-export type StrategyConfigSchemas = Readonly<Record<string, TSchema>>;
-
 export type StrategySelection<Strategies extends RuntimeStrategiesLike> = {
   [K in keyof Strategies & string]: Readonly<{
     strategy: K;

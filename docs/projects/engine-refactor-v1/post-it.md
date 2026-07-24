@@ -11,23 +11,20 @@ their destination kind is sealed.
 law -> source conformance -> verification. A niche may refine a kind but may not
 recreate, weaken, or hardcode its membership.
 
-**Current container:** Operation envelopes and named typed-array cardinality are
-sealed. The active burn-down is strategy authorship as one positive kind. Every
-operation owns a required `strategies/` implementation aggregate; every semantic
-strategy owns `strategies/<semantic-id>/{config.ts,index.ts}`. A nominal Core
-`defineStrategy` owns the semantic id and authored config schema once as a
-`StrategyDefinition`. Operation contracts import those leaf configs directly
-and compose their definition tuples without object-key identity; strategy
-implementations bind each exact leaf definition to the shared operation
-contract, and `strategies/index.ts` lists implementations without giving list
-order authority. There is no strategy-root definition barrel. A sole strategy
-is necessarily the inferred default; a multi-strategy operation names its default
-explicitly. Generic `default` identities, detached operation-owned strategy
-schemas, inline operation-entrypoint algorithms, duplicate identities, and
-alternate strategy registries have no surviving authorship path. TypeScript and
-Core own identity, completeness, defaults, and exact binding; Structure owns
-the closed spine; focused Grit owns only cheap source relationships that neither
-substrate can express.
+**Current container:** Operation envelopes, named typed-array cardinality, and
+strategy authorship are sealed as positive kinds. Every semantic strategy owns
+`strategies/<semantic-id>/{config.ts,index.ts}`; the operation contract remains
+the sole shared input/output authority; one strategy is necessarily the default
+and multiple strategies name their default explicitly. The immediate shrink-only
+cleanup removes Core's zero-production-consumer schema-map, string-id, and
+implementation-map compatibility paths after migrating its own test fixtures.
+The active structural burn-down then moves Ecology from its never-completed flat
+root into semantic modules for pedology, biomes, features, and plot effects.
+The existing generic domain and module blueprints define that destination: the
+domain root composes module contracts and routers, each operation and immutable
+product moves to its lowest rightful module, and vocabulary rises to the root
+model only when multiple modules prove the edge. No Ecology enumeration or
+niche-shaped substitute is admitted.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -35,12 +32,15 @@ state is adapter observation; metrics, diagnostics, trace, and visualization
 are separate capabilities. Core owns the generic authoring/execution and
 domain-composition SDK, not Swooper's domain model.
 
-**Gradient:** land the canonical strategy-definition substrate and generic
-nested Blueprint law first, leaving the current corpus visibly red rather than
-hiding it in a baseline. Move one domain or semantic module at a time, preserving all
-107 existing semantic identities and the six explicit multi-strategy defaults.
-Delete the temporary legacy input path when the final consumer moves, flip the
-kind law to enforced, and prove Core plus Swooper through the native Nx graph.
+**Gradient:** delete the retired strategy compatibility surface, prove the one
+canonical Core API, and commit that shrink-only boundary. Then recompose Ecology
+one complete semantic module at a time while preserving operation ids, strategy
+identities, artifact ids, authored defaults, and algorithms. Update the stale
+Ecology router guidance and turn the already-red generic domain/module laws
+green without weakening them or adding a niche exception. Hydrology follows;
+Placement waits for its protected user edit; Morphology follows the artifact-
+vintage decision last. Prove each domain through the native Nx graph and focused
+kind owners before its semantic commit.
 After the mechanical kinds are homogeneous, semantically recompose
 `packages/mapgen-core/src/authoring` so its hierarchy truthfully expresses the
 authoring SDK's concepts, ownership, dependency direction, and public surfaces;

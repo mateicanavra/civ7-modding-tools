@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { createStep, defineOp, defineStep, Type } from "@mapgen/authoring/index.js";
+import { createStep, defineOp, defineStep, defineStrategy, Type } from "@mapgen/authoring/index.js";
 import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
 import { Value } from "typebox/value";
 
@@ -123,16 +123,22 @@ describe("step authoring", () => {
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
       defaultStrategy: "balanced",
-      strategies: {
-        balanced: Type.Object(
-          { plateauCount: Type.Integer({ default: 3 }) },
-          { additionalProperties: false }
-        ),
-        fast: Type.Object(
-          { turbo: Type.Boolean({ default: true }) },
-          { additionalProperties: false }
-        ),
-      },
+      strategies: [
+        defineStrategy({
+          id: "balanced",
+          config: Type.Object(
+            { plateauCount: Type.Integer({ default: 3 }) },
+            { additionalProperties: false }
+          ),
+        }),
+        defineStrategy({
+          id: "fast",
+          config: Type.Object(
+            { turbo: Type.Boolean({ default: true }) },
+            { additionalProperties: false }
+          ),
+        }),
+      ],
     });
     const step = defineStep({
       id: "fast-step",
@@ -198,7 +204,7 @@ describe("step authoring", () => {
       id: "test/detached-step-schema",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
-      strategies: { balanced: strategySchema },
+      strategies: [defineStrategy({ id: "balanced", config: strategySchema })],
     });
     const stepSchema = Type.Object(
       {
@@ -259,12 +265,15 @@ describe("step authoring", () => {
       id: "test/root-codec-options",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
-      strategies: {
-        balanced: Type.Object(
-          { count: Type.Integer({ default: 2 }) },
-          { additionalProperties: false }
-        ),
-      },
+      strategies: [
+        defineStrategy({
+          id: "balanced",
+          config: Type.Object(
+            { count: Type.Integer({ default: 2 }) },
+            { additionalProperties: false }
+          ),
+        }),
+      ],
     });
     const shared = { owner: "root-and-property" };
     const symbolAnnotation = Symbol("step annotation");
@@ -334,9 +343,12 @@ describe("step authoring", () => {
       id: "test/root-codec-op-refusal",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
-      strategies: {
-        balanced: Type.Object({}, { additionalProperties: false }),
-      },
+      strategies: [
+        defineStrategy({
+          id: "balanced",
+          config: Type.Object({}, { additionalProperties: false }),
+        }),
+      ],
     });
     expect(() =>
       defineStep({
@@ -355,9 +367,12 @@ describe("step authoring", () => {
       id: "test/root-option-refusal",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
-      strategies: {
-        balanced: Type.Object({}, { additionalProperties: false }),
-      },
+      strategies: [
+        defineStrategy({
+          id: "balanced",
+          config: Type.Object({}, { additionalProperties: false }),
+        }),
+      ],
     });
     const schema = Type.Object(
       { enabled: Type.Boolean() },

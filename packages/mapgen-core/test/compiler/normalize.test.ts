@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { createOp, createStrategy, defineOp } from "@mapgen/authoring/index.js";
+import { createOp, createStrategy, defineOp, defineStrategy } from "@mapgen/authoring/index.js";
 import { normalizeOpsTopLevel, validateStrict } from "@mapgen/compiler/normalize.js";
 import { Type } from "typebox";
 
@@ -174,9 +174,12 @@ describe("compiler normalize helpers", () => {
       id: "test/plan",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({}, { additionalProperties: false }),
-      strategies: {
-        normalized: Type.Object({}, { additionalProperties: false }),
-      },
+      strategies: [
+        defineStrategy({
+          id: "normalized",
+          config: Type.Object({}, { additionalProperties: false }),
+        }),
+      ],
     } as const);
 
     const step = {
@@ -205,19 +208,22 @@ describe("compiler normalize helpers", () => {
       id: "test/plan",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({}, { additionalProperties: false }),
-      strategies: {
-        normalized: Type.Object({}, { additionalProperties: false }),
-      },
+      strategies: [
+        defineStrategy({
+          id: "normalized",
+          config: Type.Object({}, { additionalProperties: false }),
+        }),
+      ],
     } as const);
     const op = createOp(contract, {
-      strategies: {
-        normalized: createStrategy(contract, "normalized", {
+      strategies: [
+        createStrategy(contract, contract.strategies.normalized, {
           normalize: () => {
             throw new Error("normalize exploded");
           },
           run: () => ({}),
         }),
-      },
+      ],
     });
 
     const step = {

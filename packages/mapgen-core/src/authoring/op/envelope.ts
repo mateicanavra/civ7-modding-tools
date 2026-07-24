@@ -1,12 +1,12 @@
 import { type TSchema, Type } from "typebox";
 import { Value } from "typebox/value";
+import { captureOwnDataRecord } from "../own-data-record.js";
 import {
-  isCanonicalStrategyDefinition,
+  assertCanonicalStrategyDefinition,
   type StrategyDefinitionAny,
 } from "./strategy-definition.js";
-import type { StrategyConfigSchemas } from "./types.js";
 
-type StrategySchemaSource = Readonly<Record<string, TSchema | StrategyDefinitionAny>>;
+type StrategyDefinitionMap = Readonly<Record<string, StrategyDefinitionAny>>;
 
 export type OpEnvelopeBuildResult = Readonly<{
   schema: TSchema;
@@ -19,23 +19,48 @@ export type StrategySelectionDefault = Readonly<{
   config: Record<string, unknown>;
 }>;
 
-function buildEnvelope(
-  strategySchemas: StrategyConfigSchemas,
-  defaultStrategy: string,
-  defaultStrategySchema: TSchema
+/** Builds one closed operation envelope from its canonical strategy-definition authority. */
+export function buildOpEnvelopeSchema(
+  contractId: string,
+  strategySource: StrategyDefinitionMap,
+  defaultStrategy: string
 ): OpEnvelopeBuildResult {
-  const strategyIds = Object.keys(strategySchemas);
-  const cases = strategyIds.map((id) =>
+  if (typeof defaultStrategy !== "string" || defaultStrategy.length === 0) {
+    throw new Error(`op(${contractId}) requires an explicit default strategy`);
+  }
+
+  const definitions = captureOwnDataRecord<StrategyDefinitionAny>(
+    strategySource,
+    `op(${contractId}) strategies`
+  );
+  for (const { key, value } of definitions) {
+    assertCanonicalStrategyDefinition(value);
+    if (key !== value.id) {
+      throw new Error(
+        `op(${contractId}) strategy key "${key}" must match canonical identity "${value.id}"`
+      );
+    }
+  }
+
+  const strategyIds = definitions.map(({ key }) => key);
+  const defaultDefinition = definitions.find(({ key }) => key === defaultStrategy)?.value;
+  if (!defaultDefinition) {
+    throw new Error(
+      `op(${contractId}) missing strategy "${defaultStrategy}" (available: ${strategyIds.join(", ")})`
+    );
+  }
+
+  const cases = definitions.map(({ key, value }) =>
     Type.Object(
       {
-        strategy: Type.Literal(id),
-        config: strategySchemas[id]!,
+        strategy: Type.Literal(key),
+        config: value.config,
       },
       { additionalProperties: false }
     )
   );
-  const defaultStrategyConfig = Value.Create(defaultStrategySchema);
-  Value.Assert(defaultStrategySchema, defaultStrategyConfig);
+  const defaultStrategyConfig = Value.Create(defaultDefinition.config);
+  Value.Assert(defaultDefinition.config, defaultStrategyConfig);
   const defaultConfig: StrategySelectionDefault = {
     strategy: defaultStrategy,
     config: defaultStrategyConfig as Record<string, unknown>,
@@ -46,31 +71,4 @@ function buildEnvelope(
     defaultConfig,
     strategyIds,
   };
-}
-
-/** Builds the closed strategy envelope and materializes one explicitly selected default. */
-export function buildOpEnvelopeSchema(
-  contractId: string,
-  strategySource: StrategySchemaSource,
-  defaultStrategy: string
-): OpEnvelopeBuildResult {
-  const strategySchemas = Object.fromEntries(
-    Object.entries(strategySource).map(([id, value]) => [
-      id,
-      isCanonicalStrategyDefinition(value) ? value.config : value,
-    ])
-  ) as StrategyConfigSchemas;
-  if (typeof defaultStrategy !== "string" || defaultStrategy.length === 0) {
-    throw new Error(`op(${contractId}) requires an explicit default strategy`);
-  }
-  const defaultStrategySchema = strategySchemas[defaultStrategy];
-  if (
-    !Object.prototype.hasOwnProperty.call(strategySchemas, defaultStrategy) ||
-    defaultStrategySchema === undefined
-  ) {
-    throw new Error(
-      `op(${contractId}) missing strategy "${defaultStrategy}" (available: ${Object.keys(strategySchemas).join(", ")})`
-    );
-  }
-  return buildEnvelope(strategySchemas, defaultStrategy, defaultStrategySchema);
 }

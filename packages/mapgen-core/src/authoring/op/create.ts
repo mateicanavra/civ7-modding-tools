@@ -17,7 +17,6 @@ import {
   type StrategyDescriptor,
   type StrategyDescriptorForOp,
   type StrategyImpl,
-  type StrategyImplMapFor,
   type StrategySelection,
 } from "./strategy.js";
 import type { StrategyDefinitionAny } from "./strategy-definition.js";
@@ -70,11 +69,6 @@ type TupleOpImpl<
   strategies: Descriptors & CompleteStrategyDescriptorSet<C, Descriptors>;
 }>;
 
-/** @deprecated Temporary map bridge for operation implementations not yet composed as tuples. */
-type LegacyMapOpImpl<C extends OpContractAny> = Readonly<{
-  strategies: StrategyImplMapFor<C>;
-}>;
-
 const contractByDomainOp = new WeakMap<object, OpContractAny>();
 
 /** @internal Reports whether a value retains exact `createOp` factory authority. */
@@ -102,18 +96,6 @@ export function createOp<
 >(
   contract: C,
   implementation: TupleOpImpl<C, Descriptors>
-): DomainOp<
-  C["input"],
-  C["output"],
-  RuntimeStrategiesForContract<C>,
-  C["id"],
-  C["defaultStrategy"]
->;
-
-/** @deprecated Temporary map bridge until operation indexes compose strategy descriptors as tuples. */
-export function createOp<const C extends OpContractAny>(
-  contract: C,
-  implementation: LegacyMapOpImpl<C>
 ): DomainOp<
   C["input"],
   C["output"],
@@ -208,35 +190,21 @@ function captureStrategyDescriptors(
   input: unknown,
   contract: OpContractAny
 ): OwnDataRecord<StrategyBinding> {
-  if (Array.isArray(input)) {
-    const descriptorInputs = captureOwnDataArray<unknown>(
-      input,
-      `createOp(${contract.id}) strategies`
-    );
-    const entries: Array<Readonly<{ key: string; value: StrategyBinding }>> = [];
-    const seen = new Set<string>();
-    for (const descriptorInput of descriptorInputs) {
-      const binding = readStrategyBinding(descriptorInput, contract);
-      if (seen.has(binding.definition.id)) {
-        throw new Error(
-          `createOp(${contract.id}) has duplicate strategy implementation "${binding.definition.id}"`
-        );
-      }
-      seen.add(binding.definition.id);
-      entries.push(Object.freeze({ key: binding.definition.id, value: binding }));
-    }
-    return Object.freeze(entries);
-  }
-
-  return Object.freeze(
-    captureOwnDataRecord(input, `createOp(${contract.id}) strategies`).map(({ key, value }) => {
-      const binding = readStrategyBinding(value, contract);
-      if (binding.definition.id !== key) {
-        throw new Error(
-          `Strategy map key "${key}" must equal descriptor identity "${binding.definition.id}"`
-        );
-      }
-      return Object.freeze({ key, value: binding });
-    })
+  const descriptorInputs = captureOwnDataArray<unknown>(
+    input,
+    `createOp(${contract.id}) strategies`
   );
+  const entries: Array<Readonly<{ key: string; value: StrategyBinding }>> = [];
+  const seen = new Set<string>();
+  for (const descriptorInput of descriptorInputs) {
+    const binding = readStrategyBinding(descriptorInput, contract);
+    if (seen.has(binding.definition.id)) {
+      throw new Error(
+        `createOp(${contract.id}) has duplicate strategy implementation "${binding.definition.id}"`
+      );
+    }
+    seen.add(binding.definition.id);
+    entries.push(Object.freeze({ key: binding.definition.id, value: binding }));
+  }
+  return Object.freeze(entries);
 }

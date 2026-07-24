@@ -218,19 +218,22 @@ describe("operation authoring", () => {
       id: "test/sole-strategy-authority",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
-      strategies: {
-        measured: Type.Object(
-          { sampleCount: Type.Integer({ default: 3 }) },
-          { additionalProperties: false }
-        ),
-      },
+      strategies: [
+        defineStrategy({
+          id: "measured",
+          config: Type.Object(
+            { sampleCount: Type.Integer({ default: 3 }) },
+            { additionalProperties: false }
+          ),
+        }),
+      ],
     });
     const operation = createOp(contract, {
-      strategies: {
-        measured: createStrategy(contract, "measured", {
+      strategies: [
+        createStrategy(contract, contract.strategies.measured, {
           run: (_input, config) => `samples:${config.sampleCount}`,
         }),
-      },
+      ],
     });
 
     expect(contract.defaultStrategy).toBe("measured");
@@ -250,25 +253,40 @@ describe("operation authoring", () => {
         ...base,
         id: "test/undefined-sole-default",
         defaultStrategy: undefined,
-        strategies: { measured: Type.Object({}, { additionalProperties: false }) },
+        strategies: [
+          defineStrategy({
+            id: "measured",
+            config: Type.Object({}, { additionalProperties: false }),
+          }),
+        ],
       }).defaultStrategy
     ).toBe("measured");
 
     expect(() =>
-      defineOp({ ...base, id: "test/empty-strategies", strategies: {} } as never)
+      defineOp({ ...base, id: "test/empty-strategies", strategies: [] } as never)
     ).toThrow("requires at least one semantic strategy");
     expect(() =>
       defineOp({
         ...base,
         id: "__proto__",
-        strategies: { measured: Type.Object({}, { additionalProperties: false }) },
+        strategies: [
+          defineStrategy({
+            id: "measured",
+            config: Type.Object({}, { additionalProperties: false }),
+          }),
+        ],
       } as never)
     ).toThrow('operation definition id "__proto__" is reserved');
     expect(() =>
       defineOp({
         ...base,
         id: "test/generic-strategy",
-        strategies: { default: Type.Object({}, { additionalProperties: false }) },
+        strategies: [
+          defineStrategy({
+            id: "default",
+            config: Type.Object({}, { additionalProperties: false }),
+          }),
+        ],
       } as never)
     ).toThrow('strategy id "default" must be replaced by a semantic identity');
     expect(() =>
@@ -276,17 +294,28 @@ describe("operation authoring", () => {
         ...base,
         id: "test/redundant-default",
         defaultStrategy: "measured",
-        strategies: { measured: Type.Object({}, { additionalProperties: false }) },
+        strategies: [
+          defineStrategy({
+            id: "measured",
+            config: Type.Object({}, { additionalProperties: false }),
+          }),
+        ],
       } as never)
     ).toThrow('infers its sole strategy "measured"; remove defaultStrategy');
     expect(() =>
       defineOp({
         ...base,
         id: "test/missing-multi-default",
-        strategies: {
-          measured: Type.Object({}, { additionalProperties: false }),
-          estimated: Type.Object({}, { additionalProperties: false }),
-        },
+        strategies: [
+          defineStrategy({
+            id: "measured",
+            config: Type.Object({}, { additionalProperties: false }),
+          }),
+          defineStrategy({
+            id: "estimated",
+            config: Type.Object({}, { additionalProperties: false }),
+          }),
+        ],
       } as never)
     ).toThrow("requires an explicit declared default strategy");
   });
@@ -298,21 +327,27 @@ describe("operation authoring", () => {
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
       defaultStrategy: "balanced",
-      strategies: {
-        balanced: Type.Object(
-          { plateauCount: Type.Integer({ default: 3 }) },
-          { additionalProperties: false }
-        ),
-        fast: Type.Object(
-          { turbo: Type.Boolean({ default: true }) },
-          { additionalProperties: false }
-        ),
-      },
+      strategies: [
+        defineStrategy({
+          id: "balanced",
+          config: Type.Object(
+            { plateauCount: Type.Integer({ default: 3 }) },
+            { additionalProperties: false }
+          ),
+        }),
+        defineStrategy({
+          id: "fast",
+          config: Type.Object(
+            { turbo: Type.Boolean({ default: true }) },
+            { additionalProperties: false }
+          ),
+        }),
+      ],
     });
-    const strategies = {
-      balanced: createStrategy(contract, "balanced", { run: () => "balanced" }),
-      fast: createStrategy(contract, "fast", { run: () => "fast" }),
-    };
+    const strategies = [
+      createStrategy(contract, contract.strategies.balanced, { run: () => "balanced" }),
+      createStrategy(contract, contract.strategies.fast, { run: () => "fast" }),
+    ] as const;
     const op = createOp(contract, { strategies });
 
     expect(op.defaultStrategy).toBe("balanced");
@@ -348,7 +383,7 @@ describe("operation authoring", () => {
       "must be created by defineOp"
     );
     expect(() =>
-      createStrategy(forged, "balanced", {
+      createStrategy(forged, forged.strategies.balanced, {
         run: () => "forged",
       })
     ).toThrow("must be created by defineOp");
@@ -372,7 +407,7 @@ describe("operation authoring", () => {
       id: "test/detached-operation-authority",
       input,
       output,
-      strategies: { measured: strategy },
+      strategies: [defineStrategy({ id: "measured", config: strategy })],
     });
 
     expect(contract.input).not.toBe(input);
@@ -404,18 +439,23 @@ describe("operation authoring", () => {
       id: "test/sealed-strategy-authority",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
-      strategies: { measured: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({
+          id: "measured",
+          config: Type.Object({}, { additionalProperties: false }),
+        }),
+      ],
     });
     const implementation = { run: () => "captured" };
-    const descriptor = createStrategy(contract, "measured", implementation);
+    const descriptor = createStrategy(contract, contract.strategies.measured, implementation);
     implementation.run = () => "mutated";
-    const operation = createOp(contract, { strategies: { measured: descriptor } });
+    const operation = createOp(contract, { strategies: [descriptor] });
 
     expect(operation.run({}, operation.defaultConfig)).toBe("captured");
     expect(Object.isFrozen(implementation)).toBe(false);
     expect(() =>
       createOp(contract, {
-        strategies: { measured: { ...descriptor } as never },
+        strategies: [{ ...descriptor }] as never,
       })
     ).toThrow("Invalid MapGen strategy descriptor");
   });
@@ -426,12 +466,12 @@ describe("operation authoring", () => {
       id: "ecology/trees",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     const compileOp = createOp(contract, {
-      strategies: {
-        single: createStrategy(contract, "single", { run: () => "ok" }),
-      },
+      strategies: [createStrategy(contract, contract.strategies.single, { run: () => "ok" })],
     });
     const declarations = { trees: contract } as const;
 
@@ -454,7 +494,9 @@ describe("operation authoring", () => {
       id: "test/ops/missing",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     expect(() => bindCompileOps({ trees: contract }, {})).toThrow(/missing/i);
   });
@@ -465,24 +507,28 @@ describe("operation authoring", () => {
       id: "test/ops/exact-binding",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     const alternateContract = defineOp({
       kind: "plan",
       id: "test/ops/exact-binding",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     const implementation = createOp(contract, {
-      strategies: {
-        single: createStrategy(contract, "single", { run: () => "exact" }),
-      },
+      strategies: [createStrategy(contract, contract.strategies.single, { run: () => "exact" })],
     });
     const alternate = createOp(alternateContract, {
-      strategies: {
-        single: createStrategy(alternateContract, "single", { run: () => "alternate" }),
-      },
+      strategies: [
+        createStrategy(alternateContract, alternateContract.strategies.single, {
+          run: () => "alternate",
+        }),
+      ],
     });
     const runtime = runtimeOp(implementation);
 
@@ -506,14 +552,16 @@ describe("operation authoring", () => {
       id: "test/ops/missing-runtime",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({}, { additionalProperties: false }),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     const op = createOp(contract, {
-      strategies: {
-        single: createStrategy(contract, "single", {
+      strategies: [
+        createStrategy(contract, contract.strategies.single, {
           run: () => ({}),
         }),
-      },
+      ],
     });
     const step = createStep(
       defineStep({
@@ -571,16 +619,18 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     let runs = 0;
-    const strategy = createStrategy(contract, "single", {
+    const strategy = createStrategy(contract, contract.strategies.single, {
       run: (input) => {
         runs += 1;
         return input.grid.length;
       },
     });
-    const op = createOp(contract, { strategies: { single: strategy } });
+    const op = createOp(contract, { strategies: [strategy] });
 
     expect(strategy).not.toHaveProperty("run");
     expect(op.strategies.single.config).toBe(contract.strategies.single.config);
@@ -615,12 +665,14 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     const op = createOp(contract, {
-      strategies: {
-        single: createStrategy(contract, "single", { run: (input) => input.grid.length }),
-      },
+      strategies: [
+        createStrategy(contract, contract.strategies.single, { run: (input) => input.grid.length }),
+      ],
     });
 
     expect(op.run({ width: 2, height: 2, grid: new Uint8Array(4) }, op.defaultConfig)).toBe(4);
@@ -663,18 +715,20 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     let runs = 0;
     const op = createOp(contract, {
-      strategies: {
-        single: createStrategy(contract, "single", {
+      strategies: [
+        createStrategy(contract, contract.strategies.single, {
           run: () => {
             runs += 1;
             return 0;
           },
         }),
-      },
+      ],
     });
 
     let refusal: unknown;
@@ -747,18 +801,20 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     let runs = 0;
     const op = createOp(contract, {
-      strategies: {
-        single: createStrategy(contract, "single", {
+      strategies: [
+        createStrategy(contract, contract.strategies.single, {
           run: () => {
             runs += 1;
             return 0;
           },
         }),
-      },
+      ],
     });
     class DerivedUint8Array extends Uint8Array {}
 
@@ -814,18 +870,20 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     let runs = 0;
     const op = createOp(contract, {
-      strategies: {
-        single: createStrategy(contract, "single", {
+      strategies: [
+        createStrategy(contract, contract.strategies.single, {
           run: () => {
             runs += 1;
             return 0;
           },
         }),
-      },
+      ],
     });
 
     expect(op.run({ required: { rows: [] } }, op.defaultConfig)).toBe(0);
@@ -875,14 +933,16 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     const op = createOp(contract, {
-      strategies: {
-        single: createStrategy(contract, "single", {
+      strategies: [
+        createStrategy(contract, contract.strategies.single, {
           run: (input) => input.value?.length ?? 0,
         }),
-      },
+      ],
     });
 
     expect(op.run({}, op.defaultConfig)).toBe(0);
@@ -916,14 +976,14 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
 
     expect(() =>
       createOp(contract, {
-        strategies: {
-          single: createStrategy(contract, "single", { run: () => 0 }),
-        },
+        strategies: [createStrategy(contract, contract.strategies.single, { run: () => 0 })],
       })
     ).toThrow(
       'Operation typed-array union at "$.value" admits undefined only for an optional property'
@@ -941,14 +1001,16 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     const op = createOp(contract, {
-      strategies: {
-        single: createStrategy(contract, "single", {
+      strategies: [
+        createStrategy(contract, contract.strategies.single, {
           run: (input) => input.value?.length ?? 0,
         }),
-      },
+      ],
     });
     const inherited = Object.create({ value: new Uint8Array(1) }) as {
       value?: Uint8Array;
@@ -993,14 +1055,17 @@ describe("operation authoring", () => {
         id: `test/unsupported-${id}-operation-input`,
         input,
         output: Type.Integer(),
-        strategies: { single: Type.Object({}, { additionalProperties: false }) },
+        strategies: [
+          defineStrategy({
+            id: "single",
+            config: Type.Object({}, { additionalProperties: false }),
+          }),
+        ],
       });
 
       expect(() =>
         createOp(contract, {
-          strategies: {
-            single: createStrategy(contract, "single", { run: () => 0 }),
-          },
+          strategies: [createStrategy(contract, contract.strategies.single, { run: () => 0 })],
         })
       ).toThrow('Operation typed-array metadata at "$" uses an unsupported schema container');
     }
@@ -1022,14 +1087,17 @@ describe("operation authoring", () => {
         id: `test/${id}-referenced-operation-input`,
         input,
         output: Type.Integer(),
-        strategies: { single: Type.Object({}, { additionalProperties: false }) },
+        strategies: [
+          defineStrategy({
+            id: "single",
+            config: Type.Object({}, { additionalProperties: false }),
+          }),
+        ],
       });
 
       expect(() =>
         createOp(contract, {
-          strategies: {
-            single: createStrategy(contract, "single", { run: () => 0 }),
-          },
+          strategies: [createStrategy(contract, contract.strategies.single, { run: () => 0 })],
         })
       ).toThrow(`Operation typed-array metadata at "${path}" uses an unsupported schema container`);
     }
@@ -1048,14 +1116,14 @@ describe("operation authoring", () => {
       id: "test/inherited-operation-input-constructor",
       input: Type.Object({ value: inheritedConstructorSchema }, { additionalProperties: false }),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
 
     expect(() =>
       createOp(contract, {
-        strategies: {
-          single: createStrategy(contract, "single", { run: () => 0 }),
-        },
+        strategies: [createStrategy(contract, contract.strategies.single, { run: () => 0 })],
       })
     ).toThrow("Unsupported operation typed-array constructor");
   });
@@ -1071,14 +1139,14 @@ describe("operation authoring", () => {
       id: "test/inherited-operation-input-kind",
       input: Type.Object({ value: inheritedKindSchema }, { additionalProperties: false }),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
 
     expect(() =>
       createOp(contract, {
-        strategies: {
-          single: createStrategy(contract, "single", { run: () => 0 }),
-        },
+        strategies: [createStrategy(contract, contract.strategies.single, { run: () => 0 })],
       })
     ).toThrow("Operation typed-array metadata kind must be an own property");
   });
@@ -1095,14 +1163,17 @@ describe("operation authoring", () => {
         id: `test/malformed-${key}-operation-input`,
         input: Type.Object({ value: valueSchema }, { additionalProperties: false }),
         output: Type.Integer(),
-        strategies: { single: Type.Object({}, { additionalProperties: false }) },
+        strategies: [
+          defineStrategy({
+            id: "single",
+            config: Type.Object({}, { additionalProperties: false }),
+          }),
+        ],
       });
 
       expect(() =>
         createOp(contract, {
-          strategies: {
-            single: createStrategy(contract, "single", { run: () => 0 }),
-          },
+          strategies: [createStrategy(contract, contract.strategies.single, { run: () => 0 })],
         })
       ).toThrow('Operation typed-array metadata at "$.value" uses an unsupported schema container');
     }
@@ -1123,14 +1194,14 @@ describe("operation authoring", () => {
       id: "test/legacy-null-operation-input-cardinality",
       input: Type.Object({ value: legacyConstructorOnlySchema }, { additionalProperties: false }),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
 
     expect(() =>
       createOp(contract, {
-        strategies: {
-          single: createStrategy(contract, "single", { run: () => 0 }),
-        },
+        strategies: [createStrategy(contract, contract.strategies.single, { run: () => 0 })],
       })
     ).toThrow("Invalid typed-array cardinality metadata for Uint8Array");
   });
@@ -1162,14 +1233,17 @@ describe("operation authoring", () => {
           { additionalProperties: false }
         ),
         output: Type.Integer(),
-        strategies: { single: Type.Object({}, { additionalProperties: false }) },
+        strategies: [
+          defineStrategy({
+            id: "single",
+            config: Type.Object({}, { additionalProperties: false }),
+          }),
+        ],
       });
 
       expect(() =>
         createOp(contract, {
-          strategies: {
-            single: createStrategy(contract, "single", { run: () => 0 }),
-          },
+          strategies: [createStrategy(contract, contract.strategies.single, { run: () => 0 })],
         })
       ).toThrow("Invalid typed-array cardinality metadata for Uint8Array");
     }
@@ -1191,14 +1265,14 @@ describe("operation authoring", () => {
       id: "test/sparse-operation-input-cardinality",
       input: Type.Object({ value: sparseCardinalitySchema }, { additionalProperties: false }),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
 
     expect(() =>
       createOp(contract, {
-        strategies: {
-          single: createStrategy(contract, "single", { run: () => 0 }),
-        },
+        strategies: [createStrategy(contract, contract.strategies.single, { run: () => 0 })],
       })
     ).toThrow("Invalid typed-array cardinality metadata for Uint8Array");
   });
@@ -1209,20 +1283,26 @@ describe("operation authoring", () => {
       id: "test/strategy-descriptor-first",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     const secondContract = defineOp({
       kind: "compute",
       id: "test/strategy-descriptor-second",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
-    const secondStrategy = createStrategy(secondContract, "single", { run: () => 2 });
+    const secondStrategy = createStrategy(secondContract, secondContract.strategies.single, {
+      run: () => 2,
+    });
 
     expect(() =>
       createOp(firstContract, {
-        strategies: { single: secondStrategy as never },
+        strategies: [secondStrategy] as never,
       })
     ).toThrow(
       "Strategy descriptor test/strategy-descriptor-second#single cannot implement test/strategy-descriptor-first#single"
@@ -1235,20 +1315,26 @@ describe("operation authoring", () => {
       id: "test/same-id-strategy-descriptor",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     const otherContract = defineOp({
       kind: "compute",
       id: "test/same-id-strategy-descriptor",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
-    const otherStrategy = createStrategy(otherContract, "single", { run: () => "wrong" });
+    const otherStrategy = createStrategy(otherContract, otherContract.strategies.single, {
+      run: () => "wrong",
+    });
 
     expect(() =>
       createOp(expectedContract, {
-        strategies: { single: otherStrategy as never },
+        strategies: [otherStrategy] as never,
       })
     ).toThrow(
       "Strategy descriptor test/same-id-strategy-descriptor#single cannot implement test/same-id-strategy-descriptor#single"
@@ -1266,14 +1352,14 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
 
     expect(() =>
       createOp(contract, {
-        strategies: {
-          single: createStrategy(contract, "single", { run: () => 0 }),
-        },
+        strategies: [createStrategy(contract, contract.strategies.single, { run: () => 0 })],
       })
     ).toThrow('Operation typed-array cardinality source "missing" is not a numeric input');
   });
@@ -1290,12 +1376,14 @@ describe("operation authoring", () => {
         Type.Object({ grid: TypedArraySchemas.u8() }),
       ]),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     const op = createOp(contract, {
-      strategies: {
-        single: createStrategy(contract, "single", { run: (input) => input.grid.length }),
-      },
+      strategies: [
+        createStrategy(contract, contract.strategies.single, { run: (input) => input.grid.length }),
+      ],
     });
 
     expect(op.run({ width: 3, height: 2, grid: new Uint8Array(6) }, op.defaultConfig)).toBe(6);
@@ -1330,12 +1418,14 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     const op = createOp(contract, {
-      strategies: {
-        single: createStrategy(contract, "single", { run: (input) => input.grid.length }),
-      },
+      strategies: [
+        createStrategy(contract, contract.strategies.single, { run: (input) => input.grid.length }),
+      ],
     });
 
     expect(op.run({ width: 2, height: 3, grid: new Uint8Array(6) }, op.defaultConfig)).toBe(6);
@@ -1352,14 +1442,16 @@ describe("operation authoring", () => {
         Type.Object({ value: Type.Any() }),
       ]),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     const op = createOp(contract, {
-      strategies: {
-        single: createStrategy(contract, "single", {
+      strategies: [
+        createStrategy(contract, contract.strategies.single, {
           run: (input) => input.value?.length ?? 0,
         }),
-      },
+      ],
     });
 
     expect(() => op.run({} as never, op.defaultConfig)).toThrow(
@@ -1397,18 +1489,20 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     let runs = 0;
     const op = createOp(contract, {
-      strategies: {
-        single: createStrategy(contract, "single", {
+      strategies: [
+        createStrategy(contract, contract.strategies.single, {
           run: () => {
             runs += 1;
             return 0;
           },
         }),
-      },
+      ],
     });
 
     expect(() =>
@@ -1441,14 +1535,16 @@ describe("operation authoring", () => {
       id: "test/closed-operation-input-array-traversal",
       input: Type.Array(TypedArraySchemas.u8({ cardinality: "constructor-only" })),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     const op = createOp(contract, {
-      strategies: {
-        single: createStrategy(contract, "single", {
+      strategies: [
+        createStrategy(contract, contract.strategies.single, {
           run: (input) => input.reduce((total, value) => total + value.length, 0),
         }),
-      },
+      ],
     });
     const sparse = new Array<Uint8Array>(1);
     const overridden = [new Int8Array(1) as unknown as Uint8Array];
@@ -1476,12 +1572,12 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     const op = createOp(contract, {
-      strategies: {
-        single: createStrategy(contract, "single", { run: () => 0 }),
-      },
+      strategies: [createStrategy(contract, contract.strategies.single, { run: () => 0 })],
     });
 
     expect(() =>
@@ -1522,12 +1618,12 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
-      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
     });
     const op = createOp(contract, {
-      strategies: {
-        single: createStrategy(contract, "single", { run: () => 0 }),
-      },
+      strategies: [createStrategy(contract, contract.strategies.single, { run: () => 0 })],
     });
 
     expect(() =>

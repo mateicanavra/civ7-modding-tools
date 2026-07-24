@@ -3,6 +3,7 @@ import {
   createOp,
   createStrategy,
   defineOp,
+  defineStrategy,
   type GridBuffer,
   Type,
   TypedArraySchemas,
@@ -71,39 +72,46 @@ const InputAdmissionContract = defineOp({
     { additionalProperties: false }
   ),
   output: Type.Integer(),
-  strategies: { admitted: Type.Object({}, { additionalProperties: false }) },
+  strategies: [
+    defineStrategy({ id: "admitted", config: Type.Object({}, { additionalProperties: false }) }),
+  ],
 });
 
-const strategy = createStrategy(InputAdmissionContract, "admitted", {
-  run: (input) => {
-    const grid: GridBuffer<Uint8Array> = input.grid;
-    const row: AdmittedBuffer<Float32Array> = input.latitudeByRow;
-    const planned: AdmittedBuffer<Uint8Array> = input.planned;
-    const offsets: AdmittedBuffer<Int32Array> = input.offsets;
-    const constructorOnly: AdmittedBuffer<Int16Array> = input.constructorOnly;
-    const widenedCardinality: AdmittedBuffer<Uint8Array> = input.widenedCardinality;
-    const explicitDefaultCardinality: GridBuffer<Uint8Array> = input.explicitDefaultCardinality;
-    const nestedValue = input.nested?.rows[0]?.value;
-    if (nestedValue) {
-      const admittedUnion: AdmittedBuffer<Float32Array> | AdmittedBuffer<Int16Array> = nestedValue;
-      void admittedUnion;
-    }
-    return (
-      grid.length +
-      row.length +
-      planned.length +
-      offsets.length +
-      constructorOnly.length +
-      widenedCardinality.length +
-      explicitDefaultCardinality.length
-    );
-  },
-});
+const strategy = createStrategy(
+  InputAdmissionContract,
+  InputAdmissionContract.strategies.admitted,
+  {
+    run: (input) => {
+      const grid: GridBuffer<Uint8Array> = input.grid;
+      const row: AdmittedBuffer<Float32Array> = input.latitudeByRow;
+      const planned: AdmittedBuffer<Uint8Array> = input.planned;
+      const offsets: AdmittedBuffer<Int32Array> = input.offsets;
+      const constructorOnly: AdmittedBuffer<Int16Array> = input.constructorOnly;
+      const widenedCardinality: AdmittedBuffer<Uint8Array> = input.widenedCardinality;
+      const explicitDefaultCardinality: GridBuffer<Uint8Array> = input.explicitDefaultCardinality;
+      const nestedValue = input.nested?.rows[0]?.value;
+      if (nestedValue) {
+        const admittedUnion: AdmittedBuffer<Float32Array> | AdmittedBuffer<Int16Array> =
+          nestedValue;
+        void admittedUnion;
+      }
+      return (
+        grid.length +
+        row.length +
+        planned.length +
+        offsets.length +
+        constructorOnly.length +
+        widenedCardinality.length +
+        explicitDefaultCardinality.length
+      );
+    },
+  }
+);
 
 // @ts-expect-error Executable strategy behavior is opaque outside Core's operation factory.
 strategy.run;
 
-const op = createOp(InputAdmissionContract, { strategies: { admitted: strategy } });
+const op = createOp(InputAdmissionContract, { strategies: [strategy] });
 
 const OtherInputAdmissionContract = defineOp({
   kind: "compute",
@@ -112,12 +120,16 @@ const OtherInputAdmissionContract = defineOp({
   output: InputAdmissionContract.output,
   strategies: [InputAdmissionContract.strategies.admitted],
 });
-const otherStrategy = createStrategy(OtherInputAdmissionContract, "admitted", {
-  run: () => 0,
-});
+const otherStrategy = createStrategy(
+  OtherInputAdmissionContract,
+  OtherInputAdmissionContract.strategies.admitted,
+  {
+    run: () => 0,
+  }
+);
 
 // @ts-expect-error A strategy descriptor is nominally bound to its contract identity.
-createOp(InputAdmissionContract, { strategies: { admitted: otherStrategy } });
+createOp(InputAdmissionContract, { strategies: [otherStrategy] });
 
 op.run(
   {

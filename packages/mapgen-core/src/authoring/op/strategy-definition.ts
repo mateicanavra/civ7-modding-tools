@@ -77,11 +77,3 @@ function defineStrategyDefinition<Id extends string, ConfigSchema extends TSchem
   strategyDefinitionAuthority.add(strategyDefinition);
   return strategyDefinition;
 }
-
-/** @internal Admits a legacy id-keyed schema entry through the canonical strategy factory. */
-export function defineLegacyStrategyDefinition(
-  id: string,
-  config: TSchema
-): StrategyDefinition<string, TSchema> {
-  return defineStrategyDefinition({ id, config });
-}

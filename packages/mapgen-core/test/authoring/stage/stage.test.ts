@@ -4,6 +4,7 @@ import {
   createStep,
   defineOp,
   defineStep,
+  defineStrategy,
   deriveRecipeConfigSchema,
 } from "@mapgen/authoring/index.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
@@ -563,12 +564,15 @@ describe("authoring SDK", () => {
       id: "test/op/private-envelope",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({}, { additionalProperties: false }),
-      strategies: {
-        internal: Type.Object(
-          { internalRate: Type.Number({ default: 1 }) },
-          { additionalProperties: false }
-        ),
-      },
+      strategies: [
+        defineStrategy({
+          id: "internal",
+          config: Type.Object(
+            { internalRate: Type.Number({ default: 1 }) },
+            { additionalProperties: false }
+          ),
+        }),
+      ],
     } as const);
     const step = createStep(
       defineStep({

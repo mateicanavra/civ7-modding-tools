@@ -9,6 +9,7 @@ import {
   defineDomain,
   defineDomainSubdomain,
   defineOp,
+  defineStrategy,
   Type,
 } from "@mapgen/authoring/index.js";
 import type { IsEqual } from "type-fest";
@@ -20,13 +21,13 @@ const contract = defineOp({
   id: "type-test/domain/measure",
   input: Type.Object({}, { additionalProperties: false }),
   output: Type.String(),
-  strategies: {
-    measured: Type.Object({}, { additionalProperties: false }),
-  },
+  strategies: [
+    defineStrategy({ id: "measured", config: Type.Object({}, { additionalProperties: false }) }),
+  ],
 });
-const strategy = createStrategy(contract, "measured", { run: () => "measured" });
+const strategy = createStrategy(contract, contract.strategies.measured, { run: () => "measured" });
 const operation = createOp(contract, {
-  strategies: { measured: strategy },
+  strategies: [strategy],
 });
 const subdomain = defineDomainSubdomain({
   id: "measurement",
@@ -67,7 +68,7 @@ collectCompileOps({ ...aggregateRouter });
 collectCompileOps({ ...flatDomain });
 
 // @ts-expect-error Structural copies lose strategy authority and cannot implement an operation.
-createOp(contract, { strategies: { measured: { ...strategy } } });
+createOp(contract, { strategies: [{ ...strategy }] });
 
 // @ts-expect-error Low-level compile binding is internal to the compiler and domain router.
 MapGenAuthoring.bindCompileOps;
