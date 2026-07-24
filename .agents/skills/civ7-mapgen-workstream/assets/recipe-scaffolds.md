@@ -3,8 +3,8 @@
 > Open when you are about to *author* a new op, strategy, step, stage, or artifact in the recipe — and want a minimal-correct skeleton plus the exact registration points so the recipe still compiles and runs. This is the technical-arm copy-paste surface; the conceptual map of how these pieces relate lives in `references/pipeline-map.md`.
 
 These skeletons are distilled from LIVE source (the reference op is
-`mods/mod-swooper-maps/src/domain/morphology/ops/compute-landmask/`; the reference
-stage is `.../recipes/standard/stages/map/morphology/`). They are not invented —
+`mods/mod-swooper-maps/src/domain/foundation/modules/mesh/ops/compute-mesh/`; the
+reference stage is `.../recipes/standard/stages/map/morphology/`). They are not invented —
 re-derive any detail from those files if a skeleton looks stale. **Recipe-domain
 authoring lands in `mods/mod-swooper-maps/src/{domain,recipes}` — never in
 `packages/mapgen-core`** (that is engine substrate). See `references/pipeline-map.md`
@@ -15,72 +15,95 @@ for the truth-vs-projection stage split and the vocabulary.
 | Import path | What it gives | Used in |
 |---|---|---|
 | `@swooper/mapgen-core/authoring/schema` | `Type`, `TypedArraySchemas` — schema construction without runtime authoring dependencies | schema declarations in domain models, ops, steps, and artifacts |
-| `@swooper/mapgen-core/authoring/contracts` | `defineOp`, `defineStep`, `defineArtifact`, `defineArtifactValidator`, `defineArtifactCatalog`, `defineDomain`, `OpTypeBagOf` — contracts, artifact admission, types, and catalog assembly | op `contract.ts`, recipe-step `config.ts`, `*.artifact.ts`, artifact catalogs, domain contract `index.ts` |
-| `@swooper/mapgen-core/authoring` | `createOp`, `createStrategy`, `createStep`, `createStage`, `createRecipe`, `createDomain`, `collectCompileOps` — attach runtime implementations | op runtime `index.ts`, recipe-step `step.ts`, strategy files, stage/recipe files |
+| `@swooper/mapgen-core/authoring/contracts` | `defineOp`, `defineStrategy`, `defineStep`, `defineArtifact`, `defineArtifactCatalog`, `defineDomain`, `defineDomainSubdomain` — contracts, strategy definitions, artifact admission, and aggregate assembly | op and domain-module `contract.ts`, domain `contract.ts`, strategy and recipe-step `config.ts`, `*.artifact.ts`, artifact catalogs |
+| `@swooper/mapgen-core/authoring` | `createOp`, `createStrategy`, `createStep`, `createStage`, `createRecipe`, `createDomainSubdomainRouter`, `createDomainRouter`, `collectCompileOps` — attach runtime implementations and compose executable routers | op runtime `index.ts`, module and domain `router.ts`, recipe-step `step.ts`, strategy, stage, and recipe files |
 
-`@mapgen/domain/*` is a transitional tsconfig alias over the existing domain
-roots. Until the package-surface migration removes it, use only the already
-admitted root and `/ops` forms shown by live source; do not add alias mappings or
-new deep-import surfaces. Step contracts currently import the `defineDomain`
-root and `recipe.ts` currently imports the `createDomain` `/ops` root. Slice 7
-of the package-ownership migration replaces this compatibility graph with real
-owner surfaces. ESM relative imports use the `.js` extension even though the
+`@mapgen/domain/<domain>` is the contract-only domain root. Recipe wiring imports
+the executable domain from `@mapgen/domain/<domain>/router`. Artifacts and model
+atoms are direct owner surfaces: import an artifact catalog from the exact
+`@mapgen/domain/<domain>/modules/<module>/artifacts/index.js` path and a model
+atom from its exact module `model/atoms/<atom>.schema.js` path. Do not add a root
+`/ops` runtime, aggregate artifact re-export, or alternate compatibility surface.
+ESM relative and exact-owner imports use the `.js` extension even though source
 files are `.ts`.
 
 ---
 
-## (1) New op (full triple + registration)
+## (1) New op (shared contract + strategy leaf + registration)
 
-An op lives in `src/domain/<domain>/ops/<op-name>/` as a 5-file unit. Op id is
-`<domain>/<op-name>` kebab-case (e.g. `morphology/compute-landmask`) — **never omit
-the domain prefix**.
+An op lives in
+`src/domain/<domain>/modules/<module>/ops/<op-name>/` as a five-file minimum:
+the operation `contract.ts` and runtime `index.ts`, the runtime tuple at
+`strategies/index.ts`, and one `config.ts` + `index.ts` pair under
+`strategies/<semantic-id>/`. Choose the direct semantic module that owns the
+operation's policy and outputs; never add a flat domain-wide op cabinet. The
+stable op id remains `<domain>/<op-name>` kebab-case (e.g.
+`foundation/compute-mesh`) — **never omit the domain prefix**.
 
-**`contract.ts`** — `defineOp`; the `strategies` record keys become the allowed semantic
-strategy ids. A sole strategy is inferred as the default. A multi-strategy operation must
-declare `defaultStrategy` explicitly; object order never carries authority. The generic id
-`default` is refused because it erases behavioral identity.
+The operation contract is the sole owner of shared input and output. Each strategy
+leaf owns only its semantic id, authored config, and implementation. Compose leaf
+definitions into the operation contract and executable descriptors into the runtime
+tuple; do not add an operation-local type-bag file or authored strategy record. These
+entrypoints expose default exports only.
+
+A sole strategy is inferred as the default. A multi-strategy operation must declare
+`defaultStrategy` explicitly; tuple order never carries default or registration
+authority. The generic id `default` is refused because it erases behavioral identity.
+
+**`strategies/measured-response/config.ts`** — `defineStrategy` owns semantic identity
+and authored config, but never repeats the operation input or output.
 ```ts
-// src/domain/<domain>/ops/<op-name>/contract.ts
-import { defineOp } from "@swooper/mapgen-core/authoring/contracts";
-import { Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/schema";
+// src/domain/<domain>/modules/<module>/ops/<op-name>/strategies/measured-response/config.ts
+import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-export const MyOpConfigSchema = Type.Object(
-  { myParam: Type.Number({ default: 0.5, minimum: 0, maximum: 1, description: "..." }) },
-  { additionalProperties: false, description: "..." },
-);
+export default defineStrategy({
+  id: "measured-response",
+  config: Type.Object(
+    {
+      myParam: Type.Number({
+        default: 0.5,
+        minimum: 0,
+        maximum: 1,
+        description: "...",
+      }),
+    },
+    { additionalProperties: false, description: "..." },
+  ),
+});
+```
+
+**`contract.ts`** — `defineOp` owns the shared envelope and admits the exact leaf
+definitions implemented by this operation.
+```ts
+// src/domain/<domain>/modules/<module>/ops/<op-name>/contract.ts
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import measuredResponseDefinition from "./strategies/measured-response/config.js";
 
 const MyOpContract = defineOp({
-  kind: "compute",              // "compute" | "plan" | "place" | "score" | ...
-  id: "<domain>/my-op-name",    // kebab-case, domain-prefixed
+  kind: "compute", // "compute" | "plan" | "place" | "score" | ...
+  id: "<domain>/my-op-name", // kebab-case, domain-prefixed
   input: Type.Object({
     width: Type.Integer({ minimum: 1, description: "Map width in tiles." }),
     height: Type.Integer({ minimum: 1, description: "Map height in tiles." }),
     myInput: TypedArraySchemas.u8({ description: "..." }),
   }),
   output: Type.Object({ myOutput: TypedArraySchemas.u8({ description: "..." }) }),
-  strategies: { "measured-response": MyOpConfigSchema },
+  strategies: [measuredResponseDefinition],
 });
 
 export default MyOpContract;
 ```
 
-**`types.ts`** — typed input/output/envelope helpers.
+**`strategies/measured-response/index.ts`** — `createStrategy` seals the exact
+operation contract + leaf definition pair around the runtime implementation.
 ```ts
-// src/domain/<domain>/ops/<op-name>/types.ts
-import type { OpTypeBagOf } from "@swooper/mapgen-core/authoring/contracts";
-type Contract = typeof import("./contract.js").default;
-export type MyOpTypes = OpTypeBagOf<Contract>;
-```
-
-**`strategies/measured-response.ts`** — the filename, export, and strategy id preserve the
-behavioral identity; `createStrategy` infers `config` from the contract key.
-```ts
-// src/domain/<domain>/ops/<op-name>/strategies/measured-response.ts
+// src/domain/<domain>/modules/<module>/ops/<op-name>/strategies/measured-response/index.ts
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import MyOpContract from "../contract.js";
+import MyOpContract from "../../contract.js";
+import StrategyDefinition from "./config.js";
 
-export const measuredResponseStrategy = createStrategy(MyOpContract, "measured-response", {
-  // optional: normalize: (config, ctx) => config,
+export default createStrategy(MyOpContract, StrategyDefinition, {
+  // optional: normalize: (config) => config,
   run: (input, config) => {
     const { width, height } = input;
     const myOutput = new Uint8Array(width * height);
@@ -90,90 +113,111 @@ export const measuredResponseStrategy = createStrategy(MyOpContract, "measured-r
 });
 ```
 
-**`strategies/index.ts`** — re-export.
+**`strategies/index.ts`** — compose the complete executable strategy tuple.
 ```ts
-export { measuredResponseStrategy } from "./measured-response.js";
+import measuredResponse from "./measured-response/index.js";
+
+export default [measuredResponse] as const;
 ```
 
-**`index.ts`** — `createOp` binds every contract strategy key to an implementation;
-it throws at construction if a key is missing OR extra (symmetry enforced).
+**`index.ts`** — `createOp` checks the definition and runtime tuples for exact semantic
+and identity symmetry at construction.
 ```ts
-// src/domain/<domain>/ops/<op-name>/index.ts
+// src/domain/<domain>/modules/<module>/ops/<op-name>/index.ts
 import { createOp } from "@swooper/mapgen-core/authoring";
 import MyOpContract from "./contract.js";
-import { measuredResponseStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const myOp = createOp(MyOpContract, {
-  strategies: { "measured-response": measuredResponseStrategy },
-});
-
-export type * from "./contract.js";
-export type * from "./types.js";
-export default myOp;
+export default createOp(MyOpContract, { strategies });
 ```
 
-**Registration — `ops/contracts.ts` AND `ops/index.ts` (both, in sync):**
+**Module registration — the owning module's singular `ops/contract.ts` and
+`ops/index.ts` (both, in sync):**
 ```ts
-// src/domain/<domain>/ops/contracts.ts — add to the contracts record:
+// src/domain/<domain>/modules/<module>/ops/contract.ts — add to the contract registry:
 import MyOpContract from "./my-op-name/contract.js";
-export const contracts = { /* ...existing..., */ myOpName: MyOpContract } as const;
 
-// src/domain/<domain>/ops/index.ts — add to the implementations record:
+const contracts = { /* ...existing..., */ myOpName: MyOpContract } as const;
+
+export default contracts;
+
+// src/domain/<domain>/modules/<module>/ops/index.ts — add to the implementation registry:
+import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/authoring";
 import myOpName from "./my-op-name/index.js";
-const implementations = { /* ...existing..., */ myOpName } as const
-  satisfies DomainOpImplementationsForContracts<typeof contracts>;
-```
-> The `satisfies DomainOpImplementationsForContracts<typeof contracts>` line is the
-> compile-time guard that forces `contracts.ts` and `index.ts` to stay symmetric.
 
-The op is now part of the domain. It is not yet *run* by anything — wire it into a step
-(section 3) and ensure its domain reaches `compileOpsById` (section 4).
+type Contracts = typeof import("./contract.js").default;
+
+const implementations = { /* ...existing..., */ myOpName } as const
+  satisfies DomainOpImplementationsForContracts<Contracts>;
+
+export default implementations;
+```
+> `DomainOpImplementationsForContracts<Contracts>` is the compile-time guard that
+> forces the direct module's singular `ops/contract.ts` registry and runtime
+> `ops/index.ts` to stay symmetric.
+
+The op is now part of its direct semantic module. It is not yet *run* by anything —
+wire it into a step (section 3) and ensure the module's runtime router reaches the
+domain router collected by `compileOpsById` (section 4).
 
 ---
 
 ## (2) New strategy on an existing op
 
-The op already has a `strategies` record with at least one semantic identity. A strategy is a behavioral
-variant selected at config/compile time — see the multi-strategy ops
+The op contract already composes at least one semantic leaf definition. A strategy is a
+behavioral variant selected at config/compile time — see the multi-strategy op ids
 `hydrology/compute-precipitation` (`vector` default, `baseline`, `refine`) and
 `ecology/pedology/classify` for live examples.
 
-**Step A — schema** in `contract.ts`: add a key to the `strategies` record.
+**Step A — define the leaf** in `strategies/my-variant/config.ts`.
 ```ts
-strategies: {
-  "measured-response": MyOpConfigSchema,
-  "my-variant": MyVariantConfigSchema,   // new strategy id (string literal)
-},
-defaultStrategy: "measured-response",
+import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
+
+export default defineStrategy({
+  id: "my-variant",
+  config: Type.Object(
+    { variantStrength: Type.Number({ default: 1, minimum: 0, maximum: 2 }) },
+    { additionalProperties: false },
+  ),
+});
 ```
 
-**Step B — implementation** `strategies/my-variant.ts`: id must match the contract key exactly.
+**Step B — admit the definition** in the operation `contract.ts`. The operation continues
+to own the one shared input/output envelope.
+```ts
+import measuredResponseDefinition from "./strategies/measured-response/config.js";
+import myVariantDefinition from "./strategies/my-variant/config.js";
+
+// Inside defineOp({...}):
+defaultStrategy: "measured-response",
+strategies: [measuredResponseDefinition, myVariantDefinition],
+```
+
+**Step C — implement the leaf** in `strategies/my-variant/index.ts`.
 ```ts
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import MyOpContract from "../contract.js";
+import MyOpContract from "../../contract.js";
+import StrategyDefinition from "./config.js";
 
-export const myVariantStrategy = createStrategy(MyOpContract, "my-variant", {
+export default createStrategy(MyOpContract, StrategyDefinition, {
   run: (input, config) => {
-    // config is typed to MyOpContract.strategies["my-variant"]
+    // config is inferred from the exact StrategyDefinition leaf.
     return { myOutput: new Uint8Array(input.width * input.height) };
   },
 });
 ```
 
-**Step C — re-export** in `strategies/index.ts`:
+**Step D — extend the runtime tuple** in `strategies/index.ts`:
 ```ts
-export { myVariantStrategy } from "./my-variant.js";
+import measuredResponse from "./measured-response/index.js";
+import myVariant from "./my-variant/index.js";
+
+export default [measuredResponse, myVariant] as const;
 ```
 
-**Step D — register** in `index.ts` `createOp`:
-```ts
-const myOp = createOp(MyOpContract, {
-  strategies: {
-    "measured-response": measuredResponseStrategy,
-    "my-variant": myVariantStrategy,
-  },
-});
-```
+The operation `index.ts` remains unchanged: its existing
+`createOp(MyOpContract, { strategies })` call consumes the complete tuple, while each
+sealed descriptor supplies its semantic identity.
 
 **Step E — ACTIVATE (the strategy is inert until selected).** The op envelope is
 `{ strategy: "<id>", config: {...} }` (a TypeBox discriminated union on `strategy`).
@@ -214,17 +258,15 @@ use family nesting when the stage belongs to a larger semantic family. Step id i
 `map/morphology/steps/plot-continents`; the reference with-ops step is
 `morphology/features/steps/landmasses`.
 
-**`config.ts`** — `defineStep`. Existing code temporarily imports the domain
-contract through the admitted `@mapgen/domain/<domain>` root; do not extend that
-alias or deep-import through it.
+**`config.ts`** — `defineStep`. Import the domain contract from its root and
+artifacts from the exact producing module catalog.
 ```ts
 // steps/<step-name>/config.ts
 import someDomain from "@mapgen/domain/<domain>";
+import { artifacts as myModuleArtifacts } from "@mapgen/domain/<domain>/modules/<module>/artifacts/index.js";
+import { artifacts as otherModuleArtifacts } from "@mapgen/domain/<other-domain>/modules/<other-module>/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import { Type } from "@swooper/mapgen-core/authoring/schema";
-
-import { artifactModules as myDomainArtifactModules } from "@mapgen/domain/<domain>";
-import { artifacts as otherDomainArtifacts } from "@mapgen/domain/<other-domain>";
 
 /** Contract and compiled configuration boundary for the example recipe step. */
 export const MyStepContract = defineStep({
@@ -232,8 +274,8 @@ export const MyStepContract = defineStep({
   requires: [] as const,
   provides: [] as const,
   artifacts: {
-    requires: [otherDomainArtifacts.someInput],
-    provides: [myDomainArtifactModules.surfaceMask],
+    requires: [otherModuleArtifacts.someInput],
+    provides: [myModuleArtifacts.surfaceMask],
   },
   ops: {
     myOp: someDomain.ops.myOpName,
@@ -328,9 +370,8 @@ stage("my-stage-id", [MyStepContract /* , ...in execution order */ ]),
 import myStage from "./stages/my-family/my-stage/index.js";
 const stages = orderStandardStages({ /* ...existing..., */ "my-stage-id": myStage } as const);
 
-// 3. recipe.ts — if the stage introduces a NEW domain, add it to collectCompileOps
-//    (pass the domain RUNTIME from @mapgen/domain/<domain>/ops, not the contract):
-import myDomain from "@mapgen/domain/<my-domain>/ops";
+// 3. recipe.ts — if the stage introduces a NEW domain, add its runtime router to collectCompileOps:
+import myDomain from "@mapgen/domain/<my-domain>/router";
 export const compileOpsById = collectCompileOps(foundationDomain, morphologyDomain, myDomain);
 ```
 
@@ -345,118 +386,118 @@ export const compileOpsById = collectCompileOps(foundationDomain, morphologyDoma
 
 ---
 
-## (5) New artifact (module + catalog + publish/read)
+## (5) New artifact (module owner + direct catalog + publish/read)
 
-Artifacts are typed, write-once causal products shared between steps. Every immutable product
-lives in its owning domain's `artifacts/` catalog, not under a recipe stage. Each artifact module
-exports exactly one contract and one validator bound to that contract. The sibling
-`domain/<domain>/artifacts/index.ts` builds the single catalog authority and derives both
-`artifactModules` (runtime producers) and `artifacts` (step contracts/consumers) from it.
-Engine observation and metrics, visualization, and trace evidence remain their respective
-capabilities; do not preserve them as causal artifacts.
+Artifacts are typed, write-once causal products shared between steps. Every immutable
+product lives with its direct producing semantic module at
+`src/domain/<domain>/modules/<module>/artifacts/`, not under a recipe stage or in a
+second domain-wide catalog. Each `*.artifact.ts` exports one runtime authority named
+`artifact`; that `defineArtifact({ name, id, schema, refine? })` call owns identity,
+the complete inline payload schema, and complete admission. Do not export detached
+`Schema`, `validate`, contract, module, or handle authorities.
 
-An id MUST start with `artifact:` and MUST NOT carry a `@vN` suffix (`defineArtifact` throws on
-both). The runtime `name` is camelCase (`/^[a-z][a-zA-Z0-9]*$/`). Catalog keys are
-consumer-facing lookup names and may differ from runtime artifact names. Reference:
-`domain/morphology/artifacts/`.
+The adjacent module `artifacts/index.ts` exports one direct catalog for producers and
+consumers. Current examples are Ecology pedology at
+`domain/ecology/modules/pedology/artifacts/` and Foundation plate graph at
+`domain/foundation/modules/lithosphere/artifacts/`. The canonical guides are
+`docs/system/libs/mapgen/how-to/add-a-new-artifact.md` and
+`docs/system/libs/mapgen/reference/ARTIFACTS.md`.
 
-**`artifacts/surface-mask.artifact.ts` — contract and complete admission validator:**
+An id MUST start with `artifact:` and MUST NOT carry a `@vN` suffix
+(`defineArtifact` throws on both). The runtime `name` is camelCase
+(`/^[a-z][a-zA-Z0-9]*$/`). Catalog keys are consumer-facing lookup names and may
+differ from runtime artifact names.
+
+**`modules/<module>/artifacts/surface-mask.artifact.ts` — the single complete
+artifact authority:**
 ```ts
-import type {
-  ArtifactValidationContext,
-  ArtifactValidationIssue,
-} from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
+  appendArtifactTypedArrayIssues,
   defineArtifact,
-  defineArtifactValidator,
-} from "@swooper/mapgen-core/authoring/contracts";
-import {
-  type Static,
   Type,
   TypedArraySchemas,
-} from "@swooper/mapgen-core/authoring/schema";
+} from "@swooper/mapgen-core/authoring/contracts";
 
-export const Schema = Type.Object(
-  {
-    width: Type.Integer({ minimum: 1, description: "Map width represented by the mask." }),
-    height: Type.Integer({ minimum: 1, description: "Map height represented by the mask." }),
-    landMask: TypedArraySchemas.u8({
-      description: "One byte per tile in row-major order: 1 for land and 0 for water.",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description: "Authoritative land/water classification for one complete map surface.",
-  },
-);
+type SurfaceMask = Readonly<{
+  width: number;
+  height: number;
+  landMask: Uint8Array;
+}>;
 
 /** Registers the write-once surface classification consumed by downstream map stages. */
 export const artifact = defineArtifact({
   name: "surfaceMask",
   id: "artifact:<domain>.surfaceMask",
-  schema: Schema,
+  schema: Type.Object(
+    {
+      width: Type.Integer({ minimum: 1, description: "Map width represented by the mask." }),
+      height: Type.Integer({ minimum: 1, description: "Map height represented by the mask." }),
+      landMask: TypedArraySchemas.u8({
+        description: "One byte per tile in row-major order: 1 for land and 0 for water.",
+      }),
+    },
+    {
+      additionalProperties: false,
+      description: "Authoritative land/water classification for one complete map surface.",
+    }
+  ),
+  refine: (
+    input: unknown,
+    context?: ArtifactValidationContext
+  ): readonly ArtifactValidationIssue[] => {
+    const value = input as SurfaceMask;
+    const issues: ArtifactValidationIssue[] = [];
+    const expectedSize = value.width * value.height;
+    const isMask = appendArtifactTypedArrayIssues(
+      issues,
+      "surfaceMask.landMask",
+      value.landMask,
+      Uint8Array,
+      expectedSize
+    );
+    if (
+      context?.dimensions &&
+      (value.width !== context.dimensions.width || value.height !== context.dimensions.height)
+    ) {
+      issues.push({ message: "surfaceMask dimensions must match the active map." });
+    }
+    if (isMask && value.landMask.some((cell) => cell !== 0 && cell !== 1)) {
+      issues.push({ message: "surfaceMask.landMask accepts only 0 (water) or 1 (land)." });
+    }
+    return issues;
+  },
 });
-
-/**
- * Validates map-dimension agreement, one mask cell per tile, and the binary land/water value
- * domain after Core admits the closed TypeBox schema.
- */
-function validateLocal(
-  value: unknown,
-  context?: ArtifactValidationContext,
-): readonly ArtifactValidationIssue[] {
-  const { width, height, landMask } = value as Static<typeof Schema>;
-
-  const issues: ArtifactValidationIssue[] = [];
-  const expectedSize = width * height;
-  if (landMask.length !== expectedSize) {
-    issues.push({ message: `surfaceMask.landMask must contain ${expectedSize} cells.` });
-  }
-  if (
-    context?.dimensions &&
-    (width !== context.dimensions.width || height !== context.dimensions.height)
-  ) {
-    issues.push({ message: "surfaceMask dimensions must match the active map." });
-  }
-  if (landMask.some((cell) => cell !== 0 && cell !== 1)) {
-    issues.push({ message: "surfaceMask.landMask accepts only 0 (water) or 1 (land)." });
-  }
-  return Object.freeze(issues);
-}
-
-/** Admits structurally valid map-sized binary surface classifications. */
-export const validate = defineArtifactValidator(artifact, validateLocal);
 ```
 
-**`artifacts/index.ts` — the only catalog/handle registry:**
+**`modules/<module>/artifacts/index.ts` — the module's only artifact catalog:**
 ```ts
 import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
-import * as surfaceMask from "./surface-mask.artifact.js";
+import { artifact as surfaceMask } from "./surface-mask.artifact.js";
 
-const catalog = defineArtifactCatalog({ surfaceMask });
-
-/** Domain artifact modules pairing every contract with its complete admission validator. */
-export const artifactModules = catalog.modules;
-
-/** Domain artifact handles derived from the same catalog for contracts and consumers. */
-export const artifacts = catalog.artifacts;
+/** Immutable surface evidence owned by this semantic module. */
+export const artifacts = defineArtifactCatalog({ surfaceMask });
 ```
 
-**Wire the same module authority through a step (write-once publish, read by consumers):**
+**Wire the same catalog authority through a step (write-once publish, read by
+consumers):**
 ```ts
-// producing step contract: artifacts: { provides: [myDomainArtifactModules.surfaceMask] }
+import { artifacts as myModuleArtifacts } from "@mapgen/domain/<domain>/modules/<module>/artifacts/index.js";
+
+// producing step contract: artifacts: { provides: [myModuleArtifacts.surfaceMask] }
 deps.artifacts.surfaceMask.publish(context, { width, height, landMask });
 
-// consuming step contract: artifacts: { requires: [myDomainArtifacts.surfaceMask] }
+// consuming step contract: artifacts: { requires: [myModuleArtifacts.surfaceMask] }
 const value = deps.artifacts.surfaceMask.read(context);
 ```
 
-`defineArtifactValidator` always performs the artifact schema check first and invokes the optional
-local validator only after structural admission succeeds. Local validators own relational or
-domain invariants only; they never repeat TypeBox validation. `defineStep` admits and snapshots
-the selected modules; `createStep` derives producer runtimes from that contract while binding
-behavior only. The lower-level
-`implementArtifactModules` helper is Core runtime/test support, not normal recipe authoring.
+`defineArtifact` always performs structural schema admission first and invokes
+the optional inline `refine` only after structure succeeds. Refinement owns exact
+typed-array constructors, cardinality, cross-field relations, and domain laws the
+schema cannot express; a schema-complete artifact omits it. `defineStep` snapshots
+the selected artifact authorities, and `createStep` derives the validated
+publish/read runtime from that contract while binding behavior only.
 
 > Artifact ids use `artifact:<domain>.<name>` (for example,
 > `artifact:morphology.topography`). `effect:<name>` tags express execution guarantees in
@@ -469,8 +510,8 @@ behavior only. The lower-level
 
 | Forget to... | Failure surface |
 |---|---|
-| add op contract to `ops/contracts.ts` | `satisfies DomainOpImplementationsForContracts` mismatch in `ops/index.ts` |
-| bind a strategy in `createOp` | construction throws: strategy key present in contract, missing impl |
+| add op contract to `modules/<module>/ops/contract.ts` | `satisfies DomainOpImplementationsForContracts` mismatch in the module's `ops/index.ts` |
+| add executable strategy to `strategies/index.ts` | `createOp` construction throws: contract definition has no matching runtime descriptor |
 | add step to `standardStageContractManifest` | `orderStandardStageSteps` throws (unknown step id) |
 | add stage to `recipe.ts` `orderStandardStages` | stage silently absent from the pipeline (no error) — verify the run |
 | pass a new domain to `collectCompileOps` | compile-time op resolution fails for that domain's ops |
