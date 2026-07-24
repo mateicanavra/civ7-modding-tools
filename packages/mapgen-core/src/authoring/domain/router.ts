@@ -3,24 +3,24 @@ import type {
   DomainOpCompileAny,
   DomainOpsRouter,
   DomainOpsSurface,
-} from "./bindings.js";
+} from "../bindings.js";
 import {
   composeDomainOpsRouter,
   createDomainOpsSurfaceFromEntries,
   createFlatDomainCompileRoot,
-} from "./bindings.js";
+} from "../bindings.js";
 import type {
   DomainAggregateContractAny,
   DomainContractAny,
   DomainSubdomainContractAny,
-} from "./domain.js";
-import { readDomainContractAuthority } from "./domain-authority.js";
-import { readCanonicalDomainOpContract } from "./op/create.js";
+} from "./contract.js";
+import { readDomainContractAuthority } from "./authority.js";
+import { readCanonicalDomainOpContract } from "../op/create.js";
 import {
   alignOwnDataRecords,
   captureOwnDataRecord,
   type OwnDataRecord,
-} from "./own-data-record.js";
+} from "../own-data-record.js";
 
 type NoExtraKeys<Expected, Actual> =
   Exclude<keyof Actual, keyof Expected> extends never ? unknown : never;

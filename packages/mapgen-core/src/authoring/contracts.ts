@@ -23,8 +23,8 @@ export type {
   DomainContractAny,
   DomainSubdomainContract,
   DomainSubdomainContractAny,
-} from "./domain.js";
-export { defineDomain, defineDomainSubdomain } from "./domain.js";
+} from "./domain/contract.js";
+export { defineDomain, defineDomainSubdomain } from "./domain/contract.js";
 export { defineOp } from "./op/contract.js";
 export type { StrategyDefinition } from "./op/strategy-definition.js";
 export { defineStrategy } from "./op/strategy-definition.js";

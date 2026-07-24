@@ -1,14 +1,14 @@
 import {
   readDomainContractAuthority,
   registerDomainContractAuthority,
-} from "./domain-authority.js";
-import { assertCanonicalOpContract, type OpContractAny } from "./op/contract.js";
+} from "./authority.js";
+import { assertCanonicalOpContract, type OpContractAny } from "../op/contract.js";
 import {
   captureOwnDataRecord,
   materializeOwnDataRecord,
   type OwnDataRecord,
-} from "./own-data-record.js";
-import type { StepOpsDecl } from "./step/ops.js";
+} from "../own-data-record.js";
+import type { StepOpsDecl } from "../step/ops.js";
 
 type NonEmpty<Input extends object> = keyof Input extends never ? never : unknown;
 type DomainDefinition<Id extends string, Ops extends StepOpsDecl> = Readonly<{

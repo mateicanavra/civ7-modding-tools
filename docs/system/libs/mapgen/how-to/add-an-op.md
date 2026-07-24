@@ -170,7 +170,7 @@ const implementations = {
 
 - Op contract API: `packages/mapgen-core/src/authoring/op/contract.ts`
 - Op implementation wrapper: `packages/mapgen-core/src/authoring/op/create.ts`
-- Domain registry authoring: `packages/mapgen-core/src/authoring/domain.ts`
+- Domain registry authoring: `packages/mapgen-core/src/authoring/domain/contract.ts`
 - Example op contract: `mods/mod-swooper-maps/src/domain/foundation/modules/tectonics/ops/compute-era-tectonic-fields/contract.ts`
 - Example op implementation: `mods/mod-swooper-maps/src/domain/foundation/modules/tectonics/ops/compute-era-tectonic-fields/index.ts`
 - Example model atoms: `mods/mod-swooper-maps/src/domain/foundation/modules/tectonics/model/atoms/`

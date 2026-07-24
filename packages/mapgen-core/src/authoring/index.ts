@@ -51,19 +51,19 @@ export type {
   DomainContractAny,
   DomainSubdomainContract,
   DomainSubdomainContractAny,
-} from "./domain.js";
-export { defineDomain, defineDomainSubdomain } from "./domain.js";
+} from "./domain/index.js";
+export { defineDomain, defineDomainSubdomain } from "./domain/index.js";
 export type {
   DomainModule,
   DomainOpImplementationsForContracts,
   DomainRouter,
   DomainSubdomainRouter,
-} from "./domain-router.js";
+} from "./domain/index.js";
 export {
   createDomain,
   createDomainRouter,
   createDomainSubdomainRouter,
-} from "./domain-router.js";
+} from "./domain/index.js";
 export type {
   AdmittedBuffer,
   AdmittedOperationInput,
