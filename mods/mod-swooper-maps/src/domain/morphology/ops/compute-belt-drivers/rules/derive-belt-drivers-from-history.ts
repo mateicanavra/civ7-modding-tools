@@ -1,11 +1,35 @@
 import { collectMaskComponentsOddQ, forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
-import type {
-  TectonicHistorySourceTiles,
-  TectonicProvenanceSourceTiles,
-} from "../../../model/schemas/tectonic-source-tiles.js";
-
 import type { BeltComponentSummary, BeltDriverOutputs } from "../types.js";
+
+type TectonicHistorySourceTiles = Readonly<{
+  eraCount: number;
+  perEra: ReadonlyArray<
+    Readonly<{
+      boundaryType: Uint8Array;
+      upliftPotential: Uint8Array;
+      collisionPotential: Uint8Array;
+      subductionPotential: Uint8Array;
+      riftPotential: Uint8Array;
+      shearStress: Uint8Array;
+    }>
+  >;
+  rollups: Readonly<{
+    upliftTotal: Uint8Array;
+    collisionTotal: Uint8Array;
+    subductionTotal: Uint8Array;
+    upliftRecentFraction: Uint8Array;
+    collisionRecentFraction: Uint8Array;
+    subductionRecentFraction: Uint8Array;
+    lastActiveEra: Uint8Array;
+  }>;
+}>;
+
+type TectonicProvenanceSourceTiles = Readonly<{
+  originEra: Uint8Array;
+  originPlateId: Int16Array;
+  lastBoundaryType: Uint8Array;
+}>;
 
 const GAP_FILL_DISTANCE = 2;
 const MIN_BELT_LENGTH = 3;
