@@ -1,7 +1,7 @@
 import ecology from "@mapgen/domain/ecology";
 import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -18,7 +18,7 @@ export const PlanIceStepContract = defineStep({
       featureArtifacts.scoreLayers,
       featureArtifacts.occupancyFloodplains,
       biomeArtifacts.biomeClassification,
-      morphologyArtifacts.topography,
+      morphologyLandformsArtifacts.topography,
     ],
     provides: [featureArtifacts.featureIntentsIce, featureArtifacts.occupancyIce],
   },

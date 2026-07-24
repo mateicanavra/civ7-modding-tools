@@ -1,7 +1,7 @@
 import hydrology from "@mapgen/domain/hydrology";
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -29,7 +29,7 @@ export const RiversStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [climateArtifacts.baselineClimateField, morphologyArtifacts.topography],
+    requires: [climateArtifacts.baselineClimateField, morphologyLandformsArtifacts.topography],
     provides: [hydrographyArtifacts.hydrography],
   },
   ops: {

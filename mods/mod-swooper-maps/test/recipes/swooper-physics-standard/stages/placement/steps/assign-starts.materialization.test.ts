@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import placementDomain from "@mapgen/domain/placement/ops";
+import placementDomain from "@mapgen/domain/placement/router";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";

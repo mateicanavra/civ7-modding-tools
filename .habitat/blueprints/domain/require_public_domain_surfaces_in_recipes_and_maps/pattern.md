@@ -42,50 +42,50 @@ or {
 
 ```typescript
 // @filename: mods/example-mod/src/recipes/example/stages/demo.ts
-import rule from "@mapgen/domain/geology/shared/private";
+import moduleRouter from "@mapgen/domain/geology/modules/tectonics/router";
 
-export const value = rule;
+export const value = moduleRouter;
 
 // @filename: mods/example-mod/src/recipes/example/stages/demo.ts
-import privateOps from "@mapgen/domain/geology/ops/private";
+import privateOps from "@mapgen/domain/geology/modules/tectonics/ops/private";
 
 export const opsValue = privateOps;
 
 // @filename: mods/another-mod/src/maps/alternate/stages/demo.ts
-import { byId } from "@mapgen/domain/geology/ops-by-id";
+import { byId } from "@mapgen/domain/geology/modules/tectonics/ops/index.js";
 
 export const lookup = byId;
 
 // @filename: mods/example-mod/src/recipes/example/stages/demo.ts
-import privatePolicy from "@mapgen/domain/geology/model/private";
+import privateRule from "@mapgen/domain/geology/modules/tectonics/model/rules/is-active.js";
 
-export const privatePolicyValue = privatePolicy;
+export const privateRuleValue = privateRule;
 
 // @filename: mods/another-mod/src/maps/alternate/stages/demo.ts
 export { privateRule } from "@mapgen/domain/biosphere/rules/private";
 
 // @filename: mods/example-mod/src/recipes/example/stages/biosphere/demo.ts
-import { isAnyRiverClass } from "../../../../domain/rivers/index.js";
+import { artifacts } from "../../../../domain/geology/modules/tectonics/artifacts/index.js";
 
-export const relativeValue = isAnyRiverClass;
+export const relativeValue = artifacts;
 
 // @filename: mods/another-mod/src/maps/alternate/stages/biosphere/steps/climate-refine/step.ts
-import { isMajorRiverClass } from "../../../../../domain/rivers/index.js";
+import domainRouter from "../../../../../domain/geology/router.js";
 
-export const major = isMajorRiverClass;
+export const relativeRouter = domainRouter;
 
 // @filename: mods/example-mod/src/recipes/example/stages/demo.ts
-import ops from "@mapgen/domain/geology/ops";
+import ops from "@mapgen/domain/geology/modules/tectonics/ops";
 
 export const opsValue = ops;
 
 // @filename: mods/another-mod/src/maps/alternate/stages/demo.ts
-import artifacts from "@mapgen/domain/geology/artifacts";
+import privateArtifact from "@mapgen/domain/geology/modules/tectonics/artifacts/plate-network.artifact.js";
 
-export const artifactValue = artifacts;
+export const artifactValue = privateArtifact;
 
 // @filename: mods/example-mod/src/recipes/example/stages/demo.ts
-import branchPolicy from "@mapgen/domain/geology/tectonics/policy/plate-activity.js";
+import branchPolicy from "@mapgen/domain/geology/modules/tectonics/policy/plate-activity.js";
 
 export const branchPolicyValue = branchPolicy;
 

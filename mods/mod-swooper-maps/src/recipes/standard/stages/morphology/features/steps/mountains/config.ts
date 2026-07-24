@@ -1,4 +1,9 @@
-import morphology, { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import morphology from "@mapgen/domain/morphology";
+import { artifacts as morphologyTerrainArtifacts } from "@mapgen/domain/morphology/modules/terrain/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyErosionArtifacts } from "@mapgen/domain/morphology/modules/erosion/artifacts/index.js";
+import { artifacts as morphologyRoutingArtifacts } from "@mapgen/domain/morphology/modules/routing/artifacts/index.js";
+import { artifacts as morphologyCoastsArtifacts } from "@mapgen/domain/morphology/modules/coasts/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -14,18 +19,18 @@ export const MountainsStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [
-      morphologyArtifacts.beltDrivers,
-      morphologyArtifacts.topography,
-      morphologyArtifacts.substrate,
-      morphologyArtifacts.routing,
-      morphologyArtifacts.carvedCoastline,
+      morphologyTerrainArtifacts.beltDrivers,
+      morphologyLandformsArtifacts.topography,
+      morphologyErosionArtifacts.substrate,
+      morphologyRoutingArtifacts.routing,
+      morphologyCoastsArtifacts.carvedCoastline,
     ],
-    provides: [morphologyArtifacts.mountains],
+    provides: [morphologyLandformsArtifacts.mountains],
   },
   ops: {
-    ridges: morphology.ops.planRidges,
-    foothills: morphology.ops.planFoothills,
-    roughLands: morphology.ops.planRoughLands,
+    ridges: morphology.landforms.ops.planRidges,
+    foothills: morphology.landforms.ops.planFoothills,
+    roughLands: morphology.landforms.ops.planRoughLands,
   },
   schema: Type.Object(
     {},

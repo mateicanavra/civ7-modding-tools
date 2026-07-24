@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import { MockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import {
@@ -26,7 +26,7 @@ function publishBuildElevationInputs(
   sinkMismatchCount: number
 ): void {
   const size = width * height;
-  publishTestArtifact(context, morphologyArtifacts.topography, {
+  publishTestArtifact(context, morphologyLandformsArtifacts.topography, {
     elevation: new Int16Array(size),
     seaLevel: 0,
     landMask,

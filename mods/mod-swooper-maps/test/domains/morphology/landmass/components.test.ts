@@ -1,12 +1,12 @@
 import { describe, expect, it } from "bun:test";
 
-import morphologyDomain from "@mapgen/domain/morphology/ops";
+import morphologyDomain from "@mapgen/domain/morphology/router";
 import {
   runAdmittedOperationForTest,
   validateSchemaValueForTest,
 } from "@swooper/mapgen-core/testing";
 
-const { computeLandmasses } = morphologyDomain.ops;
+const { computeLandmasses } = morphologyDomain.landforms.ops;
 
 describe("morphology operations", () => {
   it("computes landmass components and validates output", () => {

@@ -21,61 +21,61 @@ or {
 ## Matches fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 export const key = "artifact:map.foo";
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 export const effectKey = "effect:map.foo";
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 export const singleQuotedKey = 'artifact:map.foo';
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 export const dependencies = ["artifact:map.foo"];
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 export const dependencyRecord = { "artifact:map.foo": true };
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 import projectedArtifact from "artifact:map.foo";
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 export { projectedArtifact } from "effect:map.foo";
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 await import("artifact:map.foo");
 ```
 
 ## Ignores fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 export const key = "artifact:terrain.foo";
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 export const ownedArtifact = "artifact:ecology.foo";
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 export const ownedEffect = "effect:ecology.foo";
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 export const noSuffix = "artifact:map";
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 export const prefixLookalike = "artifact:mapper.foo";
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/lib/demo.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/model/policy/habitat.ts
 export const nonOpKey = "artifact:map.foo";
 
-// @filename: mods/other-mod/src/domain/ecology/ops/demo/index.ts
+// @filename: mods/other-mod/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 export const otherModKey = "artifact:map.foo";
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.tsx
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/biosphere/ops/estimate-habitat/index.tsx
 export const tsxKey = "artifact:map.foo";
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/demo/step.ts
+// @filename: mods/mod-swooper-maps/src/recipes/example/stages/biosphere/steps/estimate-habitat/step.ts
 export const recipeKey = "artifact:map.foo";
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 export const templateKey = `artifact:map.foo`;
 ```

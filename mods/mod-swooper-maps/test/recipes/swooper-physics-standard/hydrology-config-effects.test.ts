@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { sha256Hex } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import { buildStandardRecipeDefaultConfig } from "../../../src/recipes/standard/artifacts.js";
@@ -97,7 +97,7 @@ function surfaceTemperature(context: ReturnType<typeof runStandardConfig>): numb
 }
 
 function seasonalitySignals(context: ReturnType<typeof runStandardConfig>) {
-  const topography = readValidatedArtifact(context, morphologyArtifacts.topography);
+  const topography = readValidatedArtifact(context, morphologyLandformsArtifacts.topography);
   const seasonality = readValidatedArtifact(context, climateArtifacts.climateSeasonality);
   const bytes = new Uint8Array(
     topography.elevation.buffer,

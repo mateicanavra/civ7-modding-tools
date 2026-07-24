@@ -48,7 +48,7 @@ type Routing = Readonly<{
   flowAccum: Float32Array;
 }>;
 
-/** Publishes drainage receivers and accumulation for erosion and Hydrology consumers. */
+/** Publishes geomorphic receivers and accumulation for Morphology terrain shaping. */
 export const artifact = defineArtifact({
   name: "routing",
   id: "artifact:morphology.routing",
@@ -122,12 +122,16 @@ already carries its schema and complete admission function.
 Producer and consumer contracts select the same catalog value.
 
 ```ts
-import { artifacts as morphologyArtifacts } from "../artifacts/index.js";
+import morphology from "@mapgen/domain/morphology";
+import { artifacts as morphologyRoutingArtifacts } from "@mapgen/domain/morphology/modules/routing/artifacts/index.js";
 
 export const RoutingStepConfig = defineStep({
   // ...id, tags, ops, and schema...
   artifacts: {
-    provides: [morphologyArtifacts.routing],
+    provides: [morphologyRoutingArtifacts.routing],
+  },
+  ops: {
+    routing: morphology.routing.ops.computeFlowRouting,
   },
 });
 ```
@@ -144,11 +148,15 @@ artifact authorities.
 ```ts
 export const RoutingStep = createStep(RoutingStepConfig, {
   run: (context, config, ops, deps) => {
-    const routing = ops.computeRouting({ /* admitted inputs */ }, config.computeRouting);
+    const routing = ops.routing({ /* admitted inputs */ }, config.routing);
     deps.artifacts.routing.publish(context, routing);
   },
 });
 ```
+
+The domain root import above is a declaration contract. Recipe runtime
+composition separately imports `@mapgen/domain/morphology/router`; artifact and
+step modules must not pull executable routers into their contract surface.
 
 Consumers read through `deps.artifacts.<name>.read(context)`. Authored code
 never reaches into MapContext storage.

@@ -5,7 +5,7 @@ import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biom
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
 import ecology from "@mapgen/domain/ecology/router";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -82,13 +82,13 @@ describe("ecology-features plan-wetlands step", () => {
         plannedLakeTileCount: 0,
         sinkLakeCount: 0,
       });
-      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask: new Uint8Array(size).fill(1),
         bathymetry: new Int16Array(size),
       });
-      publishTestArtifact(stepContext, morphologyArtifacts.mountains, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.mountains, {
         mountainMask: new Uint8Array(size),
         mountainRegionMask: new Uint8Array(size),
         mountainRegionIdByTile: new Int32Array(size).fill(-1),
@@ -99,7 +99,7 @@ describe("ecology-features plan-wetlands step", () => {
         fracturePotential: new Uint8Array(size),
         roughnessPotential: new Uint8Array(size),
       });
-      publishTestArtifact(stepContext, morphologyArtifacts.volcanoes, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.volcanoes, {
         volcanoMask: new Uint8Array(size),
         volcanoes: [],
       });

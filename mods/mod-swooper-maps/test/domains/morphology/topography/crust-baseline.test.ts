@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import foundation from "@mapgen/domain/foundation/router";
-import morphologyOpsPublic from "@mapgen/domain/morphology/ops";
+import morphologyOpsPublic from "@mapgen/domain/morphology/router";
 import { TEST_MAP_SIZE } from "../../../setup.js";
 import { runTectonicHistoryChain } from "../../foundation/tectonics/fixtures/tectonics-history.js";
 
@@ -9,7 +9,7 @@ const { computeMantleForcing, computeMantlePotential } = foundation.mantle.ops;
 const { computeCrust, computePlateGraph } = foundation.lithosphere.ops;
 const { computePlateMotion } = foundation.tectonics.ops;
 const { computePlatesTensors } = foundation.projection.ops;
-const { computeBaseTopography } = morphologyOpsPublic.ops;
+const { computeBaseTopography } = morphologyOpsPublic.terrain.ops;
 function quantile(sorted: number[], q: number): number {
   if (sorted.length === 0) return 0;
   const clamped = Math.max(0, Math.min(1, q));

@@ -1,6 +1,6 @@
 import ecology from "@mapgen/domain/ecology";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import {
   MAP_PROJECTION_EFFECT_TAGS,
@@ -37,7 +37,7 @@ export const FeaturesApplyStepContract = defineStep({
       featureArtifacts.featureIntentsFloodplains,
       featureArtifacts.featureIntentsReefs,
       featureArtifacts.featureIntentsIce,
-      morphologyArtifacts.topography,
+      morphologyLandformsArtifacts.topography,
     ],
     provides: [
       mapEcologyArtifacts.featureApplyDiagnostics,

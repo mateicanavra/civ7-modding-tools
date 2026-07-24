@@ -19,7 +19,7 @@ export default createStage({
   steps: orderStandardStageSteps("morphology-routing", { routing: RoutingStep }),
   compile: () => ({
     routing: {
-      routing: defaultEnvelope(morphology.ops.computeFlowRouting, {}),
+      routing: defaultEnvelope(morphology.routing.ops.computeFlowRouting, {}),
     },
   }),
 } as const);

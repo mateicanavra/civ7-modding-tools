@@ -4,7 +4,7 @@ import { createMockAdapter } from "@civ7/adapter";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
 import ecology from "@mapgen/domain/ecology/router";
 import { RIVER_CLASS_MAJOR } from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-class.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -83,7 +83,7 @@ describe("ecology-features plan-floodplains step", () => {
     });
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: new Int16Array(size).fill(24),
         seaLevel: 0,
         landMask,

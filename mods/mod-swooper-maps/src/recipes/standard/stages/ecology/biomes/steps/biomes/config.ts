@@ -3,7 +3,7 @@ import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biom
 import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as cryosphereArtifacts } from "@mapgen/domain/hydrology/modules/cryosphere/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -19,7 +19,7 @@ export const BiomesStepContract = defineStep({
     requires: [
       cryosphereArtifacts.cryosphere,
       climateArtifacts.climateIndices,
-      morphologyArtifacts.topography,
+      morphologyLandformsArtifacts.topography,
       pedologyArtifacts.pedology,
     ],
     provides: [biomeArtifacts.biomeClassification],

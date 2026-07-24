@@ -1,4 +1,4 @@
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import {
   MAP_PROJECTION_EFFECT_TAGS,
@@ -31,7 +31,7 @@ export const PlacementStepContract = defineStep({
       placementArtifacts.discoveryPlacementOutcomes,
       placementArtifacts.advancedStartAssignment,
       placementArtifacts.landmassRegionSlotByTile,
-      morphologyArtifacts.topography,
+      morphologyLandformsArtifacts.topography,
     ],
     provides: [
       placementArtifacts.placementOutputs,

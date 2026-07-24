@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import morphologyDomain from "@mapgen/domain/morphology/ops";
+import morphologyDomain from "@mapgen/domain/morphology/router";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 
 const selection = { strategy: "carved-coast-datum", config: {} } as const;
@@ -14,7 +14,7 @@ describe("reconcile-heightfield-from-coast", () => {
     const elevation = Int16Array.from([5, -3, 2, -1]);
 
     const result = runAdmittedOperationForTest(
-      morphologyDomain.ops.reconcileHeightfieldFromCoast,
+      morphologyDomain.coasts.ops.reconcileHeightfieldFromCoast,
       {
         width,
         height,

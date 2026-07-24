@@ -1,9 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
-import morphologyDomain from "@mapgen/domain/morphology/ops";
+import morphologyDomain from "@mapgen/domain/morphology/router";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 
-const { computeSculptContinentalMargin, computeShelfMask } = morphologyDomain.ops;
+const { computeSculptContinentalMargin } = morphologyDomain.coasts.ops;
+const { computeShelfMask } = morphologyDomain.shelf.ops;
 
 function sculptSyntheticMargin(posture: "active" | "passive") {
   const syntheticDimensions = { width: 20, height: 5 } as const;

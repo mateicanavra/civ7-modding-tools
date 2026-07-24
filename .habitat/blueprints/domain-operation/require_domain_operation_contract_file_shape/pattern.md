@@ -127,7 +127,7 @@ export default defineOp({
   strategies: { measured: DemoConfigSchema },
 });
 
-// @filename: mods/example-mod/src/domain/terrain/ops/plan-ridges/contract.ts
+// @filename: mods/example-mod/src/domain/terrain/modules/relief/ops/plan-ridges/contract.ts
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 import type { SelectResourceSitesInput } from "../select-resource-sites/contract.js";
 
@@ -167,7 +167,7 @@ const Contract = defineOp({
 export type DemoInput = Static<typeof Contract.input>;
 export default Contract;
 
-// @filename: mods/example-mod/src/domain/climate/ops/demo/contract.ts
+// @filename: mods/example-mod/src/domain/climate/modules/thermal/ops/demo/contract.ts
 import { HydrologyConfigSchema } from "../../model/config.js";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 
@@ -179,7 +179,7 @@ export default defineOp({
   strategies: { "water-budget": HydrologyConfigSchema },
 });
 
-// @filename: mods/example-mod/src/domain/climate/ops/demo/contract.ts
+// @filename: mods/example-mod/src/domain/climate/modules/thermal/ops/demo/contract.ts
 import type { PlotEffectKey } from "@mapgen/domain/biosphere/types.js";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 
@@ -191,8 +191,8 @@ export default defineOp({
   strategies: { "water-budget": HydrologyConfigSchema },
 });
 
-// @filename: mods/example-mod/src/domain/economy/ops/adjust-resource-support/contract.ts
-import { TerrainContract } from "@mapgen/domain/terrain/ops/compute-surface/contract.js";
+// @filename: mods/example-mod/src/domain/economy/modules/resources/ops/adjust-resource-support/contract.ts
+import { TerrainContract } from "@mapgen/domain/terrain/modules/relief/ops/compute-surface/contract.js";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 export default defineOp({
@@ -203,12 +203,12 @@ export default defineOp({
   strategies: { "support-equity": Type.Object({}) },
 });
 
-// @filename: mods/example-mod/src/domain/biosphere/ops/demo/contract.ts
+// @filename: mods/example-mod/src/domain/biosphere/modules/vegetation/ops/demo/contract.ts
 import { Type } from "@swooper/mapgen-core/authoring/contracts";
 
 export const InputSchema = Type.Object({});
 
-// @filename: mods/example-mod/src/domain/biosphere/ops/demo/contract.ts
+// @filename: mods/example-mod/src/domain/biosphere/modules/vegetation/ops/demo/contract.ts
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 import DemoDefinition from "./config.js";
 
@@ -221,7 +221,7 @@ const sentinel = defineOp({
 const DemoContract = defineOp(DemoDefinition);
 export default DemoContract;
 
-// @filename: mods/example-mod/src/domain/biosphere/ops/demo/contract.ts
+// @filename: mods/example-mod/src/domain/biosphere/modules/vegetation/ops/demo/contract.ts
 import { createOp } from "@swooper/mapgen-core/authoring";
 import DemoContract from "./contract.js";
 

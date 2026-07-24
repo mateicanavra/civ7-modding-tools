@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 
-import morphologyDomain from "@mapgen/domain/morphology/ops";
+import morphologyDomain from "@mapgen/domain/morphology/router";
 
-const { computeBeltDrivers } = morphologyDomain.ops;
+const { computeBeltDrivers } = morphologyDomain.terrain.ops;
 
 function buildHistoryTiles(width: number, height: number, eraCount: number) {
   const size = width * height;

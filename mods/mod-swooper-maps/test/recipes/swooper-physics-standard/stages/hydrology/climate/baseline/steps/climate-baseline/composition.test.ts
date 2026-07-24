@@ -2,7 +2,8 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
 import hydrologyDomain from "@mapgen/domain/hydrology/router";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -98,13 +99,13 @@ describe("hydrology climate-baseline composition", () => {
     const thermalSstInputs: Array<Float32Array | undefined> = [];
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask: new Uint8Array(size),
         bathymetry: new Int16Array(size),
       });
-      publishTestArtifact(stepContext, morphologyArtifacts.shelf, {
+      publishTestArtifact(stepContext, morphologyShelfArtifacts.shelf, {
         shelfMask: new Uint8Array(size),
         coastalLand: new Uint8Array(size),
         coastalWater: new Uint8Array(size),

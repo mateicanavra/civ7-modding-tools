@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter, getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
-import placement from "@mapgen/domain/placement/ops";
+import placement from "@mapgen/domain/placement/router";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
 import { captureEnginePlacementTypes } from "../../../../../../src/recipes/standard/current-engine-surface.js";

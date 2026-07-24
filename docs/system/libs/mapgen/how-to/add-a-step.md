@@ -43,7 +43,12 @@ This how-to is **recipe-level** (steps are authored/registered in a recipe). It 
 Representative example (artifact + ops wiring; excerpt; see full file in anchors):
 
 ```ts
-import { Type, defineStep } from "@swooper/mapgen-core/authoring";
+import morphology from "@mapgen/domain/morphology";
+import { artifacts as morphologyCoastsArtifacts } from "@mapgen/domain/morphology/modules/coasts/artifacts/index.js";
+import { artifacts as morphologyErosionArtifacts } from "@mapgen/domain/morphology/modules/erosion/artifacts/index.js";
+import { artifacts as morphologyRoutingArtifacts } from "@mapgen/domain/morphology/modules/routing/artifacts/index.js";
+import { artifacts as morphologyTerrainArtifacts } from "@mapgen/domain/morphology/modules/terrain/artifacts/index.js";
+import { Type, defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Contract and compiled configuration boundary for geomorphic evolution. */
 export const GeomorphologyStepContract = defineStep({
@@ -52,14 +57,14 @@ export const GeomorphologyStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [
-      morphologyArtifacts.carvedTopography,
-      morphologyArtifacts.routing,
-      morphologyArtifacts.baseSubstrate,
+      morphologyCoastsArtifacts.carvedTopography,
+      morphologyRoutingArtifacts.routing,
+      morphologyTerrainArtifacts.baseSubstrate,
     ],
-    provides: [morphologyArtifacts.erodedTopography, morphologyArtifacts.substrate],
+    provides: [morphologyErosionArtifacts.erodedTopography, morphologyErosionArtifacts.substrate],
   },
   ops: {
-    geomorphology: morphology.ops.computeGeomorphicCycle,
+    geomorphology: morphology.erosion.ops.computeGeomorphicCycle,
   },
   schema: Type.Object({}),
 });
@@ -72,6 +77,8 @@ Notes:
 - Import artifacts from the exact module catalog that owns them, such as
   `@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js`; domain and
   module contract indexes do not re-export artifact catalogs.
+- Import `@mapgen/domain/<domain>/router` only at the recipe runtime root. Step
+  contracts consume declaration contracts and never executable routers.
 - A step contract selects only the operation contracts and artifact definitions
   that the step can actually execute, read, or publish.
 

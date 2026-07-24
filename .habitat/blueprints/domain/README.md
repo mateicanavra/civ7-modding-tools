@@ -36,6 +36,10 @@ model only when more than one module proves the shared edge. This keeps
 authorship modular, dependency flow transparent, and strategy selection under
 explicit control.
 
+There is no root `ops.ts` binding or flat domain operation collection. The
+domain `router.ts` composes module routers, while each module owns its `ops/`
+contract and implementation registry under the operation blueprint.
+
 `model/` is the same optional kind slot at both levels, not a root-domain
 default. An atom or policy descends to the module that fully owns its meaning;
 it rises to the domain model only when multiple sibling modules consume the

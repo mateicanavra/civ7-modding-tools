@@ -1,12 +1,12 @@
 import { describe, expect, it } from "bun:test";
 
-import morphologyDomain from "@mapgen/domain/morphology/ops";
+import morphologyDomain from "@mapgen/domain/morphology/router";
 import {
   runAdmittedOperationForTest,
   validateSchemaValueForTest,
 } from "@swooper/mapgen-core/testing";
 
-const { computeShelfMask } = morphologyDomain.ops;
+const { computeShelfMask } = morphologyDomain.shelf.ops;
 
 describe("morphology/compute-shelf-mask (physical break: gentle-gradient gate + shore connectivity)", () => {
   it("classifies shelf by reading the seabed-gradient break + shore connectivity, never marks land", () => {

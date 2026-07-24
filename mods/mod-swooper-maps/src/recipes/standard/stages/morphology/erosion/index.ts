@@ -150,7 +150,10 @@ export default createStage({
   steps: orderStandardStageSteps("morphology-erosion", { geomorphology: GeomorphologyStep }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     geomorphology: {
-      geomorphology: defaultEnvelope(morphology.ops.computeGeomorphicCycle, config.geomorphicCycle),
+      geomorphology: defaultEnvelope(
+        morphology.erosion.ops.computeGeomorphicCycle,
+        config.geomorphicCycle
+      ),
     },
   }),
 } as const);

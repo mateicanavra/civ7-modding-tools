@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import morphologyOpsPublic from "@mapgen/domain/morphology/ops";
+import morphologyOpsPublic from "@mapgen/domain/morphology/router";
 
-const { computeSubstrate } = morphologyOpsPublic.ops;
+const { computeSubstrate } = morphologyOpsPublic.terrain.ops;
 describe("m11 substrate (material-driven)", () => {
   it("changes erodibilityK when crust/material differs (uplift/rift held constant)", () => {
     const syntheticDimensions = { width: 2, height: 1 } as const;

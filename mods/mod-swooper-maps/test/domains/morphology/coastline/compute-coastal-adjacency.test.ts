@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import morphologyDomain from "@mapgen/domain/morphology/ops";
+import morphologyDomain from "@mapgen/domain/morphology/router";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 
 const selection = { strategy: "wrapped-hex-adjacency", config: {} } as const;
@@ -11,7 +11,7 @@ describe("compute-coastal-adjacency", () => {
     const { width, height } = syntheticDimensions;
     const landMask = Uint8Array.from([1, 1, 0, 0]);
     const result = runAdmittedOperationForTest(
-      morphologyDomain.ops.computeCoastalAdjacency,
+      morphologyDomain.coasts.ops.computeCoastalAdjacency,
       { width, height, landMask },
       selection
     );
@@ -25,7 +25,7 @@ describe("compute-coastal-adjacency", () => {
     const syntheticDimensions = { width: 3, height: 1 } as const;
     const { width, height } = syntheticDimensions;
     const result = runAdmittedOperationForTest(
-      morphologyDomain.ops.computeCoastalAdjacency,
+      morphologyDomain.coasts.ops.computeCoastalAdjacency,
       {
         width,
         height,

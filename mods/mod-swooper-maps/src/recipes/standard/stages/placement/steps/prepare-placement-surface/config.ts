@@ -1,4 +1,5 @@
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import {
   MAP_PROJECTION_EFFECT_TAGS,
@@ -34,8 +35,8 @@ export const PreparePlacementSurfaceStepContract = defineStep({
     requires: [
       mapHydrologyArtifacts.engineProjectionLakes,
       placementArtifacts.landmassRegionSlotByTile,
-      morphologyArtifacts.shelf,
-      morphologyArtifacts.topography,
+      morphologyShelfArtifacts.shelf,
+      morphologyLandformsArtifacts.topography,
     ],
     provides: [
       placementArtifacts.placementSurfacePreparation,

@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
 import ecology from "@mapgen/domain/ecology/router";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { observeValidatedArtifact, readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -32,7 +32,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
 
     expect(() =>
       withMapContextExecutionForTest(ctx, (stepContext) => {
-        publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+        publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
           elevation: new Int16Array(width * height),
           seaLevel: 0,
           landMask: new Uint8Array(width * height).fill(1),
@@ -89,7 +89,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
     const ctx = createMapContext({ setup, adapter });
 
     withMapContextExecutionForTest(ctx, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: new Int16Array(width * height),
         seaLevel: 0,
         landMask: new Uint8Array(width * height).fill(1),
@@ -164,7 +164,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
     const ctx = createMapContext({ setup, adapter });
 
     withMapContextExecutionForTest(ctx, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: new Int16Array(width * height),
         seaLevel: 0,
         landMask: new Uint8Array(width * height).fill(1),

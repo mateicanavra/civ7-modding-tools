@@ -1,10 +1,11 @@
 import { describe, expect, it } from "bun:test";
 
-import morphologyDomain from "@mapgen/domain/morphology/ops";
+import morphologyDomain from "@mapgen/domain/morphology/router";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 import { TEST_MAP_SIZE } from "../../../setup.js";
 
-const { computeFlowRouting, computeGeomorphicCycle } = morphologyDomain.ops;
+const { computeFlowRouting } = morphologyDomain.routing.ops;
+const { computeGeomorphicCycle } = morphologyDomain.erosion.ops;
 
 function mean(values: number[]): number {
   if (values.length === 0) return 0;

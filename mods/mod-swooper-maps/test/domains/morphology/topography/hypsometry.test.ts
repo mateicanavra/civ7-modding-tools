@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import foundation from "@mapgen/domain/foundation/router";
-import morphologyOpsPublic from "@mapgen/domain/morphology/ops";
+import morphologyOpsPublic from "@mapgen/domain/morphology/router";
 import { TEST_MAP_SIZE } from "../../../setup.js";
 import { runTectonicHistoryChain } from "../../foundation/tectonics/fixtures/tectonics-history.js";
 
@@ -9,7 +9,7 @@ const { computeMantleForcing, computeMantlePotential } = foundation.mantle.ops;
 const { computeCrust, computePlateGraph } = foundation.lithosphere.ops;
 const { computePlateMotion } = foundation.tectonics.ops;
 const { computePlatesTensors } = foundation.projection.ops;
-const { computeBaseTopography, computeLandmask, computeSeaLevel } = morphologyOpsPublic.ops;
+const { computeBaseTopography, computeLandmask, computeSeaLevel } = morphologyOpsPublic.terrain.ops;
 function share(numerator: number, denominator: number): number {
   if (denominator <= 0) return 0;
   return numerator / denominator;

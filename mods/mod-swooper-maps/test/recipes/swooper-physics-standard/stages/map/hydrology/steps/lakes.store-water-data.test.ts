@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { type LakeProjectionResult, MockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
@@ -142,7 +142,7 @@ function seedLakePlan(
 ): void {
   const { width, height } = context.setup.dimensions;
   const size = width * height;
-  publishTestArtifact(context, morphologyArtifacts.topography, {
+  publishTestArtifact(context, morphologyLandformsArtifacts.topography, {
     elevation: new Int16Array(size),
     seaLevel: 0,
     landMask: new Uint8Array(size).fill(1),
@@ -155,7 +155,7 @@ function seedLakePlan(
     plannedLakeTileCount: lakeMask.reduce((count, value) => count + (value === 1 ? 1 : 0), 0),
     sinkLakeCount: lakeMask.reduce((count, value) => count + (value === 1 ? 1 : 0), 0),
   });
-  publishTestArtifact(context, morphologyArtifacts.mountains, {
+  publishTestArtifact(context, morphologyLandformsArtifacts.mountains, {
     mountainMask,
     mountainRegionMask: Uint8Array.from(mountainMask),
     mountainRegionIdByTile: Int32Array.from(mountainMask, (value) => (value === 1 ? 0 : -1)),

@@ -1,9 +1,9 @@
 ---
 level: error
 ---
-# Require Runtime Domain Op Bundle Imports
+# Require Runtime Domain Router Imports
 
-Recipe runtime modules must import domain runtime op bundles, not contract roots.
+Recipe runtime modules must import executable domain routers, not declaration-only contract roots.
 
 ```grit
 language js(typescript)
@@ -65,7 +65,7 @@ export const singleQuoteRecipe = placement;
 
 ```typescript
 // @filename: mods/mod-swooper-maps/src/recipes/standard/recipe.ts
-import ecology from "@mapgen/domain/ecology/ops";
+import ecology from "@mapgen/domain/ecology/router";
 
 export const recipe = ecology;
 

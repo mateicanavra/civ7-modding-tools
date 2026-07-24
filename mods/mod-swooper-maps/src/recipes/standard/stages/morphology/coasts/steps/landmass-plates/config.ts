@@ -1,5 +1,6 @@
 import { artifacts as foundationProjectionArtifacts } from "@mapgen/domain/foundation/modules/projection/artifacts";
-import morphology, { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import morphology from "@mapgen/domain/morphology";
+import { artifacts as morphologyTerrainArtifacts } from "@mapgen/domain/morphology/modules/terrain/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -16,18 +17,18 @@ export const LandmassPlatesStepContract = defineStep({
       foundationProjectionArtifacts.tectonicProvenanceTiles,
     ],
     provides: [
-      morphologyArtifacts.baseTopography,
-      morphologyArtifacts.baseSubstrate,
-      morphologyArtifacts.beltDrivers,
+      morphologyTerrainArtifacts.baseTopography,
+      morphologyTerrainArtifacts.baseSubstrate,
+      morphologyTerrainArtifacts.beltDrivers,
     ],
   },
   ops: {
-    beltDrivers: morphology.ops.computeBeltDrivers,
-    substrate: morphology.ops.computeSubstrate,
-    baseTopography: morphology.ops.computeBaseTopography,
-    sculptContinentalMargin: morphology.ops.computeSculptContinentalMargin,
-    seaLevel: morphology.ops.computeSeaLevel,
-    landmask: morphology.ops.computeLandmask,
+    beltDrivers: morphology.terrain.ops.computeBeltDrivers,
+    substrate: morphology.terrain.ops.computeSubstrate,
+    baseTopography: morphology.terrain.ops.computeBaseTopography,
+    sculptContinentalMargin: morphology.coasts.ops.computeSculptContinentalMargin,
+    seaLevel: morphology.terrain.ops.computeSeaLevel,
+    landmask: morphology.terrain.ops.computeLandmask,
   },
   schema: Type.Object({}),
 });

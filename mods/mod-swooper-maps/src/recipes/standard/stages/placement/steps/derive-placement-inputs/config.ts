@@ -2,7 +2,7 @@ import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biom
 import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import placement from "@mapgen/domain/placement";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import {
@@ -32,7 +32,7 @@ export const DerivePlacementInputsStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [
-      morphologyArtifacts.topography,
+      morphologyLandformsArtifacts.topography,
       climateArtifacts.climateIndices,
       hydrographyArtifacts.hydrography,
       hydrographyArtifacts.riverNetwork,

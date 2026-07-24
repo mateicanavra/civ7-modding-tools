@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import morphologyDomain from "@mapgen/domain/morphology/ops";
+import morphologyDomain from "@mapgen/domain/morphology/router";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 
 const selection = { strategy: "multi-source-hex-bfs", config: {} } as const;
@@ -10,7 +10,7 @@ describe("compute-distance-to-coast", () => {
     const syntheticDimensions = { width: 4, height: 1 } as const;
     const { width, height } = syntheticDimensions;
     const result = runAdmittedOperationForTest(
-      morphologyDomain.ops.computeDistanceToCoast,
+      morphologyDomain.coasts.ops.computeDistanceToCoast,
       {
         width,
         height,
@@ -26,7 +26,7 @@ describe("compute-distance-to-coast", () => {
     const syntheticDimensions = { width: 5, height: 1 } as const;
     const { width, height } = syntheticDimensions;
     const result = runAdmittedOperationForTest(
-      morphologyDomain.ops.computeDistanceToCoast,
+      morphologyDomain.coasts.ops.computeDistanceToCoast,
       {
         width,
         height,
@@ -42,7 +42,7 @@ describe("compute-distance-to-coast", () => {
     const syntheticDimensions = { width: 3, height: 1 } as const;
     const { width, height } = syntheticDimensions;
     const result = runAdmittedOperationForTest(
-      morphologyDomain.ops.computeDistanceToCoast,
+      morphologyDomain.coasts.ops.computeDistanceToCoast,
       {
         width,
         height,

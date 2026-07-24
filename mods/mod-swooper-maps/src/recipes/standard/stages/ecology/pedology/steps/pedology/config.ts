@@ -1,7 +1,8 @@
 import ecology from "@mapgen/domain/ecology";
 import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyErosionArtifacts } from "@mapgen/domain/morphology/modules/erosion/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -15,8 +16,8 @@ export const PedologyStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [
-      morphologyArtifacts.topography,
-      morphologyArtifacts.substrate,
+      morphologyLandformsArtifacts.topography,
+      morphologyErosionArtifacts.substrate,
       climateArtifacts.climateField,
     ],
     provides: [pedologyArtifacts.pedology],

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
-import morphology from "@mapgen/domain/morphology/ops";
+import morphology from "@mapgen/domain/morphology/router";
 import {
   collectMaskComponentsOddQ,
   forEachHexNeighborOddQ,
@@ -8,7 +8,7 @@ import {
 } from "@swooper/mapgen-core/lib/grid";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 
-const { planFoothills, planRidges } = morphology.ops;
+const { planFoothills, planRidges } = morphology.landforms.ops;
 
 function countMask(mask: Uint8Array): number {
   let count = 0;

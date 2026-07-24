@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import morphology from "@mapgen/domain/morphology/ops";
+import morphology from "@mapgen/domain/morphology/router";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import { TEST_MAP_SIZE } from "../../../setup.js";
 
-const { planRoughLands } = morphology.ops;
+const { planRoughLands } = morphology.landforms.ops;
 type RoughLandSelection = Extract<
   Parameters<typeof planRoughLands.run>[1],
   { strategy: "relief-substrate-clusters" }

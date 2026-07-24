@@ -4,7 +4,8 @@ import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/fe
 import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { artifacts as mapRiversArtifacts } from "../../../../map/rivers/artifacts/index.js";
 
@@ -25,10 +26,10 @@ export const ScoreLayersStepContract = defineStep({
       hydrographyArtifacts.hydrography,
       hydrographyArtifacts.lakePlan,
       mapRiversArtifacts.projectedNavigableRivers,
-      morphologyArtifacts.topography,
-      morphologyArtifacts.shelf,
-      morphologyArtifacts.mountains,
-      morphologyArtifacts.volcanoes,
+      morphologyLandformsArtifacts.topography,
+      morphologyShelfArtifacts.shelf,
+      morphologyLandformsArtifacts.mountains,
+      morphologyLandformsArtifacts.volcanoes,
     ],
     provides: [featureArtifacts.scoreLayers, featureArtifacts.occupancyBase],
   },

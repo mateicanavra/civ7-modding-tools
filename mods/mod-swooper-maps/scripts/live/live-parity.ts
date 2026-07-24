@@ -19,7 +19,9 @@ import {
 } from "@civ7/studio-contract";
 import type { StudioRunGenerationManifest } from "@civ7/studio-run-workspace";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyCoastsArtifacts } from "@mapgen/domain/morphology/modules/coasts/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import {
   createLabelRng,
   createMapContext,
@@ -750,9 +752,9 @@ export function captureCurrentRiverMetadata(
 }
 
 function buildTerrainProjectionEvidence(context: ReturnType<typeof createMapContext>): unknown {
-  const carvedCoastline = observeArtifact(context, morphologyArtifacts.carvedCoastline);
-  const topography = observeArtifact(context, morphologyArtifacts.topography);
-  const shelf = observeArtifact(context, morphologyArtifacts.shelf);
+  const carvedCoastline = observeArtifact(context, morphologyCoastsArtifacts.carvedCoastline);
+  const topography = observeArtifact(context, morphologyLandformsArtifacts.topography);
+  const shelf = observeArtifact(context, morphologyShelfArtifacts.shelf);
   const mapMorphologyCoastPolicy =
     topography && shelf
       ? deriveCiv7CoastProjection({

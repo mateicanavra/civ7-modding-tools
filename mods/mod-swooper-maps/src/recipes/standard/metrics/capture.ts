@@ -9,7 +9,8 @@ import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biom
 import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { admitMapSetup, createMapContext, type MapContext } from "@swooper/mapgen-core";
 import {
   type ArtifactReadValueOf,
@@ -32,8 +33,8 @@ import {
 } from "./families/hydrology/river-network.js";
 import { defineStandardMapMetricScenario, type StandardMapMetricScenario } from "./scenario.js";
 
-type Volcanoes = ArtifactReadValueOf<typeof morphologyArtifacts.volcanoes>;
-type Landmasses = ArtifactReadValueOf<typeof morphologyArtifacts.landmasses>;
+type Volcanoes = ArtifactReadValueOf<typeof morphologyLandformsArtifacts.volcanoes>;
+type Landmasses = ArtifactReadValueOf<typeof morphologyLandformsArtifacts.landmasses>;
 type Pedology = ArtifactReadValueOf<typeof pedologyArtifacts.pedology>;
 type ProjectedNavigableRivers = ArtifactReadValueOf<
   typeof mapRiversArtifacts.projectedNavigableRivers
@@ -297,11 +298,11 @@ function copyCompletedRun(
   const selection = resolveMapSelection(scenario);
   const { width, height } = selection.dimensions;
   const gridSize = width * height;
-  const topographyValue = readValidatedArtifact(context, morphologyArtifacts.topography);
-  const landmassesValue = readValidatedArtifact(context, morphologyArtifacts.landmasses);
-  const mountainsValue = readValidatedArtifact(context, morphologyArtifacts.mountains);
-  const shelfValue = readValidatedArtifact(context, morphologyArtifacts.shelf);
-  const volcanoesValue = readValidatedArtifact(context, morphologyArtifacts.volcanoes);
+  const topographyValue = readValidatedArtifact(context, morphologyLandformsArtifacts.topography);
+  const landmassesValue = readValidatedArtifact(context, morphologyLandformsArtifacts.landmasses);
+  const mountainsValue = readValidatedArtifact(context, morphologyLandformsArtifacts.mountains);
+  const shelfValue = readValidatedArtifact(context, morphologyShelfArtifacts.shelf);
+  const volcanoesValue = readValidatedArtifact(context, morphologyLandformsArtifacts.volcanoes);
   const lakePlanValue = readValidatedArtifact(context, hydrographyArtifacts.lakePlan);
   const hydrographyValue = readValidatedArtifact(context, hydrographyArtifacts.hydrography);
   const climateIndicesValue = readValidatedArtifact(context, climateArtifacts.climateIndices);

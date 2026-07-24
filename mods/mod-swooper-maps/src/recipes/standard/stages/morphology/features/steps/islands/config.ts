@@ -1,5 +1,7 @@
 import { artifacts as foundationProjectionArtifacts } from "@mapgen/domain/foundation/modules/projection/artifacts";
-import morphology, { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import morphology from "@mapgen/domain/morphology";
+import { artifacts as morphologyErosionArtifacts } from "@mapgen/domain/morphology/modules/erosion/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -10,11 +12,11 @@ export const IslandsStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [foundationProjectionArtifacts.plates, morphologyArtifacts.erodedTopography],
-    provides: [morphologyArtifacts.topography],
+    requires: [foundationProjectionArtifacts.plates, morphologyErosionArtifacts.erodedTopography],
+    provides: [morphologyLandformsArtifacts.topography],
   },
   ops: {
-    islands: morphology.ops.planIslandChains,
+    islands: morphology.landforms.ops.planIslandChains,
   },
   schema: Type.Object({}),
 });

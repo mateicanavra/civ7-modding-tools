@@ -1,4 +1,8 @@
-import morphology, { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import morphology from "@mapgen/domain/morphology";
+import { artifacts as morphologyCoastsArtifacts } from "@mapgen/domain/morphology/modules/coasts/artifacts/index.js";
+import { artifacts as morphologyRoutingArtifacts } from "@mapgen/domain/morphology/modules/routing/artifacts/index.js";
+import { artifacts as morphologyTerrainArtifacts } from "@mapgen/domain/morphology/modules/terrain/artifacts/index.js";
+import { artifacts as morphologyErosionArtifacts } from "@mapgen/domain/morphology/modules/erosion/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -10,14 +14,14 @@ export const GeomorphologyStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [
-      morphologyArtifacts.carvedTopography,
-      morphologyArtifacts.routing,
-      morphologyArtifacts.baseSubstrate,
+      morphologyCoastsArtifacts.carvedTopography,
+      morphologyRoutingArtifacts.routing,
+      morphologyTerrainArtifacts.baseSubstrate,
     ],
-    provides: [morphologyArtifacts.erodedTopography, morphologyArtifacts.substrate],
+    provides: [morphologyErosionArtifacts.erodedTopography, morphologyErosionArtifacts.substrate],
   },
   ops: {
-    geomorphology: morphology.ops.computeGeomorphicCycle,
+    geomorphology: morphology.erosion.ops.computeGeomorphicCycle,
   },
   schema: Type.Object({}),
 });

@@ -6,7 +6,8 @@ import {
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_MINOR,
 } from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-class.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
@@ -152,13 +153,13 @@ describe("map-rivers/plot-rivers", () => {
         plannedLakeTileCount: 0,
         sinkLakeCount: 0,
       });
-      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask: new Uint8Array(size).fill(1),
         bathymetry: new Int16Array(size),
       });
-      publishTestArtifact(stepContext, morphologyArtifacts.shelf, {
+      publishTestArtifact(stepContext, morphologyShelfArtifacts.shelf, {
         shelfMask: new Uint8Array(size),
         coastalLand: new Uint8Array(size),
         coastalWater: new Uint8Array(size),

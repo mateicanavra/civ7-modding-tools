@@ -3,7 +3,7 @@ import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biom
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -23,9 +23,9 @@ export const PlanVegetationStepContract = defineStep({
       climateArtifacts.climateIndices,
       hydrographyArtifacts.hydrography,
       hydrographyArtifacts.lakePlan,
-      morphologyArtifacts.topography,
-      morphologyArtifacts.mountains,
-      morphologyArtifacts.volcanoes,
+      morphologyLandformsArtifacts.topography,
+      morphologyLandformsArtifacts.mountains,
+      morphologyLandformsArtifacts.volcanoes,
     ],
     provides: [featureArtifacts.featureIntentsVegetation],
   },

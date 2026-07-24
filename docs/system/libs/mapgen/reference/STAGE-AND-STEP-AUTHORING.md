@@ -35,7 +35,8 @@ modular domain.
 
 ```ts
 import { artifacts as hydrologyHydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
@@ -62,8 +63,8 @@ export const PlotRiversStepContract = defineStep({
       hydrologyHydrographyArtifacts.hydrography,
       hydrologyHydrographyArtifacts.lakePlan,
       hydrologyHydrographyArtifacts.riverNetwork,
-      morphologyArtifacts.shelf,
-      morphologyArtifacts.topography,
+      morphologyShelfArtifacts.shelf,
+      morphologyLandformsArtifacts.topography,
     ],
     provides: [mapRiversArtifacts.projectedNavigableRivers],
   },
@@ -73,6 +74,11 @@ export const PlotRiversStepContract = defineStep({
   }),
 });
 ```
+
+Step contracts import the domain root contract when selecting operations and
+the exact module catalog when selecting artifacts. They never import a domain
+router. The runtime-only `@mapgen/domain/<domain>/router` surface is composed
+once by the recipe root to register executable implementations.
 
 ## Step module (createStep)
 

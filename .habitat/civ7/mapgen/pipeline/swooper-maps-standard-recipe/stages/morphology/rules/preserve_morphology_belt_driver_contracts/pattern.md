@@ -12,34 +12,34 @@ language js(typescript)
 
 or {
   program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmass-plates/config\.ts$",
-    ! $body <: contains `standardArtifacts.foundationCrustTiles`
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config\.ts$",
+    ! $body <: contains `foundationProjectionArtifacts.crustTiles`
   },
   program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmass-plates/config\.ts$",
-    ! $body <: contains `standardArtifacts.foundationTectonicHistoryTiles`
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config\.ts$",
+    ! $body <: contains `foundationProjectionArtifacts.tectonicHistoryTiles`
   },
   program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmass-plates/config\.ts$",
-    ! $body <: contains `standardArtifacts.foundationTectonicProvenanceTiles`
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config\.ts$",
+    ! $body <: contains `foundationProjectionArtifacts.tectonicProvenanceTiles`
   },
   program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmass-plates/config\.ts$",
-    ! $body <: contains `morphologyArtifactModules.beltDrivers`
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config\.ts$",
+    ! $body <: contains `morphologyTerrainArtifacts.beltDrivers`
   },
   program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains/config\.ts$",
-    ! $body <: contains `morphologyArtifacts.beltDrivers`
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/mountains/config\.ts$",
+    ! $body <: contains `morphologyTerrainArtifacts.beltDrivers`
   },
-  `standardArtifacts.foundationPlates` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmass-plates/config\.ts$"
+  `foundationProjectionArtifacts.plates` where {
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config\.ts$"
   },
   or {
-    `standardArtifacts.foundationTectonicHistoryTiles`,
-    `standardArtifacts.foundationTectonicProvenanceTiles`,
-    `standardArtifacts.foundationPlates`
+    `foundationProjectionArtifacts.tectonicHistoryTiles`,
+    `foundationProjectionArtifacts.tectonicProvenanceTiles`,
+    `foundationProjectionArtifacts.plates`
   } where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains/config\.ts$"
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/mountains/config\.ts$"
   }
 }
 ```
@@ -47,33 +47,33 @@ or {
 ## Matches fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmass-plates/config.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts
 const artifacts = {
-  requires: [standardArtifacts.foundationPlates],
-  provides: [morphologyArtifacts.topography],
+  requires: [foundationProjectionArtifacts.plates],
+  provides: [morphologyTerrainArtifacts.baseTopography],
 };
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains/config.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/mountains/config.ts
 const artifacts = {
-  requires: [standardArtifacts.foundationTectonicHistoryTiles],
+  requires: [foundationProjectionArtifacts.tectonicHistoryTiles],
 };
 ```
 
 ## Ignores fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmass-plates/config.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts
 const artifacts = {
   requires: [
-    standardArtifacts.foundationCrustTiles,
-    standardArtifacts.foundationTectonicHistoryTiles,
-    standardArtifacts.foundationTectonicProvenanceTiles,
+    foundationProjectionArtifacts.crustTiles,
+    foundationProjectionArtifacts.tectonicHistoryTiles,
+    foundationProjectionArtifacts.tectonicProvenanceTiles,
   ],
-  provides: [morphologyArtifactModules.beltDrivers],
+  provides: [morphologyTerrainArtifacts.beltDrivers],
 };
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains/config.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/mountains/config.ts
 const artifacts = {
-  requires: [morphologyArtifacts.beltDrivers],
+  requires: [morphologyTerrainArtifacts.beltDrivers],
 };
 ```

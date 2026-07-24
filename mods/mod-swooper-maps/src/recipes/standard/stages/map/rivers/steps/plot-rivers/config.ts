@@ -1,5 +1,6 @@
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
 import { artifacts as mapRiversArtifacts } from "../../artifacts/index.js";
@@ -51,8 +52,8 @@ export const PlotRiversStepContract = defineStep({
       hydrographyArtifacts.hydrography,
       hydrographyArtifacts.lakePlan,
       hydrographyArtifacts.riverNetwork,
-      morphologyArtifacts.shelf,
-      morphologyArtifacts.topography,
+      morphologyShelfArtifacts.shelf,
+      morphologyLandformsArtifacts.topography,
     ],
     provides: [mapRiversArtifacts.projectedNavigableRivers],
   },

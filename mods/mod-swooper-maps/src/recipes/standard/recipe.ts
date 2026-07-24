@@ -1,8 +1,8 @@
 import ecologyDomain from "@mapgen/domain/ecology/router";
 import foundationDomain from "@mapgen/domain/foundation/router";
 import hydrologyDomain from "@mapgen/domain/hydrology/router";
-import morphologyDomain from "@mapgen/domain/morphology/ops";
-import placementDomain from "@mapgen/domain/placement/ops";
+import morphologyDomain from "@mapgen/domain/morphology/router";
+import placementDomain from "@mapgen/domain/placement/router";
 import resourcesDomain from "@mapgen/domain/resources/router";
 import {
   type CompiledRecipeConfigOf,

@@ -1,7 +1,8 @@
 import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import placement from "@mapgen/domain/placement";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
@@ -23,11 +24,11 @@ export const AssignStartsStepContract = defineStep({
       placementArtifacts.resourcePlan,
       placementArtifacts.naturalWonderPlacement,
       placementArtifacts.landmassRegionSlotByTile,
-      morphologyArtifacts.topography,
-      morphologyArtifacts.landmasses,
-      morphologyArtifacts.mountains,
-      morphologyArtifacts.volcanoes,
-      morphologyArtifacts.shelf,
+      morphologyLandformsArtifacts.topography,
+      morphologyLandformsArtifacts.landmasses,
+      morphologyLandformsArtifacts.mountains,
+      morphologyLandformsArtifacts.volcanoes,
+      morphologyShelfArtifacts.shelf,
       climateArtifacts.climateIndices,
       hydrographyArtifacts.hydrography,
       hydrographyArtifacts.lakePlan,

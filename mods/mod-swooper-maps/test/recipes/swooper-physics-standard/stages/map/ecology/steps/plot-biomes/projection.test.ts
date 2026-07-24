@@ -4,7 +4,7 @@ import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/p
 import ecology from "@mapgen/domain/ecology/router";
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as cryosphereArtifacts } from "@mapgen/domain/hydrology/modules/cryosphere/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -42,7 +42,7 @@ describe("plot biomes step", () => {
     elevation[0] = 0;
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation,
         seaLevel: 0,
         landMask,
