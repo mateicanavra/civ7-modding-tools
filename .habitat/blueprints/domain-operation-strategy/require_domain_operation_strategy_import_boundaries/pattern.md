@@ -35,7 +35,7 @@ predicate disallowed_strategy_config_dependency($source) {
 }
 
 predicate disallowed_strategy_implementation_dependency($source) {
-  ! $source <: r"^[\"']?(?:@civ7/map-policy|@mapgen/domain/[a-z0-9]+(?:-[a-z0-9]+)*(?:/index\.js|/model/(?:[a-z0-9]+(?:-[a-z0-9]+)*/)*(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*)\.js)?|@swooper/mapgen-core(?:/authoring(?:/contracts)?|/lib(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*)?|\./config\.js|\.\./\.\./contract\.js|\.\./\.\./(?:policy|rules)/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){4,}model/(?:[a-z0-9]+(?:-[a-z0-9]+)*/)*(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*)\.js)[\"']?$"
+  ! $source <: r"^[\"']?(?:@civ7/map-policy|@mapgen/domain/[a-z0-9]+(?:-[a-z0-9]+)*(?:/index\.js|/(?:model|modules/[a-z0-9]+(?:-[a-z0-9]+)*/model)/(?:[a-z0-9]+(?:-[a-z0-9]+)*/)*(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*)\.js)?|@swooper/mapgen-core(?:/authoring(?:/contracts)?|/lib(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*)?|\./config\.js|\.\./\.\./contract\.js|\.\./\.\./(?:policy|rules)/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){4,}model/(?:[a-z0-9]+(?:-[a-z0-9]+)*/)*(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*)\.js)[\"']?$"
 }
 
 or {
@@ -160,6 +160,7 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { GLOBAL_RELIEF_CAP } from "@civ7/map-policy";
 import { RIVER_CLASS } from "@mapgen/domain/hydrology/model/policy/river-class.js";
+import { LAKE_POLICY } from "@mapgen/domain/hydrology/modules/hydrography/model/policy/lakes.js";
 import OperationContract from "../../contract.js";
 import strategyDefinition from "./config.js";
 import { RELIEF_POLICY } from "../../policy/index.js";
@@ -174,7 +175,13 @@ export default createStrategy(OperationContract, strategyDefinition, {
   run: (input, config) =>
     computeRelief(
       input,
-      config.strength + GLOBAL_RELIEF_CAP + MOUNTAIN_POLICY + WORLD_POLICY + RELIEF_POLICY + RIVER_CLASS,
+      config.strength +
+        GLOBAL_RELIEF_CAP +
+        MOUNTAIN_POLICY +
+        WORLD_POLICY +
+        RELIEF_POLICY +
+        RIVER_CLASS +
+        LAKE_POLICY,
       TileClassSchema,
       clamp01,
       forEachHexNeighborOddQ
