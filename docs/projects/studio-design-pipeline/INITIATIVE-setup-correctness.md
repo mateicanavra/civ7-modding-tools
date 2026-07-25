@@ -8,14 +8,18 @@
 > C2b Disclosure anatomy+useControllableState `77d25d4d3b`; C2c SelectWidget→
 > OptionSelect+AppBrand dismissal+array de-any `1418f43a49`; C3a Toaster
 > reunification `c5f41f830e`; A1a Tailwind src scan+StrictMode honesty
-> `63ca371c1a` — StrictMode exception ledgered as root DEF-020).
+> `63ca371c1a` — StrictMode exception ledgered as root DEF-020; G1 gate repair
+> `edee8f8472`).
 > **Open rows:** C1.2 SegmentedControl + Tabs retirement, C1.4 scroll idiom +
 > ScrollArea retirement, C1.5 literal sweep, C2.3 ExplorePanel provider
-> collapse, C3.3 tier-policy note, A1.3 palette identity contract, A1.4
-> errorFormat consolidation, A1.5 WaterStats shortLabel, S1 sync & seal.
-> Codex Sol adversarial pass on this document: in flight (job
-> task-mrv2a6c0-mfesmo); the barrel retirements and the ExplorePanel collapse
-> deliberately wait on its verdict.
+> collapse, C2.9 strategy-envelope collapse, C3.3 tier-policy note, A1.3 palette
+> identity contract, A1.4 errorFormat consolidation, A1.5 WaterStats shortLabel,
+> S1 sync & seal.
+> **Codex Sol adversarial pass: DEAD, not in flight.** Job task-mrv2a6c0-mfesmo
+> left no state on disk and returned no verdict, so the gate it held was never
+> going to lift on its own. C1.2, C1.4 and C2.3 are hereby UNGATED — re-run an
+> adversarial pass over the branch diff if one is wanted, but do not wait on this
+> job.
 > **Trigger:** Matei's directive after the sync-surface repair — every actor in this
 > pipeline's history was us; the tailwind pollution and the toast impossibility were
 > self-authored and survived because reviews checked artifacts, not mechanisms.
@@ -117,6 +121,7 @@ reminder to stay correct — this initiative failed and the pipeline shape itsel
 | C2.6 | SelectWidget re-implements OptionSelect (duplicate sentinel machinery) | SelectWidget composes OptionSelect (`triggerClassName`/id pass-through; enum value-map stays in the widget); delete the second sentinel. README states forms→composites composition is sanctioned. |
 | C2.7 | AppBrand hover popover survived the E3 hand-rolled-popup sweep | Rebuild on Radix (Popover or HoverCard) — Escape/outside dismissal, portal stacking, touch. Confirm it is the last `useState+onMouseEnter` floating layer (sweep). |
 | C2.8 | ArrayFieldTemplate as-any chains (advisory) | Type as v6 `ArrayFieldTemplateItemType`; fix configWidgets registry typing. |
+| C2.9 | The `{strategy, config}` collapse rule never fires on real generator output — `isConfigWrapper` rejects any node carrying a `description`, and the schema generator stamps "Strategy selection for operation …" onto every strategy envelope. Zero collapses today because main's schema has zero envelopes; the peer mapgen stack introduces three, at which point authors get an extra "Config" level (two of them empty) plus a disabled single-option "Strategy" select. | Detect the envelope structurally (`keys == [strategy, config]`) rather than by description absence; keep the parent's description and collapse `config`. Pin it with a fixture built from real arity-1 `anyOf` generator output, not a hand-written ideal — the rule was written for a shape it had never actually seen. Separately decide whether an arity-1 strategy union should render a control at all. **Latent until the peer stack lands; fix now so it lands correct.** |
 
 ### C3 — STORY ORACLE: reunify story and card  (branch rides `agent-DS-init-compounds` or its own if thick)
 
@@ -135,6 +140,17 @@ reminder to stay correct — this initiative failed and the pipeline shape itsel
 | A1.3 | App-side hex palettes tunneled into WaterStatsSection as color-as-data; 2 of 3 fields dead | Contract becomes palette identity: package owns id→CSS mapping (`--viz-cat-*` tokens or classes); delete dead `inactiveColor`/`debugColor`. Guard: no exported package prop typed as CSS color string. |
 | A1.4 | formatErrorForUi copy-forked, drifted; three helper homes (advisory) | Superset impl into `src/shared/errorFormat.ts`; delete the fork; collapse `src/ui/utils` into shared so exactly one helper home exists. |
 | A1.5 | WaterStatsSection hard-codes app-domain key heuristics (advisory) | `shortLabel` rides `WaterStatsLayerRef.presentation` (app owns domain naming); delete `formatLayerButtonLabel` heuristics from the package. |
+
+### G1 — GATE REPAIR: the guards our own dominos left red  (`edee8f8472`, complete)
+
+Found by the restack-feasibility sweep, not by a gate — which is the finding
+behind the finding: these had been red since the commits that broke them, and
+nothing surfaced it until someone asked an unrelated question.
+
+| Row | Finding | Resolution |
+| --- | --- | --- |
+| G1.1 | `appHeaderMarkupPin` failed 2/2. R1's `useUniqueElementIds` compliance swapped AppHeader's hardcoded panel id for `useId()`, and C1a moved ViewControls onto IconButton — the byte-exact fixture was never advanced. The test still claimed to prove the E4a redesign was a markup no-op, a premise our own stack had deliberately falsified. | Generated ids normalized (distinct `useId` values get distinct stable tokens, so `aria-controls` → `id` linkage still pins while hook ordering does not); fixture regenerated and every delta reviewed tag-by-tag (no attribute lost; IconButton gains `type=button` + focus/disabled affordances; the Badge-wrapped Re-apply keeps an identical class set); premise rewritten as a regression pin; `UPDATE_MARKUP_PIN=1` gives the next deliberate advance a supported path instead of hand-editing 53KB of JSON. |
+| G1.2 | 7 controller tests died on `adoptSavedBaseline`/`installCanonicalConfig` "is not a function", and `check:test` reported 4 type errors. Splitting `setCanonicalConfig` into an install path and a baseline-only path widened two hook arg types without updating the hand-built test factories. The gate that catches this **already existed and was simply not run**. | Factories supply both operations; assertions follow the split instead of merely compiling — save-to-current adopts the baseline and never reinstalls, a failed save adopts nothing, whole-envelope installs never travel the working-edit path. That contract shipped untested; it is now pinned. |
 
 ### S1 — SYNC & SEAL  (after all dominos green)
 
