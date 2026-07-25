@@ -4,7 +4,7 @@ import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 import { Value } from "typebox/value";
 
 import foundationTectonicsStage from "../../../../../../../../src/recipes/standard/stages/foundation/tectonics/index.js";
-import { TectonicsStepContract } from "../../../../../../../../src/recipes/standard/stages/foundation/tectonics/steps/tectonics/config.js";
+import { config as tectonicsStepConfig } from "../../../../../../../../src/recipes/standard/stages/foundation/tectonics/steps/tectonics/config.js";
 import { TectonicsStep } from "../../../../../../../../src/recipes/standard/stages/foundation/tectonics/steps/tectonics/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import {
@@ -33,12 +33,12 @@ function normalizePlateActivity(plateActivity: number, authoredGain = 1) {
     stageConfig: admitted,
   });
   const config = validateSchemaValueForTest(
-    TectonicsStepContract.schema,
-    Value.Default(TectonicsStepContract.schema, Value.Clone(rawSteps.tectonics)),
+    tectonicsStepConfig.schema,
+    Value.Default(tectonicsStepConfig.schema, Value.Clone(rawSteps.tectonics)),
     "/foundation-tectonics/tectonics"
   );
   return validateSchemaValueForTest(
-    TectonicsStepContract.schema,
+    tectonicsStepConfig.schema,
     TectonicsStep.normalize(config, { setup, knobs }),
     "/foundation-tectonics/tectonics"
   );

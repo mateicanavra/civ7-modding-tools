@@ -1,13 +1,13 @@
+import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
-import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 
 /**
  * Defines discovery placement after starts and resources are stamped, requiring the exclusion
  * assignment and declaring observed outcomes rather than a precomputed discovery plan.
  */
-export const PlaceDiscoveriesStepContract = defineStep({
+export const config = defineStep({
   id: "place-discoveries",
   engine: ["generateOfficialDiscoveries"] as const,
   // Discoveries run last (after natural wonders, resources, and starts), exactly
@@ -22,8 +22,7 @@ export const PlaceDiscoveriesStepContract = defineStep({
   ],
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.discoveriesPlaced],
   artifacts: {
-    requires: [placementArtifacts.startAssignment],
-    provides: [placementArtifacts.discoveryPlacementOutcomes],
+    requires: [placementStartArtifacts.startAssignment],
   },
   schema: Type.Object({}, { additionalProperties: false }),
 });

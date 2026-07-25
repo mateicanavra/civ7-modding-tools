@@ -24,8 +24,10 @@ FOUNDATION produces the **simulation substrate** consumed by downstream shaping 
 
 The aggregate Foundation contract routes six direct semantic modules in causal
 order: `mesh`, `mantle`, `lithosphere`, `tectonics`, `orogeny`, and
-`projection`. Each module owns its operation registry and produced artifact
-catalog; the aggregate domain composes their contracts and executable routers.
+`projection`. Each module contract directly composes its leaf operation
+contracts, each module router directly binds their implementations, and each
+module owns the artifacts it produces. The aggregate domain composes those
+module contracts and executable routers.
 
 **Ground truth anchors**
 - `docs/system/libs/mapgen/architecture.md` (section “Causal spine”, “Foundation” summary)
@@ -105,12 +107,12 @@ FOUNDATION provides the following artifact dependency tags (all `artifact:*`).
 
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/foundation/modules/*/artifacts/index.ts` (the six producing-module artifact catalogs)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/mantle/steps/mesh/config.ts` (`MeshStepContract.artifacts.provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/lithosphere/steps/crust/config.ts` (`CrustStepContract.artifacts.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/lithosphere/steps/plate-graph/config.ts` (`PlateGraphStepContract.artifacts.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/tectonics/steps/tectonics/config.ts` (`TectonicsStepContract.artifacts.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/projection/steps/projection/config.ts` (`ProjectionStepContract.artifacts.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/projection/steps/plate-topology/config.ts` (`PlateTopologyStepContract.artifacts.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/mantle/steps/mesh/config.ts` (`config.artifacts.provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/lithosphere/steps/crust/config.ts` (`config.artifacts.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/lithosphere/steps/plate-graph/config.ts` (`config.artifacts.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/tectonics/steps/tectonics/config.ts` (`config.artifacts.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/projection/steps/projection/config.ts` (`config.artifacts.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/projection/steps/plate-topology/config.ts` (`config.artifacts.requires/provides`)
 
 ### Value domains (enums / ranges)
 
@@ -360,7 +362,7 @@ Plate adjacency + centroid/area derived from the tile-space `foundation.plates.i
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/foundation/modules/projection/artifacts/plate-topology.artifact.ts` (`artifact.schema`)
 - `mods/mod-swooper-maps/src/domain/foundation/modules/projection/ops/compute-plate-topology/contract.ts` (`ComputePlateTopologyContract`)
-- `mods/mod-swooper-maps/src/domain/foundation/modules/projection/ops/compute-plate-topology/strategies/wrapped-hex-adjacency.ts` (`wrappedHexAdjacencyStrategy`)
+- `mods/mod-swooper-maps/src/domain/foundation/modules/projection/ops/compute-plate-topology/strategies/wrapped-hex-adjacency/index.ts` (wrapped-hex-adjacency implementation)
 - `packages/mapgen-core/src/lib/plates/topology.ts` (`buildPlateTopology`) (see `@swooper/mapgen-core/lib/plates` re-export)
 
 ## Operations
@@ -396,8 +398,8 @@ Legacy `foundation/compute-tectonic-history` used to act as a monolithic history
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/foundation/contract.ts` (aggregate contract composed from six direct modules)
 - `mods/mod-swooper-maps/src/domain/foundation/router.ts` (aggregate executable router)
-- `mods/mod-swooper-maps/src/domain/foundation/modules/*/ops/contract.ts` (singular operation-contract registries)
-- `mods/mod-swooper-maps/src/domain/foundation/modules/*/ops/index.ts` (module implementation registries)
+- `mods/mod-swooper-maps/src/domain/foundation/modules/*/contract.ts` (module contracts directly composing leaf operation contracts)
+- `mods/mod-swooper-maps/src/domain/foundation/modules/*/router.ts` (module routers directly binding leaf implementations)
 - `mods/mod-swooper-maps/src/domain/foundation/modules/*/ops/*/contract.ts` (`defineOp` contracts listed above)
 
 ## Knobs & Normalization
@@ -497,7 +499,7 @@ This is the minimal drift worth calling out in a domain reference:
 - **Tectonic history is not consumed cross-domain today**, even though it exists as a truth artifact.
 
 **Ground truth anchors**
-- `mods/mod-swooper-maps/src/domain/foundation/modules/projection/ops/compute-plate-topology/strategies/wrapped-hex-adjacency.ts` (`buildPlateTopology` delegation)
+- `mods/mod-swooper-maps/src/domain/foundation/modules/projection/ops/compute-plate-topology/strategies/wrapped-hex-adjacency/index.ts` (`buildPlateTopology` delegation)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/tectonics/steps/tectonics/step.ts` (publishes history; no downstream reads in standard recipe)
 
 ## Open Questions

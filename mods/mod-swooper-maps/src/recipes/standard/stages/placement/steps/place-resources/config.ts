@@ -1,7 +1,8 @@
+import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
+import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
-import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 
 /**
  * Thin resource stamp (S3, reordered by S5/D3): stamps the ADJUSTED intent
@@ -9,7 +10,7 @@ import { artifacts as placementArtifacts } from "../../artifacts/index.js";
  * resource authority point — post-stamp mutation is rejected (no engine
  * resource-removal capability; the plan is adjusted pre-stamp instead).
  */
-export const PlaceResourcesStepContract = defineStep({
+export const config = defineStep({
   id: "place-resources",
   engine: ["placeResourceIntent", "getResourceCatalog"] as const,
   requires: [
@@ -18,8 +19,8 @@ export const PlaceResourcesStepContract = defineStep({
   ],
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlaced],
   artifacts: {
-    requires: [placementArtifacts.resourcePlanAdjusted],
-    provides: [placementArtifacts.resourcePlacementOutcomes],
+    requires: [resourceSupportArtifacts.resourcePlanAdjusted],
+    provides: [resourceSiteArtifacts.resourcePlacementOutcomes],
   },
   schema: Type.Object({}, { additionalProperties: false }),
 });

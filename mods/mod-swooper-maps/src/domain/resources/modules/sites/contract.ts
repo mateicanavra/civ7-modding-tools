@@ -1,11 +1,13 @@
 import { defineDomainSubdomain } from "@swooper/mapgen-core/authoring/contracts";
 
-import ops from "./ops/contract.js";
+import SelectResourceSitesContract from "./ops/select-resource-sites/contract.js";
 
 /** Resource-site contract for selecting admitted map positions. */
 const sites = defineDomainSubdomain({
   id: "sites",
-  ops,
+  ops: {
+    selectResourceSites: SelectResourceSitesContract,
+  },
 });
 
 export default sites;

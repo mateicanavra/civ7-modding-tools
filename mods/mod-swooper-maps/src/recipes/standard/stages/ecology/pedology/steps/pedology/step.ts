@@ -2,7 +2,7 @@ import { createStep } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { buildScalarFieldProjections } from "@swooper/mapgen-viz";
 import { defineStandardVizMeta } from "../../../../../viz.js";
-import { PedologyStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const GROUP_PEDOLOGY = "Ecology / Pedology";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
@@ -44,8 +44,8 @@ function computeLocalReliefProxy(args: {
  * Derives canonical soil type and fertility from substrate, topography, and
  * final-refined climate so biome and resource-basin consumers share one soil vintage.
  */
-export const PedologyStep = createStep(PedologyStepContract, {
-  run: (context, config, ops, deps) => {
+export const PedologyStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const climateField = deps.artifacts.climateField.read(context);
     const topography = deps.artifacts.topography.read(context);
     const substrate = deps.artifacts.substrate.read(context);
@@ -68,7 +68,7 @@ export const PedologyStep = createStep(PedologyStepContract, {
         sedimentDepth: substrate.sedimentDepth,
         slope,
       },
-      config.classify
+      stepConfig.classify
     );
 
     const pedology = {

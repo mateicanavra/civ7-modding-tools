@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
 
 import resources from "@mapgen/domain/resources/router";
+import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
 import { getHexRadiusIndicesOddQ, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
-import { artifacts as placementArtifacts } from "../../../../src/recipes/standard/stages/placement/artifacts/index.js";
 
 const syntheticDimensions = { width: 24, height: 14 } as const;
 const { width, height } = syntheticDimensions;
@@ -140,7 +140,7 @@ function run(
     selection
   );
   expect(
-    placementArtifacts.resourcePlanAdjusted.validate(result, {
+    resourceSupportArtifacts.resourcePlanAdjusted.validate(result, {
       dimensions: syntheticDimensions,
     })
   ).toEqual([]);

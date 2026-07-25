@@ -1240,6 +1240,12 @@ const mapConfig = {
       }
     },
     "placement": {
+      "plot-landmass-regions": {
+        "regions": {
+          "strategy": "balanced-hemisphere",
+          "config": {}
+        }
+      },
       "derive-placement-inputs": {
         "wonders": {
           "strategy": "map-metadata",
@@ -1385,7 +1391,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountain-patch",
-  configHash: "33a6c13c0b85bb613953cd167f654ea6bd7bad2bc4934081f439b4f9cac7bee5",
-  envelopeHash: "1bf1f9eb0ed9c5cc87fd834a3c2b3eda4fe8d441a25223fcb93b60992c9ee4b5",
+  configHash: "769995199bba4d31b98ff923ae2a32c051f0aef150518914fdb88dc611a44852",
+  envelopeHash: "b1d08628dafb3361a8ce8d30b1777ef056edddbfaf73bbbd730a6d93115d690e",
   config: mapConfig.config,
 });

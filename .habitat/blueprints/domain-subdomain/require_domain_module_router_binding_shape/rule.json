@@ -11,10 +11,10 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "advisory",
-  "forbids": "semantic-module router files exposing helpers, operation implementations, registries, or any authority besides their singular default createDomainSubdomainRouter result",
-  "why": "A semantic module router is the only runtime binding between its declared operation contracts and its implementation registry. Closing that file preserves one executable module authority without leaking operation internals.",
-  "remediate": "Import createDomainSubdomainRouter from @swooper/mapgen-core/authoring, the local ./contract.js default, and the ./ops/index.js implementation registry; bind them once and default-export only that router.",
+  "lane": "enforced",
+  "forbids": "semantic-module router files delegating through an implementation registry, exposing leaf implementations, or owning any authority besides one direct createDomainSubdomainRouter binding",
+  "why": "The semantic module router is already the rightful executable aggregate. It binds canonical leaf implementations directly to the module contract, eliminating a second registry authority without leaking operation internals.",
+  "remediate": "Import createDomainSubdomainRouter, the local module contract, and each leaf ./ops/<operation>/index.js implementation; bind the implementations inline once and default-export only that router.",
   "message": "Domain module router.ts must expose one default implementation binding only.",
   "pathCoverage": [
     {

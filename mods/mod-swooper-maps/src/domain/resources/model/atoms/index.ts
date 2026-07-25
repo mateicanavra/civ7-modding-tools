@@ -5,7 +5,21 @@ export {
   ResourceSymbolSchema,
 } from "./resource-family.schema.js";
 export {
-  ResourceAffinityRuleSchema,
+  admitPositiveResourceRegionMinimum,
+  type PositiveResourceRegionMinimum,
+  type ResourceRegionMinimumRequirement,
+  ResourceRegionMinimumRequirementSchema,
+} from "./region-minimum-requirement.schema.js";
+export { ResourceAffinityRuleSchema } from "./resource-affinity-rule.schema.js";
+export {
+  ResourcePlanPerTypeSchema,
+  ResourcePlanRegionMinimumSchema,
+  ResourcePlanSettingsSchema,
+  ResourcePlanShortfallSchema,
+} from "./resource-plan-evidence.schema.js";
+export {
   ResourceLaneKindSchema,
-  ResourceSitePlanSchema,
-} from "./resource-site-plan.schema.js";
+  type ResourcePlanIntent,
+  ResourcePlanIntentSchema,
+  ResourcePlanPhaseSchema,
+} from "./resource-site-intent.schema.js";

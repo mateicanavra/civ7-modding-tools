@@ -4,8 +4,8 @@ level: error
 # Require Recipe Stage Authoring File Shape
 
 Every authored recipe-stage `index.ts` contains exactly one `createStage` call
-and default-exports that value with a literal identity and step map. That
-default is the module's only runtime export. Stage authoring consumes public
+and default-exports that value with a literal identity and step map.
+That default is the module's only runtime export. Stage authoring consumes public
 domain contracts rather than reaching through operation input, output,
 configuration, or strategy members. Ordinary public configuration flows from
 step schemas, bound operation configuration, and stage knobs. A rare full
@@ -49,9 +49,6 @@ or {
     `$domain.ops.$operation.strategies[$strategy]`,
     `$domain.ops.$operation["strategies"].$strategy`,
     `$domain.ops.$operation["strategies"][$strategy]`
-  },
-  import_statement(source=$source) where {
-    $source <: r".*public[.]config.*"
   },
   or {
     `createStage({ $..., public: $public, $... })` where {

@@ -4,7 +4,7 @@ import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 import { Value } from "typebox/value";
 
 import morphologyShelfStage from "../../../../../../../../src/recipes/standard/stages/morphology/shelf/index.js";
-import { ComputeShelfStepContract } from "../../../../../../../../src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/config.js";
+import { config as computeShelfStepConfig } from "../../../../../../../../src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/config.js";
 import { ComputeShelfStep } from "../../../../../../../../src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import {
@@ -30,12 +30,12 @@ function normalizeShelfWidth(shelfWidth: "narrow" | "normal" | "wide") {
   );
   const { knobs, rawSteps } = morphologyShelfStage.toInternal({ setup, stageConfig: admitted });
   const config = validateSchemaValueForTest(
-    ComputeShelfStepContract.schema,
-    Value.Default(ComputeShelfStepContract.schema, Value.Clone(rawSteps["compute-shelf"])),
+    computeShelfStepConfig.schema,
+    Value.Default(computeShelfStepConfig.schema, Value.Clone(rawSteps["compute-shelf"])),
     "/morphology-shelf/compute-shelf"
   );
   return validateSchemaValueForTest(
-    ComputeShelfStepContract.schema,
+    computeShelfStepConfig.schema,
     ComputeShelfStep.normalize(config, { setup, knobs }),
     "/morphology-shelf/compute-shelf"
   );

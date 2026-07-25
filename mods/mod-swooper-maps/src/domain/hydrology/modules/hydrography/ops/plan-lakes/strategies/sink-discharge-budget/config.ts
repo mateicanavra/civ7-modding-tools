@@ -23,7 +23,7 @@ export default defineStrategy({
       maximum: 1,
       default: 0.06,
       description:
-        "Maximum share of land tiles that may be admitted as primary sink lakes before upstream expansion.",
+        "Maximum share of Morphology land tiles admitted as primary sink lakes before upstream expansion.",
     }),
   }),
 });

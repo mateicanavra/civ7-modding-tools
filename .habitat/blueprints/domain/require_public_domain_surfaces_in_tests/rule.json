@@ -11,7 +11,7 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "advisory",
+  "lane": "enforced",
   "forbids": "test files deep-importing domain internals instead of the aggregate contract/router, nearest model owners, or module artifact catalogs",
   "why": "Tests exercise domain behavior through the same named aggregate and evidence surfaces as product code. Test location alone does not grant access to module operations, rules, or private implementations.",
   "remediate": "Replace each violating test import with a public domain surface only after the corresponding domain public surface exists. Do not widen a domain public surface merely to satisfy a test.",
@@ -31,6 +31,7 @@
       ]
     }
   ],
+  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain/require_public_domain_surfaces_in_tests/baseline.json"
   },

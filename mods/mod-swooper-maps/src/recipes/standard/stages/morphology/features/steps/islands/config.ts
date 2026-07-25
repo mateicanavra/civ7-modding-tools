@@ -7,7 +7,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 /**
  * Plans island chain edits (coastal and volcanic accents).
  */
-export const IslandsStepContract = defineStep({
+export const config = defineStep({
   id: "islands",
   requires: [],
   provides: [],

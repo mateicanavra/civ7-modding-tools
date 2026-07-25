@@ -86,9 +86,11 @@ The Foundation projection step returns its completed domain result from `run`, t
 Example (one projection):
 
 ```ts
-export const ProjectionStep = createStep(ProjectionStepContract, {
-  run: (context, config, ops, deps) => {
-    const result = ops.computePlates(/* admitted inputs */, config.computePlates);
+import { config } from "./config.js";
+
+export const ProjectionStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
+    const result = ops.computePlates(/* admitted inputs */, stepConfig.computePlates);
     deps.artifacts.foundationPlates.publish(context, result.plates);
     return result;
   },

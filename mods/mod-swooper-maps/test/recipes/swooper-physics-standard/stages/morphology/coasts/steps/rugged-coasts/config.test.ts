@@ -4,7 +4,7 @@ import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 import { Value } from "typebox/value";
 
 import morphologyCoastsStage from "../../../../../../../../src/recipes/standard/stages/morphology/coasts/index.js";
-import { RuggedCoastsStepContract } from "../../../../../../../../src/recipes/standard/stages/morphology/coasts/steps/rugged-coasts/config.js";
+import { config as ruggedCoastsStepConfig } from "../../../../../../../../src/recipes/standard/stages/morphology/coasts/steps/rugged-coasts/config.js";
 import { RuggedCoastsStep } from "../../../../../../../../src/recipes/standard/stages/morphology/coasts/steps/rugged-coasts/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import {
@@ -32,12 +32,12 @@ function normalizeRuggedness(coastRuggedness: "normal" | "rugged") {
   );
   const { knobs, rawSteps } = morphologyCoastsStage.toInternal({ setup, stageConfig: admitted });
   const config = validateSchemaValueForTest(
-    RuggedCoastsStepContract.schema,
-    Value.Default(RuggedCoastsStepContract.schema, Value.Clone(rawSteps["rugged-coasts"])),
+    ruggedCoastsStepConfig.schema,
+    Value.Default(ruggedCoastsStepConfig.schema, Value.Clone(rawSteps["rugged-coasts"])),
     "/morphology-coasts/rugged-coasts"
   );
   return validateSchemaValueForTest(
-    RuggedCoastsStepContract.schema,
+    ruggedCoastsStepConfig.schema,
     RuggedCoastsStep.normalize(config, { setup, knobs }),
     "/morphology-coasts/rugged-coasts"
   );

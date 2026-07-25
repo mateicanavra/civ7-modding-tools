@@ -6,7 +6,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 /**
  * Plans volcanic placements (truth-only intent).
  */
-export const VolcanoesStepContract = defineStep({
+export const config = defineStep({
   id: "volcanoes",
   requires: [],
   artifacts: {

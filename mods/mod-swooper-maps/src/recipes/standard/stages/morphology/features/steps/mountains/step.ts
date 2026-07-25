@@ -13,7 +13,7 @@ import {
   STANDARD_VIZ_COLORS,
 } from "../../../../../viz.js";
 import type { MorphologyMountainRangesKnob, MorphologyOrogenyKnob } from "../../index.js";
-import { MountainsStepContract } from "./config.js";
+import { config } from "./config.js";
 import { resolveMountainRangesControl } from "./mountain-ranges.js";
 
 const GROUP_MORPHOLOGY_FEATURES = "Morphology / Features";
@@ -38,8 +38,8 @@ function buildFractalArray(width: number, height: number, seed: number, grain: n
  * Plans ridges, foothills, and rough lands from shared terrain drivers under
  * one family selection, leaving Civ7 terrain stamping to map-morphology.
  */
-export const MountainsStep = createStep(MountainsStepContract, {
-  normalize: (config, ctx) => {
+export const MountainsStep = createStep(config, {
+  normalize: (stepConfig, ctx) => {
     const { orogeny, mountainRanges } = ctx.knobs as Readonly<{
       orogeny?: MorphologyOrogenyKnob;
       mountainRanges?: MorphologyMountainRangesKnob | null;
@@ -54,17 +54,17 @@ export const MountainsStep = createStep(MountainsStepContract, {
     const hillThresholdDelta = MORPHOLOGY_OROGENY_HILL_THRESHOLD_DELTA[orogeny ?? "normal"] ?? 0;
 
     const authoredRidges =
-      coupledConfig === undefined || config.ridges.strategy !== "orogenic-range-growth"
-        ? config.ridges
-        : { ...config.ridges, config: coupledConfig };
+      coupledConfig === undefined || stepConfig.ridges.strategy !== "orogenic-range-growth"
+        ? stepConfig.ridges
+        : { ...stepConfig.ridges, config: coupledConfig };
     const authoredFoothills =
-      coupledConfig === undefined || config.foothills.strategy !== "mountain-proximity"
-        ? config.foothills
-        : { ...config.foothills, config: coupledConfig };
+      coupledConfig === undefined || stepConfig.foothills.strategy !== "mountain-proximity"
+        ? stepConfig.foothills
+        : { ...stepConfig.foothills, config: coupledConfig };
     const authoredRoughLands =
-      coupledConfig === undefined || config.roughLands.strategy !== "relief-substrate-clusters"
-        ? config.roughLands
-        : { ...config.roughLands, config: coupledConfig };
+      coupledConfig === undefined || stepConfig.roughLands.strategy !== "relief-substrate-clusters"
+        ? stepConfig.roughLands
+        : { ...stepConfig.roughLands, config: coupledConfig };
 
     const ridgesSelection =
       authoredRidges.strategy === "orogenic-range-growth"
@@ -133,13 +133,13 @@ export const MountainsStep = createStep(MountainsStepContract, {
         : authoredRoughLands;
 
     return {
-      ...config,
+      ...stepConfig,
       ridges: ridgesSelection,
       foothills: foothillsSelection,
       roughLands: roughLandsSelection,
     };
   },
-  run: (context, config, ops, deps) => {
+  run: (context, stepConfig, ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const beltDrivers = deps.artifacts.beltDrivers.read(context);
     const substrate = deps.artifacts.substrate.read(context);
@@ -167,7 +167,7 @@ export const MountainsStep = createStep(MountainsStepContract, {
         beltAge: beltDrivers.beltAge,
         fractalMountain,
       },
-      config.ridges
+      stepConfig.ridges
     );
     const foothills = ops.foothills(
       {
@@ -187,7 +187,7 @@ export const MountainsStep = createStep(MountainsStepContract, {
         beltAge: beltDrivers.beltAge,
         fractalHill,
       },
-      config.foothills
+      stepConfig.foothills
     );
     const roughLands = ops.roughLands(
       {
@@ -212,7 +212,7 @@ export const MountainsStep = createStep(MountainsStepContract, {
         distanceToCoast: carvedCoastline.distanceToCoast,
         fractalRoughLand,
       },
-      config.roughLands
+      stepConfig.roughLands
     );
 
     const size = width * height;

@@ -7,7 +7,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  * occupancy, then publishes floodplain intent plus the occupancy snapshot that gates ice
  * planning.
  */
-export const PlanFloodplainsStepContract = defineStep({
+export const config = defineStep({
   id: "plan-floodplains",
   requires: [],
   provides: [],

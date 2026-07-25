@@ -9,7 +9,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  * publishes initialCrust before plate partitioning, keeping initial crust generation distinct
  * from later tectonic evolution.
  */
-export const CrustStepContract = defineStep({
+export const config = defineStep({
   id: "crust",
   requires: [],
   provides: [],

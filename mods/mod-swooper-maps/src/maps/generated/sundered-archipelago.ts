@@ -1240,6 +1240,12 @@ const mapConfig = {
       }
     },
     "placement": {
+      "plot-landmass-regions": {
+        "regions": {
+          "strategy": "balanced-hemisphere",
+          "config": {}
+        }
+      },
       "derive-placement-inputs": {
         "wonders": {
           "strategy": "map-metadata",
@@ -1385,7 +1391,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "sundered-archipelago",
-  configHash: "771138157b4d5161fbba9a4b6a73c6a4679f2564a186478bb69e7eed5cfd0ea9",
-  envelopeHash: "26668f52b845265c31445b55f0dac7ed944d5cd382763a441ea6bb17de95d80f",
+  configHash: "4b06905e471b7968262ba54783107977e37f8fb229b975c31c510b76e4458de0",
+  envelopeHash: "ae4cb352439e62e3f9ecf35abe2a9e4ae4eb6c65bce3fe0ba5e39b5352ad60fc",
   config: mapConfig.config,
 });

@@ -73,7 +73,7 @@ export const otherModKey = "artifact:map.foo";
 // @filename: mods/mod-swooper-maps/src/domain/world/modules/biosphere/ops/estimate-habitat/index.tsx
 export const tsxKey = "artifact:map.foo";
 
-// @filename: mods/mod-swooper-maps/src/recipes/example/stages/biosphere/steps/estimate-habitat/step.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/biosphere/ecology/steps/estimate-habitat/step.ts
 export const recipeKey = "artifact:map.foo";
 
 // @filename: mods/mod-swooper-maps/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts

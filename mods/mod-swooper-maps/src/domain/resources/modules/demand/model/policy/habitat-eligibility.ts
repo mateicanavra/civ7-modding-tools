@@ -1,12 +1,21 @@
 import type { OfficialResourceType } from "@civ7/map-policy";
 import type { ResourceFamily } from "../../../../model/atoms/resource-family.schema.js";
-import type {
-  HabitatFieldsOutput,
-  HabitatMaskFieldName,
-} from "../../../habitat/model/atoms/habitat-fields.schema.js";
+import type { AquaticMaskField, AquaticSuppressionField } from "./aquatic-resource-signals.js";
 import { AQUATIC_SIGNALS } from "./aquatic-resource-signals.js";
+import type {
+  CultivatedMaskField,
+  CultivatedSuppressionField,
+} from "./cultivated-resource-signals.js";
 import { CULTIVATED_SIGNALS } from "./cultivated-resource-signals.js";
+import type {
+  GeologicalMaskField,
+  GeologicalSuppressionField,
+} from "./geological-resource-signals.js";
 import { GEOLOGICAL_SIGNALS } from "./geological-resource-signals.js";
+import type {
+  TerrestrialMaskField,
+  TerrestrialSuppressionField,
+} from "./terrestrial-resource-signals.js";
 import { TERRESTRIAL_SIGNALS } from "./terrestrial-resource-signals.js";
 
 /**
@@ -20,18 +29,28 @@ import { TERRESTRIAL_SIGNALS } from "./terrestrial-resource-signals.js";
 
 export type ResourceFamilyId = ResourceFamily;
 
+type ResourceHabitatMaskField =
+  | AquaticMaskField
+  | AquaticSuppressionField
+  | CultivatedMaskField
+  | CultivatedSuppressionField
+  | GeologicalMaskField
+  | GeologicalSuppressionField
+  | TerrestrialMaskField
+  | TerrestrialSuppressionField;
+
 export type ResourceHabitatSignal = {
   readonly family: ResourceFamilyId;
   readonly laneId: string;
-  readonly primary: readonly HabitatMaskFieldName[];
-  readonly suppress: readonly HabitatMaskFieldName[];
+  readonly primary: readonly ResourceHabitatMaskField[];
+  readonly suppress: readonly ResourceHabitatMaskField[];
 };
 
 function withFamily<
   T extends {
     readonly laneId?: string;
-    readonly primary: readonly HabitatMaskFieldName[];
-    readonly suppress: readonly HabitatMaskFieldName[];
+    readonly primary: readonly ResourceHabitatMaskField[];
+    readonly suppress: readonly ResourceHabitatMaskField[];
   },
 >(
   family: ResourceFamilyId,
@@ -60,7 +79,7 @@ export const RESOURCE_HABITAT_SIGNALS: ReadonlyMap<OfficialResourceType, Resourc
     ...withFamily("geological", GEOLOGICAL_SIGNALS),
   ]);
 
-export type HabitatMaskFields = Pick<HabitatFieldsOutput, HabitatMaskFieldName>;
+export type HabitatMaskFields = Partial<Record<ResourceHabitatMaskField, Uint8Array>>;
 
 export type HabitatEligibility = {
   readonly mask: Uint8Array;
@@ -79,7 +98,7 @@ export function buildHabitatEligibility(
   signal: ResourceHabitatSignal
 ): HabitatEligibility {
   const primaryMasks: Uint8Array[] = [];
-  const signalFields: HabitatMaskFieldName[] = [];
+  const signalFields: ResourceHabitatMaskField[] = [];
   for (const field of signal.primary) {
     const mask = readSizedMask(fields, field, size);
     if (!mask) continue;
@@ -117,7 +136,7 @@ export function buildHabitatEligibility(
 
 function readSizedMask(
   fields: HabitatMaskFields,
-  field: HabitatMaskFieldName,
+  field: ResourceHabitatMaskField,
   size: number
 ): Uint8Array | undefined {
   const value = fields[field];

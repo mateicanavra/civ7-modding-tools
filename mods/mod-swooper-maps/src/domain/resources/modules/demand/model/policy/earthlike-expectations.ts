@@ -18,8 +18,6 @@ export type ResourceExpectationGroupId =
 /** Planner disposition for one official resource expectation. */
 export type ResourceExpectationStatus = "expected" | "blocked";
 
-export type { ResourceExpectationRangeEvidence, ResourceExpectedCountRange };
-
 /** Planner-consumed physical expectation for one official Civ7 resource. */
 export type EarthlikeResourceExpectation = {
   readonly resourceType: OfficialResourceType;

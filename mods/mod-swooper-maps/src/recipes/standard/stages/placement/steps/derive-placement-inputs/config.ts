@@ -4,18 +4,18 @@ import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import placement from "@mapgen/domain/placement";
+import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import {
   MAP_PROJECTION_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "../../../../tag-contracts.js";
-import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 
 /**
- * Defines placement-input admission from final physics artifacts and declared
- * engine surfaces, publishing input and wonder intent without mutating Civ7.
+ * Defines placement-input admission from final domain products and current
+ * adapter observations, publishing wonder intent without mutating Civ7.
  */
-export const DerivePlacementInputsStepContract = defineStep({
+export const config = defineStep({
   id: "derive-placement-inputs",
   engine: [
     "getMapSizeId",
@@ -40,7 +40,7 @@ export const DerivePlacementInputsStepContract = defineStep({
       biomeArtifacts.biomeClassification,
       pedologyArtifacts.pedology,
     ],
-    provides: [placementArtifacts.placementInputs, placementArtifacts.naturalWonderPlan],
+    provides: [placementWonderArtifacts.naturalWonderPlan],
   },
   ops: {
     wonders: placement.wonders.ops.planWonders,

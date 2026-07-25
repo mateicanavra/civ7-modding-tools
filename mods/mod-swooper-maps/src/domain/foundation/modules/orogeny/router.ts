@@ -1,9 +1,11 @@
 import { createDomainSubdomainRouter } from "@swooper/mapgen-core/authoring";
 
 import contract from "./contract.js";
-import implementations from "./ops/index.js";
+import computeCrustEvolution from "./ops/compute-crust-evolution/index.js";
 
 /** Executable Foundation orogeny branch. */
-const orogeny = createDomainSubdomainRouter(contract, implementations);
+const orogeny = createDomainSubdomainRouter(contract, {
+  computeCrustEvolution,
+});
 
 export default orogeny;

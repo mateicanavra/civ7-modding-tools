@@ -10,7 +10,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  * one shared operation configuration. It publishes motion, segments, era fields,
  * rollups, current state, and provenance as one coherent history vintage.
  */
-export const TectonicsStepContract = defineStep({
+export const config = defineStep({
   id: "tectonics",
   requires: [],
   provides: [],

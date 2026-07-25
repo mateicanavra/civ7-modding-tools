@@ -5,7 +5,7 @@ import {
   PLOT_EFFECT_VIZ_CATEGORIES,
   PLOT_EFFECT_VIZ_VALUE_BY_KEY,
   plotEffectVizValue,
-} from "../../../../../src/recipes/standard/stages/map/ecology/steps/plot-effects/viz.js";
+} from "../../../../../src/recipes/standard/stages/ecology/projection/steps/plot-effects/viz.js";
 
 describe("plot effects viz meta", () => {
   it("assigns one category to every mapped plot-effect value", () => {

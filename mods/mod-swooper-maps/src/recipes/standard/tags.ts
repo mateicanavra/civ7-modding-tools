@@ -1,5 +1,5 @@
+import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
 import type { DependencyEvidence, DependencyTagDefinition } from "@swooper/mapgen-core/authoring";
-import { artifacts as placementArtifacts } from "./stages/placement/artifacts/index.js";
 import {
   MAP_PROJECTION_EFFECT_TAGS,
   PLACEMENT_PRODUCT_EFFECT_TAGS,
@@ -19,14 +19,14 @@ const VERIFIED_EFFECT_SATISFIES: Partial<Record<string, EffectTagSatisfiesProper
     satisfies: (evidence) => evidence.verifyEffect(),
   },
   [STANDARD_ENGINE_EFFECT_TAGS.engine.placementApplied]: {
-    satisfies: (evidence) => isPlacementOutputSatisfied(evidence),
+    satisfies: (evidence) => isPlacementAppliedSatisfied(evidence),
   },
 };
 
 /**
- * Runtime definitions for every Standard effect tag. Effects use adapter/artifact verification
- * where completion cannot be trusted by name; data dependencies are registered by their
- * step-selected Artifact authorities instead of this catalog.
+ * Runtime definitions for every Standard effect tag. Biome completion verifies adapter evidence;
+ * terminal placement verifies the domain-owned start assignment. Data dependencies are registered
+ * by their step-selected Artifact authorities instead of this catalog.
  */
 export const STANDARD_TAG_DEFINITIONS: readonly DependencyTagDefinition[] = [
   ...Object.values(MAP_PROJECTION_EFFECT_TAGS.map).map(effectTagDefinition),
@@ -41,15 +41,14 @@ export function registerStandardTags(registry: {
   registry.registerTags(STANDARD_TAG_DEFINITIONS);
 }
 
-function isPlacementOutputSatisfied(evidence: DependencyEvidence): boolean {
-  const outputs = evidence.observeArtifact(placementArtifacts.placementOutputs);
-  if (!outputs.found) return false;
-  const assignment = evidence.observeArtifact(placementArtifacts.startAssignment);
+/** Requires canonical start evidence to assign every seat with zero unseated players. */
+function isPlacementAppliedSatisfied(evidence: DependencyEvidence): boolean {
+  const assignment = evidence.observeArtifact(placementStartArtifacts.startAssignment);
   if (!assignment.found) return false;
   return (
+    assignment.value.seats.length > 0 &&
     assignment.value.assigned === assignment.value.seats.length &&
-    assignment.value.unseatedCount === 0 &&
-    outputs.value.startsAssigned === assignment.value.assigned
+    assignment.value.unseatedCount === 0
   );
 }
 

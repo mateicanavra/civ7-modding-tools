@@ -42,14 +42,17 @@ Common examples:
 
 The standard recipe often introduces explicit projection steps whose job is to:
 - compute projections deterministically from truth,
-- publish projection artifacts/fields,
+- publish an immutable projection product from its direct domain module's
+  artifact catalog when a downstream consumer needs one,
+- keep mutable engine readback invocation-local,
 - emit viz layers for inspection.
 
 ## How to debug it
 
 - Use trace/viz to compare:
   - truth-driven projection outputs across steps,
-  - named artifact vintages or truth artifacts against engine projection evidence.
+  - named immutable product vintages against invocation-local engine projection
+    evidence.
 - Avoid “fixing drift” by copying projected fields; fix the projection source instead.
 
 ## Ground truth anchors

@@ -12,7 +12,7 @@
 ## Purpose
 
 Add a new **op** to a direct domain module (`defineOp` contract + `createOp`
-implementation + module registry wiring).
+implementation + direct module contract/router composition).
 
 This how-to is **module-level** (ops live inside a semantic module under a
 domain). It routes to:
@@ -80,13 +80,20 @@ metadata into runtime admission. Operation outputs and artifact schemas do not.
 Representative owner-local operation contract:
 
 ```ts
+import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 import eventDistanceDecayDefinition from "./strategies/event-distance-decay/config.js";
 
 export default defineOp({
   kind: "compute",
   id: "foundation/compute-era-tectonic-fields",
-  input: Type.Object({ weight: Type.Number({ minimum: 0, maximum: 10 }) }),
-  output: Type.Object({ era: Type.Integer({ minimum: 0 }) }),
+  input: Type.Object(
+    { weight: Type.Number({ minimum: 0, maximum: 10 }) },
+    { additionalProperties: false }
+  ),
+  output: Type.Object(
+    { era: Type.Integer({ minimum: 0 }) },
+    { additionalProperties: false }
+  ),
   strategies: [eventDistanceDecayDefinition],
 });
 ```
@@ -115,40 +122,66 @@ export default createOp(contract, {
 });
 ```
 
-### 3) Wire the op into the module registry
+### 3) Compose the op directly into its module
 
-- Add the contract to the private aggregate in `ops/contract.ts`; that file
-  exposes the aggregate as its sole default authority and does not re-export
-  constituent operation contracts.
-- Add the implementation to `ops/index.ts` and satisfy
-  `DomainOpImplementationsForContracts<Contracts>` against the default
-  aggregate's type.
+- Import the leaf operation contract from the owning module's `contract.ts` and
+  include it directly in `defineDomainSubdomain({ ops })`.
+- Import the leaf implementation from the owning module's `router.ts` and bind
+  it under the same key with `createDomainSubdomainRouter`.
+- Keep the module `index.ts` narrow. Do not publish named leaf-contract
+  re-exports or add another aggregate layer inside `ops/`.
 
-Representative example (domain registry wiring; excerpt; see full file in anchors):
+Representative module contract:
 
 ```ts
-import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/authoring";
-import computeEraTectonicFields from "./compute-era-tectonic-fields/index.js";
+import { defineDomainSubdomain } from "@swooper/mapgen-core/authoring/contracts";
+import computeEraTectonicFields from "./ops/compute-era-tectonic-fields/contract.js";
 
-type Contracts = typeof import("./contract.js").default;
+const tectonics = defineDomainSubdomain({
+  id: "tectonics",
+  ops: {
+    computeEraTectonicFields,
+  },
+});
 
-const implementations = {
+export default tectonics;
+```
+
+Representative module router:
+
+```ts
+import { createDomainSubdomainRouter } from "@swooper/mapgen-core/authoring";
+import contract from "./contract.js";
+import computeEraTectonicFields from "./ops/compute-era-tectonic-fields/index.js";
+
+export default createDomainSubdomainRouter(contract, {
   computeEraTectonicFields,
-} as const satisfies DomainOpImplementationsForContracts<Contracts>;
+});
 ```
 
 ### 4) Consume the op from a step (optional but common)
 
-- Reference the op via the step contract’s `ops: { ... }` section.
-- Call it via the injected `ops.*` handle inside the step `run()`.
+- Select the public operation contract in the step's `config.ts` through
+  `ops: { ... }`, and declare every artifact it reads or publishes there.
+- Call the injected `ops.*` implementation in `step.ts`.
+- Receive runtime behavior through `run(context, config, ops, deps)`, read map
+  dimensions from `context.setup.dimensions`, and use only declared
+  `deps.artifacts.*` handles.
 
 ## Verification
 
-- Run:
-  - `nx run mapgen-core:test`
-  - `nx run mod-swooper-maps:test`
-- Confirm the domain still type-checks (implementations match contracts).
-- If wired into a step, run a traced execution and confirm the op call returns correctly shaped outputs.
+- Classify the changed operation, strategy, module, and step paths with
+  `bun habitat classify <path>`.
+- Run every reported target, then run the standard project graph:
+
+```bash
+nx run-many -t check test build -p mapgen-core mod-swooper-maps
+```
+
+- Confirm contract keys and router keys match and bind the same canonical leaf
+  contracts.
+- If wired into a step, run the narrow recipe test or diagnostic and confirm
+  declared artifacts and outputs satisfy their contracts.
 
 ## Footguns
 
@@ -164,15 +197,16 @@ const implementations = {
   semantic strategy is inferred as the default; a multi-strategy contract declares its default.
 - **Wrong semantic owner**: an operation belongs to the module whose model and
   artifacts it uses, not to a domain-wide `ops/` cabinet.
-- **Forgetting to wire contracts/implementations**: an op contract alone is inert; the module must export + implement it.
+- **Forgetting direct composition**: an operation contract alone is inert; the
+  module contract and router must compose it under the same key.
 
 ## Ground truth anchors
 
 - Op contract API: `packages/mapgen-core/src/authoring/operation/contract.ts`
 - Op implementation wrapper: `packages/mapgen-core/src/authoring/operation/create.ts`
-- Domain registry authoring: `packages/mapgen-core/src/authoring/domain/contract.ts`
+- Domain/module contract authoring: `packages/mapgen-core/src/authoring/domain/contract.ts`
 - Example op contract: `mods/mod-swooper-maps/src/domain/foundation/modules/tectonics/ops/compute-era-tectonic-fields/contract.ts`
 - Example op implementation: `mods/mod-swooper-maps/src/domain/foundation/modules/tectonics/ops/compute-era-tectonic-fields/index.ts`
 - Example model atoms: `mods/mod-swooper-maps/src/domain/foundation/modules/tectonics/model/atoms/`
-- Module contract registry: `mods/mod-swooper-maps/src/domain/foundation/modules/tectonics/ops/contract.ts`
-- Module implementation registry: `mods/mod-swooper-maps/src/domain/foundation/modules/tectonics/ops/index.ts`
+- Module contract: `mods/mod-swooper-maps/src/domain/foundation/modules/tectonics/contract.ts`
+- Module router: `mods/mod-swooper-maps/src/domain/foundation/modules/tectonics/router.ts`

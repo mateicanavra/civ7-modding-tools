@@ -11,7 +11,7 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "advisory",
+  "lane": "enforced",
   "forbids": "domain or module model roots outside the positive atom and policy owner topology",
   "why": "The model source kind owns vocabulary at the nearest semantic domain or module level. Keeping this topology separate prevents router structure from mixing with atoms and policy or recursively recreating child-kind authority.",
   "remediate": "Keep schema-bearing reusable vocabulary in atoms and semantic decisions in policy; hoist only vocabulary shared by multiple modules, and move every other child to its actual owner or delete it.",

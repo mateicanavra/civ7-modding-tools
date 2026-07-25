@@ -4,7 +4,7 @@ import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 import { Value } from "typebox/value";
 
 import hydrologyHydrographyStage from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/index.js";
-import { LakesStepContract } from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/steps/lakes/config.js";
+import { config as lakesStepConfig } from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/steps/lakes/config.js";
 import { LakesStep } from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/steps/lakes/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import {
@@ -35,12 +35,12 @@ function normalizeLakeiness(lakeiness: "few" | "normal" | "many") {
     stageConfig: admitted,
   });
   const config = validateSchemaValueForTest(
-    LakesStepContract.schema,
-    Value.Default(LakesStepContract.schema, Value.Clone(rawSteps.lakes)),
+    lakesStepConfig.schema,
+    Value.Default(lakesStepConfig.schema, Value.Clone(rawSteps.lakes)),
     "/hydrology-hydrography/lakes"
   );
   return validateSchemaValueForTest(
-    LakesStepContract.schema,
+    lakesStepConfig.schema,
     LakesStep.normalize(config, { setup, knobs }),
     "/hydrology-hydrography/lakes"
   );

@@ -8,7 +8,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  * upwelling/downwelling forcing. Lithosphere and tectonic consumers therefore share one
  * forcing field vintage.
  */
-export const MantleForcingStepContract = defineStep({
+export const config = defineStep({
   id: "mantle-forcing",
   requires: [],
   provides: [],

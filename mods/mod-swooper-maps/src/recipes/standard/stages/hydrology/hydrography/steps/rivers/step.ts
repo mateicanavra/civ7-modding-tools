@@ -4,7 +4,7 @@ import {
   HYDROLOGY_RIVER_DENSITY_MAJOR_PERCENTILE,
   HYDROLOGY_RIVER_DENSITY_MINOR_PERCENTILE,
 } from "../../model/policy/hydrography-knob-policy.js";
-import { RiversStepContract } from "./config.js";
+import { config } from "./config.js";
 
 type HydrologyRiverDensityKnob = "sparse" | "normal" | "dense";
 
@@ -15,10 +15,10 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * Computes drainage, discharge, and river classes from climate and topography,
  * establishing hydrography evidence before any engine river projection.
  */
-export const RiversStep = createStep(RiversStepContract, {
-  normalize: (config, ctx) => {
+export const RiversStep = createStep(config, {
+  normalize: (stepConfig, ctx) => {
     const { riverDensity } = ctx.knobs as { riverDensity: HydrologyRiverDensityKnob };
-    if (config.projectRiverNetwork.strategy !== "discharge-percentiles") return config;
+    if (stepConfig.projectRiverNetwork.strategy !== "discharge-percentiles") return stepConfig;
 
     const minorDelta =
       HYDROLOGY_RIVER_DENSITY_MINOR_PERCENTILE[riverDensity] -
@@ -29,22 +29,22 @@ export const RiversStep = createStep(RiversStepContract, {
 
     const minorPercentile = Math.max(
       0,
-      Math.min(1, config.projectRiverNetwork.config.minorPercentile + minorDelta)
+      Math.min(1, stepConfig.projectRiverNetwork.config.minorPercentile + minorDelta)
     );
     const majorPercentile = Math.max(
       0,
-      Math.min(1, config.projectRiverNetwork.config.majorPercentile + majorDelta)
+      Math.min(1, stepConfig.projectRiverNetwork.config.majorPercentile + majorDelta)
     );
 
     return {
-      ...config,
+      ...stepConfig,
       projectRiverNetwork: {
-        ...config.projectRiverNetwork,
-        config: { ...config.projectRiverNetwork.config, minorPercentile, majorPercentile },
+        ...stepConfig.projectRiverNetwork,
+        config: { ...stepConfig.projectRiverNetwork.config, minorPercentile, majorPercentile },
       },
     };
   },
-  run: (context, config, ops, deps) => {
+  run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
     const topography = deps.artifacts.topography.read(context);
     const baselineClimateField = deps.artifacts.baselineClimateField.read(context);
@@ -55,7 +55,7 @@ export const RiversStep = createStep(RiversStepContract, {
         elevation: topography.elevation,
         landMask: topography.landMask,
       },
-      config.drainageRouting
+      stepConfig.drainageRouting
     );
 
     const discharge = ops.accumulateDischarge(
@@ -67,7 +67,7 @@ export const RiversStep = createStep(RiversStepContract, {
         rainfall: baselineClimateField.rainfall,
         humidity: baselineClimateField.humidity,
       },
-      config.accumulateDischarge
+      stepConfig.accumulateDischarge
     );
 
     const projected = ops.projectRiverNetwork(
@@ -78,7 +78,7 @@ export const RiversStep = createStep(RiversStepContract, {
         discharge: discharge.discharge,
         flowDir: routing.flowDir,
       },
-      config.projectRiverNetwork
+      stepConfig.projectRiverNetwork
     );
 
     return deps.artifacts.hydrography.publish(context, {

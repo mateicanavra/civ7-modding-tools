@@ -8,9 +8,9 @@ warning-only symbolic planning row without moving placement behavior.
 
 ## Target Authority Refs
 
-- `openspec/changes/resource-stage-architecture`: resource stage operation
+- `openspec/changes/archive/2026-07-24-resource-stage-architecture`: resource stage operation
   sequence and `plan-resource-groups` boundary.
-- `openspec/changes/resource-earthlike-expectations-artifact`: typed
+- `openspec/changes/archive/2026-07-24-resource-earthlike-expectations-artifact`: typed
   `artifact:resources.earthlikeExpectations` source rows.
 - `openspec/changes/resource-aquatic-operation-contract` and
   `openspec/changes/resource-cultivated-operation-contract`: reviewed

@@ -12,8 +12,8 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "authored generation source calling engine RNG, Math.random, official generators, or internal mapgen-core RNG",
-  "why": "Swooper authored generation owns deterministic RNG policy instead of reaching through engine/runtime generator APIs.",
+  "forbids": "authored generation source calling ambient engine RNG, Math.random, undeclared official generators, or internal mapgen-core RNG",
+  "why": "Swooper authored generation owns deterministic RNG policy. Runtime steps may invoke only the engine capabilities selected by their step contract and exposed through the narrowed deps.engine surface.",
   "remediate": null,
   "message": "Keep authored generation off engine RNG and official generators.",
   "pathCoverage": [

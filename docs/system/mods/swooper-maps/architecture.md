@@ -30,9 +30,22 @@ or shipped `.config.ts` files.
 
 Current architecture for ecology, lakes, and placement is intentionally physics-first:
 
-- Pipeline artifacts are canonical truth (`hydrography`, `lakePlan`, biome/feature intents, resource/wonder/discovery plans).
-- Map and placement stages project those artifacts to engine state; they do not delegate generation authority to engine random generators.
-- Immutable Hydrology projection products are map-owned (`artifact:map.hydrology.engineProjectionLakes`, `artifact:map.rivers.projectedNavigableRivers`); mutable Civ7 river state is observed fresh through the adapter rather than retained as a later planning artifact. Hydrology hydrography remains truth-only (`artifact:hydrology.hydrography`, `artifact:hydrology.lakePlan`).
+- Pipeline artifacts are immutable products owned and cataloged by their direct
+  domain modules (`hydrography`, `lakePlan`, biome/feature intents, and
+  resource/wonder plans). Recipe stages select and publish those authorities;
+  they do not define artifact catalogs.
+- Map and placement stages project admitted Swooper products to engine state.
+  Discovery placement is the explicit exception: Civ7's narrative-coupled
+  generator owns that product because Swooper has no independent discovery
+  policy or stable catalog to materialize.
+- The Hydrology hydrography module owns both physical truth and the immutable
+  Civ7-projectable river selection
+  (`artifact:map.rivers.projectedNavigableRivers`). The stable `map.rivers`
+  runtime namespace identifies that projection product, not a stage catalog.
+- Mutable/current Civ7 state is observed fresh through declared adapter
+  capabilities and remains invocation-local. Metrics facets may retain
+  completed scalar or component evidence, but neither the observation nor the
+  facet evidence is a pipeline artifact.
 - Runtime parity is now treated as a contract boundary:
   - lake plan vs engine water mask mismatch is emitted as projection evidence,
   - biome/placement land-water drift is always emitted and remains a strict-candidate gate until a post-hydrology authoritative land mask artifact is finalized.
@@ -40,14 +53,19 @@ Current architecture for ecology, lakes, and placement is intentionally physics-
 Placement runtime now uses:
 
 - deterministic stamping for natural wonders,
-- deterministic resource/discovery plans materialized through typed adapter intent APIs,
-- typed per-placement outcome artifacts for resource/discovery reconciliation.
+- deterministic resource plans materialized through typed adapter intent APIs,
+- typed per-placement outcome artifacts for resource reconciliation,
+- Civ7's official discovery generator, with completion and observed counts
+  retained as effect, metric, and log evidence rather than a second
+  Swooper-authored discovery product.
 
 The adapter, not a downstream mod-specific generator path, owns Civ7 feasibility
 checks and effect materialization. Resource rejections are accepted only when
 typed by the adapter; resource readback mismatches are fail-hard drift evidence.
-Discovery materialization records typed acceptance/rejection because Civ7 does
-not expose resource-like discovery readback.
+Discovery materialization delegates to Civ7 because no independent Swooper
+discovery policy exists. Swooper supplies the already-assigned major starts and
+polar exclusion margin, then retains attempted, placed, and rejected totals
+without claiming per-tile reconciliation that Civ7 does not expose.
 
 ## Current mod code pointers
 

@@ -17,7 +17,8 @@ Ecology turns climate + terrain truth into biosphere truth and engine-facing sur
 - biome classification,
 - soils/pedology,
 - feature intents (planned placements),
-and projection steps that bind those products into Civ7 engine state and publish evidence.
+and projection steps that bind those products into Civ7 engine state while emitting current
+trace, metrics, and visualization evidence.
 
 ## Stages (standard recipe)
 
@@ -50,7 +51,10 @@ Ecology provides (truth artifacts):
 - `artifact:ecology.plotEffectPlan`
 
 Projection posture:
-- `map-ecology` is projection-only: it projects biome, feature-intent, and plot-effect-plan artifacts into engine state, owns and publishes `artifact:ecology.biomeBindings` and `artifact:ecology.featureEngineSnapshot` as immutable projection evidence, and declares effect tags for completed mutations.
+- `map-ecology` is projection-only: it projects biome, feature-intent, and plot-effect-plan
+  artifacts into engine state, declares effect tags for completed mutations, and emits
+  invocation-local projection and engine-observation evidence through trace, metrics, and
+  visualization facets.
 
 ## Key artifacts
 
@@ -64,12 +68,12 @@ There is deliberately no root Ecology artifact aggregate. Steps import the exact
 catalog, keeping artifact ownership visible and preventing the root domain from becoming a second
 discovery surface.
 
-Projection-only engine evidence remains with its map-stage owner:
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map/ecology/artifacts/index.ts`
-
-Projection evidence has distinct semantics: `biomeBindings` records symbolic-to-engine biome
-binding outcomes, while `featureEngineSnapshot` records exactly one post-Ecology engine feature ID per
-tile after feature stamping and terrain validation. Neither artifact is mutation authority.
+The projection stage does not define artifacts. Biome-binding outcomes and feature-application
+counts are step metrics and trace events. The projected biome grid is derived from the selected
+bindings and applied writes, while the feature grid is current engine observation captured after
+terrain validation; both remain invocation-local visualization evidence. Downstream logic that
+needs current Civ7 state reads it through its declared adapter surface rather than consuming a
+stale snapshot.
 
 ## Ops surface
 
@@ -97,7 +101,7 @@ Current posture in the standard recipe:
   selections rather than a second stage-owned schema.
 - `map-ecology` defines neither an author-facing configuration schema nor a `compile` callback. Its
   projection steps have no authored tuning to translate, while fixed biome projection policy stays
-  beside `plot-biomes` and uses official identities from Civ7 policy.
+  at `map-ecology` stage scope under `model/policy/` and uses official identities from Civ7 policy.
 
 Key contract point: each strategy owns its configuration schema, while each semantic module owns the
 artifacts and model vocabulary its operations share. Cross-stage consumption does not move artifact
@@ -114,7 +118,7 @@ Feature scoring and planning stay separate:
 The `map-ecology` stage:
 - is a projection-only stage whose exact identity comes from recipe composition,
 - consumes Ecology truth artifacts (biomeClassification, featureIntents.*, plotEffectPlan) and Morphology truth (topography),
-- publishes biome-binding and post-Ecology feature-surface artifact evidence,
+- emits biome-binding and post-Ecology feature-surface evidence through trace, metrics, and visualization facets,
 - and publishes engine effect tags (e.g., `effect:engine.biomesApplied`).
 
 ## Ground truth anchors
@@ -124,7 +128,7 @@ The `map-ecology` stage:
   - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/biomes/index.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/features/index.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map/ecology/index.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/projection/index.ts`
 - Ecology domain composition:
   - `mods/mod-swooper-maps/src/domain/ecology/contract.ts`
   - `mods/mod-swooper-maps/src/domain/ecology/router.ts`
@@ -138,8 +142,10 @@ The `map-ecology` stage:
   - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/biomes/steps/biomes/config.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/features/steps/plan-vegetation/config.ts`
 - Example step contracts (projection stage):
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map/ecology/steps/plot-biomes/config.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map/ecology/steps/features-apply/config.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/projection/steps/plot-biomes/config.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/projection/steps/features-apply/config.ts`
+- Stage-owned biome projection policy:
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/projection/model/policy/biome-projection.ts`
 - Effect tag registry: `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
 - Architecture guardrails (import bans and parity gates):

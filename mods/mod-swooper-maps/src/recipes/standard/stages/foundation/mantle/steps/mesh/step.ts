@@ -2,7 +2,7 @@ import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { buildNeighborSegments, defineVizMeta, interleaveXY } from "@swooper/mapgen-viz";
 import { defineStandardVizMeta } from "../../../../../viz.js";
-import { MeshStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const GROUP_MESH = "Foundation / Mesh";
 
@@ -10,10 +10,10 @@ const GROUP_MESH = "Foundation / Mesh";
  * Bootstraps Foundation's mesh exactly once, fixing cell identity and resolution
  * for every subsequent mantle, lithosphere, and tectonics operation.
  */
-export const MeshStep = createStep(MeshStepContract, {
-  run: (context, config, ops, deps) => {
+export const MeshStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
-    const stepId = `foundation/${MeshStepContract.id}`;
+    const stepId = `foundation/${config.id}`;
     const rngSeed = ctxRandom(
       context,
       ctxRandomLabel(stepId, "foundation/compute-mesh"),
@@ -26,7 +26,7 @@ export const MeshStep = createStep(MeshStepContract, {
         height,
         rngSeed,
       },
-      config.computeMesh
+      stepConfig.computeMesh
     );
 
     deps.artifacts.foundationMesh.publish(context, meshResult.mesh);

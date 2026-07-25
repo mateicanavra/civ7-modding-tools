@@ -44,8 +44,8 @@ the package-ownership consequences below without changing D1-D5.
 | D1       | Use flat default stage config: `{ knobs?, [stepId]?: stepConfig }`. No persisted SDK-native `advanced`.                  | Removes duplicate authoring shapes and settles the public config contract.                                  | Migrate configs/docs/tests from `advanced.<stepId>` to top-level step ids; delete unwrap compiles.     |
 | D2       | Lakes are Hydrology truth, but adapter materialization/readback comes before fail-hard parity.                           | Prevents engine projection from masquerading as physics truth while avoiding the prior brittle-gate revert. | Add lake stamping/readback, then `plan-lakes`, then projection, then placement input migration.        |
 | D3       | Split placement at real product/effect contracts only.                                                                   | Exposes hidden gameplay boundaries without manufacturing fake dependency chains.                            | Promote wonders/resources/starts/discoveries/advanced-starts as real contracts one boundary at a time. |
-| D4       | Resources/discoveries use typed intent reconciliation. No naive `placed === planned`.                                    | Keeps deterministic intent without pretending all Civ7 legality is already ported.                          | Add per-tile placement outcomes and typed rejection reasons before gating.                             |
-| D5       | Ecology truth stage IDs are `ecology-pedology`, `ecology-biomes`, and `ecology-features`; `map-ecology` is projection only. Their source nests by family under `stages/ecology/{pedology,biomes,features}` and `stages/map/ecology`. | Avoids both seven speculative feature-family wrappers and one overbroad ecology blob without conflating runtime identity with filesystem layout. | Fold feature-family wrappers with output-equivalence tests; retain `stages/ecology/` only as the family container for genuinely shared surfaces. |
+| D4       | Resources use typed intent reconciliation; discoveries delegate materialization to Civ7 and retain observed counts.      | Preserves deterministic resource intent without inventing a map-side discovery authority Civ7 does not expose. | Reconcile resource intents per tile; record discovery attempts, placements, and rejections as metrics/log evidence. |
+| D5       | Ecology truth stage IDs are `ecology-pedology`, `ecology-biomes`, and `ecology-features`; `map-ecology` is projection only. Their source nests by family under `stages/ecology/{pedology,biomes,features,projection}`. | Avoids both seven speculative feature-family wrappers and one overbroad ecology blob without conflating runtime identity with filesystem layout. | Fold feature-family wrappers with output-equivalence tests; retain `stages/ecology/` only as the semantic family container. |
 | 0e       | Use a scoped import policy; enforce a narrow recipe deep-import guard first.                                             | Makes module boundaries enforceable without broad-banning legitimate internal imports.                      | Remediate public surfaces, then turn on the first `src/recipes/**` guardrail.                          |
 
 ## Source Material
@@ -101,13 +101,13 @@ MapGen is a deterministic pipeline with explicit ownership boundaries.
 
 | Layer                | Owns                                                                                                                                                              | Must not own                                                             |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| Domain               | Pure algorithms, contract-first ops, strategies, rules, domain types, and reusable domain semantics.                                                              | Runtime context, recipe ordering, adapter calls, or stage orchestration. |
-| Step                 | Executable contract boundary: `requires`, `provides`, artifacts/effects, config schema, op binding, input building, and one bounded orchestration responsibility. | Heavy domain compute, sibling-stage internals, or hidden sub-pipelines.  |
-| Stage                | Authoring/config surface, knobs scope, stage id prefix, and local step composition.                                                                               | Global ordering, truth authority, runtime topology, or compute.          |
+| Domain               | Pure algorithms, contract-first ops, strategies, rules, domain types, reusable domain semantics, and immutable artifact authorities cataloged by their direct producing modules. | Runtime context, recipe ordering, adapter calls, or stage orchestration. |
+| Step                 | Executable contract boundary: `requires`, `provides`, artifact selection/publication, effects, config schema, op binding, input building, and one bounded orchestration responsibility. | Heavy domain compute, sibling-stage internals, hidden sub-pipelines, or artifact catalogs. |
+| Stage                | Authoring/config surface, knobs scope, stage id prefix, and local step composition.                                                                               | Global ordering, truth authority, runtime topology, compute, or artifact catalogs. |
 | Recipe               | Global stage/step order and enablement.                                                                                                                           | Hidden manifests, prose ordering, or `shouldRun`-style skips.            |
 | Compilation          | Validate and normalize authoring config into executable step/op config.                                                                                           | Side effects or engine state.                                            |
 | Execution            | Run the compiled plan with dependency gates, write-once artifact vintages, and traces.                                                                             | Architecture design, shared mutable buffers, or compatibility shims.     |
-| Projection / Runtime | Materialize truth artifacts into Civ7 engine state and verify effects.                                                                                            | Domain truth unless explicitly accepted as a projection limitation.      |
+| Projection / Runtime | Materialize immutable domain products into Civ7 engine state, observe current state invocation-locally, and verify effects.                                      | Domain truth, artifact catalogs, or mutable engine snapshots published as artifacts. |
 
 Recipe steps use one source topology: `steps/<step-id>/config.ts` owns the
 runtime-free `defineStep` contract, while `steps/<step-id>/step.ts` owns the
@@ -123,6 +123,12 @@ Two invariants dominate the refactor:
 - **Truth and projection stay separate.** Physics/domain stages publish truth
   artifacts. `map-*` / Gameplay stages project those artifacts into engine
   fields, adapter calls, effects, and parity evidence.
+- **Artifacts are immutable domain/module products.** Their definitions and
+  catalogs live with the direct producing module. Recipe stages may compose
+  steps that publish them, but stages do not define catalogs. Mutable/current
+  Civ7 state remains invocation-local adapter observation; completed scalar or
+  component evidence may flow through metrics facets without becoming a
+  pipeline artifact.
 
 ## Stage Promotion Rule
 
@@ -202,9 +208,11 @@ retired flat sibling roots such as `stages/ecology-biomes/` and
 source layout can move toward the real owners without preserving wrappers for a
 soon-to-change surface.
 
-**Normalization principle:** colocate contracts, artifacts, schemas, and helper
-logic with the nearest real owner. Stage-neutral shared surfaces are allowed
-only when their invariant and consumers are explicit.
+**Normalization principle:** colocate contracts, schemas, and helper logic with
+the nearest real owner. Artifact authorities and their sole catalogs live with
+the direct producing domain module; recipe and stage catalogs are forbidden.
+Other stage-neutral shared surfaces are allowed only when their invariant and
+consumers are explicit.
 
 ### 4. Truth/Projection Authority Leaks
 
@@ -216,8 +224,10 @@ Load-bearing examples:
 
 - `map-hydrology` projects authored lake intent through the adapter and records
   readback; it must not reintroduce official lake generation as truth.
-- placement plans resources/discoveries as authored intents, then reconciles
-  adapter legality/readback; official generator output is not accepted truth.
+- placement plans resources as authored intents and reconciles adapter
+  legality/readback. Discovery materialization delegates to Civ7's official
+  narrative-coupled generator and retains exact attempted/placed/rejected
+  counts as observation evidence rather than an authored plan.
 - `map-*` stages are valid only when they are projection/materialization lanes,
   not domain truth or Studio grouping devices.
 
@@ -320,21 +330,29 @@ unless they gain independent consumers or contracts.
 **Why:** the broad placement apply step hides too much behavior, but a
 mechanical split would manufacture fake contracts that only encode ordering.
 
-### D4: Resources And Discoveries Use Typed Intent Reconciliation
+### D4: Resources Reconcile Typed Intent; Discoveries Retain Official Observations
 
-**Decision:** the plan is authority for typed placement intent. Projection must
-reconcile plan vs engine-feasible placement and fail only on unexplained drift,
-wrong type/location, or untyped rejection.
+**Decision:** the resource plan is authority for typed placement intent.
+Resource projection reconciles plan vs engine-feasible placement and fails only
+on unexplained drift, wrong type/location, or untyped rejection.
 
-Do not gate on naive `placed === planned`.
+Discovery placement has a different authority. Civ7's official generator owns
+its narrative-coupled selection and materialization; Swooper supplies the
+ordered start exclusions and polar margin, then retains attempted, placed, and
+rejected totals as successful observation evidence. It does not manufacture a
+discovery plan, per-tile outcomes, or a fake causal artifact.
 
-**Why:** engine legality owns feasibility at materialization time. Count equality
-can fail on legitimate rejection or pass while placing the wrong thing. The
-target is deterministic intent plus typed rejection reasons.
+**Why:** engine legality owns resource feasibility at materialization time.
+Count equality can fail on legitimate rejection or pass while placing the wrong
+resource. Discovery identities and budgets depend on live narrative state that
+is not a stable map-side catalog, so treating the official generator as the
+materialization authority is more truthful than duplicating it.
 
-**Dependency:** D4 requires adapter/materializer outcomes with per-tile placed
-items and typed rejection reasons. Standard generation must not fall back to
-official resource/discovery generators as a truth source.
+**Dependency:** resource reconciliation requires adapter/materializer outcomes
+with per-tile placed items and typed rejection reasons. Discovery observation
+requires the adapter to expose the official generator's attempted/placed
+counts; successful completion is carried by the step effect and metrics/log
+evidence.
 
 ### D5: Ecology Uses Multiple Truth Stages By Input/Handoff Surface
 
@@ -342,7 +360,8 @@ official resource/discovery generators as a truth source.
 
 The names below are stable runtime stage IDs. Physical source follows semantic
 containment under `stages/ecology/{pedology,biomes,features}` and
-`stages/map/ecology`; filesystem nesting does not change runtime identity.
+`stages/ecology/projection`; filesystem nesting does not change runtime
+identity.
 
 | Stage              | Purpose                                                                                                                 | Stage handoff                                         |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
@@ -367,9 +386,11 @@ plans, occupancy, and final projection inputs.
 ### D5 Extension: `map-*` Stages Are Projection Only
 
 `map-morphology`, `map-hydrology`, and `map-ecology` are justified only where
-they consume truth artifacts and own projection/materialization effects,
-adapter writes, `artifact:map.*` handoffs, parity diagnostics, or
-projection-specific knobs.
+they consume immutable domain products and own projection/materialization
+effects, adapter writes, parity diagnostics, projection-specific knobs, or
+publication of another immutable product selected from its direct domain
+module's catalog. Stable `artifact:map.*` product ids do not confer catalog
+ownership on a recipe stage.
 
 Projection behavior does not itself create authored configuration. Fixed
 projection stages use configurationless compiled surfaces; Swooper-specific
@@ -411,7 +432,7 @@ policy until matching public surfaces exist.
 | Placement               | Divergent                    | Split real product/effect boundaries; implement D4 typed reconciliation later.                            |
 | Core SDK purity         | Divergent                    | Move Civ7-bound map authoring/runtime calls out of pure core.                                             |
 | Studio config exports   | DX mismatch                  | Make recipe config schema/defaults source-visible or first-class generated contracts.                     |
-| Recipe/domain catalogs  | Divergent                    | Split multi-owner catalogs and stale flat stage roots into real stage owners or explicit family-shared surfaces. |
+| Artifact catalogs       | Divergent                    | Remove recipe/stage catalogs and split domain-root multi-owner catalogs into direct producing-module owners. |
 | Routers / docs          | Divergent until this cleanup | Route to this packet and later OpenSpec/evergreen authorities.                                            |
 
 ## Domino Sequence
@@ -477,7 +498,8 @@ input/handoff surfaces.
   storing them at `ecology/{pedology,biomes,features}` and `map/ecology`.
 - Preserve behavior with tests/golden artifacts for feature intents,
   occupancy, and projection inputs.
-- Decompose broad recipe/domain catalogs after their owners are clear.
+- Remove recipe/stage artifact catalogs and decompose broad domain catalogs
+  into direct producing-module owners.
 
 **Why after Domino 1:** topology cleanup should not carry forward stale config
 or import idioms.
@@ -509,7 +531,7 @@ artifacts and stage ownership are explicit.
 - placement consumes the lake truth artifact;
 - `map-*` stages either own projection/materialization or have been collapsed.
 
-### Domino 4: Placement Product Boundaries And Typed Reconciliation
+### Domino 4: Placement Product Boundaries And Truthful Materialization Evidence
 
 **Goal:** expose gameplay products as real contracts and reconcile engine
 feasibility honestly.
@@ -519,10 +541,13 @@ feasibility honestly.
 - Split placement one product/effect boundary at a time.
 - Keep maintenance sequencing transactional unless it gains a real contract.
 - Add adapter/materializer outcomes with typed placed items and rejection
-  reasons.
-- Implement D4 typed reconciliation for resources/discoveries.
-- Supersede or update records that still describe best-effort official
-  generator behavior as accepted truth.
+  reasons for resource intent.
+- Implement D4 typed resource reconciliation.
+- Delegate discovery materialization to Civ7's official generator and retain
+  exact attempted/placed/rejected observations without a discovery plan or
+  pipeline artifact.
+- Supersede records that conflate resource intent authority with discovery
+  materialization authority.
 
 **Why late:** this depends on the contract vocabulary, projection posture, and
 adapter capability decisions established earlier.
@@ -530,9 +555,10 @@ adapter capability decisions established earlier.
 **Done when:**
 
 - placement products have explicit contracts/effects;
-- resources/discoveries fail only on unexplained drift or typed mismatch;
-- no doc claims deterministic truth where the implementation still delegates
-  intent silently to official generators.
+- resources fail only on unexplained drift or typed mismatch;
+- discovery completion and counts are observable in headless metrics and the
+  live engine log;
+- no doc claims Swooper-authored discovery truth where Civ7 owns the product.
 
 ### Domino 5: OpenSpec Promotion And Guardrails
 
@@ -564,7 +590,7 @@ boundaries, and the cleanup slice that enables each guard.
 | ID  | Fails on                                                                                               | Enable after                       |
 | --- | ------------------------------------------------------------------------------------------------------ | ---------------------------------- |
 | G1  | milestone-prefixed tag identifiers such as `M\d+_` in source                                           | tag decomposition uses final names |
-| G2  | recipe-root or domain-root multi-owner catalogs that are not thin barrels or explicit shared surfaces  | catalog/hub dissolution            |
+| G2  | recipe/stage artifact catalogs or domain-root multi-owner artifact catalogs                            | catalog-owner migration             |
 | G3  | Civ7 adapter value imports, Civ globals, or Civ7 type refs inside pure `packages/mapgen-core` surfaces | core purity migration              |
 | G4  | recipe deep imports outside sanctioned public domain surfaces                                          | first import-policy remediation    |
 | G5  | a stage importing a sibling stage's `steps/`                                                           | Ecology topology cleanup           |
@@ -583,7 +609,7 @@ into OpenSpec workstreams around the dominoes:
 3. **Import policy and public surface remediation.**
 4. **Ecology topology and colocation.**
 5. **Projection truth corrections, starting with lakes.**
-6. **Placement decomposition and resource/discovery reconciliation.**
+6. **Placement decomposition, resource reconciliation, and discovery observation.**
 7. **Guardrails and evergreen spec promotion.**
 
 Each OpenSpec workstream should carry:

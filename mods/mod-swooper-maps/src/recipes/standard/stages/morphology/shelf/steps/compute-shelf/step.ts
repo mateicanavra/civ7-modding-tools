@@ -7,7 +7,7 @@ import {
   STANDARD_VIZ_COLORS,
 } from "../../../../../viz.js";
 import type { MorphologyShelfWidthKnob } from "../../index.js";
-import { ComputeShelfStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const GROUP_SHELF = "Morphology / Shelf";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
@@ -17,31 +17,31 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * topography. Diagnostic masks remain step-local evidence for trace and
  * visualization rather than becoming persistent artifacts.
  */
-export const ComputeShelfStep = createStep(ComputeShelfStepContract, {
-  normalize: (config, ctx) => {
+export const ComputeShelfStep = createStep(config, {
+  normalize: (stepConfig, ctx) => {
     const { shelfWidth } = ctx.knobs as Readonly<{ shelfWidth?: MorphologyShelfWidthKnob }>;
     const shelfMultiplier = MORPHOLOGY_SHELF_WIDTH_MULTIPLIER[shelfWidth ?? "normal"] ?? 1.0;
 
     const shelfMaskSelection =
-      config.shelfMask.strategy === "physical-break-connectivity"
+      stepConfig.shelfMask.strategy === "physical-break-connectivity"
         ? {
-            ...config.shelfMask,
+            ...stepConfig.shelfMask,
             config: {
-              ...config.shelfMask.config,
+              ...stepConfig.shelfMask.config,
               // The shelfWidth knob drives the cap-free break-GRADIENT scale: narrow (<1) =>
               // stricter gradient => the gentle apron yields to the slope sooner => narrower
               // shelf; wide (>1) => more permissive => wider. No caps; reads the sculpted break.
               breakGradientScale: clampFinite(
-                config.shelfMask.config.breakGradientScale * shelfMultiplier,
+                stepConfig.shelfMask.config.breakGradientScale * shelfMultiplier,
                 0
               ),
             },
           }
-        : config.shelfMask;
+        : stepConfig.shelfMask;
 
-    return { ...config, shelfMask: shelfMaskSelection };
+    return { ...stepConfig, shelfMask: shelfMaskSelection };
   },
-  run: (context, config, ops, deps) => {
+  run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
     const size = width * height;
     const beltDrivers = deps.artifacts.beltDrivers.read(context);
@@ -54,7 +54,7 @@ export const ComputeShelfStep = createStep(ComputeShelfStepContract, {
     // 1) Post-island shoreline adjacency (island peaks now count).
     const { coastalLand, coastalWater } = ops.coastalAdjacency(
       { width, height, landMask },
-      config.coastalAdjacency
+      stepConfig.coastalAdjacency
     );
 
     // 2) Post-island distance to coast for the published coastline diagnostic. Shelf
@@ -65,7 +65,7 @@ export const ComputeShelfStep = createStep(ComputeShelfStepContract, {
     }
     const { distanceToCoast } = ops.distanceToCoast(
       { width, height, coastal },
-      config.distanceToCoast
+      stepConfig.distanceToCoast
     );
 
     // 3) Cap-free local-gradient shelf over post-island geography. Boundary posture is
@@ -80,7 +80,7 @@ export const ComputeShelfStep = createStep(ComputeShelfStepContract, {
         boundaryCloseness: beltDrivers.boundaryCloseness,
         boundaryType: beltDrivers.boundaryType,
       },
-      config.shelfMask
+      stepConfig.shelfMask
     );
     const {
       shelfMask,
@@ -117,7 +117,7 @@ export const ComputeShelfStep = createStep(ComputeShelfStepContract, {
         if ((coastalWater[i] | 0) === 0 && dist >= 2) shelfTilesBeyondShore += 1;
       }
 
-      const selection = config.shelfMask;
+      const selection = stepConfig.shelfMask;
       const shelfConfig =
         selection.strategy === "physical-break-connectivity" ? selection.config : undefined;
       return {

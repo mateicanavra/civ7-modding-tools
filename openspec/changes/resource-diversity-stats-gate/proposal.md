@@ -14,7 +14,7 @@ identities.
   resource assignment.
 - `openspec/changes/resource-distribution-root-cause`: only a minority of
   resources appeared on generated maps.
-- `openspec/changes/resource-stage-architecture`: local stats must preserve
+- `openspec/changes/archive/2026-07-24-resource-stage-architecture`: local stats must preserve
   runtime proof boundaries and not overclaim symbolic id verification.
 
 ## What Changes

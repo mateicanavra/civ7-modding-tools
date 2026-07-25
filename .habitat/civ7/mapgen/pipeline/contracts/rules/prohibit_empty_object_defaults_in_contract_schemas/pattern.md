@@ -9,19 +9,19 @@ Contract schema definitions should not use empty object defaults.
 language js(typescript)
 
 `default: {}` where {
-  $filename <: r".*mods/[^/]+/src/(?:domain/.*/ops/(?:.*/contract|.*\.contract)|recipes/.*/stages/[^/]+/steps/[^/]+/config)\.ts$"
+  $filename <: r".*mods/[^/]+/src/(?:domain/.*/ops/(?:.*/contract|.*\.contract)|recipes/[^/]+/stages/(?:[^/]+/)+steps/[^/]+/config)\.ts$"
 }
 ```
 
 ## Matches fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo.contract.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/demo.contract.ts
 export const Schema = {
   default: {},
 };
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo.contract.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/demo.contract.ts
 export const Contract = Type.Object(
   {},
   {
@@ -29,7 +29,7 @@ export const Contract = Type.Object(
   }
 );
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/nested.contract.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/nested.contract.ts
 export const Schema = Type.Object({
   options: Type.Object(
     {},
@@ -39,7 +39,7 @@ export const Schema = Type.Object({
   ),
 });
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot/config.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/biomes/steps/project-biomes/config.ts
 export const StepContract = {
   input: Type.Object(
     {},
@@ -49,17 +49,17 @@ export const StepContract = {
   ),
 };
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/contract.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/demo/contract.ts
 export const OrdinaryContract = {
   default: {},
 };
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/render/config.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/projection/steps/render/config.ts
 export const StepOrdinaryContract = {
   default: {},
 };
 
-// @filename: mods/other-mod/src/domain/ecology/ops/demo.contract.ts
+// @filename: mods/alternate-mod/src/domain/ecology/modules/biomes/ops/demo.contract.ts
 export const OtherSchema = {
   default: {},
 };
@@ -68,52 +68,52 @@ export const OtherSchema = {
 ## Ignores fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo.contract.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/demo.contract.ts
 export const Schema = {
   default: { enabled: true },
 };
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo.contract.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/demo.contract.ts
 export const SchemaWithPropertyDefault = Type.Object({
   enabled: Type.Boolean({ default: true }),
 });
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo.contract.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/demo.contract.ts
 export const ArrayDefault = {
   default: [],
 };
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo.contract.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/demo.contract.ts
 export const NullDefault = {
   default: null,
 };
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo.contract.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/demo.contract.ts
 export const ScalarDefault = {
   default: "standard",
 };
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo.contract.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/demo.contract.ts
 export const LookalikeDefault = {
   defaultValue: {},
 };
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/contract-helper.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/demo/contract-helper.ts
 export const ContractHelper = {
   default: {},
 };
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/config.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/demo/config.ts
 export const Config = {
   default: {},
 };
 
-// @filename: mods/mod-swooper-maps/test/ecology/demo.contract.ts
+// @filename: mods/example-mod/test/ecology/demo.contract.ts
 export const TestSchema = {
   default: {},
 };
 
-// @filename: mods/mod-swooper-maps/src/maps/standard/demo.contract.ts
+// @filename: mods/example-mod/src/maps/sample/demo.contract.ts
 export const MapSchema = {
   default: {},
 };
@@ -123,7 +123,7 @@ export const PackageSchema = {
   default: {},
 };
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo.contract.tsx
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/demo.contract.tsx
 export const TsxSchema = {
   default: {},
 };

@@ -6,7 +6,7 @@ import {
   definePlacementVizCategoryMeta,
   PLACEMENT_TILE_SPACE_ID,
 } from "../../viz.js";
-import { PlaceResourcesStepContract } from "./config.js";
+import { config } from "./config.js";
 import {
   logResourcePlacementRuntimeTelemetry,
   placeResourcesWithTypedOutcomes,
@@ -65,8 +65,8 @@ function resourceOutcomeCategoryValue(outcome: ResourceOutcomeRow): number {
  * re-decision and publishes typed placed/rejected outcomes. Resource policy
  * authority remains in the upstream plan.
  */
-export const PlaceResourcesStep = createStep(PlaceResourcesStepContract, {
-  run: (context, _config, _ops, deps) => {
+export const PlaceResourcesStep = createStep(config, {
+  run: (context, _stepConfig, _ops, deps) => {
     const plan = deps.artifacts.resourcePlanAdjusted.read(context);
     const { width, height } = context.setup.dimensions;
     const emit = (payload: TraceJsonObject): void => {

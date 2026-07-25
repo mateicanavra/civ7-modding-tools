@@ -1,18 +1,18 @@
-import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
+import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/modules/regions/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import {
   MAP_PROJECTION_EFFECT_TAGS,
   PLACEMENT_PRODUCT_EFFECT_TAGS,
 } from "../../../../tag-contracts.js";
-import { artifacts as mapHydrologyArtifacts } from "../../../map/hydrology/artifacts/index.js";
-import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 
 /**
- * Defines the one maintenance transaction after wonder stamping, publishing
- * the engine readback that all later placement products consume.
+ * Defines the one maintenance transaction after wonder stamping. The step emits
+ * placement readiness while metrics and visualization project invocation-local readback.
  */
-export const PreparePlacementSurfaceStepContract = defineStep({
+export const config = defineStep({
   id: "prepare-placement-surface",
   engine: [
     "getAreaId",
@@ -33,14 +33,10 @@ export const PreparePlacementSurfaceStepContract = defineStep({
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.surfacePrepared],
   artifacts: {
     requires: [
-      mapHydrologyArtifacts.engineProjectionLakes,
-      placementArtifacts.landmassRegionSlotByTile,
+      hydrographyArtifacts.projectedLakes,
+      placementRegionArtifacts.landmassRegionSlotByTile,
       morphologyShelfArtifacts.shelf,
       morphologyLandformsArtifacts.topography,
-    ],
-    provides: [
-      placementArtifacts.placementSurfacePreparation,
-      placementArtifacts.placementSurfaceValidationBoundary,
     ],
   },
   schema: Type.Object({}, { additionalProperties: false }),

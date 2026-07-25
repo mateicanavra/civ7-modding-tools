@@ -5,7 +5,7 @@ import { createStep } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ, getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 import { defineStandardVizMeta } from "../../../../../viz.js";
-import { ScoreLayersStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 const MINOR_FLOODPLAIN_DISCHARGE_NORMALIZER = 1000;
@@ -53,8 +53,8 @@ function localReliefM(
  * Computes every feature family's suitability layer once over shared ecology,
  * morphology, and hydrology truth, and seeds the ordered occupancy chain.
  */
-export const ScoreLayersStep = createStep(ScoreLayersStepContract, {
-  run: (context, config, ops, deps) => {
+export const ScoreLayersStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const classification = deps.artifacts.biomeClassification.read(context);
     const climateIndices = deps.artifacts.climateIndices.read(context);
     const pedology = deps.artifacts.pedology.read(context);
@@ -99,28 +99,28 @@ export const ScoreLayersStep = createStep(ScoreLayersStepContract, {
         vegetationDensity: classification.vegetationDensity,
         fertility: pedology.fertility,
       },
-      config.vegetationSubstrate
+      stepConfig.vegetationSubstrate
     );
 
     const forestScore = ops.scoreForest(
       { width, height, landMask: ecologyLandMask, ...vegetationSubstrate },
-      config.scoreForest
+      stepConfig.scoreForest
     ).score01;
     const rainforestScore = ops.scoreRainforest(
       { width, height, landMask: ecologyLandMask, ...vegetationSubstrate },
-      config.scoreRainforest
+      stepConfig.scoreRainforest
     ).score01;
     const taigaScore = ops.scoreTaiga(
       { width, height, landMask: ecologyLandMask, ...vegetationSubstrate },
-      config.scoreTaiga
+      stepConfig.scoreTaiga
     ).score01;
     const savannaWoodlandScore = ops.scoreSavannaWoodland(
       { width, height, landMask: ecologyLandMask, ...vegetationSubstrate },
-      config.scoreSavannaWoodland
+      stepConfig.scoreSavannaWoodland
     ).score01;
     const sagebrushSteppeScore = ops.scoreSagebrushSteppe(
       { width, height, landMask: ecologyLandMask, ...vegetationSubstrate },
-      config.scoreSagebrushSteppe
+      stepConfig.scoreSagebrushSteppe
     ).score01;
 
     const featureSubstrate = ops.featureSubstrate(
@@ -135,7 +135,7 @@ export const ScoreLayersStep = createStep(ScoreLayersStepContract, {
         discharge: hydrography.discharge,
         sinkMask: hydrography.sinkMask,
       },
-      config.featureSubstrate
+      stepConfig.featureSubstrate
     );
 
     const marshScore = ops.scoreWetMarsh(
@@ -149,7 +149,7 @@ export const ScoreLayersStep = createStep(ScoreLayersStepContract, {
         surfaceTemperature: climateIndices.surfaceTemperatureC,
         aridityIndex: climateIndices.aridityIndex,
       },
-      config.scoreWetMarsh
+      stepConfig.scoreWetMarsh
     ).score01;
 
     const tundraBogScore = ops.scoreWetTundraBog(
@@ -163,7 +163,7 @@ export const ScoreLayersStep = createStep(ScoreLayersStepContract, {
         surfaceTemperature: climateIndices.surfaceTemperatureC,
         freezeIndex: climateIndices.freezeIndex,
       },
-      config.scoreWetTundraBog
+      stepConfig.scoreWetTundraBog
     ).score01;
 
     const mangroveScore = ops.scoreWetMangrove(
@@ -177,7 +177,7 @@ export const ScoreLayersStep = createStep(ScoreLayersStepContract, {
         surfaceTemperature: climateIndices.surfaceTemperatureC,
         aridityIndex: climateIndices.aridityIndex,
       },
-      config.scoreWetMangrove
+      stepConfig.scoreWetMangrove
     ).score01;
 
     const oasisScore = ops.scoreWetOasis(
@@ -190,7 +190,7 @@ export const ScoreLayersStep = createStep(ScoreLayersStepContract, {
         aridityIndex: climateIndices.aridityIndex,
         surfaceTemperature: climateIndices.surfaceTemperatureC,
       },
-      config.scoreWetOasis
+      stepConfig.scoreWetOasis
     ).score01;
 
     const wateringHoleScore = ops.scoreWetWateringHole(
@@ -204,7 +204,7 @@ export const ScoreLayersStep = createStep(ScoreLayersStepContract, {
         aridityIndex: climateIndices.aridityIndex,
         surfaceTemperature: climateIndices.surfaceTemperatureC,
       },
-      config.scoreWetWateringHole
+      stepConfig.scoreWetWateringHole
     ).score01;
 
     const reefScore = ops.scoreReef(
@@ -218,7 +218,7 @@ export const ScoreLayersStep = createStep(ScoreLayersStepContract, {
         coastalWater: coastline.coastalWater,
         distanceToCoast: coastline.distanceToCoast,
       },
-      config.scoreReef
+      stepConfig.scoreReef
     ).score01;
 
     const coldReefScore = ops.scoreColdReef(
@@ -232,7 +232,7 @@ export const ScoreLayersStep = createStep(ScoreLayersStepContract, {
         coastalWater: coastline.coastalWater,
         distanceToCoast: coastline.distanceToCoast,
       },
-      config.scoreColdReef
+      stepConfig.scoreColdReef
     ).score01;
 
     const atollScore = ops.scoreReefAtoll(
@@ -247,7 +247,7 @@ export const ScoreLayersStep = createStep(ScoreLayersStepContract, {
         coastalWater: coastline.coastalWater,
         distanceToCoast: coastline.distanceToCoast,
       },
-      config.scoreReefAtoll
+      stepConfig.scoreReefAtoll
     ).score01;
 
     const lotusScore = ops.scoreReefLotus(
@@ -262,7 +262,7 @@ export const ScoreLayersStep = createStep(ScoreLayersStepContract, {
         coastalWater: coastline.coastalWater,
         distanceToCoast: coastline.distanceToCoast,
       },
-      config.scoreReefLotus
+      stepConfig.scoreReefLotus
     ).score01;
 
     const iceScore = ops.scoreIce(
@@ -274,7 +274,7 @@ export const ScoreLayersStep = createStep(ScoreLayersStepContract, {
         elevation: topography.elevation,
         freezeIndex: climateIndices.freezeIndex,
       },
-      config.scoreIce
+      stepConfig.scoreIce
     ).score01;
 
     const floodplainScores = {
@@ -290,7 +290,7 @@ export const ScoreLayersStep = createStep(ScoreLayersStepContract, {
       "tundra-floodplain-navigable": new Float32Array(size),
     } as const;
     const floodplainNoise = new PerlinNoise(
-      ctxStepSeed(context, ScoreLayersStepContract.id, "ecology/floodplain-alluvial-patches")
+      ctxStepSeed(context, config.id, "ecology/floodplain-alluvial-patches")
     );
 
     for (let i = 0; i < size; i++) {

@@ -1,7 +1,7 @@
 import { isAnyRiverClass } from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-class.js";
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { PlanWetlandsStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const WETLANDS_FEATURE_INTENTS = new Set([
   "marsh",
@@ -15,8 +15,8 @@ const WETLANDS_FEATURE_INTENTS = new Set([
  * Plans wetland-family intent from hydrology and habitat truth after reefs,
  * carrying reservations forward so vegetation cannot reuse occupied tiles.
  */
-export const PlanWetlandsStep = createStep(PlanWetlandsStepContract, {
-  run: (context, config, ops, deps) => {
+export const PlanWetlandsStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const prev = deps.artifacts.occupancyReefs.read(context);
     const scoreLayers = deps.artifacts.scoreLayers.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);
@@ -39,7 +39,7 @@ export const PlanWetlandsStep = createStep(PlanWetlandsStepContract, {
           : 0;
     }
 
-    const seed = ctxStepSeed(context, PlanWetlandsStepContract.id, "ecology/plan-wetlands");
+    const seed = ctxStepSeed(context, config.id, "ecology/plan-wetlands");
     const placements = ops.planWetlands(
       {
         width,
@@ -54,7 +54,7 @@ export const PlanWetlandsStep = createStep(PlanWetlandsStepContract, {
         featureOccupancyMask: prev.featureOccupancyMask,
         reserved: prev.reserved,
       },
-      config.planWetlands
+      stepConfig.planWetlands
     ).placements;
 
     placements.sort((a, b) => a.y * width + a.x - (b.y * width + b.x));

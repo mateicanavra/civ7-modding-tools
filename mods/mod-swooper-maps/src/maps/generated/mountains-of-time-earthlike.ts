@@ -1240,6 +1240,12 @@ const mapConfig = {
       }
     },
     "placement": {
+      "plot-landmass-regions": {
+        "regions": {
+          "strategy": "balanced-hemisphere",
+          "config": {}
+        }
+      },
       "derive-placement-inputs": {
         "wonders": {
           "strategy": "map-metadata",
@@ -1385,7 +1391,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountains-of-time-earthlike",
-  configHash: "adbd184723b2007fc747dc043cd872b9a12e2d0e349377f32bd78fcaf0c142b6",
-  envelopeHash: "41a70286c21ddc8b8bb0b35610a2566df89414edcb9e9cb0ab49f2626884439a",
+  configHash: "7aafd3dfd2928de61fc8279789c086162a2dcc7e33d191b626491666e6e29da6",
+  envelopeHash: "44cb66e357952263585f8fd4bc4f9b1b6c78c74353d9a5492edd1ad5b787c755",
   config: mapConfig.config,
 });

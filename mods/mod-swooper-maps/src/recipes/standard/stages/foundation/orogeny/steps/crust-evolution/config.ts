@@ -10,7 +10,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  * history. It publishes the crust vintage consumed by morphology without exposing intermediate
  * history as elevation.
  */
-export const CrustEvolutionStepContract = defineStep({
+export const config = defineStep({
   id: "crust-evolution",
   requires: [],
   provides: [],

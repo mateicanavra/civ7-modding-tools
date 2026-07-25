@@ -1273,6 +1273,12 @@ const mapConfig = {
       }
     },
     "placement": {
+      "plot-landmass-regions": {
+        "regions": {
+          "strategy": "balanced-hemisphere",
+          "config": {}
+        }
+      },
       "derive-placement-inputs": {
         "wonders": {
           "strategy": "map-metadata",
@@ -1398,7 +1404,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "latest-juicy",
-  configHash: "680da60e2a546e338ba1e1ceb361f04a1c734719a9dea59a1598964bed52bc2c",
-  envelopeHash: "5b1e9310bd71a3e57e407b31c60d823d8e80493792e839569f6850137d2cd1a1",
+  configHash: "fd835b1b40377e20813f283577fc4ec4ac1c47d2b9c1a81af2285202f3641689",
+  envelopeHash: "c817125acb26fca60d5ec61719fa5bbafda3c5a6c5375f24ff3f1fe6b9b162eb",
   config: mapConfig.config,
 });

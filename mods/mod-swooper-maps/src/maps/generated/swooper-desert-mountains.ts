@@ -1241,6 +1241,12 @@ const mapConfig = {
       }
     },
     "placement": {
+      "plot-landmass-regions": {
+        "regions": {
+          "strategy": "balanced-hemisphere",
+          "config": {}
+        }
+      },
       "derive-placement-inputs": {
         "wonders": {
           "strategy": "map-metadata",
@@ -1386,7 +1392,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-desert-mountains",
-  configHash: "69a0eb1a1807325f4fa74061fca92cbe6b3d69ed80ee7d414a3a93026560cdbf",
-  envelopeHash: "75e789d8d26d614ef1f31fc48363ee840b05c60bc582c6796eb6dbba72426a20",
+  configHash: "56a727eb8b89b15a7757d5a9cdb5678c72209093a68653eaec7bad8fc07c0dde",
+  envelopeHash: "dad8a2fe35edc6d6ec224e51cfb88b04157d0c3d72120844a0d5a9062c2a7b40",
   config: mapConfig.config,
 });

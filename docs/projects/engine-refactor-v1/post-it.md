@@ -18,20 +18,29 @@ behavior proof. Positive structure defines the legal stage and config kinds;
 niche rules may protect actual Standard behavior but cannot compensate for a
 missing generic destination.
 
-**Current container:** finish the partially normalized Standard recipe-stage
-plane before further test semantics. Move projection stages out of the
-top-level `map` family and beneath their rightful domain/phase while preserving
-stable stage IDs and causal order. Delete external stage `public.config.ts`
-assemblies, letting operation config, knobs, and additive step schema carry the
-ordinary public surface; retain an inline full public override only when it
-intentionally hides internal configuration and compiles it through meaningful
-behavior. Delete the three resurrected map-Ecology pseudo-artifacts: biome
-bindings are static Civ7 policy, feature-apply diagnostics belong to the
-diagnostics/metrics/trace capabilities, and feature engine state is
-invocation-local adapter observation. The burn-down ends only when the generic
-stage blueprint admits the intended hierarchy and excludes external public
-config support files, all consumers/docs/generated manifests agree, and product
-behavior is unchanged.
+**Enforcement gravity:** a correct scaffold plus an advisory rule is guidance,
+not a ratchet. Every newly admitted kind must finish with its generic blueprint
+law enforced, its fixtures truthful, and its current corpus at zero. Mechanical
+relocation may preserve legacy interiors only as a transient red state; copied
+files do not become valid merely because their destination is correct.
+Aggregate files likewise survive only when they add authority: module
+`contract.ts` composes leaf operation contracts directly and module `router.ts`
+binds leaf implementations directly. Intermediate `ops/contract.ts` and
+`ops/index.ts` registries add no cycle break or invariant and therefore are not
+part of the nested module kind.
+
+**Current container:** seal the Standard recipe-stage plane before further test
+semantics. Projection stages live beneath their rightful domain or phase while
+stable stage IDs and causal order remain unchanged. External
+`public.config.ts` assemblies are gone; operation config, knobs, and additive
+step schema carry ordinary public authoring, while any rare full override stays
+inline with a meaningful compiler. Recipe-stage artifact cabinets are now the
+red corpus: immutable products move to the exact producing domain module,
+current Civ7 state remains fresh adapter observation, and diagnostics,
+metrics, trace, effects, or ordering evidence use their own capability rather
+than posing as artifacts. The burn-down ends only when the generic stage
+blueprint is green, every consumer and canonical doc names the rightful owner,
+generated manifests agree, and product behavior is unchanged.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -41,10 +50,21 @@ to MapGen diagnostics and Civ7 observation owners; the mod may retain only thin
 Standard replay/reporting commands. Core owns the generic authoring/execution
 and domain-composition SDK, not Swooper's domain model.
 
-**Gradient:** define the domain-first stage law and close the stage kind
-against external public-config assemblies, turn the current tree red, then
-relocate the complete projection family and burn down every stale import,
-manifest, artifact, config, and canonical-doc edge.
+Target artifact authorship is one weighted `defineArtifact` expression. The
+next authoring-API container must contextually type the inline schema refinement
+and supply its issue accumulator and admitted validation context; artifact
+modules then stop importing framework issue/context types or allocating and
+threading their own issue arrays. This remains a dedicated semantic container,
+not a compatibility overload hidden inside the stage-plane move.
+
+**Gradient:** keep the domain-first stage law fixed, finish the projection
+hierarchy, then disintegrate or relocate every Ecology, Hydrology, Rivers, and
+Placement recipe artifact by intent. Burn down stale imports, manifests,
+metrics/live readers, config declarations, tests, and canonical-doc edges until
+the positive stage kind is green. Before admitting another nested domain
+module, remove the redundant operation aggregate layer from the generic module
+blueprint, scaffolds, active workflow, and all current modules; direct module
+contract/router composition must be the only taught and executable shape.
 After that plane is sealed, finish the remaining diagnostics/live ownership
 audit so end mods only execute SDK-provided generation and verification
 capabilities. Then apply the complete intent sieve to Placement and Resources

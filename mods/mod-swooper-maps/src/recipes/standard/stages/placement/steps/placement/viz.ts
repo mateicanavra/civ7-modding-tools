@@ -9,7 +9,7 @@ import type { ApplyPlacementResult } from "./apply.js";
 
 /**
  * Projects the final engine surface and its physics-comparison drift after placement completes.
- * The engine snapshot is borrowed exactly as captured; only the drift array was derived by behavior.
+ * The adapter observation is borrowed exactly as read; only the drift array is derived.
  */
 export function projectPlacementCompletionViz(
   result: ApplyPlacementResult,
@@ -44,7 +44,7 @@ export function projectPlacementCompletionViz(
     dataTypeKey: "map.placement.engine.landMask",
     spaceId: PLACEMENT_TILE_SPACE_ID,
     dims: dimensions,
-    field: { format: "u8", values: result.engineSnapshot.landMask },
+    field: { format: "u8", values: result.engineObservation.landMask },
     meta: definePlacementVizCategoryMeta(
       "map.placement.engine.landMask",
       [

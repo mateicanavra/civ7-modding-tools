@@ -10,7 +10,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  * The published pedology evidence is shared by biome classification and feature scoring rather
  * than recomputed in either consumer.
  */
-export const PedologyStepContract = defineStep({
+export const config = defineStep({
   id: "pedology",
   requires: [],
   provides: [],

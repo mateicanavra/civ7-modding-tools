@@ -1,7 +1,7 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { buildVectorFieldProjections } from "@swooper/mapgen-viz";
 import { defineStandardVizMeta } from "../../../../../viz.js";
-import { RoutingStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const GROUP_ROUTING = "Morphology / Routing";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
@@ -15,8 +15,8 @@ function clampI8(value: number): number {
  * Computes and publishes flow direction, accumulation, and basin evidence for
  * geomorphic erosion without substituting for Hydrology's river routing.
  */
-export const RoutingStep = createStep(RoutingStepContract, {
-  run: (context, config, ops, deps) => {
+export const RoutingStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const topography = deps.artifacts.carvedTopography.read(context);
     const { width, height } = context.setup.dimensions;
     const routing = ops.routing(
@@ -26,7 +26,7 @@ export const RoutingStep = createStep(RoutingStepContract, {
         elevation: topography.elevation,
         landMask: topography.landMask,
       },
-      config.routing
+      stepConfig.routing
     );
 
     context.trace.event(() => {

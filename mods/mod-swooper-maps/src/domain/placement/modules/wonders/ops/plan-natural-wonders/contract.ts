@@ -1,4 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { NaturalWonderPlanIntentSchema } from "../../model/atoms/natural-wonder-plan-intent.schema.js";
 import suitabilityDiversityDefinition from "./strategies/suitability-diversity/config.js";
 
 /**
@@ -84,21 +85,7 @@ const PlanNaturalWondersContract = defineOp({
     wondersCount: Type.Integer({ minimum: 0 }),
     targetCount: Type.Integer({ minimum: 0 }),
     plannedCount: Type.Integer({ minimum: 0 }),
-    placements: Type.Array(
-      Type.Object({
-        plotIndex: Type.Integer({ minimum: 0 }),
-        featureType: Type.Integer({ minimum: 0 }),
-        direction: Type.Integer(),
-        elevation: Type.Number(),
-        priority: Type.Number({ minimum: 0, maximum: 1 }),
-        // Next-best anchor candidates for this wonder (suitability-descending),
-        // for the materialize step to retry when the engine refuses the primary
-        // anchor (canHaveFeatureParam-true does NOT guarantee setFeatureType-
-        // success). Excludes the primary + other placements' footprints; the
-        // engine remains the final legality authority.
-        fallbackPlotIndices: Type.Optional(Type.Array(Type.Integer({ minimum: 0 }))),
-      })
-    ),
+    placements: Type.Array(NaturalWonderPlanIntentSchema),
   }),
   strategies: [suitabilityDiversityDefinition],
 });

@@ -11,7 +11,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  * climate, pedology, and Morphology. It publishes biomeClassification once; engine biome IDs
  * remain a later map-ecology responsibility.
  */
-export const BiomesStepContract = defineStep({
+export const config = defineStep({
   id: "biomes",
   requires: [],
   provides: [],

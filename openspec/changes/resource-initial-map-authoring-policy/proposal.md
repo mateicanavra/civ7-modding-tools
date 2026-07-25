@@ -12,9 +12,9 @@ all runtime placement paths consume.
 
 ## Target Authority Refs
 
-- `openspec/changes/resource-corpus-contract`: official resource rows include
+- `openspec/changes/archive/2026-07-24-resource-corpus-contract`: official resource rows include
   valid ages, placeability, and static resource row slots.
-- `openspec/changes/resource-earthlike-expectations-artifact`: expectations
+- `openspec/changes/archive/2026-07-24-resource-earthlike-expectations-artifact`: expectations
   preserve official corpus evidence without claiming verified runtime ids.
 - `openspec/changes/resource-placement-diversity`: numeric placement currently
   balances across an adapter candidate catalog.

@@ -3,7 +3,7 @@ import { admitMapSetup } from "@swooper/mapgen-core";
 import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 
 import hydrologyHydrographyStage from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/index.js";
-import { RiversStepContract } from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/steps/rivers/config.js";
+import { config as riversStepConfig } from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/steps/rivers/config.js";
 import { RiversStep } from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/steps/rivers/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import {
@@ -33,12 +33,12 @@ function normalizeRiverDensity(riverDensity: "normal" | "dense") {
     stageConfig: admitted,
   });
   const config = validateSchemaValueForTest(
-    RiversStepContract.schema,
+    riversStepConfig.schema,
     rawSteps.rivers,
     "/hydrology-hydrography/rivers"
   );
   return validateSchemaValueForTest(
-    RiversStepContract.schema,
+    riversStepConfig.schema,
     RiversStep.normalize(config, { setup, knobs }),
     "/hydrology-hydrography/rivers"
   );

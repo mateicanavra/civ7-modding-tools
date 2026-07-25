@@ -7,14 +7,13 @@ import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modu
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { artifacts as mapRiversArtifacts } from "../../../../map/rivers/artifacts/index.js";
 
 /**
  * Defines the shared Ecology scoring boundary over final morphology, hydrology, biome, and
  * pedology truth. It computes every feature-family suitability layer once and seeds occupancy
  * before ordered planning begins.
  */
-export const ScoreLayersStepContract = defineStep({
+export const config = defineStep({
   id: "score-layers",
   requires: [],
   provides: [],
@@ -25,7 +24,7 @@ export const ScoreLayersStepContract = defineStep({
       climateArtifacts.climateIndices,
       hydrographyArtifacts.hydrography,
       hydrographyArtifacts.lakePlan,
-      mapRiversArtifacts.projectedNavigableRivers,
+      hydrographyArtifacts.projectedNavigableRivers,
       morphologyLandformsArtifacts.topography,
       morphologyShelfArtifacts.shelf,
       morphologyLandformsArtifacts.mountains,

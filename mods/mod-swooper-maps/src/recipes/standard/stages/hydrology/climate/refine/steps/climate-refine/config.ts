@@ -28,7 +28,7 @@ const ClimateRefineStepConfigSchema = Type.Object(
  * topography. It publishes the final-refined climate surface and derived physical indices before
  * Ecology and engine projection consume the result; advisory diagnostics flow only to facets.
  */
-export const ClimateRefineStepContract = defineStep({
+export const config = defineStep({
   id: "climate-refine",
   requires: [],
   provides: [],

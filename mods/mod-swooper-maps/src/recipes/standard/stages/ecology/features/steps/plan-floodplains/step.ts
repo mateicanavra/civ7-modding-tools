@@ -1,7 +1,7 @@
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { defineStandardVizMeta } from "../../../../../viz.js";
-import { PlanFloodplainsStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const FLOODPLAIN_FEATURE_INTENTS = new Set([
   "desert-floodplain-minor",
@@ -22,13 +22,13 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * Plans floodplain-family intent first in the feature occupancy chain, then
  * publishes the reserved-tile snapshot that gates ice planning.
  */
-export const PlanFloodplainsStep = createStep(PlanFloodplainsStepContract, {
-  run: (context, config, ops, deps) => {
+export const PlanFloodplainsStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const base = deps.artifacts.occupancyBase.read(context);
     const scoreLayers = deps.artifacts.scoreLayers.read(context);
     const { width, height } = context.setup.dimensions;
 
-    const seed = ctxStepSeed(context, PlanFloodplainsStepContract.id, "ecology/plan-floodplains");
+    const seed = ctxStepSeed(context, config.id, "ecology/plan-floodplains");
     const placements = ops.planFloodplains(
       {
         width,
@@ -47,7 +47,7 @@ export const PlanFloodplainsStep = createStep(PlanFloodplainsStepContract, {
         featureOccupancyMask: base.featureOccupancyMask,
         reserved: base.reserved,
       },
-      config.planFloodplains
+      stepConfig.planFloodplains
     ).placements;
 
     placements.sort((a, b) => a.y * width + a.x - (b.y * width + b.x));

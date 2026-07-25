@@ -1,9 +1,12 @@
 import type { OfficialDiscoveryGenerationResult } from "@civ7/adapter";
-import type { Static } from "@swooper/mapgen-core/authoring";
 
-type DiscoveryPlacementOutcomes = Static<
-  typeof import("../../artifacts/index.js").artifacts["discoveryPlacementOutcomes"]["schema"]
->;
+type OfficialDiscoveryPlacementObservation = Readonly<{
+  summary: Readonly<{
+    attemptedCount: number;
+    placedCount: number;
+    rejectedCount: number;
+  }>;
+}>;
 
 type PlaceOfficialDiscoveriesArgs = {
   generateOfficialDiscoveries: (
@@ -38,15 +41,15 @@ export function placeOfficialDiscoveries({
   height,
   startPositions,
   polarMargin,
-}: PlaceOfficialDiscoveriesArgs): DiscoveryPlacementOutcomes {
+}: PlaceOfficialDiscoveriesArgs): OfficialDiscoveryPlacementObservation {
   const result = generateOfficialDiscoveries(width, height, startPositions, polarMargin);
-  const plannedCount = Math.max(0, result.attemptedCount | 0);
-  const placedCount = Math.max(0, Math.min(plannedCount, result.placedCount | 0));
+  const attemptedCount = Math.max(0, result.attemptedCount | 0);
+  const placedCount = Math.max(0, Math.min(attemptedCount, result.placedCount | 0));
   return {
     summary: {
-      plannedCount,
+      attemptedCount,
       placedCount,
-      rejectedCount: Math.max(0, plannedCount - placedCount),
+      rejectedCount: attemptedCount - placedCount,
     },
   };
 }

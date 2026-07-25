@@ -1,18 +1,18 @@
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { PlanIceStepContract } from "./config.js";
+import { config } from "./config.js";
 
 /**
  * Plans ice from its shared suitability layer after floodplains reserve tiles,
  * publishing truth-only intent and the occupancy snapshot consumed by reefs.
  */
-export const PlanIceStep = createStep(PlanIceStepContract, {
-  run: (context, config, ops, deps) => {
+export const PlanIceStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const base = deps.artifacts.occupancyFloodplains.read(context);
     const scoreLayers = deps.artifacts.scoreLayers.read(context);
     const { width, height } = context.setup.dimensions;
 
-    const seed = ctxStepSeed(context, PlanIceStepContract.id, "ecology/plan-ice");
+    const seed = ctxStepSeed(context, config.id, "ecology/plan-ice");
     const placements = ops.planIce(
       {
         width,
@@ -22,7 +22,7 @@ export const PlanIceStep = createStep(PlanIceStepContract, {
         featureOccupancyMask: base.featureOccupancyMask,
         reserved: base.reserved,
       },
-      config.planIce
+      stepConfig.planIce
     ).placements;
 
     placements.sort((a, b) => a.y * width + a.x - (b.y * width + b.x));

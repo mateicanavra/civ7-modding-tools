@@ -1,131 +1,36 @@
-import { balancedHemisphereMeridian, hemisphereSlotForColumn } from "@civ7/map-policy";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import {
   definePlacementVizCategoryMeta,
   PLACEMENT_TILE_SPACE_ID,
   transparentNoneCategory,
 } from "../../viz.js";
-import { PlotLandmassRegionsStepContract } from "./config.js";
+import { config } from "./config.js";
 
 type RegionSlot = 0 | 1 | 2;
-
-function computeWrappedIntervalCenter(west: number, east: number, width: number): number {
-  const w = ((west % width) + width) % width;
-  const e = ((east % width) + width) % width;
-  if (w <= e) return Math.floor((w + e) / 2);
-  const length = width - w + (e + 1);
-  return (w + Math.floor(length / 2)) % width;
-}
-
-/**
- * Area-weighted circular mean column of a landmass (robust across the X seam).
- * Uses accumulated cos/sin of each land tile's column angle; falls back to the
- * bbox interval center when the circular mean is undefined (e.g. a landmass
- * spread evenly around the cylinder).
- */
-function circularCentroidColumn(
-  cosSum: number | undefined,
-  sinSum: number | undefined,
-  bbox: { west: number; east: number },
-  width: number
-): number {
-  const c = cosSum ?? 0;
-  const s = sinSum ?? 0;
-  if (Math.abs(c) < 1e-9 && Math.abs(s) < 1e-9) {
-    return computeWrappedIntervalCenter(bbox.west, bbox.east, width);
-  }
-  let angle = Math.atan2(s, c);
-  if (angle < 0) angle += 2 * Math.PI;
-  return Math.round((angle / (2 * Math.PI)) * width) % width;
-}
-
-function resolveSlotByTile(input: {
-  width: number;
-  height: number;
-  landMask: Uint8Array;
-  landmassIdByTile: Int32Array;
-  landmasses: ReadonlyArray<{ id: number; bbox: { west: number; east: number } }>;
-}): Uint8Array {
-  const { width, height, landMask, landmassIdByTile, landmasses } = input;
-  const size = width * height;
-  if (landMask.length !== size) {
-    throw new Error(`Expected landMask length ${size} (received ${landMask.length}).`);
-  }
-  if (landmassIdByTile.length !== size) {
-    throw new Error(
-      `Expected landmassIdByTile length ${size} (received ${landmassIdByTile.length}).`
-    );
-  }
-
-  // Pass 1: per-column settleable-land histogram (drives the balanced meridian)
-  // plus per-landmass circular column accumulators (drive whole-landmass
-  // assignment). WHY: the legacy `bbox-center < width/2` midline ignored land
-  // area, so an asymmetric map (one dominant continent, or land massed on one
-  // side of the seam) put most settleable land in one region while the player
-  // split stayed a fixed 4/4 — crowding half the civs into a sliver. We instead
-  // pick the meridian that halves real land and assign each landmass whole.
-  const columnLand = new Float64Array(width);
-  const cosSum = new Float64Array(landmasses.length);
-  const sinSum = new Float64Array(landmasses.length);
-  const radiansPerColumn = (2 * Math.PI) / width;
-  for (let i = 0; i < size; i++) {
-    if ((landMask[i] | 0) !== 1) continue;
-    const y = (i / width) | 0;
-    const x = i - y * width;
-    columnLand[x] = (columnLand[x] ?? 0) + 1;
-    const landmassId = landmassIdByTile[i] ?? -1;
-    if (landmassId >= 0 && landmassId < landmasses.length) {
-      cosSum[landmassId] = (cosSum[landmassId] ?? 0) + Math.cos(x * radiansPerColumn);
-      sinSum[landmassId] = (sinSum[landmassId] ?? 0) + Math.sin(x * radiansPerColumn);
-    }
-  }
-
-  const { meridianOffset } = balancedHemisphereMeridian(columnLand, width);
-
-  // Assign each landmass WHOLE by its circular column centroid relative to the
-  // balanced meridian. Keeping continents intact preserves the
-  // Homelands/Distant-Lands semantic (a homeland is a continent; distant lands
-  // are across the ocean). Residual imbalance when one continent exceeds half
-  // the land is absorbed by capacity-proportional player allocation (D2).
-  const slotByLandmass = new Uint8Array(landmasses.length);
-  for (const mass of landmasses) {
-    const centroidX = circularCentroidColumn(cosSum[mass.id], sinSum[mass.id], mass.bbox, width);
-    slotByLandmass[mass.id] = hemisphereSlotForColumn(centroidX, meridianOffset, width);
-  }
-
-  const out = new Uint8Array(size);
-  for (let i = 0; i < size; i++) {
-    if ((landMask[i] | 0) !== 1) {
-      out[i] = 0;
-      continue;
-    }
-    const landmassId = landmassIdByTile[i] ?? -1;
-    if (landmassId < 0 || landmassId >= slotByLandmass.length) {
-      out[i] = 0;
-      continue;
-    }
-    out[i] = slotByLandmass[landmassId] ?? 0;
-  }
-
-  return out;
-}
 
 /**
  * Maps final landmasses into seam-safe west/east region slots, applies those
  * slots to Civ7, and publishes the exact per-tile region-slot evidence.
  */
-export const PlotLandmassRegionsStep = createStep(PlotLandmassRegionsStepContract, {
-  run: (context, _config, _ops, deps) => {
+export const PlotLandmassRegionsStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const landmasses = deps.artifacts.landmasses.read(context);
     const { width, height } = context.setup.dimensions;
-    const slotByTile = resolveSlotByTile({
-      width,
-      height,
-      landMask: topography.landMask as Uint8Array,
-      landmassIdByTile: landmasses.landmassIdByTile as Int32Array,
-      landmasses: landmasses.landmasses,
-    });
+    const { slotByTile } = ops.regions(
+      {
+        width,
+        height,
+        landMask: topography.landMask,
+        landmassIdByTile: landmasses.landmassIdByTile,
+        landmasses: landmasses.landmasses.map(({ id, bbox }) => ({
+          id,
+          west: bbox.west,
+          east: bbox.east,
+        })),
+      },
+      stepConfig.regions
+    );
 
     const westRegionId = deps.engine.getLandmassId(context, "WEST");
     const eastRegionId = deps.engine.getLandmassId(context, "EAST");

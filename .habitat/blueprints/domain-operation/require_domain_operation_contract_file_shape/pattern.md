@@ -15,7 +15,7 @@ the operation contract. Contract files expose only their singular default
 bags, sibling or cross-domain operation contracts, shared type buckets,
 recipe/stage authoring surfaces, or runtime operation constructors.
 
-This advisory enforces direct input/output ownership plus the singular
+This law enforces direct input/output ownership plus the singular
 authority, dependency, export, and constructor boundary across the operation
 corpus. The strategy topology rule separately requires direct semantic leaf
 definitions; this rule admits exactly that parent-to-leaf dependency.

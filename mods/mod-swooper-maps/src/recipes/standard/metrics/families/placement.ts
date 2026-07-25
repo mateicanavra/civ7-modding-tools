@@ -54,6 +54,7 @@ export type StandardStartSpreadMeasurement = Readonly<{
  * relationship, and no product threshold is embedded in the measurement.
  */
 export type StandardPlacementMetrics = Readonly<{
+  discoveryGeneration: StandardMapCapture["projection"]["discoveryGeneration"];
   expectedPlayers: number;
   aliveMajorCount: number;
   assigned: number;
@@ -253,6 +254,7 @@ export function measureStandardPlacement(capture: StandardMapCapture): StandardP
   const homelandDistribution = measureHomelandDistribution(capture, seatedRegionClassifications);
 
   return Object.freeze({
+    discoveryGeneration: capture.projection.discoveryGeneration,
     expectedPlayers: capture.provenance.playerCount,
     aliveMajorCount: capture.placement.aliveMajorIds.length,
     assigned: capture.placement.assigned,

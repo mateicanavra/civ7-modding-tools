@@ -2,54 +2,23 @@
 
 Status: active working reference
 
-Subject:
-`<domain>/model/policy/`
+Subjects:
+
+- `<domain>/model/policy/`
+- `<domain>/modules/<module>/model/policy/`
 
 Ownership boundary:
-domain semantic policy only: classification encodings, domain-owned legality
-interpretation, scoring policy, selection policy, and interpretation over domain
-artifacts. Official Civ7 facts, adapter behavior, stage projection, TypeBox
-schema primitives, stage public authoring composition, and operation-local
-policy are exterior.
+semantic policy at the lowest level that owns it. Module-local policy stays
+with that module; only genuinely cross-module policy rises to the domain model.
 
-Architectural evidence:
-- root helper files currently hold stable domain concepts such as biome
-  classification, river classes, boundary types, and terrain-score encodings;
-- official Civ7 resource/feature facts route to map-policy rather than domain
-  model policy;
-- operation-local policies stay under the owning operation.
+Policy may define classifications, thresholds, scoring, selection, or
+interpretation over domain concepts. Official Civ7 facts belong to Civ7 types
+or policy, generic algorithms belong to MapGen Core, and executable operation
+logic belongs to rules or strategies.
 
-Controlling rationale:
-this scope exists to prevent two bad outcomes: dumping domain semantic law into
-generic helper files, and misclassifying official Civ7 facts as domain policy.
+The closed directory contains named `*.ts` concerns and no `index.ts` barrel.
 
-Superseding decision:
-root `policy/` was previously treated as a narrow direct slot. The selected
-target shape moves domain-wide policy under `model/policy/` so the model owns
-semantic law explicitly and root policy content routes through named model
-policy concerns.
+Executable authority:
 
-Planned `structure.toml` fragment:
-
-```toml
-[[scopes]]
-name = "mapgen-domain-model-policy-roots"
-root = "mods/mod-swooper-maps/src/domain/!(*.*)/model/policy"
-kind = "directory"
-mode = "closed"
-allowed = [
-  # Domain-level model policy concerns only. Operation-local policy remains
-  # under ops/<op-id>/policy/. Official Civ7 facts must route to map-policy,
-  # civ7-types, or adapter owners instead of becoming domain policy.
-  "*.ts",
-]
-```
-
-Nested scopes:
-none
-
-Files:
-- `files/policy-concern-ts.md`
-
-Patterns:
-covered by `.habitat/blueprints/domain/require_domain_model_schema_policy_owner_shape/`.
+- `.habitat/blueprints/domain-policy/require_domain_policy_source_topology/`
+- `.habitat/blueprints/domain-policy/require_domain_policy_owner_shape/`

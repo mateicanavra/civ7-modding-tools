@@ -20,8 +20,8 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/mod-swooper-maps/src/recipes/**/stages/*/steps/*/**/!(*.test|*.spec|config).ts",
-        "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"
+        "mods/*/src/recipes/*/stages/**/steps/*/**/!(*.test|*.spec|config).ts",
+        "mods/*/src/domain/**/ops/**/*.ts"
       ]
     }
   ],
@@ -37,10 +37,7 @@
     "patternName": "prohibit_runtime_local_config_default_merging",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods/mod-swooper-maps/src/recipes",
-        "mods/mod-swooper-maps/src/domain"
-      ]
+      "roots": ["mods"]
     }
   }
 }

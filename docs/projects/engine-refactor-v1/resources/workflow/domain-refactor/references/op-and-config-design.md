@@ -12,23 +12,50 @@ Canonical references:
 - `docs/projects/engine-refactor-v1/resources/spec/adr/adr-er1-035-config-normalization-and-derived-defaults.md`
 - `docs/projects/engine-refactor-v1/resources/repomix/gpt-config-architecture-converged.md`
 
-## Target op surface design (fixed rule set)
+## Target operation surface
 
-Define the target op catalog for the domain, with **no optionality**:
-- Each op has an explicit `kind`: `plan | compute | score | select` (ADR-ER1-034).
-- Each op lives in its own module under `mods/mod-swooper-maps/src/domain/<domain>/ops/**` (one op per module).
-- Each op is contract-first and owns:
-  - `input` schema (shared across all strategies),
-  - `output` schema (shared across all strategies),
-  - `strategies` schema map (must include `"default"`).
-- Strategy implementations are authored with `createStrategy(contract, strategyId, { normalize?, run })`.
-- `createOp(contract, { strategies })` derives and exposes:
-  - `op.config`: a union schema for `{ strategy, config }`,
-  - `op.defaultConfig`: always `{ strategy: "default", config: <defaulted inner> }`,
-  - `op.normalize(envelope, ctx)`: dispatcher over `strategy.normalize` (compile-time only; executed by the compiler).
-- Steps call injected runtime ops (typed from contracts): `ops.<key>(input, config.<key>)`.
-  - Steps must not call internal rules directly.
-  - Steps must not import op implementations; runtime ops are injected by `createRecipe` based on the step contract’s declared op contracts.
+Every operation belongs to a semantic module:
+
+```text
+mods/mod-swooper-maps/src/domain/<domain>/modules/<module>/ops/<operation>/
+  contract.ts
+  index.ts
+  rules/                         # optional private policy/algorithm units
+  strategies/
+    index.ts
+    <semantic-id>/
+      config.ts
+      index.ts
+```
+
+Each operation has an explicit `kind`: `plan | compute | score | select`
+(ADR-ER1-034). Its `contract.ts` owns one inline input schema, one inline
+output schema, and the complete tuple of strategy definitions. Those
+input/output schemas are the shared contract for every strategy; strategy
+configuration is the only strategy-specific schema.
+
+`strategies/<semantic-id>/config.ts` defines one semantic strategy id and its
+authored config with `defineStrategy(...)`. Its `index.ts` implements the
+operation contract with:
+
+```ts
+createStrategy(OperationContract, StrategyDefinition, { normalize?, run })
+```
+
+The operation `index.ts` creates one executable operation from the shared
+contract and the complete executable strategy tuple:
+
+```ts
+createOp(OperationContract, { strategies })
+```
+
+One-strategy operations infer their sole strategy as the default. Multi-strategy
+operations explicitly identify a semantic default. `"default"` is never a
+strategy id or filename because it erases the strategy's behavior.
+
+Steps call injected runtime operations typed from their declared contracts.
+They do not call private rules directly or import operation implementations;
+recipe wiring binds public domain routers once.
 
 If an op needs randomness, model it explicitly:
 - add `rngSeed: Type.Integer(...)` to the op `input` schema (not an RNG callback),
@@ -53,7 +80,8 @@ Within an op, use rules as **policy units**:
 
 Naming constraints:
 - Op ids are stable and verb-forward (e.g., `compute*`, `plan*`, `score*`, `select*`).
-- Strategy selection is always explicit in plan truth (`{ strategy, config }`). Single-strategy ops still use `strategies: { default: ... }`.
+- Strategy selection is explicit in plan truth (`{ strategy, config }`), while a
+  single-strategy operation may omit the redundant selection from authorship.
 
 ## Op sizing and naming guardrails (avoid noun-first buckets)
 
@@ -76,66 +104,81 @@ Heuristics for using strategies vs ops:
 Step sizing note:
 - Refactors should not collapse multiple legacy steps into one mega-step; preserve step granularity and extract shared logic into ops/rules instead.
 
-## Contract-first skeleton (trimmed; do not invent extra surfaces)
+## Contract-first skeleton
 
 ```ts
-// src/domain/<domain>/ops/<op>/contract.ts
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+// src/domain/<domain>/modules/<module>/ops/<operation>/contract.ts
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import balancedDefinition from "./strategies/balanced/config.js";
 
-export const MyOpContract = defineOp({
+const ComputeFieldContract = defineOp({
   kind: "compute",
-  id: "<domain>/<area>/<verb>",
+  id: "<domain>/compute-field",
   input: Type.Object(
-    { width: Type.Integer(), height: Type.Integer(), field: TypedArraySchemas.u8() },
+    {
+      cellCount: Type.Integer({ minimum: 1 }),
+      field: TypedArraySchemas.u8({ cardinality: ["cellCount"] }),
+    },
     { additionalProperties: false }
   ),
-  output: Type.Object({ out: TypedArraySchemas.u8() }, { additionalProperties: false }),
-  strategies: {
-    default: Type.Object(
-      { knob: Type.Optional(Type.Number({ default: 1 })) },
-      { additionalProperties: false, default: {} }
-    ),
-  },
-} as const);
+  output: Type.Object(
+    {
+      result: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+    },
+    { additionalProperties: false }
+  ),
+  strategies: [balancedDefinition],
+});
+
+export default ComputeFieldContract;
 ```
 
 ```ts
-// src/domain/<domain>/ops/<op>/strategies/default.ts
+// .../<operation>/strategies/balanced/config.ts
+import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
+
+export default defineStrategy({
+  id: "balanced",
+  config: Type.Object(
+    {
+      gain: Type.Number({
+        default: 1,
+        minimum: 0,
+        description: "Scales the admitted field while preserving its grid cardinality.",
+      }),
+    },
+    { additionalProperties: false }
+  ),
+});
+```
+
+```ts
+// .../<operation>/strategies/balanced/index.ts
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import { MyOpContract } from "../contract.js";
 
-export const defaultStrategy = createStrategy(MyOpContract, "default", {
-  normalize: (cfg) => ({ ...cfg }),
-  run: (input, cfg) => ({ out: input.field }),
+import ComputeFieldContract from "../../contract.js";
+import BalancedDefinition from "./config.js";
+
+export default createStrategy(ComputeFieldContract, BalancedDefinition, {
+  run: (input, config) => ({
+    result: Uint8Array.from(input.field, (value) => value * config.gain),
+  }),
 });
 ```
 
 ```ts
-// src/domain/<domain>/ops/<op>/index.ts
+// .../<operation>/index.ts
 import { createOp } from "@swooper/mapgen-core/authoring";
-import { MyOpContract } from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
 
-export const myOp = createOp(MyOpContract, {
-  strategies: { default: defaultStrategy },
-});
+import ComputeFieldContract from "./contract.js";
+import strategies from "./strategies/index.js";
 
-export * from "./contract.js";
-export type * from "./types.js";
+export default createOp(ComputeFieldContract, { strategies });
 ```
 
-## Op type surface (single type bag)
-
-`types.ts` is the only shared type surface for an op. Do not export types from rules or helpers.
-
-```ts
-// src/domain/<domain>/ops/<op>/types.ts
-import type { OpTypeBag } from "@swooper/mapgen-core/authoring";
-
-type Contract = typeof import("./contract.js").MyOpContract;
-
-export type MyOpTypes = OpTypeBag<Contract>;
-```
+Do not add an operation `types.ts` bag. Contract input/output types belong only
+to the contract boundary. Shared schema vocabulary is decomposed into
+domain-oriented model atoms; private implementation types remain private.
 
 ## Config canonicalization rules (post-U10)
 
@@ -230,7 +273,8 @@ For any complex config semantics, prefer an explicit “interpret config → nor
 ### Resolution location (colocation + composition)
 
 Domain-owned scaling semantics live with the op:
-- `mods/mod-swooper-maps/src/domain/<domain>/ops/**` exports an op implementation with `config`, `defaultConfig`, and `normalize` (strategy `normalize` is optional).
+- `mods/mod-swooper-maps/src/domain/<domain>/modules/<module>/ops/**` exports an
+  operation implementation whose strategy `normalize` remains optional.
 
 Step-level composition is the only place ops are combined:
 - Step contracts declare op contracts (`contract.ops`), and the compiler fans out `op.normalize(...)` across those declared op envelopes.

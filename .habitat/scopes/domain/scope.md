@@ -3,81 +3,34 @@
 Status: active working reference
 
 Subject:
-`mods/mod-swooper-maps/src/domain/<domain>/`
+`mods/<mod>/src/domain/<domain>/`
 
 Ownership boundary:
-one cohesive domain owner. A domain owns recipe-independent map-generation truth
-and public domain surfaces. Recipe ordering, stage projection, adapter/runtime
-behavior, official Civ7 catalogs, generic mechanics, and Gameplay/playability
-ownership route to their own authority surfaces.
+one public composition boundary over semantic modules. A domain owns
+recipe-independent model language and composes module contracts and routers.
+Recipe ordering, stage projection, adapter/runtime behavior, official Civ7
+catalogs, and generic MapGen mechanics remain exterior.
 
-Architectural evidence:
-- current domain roots all define a domain through root `index.ts`;
-- current domain roots all expose a runtime/compile binding through root
-  `ops.ts`;
-- recipe and step code consume named domain surfaces rather than arbitrary root
-helper paths;
-- root `index.ts` is the contract surface;
-- architecture authority routes `shared`, `common`, `utils`, `internal`,
-  `support`, broad barrels, and broad helper folders into exact owner
-  classifications.
+Required direct members:
 
-Controlling rationale:
-the domain root is closed because a domain is a cohesive owner. Defined slots
-carry named owner roles. Root helper symbols classify to model schemas, model
-policy, model data, artifact contract, operation-local slots, external owners,
-Gameplay/playability ownership, or deletion.
+- `contract.ts`: singular aggregate of direct module contracts;
+- `router.ts`: singular aggregate of direct module routers;
+- `index.ts`: narrow public domain entrypoint;
+- `modules/`: semantic module container.
 
-Superseding decision:
-an earlier working grammar treated root `config.ts`, root `policy/`, and
-data-only root `lib/` as transitional direct slots. The current scope supersedes
-that grammar with `model/`: reusable schema primitives, policy, and data must
-decompose under the domain model before they can become green. This is a
-stronger selected law.
+Optional direct member:
 
-Applicability boundary:
-this scope defines the target law for every domain root selected by the
-blueprint-kind glob. Current folder names are source evidence and inventory
-corpus; durable ontology comes from the blueprint role and owner decisions.
-Slice 001 names the exact current rows selected for implementation.
+- `model/`: atoms, policy, or rules shared by multiple direct modules.
 
-Evidence command:
+Closed means closed. A domain root does not admit `ops.ts`, direct `ops/`,
+direct `artifacts/`, config facades, helper cabinets, or compatibility barrels.
+Content that does not fit the spine must descend to its semantic module, rise
+to an actual shared owner, move to an exterior authority, or be deleted.
 
-```bash
-for d in mods/mod-swooper-maps/src/domain/*; do
-  [ -d "$d" ] || continue
-  printf "%s\t" "${d##*/}"
-  find "$d" -mindepth 1 -maxdepth 1 -exec basename {} \; | sort | paste -sd, -
-done
-```
+Executable authority:
 
-Planned `structure.toml` fragment:
-
-```toml
-[[scopes]]
-name = "mapgen-domain-roots"
-root = "mods/mod-swooper-maps/src/domain/!(*.*)"
-kind = "directory"
-mode = "closed"
-required = [
-  "index.ts",
-  "ops.ts",
-  "ops",
-  "model",
-]
-allowed = [
-  "artifacts",
-]
-```
-
-Nested scopes:
-- `scopes/ops/scope.md`
-- `scopes/model/scope.md`
-- `scopes/artifacts/scope.md`
-
-Files:
-- `files/index-ts.md`
-- `files/ops-ts.md`
-
-Patterns:
-none
+- `.habitat/blueprints/domain/require_domain_source_topology/`
+- `.habitat/blueprints/domain/require_domain_contract_aggregate_shape/`
+- `.habitat/blueprints/domain/require_domain_router_aggregate_shape/`
+- `.habitat/blueprints/domain/require_domain_entrypoint_shape/`
+- `.habitat/blueprints/domain/require_domain_model_source_topology/`

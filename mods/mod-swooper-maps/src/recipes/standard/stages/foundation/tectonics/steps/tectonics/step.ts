@@ -8,7 +8,7 @@ import {
   STANDARD_VIZ_COLORS,
 } from "../../../../../viz.js";
 import { segmentsFromCellPairs } from "../../../viz.js";
-import { TectonicsStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const GROUP_PLATE_MOTION = "Foundation / Plate Motion";
 const GROUP_TECTONICS = "Foundation / Tectonics";
@@ -106,24 +106,24 @@ const BOUNDARY_TYPE_CATEGORIES = [
  * Runs the ordered multi-era tectonic chain and publishes segments, history,
  * current fields, and provenance as one coherent vintage.
  */
-export const TectonicsStep = createStep(TectonicsStepContract, {
-  normalize: (config, ctx) => {
+export const TectonicsStep = createStep(config, {
+  normalize: (stepConfig, ctx) => {
     // plateActivity scales post-classification orogeny intensity without moving boundaries.
     const { plateActivity } = ctx.knobs as Readonly<{ plateActivity?: number }>;
-    if (config.computeEraTectonicFields.strategy !== "event-distance-decay") return config;
+    if (stepConfig.computeEraTectonicFields.strategy !== "event-distance-decay") return stepConfig;
     const orogenyActivityGain = applyPlateActivityOrogenyGain(
-      config.computeEraTectonicFields.config.orogenyActivityGain,
+      stepConfig.computeEraTectonicFields.config.orogenyActivityGain,
       plateActivity
     );
     return {
-      ...config,
+      ...stepConfig,
       computeEraTectonicFields: {
-        ...config.computeEraTectonicFields,
-        config: { ...config.computeEraTectonicFields.config, orogenyActivityGain },
+        ...stepConfig.computeEraTectonicFields,
+        config: { ...stepConfig.computeEraTectonicFields.config, orogenyActivityGain },
       },
     };
   },
-  run: (context, config, ops, deps) => {
+  run: (context, stepConfig, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const mantleForcing = deps.artifacts.foundationMantleForcing.read(context);
     const crust = deps.artifacts.foundationInitialCrust.read(context);
@@ -152,7 +152,7 @@ export const TectonicsStep = createStep(TectonicsStepContract, {
         mantleForcing: motionForcing,
         plateGraph: plateGraphInput,
       },
-      config.computePlateMotion
+      stepConfig.computePlateMotion
     ).plateMotion;
     deps.artifacts.foundationPlateMotion.publish(context, plateMotion);
     const segmentCrust = { strength: crust.strength, type: crust.type } as const;
@@ -173,7 +173,7 @@ export const TectonicsStep = createStep(TectonicsStepContract, {
         plateGraph: plateGraphInput,
         plateMotion: plateMotionInput,
       },
-      config.computeTectonicSegments
+      stepConfig.computeTectonicSegments
     );
     deps.artifacts.foundationTectonicSegments.publish(context, segmentsResult.segments);
 
@@ -187,7 +187,7 @@ export const TectonicsStep = createStep(TectonicsStepContract, {
           plateVelocityY: plateMotion.plateVelocityY,
         },
       },
-      config.computeEraPlateMembership
+      stepConfig.computeEraPlateMembership
     );
 
     const eraFieldsChain: Array<ReturnType<typeof ops.computeEraTectonicFields>["eraFields"]> = [];
@@ -207,7 +207,7 @@ export const TectonicsStep = createStep(TectonicsStepContract, {
           mantleForcing: motionForcing,
           plateGraph: eraPlateGraph,
         },
-        config.computePlateMotion
+        stepConfig.computePlateMotion
       ).plateMotion;
       const eraSegments = ops.computeTectonicSegments(
         {
@@ -224,7 +224,7 @@ export const TectonicsStep = createStep(TectonicsStepContract, {
             plateOmega: eraPlateMotion.plateOmega,
           },
         },
-        config.computeTectonicSegments
+        stepConfig.computeTectonicSegments
       ).segments;
       const segmentEvents = ops.computeSegmentEvents(
         {
@@ -247,7 +247,7 @@ export const TectonicsStep = createStep(TectonicsStepContract, {
             driftV: eraSegments.driftV,
           },
         },
-        config.computeSegmentEvents
+        stepConfig.computeSegmentEvents
       );
       const hotspotEvents = ops.computeHotspotEvents(
         {
@@ -261,7 +261,7 @@ export const TectonicsStep = createStep(TectonicsStepContract, {
           },
           eraPlateId,
         },
-        config.computeHotspotEvents
+        stepConfig.computeHotspotEvents
       );
       const t = eraPlateMembership.eraCount > 1 ? era / (eraPlateMembership.eraCount - 1) : 0;
       const eraGain = OROGENY_ERA_GAIN_MIN + (OROGENY_ERA_GAIN_MAX - OROGENY_ERA_GAIN_MIN) * t;
@@ -273,7 +273,7 @@ export const TectonicsStep = createStep(TectonicsStepContract, {
           weight: eraPlateMembership.eraWeights[era] ?? 0,
           eraGain,
         },
-        config.computeEraTectonicFields
+        stepConfig.computeEraTectonicFields
       );
       eraFieldsChain.push(eraFields.eraFields);
     }
@@ -284,7 +284,7 @@ export const TectonicsStep = createStep(TectonicsStepContract, {
         eras: eraFieldsChain,
         plateIdByEra: eraPlateMembership.plateIdByEra,
       },
-      config.computeTectonicHistoryRollups
+      stepConfig.computeTectonicHistoryRollups
     );
     const newestEra =
       eraFieldsChain[eraPlateMembership.eraCount - 1] ?? eraFieldsChain[eraFieldsChain.length - 1];
@@ -297,7 +297,7 @@ export const TectonicsStep = createStep(TectonicsStepContract, {
         newestEra,
         upliftTotal: historyResult.tectonicHistory.upliftTotal,
       },
-      config.computeTectonicsCurrent
+      stepConfig.computeTectonicsCurrent
     );
     const tracerResult = ops.computeTracerAdvection(
       {
@@ -312,7 +312,7 @@ export const TectonicsStep = createStep(TectonicsStepContract, {
         })),
         eraCount: eraPlateMembership.eraCount,
       },
-      config.computeTracerAdvection
+      stepConfig.computeTracerAdvection
     );
     const provenanceResult = ops.computeTectonicProvenance(
       {
@@ -331,7 +331,7 @@ export const TectonicsStep = createStep(TectonicsStepContract, {
         tracerIndex: tracerResult.tracerIndex,
         eraCount: eraPlateMembership.eraCount,
       },
-      config.computeTectonicProvenance
+      stepConfig.computeTectonicProvenance
     );
 
     deps.artifacts.foundationTectonicHistory.publish(context, historyResult.tectonicHistory);

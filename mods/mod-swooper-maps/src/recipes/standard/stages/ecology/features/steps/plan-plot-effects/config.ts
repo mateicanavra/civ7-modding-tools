@@ -12,7 +12,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  * products. `map-ecology/plot-effects` consumes the resulting artifact and only
  * applies it to the engine.
  */
-export const PlanPlotEffectsStepContract = defineStep({
+export const config = defineStep({
   id: "plan-plot-effects",
   requires: [],
   provides: [],

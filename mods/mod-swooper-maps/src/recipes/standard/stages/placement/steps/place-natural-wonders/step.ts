@@ -5,7 +5,7 @@ import {
   definePlacementVizCategoryMeta,
   PLACEMENT_TILE_SPACE_ID,
 } from "../../viz.js";
-import { PlaceNaturalWondersStepContract } from "./config.js";
+import { config } from "./config.js";
 import {
   logNaturalWonderPlacementRuntimeTelemetry,
   type NaturalWonderStampingStats,
@@ -26,9 +26,8 @@ const WONDER_OUTCOME_CATEGORIES = [
  * Stamps planned natural wonders and records relocations, rejections, and
  * shortfalls as reconciliation evidence rather than aborting optional misses.
  */
-export const PlaceNaturalWondersStep = createStep(PlaceNaturalWondersStepContract, {
-  run: (context, _config, _ops, deps) => {
-    const placementInputs = deps.artifacts.placementInputs.read(context);
+export const PlaceNaturalWondersStep = createStep(config, {
+  run: (context, _stepConfig, _ops, deps) => {
     const naturalWonderPlan = deps.artifacts.naturalWonderPlan.read(context);
     const { width, height } = context.setup.dimensions;
     const engine = {
@@ -51,7 +50,7 @@ export const PlaceNaturalWondersStep = createStep(PlaceNaturalWondersStepContrac
       width,
       height,
       wonders: naturalWonderPlan,
-      requestedCount: placementInputs.wonders.wondersCount,
+      requestedCount: naturalWonderPlan.wondersCount,
     });
 
     deps.artifacts.naturalWonderPlacement.publish(context, stamping);

@@ -4,7 +4,7 @@ import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 
 import { buildStandardRecipeDefaultConfig } from "../../../../../../../../src/recipes/standard/artifacts.js";
 import morphologyFeaturesStage from "../../../../../../../../src/recipes/standard/stages/morphology/features/index.js";
-import { MountainsStepContract } from "../../../../../../../../src/recipes/standard/stages/morphology/features/steps/mountains/config.js";
+import { config as mountainsStepConfig } from "../../../../../../../../src/recipes/standard/stages/morphology/features/steps/mountains/config.js";
 import { MountainsStep } from "../../../../../../../../src/recipes/standard/stages/morphology/features/steps/mountains/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import {
@@ -47,12 +47,12 @@ function normalizeStageConfig(
   );
   const { knobs, rawSteps } = morphologyFeaturesStage.toInternal({ setup, stageConfig: admitted });
   const config = validateSchemaValueForTest(
-    MountainsStepContract.schema,
+    mountainsStepConfig.schema,
     rawSteps.mountains,
     "/morphology-features/mountains"
   );
   return validateSchemaValueForTest(
-    MountainsStepContract.schema,
+    mountainsStepConfig.schema,
     MountainsStep.normalize(config, { setup, knobs }),
     "/morphology-features/mountains"
   );

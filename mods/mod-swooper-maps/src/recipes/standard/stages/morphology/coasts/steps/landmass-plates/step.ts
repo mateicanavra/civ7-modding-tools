@@ -12,7 +12,7 @@ import {
   STANDARD_VIZ_COLORS,
 } from "../../../../../viz.js";
 import type { MorphologySeaLevelKnob } from "../../index.js";
-import { LandmassPlatesStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const GROUP_TOPOGRAPHY = "Morphology / Topography";
 const GROUP_SUBSTRATE = "Morphology / Substrate";
@@ -51,34 +51,34 @@ function collectBaseTerrainStats(
  * Converts projected Foundation crust and tectonic history into belt drivers,
  * substrate, relief, sea level, and the initial Morphology landmask.
  */
-export const LandmassPlatesStep = createStep(LandmassPlatesStepContract, {
-  normalize: (config, ctx) => {
+export const LandmassPlatesStep = createStep(config, {
+  normalize: (stepConfig, ctx) => {
     const { seaLevel } = ctx.knobs as Readonly<{ seaLevel?: MorphologySeaLevelKnob }>;
     const delta = MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA[seaLevel ?? "earthlike"] ?? 0;
 
     const seaLevelSelection =
-      config.seaLevel.strategy === "hypsometric-target"
+      stepConfig.seaLevel.strategy === "hypsometric-target"
         ? {
-            ...config.seaLevel,
+            ...stepConfig.seaLevel,
             config: {
-              ...config.seaLevel.config,
+              ...stepConfig.seaLevel.config,
               targetWaterPercent: clampFinite(
-                config.seaLevel.config.targetWaterPercent + delta,
+                stepConfig.seaLevel.config.targetWaterPercent + delta,
                 TARGET_WATER_PERCENT_CLAMP_MIN,
                 TARGET_WATER_PERCENT_CLAMP_MAX
               ),
             },
           }
-        : config.seaLevel;
+        : stepConfig.seaLevel;
 
-    return { ...config, seaLevel: seaLevelSelection };
+    return { ...stepConfig, seaLevel: seaLevelSelection };
   },
-  run: (context, config, ops, deps) => {
+  run: (context, stepConfig, ops, deps) => {
     const crustTiles = deps.artifacts.foundationCrustTiles.read(context);
     const historyTiles = deps.artifacts.foundationTectonicHistoryTiles.read(context);
     const provenanceTiles = deps.artifacts.foundationTectonicProvenanceTiles.read(context);
     const { width, height } = context.setup.dimensions;
-    const stepId = `morphology/${LandmassPlatesStepContract.id}`;
+    const stepId = `morphology/${config.id}`;
 
     const beltDrivers = ops.beltDrivers(
       {
@@ -87,7 +87,7 @@ export const LandmassPlatesStep = createStep(LandmassPlatesStepContract, {
         historyTiles,
         provenanceTiles,
       },
-      config.beltDrivers
+      stepConfig.beltDrivers
     );
 
     const substrate = ops.substrate(
@@ -101,7 +101,7 @@ export const LandmassPlatesStep = createStep(LandmassPlatesStepContract, {
         crustType: crustTiles.type,
         crustAge: crustTiles.age,
       },
-      config.substrate
+      stepConfig.substrate
     );
 
     const baseTopography = ops.baseTopography(
@@ -118,7 +118,7 @@ export const LandmassPlatesStep = createStep(LandmassPlatesStepContract, {
           2_147_483_647
         ),
       },
-      config.baseTopography
+      stepConfig.baseTopography
     );
 
     // Sculpt continental-margin morphology (apron -> break -> slope -> abyss) directly into
@@ -132,10 +132,10 @@ export const LandmassPlatesStep = createStep(LandmassPlatesStepContract, {
         width,
         height,
         // Relief datums SINGLE-SOURCED from the same base-topography config the op above consumed
-        // (config.baseTopography.config) + the canonical elevation scale base topography quantizes
+        // (stepConfig.baseTopography.config) + the canonical elevation scale base topography quantizes
         // with, so the margin profile derives endpoints against THIS map's real relief, not a mirror.
-        oceanicHeight: config.baseTopography.config.oceanicHeight,
-        continentalHeight: config.baseTopography.config.continentalHeight,
+        oceanicHeight: stepConfig.baseTopography.config.oceanicHeight,
+        continentalHeight: stepConfig.baseTopography.config.continentalHeight,
         elevationScale: DEFAULT_ELEVATION_SCALE,
         elevation: baseTopography.elevation,
         crustType: crustTiles.type,
@@ -144,7 +144,7 @@ export const LandmassPlatesStep = createStep(LandmassPlatesStepContract, {
         boundaryCloseness: beltDrivers.boundaryCloseness,
         boundaryType: beltDrivers.boundaryType,
       },
-      config.sculptContinentalMargin
+      stepConfig.sculptContinentalMargin
     );
     baseTopography.elevation.set(margin.elevation);
 
@@ -162,7 +162,7 @@ export const LandmassPlatesStep = createStep(LandmassPlatesStepContract, {
           2_147_483_647
         ),
       },
-      config.seaLevel
+      stepConfig.seaLevel
     );
 
     const landmask = ops.landmask(
@@ -194,7 +194,7 @@ export const LandmassPlatesStep = createStep(LandmassPlatesStepContract, {
         movementU: historyTiles.rollups.movementU,
         movementV: historyTiles.rollups.movementV,
       },
-      config.landmask
+      stepConfig.landmask
     );
 
     const elevation = new Int16Array(baseTopography.elevation);

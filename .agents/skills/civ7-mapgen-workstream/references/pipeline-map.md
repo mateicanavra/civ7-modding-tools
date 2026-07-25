@@ -33,8 +33,12 @@
   Before naming a local helper, search MapGen Core's public libraries and import an existing
   primitive when semantics match. A deliberate divergence needs a distinct domain name and visible
   rationale; silently redefining a Core helper such as `clamp01` is not domain logic.
-- **step** — executable contract boundary. `defineStep({ id, requires, provides, artifacts:{requires,provides}, ops, schema })` selects consumed artifact contracts and complete provider modules; `createStep(contract, { normalize?, run, viz?, metrics? })` binds behavior plus optional post-run observation facets. Recipe composition assigns the exact `stageId`; steps do not author a duplicate phase. `run(context, config, ops, deps)` publishes and reads through `deps.artifacts.<name>`, whose runtimes derive from the contract's provider modules.
-- **stage** — recipe-level authoring + ownership surface. `createStage({ id, steps, knobsSchema?, public?, compile? })`. Owns step composition and only the authoring surfaces that carry real semantic value. Empty knobs/public schemas and compilers that manufacture empty step objects are not authoring surfaces.
+- **step** — executable contract boundary. Owner-local `config.ts` exports the contract as `config = defineStep({ id, requires, provides, artifacts:{requires,provides}, ops, schema })`; `createStep(config, { normalize?, run, viz?, metrics? })` binds behavior plus optional post-run observation facets. Recipe composition may alias imported configs but never renames the leaf export. Recipe composition assigns the exact `stageId`; steps do not author a duplicate phase. `run(context, stepConfig, ops, deps)` receives admitted runtime configuration and publishes or reads through `deps.artifacts.<name>`, whose runtimes derive from the contract's provider modules.
+- **stage** — recipe-level authoring + ownership surface. `createStage({ id, steps, ... })`
+  owns step composition; its ordinary config surface is derived from those
+  steps and their bound operations. A rare semantic override stays inline at
+  the concrete stage and must translate the complete external surface rather
+  than forwarding or manufacturing empty step objects.
 - **recipe** — global stage/step order. `createRecipe({ id, namespace, tagDefinitions, stages, compileOpsById })`. Standard recipe id `mod-swooper-maps/standard`. Ordering is enforced by `contract-manifest.ts`, not by key order in `recipe.ts`.
 - **artifact** — named, typed, write-once causal data owned by the domain module that defines the immutable product. One `*.artifact.ts` file owns one weighted `defineArtifact({ name, id, schema, refine? })` definition with its schema inline. `defineArtifactCatalog` closes the module catalog. Engine observation and metrics/viz/trace evidence remain those capabilities rather than becoming causal artifacts.
 - **knob** — an optional stage-wide semantic authoring control, applied through compilation only when it adds real authoring value.
@@ -91,21 +95,26 @@ projects Foundation evidence onto the recipe's tile space; it does **not** call
 the Civ7 adapter. `morphology-shelf` (10) runs after island injection so the
 published shelf includes island coastlines before Hydrology starts.
 
-**narrative is absent.** The `narrative` domain has **0 ops** (`domain/narrative/ops/contracts.ts` is `export const contracts = {} as const`) and no live recipe stage slot. Subtrees (corridors/orogeny/overlays/tagging) persist as utilities; any claim of active narrative ops is wrong.
+**Narrative is absent.** There is no `narrative` domain or live recipe stage
+slot. Do not infer a seventh domain from historical project material.
 
 **Stage-family containers:** `stages/foundation/`, `stages/morphology/`,
-`stages/hydrology/`, `stages/ecology/`, and `stages/map/` are not registered
-runtime stages. They contain semantically nested physical stage roots and, only
-where warranted, family-shared authoring or visualization surfaces. None has
-its own stage `index.ts` or manifest slot. Immutable causal artifacts remain in
-their owning domain catalogs. Do not count these containers as stages or
-collapse their registered runtime stages into one.
+`stages/hydrology/`, and `stages/ecology/` are not registered runtime stages.
+They contain semantically nested physical stage roots, including projection
+leaves beneath the family whose products they materialize, and only warranted
+family-shared authoring or visualization surfaces. None has its own stage
+`index.ts` or manifest slot. Immutable causal artifacts remain in their owning
+domain catalogs. Do not count these containers as stages or collapse their
+registered runtime stages into one.
 
 ---
 
 ## The seven domains and their op counts
 
-Each migrated domain composes module contracts from `domain/<domain>/contract.ts`; every module keeps its singular operation registry in `modules/<module>/ops/contract.ts` and implementation registry in `ops/index.ts`. Counts below are verified from the live contract registries:
+Each migrated domain composes module contracts from
+`domain/<domain>/contract.ts`. Every module contract directly composes its leaf
+operation contracts, while its router directly binds the matching leaf
+implementations. Counts below are verified from those module authorities:
 
 | Domain | Ops | Character |
 |---|---|---|
@@ -113,11 +122,13 @@ Each migrated domain composes module contracts from `domain/<domain>/contract.ts
 | `morphology` | 15 | base topography, belt drivers, coastline metrics, flow routing, geomorphic cycle, landmask, landmasses, sea level, shelf mask, substrate, island chains, foothills, ridges, rough lands, volcanoes |
 | `hydrology` | 18 | Baseline climate composes radiative/thermal forcing, circulation, ocean coupling, evaporation, moisture transport, and precipitation; hydrography then solves drainage, discharge, river projection, lake intent, and causal classification; climate refinement closes with cryosphere/albedo, land-water budget, and advisory diagnostics. Navigable-river selection is a map-rivers rule. |
 | `ecology` | 32 | biome classify, pedology classify/aggregate, edge refine, feature/vegetation substrate, 5 vegetation + 5 wetland + 4 reef score ops, ice score, 4 plot-effects score ops, plan plot-effects, plan floodplains/wetlands/reefs/ice/vegetation, features apply. The most granular domain. |
-| `placement` | 4 | plan discoveries, plan natural wonders, plan starts, plan wonders |
+| `placement` | 4 | `wonders.planWonders`, `wonders.planNaturalWonders`, `regions.projectLandmassRegions`, `starts.planStarts` |
 | `resources` | 8 | adjust resource support, derive habitat fields, plan aquatic/cultivated/geological/terrestrial resources, plan resource groups, select resource sites |
 | `narrative` | 0 | no ops, no stage (see above) |
 
-> Op counts = the operation contracts composed by the domain's module registries. To confirm a migrated domain, inspect `domain/<domain>/contract.ts` and each `modules/<module>/ops/contract.ts`.
+> Op counts = the operation contracts directly composed by module
+> `contract.ts` files. Confirm runtime symmetry in the matching module
+> `router.ts`; there is no intermediate operation registry.
 
 ---
 
@@ -132,16 +143,14 @@ domain/<domain>/
   index.ts                  exports the contract only
   model/                    facts genuinely shared across multiple modules (optional)
   modules/<module>/
-    contract.ts             defineDomainSubdomain({ id, ops })
-    router.ts               createDomainSubdomainRouter(contract, implementations)
+    contract.ts             defineDomainSubdomain({ id, ops: { leaf contracts } })
+    router.ts               createDomainSubdomainRouter(contract, { leaf implementations })
     index.ts                exports the module contract only
     model/                  module-scoped atoms and policy (optional)
     artifacts/
       <name>.artifact.ts    one inline defineArtifact definition
       index.ts              one defineArtifactCatalog
     ops/
-      contract.ts           singular operation-contract registry
-      index.ts              exact implementation registry
       <op-id>/
         contract.ts         shared input/output contract plus strategy definitions
         index.ts            createOp(contract, strategy tuple)
@@ -158,7 +167,7 @@ step authoring and `/router` for recipe runtime collection. Consumers import
 artifacts or model facts from the exact owning module; module indexes do not
 re-export those secondary surfaces.
 
-Visualization is owned by the step's optional `createStep(contract, { viz })`
+Visualization is owned by the step's optional `createStep(config, { viz })`
 facet. Here `<stage-root>` means the stage's semantic physical path, such as
 `morphology/shelf`, `hydrology/climate/baseline`, or direct `placement`. A helper
 private to one step lives at `stages/<stage-root>/steps/<step>/viz.ts`; helpers
@@ -173,7 +182,9 @@ would promote to `stages/morphology/shelf/viz.ts`, not the residual
 `stages/morphology/` family container.
 
 **Registration points** when you add code (full skeletons in `assets/recipe-scaffolds.md`):
-- New **op** → create `modules/<module>/ops/<op-id>/`; add its contract to the module's singular `ops/contract.ts` and its implementation to `ops/index.ts`.
+- New **op** → create `modules/<module>/ops/<op-id>/`; compose its contract
+  directly in the module `contract.ts` and bind its implementation directly in
+  the module `router.ts`.
 - New **step** → add the step contract to `standardStageContractManifest` (sets order) and the runtime step to the stage's `orderStandardStageSteps({...})`.
 - New **stage** → add to `standardStageContractManifest` (position = pipeline order), add to `orderStandardStages({...})` in `recipe.ts`; if it brings a new domain, add that domain to `collectCompileOps(...)`.
 - New **artifact** → add one `domain/<domain>/modules/<owner>/artifacts/<name>.artifact.ts` file with one inline `defineArtifact({ name, id, schema, refine? })`; register it once in that module's `artifacts/index.ts` using `defineArtifactCatalog`. Step contracts select exact artifact definitions in `artifacts.requires` and `artifacts.provides`; `createStep` derives read/publish runtimes from that contract.
@@ -323,7 +334,8 @@ Map configs are `.config.json` envelopes (`{ $schema, id, name, description, rec
 
 - Stage order → `mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts` (`standardStageContractManifest`). NOT `recipe.ts` key order, NOT `STANDARD-RECIPE.md`.
 - Module inventory for a domain → `mods/mod-swooper-maps/src/domain/<domain>/contract.ts` plus `modules/`.
-- Op inventory for a module → `modules/<module>/ops/contract.ts` plus `ops/`.
+- Op inventory for a module → the module `contract.ts`, checked against its
+  `router.ts` and leaf directories under `ops/`.
 - Strategy keys for an op → that op's `contract.ts` strategy definitions plus `strategies/index.ts` implementation tuple.
 - Which step produces/consumes an artifact → grep its `artifact:` id under `src/domain/` and `src/recipes/standard/stages/`.
 - Authoring call shapes / import paths → `assets/recipe-scaffolds.md` (copy-paste, live-sourced).

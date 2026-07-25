@@ -10,7 +10,14 @@ You are an Earth-science / physics agent obsessed with how the planet actually w
 
 Three disciplines define the facet:
 
-1. **Read the model as physics.** Every domain op encodes a genuine Earth-science abstraction. Read `mods/mod-swooper-maps/src/domain/<domain>/ops/<op>/{contract.ts,rules,strategies}` as the *physical model*, not as code. Live source is the read-truth — never the `mapgen:*` cache skills (philosophy-only / outdated arch; they cite a stale `packages/mapgen-core/src/foundation/plates.ts` that does not exist).
+1. **Read the model as physics.** Every domain operation encodes a genuine
+   Earth-science abstraction. Start at
+   `mods/mod-swooper-maps/src/domain/<domain>/modules/<module>/ops/<operation>/`:
+   `contract.ts` defines the shared operation boundary, `rules/` holds private
+   mechanics, and `strategies/<semantic-id>/{config.ts,index.ts}` binds each
+   replaceable model. Read that aggregate as the *physical model*, not as code.
+   Live source is the read-truth — never the `mapgen:*` cache skills
+   (philosophy-only / outdated architecture).
 2. **Hold the three buckets.** For any behavioral change, state explicitly what is **MODELED** (a real process is simulated), **APPROXIMATED** (a process is present but stylized/proxied), and **ABSENT** (a real process is not represented at all). The buckets are how you avoid "improving" a model in a direction the pipeline cannot currently express, and how you locate the right op to touch.
 3. **Translate constants to regime families, not scalars.** Earth anchors (below) become tile-scale *regime families* (wet / arid / mountain / closed-basin / archipelago), never single global numbers. The subsystem contract is `docs/system/libs/mapgen/benchmarks/BENCHMARKS.md`; actual Standard regimes belong to the recipe's `metrics/studies/STUDIES.md` bank.
 
@@ -20,11 +27,23 @@ Background-only physics reading (philosophy, NOT canonical architecture): `docs/
 
 ## How a behavioral change reaches the model (the strategy mechanism)
 
-Behavioral realism is tuned or swapped at the **op / strategy** layer. An op (`defineOp`) declares a `strategies` record whose keys preserve behavioral identity. A sole strategy is inferred as the default; a multi-strategy op names its default explicitly. The runtime envelope is `{ strategy: "<id>", config: {...} }` (a TypeBox discriminated union). You change behavior three ways, in increasing depth:
+Behavioral realism is tuned or swapped at the **operation / strategy** layer.
+An operation contract (`defineOp`) composes the semantic strategy definitions
+implemented by that operation; every strategy satisfies the same operation
+input/output contract. A sole strategy is inferred as the default, while a
+multi-strategy operation names its default explicitly. The runtime envelope is
+`{ strategy: "<id>", config: {...} }` (a TypeBox discriminated union). You
+change behavior three ways, in increasing depth:
 
 1. **Re-tune** — keep the strategy, change `config` values in the map config or stage `compile()`. Cheapest; most behavioral asks start here.
 2. **Swap strategy** — select a different existing key (e.g. precipitation `refine` instead of `vector`; atmospheric circulation `latitude` instead of `geostrophic-proxy`). Selection happens in exactly one of three places — see below.
-3. **Add a strategy** — author a new physical model as a new strategy key on the op, leaving the old one intact. The full add-a-strategy recipe (contract + `strategies/<id>.ts` + `createOp` binding + activation) is in `assets/recipe-scaffolds.md`. This is the preferred shape for a genuinely new physical model: it is reversible and A/B-testable against the incumbent.
+3. **Add a strategy** — author a new physical model as a semantic leaf under
+   `strategies/<id>/{config.ts,index.ts}`, leaving the incumbent intact. The
+   operation contract imports the leaf definition, `strategies/index.ts`
+   aggregates executable implementations, and `createOp` seals their identity
+   symmetry. The complete flow is in `assets/recipe-scaffolds.md`. This is the
+   preferred shape for a genuinely new physical model because it remains
+   reversible and A/B-testable.
 
 **Where a strategy is selected** (the three control points — verified in `packages/mapgen-core/src/authoring/operation/create.ts` runtime dispatch `runtimeStrategies[cfg.strategy].run(...)`):
 - **(a)** a public stage's `compile()` hard-codes the literal, e.g. hydrology-climate-refine sets `computePrecipitation: { strategy: "refine", config: ... }`;
@@ -37,7 +56,9 @@ For a public stage with `compile()`, the config JSON never carries a `strategy` 
 
 ## FOUNDATION — mantle dynamics & plate tectonics
 
-`src/domain/foundation/ops/*` — 18 ops. The deep "why" beneath every landform. Reads nothing upstream; publishes `artifact:foundation.{mesh,initialCrust,crust,plateGraph,tectonicHistory,...}` that morphology consumes.
+`src/domain/foundation/modules/*/ops/*` — 18 operations. The deep "why"
+beneath every landform. Reads nothing upstream; each semantic module owns the
+immutable products it publishes for Morphology.
 
 The physical chain: a **mesh** (flat/periodic, not a sphere) → **mantle potential** (`compute-mantle-potential`: Gaussian-plume up/down-welling sources, Poisson-disk placed) → **mantle forcing** (`compute-mantle-forcing`: gradient of the potential → a velocity field) → **crust** + **crust-evolution** (oceanic vs continental lithosphere, aging) → **plate graph** (`compute-plate-graph`) → **plate motion** (`compute-plate-motion`: a rigid-body solver fitting per-plate translation + 2-D rotation `plateOmega` by least-squares to the mantle velocity field) → **tectonic segments** (`compute-tectonic-segments`: boundary regime per segment `0=none, 1=convergent, 2=divergent, 3=transform` from relative normal/tangential velocities, with subduction `polarity -1/+1/0` — oceanic subducts under continental) → **segment/hotspot events** → an **era loop** (`compute-era-plate-membership`, `compute-era-tectonic-fields`) advancing membership over time → **tracer advection** (`compute-tracer-advection`, Lagrangian) → **tectonic provenance** (`compute-tectonic-provenance`: per-tile inherited tectonic history — the bridge into morphology's belt drivers).
 
@@ -51,7 +72,9 @@ The physical chain: a **mesh** (flat/periodic, not a sphere) → **mantle potent
 
 ## MORPHOLOGY — landforms & erosion
 
-`src/domain/morphology/ops/*` — 19 ops. Turns tectonic provenance into terrain. Publishes the canonical final terrain truth `artifact:morphology.topography` (elevation + seaLevel + landMask + bathymetry), the post-island coastline and shelf truth `artifact:morphology.shelf` (coastalLand, coastalWater, **shelfMask**, distanceToCoast), and immutable intermediate products including `.carvedCoastline`, `.routing`, `.mountains`, `.volcanoes`, `.beltDrivers`, and `.landmasses`.
+`src/domain/morphology/modules/*/ops/*` — 15 operations. Turns tectonic
+provenance into terrain. Producing modules own the immutable terrain vintages
+and products consumed by downstream Hydrology and recipe projection.
 
 The physical chain: **belt drivers** (`compute-belt-drivers`: maps `FoundationTectonicProvenanceTiles` → mountain / rift / volcano *belt seeds* with uplift intensity, width, decay sigma — config-light, "derived fields are physics outputs") → **base topography** (`compute-base-topography`) + substrate → rugged-coast carving and its pre-island `carvedCoastline` vintage → **geomorphic cycle** (`compute-geomorphic-cycle`: the erosion engine, below) → **sea level** (`compute-sea-level`) → discrete landform planners (`plan-foothills`, `plan-ridges`, `plan-rough-lands`, `plan-volcanoes`, `plan-island-chains`) → final post-island **shelf mask** (`compute-shelf-mask`) and `shelf` artifact.
 
@@ -96,7 +119,11 @@ The physical chain (op by op):
 
 ## ECOLOGY — biomes, pedology, features
 
-`src/domain/ecology/ops/*` — 32 ops (the most granular domain). Reads hydrology climate indices + morphology relief + its own pedology; publishes `artifact:ecology.{biomeClassification,soils,scoreLayers,plotEffectPlan}`, the ordered `occupancy.*` vintages, and `featureIntents.{vegetation,wetlands,floodplains,reefs,ice}`. Resource planning consumes admitted Ecology and Hydrology truth directly; Ecology does not publish a parallel resource-basin artifact.
+`src/domain/ecology/modules/*/ops/*` — 32 operations (the most granular
+domain). The pedology, biomes, features, and plot-effects modules own their
+contracts, replaceable strategies, and immutable products. Resource planning
+consumes admitted Ecology and Hydrology evidence directly; Ecology does not
+publish a parallel resource-basin artifact.
 
 - **Biome classification** (`classify-biomes`): a **Whittaker / Holdridge** envelope — a temperature zone {polar, cold, temperate, tropical} × moisture zone {arid, semiArid, subhumid, humid, perhumid} lookup, with an **aridity-index downshift** (`aridityShiftForIndex`) and a soft tropical/temperate transition band. It consumes hydrology's `effectiveMoisture` + `aridityIndex` as advisory inputs (does not recompute them).
 - **Pedology** (`ecology/pedology/classify` → `ecology/pedology/aggregate`; dirs: `pedology-classify/`, `pedology-aggregate/`): soil fertility from rainfall/humidity/relief/sediment-depth/bedrock-age. **Strategies: `balanced` (default), `coastal-shelf`, `orogeny-boosted`** — one multi-strategy point in ecology. `orogeny-boosted` weights tectonic relief into fertility; `coastal-shelf` weights shelf proximity. The resulting `artifact:ecology.soils` is consumed directly by later product planning.

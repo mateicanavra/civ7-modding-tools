@@ -4,7 +4,7 @@ import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-
 import { buildScalarFieldProjections } from "@swooper/mapgen-viz";
 import { defineStandardVizMeta } from "../../../../../viz.js";
 import type { MorphologyErosionKnob } from "../../index.js";
-import { GeomorphologyStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const GROUP_GEOMORPHOLOGY = "Morphology / Geomorphology";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
@@ -13,48 +13,48 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * Applies routing- and substrate-driven incision, diffusion, and deposition,
  * then publishes the eroded topography and final substrate vintages.
  */
-export const GeomorphologyStep = createStep(GeomorphologyStepContract, {
-  normalize: (config, ctx) => {
+export const GeomorphologyStep = createStep(config, {
+  normalize: (stepConfig, ctx) => {
     const { erosion } = ctx.knobs as Readonly<{ erosion?: MorphologyErosionKnob }>;
     const multiplier = MORPHOLOGY_EROSION_RATE_MULTIPLIER[erosion ?? "normal"] ?? 1.0;
 
     const geomorphologySelection =
-      config.geomorphology.strategy === "stream-power-diffusion"
+      stepConfig.geomorphology.strategy === "stream-power-diffusion"
         ? {
-            ...config.geomorphology,
+            ...stepConfig.geomorphology,
             config: {
-              ...config.geomorphology.config,
+              ...stepConfig.geomorphology.config,
               geomorphology: {
-                ...config.geomorphology.config.geomorphology,
+                ...stepConfig.geomorphology.config.geomorphology,
                 fluvial: {
-                  ...config.geomorphology.config.geomorphology.fluvial,
+                  ...stepConfig.geomorphology.config.geomorphology.fluvial,
                   rate: clampFinite(
-                    config.geomorphology.config.geomorphology.fluvial.rate * multiplier,
+                    stepConfig.geomorphology.config.geomorphology.fluvial.rate * multiplier,
                     0
                   ),
                 },
                 diffusion: {
-                  ...config.geomorphology.config.geomorphology.diffusion,
+                  ...stepConfig.geomorphology.config.geomorphology.diffusion,
                   rate: clampFinite(
-                    config.geomorphology.config.geomorphology.diffusion.rate * multiplier,
+                    stepConfig.geomorphology.config.geomorphology.diffusion.rate * multiplier,
                     0
                   ),
                 },
                 deposition: {
-                  ...config.geomorphology.config.geomorphology.deposition,
+                  ...stepConfig.geomorphology.config.geomorphology.deposition,
                   rate: clampFinite(
-                    config.geomorphology.config.geomorphology.deposition.rate * multiplier,
+                    stepConfig.geomorphology.config.geomorphology.deposition.rate * multiplier,
                     0
                   ),
                 },
               },
             },
           }
-        : config.geomorphology;
+        : stepConfig.geomorphology;
 
-    return { ...config, geomorphology: geomorphologySelection };
+    return { ...stepConfig, geomorphology: geomorphologySelection };
   },
-  run: (context, config, ops, deps) => {
+  run: (context, stepConfig, ops, deps) => {
     const topography = deps.artifacts.carvedTopography.read(context);
     const routing = deps.artifacts.routing.read(context);
     const substrate = deps.artifacts.baseSubstrate.read(context);
@@ -76,7 +76,7 @@ export const GeomorphologyStep = createStep(GeomorphologyStepContract, {
         erodibilityK,
         sedimentDepth,
       },
-      config.geomorphology
+      stepConfig.geomorphology
     );
 
     for (let i = 0; i < elevation.length; i++) {

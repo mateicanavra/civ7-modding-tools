@@ -125,7 +125,7 @@ Producer and consumer contracts select the same catalog value.
 import morphology from "@mapgen/domain/morphology";
 import { artifacts as morphologyRoutingArtifacts } from "@mapgen/domain/morphology/modules/routing/artifacts/index.js";
 
-export const RoutingStepConfig = defineStep({
+export const config = defineStep({
   // ...id, tags, ops, and schema...
   artifacts: {
     provides: [morphologyRoutingArtifacts.routing],
@@ -146,9 +146,9 @@ The SDK derives validated publication and read capabilities from the declared
 artifact authorities.
 
 ```ts
-export const RoutingStep = createStep(RoutingStepConfig, {
-  run: (context, config, ops, deps) => {
-    const routing = ops.routing({ /* admitted inputs */ }, config.routing);
+export const RoutingStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
+    const routing = ops.routing({ /* admitted inputs */ }, stepConfig.routing);
     deps.artifacts.routing.publish(context, routing);
   },
 });

@@ -1,5 +1,5 @@
 import { NATURAL_WONDER_CATALOG } from "@civ7/map-policy";
-import { clamp01 } from "@swooper/mapgen-core";
+import { clamp01 } from "@swooper/mapgen-core/lib/math";
 
 export type WonderGroup = "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I";
 

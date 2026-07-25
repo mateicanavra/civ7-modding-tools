@@ -6,7 +6,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 /**
  * Produces coastline metrics and applies ruggedization adjustments.
  */
-export const RuggedCoastsStepContract = defineStep({
+export const config = defineStep({
   id: "rugged-coasts",
   requires: [],
   provides: [],

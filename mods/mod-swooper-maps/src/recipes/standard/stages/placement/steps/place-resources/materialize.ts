@@ -7,11 +7,12 @@ import type {
 } from "@civ7/adapter";
 import { type OfficialResourceType, requireResourceRuntimeId } from "@civ7/map-policy";
 import resources from "@mapgen/domain/resources";
-import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
+import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
+import type { ArtifactValueOf, DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 
 type ResourcePlanOutput = Static<(typeof resources.support.ops.adjustResourceSupport)["output"]>;
-type ResourcePlacementOutcomes = Static<
-  typeof import("../../artifacts/index.js").artifacts["resourcePlacementOutcomes"]["schema"]
+type ResourcePlacementOutcomes = ArtifactValueOf<
+  typeof resourceSiteArtifacts.resourcePlacementOutcomes
 >;
 type ResourcePlacementReason = ResourcePlacementRejectionReason | ResourcePlacementMismatchReason;
 type ResourcePlacementSummary = ResourcePlacementOutcomes["summary"];

@@ -9,6 +9,15 @@ export const STANDARD_INTEGRITY_TARGET = {
   description:
     "Every Standard map closes placement, resource, lake, feature, river, and headless-adapter readback evidence.",
   expectations: [
+    equalTo<StandardMapProductSample>(
+      "discovery-generation-counts",
+      "Observed discovery placements exactly close Civ7's official generator attempt population.",
+      (sample) => {
+        const observation = sample.metrics.placement.discoveryGeneration;
+        return observation.placedCount + observation.rejectedCount === observation.attemptedCount;
+      },
+      true
+    ),
     atLeast<StandardMapProductSample>(
       "resource-plan-present",
       "The admitted resource plan contains at least one intent.",
@@ -240,14 +249,8 @@ export const STANDARD_INTEGRITY_TARGET = {
       0.08
     ),
     equalTo<StandardMapProductSample>(
-      "lake-water-drift",
-      "Projected lake tiles remain water through final placement preparation.",
-      (sample) => sample.metrics.geography.lakeWaterDriftCount,
-      0
-    ),
-    equalTo<StandardMapProductSample>(
       "final-lake-water-drift",
-      "Final placement preserves projected lake water state.",
+      "Final placement preserves Hydrology's admitted lake tiles as water.",
       (sample) => sample.metrics.geography.finalLakeWaterDriftCount,
       0
     ),
@@ -258,10 +261,28 @@ export const STANDARD_INTEGRITY_TARGET = {
       0
     ),
     atMost<StandardMapProductSample>(
-      "lake-projection-mismatches",
-      "Engine lake projection remains inside the admitted edge tolerance.",
-      (sample) => sample.metrics.geography.lakeProjectionMismatchCount,
+      "lake-projection-rejections",
+      "Civ7 lake projection remains inside the admitted rejection tolerance.",
+      (sample) => sample.metrics.geography.lakeProjectionRejectedCount,
       2
+    ),
+    equalTo<StandardMapProductSample>(
+      "lake-projection-plan-closure",
+      "Every domain-planned lake tile is either offered to Civ7 or explicitly withheld by final Morphology.",
+      (sample) =>
+        sample.metrics.geography.plannedLakes.count ===
+        sample.metrics.geography.lakeProjectionCandidateCount +
+          sample.metrics.geography.lakeProjectionProtectedCount,
+      true
+    ),
+    equalTo<StandardMapProductSample>(
+      "lake-projection-outcome-closure",
+      "Every lake candidate offered to Civ7 is either stamped or explicitly rejected.",
+      (sample) =>
+        sample.metrics.geography.lakeProjectionCandidateCount ===
+        sample.metrics.geography.projectedLakes.count +
+          sample.metrics.geography.lakeProjectionRejectedCount,
+      true
     ),
     atMost<StandardMapProductSample>(
       "single-tile-lake-share",

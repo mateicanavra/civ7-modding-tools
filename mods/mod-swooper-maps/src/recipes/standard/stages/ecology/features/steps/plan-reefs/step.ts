@@ -1,6 +1,6 @@
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { PlanReefsStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const REEF_FEATURE_INTENTS = new Set(["reef", "cold-reef", "atoll", "lotus"]);
 
@@ -8,14 +8,14 @@ const REEF_FEATURE_INTENTS = new Set(["reef", "cold-reef", "atoll", "lotus"]);
  * Plans reef-family intent against lake truth and post-ice occupancy, then
  * advances the deterministic reservation chain to wetland planning.
  */
-export const PlanReefsStep = createStep(PlanReefsStepContract, {
-  run: (context, config, ops, deps) => {
+export const PlanReefsStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const prev = deps.artifacts.occupancyIce.read(context);
     const scoreLayers = deps.artifacts.scoreLayers.read(context);
     const lakePlan = deps.artifacts.lakePlan.read(context);
     const { width, height } = context.setup.dimensions;
 
-    const seed = ctxStepSeed(context, PlanReefsStepContract.id, "ecology/plan-reefs");
+    const seed = ctxStepSeed(context, config.id, "ecology/plan-reefs");
     const placements = ops.planReefs(
       {
         width,
@@ -29,7 +29,7 @@ export const PlanReefsStep = createStep(PlanReefsStepContract, {
         featureOccupancyMask: prev.featureOccupancyMask,
         reserved: prev.reserved,
       },
-      config.planReefs
+      stepConfig.planReefs
     ).placements;
 
     placements.sort((a, b) => a.y * width + a.x - (b.y * width + b.x));

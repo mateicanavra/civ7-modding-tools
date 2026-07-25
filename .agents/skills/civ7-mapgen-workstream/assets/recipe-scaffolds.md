@@ -4,7 +4,7 @@
 
 These skeletons are distilled from LIVE source (the reference op is
 `mods/mod-swooper-maps/src/domain/foundation/modules/mesh/ops/compute-mesh/`; the
-reference stage is `.../recipes/standard/stages/map/morphology/`). They are not invented —
+reference stage is `.../recipes/standard/stages/morphology/projection/`). They are not invented —
 re-derive any detail from those files if a skeleton looks stale. **Recipe-domain
 authoring lands in `mods/mod-swooper-maps/src/{domain,recipes}` — never in
 `packages/mapgen-core`** (that is engine substrate). See `references/pipeline-map.md`
@@ -131,30 +131,36 @@ import strategies from "./strategies/index.js";
 export default createOp(MyOpContract, { strategies });
 ```
 
-**Module registration — the owning module's singular `ops/contract.ts` and
-`ops/index.ts` (both, in sync):**
+**Module composition — add the operation directly to the owning module's
+declarative contract and executable router:**
 ```ts
-// src/domain/<domain>/modules/<module>/ops/contract.ts — add to the contract registry:
-import MyOpContract from "./my-op-name/contract.js";
+// src/domain/<domain>/modules/<module>/contract.ts
+import { defineDomainSubdomain } from "@swooper/mapgen-core/authoring/contracts";
+import MyOpContract from "./ops/my-op-name/contract.js";
 
-const contracts = { /* ...existing..., */ myOpName: MyOpContract } as const;
+const moduleContract = defineDomainSubdomain({
+  id: "<module>",
+  ops: { /* ...existing..., */ myOpName: MyOpContract },
+});
 
-export default contracts;
+export default moduleContract;
 
-// src/domain/<domain>/modules/<module>/ops/index.ts — add to the implementation registry:
-import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/authoring";
-import myOpName from "./my-op-name/index.js";
+// src/domain/<domain>/modules/<module>/router.ts
+import { createDomainSubdomainRouter } from "@swooper/mapgen-core/authoring";
+import contract from "./contract.js";
+import myOpName from "./ops/my-op-name/index.js";
 
-type Contracts = typeof import("./contract.js").default;
+const moduleRouter = createDomainSubdomainRouter(contract, {
+  /* ...existing..., */
+  myOpName,
+});
 
-const implementations = { /* ...existing..., */ myOpName } as const
-  satisfies DomainOpImplementationsForContracts<Contracts>;
-
-export default implementations;
+export default moduleRouter;
 ```
-> `DomainOpImplementationsForContracts<Contracts>` is the compile-time guard that
-> forces the direct module's singular `ops/contract.ts` registry and runtime
-> `ops/index.ts` to stay symmetric.
+> `createDomainSubdomainRouter` checks exact operation keys and canonical
+> contract identity. Do not add `ops/contract.ts` or `ops/index.ts`
+> intermediates; the module contract and router are already the two rightful
+> aggregate authorities.
 
 The op is now part of its direct semantic module. It is not yet *run* by anything —
 wire it into a step (section 3) and ensure the module's runtime router reaches the
@@ -231,7 +237,12 @@ There are exactly three selection paths:
 2. **`defaultStrategy` on the step contract `StepOpUse`** — changes the *schema default*
    so an omitted envelope starts on the named strategy (the author can still override):
    ```ts
-   ops: { myOp: { contract: someDomain.ops.myOpName, defaultStrategy: "my-variant" } },
+   ops: {
+     myOp: {
+       contract: someDomain.<module>.ops.myOpName,
+       defaultStrategy: "my-variant",
+     },
+   },
    ```
 3. **Rare inline semantic public override** - only when a concrete stage
    intentionally hides and meaningfully translates the complete internal
@@ -264,7 +275,7 @@ Runtime dispatch (`createOp.run`) reads `cfg.strategy`, looks up
 A step lives under `src/recipes/standard/stages/<semantic-stage-path>/steps/<step-name>/`;
 use family nesting when the stage belongs to a larger semantic family. Step id is kebab-case
 (`/^[a-z0-9]+(?:-[a-z0-9]+)*$/`). The reference no-ops step is
-`morphology/map/steps/plot-continents`; the reference with-ops step is
+`morphology/projection/steps/plot-continents`; the reference with-ops step is
 `morphology/features/steps/landmasses`.
 
 **`config.ts`** — `defineStep`. Import the domain contract from its root and
@@ -278,7 +289,7 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import { Type } from "@swooper/mapgen-core/authoring/schema";
 
 /** Contract and compiled configuration boundary for the example recipe step. */
-export const MyStepContract = defineStep({
+export const config = defineStep({
   id: "my-step-name",
   requires: [] as const,
   provides: [] as const,
@@ -287,8 +298,8 @@ export const MyStepContract = defineStep({
     provides: [myModuleArtifacts.surfaceMask],
   },
   ops: {
-    myOp: someDomain.ops.myOpName,
-    // or: myOp: { contract: someDomain.ops.myOpName, defaultStrategy: "my-variant" }
+    myOp: someDomain.<module>.ops.myOpName,
+    // or: myOp: { contract: someDomain.<module>.ops.myOpName, defaultStrategy: "my-variant" }
   },
   schema: Type.Object({ /* step-level knobs not covered by ops; omit/empty if none */ }),
 });
@@ -306,15 +317,15 @@ auto-typed op envelope; artifacts are read/published via `deps.artifacts.<name>`
 ```ts
 // steps/<step-name>/step.ts
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { MyStepContract } from "./config.js";
+import { config } from "./config.js";
 
 /** Executes the example step against its declared operations and artifacts. */
-export const MyStep = createStep(MyStepContract, {
-  // optional: normalize: (config, ctx) => config,
-  run: (context, config, ops, deps) => {
-    const { width, height } = context.dimensions;
+export const MyStep = createStep(config, {
+  // optional: normalize: (stepConfig, ctx) => stepConfig,
+  run: (context, stepConfig, ops, deps) => {
+    const { width, height } = context.setup.dimensions;
     const input = deps.artifacts.someInput.read(context);
-    const output = ops.myOp({ width, height, myInput: input.myData }, config.myOp);
+    const output = ops.myOp({ width, height, myInput: input.myData }, stepConfig.myOp);
     deps.artifacts.surfaceMask.publish(context, { width, height, landMask: output.myOutput });
   },
 });
@@ -330,8 +341,9 @@ legacy direct `context.viz` calls live in
 `docs/system/libs/mapgen/reference/VISUALIZATION.md`.
 
 **Registration (two files, same step-id string):**
-1. `contract-manifest.ts` — add `MyStepContract` to the stage's contract list in
-   `standardStageContractManifest` (position = within-stage execution order).
+1. `contract-manifest.ts` — import the leaf's `config` with a composition-local
+   alias and add it to the stage's contract list in `standardStageContractManifest`
+   (position = within-stage execution order).
 2. The stage's `index.ts` — add the runtime step to `orderStandardStageSteps(...)`.
 
 > Gotchas: `artifacts.requires` selects artifact contracts, while `artifacts.provides`
@@ -369,10 +381,10 @@ compile it into the exact step config. Do not introduce empty schemas or a
 
 **Recipe registration (3 touch points):**
 ```ts
-// 1. contract-manifest.ts — import step contracts; add the stage entry at the
-//    pipeline position you want (array order = stage execution order):
-import { MyStepContract } from "./stages/my-family/my-stage/steps/my-step-name/config.js";
-stage("my-stage-id", [MyStepContract /* , ...in execution order */ ]),
+// 1. contract-manifest.ts — alias owner-local `config` bindings at composition;
+//    add the stage entry at the pipeline position you want:
+import { config as myStepConfig } from "./stages/my-family/my-stage/steps/my-step-name/config.js";
+stage("my-stage-id", [myStepConfig /* , ...in execution order */ ]),
 
 // 2. recipe.ts — import the stage and add it to orderStandardStages({...}).
 //    Key order here is irrelevant; the manifest reorders deterministically:
@@ -519,7 +531,7 @@ publish/read runtime from that contract while binding behavior only.
 
 | Forget to... | Failure surface |
 |---|---|
-| add op contract to `modules/<module>/ops/contract.ts` | `satisfies DomainOpImplementationsForContracts` mismatch in the module's `ops/index.ts` |
+| add an op contract or implementation to the module `contract.ts` / `router.ts` | `createDomainSubdomainRouter` exact-key or canonical-contract mismatch |
 | add executable strategy to `strategies/index.ts` | `createOp` construction throws: contract definition has no matching runtime descriptor |
 | add step to `standardStageContractManifest` | `orderStandardStageSteps` throws (unknown step id) |
 | add stage to `recipe.ts` `orderStandardStages` | stage silently absent from the pipeline (no error) — verify the run |

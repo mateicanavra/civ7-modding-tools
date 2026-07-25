@@ -12,7 +12,7 @@ import {
   defineStandardVizMeta,
   STANDARD_VIZ_COLORS,
 } from "../../../../../viz.js";
-import { ProjectionStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const GROUP_PLATES = "Foundation / Plates";
 const GROUP_CRUST_TILES = "Foundation / Crust Tiles";
@@ -52,8 +52,8 @@ function gridProjection(
  * Projects mesh-space crust, plate, history, and provenance truth into aligned
  * tile artifacts while leaving terrain shaping to Morphology.
  */
-export const ProjectionStep = createStep(ProjectionStepContract, {
-  run: (context, config, ops, deps) => {
+export const ProjectionStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
     const mesh = deps.artifacts.foundationMesh.read(context);
     const crust = deps.artifacts.foundationCrust.read(context);
@@ -125,7 +125,7 @@ export const ProjectionStep = createStep(ProjectionStepContract, {
           },
         },
       },
-      config.computePlates
+      stepConfig.computePlates
     );
 
     deps.artifacts.foundationPlates.publish(context, platesResult.plates);

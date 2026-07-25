@@ -11,7 +11,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  * post-wetland occupancy, publishes vegetation intent, and closes the deterministic occupancy
  * chain before projection.
  */
-export const PlanVegetationStepContract = defineStep({
+export const config = defineStep({
   id: "plan-vegetation",
   requires: [],
   provides: [],

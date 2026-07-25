@@ -7,7 +7,7 @@
   <item id="anchors" title="Ground truth anchors"/>
 </toc>
 
-# Ops module contract
+# Operation module contract
 
 ## Purpose
 
@@ -34,12 +34,15 @@ of arbitrary operation folders.
 - The operation contract imports leaf configs directly and supplies their
   definition tuple to `defineOp`. There is no strategy-root config or contract
   aggregate; `strategies/index.ts` aggregates implementations only.
-- Each module's singular `ops/contract.ts` privately collects its operation
-  contracts and exports only the aggregate default authority.
-- Each module's `ops/index.ts` binds the corresponding implementations.
-- The module `contract.ts` exposes that operation contract set through
-  `defineDomainSubdomain`; its `router.ts` supplies the implementations through
+- The owning module's singular `contract.ts` imports leaf operation contracts
+  directly and composes them through `defineDomainSubdomain`.
+- The owning module's singular `router.ts` imports leaf operation
+  implementations directly and binds them through
   `createDomainSubdomainRouter`.
+- The module's `ops/` directory contains only semantic operation directories;
+  it does not add an intermediate contract or implementation registry.
+- Aggregate surfaces do not publish named child-contract re-exports. Consumers
+  select operation contracts through the public nested domain contract.
 
 Representative operation contract surface:
 
@@ -54,6 +57,28 @@ export default defineOp({
   output: Type.Object({ relief: Type.Number() }),
   strategies: [plateDrivenDefinition],
 });
+```
+
+Representative direct module composition:
+
+```ts
+// modules/shape/contract.ts
+import { defineDomainSubdomain } from "@swooper/mapgen-core/authoring/contracts";
+import shapeRelief from "./ops/shape-relief/contract.js";
+
+export default defineDomainSubdomain({
+  id: "shape",
+  ops: { shapeRelief },
+});
+```
+
+```ts
+// modules/shape/router.ts
+import { createDomainSubdomainRouter } from "@swooper/mapgen-core/authoring";
+import contract from "./contract.js";
+import shapeRelief from "./ops/shape-relief/index.js";
+
+export default createDomainSubdomainRouter(contract, { shapeRelief });
 ```
 
 ## Operation input admission
@@ -159,8 +184,9 @@ export default createOp(ComputePlateTopologyContract, {
 - Strategy schema/envelope: `packages/mapgen-core/src/authoring/operation/envelope.ts`
 - Binding compile/runtime ops by canonical identity: `packages/mapgen-core/src/authoring/operation/bindings.ts`
 - Current operation-authoring guide: `docs/system/libs/mapgen/how-to/add-an-op.md`
-- Example module contract and router: `mods/mod-swooper-maps/src/domain/foundation/modules/mesh/contract.ts`, `mods/mod-swooper-maps/src/domain/foundation/modules/mesh/router.ts`
-- Example operation registry: `mods/mod-swooper-maps/src/domain/foundation/modules/mesh/ops/contract.ts`
+- Example module contract and router:
+  `mods/mod-swooper-maps/src/domain/foundation/modules/mesh/contract.ts`,
+  `mods/mod-swooper-maps/src/domain/foundation/modules/mesh/router.ts`
 - Example op contract: `mods/mod-swooper-maps/src/domain/foundation/modules/mesh/ops/compute-mesh/contract.ts`
 - Example op implementation: `mods/mod-swooper-maps/src/domain/foundation/modules/mesh/ops/compute-mesh/index.ts`
 - Example extracted strategy binding: `mods/mod-swooper-maps/src/domain/foundation/modules/projection/ops/compute-plate-topology/index.ts`

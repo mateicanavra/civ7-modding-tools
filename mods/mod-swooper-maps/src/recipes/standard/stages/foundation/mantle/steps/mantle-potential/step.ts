@@ -2,7 +2,7 @@ import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { interleaveXY } from "@swooper/mapgen-viz";
 import { defineStandardVizMeta } from "../../../../../viz.js";
-import { MantlePotentialStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const GROUP_MANTLE = "Foundation / Mantle";
 
@@ -10,10 +10,10 @@ const GROUP_MANTLE = "Foundation / Mantle";
  * Establishes deterministic mantle source potential on the Foundation mesh,
  * separating authored source structure from its derived physical forcing.
  */
-export const MantlePotentialStep = createStep(MantlePotentialStepContract, {
-  run: (context, config, ops, deps) => {
+export const MantlePotentialStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
-    const stepId = `foundation/${MantlePotentialStepContract.id}`;
+    const stepId = `foundation/${config.id}`;
     const rngSeed = ctxRandom(
       context,
       ctxRandomLabel(stepId, "foundation/compute-mantle-potential"),
@@ -32,7 +32,7 @@ export const MantlePotentialStep = createStep(MantlePotentialStepContract, {
         },
         rngSeed,
       },
-      config.computeMantlePotential
+      stepConfig.computeMantlePotential
     );
 
     deps.artifacts.foundationMantlePotential.publish(context, mantleResult.mantlePotential);

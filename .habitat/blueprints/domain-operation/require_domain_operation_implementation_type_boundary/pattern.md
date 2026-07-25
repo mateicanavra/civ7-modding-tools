@@ -5,8 +5,8 @@ level: error
 
 An operation contract is the sole owner of its input and output envelopes.
 Operation and semantic strategy entrypoints may bind the default contract value,
-but strategy leaves, implementation types, and rules do not derive shared
-working types from that envelope. Smaller reusable schema primitives and
+but strategy leaves and rules do not derive shared working types from that
+envelope. Smaller reusable schema primitives and
 cohesive subentity types live in the nearest model atoms; algorithm-private
 `Params` / `Result` shapes remain private to the operation implementation. A
 complete operation or artifact container is never moved into atoms merely to
@@ -25,7 +25,7 @@ predicate is_contract_envelope_name($value) {
 
 or {
   import_statement(source=$source) where {
-    $filename <: r"/(?:types\.ts|rules/[^/]+\.ts)$",
+    $filename <: r"/rules/[^/]+\.ts$",
     is_operation_contract_dependency($source)
   },
   `export { $exports } from $source` where {
@@ -61,12 +61,6 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/types.ts
-import type { OpTypeBagOf } from "@swooper/mapgen-core/authoring/contracts";
-
-type Contract = typeof import("./contract.js").default;
-export type ShapeReliefTypes = OpTypeBagOf<Contract>;
-
 // @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/rules/project.ts
 import type Contract from "../contract.js";
 
@@ -78,12 +72,6 @@ import strategies from "./strategies/index.js";
 
 type ShapeReliefOutput = Contract["output"];
 export default createOp(Contract, { strategies });
-
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/contract.ts
-import type { OpTypeBagOf } from "@swooper/mapgen-core/authoring/contracts";
-import OperationContract from "../../contract.js";
-
-export type ShapeReliefTypes = OpTypeBagOf<typeof OperationContract>;
 
 // @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
 import OperationContract from "../../contract.js";
@@ -97,17 +85,14 @@ export default createStrategy(OperationContract, strategyContract, {
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/types.ts
-import type { GridBounds } from "../../model/atoms/grid-bounds.schema.js";
+// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/rules/project.ts
+import type { GridBounds } from "../../../model/atoms/grid-bounds.schema.js";
 
-export type ReliefWorkQueue = Readonly<{
+type ReliefWorkQueue = Readonly<{
   bounds: GridBounds;
   values: Float32Array;
   pending: readonly number[];
 }>;
-
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/rules/project.ts
-import type { ReliefWorkQueue } from "../types.js";
 
 export function projectRelief(queue: ReliefWorkQueue): Float32Array {
   return queue.values;

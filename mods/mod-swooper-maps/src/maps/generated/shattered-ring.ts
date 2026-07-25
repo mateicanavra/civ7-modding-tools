@@ -1241,6 +1241,12 @@ const mapConfig = {
       }
     },
     "placement": {
+      "plot-landmass-regions": {
+        "regions": {
+          "strategy": "balanced-hemisphere",
+          "config": {}
+        }
+      },
       "derive-placement-inputs": {
         "wonders": {
           "strategy": "map-metadata",
@@ -1386,7 +1392,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "shattered-ring",
-  configHash: "d227163d9b1fde0814fad09307becac5b1e9a61917424dcfce715e14c5a00c22",
-  envelopeHash: "70a9d7e2453ed085f288728dd8e1507fa9df67254dcfb6fdfa3dbf9d5626c483",
+  configHash: "9e40b9eb4eb87182f1f4517ca40f4ad5c2fa0f13be9aac68db1b403c7474139f",
+  envelopeHash: "91ad40da8e32f3cf2411718c1e367c2f91d523ecba538cd2261df218b2cc43f9",
   config: mapConfig.config,
 });

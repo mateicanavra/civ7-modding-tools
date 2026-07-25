@@ -3,7 +3,7 @@ import { admitMapSetup } from "@swooper/mapgen-core";
 import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 
 import morphologyErosionStage from "../../../../../../../../src/recipes/standard/stages/morphology/erosion/index.js";
-import { GeomorphologyStepContract } from "../../../../../../../../src/recipes/standard/stages/morphology/erosion/steps/geomorphology/config.js";
+import { config as geomorphologyStepConfig } from "../../../../../../../../src/recipes/standard/stages/morphology/erosion/steps/geomorphology/config.js";
 import { GeomorphologyStep } from "../../../../../../../../src/recipes/standard/stages/morphology/erosion/steps/geomorphology/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import {
@@ -32,12 +32,12 @@ function normalizeErosion(erosion: "normal" | "high") {
   );
   const { knobs, rawSteps } = morphologyErosionStage.toInternal({ setup, stageConfig: admitted });
   const config = validateSchemaValueForTest(
-    GeomorphologyStepContract.schema,
+    geomorphologyStepConfig.schema,
     rawSteps.geomorphology,
     "/morphology-erosion/geomorphology"
   );
   return validateSchemaValueForTest(
-    GeomorphologyStepContract.schema,
+    geomorphologyStepConfig.schema,
     GeomorphologyStep.normalize(config, { setup, knobs }),
     "/morphology-erosion/geomorphology"
   );

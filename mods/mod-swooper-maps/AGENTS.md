@@ -21,11 +21,12 @@ Scope: `mods/mod-swooper-maps/**`
   workspace dependencies manually.
 - Prefer regenerating `mod/` through the Nx build target over editing build
   artifacts.
-- Placement composes `wonders` and `starts` modules in causal order. Wonders
-  owns map-size demand followed by natural-wonder site planning; starts then
-  consumes wonder evidence during start planning. Placement recipe steps consume
-  those module ops through the root contract or executable router rather than a
-  flat operation registry.
+- Placement composes `wonders`, `regions`, and `starts` modules in causal
+  order. Wonders owns map-size demand followed by natural-wonder site planning;
+  regions partitions the playable surface around admitted landmass structure;
+  starts then consumes wonder and region evidence during start planning.
+  Placement recipe steps consume those module ops through the root contract or
+  executable router rather than a flat operation registry.
 
 ## Ecology domain
 
@@ -34,8 +35,9 @@ Scope: `mods/mod-swooper-maps/**`
   composition consumes `@mapgen/domain/ecology/router`, and steps import
   artifacts from the exact producing module catalog.
 - The biomes module publishes `artifact:ecology.biomeClassification` as
-  immutable domain evidence. Projection readback remains decision-local engine
-  observation rather than a second domain artifact authority.
+  immutable domain evidence. Biome projection output remains invocation-local
+  projection evidence rather than engine readback or a second domain artifact
+  authority.
 - Pedology runs before biomes and shared feature scoring:
   `artifact:ecology.soils` feeds biome classification and the split
   feature-intent planners before the apply step writes features to the engine.
@@ -50,7 +52,7 @@ Scope: `mods/mod-swooper-maps/**`
   earns a durable product. Climate publishes atmospheric fields, cryosphere
   publishes frozen-water state, and hydrography publishes drainage, river, and
   lake intent.
-- Civ7-constrained river materialization belongs to the `map/rivers` projection
+- Civ7-constrained river materialization belongs to the `hydrology/rivers` projection
   step. It consumes Hydrology evidence without becoming a Hydrology operation
   or redefining the physical river model.
 

@@ -9,7 +9,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  * Defines ordered wetland-family planning from habitat, hydrology, and post-reef occupancy. It
  * publishes wetland intent and the occupancy snapshot consumed by vegetation planning.
  */
-export const PlanWetlandsStepContract = defineStep({
+export const config = defineStep({
   id: "plan-wetlands",
   requires: [],
   provides: [],

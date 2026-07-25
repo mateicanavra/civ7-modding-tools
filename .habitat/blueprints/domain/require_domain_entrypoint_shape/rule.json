@@ -11,7 +11,7 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "advisory",
+  "lane": "enforced",
   "forbids": "domain root entrypoints that compose contracts or routers, execute runtime code, or expose owners outside the domain model and module tree",
   "why": "A domain root index is one declaration-only public barrel. Contract identity and subdomain composition belong in contract.ts, runtime composition belongs in router.ts, and public vocabulary remains owned by model or semantic modules.",
   "remediate": "Default-re-export ./contract.js and keep any additional exports explicit and named from ./model/** or ./modules/**. Move defineDomain composition to contract.ts and router composition to router.ts.",

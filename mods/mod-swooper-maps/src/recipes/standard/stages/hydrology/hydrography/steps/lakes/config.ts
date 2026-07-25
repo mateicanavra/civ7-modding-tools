@@ -24,7 +24,7 @@ const LakesStepConfigSchema = Type.Object(
  * topography. It plans Hydrology truth only; map-hydrology owns later Civ7 water
  * materialization.
  */
-export const LakesStepContract = defineStep({
+export const config = defineStep({
   id: "lakes",
   requires: [],
   provides: [],

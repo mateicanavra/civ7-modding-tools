@@ -11,7 +11,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  * post-island coastline reflect final land — island peaks get real shelves, and
  * downstream ocean-geometry / reef / coast consumers see one coherent vintage.
  */
-export const ComputeShelfStepContract = defineStep({
+export const config = defineStep({
   id: "compute-shelf",
   requires: [],
   provides: [],

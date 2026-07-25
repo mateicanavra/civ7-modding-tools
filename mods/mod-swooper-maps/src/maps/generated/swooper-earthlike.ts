@@ -1254,6 +1254,12 @@ const mapConfig = {
       }
     },
     "placement": {
+      "plot-landmass-regions": {
+        "regions": {
+          "strategy": "balanced-hemisphere",
+          "config": {}
+        }
+      },
       "derive-placement-inputs": {
         "wonders": {
           "strategy": "map-metadata",
@@ -1385,7 +1391,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-earthlike",
-  configHash: "699ee8ec3b484bf59649a2e46d7ad30c58f60fba1d87584fd24e0291aa0b124a",
-  envelopeHash: "401e24e8c55ed2d3792573c9f4f3ac606280af7b0664be727f5bb285e8323795",
+  configHash: "d8fa0d87ff4fc02efe18510f2aae0ab43015a8178bb6832aa931cea72af373b1",
+  envelopeHash: "28024970f11e3df9c3b597537f627402a1cc9306b4003efc647099904284e291",
   config: mapConfig.config,
 });

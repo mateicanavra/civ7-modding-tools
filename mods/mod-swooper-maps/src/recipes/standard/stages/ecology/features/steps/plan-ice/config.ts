@@ -9,7 +9,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  * post-floodplain occupancy. It publishes intent and the next occupancy snapshot without
  * mutating Civ7 features.
  */
-export const PlanIceStepContract = defineStep({
+export const config = defineStep({
   id: "plan-ice",
   requires: [],
   provides: [],

@@ -1,7 +1,7 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { interleaveXY } from "@swooper/mapgen-viz";
 import { defineStandardVizMeta } from "../../../../../viz.js";
-import { CrustEvolutionStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const GROUP_CRUST = "Foundation / Crust";
 
@@ -9,8 +9,8 @@ const GROUP_CRUST = "Foundation / Crust";
  * Evolves initial crust with current tectonics and accumulated history into the
  * final crust vintage consumed by Morphology, without projecting history as relief.
  */
-export const CrustEvolutionStep = createStep(CrustEvolutionStepContract, {
-  run: (context, config, ops, deps) => {
+export const CrustEvolutionStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const initialCrust = deps.artifacts.foundationInitialCrust.read(context);
     const tectonics = deps.artifacts.foundationTectonics.read(context);
@@ -46,7 +46,7 @@ export const CrustEvolutionStep = createStep(CrustEvolutionStepContract, {
           fractureTotal: tectonicHistory.fractureTotal,
         },
       },
-      config.computeCrustEvolution
+      stepConfig.computeCrustEvolution
     );
 
     deps.artifacts.foundationCrust.publish(context, crustResult.crust);

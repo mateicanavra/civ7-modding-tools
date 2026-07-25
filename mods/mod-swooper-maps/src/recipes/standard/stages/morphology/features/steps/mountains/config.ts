@@ -13,7 +13,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  * topography, substrate, routing, and coastline fields so downstream projection
  * can stamp terrain without deciding where rough terrain should exist.
  */
-export const MountainsStepContract = defineStep({
+export const config = defineStep({
   id: "mountains",
   requires: [],
   provides: [],

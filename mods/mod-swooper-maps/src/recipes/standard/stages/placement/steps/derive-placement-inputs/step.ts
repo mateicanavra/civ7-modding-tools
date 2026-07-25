@@ -5,7 +5,7 @@ import {
   PLACEMENT_TILE_SPACE_ID,
   UNIT_SCORE_VALUE_SPEC,
 } from "../../viz.js";
-import { DerivePlacementInputsStepContract } from "./config.js";
+import { config } from "./config.js";
 import { buildPlacementInputs } from "./inputs.js";
 import {
   buildNaturalWonderPlanInputRuntimeTelemetry,
@@ -15,18 +15,18 @@ import {
 import { logNaturalWonderPlanRuntimeTelemetry } from "./natural-wonder-plan-telemetry.js";
 
 /**
- * Consolidates artifact evidence and declared engine surfaces into placement
+ * Consolidates immutable domain products and current adapter observations into placement
  * inputs, then derives natural-wonder intent without mutating the map.
  */
-export const DerivePlacementInputsStep = createStep(DerivePlacementInputsStepContract, {
-  run: (context, config, ops, deps) => {
+export const DerivePlacementInputsStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);
     // River hierarchy is independent Hydrology truth, not part of the mutable
     // hydrography flow field.
     const riverNetwork = deps.artifacts.riverNetwork.read(context);
-    // Lake placement constraints use the deterministic Hydrology plan. Engine
-    // projection artifacts remain diagnostics for materialization drift.
+    // Lake placement constraints use the deterministic Hydrology plan. Projection
+    // diagnostics remain metrics evidence rather than pipeline state.
     const lakePlan = deps.artifacts.lakePlan.read(context);
     const climateIndices = deps.artifacts.climateIndices.read(context);
     const biomeClassification = deps.artifacts.biomeClassification.read(context);
@@ -37,9 +37,9 @@ export const DerivePlacementInputsStep = createStep(DerivePlacementInputsStepCon
       throw new Error("[Placement] Civ7 map metadata is unavailable for the active map size.");
     }
 
-    const { inputs, naturalWonderPlan, naturalWonderPlanSurfaces } = buildPlacementInputs(
+    const { naturalWonderPlan, naturalWonderPlanSurfaces } = buildPlacementInputs(
       context,
-      config,
+      stepConfig,
       ops,
       {
         topography: {
@@ -88,7 +88,6 @@ export const DerivePlacementInputsStep = createStep(DerivePlacementInputsStepCon
         naturalWonderPlanSurfaces,
       },
     });
-    deps.artifacts.placementInputs.publish(context, inputs);
     deps.artifacts.naturalWonderPlan.publish(context, naturalWonderPlan);
     logNaturalWonderPlanRuntimeTelemetry(naturalWonderPlan);
     logNaturalWonderPlanInputRuntimeTelemetry(naturalWonderPlanInputTelemetry);

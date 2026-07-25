@@ -1,12 +1,11 @@
 import placement from "@mapgen/domain/placement";
+import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
 import type { MapContext } from "@swooper/mapgen-core";
-import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
+import type { ArtifactValueOf, DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 import { warnLog } from "../../log.js";
 
 type PlanStartsOutput = Static<(typeof placement.starts.ops.planStarts)["output"]>;
-type StartAssignmentArtifact = Static<
-  typeof import("../../artifacts/index.js").artifacts["startAssignment"]["schema"]
->;
+type StartAssignmentArtifact = ArtifactValueOf<typeof placementStartArtifacts.startAssignment>;
 type StartSeatRecord = PlanStartsOutput["seats"][number];
 
 /**

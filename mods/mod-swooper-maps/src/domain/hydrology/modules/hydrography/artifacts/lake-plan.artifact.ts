@@ -64,6 +64,17 @@ export const artifact = defineArtifact({
       Uint8Array,
       artifactCellCount(context)
     );
+    let plannedLakeTileCount = 0;
+    for (const cell of value.lakeMask) {
+      if (cell === 1) plannedLakeTileCount += 1;
+    }
+    if (value.plannedLakeTileCount !== plannedLakeTileCount) {
+      issues.push({
+        message:
+          `plannedLakeTileCount ${value.plannedLakeTileCount} does not match ` +
+          `the ${plannedLakeTileCount} planned tiles in lakeMask.`,
+      });
+    }
     return Object.freeze(issues);
   },
 });

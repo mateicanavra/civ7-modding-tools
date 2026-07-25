@@ -26,12 +26,11 @@ import {
   type ResourceRegionMinimumRequirement,
   default as resources,
 } from "@mapgen/domain/resources";
-import type { Static } from "@swooper/mapgen-core/authoring";
+import { artifacts as resourceDemandArtifacts } from "@mapgen/domain/resources/modules/demand/artifacts/index.js";
+import type { ArtifactReadValueOf, Static } from "@swooper/mapgen-core/authoring";
 
 type DerivedHabitatFields = Static<(typeof resources.habitat.ops.deriveHabitatFields)["output"]>;
-type ResourceDemandPlan = Static<
-  typeof import("../../artifacts/resource-demand-plan.artifact.js").artifact.schema
->;
+type ResourceDemandPlan = ArtifactReadValueOf<typeof resourceDemandArtifacts.resourceDemandPlan>;
 type ResourceDemandExclusionReason = ResourceDemandPlan["excluded"][number]["reason"];
 /** Habitat output admitted only after every typed-array class and map cardinality is checked. */
 export type HabitatFields = HabitatFieldsOutput;

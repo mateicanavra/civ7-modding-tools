@@ -1,7 +1,7 @@
 import { isAnyRiverClass } from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-class.js";
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { PlanVegetationStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const VEGETATION_FEATURE_INTENTS = new Set([
   "forest",
@@ -16,8 +16,8 @@ const VEGETATION_FEATURE_INTENTS = new Set([
  * left by wetlands. Vegetation is the terminal feature-planning family, so only
  * its durable placement intent is published.
  */
-export const PlanVegetationStep = createStep(PlanVegetationStepContract, {
-  run: (context, config, ops, deps) => {
+export const PlanVegetationStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const prev = deps.artifacts.occupancyWetlands.read(context);
     const classification = deps.artifacts.biomeClassification.read(context);
     const climateIndices = deps.artifacts.climateIndices.read(context);
@@ -42,7 +42,7 @@ export const PlanVegetationStep = createStep(PlanVegetationStepContract, {
           : 0;
     }
 
-    const seed = ctxStepSeed(context, PlanVegetationStepContract.id, "ecology/plan-vegetation");
+    const seed = ctxStepSeed(context, config.id, "ecology/plan-vegetation");
     const placements = ops.planVegetation(
       {
         width,
@@ -63,7 +63,7 @@ export const PlanVegetationStep = createStep(PlanVegetationStepContract, {
         featureOccupancyMask: prev.featureOccupancyMask,
         reserved: prev.reserved,
       },
-      config.planVegetation
+      stepConfig.planVegetation
     ).placements;
 
     placements.sort((a, b) => a.y * width + a.x - (b.y * width + b.x));

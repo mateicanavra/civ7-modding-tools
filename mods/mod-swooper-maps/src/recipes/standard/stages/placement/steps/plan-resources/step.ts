@@ -2,7 +2,7 @@ import { type OfficialResourceType, resolveResourceRuntimeIds } from "@civ7/map-
 import { INITIAL_MAP_RESOURCE_AUTHORING_AGE } from "@mapgen/domain/resources";
 import { deriveStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { PlanResourcesStepContract } from "./config.js";
+import { config } from "./config.js";
 import {
   assertHabitatFieldsOutput,
   buildResourceDemands,
@@ -16,8 +16,8 @@ import { projectResourcePlanViz } from "./viz.js";
  * Derives habitat lanes, resource-family demand, eligibility, and typed site
  * intent on the prepared engine surface before starts or resource stamping.
  */
-export const PlanResourcesStep = createStep(PlanResourcesStepContract, {
-  run: (context, config, ops, deps) => {
+export const PlanResourcesStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
     const topography = deps.artifacts.topography.read(context);
     const shelf = deps.artifacts.shelf.read(context);
@@ -61,7 +61,7 @@ export const PlanResourcesStep = createStep(PlanResourcesStepContract, {
         seaIceCover: cryosphere.seaIceCover,
         freezeIndex: climateIndices.freezeIndex,
       },
-      config.habitat
+      stepConfig.habitat
     );
     const plannerHabitat = assertHabitatFieldsOutput(habitat, width * height);
 
@@ -80,7 +80,7 @@ export const PlanResourcesStep = createStep(PlanResourcesStepContract, {
       lakeMask: plannerHabitat.lakeMask,
       iceMask: plannerHabitat.iceMask,
     };
-    const aquatic = ops.aquatic(aquaticInput, config.aquatic);
+    const aquatic = ops.aquatic(aquaticInput, stepConfig.aquatic);
 
     const cultivatedInput: Parameters<typeof ops.cultivated>[0] = {
       width,
@@ -104,7 +104,7 @@ export const PlanResourcesStep = createStep(PlanResourcesStepContract, {
       aridWithoutWaterMask: plannerHabitat.aridWithoutWaterMask,
       waterloggedMask: plannerHabitat.waterloggedMask,
     };
-    const cultivated = ops.cultivated(cultivatedInput, config.cultivated);
+    const cultivated = ops.cultivated(cultivatedInput, stepConfig.cultivated);
 
     const terrestrialInput: Parameters<typeof ops.terrestrial>[0] = {
       width,
@@ -126,7 +126,7 @@ export const PlanResourcesStep = createStep(PlanResourcesStepContract, {
       denseForestMask: plannerHabitat.denseForestMask,
       cultivatedPressureMask: plannerHabitat.cultivatedPressureMask,
     };
-    const terrestrial = ops.terrestrial(terrestrialInput, config.terrestrial);
+    const terrestrial = ops.terrestrial(terrestrialInput, stepConfig.terrestrial);
 
     const geologicalInput: Parameters<typeof ops.geological>[0] = {
       width,
@@ -156,7 +156,7 @@ export const PlanResourcesStep = createStep(PlanResourcesStepContract, {
       offshoreMask: plannerHabitat.offshoreMask,
       igneousTerrainMask: plannerHabitat.igneousTerrainMask,
     };
-    const geological = ops.geological(geologicalInput, config.geological);
+    const geological = ops.geological(geologicalInput, stepConfig.geological);
     const groups = ops.groups(
       {
         aquaticPlan: aquatic,
@@ -164,7 +164,7 @@ export const PlanResourcesStep = createStep(PlanResourcesStepContract, {
         terrestrialPlan: terrestrial,
         geologicalPlan: geological,
       },
-      config.groups
+      stepConfig.groups
     );
 
     // --- id evidence + policy legality + demand rows --------------------------------------------
@@ -221,7 +221,7 @@ export const PlanResourcesStep = createStep(PlanResourcesStepContract, {
         minimumAmountModifier: demandResult.minimumAmountModifier,
         demands: demandResult.demands,
       },
-      config.selectSites
+      stepConfig.selectSites
     );
 
     const demandPlan = {

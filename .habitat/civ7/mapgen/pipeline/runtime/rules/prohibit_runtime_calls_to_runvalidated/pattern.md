@@ -10,13 +10,13 @@ language js(typescript)
 
 or {
   `runValidated($...)` where {
-    $filename <: r".*mods/[^/]+/src/recipes/.*/stages/[^/]+/steps/[^/]+/.*\.ts$",
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)+steps/[^/]+/.*\.ts$",
     not { $filename <: r".*/config\.ts$" },
     not { $filename <: r".*\.(?:test|spec)\.ts$" },
     not { $filename <: r".*/(?:__tests__|tests?)/.*\.ts$" }
   },
   `$target.runValidated($...)` where {
-    $filename <: r".*mods/[^/]+/src/recipes/.*/stages/[^/]+/steps/[^/]+/.*\.ts$",
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)+steps/[^/]+/.*\.ts$",
     not { $filename <: r".*/config\.ts$" },
     not { $filename <: r".*\.(?:test|spec)\.ts$" },
     not { $filename <: r".*/(?:__tests__|tests?)/.*\.ts$" }
@@ -33,74 +33,74 @@ or {
 ## Matches fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot/step.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/biomes/steps/project-biomes/step.ts
 runValidated(operation);
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/vegetation/step.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/features/steps/plan-vegetation/step.ts
 ecology.ops.planTreeVegetation.runValidated(input, config.trees);
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/vegetation/helpers/runtime.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/features/steps/plan-vegetation/helpers/runtime.ts
 ecology.ops.planTreeVegetation.runValidated(input, config.trees);
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/strategies/default.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/score-biomes/strategies/balanced/index.ts
 scoreBiomes.runValidated(input, config);
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/callback/step.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/biomes/steps/callback/step.ts
 const output = items.map((item) => runValidated(item));
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/async/step.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/biomes/steps/async/step.ts
 export async function run() {
   return await ecology.ops.scoreBiomes.runValidated(input, config);
 }
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/optional-chain/step.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/biomes/steps/optional-chain/step.ts
 ecology.ops.scoreBiomes?.runValidated(input, config);
 
-// @filename: mods/other-mod/src/recipes/standard/stages/ecology/steps/plot/step.ts
+// @filename: mods/alternate-mod/src/recipes/alternate-recipe/stages/world/projection/steps/project-world/step.ts
 otherRuntime.runValidated(input, config);
 ```
 
 ## Ignores fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot/step.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/biomes/steps/project-biomes/step.ts
 runOperation(operation);
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/helper-name/step.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/biomes/steps/helper-name/step.ts
 runValidatedLater(operation);
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/import-only/step.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/biomes/steps/import-only/step.ts
 import { runValidated } from "@swooper/mapgen-core/authoring/validation";
 
 export const validator = runValidated;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/property-reference/step.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/biomes/steps/property-reference/step.ts
 const runtime = ecology.ops.scoreBiomes.runValidated;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/dynamic-property/step.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/biomes/steps/dynamic-property/step.ts
 ecology.ops.scoreBiomes["runValidated"](input, config);
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/config.ts
 runValidated(operation);
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot/config.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/biomes/steps/project-biomes/config.ts
 runValidated(operation);
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot/step.test.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/biomes/steps/project-biomes/step.test.ts
 runValidated(operation);
 
-// @filename: mods/mod-swooper-maps/test/ecology/plot.test.ts
+// @filename: mods/example-mod/test/ecology/project-biomes.test.ts
 runValidated(operation);
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot/step.tsx
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/biomes/steps/project-biomes/step.tsx
 runValidated(operation);
 
-// @filename: mods/mod-swooper-maps/src/maps/continents.ts
+// @filename: mods/example-mod/src/maps/continents.ts
 runValidated(operation);
 
 // @filename: packages/mapgen-core/src/authoring/op/create-op.ts
 op.runValidated(input, config);
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/index.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/score-biomes/index.ts
 scoreBiomes.runValidated(input, config);
 ```

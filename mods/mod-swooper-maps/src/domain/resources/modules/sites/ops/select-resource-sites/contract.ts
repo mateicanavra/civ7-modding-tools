@@ -4,10 +4,15 @@ import {
   ResourceSymbolSchema,
 } from "../../../../model/atoms/resource-family.schema.js";
 import {
+  ResourcePlanPerTypeSchema,
+  ResourcePlanRegionMinimumSchema,
+  ResourcePlanSettingsSchema,
+} from "../../../../model/atoms/resource-plan-evidence.schema.js";
+import {
   ResourceLaneKindSchema,
-  ResourceSitePlanSchema,
-} from "../../../../model/atoms/resource-site-plan.schema.js";
-import { ResourceRegionMinimumRequirementSchema } from "../../model/atoms/region-minimum-requirement.schema.js";
+  ResourcePlanIntentSchema,
+} from "../../../../model/atoms/resource-site-intent.schema.js";
+import { ResourceRegionMinimumRequirementSchema } from "../../../../model/atoms/region-minimum-requirement.schema.js";
 import blueNoiseRotationDefinition from "./strategies/blue-noise-rotation/config.js";
 
 /**
@@ -89,7 +94,28 @@ const SelectResourceSitesContract = defineOp({
     },
     { additionalProperties: false }
   ),
-  output: ResourceSitePlanSchema,
+  output: Type.Object(
+    {
+      width: Type.Integer({ minimum: 1 }),
+      height: Type.Integer({ minimum: 1 }),
+      seed: Type.Integer(),
+      plannedCount: Type.Integer({ minimum: 0 }),
+      rotationCount: Type.Integer({ minimum: 0 }),
+      rangeFloorCount: Type.Integer({ minimum: 0 }),
+      regionMinimumCount: Type.Integer({ minimum: 0 }),
+      siteSpacingTiles: Type.Integer({ minimum: 0 }),
+      equitySkippedSiteCount: Type.Integer({ minimum: 0 }),
+      intents: Type.Array(ResourcePlanIntentSchema),
+      perType: Type.Array(ResourcePlanPerTypeSchema),
+      regionMinimums: Type.Array(ResourcePlanRegionMinimumSchema),
+      settings: ResourcePlanSettingsSchema,
+    },
+    {
+      additionalProperties: false,
+      description:
+        "Deterministic resource-site plan with symbolic intents, per-type counts, regional obligations, and the settings that produced them.",
+    }
+  ),
   strategies: [blueNoiseRotationDefinition],
 });
 

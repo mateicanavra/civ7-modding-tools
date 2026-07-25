@@ -4,7 +4,7 @@ import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampFinite } from "@swooper/mapgen-core/lib/math";
 import { defineStandardVizMeta } from "../../../../../viz.js";
 import type { MorphologyCoastRuggednessKnob } from "../../index.js";
-import { RuggedCoastsStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const GROUP_COASTLINES = "Morphology / Coastlines";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
@@ -16,44 +16,44 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * geography; this step only owns carving + reconciliation + the carved metrics that
  * mountains (stage morphology-features) consumes.
  */
-export const RuggedCoastsStep = createStep(RuggedCoastsStepContract, {
-  normalize: (config, ctx) => {
+export const RuggedCoastsStep = createStep(config, {
+  normalize: (stepConfig, ctx) => {
     const { coastRuggedness } = ctx.knobs as Readonly<{
       coastRuggedness?: MorphologyCoastRuggednessKnob;
     }>;
     const multiplier = MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER[coastRuggedness ?? "normal"] ?? 1.0;
 
     const coastlinesSelection =
-      config.coastlines.strategy === "plate-aware-carving"
+      stepConfig.coastlines.strategy === "plate-aware-carving"
         ? {
-            ...config.coastlines,
+            ...stepConfig.coastlines,
             config: {
-              ...config.coastlines.config,
+              ...stepConfig.coastlines.config,
               coast: {
-                ...config.coastlines.config.coast,
+                ...stepConfig.coastlines.config.coast,
                 plateBias: {
-                  ...config.coastlines.config.coast.plateBias,
+                  ...stepConfig.coastlines.config.coast.plateBias,
                   bayWeight: clampFinite(
-                    config.coastlines.config.coast.plateBias.bayWeight * multiplier,
+                    stepConfig.coastlines.config.coast.plateBias.bayWeight * multiplier,
                     0
                   ),
                   bayNoiseBonus: clampFinite(
-                    config.coastlines.config.coast.plateBias.bayNoiseBonus * multiplier,
+                    stepConfig.coastlines.config.coast.plateBias.bayNoiseBonus * multiplier,
                     0
                   ),
                   fjordWeight: clampFinite(
-                    config.coastlines.config.coast.plateBias.fjordWeight * multiplier,
+                    stepConfig.coastlines.config.coast.plateBias.fjordWeight * multiplier,
                     0
                   ),
                 },
               },
             },
           }
-        : config.coastlines;
+        : stepConfig.coastlines;
 
-    return { ...config, coastlines: coastlinesSelection };
+    return { ...stepConfig, coastlines: coastlinesSelection };
   },
-  run: (context, config, ops, deps) => {
+  run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
     const beltDrivers = deps.artifacts.beltDrivers.read(context);
     const baseTopography = deps.artifacts.baseTopography.read(context);
@@ -68,7 +68,7 @@ export const RuggedCoastsStep = createStep(RuggedCoastsStepContract, {
         boundaryType: beltDrivers.boundaryType,
         rngSeed,
       },
-      config.coastlines
+      stepConfig.coastlines
     );
 
     const updatedLandMask = result.landMask;
@@ -87,7 +87,7 @@ export const RuggedCoastsStep = createStep(RuggedCoastsStepContract, {
         elevation: baseTopography.elevation,
         seaLevel: seaLevelValue,
       },
-      config.reconcileHeightfield
+      stepConfig.reconcileHeightfield
     );
     const carvedTopography = {
       elevation: reconciled.elevation,
@@ -119,7 +119,7 @@ export const RuggedCoastsStep = createStep(RuggedCoastsStepContract, {
     }
     const { distanceToCoast } = ops.distanceToCoast(
       { width, height, coastal },
-      config.distanceToCoast
+      stepConfig.distanceToCoast
     );
 
     const carvedCoastline = {

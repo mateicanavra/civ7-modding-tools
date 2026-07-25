@@ -41,11 +41,11 @@ uses the separate runtime router.
 - `mods/mod-swooper-maps/src/domain/morphology/contract.ts` (`defineDomain("morphology", modules)`)
 - `mods/mod-swooper-maps/src/domain/morphology/router.ts` (`createDomainRouter`)
 - `mods/mod-swooper-maps/src/domain/morphology/modules/*/artifacts/index.ts` (module-owned `artifacts` catalogs)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/routing/steps/routing/config.ts` (`RoutingStepContract.artifacts.provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/rugged-coasts/config.ts` (`RuggedCoastsStepContract.artifacts.provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/config.ts` (`ComputeShelfStepContract.artifacts.provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/config.ts` (`VolcanoesStepContract.artifacts.provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/landmasses/config.ts` (`LandmassesStepContract.artifacts.provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/routing/steps/routing/config.ts` (`config.artifacts.provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/rugged-coasts/config.ts` (`config.artifacts.provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/config.ts` (`config.artifacts.provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/config.ts` (`config.artifacts.provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/landmasses/config.ts` (`config.artifacts.provides`)
 
 ## Target Architecture (Truth vs Projection)
 
@@ -65,7 +65,7 @@ artifact evidence consumed through declared step contracts.
 
 - `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/artifacts/topography.artifact.ts` (`artifact.schema`)
 - `mods/mod-swooper-maps/src/domain/morphology/modules/erosion/artifacts/substrate.artifact.ts` (`artifact.schema`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts` (`LandmassPlatesStepContract.artifacts`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts` (`config.artifacts`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/step.ts` (publishing the initial topography and substrate evidence)
 
 ### Projections
@@ -80,9 +80,9 @@ artifact evidence consumed through declared step contracts.
 
 - `mods/mod-swooper-maps/src/recipes/standard/water-surface-parity.ts` (`assertNoWaterDrift`)
 - `mods/mod-swooper-maps/src/recipes/standard/water-surface-parity.ts` (`restoreProjectedCoastTerrain`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map/morphology/steps/plot-coasts/step.ts` (seeds source coast from post-island `shelf.coastalWater || shelf.shelfMask`, applies the Civ7 coast-ring policy, then guards with `assertWaterDriftWithinPolicy`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map/morphology/steps/plot-continents/step.ts` (`deps.engine.stampContinents`, `assertWaterDriftWithinPolicy`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map/elevation/steps/build-elevation/step.ts` (`deps.engine.buildElevation`, `assertWaterDriftWithinPolicy`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-coasts/step.ts` (seeds source coast from post-island `shelf.coastalWater || shelf.shelfMask`, applies the Civ7 coast-ring policy, then guards with `assertWaterDriftWithinPolicy`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-continents/step.ts` (`deps.engine.stampContinents`, `assertWaterDriftWithinPolicy`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/elevation/steps/build-elevation/step.ts` (`deps.engine.buildElevation`, `assertWaterDriftWithinPolicy`)
 
 ## Contract
 
@@ -107,7 +107,7 @@ At the **standard recipe wiring** level, Morphology requires the following upstr
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/domain/morphology/modules/*/ops/*/contract.ts` (`defineOp({ input: ... })` for each op)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts` (`LandmassPlatesStepContract.artifacts.requires`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts` (`config.artifacts.requires`)
 - `mods/mod-swooper-maps/src/domain/foundation/modules/projection/artifacts/index.ts` (`artifacts.crustTiles`, `artifacts.tectonicHistoryTiles`, `artifacts.tectonicProvenanceTiles`)
 - `mods/mod-swooper-maps/src/domain/morphology/modules/terrain/ops/compute-base-topography/contract.ts` (input `crustBaseElevation` described as “projected from mesh crust truth”)
 
@@ -152,15 +152,15 @@ Morphology’s **simulation** steps do not provide effect tags directly in the s
 
 This section is a navigation aid: concrete file paths that back the contract claims in this domain reference.
 
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts` (`LandmassPlatesStepContract.requires/provides` are empty)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/routing/steps/routing/config.ts` (`RoutingStepContract.requires/provides` are empty)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/config.ts` (`ComputeShelfStepContract.requires/provides` are empty)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts` (`config.requires/provides` are empty)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/routing/steps/routing/config.ts` (`config.requires/provides` are empty)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/config.ts` (`config.requires/provides` are empty)
 - `mods/mod-swooper-maps/src/recipes/standard/tags.ts` (`MAP_PROJECTION_EFFECT_TAGS.map.*`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map/morphology/steps/plot-coasts/config.ts` (`PlotCoastsStepContract` requires `artifact:morphology.shelf` and provides `coastsPlotted`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map/morphology/steps/plot-continents/config.ts` (`PlotContinentsStepContract.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map/morphology/steps/plot-mountains/config.ts` (`PlotMountainsStepContract.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map/morphology/steps/plot-volcanoes/config.ts` (`PlotVolcanoesStepContract.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map/elevation/steps/build-elevation/config.ts` (`BuildElevationStepContract.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-coasts/config.ts` (`config` requires `artifact:morphology.shelf` and provides `coastsPlotted`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-continents/config.ts` (`config.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-mountains/config.ts` (`config.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-volcanoes/config.ts` (`config.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/elevation/steps/build-elevation/config.ts` (`config.requires/provides`)
 
 ### Value domains (enums / ranges)
 
@@ -264,7 +264,7 @@ Fields:
 
 - `mods/mod-swooper-maps/src/domain/morphology/modules/coasts/artifacts/carved-coastline.artifact.ts` (`artifact.schema`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/rugged-coasts/step.ts` (`computeDistanceToCoast`, publishing `carvedCoastline`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/mountains/config.ts` (`MountainsStepContract.artifacts.requires`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/mountains/config.ts` (`config.artifacts.requires`)
 
 ### `artifact:morphology.shelf` (post-island evidence; tile space)
 
@@ -286,9 +286,9 @@ artifact and therefore are not downstream domain authority.
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/domain/morphology/modules/shelf/artifacts/shelf.artifact.ts` (`artifact.schema`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/config.ts` (`ComputeShelfStepContract.artifacts`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/config.ts` (`config.artifacts`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/step.ts` (recomputing post-island coastline metrics and publishing `shelf`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map/morphology/steps/plot-coasts/config.ts` (`PlotCoastsStepContract.artifacts.requires`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-coasts/config.ts` (`config.artifacts.requires`)
 
 ### `artifact:morphology.volcanoes` (truth-only intent; tile space; immutable-at-F2)
 
@@ -304,7 +304,7 @@ This artifact is an **intent snapshot**: it is not a promise that a particular e
 - `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/artifacts/volcanoes.artifact.ts` (`artifact.schema`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/config.ts` (docstring: “truth-only intent”)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/step.ts` (publishing `{ volcanoMask, volcanoes }`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map/morphology/steps/plot-volcanoes/step.ts` (projection into engine terrain + feature)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-volcanoes/step.ts` (projection into engine terrain + feature)
 
 ### `artifact:morphology.landmasses` (derived snapshot; tile space; immutable-at-F2)
 
@@ -389,7 +389,7 @@ only for the active-margin diagnostic; it does not determine shelf membership.
 
 - `mods/mod-swooper-maps/src/domain/morphology/modules/shelf/ops/compute-shelf-mask/contract.ts` (`ComputeShelfMaskContract`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/step.ts` (invoking `ops.shelfMask` after post-island adjacency and distance recomputation)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map/morphology/steps/plot-coasts/step.ts` (projecting `shelf.shelfMask` into `TERRAIN_COAST`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-coasts/step.ts` (projecting `shelf.shelfMask` into `TERRAIN_COAST`)
 
 #### `morphology/compute-flow-routing` → `{ flowDir, flowAccum, basinId }`
 
@@ -450,7 +450,7 @@ without preserving the retired combined op as a compatibility lane.
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/ops/plan-ridges/contract.ts` (`PlanRidgesContract`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/mountains/config.ts` (`MountainsStepContract.ops.ridges`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/mountains/config.ts` (`config.ops.ridges`)
 
 #### `morphology/plan-foothills` → `{ hillMask }`
 
@@ -461,7 +461,7 @@ foothill classification must use one invariant terrain-classification posture.
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/ops/plan-foothills/contract.ts` (`PlanFoothillsContract`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/mountains/config.ts` (`MountainsStepContract.ops.foothills`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/mountains/config.ts` (`config.ops.foothills`)
 
 ## Knobs & Normalization
 
@@ -529,7 +529,7 @@ projection consumes topography plus the same shelf artifact.
 - `mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts` (`standardStageContractManifest` canonical stage and step order)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.ts` (requires landforms `topography` and shelf `shelf`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/biomes/steps/biomes/config.ts` (requires landforms `topography`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map/morphology/steps/plot-coasts/config.ts` (requires landforms `topography` and shelf `shelf`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-coasts/config.ts` (requires landforms `topography` and shelf `shelf`)
 
 ### `morphology-coasts` (`landmass-plates` → `rugged-coasts`)
 
@@ -563,9 +563,9 @@ Continental shelf computation is not owned here.
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/index.ts` (`steps: [landmassPlates, ruggedCoasts]`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts` (`LandmassPlatesStepContract.artifacts`, `LandmassPlatesStepContract.ops`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts` (`config.artifacts`, `config.ops`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts` (publishing base topography, base substrate, and belt drivers)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/rugged-coasts/config.ts` (`RuggedCoastsStepContract.artifacts`, `RuggedCoastsStepContract.ops`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/rugged-coasts/config.ts` (`config.artifacts`, `config.ops`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/rugged-coasts/step.ts` (publishing pre-island `carvedCoastline` without shelf evidence)
 
 ### `morphology-routing` (`routing`)
@@ -583,7 +583,7 @@ Derives and publishes flow-routing evidence from carved topography.
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/routing/index.ts` (`steps: [routing]`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/routing/steps/routing/config.ts` (`RoutingStepContract.artifacts`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/routing/steps/routing/config.ts` (`config.artifacts`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/routing/steps/routing/step.ts` (publishing routing evidence)
 
 ### `morphology-erosion` (`geomorphology`)
@@ -605,7 +605,7 @@ publishes distinct post-erosion identities consumed downstream.
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/index.ts` (`steps: [geomorphology]`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/config.ts` (`GeomorphologyStepContract.artifacts`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/config.ts` (`config.artifacts`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/step.ts` (producing the post-erosion topography/substrate vintage)
 
 ### `morphology-features` (`islands` → `mountains` → `volcanoes` → `landmasses`)
@@ -623,10 +623,10 @@ publishes volcano intent, and publishes the landmass decomposition snapshot.
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/index.ts` (`steps: [islands, mountains, volcanoes, landmasses]`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/islands/config.ts` (`IslandsStepContract`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/mountains/config.ts` (`MountainsStepContract`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/config.ts` (`VolcanoesStepContract`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/landmasses/config.ts` (`LandmassesStepContract`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/islands/config.ts` (`config`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/mountains/config.ts` (`config`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/config.ts` (`config`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/landmasses/config.ts` (`config`)
 
 ### `morphology-shelf` (`compute-shelf`)
 
@@ -652,7 +652,7 @@ publishes both as one coherent shelf artifact.
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/index.ts` (`steps: { "compute-shelf": ComputeShelfStep }`, `shelfWidth` knob)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/config.ts` (`ComputeShelfStepContract.artifacts`, `ComputeShelfStepContract.ops`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/config.ts` (`config.artifacts`, `config.ops`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/step.ts` (post-island adjacency/distance recomputation and `shelf` publication)
 - `mods/mod-swooper-maps/src/domain/morphology/modules/shelf/artifacts/shelf.artifact.ts` (`artifact.schema`)
 
@@ -671,12 +671,12 @@ Applies Morphology truth into the engine adapter (terrain/features), and emits e
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts` (`map-morphology` step order)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map/morphology/index.ts` (runtime stage composition)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map/morphology/steps/plot-coasts/config.ts` (`PlotCoastsStepContract.artifacts.requires`, `PlotCoastsStepContract.provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map/morphology/steps/plot-continents/step.ts` (re-derives the fixed Civ7 coast projection after terrain maintenance)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map/morphology/steps/plot-mountains/config.ts` (`PlotMountainsStepContract.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map/morphology/steps/plot-volcanoes/config.ts` (`PlotVolcanoesStepContract.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map/elevation/steps/build-elevation/config.ts` (`BuildElevationStepContract.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/index.ts` (runtime stage composition)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-coasts/config.ts` (`config.artifacts.requires`, `config.provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-continents/step.ts` (re-derives the fixed Civ7 coast projection after terrain maintenance)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-mountains/config.ts` (`config.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-volcanoes/config.ts` (`config.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/elevation/steps/build-elevation/config.ts` (`config.requires/provides`)
 
 **Coast terrain maintenance invariant**
 
@@ -729,24 +729,24 @@ This page contains many inline “Ground truth anchors” callouts. This section
   - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/index.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/index.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/index.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map/morphology/index.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/index.ts`
 - Morphology artifact authority catalogs: `mods/mod-swooper-maps/src/domain/morphology/modules/*/artifacts/index.ts`; each module catalog names only its owned products, and each artifact owns its private schema and complete validator
 
 - Wiring + effect tags (current): `mods/mod-swooper-maps/src/recipes/standard/tags.ts` (`MAP_PROJECTION_EFFECT_TAGS.map.*`)
 
 - Example step contracts (truth stages):
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts` (`LandmassPlatesStepContract`)
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/routing/steps/routing/config.ts` (`RoutingStepContract`)
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/rugged-coasts/config.ts` (`RuggedCoastsStepContract`)
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/config.ts` (`ComputeShelfStepContract`)
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/config.ts` (`VolcanoesStepContract`)
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/landmasses/config.ts` (`LandmassesStepContract`)
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts` (`config`)
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/routing/steps/routing/config.ts` (`config`)
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/rugged-coasts/config.ts` (`config`)
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/config.ts` (`config`)
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/config.ts` (`config`)
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/landmasses/config.ts` (`config`)
 
 - Example step contracts (projection stage):
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map/morphology/steps/plot-coasts/config.ts` (`PlotCoastsStepContract`)
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map/morphology/steps/plot-continents/config.ts` (`PlotContinentsStepContract`)
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map/morphology/steps/plot-mountains/config.ts` (`PlotMountainsStepContract`)
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map/morphology/steps/plot-volcanoes/config.ts` (`PlotVolcanoesStepContract`)
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map/elevation/steps/build-elevation/config.ts` (`BuildElevationStepContract`)
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-coasts/config.ts` (`config`)
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-continents/config.ts` (`config`)
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-mountains/config.ts` (`config`)
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-volcanoes/config.ts` (`config`)
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/elevation/steps/build-elevation/config.ts` (`config`)
 
 - Policy (truth vs projection posture): `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`

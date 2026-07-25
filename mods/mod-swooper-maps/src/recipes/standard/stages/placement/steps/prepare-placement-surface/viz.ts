@@ -1,19 +1,23 @@
 import type { VizProjection } from "@swooper/mapgen-viz";
 import {
   definePlacementVizCategoryMeta,
+  PLACEMENT_VIZ_GROUP,
   PLACEMENT_TILE_SPACE_ID,
   transparentNoneCategory,
 } from "../../viz.js";
-import type { TerrainValidationBoundarySnapshot } from "./terrain-validation-readback.js";
+import type { TerrainValidationBoundaryReadback } from "./terrain-validation-readback.js";
 
 /**
- * Projects per-tile drift behind the surface-maintenance parity counters.
- * It observes completed engine snapshots and never participates in validation or restamping.
+ * Projects exact maintenance-boundary readbacks plus the derived drift behind
+ * placement parity counters. The projections preserve diagnostic evidence for
+ * Studio and live-parity consumers without turning mutable engine state into a
+ * causal artifact.
  */
-export function projectPlacementSurfaceDriftViz(input: {
+export function projectPlacementSurfaceViz(input: {
   acceptedLakeMask: Uint8Array;
-  beforeValidate: TerrainValidationBoundarySnapshot;
-  afterMaintenance: TerrainValidationBoundarySnapshot;
+  beforeValidate: TerrainValidationBoundaryReadback;
+  afterValidate: TerrainValidationBoundaryReadback;
+  afterMaintenance: TerrainValidationBoundaryReadback;
   dimensions: Readonly<{ width: number; height: number }>;
 }): readonly VizProjection[] {
   const { width, height } = input.dimensions;
@@ -36,6 +40,7 @@ export function projectPlacementSurfaceDriftViz(input: {
   }
 
   return [
+    ...projectMaintenanceBoundaries(input),
     {
       kind: "grid",
       dataTypeKey: "map.placement.surface.lakeDrift",
@@ -76,9 +81,57 @@ export function projectPlacementSurfaceDriftViz(input: {
           label: "Terrain Validation Drift",
           visibility: "debug",
           description:
-            "Tiles the engine's validateAndFixTerrain/maintenance pass changed between the before-validate and after-maintenance snapshots (terrain type and/or water classification).",
+            "Tiles the engine's validateAndFixTerrain/maintenance pass changed between the before-validate and after-maintenance readbacks (terrain type and/or water classification).",
         }
       ),
     },
   ];
+}
+
+function projectMaintenanceBoundaries(input: {
+  beforeValidate: TerrainValidationBoundaryReadback;
+  afterValidate: TerrainValidationBoundaryReadback;
+  afterMaintenance: TerrainValidationBoundaryReadback;
+  dimensions: Readonly<{ width: number; height: number }>;
+}): readonly VizProjection[] {
+  return [
+    projectMaintenanceBoundary(input.beforeValidate, "before-validate", input.dimensions),
+    projectMaintenanceBoundary(input.afterValidate, "after-validate", input.dimensions),
+    projectMaintenanceBoundary(input.afterMaintenance, "after-maintenance", input.dimensions),
+  ];
+}
+
+function projectMaintenanceBoundary(
+  boundary: TerrainValidationBoundaryReadback,
+  variantKey: "before-validate" | "after-validate" | "after-maintenance",
+  dimensions: Readonly<{ width: number; height: number }>
+): VizProjection {
+  return {
+    kind: "gridFields",
+    dataTypeKey: "map.placement.surface.maintenanceBoundary",
+    variantKey,
+    spaceId: PLACEMENT_TILE_SPACE_ID,
+    dims: dimensions,
+    fields: {
+      terrain: { format: "i32", values: boundary.terrain },
+      waterMask: { format: "u8", values: boundary.waterMask },
+      lakeMask: { format: "u8", values: boundary.lakeMask },
+      areaId: { format: "i32", values: boundary.areaId },
+    },
+    meta: {
+      label: `Placement Surface: ${maintenanceBoundaryLabel(variantKey)}`,
+      group: PLACEMENT_VIZ_GROUP,
+      visibility: "debug",
+      description:
+        "Exact Civ7 terrain, water, lake, and area readback at one placement maintenance boundary.",
+    },
+  };
+}
+
+function maintenanceBoundaryLabel(
+  variantKey: "before-validate" | "after-validate" | "after-maintenance"
+): string {
+  if (variantKey === "before-validate") return "Before Validation";
+  if (variantKey === "after-validate") return "After Validation";
+  return "After Maintenance";
 }
