@@ -15,16 +15,16 @@ Positive structure closes each admitted test kind after the corpus expresses
 that model; source-to-test allowlists and generic `runtime`, `operations`,
 `recipe`, `support`, or `testing` cabinets remain forbidden.
 
-**Current container:** finish Foundation test ownership against the normalized
-source hierarchy. Placement's source hierarchy is sealed: its root composes
-`wonders` before `starts`, policy lives with wonders, consumers use the module
-surface, and direct domain-root operation source is structurally excluded.
-Foundation now receives one complete intent sieve before any Placement or
-Resources test work begins. The burn-down ends only when every surviving
-Foundation test names the behavior and causal owner it can actually regress,
-duplicate SDK guarantees are deleted, mixed tests are split, and the full
-mod-owned proof is green. Placement and Resources follow in separate Graphite
-layers; Morphology, Ecology, and Hydrology remain sealed reference sieves.
+**Current container:** disposition the initiative's temporary NOTE packets
+before opening another test family. Foundation test ownership is sealed: every
+survivor names an exact operation or artifact behavior, duplicate SDK
+guarantees and dead cross-module fixtures are gone, incidental generation uses
+the shared Civ7 setup, and the full owner proof is green. Each remaining NOTE
+must now be read as temporary input, absorbed into this rolling frame or its
+actual semantic authority, then deleted once its guidance has another owner.
+No NOTE becomes a backlog or permanent architecture surface. Placement and
+Resources test ownership follow in separate Graphite layers; Morphology,
+Ecology, and Hydrology remain sealed reference sieves.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -32,17 +32,20 @@ state is adapter observation; metrics, diagnostics, trace, and visualization
 are separate capabilities. Core owns the generic authoring/execution and
 domain-composition SDK, not Swooper's domain model.
 
-**Gradient:** inventory Foundation tests by intent, identify the already-owned
+**Gradient:** classify every NOTE by the semantic decision or container it
+informs, strengthen the rolling frame or canonical owner where information
+would otherwise be lost, and delete every fully integrated packet. Preserve
+only genuinely unintegrated guidance with an explicit present owner, never as
+ambient protected clutter. Once the baseline is clean, apply the same complete
+intent sieve to Placement, then Resources: identify the already-owned
 guarantee, delete duplicate schema/admission/cardinality proofs, split mixed
 tests, move surviving behavior to the narrowest causal owner, and replace
 incidental dimensions and seeds with shared Civ7 presets. Preserve synthetic
-geometry only where geometry is the subject. Run the full mod test owner plus
-focused Habitat laws, then repeat the same sealed layer for Placement and
-Resources. After the corpus is truthful, add only the smallest generic positive
-ratchet the repeated shape earns. Knip and JSDoc burn-down follow physical
-ownership so dead code is deleted before prose is repaired. The program ends
-only when generic laws, source tree, types, tests, Knip, and the boundary graph
-agree.
+geometry only where geometry is the subject. After the corpus is truthful, add
+only the smallest generic positive ratchet the repeated shape earns. Knip and
+JSDoc burn-down follow physical ownership so dead code is deleted before prose
+is repaired. The program ends only when generic laws, source tree, types,
+tests, Knip, and the boundary graph agree.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -55,8 +58,9 @@ entry only when the governing model or admitted direction changes enough to
 produce materially different work.
 
 **Protected context:** A.2 remains separate. User-owned root configuration,
-map-config edits, NOTE files, and unrelated worktrees stay outside this
-program's semantic cuts.
+map-config edits, unassessed NOTE packets, and unrelated worktrees stay outside
+semantic cuts. Once a NOTE is classified and integrated, deleting that
+temporary packet is the cleanup cut rather than a protected-file violation.
 
 **Generic primitive boundary:** Core may own only mechanically generic
 primitives such as clamps, hashes, interpolation/mixes, vectors, and grid/index
