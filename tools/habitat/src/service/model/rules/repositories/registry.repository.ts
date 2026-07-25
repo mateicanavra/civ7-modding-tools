@@ -592,6 +592,7 @@ function ruleRunnerSemanticsIssues(
   const issues: RuleRegistryIssue[] = [];
   rules.forEach((rule, index) => {
     const path = `${sourcePath}/rules/${index}`;
+    issues.push(...affirmedBlueprintSemanticsIssues(rule, path));
     if (rule.runner.name === "grit") {
       if (rule.patternName && rule.patternName !== rule.runner.patternName) {
         issues.push(
@@ -653,6 +654,42 @@ function ruleRunnerSemanticsIssues(
     }
   });
   return issues;
+}
+
+function affirmedBlueprintSemanticsIssues(
+  rule: RuleRegistryRecord,
+  sourcePath: string
+): RuleRegistryIssue[] {
+  if (!isAffirmedBlueprintManifest(rule.manifestFilePath)) return [];
+
+  const issues: RuleRegistryIssue[] = [];
+  if (rule.lane !== "enforced") {
+    issues.push(
+      runnerIssue(
+        sourcePath,
+        rule.id,
+        "top-level blueprint authority is affirmed and must remain in the enforced lane."
+      )
+    );
+  }
+  if (rule.runner.name === "grit" && rule.hookCheck !== true) {
+    issues.push(
+      runnerIssue(
+        sourcePath,
+        rule.id,
+        "top-level blueprint Grit authority must participate in hook checks."
+      )
+    );
+  }
+  return issues;
+}
+
+function isAffirmedBlueprintManifest(manifestFilePath: string | undefined): boolean {
+  if (!manifestFilePath) return false;
+  const normalized = toPosixPath(manifestFilePath);
+  return (
+    normalized.startsWith(".habitat/blueprints/") || normalized.includes("/.habitat/blueprints/")
+  );
 }
 
 function gritPatternPathIssues(rule: RuleRegistryRecord, sourcePath: string): RuleRegistryIssue[] {

@@ -131,6 +131,49 @@ describe("rule registry contract", () => {
     );
   });
 
+  test("keeps affirmed blueprint authority enforced and hook-scoped", () => {
+    const blueprintManifest = ".habitat/blueprints/domain/require-domain-shape/rule.json";
+
+    expectInvalid(
+      parseRuleRegistryDocument(
+        registryDocument([
+          baseRule({
+            lane: "advisory",
+            manifestFilePath: blueprintManifest,
+          }),
+        ]),
+        "inline-registry.json"
+      ),
+      "registry-schema-invalid"
+    );
+
+    expectInvalid(
+      parseRuleRegistryDocument(
+        registryDocument([
+          baseRule({
+            runner: gritRunner("require-domain-shape"),
+            manifestFilePath: blueprintManifest,
+          }),
+        ]),
+        "inline-registry.json"
+      ),
+      "registry-schema-invalid"
+    );
+
+    expect(
+      parseRuleRegistryDocument(
+        registryDocument([
+          baseRule({
+            runner: gritRunner("require-domain-shape"),
+            hookCheck: true,
+            manifestFilePath: blueprintManifest,
+          }),
+        ]),
+        "inline-registry.json"
+      )
+    ).toMatchObject({ ok: true });
+  });
+
   test("rejects missing manifest identity, placement, and runner facts", () => {
     const { id: _id, ...missingId } = baseRule();
     const { title: _title, ...missingTitle } = baseRule();
