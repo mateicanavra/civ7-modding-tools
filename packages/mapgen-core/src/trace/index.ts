@@ -155,19 +155,19 @@ export function canonicalize(value: unknown): unknown {
       String(key),
       canonicalize(entry),
     ]);
-    entries.sort((a, b) => a[0].localeCompare(b[0]));
+    entries.sort((a, b) => compareCanonicalStrings(a[0], b[0]));
     return entries;
   }
 
   if (value instanceof Set) {
     const entries = Array.from(value.values()).map((entry) => canonicalize(entry));
-    entries.sort((a, b) => stableKey(a).localeCompare(stableKey(b)));
+    entries.sort((a, b) => compareCanonicalStrings(stableKey(a), stableKey(b)));
     return entries;
   }
 
   if (isPlainObject(value)) {
     const result: Record<string, unknown> = {};
-    const keys = Object.keys(value).sort((a, b) => a.localeCompare(b));
+    const keys = Object.keys(value).sort();
     for (const key of keys) {
       const entry = value[key];
       if (entry === undefined) continue;
@@ -182,6 +182,10 @@ export function canonicalize(value: unknown): unknown {
 function stableKey(value: unknown): string {
   if (typeof value === "string") return value;
   return JSON.stringify(canonicalize(value)) ?? String(value);
+}
+
+function compareCanonicalStrings(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
 }
 
 /** Serializes trace data with deterministic key ordering across supported hosts. */
