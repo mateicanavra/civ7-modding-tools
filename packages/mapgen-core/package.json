@@ -49,6 +49,10 @@
       "types": "./dist/lib/math/index.d.ts",
       "import": "./dist/lib/math/index.js"
     },
+    "./lib/hash": {
+      "types": "./dist/lib/hash/index.d.ts",
+      "import": "./dist/lib/hash/index.js"
+    },
     "./lib/grid": {
       "types": "./dist/lib/grid/index.d.ts",
       "import": "./dist/lib/grid/index.js"

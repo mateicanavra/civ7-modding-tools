@@ -4,6 +4,7 @@ import {
   type Static,
   Type,
 } from "@swooper/mapgen-core/authoring/contracts";
+import { fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
 
 const ResourcePlacementRejectionReasonSchema = Type.Union([
   Type.Literal("out-of-bounds"),
@@ -193,17 +194,6 @@ type ResourcePlacementResourceSummary = Static<typeof ResourcePlacementResourceS
 type ResourceReconciliationShortfall = Static<typeof ResourceReconciliationShortfallSchema>;
 
 const RESOURCE_PLACEMENT_STATUSES = ["placed", "rejected", "mismatch"] as const;
-const FNV1A_32_OFFSET = 0x811c9dc5;
-const FNV1A_32_PRIME = 0x01000193;
-
-function hash32Hex(input: string): string {
-  let hash = FNV1A_32_OFFSET;
-  for (let index = 0; index < input.length; index += 1) {
-    hash ^= input.charCodeAt(index);
-    hash = Math.imul(hash, FNV1A_32_PRIME);
-  }
-  return (hash >>> 0).toString(16).padStart(8, "0");
-}
 
 function deriveCoordinateDigest(
   outcomes: readonly ResourcePlacementOutcome[],
@@ -228,7 +218,7 @@ function deriveCoordinateDigest(
         outcome.status === "placed" ? "placed" : outcome.reason,
       ].join(":")
     );
-  return { count: rows.length, hash32: hash32Hex(rows.join("|")) };
+  return { count: rows.length, hash32: fnv1a32StringHex(rows.join("|")) };
 }
 
 /**

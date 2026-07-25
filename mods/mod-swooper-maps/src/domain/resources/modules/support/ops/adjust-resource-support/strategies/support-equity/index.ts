@@ -1,6 +1,7 @@
 import type { OfficialResourceType } from "@civ7/map-policy";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { getHexRadiusIndicesOddQ, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
+import { fnv1a32String } from "@swooper/mapgen-core/lib/hash";
 import Contract from "../../contract.js";
 import StrategyDefinition from "./config.js";
 
@@ -113,15 +114,6 @@ function hash32(seed: number, a: number, b: number): number {
 
 function hash01(seed: number, a: number, b: number): number {
   return hash32(seed, a, b) / 0x100000000;
-}
-
-function resourceSalt(resourceType: string): number {
-  let hash = 0x811c9dc5;
-  for (let i = 0; i < resourceType.length; i++) {
-    hash ^= resourceType.charCodeAt(i);
-    hash = Math.imul(hash, 0x01000193) >>> 0;
-  }
-  return hash >>> 0;
 }
 
 /**
@@ -440,7 +432,7 @@ const supportEquityStrategy = createStrategy(Contract, StrategyDefinition, {
         const score =
           (eligibility.intensity[plotIndex] ?? 0) +
           ruleState.affinityBonus +
-          hash01(seed, plotIndex, (0x5e5 ^ resourceSalt(eligibility.resourceType)) >>> 0) * 1e-3;
+          hash01(seed, plotIndex, (0x5e5 ^ fnv1a32String(eligibility.resourceType)) >>> 0) * 1e-3;
         yield { plotIndex, score };
       }
     };
