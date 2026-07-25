@@ -55,3 +55,27 @@ export function fnv1a32Int32Values(values: Iterable<number>): number {
 export function fnv1a32Int32ValuesHex(values: Iterable<number>): string {
   return fnv1a32Int32Values(values).toString(16).padStart(8, "0");
 }
+
+/**
+ * Hashes the exact logical byte window exposed by an ArrayBuffer view.
+ *
+ * Bytes are mixed in increasing address order from `byteOffset` through
+ * `byteOffset + byteLength`; bytes outside a subview never participate.
+ * Numeric interpretation and endianness remain the producer's responsibility:
+ * this function deliberately preserves the view's stored representation so
+ * fractional typed-array values and other bit-level evidence cannot collapse.
+ */
+export function fnv1a32Bytes(view: ArrayBufferView): number {
+  const bytes = new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
+  let hash = FNV1A_32_OFFSET_BASIS;
+  for (const byte of bytes) {
+    hash ^= byte;
+    hash = Math.imul(hash, FNV1A_32_PRIME);
+  }
+  return hash >>> 0;
+}
+
+/** Formats {@link fnv1a32Bytes} as a stable eight-character lowercase hex digest. */
+export function fnv1a32BytesHex(view: ArrayBufferView): string {
+  return fnv1a32Bytes(view).toString(16).padStart(8, "0");
+}
