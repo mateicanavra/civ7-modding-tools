@@ -1,13 +1,12 @@
 import ecology from "@mapgen/domain/ecology";
-import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Defines ordered wetland-family planning from habitat, hydrology, and post-reef occupancy. It
- * publishes wetland intent and the occupancy snapshot consumed by vegetation planning.
+ * Defines ordered wetland-family planning from habitat, hydrology, and admitted upstream
+ * feature intents. It publishes wetland intent for vegetation planning and projection.
  */
 export const config = defineStep({
   id: "plan-wetlands",
@@ -15,16 +14,17 @@ export const config = defineStep({
   provides: [],
   artifacts: {
     requires: [
-      biomeArtifacts.biomeClassification,
-      featureArtifacts.scoreLayers,
-      featureArtifacts.occupancyReefs,
+      featureArtifacts.featureSuitability,
+      featureArtifacts.floodplainIntents,
+      featureArtifacts.iceIntents,
+      featureArtifacts.reefIntents,
       hydrographyArtifacts.hydrography,
       hydrographyArtifacts.lakePlan,
       morphologyLandformsArtifacts.topography,
       morphologyLandformsArtifacts.mountains,
       morphologyLandformsArtifacts.volcanoes,
     ],
-    provides: [featureArtifacts.featureIntentsWetlands, featureArtifacts.occupancyWetlands],
+    provides: [featureArtifacts.wetlandIntents],
   },
   ops: {
     planWetlands: ecology.features.ops.planWetlands,
@@ -33,7 +33,7 @@ export const config = defineStep({
     {},
     {
       description:
-        "Deterministic wetlands-family planning. Consumes scoreLayers + occupancy and publishes wetland intents + an updated occupancy snapshot.",
+        "Deterministic wetland-family planning after admitted floodplain, ice, and reef intents.",
     }
   ),
 });

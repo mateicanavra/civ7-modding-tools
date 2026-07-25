@@ -1,6 +1,5 @@
 /// <reference types="@civ7/types" />
 
-import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import {
   CIV7_STANDARD_ROW_LATITUDE_BOUNDS,
   createMockAdapter,
@@ -19,6 +18,7 @@ import {
 } from "@civ7/studio-contract";
 import type { StudioRunGenerationManifest } from "@civ7/studio-run-workspace";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyCoastsArtifacts } from "@mapgen/domain/morphology/modules/coasts/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
@@ -746,11 +746,11 @@ export function runLocalFinalSurfaceSnapshot(
     if (event.data.type === "naturalWonder.planInput") evidence.naturalWonderPlanInput = event.data;
   }
   evidence.featureIntents = {
-    floodplains: observeArtifact(context, featureArtifacts.featureIntentsFloodplains),
-    vegetation: observeArtifact(context, featureArtifacts.featureIntentsVegetation),
-    wetlands: observeArtifact(context, featureArtifacts.featureIntentsWetlands),
-    reefs: observeArtifact(context, featureArtifacts.featureIntentsReefs),
-    ice: observeArtifact(context, featureArtifacts.featureIntentsIce),
+    floodplains: observeArtifact(context, featureArtifacts.floodplainIntents),
+    vegetation: observeArtifact(context, featureArtifacts.vegetationIntents),
+    wetlands: observeArtifact(context, featureArtifacts.wetlandIntents),
+    reefs: observeArtifact(context, featureArtifacts.reefIntents),
+    ice: observeArtifact(context, featureArtifacts.iceIntents),
   };
   evidence.featureProjection = featureProjection;
   const naturalWonderPlan = observeArtifact(context, placementWonderArtifacts.naturalWonderPlan);

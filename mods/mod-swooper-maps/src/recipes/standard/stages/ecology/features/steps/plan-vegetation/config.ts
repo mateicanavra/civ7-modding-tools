@@ -7,9 +7,8 @@ import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morpho
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Defines the final ordered Ecology family planner. It combines habitat truth with
- * post-wetland occupancy, publishes vegetation intent, and closes the deterministic occupancy
- * chain before projection.
+ * Defines the final ordered Ecology family planner. It combines habitat truth with all admitted
+ * upstream feature intents and publishes vegetation intent before projection.
  */
 export const config = defineStep({
   id: "plan-vegetation",
@@ -18,8 +17,11 @@ export const config = defineStep({
   artifacts: {
     requires: [
       biomeArtifacts.biomeClassification,
-      featureArtifacts.scoreLayers,
-      featureArtifacts.occupancyWetlands,
+      featureArtifacts.featureSuitability,
+      featureArtifacts.floodplainIntents,
+      featureArtifacts.iceIntents,
+      featureArtifacts.reefIntents,
+      featureArtifacts.wetlandIntents,
       climateArtifacts.climateIndices,
       hydrographyArtifacts.hydrography,
       hydrographyArtifacts.lakePlan,
@@ -27,7 +29,7 @@ export const config = defineStep({
       morphologyLandformsArtifacts.mountains,
       morphologyLandformsArtifacts.volcanoes,
     ],
-    provides: [featureArtifacts.featureIntentsVegetation],
+    provides: [featureArtifacts.vegetationIntents],
   },
   ops: {
     planVegetation: ecology.features.ops.planVegetation,
@@ -35,8 +37,7 @@ export const config = defineStep({
   schema: Type.Object(
     {},
     {
-      description:
-        "Deterministic vegetation-family planning. Consumes score layers and the final upstream occupancy vintage, then publishes vegetation intent.",
+      description: "Deterministic vegetation-family planning after all upstream feature intents.",
     }
   ),
 });

@@ -15,7 +15,11 @@ export type {
   ArtifactValidationIssue,
   ArtifactValidator,
 } from "./artifact/validation.js";
-export { appendArtifactTypedArrayIssues, artifactCellCount } from "./artifact/validation.js";
+export {
+  appendArtifactGridCoordinateIssues,
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
+} from "./artifact/validation.js";
 export type {
   DomainAggregateContract,
   DomainAggregateContractAny,

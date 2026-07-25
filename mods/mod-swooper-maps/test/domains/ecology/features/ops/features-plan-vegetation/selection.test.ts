@@ -37,7 +37,7 @@ describe("planVegetation (joint resolver)", () => {
     scoreTaiga01[1] = 1;
     // tileIndex 2 -> rainforest (but occupied should block it)
     scoreRainforest01[2] = 1;
-    // tileIndex 3 -> steppe (but reserved should block it)
+    // tileIndex 3 -> steppe
     scoreSagebrushSteppe01[3] = 1;
 
     const landMask = new Uint8Array(size).fill(1);
@@ -53,8 +53,6 @@ describe("planVegetation (joint resolver)", () => {
     habitat.vegetationDensity[3] = 0.2;
     const featureOccupancyMask = new Uint8Array(size);
     featureOccupancyMask[2] = 1;
-    const reserved = new Uint8Array(size);
-    reserved[3] = 1;
 
     const result = ecology.features.ops.planVegetation.run(
       {
@@ -69,12 +67,15 @@ describe("planVegetation (joint resolver)", () => {
         landMask,
         ...habitat,
         featureOccupancyMask,
-        reserved,
       },
       selection
     );
 
-    expect(result.placements.map((p) => p.feature)).toEqual(["forest", "taiga"]);
+    expect(result.placements.map((p) => p.feature)).toEqual([
+      "forest",
+      "taiga",
+      "sagebrush-steppe",
+    ]);
   });
 
   it("is deterministic and seed-independent for exact ties", () => {
@@ -96,7 +97,6 @@ describe("planVegetation (joint resolver)", () => {
       landMask: new Uint8Array(size).fill(1),
       ...broadHabitatFields(size),
       featureOccupancyMask: new Uint8Array(size),
-      reserved: new Uint8Array(size),
     } as const;
 
     const a = ecology.features.ops.planVegetation.run({ ...input, seed: 123 }, selection);
@@ -153,7 +153,6 @@ describe("planVegetation (joint resolver)", () => {
         landMask: new Uint8Array(size).fill(1),
         ...habitat,
         featureOccupancyMask: new Uint8Array(size),
-        reserved: new Uint8Array(size),
       },
       selection
     );
@@ -201,7 +200,6 @@ describe("planVegetation (joint resolver)", () => {
         landMask: new Uint8Array(size).fill(1),
         ...habitat,
         featureOccupancyMask: new Uint8Array(size),
-        reserved: new Uint8Array(size),
       },
       selection
     );

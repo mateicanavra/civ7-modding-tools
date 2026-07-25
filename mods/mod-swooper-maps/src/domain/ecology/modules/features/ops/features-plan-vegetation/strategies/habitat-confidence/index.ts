@@ -1,17 +1,20 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
+import { BIOME_SYMBOL_TO_INDEX } from "../../../../../../model/atoms/index.js";
+import type {
+  VegetationFeatureIntentKey,
+  VegetationFeaturePlacement,
+} from "../../../../model/atoms/index.js";
 import {
   choosePhysicalCandidate,
   confidenceFromScore01,
   stressFromConfidence01,
 } from "../../../../model/policy/feature-score-selection.js";
-import type { FeatureIntentKey } from "../../../../model/atoms/index.js";
-import { BIOME_SYMBOL_TO_INDEX } from "../../../../../../model/atoms/index.js";
 import Contract from "../../contract.js";
 import { admitVegetationIntent } from "../../rules/admit-vegetation-intent.js";
 import StrategyDefinition from "./config.js";
 
 function isBroadVegetationHabitat(
-  feature: FeatureIntentKey,
+  feature: VegetationFeatureIntentKey,
   tileIndex: number,
   fields: Readonly<{
     biomeIndex: Uint8Array;
@@ -75,14 +78,12 @@ const habitatConfidenceStrategy = createStrategy(Contract, StrategyDefinition, {
       vegetationDensity: input.vegetationDensity,
     };
 
-    const placements: Array<{ x: number; y: number; feature: FeatureIntentKey; weight?: number }> =
-      [];
+    const placements: VegetationFeaturePlacement[] = [];
     void input.seed;
 
     for (let i = 0; i < size; i++) {
       if (input.landMask[i] === 0) continue;
       if (flatLandMask[i] !== 1) continue;
-      if (input.reserved[i] !== 0) continue;
       if (input.featureOccupancyMask[i] !== 0) continue;
 
       const forest = input.scoreForest01[i] ?? 0;

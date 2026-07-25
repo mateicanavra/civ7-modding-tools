@@ -19,7 +19,7 @@ import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import { createEmptyFeatureScoreLayers } from "../../fixtures/feature-score-layers.js";
 
 describe("ecology-features plan-wetlands step", () => {
-  it("publishes marsh intent and advances occupancy without changing reservations", () => {
+  it("publishes marsh intent after admitted upstream feature intents", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const setup = admitMapSetup({
@@ -52,17 +52,14 @@ describe("ecology-features plan-wetlands step", () => {
         vegetationDensity: new Float32Array(size).fill(0.4),
         treeLine01: new Float32Array(size),
       });
-      publishTestArtifact(stepContext, featureArtifacts.scoreLayers, {
+      publishTestArtifact(stepContext, featureArtifacts.featureSuitability, {
         width,
         height,
         layers,
       });
-      publishTestArtifact(stepContext, featureArtifacts.occupancyReefs, {
-        width,
-        height,
-        featureOccupancyMask: new Uint8Array(size),
-        reserved: new Uint8Array(size),
-      });
+      publishTestArtifact(stepContext, featureArtifacts.floodplainIntents, []);
+      publishTestArtifact(stepContext, featureArtifacts.iceIntents, []);
+      publishTestArtifact(stepContext, featureArtifacts.reefIntents, []);
       publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
         runoff: new Float32Array(size),
         discharge: new Float32Array(size),
@@ -114,16 +111,8 @@ describe("ecology-features plan-wetlands step", () => {
       planWetlandsStep.run(stepContext, config, ops, buildStepTestDependencies(planWetlandsStep));
     });
 
-    const intents = readValidatedArtifact(ctx, featureArtifacts.featureIntentsWetlands);
+    const intents = readValidatedArtifact(ctx, featureArtifacts.wetlandIntents);
     expect(intents.length).toBeGreaterThan(0);
     expect(intents.every(({ feature }) => feature === "marsh")).toBe(true);
-
-    const occupancy = readValidatedArtifact(ctx, featureArtifacts.occupancyWetlands);
-    const occupiedCount = occupancy.featureOccupancyMask.reduce(
-      (count, occupied) => count + (occupied === 1 ? 1 : 0),
-      0
-    );
-    expect(occupiedCount).toBe(intents.length);
-    expect(occupancy.reserved.every((reserved) => reserved === 0)).toBe(true);
   });
 });

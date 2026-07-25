@@ -1,26 +1,18 @@
 import ecology from "@mapgen/domain/ecology";
-import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
-import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Defines ordered ice planning from Ecology scores, biome/topography truth, and
- * post-floodplain occupancy. It publishes intent and the next occupancy snapshot without
- * mutating Civ7 features.
+ * Defines ordered ice planning from Ecology suitability evidence and admitted floodplain
+ * intents. It publishes ice intent without mutating Civ7 features.
  */
 export const config = defineStep({
   id: "plan-ice",
   requires: [],
   provides: [],
   artifacts: {
-    requires: [
-      featureArtifacts.scoreLayers,
-      featureArtifacts.occupancyFloodplains,
-      biomeArtifacts.biomeClassification,
-      morphologyLandformsArtifacts.topography,
-    ],
-    provides: [featureArtifacts.featureIntentsIce, featureArtifacts.occupancyIce],
+    requires: [featureArtifacts.featureSuitability, featureArtifacts.floodplainIntents],
+    provides: [featureArtifacts.iceIntents],
   },
   ops: {
     planIce: ecology.features.ops.planIce,
@@ -28,8 +20,7 @@ export const config = defineStep({
   schema: Type.Object(
     {},
     {
-      description:
-        "Deterministic ice planning. Consumes scoreLayers + occupancy and publishes ice intents + an updated occupancy snapshot.",
+      description: "Deterministic ice planning after admitted floodplain intents.",
     }
   ),
 });

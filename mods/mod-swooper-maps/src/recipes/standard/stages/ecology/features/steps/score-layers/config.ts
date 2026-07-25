@@ -10,8 +10,8 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Defines the shared Ecology scoring boundary over final morphology, hydrology, biome, and
- * pedology truth. It computes every feature-family suitability layer once and seeds occupancy
- * before ordered planning begins.
+ * pedology truth. It computes every feature-family suitability layer once before ordered
+ * planning begins.
  */
 export const config = defineStep({
   id: "score-layers",
@@ -30,7 +30,7 @@ export const config = defineStep({
       morphologyLandformsArtifacts.mountains,
       morphologyLandformsArtifacts.volcanoes,
     ],
-    provides: [featureArtifacts.scoreLayers, featureArtifacts.occupancyBase],
+    provides: [featureArtifacts.featureSuitability],
   },
   ops: {
     vegetationSubstrate: ecology.features.ops.computeVegetationSubstrate,
@@ -55,7 +55,7 @@ export const config = defineStep({
     {},
     {
       description:
-        "Computes a shared score store (one per-tile suitability layer per FeatureKey) and publishes the base occupancy snapshot.",
+        "Computes one shared per-tile suitability layer for every admitted feature intent.",
     }
   ),
 });

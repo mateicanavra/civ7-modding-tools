@@ -27,4 +27,8 @@ export type {
   ArtifactValidationIssue,
   ArtifactValidator,
 } from "./validation.js";
-export { appendArtifactTypedArrayIssues, artifactCellCount } from "./validation.js";
+export {
+  appendArtifactGridCoordinateIssues,
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
+} from "./validation.js";

@@ -37,11 +37,11 @@ export const FeaturesApplyStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const placements = {
-      vegetation: Array.from(deps.artifacts.featureIntentsVegetation.read(context)),
-      wetlands: Array.from(deps.artifacts.featureIntentsWetlands.read(context)),
-      floodplains: Array.from(deps.artifacts.featureIntentsFloodplains.read(context)),
-      reefs: Array.from(deps.artifacts.featureIntentsReefs.read(context)),
-      ice: Array.from(deps.artifacts.featureIntentsIce.read(context)),
+      vegetation: Array.from(deps.artifacts.vegetationIntents.read(context)),
+      wetlands: Array.from(deps.artifacts.wetlandIntents.read(context)),
+      floodplains: Array.from(deps.artifacts.floodplainIntents.read(context)),
+      reefs: Array.from(deps.artifacts.reefIntents.read(context)),
+      ice: Array.from(deps.artifacts.iceIntents.read(context)),
     };
 
     const merged = ops.apply(placements, stepConfig.apply);

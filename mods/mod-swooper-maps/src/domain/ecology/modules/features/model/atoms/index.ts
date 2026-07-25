@@ -1,10 +1,20 @@
 export {
-  FeatureOccupancyMaskSchema,
-  FeatureReservationMaskSchema,
-} from "./feature-occupancy.schema.js";
-export {
-  type FeatureIntentKey,
   FEATURE_INTENT_KEYS,
-  FeatureIntentKeySchema,
+  type FeatureIntentKey,
   FeaturePlacementSchema,
+  type FloodplainFeatureIntentKey,
+  type FloodplainFeaturePlacement,
+  FloodplainFeaturePlacementSchema,
+  type IceFeatureIntentKey,
+  type IceFeaturePlacement,
+  IceFeaturePlacementSchema,
+  type ReefFeatureIntentKey,
+  type ReefFeaturePlacement,
+  ReefFeaturePlacementSchema,
+  type VegetationFeatureIntentKey,
+  type VegetationFeaturePlacement,
+  VegetationFeaturePlacementSchema,
+  type WetlandFeatureIntentKey,
+  type WetlandFeaturePlacement,
+  WetlandFeaturePlacementSchema,
 } from "./feature-placement.schema.js";

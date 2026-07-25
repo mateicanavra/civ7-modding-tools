@@ -44,13 +44,13 @@ describe("map-ecology features-apply step", () => {
         bathymetry: new Int16Array(width * height),
       });
 
-      publishTestArtifact(stepContext, featureArtifacts.featureIntentsVegetation, [
+      publishTestArtifact(stepContext, featureArtifacts.vegetationIntents, [
         { x: 0, y: 0, feature: "forest" },
       ]);
-      publishTestArtifact(stepContext, featureArtifacts.featureIntentsWetlands, []);
-      publishTestArtifact(stepContext, featureArtifacts.featureIntentsFloodplains, []);
-      publishTestArtifact(stepContext, featureArtifacts.featureIntentsReefs, []);
-      publishTestArtifact(stepContext, featureArtifacts.featureIntentsIce, []);
+      publishTestArtifact(stepContext, featureArtifacts.wetlandIntents, []);
+      publishTestArtifact(stepContext, featureArtifacts.floodplainIntents, []);
+      publishTestArtifact(stepContext, featureArtifacts.reefIntents, []);
+      publishTestArtifact(stepContext, featureArtifacts.iceIntents, []);
 
       const config = {
         apply: normalizeOperationSelectionForTest(
@@ -121,13 +121,13 @@ describe("map-ecology features-apply step", () => {
         landMask: new Uint8Array(width * height).fill(1),
         bathymetry: new Int16Array(width * height),
       });
-      publishTestArtifact(stepContext, featureArtifacts.featureIntentsVegetation, [
+      publishTestArtifact(stepContext, featureArtifacts.vegetationIntents, [
         { x: 0, y: 0, feature: "forest" },
       ]);
-      publishTestArtifact(stepContext, featureArtifacts.featureIntentsWetlands, []);
-      publishTestArtifact(stepContext, featureArtifacts.featureIntentsFloodplains, []);
-      publishTestArtifact(stepContext, featureArtifacts.featureIntentsReefs, []);
-      publishTestArtifact(stepContext, featureArtifacts.featureIntentsIce, []);
+      publishTestArtifact(stepContext, featureArtifacts.wetlandIntents, []);
+      publishTestArtifact(stepContext, featureArtifacts.floodplainIntents, []);
+      publishTestArtifact(stepContext, featureArtifacts.reefIntents, []);
+      publishTestArtifact(stepContext, featureArtifacts.iceIntents, []);
 
       const config = {
         apply: normalizeOperationSelectionForTest(

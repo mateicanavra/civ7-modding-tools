@@ -1,10 +1,10 @@
+import type { ReefFeatureIntentKey } from "../../../model/atoms/index.js";
 import {
   choosePhysicalCandidate,
   confidenceFromScore01,
   type PhysicalCandidate,
   stressFromConfidence01,
 } from "../../../model/policy/feature-score-selection.js";
-import type { FeatureIntentKey } from "../../../model/atoms/index.js";
 
 type ReefScoreInput = Readonly<{
   scoreReef01: Float32Array;
@@ -51,7 +51,7 @@ export function admitReefStride(
 export function selectReefIntentCandidate(
   input: ReefScoreInput,
   tileIndex: number
-): PhysicalCandidate<FeatureIntentKey> | null {
+): PhysicalCandidate<ReefFeatureIntentKey> | null {
   const confidence = {
     reef: confidenceFromScore01(input.scoreReef01[tileIndex] ?? 0),
     coldReef: confidenceFromScore01(input.scoreColdReef01[tileIndex] ?? 0),
@@ -70,10 +70,10 @@ export function selectReefIntentCandidate(
 }
 
 function reefCandidate(
-  feature: FeatureIntentKey,
+  feature: ReefFeatureIntentKey,
   confidence01: number,
   tileIndex: number
-): PhysicalCandidate<FeatureIntentKey> {
+): PhysicalCandidate<ReefFeatureIntentKey> {
   return {
     feature,
     confidence01,

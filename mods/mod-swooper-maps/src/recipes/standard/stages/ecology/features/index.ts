@@ -11,10 +11,9 @@ import { ScoreLayersStep } from "./steps/score-layers/step.js";
 /**
  * Ecology feature planning stage.
  *
- * The feature-family operations share one ordered occupancy pipeline. Keeping
- * them in one stage preserves the real handoff surface (score layers plus
- * occupancy snapshots) without promoting vegetation/ice/reef/wetland wrappers
- * into fake recipe-level stage identities.
+ * Feature-family planners share one suitability product and publish admitted intent artifacts in
+ * causal order. Keeping them in one stage preserves the real planning boundary without promoting
+ * individual feature families into fake recipe-level stage identities.
  */
 export default createStage({
   id: "ecology-features",

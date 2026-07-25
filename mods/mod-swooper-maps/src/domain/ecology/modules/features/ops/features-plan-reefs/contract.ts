@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { FeaturePlacementSchema } from "../../model/atoms/index.js";
+import { ReefFeaturePlacementSchema } from "../../model/atoms/index.js";
 import diagonalStrideDefinition from "./strategies/diagonal-stride/config.js";
 import habitatDefinition from "./strategies/habitat/config.js";
 
@@ -28,12 +28,9 @@ const PlanReefsContract = defineOp({
     featureOccupancyMask: TypedArraySchemas.u8({
       description: "0 = unoccupied, nonzero = already claimed by an ecology feature intent.",
     }),
-    reserved: TypedArraySchemas.u8({
-      description: "0 = tile can be claimed, 1 = permanently blocked",
-    }),
   }),
   output: Type.Object({
-    placements: Type.Array(FeaturePlacementSchema),
+    placements: Type.Array(ReefFeaturePlacementSchema),
   }),
   defaultStrategy: "habitat",
   strategies: [habitatDefinition, diagonalStrideDefinition],

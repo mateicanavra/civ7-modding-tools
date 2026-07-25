@@ -27,7 +27,6 @@ describe("ecology floodplain planning", () => {
         scoreTundraMinor01: new Float32Array(size),
         scoreTundraNavigable01: new Float32Array(size),
         featureOccupancyMask: new Uint8Array(size),
-        reserved: new Uint8Array(size),
       },
       selection
     );

@@ -26,6 +26,7 @@ export {
   ArtifactDoublePublishError,
   ArtifactMissingError,
   ArtifactValidationError,
+  appendArtifactGridCoordinateIssues,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,

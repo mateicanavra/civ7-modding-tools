@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { FeaturePlacementSchema } from "../../model/atoms/index.js";
+import { VegetationFeaturePlacementSchema } from "../../model/atoms/index.js";
 import habitatConfidenceDefinition from "./strategies/habitat-confidence/config.js";
 
 /** Chooses the strongest forest-family habitat per unoccupied land tile under family-specific confidence floors. Every implementation shares this admitted input and output boundary. */
@@ -52,12 +52,9 @@ const PlanVegetationContract = defineOp({
     featureOccupancyMask: TypedArraySchemas.u8({
       description: "0 = unoccupied, nonzero = already claimed by an ecology feature intent.",
     }),
-    reserved: TypedArraySchemas.u8({
-      description: "0 = tile can be claimed, 1 = permanently blocked",
-    }),
   }),
   output: Type.Object({
-    placements: Type.Array(FeaturePlacementSchema),
+    placements: Type.Array(VegetationFeaturePlacementSchema),
   }),
   strategies: [habitatConfidenceDefinition],
 });

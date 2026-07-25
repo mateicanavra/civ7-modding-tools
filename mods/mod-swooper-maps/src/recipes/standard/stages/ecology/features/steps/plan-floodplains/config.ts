@@ -3,17 +3,16 @@ import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/fe
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Defines the first ordered feature-family planner. It consumes shared scores and base
- * occupancy, then publishes floodplain intent plus the occupancy snapshot that gates ice
- * planning.
+ * Defines the first ordered feature-family planner. It consumes shared suitability evidence,
+ * then publishes the floodplain intents that gate ice planning.
  */
 export const config = defineStep({
   id: "plan-floodplains",
   requires: [],
   provides: [],
   artifacts: {
-    requires: [featureArtifacts.scoreLayers, featureArtifacts.occupancyBase],
-    provides: [featureArtifacts.featureIntentsFloodplains, featureArtifacts.occupancyFloodplains],
+    requires: [featureArtifacts.featureSuitability],
+    provides: [featureArtifacts.floodplainIntents],
   },
   ops: {
     planFloodplains: ecology.features.ops.planFloodplains,
@@ -21,8 +20,7 @@ export const config = defineStep({
   schema: Type.Object(
     {},
     {
-      description:
-        "Deterministic floodplain-family planning. Consumes scoreLayers + occupancy and publishes floodplain intents + an updated occupancy snapshot.",
+      description: "Deterministic floodplain-family planning from shared suitability evidence.",
     }
   ),
 });

@@ -16,7 +16,7 @@ import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import { createEmptyFeatureScoreLayers } from "../../fixtures/feature-score-layers.js";
 
 describe("ecology-features plan-floodplains step", () => {
-  it("publishes floodplain intent and advances occupancy from the selected score layer", () => {
+  it("publishes floodplain intent from admitted feature suitability", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const riverIndex = Math.floor(height / 2) * width + Math.floor(width / 2);
@@ -40,14 +40,9 @@ describe("ecology-features plan-floodplains step", () => {
     });
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, featureArtifacts.scoreLayers, {
+      publishTestArtifact(stepContext, featureArtifacts.featureSuitability, {
         ...TEST_MAP_SIZE.dimensions,
         layers,
-      });
-      publishTestArtifact(stepContext, featureArtifacts.occupancyBase, {
-        ...TEST_MAP_SIZE.dimensions,
-        featureOccupancyMask: new Uint8Array(size),
-        reserved: new Uint8Array(size),
       });
       const dependencies = buildStepTestDependencies(PlanFloodplainsStep);
       PlanFloodplainsStep.run(
@@ -68,8 +63,7 @@ describe("ecology-features plan-floodplains step", () => {
         dependencies
       );
     });
-    const intents = readValidatedArtifact(context, featureArtifacts.featureIntentsFloodplains);
-    const occupancy = readValidatedArtifact(context, featureArtifacts.occupancyFloodplains);
+    const intents = readValidatedArtifact(context, featureArtifacts.floodplainIntents);
 
     expect(intents).toEqual([
       {
@@ -78,7 +72,5 @@ describe("ecology-features plan-floodplains step", () => {
         feature: "plains-floodplain-navigable",
       },
     ]);
-    expect(occupancy.featureOccupancyMask[riverIndex]).toBe(1);
-    expect(occupancy.reserved[riverIndex]).toBe(0);
   });
 });

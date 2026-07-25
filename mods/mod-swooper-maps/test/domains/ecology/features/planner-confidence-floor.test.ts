@@ -36,7 +36,6 @@ describe("ecology feature planner confidence floor", () => {
         scoreLotus01: f32(size, weakPositive),
         lakeMask: new Uint8Array(size),
         featureOccupancyMask: new Uint8Array(size),
-        reserved: new Uint8Array(size),
       },
       normalizeOperationSelectionForTest(
         ecology.features.ops.planReefs,
@@ -56,7 +55,6 @@ describe("ecology feature planner confidence floor", () => {
         scoreWateringHole01: f32(size, weakPositive),
         flatLandMask: new Uint8Array(size).fill(1),
         featureOccupancyMask: new Uint8Array(size),
-        reserved: new Uint8Array(size),
       },
       normalizeOperationSelectionForTest(
         ecology.features.ops.planWetlands,
@@ -77,7 +75,6 @@ describe("ecology feature planner confidence floor", () => {
         landMask: new Uint8Array(size).fill(1),
         ...broadVegetationHabitatFields(size),
         featureOccupancyMask: new Uint8Array(size),
-        reserved: new Uint8Array(size),
       },
       normalizeOperationSelectionForTest(
         ecology.features.ops.planVegetation,
@@ -92,7 +89,6 @@ describe("ecology feature planner confidence floor", () => {
         seed: TEST_MAP_SEED,
         score01: f32(size, weakPositive),
         featureOccupancyMask: new Uint8Array(size),
-        reserved: new Uint8Array(size),
       },
       normalizeOperationSelectionForTest(
         ecology.features.ops.planIce,

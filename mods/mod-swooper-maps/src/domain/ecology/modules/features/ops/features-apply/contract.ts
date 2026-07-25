@@ -1,5 +1,12 @@
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { FeaturePlacementSchema } from "../../model/atoms/index.js";
+import {
+  FeaturePlacementSchema,
+  FloodplainFeaturePlacementSchema,
+  IceFeaturePlacementSchema,
+  ReefFeaturePlacementSchema,
+  VegetationFeaturePlacementSchema,
+  WetlandFeaturePlacementSchema,
+} from "../../model/atoms/index.js";
 import strictSingleOccupancyDefinition from "./strategies/strict-single-occupancy/config.js";
 
 /** Merges feature-family plans into one deterministic placement sequence and rejects multiple features on the same tile. Every implementation shares this admitted input and output boundary. */
@@ -8,19 +15,19 @@ const FeaturesApplyContract = defineOp({
   id: "ecology/features/apply",
   input: Type.Object(
     {
-      vegetation: Type.Array(FeaturePlacementSchema, {
+      vegetation: Type.Array(VegetationFeaturePlacementSchema, {
         description: "Planned vegetation feature placements.",
       }),
-      wetlands: Type.Array(FeaturePlacementSchema, {
+      wetlands: Type.Array(WetlandFeaturePlacementSchema, {
         description: "Planned wetland feature placements.",
       }),
-      floodplains: Type.Array(FeaturePlacementSchema, {
+      floodplains: Type.Array(FloodplainFeaturePlacementSchema, {
         description: "Planned floodplain feature placements.",
       }),
-      reefs: Type.Array(FeaturePlacementSchema, {
+      reefs: Type.Array(ReefFeaturePlacementSchema, {
         description: "Planned reef feature placements.",
       }),
-      ice: Type.Array(FeaturePlacementSchema, {
+      ice: Type.Array(IceFeaturePlacementSchema, {
         description: "Planned ice feature placements.",
       }),
     },

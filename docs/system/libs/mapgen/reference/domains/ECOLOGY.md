@@ -42,12 +42,12 @@ Ecology requires (truth inputs):
 Ecology provides (truth artifacts):
 - `artifact:ecology.soils`
 - `artifact:ecology.biomeClassification`
-- `artifact:ecology.scoreLayers`
-- `artifact:ecology.featureIntents.vegetation`
-- `artifact:ecology.featureIntents.wetlands`
-- `artifact:ecology.featureIntents.floodplains`
-- `artifact:ecology.featureIntents.reefs`
-- `artifact:ecology.featureIntents.ice`
+- `artifact:ecology.featureSuitability`
+- `artifact:ecology.floodplainIntents`
+- `artifact:ecology.iceIntents`
+- `artifact:ecology.reefIntents`
+- `artifact:ecology.wetlandIntents`
+- `artifact:ecology.vegetationIntents`
 - `artifact:ecology.plotEffectPlan`
 
 Projection posture:
@@ -117,7 +117,8 @@ Feature scoring and planning stay separate:
 
 The `map-ecology` stage:
 - is a projection-only stage whose exact identity comes from recipe composition,
-- consumes Ecology truth artifacts (biomeClassification, featureIntents.*, plotEffectPlan) and Morphology truth (topography),
+- consumes Ecology truth artifacts (biome classification, feature intents, and plot effects) plus
+  Morphology topography,
 - emits biome-binding and post-Ecology feature-surface evidence through trace, metrics, and visualization facets,
 - and publishes engine effect tags (e.g., `effect:engine.biomesApplied`).
 

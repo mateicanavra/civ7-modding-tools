@@ -24,7 +24,6 @@ describe("planReefs operation", () => {
       scoreAtoll01: f32(size, 0),
       scoreLotus01: f32(size, 1),
       featureOccupancyMask: new Uint8Array(size),
-      reserved: new Uint8Array(size),
     };
 
     const withoutLakes = ecology.features.ops.planReefs.run(
@@ -56,7 +55,6 @@ describe("planReefs operation", () => {
         scoreLotus01: f32(size, 0),
         lakeMask: new Uint8Array(size),
         featureOccupancyMask: new Uint8Array(size),
-        reserved: new Uint8Array(size),
       },
       normalizeOperationSelectionForTest(ecology.features.ops.planReefs, {
         strategy: "diagonal-stride",

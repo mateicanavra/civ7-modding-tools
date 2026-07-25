@@ -25,11 +25,11 @@ export const config = defineStep({
   provides: [STANDARD_ENGINE_EFFECT_TAGS.engine.featuresApplied],
   artifacts: {
     requires: [
-      featureArtifacts.featureIntentsVegetation,
-      featureArtifacts.featureIntentsWetlands,
-      featureArtifacts.featureIntentsFloodplains,
-      featureArtifacts.featureIntentsReefs,
-      featureArtifacts.featureIntentsIce,
+      featureArtifacts.vegetationIntents,
+      featureArtifacts.wetlandIntents,
+      featureArtifacts.floodplainIntents,
+      featureArtifacts.reefIntents,
+      featureArtifacts.iceIntents,
       morphologyLandformsArtifacts.topography,
     ],
   },

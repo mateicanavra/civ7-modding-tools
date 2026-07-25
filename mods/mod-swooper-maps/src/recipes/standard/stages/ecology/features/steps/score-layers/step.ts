@@ -51,7 +51,7 @@ function localReliefM(
 
 /**
  * Computes every feature family's suitability layer once over shared ecology,
- * morphology, and hydrology truth, and seeds the ordered occupancy chain.
+ * morphology, and hydrology truth before ordered intent planning begins.
  */
 export const ScoreLayersStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
@@ -394,43 +394,22 @@ export const ScoreLayersStep = createStep(config, {
       ice: iceScore,
     } as const;
 
-    deps.artifacts.scoreLayers.publish(context, {
+    deps.artifacts.featureSuitability.publish(context, {
       width,
       height,
       layers,
     });
 
-    const featureOccupancyMask = new Uint8Array(size);
-    const reserved = new Uint8Array(size);
-
-    reserved.fill(0);
-
-    deps.artifacts.occupancyBase.publish(context, {
-      width,
-      height,
-      featureOccupancyMask,
-      reserved,
-    });
-    return { layers, reserved };
+    return { layers };
   },
-  viz: ({ result: { layers, reserved }, dimensions }) => [
+  viz: ({ result: { layers }, dimensions }) => [
     ...Object.entries(layers).map(([featureKey, values]) => ({
       kind: "grid" as const,
-      dataTypeKey: `ecology.scoreLayers.${featureKey}`,
+      dataTypeKey: `ecology.featureSuitability.${featureKey}`,
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
       field: { format: "f32" as const, values },
-      meta: defineStandardVizMeta(`ecology.scoreLayers.${featureKey}`, "field.intensity"),
+      meta: defineStandardVizMeta(`ecology.featureSuitability.${featureKey}`, "field.intensity"),
     })),
-    {
-      kind: "grid",
-      dataTypeKey: "ecology.occupancy.base.reserved",
-      spaceId: TILE_SPACE_ID,
-      dims: dimensions,
-      field: { format: "u8", values: reserved },
-      meta: defineStandardVizMeta("ecology.occupancy.base.reserved", "category.distinct", {
-        visibility: "debug",
-      }),
-    },
   ],
 });

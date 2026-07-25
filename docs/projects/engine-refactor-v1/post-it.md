@@ -29,18 +29,15 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** seal the Standard recipe-stage plane before further test
-semantics. Projection stages live beneath their rightful domain or phase while
-stable stage IDs and causal order remain unchanged. External
-`public.config.ts` assemblies are gone; operation config, knobs, and additive
-step schema carry ordinary public authoring, while any rare full override stays
-inline with a meaningful compiler. Recipe-stage artifact cabinets are now the
-red corpus: immutable products move to the exact producing domain module,
-current Civ7 state remains fresh adapter observation, and diagnostics,
-metrics, trace, effects, or ordering evidence use their own capability rather
-than posing as artifacts. The burn-down ends only when the generic stage
-blueprint is green, every consumer and canonical doc names the rightful owner,
-generated manifests agree, and product behavior is unchanged.
+**Current container:** collapse Ecology feature planning onto its minimum real
+state model. Suitability is continuous pre-selection evidence; intents are the
+durable engine-independent product; Civ7 application and readback remain
+current projection evidence. Planning is an action, not a third artifact state,
+and cumulative occupancy snapshots are derivable coordination batons rather
+than products. The burn-down deletes those vintages and their hypothetical
+reservation surface, derives collision masks from already-admitted prior
+intents, and normalizes the surviving artifact identities without changing
+family order or moving engine mutation out of the projection boundary.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -57,20 +54,15 @@ modules then stop importing framework issue/context types or allocating and
 threading their own issue arrays. This remains a dedicated semantic container,
 not a compatibility overload hidden inside the stage-plane move.
 
-**Gradient:** keep the domain-first stage law fixed, finish the projection
-hierarchy, then disintegrate or relocate every Ecology, Hydrology, Rivers, and
-Placement recipe artifact by intent. Burn down stale imports, manifests,
-metrics/live readers, config declarations, tests, and canonical-doc edges until
-the positive stage kind is green. Before admitting another nested domain
-module, remove the redundant operation aggregate layer from the generic module
-blueprint, scaffolds, active workflow, and all current modules; direct module
-contract/router composition must be the only taught and executable shape.
-After that plane is sealed, finish the remaining diagnostics/live ownership
-audit so end mods only execute SDK-provided generation and verification
-capabilities. Then apply the complete intent sieve to Placement and Resources
-tests in separate layers. Knip and JSDoc burn-down follow physical ownership so
-dead code is deleted before prose is repaired. The program ends only when
-generic laws, source tree, types, tests, Knip, and the boundary graph agree.
+**Gradient:** seal the feature-state collapse through exact artifact, step,
+test, metrics/live, and canonical-doc consumers. Then lock affirmed blueprint
+identity at the commit boundary by comparing HEAD with the staged index: a
+stable rule may move only within its owning blueprint, and retirement is valid
+only for the complete declared authority packet. With kind-law drift no longer
+able to pass a hook, continue the remaining diagnostics/live ownership audit,
+Placement and Resources test sieve, accurate Knip deletion, and JSDoc
+burn-down. The program ends only when generic laws, source tree, types, tests,
+Knip, and the boundary graph agree.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty

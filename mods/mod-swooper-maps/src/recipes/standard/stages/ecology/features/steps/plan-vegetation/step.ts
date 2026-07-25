@@ -1,27 +1,25 @@
 import { isAnyRiverClass } from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-class.js";
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import {
+  assertFeatureIntentCandidatesAvailable,
+  deriveFeatureOccupancy,
+} from "../../model/policy/derive-feature-occupancy.js";
 import { config } from "./config.js";
 
-const VEGETATION_FEATURE_INTENTS = new Set([
-  "forest",
-  "rainforest",
-  "taiga",
-  "savanna-woodland",
-  "sagebrush-steppe",
-]);
-
 /**
- * Closes feature planning by placing vegetation on habitat-valid flat land
- * left by wetlands. Vegetation is the terminal feature-planning family, so only
- * its durable placement intent is published.
+ * Closes feature planning by placing vegetation on habitat-valid flat land left by all admitted
+ * upstream feature intents.
  */
 export const PlanVegetationStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const prev = deps.artifacts.occupancyWetlands.read(context);
+    const floodplainIntents = deps.artifacts.floodplainIntents.read(context);
+    const iceIntents = deps.artifacts.iceIntents.read(context);
+    const reefIntents = deps.artifacts.reefIntents.read(context);
+    const wetlandIntents = deps.artifacts.wetlandIntents.read(context);
     const classification = deps.artifacts.biomeClassification.read(context);
     const climateIndices = deps.artifacts.climateIndices.read(context);
-    const scoreLayers = deps.artifacts.scoreLayers.read(context);
+    const suitability = deps.artifacts.featureSuitability.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);
     const topography = deps.artifacts.topography.read(context);
     const lakePlan = deps.artifacts.lakePlan.read(context);
@@ -29,6 +27,13 @@ export const PlanVegetationStep = createStep(config, {
     const volcanoes = deps.artifacts.volcanoes.read(context);
     const { width, height } = context.setup.dimensions;
     const size = width * height;
+    const featureOccupancyMask = deriveFeatureOccupancy(
+      context.setup.dimensions,
+      floodplainIntents,
+      iceIntents,
+      reefIntents,
+      wetlandIntents
+    );
     const flatLandMask = new Uint8Array(size);
     for (let i = 0; i < size; i++) {
       flatLandMask[i] =
@@ -48,11 +53,11 @@ export const PlanVegetationStep = createStep(config, {
         width,
         height,
         seed,
-        scoreForest01: scoreLayers.layers.forest,
-        scoreRainforest01: scoreLayers.layers.rainforest,
-        scoreTaiga01: scoreLayers.layers.taiga,
-        scoreSavannaWoodland01: scoreLayers.layers["savanna-woodland"],
-        scoreSagebrushSteppe01: scoreLayers.layers["sagebrush-steppe"],
+        scoreForest01: suitability.layers.forest,
+        scoreRainforest01: suitability.layers.rainforest,
+        scoreTaiga01: suitability.layers.taiga,
+        scoreSavannaWoodland01: suitability.layers["savanna-woodland"],
+        scoreSagebrushSteppe01: suitability.layers["sagebrush-steppe"],
         landMask: topography.landMask,
         flatLandMask,
         biomeIndex: classification.biomeIndex,
@@ -60,42 +65,17 @@ export const PlanVegetationStep = createStep(config, {
         effectiveMoisture: climateIndices.effectiveMoisture,
         aridityIndex: climateIndices.aridityIndex,
         vegetationDensity: classification.vegetationDensity,
-        featureOccupancyMask: prev.featureOccupancyMask,
-        reserved: prev.reserved,
+        featureOccupancyMask,
       },
       stepConfig.planVegetation
     ).placements;
 
     placements.sort((a, b) => a.y * width + a.x - (b.y * width + b.x));
-
-    const featureOccupancyMask = new Uint8Array(prev.featureOccupancyMask);
-    const reserved = new Uint8Array(prev.reserved);
-
-    for (const placement of placements) {
-      const feature = placement.feature;
-      if (!VEGETATION_FEATURE_INTENTS.has(feature)) {
-        throw new Error(
-          `plan-vegetation expected vegetation-family placements (received ${feature})`
-        );
-      }
-      const x = placement.x | 0;
-      const y = placement.y | 0;
-      if (x < 0 || x >= width || y < 0 || y >= height) {
-        throw new Error(`plan-vegetation placement out of bounds: (${x},${y})`);
-      }
-      const idx = y * width + x;
-      if (topography.landMask[idx] === 0) {
-        throw new Error(`plan-vegetation attempted to claim water tileIndex=${idx} (${x},${y})`);
-      }
-      if (reserved[idx] !== 0) {
-        throw new Error(`plan-vegetation attempted to claim reserved tileIndex=${idx} (${x},${y})`);
-      }
-      if (featureOccupancyMask[idx] !== 0) {
-        throw new Error(`plan-vegetation attempted to claim occupied tileIndex=${idx} (${x},${y})`);
-      }
-      featureOccupancyMask[idx] = 1;
-    }
-
-    deps.artifacts.featureIntentsVegetation.publish(context, placements);
+    assertFeatureIntentCandidatesAvailable(
+      context.setup.dimensions,
+      featureOccupancyMask,
+      placements
+    );
+    deps.artifacts.vegetationIntents.publish(context, placements);
   },
 });
