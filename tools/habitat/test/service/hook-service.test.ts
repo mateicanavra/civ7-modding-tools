@@ -650,6 +650,109 @@ describe("Habitat hook service", () => {
     expect(checkRequests[0]).not.toHaveProperty("stagedPaths");
   });
 
+  test("runs exactly the enforced Habitat structure rules for agent-stop", async () => {
+    const checkRequests: CheckOptions[] = [];
+    const rules = makeAgentStopRuleFacts([
+      structureRuleFact("enforced-second", "enforced"),
+      structureRuleFact("advisory-structure", "advisory"),
+      structureRuleFact("enforced-first", "enforced"),
+    ]);
+
+    const result = await runAgentStopHookServiceInTest(
+      { rules },
+      {
+        createReport: (options = {}) =>
+          Effect.sync(() => {
+            checkRequests.push(options);
+            return structureCheckReport(options.command?.serialized ?? "habitat check", [
+              "enforced-first",
+              "enforced-second",
+            ]);
+          }),
+      }
+    );
+
+    expect(result).toEqual({
+      exitCode: 0,
+      stdout:
+        "habitat hook agent-stop\nhook result: workstation check only; CI remains authoritative.\naffirmed blueprint structure: PASS (2 rule(s))\n",
+      stderr: "",
+    });
+    expect(checkRequests).toEqual([
+      expect.objectContaining({
+        rules: ["enforced-first", "enforced-second"],
+        command: expect.objectContaining({
+          serialized: "habitat check --rule enforced-first --rule enforced-second --json",
+        }),
+      }),
+    ]);
+    expect(checkRequests[0]).not.toHaveProperty("runner");
+    expect(checkRequests[0]).not.toHaveProperty("staged");
+  });
+
+  test("fails agent-stop closed when the registry has no enforced structure rules", async () => {
+    let reportCalls = 0;
+    const createReport: StructuralCheckPolicy["createReport"] = (options = {}) => {
+      reportCalls += 1;
+      return Effect.succeed(passingCheckReport(options.command?.serialized ?? "habitat check"));
+    };
+
+    const result = await runAgentStopHookServiceInTest(
+      {
+        rules: makeAgentStopRuleFacts([structureRuleFact("advisory-structure", "advisory")]),
+      },
+      { createReport }
+    );
+
+    expect(result.exitCode).toBe(2);
+    expect(result.stderr).toContain("registry contains no enforced Habitat structure rules");
+    expect(reportCalls).toBe(0);
+  });
+
+  test("fails agent-stop closed when check selection omits an enforced structure rule", async () => {
+    const result = await runAgentStopHookServiceInTest(
+      {
+        rules: makeAgentStopRuleFacts([
+          structureRuleFact("enforced-first", "enforced"),
+          structureRuleFact("enforced-second", "enforced"),
+        ]),
+      },
+      {
+        createReport: (options = {}) =>
+          Effect.succeed(
+            structureCheckReport(options.command?.serialized ?? "habitat check", ["enforced-first"])
+          ),
+      }
+    );
+
+    expect(result.exitCode).toBe(2);
+    expect(result.stderr).toContain("did not produce every enforced registry rule");
+    expect(result.stderr).toContain("- enforced-second");
+  });
+
+  test("returns the failed structure report from agent-stop", async () => {
+    const result = await runAgentStopHookServiceInTest(
+      {
+        rules: makeAgentStopRuleFacts([structureRuleFact("broken-structure", "enforced")]),
+      },
+      {
+        createReport: (options = {}) =>
+          Effect.succeed(
+            structureCheckReport(
+              options.command?.serialized ?? "habitat check",
+              ["broken-structure"],
+              false
+            )
+          ),
+      }
+    );
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("[structure check report]");
+    expect(result.stderr).toContain('"ruleId": "broken-structure"');
+    expect(result.stderr).toContain('"status": "fail"');
+  });
+
   test("routes pre-commit Biome execution through the Biome provider", async () => {
     const stagedPaths = ["tools/habitat/src/service/modules/hook/router.ts"] as const;
     const fake = makePreCommitFixture({
@@ -719,6 +822,7 @@ function runPrePushHookServiceInTest(
     readonly pathExists?: (targetPath: string) => boolean;
     readonly reporterEvents?: HabitatReportEvent[];
     readonly resourcePolicy?: HookResourcePolicy;
+    readonly rules?: RuleFactsCatalog;
     readonly sourceCheckHookEnabled?: boolean;
   } = {},
   gitLayer = makeFakeGitProviderLayer((argv, options) => commandResult(argv, options.cwd, "")),
@@ -754,6 +858,7 @@ function runPreCommitHookServiceInTest(
     readonly pathExists?: (targetPath: string) => boolean;
     readonly reporterEvents?: HabitatReportEvent[];
     readonly resourcePolicy?: HookResourcePolicy;
+    readonly rules?: RuleFactsCatalog;
     readonly sourceCheckHookEnabled?: boolean;
   } = {},
   gitLayer = makeFakeGitProviderLayer((argv, options) => commandResult(argv, options.cwd, "")),
@@ -786,11 +891,43 @@ function runPreCommitHookServiceInTest(
   return Effect.runPromise(provided);
 }
 
+function runAgentStopHookServiceInTest(
+  options: {
+    readonly reporterEvents?: HabitatReportEvent[];
+    readonly rules?: RuleFactsCatalog;
+  } = {},
+  structuralCheck?: StructuralCheckPolicy
+) {
+  Option.match(Option.fromNullable(structuralCheck), {
+    onNone: () => undefined,
+    onSome: installStructuralCheckPolicy,
+  });
+  const layer = Layer.mergeAll(
+    prePushGitLayer(makePrePushFixture()),
+    nxLayer(),
+    biomeLayer(),
+    makeFakeGraphiteProviderLayer(() => null)
+  );
+  const program = Effect.gen(function* () {
+    const services = yield* Effect.all({
+      biome: BiomeProvider,
+      git: GitProvider,
+      graphite: GraphiteProvider,
+      nx: NxProvider,
+    });
+    const context = makeHookServiceContext(options, services);
+    const agentStopHook = hookRouter.agentStop.callable({ context });
+    return yield* withFiberContext(() => agentStopHook({}));
+  });
+  return Effect.runPromise(program.pipe(Effect.provide(layer)));
+}
+
 function makeHookServiceContext(
   options: {
     readonly hashFile?: (targetPath: string) => string | null;
     readonly pathExists?: (targetPath: string) => boolean;
     readonly reporterEvents?: HabitatReportEvent[];
+    readonly rules?: RuleFactsCatalog;
     readonly sourceCheckHookEnabled?: boolean;
   },
   services: Pick<ReturnType<typeof makeTestHabitatServiceDeps>, "biome" | "git" | "graphite" | "nx">
@@ -814,13 +951,15 @@ function makeHookServiceContext(
       },
     }),
   });
-  const rules = Option.match(
-    Option.liftPredicate(options.sourceCheckHookEnabled, (enabled) => enabled === true),
-    {
-      onNone: () => ({}),
-      onSome: () => ({ rules: makeSyntheticSourceCheckHookRules() }),
-    }
-  );
+  const rules = options.rules
+    ? { rules: options.rules }
+    : Option.match(
+        Option.liftPredicate(options.sourceCheckHookEnabled, (enabled) => enabled === true),
+        {
+          onNone: () => ({}),
+          onSome: () => ({ rules: makeSyntheticSourceCheckHookRules() }),
+        }
+      );
   return {
     deps: makeTestHabitatServiceDeps({
       ...services,
@@ -859,6 +998,30 @@ function makeSyntheticSourceCheckHookRules() {
     ],
     hookCheck: [{ id: "hook-source-check-probe", hookCheck: true as const }],
   } satisfies RuleFactsCatalog;
+}
+
+function makeAgentStopRuleFacts(structure: RuleFactsCatalog["structure"]): RuleFactsCatalog {
+  return {
+    ...makeTestRuleFacts(),
+    structure,
+  };
+}
+
+function structureRuleFact(
+  id: string,
+  lane: "enforced" | "advisory"
+): RuleFactsCatalog["structure"][number] {
+  return {
+    id,
+    lane,
+    message: `${id} structure`,
+    pathCoverage: [{ kind: "workspace-gate" }],
+    runner: {
+      name: "habitat",
+      mode: "structure",
+      files: { structure: `.habitat/blueprints/example/${id}/structure.toml` },
+    },
+  };
 }
 
 function commandResult(
@@ -1112,6 +1275,37 @@ function fileLayerPassingCheckReport(command: string): CheckReport {
         remediate: null,
       },
     ],
+  };
+}
+
+function structureCheckReport(command: string, ruleIds: readonly string[], ok = true): CheckReport {
+  return {
+    schemaVersion: 2,
+    command,
+    startedAt: "2026-07-25T00:00:00.000Z",
+    ok,
+    rules: ruleIds.map((ruleId) => ({
+      ruleId,
+      runner: "habitat",
+      lane: "enforced",
+      status: ok ? ("pass" as const) : ("fail" as const),
+      locked: true,
+      durationMs: 1,
+      disposition: { kind: "executed" as const },
+      diagnostics: ok
+        ? []
+        : [
+            {
+              ruleId,
+              path: ".habitat/blueprints/example/structure.toml",
+              message: `${ruleId} violation`,
+              severity: "error" as const,
+              baselined: false,
+            },
+          ],
+      message: `${ruleId} structure`,
+      remediate: null,
+    })),
   };
 }
 

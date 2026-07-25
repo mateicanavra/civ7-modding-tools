@@ -41,6 +41,7 @@ nx run habitat:check:boundaries # project-plane tag boundaries
 nx run habitat:check:hygiene    # formatter/lint/import hygiene gate
 bun habitat hook pre-commit     # local staged hook path
 bun habitat hook pre-push       # local affected pre-push path
+bun habitat hook agent-stop     # Codex Stop gate for enforced structure rules
 ```
 
 Notes:
@@ -153,6 +154,14 @@ Husky owns the Git hook files and delegates to Habitat:
 
 - `.husky/pre-commit` -> `bun habitat hook pre-commit`
 - `.husky/pre-push` -> `bun habitat hook pre-push`
+
+The repository-local Codex `Stop` hook delegates to
+`bun habitat hook agent-stop`. Habitat selects every enforced
+`runner.name=habitat`, `runner.mode=structure` rule from its admitted registry
+facts and runs that exact group once. An invalid registry, empty enforced
+structure selection, incomplete selection result, or failed check refuses the
+stop gate. The agent hook does not invoke Nx, Grit, script rules, or file-layer
+rules.
 
 Pre-commit is staged-scope only. It checks resource submodule state without
 publishing, fails with explicit remediation when resources require action,

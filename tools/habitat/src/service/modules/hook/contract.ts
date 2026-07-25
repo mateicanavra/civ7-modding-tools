@@ -35,6 +35,13 @@ const HookPrePushInputSchema = Type.Object(
 );
 export type HookPrePushInput = Static<typeof HookPrePushInputSchema>;
 
+const HookAgentStopInputSchema = Type.Object(
+  {},
+  { additionalProperties: false, description: "Habitat agent-stop hook action request." }
+);
+/** Empty request admitted by the registry-owned agent-stop structure gate. */
+export type HookAgentStopInput = Static<typeof HookAgentStopInputSchema>;
+
 const HookResultSchema = Type.Object(
   {
     exitCode: Type.Integer(),
@@ -46,6 +53,10 @@ const HookResultSchema = Type.Object(
 export type HookResult = Static<typeof HookResultSchema>;
 
 export const hookServiceContract = {
+  agentStop: eoc
+    .errors(habitatServiceErrorMap)
+    .input(toStandardSchema(HookAgentStopInputSchema))
+    .output(toStandardSchema(HookResultSchema)),
   preCommit: eoc
     .errors(habitatServiceErrorMap)
     .input(toStandardSchema(HookPreCommitInputSchema))

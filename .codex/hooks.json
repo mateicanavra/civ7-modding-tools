@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun habitat hook agent-stop",
+            "timeout": 30,
+            "statusMessage": "Checking Habitat structure laws"
+          }
+        ]
+      }
+    ]
+  }
+}

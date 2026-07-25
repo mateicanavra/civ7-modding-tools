@@ -53,6 +53,60 @@ export function hookResult(output: HookOutput, exitCode: number) {
   return output.flush().pipe(Effect.map(() => ({ exitCode, ...output.result() })));
 }
 
+/**
+ * Runs every enforced Habitat structure rule selected from the admitted registry.
+ *
+ * The Stop hook deliberately excludes Grit, Nx, scripts, and file-layer checks so
+ * one bounded native structure pass protects agent-authored blueprint topology.
+ */
+export const runAgentStop = Effect.fn("hook.agentStop")(function* (context: HookProcedureContext) {
+  const output = createHookOutput(context.reporter);
+  output.writeStdout("habitat hook agent-stop\n");
+  output.writeStdout(renderLocalHookNotice());
+
+  const ruleIds = context.rules.structure
+    .filter((rule) => rule.lane === "enforced")
+    .map((rule) => rule.id)
+    .sort();
+  if (ruleIds.length === 0) {
+    output.writeStderr(
+      "habitat hook agent-stop: registry contains no enforced Habitat structure rules; refusing to pass.\n"
+    );
+    return yield* hookResult(output, 2);
+  }
+
+  const argv = [...ruleIds.flatMap((ruleId) => ["--rule", ruleId]), "--json"];
+  const report = yield* context.createCheckReport({
+    rules: ruleIds,
+    command: checkCommandContext(argv),
+  });
+  const reportedRuleIds = new Set(report.rules.map((rule) => rule.ruleId));
+  const missingRuleIds = ruleIds.filter((ruleId) => !reportedRuleIds.has(ruleId));
+  if (missingRuleIds.length > 0) {
+    output.writeStderr(
+      [
+        "habitat hook agent-stop: the structure-rule selection did not produce every enforced registry rule.",
+        ...missingRuleIds.map((ruleId) => `- ${ruleId}`),
+        "",
+      ].join("\n")
+    );
+    output.writeStderr(
+      section("structure check report", renderCheckReport(report, { json: true }))
+    );
+    return yield* hookResult(output, 2);
+  }
+
+  if (!report.ok) {
+    output.writeStderr(
+      section("structure check report", renderCheckReport(report, { json: true }))
+    );
+    return yield* hookResult(output, 1);
+  }
+
+  output.writeStdout(`affirmed blueprint structure: PASS (${ruleIds.length} rule(s))\n`);
+  return yield* hookResult(output, 0);
+});
+
 export function beginPreCommit(context: HookProcedureContext, resourcePolicy?: HookResourcePolicy) {
   const output = createHookOutput(context.reporter);
   output.writeStdout("habitat hook pre-commit\n");

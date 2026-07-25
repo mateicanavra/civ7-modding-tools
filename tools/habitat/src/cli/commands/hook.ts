@@ -2,13 +2,16 @@ import { HabitatCommand } from "@habitat/cli/cli/base/HabitatCommand";
 import { Args, Flags } from "@oclif/core";
 
 export default class Hook extends HabitatCommand {
-  static override summary = "Run a Habitat git-hook entrypoint";
+  static override summary = "Run a Habitat local-hook entrypoint";
   static override description =
-    "Stable Habitat entrypoint for Husky-delegated pre-commit and pre-push checks.";
-  static override examples = ["<%= config.bin %> <%= command.id %> pre-commit"];
+    "Stable Habitat entrypoint for local git hooks and the Codex agent-stop structure gate.";
+  static override examples = [
+    "<%= config.bin %> <%= command.id %> pre-commit",
+    "<%= config.bin %> <%= command.id %> agent-stop",
+  ];
 
   static override args = {
-    name: Args.string({ required: false, description: "Hook name, such as pre-commit." }),
+    name: Args.string({ required: false, description: "Hook name, such as agent-stop." }),
   };
 
   static override flags = {
@@ -26,6 +29,10 @@ export default class Hook extends HabitatCommand {
   }
 
   private async runHookAction(name: string | undefined, base: string | undefined) {
+    if (name === "agent-stop") {
+      const client = await this.habitatServiceClient();
+      return client.hook.agentStop({}, this.habitatServiceCallerOptions());
+    }
     if (name === "pre-commit") {
       const client = await this.habitatServiceClient();
       return client.hook.preCommit({}, this.habitatServiceCallerOptions());
@@ -42,6 +49,6 @@ function unknownHookResult(name: string | undefined) {
   return {
     exitCode: 2,
     stdout: "",
-    stderr: `Unknown Habitat hook '${name ?? "(missing)"}'. Expected pre-commit or pre-push.\n`,
+    stderr: `Unknown Habitat hook '${name ?? "(missing)"}'. Expected agent-stop, pre-commit, or pre-push.\n`,
   };
 }

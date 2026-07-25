@@ -22,6 +22,7 @@ const mockClassifyTarget = vi.hoisted(() => vi.fn());
 const mockFixPreviewPatterns = vi.hoisted(() => vi.fn());
 const mockCreateLiveHabitatServiceContext = vi.hoisted(() => vi.fn());
 const mockGraphWorkspaceGraph = vi.hoisted(() => vi.fn());
+const mockHookAgentStop = vi.hoisted(() => vi.fn());
 const mockHookPreCommit = vi.hoisted(() => vi.fn());
 const mockHookPrePush = vi.hoisted(() => vi.fn());
 const mockVerifyChanges = vi.hoisted(() => vi.fn());
@@ -79,7 +80,11 @@ vi.mock("@orpc/server", () => ({
     classify: { target: mockClassifyTarget },
     fix: { previewPatterns: mockFixPreviewPatterns },
     graph: { workspaceGraph: mockGraphWorkspaceGraph },
-    hook: { preCommit: mockHookPreCommit, prePush: mockHookPrePush },
+    hook: {
+      agentStop: mockHookAgentStop,
+      preCommit: mockHookPreCommit,
+      prePush: mockHookPrePush,
+    },
     verify: { changes: mockVerifyChanges },
   })),
 }));
@@ -154,6 +159,7 @@ describe("Habitat oclif commands", () => {
       kind: "completed",
       graph: { nodes: {} },
     });
+    mockHookAgentStop.mockResolvedValue({ exitCode: 0, stdout: "hook ok\n", stderr: "" });
     mockHookPreCommit.mockResolvedValue({ exitCode: 0, stdout: "hook ok\n", stderr: "" });
     mockHookPrePush.mockResolvedValue({ exitCode: 0, stdout: "hook ok\n", stderr: "" });
     mockVerifyChanges.mockImplementation(
@@ -444,6 +450,13 @@ describe("Habitat oclif commands", () => {
     expect(stdout.join("")).toContain("hook ok");
   });
 
+  test("agent-stop dispatches through the Habitat service router", async () => {
+    await Hook.run(["agent-stop"]);
+
+    expect(createRouterClient).toHaveBeenCalled();
+    expect(mockHookAgentStop).toHaveBeenCalledWith({}, expectHabitatCallerOptions());
+  });
+
   test("pre-commit forwards command cancellation to its Habitat service call", async () => {
     await Hook.run(["pre-commit"]);
 
@@ -453,10 +466,11 @@ describe("Habitat oclif commands", () => {
   test("hook rejects unknown names before calling the service router", async () => {
     await expect(Hook.run([])).rejects.toThrow();
 
+    expect(mockHookAgentStop).not.toHaveBeenCalled();
     expect(mockHookPreCommit).not.toHaveBeenCalled();
     expect(mockHookPrePush).not.toHaveBeenCalled();
     expect(stderr.join("")).toBe(
-      "Unknown Habitat hook '(missing)'. Expected pre-commit or pre-push.\n"
+      "Unknown Habitat hook '(missing)'. Expected agent-stop, pre-commit, or pre-push.\n"
     );
   });
 
