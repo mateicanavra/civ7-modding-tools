@@ -13,14 +13,14 @@
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "RngFunction, options.rng, and ctx.rng in domain ops",
-  "why": "Every domain operation is deterministic over its admitted input and strategy configuration, regardless of whether it lives directly under a domain or inside a semantic module. Ambient RNG callbacks or context state create a hidden execution input outside that contract.",
-  "remediate": "Derive and pass the operation's deterministic seed as explicit input data; do not close over RNG callbacks or read RNG state from options or context.",
+  "why": "Every domain operation lives under a semantic module and is deterministic over its admitted input and strategy configuration. Ambient RNG callbacks or context state create a hidden execution input outside that contract.",
+  "remediate": "Keep the operation under its owning domain module, derive and pass its deterministic seed as explicit input data, and do not close over RNG callbacks or read RNG state from options or context.",
   "message": "Do not use RNG callback/state surfaces inside domain ops.",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/domain/**/ops/**/*.ts"
+        "mods/*/src/domain/*/modules/*/ops/**/*.ts"
       ]
     }
   ],
@@ -37,7 +37,7 @@
     "acquisition": {
       "kind": "check",
       "roots": [
-        "mods/mod-swooper-maps/src/domain"
+        "mods"
       ]
     }
   }

@@ -15,13 +15,16 @@ Positive structure closes each admitted test kind after the corpus expresses
 that model; source-to-test allowlists and generic `runtime`, `operations`,
 `recipe`, `support`, or `testing` cabinets remain forbidden.
 
-**Current container:** cash the recursive domain-test topology into Hydrology,
-then Foundation, Placement, and Resources in separate Graphite layers. Ecology
-is sealed as the reference sieve: exact behavior descends to its operation,
-artifact, or policy owner; module roots retain only cross-operation behavior;
-recipe publication and engine projection remain with their steps; product
-outcomes remain recipe-owned metric targets or studies. A domain root stays
-empty when no genuine cross-module invariant exists.
+**Current container:** finish Foundation test ownership against the normalized
+source hierarchy. Placement's source hierarchy is sealed: its root composes
+`wonders` before `starts`, policy lives with wonders, consumers use the module
+surface, and direct domain-root operation source is structurally excluded.
+Foundation now receives one complete intent sieve before any Placement or
+Resources test work begins. The burn-down ends only when every surviving
+Foundation test names the behavior and causal owner it can actually regress,
+duplicate SDK guarantees are deleted, mixed tests are split, and the full
+mod-owned proof is green. Placement and Resources follow in separate Graphite
+layers; Morphology, Ecology, and Hydrology remain sealed reference sieves.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -29,16 +32,17 @@ state is adapter observation; metrics, diagnostics, trace, and visualization
 are separate capabilities. Core owns the generic authoring/execution and
 domain-composition SDK, not Swooper's domain model.
 
-**Gradient:** for each family, inventory by intent, identify the already-owned
+**Gradient:** inventory Foundation tests by intent, identify the already-owned
 guarantee, delete duplicate schema/admission/cardinality proofs, split mixed
-tests, move surviving behavior to the narrowest causal owner, replace incidental
-dimensions and seeds with shared Civ7 presets, then run the full mod test owner
-and focused Habitat laws. Preserve synthetic geometry only where geometry is
-the subject. After the corpus is truthful, add only the smallest generic
-positive ratchet the repeated shape earns. Knip and JSDoc burn-down follow
-physical ownership so dead code is deleted before prose is repaired. The
-program ends only when generic laws, source tree, types, tests, Knip, and the
-boundary graph agree.
+tests, move surviving behavior to the narrowest causal owner, and replace
+incidental dimensions and seeds with shared Civ7 presets. Preserve synthetic
+geometry only where geometry is the subject. Run the full mod test owner plus
+focused Habitat laws, then repeat the same sealed layer for Placement and
+Resources. After the corpus is truthful, add only the smallest generic positive
+ratchet the repeated shape earns. Knip and JSDoc burn-down follow physical
+ownership so dead code is deleted before prose is repaired. The program ends
+only when generic laws, source tree, types, tests, Knip, and the boundary graph
+agree.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty

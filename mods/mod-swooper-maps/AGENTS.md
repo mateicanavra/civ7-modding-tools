@@ -21,7 +21,11 @@ Scope: `mods/mod-swooper-maps/**`
   workspace dependencies manually.
 - Prefer regenerating `mod/` through the Nx build target over editing build
   artifacts.
-- Placement domain follows the op-per-concern pattern (plan wonders, floodplains, starts); placement step orchestrates multiple ops rather than a single monolith.
+- Placement composes `wonders` and `starts` modules in causal order. Wonders
+  owns map-size demand followed by natural-wonder site planning; starts then
+  consumes wonder evidence during start planning. Placement recipe steps consume
+  those module ops through the root contract or executable router rather than a
+  flat operation registry.
 
 ## Ecology domain
 

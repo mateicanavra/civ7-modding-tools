@@ -9,7 +9,7 @@ Domain ops do not import engine runtime entrypoints as values.
 language js(typescript)
 
 import_statement(source=$source) as $import where {
-  $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$",
+  $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.*\.ts$",
   $source <: r".*(?:@swooper/mapgen-core/engine|@mapgen/engine)[\"']?$",
   ! $import <: includes "import type",
   ! $import <: includes "import { type",

@@ -7,7 +7,7 @@ import {
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Verified start assignment (`artifact:placement.startAssignment`). One artifact per file by repo convention. */
-const PlanStartsOutputSchema = placement.ops.planStarts.output;
+const PlanStartsOutputSchema = placement.starts.ops.planStarts.output;
 
 /** Runtime schema for stamped player starts and their fairness audit. */
 const Schema = Type.Object(

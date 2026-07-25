@@ -20,7 +20,6 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/domain/*/ops/*/rules/*.ts",
         "mods/*/src/domain/*/modules/*/ops/*/rules/*.ts"
       ]
     }

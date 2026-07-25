@@ -25,7 +25,7 @@ export const PlacementKnobsSchema = Type.Object(
 
 /** Author-facing natural-wonder spacing controls admitted by the selected planning strategy. */
 export const PlacementNaturalWondersSchema = requiredPublicSchema(
-  placement.ops.planNaturalWonders.strategies["suitability-diversity"].config,
+  placement.wonders.ops.planNaturalWonders.strategies["suitability-diversity"].config,
   "Natural wonder placement controls for spacing planned wonder stamps before Civ7 feature materialization."
 );
 
@@ -40,7 +40,7 @@ export const PlacementResourcesSchema = requiredPublicSchema(
 
 /** Author-facing start viability, spacing, ranking, and fairness controls. */
 export const PlacementStartsSchema = requiredPublicSchema(
-  placement.ops.planStarts.strategies["viability-fairness"].config,
+  placement.starts.ops.planStarts.strategies["viability-fairness"].config,
   "Start placement controls: first-age expansion viability and island-start tiers, spacing floor/target (official 6/12 buffers), scoring weights (fertility, freshwater, climate comfort, resource support, roughness with tunable divisor), tier bias, ranking blend, fairness tolerance for the balancing pass, and coastal/river start preference."
 );
 
@@ -75,8 +75,11 @@ export const PlacementPublicSchema = Type.Object(
 export function compilePlacementPublicConfig(config: Record<string, unknown>) {
   return {
     "derive-placement-inputs": {
-      wonders: defaultEnvelope(placement.ops.planWonders, {}),
-      naturalWonders: defaultEnvelope(placement.ops.planNaturalWonders, config.naturalWonders),
+      wonders: defaultEnvelope(placement.wonders.ops.planWonders, {}),
+      naturalWonders: defaultEnvelope(
+        placement.wonders.ops.planNaturalWonders,
+        config.naturalWonders
+      ),
     },
     "plot-landmass-regions": {},
     "place-natural-wonders": {},
@@ -85,7 +88,7 @@ export function compilePlacementPublicConfig(config: Record<string, unknown>) {
       selectSites: defaultEnvelope(resources.sites.ops.selectResourceSites, config.resources),
     },
     "assign-starts": {
-      starts: defaultEnvelope(placement.ops.planStarts, config.starts),
+      starts: defaultEnvelope(placement.starts.ops.planStarts, config.starts),
     },
     "adjust-resources": {
       support: defaultEnvelope(resources.support.ops.adjustResourceSupport, config.support),

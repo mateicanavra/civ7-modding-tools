@@ -13,11 +13,7 @@ recipes, adapters, or runtime orchestration.
 ```grit
 language js(typescript)
 
-predicate disallowed_root_operation_rule_dependency($source) {
-  ! $source <: r"^[\"']?(?:@civ7/map-policy|@swooper/mapgen-core(?:/authoring(?:/contracts)?|/lib(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*)?|type-fest|\.\./types\.js|\./(?:index|[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){3}model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js)[\"']?$"
-}
-
-predicate disallowed_module_operation_rule_dependency($source) {
+predicate disallowed_operation_rule_dependency($source) {
   ! $source <: r"^[\"']?(?:@civ7/map-policy|@swooper/mapgen-core(?:/authoring(?:/contracts)?|/lib(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*)?|type-fest|\.\./types\.js|\./(?:index|[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){3}model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){5}model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){4}[a-z0-9]+(?:-[a-z0-9]+)*/model/atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)\.js)[\"']?$"
 }
 
@@ -29,18 +25,8 @@ or {
     `export * from $source`,
     `import($source)`
   } where {
-    $filename <: r".*/src/domain/[^/]+/ops/[^/]+/rules/[^/]+\.ts$",
-    disallowed_root_operation_rule_dependency($source)
-  },
-  or {
-    import_statement(source=$source),
-    `export { $exports } from $source`,
-    `export type { $exports } from $source`,
-    `export * from $source`,
-    `import($source)`
-  } where {
     $filename <: r".*/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/rules/[^/]+\.ts$",
-    disallowed_module_operation_rule_dependency($source)
+    disallowed_operation_rule_dependency($source)
   },
   import_statement(source=$source) as $import where {
     $source <: r"^[\"']?\.\./types\.js[\"']?$",

@@ -10,36 +10,36 @@ language js(typescript)
 
 or {
   `import $imports from $source` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$",
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.*\.ts$",
     $source <: r".*@civ7/adapter.*",
     ! $source <: r".*@civ7/adapter[a-zA-Z0-9_-].*"
   },
   `import $source` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$",
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.*\.ts$",
     $source <: r".*@civ7/adapter.*",
     ! $source <: r".*@civ7/adapter[a-zA-Z0-9_-].*"
   },
   `export { $exports } from $source` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$",
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.*\.ts$",
     $source <: r".*@civ7/adapter.*",
     ! $source <: r".*@civ7/adapter[a-zA-Z0-9_-].*"
   },
   `export * from $source` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$",
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.*\.ts$",
     $source <: r".*@civ7/adapter.*",
     ! $source <: r".*@civ7/adapter[a-zA-Z0-9_-].*"
   },
   `MapContext` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$"
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.*\.ts$"
   },
   `ExtendedMapContext` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$"
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.*\.ts$"
   },
   `MapSetup` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$"
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.*\.ts$"
   },
   `$context.adapter` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$"
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.*\.ts$"
   }
 }
 ```

@@ -9,7 +9,7 @@ import { artifacts as placementArtifacts } from "../../../../../../src/recipes/s
 import { materializeStartAssignment } from "../../../../../../src/recipes/standard/stages/placement/steps/assign-starts/materialize.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
 
-const { planStarts } = placementDomain.ops;
+const { planStarts } = placementDomain.starts.ops;
 type StartInput = Static<(typeof planStarts)["input"]>;
 
 function makeInput(

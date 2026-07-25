@@ -1,17 +1,37 @@
 schemaVersion = 1
 
 [[scopes]]
-name = "mapgen-legacy-domain-operation-collections"
+name = "mapgen-prohibit-direct-domain-operation-root-sources"
 root = "mods/*/src/domain/!(*.*)/ops"
 kind = "directory"
-mode = "closed"
+mode = "open"
 allowEmpty = true
-required = [
-  "contract.ts",
-  "index.ts",
+forbidden = [
+  "*.ts",
+  "*.tsx",
+  "*.mts",
+  "*.cts",
+  "*.js",
+  "*.jsx",
+  "*.mjs",
+  "*.cjs",
 ]
-allowed = [
-  "!(*.*)",
+
+[[scopes]]
+name = "mapgen-prohibit-direct-domain-operation-descendant-sources"
+root = "mods/*/src/domain/!(*.*)/ops/**/!(*.*)"
+kind = "directory"
+mode = "open"
+allowEmpty = true
+forbidden = [
+  "*.ts",
+  "*.tsx",
+  "*.mts",
+  "*.cts",
+  "*.js",
+  "*.jsx",
+  "*.mjs",
+  "*.cjs",
 ]
 
 [[scopes]]
@@ -25,26 +45,6 @@ required = [
 ]
 allowed = [
   "!(*.*)",
-]
-
-[[scopes]]
-name = "mapgen-legacy-domain-operation-roots"
-root = "mods/*/src/domain/!(*.*)/ops/!(*.*)"
-kind = "directory"
-mode = "closed"
-allowEmpty = true
-required = [
-  "contract.ts",
-  "index.ts",
-]
-allowed = [
-  "types.ts",
-  "rules",
-  "strategies",
-  # Transitional only: unmigrated flat operations still own local policy.
-  # Nested module operations intentionally omit this slot; policy moves to the
-  # nearest module model during each whole-domain burn-down.
-  "policy",
 ]
 
 [[scopes]]

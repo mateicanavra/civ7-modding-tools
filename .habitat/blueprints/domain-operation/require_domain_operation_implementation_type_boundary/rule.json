@@ -20,11 +20,11 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/domain/**/ops/*/index.ts",
-        "mods/*/src/domain/**/ops/*/types.ts",
-        "mods/*/src/domain/**/ops/*/rules/**/*.ts",
-        "mods/*/src/domain/**/ops/*/strategies/*/contract.ts",
-        "mods/*/src/domain/**/ops/*/strategies/*/index.ts"
+        "mods/*/src/domain/*/modules/*/ops/*/index.ts",
+        "mods/*/src/domain/*/modules/*/ops/*/types.ts",
+        "mods/*/src/domain/*/modules/*/ops/*/rules/**/*.ts",
+        "mods/*/src/domain/*/modules/*/ops/*/strategies/*/contract.ts",
+        "mods/*/src/domain/*/modules/*/ops/*/strategies/*/index.ts"
       ]
     }
   ],

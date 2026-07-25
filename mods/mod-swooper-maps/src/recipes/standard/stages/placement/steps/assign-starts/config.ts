@@ -37,7 +37,7 @@ export const AssignStartsStepContract = defineStep({
     provides: [placementArtifacts.startAssignment],
   },
   ops: {
-    starts: placement.ops.planStarts,
+    starts: placement.starts.ops.planStarts,
   },
   schema: Type.Object({}, { additionalProperties: false }),
 });

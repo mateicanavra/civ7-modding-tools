@@ -17,12 +17,12 @@ const hugePreset = getCiv7StandardMapSizePreset("MAPSIZE_HUGE");
 function placementConfig() {
   return {
     naturalWonders: normalizeOperationSelectionForTest(
-      placement.ops.planNaturalWonders,
-      placement.ops.planNaturalWonders.defaultConfig
+      placement.wonders.ops.planNaturalWonders,
+      placement.wonders.ops.planNaturalWonders.defaultConfig
     ),
     wonders: normalizeOperationSelectionForTest(
-      placement.ops.planWonders,
-      placement.ops.planWonders.defaultConfig
+      placement.wonders.ops.planWonders,
+      placement.wonders.ops.planWonders.defaultConfig
     ),
   };
 }
