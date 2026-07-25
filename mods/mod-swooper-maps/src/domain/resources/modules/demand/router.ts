@@ -6,6 +6,7 @@ import planCultivatedResources from "./ops/plan-cultivated-resources/index.js";
 import planGeologicalResources from "./ops/plan-geological-resources/index.js";
 import planResourceGroups from "./ops/plan-resource-groups/index.js";
 import planTerrestrialResources from "./ops/plan-terrestrial-resources/index.js";
+import resolveResourceDemands from "./ops/resolve-resource-demands/index.js";
 
 /** Executable resource-demand branch. */
 const demand = createDomainSubdomainRouter(contract, {
@@ -14,6 +15,7 @@ const demand = createDomainSubdomainRouter(contract, {
   planGeologicalResources,
   planResourceGroups,
   planTerrestrialResources,
+  resolveResourceDemands,
 });
 
 export default demand;

@@ -1301,6 +1301,10 @@ const mapConfig = {
         "groups": {
           "strategy": "canonical-rollup",
           "config": {}
+        },
+        "demands": {
+          "strategy": "policy-constrained",
+          "config": {}
         }
       },
       "assign-starts": {
@@ -1392,7 +1396,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "shattered-ring",
-  configHash: "9e40b9eb4eb87182f1f4517ca40f4ad5c2fa0f13be9aac68db1b403c7474139f",
-  envelopeHash: "91ad40da8e32f3cf2411718c1e367c2f91d523ecba538cd2261df218b2cc43f9",
+  configHash: "69527289e446ff04d73ed9a50bc4849a050c4bc6548153d6cd36aaa7f3e95b44",
+  envelopeHash: "649522354f382abafa5f93b436e692ba5573a2ac0f8a0c3ed966b8b2a3fb7e8b",
   config: mapConfig.config,
 });

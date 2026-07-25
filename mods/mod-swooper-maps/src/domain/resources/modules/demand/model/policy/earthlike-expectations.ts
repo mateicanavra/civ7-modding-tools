@@ -30,6 +30,18 @@ export type EarthlikeResourceExpectation = {
   readonly caveats: readonly string[];
 };
 
+/** Mutable planner input projected from one frozen Earthlike expectation row. */
+export type ResourceExpectationInput<G extends ResourceExpectationGroupId> = {
+  resourceType: OfficialResourceType;
+  groupId: G;
+  status: EarthlikeResourceExpectation["status"];
+  earthlikePredicate: string;
+  expectedCountRange: ResourceExpectedCountRange;
+  conditionMultipliers: string[];
+  signalRequirements: string[];
+  caveats: string[];
+};
+
 const BASELINE = "standard-earthlike-map" as const;
 const BLOCKED_ROW_TYPES = new Set<OfficialResourceType>([
   "RESOURCE_GOLD_DISTANT_LANDS",
@@ -571,6 +583,27 @@ export const EARTHLIKE_RESOURCE_EXPECTATIONS = deepFreeze(
     return toExpectation(definition);
   })
 );
+
+/**
+ * Projects the frozen Earthlike authority for one family into mutable planner input without
+ * allowing downstream schema admission or normalization to mutate the canonical policy table.
+ */
+export function resourceExpectationsForGroup<const G extends ResourceExpectationGroupId>(
+  groupId: G
+): Array<ResourceExpectationInput<G>> {
+  return EARTHLIKE_RESOURCE_EXPECTATIONS.filter(
+    (row): row is EarthlikeResourceExpectation & { readonly groupId: G } => row.groupId === groupId
+  ).map((row) => ({
+    resourceType: row.resourceType,
+    groupId: row.groupId,
+    status: row.status,
+    earthlikePredicate: row.earthlikePredicate,
+    expectedCountRange: { ...row.expectedCountRange },
+    conditionMultipliers: [...row.conditionMultipliers],
+    signalRequirements: [...row.signalRequirements],
+    caveats: [...row.caveats],
+  }));
+}
 
 const definitionTypes = new Set(DEFINITIONS.map((entry) => entry.resourceType));
 if (definitionTypes.size !== DEFINITIONS.length) {

@@ -1346,6 +1346,10 @@ const mapConfig = {
         "groups": {
           "strategy": "canonical-rollup",
           "config": {}
+        },
+        "demands": {
+          "strategy": "policy-constrained",
+          "config": {}
         }
       },
       "assign-starts": {
@@ -1404,7 +1408,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "latest-juicy",
-  configHash: "fd835b1b40377e20813f283577fc4ec4ac1c47d2b9c1a81af2285202f3641689",
-  envelopeHash: "c817125acb26fca60d5ec61719fa5bbafda3c5a6c5375f24ff3f1fe6b9b162eb",
+  configHash: "da3295120384cc174f5632c5d7ad24b3eb1ada7c22bf5ce8ecde6c429cd821e8",
+  envelopeHash: "235c09006130c4e32860247e006853ccdcfa2a126423c941258f0a3d245ed5b0",
   config: mapConfig.config,
 });

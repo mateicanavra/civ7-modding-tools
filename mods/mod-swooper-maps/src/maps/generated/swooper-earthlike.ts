@@ -1314,6 +1314,10 @@ const mapConfig = {
         "groups": {
           "strategy": "canonical-rollup",
           "config": {}
+        },
+        "demands": {
+          "strategy": "policy-constrained",
+          "config": {}
         }
       },
       "assign-starts": {
@@ -1391,7 +1395,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-earthlike",
-  configHash: "d8fa0d87ff4fc02efe18510f2aae0ab43015a8178bb6832aa931cea72af373b1",
-  envelopeHash: "28024970f11e3df9c3b597537f627402a1cc9306b4003efc647099904284e291",
+  configHash: "f20852c3836af27e3e316e0643fe0a44e3c35d17098df3e51a94ee95a0e8905f",
+  envelopeHash: "28ee9c0f96615d54121ba355db58fec9b0b968a4cbb9a2b5f84671fb593d3085",
   config: mapConfig.config,
 });

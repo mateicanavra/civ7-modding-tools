@@ -8,12 +8,27 @@ import {
   resourceTypeLabel,
   UNIT_SCORE_VALUE_SPEC,
 } from "../../viz.js";
-import type { HabitatIntensityFields, ResourceDemandBuildResult } from "./planning.js";
 
 type ResourcePlanIntentRow = Readonly<{
   plotIndex: number;
   resourceType: string;
   phase: "rotation" | "range-floor" | "region-minimum";
+}>;
+
+type ResourceDemandVizRow = Readonly<{
+  habitatMask: Uint8Array;
+  legalMask: Uint8Array;
+}>;
+
+type ResourceDemandSummaryVizRow = Readonly<{
+  resourceType: string;
+}>;
+
+type HabitatIntensityFields = Readonly<{
+  aquaticIntensity: Float32Array;
+  cultivatedIntensity: Float32Array;
+  terrestrialIntensity: Float32Array;
+  geologicalIntensity: Float32Array;
 }>;
 
 const HABITAT_FAMILY_FIELDS = [
@@ -30,8 +45,8 @@ const HABITAT_FAMILY_FIELDS = [
 export function projectResourcePlanViz(input: {
   dimensions: Readonly<{ width: number; height: number }>;
   intents: ReadonlyArray<ResourcePlanIntentRow>;
-  demands: ResourceDemandBuildResult["demands"];
-  summaries: ResourceDemandBuildResult["summaries"];
+  demands: readonly ResourceDemandVizRow[];
+  summaries: readonly ResourceDemandSummaryVizRow[];
   habitat: HabitatIntensityFields;
 }): readonly VizProjection[] {
   const { width, height } = input.dimensions;

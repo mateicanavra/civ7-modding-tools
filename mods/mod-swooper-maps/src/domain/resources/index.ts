@@ -1,5 +1,7 @@
 export { default } from "./contract.js";
 export {
+  admitPositiveResourceRegionMinimum,
+  type PositiveResourceRegionMinimum,
   ResourceAffinityRuleSchema,
   type ResourceFamily,
   ResourceFamilySchema,
@@ -10,35 +12,20 @@ export {
   ResourcePlanRegionMinimumSchema,
   ResourcePlanSettingsSchema,
   ResourcePlanShortfallSchema,
-  admitPositiveResourceRegionMinimum,
-  type PositiveResourceRegionMinimum,
   type ResourceRegionMinimumRequirement,
   ResourceRegionMinimumRequirementSchema,
   type ResourceSymbol,
   ResourceSymbolSchema,
 } from "./model/atoms/index.js";
 export {
-  EARTHLIKE_RESOURCE_EXPECTATIONS,
-  type EarthlikeResourceExpectation,
-  type ResourceExpectationGroupId,
-  type ResourceExpectationStatus,
-} from "./modules/demand/index.js";
-export {
-  type ResourceExpectationRangeEvidence,
-  type ResourceExpectedCountRange,
-} from "./modules/demand/index.js";
-export {
   buildHabitatEligibility,
-  type HabitatEligibility,
-  type HabitatMaskFields,
-  RESOURCE_HABITAT_SIGNALS,
-  type ResourceFamilyId,
-  type ResourceHabitatSignal,
-} from "./modules/demand/index.js";
-export {
   buildInitialMapResourceAuthoringPolicy,
   DEFERRED_INITIAL_MAP_RESOURCE_TYPES,
+  EARTHLIKE_RESOURCE_EXPECTATIONS,
+  type EarthlikeResourceExpectation,
   getInitialMapResourcePolicyForType,
+  type HabitatEligibility,
+  type HabitatMaskFields,
   INITIAL_MAP_RESOURCE_AUTHORING_AGE,
   INITIAL_MAP_RESOURCE_AUTHORING_POLICY,
   INITIAL_MAP_RESOURCE_POLICY_BY_TYPE,
@@ -46,6 +33,16 @@ export {
   type InitialMapResourceAuthoringPolicyEntry,
   type InitialMapResourceAuthoringStatus,
   isInitialMapResourceType,
+  RESOURCE_HABITAT_SIGNALS,
+  type ResourceExpectationGroupId,
+  type ResourceExpectationInput,
+  type ResourceExpectationRangeEvidence,
+  type ResourceExpectationStatus,
+  type ResourceExpectedCountRange,
+  type ResourceFamilyId,
+  type ResourceHabitatSignal,
+  resolveResourceRegionMinimumRequirement,
+  resourceExpectationsForGroup,
 } from "./modules/demand/index.js";
 export {
   HABITAT_INTENSITY_FIELD_NAMES,

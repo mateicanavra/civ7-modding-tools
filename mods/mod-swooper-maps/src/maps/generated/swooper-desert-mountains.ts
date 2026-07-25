@@ -1301,6 +1301,10 @@ const mapConfig = {
         "groups": {
           "strategy": "canonical-rollup",
           "config": {}
+        },
+        "demands": {
+          "strategy": "policy-constrained",
+          "config": {}
         }
       },
       "assign-starts": {
@@ -1392,7 +1396,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-desert-mountains",
-  configHash: "56a727eb8b89b15a7757d5a9cdb5678c72209093a68653eaec7bad8fc07c0dde",
-  envelopeHash: "dad8a2fe35edc6d6ec224e51cfb88b04157d0c3d72120844a0d5a9062c2a7b40",
+  configHash: "12ddb274a3ee870ed603d52d45eef9653e10062a8ce8fe8f1ca6321225d59933",
+  envelopeHash: "507c2f48dcc2fadb0f7a0ad200aa362fcb4cf3f65dc40a1d44dc6848bf10c8fc",
   config: mapConfig.config,
 });

@@ -1300,6 +1300,10 @@ const mapConfig = {
         "groups": {
           "strategy": "canonical-rollup",
           "config": {}
+        },
+        "demands": {
+          "strategy": "policy-constrained",
+          "config": {}
         }
       },
       "assign-starts": {
@@ -1391,7 +1395,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountain-rivers-patch",
-  configHash: "769995199bba4d31b98ff923ae2a32c051f0aef150518914fdb88dc611a44852",
-  envelopeHash: "c74681631f944f6aa724f25592f8b35e0c8070665b6e54c7e0c3a7c60cb35749",
+  configHash: "0345009980591a8476f4b04ec54e1670052339720acdaab4bfa1f45c669df23f",
+  envelopeHash: "6b96103acc8ddafaa97d1535df43bcb06bf3d6d03e15a187692a5bd87680ab0d",
   config: mapConfig.config,
 });

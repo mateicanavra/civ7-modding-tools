@@ -51,6 +51,7 @@ export const config = defineStep({
     terrestrial: resources.demand.ops.planTerrestrialResources,
     geological: resources.demand.ops.planGeologicalResources,
     groups: resources.demand.ops.planResourceGroups,
+    demands: resources.demand.ops.resolveResourceDemands,
     selectSites: resources.sites.ops.selectResourceSites,
   },
   schema: Type.Object({}),

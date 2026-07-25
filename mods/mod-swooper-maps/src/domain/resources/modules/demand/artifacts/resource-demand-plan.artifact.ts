@@ -4,90 +4,32 @@ import {
   type OfficialResourceType,
 } from "@civ7/map-policy";
 import {
-  ResourceFamilySchema,
-  ResourceSymbolSchema,
-} from "../../../model/atoms/resource-family.schema.js";
-import { ResourceRegionMinimumRequirementSchema } from "../../../model/atoms/region-minimum-requirement.schema.js";
+  type ArtifactValidationIssue,
+  defineArtifact,
+  type Static,
+  Type,
+} from "@swooper/mapgen-core/authoring/contracts";
+import {
+  type ResourceDemandExclusion,
+  type ResourceDemandExclusionReason,
+  ResourceDemandExclusionSchema,
+  type ResourceDemandSummaryRow,
+  ResourceDemandSummaryRowSchema,
+} from "../model/atoms/resource-demand.schema.js";
 import { ResourceGroupSummarySchema } from "../model/atoms/resource-group-plan.schema.js";
 import {
   getInitialMapResourcePolicyForType,
   INITIAL_MAP_RESOURCE_AUTHORING_AGE,
   type InitialMapResourceAuthoringStatus,
 } from "../model/policy/initial-map-authoring.js";
-import {
-  type ArtifactValidationIssue,
-  defineArtifact,
-  type Static,
-  Type,
-} from "@swooper/mapgen-core/authoring/contracts";
 
-const ResourceDemandSummaryRowSchema = Type.Object(
-  {
-    resourceType: ResourceSymbolSchema,
-    family: ResourceFamilySchema,
-    laneId: Type.String(),
-    laneKind: Type.Union([Type.Literal("land"), Type.Literal("water")]),
-    weight: Type.Number({ minimum: 1 }),
-    regionMinimumRequirement: ResourceRegionMinimumRequirementSchema,
-    targetCount: Type.Integer({ minimum: 0 }),
-    minCount: Type.Integer({ minimum: 0 }),
-    maxCount: Type.Integer({ minimum: 0 }),
-    habitatTileCount: Type.Integer({ minimum: 0 }),
-    legalTileCount: Type.Integer({ minimum: 0 }),
-    eligibleTileCount: Type.Integer({ minimum: 0 }),
-  },
-  { additionalProperties: false }
-);
-
-/**
- * Closed terminal reasons for excluding one family-planner candidate from resource demand.
- * Structured evidence keeps planner state, age policy, and scenario capacity distinct without
- * encoding a second grammar for downstream consumers to parse.
- */
-const ResourceDemandExclusionReasonSchema = Type.Union([
-  Type.Object(
-    { kind: Type.Literal("outside-official-resource-corpus") },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      kind: Type.Literal("planner-status"),
-      status: Type.Union([
-        Type.Literal("blocked"),
-        Type.Literal("missing-expectation"),
-        Type.Literal("missing-signal"),
-      ]),
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      kind: Type.Literal("age-policy"),
-      status: Type.Union([
-        Type.Literal("deferred-future-age"),
-        Type.Literal("blocked-official"),
-        Type.Literal("not-placeable"),
-        Type.Literal("unknown"),
-      ]),
-      age: Type.Literal(INITIAL_MAP_RESOURCE_AUTHORING_AGE),
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object({ kind: Type.Literal("no-admitted-legal-tiles") }, { additionalProperties: false }),
-]);
-
-type ResourceDemandExclusionReason = Static<typeof ResourceDemandExclusionReasonSchema>;
-type ResourceDemandRow = Static<typeof ResourceDemandSummaryRowSchema>;
 type ResourceGroupSummary = Static<typeof ResourceGroupSummarySchema>;
 type ResourceDemandPlanPayload = Readonly<{
   age: typeof INITIAL_MAP_RESOURCE_AUTHORING_AGE;
   minimumAmountModifier: number;
   groups: Readonly<{ groups: readonly ResourceGroupSummary[] }>;
-  demands: readonly ResourceDemandRow[];
-  excluded: readonly Readonly<{
-    resourceType: string;
-    reason: ResourceDemandExclusionReason;
-  }>[];
+  demands: readonly ResourceDemandSummaryRow[];
+  excluded: readonly ResourceDemandExclusion[];
 }>;
 type PlannerStatus =
   ResourceDemandPlanPayload["groups"]["groups"][number]["plans"][number]["status"];
@@ -124,15 +66,7 @@ export const artifact = defineArtifact({
         }
       ),
       demands: Type.Array(ResourceDemandSummaryRowSchema),
-      excluded: Type.Array(
-        Type.Object(
-          {
-            resourceType: Type.String(),
-            reason: ResourceDemandExclusionReasonSchema,
-          },
-          { additionalProperties: false }
-        )
-      ),
+      excluded: Type.Array(ResourceDemandExclusionSchema),
     },
     {
       additionalProperties: false,
@@ -144,7 +78,7 @@ export const artifact = defineArtifact({
     const value = input as ResourceDemandPlanPayload;
     const issues: ArtifactValidationIssue[] = [];
 
-    const demandByType = new Map<string, ResourceDemandRow>();
+    const demandByType = new Map<string, ResourceDemandSummaryRow>();
     for (const row of value.demands) {
       if (demandByType.has(row.resourceType)) {
         issues.push(issue(`Demand ${row.resourceType} appears more than once.`));

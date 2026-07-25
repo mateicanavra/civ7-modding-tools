@@ -5,8 +5,9 @@ import PlanCultivatedResourcesContract from "./ops/plan-cultivated-resources/con
 import PlanGeologicalResourcesContract from "./ops/plan-geological-resources/contract.js";
 import PlanResourceGroupsContract from "./ops/plan-resource-groups/contract.js";
 import PlanTerrestrialResourcesContract from "./ops/plan-terrestrial-resources/contract.js";
+import ResolveResourceDemandsContract from "./ops/resolve-resource-demands/contract.js";
 
-/** Resource-demand contract over the four family planners and their group rollup. */
+/** Resource-demand contract over family planning, reconciliation, and site-demand resolution. */
 const demand = defineDomainSubdomain({
   id: "demand",
   ops: {
@@ -15,6 +16,7 @@ const demand = defineDomainSubdomain({
     planGeologicalResources: PlanGeologicalResourcesContract,
     planResourceGroups: PlanResourceGroupsContract,
     planTerrestrialResources: PlanTerrestrialResourcesContract,
+    resolveResourceDemands: ResolveResourceDemandsContract,
   },
 });
 

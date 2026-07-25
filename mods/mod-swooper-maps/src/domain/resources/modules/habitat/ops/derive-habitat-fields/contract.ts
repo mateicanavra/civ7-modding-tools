@@ -1,5 +1,8 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { HABITAT_MASK_FIELD_NAMES } from "../../model/atoms/habitat-fields.schema.js";
+import {
+  HABITAT_MASK_FIELD_NAMES,
+  type HabitatMaskFieldName,
+} from "../../model/atoms/habitat-fields.schema.js";
 import quantilePhysicalLanesDefinition from "./strategies/quantile-physical-lanes/config.js";
 
 /**
@@ -17,7 +20,7 @@ const f32 = (description: string) => TypedArraySchemas.f32({ description });
 
 const maskOutputs = Object.fromEntries(
   HABITAT_MASK_FIELD_NAMES.map((field) => [field, u8(`Derived habitat lane mask: ${field}.`)])
-);
+) as { [Field in HabitatMaskFieldName]: ReturnType<typeof u8> };
 
 /**
  * Admits the pure conversion from morphology, hydrology, ecology, and tectonic truth into the

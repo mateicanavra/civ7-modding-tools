@@ -1300,6 +1300,10 @@ const mapConfig = {
         "groups": {
           "strategy": "canonical-rollup",
           "config": {}
+        },
+        "demands": {
+          "strategy": "policy-constrained",
+          "config": {}
         }
       },
       "assign-starts": {
@@ -1391,7 +1395,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "sundered-archipelago",
-  configHash: "4b06905e471b7968262ba54783107977e37f8fb229b975c31c510b76e4458de0",
-  envelopeHash: "ae4cb352439e62e3f9ecf35abe2a9e4ae4eb6c65bce3fe0ba5e39b5352ad60fc",
+  configHash: "4e39244e6b484f7acb96676565dab527a7ef06e605e2f4e964987db6f4e47fac",
+  envelopeHash: "854c10d282e50b670633d429a9b64aeff99f194dd8763ec659c976a56bf65492",
   config: mapConfig.config,
 });
