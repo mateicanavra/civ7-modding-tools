@@ -20,7 +20,7 @@ const setup = admitMapSetup({
 function normalizeSeaLevel(seaLevel: "earthlike" | "water-heavy") {
   if (!LandmassPlatesStep.normalize) throw new Error("Landmass plates must normalize sea level.");
   const stageConfig = createStandardRecipeTestConfig()["morphology-coasts"];
-  stageConfig.waterCoverage.targetWaterPercent = 43;
+  stageConfig["landmass-plates"].seaLevel.config.targetWaterPercent = 43;
   stageConfig.knobs.seaLevel = seaLevel;
   const admitted = validateSchemaValueForTest(
     morphologyCoastsStage.surfaceSchema,

@@ -99,7 +99,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Substrate controls for terrain erodibility and sediment baselines.",
+      description:
+        "Crust-type baselines and tectonic-age, uplift, rift, and boundary modifiers used to derive erodibility and sediment fields.",
     }
   ),
 });

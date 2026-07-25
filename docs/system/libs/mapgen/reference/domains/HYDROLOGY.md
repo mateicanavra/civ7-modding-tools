@@ -111,14 +111,17 @@ Hydrology's physical river model.
 
 ## Config + knobs posture
 
-Author-facing control is primarily via stage knobs (compiled at stage compile time). In the standard recipe:
+The Standard recipe exposes bound operation envelopes directly and adds a
+small set of stage knobs for product-level posture:
 
 - `hydrology-climate-baseline` knobs: `dryness`, `temperature`, `seasonality`, `oceanCoupling`
-- `hydrology-hydrography` knobs: `riverDensity` (physical river-network classification density), `lakeiness` (sink-derived lake intent expansion)
+- `hydrology-hydrography` knobs: `riverDensity` (physical river-network classification density), `lakeiness` (a relative sink-derived lake-intent posture whose `normal` value preserves directly authored basin controls)
 - `hydrology-climate-refine` knobs: `dryness`, `temperature`, `cryosphere`
 - `map-rivers` knobs: `navigableRiverDensity` (Civ-visible navigable river trunk projection only)
 
-Some steps also expose flat step config surfaces for explicit overrides (e.g., seasonality posture).
+Step schemas and their bound operation contracts remain the advanced
+configuration surface. Knobs transform those admitted configs; they do not
+replace or reconstruct their shape.
 
 ## River network benchmark contract
 

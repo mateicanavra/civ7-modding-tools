@@ -41,7 +41,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Controls the environmental weights used to classify soils and fertility.",
+      description:
+        "Coastal-shelf pedology controls. Authored weights establish the baseline before this strategy emphasizes sediment-rich, moisture-supported fertility.",
     }
   ),
 });

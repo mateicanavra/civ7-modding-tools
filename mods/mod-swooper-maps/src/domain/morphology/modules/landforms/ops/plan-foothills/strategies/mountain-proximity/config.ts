@@ -597,7 +597,7 @@ export default defineStrategy({
     {
       additionalProperties: false,
       description:
-        "Mountain-range controls for shared ridge, foothill, rough-land terrain classification.",
+        "Mountain proximity, uplift, rift-shoulder, relief, and terrain-budget controls used to plan connected foothill intent.",
     }
   ),
 });

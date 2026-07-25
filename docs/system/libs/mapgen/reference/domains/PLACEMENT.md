@@ -133,13 +133,20 @@ Placement owns its gameplay projection artifacts (`landmassRegionSlotByTile`, `p
 
 Symbolic→runtime resource ids are proven by a three-way agreement check (corpus slot == policy V0 table index == V1 row type), hard-failing on any divergence.
 
-## Config posture (knob groups)
+## Config posture (operation-derived)
 
-The `placement` stage public surface has six groups: `knobs`, `naturalWonders`, `discoveries`, `resources`, `starts`, `support`. The `resources`, `starts`, and `support` groups are **derived from the owning op's default strategy config schema** (foundation pattern) — there is no hand-shadowed schema, and the studio panel reads the generated recipe artifacts (`build:studio-recipes`). Knob taxonomy (semantic groups, density+sparsity+relationship controls, Earth-like defaults with declared min/max): ADR-010.
+The `placement` stage has no parallel public-config assembly and no
+stage-level knob surface. Its authoring shape is composed from the eleven
+causal step contracts and their bound operation envelopes, so advanced
+placement capability remains available without a hand-shadowed schema. The
+Studio panel consumes the same generated recipe authority
+(`build:studio-recipes`).
 
-- `resources`: density, sparsity, rarityFidelity, siteSpacingTiles, perTypeSpacingFloorScale, equityMaxDensityRatio, per-family density, affinity/exclusion rules.
-- `starts`: spacing floor/desired (official 6/12 buffers), scoring weights (fertility, freshwater, climate comfort + extreme penalty, resource support, roughness divisor), tier bias, ranking blend, fairness tolerance, coastal/river preference, StartBias weight, per-hemisphere player-count overrides.
-- `support`: enabled, supportFloor, supportRadiusTiles, equityTolerance, strength.
+The operation-owned surfaces include resource density, spacing, family
+affinity and exclusions; start viability, scoring, spacing and fairness; and
+resource-to-start support adjustment. Their defaults, ranges, and semantic
+descriptions live with the strategy configs that execute those decisions.
+ADR-010 remains the product taxonomy rather than a second configuration owner.
 
 Policy data comes from `@civ7/map-policy` generated tables and corpus (`CIV7_BROWSER_TABLES_V0` byte-stable + `CIV7_POLICY_TABLES_V1`: resource catalog rows, valid ages, required leaders, minimum-amount modifiers, StartBias tables, start globals), regenerated only via `nx run civ7-map-policy:generate` from the `.civ7/outputs/resources` submodule. That package owns `Weight`, `MinimumPerHemisphere`, age validity, and the static `Staple`/`UnlocksCiv` fallback basis; it does not approximate the roster-dependent live requirement decision. Natural-wonder membership is derived directly from those tables and proved by owner-local map-policy tests. There are no `globalThis.GameInfo` reads in the recipe layer; the resource catalog and exact live requirement query flow through `EngineAdapter`.
 
@@ -169,7 +176,7 @@ Policy data comes from `@civ7/map-policy` generated tables and corpus (`CIV7_BRO
 - Realignment project (diagnosis, expectations, refactor plan, per-slice evidence): `docs/projects/placement-realignment/`
 - ADR-008 (domain/resources owns resource planning; landmass-region divergence), ADR-009 (deterministic typed reconciliation; readbacks evidence-only), ADR-010 (knob taxonomy): `docs/system/ADR.md`
 - Stage definition: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/index.ts`
-- Stage public config surface: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/index.ts`
+- Stage composition and operation-derived surface: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/index.ts` plus the configuration module owned by each child step
 - Placement artifact catalog: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts/index.ts`; each contract and validator lives in its adjacent one-module-per-file `*.artifact.ts` module.
 - Domain ops: `mods/mod-swooper-maps/src/domain/placement/modules/starts/ops/`, `mods/mod-swooper-maps/src/domain/placement/modules/wonders/ops/`, `mods/mod-swooper-maps/src/domain/resources/modules/*/ops/`
 - Policy tables: `packages/civ7-map-policy/src/civ7-tables.gen.ts` (generator-only writes)

@@ -6,20 +6,26 @@ import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export default defineStrategy({
   id: "habitat",
-  config: Type.Object({
-    minConfidence01: Type.Number({
-      minimum: 0,
-      maximum: 1,
-      default: 0.55,
+  config: Type.Object(
+    {
+      minConfidence01: Type.Number({
+        minimum: 0,
+        maximum: 1,
+        default: 0.55,
+        description:
+          "Reef-family score below which ocean habitat remains evidence rather than placement intent.",
+      }),
+      stride: Type.Integer({
+        minimum: 1,
+        maximum: 12,
+        default: 1,
+        description:
+          "Deterministic spacing stride for sparse reef-family intent; 1 keeps every admitted habitat tile.",
+      }),
+    },
+    {
       description:
-        "Family-local admission threshold: reef-family scores below this remain ocean habitat signal, not placement intent.",
-    }),
-    stride: Type.Integer({
-      minimum: 1,
-      maximum: 12,
-      default: 1,
-      description:
-        "Deterministic spacing stride for sparse reef-family intent; 1 keeps every admitted habitat tile.",
-    }),
-  }),
+        "Reef confidence floor and deterministic tile-index spacing used to select eligible reef-family habitat.",
+    }
+  ),
 });

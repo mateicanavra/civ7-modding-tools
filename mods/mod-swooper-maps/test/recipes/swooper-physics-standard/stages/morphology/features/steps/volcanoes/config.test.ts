@@ -20,9 +20,9 @@ const setup = admitMapSetup({
 function normalizeVolcanism(volcanism: "normal" | "high") {
   if (!VolcanoesStep.normalize) throw new Error("Volcanoes must normalize volcanism.");
   const stageConfig = createStandardRecipeTestConfig()["morphology-features"];
-  stageConfig.volcanoes.baseDensity = 0.01;
-  stageConfig.volcanoes.hotspotWeight = 0.12;
-  stageConfig.volcanoes.convergentMultiplier = 2.4;
+  stageConfig.volcanoes.volcanoes.config.baseDensity = 0.01;
+  stageConfig.volcanoes.volcanoes.config.hotspotWeight = 0.12;
+  stageConfig.volcanoes.volcanoes.config.convergentMultiplier = 2.4;
   stageConfig.knobs.volcanism = volcanism;
   const admitted = validateSchemaValueForTest(
     morphologyFeaturesStage.surfaceSchema,

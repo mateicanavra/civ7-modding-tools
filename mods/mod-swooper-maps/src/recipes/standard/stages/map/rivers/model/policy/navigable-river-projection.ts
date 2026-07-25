@@ -1,6 +1,3 @@
-/** The authored density presets accepted by the step-local projection policy. */
-export type NavigableRiverDensityKnob = "sparse" | "normal" | "dense";
-
 /** Numeric thresholds resolved from one authored navigable-river density. */
 export type NavigableRiverProjectionThresholds = Readonly<{
   endpointDischargePercentileMin: number;
@@ -24,4 +21,7 @@ export const NAVIGABLE_RIVER_PROJECTION_POLICY = {
     endpointDischargePercentileMin: 0.9,
     targetMajorTileFraction: 0.4,
   },
-} as const satisfies Record<NavigableRiverDensityKnob, NavigableRiverProjectionThresholds>;
+} as const satisfies Record<string, NavigableRiverProjectionThresholds>;
+
+/** The authored density presets derived from the projection policy's canonical keys. */
+export type NavigableRiverDensityKnob = keyof typeof NAVIGABLE_RIVER_PROJECTION_POLICY;

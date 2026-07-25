@@ -48,7 +48,7 @@ function climateBaselineConfig(options: Readonly<{ axialTiltDeg?: number }> = {}
   const stageConfig = createStandardRecipeTestConfig()["hydrology-climate-baseline"];
   if (options.axialTiltDeg !== undefined) {
     stageConfig.knobs.seasonality = "normal";
-    stageConfig.seasonalCycle.axialTiltDeg = options.axialTiltDeg;
+    stageConfig["climate-baseline"].seasonality.axialTiltDeg = options.axialTiltDeg;
   }
   const admitted = validateSchemaValueForTest(
     hydrologyClimateBaselineStage.surfaceSchema,

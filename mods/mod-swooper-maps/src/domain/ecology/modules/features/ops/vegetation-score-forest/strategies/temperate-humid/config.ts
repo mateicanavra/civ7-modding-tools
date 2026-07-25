@@ -6,5 +6,12 @@ import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export default defineStrategy({
   id: "temperate-humid",
-  config: Type.Object({}, { additionalProperties: false }),
+  config: Type.Object(
+    {},
+    {
+      additionalProperties: false,
+      description:
+        "Forest suitability uses fixed temperate humidity and fertility response curves with no authored parameters.",
+    }
+  ),
 });

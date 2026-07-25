@@ -6,36 +6,42 @@ import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export default defineStrategy({
   id: "cold-hydromorphic",
-  config: Type.Object({
-    waterMin01: Type.Number({
-      default: 0.55,
-      minimum: 0,
-      maximum: 1,
-      description: "Minimum water availability for tundra-bog suitability.",
-    }),
-    fertilityMin01: Type.Number({
-      default: 0.1,
-      minimum: 0,
-      maximum: 1,
-      description: "Minimum soil fertility for tundra-bog suitability.",
-    }),
-    freezeMin01: Type.Number({
-      default: 0.55,
-      minimum: 0,
-      maximum: 1,
-      description: "Minimum freeze index for tundra-bog suitability.",
-    }),
-    tempColdMaxC: Type.Number({
-      default: 4,
-      minimum: -100,
-      maximum: 100,
-      description: "Upper temperature for peak cold tundra-bog suitability.",
-    }),
-    tempWarmMaxC: Type.Number({
-      default: 14,
-      minimum: -100,
-      maximum: 100,
-      description: "Warm temperature limit for tundra-bog suitability.",
-    }),
-  }),
+  config: Type.Object(
+    {
+      waterMin01: Type.Number({
+        default: 0.55,
+        minimum: 0,
+        maximum: 1,
+        description: "Minimum water availability for tundra-bog suitability.",
+      }),
+      fertilityMin01: Type.Number({
+        default: 0.1,
+        minimum: 0,
+        maximum: 1,
+        description: "Minimum soil fertility for tundra-bog suitability.",
+      }),
+      freezeMin01: Type.Number({
+        default: 0.55,
+        minimum: 0,
+        maximum: 1,
+        description: "Minimum freeze index for tundra-bog suitability.",
+      }),
+      tempColdMaxC: Type.Number({
+        default: 4,
+        minimum: -100,
+        maximum: 100,
+        description: "Upper temperature for peak cold tundra-bog suitability.",
+      }),
+      tempWarmMaxC: Type.Number({
+        default: 14,
+        minimum: -100,
+        maximum: 100,
+        description: "Warm temperature limit for tundra-bog suitability.",
+      }),
+    },
+    {
+      description:
+        "Water, fertility, freeze-index, and temperature thresholds used to score tundra-bog habitat on admitted hydromorphic substrate.",
+    }
+  ),
 });

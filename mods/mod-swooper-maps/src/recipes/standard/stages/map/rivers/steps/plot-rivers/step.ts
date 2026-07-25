@@ -12,6 +12,10 @@ import {
 } from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-network-classification.js";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { restoreProjectedCoastTerrain } from "../../../../../water-surface-parity.js";
+import {
+  NAVIGABLE_RIVER_PROJECTION_POLICY,
+  type NavigableRiverDensityKnob,
+} from "../../model/policy/navigable-river-projection.js";
 import { PlotRiversStepContract } from "./config.js";
 import { selectNavigableRiverTerrain } from "./rules/select-navigable-river-terrain.js";
 import { buildPlotRiversVizProjections, type PlotRiversVizEvidence } from "./viz.js";
@@ -104,6 +108,17 @@ function classifyProjectionSignal(input: {
  * and publishes planned-versus-engine readbacks for parity diagnostics.
  */
 export const PlotRiversStep = createStep(PlotRiversStepContract, {
+  normalize: (config, ctx) => {
+    const { navigableRiverDensity } = ctx.knobs as Readonly<{
+      navigableRiverDensity?: NavigableRiverDensityKnob | null;
+    }>;
+    return navigableRiverDensity === null || navigableRiverDensity === undefined
+      ? config
+      : {
+          ...config,
+          ...NAVIGABLE_RIVER_PROJECTION_POLICY[navigableRiverDensity],
+        };
+  },
   run: (context, config, _ops, deps) => {
     const hydrography = deps.artifacts.hydrography.read(context);
     const lakePlan = deps.artifacts.lakePlan.read(context);

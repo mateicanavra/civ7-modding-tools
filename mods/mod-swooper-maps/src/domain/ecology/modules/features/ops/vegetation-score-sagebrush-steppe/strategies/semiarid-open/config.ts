@@ -6,5 +6,12 @@ import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export default defineStrategy({
   id: "semiarid-open",
-  config: Type.Object({}, { additionalProperties: false }),
+  config: Type.Object(
+    {},
+    {
+      additionalProperties: false,
+      description:
+        "Sagebrush-steppe suitability uses fixed warm, semiarid, sparse-biomass response curves with no authored parameters.",
+    }
+  ),
 });

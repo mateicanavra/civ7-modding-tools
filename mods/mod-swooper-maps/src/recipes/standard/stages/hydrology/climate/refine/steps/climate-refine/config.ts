@@ -12,13 +12,14 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  * runs bounded cryosphere feedback when enabled, and publishes refined physical artifacts.
  *
  * Configuration posture:
- * - No step-local config. All author-facing control flows through Hydrology knobs compiled at stage compile time.
+ * - Bound operation envelopes expose exact advanced controls.
+ * - Hydrology knobs apply relative product-level transforms during step normalization.
  */
 const ClimateRefineStepConfigSchema = Type.Object(
   {},
   {
     description:
-      "Climate refine step config (empty). Use Hydrology knobs (dryness/temperature/cryosphere) to influence behavior deterministically.",
+      "Advanced operation controls for precipitation, thermal, cryosphere, water-budget, and diagnostic refinement. Stage knobs apply relative moisture, temperature, and cryosphere postures without replacing these values.",
   }
 );
 

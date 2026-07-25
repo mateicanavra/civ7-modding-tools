@@ -20,8 +20,8 @@ const setup = admitMapSetup({
 function normalizeRiverDensity(riverDensity: "normal" | "dense") {
   if (!RiversStep.normalize) throw new Error("Rivers must normalize physical density.");
   const stageConfig = createStandardRecipeTestConfig()["hydrology-hydrography"];
-  stageConfig.riverNetwork.minorPercentile = 0.86;
-  stageConfig.riverNetwork.majorPercentile = 0.96;
+  stageConfig.rivers.projectRiverNetwork.config.minorPercentile = 0.86;
+  stageConfig.rivers.projectRiverNetwork.config.majorPercentile = 0.96;
   stageConfig.knobs.riverDensity = riverDensity;
   const admitted = validateSchemaValueForTest(
     hydrologyHydrographyStage.surfaceSchema,

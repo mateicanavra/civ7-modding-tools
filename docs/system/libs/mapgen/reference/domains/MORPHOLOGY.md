@@ -476,9 +476,10 @@ Shared surfaces retained in this domain have explicit invariants:
 - `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/ops/plan-ridges/contract.ts`,
   `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/ops/plan-foothills/contract.ts`,
   and `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/ops/plan-rough-lands/contract.ts`
-  each compose their leaf strategy definitions. The `morphology-features` stage compiles one
-  `mountainRanges` public config into all three selections, and the mountains
-  step's `assertSameMountainFamilySelection` guard rejects divergent configs.
+  each compose their leaf strategy definitions. Their complete operation
+  envelopes remain independently authorable. The nullable
+  `knobs.mountainRanges` control may deliberately project one coupled physical
+  posture across all three; `null` preserves the advanced operation configs.
 - Individual artifact authorities own Morphology truth schemas. Each semantic
   module's `artifacts/index.ts` catalogs only that module's products; consumers
   import the exact owning catalog rather than a second domain-wide registry.
@@ -493,10 +494,14 @@ The standard recipe exposes six Morphology knobs that apply _after_ defaulted st
 - `erosion` (morphology-erosion): scales geomorphology rates (fluvial/diffusion/deposition)
 - `volcanism` (morphology-features): scales volcano planning weights/density
 - `orogeny` (morphology-features): scales mountain planning thresholds/intensity
+- `mountainRanges` (morphology-features): optional coupled mountain-family
+  posture; `null` leaves ridge, foothill, and rough-land operation envelopes
+  untouched
 
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/index.ts`, `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/index.ts`, `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/index.ts`, and `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/index.ts` (stage-owned knob schemas)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/mountains/mountain-ranges.ts` (coupled mountain-range projection applied only when its knob is authored)
 - `mods/mod-swooper-maps/src/domain/morphology/modules/coasts/model/policy/coast-knob-policy.ts`, `mods/mod-swooper-maps/src/domain/morphology/modules/shelf/model/policy/shelf-knob-policy.ts`, `mods/mod-swooper-maps/src/domain/morphology/modules/erosion/model/policy/erosion-knob-policy.ts`, and `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/model/policy/landform-knob-policy.ts` (deterministic knob transforms)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/step.ts` (`normalize` applying `MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/rugged-coasts/step.ts` (`normalize` applying `MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER`)

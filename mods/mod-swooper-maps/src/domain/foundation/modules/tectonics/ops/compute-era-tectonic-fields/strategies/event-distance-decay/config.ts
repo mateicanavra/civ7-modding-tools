@@ -23,9 +23,13 @@ export default defineStrategy({
         minimum: 0,
         maximum: 10,
         description:
-          "Activity gain on convergent-uplift and subduction-volcanism emission intensity, applied AFTER boundary-regime classification (so regime topology is fixed and the lever stays smooth/monotonic). Set by the foundation-tectonics plateActivity knob; a direct authored value is overwritten by the knob. 1 is an exact no-op.",
+          "Authored baseline gain for convergent-uplift and subduction-volcanism emission intensity after boundary-regime classification. The foundation-tectonics plateActivity knob scales this value; its neutral setting preserves the authored value exactly.",
       }),
     },
-    { additionalProperties: false }
+    {
+      additionalProperties: false,
+      description:
+        "Mesh-neighbor spread and distance-decay controls that project per-era tectonic events into bounded influence fields.",
+    }
   ),
 });

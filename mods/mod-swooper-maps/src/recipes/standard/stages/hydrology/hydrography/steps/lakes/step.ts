@@ -1,7 +1,7 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { measureStandardRiverNetwork } from "../../../../../metrics/families/hydrology/river-network.js";
 import { defineStandardVizMeta } from "../../../../../viz.js";
-import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "../../model/policy/hydrography-knob-policy.js";
+import { applyHydrologyLakeinessPolicy } from "../../model/policy/hydrography-knob-policy.js";
 import { LakesStepContract } from "./config.js";
 
 type HydrologyLakeinessKnob = "few" | "normal" | "many";
@@ -20,7 +20,7 @@ export const LakesStep = createStep(LakesStepContract, {
     };
     if (config.planLakes.strategy !== "sink-discharge-budget") return config;
 
-    const policy = HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY[lakeiness];
+    const terminalBasinControls = applyHydrologyLakeinessPolicy(config.planLakes.config, lakeiness);
 
     return {
       ...config,
@@ -28,9 +28,7 @@ export const LakesStep = createStep(LakesStepContract, {
         ...config.planLakes,
         config: {
           ...config.planLakes.config,
-          maxUpstreamSteps: policy.maxUpstreamSteps,
-          sinkDischargePercentileMin: policy.sinkDischargePercentileMin,
-          maxLakeLandFraction: policy.maxLakeLandFraction,
+          ...terminalBasinControls,
         },
       },
     };

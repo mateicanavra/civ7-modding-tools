@@ -52,7 +52,7 @@ family nesting and do not need to mirror those hyphenated identities.
 PHYSICS / TRUTH STAGES (compute + publish artifacts; MUST NOT touch the adapter)
   1  foundation-mantle             mesh, mantle potential, mantle forcing
   2  foundation-lithosphere        crust, plate graph
-  3  foundation-tectonics          plate motion, tectonics
+  3  foundation-tectonics          tectonics (current motion + history)
   4  foundation-orogeny            crust evolution
   5  foundation-projection         tile-space foundation fields + plate topology (not engine projection)
   6  morphology-coasts             landmass plates, rugged coasts
@@ -184,9 +184,18 @@ would promote to `stages/morphology/shelf/viz.ts`, not the residual
 
 The op envelope `{ strategy, config }` selects the algorithm. There are three control points; runtime dispatch is `runtimeStrategies[cfg.strategy].run(input, cfg.config)` in `packages/mapgen-core/src/authoring/operation/create.ts`:
 
-1. **Stage `compile()` literal (public stages)** — the primary production control point. `compile({ config })` hard-codes the strategy string, e.g. `computePrecipitation: { strategy: "refine", config: config.precipitationRefinement ?? {} }`. A `public` schema REQUIRES a `compile`; public config JSON never contains a `strategy` field — `compile()` injects it.
-2. **`defaultStrategy` on a `StepOpUse`** — a step contract can declare `myOp: { contract, defaultStrategy: "refine" }`; this changes the schema default when the author omits the envelope. It does not forbid an explicit override.
-3. **Direct step config (internal stages)** — for stages without `public`, the op envelope is authored directly as a step-config key: `{ "computeAtmosphericCirculation": { "strategy": "latitude", "config": {...} } }`.
+1. **Direct step config (ordinary stages)** - the op envelope is authored
+   directly as a step-config key:
+   `{ "computeAtmosphericCirculation": { "strategy": "latitude", "config": {...} } }`.
+2. **`defaultStrategy` on a `StepOpUse`** - a step contract can declare
+   `myOp: { contract, defaultStrategy: "refine" }`; this changes the schema
+   default when the author omits the envelope. It does not forbid an explicit
+   override.
+3. **Rare inline stage compiler** - a concrete stage may define an inline
+   `public: Type.Object(...)` and compile it only when the external shape
+   intentionally hides and semantically translates the complete internal
+   surface. External `public.config.ts` assemblies and wrapper-only compilers
+   are forbidden.
 
 Multi-strategy ops in live source (every other op has one inferred semantic default):
 

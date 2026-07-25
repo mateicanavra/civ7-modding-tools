@@ -20,9 +20,10 @@ const setup = admitMapSetup({
 function normalizeErosion(erosion: "normal" | "high") {
   if (!GeomorphologyStep.normalize) throw new Error("Geomorphology must normalize erosion.");
   const stageConfig = createStandardRecipeTestConfig()["morphology-erosion"];
-  stageConfig.geomorphicCycle.geomorphology.fluvial.rate = 0.2;
-  stageConfig.geomorphicCycle.geomorphology.diffusion.rate = 0.3;
-  stageConfig.geomorphicCycle.geomorphology.deposition.rate = 0.1;
+  const geomorphology = stageConfig.geomorphology.geomorphology.config.geomorphology;
+  geomorphology.fluvial.rate = 0.2;
+  geomorphology.diffusion.rate = 0.3;
+  geomorphology.deposition.rate = 0.1;
   stageConfig.knobs.erosion = erosion;
   const admitted = validateSchemaValueForTest(
     morphologyErosionStage.surfaceSchema,

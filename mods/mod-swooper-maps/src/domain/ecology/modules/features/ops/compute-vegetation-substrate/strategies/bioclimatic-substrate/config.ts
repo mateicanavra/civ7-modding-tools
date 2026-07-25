@@ -31,7 +31,7 @@ export default defineStrategy({
     {
       additionalProperties: false,
       description:
-        "Normalization constants for vegetation substrate fields. Keep these stable and minimal; upstream physics should drive realism.",
+        "Temperature and biomass normalization bounds used to project admitted climate evidence into zero-to-one vegetation substrate fields.",
     }
   ),
 });

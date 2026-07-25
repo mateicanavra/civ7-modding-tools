@@ -223,30 +223,39 @@ sealed descriptor supplies its semantic identity.
 `{ strategy: "<id>", config: {...} }` (a TypeBox discriminated union on `strategy`).
 There are exactly three selection paths:
 
-1. **Stage `compile()` literal** (public stages) — synthesize the envelope:
+1. **Authored operation envelope** (ordinary stages) - select the strategy
+   directly in the step config:
    ```ts
-   compile: ({ config }) => ({
-     "my-step-name": { myOp: { strategy: "my-variant", config: config.myControl ?? {} } },
-   }),
+   { myOp: { strategy: "my-variant", config: { /* variant-specific props */ } } }
    ```
 2. **`defaultStrategy` on the step contract `StepOpUse`** — changes the *schema default*
    so an omitted envelope starts on the named strategy (the author can still override):
    ```ts
    ops: { myOp: { contract: someDomain.ops.myOpName, defaultStrategy: "my-variant" } },
    ```
-3. **Authored envelope in map/step config** (internal, non-`public` stages only):
+3. **Rare inline semantic public override** - only when a concrete stage
+   intentionally hides and meaningfully translates the complete internal
+   surface:
    ```ts
-   { myOp: { strategy: "my-variant", config: { /* variant-specific props */ } } }
+   export default createStage({
+     id: "example",
+     public: Type.Object({ profile: ProfileSchema }),
+     steps,
+     compile: ({ config }) => ({
+       "my-step-name": resolveProfile(config.profile),
+     }),
+   });
    ```
 
 Runtime dispatch (`createOp.run`) reads `cfg.strategy`, looks up
 `runtimeStrategies[cfg.strategy]`, and throws on an unknown id.
 
 > Gotchas: `contract.defaultStrategy` is the resolved runtime authority; no strategy is
-> renamed to `default`. For a
-> stage with `public:`, the public config JSON never carries a `strategy` field; the
-> `compile()` function injects it. Only internal stages accept a `strategy` field
-> directly in authored config.
+> renamed to `default`. A full `public` override is not a convenience alias for
+> operation config. It stays inline in the stage definition; external
+> `public.config.ts` files are forbidden. Shipped map configs and stage knobs
+> provide ordinary product-level convenience without hiding operation
+> envelopes.
 
 ---
 
@@ -255,7 +264,7 @@ Runtime dispatch (`createOp.run`) reads `cfg.strategy`, looks up
 A step lives under `src/recipes/standard/stages/<semantic-stage-path>/steps/<step-name>/`;
 use family nesting when the stage belongs to a larger semantic family. Step id is kebab-case
 (`/^[a-z0-9]+(?:-[a-z0-9]+)*$/`). The reference no-ops step is
-`map/morphology/steps/plot-continents`; the reference with-ops step is
+`morphology/map/steps/plot-continents`; the reference with-ops step is
 `morphology/features/steps/landmasses`.
 
 **`config.ts`** — `defineStep`. Import the domain contract from its root and

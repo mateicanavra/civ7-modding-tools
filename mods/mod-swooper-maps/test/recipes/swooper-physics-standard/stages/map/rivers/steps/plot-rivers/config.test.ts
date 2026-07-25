@@ -4,8 +4,12 @@ import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 
 import mapRiversStage from "../../../../../../../../src/recipes/standard/stages/map/rivers/index.js";
 import { PlotRiversStepContract } from "../../../../../../../../src/recipes/standard/stages/map/rivers/steps/plot-rivers/config.js";
+import { PlotRiversStep } from "../../../../../../../../src/recipes/standard/stages/map/rivers/steps/plot-rivers/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
-import { standardMapConfig } from "../../../../../fixtures/standard-recipe.js";
+import {
+  createStandardRecipeTestConfig,
+  standardMapConfig,
+} from "../../../../../fixtures/standard-recipe.js";
 
 const setup = admitMapSetup({
   mapSeed: TEST_MAP_SEED,
@@ -13,16 +17,26 @@ const setup = admitMapSetup({
   latitudeBounds: standardMapConfig.latitudeBounds,
 });
 
-function normalizeNavigableDensity(navigableRiverDensity: "normal" | "dense") {
+function normalizeNavigableDensity(navigableRiverDensity: "normal" | "dense" | null) {
+  if (!PlotRiversStep.normalize) throw new Error("Plot rivers must normalize its density knob.");
+  const authored = createStandardRecipeTestConfig()["map-rivers"];
+  authored.knobs.navigableRiverDensity = navigableRiverDensity;
+  authored["plot-rivers"].endpointDischargePercentileMin = 0.82;
+  authored["plot-rivers"].targetMajorTileFraction = 0.61;
   const stageConfig = validateSchemaValueForTest(
     mapRiversStage.surfaceSchema,
-    { knobs: { navigableRiverDensity } },
+    authored,
     "/map-rivers"
   );
-  const { rawSteps } = mapRiversStage.toInternal({ setup, stageConfig });
-  return validateSchemaValueForTest(
+  const { knobs, rawSteps } = mapRiversStage.toInternal({ setup, stageConfig });
+  const config = validateSchemaValueForTest(
     PlotRiversStepContract.schema,
     rawSteps["plot-rivers"],
+    "/map-rivers/plot-rivers"
+  );
+  return validateSchemaValueForTest(
+    PlotRiversStepContract.schema,
+    PlotRiversStep.normalize(config, { setup, knobs }),
     "/map-rivers/plot-rivers"
   );
 }
@@ -36,5 +50,12 @@ describe("map-rivers plot-rivers authoring", () => {
       normal.endpointDischargePercentileMin
     );
     expect(dense.targetMajorTileFraction).toBeGreaterThan(normal.targetMajorTileFraction);
+  });
+
+  it("preserves advanced projection thresholds when density authoring is disabled", () => {
+    const advanced = normalizeNavigableDensity(null);
+
+    expect(advanced.endpointDischargePercentileMin).toBe(0.82);
+    expect(advanced.targetMajorTileFraction).toBe(0.61);
   });
 });

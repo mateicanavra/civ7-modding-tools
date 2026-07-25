@@ -21,9 +21,9 @@ const setup = admitMapSetup({
 function normalizeRuggedness(coastRuggedness: "normal" | "rugged") {
   if (!RuggedCoastsStep.normalize) throw new Error("Rugged coasts must normalize ruggedness.");
   const stageConfig = createStandardRecipeTestConfig()["morphology-coasts"];
-  stageConfig.coastlineShape.plateBias.bayWeight = 0.5;
-  stageConfig.coastlineShape.plateBias.bayNoiseBonus = 0.7;
-  stageConfig.coastlineShape.plateBias.fjordWeight = 0.4;
+  stageConfig["rugged-coasts"].coastlines.config.coast.plateBias.bayWeight = 0.5;
+  stageConfig["rugged-coasts"].coastlines.config.coast.plateBias.bayNoiseBonus = 0.7;
+  stageConfig["rugged-coasts"].coastlines.config.coast.plateBias.fjordWeight = 0.4;
   stageConfig.knobs.coastRuggedness = coastRuggedness;
   const admitted = validateSchemaValueForTest(
     morphologyCoastsStage.surfaceSchema,

@@ -53,7 +53,7 @@ import { DeepStep } from "../../../../family/terrain/steps/deep/step.js";
 
 export const deepRelativeReach = DeepStep;
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/world/public.config.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/world/viz.ts
 import { ShapeSurfaceStepContract } from "../terrain/steps/shape-surface/config.js";
 
 export const importedContract = ShapeSurfaceStepContract;
@@ -66,10 +66,10 @@ export type ImportedOutput = SurfaceOutput;
 // @filename: mods/example-mod/src/recipes/sample-recipe/stages/world/index.ts
 import "../terrain/steps/shape-surface/step.js";
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/world/public.config.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/world/log.ts
 import { ShapeSurfaceStep } from "./terrain/steps/shape-surface/step.js";
 
-export const publicConfig = ShapeSurfaceStep;
+export const loggedStep = ShapeSurfaceStep;
 
 // @filename: mods/example-mod/src/recipes/sample-recipe/stages/world/index.ts
 export { ShapeSurfaceStep } from "../terrain/steps/shape-surface/step.js";

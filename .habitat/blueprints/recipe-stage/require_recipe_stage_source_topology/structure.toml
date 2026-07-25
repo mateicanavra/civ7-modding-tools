@@ -19,6 +19,5 @@ allowed = [
   "steps",
   "viz.ts",
   "log.ts",
-  "public.config.ts",
 ]
 forbidden = ["artifacts"]

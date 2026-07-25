@@ -597,7 +597,7 @@ export default defineStrategy({
     {
       additionalProperties: false,
       description:
-        "Mountain-range controls for shared ridge, foothill, rough-land terrain classification.",
+        "Orogenic signal, spacing, extent, threshold, and terrain-budget controls used to grow connected mountain ridge intent.",
     }
   ),
 });

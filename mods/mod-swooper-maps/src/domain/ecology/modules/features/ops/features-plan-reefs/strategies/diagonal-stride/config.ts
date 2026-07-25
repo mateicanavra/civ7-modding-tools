@@ -6,19 +6,24 @@ import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export default defineStrategy({
   id: "diagonal-stride",
-  config: Type.Object({
-    minConfidence01: Type.Number({
-      minimum: 0,
-      maximum: 1,
-      default: 0.55,
+  config: Type.Object(
+    {
+      minConfidence01: Type.Number({
+        minimum: 0,
+        maximum: 1,
+        default: 0.55,
+        description: "Minimum reef-family suitability admitted before diagonal spacing is applied.",
+      }),
+      stride: Type.Integer({
+        minimum: 1,
+        maximum: 12,
+        default: 5,
+        description: "Deterministic diagonal spacing stride for reef-family intent.",
+      }),
+    },
+    {
       description:
-        "Family-local admission threshold before the diagonal spacing policy is applied.",
-    }),
-    stride: Type.Integer({
-      minimum: 1,
-      maximum: 12,
-      default: 5,
-      description: "Deterministic diagonal spacing stride for reef-family intent.",
-    }),
-  }),
+        "Reef confidence floor and diagonal tile stride used to preserve deterministic shipping-lane gaps.",
+    }
+  ),
 });

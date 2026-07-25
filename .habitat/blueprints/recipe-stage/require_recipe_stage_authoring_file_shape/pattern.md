@@ -7,9 +7,13 @@ Every authored recipe-stage `index.ts` contains exactly one `createStage` call
 and default-exports that value with a literal identity and step map. That
 default is the module's only runtime export. Stage authoring consumes public
 domain contracts rather than reaching through operation input, output,
-configuration, or strategy members. When a stage owns public configuration it
-imports only its immediate sibling `public.config.ts`; semantic family
-containers do not provide inherited configuration.
+configuration, or strategy members. Ordinary public configuration flows from
+step schemas, bound operation configuration, and stage knobs. A rare full
+public override is an inline `Type.Object(...)` in the concrete stage
+definition, paired with its meaningful compiler rather than imported from a
+parallel configuration assembly. The kind law rejects only syntactically
+obvious no-op compilers; review remains responsible for judging whether a
+nontrivial transform earns a full public override.
 
 ```grit
 language js(typescript)
@@ -47,12 +51,34 @@ or {
     `$domain.ops.$operation["strategies"][$strategy]`
   },
   import_statement(source=$source) where {
-    $source <: r"public\.config",
-    ! $source <: r"^[\"']\./public\.config\.js[\"']$"
+    $source <: r".*public[.]config.*"
   },
-  program(statements=$body) where {
-    $body <: contains `createStage({ $..., public: $public, $... })`,
-    ! $body <: contains `import { $..., $public, $... } from "./public.config.js"`
+  or {
+    `createStage({ $..., public: $public, $... })` where {
+      ! $public <: `Type.Object($_)`
+    },
+    `createStage({ $..., public: $public, $... } as const)` where {
+      ! $public <: `Type.Object($_)`
+    }
+  },
+  `createStage($definition)` where {
+    $definition <: contains `compile: $_`,
+    ! $definition <: contains `public: Type.Object($_)`
+  },
+  `createStage($definition)` where {
+    $definition <: contains `public: Type.Object({})`,
+    $definition <: contains or {
+      `compile: () => ({})`,
+      `compile: ($_parameters) => ({})`
+    }
+  },
+  `createStage($definition)` where {
+    $definition <: contains or {
+      `compile: ({ $value }) => $value`,
+      `compile: ({ $key: $value }) => $value`,
+      `compile: ({ $value }) => ({ ...$value })`,
+      `compile: ({ $key: $value }) => ({ ...$value })`
+    }
   },
   export_statement(declaration=$declaration) where {
     $declaration <: or {
@@ -89,7 +115,7 @@ export default createStage({ id: "terrain-surface", steps: { shadow } });
 
 // @filename: mods/alternate-mod/src/recipes/alternate-recipe/stages/output/render/index.ts
 import { createStage } from "@swooper/mapgen-core/authoring";
-import { OutputPublicConfig } from "../public.config.js";
+import { OutputPublicConfig } from "./public.config.js";
 
 export default createStage({
   id: "output-render",
@@ -109,12 +135,62 @@ import { createStage as declareStage } from "@swooper/mapgen-core/authoring";
 export default declareStage({ id: "terrain-aliased-constructor", steps: {} });
 
 // @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/local-public/index.ts
-import { createStage } from "@swooper/mapgen-core/authoring";
+import { createStage, Type } from "@swooper/mapgen-core/authoring";
 
-const TerrainPublicConfig = {};
+const TerrainPublicConfig = Type.Object({});
 export default createStage({
   id: "terrain-local-public",
   public: TerrainPublicConfig,
+  compile: () => ({}),
+  steps: {},
+});
+
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/empty-public-compiler/index.ts
+import { createStage, Type } from "@swooper/mapgen-core/authoring";
+
+export default createStage({
+  id: "terrain-empty-public-compiler",
+  public: Type.Object({}),
+  compile: () => ({}),
+  steps: {},
+});
+
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/identity-public-compiler/index.ts
+import { createStage, Type } from "@swooper/mapgen-core/authoring";
+
+export default createStage({
+  id: "terrain-identity-public-compiler",
+  public: Type.Object({ profile: Type.String() }),
+  compile: ({ config }) => config,
+  steps: {},
+});
+
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/aliased-identity-public-compiler/index.ts
+import { createStage, Type } from "@swooper/mapgen-core/authoring";
+
+export default createStage({
+  id: "terrain-aliased-identity-public-compiler",
+  public: Type.Object({ profile: Type.String() }),
+  compile: ({ config: authored }) => authored,
+  steps: {},
+});
+
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/spread-public-compiler/index.ts
+import { createStage, Type } from "@swooper/mapgen-core/authoring";
+
+export default createStage({
+  id: "terrain-spread-public-compiler",
+  public: Type.Object({ profile: Type.String() }),
+  compile: ({ config }) => ({ ...config }),
+  steps: {},
+});
+
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/compiler-without-boundary/index.ts
+import { createStage } from "@swooper/mapgen-core/authoring";
+
+export default createStage({
+  id: "terrain-compiler-without-boundary",
+  compile: () => ({ terrain: {} }),
   steps: {},
 });
 
@@ -150,8 +226,7 @@ export default createStage({ id: "geology-reexported-type", steps: {} });
 
 ```typescript
 // @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/weather/index.ts
-import { createStage } from "@swooper/mapgen-core/authoring";
-import { WeatherPublicConfig } from "./public.config.js";
+import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { SimulateWeatherStep } from "./steps/simulate-weather/step.js";
 
 const stageLabel = "Weather";
@@ -164,7 +239,14 @@ export type WeatherStageId = "atmosphere-weather";
 
 export default createStage({
   id: "atmosphere-weather",
-  public: WeatherPublicConfig,
+  public: Type.Object({
+    climateProfile: Type.String({
+      description: "Selects the authored climate profile compiled for this stage.",
+    }),
+  }),
+  compile: ({ config }) => ({
+    "simulate-weather": { profile: config.climateProfile },
+  }),
   steps: { simulateWeather: SimulateWeatherStep },
   metadata: { label: stageLabel } satisfies WeatherStageMetadata,
 });

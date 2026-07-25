@@ -12,9 +12,9 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "recipe stage index modules without exactly one canonical default createStage authority, with additional runtime exports, with deep operation-member access, or with non-sibling public configuration imports",
-  "why": "A recipe stage index.ts owns one public runtime stage identity, its immediate authoring configuration, and step selection. It consumes operation contracts through public domain roots without reconstructing operation internals. Exact constructor and sibling-config authority prevent shadow stages and inherited family configuration while erased type/interface exports remain available.",
-  "remediate": "Default-export exactly one createStage value with id and steps, import public configuration only from sibling ./public.config.js, consume operation contracts through public domain roots, keep helpers local, and remove every additional runtime export or re-export.",
+  "forbids": "recipe stage index modules without exactly one canonical default createStage authority, with additional runtime exports, with deep operation-member access, with imported public configuration assemblies, with a detached full public override, with a compiler that has no inline public boundary to translate, or with an obvious empty, identity, or spread-only compiler wrapper",
+  "why": "A recipe stage index.ts owns one public runtime stage identity, step selection, and any exceptional semantic public override. Ordinary authoring configuration flows from step schemas, bound operation configuration, and stage knobs. Requiring an intentional full override to be visibly authored inline with the stage prevents inherited or detached configuration authorities. Cheap syntax checks reject only unmistakable no-op compiler wrappers; review determines whether a nontrivial public-to-internal transform is semantically justified.",
+  "remediate": "Default-export exactly one createStage value with id and steps, remove external public-config imports and compiler-only wrappers, let step and operation schemas expose ordinary configuration, inline any justified Type.Object public override beside a compiler that meaningfully changes the public shape, apply ordinary knobs during step normalization, consume operation contracts through public domain roots, and remove every additional runtime export or re-export.",
   "message": "Recipe stage index.ts must expose only its canonical default createStage runtime authority.",
   "pathCoverage": [
     {
@@ -36,9 +36,7 @@
     "patternName": "require_recipe_stage_authoring_file_shape",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods"
-      ]
+      "roots": ["mods"]
     }
   }
 }

@@ -44,6 +44,10 @@ export default defineStrategy({
           "Controls whether one smoothing pass is applied to the forcing field before plate motion fitting.",
       }),
     },
-    { additionalProperties: false }
+    {
+      additionalProperties: false,
+      description:
+        "Rigid-body plate-motion controls for angular-velocity scaling, forcing smoothing, and residual-fit quality evidence.",
+    }
   ),
 });

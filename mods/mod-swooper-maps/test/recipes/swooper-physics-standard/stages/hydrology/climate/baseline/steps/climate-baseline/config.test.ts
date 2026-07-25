@@ -20,7 +20,11 @@ const setup = admitMapSetup({
 function normalizeDryness(dryness: "wet" | "mix") {
   if (!ClimateBaselineStep.normalize) throw new Error("Climate baseline must normalize dryness.");
   const stageConfig = createStandardRecipeTestConfig()["hydrology-climate-baseline"];
-  stageConfig.precipitation.rainfallScale = 100;
+  const precipitation = stageConfig["climate-baseline"].computePrecipitation;
+  if (precipitation.strategy !== "vector") {
+    throw new Error("Climate baseline must author vector precipitation.");
+  }
+  precipitation.config.rainfallScale = 100;
   stageConfig.knobs.dryness = dryness;
   stageConfig.knobs.temperature = "temperate";
   stageConfig.knobs.seasonality = "normal";

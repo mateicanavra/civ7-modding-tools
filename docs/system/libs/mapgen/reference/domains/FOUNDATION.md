@@ -407,21 +407,23 @@ Legacy `foundation/compute-tectonic-history` used to act as a monolithic history
 The standard recipe exposes one Foundation stage knob:
 
 - `plateActivity`: a scalar in `[0..1]` owned by `foundation-tectonics`. The
-  `tectonics` step converts it to `orogenyActivityGain`, which scales convergent
-  uplift and subduction-volcanism emission after boundary-regime classification.
+  `tectonics` step converts it to a multiplier over the directly authored
+  `orogenyActivityGain`, which scales convergent uplift and
+  subduction-volcanism emission after boundary-regime classification. The
+  neutral `0.5` posture preserves the authored gain exactly.
   `foundation-projection` has no knobs and materializes the resulting truth
   without reapplying activity scaling.
 
-Plate count is authored in the public `meshResolution` and `platePartition`
-operation config surfaces owned by `foundation-mantle` and
-`foundation-lithosphere`; it is not a shared stage knob.
+Plate count is authored through the `mesh` and `plate-graph` steps' bound
+operation envelopes in `foundation-mantle` and `foundation-lithosphere`; it is
+not a shared stage knob or a second stage-owned schema.
 
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/tectonics/index.ts` (`FoundationPlateActivityKnobSchema`, `knobsSchema` ownership)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/tectonics/steps/tectonics/step.ts` (`normalize` applying `plateActivity` to `computeEraTectonicFields.orogenyActivityGain`)
-- `mods/mod-swooper-maps/src/domain/foundation/modules/tectonics/model/policy/plate-activity.ts` (`resolvePlateActivityOrogenyMultiplier`)
+- `mods/mod-swooper-maps/src/domain/foundation/modules/tectonics/model/policy/plate-activity.ts` (`applyPlateActivityOrogenyGain`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/projection/index.ts` (configurationless projection ownership)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/public.config.ts` (`meshResolution` and `platePartition` public config ownership)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/mantle/steps/mesh/config.ts` and `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/lithosphere/steps/plate-graph/config.ts` (operation-derived plate-count authoring)
 - `mods/mod-swooper-maps/src/domain/foundation/modules/mesh/ops/compute-mesh/index.ts` (`normalize` clamping authored `plateCount`)
 - `mods/mod-swooper-maps/src/domain/foundation/modules/lithosphere/ops/compute-plate-graph/index.ts` (`normalize` clamping authored `plateCount`)
 
@@ -443,18 +445,19 @@ clamp authored `plateCount` to the operation minimum.
 ### Stage composition
 
 In the standard recipe, FOUNDATION is authored as a **family of five sibling
-recipe stages** (not one monolithic stage). Each stage is a composable node with
-its own public config and fixed step surface; `foundation-tectonics` is the only
-Foundation stage that currently exposes a stage-level knob. They share the
-producing modules' artifact catalogs and Foundation visualization helpers. The
-steps run in the same global order as before — splitting the stage boundaries does not reorder steps, so generated
-maps remain byte-identical (the RNG phase label stays `foundation`).
+recipe stages** (not one monolithic stage). Each stage is a composable node
+whose ordinary public surface is derived from its steps and bound operation
+configuration; `foundation-tectonics` is the only Foundation stage that
+currently adds a stage-level knob. They share the producing modules' artifact
+catalogs and Foundation visualization helpers. The steps run in the same global
+order as before — splitting the stage boundaries does not reorder steps, so
+generated maps remain byte-identical (the RNG phase label stays `foundation`).
 
 | # | Stage | Steps (in order) | Responsibility |
 |---|-------|------------------|----------------|
 | 1 | `foundation-mantle` | `mesh`, `mantle-potential`, `mantle-forcing` | Tectonic mesh + mantle-convection forcing field |
 | 2 | `foundation-lithosphere` | `crust`, `plate-graph` | The static plate structure: initial crust + plate partition (what the plates *are*) |
-| 3 | `foundation-tectonics` | `plate-motion`, `tectonics` | Plate kinematics + boundary regimes and activity-scaled multi-era tectonic truth (what the plates *do*) |
+| 3 | `foundation-tectonics` | `tectonics` | Plate kinematics + boundary regimes and activity-scaled multi-era tectonic truth (what the plates *do*) |
 | 4 | `foundation-orogeny` | `crust-evolution` | Crust maturation over the tectonic history |
 | 5 | `foundation-projection` | `projection`, `plate-topology` | Faithfully resample mesh-space truth onto the tile grid + derive tile plate adjacency |
 
@@ -463,16 +466,15 @@ config and the `foundation-lithosphere` plate-partition config; neither stage ha
 a knob. `plateActivity` belongs to `foundation-tectonics`, where the `tectonics`
 step applies it to mesh-space era-field emission before publishing tectonic
 truth. `foundation-projection` has no authored config or knobs and only
-materializes that truth into tile-space artifacts. The `plate-motion` step lives
-with `tectonics` (not `lithosphere`) so the shared `plateMotion` op config has
-exactly one home: the kinematics it computes are re-used by the tectonics
-per-era recompute.
+materializes that truth into tile-space artifacts. The `tectonics` step owns the
+single `computePlateMotion` envelope: it publishes the current plate-motion
+vintage, then reuses the same operation config for each historical era.
 
 **Ground truth anchors**
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/mantle/index.ts` (`createStage`, mantle steps, semantic public config)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/lithosphere/index.ts` (`createStage`, crust + plate-graph steps, semantic public config)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/tectonics/index.ts` (`createStage`, `plateActivity` knob, plate-motion + tectonics steps)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/tectonics/steps/tectonics/step.ts` (`normalize` applying the activity gain before tectonic truth publication)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/mantle/index.ts` (`createStage`, mantle steps, operation-derived configuration)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/lithosphere/index.ts` (`createStage`, crust + plate-graph steps, operation-derived configuration)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/tectonics/index.ts` (`createStage`, `plateActivity` knob, tectonics step)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/tectonics/steps/tectonics/step.ts` (single plate-motion config, current-motion publication, era recomputation, and activity normalization)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/orogeny/index.ts` (`createStage`, crust-evolution)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/projection/index.ts` (`createStage`, projection + plate-topology, inferred configurationless surface)
 - `mods/mod-swooper-maps/src/domain/foundation/modules/mesh/artifacts/index.ts` and `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/viz.ts` (representative module-owned artifact catalog plus recipe visualization helpers)

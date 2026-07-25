@@ -6,5 +6,11 @@ import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export default defineStrategy({
   id: "map-metadata",
-  config: Type.Object({}),
+  config: Type.Object(
+    {},
+    {
+      description:
+        "Natural-wonder demand derives entirely from admitted Civ7 map-size metadata and exposes no authored parameters.",
+    }
+  ),
 });

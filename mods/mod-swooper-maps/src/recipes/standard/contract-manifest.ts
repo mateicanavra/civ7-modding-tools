@@ -20,7 +20,6 @@ import { MeshStepContract } from "./stages/foundation/mantle/steps/mesh/config.j
 import { CrustEvolutionStepContract } from "./stages/foundation/orogeny/steps/crust-evolution/config.js";
 import { PlateTopologyStepContract } from "./stages/foundation/projection/steps/plate-topology/config.js";
 import { ProjectionStepContract } from "./stages/foundation/projection/steps/projection/config.js";
-import { PlateMotionStepContract } from "./stages/foundation/tectonics/steps/plate-motion/config.js";
 import { TectonicsStepContract } from "./stages/foundation/tectonics/steps/tectonics/config.js";
 import { ClimateBaselineStepContract } from "./stages/hydrology/climate/baseline/steps/climate-baseline/config.js";
 import { ClimateRefineStepContract } from "./stages/hydrology/climate/refine/steps/climate-refine/config.js";
@@ -79,7 +78,7 @@ export const standardStageContractManifest = [
     MantleForcingStepContract,
   ]),
   stage("foundation-lithosphere", [CrustStepContract, PlateGraphStepContract]),
-  stage("foundation-tectonics", [PlateMotionStepContract, TectonicsStepContract]),
+  stage("foundation-tectonics", [TectonicsStepContract]),
   stage("foundation-orogeny", [CrustEvolutionStepContract]),
   stage("foundation-projection", [ProjectionStepContract, PlateTopologyStepContract]),
   stage("morphology-coasts", [LandmassPlatesStepContract, RuggedCoastsStepContract]),

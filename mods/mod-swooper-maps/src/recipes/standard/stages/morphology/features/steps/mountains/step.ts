@@ -12,9 +12,9 @@ import {
   defineStandardVizMeta,
   STANDARD_VIZ_COLORS,
 } from "../../../../../viz.js";
-import type { MorphologyOrogenyKnob } from "../../index.js";
+import type { MorphologyMountainRangesKnob, MorphologyOrogenyKnob } from "../../index.js";
 import { MountainsStepContract } from "./config.js";
-import { assertSameMountainFamilyConfig } from "./config-relation.js";
+import { resolveMountainRangesControl } from "./mountain-ranges.js";
 
 const GROUP_MORPHOLOGY_FEATURES = "Morphology / Features";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
@@ -40,80 +40,97 @@ function buildFractalArray(width: number, height: number, seed: number, grain: n
  */
 export const MountainsStep = createStep(MountainsStepContract, {
   normalize: (config, ctx) => {
-    assertSameMountainFamilyConfig(config.ridges, config.foothills);
-    assertSameMountainFamilyConfig(config.ridges, config.roughLands);
-
-    const { orogeny } = ctx.knobs as Readonly<{ orogeny?: MorphologyOrogenyKnob }>;
+    const { orogeny, mountainRanges } = ctx.knobs as Readonly<{
+      orogeny?: MorphologyOrogenyKnob;
+      mountainRanges?: MorphologyMountainRangesKnob | null;
+    }>;
+    const coupledConfig =
+      mountainRanges === null || mountainRanges === undefined
+        ? undefined
+        : resolveMountainRangesControl(mountainRanges);
     const multiplier = MORPHOLOGY_OROGENY_TECTONIC_INTENSITY_MULTIPLIER[orogeny ?? "normal"] ?? 1.0;
     const mountainThresholdDelta =
       MORPHOLOGY_OROGENY_MOUNTAIN_THRESHOLD_DELTA[orogeny ?? "normal"] ?? 0;
     const hillThresholdDelta = MORPHOLOGY_OROGENY_HILL_THRESHOLD_DELTA[orogeny ?? "normal"] ?? 0;
 
+    const authoredRidges =
+      coupledConfig === undefined || config.ridges.strategy !== "orogenic-range-growth"
+        ? config.ridges
+        : { ...config.ridges, config: coupledConfig };
+    const authoredFoothills =
+      coupledConfig === undefined || config.foothills.strategy !== "mountain-proximity"
+        ? config.foothills
+        : { ...config.foothills, config: coupledConfig };
+    const authoredRoughLands =
+      coupledConfig === undefined || config.roughLands.strategy !== "relief-substrate-clusters"
+        ? config.roughLands
+        : { ...config.roughLands, config: coupledConfig };
+
     const ridgesSelection =
-      config.ridges.strategy === "orogenic-range-growth"
+      authoredRidges.strategy === "orogenic-range-growth"
         ? {
-            ...config.ridges,
+            ...authoredRidges,
             config: {
-              ...config.ridges.config,
+              ...authoredRidges.config,
               tectonicIntensity: clampFinite(
-                config.ridges.config.tectonicIntensity * multiplier,
+                authoredRidges.config.tectonicIntensity * multiplier,
                 0
               ),
               mountainThreshold: clampFinite(
-                config.ridges.config.mountainThreshold + mountainThresholdDelta,
+                authoredRidges.config.mountainThreshold + mountainThresholdDelta,
                 0
               ),
               hillThreshold: clampFinite(
-                config.ridges.config.hillThreshold + hillThresholdDelta,
+                authoredRidges.config.hillThreshold + hillThresholdDelta,
                 0
               ),
             },
           }
-        : config.ridges;
+        : authoredRidges;
 
     const foothillsSelection =
-      config.foothills.strategy === "mountain-proximity"
+      authoredFoothills.strategy === "mountain-proximity"
         ? {
-            ...config.foothills,
+            ...authoredFoothills,
             config: {
-              ...config.foothills.config,
+              ...authoredFoothills.config,
               tectonicIntensity: clampFinite(
-                config.foothills.config.tectonicIntensity * multiplier,
+                authoredFoothills.config.tectonicIntensity * multiplier,
                 0
               ),
               mountainThreshold: clampFinite(
-                config.foothills.config.mountainThreshold + mountainThresholdDelta,
+                authoredFoothills.config.mountainThreshold + mountainThresholdDelta,
                 0
               ),
               hillThreshold: clampFinite(
-                config.foothills.config.hillThreshold + hillThresholdDelta,
+                authoredFoothills.config.hillThreshold + hillThresholdDelta,
                 0
               ),
             },
           }
-        : config.foothills;
+        : authoredFoothills;
 
     const roughLandsSelection =
-      config.roughLands.strategy === "relief-substrate-clusters"
+      authoredRoughLands.strategy === "relief-substrate-clusters"
         ? {
-            ...config.roughLands,
+            ...authoredRoughLands,
             config: {
-              ...config.roughLands.config,
+              ...authoredRoughLands.config,
               tectonicIntensity: clampFinite(
-                config.roughLands.config.tectonicIntensity * multiplier,
+                authoredRoughLands.config.tectonicIntensity * multiplier,
                 0
               ),
               mountainThreshold: clampFinite(
-                config.roughLands.config.mountainThreshold + mountainThresholdDelta,
+                authoredRoughLands.config.mountainThreshold + mountainThresholdDelta,
                 0
               ),
               hillThreshold: clampFinite(
-                config.roughLands.config.hillThreshold + hillThresholdDelta,
+                authoredRoughLands.config.hillThreshold + hillThresholdDelta,
                 0
               ),
             },
           }
-        : config.roughLands;
+        : authoredRoughLands;
 
     return {
       ...config,

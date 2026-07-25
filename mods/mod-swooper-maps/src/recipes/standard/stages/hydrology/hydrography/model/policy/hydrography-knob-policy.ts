@@ -1,5 +1,15 @@
+import { clamp01, clampInt } from "@swooper/mapgen-core/lib/math";
+
 export type HydrologyRiverDensityKnob = "sparse" | "normal" | "dense";
 export type HydrologyLakeinessKnob = "few" | "normal" | "many";
+
+type HydrologyTerminalBasinControls = Readonly<{
+  sinkDischargePercentileMin: number;
+  maxLakeLandFraction: number;
+  maxUpstreamSteps: number;
+}>;
+
+const MAX_LAKE_UPSTREAM_STEPS = 8;
 
 /**
  * Lakeiness tunes Hydrology-owned terminal-basin admission, not Civ7's lake
@@ -23,14 +33,37 @@ export const HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY = {
     maxLakeLandFraction: 0.006,
     maxUpstreamSteps: 1,
   },
-} as const satisfies Record<
-  HydrologyLakeinessKnob,
-  Readonly<{
-    sinkDischargePercentileMin: number;
-    maxLakeLandFraction: number;
-    maxUpstreamSteps: number;
-  }>
->;
+} as const satisfies Record<HydrologyLakeinessKnob, HydrologyTerminalBasinControls>;
+
+/**
+ * Applies a lakeiness posture relative to the directly authored terminal-basin controls.
+ *
+ * `normal` is an exact no-op. Other postures preserve the author's baseline while
+ * shifting percentile and expansion budgets by the same policy relation used by shipped maps.
+ */
+export function applyHydrologyLakeinessPolicy(
+  authored: HydrologyTerminalBasinControls,
+  lakeiness: HydrologyLakeinessKnob
+): HydrologyTerminalBasinControls {
+  const selected = HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY[lakeiness];
+  const normal = HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY.normal;
+  const sinkDischargePercentileDelta =
+    selected.sinkDischargePercentileMin - normal.sinkDischargePercentileMin;
+  const maxLakeLandFractionScale = selected.maxLakeLandFraction / normal.maxLakeLandFraction;
+  const maxUpstreamStepsDelta = selected.maxUpstreamSteps - normal.maxUpstreamSteps;
+
+  return {
+    sinkDischargePercentileMin: clamp01(
+      authored.sinkDischargePercentileMin + sinkDischargePercentileDelta
+    ),
+    maxLakeLandFraction: clamp01(authored.maxLakeLandFraction * maxLakeLandFractionScale),
+    maxUpstreamSteps: clampInt(
+      authored.maxUpstreamSteps + maxUpstreamStepsDelta,
+      0,
+      MAX_LAKE_UPSTREAM_STEPS
+    ),
+  };
+}
 
 /**
  * Minor-channel discharge percentiles by density knob. Lower thresholds admit more headwater

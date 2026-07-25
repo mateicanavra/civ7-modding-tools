@@ -92,7 +92,9 @@ Other ops exist and may be used by additional steps (see the domain contracts).
 ## Config posture
 
 Current posture in the standard recipe:
-- `ecology-pedology`, `ecology-biomes`, and `ecology-features` expose flat step-scoped config surfaces.
+- `ecology-pedology`, `ecology-biomes`, and `ecology-features` expose their
+  step schemas and bound operation envelopes directly; profiles are strategy
+  selections rather than a second stage-owned schema.
 - `map-ecology` defines neither an author-facing configuration schema nor a `compile` callback. Its
   projection steps have no authored tuning to translate, while fixed biome projection policy stays
   beside `plot-biomes` and uses official identities from Civ7 policy.

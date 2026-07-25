@@ -21,7 +21,7 @@ const setup = admitMapSetup({
 function normalizeShelfWidth(shelfWidth: "narrow" | "normal" | "wide") {
   if (!ComputeShelfStep.normalize) throw new Error("Compute-shelf must normalize shelf width.");
   const stageConfig = createStandardRecipeTestConfig()["morphology-shelf"];
-  stageConfig.shelf.breakGradientScale = 0.8;
+  stageConfig["compute-shelf"].shelfMask.config.breakGradientScale = 0.8;
   stageConfig.knobs.shelfWidth = shelfWidth;
   const admitted = validateSchemaValueForTest(
     morphologyShelfStage.surfaceSchema,

@@ -1,29 +1,32 @@
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
-import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
 import { artifacts as mapRiversArtifacts } from "../../artifacts/index.js";
+import { NAVIGABLE_RIVER_PROJECTION_POLICY } from "../../model/policy/navigable-river-projection.js";
 
 const PlotRiversStepConfigSchema = Type.Object(
   {
     endpointDischargePercentileMin: Type.Number({
+      default: NAVIGABLE_RIVER_PROJECTION_POLICY.normal.endpointDischargePercentileMin,
       minimum: 0,
       maximum: 1,
       description:
-        "Minimum discharge percentile admitted as an engine-projectable navigable-river endpoint.",
+        "Advanced minimum discharge percentile admitted as an engine-projectable navigable-river endpoint.",
     }),
     targetMajorTileFraction: Type.Number({
+      default: NAVIGABLE_RIVER_PROJECTION_POLICY.normal.targetMajorTileFraction,
       minimum: 0,
       maximum: 1,
       description:
-        "Target share of eligible major-river tiles retained in the engine-projectable subset.",
+        "Advanced target share of eligible major-river tiles retained in the engine-projectable subset.",
     }),
   },
   {
     additionalProperties: false,
     description:
-      "Internal navigable-river projection thresholds compiled from the stage's authored density knob.",
+      "Navigable-river projection thresholds retained when the density knob is null and replaced by its selected preset otherwise.",
   }
 );
 

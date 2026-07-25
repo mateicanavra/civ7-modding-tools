@@ -6,13 +6,19 @@ import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export default defineStrategy({
   id: "score-threshold",
-  config: Type.Object({
-    minConfidence01: Type.Number({
-      minimum: 0,
-      maximum: 1,
-      default: 0.5,
+  config: Type.Object(
+    {
+      minConfidence01: Type.Number({
+        minimum: 0,
+        maximum: 1,
+        default: 0.5,
+        description:
+          "Freeze-score threshold below which coldness remains evidence rather than ice placement intent.",
+      }),
+    },
+    {
       description:
-        "Family-local admission threshold: freeze scores below this remain coldness signal, not ice intent.",
-    }),
-  }),
+        "Freeze-confidence admission control for converting physical ice suitability into placement intent.",
+    }
+  ),
 });

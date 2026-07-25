@@ -18,12 +18,12 @@ const setup = admitMapSetup({
   latitudeBounds: standardMapConfig.latitudeBounds,
 });
 
-function normalizeLakeiness(lakeiness: "normal" | "many") {
+function normalizeLakeiness(lakeiness: "few" | "normal" | "many") {
   if (!LakesStep.normalize) throw new Error("Lakes must normalize lake intent.");
   const stageConfig = createStandardRecipeTestConfig()["hydrology-hydrography"];
-  stageConfig.lakes.maxUpstreamSteps = 2;
-  stageConfig.lakes.sinkDischargePercentileMin = 0.83;
-  stageConfig.lakes.maxLakeLandFraction = 0.02;
+  stageConfig.lakes.planLakes.config.maxUpstreamSteps = 2;
+  stageConfig.lakes.planLakes.config.sinkDischargePercentileMin = 0.83;
+  stageConfig.lakes.planLakes.config.maxLakeLandFraction = 0.02;
   stageConfig.knobs.lakeiness = lakeiness;
   const admitted = validateSchemaValueForTest(
     hydrologyHydrographyStage.surfaceSchema,
@@ -47,13 +47,17 @@ function normalizeLakeiness(lakeiness: "normal" | "many") {
 }
 
 describe("hydrology lakes authoring", () => {
-  it("selects broader sink basins while retaining clustered one-hop lake intent", () => {
+  it("shifts sink-basin density while retaining directly authored expansion depth", () => {
+    const few = normalizeLakeiness("few").planLakes.config;
     const normal = normalizeLakeiness("normal").planLakes.config;
     const many = normalizeLakeiness("many").planLakes.config;
 
-    expect(normal.maxUpstreamSteps).toBe(1);
-    expect(many.maxUpstreamSteps).toBe(1);
-    expect(many.sinkDischargePercentileMin).toBeLessThan(normal.sinkDischargePercentileMin);
-    expect(many.maxLakeLandFraction).toBeGreaterThan(normal.maxLakeLandFraction);
+    expect(normal.maxUpstreamSteps).toBe(2);
+    expect(normal.sinkDischargePercentileMin).toBe(0.83);
+    expect(normal.maxLakeLandFraction).toBe(0.02);
+    expect(few.sinkDischargePercentileMin).toBeCloseTo(0.86, 6);
+    expect(few.maxLakeLandFraction).toBeCloseTo(0.01, 6);
+    expect(many.sinkDischargePercentileMin).toBeCloseTo(0.79, 6);
+    expect(many.maxLakeLandFraction).toBeCloseTo(0.04, 6);
   });
 });
