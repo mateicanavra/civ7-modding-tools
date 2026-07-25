@@ -29,13 +29,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** lock affirmed blueprint identity at the commit boundary.
-Habitat compares HEAD with the staged index so a stable rule may move only
-within its owning blueprint and may retire only as one complete declared
-authority packet. Candidate-path admission is shared with the canonical
-registry, and Git path-action parsing fails closed. This guard must remain
-unregistered self-protection rather than becoming another rule that can demote
-itself.
+**Current container:** restore the already-declared closed recipe-step kind
+before parity composition can depend on it. Every step leaf contains required
+`config.ts` and `step.ts`, plus optional `viz.ts` only when the executable step
+attaches a substantial pure visualization projection. Step-private execution is
+inlined, while reusable logic, immutable products, diagnostics, metrics, and
+policy move to their actual owners. The generic blueprint defines this shape
+first, its full red corpus is burned down, and the zero-violation tree seals
+before the live-parity split resumes.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -52,11 +53,14 @@ modules then stop importing framework issue/context types or allocating and
 threading their own issue arrays. This remains a dedicated semantic container,
 not a compatibility overload hidden inside the stage-plane move.
 
-**Gradient:** seal the reviewed continuity guard as one Habitat layer. With
-kind-law drift no longer able to pass a hook, continue the diagnostics/live
-ownership purification, Placement and Resources test sieve, accurate Knip
-deletion, and JSDoc burn-down. The program ends only when generic laws, source
-tree, types, tests, Knip, and the boundary graph agree.
+**Gradient:** close the recipe-step blueprint, classify every loose member by
+intent, and burn the corpus to zero without creating another helper cabinet.
+Then resume the already-reviewed capability split: coherent Civ7 observation,
+generic evidence publication, typed Standard parity, monolith deletion, and one
+thin live command proof. Continue with the Placement and Resources test sieve,
+accurate Knip deletion, and JSDoc burn-down only after those containers seal.
+The program ends only when generic laws, source tree, types, tests, Knip, and
+the boundary graph agree.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty

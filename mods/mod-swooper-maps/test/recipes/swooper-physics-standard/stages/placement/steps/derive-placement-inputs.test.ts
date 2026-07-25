@@ -1,18 +1,32 @@
 import { describe, expect, it } from "bun:test";
 
-import { createMockAdapter, getCiv7StandardMapSizePreset } from "@civ7/adapter";
+import { createMockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
+import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
+import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
+import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import placement from "@mapgen/domain/placement/router";
-import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
-import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
-import { captureEnginePlacementTypes } from "../../../../../../src/recipes/standard/current-engine-surface.js";
-import { buildPlacementInputs } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/inputs.js";
-import { buildNaturalWonderPlanInputRuntimeTelemetry } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/natural-wonder-plan-input-telemetry.js";
-import { buildNaturalWonderPlanRuntimeTelemetry } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/natural-wonder-plan-telemetry.js";
+import { admitMapSetup, createMapContext, type MapContext } from "@swooper/mapgen-core";
+import type { StepRuntimeOps } from "@swooper/mapgen-core/authoring";
+import {
+  buildStepTestDependencies,
+  normalizeOperationSelectionForTest,
+  publishTestArtifact,
+  withMapContextExecutionForTest,
+} from "@swooper/mapgen-core/testing";
+
+import { DerivePlacementInputsStep } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
 
 const { featureTypes, terrainTypeIndices, biomeGlobals } = CIV7_BROWSER_TABLES_V0;
-const hugePreset = getCiv7StandardMapSizePreset("MAPSIZE_HUGE");
+
+type DerivePlacementInputsOps = StepRuntimeOps<
+  NonNullable<(typeof DerivePlacementInputsStep.contract)["ops"]>
+>;
+type NaturalWonderPlannerInput = Parameters<DerivePlacementInputsOps["naturalWonders"]>[0];
+const DERIVE_PLACEMENT_INPUTS_OP_CONTRACTS = DerivePlacementInputsStep.contract.ops!;
 
 function placementConfig() {
   return {
@@ -27,12 +41,120 @@ function placementConfig() {
   };
 }
 
-describe("derive placement inputs", () => {
-  it("passes explicit projected natural-wonder direction to materialization planning", () => {
+function publishPlacementInputs(context: MapContext): void {
+  const { width, height } = context.setup.dimensions;
+  const size = width * height;
+  publishTestArtifact(context, morphologyLandformsArtifacts.topography, {
+    elevation: new Int16Array(size).fill(500),
+    seaLevel: 0,
+    landMask: new Uint8Array(size).fill(1),
+    bathymetry: new Int16Array(size),
+  });
+  publishTestArtifact(context, hydrographyArtifacts.hydrography, {
+    runoff: new Float32Array(size),
+    discharge: new Float32Array(size),
+    riverClass: new Uint8Array(size),
+    flowDir: new Int32Array(size).fill(-1),
+    sinkMask: new Uint8Array(size),
+    outletMask: new Uint8Array(size),
+    basinId: new Int32Array(size).fill(-1),
+    routingElevation: new Float32Array(size),
+    depressionDepth: new Float32Array(size),
+    terminalType: new Uint8Array(size),
+  });
+  publishTestArtifact(context, hydrographyArtifacts.riverNetwork, {
+    upstreamArea: new Int32Array(size),
+    streamOrderProxy: new Uint8Array(size),
+    mouthType: new Uint8Array(size),
+    slopeClass: new Uint8Array(size),
+    flowPermanenceProxy: new Uint8Array(size),
+  });
+  publishTestArtifact(context, hydrographyArtifacts.lakePlan, {
+    width,
+    height,
+    lakeMask: new Uint8Array(size),
+    plannedLakeTileCount: 0,
+    sinkLakeCount: 0,
+  });
+  publishTestArtifact(context, climateArtifacts.climateIndices, {
+    surfaceTemperatureC: new Float32Array(size).fill(16),
+    effectiveMoisture: new Float32Array(size).fill(0.5),
+    pet: new Float32Array(size),
+    aridityIndex: new Float32Array(size).fill(0.5),
+    freezeIndex: new Float32Array(size),
+  });
+  publishTestArtifact(context, biomeArtifacts.biomeClassification, {
+    width,
+    height,
+    biomeIndex: new Uint8Array(size),
+    vegetationDensity: new Float32Array(size).fill(0.5),
+    treeLine01: new Float32Array(size),
+  });
+  publishTestArtifact(context, pedologyArtifacts.pedology, {
+    width,
+    height,
+    soilType: new Uint8Array(size),
+    fertility: new Float32Array(size).fill(0.5),
+  });
+}
+
+function createContext(options: Parameters<typeof createMockAdapter>[0]) {
+  const adapter = createMockAdapter(options);
+  const context = createMapContext({
+    setup: admitMapSetup({
+      mapSeed: TEST_MAP_SEED,
+      dimensions: TEST_MAP_SIZE.dimensions,
+      latitudeBounds: {
+        topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
+        bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
+      },
+    }),
+    adapter,
+  });
+  return { adapter, context };
+}
+
+function createCapturingOps(
+  captureNaturalWonderInput: (input: NaturalWonderPlannerInput) => void
+): DerivePlacementInputsOps {
+  const wonders = Object.assign(
+    (
+      _input: Parameters<DerivePlacementInputsOps["wonders"]>[0],
+      _config: Parameters<DerivePlacementInputsOps["wonders"]>[1]
+    ): ReturnType<DerivePlacementInputsOps["wonders"]> => ({ wondersCount: 1 }),
+    {
+      id: DERIVE_PLACEMENT_INPUTS_OP_CONTRACTS.wonders.id,
+      kind: DERIVE_PLACEMENT_INPUTS_OP_CONTRACTS.wonders.kind,
+    }
+  );
+  const naturalWonders = Object.assign(
+    (
+      input: NaturalWonderPlannerInput,
+      _config: Parameters<DerivePlacementInputsOps["naturalWonders"]>[1]
+    ): ReturnType<DerivePlacementInputsOps["naturalWonders"]> => {
+      captureNaturalWonderInput(input);
+      return {
+        width: input.width,
+        height: input.height,
+        wondersCount: input.wondersCount,
+        targetCount: 0,
+        plannedCount: 0,
+        placements: [],
+      };
+    },
+    {
+      id: DERIVE_PLACEMENT_INPUTS_OP_CONTRACTS.naturalWonders.id,
+      kind: DERIVE_PLACEMENT_INPUTS_OP_CONTRACTS.naturalWonders.kind,
+    }
+  );
+  return { wonders, naturalWonders };
+}
+
+describe("derive placement inputs step", () => {
+  it("passes explicit projected natural-wonder direction and current engine identity", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
-    const size = width * height;
     const mapInfo = { ...TEST_MAP_SIZE.mapInfo };
-    const adapter = createMockAdapter({
+    const { adapter, context } = createContext({
       width,
       height,
       mapInfo,
@@ -42,101 +164,24 @@ describe("derive placement inputs", () => {
       naturalWonderCatalog: [{ featureType: featureTypes.FEATURE_KILIMANJARO, direction: -1 }],
     });
     adapter.setFeatureType(0, 0, { Feature: 40_000, Direction: -1, Elevation: 0 });
-    const context = createMapContext({
-      setup: admitMapSetup({
-        mapSeed: TEST_MAP_SEED,
-        dimensions: TEST_MAP_SIZE.dimensions,
-        latitudeBounds: {
-          topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
-          bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
-        },
-      }),
-      adapter,
+    let captured: NaturalWonderPlannerInput | undefined;
+    const ops = createCapturingOps((input) => {
+      captured = input;
     });
-    let capturedNaturalWonderInput:
-      | {
-          featureCatalog?: ReadonlyArray<{ direction: number; footprintOffsetsByParity?: unknown }>;
-          terrainType?: Int32Array;
-          biomeType?: Int32Array;
-          featureType?: Int32Array;
-        }
-      | undefined;
-    const ops = {
-      wonders: () => ({ wondersCount: 1 }),
-      naturalWonders: (
-        input: typeof capturedNaturalWonderInput & {
-          width: number;
-          height: number;
-          wondersCount: number;
-        }
-      ) => {
-        capturedNaturalWonderInput = input;
-        return {
-          width: input.width,
-          height: input.height,
-          wondersCount: input.wondersCount,
-          targetCount: 0,
-          plannedCount: 0,
-          placements: [],
-        };
-      },
-      discoveries: () => ({
-        width,
-        height,
-        targetCount: 0,
-        plannedCount: 0,
-        placements: [],
-      }),
-      resources: () => ({
-        width,
-        height,
-        targetCount: 0,
-        plannedCount: 0,
-        placements: [],
-      }),
-    } as never;
 
-    buildPlacementInputs(
-      context,
-      placementConfig(),
-      ops,
-      {
-        topography: {
-          landMask: new Uint8Array(size).fill(1),
-          elevation: new Int16Array(size).fill(500),
-        },
-        hydrography: {
-          riverClass: new Uint8Array(size),
-          discharge: new Float32Array(size),
-          slopeClass: new Uint8Array(size),
-        },
-        lakePlan: { lakeMask: new Uint8Array(size) },
-        biomeClassification: {
-          vegetationDensity: new Float32Array(size).fill(0.5),
-        },
-        climateIndices: {
-          effectiveMoisture: new Float32Array(size).fill(0.5),
-          surfaceTemperature: new Float32Array(size).fill(0.5),
-          aridityIndex: new Float32Array(size).fill(0.5),
-        },
-        pedology: { fertility: new Float32Array(size).fill(0.5) },
-      },
-      {
-        mapInfo,
-        naturalWonderCatalog: adapter.getNaturalWonderCatalog(),
-        currentPlacementTypes: captureEnginePlacementTypes(TEST_MAP_SIZE.dimensions, {
-          getTerrainType: (x, y) => adapter.getTerrainType(x, y),
-          getBiomeType: (x, y) => adapter.getBiomeType(x, y),
-          getFeatureType: (x, y) => adapter.getFeatureType(x, y),
-        }),
-      }
-    );
+    withMapContextExecutionForTest(context, (stepContext) => {
+      publishPlacementInputs(stepContext);
+      DerivePlacementInputsStep.run(
+        stepContext,
+        placementConfig(),
+        ops,
+        buildStepTestDependencies(DerivePlacementInputsStep, stepContext)
+      );
+    });
 
-    expect(capturedNaturalWonderInput?.featureCatalog).toHaveLength(1);
-    expect(capturedNaturalWonderInput?.featureCatalog?.[0]).toMatchObject({
+    expect(captured?.featureCatalog).toHaveLength(1);
+    expect(captured?.featureCatalog?.[0]).toMatchObject({
       direction: 0,
-      // Parity-keyed odd-R footprint (THREETRIANGLE, dir 0): even and odd rows
-      // differ in the parity-dependent diagonals (indices 0,2,3,5).
       footprintOffsetsByParity: {
         even: [
           { dx: 0, dy: 0 },
@@ -150,17 +195,16 @@ describe("derive placement inputs", () => {
         ],
       },
     });
-    expect(capturedNaturalWonderInput?.terrainType?.[0]).toBe(700);
-    expect(capturedNaturalWonderInput?.biomeType?.[0]).toBe(900);
-    expect(capturedNaturalWonderInput?.featureType).toBeInstanceOf(Int32Array);
-    expect(capturedNaturalWonderInput?.featureType?.[0]).toBe(40_000);
+    expect(captured?.terrainType?.[0]).toBe(700);
+    expect(captured?.biomeType?.[0]).toBe(900);
+    expect(captured?.featureType).toBeInstanceOf(Int32Array);
+    expect(captured?.featureType?.[0]).toBe(40_000);
   });
 
-  it("includes the recovered 4-tile natural wonders (Barrier Reef) in the plan catalog", () => {
+  it("keeps recovered four-tile wonders in the catalog with anchor-only footprints", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
-    const size = width * height;
     const mapInfo = { ...TEST_MAP_SIZE.mapInfo };
-    const adapter = createMockAdapter({
+    const { context } = createContext({
       width,
       height,
       mapInfo,
@@ -169,103 +213,23 @@ describe("derive placement inputs", () => {
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       naturalWonderCatalog: [{ featureType: featureTypes.FEATURE_BARRIER_REEF, direction: -1 }],
     });
-    const context = createMapContext({
-      setup: admitMapSetup({
-        mapSeed: TEST_MAP_SEED,
-        dimensions: TEST_MAP_SIZE.dimensions,
-        latitudeBounds: {
-          topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
-          bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
-        },
-      }),
-      adapter,
+    let captured: NaturalWonderPlannerInput | undefined;
+    const ops = createCapturingOps((input) => {
+      captured = input;
     });
-    let capturedNaturalWonderInput:
-      | {
-          featureCatalog?: ReadonlyArray<{
-            featureType: number;
-            footprintOffsetsByParity?: unknown;
-          }>;
-        }
-      | undefined;
-    const ops = {
-      wonders: () => ({ wondersCount: 1 }),
-      naturalWonders: (
-        input: typeof capturedNaturalWonderInput & {
-          width: number;
-          height: number;
-          wondersCount: number;
-        }
-      ) => {
-        capturedNaturalWonderInput = input;
-        return {
-          width: input.width,
-          height: input.height,
-          wondersCount: input.wondersCount,
-          targetCount: 0,
-          plannedCount: 0,
-          placements: [],
-        };
-      },
-      discoveries: () => ({
-        width,
-        height,
-        targetCount: 0,
-        plannedCount: 0,
-        placements: [],
-      }),
-      resources: () => ({
-        width,
-        height,
-        targetCount: 0,
-        plannedCount: 0,
-        placements: [],
-      }),
-    } as never;
 
-    buildPlacementInputs(
-      context,
-      placementConfig(),
-      ops,
-      {
-        topography: {
-          landMask: new Uint8Array(size).fill(1),
-          elevation: new Int16Array(size).fill(500),
-        },
-        hydrography: {
-          riverClass: new Uint8Array(size),
-          discharge: new Float32Array(size),
-          slopeClass: new Uint8Array(size),
-        },
-        lakePlan: { lakeMask: new Uint8Array(size) },
-        biomeClassification: {
-          vegetationDensity: new Float32Array(size).fill(0.5),
-        },
-        climateIndices: {
-          effectiveMoisture: new Float32Array(size).fill(0.5),
-          surfaceTemperature: new Float32Array(size).fill(0.5),
-          aridityIndex: new Float32Array(size).fill(0.5),
-        },
-        pedology: { fertility: new Float32Array(size).fill(0.5) },
-      },
-      {
-        mapInfo,
-        naturalWonderCatalog: adapter.getNaturalWonderCatalog(),
-        currentPlacementTypes: {
-          terrainType: new Int32Array(size).fill(terrainTypeIndices.TERRAIN_MOUNTAIN),
-          biomeType: new Int32Array(size).fill(biomeGlobals.BIOME_PLAINS),
-          featureType: new Int32Array(size).fill(adapter.NO_FEATURE),
-        },
-      }
-    );
+    withMapContextExecutionForTest(context, (stepContext) => {
+      publishPlacementInputs(stepContext);
+      DerivePlacementInputsStep.run(
+        stepContext,
+        placementConfig(),
+        ops,
+        buildStepTestDependencies(DerivePlacementInputsStep, stepContext)
+      );
+    });
 
-    // Barrier Reef (FOURADJACENT) was previously dropped (null footprint). It is
-    // now placement-eligible, but as a self-orienting 4-tile class it keeps the
-    // engine sentinel direction (-1) and an ANCHOR-ONLY offline footprint: the
-    // engine stamps the remaining 3 cells by self-orientation (forcing a concrete
-    // Direction 0 is refused live — set-feature-false).
-    expect(capturedNaturalWonderInput?.featureCatalog).toHaveLength(1);
-    expect(capturedNaturalWonderInput?.featureCatalog?.[0]).toMatchObject({
+    expect(captured?.featureCatalog).toHaveLength(1);
+    expect(captured?.featureCatalog?.[0]).toMatchObject({
       featureType: featureTypes.FEATURE_BARRIER_REEF,
       direction: -1,
       footprintOffsetsByParity: {
@@ -273,154 +237,5 @@ describe("derive placement inputs", () => {
         odd: [{ dx: 0, dy: 0 }],
       },
     });
-  });
-
-  it("builds compact natural-wonder plan telemetry for exact runtime evidence", () => {
-    const telemetry = buildNaturalWonderPlanRuntimeTelemetry({
-      ...hugePreset.dimensions,
-      wondersCount: 7,
-      targetCount: 7,
-      plannedCount: 2,
-      placements: [
-        {
-          plotIndex: 4130,
-          featureType: 30,
-          direction: 0,
-          elevation: 3,
-          priority: 0.6107035471190667,
-        },
-        {
-          plotIndex: 1785,
-          featureType: 36,
-          direction: 0,
-          elevation: 4,
-          priority: 0.8272660786093309,
-        },
-      ],
-    });
-
-    expect(telemetry).toMatchObject({
-      version: 1,
-      wondersCount: 7,
-      targetCount: 7,
-      plannedCount: 2,
-      planRows: [
-        ["p", 4130, 102, 38, 30, 0, 3, 610704],
-        ["p", 1785, 89, 16, 36, 0, 4, 827266],
-      ],
-      coordinateEvidence: {
-        version: 1,
-        plannedCount: 2,
-      },
-    });
-    expect(telemetry.coordinateEvidence.plannedHash32).toMatch(/^[0-9a-f]{8}$/);
-    expect(`[SWOOPER_MOD] NATURAL_WONDER_PLAN_V1 ${JSON.stringify(telemetry)}`.length).toBeLessThan(
-      700
-    );
-  });
-
-  it("builds compact natural-wonder plan input telemetry for exact runtime evidence", () => {
-    const { width, height } = TEST_MAP_SIZE.dimensions;
-    const size = width * height;
-    const mapInfo = { ...TEST_MAP_SIZE.mapInfo };
-    const adapter = createMockAdapter({
-      width,
-      height,
-      mapInfo,
-      mapSizeId: TEST_MAP_SIZE.id,
-      defaultTerrainType: terrainTypeIndices.TERRAIN_COAST,
-      defaultBiomeType: biomeGlobals.BIOME_MARINE,
-    });
-    const elevation = new Int16Array(size).fill(100);
-    elevation[5] = 240;
-    const terrainType = new Int32Array(size).fill(terrainTypeIndices.TERRAIN_MOUNTAIN);
-    const biomeType = new Int32Array(size).fill(biomeGlobals.BIOME_PLAINS);
-    const featureType = new Int32Array(size).fill(adapter.NO_FEATURE);
-    featureType[5] = featureTypes.FEATURE_ICE;
-    const blockedMask = new Uint8Array(size);
-    blockedMask[5] = 1;
-    const context = createMapContext({
-      setup: admitMapSetup({
-        mapSeed: TEST_MAP_SEED,
-        dimensions: TEST_MAP_SIZE.dimensions,
-        latitudeBounds: {
-          topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
-          bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
-        },
-      }),
-      adapter,
-    });
-    const telemetry = buildNaturalWonderPlanInputRuntimeTelemetry({
-      context,
-      plan: {
-        width,
-        height,
-        wondersCount: 1,
-        targetCount: 1,
-        plannedCount: 1,
-        placements: [
-          {
-            plotIndex: 5,
-            featureType: featureTypes.FEATURE_KILIMANJARO,
-            direction: 0,
-            elevation: 240,
-            priority: 0.5,
-          },
-        ],
-      },
-      physical: {
-        topography: { landMask: new Uint8Array(size).fill(1), elevation },
-        hydrography: { riverClass: new Uint8Array(size).fill(2) },
-        lakePlan: { lakeMask: new Uint8Array(size) },
-        climateIndices: {
-          aridityIndex: new Float32Array(size).fill(0.25),
-        },
-        naturalWonderPlanSurfaces: {
-          terrainType,
-          biomeType,
-          featureType,
-          blockedMask,
-        },
-      },
-    });
-
-    expect(telemetry).toMatchObject({
-      version: 1,
-      plannedCount: 1,
-      surfaceDigests: {
-        version: 1,
-        plotCount: size,
-        landMaskHash32: expect.stringMatching(/^[0-9a-f]{8}$/),
-        elevationHash32: expect.stringMatching(/^[0-9a-f]{8}$/),
-        aridityPpmHash32: expect.stringMatching(/^[0-9a-f]{8}$/),
-        riverClassHash32: expect.stringMatching(/^[0-9a-f]{8}$/),
-        lakeMaskHash32: expect.stringMatching(/^[0-9a-f]{8}$/),
-        blockedMaskHash32: expect.stringMatching(/^[0-9a-f]{8}$/),
-        terrainTypeHash32: expect.stringMatching(/^[0-9a-f]{8}$/),
-        biomeTypeHash32: expect.stringMatching(/^[0-9a-f]{8}$/),
-        featureTypeHash32: expect.stringMatching(/^[0-9a-f]{8}$/),
-      },
-      inputRows: [
-        [
-          "p",
-          5,
-          5,
-          0,
-          featureTypes.FEATURE_KILIMANJARO,
-          terrainTypeIndices.TERRAIN_MOUNTAIN,
-          biomeGlobals.BIOME_PLAINS,
-          featureTypes.FEATURE_ICE,
-          240,
-          250000,
-          2,
-          0,
-          1,
-          1,
-        ],
-      ],
-    });
-    expect(
-      `[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V1 ${JSON.stringify(telemetry)}`.length
-    ).toBeLessThan(800);
   });
 });

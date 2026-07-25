@@ -1,10 +1,94 @@
+import type { ResourceCatalogEntry } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
+import placement from "@mapgen/domain/placement";
+import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import type { MapContext, TraceJsonObject } from "@swooper/mapgen-core";
+import type { ArtifactValueOf, DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
+import { fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
 
 type EngineTerrainWaterObservation = Readonly<{
   terrain: Int32Array;
   waterMask: Uint8Array;
 }>;
+
+type NaturalWonderPlan = Static<(typeof placement.wonders.ops.planNaturalWonders)["output"]>;
+type ResourcePlacementOutcomes = ArtifactValueOf<
+  typeof resourceSiteArtifacts.resourcePlacementOutcomes
+>;
+type NaturalWonderPlanTelemetryInput = Readonly<{
+  width: NaturalWonderPlan["width"];
+  wondersCount: NaturalWonderPlan["wondersCount"];
+  targetCount: NaturalWonderPlan["targetCount"];
+  plannedCount: NaturalWonderPlan["plannedCount"];
+  placements: ReadonlyArray<
+    Readonly<
+      Pick<
+        NaturalWonderPlan["placements"][number],
+        "plotIndex" | "featureType" | "direction" | "elevation" | "priority"
+      >
+    >
+  >;
+}>;
+
+type NaturalWonderPlanRuntimeRow = readonly [
+  status: "p",
+  plotIndex: number,
+  x: number,
+  y: number,
+  featureType: number,
+  direction: number,
+  elevation: number | null,
+  priorityPpm: number | null,
+];
+
+type NaturalWonderPlanInputRuntimeRow = readonly [
+  status: "p",
+  plotIndex: number,
+  x: number,
+  y: number,
+  featureType: number,
+  terrainType: number,
+  biomeType: number,
+  occupiedFeatureType: number,
+  elevation: number,
+  aridityPpm: number,
+  riverClass: number,
+  lakeMask: number,
+  blockedMask: number,
+  landMask: number,
+];
+
+type NaturalWonderPlanInputTelemetryArgs = Readonly<{
+  dimensions: Readonly<{ width: number; height: number }>;
+  plan: Readonly<{
+    plannedCount: NaturalWonderPlan["plannedCount"];
+    placements: ReadonlyArray<NaturalWonderPlan["placements"][number]>;
+  }>;
+  physical: Readonly<{
+    topography: Readonly<{
+      landMask: Uint8Array;
+      elevation: Int16Array;
+    }>;
+    hydrography: Readonly<{
+      riverClass: Uint8Array;
+    }>;
+    lakePlan: Readonly<{
+      lakeMask: Uint8Array;
+    }>;
+    climateIndices: Readonly<{
+      aridityIndex: Float32Array;
+    }>;
+    naturalWonderPlanSurfaces: Readonly<{
+      terrainType: Int32Array;
+      biomeType: Int32Array;
+      featureType: Int32Array;
+      blockedMask: Uint8Array;
+    }>;
+  }>;
+}>;
+
+const FNV1A_32_OFFSET_BASIS = 0x811c9dc5;
+const FNV1A_32_PRIME = 0x01000193;
 
 /**
  * Engine-safe warn logging for placement steps.
@@ -137,6 +221,246 @@ export function logAsciiMap(
 
     return { type: "placement.ascii", lines };
   });
+}
+
+/**
+ * Projects completed resource-placement evidence into the compact live-log
+ * envelope consumed by Studio and Civ7 operational tooling.
+ */
+export function buildResourcePlacementRuntimeTelemetry(
+  runtimeCatalog: readonly ResourceCatalogEntry[],
+  placementOutcomes: DeepReadonly<ResourcePlacementOutcomes>
+): Record<string, unknown> {
+  const { summary, reconciliation, outcomes } = placementOutcomes;
+  const runtimeByIndex = new Map(runtimeCatalog.map((row) => [row.index, row]));
+  const plannedResourceTypes = summary.byResource.filter((row) => row.plannedCount > 0);
+  const placedResourceTypes = summary.byResource.filter((row) => row.placedCount > 0);
+  const rejectedResourceTypes = summary.byResource.filter((row) => row.rejectedCount > 0);
+  const placedCounts = placedResourceTypes.map((row) => row.placedCount);
+  const unmappedResourceTypes = summary.byResource.filter(
+    (row) => row.placedCount > 0 && !runtimeByIndex.has(row.resourceType)
+  );
+  const rejectionRows = outcomes
+    .filter((outcome) => outcome.status !== "placed")
+    .slice(0, 8)
+    .map((outcome) => ({
+      status: outcome.status,
+      resourceType: outcome.resourceType,
+      resource: runtimeByIndex.get(outcome.resourceType)?.resourceType ?? null,
+      plotIndex: outcome.plotIndex,
+      x: outcome.x,
+      y: outcome.y,
+      reason: outcome.reason ?? null,
+      ...(outcome.observedResourceType === undefined
+        ? {}
+        : {
+            observedResourceType: outcome.observedResourceType,
+            observedResource:
+              runtimeByIndex.get(outcome.observedResourceType)?.resourceType ?? null,
+          }),
+    }));
+
+  return {
+    version: 1,
+    plannedCount: summary.plannedCount,
+    placedCount: summary.placedCount,
+    rejectedCount: summary.rejectedCount,
+    mismatchCount: summary.mismatchCount,
+    uniquePlannedTypes: plannedResourceTypes.length,
+    uniquePlacedTypes: placedResourceTypes.length,
+    minPlacedCountByType: placedCounts.length > 0 ? Math.min(...placedCounts) : 0,
+    maxPlacedCountByType: placedCounts.length > 0 ? Math.max(...placedCounts) : 0,
+    runtimeCatalogCount: runtimeCatalog.length,
+    coordinateEvidence: {
+      version: summary.coordinateEvidence.version,
+      placedCount: summary.coordinateEvidence.placed.count,
+      placedHash32: summary.coordinateEvidence.placed.hash32,
+      ...(summary.coordinateEvidence.rejected.count > 0
+        ? {
+            rejectedCount: summary.coordinateEvidence.rejected.count,
+            rejectedHash32: summary.coordinateEvidence.rejected.hash32,
+          }
+        : {}),
+      ...(summary.coordinateEvidence.mismatch.count > 0
+        ? {
+            mismatchCount: summary.coordinateEvidence.mismatch.count,
+            mismatchHash32: summary.coordinateEvidence.mismatch.hash32,
+          }
+        : {}),
+    },
+    rejectedResourceTypes: rejectedResourceTypes.map((row) => row.resourceType),
+    ...(rejectionRows.length === 0
+      ? {}
+      : { rejectionExampleCount: rejectionRows.length, rejectionRows }),
+    ...(unmappedResourceTypes.length === 0
+      ? {}
+      : { unmappedPlacedResourceTypes: unmappedResourceTypes.map((row) => row.resourceType) }),
+    reconciliation: {
+      plannedCount: reconciliation.plannedCount,
+      placedCount: reconciliation.placedCount,
+      rejectedCount: reconciliation.rejectedCount,
+      byPhase: reconciliation.byPhase,
+      ...(reconciliation.shortfalls.length > 0 ? { shortfalls: reconciliation.shortfalls } : {}),
+    },
+    byReason: summary.byReason,
+  };
+}
+
+/**
+ * Writes resource-placement evidence under the stable live-runtime prefix.
+ * An empty runtime catalog remains silent because no official resource
+ * identity can be reported.
+ */
+export function logResourcePlacementRuntimeTelemetry(
+  runtimeCatalog: readonly ResourceCatalogEntry[],
+  placementOutcomes: DeepReadonly<ResourcePlacementOutcomes>
+): void {
+  if (runtimeCatalog.length === 0) return;
+  console.log(
+    `[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 ${JSON.stringify(
+      buildResourcePlacementRuntimeTelemetry(runtimeCatalog, placementOutcomes)
+    )}`
+  );
+}
+
+function hash32Values(values: Iterable<number>): string {
+  let hash = FNV1A_32_OFFSET_BASIS;
+  for (const value of values) {
+    hash ^= value & 0xff;
+    hash = Math.imul(hash, FNV1A_32_PRIME);
+    hash ^= (value >> 8) & 0xff;
+    hash = Math.imul(hash, FNV1A_32_PRIME);
+    hash ^= (value >> 16) & 0xff;
+    hash = Math.imul(hash, FNV1A_32_PRIME);
+    hash ^= (value >> 24) & 0xff;
+    hash = Math.imul(hash, FNV1A_32_PRIME);
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0");
+}
+
+function normalizeInteger(value: unknown): number | null {
+  return Number.isFinite(value) ? Math.trunc(value as number) : null;
+}
+
+function normalizePpm(value: unknown): number {
+  return Number.isFinite(value)
+    ? Math.max(0, Math.min(1_000_000, Math.round((value as number) * 1_000_000)))
+    : 0;
+}
+
+function normalizeOptionalPpm(value: unknown): number | null {
+  return Number.isFinite(value) ? normalizePpm(value) : null;
+}
+
+function naturalWonderPlanCoordinateHash(rows: readonly NaturalWonderPlanRuntimeRow[]): string {
+  return fnv1a32StringHex(
+    rows
+      .slice()
+      .sort((a, b) => {
+        if (a[1] !== b[1]) return a[1] - b[1];
+        if (a[4] !== b[4]) return a[4] - b[4];
+        return a[5] - b[5];
+      })
+      .map((row) => row.join(":"))
+      .join("|")
+  );
+}
+
+/**
+ * Preserves the bounded natural-wonder planning log consumed by current live
+ * operational tooling. This is diagnostic serialization, not a causal product
+ * or a trace-backed data transport.
+ */
+export function logNaturalWonderPlanRuntimeTelemetry(plan: NaturalWonderPlanTelemetryInput): void {
+  const planRows: NaturalWonderPlanRuntimeRow[] = plan.placements.slice(0, 16).map((placement) => {
+    const plotIndex = placement.plotIndex | 0;
+    const y = (plotIndex / plan.width) | 0;
+    const x = plotIndex - y * plan.width;
+    return [
+      "p",
+      plotIndex,
+      x,
+      y,
+      placement.featureType | 0,
+      placement.direction | 0,
+      normalizeInteger(placement.elevation),
+      normalizeOptionalPpm(placement.priority),
+    ];
+  });
+  const telemetry = {
+    version: 1,
+    wondersCount: Math.max(0, plan.wondersCount | 0),
+    targetCount: Math.max(0, plan.targetCount | 0),
+    plannedCount: Math.max(0, plan.plannedCount | 0),
+    planRows,
+    coordinateEvidence: {
+      version: 1,
+      plannedCount: planRows.length,
+      plannedHash32: naturalWonderPlanCoordinateHash(planRows),
+    },
+  } as const;
+  console.log(`[SWOOPER_MOD] NATURAL_WONDER_PLAN_V1 ${JSON.stringify(telemetry)}`);
+}
+
+/**
+ * Preserves the current live planning-input log by projecting deterministic
+ * surface digests and at most sixteen selected-site rows. It deliberately does
+ * not emit a trace event; parity must observe typed products instead.
+ */
+export function logNaturalWonderPlanInputRuntimeTelemetry({
+  dimensions,
+  plan,
+  physical,
+}: NaturalWonderPlanInputTelemetryArgs): void {
+  const { width, height } = dimensions;
+  const size = width * height;
+  const inputRows: NaturalWonderPlanInputRuntimeRow[] = [];
+  const { terrainType, biomeType, featureType, blockedMask } = physical.naturalWonderPlanSurfaces;
+  const aridityPpm = new Uint32Array(size);
+  for (let plotIndex = 0; plotIndex < size; plotIndex++) {
+    aridityPpm[plotIndex] = normalizePpm(physical.climateIndices.aridityIndex[plotIndex]);
+  }
+  for (const placementPlan of plan.placements.slice(0, 16)) {
+    const plotIndex = placementPlan.plotIndex | 0;
+    if (plotIndex < 0 || plotIndex >= size) continue;
+    const y = (plotIndex / width) | 0;
+    const x = plotIndex - y * width;
+    inputRows.push([
+      "p",
+      plotIndex,
+      x,
+      y,
+      placementPlan.featureType | 0,
+      terrainType[plotIndex] ?? 0,
+      biomeType[plotIndex] ?? 0,
+      featureType[plotIndex] ?? 0,
+      physical.topography.elevation[plotIndex] ?? 0,
+      aridityPpm[plotIndex] ?? 0,
+      physical.hydrography.riverClass[plotIndex] ?? 0,
+      physical.lakePlan.lakeMask[plotIndex] ?? 0,
+      blockedMask[plotIndex] ?? 0,
+      physical.topography.landMask[plotIndex] ?? 0,
+    ]);
+  }
+  const telemetry = {
+    version: 1,
+    plannedCount: Math.max(0, plan.plannedCount | 0),
+    surfaceDigests: {
+      version: 1,
+      plotCount: size,
+      landMaskHash32: hash32Values(physical.topography.landMask),
+      elevationHash32: hash32Values(physical.topography.elevation),
+      aridityPpmHash32: hash32Values(aridityPpm),
+      riverClassHash32: hash32Values(physical.hydrography.riverClass),
+      lakeMaskHash32: hash32Values(physical.lakePlan.lakeMask),
+      blockedMaskHash32: hash32Values(blockedMask),
+      terrainTypeHash32: hash32Values(terrainType),
+      biomeTypeHash32: hash32Values(biomeType),
+      featureTypeHash32: hash32Values(featureType),
+    },
+    inputRows,
+  } as const;
+  console.log(`[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V1 ${JSON.stringify(telemetry)}`);
 }
 
 function toErrorMessage(error: unknown): string {

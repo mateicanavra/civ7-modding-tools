@@ -5,14 +5,22 @@ import {
   PLACEMENT_TILE_SPACE_ID,
   transparentNoneCategory,
 } from "../../viz.js";
-import type { ApplyPlacementResult } from "./apply.js";
+
+type PlacementCompletionVizResult = Readonly<{
+  engineObservation: Readonly<{
+    terrain: Int32Array;
+    elevation: Int16Array;
+    landMask: Uint8Array;
+  }>;
+  waterDrift: Uint8Array;
+}>;
 
 /**
  * Projects the final engine surface and its physics-comparison drift after placement completes.
  * The adapter observation is borrowed exactly as read; only the drift array is derived.
  */
 export function projectPlacementCompletionViz(
-  result: ApplyPlacementResult,
+  result: PlacementCompletionVizResult,
   dimensions: Readonly<{ width: number; height: number }>
 ): readonly VizProjection[] {
   const projections: VizProjection[] = [];

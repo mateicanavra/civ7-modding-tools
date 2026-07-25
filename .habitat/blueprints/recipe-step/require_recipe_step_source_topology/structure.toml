@@ -11,25 +11,18 @@ allowed = ["+([a-z0-9])*(-+([a-z0-9]))"]
 name = "recipe-step-containers"
 root = "mods/*/src/recipes/*/stages/**/steps/+([a-z0-9])*(-+([a-z0-9]))"
 kind = "directory"
-mode = "open"
+mode = "closed"
 required = ["config.ts", "step.ts"]
-forbidden = ["contract.ts", "index.ts", "*.contract.ts", "artifacts", "*.artifact.ts"]
-
-[[scopes]]
-name = "recipe-step-descendants"
-root = "mods/*/src/recipes/*/stages/**/steps/**/!(*.*)"
-kind = "directory"
-mode = "open"
-forbidden = ["artifacts", "*.artifact.ts"]
+allowed = ["viz.ts"]
 
 [[scopes]]
 name = "recipe-step-config-modules"
 root = "mods/*/src/recipes/*/stages/**/steps/+([a-z0-9])*(-+([a-z0-9]))/config.ts"
 kind = "file"
-mode = "open"
+mode = "closed"
 
 [[scopes]]
 name = "recipe-step-runtime-modules"
 root = "mods/*/src/recipes/*/stages/**/steps/+([a-z0-9])*(-+([a-z0-9]))/step.ts"
 kind = "file"
-mode = "open"
+mode = "closed"

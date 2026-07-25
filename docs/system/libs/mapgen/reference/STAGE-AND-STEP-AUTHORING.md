@@ -28,6 +28,13 @@ A step contract defines:
 - `schema` (TypeBox schema; closed by default)
 - optional `ops` decl (op contracts used by the step, with schema-enveloped strategies)
 
+The step is a closed authoring kind. Its directory contains exactly
+`config.ts` and `step.ts`, plus an optional `viz.ts` only when the step
+definition attaches that visualization. Private orchestration stays in
+`step.ts`. Reusable policy, algorithms, immutable products, diagnostics, and
+metrics move to their qualified stage, domain, recipe, or SDK owner rather than
+becoming loose step helpers.
+
 Representative example (dependency tags + artifact requirements; excerpt; see full file in anchors):
 
 The `@mapgen/domain/*` alias is the current mod-local domain surface. Contract
@@ -106,8 +113,8 @@ Representative example (createStep boundary; excerpt; see full file in anchors):
 
 ```ts
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { selectNavigableRiverTerrain } from "../../model/policy/navigable-river-projection.js";
 import { config } from "./config.js";
-import { selectNavigableRiverTerrain } from "./rules/select-navigable-river-terrain.js";
 
 /** Projects admitted river evidence into Civ7 and captures engine readback. */
 export const PlotRiversStep = createStep(config, {

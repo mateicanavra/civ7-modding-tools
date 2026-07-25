@@ -501,7 +501,7 @@ The standard recipe exposes six Morphology knobs that apply _after_ defaulted st
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/index.ts`, `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/index.ts`, `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/index.ts`, and `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/index.ts` (stage-owned knob schemas)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/mountains/mountain-ranges.ts` (coupled mountain-range projection applied only when its knob is authored)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/model/policy/mountain-ranges.ts` (coupled mountain-range projection applied only when its knob is authored)
 - `mods/mod-swooper-maps/src/domain/morphology/modules/coasts/model/policy/coast-knob-policy.ts`, `mods/mod-swooper-maps/src/domain/morphology/modules/shelf/model/policy/shelf-knob-policy.ts`, `mods/mod-swooper-maps/src/domain/morphology/modules/erosion/model/policy/erosion-knob-policy.ts`, and `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/model/policy/landform-knob-policy.ts` (deterministic knob transforms)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/step.ts` (`normalize` applying `MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/rugged-coasts/step.ts` (`normalize` applying `MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER`)

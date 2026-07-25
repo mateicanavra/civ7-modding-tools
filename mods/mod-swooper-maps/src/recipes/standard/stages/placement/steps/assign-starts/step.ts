@@ -1,9 +1,167 @@
-import type { TraceJsonObject } from "@swooper/mapgen-core";
-import { createStep } from "@swooper/mapgen-core/authoring";
-import { runPlacementProductStep } from "../../log.js";
+import placement from "@mapgen/domain/placement";
+import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
+import type { MapContext, TraceJsonObject } from "@swooper/mapgen-core";
+import {
+  type ArtifactValueOf,
+  createStep,
+  type DeepReadonly,
+  type Static,
+} from "@swooper/mapgen-core/authoring";
+import { runPlacementProductStep, warnLog } from "../../log.js";
 import { config } from "./config.js";
-import { materializeStartAssignment } from "./materialize.js";
 import { projectStartAssignmentViz } from "./viz.js";
+
+type PlanStartsOutput = Static<(typeof placement.starts.ops.planStarts)["output"]>;
+type StartAssignmentArtifact = ArtifactValueOf<typeof placementStartArtifacts.startAssignment>;
+type StartSeatRecord = PlanStartsOutput["seats"][number];
+
+/**
+ * Loud degradation surfacing: every non-regional seat and every below-floor
+ * spacing is reported in live logs and verbose traces. Selection authority
+ * remains entirely with the plan-starts operation.
+ */
+function warnStartDegradations(
+  context: MapContext,
+  seats: DeepReadonly<PlanStartsOutput["seats"]>
+): void {
+  const byRung = new Map<string, number[]>();
+  for (const seat of seats) {
+    if (seat.rung === "regional" && seat.plotIndex >= 0) continue;
+    const key = seat.plotIndex < 0 ? "unseated" : seat.rung;
+    const list = byRung.get(key) ?? [];
+    list.push(seat.seatIndex);
+    byRung.set(key, list);
+  }
+  for (const [path, seatIndices] of byRung) {
+    warnLog(
+      `[Placement] Start assignment degraded to ${path} for ${seatIndices.length} seat(s) ` +
+        `(seat indices: ${seatIndices.join(", ")}); regional viability guarantees were relaxed for those seats.`
+    );
+    context.trace.event(() => ({
+      type: "placement.starts.fallback",
+      level: "warn",
+      path,
+      seats: seatIndices.length,
+      seatIndices,
+    }));
+  }
+  for (const seat of seats) {
+    if (seat.plotIndex < 0 || !seat.imputedFlags.includes("spacing-below-floor")) continue;
+    warnLog(
+      `[Placement] Seat ${seat.seatIndex} seated below the hard spacing floor ` +
+        `(achievedSpacing=${seat.achievedSpacing}); the alternative was an unseated player.`
+    );
+    context.trace.event(() => ({
+      type: "placement.starts.spacingBelowFloor",
+      level: "warn",
+      seatIndex: seat.seatIndex,
+      achievedSpacing: seat.achievedSpacing,
+    }));
+  }
+  const reassigned = seats.filter((seat) => seat.imputedFlags.includes("region-reassigned"));
+  if (reassigned.length) {
+    const seatIndices = reassigned.map((seat) => seat.seatIndex);
+    warnLog(
+      `[Placement] ${reassigned.length} seat(s) region-reassigned (seat indices: ` +
+        `${seatIndices.join(", ")}); their configured landmass region has zero start candidates on this map.`
+    );
+    context.trace.event(() => ({
+      type: "placement.starts.regionReassigned",
+      level: "warn",
+      seats: reassigned.length,
+      seatIndices,
+    }));
+  }
+}
+
+function cloneSeat(seat: DeepReadonly<StartSeatRecord>): StartSeatRecord {
+  return {
+    seatIndex: seat.seatIndex,
+    playerId: seat.playerId,
+    playerIdSource: seat.playerIdSource,
+    regionSlot: seat.regionSlot,
+    realizedRegionSlot: seat.realizedRegionSlot,
+    plotIndex: seat.plotIndex,
+    rung: seat.rung,
+    status: seat.status,
+    tier: seat.tier,
+    score: seat.score,
+    components: { ...seat.components },
+    achievedSpacing: seat.achievedSpacing,
+    imputedFlags: [...seat.imputedFlags],
+  };
+}
+
+/**
+ * Stamps the operation's typed seat intents and builds the immutable assignment
+ * product. Unfillable maps remain degraded data; only a map with no settleable
+ * candidate at all is rejected.
+ */
+function materializeStartAssignment(args: {
+  context: MapContext;
+  plan: DeepReadonly<PlanStartsOutput>;
+  setStartPosition: (plotIndex: number, playerId: number) => void;
+}): StartAssignmentArtifact {
+  const { context, plan, setStartPosition } = args;
+  const { width, height } = context.setup.dimensions;
+  if (plan.width !== width || plan.height !== height) {
+    throw new Error(
+      `[Placement] Start plan dimensions ${plan.width}x${plan.height} do not match map ${width}x${height}.`
+    );
+  }
+  const seats = plan.seats;
+  if (seats.length > 0 && plan.settleableTileCount === 0) {
+    throw new Error(
+      `[Placement] No settleable land candidates exist for ${seats.length} requested start seat(s) ` +
+        `(candidates=${plan.candidateCount}, settleable=0).`
+    );
+  }
+
+  let assigned = 0;
+  const rungCounts = { regional: 0, openPool: 0, qualityRelaxed: 0, spacingRelaxed: 0 };
+  const tierAssignments = { primary: 0, islandCluster: 0, marginal: 0, none: 0 };
+  for (const seat of seats) {
+    if (seat.plotIndex < 0) continue;
+    setStartPosition(seat.plotIndex, seat.playerId);
+    assigned++;
+    if (seat.rung === "regional") rungCounts.regional++;
+    else if (seat.rung === "open-pool") rungCounts.openPool++;
+    else if (seat.rung === "quality-relaxed") rungCounts.qualityRelaxed++;
+    else rungCounts.spacingRelaxed++;
+    tierAssignments[seat.tier] += 1;
+  }
+  warnStartDegradations(context, seats);
+
+  return {
+    width,
+    height,
+    positions: seats.map((seat) => seat.plotIndex),
+    seats: seats.map(cloneSeat),
+    fairnessReport: {
+      tolerance: plan.fairnessReport.tolerance,
+      parity: [...plan.fairnessReport.parity],
+      worstPairGap: plan.fairnessReport.worstPairGap,
+      balanced: plan.fairnessReport.balanced,
+      swaps: plan.fairnessReport.swaps.map((swap) => ({ ...swap })),
+      relaxations: plan.fairnessReport.relaxations.map((entry) => ({ ...entry })),
+    },
+    status: plan.status,
+    assigned,
+    unseatedCount: seats.length - assigned,
+    rungCounts,
+    primaryAssigned: tierAssignments.primary,
+    islandClusterAssigned: tierAssignments.islandCluster,
+    marginalAssigned: tierAssignments.marginal,
+    noneAssigned: tierAssignments.none,
+    candidateCount: plan.candidateCount,
+    rejectionCounts: plan.rejectionCounts.map((entry) => ({
+      reason: entry.reason,
+      count: entry.count,
+    })),
+    tierCounts: { ...plan.tierCounts },
+    inputCoverage: plan.inputCoverage.map((row) => ({ ...row })),
+  };
+}
 
 /**
  * Assigns player seats against the resource plan and final physical truth,
@@ -36,11 +194,8 @@ export const AssignStartsStep = createStep(config, {
     const { width, height } = context.setup.dimensions;
     const plan = ops.starts(
       {
-        baseStarts: {
-          playersLandmass1: baseStarts.playersLandmass1,
-          playersLandmass2: baseStarts.playersLandmass2,
-        },
-        // Alive-majors READ surface; the op owns the slot→player mapping (D3).
+        baseStarts,
+        // Alive-majors READ surface; the op owns the slot-to-player mapping.
         alivePlayerIds: deps.engine.getAliveMajorIds(context),
         width,
         height,
@@ -61,19 +216,15 @@ export const AssignStartsStep = createStep(config, {
         mountainMask: mountains.mountainMask as Uint8Array,
         volcanoMask: volcanoes.volcanoMask as Uint8Array,
         naturalWonderPlotIndices: [...naturalWonderPlacement.observedNaturalWonderPlotIndices],
-        // D3 (S5): resource-support scoring works off PLANNED site intents —
-        // stamping runs after the support pass, so placed outcomes do not
-        // exist yet when starts are chosen.
+        // Starts consume planned sites because resource stamping follows the
+        // support-adjustment pass.
         plannedResourcePlotIndices: resourcePlan.intents.map((intent) => intent.plotIndex),
-        // seatBiases: per-civ StartBias rows need live player→civ data; the
-        // offline default is neutral (Milestone A wires the live half).
       },
       stepConfig.starts
     );
     const emit = (payload: TraceJsonObject): void => {
       context.trace.event(() => payload);
     };
-
     const assignment = runPlacementProductStep("placement.starts", emit, () =>
       materializeStartAssignment({
         context,

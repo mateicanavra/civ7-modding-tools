@@ -2,7 +2,7 @@ import { clamp } from "@swooper/mapgen-core/lib/math";
 import type { MorphologyMountainRangesKnob } from "../../index.js";
 
 /**
- * Derives the shared ridge, foothill, and rough-land strategy posture from physical controls.
+ * Derives the stage's shared ridge, foothill, and rough-land strategy posture from physical controls.
  *
  * The recipe schema admits ranges and integer fields before this function runs. The resulting
  * strategy configuration remains a deterministic authoring projection, not another validation

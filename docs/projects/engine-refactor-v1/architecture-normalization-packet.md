@@ -112,9 +112,10 @@ MapGen is a deterministic pipeline with explicit ownership boundaries.
 Recipe steps use one source topology: `steps/<step-id>/config.ts` owns the
 runtime-free `defineStep` contract, while `steps/<step-id>/step.ts` owns the
 `createStep` implementation. The step directory name is the contract's exact
-kebab-case id. Stage roots import step implementations directly; forwarding
-step barrels and flat `*.contract.ts`/implementation pairs are not additional
-authorities.
+kebab-case id. A step may additionally own `viz.ts` only when its executable
+attaches that substantial pure visualization projection. Stage roots import
+step implementations directly; forwarding step barrels, loose helper modules,
+and flat `*.contract.ts`/implementation pairs are not additional authorities.
 
 Two invariants dominate the refactor:
 

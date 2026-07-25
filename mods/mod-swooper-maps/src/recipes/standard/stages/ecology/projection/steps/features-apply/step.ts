@@ -1,4 +1,5 @@
-import type { FeatureKey } from "@civ7/map-policy";
+import { FEATURE_PLACEMENT_KEYS, type FeatureKey } from "@civ7/map-policy";
+import type { FeatureIntentKey } from "@mapgen/domain/ecology/modules/features/model/atoms/index.js";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import {
   captureEngineFeatureTypes,
@@ -7,10 +8,63 @@ import {
   engineLandMaskFromWaterMask,
 } from "../../../../../current-engine-surface.js";
 import { measureStandardFeatureProjection } from "../../../../../metrics/families/ecology-projection.js";
-import { resolveFeatureKeyForIntent } from "./apply.js";
 import { config } from "./config.js";
-import { resolveFeatureKeyLookups } from "./feature-keys.js";
 import { buildFeaturesApplyVizProjections } from "./viz.js";
+
+const FEATURE_KEY_BY_INTENT: Readonly<Record<FeatureIntentKey, FeatureKey>> = {
+  forest: "FEATURE_FOREST",
+  rainforest: "FEATURE_RAINFOREST",
+  taiga: "FEATURE_TAIGA",
+  "savanna-woodland": "FEATURE_SAVANNA_WOODLAND",
+  "sagebrush-steppe": "FEATURE_SAGEBRUSH_STEPPE",
+  marsh: "FEATURE_MARSH",
+  "tundra-bog": "FEATURE_TUNDRA_BOG",
+  mangrove: "FEATURE_MANGROVE",
+  oasis: "FEATURE_OASIS",
+  "watering-hole": "FEATURE_WATERING_HOLE",
+  reef: "FEATURE_REEF",
+  "cold-reef": "FEATURE_COLD_REEF",
+  atoll: "FEATURE_ATOLL",
+  lotus: "FEATURE_LOTUS",
+  ice: "FEATURE_ICE",
+  "desert-floodplain-minor": "FEATURE_DESERT_FLOODPLAIN_MINOR",
+  "desert-floodplain-navigable": "FEATURE_DESERT_FLOODPLAIN_NAVIGABLE",
+  "grassland-floodplain-minor": "FEATURE_GRASSLAND_FLOODPLAIN_MINOR",
+  "grassland-floodplain-navigable": "FEATURE_GRASSLAND_FLOODPLAIN_NAVIGABLE",
+  "plains-floodplain-minor": "FEATURE_PLAINS_FLOODPLAIN_MINOR",
+  "plains-floodplain-navigable": "FEATURE_PLAINS_FLOODPLAIN_NAVIGABLE",
+  "tropical-floodplain-minor": "FEATURE_TROPICAL_FLOODPLAIN_MINOR",
+  "tropical-floodplain-navigable": "FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE",
+  "tundra-floodplain-minor": "FEATURE_TUNDRA_FLOODPLAIN_MINOR",
+  "tundra-floodplain-navigable": "FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE",
+};
+
+/** Resolves an admitted Ecology feature intent to its official Civ7 projection identity. */
+function resolveFeatureKeyForIntent(intent: FeatureIntentKey): FeatureKey {
+  return FEATURE_KEY_BY_INTENT[intent];
+}
+
+/** Holds the closed official-feature identity mapping resolved from one adapter snapshot. */
+type FeatureKeyLookups = {
+  byKey: Record<FeatureKey, number>;
+};
+
+/** Resolves every supported Civ7 feature key to its current engine identity. */
+function resolveFeatureKeyLookups(
+  getFeatureTypeIndex: (key: FeatureKey) => number
+): FeatureKeyLookups {
+  const byKey = {} as Record<FeatureKey, number>;
+
+  for (const key of FEATURE_PLACEMENT_KEYS) {
+    const engineId = getFeatureTypeIndex(key);
+    if (typeof engineId !== "number" || Number.isNaN(engineId) || engineId < 0) {
+      throw new Error(`FeaturesStep: Missing engine feature for key "${key}".`);
+    }
+    byKey[key] = engineId;
+  }
+
+  return { byKey };
+}
 
 const FLOODPLAIN_FEATURE_KEY_PATTERN = /^FEATURE_[A-Z]+_FLOODPLAIN_(?:MINOR|NAVIGABLE)$/;
 

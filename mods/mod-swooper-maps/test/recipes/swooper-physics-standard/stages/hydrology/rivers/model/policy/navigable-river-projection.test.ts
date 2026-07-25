@@ -4,7 +4,7 @@ import {
   RIVER_CLASS_MINOR,
 } from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-class.js";
 import { HYDROLOGY_MOUTH_OCEAN } from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-network-classification.js";
-import { selectNavigableRiverTerrain } from "../../../../../../../../../src/recipes/standard/stages/hydrology/rivers/steps/plot-rivers/rules/select-navigable-river-terrain.js";
+import { selectNavigableRiverTerrain } from "../../../../../../../../src/recipes/standard/stages/hydrology/rivers/model/policy/navigable-river-projection.js";
 
 describe("select navigable river terrain", () => {
   it("prefers the strongest major-discharge trunk when density only allows one chain", () => {

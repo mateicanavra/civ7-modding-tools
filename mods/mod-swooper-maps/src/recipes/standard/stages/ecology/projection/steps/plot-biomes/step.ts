@@ -1,5 +1,6 @@
 import * as ecology from "@mapgen/domain/ecology";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { clampU8 } from "@swooper/mapgen-core/lib/math";
 import { captureEngineWaterMask } from "../../../../../current-engine-surface.js";
 import { measureStandardBiomeProjection } from "../../../../../metrics/families/ecology-projection.js";
 import {
@@ -10,7 +11,6 @@ import {
 import { resolveEngineBiomeIds } from "../../model/policy/biome-projection.js";
 import { buildEngineBiomeIdVizCategories } from "../../viz.js";
 import { config } from "./config.js";
-import { clampToByte } from "./helpers/apply.js";
 
 const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
@@ -53,7 +53,9 @@ export const PlotBiomesStep = createStep(config, {
         if (topography.landMask[idx] === 0) {
           deps.engine.setBiomeType(context, x, y, marineBiome);
           projectedBiomeId[idx] = marineBiome;
-          projectedTemperature[idx] = clampToByte(climateIndices.surfaceTemperatureC[idx]! + 50);
+          projectedTemperature[idx] = clampU8(
+            Math.round(climateIndices.surfaceTemperatureC[idx]! + 50)
+          );
           bindingClass[idx] = 0;
           continue;
         }
@@ -63,7 +65,9 @@ export const PlotBiomesStep = createStep(config, {
         const engineId = engineBindings[symbol];
         deps.engine.setBiomeType(context, x, y, engineId);
         projectedBiomeId[idx] = engineId;
-        projectedTemperature[idx] = clampToByte(climateIndices.surfaceTemperatureC[idx]! + 50);
+        projectedTemperature[idx] = clampU8(
+          Math.round(climateIndices.surfaceTemperatureC[idx]! + 50)
+        );
         if (collidingEngineBiomeIds.has(engineId)) {
           bindingClass[idx] = 2;
           collapsedBindingCount += 1;
