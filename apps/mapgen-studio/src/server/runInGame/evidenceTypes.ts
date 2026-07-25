@@ -49,36 +49,10 @@ type RunInGameDetailedNaturalWonderPlanRow = Readonly<{
   priorityPpm?: number;
 }>;
 
-type RunInGameDetailedNaturalWonderPlanInputRow = Readonly<{
-  plotIndex: number;
-  x: number;
-  y: number;
-  featureType: number;
-  terrainType: number;
-  biomeType: number;
-  occupiedFeatureType: number;
-  elevation: number;
-  aridityPpm: number;
-  riverClass: number;
-  lakeMask: number;
-  blockedMask: number;
-  landMask: number;
-}>;
-
-type RunInGameDetailedNaturalWonderPlanInputSurfaceDigests = Readonly<{
-  version: number;
-  plotCount: number;
-  landMaskHash32: string;
-  elevationHash32: string;
-  aridityPpmHash32: string;
-  riverClassHash32: string;
-  lakeMaskHash32: string;
-  blockedMaskHash32: string;
-  terrainTypeHash32: string;
-  biomeTypeHash32: string;
-  featureTypeHash32: string;
-}>;
-
+/**
+ * Studio's parsed run evidence, preserving raw product payloads while projecting
+ * only the bounded summaries the Run in Game workflow directly consumes.
+ */
 export type RunInGameDetailedEvidenceLog = Readonly<{
   logPath?: string;
   observedAt?: string;
@@ -146,15 +120,8 @@ export type RunInGameDetailedEvidenceLog = Readonly<{
     planRows?: ReadonlyArray<RunInGameDetailedNaturalWonderPlanRow>;
   }>;
   naturalWonderPlanInput?: Readonly<{
-    marker: "NATURAL_WONDER_PLAN_INPUT_V1";
+    marker: "NATURAL_WONDER_PLAN_INPUT_V2";
     payload: unknown;
-    stats?: Readonly<{
-      version: number;
-      plannedCount: number;
-      rowCount: number;
-    }>;
-    surfaceDigests?: RunInGameDetailedNaturalWonderPlanInputSurfaceDigests;
-    inputRows?: ReadonlyArray<RunInGameDetailedNaturalWonderPlanInputRow>;
   }>;
   naturalWonderPlacement?: Readonly<{
     marker: "NATURAL_WONDER_PLACEMENT_V1";
@@ -181,6 +148,10 @@ export type RunInGameDetailedEvidenceLog = Readonly<{
   matched: string[];
 }>;
 
+/**
+ * Refines the public exact-authorship result with Studio's detailed log evidence
+ * while preserving the public complete-versus-unresolved state contract.
+ */
 export type RunInGameDetailedExactAuthorshipEvidence =
   PublicRunInGameExactAuthorshipEvidence extends infer Evidence
     ? Evidence extends Readonly<{ status: "complete" }>

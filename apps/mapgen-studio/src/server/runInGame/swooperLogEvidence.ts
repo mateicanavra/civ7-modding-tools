@@ -267,15 +267,12 @@ function parseNaturalWonderPlanInputTelemetryBetween(
   | undefined {
   for (let index = completionIndex - 1; index > evidenceIndex; index -= 1) {
     const line = lines[index] ?? "";
-    if (!line.includes("NATURAL_WONDER_PLAN_INPUT_V1")) continue;
-    const payload = parsePayloadAfterMarker(line, "NATURAL_WONDER_PLAN_INPUT_V1");
+    if (!line.includes("NATURAL_WONDER_PLAN_INPUT_V2")) continue;
+    const payload = parsePayloadAfterMarker(line, "NATURAL_WONDER_PLAN_INPUT_V2");
     if (!payload) continue;
     return {
-      marker: "NATURAL_WONDER_PLAN_INPUT_V1",
+      marker: "NATURAL_WONDER_PLAN_INPUT_V2",
       payload,
-      ...(naturalWonderPlanInputStats(payload) ?? {}),
-      ...(naturalWonderPlanInputSurfaceDigests(payload) ?? {}),
-      ...(naturalWonderPlanInputRows(payload) ?? {}),
     };
   }
   return undefined;
@@ -467,148 +464,6 @@ function naturalWonderPlanRows(payload: Record<string, unknown>):
     })
     .slice(0, 16);
   return planRows.length === 0 ? undefined : { planRows };
-}
-
-function naturalWonderPlanInputStats(payload: Record<string, unknown>):
-  | {
-      stats: NonNullable<
-        NonNullable<
-          NonNullable<RunInGameDetailedExactAuthorshipEvidence["log"]>["naturalWonderPlanInput"]
-        >["stats"]
-      >;
-    }
-  | undefined {
-  const version = numberValue(payload.version);
-  const plannedCount = numberValue(payload.plannedCount);
-  if (version === undefined || plannedCount === undefined) return undefined;
-  const rowCount = Array.isArray(payload.inputRows) ? payload.inputRows.length : 0;
-  return {
-    stats: {
-      version,
-      plannedCount,
-      rowCount,
-    },
-  };
-}
-
-function naturalWonderPlanInputSurfaceDigests(payload: Record<string, unknown>):
-  | {
-      surfaceDigests: NonNullable<
-        NonNullable<
-          NonNullable<RunInGameDetailedExactAuthorshipEvidence["log"]>["naturalWonderPlanInput"]
-        >["surfaceDigests"]
-      >;
-    }
-  | undefined {
-  if (!isRecord(payload.surfaceDigests)) return undefined;
-  const version = numberValue(payload.surfaceDigests.version);
-  const plotCount = numberValue(payload.surfaceDigests.plotCount);
-  const landMaskHash32 = hash32Value(payload.surfaceDigests.landMaskHash32);
-  const elevationHash32 = hash32Value(payload.surfaceDigests.elevationHash32);
-  const aridityPpmHash32 = hash32Value(payload.surfaceDigests.aridityPpmHash32);
-  const riverClassHash32 = hash32Value(payload.surfaceDigests.riverClassHash32);
-  const lakeMaskHash32 = hash32Value(payload.surfaceDigests.lakeMaskHash32);
-  const blockedMaskHash32 = hash32Value(payload.surfaceDigests.blockedMaskHash32);
-  const terrainTypeHash32 = hash32Value(payload.surfaceDigests.terrainTypeHash32);
-  const biomeTypeHash32 = hash32Value(payload.surfaceDigests.biomeTypeHash32);
-  const featureTypeHash32 = hash32Value(payload.surfaceDigests.featureTypeHash32);
-  if (
-    version === undefined ||
-    plotCount === undefined ||
-    landMaskHash32 === undefined ||
-    elevationHash32 === undefined ||
-    aridityPpmHash32 === undefined ||
-    riverClassHash32 === undefined ||
-    lakeMaskHash32 === undefined ||
-    blockedMaskHash32 === undefined ||
-    terrainTypeHash32 === undefined ||
-    biomeTypeHash32 === undefined ||
-    featureTypeHash32 === undefined
-  ) {
-    return undefined;
-  }
-  return {
-    surfaceDigests: {
-      version,
-      plotCount,
-      landMaskHash32,
-      elevationHash32,
-      aridityPpmHash32,
-      riverClassHash32,
-      lakeMaskHash32,
-      blockedMaskHash32,
-      terrainTypeHash32,
-      biomeTypeHash32,
-      featureTypeHash32,
-    },
-  };
-}
-
-function naturalWonderPlanInputRows(payload: Record<string, unknown>):
-  | {
-      inputRows: NonNullable<
-        NonNullable<
-          NonNullable<RunInGameDetailedExactAuthorshipEvidence["log"]>["naturalWonderPlanInput"]
-        >["inputRows"]
-      >;
-    }
-  | undefined {
-  if (!Array.isArray(payload.inputRows)) return undefined;
-  const inputRows = payload.inputRows
-    .flatMap((row) => {
-      if (!Array.isArray(row)) return [];
-      const status = row[0] === "p" ? "planned" : undefined;
-      const plotIndex = numberValue(row[1]);
-      const x = numberValue(row[2]);
-      const y = numberValue(row[3]);
-      const featureType = numberValue(row[4]);
-      const terrainType = numberValue(row[5]);
-      const biomeType = numberValue(row[6]);
-      const occupiedFeatureType = numberValue(row[7]);
-      const elevation = numberValue(row[8]);
-      const aridityPpm = numberValue(row[9]);
-      const riverClass = numberValue(row[10]);
-      const lakeMask = numberValue(row[11]);
-      const blockedMask = numberValue(row[12]);
-      const landMask = numberValue(row[13]);
-      if (
-        status === undefined ||
-        plotIndex === undefined ||
-        x === undefined ||
-        y === undefined ||
-        featureType === undefined ||
-        terrainType === undefined ||
-        biomeType === undefined ||
-        occupiedFeatureType === undefined ||
-        elevation === undefined ||
-        aridityPpm === undefined ||
-        riverClass === undefined ||
-        lakeMask === undefined ||
-        blockedMask === undefined ||
-        landMask === undefined
-      ) {
-        return [];
-      }
-      return [
-        {
-          plotIndex,
-          x,
-          y,
-          featureType,
-          terrainType,
-          biomeType,
-          occupiedFeatureType,
-          elevation,
-          aridityPpm,
-          riverClass,
-          lakeMask,
-          blockedMask,
-          landMask,
-        },
-      ];
-    })
-    .slice(0, 16);
-  return inputRows.length === 0 ? undefined : { inputRows };
 }
 
 function resourcePlacementStats(payload: Record<string, unknown>):

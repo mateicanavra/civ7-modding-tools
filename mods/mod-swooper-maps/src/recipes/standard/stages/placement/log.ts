@@ -5,6 +5,7 @@ import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/mod
 import type { MapContext, TraceJsonObject } from "@swooper/mapgen-core";
 import type { ArtifactValueOf, DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 import { fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
+import type { StandardNaturalWonderPlanInputMeasurements } from "../../metrics/families/placement/natural-wonder-plan-input.js";
 
 type EngineTerrainWaterObservation = Readonly<{
   terrain: Int32Array;
@@ -40,55 +41,6 @@ type NaturalWonderPlanRuntimeRow = readonly [
   elevation: number | null,
   priorityPpm: number | null,
 ];
-
-type NaturalWonderPlanInputRuntimeRow = readonly [
-  status: "p",
-  plotIndex: number,
-  x: number,
-  y: number,
-  featureType: number,
-  terrainType: number,
-  biomeType: number,
-  occupiedFeatureType: number,
-  elevation: number,
-  aridityPpm: number,
-  riverClass: number,
-  lakeMask: number,
-  blockedMask: number,
-  landMask: number,
-];
-
-type NaturalWonderPlanInputTelemetryArgs = Readonly<{
-  dimensions: Readonly<{ width: number; height: number }>;
-  plan: Readonly<{
-    plannedCount: NaturalWonderPlan["plannedCount"];
-    placements: ReadonlyArray<NaturalWonderPlan["placements"][number]>;
-  }>;
-  physical: Readonly<{
-    topography: Readonly<{
-      landMask: Uint8Array;
-      elevation: Int16Array;
-    }>;
-    hydrography: Readonly<{
-      riverClass: Uint8Array;
-    }>;
-    lakePlan: Readonly<{
-      lakeMask: Uint8Array;
-    }>;
-    climateIndices: Readonly<{
-      aridityIndex: Float32Array;
-    }>;
-    naturalWonderPlanSurfaces: Readonly<{
-      terrainType: Int32Array;
-      biomeType: Int32Array;
-      featureType: Int32Array;
-      blockedMask: Uint8Array;
-    }>;
-  }>;
-}>;
-
-const FNV1A_32_OFFSET_BASIS = 0x811c9dc5;
-const FNV1A_32_PRIME = 0x01000193;
 
 /**
  * Engine-safe warn logging for placement steps.
@@ -323,21 +275,6 @@ export function logResourcePlacementRuntimeTelemetry(
   );
 }
 
-function hash32Values(values: Iterable<number>): string {
-  let hash = FNV1A_32_OFFSET_BASIS;
-  for (const value of values) {
-    hash ^= value & 0xff;
-    hash = Math.imul(hash, FNV1A_32_PRIME);
-    hash ^= (value >> 8) & 0xff;
-    hash = Math.imul(hash, FNV1A_32_PRIME);
-    hash ^= (value >> 16) & 0xff;
-    hash = Math.imul(hash, FNV1A_32_PRIME);
-    hash ^= (value >> 24) & 0xff;
-    hash = Math.imul(hash, FNV1A_32_PRIME);
-  }
-  return (hash >>> 0).toString(16).padStart(8, "0");
-}
-
 function normalizeInteger(value: unknown): number | null {
   return Number.isFinite(value) ? Math.trunc(value as number) : null;
 }
@@ -403,64 +340,13 @@ export function logNaturalWonderPlanRuntimeTelemetry(plan: NaturalWonderPlanTele
 }
 
 /**
- * Preserves the current live planning-input log by projecting deterministic
- * surface digests and at most sixteen selected-site rows. It deliberately does
- * not emit a trace event; parity must observe typed products instead.
+ * Serializes the recipe-owned planning-input measurement unchanged so every
+ * consumer admits the same product contract rather than a second wire model.
  */
-export function logNaturalWonderPlanInputRuntimeTelemetry({
-  dimensions,
-  plan,
-  physical,
-}: NaturalWonderPlanInputTelemetryArgs): void {
-  const { width, height } = dimensions;
-  const size = width * height;
-  const inputRows: NaturalWonderPlanInputRuntimeRow[] = [];
-  const { terrainType, biomeType, featureType, blockedMask } = physical.naturalWonderPlanSurfaces;
-  const aridityPpm = new Uint32Array(size);
-  for (let plotIndex = 0; plotIndex < size; plotIndex++) {
-    aridityPpm[plotIndex] = normalizePpm(physical.climateIndices.aridityIndex[plotIndex]);
-  }
-  for (const placementPlan of plan.placements.slice(0, 16)) {
-    const plotIndex = placementPlan.plotIndex | 0;
-    if (plotIndex < 0 || plotIndex >= size) continue;
-    const y = (plotIndex / width) | 0;
-    const x = plotIndex - y * width;
-    inputRows.push([
-      "p",
-      plotIndex,
-      x,
-      y,
-      placementPlan.featureType | 0,
-      terrainType[plotIndex] ?? 0,
-      biomeType[plotIndex] ?? 0,
-      featureType[plotIndex] ?? 0,
-      physical.topography.elevation[plotIndex] ?? 0,
-      aridityPpm[plotIndex] ?? 0,
-      physical.hydrography.riverClass[plotIndex] ?? 0,
-      physical.lakePlan.lakeMask[plotIndex] ?? 0,
-      blockedMask[plotIndex] ?? 0,
-      physical.topography.landMask[plotIndex] ?? 0,
-    ]);
-  }
-  const telemetry = {
-    version: 1,
-    plannedCount: Math.max(0, plan.plannedCount | 0),
-    surfaceDigests: {
-      version: 1,
-      plotCount: size,
-      landMaskHash32: hash32Values(physical.topography.landMask),
-      elevationHash32: hash32Values(physical.topography.elevation),
-      aridityPpmHash32: hash32Values(aridityPpm),
-      riverClassHash32: hash32Values(physical.hydrography.riverClass),
-      lakeMaskHash32: hash32Values(physical.lakePlan.lakeMask),
-      blockedMaskHash32: hash32Values(blockedMask),
-      terrainTypeHash32: hash32Values(terrainType),
-      biomeTypeHash32: hash32Values(biomeType),
-      featureTypeHash32: hash32Values(featureType),
-    },
-    inputRows,
-  } as const;
-  console.log(`[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V1 ${JSON.stringify(telemetry)}`);
+export function logNaturalWonderPlanInputRuntimeTelemetry(
+  measurements: StandardNaturalWonderPlanInputMeasurements
+): void {
+  console.log(`[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V2 ${JSON.stringify(measurements)}`);
 }
 
 function toErrorMessage(error: unknown): string {

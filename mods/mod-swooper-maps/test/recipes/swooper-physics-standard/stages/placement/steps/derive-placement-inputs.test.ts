@@ -17,6 +17,11 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 
+import {
+  measureStandardNaturalWonderPlanInput,
+  STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY,
+  type StandardNaturalWonderPlanInputMeasurementInput,
+} from "../../../../../../src/recipes/standard/metrics/families/placement/natural-wonder-plan-input.js";
 import { DerivePlacementInputsStep } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
 
@@ -26,7 +31,25 @@ type DerivePlacementInputsOps = StepRuntimeOps<
   NonNullable<(typeof DerivePlacementInputsStep.contract)["ops"]>
 >;
 type NaturalWonderPlannerInput = Parameters<DerivePlacementInputsOps["naturalWonders"]>[0];
+type NaturalWonderPlannerOutput = ReturnType<DerivePlacementInputsOps["naturalWonders"]>;
+type StandardNaturalWonderPlannerInput =
+  StandardNaturalWonderPlanInputMeasurementInput["plannerInput"];
 const DERIVE_PLACEMENT_INPUTS_OP_CONTRACTS = DerivePlacementInputsStep.contract.ops!;
+
+function assertStandardNaturalWonderPlannerInput(
+  input: NaturalWonderPlannerInput
+): asserts input is NaturalWonderPlannerInput & StandardNaturalWonderPlannerInput {
+  if (
+    !input.vegetationDensity ||
+    !input.effectiveMoisture ||
+    !input.surfaceTemperature ||
+    !input.fertility ||
+    !input.discharge ||
+    !input.slopeClass
+  ) {
+    throw new Error("The Standard step omitted a required planner suitability surface.");
+  }
+}
 
 function placementConfig() {
   return {
@@ -115,7 +138,8 @@ function createContext(options: Parameters<typeof createMockAdapter>[0]) {
 }
 
 function createCapturingOps(
-  captureNaturalWonderInput: (input: NaturalWonderPlannerInput) => void
+  captureNaturalWonderInput: (input: NaturalWonderPlannerInput) => void,
+  placements: NaturalWonderPlannerOutput["placements"] = []
 ): DerivePlacementInputsOps {
   const wonders = Object.assign(
     (
@@ -137,9 +161,9 @@ function createCapturingOps(
         width: input.width,
         height: input.height,
         wondersCount: input.wondersCount,
-        targetCount: 0,
-        plannedCount: 0,
-        placements: [],
+        targetCount: placements.length,
+        plannedCount: placements.length,
+        placements,
       };
     },
     {
@@ -237,5 +261,87 @@ describe("derive placement inputs step", () => {
         odd: [{ dx: 0, dy: 0 }],
       },
     });
+  });
+
+  it("projects the same typed planning-input measurement produced by the step", () => {
+    const { width, height } = TEST_MAP_SIZE.dimensions;
+    const { context } = createContext({
+      width,
+      height,
+      mapInfo: { ...TEST_MAP_SIZE.mapInfo },
+      mapSizeId: TEST_MAP_SIZE.id,
+      defaultTerrainType: terrainTypeIndices.TERRAIN_MOUNTAIN,
+      defaultBiomeType: biomeGlobals.BIOME_PLAINS,
+      naturalWonderCatalog: [{ featureType: featureTypes.FEATURE_KILIMANJARO, direction: -1 }],
+    });
+    const placement = {
+      plotIndex: 5,
+      featureType: featureTypes.FEATURE_KILIMANJARO,
+      direction: 0,
+      elevation: 500,
+      priority: 0.75,
+    } as const;
+    let plannerInput: NaturalWonderPlannerInput | undefined;
+    const ops = createCapturingOps(
+      (input) => {
+        plannerInput = input;
+      },
+      [placement]
+    );
+    const stepConfig = placementConfig();
+    let result: Awaited<ReturnType<typeof DerivePlacementInputsStep.run>> | undefined;
+
+    withMapContextExecutionForTest(context, (stepContext) => {
+      publishPlacementInputs(stepContext);
+      const candidate = DerivePlacementInputsStep.run(
+        stepContext,
+        stepConfig,
+        ops,
+        buildStepTestDependencies(DerivePlacementInputsStep, stepContext)
+      );
+      if (candidate instanceof Promise) {
+        throw new Error("The derive-placement-inputs step must remain synchronous.");
+      }
+      result = candidate;
+    });
+    if (!result) throw new Error("The derive-placement-inputs step did not return evidence.");
+    if (!plannerInput) throw new Error("The natural-wonder planner did not receive its input.");
+    assertStandardNaturalWonderPlannerInput(plannerInput);
+
+    const metrics = DerivePlacementInputsStep.metrics?.({
+      result,
+      config: stepConfig,
+      dimensions: TEST_MAP_SIZE.dimensions,
+    });
+    expect(metrics?.[STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY]).toBe(
+      result.naturalWonderPlanInput
+    );
+    expect(result.naturalWonderPlanInput).toEqual(
+      measureStandardNaturalWonderPlanInput({
+        plannerInput,
+        strategySelection: stepConfig.naturalWonders,
+        plan: {
+          plannedCount: 1,
+          placements: [placement],
+        },
+      })
+    );
+    expect(result.naturalWonderPlanInput.rows).toEqual([
+      {
+        plotIndex: 5,
+        x: 5,
+        y: 0,
+        featureType: featureTypes.FEATURE_KILIMANJARO,
+        terrainType: terrainTypeIndices.TERRAIN_MOUNTAIN,
+        biomeType: biomeGlobals.BIOME_PLAINS,
+        occupiedFeatureType: -1,
+        elevation: 500,
+        aridityPpm: 500_000,
+        riverClass: 0,
+        lakeMask: 0,
+        blockedMask: 1,
+        landMask: 1,
+      },
+    ]);
   });
 });

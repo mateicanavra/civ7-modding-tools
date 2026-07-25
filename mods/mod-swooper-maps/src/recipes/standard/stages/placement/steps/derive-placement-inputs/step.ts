@@ -14,6 +14,11 @@ import {
   captureEnginePlacementTypes,
 } from "../../../../current-engine-surface.js";
 import {
+  measureStandardNaturalWonderPlanInput,
+  STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY,
+  type StandardNaturalWonderPlanInputMeasurementInput,
+} from "../../../../metrics/families/placement/natural-wonder-plan-input.js";
+import {
   logNaturalWonderPlanInputRuntimeTelemetry,
   logNaturalWonderPlanRuntimeTelemetry,
 } from "../../log.js";
@@ -27,6 +32,11 @@ import { config } from "./config.js";
 type DerivePlacementInputsConfig = Static<typeof config.schema>;
 type DerivePlacementInputsOps = StepRuntimeOps<NonNullable<typeof config.ops>>;
 type PlanNaturalWondersOutput = Static<(typeof placement.wonders.ops.planNaturalWonders)["output"]>;
+type PlanNaturalWondersStrategySelection = Parameters<
+  DerivePlacementInputsOps["naturalWonders"]
+>[1];
+type StandardNaturalWonderPlannerInput =
+  StandardNaturalWonderPlanInputMeasurementInput["plannerInput"];
 
 type PlacementPhysicalInputs = {
   topography: {
@@ -62,12 +72,8 @@ type PlacementInputEngineEvidence = Readonly<{
 
 type PlacementInputsBuildResult = {
   naturalWonderPlan: PlanNaturalWondersOutput;
-  naturalWonderPlanSurfaces: {
-    terrainType: Int32Array;
-    biomeType: Int32Array;
-    featureType: Int32Array;
-    blockedMask: Uint8Array;
-  };
+  plannerInput: StandardNaturalWonderPlannerInput;
+  strategySelection: PlanNaturalWondersStrategySelection;
 };
 
 const FEATURE_VALID_TERRAIN_TYPE_INDICES =
@@ -159,42 +165,37 @@ function buildPlacementInputs(
   });
   const { terrainType, biomeType, featureType } = currentPlacementTypes;
   const naturalWonderBlockedMask = buildNaturalWonderBlockedMask(width, height);
-  const naturalWonderPlan = ops.naturalWonders(
-    {
-      width,
-      height,
-      wondersCount: wondersPlan.wondersCount,
-      landMask: physical.topography.landMask,
-      elevation: physical.topography.elevation,
-      aridityIndex: physical.climateIndices.aridityIndex,
-      riverClass: physical.hydrography.riverClass,
-      lakeMask: physical.lakePlan.lakeMask,
-      vegetationDensity: physical.biomeClassification.vegetationDensity,
-      effectiveMoisture: physical.climateIndices.effectiveMoisture,
-      surfaceTemperature: physical.climateIndices.surfaceTemperature,
-      fertility: physical.pedology.fertility,
-      discharge: physical.hydrography.discharge,
-      slopeClass: physical.hydrography.slopeClass,
-      coastTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST,
-      mountainTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_MOUNTAIN,
-      iceFeatureType: CIV7_BROWSER_TABLES_V0.featureTypes.FEATURE_ICE,
-      terrainType,
-      biomeType,
-      featureType,
-      noFeatureType: NO_FEATURE_TYPE,
-      naturalWonderBlockedMask,
-      featureCatalog,
-    },
-    stepConfig.naturalWonders
-  );
+  const plannerInput = {
+    width,
+    height,
+    wondersCount: wondersPlan.wondersCount,
+    landMask: physical.topography.landMask,
+    elevation: physical.topography.elevation,
+    aridityIndex: physical.climateIndices.aridityIndex,
+    riverClass: physical.hydrography.riverClass,
+    lakeMask: physical.lakePlan.lakeMask,
+    vegetationDensity: physical.biomeClassification.vegetationDensity,
+    effectiveMoisture: physical.climateIndices.effectiveMoisture,
+    surfaceTemperature: physical.climateIndices.surfaceTemperature,
+    fertility: physical.pedology.fertility,
+    discharge: physical.hydrography.discharge,
+    slopeClass: physical.hydrography.slopeClass,
+    coastTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST,
+    mountainTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_MOUNTAIN,
+    iceFeatureType: CIV7_BROWSER_TABLES_V0.featureTypes.FEATURE_ICE,
+    terrainType,
+    biomeType,
+    featureType,
+    noFeatureType: NO_FEATURE_TYPE,
+    naturalWonderBlockedMask,
+    featureCatalog,
+  } satisfies StandardNaturalWonderPlannerInput;
+  const strategySelection = stepConfig.naturalWonders;
+  const naturalWonderPlan = ops.naturalWonders(plannerInput, strategySelection);
   return {
     naturalWonderPlan,
-    naturalWonderPlanSurfaces: {
-      terrainType,
-      biomeType,
-      featureType,
-      blockedMask: naturalWonderBlockedMask,
-    },
+    plannerInput,
+    strategySelection,
   };
 }
 
@@ -238,7 +239,7 @@ export const DerivePlacementInputsStep = createStep(config, {
       },
       pedology: { fertility: pedology.fertility as Float32Array },
     };
-    const { naturalWonderPlan, naturalWonderPlanSurfaces } = buildPlacementInputs(
+    const { naturalWonderPlan, plannerInput, strategySelection } = buildPlacementInputs(
       context,
       stepConfig,
       ops,
@@ -254,22 +255,24 @@ export const DerivePlacementInputsStep = createStep(config, {
       }
     );
     deps.artifacts.naturalWonderPlan.publish(context, naturalWonderPlan);
-    logNaturalWonderPlanRuntimeTelemetry(naturalWonderPlan);
-    logNaturalWonderPlanInputRuntimeTelemetry({
-      dimensions: context.setup.dimensions,
+    const naturalWonderPlanInput = measureStandardNaturalWonderPlanInput({
+      plannerInput,
+      strategySelection,
       plan: naturalWonderPlan,
-      physical: {
-        topography: physical.topography,
-        hydrography: { riverClass: physical.hydrography.riverClass },
-        lakePlan: physical.lakePlan,
-        climateIndices: { aridityIndex: physical.climateIndices.aridityIndex },
-        naturalWonderPlanSurfaces,
-      },
     });
+    logNaturalWonderPlanRuntimeTelemetry(naturalWonderPlan);
+    logNaturalWonderPlanInputRuntimeTelemetry(naturalWonderPlanInput);
 
-    return naturalWonderPlan.placements;
+    return {
+      placements: naturalWonderPlan.placements,
+      naturalWonderPlanInput,
+    };
   },
-  viz: ({ result: placements, dimensions }) => {
+  metrics: ({ result }) => ({
+    [STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY]: result.naturalWonderPlanInput,
+  }),
+  viz: ({ result, dimensions }) => {
+    const { placements } = result;
     const positions = new Float32Array(placements.length * 2);
     const values = new Float32Array(placements.length);
     for (let i = 0; i < placements.length; i++) {
