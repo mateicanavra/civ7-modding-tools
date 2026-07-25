@@ -2,7 +2,7 @@
   "name": "@swooper/mapgen-diagnostics",
   "version": "0.1.0",
   "private": true,
-  "description": "Path-backed MapGen diagnostic capture, evidence reading, and diffing",
+  "description": "Path-backed MapGen diagnostic capture, JSON evidence publication, reading, and diffing",
   "type": "module",
   "exports": {
     ".": {
