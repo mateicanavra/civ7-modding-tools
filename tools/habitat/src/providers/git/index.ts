@@ -42,6 +42,7 @@ export interface GitProviderService {
   readonly remoteDefaultBranch: (options?: GitCommandOptions) => GitTextEffect;
   readonly mergeBase: (ref: string, options?: GitCommandOptions) => GitTextEffect;
   readonly show: (ref: string, repoPath: string, options?: GitCommandOptions) => GitTextEffect;
+  readonly showIndex: (repoPath: string, options?: GitCommandOptions) => GitTextEffect;
   readonly lsTreeNameOnly: (
     ref: string,
     repoPath: string,
@@ -98,7 +99,11 @@ function makeLiveGitProvider(repoRoot: string, runner: CommandRunnerService): Gi
 function providerFromCommand(command: GitProviderService["command"]): GitProviderService {
   const textOrNull = (effect: GitCommandEffect): GitTextEffect =>
     effect.pipe(
-      Effect.map((result) => (result.exit.code === 0 ? result.stdout.text.trim() || null : null)),
+      Effect.map((result) =>
+        result.exit.code === 0 && !result.stdout.truncated
+          ? result.stdout.text.trim() || null
+          : null
+      ),
       Effect.catchAll(() => Effect.succeed(null))
     );
   return {
@@ -134,6 +139,7 @@ function providerFromCommand(command: GitProviderService["command"]): GitProvide
       ),
     mergeBase: (ref, options) => textOrNull(command(["merge-base", "HEAD", ref], options)),
     show: (ref, repoPath, options) => textOrNull(command(["show", `${ref}:${repoPath}`], options)),
+    showIndex: (repoPath, options) => textOrNull(command(["show", `:${repoPath}`], options)),
     lsTreeNameOnly: (ref, repoPath, options) =>
       textOrNull(command(["ls-tree", "-r", "--name-only", ref, repoPath], options)).pipe(
         Effect.map((stdout) =>

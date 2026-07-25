@@ -755,6 +755,7 @@ describe("rule selector boundary", () => {
             lsTreeNameOnly: () => Effect.succeed(null),
             mergeBase: () => Effect.succeed(null),
             show: () => Effect.succeed(null),
+            showIndex: () => Effect.succeed(null),
           },
           ruleDiagnostics: { runRules },
           nx: { runMany: () => unrelatedFailure, runTarget: () => unrelatedFailure },

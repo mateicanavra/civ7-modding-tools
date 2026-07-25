@@ -496,7 +496,7 @@ export const stagedHookCheck = Effect.fn("hook.preCommit.stagedCheck")(function*
   const report = yield* context.createCheckReport({
     ...options,
     staged: true,
-    stagedPaths,
+    ...(phase === "source-check" ? { stagedPaths } : {}),
     command: checkCommandContext(argv),
   });
   const result = {

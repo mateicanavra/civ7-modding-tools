@@ -12,11 +12,16 @@ import {
   RuleRegistryIndexSchema,
   RuleRegistryRecordInputSchema,
 } from "../dto/registry.schema.ts";
+import {
+  isRuleManifestCandidatePath,
+  ruleManifestPathAdmissionIssues,
+} from "../policy/manifest-path-admission.policy.js";
 
 export type RuleRegistryIssueCode =
   | "registry-json-invalid"
   | "registry-schema-invalid"
   | "registry-duplicate-rule-id"
+  | "registry-owner-project-unknown"
   | "registry-missing-referenced-file";
 
 export interface RuleRegistryIssue {
@@ -100,6 +105,8 @@ export function parseRuleRegistryDocument(
   if (duplicateIssues.length > 0) return { ok: false, issues: duplicateIssues };
   const semanticsIssues = ruleRunnerSemanticsIssues(document.rules, sourcePath);
   if (semanticsIssues.length > 0) return { ok: false, issues: semanticsIssues };
+  const ownerIssues = unknownOwnerProjectIssues(document, sourcePath);
+  if (ownerIssues.length > 0) return { ok: false, issues: ownerIssues };
 
   return { ok: true, document };
 }
@@ -321,9 +328,9 @@ function ruleFilePaths<R>(
     const candidates = (yield* findFiles(
       registryDir,
       fileSystem,
-      isRuleRecordCandidatePath
+      isRuleManifestCandidatePath
     )).sort();
-    const issues = staleRuleRecordIssues(candidates);
+    const issues = registryManifestPathIssues(candidates);
     if (issues.length > 0) {
       return yield* Effect.fail(new RuleRegistryLoadFailed({ issues }));
     }
@@ -378,69 +385,19 @@ function ruleRegistryIndexPathSync(
 }
 
 function ruleFilePathsSync(registryDir: string, fileSystem: RuleRegistrySyncFileSystem): string[] {
-  const candidates = findFilesSync(registryDir, fileSystem, isRuleRecordCandidatePath).sort();
-  const issues = staleRuleRecordIssues(candidates);
+  const candidates = findFilesSync(registryDir, fileSystem, isRuleManifestCandidatePath).sort();
+  const issues = registryManifestPathIssues(candidates);
   if (issues.length > 0) throw new RuleRegistryLoadFailed({ issues });
   return candidates;
 }
 
-function isRuleRecordCandidatePath(filePath: string): boolean {
-  const fileName = filePath.split("/").at(-1);
-  return fileName === "rule.json" || Boolean(fileName?.endsWith(".rule.json"));
+function registryManifestPathIssues(paths: readonly string[]): RuleRegistryIssue[] {
+  return ruleManifestPathAdmissionIssues(paths).map(({ path: issuePath, message }) => ({
+    code: "registry-schema-invalid",
+    path: issuePath,
+    message,
+  }));
 }
-
-function staleRuleRecordIssues(paths: readonly string[]): RuleRegistryIssue[] {
-  return paths.flatMap((rulePath) => {
-    const issues: RuleRegistryIssue[] = [];
-    if (rulePath.endsWith(".rule.json")) {
-      issues.push({
-        code: "registry-schema-invalid",
-        path: rulePath,
-        message: "Rule manifest files must be named rule.json.",
-      });
-    }
-    if (usesStaleCategoryOperationPath(rulePath)) {
-      issues.push({
-        code: "registry-schema-invalid",
-        path: rulePath,
-        message:
-          "Rule packets must not use category/operation-kind path nesting; use .habitat/blueprints/<blueprint>/<packet>, _blueprints/<candidate>/<packet>, or rules/<packet>.",
-      });
-    }
-    return issues;
-  });
-}
-
-function usesStaleCategoryOperationPath(rulePath: string): boolean {
-  const segments = rulePath.split("/");
-  const blueprintIndex = segments.lastIndexOf("blueprints");
-  if (blueprintIndex < 0) return false;
-  const category = segments[blueprintIndex + 2];
-  const operationKind = segments[blueprintIndex + 3];
-  const packet = segments[blueprintIndex + 4];
-  const fileName = segments[blueprintIndex + 5];
-  return (
-    category !== undefined &&
-    operationKind !== undefined &&
-    packet !== undefined &&
-    fileName === "rule.json" &&
-    staleCategories.has(category) &&
-    staleOperationKinds.has(operationKind)
-  );
-}
-
-const staleCategories = new Set([
-  "boundary",
-  "structure",
-  "contract",
-  "execution",
-  "artifact",
-  "output",
-  "quality",
-  "policy",
-]);
-
-const staleOperationKinds = new Set(["check", "fix", "generate", "migrate", "triage"]);
 
 function findFiles<R>(
   root: string,
@@ -582,6 +539,20 @@ function duplicateRuleIdIssues(
       code: "registry-duplicate-rule-id",
       path: sourcePath,
       message: `Duplicate Habitat rule id: ${JSON.stringify(id)} in ${paths.join(", ")}.`,
+    }));
+}
+
+function unknownOwnerProjectIssues(
+  document: RuleRegistryDocument,
+  sourcePath: string
+): RuleRegistryIssue[] {
+  return document.rules
+    .map((rule, index) => ({ rule, index }))
+    .filter(({ rule }) => !Object.hasOwn(document.ownerRoots, rule.ownerProject))
+    .map(({ rule, index }) => ({
+      code: "registry-owner-project-unknown" as const,
+      path: `${sourcePath}/rules/${index}/ownerProject`,
+      message: `Rule "${rule.id}" declares unknown ownerProject "${rule.ownerProject}".`,
     }));
 }
 

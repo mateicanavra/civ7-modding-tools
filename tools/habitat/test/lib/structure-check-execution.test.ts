@@ -1,3 +1,4 @@
+import { captureOutput, makeHabitatCommandResult } from "@habitat/cli/resources/command/index";
 import { FileReadFailed } from "@habitat/cli/resources/errors/index";
 import type { HabitatDirectoryEntry, HabitatPathKind } from "@habitat/cli/resources/platform/index";
 import { executeSelectedRulesEffect } from "@habitat/cli/service/model/check/policy/structural/execution.policy";
@@ -9,6 +10,90 @@ import { describe, expect, test } from "vitest";
 const repoRoot = "/repo";
 
 describe("structure-check native execution", () => {
+  test("injects affirmed blueprint continuity into staged Habitat reports without a registry rule", async () => {
+    const baselinePath = ".habitat/baselines/sample-file-layer-rule.json";
+    const emptyFixture = {
+      files: new Map<string, string>([[`${repoRoot}/${baselinePath}`, "[]"]]),
+      directories: new Map<string, readonly HabitatDirectoryEntry[]>(),
+    };
+    const rules = ruleFactsCatalog({
+      schemaVersion: 2,
+      ownerRoots: { habitat: "tools/habitat" },
+      rules: [
+        {
+          id: "sample-file-layer-rule",
+          schemaVersion: 2,
+          title: "Sample File Layer Rule",
+          placement: {
+            niche: "fixtures",
+            blueprint: "_self",
+            category: "structure",
+          },
+          operation: { kind: "check" },
+          ownerProject: "habitat",
+          lane: "enforced",
+          forbids: "forbidden source filenames",
+          why: "The test needs one selected native Habitat rule.",
+          remediate: null,
+          message: "Remove the forbidden filename.",
+          supportFiles: { baseline: baselinePath },
+          pathCoverage: [{ kind: "workspace-gate" }],
+          forbiddenFileNames: ["forbidden.ts"],
+          runner: {
+            name: "habitat",
+            mode: "file-layer",
+            guard: "forbidden-file-name",
+          },
+        },
+      ],
+    });
+    const stagedResult = makeHabitatCommandResult(
+      {
+        commandId: "git-diff-name-status",
+        kind: "git-state",
+        executable: "git",
+        argv: ["diff", "--cached", "--name-status", "-z"],
+        cwd: repoRoot,
+      },
+      { stdout: captureOutput("M\0packages/example/src/index.ts\0") }
+    );
+
+    const report = await Effect.runPromise(
+      createCheckReportEffect(
+        { rule: "sample-file-layer-rule", staged: true },
+        {
+          baselineFileSystem: fileSystemPort(emptyFixture),
+          biome: { run: () => failIfCalled("biome") },
+          command: { run: () => failIfCalled("command") },
+          git: {
+            diffNameOnly: () => failIfCalled("git.diffNameOnly"),
+            diffNameStatus: () => Effect.succeed(stagedResult),
+            visiblePathInventory: () => failIfCalled("git.visiblePathInventory"),
+            lsTreeNameOnly: () => failIfCalled("git.lsTreeNameOnly"),
+            mergeBase: () => failIfCalled("git.mergeBase"),
+            show: () => failIfCalled("git.show"),
+            showIndex: () => failIfCalled("git.showIndex"),
+          },
+          ruleDiagnostics: { runRules: () => failIfCalled("ruleDiagnostics") },
+          nx: {
+            runMany: () => failIfCalled("nx.runMany"),
+            runTarget: () => failIfCalled("nx.runTarget"),
+          },
+          repoRoot,
+          rules,
+          structureFileSystem: fileSystemPort(emptyFixture),
+        }
+      )
+    );
+
+    expect(rules.selector.map(({ id }) => id)).toEqual(["sample-file-layer-rule"]);
+    expect(report.rules.map(({ ruleId }) => ruleId)).toEqual([
+      "sample-file-layer-rule",
+      "affirmed-blueprint-continuity",
+    ]);
+    expect(report.ok).toBe(true);
+  });
+
   test("executes selected structure rules with one Git inventory and no command, Grit, or Nx handoff", async () => {
     let inventoryCalls = 0;
     const fixture = {
@@ -84,6 +169,7 @@ required = ["src"]
             lsTreeNameOnly: () => failIfCalled("git.lsTreeNameOnly"),
             mergeBase: () => failIfCalled("git.mergeBase"),
             show: () => failIfCalled("git.show"),
+            showIndex: () => failIfCalled("git.showIndex"),
           },
           ruleDiagnostics: { runRules: () => failIfCalled("ruleDiagnostics") },
           nx: {
@@ -134,6 +220,7 @@ required = ["src"]
             lsTreeNameOnly: () => failIfCalled("git.lsTreeNameOnly"),
             mergeBase: () => failIfCalled("git.mergeBase"),
             show: () => failIfCalled("git.show"),
+            showIndex: () => failIfCalled("git.showIndex"),
           },
           ruleDiagnostics: { runRules: () => failIfCalled("ruleDiagnostics") },
           nx: {
@@ -224,6 +311,7 @@ required = ["src"]
             lsTreeNameOnly: () => failIfCalled("git.lsTreeNameOnly"),
             mergeBase: () => failIfCalled("git.mergeBase"),
             show: () => failIfCalled("git.show"),
+            showIndex: () => failIfCalled("git.showIndex"),
           },
           ruleDiagnostics: { runRules: () => failIfCalled("ruleDiagnostics") },
           nx: {

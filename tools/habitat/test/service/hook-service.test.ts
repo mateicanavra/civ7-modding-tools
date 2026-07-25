@@ -585,9 +585,13 @@ describe("Habitat hook service", () => {
 
   test("runs pre-commit through the in-process Habitat service router", async () => {
     const fake = makePreCommitFixture();
+    const checkRequests: CheckOptions[] = [];
     installStructuralCheckPolicy({
       createReport: (options = {}) =>
-        Effect.succeed(fileLayerPassingCheckReport(options.command?.serialized ?? "habitat check")),
+        Effect.sync(() => {
+          checkRequests.push(options);
+          return fileLayerPassingCheckReport(options.command?.serialized ?? "habitat check");
+        }),
     });
 
     const result = await Effect.runPromise(
@@ -637,6 +641,13 @@ describe("Habitat hook service", () => {
     );
     expect(result.stdout).toContain("habitat hook pre-commit: PASS\n");
     expect(fake.calls).toEqual([]);
+    expect(checkRequests).toEqual([
+      expect.objectContaining({
+        runner: "habitat",
+        staged: true,
+      }),
+    ]);
+    expect(checkRequests[0]).not.toHaveProperty("stagedPaths");
   });
 
   test("routes pre-commit Biome execution through the Biome provider", async () => {

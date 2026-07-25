@@ -29,15 +29,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** collapse Ecology feature planning onto its minimum real
-state model. Suitability is continuous pre-selection evidence; intents are the
-durable engine-independent product; Civ7 application and readback remain
-current projection evidence. Planning is an action, not a third artifact state,
-and cumulative occupancy snapshots are derivable coordination batons rather
-than products. The burn-down deletes those vintages and their hypothetical
-reservation surface, derives collision masks from already-admitted prior
-intents, and normalizes the surviving artifact identities without changing
-family order or moving engine mutation out of the projection boundary.
+**Current container:** lock affirmed blueprint identity at the commit boundary.
+Habitat compares HEAD with the staged index so a stable rule may move only
+within its owning blueprint and may retire only as one complete declared
+authority packet. Candidate-path admission is shared with the canonical
+registry, and Git path-action parsing fails closed. This guard must remain
+unregistered self-protection rather than becoming another rule that can demote
+itself.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -54,15 +52,11 @@ modules then stop importing framework issue/context types or allocating and
 threading their own issue arrays. This remains a dedicated semantic container,
 not a compatibility overload hidden inside the stage-plane move.
 
-**Gradient:** seal the feature-state collapse through exact artifact, step,
-test, metrics/live, and canonical-doc consumers. Then lock affirmed blueprint
-identity at the commit boundary by comparing HEAD with the staged index: a
-stable rule may move only within its owning blueprint, and retirement is valid
-only for the complete declared authority packet. With kind-law drift no longer
-able to pass a hook, continue the remaining diagnostics/live ownership audit,
-Placement and Resources test sieve, accurate Knip deletion, and JSDoc
-burn-down. The program ends only when generic laws, source tree, types, tests,
-Knip, and the boundary graph agree.
+**Gradient:** seal the reviewed continuity guard as one Habitat layer. With
+kind-law drift no longer able to pass a hook, continue the diagnostics/live
+ownership purification, Placement and Resources test sieve, accurate Knip
+deletion, and JSDoc burn-down. The program ends only when generic laws, source
+tree, types, tests, Knip, and the boundary graph agree.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty

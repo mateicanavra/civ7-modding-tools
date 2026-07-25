@@ -45,8 +45,9 @@ export {
 export { decisionDiagnostic } from "./policy/protected-zone-diagnostics.policy.js";
 export { runFileLayerProtectedMutationRule } from "./policy/protected-zone-file-layer.policy.js";
 export { evaluateProtectedMutationGuard } from "./policy/protected-zone-guard.policy.js";
+export type { StagedNameStatusParseResult } from "./policy/protected-zone-path-actions.policy.js";
 export {
-  modifiedStagedPaths,
-  stagedPathsFromNameStatus,
+  applyStagedPathActions,
+  parseStagedPathsFromNameStatus,
 } from "./policy/protected-zone-path-actions.policy.js";
 export { renderRecoveryInstruction } from "./policy/protected-zone-recovery.policy.js";

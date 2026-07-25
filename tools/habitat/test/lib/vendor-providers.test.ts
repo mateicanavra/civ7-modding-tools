@@ -146,6 +146,54 @@ describe("vendor providers", () => {
     });
   });
 
+  test("GitProvider reads exact blobs from the staged index", async () => {
+    const observed: string[][] = [];
+    const manifest = ".habitat/blueprints/domain/source-topology/rule.json";
+    const result = await Effect.runPromise(
+      GitProvider.pipe(
+        Effect.flatMap((git) => git.showIndex(manifest)),
+        Effect.provide(
+          makeFakeGitProviderLayer((argv, options) =>
+            recordGitCommand(observed, "git-state", "git", argv, options.cwd, '{"id":"rule"}\n')
+          )
+        )
+      )
+    );
+
+    expect(result).toBe('{"id":"rule"}');
+    expect(observed).toEqual([["show", `:${manifest}`]]);
+  });
+
+  test("GitProvider refuses truncated staged-index blobs", async () => {
+    const manifest = ".habitat/blueprints/domain/source-topology/rule.json";
+    const result = await Effect.runPromise(
+      GitProvider.pipe(
+        Effect.flatMap((git) => git.showIndex(manifest)),
+        Effect.provide(
+          makeFakeGitProviderLayer((_argv, _options) =>
+            makeHabitatCommandResult(
+              {
+                commandId: "git-state",
+                kind: "git-state",
+                executable: "git",
+                argv: [],
+                cwd: "/repo",
+              },
+              {
+                stdout: {
+                  ...captureOutput('{"id":"partial'),
+                  truncated: true,
+                },
+              }
+            )
+          )
+        )
+      )
+    );
+
+    expect(result).toBeNull();
+  });
+
   test("GraphiteProvider owns stack parent discovery", async () => {
     const observed: string[] = [];
     const result = await Effect.runPromise(

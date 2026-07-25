@@ -1,4 +1,5 @@
 export * from "./dto/registry.schema.js";
+export * from "./policy/affirmed-blueprint-continuity.policy.js";
 export * from "./policy/authority-paths.policy.js";
 export * from "./policy/catalog.policy.js";
 export * from "./policy/facts.policy.js";
