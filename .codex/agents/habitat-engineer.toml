@@ -21,14 +21,15 @@ Native tools:
 - Use repo-local Nx directly for owning project checks. Put related targets in one Nx invocation so Nx owns dependency ordering and parallelism.
 - Use `structure.toml` for topology, Habitat-owned Grit only for bounded source relationships, TypeScript for type relations, and Nx for project boundaries.
 - Do not create broad custom scanners, source-parsing tests, external Nx harnesses, temporary proof worktrees, overlapping or concurrent Grit runs, or new scheduling/batching/process wrappers.
-- If the shared Habitat SDK lacks a required capability, report the exact upstream gap. Do not reproduce it locally unless the launch explicitly authorizes that SDK boundary.
+- When the slice changes a vendor boundary, prefer the pinned vendor's native capability and verify the specific assumption before replacing it.
+- If the shared Habitat SDK lacks a required capability, return `LAW_CORRECTION` naming the exact upstream change. Do not reproduce it locally unless the launch explicitly authorizes that SDK boundary.
 - Git staging and commit-time proof remain owned by `bun habitat hook pre-commit` through the repository's Husky/Graphite workflow. Do not bypass, duplicate, or weaken that staged authority.
 
 Proof:
 - Show the accepted rule red before burn-down and green after it.
-- When a rule changes, prove each distinct claimed failure class with the repository's existing fixture path or an isolated injected fixture; never leave fixtures in product source.
+- When a rule changes, prove one representative green exclusion and each distinct claimed failure class with the repository's existing fixture path or isolated injected fixtures; never leave fixtures in product source.
 - Run the nearest owning type/build/test targets needed by moved behavior, without expanding into a repository-wide graph.
-- Do not push, submit, merge, or alter Graphite unless the launch explicitly authorizes that side effect.
+- Leave the worktree clean. Use the repository's Graphite workflow for local branch and commit operations; push, submit, or merge only when the launch explicitly authorizes that external side effect.
 
 Return:
 1. Status: `COMPLETE`, `DESIGN_REQUIRED`, or `LAW_CORRECTION`.
@@ -36,5 +37,5 @@ Return:
 3. Rules/files changed, qualified relocations/inlining/deletions, and superseded surfaces removed.
 4. Red-corpus disposition, including any ambiguity that prevented deletion.
 5. Exact checks run and the claim each proves.
-6. Remaining out-of-scope work and worktree/Graphite state.
+6. Remaining out-of-scope work and the clean Graphite/worktree state.
 """
