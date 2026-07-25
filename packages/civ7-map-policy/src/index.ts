@@ -64,6 +64,7 @@ export {
   OFFICIAL_RESOURCE_CORPUS_ARTIFACT,
   OFFICIAL_RESOURCE_TYPE_ORDER,
 } from "./resources/index.js";
+export { resolveMapResourceMinimumAmountModifier } from "./resources/map-minimum-modifier.js";
 export {
   getUnconditionalResourceRequirementBasisForAge,
   type UnconditionalResourceRequirementBasis,

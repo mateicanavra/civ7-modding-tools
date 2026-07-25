@@ -1,3 +1,4 @@
+export { resolveMapResourceMinimumAmountModifier } from "./map-minimum-modifier.js";
 export {
   OFFICIAL_RESOURCE_BY_TYPE,
   OFFICIAL_RESOURCE_CORPUS,
