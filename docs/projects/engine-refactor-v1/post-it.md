@@ -29,14 +29,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** restore the already-declared closed recipe-step kind
-before parity composition can depend on it. Every step leaf contains required
-`config.ts` and `step.ts`, plus optional `viz.ts` only when the executable step
-attaches a substantial pure visualization projection. Step-private execution is
-inlined, while reusable logic, immutable products, diagnostics, metrics, and
-policy move to their actual owners. The generic blueprint defines this shape
-first, its full red corpus is burned down, and the zero-violation tree seals
-before the live-parity split resumes.
+**Current container:** establish one coherent typed Civ7 surface observation
+before Standard parity composition depends on it. Direct Control owns the
+bounded read atoms and their single-session aggregate: full-grid chunks, native
+river objects, explicit missing-plot evidence, and physical connection, map
+identity, and turn stability. It does not own Standard recipe interpretation,
+thresholds, comparison claims, or reports. The observation owner seals first;
+then Standard parity may consume that admitted evidence without parsing raw
+Tuner output or recreating Civ7 reads.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -53,14 +53,14 @@ modules then stop importing framework issue/context types or allocating and
 threading their own issue arrays. This remains a dedicated semantic container,
 not a compatibility overload hidden inside the stage-plane move.
 
-**Gradient:** close the recipe-step blueprint, classify every loose member by
-intent, and burn the corpus to zero without creating another helper cabinet.
-Then resume the already-reviewed capability split: coherent Civ7 observation,
-generic evidence publication, typed Standard parity, monolith deletion, and one
-thin live command proof. Continue with the Placement and Resources test sieve,
-accurate Knip deletion, and JSDoc burn-down only after those containers seal.
-The program ends only when generic laws, source tree, types, tests, Knip, and
-the boundary graph agree.
+**Gradient:** finish and prove the coherent Civ7 observation without admitting
+product semantics into Direct Control. Then compose typed Standard replay,
+exact-authorship evidence, live observation, and product-owned comparisons;
+cut the live command down to acquisition/orchestration/publication; delete the
+legacy parity monolith in the same sealed layer. Continue with the Placement
+and Resources test sieve, accurate Knip deletion, and JSDoc burn-down only
+after those containers seal. The program ends only when generic laws, source
+tree, types, tests, Knip, and the boundary graph agree.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -95,6 +95,16 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-25 - Closed Recipe-Step Kind
+
+The generic recipe-step blueprint was restored as a closed positive kind:
+every step leaf owns `config.ts` and `step.ts`, with `viz.ts` admitted only when
+the executable attaches it as a first-class visualization facet. Loose helper,
+rule, input, materialization, and telemetry cabinets were inlined, deleted, or
+relocated to qualified policy and stage-support owners; the stale
+placement-specific shape rule retired after the generic law and focused
+behavior proofs reached zero.
 
 ### 2026-07-24 - Domain Test Ownership
 

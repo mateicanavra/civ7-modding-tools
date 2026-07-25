@@ -13,14 +13,22 @@ type SharedSessionServer = Readonly<{
   port: number;
   connections: () => number;
   finReceived: () => boolean;
+  received: () => ReadonlyArray<
+    Readonly<{
+      connection: number;
+      message: string;
+    }>
+  >;
   close: () => Promise<void>;
 }>;
 
 type SharedSessionServerOptions = Readonly<{
   endAfterFirstCommand?: boolean;
+  endAfterFirstStateQuery?: boolean;
   holdFirstFinOpen?: boolean;
   silent?: boolean;
   silentCommands?: readonly string[];
+  tunerStateIdsByConnection?: readonly string[];
 }>;
 
 const openServers: Array<() => Promise<void>> = [];
@@ -102,6 +110,7 @@ describe("caller-owned shared tuner session", () => {
     const server = await startSharedSessionServer({ endAfterFirstCommand: true });
     const session = new Civ7DirectControlSession({ host: "127.0.0.1", port: server.port });
     try {
+      expect(session.connectionEpoch).toBe(0);
       await expect(
         executeCiv7Command({
           port: server.port,
@@ -110,8 +119,10 @@ describe("caller-owned shared tuner session", () => {
           timeoutMs: 1_000,
         })
       ).resolves.toMatchObject({ output: ["null"] });
+      expect(session.connectionEpoch).toBe(1);
       await new Promise((resolve) => setTimeout(resolve, 20));
       expect(session.endpoint).toBeUndefined();
+      expect(session.connectionEpoch).toBe(1);
       await expect(
         executeCiv7Command({
           port: server.port,
@@ -122,6 +133,51 @@ describe("caller-owned shared tuner session", () => {
       ).resolves.toMatchObject({ output: ["null"] });
 
       expect(server.connections()).toBe(2);
+      expect(session.connectionEpoch).toBe(2);
+    } finally {
+      await session.close();
+    }
+  });
+
+  test("never sends a state selected on one connection through a replacement connection", async () => {
+    const server = await startSharedSessionServer({
+      endAfterFirstStateQuery: true,
+      tunerStateIdsByConnection: ["1", "2"],
+    });
+    const session = new Civ7DirectControlSession({ host: "127.0.0.1", port: server.port });
+    try {
+      await expect(
+        executeCiv7Command({
+          port: server.port,
+          session,
+          command: "first",
+          state: { role: "tuner" },
+          timeoutMs: 1_000,
+        })
+      ).rejects.toMatchObject({
+        code: "socket-closed",
+      });
+
+      await expect(
+        executeCiv7Command({
+          port: server.port,
+          session,
+          command: "second",
+          state: { role: "tuner" },
+          timeoutMs: 1_000,
+        })
+      ).resolves.toMatchObject({
+        state: { id: "2", name: "Tuner" },
+        output: ["null"],
+      });
+
+      expect(server.connections()).toBe(2);
+      expect(
+        server
+          .received()
+          .filter(({ connection }) => connection === 2)
+          .map(({ message }) => message)
+      ).toEqual(["LSQ:", "CMD:2:second"]);
     } finally {
       await session.close();
     }
@@ -233,6 +289,7 @@ async function startSharedSessionServer(
   let commands = 0;
   let finReceived = false;
   const sockets = new Set<Socket>();
+  const received: Array<Readonly<{ connection: number; message: string }>> = [];
 
   const server = createServer({ allowHalfOpen: options.holdFirstFinOpen === true }, (socket) => {
     connections += 1;
@@ -255,12 +312,16 @@ async function startSharedSessionServer(
         const listenerId = buffer.readUInt32LE(4);
         const message = buffer.subarray(8, bytesRead).toString("utf8").replace(/\0$/, "");
         buffer = buffer.subarray(bytesRead);
+        received.push({ connection: connectionNumber, message });
 
         if (options.silent) continue;
         const isSilent = options.silentCommands?.some((command) => message.includes(`:${command}`));
         if (isSilent) continue;
         if (message === "LSQ:") {
-          socket.write(encodeResponse(listenerId, ["65535", "App UI", "1", "Tuner"]));
+          const tunerStateId = options.tunerStateIdsByConnection?.[connectionNumber - 1] ?? "1";
+          const response = encodeResponse(listenerId, ["65535", "App UI", tunerStateId, "Tuner"]);
+          if (options.endAfterFirstStateQuery && connectionNumber === 1) socket.end(response);
+          else socket.write(response);
         } else {
           commands += 1;
           const response = encodeResponse(listenerId, ["null"]);
@@ -287,6 +348,7 @@ async function startSharedSessionServer(
     port: (server.address() as { port: number }).port,
     connections: () => connections,
     finReceived: () => finReceived,
+    received: () => received,
     close,
   };
 }

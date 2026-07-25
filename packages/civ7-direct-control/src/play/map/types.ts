@@ -288,11 +288,36 @@ export type Civ7MapGridReadChunk = Readonly<{
   omitted: number;
 }>;
 
+/**
+ * Identity evidence available to bounded map reads.
+ *
+ * Wire fields identify the physical socket acquisition, endpoint, and selected
+ * Tuner state. They intentionally do not claim an operating-system process
+ * identity, which the FireTuner protocol does not expose.
+ */
+export type Civ7MapReadIdentityField =
+  | "wire.connectionEpoch"
+  | "wire.endpoint.host"
+  | "wire.endpoint.port"
+  | "wire.tunerState.id"
+  | "wire.tunerState.name"
+  | "map.width"
+  | "map.height"
+  | "map.plotCount"
+  | "map.randomSeed"
+  | "game.turn";
+
+/**
+ * Evidence that a bounded full-grid read retained one observable wire and map
+ * identity at one turn for its complete observation window.
+ */
 export type Civ7FullMapGridIdentityCheck = Readonly<{
-  stable: boolean;
-  checked: ReadonlyArray<string>;
+  stable: true;
+  connectionEpoch: number;
+  checked: ReadonlyArray<Civ7MapReadIdentityField>;
 }>;
 
+/** Parameters for reading all requested fields over a bounded Civ7 map area. */
 export type Civ7FullMapGridInput = Readonly<{
   bounds?: Civ7MapBounds;
   fields: ReadonlyArray<Civ7PlotSnapshotField>;
@@ -301,6 +326,10 @@ export type Civ7FullMapGridInput = Readonly<{
   maxPlotsPerRead?: number;
 }>;
 
+/**
+ * Complete bounded grid readback with explicit omissions and the identity
+ * evidence that admits the chunks as one coherent observation.
+ */
 export type Civ7FullMapGridResult = Readonly<{
   host: string;
   port: number;

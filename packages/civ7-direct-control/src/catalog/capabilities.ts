@@ -347,6 +347,19 @@ const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> 
     confidence: "recorded-live-proof",
   },
   {
+    id: "wrapper.map-surface-observation",
+    name: "Coherent Map Surface Observation",
+    role: "tuner",
+    kind: "read-wrapper",
+    owner: "@civ7/direct-control",
+    risk: "read",
+    provenance: ["GameplayMap", "MapRivers", "Game"],
+    wrapper: "getCiv7MapSurfaceObservation",
+    confidence: "source",
+    description:
+      "Reads the full map grid and native river objects in one bounded direct-control session, shapes explicit missing-plot evidence, and refuses changes to the physical connection epoch, endpoint, Tuner state, map identity, or turn.",
+  },
+  {
     id: "wrapper.resource-placement-feasibility",
     name: "Resource Placement Feasibility",
     role: "tuner",

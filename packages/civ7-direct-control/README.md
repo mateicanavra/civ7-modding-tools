@@ -41,6 +41,7 @@ import {
   generateCiv7CapabilityCatalog,
   getCiv7AppUiSnapshot,
   getCiv7GameInfoRows,
+  getCiv7MapSurfaceObservation,
   getCiv7MapSummary,
   getCiv7PlayableStatus,
   getCiv7PlotSnapshot,
@@ -70,6 +71,14 @@ const map = await getCiv7MapSummary();
 const plot = await getCiv7PlotSnapshot({ x: 32, y: 33, playerId: 0 });
 const visibility = await getCiv7VisibilitySummary({ playerId: 0 });
 const resources = await getCiv7GameInfoRows({ table: "Resources", limit: 10 });
+const surface = await getCiv7MapSurfaceObservation({
+  fullGrid: {
+    fields: ["terrain", "biome", "feature", "resource", "hydrology"],
+    includeHidden: true,
+    maxPlotsPerRead: 512,
+  },
+  nativeRiverObjects: { maxSamples: 16 },
+});
 const catalog = await generateCiv7CapabilityCatalog();
 
 const unitId = { owner: 0, id: 65536, type: 26 };
@@ -85,6 +94,18 @@ if (canSkip.valid) {
 `getCiv7AppUiSnapshot()` is read-only and covers the stable developer status
 surface: network/session status, autoplay properties, turn/date, UI loading
 state, local player ids, alive player ids, and map dimensions.
+
+`getCiv7MapSurfaceObservation()` is the aggregate read for full-surface
+comparison consumers. One direct-control session owns its bounded full-grid
+chunks, native `MapRivers` readback, and closing identity summary. It rejects
+changes to the physical connection epoch, endpoint, Tuner state, map identity,
+or turn;
+exposes plots by verified row-major Civ7 index; and retains absent plot indices
+as explicit `null`/missing evidence. This is one bounded compound read with no
+polling, retry, waiting, or mutation. It does not claim an atomic engine
+snapshot or operating-system process identity.
+The lower-level full-grid and native-river reads remain available for callers
+that do not need a coherent aggregate window.
 
 First-class wrappers now cover:
 

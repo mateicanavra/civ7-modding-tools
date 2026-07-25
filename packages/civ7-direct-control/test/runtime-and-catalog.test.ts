@@ -444,6 +444,13 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
             id: "wrapper.map-summary",
             provenance: expect.arrayContaining(["Configuration.getMap"]),
           }),
+          expect.objectContaining({
+            id: "wrapper.map-surface-observation",
+            kind: "read-wrapper",
+            owner: "@civ7/direct-control",
+            confidence: "source",
+            risk: "read",
+          }),
         ])
       );
       expect(runtimeCatalog).toMatchObject({
