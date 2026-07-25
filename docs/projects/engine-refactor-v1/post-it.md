@@ -29,14 +29,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** establish one coherent typed Civ7 surface observation
-before Standard parity composition depends on it. Direct Control owns the
-bounded read atoms and their single-session aggregate: full-grid chunks, native
-river objects, explicit missing-plot evidence, and physical connection, map
-identity, and turn stability. It does not own Standard recipe interpretation,
-thresholds, comparison claims, or reports. The observation owner seals first;
-then Standard parity may consume that admitted evidence without parsing raw
-Tuner output or recreating Civ7 reads.
+**Current container:** compose one honest Standard parity result from exact
+authorship, deterministic replay, and one coherent live Civ7 observation. The
+recipe owns causal product measurements; Studio preserves their raw payloads;
+manifest correlation issues the only replay authority; Direct Control owns the
+wire/map/turn-stable observation. Known contradictions remain visible beside
+missing evidence, and unsupported cross-window game-instance identity blocks
+closure rather than being inferred from seeds, turns, dimensions, or hashes.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -53,14 +52,14 @@ modules then stop importing framework issue/context types or allocating and
 threading their own issue arrays. This remains a dedicated semantic container,
 not a compatibility overload hidden inside the stage-plane move.
 
-**Gradient:** finish and prove the coherent Civ7 observation without admitting
-product semantics into Direct Control. Then compose typed Standard replay,
-exact-authorship evidence, live observation, and product-owned comparisons;
-cut the live command down to acquisition/orchestration/publication; delete the
-legacy parity monolith in the same sealed layer. Continue with the Placement
-and Resources test sieve, accurate Knip deletion, and JSDoc burn-down only
-after those containers seal. The program ends only when generic laws, source
-tree, types, tests, Knip, and the boundary graph agree.
+**Gradient:** seal the typed Standard parity model and its exact natural-wonder
+planner-input measurement. Then cut the live command down to diagnostics
+acquisition, correlated replay, one Direct Control observation, report
+composition, and atomic publication; delete the legacy parity monolith and its
+duplicate test owner in that same layer. Continue with the Placement and
+Resources test sieve, accurate Knip deletion, and JSDoc burn-down only after
+those containers seal. The program ends only when generic laws, source tree,
+types, tests, Knip, and the boundary graph agree.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
