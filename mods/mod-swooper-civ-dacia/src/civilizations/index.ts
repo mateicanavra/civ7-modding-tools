@@ -10,7 +10,7 @@ import { dacia } from "@civilizations/dacia";
 import { extractComponents } from "@utils";
 
 // Collect all civilization packages
-export const civilizationPackages = [dacia];
+const civilizationPackages = [dacia];
 
 // Extract and export components
 const {

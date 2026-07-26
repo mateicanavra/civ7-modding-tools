@@ -36,8 +36,8 @@ const RUNTIME_LEASE_LOCK_TIMEOUT_MS = 2_000;
 const RUNTIME_LEASE_LOCK_STALE_MS = 30_000;
 const DAEMON_HEARTBEAT_TTL_MS = 10_000;
 const DAEMON_HEARTBEAT_INTERVAL_MS = 1_000;
-export const RUN_WORKSPACE_RETENTION_MS = 72 * 60 * 60 * 1_000;
-export const RUN_WORKSPACE_RETENTION_MIN_TERMINAL_OPERATIONS = 100;
+const RUN_WORKSPACE_RETENTION_MS = 72 * 60 * 60 * 1_000;
+const RUN_WORKSPACE_RETENTION_MIN_TERMINAL_OPERATIONS = 100;
 const RUN_IN_GAME_RECORD_PHASES = new Set<RunInGameInternalOperation["phase"]>([
   "accepted",
   "materializing",
@@ -142,7 +142,7 @@ type TerminalRunOperationRecord = RunOperationRecordBase &
     terminalOutcome: Exclude<RunInGameInternalOperation["status"], "running">;
   }>;
 
-export type RunOperationRecord = RunningRunOperationRecord | TerminalRunOperationRecord;
+type RunOperationRecord = RunningRunOperationRecord | TerminalRunOperationRecord;
 
 type AbandonedRunOperationRecord =
   | Readonly<{

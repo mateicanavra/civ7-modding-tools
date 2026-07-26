@@ -364,7 +364,7 @@ export interface VoronoiSite extends VoronoiPoint2D {
   voronoiId?: number;
 }
 
-export interface VoronoiHalfEdge {
+interface VoronoiHalfEdge {
   getStartpoint(): VoronoiPoint2D;
   getEndpoint(): VoronoiPoint2D;
 }

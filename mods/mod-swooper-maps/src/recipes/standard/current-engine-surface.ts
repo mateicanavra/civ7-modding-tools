@@ -1,12 +1,5 @@
 type MapDimensions = Readonly<{ width: number; height: number }>;
 
-/** Detached full-width adapter observation retained for placement visualization. */
-export type EngineHeightfieldObservation = Readonly<{
-  terrain: Int32Array;
-  elevation: Int16Array;
-  landMask: Uint8Array;
-}>;
-
 /** Narrow current engine heightfield captured for terrain/elevation parity. */
 export type CurrentEngineHeightfield = Readonly<{
   width: number;

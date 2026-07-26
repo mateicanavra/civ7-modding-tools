@@ -29,7 +29,7 @@ import type {
   HookPrePushInput,
 } from "@habitat/cli/service/modules/hook/contract";
 import type { HookResourcePolicy } from "@habitat/cli/service/modules/hook/model/policy/runtime.policy";
-import { hookRouter } from "@habitat/cli/service/modules/hook/router";
+import { router as hookRouter } from "@habitat/cli/service/modules/hook/router";
 import { Effect, Layer, Match, Option } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { beforeEach, describe, expect, test, vi } from "vitest";

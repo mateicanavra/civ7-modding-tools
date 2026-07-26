@@ -17,7 +17,7 @@ const Civ7DiplomacyResponseInputSchema = Type.Object(
 );
 export type Civ7DiplomacyResponseInput = Static<typeof Civ7DiplomacyResponseInputSchema>;
 
-export const Civ7DiplomacyResponsePostconditionClassificationSchema = Type.Union([
+const Civ7DiplomacyResponsePostconditionClassificationSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("turn-unblocked"),
   Type.Literal("diplomacy-blocker-cleared"),
@@ -27,7 +27,7 @@ export const Civ7DiplomacyResponsePostconditionClassificationSchema = Type.Union
   Type.Literal("missing-postcondition"),
 ]);
 
-export const Civ7DiplomacyResponseProofOutcomeSchema = Type.Union([
+const Civ7DiplomacyResponseProofOutcomeSchema = Type.Union([
   Type.Literal("cleared"),
   Type.Literal("state-changed"),
   Type.Literal("still-blocked"),
@@ -37,13 +37,13 @@ export const Civ7DiplomacyResponseProofOutcomeSchema = Type.Union([
   Type.Literal("unknown"),
 ]);
 
-export const Civ7DiplomacyResponseRequestStatusSchema = Type.Union([
+const Civ7DiplomacyResponseRequestStatusSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("sent-confirmed"),
   Type.Literal("sent-unverified"),
 ]);
 
-export const Civ7DiplomacyResponseValidationSummarySchema = Type.Object(
+const Civ7DiplomacyResponseValidationSummarySchema = Type.Object(
   {
     beforeValid: Type.Boolean(),
     afterValid: Type.Boolean(),
@@ -51,7 +51,7 @@ export const Civ7DiplomacyResponseValidationSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7DiplomacyResponsePostconditionSummarySchema = Type.Object(
+const Civ7DiplomacyResponsePostconditionSummarySchema = Type.Object(
   {
     classification: Civ7DiplomacyResponsePostconditionClassificationSchema,
     reason: Type.String(),
@@ -67,7 +67,7 @@ export const Civ7DiplomacyResponsePostconditionSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7DiplomacyResponseNextStepSchema = Type.Object(
+const Civ7DiplomacyResponseNextStepSchema = Type.Object(
   {
     kind: Type.Union([
       Type.Literal("refresh-attention"),
@@ -105,7 +105,7 @@ const Civ7FirstMeetResponseInputSchema = Type.Object(
 );
 export type Civ7FirstMeetResponseInput = Static<typeof Civ7FirstMeetResponseInputSchema>;
 
-export const Civ7FirstMeetResponsePostconditionClassificationSchema = Type.Union([
+const Civ7FirstMeetResponsePostconditionClassificationSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("turn-unblocked"),
   Type.Literal("first-meet-cleared"),
@@ -115,7 +115,7 @@ export const Civ7FirstMeetResponsePostconditionClassificationSchema = Type.Union
   Type.Literal("missing-postcondition"),
 ]);
 
-export const Civ7FirstMeetResponseProofOutcomeSchema = Type.Union([
+const Civ7FirstMeetResponseProofOutcomeSchema = Type.Union([
   Type.Literal("cleared"),
   Type.Literal("state-changed"),
   Type.Literal("still-blocked"),
@@ -123,13 +123,13 @@ export const Civ7FirstMeetResponseProofOutcomeSchema = Type.Union([
   Type.Literal("unknown"),
 ]);
 
-export const Civ7FirstMeetResponseRequestStatusSchema = Type.Union([
+const Civ7FirstMeetResponseRequestStatusSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("sent-confirmed"),
   Type.Literal("sent-unverified"),
 ]);
 
-export const Civ7FirstMeetResponseValidationSummarySchema = Type.Object(
+const Civ7FirstMeetResponseValidationSummarySchema = Type.Object(
   {
     beforeValid: Type.Boolean(),
     afterValid: Type.Boolean(),
@@ -137,7 +137,7 @@ export const Civ7FirstMeetResponseValidationSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7FirstMeetResponsePostconditionSummarySchema = Type.Object(
+const Civ7FirstMeetResponsePostconditionSummarySchema = Type.Object(
   {
     classification: Civ7FirstMeetResponsePostconditionClassificationSchema,
     reason: Type.String(),
@@ -149,7 +149,7 @@ export const Civ7FirstMeetResponsePostconditionSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7FirstMeetResponseNextStepSchema = Type.Object(
+const Civ7FirstMeetResponseNextStepSchema = Type.Object(
   {
     kind: Type.Union([
       Type.Literal("refresh-attention"),
@@ -186,41 +186,39 @@ const Civ7FirstMeetResponseResultStandardSchema = toStandardSchema(
   Civ7FirstMeetResponseResultSchema
 );
 
-export type Civ7DiplomacyResponseContract = ContractProcedure<
+type Civ7DiplomacyResponseContract = ContractProcedure<
   typeof Civ7DiplomacyResponseInputStandardSchema,
   typeof Civ7DiplomacyResponseResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7DiplomacyResponseContract: Civ7DiplomacyResponseContract =
-  civ7ControlOrpcContractBase
-    .input(Civ7DiplomacyResponseInputStandardSchema)
-    .output(Civ7DiplomacyResponseResultStandardSchema)
-    .meta({
-      family: "diplomacy",
-      procedureKey: "diplomacy.response.request",
-      proofBoundary: "local-package-test",
-      risk: "mutation",
-    });
+const Civ7DiplomacyResponseContract: Civ7DiplomacyResponseContract = civ7ControlOrpcContractBase
+  .input(Civ7DiplomacyResponseInputStandardSchema)
+  .output(Civ7DiplomacyResponseResultStandardSchema)
+  .meta({
+    family: "diplomacy",
+    procedureKey: "diplomacy.response.request",
+    proofBoundary: "local-package-test",
+    risk: "mutation",
+  });
 
-export type Civ7FirstMeetResponseContract = ContractProcedure<
+type Civ7FirstMeetResponseContract = ContractProcedure<
   typeof Civ7FirstMeetResponseInputStandardSchema,
   typeof Civ7FirstMeetResponseResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7FirstMeetResponseContract: Civ7FirstMeetResponseContract =
-  civ7ControlOrpcContractBase
-    .input(Civ7FirstMeetResponseInputStandardSchema)
-    .output(Civ7FirstMeetResponseResultStandardSchema)
-    .meta({
-      family: "diplomacy",
-      procedureKey: "diplomacy.firstMeet.response.request",
-      proofBoundary: "local-package-test",
-      risk: "mutation",
-    });
+const Civ7FirstMeetResponseContract: Civ7FirstMeetResponseContract = civ7ControlOrpcContractBase
+  .input(Civ7FirstMeetResponseInputStandardSchema)
+  .output(Civ7FirstMeetResponseResultStandardSchema)
+  .meta({
+    family: "diplomacy",
+    procedureKey: "diplomacy.firstMeet.response.request",
+    proofBoundary: "local-package-test",
+    risk: "mutation",
+  });
 
 export type Civ7DiplomacyContract = Readonly<{
   firstMeet: Readonly<{

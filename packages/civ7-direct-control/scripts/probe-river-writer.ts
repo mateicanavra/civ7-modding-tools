@@ -99,7 +99,7 @@ Options:
   --output <path>                  Write full probe JSON to path
 `;
 
-export function parseArgs(argv: string[]): Args {
+function parseArgs(argv: string[]): Args {
   const args: {
     host?: string;
     port?: number;

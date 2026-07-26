@@ -17,7 +17,7 @@ const FERTILITY_RADIUS_TILES = 2;
 const CLIMATE_TAIL_SHARE = 0.1;
 
 /** Completed player allocation and seating evidence for one authored homeland slot. */
-export type StandardHomelandRegionMeasurement = Readonly<{
+type StandardHomelandRegionMeasurement = Readonly<{
   regionSlot: 1 | 2;
   landTileCount: number;
   requestedStartCount: number;
@@ -29,7 +29,7 @@ export type StandardHomelandRegionMeasurement = Readonly<{
 }>;
 
 /** Completed seating share relative to modeled land area on one landmass. */
-export type StandardStartLandmassMeasurement = Readonly<{
+type StandardStartLandmassMeasurement = Readonly<{
   landmassId: number;
   landTileCount: number;
   seatedStartCount: number;
@@ -39,7 +39,7 @@ export type StandardStartLandmassMeasurement = Readonly<{
 }>;
 
 /** Nearest-neighbor dispersion relative to even spacing over the modeled land area. */
-export type StandardStartSpreadMeasurement = Readonly<{
+type StandardStartSpreadMeasurement = Readonly<{
   startCount: number;
   landTileCount: number;
   meanNearestNeighborSpacing: number;

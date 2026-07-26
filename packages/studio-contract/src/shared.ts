@@ -31,15 +31,3 @@ export function contractSchema<TypeSchema extends TSchema>(
 ) {
   return toStandardSchema(schema, options);
 }
-
-/**
- * The uniform failure body most endpoints emit: `{ ok: false, error }`.
- * Procedure-specific transport errors are declared in `errors.ts`.
- */
-export const errorEnvelopeSchema = Type.Object(
-  {
-    ok: Type.Literal(false),
-    error: Type.String(),
-  },
-  { additionalProperties: false }
-);

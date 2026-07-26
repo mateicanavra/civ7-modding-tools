@@ -28,7 +28,3 @@ export const RESOURCE_CLASS = {
    */
   NONE: "NO_RESOURCECLASS",
 } as const;
-
-export type ResourceClass = (typeof RESOURCE_CLASS)[keyof typeof RESOURCE_CLASS];
-
-export default RESOURCE_CLASS;

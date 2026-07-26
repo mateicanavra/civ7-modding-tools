@@ -39,7 +39,7 @@ const CIV7_OPERATION_LIVE_PROOF_CLASSES = new Set<Civ7OperationProofClass>([
   "in-game-observation",
 ]);
 
-export type Civ7OperationProofTelemetrySlot = (typeof CIV7_OPERATION_PROOF_TELEMETRY_SLOTS)[number];
+type Civ7OperationProofTelemetrySlot = (typeof CIV7_OPERATION_PROOF_TELEMETRY_SLOTS)[number];
 
 export type Civ7OperationProofClass =
   | "local-package-test"
@@ -80,14 +80,14 @@ export type Civ7OperationTelemetryEvidence<T = unknown> = Readonly<{
   value: T;
 }>;
 
-export type Civ7OperationTelemetryCandidateAction = Readonly<{
+type Civ7OperationTelemetryCandidateAction = Readonly<{
   id: string;
   label?: string;
   source: string;
   risk: "read" | "mutation" | "setup" | "debug";
 }>;
 
-export type Civ7OperationTelemetrySendReceipt = Readonly<{
+type Civ7OperationTelemetrySendReceipt = Readonly<{
   status: "not-attempted" | "sent" | "not-sent" | "send-failed";
   requestFamily?: string;
   receipt?: Civ7OperationTelemetryEvidence;

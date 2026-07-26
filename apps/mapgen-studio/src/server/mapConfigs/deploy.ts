@@ -4,7 +4,7 @@ export type SwooperMapsStudioDeployPlan = Readonly<{
   env: NodeJS.ProcessEnv;
 }>;
 
-export type SwooperMapsStudioDeployConfig = Readonly<{
+type SwooperMapsStudioDeployConfig = Readonly<{
   id: string;
   path: string;
 }>;

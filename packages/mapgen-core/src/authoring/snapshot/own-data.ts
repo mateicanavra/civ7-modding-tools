@@ -1,5 +1,5 @@
 /** One own enumerable data entry captured without invoking caller accessors. */
-export type OwnDataEntry<Value = unknown> = Readonly<{ key: string; value: Value }>;
+type OwnDataEntry<Value = unknown> = Readonly<{ key: string; value: Value }>;
 
 /** An immutable descriptor snapshot of one string-keyed authoring map. */
 export type OwnDataRecord<Value = unknown> = readonly OwnDataEntry<Value>[];

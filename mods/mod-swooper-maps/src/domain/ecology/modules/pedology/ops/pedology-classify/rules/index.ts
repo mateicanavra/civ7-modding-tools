@@ -64,7 +64,7 @@ export function classifyPedology(input: PedologyInput, config: PedologyWeights):
 /**
  * Returns a normalized relief field, using slope when provided or elevation as a fallback.
  */
-export function computeReliefProxy(
+function computeReliefProxy(
   slope: Float32Array | undefined,
   elevation: Int16Array,
   size: number
@@ -89,7 +89,7 @@ export function computeReliefProxy(
 /**
  * Computes a fertility score for a tile from climate, relief, sediment, and bedrock signals.
  */
-export function fertilityForTile({
+function fertilityForTile({
   rainfall,
   humidity,
   relief,
@@ -133,7 +133,7 @@ export function fertilityForTile({
 /**
  * Maps fertility, relief, and moisture to a coarse soil palette bucket.
  */
-export function soilPaletteIndex(fertility: number, relief: number, moisture: number): number {
+function soilPaletteIndex(fertility: number, relief: number, moisture: number): number {
   if (relief > 0.75) return 0; // rocky
   if (fertility > 0.7 && moisture > 0.5) return 2; // loam
   if (moisture > 0.65) return 3; // clayish / wet

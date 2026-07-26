@@ -17,6 +17,7 @@ import {
   type StudioRuntimeFailure,
   snapshotLaunchEnvelope,
   studio,
+  studioEventSchema,
   typeboxOutputSchemaFromContractProcedure,
   verificationFailed,
 } from "@civ7/studio-contract";
@@ -66,7 +67,7 @@ import {
 } from "../src/ports";
 import { StudioEventHub, type StudioEventHubApi } from "../src/services/StudioEventHub";
 
-const { operationsCurrent, studioEventSchema } = studio;
+const { operationsCurrent } = studio;
 
 const openRuntimes: Array<Readonly<{ dispose(): Promise<void> }>> = [];
 const runtimeWorkspaceRoots: string[] = [];

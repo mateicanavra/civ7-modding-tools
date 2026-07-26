@@ -348,7 +348,7 @@ const setupCatalogOptionSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const setupCatalogSchema = Type.Object(
+const setupCatalogSchema = Type.Object(
   {
     observedAt: isoTimestampSchema,
     roots: Type.Array(

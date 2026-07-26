@@ -36,7 +36,7 @@ export type CultivatedMaskField =
 
 export type CultivatedSuppressionField = "coldMask" | "aridWithoutWaterMask" | "waterloggedMask";
 
-export type CultivatedLaneId =
+type CultivatedLaneId =
   | "alluvial-irrigated"
   | "arid-oasis-resin"
   | "marine-dye"

@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { ruleRegistryRepoPath } from "@habitat/cli/resources/authority-paths";
+import { habitatAuthorityRoot } from "@habitat/cli/resources/authority-paths";
 import { HabitatConfig, HabitatConfigLive } from "@habitat/cli/resources/config/index";
 import { HabitatPlatform } from "@habitat/cli/resources/platform/index";
 import { HabitatRuntimeLive } from "@habitat/cli/runtime/layers";
@@ -43,7 +43,7 @@ describe("Habitat config resource", () => {
 
   test("realizes repo-scoped runtime resources from live config", async () => {
     const repoRoot = mkdtempSync(path.join(tmpdir(), "habitat-config-runtime-"));
-    const authorityRoot = path.join(repoRoot, ruleRegistryRepoPath);
+    const authorityRoot = path.join(repoRoot, habitatAuthorityRoot);
     mkdirSync(authorityRoot, { recursive: true });
     writeFileSync(
       path.join(authorityRoot, "index.json"),

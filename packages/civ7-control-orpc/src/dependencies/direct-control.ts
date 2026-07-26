@@ -146,11 +146,11 @@ type Civ7ControlOrpcPopulationPlacementRuntimeResult = Civ7PopulationPlacementPr
     before: Readonly<{ valid: boolean }>;
     after: Readonly<{ valid: boolean }>;
   }>;
-export type Civ7ControlOrpcAssignWorkerPlacementInput = Readonly<{
+type Civ7ControlOrpcAssignWorkerPlacementInput = Readonly<{
   playerId: number;
   location: number;
 }>;
-export type Civ7ControlOrpcExpandCityPlacementInput = Readonly<{
+type Civ7ControlOrpcExpandCityPlacementInput = Readonly<{
   cityId: Civ7ControlOrpcComponentId;
   destination: Civ7ControlOrpcMapLocation;
 }>;
@@ -165,12 +165,12 @@ export type Civ7ControlOrpcPlotSnapshotResult = Civ7PlotSnapshotResult;
 export type Civ7ControlOrpcMapGridResult = Civ7MapGridResult;
 export type Civ7ControlOrpcDisplayQueueSnapshotResult = Civ7DisplayQueueSnapshot;
 export type Civ7ControlOrpcCloseDisplaysResult = Civ7CloseDisplaysResult;
-export type Civ7ControlOrpcDisplayQueueHoldResult = Civ7DisplayQueueHoldResult;
-export type Civ7ControlOrpcExploreGrantResult = Civ7ExploreGrantResult;
-export type Civ7ControlOrpcExploreReleaseResult = Civ7ExploreReleaseResult;
+type Civ7ControlOrpcDisplayQueueHoldResult = Civ7DisplayQueueHoldResult;
+type Civ7ControlOrpcExploreGrantResult = Civ7ExploreGrantResult;
+type Civ7ControlOrpcExploreReleaseResult = Civ7ExploreReleaseResult;
 export type Civ7ControlOrpcCameraFocusResult = Civ7CameraFocusResult;
 export type Civ7ControlOrpcCleanFrameEnterResult = Civ7CleanFrameEnterResult;
-export type Civ7ControlOrpcCleanFrameExitResult = Civ7CleanFrameExitResult;
+type Civ7ControlOrpcCleanFrameExitResult = Civ7CleanFrameExitResult;
 export type Civ7ControlOrpcWindowShotCaptureResult = Civ7WindowShotCaptureResult;
 export type Civ7ControlOrpcVisibilitySummaryResult = Civ7VisibilitySummaryResult;
 export type Civ7ControlOrpcReadyUnitViewResult = Static<typeof Civ7ReadyUnitViewResultSchema>;

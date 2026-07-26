@@ -1,5 +1,5 @@
 import path from "node:path";
-import { ruleRegistryRepoPath } from "@habitat/cli/resources/authority-paths";
+import { habitatAuthorityRoot } from "@habitat/cli/resources/authority-paths";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import {
   isDirectorySync,
@@ -25,7 +25,7 @@ import {
 
 describe("rule registry contract", () => {
   test("loads every registered manifest through the TypeBox schema", () => {
-    const registryPath = path.join(repoRoot, ruleRegistryRepoPath);
+    const registryPath = path.join(repoRoot, habitatAuthorityRoot);
     const { document, discoveredManifestPaths } = loadRuleRegistryDocumentWithDiscovery(
       registryPath,
       {

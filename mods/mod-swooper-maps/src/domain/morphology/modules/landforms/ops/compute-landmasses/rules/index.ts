@@ -49,28 +49,3 @@ export function computeCircularBounds(columnsUsed: Uint8Array): { west: number; 
   const east = (bestGapStart - 1 + width) % width;
   return { west, east };
 }
-
-/**
- * Reindexes landmasses by descending tile count.
- */
-export function remapLandmassesBySize<T extends { id: number; tileCount: number }>(
-  components: T[],
-  landmassIdByTile: Int32Array
-): { components: T[]; landmassIdByTile: Int32Array } {
-  const ordered = components
-    .map((component, index) => ({ component, index }))
-    .sort((a, b) => b.component.tileCount - a.component.tileCount);
-  const remap = new Int32Array(components.length);
-  const sortedComponents: T[] = [];
-  for (let i = 0; i < ordered.length; i++) {
-    const { component, index } = ordered[i];
-    remap[index] = i;
-    sortedComponents.push({ ...component, id: i });
-  }
-  for (let i = 0; i < landmassIdByTile.length; i++) {
-    const previous = landmassIdByTile[i];
-    if (previous >= 0) landmassIdByTile[i] = remap[previous];
-  }
-
-  return { components: sortedComponents, landmassIdByTile };
-}

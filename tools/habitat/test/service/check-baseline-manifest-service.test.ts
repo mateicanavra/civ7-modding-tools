@@ -8,7 +8,7 @@ import { FileReadFailed } from "@habitat/cli/resources/errors/index";
 import type { HabitatPlatformService } from "@habitat/cli/resources/platform/index";
 import type { CheckReport, HabitatDiagnostic } from "@habitat/cli/service/model/check/index";
 import { type RuleRegistryRecord, ruleFactsCatalog } from "@habitat/cli/service/model/rules/index";
-import { checkRouter } from "@habitat/cli/service/modules/check/router";
+import { router as checkRouter } from "@habitat/cli/service/modules/check/router";
 import { Effect, Match, Option } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";

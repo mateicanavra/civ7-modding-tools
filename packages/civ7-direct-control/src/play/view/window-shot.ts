@@ -309,14 +309,14 @@ export const Civ7WindowShotFileSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7WindowShotFrameSourceSchema = Type.Union([
+const Civ7WindowShotFrameSourceSchema = Type.Union([
   /** Window was on screen and compositing: one-shot screenshot, fresh. */
   Type.Literal("screenshot"),
   /** Off-screen window: a temporary stream forced fresh compositing. */
   Type.Literal("stream"),
 ]);
 
-export type Civ7WindowShotFrameSource = Static<typeof Civ7WindowShotFrameSourceSchema>;
+type Civ7WindowShotFrameSource = Static<typeof Civ7WindowShotFrameSourceSchema>;
 
 export const Civ7WindowShotCaptureResultSchema = Type.Object(
   {

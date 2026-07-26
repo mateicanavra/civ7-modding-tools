@@ -21,7 +21,7 @@ export type StandardPresetMetricScenario = StandardMapMetricScenarioBase &
   }>;
 
 /** An explicit custom-size run reserved for focused measurement fixtures. */
-export type StandardCustomMetricScenario = StandardMapMetricScenarioBase &
+type StandardCustomMetricScenario = StandardMapMetricScenarioBase &
   Readonly<{
     kind: "custom";
     dimensions: Readonly<{ width: number; height: number }>;

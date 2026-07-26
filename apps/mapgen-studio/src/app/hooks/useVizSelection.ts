@@ -28,7 +28,7 @@ import { clampNumber } from "../../shared/number";
 import { useViewStore } from "../../stores/viewStore";
 
 /** The resolved (dataType, space, renderMode, variant) tuple driving the canvas. */
-export type VizSelection = {
+type VizSelection = {
   dataTypeId: string;
   spaceId: string;
   renderModeId: string;

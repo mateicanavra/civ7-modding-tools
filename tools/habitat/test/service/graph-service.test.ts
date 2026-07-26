@@ -5,7 +5,7 @@ import { CommandUnavailable } from "@habitat/cli/resources/errors/index";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import type { HabitatServiceDeps } from "@habitat/cli/service/base";
 import type { GraphWorkspaceGraphInput } from "@habitat/cli/service/modules/graph/contract";
-import { graphRouter } from "@habitat/cli/service/modules/graph/router";
+import { router as graphRouter } from "@habitat/cli/service/modules/graph/router";
 import { Effect } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";

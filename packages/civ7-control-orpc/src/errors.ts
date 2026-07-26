@@ -1075,8 +1075,7 @@ export const civ7LifecycleSinglePlayerStartErrorMap = {
   LIFECYCLE_VERIFICATION_FAILED: Civ7LifecycleVerificationFailedError,
 } satisfies EffectErrorMap;
 
-export type Civ7LifecycleSinglePlayerStartEffectErrorMap =
-  typeof civ7LifecycleSinglePlayerStartErrorMap;
+type Civ7LifecycleSinglePlayerStartEffectErrorMap = typeof civ7LifecycleSinglePlayerStartErrorMap;
 export type Civ7LifecycleSinglePlayerStartErrorMap =
   EffectErrorMapToErrorMap<Civ7LifecycleSinglePlayerStartEffectErrorMap>;
 

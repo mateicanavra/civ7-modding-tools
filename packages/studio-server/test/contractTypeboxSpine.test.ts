@@ -4,6 +4,8 @@ import {
   runInGame,
   saveDeployStatusTypeSchema,
   studio,
+  studioEventSchema,
+  studioOperationEventSchema,
   toStandardSchema,
   typeboxInputSchemaFromContractProcedure,
   typeboxOutputSchemaFromContractProcedure,
@@ -13,7 +15,7 @@ import { Type } from "typebox";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
-const { operationsCurrent, studioEventSchema, studioOperationEventSchema } = studio;
+const { operationsCurrent } = studio;
 
 describe("studio-server TypeBox contract spine", () => {
   test("recovers TypeBox origins from Standard Schema wrappers and contract procedures", () => {

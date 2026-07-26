@@ -17,7 +17,7 @@ import type {
 } from "./types.js";
 
 /** Bounded comparison of one natural-wonder anchor across exact and replayed plans. */
-export type StandardNaturalWonderPlanRowComparison = Readonly<{
+type StandardNaturalWonderPlanRowComparison = Readonly<{
   featureType: number;
   classification:
     | "exact-local-same-anchor"
@@ -32,7 +32,7 @@ export type StandardNaturalWonderPlanRowComparison = Readonly<{
 }>;
 
 /** Natural-wonder plan comparison including anchor movement and scoring context. */
-export type StandardNaturalWonderPlanComparison = Readonly<{
+type StandardNaturalWonderPlanComparison = Readonly<{
   claim: StandardParityComparison;
   exact?: StandardNaturalWonderPlanEvidence;
   local: StandardLocalParityCapture["placement"]["naturalWonderPlanEvidence"];
@@ -40,7 +40,7 @@ export type StandardNaturalWonderPlanComparison = Readonly<{
 }>;
 
 /** Field-level input drift for one matched natural-wonder planning anchor. */
-export type StandardNaturalWonderPlanInputDelta = Readonly<
+type StandardNaturalWonderPlanInputDelta = Readonly<
   Partial<{
     terrainType: Readonly<{ exact: number; local: number }>;
     biomeType: Readonly<{ exact: number; local: number }>;
@@ -55,7 +55,7 @@ export type StandardNaturalWonderPlanInputDelta = Readonly<
 >;
 
 /** Bounded comparison of one selected wonder and the surfaces that selected it. */
-export type StandardNaturalWonderPlanInputRowComparison = Readonly<{
+type StandardNaturalWonderPlanInputRowComparison = Readonly<{
   featureType: number;
   classification:
     | "exact-local-same-anchor-input-match"
@@ -70,7 +70,7 @@ export type StandardNaturalWonderPlanInputRowComparison = Readonly<{
 }>;
 
 /** Exact-versus-replay comparison of the complete admitted natural-wonder planner request. */
-export type StandardNaturalWonderPlanInputComparison = Readonly<{
+type StandardNaturalWonderPlanInputComparison = Readonly<{
   claim: StandardParityComparison;
   exact?: StandardNaturalWonderPlanInputEvidence;
   local: StandardExactProductEvidence<StandardNaturalWonderPlanInputEvidence>;
@@ -80,7 +80,7 @@ export type StandardNaturalWonderPlanInputComparison = Readonly<{
 }>;
 
 /** Resource placement comparison with digest mismatches and bounded rejection context. */
-export type StandardResourcePlacementComparison = Readonly<{
+type StandardResourcePlacementComparison = Readonly<{
   claim: StandardParityComparison;
   exact?: StandardResourcePlacementEvidence;
   local: Readonly<{
@@ -93,7 +93,7 @@ export type StandardResourcePlacementComparison = Readonly<{
 }>;
 
 /** Replayed plan and outcome context for one exact resource rejection witness. */
-export type StandardResourcePlacementRejectionContext = Readonly<{
+type StandardResourcePlacementRejectionContext = Readonly<{
   exact: StandardResourcePlacementRejectionRow;
   local: Readonly<{
     surfaceResourceType: number | null;

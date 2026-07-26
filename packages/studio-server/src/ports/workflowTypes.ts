@@ -10,7 +10,6 @@ import type {
   RunInGameSetupConfig,
 } from "@civ7/studio-contract";
 import type { RunCorrelation } from "@civ7/studio-run-workspace";
-import type { StudioInputs, StudioOutputs } from "../context.js";
 import type { StudioBoundedDiagnostics } from "../errors/index.js";
 
 export type StudioDaemonIdentity = Readonly<{
@@ -55,7 +54,7 @@ export type SaveDeployRequest = Readonly<{
   verifyRestart?: boolean;
 }>;
 
-export type RunInGameGeneratedModMaterialization = RunInGameMaterializationStatus &
+type RunInGameGeneratedModMaterialization = RunInGameMaterializationStatus &
   Readonly<{
     mapScript: string;
     canonicalConfigDigest: string;
@@ -73,7 +72,7 @@ export type RunInGameGeneratedMod = Readonly<{
   cleanup?(): Promise<void>;
 }>;
 
-export type RunDeployment = Readonly<{
+type RunDeployment = Readonly<{
   requestId: string;
   deployedModId: string;
   generatedModRoot: string;
@@ -84,13 +83,13 @@ export type RunDeployment = Readonly<{
   filesCopied: number;
 }>;
 
-export type DeployedModSnapshotFile = Readonly<{
+type DeployedModSnapshotFile = Readonly<{
   path: string;
   sha256: string;
   sizeBytes: number;
 }>;
 
-export type DeployedModSnapshot = Readonly<{
+type DeployedModSnapshot = Readonly<{
   requestId: string;
   deployedModId: string;
   targetRoot: string;
@@ -120,7 +119,7 @@ export type RunInGameLogEvidence = Readonly<{
   logEvidence?: unknown;
 }>;
 
-export type ScriptingLogObservation = Readonly<{
+type ScriptingLogObservation = Readonly<{
   requestId: string;
   correlation: RunCorrelation;
   logPath?: string;
@@ -130,7 +129,7 @@ export type ScriptingLogObservation = Readonly<{
   evidence?: unknown;
 }>;
 
-export type SetupRowReadback = Readonly<{
+type SetupRowReadback = Readonly<{
   requestId: string;
   correlation: RunCorrelation;
   state: "matched";
@@ -140,7 +139,7 @@ export type SetupRowReadback = Readonly<{
   mapRowFiles: readonly string[];
 }>;
 
-export type LoadedGameReadback = Readonly<{
+type LoadedGameReadback = Readonly<{
   requestId: string;
   correlation: RunCorrelation;
   marker: unknown;
@@ -194,6 +193,3 @@ export type SaveDeployDeployed = Readonly<{
 export type WorkflowFailureDiagnosticsPort = Readonly<{
   failureDiagnostics?(err: unknown): StudioBoundedDiagnostics | undefined;
 }>;
-
-export type WorkflowInput = StudioInputs;
-export type WorkflowOutput = StudioOutputs;

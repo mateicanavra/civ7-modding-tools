@@ -104,7 +104,7 @@ function buildUnitMovePreviewCommand(
   })()`;
 }
 
-export function unitMovePreviewSource(): string {
+function unitMovePreviewSource(): string {
   return `${probeHelperSource()}
     const toComponentId = (value) => {
       if (!value || typeof value !== "object") return null;

@@ -1,7 +1,7 @@
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 
-export const Civ7ControllerMutationProofSchema = Type.Object(
+const Civ7ControllerMutationProofSchema = Type.Object(
   {
     lifecycle: Type.Object(
       {

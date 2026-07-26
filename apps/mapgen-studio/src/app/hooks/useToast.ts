@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import { toast as sonnerToast } from "sonner";
 
 /** The variant set the adapter maps to sonner methods (`success`/`error`/`info`). */
-export type ToastVariant = "default" | "success" | "error" | "info";
+type ToastVariant = "default" | "success" | "error" | "info";
 
 /**
  * The single toast contract every container/hook depends on. Threaded IN to the

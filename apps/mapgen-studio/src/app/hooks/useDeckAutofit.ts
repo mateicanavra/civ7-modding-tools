@@ -9,10 +9,7 @@ import type { UseVizStateResult } from "../../features/viz/useVizState";
  * `spaceId` drives the per-space refit). Narrowed to exactly these members so
  * `useDeckAutofit` depends on the viz surface it reads, not the full handle.
  */
-export type DeckAutofitVizHandle = Pick<
-  UseVizStateResult,
-  "activeBounds" | "manifest" | "effectiveLayer"
->;
+type DeckAutofitVizHandle = Pick<UseVizStateResult, "activeBounds" | "manifest" | "effectiveLayer">;
 
 export type UseDeckAutofitArgs = {
   /** Deck canvas handle (single owner: `useViewportLayout`); `.current.fitToBounds`. */

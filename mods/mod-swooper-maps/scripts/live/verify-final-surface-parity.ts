@@ -249,7 +249,7 @@ export async function loadFinalSurfaceParityEvidence(
 }
 
 /** Resolves a typed diagnostics lookup before reading its private operation. */
-export async function loadFinalSurfaceParityEvidenceFromDiagnosticsLookup(
+async function loadFinalSurfaceParityEvidenceFromDiagnosticsLookup(
   args: Readonly<{
     diagnosticsId: string;
     expectedRequestId?: string;
@@ -346,7 +346,7 @@ export async function extractFinalSurfaceParityEvidenceFromDiagnostics(
 }
 
 /** Runs correlation, replay, one coherent live observation, and report composition. */
-export async function runFinalSurfaceParity(
+async function runFinalSurfaceParity(
   args: FinalSurfaceParityArgs,
   dependencies: Pick<FinalSurfaceParityCommandDependencies, "clientFactory" | "observeMapSurface">
 ): Promise<FinalSurfaceParityOutput> {

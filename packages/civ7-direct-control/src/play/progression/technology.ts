@@ -44,7 +44,7 @@ type TechnologyChoiceCloseoutRequestDependencies = TechnologyChoiceCloseoutComma
     validatePlayerId: (playerId: number) => void;
   }>;
 
-export function buildTechnologyChoiceCloseoutCommand(
+function buildTechnologyChoiceCloseoutCommand(
   input: Civ7TechnologyChoiceCloseoutInput,
   dependencies: TechnologyChoiceCloseoutCommandDependencies
 ): string {
@@ -54,7 +54,7 @@ export function buildTechnologyChoiceCloseoutCommand(
   })()`;
 }
 
-export function technologyChoiceCloseoutSource(): string {
+function technologyChoiceCloseoutSource(): string {
   return `${probeHelperSource()}
     const toComponentId = (value) => {
       if (!value || typeof value !== "object") return null;

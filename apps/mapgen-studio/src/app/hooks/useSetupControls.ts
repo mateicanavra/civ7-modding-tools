@@ -75,7 +75,7 @@ export type UseSetupControlsArgs = {
 type SetupControlSelectOptions = ReadonlyArray<{ value: string; label: string }>;
 
 /** Shape of the memoized setup-control options object (one group per control). */
-export type SetupControlOptions = {
+type SetupControlOptions = {
   savedConfigOptions: SetupControlSelectOptions;
   leaderOptions: SetupControlSelectOptions;
   civilizationOptions: SetupControlSelectOptions;

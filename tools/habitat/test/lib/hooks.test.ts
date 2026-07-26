@@ -30,7 +30,7 @@ import {
   classifyResourcesState,
 } from "@habitat/cli/service/modules/hook/model/policy/resource-inspection.policy";
 import type { HookResourcePolicy } from "@habitat/cli/service/modules/hook/model/policy/runtime.policy";
-import { hookRouter } from "@habitat/cli/service/modules/hook/router";
+import { router as hookRouter } from "@habitat/cli/service/modules/hook/router";
 import { Effect, Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { Value } from "typebox/value";

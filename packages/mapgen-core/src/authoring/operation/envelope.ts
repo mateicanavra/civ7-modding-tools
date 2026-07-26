@@ -14,7 +14,7 @@ export type OpEnvelopeBuildResult = Readonly<{
   strategyIds: readonly string[];
 }>;
 
-export type StrategySelectionDefault = Readonly<{
+type StrategySelectionDefault = Readonly<{
   strategy: string;
   config: Record<string, unknown>;
 }>;

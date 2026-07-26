@@ -20,7 +20,7 @@ type SemanticStrategyId<Id extends string> =
 export type StrategyDefinitionAny = StrategyDefinition<string, TSchema>;
 
 /** Reports whether a value retains exact `defineStrategy` factory authority. */
-export function isCanonicalStrategyDefinition(value: unknown): value is StrategyDefinitionAny {
+function isCanonicalStrategyDefinition(value: unknown): value is StrategyDefinitionAny {
   return value !== null && typeof value === "object" && strategyDefinitionAuthority.has(value);
 }
 
@@ -34,7 +34,7 @@ export function assertCanonicalStrategyDefinition(
 }
 
 /** Refuses empty, reserved, or non-string strategy identities. */
-export function assertSemanticStrategyId(value: unknown, label = "strategy id"): string {
+function assertSemanticStrategyId(value: unknown, label = "strategy id"): string {
   if (typeof value !== "string" || value.length === 0) {
     throw new TypeError(`${label} must be a non-empty string`);
   }

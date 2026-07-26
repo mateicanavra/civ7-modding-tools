@@ -1,8 +1,8 @@
 import type { RJSFSchema } from "@rjsf/utils";
 
-export type BrowserConfigSchemaDef = RJSFSchema | boolean;
+type BrowserConfigSchemaDef = RJSFSchema | boolean;
 
-export function schemaIsGroup(schema: BrowserConfigSchemaDef | undefined): boolean {
+function schemaIsGroup(schema: BrowserConfigSchemaDef | undefined): boolean {
   if (!schema || typeof schema === "boolean") return false;
   if (schema.type === "object" || schema.type === "array") return true;
   return false;

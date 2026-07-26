@@ -33,7 +33,7 @@ export type MapConfigSaveDeployPhase = (typeof MAP_CONFIG_SAVE_DEPLOY_PHASES)[nu
 
 export type MapConfigSaveDeployKind = "idle" | "running" | "complete" | "failed";
 
-export const saveDeployPhase = Type.Union([
+const saveDeployPhase = Type.Union([
   Type.Literal("idle"),
   Type.Literal("queued"),
   Type.Literal("saving"),
@@ -42,7 +42,7 @@ export const saveDeployPhase = Type.Union([
   Type.Literal("failed"),
 ]);
 
-export const saveDeployKind = Type.Union([
+const saveDeployKind = Type.Union([
   Type.Literal("idle"),
   Type.Literal("running"),
   Type.Literal("complete"),
@@ -98,7 +98,7 @@ export const saveDeployStatusTypeSchema = Type.Union([
 ]);
 export type MapConfigSaveDeployStatus = Static<typeof saveDeployStatusTypeSchema>;
 
-export const saveDeployStatusSchema = contractSchema(saveDeployStatusTypeSchema);
+const saveDeployStatusSchema = contractSchema(saveDeployStatusTypeSchema);
 
 /** Rejects unsafe wire values before TypeBox inspects the public save DTO. */
 function mapConfigSaveDeployInputIssue(value: unknown): string | undefined {

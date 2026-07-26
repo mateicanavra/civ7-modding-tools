@@ -26,7 +26,7 @@ type StandardScenarioIneligibleReason = Extract<
 >["reason"];
 
 /** One planner candidate in exactly one terminal demand-admission state. */
-export type StandardResourceCandidateMeasurement = StandardResourceCandidateMeasurementBase &
+type StandardResourceCandidateMeasurement = StandardResourceCandidateMeasurementBase &
   (
     | Readonly<{
         disposition: "admitted";
@@ -51,7 +51,7 @@ export type StandardResourceCandidateMeasurement = StandardResourceCandidateMeas
   );
 
 /** One resource type's realized population against its authored count range and target. */
-export type StandardResourceRangeMeasurement = Readonly<{
+type StandardResourceRangeMeasurement = Readonly<{
   resourceType: string;
   placedCount: number;
   minimumCount: number;
@@ -61,7 +61,7 @@ export type StandardResourceRangeMeasurement = Readonly<{
 }>;
 
 /** Completed land-resource density in one configured latitude band. */
-export type StandardResourceLatitudeBand = Readonly<{
+type StandardResourceLatitudeBand = Readonly<{
   minimumLatitude: number;
   maximumLatitude: number;
   landTileCount: number;
@@ -72,7 +72,7 @@ export type StandardResourceLatitudeBand = Readonly<{
 }>;
 
 /** Realized resource density on one cataloged modeled landmass. */
-export type StandardLandmassResourceDensity = Readonly<{
+type StandardLandmassResourceDensity = Readonly<{
   landmassId: number;
   tileCount: number;
   landShare: number;
@@ -85,7 +85,7 @@ export type StandardLandmassResourceDensity = Readonly<{
  * Planned shortfalls and typed adapter rejections stay separate so a realized deficit cannot be
  * hidden behind pre-stamp arithmetic.
  */
-export type StandardResourceRegionMinimumMeasurement = Readonly<{
+type StandardResourceRegionMinimumMeasurement = Readonly<{
   resourceType: StandardMapCapture["resources"]["regionMinimums"][number]["resourceType"];
   regionSlot: number;
   required: number;

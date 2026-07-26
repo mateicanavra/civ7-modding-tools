@@ -22,7 +22,7 @@ const WORLD_AGE_SCALE: Record<string, number> = {
 /**
  * Resolves the world-age scaling multiplier.
  */
-export function resolveWorldAgeScale(worldAge: WorldAge): number {
+function resolveWorldAgeScale(worldAge: WorldAge): number {
   return WORLD_AGE_SCALE[worldAge];
 }
 

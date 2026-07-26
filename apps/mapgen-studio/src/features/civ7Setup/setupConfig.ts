@@ -20,11 +20,11 @@ import {
 } from "@civ7/studio-contract";
 import { parseCiv7StudioSeed } from "./seedPolicy";
 
-export type Civ7StudioSetupOptionValue = RunInGameSetupOptionValue;
+type Civ7StudioSetupOptionValue = RunInGameSetupOptionValue;
 
 export type Civ7StudioPlayerSetupConfig = RunInGamePlayerSetupConfig;
 
-export type Civ7StudioSavedConfigRef = RunInGameSavedSetupConfigRef;
+type Civ7StudioSavedConfigRef = RunInGameSavedSetupConfigRef;
 
 /**
  * The authored game-setup state behind the header's Game bar — the single
@@ -99,17 +99,10 @@ export function migrateLegacyStudioSetupConfig(value: unknown): Civ7StudioSetupC
   return migrated.ok ? migrated.value : undefined;
 }
 
-export function studioSetupConfigsEqual(
-  a: Civ7StudioSetupConfig,
-  b: Civ7StudioSetupConfig
-): boolean {
+function studioSetupConfigsEqual(a: Civ7StudioSetupConfig, b: Civ7StudioSetupConfig): boolean {
   return (
     JSON.stringify(normalizeStudioSetupConfig(a)) === JSON.stringify(normalizeStudioSetupConfig(b))
   );
-}
-
-export function isDefaultStudioSetupConfig(config: Civ7StudioSetupConfig): boolean {
-  return studioSetupConfigsEqual(config, createDefaultCiv7StudioSetupConfig());
 }
 
 function findParameter(

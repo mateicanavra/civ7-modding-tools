@@ -25,7 +25,7 @@ function clampThreshold(value: number): number {
 }
 
 /** Resolves the authored confidence floor for one vegetation feature identity. */
-export function minConfidenceForFeature(
+function minConfidenceForFeature(
   feature: VegetationFeatureIntentKey,
   policy: Readonly<{
     forestMinConfidence01: number;

@@ -1,9 +1,9 @@
 import type { VizLayerEntryV2, VizLayerVisibility, VizSpaceId } from "@swooper/mapgen-viz";
 
-export type DataTypeId = string;
-export type RenderModeId = string;
-export type LayerVariantId = string;
-export type SpaceId = VizSpaceId;
+type DataTypeId = string;
+type RenderModeId = string;
+type LayerVariantId = string;
+type SpaceId = VizSpaceId;
 
 export type LayerVariant = Readonly<{
   variantId: LayerVariantId;
@@ -12,19 +12,19 @@ export type LayerVariant = Readonly<{
   layer: VizLayerEntryV2;
 }>;
 
-export type RenderModeModel = Readonly<{
+type RenderModeModel = Readonly<{
   renderModeId: RenderModeId;
   label: string;
   variants: readonly LayerVariant[];
 }>;
 
-export type SpaceModel = Readonly<{
+type SpaceModel = Readonly<{
   spaceId: SpaceId;
   label: string;
   renderModes: readonly RenderModeModel[];
 }>;
 
-export type DataTypeModel = Readonly<{
+type DataTypeModel = Readonly<{
   dataTypeId: DataTypeId;
   label: string;
   group?: string;

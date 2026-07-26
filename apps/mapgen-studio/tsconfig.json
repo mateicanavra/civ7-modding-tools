@@ -10,7 +10,6 @@
     "moduleResolution": "bundler",
     "paths": {
       "@/*": ["./src/*"],
-      "@mapgen/domain": ["../../mods/mod-swooper-maps/src/domain/index.ts"],
       "@mapgen/domain/config": ["../../mods/mod-swooper-maps/src/domain/config.ts"],
       "@mapgen/domain/*": ["../../mods/mod-swooper-maps/src/domain/*"]
     },

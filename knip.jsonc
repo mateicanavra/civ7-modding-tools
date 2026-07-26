@@ -1,5 +1,7 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+  "includeEntryExports": false,
+  "treatConfigHintsAsErrors": true,
   "workspaces": {
     ".": {
       "entry": [
@@ -34,15 +36,31 @@
     "apps/mapgen-studio": {
       "entry": ["test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"]
     },
+    "apps/playground": {
+      // Each checked-in SDK example is an independently executable authoring entrypoint.
+      "entry": ["src/examples/*.ts"]
+    },
     "mods/mod-swooper-maps": {
+      // Closed Habitat kinds make these declaration-only gateways intentional public
+      // entrypoints even when the current recipe graph does not import every owner.
       "entry": [
         "src/mod.ts",
         "src/maps/generated/*.ts",
+        "src/domain/*/index.ts",
+        "src/domain/*/modules/*/index.ts",
+        "src/domain/*/model/atoms/index.ts",
+        "src/domain/*/modules/*/model/atoms/index.ts",
+        "src/domain/*/modules/*/artifacts/index.ts",
         "test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"
       ]
     },
     "packages/civ7-adapter": {
       "ignoreUnresolved": ["^/base-standard/"]
+    },
+    "packages/civ7-map-policy": {
+      // Generated setup policy is inspected through its source generator and currentness
+      // target; dead-code analysis must not rewrite or narrow protected output.
+      "ignore": ["src/setup-parameters.gen.ts"]
     },
     "packages/cli": {
       "entry": ["bin/dev.ts", "src/hooks/prerun/promptMissingArgs.ts"],

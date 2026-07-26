@@ -249,7 +249,7 @@ function buildDestinationAnalysisCommand(
   })()`;
 }
 
-export function destinationAnalysisSource(): string {
+function destinationAnalysisSource(): string {
   return `${battlefieldScanSource()}
     const sampleRoute = (origin, destination) => {
       if (!origin || !destination) return [];

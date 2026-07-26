@@ -40,7 +40,7 @@ export type SemanticCliEnvelopeInput = Omit<SemanticCliEnvelope, "version"> & {
   version?: typeof SEMANTIC_CLI_ENVELOPE_VERSION;
 };
 
-export const NORMAL_PLAY_DEBUG_INTERNAL_MARKERS = [
+const NORMAL_PLAY_DEBUG_INTERNAL_MARKERS = [
   { marker: "CMD:", fieldClass: "raw-command-log" },
   { marker: "LSQ:", fieldClass: "raw-sql-log" },
   { marker: "GameContext.", fieldClass: "raw-runtime-global" },
@@ -53,7 +53,7 @@ export const NORMAL_PLAY_DEBUG_INTERNAL_MARKERS = [
   { marker: "rawProbe", fieldClass: "probe-internal" },
 ] as const;
 
-export type NormalPlayDebugInternalMarker = (typeof NORMAL_PLAY_DEBUG_INTERNAL_MARKERS)[number];
+type NormalPlayDebugInternalMarker = (typeof NORMAL_PLAY_DEBUG_INTERNAL_MARKERS)[number];
 
 export type NormalPlayDebugInternalLeak = {
   marker: NormalPlayDebugInternalMarker["marker"];

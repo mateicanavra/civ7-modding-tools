@@ -12,7 +12,6 @@ import {
   loadStudioAuthoringState,
   retireStudioAuthoringState,
   STUDIO_AUTHORING_STATE_KEY,
-  type StudioAuthoringStateSnapshot,
   saveStudioAuthoringState,
 } from "../features/studioState/persistence";
 import { DEFAULT_STUDIO_RECIPE_ID } from "../recipes/catalog";
@@ -121,5 +120,3 @@ export const useAuthoringStore = create<AuthoringState>()(
     }
   )
 );
-
-export type { StudioAuthoringStateSnapshot };

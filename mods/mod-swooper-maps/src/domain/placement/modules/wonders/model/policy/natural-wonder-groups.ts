@@ -75,7 +75,7 @@ const WONDER_GROUP_BY_FEATURE: ReadonlyMap<number, WonderGroup> = new Map(
  * Official wonder feature IDs that lack a physical-suitability group. Module initialization
  * rejects any entry so catalog growth cannot silently bypass placement policy.
  */
-export const NATURAL_WONDER_GROUP_POLICY_GAPS = NATURAL_WONDER_CATALOG.map(
+const NATURAL_WONDER_GROUP_POLICY_GAPS = NATURAL_WONDER_CATALOG.map(
   (entry) => entry.featureType
 ).filter((featureType) => !WONDER_GROUP_BY_FEATURE.has(featureType));
 

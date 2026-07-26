@@ -11,10 +11,7 @@ import type { XSchema } from "typebox/schema";
 export type StudioRecipeId = string;
 
 /** Small executable recipe surface required by the browser worker. */
-export type RecipeRuntimeModule = Pick<
-  RecipeModule<PipelineConfig, unknown>,
-  "compile" | "executeAsync"
->;
+type RecipeRuntimeModule = Pick<RecipeModule<PipelineConfig, unknown>, "compile" | "executeAsync">;
 
 /** Registered browser-worker recipe with its canonical authoring schema and defaults. */
 export type RuntimeRecipeEntry = Readonly<{

@@ -76,9 +76,7 @@ export const Civ7ProductionPostconditionSchema = Type.Object(
   },
   { additionalProperties: false }
 );
-export type Civ7ProductionPostconditionSchemaType = Static<
-  typeof Civ7ProductionPostconditionSchema
->;
+type Civ7ProductionPostconditionSchemaType = Static<typeof Civ7ProductionPostconditionSchema>;
 
 export function productionPostconditionFor(
   family: Civ7OperationFamily,

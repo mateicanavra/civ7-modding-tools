@@ -16,8 +16,6 @@ import {
   requestCiv7UnitOperation,
 } from "@civ7/direct-control";
 
-export type PlayOperationFamilyAlias = Civ7OperationFamily | "unit" | "city" | "player";
-
 export type DirectControlFlagOptions = Readonly<{
   host?: string;
   port?: number;
@@ -42,7 +40,7 @@ export function buildDirectControlOptions(
   };
 }
 
-export function parseJsonFlag<T>(value: string | undefined, flag: string): T {
+function parseJsonFlag<T>(value: string | undefined, flag: string): T {
   if (!value) throw new Error(`--${flag} is required`);
   try {
     return JSON.parse(value) as T;
@@ -51,11 +49,6 @@ export function parseJsonFlag<T>(value: string | undefined, flag: string): T {
       `--${flag} must be valid JSON: ${error instanceof Error ? error.message : String(error)}`
     );
   }
-}
-
-export function parseOptionalJsonFlag(value: string | undefined, flag: string): unknown {
-  if (value === undefined) return undefined;
-  return parseJsonFlag<unknown>(value, flag);
 }
 
 export function resolveCoordinateFlags(input: {
@@ -91,13 +84,6 @@ export function parseComponentId(value: string | undefined, flag: string): Civ7C
   return assertCiv7ComponentId(parseJsonFlag<unknown>(value, flag), `--${flag}`);
 }
 
-export function normalizeOperationFamily(family: PlayOperationFamilyAlias): Civ7OperationFamily {
-  if (family === "unit") return "unit-operation";
-  if (family === "city") return "city-operation";
-  if (family === "player") return "player-operation";
-  return family;
-}
-
 export async function validatePlayOperation(
   family: Civ7OperationFamily,
   input: Civ7OperationInput,
@@ -114,7 +100,7 @@ export async function validatePlayOperation(
   return await canStartCiv7PlayerOperation(assertPlayerInput(input), options);
 }
 
-export async function sendPlayOperation(
+async function sendPlayOperation(
   family: Civ7OperationFamily,
   input: Civ7OperationInput,
   options: Civ7DirectControlOptions

@@ -5,7 +5,7 @@ type GovernmentChoiceResult = Awaited<
 >;
 type GovernmentValidation = GovernmentChoiceResult["beforeValidation"];
 
-export const CIV7_GAME_UI_GOVERNMENT_ACTIVATE_ACTION = -1_326_475_004;
+const CIV7_GAME_UI_GOVERNMENT_ACTIVATE_ACTION = -1_326_475_004;
 
 export type Civ7GameUiGovernmentTarget = Readonly<{
   Game?: {

@@ -48,9 +48,7 @@ export type Civ7PlayableStatusResult = Readonly<{
   tuner?: Civ7TunerHealthResult;
   errors: ReadonlyArray<string>;
 }>;
-export type Civ7PlayableStatusResultContract = Readonly<
-  Static<typeof Civ7PlayableStatusResultSchema>
->;
+type Civ7PlayableStatusResultContract = Readonly<Static<typeof Civ7PlayableStatusResultSchema>>;
 
 export type PlayableStatusDependencies = Readonly<{
   checkTunerHealth: (options?: Civ7DirectControlOptions) => Promise<Civ7TunerHealthResult>;

@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 2,
+  "id": "enforce_workspace_reachability_and_dependency_hygiene",
+  "title": "Enforce Workspace Reachability And Dependency Hygiene",
+  "placement": {
+    "niche": "global/workspace",
+    "blueprint": "_self",
+    "category": "quality"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "unreachable authored files, unused non-entry exports, duplicate exports, undeclared or unused dependencies, unresolved imports, and stale Knip configuration",
+  "why": "Knip owns workspace reachability and dependency analysis; package export maps and exact positive-kind gateways declare public entrypoints, Habitat registers the zero-corpus invariant, and Nx schedules the native analyzer exactly once.",
+  "remediate": "Run `nx run habitat:check:dead-code`, then delete dead code or model the exact executable, generated, public, positive-kind, dynamic, or virtual owner.",
+  "message": "The workspace must remain free of truthful Knip reachability, dependency, duplicate-export, and configuration findings.",
+  "pathCoverage": [
+    {
+      "kind": "project-owner"
+    },
+    {
+      "kind": "workspace-gate"
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/global/workspace/rules/enforce_workspace_reachability_and_dependency_hygiene/baseline.json"
+  },
+  "graphTarget": {
+    "project": "habitat",
+    "target": "check:dead-code"
+  },
+  "runner": {
+    "name": "nx",
+    "target": {
+      "project": "habitat",
+      "target": "check:dead-code"
+    }
+  }
+}

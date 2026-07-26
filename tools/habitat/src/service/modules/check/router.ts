@@ -1,6 +1,6 @@
 import { module } from "./module.js";
 
-export const checkRouter = {
+export const router = {
   report: module.report.effect(function* ({ context, input }) {
     const { checkCommandContext, createCheckReport, selectorsFromInput } = context;
     return yield* createCheckReport({
@@ -21,5 +21,3 @@ export const checkRouter = {
     return { kind: "refused", message: describeRuleSelectionFailure(expansion) };
   }),
 };
-
-export const router = checkRouter;

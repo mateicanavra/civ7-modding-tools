@@ -15,7 +15,7 @@ export type MapLatitudeBounds = Readonly<{
 }>;
 
 /** Exact request and artifact identities required to correlate a Studio-generated map run. */
-export type MapRunCorrelation = Readonly<{
+type MapRunCorrelation = Readonly<{
   requestId: string;
   runArtifactId: string;
   canonicalConfigDigest: string;

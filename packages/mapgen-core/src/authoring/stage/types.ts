@@ -46,7 +46,7 @@ type StageConfigOf<PublicSchema extends TObject | undefined> = PublicSchema exte
   : EmptyStageConfig;
 
 /** Maps one stage's authored surface into its internal step configuration boundary. */
-export type StageCompileFn<
+type StageCompileFn<
   PublicSchema extends TObject | undefined,
   StepId extends string,
   KnobsSchema extends TObject | undefined,

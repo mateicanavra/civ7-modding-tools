@@ -17,7 +17,7 @@ const Civ7NarrativeChoiceInputSchema = Type.Object(
 );
 export type Civ7NarrativeChoiceInput = Static<typeof Civ7NarrativeChoiceInputSchema>;
 
-export const Civ7NarrativeChoicePostconditionClassificationSchema = Type.Union([
+const Civ7NarrativeChoicePostconditionClassificationSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("turn-unblocked"),
   Type.Literal("narrative-blocker-cleared"),
@@ -27,7 +27,7 @@ export const Civ7NarrativeChoicePostconditionClassificationSchema = Type.Union([
   Type.Literal("missing-postcondition"),
 ]);
 
-export const Civ7NarrativeChoiceProofOutcomeSchema = Type.Union([
+const Civ7NarrativeChoiceProofOutcomeSchema = Type.Union([
   Type.Literal("cleared"),
   Type.Literal("state-changed"),
   Type.Literal("still-blocked"),
@@ -36,19 +36,19 @@ export const Civ7NarrativeChoiceProofOutcomeSchema = Type.Union([
   Type.Literal("stale"),
   Type.Literal("unknown"),
 ]);
-export const Civ7NarrativeChoiceRequestStatusSchema = Type.Union([
+const Civ7NarrativeChoiceRequestStatusSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("sent-confirmed"),
   Type.Literal("sent-unverified"),
 ]);
-export const Civ7NarrativeChoiceValidationSummarySchema = Type.Object(
+const Civ7NarrativeChoiceValidationSummarySchema = Type.Object(
   {
     beforeValid: Type.Boolean(),
     afterValid: Type.Boolean(),
   },
   { additionalProperties: false }
 );
-export const Civ7NarrativeChoicePostconditionSummarySchema = Type.Object(
+const Civ7NarrativeChoicePostconditionSummarySchema = Type.Object(
   {
     classification: Civ7NarrativeChoicePostconditionClassificationSchema,
     reason: Type.String(),
@@ -63,7 +63,7 @@ export const Civ7NarrativeChoicePostconditionSummarySchema = Type.Object(
   },
   { additionalProperties: false }
 );
-export const Civ7NarrativeChoiceNextStepSchema = Type.Object(
+const Civ7NarrativeChoiceNextStepSchema = Type.Object(
   {
     kind: Type.Union([
       Type.Literal("refresh-attention"),
@@ -93,14 +93,14 @@ export type Civ7NarrativeChoiceResult = Static<typeof Civ7NarrativeChoiceResultS
 
 const Civ7NarrativeChoiceInputStandardSchema = toStandardSchema(Civ7NarrativeChoiceInputSchema);
 const Civ7NarrativeChoiceResultStandardSchema = toStandardSchema(Civ7NarrativeChoiceResultSchema);
-export type Civ7NarrativeChoiceContract = ContractProcedure<
+type Civ7NarrativeChoiceContract = ContractProcedure<
   typeof Civ7NarrativeChoiceInputStandardSchema,
   typeof Civ7NarrativeChoiceResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7NarrativeChoiceContract: Civ7NarrativeChoiceContract = civ7ControlOrpcContractBase
+const Civ7NarrativeChoiceContract: Civ7NarrativeChoiceContract = civ7ControlOrpcContractBase
   .input(Civ7NarrativeChoiceInputStandardSchema)
   .output(Civ7NarrativeChoiceResultStandardSchema)
   .meta({

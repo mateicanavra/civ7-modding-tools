@@ -12,7 +12,7 @@ import { murusDacicus } from "@constructibles/murus-dacicus";
 import { extractComponents } from "@utils";
 
 // Collect all constructible packages
-export const constructiblePackages = [mountainSanctuary, murusDacicus];
+const constructiblePackages = [mountainSanctuary, murusDacicus];
 
 // Extract and export components
 const {

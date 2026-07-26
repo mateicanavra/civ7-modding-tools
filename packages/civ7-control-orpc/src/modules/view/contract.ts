@@ -53,10 +53,10 @@ const Civ7ViewCameraFocusInputSchema = Type.Object(
   },
   { additionalProperties: false }
 );
-export type Civ7ViewCameraFocusInput = Static<typeof Civ7ViewCameraFocusInputSchema>;
+type Civ7ViewCameraFocusInput = Static<typeof Civ7ViewCameraFocusInputSchema>;
 
 const Civ7ViewCameraFocusResultSchema = Civ7ViewCameraSchema;
-export type Civ7ViewCameraFocusResult = Static<typeof Civ7ViewCameraFocusResultSchema>;
+type Civ7ViewCameraFocusResult = Static<typeof Civ7ViewCameraFocusResultSchema>;
 
 const Civ7ViewAppshotCaptureInputSchema = Type.Object(
   {
@@ -85,7 +85,7 @@ const Civ7ViewAppshotCaptureInputSchema = Type.Object(
   },
   { additionalProperties: false }
 );
-export type Civ7ViewAppshotCaptureInput = Static<typeof Civ7ViewAppshotCaptureInputSchema>;
+type Civ7ViewAppshotCaptureInput = Static<typeof Civ7ViewAppshotCaptureInputSchema>;
 
 const Civ7ViewAppshotWindowSchema = Type.Object(
   {

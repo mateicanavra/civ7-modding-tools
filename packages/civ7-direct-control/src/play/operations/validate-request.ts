@@ -126,7 +126,7 @@ export async function requestCiv7PlayerOperation(
   return await requestCiv7Operation("player-operation", input, options, dependencies);
 }
 
-export function buildOperationValidationCommand(
+function buildOperationValidationCommand(
   family: Civ7OperationFamily,
   input: Civ7OperationInput,
   dependencies: Pick<OperationRequestDependencies, "jsLiteral">
@@ -137,7 +137,7 @@ export function buildOperationValidationCommand(
   })()`;
 }
 
-export function buildOperationRequestCommand(
+function buildOperationRequestCommand(
   family: Civ7OperationFamily,
   input: Civ7OperationInput,
   dependencies: Pick<OperationRequestDependencies, "jsLiteral">

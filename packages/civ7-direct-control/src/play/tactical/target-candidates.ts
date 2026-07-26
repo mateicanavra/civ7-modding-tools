@@ -201,7 +201,7 @@ const runtimeObjectReaderSource = (): string => `const callMaybe = (value, key) 
       return undefined;
     };`;
 
-export function targetCandidatesSource(): string {
+function targetCandidatesSource(): string {
   return `${probeHelperSource()}
     ${runtimeObjectReaderSource()}
     const relationshipLabelPolicy = {

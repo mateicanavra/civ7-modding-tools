@@ -16,7 +16,7 @@ type ReliefComputationConfig = Readonly<{
 /**
  * Converts uplift + boundary proximity into a blended uplift intensity.
  */
-export function computeUpliftBlend(params: {
+function computeUpliftBlend(params: {
   upliftNorm: number;
   closenessNorm: number;
   interiorNoiseWeight: number;

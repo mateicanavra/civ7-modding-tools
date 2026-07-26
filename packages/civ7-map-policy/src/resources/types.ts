@@ -40,7 +40,7 @@ export type OfficialPlacementConstraintSummary = {
   readonly placementFlags: ResourceDistributionFacts;
 };
 
-export type ResourceDisposition<TStatus extends string> = {
+type ResourceDisposition<TStatus extends string> = {
   readonly status: TStatus;
   readonly rationale: string;
 };

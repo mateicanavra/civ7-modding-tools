@@ -13,7 +13,7 @@ import {
 export type StandardParityReportState = "complete-pass" | "complete-failed" | "blocked-unresolved";
 
 /** Correlation claims that bind exact authorship, replay, and live observation. */
-export type StandardParityIdentityComparison = Readonly<{
+type StandardParityIdentityComparison = Readonly<{
   mapSeed: StandardParityComparison;
   gameSeed: StandardParityComparison;
   mapSize: StandardParityComparison;

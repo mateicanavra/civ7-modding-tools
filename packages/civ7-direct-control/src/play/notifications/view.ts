@@ -285,7 +285,7 @@ function buildPlayNotificationViewCommand(options: { maxNotifications?: number }
   })()`;
 }
 
-export function playNotificationViewSource(): string {
+function playNotificationViewSource(): string {
   return `${probeHelperSource()}
     const readNumericField = (value, lowerKey, upperKey) => {
       if (!value || typeof value !== "object") return null;

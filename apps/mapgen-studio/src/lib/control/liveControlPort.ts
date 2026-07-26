@@ -1,10 +1,8 @@
 import { orpcClient } from "../orpc";
 
-export type LiveControlExploreRequestInput = Parameters<
-  typeof orpcClient.civ7.display.explore.request
->[0];
+type LiveControlExploreRequestInput = Parameters<typeof orpcClient.civ7.display.explore.request>[0];
 
-export type LiveControlExploreRequestResult = Awaited<
+type LiveControlExploreRequestResult = Awaited<
   ReturnType<typeof orpcClient.civ7.display.explore.request>
 >;
 
@@ -35,7 +33,7 @@ export type LiveControlPort = Readonly<{
   }>;
 }>;
 
-export function createBoundLiveControlPort(
+function createBoundLiveControlPort(
   client: Pick<typeof orpcClient, "civ7"> = orpcClient
 ): LiveControlPort {
   return {

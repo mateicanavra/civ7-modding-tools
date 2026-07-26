@@ -6,7 +6,7 @@ import type {
   BaselineExpansionResult,
   expandBaselinesEffect,
 } from "@habitat/cli/service/modules/check/model/policy/baseline-expansion.policy";
-import { checkRouter } from "@habitat/cli/service/modules/check/router";
+import { router as checkRouter } from "@habitat/cli/service/modules/check/router";
 import { Effect } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { beforeEach, describe, expect, test, vi } from "vitest";

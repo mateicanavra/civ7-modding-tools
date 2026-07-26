@@ -11,7 +11,7 @@ import { measureStandardRelief, type StandardReliefMetrics } from "./families/re
 import { measureStandardResources, type StandardResourceMetrics } from "./families/resources.js";
 
 /** Family measurements projected from one completed Standard map. */
-export type StandardMapMetrics = Readonly<{
+type StandardMapMetrics = Readonly<{
   geography: StandardGeographyMetrics;
   relief: StandardReliefMetrics;
   hydrology: StandardHydrologyMetrics;

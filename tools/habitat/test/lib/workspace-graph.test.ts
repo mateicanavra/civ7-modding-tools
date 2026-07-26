@@ -4,11 +4,11 @@ import type { RuleGraphFacts } from "@habitat/cli/service/model/rules/dto/regist
 import type { WorkspaceProject } from "@habitat/cli/service/model/workspace/index";
 import {
   aggregateWorkspaceDependency,
-  explicitProjectTarget,
+  explicitProjectTargetDependency,
   multiDependencyTargetRelationship,
-  resolveDependencyDeclaration,
+  resolveTargetDependencyDeclaration,
   ruleAliasTargetState,
-  sameProjectTarget,
+  sameProjectTargetDependency,
   workspaceGraphTargetNames,
 } from "@habitat/cli/service/model/workspace/index";
 import { describe, expect, test } from "vitest";
@@ -40,7 +40,7 @@ const projects: WorkspaceProject[] = [
 describe("Workspace graph", () => {
   test("normalizes same-project dependency declarations", () => {
     expect(
-      resolveDependencyDeclaration(sameProjectTarget("check:boundaries"), {
+      resolveTargetDependencyDeclaration(sameProjectTargetDependency("check:boundaries"), {
         declaringProject: "tooling",
         projects,
       })
@@ -56,7 +56,7 @@ describe("Workspace graph", () => {
 
   test("refuses a same-project dependency when the declaring project lacks the target", () => {
     expect(
-      resolveDependencyDeclaration(sameProjectTarget("missing"), {
+      resolveTargetDependencyDeclaration(sameProjectTargetDependency("missing"), {
         declaringProject: "tooling",
         projects,
       })
@@ -73,10 +73,13 @@ describe("Workspace graph", () => {
 
   test("refuses an explicit dependency when the project is missing", () => {
     expect(
-      resolveDependencyDeclaration(explicitProjectTarget("missing-project", "build"), {
-        declaringProject: "tooling",
-        projects,
-      })
+      resolveTargetDependencyDeclaration(
+        explicitProjectTargetDependency("missing-project", "build"),
+        {
+          declaringProject: "tooling",
+          projects,
+        }
+      )
     ).toEqual([
       {
         kind: "unresolved-target-dependency",
@@ -94,12 +97,12 @@ describe("Workspace graph", () => {
 
   test("resolves aggregate dependencies only when every child target is visible", () => {
     const declaration = aggregateWorkspaceDependency("generated:check", [
-      explicitProjectTarget("library-a", "build"),
-      explicitProjectTarget("policy-b", "verify"),
+      explicitProjectTargetDependency("library-a", "build"),
+      explicitProjectTargetDependency("policy-b", "verify"),
     ]);
 
     expect(
-      resolveDependencyDeclaration(declaration, {
+      resolveTargetDependencyDeclaration(declaration, {
         declaringProject: "tooling",
         projects,
       })
@@ -129,12 +132,12 @@ describe("Workspace graph", () => {
 
   test("refuses aggregate dependencies when a child project target is missing", () => {
     const declaration = aggregateWorkspaceDependency("generated:check", [
-      explicitProjectTarget("library-a", "build"),
-      explicitProjectTarget("policy-b", "missing"),
+      explicitProjectTargetDependency("library-a", "build"),
+      explicitProjectTargetDependency("policy-b", "missing"),
     ]);
 
     expect(
-      resolveDependencyDeclaration(declaration, {
+      resolveTargetDependencyDeclaration(declaration, {
         declaringProject: "tooling",
         projects,
       })
@@ -153,8 +156,8 @@ describe("Workspace graph", () => {
 
   test("resolves multi-dependency relationships with scoped project and multi-colon targets", () => {
     const declaration = multiDependencyTargetRelationship("broad:gate", [
-      explicitProjectTarget("@scope/project-a", "test:architecture:core"),
-      sameProjectTarget("generated:check"),
+      explicitProjectTargetDependency("@scope/project-a", "test:architecture:core"),
+      sameProjectTargetDependency("generated:check"),
     ]);
     const scopedProjects: WorkspaceProject[] = [
       {
@@ -174,7 +177,7 @@ describe("Workspace graph", () => {
     ];
 
     expect(
-      resolveDependencyDeclaration(declaration, {
+      resolveTargetDependencyDeclaration(declaration, {
         declaringProject: "tooling",
         projects: scopedProjects,
       })

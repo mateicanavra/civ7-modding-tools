@@ -27,15 +27,10 @@ export {
 } from "./dto/workspace.schema.js";
 export {
   aggregateWorkspaceDependency,
-  aggregateWorkspaceTarget,
-  explicitProjectTarget,
   explicitProjectTargetDependency,
   graphRefusalMessage,
-  multiDependencyTarget,
   multiDependencyTargetRelationship,
-  resolveDependencyDeclaration,
   resolveTargetDependencyDeclaration,
-  sameProjectTarget,
   sameProjectTargetDependency,
 } from "./policy/target-dependencies.policy.js";
 export {

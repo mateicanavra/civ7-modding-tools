@@ -140,7 +140,7 @@ function buildReadyUnitViewCommand(
   })()`;
 }
 
-export function readyUnitViewSource(): string {
+function readyUnitViewSource(): string {
   return `${probeHelperSource()}
     const toComponentId = (value) => {
       if (!value || typeof value !== "object") return null;

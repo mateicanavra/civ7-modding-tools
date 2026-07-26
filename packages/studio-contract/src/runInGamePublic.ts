@@ -1,4 +1,4 @@
-import { type Static, Type } from "typebox";
+import { Type } from "typebox";
 
 export const RUN_IN_GAME_SAFE_FAILURE_CATEGORIES = [
   "request-validation",
@@ -29,5 +29,3 @@ export const runInGameSafeFailureCategory = Type.Union([
   Type.Literal("operation-cancelled"),
   Type.Literal("internal-defect"),
 ]);
-
-export type RunInGameSafeFailureCategorySchema = Static<typeof runInGameSafeFailureCategory>;

@@ -1,4 +1,4 @@
-export type CompileErrorCode =
+type CompileErrorCode =
   | "config.invalid"
   | "stage.compile.failed"
   | "stage.unknown-step-id"

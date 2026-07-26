@@ -1,5 +1,5 @@
 import path from "node:path";
-import { baselinesRepoPath, ruleRegistryRepoPath } from "@habitat/cli/resources/authority-paths";
+import { baselinesRepoPath, habitatAuthorityRoot } from "@habitat/cli/resources/authority-paths";
 import { renderHabitatError } from "@habitat/cli/resources/errors/index";
 import {
   loadRuleRegistryDocumentEffect,
@@ -346,7 +346,7 @@ function readCurrentRuleRegistryEffect<R>(
 ): Effect.Effect<BaselineRuleContractInput[], never, R> {
   return Effect.gen(function* () {
     try {
-      const parsed = yield* loadRuleRegistryDocumentEffect(path.join(root, ruleRegistryRepoPath), {
+      const parsed = yield* loadRuleRegistryDocumentEffect(path.join(root, habitatAuthorityRoot), {
         isDirectory: fileSystem.isDirectory,
         readDirectory: fileSystem.readDirectory,
         readText: fileSystem.readText,
@@ -466,7 +466,7 @@ function loadBaseRuleIdsEffect<R>(
   R
 > {
   return Effect.gen(function* () {
-    const registryPath = ruleRegistryRepoPath;
+    const registryPath = habitatAuthorityRoot;
     const rulePackAtBase = yield* gitShowMovedAuthoredArtifactEffect<R>(
       mb,
       `${registryPath}/rules.json`,

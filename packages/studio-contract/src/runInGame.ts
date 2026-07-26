@@ -51,7 +51,7 @@ export type RunInGamePhase = (typeof RUN_IN_GAME_PHASES)[number];
 
 export type RunInGameOperationKind = "running" | "completed" | "failed" | "cancelled";
 
-export const runInGamePhase = Type.Union([
+const runInGamePhase = Type.Union([
   Type.Literal("admitting-config"),
   Type.Literal("generating-artifacts"),
   Type.Literal("deploying"),
@@ -62,7 +62,7 @@ export const runInGamePhase = Type.Union([
   Type.Literal("cancelled"),
 ]);
 
-export const runInGameOperationKind = Type.Union([
+const runInGameOperationKind = Type.Union([
   Type.Literal("running"),
   Type.Literal("completed"),
   Type.Literal("failed"),
@@ -78,7 +78,7 @@ const runInGameRunningPhase = Type.Union([
 ]);
 
 // RunInGameFileIdentity
-export const fileIdentity = Type.Object(
+const fileIdentity = Type.Object(
   {
     path: Type.String(),
     sha256: Type.String(),
@@ -90,7 +90,7 @@ export const fileIdentity = Type.Object(
 );
 export type RunInGameFileIdentity = Static<typeof fileIdentity>;
 
-export const contentMarkerEvidence = Type.Object(
+const contentMarkerEvidence = Type.Object(
   {
     id: Type.String(),
     marker: Type.String(),
@@ -100,7 +100,7 @@ export const contentMarkerEvidence = Type.Object(
 );
 export type RunInGameContentMarkerEvidence = Static<typeof contentMarkerEvidence>;
 
-export const fileContentEvidence = Type.Object(
+const fileContentEvidence = Type.Object(
   {
     path: Type.String(),
     markers: Type.Array(contentMarkerEvidence),
@@ -139,7 +139,7 @@ export const materializationStatus = Type.Object(
 export type RunInGameMaterializationStatus = Static<typeof materializationStatus>;
 
 /** Portable scalar or exclusion-list value carried by one authored Civ7 setup option. */
-export const setupOptionValue = Type.Union([
+const setupOptionValue = Type.Union([
   Type.String(),
   Type.Number(),
   Type.Boolean(),
@@ -168,7 +168,7 @@ export const savedSetupConfigRef = Type.Object(
 export type RunInGameSavedSetupConfigRef = Static<typeof savedSetupConfigRef>;
 
 /** One unique initial Civ7 player slot and its closed official setup options. */
-export const playerSetupConfig = Civ7PlayerSetupSchema;
+const playerSetupConfig = Civ7PlayerSetupSchema;
 export type RunInGamePlayerSetupConfig = Static<typeof playerSetupConfig>;
 
 /** Complete authored Civ7 launch setup grouped by official game, map, and player ownership. */
@@ -423,7 +423,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 // RunInGameRequestStatus
-export const requestStatus = Type.Object(
+const requestStatus = Type.Object(
   {
     recipeId: Type.Optional(Type.String()),
     seed: Type.Optional(Civ7SignedIntSeedSchema),
@@ -442,7 +442,7 @@ export type RunInGameRequestStatus = DeepReadonly<Static<typeof requestStatus>>;
 
 // RunInGameFailureDetails - private legacy diagnostics shape. It is not part of
 // the public Run in Game status wire contract.
-export const failureDetails = Type.Object(
+const failureDetails = Type.Object(
   {
     failureClass: Type.Optional(Type.String()),
     code: Type.Optional(Type.String()),
@@ -618,7 +618,7 @@ const publicRunStatusBaseFields = {
  * attribution, runtime snapshots, generated artifacts, and raw errors are served
  * only through explicit diagnostics lookup.
  */
-export const publicRunStatusTypeSchema = Type.Union([
+export const operationStatusTypeSchema = Type.Union([
   Type.Object(
     {
       ...publicRunStatusBaseFields,
@@ -654,14 +654,10 @@ export const publicRunStatusTypeSchema = Type.Union([
     { additionalProperties: false }
   ),
 ]);
-export type PublicRunStatus = Static<typeof publicRunStatusTypeSchema>;
-
-// Canonical operation status export for callers that consume the public Run in
-// Game status DTO. The schema does not carry private diagnostics fields.
-export const operationStatusTypeSchema = publicRunStatusTypeSchema;
 export type RunInGameOperationStatus = Static<typeof operationStatusTypeSchema>;
+export type PublicRunStatus = RunInGameOperationStatus;
 
-export const operationStatusSchema = contractSchema(operationStatusTypeSchema);
+const operationStatusSchema = contractSchema(operationStatusTypeSchema);
 
 const requestIdInputSchema = contractSchema(
   Type.Object(
