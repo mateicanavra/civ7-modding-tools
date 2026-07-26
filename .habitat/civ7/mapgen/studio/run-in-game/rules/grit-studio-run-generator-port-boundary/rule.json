@@ -29,7 +29,6 @@
       "kind": "project-owner"
     }
   ],
-  "scanRoots": ["packages/studio-server/src", "apps/mapgen-studio/src/server"],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-generator-port-boundary/baseline.json"
   },
@@ -38,6 +37,13 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-generator-port-boundary/pattern.md"
     },
-    "patternName": "grit_studio_run_generator_port_boundary"
+    "patternName": "grit_studio_run_generator_port_boundary",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "packages/studio-server/src",
+        "apps/mapgen-studio/src/server"
+      ]
+    }
   }
 }

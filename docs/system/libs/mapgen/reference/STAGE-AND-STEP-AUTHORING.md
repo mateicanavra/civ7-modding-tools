@@ -32,38 +32,43 @@ ownership migration removes the alias; do not add new alias mappings or deep
 imports.
 
 ```ts
-import hydrology from "@mapgen/domain/hydrology";
+import hydrology, { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../tag-contracts.js";
-import { artifacts as hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts/index.js";
-import { artifacts as mapMorphologyArtifacts } from "../../../map-morphology/artifacts/index.js";
+import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
 import { artifactModules as mapRiversArtifactModules } from "../../artifacts/index.js";
 
 /** Contract and compiled configuration boundary for Civ7 river projection. */
 export const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
   engine: [
+    "isWater",
+    "getTerrainType",
     "setTerrainType",
     "modelRivers",
     "validateAndFixTerrain",
+    "storeWaterData",
+    "defineNamedRivers",
+    "recalculateAreas",
     "readRiverProjection",
   ] as const,
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted],
   artifacts: {
     requires: [
-      hydrologyHydrographyArtifacts.hydrography,
-      hydrologyHydrographyArtifacts.lakePlan,
-      hydrologyHydrographyArtifacts.riverNetworkMetrics,
-      mapMorphologyArtifacts.coastClassification,
+      hydrologyArtifacts.hydrography,
+      hydrologyArtifacts.lakePlan,
+      hydrologyArtifacts.riverNetwork,
+      morphologyArtifacts.shelf,
+      morphologyArtifacts.topography,
     ],
     provides: [mapRiversArtifactModules.projectedNavigableRivers],
   },
   ops: {
     selectNavigableRiverTerrain: hydrology.ops.selectNavigableRiverTerrain,
   },
-  schema: Type.Object({}),
+  schema: Type.Object({}, { additionalProperties: false }),
 });
 ```
 
@@ -163,5 +168,5 @@ topology by sorting or repairing the authored recipe.
 - Config compilation uses StageContractAny/StepModuleAny: `packages/mapgen-core/src/compiler/recipe-compile.ts`
 - Recipe DAG projection: `packages/mapgen-core/src/authoring/recipe-dag.ts`
 - Policy: schemas and validation: `docs/system/libs/mapgen/policies/SCHEMAS-AND-VALIDATION.md`
-- Example step config (contract + artifacts): `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plot-rivers/config.ts`
-- Example step module (createStep boundary): `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plot-rivers/step.ts`
+- Example step config (contract + artifacts): `mods/mod-swooper-maps/src/recipes/standard/stages/map/rivers/steps/plot-rivers/config.ts`
+- Example step module (createStep boundary): `mods/mod-swooper-maps/src/recipes/standard/stages/map/rivers/steps/plot-rivers/step.ts`

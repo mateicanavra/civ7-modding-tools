@@ -19,14 +19,10 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/**/*.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/**/*.ts"
+      ]
     }
-  ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-routing",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features"
   ],
   "hookCheck": true,
   "supportFiles": {
@@ -37,6 +33,15 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_runtime_continent_step_tokens/pattern.md"
     },
-    "patternName": "prohibit_morphology_runtime_continent_step_tokens"
+    "patternName": "prohibit_morphology_runtime_continent_step_tokens",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-routing",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features"
+      ]
+    }
   }
 }

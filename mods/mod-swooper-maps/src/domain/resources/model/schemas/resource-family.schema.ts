@@ -1,4 +1,4 @@
-import { type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { type Static, Type } from "@swooper/mapgen-core/authoring/schema";
 
 export type ResourceSymbol = `RESOURCE_${string}`;
 

@@ -5,10 +5,15 @@ import type {
 } from "@habitat/cli/resources/rule-diagnostics/resource";
 import {
   diagnosticProviderFailureDiagnostic,
-  renderDiagnosticScanRootRefusal,
+  renderDiagnosticAcquisitionRootRefusal,
 } from "@habitat/cli/service/model/diagnostics/index";
 import type { RuleGritFacts } from "@habitat/cli/service/model/rules/index";
 import { Clock, Effect, Match, Option } from "effect";
+import {
+  type PlannedGritRule,
+  planGritRuleAcquisitions,
+  sortedUnique,
+} from "./acquisition-roots/index.js";
 import { runGritApplyDryRunAcquisitionEffect } from "./apply-dry-run.js";
 import { runGritCheckAcquisitionEffect, runGritCheckAcquisitionsEffect } from "./check.js";
 import type { GritCommandService } from "./command.js";
@@ -23,12 +28,11 @@ import {
   type GritDiagnosticAcquisition,
   preCommandFailure,
 } from "./output.js";
-import { type PlannedGritRule, planGritRuleRoots, sortedUnique } from "./scan-roots/index.js";
 
 interface GritRunOptions {
   readonly repoRoot: string;
   readonly grit: GritCommandService;
-  readonly scanRoots?: readonly string[];
+  readonly acquisitionRoots?: readonly string[];
 }
 
 export const runGritRulesEffect = Effect.fn("grit.rules.run")(function* (
@@ -68,7 +72,11 @@ function selectedRuleExecutionEntry(
 
 type ExecuteGritPlan = Extract<PlannedGritRule, { kind: "execute" }>;
 type CheckGritPlan = ExecuteGritPlan & {
-  readonly rule: RuleGritFacts & { readonly diagnosticAcquisition: { readonly kind: "check" } };
+  readonly rule: RuleGritFacts & {
+    readonly runner: RuleGritFacts["runner"] & {
+      readonly acquisition: { readonly kind: "check"; readonly roots: readonly string[] };
+    };
+  };
 };
 
 type GritExecutionUnit =
@@ -79,9 +87,9 @@ const runGritDiagnosticExecutionsEffect = Effect.fn("grit.diagnosticExecutions.r
   selectedRules: readonly RuleGritFacts[],
   options: GritRunOptions
 ) {
-  const plans = yield* planGritRuleRoots(selectedRules, {
+  const plans = yield* planGritRuleAcquisitions(selectedRules, {
     repoRoot: options.repoRoot,
-    scanRoots: options.scanRoots,
+    acquisitionRoots: options.acquisitionRoots,
   });
   const executions = yield* Effect.forEach(
     executionUnits(plans),
@@ -285,7 +293,7 @@ function singleExecutionUnit(plan: PlannedGritRule): readonly GritExecutionUnit[
 }
 
 function isCheckPlan(plan: PlannedGritRule): plan is CheckGritPlan {
-  return plan.kind === "execute" && plan.rule.diagnosticAcquisition.kind === "check";
+  return plan.kind === "execute" && plan.rule.runner.acquisition.kind === "check";
 }
 
 function rootsKey(roots: readonly string[]): string {
@@ -341,10 +349,10 @@ const executePlanEffect = Effect.fn("grit.plan.execute")(function* (
     ),
     Match.when({ kind: "refused" }, (refused) =>
       Effect.succeed({
-        kind: "scan-root-refused",
+        kind: "acquisition-root-refused",
         ruleId: refused.rule.id,
         decision: refused.decision,
-        detail: renderDiagnosticScanRootRefusal(refused.decision),
+        detail: renderDiagnosticAcquisitionRootRefusal(refused.decision),
       } as const)
     ),
     Match.when({ kind: "failed" }, (failed) =>
@@ -366,7 +374,7 @@ const executeAcquisitionPolicyEffect = Effect.fn("grit.acquisitionPolicy.execute
   plan: Extract<PlannedGritRule, { kind: "execute" }>,
   options: GritRunOptions
 ) {
-  return yield* Match.value(plan.rule.diagnosticAcquisition).pipe(
+  return yield* Match.value(plan.rule.runner.acquisition).pipe(
     Match.when({ kind: "check" }, () => executeCheckPolicyEffect(plan, options)),
     Match.when({ kind: "apply-dry-run" }, () => executeApplyPolicyEffect(plan, options)),
     Match.exhaustive
@@ -550,7 +558,7 @@ function ruleDiagnosticExecutionFromOutcome(
       reason,
       ...measurement,
     })),
-    Match.when({ kind: "scan-root-refused" }, ({ decision, detail }) => ({
+    Match.when({ kind: "acquisition-root-refused" }, ({ decision, detail }) => ({
       kind: "refused" as const,
       decision,
       detail,

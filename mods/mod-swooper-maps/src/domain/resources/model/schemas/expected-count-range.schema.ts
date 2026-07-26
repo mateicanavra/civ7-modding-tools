@@ -1,4 +1,4 @@
-import { type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { type Static, Type } from "@swooper/mapgen-core/authoring/schema";
 
 const ResourceExpectationRangeEvidenceSchema = Type.Union([
   Type.Literal("source-backed"),

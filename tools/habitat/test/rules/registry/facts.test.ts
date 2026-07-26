@@ -32,7 +32,7 @@ describe("rule registry facts", () => {
       rules: [
         baseRule({
           runner: {
-            ...gritRunner("sample-rule"),
+            ...gritRunner("sample-rule", ["packages"]),
             patternName: "sample_pattern",
             fix: {
               kind: "preview-only",
@@ -40,7 +40,6 @@ describe("rule registry facts", () => {
               effects: ["modify"],
             },
           },
-          scanRoots: ["packages"],
         }),
       ],
     });
@@ -53,28 +52,29 @@ describe("rule registry facts", () => {
     expect(Object.isFrozen(catalog)).toBe(true);
     expect(Object.isFrozen(catalog.grit)).toBe(true);
     expect(Object.isFrozen(firstGritRule)).toBe(true);
-    expect(Object.isFrozen(firstGritRule.scanRoots)).toBe(true);
     expect(Object.isFrozen(firstGritRule.runner)).toBe(true);
     expect(Object.isFrozen(firstGritRule.runner.files)).toBe(true);
+    expect(Object.isFrozen(firstGritRule.runner.acquisition)).toBe(true);
+    expect(Object.isFrozen(firstGritRule.runner.acquisition.roots)).toBe(true);
     expect(Object.isFrozen(catalog.fix)).toBe(true);
     expect(Object.isFrozen(catalog.fix[0]?.fix)).toBe(true);
     expect(Object.isFrozen(catalog.fix[0]?.fix.effects)).toBe(true);
-    expect(() => (firstGritRule.scanRoots as string[]).push("other")).toThrow(TypeError);
+    expect(() => (firstGritRule.runner.acquisition.roots as string[]).push("other")).toThrow(
+      TypeError
+    );
   });
 
   test("separates diagnostic execution and fix admission facts", () => {
     const rule = baseRule({
       runner: {
-        ...gritRunner("sample-rule"),
+        ...gritRunner("sample-rule", ["packages"], "apply-dry-run"),
         patternName: "sample_pattern",
-        diagnosticAcquisition: { kind: "apply-dry-run" },
         fix: {
           kind: "preview-only",
           pattern: ".habitat/fixtures/rules/sample-rule/fix.pattern.md",
           effects: ["modify"],
         },
       },
-      scanRoots: ["packages"],
       hookCheck: true,
     });
 
@@ -84,7 +84,7 @@ describe("rule registry facts", () => {
         lane: "enforced",
         message: "Fix the structural issue.",
         pathCoverage: [{ kind: "project-owner" }],
-        scanRoots: ["packages"],
+        acquisition: { kind: "apply-dry-run", roots: ["packages"] },
       },
     ]);
     expect(ruleGritFacts([rule])).toEqual([
@@ -92,11 +92,12 @@ describe("rule registry facts", () => {
         id: "sample-rule",
         lane: "enforced",
         message: "Fix the structural issue.",
-        runner: { ...gritRunner("sample-rule"), patternName: "sample_pattern" },
+        runner: {
+          ...gritRunner("sample-rule", ["packages"], "apply-dry-run"),
+          patternName: "sample_pattern",
+        },
         patternName: "sample_pattern",
-        diagnosticAcquisition: { kind: "apply-dry-run" },
         pathCoverage: [{ kind: "project-owner" }],
-        scanRoots: ["packages"],
       },
     ]);
     expect(ruleFixFacts([rule])).toEqual([
@@ -105,7 +106,7 @@ describe("rule registry facts", () => {
         lane: "enforced",
         message: "Fix the structural issue.",
         pathCoverage: [{ kind: "project-owner" }],
-        scanRoots: ["packages"],
+        acquisition: { kind: "apply-dry-run", roots: ["packages"] },
         patternName: "sample_pattern",
         fix: {
           kind: "preview-only",
@@ -120,7 +121,10 @@ describe("rule registry facts", () => {
         hookCheck: true,
       },
     ]);
-    const projectedRunner = { ...gritRunner("sample-rule"), patternName: "sample_pattern" };
+    const projectedRunner = {
+      ...gritRunner("sample-rule", ["packages"], "apply-dry-run"),
+      patternName: "sample_pattern",
+    };
     expect(ruleSelectorFacts([rule])[0]?.runner).toEqual(projectedRunner);
     expect(ruleReportFacts([rule])[0]?.runner).toEqual(projectedRunner);
     expect(ruleRoutingFacts([rule])[0]?.runner).toEqual(projectedRunner);
@@ -129,7 +133,6 @@ describe("rule registry facts", () => {
       ruleReportFacts([rule]),
       ruleRoutingFacts([rule]),
     ]) {
-      expect(facts[0]?.runner).not.toHaveProperty("diagnosticAcquisition");
       expect(facts[0]?.runner).not.toHaveProperty("fix");
     }
     expect(ruleAuthorityPathFacts([rule])).toEqual([
@@ -145,8 +148,7 @@ describe("rule registry facts", () => {
     const commandRule = baseRule();
     const gritRule = baseRule({
       id: "rule",
-      runner: { ...gritRunner("rule"), patternName: "sample_pattern" },
-      scanRoots: ["packages"],
+      runner: { ...gritRunner("rule", ["packages"]), patternName: "sample_pattern" },
       hookCheck: true,
     });
     const fileLayerRule = baseRule({
@@ -174,11 +176,9 @@ describe("rule registry facts", () => {
         id: "rule",
         lane: "enforced",
         message: "Fix the structural issue.",
-        runner: { ...gritRunner("rule"), patternName: "sample_pattern" },
+        runner: { ...gritRunner("rule", ["packages"]), patternName: "sample_pattern" },
         patternName: "sample_pattern",
-        diagnosticAcquisition: { kind: "check" },
         pathCoverage: [{ kind: "project-owner" }],
-        scanRoots: ["packages"],
       },
     ]);
     expect(ruleFileLayerFacts([commandRule, gritRule, fileLayerRule, structureRule])).toEqual([
@@ -226,8 +226,10 @@ describe("rule registry facts", () => {
         baseRule({
           exceptionPath:
             ".habitat/civ7/platform/_blueprints/civ7-adapter/block_unapproved_base_standard_boundary_leaks/check.sh#ALLOWLIST",
-          runner: { ...gritRunner("sample-rule"), patternName: "sample_pattern" },
-          scanRoots: ["packages"],
+          runner: {
+            ...gritRunner("sample-rule", ["packages"]),
+            patternName: "sample_pattern",
+          },
           hookCheck: true,
           supportFiles: {
             baseline: ".habitat/fixtures/rules/sample-rule/baseline.json",

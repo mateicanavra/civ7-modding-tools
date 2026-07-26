@@ -7,6 +7,8 @@ import {
   type SchemaBoundArtifactModuleList,
   snapshotArtifactModule as snapshotBoundArtifactModule,
 } from "../artifact/module.js";
+import { freezeContractGraph, snapshotContractGraph } from "../contract-graph.js";
+import { isCanonicalOpContract } from "../op/contract.js";
 import { buildOpEnvelopeSchema } from "../op/envelope.js";
 import type { OpTypeBagOf } from "../op/types.js";
 import { applySchemaConventions } from "../schema.js";
@@ -19,75 +21,9 @@ import type {
   StepOpUse,
   ValidatedStepOpsDeclInput,
 } from "./ops.js";
+import { registerScopedStepOpDeclarationInternal } from "./ops.js";
 
 type PropsOf<T extends TObject> = T extends TObject<infer P> ? P : never;
-
-function freezeStepContractGraph(value: unknown, seen = new WeakSet<object>()): void {
-  if (value === null || typeof value !== "object" || seen.has(value)) {
-    return;
-  }
-
-  seen.add(value);
-  for (const key of Reflect.ownKeys(value)) {
-    const descriptor = Object.getOwnPropertyDescriptor(value, key);
-    if (!descriptor || !("value" in descriptor)) {
-      throw new TypeError("step contract graphs must contain data properties only");
-    }
-    freezeStepContractGraph(descriptor.value, seen);
-  }
-  Object.freeze(value);
-}
-
-type StepContractSnapshotState = Readonly<{
-  active: WeakSet<object>;
-  snapshots: WeakMap<object, object>;
-}>;
-
-function snapshotStepContractGraph(
-  value: unknown,
-  location: string,
-  state: StepContractSnapshotState = {
-    active: new WeakSet<object>(),
-    snapshots: new WeakMap<object, object>(),
-  }
-): unknown {
-  if (value === null || (typeof value !== "object" && typeof value !== "function")) return value;
-
-  // TypeBox codecs carry executable behavior. The contract borrows callback identity while
-  // detaching and freezing the surrounding schema data that selects and describes that behavior.
-  if (typeof value === "function") return value;
-  if (state.active.has(value)) {
-    throw new TypeError(`${location} must not contain cyclic schema metadata`);
-  }
-  const existing = state.snapshots.get(value);
-  if (existing) return existing;
-
-  const isArray = Array.isArray(value);
-  const prototype = Object.getPrototypeOf(value);
-  const expectedPrototype = isArray ? Array.prototype : Object.prototype;
-  if (prototype !== expectedPrototype && prototype !== null) {
-    throw new TypeError(
-      `${location} must contain only plain schema data; mutable object instances are unsupported`
-    );
-  }
-
-  const snapshot: object = isArray ? [] : Object.create(prototype);
-  state.active.add(value);
-  state.snapshots.set(value, snapshot);
-  for (const key of Reflect.ownKeys(value)) {
-    const descriptor = Object.getOwnPropertyDescriptor(value, key);
-    if (!descriptor || !("value" in descriptor)) {
-      throw new TypeError(`${location} must contain data properties only`);
-    }
-    const child = `${location}${typeof key === "symbol" ? `[${String(key)}]` : `.${key}`}`;
-    Object.defineProperty(snapshot, key, {
-      ...descriptor,
-      value: snapshotStepContractGraph(descriptor.value, child, state),
-    });
-  }
-  state.active.delete(value);
-  return snapshot;
-}
 
 type OpPropsFromDecl<Ops extends StepOpsDecl> = {
   [K in keyof Ops & string]: Ops[K]["config"];
@@ -242,15 +178,19 @@ function normalizeOpsDecl<const Ops extends StepOpsDeclInput>(input: {
     );
     applySchemaConventions(config, `op:${contract.id}.config`);
 
-    out[opKey] = {
+    const declaration = {
       ...contract,
       config,
       defaultStrategy,
       defaultConfig,
     };
+    freezeContractGraph(defaultConfig);
+    Object.freeze(declaration);
+    registerScopedStepOpDeclarationInternal(declaration, contract);
+    out[opKey] = declaration;
   }
 
-  return out as StepOpsDeclNormalizedFromInput<Ops>;
+  return Object.freeze(out) as StepOpsDeclNormalizedFromInput<Ops>;
 }
 
 /**
@@ -690,10 +630,12 @@ export function defineStep(def: any): any {
   const detachedOps =
     admitted.ops === undefined
       ? undefined
-      : (snapshotStepContractGraph(admitted.ops, `step "${stepId}" ops`) as StepOpsDeclInput);
+      : (snapshotContractGraph(admitted.ops, `step "${stepId}" ops`, {
+          preserve: isCanonicalOpContract,
+        }) as StepOpsDeclInput);
   const ops = detachedOps ? normalizeOpsDecl({ stepId, ops: detachedOps }) : undefined;
 
-  const declaredSchema = snapshotStepContractGraph(
+  const declaredSchema = snapshotContractGraph(
     admitted.schema,
     `step "${stepId}" schema`
   ) as TObject;
@@ -709,7 +651,9 @@ export function defineStep(def: any): any {
     schema,
     ...(ops === undefined ? {} : { ops }),
   };
-  freezeStepContractGraph(contract);
+  // TypeBox schemas remain composable builder values. Caller inputs were detached above; freeze
+  // the owned records/defaults and outer authority without freezing any public schema graph.
+  Object.freeze(contract);
   registerCanonicalStepContractInternal(contract);
   return contract;
 }

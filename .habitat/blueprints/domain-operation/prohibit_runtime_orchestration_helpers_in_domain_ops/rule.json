@@ -19,10 +19,11 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/*/index.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/ops/*/index.ts"
+      ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain-operation/prohibit_runtime_orchestration_helpers_in_domain_ops/baseline.json"
@@ -32,6 +33,12 @@
     "files": {
       "pattern": ".habitat/blueprints/domain-operation/prohibit_runtime_orchestration_helpers_in_domain_ops/pattern.md"
     },
-    "patternName": "prohibit_runtime_orchestration_helpers_in_domain_ops"
+    "patternName": "prohibit_runtime_orchestration_helpers_in_domain_ops",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/domain"
+      ]
+    }
   }
 }

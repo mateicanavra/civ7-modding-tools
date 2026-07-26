@@ -359,12 +359,12 @@ function ruleRegistryRecord(hasManifestRelation: boolean): RuleRegistryRecord {
     remediate: null,
     message: "Resolve the fixture violation.",
     pathCoverage: [{ kind: "workspace-gate" }],
-    scanRoots: ["src"],
     supportFiles,
     runner: {
       name: "grit",
       files: { pattern: `.habitat/fixtures/rules/${fixture.ruleId}/pattern.md` },
       patternName: fixture.ruleId,
+      acquisition: { kind: "check", roots: ["src"] },
     },
   };
 }

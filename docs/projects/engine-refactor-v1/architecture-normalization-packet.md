@@ -45,7 +45,7 @@ the package-ownership consequences below without changing D1-D5.
 | D2       | Lakes are Hydrology truth, but adapter materialization/readback comes before fail-hard parity.                           | Prevents engine projection from masquerading as physics truth while avoiding the prior brittle-gate revert. | Add lake stamping/readback, then `plan-lakes`, then projection, then placement input migration.        |
 | D3       | Split placement at real product/effect contracts only.                                                                   | Exposes hidden gameplay boundaries without manufacturing fake dependency chains.                            | Promote wonders/resources/starts/discoveries/advanced-starts as real contracts one boundary at a time. |
 | D4       | Resources/discoveries use typed intent reconciliation. No naive `placed === planned`.                                    | Keeps deterministic intent without pretending all Civ7 legality is already ported.                          | Add per-tile placement outcomes and typed rejection reasons before gating.                             |
-| D5       | Ecology truth stages are `ecology-pedology`, `ecology-biomes`, and `ecology-features`; `map-ecology` is projection only. | Avoids both seven speculative feature-family wrappers and one overbroad ecology blob.                       | Fold feature-family wrappers with output-equivalence tests; dissolve stale `stages/ecology/` hub.      |
+| D5       | Ecology truth stage IDs are `ecology-pedology`, `ecology-biomes`, and `ecology-features`; `map-ecology` is projection only. Their source nests by family under `stages/ecology/{pedology,biomes,features}` and `stages/map/ecology`. | Avoids both seven speculative feature-family wrappers and one overbroad ecology blob without conflating runtime identity with filesystem layout. | Fold feature-family wrappers with output-equivalence tests; retain `stages/ecology/` only as the family container for genuinely shared surfaces. |
 | 0e       | Use a scoped import policy; enforce a narrow recipe deep-import guard first.                                             | Makes module boundaries enforceable without broad-banning legitimate internal imports.                      | Remediate public surfaces, then turn on the first `src/recipes/**` guardrail.                          |
 
 ## Source Material
@@ -195,7 +195,8 @@ public schema only for genuine authored controls.
 
 **Root cause:** old single-stage roots and centralized catalogs survived after
 the architecture moved on. Examples include recipe-root `tags.ts`,
-`stages/ecology/`, `stages/morphology/`, and broad multi-owner config files.
+retired flat sibling roots such as `stages/ecology-biomes/` and
+`stages/morphology-features/`, and broad multi-owner config files.
 
 **Why it follows authoring surface:** once the stage/config target is fixed,
 source layout can move toward the real owners without preserving wrappers for a
@@ -339,6 +340,10 @@ official resource/discovery generators as a truth source.
 
 **Decision:** normalize Ecology to the following recipe-level surfaces:
 
+The names below are stable runtime stage IDs. Physical source follows semantic
+containment under `stages/ecology/{pedology,biomes,features}` and
+`stages/map/ecology`; filesystem nesting does not change runtime identity.
+
 | Stage              | Purpose                                                                                                                 | Stage handoff                                         |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
 | `ecology-pedology` | Pedology and resource basin planning. Inputs are morphology topography plus baseline climate.                           | Soils/pedology and resource basins.                   |
@@ -401,12 +406,12 @@ policy until matching public surfaces exist.
 | `map-morphology`        | Transitional projection      | Keep only projection/materialization concerns; clean up surface/key naming and milestone tags.            |
 | Hydrology truth stages  | Mostly aligned               | Keep contract-first truth products; improve semantic tags where needed.                                   |
 | `map-hydrology` lakes   | Divergent                    | Add lake truth + adapter stamping/readback or keep engine lakes labeled projection limitation until then. |
-| Ecology truth           | Divergent topology           | Normalize to pedology, biomes, features; dissolve stale sibling `stages/ecology/` hub.                    |
+| Ecology truth           | Divergent topology           | Normalize to pedology, biomes, features nested beneath `stages/ecology/`; retain only genuinely shared family surfaces at the family root. |
 | `map-ecology`           | Transitional projection      | Keep projection-only; move any truth/scoring/planning work back upstream.                                 |
 | Placement               | Divergent                    | Split real product/effect boundaries; implement D4 typed reconciliation later.                            |
 | Core SDK purity         | Divergent                    | Move Civ7-bound map authoring/runtime calls out of pure core.                                             |
 | Studio config exports   | DX mismatch                  | Make recipe config schema/defaults source-visible or first-class generated contracts.                     |
-| Recipe/domain catalogs  | Divergent                    | Dissolve multi-owner catalogs and stale stage hubs into real owners or explicit shared surfaces.          |
+| Recipe/domain catalogs  | Divergent                    | Split multi-owner catalogs and stale flat stage roots into real stage owners or explicit family-shared surfaces. |
 | Routers / docs          | Divergent until this cleanup | Route to this packet and later OpenSpec/evergreen authorities.                                            |
 
 ## Domino Sequence
@@ -459,15 +464,17 @@ wrong shape.
 
 ### Domino 2: Colocation And Ecology Topology
 
-**Goal:** dissolve stale hubs and make stages map to real input/handoff
-surfaces.
+**Goal:** make family containers and stages map to real shared and
+input/handoff surfaces.
 
 **Actions:**
 
-- Rehome old stage hubs (`stages/ecology/`, `stages/morphology/`) into real
-  owners or explicitly named stage-neutral shared surfaces.
+- Restrict family containers such as `stages/ecology/` and
+  `stages/morphology/` to genuinely shared surfaces; nest each stage beneath
+  its semantic family.
 - Normalize Ecology to `ecology-pedology`, `ecology-biomes`,
-  `ecology-features`, and projection-only `map-ecology`.
+  `ecology-features`, and projection-only `map-ecology` runtime IDs while
+  storing them at `ecology/{pedology,biomes,features}` and `map/ecology`.
 - Preserve behavior with tests/golden artifacts for feature intents,
   occupancy, and projection inputs.
 - Decompose broad recipe/domain catalogs after their owners are clear.

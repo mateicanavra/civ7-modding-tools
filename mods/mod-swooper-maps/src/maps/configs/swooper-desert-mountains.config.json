@@ -33,8 +33,7 @@
         "curvatureWeight": 0.35,
         "upwellingThreshold": 0.35,
         "downwellingThreshold": 0.35
-      },
-      "knobs": {}
+      }
     },
     "foundation-lithosphere": {
       "lithosphere": {
@@ -52,8 +51,7 @@
           "microplatesMinPlateCount": 14,
           "microplateMinAreaCells": 8
         }
-      },
-      "knobs": {}
+      }
     },
     "foundation-tectonics": {
       "plateMotion": {
@@ -69,8 +67,20 @@
         "regimeMinIntensity": 4
       },
       "tectonicEras": {
-        "eraWeights": [0.3, 0.25, 0.2, 0.15, 0.1],
-        "driftStepsByEra": [12, 9, 6, 3, 1]
+        "eraWeights": [
+          0.3,
+          0.25,
+          0.2,
+          0.15,
+          0.1
+        ],
+        "driftStepsByEra": [
+          12,
+          9,
+          6,
+          3,
+          1
+        ]
       },
       "tectonicFields": {
         "beltInfluenceDistance": 8,
@@ -173,9 +183,7 @@
         "activeClosenessThreshold": 0.35
       }
     },
-    "morphology-routing": {
-      "knobs": {}
-    },
+    "morphology-routing": {},
     "morphology-erosion": {
       "geomorphicCycle": {
         "geomorphology": {
@@ -438,7 +446,6 @@
       }
     },
     "ecology-pedology": {
-      "knobs": {},
       "soilClassification": {
         "profile": "orogenyBoosted",
         "climateWeight": 1.2,
@@ -446,18 +453,9 @@
         "sedimentWeight": 1.1,
         "bedrockWeight": 0.6,
         "fertilityCeiling": 0.95
-      },
-      "resourceBasinPlanning": {
-        "profile": "mixed",
-        "resources": []
-      },
-      "resourceBasinScoring": {
-        "minConfidence": 0.3,
-        "maxPerResource": 12
       }
     },
     "ecology-biomes": {
-      "knobs": {},
       "biomeClassification": {
         "temperature": {
           "equator": 35,
@@ -471,7 +469,12 @@
           "tropicalThreshold": 25
         },
         "moisture": {
-          "thresholds": [180, 240, 300, 340]
+          "thresholds": [
+            180,
+            240,
+            300,
+            340
+          ]
         },
         "aridity": {
           "temperatureMin": 2,
@@ -482,7 +485,10 @@
           "rainfallWeight": 0.95,
           "bias": 24,
           "normalization": 76,
-          "moistureShiftThresholds": [0.38, 0.62],
+          "moistureShiftThresholds": [
+            0.38,
+            0.62
+          ],
           "vegetationPenalty": 0.31
         },
         "vegetation": {
@@ -497,7 +503,6 @@
       }
     },
     "ecology-features": {
-      "knobs": {},
       "substrateScoring": {
         "vegetationGrowth": {
           "moistureNormalization": 380,
@@ -635,7 +640,10 @@
           "maxFreeze": 0.2,
           "maxVegetation": 0.15,
           "maxMoisture": 70,
-          "allowedBiomes": ["desert", "temperateDry"]
+          "allowedBiomes": [
+            "desert",
+            "temperateDry"
+          ]
         },
         "burned": {
           "minAridity": 0.62,
@@ -643,13 +651,19 @@
           "maxFreeze": 0.15,
           "maxVegetation": 0.22,
           "maxMoisture": 90,
-          "allowedBiomes": ["desert", "temperateDry", "tropicalSeasonal"]
+          "allowedBiomes": [
+            "desert",
+            "temperateDry",
+            "tropicalSeasonal"
+          ]
         },
         "jungle": {
           "minTemperature": 22,
           "minMoisture": 110,
           "minVegetation": 0.45,
-          "allowedBiomes": ["tropicalRainforest"]
+          "allowedBiomes": [
+            "tropicalRainforest"
+          ]
         }
       },
       "plotEffectCoverage": {
@@ -686,9 +700,25 @@
     "map-rivers": {
       "knobs": {
         "navigableRiverDensity": "sparse"
+      },
+      "plot-rivers": {
+        "selectNavigableRiverTerrain": {
+          "strategy": "endpoint-chain-ranking",
+          "config": {
+            "endpointDischargePercentileMin": 0.94,
+            "targetMajorTileFraction": 0.28
+          }
+        }
       }
     },
-    "map-ecology": {},
+    "map-ecology": {
+      "features-apply": {
+        "apply": {
+          "strategy": "strict-single-occupancy",
+          "config": {}
+        }
+      }
+    },
     "placement": {
       "knobs": {},
       "naturalWonders": {
@@ -749,7 +779,6 @@
       }
     },
     "foundation-orogeny": {
-      "knobs": {},
       "crustCharacter": {
         "continentalSurvivalMaturity": 0.6,
         "continentalFreeboard": 0.35,
@@ -759,7 +788,23 @@
       }
     },
     "foundation-projection": {
-      "knobs": {}
+      "projection": {
+        "computePlates": {
+          "strategy": "foundation-model-projection",
+          "config": {
+            "boundaryInfluenceDistance": 5,
+            "boundaryDecay": 0.55,
+            "movementScale": 100,
+            "rotationScale": 100
+          }
+        }
+      },
+      "plate-topology": {
+        "computePlateTopology": {
+          "strategy": "wrapped-hex-adjacency",
+          "config": {}
+        }
+      }
     }
   }
 }

@@ -78,7 +78,7 @@ describe("hydrology/compute-river-network-metrics", () => {
     expect(result.flowPermanenceProxy[0]).toBe(HYDROLOGY_FLOW_DRY);
     expect(result.flowPermanenceProxy[1]).toBe(HYDROLOGY_FLOW_EPHEMERAL);
     expect(result.flowPermanenceProxy[5]).toBe(HYDROLOGY_FLOW_INTERMITTENT);
-    expect(result.benchmarkSummary).toMatchObject({
+    expect(result.measurements).toMatchObject({
       version: 1,
       landTileCount: 6,
       waterTileCount: 0,
@@ -109,15 +109,15 @@ describe("hydrology/compute-river-network-metrics", () => {
       maxUpstreamArea: 6,
       maxStreamOrderProxy: 2,
     });
-    expect(result.benchmarkSummary.lakeLandShare).toBeCloseTo(1 / 6);
-    expect(result.benchmarkSummary.riverLandShare).toBeCloseTo(4 / 6);
-    expect(result.benchmarkSummary.minorRiverShareOfRiverTiles).toBeCloseTo(3 / 4);
-    expect(result.benchmarkSummary.majorRiverShareOfRiverTiles).toBeCloseTo(1 / 4);
-    expect(result.benchmarkSummary.lowOrderRiverShareOfRiverTiles).toBe(1);
-    expect(result.benchmarkSummary.nonDryFlowLandShare).toBeCloseTo(4 / 6);
-    expect(result.benchmarkSummary.nonPerennialRiverShareOfRiverTiles).toBe(1);
-    expect(result.benchmarkSummary.closedOrLakeTerminalLandShare).toBe(1);
-    expect(result.benchmarkSummary.lakeConnectedTerminalDischargeShare).toBe(1);
+    expect(result.measurements.lakeLandShare).toBeCloseTo(1 / 6);
+    expect(result.measurements.riverLandShare).toBeCloseTo(4 / 6);
+    expect(result.measurements.minorRiverShareOfRiverTiles).toBeCloseTo(3 / 4);
+    expect(result.measurements.majorRiverShareOfRiverTiles).toBeCloseTo(1 / 4);
+    expect(result.measurements.lowOrderRiverShareOfRiverTiles).toBe(1);
+    expect(result.measurements.nonDryFlowLandShare).toBeCloseTo(4 / 6);
+    expect(result.measurements.nonPerennialRiverShareOfRiverTiles).toBe(1);
+    expect(result.measurements.closedOrLakeTerminalLandShare).toBe(1);
+    expect(result.measurements.lakeConnectedTerminalDischargeShare).toBe(1);
   });
 
   it("records endorheic closed-basin terminals as typed hydrology outcomes", () => {
@@ -166,7 +166,7 @@ describe("hydrology/compute-river-network-metrics", () => {
     for (let i = 0; i < size; i++) {
       expect(result.mouthType[i]).toBe(HYDROLOGY_MOUTH_CLOSED_BASIN);
     }
-    expect(result.benchmarkSummary).toMatchObject({
+    expect(result.measurements).toMatchObject({
       version: 1,
       landTileCount: 5,
       riverTileCount: 4,
@@ -184,9 +184,9 @@ describe("hydrology/compute-river-network-metrics", () => {
       maxUpstreamArea: 5,
       maxStreamOrderProxy: 1,
     });
-    expect(result.benchmarkSummary.closedOrLakeTerminalLandShare).toBe(1);
-    expect(result.benchmarkSummary.lakeConnectedTerminalDischargeShare).toBe(0);
-    expect(result.benchmarkSummary.nonPerennialRiverShareOfRiverTiles).toBeGreaterThan(0);
+    expect(result.measurements.closedOrLakeTerminalLandShare).toBe(1);
+    expect(result.measurements.lakeConnectedTerminalDischargeShare).toBe(0);
+    expect(result.measurements.nonPerennialRiverShareOfRiverTiles).toBeGreaterThan(0);
   });
 
   it("keeps wet headwater channels as the majority before a major trunk", () => {
@@ -265,7 +265,7 @@ describe("hydrology/compute-river-network-metrics", () => {
       defaultMetricsSelection
     );
 
-    expect(result.benchmarkSummary).toMatchObject({
+    expect(result.measurements).toMatchObject({
       version: 1,
       landTileCount: 20,
       riverTileCount: 20,
@@ -277,10 +277,10 @@ describe("hydrology/compute-river-network-metrics", () => {
       downstreamDischargeDropEdgeCount: 0,
       maxUpstreamArea: 20,
     });
-    expect(result.benchmarkSummary.minorRiverShareOfRiverTiles).toBe(0.9);
-    expect(result.benchmarkSummary.majorRiverShareOfRiverTiles).toBe(0.1);
-    expect(result.benchmarkSummary.lowOrderRiverShareOfRiverTiles).toBe(1);
-    expect(result.benchmarkSummary.nonPerennialRiverShareOfRiverTiles).toBeGreaterThan(0.8);
+    expect(result.measurements.minorRiverShareOfRiverTiles).toBe(0.9);
+    expect(result.measurements.majorRiverShareOfRiverTiles).toBe(0.1);
+    expect(result.measurements.lowOrderRiverShareOfRiverTiles).toBe(1);
+    expect(result.measurements.nonPerennialRiverShareOfRiverTiles).toBeGreaterThan(0.8);
     expect(result.upstreamArea[trunkB]).toBe(20);
     expect(result.flowPermanenceProxy[trunkB]).toBe(HYDROLOGY_FLOW_PERENNIAL);
   });
@@ -335,7 +335,7 @@ describe("hydrology/compute-river-network-metrics", () => {
     expect(result.mouthType[0]).toBe(HYDROLOGY_MOUTH_SPILL_PATH);
     expect(result.flowPermanenceProxy[3]).toBe(HYDROLOGY_FLOW_INTERMITTENT);
     expect(result.flowPermanenceProxy[4]).toBe(HYDROLOGY_FLOW_PERENNIAL);
-    expect(result.benchmarkSummary).toMatchObject({
+    expect(result.measurements).toMatchObject({
       version: 1,
       landTileCount: 5,
       waterTileCount: 1,
@@ -366,13 +366,13 @@ describe("hydrology/compute-river-network-metrics", () => {
       maxUpstreamArea: 5,
       maxStreamOrderProxy: 1,
     });
-    expect(result.benchmarkSummary.lakeLandShare).toBe(0);
-    expect(result.benchmarkSummary.riverLandShare).toBeCloseTo(4 / 5);
-    expect(result.benchmarkSummary.lowOrderRiverShareOfRiverTiles).toBe(1);
-    expect(result.benchmarkSummary.nonDryFlowLandShare).toBeCloseTo(4 / 5);
-    expect(result.benchmarkSummary.nonPerennialRiverShareOfRiverTiles).toBeCloseTo(3 / 4);
-    expect(result.benchmarkSummary.closedOrLakeTerminalLandShare).toBe(0);
-    expect(result.benchmarkSummary.lakeConnectedTerminalDischargeShare).toBe(0);
+    expect(result.measurements.lakeLandShare).toBe(0);
+    expect(result.measurements.riverLandShare).toBeCloseTo(4 / 5);
+    expect(result.measurements.lowOrderRiverShareOfRiverTiles).toBe(1);
+    expect(result.measurements.nonDryFlowLandShare).toBeCloseTo(4 / 5);
+    expect(result.measurements.nonPerennialRiverShareOfRiverTiles).toBeCloseTo(3 / 4);
+    expect(result.measurements.closedOrLakeTerminalLandShare).toBe(0);
+    expect(result.measurements.lakeConnectedTerminalDischargeShare).toBe(0);
   });
 
   it("surfaces routing and basin health counters without hiding typed output", () => {
@@ -411,16 +411,16 @@ describe("hydrology/compute-river-network-metrics", () => {
       defaultMetricsSelection
     );
 
-    expect(result.benchmarkSummary.invalidReceiverTileCount).toBe(1);
-    expect(result.benchmarkSummary.downstreamDischargeDropEdgeCount).toBe(1);
-    expect(result.benchmarkSummary.assignedBasinLandTileCount).toBe(2);
-    expect(result.benchmarkSummary.unassignedBasinLandTileCount).toBe(1);
-    expect(result.benchmarkSummary.unresolvedMouthTileCount).toBe(2);
-    expect(result.benchmarkSummary.closedBasinMouthTileCount).toBe(1);
-    expect(result.benchmarkSummary.riverTileCount).toBe(2);
-    expect(result.benchmarkSummary.riverDryTileCount).toBe(0);
-    expect(result.benchmarkSummary.riverIntermittentTileCount).toBe(1);
-    expect(result.benchmarkSummary.riverPerennialTileCount).toBe(1);
-    expect(result.benchmarkSummary.nonPerennialRiverShareOfRiverTiles).toBe(0.5);
+    expect(result.measurements.invalidReceiverTileCount).toBe(1);
+    expect(result.measurements.downstreamDischargeDropEdgeCount).toBe(1);
+    expect(result.measurements.assignedBasinLandTileCount).toBe(2);
+    expect(result.measurements.unassignedBasinLandTileCount).toBe(1);
+    expect(result.measurements.unresolvedMouthTileCount).toBe(2);
+    expect(result.measurements.closedBasinMouthTileCount).toBe(1);
+    expect(result.measurements.riverTileCount).toBe(2);
+    expect(result.measurements.riverDryTileCount).toBe(0);
+    expect(result.measurements.riverIntermittentTileCount).toBe(1);
+    expect(result.measurements.riverPerennialTileCount).toBe(1);
+    expect(result.measurements.nonPerennialRiverShareOfRiverTiles).toBe(0.5);
   });
 });

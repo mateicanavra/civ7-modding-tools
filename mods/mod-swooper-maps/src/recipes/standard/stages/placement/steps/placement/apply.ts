@@ -10,13 +10,13 @@ import type { PlacementOutputsV1 } from "../../artifacts/placement-outputs.artif
 import { logAsciiMap, logTerrainStats } from "../../log.js";
 
 type LandmassRegionSlotByTile = Static<
-  typeof import("../../../../artifacts/index.js").artifacts["landmassRegionSlotByTile"]["schema"]
+  typeof import("../../artifacts/index.js").artifacts["landmassRegionSlotByTile"]["schema"]
 >;
 type NaturalWonderPlacement = Static<
   typeof import("../../artifacts/index.js").artifacts["naturalWonderPlacement"]["schema"]
 >;
 type EngineTerrainSnapshot = Static<
-  typeof import("../../../../artifacts/index.js").artifacts["placementEngineTerrainSnapshot"]["schema"]
+  typeof import("../../artifacts/index.js").artifacts["placementEngineTerrainSnapshot"]["schema"]
 >;
 type PlacementEngineState = Static<
   typeof import("../../artifacts/index.js").artifacts["engineState"]["schema"]

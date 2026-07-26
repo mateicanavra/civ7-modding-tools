@@ -6,7 +6,9 @@ level: error
 Stage code must not import, re-export, or dynamically load another stage's
 private `steps/` modules. A stage may import its own immediate `./steps/`
 surface; family and sibling modules must consume an admitted stage or domain
-surface instead of reaching downward.
+surface instead of reaching downward. Recipe-stage topology admits TypeScript
+owner modules with canonical `.ts` names and rejects `.tsx`; this boundary rule
+therefore does not invent a second file-kind policy.
 
 ```grit
 language js(typescript)
@@ -14,121 +16,120 @@ language js(typescript)
 or {
   import_statement(source=$source),
   `export { $exports } from $source`,
+  `export type { $exports } from $source`,
   `export * from $source`,
   `import($source)`
 } where {
-  $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/.*\.ts$",
-  $source <: r"^[\"']?(?:\./|\.\./)+(?:[^/]+/)+steps/.*[\"']?$"
+  or {
+    $source <: r"^[\"']?(?:\.\./)+steps/.+[\"']?$",
+    $source <: r"^[\"']?(?:\./|\.\./)+(?:[^/]+/)+steps/.+[\"']?$"
+  }
 }
 ```
 
-## Matches fixture
+## Matches Fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
-import { FooStep } from "../b/steps/foo/step.js";
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/world/index.ts
+import { ShapeSurfaceStep } from "../terrain/steps/shape-surface/step.js";
 
-export const value = FooStep;
+export const value = ShapeSurfaceStep;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/b/steps/foo/step.ts
-export const FooStep = {};
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/world/index.ts
+import { SharedStep } from "../steps/shared/step.js";
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/steps/local/step.ts
-import { FooStep } from "../../../b/steps/foo/step.js";
+export const parentReach = SharedStep;
 
-export const nestedValue = FooStep;
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/steps/shape-surface/step.ts
+export const ShapeSurfaceStep = {};
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/config.ts
-import { FooStepContract } from "../b/steps/foo/config.js";
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/world/steps/assemble/step.ts
+import { ShapeSurfaceStep } from "../../../terrain/steps/shape-surface/step.js";
 
-export const importedContract = FooStepContract;
+export const nestedValue = ShapeSurfaceStep;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/steps/local/step.ts
-import type { StepOutput } from "../../../b/steps/foo/types.js";
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/world/steps/assemble/step.ts
+import { DeepStep } from "../../../../family/terrain/steps/deep/step.js";
 
-export type ImportedOutput = StepOutput;
+export const deepRelativeReach = DeepStep;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
-import "../b/steps/foo/step.js";
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/world/public.config.ts
+import { ShapeSurfaceStepContract } from "../terrain/steps/shape-surface/config.js";
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/public.config.ts
-import { BiomesStep } from "./biomes/steps/biomes/step.js";
+export const importedContract = ShapeSurfaceStepContract;
 
-export const publicConfig = BiomesStep;
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/world/steps/assemble/step.ts
+import type { SurfaceOutput } from "../../../terrain/steps/shape-surface/types.js";
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
-export { FooStep } from "../b/steps/foo/step.js";
+export type ImportedOutput = SurfaceOutput;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
-const dynamicStep = import("../b/steps/foo/step.js");
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/world/index.ts
+import "../terrain/steps/shape-surface/step.js";
+
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/world/public.config.ts
+import { ShapeSurfaceStep } from "./terrain/steps/shape-surface/step.js";
+
+export const publicConfig = ShapeSurfaceStep;
+
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/world/index.ts
+export { ShapeSurfaceStep } from "../terrain/steps/shape-surface/step.js";
+
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/world/index.ts
+const dynamicStep = import("../terrain/steps/shape-surface/step.js");
 
 export const loadStep = () => dynamicStep;
 
-// @filename: mods/mod-swooper-maps/src/recipes/browser-test/stages/a/index.ts
-import { BrowserStep } from "../b/steps/browser/step.js";
+// @filename: mods/alternate-mod/src/recipes/alternate-recipe/stages/output/index.ts
+import { RenderStep } from "../render/steps/render/step.js";
 
-export const browserTestStep = BrowserStep;
+export const outputStep = RenderStep;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/b/steps/foo/step.ts
-export const FooStep = {};
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/steps/shape-surface/step.ts
+export const ShapeSurfaceStep = {};
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/b/steps/foo/config.ts
-export const FooStepContract = {};
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/steps/shape-surface/config.ts
+export const ShapeSurfaceStepContract = {};
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/b/steps/foo/types.ts
-export interface StepOutput {
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/steps/shape-surface/types.ts
+export interface SurfaceOutput {
   value: number;
 }
 ```
 
-## Ignores fixture
+## Ignores Fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
-import { FooStep } from "./steps/foo/step.js";
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/index.ts
+import { ShapeSurfaceStep } from "./steps/shape-surface/step.js";
 
-export const value = FooStep;
+export const value = ShapeSurfaceStep;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/steps/foo/step.ts
-export const FooStep = {};
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/index.ts
+import { AnotherShapeStep } from "./steps/another-shape/step.js";
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
+export const secondLocalValue = AnotherShapeStep;
+
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/steps/shape-surface/step.ts
+export const ShapeSurfaceStep = {};
+
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/index.ts
 import { contract } from "./contract.js";
 
 export const stageContract = contract;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
-import { plan } from "@mapgen/domain/ecology/ops";
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/index.ts
+import terrain from "@mapgen/domain/terrain";
 
-export const domainPlan = plan;
+export const domainContract = terrain;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
-import helper from "../b/stepstore/foo.js";
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/index.ts
+import helper from "../world/stepstore/helper.js";
 
 export const stepstore = helper;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
-import helper from "../b/stepsish/foo.js";
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/index.ts
+import helper from "../world/stepsish/helper.js";
 
 export const stepsish = helper;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.tsx
-import { FooStep } from "../b/steps/foo/step.js";
-
-export const tsxStep = FooStep;
-
-// @filename: mods/mod-swooper-maps/test/stages/a/index.ts
-import { FooStep } from "../b/steps/foo/step.js";
-
-export const testStageStep = FooStep;
-
-// @filename: mods/mod-swooper-maps/src/maps/standard/stages/a/index.ts
-import { FooStep } from "../b/steps/foo/step.js";
-
-export const mapStageStep = FooStep;
-
-// @filename: packages/mapgen-core/src/recipes/standard/stages/a/index.ts
-import { FooStep } from "../b/steps/foo/step.js";
-
-export const packageStageStep = FooStep;
 ```

@@ -1,5 +1,6 @@
 export * from "./dto/host-policy.schema.js";
 export type {
+  AcquisitionRootProtectionDecision,
   DeclarationReadiness,
   ForbiddenFileDeclaration,
   GeneratedSurfaceDeclaration,
@@ -9,7 +10,6 @@ export type {
   ProtectedSurfaceDeclaration,
   ProtectedZoneOwner,
   ProtectedZoneRecoveryInstruction,
-  ScanRootProtectionDecision,
   StagedMutationPath,
   TransactionPathDecision,
 } from "./dto/protected-zone.schema.js";
@@ -22,9 +22,9 @@ export {
   hostAuthoringBoundaryState,
   hostGeneratedSurfaceDeclarations,
   hostProjectSupportDecision,
+  hostSurfaceDecisionForAcquisitionRoot,
   hostSurfaceDecisionForGeneratedZone,
   hostSurfaceDecisionForPath,
-  hostSurfaceDecisionForScanRoot,
   matchesHostMatcher,
   renderHostRecoveryInstruction,
 } from "./policy/host-policy-decisions.policy.js";
@@ -36,6 +36,7 @@ export {
   readHostPolicyState,
   unavailableHostPolicyState,
 } from "./policy/host-policy-state.policy.js";
+export { decideAcquisitionRootProtection } from "./policy/protected-zone-acquisition-root.policy.js";
 export {
   declarationForFileLayerRule,
   declarationForHostSurfacePath,
@@ -49,4 +50,3 @@ export {
   stagedPathsFromNameStatus,
 } from "./policy/protected-zone-path-actions.policy.js";
 export { renderRecoveryInstruction } from "./policy/protected-zone-recovery.policy.js";
-export { decideScanRootProtection } from "./policy/protected-zone-scan-root.policy.js";

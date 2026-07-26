@@ -199,7 +199,13 @@ Current active Grit state:
 
 - Registered Grit rules currently point at `pattern.md` sibling role files
   inside packet directories.
-- Hook eligibility uses `hookCheck` plus the packet's `scanRoots`.
+- Every Grit runner declares one acquisition with a command kind and complete
+  roots; hook eligibility uses `hookCheck` and narrows staged paths within
+  those roots.
+- Check rules whose coverage is entirely `exact-path` derive traversal roots
+  from each pattern's literal directory prefix, then intersect those roots
+  with caller scope and declared acquisition ceilings before inventory. Broad
+  ceilings do not cause unrelated or protected repository trees to be walked.
 - Patterns are diagnostic/enforcing checks, not automatic transforms.
 - Habitat reports Grit diagnostics back to Habitat rule IDs.
 

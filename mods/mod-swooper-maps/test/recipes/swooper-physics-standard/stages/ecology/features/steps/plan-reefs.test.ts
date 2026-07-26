@@ -1,6 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
+import { artifactModules as ecologyArtifactModules } from "@mapgen/domain/ecology";
 import ecology from "@mapgen/domain/ecology/ops";
+import { artifactModules as hydrologyHydrographyArtifactModules } from "@mapgen/domain/hydrology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -9,23 +11,28 @@ import {
   publishTestArtifact,
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
-import { artifactModules as ecologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
-import { PlanReefsStep as planReefsStep } from "../../../../../../../src/recipes/standard/stages/ecology-features/steps/plan-reefs/step.js";
-import { artifactModules as hydrologyHydrographyArtifactModules } from "../../../../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
+import { PlanReefsStep as planReefsStep } from "../../../../../../../src/recipes/standard/stages/ecology/features/steps/plan-reefs/step.js";
+import { TEST_MAP_SIZE } from "../../../../../../map-size.js";
 import { createEmptyFeatureScoreLayers } from "../fixtures/feature-score-layers.js";
 
 describe("ecology-features plan-reefs step", () => {
   it("publishes reef intents and occupancy snapshot", () => {
-    const syntheticDimensions = { width: 3, height: 2 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const setup = admitMapSetup({
       mapSeed: 123,
-      dimensions: syntheticDimensions,
-      latitudeBounds: { topLatitude: 1, bottomLatitude: -1 },
+      dimensions: TEST_MAP_SIZE.dimensions,
+      latitudeBounds: {
+        topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
+        bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
+      },
     });
 
-    const adapter = createMockAdapter({ width, height });
+    const adapter = createMockAdapter({
+      ...TEST_MAP_SIZE.dimensions,
+      mapInfo: TEST_MAP_SIZE.mapInfo,
+      mapSizeId: TEST_MAP_SIZE.id,
+    });
     adapter.fillWater(true);
 
     const ctx = createMapContext({ setup, adapter });

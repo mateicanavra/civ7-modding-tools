@@ -3,8 +3,8 @@ import { createMockAdapter } from "@civ7/adapter";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { ArtifactValidationError } from "@swooper/mapgen-core/authoring";
 import { publishTestArtifact, withMapContextExecutionForTest } from "@swooper/mapgen-core/testing";
-import { artifactModules as baselineModules } from "../../../../../../../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts/index.js";
-import { artifactModules as refineModules } from "../../../../../../../../src/recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
+import { artifactModules as baselineModules } from "@mapgen/domain/hydrology";
+import { artifactModules as refineModules } from "@mapgen/domain/hydrology";
 
 const SYNTHETIC_DIMENSIONS = { width: 2, height: 2 } as const;
 const SYNTHETIC_CARDINALITY = SYNTHETIC_DIMENSIONS.width * SYNTHETIC_DIMENSIONS.height;
@@ -15,7 +15,7 @@ describe("Standard climate artifact vintages", () => {
     expect(baselineModules.baselineClimateField.artifact.id).toBe(
       "artifact:hydrology.baselineClimateField"
     );
-    expect(refineModules.climateField.artifact.id).toBe("artifact:climateField");
+    expect(refineModules.climateField.artifact.id).toBe("artifact:hydrology.climateField");
     expect(baselineModules.baselineClimateField.artifact.id).not.toBe(
       refineModules.climateField.artifact.id
     );

@@ -1,6 +1,6 @@
 import type {
+  DiagnosticAcquisitionRootRefusal,
   DiagnosticProviderFailureKind,
-  DiagnosticScanRootRefusal,
   HabitatDiagnostic,
 } from "@habitat/cli/service/model/diagnostics/index";
 import type { RuleRunResult } from "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy";
@@ -35,7 +35,7 @@ export type RuleDiagnosticExecutionResult = RuleDiagnosticExecutionMeasurement &
       }
     | {
         readonly kind: "not-applicable";
-        readonly reason: "no-matched-scan-roots";
+        readonly reason: "no-matched-acquisition-roots";
       }
     | {
         readonly kind: "failed";
@@ -45,7 +45,7 @@ export type RuleDiagnosticExecutionResult = RuleDiagnosticExecutionMeasurement &
       }
     | {
         readonly kind: "refused";
-        readonly decision: DiagnosticScanRootRefusal;
+        readonly decision: DiagnosticAcquisitionRootRefusal;
         readonly detail: string;
       }
   );

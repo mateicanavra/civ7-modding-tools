@@ -12,10 +12,10 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "recipe stage collections and first-level stage or family containers outside the positive recipe-stage blueprint topology",
-  "why": "Recipe stages live in named containers. Collections contain only first-level stage or family containers, and those containers may own only child stage containers, stage authoring, steps, artifacts, visualization, logging, or one shared public.config.ts surface. Nested-stage authoring files are checked generically when present; their closed filesystem scope activates with the physical hierarchy migration.",
-  "remediate": "Move loose stage files into the owning container, name shared family authoring surfaces public.config.ts, and delete support files that do not have an admitted recipe-stage owner.",
-  "message": "Recipe stage source must match the positive first-level container and public.config.ts topology.",
+  "forbids": "recipe stage collections or semantic containers outside the closed recipe-stage blueprint topology, including recipe-owned artifact directories",
+  "why": "Physical stage source may nest by semantic hierarchy independently of runtime stage IDs. Every semantic container admits only nested kebab-case containers or canonical support surfaces. An index.ts marks that container as an authored stage; containers without one remain non-stage family containers. Structure-v1 admits public.config.ts as a canonical support filename at either kind of semantic container and does not by itself prove stage ownership; the authoring law separately requires a stage index to import only its immediate sibling public configuration. Steps are a reserved subtree owned by the recipe-step blueprint, while immutable pipeline data-product contracts remain with their domain owner.",
+  "remediate": "Place source under a semantic stage container, keep public.config.ts adjacent to any stage index that consumes it, use the canonical support filenames, move immutable artifact contracts to the producing domain, and delete engine observations or diagnostic projections that are not artifacts. Do not infer stage ownership from public.config.ts alone.",
+  "message": "Recipe stage source must match the positive recursive semantic-container topology.",
   "pathCoverage": [
     {
       "kind": "exact-path",

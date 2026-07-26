@@ -1,15 +1,14 @@
+import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-import {
-  artifactModules as standardArtifactModules,
-  artifacts as standardArtifacts,
-} from "../../../../artifacts/index.js";
 import {
   MAP_PROJECTION_EFFECT_TAGS,
   PLACEMENT_PRODUCT_EFFECT_TAGS,
 } from "../../../../tag-contracts.js";
-import { artifacts as mapHydrologyArtifacts } from "../../../map-hydrology/artifacts/index.js";
-import { artifacts as mapMorphologyArtifacts } from "../../../map-morphology/artifacts/index.js";
-import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
+import { artifacts as mapHydrologyArtifacts } from "../../../map/hydrology/artifacts/index.js";
+import {
+  artifactModules as placementArtifactModules,
+  artifacts as placementArtifacts,
+} from "../../artifacts/index.js";
 
 /**
  * Defines the one maintenance transaction after wonder stamping, publishing
@@ -37,12 +36,13 @@ export const PreparePlacementSurfaceStepContract = defineStep({
   artifacts: {
     requires: [
       mapHydrologyArtifacts.engineProjectionLakes,
-      standardArtifacts.landmassRegionSlotByTile,
-      mapMorphologyArtifacts.coastClassification,
+      placementArtifacts.landmassRegionSlotByTile,
+      morphologyArtifacts.shelf,
+      morphologyArtifacts.topography,
     ],
     provides: [
       placementArtifactModules.placementSurfacePreparation,
-      standardArtifactModules.placementSurfaceValidationBoundary,
+      placementArtifactModules.placementSurfaceValidationBoundary,
     ],
   },
   schema: Type.Object({}, { additionalProperties: false }),

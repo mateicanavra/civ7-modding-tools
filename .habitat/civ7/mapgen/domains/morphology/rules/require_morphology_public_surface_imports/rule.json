@@ -19,10 +19,11 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/**/*.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/**/*.ts"
+      ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/baseline.json"
@@ -32,6 +33,12 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/pattern.md"
     },
-    "patternName": "require_morphology_public_surface_imports"
+    "patternName": "require_morphology_public_surface_imports",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src"
+      ]
+    }
   }
 }

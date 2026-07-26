@@ -389,7 +389,7 @@ export const hydrographicClassificationStrategy = createStrategy(
         mouthType,
         slopeClass,
         flowPermanenceProxy,
-        benchmarkSummary: {
+        measurements: {
           version: 1,
           landTileCount,
           waterTileCount: Math.max(0, size - landTileCount),

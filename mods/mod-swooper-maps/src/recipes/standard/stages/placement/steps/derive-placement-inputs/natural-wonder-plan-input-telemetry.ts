@@ -59,7 +59,7 @@ type NaturalWonderPlanInputTelemetryArgs = {
     lakePlan: {
       lakeMask: Uint8Array;
     };
-    biomeClassification: {
+    climateIndices: {
       aridityIndex: Float32Array;
     };
     naturalWonderPlanSurfaces: {
@@ -109,7 +109,7 @@ export function buildNaturalWonderPlanInputRuntimeTelemetry({
   const { terrainType, biomeType, featureType, blockedMask } = physical.naturalWonderPlanSurfaces;
   const aridityPpm = new Uint32Array(size);
   for (let plotIndex = 0; plotIndex < size; plotIndex += 1) {
-    aridityPpm[plotIndex] = normalizePpm(physical.biomeClassification.aridityIndex[plotIndex]);
+    aridityPpm[plotIndex] = normalizePpm(physical.climateIndices.aridityIndex[plotIndex]);
   }
   for (const placementPlan of plan.placements.slice(0, 16)) {
     const plotIndex = placementPlan.plotIndex | 0;

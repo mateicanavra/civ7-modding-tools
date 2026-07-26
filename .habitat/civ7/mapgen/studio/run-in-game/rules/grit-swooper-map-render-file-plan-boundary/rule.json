@@ -26,11 +26,6 @@
       ]
     }
   ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/scripts/generate-map-artifacts.ts",
-    "mods/mod-swooper-maps/scripts/generate-studio-map-catalog.ts",
-    "mods/mod-swooper-maps/scripts/map-artifacts"
-  ],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-swooper-map-render-file-plan-boundary/baseline.json"
   },
@@ -39,6 +34,14 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-swooper-map-render-file-plan-boundary/pattern.md"
     },
-    "patternName": "grit_swooper_map_render_file_plan_boundary"
+    "patternName": "grit_swooper_map_render_file_plan_boundary",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/scripts/generate-map-artifacts.ts",
+        "mods/mod-swooper-maps/scripts/generate-studio-map-catalog.ts",
+        "mods/mod-swooper-maps/scripts/map-artifacts"
+      ]
+    }
   }
 }

@@ -1,0 +1,41 @@
+import morphology, {
+  artifactModules as morphologyArtifactModules,
+  artifacts as morphologyArtifacts,
+} from "@mapgen/domain/morphology";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+
+/**
+ * Mountain planning is Morphology truth, not map projection.
+ *
+ * Ridges, foothills, and rough-land hills are planned from belt-driver,
+ * topography, substrate, routing, and coastline fields so downstream projection
+ * can stamp terrain without deciding where rough terrain should exist.
+ */
+export const MountainsStepContract = defineStep({
+  id: "mountains",
+  requires: [],
+  provides: [],
+  artifacts: {
+    requires: [
+      morphologyArtifacts.beltDrivers,
+      morphologyArtifacts.topography,
+      morphologyArtifacts.substrate,
+      morphologyArtifacts.routing,
+      morphologyArtifacts.carvedCoastline,
+    ],
+    provides: [morphologyArtifactModules.mountains],
+  },
+  ops: {
+    ridges: morphology.ops.planRidges,
+    foothills: morphology.ops.planFoothills,
+    roughLands: morphology.ops.planRoughLands,
+  },
+  schema: Type.Object(
+    {},
+    {
+      additionalProperties: false,
+      description:
+        "Morphology mountain intent config (op envelopes for morphology/plan-ridges + morphology/plan-foothills).",
+    }
+  ),
+});

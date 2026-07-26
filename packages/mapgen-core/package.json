@@ -29,6 +29,10 @@
       "types": "./dist/authoring/contracts.d.ts",
       "import": "./dist/authoring/contracts.js"
     },
+    "./authoring/schema": {
+      "types": "./dist/authoring/schema/index.d.ts",
+      "import": "./dist/authoring/schema/index.js"
+    },
     "./compiler/normalize": {
       "types": "./dist/compiler/normalize.d.ts",
       "import": "./dist/compiler/normalize.js"

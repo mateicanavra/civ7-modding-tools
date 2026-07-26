@@ -1,7 +1,5 @@
 import { describe, expect, it } from "bun:test";
 import {
-  bindCompileOps,
-  bindRuntimeOps,
   createOp,
   createRecipe,
   createStage,
@@ -14,6 +12,7 @@ import {
   TypedArraySchemas,
 } from "@mapgen/authoring/index.js";
 import { Type } from "typebox";
+import { bindCompileOps, bindRuntimeOps } from "../../../src/authoring/bindings.js";
 
 const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 
@@ -66,6 +65,13 @@ describe("operation authoring", () => {
     expect(() =>
       defineOp({
         ...base,
+        id: "__proto__",
+        strategies: { measured: Type.Object({}, { additionalProperties: false }) },
+      } as never)
+    ).toThrow('operation definition id "__proto__" is reserved');
+    expect(() =>
+      defineOp({
+        ...base,
         id: "test/generic-strategy",
         strategies: { default: Type.Object({}, { additionalProperties: false }) },
       } as never)
@@ -90,7 +96,7 @@ describe("operation authoring", () => {
     ).toThrow("requires an explicit declared default strategy");
   });
 
-  it("copies explicit default authority and refuses forged defaults", () => {
+  it("copies explicit default authority and refuses forged contracts", () => {
     const contract = defineOp({
       kind: "compute",
       id: "test/explicit-default-authority",
@@ -122,16 +128,14 @@ describe("operation authoring", () => {
       ...contract,
       defaultConfig: { strategy: "fast", config: { turbo: true } },
     } as unknown as typeof contract;
-    expect(() => createOp(forged, { strategies })).toThrow(
-      "createOp(test/explicit-default-authority) requires contract.defaultConfig"
-    );
+    expect(() => createOp(forged, { strategies })).toThrow("must be created by defineOp");
 
     const malformedSameStrategy = {
       ...contract,
       defaultConfig: { strategy: "balanced", config: { plateauCount: "three" } },
     } as unknown as typeof contract;
     expect(() => createOp(malformedSameStrategy, { strategies })).toThrow(
-      "createOp(test/explicit-default-authority) requires contract.defaultConfig"
+      "must be created by defineOp"
     );
 
     const forgedPair = {
@@ -139,21 +143,91 @@ describe("operation authoring", () => {
       defaultStrategy: "fast",
       defaultConfig: { strategy: "fast", config: { turbo: true } },
     } as unknown as typeof contract;
-    expect(() => createOp(forgedPair, { strategies })).toThrow(
-      "createOp(test/explicit-default-authority) requires contract.defaultConfig"
-    );
+    expect(() => createOp(forgedPair, { strategies })).toThrow("must be created by defineOp");
 
     const forgedStrategyOnly = {
       ...contract,
       defaultStrategy: "fast",
     } as unknown as typeof contract;
     expect(() => createOp(forgedStrategyOnly, { strategies })).toThrow(
-      "createOp(test/explicit-default-authority) requires contract.defaultConfig"
+      "must be created by defineOp"
     );
+    expect(() =>
+      createStrategy(forged, "balanced", {
+        run: () => "forged",
+      })
+    ).toThrow("must be created by defineOp");
+  });
+
+  it("detaches admitted schemas while retaining native TypeBox composability", () => {
+    const shared = Type.Integer({ default: 2 });
+    const input = Type.Object({ first: shared, second: shared }, { additionalProperties: false });
+    const output = Type.Object({ value: Type.Number() }, { additionalProperties: false });
+    const strategy = Type.Object(
+      {
+        nested: Type.Object(
+          { count: Type.Integer({ default: 1 }) },
+          { additionalProperties: false }
+        ),
+      },
+      { additionalProperties: false, description: "Original strategy schema." }
+    );
+    const contract = defineOp({
+      kind: "compute",
+      id: "test/detached-operation-authority",
+      input,
+      output,
+      strategies: { measured: strategy },
+    });
+
+    expect(contract.input).not.toBe(input);
+    expect(contract.output).not.toBe(output);
+    expect(contract.strategies.measured).not.toBe(strategy);
+    expect(contract.input.properties.first).toBe(contract.input.properties.second);
+    expect(Object.isFrozen(contract)).toBe(true);
+    expect(Object.isFrozen(contract.input.properties.first)).toBe(false);
+    expect(Object.isFrozen(contract.defaultConfig.config.nested)).toBe(true);
+    expect(Object.isFrozen(input)).toBe(false);
+    expect(Object.isFrozen(output)).toBe(false);
+    expect(Object.isFrozen(strategy)).toBe(false);
+
+    const annotated = Type.With(contract.strategies.measured, {
+      description: "A consumer-owned view over the canonical strategy schema.",
+    });
+    expect(annotated.description).toBe(
+      "A consumer-owned view over the canonical strategy schema."
+    );
+    expect(Reflect.get(contract.strategies.measured, "description")).toBe(
+      "Original strategy schema."
+    );
+
+    expect(Reflect.set(shared, "minimum", 1)).toBe(true);
+    expect(Reflect.get(contract.input.properties.first, "minimum")).toBeUndefined();
+  });
+
+  it("seals strategy behavior behind factory provenance without freezing caller state", () => {
+    const contract = defineOp({
+      kind: "compute",
+      id: "test/sealed-strategy-authority",
+      input: Type.Object({}, { additionalProperties: false }),
+      output: Type.String(),
+      strategies: { measured: Type.Object({}, { additionalProperties: false }) },
+    });
+    const implementation = { run: () => "captured" };
+    const descriptor = createStrategy(contract, "measured", implementation);
+    implementation.run = () => "mutated";
+    const operation = createOp(contract, { strategies: { measured: descriptor } });
+
+    expect(operation.run({}, operation.defaultConfig)).toBe("captured");
+    expect(Object.isFrozen(implementation)).toBe(false);
+    expect(() =>
+      createOp(contract, {
+        strategies: { measured: { ...descriptor } as never },
+      })
+    ).toThrow("Invalid MapGen strategy descriptor");
   });
 
   it("binds compile/runtime ops by contract ids", () => {
-    const declarations = { trees: { id: "ecology/trees" } } as const;
     const contract = defineOp({
       kind: "plan",
       id: "ecology/trees",
@@ -166,6 +240,7 @@ describe("operation authoring", () => {
         single: createStrategy(contract, "single", { run: () => "ok" }),
       },
     });
+    const declarations = { trees: contract } as const;
 
     const compileOps = bindCompileOps(declarations, { [compileOp.id]: compileOp });
     expect(compileOps.trees).toBe(compileOp);
@@ -176,11 +251,60 @@ describe("operation authoring", () => {
     expect(runtimeOps.trees.id).toBe(compileOp.id);
     expect(Object.isFrozen(runtimeOps)).toBe(true);
     expect(() => Object.defineProperty(runtimeOps, "trees", { value: undefined })).toThrow();
+    expect(runtimeOp(compileOp)).toBe(runtimeOp(compileOp));
+    expect(Object.isFrozen(runtimeOp(compileOp))).toBe(true);
   });
 
   it("bindCompileOps throws when registry is missing an op id", () => {
-    const declarations = { trees: { id: "missing" } } as const;
-    expect(() => bindCompileOps(declarations, {})).toThrow(/missing/i);
+    const contract = defineOp({
+      kind: "plan",
+      id: "test/ops/missing",
+      input: Type.Object({}, { additionalProperties: false }),
+      output: Type.String(),
+      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+    });
+    expect(() => bindCompileOps({ trees: contract }, {})).toThrow(/missing/i);
+  });
+
+  it("refuses registry keys and values that do not retain exact contract authority", () => {
+    const contract = defineOp({
+      kind: "plan",
+      id: "test/ops/exact-binding",
+      input: Type.Object({}, { additionalProperties: false }),
+      output: Type.String(),
+      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+    });
+    const alternateContract = defineOp({
+      kind: "plan",
+      id: "test/ops/exact-binding",
+      input: Type.Object({}, { additionalProperties: false }),
+      output: Type.String(),
+      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+    });
+    const implementation = createOp(contract, {
+      strategies: {
+        single: createStrategy(contract, "single", { run: () => "exact" }),
+      },
+    });
+    const alternate = createOp(alternateContract, {
+      strategies: {
+        single: createStrategy(alternateContract, "single", { run: () => "alternate" }),
+      },
+    });
+    const runtime = runtimeOp(implementation);
+
+    expect(() => bindCompileOps({ exact: contract }, { wrong: implementation })).toThrow(
+      'registry key "wrong" must equal "test/ops/exact-binding"'
+    );
+    expect(() => bindRuntimeOps({ exact: contract }, { wrong: runtime })).toThrow(
+      'registry key "wrong" must equal "test/ops/exact-binding"'
+    );
+    expect(() => bindCompileOps({ exact: contract }, { [alternate.id]: alternate })).toThrow(
+      "must implement its exact operation contract"
+    );
+    expect(() =>
+      bindRuntimeOps({ exact: contract }, { [alternate.id]: runtimeOp(alternate) })
+    ).toThrow("must implement its exact operation contract");
   });
 
   it("createRecipe rejects missing runtime op implementations for step-declared ops", () => {
@@ -744,19 +868,18 @@ describe("operation authoring", () => {
 
   it("fails closed for malformed union and intersection containers with typed-array members", () => {
     for (const key of ["anyOf", "allOf"] as const) {
+      const valueSchema = Type.Any();
+      (valueSchema as unknown as Record<string, unknown>)[key] = [
+        TypedArraySchemas.u8({ cardinality: null }),
+        0,
+      ];
       const contract = defineOp({
         kind: "compute",
         id: `test/malformed-${key}-operation-input`,
-        input: Type.Object({ value: Type.Any() }, { additionalProperties: false }),
+        input: Type.Object({ value: valueSchema }, { additionalProperties: false }),
         output: Type.Integer(),
         strategies: { single: Type.Object({}, { additionalProperties: false }) },
       });
-      const valueSchema = (
-        contract.input as unknown as {
-          properties: { value: Record<PropertyKey, unknown> };
-        }
-      ).properties.value;
-      valueSchema[key] = [TypedArraySchemas.u8({ cardinality: null }), null];
 
       expect(() =>
         createOp(contract, {

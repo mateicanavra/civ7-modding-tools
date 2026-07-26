@@ -12,9 +12,9 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "recipe step source files outside one kebab-case directory containing config.ts and step.ts, including flat files and contract/index barrel variants",
-  "why": "A recipe step has one filesystem container. Requiring one kebab-case directory with config.ts and step.ts removes flat and barrel-based alternate source topologies.",
-  "remediate": "Move each step beneath a kebab-case directory, rename its contract module to config.ts, rename its executable module to step.ts, and remove step barrels.",
+  "forbids": "recipe step source files outside one kebab-case directory containing config.ts and step.ts, including flat files, contract/index barrel variants, and artifact authorities anywhere beneath a step",
+  "why": "A recipe step has one filesystem container and consumes domain-owned artifacts rather than defining them. Requiring one kebab-case directory with config.ts and step.ts removes flat and barrel-based alternate source topologies, while recursive descendant coverage prevents helpers from smuggling artifact ownership beneath the step.",
+  "remediate": "Move each step beneath a kebab-case directory, rename its contract module to config.ts, rename its executable module to step.ts, remove step barrels, and relocate every artifact authority to its owning domain.",
   "message": "Recipe step source must use one kebab-case <step-directory>/{config.ts,step.ts} container.",
   "pathCoverage": [
     {

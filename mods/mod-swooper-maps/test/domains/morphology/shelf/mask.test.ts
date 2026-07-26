@@ -14,8 +14,8 @@ describe("morphology/compute-shelf-mask (physical break: gentle-gradient gate + 
     // to a steep BREAK into the abyss (-40 m) at the row-2 -> row-3 transition, plus one
     // isolated shallow tile (idx 22) walled off from shore by the break to exercise connectivity.
     // The break is READ from the gradient (the -4 -> -40 step), not from a depth quantile.
-    const syntheticDimensions = { width: 5, height: 5 } as const;
-    const { width, height } = syntheticDimensions;
+    const NON_PLAYABLE_LOCAL_TOPOLOGY_DIMENSIONS = { width: 5, height: 5 } as const;
+    const { width, height } = NON_PLAYABLE_LOCAL_TOPOLOGY_DIMENSIONS;
     const size = width * height;
     const L = 0;
     const land = new Uint8Array(size).fill(0);
@@ -101,9 +101,6 @@ describe("morphology/compute-shelf-mask (physical break: gentle-gradient gate + 
     }
     expect(result.shelfBreakDepthByTile).toBeInstanceOf(Int16Array);
     expect(result.shelfBreakDepthByTile.length).toBe(size);
-    // The quantile estimator was removed; shallowCutoff is retained as a finite <=0 constant.
-    expect(Number.isFinite(result.shallowCutoff)).toBe(true);
-    expect(result.shallowCutoff).toBeLessThanOrEqual(0);
 
     // Land is never shelf.
     for (let x = 0; x < width; x++) expect(result.shelfMask[x]).toBe(0);

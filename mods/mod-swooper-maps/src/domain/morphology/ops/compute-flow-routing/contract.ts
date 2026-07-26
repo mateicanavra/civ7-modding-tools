@@ -29,7 +29,7 @@ const ComputeFlowRoutingContract = defineOp({
     }),
     flowAccum: TypedArraySchemas.f32({ description: "Drainage area proxy per tile." }),
     basinId: TypedArraySchemas.i32({
-      description: "Optional basin identifier per tile (or -1 when unassigned).",
+      description: "Basin identifier per tile (or -1 on water and unassigned terrain).",
     }),
   }),
   strategies: {

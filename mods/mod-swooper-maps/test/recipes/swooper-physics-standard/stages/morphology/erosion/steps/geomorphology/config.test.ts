@@ -2,9 +2,9 @@ import { describe, expect, it } from "bun:test";
 import { admitMapSetup } from "@swooper/mapgen-core";
 import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 
-import morphologyErosionStage from "../../../../../../../../src/recipes/standard/stages/morphology-erosion/index.js";
-import { GeomorphologyStepContract } from "../../../../../../../../src/recipes/standard/stages/morphology-erosion/steps/geomorphology/config.js";
-import { GeomorphologyStep } from "../../../../../../../../src/recipes/standard/stages/morphology-erosion/steps/geomorphology/step.js";
+import morphologyErosionStage from "../../../../../../../../src/recipes/standard/stages/morphology/erosion/index.js";
+import { GeomorphologyStepContract } from "../../../../../../../../src/recipes/standard/stages/morphology/erosion/steps/geomorphology/config.js";
+import { GeomorphologyStep } from "../../../../../../../../src/recipes/standard/stages/morphology/erosion/steps/geomorphology/step.js";
 import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
 import {
   createStandardRecipeTestConfig,

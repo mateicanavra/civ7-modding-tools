@@ -2,9 +2,9 @@ import { describe, expect, it } from "bun:test";
 import { admitMapSetup } from "@swooper/mapgen-core";
 import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 
-import hydrologyHydrographyStage from "../../../../../../../../src/recipes/standard/stages/hydrology-hydrography/index.js";
-import { RiversStepContract } from "../../../../../../../../src/recipes/standard/stages/hydrology-hydrography/steps/rivers/config.js";
-import { RiversStep } from "../../../../../../../../src/recipes/standard/stages/hydrology-hydrography/steps/rivers/step.js";
+import hydrologyHydrographyStage from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/index.js";
+import { RiversStepContract } from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/steps/rivers/config.js";
+import { RiversStep } from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/steps/rivers/step.js";
 import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
 import {
   createStandardRecipeTestConfig,

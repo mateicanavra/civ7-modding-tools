@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_entrypoint_shape",
+  "title": "Require Domain Entrypoint Shape",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "domain root entrypoints outside the closed defineDomain contract, identity, import, and owner-slot re-export shape",
+  "why": "A domain root owns one public domain contract identity. It binds the exact operation-contract registry once and may expose only named model or artifact owner slots; implementation modules and competing runtime authorities remain behind their dedicated boundaries.",
+  "remediate": "Import defineDomain from Core contracts and ops from ./ops/contracts.js, bind one const domain with the directory id, default-export it, and keep any named re-exports within ./model/** or ./artifacts/index.js.",
+  "message": "Domain index.ts must expose one directory-identified defineDomain authority plus only admitted model or artifact owner-slot re-exports.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/domain/*/index.ts"
+      ]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain/require_domain_entrypoint_shape/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/domain/require_domain_entrypoint_shape/pattern.md"
+    },
+    "patternName": "require_domain_entrypoint_shape",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods"
+      ]
+    }
+  }
+}

@@ -19,10 +19,11 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/**/*.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/**/*.ts"
+      ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_config_bag_imports/baseline.json"
@@ -32,6 +33,12 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_config_bag_imports/pattern.md"
     },
-    "patternName": "prohibit_morphology_stage_config_bag_imports"
+    "patternName": "prohibit_morphology_stage_config_bag_imports",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages"
+      ]
+    }
   }
 }

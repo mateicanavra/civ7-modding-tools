@@ -436,7 +436,7 @@ describe("rule selector boundary", () => {
     ).toEqual(["hook"]);
   });
 
-  test("source-check staged scan roots preserve exact approved file paths", () => {
+  test("source-check staged acquisition roots preserve exact approved file paths", () => {
     expect(
       stagedSourceCheckPaths(
         [
@@ -450,12 +450,18 @@ describe("rule selector boundary", () => {
     ).toEqual(["packages/mapgen-core/src/core/index.ts"]);
   });
 
+  test("source-check staged acquisition fails closed without approved roots", () => {
+    expect(
+      stagedSourceCheckPaths(["packages/mapgen-core/src/core/index.ts"], [], { repoRoot })
+    ).toEqual([]);
+  });
+
   test("Grit unmatched roots remain publicly not-applicable", () => {
     const rule = fakeSourceRuleFact("unmatched", ["packages"]);
     const record = ruleDiagnosticExecutionRecord(rule, {
       kind: "not-applicable",
       durationMs: 0,
-      reason: "no-matched-scan-roots",
+      reason: "no-matched-acquisition-roots",
     });
 
     expect(record).toMatchObject({
@@ -463,7 +469,7 @@ describe("rule selector boundary", () => {
         exitCode: 0,
         diagnostics: [],
       },
-      disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
+      disposition: { kind: "not-applicable", reason: "no-matched-acquisition-roots" },
     });
   });
 
@@ -476,13 +482,13 @@ describe("rule selector boundary", () => {
     };
     const protectedRecovery = {
       ownerId: "generated-output-owner",
-      actionKind: "select-approved-scan-root" as const,
+      actionKind: "select-approved-acquisition-root" as const,
       instruction: "Select an approved source root.",
     };
     const cases = [
       {
         decision: { kind: "refused" as const, reason: "empty" as const },
-        detail: "Diagnostic scan roots are empty.",
+        detail: "Diagnostic acquisition roots are empty.",
       },
       {
         decision: {
@@ -490,11 +496,11 @@ describe("rule selector boundary", () => {
           reason: "outside-repo" as const,
           root: "../outside",
         },
-        detail: "Diagnostic scan root is outside the repo: ../outside.",
+        detail: "Diagnostic acquisition root is outside the repo: ../outside.",
       },
       {
         decision: { kind: "refused" as const, reason: "missing" as const, root: "missing" },
-        detail: "Diagnostic scan root does not exist: missing.",
+        detail: "Diagnostic acquisition root does not exist: missing.",
       },
       {
         decision: {
@@ -504,7 +510,7 @@ describe("rule selector boundary", () => {
           owner: protectedOwner,
           recovery: protectedRecovery,
         },
-        detail: "Diagnostic scan root is generated output: dist.",
+        detail: "Diagnostic acquisition root is generated output: dist.",
       },
       {
         decision: {
@@ -514,7 +520,7 @@ describe("rule selector boundary", () => {
           owner: protectedOwner,
           recovery: protectedRecovery,
         },
-        detail: "Diagnostic scan root is protected: node_modules.",
+        detail: "Diagnostic acquisition root is protected: node_modules.",
       },
       {
         decision: {
@@ -522,7 +528,7 @@ describe("rule selector boundary", () => {
           reason: "not-approved" as const,
           root: "other",
         },
-        detail: "Diagnostic scan root is not approved: other.",
+        detail: "Diagnostic acquisition root is not approved: other.",
       },
     ] as const;
 
@@ -547,7 +553,7 @@ describe("rule selector boundary", () => {
         },
         disposition: {
           kind: "dependency-refused",
-          source: "diagnostic-scan-root",
+          source: "diagnostic-acquisition-root",
           decision: fixture.decision,
           detail: fixture.detail,
         },
@@ -651,8 +657,8 @@ describe("rule selector boundary", () => {
                 ".habitat/habitat/toolkit/_blueprints/grit-provider/prohibit_product_scan_roots_in_grit_provider/pattern.md",
             },
             patternName: "advisory_provider",
+            acquisition: { kind: "check", roots: ["tools/habitat"] },
           },
-          scanRoots: ["tools/habitat"],
           supportFiles: { baseline: baselineAuthority.relative },
         },
       ],
@@ -676,13 +682,13 @@ describe("rule selector boundary", () => {
     };
     const protectedRecovery = {
       ownerId: "generated-output-owner",
-      actionKind: "select-approved-scan-root" as const,
+      actionKind: "select-approved-acquisition-root" as const,
       instruction: "Select an approved source root.",
     };
     const dispositions = [
       {
         kind: "not-applicable" as const,
-        reason: "no-matched-scan-roots" as const,
+        reason: "no-matched-acquisition-roots" as const,
       },
       {
         kind: "refused" as const,
@@ -751,7 +757,7 @@ describe("rule selector boundary", () => {
       const detail = Match.value(disposition).pipe(
         Match.when({ kind: "not-applicable" }, () => "not applicable"),
         Match.when({ kind: "failed" }, () => "provider unavailable"),
-        Match.orElse(({ decision }) => `scan root refused: ${decision.reason}`)
+        Match.orElse(({ decision }) => `acquisition root refused: ${decision.reason}`)
       );
       const report = await Effect.runPromise(
         createDiagnosticReport(() =>
@@ -850,7 +856,7 @@ describe("rule selector boundary", () => {
           });
           expect(producedDisposition).toEqual({
             kind: "dependency-refused",
-            source: "diagnostic-scan-root",
+            source: "diagnostic-acquisition-root",
             decision: refused.decision,
             detail,
           });
@@ -947,13 +953,13 @@ function passingRule(
   };
 }
 
-function fakeSourceRuleFact(id: string, scanRoots: readonly string[]): RuleDiagnosticFacts {
+function fakeSourceRuleFact(id: string, acquisitionRoots: readonly string[]): RuleDiagnosticFacts {
   return {
     id,
     lane: "enforced",
     message: "test fixture",
     pathCoverage: [{ kind: "project-owner" }],
-    scanRoots: [...scanRoots],
+    acquisition: { kind: "check", roots: [...acquisitionRoots] },
   };
 }
 
@@ -984,6 +990,7 @@ function runnerFor(
       name: "grit",
       files: { pattern: `.habitat/fixtures/rules/${id}/pattern.md` },
       patternName: id,
+      acquisition: { kind: "check", roots: ["tools/habitat"] },
     };
   }
   if (runnerName === "nx") return { name: "nx", target: { project: "habitat", target: "test" } };

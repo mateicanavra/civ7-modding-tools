@@ -12,8 +12,10 @@ language js(typescript)
 
 predicate lacks_required_artifact_surface($body) {
   or {
+    ! $body <: contains `import { $..., defineArtifact, $... } from "@swooper/mapgen-core/authoring/contracts"`,
+    ! $body <: contains `import { $..., defineArtifactValidator, $... } from "@swooper/mapgen-core/authoring/contracts"`,
     ! $body <: contains `export const Schema = $schema`,
-    ! $body <: contains `export const artifact = defineArtifact({ $..., schema: Schema, $... })`,
+    ! $body <: contains `export const artifact = defineArtifact({ $..., id: $id, $..., schema: Schema, $... })`,
     ! $body <: contains or {
       `export const validate = defineArtifactValidator(artifact)`,
       `export const validate = defineArtifactValidator(artifact, $local)`
@@ -21,29 +23,47 @@ predicate lacks_required_artifact_surface($body) {
   }
 }
 
-program() as $program where {
-  $filename <: r".*mods/[^/]+/src/(?:[^/]+/)*artifacts/[^/]+\.artifact\.ts$",
-  or {
-    lacks_required_artifact_surface($program),
-    $program <: contains or {
-      import_statement(source=$source) where {
-        ! $source <: r"^[\"']?(?:@swooper/mapgen-core/(?:authoring/contracts|lib(?:/[^\"']*)?)|@civ7/(?:types|map-policy)(?:/[^\"']*)?|@mapgen/domain/[^/\"']+(?:/model/(?:schemas|policy|data)(?:/[^\"']*)?)?|\.\./model/(?:schemas|policy|data)/[^\"']+\.js)[\"']?$"
-      },
+or {
+  program(statements=$body) where {
+    lacks_required_artifact_surface($body)
+  },
+  `export const artifact = defineArtifact({ $..., id: $id, $... })` where {
+    ! $id <: r"^[\"']artifact:[^.]+\..+[\"']$"
+  },
+  `export const artifact = defineArtifact({ $..., id: $id, $... })` where {
+    $filename <: r".*mods/[^/]+/src/domain/([^/]+)/artifacts/[^/]+\.artifact\.ts$"($domain_id),
+    $id <: r"^[\"']artifact:([^.]+)\..+[\"']$"($artifact_domain),
+    ! $artifact_domain <: $domain_id
+  },
+  import_statement(source=$source) where {
+    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|\.\./model/(?:schemas|policy|data)/[^\"']+\.js)[\"']?$"
+  },
+  program(statements=$body) where {
+    $body <: contains or {
       `import($source)`,
       `import { $... } from "typebox/value"`,
       `import * as $value from "typebox/value"`,
       `Value.Errors($args)`,
       `validateArtifactSchema($args)`,
-      `export const $name = $value` where {
-        ! $name <: r"^(?:Schema|artifact|validate)$"
+      export_statement(declaration=$declaration) as $export where {
+        $declaration <: or {
+          lexical_declaration(),
+          variable_declaration(),
+          function_declaration(),
+          class_declaration(),
+          enum_declaration()
+        },
+        ! $export <: or {
+          `export const Schema = $schema`,
+          `export const artifact = defineArtifact({ $..., schema: Schema, $... })`,
+          `export const validate = defineArtifactValidator(artifact)`,
+          `export const validate = defineArtifactValidator(artifact, $local)`
+        }
       },
-      `export let $name = $value`,
-      `export var $name = $value`,
-      `export function $name($params) { $body }`,
-      `export class $name { $body }`,
-      `export enum $name { $body }`,
+      `export namespace $name { $body }`,
       `export default $value`,
       `export { $exports } from $source`,
+      `export type { $exports } from $source`,
       `export * from $source`,
       `export { $exports }`,
       `type $name = $definition` where {
@@ -63,7 +83,7 @@ program() as $program where {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/features/artifacts/missing-schema.artifact.ts
+// @filename: mods/example-mod/src/domain/geology/artifacts/missing-schema.artifact.ts
 import {
   defineArtifact,
   defineArtifactValidator,
@@ -78,12 +98,12 @@ export const artifact = defineArtifact({
 });
 export const validate = defineArtifactValidator(artifact);
 
-// @filename: mods/example-mod/src/features/artifacts/missing-artifact.artifact.ts
+// @filename: mods/example-mod/src/domain/geology/artifacts/missing-artifact.artifact.ts
 import { Type } from "@swooper/mapgen-core/authoring/contracts";
 
 export const Schema = Type.Object({});
 
-// @filename: mods/example-mod/src/features/artifacts/missing-validate.artifact.ts
+// @filename: mods/example-mod/src/domain/geology/artifacts/missing-validate.artifact.ts
 import {
   defineArtifact,
   Type,
@@ -96,7 +116,7 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-// @filename: mods/example-mod/src/features/artifacts/exported-artifact-authority.artifact.ts
+// @filename: mods/example-mod/src/domain/geology/artifacts/exported-artifact-authority.artifact.ts
 import {
   defineArtifact,
   defineArtifactValidator,
@@ -116,7 +136,7 @@ export const shadowArtifact = defineArtifact({
 });
 export const validate = defineArtifactValidator(artifact);
 
-// @filename: mods/example-mod/src/features/artifacts/exported-validator-authority.artifact.ts
+// @filename: mods/example-mod/src/domain/geology/artifacts/exported-validator-authority.artifact.ts
 import {
   defineArtifact,
   defineArtifactValidator,
@@ -132,7 +152,7 @@ export const artifact = defineArtifact({
 export const validate = defineArtifactValidator(artifact);
 export const shadowValidate = defineArtifactValidator(artifact);
 
-// @filename: mods/example-mod/src/features/artifacts/direct-typebox.artifact.ts
+// @filename: mods/example-mod/src/domain/geology/artifacts/direct-typebox.artifact.ts
 import {
   defineArtifact,
   defineArtifactValidator,
@@ -149,7 +169,7 @@ export const artifact = defineArtifact({
 const validateLocal = (value: unknown) => Array.from(Value.Errors(Schema, value));
 export const validate = defineArtifactValidator(artifact, validateLocal);
 
-// @filename: mods/example-mod/src/features/artifacts/local-issue-type.artifact.ts
+// @filename: mods/example-mod/src/domain/geology/artifacts/local-issue-type.artifact.ts
 import {
   defineArtifact,
   defineArtifactValidator,
@@ -166,7 +186,7 @@ type ValidationIssue = Readonly<{ message: string }>;
 const validateLocal = (): ValidationIssue[] => [];
 export const validate = defineArtifactValidator(artifact, validateLocal);
 
-// @filename: mods/example-mod/src/features/artifacts/semantic-alias.artifact.ts
+// @filename: mods/example-mod/src/domain/geology/artifacts/semantic-alias.artifact.ts
 import {
   defineArtifact,
   defineArtifactValidator,
@@ -182,7 +202,7 @@ export const artifact = defineArtifact({
 export const validate = defineArtifactValidator(artifact);
 export const semanticAliasArtifact = artifact;
 
-// @filename: mods/example-mod/src/features/artifacts/runtime-behavior.artifact.ts
+// @filename: mods/example-mod/src/domain/geology/artifacts/runtime-behavior.artifact.ts
 import {
   defineArtifact,
   defineArtifactValidator,
@@ -197,8 +217,12 @@ export const artifact = defineArtifact({
 });
 export const validate = defineArtifactValidator(artifact);
 export const runMutation = () => undefined;
+export async function loadArtifactState() {}
+export function* iterateArtifactState() {}
+export { artifact as artifactAlias };
+export default class ArtifactDefaultAuthority {}
 
-// @filename: mods/example-mod/src/features/artifacts/runtime-class.artifact.ts
+// @filename: mods/example-mod/src/domain/geology/artifacts/runtime-class.artifact.ts
 import {
   defineArtifact,
   defineArtifactValidator,
@@ -214,7 +238,7 @@ export const artifact = defineArtifact({
 export const validate = defineArtifactValidator(artifact);
 export class ArtifactRuntime {}
 
-// @filename: mods/example-mod/src/features/artifacts/runtime-reexport.artifact.ts
+// @filename: mods/example-mod/src/domain/geology/artifacts/runtime-reexport.artifact.ts
 import {
   defineArtifact,
   defineArtifactValidator,
@@ -230,18 +254,65 @@ export const artifact = defineArtifact({
 export const validate = defineArtifactValidator(artifact);
 export { runArtifact } from "../runtime.js";
 
-// @filename: mods/example-mod/src/features/artifacts/runtime-import.artifact.ts
-import { readFileSync } from "node:fs";
+// @filename: mods/example-mod/src/domain/geology/artifacts/private-operation-contract.artifact.ts
+import Contract from "../ops/classify-surface/contract.js";
+import {
+  defineArtifact,
+  defineArtifactValidator,
+} from "@swooper/mapgen-core/authoring/contracts";
+
+export const Schema = Contract.output;
+export const artifact = defineArtifact({
+  name: "privateOperationContract",
+  id: "artifact:demo.privateOperationContract",
+  schema: Schema,
+});
+export const validate = defineArtifactValidator(artifact);
+
+// @filename: mods/example-mod/src/domain/geology/artifacts/external-runtime.artifact.ts
+import { readFile } from "node:fs/promises";
 import {
   defineArtifact,
   defineArtifactValidator,
   Type,
 } from "@swooper/mapgen-core/authoring/contracts";
 
-export const Schema = Type.Object({ source: Type.Literal(readFileSync.name) });
+export const Schema = Type.Object({});
 export const artifact = defineArtifact({
-  name: "runtimeImport",
-  id: "artifact:demo.runtimeImport",
+  name: "externalRuntime",
+  id: "artifact:geology.externalRuntime",
+  schema: Schema,
+});
+const readRuntime = readFile;
+export const validate = defineArtifactValidator(artifact);
+
+// @filename: mods/example-mod/src/domain/geology/artifacts/cross-domain-private.artifact.ts
+import { PRIVATE_POLICY } from "@mapgen/domain/hydrology/model/policy/private.js";
+import {
+  defineArtifact,
+  defineArtifactValidator,
+  Type,
+} from "@swooper/mapgen-core/authoring/contracts";
+
+export const Schema = Type.Object({ policy: Type.Literal(PRIVATE_POLICY) });
+export const artifact = defineArtifact({
+  name: "crossDomainPrivate",
+  id: "artifact:geology.crossDomainPrivate",
+  schema: Schema,
+});
+export const validate = defineArtifactValidator(artifact);
+
+// @filename: mods/example-mod/src/domain/geology/artifacts/wrong-domain.artifact.ts
+import {
+  defineArtifact,
+  defineArtifactValidator,
+  Type,
+} from "@swooper/mapgen-core/authoring/contracts";
+
+export const Schema = Type.Object({});
+export const artifact = defineArtifact({
+  name: "wrongDomain",
+  id: "artifact:atmosphere.wrongDomain",
   schema: Schema,
 });
 export const validate = defineArtifactValidator(artifact);
@@ -252,7 +323,7 @@ export const validate = defineArtifactValidator(artifact);
 
 ```typescript
 
-// @filename: mods/example-mod/src/features/artifacts/plate-motion.artifact.ts
+// @filename: mods/example-mod/src/domain/geology/artifacts/plate-motion.artifact.ts
 import type { ArtifactValidationIssue } from "@swooper/mapgen-core/authoring/contracts";
 import {
   defineArtifact,
@@ -264,7 +335,7 @@ export const Schema = Type.Object({ value: Type.Number() });
 export type Artifact = unknown;
 export const artifact = defineArtifact({
   name: "plateMotion",
-  id: "artifact:foundation.plateMotion",
+  id: "artifact:geology.plateMotion",
   schema: Schema,
 });
 function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
@@ -272,7 +343,7 @@ function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
 }
 export const validate = defineArtifactValidator(artifact, validateLocal);
 
-// @filename: mods/example-mod/src/features/artifacts/message-bearing-payload.artifact.ts
+// @filename: mods/example-mod/src/domain/geology/artifacts/message-bearing-payload.artifact.ts
 import {
   defineArtifact,
   defineArtifactValidator,
@@ -284,21 +355,9 @@ export const Schema = Type.Object({ message: Type.String() });
 export type Artifact = ArtifactMetadata;
 export const artifact = defineArtifact({
   name: "messageBearingPayload",
-  id: "artifact:demo.messageBearingPayload",
+  id: "artifact:geology.messageBearingPayload",
   schema: Schema,
 });
 export const validate = defineArtifactValidator(artifact);
-
-// @filename: mods/example-mod/src/features/artifacts.ts
-import { artifact as startAssignmentArtifact } from "./artifacts/start-assignment.artifact.js";
-
-export const placementArtifacts = {
-  startAssignment: startAssignmentArtifact,
-};
-
-// @filename: mods/example-mod/src/features/projection/config.ts
-export function validateProjectionArtifact(value: unknown) {
-  return value;
-}
 
 ```

@@ -19,10 +19,12 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["apps/mapgen-studio/src/**/*.ts", "apps/mapgen-studio/src/**/*.tsx"]
+      "patterns": [
+        "apps/mapgen-studio/src/**/*.ts",
+        "apps/mapgen-studio/src/**/*.tsx"
+      ]
     }
   ],
-  "scanRoots": ["apps/mapgen-studio/src"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_studio_ui_recipe_artifact_imports/baseline.json"
@@ -32,6 +34,12 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_studio_ui_recipe_artifact_imports/pattern.md"
     },
-    "patternName": "require_studio_ui_recipe_artifact_imports"
+    "patternName": "require_studio_ui_recipe_artifact_imports",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "apps/mapgen-studio/src"
+      ]
+    }
   }
 }

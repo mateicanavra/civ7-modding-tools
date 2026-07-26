@@ -1,6 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
+import { artifactModules as ecologyArtifactModules } from "@mapgen/domain/ecology";
 import ecology from "@mapgen/domain/ecology/ops";
+import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { observeValidatedArtifact, readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -9,9 +11,8 @@ import {
   publishTestArtifact,
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
-import { artifactModules as ecologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
-import { FeaturesApplyStep as featuresApplyStep } from "../../../../../../../src/recipes/standard/stages/map-ecology/steps/features-apply/step.js";
-import { artifactModules as morphologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
+import { artifactModules as mapEcologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/map/ecology/artifacts/index.js";
+import { FeaturesApplyStep as featuresApplyStep } from "../../../../../../../src/recipes/standard/stages/map/ecology/steps/features-apply/step.js";
 
 const SYNTHETIC_DIMENSIONS = { width: 2, height: 2 } as const;
 
@@ -63,7 +64,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
         );
       })
     ).toThrow(/unknown feature intent/i);
-    expect(observeValidatedArtifact(ctx, ecologyArtifactModules.featureEngineSnapshot)).toEqual({
+    expect(observeValidatedArtifact(ctx, mapEcologyArtifactModules.featureEngineSnapshot)).toEqual({
       found: false,
     });
   });
@@ -120,7 +121,10 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
       ).not.toThrow();
     });
 
-    const diagnostics = readValidatedArtifact(ctx, ecologyArtifactModules.featureApplyDiagnostics);
+    const diagnostics = readValidatedArtifact(
+      ctx,
+      mapEcologyArtifactModules.featureApplyDiagnostics
+    );
     expect(diagnostics.attempted).toBe(1);
     expect(diagnostics.applied).toBe(0);
     expect(diagnostics.rejected).toBe(1);
@@ -129,7 +133,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
     expect(diagnostics.rejectedUnknownFeature).toBe(0);
     expect(diagnostics.rejectionMask[0]).toBe(1);
 
-    const snapshot = readValidatedArtifact(ctx, ecologyArtifactModules.featureEngineSnapshot);
+    const snapshot = readValidatedArtifact(ctx, mapEcologyArtifactModules.featureEngineSnapshot);
     expect(snapshot.width).toBe(width);
     expect(snapshot.height).toBe(height);
     expect(snapshot.featureType).toEqual(
@@ -192,7 +196,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
       );
     });
 
-    const snapshot = readValidatedArtifact(ctx, ecologyArtifactModules.featureEngineSnapshot);
+    const snapshot = readValidatedArtifact(ctx, mapEcologyArtifactModules.featureEngineSnapshot);
     expect(validationRan).toBe(true);
     expect(snapshot.featureType[0]).toBe(adapter.getFeatureTypeIndex("FEATURE_FOREST"));
     expect(snapshot.featureType[width]).toBe(validatedFeature);

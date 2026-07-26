@@ -9,7 +9,7 @@ export type StandardHydrologyMetrics = Readonly<{
   minorRiverTiles: CountMetric;
   majorRiverTiles: CountMetric;
   outletTiles: CountMetric;
-  terminalOceanTiles: CountMetric | null;
+  terminalOceanTiles: CountMetric;
   networkSummary: StandardMapCapture["model"]["riverNetworkSummary"];
   navigable: StandardMapCapture["projection"]["navigableRivers"] &
     StandardMapCapture["projection"]["riverReadback"];
@@ -30,7 +30,7 @@ export function measureStandardHydrology(capture: StandardMapCapture): StandardH
     if (isMinorRiverClass(riverClass)) minorRiverTiles += 1;
     if (isMajorRiverClass(riverClass)) majorRiverTiles += 1;
     if (capture.model.outletMask[index] === 1) outletTiles += 1;
-    if (capture.model.terminalType?.[index] === 1) terminalOceanTiles += 1;
+    if (capture.model.terminalType[index] === 1) terminalOceanTiles += 1;
   }
 
   return Object.freeze({
@@ -38,10 +38,7 @@ export function measureStandardHydrology(capture: StandardMapCapture): StandardH
     minorRiverTiles: measureMetricCount(minorRiverTiles, tileCount),
     majorRiverTiles: measureMetricCount(majorRiverTiles, tileCount),
     outletTiles: measureMetricCount(outletTiles, tileCount),
-    terminalOceanTiles:
-      capture.model.terminalType === null
-        ? null
-        : measureMetricCount(terminalOceanTiles, tileCount),
+    terminalOceanTiles: measureMetricCount(terminalOceanTiles, tileCount),
     networkSummary: capture.model.riverNetworkSummary,
     navigable: Object.freeze({
       ...capture.projection.navigableRivers,

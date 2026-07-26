@@ -1,6 +1,8 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
+import { artifactModules as foundationArtifactModules } from "@mapgen/domain/foundation";
+import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
 import morphologyDomain from "@mapgen/domain/morphology/ops";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
@@ -9,10 +11,7 @@ import {
   publishTestArtifact,
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
-
-import { artifactModules as standardArtifactModules } from "../../../../../../../../src/recipes/standard/artifacts/index.js";
-import { artifactModules as morphologyArtifactModules } from "../../../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
-import { VolcanoesStep } from "../../../../../../../../src/recipes/standard/stages/morphology-features/steps/volcanoes/step.js";
+import { VolcanoesStep } from "../../../../../../../../src/recipes/standard/stages/morphology/features/steps/volcanoes/step.js";
 import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
 
 describe("morphology-features volcano materialization", () => {
@@ -46,7 +45,7 @@ describe("morphology-features volcano materialization", () => {
     const dependencies = buildStepTestDependencies(VolcanoesStep);
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, standardArtifactModules.foundationPlates, {
+      publishTestArtifact(stepContext, foundationArtifactModules.plates, {
         id: new Int16Array(size),
         boundaryCloseness: new Uint8Array(size),
         boundaryType,

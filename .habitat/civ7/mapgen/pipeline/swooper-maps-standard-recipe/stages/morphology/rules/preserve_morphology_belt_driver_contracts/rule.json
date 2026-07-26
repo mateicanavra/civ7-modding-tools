@@ -28,16 +28,19 @@
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/baseline.json"
   },
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps"
-  ],
   "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {
       "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/pattern.md"
     },
-    "patternName": "preserve_morphology_belt_driver_contracts"
+    "patternName": "preserve_morphology_belt_driver_contracts",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps"
+      ]
+    }
   }
 }

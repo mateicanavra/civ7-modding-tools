@@ -67,16 +67,19 @@ typed VizProjection
 
 Visualization helpers have three reusable ownership shapes:
 
+Here `<stage-root>` means the stage's semantic physical path, such as
+`morphology/shelf`, `hydrology/climate/baseline`, or direct `placement`.
+
 ```text
 recipes/<recipe>/viz.ts
   Recipe-wide semantic style and palette vocabulary. Style identities resolve to portable
   colors before projection; exact category identities remain with their stage or step owner.
 
-stages/<stage>/viz.ts
+stages/<stage-root>/viz.ts
   Projection geometry or metadata helpers shared by multiple owner-stage steps
   or consumed outside the owner stage.
 
-stages/<stage>/steps/<step>/viz.ts
+stages/<stage-root>/steps/<step>/viz.ts
   Projection helpers private to one step.
 ```
 
@@ -90,8 +93,8 @@ geometry belongs in `@swooper/mapgen-viz`, not in a recipe stage helper.
 
 Forbidden shapes:
 
-- `stages/<stage>/steps/viz.ts` shared hubs.
-- importing `stages/<stage>/steps/<step>/viz.ts` outside that step directory.
+- `stages/<stage-root>/steps/viz.ts` shared hubs.
+- importing `stages/<stage-root>/steps/<step>/viz.ts` outside that step directory.
 - broad shared visualization buckets without a named invariant and concrete
   consumers.
 - renderer-owned recipe palette registries. Studio receives resolved portable colors and does not
@@ -111,8 +114,8 @@ Forbidden shapes:
 - Path-backed diagnostic capture/read/diff capability: `packages/mapgen-diagnostics/src/index.ts`
 - Studio worker facet sink: `apps/mapgen-studio/src/browser-runner/worker-viz-facet-sink.ts`
 - Standard recipe style vocabulary: `mods/mod-swooper-maps/src/recipes/standard/viz.ts`
-- Standard-recipe stage/step ownership guard:
-  Habitat `require_shared_visualization_contracts_at_stage_surfaces` in
-  `.habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/rule.json`
-- Recipe-step runtime sink prohibition:
-  `.habitat/blueprints/recipe-step/prohibit_recipe_step_runtime_viz_sink_access/rule.json`
+- Recipe-step source topology:
+  `.habitat/blueprints/recipe-step/require_recipe_step_source_topology/structure.toml`
+- Runtime capability boundary: `MapContext` omits a visualization sink and
+  `createStep({ viz })` is the only authored projection surface in
+  `packages/mapgen-core/src/authoring/step/create.ts`

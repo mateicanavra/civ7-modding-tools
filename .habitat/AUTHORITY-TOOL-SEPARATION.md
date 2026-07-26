@@ -62,10 +62,13 @@ the `habitat:check:hygiene` leaf exactly once.
 ## Source Pattern Execution Rule
 
 Habitat Grit rules are packet-local source-pattern authority. A rule's
-`runner.files.pattern` is the canonical pattern body and its normalized
-`diagnosticAcquisition` declares either `check` or `apply-dry-run`. Acquisition
-is a generic runner policy, not a rule-id, path, extension, or domain special
-case. Habitat remains the sole checked-in authority tree.
+`runner.files.pattern` is the canonical pattern body and
+`runner.acquisition` declares the operation (`check` or `apply-dry-run`) and
+the broadest roots the runner may inspect. Applicability remains owned by
+`pathCoverage`; when every admitted clause is exact, Habitat narrows native
+Grit acquisition to the matching files before execution. Acquisition is a
+generic runner policy, not a rule-id, path, extension, or domain special case.
+Habitat remains the sole checked-in authority tree.
 
 For every selected rule, Habitat plans the admitted roots once. A rule is then
 executed, refused, or explicitly not applicable because no requested root

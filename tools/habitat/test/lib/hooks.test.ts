@@ -103,7 +103,7 @@ describe("Habitat hook check report parser", () => {
         message: "ordinary",
         disposition: {
           kind: "dependency-refused",
-          source: "diagnostic-scan-root",
+          source: "diagnostic-acquisition-root",
           decision: { kind: "refused", reason: "missing", root: "missing" },
           detail: "missing root",
         },
@@ -256,7 +256,7 @@ describe("Habitat hook check report parser", () => {
       stdout: checkReport({
         ok: true,
         status: "pass",
-        disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
+        disposition: { kind: "not-applicable", reason: "no-matched-acquisition-roots" },
         command: "habitat check --staged --hook-check --runner grit --json",
         ruleId: "not-applicable-rule",
         runner: "grit",
@@ -276,7 +276,7 @@ describe("Habitat hook check report parser", () => {
         ok: false,
         status: "fail",
         diagnosticMessage: "ordinary enforced diagnostic",
-        disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
+        disposition: { kind: "not-applicable", reason: "no-matched-acquisition-roots" },
         command: "habitat check --staged --hook-check --runner grit --json",
         ruleId: "not-applicable-rule",
         runner: "grit",
@@ -298,7 +298,7 @@ describe("Habitat hook check report parser", () => {
         lane: "advisory",
         diagnosticMessage: "ordinary advisory diagnostic",
         diagnosticSeverity: "advisory",
-        disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
+        disposition: { kind: "not-applicable", reason: "no-matched-acquisition-roots" },
         command: "habitat check --staged --hook-check --runner grit --json",
         ruleId: "not-applicable-rule",
         runner: "grit",
@@ -584,12 +584,12 @@ describe("Habitat pre-commit staged mutation policy", () => {
         status: "fail",
         disposition: {
           kind: "dependency-refused",
-          source: "diagnostic-scan-root",
+          source: "diagnostic-acquisition-root",
           decision: { kind: "refused", reason: "outside-repo", root: "../outside" },
-          detail: "Diagnostic scan root is outside the repo: ../outside.",
+          detail: "Diagnostic acquisition root is outside the repo: ../outside.",
         },
         diagnosticMessage:
-          "Dependency refused: Diagnostic scan root is outside the repo: ../outside.",
+          "Dependency refused: Diagnostic acquisition root is outside the repo: ../outside.",
       }),
     });
 
@@ -624,14 +624,14 @@ describe("Habitat pre-commit staged mutation policy", () => {
       sourceCheckStdout: sourceCheckReport({
         ok: true,
         status: "pass",
-        disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
+        disposition: { kind: "not-applicable", reason: "no-matched-acquisition-roots" },
       }),
     });
 
     const result = await runPreCommitInTest(fake);
 
     expect(result.exitCode).toBe(0);
-    expect(result.stdout).toContain("no-matched-scan-roots");
+    expect(result.stdout).toContain("no-matched-acquisition-roots");
     expect(fake.biomeRequests).toContainEqual(
       expect.objectContaining({
         kind: "check",
@@ -816,7 +816,7 @@ function makeSyntheticSourceCheckHookRules() {
         lane: "enforced" as const,
         message: "source-check hook check probe",
         pathCoverage: [{ kind: "exact-path" as const, patterns: ["packages/example/src/**"] }],
-        scanRoots: ["packages/example/src"],
+        acquisition: { kind: "check" as const, roots: ["packages/example/src"] },
       },
     ],
     grit: [
@@ -830,11 +830,10 @@ function makeSyntheticSourceCheckHookRules() {
             pattern: ".habitat/fixtures/rules/hook-source-check-probe/pattern.md",
           },
           patternName: "hook-source-check-probe",
+          acquisition: { kind: "check" as const, roots: ["packages/example/src"] },
         },
         patternName: "hook-source-check-probe",
-        diagnosticAcquisition: { kind: "check" as const },
         pathCoverage: [{ kind: "exact-path" as const, patterns: ["packages/example/src/**"] }],
-        scanRoots: ["packages/example/src"],
       },
     ],
     hookCheck: [{ id: "hook-source-check-probe", hookCheck: true as const }],

@@ -31,13 +31,6 @@
       "kind": "project-owner"
     }
   ],
-  "scanRoots": [
-    "apps/mapgen-studio/src/server/daemon",
-    "apps/mapgen-studio/src/server/studio",
-    "packages/studio-server/src/context.ts",
-    "packages/studio-server/src/handler.ts",
-    "packages/studio-server/src/runtime.ts"
-  ],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/baseline.json"
@@ -47,6 +40,16 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/pattern.md"
     },
-    "patternName": "prohibit_studio_rpc_eventhub_lifecycle_leaks"
+    "patternName": "prohibit_studio_rpc_eventhub_lifecycle_leaks",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "apps/mapgen-studio/src/server/daemon",
+        "apps/mapgen-studio/src/server/studio",
+        "packages/studio-server/src/context.ts",
+        "packages/studio-server/src/handler.ts",
+        "packages/studio-server/src/runtime.ts"
+      ]
+    }
   }
 }

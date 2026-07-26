@@ -1,7 +1,9 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
+import { artifactModules as hydrologyClimateBaselineArtifactModules } from "@mapgen/domain/hydrology";
 import hydrologyDomain from "@mapgen/domain/hydrology/ops";
+import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -10,11 +12,9 @@ import {
   validateSchemaValueForTest,
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
-import { artifactModules as hydrologyClimateBaselineArtifactModules } from "../../../../../../../../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts/index.js";
-import hydrologyClimateBaselineStage from "../../../../../../../../../src/recipes/standard/stages/hydrology-climate-baseline/index.js";
-import { ClimateBaselineStepContract } from "../../../../../../../../../src/recipes/standard/stages/hydrology-climate-baseline/steps/climate-baseline/config.js";
-import { ClimateBaselineStep } from "../../../../../../../../../src/recipes/standard/stages/hydrology-climate-baseline/steps/climate-baseline/step.js";
-import { artifactModules as morphologyArtifactModules } from "../../../../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
+import hydrologyClimateBaselineStage from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/baseline/index.js";
+import { ClimateBaselineStepContract } from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.js";
+import { ClimateBaselineStep } from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/step.js";
 import { TEST_MAP_SIZE } from "../../../../../../../../map-size.js";
 import {
   createStandardRecipeTestConfig,
@@ -105,11 +105,6 @@ describe("hydrology climate-baseline composition", () => {
         coastalLand: new Uint8Array(size),
         coastalWater: new Uint8Array(size),
         distanceToCoast: new Uint16Array(size),
-        activeMarginMask: new Uint8Array(size),
-        depthGateMask: new Uint8Array(size),
-        nearshoreCandidateMask: new Uint8Array(size),
-        shelfBreakDepthByTile: new Int16Array(size),
-        shallowCutoff: 0,
       });
 
       ClimateBaselineStep.run(

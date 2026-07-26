@@ -19,12 +19,12 @@ describe("RuleDiagnostics resource selection", () => {
     if (!selected) throw new Error("expected at least one registered diagnostic rule");
     const observed: Array<{
       readonly ids: string[];
-      readonly scanRoots: readonly string[] | undefined;
+      readonly acquisitionRoots: readonly string[] | undefined;
     }> = [];
     const layer = selectorLayer(facts, (rules, options) => {
       observed.push({
         ids: rules.map(({ id }) => id),
-        scanRoots: options.scanRoots,
+        acquisitionRoots: options.acquisitionRoots,
       });
       return Effect.succeed(
         new Map(rules.map((rule) => [rule.id, successfulExecution()] as const))
@@ -48,9 +48,9 @@ describe("RuleDiagnostics resource selection", () => {
     );
 
     expect(observed).toEqual([
-      { ids: [selected.id], scanRoots: undefined },
-      { ids: [selected.id], scanRoots: [] },
-      { ids: [selected.id], scanRoots: ["tools/habitat/src/index.ts"] },
+      { ids: [selected.id], acquisitionRoots: undefined },
+      { ids: [selected.id], acquisitionRoots: [] },
+      { ids: [selected.id], acquisitionRoots: ["tools/habitat/src/index.ts"] },
     ]);
     expect(results.map((result) => [...result.keys()])).toEqual([
       [selected.id],
@@ -66,12 +66,12 @@ describe("RuleDiagnostics resource selection", () => {
       throw new Error("expected at least two registered diagnostic rules");
     const observed: Array<{
       readonly ids: string[];
-      readonly scanRoots: readonly string[] | undefined;
+      readonly acquisitionRoots: readonly string[] | undefined;
     }> = [];
     const service = makeRuleDiagnosticsService(repoRoot, facts, (rules, options) => {
       observed.push({
         ids: rules.map(({ id }) => id),
-        scanRoots: options.scanRoots,
+        acquisitionRoots: options.acquisitionRoots,
       });
       return Effect.succeed(
         new Map(rules.map((rule) => [rule.id, successfulExecution()] as const))
@@ -90,7 +90,9 @@ describe("RuleDiagnostics resource selection", () => {
 
     const results = await Effect.runPromise(execution);
 
-    expect(observed).toEqual([{ ids: [selected.id], scanRoots: ["tools/habitat/src/index.ts"] }]);
+    expect(observed).toEqual([
+      { ids: [selected.id], acquisitionRoots: ["tools/habitat/src/index.ts"] },
+    ]);
     expect([...results.keys()]).toEqual([selected.id]);
   });
 
@@ -103,7 +105,7 @@ describe("RuleDiagnostics resource selection", () => {
       lane: "advisory",
       message: "The diagnostic rule must have one provider binding.",
       pathCoverage: [{ kind: "project-owner" }],
-      scanRoots: ["tools/habitat"],
+      acquisition: { kind: "check", roots: ["tools/habitat"] },
     } satisfies RuleDiagnosticFacts;
     const facts = {
       ...baseFacts,

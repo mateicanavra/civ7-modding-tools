@@ -33,11 +33,6 @@
       "kind": "project-owner"
     }
   ],
-  "scanRoots": [
-    "packages/studio-server/src",
-    "packages/studio-run-workspace/src",
-    "apps/mapgen-studio/src/server"
-  ],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-copy-deploy-boundary/baseline.json"
   },
@@ -46,6 +41,14 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-copy-deploy-boundary/pattern.md"
     },
-    "patternName": "grit_studio_run_copy_deploy_boundary"
+    "patternName": "grit_studio_run_copy_deploy_boundary",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "packages/studio-server/src",
+        "packages/studio-run-workspace/src",
+        "apps/mapgen-studio/src/server"
+      ]
+    }
   }
 }

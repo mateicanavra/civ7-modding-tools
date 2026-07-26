@@ -19,16 +19,10 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/*/contract.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/ops/*/contract.ts"
+      ]
     }
-  ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain/ecology/ops",
-    "mods/mod-swooper-maps/src/domain/foundation/ops",
-    "mods/mod-swooper-maps/src/domain/hydrology/ops",
-    "mods/mod-swooper-maps/src/domain/morphology/ops",
-    "mods/mod-swooper-maps/src/domain/placement/ops",
-    "mods/mod-swooper-maps/src/domain/resources/ops"
   ],
   "hookCheck": true,
   "supportFiles": {
@@ -39,6 +33,17 @@
     "files": {
       "pattern": ".habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/pattern.md"
     },
-    "patternName": "require_domain_operation_contract_file_shape"
+    "patternName": "require_domain_operation_contract_file_shape",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/domain/ecology/ops",
+        "mods/mod-swooper-maps/src/domain/foundation/ops",
+        "mods/mod-swooper-maps/src/domain/hydrology/ops",
+        "mods/mod-swooper-maps/src/domain/morphology/ops",
+        "mods/mod-swooper-maps/src/domain/placement/ops",
+        "mods/mod-swooper-maps/src/domain/resources/ops"
+      ]
+    }
   }
 }

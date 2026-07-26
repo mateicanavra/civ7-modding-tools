@@ -2,11 +2,14 @@ import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts"
 import * as advancedStartAssignment from "./advanced-start-assignment.artifact.js";
 import * as discoveryPlacementOutcomes from "./discovery-placement-outcomes.artifact.js";
 import * as engineState from "./engine-state.artifact.js";
+import * as landmassRegionSlotByTile from "./landmass-region-slot-by-tile.artifact.js";
 import * as naturalWonderPlacement from "./natural-wonder-placement.artifact.js";
 import * as naturalWonderPlan from "./natural-wonder-plan.artifact.js";
+import * as placementEngineTerrainSnapshot from "./placement-engine-terrain-snapshot.artifact.js";
 import * as placementInputs from "./placement-inputs.artifact.js";
 import * as placementOutputs from "./placement-outputs.artifact.js";
 import * as placementSurfacePreparation from "./placement-surface-preparation.artifact.js";
+import * as placementSurfaceValidationBoundary from "./placement-surface-validation-boundary.artifact.js";
 import * as resourceDemandPlan from "./resource-demand-plan.artifact.js";
 import * as resourceEligibility from "./resource-eligibility.artifact.js";
 import * as resourcePlacementOutcomes from "./resource-placement-outcomes.artifact.js";
@@ -18,11 +21,14 @@ const catalog = defineArtifactCatalog({
   advancedStartAssignment,
   discoveryPlacementOutcomes,
   engineState,
+  landmassRegionSlotByTile,
   naturalWonderPlacement,
   naturalWonderPlan,
+  placementEngineTerrainSnapshot,
   placementInputs,
   placementOutputs,
   placementSurfacePreparation,
+  placementSurfaceValidationBoundary,
   resourceDemandPlan,
   resourceEligibility,
   resourcePlacementOutcomes,

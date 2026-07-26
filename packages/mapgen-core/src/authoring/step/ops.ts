@@ -1,9 +1,38 @@
 import type { Static } from "typebox";
 
-import type { OpContract } from "../op/contract.js";
+import { isCanonicalOpContract, type OpContractAny } from "../op/contract.js";
 import type { OpTypeBagOf } from "../op/types.js";
 
-export type OpContractAny = OpContract<any, any, any, any, any>;
+export type { OpContractAny } from "../op/contract.js";
+
+const sourceContractByScopedDeclaration = new WeakMap<object, OpContractAny>();
+
+/** @internal Registers one step-scoped default override against its exact operation contract. */
+export function registerScopedStepOpDeclarationInternal(
+  declaration: object,
+  sourceContract: OpContractAny
+): void {
+  if (!isCanonicalOpContract(sourceContract)) {
+    throw new Error("step operation override requires a canonical operation contract");
+  }
+  sourceContractByScopedDeclaration.set(declaration, sourceContract);
+}
+
+/**
+ * @internal Resolves a direct or step-scoped declaration to the exact operation contract that
+ * executable bindings must implement.
+ */
+export function readStepOpBindingContractInternal(value: unknown): OpContractAny {
+  if (isCanonicalOpContract(value)) return value;
+  const source =
+    value !== null && typeof value === "object"
+      ? sourceContractByScopedDeclaration.get(value)
+      : undefined;
+  if (!source) {
+    throw new Error("operation contract must be created by defineOp or admitted by defineStep");
+  }
+  return source;
+}
 
 export type StepOpUse<
   C extends OpContractAny = OpContractAny,

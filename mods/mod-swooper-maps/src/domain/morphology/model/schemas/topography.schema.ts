@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/schema";
 
 /** Domain model for the elevation and surface-classification fields used by Morphology. */
 export const MorphologyTopographySchema = Type.Object(

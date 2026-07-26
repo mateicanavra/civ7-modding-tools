@@ -2,7 +2,7 @@ schemaVersion = 1
 
 [[scopes]]
 name = "mapgen-artifact-directories"
-root = "mods/*/src/**/artifacts"
+root = "mods/*/src/domain/!(*.*)/artifacts"
 kind = "directory"
 mode = "closed"
 required = [

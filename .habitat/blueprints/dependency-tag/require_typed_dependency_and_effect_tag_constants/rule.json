@@ -19,10 +19,11 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/*/steps/*/config.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/*/steps/*/config.ts"
+      ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/baseline.json"
@@ -32,6 +33,12 @@
     "files": {
       "pattern": ".habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md"
     },
-    "patternName": "require_typed_dependency_and_effect_tag_constants"
+    "patternName": "require_typed_dependency_and_effect_tag_constants",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages"
+      ]
+    }
   }
 }

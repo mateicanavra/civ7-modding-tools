@@ -63,7 +63,8 @@ When the branch resolves to **display**, the fix is one of a small set of files 
 step's optional `createStep(contract, { viz })` facet; legacy steps may still
 emit through `context.viz.dumpGrid/dumpPoints/dumpSegments/dumpGridFields` while
 they migrate. Private helpers belong in `steps/<step>/viz.ts`; shared owner-stage
-helpers belong in `stages/<stage>/viz.ts`. See the canonical model in
+helpers belong in `stages/<stage-root>/viz.ts`, where `<stage-root>` is the
+semantic physical path such as `morphology/shelf` or direct `placement`. See the canonical model in
 `docs/system/libs/mapgen/reference/VISUALIZATION.md`. If metadata is wrong, fix
 the owning recipe step/helper, not `presentation.ts`. The browser dumper
 (`browser-runner/worker-viz-dumper.ts`, inline ArrayBuffers) and CLI facet sink

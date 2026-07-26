@@ -184,14 +184,14 @@ describe("step authoring", () => {
     ).toThrow("requires an explicit default strategy");
   });
 
-  it("freezes detached schema authority without freezing reusable authoring schemas", () => {
+  it("detaches schema authority while preserving native TypeBox composition", () => {
     const decode = Object.assign((value: string) => `decoded:${value}`, {
       marker: { mutable: true },
     });
     const encode = (value: string) => value.replace(/^decoded:/, "");
     const strategySchema = Type.Object(
       { count: Type.Integer({ default: 2 }) },
-      { additionalProperties: false }
+      { additionalProperties: false, description: "Original strategy schema." }
     );
     const operation = defineOp({
       kind: "compute",
@@ -205,7 +205,7 @@ describe("step authoring", () => {
         enabled: Type.Boolean({ default: true }),
         label: Type.Codec(Type.String()).Decode(decode).Encode(encode),
       },
-      { additionalProperties: false }
+      { additionalProperties: false, description: "Original step schema." }
     );
     const contract = defineStep({
       id: "detached-schema",
@@ -217,8 +217,18 @@ describe("step authoring", () => {
 
     expect(contract.schema).not.toBe(stepSchema);
     expect(contract.ops?.calculation.strategies.balanced).not.toBe(strategySchema);
-    expect(Object.isFrozen(contract.schema)).toBe(true);
-    expect(Object.isFrozen(contract.ops?.calculation.strategies.balanced)).toBe(true);
+    expect(Object.isFrozen(contract.schema)).toBe(false);
+    expect(Object.isFrozen(contract.ops?.calculation.strategies.balanced)).toBe(false);
+    expect(() =>
+      Type.With(contract.schema, {
+        description: "Composable step schema.",
+      })
+    ).not.toThrow();
+    expect(() =>
+      Type.With(contract.ops!.calculation.strategies.balanced, {
+        description: "Composable operation strategy schema.",
+      })
+    ).not.toThrow();
     expect(() => Type.With(stepSchema, { description: "Reusable step schema." })).not.toThrow();
     expect(() =>
       Type.With(strategySchema, { description: "Reusable operation strategy schema." })
@@ -467,7 +477,7 @@ describe("step authoring", () => {
     expect(captured.first).toBe(captured.second);
     expect(captured.first).not.toBe(shared);
     expect(captured.first.value).toBe("captured");
-    expect(Object.isFrozen(captured.first)).toBe(true);
+    expect(Object.isFrozen(captured.first)).toBe(false);
   });
 
   it("defineStep rejects non-kebab step ids", () => {

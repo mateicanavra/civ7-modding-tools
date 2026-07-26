@@ -4,20 +4,35 @@ level: error
 # Require Domain Ops Binding Surface
 
 Domain root `ops.ts` files bind the domain contract to its implementation
-registry. They are not public helper barrels.
+registry. They are closed owner modules, not public helper barrels. The
+required statements may appear in any order; no additional statement may
+create a second public or runtime authority in this binding surface.
 
 ```grit
 language js(typescript)
 
-or {
-  program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops\.ts$",
-    ! $body <: [
-      `import { createDomain } from "@swooper/mapgen-core/authoring"`,
-      `import domain from "./index.js"`,
-      `import implementations from "./ops/index.js"`,
-      `export default createDomain(domain, implementations)`
-    ]
+predicate lacks_domain_ops_binding_surface($body) {
+  or {
+    ! $body <: contains `import { createDomain } from "@swooper/mapgen-core/authoring"`,
+    ! $body <: contains `import domain from "./index.js"`,
+    ! $body <: contains `import implementations from "./ops/index.js"`,
+    ! $body <: contains `export default createDomain(domain, implementations)`
+  }
+}
+
+program(statements=$body) where {
+  or {
+    lacks_domain_ops_binding_surface($body),
+    $body <: some bubble {
+      $statement where {
+        ! $statement <: or {
+          `import { createDomain } from "@swooper/mapgen-core/authoring"`,
+          `import domain from "./index.js"`,
+          `import implementations from "./ops/index.js"`,
+          `export default createDomain(domain, implementations)`
+        }
+      }
+    }
   }
 }
 ```
@@ -25,7 +40,7 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/domain/morphology/ops.ts
+// @filename: mods/example-mod/src/domain/weather/ops.ts
 import { createDomain } from "@swooper/mapgen-core/authoring";
 
 import domain from "./index.js";
@@ -35,7 +50,7 @@ export default createDomain(domain, implementations);
 
 const helper = 1;
 
-// @filename: mods/mod-swooper-maps/src/domain/hydrology/ops.ts
+// @filename: mods/alternate-mod/src/domain/terrain/ops.ts
 import { createDomain } from "@swooper/mapgen-core/authoring";
 
 import domain from "./index.js";
@@ -43,9 +58,9 @@ import implementations from "./ops/index.js";
 
 export default createDomain(domain, implementations);
 
-export { DEFAULT_ELEVATION_SCALE } from "./ops/compute-base-topography/rules/index.js";
+export { TERRAIN_SCALE } from "./model/policy/terrain-scale.js";
 
-// @filename: mods/mod-swooper-maps/src/domain/resources/ops.ts
+// @filename: mods/example-mod/src/domain/settlement/ops.ts
 import { createDomain } from "@swooper/mapgen-core/authoring";
 import domain from "./index.js";
 import implementations from "./ops/index.js";
@@ -57,14 +72,11 @@ export default createDomain(domain, implementations);
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops.ts
-import { createDomain } from "@swooper/mapgen-core/authoring";
-
-import domain from "./index.js";
+// @filename: mods/example-mod/src/domain/weather/ops.ts
 import implementations from "./ops/index.js";
+import domain from "./index.js";
+import { createDomain } from "@swooper/mapgen-core/authoring";
 
 export default createDomain(domain, implementations);
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/index.ts
-export { computeMesh } from "./compute-mesh/index.js";
 ```

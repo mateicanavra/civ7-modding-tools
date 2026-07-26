@@ -13,7 +13,14 @@ root = "mods/*/src/recipes/*/stages/**/steps/+([a-z0-9])*(-+([a-z0-9]))"
 kind = "directory"
 mode = "open"
 required = ["config.ts", "step.ts"]
-forbidden = ["contract.ts", "index.ts", "*.contract.ts"]
+forbidden = ["contract.ts", "index.ts", "*.contract.ts", "artifacts", "*.artifact.ts"]
+
+[[scopes]]
+name = "recipe-step-descendants"
+root = "mods/*/src/recipes/*/stages/**/steps/**/!(*.*)"
+kind = "directory"
+mode = "open"
+forbidden = ["artifacts", "*.artifact.ts"]
 
 [[scopes]]
 name = "recipe-step-config-modules"

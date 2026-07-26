@@ -19,22 +19,10 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/domain/foundation/ops/**"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/foundation/ops/**"
+      ]
     }
-  ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/strategies",
-    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/strategies",
-    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/strategies",
-    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/strategies",
-    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/strategies",
-    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/strategies",
-    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/strategies",
-    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/strategies",
-    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-motion/index.ts",
-    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts",
-    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts",
-    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/rules/project-plates.ts"
   ],
   "hookCheck": true,
   "supportFiles": {
@@ -45,6 +33,23 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_duplicate_math_helper_redefinitions/pattern.md"
     },
-    "patternName": "prohibit_foundation_duplicate_math_helper_redefinitions"
+    "patternName": "prohibit_foundation_duplicate_math_helper_redefinitions",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/strategies",
+        "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/strategies",
+        "mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/strategies",
+        "mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/strategies",
+        "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/strategies",
+        "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/strategies",
+        "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/strategies",
+        "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/strategies",
+        "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-motion/index.ts",
+        "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts",
+        "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts",
+        "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/rules/project-plates.ts"
+      ]
+    }
   }
 }

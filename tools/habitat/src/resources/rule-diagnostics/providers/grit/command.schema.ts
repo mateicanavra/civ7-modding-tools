@@ -4,10 +4,10 @@ import type {
   HabitatProcessRequest,
 } from "@habitat/cli/resources/command/index";
 import {
-  type DiagnosticSelectedScanRoots,
-  DiagnosticSelectedScanRootsSchema,
-  parseDiagnosticSelectedScanRoots,
-} from "@habitat/cli/service/model/diagnostics/dto/diagnostic-scan-root.schema";
+  type DiagnosticSelectedAcquisitionRoots,
+  DiagnosticSelectedAcquisitionRootsSchema,
+  parseDiagnosticSelectedAcquisitionRoots,
+} from "@habitat/cli/service/model/diagnostics/dto/diagnostic-acquisition-root.schema";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 
@@ -59,7 +59,7 @@ export const NativeGritSelectedRulesJsonCheckRequestSchema = Type.Interface(
   {
     commandFamily: Type.Literal("selected-rules-json-check"),
     outputContract: Type.Literal("json-report-on-stderr"),
-    scanRoots: DiagnosticSelectedScanRootsSchema,
+    scanRoots: DiagnosticSelectedAcquisitionRootsSchema,
     patternNames: Type.Array(Type.String({ minLength: 1 }), {
       minItems: 1,
       uniqueItems: true,
@@ -73,7 +73,7 @@ export const NativeGritSelectedRuleApplyDryRunObservationRequestSchema = Type.In
   {
     commandFamily: Type.Literal("selected-rule-apply-dry-run-observation"),
     outputContract: Type.Literal("compact-jsonl-on-stdout"),
-    scanRoots: DiagnosticSelectedScanRootsSchema,
+    scanRoots: DiagnosticSelectedAcquisitionRootsSchema,
   },
   { additionalProperties: false }
 );
@@ -187,7 +187,7 @@ export const DiagnosticCommandObservationSchema = Type.Union([
   Type.Object(
     {
       kind: Type.Literal("not-run"),
-      reason: Type.Literal("scan-root-refused"),
+      reason: Type.Literal("acquisition-root-refused"),
     },
     { additionalProperties: false }
   ),
@@ -202,11 +202,11 @@ export type NativeGritSelectedRulesJsonCheckRequest = Omit<
   "patternNames" | "scanRoots"
 > & {
   readonly patternNames: [string, ...string[]];
-  readonly scanRoots: DiagnosticSelectedScanRoots;
+  readonly scanRoots: DiagnosticSelectedAcquisitionRoots;
 };
 export type NativeGritSelectedRuleApplyDryRunObservationRequest = Static<
   typeof NativeGritSelectedRuleApplyDryRunObservationRequestSchema
-> & { readonly scanRoots: DiagnosticSelectedScanRoots };
+> & { readonly scanRoots: DiagnosticSelectedAcquisitionRoots };
 export type NativeGritPinnedNativePreflightRequest = Static<
   typeof NativeGritPinnedNativePreflightRequestSchema
 >;
@@ -279,7 +279,7 @@ export function nativeGritCommandRequestFromProcessRequest(
       scanRoots: [],
     });
   }
-  const scanRoots = parseDiagnosticSelectedScanRoots(input.request.scanRoots ?? []);
+  const scanRoots = parseDiagnosticSelectedAcquisitionRoots(input.request.scanRoots ?? []);
   if (input.commandFamily === "selected-rules-json-check") {
     const parsed = Value.Parse(NativeGritSelectedRulesJsonCheckRequestSchema, {
       ...metadata,

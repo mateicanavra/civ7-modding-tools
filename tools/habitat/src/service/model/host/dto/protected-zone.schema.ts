@@ -48,7 +48,7 @@ export const ProtectedZoneRecoveryInstructionSchema = Type.Union([
   Type.Object(
     {
       ownerId: NonEmptyStringSchema,
-      actionKind: Type.Literal("select-approved-scan-root"),
+      actionKind: Type.Literal("select-approved-acquisition-root"),
       instruction: NonEmptyStringSchema,
     },
     { additionalProperties: false }
@@ -230,7 +230,7 @@ export const ProtectedMutationDecisionSchema = Type.Union([
   ),
 ]);
 
-export const ScanRootProtectionDecisionSchema = Type.Union([
+export const AcquisitionRootProtectionDecisionSchema = Type.Union([
   Type.Object(
     {
       kind: Type.Literal("accepted"),
@@ -305,6 +305,8 @@ export type ForbiddenFileDeclaration = Static<typeof ForbiddenFileDeclarationSch
 export type ProtectedSurfaceDeclaration = Static<typeof ProtectedSurfaceDeclarationSchema>;
 export type DeclarationReadiness = Static<typeof DeclarationReadinessSchema>;
 export type ProtectedMutationDecision = Static<typeof ProtectedMutationDecisionSchema>;
-export type ScanRootProtectionDecision = Static<typeof ScanRootProtectionDecisionSchema>;
+export type AcquisitionRootProtectionDecision = Static<
+  typeof AcquisitionRootProtectionDecisionSchema
+>;
 export type ProtectedMutationGuard = Static<typeof ProtectedMutationGuardSchema>;
 export type TransactionPathDecision = Static<typeof TransactionPathDecisionSchema>;

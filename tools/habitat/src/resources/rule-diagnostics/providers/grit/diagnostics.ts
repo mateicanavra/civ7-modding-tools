@@ -1,6 +1,7 @@
 import path from "node:path";
 import type { RuleRunResult } from "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy";
 import type { RuleGritFacts } from "@habitat/cli/service/model/rules/index";
+import { normalizeGritPath } from "./acquisition-roots/index.js";
 import { infrastructureFailure } from "./failure.js";
 import {
   observedGritDiagnosticIdentity,
@@ -8,7 +9,6 @@ import {
   renderUnexpectedObservedGritIdentity,
 } from "./identity.js";
 import type { DiagnosticFinding, DiagnosticRunOutcome } from "./outcome.js";
-import { normalizeGritPath } from "./scan-roots/index.js";
 import type { GritDiagnosticOptions, GritReport, GritResult } from "./types.js";
 
 export function gritDiagnosticOutcomesFromReport(
@@ -76,7 +76,7 @@ export function ruleRunResultFromDiagnosticOutcome(
       };
     case "provider-failed":
       return infrastructureFailure(rule, outcome.failure, outcome.detail);
-    case "scan-root-refused":
+    case "acquisition-root-refused":
       return { exitCode: 1, diagnostics: [] };
     case "not-applicable":
       return { exitCode: 0, diagnostics: [] };

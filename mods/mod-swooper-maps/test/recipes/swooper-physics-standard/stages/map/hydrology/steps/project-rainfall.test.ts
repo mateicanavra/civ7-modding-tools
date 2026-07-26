@@ -1,13 +1,13 @@
 import { describe, expect, it } from "bun:test";
 import { MockAdapter } from "@civ7/adapter";
+import { artifactModules as hydrologyClimateRefineArtifactModules } from "@mapgen/domain/hydrology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import {
   buildStepTestDependencies,
   publishTestArtifact,
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
-import { artifactModules as hydrologyClimateRefineArtifactModules } from "../../../../../../../src/recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
-import { ProjectRainfallStep } from "../../../../../../../src/recipes/standard/stages/map-hydrology/steps/project-rainfall/step.js";
+import { ProjectRainfallStep } from "../../../../../../../src/recipes/standard/stages/map/hydrology/steps/project-rainfall/step.js";
 
 const SYNTHETIC_DIMENSIONS = { width: 3, height: 2 } as const;
 

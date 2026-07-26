@@ -1,6 +1,6 @@
 import type {
+  DiagnosticAcquisitionRootRefusal,
   DiagnosticProviderFailureKind,
-  DiagnosticScanRootRefusal,
 } from "@habitat/cli/service/model/diagnostics/index";
 import { Context, type Effect } from "effect";
 
@@ -19,7 +19,7 @@ export type RuleFixPreviewRuleResult =
   | {
       readonly kind: "not-applicable";
       readonly ruleId: string;
-      readonly reason: "no-matched-scan-roots";
+      readonly reason: "no-matched-acquisition-roots";
     }
   | {
       readonly kind: "provider-failed";
@@ -30,7 +30,7 @@ export type RuleFixPreviewRuleResult =
   | {
       readonly kind: "scope-refused";
       readonly ruleId: string;
-      readonly decision: DiagnosticScanRootRefusal;
+      readonly decision: DiagnosticAcquisitionRootRefusal;
       readonly detail: string;
     }
   | {

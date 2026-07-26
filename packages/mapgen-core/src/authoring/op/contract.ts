@@ -1,6 +1,12 @@
 import type { SingleKeyObject } from "type-fest";
 import type { TSchema, TUnsafe } from "typebox";
 
+import { freezeContractGraph, snapshotContractGraph } from "../contract-graph.js";
+import {
+  captureOwnDataRecord,
+  materializeOwnDataRecord,
+  type OwnDataRecord,
+} from "../own-data-record.js";
 import { applySchemaConventions } from "../schema.js";
 import { buildOpEnvelopeSchema } from "./envelope.js";
 import type { DomainOpKind, OpTypeBag } from "./types.js";
@@ -48,6 +54,11 @@ type ResolvedDefaultStrategy<
   DefaultStrategy extends keyof Strategies & string,
 > = [SingleKeyObject<Strategies>] extends [never] ? DefaultStrategy : keyof Strategies & string;
 
+type OpContractAuthority = Readonly<{ strategies: OwnDataRecord<TSchema> }>;
+const opContractAuthority = new WeakMap<object, OpContractAuthority>();
+const RESERVED_STRATEGY_IDS = new Set(["__proto__", "constructor", "default", "prototype"]);
+const RESERVED_OPERATION_IDS = new Set(["__proto__", "constructor", "prototype"]);
+
 export type OpContractCore<
   Kind extends DomainOpKind,
   Id extends string,
@@ -85,6 +96,27 @@ export type OpContract<
     >;
   }>;
 
+/** Type-erased canonical operation contract used only at generic Core boundaries. */
+export type OpContractAny = OpContract<any, any, any, any, any>;
+
+/** @internal Reports whether a value retains exact `defineOp` factory authority. */
+export function isCanonicalOpContract(value: unknown): value is OpContractAny {
+  return value !== null && typeof value === "object" && opContractAuthority.has(value);
+}
+
+/** @internal Refuses operation-contract lookalikes at type-erased composition boundaries. */
+export function assertCanonicalOpContract(value: unknown): asserts value is OpContractAny {
+  if (!isCanonicalOpContract(value)) {
+    throw new Error("operation contract must be created by defineOp");
+  }
+}
+
+/** @internal Returns canonical strategy authority without re-reading the public contract. */
+export function readCanonicalOpStrategies(contract: OpContractAny): OwnDataRecord<TSchema> {
+  assertCanonicalOpContract(contract);
+  return opContractAuthority.get(contract)!.strategies;
+}
+
 /**
  * Defines one immutable operation contract and derives its closed configuration envelope.
  * A sole semantic strategy is necessarily the default; multi-strategy operations name their default
@@ -108,51 +140,86 @@ export function defineOp<
   Strategies,
   ResolvedDefaultStrategy<Strategies, DefaultStrategy>
 > {
-  const strategyIds = Object.keys(def.strategies);
-  const [firstStrategyId] = strategyIds;
-  if (firstStrategyId === undefined) {
-    throw new Error(`op(${def.id}) requires at least one semantic strategy`);
+  const definition = captureOwnDataRecord(def, "operation definition");
+  const readRequired = (key: "kind" | "id" | "input" | "output" | "strategies"): unknown => {
+    const entry = definition.find((candidate) => candidate.key === key);
+    if (!entry) throw new TypeError(`operation definition must own ${key}`);
+    return entry.value;
+  };
+  const kind = readRequired("kind") as Kind;
+  const id = readRequired("id");
+  const authoredInput = readRequired("input") as InputSchema;
+  const authoredOutput = readRequired("output") as OutputSchema;
+  const strategyInput = readRequired("strategies");
+  if (typeof id !== "string" || id.length === 0) {
+    throw new TypeError("operation definition id must be a non-empty string");
   }
-  if (strategyIds.includes("default")) {
-    throw new Error(`op(${def.id}) strategy id "default" must be replaced by a semantic identity`);
+  if (RESERVED_OPERATION_IDS.has(id)) {
+    throw new TypeError(`operation definition id "${id}" is reserved`);
+  }
+  const authoredStrategies = captureOwnDataRecord<TSchema>(strategyInput, `op(${id}) strategies`);
+  const [firstStrategy] = authoredStrategies;
+  if (firstStrategy === undefined) {
+    throw new Error(`op(${id}) requires at least one semantic strategy`);
+  }
+  for (const { key } of authoredStrategies) {
+    if (RESERVED_STRATEGY_IDS.has(key)) {
+      throw new Error(`op(${id}) strategy id "${key}" must be replaced by a semantic identity`);
+    }
   }
 
-  const declaredDefault = Object.hasOwn(def, "defaultStrategy")
-    ? (def as Readonly<{ defaultStrategy?: unknown }>).defaultStrategy
-    : undefined;
+  const declaredDefault = definition.find(({ key }) => key === "defaultStrategy")?.value;
   let defaultStrategy: string;
-  if (strategyIds.length === 1) {
+  if (authoredStrategies.length === 1) {
     if (declaredDefault !== undefined) {
       throw new Error(
-        `op(${def.id}) infers its sole strategy "${firstStrategyId}"; remove defaultStrategy`
+        `op(${id}) infers its sole strategy "${firstStrategy.key}"; remove defaultStrategy`
       );
     }
-    defaultStrategy = firstStrategyId;
+    defaultStrategy = firstStrategy.key;
   } else {
-    if (typeof declaredDefault !== "string" || !Object.hasOwn(def.strategies, declaredDefault)) {
-      throw new Error(`op(${def.id}) requires an explicit declared default strategy`);
+    if (
+      typeof declaredDefault !== "string" ||
+      !authoredStrategies.some(({ key }) => key === declaredDefault)
+    ) {
+      throw new Error(`op(${id}) requires an explicit declared default strategy`);
     }
     defaultStrategy = declaredDefault;
   }
 
-  applySchemaConventions(def.input, `op:${def.id}.input`);
-  applySchemaConventions(def.output, `op:${def.id}.output`);
-  for (const [strategyId, schema] of Object.entries(def.strategies) as [string, TSchema][]) {
-    applySchemaConventions(schema, `op:${def.id}.strategies.${strategyId}`);
-  }
+  const input = snapshotContractGraph(authoredInput, `op:${id}.input`) as InputSchema;
+  const output = snapshotContractGraph(authoredOutput, `op:${id}.output`) as OutputSchema;
+  applySchemaConventions(input, `op:${id}.input`);
+  applySchemaConventions(output, `op:${id}.output`);
+  const strategyAuthority = Object.freeze(
+    authoredStrategies.map(({ key, value }) =>
+      Object.freeze({
+        key,
+        value: applySchemaConventions(
+          snapshotContractGraph(value, `op:${id}.strategies.${key}`) as TSchema,
+          `op:${id}.strategies.${key}`
+        ),
+      })
+    )
+  );
+  const strategies = materializeOwnDataRecord(strategyAuthority);
 
   const { schema: configSchema, defaultConfig } = buildOpEnvelopeSchema(
-    def.id,
-    def.strategies,
+    id,
+    strategies,
     defaultStrategy
   );
-  applySchemaConventions(configSchema, `op:${def.id}.config`);
+  applySchemaConventions(configSchema, `op:${id}.config`);
 
-  return {
-    ...def,
+  const contract = {
+    kind,
+    id,
+    input,
+    output,
+    strategies,
     defaultStrategy,
     config: configSchema as unknown as TUnsafe<
-      OpTypeBag<typeof def.input, typeof def.output, typeof def.strategies>["envelope"]
+      OpTypeBag<typeof input, typeof output, EnsureSchemaValues<Strategies>>["envelope"]
     >,
     defaultConfig: defaultConfig as unknown as OpContract<
       Kind,
@@ -162,7 +229,14 @@ export function defineOp<
       Strategies,
       ResolvedDefaultStrategy<Strategies, DefaultStrategy>
     >["defaultConfig"],
-  } as unknown as OpContract<
+  };
+  // TypeBox schemas are composable builder values. Freezing their descriptors makes native
+  // utilities such as Type.With fail while cloning the schema, so only the operation authority
+  // and its materialized default are immutable; caller schema aliases were already detached above.
+  freezeContractGraph(contract.defaultConfig);
+  Object.freeze(contract);
+  opContractAuthority.set(contract, { strategies: strategyAuthority });
+  return contract as unknown as OpContract<
     Kind,
     Id,
     InputSchema,

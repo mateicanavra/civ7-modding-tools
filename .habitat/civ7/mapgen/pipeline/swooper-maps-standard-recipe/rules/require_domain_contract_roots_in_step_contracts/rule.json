@@ -19,10 +19,11 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/**/steps/*/config.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/**/steps/*/config.ts"
+      ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_domain_contract_roots_in_step_contracts/baseline.json"
@@ -32,6 +33,12 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_domain_contract_roots_in_step_contracts/pattern.md"
     },
-    "patternName": "require_domain_contract_roots_in_step_contracts"
+    "patternName": "require_domain_contract_roots_in_step_contracts",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages"
+      ]
+    }
   }
 }

@@ -46,8 +46,7 @@ const mapConfig = {
         "curvatureWeight": 0.35,
         "upwellingThreshold": 0.35,
         "downwellingThreshold": 0.35
-      },
-      "knobs": {}
+      }
     },
     "foundation-lithosphere": {
       "lithosphere": {
@@ -65,8 +64,7 @@ const mapConfig = {
           "microplatesMinPlateCount": 14,
           "microplateMinAreaCells": 8
         }
-      },
-      "knobs": {}
+      }
     },
     "foundation-tectonics": {
       "plateMotion": {
@@ -198,9 +196,7 @@ const mapConfig = {
         "activeClosenessThreshold": 0.35
       }
     },
-    "morphology-routing": {
-      "knobs": {}
-    },
+    "morphology-routing": {},
     "morphology-erosion": {
       "geomorphicCycle": {
         "geomorphology": {
@@ -463,7 +459,6 @@ const mapConfig = {
       }
     },
     "ecology-pedology": {
-      "knobs": {},
       "soilClassification": {
         "profile": "coastalShelf",
         "climateWeight": 1.2,
@@ -471,18 +466,9 @@ const mapConfig = {
         "sedimentWeight": 1.1,
         "bedrockWeight": 0.6,
         "fertilityCeiling": 0.95
-      },
-      "resourceBasinPlanning": {
-        "profile": "hydroFluvial",
-        "resources": []
-      },
-      "resourceBasinScoring": {
-        "minConfidence": 0.3,
-        "maxPerResource": 12
       }
     },
     "ecology-biomes": {
-      "knobs": {},
       "biomeClassification": {
         "temperature": {
           "equator": 31,
@@ -530,7 +516,6 @@ const mapConfig = {
       }
     },
     "ecology-features": {
-      "knobs": {},
       "substrateScoring": {
         "vegetationGrowth": {
           "moistureNormalization": 230,
@@ -727,9 +712,25 @@ const mapConfig = {
     "map-rivers": {
       "knobs": {
         "navigableRiverDensity": "dense"
+      },
+      "plot-rivers": {
+        "selectNavigableRiverTerrain": {
+          "strategy": "endpoint-chain-ranking",
+          "config": {
+            "endpointDischargePercentileMin": 0.94,
+            "targetMajorTileFraction": 0.28
+          }
+        }
       }
     },
-    "map-ecology": {},
+    "map-ecology": {
+      "features-apply": {
+        "apply": {
+          "strategy": "strict-single-occupancy",
+          "config": {}
+        }
+      }
+    },
     "placement": {
       "knobs": {},
       "naturalWonders": {
@@ -790,7 +791,6 @@ const mapConfig = {
       }
     },
     "foundation-orogeny": {
-      "knobs": {},
       "crustCharacter": {
         "continentalSurvivalMaturity": 0.6,
         "continentalFreeboard": 0.35,
@@ -800,7 +800,23 @@ const mapConfig = {
       }
     },
     "foundation-projection": {
-      "knobs": {}
+      "projection": {
+        "computePlates": {
+          "strategy": "foundation-model-projection",
+          "config": {
+            "boundaryInfluenceDistance": 5,
+            "boundaryDecay": 0.55,
+            "movementScale": 100,
+            "rotationScale": 100
+          }
+        }
+      },
+      "plate-topology": {
+        "computePlateTopology": {
+          "strategy": "wrapped-hex-adjacency",
+          "config": {}
+        }
+      }
     }
   }
 } as unknown as StandardMapConfigEnvelope;
@@ -809,7 +825,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "sundered-archipelago",
-  configHash: "d4145983528afb63b2e8ff9c2697affe0336ae79fd033e570b1056a99812176d",
-  envelopeHash: "862b22040930b82af51a13154ff148d42f325f8501aa8a40fda29ba606a945da",
+  configHash: "2dbd581243dafd7d5d6f176a96787255aa7f17c479794640d36ff0fe29955cf3",
+  envelopeHash: "f9141c30ca8cadb050bd1d6be7be60e66fee1302c074f7f2073736a8932de8ee",
   config: mapConfig.config,
 });

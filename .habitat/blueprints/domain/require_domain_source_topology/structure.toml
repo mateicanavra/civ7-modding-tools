@@ -2,7 +2,7 @@ schemaVersion = 1
 
 [[scopes]]
 name = "mapgen-domain-roots"
-root = "mods/mod-swooper-maps/src/domain/!(*.*)"
+root = "mods/*/src/domain/!(*.*)"
 kind = "directory"
 mode = "closed"
 required = [
@@ -17,7 +17,7 @@ allowed = [
 
 [[scopes]]
 name = "mapgen-domain-ops-roots"
-root = "mods/mod-swooper-maps/src/domain/!(*.*)/ops"
+root = "mods/*/src/domain/!(*.*)/ops"
 kind = "directory"
 mode = "closed"
 required = [
@@ -30,7 +30,7 @@ allowed = [
 
 [[scopes]]
 name = "mapgen-domain-operation-roots"
-root = "mods/mod-swooper-maps/src/domain/!(*.*)/ops/!(*.*)"
+root = "mods/*/src/domain/!(*.*)/ops/!(*.*)"
 kind = "directory"
 mode = "closed"
 required = [
@@ -46,7 +46,7 @@ allowed = [
 
 [[scopes]]
 name = "mapgen-domain-model-roots"
-root = "mods/mod-swooper-maps/src/domain/!(*.*)/model"
+root = "mods/*/src/domain/!(*.*)/model"
 kind = "directory"
 mode = "closed"
 allowed = [
@@ -56,31 +56,35 @@ allowed = [
 ]
 
 [[scopes]]
-name = "mapgen-resources-model-data-root"
-root = "mods/mod-swooper-maps/src/domain/resources/model/data"
+name = "mapgen-domain-model-data-roots"
+root = "mods/*/src/domain/!(*.*)/model/data"
 kind = "directory"
 mode = "closed"
 allowed = [
-  "earthlike-expectations",
+  "+([a-z0-9])*(-+([a-z0-9]))",
 ]
 
 [[scopes]]
-name = "mapgen-resources-earthlike-expectations-data-root"
-root = "mods/mod-swooper-maps/src/domain/resources/model/data/earthlike-expectations"
+name = "mapgen-domain-model-schema-roots"
+root = "mods/*/src/domain/!(*.*)/model/schemas"
 kind = "directory"
 mode = "closed"
-allowed = [
-  "index.ts",
-  "official-earthlike.ts",
-  "types.ts",
-]
+required = ["index.ts"]
+allowed = ["*.schema.ts"]
 
 [[scopes]]
-name = "mapgen-domain-artifacts-roots"
-root = "mods/mod-swooper-maps/src/domain/!(*.*)/artifacts"
+name = "mapgen-domain-model-policy-roots"
+root = "mods/*/src/domain/!(*.*)/model/policy"
 kind = "directory"
 mode = "closed"
+allowed = ["*.ts"]
+
+[[scopes]]
+name = "mapgen-domain-model-data-collections"
+root = "mods/*/src/domain/!(*.*)/model/data/!(*.*)"
+kind = "directory"
+mode = "closed"
+required = ["index.ts"]
 allowed = [
-  "*.artifact.ts",
-  "index.ts",
+  "*.ts",
 ]

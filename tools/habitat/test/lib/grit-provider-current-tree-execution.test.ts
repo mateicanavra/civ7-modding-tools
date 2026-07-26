@@ -66,7 +66,7 @@ describe("generic Grit current-tree execution", () => {
       diagnostics: [{ path: "scan/subject.ts", line: 1 }],
     });
     const request = required(execution.observation.checkRequest, "check request");
-    expect(request.scanRoots).toEqual([realpathSync(fixture.scanPath)]);
+    expect(request.scanRoots).toEqual([realpathSync(fixture.subjectPath)]);
     expect(request.scanRoots.every(path.isAbsolute)).toBe(true);
     expect(request.cwd).toBe(path.dirname(request.gritDir));
     expect(existsSync(path.join(request.gritDir, "grit.yaml"))).toBe(false);
@@ -80,7 +80,7 @@ describe("generic Grit current-tree execution", () => {
       "--no-cache",
       "--grit-dir",
       request.gritDir,
-      realpathSync(fixture.scanPath),
+      realpathSync(fixture.subjectPath),
     ]);
     expect(command.envDelta).toMatchObject({
       GRIT_DOWNLOADS_DISABLED: { value: "true", redacted: false },
@@ -161,15 +161,12 @@ language js
     expect(treeDigest(fixture.repoRoot)).toBe(before);
   });
 
-  test("keeps an empty eligible root parsed-incomplete rather than clean", async () => {
+  test("treats an exact check with no current files as not applicable", async () => {
     const fixture = checkFixture("", false, false);
     const execution = await executeFixture(fixture);
 
-    expect(execution.outcomes.get(fixture.rule.id)).toMatchObject({
-      kind: "provider-failed",
-      failure: "DiagnosticOutputIncomplete",
-      detail: expect.stringContaining("no-processed-paths"),
-    });
+    expect(execution.outcomes.get(fixture.rule.id)).toMatchObject({ kind: "not-applicable" });
+    expect(execution.observation.checkRequest).toBeUndefined();
   });
 
   test("keeps invalid selected catalog acquisition distinct from parse failure", async () => {
@@ -478,7 +475,10 @@ async function executePreviewFixture(fixture: Fixture, effects: RuleFixFacts["fi
             Match.orElse((other) => ({ ...other }))
           )
         ),
-        scanRoots: [...fixture.rule.scanRoots],
+        acquisition: {
+          kind: fixture.rule.runner.acquisition.kind,
+          roots: [...fixture.rule.runner.acquisition.roots],
+        },
         patternName: fixture.rule.patternName,
         fix: {
           kind: "preview-only",
@@ -589,7 +589,7 @@ function sourceRule(
   id: string,
   patternName: string,
   pattern: string,
-  scanRoots: readonly string[],
+  acquisitionRoots: readonly string[],
   acquisition: "check" | "apply-dry-run"
 ): RuleGritFacts {
   return {
@@ -597,10 +597,13 @@ function sourceRule(
     patternName,
     lane: "enforced",
     message: `${id} finding`,
-    pathCoverage: [{ kind: "exact-path", patterns: scanRoots.map((root) => `${root}/**`) }],
-    runner: { name: "grit", files: { pattern }, patternName },
-    diagnosticAcquisition: { kind: acquisition },
-    scanRoots: [...scanRoots],
+    pathCoverage: [{ kind: "exact-path", patterns: acquisitionRoots.map((root) => `${root}/**`) }],
+    runner: {
+      name: "grit",
+      files: { pattern },
+      patternName,
+      acquisition: { kind: acquisition, roots: [...acquisitionRoots] },
+    },
   };
 }
 

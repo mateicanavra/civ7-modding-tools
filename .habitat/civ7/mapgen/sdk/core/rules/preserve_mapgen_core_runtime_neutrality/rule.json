@@ -19,10 +19,11 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["packages/mapgen-core/src/**/*.ts"]
+      "patterns": [
+        "packages/mapgen-core/src/**/*.ts"
+      ]
     }
   ],
-  "scanRoots": ["packages/mapgen-core/src"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/sdk/core/rules/preserve_mapgen_core_runtime_neutrality/baseline.json"
@@ -32,6 +33,12 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/sdk/core/rules/preserve_mapgen_core_runtime_neutrality/pattern.md"
     },
-    "patternName": "preserve_mapgen_core_runtime_neutrality"
+    "patternName": "preserve_mapgen_core_runtime_neutrality",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "packages/mapgen-core/src"
+      ]
+    }
   }
 }

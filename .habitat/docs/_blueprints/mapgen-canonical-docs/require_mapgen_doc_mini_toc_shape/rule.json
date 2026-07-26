@@ -19,10 +19,11 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["docs/system/libs/mapgen/**/*.md"]
+      "patterns": [
+        "docs/system/libs/mapgen/**/*.md"
+      ]
     }
   ],
-  "scanRoots": ["docs/system/libs/mapgen"],
   "supportFiles": {
     "baseline": ".habitat/docs/_blueprints/mapgen-canonical-docs/require_mapgen_doc_mini_toc_shape/baseline.json"
   },
@@ -31,6 +32,12 @@
     "files": {
       "pattern": ".habitat/docs/_blueprints/mapgen-canonical-docs/require_mapgen_doc_mini_toc_shape/pattern.md"
     },
-    "patternName": "require_mapgen_doc_mini_toc_shape"
+    "patternName": "require_mapgen_doc_mini_toc_shape",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "docs/system/libs/mapgen"
+      ]
+    }
   }
 }

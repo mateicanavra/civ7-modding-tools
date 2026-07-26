@@ -1,13 +1,14 @@
 import { describe, expect, it } from "bun:test";
+import {
+  artifactModules as hydrologyClimateBaselineArtifactModules,
+  artifactModules as hydrologyClimateRefineArtifactModules,
+  artifactModules as hydrologyHydrographyArtifactModules,
+} from "@mapgen/domain/hydrology";
+import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
 import { sha256Hex } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
-
 import { buildStandardRecipeDefaultConfig } from "../../../src/recipes/standard/artifacts.js";
 import type { StandardRecipeConfig } from "../../../src/recipes/standard/recipe.js";
-import { artifactModules as hydrologyClimateBaselineArtifactModules } from "../../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts/index.js";
-import { artifactModules as hydrologyClimateRefineArtifactModules } from "../../../src/recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
-import { artifactModules as hydrologyHydrographyArtifactModules } from "../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
-import { artifactModules as morphologyArtifactModules } from "../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { runStandardRecipeTestMap } from "./fixtures/standard-recipe.js";
 
 const seed = 123;

@@ -2,9 +2,9 @@ import { describe, expect, it } from "bun:test";
 import { admitMapSetup } from "@swooper/mapgen-core";
 import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 
-import morphologyFeaturesStage from "../../../../../../../../src/recipes/standard/stages/morphology-features/index.js";
-import { VolcanoesStepContract } from "../../../../../../../../src/recipes/standard/stages/morphology-features/steps/volcanoes/config.js";
-import { VolcanoesStep } from "../../../../../../../../src/recipes/standard/stages/morphology-features/steps/volcanoes/step.js";
+import morphologyFeaturesStage from "../../../../../../../../src/recipes/standard/stages/morphology/features/index.js";
+import { VolcanoesStepContract } from "../../../../../../../../src/recipes/standard/stages/morphology/features/steps/volcanoes/config.js";
+import { VolcanoesStep } from "../../../../../../../../src/recipes/standard/stages/morphology/features/steps/volcanoes/step.js";
 import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
 import {
   createStandardRecipeTestConfig,

@@ -19,10 +19,12 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/test/**/*.ts", "mods/mod-swooper-maps/test/**/*.tsx"]
+      "patterns": [
+        "mods/mod-swooper-maps/test/**/*.ts",
+        "mods/mod-swooper-maps/test/**/*.tsx"
+      ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/test"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_direct_standard_recipe_test_execution/baseline.json"
@@ -32,6 +34,12 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_direct_standard_recipe_test_execution/pattern.md"
     },
-    "patternName": "prohibit_direct_standard_recipe_test_execution"
+    "patternName": "prohibit_direct_standard_recipe_test_execution",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/test"
+      ]
+    }
   }
 }

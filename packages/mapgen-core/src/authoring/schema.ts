@@ -43,17 +43,14 @@ function enforceSchemaConventions(schema: TSchema, path: string): void {
   }
 }
 
+/** Applies MapGen's closed-object convention recursively to an authored schema. */
 export function applySchemaConventions(schema: TSchema, path: string): TSchema {
   enforceSchemaConventions(schema, path);
   return schema;
 }
 
 /**
- * Helper to define the canonical op schema bundle shape: `Type.Object({ input, config, output })`.
- *
- * TypeBox object inference can be lossy across package boundaries. This helper pins the schema's
- * TypeScript type so callers can reuse `schema.properties.*` without re-exporting per-sub-schema
- * types.
+ * Creates the canonical operation schema bundle while preserving each member's TypeBox identity.
  */
 export function defineOpSchema<
   const InputSchema extends TSchema,

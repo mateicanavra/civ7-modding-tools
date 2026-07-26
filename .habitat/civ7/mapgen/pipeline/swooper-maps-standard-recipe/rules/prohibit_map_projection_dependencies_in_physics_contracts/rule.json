@@ -19,10 +19,11 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/*/steps/*/config.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/*/steps/*/config.ts"
+      ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_map_projection_dependencies_in_physics_contracts/baseline.json"
   },
@@ -31,6 +32,12 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_map_projection_dependencies_in_physics_contracts/pattern.md"
     },
-    "patternName": "prohibit_map_projection_dependencies_in_physics_contracts"
+    "patternName": "prohibit_map_projection_dependencies_in_physics_contracts",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages"
+      ]
+    }
   }
 }

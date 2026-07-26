@@ -1,8 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
+import { artifactModules as ecologyArtifactModules } from "@mapgen/domain/ecology";
 import ecology from "@mapgen/domain/ecology/ops";
 import { RIVER_CLASS_MAJOR } from "@mapgen/domain/hydrology/model/policy/river-class.js";
+import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -11,9 +13,8 @@ import {
   publishTestArtifact,
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
-import { artifactModules as ecologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
-import { PlanFloodplainsStep } from "../../../../../../../src/recipes/standard/stages/ecology-features/steps/plan-floodplains/step.js";
-import { artifactModules as morphologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
+import { PlanFloodplainsStep } from "../../../../../../../src/recipes/standard/stages/ecology/features/steps/plan-floodplains/step.js";
+import { TEST_MAP_SIZE } from "../../../../../../map-size.js";
 import { createEmptyFeatureScoreLayers } from "../fixtures/feature-score-layers.js";
 
 const FLOODPLAIN_INTENT_KEYS = new Set([
@@ -31,9 +32,9 @@ const FLOODPLAIN_INTENT_KEYS = new Set([
 
 describe("ecology-features plan-floodplains step", () => {
   it("publishes an admitted floodplain intent from lowland high-discharge substrate", () => {
-    const syntheticDimensions = { width: 5, height: 3 } as const;
-    const size = syntheticDimensions.width * syntheticDimensions.height;
-    const riverIndex = 7;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
+    const size = width * height;
+    const riverIndex = Math.floor(height / 2) * width + Math.floor(width / 2);
     const landMask = new Uint8Array(size).fill(1);
     const riverClass = new Uint8Array(size);
     const navigableRiverMask = new Uint8Array(size);
@@ -44,7 +45,7 @@ describe("ecology-features plan-floodplains step", () => {
 
     const substrate = ecology.ops.computeFeatureSubstrate.run(
       {
-        ...syntheticDimensions,
+        ...TEST_MAP_SIZE.dimensions,
         riverClass,
         navigableRiverMask,
         landMask,
@@ -68,10 +69,17 @@ describe("ecology-features plan-floodplains step", () => {
     const context = createMapContext({
       setup: admitMapSetup({
         mapSeed: 24681357,
-        dimensions: syntheticDimensions,
-        latitudeBounds: { topLatitude: 1, bottomLatitude: -1 },
+        dimensions: TEST_MAP_SIZE.dimensions,
+        latitudeBounds: {
+          topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
+          bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
+        },
       }),
-      adapter: createMockAdapter(syntheticDimensions),
+      adapter: createMockAdapter({
+        ...TEST_MAP_SIZE.dimensions,
+        mapInfo: TEST_MAP_SIZE.mapInfo,
+        mapSizeId: TEST_MAP_SIZE.id,
+      }),
     });
 
     withMapContextExecutionForTest(context, (stepContext) => {
@@ -82,11 +90,11 @@ describe("ecology-features plan-floodplains step", () => {
         bathymetry: new Int16Array(size),
       });
       publishTestArtifact(stepContext, ecologyArtifactModules.scoreLayers, {
-        ...syntheticDimensions,
+        ...TEST_MAP_SIZE.dimensions,
         layers,
       });
       publishTestArtifact(stepContext, ecologyArtifactModules.occupancyBase, {
-        ...syntheticDimensions,
+        ...TEST_MAP_SIZE.dimensions,
         featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       });
@@ -113,8 +121,8 @@ describe("ecology-features plan-floodplains step", () => {
 
     expect(intents).toHaveLength(1);
     expect(intents[0]).toMatchObject({
-      x: riverIndex % syntheticDimensions.width,
-      y: Math.floor(riverIndex / syntheticDimensions.width),
+      x: riverIndex % width,
+      y: Math.floor(riverIndex / width),
     });
     expect(FLOODPLAIN_INTENT_KEYS.has(intents?.[0]?.feature ?? "")).toBe(true);
     expect(substrate.floodplainMask[riverIndex]).toBe(1);

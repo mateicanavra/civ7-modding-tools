@@ -1,4 +1,4 @@
-import { Type } from "@swooper/mapgen-core/authoring/contracts";
+import { Type } from "@swooper/mapgen-core/authoring/schema";
 
 /** Canonical Ecology intent vocabulary shared by planning artifacts and projection. */
 export const PLOT_EFFECT_INTENT_KEYS = [

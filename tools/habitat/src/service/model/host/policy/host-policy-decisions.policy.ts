@@ -41,13 +41,13 @@ export function hostSurfaceDecisionForPath(
   return declaredSurfaceDecision(state.document, declaration);
 }
 
-export function hostSurfaceDecisionForScanRoot(
+export function hostSurfaceDecisionForAcquisitionRoot(
   candidate: string,
   state: HostPolicyState = defaultHostPolicyState
 ): HostSurfaceDecision {
   if (state.kind !== "declared") return blockedSurfaceDecision(candidate, state);
   const declaration = surfaceDeclarations(state.document).find((item) =>
-    matchesHostScanRoot(item.matcher, candidate)
+    matchesHostAcquisitionRoot(item.matcher, candidate)
   );
   if (!declaration) return notHostOwnedSurfaceDecision(state.document.policyId);
   return declaredSurfaceDecision(state.document, declaration);
@@ -162,7 +162,7 @@ export function matchesHostMatcher(matcher: HostMatcher, candidate: string): boo
     : matchesPathPrefix(matcher.value, candidate);
 }
 
-function matchesHostScanRoot(matcher: HostMatcher, candidate: string): boolean {
+function matchesHostAcquisitionRoot(matcher: HostMatcher, candidate: string): boolean {
   if (matchesHostMatcher(matcher, candidate)) return true;
   return matcher.kind === "prefix" && candidate === matcher.value.replace(/\/$/, "");
 }

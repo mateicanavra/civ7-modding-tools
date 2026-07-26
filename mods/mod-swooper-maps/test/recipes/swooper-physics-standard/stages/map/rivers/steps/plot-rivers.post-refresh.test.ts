@@ -2,11 +2,13 @@ import { describe, expect, it } from "bun:test";
 
 import { MockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0, RIVER_TYPE_NAVIGABLE } from "@civ7/map-policy";
+import { artifactModules as hydrologyArtifactModules } from "@mapgen/domain/hydrology";
 import {
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_MINOR,
 } from "@mapgen/domain/hydrology/model/policy/river-class.js";
 import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
+import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
@@ -15,12 +17,9 @@ import {
   publishTestArtifact,
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
-import { artifactModules as hydrologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
-import { artifactModules as mapMorphologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/map-morphology/artifacts/index.js";
-import { artifactModules as mapRiversArtifactModules } from "../../../../../../../src/recipes/standard/stages/map-rivers/artifacts/index.js";
-import { PlotRiversStep } from "../../../../../../../src/recipes/standard/stages/map-rivers/steps/plot-rivers/step.js";
-import { artifactModules as morphologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
-import { createRiverNetworkBenchmarkSummaryFixture } from "../fixtures/river-network-metrics.js";
+import { TEST_MAP_SIZE } from "../../../../../../map-size.js";
+import { artifactModules as mapRiversArtifactModules } from "../../../../../../../src/recipes/standard/stages/map/rivers/artifacts/index.js";
+import { PlotRiversStep } from "../../../../../../../src/recipes/standard/stages/map/rivers/steps/plot-rivers/step.js";
 
 const { selectNavigableRiverTerrain } = hydrologyOpsPublic.ops;
 
@@ -81,26 +80,21 @@ describe("map-rivers/plot-rivers", () => {
       "artifact:map.rivers.projectedNavigableRivers"
     );
 
-    const syntheticDimensions = { width: 5, height: 4 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const seed = 9876;
-    const mapInfo = {
-      GridWidth: width,
-      GridHeight: height,
-      MinLatitude: -60,
-      MaxLatitude: 60,
-    };
     const setup = admitMapSetup({
       mapSeed: seed,
-      dimensions: syntheticDimensions,
-      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+      dimensions: TEST_MAP_SIZE.dimensions,
+      latitudeBounds: {
+        topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
+        bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
+      },
     });
 
     const adapter = new RiverCacheRefreshAdapter({
-      width,
-      height,
-      mapInfo,
-      mapSizeId: 1,
+      ...TEST_MAP_SIZE.dimensions,
+      mapInfo: TEST_MAP_SIZE.mapInfo,
+      mapSizeId: TEST_MAP_SIZE.id,
       rng: createLabelRng(seed),
     });
     const context = createMapContext({ setup, adapter });
@@ -113,7 +107,6 @@ describe("map-rivers/plot-rivers", () => {
     }
 
     const size = width * height;
-    const riverTileCount = width * 2;
     const discharge = new Float32Array(size);
     const riverClass = new Uint8Array(size);
     const flowDir = new Int32Array(size).fill(-1);
@@ -140,8 +133,12 @@ describe("map-rivers/plot-rivers", () => {
         flowDir,
         sinkMask: new Uint8Array(size),
         outletMask: new Uint8Array(size),
+        basinId: new Int32Array(size).fill(-1),
+        routingElevation: new Float32Array(size),
+        depressionDepth: new Float32Array(size),
+        terminalType: new Uint8Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyArtifactModules.riverNetworkMetrics, {
+      publishTestArtifact(stepContext, hydrologyArtifactModules.riverNetwork, {
         upstreamArea: Int32Array.from({ length: size }, (_value, index) =>
           index < width ? index + 1 : 1
         ),
@@ -151,29 +148,6 @@ describe("map-rivers/plot-rivers", () => {
         flowPermanenceProxy: Uint8Array.from({ length: size }, (_value, index) =>
           index < width ? 3 : index < width * 2 ? 2 : 0
         ),
-        benchmarkSummary: createRiverNetworkBenchmarkSummaryFixture({
-          landTileCount: size,
-          riverTileCount,
-          minorRiverTileCount: width,
-          majorRiverTileCount: width,
-          riverLandShare: riverTileCount / size,
-          minorRiverShareOfRiverTiles: 0.5,
-          majorRiverShareOfRiverTiles: 0.5,
-          lowOrderRiverTileCount: riverTileCount,
-          lowOrderRiverShareOfRiverTiles: 1,
-          dryFlowTileCount: size - riverTileCount,
-          intermittentFlowTileCount: width,
-          perennialFlowTileCount: width,
-          nonDryFlowLandShare: riverTileCount / size,
-          riverIntermittentTileCount: width,
-          riverPerennialTileCount: width,
-          nonPerennialRiverShareOfRiverTiles: 0.5,
-          oceanMouthTileCount: width,
-          unresolvedMouthTileCount: size - width,
-          resolvedMouthTileCount: width,
-          unassignedBasinLandTileCount: size,
-          maxUpstreamArea: width,
-        }),
       });
       publishTestArtifact(stepContext, hydrologyArtifactModules.lakePlan, {
         width,
@@ -182,20 +156,17 @@ describe("map-rivers/plot-rivers", () => {
         plannedLakeTileCount: 0,
         sinkLakeCount: 0,
       });
-      publishTestArtifact(stepContext, mapMorphologyArtifactModules.coastClassification, {
-        width,
-        height,
-        baseWaterClass: new Uint8Array(size),
-        sourceCoastMask: new Uint8Array(size),
-        waterClass: new Uint8Array(size),
-        coastRingMask: new Uint8Array(size),
-        promotedOceanToCoast: 0,
-      });
       publishTestArtifact(stepContext, morphologyArtifactModules.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask: new Uint8Array(size).fill(1),
         bathymetry: new Int16Array(size),
+      });
+      publishTestArtifact(stepContext, morphologyArtifactModules.shelf, {
+        shelfMask: new Uint8Array(size),
+        coastalLand: new Uint8Array(size),
+        coastalWater: new Uint8Array(size),
+        distanceToCoast: new Uint16Array(size),
       });
 
       PlotRiversStep.run(
@@ -219,7 +190,7 @@ describe("map-rivers/plot-rivers", () => {
       "storeWaterData",
     ]);
     expect(adapter.getTerrainType(0, 0)).toBe(navigableRiverTerrain);
-    expect(adapter.getTerrainType(4, 0)).toBe(navigableRiverTerrain);
+    expect(adapter.getTerrainType(width - 1, 0)).toBe(navigableRiverTerrain);
     expect(adapter.getTerrainType(0, 1)).toBe(flatTerrain);
 
     const projected = readValidatedArtifact(
@@ -231,22 +202,22 @@ describe("map-rivers/plot-rivers", () => {
     expect(projected.riverMask[width]).toBe(0);
     expect(projected.plannedMajorRiverMask[0]).toBe(1);
     expect(projected.plannedMinorRiverMask[width]).toBe(1);
-    expect(projected.plannedMajorRiverTileCount).toBe(5);
-    expect(projected.plannedMinorRiverTileCount).toBe(5);
-    expect(Array.from(projected.selectedChainLengths)).toEqual([5]);
-    expect(projected.longestSelectedChainLength).toBe(5);
-    expect(projected.meanSelectedChainLength).toBe(5);
+    expect(projected.plannedMajorRiverTileCount).toBe(width);
+    expect(projected.plannedMinorRiverTileCount).toBe(width);
+    expect(Array.from(projected.selectedChainLengths)).toEqual([width]);
+    expect(projected.longestSelectedChainLength).toBe(width);
+    expect(projected.meanSelectedChainLength).toBe(width);
     expect(projected.selectedEligibleMajorTileFraction).toBe(1);
-    expect(projected.majorDurableTileCount).toBe(5);
-    expect(projected.majorPerennialTileCount).toBe(5);
+    expect(projected.majorDurableTileCount).toBe(width);
+    expect(projected.majorPerennialTileCount).toBe(width);
     expect(projected.projectionSignalStatus).toBe("normal-signal");
     expect(projected.projectionSignalReason).toContain("normal Earthlike");
     expect(readback.terrainNavigableRiverMask[0]).toBe(1);
     expect(readback.engineNavigableRiverMask[0]).toBe(1);
     expect(readback.engineRiverType[0]).toBe(RIVER_TYPE_NAVIGABLE);
-    expect(readback.terrainNavigableRiverTileCount).toBe(5);
-    expect(readback.engineRiverTileCount).toBe(5);
-    expect(readback.engineNavigableRiverTileCount).toBe(5);
+    expect(readback.terrainNavigableRiverTileCount).toBe(width);
+    expect(readback.engineRiverTileCount).toBe(width);
+    expect(readback.engineNavigableRiverTileCount).toBe(width);
     expect(readback.engineMinorRiverTileCount).toBe(0);
     expect(readback.minorRiverStampingSupported).toBe(true);
     expect(readback.minorRiverUnsupportedReason).toContain("engineMinorRiverMask");

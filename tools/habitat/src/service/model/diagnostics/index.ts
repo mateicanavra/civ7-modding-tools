@@ -1,18 +1,18 @@
 export type {
-  DiagnosticScanRootDecision,
-  DiagnosticScanRootRefusal,
-  DiagnosticScanRootRefusalReason,
-  DiagnosticSelectedScanRoots,
-} from "./dto/diagnostic-scan-root.schema.js";
+  DiagnosticAcquisitionRootDecision,
+  DiagnosticAcquisitionRootRefusal,
+  DiagnosticAcquisitionRootRefusalReason,
+  DiagnosticSelectedAcquisitionRoots,
+} from "./dto/diagnostic-acquisition-root.schema.js";
 export {
-  DiagnosticScanRootDecisionSchema,
-  DiagnosticScanRootRefusalReasonSchema,
-  DiagnosticScanRootRefusalSchema,
-  DiagnosticSelectedScanRootsSchema,
-  isDiagnosticScanRootDecision,
-  parseDiagnosticSelectedScanRoots,
-  renderDiagnosticScanRootRefusal,
-} from "./dto/diagnostic-scan-root.schema.js";
+  DiagnosticAcquisitionRootDecisionSchema,
+  DiagnosticAcquisitionRootRefusalReasonSchema,
+  DiagnosticAcquisitionRootRefusalSchema,
+  DiagnosticSelectedAcquisitionRootsSchema,
+  isDiagnosticAcquisitionRootDecision,
+  parseDiagnosticSelectedAcquisitionRoots,
+  renderDiagnosticAcquisitionRootRefusal,
+} from "./dto/diagnostic-acquisition-root.schema.js";
 export type { HabitatDiagnostic, HabitatSeverity } from "./dto/habitat-diagnostic.schema.js";
 export {
   HabitatDiagnosticSchema,

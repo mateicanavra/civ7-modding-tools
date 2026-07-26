@@ -10,6 +10,7 @@ import {
   CIV7_RIVER_MODELING_POLICY_V0,
   CIV7_RIVER_TYPE_METADATA_SOURCE,
   CIV7_RIVER_TYPES_V0,
+  deriveCiv7CoastProjection,
   getNaturalWonderFootprintIndices,
   getNaturalWonderFootprintOffsetsByParity,
   isResourceAdjacentToLandRuntimeOptional,
@@ -133,6 +134,38 @@ describe("@civ7/map-policy", () => {
     for (const v of result.coastRingMask) ringCount += v;
     expect(ringCount).toBe(6);
     expect(CIV7_COAST_RING_POLICY_V0.version).toBe(0);
+  });
+
+  it("derives the complete coast projection from land and shelf truth without mutating inputs", () => {
+    // This is a controlled odd-Q neighborhood unit fixture, not a playable map dimension.
+    const width = 4;
+    const height = 3;
+    const size = width * height;
+    const landMask = new Uint8Array(size);
+    const shelfMask = new Uint8Array(size);
+    const coastalWater = new Uint8Array(size);
+    landMask[0] = 1;
+    coastalWater[1] = 1;
+    shelfMask[6] = 1;
+
+    const result = deriveCiv7CoastProjection({
+      width,
+      height,
+      landMask,
+      shelfMask,
+      coastalWater,
+    });
+
+    expect(result.baseWaterClass[0]).toBe(WATER_CLASS_LAND);
+    expect(result.sourceCoastMask[1]).toBe(1);
+    expect(result.sourceCoastMask[6]).toBe(1);
+    expect(result.sourceCoastMask[4]).toBe(0);
+    expect(result.waterClass[4]).toBe(WATER_CLASS_COAST);
+    expect(result.waterClass[2]).toBe(WATER_CLASS_OCEAN);
+    expect(result.coastRingMask[4]).toBe(1);
+    expect(result.promotedOceanToCoast).toBeGreaterThan(0);
+    expect(coastalWater[4]).toBe(0);
+    expect(shelfMask[4]).toBe(0);
   });
 
   it("models supported natural-wonder footprints and filters unsupported catalog entries", () => {

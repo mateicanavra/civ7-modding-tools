@@ -46,8 +46,7 @@ const mapConfig = {
         "curvatureWeight": 0.35,
         "upwellingThreshold": 0.35,
         "downwellingThreshold": 0.35
-      },
-      "knobs": {}
+      }
     },
     "foundation-lithosphere": {
       "lithosphere": {
@@ -65,8 +64,7 @@ const mapConfig = {
           "microplatesMinPlateCount": 14,
           "microplateMinAreaCells": 8
         }
-      },
-      "knobs": {}
+      }
     },
     "foundation-tectonics": {
       "plateMotion": {
@@ -198,9 +196,7 @@ const mapConfig = {
         "activeClosenessThreshold": 0.35
       }
     },
-    "morphology-routing": {
-      "knobs": {}
-    },
+    "morphology-routing": {},
     "morphology-erosion": {
       "geomorphicCycle": {
         "geomorphology": {
@@ -463,7 +459,6 @@ const mapConfig = {
       }
     },
     "ecology-pedology": {
-      "knobs": {},
       "soilClassification": {
         "profile": "orogenyBoosted",
         "climateWeight": 1.2,
@@ -471,18 +466,9 @@ const mapConfig = {
         "sedimentWeight": 1.1,
         "bedrockWeight": 0.6,
         "fertilityCeiling": 0.95
-      },
-      "resourceBasinPlanning": {
-        "profile": "mixed",
-        "resources": []
-      },
-      "resourceBasinScoring": {
-        "minConfidence": 0.3,
-        "maxPerResource": 12
       }
     },
     "ecology-biomes": {
-      "knobs": {},
       "biomeClassification": {
         "temperature": {
           "equator": 35,
@@ -530,7 +516,6 @@ const mapConfig = {
       }
     },
     "ecology-features": {
-      "knobs": {},
       "substrateScoring": {
         "vegetationGrowth": {
           "moistureNormalization": 380,
@@ -728,9 +713,25 @@ const mapConfig = {
     "map-rivers": {
       "knobs": {
         "navigableRiverDensity": "sparse"
+      },
+      "plot-rivers": {
+        "selectNavigableRiverTerrain": {
+          "strategy": "endpoint-chain-ranking",
+          "config": {
+            "endpointDischargePercentileMin": 0.94,
+            "targetMajorTileFraction": 0.28
+          }
+        }
       }
     },
-    "map-ecology": {},
+    "map-ecology": {
+      "features-apply": {
+        "apply": {
+          "strategy": "strict-single-occupancy",
+          "config": {}
+        }
+      }
+    },
     "placement": {
       "knobs": {},
       "naturalWonders": {
@@ -791,7 +792,6 @@ const mapConfig = {
       }
     },
     "foundation-orogeny": {
-      "knobs": {},
       "crustCharacter": {
         "continentalSurvivalMaturity": 0.6,
         "continentalFreeboard": 0.35,
@@ -801,7 +801,23 @@ const mapConfig = {
       }
     },
     "foundation-projection": {
-      "knobs": {}
+      "projection": {
+        "computePlates": {
+          "strategy": "foundation-model-projection",
+          "config": {
+            "boundaryInfluenceDistance": 5,
+            "boundaryDecay": 0.55,
+            "movementScale": 100,
+            "rotationScale": 100
+          }
+        }
+      },
+      "plate-topology": {
+        "computePlateTopology": {
+          "strategy": "wrapped-hex-adjacency",
+          "config": {}
+        }
+      }
     }
   }
 } as unknown as StandardMapConfigEnvelope;
@@ -810,7 +826,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-desert-mountains",
-  configHash: "6ac72e0b34bbf46725a99081114591e8199ea341c8de26d106d79d8d43d319d1",
-  envelopeHash: "7001b9baa8a06c55dd9ac8731b48be13a795094e3e318e6438bec753eaab260e",
+  configHash: "70bd0aa2932c281a7ff825f8a03c5b719cc79112aec7dd559411b3cf13afb069",
+  envelopeHash: "c6aafffbe1aab8f82520c0843177e5f525bc1817b91fc16247b4478370d2a311",
   config: mapConfig.config,
 });

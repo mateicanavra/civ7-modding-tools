@@ -75,7 +75,7 @@ export function ruleDiagnosticExecutionRecord(
       ...timing,
       disposition: {
         kind: "dependency-refused" as const,
-        source: "diagnostic-scan-root" as const,
+        source: "diagnostic-acquisition-root" as const,
         decision,
         detail,
       },
