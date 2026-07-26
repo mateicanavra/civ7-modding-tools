@@ -108,9 +108,9 @@ export const standardStageContractManifest = [
   stage("map-ecology", [plotBiomesConfig, featuresApplyConfig, plotEffectsConfig]),
   stage("placement", [
     planNaturalWondersConfig,
-    plotLandmassRegionsConfig,
     placeNaturalWondersConfig,
     preparePlacementSurfaceConfig,
+    plotLandmassRegionsConfig,
     planResourcesConfig,
     assignStartsConfig,
     adjustResourcesConfig,

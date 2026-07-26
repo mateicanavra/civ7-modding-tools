@@ -6,18 +6,6 @@ export const StandardPlacementSurfaceMeasurementsSchema = Type.Object(
     version: Type.Literal(1, {
       description: "Schema version for the Standard placement-surface measurement record.",
     }),
-    slotCounts: Type.Object(
-      {
-        none: Type.Integer({ minimum: 0 }),
-        west: Type.Integer({ minimum: 0 }),
-        east: Type.Integer({ minimum: 0 }),
-      },
-      {
-        additionalProperties: false,
-        description:
-          "Final tile counts outside a homeland slot and inside the west and east homeland slots.",
-      }
-    ),
     acceptedLakeTileCount: Type.Integer({
       minimum: 0,
       description:
@@ -37,7 +25,7 @@ export const StandardPlacementSurfaceMeasurementsSchema = Type.Object(
   {
     additionalProperties: false,
     description:
-      "Standard recipe measurements of homeland-slot coverage and lake stability at the placement boundary.",
+      "Standard recipe measurements of lake stability at the placement-surface boundary.",
   }
 );
 
@@ -53,15 +41,14 @@ export type StandardPlacementSurfaceMeasurementInput = Omit<
 >;
 
 /**
- * Projects neutral placement-surface measurements without retaining mutable engine state.
- * The copy closes the step-local counters before they cross into an execution-owned metrics sink.
+ * Projects neutral placement-surface measurements without retaining mutable
+ * engine state.
  */
 export function measureStandardPlacementSurface(
   input: StandardPlacementSurfaceMeasurementInput
 ): StandardPlacementSurfaceMeasurements {
   return Object.freeze({
     version: 1,
-    slotCounts: Object.freeze({ ...input.slotCounts }),
     acceptedLakeTileCount: input.acceptedLakeTileCount,
     finalLakeWaterDriftCount: input.finalLakeWaterDriftCount,
     finalLakeClassificationDriftCount: input.finalLakeClassificationDriftCount,

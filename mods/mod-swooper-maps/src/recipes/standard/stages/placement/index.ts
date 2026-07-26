@@ -15,8 +15,8 @@ import { PreparePlacementSurfaceStep } from "./steps/prepare-placement-surface/s
 /**
  * Placement exposes each gameplay product as a step boundary. Surface
  * preparation remains grouped because terrain validation, area recalc, water
- * storage, and landmass-region restamping form one transactional precondition
- * for all downstream placement products.
+ * storage, and final lake readback form one transactional precondition for the
+ * single downstream landmass-region projection and all placement products.
  *
  * Resource ordering (S5, D3 contract change): planning stays before starts;
  * stamping runs after the resource↔start support pass —
@@ -26,9 +26,9 @@ export default createStage({
   id: "placement",
   steps: orderStandardStageSteps("placement", {
     "plan-natural-wonders": PlanNaturalWondersStep,
-    "plot-landmass-regions": PlotLandmassRegionsStep,
     "place-natural-wonders": PlaceNaturalWondersStep,
     "prepare-placement-surface": PreparePlacementSurfaceStep,
+    "plot-landmass-regions": PlotLandmassRegionsStep,
     "plan-resources": PlanResourcesStep,
     "assign-starts": AssignStartsStep,
     "adjust-resources": AdjustResourcesStep,

@@ -40,9 +40,9 @@ Naming note: a future Gameplay domain consolidation may absorb starts/discoverie
 One stage, `placement`, with 11 steps split at real product/effect contracts (engine-refactor-v1 D3 posture; maintenance transactional). Step order:
 
 1. `plan-natural-wonders` — admits final physical and engine surfaces plus active Civ7 map-size demand, then publishes natural-wonder intent.
-2. `plot-landmass-regions` — landmass-region slots (the regional mechanism driving seat assignment; the official `chooseStartSectors` sector grid is intentionally not used — ADR-008 amendment).
-3. `place-natural-wonders` — ordered primary/fallback wonder materialization with typed adapter reconciliation (first promoted product boundary).
-4. `prepare-placement-surface` — transactional engine-surface preparation (terrain validation, area recalc, water cache, landmass-region restamping); gates the legality surface read by planning AND the stamps.
+2. `place-natural-wonders` — ordered primary/fallback wonder materialization with typed adapter reconciliation (first promoted product boundary).
+3. `prepare-placement-surface` — transactional engine-surface preparation (terrain validation, coast restoration, area recalc, water cache, and final lake readback); gates the legality surface read by planning and the stamps.
+4. `plot-landmass-regions` — projects landmass-region slots after engine maintenance, then publishes the immutable regional product used by resource and start planning. The official `chooseStartSectors` sector grid is intentionally not used (ADR-008 amendment).
 5. `plan-resources` — demand planning (family planners + group rollup), habitat-lane derivation, blue-noise site selection emitting typed per-plot intents; publishes `resourceDemandPlan`, `resourcePlan`, `resourceEligibility`.
 6. `assign-starts` — op-owned start selection over PLANNED resource sites; publishes `startAssignment` (per-player `StartRecord[]` + `fairnessReport`).
 7. `adjust-resources` — bounded resource↔start support pass over the plan (floor + equity), count-preserving moves with typed provenance; publishes `resourcePlanAdjusted`.
@@ -123,7 +123,9 @@ Runtime semantics (ADR-009 regime):
   the step that needs them: terrain/biome/feature classifications feed natural-wonder
   planning in `plan-natural-wonders`; maintenance-boundary readbacks remain
   invocation-local in `prepare-placement-surface`; the prepared legality
-  surface feeds `plan-resources`; and terminal `observe-placement-parity`
+  surface feeds `plan-resources`; the post-maintenance region projection
+  publishes the immutable slot product used by resource and start planning;
+  and terminal `observe-placement-parity`
   projects final expected-surface-vs-engine parity evidence from Morphology
   topography and accepted Hydrology lakes. Materializers may also read the
   engine surface they immediately mutate or reconcile. The
@@ -139,11 +141,13 @@ Runtime semantics (ADR-009 regime):
   resolution, legality, mutation, and strict readback. Exhausted candidates are
   recorded as a degraded product outcome. Resource readback mismatches remain
   fail-hard.
-- Surface preparation owns terrain validation, area recalculation, water-cache
-  storage, and landmass-region restamping as one transaction because no
-  independent consumer exists. Pedology's immutable fertility field remains
-  the input to authored start/resource planning; Civ7 fertility recalculation
-  belongs only to the later `assign-advanced-starts` engine-effect step.
+- Surface preparation owns terrain validation, coast restoration, area
+  recalculation, water-cache storage, and final lake readback as one
+  transaction. Landmass-region projection follows that transaction exactly
+  once, so area maintenance cannot erase an earlier write and no consumer must
+  restamp it. Pedology's immutable fertility field remains the input to
+  authored start/resource planning; Civ7 fertility recalculation belongs only
+  to the later `assign-advanced-starts` engine-effect step.
 
 ## Key artifacts
 
@@ -166,10 +170,12 @@ validated reads. Inventory:
 | `resourcePlacementOutcomes` | place-resources | typed reconciliation (planned/placed/rejected/byPhase/shortfalls) |
 Discovery placement, advanced-start assignment, surface maintenance, and
 terminal parity are effects or observations rather than immutable domain
-products. Their completion flows through typed effect tags. Discovery counts
-flow through its typed metric facet and live log; other observation evidence
-uses the capability appropriate to its consumer. No ordering-only,
-current-engine-snapshot, or aggregate-output pseudo artifact is published.
+products. The first three capabilities expose typed completion tags; terminal
+parity remains a terminal observation without a redundant effect tag.
+Discovery counts flow through its typed metric facet and live log; other
+observation evidence uses the capability appropriate to its consumer. No
+ordering-only, current-engine-snapshot, or aggregate-output pseudo artifact is
+published.
 
 ## Ops surface
 

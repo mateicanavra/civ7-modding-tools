@@ -565,10 +565,7 @@ function copyCompletedRun(
         ...lakeProjection,
         components: Object.freeze({ ...lakeProjection.components }),
       }),
-      placementSurface: Object.freeze({
-        ...placementSurface,
-        slotCounts: Object.freeze({ ...placementSurface.slotCounts }),
-      }),
+      placementSurface: Object.freeze({ ...placementSurface }),
       navigableRivers: Object.freeze({
         selectedTileCount: navigableRiverValue.selectedTileCount,
         targetTileCount: navigableRiverValue.targetTileCount,

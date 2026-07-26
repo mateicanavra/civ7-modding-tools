@@ -15,8 +15,6 @@ type TerrainValidationBoundaryReadback = Readonly<{
   areaId: Int32Array;
 }>;
 
-type RegionSlot = 0 | 1 | 2;
-
 /**
  * Counts accepted lake tiles dried or declassified by Civ7 maintenance. Lake
  * truth remains owned by Hydrology; this is only final boundary readback.
@@ -50,39 +48,12 @@ function readFinalLakeProjection(
 }
 
 /**
- * Restamps abstract placement-region slots after area recalculation rewrites
- * Civ7's region bookkeeping.
- */
-function applyLandmassRegionSlots(
-  engine: Readonly<{
-    getLandmassId: (name: "NONE" | "WEST" | "EAST") => number;
-    setLandmassRegionId: (x: number, y: number, regionId: number) => void;
-  }>,
-  width: number,
-  height: number,
-  slotByTile: Uint8Array
-): void {
-  const size = width * height;
-  const westRegionId = engine.getLandmassId("WEST");
-  const eastRegionId = engine.getLandmassId("EAST");
-  const noneRegionId = engine.getLandmassId("NONE");
-  for (let i = 0; i < size; i++) {
-    const y = (i / width) | 0;
-    const x = i - y * width;
-    const slot = (slotByTile[i] ?? 0) as RegionSlot;
-    const regionId = slot === 1 ? westRegionId : slot === 2 ? eastRegionId : noneRegionId;
-    engine.setLandmassRegionId(x, y, regionId);
-  }
-}
-
-/**
  * Executes the transactional terrain validation, coast restoration, water
- * storage, and region restamping required before placement products read Civ7.
+ * storage, and final lake readback required before placement products read Civ7.
  */
 export const PreparePlacementSurfaceStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
     const projectedLakes = deps.artifacts.projectedLakes.read(context);
-    const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
     const shelf = deps.artifacts.shelf.read(context);
     const topography = deps.artifacts.topography.read(context);
     const { width, height } = context.setup.dimensions;
@@ -94,7 +65,6 @@ export const PreparePlacementSurfaceStep = createStep(config, {
       shelfMask: shelf.shelfMask,
       coastalWater: shelf.coastalWater,
     });
-    const slotByTile = landmassRegionSlotByTile.slotByTile as Uint8Array;
     const emit = (payload: TraceJsonObject): void => {
       context.trace.event(() => payload);
     };
@@ -137,19 +107,6 @@ export const PreparePlacementSurfaceStep = createStep(config, {
       deps.engine.storeWaterData(context);
       emit({ type: "placement.water.stored" });
     });
-    runPlacementProductStep("placement.landmassRegion.restamp", emit, () => {
-      applyLandmassRegionSlots(
-        {
-          getLandmassId: (name) => deps.engine.getLandmassId(context, name),
-          setLandmassRegionId: (x, y, regionId) =>
-            deps.engine.setLandmassRegionId(context, x, y, regionId),
-        },
-        width,
-        height,
-        slotByTile
-      );
-      emit({ type: "placement.landmassRegion.restamped" });
-    });
     const afterMaintenance = readTerrainValidationBoundary(
       "placement/prepare-surface/after-maintenance"
     );
@@ -164,26 +121,16 @@ export const PreparePlacementSurfaceStep = createStep(config, {
       `[SWOOPER_MOD] PLACEMENT_SURFACE_PREPARATION_V1 ${JSON.stringify(finalLakeReadback)}`
     );
 
-    const slotCounts = { none: 0, west: 0, east: 0 };
-    for (const slot of slotByTile) {
-      if (slot === 1) slotCounts.west++;
-      else if (slot === 2) slotCounts.east++;
-      else slotCounts.none++;
-    }
     return {
       acceptedLakeMask,
       beforeValidate,
       afterValidate,
       afterMaintenance,
-      slotCounts,
       finalLakeReadback,
     };
   },
   metrics: ({ result }) => ({
-    "placement.surfacePreparation": measureStandardPlacementSurface({
-      slotCounts: result.slotCounts,
-      ...result.finalLakeReadback,
-    }),
+    "placement.surfacePreparation": measureStandardPlacementSurface(result.finalLakeReadback),
   }),
   viz: ({ result, dimensions }) => projectPlacementSurfaceViz({ ...result, dimensions }),
 });

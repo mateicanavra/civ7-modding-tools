@@ -28,16 +28,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** finish Placement materializer purification after the old
-`derive-placement-inputs` coordination knot, false causal effects, and
-natural-wonder provider reimplementation were deleted at their roots. A recipe
-materializer owns product sequencing, reconciliation, and evidence projection;
-it does not re-admit trusted provider inputs or repeat provider outcome
-validation. Resource placement preserves Swooper's exact type-at-plot plan,
-ordered results, typed shortfalls, and fail-hard mismatch policy while the
-adapter owns dimensions, coordinate resolution, bounds, mutation, and exact
-readback. A.2, initial setup options, and post-A.2 product proof remain outside
-this container.
+**Current container:** collapse Placement's duplicate landmass-region
+projection/restamp authority after the resource materializer boundary was
+sealed. Surface preparation owns one post-wonder engine-maintenance
+transaction: terrain validation, coast restoration, area recalculation, water
+storage, and exact lake readback. Landmass-region projection runs afterward as
+the sole engine write and immutable region-artifact publisher, so maintenance
+cannot erase a projection that another step must repeat. A.2, initial setup
+options, and post-A.2 product proof remain outside this container.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -54,16 +52,14 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** make `placeResourceIntent` intent-only because the adapter already
-owns admitted dimensions. Delete recipe-side coordinate reconstruction,
-status/reason union checks, resource-type normalization, and placed readback
-verification. Preserve no-relocation intent, typed shortfalls, phase/support
-provenance, deterministic evidence, and fail-hard mismatch. Prove exact
-coordinates, bounds, and wrong-type readback at the production and mock adapter
-boundaries; keep focused recipe tests for product reconciliation and remove
-duplicate resource assertions from the broad discovery integration test. Seal
-the cut, then recensus the adjacent landmass-region projection/restamp knot
-against the now-settled placement order.
+**Gradient:** reorder the canonical Placement sequence to
+`place-natural-wonders -> prepare-placement-surface -> plot-landmass-regions`.
+Delete prepare's region artifact/tag/engine dependencies, duplicate projection
+loop, restamp trace, and unused slot-count metric. Let the region artifact carry
+the causal edge after the one engine projection; remove its duplicate effect
+tag. Delete call-order and generic-failure tests that existed only to protect
+the knot, preserve focused maintenance and region behavior at their actual
+owners, and prove the complete recipe graph before sealing the cut.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
