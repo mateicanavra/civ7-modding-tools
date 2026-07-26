@@ -6,7 +6,7 @@ import type { EngineAdapterMethodKey } from "@civ7/adapter";
  * Adding an adapter method does not expose it to recipe code accidentally: step authoring must
  * deliberately admit that method here before a frozen step contract can request it.
  */
-export const AUTHORED_ENGINE_ADAPTER_METHODS = Object.freeze([
+const AUTHORED_ENGINE_ADAPTER_METHODS = Object.freeze([
   "readCurrentMapSurface",
   "getMapSizeId",
   "lookupMapInfo",
