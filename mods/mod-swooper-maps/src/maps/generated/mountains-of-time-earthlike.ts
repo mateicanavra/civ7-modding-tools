@@ -1246,11 +1246,7 @@ const mapConfig = {
           "config": {}
         }
       },
-      "derive-placement-inputs": {
-        "wonders": {
-          "strategy": "map-metadata",
-          "config": {}
-        },
+      "plan-natural-wonders": {
         "naturalWonders": {
           "strategy": "suitability-diversity",
           "config": {
@@ -1395,7 +1391,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountains-of-time-earthlike",
-  configHash: "bccfb46412de662597a83240839aec8c6ec3f69a76e3d1d24a670ffcd307f2b8",
-  envelopeHash: "37793609dece41a60fffda5ed02c19769b395ca1f0997becbd8209d23f2a1a9a",
+  configHash: "6233434935baac101011c0f664327ff1c0efb0d07d2988b26d16f994b07f533f",
+  envelopeHash: "808632e0bd3217461f84b555d103f17696d8b2d276321fa2fb4fea9aa13d5cbb",
   config: mapConfig.config,
 });

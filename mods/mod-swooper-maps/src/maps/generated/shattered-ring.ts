@@ -1247,11 +1247,7 @@ const mapConfig = {
           "config": {}
         }
       },
-      "derive-placement-inputs": {
-        "wonders": {
-          "strategy": "map-metadata",
-          "config": {}
-        },
+      "plan-natural-wonders": {
         "naturalWonders": {
           "strategy": "suitability-diversity",
           "config": {
@@ -1396,7 +1392,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "shattered-ring",
-  configHash: "69527289e446ff04d73ed9a50bc4849a050c4bc6548153d6cd36aaa7f3e95b44",
-  envelopeHash: "649522354f382abafa5f93b436e692ba5573a2ac0f8a0c3ed966b8b2a3fb7e8b",
+  configHash: "23c8c2c7636c9ba02f81a7f5e2a0ca8b814e1c2d0fc12db02d6b1464d930c639",
+  envelopeHash: "1c5024905b0b7eaed59e2b6c5de42cf163b7c5e0a08bf82bc02dcc03ecc2481c",
   config: mapConfig.config,
 });

@@ -16,7 +16,7 @@ import { runStandardRecipeTestMap } from "../fixtures/standard-recipe.js";
  * readback to visualize) — both verified in-game, not in Studio.
  */
 const EXPECTED_KEYS_BY_STEP: Record<string, readonly string[]> = {
-  "derive-placement-inputs": ["placement.wonders.plannedSites"],
+  "plan-natural-wonders": ["placement.wonders.plannedSites"],
   "plot-landmass-regions": ["placement.landmassRegions.regionSlot"],
   "place-natural-wonders": ["placement.wonders.outcome"],
   "prepare-placement-surface": [

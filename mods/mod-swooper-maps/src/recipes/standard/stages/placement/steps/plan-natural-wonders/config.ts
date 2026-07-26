@@ -12,11 +12,11 @@ import {
 } from "../../../../tag-contracts.js";
 
 /**
- * Defines placement-input admission from final domain products and current
- * adapter observations, publishing wonder intent without mutating Civ7.
+ * Defines natural-wonder planning from final domain products, current adapter
+ * observations, and active Civ7 map-size metadata without mutating Civ7.
  */
 export const config = defineStep({
-  id: "derive-placement-inputs",
+  id: "plan-natural-wonders",
   engine: [
     "getMapSizeId",
     "lookupMapInfo",
@@ -42,7 +42,6 @@ export const config = defineStep({
     provides: [placementWonderArtifacts.naturalWonderPlan],
   },
   ops: {
-    wonders: placement.wonders.ops.planWonders,
     naturalWonders: placement.wonders.ops.planNaturalWonders,
   },
 });

@@ -1247,11 +1247,7 @@ const mapConfig = {
           "config": {}
         }
       },
-      "derive-placement-inputs": {
-        "wonders": {
-          "strategy": "map-metadata",
-          "config": {}
-        },
+      "plan-natural-wonders": {
         "naturalWonders": {
           "strategy": "suitability-diversity",
           "config": {
@@ -1396,7 +1392,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-desert-mountains",
-  configHash: "12ddb274a3ee870ed603d52d45eef9653e10062a8ce8fe8f1ca6321225d59933",
-  envelopeHash: "507c2f48dcc2fadb0f7a0ad200aa362fcb4cf3f65dc40a1d44dc6848bf10c8fc",
+  configHash: "25370231f4b84cac13cdd9f72ed78dac6654f93e02f7dd3efc24e047e629d75a",
+  envelopeHash: "76c23e57e342835d9f2c6a98bfd18ffde80fd22853631178bd720d79ba803ad3",
   config: mapConfig.config,
 });

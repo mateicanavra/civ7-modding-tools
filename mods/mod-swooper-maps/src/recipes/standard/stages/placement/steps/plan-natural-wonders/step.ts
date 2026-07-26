@@ -1,0 +1,132 @@
+import {
+  buildNaturalWonderBlockedMask,
+  CIV7_BROWSER_TABLES_V0,
+  NATURAL_WONDER_CATALOG,
+  NO_FEATURE_TYPE,
+} from "@civ7/map-policy";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { captureEnginePlacementTypes } from "../../../../current-engine-surface.js";
+import {
+  measureStandardNaturalWonderPlanInput,
+  STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY,
+  type StandardNaturalWonderPlanInputMeasurementInput,
+} from "../../../../metrics/families/placement/natural-wonder-plan-input.js";
+import {
+  logNaturalWonderPlanInputRuntimeTelemetry,
+  logNaturalWonderPlanRuntimeTelemetry,
+} from "../../log.js";
+import {
+  definePlacementVizMeta,
+  PLACEMENT_TILE_SPACE_ID,
+  UNIT_SCORE_VALUE_SPEC,
+} from "../../viz.js";
+import { config } from "./config.js";
+
+type StandardNaturalWonderPlannerInput =
+  StandardNaturalWonderPlanInputMeasurementInput["plannerInput"];
+
+/**
+ * Plans natural-wonder intent from immutable physical products, current Civ7
+ * identity surfaces, static catalog policy, and active map-size metadata.
+ */
+export const PlanNaturalWondersStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
+    const { width, height } = context.setup.dimensions;
+    const topography = deps.artifacts.topography.read(context);
+    const hydrography = deps.artifacts.hydrography.read(context);
+    const riverNetwork = deps.artifacts.riverNetwork.read(context);
+    const lakePlan = deps.artifacts.lakePlan.read(context);
+    const climateIndices = deps.artifacts.climateIndices.read(context);
+    const biomeClassification = deps.artifacts.biomeClassification.read(context);
+    const pedology = deps.artifacts.pedology.read(context);
+    const mapSizeId = deps.engine.getMapSizeId(context);
+    const mapInfo = deps.engine.lookupMapInfo(context, mapSizeId);
+    if (!mapInfo) {
+      throw new Error("[Placement] Civ7 map metadata is unavailable for the active map size.");
+    }
+
+    const rawWondersCount = mapInfo.NumNaturalWonders;
+    const wondersCount =
+      typeof rawWondersCount === "number" && Number.isFinite(rawWondersCount)
+        ? Math.max(0, Math.round(rawWondersCount))
+        : 0;
+    const { terrainType, biomeType, featureType } = captureEnginePlacementTypes(
+      context.setup.dimensions,
+      {
+        getTerrainType: (x, y) => deps.engine.getTerrainType(context, x, y),
+        getBiomeType: (x, y) => deps.engine.getBiomeType(context, x, y),
+        getFeatureType: (x, y) => deps.engine.getFeatureType(context, x, y),
+      }
+    );
+    const plannerInput = {
+      width,
+      height,
+      wondersCount,
+      landMask: topography.landMask,
+      elevation: topography.elevation,
+      aridityIndex: climateIndices.aridityIndex,
+      riverClass: hydrography.riverClass,
+      lakeMask: lakePlan.lakeMask,
+      vegetationDensity: biomeClassification.vegetationDensity,
+      effectiveMoisture: climateIndices.effectiveMoisture,
+      surfaceTemperature: climateIndices.surfaceTemperatureC,
+      fertility: pedology.fertility,
+      discharge: hydrography.discharge,
+      slopeClass: riverNetwork.slopeClass,
+      coastTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST,
+      mountainTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_MOUNTAIN,
+      iceFeatureType: CIV7_BROWSER_TABLES_V0.featureTypes.FEATURE_ICE,
+      terrainType,
+      biomeType,
+      featureType,
+      noFeatureType: NO_FEATURE_TYPE,
+      naturalWonderBlockedMask: buildNaturalWonderBlockedMask(width, height),
+      featureCatalog: NATURAL_WONDER_CATALOG,
+    } satisfies StandardNaturalWonderPlannerInput;
+    const strategySelection = stepConfig.naturalWonders;
+    const naturalWonderPlan = ops.naturalWonders(plannerInput, strategySelection);
+    deps.artifacts.naturalWonderPlan.publish(context, naturalWonderPlan);
+    const naturalWonderPlanInput = measureStandardNaturalWonderPlanInput({
+      plannerInput,
+      strategySelection,
+      plan: naturalWonderPlan,
+    });
+    logNaturalWonderPlanRuntimeTelemetry(naturalWonderPlan);
+    logNaturalWonderPlanInputRuntimeTelemetry(naturalWonderPlanInput);
+
+    return {
+      placements: naturalWonderPlan.placements,
+      naturalWonderPlanInput,
+    };
+  },
+  metrics: ({ result }) => ({
+    [STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY]: result.naturalWonderPlanInput,
+  }),
+  viz: ({ result, dimensions }) => {
+    const { placements } = result;
+    const positions = new Float32Array(placements.length * 2);
+    const values = new Float32Array(placements.length);
+    for (let i = 0; i < placements.length; i++) {
+      const { plotIndex, priority } = placements[i]!;
+      const y = (plotIndex / dimensions.width) | 0;
+      const x = plotIndex - y * dimensions.width;
+      positions[i * 2] = x;
+      positions[i * 2 + 1] = y;
+      values[i] = priority;
+    }
+    return [
+      {
+        kind: "points",
+        dataTypeKey: "placement.wonders.plannedSites",
+        spaceId: PLACEMENT_TILE_SPACE_ID,
+        positions,
+        values: { format: "f32", values, valueSpec: UNIT_SCORE_VALUE_SPEC },
+        meta: definePlacementVizMeta("placement.wonders.plannedSites", "field.intensity", {
+          label: "Planned Natural Wonder Sites",
+          description:
+            "Anchor plots the natural-wonder plan selected, colored by planning priority (0..1). Stamping outcomes appear on the place-natural-wonders step.",
+        }),
+      },
+    ];
+  },
+});

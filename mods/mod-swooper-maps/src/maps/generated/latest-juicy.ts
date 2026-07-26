@@ -1279,11 +1279,7 @@ const mapConfig = {
           "config": {}
         }
       },
-      "derive-placement-inputs": {
-        "wonders": {
-          "strategy": "map-metadata",
-          "config": {}
-        },
+      "plan-natural-wonders": {
         "naturalWonders": {
           "strategy": "suitability-diversity",
           "config": {
@@ -1408,7 +1404,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "latest-juicy",
-  configHash: "da3295120384cc174f5632c5d7ad24b3eb1ada7c22bf5ce8ecde6c429cd821e8",
-  envelopeHash: "235c09006130c4e32860247e006853ccdcfa2a126423c941258f0a3d245ed5b0",
+  configHash: "94ff41f6c1337cd437caf70902169b3106f5891273e450fb36850c7607a3ed1c",
+  envelopeHash: "b13f40fa1f59308761f86afa8d1141c0310710f974addf2237da0d771d3d8fb2",
   config: mapConfig.config,
 });

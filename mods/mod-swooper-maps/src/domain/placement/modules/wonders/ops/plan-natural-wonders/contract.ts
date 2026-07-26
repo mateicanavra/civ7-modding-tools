@@ -72,7 +72,7 @@ const PlanNaturalWondersContract = defineOp({
             featureTags: Type.Optional(Type.Immutable(Type.Array(Type.String()))),
             // Parity-keyed footprint offsets (odd-R): the even-row and odd-row offset
             // lists for this wonder's class/direction. The op applies `(anchorY & 1)`
-            // at the concrete anchor. Computed in derive-placement-inputs via the
+            // at the concrete anchor. Computed in plan-natural-wonders via the
             // map-policy byParity helper; the op stays mapgen-core-only.
             footprintOffsetsByParity: Type.Optional(
               Type.ReadonlyObject(

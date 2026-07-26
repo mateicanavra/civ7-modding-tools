@@ -1246,11 +1246,7 @@ const mapConfig = {
           "config": {}
         }
       },
-      "derive-placement-inputs": {
-        "wonders": {
-          "strategy": "map-metadata",
-          "config": {}
-        },
+      "plan-natural-wonders": {
         "naturalWonders": {
           "strategy": "suitability-diversity",
           "config": {
@@ -1395,7 +1391,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountain-patch",
-  configHash: "0345009980591a8476f4b04ec54e1670052339720acdaab4bfa1f45c669df23f",
-  envelopeHash: "89f09126e0a323ae98f138924f2821e4cb20ac5eb44264d71feedca8cc719a55",
+  configHash: "21c9b4f03113700156ee44ab722dd55283abdbad82be210119e91814d062253a",
+  envelopeHash: "646997fe21704df0bfdc0c7258ddcd0d464cee66a99845fe73b9eb9868721987",
   config: mapConfig.config,
 });

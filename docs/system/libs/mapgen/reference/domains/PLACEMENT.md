@@ -39,7 +39,7 @@ Naming note: a future Gameplay domain consolidation may absorb starts/discoverie
 
 One stage, `placement`, with 11 steps split at real product/effect contracts (engine-refactor-v1 D3 posture; maintenance transactional). Step order:
 
-1. `derive-placement-inputs` — admits final physical and engine surfaces and publishes natural-wonder intent.
+1. `plan-natural-wonders` — admits final physical and engine surfaces plus active Civ7 map-size demand, then publishes natural-wonder intent.
 2. `plot-landmass-regions` — landmass-region slots (the regional mechanism driving seat assignment; the official `chooseStartSectors` sector grid is intentionally not used — ADR-008 amendment).
 3. `place-natural-wonders` — deterministic full-stamp-or-fail wonder materialization (first promoted product boundary).
 4. `prepare-placement-surface` — transactional engine-surface preparation (terrain validation, area recalc, water cache, landmass-region restamping); gates the legality surface read by planning AND the stamps.
@@ -108,13 +108,13 @@ Runtime semantics (ADR-009 regime):
 - Shortfalls are recorded (typed, per-type, per-reason), never forced: no whole-map fallback, no least-used-type rebalance, no spacing decay below authored floors.
 - Current-engine observations are explicit capabilities on the exact step that
   needs them: terrain/biome/feature classifications feed natural-wonder
-  planning in `derive-placement-inputs`; maintenance-boundary readbacks remain
+  planning in `plan-natural-wonders`; maintenance-boundary readbacks remain
   invocation-local in `prepare-placement-surface`; the prepared legality
   surface feeds `plan-resources`; and terminal `placement` projects final
   Morphology-vs-engine parity evidence. Materializers may also read the engine
   surface they immediately mutate or reconcile. The roster-dependent resource
   requirement query is a separate declared adapter policy input.
-- `derive-placement-inputs` consumes the immutable biome-classification product
+- `plan-natural-wonders` consumes the immutable biome-classification product
   for physical suitability and observes current terrain, biome, and feature
   classifications once through declared adapter capabilities. It does not
   publish a current-engine snapshot or depend on mutable context fields.
@@ -136,7 +136,7 @@ validated reads. Inventory:
 
 | Artifact | Published by | Substance |
 | --- | --- | --- |
-| `naturalWonderPlan` | derive-placement-inputs | deterministic scored wonder intent owned by `placement/modules/wonders` |
+| `naturalWonderPlan` | plan-natural-wonders | deterministic scored wonder intent owned by `placement/modules/wonders` |
 | `naturalWonderPlacement` | place-natural-wonders | placed/relocated/rejected coordinateRows |
 | `landmassRegionSlotByTile` | plot-landmass-regions | deterministic region classification owned by `placement/modules/regions` |
 | `resourceDemandPlan` | plan-resources | per-type target counts with static policy facts and typed region-minimum authority/provenance |
@@ -156,9 +156,9 @@ current-engine-snapshot, or aggregate-output pseudo artifact is published.
 
 `domain/placement` exposes three semantic modules in causal order:
 
-- `wonders.ops.planWonders`, then `wonders.ops.planNaturalWonders` —
-  deterministic map-size demand followed by natural-wonder site planning from
-  pipeline artifacts.
+- `wonders.ops.planNaturalWonders` — deterministic natural-wonder site planning
+  from pipeline artifacts and the requested count admitted from active Civ7
+  map-size metadata at the `plan-natural-wonders` recipe boundary.
 - `regions.ops.projectLandmassRegions` — seam-safe whole-landmass assignment to balanced west/east gameplay regions; Civ7 region-id mutation remains a recipe effect.
 - `starts.ops.planStarts` — candidate admission against wonder and region
   evidence (plus impassability and volcano screens), scoring

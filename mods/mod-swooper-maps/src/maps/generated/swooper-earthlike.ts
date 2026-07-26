@@ -1260,11 +1260,7 @@ const mapConfig = {
           "config": {}
         }
       },
-      "derive-placement-inputs": {
-        "wonders": {
-          "strategy": "map-metadata",
-          "config": {}
-        },
+      "plan-natural-wonders": {
         "naturalWonders": {
           "strategy": "suitability-diversity",
           "config": {
@@ -1395,7 +1391,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-earthlike",
-  configHash: "f20852c3836af27e3e316e0643fe0a44e3c35d17098df3e51a94ee95a0e8905f",
-  envelopeHash: "28ee9c0f96615d54121ba355db58fec9b0b968a4cbb9a2b5f84671fb593d3085",
+  configHash: "b77497efbd0127ed7ecbaf20a8435aaede43407824a9fea630cf6970a3cf6371",
+  envelopeHash: "68dce2651db5e7f0eab31230261ce1156058b43f167edf8aa3c9d6408b4c0eb6",
   config: mapConfig.config,
 });

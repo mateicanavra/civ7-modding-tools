@@ -1246,11 +1246,7 @@ const mapConfig = {
           "config": {}
         }
       },
-      "derive-placement-inputs": {
-        "wonders": {
-          "strategy": "map-metadata",
-          "config": {}
-        },
+      "plan-natural-wonders": {
         "naturalWonders": {
           "strategy": "suitability-diversity",
           "config": {
@@ -1395,7 +1391,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "sundered-archipelago",
-  configHash: "4e39244e6b484f7acb96676565dab527a7ef06e605e2f4e964987db6f4e47fac",
-  envelopeHash: "854c10d282e50b670633d429a9b64aeff99f194dd8763ec659c976a56bf65492",
+  configHash: "d62df0a00cc838876786f69cef5e68955a0e66ab725f833f148752f6fa78ef85",
+  envelopeHash: "d0655378dcf62e93a419bbc20ab4076ca86645b03c18c2a7fea53d21b46f447e",
   config: mapConfig.config,
 });
