@@ -92,8 +92,9 @@ the pipeline then projects morphology/hydrology at 16–19 before the adapter-fr
 evidence. `map-ecology` (21) materializes those plans, and `placement` (22)
 combines product planning with Civ7 writes/readback. `foundation-projection` (5)
 projects Foundation evidence onto the recipe's tile space; it does **not** call
-the Civ7 adapter. `morphology-shelf` (10) runs after island injection so the
-published shelf includes island coastlines before Hydrology starts.
+the Civ7 adapter. `morphology-shelf` (10) runs after complete island-topography
+computation so the published shelf includes island coastlines before Hydrology
+starts.
 
 **Narrative is absent.** There is no `narrative` domain or live recipe stage
 slot. Do not infer a seventh domain from historical project material.
@@ -119,7 +120,7 @@ implementations. Counts below are verified from those module authorities:
 | Domain | Ops | Character |
 |---|---|---|
 | `foundation` | 17 | mesh, mantle potential/forcing, crust + evolution, plate graph/motion, tectonic segments, era membership, segment/hotspot events, era tectonic fields, history rollups, tectonics current, tracer advection, provenance, plate tensors |
-| `morphology` | 17 | belt drivers, base topography, continental margins, sea level, landmask, base coastline adjacency/distance evidence, flow routing, geomorphic cycle, substrate, island chains, foothills, ridges, rough lands, volcanoes, landmasses, and the final shelf mask |
+| `morphology` | 17 | belt drivers, base topography, continental margins, sea level, landmask, base coastline adjacency/distance evidence, flow routing, geomorphic cycle, substrate, complete island topography with formation classes, foothills, ridges, rough lands, volcanoes, landmasses, and the final shelf mask |
 | `hydrology` | 18 | Baseline climate composes radiative/thermal forcing, circulation, ocean coupling, evaporation, moisture transport, and precipitation; hydrography then solves drainage, discharge, river projection, lake intent, and causal classification; climate refinement closes with cryosphere/albedo, land-water budget, and advisory diagnostics. Navigable-river selection is a map-rivers rule. |
 | `ecology` | 32 | biome classify, pedology classify/aggregate, edge refine, feature/vegetation substrate, 5 vegetation + 5 wetland + 4 reef score ops, ice score, 4 plot-effects score ops, plan plot-effects, plan floodplains/wetlands/reefs/ice/vegetation, features apply. The most granular domain. |
 | `placement` | 3 | `wonders.planNaturalWonders`, `regions.projectLandmassRegions`, `starts.planStarts` |

@@ -47,11 +47,11 @@ export const ComputeShelfStep = createStep(config, {
     const beltDrivers = deps.artifacts.beltDrivers.read(context);
     const topography = deps.artifacts.topography.read(context);
 
-    // Final topography includes island injection and is immutable after publication.
+    // Final topography includes complete island formation and is immutable after publication.
     const landMask = topography.landMask;
     const bathymetry = topography.bathymetry;
 
-    // 1) Post-island shoreline adjacency (island peaks now count).
+    // 1) Post-island shoreline adjacency includes all newly formed island land.
     const { coastalLand, coastalWater } = ops.coastalAdjacency(
       { width, height, landMask },
       stepConfig.coastalAdjacency

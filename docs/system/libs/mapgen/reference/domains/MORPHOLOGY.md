@@ -246,9 +246,9 @@ Fields:
 ### `artifact:morphology.baseCoastline` (pre-island evidence; tile space)
 
 Adjacency and distance-to-coast evidence derived from base topography before
-island injection. Mountain planning consumes this vintage. It contains no
-shelf evidence; post-island coastline and shelf truth live in
-`artifact:morphology.shelf`.
+island topography computation. Island formation and mountain planning consume
+this vintage. It contains no shelf evidence; post-island coastline and shelf
+truth live in `artifact:morphology.shelf`.
 
 Fields:
 
@@ -260,6 +260,7 @@ Fields:
 
 - `mods/mod-swooper-maps/src/domain/morphology/modules/coasts/artifacts/base-coastline.artifact.ts` (`artifact.schema`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/coastline-evidence/step.ts` (publishing `baseCoastline`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/islands/config.ts` (`config.artifacts.requires`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/mountains/config.ts` (`config.artifacts.requires`)
 
 ### `artifact:morphology.shelf` (post-island evidence; tile space)
@@ -404,6 +405,19 @@ products plus diagnostic elevation and sediment deltas.
 - `mods/mod-swooper-maps/src/domain/morphology/modules/erosion/ops/compute-geomorphic-cycle/rules/index.ts` (constructing coherent eroded topography and substrate)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/step.ts` (publishing the operation-owned products)
 
+#### `morphology/compute-island-topography` → `{ topography, islandClass }`
+
+Computes the complete post-island topography from post-erosion terrain,
+pre-island coast distance, and tectonic evidence. The operation applies
+connected island-chain and microcontinent formation to coherent elevation,
+land-mask, and bathymetry fields, then returns exact per-tile formation classes:
+`0` unchanged, `1` island-chain land, and `2` microcontinent land.
+
+**Ground truth anchors**
+
+- `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/ops/compute-island-topography/contract.ts` (`ComputeIslandTopographyContract`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/islands/step.ts` (publishing operation-owned topography and projecting formation-class evidence)
+
 #### `morphology/compute-landmasses` → `{ landmasses, landmassIdByTile }`
 
 Decomposes the final land mask into connected landmasses.
@@ -414,15 +428,6 @@ Decomposes the final land mask into connected landmasses.
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/landmasses/step.ts` (calling `ops.landmasses`)
 
 ### Planning ops (plan)
-
-#### `morphology/plan-island-chains` → `{ edits[] }`
-
-Plans island-chain terrain edits (coast/peak) driven by boundary + volcanism signals.
-
-**Ground truth anchors**
-
-- `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/ops/plan-island-chains/contract.ts` (`PlanIslandChainsContract`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/islands/step.ts` (applying island edits to the post-erosion topography vintage)
 
 #### `morphology/plan-volcanoes` → `{ volcanoes[] }`
 
@@ -600,12 +605,12 @@ substrate, then publishes its distinct post-erosion identities downstream.
 
 ### `morphology-features` (`islands` → `mountains` → `volcanoes` → `landmasses`)
 
-Applies landform accents (islands), publishes mountain/foothill intent,
+Computes complete post-island topography, publishes mountain/foothill intent,
 publishes volcano intent, and publishes the landmass decomposition snapshot.
 
 **Requires / Provides**
 
-- `islands`: requires `foundation.plates` + `morphology.topography.eroded`; provides terminal `morphology.topography`
+- `islands`: requires `foundation.plates` + `morphology.topography.eroded` + `morphology.baseCoastline`; provides terminal `morphology.topography`
 - `mountains`: requires `morphology.beltDrivers` + `morphology.topography`; provides `morphology.mountains`
 - `volcanoes`: requires `foundation.plates` + `morphology.topography`; provides `morphology.volcanoes`
 - `landmasses`: requires `morphology.topography`; provides `morphology.landmasses`

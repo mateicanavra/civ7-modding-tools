@@ -28,13 +28,15 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** complete Morphology's geomorphic-cycle ownership. The
-domain operation owns the whole relief/substrate transition: erosion and
-sediment deltas, input immutability, land-water identity preservation,
-elevation clamping, bathymetry rebuilding, and completed result allocation. The
-recipe step owns only admitted binding, invocation, publication, trace, and
-visualization. An authored knob the algorithm never reads is a lying state and
-retires rather than gaining an implementation during a behavior-preserving cut.
+**Current container:** restore and complete Morphology's island-topography
+ownership. The old `coast | peak` edit vocabulary was engine-stamping residue;
+after engine stamping retired, both variants became the same domain action:
+materialize admitted island land. The domain operation therefore owns the
+complete immutable topography transition and island mask, while the recipe step
+owns only admitted binding, invocation, publication, trace, and visualization.
+Microcontinent probability is one map-level decision followed by at most one
+connected patch, never a per-tile probability that floods the plan with
+duplicate no-op edits.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -51,15 +53,16 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** expand the geomorphic-cycle contract to return coherent
-topography, substrate, and diagnostic deltas; move the exact existing
-application/clamp/rebuild sequence into its operation-owned rule; delete the
-unused talus configuration from the strategy and canonical map configs; reduce
-the step to direct publication and evidence. Prove physics response, immutable
-inputs, nonaliased outputs, land-water coherence, trace/viz continuity, native
-compiler/test/policy owners, generated currentness, and the complete metrics
-bank. Correct the canonical authoring guide that currently teaches the rejected
-half-operation pattern, then seal the container as one Graphite layer.
+**Gradient:** replace the edit-only island planner with a complete deterministic
+island-chain computation over admitted topography and plate evidence; restore
+the previously accepted per-map reservoir-selected microcontinent and connected
+hex growth; delete stale terrain-kind selection, duplicate edit arrays, and
+recipe-owned application. Recalibrate shipped island controls that were authored
+against duplicate or ignored planner edits, preserving benchmark authority rather
+than weakening its targets. Prove deterministic nonaliasing output, input
+immutability, exact mask/topography coherence, one bounded microcontinent,
+trace/viz continuity, native compiler/test/policy owners, and the complete
+metrics bank, then seal the container as one Graphite layer.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -94,6 +97,14 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Complete Geomorphic Products
+
+Morphology's geomorphic-cycle operation became the sole owner of coherent
+post-erosion topography, substrate, and diagnostic process deltas. Recipe-owned
+application, duplicate quantization, and the inert talus knob retired; focused
+physics and reconstruction proofs plus the complete metrics bank sealed the
+transition.
 
 ### 2026-07-26 - Ecology Features Test Ownership
 

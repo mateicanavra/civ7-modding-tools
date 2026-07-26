@@ -296,15 +296,13 @@
         "islands": {
           "strategy": "plate-aware-volcanic",
           "config": {
-            "islands": {
-              "fractalThresholdPercent": 82,
-              "minDistFromLandRadius": 1,
-              "baseIslandDenNearActive": 7,
-              "baseIslandDenElse": 12,
-              "hotspotSeedDenom": 1,
-              "clusterMax": 6,
-              "microcontinentChance": 0.2
-            }
+            "fractalThresholdPercent": 82,
+            "minDistFromLandRadius": 1,
+            "baseIslandDenNearActive": 7,
+            "baseIslandDenElse": 12,
+            "hotspotSeedDenom": 2,
+            "clusterMax": 2,
+            "microcontinentChance": 0.2
           }
         }
       },

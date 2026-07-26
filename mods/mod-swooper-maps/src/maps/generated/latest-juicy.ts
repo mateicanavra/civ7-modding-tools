@@ -354,15 +354,13 @@ const mapConfig = {
         "islands": {
           "strategy": "plate-aware-volcanic",
           "config": {
-            "islands": {
-              "fractalThresholdPercent": 96,
-              "minDistFromLandRadius": 5,
-              "baseIslandDenNearActive": 2,
-              "baseIslandDenElse": 2,
-              "hotspotSeedDenom": 3,
-              "clusterMax": 12,
-              "microcontinentChance": 0.12
-            }
+            "fractalThresholdPercent": 96,
+            "minDistFromLandRadius": 5,
+            "baseIslandDenNearActive": 5,
+            "baseIslandDenElse": 7,
+            "hotspotSeedDenom": 6,
+            "clusterMax": 3,
+            "microcontinentChance": 0.12
           }
         }
       },
@@ -1360,7 +1358,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "latest-juicy",
-  configHash: "7f7ccd8c2facbfd5679133bb36b44b371a66ea9aa1c5904961546986b70ce15b",
-  envelopeHash: "01001973f655fcbd5cacc8a2dbf97ca9999da0eda4a5fa7f8321d01d278a99fb",
+  configHash: "d58df9de1391f7372d4830ef08fd697f90aae161e607b854fcbf9d9451a1030c",
+  envelopeHash: "742257670546361f25a1f60d11575f76b6b29a52908bb068e7e67348b2a731d6",
   config: mapConfig.config,
 });

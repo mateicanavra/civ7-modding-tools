@@ -321,15 +321,13 @@ const mapConfig = {
         "islands": {
           "strategy": "plate-aware-volcanic",
           "config": {
-            "islands": {
-              "fractalThresholdPercent": 96,
-              "minDistFromLandRadius": 5,
-              "baseIslandDenNearActive": 2,
-              "baseIslandDenElse": 2,
-              "hotspotSeedDenom": 3,
-              "clusterMax": 12,
-              "microcontinentChance": 0.12
-            }
+            "fractalThresholdPercent": 96,
+            "minDistFromLandRadius": 5,
+            "baseIslandDenNearActive": 5,
+            "baseIslandDenElse": 7,
+            "hotspotSeedDenom": 6,
+            "clusterMax": 3,
+            "microcontinentChance": 0.12
           }
         }
       },
@@ -1347,7 +1345,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountains-of-time-earthlike",
-  configHash: "1a590638bd5824cc72b8c98e9bdb62ddf7b672080b3e2649343f2a275b4eb5b4",
-  envelopeHash: "b6cfb7d401dc38c6f958fde0b38320ea0fadf15557f1ad3f6d139d806daafcac",
+  configHash: "bd1dcd02b3fe2d97e0e02465d93e0c3e75eeb879620e2d47b8a13284a7ffd8cc",
+  envelopeHash: "dc0a505d369eed5d6602975c19ed56d622da8f24230e6657654396c02950dd82",
   config: mapConfig.config,
 });

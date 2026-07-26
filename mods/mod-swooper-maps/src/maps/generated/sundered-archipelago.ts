@@ -321,15 +321,13 @@ const mapConfig = {
         "islands": {
           "strategy": "plate-aware-volcanic",
           "config": {
-            "islands": {
-              "fractalThresholdPercent": 82,
-              "minDistFromLandRadius": 1,
-              "baseIslandDenNearActive": 7,
-              "baseIslandDenElse": 12,
-              "hotspotSeedDenom": 1,
-              "clusterMax": 6,
-              "microcontinentChance": 0.2
-            }
+            "fractalThresholdPercent": 82,
+            "minDistFromLandRadius": 1,
+            "baseIslandDenNearActive": 7,
+            "baseIslandDenElse": 12,
+            "hotspotSeedDenom": 2,
+            "clusterMax": 2,
+            "microcontinentChance": 0.2
           }
         }
       },
@@ -1347,7 +1345,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "sundered-archipelago",
-  configHash: "e3fecf624879c307561aa1440e7ab02bdb6ac4b82e4823833b403840e18df13d",
-  envelopeHash: "ae52b6870f778529a060d2ae5db75f80a0c752e1f80cbdaf4af5a76b407e8322",
+  configHash: "451f2eb733f2d8a03dd047001ca203be829795584cee85ecb7a3c9c0e3f94426",
+  envelopeHash: "aa9269ed59443ee7ae28a8016d9e64b6e68eaaf2ce7fe54043a0d652f1a63eac",
   config: mapConfig.config,
 });

@@ -6,7 +6,7 @@ import {
   SeaLevelDatumSchema,
 } from "../../../model/atoms/index.js";
 
-/** Registers the eroded topography consumed only by island planning. */
+/** Registers the eroded topography consumed by complete island-topography computation. */
 export const artifact = defineArtifact({
   name: "erodedTopography",
   id: "artifact:morphology.topography.eroded",
@@ -19,7 +19,7 @@ export const artifact = defineArtifact({
     },
     {
       additionalProperties: false,
-      description: "Eroded Morphology topography before island-chain edits.",
+      description: "Eroded Morphology topography before coherent island formation.",
     }
   ),
 });

@@ -321,15 +321,13 @@ const mapConfig = {
         "islands": {
           "strategy": "plate-aware-volcanic",
           "config": {
-            "islands": {
-              "fractalThresholdPercent": 96,
-              "minDistFromLandRadius": 4,
-              "baseIslandDenNearActive": 2,
-              "baseIslandDenElse": 2,
-              "hotspotSeedDenom": 6,
-              "clusterMax": 1,
-              "microcontinentChance": 0
-            }
+            "fractalThresholdPercent": 96,
+            "minDistFromLandRadius": 4,
+            "baseIslandDenNearActive": 2,
+            "baseIslandDenElse": 2,
+            "hotspotSeedDenom": 6,
+            "clusterMax": 1,
+            "microcontinentChance": 0
           }
         }
       },
@@ -1348,7 +1346,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-desert-mountains",
-  configHash: "dd8836c893df3adfd6c6842039c3274cec7deb3ec2868a889d5dd1c80fcd5ea6",
-  envelopeHash: "7ad7d43ba7c07439cc4f9bad8e8d77cf1aaf9621c1557bb67806235d8146829a",
+  configHash: "457a5124b6fd157c3163c8124e4eca9710c5288284583c947d482a9beca97e88",
+  envelopeHash: "be0e446e0d72ed199fb2058f0849cc4195e837dded87224afc0226be61a385b2",
   config: mapConfig.config,
 });

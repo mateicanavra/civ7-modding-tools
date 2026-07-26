@@ -1,101 +1,85 @@
+import { ISLAND_FORMATION_CLASS } from "@mapgen/domain/morphology/modules/landforms/model/policy/island-formation.js";
 import { deriveStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { clampInt16 } from "@swooper/mapgen-core/lib/math";
-import { defineStandardVizMeta } from "../../../../../viz.js";
+import { defineStandardVizCategoryMeta, STANDARD_VIZ_COLORS } from "../../../../../viz.js";
 import { config } from "./config.js";
 
 const GROUP_ISLANDS = "Morphology / Islands";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 /**
- * Plans tectonically informed island peaks, applies them to a producer-owned
- * topography copy, and publishes the canonical final Morphology topography.
+ * Publishes operation-owned island topography and projects its formation evidence.
  */
 export const IslandsStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
     const plates = deps.artifacts.foundationPlates.read(context);
     const topography = deps.artifacts.erodedTopography.read(context);
-    const elevation = new Int16Array(topography.elevation);
-    const landMask = new Uint8Array(topography.landMask);
-    const bathymetry = new Int16Array(topography.bathymetry);
-    const seaLevelValue = topography.seaLevel;
-    const landElevation = clampInt16(Math.floor(seaLevelValue) + 1);
-    const rngSeed = deriveStepSeed(context.setup.mapSeed, "morphology:planIslandChains");
-
-    const plan = ops.islands(
+    const coastline = deps.artifacts.baseCoastline.read(context);
+    const result = ops.islands(
       {
         width,
         height,
-        landMask,
+        elevation: topography.elevation,
+        seaLevel: topography.seaLevel,
+        landMask: topography.landMask,
+        bathymetry: topography.bathymetry,
+        distanceToCoast: coastline.distanceToCoast,
         boundaryCloseness: plates.boundaryCloseness,
         boundaryType: plates.boundaryType,
         volcanism: plates.volcanism,
-        rngSeed,
+        rngSeed: deriveStepSeed(context.setup.mapSeed, "morphology:computeIslandTopography"),
       },
       stepConfig.islands
     );
 
-    for (const edit of plan.edits) {
-      const index = edit.index | 0;
-      const y = (index / width) | 0;
-      const x = index - y * width;
-      if (x < 0 || x >= width || y < 0 || y >= height) continue;
-      if (edit.kind === "peak") {
-        landMask[index] = 1;
-        if (elevation[index] <= seaLevelValue) {
-          elevation[index] = landElevation;
-        }
-        bathymetry[index] = 0;
-      }
-    }
-
-    const size = width * height;
-    const editMask = new Uint8Array(size);
-    for (const edit of plan.edits) {
-      const index = edit.index | 0;
-      if (index < 0 || index >= size) continue;
-      editMask[index] = 1;
-    }
-
     context.trace.event(() => {
-      let peaks = 0;
-      let inBoundsPeaks = 0;
-      for (const edit of plan.edits) {
-        if (edit.kind !== "peak") continue;
-        peaks += 1;
-        const index = edit.index | 0;
-        const y = (index / width) | 0;
-        const x = index - y * width;
-        if (x < 0 || x >= width || y < 0 || y >= height) continue;
-        inBoundsPeaks += 1;
+      let islandChainTiles = 0;
+      let microcontinentTiles = 0;
+      for (const formationClass of result.islandClass) {
+        if (formationClass === ISLAND_FORMATION_CLASS.islandChain) islandChainTiles += 1;
+        if (formationClass === ISLAND_FORMATION_CLASS.microcontinent) microcontinentTiles += 1;
       }
       return {
         kind: "morphology.islands.summary",
-        edits: plan.edits.length,
-        peaks,
-        inBoundsPeaks,
+        islandChainTiles,
+        microcontinentTiles,
       };
     });
-    deps.artifacts.topography.publish(context, {
-      elevation,
-      seaLevel: seaLevelValue,
-      landMask,
-      bathymetry,
-    });
-    return editMask;
+    deps.artifacts.topography.publish(context, result.topography);
+    return result.islandClass;
   },
-  viz: ({ result: editMask, dimensions }) => [
+  viz: ({ result: islandClass, dimensions }) => [
     {
       kind: "grid",
-      dataTypeKey: "morphology.islands.editMask",
+      dataTypeKey: "morphology.islands.formationClass",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: editMask },
-      meta: defineStandardVizMeta("morphology.islands.editMask", "category.distinct", {
-        label: "Island Edits",
-        group: GROUP_ISLANDS,
-      }),
+      field: { format: "u8", values: islandClass },
+      meta: defineStandardVizCategoryMeta(
+        "morphology.islands.formationClass",
+        [
+          {
+            value: ISLAND_FORMATION_CLASS.unchanged,
+            label: "Unchanged",
+            color: STANDARD_VIZ_COLORS.absent,
+          },
+          {
+            value: ISLAND_FORMATION_CLASS.islandChain,
+            label: "Island Chain",
+            color: STANDARD_VIZ_COLORS.land,
+          },
+          {
+            value: ISLAND_FORMATION_CLASS.microcontinent,
+            label: "Microcontinent",
+            color: STANDARD_VIZ_COLORS.field.high,
+          },
+        ],
+        {
+          label: "Island Formation Class",
+          group: GROUP_ISLANDS,
+        }
+      ),
     },
   ],
 });
