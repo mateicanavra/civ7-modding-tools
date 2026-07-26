@@ -28,14 +28,15 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** cash in semantic earnedness behind the newly closed
-recipe-step kind, beginning with Placement's `derive-placement-inputs`
-orchestration knot. Determine the product behavior first, then remove dead
-coordination states, relocate domain computation to its singular operation
-owner, and rename or collapse the surviving step around what it actually
-produces. The container closes only when its behavior oracle, test ownership,
-generated recipe surfaces, and generic kind law all agree. A.2 and post-A.2
-product proof remain outside this container.
+**Current container:** repair generated-output authority after the sealed
+natural-wonder planning cut exposed an impossible pre-commit state. Habitat may
+classify and structurally protect a generated destination, but a staged-path
+guard cannot observe whether bytes were hand-authored or produced by the owner
+generator. Nx already owns the truthful oracle: regenerate from canonical
+inputs and prove tracked output currentness. Retire any action-provenance claim
+that the system cannot observe; keep generated-path classification and exact
+currentness at their existing owners. A.2 and post-A.2 product proof remain
+outside this container.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -52,13 +53,13 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** trace the placement planner from static setup and current-engine
-observation through its two domain operations, immutable plan artifact,
-materialization consumer, metrics, visualization, parity capture, and tests.
-Use that complete behavior graph to decide what survives. Burn down one
-behavior-preserving semantic owner at a time, land it immediately, then apply
-the same earnedness lens to the remaining closed steps instead of launching a
-broad hybrid rewrite.
+**Gradient:** classify the failed generated-zone assertion by its observable
+oracle, remove the impossible staged-mutation authority without weakening
+generated path classification, confirm `generated:check` remains in the native
+build/CI graph, and prove the hook accepts owner-generated current output while
+the currentness owner rejects drift. Land that correction alone, then return
+to the remaining closed steps and burn down one behavior-preserving semantic
+owner at a time.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty

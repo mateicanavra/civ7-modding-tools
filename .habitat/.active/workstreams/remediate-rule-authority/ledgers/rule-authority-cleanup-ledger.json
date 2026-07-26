@@ -2,14 +2,14 @@
   "schemaVersion": 2,
   "kind": "habitat.ruleAuthorityCleanup.operationalLedger",
   "status": "canonical-operational-source",
-  "updatedOn": "2026-07-21",
+  "updatedOn": "2026-07-26",
   "recordPolicy": "This JSON file is the only machine-readable operational source for rule authority cleanup: live rule rows, retired/stale references, queued/completed slices, blockers, findings, counts, and gate state. Markdown receipts may explain completed slices, but they must not duplicate or define active rule rows, queue, blockers, or counts.",
   "controllingFrame": ".habitat/.active/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/.active/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
   "corpus": {
-    "liveManifestCount": 125,
-    "currentRowCount": 125,
-    "retiredHistoricalRowCount": 40,
+    "liveManifestCount": 112,
+    "currentRowCount": 124,
+    "retiredHistoricalRowCount": 41,
     "duplicateLiveRows": []
   },
   "counts": {
@@ -18,21 +18,21 @@
       "closed structure inversion": 2,
       "consolidation/dedup": 1,
       "context admission": 27,
-      "no action": 53,
+      "no action": 52,
       "positive authority creation": 15,
       "retirement/garbage collection": 3,
       "runtime/source validation": 3,
       "split by owner": 14
     },
     "packetNeeded": {
-      "false": 125
+      "false": 124
     },
     "layer2Status": {
       "blocked-prior-source-owner-design": 1,
       "decision-packet-accepted; deletion-blocked-partial-absorber": 1,
       "decision-packet-accepted; split-generalization-needed": 3,
       "excluded-native-rail-not-semantic-remediation": 1,
-      "none": 88,
+      "none": 87,
       "packet-complete": 17,
       "transition-decision-accepted": 14
     }
@@ -957,15 +957,6 @@
       "expectedRemediation": "Implemented: admitted the G9 wrapper-only `advanced` guard into the standard recipe rules lane as live context authority.",
       "evidenceNote": "G9 docs explicitly retain a Habitat guard for standard recipe source and map configs. The current Grit predicate is source-shape recurrence protection, passes, and does not belong in a package-test junk drawer or a generic config remainder. Corrective local-proxy review left this settled: it is broad standard-recipe persisted `advanced` recurrence protection, not a stage-specific proxy.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/rule.json"
-    },
-    {
-      "ruleId": "protect_generated_map_entrypoints_from_hand_edits",
-      "lane": "mixed blueprints",
-      "actionDecision": "no action",
-      "packetNeeded": false,
-      "expectedRemediation": "Stay as generated-zone guard.",
-      "evidenceNote": "Generated files carry headers and are recreated by generator.",
-      "currentPath": ".habitat/blueprints/mod-map/protect_generated_map_entrypoints_from_hand_edits/rule.json"
     },
     {
       "ruleId": "require_artifact_file_shape",
@@ -3258,6 +3249,19 @@
     }
   ],
   "retiredRules": [
+    {
+      "ruleId": "protect_generated_map_entrypoints_from_hand_edits",
+      "lane": "mixed blueprints",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Retired without replacement. Nx `mod-swooper-maps:generated:check` owns exact generated-output currentness while host policy retains generated-path classification.",
+      "evidenceNote": "The file-layer guard observed only staged paths and therefore refused owner-generated output exactly as it refused hand-authored drift. Deterministic currentness detects missing, mismatched, and unexpected tracked output without claiming unobservable write provenance.",
+      "currentPath": null,
+      "previousPath": ".habitat/blueprints/mod-map/protect_generated_map_entrypoints_from_hand_edits/rule.json",
+      "retiredBy": "refactor(habitat): retire unobservable generated edit guard",
+      "retiredOn": "2026-07-26",
+      "retiredReason": "Staged-path mutation cannot distinguish generator output from a hand edit; the existing Nx-owned currentness oracle already proves the only meaningful repository state."
+    },
     {
       "ruleId": "require_standard_recipe_tag_catalog_owner_tokens",
       "lane": "standard recipe top-level",

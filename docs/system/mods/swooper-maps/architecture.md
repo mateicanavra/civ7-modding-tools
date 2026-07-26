@@ -20,11 +20,15 @@ full recipe config in one source file.
 Shipped map variants are authored only as
 `mods/mod-swooper-maps/src/maps/configs/*.config.json`. Each file contains the
 map id, display name, description, recipe id, sort order, optional latitude
-bounds, and the full flat standard-recipe config payload. `bun run --cwd
-mods/mod-swooper-maps gen:maps` validates that directory and generates the
-per-map entry modules plus Civ7 map rows, modinfo imports, localization rows,
-and the Studio built-in config catalog. Do not hand-author shipped map wrappers
-or shipped `.config.ts` files.
+bounds, and the full flat standard-recipe config payload.
+`nx run mod-swooper-maps:gen:maps` validates that directory and generates the
+tracked per-map entry modules plus Civ7 map rows, modinfo imports, and
+localization rows. `gen:studio-map-catalog` separately projects the same source
+index into Studio's built-in catalog. Do not hand-author shipped map wrappers
+or shipped `.config.ts` files. The native `mod-swooper-maps:build` graph depends
+on `generated:check`, which compares the complete tracked map and mod output
+plan with the canonical inputs and is the currentness authority for those
+files.
 
 ## Physics-Truth Cutover (Ecology + Placement)
 

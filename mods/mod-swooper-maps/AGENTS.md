@@ -19,6 +19,10 @@ Scope: `mods/mod-swooper-maps/**`
 - Run `nx run mod-swooper-maps:build`, `nx run mod-swooper-maps:check`, and
   `nx run mod-swooper-maps:test`. Nx owns upstream build ordering; do not build
   workspace dependencies manually.
+- Treat `src/maps/generated/**` as tracked generator output. Change the
+  canonical map configs or generator, run `nx run mod-swooper-maps:gen:maps`,
+  and let the build-owned `generated:check` target prove exact currentness; do
+  not edit generated entrypoints by hand.
 - Prefer regenerating `mod/` through the Nx build target over editing build
   artifacts.
 - Placement composes `wonders`, `regions`, and `starts` modules in causal
