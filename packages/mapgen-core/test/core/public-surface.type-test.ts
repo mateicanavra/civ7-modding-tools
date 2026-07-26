@@ -32,6 +32,14 @@ MapGenAuthoring.observeValidatedArtifactInternal;
 MapGenContracts.readValidatedArtifact;
 // @ts-expect-error Contract-only modules cannot acquire runtime observation authority.
 MapGenContracts.observeValidatedArtifact;
+// @ts-expect-error Artifact authors declare exact typed arrays in schemas instead of plumbing helper arrays.
+MapGenAuthoring.appendArtifactTypedArrayIssues;
+// @ts-expect-error Grid-coordinate semantic issues are emitted through the contextual issue sink.
+MapGenAuthoring.appendArtifactGridCoordinateIssues;
+// @ts-expect-error Cell count is supplied by Core through refinement facilities.
+MapGenAuthoring.artifactCellCount;
+// @ts-expect-error Contract-only authoring has no legacy artifact validation helpers.
+MapGenContracts.appendArtifactTypedArrayIssues;
 // @ts-expect-error Tag satisfaction is executor-owned rather than a public engine command.
 MapGenEngine.isDependencyTagSatisfied;
 // @ts-expect-error Satisfaction-state construction is executor-owned.
@@ -55,9 +63,21 @@ type PublicTraceSession = MapGenTrace.TraceSession;
 type PublicOpRef = MapGenAuthoring.OpRef;
 // @ts-expect-error Strategy definitions and descriptors supersede the unused declaration-only shape.
 type PublicOpStrategy = MapGenAuthoring.OpStrategy;
+// @ts-expect-error Artifact validation issue storage is internal to Core.
+type PublicArtifactValidationIssue = MapGenAuthoring.ArtifactValidationIssue;
+// @ts-expect-error Artifact refinement callbacks are inferred from defineArtifact.
+type PublicArtifactRefinement = MapGenAuthoring.ArtifactRefinement;
+// @ts-expect-error Artifact validator plumbing is retained only by canonical artifacts.
+type PublicArtifactValidator = MapGenAuthoring.ArtifactValidator;
+// @ts-expect-error Validation context is inferred from each artifact's mandatory validate method.
+type PublicArtifactValidationContext = MapGenAuthoring.ArtifactValidationContext;
 
 void (undefined as unknown as PublicTraceSession);
 void (undefined as unknown as PublicOpRef);
 void (undefined as unknown as PublicOpStrategy);
+void (undefined as unknown as PublicArtifactValidationIssue);
+void (undefined as unknown as PublicArtifactRefinement);
+void (undefined as unknown as PublicArtifactValidator);
+void (undefined as unknown as PublicArtifactValidationContext);
 void (undefined as unknown as PublicStepFacetSinks);
 void (undefined as unknown as PublicStepFacetFailure);

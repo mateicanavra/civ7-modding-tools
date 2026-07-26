@@ -14,12 +14,12 @@
   "lane": "enforced",
   "forbids": "artifact indexes without one closed direct defineArtifactCatalog authority assembled from named sibling artifact imports",
   "why": "An artifact directory has one typed catalog authority. Named imports retain the semantic lookup key while every value remains the exact canonical Artifact created by its owner. Consumers need no second module projection because schema and complete admission are properties of the same object. Exact sibling completeness remains deferred until Habitat has first-class blueprint membership.",
-  "remediate": "Import sibling authorities as import { artifact as semanticName } from './name.artifact.js', include those bindings in one exported defineArtifactCatalog object, and export no second runtime catalog or per-artifact alias.",
+  "remediate": "In a domain module's artifacts/index.ts, import sibling authorities as import { artifact as semanticName } from './name.artifact.js', include those bindings in one exported defineArtifactCatalog object, and export no second runtime catalog or per-artifact alias.",
   "message": "Artifact index.ts must expose one non-empty direct catalog of named sibling artifact authorities.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/**/artifacts/index.ts"]
+      "patterns": ["mods/*/src/domain/*/modules/*/artifacts/index.ts"]
     }
   ],
   "hookCheck": true,

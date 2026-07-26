@@ -1,21 +1,5 @@
-import type { ArtifactValidationIssue } from "@swooper/mapgen-core/authoring/contracts";
-import {
-  appendArtifactTypedArrayIssues,
-  defineArtifact,
-  Type,
-  TypedArraySchemas,
-} from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { MeshBoundingBoxSchema } from "../model/atoms/bounding-box.schema.js";
-
-type Mesh = Readonly<{
-  cellCount: number;
-  wrapWidth: number;
-  siteX: Float32Array;
-  siteY: Float32Array;
-  neighborsOffsets: Int32Array;
-  neighbors: Int32Array;
-  areas: Float32Array;
-}>;
 
 /** Registers Foundation's neighborhood-mesh artifact. */
 export const artifact = defineArtifact({
@@ -25,11 +9,13 @@ export const artifact = defineArtifact({
     {
       cellCount: Type.Integer({ minimum: 1, description: "Number of cells in the mesh." }),
       wrapWidth: Type.Number({ description: "Periodic east-west span of the mesh." }),
-      siteX: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
-      siteY: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
-      neighborsOffsets: TypedArraySchemas.i32({ cardinality: "constructor-only" }),
+      siteX: TypedArraySchemas.f32({ cardinality: ["cellCount"] }),
+      siteY: TypedArraySchemas.f32({ cardinality: ["cellCount"] }),
+      neighborsOffsets: TypedArraySchemas.i32({
+        cardinality: { factors: ["cellCount"], addend: 1 },
+      }),
       neighbors: TypedArraySchemas.i32({ cardinality: "constructor-only" }),
-      areas: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
+      areas: TypedArraySchemas.f32({ cardinality: ["cellCount"] }),
       bbox: MeshBoundingBoxSchema,
     },
     {
@@ -37,22 +23,7 @@ export const artifact = defineArtifact({
       description: "Foundation's wrapped neighborhood mesh and cell topology.",
     }
   ),
-  refine: (value): readonly ArtifactValidationIssue[] => {
-    const mesh = value as Mesh;
-    const cellCount = mesh.cellCount;
-    const issues: ArtifactValidationIssue[] = [];
-    if (mesh.wrapWidth <= 0) issues.push({ message: "wrapWidth must be finite and positive" });
-    appendArtifactTypedArrayIssues(issues, "siteX", mesh.siteX, Float32Array, cellCount);
-    appendArtifactTypedArrayIssues(issues, "siteY", mesh.siteY, Float32Array, cellCount);
-    appendArtifactTypedArrayIssues(
-      issues,
-      "neighborsOffsets",
-      mesh.neighborsOffsets,
-      Int32Array,
-      cellCount + 1
-    );
-    appendArtifactTypedArrayIssues(issues, "neighbors", mesh.neighbors, Int32Array);
-    appendArtifactTypedArrayIssues(issues, "areas", mesh.areas, Float32Array, cellCount);
-    return issues;
+  refine: (value, { issues }) => {
+    if (value.wrapWidth <= 0) issues.add("wrapWidth must be finite and positive");
   },
 });

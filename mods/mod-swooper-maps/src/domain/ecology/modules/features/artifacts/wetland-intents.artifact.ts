@@ -1,9 +1,4 @@
-import {
-  type ArtifactValidationIssue,
-  appendArtifactGridCoordinateIssues,
-  defineArtifact,
-  Type,
-} from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { WetlandFeaturePlacementSchema } from "../model/atoms/index.js";
 
 /**
@@ -17,14 +12,7 @@ export const artifact = defineArtifact({
   schema: Type.Array(WetlandFeaturePlacementSchema, {
     description: "Ordered wetland-family feature intents admitted before Civ7 projection.",
   }),
-  refine: (input, context): readonly ArtifactValidationIssue[] => {
-    const issues: ArtifactValidationIssue[] = [];
-    appendArtifactGridCoordinateIssues(
-      issues,
-      "wetlandIntents",
-      input as readonly Readonly<{ x: number; y: number }>[],
-      context?.dimensions
-    );
-    return issues;
+  refine: (intents, { issues }) => {
+    issues.addGridCoordinates("wetlandIntents", intents);
   },
 });

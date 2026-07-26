@@ -1,9 +1,11 @@
 import { describe, expect, it } from "bun:test";
 
 import { artifacts } from "@mapgen/domain/foundation/modules/tectonics/artifacts";
+import { TEST_MAP_SIZE } from "../../../../setup.js";
 
 const SYNTHETIC_CELL_COUNT = 2;
 const ERA_COUNT = 5;
+const VALIDATION_CONTEXT = { dimensions: TEST_MAP_SIZE.dimensions };
 
 function validProvenance() {
   return {
@@ -26,13 +28,16 @@ function validProvenance() {
 describe("foundation tectonic-provenance artifact", () => {
   it("keeps one tracer correspondence for every declared era", () => {
     const provenance = validProvenance();
-    expect(artifacts.tectonicProvenance.validate(provenance)).toEqual([]);
+    expect(artifacts.tectonicProvenance.validate(provenance, VALIDATION_CONTEXT)).toEqual([]);
 
     const messages = artifacts.tectonicProvenance
-      .validate({
-        ...provenance,
-        tracerIndex: provenance.tracerIndex.slice(1),
-      })
+      .validate(
+        {
+          ...provenance,
+          tracerIndex: provenance.tracerIndex.slice(1),
+        },
+        VALIDATION_CONTEXT
+      )
       .map((issue) => issue.message);
 
     expect(messages).toContain("tracerIndex length must match eraCount");

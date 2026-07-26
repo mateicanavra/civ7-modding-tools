@@ -1,40 +1,11 @@
-import {
-  type ArtifactValidationIssue,
-  defineArtifact,
-  Type,
-} from "@swooper/mapgen-core/authoring/contracts";
-import {
-  type StartFairnessReport,
-  StartFairnessReportSchema,
-} from "../model/atoms/start-fairness.schema.js";
+import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { StartFairnessReportSchema } from "../model/atoms/start-fairness.schema.js";
 import {
   StartInputCoverageRowSchema,
   StartRejectionCountSchema,
   StartTierCountsSchema,
 } from "../model/atoms/start-planning-evidence.schema.js";
-import { type StartSeat, StartSeatSchema } from "../model/atoms/start-seat.schema.js";
-
-type StartAssignment = Readonly<{
-  width: number;
-  height: number;
-  positions: readonly number[];
-  seats: readonly StartSeat[];
-  fairnessReport: StartFairnessReport;
-  status: "full" | "degraded";
-  assigned: number;
-  unseatedCount: number;
-  rungCounts: Readonly<{
-    regional: number;
-    openPool: number;
-    qualityRelaxed: number;
-    spacingRelaxed: number;
-  }>;
-  primaryAssigned: number;
-  islandClusterAssigned: number;
-  marginalAssigned: number;
-  noneAssigned: number;
-  candidateCount: number;
-}>;
+import { StartSeatSchema } from "../model/atoms/start-seat.schema.js";
 
 /**
  * Registers the stamped, fairness-audited player start assignment consumed by
@@ -82,22 +53,19 @@ export const artifact = defineArtifact({
         "Stamped player starts with per-seat provenance, fairness evidence, fallback counts, and explicit input coverage.",
     }
   ),
-  refine: (input): readonly ArtifactValidationIssue[] => {
-    const value = input as StartAssignment;
-    const issues: ArtifactValidationIssue[] = [];
+  refine: (value, { issues }) => {
     const size = value.width * value.height;
     if (!Number.isSafeInteger(size) || size <= 0) {
-      return [
-        {
-          message: `startAssignment has invalid dimensions ${String(value.width)}x${String(value.height)}.`,
-        },
-      ];
+      issues.add(
+        `startAssignment has invalid dimensions ${String(value.width)}x${String(value.height)}.`
+      );
+      return;
     }
     const { positions, seats } = value;
     if (positions.length !== seats.length) {
-      issues.push({
-        message: `startAssignment.positions length ${positions.length} != seats length ${seats.length}.`,
-      });
+      issues.add(
+        `startAssignment.positions length ${positions.length} != seats length ${seats.length}.`
+      );
     }
 
     const seenPlots = new Set<number>();
@@ -108,29 +76,23 @@ export const artifact = defineArtifact({
       const seat = seats[i]!;
       const { plotIndex, realizedRegionSlot } = seat;
       if (positions[i] !== seat.plotIndex) {
-        issues.push({
-          message: `startAssignment.positions[${i}] does not match seats[${i}].plotIndex.`,
-        });
+        issues.add(`startAssignment.positions[${i}] does not match seats[${i}].plotIndex.`);
       }
       if (seat.seatIndex !== i) {
-        issues.push({
-          message: `startAssignment seats[${i}].seatIndex ${String(seat.seatIndex)} out of order.`,
-        });
+        issues.add(`startAssignment seats[${i}].seatIndex ${String(seat.seatIndex)} out of order.`);
       }
       if (plotIndex >= 0) {
         seated += 1;
         if (realizedRegionSlot !== 1 && realizedRegionSlot !== 2) {
-          issues.push({
-            message: `startAssignment seated seat ${i} must declare realizedRegionSlot 1 or 2; received ${String(seat.realizedRegionSlot)}.`,
-          });
+          issues.add(
+            `startAssignment seated seat ${i} must declare realizedRegionSlot 1 or 2; received ${String(seat.realizedRegionSlot)}.`
+          );
         }
         if (plotIndex >= size) {
-          issues.push({
-            message: `startAssignment seat ${i} plotIndex ${plotIndex} out of bounds.`,
-          });
+          issues.add(`startAssignment seat ${i} plotIndex ${plotIndex} out of bounds.`);
         }
         if (seenPlots.has(plotIndex)) {
-          issues.push({ message: `startAssignment seats two players on plot ${plotIndex}.` });
+          issues.add(`startAssignment seats two players on plot ${plotIndex}.`);
         }
         seenPlots.add(plotIndex);
         if (seat.rung === "regional") rungTotals.regional += 1;
@@ -139,45 +101,37 @@ export const artifact = defineArtifact({
         else if (seat.rung === "spacing-relaxed") rungTotals.spacingRelaxed += 1;
         tierTotals[seat.tier] += 1;
         if (seat.rung !== "regional" && seat.status !== "degraded") {
-          issues.push({
-            message: `startAssignment seat ${i} on rung ${String(seat.rung)} must be degraded.`,
-          });
+          issues.add(`startAssignment seat ${i} on rung ${String(seat.rung)} must be degraded.`);
         }
       } else {
         if (realizedRegionSlot !== 0) {
-          issues.push({
-            message: `startAssignment unseated seat ${i} must declare realizedRegionSlot 0; received ${String(seat.realizedRegionSlot)}.`,
-          });
+          issues.add(
+            `startAssignment unseated seat ${i} must declare realizedRegionSlot 0; received ${String(seat.realizedRegionSlot)}.`
+          );
         }
         if (seat.status !== "degraded") {
-          issues.push({
-            message: `startAssignment unseated seat ${i} must have status degraded.`,
-          });
+          issues.add(`startAssignment unseated seat ${i} must have status degraded.`);
         }
         if (!seat.imputedFlags.includes("unseated")) {
-          issues.push({
-            message: `startAssignment unseated seat ${i} must carry the 'unseated' flag.`,
-          });
+          issues.add(`startAssignment unseated seat ${i} must carry the 'unseated' flag.`);
         }
       }
     }
 
     if (value.assigned !== seated) {
-      issues.push({
-        message: `startAssignment.assigned ${String(value.assigned)} != seated seats ${seated}.`,
-      });
+      issues.add(`startAssignment.assigned ${String(value.assigned)} != seated seats ${seated}.`);
     }
     if (value.unseatedCount !== seats.length - seated) {
-      issues.push({
-        message: `startAssignment.unseatedCount ${String(value.unseatedCount)} != ${seats.length - seated}.`,
-      });
+      issues.add(
+        `startAssignment.unseatedCount ${String(value.unseatedCount)} != ${seats.length - seated}.`
+      );
     }
     for (const key of ["regional", "openPool", "qualityRelaxed", "spacingRelaxed"] as const) {
       const expected = rungTotals[key];
       if (value.rungCounts[key] !== expected) {
-        issues.push({
-          message: `startAssignment.rungCounts.${key} ${String(value.rungCounts[key])} != ${expected}.`,
-        });
+        issues.add(
+          `startAssignment.rungCounts.${key} ${String(value.rungCounts[key])} != ${expected}.`
+        );
       }
     }
     for (const [field, tier] of [
@@ -188,24 +142,22 @@ export const artifact = defineArtifact({
     ] as const) {
       const expected = tierTotals[tier];
       if (value[field] !== expected) {
-        issues.push({
-          message: `startAssignment.${field} ${String(value[field])} != ${expected}.`,
-        });
+        issues.add(`startAssignment.${field} ${String(value[field])} != ${expected}.`);
       }
     }
 
     const report = value.fairnessReport;
     if (report.parity.length !== seats.length) {
-      issues.push({
-        message: `startAssignment.fairnessReport.parity length ${report.parity.length} != seats ${seats.length}.`,
-      });
+      issues.add(
+        `startAssignment.fairnessReport.parity length ${report.parity.length} != seats ${seats.length}.`
+      );
     }
     const gap = report.worstPairGap;
     const { tolerance } = report;
     if (typeof gap === "number" && report.balanced !== gap <= tolerance) {
-      issues.push({
-        message: `startAssignment.fairnessReport.balanced ${String(report.balanced)} inconsistent with gap ${gap} vs tolerance ${tolerance}.`,
-      });
+      issues.add(
+        `startAssignment.fairnessReport.balanced ${String(report.balanced)} inconsistent with gap ${gap} vs tolerance ${tolerance}.`
+      );
     }
 
     const expectedStatus = seats.every(
@@ -219,11 +171,9 @@ export const artifact = defineArtifact({
       ? "full"
       : "degraded";
     if (value.status !== expectedStatus) {
-      issues.push({
-        message: `startAssignment.status ${value.status} != derived ${expectedStatus} from per-seat assignment truth.`,
-      });
+      issues.add(
+        `startAssignment.status ${value.status} != derived ${expectedStatus} from per-seat assignment truth.`
+      );
     }
-
-    return issues;
   },
 });

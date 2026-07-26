@@ -60,6 +60,10 @@ Choose typed-array cardinality from the input relation the operation can prove:
 - use `"constructor-only"` only when the input genuinely has no fixed
   input-relative length relation.
 
+Do not use `"map-grid"` in an operation input. It derives cardinality from an
+artifact validation context, which operations do not own, so operation
+construction refuses it.
+
 ```ts
 input: Type.Object({
   width: Type.Integer({ minimum: 1 }),
@@ -74,8 +78,9 @@ input: Type.Object({
 }),
 ```
 
-Only typed-array schemas reachable through an operation's input compile this
-metadata into runtime admission. Operation outputs and artifact schemas do not.
+Operation inputs compile these input-relative modes through the shared
+schema-owned admission walker. Artifact definitions use the same walker with
+their mandatory admitted-dimensions context.
 
 Representative owner-local operation contract:
 

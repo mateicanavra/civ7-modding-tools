@@ -5,10 +5,19 @@ name = "mapgen-domain-module-artifact-collections"
 root = "mods/*/src/domain/*/modules/*/artifacts"
 kind = "directory"
 mode = "closed"
-allowEmpty = true
 required = [
   "index.ts",
-]
-allowed = [
   "*.artifact.ts",
 ]
+
+[[scopes]]
+name = "mapgen-domain-module-artifact-catalog-files"
+root = "mods/*/src/domain/*/modules/*/artifacts/index.ts"
+kind = "file"
+mode = "closed"
+
+[[scopes]]
+name = "mapgen-domain-module-artifact-owner-files"
+root = "mods/*/src/domain/*/modules/*/artifacts/*.artifact.ts"
+kind = "file"
+mode = "closed"

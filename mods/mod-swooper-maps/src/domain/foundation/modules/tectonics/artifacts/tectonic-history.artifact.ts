@@ -1,35 +1,31 @@
-import type { ArtifactValidationIssue } from "@swooper/mapgen-core/authoring/contracts";
-import {
-  appendArtifactTypedArrayIssues,
-  defineArtifact,
-  Type,
-  TypedArraySchemas,
-} from "@swooper/mapgen-core/authoring/contracts";
-import {
-  type PlateMembership,
-  PlateMembershipSchema,
-} from "../model/atoms/plate-membership.schema.js";
-import {
-  type TectonicHistoryEra,
-  TectonicHistoryEraSchema,
-} from "../model/atoms/tectonic-history-era.schema.js";
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { PlateMembershipSchema } from "../model/atoms/plate-membership.schema.js";
+import { TectonicHistoryEraSchema } from "../model/atoms/tectonic-history-era.schema.js";
 
-type TectonicHistory = Readonly<{
-  eraCount: number;
-  eras: ReadonlyArray<TectonicHistoryEra>;
-  plateIdByEra: ReadonlyArray<PlateMembership>;
-  upliftTotal: Uint8Array;
-  collisionTotal: Uint8Array;
-  subductionTotal: Uint8Array;
-  fractureTotal: Uint8Array;
-  volcanismTotal: Uint8Array;
-  upliftRecentFraction: Uint8Array;
-  collisionRecentFraction: Uint8Array;
-  subductionRecentFraction: Uint8Array;
-  lastActiveEra: Uint8Array;
-  lastCollisionEra: Uint8Array;
-  lastSubductionEra: Uint8Array;
-}>;
+const TECTONIC_HISTORY_ROLLUP_KEYS = [
+  "upliftTotal",
+  "collisionTotal",
+  "subductionTotal",
+  "fractureTotal",
+  "volcanismTotal",
+  "upliftRecentFraction",
+  "collisionRecentFraction",
+  "subductionRecentFraction",
+  "lastActiveEra",
+  "lastCollisionEra",
+  "lastSubductionEra",
+] as const;
+
+const TECTONIC_HISTORY_ERA_KEYS = [
+  "boundaryType",
+  "upliftPotential",
+  "collisionPotential",
+  "subductionPotential",
+  "riftPotential",
+  "shearStress",
+  "volcanism",
+  "fracture",
+] as const;
 
 /** Registers Foundation's tectonic-history artifact. */
 export const artifact = defineArtifact({
@@ -57,74 +53,35 @@ export const artifact = defineArtifact({
       description: "Reconstructed tectonic eras, plate membership, totals, and recency evidence.",
     }
   ),
-  refine: (value): readonly ArtifactValidationIssue[] => {
-    const history = value as TectonicHistory;
-    const issues: ArtifactValidationIssue[] = [];
-    if (history.eras.length !== history.eraCount) {
-      issues.push({ message: "eras length must match eraCount" });
+  refine: (value, { issues }) => {
+    if (value.eras.length !== value.eraCount) {
+      issues.add("eras length must match eraCount");
     }
-    if (history.plateIdByEra.length !== history.eraCount) {
-      issues.push({ message: "plateIdByEra length must match eraCount" });
+    if (value.plateIdByEra.length !== value.eraCount) {
+      issues.add("plateIdByEra length must match eraCount");
     }
-    const totals = [
-      history.upliftTotal,
-      history.collisionTotal,
-      history.subductionTotal,
-      history.fractureTotal,
-      history.volcanismTotal,
-      history.upliftRecentFraction,
-      history.collisionRecentFraction,
-      history.subductionRecentFraction,
-      history.lastActiveEra,
-      history.lastCollisionEra,
-      history.lastSubductionEra,
-    ].filter((candidate): candidate is Uint8Array => candidate instanceof Uint8Array);
-    const cellCount = totals[0]?.length ?? 0;
-    if (cellCount <= 0) issues.push({ message: "tectonicHistory arrays must be nonempty" });
-    for (const key of [
-      "upliftTotal",
-      "collisionTotal",
-      "subductionTotal",
-      "fractureTotal",
-      "volcanismTotal",
-      "upliftRecentFraction",
-      "collisionRecentFraction",
-      "subductionRecentFraction",
-      "lastActiveEra",
-      "lastCollisionEra",
-      "lastSubductionEra",
-    ] as const) {
-      appendArtifactTypedArrayIssues(issues, key, history[key], Uint8Array, cellCount);
+    const cellCount = value.upliftTotal.length;
+    if (cellCount <= 0) issues.add("tectonicHistory arrays must be nonempty");
+    for (const key of TECTONIC_HISTORY_ROLLUP_KEYS) {
+      if (value[key].length !== cellCount) {
+        issues.add(`Expected ${key} length ${cellCount} (received ${value[key].length}).`);
+      }
     }
-    history.eras.forEach((era, eraIndex) => {
-      for (const key of [
-        "boundaryType",
-        "upliftPotential",
-        "collisionPotential",
-        "subductionPotential",
-        "riftPotential",
-        "shearStress",
-        "volcanism",
-        "fracture",
-      ] as const) {
-        appendArtifactTypedArrayIssues(
-          issues,
-          `eras[${eraIndex}].${key}`,
-          era[key],
-          Uint8Array,
-          cellCount
+    value.eras.forEach((era, eraIndex) => {
+      for (const key of TECTONIC_HISTORY_ERA_KEYS) {
+        if (era[key].length !== cellCount) {
+          issues.add(
+            `Expected eras[${eraIndex}].${key} length ${cellCount} (received ${era[key].length}).`
+          );
+        }
+      }
+    });
+    value.plateIdByEra.forEach((era, eraIndex) => {
+      if (era.length !== cellCount) {
+        issues.add(
+          `Expected plateIdByEra[${eraIndex}] length ${cellCount} (received ${era.length}).`
         );
       }
     });
-    history.plateIdByEra.forEach((era, eraIndex) => {
-      appendArtifactTypedArrayIssues(
-        issues,
-        `plateIdByEra[${eraIndex}]`,
-        era,
-        Int16Array,
-        cellCount
-      );
-    });
-    return issues;
   },
 });

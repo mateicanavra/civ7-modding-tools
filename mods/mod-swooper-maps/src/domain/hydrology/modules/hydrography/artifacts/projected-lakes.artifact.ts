@@ -1,15 +1,4 @@
-import {
-  type ArtifactValidationIssue,
-  appendArtifactTypedArrayIssues,
-  artifactCellCount,
-  defineArtifact,
-  Type,
-  TypedArraySchemas,
-} from "@swooper/mapgen-core/authoring/contracts";
-
-type ProjectedLakes = Readonly<{
-  lakeMask: Uint8Array;
-}>;
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Publishes the exact lake mask accepted at Hydrology's Civ7 projection boundary.
@@ -21,6 +10,7 @@ export const artifact = defineArtifact({
   schema: Type.Object(
     {
       lakeMask: TypedArraySchemas.u8({
+        cardinality: "map-grid",
         description:
           "Mountain-filtered Hydrology lake candidates accepted as water immediately after Civ7 stamping.",
       }),
@@ -31,16 +21,4 @@ export const artifact = defineArtifact({
         "Immutable accepted-lake projection consumed by later surface-continuity checks.",
     }
   ),
-  refine: (input, context) => {
-    const value = input as ProjectedLakes;
-    const issues: ArtifactValidationIssue[] = [];
-    appendArtifactTypedArrayIssues(
-      issues,
-      "lakeMask",
-      value.lakeMask,
-      Uint8Array,
-      artifactCellCount(context)
-    );
-    return Object.freeze(issues);
-  },
 });

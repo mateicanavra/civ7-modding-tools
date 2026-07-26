@@ -1,9 +1,4 @@
-import {
-  type ArtifactValidationIssue,
-  appendArtifactGridCoordinateIssues,
-  defineArtifact,
-  Type,
-} from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { FloodplainFeaturePlacementSchema } from "../model/atoms/index.js";
 
 /**
@@ -16,14 +11,7 @@ export const artifact = defineArtifact({
   schema: Type.Array(FloodplainFeaturePlacementSchema, {
     description: "Ordered floodplain feature intents admitted before Civ7 projection.",
   }),
-  refine: (input, context): readonly ArtifactValidationIssue[] => {
-    const issues: ArtifactValidationIssue[] = [];
-    appendArtifactGridCoordinateIssues(
-      issues,
-      "floodplainIntents",
-      input as readonly Readonly<{ x: number; y: number }>[],
-      context?.dimensions
-    );
-    return issues;
+  refine: (intents, { issues }) => {
+    issues.addGridCoordinates("floodplainIntents", intents);
   },
 });

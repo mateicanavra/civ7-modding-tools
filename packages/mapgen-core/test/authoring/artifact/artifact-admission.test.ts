@@ -1,12 +1,20 @@
 import { describe, expect, it } from "bun:test";
 import { implementArtifacts } from "@mapgen/authoring/artifact/runtime.js";
 import {
-  type ArtifactValidationContext,
   defineArtifact,
   defineArtifactCatalog,
   defineStep,
   Type,
+  TypedArraySchemas,
 } from "@mapgen/authoring/index.js";
+import { admitMapSetup } from "@mapgen/core/map-setup.js";
+
+const admittedSetup = admitMapSetup({
+  mapSeed: 42,
+  dimensions: { width: 2, height: 3 },
+  latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+});
+const validationContext = { dimensions: admittedSetup.dimensions } as const;
 
 function defineTestArtifact() {
   return defineArtifact({
@@ -59,80 +67,204 @@ describe("artifact admission", () => {
     ).toThrow("must be a canonical artifact");
   });
 
-  it("runs structural schema admission before the optional refinement", () => {
-    const context = { dimensions: { width: 2, height: 3 } } as const;
-    const calls: Array<readonly [unknown, ArtifactValidationContext | undefined]> = [];
+  it("runs structural, exact typed-array, and semantic admission as ordered phases", () => {
+    const calls: unknown[] = [];
     const artifact = defineArtifact({
-      name: "refinedArtifact",
-      id: "artifact:test.admission.refined",
+      name: "phasedArtifact",
+      id: "artifact:test.admission.phased",
       schema: Type.Object(
-        { first: Type.Number(), second: Type.String() },
+        {
+          count: Type.Number(),
+          grid: TypedArraySchemas.u8({ cardinality: "map-grid" }),
+        },
         { additionalProperties: false }
       ),
-      refine: (value, receivedContext) => {
-        calls.push([value, receivedContext]);
-        return [{ message: "semantic failure" }];
+      refine: (value, facilities) => {
+        calls.push({ value, facilities });
+        facilities.issues.add("semantic failure");
+        return undefined;
       },
     });
 
-    const structural = artifact.validate({ first: "invalid", second: 2 }, context);
-    expect(structural).toEqual([
-      { message: "/first must be number" },
-      { message: "/second must be string" },
+    expect(
+      artifact.validate({ count: "invalid", grid: new Int8Array(6) }, validationContext)
+    ).toEqual([{ message: "/count must be number" }]);
+    expect(calls).toEqual([]);
+
+    expect(artifact.validate({ count: 1, grid: new Int8Array(6) }, validationContext)).toEqual([
+      { message: "Expected $.grid to be Uint8Array." },
     ]);
     expect(calls).toEqual([]);
 
-    const valid = { first: 1, second: "two" };
-    expect(artifact.validate(valid, context)).toEqual([{ message: "semantic failure" }]);
-    expect(calls).toEqual([[valid, context]]);
+    expect(artifact.validate({ count: 1, grid: new Uint8Array(5) }, validationContext)).toEqual([
+      { message: "Expected $.grid length 6 (received 5)." },
+    ]);
+    expect(calls).toEqual([]);
+
+    const value = { count: 1, grid: new Uint8Array(6) };
+    expect(artifact.validate(value, validationContext)).toEqual([{ message: "semantic failure" }]);
+    const facilities = (calls[0] as { facilities: Record<string, unknown> }).facilities;
+    expect(calls).toHaveLength(1);
+    expect((calls[0] as { value: unknown }).value).toBe(value);
+    expect(facilities.cellCount).toBe(6);
+    expect(facilities.dimensions).toBe(admittedSetup.dimensions);
+    expect(Object.isFrozen(facilities)).toBe(true);
+    expect(Object.isFrozen(facilities.dimensions)).toBe(true);
+    expect(Object.isFrozen(facilities.issues)).toBe(true);
   });
 
-  it("contains asynchronous refinements and rejects them at the synchronous boundary", async () => {
+  it("keeps map-grid distinct from default input-relative cardinality", () => {
     const artifact = defineArtifact({
-      name: "asyncRefinement",
-      id: "artifact:test.admission.async",
-      schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
-      refine: (async () => {
-        throw new Error("late refinement failure");
-      }) as unknown as () => readonly { message: string }[],
+      name: "cardinalityModes",
+      id: "artifact:test.admission.cardinality-modes",
+      schema: Type.Object(
+        {
+          width: Type.Integer(),
+          height: Type.Integer(),
+          inputRelative: TypedArraySchemas.u8(),
+          contextual: TypedArraySchemas.u8({ cardinality: "map-grid" }),
+          constructorOnly: TypedArraySchemas.i16({ cardinality: "constructor-only" }),
+        },
+        { additionalProperties: false }
+      ),
     });
 
-    expect(() => artifact.validate({ value: 1 })).toThrow(
-      "Artifact refinements must return issues synchronously"
-    );
-    await Promise.resolve();
+    expect(
+      artifact.validate(
+        {
+          width: 1,
+          height: 2,
+          inputRelative: new Uint8Array(2),
+          contextual: new Uint8Array(6),
+          constructorOnly: new Int16Array(17),
+        },
+        validationContext
+      )
+    ).toEqual([]);
+    expect(
+      artifact.validate(
+        {
+          width: 1,
+          height: 2,
+          inputRelative: new Uint8Array(6),
+          contextual: new Uint8Array(2),
+          constructorOnly: new Int16Array(17),
+        },
+        validationContext
+      )
+    ).toEqual([
+      { message: "Expected $.contextual length 6 (received 2)." },
+      { message: "Expected $.inputRelative length 2 (received 6)." },
+    ]);
   });
 
-  it("copies and freezes structural and refinement issues in stable order", () => {
-    const source = [{ message: "first" }, { message: "second" }];
-    const firstSourceIssue = source[0]!;
+  it("rejects typed-array subclasses and spoofed views through exact constructor admission", () => {
+    class ExtendedUint8Array extends Uint8Array {}
+    const artifact = defineArtifact({
+      name: "exactConstructor",
+      id: "artifact:test.admission.exact-constructor",
+      schema: Type.Object(
+        {
+          value: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+        },
+        { additionalProperties: false }
+      ),
+    });
+
+    for (const value of [
+      new ExtendedUint8Array(1),
+      new DataView(new ArrayBuffer(1)),
+      { constructor: Uint8Array, length: 1 },
+    ]) {
+      expect(artifact.validate({ value }, validationContext)).toEqual([
+        { message: "Expected $.value to be Uint8Array." },
+      ]);
+    }
+  });
+
+  it("owns semantic issue order, freezing, coordinate checks, and sink closure", () => {
+    let retainedSink:
+      | Readonly<{
+          add: (message: string) => void;
+          addGridCoordinates: (
+            label: string,
+            coordinates: readonly Readonly<{ x: number; y: number }>[]
+          ) => void;
+        }>
+      | undefined;
     const artifact = defineArtifact({
       name: "stableIssues",
       id: "artifact:test.admission.stable-issues",
       schema: Type.Object(
-        { first: Type.Number(), second: Type.String() },
+        {
+          coordinates: Type.Array(
+            Type.Object({ x: Type.Integer(), y: Type.Integer() }, { additionalProperties: false })
+          ),
+        },
         { additionalProperties: false }
       ),
-      refine: () => source,
+      refine: (value, { issues }) => {
+        retainedSink = issues;
+        issues.add("first");
+        issues.addGridCoordinates("coordinates", value.coordinates);
+        issues.add("last");
+        return undefined;
+      },
     });
 
-    const structural = artifact.validate({ extra: true, first: "one", second: 2 });
-    expect(structural).toEqual([
-      { message: "/ must not have additional properties" },
-      { message: "/first must be number" },
-      { message: "/second must be string" },
+    const admitted = artifact.validate(
+      {
+        coordinates: [
+          { x: 1, y: 1 },
+          { x: 1, y: 1 },
+          { x: 2, y: 0 },
+        ],
+      },
+      validationContext
+    );
+    expect(admitted).toEqual([
+      { message: "first" },
+      { message: "coordinates[1] duplicates the tile claim at 1,1." },
+      { message: "coordinates[2] coordinate 2,0 is outside 2x3." },
+      { message: "last" },
     ]);
-    expect(Object.isFrozen(structural)).toBe(true);
-    expect(structural.every(Object.isFrozen)).toBe(true);
+    expect(Object.isFrozen(admitted)).toBe(true);
+    expect(admitted.every(Object.isFrozen)).toBe(true);
+    expect(() => retainedSink?.add("late")).toThrow("Artifact refinement issue sink is closed");
+    expect(() => retainedSink?.addGridCoordinates("late", [])).toThrow(
+      "Artifact refinement issue sink is closed"
+    );
+  });
 
-    const refined = artifact.validate({ first: 1, second: "two" });
-    firstSourceIssue.message = "mutated";
-    source.reverse();
-    expect(refined).toEqual([{ message: "first" }, { message: "second" }]);
-    expect(refined).not.toBe(source);
-    expect(refined[0]).not.toBe(firstSourceIssue);
-    expect(Object.isFrozen(refined)).toBe(true);
-    expect(refined.every(Object.isFrozen)).toBe(true);
+  it("contains thenables and rejects every non-undefined refinement result", async () => {
+    let asyncSink: { add: (message: string) => void } | undefined;
+    const asynchronous = defineArtifact({
+      name: "asyncRefinement",
+      id: "artifact:test.admission.async",
+      schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
+      refine: (async (
+        _value: unknown,
+        facilities: { issues: { add: (message: string) => void } }
+      ) => {
+        asyncSink = facilities.issues;
+        throw new Error("late refinement failure");
+      }) as never,
+    });
+    const nonUndefined = defineArtifact({
+      name: "nonUndefinedRefinement",
+      id: "artifact:test.admission.non-undefined",
+      schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
+      refine: (() => []) as never,
+    });
+
+    expect(() => asynchronous.validate({ value: 1 }, validationContext)).toThrow(
+      "Artifact refinements must return undefined synchronously"
+    );
+    expect(() => asyncSink?.add("late")).toThrow("Artifact refinement issue sink is closed");
+    expect(() => nonUndefined.validate({ value: 1 }, validationContext)).toThrow(
+      "Artifact refinements must return undefined"
+    );
+    await Promise.resolve();
   });
 
   it("rejects hostile artifact definitions before consuming their schema", () => {

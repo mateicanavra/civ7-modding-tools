@@ -1,13 +1,5 @@
-import type { ArtifactValidationIssue } from "@swooper/mapgen-core/authoring/contracts";
-import {
-  appendArtifactTypedArrayIssues,
-  defineArtifact,
-  Type,
-  TypedArraySchemas,
-} from "@swooper/mapgen-core/authoring/contracts";
-import { type Plate, PlateSchema } from "../model/atoms/plate.schema.js";
-
-type PlateGraph = Readonly<{ cellToPlate: Int16Array; plates: ReadonlyArray<Plate> }>;
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { PlateSchema } from "../model/atoms/plate.schema.js";
 
 /** Registers Foundation's plate-graph artifact. */
 export const artifact = defineArtifact({
@@ -23,11 +15,7 @@ export const artifact = defineArtifact({
       description: "Mesh-cell plate membership and index-aligned plate identities.",
     }
   ),
-  refine: (value): readonly ArtifactValidationIssue[] => {
-    const graph = value as PlateGraph;
-    const issues: ArtifactValidationIssue[] = [];
-    appendArtifactTypedArrayIssues(issues, "cellToPlate", graph.cellToPlate, Int16Array);
-    if (graph.plates.length <= 0) issues.push({ message: "plates must be a nonempty array" });
-    return issues;
+  refine: (value, { issues }) => {
+    if (value.plates.length <= 0) issues.add("plates must be a nonempty array");
   },
 });

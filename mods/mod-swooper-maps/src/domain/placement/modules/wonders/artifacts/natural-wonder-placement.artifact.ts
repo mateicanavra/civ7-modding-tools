@@ -1,10 +1,4 @@
-import {
-  type ArtifactValidationIssue,
-  artifactCellCount,
-  defineArtifact,
-  type Static,
-  Type,
-} from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Natural-wonder stamping outcomes (`artifact:placement.naturalWonderPlacement`). One artifact per file by repo convention. */
 const NaturalWonderPlacementCoordinateDigestSchema = Type.Object(
@@ -63,20 +57,6 @@ const NaturalWonderPlacementCoordinateRowSchema = Type.Object(
   }
 );
 
-type NaturalWonderPlacement = Readonly<{
-  plannedCount: number;
-  targetCount: number;
-  placedCount: number;
-  terrainAdjustedCount: number;
-  skippedOutOfBoundsCount: number;
-  rejectedCount: number;
-  shortfallCount: number;
-  rejectionExamples: readonly string[];
-  coordinateEvidence: Static<typeof NaturalWonderPlacementCoordinateEvidenceSchema>;
-  coordinateRows: readonly Static<typeof NaturalWonderPlacementCoordinateRowSchema>[];
-  observedNaturalWonderPlotIndices: readonly number[];
-}>;
-
 /** Registers measured natural-wonder stamping outcomes and exact-run coordinate evidence. */
 export const artifact = defineArtifact({
   name: "naturalWonderPlacement",
@@ -104,14 +84,12 @@ export const artifact = defineArtifact({
         "Measured natural-wonder stamping outcomes; legality rejections remain explicit product evidence.",
     }
   ),
-  refine: (input, context): readonly ArtifactValidationIssue[] => {
-    const value = input as NaturalWonderPlacement;
-    const issues: ArtifactValidationIssue[] = [];
+  refine: (value, { cellCount, issues }) => {
     const { plannedCount, placedCount, rejectedCount, skippedOutOfBoundsCount } = value;
     if (placedCount + rejectedCount + skippedOutOfBoundsCount !== plannedCount) {
-      issues.push({
-        message: `placed ${placedCount} + rejected ${rejectedCount} + skipped ${skippedOutOfBoundsCount} != planned ${plannedCount}.`,
-      });
+      issues.add(
+        `placed ${placedCount} + rejected ${rejectedCount} + skipped ${skippedOutOfBoundsCount} != planned ${plannedCount}.`
+      );
     }
 
     let placedRows = 0;
@@ -122,55 +100,50 @@ export const artifact = defineArtifact({
     }
     const rejectedRowsExpected = rejectedCount + skippedOutOfBoundsCount;
     if (placedRows !== placedCount) {
-      issues.push({
-        message: `coordinateRows placed ${placedRows} != placedCount ${placedCount}.`,
-      });
+      issues.add(`coordinateRows placed ${placedRows} != placedCount ${placedCount}.`);
     }
     if (rejectedRows !== rejectedRowsExpected) {
-      issues.push({
-        message: `coordinateRows rejected ${rejectedRows} != rejected+skipped ${rejectedRowsExpected}.`,
-      });
+      issues.add(
+        `coordinateRows rejected ${rejectedRows} != rejected+skipped ${rejectedRowsExpected}.`
+      );
     }
 
     const { placed: placedDigest, rejected: rejectedDigest } = value.coordinateEvidence;
     if (placedDigest.count !== placedCount) {
-      issues.push({
-        message: `coordinateEvidence.placed.count ${placedDigest.count} != placedCount ${placedCount}.`,
-      });
+      issues.add(
+        `coordinateEvidence.placed.count ${placedDigest.count} != placedCount ${placedCount}.`
+      );
     }
     if (rejectedDigest.count !== rejectedRowsExpected) {
-      issues.push({
-        message: `coordinateEvidence.rejected.count ${rejectedDigest.count} != rejected+skipped ${rejectedRowsExpected}.`,
-      });
+      issues.add(
+        `coordinateEvidence.rejected.count ${rejectedDigest.count} != rejected+skipped ${rejectedRowsExpected}.`
+      );
     }
 
     const observedPlots = new Set<number>();
-    const cellCount = artifactCellCount(context);
     let previousPlotIndex: number | undefined;
     for (const plotIndex of value.observedNaturalWonderPlotIndices) {
-      if (cellCount !== undefined && plotIndex >= cellCount) {
-        issues.push({
-          message: `naturalWonderPlacement observed plot ${plotIndex} exceeds map cell count ${cellCount}.`,
-        });
+      if (plotIndex >= cellCount) {
+        issues.add(
+          `naturalWonderPlacement observed plot ${plotIndex} exceeds map cell count ${cellCount}.`
+        );
       }
       if (previousPlotIndex !== undefined && plotIndex <= previousPlotIndex) {
-        issues.push({
-          message:
-            plotIndex === previousPlotIndex
-              ? `naturalWonderPlacement observed plot ${plotIndex} must be unique.`
-              : "naturalWonderPlacement observed plots must be sorted in ascending order.",
-        });
+        issues.add(
+          plotIndex === previousPlotIndex
+            ? `naturalWonderPlacement observed plot ${plotIndex} must be unique.`
+            : "naturalWonderPlacement observed plots must be sorted in ascending order."
+        );
       }
       previousPlotIndex = plotIndex;
       observedPlots.add(plotIndex);
     }
     for (const row of value.coordinateRows) {
       if (row.status === "placed" && !observedPlots.has(row.plotIndex)) {
-        issues.push({
-          message: `naturalWonderPlacement placed anchor ${row.plotIndex} is absent from final observed wonder plots.`,
-        });
+        issues.add(
+          `naturalWonderPlacement placed anchor ${row.plotIndex} is absent from final observed wonder plots.`
+        );
       }
     }
-    return issues;
   },
 });

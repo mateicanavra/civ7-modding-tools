@@ -1,11 +1,5 @@
-import type { ArtifactValidationIssue } from "@swooper/mapgen-core/authoring/contracts";
 import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
-import {
-  type PlateTopologyNode,
-  PlateTopologyNodeSchema,
-} from "../model/atoms/plate-topology-node.schema.js";
-
-type PlateTopology = Readonly<{ plateCount: number; plates: ReadonlyArray<PlateTopologyNode> }>;
+import { PlateTopologyNodeSchema } from "../model/atoms/plate-topology-node.schema.js";
 
 /** Registers Foundation's plate-topology artifact. */
 export const artifact = defineArtifact({
@@ -23,20 +17,17 @@ export const artifact = defineArtifact({
       description: "Index-aligned plate areas, centroids, and adjacency in map-tile space.",
     }
   ),
-  refine: (value): readonly ArtifactValidationIssue[] => {
-    const topology = value as PlateTopology;
-    const issues: ArtifactValidationIssue[] = [];
-    if (topology.plates.length !== topology.plateCount) {
-      issues.push({ message: "plates length must match plateCount" });
+  refine: (value, { issues }) => {
+    if (value.plates.length !== value.plateCount) {
+      issues.add("plates length must match plateCount");
     }
-    topology.plates.forEach((plate, index) => {
+    value.plates.forEach((plate, index) => {
       if (plate.id !== index) {
-        issues.push({ message: `plates[${index}].id must match its index` });
+        issues.add(`plates[${index}].id must match its index`);
       }
-      if (plate.neighbors.some((neighbor) => neighbor >= topology.plateCount)) {
-        issues.push({ message: `plates[${index}].neighbors contains an invalid plate id` });
+      if (plate.neighbors.some((neighbor) => neighbor >= value.plateCount)) {
+        issues.add(`plates[${index}].neighbors contains an invalid plate id`);
       }
     });
-    return issues;
   },
 });

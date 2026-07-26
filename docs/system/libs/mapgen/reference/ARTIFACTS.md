@@ -15,7 +15,8 @@ Define artifact contracts, their complete admission validators, and publish/read
 
 One `Artifact` owns a data product's identity, schema, and complete admission validator.
 `defineArtifact(...)` always supplies structural schema admission and accepts an optional private
-`refine` callback for cardinality, relational, or domain laws. Catalogs directly collect these
+`refine` callback for relational or domain laws. Typed-array constructor and cardinality admission
+is compiled from the schema at definition time. Catalogs directly collect these
 authorities with `defineArtifactCatalog(...)`; there is no parallel contract, validator, or module
 registry. Catalog keys are local lookup names and need not equal an artifact's runtime `name`,
 while duplicate artifact ids or names are always refused.
@@ -46,52 +47,49 @@ by an operation contract (`plate-graph.artifact.ts`; excerpt):
 
 ```ts
 import {
-  type ArtifactValidationIssue,
-  appendArtifactTypedArrayIssues,
   defineArtifact,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 import { PlateSchema } from "../model/atoms/plate.schema.js";
 
-type PlateGraph = Readonly<{
-  cellCount: number;
-  plateIdByCell: Int16Array;
-}>;
-
 export const artifact = defineArtifact({
   name: "foundationPlateGraph",
   id: "artifact:foundation.plateGraph",
   schema: Type.Object({
-    cellCount: Type.Integer({ minimum: 1 }),
     plates: Type.Array(PlateSchema),
-    plateIdByCell: TypedArraySchemas.i16({ cardinality: "constructor-only" }),
+    plateIdByCell: TypedArraySchemas.i16({ cardinality: "map-grid" }),
   }),
-  refine: (value): readonly ArtifactValidationIssue[] => {
-    const graph = value as PlateGraph;
-    const issues: ArtifactValidationIssue[] = [];
-    appendArtifactTypedArrayIssues(
-      issues,
-      "plateIdByCell",
-      graph.plateIdByCell,
-      Int16Array,
-      graph.cellCount
-    );
-    return issues;
+  refine: (value, { cellCount, issues }) => {
+    if (value.plates.length > cellCount) {
+      issues.add("Plate count cannot exceed the admitted map cell count.");
+    }
+    return undefined;
   },
 });
 ```
 
 `defineArtifact` is the only artifact-authority constructor. It binds structural admission to the
-supplied schema and runs `refine` only after structure succeeds. Artifact owners do not call
-TypeBox validation directly or redeclare the issue contract. The local callback stays `unknown`
-because typed-array constructors and cardinality live in Core's runtime metadata layer rather than
-TypeBox's structural type; owners use Core's typed-array helpers for those checks.
+supplied schema and validates in three strict phases: TypeBox structure, exact typed-array
+constructor/cardinality metadata, then optional semantic refinement. A failed phase returns its
+issues without running later phases.
 
-Typed-array cardinality modes and their operation-only compilation semantics
-belong to the [operation contract authority](/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md#operation-input-admission).
-An artifact's local `refine` remains responsible for proving the exact
-constructor and every relational length law, as `plateIdByCell` does above.
+The refinement value is inferred from the inline schema as deeply readonly. Its frozen facilities
+contain admitted `dimensions`, Core-derived `cellCount`, and a closeable issue sink. Refinements
+append messages with `issues.add(...)` (or use `issues.addGridCoordinates(...)` for generic
+duplicate/bounds checks) and return exactly `undefined`; they do not import validation framework
+types, allocate issue arrays, or return promises.
+
+Typed-array metadata remains enumerable and portable. Artifact schemas use `"map-grid"` when a
+buffer length is the validation context's admitted `width * height`; path products remain relative
+to fields in the artifact value, and `"constructor-only"` deliberately declares no length
+relation. The default `["width", "height"]` remains an input-relative path product rather than an
+alias for `"map-grid"`.
+
+Artifact validation context is mandatory. Production publication and validated reads supply it
+from the admitted map setup; direct validator tests pass
+`{ dimensions: { width, height } }` explicitly. Missing dimensions never disable cardinality
+checks.
 
 The only runtime export of an artifact source module is `artifact`; its complete
 payload schema and refinement are authored directly on that definition. Runtime imports are
@@ -146,6 +144,7 @@ authored step capability.
 
 - Artifact runtime (write-once enforcement, zero-copy ownership contract): `packages/mapgen-core/src/authoring/artifact/runtime.ts`
 - Artifact definition and value types: `packages/mapgen-core/src/authoring/artifact/contract.ts`
+- Schema-owned typed-array admission compiler: `packages/mapgen-core/src/authoring/schema/typed-array-admission.ts`
 - Artifact catalog: `packages/mapgen-core/src/authoring/artifact/catalog.ts`
 - Artifact-store ownership: `packages/mapgen-core/src/core/map-context.ts`
 - Policy: artifact mutation: `docs/system/libs/mapgen/policies/ARTIFACT-MUTATION.md`

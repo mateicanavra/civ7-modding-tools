@@ -1,19 +1,5 @@
-import {
-  type ArtifactValidationContext,
-  type ArtifactValidationIssue,
-  appendArtifactTypedArrayIssues,
-  artifactCellCount,
-  defineArtifact,
-  Type,
-  TypedArraySchemas,
-} from "@swooper/mapgen-core/authoring/contracts";
-import { FEATURE_INTENT_KEYS, type FeatureIntentKey } from "../model/atoms/index.js";
-
-type FeatureSuitability = Readonly<{
-  width: number;
-  height: number;
-  layers: Readonly<Record<FeatureIntentKey, Float32Array>>;
-}>;
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { FEATURE_INTENT_KEYS } from "../model/atoms/index.js";
 
 /**
  * Registers one normalized per-tile suitability layer for every Ecology feature key plus the
@@ -35,6 +21,7 @@ export const artifact = defineArtifact({
           FEATURE_INTENT_KEYS.map((intentKey) => [
             intentKey,
             TypedArraySchemas.f32({
+              cardinality: "map-grid",
               description: `Normalized suitability for ${intentKey} intent per tile (0..1).`,
             }),
           ])
@@ -50,26 +37,9 @@ export const artifact = defineArtifact({
       description: "Map-sized Ecology feature suitability fields from one scoring vintage.",
     }
   ),
-  refine: (
-    input: unknown,
-    context?: ArtifactValidationContext
-  ): readonly ArtifactValidationIssue[] => {
-    const value = input as FeatureSuitability;
-    const errors: ArtifactValidationIssue[] = [];
-    const dimensions = context?.dimensions;
-    const size = artifactCellCount(context);
-    if (dimensions && (value.width !== dimensions.width || value.height !== dimensions.height)) {
-      errors.push({ message: "Feature suitability dimensions mismatch." });
+  refine: (value, { dimensions, issues }) => {
+    if (value.width !== dimensions.width || value.height !== dimensions.height) {
+      issues.add("Feature suitability dimensions mismatch.");
     }
-    for (const key of FEATURE_INTENT_KEYS) {
-      appendArtifactTypedArrayIssues(
-        errors,
-        `layers.${key}`,
-        value.layers[key],
-        Float32Array,
-        size
-      );
-    }
-    return errors;
   },
 });

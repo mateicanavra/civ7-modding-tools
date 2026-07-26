@@ -1,26 +1,4 @@
-import {
-  type ArtifactValidationContext,
-  type ArtifactValidationIssue,
-  appendArtifactTypedArrayIssues,
-  artifactCellCount,
-  defineArtifact,
-  Type,
-  TypedArraySchemas,
-} from "@swooper/mapgen-core/authoring/contracts";
-import { findInvalidRiverClassIndex } from "../model/policy/river-class.js";
-
-type Hydrography = Readonly<{
-  runoff: Float32Array;
-  discharge: Float32Array;
-  riverClass: Uint8Array;
-  flowDir: Int32Array;
-  sinkMask: Uint8Array;
-  outletMask: Uint8Array;
-  basinId: Int32Array;
-  routingElevation: Float32Array;
-  depressionDepth: Float32Array;
-  terminalType: Uint8Array;
-}>;
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Registers canonical Hydrology routing, runoff, discharge, river class, and
@@ -33,34 +11,44 @@ export const artifact = defineArtifact({
   schema: Type.Object(
     {
       runoff: TypedArraySchemas.f32({
+        cardinality: "map-grid",
         description: "Local runoff supplied by precipitation and humidity at each tile.",
       }),
       discharge: TypedArraySchemas.f32({
+        cardinality: "map-grid",
         description: "Runoff accumulated through the Hydrology drainage graph at each tile.",
       }),
       riverClass: TypedArraySchemas.u8({
+        cardinality: "map-grid",
         description: "River class: 0=none, 1=minor, and 2 or greater=major/projectable.",
       }),
       flowDir: TypedArraySchemas.i32({
+        cardinality: "map-grid",
         description: "Conditioned receiver tile index, or -1 for a typed terminal basin.",
       }),
       sinkMask: TypedArraySchemas.u8({
+        cardinality: "map-grid",
         description: "Raw drainage minimum eligible for lake or depression planning (1=yes).",
       }),
       outletMask: TypedArraySchemas.u8({
+        cardinality: "map-grid",
         description: "Land tile that drains directly to ocean, water, or the map edge (1=yes).",
       }),
       basinId: TypedArraySchemas.i32({
+        cardinality: "map-grid",
         description: "Drainage-basin identifier per tile, or -1 when unassigned.",
       }),
       routingElevation: TypedArraySchemas.f32({
+        cardinality: "map-grid",
         description:
           "Hydrologically conditioned routing surface that leaves Morphology elevation unchanged.",
       }),
       depressionDepth: TypedArraySchemas.f32({
+        cardinality: "map-grid",
         description: "Depth added while conditioning a depression to its spill surface.",
       }),
       terminalType: TypedArraySchemas.u8({
+        cardinality: "map-grid",
         description: "Drainage terminal: 0=none, 1=ocean/water outlet, 2=closed basin.",
       }),
     },
@@ -70,120 +58,36 @@ export const artifact = defineArtifact({
         "Hydrology routing, runoff, discharge, river, and drainage-depression state before Civ7 projection.",
     }
   ),
-  refine: (
-    input: unknown,
-    context?: ArtifactValidationContext
-  ): readonly ArtifactValidationIssue[] => {
-    const value = input as Hydrography;
-    const expectedLength = artifactCellCount(context);
-    const errors: ArtifactValidationIssue[] = [];
-    appendArtifactTypedArrayIssues(
-      errors,
-      "hydrography.runoff",
-      value.runoff,
-      Float32Array,
-      expectedLength
-    );
-    appendArtifactTypedArrayIssues(
-      errors,
-      "hydrography.discharge",
-      value.discharge,
-      Float32Array,
-      expectedLength
-    );
-    if (
-      appendArtifactTypedArrayIssues(
-        errors,
-        "hydrography.riverClass",
-        value.riverClass,
-        Uint8Array,
-        expectedLength
-      )
-    ) {
-      const invalidIndex = findInvalidRiverClassIndex(value.riverClass);
-      if (invalidIndex >= 0) {
-        errors.push({
-          message: `Expected hydrography.riverClass values to be non-negative integer river classes (first invalid index ${invalidIndex}).`,
-        });
-      }
+  refine: (value, { issues }) => {
+    const invalidSinkIndex = findFirstValueAbove(value.sinkMask, 1);
+    if (invalidSinkIndex >= 0) {
+      issues.add(
+        `Expected hydrography.sinkMask values in 0..1 (first invalid index ${invalidSinkIndex}).`
+      );
     }
-    appendArtifactTypedArrayIssues(
-      errors,
-      "hydrography.flowDir",
-      value.flowDir,
-      Int32Array,
-      expectedLength
-    );
-    if (
-      appendArtifactTypedArrayIssues(
-        errors,
-        "hydrography.sinkMask",
-        value.sinkMask,
-        Uint8Array,
-        expectedLength
-      )
-    ) {
-      validateCategoricalGrid(errors, "hydrography.sinkMask", value.sinkMask, 1);
+    const invalidOutletIndex = findFirstValueAbove(value.outletMask, 1);
+    if (invalidOutletIndex >= 0) {
+      issues.add(
+        `Expected hydrography.outletMask values in 0..1 (first invalid index ${invalidOutletIndex}).`
+      );
     }
-    if (
-      appendArtifactTypedArrayIssues(
-        errors,
-        "hydrography.outletMask",
-        value.outletMask,
-        Uint8Array,
-        expectedLength
-      )
-    ) {
-      validateCategoricalGrid(errors, "hydrography.outletMask", value.outletMask, 1);
+    const invalidTerminalIndex = findFirstValueAbove(value.terminalType, 2);
+    if (invalidTerminalIndex >= 0) {
+      issues.add(
+        `Expected hydrography.terminalType values in 0..2 (first invalid index ${invalidTerminalIndex}).`
+      );
     }
-    appendArtifactTypedArrayIssues(
-      errors,
-      "hydrography.basinId",
-      value.basinId,
-      Int32Array,
-      expectedLength
-    );
-    appendArtifactTypedArrayIssues(
-      errors,
-      "hydrography.routingElevation",
-      value.routingElevation,
-      Float32Array,
-      expectedLength
-    );
-    appendArtifactTypedArrayIssues(
-      errors,
-      "hydrography.depressionDepth",
-      value.depressionDepth,
-      Float32Array,
-      expectedLength
-    );
-    if (
-      appendArtifactTypedArrayIssues(
-        errors,
-        "hydrography.terminalType",
-        value.terminalType,
-        Uint8Array,
-        expectedLength
-      )
-    ) {
-      validateCategoricalGrid(errors, "hydrography.terminalType", value.terminalType, 2);
-    }
-    return errors;
   },
 });
 
-function validateCategoricalGrid(
-  errors: ArtifactValidationIssue[],
-  label: string,
+function findFirstValueAbove(
   value: { readonly [index: number]: number; readonly length: number },
   maximum: number
-): void {
+): number {
   for (let index = 0; index < value.length; index += 1) {
     if (value[index]! > maximum) {
-      errors.push({
-        message: `Expected ${label} values in 0..${maximum} (first invalid index ${index}).`,
-      });
-      return;
+      return index;
     }
   }
+  return -1;
 }

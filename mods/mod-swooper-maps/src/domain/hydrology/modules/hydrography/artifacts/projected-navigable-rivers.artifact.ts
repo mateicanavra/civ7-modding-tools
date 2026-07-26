@@ -1,20 +1,4 @@
-import {
-  type ArtifactValidationContext,
-  type ArtifactValidationIssue,
-  appendArtifactTypedArrayIssues,
-  artifactCellCount,
-  defineArtifact,
-  Type,
-  TypedArraySchemas,
-} from "@swooper/mapgen-core/authoring/contracts";
-
-type ProjectedNavigableRivers = Readonly<{
-  riverMask: Uint8Array;
-  plannedMinorRiverMask: Uint8Array;
-  plannedMajorRiverMask: Uint8Array;
-  selectedChainLengths: Uint16Array;
-  selectedChainCount: number;
-}>;
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Publishes Hydrology's immutable Civ7-projectable river intent for downstream map products. */
 export const artifact = defineArtifact({
@@ -25,14 +9,17 @@ export const artifact = defineArtifact({
       width: Type.Integer({ minimum: 1 }),
       height: Type.Integer({ minimum: 1 }),
       riverMask: TypedArraySchemas.u8({
+        cardinality: "map-grid",
         description:
           "Hydrology-selected navigable-river terrain intent (1=navigable river terrain).",
       }),
       plannedMinorRiverMask: TypedArraySchemas.u8({
+        cardinality: "map-grid",
         description:
           "Hydrology minor-river intent (riverClass=1), retained without promotion to navigable terrain.",
       }),
       plannedMajorRiverMask: TypedArraySchemas.u8({
+        cardinality: "map-grid",
         description:
           "Hydrology major-river intent (riverClass>=2), the only class eligible for navigable projection.",
       }),
@@ -61,7 +48,7 @@ export const artifact = defineArtifact({
         description: "Count of selected navigable-river chains.",
       }),
       selectedChainLengths: TypedArraySchemas.u16({
-        cardinality: "constructor-only",
+        cardinality: ["selectedChainCount"],
         description: "Tile lengths of selected river chains in endpoint-selection priority order.",
       }),
       longestSelectedChainLength: Type.Integer({
@@ -137,35 +124,4 @@ export const artifact = defineArtifact({
         "Hydrology's immutable Civ7-projectable river intent; mutable engine readback remains observation.",
     }
   ),
-  refine: (
-    input: unknown,
-    context?: ArtifactValidationContext
-  ): readonly ArtifactValidationIssue[] => {
-    const value = input as ProjectedNavigableRivers;
-    const issues: ArtifactValidationIssue[] = [];
-    const cellCount = artifactCellCount(context);
-    appendArtifactTypedArrayIssues(issues, "riverMask", value.riverMask, Uint8Array, cellCount);
-    appendArtifactTypedArrayIssues(
-      issues,
-      "plannedMinorRiverMask",
-      value.plannedMinorRiverMask,
-      Uint8Array,
-      cellCount
-    );
-    appendArtifactTypedArrayIssues(
-      issues,
-      "plannedMajorRiverMask",
-      value.plannedMajorRiverMask,
-      Uint8Array,
-      cellCount
-    );
-    appendArtifactTypedArrayIssues(
-      issues,
-      "selectedChainLengths",
-      value.selectedChainLengths,
-      Uint16Array,
-      value.selectedChainCount
-    );
-    return Object.freeze(issues);
-  },
 });

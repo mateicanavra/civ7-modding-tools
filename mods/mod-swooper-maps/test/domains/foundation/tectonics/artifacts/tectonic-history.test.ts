@@ -1,9 +1,11 @@
 import { describe, expect, it } from "bun:test";
 
 import { artifacts } from "@mapgen/domain/foundation/modules/tectonics/artifacts";
+import { TEST_MAP_SIZE } from "../../../../setup.js";
 
 const SYNTHETIC_CELL_COUNT = 2;
 const ERA_COUNT = 5;
+const VALIDATION_CONTEXT = { dimensions: TEST_MAP_SIZE.dimensions };
 
 function historyEra() {
   return {
@@ -39,7 +41,7 @@ function validHistory() {
 
 function validationMessages(value: unknown): string {
   return artifacts.tectonicHistory
-    .validate(value)
+    .validate(value, VALIDATION_CONTEXT)
     .map((issue) => issue.message)
     .join("\n");
 }
@@ -47,7 +49,7 @@ function validationMessages(value: unknown): string {
 describe("foundation tectonic-history artifact", () => {
   it("keeps era fields and plate membership aligned to the declared history", () => {
     const history = validHistory();
-    expect(artifacts.tectonicHistory.validate(history)).toEqual([]);
+    expect(artifacts.tectonicHistory.validate(history, VALIDATION_CONTEXT)).toEqual([]);
 
     expect(
       validationMessages({

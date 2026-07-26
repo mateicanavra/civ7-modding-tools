@@ -1,21 +1,5 @@
-import {
-  type ArtifactValidationIssue,
-  defineArtifact,
-  Type,
-} from "@swooper/mapgen-core/authoring/contracts";
-import {
-  type NaturalWonderPlanIntent,
-  NaturalWonderPlanIntentSchema,
-} from "../model/atoms/natural-wonder-plan-intent.schema.js";
-
-type NaturalWonderPlan = Readonly<{
-  width: number;
-  height: number;
-  wondersCount: number;
-  targetCount: number;
-  plannedCount: number;
-  placements: readonly NaturalWonderPlanIntent[];
-}>;
+import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { NaturalWonderPlanIntentSchema } from "../model/atoms/natural-wonder-plan-intent.schema.js";
 
 /** Registers the bounded, scored natural-wonder intent consumed by Civ7 materialization. */
 export const artifact = defineArtifact({
@@ -36,73 +20,61 @@ export const artifact = defineArtifact({
         "Bounded natural-wonder plan whose ranked symbolic intents are stamped without changing wonder identity.",
     }
   ),
-  refine: (input, context): readonly ArtifactValidationIssue[] => {
-    const value = input as NaturalWonderPlan;
-    const issues: ArtifactValidationIssue[] = [];
+  refine: (value, { dimensions, issues }) => {
     const size = value.width * value.height;
     if (!Number.isSafeInteger(size) || size <= 0) {
-      return [
-        {
-          message: `naturalWonderPlan has invalid dimensions ${String(value.width)}x${String(value.height)}.`,
-        },
-      ];
+      issues.add(
+        `naturalWonderPlan has invalid dimensions ${String(value.width)}x${String(value.height)}.`
+      );
+      return;
     }
-    const executionDimensions = context?.dimensions;
-    if (
-      executionDimensions &&
-      (executionDimensions.width !== value.width || executionDimensions.height !== value.height)
-    ) {
-      issues.push({
-        message: `naturalWonderPlan dimensions ${value.width}x${value.height} do not match execution dimensions ${executionDimensions.width}x${executionDimensions.height}.`,
-      });
+    if (dimensions.width !== value.width || dimensions.height !== value.height) {
+      issues.add(
+        `naturalWonderPlan dimensions ${value.width}x${value.height} do not match execution dimensions ${dimensions.width}x${dimensions.height}.`
+      );
     }
     if (value.plannedCount !== value.placements.length) {
-      issues.push({
-        message: `plannedCount ${String(value.plannedCount)} != placements.length ${value.placements.length}.`,
-      });
+      issues.add(
+        `plannedCount ${String(value.plannedCount)} != placements.length ${value.placements.length}.`
+      );
     }
     if (value.plannedCount > value.targetCount) {
-      issues.push({
-        message: `plannedCount ${String(value.plannedCount)} exceeds targetCount ${String(value.targetCount)}.`,
-      });
+      issues.add(
+        `plannedCount ${String(value.plannedCount)} exceeds targetCount ${String(value.targetCount)}.`
+      );
     }
     if (value.targetCount > value.wondersCount) {
-      issues.push({
-        message: `targetCount ${String(value.targetCount)} exceeds wondersCount ${String(value.wondersCount)}.`,
-      });
+      issues.add(
+        `targetCount ${String(value.targetCount)} exceeds wondersCount ${String(value.wondersCount)}.`
+      );
     }
     const seenPlots = new Set<number>();
     for (const placement of value.placements) {
       if (placement.plotIndex >= size) {
-        issues.push({
-          message: `naturalWonderPlan anchor ${String(placement.plotIndex)} out of bounds.`,
-        });
+        issues.add(`naturalWonderPlan anchor ${String(placement.plotIndex)} out of bounds.`);
         continue;
       }
       if (seenPlots.has(placement.plotIndex)) {
-        issues.push({
-          message: `naturalWonderPlan plans two wonders anchored on plot ${placement.plotIndex}.`,
-        });
+        issues.add(`naturalWonderPlan plans two wonders anchored on plot ${placement.plotIndex}.`);
       }
       seenPlots.add(placement.plotIndex);
 
       const seenAnchors = new Set<number>([placement.plotIndex]);
       for (const fallbackPlotIndex of placement.fallbackPlotIndices ?? []) {
         if (fallbackPlotIndex >= size) {
-          issues.push({
-            message: `naturalWonderPlan fallback anchor ${fallbackPlotIndex} for primary ${placement.plotIndex} is out of bounds.`,
-          });
+          issues.add(
+            `naturalWonderPlan fallback anchor ${fallbackPlotIndex} for primary ${placement.plotIndex} is out of bounds.`
+          );
           continue;
         }
         if (seenAnchors.has(fallbackPlotIndex)) {
-          issues.push({
-            message: `naturalWonderPlan anchor ${fallbackPlotIndex} is repeated for primary ${placement.plotIndex}.`,
-          });
+          issues.add(
+            `naturalWonderPlan anchor ${fallbackPlotIndex} is repeated for primary ${placement.plotIndex}.`
+          );
           continue;
         }
         seenAnchors.add(fallbackPlotIndex);
       }
     }
-    return issues;
   },
 });

@@ -35,18 +35,10 @@ any relational refinement directly on the single exported artifact authority.
 
 ```ts
 import {
-  type ArtifactValidationIssue,
-  appendArtifactTypedArrayIssues,
   defineArtifact,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
-
-type Routing = Readonly<{
-  cellCount: number;
-  flowDir: Int32Array;
-  flowAccum: Float32Array;
-}>;
 
 /** Publishes geomorphic receivers and accumulation for Morphology terrain shaping. */
 export const artifact = defineArtifact({
@@ -54,46 +46,39 @@ export const artifact = defineArtifact({
   id: "artifact:morphology.routing",
   schema: Type.Object(
     {
-      cellCount: Type.Integer({ minimum: 1 }),
-      flowDir: TypedArraySchemas.i32({ cardinality: "constructor-only" }),
-      flowAccum: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
+      flowDir: TypedArraySchemas.i32({ cardinality: "map-grid" }),
+      flowAccum: TypedArraySchemas.f32({ cardinality: "map-grid" }),
+      outlets: Type.Array(
+        Type.Object(
+          { x: Type.Integer(), y: Type.Integer() },
+          { additionalProperties: false }
+        )
+      ),
     },
     {
       additionalProperties: false,
       description: "Immutable Morphology drainage routing fields.",
     }
   ),
-  refine: (input): readonly ArtifactValidationIssue[] => {
-    const routing = input as Routing;
-    const issues: ArtifactValidationIssue[] = [];
-    appendArtifactTypedArrayIssues(
-      issues,
-      "routing.flowDir",
-      routing.flowDir,
-      Int32Array,
-      routing.cellCount
-    );
-    appendArtifactTypedArrayIssues(
-      issues,
-      "routing.flowAccum",
-      routing.flowAccum,
-      Float32Array,
-      routing.cellCount
-    );
-    return issues;
+  refine: (value, { issues }) => {
+    issues.addGridCoordinates("outlets", value.outlets);
+    return undefined;
   },
 });
 ```
 
-`defineArtifact` always projects TypeBox structural issues first. Add `refine`
-only for cardinality, relational, or domain laws the schema cannot express. A
-schema-complete artifact omits it.
+`defineArtifact` compiles exact typed-array admission from the inline schema and
+always runs TypeBox structure, typed-array constructor/cardinality, and optional
+semantic refinement in that order. `"map-grid"` binds the buffer to the
+mandatory validation context's admitted dimensions; it is distinct from the
+default input-relative `["width", "height"]` product and from
+`"constructor-only"`.
 
-Typed-array cardinality modes and their operation-only compilation semantics
-belong to the [operation contract authority](/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md#operation-input-admission).
-An artifact's `refine` remains responsible for proving the exact constructor
-and every relational length law. This example proves its artifact-owned
-`cellCount` relation with `appendArtifactTypedArrayIssues`.
+Add `refine` only for relational or domain laws the schema metadata cannot
+express. The value and facilities are inferred without annotations: the value
+is deeply readonly, while facilities provide frozen `dimensions`, derived
+`cellCount`, and the Core-owned `issues` sink. Append messages and return
+exactly `undefined`; do not allocate or return an issue array.
 
 The runtime module surface is closed to `artifact` plus erased TypeScript
 types. Put only a genuinely shared schema primitive or cohesive subentity under
@@ -173,8 +158,8 @@ never reaches into MapContext storage.
 
 ## Footguns
 
-- **Incomplete admission**: add a refinement when grid lengths, index ranges, or
-  cross-field relations matter.
+- **Incomplete admission**: declare typed-array cardinality in the schema, then
+  add a refinement only when index ranges or cross-field relations still matter.
 - **Second authority**: do not export a schema, validator, alias, or parallel map
   beside `artifact`.
 - **Shared-schema smuggling**: a model atom is a smaller primitive or cohesive

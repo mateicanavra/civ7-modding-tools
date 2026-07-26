@@ -29,30 +29,23 @@ Current source-backed anchors:
 - `mods/*/src/domain/*/modules/*/artifacts/index.ts`
 - `mods/*/src/domain/*/modules/*/artifacts/*.artifact.ts`
 
-The initial bounded artifact-vocabulary sweep found no existing Habitat rule
-packet whose whole predicate could be admitted as live artifact blueprint
-authority without a split, rewrite, or semantic inversion. Artifact completion
-semantics remain owned by typed dependency and execution contracts rather than
-by a source-token blacklist for one historical ID prefix.
-
 Future artifact rules should be admitted here only when the whole rule applies
 to every valid artifact value or contract.
 
 ## Admitted Rules
 
 - `require_artifact_file_shape`: source-shape contract for artifact owner files.
-  Every `mods/*/src/**/artifacts/*.artifact.ts` file exports one
+  Every `mods/*/src/domain/*/modules/*/artifacts/*.artifact.ts` file exports one
   `artifact = defineArtifact({ schema, ... })` authority. The artifact owns its
-  complete payload schema as a direct inline `Type.*(...)` expression. Exact imported atoms may supply smaller
-  primitives and cohesive subentities inside that root; an imported whole
-  schema may not become the artifact container. Any optional relational
-  refinement is likewise inline on the definition. Core binds structural TypeBox
-  admission and that refinement into the same
-  frozen authority. Grit also rejects alternate runtime exports, direct TypeBox
-  error projection, local issue contracts, dynamic imports, and dependencies
-  outside stable MapGen, Civ7 type/policy, and public domain model surfaces.
-  Core owns artifact-id admission; the source-shape rule does not rename durable
-  product identities.
+  complete payload schema as a direct inline `Type.*(...)` expression. Exact
+  imported atoms may supply smaller primitives and cohesive subentities inside
+  that root; an imported whole schema may not become the artifact container.
+  Any optional relational refinement is likewise inline on the definition.
+  Core binds structural TypeBox admission and that refinement into the same
+  frozen authority. The file's authoring import, remaining dependencies, and
+  runtime export surface are closed to stable Core library, Civ7 type/policy,
+  and nearest module/domain model owners. Core owns artifact-id admission; the
+  source-shape rule does not rename durable product identities.
 - `require_artifact_index_aggregate_shape`: positive source topology for every
   `mods/*/src/domain/*/modules/*/artifacts` directory. Each directory owns
   `index.ts`, one or more `*.artifact.ts` modules, and no other direct file
@@ -65,10 +58,6 @@ to every valid artifact value or contract.
   The current-tree sibling/catalog census is part of this migration's proof;
   durable sibling-to-catalog completeness belongs to the future first-class
   `blueprint.toml` membership capability rather than another source parser.
-
-- `prohibit_realized_map_artifact_tags`: residual cross-surface authority for
-  the retired `artifact:map.realized.*` namespace. This packet remains until
-  Core absorbs the same invariant for all artifact surfaces.
 
 Structure-v1 can assert the selected artifact containers, but it cannot yet
 derive arbitrary blueprint membership from a generated `blueprint.toml`.

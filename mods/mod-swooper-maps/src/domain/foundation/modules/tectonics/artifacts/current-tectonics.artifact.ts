@@ -1,23 +1,14 @@
-import type { ArtifactValidationIssue } from "@swooper/mapgen-core/authoring/contracts";
-import {
-  appendArtifactTypedArrayIssues,
-  defineArtifact,
-  Type,
-  TypedArraySchemas,
-} from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
-type CurrentTectonics = Readonly<
-  Record<
-    | "boundaryType"
-    | "upliftPotential"
-    | "riftPotential"
-    | "shearStress"
-    | "volcanism"
-    | "fracture"
-    | "cumulativeUplift",
-    Uint8Array
-  >
->;
+const CURRENT_TECTONICS_ARRAY_KEYS = [
+  "boundaryType",
+  "upliftPotential",
+  "riftPotential",
+  "shearStress",
+  "volcanism",
+  "fracture",
+  "cumulativeUplift",
+] as const;
 
 /** Registers Foundation's current-tectonics artifact. */
 export const artifact = defineArtifact({
@@ -38,25 +29,13 @@ export const artifact = defineArtifact({
       description: "Present-day tectonic fields and cumulative uplift by mesh cell.",
     }
   ),
-  refine: (value): readonly ArtifactValidationIssue[] => {
-    const tectonics = value as CurrentTectonics;
-    const arrays = Object.values(tectonics).filter(
-      (candidate): candidate is Uint8Array => candidate instanceof Uint8Array
-    );
-    const length = arrays[0]?.length ?? 0;
-    const issues: ArtifactValidationIssue[] = [];
-    if (length <= 0) issues.push({ message: "current tectonics arrays must be nonempty" });
-    for (const key of [
-      "boundaryType",
-      "upliftPotential",
-      "riftPotential",
-      "shearStress",
-      "volcanism",
-      "fracture",
-      "cumulativeUplift",
-    ] as const) {
-      appendArtifactTypedArrayIssues(issues, key, tectonics[key], Uint8Array, length);
+  refine: (value, { issues }) => {
+    const expectedLength = value.boundaryType.length;
+    if (expectedLength <= 0) issues.add("current tectonics arrays must be nonempty");
+    for (const key of CURRENT_TECTONICS_ARRAY_KEYS) {
+      if (value[key].length !== expectedLength) {
+        issues.add(`Expected ${key} length ${expectedLength} (received ${value[key].length}).`);
+      }
     }
-    return issues;
   },
 });

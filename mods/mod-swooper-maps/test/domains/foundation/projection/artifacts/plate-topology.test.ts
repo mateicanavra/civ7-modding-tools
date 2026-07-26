@@ -1,7 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import { artifacts } from "@mapgen/domain/foundation/modules/projection/artifacts";
+import { TEST_MAP_SIZE } from "../../../../setup.js";
 
 const { plateTopology } = artifacts;
+const VALIDATION_CONTEXT = { dimensions: TEST_MAP_SIZE.dimensions };
 
 function validPlateTopology() {
   return {
@@ -15,7 +17,7 @@ function validPlateTopology() {
 
 function validationMessages(value: unknown): string {
   return plateTopology
-    .validate(value)
+    .validate(value, VALIDATION_CONTEXT)
     .map((issue) => issue.message)
     .join("\n");
 }

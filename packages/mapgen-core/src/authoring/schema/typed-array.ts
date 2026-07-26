@@ -63,7 +63,8 @@ type TypedArrayProductPlusAddendCardinality = Readonly<{
 export type TypedArrayCardinality =
   | TypedArrayCardinalityPaths
   | TypedArrayProductPlusAddendCardinality
-  | "constructor-only";
+  | "constructor-only"
+  | "map-grid";
 
 /**
  * TypeBox unsafe schema carrying exact-constructor and cardinality intent. Operation construction
@@ -87,9 +88,8 @@ type TypedArraySchemaOptions = TSchemaOptions &
      *
      * Defaults to `width` × `height`. A path tuple is a product with no addend. Use a
      * product-plus-addend object for relations such as CSR offsets (`factors` product plus
-     * `addend`), or `"constructor-only"` when this schema declares no length relation. Operation
-     * inputs compile the relation into admission; artifacts prove relational laws through their
-     * local refinement.
+     * `addend`), `"map-grid"` for the admitted validation context's `width` × `height`, or
+     * `"constructor-only"` when this schema declares no length relation.
      */
     cardinality?: TypedArrayCardinality;
   }>;

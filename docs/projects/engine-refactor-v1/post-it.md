@@ -29,13 +29,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** make Knip a truthful repository reachability owner, then
-delete only what that model and direct consumer evidence prove dead. Workspace
-entries describe actual executable, generated, type-test, and public-package
-roots; exceptions require a named dynamic or virtual owner rather than a
-baseline or broad ignore. Knip reports reachability and dependency drift,
-TypeScript owns local usage and type validity, Nx owns task scheduling, and
-Habitat delegates the zero-corpus gate without starting a second scheduler.
+**Current container:** ratchet the generic artifact kind around the sealed
+weighted `defineArtifact` authority. A module-owned artifact collection is
+closed and nonempty: one catalog `index.ts` plus one or more
+`*.artifact.ts` owners. Each owner directly inlines its complete root schema and
+optional semantic refinement, exports only `artifact`, and imports only the
+small authoring surface plus qualified Core, Civ7 static, or nearest model
+atoms/policy. Structure and exact member acquisition select the kind; Grit
+checks only relationships inside those admitted files.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -45,21 +46,20 @@ to MapGen diagnostics and Civ7 observation owners; the mod may retain only thin
 Standard replay/reporting commands. Core owns the generic authoring/execution
 and domain-composition SDK, not Swooper's domain model.
 
-Target artifact authorship is one weighted `defineArtifact` expression. The
-next authoring-API container must contextually type the inline schema refinement
-and supply its issue accumulator and admitted validation context; artifact
-modules then stop importing framework issue/context types or allocating and
-threading their own issue arrays. This remains a dedicated semantic container,
-not a compatibility overload hidden inside the stage-plane move.
+Artifact authorship is now one weighted `defineArtifact` expression. Its inline
+schema refinement is contextually typed and receives admitted dimensions,
+derived cell count, and a Core-owned issue accumulator. Artifact modules no
+longer import framework issue/context types or allocate and thread their own
+issue arrays. Refinement typed arrays expose an observation-only compile-time
+surface without pretending the zero-copy artifact read plane is runtime-frozen.
 
-**Gradient:** remove redundant Knip entry/config hints, prove or delete every
-dependency exception, model the remaining dynamic and virtual owners exactly,
-run the complete reachability census, and disposition each finding as deletion,
-qualified entrypoint, or public contract. Reach zero before enforcing strict
-config hints and registering the existing `habitat:check:dead-code` leaf in the
-native policy graph. Then burn consumed-export JSDoc and semantic descriptions
-to zero. The program ends only when generic laws, source tree, types, tests,
-Knip, and the boundary graph agree.
+**Gradient:** make the artifact collection grammar closed and nonempty, narrow
+file/catalog acquisition to real domain-module artifact members, and positively
+close the framework import combinations. Refresh fixtures against the sealed
+single-definition API, delete the retired historical artifact-ID blacklist,
+and prove the file, catalog, collection, and operation-boundary laws together
+without a broad Grit scan. Reach zero, review the frozen law, and commit before
+selecting the next unfinished final-ratchet container.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
