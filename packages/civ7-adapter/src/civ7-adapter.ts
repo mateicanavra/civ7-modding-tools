@@ -17,6 +17,7 @@ import {
   RIVER_TYPE_NAVIGABLE,
 } from "@civ7/map-policy";
 import {
+  captureCurrentMapLayer,
   captureCurrentRiverSurface,
   deriveRiverProjectionFromCurrentSurface,
 } from "./current-map-surface.js";
@@ -26,7 +27,7 @@ import {
   queryCiv7ResourceRequirementForAge,
 } from "./resource-age-policy.js";
 import type {
-  CurrentMapSurface,
+  CurrentRiverSurface,
   DiscoveryPlacementIntent,
   DiscoveryPlacementOutcome,
   EngineAdapter,
@@ -607,20 +608,77 @@ export class Civ7Adapter implements EngineAdapter {
     TerrainBuilder.storeWaterData();
   }
 
-  /** Reads and detaches the current Civ7 terrain, biome, feature, water, and river surfaces. */
-  readCurrentMapSurface(): CurrentMapSurface {
+  /** Reads current Civ7 terrain ids into fresh row-major full-width storage. */
+  readCurrentMapTerrainTypes(): Int32Array {
+    return captureCurrentMapLayer(
+      this.width,
+      this.height,
+      Int32Array,
+      (x, y) => this.getTerrainType(x, y) | 0
+    );
+  }
+
+  /** Reads current Civ7 elevations into fresh row-major signed storage. */
+  readCurrentMapElevations(): Int16Array {
+    return captureCurrentMapLayer(
+      this.width,
+      this.height,
+      Int16Array,
+      (x, y) => this.getElevation(x, y) | 0
+    );
+  }
+
+  /** Reads current Civ7 biome ids into fresh row-major full-width storage. */
+  readCurrentMapBiomeTypes(): Int32Array {
+    return captureCurrentMapLayer(
+      this.width,
+      this.height,
+      Int32Array,
+      (x, y) => this.getBiomeType(x, y) | 0
+    );
+  }
+
+  /** Reads current Civ7 feature ids into fresh row-major full-width storage. */
+  readCurrentMapFeatureTypes(): Int32Array {
+    return captureCurrentMapLayer(
+      this.width,
+      this.height,
+      Int32Array,
+      (x, y) => this.getFeatureType(x, y) | 0
+    );
+  }
+
+  /** Reads Civ7's current water classification into a fresh row-major byte mask. */
+  readCurrentMapWaterMask(): Uint8Array {
+    return captureCurrentMapLayer(this.width, this.height, Uint8Array, (x, y) =>
+      this.isWater(x, y) ? 1 : 0
+    );
+  }
+
+  /** Reads Civ7's current lake classification into a fresh row-major byte mask. */
+  readCurrentMapLakeMask(): Uint8Array {
+    return captureCurrentMapLayer(this.width, this.height, Uint8Array, (x, y) =>
+      this.isLake(x, y) ? 1 : 0
+    );
+  }
+
+  /** Reads Civ7's current area ids into fresh row-major full-width storage. */
+  readCurrentMapAreaIds(): Int32Array {
+    return captureCurrentMapLayer(
+      this.width,
+      this.height,
+      Int32Array,
+      (x, y) => this.getAreaId(x, y) | 0
+    );
+  }
+
+  /**
+   * Reads detached terrain and river classifications from current Civ7 engine state.
+   * River metadata stays distinct from navigable-river terrain because either signal can exist
+   * independently in the embedded runtime.
+   */
+  readCurrentRiverSurface(): CurrentRiverSurface {
     const { width, height } = this;
-    const size = width * height;
-    const terrainType = new Int32Array(size);
-    const elevation = new Int16Array(size);
-    const biomeType = new Int32Array(size);
-    const featureType = new Int32Array(size);
-    const waterMask = new Uint8Array(size);
-    const lakeMask = new Uint8Array(size);
-    const riverType = new Int32Array(size);
-    const riverMask = new Uint8Array(size);
-    const navigableRiverMask = new Uint8Array(size);
-    const minorRiverMask = new Uint8Array(size);
     const riverTypes = (
       globalThis as typeof globalThis & {
         RiverTypes?: Record<string, number>;
@@ -639,48 +697,21 @@ export class Civ7Adapter implements EngineAdapter {
     };
     const typeReadbackSupported = typeof gameplayMap.getRiverType === "function";
 
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        const index = y * width + x;
-        const observedRiverType = this.getRiverType(x, y) | 0;
-        const hasRiverMetadata = observedRiverType !== noRiverType;
-        const isRiver = this.isRiver(x, y) || hasRiverMetadata;
-        const isNavigable = this.isNavigableRiver(x, y) || observedRiverType === navigableRiverType;
-        terrainType[index] = this.getTerrainType(x, y) | 0;
-        elevation[index] = this.getElevation(x, y) | 0;
-        biomeType[index] = this.getBiomeType(x, y) | 0;
-        featureType[index] = this.getFeatureType(x, y) | 0;
-        waterMask[index] = this.isWater(x, y) ? 1 : 0;
-        lakeMask[index] = this.isLake(x, y) ? 1 : 0;
-        riverType[index] = observedRiverType;
-        riverMask[index] = isRiver ? 1 : 0;
-        navigableRiverMask[index] = isNavigable ? 1 : 0;
-        minorRiverMask[index] = isRiver && observedRiverType === minorRiverType ? 1 : 0;
-      }
-    }
-
-    return Object.freeze({
+    return captureCurrentRiverSurface({
       width,
       height,
-      terrainType,
-      elevation,
-      biomeType,
-      featureType,
-      waterMask,
-      lakeMask,
-      riverType,
-      riverMask,
-      navigableRiverMask,
-      minorRiverMask,
-      sentinels: Object.freeze({
-        navigableRiverTerrainType: this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER") | 0,
-      }),
-      riverMetadata: Object.freeze({
-        typeReadbackSupported,
-        unsupportedReason: typeReadbackSupported
-          ? "Native Civ river-type metadata readback is available after TerrainBuilder.modelRivers; exact Hydrology minor-river parity must be proven by comparing planned minor intent to engineMinorRiverMask."
-          : "Native Civ minor-river metadata readback is unavailable in this runtime; exact Hydrology minor-river parity cannot be proven from readCurrentMapSurface.",
-      }),
+      noRiverType,
+      minorRiverType,
+      navigableRiverType,
+      navigableRiverTerrainType: this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER") | 0,
+      typeReadbackSupported,
+      unsupportedReason: typeReadbackSupported
+        ? "Native Civ river-type metadata readback is available after TerrainBuilder.modelRivers; exact Hydrology minor-river parity must be proven by comparing planned minor intent to engineMinorRiverMask."
+        : "Native Civ minor-river metadata readback is unavailable in this runtime; exact Hydrology minor-river parity cannot be proven from readCurrentRiverSurface.",
+      getTerrainType: (x, y) => this.getTerrainType(x, y),
+      getRiverType: (x, y) => this.getRiverType(x, y),
+      isRiver: (x, y) => this.isRiver(x, y),
+      isNavigableRiver: (x, y) => this.isNavigableRiver(x, y),
     });
   }
 
@@ -694,41 +725,8 @@ export class Civ7Adapter implements EngineAdapter {
         `[Civ7Adapter] River projection dimensions ${width}x${height} do not match the current map ${this.width}x${this.height}.`
       );
     }
-    const riverTypes = (
-      globalThis as typeof globalThis & {
-        RiverTypes?: Record<string, number>;
-      }
-    ).RiverTypes;
-    const noRiverType =
-      typeof riverTypes?.NO_RIVER === "number" ? riverTypes.NO_RIVER | 0 : NO_RIVER_TYPE;
-    const minorRiverType =
-      typeof riverTypes?.RIVER_MINOR === "number" ? riverTypes.RIVER_MINOR | 0 : RIVER_TYPE_MINOR;
-    const navigableRiverType =
-      typeof riverTypes?.RIVER_NAVIGABLE === "number"
-        ? riverTypes.RIVER_NAVIGABLE | 0
-        : RIVER_TYPE_NAVIGABLE;
-    const gameplayMap = GameplayMap as unknown as {
-      getRiverType?: (x: number, y: number) => number;
-    };
-    const typeReadbackSupported = typeof gameplayMap.getRiverType === "function";
-    const surface = captureCurrentRiverSurface({
-      width,
-      height,
-      noRiverType,
-      minorRiverType,
-      navigableRiverType,
-      navigableRiverTerrainType: this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER") | 0,
-      typeReadbackSupported,
-      unsupportedReason: typeReadbackSupported
-        ? "Native Civ river-type metadata readback is available after TerrainBuilder.modelRivers; exact Hydrology minor-river parity must be proven by comparing planned minor intent to engineMinorRiverMask."
-        : "Native Civ minor-river metadata readback is unavailable in this runtime; exact Hydrology minor-river parity cannot be proven from readRiverProjection.",
-      getTerrainType: (x, y) => this.getTerrainType(x, y),
-      getRiverType: (x, y) => this.getRiverType(x, y),
-      isRiver: (x, y) => this.isRiver(x, y),
-      isNavigableRiver: (x, y) => this.isNavigableRiver(x, y),
-    });
     return deriveRiverProjectionFromCurrentSurface(
-      surface,
+      this.readCurrentRiverSurface(),
       plannedNavigableRiverMask,
       "Civ7Adapter"
     );

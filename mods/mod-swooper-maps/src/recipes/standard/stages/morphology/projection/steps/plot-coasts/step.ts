@@ -6,7 +6,6 @@ import {
   WATER_CLASS_LAND,
 } from "@civ7/map-policy";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { captureEngineHeightfield } from "../../../../../current-engine-surface.js";
 import {
   defineStandardVizCategoryMeta,
   defineStandardVizMeta,
@@ -58,15 +57,11 @@ export const PlotCoastsStep = createStep(config, {
       }
     }
 
-    const engineAfterCoasts = captureEngineHeightfield(context.setup.dimensions, {
-      getTerrainType: (x, y) => deps.engine.getTerrainType(context, x, y),
-      getElevation: (x, y) => deps.engine.getElevation(context, x, y),
-      isWater: (x, y) => deps.engine.isWater(context, x, y),
-    });
+    const engineWaterMask = deps.engine.readCurrentMapWaterMask(context);
     assertWaterDriftWithinPolicy(
       context.setup.dimensions,
       context.trace,
-      engineAfterCoasts.waterMask,
+      engineWaterMask,
       topography.landMask,
       "map-morphology/plot-coasts"
     );

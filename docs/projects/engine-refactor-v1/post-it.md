@@ -28,19 +28,17 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** collapse class/elevation/bathymetry reconciliation into
-the landmask operation that owns the only real pre-erosion topography
-transition. The initial landmass step locally repaired `compute-landmask`; the
-next step claimed a second "carved" vintage through a coastline operation and a
-parameter-free reconciliation operation. Causal review proved the fjord branch
-never changed the surface and the bay gate is unreachable for every shipped
-posture across the finite Perlin seed space and Civ7 map bounds. The entire
-second transition is therefore false authority, not behavior to preserve.
-Delete its operation, config, knob, RNG surface, test, and redundant topography
-artifact. Retain one base-topography product and one independently useful
-pre-island coastline-evidence product derived by the real adjacency and
-distance operations. A.2 and post-A.2 product proof remain outside this
-container.
+**Current container:** seal current Civ7 map observation at the adapter
+boundary. Standard steps currently reconstruct detached terrain, elevation,
+biome, feature, water, and lake surfaces through mod-local tile loops even
+though the adapter already owns the engine readback contract. Delete that
+second acquisition authority. The adapter exposes exact, detached bulk map
+layers backed by one internal acquisition primitive; steps request only the
+layers their product comparison needs and retain invocation timing. A
+water-only parity check must not silently acquire biome, feature, elevation,
+and river state. Swooper keeps product interpretation and parity policy, never
+engine probing or durable snapshots. A.2, initial setup options, and post-A.2
+product proof remain outside this container.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -57,15 +55,17 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** delete the false coastline transition to its roots: standalone
-reconciliation, coast mutation operation, coast mask, fjord and bay controls,
-ruggedness knob, RNG stream, and carved-topography artifact. Keep topography
-reconciliation beside the landmask operation; route routing and erosion
-directly to base topography; retain only adjacency plus distance as
-`baseCoastline` evidence. Remove duplicate coast-distance computation,
-regenerate every canonical config consumer, and prove the unchanged product
-through the native recipe graph plus the existing positive domain/artifact/step
-laws before taking the next earnedness candidate.
+**Gradient:** define adapter-owned bulk reads for the engine's terrain,
+elevation, biome, feature, water, lake, area, and river layers, and share one
+acquisition primitive across production and mock adapters. Delete the unused
+complete-surface aggregate rather than retaining a privileged broad read.
+Replace mod-local capture helpers at their exact lifecycle points, tighten each
+step's engine capability declaration, move the water-to-land parity transform
+to its recipe policy owner, and delete `current-engine-surface.ts`. Preserve
+observation timing in this ownership cut; any product-timing correction lands
+separately. Retain only tests that prove detached adapter evidence or observable
+Swooper product behavior, then seal the cut through the native
+adapter/Core/Swooper graph.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -100,6 +100,16 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Topography Reconciliation Authority
+
+Class, elevation, and bathymetry reconciliation collapsed into the landmask
+operation that owns the only real pre-erosion topography transition. The
+standalone reconciliation operation, unreachable coastline mutation, dead
+fjord/bay controls, ruggedness knob, RNG stream, carved mask, and redundant
+topography vintage were deleted. Routing and erosion now consume one coherent
+base topography product while `baseCoastline` retains only independently useful
+adjacency and distance evidence.
 
 ### 2026-07-26 - Exact-Tree Delivery Convergence
 

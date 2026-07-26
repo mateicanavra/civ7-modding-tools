@@ -17,13 +17,14 @@ import {
   RIVER_TYPE_NAVIGABLE,
 } from "@civ7/map-policy";
 import {
+  captureCurrentMapLayer,
   captureCurrentRiverSurface,
   deriveRiverProjectionFromCurrentSurface,
 } from "./current-map-surface.js";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
 import { getCiv7RowLatitude } from "./map-metadata.js";
 import type {
-  CurrentMapSurface,
+  CurrentRiverSurface,
   DiscoveryPlacementIntent,
   DiscoveryPlacementOutcome,
   EngineAdapter,
@@ -995,41 +996,89 @@ export class MockAdapter implements EngineAdapter {
     }
   }
 
-  /** Returns a detached current-map observation with the same widths as the production adapter. */
-  readCurrentMapSurface(): CurrentMapSurface {
-    const { width, height } = this;
-    const size = width * height;
-    const riverMask = new Uint8Array(size);
-    const navigableRiverMask = new Uint8Array(size);
-    const minorRiverMask = new Uint8Array(size);
-    for (let index = 0; index < size; index++) {
-      const riverType = this.riverTypes[index] ?? MOCK_NO_RIVER;
-      riverMask[index] = riverType === MOCK_NO_RIVER ? 0 : 1;
-      navigableRiverMask[index] = riverType === MOCK_RIVER_NAVIGABLE ? 1 : 0;
-      minorRiverMask[index] = riverType === MOCK_RIVER_MINOR ? 1 : 0;
-    }
+  /** Reads current mock terrain ids through the same overridable getter used by point reads. */
+  readCurrentMapTerrainTypes(): Int32Array {
+    return captureCurrentMapLayer(
+      this.width,
+      this.height,
+      Int32Array,
+      (x, y) => this.getTerrainType(x, y) | 0
+    );
+  }
 
-    return Object.freeze({
-      width,
-      height,
-      terrainType: this.terrainTypes.slice(),
-      elevation: this.elevations.slice(),
-      biomeType: this.biomes.slice(),
-      featureType: this.features.slice(),
-      waterMask: this.waterMask.slice(),
-      lakeMask: this.lakeMask.slice(),
-      riverType: this.riverTypes.slice(),
-      riverMask,
-      navigableRiverMask,
-      minorRiverMask,
-      sentinels: Object.freeze({
-        navigableRiverTerrainType: this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER"),
-      }),
-      riverMetadata: Object.freeze({
-        typeReadbackSupported: true,
-        unsupportedReason:
-          "MockAdapter mirrors Civ river-type metadata readback semantics; exact Hydrology minor-river parity remains diagnostic and must compare planned minor intent to engineMinorRiverMask.",
-      }),
+  /** Reads current mock elevations through the same overridable getter used by point reads. */
+  readCurrentMapElevations(): Int16Array {
+    return captureCurrentMapLayer(
+      this.width,
+      this.height,
+      Int16Array,
+      (x, y) => this.getElevation(x, y) | 0
+    );
+  }
+
+  /** Reads current mock biome ids through the same overridable getter used by point reads. */
+  readCurrentMapBiomeTypes(): Int32Array {
+    return captureCurrentMapLayer(
+      this.width,
+      this.height,
+      Int32Array,
+      (x, y) => this.getBiomeType(x, y) | 0
+    );
+  }
+
+  /** Reads current mock feature ids through the same overridable getter used by point reads. */
+  readCurrentMapFeatureTypes(): Int32Array {
+    return captureCurrentMapLayer(
+      this.width,
+      this.height,
+      Int32Array,
+      (x, y) => this.getFeatureType(x, y) | 0
+    );
+  }
+
+  /** Reads the current mock water classification through the overridable point-read boundary. */
+  readCurrentMapWaterMask(): Uint8Array {
+    return captureCurrentMapLayer(this.width, this.height, Uint8Array, (x, y) =>
+      this.isWater(x, y) ? 1 : 0
+    );
+  }
+
+  /** Reads the current mock lake classification through the overridable point-read boundary. */
+  readCurrentMapLakeMask(): Uint8Array {
+    return captureCurrentMapLayer(this.width, this.height, Uint8Array, (x, y) =>
+      this.isLake(x, y) ? 1 : 0
+    );
+  }
+
+  /** Reads current mock area ids through the same overridable getter used by point reads. */
+  readCurrentMapAreaIds(): Int32Array {
+    return captureCurrentMapLayer(
+      this.width,
+      this.height,
+      Int32Array,
+      (x, y) => this.getAreaId(x, y) | 0
+    );
+  }
+
+  /**
+   * Reads detached terrain and river classifications through the mock's public getter semantics.
+   * This preserves subclass behavior rather than exposing or copying private backing arrays.
+   */
+  readCurrentRiverSurface(): CurrentRiverSurface {
+    return captureCurrentRiverSurface({
+      width: this.width,
+      height: this.height,
+      noRiverType: MOCK_NO_RIVER,
+      minorRiverType: MOCK_RIVER_MINOR,
+      navigableRiverType: MOCK_RIVER_NAVIGABLE,
+      navigableRiverTerrainType: this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER"),
+      typeReadbackSupported: true,
+      unsupportedReason:
+        "MockAdapter mirrors Civ river-type metadata readback semantics; exact Hydrology minor-river parity remains diagnostic and must compare planned minor intent to engineMinorRiverMask.",
+      getTerrainType: (x, y) => this.getTerrainType(x, y),
+      getRiverType: (x, y) => this.getRiverType(x, y),
+      isRiver: (x, y) => this.isRiver(x, y),
+      isNavigableRiver: (x, y) => this.isNavigableRiver(x, y),
     });
   }
 
@@ -1043,23 +1092,8 @@ export class MockAdapter implements EngineAdapter {
         `[MockAdapter] River projection dimensions ${width}x${height} do not match the current map ${this.width}x${this.height}.`
       );
     }
-    const surface = captureCurrentRiverSurface({
-      width,
-      height,
-      noRiverType: MOCK_NO_RIVER,
-      minorRiverType: MOCK_RIVER_MINOR,
-      navigableRiverType: MOCK_RIVER_NAVIGABLE,
-      navigableRiverTerrainType: this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER"),
-      typeReadbackSupported: true,
-      unsupportedReason:
-        "MockAdapter mirrors Civ river-type metadata readback semantics; exact Hydrology minor-river parity remains diagnostic and must compare planned minor intent to engineMinorRiverMask.",
-      getTerrainType: (x, y) => this.getTerrainType(x, y),
-      getRiverType: (x, y) => this.getRiverType(x, y),
-      isRiver: (x, y) => this.isRiver(x, y),
-      isNavigableRiver: (x, y) => this.isNavigableRiver(x, y),
-    });
     return deriveRiverProjectionFromCurrentSurface(
-      surface,
+      this.readCurrentRiverSurface(),
       plannedNavigableRiverMask,
       "MockAdapter"
     );

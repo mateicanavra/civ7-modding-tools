@@ -1,21 +1,8 @@
-import type { RiverProjectionResult } from "./types.js";
+import type { CurrentRiverSurface, RiverProjectionResult } from "./types.js";
 
-type CurrentRiverSurface = Readonly<{
-  width: number;
-  height: number;
-  terrainType: Int32Array;
-  riverType: Int32Array;
-  riverMask: Uint8Array;
-  navigableRiverMask: Uint8Array;
-  minorRiverMask: Uint8Array;
-  sentinels: Readonly<{
-    navigableRiverTerrainType: number;
-  }>;
-  riverMetadata: Readonly<{
-    typeReadbackSupported: boolean;
-    unsupportedReason: string;
-  }>;
-}>;
+type CurrentMapLayer = Int16Array | Int32Array | Uint8Array;
+
+type CurrentMapLayerConstructor<Layer extends CurrentMapLayer> = new (length: number) => Layer;
 
 type CurrentRiverSurfaceReader = Readonly<{
   width: number;
@@ -31,6 +18,34 @@ type CurrentRiverSurfaceReader = Readonly<{
   isRiver: (x: number, y: number) => boolean;
   isNavigableRiver: (x: number, y: number) => boolean;
 }>;
+
+/**
+ * Reads one detached row-major map layer through an adapter's public getter semantics.
+ *
+ * Adapter implementations share this acquisition path so subclasses and test doubles can
+ * override the same getter capabilities that ordinary point reads expose.
+ *
+ * @param width - Number of columns in the active map.
+ * @param height - Number of rows in the active map.
+ * @param Layer - Exact typed-array constructor required by the layer contract.
+ * @param read - Adapter-owned point reader for the requested layer.
+ * @returns Fresh storage containing the current value for every map cell.
+ * @internal
+ */
+export function captureCurrentMapLayer<Layer extends CurrentMapLayer>(
+  width: number,
+  height: number,
+  Layer: CurrentMapLayerConstructor<Layer>,
+  read: (x: number, y: number) => number
+): Layer {
+  const values = new Layer(width * height);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      values[y * width + x] = read(x, y);
+    }
+  }
+  return values;
+}
 
 /**
  * Captures only the detached engine channels required for river-plan parity.

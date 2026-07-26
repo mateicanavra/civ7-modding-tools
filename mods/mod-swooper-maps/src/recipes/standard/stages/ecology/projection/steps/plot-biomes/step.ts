@@ -1,7 +1,6 @@
 import * as ecology from "@mapgen/domain/ecology";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampU8 } from "@swooper/mapgen-core/lib/math";
-import { captureEngineWaterMask } from "../../../../../current-engine-surface.js";
 import { measureStandardBiomeProjection } from "../../../../../metrics/families/ecology-projection.js";
 import {
   defineStandardVizCategoryMeta,
@@ -77,9 +76,7 @@ export const PlotBiomesStep = createStep(config, {
       }
     }
 
-    const engineWaterMask = captureEngineWaterMask(context.setup.dimensions, (x, y) =>
-      deps.engine.isWater(context, x, y)
-    );
+    const engineWaterMask = deps.engine.readCurrentMapWaterMask(context);
     let landWaterMismatchCount = 0;
     for (let i = 0; i < size; i++) {
       const wantsLand = topography.landMask[i] === 1;

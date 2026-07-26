@@ -11,7 +11,7 @@ import { STANDARD_ENGINE_EFFECT_TAGS } from "../../../../../tag-contracts.js";
 export const config = defineStep({
   id: "plot-biomes",
   description: "Projects Swooper biome symbols into fixed official Civ7 biome identities.",
-  engine: ["getBiomeGlobal", "setBiomeType", "isWater"] as const,
+  engine: ["getBiomeGlobal", "setBiomeType", "readCurrentMapWaterMask"] as const,
   requires: [],
   provides: [STANDARD_ENGINE_EFFECT_TAGS.engine.biomesApplied],
   artifacts: {

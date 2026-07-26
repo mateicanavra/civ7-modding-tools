@@ -19,7 +19,11 @@ import {
  */
 export const config = defineStep({
   id: "placement",
-  engine: ["getTerrainType", "getElevation", "isWater"] as const,
+  engine: [
+    "readCurrentMapTerrainTypes",
+    "readCurrentMapElevations",
+    "readCurrentMapWaterMask",
+  ] as const,
   requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.advancedStartsAssigned],
   provides: [
     STANDARD_ENGINE_EFFECT_TAGS.engine.placementApplied,

@@ -20,9 +20,9 @@ export const config = defineStep({
   engine: [
     "getMapSizeId",
     "lookupMapInfo",
-    "getTerrainType",
-    "getBiomeType",
-    "getFeatureType",
+    "readCurrentMapTerrainTypes",
+    "readCurrentMapBiomeTypes",
+    "readCurrentMapFeatureTypes",
   ] as const,
   requires: [
     MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,

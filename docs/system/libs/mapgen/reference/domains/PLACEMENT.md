@@ -106,8 +106,8 @@ Runtime semantics (ADR-009 regime):
   through typed metrics and the live log. It publishes no discovery plan,
   per-tile reconciliation rows, or causal artifact.
 - Shortfalls are recorded (typed, per-type, per-reason), never forced: no whole-map fallback, no least-used-type rebalance, no spacing decay below authored floors.
-- Current-engine observations are explicit capabilities on the exact step that
-  needs them: terrain/biome/feature classifications feed natural-wonder
+- Current-engine observations are exact detached bulk-layer capabilities on
+  the step that needs them: terrain/biome/feature classifications feed natural-wonder
   planning in `plan-natural-wonders`; maintenance-boundary readbacks remain
   invocation-local in `prepare-placement-surface`; the prepared legality
   surface feeds `plan-resources`; and terminal `placement` projects final

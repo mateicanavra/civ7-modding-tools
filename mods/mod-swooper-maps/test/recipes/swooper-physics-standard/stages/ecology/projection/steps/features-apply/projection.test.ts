@@ -84,7 +84,7 @@ describe("map-ecology features-apply step", () => {
     expect(adapter.getFeatureType(1, 1)).toBe(existingFeature);
   });
 
-  it("returns the current engine surface after terrain validation", () => {
+  it("reads back final feature identity after terrain validation", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const setup = admitMapSetup({
       mapSeed: TEST_MAP_SEED,

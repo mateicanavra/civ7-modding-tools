@@ -1,8 +1,8 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
 import type { VizProjection } from "@swooper/mapgen-viz";
-import { engineLandMaskFromWaterMask } from "../../../../../current-engine-surface.js";
 import { measureStandardLakeProjection } from "../../../../../metrics/families/hydrology/lake-projection.js";
 import { defineStandardVizMeta } from "../../../../../viz.js";
+import { landMaskFromWaterMask } from "../../../../../water-surface-parity.js";
 import { config } from "./config.js";
 
 const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Engine)";
@@ -33,7 +33,7 @@ export const LakesStep = createStep(config, {
     deps.artifacts.projectedLakes.publish(context, {
       lakeMask: Uint8Array.from(projection.stampedLakeMask),
     });
-    const engineLandMask = engineLandMaskFromWaterMask(projection.engineWaterMask);
+    const engineLandMask = landMaskFromWaterMask(projection.engineWaterMask);
 
     context.trace.event(() => ({
       type: "map.hydrology.lakes.parity",

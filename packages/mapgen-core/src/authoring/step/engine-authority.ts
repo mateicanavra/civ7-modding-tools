@@ -7,7 +7,14 @@ import type { EngineAdapterMethodKey } from "@civ7/adapter";
  * deliberately admit that method here before a frozen step contract can request it.
  */
 const AUTHORED_ENGINE_ADAPTER_METHODS = Object.freeze([
-  "readCurrentMapSurface",
+  "readCurrentMapTerrainTypes",
+  "readCurrentMapElevations",
+  "readCurrentMapBiomeTypes",
+  "readCurrentMapFeatureTypes",
+  "readCurrentMapWaterMask",
+  "readCurrentMapLakeMask",
+  "readCurrentMapAreaIds",
+  "readCurrentRiverSurface",
   "getMapSizeId",
   "lookupMapInfo",
   "setMapInitData",

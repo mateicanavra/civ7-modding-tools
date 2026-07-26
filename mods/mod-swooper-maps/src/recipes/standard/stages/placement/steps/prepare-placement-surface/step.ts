@@ -1,10 +1,6 @@
 import { deriveCiv7CoastProjection } from "@civ7/map-policy";
 import type { TraceJsonObject } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import {
-  type CurrentEngineTerrainClassification,
-  captureEngineTerrainClassification,
-} from "../../../../current-engine-surface.js";
 import { measureStandardPlacementSurface } from "../../../../metrics/families/placement-surface.js";
 import { restoreProjectedCoastTerrain } from "../../../../water-surface-parity.js";
 import { logTerrainStats, runPlacementProductStep } from "../../log.js";
@@ -22,43 +18,20 @@ type TerrainValidationBoundaryReadback = Readonly<{
 type RegionSlot = 0 | 1 | 2;
 
 /**
- * Records exact engine terrain and classification around one maintenance
- * boundary. The detached snapshot is diagnostic evidence, not causal state.
- */
-function readTerrainValidationBoundary(
-  currentSurface: CurrentEngineTerrainClassification,
-  readAreaId: (x: number, y: number) => number,
-  stage: string
-): TerrainValidationBoundaryReadback {
-  const { width, height } = currentSurface;
-  const areaId = new Int32Array(width * height);
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      areaId[y * width + x] = readAreaId(x, y) | 0;
-    }
-  }
-  return {
-    stage,
-    terrain: Int32Array.from(currentSurface.terrain),
-    waterMask: Uint8Array.from(currentSurface.waterMask),
-    lakeMask: Uint8Array.from(currentSurface.lakeMask),
-    areaId,
-  };
-}
-
-/**
  * Counts accepted lake tiles dried or declassified by Civ7 maintenance. Lake
  * truth remains owned by Hydrology; this is only final boundary readback.
  */
 function readFinalLakeProjection(
-  currentSurface: CurrentEngineTerrainClassification,
+  dimensions: Readonly<{ width: number; height: number }>,
+  waterMask: Uint8Array,
+  lakeMask: Uint8Array,
   acceptedLakeMask: Uint8Array
 ): Readonly<{
   acceptedLakeTileCount: number;
   finalLakeWaterDriftCount: number;
   finalLakeClassificationDriftCount: number;
 }> {
-  const { width, height } = currentSurface;
+  const { width, height } = dimensions;
   const size = width * height;
   let acceptedLakeTileCount = 0;
   let finalLakeWaterDriftCount = 0;
@@ -66,8 +39,8 @@ function readFinalLakeProjection(
   for (let i = 0; i < size; i++) {
     if (acceptedLakeMask[i] !== 1) continue;
     acceptedLakeTileCount++;
-    if (currentSurface.waterMask[i] !== 1) finalLakeWaterDriftCount++;
-    if (currentSurface.lakeMask[i] !== 1) finalLakeClassificationDriftCount++;
+    if (waterMask[i] !== 1) finalLakeWaterDriftCount++;
+    if (lakeMask[i] !== 1) finalLakeClassificationDriftCount++;
   }
   return {
     acceptedLakeTileCount,
@@ -125,22 +98,18 @@ export const PreparePlacementSurfaceStep = createStep(config, {
     const emit = (payload: TraceJsonObject): void => {
       context.trace.event(() => payload);
     };
-    const readCurrentTerrainClassification = () =>
-      captureEngineTerrainClassification(dimensions, {
-        getTerrainType: (x, y) => deps.engine.getTerrainType(context, x, y),
-        isWater: (x, y) => deps.engine.isWater(context, x, y),
-        isLake: (x, y) => deps.engine.isLake(context, x, y),
-      });
-    const readAreaId = (x: number, y: number) => deps.engine.getAreaId(context, x, y);
-    const initialSurface = readCurrentTerrainClassification();
+    const readTerrainValidationBoundary = (stage: string): TerrainValidationBoundaryReadback => ({
+      stage,
+      terrain: deps.engine.readCurrentMapTerrainTypes(context),
+      waterMask: deps.engine.readCurrentMapWaterMask(context),
+      lakeMask: deps.engine.readCurrentMapLakeMask(context),
+      areaId: deps.engine.readCurrentMapAreaIds(context),
+    });
     const acceptedLakeMask = projectedLakes.lakeMask;
-    logTerrainStats(context, "Initial", initialSurface);
-
     const beforeValidate = readTerrainValidationBoundary(
-      initialSurface,
-      readAreaId,
       "placement/prepare-surface/before-validate"
     );
+    logTerrainStats(context, "Initial", beforeValidate);
     const afterValidate = runPlacementProductStep("placement.terrain.validate", emit, () => {
       deps.engine.validateAndFixTerrain(context);
       restoreProjectedCoastTerrain(
@@ -155,14 +124,10 @@ export const PreparePlacementSurfaceStep = createStep(config, {
         coastProjection,
         "placement/prepare-surface/after-validate"
       );
-      const afterValidateSurface = readCurrentTerrainClassification();
       emit({ type: "placement.terrain.validated" });
-      logTerrainStats(context, "After validateAndFixTerrain", afterValidateSurface);
-      return readTerrainValidationBoundary(
-        afterValidateSurface,
-        readAreaId,
-        "placement/prepare-surface/after-validate"
-      );
+      const boundary = readTerrainValidationBoundary("placement/prepare-surface/after-validate");
+      logTerrainStats(context, "After validateAndFixTerrain", boundary);
+      return boundary;
     });
     runPlacementProductStep("placement.areas.recalculate", emit, () => {
       deps.engine.recalculateAreas(context);
@@ -185,13 +150,15 @@ export const PreparePlacementSurfaceStep = createStep(config, {
       );
       emit({ type: "placement.landmassRegion.restamped" });
     });
-    const afterMaintenanceSurface = readCurrentTerrainClassification();
     const afterMaintenance = readTerrainValidationBoundary(
-      afterMaintenanceSurface,
-      readAreaId,
       "placement/prepare-surface/after-maintenance"
     );
-    const finalLakeReadback = readFinalLakeProjection(afterMaintenanceSurface, acceptedLakeMask);
+    const finalLakeReadback = readFinalLakeProjection(
+      dimensions,
+      afterMaintenance.waterMask,
+      afterMaintenance.lakeMask,
+      acceptedLakeMask
+    );
     emit({ type: "placement.lakes.finalReadback", ...finalLakeReadback });
     console.log(
       `[SWOOPER_MOD] PLACEMENT_SURFACE_PREPARATION_V1 ${JSON.stringify(finalLakeReadback)}`

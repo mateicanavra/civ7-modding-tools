@@ -5,7 +5,6 @@ import {
   NO_FEATURE_TYPE,
 } from "@civ7/map-policy";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { captureEnginePlacementTypes } from "../../../../current-engine-surface.js";
 import {
   measureStandardNaturalWonderPlanInput,
   STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY,
@@ -50,14 +49,9 @@ export const PlanNaturalWondersStep = createStep(config, {
       typeof rawWondersCount === "number" && Number.isFinite(rawWondersCount)
         ? Math.max(0, Math.round(rawWondersCount))
         : 0;
-    const { terrainType, biomeType, featureType } = captureEnginePlacementTypes(
-      context.setup.dimensions,
-      {
-        getTerrainType: (x, y) => deps.engine.getTerrainType(context, x, y),
-        getBiomeType: (x, y) => deps.engine.getBiomeType(context, x, y),
-        getFeatureType: (x, y) => deps.engine.getFeatureType(context, x, y),
-      }
-    );
+    const terrainType = deps.engine.readCurrentMapTerrainTypes(context);
+    const biomeType = deps.engine.readCurrentMapBiomeTypes(context);
+    const featureType = deps.engine.readCurrentMapFeatureTypes(context);
     const plannerInput = {
       width,
       height,

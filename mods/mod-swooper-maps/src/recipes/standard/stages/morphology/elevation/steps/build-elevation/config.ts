@@ -13,9 +13,9 @@ export const config = defineStep({
   engine: [
     "recalculateAreas",
     "buildElevation",
-    "getTerrainType",
-    "getElevation",
-    "isWater",
+    "readCurrentMapTerrainTypes",
+    "readCurrentMapElevations",
+    "readCurrentMapWaterMask",
   ] as const,
   requires: [
     MAP_PROJECTION_EFFECT_TAGS.map.mountainsPlotted,

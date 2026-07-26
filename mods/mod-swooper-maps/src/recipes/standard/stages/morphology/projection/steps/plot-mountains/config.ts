@@ -9,7 +9,7 @@ import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
 export const config = defineStep({
   id: "plot-mountains",
   description: "Projects admitted Morphology mountain intent onto the current Civ7 map.",
-  engine: ["setTerrainType", "isWater"] as const,
+  engine: ["setTerrainType", "readCurrentMapWaterMask"] as const,
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.mountainsPlotted],
   artifacts: {

@@ -1,9 +1,6 @@
 import type { TraceJsonObject } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import {
-  captureEngineHeightfield,
-  engineLandMaskFromWaterMask,
-} from "../../../../current-engine-surface.js";
+import { landMaskFromWaterMask } from "../../../../water-surface-parity.js";
 import { logAsciiMap, logTerrainStats } from "../../log.js";
 import { config } from "./config.js";
 import { projectPlacementCompletionViz } from "./viz.js";
@@ -19,12 +16,14 @@ export const PlacementStep = createStep(config, {
     const startAssignment = deps.artifacts.startAssignment.read(context);
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
     const topography = deps.artifacts.topography.read(context);
-    const currentEngineHeightfield = captureEngineHeightfield(context.setup.dimensions, {
-      getTerrainType: (x, y) => deps.engine.getTerrainType(context, x, y),
-      getElevation: (x, y) => deps.engine.getElevation(context, x, y),
-      isWater: (x, y) => deps.engine.isWater(context, x, y),
-    });
     const { width, height } = context.setup.dimensions;
+    const currentEngineHeightfield = {
+      width,
+      height,
+      terrain: deps.engine.readCurrentMapTerrainTypes(context),
+      elevation: deps.engine.readCurrentMapElevations(context),
+      waterMask: deps.engine.readCurrentMapWaterMask(context),
+    };
     const emit = (payload: TraceJsonObject): void => {
       context.trace.event(() => payload);
     };
@@ -49,7 +48,7 @@ export const PlacementStep = createStep(config, {
     const engineObservation = {
       terrain: currentEngineHeightfield.terrain,
       elevation: currentEngineHeightfield.elevation,
-      landMask: engineLandMaskFromWaterMask(currentEngineHeightfield.waterMask),
+      landMask: landMaskFromWaterMask(currentEngineHeightfield.waterMask),
     };
     let waterDriftCount = 0;
     const waterDrift = new Uint8Array(engineObservation.landMask.length);

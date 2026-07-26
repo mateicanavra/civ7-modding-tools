@@ -265,21 +265,16 @@ export interface LakeProjectionResult {
 }
 
 /**
- * Detached read of the mutable Civ7 map surface at one instant.
+ * Detached read of Civ7's current river and terrain classification at one instant.
  *
- * Engine ids use signed 32-bit arrays because Civ7 ids are integers, not byte-sized enums. Boolean
- * classifications use byte masks. Every adapter call returns fresh arrays, so consumers may retain
- * evidence without observing later engine mutations through shared storage.
+ * River metadata remains distinct from navigable-river terrain because the runtime can expose
+ * either signal independently. Every adapter call returns fresh arrays so retained evidence does
+ * not change when the engine advances.
  */
-export interface CurrentMapSurface {
+export interface CurrentRiverSurface {
   readonly width: number;
   readonly height: number;
   readonly terrainType: Int32Array;
-  readonly elevation: Int16Array;
-  readonly biomeType: Int32Array;
-  readonly featureType: Int32Array;
-  readonly waterMask: Uint8Array;
-  readonly lakeMask: Uint8Array;
   readonly riverType: Int32Array;
   readonly riverMask: Uint8Array;
   readonly navigableRiverMask: Uint8Array;
@@ -430,10 +425,40 @@ export interface EngineAdapter {
   readonly height: number;
 
   /**
-   * Reads the complete mutable map surface through one detached adapter-owned observation.
-   * Callers receive current engine evidence, never a live view into adapter storage.
+   * Reads current terrain ids into fresh row-major storage.
+   * Full-width integers preserve Civ7 ids without narrowing them to byte enums.
    */
-  readCurrentMapSurface(): CurrentMapSurface;
+  readCurrentMapTerrainTypes(): Int32Array;
+
+  /** Reads current engine elevations into fresh row-major signed storage. */
+  readCurrentMapElevations(): Int16Array;
+
+  /**
+   * Reads current biome ids into fresh row-major storage.
+   * Full-width integers preserve Civ7 ids without narrowing them to byte enums.
+   */
+  readCurrentMapBiomeTypes(): Int32Array;
+
+  /**
+   * Reads current feature ids into fresh row-major storage.
+   * Full-width integers preserve Civ7 ids without narrowing them to byte enums.
+   */
+  readCurrentMapFeatureTypes(): Int32Array;
+
+  /** Reads Civ7's current water classification into a fresh row-major byte mask. */
+  readCurrentMapWaterMask(): Uint8Array;
+
+  /** Reads Civ7's current lake classification into a fresh row-major byte mask. */
+  readCurrentMapLakeMask(): Uint8Array;
+
+  /** Reads Civ7's current area ids into fresh row-major full-width integer storage. */
+  readCurrentMapAreaIds(): Int32Array;
+
+  /**
+   * Reads detached terrain and river classifications for parity and runtime evidence.
+   * Terrain identity remains separate from river metadata because Civ7 can expose them separately.
+   */
+  readCurrentRiverSurface(): CurrentRiverSurface;
 
   // === MAP INIT / MAP INFO ===
 

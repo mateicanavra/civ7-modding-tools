@@ -39,7 +39,7 @@ export { createMockAdapter, MockAdapter } from "./mock-adapter.js";
 // Re-export types
 export type {
   ContinentBounds,
-  CurrentMapSurface,
+  CurrentRiverSurface,
   DiscoveryPlacementIntent,
   DiscoveryPlacementOutcome,
   DiscoveryPlacementRejectionReason,

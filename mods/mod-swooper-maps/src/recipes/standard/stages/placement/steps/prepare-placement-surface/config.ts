@@ -15,11 +15,12 @@ import {
 export const config = defineStep({
   id: "prepare-placement-surface",
   engine: [
-    "getAreaId",
     "validateAndFixTerrain",
     "getTerrainType",
-    "isWater",
-    "isLake",
+    "readCurrentMapTerrainTypes",
+    "readCurrentMapWaterMask",
+    "readCurrentMapLakeMask",
+    "readCurrentMapAreaIds",
     "setTerrainType",
     "storeWaterData",
     "recalculateAreas",

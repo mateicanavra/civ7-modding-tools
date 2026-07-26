@@ -240,7 +240,7 @@ describe("plan natural wonders step", () => {
     );
   });
 
-  it("routes each admitted product and current engine surface into the planner request", () => {
+  it("composes physical products and current Civ7 identity layers into the planner request", () => {
     const { adapter, context } = createContext(TEST_MAP_SIZE, {
       defaultTerrainType: terrainTypeIndices.TERRAIN_MOUNTAIN,
       defaultBiomeType: biomeGlobals.BIOME_DESERT,

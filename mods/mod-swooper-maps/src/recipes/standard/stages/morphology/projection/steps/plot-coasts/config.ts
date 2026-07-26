@@ -9,7 +9,7 @@ import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
  */
 export const config = defineStep({
   id: "plot-coasts",
-  engine: ["setTerrainType", "getTerrainType", "getElevation", "isWater"] as const,
+  engine: ["setTerrainType", "readCurrentMapWaterMask"] as const,
   requires: [],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.coastsPlotted],
   artifacts: {

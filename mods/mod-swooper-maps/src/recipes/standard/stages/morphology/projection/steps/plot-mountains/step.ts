@@ -1,6 +1,5 @@
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { captureEngineWaterMask } from "../../../../../current-engine-surface.js";
 import { assertNoWaterDrift } from "../../../../../water-surface-parity.js";
 import { config } from "./config.js";
 
@@ -41,9 +40,7 @@ export const PlotMountainsStep = createStep(config, {
       }
     }
 
-    const engineWaterMask = captureEngineWaterMask(context.setup.dimensions, (x, y) =>
-      deps.engine.isWater(context, x, y)
-    );
+    const engineWaterMask = deps.engine.readCurrentMapWaterMask(context);
     assertNoWaterDrift(
       context.setup.dimensions,
       engineWaterMask,

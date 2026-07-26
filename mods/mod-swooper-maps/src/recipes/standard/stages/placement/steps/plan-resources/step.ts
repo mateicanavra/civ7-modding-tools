@@ -33,7 +33,10 @@ export const PlanResourcesStep = createStep(config, {
     const biomeClassification = deps.artifacts.biomeClassification.read(context);
     const pedology = deps.artifacts.pedology.read(context);
     const regionSlots = deps.artifacts.landmassRegionSlotByTile.read(context);
-    const currentEngineSurface = deps.engine.readCurrentMapSurface(context);
+    const currentRiverSurface = deps.engine.readCurrentRiverSurface(context);
+    const currentBiomeTypes = deps.engine.readCurrentMapBiomeTypes(context);
+    const currentFeatureTypes = deps.engine.readCurrentMapFeatureTypes(context);
+    const currentWaterMask = deps.engine.readCurrentMapWaterMask(context);
 
     // --- step 2: habitat lane derivation (domain/resources op) ------------------------------
     const habitat = ops.habitat(
@@ -188,9 +191,9 @@ export const PlanResourcesStep = createStep(config, {
       projectedNavigableRivers.riverMask,
       projectedNavigableRivers.plannedMajorRiverMask,
       projectedNavigableRivers.plannedMinorRiverMask,
-      currentEngineSurface.riverMask,
-      currentEngineSurface.navigableRiverMask,
-      currentEngineSurface.minorRiverMask,
+      currentRiverSurface.riverMask,
+      currentRiverSurface.navigableRiverMask,
+      currentRiverSurface.minorRiverMask,
     ].filter((mask): mask is Uint8Array => mask !== undefined);
     const mapSize = getCiv7StandardMapSizePresetForDimensions(width, height);
     const demandResult = ops.demands(
@@ -200,10 +203,10 @@ export const PlanResourcesStep = createStep(config, {
         height,
         plannedRows,
         legalitySurface: {
-          biomeType: currentEngineSurface.biomeType,
-          terrainType: currentEngineSurface.terrainType,
-          featureType: currentEngineSurface.featureType,
-          engineWaterMask: currentEngineSurface.waterMask,
+          biomeType: currentBiomeTypes,
+          terrainType: currentRiverSurface.terrainType,
+          featureType: currentFeatureTypes,
+          engineWaterMask: currentWaterMask,
         },
         requiredForAge,
         riverMasks,

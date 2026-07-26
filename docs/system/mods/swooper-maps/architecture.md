@@ -46,10 +46,13 @@ Current architecture for ecology, lakes, and placement is intentionally physics-
   Civ7-projectable river selection
   (`artifact:map.rivers.projectedNavigableRivers`). The stable `map.rivers`
   runtime namespace identifies that projection product, not a stage catalog.
-- Mutable/current Civ7 state is observed fresh through declared adapter
-  capabilities and remains invocation-local. Metrics facets may retain
-  completed scalar or component evidence, but neither the observation nor the
-  facet evidence is a pipeline artifact.
+- Mutable/current Civ7 state is observed fresh through exact, declared adapter
+  bulk-layer capabilities and remains invocation-local. Terrain, elevation,
+  biome, feature, water, lake, area, and river reads return detached storage;
+  steps request only the layers needed at that lifecycle boundary rather than a
+  privileged complete-surface snapshot. Metrics facets may retain completed
+  scalar or component evidence, but neither the observation nor the facet
+  evidence is a pipeline artifact.
 - Runtime parity is now treated as a contract boundary:
   - lake plan vs engine water mask mismatch is emitted as projection evidence,
   - biome/placement land-water drift is always emitted and remains a strict-candidate gate until a post-hydrology authoritative land mask artifact is finalized.
