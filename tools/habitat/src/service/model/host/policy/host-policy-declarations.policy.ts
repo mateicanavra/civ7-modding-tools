@@ -1,6 +1,5 @@
 import { Value } from "typebox/value";
 import {
-  HostExternalResourceSurfaceDeclarationSchema,
   HostGeneratedSurfaceDeclarationSchema,
   type HostMatcher,
   type HostPolicyDocument,
@@ -54,14 +53,14 @@ export const defaultHostPolicyDocument: HostPolicyDocument = Value.Parse(HostPol
       },
       commandRecovery("swooper-maps-workflow", "nx run mod-swooper-maps:gen:maps")
     ),
-    externalResourceSurface(
+    generatedSurface(
       "civ7-types-generated",
-      "civ7-resources-workflow",
+      "map-policy-workflow",
       {
         kind: "prefix",
         value: "packages/civ7-types/generated/",
       },
-      documentedRecovery("civ7-resources-workflow", "docs/process/resources-submodule.md")
+      commandRecovery("map-policy-workflow", "nx run civ7-map-policy:generate")
     ),
     generatedSurface(
       "civ7-map-policy-tables",
@@ -135,24 +134,6 @@ function generatedSurface(
     declarationId: generatedZoneId,
     ownerId,
     kind: "generated-surface",
-    generatedZoneId,
-    matcher,
-    mutationLane: "blocked",
-    recovery,
-  });
-}
-
-function externalResourceSurface(
-  generatedZoneId: string,
-  ownerId: string,
-  matcher: HostMatcher,
-  recovery: HostRecoveryInstruction
-) {
-  return Value.Parse(HostExternalResourceSurfaceDeclarationSchema, {
-    policyId,
-    declarationId: generatedZoneId,
-    ownerId,
-    kind: "external-resource-surface",
     generatedZoneId,
     matcher,
     mutationLane: "blocked",

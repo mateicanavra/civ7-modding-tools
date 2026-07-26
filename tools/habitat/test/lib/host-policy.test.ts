@@ -38,12 +38,19 @@ describe("host policy boundary", () => {
     });
   });
 
-  test("projects external resource surfaces from host declarations", () => {
+  test("routes generated Civ7 declarations to the map-policy owner", () => {
     expect(hostSurfaceDecisionForPath("packages/civ7-types/generated/data.ts")).toMatchObject({
       declarationState: "declared",
-      surfaceKind: "external-resource",
+      surfaceKind: "generated",
       mutationLane: "blocked",
       declarationId: "civ7-types-generated",
+      owner: {
+        ownerId: "map-policy-workflow",
+      },
+      recovery: {
+        actionKind: "command",
+        command: "nx run civ7-map-policy:generate",
+      },
     });
   });
 

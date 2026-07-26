@@ -3,17 +3,29 @@
   "name": "civ7-map-policy",
   "tags": ["kind:library"],
   "targets": {
+    "build": {
+      "dependsOn": ["^build", "generated:check"]
+    },
     "generate": {
       "executor": "nx:run-commands",
       "cache": false,
       "options": {
-        "command": "bun packages/civ7-map-policy/scripts/verify.ts --write"
+        "command": "bun --conditions bun-source packages/civ7-map-policy/scripts/generate.ts --write"
+      }
+    },
+    "generated:check": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "command": "bun --conditions bun-source packages/civ7-map-policy/scripts/generate.ts"
       }
     },
     "check": {
       "executor": "nx:noop",
       "cache": false,
-      "outputs": []
+      "outputs": [],
+      "dependsOn": ["generated:check", "typecheck", "check:policy", "^check"]
     }
   }
 }

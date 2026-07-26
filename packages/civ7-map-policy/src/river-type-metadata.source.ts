@@ -1,9 +1,8 @@
 /**
  * Source metadata for Civ7 river type enum values.
  *
- * This is the hand-reviewed input used by the generated Civ7 browser tables.
- * Keep the generated map-policy and Studio table copies in sync with this
- * source through `bun run mapgen-studio:gen-civ7-tables`.
+ * This hand-reviewed input generates both the map-policy browser tables and
+ * the ambient Civ7 runtime declaration through `civ7-map-policy:generate`.
  */
 export const CIV7_RIVER_TYPE_METADATA_SOURCE = {
   source: [

@@ -22,13 +22,13 @@
     "check:test": "tsc -p test/tsconfig.json --noEmit",
     "check:tools": "tsc -p scripts/tsconfig.json --noEmit",
     "test": "bun test",
-    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
-    "verify": "bun ./scripts/verify.ts"
+    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
   },
   "dependencies": {
     "typebox": "catalog:"
   },
   "devDependencies": {
+    "@civ7/plugin-files": "workspace:*",
     "fast-xml-parser": "^5.3.3"
   }
 }

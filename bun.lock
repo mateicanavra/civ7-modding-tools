@@ -183,6 +183,7 @@
         "typebox": "catalog:",
       },
       "devDependencies": {
+        "@civ7/plugin-files": "workspace:*",
         "fast-xml-parser": "^5.3.3",
       },
     },

@@ -1,6 +1,4 @@
 import { describe, expect, it } from "bun:test";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 
 import {
   applyCiv7CoastRingPolicy,
@@ -94,20 +92,6 @@ describe("@civ7/map-policy", () => {
 
   it("keeps the generated map-policy river metadata catalog on the live-observed source", () => {
     expect(CIV7_BROWSER_TABLES_V0.riverTypes).toEqual(CIV7_RIVER_TYPE_METADATA_SOURCE);
-  });
-
-  it("keeps ambient Civ7 runtime RiverTypes declarations generated from the same source", () => {
-    const dts = readFileSync(
-      join(import.meta.dir, "../../civ7-types/generated/river-types.gen.d.ts"),
-      "utf8"
-    );
-
-    for (const source of CIV7_RIVER_TYPE_METADATA_SOURCE.source) {
-      expect(dts).toContain(source);
-    }
-    for (const [key, value] of Object.entries(CIV7_RIVER_TYPE_METADATA_SOURCE.values)) {
-      expect(dts).toContain(`readonly ${key}: ${value};`);
-    }
   });
 
   it("stamps a single land-adjacent coast ring (not a distance band) via odd-R adjacency", () => {
