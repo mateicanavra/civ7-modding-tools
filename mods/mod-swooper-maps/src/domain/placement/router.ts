@@ -1,10 +1,13 @@
-import { createDomain } from "@swooper/mapgen-core/authoring";
+import { createDomainRouter } from "@swooper/mapgen-core/authoring";
 
-import domain from "./index.js";
-import implementations from "./ops/index.js";
+import contract from "./contract.js";
+import starts from "./modules/starts/router.js";
+import wonders from "./modules/wonders/router.js";
 
-/**
- * Assembles the Placement domain contract with the wonder and start-planning
- * implementation registry used by the terminal recipe stages.
- */
-export default createDomain(domain, implementations);
+/** Executable Placement router consumed by the terminal recipe stages. */
+const placement = createDomainRouter(contract, {
+  wonders,
+  starts,
+});
+
+export default placement;

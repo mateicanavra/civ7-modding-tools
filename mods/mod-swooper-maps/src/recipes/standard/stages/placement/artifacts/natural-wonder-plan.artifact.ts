@@ -7,7 +7,7 @@ import {
 
 /** Natural-wonder plan (`artifact:placement.naturalWonderPlan`). One artifact per file by repo convention. */
 
-const Schema = placement.ops.planNaturalWonders.output;
+const Schema = placement.wonders.ops.planNaturalWonders.output;
 
 /** Registers the bounded, scored natural-wonder intent consumed by stamping. */
 export const artifact = defineArtifact({

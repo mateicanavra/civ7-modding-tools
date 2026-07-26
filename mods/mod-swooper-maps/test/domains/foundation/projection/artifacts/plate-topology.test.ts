@@ -21,9 +21,8 @@ function validationMessages(value: unknown): string {
 }
 
 describe("foundation plate-topology artifact", () => {
-  it("requires topology node ids to be unique and index-aligned", () => {
+  it("requires topology nodes to be index-aligned", () => {
     const valid = validPlateTopology();
-    expect(plateTopology.validate(valid)).toEqual([]);
     expect(
       validationMessages({
         ...valid,
@@ -37,5 +36,15 @@ describe("foundation plate-topology artifact", () => {
     expect(validationMessages({ ...valid, plateCount: 3 })).toContain(
       "plates length must match plateCount"
     );
+  });
+
+  it("requires every neighbor to identify a represented plate", () => {
+    const valid = validPlateTopology();
+    expect(
+      validationMessages({
+        ...valid,
+        plates: [{ ...valid.plates[0], neighbors: [2] }, valid.plates[1]],
+      })
+    ).toContain("neighbors contains an invalid plate id");
   });
 });

@@ -11,19 +11,19 @@ language js(typescript)
 
 or {
   import_statement(source=$source) where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$",
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.*\.ts$",
     $source <: r"^[\"']?(?:(?:\.\./){2,}config\.js|@mapgen/domain(?:/[^/]+)?/config\.js)[\"']?$"
   },
   `export { $exports } from $source` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$",
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.*\.ts$",
     $source <: r"^[\"']?(?:(?:\.\./){2,}config\.js|@mapgen/domain(?:/[^/]+)?/config\.js)[\"']?$"
   },
   `export * from $source` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$",
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.*\.ts$",
     $source <: r"^[\"']?(?:(?:\.\./){2,}config\.js|@mapgen/domain(?:/[^/]+)?/config\.js)[\"']?$"
   },
   `import($source)` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$",
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.*\.ts$",
     $source <: r"^[\"']?(?:(?:\.\./){2,}config\.js|@mapgen/domain(?:/[^/]+)?/config\.js)[\"']?$"
   }
 }

@@ -1,24 +1,28 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
-import ecology from "@mapgen/domain/ecology/router";
+import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology";
+import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
-import { artifacts as cryosphereArtifacts } from "@mapgen/domain/hydrology/modules/cryosphere/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
-  normalizeOperationSelectionForTest,
   publishTestArtifact,
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
-import { BiomesStep as biomesStep } from "../../../../../../../../src/recipes/standard/stages/ecology/biomes/steps/biomes/step.js";
 import { artifacts as mapEcologyArtifacts } from "../../../../../../../../src/recipes/standard/stages/map/ecology/artifacts/index.js";
+import { resolveEngineBiomeIds } from "../../../../../../../../src/recipes/standard/stages/map/ecology/steps/plot-biomes/biome-projection-policy.js";
 import { PlotBiomesStep as plotBiomesStep } from "../../../../../../../../src/recipes/standard/stages/map/ecology/steps/plot-biomes/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 
 describe("plot biomes step", () => {
+  it("refuses projection when an official Civ7 biome global is unavailable", () => {
+    expect(() => resolveEngineBiomeIds({ getBiomeGlobal: () => -1 })).toThrow(
+      "missing biome global"
+    );
+  });
+
   it("projects marine and land biome bindings into Civ7", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
@@ -42,19 +46,20 @@ describe("plot biomes step", () => {
     elevation[0] = 0;
 
     withMapContextExecutionForTest(context, (stepContext) => {
+      const biomeIndex = new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid);
+      biomeIndex[0] = 255;
+      publishTestArtifact(stepContext, biomeArtifacts.biomeClassification, {
+        width,
+        height,
+        biomeIndex,
+        vegetationDensity: new Float32Array(size).fill(0.5),
+        treeLine01: new Float32Array(size).fill(0.75),
+      });
       publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation,
         seaLevel: 0,
         landMask,
         bathymetry: new Int16Array(size),
-      });
-      publishTestArtifact(stepContext, cryosphereArtifacts.cryosphere, {
-        snowCover: new Uint8Array(size),
-        seaIceCover: new Uint8Array(size),
-        albedo: new Uint8Array(size),
-        groundIce01: new Float32Array(size),
-        permafrost01: new Float32Array(size),
-        meltPotential01: new Float32Array(size),
       });
       publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
         surfaceTemperatureC: new Float32Array(size).fill(15),
@@ -63,24 +68,6 @@ describe("plot biomes step", () => {
         aridityIndex: new Float32Array(size).fill(0.2),
         freezeIndex: new Float32Array(size).fill(0.05),
       });
-      publishTestArtifact(stepContext, pedologyArtifacts.pedology, {
-        width,
-        height,
-        soilType: new Uint8Array(size).fill(0),
-        fertility: new Float32Array(size).fill(0.5),
-      });
-
-      const classifyConfig = normalizeOperationSelectionForTest(
-        ecology.biomes.ops.classifyBiomes,
-        ecology.biomes.ops.classifyBiomes.defaultConfig
-      );
-      const ecologyOps = ecology.biomes.ops.bind(biomesStep.contract.ops!).runtime;
-      biomesStep.run(
-        stepContext,
-        { classify: classifyConfig },
-        ecologyOps,
-        buildStepTestDependencies(biomesStep)
-      );
       plotBiomesStep.run(
         stepContext,
         {},
@@ -95,8 +82,11 @@ describe("plot biomes step", () => {
     expect(adapter.getBiomeType(0, 0)).toBe(marineId);
 
     const landIndex = 1;
-    expect(bindings.engineBiomeId[landIndex]).not.toBe(marineId);
-    expect(bindings.engineBiomeId[landIndex]).toBeGreaterThanOrEqual(0);
-    expect(adapter.getBiomeType(landIndex, 0)).toBe(bindings.engineBiomeId[landIndex]);
+    const temperateHumidId = resolveEngineBiomeIds(adapter).land.temperateHumid;
+    expect(bindings.engineBiomeId[landIndex]).toBe(temperateHumidId);
+    expect(bindings.bindingClass[0]).toBe(0);
+    expect(bindings.bindingClass[landIndex]).toBeGreaterThan(0);
+    expect(bindings.landWaterMismatchCount).toBe(0);
+    expect(adapter.getBiomeType(landIndex, 0)).toBe(temperateHumidId);
   });
 });

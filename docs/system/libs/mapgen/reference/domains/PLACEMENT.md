@@ -119,10 +119,10 @@ Placement owns its gameplay projection artifacts (`landmassRegionSlotByTile`, `p
 
 ## Ops surface
 
-`domain/placement` ops:
+`domain/placement` exposes two semantic modules in causal order:
 
-- `planStarts` — candidate admission (impassability/wonder/volcano screens), scoring (fertility/freshwater/climate-comfort/resource-support/roughness/StartBias), tiering, four-rung selection ladder, fairness balancing, seat identity.
-- `planNaturalWonders`, `planDiscoveries`, `planWonders` — deterministic plans from pipeline artifacts.
+- `wonders.ops.planWonders`, then `wonders.ops.planNaturalWonders` — deterministic map-size demand followed by natural-wonder site planning from pipeline artifacts.
+- `starts.ops.planStarts` — candidate admission against wonder evidence (plus impassability and volcano screens), scoring (fertility/freshwater/climate-comfort/resource-support/roughness/StartBias), tiering, four-rung selection ladder, fairness balancing, seat identity.
 
 `domain/resources` ops (layout: `lib/` corpus + runtime-ids, `policy/` shared predicates, per-op `policy/` modules):
 
@@ -171,7 +171,7 @@ Policy data comes from `@civ7/map-policy` generated tables and corpus (`CIV7_BRO
 - Stage definition: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/index.ts`
 - Stage public config surface: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/index.ts`
 - Placement artifact catalog: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts/index.ts`; each contract and validator lives in its adjacent one-module-per-file `*.artifact.ts` module.
-- Domain ops: `mods/mod-swooper-maps/src/domain/placement/ops/`, `mods/mod-swooper-maps/src/domain/resources/ops/`
+- Domain ops: `mods/mod-swooper-maps/src/domain/placement/modules/starts/ops/`, `mods/mod-swooper-maps/src/domain/placement/modules/wonders/ops/`, `mods/mod-swooper-maps/src/domain/resources/modules/*/ops/`
 - Policy tables: `packages/civ7-map-policy/src/civ7-tables.gen.ts` (generator-only writes)
 - Tag registry: `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
 

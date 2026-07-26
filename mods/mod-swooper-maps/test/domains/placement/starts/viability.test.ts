@@ -7,7 +7,7 @@ import {
 } from "@swooper/mapgen-core/testing";
 import type { IsEqual, RequiredKeysOf } from "type-fest";
 
-const { planStarts } = placementDomain.ops;
+const { planStarts } = placementDomain.starts.ops;
 
 type PlanStartsInput = Static<(typeof planStarts)["input"]>;
 type Expect<T extends true> = T;

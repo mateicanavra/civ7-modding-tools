@@ -10,7 +10,7 @@ import {
   UNIT_SCORE_VALUE_SPEC,
 } from "../../viz.js";
 
-type PlanStartsOutput = Static<(typeof placement.ops.planStarts)["output"]>;
+type PlanStartsOutput = Static<(typeof placement.starts.ops.planStarts)["output"]>;
 type StartAssignmentArtifact = Static<
   typeof import("../../artifacts/index.js").artifacts["startAssignment"]["schema"]
 >;

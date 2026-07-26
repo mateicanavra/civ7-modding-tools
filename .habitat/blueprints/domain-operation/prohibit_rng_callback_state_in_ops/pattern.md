@@ -3,7 +3,8 @@ level: error
 ---
 # Prohibit RNG Callback State In Ops
 
-Domain ops must not accept ambient RNG callbacks or use RNG state through options/context.
+Domain-module operations must not accept ambient RNG callbacks or use RNG state through
+options/context.
 
 ```grit
 language js(typescript)
@@ -13,6 +14,6 @@ or {
   contains "options.rng",
   contains r"\bctx\.rng\b"
 } where {
-  $filename <: r".*mods/[^/]+/src/domain/.+/ops/.+\.ts$"
+  $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.+\.ts$"
 }
 ```

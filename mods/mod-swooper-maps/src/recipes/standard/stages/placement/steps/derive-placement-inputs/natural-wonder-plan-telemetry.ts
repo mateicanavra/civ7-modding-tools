@@ -1,7 +1,7 @@
 import placement from "@mapgen/domain/placement";
 import type { Static } from "@swooper/mapgen-core/authoring";
 
-type NaturalWonderPlan = Static<(typeof placement.ops.planNaturalWonders)["output"]>;
+type NaturalWonderPlan = Static<(typeof placement.wonders.ops.planNaturalWonders)["output"]>;
 
 /** Stable tuple emitted for each bounded natural-wonder plan sample. */
 export type NaturalWonderPlanRuntimeRow = readonly [

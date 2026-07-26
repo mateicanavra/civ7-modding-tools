@@ -4,13 +4,13 @@ import { defineArtifact, type Static, Type } from "@swooper/mapgen-core/authorin
 /** Authored placement configuration retained with the shared runtime input snapshot. */
 const PlacementInputsConfigSchema = Type.Object(
   {
-    wonders: placement.ops.planWonders.config,
-    naturalWonders: placement.ops.planNaturalWonders.config,
+    wonders: placement.wonders.ops.planWonders.config,
+    naturalWonders: placement.wonders.ops.planNaturalWonders.config,
   },
   { additionalProperties: false }
 );
 
-const PlacementRuntimeStartsSchema = placement.ops.planStarts.input.properties.baseStarts;
+const PlacementRuntimeStartsSchema = placement.starts.ops.planStarts.input.properties.baseStarts;
 
 /**
  * Shared planning-input schema for map facts, regional slot contributions,
@@ -18,15 +18,15 @@ const PlacementRuntimeStartsSchema = placement.ops.planStarts.input.properties.b
  */
 const Schema = Type.Object(
   {
-    mapInfo: placement.ops.planWonders.input.properties.mapInfo,
+    mapInfo: placement.wonders.ops.planWonders.input.properties.mapInfo,
     starts: PlacementRuntimeStartsSchema,
-    wonders: placement.ops.planWonders.output,
+    wonders: placement.wonders.ops.planWonders.output,
     placementConfig: PlacementInputsConfigSchema,
   },
   { additionalProperties: false }
 );
 
-type MapInfo = Static<(typeof placement.ops.planWonders)["input"]["properties"]["mapInfo"]>;
+type MapInfo = Static<(typeof placement.wonders.ops.planWonders)["input"]["properties"]["mapInfo"]>;
 /** Admitted runtime placement inputs consumed by the Standard placement product steps. */
 export type PlacementInputsV1 = Static<typeof Schema> & { mapInfo: MapInfo };
 

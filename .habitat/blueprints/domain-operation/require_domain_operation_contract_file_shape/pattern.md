@@ -27,11 +27,7 @@ predicate is_inline_type_schema($value) {
   $value <: `Type.$constructor($args)`
 }
 
-predicate disallowed_root_operation_contract_dependency($source) {
-  ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|\./strategies/[a-z0-9]+(?:-[a-z0-9]+)*/config\.js|\.\./\.\./model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js)[\"']?$"
-}
-
-predicate disallowed_module_operation_contract_dependency($source) {
+predicate disallowed_operation_contract_dependency($source) {
   ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|\./strategies/[a-z0-9]+(?:-[a-z0-9]+)*/config\.js|\.\./\.\./model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){4}model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){3}[a-z0-9]+(?:-[a-z0-9]+)*/model/atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)\.js)[\"']?$"
 }
 
@@ -62,36 +58,20 @@ or {
     ! $export <: `export default $value`
   },
   import_statement(source=$source) where {
-    $filename <: r".*mods/[^/]+/src/domain/[^/]+/ops/[^/]+/contract\.ts$",
-    disallowed_root_operation_contract_dependency($source)
-  },
-  import_statement(source=$source) where {
     $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/contract\.ts$",
-    disallowed_module_operation_contract_dependency($source)
-  },
-  `export { $exports } from $source` where {
-    $filename <: r".*mods/[^/]+/src/domain/[^/]+/ops/[^/]+/contract\.ts$",
-    disallowed_root_operation_contract_dependency($source)
+    disallowed_operation_contract_dependency($source)
   },
   `export { $exports } from $source` where {
     $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/contract\.ts$",
-    disallowed_module_operation_contract_dependency($source)
-  },
-  `export * from $source` where {
-    $filename <: r".*mods/[^/]+/src/domain/[^/]+/ops/[^/]+/contract\.ts$",
-    disallowed_root_operation_contract_dependency($source)
+    disallowed_operation_contract_dependency($source)
   },
   `export * from $source` where {
     $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/contract\.ts$",
-    disallowed_module_operation_contract_dependency($source)
-  },
-  `import($source)` where {
-    $filename <: r".*mods/[^/]+/src/domain/[^/]+/ops/[^/]+/contract\.ts$",
-    disallowed_root_operation_contract_dependency($source)
+    disallowed_operation_contract_dependency($source)
   },
   `import($source)` where {
     $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/contract\.ts$",
-    disallowed_module_operation_contract_dependency($source)
+    disallowed_operation_contract_dependency($source)
   },
   `createOp($args)`,
   `createStage($args)`

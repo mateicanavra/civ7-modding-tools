@@ -54,11 +54,11 @@ or {
     ! $import <: `import $binding from $source`
   },
   import_statement(source=$source) where {
-    $filename <: r".*mods/[^/]+/src/domain/.*/ops/[^/]+/strategies/[a-z0-9]+(?:-[a-z0-9]+)*/config\.ts$",
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/strategies/[a-z0-9]+(?:-[a-z0-9]+)*/config\.ts$",
     disallowed_strategy_config_dependency($source)
   },
   import_statement(source=$source) where {
-    $filename <: r".*mods/[^/]+/src/domain/.*/ops/[^/]+/strategies/[a-z0-9]+(?:-[a-z0-9]+)*/index\.ts$",
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/strategies/[a-z0-9]+(?:-[a-z0-9]+)*/index\.ts$",
     disallowed_strategy_implementation_dependency($source)
   },
   import_statement(source=$source) as $import where {

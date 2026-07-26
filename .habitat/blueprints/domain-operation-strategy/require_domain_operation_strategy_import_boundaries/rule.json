@@ -20,9 +20,9 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/domain/**/ops/*/strategies/index.ts",
-        "mods/*/src/domain/**/ops/*/strategies/*/config.ts",
-        "mods/*/src/domain/**/ops/*/strategies/*/index.ts"
+        "mods/*/src/domain/*/modules/*/ops/*/strategies/index.ts",
+        "mods/*/src/domain/*/modules/*/ops/*/strategies/*/config.ts",
+        "mods/*/src/domain/*/modules/*/ops/*/strategies/*/index.ts"
       ]
     }
   ],

@@ -3,7 +3,7 @@ import type { MapContext } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 import { warnLog } from "../../log.js";
 
-type PlanStartsOutput = Static<(typeof placement.ops.planStarts)["output"]>;
+type PlanStartsOutput = Static<(typeof placement.starts.ops.planStarts)["output"]>;
 type StartAssignmentArtifact = Static<
   typeof import("../../artifacts/index.js").artifacts["startAssignment"]["schema"]
 >;

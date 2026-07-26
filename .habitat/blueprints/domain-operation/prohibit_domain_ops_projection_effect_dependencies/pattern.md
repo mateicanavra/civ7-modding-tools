@@ -10,10 +10,10 @@ language js(typescript)
 
 or {
   `"artifact:map.$suffix"` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$"
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.*\.ts$"
   },
   `"effect:map.$suffix"` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$"
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.*\.ts$"
   }
 }
 ```

@@ -1,0 +1,86 @@
+import { describe, expect, it } from "bun:test";
+import ecology from "@mapgen/domain/ecology/router";
+import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../setup.js";
+
+const createInput = () => {
+  const { width, height } = TEST_MAP_SIZE.dimensions;
+  const size = width * height;
+
+  return {
+    width,
+    height,
+    seed: TEST_MAP_SEED,
+    effectiveMoisture: new Float32Array(size).fill(120),
+    surfaceTemperature: new Float32Array(size).fill(-6),
+    aridityIndex: new Float32Array(size).fill(0.2),
+    freezeIndex: new Float32Array(size).fill(0.95),
+    elevation: new Int16Array(size).fill(2400),
+    landMask: new Uint8Array(size).fill(1),
+  };
+};
+
+describe("snow scoring and plot-effect planning", () => {
+  it("places permanent snow plot effects when thresholds pass", () => {
+    const input = createInput();
+    const scoreSnowSelection = normalizeOperationSelectionForTest(
+      ecology.plotEffects.ops.scorePlotEffectsSnow,
+      ecology.plotEffects.ops.scorePlotEffectsSnow.defaultConfig,
+      { path: "/ops/scorePlotEffectsSnow" }
+    );
+
+    const scoreSnowResult = ecology.plotEffects.ops.scorePlotEffectsSnow.run(
+      {
+        width: input.width,
+        height: input.height,
+        landMask: input.landMask,
+        elevation: input.elevation,
+        effectiveMoisture: input.effectiveMoisture,
+        surfaceTemperature: input.surfaceTemperature,
+        aridityIndex: input.aridityIndex,
+        freezeIndex: input.freezeIndex,
+      },
+      scoreSnowSelection
+    );
+
+    const planSelection = normalizeOperationSelectionForTest(
+      ecology.plotEffects.ops.planPlotEffects,
+      {
+        ...ecology.plotEffects.ops.planPlotEffects.defaultConfig,
+        config: {
+          ...ecology.plotEffects.ops.planPlotEffects.defaultConfig.config,
+          snow: {
+            ...ecology.plotEffects.ops.planPlotEffects.defaultConfig.config.snow,
+            enabled: true,
+            coveragePct: 100,
+            lightThreshold: 0.1,
+            mediumThreshold: 0.2,
+            heavyThreshold: 0.3,
+          },
+        },
+      },
+      { path: "/ops/planPlotEffects" }
+    );
+
+    const result = ecology.plotEffects.ops.planPlotEffects.run(
+      {
+        width: input.width,
+        height: input.height,
+        seed: input.seed,
+        snowScore01: scoreSnowResult.score01,
+        snowEligibleMask: scoreSnowResult.eligibleMask,
+        sandScore01: new Float32Array(input.width * input.height),
+        sandEligibleMask: new Uint8Array(input.width * input.height),
+        burnedScore01: new Float32Array(input.width * input.height),
+        burnedEligibleMask: new Uint8Array(input.width * input.height),
+        jungleScore01: new Float32Array(input.width * input.height),
+        jungleEligibleMask: new Uint8Array(input.width * input.height),
+      },
+      planSelection
+    );
+
+    expect(result.placements.length).toBeGreaterThan(0);
+    const anySnow = result.placements.some((placement) => placement.plotEffect.startsWith("snow-"));
+    expect(anySnow).toBe(true);
+  });
+});

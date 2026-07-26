@@ -43,8 +43,8 @@ export const DerivePlacementInputsStepContract = defineStep({
     provides: [placementArtifacts.placementInputs, placementArtifacts.naturalWonderPlan],
   },
   ops: {
-    wonders: placement.ops.planWonders,
-    naturalWonders: placement.ops.planNaturalWonders,
+    wonders: placement.wonders.ops.planWonders,
+    naturalWonders: placement.wonders.ops.planNaturalWonders,
   },
   schema: Type.Object({}),
 });

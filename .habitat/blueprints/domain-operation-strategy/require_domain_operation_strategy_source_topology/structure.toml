@@ -2,7 +2,7 @@ schemaVersion = 1
 
 [[scopes]]
 name = "mapgen-domain-operations-require-strategies"
-root = "mods/*/src/domain/**/ops/!(*.*)"
+root = "mods/*/src/domain/!(*.*)/modules/!(*.*)/ops/!(*.*)"
 kind = "directory"
 mode = "open"
 required = [
@@ -11,7 +11,7 @@ required = [
 
 [[scopes]]
 name = "mapgen-domain-operation-strategy-roots"
-root = "mods/*/src/domain/**/ops/!(*.*)/strategies"
+root = "mods/*/src/domain/!(*.*)/modules/!(*.*)/ops/!(*.*)/strategies"
 kind = "directory"
 mode = "closed"
 allowEmpty = true
@@ -25,7 +25,7 @@ forbidden = [
 
 [[scopes]]
 name = "mapgen-domain-operation-strategy-leaves"
-root = "mods/*/src/domain/**/ops/!(*.*)/strategies/+([a-z0-9])*(-+([a-z0-9]))"
+root = "mods/*/src/domain/!(*.*)/modules/!(*.*)/ops/!(*.*)/strategies/+([a-z0-9])*(-+([a-z0-9]))"
 kind = "directory"
 mode = "closed"
 allowEmpty = true

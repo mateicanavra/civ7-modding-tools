@@ -7,7 +7,7 @@ import { CIV7_BROWSER_TABLES_V0, getNaturalWonderFootprintIndices } from "@civ7/
 import placement from "@mapgen/domain/placement";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 
-type NaturalWonderPlan = Static<(typeof placement.ops.planNaturalWonders)["output"]>;
+type NaturalWonderPlan = Static<(typeof placement.wonders.ops.planNaturalWonders)["output"]>;
 
 type NaturalWonderEngine = Readonly<{
   getFeatureType: (x: number, y: number) => number;

@@ -20,7 +20,7 @@ type DerivePlacementInputsOps = StepRuntimeOps<
 type PlacementInputsV1 = Static<
   typeof import("../../artifacts/placement-inputs.artifact.js").artifact.schema
 >;
-type PlanNaturalWondersOutput = Static<(typeof placement.ops.planNaturalWonders)["output"]>;
+type PlanNaturalWondersOutput = Static<(typeof placement.wonders.ops.planNaturalWonders)["output"]>;
 
 const FEATURE_VALID_TERRAIN_TYPE_INDICES =
   CIV7_BROWSER_TABLES_V0.featureValidTerrainTypeIndices as Record<

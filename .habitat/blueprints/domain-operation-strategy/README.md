@@ -32,7 +32,7 @@ Current source-backed anchors:
 - `packages/mapgen-core/src/authoring/operation/contract.ts`
 - `packages/mapgen-core/src/authoring/operation/create.ts`
 - `packages/mapgen-core/src/authoring/operation/strategy.ts`
-- `mods/*/src/domain/**/ops/*/strategies/*/{config.ts,index.ts}`
+- `mods/*/src/domain/*/modules/*/ops/*/strategies/*/{config.ts,index.ts}`
 
 The live source has concrete `createStrategy(...)` implementations across
 multiple domains and semantic modules. The construct is not domain-specific
