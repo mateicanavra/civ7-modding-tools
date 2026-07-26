@@ -19,6 +19,7 @@ const fixtureProjects = [
   project("habitat", "tools/habitat", "kind:tooling", [
     "check",
     "check:boundaries",
+    "check:dead-code",
     "check:hygiene",
     "check:policy",
     "lint",
