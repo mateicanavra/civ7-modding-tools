@@ -28,14 +28,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** extract floodplain-family suitability as one Ecology
-Features domain behavior. Continuous physical scoring and configured intent
-admission remain distinct operations: the scoring owner interprets admitted
-river, terrain, fertility, biome, and seeded patch evidence into the ten
-floodplain score fields; the planner continues to choose the strongest admitted
-feature identity. The shared feature-suitability artifact remains the one
-scoring vintage consumed across ordered family planners. The recipe step only
-invokes domain operations, publishes that vintage, and projects visualization.
+**Current container:** cash the normalized Ecology Features architecture into
+its test corpus. Each surviving test must falsify one durable domain behavior,
+Standard authorship transform, exact recipe orchestration edge, or product
+outcome. Core admission, TypeBox structure, artifact publication mechanics,
+impossible post-admission states, source wiring, and accidental cross-operation
+relationships are not Swooper product tests and retire rather than gaining a
+cleaner fixture.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -52,16 +51,15 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** add the missing floodplain scoring operation, move the existing
-alluvial-relief formula and exact odd-q neighborhood behavior into its semantic
-strategy, bind it through the Features contract/router, and delete scoring
-helpers, constants, noise, biome dispatch, and raster loops from recipe
-orchestration. Prove family identity, river tier, terrain exclusion,
-determinism, bounds, and response relationships at the domain owner; regenerate
-the authored map configs and seal the cut. Then run the adjacent Ecology
-Features test sieve on the normalized plane, deleting provider guarantees and
-impossible-admission scenarios while preserving exact domain behavior and
-product studies.
+**Gradient:** classify every Ecology Features domain and recipe-stage test by
+its actual oracle and causal owner. Delete provider guarantees, corrupted-schema
+simulations, impossible-admission cases, and accidental cross-operation
+invariants. Preserve exact family scoring and planning behavior, ordered intent
+collision semantics, meaningful config transforms, projection/materialization,
+and shared product studies only at their true owner. Normalize any surviving
+test destination exposed by the sieve, run the focused and native Swooper
+owners, obtain fresh testing/product and architecture review, then seal the
+corpus as its own Graphite layer.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -96,6 +94,16 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Floodplain Suitability Ownership
+
+Continuous floodplain scoring moved from recipe orchestration into one Ecology
+Features operation with an alluvial-relief strategy. Its output keys derive
+from the canonical feature-intent vocabulary; exact wrapped-hex adjacency,
+biome-family routing, terrain exclusions, response relationships, bounds, and
+seed participation are proved at the domain owner. The recipe step now only
+invokes scoring, publishes the shared suitability vintage, and projects
+visualization.
 
 ### 2026-07-26 - Riparian Climate Influence
 
