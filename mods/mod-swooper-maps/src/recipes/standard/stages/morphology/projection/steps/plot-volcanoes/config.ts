@@ -8,7 +8,13 @@ import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
  */
 export const config = defineStep({
   id: "plot-volcanoes",
-  engine: ["setTerrainType", "setFeatureType", "readCurrentMapWaterMask"] as const,
+  engine: [
+    "setTerrainType",
+    "setFeatureType",
+    "readCurrentMapWaterMask",
+    "readCurrentMapTerrainTypes",
+    "readCurrentMapFeatureTypes",
+  ] as const,
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.volcanoesPlotted],
   artifacts: {

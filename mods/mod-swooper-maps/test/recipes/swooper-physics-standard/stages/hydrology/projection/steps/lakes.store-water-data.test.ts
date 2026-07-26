@@ -137,6 +137,9 @@ function seedLakeProjectionInputs(
   lakeMask: Uint8Array,
   mountainMask: Uint8Array = new Uint8Array(
     context.setup.dimensions.width * context.setup.dimensions.height
+  ),
+  volcanoMask: Uint8Array = new Uint8Array(
+    context.setup.dimensions.width * context.setup.dimensions.height
   )
 ): void {
   const { width, height } = context.setup.dimensions;
@@ -159,15 +162,26 @@ function seedLakeProjectionInputs(
     fracturePotential: new Uint8Array(size),
     roughnessPotential: new Uint8Array(size),
   });
+  publishTestArtifact(context, morphologyLandformsArtifacts.volcanoes, {
+    volcanoMask,
+    volcanoes: Array.from(volcanoMask.entries())
+      .filter(([, present]) => present === 1)
+      .map(([tileIndex]) => ({
+        tileIndex,
+        kind: "intraplate" as const,
+        strength01: 0,
+      })),
+  });
 }
 
 function executeLakesStep(
   context: TestContext,
   lakeMask: Uint8Array,
-  mountainMask?: Uint8Array
+  mountainMask?: Uint8Array,
+  volcanoMask?: Uint8Array
 ): Exclude<ReturnType<typeof LakesStep.run>, Promise<unknown>> {
   return withMapContextExecutionForTest(context, (stepContext) => {
-    seedLakeProjectionInputs(stepContext, lakeMask, mountainMask);
+    seedLakeProjectionInputs(stepContext, lakeMask, mountainMask, volcanoMask);
     const result = LakesStep.run(
       stepContext,
       {},
@@ -267,7 +281,7 @@ describe("map-hydrology/lakes", () => {
     );
   });
 
-  it("filters mountain overlap only at projection and measures the filtered candidates", () => {
+  it("protects final Morphology landforms from lake projection and measures the candidates", () => {
     const { width, height } = TEST_DIMENSIONS;
     const adapter = new CachedWaterAdapter({
       width,
@@ -278,27 +292,34 @@ describe("map-hydrology/lakes", () => {
     });
     const context = createContext(adapter, TEST_DIMENSIONS, TEST_MAP_SEED);
     const mountainTile = 2 + width;
-    const plainLakeTile = 3 + width;
+    const volcanoTile = 3 + width;
+    const plainLakeTile = 4 + width;
     const lakeMask = new Uint8Array(width * height);
     lakeMask[mountainTile] = 1;
+    lakeMask[volcanoTile] = 1;
     lakeMask[plainLakeTile] = 1;
     const mountainMask = new Uint8Array(width * height);
     mountainMask[mountainTile] = 1;
+    const volcanoMask = new Uint8Array(width * height);
+    volcanoMask[volcanoTile] = 1;
 
-    const result = executeLakesStep(context, lakeMask, mountainMask);
+    const result = executeLakesStep(context, lakeMask, mountainMask, volcanoMask);
 
     const projectedCandidates = adapter.calls.stampLakes.at(-1)?.lakeMask;
     expect(projectedCandidates).toBeInstanceOf(Uint8Array);
     expect(result.plannedLakeMask[mountainTile]).toBe(1);
     expect(projectedCandidates?.[mountainTile]).toBe(0);
+    expect(result.plannedLakeMask[volcanoTile]).toBe(1);
+    expect(projectedCandidates?.[volcanoTile]).toBe(0);
     expect(projectedCandidates?.[plainLakeTile]).toBe(1);
     const projectedLakes = readValidatedArtifact(context, hydrographyArtifacts.projectedLakes);
     expect(projectedLakes.lakeMask[mountainTile]).toBe(0);
+    expect(projectedLakes.lakeMask[volcanoTile]).toBe(0);
     expect(projectedLakes.lakeMask[plainLakeTile]).toBe(1);
     expect(result.projection.plannedLakeTileCount).toBe(1);
-    expect(result.morphologyProtectedLakeTileCount).toBe(1);
+    expect(result.morphologyProtectedLakeTileCount).toBe(2);
     expect(result.projection.plannedLakeTileCount + result.morphologyProtectedLakeTileCount).toBe(
-      2
+      3
     );
     expect(result.projection.stampedLakeTileCount + result.projection.rejectedLakeTileCount).toBe(
       result.projection.plannedLakeTileCount
@@ -314,7 +335,7 @@ describe("map-hydrology/lakes", () => {
     expect(metrics["map.hydrology.lakeProjection"]).toEqual(
       expect.objectContaining({
         plannedLakeTileCount: 1,
-        morphologyProtectedLakeTileCount: 1,
+        morphologyProtectedLakeTileCount: 2,
       })
     );
   });

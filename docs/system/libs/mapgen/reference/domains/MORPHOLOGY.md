@@ -287,21 +287,25 @@ artifact and therefore are not downstream domain authority.
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/step.ts` (recomputing post-island coastline metrics and publishing `shelf`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-coasts/config.ts` (`config.artifacts.requires`)
 
-### `artifact:morphology.volcanoes` (truth-only intent; tile space; immutable-at-F2)
+### `artifact:morphology.volcanoes` (complete immutable intent; tile space)
 
-Planned volcano placements, represented as both:
+The complete product of `morphology/plan-volcanoes`, represented as both:
 
 - a dense `volcanoMask` (for map overlays / fast membership tests)
-- a sparse list of volcano entries (`tileIndex`, `kind`, `strength01`)
+- a strictly tile-ordered sparse list of volcano entries (`tileIndex`, tectonic
+  setting `kind`, `strength01`)
 
-This artifact is an **intent snapshot**: it is not a promise that a particular engine terrain/feature application strategy is stable.
+Artifact admission proves binary mask membership, in-bounds unique ordering,
+and exact sparse-list/dense-mask coherence. The product expresses domain
+intent; the separate projection step owns Civ7 terrain and feature mutation and
+verifies immediate engine readback.
 
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/artifacts/volcanoes.artifact.ts` (`artifact.schema`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/config.ts` (docstring: “truth-only intent”)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/step.ts` (publishing `{ volcanoMask, volcanoes }`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-volcanoes/step.ts` (projection into engine terrain + feature)
+- `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/ops/plan-volcanoes/contract.ts` (complete operation output)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/step.ts` (publishing the operation-owned product)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-volcanoes/step.ts` (Civ7 projection and immediate readback)
 
 ### `artifact:morphology.landmasses` (derived snapshot; tile space; immutable-at-F2)
 
@@ -429,14 +433,21 @@ Decomposes the final land mask into connected landmasses.
 
 ### Planning ops (plan)
 
-#### `morphology/plan-volcanoes` → `{ volcanoes[] }`
+#### `morphology/plan-volcanoes` → `{ volcanoMask, volcanoes[] }`
 
-Plans volcano placements driven by boundary and hotspot signals.
+Plans the complete immutable volcano-intent product from admitted land,
+boundary-regime, shield-stability, and volcanism evidence. The planner owns
+candidate ranking, periodic-hex spacing, honest boundary-regime
+classification, normalized strength, the ordered sparse intent list, and its
+exact dense mask. Civ7 terrain and feature mutation remains downstream
+projection behavior.
 
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/ops/plan-volcanoes/contract.ts` (`PlanVolcanoesContract`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/step.ts` (building `volcanoMask` and `volcanoes[]` from the plan)
+- `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/artifacts/volcanoes.artifact.ts` (admitting exact sparse-list/dense-mask coherence)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/step.ts` (publishing the operation-owned product)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-volcanoes/step.ts` (projecting intent and verifying immediate Civ7 terrain/feature readback)
 
 #### `morphology/plan-ridges` → `{ mountainMask, orogenyPotential, fracturePotential }`
 

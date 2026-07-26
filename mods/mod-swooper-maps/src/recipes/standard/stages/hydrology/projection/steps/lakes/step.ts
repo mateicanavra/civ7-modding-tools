@@ -8,20 +8,32 @@ import { config } from "./config.js";
 const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
-/** Filters protected mountains at projection, then keeps mutable engine readback invocation-local. */
+/**
+ * Withholds final Morphology landforms from lake projection, then keeps mutable
+ * engine readback invocation-local.
+ */
 export const LakesStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
     const lakePlan = deps.artifacts.lakePlan.read(context);
     const mountains = deps.artifacts.mountains.read(context);
+    const volcanoes = deps.artifacts.volcanoes.read(context);
     const { width, height } = context.setup.dimensions;
     const size = width * height;
 
     const projectionLakeMask = new Uint8Array(size);
     let morphologyProtectedLakeTileCount = 0;
+    let mountainProtectedLakeTileCount = 0;
+    let volcanoProtectedLakeTileCount = 0;
     for (let i = 0; i < size; i++) {
       if (lakePlan.lakeMask[i] !== 1) continue;
       if (mountains.mountainMask[i] === 1) {
         morphologyProtectedLakeTileCount += 1;
+        mountainProtectedLakeTileCount += 1;
+        continue;
+      }
+      if (volcanoes.volcanoMask[i] === 1) {
+        morphologyProtectedLakeTileCount += 1;
+        volcanoProtectedLakeTileCount += 1;
         continue;
       }
       projectionLakeMask[i] = 1;
@@ -42,6 +54,8 @@ export const LakesStep = createStep(config, {
       stampedLakeTileCount: projection.stampedLakeTileCount,
       rejectedLakeTileCount: projection.rejectedLakeTileCount,
       morphologyProtectedLakeTileCount,
+      mountainProtectedLakeTileCount,
+      volcanoProtectedLakeTileCount,
       nonLakeTileCount: projection.nonLakeTileCount,
       terrainMismatchTileCount: projection.terrainMismatchTileCount,
       rejectedLakeShare: Number(

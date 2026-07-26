@@ -28,7 +28,7 @@ export const StandardLakeProjectionMeasurementsSchema = Type.Object(
     morphologyProtectedLakeTileCount: Type.Integer({
       minimum: 0,
       description:
-        "Number of domain-planned lake tiles withheld from projection because final Morphology marks them as mountains.",
+        "Number of domain-planned lake tiles withheld because final Morphology marks them as mountains or volcanoes.",
     }),
     stampedLakeTileCount: Type.Integer({
       minimum: 0,

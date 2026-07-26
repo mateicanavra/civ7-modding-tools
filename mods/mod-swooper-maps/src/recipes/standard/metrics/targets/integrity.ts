@@ -7,7 +7,7 @@ import { atLeast, atMost, equalTo, requiredShare } from "./support.js";
 export const STANDARD_INTEGRITY_TARGET = {
   id: "standard/integrity",
   description:
-    "Every Standard map closes placement, resource, lake, feature, river, and headless-adapter readback evidence.",
+    "Every Standard map closes placement, resource, lake, feature, volcano, river, and headless-adapter readback evidence.",
   expectations: [
     equalTo<StandardMapProductSample>(
       "discovery-generation-counts",
@@ -315,6 +315,24 @@ export const STANDARD_INTEGRITY_TARGET = {
       "modeled-land-biome-classification",
       "Every modeled-land tile carries a classified ecology biome.",
       (sample) => sample.metrics.ecology.unclassifiedModeledLand.count,
+      0
+    ),
+    equalTo<StandardMapProductSample>(
+      "volcano-planned-feature-readback",
+      "Every domain-planned volcano tile retains its Civ7 volcano feature in the completed map.",
+      (sample) => sample.metrics.relief.plannedVolcanoMissingFeatureCount,
+      0
+    ),
+    equalTo<StandardMapProductSample>(
+      "volcano-extra-feature-readback",
+      "The completed map contains no Civ7 volcano feature outside the domain-owned volcano intent.",
+      (sample) => sample.metrics.relief.extraFinalVolcanoFeatureCount,
+      0
+    ),
+    equalTo<StandardMapProductSample>(
+      "volcano-mountain-terrain-readback",
+      "Every domain-planned volcano remains on Civ7 mountain terrain in the completed map.",
+      (sample) => sample.metrics.relief.plannedVolcanoWrongTerrainCount,
       0
     ),
     equalTo<StandardMapProductSample>(

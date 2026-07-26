@@ -1,24 +1,26 @@
 import { createLabelRng } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
+import type { VolcanoIntent } from "../../../../model/atoms/volcano-intent.schema.js";
 import PlanVolcanoesContract from "../../contract.js";
-import {
-  applyVolcanoWeightAdjustments,
-  isTooClose,
-  normalizeVolcanoTuning,
-  resolveTargetVolcanoes,
-  scoreVolcanoWeight,
-} from "../../rules/index.js";
+import { classifyVolcanoIntentKind, scoreVolcanoCandidate } from "../../rules/volcano-scoring.js";
+import { admitsVolcanoSpacing } from "../../rules/volcano-spacing.js";
+import { resolveTargetVolcanoes } from "../../rules/volcano-target.js";
 import StrategyDefinition from "./config.js";
 
 /** Binds the `plate-hotspot-ranking` algorithm to the shared `morphology/plan-volcanoes` operation contract. */
 export default createStrategy(PlanVolcanoesContract, StrategyDefinition, {
+  normalize: (config) =>
+    config.maxVolcanoes >= config.minVolcanoes
+      ? config
+      : { ...config, maxVolcanoes: config.minVolcanoes },
   run: (input, config) => {
     const { width, height, landMask, boundaryCloseness, boundaryType, shieldStability, volcanism } =
       input;
     const size = width * height;
+    const volcanoMask = new Uint8Array(size);
 
-    if (!config.enabled) return { volcanoes: [] };
+    if (!config.enabled) return { volcanoMask, volcanoes: [] };
 
     let landTiles = 0;
     for (let i = 0; i < size; i++) {
@@ -27,65 +29,52 @@ export default createStrategy(PlanVolcanoesContract, StrategyDefinition, {
 
     const targetVolcanoes = resolveTargetVolcanoes(landTiles, config);
 
-    if (targetVolcanoes <= 0) return { volcanoes: [] };
+    if (targetVolcanoes <= 0) return { volcanoMask, volcanoes: [] };
 
     const rng = createLabelRng(input.rngSeed | 0);
     const candidates: Array<{ index: number; weight: number }> = [];
-
-    const { hotspotBase, threshold, shieldWeight, jitter, minSpacing } =
-      normalizeVolcanoTuning(config);
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const i = y * width + x;
         if (landMask[i] === 0) continue;
 
-        const closeness = boundaryCloseness[i] / 255;
-        const shield = shieldStability[i] / 255;
-        const bType = boundaryType[i] | 0;
-        const hotspotBoost = (volcanism[i] / 255) * hotspotBase;
-
-        let weight = scoreVolcanoWeight({
-          closeness,
-          boundaryType: bType,
-          hotspotBase,
-          hotspotBoost,
-          threshold,
-          boundaryWeight: config.boundaryWeight,
-          convergentMultiplier: config.convergentMultiplier,
-          transformMultiplier: config.transformMultiplier,
-          divergentMultiplier: config.divergentMultiplier,
-        });
-
-        if (weight <= 0) continue;
-
-        weight = applyVolcanoWeightAdjustments({
-          weight,
-          shield,
-          shieldPenalty: shieldWeight,
-          jitter,
+        const weight = scoreVolcanoCandidate({
+          boundaryCloseness01: boundaryCloseness[i] / 255,
+          boundaryType: boundaryType[i],
+          shieldStability01: shieldStability[i] / 255,
+          volcanism01: volcanism[i] / 255,
+          config,
           rng,
         });
-
-        if (weight > 0) {
-          candidates.push({ index: i, weight });
-        }
+        if (weight > 0) candidates.push({ index: i, weight });
       }
     }
 
-    if (candidates.length === 0) return { volcanoes: [] };
+    if (candidates.length === 0) return { volcanoMask, volcanoes: [] };
 
-    candidates.sort((a, b) => b.weight - a.weight);
+    candidates.sort((left, right) => right.weight - left.weight || left.index - right.index);
 
-    const placed: Array<{ x: number; y: number; index: number }> = [];
+    const placedIndices: number[] = [];
     for (const candidate of candidates) {
-      if (placed.length >= targetVolcanoes) break;
-      const y = (candidate.index / width) | 0;
-      const x = candidate.index - y * width;
-      if (isTooClose(x, y, placed, minSpacing)) continue;
-      placed.push({ x, y, index: candidate.index });
+      if (placedIndices.length >= targetVolcanoes) break;
+      if (!admitsVolcanoSpacing(candidate.index, placedIndices, config.minSpacing, width)) continue;
+      placedIndices.push(candidate.index);
     }
 
-    return { volcanoes: placed.map((entry) => ({ index: entry.index })) };
+    placedIndices.sort((left, right) => left - right);
+    const volcanoes: VolcanoIntent[] = placedIndices.map((tileIndex) => {
+      volcanoMask[tileIndex] = 1;
+      return {
+        tileIndex,
+        kind: classifyVolcanoIntentKind(
+          boundaryType[tileIndex],
+          boundaryCloseness[tileIndex] / 255,
+          config.boundaryThreshold
+        ),
+        strength01: volcanism[tileIndex] / 255,
+      };
+    });
+    return { volcanoMask, volcanoes };
   },
 });

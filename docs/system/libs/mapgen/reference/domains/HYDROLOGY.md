@@ -148,7 +148,8 @@ The `map-hydrology` stage:
 
 - is projection-only,
 - writes every sample from final `artifact:hydrology.climateField` to the adapter exactly once,
-- then projects static, mountain-safe `artifact:hydrology.lakePlan` intent before engine elevation,
+- then projects static `artifact:hydrology.lakePlan` intent before engine elevation while
+  preserving final Morphology mountain and volcano landforms,
 - and does not compute a second rainfall or lake model.
 
 The `map-rivers` stage consumes Hydrology hydrography after `map-elevation` has

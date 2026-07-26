@@ -4,15 +4,10 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
 
 /**
- * Lake projection step (engine-facing).
- *
- * Hydrology owns lake intent. This map stage only materializes that intent and
- * records readback evidence from the adapter.
- */
-/**
  * Defines the engine-facing lake projection boundary over Hydrology intent and
- * Morphology's protected mountain surface. The implementation owns Civ7 mutation
- * and emits readback only through local trace, metrics, and visualization facets.
+ * Morphology's protected mountain and volcano surfaces. The implementation owns
+ * Civ7 mutation and emits readback only through local trace, metrics, and
+ * visualization facets.
  */
 export const config = defineStep({
   id: "lakes",
@@ -24,7 +19,11 @@ export const config = defineStep({
     MAP_PROJECTION_EFFECT_TAGS.map.hydrologyLakesParityCaptured,
   ],
   artifacts: {
-    requires: [hydrographyArtifacts.lakePlan, morphologyLandformsArtifacts.mountains],
+    requires: [
+      hydrographyArtifacts.lakePlan,
+      morphologyLandformsArtifacts.mountains,
+      morphologyLandformsArtifacts.volcanoes,
+    ],
     provides: [hydrographyArtifacts.projectedLakes],
   },
 });

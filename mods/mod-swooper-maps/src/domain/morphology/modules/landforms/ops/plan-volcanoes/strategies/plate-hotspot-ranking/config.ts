@@ -18,11 +18,12 @@ export default defineStrategy({
         minimum: 0,
         maximum: 1,
       }),
-      /** Minimum Euclidean distance between volcanoes in tiles to avoid clusters merging. */
-      minSpacing: Type.Number({
-        description: "Controls minimum distance between map volcanoes to avoid clusters merging.",
+      /** Minimum wrapped-hex distance between volcanoes in tiles. */
+      minSpacing: Type.Integer({
+        description:
+          "Controls minimum wrapped-hex distance between planned volcanoes so seam-adjacent tiles cannot form accidental clusters.",
         default: 3,
-        minimum: 0,
+        minimum: 1,
         maximum: 128,
       }),
       /** Plate-boundary closeness threshold (0..1) for treating a tile as margin-adjacent. */
@@ -88,20 +89,19 @@ export default defineStrategy({
         minimum: 0,
         maximum: 10,
       }),
-      /** Minimum volcano count target to guarantee a few vents even on sparse maps. */
-      minVolcanoes: Type.Number({
+      /** Desired volcano-count floor before candidate and spacing constraints are applied. */
+      minVolcanoes: Type.Integer({
         description:
-          "Controls minimum volcano count target to guarantee vents even on sparse maps.",
+          "Controls the desired volcano-count floor; candidate availability and spacing remain authoritative over the completed plan.",
         default: 5,
         minimum: 0,
         maximum: 1000,
       }),
-      /** Maximum volcano count cap; accepted nonpositive values disable the cap. */
-      maxVolcanoes: Type.Number({
-        description:
-          "Controls maximum volcano count cap; accepted values from -1000 through 0 disable the cap and allow density-driven totals.",
+      /** Maximum volcano count admitted into the completed plan. */
+      maxVolcanoes: Type.Integer({
+        description: "Controls the hard maximum number of volcano intents admitted into the plan.",
         default: 40,
-        minimum: -1000,
+        minimum: 0,
         maximum: 1000,
       }),
     },
