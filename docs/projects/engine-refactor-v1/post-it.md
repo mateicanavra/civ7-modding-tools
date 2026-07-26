@@ -28,17 +28,16 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** purify Placement's two remaining materializers after
-the old `derive-placement-inputs` coordination knot and false causal effect
-surfaces were deleted at their roots. A recipe materializer owns product
-sequencing, fallback policy, reconciliation, and evidence projection; it does
-not independently derive provider footprints, re-admit provider inputs,
-rewrite terrain to satisfy provider policy, or repeat provider readback.
-Natural wonders go through one adapter-owned footprint/legality/write/readback
-boundary per ordered candidate. Resources follow as a separate sealed cut,
-preserving Swooper's exact plan and typed shortfall authority while deleting
-recipe-side dimensions and outcome revalidation. A.2, initial setup options,
-and post-A.2 product proof remain outside this container.
+**Current container:** finish Placement materializer purification after the old
+`derive-placement-inputs` coordination knot, false causal effects, and
+natural-wonder provider reimplementation were deleted at their roots. A recipe
+materializer owns product sequencing, reconciliation, and evidence projection;
+it does not re-admit trusted provider inputs or repeat provider outcome
+validation. Resource placement preserves Swooper's exact type-at-plot plan,
+ordered results, typed shortfalls, and fail-hard mismatch policy while the
+adapter owns dimensions, coordinate resolution, bounds, mutation, and exact
+readback. A.2, initial setup options, and post-A.2 product proof remain outside
+this container.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -55,16 +54,16 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** delete natural-wonder footprint inference, occupancy/terrain
-preflight, terrain repair, and second readback from the recipe step; retain
-ordered primary/fallback selection, one terminal result per planned wonder,
-target shortfall, final occupied-feature observation, and telemetry/viz
-projection. Prove the multi-tile footprint and strict readback at the adapter
-boundary, delete the impossible-plan terrain-repair test, and seal the cut.
-Then apply the same authority test to resource materialization: preserve
-no-relocation intent, typed shortfalls, and fail-hard readback mismatch while
-deleting adapter-owned input and outcome checks. Finally recensus the remaining
-placement tests against those settled provider/product boundaries.
+**Gradient:** make `placeResourceIntent` intent-only because the adapter already
+owns admitted dimensions. Delete recipe-side coordinate reconstruction,
+status/reason union checks, resource-type normalization, and placed readback
+verification. Preserve no-relocation intent, typed shortfalls, phase/support
+provenance, deterministic evidence, and fail-hard mismatch. Prove exact
+coordinates, bounds, and wrong-type readback at the production and mock adapter
+boundaries; keep focused recipe tests for product reconciliation and remove
+duplicate resource assertions from the broad discovery integration test. Seal
+the cut, then recensus the adjacent landmass-region projection/restamp knot
+against the now-settled placement order.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty

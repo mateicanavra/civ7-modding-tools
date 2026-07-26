@@ -28,12 +28,10 @@ class RegionSensitiveResourceAdapter extends MockAdapter {
   }
 
   override placeResourceIntent(
-    width: number,
-    height: number,
-    intent: Parameters<MockAdapter["placeResourceIntent"]>[2]
+    intent: Parameters<MockAdapter["placeResourceIntent"]>[0]
   ): ReturnType<MockAdapter["placeResourceIntent"]> {
     this.callOrder.push("placeResourceIntent");
-    return super.placeResourceIntent(width, height, intent);
+    return super.placeResourceIntent(intent);
   }
 }
 

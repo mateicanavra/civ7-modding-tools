@@ -109,7 +109,10 @@ Runtime semantics (ADR-009 regime):
 - Swooper-authored deterministic plans are the authority for typed intent;
   resource materialization stamps those intents through the adapter and
   reconciles engine feasibility with per-tile typed rejection reasons, never
-  re-deciding types or falling back to Civ7's resource generator.
+  re-deciding types or falling back to Civ7's resource generator. The adapter
+  owns its admitted map dimensions, coordinate resolution, bounds, mutation,
+  and exact readback; the recipe consumes that typed outcome without a second
+  validator.
 - Discovery is the explicit exception to Swooper plan authority: the ordered
   placement step supplies seated-major exclusions and the polar margin to
   Civ7's official generator, then projects attempted/placed/rejected counts

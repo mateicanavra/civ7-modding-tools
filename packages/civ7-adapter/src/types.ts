@@ -606,14 +606,12 @@ export interface EngineAdapter {
 
   /**
    * Materialize one planned resource intent and report a typed per-tile outcome.
-   * This keeps Civ7 feasibility/readback at the adapter boundary while letting
-   * MapGen reconcile deterministic intent without count-equality gates.
+   * Adapter-owned map dimensions convert the linear plot index to engine
+   * coordinates and enforce bounds before Civ7 feasibility and readback.
+   * MapGen therefore supplies only deterministic intent and reconciles the
+   * typed outcome without duplicating runtime geometry.
    */
-  placeResourceIntent(
-    width: number,
-    height: number,
-    intent: ResourcePlacementIntent
-  ): ResourcePlacementOutcome;
+  placeResourceIntent(intent: ResourcePlacementIntent): ResourcePlacementOutcome;
 
   // === PLOT EFFECTS ===
 

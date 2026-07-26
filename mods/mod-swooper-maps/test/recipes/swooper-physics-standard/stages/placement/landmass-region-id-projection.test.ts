@@ -32,9 +32,9 @@ describe("placement landmass region projection", () => {
           originalSetLandmassRegionId(x, y, regionId);
         };
         const originalPlaceResourceIntent = instrumented.placeResourceIntent.bind(instrumented);
-        instrumented.placeResourceIntent = (width, height, intent) => {
+        instrumented.placeResourceIntent = (intent) => {
           callOrder.push("placeResourceIntent");
-          return originalPlaceResourceIntent(width, height, intent);
+          return originalPlaceResourceIntent(intent);
         };
         const originalSetStartPosition = instrumented.setStartPosition.bind(instrumented);
         instrumented.setStartPosition = (plotIndex, playerId) => {

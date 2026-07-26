@@ -453,25 +453,20 @@ export class Civ7Adapter implements EngineAdapter {
     return rows.sort((a, b) => a.index - b.index);
   }
 
-  placeResourceIntent(
-    width: number,
-    height: number,
-    intent: ResourcePlacementIntent
-  ): ResourcePlacementOutcome {
+  placeResourceIntent(intent: ResourcePlacementIntent): ResourcePlacementOutcome {
     // D4 placement reconciliation treats Civ7 feasibility as adapter-owned.
     // The recipe supplies deterministic intent; this boundary translates it
     // into an engine write plus readback evidence without falling back to the
     // aggregate official resource generator.
-    const resolvedWidth = Math.max(0, Math.trunc(width));
-    const resolvedHeight = Math.max(0, Math.trunc(height));
+    const { width, height } = this;
     const plotIndex = Number.isFinite(intent.plotIndex) ? Math.trunc(intent.plotIndex) : -1;
     const resourceType = Number.isFinite(intent.resourceType)
       ? Math.trunc(intent.resourceType)
       : this.NO_RESOURCE;
-    const y = resolvedWidth > 0 ? Math.trunc(plotIndex / resolvedWidth) : -1;
-    const x = resolvedWidth > 0 ? plotIndex - y * resolvedWidth : -1;
+    const y = width > 0 ? Math.trunc(plotIndex / width) : -1;
+    const x = width > 0 ? plotIndex - y * width : -1;
 
-    if (plotIndex < 0 || x < 0 || y < 0 || x >= resolvedWidth || y >= resolvedHeight) {
+    if (plotIndex < 0 || x < 0 || y < 0 || x >= width || y >= height) {
       return { status: "rejected", plotIndex, x, y, resourceType, reason: "out-of-bounds" };
     }
     if (resourceType < 0 || resourceType === (this.NO_RESOURCE | 0)) {

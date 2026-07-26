@@ -15,7 +15,7 @@ describe("typed placement outcomes", () => {
   it("returns placed resource outcomes with readback evidence", () => {
     const adapter = createMockAdapter({ width: 4, height: 3, canHaveResource: () => true });
 
-    const outcome = adapter.placeResourceIntent(4, 3, {
+    const outcome = adapter.placeResourceIntent({
       plotIndex: 5,
       resourceType: 7,
     });
@@ -38,7 +38,7 @@ describe("typed placement outcomes", () => {
       canHaveResource: () => false,
     });
 
-    const outcome = adapter.placeResourceIntent(4, 3, {
+    const outcome = adapter.placeResourceIntent({
       plotIndex: 5,
       resourceType: 7,
     });
@@ -53,6 +53,50 @@ describe("typed placement outcomes", () => {
       observedResourceType: adapter.NO_RESOURCE,
     });
     expect(adapter.calls.setResourceType.length).toBe(0);
+  });
+
+  it("rejects resource intents outside the mock adapter's own dimensions", () => {
+    const adapter = createMockAdapter({ width: 4, height: 3 });
+
+    const outcome = adapter.placeResourceIntent({
+      plotIndex: 12,
+      resourceType: 7,
+    });
+
+    expect(outcome).toEqual({
+      status: "rejected",
+      plotIndex: 12,
+      x: 0,
+      y: 3,
+      resourceType: 7,
+      reason: "out-of-bounds",
+    });
+    expect(adapter.calls.setResourceType.length).toBe(0);
+  });
+
+  it("returns mismatch evidence when mock readback differs from the stamped resource", () => {
+    const adapter = createMockAdapter({
+      width: 4,
+      height: 3,
+      canHaveResource: () => true,
+    });
+    adapter.getResourceType = () => adapter.NO_RESOURCE;
+
+    const outcome = adapter.placeResourceIntent({
+      plotIndex: 5,
+      resourceType: 7,
+    });
+
+    expect(outcome).toEqual({
+      status: "mismatch",
+      plotIndex: 5,
+      x: 1,
+      y: 1,
+      resourceType: 7,
+      reason: "wrong-resource-type",
+      observedResourceType: adapter.NO_RESOURCE,
+    });
+    expect(adapter.calls.setResourceType).toEqual([{ x: 1, y: 1, resourceType: 7 }]);
   });
 
   it("returns typed discovery outcomes and structural rejections", () => {

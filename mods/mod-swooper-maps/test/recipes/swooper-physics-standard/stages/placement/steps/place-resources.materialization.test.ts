@@ -159,12 +159,12 @@ describe("resource placement materialization", () => {
 
   it("fails the placement product boundary on wrong-type engine readback", () => {
     const { adapter, context } = createResourceContext();
-    adapter.placeResourceIntent = (width, _height, placementIntent) => {
-      const y = Math.floor(placementIntent.plotIndex / width);
+    adapter.placeResourceIntent = (placementIntent) => {
+      const y = Math.floor(placementIntent.plotIndex / adapter.width);
       return {
         status: "mismatch",
         plotIndex: placementIntent.plotIndex,
-        x: placementIntent.plotIndex - y * width,
+        x: placementIntent.plotIndex - y * adapter.width,
         y,
         resourceType: placementIntent.resourceType,
         observedResourceType: placementIntent.resourceType + 1,
