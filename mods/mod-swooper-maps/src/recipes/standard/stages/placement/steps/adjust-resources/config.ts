@@ -19,7 +19,7 @@ export const config = defineStep({
   artifacts: {
     requires: [
       resourceSiteArtifacts.resourcePlan,
-      resourceDemandArtifacts.resourceEligibility,
+      resourceDemandArtifacts.resourceDemandPlan,
       placementStartArtifacts.startAssignment,
       placementRegionArtifacts.landmassRegionSlotByTile,
       morphologyLandformsArtifacts.landmasses,

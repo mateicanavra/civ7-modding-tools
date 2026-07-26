@@ -6,8 +6,8 @@ import { PLACEMENT_VIZ_GROUP } from "../../../../src/recipes/standard/stages/pla
 import { runStandardRecipeTestMap } from "../fixtures/standard-recipe.js";
 
 /**
- * Every placement step emits decision-substance evidence for its authored
- * contribution to the completed product.
+ * Every visualization-bearing placement step emits decision-substance evidence
+ * for its authored contribution to the completed product.
  *
  * assign-advanced-starts and place-discoveries are the recorded exceptions:
  * advanced-starts' only product is two engine-side effect booleans (fertility
@@ -24,7 +24,7 @@ const EXPECTED_KEYS_BY_STEP: Record<string, readonly string[]> = {
     "map.placement.surface.lakeDrift",
     "map.placement.surface.terrainValidationDrift",
   ],
-  "plan-resources": [
+  "select-resource-sites": [
     "placement.resources.intents",
     "placement.resources.eligibleTypeCount",
     "placement.resources.legalTypeCount",

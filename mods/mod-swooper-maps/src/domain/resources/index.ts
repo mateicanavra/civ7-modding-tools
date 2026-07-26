@@ -33,16 +33,15 @@ export {
   type InitialMapResourceAuthoringPolicyEntry,
   type InitialMapResourceAuthoringStatus,
   isInitialMapResourceType,
+  RESOURCE_EXPECTATION_IDENTITY_BY_GROUP,
   RESOURCE_HABITAT_SIGNALS,
   type ResourceExpectationGroupId,
-  type ResourceExpectationInput,
   type ResourceExpectationRangeEvidence,
   type ResourceExpectationStatus,
   type ResourceExpectedCountRange,
   type ResourceFamilyId,
   type ResourceHabitatSignal,
   resolveResourceRegionMinimumRequirement,
-  resourceExpectationsForGroup,
 } from "./modules/demand/index.js";
 export {
   HABITAT_INTENSITY_FIELD_NAMES,

@@ -6,8 +6,6 @@ import {
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "./tag-contracts.js";
 
-export { STANDARD_ENGINE_EFFECT_TAGS } from "./tag-contracts.js";
-
 type EffectTagSatisfiesProperties = Pick<DependencyTagDefinition, "satisfies">;
 
 const VERIFIED_EFFECT_SATISFIES: Partial<Record<string, EffectTagSatisfiesProperties>> = {

@@ -1258,7 +1258,17 @@ const mapConfig = {
           }
         }
       },
-      "plan-resources": {
+      "plan-resource-demands": {
+        "habitat": {
+          "strategy": "quantile-physical-lanes",
+          "config": {}
+        },
+        "demands": {
+          "strategy": "policy-constrained",
+          "config": {}
+        }
+      },
+      "select-resource-sites": {
         "selectSites": {
           "strategy": "blue-noise-rotation",
           "config": {
@@ -1289,34 +1299,6 @@ const mapConfig = {
               }
             ]
           }
-        },
-        "habitat": {
-          "strategy": "quantile-physical-lanes",
-          "config": {}
-        },
-        "aquatic": {
-          "strategy": "canonical-demand",
-          "config": {}
-        },
-        "cultivated": {
-          "strategy": "canonical-demand",
-          "config": {}
-        },
-        "terrestrial": {
-          "strategy": "canonical-demand",
-          "config": {}
-        },
-        "geological": {
-          "strategy": "canonical-demand",
-          "config": {}
-        },
-        "groups": {
-          "strategy": "canonical-rollup",
-          "config": {}
-        },
-        "demands": {
-          "strategy": "policy-constrained",
-          "config": {}
         }
       },
       "assign-starts": {
@@ -1375,7 +1357,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "latest-juicy",
-  configHash: "154b1a11ab87f619a821fbd3d1f95db15ebdc580323c4ab75a68a43ff9cb3bb3",
-  envelopeHash: "e48d280c1ab14738f1173d7a49de0070c0627f06c1cb8fa0f97d7fa58933af20",
+  configHash: "bc97705c807a2924115709c44328dfa85bde9bd6e1401b178db6e85e0dc0ec5d",
+  envelopeHash: "a2f8b978ff98818a6a66d2c44cdcebd3b6390f9b95dc91dff33a1d75d288a491",
   config: mapConfig.config,
 });

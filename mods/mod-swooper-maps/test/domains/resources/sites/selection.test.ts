@@ -4,6 +4,7 @@ import { admitPositiveResourceRegionMinimum } from "@mapgen/domain/resources";
 import resources from "@mapgen/domain/resources/router";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../setup.js";
 
 type SelectInput = Parameters<typeof resources.sites.ops.selectResourceSites.run>[0];
 type Demand = Pick<
@@ -29,7 +30,7 @@ function buildInput(args: {
   return {
     width,
     height,
-    seed: args.seed ?? 1337,
+    seed: args.seed ?? TEST_MAP_SEED,
     landMask: allLand,
     lakeMask: new Uint8Array(size),
     landmassIdByTile: new Int32Array(size),
@@ -52,6 +53,9 @@ function buildInput(args: {
       habitatMask: allLand,
       legalMask: allLand,
       intensity,
+      habitatTileCount: size,
+      legalTileCount: size,
+      eligibleTileCount: size,
     })),
   };
 }
@@ -70,15 +74,6 @@ function run(
 }
 
 describe("select-resource-sites operation contract", () => {
-  it("materializes family density from property defaults", () => {
-    expect(resources.sites.ops.selectResourceSites.defaultConfig.config.familyDensity).toEqual({
-      aquatic: 1,
-      cultivated: 1,
-      terrestrial: 1,
-      geological: 1,
-    });
-  });
-
   it("allocates co-eligible rotation frequency proportional to 1/Weight (official deficit rotation, E2.1)", () => {
     const syntheticDimensions = { width: 20, height: 12 } as const;
     // Scarce sites relative to targets so the rotation is the binding
@@ -175,9 +170,8 @@ describe("select-resource-sites operation contract", () => {
   });
 
   it("collapses a terminal deficit with no legal site to complete admission failure", () => {
-    const syntheticDimensions = { width: 4, height: 3 } as const;
     const input = buildInput({
-      ...syntheticDimensions,
+      ...TEST_MAP_SIZE.dimensions,
       demands: [
         {
           resourceType: "RESOURCE_A",
@@ -189,6 +183,8 @@ describe("select-resource-sites operation contract", () => {
       ],
     });
     input.demands[0]!.legalMask.fill(0);
+    input.demands[0]!.legalTileCount = 0;
+    input.demands[0]!.eligibleTileCount = 0;
 
     expect(run(input).perType[0]!.shortfalls).toEqual([
       {
@@ -200,9 +196,8 @@ describe("select-resource-sites operation contract", () => {
   });
 
   it("records a shortfall instead of widening range repair beyond habitat admission", () => {
-    const syntheticDimensions = { width: 8, height: 6 } as const;
     const input = buildInput({
-      ...syntheticDimensions,
+      ...TEST_MAP_SIZE.dimensions,
       demands: [
         {
           resourceType: "RESOURCE_A",
@@ -214,6 +209,8 @@ describe("select-resource-sites operation contract", () => {
       ],
     });
     input.demands[0]!.habitatMask.fill(0);
+    input.demands[0]!.habitatTileCount = 0;
+    input.demands[0]!.eligibleTileCount = 0;
 
     const result = run(input);
     expect(result.intents).toEqual([]);
@@ -227,7 +224,6 @@ describe("select-resource-sites operation contract", () => {
   });
 
   it("runs the region-minimum force pass only for an admitted required state (E2.2)", () => {
-    const syntheticDimensions = { width: 24, height: 16 } as const;
     const demand = {
       resourceType: "RESOURCE_REQ",
       weight: 10,
@@ -237,7 +233,7 @@ describe("select-resource-sites operation contract", () => {
     } as const;
     const required = run(
       buildInput({
-        ...syntheticDimensions,
+        ...TEST_MAP_SIZE.dimensions,
         demands: [
           {
             ...demand,
@@ -273,7 +269,7 @@ describe("select-resource-sites operation contract", () => {
     ] as const) {
       const skipped = run(
         buildInput({
-          ...syntheticDimensions,
+          ...TEST_MAP_SIZE.dimensions,
           demands: [{ ...demand, regionMinimumRequirement }],
         })
       );
@@ -389,11 +385,10 @@ describe("select-resource-sites operation contract", () => {
   });
 
   it("is deterministic for a fixed seed", () => {
-    const syntheticDimensions = { width: 24, height: 16 } as const;
     const make = () =>
       run(
         buildInput({
-          ...syntheticDimensions,
+          ...TEST_MAP_SIZE.dimensions,
           demands: [
             {
               resourceType: "RESOURCE_A",

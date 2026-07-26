@@ -16,46 +16,33 @@ type ResourcePlanIntentRow = Readonly<{
 }>;
 
 type ResourceDemandVizRow = Readonly<{
+  resourceType: string;
+  family: "aquatic" | "cultivated" | "terrestrial" | "geological";
   habitatMask: Uint8Array;
   legalMask: Uint8Array;
+  intensity: Float32Array;
 }>;
 
-type ResourceDemandSummaryVizRow = Readonly<{
-  resourceType: string;
-}>;
-
-type HabitatIntensityFields = Readonly<{
-  aquaticIntensity: Float32Array;
-  cultivatedIntensity: Float32Array;
-  terrestrialIntensity: Float32Array;
-  geologicalIntensity: Float32Array;
-}>;
-
-const HABITAT_FAMILY_FIELDS = [
-  ["aquatic", "aquaticIntensity"],
-  ["cultivated", "cultivatedIntensity"],
-  ["terrestrial", "terrestrialIntensity"],
-  ["geological", "geologicalIntensity"],
-] as const;
+const RESOURCE_FAMILIES = ["aquatic", "cultivated", "terrestrial", "geological"] as const;
 
 /**
- * Projects completed resource-site decisions, eligibility counts, and habitat intensities.
- * All derived arrays are visualization-only views; the admitted plan and habitat evidence are borrowed.
+ * Projects selected resource intents and the admitted demand surface that constrained them.
+ * Demand fields are borrowed directly from the published ledger rather than recomputed for Studio.
  */
-export function projectResourcePlanViz(input: {
+export function projectResourceSiteSelectionViz(input: {
   dimensions: Readonly<{ width: number; height: number }>;
   intents: ReadonlyArray<ResourcePlanIntentRow>;
   demands: readonly ResourceDemandVizRow[];
-  summaries: readonly ResourceDemandSummaryVizRow[];
-  habitat: HabitatIntensityFields;
 }): readonly VizProjection[] {
   const { width, height } = input.dimensions;
   const size = width * height;
   const projections: VizProjection[] = [];
 
-  const typeOrder = input.summaries.map((row) => row.resourceType);
+  const typeOrder = input.demands.map((row) => row.resourceType);
   const valueByType = new Map<string, number>();
-  for (let i = 0; i < typeOrder.length; i++) valueByType.set(typeOrder[i]!, i + 1);
+  for (let index = 0; index < typeOrder.length; index += 1) {
+    valueByType.set(typeOrder[index]!, index + 1);
+  }
   const categories: VizLayerCategory[] = typeOrder.map((resourceType, index) => ({
     value: index + 1,
     label: resourceTypeLabel(resourceType),
@@ -89,10 +76,10 @@ export function projectResourcePlanViz(input: {
   const legalTypeCount = new Uint16Array(size);
   const eligibleTypeCount = new Uint16Array(size);
   for (const demand of input.demands) {
-    for (let i = 0; i < size; i++) {
-      if (demand.legalMask[i] !== 0) {
-        legalTypeCount[i] += 1;
-        if (demand.habitatMask[i] !== 0) eligibleTypeCount[i] += 1;
+    for (let index = 0; index < size; index += 1) {
+      if (demand.legalMask[index] !== 0) {
+        legalTypeCount[index] += 1;
+        if (demand.habitatMask[index] !== 0) eligibleTypeCount[index] += 1;
       }
     }
   }
@@ -115,7 +102,7 @@ export function projectResourcePlanViz(input: {
       meta: definePlacementVizMeta("placement.resources.eligibleTypeCount", "field.intensity", {
         label: "Resource Eligibility (Types per Tile)",
         description:
-          "How many planned resource types pass BOTH the policy legality tables and their habitat lane on each tile — the surface site selection actually chose from.",
+          "How many admitted resource types pass both the policy legality tables and their habitat lane on each tile: the surface site selection actually chose from.",
       }),
     },
     {
@@ -127,15 +114,15 @@ export function projectResourcePlanViz(input: {
       meta: definePlacementVizMeta("placement.resources.legalTypeCount", "field.intensity", {
         label: "Resource Policy Legality (Types per Tile)",
         description:
-          "How many planned resource types the official Resource_ValidPlacements policy tables allow on each tile, before the habitat gate.",
+          "How many admitted resource types the official Resource_ValidPlacements policy tables allow on each tile, before the habitat gate.",
         visibility: "debug",
       }),
     }
   );
 
-  for (const [family, fieldKey] of HABITAT_FAMILY_FIELDS) {
-    const values = input.habitat[fieldKey];
-    if (!(values instanceof Float32Array) || values.length !== size) continue;
+  for (const family of RESOURCE_FAMILIES) {
+    const values = input.demands.find((demand) => demand.family === family)?.intensity;
+    if (!values || values.length !== size) continue;
     const dataTypeKey = `placement.resources.habitat.${family}`;
     projections.push({
       kind: "grid",
@@ -145,7 +132,7 @@ export function projectResourcePlanViz(input: {
       field: { format: "f32", values, valueSpec: UNIT_SCORE_VALUE_SPEC },
       meta: definePlacementVizMeta(dataTypeKey, "field.intensity", {
         label: `Habitat Intensity: ${family[0]!.toUpperCase()}${family.slice(1)}`,
-        description: `Habitat lane intensity (0..1) for the ${family} resource family; site selection thins acceptance by this field inside the lane.`,
+        description: `Shared habitat intensity (0..1) for admitted ${family} demands; site selection thins acceptance by this field inside each resource lane.`,
       }),
     });
   }

@@ -25,7 +25,7 @@ describe("Standard resource metrics", () => {
       resources.candidates.find(({ resourceType }) => resourceType === "RESOURCE_DATES")
     ).toMatchObject({
       disposition: "scenario-ineligible",
-      exclusionReason: { kind: "no-admitted-legal-tiles" },
+      exclusionReason: { kind: "no-legal-sites" },
       plannedCount: 0,
       placedCount: 0,
     });
@@ -104,29 +104,38 @@ describe("Standard resource metrics", () => {
       const intent = capture.resources.intents.find(
         (candidate) => candidate.plotIndex === outcome.plotIndex
       );
-      const eligibility = capture.resources.eligibility.find(
+      const candidate = capture.resources.candidates.find(
         (candidate) => candidate.resourceType === intent?.resourceType
       );
       return (
-        intent?.phase !== "region-minimum" && eligibility?.habitatMask[outcome.plotIndex] === 1
+        intent?.phase !== "region-minimum" &&
+        candidate?.admission.kind === "admitted" &&
+        candidate.admission.habitatMask[outcome.plotIndex] === 1
       );
     });
     if (!placedOutcome) throw new Error("Metric fixture has no placed in-habitat resource.");
     const intent = capture.resources.intents.find(
       (candidate) => candidate.plotIndex === placedOutcome.plotIndex
     );
-    const authoritativeRow = capture.resources.eligibility.find(
+    const authoritativeCandidate = capture.resources.candidates.find(
       (candidate) => candidate.resourceType === intent?.resourceType
     );
-    if (!authoritativeRow) throw new Error("Metric fixture has no resource eligibility row.");
-    const habitatMask = authoritativeRow.habitatMask.slice();
+    if (!authoritativeCandidate || authoritativeCandidate.admission.kind !== "admitted") {
+      throw new Error("Metric fixture has no admitted resource demand.");
+    }
+    const habitatMask = authoritativeCandidate.admission.habitatMask.slice();
     habitatMask[placedOutcome.plotIndex] = 0;
     const changedCapture: StandardMapCapture = {
       ...capture,
       resources: {
         ...capture.resources,
-        eligibility: capture.resources.eligibility.map((row) =>
-          row === authoritativeRow ? { ...row, habitatMask } : row
+        candidates: capture.resources.candidates.map((candidate) =>
+          candidate === authoritativeCandidate
+            ? {
+                ...candidate,
+                admission: { ...authoritativeCandidate.admission, habitatMask },
+              }
+            : candidate
         ),
       },
     };
@@ -149,100 +158,6 @@ describe("Standard resource metrics", () => {
     expect(
       integrity?.expectations.find(({ id }) => id === "resource-hard-phase-habitat")
     ).toMatchObject({ status: "fail", observed: false });
-  }, 30_000);
-
-  it("requires complete one-row habitat evidence for every planned symbolic type", () => {
-    const capture = captureEarthlikeScenario();
-    const [row] = capture.resources.eligibility;
-    if (!row) throw new Error("Metric fixture has no resource eligibility row.");
-
-    expect(() =>
-      measureStandardResources({
-        ...capture,
-        resources: {
-          ...capture.resources,
-          eligibility: capture.resources.eligibility.filter((candidate) => candidate !== row),
-        },
-      })
-    ).toThrow(`Resource habitat evidence is missing planned type ${row.resourceType}.`);
-    expect(() =>
-      measureStandardResources({
-        ...capture,
-        resources: {
-          ...capture.resources,
-          eligibility: [...capture.resources.eligibility, row],
-        },
-      })
-    ).toThrow(`Resource habitat evidence contains duplicate rows for ${row.resourceType}.`);
-    expect(() =>
-      measureStandardResources({
-        ...capture,
-        resources: {
-          ...capture.resources,
-          eligibility: [
-            ...capture.resources.eligibility,
-            { resourceType: "RESOURCE_NOT_PLANNED", habitatMask: row.habitatMask },
-          ],
-        },
-      })
-    ).toThrow("Resource habitat evidence contains extra row RESOURCE_NOT_PLANNED.");
-  }, 30_000);
-
-  it("fails closed on duplicate, missing, extra, or type-mismatched placement outcomes", () => {
-    const capture = captureEarthlikeScenario();
-    const [outcome] = capture.resources.outcomes;
-    const [otherType] = capture.resources.perType.filter(
-      (row) => requireResourceRuntimeId(row.resourceType).resourceTypeId !== outcome?.resourceType
-    );
-    if (!outcome || !otherType) throw new Error("Metric fixture lacks resource outcome variety.");
-    const extraPlot = capture.model.landMask.findIndex(
-      (_, plotIndex) => !capture.resources.intents.some((intent) => intent.plotIndex === plotIndex)
-    );
-    if (extraPlot < 0) throw new Error("Metric fixture has no unplanned plot.");
-
-    expect(() =>
-      measureStandardResources({
-        ...capture,
-        resources: {
-          ...capture.resources,
-          outcomes: [...capture.resources.outcomes, outcome],
-        },
-      })
-    ).toThrow(`Resource placement contains duplicate outcomes for plot ${outcome.plotIndex}.`);
-    expect(() =>
-      measureStandardResources({
-        ...capture,
-        resources: {
-          ...capture.resources,
-          outcomes: capture.resources.outcomes.filter((candidate) => candidate !== outcome),
-        },
-      })
-    ).toThrow(`Resource placement is missing an outcome for planned plot ${outcome.plotIndex}.`);
-    expect(() =>
-      measureStandardResources({
-        ...capture,
-        resources: {
-          ...capture.resources,
-          outcomes: [...capture.resources.outcomes, { ...outcome, plotIndex: extraPlot }],
-        },
-      })
-    ).toThrow(`Resource placement contains an extra outcome for plot ${extraPlot}.`);
-    expect(() =>
-      measureStandardResources({
-        ...capture,
-        resources: {
-          ...capture.resources,
-          outcomes: capture.resources.outcomes.map((candidate) =>
-            candidate === outcome
-              ? {
-                  ...candidate,
-                  resourceType: requireResourceRuntimeId(otherType.resourceType).resourceTypeId,
-                }
-              : candidate
-          ),
-        },
-      })
-    ).toThrow("does not match planned");
   }, 30_000);
 
   it("fails integrity when completed-map region-minimum evidence is absent", () => {

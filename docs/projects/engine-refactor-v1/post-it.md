@@ -28,15 +28,16 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** purify discovery materialization around the one product
-authority that actually exists: Civ7's narrative-coupled official generator.
-The adapter owns active map dimensions, generator invocation, exact
-`addDiscovery` interception, restoration, error attribution, and valid observed
-counts. The recipe supplies admitted seated starts plus the official polar
-margin, then projects the typed result into metrics and telemetry. Abandoned
-per-tile discovery intent, outcome, and stamping APIs are not preserved beside
-that bulk authority. A.2, initial setup options, and post-A.2 product proof
-remain outside this container.
+**Current container:** collapse resource planning into the two products that
+actually survive execution: admitted per-resource demand and selected resource
+sites. The four fixed family-planner wrappers do not retain independent
+behavior: they duplicated the same habitat predicate, emitted diagnostic
+copies that no consumer used, and exposed only empty strategy config. One
+terminal resolver now owns the exact canonical expectation corpus, habitat
+eligibility, disposition, and demand. Site selection consumes that immutable
+authority and publishes the distinct intent product. A.2, initial setup
+options, broader placement logging, and post-A.2 product proof remain outside
+this container.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -53,16 +54,20 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** remove recipe-supplied dimensions and result re-admission from
-`place-discoveries`; narrow `generateOfficialDiscoveries` to the remaining
-semantic inputs and let both production and mock adapters expose their own
-dimensions in call evidence. Delete `stampDiscovery`, `placeDiscoveryIntent`,
-their outcome contracts, mock ledgers, MapGen engine-authority admissions, and
-the duplicate Map Policy types. Replace the obsolete per-tile adapter test with
-focused official-generator interception/restoration/error/count proof, keep
-the full-recipe discovery metric behavior, and remove the resource
-materializer's redundant `surfacePrepared` edge because its adjusted-plan
-artifact already carries causality.
+**Gradient:** delete the four family planners, `planResourceGroups`, and their
+wiring-only tests; let `resolveResourceDemands` read the frozen expectation
+corpus and build each canonical habitat predicate exactly once; publish exact
+candidate membership, disposition, authored ranges, masks, intensity,
+exclusions, and map cardinality in `resourceDemandPlan`; delete
+`resourceEligibility`; and split `plan-resources` into demand planning followed
+by site selection. Rewire adjustment, metrics, visualization, shipped config,
+and generated consumers once. Preserve stable visualization keys and temporal
+distinction between original selected sites and the post-start support-adjusted
+plan. Bind published dimensions to the active execution grid and require
+candidate, range, mask, count, group, family, and lane evidence to agree at
+artifact admission. Product tests prove demand policy, selection geometry,
+adjustment, and real preset outcomes; SDK-default and impossible-wiring tests
+retire.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -97,6 +102,14 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Discovery Provider Authority
+
+Discovery materialization collapsed around Civ7's narrative-coupled official
+generator. The adapter now owns active dimensions, generator invocation, exact
+`addDiscovery` interception, restoration, error attribution, and observed
+counts; abandoned per-tile discovery intent, stamping APIs, duplicate policy
+types, and their wiring tests were deleted.
 
 ### 2026-07-26 - Landmass Region Projection Authority
 

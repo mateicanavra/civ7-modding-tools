@@ -1,6 +1,6 @@
 /**
  * Canonical names for every binary habitat and suppression mask emitted by
- * `deriveHabitatFields` and consumed by resource-family planners. The tuple is the shared key
+ * `deriveHabitatFields` and consumed by terminal resource-demand resolution. The tuple is the shared key
  * authority, preventing contract generation and strategy lookup from drifting.
  */
 export const HABITAT_MASK_FIELD_NAMES = [

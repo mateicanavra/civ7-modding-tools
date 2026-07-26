@@ -6,19 +6,17 @@ import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modu
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { artifacts as morphologyTerrainArtifacts } from "@mapgen/domain/morphology/modules/terrain/artifacts/index.js";
-import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/modules/regions/artifacts/index.js";
 import resources from "@mapgen/domain/resources";
 import { artifacts as resourceDemandArtifacts } from "@mapgen/domain/resources/modules/demand/artifacts/index.js";
-import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 
 /**
- * Defines resource intent from final physics truth and the declared Civ7
- * legality surface; downstream steps may adjust intent but not re-author policy.
+ * Defines complete resource demand from final physics truth and the current Civ7 legality surface.
+ * Site selection consumes the published ledger without re-authoring demand policy.
  */
 export const config = defineStep({
-  id: "plan-resources",
+  id: "plan-resource-demands",
   engine: [
     "readCurrentRiverSurface",
     "readCurrentMapBiomeTypes",
@@ -32,7 +30,6 @@ export const config = defineStep({
     requires: [
       morphologyLandformsArtifacts.topography,
       morphologyShelfArtifacts.shelf,
-      morphologyLandformsArtifacts.landmasses,
       morphologyLandformsArtifacts.mountains,
       morphologyTerrainArtifacts.beltDrivers,
       hydrographyArtifacts.hydrography,
@@ -42,22 +39,11 @@ export const config = defineStep({
       cryosphereArtifacts.cryosphere,
       biomeArtifacts.biomeClassification,
       pedologyArtifacts.pedology,
-      placementRegionArtifacts.landmassRegionSlotByTile,
     ],
-    provides: [
-      resourceDemandArtifacts.resourceDemandPlan,
-      resourceSiteArtifacts.resourcePlan,
-      resourceDemandArtifacts.resourceEligibility,
-    ],
+    provides: [resourceDemandArtifacts.resourceDemandPlan],
   },
   ops: {
     habitat: resources.habitat.ops.deriveHabitatFields,
-    aquatic: resources.demand.ops.planAquaticResources,
-    cultivated: resources.demand.ops.planCultivatedResources,
-    terrestrial: resources.demand.ops.planTerrestrialResources,
-    geological: resources.demand.ops.planGeologicalResources,
-    groups: resources.demand.ops.planResourceGroups,
     demands: resources.demand.ops.resolveResourceDemands,
-    selectSites: resources.sites.ops.selectResourceSites,
   },
 });

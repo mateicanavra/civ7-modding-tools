@@ -11,9 +11,11 @@ const DISTRIBUTION_SECTOR_COLUMNS = 4;
 
 type StandardResourceCandidateMeasurementBase = Readonly<{
   resourceType: string;
-  plannerStatus: StandardMapCapture["resources"]["candidates"][number]["plannerStatus"];
+  expectationStatus: StandardMapCapture["resources"]["candidates"][number]["expectationStatus"];
+}>;
+type StandardResourceCandidateSiteEvidence = Readonly<{
   targetIntentCount: number;
-  plannerEligibleTileCount: number;
+  habitatTileCount: number;
 }>;
 type StandardResourceCandidateAdmission =
   StandardMapCapture["resources"]["candidates"][number]["admission"];
@@ -25,22 +27,24 @@ type StandardScenarioIneligibleReason = Extract<
   { kind: "scenario-ineligible" }
 >["reason"];
 
-/** One planner candidate in exactly one terminal demand-admission state. */
+/** One canonical resource expectation in exactly one terminal demand-admission state. */
 type StandardResourceCandidateMeasurement = StandardResourceCandidateMeasurementBase &
   (
-    | Readonly<{
-        disposition: "admitted";
-        exclusionReason: null;
-        plannedCount: number;
-        placedCount: number;
-        shortfalls: StandardMapCapture["resources"]["perType"][number]["shortfalls"];
-      }>
-    | Readonly<{
-        disposition: "scenario-ineligible";
-        exclusionReason: StandardScenarioIneligibleReason;
-        plannedCount: 0;
-        placedCount: number;
-      }>
+    | (StandardResourceCandidateSiteEvidence &
+        Readonly<{
+          disposition: "admitted";
+          exclusionReason: null;
+          plannedCount: number;
+          placedCount: number;
+          shortfalls: StandardMapCapture["resources"]["perType"][number]["shortfalls"];
+        }>)
+    | (StandardResourceCandidateSiteEvidence &
+        Readonly<{
+          disposition: "scenario-ineligible";
+          exclusionReason: StandardScenarioIneligibleReason;
+          plannedCount: 0;
+          placedCount: number;
+        }>)
     | Readonly<{
         disposition: "excluded";
         exclusionReason: StandardResourceExclusionReason;
@@ -171,7 +175,7 @@ export function measureStandardResources(capture: StandardMapCapture): StandardR
     "region-minimum": { count: 0, population: 0 },
     support: { count: 0, population: 0 },
   };
-  const eligibilityByType = requireCompleteHabitatEvidence(capture);
+  const habitatByType = admittedHabitatByType(capture);
 
   for (const intent of capture.resources.intents) {
     const typeId = requireResourceRuntimeId(intent.resourceType).resourceTypeId;
@@ -189,7 +193,7 @@ export function measureStandardResources(capture: StandardMapCapture): StandardR
     placedPlotsByType.set(outcome.resourceType, plots);
     const phase = placedInHabitatByPhase[intent.phase];
     phase.population += 1;
-    if (eligibilityByType.get(intent.resourceType)![outcome.plotIndex] === 1) {
+    if (habitatByType.get(intent.resourceType)![outcome.plotIndex] === 1) {
       placedInHabitatCount += 1;
       phase.count += 1;
     }
@@ -246,9 +250,7 @@ export function measureStandardResources(capture: StandardMapCapture): StandardR
       const plan = perTypeByResource.get(candidate.resourceType);
       const common = {
         resourceType: candidate.resourceType,
-        plannerStatus: candidate.plannerStatus,
-        targetIntentCount: candidate.targetIntentCount,
-        plannerEligibleTileCount: candidate.plannerEligibleTileCount,
+        expectationStatus: candidate.expectationStatus,
       };
       if (candidate.admission.kind === "admitted") {
         if (!plan) {
@@ -257,6 +259,8 @@ export function measureStandardResources(capture: StandardMapCapture): StandardR
         const typeId = requireResourceRuntimeId(plan.resourceType).resourceTypeId;
         return Object.freeze({
           ...common,
+          targetIntentCount: candidate.admission.targetIntentCount,
+          habitatTileCount: candidate.admission.habitatTileCount,
           disposition: "admitted",
           exclusionReason: null,
           plannedCount: plan.plannedCount,
@@ -277,6 +281,8 @@ export function measureStandardResources(capture: StandardMapCapture): StandardR
         }
         return Object.freeze({
           ...common,
+          targetIntentCount: candidate.admission.targetIntentCount,
+          habitatTileCount: candidate.admission.habitatTileCount,
           disposition: "scenario-ineligible",
           exclusionReason: candidate.admission.reason,
           plannedCount: 0,
@@ -611,35 +617,18 @@ function joinResourcePlacementEvidence(capture: StandardMapCapture): Readonly<{
   return { intentByPlot, outcomeByPlot };
 }
 
-function requireCompleteHabitatEvidence(
-  capture: StandardMapCapture
-): ReadonlyMap<string, Uint8Array> {
-  const plannedTypes = new Set<string>();
+function admittedHabitatByType(capture: StandardMapCapture): ReadonlyMap<string, Uint8Array> {
+  const habitatByType = new Map<string, Uint8Array>();
+  for (const candidate of capture.resources.candidates) {
+    if (candidate.admission.kind !== "admitted") continue;
+    habitatByType.set(candidate.resourceType, candidate.admission.habitatMask);
+  }
   for (const row of capture.resources.perType) {
-    if (plannedTypes.has(row.resourceType)) {
-      throw new Error(
-        `Resource plan contains duplicate per-type evidence for ${row.resourceType}.`
-      );
-    }
-    plannedTypes.add(row.resourceType);
-  }
-
-  const eligibilityByType = new Map<string, Uint8Array>();
-  for (const row of capture.resources.eligibility) {
-    if (eligibilityByType.has(row.resourceType)) {
-      throw new Error(`Resource habitat evidence contains duplicate rows for ${row.resourceType}.`);
-    }
-    if (!plannedTypes.has(row.resourceType)) {
-      throw new Error(`Resource habitat evidence contains extra row ${row.resourceType}.`);
-    }
-    eligibilityByType.set(row.resourceType, row.habitatMask);
-  }
-  for (const resourceType of plannedTypes) {
-    if (!eligibilityByType.has(resourceType)) {
-      throw new Error(`Resource habitat evidence is missing planned type ${resourceType}.`);
+    if (!habitatByType.has(row.resourceType)) {
+      throw new Error(`Resource plan type ${row.resourceType} has no admitted demand evidence.`);
     }
   }
-  return eligibilityByType;
+  return habitatByType;
 }
 
 function increment(counts: Record<string, number>, key: string | number): void {

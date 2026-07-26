@@ -6,11 +6,9 @@ import {
   type HabitatMaskFieldName,
 } from "../../../habitat/model/atoms/habitat-fields.schema.js";
 import {
-  ResourceDemandExclusionSchema,
-  ResourceDemandRowSchema,
-  ResourceDemandSummaryRowSchema,
+  AdmittedResourceDemandCandidateSchema,
+  ExcludedResourceDemandCandidatesSchema,
 } from "../../model/atoms/resource-demand.schema.js";
-import { ResourcePlanRowSchema } from "../../model/atoms/resource-group-plan.schema.js";
 import { INITIAL_MAP_RESOURCE_AUTHORING_AGE } from "../../model/policy/initial-map-authoring.js";
 import policyConstrainedDefinition from "./strategies/policy-constrained/config.js";
 
@@ -38,8 +36,8 @@ const habitatIntensityProperties = Object.fromEntries(
 };
 
 /**
- * Admits the conversion from family planner rows, habitat evidence, current Civ7 legality, and
- * river exclusions into the exact per-resource demands consumed by site selection.
+ * Admits canonical resource expectations, habitat evidence, current Civ7 legality, and river
+ * exclusions into the exact per-resource terminal ledger consumed by site selection.
  */
 const ResolveResourceDemandsContract = defineOp({
   kind: "plan",
@@ -48,7 +46,6 @@ const ResolveResourceDemandsContract = defineOp({
     {
       width: Type.Integer({ minimum: 1 }),
       height: Type.Integer({ minimum: 1 }),
-      plannedRows: Type.Array(ResourcePlanRowSchema),
       ...habitatMaskProperties,
       ...habitatIntensityProperties,
       legalitySurface: Type.Object(
@@ -84,9 +81,17 @@ const ResolveResourceDemandsContract = defineOp({
       height: Type.Integer({ minimum: 1 }),
       age: Type.Literal(INITIAL_MAP_RESOURCE_AUTHORING_AGE),
       minimumAmountModifier: Type.Integer(),
-      demands: Type.Array(ResourceDemandRowSchema),
-      summaries: Type.Array(ResourceDemandSummaryRowSchema),
-      excluded: Type.Array(ResourceDemandExclusionSchema),
+      candidates: Type.Object(
+        {
+          admitted: Type.Array(AdmittedResourceDemandCandidateSchema),
+          excluded: ExcludedResourceDemandCandidatesSchema,
+        },
+        {
+          additionalProperties: false,
+          description:
+            "Exact canonical resource corpus partitioned by terminal demand disposition.",
+        }
+      ),
     },
     { additionalProperties: false }
   ),

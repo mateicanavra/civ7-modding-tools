@@ -1,7 +1,11 @@
 import { describe, expect, it } from "bun:test";
+import { type OfficialResourceType, resolveResourceRuntimeIds } from "@civ7/map-policy";
 import {
+  EARTHLIKE_RESOURCE_EXPECTATIONS,
+  getInitialMapResourcePolicyForType,
   INITIAL_MAP_RESOURCE_AUTHORING_AGE,
-  INITIAL_MAP_RESOURCE_AUTHORING_POLICY,
+  RESOURCE_HABITAT_SIGNALS,
+  resolveResourceRegionMinimumRequirement,
 } from "@mapgen/domain/resources";
 import { artifacts as resourceDemandArtifacts } from "@mapgen/domain/resources/modules/demand/artifacts/index.js";
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
@@ -10,235 +14,331 @@ import { TEST_MAP_SIZE } from "../../../../setup.js";
 type ResourceDemandPlanPayload = Static<
   (typeof resourceDemandArtifacts.resourceDemandPlan)["schema"]
 >;
-const VALIDATION_CONTEXT = { dimensions: TEST_MAP_SIZE.dimensions };
+type AdmittedDemand = ResourceDemandPlanPayload["candidates"]["admitted"][number]["demand"];
+type AdmittedCandidate = ResourceDemandPlanPayload["candidates"]["admitted"][number];
+type TerminalCandidate =
+  | ResourceDemandPlanPayload["candidates"]["admitted"][number]
+  | ResourceDemandPlanPayload["candidates"]["excluded"]["expectationBlocked"][number]
+  | ResourceDemandPlanPayload["candidates"]["excluded"]["ageDeferred"][number]
+  | ResourceDemandPlanPayload["candidates"]["excluded"]["noLegalSites"][number];
 
 describe("placement resource-demand-plan artifact", () => {
-  it("requires exactly one terminal resource disposition for every planner candidate", () => {
-    const missing = resourceDemandPlanPayload();
-    missing.excluded = [];
-    expect(resourceDemandMessages(missing)).toContain(
-      "Planner candidate RESOURCE_CAMELS must have exactly one terminal demand or exclusion; found 0."
+  it("requires the exact canonical corpus once with source-matched terminal dispositions", () => {
+    const baseline = resourceDemandPlanPayload();
+    expect(resourceDemandMessages(baseline)).toEqual([]);
+
+    const missing = structuredClone(baseline);
+    const removed = missing.candidates.excluded.noLegalSites.shift();
+    if (!removed) throw new Error("Missing terminal candidate fixture.");
+    expect(resourceDemandMessages(missing)).toEqual(
+      expect.arrayContaining([
+        `Resource demand ledger has ${EARTHLIKE_RESOURCE_EXPECTATIONS.length - 1} candidates; expected exact official corpus size ${EARTHLIKE_RESOURCE_EXPECTATIONS.length}.`,
+        `Resource demand ledger is missing ${removed.source.resourceType}.`,
+      ])
     );
 
-    const duplicate = resourceDemandPlanPayload();
-    duplicate.excluded.push({
-      resourceType: "RESOURCE_FISH",
-      reason: { kind: "no-admitted-legal-tiles" },
-    });
-    expect(resourceDemandMessages(duplicate)).toContain(
-      "Planner candidate RESOURCE_FISH must have exactly one terminal demand or exclusion; found 2."
+    const duplicate = structuredClone(baseline);
+    duplicate.candidates.excluded.noLegalSites.push(
+      structuredClone(duplicate.candidates.excluded.noLegalSites[0]!)
     );
-
-    const extra = resourceDemandPlanPayload();
-    extra.excluded.push({
-      resourceType: "RESOURCE_IRON",
-      reason: { kind: "no-admitted-legal-tiles" },
-    });
-    expect(resourceDemandMessages(extra)).toContain(
-      "Exclusion RESOURCE_IRON has no planner candidate."
+    expect(resourceDemandMessages(duplicate)).toEqual(
+      expect.arrayContaining([
+        `Resource demand source ${duplicate.candidates.excluded.noLegalSites[0]!.source.resourceType} appears more than once.`,
+        `Resource demand ledger has ${EARTHLIKE_RESOURCE_EXPECTATIONS.length + 1} candidates; expected exact official corpus size ${EARTHLIKE_RESOURCE_EXPECTATIONS.length}.`,
+      ])
     );
   });
 
-  it("admits demands only from planned rows and matches planner-status exclusions", () => {
-    const admittedFromBlocked = resourceDemandPlanPayload();
-    admittedFromBlocked.groups.groups[0]!.plans[0]!.status = "blocked";
-    expect(resourceDemandMessages(admittedFromBlocked)).toContain(
-      "Demand RESOURCE_FISH requires planner status planned; received blocked."
-    );
+  it("rejects canonical group, status, range, family, lane, and lane-kind drift", () => {
+    const payload = resourceDemandPlanPayload();
+    const fish = findNoLegalCandidate(payload, "RESOURCE_FISH");
+    Object.assign(fish.source, {
+      groupId: "geological-mineral-gemstone-industrial",
+      family: "geological",
+      laneId: "not-aquatic",
+      laneKind: "land",
+      expectedCountRange: {
+        ...fish.source.expectedCountRange,
+        max: fish.source.expectedCountRange.max + 1,
+      },
+    });
 
-    const mismatchedExclusion = resourceDemandPlanPayload();
-    mismatchedExclusion.excluded[0]!.reason = {
-      kind: "planner-status",
-      status: "missing-signal",
+    expect(resourceDemandMessages(payload)).toEqual(
+      expect.arrayContaining([
+        "Resource demand source RESOURCE_FISH group geological-mineral-gemstone-industrial does not match canonical group aquatic-coastal-navigable-river.",
+        "Resource demand source RESOURCE_FISH family geological does not match canonical family aquatic.",
+        "Resource demand source RESOURCE_FISH lane not-aquatic does not match canonical lane aquatic.",
+        "Resource demand source RESOURCE_FISH lane kind land does not match canonical lane kind water.",
+      ])
+    );
+    expect(
+      resourceDemandMessages(payload).some((message) => message.includes("canonical range"))
+    ).toBe(true);
+
+    const impossibleStatus = resourceDemandPlanPayload();
+    (
+      findCandidate(impossibleStatus, "RESOURCE_FISH").source as {
+        expectationStatus: string;
+      }
+    ).expectationStatus = "blocked";
+    expect(
+      resourceDemandMessages(impossibleStatus).some((message) =>
+        message.includes("expectationStatus must be equal to constant")
+      )
+    ).toBe(true);
+  });
+
+  it("binds dimensions, binary habitat evidence, counts, and target derivation", () => {
+    const payload = resourceDemandPlanPayload();
+    const foreignDimensions = {
+      width: TEST_MAP_SIZE.dimensions.width + 1,
+      height: TEST_MAP_SIZE.dimensions.height,
     };
-    expect(resourceDemandMessages(mismatchedExclusion)).toContain(
-      "Planner-status exclusion RESOURCE_CAMELS records missing-signal but planner status is blocked."
+    expect(resourceDemandMessages(payload, foreignDimensions)).toContain(
+      `resourceDemandPlan dimensions ${payload.width}x${payload.height} do not match execution dimensions ${foreignDimensions.width}x${foreignDimensions.height}.`
+    );
+
+    const fish = findNoLegalCandidate(payload, "RESOURCE_FISH");
+    fish.source.habitatMask[0] = 2;
+    Object.assign(fish.source, {
+      habitatTileCount: fish.source.habitatTileCount - 1,
+      targetIntentCount: 0,
+    });
+
+    expect(resourceDemandMessages(payload)).toEqual(
+      expect.arrayContaining([
+        "Resource demand RESOURCE_FISH habitatMask[0] is 2; masks admit only 0 or 1.",
+        `Resource demand source RESOURCE_FISH habitatTileCount ${fish.source.habitatTileCount} does not match habitatMask count ${fish.source.habitatMask.length}.`,
+        `Resource demand source RESOURCE_FISH target 0 does not match canonical habitat-derived target ${EARTHLIKE_RESOURCE_EXPECTATIONS.find((row) => row.resourceType === "RESOURCE_FISH")!.expectedCountRange.target}.`,
+      ])
     );
   });
 
-  it("admits source-matched age-policy and scenario-capacity exclusions", () => {
-    const withheld = INITIAL_MAP_RESOURCE_AUTHORING_POLICY.find(
-      ({ status }) => status !== "eligible"
+  it("proves no-legal-sites from the persisted legality surface", () => {
+    const payload = resourceDemandPlanPayload();
+    const fish = findNoLegalCandidate(payload, "RESOURCE_FISH");
+    fish.reason.legalMask[0] = 1;
+
+    expect(resourceDemandMessages(payload)).toContain(
+      "No-legal-sites disposition RESOURCE_FISH retains 1 legal tiles."
     );
-    if (!withheld || withheld.status === "eligible") {
-      throw new Error("Resource policy fixture has no age-withheld official resource.");
+  });
+
+  it("proves admitted legal and intersection counts and preserves partition order", () => {
+    const payload = resourceDemandPlanPayload();
+    const fish = admitCandidate(payload, "RESOURCE_FISH");
+    const size = TEST_MAP_SIZE.dimensions.width * TEST_MAP_SIZE.dimensions.height;
+    expect(resourceDemandMessages(payload)).toEqual([]);
+
+    const corruptedDemand = fish.demand as {
+      legalTileCount: number;
+      eligibleTileCount: number;
+    };
+    corruptedDemand.legalTileCount -= 1;
+    corruptedDemand.eligibleTileCount -= 1;
+    expect(resourceDemandMessages(payload)).toEqual(
+      expect.arrayContaining([
+        `Demand RESOURCE_FISH legalTileCount ${size - 1} does not match legalMask count ${size}.`,
+        `Demand RESOURCE_FISH eligibleTileCount ${size - 1} does not match habitat/legal intersection count ${size}.`,
+      ])
+    );
+
+    const reordered = resourceDemandPlanPayload();
+    [reordered.candidates.excluded.noLegalSites[0], reordered.candidates.excluded.noLegalSites[1]] =
+      [
+        reordered.candidates.excluded.noLegalSites[1]!,
+        reordered.candidates.excluded.noLegalSites[0]!,
+      ];
+    expect(
+      resourceDemandMessages(reordered).some((message) =>
+        message.includes("noLegalSites partition does not preserve canonical corpus order")
+      )
+    ).toBe(true);
+  });
+
+  it("binds admitted weight and regional policy while rejecting invalid intensity", () => {
+    const payload = resourceDemandPlanPayload();
+    const gold = admitCandidate(payload, "RESOURCE_GOLD", false);
+    expect(resourceDemandMessages(payload)).toEqual([]);
+
+    const resolved = resolveResourceRuntimeIds().byType.get("RESOURCE_GOLD");
+    if (!resolved || gold.demand.regionMinimumRequirement.kind === "not-applicable") {
+      throw new Error("Missing positive RESOURCE_GOLD regional-minimum policy.");
     }
-    const ageExcluded = resourceDemandPlanPayload();
-    ageExcluded.groups.groups[0]!.plans[0]!.resourceType = withheld.resourceType;
-    ageExcluded.demands = [];
-    ageExcluded.excluded = [
-      {
-        resourceType: withheld.resourceType,
-        reason: {
-          kind: "age-policy",
-          status: withheld.status,
-          age: INITIAL_MAP_RESOURCE_AUTHORING_AGE,
-        },
-      },
-      ageExcluded.excluded[0]!,
-    ];
-    expect(resourceDemandMessages(ageExcluded)).toEqual([]);
-
-    const scenarioExcluded = resourceDemandPlanPayload();
-    scenarioExcluded.demands = [];
-    scenarioExcluded.excluded = [
-      { resourceType: "RESOURCE_FISH", reason: { kind: "no-admitted-legal-tiles" } },
-      scenarioExcluded.excluded[0]!,
-    ];
-    expect(resourceDemandMessages(scenarioExcluded)).toEqual([]);
-
-    const outsideCorpus = resourceDemandPlanPayload();
-    outsideCorpus.groups.groups[0]!.plans[0]!.resourceType = "RESOURCE_NOT_OFFICIAL";
-    outsideCorpus.demands = [];
-    outsideCorpus.excluded = [
-      {
-        resourceType: "RESOURCE_NOT_OFFICIAL",
-        reason: { kind: "outside-official-resource-corpus" },
-      },
-      outsideCorpus.excluded[0]!,
-    ];
-    expect(resourceDemandMessages(outsideCorpus)).toEqual([]);
-  });
-
-  it("rejects exclusion reasons whose planner, corpus, or age predicate is false", () => {
-    const plannedAsPlannerFailure = scenarioExcludedPayload();
-    plannedAsPlannerFailure.excluded[0]!.reason = {
-      kind: "planner-status",
-      status: "blocked",
+    const demand = gold.demand as {
+      weight: number;
+      regionMinimumRequirement: { minimumPerHemisphere: number };
+      intensity: Float32Array;
     };
-    expect(resourceDemandMessages(plannedAsPlannerFailure)).toContain(
-      "Planner-status exclusion RESOURCE_FISH records blocked but planner status is planned."
-    );
+    demand.weight += 1;
+    demand.regionMinimumRequirement.minimumPerHemisphere += 1;
+    demand.intensity[0] = Number.NaN;
+    demand.intensity[1] = 1.25;
 
-    const blockedAsCapacityFailure = resourceDemandPlanPayload();
-    blockedAsCapacityFailure.excluded[0]!.reason = { kind: "no-admitted-legal-tiles" };
-    expect(resourceDemandMessages(blockedAsCapacityFailure)).toContain(
-      "No-admitted-legal-tiles exclusion RESOURCE_CAMELS requires a planned, official, age-eligible candidate; received planner status blocked and age status eligible."
-    );
-
-    const officialAsOutsideCorpus = scenarioExcludedPayload();
-    officialAsOutsideCorpus.excluded[0]!.reason = {
-      kind: "outside-official-resource-corpus",
-    };
-    expect(resourceDemandMessages(officialAsOutsideCorpus)).toContain(
-      "Outside-corpus exclusion RESOURCE_FISH requires absence from the official resource corpus."
-    );
-
-    const eligibleAsAgeFailure = scenarioExcludedPayload();
-    eligibleAsAgeFailure.excluded[0]!.reason = {
-      kind: "age-policy",
-      status: "deferred-future-age",
-      age: "AGE_ANTIQUITY",
-    };
-    expect(resourceDemandMessages(eligibleAsAgeFailure)).toContain(
-      "Age-policy exclusion RESOURCE_FISH records deferred-future-age but source policy status is eligible."
-    );
-
-    const outsideCorpusAsPlannerFailure = resourceDemandPlanPayload();
-    outsideCorpusAsPlannerFailure.groups.groups[0]!.plans[0]!.resourceType =
-      "RESOURCE_NOT_OFFICIAL";
-    outsideCorpusAsPlannerFailure.demands = [];
-    outsideCorpusAsPlannerFailure.excluded[0] = {
-      resourceType: "RESOURCE_NOT_OFFICIAL",
-      reason: { kind: "planner-status", status: "blocked" },
-    };
-    expect(resourceDemandMessages(outsideCorpusAsPlannerFailure)).toContain(
-      "Planner-status exclusion RESOURCE_NOT_OFFICIAL requires membership in the official resource corpus."
+    expect(resourceDemandMessages(payload)).toEqual(
+      expect.arrayContaining([
+        `Demand RESOURCE_GOLD weight ${Math.max(1, resolved.weight) + 1} does not match canonical weight ${Math.max(1, resolved.weight)}.`,
+        `Demand RESOURCE_GOLD regional minimum ${resolved.minimumPerHemisphere + 1} does not match canonical minimum ${resolved.minimumPerHemisphere}.`,
+        "Demand RESOURCE_GOLD intensity[0] is NaN; intensity must be finite and within [0, 1].",
+        "Demand RESOURCE_GOLD intensity[1] is 1.25; intensity must be finite and within [0, 1].",
+      ])
     );
   });
 });
 
-function resourceDemandMessages(value: ResourceDemandPlanPayload): string[] {
+function resourceDemandMessages(
+  value: ResourceDemandPlanPayload,
+  dimensions = TEST_MAP_SIZE.dimensions
+): string[] {
   return resourceDemandArtifacts.resourceDemandPlan
-    .validate(value, VALIDATION_CONTEXT)
+    .validate(value, { dimensions })
     .map((issue) => issue.message);
 }
 
-function scenarioExcludedPayload(): ResourceDemandPlanPayload {
-  const value = resourceDemandPlanPayload();
-  value.demands = [];
-  value.excluded = [
-    { resourceType: "RESOURCE_FISH", reason: { kind: "no-admitted-legal-tiles" } },
-    value.excluded[0]!,
-  ];
-  return value;
+function resourceDemandPlanPayload(): ResourceDemandPlanPayload {
+  const size = TEST_MAP_SIZE.dimensions.width * TEST_MAP_SIZE.dimensions.height;
+  const candidates: ResourceDemandPlanPayload["candidates"] = {
+    admitted: [],
+    excluded: {
+      expectationBlocked: [],
+      ageDeferred: [],
+      noLegalSites: [],
+    },
+  };
+
+  for (const expectation of EARTHLIKE_RESOURCE_EXPECTATIONS) {
+    const identity = {
+      resourceType: expectation.resourceType,
+      groupId: expectation.groupId,
+      expectationStatus: expectation.status,
+      expectedCountRange: { ...expectation.expectedCountRange },
+    };
+
+    if (expectation.status === "blocked") {
+      candidates.excluded.expectationBlocked.push({
+        source: { ...identity, expectationStatus: "blocked" },
+        reason: { kind: "expectation-blocked" },
+      });
+      continue;
+    }
+    const agePolicy = getInitialMapResourcePolicyForType(
+      expectation.resourceType,
+      INITIAL_MAP_RESOURCE_AUTHORING_AGE
+    );
+    if (!agePolicy) throw new Error(`Missing age policy for ${expectation.resourceType}.`);
+    if (agePolicy.status === "deferred-future-age") {
+      candidates.excluded.ageDeferred.push({
+        source: { ...identity, expectationStatus: "expected" },
+        reason: {
+          kind: "age-policy",
+          status: "deferred-future-age",
+          age: INITIAL_MAP_RESOURCE_AUTHORING_AGE,
+        },
+      });
+      continue;
+    }
+    if (agePolicy.status !== "eligible") {
+      throw new Error(
+        `Expected resource ${expectation.resourceType} has impossible age status ${agePolicy.status}.`
+      );
+    }
+    const signal = RESOURCE_HABITAT_SIGNALS.get(expectation.resourceType);
+    if (!signal) throw new Error(`Missing signal for ${expectation.resourceType}.`);
+    const habitatMask = new Uint8Array(size).fill(1);
+    const habitatTileCount = size;
+    const source = {
+      ...identity,
+      expectationStatus: "expected" as const,
+      family: signal.family,
+      laneId: signal.laneId,
+      laneKind: signal.laneKind,
+      targetIntentCount: Math.min(
+        expectation.expectedCountRange.max,
+        habitatTileCount,
+        expectation.expectedCountRange.target
+      ),
+      habitatMask,
+      habitatTileCount,
+    };
+    candidates.excluded.noLegalSites.push({
+      source,
+      reason: {
+        kind: "no-legal-sites",
+        legalMask: new Uint8Array(size),
+      },
+    });
+  }
+
+  return {
+    width: TEST_MAP_SIZE.dimensions.width,
+    height: TEST_MAP_SIZE.dimensions.height,
+    age: INITIAL_MAP_RESOURCE_AUTHORING_AGE,
+    minimumAmountModifier: 0,
+    candidates,
+  };
 }
 
-function resourceDemandPlanPayload(): ResourceDemandPlanPayload {
-  const plans = [
-    {
-      resourceType: "RESOURCE_FISH",
-      status: "planned" as const,
-      proofStatus: "warning-only" as const,
-      targetIntentCount: 1,
-      eligibleTileCount: 1,
-    },
-    {
-      resourceType: "RESOURCE_CAMELS",
-      status: "blocked" as const,
-      proofStatus: "warning-only" as const,
-      targetIntentCount: 0,
-      eligibleTileCount: 0,
-    },
-  ];
+function canonicalDemand(
+  resourceType: string,
+  size: number,
+  observedRequiredForAge: boolean | null = null
+): AdmittedDemand {
+  const resolved = resolveResourceRuntimeIds().byType.get(resourceType as OfficialResourceType);
+  if (!resolved) throw new Error(`Missing runtime policy for ${resourceType}.`);
   return {
-    age: "AGE_ANTIQUITY",
-    minimumAmountModifier: 0,
-    groups: {
-      artifactId: "artifact:resources.groupPlans",
-      proofStatus: "warning-only",
-      groupCount: 1,
-      resourceCount: 2,
-      plannedCount: 1,
-      blockedCount: 1,
-      missingSignalCount: 0,
-      missingExpectationCount: 0,
-      targetIntentCount: 1,
-      eligibleTileCount: 1,
-      duplicateResourceTypes: [],
-      missingResourceTypes: [],
-      blockers: [],
-      groups: [
-        {
-          groupId: "aquatic-coastal-navigable-river",
-          inputGroupId: "aquatic-coastal-navigable-river",
-          resourceCount: 2,
-          plannedCount: 1,
-          blockedCount: 1,
-          missingSignalCount: 0,
-          missingExpectationCount: 0,
-          targetIntentCount: 1,
-          eligibleTileCount: 1,
-          missingResourceTypes: [],
-          blockers: [],
-          plans,
-        },
-      ],
-    },
-    demands: [
-      {
-        resourceType: "RESOURCE_FISH",
-        family: "aquatic",
-        laneId: "coastal-water",
-        laneKind: "water",
-        weight: 1,
-        regionMinimumRequirement: {
-          kind: "not-applicable",
-          reason: "no-official-minimum",
-        },
-        targetCount: 1,
-        minCount: 0,
-        maxCount: 2,
-        habitatTileCount: 1,
-        legalTileCount: 1,
-        eligibleTileCount: 1,
-      },
-    ],
-    excluded: [
-      {
-        resourceType: "RESOURCE_CAMELS",
-        reason: { kind: "planner-status", status: "blocked" },
-      },
-    ],
+    weight: Math.max(1, resolved.weight),
+    regionMinimumRequirement: resolveResourceRegionMinimumRequirement({
+      resourceType: resourceType as OfficialResourceType,
+      age: INITIAL_MAP_RESOURCE_AUTHORING_AGE,
+      minimumPerHemisphere: resolved.minimumPerHemisphere,
+      observedRequiredForAge,
+    }),
+    legalMask: new Uint8Array(size).fill(1),
+    intensity: new Float32Array(size).fill(1),
+    legalTileCount: size,
+    eligibleTileCount: size,
   };
+}
+
+function admitCandidate(
+  value: ResourceDemandPlanPayload,
+  resourceType: string,
+  observedRequiredForAge: boolean | null = null
+): AdmittedCandidate {
+  const index = value.candidates.excluded.noLegalSites.findIndex(
+    (candidate) => candidate.source.resourceType === resourceType
+  );
+  const [excluded] = value.candidates.excluded.noLegalSites.splice(index, 1);
+  if (!excluded || excluded.source.expectationStatus !== "expected") {
+    throw new Error(`Missing expected ${resourceType} fixture.`);
+  }
+  const size = TEST_MAP_SIZE.dimensions.width * TEST_MAP_SIZE.dimensions.height;
+  const candidate: AdmittedCandidate = {
+    source: excluded.source,
+    demand: canonicalDemand(resourceType, size, observedRequiredForAge),
+  };
+  value.candidates.admitted.push(candidate);
+  return candidate;
+}
+
+function findCandidate(value: ResourceDemandPlanPayload, resourceType: string): TerminalCandidate {
+  const candidate = [
+    ...value.candidates.admitted,
+    ...value.candidates.excluded.expectationBlocked,
+    ...value.candidates.excluded.ageDeferred,
+    ...value.candidates.excluded.noLegalSites,
+  ].find((row) => row.source.resourceType === resourceType);
+  if (!candidate) throw new Error(`Missing ${resourceType} candidate fixture.`);
+  return candidate;
+}
+
+function findNoLegalCandidate(
+  value: ResourceDemandPlanPayload,
+  resourceType: string
+): ResourceDemandPlanPayload["candidates"]["excluded"]["noLegalSites"][number] {
+  const candidate = value.candidates.excluded.noLegalSites.find(
+    (row) => row.source.resourceType === resourceType
+  );
+  if (!candidate) throw new Error(`Missing excluded ${resourceType} fixture.`);
+  return candidate;
 }

@@ -1,4 +1,3 @@
-import { OFFICIAL_RESOURCE_BY_TYPE, type OfficialResourceType } from "@civ7/map-policy";
 import { deriveStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { warnLog } from "../../log.js";
@@ -12,7 +11,7 @@ import { projectResourceSupportViz } from "./viz.js";
 export const AdjustResourcesStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const plan = deps.artifacts.resourcePlan.read(context);
-    const eligibility = deps.artifacts.resourceEligibility.read(context);
+    const demandPlan = deps.artifacts.resourceDemandPlan.read(context);
     const startAssignment = deps.artifacts.startAssignment.read(context);
     const regionSlots = deps.artifacts.landmassRegionSlotByTile.read(context);
     const landmasses = deps.artifacts.landmasses.read(context);
@@ -32,20 +31,12 @@ export const AdjustResourcesStep = createStep(config, {
           affinityRules: plan.settings.affinityRules.map((rule) => ({ ...rule })),
         },
       },
-      eligibility: eligibility.rows.map((row) => {
-        const resourceType = row.resourceType as OfficialResourceType;
-        if (!Object.hasOwn(OFFICIAL_RESOURCE_BY_TYPE, resourceType)) {
-          throw new Error(
-            `[Placement] Unsupported resource eligibility type ${row.resourceType}; adjust-resource-support only accepts official resource types.`
-          );
-        }
-        return {
-          resourceType,
-          habitatMask: row.habitatMask as Uint8Array,
-          legalMask: row.legalMask as Uint8Array,
-          intensity: row.intensity as Float32Array,
-        };
-      }),
+      eligibility: demandPlan.candidates.admitted.map((candidate) => ({
+        resourceType: candidate.source.resourceType,
+        habitatMask: candidate.source.habitatMask,
+        legalMask: candidate.demand.legalMask,
+        intensity: candidate.demand.intensity,
+      })),
       starts: startAssignment.seats.map((seat) => ({
         seatIndex: seat.seatIndex,
         playerId: seat.playerId,

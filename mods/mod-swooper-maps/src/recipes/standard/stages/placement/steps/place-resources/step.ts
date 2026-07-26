@@ -350,7 +350,7 @@ export const PlaceResourcesStep = createStep(config, {
           {
             label: "Resource Stamping Outcomes",
             description:
-              "Typed reconcile outcomes per planned resource intent: placed, or rejected with the recorded reason (no relocation, no type re-decision). Per-type identity lives on the plan-resources intent layer.",
+              "Typed reconcile outcomes per planned resource intent: placed, or rejected with the recorded reason (no relocation, no type re-decision). Per-type identity lives on the select-resource-sites intent layer.",
           }
         ),
       },

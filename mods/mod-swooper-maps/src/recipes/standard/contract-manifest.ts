@@ -53,9 +53,10 @@ import { config as placeDiscoveriesConfig } from "./stages/placement/steps/place
 import { config as placeNaturalWondersConfig } from "./stages/placement/steps/place-natural-wonders/config.js";
 import { config as placeResourcesConfig } from "./stages/placement/steps/place-resources/config.js";
 import { config as planNaturalWondersConfig } from "./stages/placement/steps/plan-natural-wonders/config.js";
-import { config as planResourcesConfig } from "./stages/placement/steps/plan-resources/config.js";
+import { config as planResourceDemandsConfig } from "./stages/placement/steps/plan-resource-demands/config.js";
 import { config as plotLandmassRegionsConfig } from "./stages/placement/steps/plot-landmass-regions/config.js";
 import { config as preparePlacementSurfaceConfig } from "./stages/placement/steps/prepare-placement-surface/config.js";
+import { config as selectResourceSitesConfig } from "./stages/placement/steps/select-resource-sites/config.js";
 
 export type StandardContractStageManifest = RecipeDagStageInput;
 
@@ -111,7 +112,8 @@ export const standardStageContractManifest = [
     placeNaturalWondersConfig,
     preparePlacementSurfaceConfig,
     plotLandmassRegionsConfig,
-    planResourcesConfig,
+    planResourceDemandsConfig,
+    selectResourceSitesConfig,
     assignStartsConfig,
     adjustResourcesConfig,
     placeResourcesConfig,

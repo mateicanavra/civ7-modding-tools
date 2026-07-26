@@ -8,9 +8,10 @@ import { PlaceDiscoveriesStep } from "./steps/place-discoveries/step.js";
 import { PlaceNaturalWondersStep } from "./steps/place-natural-wonders/step.js";
 import { PlaceResourcesStep } from "./steps/place-resources/step.js";
 import { PlanNaturalWondersStep } from "./steps/plan-natural-wonders/step.js";
-import { PlanResourcesStep } from "./steps/plan-resources/step.js";
+import { PlanResourceDemandsStep } from "./steps/plan-resource-demands/step.js";
 import { PlotLandmassRegionsStep } from "./steps/plot-landmass-regions/step.js";
 import { PreparePlacementSurfaceStep } from "./steps/prepare-placement-surface/step.js";
+import { SelectResourceSitesStep } from "./steps/select-resource-sites/step.js";
 
 /**
  * Placement exposes each gameplay product as a step boundary. Surface
@@ -20,7 +21,8 @@ import { PreparePlacementSurfaceStep } from "./steps/prepare-placement-surface/s
  *
  * Resource ordering (S5, D3 contract change): planning stays before starts;
  * stamping runs after the resource↔start support pass —
- * plan-resources → assign-starts → adjust-resources → place-resources.
+ * plan-resource-demands → select-resource-sites → assign-starts →
+ * adjust-resources → place-resources.
  */
 export default createStage({
   id: "placement",
@@ -29,7 +31,8 @@ export default createStage({
     "place-natural-wonders": PlaceNaturalWondersStep,
     "prepare-placement-surface": PreparePlacementSurfaceStep,
     "plot-landmass-regions": PlotLandmassRegionsStep,
-    "plan-resources": PlanResourcesStep,
+    "plan-resource-demands": PlanResourceDemandsStep,
+    "select-resource-sites": SelectResourceSitesStep,
     "assign-starts": AssignStartsStep,
     "adjust-resources": AdjustResourcesStep,
     "place-resources": PlaceResourcesStep,
