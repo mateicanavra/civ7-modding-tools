@@ -7,7 +7,7 @@ import { temperatureZoneOf } from "./temperature.js";
 import { clamp01 } from "./util.js";
 import { vegetationDensityForBiome } from "./vegetation.js";
 
-type DefaultConfig = BiomeClassificationTypes["config"]["default"];
+type BiophysicalGaussianConfig = BiomeClassificationTypes["config"]["biophysical-gaussian"];
 
 /**
  * Classifies land tiles into biome symbols and vegetation density from prepared
@@ -23,7 +23,7 @@ export function classifyBiomesFromFields(args: {
   aridityIndexF64: Float64Array;
   soilType: Uint8Array;
   fertility: Float32Array;
-  config: DefaultConfig;
+  config: BiophysicalGaussianConfig;
 }): Readonly<{ biomeIndex: Uint8Array; vegetationDensity: Float32Array }> {
   const { width, height } = args;
   const size = width * height;

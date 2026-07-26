@@ -41,7 +41,7 @@ describe("m11 morphology baseline consumes crust isostasy prior", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const meshConfig = computeMesh.normalize({
-      strategy: "default",
+      strategy: "jittered-delaunay",
       config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2 },
     });
 

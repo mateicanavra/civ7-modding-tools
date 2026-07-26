@@ -158,6 +158,7 @@ describe("map config envelope portability", () => {
     const secondNormalizedDefault = normalizeRunInGameSetupConfig(undefined);
     const normalized = normalizeRunInGameSetupConfig({
       gameOptions: { Difficulty: "DIFFICULTY_PRINCE" },
+      mapOptions: {},
       playerOptions: [{ playerId: 1, options: { PlayerLeader: "LEADER_TEST" } }],
     });
 

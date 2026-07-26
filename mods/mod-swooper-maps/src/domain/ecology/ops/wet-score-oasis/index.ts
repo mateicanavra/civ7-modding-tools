@@ -1,11 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ScoreWetOasisContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { warmAridWaterpointStrategy } from "./strategies/index.js";
 
 const scoreWetOasis = createOp(ScoreWetOasisContract, {
   strategies: {
-    default: defaultStrategy,
+    "warm-arid-waterpoint": warmAridWaterpointStrategy,
   },
 });
 

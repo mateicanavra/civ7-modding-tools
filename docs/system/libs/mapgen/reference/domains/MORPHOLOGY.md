@@ -217,7 +217,7 @@ Fields:
 
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/artifacts/routing.artifact.ts` (`Schema`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-routing/steps/routing/step.ts` (publishing routing evidence)
-- `mods/mod-swooper-maps/src/domain/morphology/ops/compute-flow-routing/strategies/default.ts` (always returning an `Int32Array` `basinId` filled with `-1`)
+- `mods/mod-swooper-maps/src/domain/morphology/ops/compute-flow-routing/strategies/steepest-descent.ts` (always returning an `Int32Array` `basinId` filled with `-1`)
 
 ### `artifact:morphology.coastlineMetrics` (pre-island evidence; tile space)
 
@@ -373,7 +373,7 @@ depression-conditioned drainage routing from Morphology topography.
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/domain/morphology/ops/compute-flow-routing/contract.ts` (`ComputeFlowRoutingContract`)
-- `mods/mod-swooper-maps/src/domain/morphology/ops/compute-flow-routing/strategies/default.ts` (`selectFlowReceiver`, `computeFlowAccumulation`, `basinId.fill(-1)`)
+- `mods/mod-swooper-maps/src/domain/morphology/ops/compute-flow-routing/strategies/steepest-descent.ts` (`selectFlowReceiver`, `computeFlowAccumulation`, `basinId.fill(-1)`)
 
 #### `morphology/compute-geomorphic-cycle` → `{ elevationDelta, sedimentDelta }`
 

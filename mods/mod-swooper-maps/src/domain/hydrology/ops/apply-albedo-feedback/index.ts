@@ -1,9 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import ApplyAlbedoFeedbackContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { boundedSnowIceStrategy } from "./strategies/index.js";
 
 const applyAlbedoFeedback = createOp(ApplyAlbedoFeedbackContract, {
-  strategies: { default: defaultStrategy },
+  strategies: { "bounded-snow-ice": boundedSnowIceStrategy },
 });
 
 export type * from "./contract.js";

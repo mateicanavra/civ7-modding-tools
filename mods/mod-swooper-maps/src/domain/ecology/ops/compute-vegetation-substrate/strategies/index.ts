@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { bioclimaticSubstrateStrategy } from "./bioclimatic-substrate.js";

@@ -1,16 +1,20 @@
 import {
   type Civ7AppUiSnapshotResult,
-  Civ7DirectControlError,
   type Civ7DirectControlErrorCode,
   type Civ7MapSummaryResult,
   type Civ7RuntimeProbe,
   type Civ7SavedGameConfigurationLoadRequestResult,
-  type Civ7SetupApplicationResult,
   type Civ7SetupMapRowsResult,
+  type Civ7SetupSnapshotResult,
   type Civ7SinglePlayerSetupValues,
   type Civ7TargetModReconciliationResult,
 } from "@civ7/direct-control";
+import {
+  type Civ7DirectControlErrorShape,
+  isCiv7DirectControlError,
+} from "@civ7/direct-control/error";
 import { CIV7_UI_LOADING_STATES } from "@civ7/direct-control/game-ui/loading-states";
+import { assessCiv7SignedIntSeed } from "@civ7/map-policy/setup";
 import { Clock, Effect, Either, Match, Option, Predicate } from "effect";
 
 import {
@@ -308,14 +312,61 @@ export const lifecycleSinglePlayerStartProcedure =
     );
 
     const setupValues = singlePlayerSetupValues(input);
-    const appliedSetup = yield* mutationResultCall(
-      "apply-setup",
-      () => directLifecycle.applySinglePlayerSetup(setupValues, context.endpointDefaults),
-      isAppliedSetupResult,
+    const identityMutation = yield* mutationResultCall(
+      "apply-setup-identity",
+      () => directLifecycle.applySinglePlayerSetupIdentity(setupValues, context.endpointDefaults),
+      isSetupMutationResult,
       true
     );
+    const identityBaselineRevision = yield* Effect.try({
+      try: () => requiredSetupRevision(identityMutation.before),
+      catch: () => verificationFailure("apply-setup-identity", "setup-revision-unavailable"),
+    });
+
+    const identitySnapshot = yield* requireMatched(
+      pollUntil({
+        read: () => directLifecycle.getSetupSnapshot(context.endpointDefaults),
+        matches: (result) =>
+          hasExpectedSetupIdentity(result, setupValues) &&
+          hasAdvancedSetupRevision(result, identityBaselineRevision),
+        timeoutMs: DEFAULT_LIFECYCLE_SETUP_WAIT_MS,
+        pollMs: DEFAULT_LIFECYCLE_POLL_MS,
+      }),
+      () => verificationFailure("wait-for-setup-identity", "setup-identity-or-options-not-observed")
+    );
+
+    const finalSetupSnapshot = yield* Match.value(hasAuthoredSetupOptions(setupValues)).pipe(
+      Match.when(true, () =>
+        Effect.gen(function* () {
+          const optionsMutation = yield* mutationResultCall(
+            "apply-setup-options",
+            () =>
+              directLifecycle.applySinglePlayerSetupOptions(setupValues, context.endpointDefaults),
+            isSetupMutationResult,
+            true
+          );
+          const optionsBaselineRevision = yield* Effect.try({
+            try: () => requiredSetupRevision(optionsMutation.before),
+            catch: () => verificationFailure("apply-setup-options", "setup-revision-unavailable"),
+          });
+          return yield* requireMatched(
+            pollUntil({
+              read: () => directLifecycle.getSetupSnapshot(context.endpointDefaults),
+              matches: (result) =>
+                hasExpectedPreparedSetup(result, setupValues) &&
+                hasAdvancedSetupRevision(result, optionsBaselineRevision),
+              timeoutMs: DEFAULT_LIFECYCLE_SETUP_WAIT_MS,
+              pollMs: DEFAULT_LIFECYCLE_POLL_MS,
+            }),
+            () =>
+              verificationFailure("wait-for-setup-options", "authored-setup-readback-not-observed")
+          );
+        })
+      ),
+      Match.orElse(() => Effect.succeed(identitySnapshot))
+    );
     const setupEvidence = yield* Effect.try({
-      try: () => projectSetupEvidence(input, appliedSetup, targetMod, mapRows),
+      try: () => projectSetupEvidence(input, finalSetupSnapshot, targetMod, mapRows),
       catch: () => verificationFailure("verify-setup-evidence", "setup-evidence-invalid"),
     });
 
@@ -384,7 +435,7 @@ export const lifecycleSinglePlayerStartProcedure =
     const mapSummary = yield* requireMatched(
       pollUntil({
         read: () => directLifecycle.getMapSummary(context.endpointDefaults),
-        matches: (result) => hasExactMapIdentity(result, input.seed, input.mapSize),
+        matches: (result) => hasExactMapIdentity(result, input.mapSeed, input.mapSize),
         timeoutMs: DEFAULT_LIFECYCLE_START_WAIT_MS,
         pollMs: DEFAULT_LIFECYCLE_POLL_MS,
       }),
@@ -409,18 +460,17 @@ function singlePlayerSetupValues(
   return {
     mapScript: input.mapScript,
     mapSize: input.mapSize,
-    seed: input.seed,
-    gameSeed: input.seed,
+    mapSeed: input.mapSeed,
+    gameSeed: input.gameSeed,
     ...Option.fromNullable(input.playerCount).pipe(
       Option.match({
         onNone: () => ({}),
         onSome: (playerCount) => ({ playerCount }),
       })
     ),
-    options: input.gameOptions,
-    playerOptions: Object.entries(input.playerOptions)
-      .sort(([left], [right]) => Number(left) - Number(right))
-      .map(([playerId, options]) => ({ playerId: Number(playerId), options })),
+    gameOptions: input.gameOptions,
+    mapOptions: input.mapOptions,
+    playerOptions: input.playerOptions,
   };
 }
 
@@ -428,13 +478,112 @@ function hasExactMapRow(result: Civ7SetupMapRowsResult, mapScript: string): bool
   return result.rows.some((row) => row.file === mapScript);
 }
 
+function hasAuthoredSetupOptions(input: Civ7SinglePlayerSetupValues): boolean {
+  return (
+    Object.keys(input.gameOptions).length > 0 ||
+    Object.keys(input.mapOptions).length > 0 ||
+    input.playerOptions.some((player) => Object.keys(player.options).length > 0)
+  );
+}
+
+function hasExpectedSetupIdentity(
+  result: Civ7SetupSnapshotResult,
+  input: Civ7SinglePlayerSetupValues
+): boolean {
+  const snapshot = result.snapshot;
+  const parameterValue = (id: string) =>
+    snapshot.setup.parameters.find((parameter) => parameter.id === id)?.value;
+  return (
+    snapshot.phase === "shell" &&
+    snapshot.mapRows.some((row) => row.file === input.mapScript) &&
+    parameterValue("Map") === input.mapScript &&
+    parameterValue("MapSize") === input.mapSize &&
+    parameterValue("MapRandomSeed") === input.mapSeed &&
+    parameterValue("GameRandomSeed") === input.gameSeed &&
+    stringProbeValue(snapshot.config.mapScript) === input.mapScript &&
+    stringProbeValue(snapshot.config.mapSizeType) === input.mapSize &&
+    finiteNumberProbeValue(snapshot.config.mapSeed) === input.mapSeed &&
+    finiteNumberProbeValue(snapshot.config.gameSeed) === input.gameSeed &&
+    (input.playerCount === undefined ||
+      finiteNumberProbeValue(snapshot.config.playerCount) === input.playerCount)
+  );
+}
+
+function hasExpectedPreparedSetup(
+  result: Civ7SetupSnapshotResult,
+  input: Civ7SinglePlayerSetupValues
+): boolean {
+  const snapshot = result.snapshot;
+  return (
+    hasExpectedSetupIdentity(result, input) &&
+    Object.entries({ ...input.gameOptions, ...input.mapOptions }).every(([id, expected]) =>
+      parameterMatches(snapshot.setup.parameters, id, expected)
+    ) &&
+    input.playerOptions.every((player) => playerSetupMatches(snapshot, player))
+  );
+}
+
+function setupValuesEqual(actual: unknown, expected: unknown): boolean {
+  return Option.match(
+    Option.all([
+      Option.liftPredicate(actual, Array.isArray),
+      Option.liftPredicate(expected, Array.isArray),
+    ]),
+    {
+      onNone: () => !Array.isArray(actual) && !Array.isArray(expected) && actual === expected,
+      onSome: ([left, right]) => arrayValuesEqual(left, right),
+    }
+  );
+}
+
+function arrayValuesEqual(left: readonly unknown[], right: readonly unknown[]): boolean {
+  const uniqueLeft = Array.from(new Set(left)).sort();
+  const uniqueRight = Array.from(new Set(right)).sort();
+  return (
+    uniqueLeft.length === uniqueRight.length &&
+    uniqueLeft.every((value, index) => value === uniqueRight[index])
+  );
+}
+
+function parameterMatches(
+  parameters: Civ7SetupSnapshotResult["snapshot"]["setup"]["parameters"],
+  id: string,
+  expected: unknown
+): boolean {
+  return setupValuesEqual(parameters.find((parameter) => parameter.id === id)?.value, expected);
+}
+
+function playerSetupMatches(
+  snapshot: Civ7SetupSnapshotResult["snapshot"],
+  player: Civ7SinglePlayerSetupValues["playerOptions"][number]
+): boolean {
+  const observed = snapshot.setup.playerParameters.find(
+    (candidate) => candidate.playerId === player.playerId
+  );
+  return (
+    observed?.exists.ok === true &&
+    observed.exists.value === true &&
+    observed.active.ok === true &&
+    observed.active.value === true &&
+    Object.entries(player.options).every(([id, expected]) =>
+      parameterMatches(observed.parameters, id, expected)
+    )
+  );
+}
+
+function requiredSetupRevision(result: Civ7SetupSnapshotResult): number {
+  const revision = finiteNumberProbeValue(result.snapshot.setup.revision);
+  if (revision === undefined) throw new InvalidDependencyObservationError();
+  return revision;
+}
+
 function projectSetupEvidence(
   input: Civ7LifecycleSinglePlayerStartInput,
-  appliedSetup: Civ7SetupApplicationResult,
+  setupSnapshot: Civ7SetupSnapshotResult,
   targetMod: Civ7TargetModReconciliationResult,
   mapRows: Civ7SetupMapRowsResult
 ): Civ7LifecycleSinglePlayerStartResult["evidence"]["setup"] {
-  const config = appliedSetup.after.snapshot.config;
+  const config = setupSnapshot.snapshot.config;
   const mapScript = requiredStringProbe(config.mapScript);
   const mapSize = requiredStringProbe(config.mapSizeType);
   const mapSeed = requiredSeedProbe(config.mapSeed);
@@ -461,8 +610,8 @@ function projectSetupEvidence(
     () =>
       mapScript === input.mapScript &&
       mapSize === input.mapSize &&
-      mapSeed === input.seed &&
-      gameSeed === input.seed &&
+      mapSeed === input.mapSeed &&
+      gameSeed === input.gameSeed &&
       targetMod.targetModId === input.targetModId &&
       mapRowFiles.includes(mapScript) &&
       (playerCount === undefined || isPlayerCount(playerCount)) &&
@@ -503,7 +652,7 @@ function projectRuntimeEvidence(
   return Option.liftPredicate(
     evidence,
     () =>
-      seed === input.seed &&
+      seed === input.mapSeed &&
       mapSize === input.mapSize &&
       (width === undefined || isMapDimension(width)) &&
       (height === undefined || isMapDimension(height)) &&
@@ -541,12 +690,7 @@ function isCanonicalMapScript(value: unknown): value is string {
 }
 
 function isSeed(value: unknown): value is number {
-  return (
-    Predicate.isNumber(value) &&
-    Number.isInteger(value) &&
-    value >= -2_147_483_648 &&
-    value <= 2_147_483_647
-  );
+  return assessCiv7SignedIntSeed(value).ok;
 }
 
 function isPlayerCount(value: unknown): value is number {
@@ -620,8 +764,8 @@ function isReloadResult(value: unknown): boolean {
   return isRecord(value) && Predicate.isBoolean(value.reloaded);
 }
 
-function isAppliedSetupResult(value: unknown): boolean {
-  return isRecord(value) && value.verified === true;
+function isSetupMutationResult(value: unknown): boolean {
+  return isRecord(value) && value.accepted === true;
 }
 
 function isHostResult(value: unknown): boolean {
@@ -722,14 +866,14 @@ function resolveSavedConfigLoadBaseline<
     onUnexpectedFailure: (cause: unknown) => UnexpectedFailure;
     onUnavailableRevision: () => UnavailableRevision;
     onRejected: () => Rejected;
-    onUnresolvedClose: (cause: Civ7DirectControlError) => UnresolvedClose;
+    onUnresolvedClose: (cause: Civ7DirectControlErrorShape) => UnresolvedClose;
   }>
 ) {
   return Either.match(attempt, {
     onLeft: (cause) =>
       Match.value(cause).pipe(
         Match.when(
-          (value: unknown): value is Civ7DirectControlError =>
+          (value: unknown): value is Civ7DirectControlErrorShape =>
             hasDirectControlCode(value, "socket-closed"),
           (closed) =>
             Option.match(setupRevisionOption(shellSnapshot), {
@@ -872,12 +1016,9 @@ function hasSetupPhaseRefusalDetails(value: unknown): value is object & {
   code: string;
   details: Record<string, unknown> & { snapshot: Record<string, unknown> };
 } {
-  return (
-    hasDirectControlCode(value, "setup-phase-refused") &&
-    "details" in value &&
-    isRecord(value.details) &&
-    isRecord(value.details.snapshot)
-  );
+  if (!hasDirectControlCode(value, "setup-phase-refused") || !("details" in value)) return false;
+  const details = value.details;
+  return isRecord(details) && isRecord(details.snapshot);
 }
 
 function admittedRefusedSetupPhase(
@@ -898,17 +1039,18 @@ function isExplicitVerificationFailure(cause: unknown): boolean {
     "setup-host-rejected",
     "setup-map-row-missing",
     "setup-parameter-invalid",
+    "setup-parameter-refused",
     "setup-phase-refused",
     "setup-readback-mismatch",
   ] as const satisfies readonly Civ7DirectControlErrorCode[];
   return verificationFailureCodes.some((code) => hasDirectControlCode(cause, code));
 }
 
-function hasDirectControlCode(
+function hasDirectControlCode<Code extends Civ7DirectControlErrorCode>(
   cause: unknown,
-  code: Civ7DirectControlErrorCode
-): cause is Civ7DirectControlError {
-  return cause instanceof Civ7DirectControlError && cause.code === code;
+  code: Code
+): cause is Civ7DirectControlErrorShape & Readonly<{ code: Code }> {
+  return isCiv7DirectControlError(cause) && cause.code === code;
 }
 
 function requireMatched<A, E>(effect: ReturnType<typeof pollUntil<A>>, onExhausted: () => E) {

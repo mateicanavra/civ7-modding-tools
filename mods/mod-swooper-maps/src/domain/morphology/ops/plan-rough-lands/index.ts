@@ -1,11 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import PlanRoughLandsContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { reliefSubstrateClustersStrategy } from "./strategies/index.js";
 
 const planRoughLands = createOp(PlanRoughLandsContract, {
   strategies: {
-    default: defaultStrategy,
+    "relief-substrate-clusters": reliefSubstrateClustersStrategy,
   },
 });
 

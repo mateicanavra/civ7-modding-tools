@@ -1,10 +1,10 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import PlanPlotEffectsContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { rankedCoverageStrategy } from "./strategies/index.js";
 
 const planPlotEffects = createOp(PlanPlotEffectsContract, {
   strategies: {
-    default: defaultStrategy,
+    "ranked-coverage": rankedCoverageStrategy,
   },
 });
 

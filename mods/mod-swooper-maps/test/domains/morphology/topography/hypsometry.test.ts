@@ -40,7 +40,7 @@ describe("m11 hypsometry: continentalFraction does not collapse water coverage",
     const size = width * height;
 
     const meshConfig = computeMesh.normalize({
-      strategy: "default",
+      strategy: "jittered-delaunay",
       config: { plateCount: 19, cellsPerPlate: 7, relaxationSteps: 6 },
     });
     const mesh = computeMesh.run({ width, height, rngSeed: 1 }, meshConfig).mesh;

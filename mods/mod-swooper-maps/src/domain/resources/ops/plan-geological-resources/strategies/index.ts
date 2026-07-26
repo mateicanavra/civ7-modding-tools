@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { canonicalDemandStrategy } from "./canonical-demand.js";

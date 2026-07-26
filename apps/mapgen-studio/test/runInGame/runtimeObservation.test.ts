@@ -39,7 +39,8 @@ const unavailableDirectLifecycle = {
   reconcileRequiredTargetMod: rejectUnexpectedLifecycleCall,
   getSetupMapRows: rejectUnexpectedLifecycleCall,
   reloadSetupUiInShell: rejectUnexpectedLifecycleCall,
-  applySinglePlayerSetup: rejectUnexpectedLifecycleCall,
+  applySinglePlayerSetupIdentity: rejectUnexpectedLifecycleCall,
+  applySinglePlayerSetupOptions: rejectUnexpectedLifecycleCall,
   hostPreparedSinglePlayerGame: rejectUnexpectedLifecycleCall,
   getAppUiSnapshot: rejectUnexpectedLifecycleCall,
   beginGame: rejectUnexpectedLifecycleCall,
@@ -729,11 +730,13 @@ function preparedRequest(): RunInGamePreparedRequest {
   };
   const launchEnvelope = {
     seed: 43,
+    gameSeed: 47,
     worldSettings: {
       mapSize: "MAPSIZE_STANDARD",
     },
     setupConfig: {
       gameOptions: {},
+      mapOptions: {},
       playerOptions: [{ playerId: 0, options: {} }],
     },
     canonicalConfig,
@@ -742,6 +745,7 @@ function preparedRequest(): RunInGamePreparedRequest {
     request: {
       recipeId: "standard",
       seed: 43,
+      gameSeed: 47,
       mapSize: "MAPSIZE_STANDARD",
       setupConfig: launchEnvelope.setupConfig,
     },

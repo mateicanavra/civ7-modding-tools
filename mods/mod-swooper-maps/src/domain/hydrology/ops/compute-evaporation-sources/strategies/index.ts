@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { thermalSurfaceStrategy } from "./thermal-surface.js";

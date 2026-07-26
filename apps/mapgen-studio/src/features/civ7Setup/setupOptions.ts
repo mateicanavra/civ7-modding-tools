@@ -3,14 +3,17 @@
 // and merge/normalize option groups (live snapshot, saved configs, catalog).
 // Extracted verbatim from `App.tsx` during the app-decomposition slice.
 
+import type { Civ7SetupParameter } from "@civ7/studio-contract";
 import type { Civ7SetupCatalogOption } from "./api";
-import { type Civ7SetupParameterSnapshotLike, labelForCiv7SetupValue } from "./setupConfig";
+import { isAuthorableCiv7SetupParameter, labelForCiv7SetupValue } from "./setupConfig";
 
 export function findSetupParameterLike(
-  parameters: ReadonlyArray<Civ7SetupParameterSnapshotLike> | undefined,
+  parameters: ReadonlyArray<Civ7SetupParameter> | undefined,
   id: string
-): Civ7SetupParameterSnapshotLike | undefined {
-  return parameters?.find((parameter) => parameter.id === id && parameter.exists !== false);
+): Civ7SetupParameter | undefined {
+  return parameters?.find(
+    (parameter) => parameter.id === id && isAuthorableCiv7SetupParameter(parameter)
+  );
 }
 
 export function ensureSelectOption(

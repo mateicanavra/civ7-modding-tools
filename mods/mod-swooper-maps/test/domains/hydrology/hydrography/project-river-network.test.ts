@@ -18,7 +18,7 @@ describe("hydrology/project-river-network (default strategy)", () => {
         flowDir: new Int32Array(size).fill(-1),
       },
       {
-        strategy: "default",
+        strategy: "discharge-percentiles",
         config: {
           minorPercentile: 0.85,
           majorPercentile: 0.95,
@@ -50,7 +50,7 @@ describe("hydrology/project-river-network (default strategy)", () => {
         flowDir: new Int32Array(size).fill(-1),
       },
       {
-        strategy: "default",
+        strategy: "discharge-percentiles",
         config: {
           minorPercentile: 0.85,
           majorPercentile: 0.95,
@@ -83,7 +83,7 @@ describe("hydrology/project-river-network (default strategy)", () => {
         flowDir,
       },
       {
-        strategy: "default",
+        strategy: "discharge-percentiles",
         config: {
           minorPercentile: 0,
           majorPercentile: 1,

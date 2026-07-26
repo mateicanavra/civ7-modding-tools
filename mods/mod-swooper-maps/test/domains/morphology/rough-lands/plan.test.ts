@@ -6,7 +6,7 @@ import { TEST_MAP_SIZE } from "../../../map-size.js";
 const { planRoughLands } = morphology.ops;
 type RoughLandSelection = Extract<
   Parameters<typeof planRoughLands.run>[1],
-  { strategy: "default" }
+  { strategy: "relief-substrate-clusters" }
 >;
 
 function countMask(mask: Uint8Array): number {
@@ -45,7 +45,7 @@ function roughLandConfig(
   overrides: Partial<RoughLandSelection["config"]> = {}
 ): RoughLandSelection {
   return {
-    strategy: "default",
+    strategy: "relief-substrate-clusters",
     config: {
       ...planRoughLands.defaultConfig.config,
       driverSignalByteMin: 0,

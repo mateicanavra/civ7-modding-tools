@@ -60,7 +60,7 @@ export default defineOp({
   id: "foundation/demo",
   input: Type.Object({}),
   output: Type.Object({}),
-  strategies: { default: DemoConfigSchema },
+  strategies: { measured: DemoConfigSchema },
 });
 
 // @filename: mods/mod-swooper-maps/src/domain/morphology/ops/plan-ridges/contract.ts
@@ -72,7 +72,7 @@ export default defineOp({
   id: "morphology/plan-ridges",
   input: Type.Object({}),
   output: Type.Object({}),
-  strategies: { default: MountainsConfigSchema },
+  strategies: { "orogenic-range-growth": MountainsConfigSchema },
 });
 
 // @filename: mods/mod-swooper-maps/src/domain/hydrology/ops/demo/contract.ts
@@ -84,7 +84,7 @@ export default defineOp({
   id: "hydrology/demo",
   input: Type.Object({}),
   output: Type.Object({}),
-  strategies: { default: HydrologyConfigSchema },
+  strategies: { "water-budget": HydrologyConfigSchema },
 });
 
 // @filename: mods/mod-swooper-maps/src/domain/hydrology/ops/demo/contract.ts
@@ -96,7 +96,7 @@ export default defineOp({
   id: "hydrology/demo",
   input: Type.Object({}),
   output: Type.Object({}),
-  strategies: { default: HydrologyConfigSchema },
+  strategies: { "water-budget": HydrologyConfigSchema },
 });
 
 // @filename: mods/mod-swooper-maps/src/domain/resources/ops/adjust-resource-support/contract.ts
@@ -108,7 +108,7 @@ export default defineOp({
   id: "resources/adjust-resource-support",
   input: Type.Object({}),
   output: Type.Object({}),
-  strategies: { default: Type.Object({}) },
+  strategies: { "support-equity": Type.Object({}) },
 });
 
 // @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/contract.ts
@@ -158,7 +158,7 @@ export default defineOp({
   id: "foundation/demo",
   input: Type.Object({ demo: DemoArtifactSchema }, { additionalProperties: false }),
   output: Type.Object({ demo: DemoArtifactSchema }, { additionalProperties: false }),
-  strategies: { default: StrategySchema },
+  strategies: { measured: StrategySchema },
 });
 
 // @filename: mods/mod-swooper-maps/src/domain/foundation/ops/demo/contract.ts
@@ -169,7 +169,7 @@ const DemoContract = defineOp({
   id: "foundation/demo",
   input: Type.Object({}, { additionalProperties: false }),
   output: Type.Object({}, { additionalProperties: false }),
-  strategies: { default: Type.Object({}, { additionalProperties: false }) },
+  strategies: { measured: Type.Object({}, { additionalProperties: false }) },
 });
 
 export default DemoContract;

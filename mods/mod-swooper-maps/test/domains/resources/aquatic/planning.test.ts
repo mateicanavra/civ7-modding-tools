@@ -112,7 +112,7 @@ describe("aquatic resource operation contract", () => {
   it("does not allow caller config to omit required aquatic resources", () => {
     expect(() =>
       normalizeOperationSelectionForTest(resources.ops.planAquaticResources, {
-        strategy: "default",
+        strategy: "canonical-demand",
         config: { requiredResourceTypes: ["RESOURCE_FISH"] },
       })
     ).toThrow(TestCompileError);

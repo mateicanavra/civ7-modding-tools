@@ -48,7 +48,7 @@ const ComputeOceanThermalStateOutputSchema = Type.Object(
   }
 );
 
-const ComputeOceanThermalStateDefaultStrategySchema = Type.Object(
+const LatitudeCurrentAdvectionStrategySchema = Type.Object(
   {
     /** Equator baseline SST (C). */
     equatorTempC: Type.Number({
@@ -95,7 +95,7 @@ const ComputeOceanThermalStateDefaultStrategySchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Ocean thermal parameters (default strategy).",
+    description: "Ocean thermal parameters (latitude-current-advection strategy).",
   }
 );
 
@@ -104,9 +104,8 @@ const ComputeOceanThermalStateContract = defineOp({
   id: "hydrology/compute-ocean-thermal-state",
   input: ComputeOceanThermalStateInputSchema,
   output: ComputeOceanThermalStateOutputSchema,
-  defaultStrategy: "default",
   strategies: {
-    default: ComputeOceanThermalStateDefaultStrategySchema,
+    "latitude-current-advection": LatitudeCurrentAdvectionStrategySchema,
   },
 });
 

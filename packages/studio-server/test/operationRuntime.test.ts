@@ -1219,7 +1219,11 @@ describe("StudioOperationRuntime", () => {
           seed: "123",
           mapSize: "MAPSIZE_TINY",
           config: { example: true },
-          setupConfig: { players: [] },
+          setupConfig: {
+            gameOptions: {},
+            mapOptions: {},
+            playerOptions: [{ playerId: 0, options: {} }],
+          },
           canonicalConfig: {
             name: "Current Editor Config",
             latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
@@ -1673,6 +1677,7 @@ describe("StudioOperationRuntime", () => {
       },
       launchEnvelope: {
         seed: 43,
+        gameSeed: 47,
         worldSettings: { mapSize: "MAPSIZE_STANDARD" },
         canonicalConfig: {
           id: "studio-current",
@@ -1913,6 +1918,92 @@ describe("StudioOperationRuntime", () => {
     expect(current.runInGame.recent).toEqual([]);
   });
 
+  test.each([
+    ["null", null],
+    ["boolean", true],
+    ["array", [47]],
+    ["object", { value: 47 }],
+    ["positive overflow", 2_147_483_648],
+    ["negative overflow", -2_147_483_649],
+  ])("rejects malformed or out-of-range game seed %s before side effects", async (_label, value) => {
+    let generationCalls = 0;
+    let deploymentCalls = 0;
+    let lifecycleCalls = 0;
+    const { runtime } = makeRuntime({
+      ports: {
+        generateRunInGameMod: async () => {
+          generationCalls += 1;
+          return generatedRunInGameMod();
+        },
+        deployRunInGame: async ({ requestId, generatedMod }) => {
+          deploymentCalls += 1;
+          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
+        },
+      },
+      civ7: {
+        startSinglePlayer: () => {
+          lifecycleCalls += 1;
+          return Effect.succeed(lifecycleStarted());
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+    const input = runInGameInput();
+    Object.defineProperty(input, "gameSeed", {
+      configurable: true,
+      enumerable: true,
+      value,
+      writable: true,
+    });
+
+    await expect(expectFailure(runtime, service.runInGameStart(input))).resolves.toMatchObject({
+      tag: "InvalidRequest",
+      diagnostics: { code: "run-in-game-game-seed-invalid" },
+    });
+    expect(generationCalls).toBe(0);
+    expect(deploymentCalls).toBe(0);
+    expect(lifecycleCalls).toBe(0);
+  });
+
+  test("admits distinct negative signed map and game seeds", async () => {
+    let preparedSeeds: Readonly<{ mapSeed: number; gameSeed: number }> | undefined;
+    const { runtime } = makeRuntime({
+      civ7: {
+        startSinglePlayer: (input) => {
+          preparedSeeds = {
+            mapSeed: Number(input.prepared.launchEnvelope.seed),
+            gameSeed: Number(input.prepared.launchEnvelope.gameSeed),
+          };
+          const started = lifecycleStarted();
+          return Effect.succeed({
+            ...started,
+            evidence: {
+              ...started.evidence,
+              setup: {
+                ...started.evidence.setup,
+                mapSize: input.prepared.launchEnvelope.worldSettings.mapSize,
+                mapSeed: preparedSeeds.mapSeed,
+                gameSeed: preparedSeeds.gameSeed,
+              },
+              runtime: {
+                ...started.evidence.runtime,
+                seed: preparedSeeds.mapSeed,
+                mapSize: input.prepared.launchEnvelope.worldSettings.mapSize,
+              },
+            },
+          });
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(
+      service.runInGameStart(runInGameInput({ seed: -123, gameSeed: -456 }))
+    );
+    await expect.poll(() => preparedSeeds).toEqual({ mapSeed: -123, gameSeed: -456 });
+    expect(accepted.status).toBe("running");
+  });
+
   test("rejects missing Run in Game canonical config before admission", async () => {
     const events: StudioEvent[] = [];
     let generationCalls = 0;
@@ -2057,6 +2148,7 @@ describe("StudioOperationRuntime", () => {
             setupConfig: {
               mapScript,
               gameOptions: {},
+              mapOptions: {},
               playerOptions: [{ playerId: 0, options: {} }],
             },
           })
@@ -2085,7 +2177,6 @@ describe("StudioOperationRuntime", () => {
         id: "",
         displayName: "Test Config",
         fileName: "Test.Civ7Cfg",
-        path: "/tmp/Test.Civ7Cfg",
       },
     },
     {
@@ -2094,7 +2185,6 @@ describe("StudioOperationRuntime", () => {
         id: "test-config",
         displayName: "   ",
         fileName: "Test.Civ7Cfg",
-        path: "/tmp/Test.Civ7Cfg",
       },
     },
     {
@@ -2103,16 +2193,15 @@ describe("StudioOperationRuntime", () => {
         id: "test-config",
         displayName: "Test Config",
         fileName: "Test.json",
-        path: "/tmp/Test.json",
       },
     },
     {
-      label: "a multiline path",
+      label: "provider-private filesystem metadata",
       savedConfig: {
         id: "test-config",
         displayName: "Test Config",
         fileName: "Test.Civ7Cfg",
-        path: "/tmp/Test.Civ7Cfg\nother",
+        path: "/tmp/Test.Civ7Cfg",
       },
     },
   ])("rejects saved configuration with $label before lifecycle admission", async ({
@@ -2144,6 +2233,7 @@ describe("StudioOperationRuntime", () => {
             setupConfig: {
               savedConfig,
               gameOptions: {},
+              mapOptions: {},
               playerOptions: [{ playerId: 0, options: {} }],
             },
           })
@@ -2181,6 +2271,7 @@ describe("StudioOperationRuntime", () => {
           setupConfig: {
             mapScript,
             gameOptions: {},
+            mapOptions: {},
             playerOptions: [{ playerId: 0, options: {} }],
           },
         })
@@ -4618,13 +4709,18 @@ function runInGameInput(
   const input: StudioInputs["runInGame"]["start"] = {
     canonicalConfig,
     seed: overrides.seed ?? 43,
+    gameSeed: overrides.gameSeed ?? 47,
     worldSettings: {
       mapSize: overrides.mapSize ?? "MAPSIZE_STANDARD",
       ...(overrides.playerCount === undefined ? {} : { playerCount: overrides.playerCount }),
       ...(overrides.resources === undefined ? {} : { resources: overrides.resources }),
       ...overrides.worldSettings,
     },
-    ...(overrides.setupConfig === undefined ? {} : { setupConfig: overrides.setupConfig }),
+    setupConfig: overrides.setupConfig ?? {
+      gameOptions: {},
+      mapOptions: {},
+      playerOptions: [{ playerId: 0, options: {} }],
+    },
   };
   if (overrides.invalidCanonicalConfig !== undefined) {
     Object.defineProperty(input, "canonicalConfig", {
@@ -4709,10 +4805,12 @@ function preparedRunInGameRequest(): RunInGamePreparedRequest {
     name: "Studio Current",
   }).canonicalConfig;
   const seed = 43;
+  const gameSeed = 47;
   const worldSettings = { mapSize: "MAPSIZE_STANDARD" };
   const setupConfig = createDefaultRunInGameSetupConfig();
   const launchEnvelope = snapshotLaunchEnvelope({
     seed,
+    gameSeed,
     worldSettings,
     setupConfig,
     canonicalConfig,
@@ -4721,6 +4819,7 @@ function preparedRunInGameRequest(): RunInGamePreparedRequest {
     request: {
       recipeId: canonicalConfig.recipe,
       seed,
+      gameSeed,
       mapSize: worldSettings.mapSize,
       setupConfig,
     },
@@ -4827,7 +4926,7 @@ function lifecycleStarted(): RunInGameStarted {
         mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
         mapSize: "MAPSIZE_SMALL",
         mapSeed: 42,
-        gameSeed: 42,
+        gameSeed: 47,
         targetModId: "mod-swooper-studio-run",
         mapRowFiles: ["{mod-swooper-studio-run}/maps/studio-run.js"],
       },

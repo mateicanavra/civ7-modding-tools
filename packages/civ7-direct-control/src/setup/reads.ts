@@ -21,7 +21,20 @@ import {
 
 export type Civ7SetupPhase = "shell" | "running-game" | "loading" | "begin-ready" | "unavailable";
 
-export type Civ7SetupParameterValue = string | number | boolean | null;
+/** One scalar value exposed by Civ7 GameSetup metadata. */
+export type Civ7SetupScalarParameterValue = string | number | boolean | null;
+
+/** One setup value as represented by GameSetup after scalar or array projection. */
+export type Civ7SetupParameterValue = Civ7SetupScalarParameterValue | ReadonlyArray<string>;
+
+/** Bounded live-domain evidence used to admit a requested setup value. */
+export type Civ7SetupParameterPossibleValue = Readonly<{
+  value: Civ7SetupScalarParameterValue;
+  destroyed?: boolean;
+  hidden?: boolean;
+  readOnly?: boolean;
+  invalidReason?: number | string | null;
+}>;
 
 export type Civ7SetupMapRow = Readonly<{
   source: "setup-domain" | "config-db";
@@ -36,17 +49,21 @@ export type Civ7SetupMapRow = Readonly<{
 export type Civ7SetupParameterSnapshot = Readonly<{
   id: string;
   exists: boolean;
+  array?: boolean;
+  destroyed?: boolean;
   hidden?: boolean;
   readOnly?: boolean;
   invalidReason?: number | string | null;
   value?: Civ7SetupParameterValue;
   rawValue?: unknown;
-  possibleValues?: ReadonlyArray<unknown>;
+  possibleValues?: ReadonlyArray<Civ7SetupParameterPossibleValue>;
 }>;
 
 export type Civ7PlayerSetupParameterSnapshot = Readonly<{
   playerId: number;
   exists: Civ7RuntimeProbe<boolean>;
+  active: Civ7RuntimeProbe<boolean>;
+  slotStatus: Civ7RuntimeProbe<string | number | null>;
   parameters: ReadonlyArray<Civ7SetupParameterSnapshot>;
 }>;
 
@@ -325,6 +342,21 @@ export function setupSnapshotScriptSource(
       if (value.Name !== undefined && typeof value.Name !== "object") return value.Name;
       return plain(value);
     };
+    const boundedPossibleValue = (candidate) => {
+      const value = scalarValue(candidate);
+      if (value !== null && !["string", "number", "boolean"].includes(typeof value)) return null;
+      const source = candidate && typeof candidate === "object" ? candidate : {};
+      return {
+        value,
+        destroyed: source.destroyed === true,
+        hidden: source.hidden === true,
+        readOnly: source.readOnly === true,
+        invalidReason: source.invalidReason ?? null,
+      };
+    };
+    const parameterValue = (parameter) => Array.isArray(parameter.values)
+      ? parameter.values.map(scalarValue).filter((value) => typeof value === "string")
+      : scalarValue(parameter.value);
     const rowFile = (row) => {
       if (row == null || typeof row !== "object") return undefined;
       return row.File ?? row.file;
@@ -357,16 +389,20 @@ export function setupSnapshotScriptSource(
         ? GameSetup.findGameParameter(id)
         : undefined;
       if (!parameter) return { id, exists: false };
-      const possibleValues = parameter.domain && Array.isArray(parameter.domain.possibleValues)
-        ? parameter.domain.possibleValues.map(plain)
-        : [];
+      const possibleValues = parameter.domain
+        ? Array.isArray(parameter.domain.possibleValues)
+          ? parameter.domain.possibleValues.map(boundedPossibleValue).filter(Boolean)
+          : []
+        : undefined;
       return {
         id,
         exists: true,
-        hidden: parameter.hidden,
-        readOnly: parameter.readOnly,
+        array: Array.isArray(parameter.values),
+        destroyed: parameter.destroyed === true,
+        hidden: parameter.hidden === true,
+        readOnly: parameter.readOnly === true,
         invalidReason: parameter.invalidReason ?? null,
-        value: scalarValue(parameter.value),
+        value: parameterValue(parameter),
         rawValue: plain(parameter.value),
         possibleValues,
       };
@@ -376,26 +412,40 @@ export function setupSnapshotScriptSource(
         ? GameSetup.findPlayerParameter(playerId, id)
         : undefined;
       if (!parameter) return { id, exists: false };
-      const possibleValues = parameter.domain && Array.isArray(parameter.domain.possibleValues)
-        ? parameter.domain.possibleValues.map(plain)
-        : [];
+      const possibleValues = parameter.domain
+        ? Array.isArray(parameter.domain.possibleValues)
+          ? parameter.domain.possibleValues.map(boundedPossibleValue).filter(Boolean)
+          : []
+        : undefined;
       return {
         id,
         exists: true,
-        hidden: parameter.hidden,
-        readOnly: parameter.readOnly,
+        array: Array.isArray(parameter.values),
+        destroyed: parameter.destroyed === true,
+        hidden: parameter.hidden === true,
+        readOnly: parameter.readOnly === true,
         invalidReason: parameter.invalidReason ?? null,
-        value: scalarValue(parameter.value),
+        value: parameterValue(parameter),
         rawValue: plain(parameter.value),
         possibleValues,
       };
     };
-    const readPlayerExists = (playerId) => probe(() => {
+    const readPlayerConfig = (playerId) => {
       if (typeof Configuration === "undefined" || !Configuration || typeof Configuration.getPlayer !== "function") {
         throw new Error("Configuration.getPlayer unavailable");
       }
-      return Configuration.getPlayer(playerId) != null;
-    });
+      return Configuration.getPlayer(playerId);
+    };
+    const playerConfigIsActive = (config) => {
+      if (!config) return false;
+      if (typeof SlotStatus === "undefined" || !SlotStatus) return false;
+      const slotStatus = config.slotStatus;
+      if (!Object.values(SlotStatus).includes(slotStatus)) return false;
+      return slotStatus !== SlotStatus.SS_CLOSED && slotStatus !== SlotStatus.SS_OPEN;
+    };
+    const readPlayerExists = (playerId) => probe(() => readPlayerConfig(playerId) != null);
+    const readPlayerActive = (playerId) => probe(() => playerConfigIsActive(readPlayerConfig(playerId)));
+    const readPlayerSlotStatus = (playerId) => probe(() => readPlayerConfig(playerId)?.slotStatus ?? null);
     const readLocalPlayerId = () => {
       const candidates = [
         () => GameContext.localPlayerID,
@@ -412,23 +462,25 @@ export function setupSnapshotScriptSource(
     };
     const readActivePlayerIds = () => {
       const ids = new Set();
-      ids.add(readLocalPlayerId());
       try {
         const maxMajorPlayers = Number(Configuration.getMap().maxMajorPlayers);
         const max = Number.isInteger(maxMajorPlayers) && maxMajorPlayers > 0 ? Math.min(maxMajorPlayers, 64) : 0;
         for (let playerId = 0; playerId < max; playerId += 1) {
-          const config = typeof Configuration.getPlayer === "function" ? Configuration.getPlayer(playerId) : null;
-          const slotStatus = config?.slotStatus;
-          const closed = typeof SlotStatus !== "undefined" && SlotStatus && slotStatus === SlotStatus.SS_CLOSED;
-          if (!closed) ids.add(playerId);
+          const config = readPlayerConfig(playerId);
+          if (playerConfigIsActive(config)) ids.add(playerId);
         }
       } catch {}
       return Array.from(ids).filter((id) => Number.isInteger(id) && id >= 0).sort((a, b) => a - b);
     };
     const readSetupMapRows = (file) => {
       const rows = [];
-      const mapParameter = readParameter("Map");
-      for (const value of mapParameter.possibleValues ?? []) {
+      const mapParameter = typeof GameSetup !== "undefined" && GameSetup && typeof GameSetup.findGameParameter === "function"
+        ? GameSetup.findGameParameter("Map")
+        : undefined;
+      const mapValues = mapParameter?.domain && Array.isArray(mapParameter.domain.possibleValues)
+        ? mapParameter.domain.possibleValues
+        : [];
+      for (const value of mapValues) {
         const row = mapRowFrom("setup-domain", value);
         if (row && (!file || row.file === file)) rows.push(row);
       }
@@ -485,6 +537,8 @@ export function setupSnapshotScriptSource(
       const playerParameters = playerIds.map((playerId) => ({
         playerId,
         exists: readPlayerExists(playerId),
+        active: readPlayerActive(playerId),
+        slotStatus: readPlayerSlotStatus(playerId),
         parameters: playerParameterIds.map((id) => readPlayerParameter(playerId, id)),
       }));
       const mapParam = parameters.find((parameter) => parameter.id === "Map");

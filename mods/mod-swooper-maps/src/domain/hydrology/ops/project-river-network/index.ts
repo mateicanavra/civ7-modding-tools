@@ -1,9 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import ProjectRiverNetworkContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { dischargePercentilesStrategy } from "./strategies/index.js";
 
 const projectRiverNetwork = createOp(ProjectRiverNetworkContract, {
-  strategies: { default: defaultStrategy },
+  strategies: { "discharge-percentiles": dischargePercentilesStrategy },
 });
 
 export type * from "./contract.js";

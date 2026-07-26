@@ -9,7 +9,7 @@ function withDescription<T extends TSchema>(schema: T, description: string) {
   return Type.Unsafe<Static<T>>({ ...rest, description } as any);
 }
 
-/** Default strategy configuration for computing basaltic-lid crust truth + derived drivers. */
+/** BasalticLid strategy configuration for computing basaltic-lid crust truth + derived drivers. */
 const StrategySchema = Type.Object(
   {
     /** Basaltic lid thickness proxy (0..1). Controls baseline lithosphere strength and buoyancy. */
@@ -47,7 +47,7 @@ const StrategySchema = Type.Object(
   },
   {
     description:
-      "Default strategy configuration for computing basaltic-lid crust truth + derived drivers.",
+      "BasalticLid strategy configuration for computing basaltic-lid crust truth + derived drivers.",
   }
 );
 
@@ -88,9 +88,8 @@ const ComputeCrustContract = defineOp({
   id: "foundation/compute-crust",
   input: InputSchema,
   output: OutputSchema,
-  defaultStrategy: "default",
   strategies: {
-    default: StrategySchema,
+    "basaltic-lid": StrategySchema,
   },
 });
 

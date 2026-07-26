@@ -881,6 +881,7 @@ export function createStudioOperationRuntimePorts(
     const requestStatus: RunInGameRequestStatus = {
       recipeId: launchEnvelope.canonicalConfig.recipe,
       seed,
+      gameSeed: launchEnvelope.gameSeed,
       mapSize,
       ...(playerCount === undefined ? {} : { playerCount }),
       setupConfig,

@@ -158,9 +158,8 @@ const ComputeLandmaskContract = defineOp({
       description: "Distance to nearest coast in tiles (0=coast).",
     }),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: LandmaskConfigSchema,
+    "tectonic-potential": LandmaskConfigSchema,
   },
 });
 

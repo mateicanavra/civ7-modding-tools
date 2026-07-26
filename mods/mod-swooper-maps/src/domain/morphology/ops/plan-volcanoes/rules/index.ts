@@ -4,7 +4,7 @@ import type { PlanVolcanoesTypes } from "../types.js";
 
 type LabelRng = (range: number, label: string) => number;
 
-type VolcanoConfig = PlanVolcanoesTypes["config"]["default"];
+type VolcanoConfig = PlanVolcanoesTypes["config"]["plate-hotspot-ranking"];
 
 const BOUNDARY_CONVERGENT = 1;
 const BOUNDARY_DIVERGENT = 2;

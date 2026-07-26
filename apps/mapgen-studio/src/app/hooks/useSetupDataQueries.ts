@@ -13,7 +13,7 @@ import { orpc } from "../../lib/orpc";
  * - Retry-on-failure and refetch-on-window-focus are provided by the shared query
  *   client defaults (`src/lib/query.ts`: `retry: 1`, `refetchOnWindowFocus: true`),
  *   matching the legacy retry timer + `window.addEventListener("focus", …)`.
- * - The derived view shapes (`{ status, directory, configurations, updatedAt, error }` /
+ * - The derived view shapes (`{ status, configurations, updatedAt, error }` /
  *   `{ status, catalog, updatedAt, error }`) are byte-for-byte the same objects
  *   `setupControlOptions` and the rest of the shell consumed before — only their source
  *   moved from `useState` to query state. `status` is `"idle"` until the first settle,
@@ -38,7 +38,6 @@ import { orpc } from "../../lib/orpc";
  */
 export type SavedSetupConfigsView = {
   status: "idle" | "ok" | "error";
-  directory?: string;
   configurations: ReadonlyArray<Civ7SavedSetupConfigFile>;
   updatedAt?: string;
   error?: string;
@@ -83,12 +82,7 @@ export function useSetupDataQueries(): {
     }
     return {
       status: "ok",
-      directory: body.directory ?? "",
-      // The contract deliberately types `configurations` as opaque records:
-      // the saved-config file shape is owned by @civ7/direct-control
-      // (listCiv7SavedGameConfigurations), and re-declaring it in the oRPC
-      // contract would just drift. The cast states that trust explicitly.
-      configurations: body.configurations as unknown as ReadonlyArray<Civ7SavedSetupConfigFile>,
+      configurations: body.configurations,
       updatedAt: body.observedAt ?? new Date().toISOString(),
     };
   }, [savedConfigsQuery.data, savedConfigsQuery.error, savedConfigsQuery.isError]);

@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { hotWetDenseStrategy } from "./hot-wet-dense.js";

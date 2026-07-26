@@ -24,7 +24,7 @@ function runOceanGeometry(
       distanceToCoast: new Uint16Array(size),
       shelfMask: new Uint8Array(size),
     },
-    { strategy: "default", config }
+    { strategy: "connected-basins", config }
   );
 }
 

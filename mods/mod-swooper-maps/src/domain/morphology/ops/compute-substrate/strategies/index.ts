@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { crustBoundaryMaterialStrategy } from "./crust-boundary-material.js";

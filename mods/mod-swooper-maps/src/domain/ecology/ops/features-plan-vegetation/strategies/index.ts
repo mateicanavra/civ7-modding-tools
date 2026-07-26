@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { habitatConfidenceStrategy } from "./habitat-confidence.js";

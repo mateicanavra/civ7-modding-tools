@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 2,
+  "id": "block_hand_edits_to_generated_setup_parameters",
+  "title": "Block Hand Edits To Generated Setup Parameters",
+  "placement": {
+    "niche": "civ7/resources/map-policy",
+    "blueprint": "_self",
+    "category": "output"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "staged hand-edits to generated Civ7 setup-parameter policy",
+  "why": "Setup-parameter facts and base schemas must be regenerated from pinned official resources.",
+  "remediate": "Run owning workspace target: civ7-map-policy:generate",
+  "message": "Generated Civ7 setup-parameter policy is protected from hand edit.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["packages/civ7-map-policy/src/setup-parameters.gen.ts"]
+    }
+  ],
+  "generatedZone": "civ7-setup-parameters",
+  "supportFiles": {
+    "baseline": ".habitat/civ7/resources/map-policy/rules/block_hand_edits_to_generated_setup_parameters/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "file-layer",
+    "guard": "generated-zone"
+  }
+}

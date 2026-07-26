@@ -1,3 +1,4 @@
+import morphology from "@mapgen/domain/morphology";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { LandmassPlatesStep } from "./steps/landmass-plates/step.js";
@@ -687,8 +688,11 @@ const publicSchema = Type.Object(
   }
 );
 
-function defaultEnvelope(config: unknown): { strategy: "default"; config: unknown } {
-  return { strategy: "default", config };
+function defaultEnvelope<const Strategy extends string>(
+  operation: Readonly<{ defaultStrategy: Strategy }>,
+  config: unknown
+) {
+  return { strategy: operation.defaultStrategy, config };
 }
 
 /**
@@ -705,15 +709,20 @@ export default createStage({
   }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     "landmass-plates": {
-      beltDrivers: defaultEnvelope({}),
-      substrate: defaultEnvelope(config.substrate),
-      baseTopography: defaultEnvelope(config.relief),
-      sculptContinentalMargin: defaultEnvelope(config.continentalMargin),
-      seaLevel: defaultEnvelope(config.waterCoverage),
-      landmask: defaultEnvelope(config.continents),
+      beltDrivers: defaultEnvelope(morphology.ops.computeBeltDrivers, {}),
+      substrate: defaultEnvelope(morphology.ops.computeSubstrate, config.substrate),
+      baseTopography: defaultEnvelope(morphology.ops.computeBaseTopography, config.relief),
+      sculptContinentalMargin: defaultEnvelope(
+        morphology.ops.computeSculptContinentalMargin,
+        config.continentalMargin
+      ),
+      seaLevel: defaultEnvelope(morphology.ops.computeSeaLevel, config.waterCoverage),
+      landmask: defaultEnvelope(morphology.ops.computeLandmask, config.continents),
     },
     "rugged-coasts": {
-      coastlines: defaultEnvelope({ coast: config.coastlineShape }),
+      coastlines: defaultEnvelope(morphology.ops.computeCoastlineMetrics, {
+        coast: config.coastlineShape,
+      }),
     },
   }),
 } as const);

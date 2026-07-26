@@ -55,6 +55,8 @@ export function StudioShell(props: StudioShellProps) {
   const setWorldSettings = useAuthoringStore((s) => s.setWorldSettings);
   const seed = useAuthoringStore((s) => s.seed);
   const setSeed = useAuthoringStore((s) => s.setSeed);
+  const gameSeed = useAuthoringStore((s) => s.gameSeed);
+  const setGameSeed = useAuthoringStore((s) => s.setGameSeed);
   const setupConfig = useAuthoringStore((s) => s.setupConfig);
   const setSetupConfig = useAuthoringStore((s) => s.setSetupConfig);
   const canonicalConfig = useAuthoringStore((s) => s.canonicalConfig);
@@ -297,6 +299,7 @@ export function StudioShell(props: StudioShellProps) {
     isRunInGameBlocked,
   } = useRunInGame({
     seed,
+    gameSeed,
     worldSettings,
     canonicalConfig,
     authoringRevision,
@@ -348,8 +351,13 @@ export function StudioShell(props: StudioShellProps) {
     exploreActionRunning,
   } = useSetupControls({
     setupConfig,
+    seed,
+    gameSeed,
+    worldSettings,
     setSetupConfig,
     setSeed,
+    setGameSeed,
+    setWorldSettings,
     savedSetupConfigs,
     setupCatalog,
     liveSetup,

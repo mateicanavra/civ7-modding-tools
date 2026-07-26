@@ -1,11 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ComputeEraPlateMembershipContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { backwardDriftStrategy } from "./strategies/index.js";
 
 const computeEraPlateMembership = createOp(ComputeEraPlateMembershipContract, {
   strategies: {
-    default: defaultStrategy,
+    "backward-drift": backwardDriftStrategy,
   },
 });
 

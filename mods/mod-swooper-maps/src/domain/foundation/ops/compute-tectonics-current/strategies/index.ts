@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { newestEraCompositeStrategy } from "./newest-era-composite.js";

@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { priorityFloodStrategy } from "./priority-flood.js";

@@ -28,9 +28,8 @@ const ComputeTectonicProvenanceContract = defineOp({
         "Per-cell tectonic provenance linking present locations to advected origin eras and plates, crust age, and the most recent boundary encounter.",
     }
   ),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object({}, { additionalProperties: false }),
+    "advected-lineage": Type.Object({}, { additionalProperties: false }),
   },
 });
 

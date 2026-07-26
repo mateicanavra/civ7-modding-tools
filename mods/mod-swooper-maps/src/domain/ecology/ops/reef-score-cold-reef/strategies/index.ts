@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { coldShelfStrategy } from "./cold-shelf.js";

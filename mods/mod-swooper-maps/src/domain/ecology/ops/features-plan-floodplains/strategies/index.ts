@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { highestConfidenceStrategy } from "./highest-confidence.js";

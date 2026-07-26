@@ -3,7 +3,7 @@ import { describe, expect, it } from "bun:test";
 import morphologyDomain from "@mapgen/domain/morphology/ops";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 
-const selection = { strategy: "default", config: {} } as const;
+const selection = { strategy: "multi-source-hex-bfs", config: {} } as const;
 
 describe("compute-distance-to-coast", () => {
   it("finds the nearest coastal seed across the wrapped map edge", () => {

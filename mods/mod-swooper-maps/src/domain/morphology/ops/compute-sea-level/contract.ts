@@ -83,9 +83,8 @@ const ComputeSeaLevelContract = defineOp({
   output: Type.Object({
     seaLevel: Type.Number({ description: "Sea level threshold derived from hypsometry targets." }),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: HypsometryConfigSchema,
+    "hypsometric-target": HypsometryConfigSchema,
   },
 });
 

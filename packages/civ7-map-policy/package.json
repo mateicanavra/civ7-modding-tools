@@ -1,13 +1,17 @@
 {
   "name": "@civ7/map-policy",
   "version": "0.1.0",
-  "description": "Pure Civ7 map policy facts and deterministic compliance helpers",
+  "description": "Pure Civ7 map and initial-setup policy facts with deterministic compliance helpers",
   "license": "MIT",
   "type": "module",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./setup": {
+      "types": "./dist/setup.d.ts",
+      "import": "./dist/setup.js"
     }
   },
   "main": "./dist/index.js",
@@ -20,8 +24,11 @@
     "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
     "verify": "bun ./scripts/verify.ts"
   },
-  "dependencies": {},
+  "dependencies": {
+    "typebox": "catalog:"
+  },
   "devDependencies": {
-    "@civ7/types": "workspace:*"
+    "@civ7/types": "workspace:*",
+    "fast-xml-parser": "^5.3.3"
   }
 }

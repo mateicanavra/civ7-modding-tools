@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { latitudeInsolationStrategy } from "./latitude-insolation.js";

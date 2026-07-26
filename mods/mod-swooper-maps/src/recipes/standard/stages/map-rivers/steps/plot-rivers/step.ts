@@ -104,7 +104,7 @@ function classifyProjectionSignal(input: {
  */
 export const PlotRiversStep = createStep(PlotRiversStepContract, {
   normalize: (config, ctx) => {
-    if (config.selectNavigableRiverTerrain.strategy !== "default") return config;
+    if (config.selectNavigableRiverTerrain.strategy !== "endpoint-chain-ranking") return config;
     const { navigableRiverDensity } = ctx.knobs as {
       navigableRiverDensity: NavigableRiverDensityKnob;
     };

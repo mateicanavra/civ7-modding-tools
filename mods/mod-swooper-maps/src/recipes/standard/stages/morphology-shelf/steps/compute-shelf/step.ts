@@ -25,7 +25,7 @@ export const ComputeShelfStep = createStep(ComputeShelfStepContract, {
     const shelfMultiplier = MORPHOLOGY_SHELF_WIDTH_MULTIPLIER[shelfWidth ?? "normal"] ?? 1.0;
 
     const shelfMaskSelection =
-      config.shelfMask.strategy === "default"
+      config.shelfMask.strategy === "physical-break-connectivity"
         ? {
             ...config.shelfMask,
             config: {
@@ -128,7 +128,10 @@ export const ComputeShelfStep = createStep(ComputeShelfStepContract, {
       }
 
       const selection = config.shelfMask;
-      const shelfConfig = selection.strategy === "default" ? (selection.config as any) : undefined;
+      const shelfConfig =
+        selection.strategy === "physical-break-connectivity"
+          ? (selection.config as any)
+          : undefined;
       return {
         kind: "morphology.shelf.summary",
         shallowCutoff,

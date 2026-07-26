@@ -1,11 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ScoreWetMarshContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { temperateHydromorphicStrategy } from "./strategies/index.js";
 
 const scoreWetMarsh = createOp(ScoreWetMarshContract, {
   strategies: {
-    default: defaultStrategy,
+    "temperate-hydromorphic": temperateHydromorphicStrategy,
   },
 });
 

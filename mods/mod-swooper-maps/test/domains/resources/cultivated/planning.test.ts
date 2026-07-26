@@ -182,7 +182,7 @@ describe("cultivated resource operation contract", () => {
     for (const selector of ["requiredResourceTypes", "resourceTypes", "includeResources"]) {
       expect(() =>
         normalizeOperationSelectionForTest(resources.ops.planCultivatedResources, {
-          strategy: "default",
+          strategy: "canonical-demand",
           config: { [selector]: ["RESOURCE_COTTON"] },
         })
       ).toThrow(TestCompileError);

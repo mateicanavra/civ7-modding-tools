@@ -52,7 +52,7 @@ describe("m11 mountains (physics-anchored)", () => {
         fractalMountain,
       },
       {
-        strategy: "default",
+        strategy: "orogenic-range-growth",
         config: {
           ...(planRidges.defaultConfig as any).config,
           boundaryGate: 0,
@@ -83,7 +83,7 @@ describe("m11 mountains (physics-anchored)", () => {
         fractalHill,
       },
       {
-        strategy: "default",
+        strategy: "mountain-proximity",
         config: {
           ...(planFoothills.defaultConfig as any).config,
           boundaryGate: 0,
@@ -141,7 +141,7 @@ describe("m11 mountains (physics-anchored)", () => {
         fractalMountain,
       },
       {
-        strategy: "default",
+        strategy: "orogenic-range-growth",
         config: {
           ...(planRidges.defaultConfig as any).config,
           boundaryGate: 0,
@@ -172,7 +172,7 @@ describe("m11 mountains (physics-anchored)", () => {
         fractalHill,
       },
       {
-        strategy: "default",
+        strategy: "mountain-proximity",
         config: {
           ...(planFoothills.defaultConfig as any).config,
           boundaryGate: 0,

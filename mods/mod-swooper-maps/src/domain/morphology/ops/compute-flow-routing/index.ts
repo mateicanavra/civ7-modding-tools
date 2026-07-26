@@ -1,11 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ComputeFlowRoutingContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { steepestDescentStrategy } from "./strategies/index.js";
 
 const computeFlowRouting = createOp(ComputeFlowRoutingContract, {
   strategies: {
-    default: defaultStrategy,
+    "steepest-descent": steepestDescentStrategy,
   },
 });
 

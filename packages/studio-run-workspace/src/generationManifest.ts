@@ -25,7 +25,7 @@ const SHA256_HEX = /^[a-f0-9]{64}$/;
 
 export const studioRunGenerationManifestPayloadSchema = Type.Object(
   {
-    schemaVersion: Type.Literal(2),
+    schemaVersion: Type.Literal(3),
     requestId: Type.String({ pattern: SAFE_RUN_REQUEST_ID.source }),
     runArtifactId: Type.String({ pattern: SAFE_RUN_ARTIFACT_ID.source }),
     workspace: Type.Object(
@@ -57,7 +57,7 @@ export type StudioRunGenerationManifestInput = Readonly<{
 }>;
 
 export type StudioRunGenerationManifestPayload = Readonly<{
-  schemaVersion: 2;
+  schemaVersion: 3;
   requestId: string;
   readonly runArtifactId: RunArtifactId;
   readonly workspace: Readonly<{
@@ -94,7 +94,7 @@ export function buildStudioRunGenerationManifestPayload(
   const snapshot = snapshotManifestLaunchEnvelope(input.launchEnvelope);
   const launchEnvelopeDigest = canonicalValueDigest(snapshot);
   return freezeSnapshot({
-    schemaVersion: 2,
+    schemaVersion: 3,
     requestId: input.requestId,
     runArtifactId: createRunArtifactId(input.requestId),
     workspace: {
@@ -221,6 +221,7 @@ function snapshotManifestLaunchEnvelope(value: unknown): LaunchEnvelope {
   const parsed = Value.Parse(launchEnvelope, value);
   return snapshotLaunchEnvelope({
     seed: parsed.seed,
+    gameSeed: parsed.gameSeed,
     worldSettings: {
       mapSize: parsed.worldSettings.mapSize,
       ...(parsed.worldSettings.playerCount === undefined

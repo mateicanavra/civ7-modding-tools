@@ -11,7 +11,7 @@ describe("foundation crust", () => {
   it("initializes a basaltic lid with bounded fields", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
-      strategy: "default",
+      strategy: "jittered-delaunay",
       config: { plateCount: 16, cellsPerPlate: 4, relaxationSteps: 2 },
     });
 
@@ -63,7 +63,7 @@ describe("foundation crust", () => {
   it("publishes an isostatic baseline and projects its basaltic lid to tiles", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
-      strategy: "default",
+      strategy: "jittered-delaunay",
       config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2 },
     });
 

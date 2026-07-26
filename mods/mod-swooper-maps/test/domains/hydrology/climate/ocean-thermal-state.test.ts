@@ -47,7 +47,10 @@ function runOceanThermalState(
     seaIceThresholdC: number;
   }>
 ) {
-  return computeOceanThermalState.run(input, { strategy: "default", config });
+  return computeOceanThermalState.run(input, {
+    strategy: "latitude-current-advection",
+    config,
+  });
 }
 
 describe("hydrology/compute-ocean-thermal-state", () => {

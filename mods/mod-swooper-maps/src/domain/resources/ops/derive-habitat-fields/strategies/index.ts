@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { quantilePhysicalLanesStrategy } from "./quantile-physical-lanes.js";

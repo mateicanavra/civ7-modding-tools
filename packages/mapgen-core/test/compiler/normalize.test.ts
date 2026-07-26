@@ -1,14 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { createOp, createStrategy, defineOp } from "@mapgen/authoring/index.js";
 import { normalizeOpsTopLevel, validateStrict } from "@mapgen/compiler/normalize.js";
-import { admitMapSetup } from "@mapgen/core/map-setup.js";
 import { Type } from "typebox";
-
-const TEST_SETUP = admitMapSetup({
-  mapSeed: 1,
-  dimensions: { width: 2, height: 2 },
-  latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
-});
 
 describe("compiler normalize helpers", () => {
   it("reports unknown keys with stable paths", () => {
@@ -181,9 +174,8 @@ describe("compiler normalize helpers", () => {
       id: "test/plan",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({}, { additionalProperties: false }),
-      defaultStrategy: "default",
       strategies: {
-        default: Type.Object({}, { additionalProperties: false }),
+        normalized: Type.Object({}, { additionalProperties: false }),
       },
     } as const);
 
@@ -213,14 +205,13 @@ describe("compiler normalize helpers", () => {
       id: "test/plan",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({}, { additionalProperties: false }),
-      defaultStrategy: "default",
       strategies: {
-        default: Type.Object({}, { additionalProperties: false }),
+        normalized: Type.Object({}, { additionalProperties: false }),
       },
     } as const);
     const op = createOp(contract, {
       strategies: {
-        default: createStrategy(contract, "default", {
+        normalized: createStrategy(contract, "normalized", {
           normalize: () => {
             throw new Error("normalize exploded");
           },
@@ -239,7 +230,7 @@ describe("compiler normalize helpers", () => {
 
     const result = normalizeOpsTopLevel(
       step,
-      { trees: { strategy: "default", config: {} } },
+      { trees: { strategy: "normalized", config: {} } },
       {
         [op.id]: op,
       },

@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { eventDistanceDecayStrategy } from "./event-distance-decay.js";

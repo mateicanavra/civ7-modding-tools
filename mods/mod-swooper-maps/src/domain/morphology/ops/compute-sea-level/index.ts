@@ -1,11 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ComputeSeaLevelContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { hypsometricTargetStrategy } from "./strategies/index.js";
 
 const computeSeaLevel = createOp(ComputeSeaLevelContract, {
   strategies: {
-    default: defaultStrategy,
+    "hypsometric-target": hypsometricTargetStrategy,
   },
 });
 

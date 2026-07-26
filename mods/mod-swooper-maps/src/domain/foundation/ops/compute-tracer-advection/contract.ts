@@ -26,9 +26,8 @@ const ComputeTracerAdvectionContract = defineOp({
         "Oldest-to-newest source-cell maps for provenance advection: era zero is identity, and each later map selects a prior-era cell using boundary drift with mantle fallback.",
     }
   ),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object({}, { additionalProperties: false }),
+    "boundary-drift": Type.Object({}, { additionalProperties: false }),
   },
 });
 

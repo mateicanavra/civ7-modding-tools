@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { warmIntertidalStrategy } from "./warm-intertidal.js";

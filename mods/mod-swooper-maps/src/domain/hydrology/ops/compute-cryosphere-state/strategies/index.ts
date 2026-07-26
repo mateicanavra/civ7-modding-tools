@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { temperatureThresholdsStrategy } from "./temperature-thresholds.js";

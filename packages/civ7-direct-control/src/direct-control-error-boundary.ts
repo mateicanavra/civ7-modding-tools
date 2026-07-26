@@ -15,6 +15,7 @@ const CIV7_DIRECT_CONTROL_ERROR_CODES = [
   "setup-map-row-missing",
   "setup-mod-reconciliation-failed",
   "setup-parameter-invalid",
+  "setup-parameter-refused",
   "setup-apply-timeout",
   "setup-readback-mismatch",
   "setup-start-timeout",

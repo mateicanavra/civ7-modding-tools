@@ -41,6 +41,44 @@ describe("Studio Run generation manifest", () => {
     );
   });
 
+  test("preserves signed seed boundaries and rejects invalid manifest seed values", () => {
+    const input = manifestInput();
+    const boundaryPayload = buildStudioRunGenerationManifestPayload({
+      ...input,
+      launchEnvelope: {
+        ...input.launchEnvelope,
+        seed: -0x8000_0000,
+        gameSeed: 0x7fff_ffff,
+      },
+    });
+    const boundaryManifest = buildStudioRunGenerationManifest(boundaryPayload);
+
+    expect(parseStudioRunGenerationManifest(boundaryManifest).payload.launchEnvelope).toMatchObject(
+      {
+        seed: -0x8000_0000,
+        gameSeed: 0x7fff_ffff,
+      }
+    );
+
+    for (const [field, value] of [
+      ["seed", 1.5],
+      ["gameSeed", -1.5],
+      ["seed", -0x8000_0001],
+      ["gameSeed", 0x8000_0000],
+    ] as const) {
+      const payload = {
+        ...boundaryPayload,
+        launchEnvelope: { ...boundaryPayload.launchEnvelope, [field]: value },
+      };
+      expect(() =>
+        parseStudioRunGenerationManifest({
+          payload,
+          generationManifestDigest: canonicalValueDigest(payload),
+        })
+      ).toThrow("Invalid StudioRunGenerationManifest");
+    }
+  });
+
   test("computes the manifest digest from canonical sorted payload JSON only", () => {
     const payload = buildStudioRunGenerationManifestPayload(
       manifestInput({
@@ -61,6 +99,7 @@ describe("Studio Run generation manifest", () => {
       generationManifestDigest: "not-part-of-payload",
     };
 
+    expect(payload.schemaVersion).toBe(3);
     expect(canonicalSortedJson(payload)).toContain('"alpha":{"a":2,"z":1}');
     expect(generationManifestDigest(samePayloadDifferentKeyOrder)).toBe(
       manifest.generationManifestDigest
@@ -76,6 +115,13 @@ describe("Studio Run generation manifest", () => {
           ...manifest.payload,
           unexpected: true,
         },
+      })
+    ).toThrow("Invalid StudioRunGenerationManifest");
+    const legacyPayload = { ...manifest.payload, schemaVersion: 2 };
+    expect(() =>
+      parseStudioRunGenerationManifest({
+        payload: legacyPayload,
+        generationManifestDigest: canonicalValueDigest(legacyPayload),
       })
     ).toThrow("Invalid StudioRunGenerationManifest");
     expect(() =>
@@ -284,6 +330,7 @@ function manifestInput(
   };
   const launchEnvelope = {
     seed: 43,
+    gameSeed: 47,
     worldSettings: {
       mapSize: "MAPSIZE_STANDARD",
       ...(overrides.resources === undefined ? {} : { resources: overrides.resources }),

@@ -19,7 +19,7 @@ export const GeomorphologyStep = createStep(GeomorphologyStepContract, {
     const multiplier = MORPHOLOGY_EROSION_RATE_MULTIPLIER[erosion ?? "normal"] ?? 1.0;
 
     const geomorphologySelection =
-      config.geomorphology.strategy === "default"
+      config.geomorphology.strategy === "stream-power-diffusion"
         ? {
             ...config.geomorphology,
             config: {

@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { coldElevationStrategy } from "./cold-elevation.js";

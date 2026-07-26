@@ -202,7 +202,7 @@ describe("map-rivers/plot-rivers", () => {
         stepContext,
         {
           selectNavigableRiverTerrain: {
-            strategy: "default",
+            strategy: "endpoint-chain-ranking",
             config: { endpointDischargePercentileMin: 0.94, targetMajorTileFraction: 0.28 },
           },
         },

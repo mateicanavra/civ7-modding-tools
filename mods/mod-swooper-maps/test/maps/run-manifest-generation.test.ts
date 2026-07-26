@@ -326,11 +326,13 @@ function manifestInput(
   const canonicalConfig = sourceCanonicalConfig;
   const launchEnvelope = {
     seed: 1538316418,
+    gameSeed: -1538316418,
     worldSettings: {
       mapSize: "MAPSIZE_STANDARD",
     },
     setupConfig: {
       gameOptions: {},
+      mapOptions: {},
       playerOptions: [{ playerId: 0, options: {} }],
     },
     canonicalConfig: { ...canonicalConfig, recipe: options.recipe ?? "standard" },

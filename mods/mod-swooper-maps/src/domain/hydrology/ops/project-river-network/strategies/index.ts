@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { dischargePercentilesStrategy } from "./discharge-percentiles.js";

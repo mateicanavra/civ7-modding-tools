@@ -11,7 +11,7 @@ describe("foundation tectonic operation history chain", () => {
   it("keeps crust, plate graph, segments, and history deterministic and internally consistent", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
-      strategy: "default",
+      strategy: "jittered-delaunay",
       config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2 },
     });
 

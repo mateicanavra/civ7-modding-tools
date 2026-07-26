@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { confidenceCapStrategy } from "./confidence-cap.js";

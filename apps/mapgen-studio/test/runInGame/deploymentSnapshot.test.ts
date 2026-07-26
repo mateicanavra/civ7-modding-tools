@@ -122,10 +122,12 @@ async function listFiles(root: string): Promise<string[]> {
 function preparedRequest(): DeployRunInGameArgs["prepared"] {
   const setupConfig = {
     gameOptions: {},
+    mapOptions: {},
     playerOptions: [{ playerId: 0, options: {} }],
   };
   const launchEnvelope = {
     seed: 12345,
+    gameSeed: 54321,
     worldSettings: { mapSize: "MAPSIZE_STANDARD" },
     setupConfig,
     canonicalConfig: {
@@ -142,6 +144,7 @@ function preparedRequest(): DeployRunInGameArgs["prepared"] {
     request: {
       recipeId: launchEnvelope.canonicalConfig.recipe,
       seed: launchEnvelope.seed,
+      gameSeed: launchEnvelope.gameSeed,
       mapSize: launchEnvelope.worldSettings.mapSize,
       setupConfig,
     },

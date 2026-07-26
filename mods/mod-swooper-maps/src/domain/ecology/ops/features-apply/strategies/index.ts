@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { strictSingleOccupancyStrategy } from "./strict-single-occupancy.js";

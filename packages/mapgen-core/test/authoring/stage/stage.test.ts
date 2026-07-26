@@ -563,9 +563,8 @@ describe("authoring SDK", () => {
       id: "test/op/private-envelope",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({}, { additionalProperties: false }),
-      defaultStrategy: "default",
       strategies: {
-        default: Type.Object(
+        internal: Type.Object(
           { internalRate: Type.Number({ default: 1 }) },
           { additionalProperties: false }
         ),
@@ -590,7 +589,7 @@ describe("authoring SDK", () => {
       ),
       compile: ({ config }) => ({
         "internal-step": {
-          privateOp: { strategy: "default", config: { internalRate: config.productRate } },
+          privateOp: { strategy: "internal", config: { internalRate: config.productRate } },
         },
       }),
       steps: [step],
@@ -603,7 +602,7 @@ describe("authoring SDK", () => {
         foundation: {
           knobs: {},
           productRate: 1,
-          "internal-step": { privateOp: { strategy: "default", config: {} } },
+          "internal-step": { privateOp: { strategy: "internal", config: {} } },
         },
       })
     ).toBe(false);

@@ -32,9 +32,8 @@ const ComputePlateTopologyContract = defineOp({
     { plateTopology: FoundationPlateTopologySchema },
     { additionalProperties: false }
   ),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object({}, { additionalProperties: false }),
+    "wrapped-hex-adjacency": Type.Object({}, { additionalProperties: false }),
   },
 });
 

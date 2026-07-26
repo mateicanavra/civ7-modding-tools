@@ -14,7 +14,7 @@
   "lane": "enforced",
   "forbids": "staged hand-edits to generated Civ7 map-policy tables",
   "why": "Map-policy tables must be regenerated from official resources.",
-  "remediate": "Run owning workspace target: civ7-map-policy:verify -- --write",
+  "remediate": "Run owning workspace target: civ7-map-policy:generate",
   "message": "Generated Civ7 map-policy tables are protected from hand edit.",
   "pathCoverage": [
     {

@@ -147,9 +147,8 @@ describe("authoring: hello recipe compile/execute", () => {
       id: "test/ops/tree-plan",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({ ok: Type.Boolean() }, { additionalProperties: false }),
-      defaultStrategy: "default",
       strategies: {
-        default: Type.Object(
+        configured: Type.Object(
           { enabled: Type.Boolean({ default: true }) },
           { additionalProperties: false }
         ),
@@ -158,7 +157,7 @@ describe("authoring: hello recipe compile/execute", () => {
 
     const treePlan = createOp(contract, {
       strategies: {
-        default: createStrategy(contract, "default", {
+        configured: createStrategy(contract, "configured", {
           normalize: (config) => ({ ...config, enabled: false }),
           run: (_input, config) => ({ ok: config.enabled }),
         }),
@@ -212,7 +211,7 @@ describe("authoring: hello recipe compile/execute", () => {
     const config = Value.Create(configSchema);
     const plan = recipe.compile(baseSetup, config);
     expect(plan.nodes[0]?.config).toEqual({
-      trees: { strategy: "default", config: { enabled: false } },
+      trees: { strategy: "configured", config: { enabled: false } },
     });
 
     recipe.run(ctx, config);

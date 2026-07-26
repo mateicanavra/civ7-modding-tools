@@ -24,9 +24,11 @@ import {
   snapshotFile,
   waitForFreshLogMarkers,
 } from "@civ7/direct-control";
+import { assessCiv7SignedIntSeed } from "@civ7/map-policy/setup";
 import { serializeVerifierError } from "./verifier-error";
 
-type LiveVerificationArgs = {
+/** Parsed options for read-only evidence collection or an explicitly admitted live launch. */
+export type LiveVerificationArgs = {
   host?: string;
   port?: number;
   timeoutMs?: number;
@@ -34,7 +36,8 @@ type LiveVerificationArgs = {
   pollIntervalMs?: number;
   mapScript?: string;
   mapSize?: string;
-  seed?: number;
+  mapSeed?: number;
+  gameSeed?: number;
   playerCount?: number;
   savedConfig?: string;
   mutate: boolean;
@@ -64,7 +67,7 @@ Read-only default:
   --map-script <file>
 
 Mutating setup/start evidence:
-  --mutate --map-script <file> --map-size <size> --seed <seed>
+  --mutate --map-script <file> --map-size <size> --seed <map-seed> --game-seed <game-seed>
   [--player-count <n>]
   [--saved-config <name|fileName|path>]
   [--option Key=value]
@@ -79,9 +82,9 @@ Notes:
   speed/player-count. The value matches a config by displayName, fileName,
   id, or absolute path (case-insensitive; e.g. "ToT Config"). Omit
   --player-count to honor the saved config's own count; any --option is applied
-  on top of the loaded config. Note: --seed/--map-script/--map-size still govern
-  the map (Civ7 stores saved seeds as signed 32-bit, and prepare overrides the
-  seed from --seed regardless), so the saved config's own map/seed are not used.
+  on top of the loaded config. Note: --seed/--game-seed/--map-script/--map-size
+  still govern the launch (Civ7 stores both seeds as signed 32-bit values), so
+  the saved config's own map and game seeds are not used.
 
   For {swooper-maps}/maps/*.js, this verifier also blocks stale installed mod
   bundles by comparing the local generated map script with the deployed Civ Mods
@@ -123,7 +126,8 @@ export const REQUIRED_SWOOPER_RIVER_MATERIALIZATION_MARKERS = [
   "POST-AUTHORED-RIVERS",
 ] as const;
 
-function parseArgs(argv: string[]): LiveVerificationArgs {
+/** Parses the live verifier CLI without coupling the independently authored seed authorities. */
+export function parseStudioRunInGameLiveArgs(argv: string[]): LiveVerificationArgs {
   const args: LiveVerificationArgs = {
     mutate: false,
     options: {},
@@ -168,7 +172,10 @@ function parseArgs(argv: string[]): LiveVerificationArgs {
         args.mapSize = value();
         break;
       case "--seed":
-        args.seed = parseInteger(value(), arg);
+        args.mapSeed = parseSeed(value(), arg);
+        break;
+      case "--game-seed":
+        args.gameSeed = parseSeed(value(), arg);
         break;
       case "--player-count":
         args.playerCount = parseInteger(value(), arg);
@@ -197,12 +204,46 @@ function parseArgs(argv: string[]): LiveVerificationArgs {
   return args;
 }
 
+type LiveMutationArgs = LiveVerificationArgs &
+  Required<Pick<LiveVerificationArgs, "mapScript" | "mapSize" | "mapSeed" | "gameSeed">>;
+
+/** Admits the complete mutating CLI demand before any live Civ7 probe or mutation occurs. */
+export function admitStudioRunInGameLiveMutationArgs(args: LiveVerificationArgs): LiveMutationArgs {
+  if (
+    !args.mutate ||
+    !args.mapScript ||
+    !args.mapSize ||
+    args.mapSeed === undefined ||
+    args.gameSeed === undefined
+  ) {
+    throw new Error("--mutate requires --map-script, --map-size, --seed, and --game-seed");
+  }
+  return {
+    ...args,
+    mapScript: args.mapScript,
+    mapSize: args.mapSize,
+    mapSeed: args.mapSeed,
+    gameSeed: args.gameSeed,
+  };
+}
+
 function parseInteger(value: string, label: string): number {
   const parsed = Number(value);
   if (!Number.isInteger(parsed)) {
     throw new Error(`${label} must be an integer: ${value}`);
   }
   return parsed;
+}
+
+function parseSeed(value: string, label: string): number {
+  const parsed = Number(value);
+  const admitted = assessCiv7SignedIntSeed(parsed);
+  if (!admitted.ok) {
+    throw new Error(
+      `${label} must be an integer from ${admitted.min} to ${admitted.max}: ${value}`
+    );
+  }
+  return admitted.value;
 }
 
 function parseOptionValue(value: string): Civ7SetupOptionValue {
@@ -388,11 +429,12 @@ function safeJson(value: unknown): string {
 }
 
 async function main(): Promise<number> {
-  const args = parseArgs(process.argv.slice(2));
+  const args = parseStudioRunInGameLiveArgs(process.argv.slice(2));
   if (args.help) {
     console.log(usage);
     return 0;
   }
+  const mutationArgs = args.mutate ? admitStudioRunInGameLiveMutationArgs(args) : undefined;
 
   const verificationId = createCiv7ControlRequestId("studio-run-in-game-live-verification");
   const options: Civ7DirectControlOptions = {
@@ -406,6 +448,9 @@ async function main(): Promise<number> {
     startedAt: new Date().toISOString(),
     mode: args.mutate ? "mutating-setup-start" : "read-only",
     mutationAttempted: false,
+    ...(mutationArgs
+      ? { requestedSeeds: { mapSeed: mutationArgs.mapSeed, gameSeed: mutationArgs.gameSeed } }
+      : {}),
     controlOptions: options,
     stages: [],
   };
@@ -465,9 +510,7 @@ async function main(): Promise<number> {
       return 0;
     }
 
-    if (!args.mapScript || !args.mapSize || args.seed === undefined) {
-      throw new Error("--mutate requires --map-script, --map-size, and --seed");
-    }
+    if (!mutationArgs) throw new Error("Mutating verifier arguments were not admitted.");
 
     report.mutationAttempted = true;
 
@@ -513,14 +556,16 @@ async function main(): Promise<number> {
       endpointDefaults: options,
       correlation: { correlationId },
     }).lifecycle.singlePlayer.start({
-      mapScript: args.mapScript,
-      mapSize: args.mapSize,
-      seed: args.seed,
+      mapScript: mutationArgs.mapScript,
+      mapSize: mutationArgs.mapSize,
+      mapSeed: mutationArgs.mapSeed,
+      gameSeed: mutationArgs.gameSeed,
       playerCount: args.playerCount,
-      targetModId: targetModIdFromMapScript(args.mapScript),
+      targetModId: targetModIdFromMapScript(mutationArgs.mapScript),
       ...(savedConfigRef ? { savedConfig: savedConfigRef } : {}),
       gameOptions: args.options,
-      playerOptions: {},
+      mapOptions: {},
+      playerOptions: [],
       activeGamePolicy: "exit-active-game",
     });
     stages.push({
@@ -532,7 +577,7 @@ async function main(): Promise<number> {
     const logEvidence = await waitForFreshLogMarkers({
       logPath: scriptingLogPath,
       snapshot: scriptingSnapshot,
-      markers: ["[mapgen-complete]", `"seed":${args.seed}`],
+      markers: ["[mapgen-complete]", `"seed":${mutationArgs.mapSeed}`],
       timeoutMs: args.waitTimeoutMs,
       pollIntervalMs: args.pollIntervalMs,
       rejectPattern:

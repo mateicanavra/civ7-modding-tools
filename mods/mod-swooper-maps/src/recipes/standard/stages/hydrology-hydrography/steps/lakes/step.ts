@@ -17,7 +17,7 @@ export const LakesStep = createStep(LakesStepContract, {
     const { lakeiness = "normal" as HydrologyLakeinessKnob } = ctx.knobs as {
       lakeiness?: HydrologyLakeinessKnob;
     };
-    if (config.planLakes.strategy !== "default") return config;
+    if (config.planLakes.strategy !== "sink-discharge-budget") return config;
 
     const policy = HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY[lakeiness];
 

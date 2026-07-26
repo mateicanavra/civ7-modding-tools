@@ -8,6 +8,8 @@ import {
   type Civ7AutoplayActionResult,
   type Civ7PlayableStatusResult,
   type Civ7RuntimeProbe,
+  type Civ7SavedGameConfiguration,
+  type Civ7SetupSnapshotResult,
   encodeCiv7TunerRequest,
   parseCiv7TunerFrame,
 } from "@civ7/direct-control";
@@ -620,6 +622,58 @@ describe("studio-server RPC handler", () => {
     });
   });
 
+  test("projects one closed setup DTO and refuses malformed provider evidence", async () => {
+    await withRouterCiv7Client(
+      tunerClientWithSetupSnapshot(setupSnapshotFixture()),
+      async ({ client }) => {
+        await expect(client.civ7.setupConfig({})).resolves.toMatchObject({
+          ok: true,
+          observedAt: expect.any(String),
+          setup: {
+            selectedMap: { file: "{swooper-maps}/maps/swooper-earthlike.js" },
+            parameters: [
+              {
+                id: "Difficulty",
+                exists: true,
+                value: "DIFFICULTY_CUSTOM",
+                possibleValues: [{ value: "DIFFICULTY_CUSTOM" }],
+              },
+            ],
+            players: [
+              {
+                playerId: 0,
+                parameters: [{ id: "PlayerLeader", exists: true, value: "LEADER_ASHOKA" }],
+              },
+            ],
+            localPlayerId: 0,
+          },
+        });
+      }
+    );
+
+    const malformed = setupSnapshotFixture();
+    await withRouterCiv7Client(
+      tunerClientWithSetupSnapshot({
+        ...malformed,
+        snapshot: {
+          ...malformed.snapshot,
+          setup: {
+            ...malformed.snapshot.setup,
+            playerParameters: [{ ...malformed.snapshot.setup.playerParameters[0]!, playerId: 64 }],
+          },
+        },
+      }),
+      async ({ client }) => {
+        const result = await safe(client.civ7.setupConfig({}));
+        expect(result.error).toMatchObject({
+          code: "SETUP_CONFIG_UNAVAILABLE",
+          status: 503,
+          data: { observedAt: expect.any(String) },
+        });
+      }
+    );
+  });
+
   test("validates live snapshot fields before forwarding one exact map read", async () => {
     const mapGrid = vi.fn<Civ7TunerClient["mapGrid"]>((input) =>
       Effect.succeed({
@@ -665,6 +719,84 @@ describe("studio-server RPC handler", () => {
           message: "Unsupported Civ7 plot field: enemy",
         });
         expect(mapGrid).toHaveBeenCalledTimes(1);
+      }
+    );
+  });
+
+  test("projects closed grouped saved configurations and refuses malformed provider output", async () => {
+    const configuration = {
+      id: "tot-config",
+      displayName: "ToT Config",
+      fileName: "ToT Config.Civ7Cfg",
+      path: "/tmp/ToT Config.Civ7Cfg",
+      sizeBytes: 128,
+      modifiedAt: "2026-06-01T00:00:00.000Z",
+      source: "local-disk" as const,
+      summary: {
+        mapSize: "MAPSIZE_SMALL",
+        playerCount: 6,
+        mapSeed: 43,
+        gameSeed: 47,
+      },
+      gameOptions: { Difficulty: "DIFFICULTY_PRINCE" },
+      mapOptions: { StartPosition: "START_POSITION_STANDARD" },
+      playerOptions: [{ playerId: 0, options: { PlayerLeader: "LEADER_HATSHEPSUT" } }],
+    } satisfies Civ7SavedGameConfiguration;
+    await withRouterCiv7Client(
+      {
+        ...unavailableTunerClient("unused"),
+        savedConfigurations: () =>
+          Effect.succeed({ directory: "/tmp", configurations: [configuration] }),
+      },
+      async ({ client }) => {
+        const response = await client.civ7.savedConfigs({});
+        expect(response).toMatchObject({
+          ok: true,
+          configurations: [
+            {
+              id: configuration.id,
+              displayName: configuration.displayName,
+              fileName: configuration.fileName,
+              summary: configuration.summary,
+              gameOptions: configuration.gameOptions,
+              mapOptions: configuration.mapOptions,
+              playerOptions: configuration.playerOptions,
+            },
+          ],
+        });
+        expect(response).not.toHaveProperty("directory");
+        expect(response.configurations[0]).not.toHaveProperty("path");
+        expect(response.configurations[0]).not.toHaveProperty("sizeBytes");
+        expect(response.configurations[0]).not.toHaveProperty("modifiedAt");
+        expect(response.configurations[0]).not.toHaveProperty("source");
+      }
+    );
+
+    await withRouterCiv7Client(
+      {
+        ...unavailableTunerClient("unused"),
+        savedConfigurations: () =>
+          Effect.succeed(
+            JSON.parse(
+              JSON.stringify({
+                directory: "/tmp",
+                configurations: [
+                  {
+                    ...configuration,
+                    mapOptions: undefined,
+                  },
+                ],
+              })
+            )
+          ),
+      },
+      async ({ client }) => {
+        const result = await safe(client.civ7.savedConfigs({}));
+        expect(result.error).toMatchObject({
+          code: "SAVED_CONFIGS_UNAVAILABLE",
+          status: 500,
+          data: { observedAt: expect.any(String) },
+        });
       }
     );
   });
@@ -1358,7 +1490,7 @@ function lifecycleStarted() {
         mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
         mapSize: "MAPSIZE_SMALL",
         mapSeed: 42,
-        gameSeed: 42,
+        gameSeed: 47,
         targetModId: "mod-swooper-studio-run",
         mapRowFiles: ["{mod-swooper-studio-run}/maps/studio-run.js"],
       },
@@ -1416,6 +1548,76 @@ function unavailableTunerClient(message: string): Civ7TunerClient {
     unitSummary: () => Effect.fail(new Error(message)),
     citySummary: () => Effect.fail(new Error(message)),
   });
+}
+
+function tunerClientWithSetupSnapshot(snapshot: Civ7SetupSnapshotResult): Civ7TunerClient {
+  const unavailable = unavailableTunerClient("unused tuner operation");
+  return Civ7TunerClient.make({
+    playableStatus: unavailable.playableStatus,
+    mapSummary: unavailable.mapSummary,
+    gameInfoRows: unavailable.gameInfoRows,
+    setupSnapshot: () => Effect.succeed(snapshot),
+    savedConfigurations: unavailable.savedConfigurations,
+    mapGrid: unavailable.mapGrid,
+    playerSummary: unavailable.playerSummary,
+    unitSummary: unavailable.unitSummary,
+    citySummary: unavailable.citySummary,
+  });
+}
+
+function setupSnapshotFixture(): Civ7SetupSnapshotResult {
+  const selectedMapRow = {
+    source: "setup-domain" as const,
+    file: "{swooper-maps}/maps/swooper-earthlike.js",
+  };
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    snapshot: {
+      phase: "shell",
+      ui: {
+        inGame: probe(false),
+        inShell: probe(true),
+        inLoading: probe(false),
+        loadingState: probe(0),
+        loadingStateName: "Shell",
+        canBeginGame: probe(true),
+      },
+      setup: {
+        revision: probe(3),
+        parameters: [
+          {
+            id: "Difficulty",
+            exists: true,
+            value: "DIFFICULTY_CUSTOM",
+            rawValue: { provider: "private" },
+            possibleValues: [{ value: "DIFFICULTY_CUSTOM" }],
+          },
+        ],
+        playerParameters: [
+          {
+            playerId: 0,
+            exists: probe(true),
+            active: probe(true),
+            slotStatus: probe("SS_TAKEN"),
+            parameters: [{ id: "PlayerLeader", exists: true, value: "LEADER_ASHOKA" }],
+          },
+        ],
+        localPlayerId: probe(0),
+      },
+      selectedMapRow,
+      mapRows: [selectedMapRow],
+      config: {
+        mapScript: probe(selectedMapRow.file),
+        mapSize: probe(3),
+        mapSizeType: probe("MAPSIZE_STANDARD"),
+        mapSeed: probe(43),
+        gameSeed: probe(47),
+        playerCount: probe(8),
+      },
+    },
+  };
 }
 
 function playableStatusFixture(turn = 12): Civ7PlayableStatusResult {
@@ -1658,8 +1860,14 @@ function runInGameStartInput(): StudioInputs["runInGame"]["start"] {
       name: "Studio Current",
     }).canonicalConfig,
     seed: 43,
+    gameSeed: 47,
     worldSettings: {
       mapSize: "MAPSIZE_STANDARD",
+    },
+    setupConfig: {
+      gameOptions: {},
+      mapOptions: {},
+      playerOptions: [{ playerId: 0, options: {} }],
     },
   };
 }

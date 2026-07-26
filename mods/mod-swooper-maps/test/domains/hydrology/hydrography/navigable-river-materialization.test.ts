@@ -48,7 +48,7 @@ describe("select navigable river terrain", () => {
         projectableLandMask,
       },
       {
-        strategy: "default",
+        strategy: "endpoint-chain-ranking",
         config: { endpointDischargePercentileMin: 1, targetMajorTileFraction: 0.3 },
       }
     );
@@ -92,7 +92,7 @@ describe("select navigable river terrain", () => {
         projectableLandMask,
       },
       {
-        strategy: "default",
+        strategy: "endpoint-chain-ranking",
         config: { endpointDischargePercentileMin: 0, targetMajorTileFraction: 0.7 },
       }
     );
@@ -134,7 +134,7 @@ describe("select navigable river terrain", () => {
         projectableLandMask,
       },
       {
-        strategy: "default",
+        strategy: "endpoint-chain-ranking",
         config: { endpointDischargePercentileMin: 1, targetMajorTileFraction: 0.7 },
       }
     );
@@ -179,7 +179,7 @@ describe("select navigable river terrain", () => {
         projectableLandMask,
       },
       {
-        strategy: "default",
+        strategy: "endpoint-chain-ranking",
         config: { endpointDischargePercentileMin: 0, targetMajorTileFraction: 1 },
       }
     );
@@ -225,7 +225,7 @@ describe("select navigable river terrain", () => {
         projectableLandMask,
       },
       {
-        strategy: "default",
+        strategy: "endpoint-chain-ranking",
         config: { endpointDischargePercentileMin: 1, targetMajorTileFraction: 1 },
       }
     );
@@ -263,7 +263,7 @@ describe("select navigable river terrain", () => {
         projectableLandMask,
       },
       {
-        strategy: "default",
+        strategy: "endpoint-chain-ranking",
         config: { endpointDischargePercentileMin: 1, targetMajorTileFraction: 1 },
       }
     );
@@ -300,7 +300,7 @@ describe("select navigable river terrain", () => {
         projectableLandMask,
       },
       {
-        strategy: "default",
+        strategy: "endpoint-chain-ranking",
         config: { endpointDischargePercentileMin: 0, targetMajorTileFraction: 1 },
       }
     );

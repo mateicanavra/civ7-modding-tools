@@ -36,9 +36,8 @@ const FeaturesApplyContract = defineOp({
       description: "Aggregated feature placements after merging all concerns.",
     }
   ),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object(
+    "strict-single-occupancy": Type.Object(
       {},
       {
         description:

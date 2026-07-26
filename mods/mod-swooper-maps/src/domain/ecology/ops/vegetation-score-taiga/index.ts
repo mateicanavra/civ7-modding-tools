@@ -1,11 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ScoreVegetationTaigaContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { coldForestStrategy } from "./strategies/index.js";
 
 const scoreVegetationTaiga = createOp(ScoreVegetationTaigaContract, {
   strategies: {
-    default: defaultStrategy,
+    "cold-forest": coldForestStrategy,
   },
 });
 

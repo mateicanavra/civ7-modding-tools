@@ -3,7 +3,7 @@ import { describe, expect, it } from "bun:test";
 import morphologyDomain from "@mapgen/domain/morphology/ops";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 
-const selection = { strategy: "default", config: {} } as const;
+const selection = { strategy: "wrapped-hex-adjacency", config: {} } as const;
 
 describe("compute-coastal-adjacency", () => {
   it("classifies both sides of a wrapped land-water shoreline", () => {

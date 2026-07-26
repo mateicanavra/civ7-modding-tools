@@ -13,7 +13,7 @@ const WORLD_AGE_SCALE: Record<string, number> = {
  * Resolves the world-age scaling multiplier.
  */
 export function resolveWorldAgeScale(
-  worldAge: ComputeGeomorphicCycleTypes["config"]["default"]["worldAge"]
+  worldAge: ComputeGeomorphicCycleTypes["config"]["stream-power-diffusion"]["worldAge"]
 ): number {
   return WORLD_AGE_SCALE[worldAge];
 }
@@ -30,7 +30,7 @@ export function computeGeomorphicDeltas(params: {
   erodibility: Float32Array;
   sedimentDepth: Float32Array;
   landMask: Uint8Array;
-  config: ComputeGeomorphicCycleTypes["config"]["default"];
+  config: ComputeGeomorphicCycleTypes["config"]["stream-power-diffusion"];
 }): { elevationDelta: Float32Array; sedimentDelta: Float32Array } {
   const {
     width,

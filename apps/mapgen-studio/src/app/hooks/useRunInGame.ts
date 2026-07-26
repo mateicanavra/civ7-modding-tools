@@ -32,6 +32,8 @@ import type { ToastFn } from "./useToast";
 export type UseRunInGameArgs = {
   /** Current generation seed. */
   seed: string;
+  /** Stable Civ7 game seed; map rerolls do not modify it. */
+  gameSeed: string;
   /** Authoring world settings (map size / player count / resources). */
   worldSettings: WorldSettings;
   /** The sole complete config authoring value. */
@@ -94,6 +96,7 @@ type RunInGameLaunchDecision = Readonly<
 export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
   const {
     seed,
+    gameSeed,
     worldSettings,
     canonicalConfig,
     authoringRevision,
@@ -161,6 +164,13 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
       toast(message, { variant: "error" });
       return;
     }
+    const gameSeedPolicy = parseCiv7StudioSeed(gameSeed);
+    if (!gameSeedPolicy.ok) {
+      const message = `Game ${formatCiv7StudioSeedError(gameSeedPolicy).toLowerCase()}`;
+      setLocalError(message);
+      toast(message, { variant: "error" });
+      return;
+    }
     if (runInGameLaunchDecision.kind === "blocked") {
       const message = runInGameLaunchDecision.message;
       setLocalError(message);
@@ -174,6 +184,7 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
       result = await runCurrentConfigInGame({
         canonicalConfig: runInGameLaunchDecision.canonicalConfig,
         seed,
+        gameSeed,
         worldSettings: {
           mapSize: mapSize.id,
           playerCount: worldSettings.playerCount,
@@ -194,6 +205,7 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
       requestId: result.requestId,
       authoringRevision,
       seed,
+      gameSeed,
       worldSettings,
       setupConfig,
       canonicalConfig: runInGameLaunchDecision.canonicalConfig,
@@ -202,6 +214,7 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
   }, [
     runInGameLaunchDecision,
     seed,
+    gameSeed,
     runInGameRunning,
     saveDeployRunning,
     authoringRevision,

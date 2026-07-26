@@ -206,6 +206,6 @@ export default defineOp({
   id: "foundation/compute-crust",
   input: Type.Object({}),
   output: Type.Object({}),
-  strategies: { default: Type.Object({}) },
+  strategies: { measured: Type.Object({}) },
 });
 ```

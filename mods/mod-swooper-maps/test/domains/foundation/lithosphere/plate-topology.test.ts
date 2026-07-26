@@ -37,7 +37,7 @@ describe("foundation plate partition topology", () => {
   it("yields non-uniform areas and plausible adjacency degrees", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
-      strategy: "default",
+      strategy: "jittered-delaunay",
       config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2 },
     });
 

@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { canonicalRollupStrategy } from "./canonical-rollup.js";

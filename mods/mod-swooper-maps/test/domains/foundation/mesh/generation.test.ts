@@ -26,7 +26,7 @@ describe("foundation mesh generation", () => {
   it("is deterministic and shape-correct", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
-      strategy: "default",
+      strategy: "jittered-delaunay",
       config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2 },
     });
 

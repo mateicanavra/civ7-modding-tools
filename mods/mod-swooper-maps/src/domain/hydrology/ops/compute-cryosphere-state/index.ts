@@ -1,9 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import ComputeCryosphereStateContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { temperatureThresholdsStrategy } from "./strategies/index.js";
 
 const computeCryosphereState = createOp(ComputeCryosphereStateContract, {
-  strategies: { default: defaultStrategy },
+  strategies: { "temperature-thresholds": temperatureThresholdsStrategy },
 });
 
 export type * from "./contract.js";

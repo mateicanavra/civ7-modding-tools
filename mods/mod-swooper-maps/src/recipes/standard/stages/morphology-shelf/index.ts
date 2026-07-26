@@ -1,3 +1,4 @@
+import morphology from "@mapgen/domain/morphology";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { ComputeShelfStep } from "./steps/compute-shelf/step.js";
@@ -71,8 +72,11 @@ const publicSchema = Type.Object(
   }
 );
 
-function defaultEnvelope(config: unknown): { strategy: "default"; config: unknown } {
-  return { strategy: "default", config };
+function defaultEnvelope<const Strategy extends string>(
+  operation: Readonly<{ defaultStrategy: Strategy }>,
+  config: unknown
+) {
+  return { strategy: operation.defaultStrategy, config };
 }
 
 /**
@@ -88,7 +92,7 @@ export default createStage({
   }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     "compute-shelf": {
-      shelfMask: defaultEnvelope(config.shelf),
+      shelfMask: defaultEnvelope(morphology.ops.computeShelfMask, config.shelf),
     },
   }),
 } as const);

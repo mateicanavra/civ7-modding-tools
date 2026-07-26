@@ -27,6 +27,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@civ7/map-policy": "workspace:*",
     "@orpc/contract": "1.14.6",
     "@standard-schema/spec": "^1.1.0",
     "typebox": "catalog:"

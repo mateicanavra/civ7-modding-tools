@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { semiaridOpenStrategy } from "./semiarid-open.js";

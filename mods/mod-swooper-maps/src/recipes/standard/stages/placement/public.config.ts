@@ -2,8 +2,11 @@ import placement from "@mapgen/domain/placement";
 import resources from "@mapgen/domain/resources";
 import { type TSchema, Type } from "typebox";
 
-function defaultEnvelope(config: unknown): { strategy: "default"; config: unknown } {
-  return { strategy: "default", config };
+function defaultEnvelope<const Strategy extends string>(
+  operation: Readonly<{ defaultStrategy: Strategy }>,
+  config: unknown
+) {
+  return { strategy: operation.defaultStrategy, config };
 }
 
 function requiredPublicSchema<T extends TSchema>(schema: T, description: string) {
@@ -22,7 +25,7 @@ export const PlacementKnobsSchema = Type.Object(
 
 /** Author-facing natural-wonder spacing controls admitted by the selected planning strategy. */
 export const PlacementNaturalWondersSchema = requiredPublicSchema(
-  placement.ops.planNaturalWonders.strategies.default,
+  placement.ops.planNaturalWonders.strategies["suitability-diversity"],
   "Natural wonder placement controls for spacing planned wonder stamps before Civ7 feature materialization."
 );
 
@@ -31,19 +34,19 @@ export const PlacementNaturalWondersSchema = requiredPublicSchema(
 
 /** Author-facing resource site-selection controls; demand remains domain-corpus owned. */
 export const PlacementResourcesSchema = requiredPublicSchema(
-  resources.ops.selectResourceSites.strategies.default,
+  resources.ops.selectResourceSites.strategies["blue-noise-rotation"],
   "Resource site-selection controls: density and sparsity scaling within authored per-type ranges, official-Weight rarity fidelity, blue-noise site spacing, per-type spacing-floor scaling, per-landmass equity ceiling, per-family density overrides, and resource-resource affinity/exclusion rules. Per-type targets come from the resource-domain earthlike expectation corpus, not authored config."
 );
 
 /** Author-facing start viability, spacing, ranking, and fairness controls. */
 export const PlacementStartsSchema = requiredPublicSchema(
-  placement.ops.planStarts.strategies.default,
+  placement.ops.planStarts.strategies["viability-fairness"],
   "Start placement controls: first-age expansion viability and island-start tiers, spacing floor/target (official 6/12 buffers), scoring weights (fertility, freshwater, climate comfort, resource support, roughness with tunable divisor), tier bias, ranking blend, fairness tolerance for the balancing pass, and coastal/river start preference."
 );
 
 /** Author-facing post-start resource-support and cross-player equity controls. */
 export const PlacementSupportSchema = requiredPublicSchema(
-  resources.ops.adjustResourceSupport.strategies.default,
+  resources.ops.adjustResourceSupport.strategies["support-equity"],
   "Resource-to-start support pass controls (S5; runs after start assignment and before resource stamping): per-start support floor within a radius, cross-player equity tolerance, enable switch, and adjustment strength. Earth-like defaults reproduce the E3.1/E3.2 gates."
 );
 
@@ -72,20 +75,20 @@ export const PlacementPublicSchema = Type.Object(
 export function compilePlacementPublicConfig(config: Record<string, unknown>) {
   return {
     "derive-placement-inputs": {
-      wonders: defaultEnvelope({}),
-      naturalWonders: defaultEnvelope(config.naturalWonders),
+      wonders: defaultEnvelope(placement.ops.planWonders, {}),
+      naturalWonders: defaultEnvelope(placement.ops.planNaturalWonders, config.naturalWonders),
     },
     "plot-landmass-regions": {},
     "place-natural-wonders": {},
     "prepare-placement-surface": {},
     "plan-resources": {
-      selectSites: defaultEnvelope(config.resources),
+      selectSites: defaultEnvelope(resources.ops.selectResourceSites, config.resources),
     },
     "assign-starts": {
-      starts: defaultEnvelope(config.starts),
+      starts: defaultEnvelope(placement.ops.planStarts, config.starts),
     },
     "adjust-resources": {
-      support: defaultEnvelope(config.support),
+      support: defaultEnvelope(resources.ops.adjustResourceSupport, config.support),
     },
     "place-resources": {},
     "place-discoveries": {},

@@ -26,9 +26,8 @@ const ComputeCoastalAdjacencyContract = defineOp({
       description: "Mask (1/0): water tiles adjacent to land.",
     }),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object(
+    "wrapped-hex-adjacency": Type.Object(
       {},
       {
         additionalProperties: false,

@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { streamPowerDiffusionStrategy } from "./stream-power-diffusion.js";

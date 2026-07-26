@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { reliefSubstrateClustersStrategy } from "./relief-substrate-clusters.js";

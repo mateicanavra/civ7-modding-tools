@@ -1,16 +1,20 @@
 import { once } from "node:events";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { type AddressInfo, createServer, type Socket } from "node:net";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { runInNewContext } from "node:vm";
+import { CIV7_SIGNED_INT_SEED_MAX } from "@civ7/map-policy/setup";
 import { describe, expect, test } from "vitest";
 import {
   admitCiv7SetupShell,
-  applyCiv7SinglePlayerSetup,
+  applyCiv7SinglePlayerSetupIdentity,
+  applyCiv7SinglePlayerSetupOptions,
   assertPreparedSetupMatches,
   beginCiv7Game,
   CIV7_BEGIN_GAME_COMMAND,
   CIV7_EXIT_TO_MAIN_MENU_COMMAND,
   CIV7_RELOAD_UI_COMMAND,
-  CIV7_SIGNED_INT_SEED_MAX,
   Civ7DirectControlSession,
   type Civ7SetupMapRow,
   type Civ7SetupSnapshot,
@@ -18,34 +22,164 @@ import {
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
   hostPreparedCiv7SinglePlayerGame,
+  listCiv7SavedGameConfigurations,
   reconcileCiv7RequiredTargetMod,
   reloadCiv7SetupUiInShell,
   requestCiv7SavedGameConfigurationLoad,
 } from "../src/index";
 import {
-  buildPrepareSinglePlayerSetupCommand,
+  buildApplySinglePlayerSetupIdentityCommand,
+  buildApplySinglePlayerSetupOptionsCommand,
   buildReconcileTargetModCommand,
   normalizeSinglePlayerSetupInput,
+  setupExpectationScriptSource,
 } from "../src/setup/prepare";
 import { buildSetupSnapshotCommand, defaultSetupReadDependencies } from "../src/setup/reads";
 import { buildStartPreparedSinglePlayerCommand } from "../src/setup/start";
 
 const HOST = "127.0.0.1";
 const MAP_SCRIPT = "{swooper-maps}/maps/swooper-earthlike.js";
+const PREVIOUS_MAP_SCRIPT = "{swooper-maps}/maps/previous-selection.js";
 const HIDDEN_MAP_SCRIPT = "{swooper-maps}/maps/studio-current.js";
 
+function setupValues(
+  overrides: Partial<Civ7SinglePlayerSetupValues> = {}
+): Civ7SinglePlayerSetupValues {
+  return {
+    mapScript: MAP_SCRIPT,
+    mapSize: "MAPSIZE_STANDARD",
+    mapSeed: 111,
+    gameSeed: 112,
+    gameOptions: {},
+    mapOptions: {},
+    playerOptions: [],
+    ...overrides,
+  };
+}
+
+function civ7CfgRandomSeedRecord(seed: number, type: 8 | 9): Buffer {
+  const record = Buffer.alloc(24);
+  Buffer.from([0x33, 0x13, 0xe5, 0x0d]).copy(record, 0);
+  record.writeUInt32LE(type, 4);
+  record.writeUInt32LE(0, 8);
+  record.writeUInt32LE(1, 12);
+  record.writeUInt32LE(4, 16);
+  record.writeInt32LE(seed, 20);
+  return record;
+}
+
+function civ7CfgMaxMajorPlayersRecord(playerCount: number, hash = 0x0f9f_225c): Buffer {
+  const record = Buffer.alloc(24);
+  record.writeUInt32LE(hash, 0);
+  record.writeUInt32LE(9, 4);
+  record.writeUInt32LE(0, 8);
+  record.writeUInt32LE(1, 12);
+  record.writeUInt32LE(4, 16);
+  record.writeInt32LE(playerCount, 20);
+  return record;
+}
+
+function civ7CfgFixture(
+  records: readonly Buffer[],
+  maxMajorPlayers = civ7CfgMaxMajorPlayersRecord(6)
+): Buffer {
+  const [mapSeed, ...laterSeeds] = records;
+  return Buffer.concat([
+    Buffer.from(["CIV7", "3507297712", "MAPSIZE_SMALL"].join("\0")),
+    Buffer.from([0]),
+    ...(mapSeed ? [mapSeed, maxMajorPlayers] : []),
+    ...laterSeeds,
+  ]);
+}
+
 describe("Civ7 setup and lifecycle orchestration", () => {
+  test("reads exact Civ7Cfg setup scalars without reinterpreting numeric metadata", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "civ7-saved-config-"));
+    try {
+      await writeFile(
+        join(directory, "exact-seeds.Civ7Cfg"),
+        civ7CfgFixture([
+          civ7CfgRandomSeedRecord(-978_072_323, 8),
+          civ7CfgRandomSeedRecord(-978_072_324, 9),
+        ])
+      );
+
+      const result = await listCiv7SavedGameConfigurations({ directory });
+
+      expect(result.configurations).toHaveLength(1);
+      expect(result.configurations[0]?.summary).toMatchObject({
+        mapSeed: -978_072_323,
+        gameSeed: -978_072_324,
+        playerCount: 6,
+      });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  test("omits Civ7Cfg seed evidence for malformed or non-exact record cardinality", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "civ7-saved-config-"));
+    try {
+      const malformed = civ7CfgRandomSeedRecord(-123, 8);
+      malformed.writeUInt32LE(8, 16);
+      await Promise.all([
+        writeFile(join(directory, "one.Civ7Cfg"), civ7CfgFixture([civ7CfgRandomSeedRecord(-1, 8)])),
+        writeFile(
+          join(directory, "three.Civ7Cfg"),
+          civ7CfgFixture([
+            civ7CfgRandomSeedRecord(-1, 8),
+            civ7CfgRandomSeedRecord(-2, 9),
+            civ7CfgRandomSeedRecord(-3, 8),
+          ])
+        ),
+        writeFile(
+          join(directory, "malformed.Civ7Cfg"),
+          civ7CfgFixture([malformed, civ7CfgRandomSeedRecord(-2, 9)])
+        ),
+        writeFile(
+          join(directory, "wrong-map-key.Civ7Cfg"),
+          civ7CfgFixture(
+            [civ7CfgRandomSeedRecord(-1, 8), civ7CfgRandomSeedRecord(-2, 9)],
+            civ7CfgMaxMajorPlayersRecord(6, 0xdead_beef)
+          )
+        ),
+        writeFile(
+          join(directory, "invalid-player-count.Civ7Cfg"),
+          civ7CfgFixture(
+            [civ7CfgRandomSeedRecord(-1, 8), civ7CfgRandomSeedRecord(-2, 9)],
+            civ7CfgMaxMajorPlayersRecord(0)
+          )
+        ),
+      ]);
+
+      const result = await listCiv7SavedGameConfigurations({ directory });
+
+      expect(result.configurations).toHaveLength(5);
+      for (const configuration of result.configurations) {
+        expect(configuration.summary).not.toHaveProperty("mapSeed");
+        expect(configuration.summary).not.toHaveProperty("gameSeed");
+        expect(configuration.summary).not.toHaveProperty("playerCount");
+      }
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   test("rejects setup seeds Civ7 would wrap before mutating setup state", async () => {
     const server = await startSetupLifecycleServer();
     try {
       const { port } = server.address();
       await expect(
-        applyCiv7SinglePlayerSetup(
-          {
+        applyCiv7SinglePlayerSetupIdentity(
+          setupValues({
             mapScript: MAP_SCRIPT,
             mapSize: "MAPSIZE_SMALL",
-            seed: CIV7_SIGNED_INT_SEED_MAX + 1,
-          },
+            mapSeed: CIV7_SIGNED_INT_SEED_MAX + 1,
+            gameSeed: 112,
+            gameOptions: {},
+            mapOptions: {},
+            playerOptions: [],
+          }),
           { host: HOST, port, timeoutMs: 1_000 }
         )
       ).rejects.toMatchObject({ code: "setup-parameter-invalid" });
@@ -206,17 +340,17 @@ describe("Civ7 setup and lifecycle orchestration", () => {
       ["MapSize", { value: "MAPSIZE_SMALL" }],
       ["MapRandomSeed", { value: 111 }],
       ["GameRandomSeed", { value: 112 }],
-      ["CustomGameOption", { value: false }],
+      ["Difficulty", { value: "DIFFICULTY_SOVEREIGN" }],
     ]);
     const playerParameters = new Map<string, { value: unknown }>([
-      ["3:CustomPlayerOption", { value: "before" }],
+      ["3:PlayerDifficulty", { value: "DIFFICULTY_SOVEREIGN" }],
     ]);
     const globals = {
       Configuration: {
         getMap: () => mapConfig,
         getGame: () => gameConfig,
         getPlayer: (playerId: number) =>
-          playerId === 0 || playerId === 3 || playerId === 5 ? { playerId } : null,
+          playerId === 0 || playerId === 3 || playerId === 5 ? { playerId, slotStatus: 2 } : null,
         editMap: () => ({
           setScript: (value: string) => {
             mapConfig.script = value;
@@ -236,6 +370,7 @@ describe("Civ7 setup and lifecycle orchestration", () => {
         }),
       },
       GameContext: { localPlayerID: 0 },
+      SlotStatus: { SS_OPEN: 0, SS_CLOSED: 1, SS_TAKEN: 2 },
       GameSetup: {
         currentRevision: 19,
         findGameParameter: (id: string) => gameParameters.get(id),
@@ -263,21 +398,25 @@ describe("Civ7 setup and lifecycle orchestration", () => {
       {
         mapScript: MAP_SCRIPT,
         mapSize: "MAPSIZE_SMALL",
-        seed: 111,
+        mapSeed: 111,
         gameSeed: 112,
-        options: { CustomGameOption: true },
+        gameOptions: { Difficulty: "DIFFICULTY_DEITY" },
+        mapOptions: {},
         playerOptions: [
-          { playerId: 3, options: { CustomPlayerOption: "after" } },
+          { playerId: 3, options: { PlayerDifficulty: "DIFFICULTY_DEITY" } },
           { playerId: 5, options: {} },
         ],
       },
       {
         boundedInteger: defaultSetupReadDependencies.boundedInteger,
-        validateIdentifier: (value) => value,
       }
     );
 
-    const prepareCommand = buildPrepareSinglePlayerSetupCommand(
+    const identityCommand = buildApplySinglePlayerSetupIdentityCommand(
+      expected,
+      defaultSetupReadDependencies
+    );
+    const optionsCommand = buildApplySinglePlayerSetupOptionsCommand(
       expected,
       defaultSetupReadDependencies
     );
@@ -285,9 +424,11 @@ describe("Civ7 setup and lifecycle orchestration", () => {
       expected,
       defaultSetupReadDependencies
     );
-    const prepared = JSON.parse(runInNewContext(prepareCommand, globals) as string) as {
+    const identityApplied = JSON.parse(runInNewContext(identityCommand, globals) as string) as {
       status: string;
-      after: Civ7SetupSnapshot;
+    };
+    const optionsApplied = JSON.parse(runInNewContext(optionsCommand, globals) as string) as {
+      status: string;
     };
     const hosted = JSON.parse(runInNewContext(hostCommand, globals) as string) as {
       status: string;
@@ -295,45 +436,24 @@ describe("Civ7 setup and lifecycle orchestration", () => {
       accepted: boolean;
     };
 
-    expect(prepared).toMatchObject({
-      status: "performed",
-      after: {
-        setup: {
-          parameters: expect.arrayContaining([
-            expect.objectContaining({ id: "CustomGameOption", exists: true, value: true }),
-          ]),
-          playerParameters: expect.arrayContaining([
-            expect.objectContaining({
-              playerId: 3,
-              parameters: expect.arrayContaining([
-                expect.objectContaining({
-                  id: "CustomPlayerOption",
-                  exists: true,
-                  value: "after",
-                }),
-              ]),
-            }),
-            expect.objectContaining({ playerId: 5 }),
-          ]),
-        },
-      },
-    });
+    expect(identityApplied).toMatchObject({ status: "performed" });
+    expect(optionsApplied).toMatchObject({ status: "performed" });
     expect(hosted).toMatchObject({
       status: "performed",
       accepted: true,
       before: {
         setup: {
           parameters: expect.arrayContaining([
-            expect.objectContaining({ id: "CustomGameOption", exists: true, value: true }),
+            expect.objectContaining({ id: "Difficulty", exists: true, value: "DIFFICULTY_DEITY" }),
           ]),
           playerParameters: expect.arrayContaining([
             expect.objectContaining({
               playerId: 3,
               parameters: expect.arrayContaining([
                 expect.objectContaining({
-                  id: "CustomPlayerOption",
+                  id: "PlayerDifficulty",
                   exists: true,
-                  value: "after",
+                  value: "DIFFICULTY_DEITY",
                 }),
               ]),
             }),
@@ -342,17 +462,16 @@ describe("Civ7 setup and lifecycle orchestration", () => {
         },
       },
     });
-
     const missingPlayer = {
       ...expected,
       playerOptions: [{ playerId: 6, options: {} }],
     };
-    const unverified = JSON.parse(
+    const refusedOptions = JSON.parse(
       runInNewContext(
-        buildPrepareSinglePlayerSetupCommand(missingPlayer, defaultSetupReadDependencies),
+        buildApplySinglePlayerSetupOptionsCommand(missingPlayer, defaultSetupReadDependencies),
         globals
       ) as string
-    ) as { status: string; mismatch: string };
+    ) as { status: string; reason: string; detail: string };
     const refusedHost = JSON.parse(
       runInNewContext(
         buildStartPreparedSinglePlayerCommand(missingPlayer, defaultSetupReadDependencies),
@@ -360,61 +479,254 @@ describe("Civ7 setup and lifecycle orchestration", () => {
       ) as string
     ) as { status: string; mismatch: string };
 
-    expect(unverified).toMatchObject({ status: "unverified", mismatch: "player-identity:6" });
+    expect(refusedOptions).toMatchObject({
+      status: "refused",
+      reason: "parameter",
+      detail: "player:6:inactive",
+    });
     expect(refusedHost).toMatchObject({ status: "refused", mismatch: "player-identity:6" });
   });
 
-  test("preflights requested player mutators before atomic setup mutation", () => {
+  test("preflights every requested option mutator before the first option mutation", () => {
     const mutations: string[] = [];
     const mapParameter = {
       value: MAP_SCRIPT,
       domain: { possibleValues: [{ Domain: "StandardMaps", File: MAP_SCRIPT }] },
     };
-    const command = buildPrepareSinglePlayerSetupCommand(
+    const command = buildApplySinglePlayerSetupOptionsCommand(
       {
         mapScript: MAP_SCRIPT,
         mapSize: "MAPSIZE_SMALL",
-        seed: 111,
-        playerOptions: [{ playerId: 3, options: { CustomPlayerOption: "after" } }],
+        mapSeed: 111,
+        gameSeed: 112,
+        gameOptions: {},
+        mapOptions: {},
+        playerOptions: [{ playerId: 3, options: { PlayerDifficulty: "DIFFICULTY_DEITY" } }],
       },
       defaultSetupReadDependencies
     );
 
-    expect(() =>
-      runInNewContext(command, {
-        Configuration: {
-          getMap: () => ({
-            script: MAP_SCRIPT,
-            mapSize: "MAPSIZE_SMALL",
-            mapSeed: 111,
-            maxMajorPlayers: 0,
-          }),
-          getGame: () => ({ gameSeed: 112 }),
-          getPlayer: () => null,
-          editMap: () => ({
-            setScript: () => mutations.push("setScript"),
-            setMapSize: () => mutations.push("setMapSize"),
-            setMapSeed: () => mutations.push("setMapSeed"),
-          }),
-          editGame: () => ({}),
-        },
-        GameContext: { localPlayerID: 0 },
-        GameInfo: { Maps: { lookup: () => ({ MapSizeType: "MAPSIZE_SMALL" }) } },
-        GameSetup: {
-          currentRevision: 19,
-          findGameParameter: (id: string) => (id === "Map" ? mapParameter : undefined),
-          findPlayerParameter: () => ({ value: "before" }),
-          setGameParameterValue: () => mutations.push("setGameParameterValue"),
-        },
-        UI: {
-          getGameLoadingState: () => 0,
-          isInGame: () => false,
-          isInLoading: () => false,
-          isInShell: () => true,
-        },
-      })
-    ).toThrow("GameSetup.setPlayerParameterValue unavailable");
+    const globals = {
+      Configuration: {
+        getMap: () => ({
+          script: MAP_SCRIPT,
+          mapSize: "MAPSIZE_SMALL",
+          mapSizeTypeName: "MAPSIZE_SMALL",
+          mapSeed: 111,
+          maxMajorPlayers: 0,
+        }),
+        getGame: () => ({ gameSeed: 112 }),
+        getPlayer: (playerId: number) => (playerId === 3 ? { playerId, slotStatus: 2 } : null),
+        editMap: () => ({
+          setScript: () => mutations.push("setScript"),
+          setMapSize: () => mutations.push("setMapSize"),
+          setMapSeed: () => mutations.push("setMapSeed"),
+        }),
+        editGame: () => ({
+          setGameSeed: () => mutations.push("setGameSeed"),
+        }),
+      },
+      GameContext: { localPlayerID: 0 },
+      SlotStatus: { SS_OPEN: 0, SS_CLOSED: 1, SS_TAKEN: 2 },
+      GameInfo: { Maps: { lookup: () => ({ MapSizeType: "MAPSIZE_SMALL" }) } },
+      GameSetup: {
+        currentRevision: 19,
+        findGameParameter: (id: string) =>
+          id === "Map"
+            ? mapParameter
+            : id === "MapSize"
+              ? { value: "MAPSIZE_SMALL" }
+              : id === "MapRandomSeed"
+                ? { value: 111 }
+                : id === "GameRandomSeed"
+                  ? { value: 112 }
+                  : undefined,
+        findPlayerParameter: () => ({ value: "DIFFICULTY_SOVEREIGN" }),
+        setGameParameterValue: () => mutations.push("setGameParameterValue"),
+      },
+      UI: {
+        getGameLoadingState: () => 0,
+        isInGame: () => false,
+        isInLoading: () => false,
+        isInShell: () => true,
+      },
+    };
+    const result = JSON.parse(runInNewContext(command, globals) as string) as {
+      status: string;
+      reason: string;
+      detail: string;
+    };
+    expect(result).toMatchObject({
+      status: "refused",
+      reason: "parameter",
+      detail: "player-setter:unavailable",
+    });
     expect(mutations).toEqual([]);
+
+    const invalidOptionCommand = buildApplySinglePlayerSetupOptionsCommand(
+      {
+        mapScript: MAP_SCRIPT,
+        mapSize: "MAPSIZE_SMALL",
+        mapSeed: 111,
+        gameSeed: 112,
+        gameOptions: { Difficulty: "DIFFICULTY_DEITY" },
+        mapOptions: {},
+        playerOptions: [],
+      },
+      defaultSetupReadDependencies
+    );
+    const invalidOptionResult = JSON.parse(
+      runInNewContext(invalidOptionCommand, {
+        ...globals,
+        GameSetup: {
+          ...globals.GameSetup,
+          findGameParameter: (id: string) =>
+            id === "Difficulty"
+              ? { value: "DIFFICULTY_SOVEREIGN", hidden: true }
+              : globals.GameSetup.findGameParameter(id),
+        },
+      }) as string
+    ) as { status: string; reason: string; detail: string };
+    expect(invalidOptionResult).toMatchObject({
+      status: "refused",
+      reason: "parameter",
+      detail: "Difficulty:hidden",
+    });
+    expect(mutations).toEqual([]);
+
+    const hiddenCandidateResult = JSON.parse(
+      runInNewContext(invalidOptionCommand, {
+        ...globals,
+        GameSetup: {
+          ...globals.GameSetup,
+          findGameParameter: (id: string) =>
+            id === "Difficulty"
+              ? {
+                  value: "DIFFICULTY_SOVEREIGN",
+                  domain: {
+                    possibleValues: [{ value: "DIFFICULTY_DEITY", hidden: true }],
+                  },
+                }
+              : globals.GameSetup.findGameParameter(id),
+        },
+      }) as string
+    ) as { status: string; reason: string; detail: string };
+    expect(hiddenCandidateResult).toMatchObject({
+      status: "refused",
+      reason: "parameter",
+      detail: "Difficulty:value-not-admitted",
+    });
+    expect(mutations).toEqual([]);
+  });
+
+  test("admits authored options against target-map metadata after identity readback", () => {
+    const mutations: string[] = [];
+    const observedDifficultyContexts: string[] = [];
+    const mapConfig = {
+      script: PREVIOUS_MAP_SCRIPT,
+      mapSize: "MAPSIZE_STANDARD",
+      mapSizeTypeName: "MAPSIZE_STANDARD",
+      mapSeed: 7,
+      maxMajorPlayers: 0,
+    };
+    const gameConfig = { gameSeed: 8 };
+    const parameterValues = new Map<string, unknown>([
+      ["Map", PREVIOUS_MAP_SCRIPT],
+      ["MapSize", "MAPSIZE_STANDARD"],
+      ["MapRandomSeed", 7],
+      ["GameRandomSeed", 8],
+      ["Difficulty", "DIFFICULTY_SOVEREIGN"],
+    ]);
+    const input = setupValues({
+      gameOptions: { Difficulty: "DIFFICULTY_DEITY" },
+    });
+    const mapDomain = {
+      possibleValues: [
+        { Domain: "StandardMaps", File: PREVIOUS_MAP_SCRIPT },
+        { Domain: "StandardMaps", File: MAP_SCRIPT },
+      ],
+    };
+    const globals = {
+      Configuration: {
+        getMap: () => mapConfig,
+        getGame: () => gameConfig,
+        getPlayer: () => null,
+        editMap: () => ({
+          setScript: (value: string) => {
+            mutations.push("identity:setScript");
+            mapConfig.script = value;
+          },
+          setMapSize: (value: string) => {
+            mutations.push("identity:setMapSize");
+            mapConfig.mapSize = value;
+            mapConfig.mapSizeTypeName = value;
+          },
+          setMapSeed: (value: number) => {
+            mutations.push("identity:setMapSeed");
+            mapConfig.mapSeed = value;
+          },
+        }),
+        editGame: () => ({
+          setGameSeed: (value: number) => {
+            mutations.push("identity:setGameSeed");
+            gameConfig.gameSeed = value;
+          },
+        }),
+      },
+      GameContext: { localPlayerID: 0 },
+      SlotStatus: { SS_OPEN: 0, SS_CLOSED: 1, SS_TAKEN: 2 },
+      GameSetup: {
+        currentRevision: 19,
+        findGameParameter: (id: string) => {
+          if (id === "Difficulty") {
+            observedDifficultyContexts.push(mapConfig.script);
+            return {
+              value: parameterValues.get(id),
+              hidden: mapConfig.script === MAP_SCRIPT,
+              domain: { possibleValues: [{ value: "DIFFICULTY_DEITY" }] },
+            };
+          }
+          const value = parameterValues.get(id);
+          return value === undefined
+            ? undefined
+            : { value, ...(id === "Map" ? { domain: mapDomain } : {}) };
+        },
+        findPlayerParameter: () => undefined,
+        setGameParameterValue: (id: string, value: unknown) => {
+          mutations.push(id === "Difficulty" ? "option:Difficulty" : `identity:${id}`);
+          parameterValues.set(id, value);
+        },
+      },
+      UI: {
+        getGameLoadingState: () => 0,
+        isInGame: () => false,
+        isInLoading: () => false,
+        isInShell: () => true,
+      },
+    };
+
+    const identity = JSON.parse(
+      runInNewContext(
+        buildApplySinglePlayerSetupIdentityCommand(input, defaultSetupReadDependencies),
+        globals
+      ) as string
+    ) as { status: string };
+    const options = JSON.parse(
+      runInNewContext(
+        buildApplySinglePlayerSetupOptionsCommand(input, defaultSetupReadDependencies),
+        globals
+      ) as string
+    ) as { status: string; reason?: string; detail?: string };
+
+    expect(identity).toMatchObject({ status: "performed" });
+    expect(options).toMatchObject({
+      status: "refused",
+      reason: "parameter",
+      detail: "Difficulty:hidden",
+    });
+    expect(observedDifficultyContexts).toContain(PREVIOUS_MAP_SCRIPT);
+    expect(observedDifficultyContexts).toContain(MAP_SCRIPT);
+    expect(mutations).not.toContain("option:Difficulty");
   });
 
   test("target mod reconciliation appends to editable saved-config metadata without dropping existing mods", () => {
@@ -489,12 +801,13 @@ describe("Civ7 setup and lifecycle orchestration", () => {
   test("prepared setup readback rejects player count drift before Begin", () => {
     expect(() =>
       assertPreparedSetupMatches(
-        {
+        setupValues({
           mapScript: MAP_SCRIPT,
           mapSize: "MAPSIZE_HUGE",
-          seed: 1538316511,
+          mapSeed: 1538316511,
+          gameSeed: 1538316511,
           playerCount: 10,
-        },
+        }),
         preparedSetupSnapshot({
           setupMapScript: MAP_SCRIPT,
           setupMapSize: "MAPSIZE_HUGE",
@@ -506,15 +819,57 @@ describe("Civ7 setup and lifecycle orchestration", () => {
     ).toThrow("Civ7 setup player count readback mismatch: 8");
   });
 
+  test.each([
+    ["MapRandomSeed", null, 0, "setup-map-seed"],
+    ["MapRandomSeed", true, 1, "setup-map-seed"],
+    ["MapRandomSeed", "111", 111, "setup-map-seed"],
+    ["GameRandomSeed", null, 0, "setup-game-seed"],
+    ["GameRandomSeed", true, 1, "setup-game-seed"],
+    ["GameRandomSeed", "112", 112, "setup-game-seed"],
+  ] as const)("rejects coerced %s readback %j in host and embedded expectation owners", (parameterId, malformedValue, numericMatch, mismatch) => {
+    const input = setupValues({
+      mapScript: MAP_SCRIPT,
+      mapSize: "MAPSIZE_HUGE",
+      mapSeed: parameterId === "MapRandomSeed" ? numericMatch : 111,
+      gameSeed: parameterId === "GameRandomSeed" ? numericMatch : 112,
+    });
+    const base = preparedSetupSnapshot({
+      setupMapScript: MAP_SCRIPT,
+      setupMapSize: "MAPSIZE_HUGE",
+      setupMapSeed: input.mapSeed,
+      setupGameSeed: input.gameSeed,
+      playerCount: 10,
+    });
+    const snapshot: Civ7SetupSnapshot = {
+      ...base,
+      setup: {
+        ...base.setup,
+        parameters: base.setup.parameters.map((parameter) =>
+          parameter.id === parameterId ? { ...parameter, value: malformedValue } : parameter
+        ),
+      },
+    };
+
+    expect(() => assertPreparedSetupMatches(input, snapshot)).toThrow(
+      `Civ7 setup ${parameterId} readback mismatch`
+    );
+    const embeddedMismatch = runInNewContext(`(() => {
+        ${setupExpectationScriptSource()}
+        return setupExpectationMismatch(${JSON.stringify(input)}, ${JSON.stringify(snapshot)});
+      })()`);
+    expect(embeddedMismatch).toBe(mismatch);
+  });
+
   test("prepared setup readback requires runtime identity for an explicit empty player", () => {
     expect(() =>
       assertPreparedSetupMatches(
-        {
+        setupValues({
           mapScript: MAP_SCRIPT,
           mapSize: "MAPSIZE_HUGE",
-          seed: 1538316511,
+          mapSeed: 1538316511,
+          gameSeed: 1538316511,
           playerOptions: [{ playerId: 5, options: {} }],
-        },
+        }),
         preparedSetupSnapshot({
           setupMapScript: MAP_SCRIPT,
           setupMapSize: "MAPSIZE_HUGE",
@@ -537,12 +892,13 @@ describe("Civ7 setup and lifecycle orchestration", () => {
 
     expect(() =>
       assertPreparedSetupMatches(
-        {
+        setupValues({
           mapScript: MAP_SCRIPT,
           mapSize: "MAPSIZE_HUGE",
-          seed: 1538316511,
+          mapSeed: 1538316511,
+          gameSeed: 1538316511,
           playerCount: 10,
-        },
+        }),
         {
           ...snapshot,
           config: {
@@ -557,12 +913,13 @@ describe("Civ7 setup and lifecycle orchestration", () => {
   test("prepared setup readback accepts Civ7 internal numeric map size when setup parameter matches", () => {
     expect(() =>
       assertPreparedSetupMatches(
-        {
+        setupValues({
           mapScript: MAP_SCRIPT,
           mapSize: "MAPSIZE_HUGE",
-          seed: 1538316511,
+          mapSeed: 1538316511,
+          gameSeed: 1538316511,
           playerCount: 10,
-        },
+        }),
         preparedSetupSnapshot({
           setupMapScript: MAP_SCRIPT,
           setupMapSize: "MAPSIZE_HUGE",
@@ -586,12 +943,13 @@ describe("Civ7 setup and lifecycle orchestration", () => {
 
     expect(() =>
       assertPreparedSetupMatches(
-        {
+        setupValues({
           mapScript: MAP_SCRIPT,
           mapSize: "MAPSIZE_HUGE",
-          seed: 1538316511,
+          mapSeed: 1538316511,
+          gameSeed: 1538316511,
           playerCount: 10,
-        },
+        }),
         {
           ...snapshot,
           mapRows: [
@@ -736,10 +1094,7 @@ describe("Civ7 setup and lifecycle orchestration", () => {
         requestCiv7SavedGameConfigurationLoad(savedConfig, options)
       ).rejects.toMatchObject({ code: "setup-phase-refused" });
       await expect(
-        applyCiv7SinglePlayerSetup(
-          { mapScript: MAP_SCRIPT, mapSize: "MAPSIZE_STANDARD", seed: 111 },
-          options
-        )
+        applyCiv7SinglePlayerSetupIdentity(setupValues(), options)
       ).rejects.toMatchObject({ code: "setup-phase-refused" });
       await expect(
         reconcileCiv7RequiredTargetMod("mod-swooper-studio-run", options)
@@ -757,14 +1112,11 @@ describe("Civ7 setup and lifecycle orchestration", () => {
       const { port } = shellServer.address();
       const options = { host: HOST, port, timeoutMs: 1_000 };
       await expect(
-        applyCiv7SinglePlayerSetup(
-          { mapScript: HIDDEN_MAP_SCRIPT, mapSize: "MAPSIZE_STANDARD", seed: 111 },
-          options
-        )
+        applyCiv7SinglePlayerSetupIdentity(setupValues({ mapScript: HIDDEN_MAP_SCRIPT }), options)
       ).rejects.toMatchObject({ code: "setup-map-row-missing" });
       await expect(
         hostPreparedCiv7SinglePlayerGame(
-          { mapScript: MAP_SCRIPT, mapSize: "MAPSIZE_SMALL", seed: 222 },
+          setupValues({ mapSize: "MAPSIZE_SMALL", mapSeed: 222 }),
           options
         )
       ).rejects.toMatchObject({ code: "setup-readback-mismatch" });
@@ -801,10 +1153,7 @@ describe("Civ7 setup and lifecycle orchestration", () => {
       {
         operation: "prepare-setup",
         invoke: (port) =>
-          applyCiv7SinglePlayerSetup(
-            { mapScript: MAP_SCRIPT, mapSize: "MAPSIZE_STANDARD", seed: 111 },
-            { host: HOST, port, timeoutMs: 1_000 }
-          ),
+          applyCiv7SinglePlayerSetupIdentity(setupValues(), { host: HOST, port, timeoutMs: 1_000 }),
       },
       {
         operation: "target-mod-reconcile",
@@ -818,10 +1167,7 @@ describe("Civ7 setup and lifecycle orchestration", () => {
       {
         operation: "host-game",
         invoke: (port) =>
-          hostPreparedCiv7SinglePlayerGame(
-            { mapScript: MAP_SCRIPT, mapSize: "MAPSIZE_STANDARD", seed: 111 },
-            { host: HOST, port, timeoutMs: 1_000 }
-          ),
+          hostPreparedCiv7SinglePlayerGame(setupValues(), { host: HOST, port, timeoutMs: 1_000 }),
       },
       {
         operation: "begin-game",
@@ -956,6 +1302,7 @@ type SetupLifecycleOperation =
   | "load-saved-config"
   | "map-summary"
   | "prepare-setup"
+  | "setup-options"
   | "reload-ui"
   | "reload-ui-in-shell"
   | "setup-shell-admission"
@@ -966,7 +1313,12 @@ type SetupLifecycleOperation =
 
 type SetupMutationOperation = Extract<
   SetupLifecycleOperation,
-  "begin-game" | "host-game" | "load-saved-config" | "prepare-setup" | "target-mod-reconcile"
+  | "begin-game"
+  | "host-game"
+  | "load-saved-config"
+  | "prepare-setup"
+  | "setup-options"
+  | "target-mod-reconcile"
 >;
 
 type ObservedOperation = Readonly<{
@@ -1079,14 +1431,7 @@ async function startSetupLifecycleServer(
           id: "Map",
           exists: true,
           value: setupMapScript,
-          possibleValues: visibleMapRows().map((row) => ({
-            Domain: row.domain ?? "StandardMaps",
-            File: row.file,
-            Value: row.value,
-            Name: row.name,
-            Description: row.description,
-            SortIndex: row.sortIndex,
-          })),
+          possibleValues: visibleMapRows().map((row) => ({ value: row.file })),
         },
         {
           id: "MapSize",
@@ -1101,6 +1446,8 @@ async function startSetupLifecycleServer(
         {
           playerId: 0,
           exists: { ok: true, value: true },
+          active: { ok: true, value: true },
+          slotStatus: { ok: true, value: 2 },
           parameters: [
             {
               id: "PlayerLeader",
@@ -1292,22 +1639,34 @@ async function startSetupLifecycleServer(
           }
           setupMapScript = input.mapScript;
           setupMapSize = input.mapSize;
-          setupMapSeed = input.seed;
-          setupGameSeed = input.gameSeed ?? setupGameSeed;
+          setupMapSeed = input.mapSeed;
+          setupGameSeed = input.gameSeed;
           setupRevision += 1;
           socket.write(
             encodeResponse(frame.listenerId, [
               JSON.stringify({
                 status: "performed",
                 before,
-                after: setupSnapshot(),
                 applied: {
                   Map: setupMapScript,
                   MapSize: setupMapSize,
                   MapRandomSeed: setupMapSeed,
-                  ...(input.gameSeed !== undefined ? { GameRandomSeed: setupGameSeed } : {}),
+                  GameRandomSeed: setupGameSeed,
                 },
               }),
+            ])
+          );
+        } else if (operation === "setup-options") {
+          const before = setupSnapshot();
+          observed.push({ stateId: command.stateId, operation: "setup-options" });
+          if (options.closeOnSetupMutation) {
+            socket.destroy();
+            continue;
+          }
+          setupRevision += 1;
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({ status: "performed", before, applied: {} }),
             ])
           );
         } else if (operation === "host-game") {
@@ -1640,6 +1999,7 @@ function classifyCommand(script: string): SetupLifecycleOperation | undefined {
   if (script === CIV7_RELOAD_UI_COMMAND) return "reload-ui";
   if (script.includes(CIV7_BEGIN_GAME_COMMAND)) return "begin-game";
   if (script.includes("setScript.call(editMap")) return "prepare-setup";
+  if (script.includes("const gameOptions = { ...input.gameOptions")) return "setup-options";
   if (script.includes("Network.loadGame")) return "load-saved-config";
   if (script.includes("Network.hostGame")) return "host-game";
   if (script.includes("refreshEnabledMods")) return "target-mod-reconcile";

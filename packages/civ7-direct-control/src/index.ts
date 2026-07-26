@@ -837,11 +837,6 @@ export {
   DEFAULT_CIV7_WINDOW_MATCH,
   ensureCiv7WindowShotHelper,
 } from "./play/view/window-shot.js";
-export {
-  assessCiv7SignedIntSeed,
-  CIV7_SIGNED_INT_SEED_MAX,
-  CIV7_SIGNED_INT_SEED_MIN,
-} from "./policy/setup.js";
 export type {
   Civ7AdvisorWarningProofOutcome,
   Civ7AdvisorWarningProofPostcondition,
@@ -1038,13 +1033,14 @@ export type {
   Civ7SavedGameConfigurationLoadRequestResult,
   Civ7SavedGameConfigurationRef,
   Civ7SavedGameConfigurationSummary,
-  Civ7SetupApplicationResult,
+  Civ7SetupMutationResult,
   Civ7SetupOptionValue,
   Civ7SinglePlayerSetupValues,
   Civ7TargetModReconciliationResult,
 } from "./setup/prepare.js";
 export {
-  applyCiv7SinglePlayerSetup,
+  applyCiv7SinglePlayerSetupIdentity,
+  applyCiv7SinglePlayerSetupOptions,
   assertPreparedSetupMatches,
   DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR,
   reconcileCiv7RequiredTargetMod,
@@ -1055,9 +1051,11 @@ export type {
   Civ7SetupMapRow,
   Civ7SetupMapRowsInput,
   Civ7SetupMapRowsResult,
+  Civ7SetupParameterPossibleValue,
   Civ7SetupParameterSnapshot,
   Civ7SetupParameterValue,
   Civ7SetupPhase,
+  Civ7SetupScalarParameterValue,
   Civ7SetupShellAdmissionPolicy,
   Civ7SetupShellAdmissionResult,
   Civ7SetupSnapshot,

@@ -28,8 +28,9 @@ This how-to is **domain-level** (ops live inside a domain). It routes to:
 ### 1) Define the op contract (`defineOp`)
 
 - Create `contract.ts` for the op.
-- Use `defineOp({ kind, id, input, output, defaultStrategy, strategies })`.
-- Name the default explicitly; strategy object order never selects behavior.
+- Use `defineOp({ kind, id, input, output, strategies })` for a one-strategy operation.
+- Give every strategy a semantic id that names its behavior; never use `"default"`.
+- For a multi-strategy operation, add `defaultStrategy` explicitly; object order never selects behavior.
 - Make schemas explicit (TypedArray schemas for binary grids; keep descriptions meaningful).
 
 Representative example (defineOp with typed-array I/O + strategy envelope; excerpt; see full file in anchors):
@@ -52,9 +53,8 @@ const ComputeBaseTopographyContract = defineOp({
   output: Type.Object({
     elevation: TypedArraySchemas.i16({ description: "Base elevation per tile (normalized, scaled to int16)." }),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: ReliefConfigSchema,
+    "tectonic-relief": ReliefConfigSchema,
   },
 });
 ```
@@ -70,10 +70,10 @@ Representative example (createOp + strategy binding; excerpt; see full file in a
 ```ts
 import { createOp } from "@swooper/mapgen-core/authoring";
 import ComputeBaseTopographyContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { tectonicReliefStrategy } from "./strategies/index.js";
 
 export default createOp(ComputeBaseTopographyContract, {
-  strategies: { default: defaultStrategy },
+  strategies: { "tectonic-relief": tectonicReliefStrategy },
 });
 ```
 
@@ -111,6 +111,8 @@ const implementations = {
 
 - **Unstable op ids**: op ids are long-lived identifiers; treat them as public API within the MapGen ecosystem.
 - **Breaking schema drift**: changing input/output schema is a breaking change for all steps that use the op.
+- **Generic strategy identity**: a strategy named `default` hides the behavior being selected. A sole
+  semantic strategy is inferred as the default; a multi-strategy contract declares its default.
 - **Forgetting to wire contracts/implementations**: an op contract alone is inert; the domain must export + implement it.
 
 ## Ground truth anchors

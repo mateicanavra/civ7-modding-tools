@@ -652,9 +652,8 @@ const PlanFoothillsContract = defineOp({
       description: "Mask (1/0): hill tiles (excluding mountains).",
     }),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: MountainsConfigSchema,
+    "mountain-proximity": MountainsConfigSchema,
   },
 });
 

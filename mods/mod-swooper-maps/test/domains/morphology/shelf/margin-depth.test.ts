@@ -36,7 +36,7 @@ function sculptSyntheticMargin(posture: "active" | "passive") {
       boundaryType,
     },
     {
-      strategy: "default",
+      strategy: "crust-break-profile",
       config: {
         breakCrustFraction: 0.45,
         apronTopCrustFraction: 0.62,
@@ -108,7 +108,7 @@ describe("morphology continental-margin postures", () => {
         boundaryType,
       },
       {
-        strategy: "default",
+        strategy: "physical-break-connectivity",
         config: {
           breakGradient: 8,
           breakGradientScale: 1,

@@ -14,7 +14,7 @@ const P90_QUANTILE = 0.9;
 
 const computePlateMotion = createOp(ComputePlateMotionContract, {
   strategies: {
-    default: createStrategy(ComputePlateMotionContract, "default", {
+    "rigid-body-fit": createStrategy(ComputePlateMotionContract, "rigid-body-fit", {
       run: (input, config) => {
         const mesh = input.mesh;
         const plateGraph = input.plateGraph;

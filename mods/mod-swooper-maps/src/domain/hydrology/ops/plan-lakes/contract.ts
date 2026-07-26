@@ -39,9 +39,8 @@ const PlanLakesContract = defineOp({
       description: "Count of sink tiles mapped to lake tiles.",
     }),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object({
+    "sink-discharge-budget": Type.Object({
       maxUpstreamSteps: Type.Integer({
         minimum: 0,
         maximum: 8,

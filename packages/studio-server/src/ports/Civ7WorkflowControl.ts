@@ -8,6 +8,8 @@ import {
   startCiv7Autoplay,
   stopCiv7Autoplay,
 } from "@civ7/direct-control";
+import { assessCiv7SignedIntSeed } from "@civ7/map-policy/setup";
+import { setupConfig as runInGameSetupConfigSchema } from "@civ7/studio-contract";
 import { isDefinedError, safe } from "@orpc/client";
 import {
   Context,
@@ -19,6 +21,7 @@ import {
   Option,
   Predicate,
 } from "effect";
+import { Value } from "typebox/value";
 
 import type { StudioInputs, StudioServerContext } from "../context.js";
 import {
@@ -172,7 +175,7 @@ function lifecycleDemand(args: StartSinglePlayerArgs) {
         })
       )
     );
-    const seed = yield* Effect.fromNullable(
+    const mapSeed = yield* Effect.fromNullable(
       numericLaunchSeed(args.prepared.launchEnvelope.seed)
     ).pipe(
       Effect.mapError(() =>
@@ -181,12 +184,41 @@ function lifecycleDemand(args: StartSinglePlayerArgs) {
           diagnostics: boundedDiagnostics({
             code: "run-in-game-lifecycle-seed-invalid",
             requestId: args.requestId,
-            seed: args.prepared.launchEnvelope.seed,
+            mapSeed: args.prepared.launchEnvelope.seed,
           }),
         })
       )
     );
-    const setup = args.prepared.launchEnvelope.setupConfig;
+    const gameSeed = yield* Effect.fromNullable(
+      numericLaunchSeed(args.prepared.launchEnvelope.gameSeed)
+    ).pipe(
+      Effect.mapError(() =>
+        invalidRequest({
+          message: "Run in Game lifecycle game seed is invalid",
+          diagnostics: boundedDiagnostics({
+            code: "run-in-game-lifecycle-game-seed-invalid",
+            requestId: args.requestId,
+            gameSeed: args.prepared.launchEnvelope.gameSeed,
+          }),
+        })
+      )
+    );
+    const setup = yield* Effect.try({
+      try: () =>
+        Value.Parse(
+          runInGameSetupConfigSchema,
+          Value.Clone(args.prepared.launchEnvelope.setupConfig)
+        ),
+      catch: (cause) =>
+        invalidRequest({
+          message: "Run in Game lifecycle setup is invalid",
+          diagnostics: boundedDiagnostics({
+            code: "run-in-game-lifecycle-setup-invalid",
+            requestId: args.requestId,
+            cause: diagnosticString(cause),
+          }),
+        }),
+    });
     const playerCount = Option.match(
       Option.fromNullable(args.prepared.launchEnvelope.worldSettings.playerCount),
       { onNone: () => ({}), onSome: (value) => ({ playerCount: value }) }
@@ -198,30 +230,17 @@ function lifecycleDemand(args: StartSinglePlayerArgs) {
     return {
       mapScript,
       mapSize: args.prepared.launchEnvelope.worldSettings.mapSize,
-      seed,
+      mapSeed,
+      gameSeed,
       ...playerCount,
       targetModId: args.deployment.runDeployment.deployedModId,
       ...savedConfig,
       gameOptions: setup.gameOptions,
-      playerOptions: mergePlayerOptionsById(setup.playerOptions),
+      mapOptions: setup.mapOptions,
+      playerOptions: setup.playerOptions,
       activeGamePolicy: "exit-active-game",
     } satisfies Civ7LifecycleSinglePlayerStartInput;
   });
-}
-
-function mergePlayerOptionsById(
-  playerOptions: RunInGamePreparedRequest["launchEnvelope"]["setupConfig"]["playerOptions"]
-): Civ7LifecycleSinglePlayerStartInput["playerOptions"] {
-  return playerOptions.reduce<Civ7LifecycleSinglePlayerStartInput["playerOptions"]>(
-    (byPlayer, player) => {
-      const playerId = String(player.playerId);
-      return {
-        ...byPlayer,
-        [playerId]: { ...byPlayer[playerId], ...player.options },
-      };
-    },
-    {}
-  );
 }
 
 type LifecycleClient = ReturnType<typeof createCiv7ControlOrpcServerClient>;
@@ -464,7 +483,7 @@ function numericLaunchSeed(value: number | string): number | undefined {
     Match.when(Predicate.isNumber, (number) => number),
     Match.orElse(Number)
   );
-  return Match.value(Number.isInteger(seed) && seed >= -0x8000_0000 && seed <= 0x7fff_ffff).pipe(
+  return Match.value(assessCiv7SignedIntSeed(seed).ok).pipe(
     Match.when(true, () => seed),
     Match.orElse(() => undefined)
   );

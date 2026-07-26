@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { cumulativeEraRollupStrategy } from "./cumulative-era-rollup.js";

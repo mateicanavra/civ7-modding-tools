@@ -1,11 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ScoreAtollContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { warmOceanBankStrategy } from "./strategies/index.js";
 
 const scoreAtoll = createOp(ScoreAtollContract, {
   strategies: {
-    default: defaultStrategy,
+    "warm-ocean-bank": warmOceanBankStrategy,
   },
 });
 

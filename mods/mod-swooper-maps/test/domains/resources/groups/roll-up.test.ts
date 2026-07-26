@@ -167,7 +167,7 @@ describe("resource group rollup operation contract", () => {
     for (const selector of ["requiredGroupIds", "groupIds", "includeGroups"]) {
       expect(() =>
         normalizeOperationSelectionForTest(resources.ops.planResourceGroups, {
-          strategy: "default",
+          strategy: "canonical-rollup",
           config: { [selector]: ["aquatic-coastal-navigable-river"] },
         })
       ).toThrow(TestCompileError);

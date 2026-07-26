@@ -25,9 +25,8 @@ const ComputeSegmentEventsContract = defineOp({
         "Boundary events for one reconstructed era, translating classified plate segments and crust pairing into convergence, rift, transform, and fracture emissions.",
     }
   ),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object({}, { additionalProperties: false }),
+    "boundary-derived": Type.Object({}, { additionalProperties: false }),
   },
 });
 

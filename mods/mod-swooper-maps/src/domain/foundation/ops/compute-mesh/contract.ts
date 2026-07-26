@@ -19,9 +19,8 @@ const ComputeMeshContract = defineOp({
     { additionalProperties: false }
   ),
   output: Type.Object({ mesh: FoundationMeshSchema }, { additionalProperties: false }),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object(
+    "jittered-delaunay": Type.Object(
       {
         plateCount: Type.Integer({
           default: 8,
@@ -51,4 +50,6 @@ const ComputeMeshContract = defineOp({
 });
 
 export default ComputeMeshContract;
-export type ComputeMeshConfig = Static<(typeof ComputeMeshContract)["strategies"]["default"]>;
+export type ComputeMeshConfig = Static<
+  (typeof ComputeMeshContract)["strategies"]["jittered-delaunay"]
+>;

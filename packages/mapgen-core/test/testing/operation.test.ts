@@ -33,7 +33,6 @@ function createTestingOperation() {
       },
       { additionalProperties: false }
     ),
-    defaultStrategy: "named",
     strategies: {
       named: Type.Object({ label: Type.String() }, { additionalProperties: false }),
     },

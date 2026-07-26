@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { latitudeCurrentAdvectionStrategy } from "./latitude-current-advection.js";

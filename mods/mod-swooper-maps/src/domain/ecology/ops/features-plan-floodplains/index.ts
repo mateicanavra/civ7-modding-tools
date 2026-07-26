@@ -1,10 +1,10 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import PlanFloodplainsContract from "./contract.js";
-import { defaultStrategy } from "./strategies/default.js";
+import { highestConfidenceStrategy } from "./strategies/highest-confidence.js";
 
 const planFloodplains = createOp(PlanFloodplainsContract, {
   strategies: {
-    default: defaultStrategy,
+    "highest-confidence": highestConfidenceStrategy,
   },
 });
 

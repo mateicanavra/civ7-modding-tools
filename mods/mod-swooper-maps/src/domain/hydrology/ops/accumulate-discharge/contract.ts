@@ -58,7 +58,7 @@ const AccumulateDischargeOutputSchema = Type.Object(
 /**
  * Default discharge accumulation parameters.
  */
-const AccumulateDischargeDefaultStrategySchema = Type.Object(
+const TopologicalRunoffStrategySchema = Type.Object(
   {
     /** Linear scale applied to rainfall when computing a runoff proxy. */
     runoffScale: Type.Number({
@@ -91,7 +91,7 @@ const AccumulateDischargeDefaultStrategySchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Discharge accumulation parameters (default strategy).",
+    description: "Discharge accumulation parameters (topological-runoff strategy).",
   }
 );
 
@@ -100,9 +100,8 @@ const AccumulateDischargeContract = defineOp({
   id: "hydrology/accumulate-discharge",
   input: AccumulateDischargeInputSchema,
   output: AccumulateDischargeOutputSchema,
-  defaultStrategy: "default",
   strategies: {
-    default: AccumulateDischargeDefaultStrategySchema,
+    "topological-runoff": TopologicalRunoffStrategySchema,
   },
 });
 

@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { boundaryDriftStrategy } from "./boundary-drift.js";

@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { historyDerivedStrategy } from "./history-derived.js";

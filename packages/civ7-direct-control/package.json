@@ -128,10 +128,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
   },
   "dependencies": {
+    "@civ7/map-policy": "workspace:*",
     "typebox": "catalog:"
-  },
-  "devDependencies": {
-    "@civ7/map-policy": "workspace:*"
   },
   "engines": {
     "node": "22.22.0"

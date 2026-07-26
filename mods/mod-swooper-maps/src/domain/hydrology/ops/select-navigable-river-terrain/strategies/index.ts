@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { endpointChainRankingStrategy } from "./endpoint-chain-ranking.js";

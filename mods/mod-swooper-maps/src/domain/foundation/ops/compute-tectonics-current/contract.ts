@@ -25,9 +25,8 @@ const ComputeTectonicsCurrentContract = defineOp({
         "Mesh-wide present-state tectonic surface combining the newest era's active boundary and deformation signals with cumulative uplift from the full history.",
     }
   ),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object({}, { additionalProperties: false }),
+    "newest-era-composite": Type.Object({}, { additionalProperties: false }),
   },
 });
 

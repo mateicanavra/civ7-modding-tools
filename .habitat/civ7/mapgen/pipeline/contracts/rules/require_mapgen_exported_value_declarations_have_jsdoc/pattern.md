@@ -95,7 +95,7 @@ export enum ClimateBand {
 
 // @filename: mods/mod-swooper-maps/src/domain/ecology/ops/classify-biomes/index.ts
 const classifyBiomes = createOp(BiomeClassificationContract, {
-  strategies: { default: defaultStrategy },
+  strategies: { "biophysical-gaussian": biophysicalGaussianStrategy },
 });
 export default classifyBiomes;
 
@@ -137,9 +137,9 @@ export enum DocumentedClimateBand {
 }
 
 // @filename: mods/mod-swooper-maps/src/domain/ecology/ops/classify-biomes/index.ts
-/** Executable biome classifier assembled from the stable contract and default strategy. */
+/** Executable biome classifier assembled from the stable contract and semantic strategy. */
 const classifyBiomes = createOp(BiomeClassificationContract, {
-  strategies: { default: defaultStrategy },
+  strategies: { "biophysical-gaussian": biophysicalGaussianStrategy },
 });
 export default classifyBiomes;
 

@@ -12,7 +12,7 @@ import ComputeCrustContract from "./contract.js";
 
 const computeCrust = createOp(ComputeCrustContract, {
   strategies: {
-    default: createStrategy(ComputeCrustContract, "default", {
+    "basaltic-lid": createStrategy(ComputeCrustContract, "basaltic-lid", {
       run: (input, config) => {
         const mesh = input.mesh;
         const mantleForcing = input.mantleForcing;

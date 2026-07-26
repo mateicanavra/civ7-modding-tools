@@ -25,7 +25,7 @@ describe("hydrology sink classification", () => {
         humidity: new Uint8Array(size).fill(100),
       },
       {
-        strategy: "default",
+        strategy: "topological-runoff",
         config: {
           runoffScale: 1,
           infiltrationFraction: 0.15,
@@ -57,7 +57,7 @@ describe("hydrology sink classification", () => {
         humidity: new Uint8Array(size).fill(100),
       },
       {
-        strategy: "default",
+        strategy: "topological-runoff",
         config: {
           runoffScale: 1,
           infiltrationFraction: 0.15,

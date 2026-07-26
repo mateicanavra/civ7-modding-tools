@@ -85,7 +85,7 @@ export const ClimateBaselineStep = createStep(ClimateBaselineStepContract, {
       Math.max(min, Math.min(max, value));
 
     const computeThermalState =
-      config.computeThermalState.strategy === "default"
+      config.computeThermalState.strategy === "insolation-lapse-rate"
         ? {
             ...config.computeThermalState,
             config: {
@@ -199,7 +199,7 @@ export const ClimateBaselineStep = createStep(ClimateBaselineStepContract, {
     })();
 
     const computeEvaporationSources =
-      config.computeEvaporationSources.strategy === "default"
+      config.computeEvaporationSources.strategy === "thermal-surface"
         ? {
             ...config.computeEvaporationSources,
             config: {

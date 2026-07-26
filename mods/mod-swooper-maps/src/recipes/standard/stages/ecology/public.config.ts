@@ -38,8 +38,11 @@ function profileEnvelope(value: unknown, profileToStrategy: Readonly<Record<stri
   return { strategy, config };
 }
 
-function defaultEnvelope(config: unknown) {
-  return { strategy: "default" as const, config };
+function defaultEnvelope<const Strategy extends string>(
+  operation: Readonly<{ defaultStrategy: Strategy }>,
+  config: unknown
+) {
+  return { strategy: operation.defaultStrategy, config };
 }
 
 const BalancedSoilClassificationPublicSchema = profileVariant(
@@ -105,7 +108,7 @@ export const EcologyPedologyPublicSchema = Type.Object(
     soilClassification: SoilClassificationPublicSchema,
     resourceBasinPlanning: ResourceBasinPlanningPublicSchema,
     resourceBasinScoring: requiredPublicSchema(
-      ecologyOps.scoreResourceBasins.strategies.default,
+      ecologyOps.scoreResourceBasins.strategies["confidence-cap"],
       "Controls resource-basin scoring and balancing."
     ),
   },
@@ -116,7 +119,7 @@ export const EcologyPedologyPublicSchema = Type.Object(
   }
 );
 
-const biomeStrategy = ecologyOps.classifyBiomes.strategies.default;
+const biomeStrategy = ecologyOps.classifyBiomes.strategies["biophysical-gaussian"];
 const BiomeClassificationPublicSchema = Type.With(biomeStrategy, {
   description:
     "Controls temperature, moisture, aridity, vegetation density, and deterministic biome edge smoothing.",
@@ -135,11 +138,11 @@ export const EcologyBiomesPublicSchema = Type.Object(
 const SubstrateScoringPublicSchema = Type.Object(
   {
     vegetationGrowth: requiredPublicSchema(
-      ecologyOps.computeVegetationSubstrate.strategies.default,
+      ecologyOps.computeVegetationSubstrate.strategies["bioclimatic-substrate"],
       "Controls the normalized substrate fields used for vegetation growth."
     ),
     featureHabitats: requiredPublicSchema(
-      ecologyOps.computeFeatureSubstrate.strategies.default,
+      ecologyOps.computeFeatureSubstrate.strategies.hydromorphic,
       "Controls reusable feature-family habitat substrate fields."
     ),
   },
@@ -153,23 +156,23 @@ const SubstrateScoringPublicSchema = Type.Object(
 const WetlandScoringPublicSchema = Type.Object(
   {
     marsh: requiredPublicSchema(
-      ecologyOps.scoreWetMarsh.strategies.default,
+      ecologyOps.scoreWetMarsh.strategies["temperate-hydromorphic"],
       "Controls marsh suitability scoring."
     ),
     tundraBog: requiredPublicSchema(
-      ecologyOps.scoreWetTundraBog.strategies.default,
+      ecologyOps.scoreWetTundraBog.strategies["cold-hydromorphic"],
       "Controls tundra-bog suitability scoring."
     ),
     mangrove: requiredPublicSchema(
-      ecologyOps.scoreWetMangrove.strategies.default,
+      ecologyOps.scoreWetMangrove.strategies["warm-intertidal"],
       "Controls mangrove suitability scoring."
     ),
     oasis: requiredPublicSchema(
-      ecologyOps.scoreWetOasis.strategies.default,
+      ecologyOps.scoreWetOasis.strategies["warm-arid-waterpoint"],
       "Controls oasis suitability scoring."
     ),
     wateringHole: requiredPublicSchema(
-      ecologyOps.scoreWetWateringHole.strategies.default,
+      ecologyOps.scoreWetWateringHole.strategies["arid-waterpoint"],
       "Controls watering-hole suitability scoring."
     ),
   },
@@ -183,19 +186,19 @@ const WetlandScoringPublicSchema = Type.Object(
 const ReefScoringPublicSchema = Type.Object(
   {
     warmReef: requiredPublicSchema(
-      ecologyOps.scoreReef.strategies.default,
+      ecologyOps.scoreReef.strategies["warm-coastal-shelf"],
       "Controls warm-reef suitability scoring."
     ),
     coldReef: requiredPublicSchema(
-      ecologyOps.scoreColdReef.strategies.default,
+      ecologyOps.scoreColdReef.strategies["cold-shelf"],
       "Controls cold-reef suitability scoring."
     ),
     atoll: requiredPublicSchema(
-      ecologyOps.scoreReefAtoll.strategies.default,
+      ecologyOps.scoreReefAtoll.strategies["warm-ocean-bank"],
       "Controls atoll suitability scoring."
     ),
     lotus: requiredPublicSchema(
-      ecologyOps.scoreReefLotus.strategies.default,
+      ecologyOps.scoreReefLotus.strategies["warm-shallow-lake"],
       "Controls lotus suitability scoring."
     ),
   },
@@ -209,7 +212,7 @@ const ReefScoringPublicSchema = Type.Object(
 const IceScoringPublicSchema = Type.Object(
   {
     ice: requiredPublicSchema(
-      ecologyOps.scoreIce.strategies.default,
+      ecologyOps.scoreIce.strategies["thermal-elevation"],
       "Controls ice suitability scoring."
     ),
   },
@@ -249,19 +252,19 @@ const ReefPlanningPublicSchema = Type.Union(
 const PlotEffectScoringPublicSchema = Type.Object(
   {
     snow: requiredPublicSchema(
-      ecologyOps.scorePlotEffectsSnow.strategies.default,
+      ecologyOps.scorePlotEffectsSnow.strategies["cold-elevation"],
       "Controls snow plot-effect suitability scoring."
     ),
     sand: requiredPublicSchema(
-      ecologyOps.scorePlotEffectsSand.strategies.default,
+      ecologyOps.scorePlotEffectsSand.strategies["arid-thermal"],
       "Controls sand plot-effect suitability scoring."
     ),
     burned: requiredPublicSchema(
-      ecologyOps.scorePlotEffectsBurned.strategies.default,
+      ecologyOps.scorePlotEffectsBurned.strategies["arid-thermal"],
       "Controls burned plot-effect suitability scoring."
     ),
     jungle: requiredPublicSchema(
-      ecologyOps.scorePlotEffectsJungle.strategies.default,
+      ecologyOps.scorePlotEffectsJungle.strategies["hot-wet-dense"],
       "Controls jungle plot-effect suitability scoring."
     ),
   },
@@ -273,7 +276,7 @@ const PlotEffectScoringPublicSchema = Type.Object(
 );
 
 const PlotEffectCoveragePublicSchema = requiredPublicSchema(
-  ecologyOps.planPlotEffects.strategies.default,
+  ecologyOps.planPlotEffects.strategies["ranked-coverage"],
   "Controls snow, sand, burned, and jungle plot-effect coverage and thresholds."
 );
 
@@ -290,15 +293,15 @@ export const EcologyFeaturesPublicSchema = Type.Object(
     icePlanning: IcePlanningPublicSchema,
     reefPlanning: ReefPlanningPublicSchema,
     wetlandPlanning: requiredPublicSchema(
-      ecologyOps.planWetlands.strategies.default,
+      ecologyOps.planWetlands.strategies["habitat-confidence"],
       "Controls wetland placement planning."
     ),
     floodplainPlanning: requiredPublicSchema(
-      ecologyOps.planFloodplains.strategies.default,
+      ecologyOps.planFloodplains.strategies["highest-confidence"],
       "Controls floodplain placement planning."
     ),
     vegetationPlanning: requiredPublicSchema(
-      ecologyOps.planVegetation.strategies.default,
+      ecologyOps.planVegetation.strategies["habitat-confidence"],
       "Controls vegetation placement planning."
     ),
     plotEffectScoring: PlotEffectScoringPublicSchema,
@@ -336,7 +339,7 @@ export function compileEcologyPedologyPublicConfig(config: Record<string, unknow
     },
     "resource-basins": {
       plan: profileEnvelope(config.resourceBasinPlanning, RESOURCE_BASIN_PROFILE_TO_STRATEGY),
-      score: defaultEnvelope(config.resourceBasinScoring),
+      score: defaultEnvelope(ecologyOps.scoreResourceBasins, config.resourceBasinScoring),
     },
   };
 }
@@ -345,7 +348,7 @@ export function compileEcologyPedologyPublicConfig(config: Record<string, unknow
 export function compileEcologyBiomesPublicConfig(config: Record<string, unknown>) {
   return {
     biomes: {
-      classify: defaultEnvelope(config.biomeClassification),
+      classify: defaultEnvelope(ecologyOps.classifyBiomes, config.biomeClassification),
     },
   };
 }
@@ -363,23 +366,32 @@ export function compileEcologyFeaturesPublicConfig(config: Record<string, unknow
 
   return {
     "score-layers": {
-      vegetationSubstrate: defaultEnvelope(substrateScoring.vegetationGrowth),
-      featureSubstrate: defaultEnvelope(substrateScoring.featureHabitats),
-      scoreForest: defaultEnvelope({}),
-      scoreRainforest: defaultEnvelope({}),
-      scoreTaiga: defaultEnvelope({}),
-      scoreSavannaWoodland: defaultEnvelope({}),
-      scoreSagebrushSteppe: defaultEnvelope({}),
-      scoreWetMarsh: defaultEnvelope(wetlandScoring.marsh),
-      scoreWetTundraBog: defaultEnvelope(wetlandScoring.tundraBog),
-      scoreWetMangrove: defaultEnvelope(wetlandScoring.mangrove),
-      scoreWetOasis: defaultEnvelope(wetlandScoring.oasis),
-      scoreWetWateringHole: defaultEnvelope(wetlandScoring.wateringHole),
-      scoreReef: defaultEnvelope(reefScoring.warmReef),
-      scoreColdReef: defaultEnvelope(reefScoring.coldReef),
-      scoreReefAtoll: defaultEnvelope(reefScoring.atoll),
-      scoreReefLotus: defaultEnvelope(reefScoring.lotus),
-      scoreIce: defaultEnvelope(iceScoring.ice),
+      vegetationSubstrate: defaultEnvelope(
+        ecologyOps.computeVegetationSubstrate,
+        substrateScoring.vegetationGrowth
+      ),
+      featureSubstrate: defaultEnvelope(
+        ecologyOps.computeFeatureSubstrate,
+        substrateScoring.featureHabitats
+      ),
+      scoreForest: defaultEnvelope(ecologyOps.scoreVegetationForest, {}),
+      scoreRainforest: defaultEnvelope(ecologyOps.scoreVegetationRainforest, {}),
+      scoreTaiga: defaultEnvelope(ecologyOps.scoreVegetationTaiga, {}),
+      scoreSavannaWoodland: defaultEnvelope(ecologyOps.scoreVegetationSavannaWoodland, {}),
+      scoreSagebrushSteppe: defaultEnvelope(ecologyOps.scoreVegetationSagebrushSteppe, {}),
+      scoreWetMarsh: defaultEnvelope(ecologyOps.scoreWetMarsh, wetlandScoring.marsh),
+      scoreWetTundraBog: defaultEnvelope(ecologyOps.scoreWetTundraBog, wetlandScoring.tundraBog),
+      scoreWetMangrove: defaultEnvelope(ecologyOps.scoreWetMangrove, wetlandScoring.mangrove),
+      scoreWetOasis: defaultEnvelope(ecologyOps.scoreWetOasis, wetlandScoring.oasis),
+      scoreWetWateringHole: defaultEnvelope(
+        ecologyOps.scoreWetWateringHole,
+        wetlandScoring.wateringHole
+      ),
+      scoreReef: defaultEnvelope(ecologyOps.scoreReef, reefScoring.warmReef),
+      scoreColdReef: defaultEnvelope(ecologyOps.scoreColdReef, reefScoring.coldReef),
+      scoreReefAtoll: defaultEnvelope(ecologyOps.scoreReefAtoll, reefScoring.atoll),
+      scoreReefLotus: defaultEnvelope(ecologyOps.scoreReefLotus, reefScoring.lotus),
+      scoreIce: defaultEnvelope(ecologyOps.scoreIce, iceScoring.ice),
     },
     "plan-ice": {
       planIce: { strategy: "score-threshold" as const, config: config.icePlanning },
@@ -388,20 +400,20 @@ export function compileEcologyFeaturesPublicConfig(config: Record<string, unknow
       planReefs: profileEnvelope(config.reefPlanning, REEF_PROFILE_TO_STRATEGY),
     },
     "plan-wetlands": {
-      planWetlands: defaultEnvelope(config.wetlandPlanning),
+      planWetlands: defaultEnvelope(ecologyOps.planWetlands, config.wetlandPlanning),
     },
     "plan-floodplains": {
-      planFloodplains: defaultEnvelope(config.floodplainPlanning),
+      planFloodplains: defaultEnvelope(ecologyOps.planFloodplains, config.floodplainPlanning),
     },
     "plan-vegetation": {
-      planVegetation: defaultEnvelope(config.vegetationPlanning),
+      planVegetation: defaultEnvelope(ecologyOps.planVegetation, config.vegetationPlanning),
     },
     "plan-plot-effects": {
-      scoreSnow: defaultEnvelope(plotEffectScoring.snow),
-      scoreSand: defaultEnvelope(plotEffectScoring.sand),
-      scoreBurned: defaultEnvelope(plotEffectScoring.burned),
-      scoreJungle: defaultEnvelope(plotEffectScoring.jungle),
-      plotEffects: defaultEnvelope(config.plotEffectCoverage),
+      scoreSnow: defaultEnvelope(ecologyOps.scorePlotEffectsSnow, plotEffectScoring.snow),
+      scoreSand: defaultEnvelope(ecologyOps.scorePlotEffectsSand, plotEffectScoring.sand),
+      scoreBurned: defaultEnvelope(ecologyOps.scorePlotEffectsBurned, plotEffectScoring.burned),
+      scoreJungle: defaultEnvelope(ecologyOps.scorePlotEffectsJungle, plotEffectScoring.jungle),
+      plotEffects: defaultEnvelope(ecologyOps.planPlotEffects, config.plotEffectCoverage),
     },
   };
 }

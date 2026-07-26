@@ -1,10 +1,10 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import AggregatePedologyContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { gridCellSummaryStrategy } from "./strategies/index.js";
 
 const aggregatePedology = createOp(AggregatePedologyContract, {
   strategies: {
-    default: defaultStrategy,
+    "grid-cell-summary": gridCellSummaryStrategy,
   },
 });
 

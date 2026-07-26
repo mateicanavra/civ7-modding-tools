@@ -1,6 +1,15 @@
-export const CIV7_STUDIO_SEED_MIN = 0;
-export const CIV7_STUDIO_SEED_MAX = 0x7fff_ffff;
+import {
+  assessCiv7SignedIntSeed,
+  CIV7_SIGNED_INT_SEED_MAX,
+  CIV7_SIGNED_INT_SEED_MIN,
+} from "@civ7/map-policy/setup";
 
+/** Smallest setup seed admitted by Studio and Civ7's signed seed fields. */
+export const CIV7_STUDIO_SEED_MIN = CIV7_SIGNED_INT_SEED_MIN;
+/** Largest setup seed admitted by Studio and Civ7's signed seed fields. */
+export const CIV7_STUDIO_SEED_MAX = CIV7_SIGNED_INT_SEED_MAX;
+
+/** Studio-facing seed admission result, including the empty authoring-field state. */
 export type Civ7StudioSeedParseResult = Readonly<
   | {
       ok: true;
@@ -14,13 +23,12 @@ export type Civ7StudioSeedParseResult = Readonly<
     }
 >;
 
+/** Parses a Studio seed field without coercing non-scalar caller input. */
 export function parseCiv7StudioSeed(value: unknown): Civ7StudioSeedParseResult {
-  const normalized = typeof value === "string" ? value.trim() : value;
-  if (normalized === "") {
+  if (value === undefined || (typeof value === "string" && value.trim() === "")) {
     return { ok: false, reason: "empty", min: CIV7_STUDIO_SEED_MIN, max: CIV7_STUDIO_SEED_MAX };
   }
-  const seed = typeof normalized === "number" ? normalized : Number(normalized);
-  if (!Number.isInteger(seed)) {
+  if (typeof value !== "string" && typeof value !== "number") {
     return {
       ok: false,
       reason: "not-integer",
@@ -28,17 +36,19 @@ export function parseCiv7StudioSeed(value: unknown): Civ7StudioSeedParseResult {
       max: CIV7_STUDIO_SEED_MAX,
     };
   }
-  if (seed < CIV7_STUDIO_SEED_MIN || seed > CIV7_STUDIO_SEED_MAX) {
+  const result = assessCiv7SignedIntSeed(typeof value === "number" ? value : Number(value.trim()));
+  if (!result.ok) {
     return {
       ok: false,
-      reason: "out-of-range",
-      min: CIV7_STUDIO_SEED_MIN,
-      max: CIV7_STUDIO_SEED_MAX,
+      reason: result.reason,
+      min: result.min,
+      max: result.max,
     };
   }
-  return { ok: true, value: seed };
+  return result;
 }
 
+/** Formats a failed Studio seed admission result for the authoring surface. */
 export function formatCiv7StudioSeedError(seed: Civ7StudioSeedParseResult): string {
   if (seed.ok) return "";
   if (seed.reason === "empty") return `Seed is required (${seed.min} to ${seed.max}).`;
@@ -47,6 +57,7 @@ export function formatCiv7StudioSeedError(seed: Civ7StudioSeedParseResult): stri
   return `Seed must be between ${seed.min} and ${seed.max}; Civ7 stores setup seeds as signed 32-bit integers.`;
 }
 
+/** Produces a nonnegative random seed inside Civ7's signed setup-seed range. */
 export function randomCiv7StudioSeed(): string {
   if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
     const values = new Uint32Array(1);

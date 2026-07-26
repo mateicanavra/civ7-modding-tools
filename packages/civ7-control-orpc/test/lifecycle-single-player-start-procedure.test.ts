@@ -18,6 +18,7 @@ import {
   Civ7ControlOrpcContract,
   type Civ7ControlOrpcDirectLifecycleFacade,
   Civ7ControlOrpcRouter,
+  type Civ7LifecycleSinglePlayerStartInput,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
 import { liveCiv7ControlOrpcDirectControlFacade } from "../src/runtime";
@@ -26,10 +27,12 @@ import { directControlFacadeFixture } from "./support/direct-control-facade";
 const input = {
   mapScript: "{swooper-maps}/maps/studio-current.js",
   mapSize: "MAPSIZE_SMALL",
-  seed: 222,
+  mapSeed: 222,
+  gameSeed: 333,
   targetModId: "mod-swooper-studio-run",
   gameOptions: {},
-  playerOptions: {},
+  mapOptions: {},
+  playerOptions: [],
   activeGamePolicy: "exit-active-game" as const,
 };
 
@@ -37,8 +40,12 @@ const savedConfig = {
   id: "studio-profile",
   displayName: "Studio Profile",
   fileName: "Studio_Profile.Civ7Cfg",
-  path: "/tmp/Studio_Profile.Civ7Cfg",
 };
+
+const authoredOptionsInput = {
+  ...input,
+  gameOptions: { Difficulty: "DIFFICULTY_DEITY" },
+} satisfies Civ7LifecycleSinglePlayerStartInput;
 
 type LifecycleOperation = keyof Civ7ControlOrpcDirectLifecycleFacade;
 type RecordedCall = Readonly<{ operation: LifecycleOperation; args: readonly unknown[] }>;
@@ -63,7 +70,8 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
       "admitSetupShell",
       "reconcileRequiredTargetMod",
       "getSetupMapRows",
-      "applySinglePlayerSetup",
+      "applySinglePlayerSetupIdentity",
+      "getSetupSnapshot",
       "hostPreparedSinglePlayerGame",
       "getAppUiSnapshot",
       "beginGame",
@@ -77,9 +85,10 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     ).toEqual({
       mapScript: input.mapScript,
       mapSize: input.mapSize,
-      seed: input.seed,
-      gameSeed: input.seed,
-      options: input.gameOptions,
+      mapSeed: input.mapSeed,
+      gameSeed: input.gameSeed,
+      gameOptions: input.gameOptions,
+      mapOptions: input.mapOptions,
       playerOptions: [],
     });
   });
@@ -121,7 +130,8 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
       "getSetupMapRows",
       "reloadSetupUiInShell",
       "getSetupMapRows",
-      "applySinglePlayerSetup",
+      "applySinglePlayerSetupIdentity",
+      "getSetupSnapshot",
       "hostPreparedSinglePlayerGame",
       "getAppUiSnapshot",
       "checkTunerHealth",
@@ -132,11 +142,14 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
       "requestSavedConfigLoad",
       "reconcileRequiredTargetMod",
       "reloadSetupUiInShell",
-      "applySinglePlayerSetup",
+      "applySinglePlayerSetupIdentity",
       "hostPreparedSinglePlayerGame",
     ] as const) {
       expect(harness.count(operation)).toBe(1);
     }
+    expect(
+      harness.calls.find((entry) => entry.operation === "requestSavedConfigLoad")?.args[0]
+    ).toEqual(savedConfig);
   });
 
   test("reports exact App UI game start before final tuner and map proof completes", async () => {
@@ -341,25 +354,29 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     }
   });
 
-  test("converts player records once in numeric order at the apply boundary", async () => {
+  test("passes admitted player setup arrays unchanged at the options boundary", async () => {
+    const demand = {
+      ...input,
+      playerOptions: [
+        { playerId: 10, options: { PlayerLeader: "LEADER_TEN" } },
+        { playerId: 2, options: { PlayerLeader: "LEADER_TWO" } },
+      ],
+    };
     const harness = makeHarness({
       getAppUiSnapshot: sequence(appUiSnapshot("begin-ready"), appUiSnapshot("started")),
+      getSetupSnapshot: sequence(setupSnapshot("shell"), setupSnapshot("shell", 2, demand)),
     });
 
-    await createCiv7ControlOrpcServerClient(harness.context).lifecycle.singlePlayer.start({
-      ...input,
-      playerOptions: {
-        "10": { PlayerLeader: "LEADER_TEN" },
-        "2": { PlayerLeader: "LEADER_TWO" },
-      },
-    });
+    await createCiv7ControlOrpcServerClient(harness.context).lifecycle.singlePlayer.start(demand);
 
-    const apply = harness.calls.find((entry) => entry.operation === "applySinglePlayerSetup");
+    const apply = harness.calls.find(
+      (entry) => entry.operation === "applySinglePlayerSetupOptions"
+    );
     expect(apply?.args[0]).toEqual(
       expect.objectContaining({
         playerOptions: [
-          { playerId: 2, options: { PlayerLeader: "LEADER_TWO" } },
           { playerId: 10, options: { PlayerLeader: "LEADER_TEN" } },
+          { playerId: 2, options: { PlayerLeader: "LEADER_TWO" } },
         ],
       })
     );
@@ -386,33 +403,70 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
   });
 
   test("fails closed when required setup readback evidence is unavailable", async () => {
-    const application = setupApplication();
+    vi.useFakeTimers();
+    const malformed = setupSnapshot("shell", 2);
     const harness = makeHarness({
-      applySinglePlayerSetup: async () => ({
-        ...application,
-        after: {
-          ...application.after,
-          snapshot: {
-            ...application.after.snapshot,
-            config: {
-              ...application.after.snapshot.config,
-              mapScript: { ok: false, error: "unavailable" },
-            },
+      getSetupSnapshot: sequence(setupSnapshot("shell"), {
+        ...malformed,
+        snapshot: {
+          ...malformed.snapshot,
+          config: {
+            ...malformed.snapshot.config,
+            mapScript: { ok: false, error: "unavailable" },
           },
         },
       }),
     });
-
-    await expect(
-      call(Civ7ControlOrpcRouter.lifecycle.singlePlayer.start, input, {
+    try {
+      const pending = call(Civ7ControlOrpcRouter.lifecycle.singlePlayer.start, input, {
         context: harness.context,
-      })
-    ).rejects.toMatchObject({
-      code: "LIFECYCLE_VERIFICATION_FAILED",
-      data: { step: "verify-setup-evidence", noRepeat: true },
+      });
+      const rejected = expect(pending).rejects.toMatchObject({
+        code: "LIFECYCLE_VERIFICATION_FAILED",
+        data: { step: "wait-for-setup-identity", noRepeat: true },
+      });
+      await vi.advanceTimersByTimeAsync(31_000);
+      await rejected;
+      expect(harness.count("applySinglePlayerSetupIdentity")).toBe(1);
+      expect(harness.count("hostPreparedSinglePlayerGame")).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test.each([
+    ["map", { mapSeed: probe(input.mapSeed + 1) }],
+    ["game", { gameSeed: probe(input.gameSeed + 1) }],
+  ] as const)("fails closed when the %s seed readback does not match", async (_label, config) => {
+    vi.useFakeTimers();
+    const mismatched = setupSnapshot("shell", 2);
+    const harness = makeHarness({
+      getSetupSnapshot: sequence(setupSnapshot("shell"), {
+        ...mismatched,
+        snapshot: {
+          ...mismatched.snapshot,
+          config: {
+            ...mismatched.snapshot.config,
+            ...config,
+          },
+        },
+      }),
     });
-    expect(harness.count("applySinglePlayerSetup")).toBe(1);
-    expect(harness.count("hostPreparedSinglePlayerGame")).toBe(0);
+    try {
+      const pending = call(Civ7ControlOrpcRouter.lifecycle.singlePlayer.start, input, {
+        context: harness.context,
+      });
+      const rejected = expect(pending).rejects.toMatchObject({
+        code: "LIFECYCLE_VERIFICATION_FAILED",
+        data: { step: "wait-for-setup-identity", noRepeat: true },
+      });
+      await vi.advanceTimersByTimeAsync(31_000);
+      await rejected;
+      expect(harness.count("applySinglePlayerSetupIdentity")).toBe(1);
+      expect(harness.count("hostPreparedSinglePlayerGame")).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("omits unavailable optional runtime evidence", async () => {
@@ -435,7 +489,7 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
       harness.context
     ).lifecycle.singlePlayer.start(input);
 
-    expect(result.evidence.runtime).toEqual({ seed: input.seed, mapSize: input.mapSize });
+    expect(result.evidence.runtime).toEqual({ seed: input.mapSeed, mapSize: input.mapSize });
   });
 
   test.each([
@@ -507,7 +561,7 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
       await vi.advanceTimersByTimeAsync(1_000);
 
       await expect(pending).resolves.toMatchObject({ status: "started" });
-      expect(harness.count("getSetupSnapshot")).toBe(3);
+      expect(harness.count("getSetupSnapshot")).toBe(4);
       expect(harness.count("requestSavedConfigLoad")).toBe(1);
     } finally {
       vi.useRealTimers();
@@ -530,7 +584,7 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     ).resolves.toMatchObject({ status: "started" });
 
     expect(harness.count("requestSavedConfigLoad")).toBe(1);
-    expect(harness.count("getSetupSnapshot")).toBe(2);
+    expect(harness.count("getSetupSnapshot")).toBe(3);
     expect(harness.count("reconcileRequiredTargetMod")).toBe(1);
   });
 
@@ -668,7 +722,7 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     "requestSavedConfigLoad",
     "reconcileRequiredTargetMod",
     "reloadSetupUiInShell",
-    "applySinglePlayerSetup",
+    "applySinglePlayerSetupIdentity",
     "hostPreparedSinglePlayerGame",
     "beginGame",
   ] as const)("never retries an ambiguous %s mutation", async (operation) => {
@@ -697,6 +751,56 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
   });
 
   test.each([
+    "response timeout",
+    "malformed evidence",
+  ] as const)("never repeats an options mutation after %s", async (failure) => {
+    const harness = makeHarness({
+      applySinglePlayerSetupOptions:
+        failure === "response timeout"
+          ? async () => {
+              throw directControlFailure("response-timeout");
+            }
+          : async () => undefined as never,
+    });
+
+    await expect(
+      call(Civ7ControlOrpcRouter.lifecycle.singlePlayer.start, authoredOptionsInput, {
+        context: harness.context,
+      })
+    ).rejects.toMatchObject({
+      code: "LIFECYCLE_MUTATION_UNCERTAIN",
+      data: { step: "apply-setup-options", noRepeat: true },
+    });
+    expect(harness.count("applySinglePlayerSetupOptions")).toBe(1);
+    expect(harness.count("hostPreparedSinglePlayerGame")).toBe(0);
+  });
+
+  test("does not host when authored option readback is never observed", async () => {
+    vi.useFakeTimers();
+    const harness = makeHarness({
+      getSetupSnapshot: sequence(setupSnapshot("shell"), setupSnapshot("shell", 2)),
+    });
+
+    try {
+      const pending = call(
+        Civ7ControlOrpcRouter.lifecycle.singlePlayer.start,
+        authoredOptionsInput,
+        { context: harness.context }
+      );
+      const rejected = expect(pending).rejects.toMatchObject({
+        code: "LIFECYCLE_VERIFICATION_FAILED",
+        data: { step: "wait-for-setup-options", noRepeat: true },
+      });
+      await vi.advanceTimersByTimeAsync(31_000);
+      await rejected;
+      expect(harness.count("applySinglePlayerSetupOptions")).toBe(1);
+      expect(harness.count("hostPreparedSinglePlayerGame")).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test.each([
     [
       "admission",
       { admitSetupShell: async () => undefined as never },
@@ -713,9 +817,9 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     ],
     [
       "apply",
-      { applySinglePlayerSetup: async () => undefined as never },
+      { applySinglePlayerSetupIdentity: async () => undefined as never },
       input,
-      "applySinglePlayerSetup",
+      "applySinglePlayerSetupIdentity",
       "hostPreparedSinglePlayerGame",
     ],
     [
@@ -779,11 +883,11 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     [
       "setup readback unverified",
       {
-        applySinglePlayerSetup: async () =>
+        applySinglePlayerSetupIdentity: async () =>
           Promise.reject(directControlFailure("setup-readback-mismatch")),
       },
       input,
-      "applySinglePlayerSetup",
+      "applySinglePlayerSetupIdentity",
     ],
     [
       "host rejected",
@@ -806,6 +910,25 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
       data: { noRepeat: true },
     });
     expect(harness.count(operation)).toBe(1);
+  });
+
+  test("stops after identity preflight refusal without applying options or hosting", async () => {
+    const harness = makeHarness({
+      applySinglePlayerSetupIdentity: async () =>
+        Promise.reject(directControlFailure("setup-parameter-refused")),
+    });
+
+    await expect(
+      call(Civ7ControlOrpcRouter.lifecycle.singlePlayer.start, input, {
+        context: harness.context,
+      })
+    ).rejects.toMatchObject({
+      code: "LIFECYCLE_VERIFICATION_FAILED",
+      data: { step: "apply-setup-identity", noRepeat: true },
+    });
+    expect(harness.count("applySinglePlayerSetupIdentity")).toBe(1);
+    expect(harness.count("applySinglePlayerSetupOptions")).toBe(0);
+    expect(harness.count("hostPreparedSinglePlayerGame")).toBe(0);
   });
 
   test("does not accept a map row whose provider value merely echoes the script", async () => {
@@ -851,7 +974,7 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     expect(harness.count("reconcileRequiredTargetMod")).toBe(1);
     expect(harness.count("getSetupMapRows")).toBe(1);
     expect(harness.count("reloadSetupUiInShell")).toBe(0);
-    expect(harness.count("applySinglePlayerSetup")).toBe(0);
+    expect(harness.count("applySinglePlayerSetupIdentity")).toBe(0);
   });
 
   test("maps an explicit begin guard refusal to verification without replay", async () => {
@@ -1034,7 +1157,7 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
   test.each([
     { ...input, targetModId: "{mod-swooper-studio-run}" },
     { ...input, gameOptions: { "bad-key": true } },
-    { ...input, playerOptions: { "65": {} } },
+    { ...input, playerOptions: [{ playerId: 65, options: {} }] },
   ])("rejects noncanonical demand before the lifecycle facade runs", async (invalidInput) => {
     const harness = makeHarness();
 
@@ -1139,9 +1262,13 @@ function makeHarness(
           reloaded: true,
         }))
     ),
-    applySinglePlayerSetup: record(
-      "applySinglePlayerSetup",
-      overrides.applySinglePlayerSetup ?? (async () => setupApplication())
+    applySinglePlayerSetupIdentity: record(
+      "applySinglePlayerSetupIdentity",
+      overrides.applySinglePlayerSetupIdentity ?? (async () => setupMutation())
+    ),
+    applySinglePlayerSetupOptions: record(
+      "applySinglePlayerSetupOptions",
+      overrides.applySinglePlayerSetupOptions ?? (async () => setupMutation())
     ),
     hostPreparedSinglePlayerGame: record(
       "hostPreparedSinglePlayerGame",
@@ -1258,8 +1385,19 @@ function probe<T>(value: T): Civ7RuntimeProbe<T> {
   return { ok: true, value };
 }
 
-function setupSnapshot(phase: "shell" | "running-game", revision = 1): Civ7SetupSnapshotResult {
-  const row = { source: "setup-domain" as const, file: input.mapScript };
+function setupSnapshot(
+  phase: "shell" | "running-game",
+  revision = 1,
+  values: Civ7LifecycleSinglePlayerStartInput = input
+): Civ7SetupSnapshotResult {
+  const row = { source: "setup-domain" as const, file: values.mapScript };
+  const parameter = (id: string, value: string | number | boolean | null | readonly string[]) => ({
+    id,
+    exists: true,
+    array: Array.isArray(value),
+    value,
+    possibleValues: [],
+  });
   return {
     host: "127.0.0.1",
     port: 4318,
@@ -1276,19 +1414,33 @@ function setupSnapshot(phase: "shell" | "running-game", revision = 1): Civ7Setup
       },
       setup: {
         revision: probe(revision),
-        parameters: [],
-        playerParameters: [],
+        parameters: [
+          parameter("Map", values.mapScript),
+          parameter("MapSize", values.mapSize),
+          parameter("MapRandomSeed", values.mapSeed),
+          parameter("GameRandomSeed", values.gameSeed),
+          ...Object.entries({ ...values.gameOptions, ...values.mapOptions }).map(([id, value]) =>
+            parameter(id, value)
+          ),
+        ],
+        playerParameters: values.playerOptions.map(({ playerId, options }) => ({
+          playerId,
+          exists: probe(true),
+          active: probe(true),
+          slotStatus: probe(2),
+          parameters: Object.entries(options).map(([id, value]) => parameter(id, value)),
+        })),
         localPlayerId: probe(0),
       },
       selectedMapRow: row,
       mapRows: [row],
       config: {
-        mapScript: probe(input.mapScript),
-        mapSize: probe(input.mapSize),
-        mapSizeType: probe(input.mapSize),
-        mapSeed: probe(input.seed),
-        gameSeed: probe(input.seed),
-        playerCount: probe(8),
+        mapScript: probe(values.mapScript),
+        mapSize: probe(values.mapSize),
+        mapSizeType: probe(values.mapSize),
+        mapSeed: probe(values.mapSeed),
+        gameSeed: probe(values.gameSeed),
+        playerCount: probe(values.playerCount ?? 8),
       },
     },
   };
@@ -1313,7 +1465,7 @@ function mapRows(visible: boolean): Civ7SetupMapRowsResult {
 function savedLoadRequest(revision = 1) {
   return {
     command: commandResult(),
-    savedConfig,
+    savedConfig: { ...savedConfig, path: savedConfig.fileName },
     before: setupSnapshot("shell", revision),
     accepted: true,
   } as const;
@@ -1328,27 +1480,15 @@ function targetMod(verified: boolean) {
   } as const;
 }
 
-function setupApplication() {
-  const before = setupSnapshot("shell");
-  const after = {
-    ...setupSnapshot("shell"),
-    snapshot: {
-      ...setupSnapshot("shell").snapshot,
-      config: {
-        ...setupSnapshot("shell").snapshot.config,
-        mapSeed: probe(input.seed),
-      },
-    },
-  };
+function setupMutation() {
   return {
     host: "127.0.0.1",
     port: 4318,
     state,
-    before,
-    after,
+    before: setupSnapshot("shell", 0),
     command: commandResult(),
     applied: {},
-    verified: true,
+    accepted: true,
   } as const;
 }
 
@@ -1411,7 +1551,7 @@ function appUiSnapshot(kind: "begin-ready" | "started"): Civ7AppUiSnapshotResult
         height: probe(40),
         plotCount: probe(2_560),
         mapSize: probe(1),
-        randomSeed: probe(input.seed),
+        randomSeed: probe(input.mapSeed),
       },
     },
   };
@@ -1457,7 +1597,7 @@ function mapSummary(
       plotCount: probe(2_560),
       mapSize: probe(1),
       mapSizeType: probe(options.mapSize ?? input.mapSize),
-      randomSeed: probe(options.seed ?? input.seed),
+      randomSeed: probe(options.seed ?? input.mapSeed),
     },
     game: {
       turn: probe(1),
@@ -1474,14 +1614,14 @@ function expectedEvidence() {
     setup: {
       mapScript: input.mapScript,
       mapSize: input.mapSize,
-      mapSeed: input.seed,
-      gameSeed: input.seed,
+      mapSeed: input.mapSeed,
+      gameSeed: input.gameSeed,
       playerCount: 8,
       targetModId: input.targetModId,
       mapRowFiles: [input.mapScript],
     },
     runtime: {
-      seed: input.seed,
+      seed: input.mapSeed,
       mapSize: input.mapSize,
       width: 64,
       height: 40,

@@ -136,9 +136,8 @@ const ComputeSubstrateContract = defineOp({
       description: "Loose sediment thickness proxy per tile (higher = deeper deposits).",
     }),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: SubstrateConfigSchema,
+    "crust-boundary-material": SubstrateConfigSchema,
   },
 });
 

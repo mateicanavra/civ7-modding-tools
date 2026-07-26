@@ -1,3 +1,4 @@
+import morphology from "@mapgen/domain/morphology";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { RoutingStep } from "./steps/routing/step.js";
@@ -12,6 +13,13 @@ const knobsSchema = Type.Object(
     description: "Morphology-routing has no authored routing controls today.",
   }
 );
+
+function defaultEnvelope<const Strategy extends string>(
+  operation: Readonly<{ defaultStrategy: Strategy }>,
+  config: unknown
+) {
+  return { strategy: operation.defaultStrategy, config };
+}
 
 /**
  * Runs Morphology's pre-erosion flow proxy over current topography; canonical
@@ -30,7 +38,7 @@ export default createStage({
   steps: orderStandardStageSteps("morphology-routing", { routing: RoutingStep }),
   compile: () => ({
     routing: {
-      routing: { strategy: "default", config: {} },
+      routing: defaultEnvelope(morphology.ops.computeFlowRouting, {}),
     },
   }),
 } as const);

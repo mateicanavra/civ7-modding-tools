@@ -13,6 +13,7 @@ export type RunInGameClientSnapshot = Readonly<{
   authoringRevision: number;
   launchEnvelope: Readonly<{
     seed: string;
+    gameSeed: string;
     worldSettings: Readonly<WorldSettings>;
     setupConfig: Civ7StudioSetupConfig;
     canonicalConfig: MapConfigEnvelope;
@@ -26,6 +27,7 @@ export function buildRunInGameClientSnapshot(args: {
   requestId: string;
   authoringRevision: number;
   seed: string;
+  gameSeed: string;
   worldSettings: WorldSettings;
   setupConfig: Civ7StudioSetupConfig;
   canonicalConfig: MapConfigEnvelope;
@@ -38,6 +40,7 @@ export function buildRunInGameClientSnapshot(args: {
     authoringRevision: args.authoringRevision,
     launchEnvelope: {
       seed: args.seed,
+      gameSeed: args.gameSeed,
       worldSettings: structuredClone(args.worldSettings),
       setupConfig: structuredClone(args.setupConfig),
       canonicalConfig,

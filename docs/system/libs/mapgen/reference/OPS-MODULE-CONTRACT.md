@@ -39,9 +39,8 @@ export default defineOp({
   output: Type.Object({
     elevation: TypedArraySchemas.i16({ description: "Base elevation per tile (normalized, scaled to int16)." }),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: ReliefConfigSchema,
+    "tectonic-relief": ReliefConfigSchema,
   },
 });
 ```
@@ -52,19 +51,25 @@ Ops use a “strategy envelope”:
 
 - `config.strategy` selects a strategy id
 - `config.config` holds strategy-specific config
-- `defaultStrategy` explicitly selects the strategy used when authored config omits the envelope
+- a sole semantic strategy is necessarily the default
+- a multi-strategy operation explicitly names `defaultStrategy`; object order never selects behavior
+- strategy ids describe behavior; `"default"` is not a valid strategy identity
 
-The strategy set and its default are separate authorities. Object order never selects behavior.
+Every returned contract exposes the resolved `defaultStrategy` and TypeBox-materialized
+`defaultConfig`, regardless of whether the author inferred or declared the default.
+This is a hard authoring cut: raw operation envelopes that selected `"default"` must migrate to
+the operation's semantic strategy id. Recipe-level persisted configuration remains governed by
+its stage public schema and compile mapping rather than by raw operation envelopes.
 
 Representative example (createOp binds strategy implementations by id; excerpt; see full file in anchors):
 
 ```ts
 import { createOp } from "@swooper/mapgen-core/authoring";
 import ComputeBaseTopographyContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { tectonicReliefStrategy } from "./strategies/index.js";
 
 export default createOp(ComputeBaseTopographyContract, {
-  strategies: { default: defaultStrategy },
+  strategies: { "tectonic-relief": tectonicReliefStrategy },
 });
 ```
 
@@ -74,6 +79,6 @@ export default createOp(ComputeBaseTopographyContract, {
 - Op creation and strategy enforcement: `packages/mapgen-core/src/authoring/op/create.ts`
 - Strategy schema/envelope: `packages/mapgen-core/src/authoring/op/envelope.ts`
 - Binding compile-time ops by id: `packages/mapgen-core/src/authoring/bindings.ts`
-- Target modeling guidance: `docs/projects/engine-refactor-v1/resources/spec/SPEC-step-domain-operation-modules.md`
+- Current operation-authoring guide: `docs/system/libs/mapgen/how-to/add-an-op.md`
 - Example op contract: `mods/mod-swooper-maps/src/domain/morphology/ops/compute-base-topography/contract.ts`
 - Example op implementation: `mods/mod-swooper-maps/src/domain/morphology/ops/compute-base-topography/index.ts`

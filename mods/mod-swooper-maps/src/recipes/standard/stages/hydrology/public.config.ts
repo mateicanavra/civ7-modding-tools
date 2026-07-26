@@ -40,11 +40,11 @@ export const HydrologyClimateBaselinePublicSchema = Type.Object(
   {
     seasonalCycle: HydrologySeasonalCycleSchema,
     solarForcing: publicStrategySchema(
-      baselineOps.computeRadiativeForcing.strategies.default,
+      baselineOps.computeRadiativeForcing.strategies["latitude-insolation"],
       "Baseline solar-forcing controls for Hydrology climate generation."
     ),
     thermalState: publicStrategySchema(
-      baselineOps.computeThermalState.strategies.default,
+      baselineOps.computeThermalState.strategies["insolation-lapse-rate"],
       "Baseline thermal-state controls for Hydrology climate generation."
     ),
     atmosphericCirculation: publicStrategySchema(
@@ -56,15 +56,15 @@ export const HydrologyClimateBaselinePublicSchema = Type.Object(
       "Baseline ocean-current controls for Hydrology climate generation."
     ),
     oceanGeometry: publicStrategySchema(
-      baselineOps.computeOceanGeometry.strategies.default,
+      baselineOps.computeOceanGeometry.strategies["connected-basins"],
       "Baseline ocean-geometry controls for Hydrology climate generation."
     ),
     oceanThermalState: publicStrategySchema(
-      baselineOps.computeOceanThermalState.strategies.default,
+      baselineOps.computeOceanThermalState.strategies["latitude-current-advection"],
       "Baseline ocean thermal-state controls for Hydrology climate generation."
     ),
     evaporation: publicStrategySchema(
-      baselineOps.computeEvaporationSources.strategies.default,
+      baselineOps.computeEvaporationSources.strategies["thermal-surface"],
       "Baseline evaporation-source controls for Hydrology climate generation."
     ),
     moistureTransport: publicStrategySchema(
@@ -87,19 +87,19 @@ export const HydrologyClimateBaselinePublicSchema = Type.Object(
 export const HydrologyHydrographyPublicSchema = Type.Object(
   {
     drainageRouting: publicStrategySchema(
-      baselineOps.computeDrainageRouting.strategies.default,
+      baselineOps.computeDrainageRouting.strategies["priority-flood"],
       "Hydrography drainage-routing controls."
     ),
     runoff: publicStrategySchema(
-      baselineOps.accumulateDischarge.strategies.default,
+      baselineOps.accumulateDischarge.strategies["topological-runoff"],
       "Hydrography runoff and discharge controls."
     ),
     riverNetwork: publicStrategySchema(
-      baselineOps.projectRiverNetwork.strategies.default,
+      baselineOps.projectRiverNetwork.strategies["discharge-percentiles"],
       "Hydrography river-network classification controls."
     ),
     lakes: publicStrategySchema(
-      baselineOps.planLakes.strategies.default,
+      baselineOps.planLakes.strategies["sink-discharge-budget"],
       "Hydrography lake-intent controls."
     ),
   },
@@ -121,27 +121,27 @@ export const HydrologyClimateRefinePublicSchema = Type.Object(
       "Climate-refinement precipitation controls."
     ),
     solarForcing: publicStrategySchema(
-      baselineOps.computeRadiativeForcing.strategies.default,
+      baselineOps.computeRadiativeForcing.strategies["latitude-insolation"],
       "Climate-refinement solar-forcing controls."
     ),
     thermalState: publicStrategySchema(
-      baselineOps.computeThermalState.strategies.default,
+      baselineOps.computeThermalState.strategies["insolation-lapse-rate"],
       "Climate-refinement thermal-state controls."
     ),
     albedoFeedback: publicStrategySchema(
-      baselineOps.applyAlbedoFeedback.strategies.default,
+      baselineOps.applyAlbedoFeedback.strategies["bounded-snow-ice"],
       "Climate-refinement albedo-feedback controls."
     ),
     cryosphereState: publicStrategySchema(
-      baselineOps.computeCryosphereState.strategies.default,
+      baselineOps.computeCryosphereState.strategies["temperature-thresholds"],
       "Climate-refinement cryosphere-state controls."
     ),
     landWaterBudget: publicStrategySchema(
-      baselineOps.computeLandWaterBudget.strategies.default,
+      baselineOps.computeLandWaterBudget.strategies["pet-aridity"],
       "Climate-refinement land-water-budget controls."
     ),
     diagnostics: publicStrategySchema(
-      baselineOps.computeClimateDiagnostics.strategies.default,
+      baselineOps.computeClimateDiagnostics.strategies["terrain-wind-indices"],
       "Climate-refinement diagnostic controls."
     ),
   },

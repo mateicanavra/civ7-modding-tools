@@ -16,7 +16,7 @@ function withDescription<T extends TSchema>(schema: T, description: string) {
   return Type.Unsafe<Static<T>>({ ...rest, description } as any);
 }
 
-/** Default strategy configuration for computing tile-space plate tensors. */
+/** FoundationModelProjection strategy configuration for computing tile-space plate tensors. */
 const StrategySchema = Type.Object(
   {
     /** Tile-distance influence radius for boundary closeness. */
@@ -48,7 +48,10 @@ const StrategySchema = Type.Object(
       description: "Scale factor mapping plate rotation to int8 tile fields.",
     }),
   },
-  { description: "Default strategy configuration for computing tile-space plate tensors." }
+  {
+    description:
+      "FoundationModelProjection strategy configuration for computing tile-space plate tensors.",
+  }
 );
 
 /** Input payload for foundation/compute-plates-tensors. */
@@ -353,9 +356,8 @@ const ComputePlatesTensorsContract = defineOp({
   id: "foundation/compute-plates-tensors",
   input: InputSchema,
   output: OutputSchema,
-  defaultStrategy: "default",
   strategies: {
-    default: StrategySchema,
+    "foundation-model-projection": StrategySchema,
   },
 });
 

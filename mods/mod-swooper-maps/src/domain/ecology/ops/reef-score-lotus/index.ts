@@ -1,11 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ScoreLotusContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { warmShallowLakeStrategy } from "./strategies/index.js";
 
 const scoreLotus = createOp(ScoreLotusContract, {
   strategies: {
-    default: defaultStrategy,
+    "warm-shallow-lake": warmShallowLakeStrategy,
   },
 });
 

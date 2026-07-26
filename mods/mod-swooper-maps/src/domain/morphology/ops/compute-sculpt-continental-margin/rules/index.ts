@@ -21,7 +21,7 @@ export const MARGIN_UNREACHED = 65535;
  */
 export const BREAK_SLOPE_RATIO = 4;
 
-type Config = ComputeSculptContinentalMarginTypes["config"]["default"];
+type Config = ComputeSculptContinentalMarginTypes["config"]["crust-break-profile"];
 
 /**
  * Relief datums for the margin profile, SINGLE-SOURCED from compute-base-topography (this map's

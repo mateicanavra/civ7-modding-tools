@@ -1,9 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import ComputeEvaporationSourcesContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { thermalSurfaceStrategy } from "./strategies/index.js";
 
 const computeEvaporationSources = createOp(ComputeEvaporationSourcesContract, {
-  strategies: { default: defaultStrategy },
+  strategies: { "thermal-surface": thermalSurfaceStrategy },
 });
 
 export type * from "./contract.js";

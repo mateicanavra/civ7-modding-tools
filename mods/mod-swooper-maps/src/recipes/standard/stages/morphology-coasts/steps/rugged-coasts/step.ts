@@ -24,7 +24,7 @@ export const RuggedCoastsStep = createStep(RuggedCoastsStepContract, {
     const multiplier = MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER[coastRuggedness ?? "normal"] ?? 1.0;
 
     const coastlinesSelection =
-      config.coastlines.strategy === "default"
+      config.coastlines.strategy === "plate-aware-carving"
         ? {
             ...config.coastlines,
             config: {

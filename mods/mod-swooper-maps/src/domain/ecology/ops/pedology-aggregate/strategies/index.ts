@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { gridCellSummaryStrategy } from "./grid-cell-summary.js";

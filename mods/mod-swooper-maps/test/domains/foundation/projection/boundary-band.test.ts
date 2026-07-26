@@ -98,7 +98,7 @@ describe("m11 plates projection (boundary band)", () => {
   it("projects boundary regime + signals beyond the exact boundary line", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
-      strategy: "default",
+      strategy: "jittered-delaunay",
       config: {
         plateCount: 10,
         cellsPerPlate: 4,
@@ -159,7 +159,7 @@ describe("m11 plates projection (boundary band)", () => {
         tectonicHistory: historyResult.tectonicHistory as any,
       },
       {
-        strategy: "default",
+        strategy: "foundation-model-projection",
         config: {
           boundaryInfluenceDistance: 6,
           boundaryDecay: 0.55,

@@ -90,9 +90,8 @@ const SelectResourceSitesContract = defineOp({
     { additionalProperties: false }
   ),
   output: ResourceSitePlanSchema,
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object(
+    "blue-noise-rotation": Type.Object(
       {
         density: Type.Number({
           minimum: 0.5,

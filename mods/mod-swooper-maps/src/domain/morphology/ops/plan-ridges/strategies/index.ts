@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { orogenicRangeGrowthStrategy } from "./orogenic-range-growth.js";

@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { crustBreakProfileStrategy } from "./crust-break-profile.js";

@@ -63,7 +63,7 @@ const ComputeClimateDiagnosticsOutputSchema = Type.Object(
 /**
  * Default diagnostic parameters.
  */
-const ComputeClimateDiagnosticsDefaultStrategySchema = Type.Object(
+const TerrainWindIndicesStrategySchema = Type.Object(
   {
     /** How far upwind to scan for barriers (tiles). */
     barrierSteps: Type.Integer({
@@ -96,7 +96,7 @@ const ComputeClimateDiagnosticsDefaultStrategySchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Diagnostic climate indices parameters (default strategy).",
+    description: "Diagnostic climate indices parameters (terrain-wind-indices strategy).",
   }
 );
 
@@ -105,9 +105,8 @@ const ComputeClimateDiagnosticsContract = defineOp({
   id: "hydrology/compute-climate-diagnostics",
   input: ComputeClimateDiagnosticsInputSchema,
   output: ComputeClimateDiagnosticsOutputSchema,
-  defaultStrategy: "default",
   strategies: {
-    default: ComputeClimateDiagnosticsDefaultStrategySchema,
+    "terrain-wind-indices": TerrainWindIndicesStrategySchema,
   },
 });
 

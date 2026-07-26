@@ -3,6 +3,13 @@
   "name": "civ7-map-policy",
   "tags": ["kind:library"],
   "targets": {
+    "generate": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "command": "bun packages/civ7-map-policy/scripts/verify.ts --write"
+      }
+    },
     "check": {
       "executor": "nx:noop",
       "cache": false,

@@ -7,17 +7,20 @@ import {
   type RunInGameOperationStatus,
   type RunInGameSafeFailureCategory,
   type RunInGameWorldSettings,
+  setupConfig as runInGameSetupConfigSchema,
   serializeMapConfigEnvelope,
+  validateRunInGameSetupConfig,
 } from "@civ7/studio-contract";
 import { safe } from "@orpc/client";
 import { Value } from "typebox/value";
 import { orpcClient } from "../../lib/orpc";
-import { type Civ7StudioSetupConfig, normalizeStudioSetupConfig } from "../civ7Setup/setupConfig";
+import type { Civ7StudioSetupConfig } from "../civ7Setup/setupConfig";
 import { projectStudioBrowserError } from "../studioErrors/definedErrorProjection";
 
 export type RunCurrentConfigInGameArgs = {
   canonicalConfig: MapConfigEnvelope;
   seed: number | string;
+  gameSeed: number | string;
   worldSettings: RunInGameWorldSettings;
   setupConfig: Civ7StudioSetupConfig;
 };
@@ -27,11 +30,14 @@ export type RunInGameStartRequest = Parameters<typeof orpcClient.runInGame.start
 export function buildRunInGameStartRequest(
   args: RunCurrentConfigInGameArgs
 ): RunInGameStartRequest {
+  const setupConfig = validateRunInGameSetupConfig(args.setupConfig);
+  if (!setupConfig.ok) throw new TypeError(setupConfig.message);
   return {
     canonicalConfig: serializeMapConfigEnvelope(args.canonicalConfig),
     seed: args.seed,
+    gameSeed: args.gameSeed,
     worldSettings: args.worldSettings,
-    setupConfig: normalizeStudioSetupConfig(args.setupConfig),
+    setupConfig: Value.Parse(runInGameSetupConfigSchema, Value.Clone(setupConfig.value)),
   };
 }
 

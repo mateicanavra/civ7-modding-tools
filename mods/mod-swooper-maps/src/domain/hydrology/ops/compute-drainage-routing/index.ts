@@ -1,11 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ComputeDrainageRoutingContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { priorityFloodStrategy } from "./strategies/index.js";
 
 const computeDrainageRouting = createOp(ComputeDrainageRoutingContract, {
   strategies: {
-    default: defaultStrategy,
+    "priority-flood": priorityFloodStrategy,
   },
 });
 

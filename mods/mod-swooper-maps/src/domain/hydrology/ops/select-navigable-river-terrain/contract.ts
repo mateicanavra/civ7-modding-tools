@@ -114,7 +114,7 @@ const SelectNavigableRiverTerrainOutputSchema = Type.Object(
   }
 );
 
-const SelectNavigableRiverTerrainDefaultStrategySchema = Type.Object(
+const EndpointChainRankingStrategySchema = Type.Object(
   {
     endpointDischargePercentileMin: Type.Number({
       default: 0.94,
@@ -143,9 +143,8 @@ const SelectNavigableRiverTerrainContract = defineOp({
   id: "hydrology/select-navigable-river-terrain",
   input: SelectNavigableRiverTerrainInputSchema,
   output: SelectNavigableRiverTerrainOutputSchema,
-  defaultStrategy: "default",
   strategies: {
-    default: SelectNavigableRiverTerrainDefaultStrategySchema,
+    "endpoint-chain-ranking": EndpointChainRankingStrategySchema,
   },
 });
 

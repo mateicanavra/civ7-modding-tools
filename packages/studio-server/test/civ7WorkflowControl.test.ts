@@ -40,20 +40,24 @@ const fixture = {
   targetModId: "mod-swooper-studio-run",
   mapSize: "MAPSIZE_SMALL",
   seed: 42,
+  gameSeed: 47,
 } as const;
-const { mapScript, mapSize, requestId, seed, targetModId } = fixture;
+const { gameSeed, mapScript, mapSize, requestId, seed, targetModId } = fixture;
 
 describe("Civ7WorkflowControlLive", () => {
-  test("sends one exact lifecycle demand and merges duplicate player entries in order", async () => {
+  test("sends one exact grouped lifecycle demand without reshaping player slots", async () => {
     const session = Civ7DirectControlSession.prototype;
     const calls: Array<Readonly<{ operation: string; options: unknown }>> = [];
     let appliedInput: unknown;
     let appReads = 0;
+    let setupReads = 0;
     let leaseActive = false;
     let gameStartedReports = 0;
     const directLifecycle: Civ7ControlOrpcDirectLifecycleFacade = {
       ...liveCiv7ControlOrpcDirectLifecycleFacade,
-      getSetupSnapshot: record("getSetupSnapshot", async () => setupSnapshot("shell")),
+      getSetupSnapshot: record("getSetupSnapshot", async () =>
+        setupSnapshot("shell", ++setupReads)
+      ),
       admitSetupShell: record("admitSetupShell", async () => ({
         initial: setupSnapshot("shell"),
         transition: "shell" as const,
@@ -65,7 +69,7 @@ describe("Civ7WorkflowControlLive", () => {
         verified: true,
       })),
       getSetupMapRows: record("getSetupMapRows", async () => mapRows()),
-      applySinglePlayerSetup: record("applySinglePlayerSetup", async (input) => {
+      applySinglePlayerSetupIdentity: record("applySinglePlayerSetupIdentity", async (input) => {
         appliedInput = input;
         const before = setupSnapshot("shell");
         return {
@@ -73,12 +77,14 @@ describe("Civ7WorkflowControlLive", () => {
           port: before.port,
           state: before.state,
           before,
-          after: before,
           command: commandResult(),
           applied: {},
-          verified: true as const,
+          accepted: true as const,
         };
       }),
+      applySinglePlayerSetupOptions: record("applySinglePlayerSetupOptions", async () =>
+        acceptedSetupMutation(setupSnapshot("shell"))
+      ),
       hostPreparedSinglePlayerGame: record("hostPreparedSinglePlayerGame", async () => ({
         command: commandResult(),
         before: setupSnapshot("shell"),
@@ -126,20 +132,20 @@ describe("Civ7WorkflowControlLive", () => {
     expect(appliedInput).toEqual({
       mapScript,
       mapSize,
-      seed,
-      gameSeed: seed,
+      mapSeed: seed,
+      gameSeed,
       playerCount: 8,
-      options: { GameDifficulty: "DIFFICULTY_PRINCE" },
+      gameOptions: { Difficulty: "DIFFICULTY_PRINCE" },
+      mapOptions: { StartPosition: "START_POSITION_STANDARD" },
       playerOptions: [
         {
           playerId: 0,
           options: {
-            Leader: "LEADER_TEST",
-            Difficulty: "DIFFICULTY_DEITY",
-            Civilization: "CIVILIZATION_TEST",
+            PlayerLeader: "LEADER_TEST",
+            PlayerDifficulty: "DIFFICULTY_DEITY",
           },
         },
-        { playerId: 1, options: { Leader: "LEADER_OTHER" } },
+        { playerId: 1, options: { PlayerLeader: "LEADER_OTHER" } },
       ],
     });
     expect(calls.map((call) => call.operation)).toEqual([
@@ -147,7 +153,10 @@ describe("Civ7WorkflowControlLive", () => {
       "admitSetupShell",
       "reconcileRequiredTargetMod",
       "getSetupMapRows",
-      "applySinglePlayerSetup",
+      "applySinglePlayerSetupIdentity",
+      "getSetupSnapshot",
+      "applySinglePlayerSetupOptions",
+      "getSetupSnapshot",
       "hostPreparedSinglePlayerGame",
       "getAppUiSnapshot",
       "beginGame",
@@ -162,7 +171,14 @@ describe("Civ7WorkflowControlLive", () => {
       correlationId: requestId,
       status: "started",
       evidence: {
-        setup: { mapScript, mapSize, mapSeed: seed, targetModId, mapRowFiles: [mapScript] },
+        setup: {
+          mapScript,
+          mapSize,
+          mapSeed: seed,
+          gameSeed,
+          targetModId,
+          mapRowFiles: [mapScript],
+        },
         runtime: { seed, mapSize, width: 44, height: 26, plotCount: 1144 },
       },
     });
@@ -380,29 +396,24 @@ function preparedRequest(): RunInGamePreparedRequest {
   };
   const setupConfig: RunInGamePreparedRequest["launchEnvelope"]["setupConfig"] = {
     mapScript,
-    gameOptions: { GameDifficulty: "DIFFICULTY_PRINCE" },
+    gameOptions: { Difficulty: "DIFFICULTY_PRINCE" },
+    mapOptions: { StartPosition: "START_POSITION_STANDARD" },
     playerOptions: [
       {
         playerId: 0,
         options: {
-          Leader: "LEADER_TEST",
-          Difficulty: "DIFFICULTY_PRINCE",
+          PlayerLeader: "LEADER_TEST",
+          PlayerDifficulty: "DIFFICULTY_DEITY",
         },
       },
-      { playerId: 1, options: { Leader: "LEADER_OTHER" } },
-      {
-        playerId: 0,
-        options: {
-          Difficulty: "DIFFICULTY_DEITY",
-          Civilization: "CIVILIZATION_TEST",
-        },
-      },
+      { playerId: 1, options: { PlayerLeader: "LEADER_OTHER" } },
     ],
   };
   return {
-    request: { recipeId: "standard", seed, mapSize, playerCount: 8, setupConfig },
+    request: { recipeId: "standard", seed, gameSeed, mapSize, playerCount: 8, setupConfig },
     launchEnvelope: {
       seed,
+      gameSeed,
       worldSettings: { mapSize, playerCount: 8 },
       setupConfig,
       canonicalConfig,
@@ -447,7 +458,7 @@ function commandResult(): Civ7CommandResult {
   return { host: "127.0.0.1", port: 4318, state, output: ["null"] };
 }
 
-function setupSnapshot(phase: "shell" | "loading"): Civ7SetupSnapshotResult {
+function setupSnapshot(phase: "shell" | "loading", revision = 1): Civ7SetupSnapshotResult {
   const row = { source: "setup-domain" as const, file: mapScript };
   const loading = Match.value(phase).pipe(
     Match.when("shell", () => ({ state: 0, name: "NotStarted" as const })),
@@ -469,9 +480,51 @@ function setupSnapshot(phase: "shell" | "loading"): Civ7SetupSnapshotResult {
         canBeginGame: probe(false),
       },
       setup: {
-        revision: probe(1),
-        parameters: [],
-        playerParameters: [],
+        revision: probe(revision),
+        parameters: [
+          { id: "Map", exists: true, value: mapScript, possibleValues: [] },
+          { id: "MapSize", exists: true, value: mapSize, possibleValues: [] },
+          { id: "MapRandomSeed", exists: true, value: seed, possibleValues: [] },
+          { id: "GameRandomSeed", exists: true, value: gameSeed, possibleValues: [] },
+          {
+            id: "Difficulty",
+            exists: true,
+            value: "DIFFICULTY_PRINCE",
+            possibleValues: [],
+          },
+          {
+            id: "StartPosition",
+            exists: true,
+            value: "START_POSITION_STANDARD",
+            possibleValues: [],
+          },
+        ],
+        playerParameters: [
+          {
+            playerId: 0,
+            exists: probe(true),
+            active: probe(true),
+            slotStatus: probe("SS_TAKEN"),
+            parameters: [
+              { id: "PlayerLeader", exists: true, value: "LEADER_TEST", possibleValues: [] },
+              {
+                id: "PlayerDifficulty",
+                exists: true,
+                value: "DIFFICULTY_DEITY",
+                possibleValues: [],
+              },
+            ],
+          },
+          {
+            playerId: 1,
+            exists: probe(true),
+            active: probe(true),
+            slotStatus: probe("SS_TAKEN"),
+            parameters: [
+              { id: "PlayerLeader", exists: true, value: "LEADER_OTHER", possibleValues: [] },
+            ],
+          },
+        ],
         localPlayerId: probe(0),
       },
       selectedMapRow: row,
@@ -481,7 +534,7 @@ function setupSnapshot(phase: "shell" | "loading"): Civ7SetupSnapshotResult {
         mapSize: probe(mapSize),
         mapSizeType: probe(mapSize),
         mapSeed: probe(seed),
-        gameSeed: probe(seed),
+        gameSeed: probe(gameSeed),
         playerCount: probe(8),
       },
     },
@@ -592,6 +645,18 @@ function tunerHealth(): Civ7TunerHealthResult {
       aliveHumanIds: probe([0]),
       autoplayActive: probe(false),
     },
+  };
+}
+
+function acceptedSetupMutation(before: Civ7SetupSnapshotResult) {
+  return {
+    host: before.host,
+    port: before.port,
+    state: before.state,
+    before,
+    command: commandResult(),
+    applied: {},
+    accepted: true as const,
   };
 }
 

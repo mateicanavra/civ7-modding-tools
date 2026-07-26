@@ -666,9 +666,8 @@ const PlanRoughLandsContract = defineOp({
       description: "Diagnostic rough-land potential (0..255) before capped selection.",
     }),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: MountainsConfigSchema,
+    "relief-substrate-clusters": MountainsConfigSchema,
   },
 });
 

@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { upwellingHotspotsStrategy } from "./upwelling-hotspots.js";

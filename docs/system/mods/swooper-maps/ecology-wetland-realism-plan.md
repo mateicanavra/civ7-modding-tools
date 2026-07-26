@@ -31,7 +31,7 @@ Invariant:
 ### 2) Extend feature substrate op to compute physical habitat masks
 Files:
 - `mods/mod-swooper-maps/src/domain/ecology/ops/compute-feature-substrate/contract.ts`
-- `mods/mod-swooper-maps/src/domain/ecology/ops/compute-feature-substrate/strategies/default.ts`
+- `mods/mod-swooper-maps/src/domain/ecology/ops/compute-feature-substrate/strategies/hydromorphic.ts`
 - `mods/mod-swooper-maps/src/domain/ecology/ops/compute-feature-substrate/rules/*.ts`
 - `mods/mod-swooper-maps/src/domain/ecology/ops/compute-feature-substrate/rules/index.ts`
 - `mods/mod-swooper-maps/src/domain/ecology/ops/compute-feature-substrate/rules/validate.ts`
@@ -61,11 +61,11 @@ Changes:
 ### 4) Add hard eligibility gates to wet score ops
 Files:
 - `mods/mod-swooper-maps/src/domain/ecology/ops/wet-score-marsh/contract.ts`
-- `mods/mod-swooper-maps/src/domain/ecology/ops/wet-score-marsh/strategies/default.ts`
+- `mods/mod-swooper-maps/src/domain/ecology/ops/wet-score-marsh/strategies/temperate-hydromorphic.ts`
 - `mods/mod-swooper-maps/src/domain/ecology/ops/wet-score-tundra-bog/contract.ts`
-- `mods/mod-swooper-maps/src/domain/ecology/ops/wet-score-tundra-bog/strategies/default.ts`
+- `mods/mod-swooper-maps/src/domain/ecology/ops/wet-score-tundra-bog/strategies/cold-hydromorphic.ts`
 - `mods/mod-swooper-maps/src/domain/ecology/ops/wet-score-mangrove/contract.ts`
-- `mods/mod-swooper-maps/src/domain/ecology/ops/wet-score-mangrove/strategies/default.ts`
+- `mods/mod-swooper-maps/src/domain/ecology/ops/wet-score-mangrove/strategies/warm-intertidal.ts`
 - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/score-layers/index.ts`
 
 Hard gates:
@@ -78,9 +78,9 @@ No new probabilistic terms; no output penalties.
 ### 5) Make planner competition habitat-partitioned by design
 Files:
 - `mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-wetlands/contract.ts`
-- `mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-wetlands/strategies/default.ts`
+- `mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-wetlands/strategies/habitat-confidence.ts`
 - `mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-vegetation/contract.ts`
-- `mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-vegetation/strategies/default.ts`
+- `mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-vegetation/strategies/habitat-confidence.ts`
 - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/plan-wetlands/contract.ts`
 - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/plan-wetlands/index.ts`
 - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/plan-vegetation/contract.ts`

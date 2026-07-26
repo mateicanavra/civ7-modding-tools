@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { warmCoastalShelfStrategy } from "./warm-coastal-shelf.js";

@@ -12,6 +12,14 @@ import {
 } from "@habitat/cli/service/model/host/index";
 import { describe, expect, test } from "vitest";
 
+function declaredHostPolicyRow(declarationId: string) {
+  const declaration = defaultHostPolicyDocument.declarations.find(
+    (candidate) => candidate.declarationId === declarationId
+  );
+  if (!declaration) throw new Error(`Missing host policy declaration: ${declarationId}`);
+  return declaration;
+}
+
 describe("host policy boundary", () => {
   test("projects declared generated surfaces from host declarations", () => {
     expect(
@@ -21,6 +29,12 @@ describe("host policy boundary", () => {
       surfaceKind: "generated",
       mutationLane: "blocked",
       declarationId: "swooper-map-generated",
+    });
+    expect(hostSurfaceDecisionForGeneratedZone("civ7-setup-parameters")).toMatchObject({
+      declarationState: "declared",
+      surfaceKind: "generated",
+      mutationLane: "blocked",
+      declarationId: "civ7-setup-parameters",
     });
   });
 
@@ -140,7 +154,7 @@ describe("host policy boundary", () => {
       declarations: [
         ...defaultHostPolicyDocument.declarations,
         {
-          ...defaultHostPolicyDocument.declarations[0],
+          ...declaredHostPolicyRow("swooper-map-generated"),
           declarationId: "overlapping-generated-zone",
           generatedZoneId: "swooper-map-generated",
           matcher: {
@@ -148,16 +162,16 @@ describe("host policy boundary", () => {
             value: "mods/mod-swooper-maps/src/maps/generated/demo/",
           },
           recovery: {
-            ...defaultHostPolicyDocument.declarations[0].recovery,
+            ...declaredHostPolicyRow("swooper-map-generated").recovery,
             ownerId: "mapgen-domain-workflow",
           },
         },
         {
-          ...defaultHostPolicyDocument.declarations[3],
+          ...declaredHostPolicyRow("mapgen-public-ops-apply-gate"),
           declarationId: "duplicate-apply-gate",
         },
         {
-          ...defaultHostPolicyDocument.declarations[4],
+          ...declaredHostPolicyRow("unsupported-project-kind-mod"),
           declarationId: "duplicate-project-support",
         },
       ],

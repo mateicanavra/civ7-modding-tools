@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { temperateHydromorphicStrategy } from "./temperate-hydromorphic.js";

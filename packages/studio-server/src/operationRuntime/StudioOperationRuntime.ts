@@ -1,4 +1,9 @@
 import { randomUUID } from "node:crypto";
+import {
+  assessCiv7SignedIntSeed,
+  CIV7_SIGNED_INT_SEED_MAX,
+  CIV7_SIGNED_INT_SEED_MIN,
+} from "@civ7/map-policy/setup";
 import type { StudioOperationsCurrent } from "@civ7/studio-contract";
 import {
   freezeSnapshot,
@@ -789,6 +794,7 @@ function prepareRunInGameRequest(
   }
   const rawControlField = findRawControlField({
     seed: input.seed,
+    gameSeed: input.gameSeed,
     worldSettings: input.worldSettings,
     setupConfig: input.setupConfig,
     canonicalConfig,
@@ -810,6 +816,15 @@ function prepareRunInGameRequest(
       invalidRequest({
         message: formatSeedError(seed),
         diagnostics: { code: "run-in-game-seed-invalid" },
+      })
+    );
+  }
+  const gameSeed = parseSeed(input.gameSeed);
+  if (!gameSeed.ok) {
+    return Effect.fail(
+      invalidRequest({
+        message: formatSeedError(gameSeed, "Run in Game game seed"),
+        diagnostics: { code: "run-in-game-game-seed-invalid" },
       })
     );
   }
@@ -853,6 +868,7 @@ function prepareRunInGameRequest(
     input: {
       canonicalConfig,
       seed: seed.value,
+      gameSeed: gameSeed.value,
       worldSettings: {
         mapSize,
         ...(playerCount === undefined ? {} : { playerCount }),
@@ -869,6 +885,7 @@ function prepareRunInGameRequest(
       const request: CanonicalRunInGameRequest = {
         recipeId: envelope.canonicalConfig.recipe,
         seed: envelope.seed,
+        gameSeed: envelope.gameSeed,
         mapSize: envelope.worldSettings.mapSize,
         ...(envelope.worldSettings.playerCount === undefined
           ? {}
@@ -901,8 +918,6 @@ function snapshotSaveDeployRequest(
   });
 }
 
-const RUN_IN_GAME_SEED_MIN = 0;
-const RUN_IN_GAME_SEED_MAX = 0x7fff_ffff;
 const RAW_CONTROL_FIELD_PATTERN =
   /^(?:args|command|context|operationType|script|javascript|rawJs|rawCommand|session|stateName)$/i;
 
@@ -911,25 +926,24 @@ type SeedParseResult =
   | Readonly<{ ok: false; reason: "empty" | "not-integer" | "out-of-range" }>;
 
 function parseSeed(value: unknown): SeedParseResult {
-  const normalized = typeof value === "string" ? value.trim() : value;
-  if (normalized === "" || normalized === undefined) return { ok: false, reason: "empty" };
-  const seed = typeof normalized === "number" ? normalized : Number(normalized);
-  if (!Number.isInteger(seed)) return { ok: false, reason: "not-integer" };
-  if (seed < RUN_IN_GAME_SEED_MIN || seed > RUN_IN_GAME_SEED_MAX) {
-    return { ok: false, reason: "out-of-range" };
+  if (value === undefined || (typeof value === "string" && value.trim() === "")) {
+    return { ok: false, reason: "empty" };
   }
-  return { ok: true, value: seed };
+  if (typeof value !== "string" && typeof value !== "number") {
+    return { ok: false, reason: "not-integer" };
+  }
+  return assessCiv7SignedIntSeed(typeof value === "number" ? value : Number(value.trim()));
 }
 
-function formatSeedError(seed: SeedParseResult): string {
+function formatSeedError(seed: SeedParseResult, label = "Run in Game seed"): string {
   if (seed.ok) return "";
   if (seed.reason === "empty") {
-    return `Run in Game seed is required (${RUN_IN_GAME_SEED_MIN} to ${RUN_IN_GAME_SEED_MAX}).`;
+    return `${label} is required (${CIV7_SIGNED_INT_SEED_MIN} to ${CIV7_SIGNED_INT_SEED_MAX}).`;
   }
   if (seed.reason === "not-integer") {
-    return `Run in Game seed must be an integer from ${RUN_IN_GAME_SEED_MIN} to ${RUN_IN_GAME_SEED_MAX}.`;
+    return `${label} must be an integer from ${CIV7_SIGNED_INT_SEED_MIN} to ${CIV7_SIGNED_INT_SEED_MAX}.`;
   }
-  return `Run in Game seed must be between ${RUN_IN_GAME_SEED_MIN} and ${RUN_IN_GAME_SEED_MAX}; Civ7 stores setup seeds as signed 32-bit integers.`;
+  return `${label} must be between ${CIV7_SIGNED_INT_SEED_MIN} and ${CIV7_SIGNED_INT_SEED_MAX}; Civ7 stores setup seeds as signed 32-bit integers.`;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

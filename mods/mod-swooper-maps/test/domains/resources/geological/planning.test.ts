@@ -279,7 +279,7 @@ describe("geological resource operation contract", () => {
     for (const selector of ["requiredResourceTypes", "resourceTypes", "includeResources"]) {
       expect(() =>
         normalizeOperationSelectionForTest(resources.ops.planGeologicalResources, {
-          strategy: "default",
+          strategy: "canonical-demand",
           config: { [selector]: ["RESOURCE_GOLD"] },
         })
       ).toThrow(TestCompileError);

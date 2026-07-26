@@ -17,7 +17,7 @@ const MAX_TARGET_ADJUSTMENT_PCT = 20; // percentage points
  * Applies variance to the target water percent using a deterministic RNG.
  */
 export function resolveTargetPercent(
-  config: ComputeSeaLevelTypes["config"]["default"],
+  config: ComputeSeaLevelTypes["config"]["hypsometric-target"],
   rng: LabelRng
 ): number {
   const targetBase = config.targetWaterPercent;

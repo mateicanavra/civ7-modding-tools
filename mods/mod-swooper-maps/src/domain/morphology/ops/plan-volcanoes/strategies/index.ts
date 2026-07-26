@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { plateHotspotRankingStrategy } from "./plate-hotspot-ranking.js";

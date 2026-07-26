@@ -1,11 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import PlanVolcanoesContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { plateHotspotRankingStrategy } from "./strategies/index.js";
 
 const planVolcanoes = createOp(PlanVolcanoesContract, {
   strategies: {
-    default: defaultStrategy,
+    "plate-hotspot-ranking": plateHotspotRankingStrategy,
   },
 });
 

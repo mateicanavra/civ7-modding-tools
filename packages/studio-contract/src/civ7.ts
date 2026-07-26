@@ -1,5 +1,11 @@
+import {
+  Civ7GameOptionsSchema,
+  Civ7MapOptionsSchema,
+  Civ7PlayerSetupsSchema,
+  Civ7SignedIntSeedSchema,
+} from "@civ7/map-policy/setup";
 import { oc } from "@orpc/contract";
-import { Type } from "typebox";
+import { Refine, type Static, Type } from "typebox";
 
 import {
   autoplayErrors,
@@ -10,6 +16,7 @@ import {
   setupCatalogErrors,
   setupConfigErrors,
 } from "./errors.js";
+import { savedSetupConfigRef } from "./runInGame.js";
 import {
   contractSchema,
   emptyInputSchema,
@@ -36,6 +43,94 @@ const setupCatalogSourceSchema = Type.Union([
   Type.Literal("official-resource-mirror"),
   Type.Literal("app-resources"),
 ]);
+
+const setupObservedScalarSchema = Type.Union([
+  Type.String(),
+  Type.Number(),
+  Type.Boolean(),
+  Type.Null(),
+]);
+
+const setupObservedValueSchema = Type.Union([setupObservedScalarSchema, Type.Array(Type.String())]);
+
+const setupInvalidReasonSchema = Type.Union([Type.String(), Type.Number(), Type.Null()]);
+
+/** Live value-domain evidence used by Studio to build one setup select option. */
+export const civ7SetupPossibleValueSchema = Type.Object(
+  {
+    value: setupObservedScalarSchema,
+    destroyed: Type.Optional(Type.Boolean()),
+    hidden: Type.Optional(Type.Boolean()),
+    readOnly: Type.Optional(Type.Boolean()),
+    invalidReason: Type.Optional(setupInvalidReasonSchema),
+  },
+  { additionalProperties: false }
+);
+
+/** Closed observation of one Civ7 setup parameter and its current authoring availability. */
+export const civ7SetupParameterSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1 }),
+    exists: Type.Boolean(),
+    value: Type.Optional(setupObservedValueSchema),
+    destroyed: Type.Optional(Type.Boolean()),
+    hidden: Type.Optional(Type.Boolean()),
+    readOnly: Type.Optional(Type.Boolean()),
+    invalidReason: Type.Optional(setupInvalidReasonSchema),
+    possibleValues: Type.Optional(Type.Array(civ7SetupPossibleValueSchema)),
+  },
+  { additionalProperties: false }
+);
+
+/** Studio-owned parameter observation projected from the current Civ7 setup surface. */
+export type Civ7SetupParameter = Static<typeof civ7SetupParameterSchema>;
+
+const civ7SetupParametersSchema = Refine(
+  Type.Array(civ7SetupParameterSchema),
+  (parameters) => new Set(parameters.map(({ id }) => id)).size === parameters.length,
+  () => "Civ7 setup parameter observations must use unique id values."
+);
+
+/** Closed player-scoped parameter group used by Studio's setup authoring controls. */
+export const civ7SetupPlayerGroupSchema = Type.Object(
+  {
+    playerId: Type.Integer({ minimum: 0, maximum: 63 }),
+    parameters: civ7SetupParametersSchema,
+  },
+  { additionalProperties: false }
+);
+
+const civ7SetupPlayerGroupsSchema = Refine(
+  Type.Array(civ7SetupPlayerGroupSchema),
+  (players) => new Set(players.map(({ playerId }) => playerId)).size === players.length,
+  () => "Civ7 setup player observations must use unique playerId values."
+);
+
+/** Closed selected-map evidence used to adopt the active map script into Studio state. */
+export const civ7SetupSelectedMapSchema = Type.Object(
+  {
+    file: Type.String({ minLength: 1 }),
+    value: Type.Optional(Type.String()),
+  },
+  { additionalProperties: false }
+);
+
+/**
+ * Minimal live Civ7 setup observation consumed by Studio.
+ * Provider state, endpoint identity, raw values, and unconsumed probes remain server-private.
+ */
+export const civ7SetupSnapshotSchema = Type.Object(
+  {
+    selectedMap: Type.Optional(civ7SetupSelectedMapSchema),
+    parameters: civ7SetupParametersSchema,
+    players: civ7SetupPlayerGroupsSchema,
+    localPlayerId: Type.Optional(Type.Integer({ minimum: 0, maximum: 63 })),
+  },
+  { additionalProperties: false }
+);
+
+/** Minimal provider-neutral live setup observation admitted by the Studio contract. */
+export type Civ7SetupSnapshot = Static<typeof civ7SetupSnapshotSchema>;
 
 // ---------------------------------------------------------------------------
 // #1 civ7.status - playable-status read (retired REST parity: GET /api/civ7/status)
@@ -164,7 +259,7 @@ export const autoplay = oc
 // ---------------------------------------------------------------------------
 // #10 civ7.setupConfig - setup-config read (retired REST parity: GET /api/civ7/setup-config)
 // ---------------------------------------------------------------------------
-// Request: none. Success 200: { ok:true, observedAt, setup, state, host, port }.
+// Request: none. Success 200: { ok:true, observedAt, setup }.
 // Error 503 (UNIQUE): { ok:false, error, observedAt }. Reads FireTuner socket.
 export const setupConfig = oc
   .errors(setupConfigErrors)
@@ -175,11 +270,7 @@ export const setupConfig = oc
         {
           ok: Type.Literal(true),
           observedAt: isoTimestampSchema,
-          // Civ7SetupSnapshot (@civ7/direct-control). Opaque payload.
-          setup: unknownRecordSchema,
-          state: unknownRecordSchema,
-          host: Type.String(),
-          port: Type.Number(),
+          setup: civ7SetupSnapshotSchema,
         },
         { additionalProperties: false }
       )
@@ -189,25 +280,55 @@ export const setupConfig = oc
 // ---------------------------------------------------------------------------
 // #11 civ7.savedConfigs - saved-configs read (retired REST parity: GET /api/civ7/saved-configs)
 // ---------------------------------------------------------------------------
-// Request: none. Success 200: { ok:true, observedAt, directory, configurations }
-// (spread of listCiv7SavedGameConfigurations listResult). Error 500:
-// { ok:false, error, observedAt }. Reads filesystem (Civ7 saved-config dir).
+// Request: none. Success 200: { ok:true, observedAt, configurations }.
+// Provider directory and file-stat metadata remain server-private. Error 500:
+// { ok:false, error, observedAt }. Reads the configured Civ7 saved-config provider.
+/** Saved Civ7 setup evidence that may be absent when the file cannot prove a field exactly. */
+export const savedSetupConfigurationSummarySchema = Type.Object(
+  {
+    gameSpeed: Type.Optional(Type.String()),
+    mapSize: Type.Optional(Type.String()),
+    mapName: Type.Optional(Type.String()),
+    leader: Type.Optional(Type.String()),
+    civilization: Type.Optional(Type.String()),
+    difficulty: Type.Optional(Type.String()),
+    mapSeed: Type.Optional(Civ7SignedIntSeedSchema),
+    gameSeed: Type.Optional(Civ7SignedIntSeedSchema),
+    playerCount: Type.Optional(Type.Integer({ minimum: 1, maximum: 64 })),
+  },
+  { additionalProperties: false }
+);
+
+/** One saved Civ7 configuration projected into the grouped setup model used at launch. */
+export const savedSetupConfigurationSchema = Type.Object(
+  {
+    ...savedSetupConfigRef.properties,
+    summary: savedSetupConfigurationSummarySchema,
+    gameOptions: Civ7GameOptionsSchema,
+    mapOptions: Civ7MapOptionsSchema,
+    playerOptions: Civ7PlayerSetupsSchema,
+  },
+  { additionalProperties: false }
+);
+/** One admitted saved configuration returned by the Studio control API. */
+export type Civ7SavedSetupConfiguration = Static<typeof savedSetupConfigurationSchema>;
+
+/** Closed public response for listing provider-neutral saved Civ7 configurations. */
+export const savedConfigsOutputSchema = Type.Object(
+  {
+    ok: Type.Literal(true),
+    observedAt: isoTimestampSchema,
+    configurations: Type.Array(savedSetupConfigurationSchema),
+  },
+  { additionalProperties: false }
+);
+/** Closed response carrying the saved configurations admitted from local Civ7Cfg files. */
+export type Civ7SavedConfigsOutput = Static<typeof savedConfigsOutputSchema>;
+
 export const savedConfigs = oc
   .errors(savedConfigsErrors)
   .input(emptyInputSchema)
-  .output(
-    contractSchema(
-      Type.Object(
-        {
-          ok: Type.Literal(true),
-          observedAt: isoTimestampSchema,
-          directory: Type.String(),
-          configurations: Type.Array(unknownRecordSchema),
-        },
-        { additionalProperties: false }
-      )
-    )
-  );
+  .output(contractSchema(savedConfigsOutputSchema));
 
 // ---------------------------------------------------------------------------
 // #12 civ7.setupCatalog - setup-catalog read (retired REST parity: GET /api/civ7/setup-catalog)

@@ -4,7 +4,6 @@ import {
   throwUnexpectedCommandPayloadStatus,
 } from "../session/command-result.js";
 import type { Civ7CommandResult, Civ7DirectControlOptions } from "../session/types.js";
-import { validateIdentifier } from "../validation.js";
 import {
   assertPreparedSetupMatches,
   type Civ7SinglePlayerSetupValues,
@@ -40,7 +39,6 @@ type Civ7SinglePlayerHostPayload =
 type SetupStartDependencies = SetupReadDependencies &
   Readonly<{
     parseStartPayload: (result: Civ7CommandResult, label: string) => Civ7SinglePlayerHostPayload;
-    validateIdentifier: (value: string, label: string) => string;
   }>;
 
 export async function hostPreparedCiv7SinglePlayerGame(
@@ -141,5 +139,4 @@ const defaultSetupStartDependencies: SetupStartDependencies = {
   ...defaultSetupReadDependencies,
   parseStartPayload: (result, label) =>
     jsonPayloadFromCommandResult<Civ7SinglePlayerHostPayload>(result, label),
-  validateIdentifier,
 };

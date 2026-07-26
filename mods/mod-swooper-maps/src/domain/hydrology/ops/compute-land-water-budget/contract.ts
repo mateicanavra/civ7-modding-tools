@@ -54,7 +54,7 @@ const ComputeLandWaterBudgetOutputSchema = Type.Object(
  * - If PET feels too strong/weak globally: adjust `petBase` and `petTemperatureWeight`.
  * - If humid climates should suppress PET more: increase `humidityDampening`.
  */
-const ComputeLandWaterBudgetDefaultStrategySchema = Type.Object(
+const PetAridityStrategySchema = Type.Object(
   {
     /** Minimum temperature for PET scaling (C). */
     tMinC: Type.Number({
@@ -94,7 +94,7 @@ const ComputeLandWaterBudgetDefaultStrategySchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Land water budget parameters (default strategy).",
+    description: "Land water budget parameters (pet-aridity strategy).",
   }
 );
 
@@ -103,9 +103,8 @@ const ComputeLandWaterBudgetContract = defineOp({
   id: "hydrology/compute-land-water-budget",
   input: ComputeLandWaterBudgetInputSchema,
   output: ComputeLandWaterBudgetOutputSchema,
-  defaultStrategy: "default",
   strategies: {
-    default: ComputeLandWaterBudgetDefaultStrategySchema,
+    "pet-aridity": PetAridityStrategySchema,
   },
 });
 

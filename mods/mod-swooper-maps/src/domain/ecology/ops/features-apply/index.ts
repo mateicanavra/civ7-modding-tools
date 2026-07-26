@@ -1,10 +1,10 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import FeaturesApplyContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { strictSingleOccupancyStrategy } from "./strategies/index.js";
 
 const applyFeatures = createOp(FeaturesApplyContract, {
   strategies: {
-    default: defaultStrategy,
+    "strict-single-occupancy": strictSingleOccupancyStrategy,
   },
 });
 

@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { backwardDriftStrategy } from "./backward-drift.js";

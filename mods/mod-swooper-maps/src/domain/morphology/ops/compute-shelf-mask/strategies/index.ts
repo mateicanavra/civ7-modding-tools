@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { physicalBreakConnectivityStrategy } from "./physical-break-connectivity.js";

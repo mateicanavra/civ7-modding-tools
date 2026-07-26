@@ -1,3 +1,9 @@
+import {
+  Civ7GameOptionsSchema,
+  Civ7MapOptionsSchema,
+  Civ7PlayerSetupsSchema,
+  Civ7SignedIntSeedSchema,
+} from "@civ7/map-policy/setup";
 import type { ContractProcedure } from "@orpc/contract";
 import { type Static, Type } from "typebox";
 
@@ -10,12 +16,6 @@ import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
 import { Civ7ControlOrpcCorrelationIdSchema } from "../../model/correlation";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
-const Civ7SetupOptionValueSchema = Type.Union([Type.String(), Type.Number(), Type.Boolean()]);
-const Civ7SetupOptionIdSchema = Type.String({ pattern: "^[A-Za-z_][A-Za-z0-9_]*$" });
-const Civ7SetupOptionsSchema = Type.Record(Civ7SetupOptionIdSchema, Civ7SetupOptionValueSchema, {
-  additionalProperties: false,
-});
-const Civ7PlayerIdSchema = Type.String({ pattern: "^(?:[0-9]|[1-5][0-9]|6[0-4])$" });
 const Civ7SingleLineSchema = Type.String({
   minLength: 1,
   maxLength: 512,
@@ -23,7 +23,6 @@ const Civ7SingleLineSchema = Type.String({
 });
 const Civ7MapScriptSchema = Civ7SingleLineSchema;
 const Civ7MapSizeTypeSchema = Type.String({ pattern: "^MAPSIZE_[A-Z0-9_]+$" });
-const Civ7SeedSchema = Type.Integer({ minimum: -2_147_483_648, maximum: 2_147_483_647 });
 const Civ7PlayerCountSchema = Type.Integer({ minimum: 1, maximum: 64 });
 const Civ7MapDimensionSchema = Type.Integer({ minimum: 1, maximum: 10_000 });
 const Civ7PlotCountSchema = Type.Integer({ minimum: 1, maximum: 100_000_000 });
@@ -38,8 +37,8 @@ const Civ7LifecycleSetupEvidenceSchema = Type.Object(
   {
     mapScript: Civ7MapScriptSchema,
     mapSize: Civ7MapSizeTypeSchema,
-    mapSeed: Civ7SeedSchema,
-    gameSeed: Civ7SeedSchema,
+    mapSeed: Civ7SignedIntSeedSchema,
+    gameSeed: Civ7SignedIntSeedSchema,
     playerCount: Type.Optional(Civ7PlayerCountSchema),
     targetModId: Civ7TargetModIdSchema,
     mapRowFiles: Type.Array(Civ7MapScriptSchema, { minItems: 1, uniqueItems: true }),
@@ -49,7 +48,7 @@ const Civ7LifecycleSetupEvidenceSchema = Type.Object(
 
 const Civ7LifecycleRuntimeEvidenceSchema = Type.Object(
   {
-    seed: Civ7SeedSchema,
+    seed: Civ7SignedIntSeedSchema,
     mapSize: Civ7MapSizeTypeSchema,
     width: Type.Optional(Civ7MapDimensionSchema),
     height: Type.Optional(Civ7MapDimensionSchema),
@@ -69,7 +68,6 @@ const Civ7SavedConfigIdentitySchema = Type.Object(
       maxLength: 512,
       pattern: "^[^/\\\\\\r\\n\\0]+\\.[Cc][Ii][Vv]7[Cc][Ff][Gg]$",
     }),
-    path: Civ7SingleLineSchema,
   },
   { additionalProperties: false }
 );
@@ -78,14 +76,14 @@ const Civ7LifecycleSinglePlayerStartInputSchema = Type.Object(
   {
     mapScript: Civ7MapScriptSchema,
     mapSize: Civ7MapSizeTypeSchema,
-    seed: Civ7SeedSchema,
+    mapSeed: Civ7SignedIntSeedSchema,
+    gameSeed: Civ7SignedIntSeedSchema,
     playerCount: Type.Optional(Civ7PlayerCountSchema),
     targetModId: Civ7TargetModIdSchema,
     savedConfig: Type.Optional(Civ7SavedConfigIdentitySchema),
-    gameOptions: Civ7SetupOptionsSchema,
-    playerOptions: Type.Record(Civ7PlayerIdSchema, Civ7SetupOptionsSchema, {
-      additionalProperties: false,
-    }),
+    gameOptions: Civ7GameOptionsSchema,
+    mapOptions: Civ7MapOptionsSchema,
+    playerOptions: Civ7PlayerSetupsSchema,
     activeGamePolicy: Type.Literal("exit-active-game"),
   },
   { additionalProperties: false }

@@ -39,7 +39,7 @@ export const ClimateRefineStep = createStep(ClimateRefineStepContract, {
 
     const next = { ...config };
 
-    if (next.computeThermalState.strategy === "default") {
+    if (next.computeThermalState.strategy === "insolation-lapse-rate") {
       const deltaC = baseTemperatureC - HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C.temperate;
       if (deltaC !== 0) {
         next.computeThermalState = {
@@ -82,14 +82,14 @@ export const ClimateRefineStep = createStep(ClimateRefineStepContract, {
     }
 
     if (cryosphere === "off") {
-      if (next.applyAlbedoFeedback.strategy === "default") {
+      if (next.applyAlbedoFeedback.strategy === "bounded-snow-ice") {
         next.applyAlbedoFeedback = {
           ...next.applyAlbedoFeedback,
           config: { ...next.applyAlbedoFeedback.config, iterations: 0 },
         };
       }
 
-      if (next.computeCryosphereState.strategy === "default") {
+      if (next.computeCryosphereState.strategy === "temperature-thresholds") {
         next.computeCryosphereState = {
           ...next.computeCryosphereState,
           config: {

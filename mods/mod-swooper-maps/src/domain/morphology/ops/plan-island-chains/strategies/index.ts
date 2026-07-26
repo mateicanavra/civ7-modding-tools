@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { plateAwareVolcanicStrategy } from "./plate-aware-volcanic.js";
