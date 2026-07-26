@@ -53,7 +53,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Water coverage controls used to choose sea level from terrain hypsometry.",
+      description:
+        "Target water share, variance, and crust-composition adjustments used to select sea level from terrain hypsometry.",
     }
   ),
 });

@@ -1,16 +1,17 @@
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import type { TraceJsonObject } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { measureStandardDiscoveryPlacement } from "../../../../metrics/families/discovery-placement.js";
 import { runPlacementProductStep } from "../../log.js";
-import { PlaceDiscoveriesStepContract } from "./config.js";
+import { config } from "./config.js";
 import { placeOfficialDiscoveries } from "./materialize.js";
 
 /**
  * Runs Civ7 discovery generation only after resources and starts are stamped,
- * feeding seated starts as exclusions and publishing observed outcomes.
+ * feeding seated starts as exclusions and returning the observed counts.
  */
-export const PlaceDiscoveriesStep = createStep(PlaceDiscoveriesStepContract, {
-  run: (context, _config, _ops, deps) => {
+export const PlaceDiscoveriesStep = createStep(config, {
+  run: (context, _stepConfig, _ops, deps) => {
     const { width, height } = context.setup.dimensions;
     // Civ7's official generator gates discoveries away from major starts; feed it
     // the seated start plots (drop unseated -1 sentinels) exactly as the base
@@ -42,12 +43,15 @@ export const PlaceDiscoveriesStep = createStep(PlaceDiscoveriesStepContract, {
         version: 1,
         startPositions: startPositions.length,
         polarMargin,
-        plannedCount: outcomes.summary.plannedCount,
+        attemptedCount: outcomes.summary.attemptedCount,
         placedCount: outcomes.summary.placedCount,
         rejectedCount: outcomes.summary.rejectedCount,
       })}`
     );
 
-    deps.artifacts.discoveryPlacementOutcomes.publish(context, outcomes);
+    return outcomes;
   },
+  metrics: ({ result }) => ({
+    "placement.discoveryGeneration": measureStandardDiscoveryPlacement(result.summary),
+  }),
 });

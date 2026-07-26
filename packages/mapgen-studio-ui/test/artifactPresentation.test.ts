@@ -20,35 +20,35 @@ describe("recipe DAG artifact presentation", () => {
       domainId: "hydrology",
       label: "hydrography",
     });
-    expect(parseArtifactPresentation("artifact:map.hydrology.engineProjectionLakes")).toEqual({
-      id: "artifact:map.hydrology.engineProjectionLakes",
+    expect(parseArtifactPresentation("artifact:hydrology.lakePlan")).toEqual({
+      id: "artifact:hydrology.lakePlan",
       domainId: "hydrology",
-      label: "engineProjectionLakes",
+      label: "lakePlan",
     });
     expect(parseArtifactPresentation("artifact:map.rivers.projectedNavigableRivers")).toEqual({
       id: "artifact:map.rivers.projectedNavigableRivers",
       domainId: "hydrology",
       label: "projectedNavigableRivers",
     });
-    expect(parseArtifactPresentation("artifact:map.placementEngineTerrainSnapshot")).toEqual({
-      id: "artifact:map.placementEngineTerrainSnapshot",
+    expect(parseArtifactPresentation("artifact:placement.naturalWonderPlacement")).toEqual({
+      id: "artifact:placement.naturalWonderPlacement",
       domainId: "placement",
-      label: "EngineTerrainSnapshot",
+      label: "naturalWonderPlacement",
     });
-    expect(parseArtifactPresentation("artifact:map.foundationPlates")).toEqual({
-      id: "artifact:map.foundationPlates",
+    expect(parseArtifactPresentation("artifact:foundation.plates")).toEqual({
+      id: "artifact:foundation.plates",
       domainId: "foundation",
-      label: "Plates",
+      label: "plates",
     });
-    expect(parseArtifactPresentation("artifact:placementInputs")).toEqual({
-      id: "artifact:placementInputs",
+    expect(parseArtifactPresentation("artifact:placement.naturalWonderPlan")).toEqual({
+      id: "artifact:placement.naturalWonderPlan",
       domainId: "placement",
-      label: "Inputs",
+      label: "naturalWonderPlan",
     });
-    expect(parseArtifactPresentation("artifact:climateField")).toEqual({
-      id: "artifact:climateField",
-      domainId: "climate",
-      label: "Field",
+    expect(parseArtifactPresentation("artifact:hydrology.climateField")).toEqual({
+      id: "artifact:hydrology.climateField",
+      domainId: "hydrology",
+      label: "climateField",
     });
     expect(parseArtifactPresentation("artifact:hydrology._internal.windField")).toEqual({
       id: "artifact:hydrology._internal.windField",
@@ -68,12 +68,15 @@ describe("recipe DAG artifact presentation", () => {
     ).toBe("hydrology");
     expect(
       resolveArtifactGroupDomainId([
-        "artifact:map.hydrology.engineProjectionLakes",
+        "artifact:hydrology.lakePlan",
         "artifact:map.rivers.projectedNavigableRivers",
       ])
     ).toBe("hydrology");
     expect(
-      resolveArtifactGroupDomainId(["artifact:hydrology.hydrography", "artifact:ecology.biomes"])
+      resolveArtifactGroupDomainId([
+        "artifact:hydrology.hydrography",
+        "artifact:ecology.biomeClassification",
+      ])
     ).toBeNull();
   });
 });

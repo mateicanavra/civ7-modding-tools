@@ -11,7 +11,7 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "advisory",
+  "lane": "enforced",
   "forbids": "domain aggregate contract files exposing constituent module contracts or any authority besides their singular default defineDomain result",
   "why": "A domain contract is one aggregate identity over direct semantic modules. Keeping constituent contracts private prevents callers from selecting partial or alternate contract authorities through the aggregate owner.",
   "remediate": "Import direct module contracts from ./modules/<module>/contract.js, compose one local defineDomain binding, and export only that binding as default.",

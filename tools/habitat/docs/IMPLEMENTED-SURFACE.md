@@ -142,6 +142,7 @@ Implemented `pattern` generator:
 Implemented:
 
 - Husky delegators for pre-commit and pre-push;
+- a Codex Stop delegator to the registry-owned enforced structure-rule slice;
 - resource submodule state checks;
 - staged generated-zone checks;
 - partial-staging refusal before formatting;

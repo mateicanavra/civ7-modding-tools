@@ -4,7 +4,7 @@ import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 import { Value } from "typebox/value";
 
 import foundationTectonicsStage from "../../../../../../../../src/recipes/standard/stages/foundation/tectonics/index.js";
-import { TectonicsStepContract } from "../../../../../../../../src/recipes/standard/stages/foundation/tectonics/steps/tectonics/config.js";
+import { config as tectonicsStepConfig } from "../../../../../../../../src/recipes/standard/stages/foundation/tectonics/steps/tectonics/config.js";
 import { TectonicsStep } from "../../../../../../../../src/recipes/standard/stages/foundation/tectonics/steps/tectonics/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import {
@@ -18,10 +18,11 @@ const setup = admitMapSetup({
   latitudeBounds: standardMapConfig.latitudeBounds,
 });
 
-function normalizePlateActivity(plateActivity: number) {
+function normalizePlateActivity(plateActivity: number, authoredGain = 1) {
   if (!TectonicsStep.normalize) throw new Error("Tectonics must normalize plate activity.");
   const stageConfig = createStandardRecipeTestConfig()["foundation-tectonics"];
   stageConfig.knobs.plateActivity = plateActivity;
+  stageConfig.tectonics.computeEraTectonicFields.config.orogenyActivityGain = authoredGain;
   const admitted = validateSchemaValueForTest(
     foundationTectonicsStage.surfaceSchema,
     stageConfig,
@@ -32,12 +33,12 @@ function normalizePlateActivity(plateActivity: number) {
     stageConfig: admitted,
   });
   const config = validateSchemaValueForTest(
-    TectonicsStepContract.schema,
-    Value.Default(TectonicsStepContract.schema, Value.Clone(rawSteps.tectonics)),
+    tectonicsStepConfig.schema,
+    Value.Default(tectonicsStepConfig.schema, Value.Clone(rawSteps.tectonics)),
     "/foundation-tectonics/tectonics"
   );
   return validateSchemaValueForTest(
-    TectonicsStepContract.schema,
+    tectonicsStepConfig.schema,
     TectonicsStep.normalize(config, { setup, knobs }),
     "/foundation-tectonics/tectonics"
   );
@@ -45,11 +46,11 @@ function normalizePlateActivity(plateActivity: number) {
 
 describe("foundation tectonics authoring", () => {
   it("scales orogeny emission without changing motion or regime selection", () => {
-    const neutral = normalizePlateActivity(0.5);
-    const active = normalizePlateActivity(0.8);
+    const neutral = normalizePlateActivity(0.5, 1.5);
+    const active = normalizePlateActivity(0.8, 1.5);
 
-    expect(neutral.computeEraTectonicFields.config.orogenyActivityGain).toBeCloseTo(1, 6);
-    expect(active.computeEraTectonicFields.config.orogenyActivityGain).toBeCloseTo(1.12, 6);
+    expect(neutral.computeEraTectonicFields.config.orogenyActivityGain).toBeCloseTo(1.5, 6);
+    expect(active.computeEraTectonicFields.config.orogenyActivityGain).toBeCloseTo(1.68, 6);
     expect(active.computePlateMotion).toEqual(neutral.computePlateMotion);
     expect(active.computeTectonicSegments).toEqual(neutral.computeTectonicSegments);
   });

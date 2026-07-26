@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { StepFacetSinks } from "@swooper/mapgen-core";
-import type { VizLayerMeta } from "@swooper/mapgen-viz";
+import type { VizLayerMeta, VizProjection } from "@swooper/mapgen-viz";
 
 import { PLACEMENT_VIZ_GROUP } from "../../../../../src/recipes/standard/stages/placement/viz.js";
 import { runStandardRecipeTestMap } from "../../fixtures/standard-recipe.js";
@@ -22,6 +22,7 @@ const EXPECTED_KEYS_BY_STEP: Record<string, readonly string[]> = {
   "plot-landmass-regions": ["placement.landmassRegions.regionSlot"],
   "place-natural-wonders": ["placement.wonders.outcome"],
   "prepare-placement-surface": [
+    "map.placement.surface.maintenanceBoundary",
     "map.placement.surface.lakeDrift",
     "map.placement.surface.terrainValidationDrift",
   ],
@@ -74,13 +75,17 @@ const OVERLAY_SUGGESTION_KEYS = [
 
 describe("placement per-step viz coverage (E4.2/E4.3)", () => {
   const metaByKey = new Map<string, VizLayerMeta | undefined>();
+  const capturedProjections: VizProjection[] = [];
   const record = (layer: { dataTypeKey: string; meta?: VizLayerMeta }): void => {
     if (!metaByKey.has(layer.dataTypeKey) || layer.meta) {
       metaByKey.set(layer.dataTypeKey, layer.meta);
     }
   };
-  const captureViz: NonNullable<StepFacetSinks["viz"]> = (projections) => {
-    for (const projection of projections) record(projection);
+  const captureViz: NonNullable<StepFacetSinks["viz"]> = (stepProjections) => {
+    for (const projection of stepProjections) {
+      record(projection);
+      capturedProjections.push(projection);
+    }
   };
   runStandardRecipeTestMap({
     mapInfo: {
@@ -147,5 +152,30 @@ describe("placement per-step viz coverage (E4.2/E4.3)", () => {
 
   it("does not emit the removed sectorId layer", () => {
     expect(metaByKey.has("placement.starts.sectorId")).toBe(false);
+  });
+
+  it("preserves each exact placement maintenance boundary as typed grid-field evidence", () => {
+    const boundaries = capturedProjections.filter(
+      (projection) =>
+        projection.dataTypeKey === "map.placement.surface.maintenanceBoundary" &&
+        projection.kind === "gridFields"
+    );
+
+    expect(boundaries.map(({ variantKey }) => variantKey).sort()).toEqual([
+      "after-maintenance",
+      "after-validate",
+      "before-validate",
+    ]);
+    for (const boundary of boundaries) {
+      if (boundary.kind !== "gridFields") {
+        throw new Error("Placement maintenance evidence must remain a grid-fields projection.");
+      }
+      expect(Object.keys(boundary.fields).sort()).toEqual([
+        "areaId",
+        "lakeMask",
+        "terrain",
+        "waterMask",
+      ]);
+    }
   });
 });

@@ -59,8 +59,12 @@ Keep MapGen configuration and step/op contracts:
 
 ### 4) Materialize only recipe-produced internal step envelopes
 
-- A stage receives an already complete public stage config and translates it
-  into internal step inputs.
+- A stage receives an already complete stage config. By default that surface is
+  composed directly from its step schemas, including bound operation
+  envelopes, and passes those values through as internal step inputs.
+- A rare full public override must be authored inline in the concrete stage and
+  compile through a meaningful semantic translation. External stage
+  `public.config.ts` assemblies are not an admitted schema owner.
 - The compiler may apply step-schema defaults to that stage-produced internal
   value at the named stage-to-step compilation boundary. This is not public
   config admission and must not be exposed as a sparse authoring API.

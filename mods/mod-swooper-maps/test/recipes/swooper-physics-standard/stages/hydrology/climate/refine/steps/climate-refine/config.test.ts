@@ -17,7 +17,11 @@ const setup = admitMapSetup({
 function normalizeDryness(dryness: "wet" | "mix") {
   const recipeConfig = createStandardRecipeTestConfig();
   const stageConfig = recipeConfig["hydrology-climate-refine"];
-  stageConfig.precipitationRefinement.riverCorridor.lowlandAdjacencyBonus = 20;
+  const precipitation = stageConfig["climate-refine"].computePrecipitation;
+  if (precipitation.strategy !== "refine") {
+    throw new Error("Climate refine must author refined precipitation.");
+  }
+  precipitation.config.riverCorridor.lowlandAdjacencyBonus = 20;
   stageConfig.knobs.dryness = dryness;
   stageConfig.knobs.temperature = "temperate";
   stageConfig.knobs.cryosphere = "on";

@@ -1,6 +1,6 @@
 # Domain Operation Strategy Blueprint
 
-Status: affirmed constructible kind, advisory implementation-aggregate-and-leaf migration, target-leaf import boundary ready
+Status: affirmed constructible kind with enforced implementation-aggregate-and-leaf topology and import boundaries
 
 Owner: DRA Habitat authority-tree workstream
 
@@ -82,9 +82,8 @@ guard:
   strategy-root definition barrel can create a cycle. This strategy blueprint
   requires the strategy slot without weakening the parent operation blueprint,
   and refuses the identity-erasing `strategies/default/` directory and every
-  alternate helper or flat-module surface. The rule remains advisory only while
-  the current source corpus migrates; it carries no baseline and becomes enforced
-  when the corpus is green.
+  alternate helper or flat-module surface. The rule is enforced with an empty
+  baseline after the current source corpus reached the accepted topology.
 
 TypeScript and the operation SDK remain the authority for declared strategy
 keys, definition/implementation binding, multi-strategy default selection, and

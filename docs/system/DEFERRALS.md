@@ -42,14 +42,6 @@ The DEF-004…DEF-014 family is owned by the placement-realignment project
 (`docs/projects/placement-realignment/`; slice evidence under `evidence/`,
 live-proof runbook in `MILESTONE-PROOFS.md`).
 
-## DEF-004: Retire the declared post-maintenance terrain readback in wonder planning
-
-**Deferred:** 2026-06-10
-**Trigger:** An artifact carrying the post-maintenance terrain surface exists (e.g. a features-apply boundary snapshot), OR Milestone B live parity shows drift inside the readback window.
-**Context:** `validateAndFixTerrain` runs inside the features projection step with engine-only terrain side effects, so no artifact carries the post-maintenance terrain surface; `derive-placement-inputs` keeps one DECLARED engine terrain readback (ADR-009 declared-read clause). Owner: placement-realignment (S6 decision log, `openspec/changes/placement-realignment-s6-hygiene/proposal.md`).
-**Scope:** Publish a post-maintenance terrain artifact at the features projection boundary; switch wonder planning to consume it; delete `readDeclaredEngineTerrainSurface`.
-**Impact:** One declared engine-surface read remains in planning inputs; offline reconstruction of wonder plans depends on mock maintenance matching live maintenance (Milestone B measures the drift window).
-
 ## DEF-005: Route `resolveActiveResourceAge` GameInfo read through the adapter
 
 **Deferred:** 2026-06-10
@@ -167,6 +159,18 @@ Some deferrals are intentionally scoped to a specific project/milestone (e.g., E
 ## Resolved Deferrals
 
 *Move resolved deferrals here with resolution notes.*
+
+## DEF-004: Retire the declared post-maintenance terrain readback in wonder planning
+
+**Deferred:** 2026-06-10
+**Resolved:** 2026-07-24
+**Context:** The original proposal treated current engine terrain as a future causal artifact
+([archived S6 decision](../../openspec/changes/archive/2026-07-24-placement-realignment-s6-hygiene/proposal.md)).
+That model was superseded when recipe-stage artifact catalogs retired.
+**Resolution:** Placement observes current terrain through its declared adapter capabilities at the
+invocation that needs it. Mutable engine state never becomes a causal artifact; metrics,
+visualization, trace, and diagnostics may retain completed evidence without creating a second state
+authority.
 
 ## DEF-016: Nx parallel task race around shared build outputs
 

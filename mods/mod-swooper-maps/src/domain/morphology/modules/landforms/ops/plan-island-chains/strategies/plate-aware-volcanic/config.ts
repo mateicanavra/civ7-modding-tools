@@ -79,7 +79,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Island-chain controls exposed as the Morphology feature authoring surface.",
+      description:
+        "Active-margin and hotspot frequency, land-distance, cluster-size, and microcontinent controls used to plan volcanic island chains.",
     }
   ),
 });

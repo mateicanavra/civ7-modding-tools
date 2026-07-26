@@ -4,7 +4,16 @@ export {
   type ResourceFamily,
   ResourceFamilySchema,
   ResourceLaneKindSchema,
-  ResourceSitePlanSchema,
+  ResourcePlanIntentSchema,
+  ResourcePlanPerTypeSchema,
+  ResourcePlanPhaseSchema,
+  ResourcePlanRegionMinimumSchema,
+  ResourcePlanSettingsSchema,
+  ResourcePlanShortfallSchema,
+  admitPositiveResourceRegionMinimum,
+  type PositiveResourceRegionMinimum,
+  type ResourceRegionMinimumRequirement,
+  ResourceRegionMinimumRequirementSchema,
   type ResourceSymbol,
   ResourceSymbolSchema,
 } from "./model/atoms/index.js";
@@ -12,10 +21,12 @@ export {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   type EarthlikeResourceExpectation,
   type ResourceExpectationGroupId,
-  type ResourceExpectationRangeEvidence,
   type ResourceExpectationStatus,
+} from "./modules/demand/index.js";
+export {
+  type ResourceExpectationRangeEvidence,
   type ResourceExpectedCountRange,
-} from "./modules/demand/model/policy/earthlike-expectations.js";
+} from "./modules/demand/index.js";
 export {
   buildHabitatEligibility,
   type HabitatEligibility,
@@ -23,7 +34,7 @@ export {
   RESOURCE_HABITAT_SIGNALS,
   type ResourceFamilyId,
   type ResourceHabitatSignal,
-} from "./modules/demand/model/policy/habitat-eligibility.js";
+} from "./modules/demand/index.js";
 export {
   buildInitialMapResourceAuthoringPolicy,
   DEFERRED_INITIAL_MAP_RESOURCE_TYPES,
@@ -35,17 +46,11 @@ export {
   type InitialMapResourceAuthoringPolicyEntry,
   type InitialMapResourceAuthoringStatus,
   isInitialMapResourceType,
-} from "./modules/demand/model/policy/initial-map-authoring.js";
+} from "./modules/demand/index.js";
 export {
   HABITAT_INTENSITY_FIELD_NAMES,
   HABITAT_MASK_FIELD_NAMES,
   type HabitatFieldsOutput,
   type HabitatIntensityFieldName,
   type HabitatMaskFieldName,
-} from "./modules/habitat/model/atoms/index.js";
-export {
-  admitPositiveResourceRegionMinimum,
-  type PositiveResourceRegionMinimum,
-  type ResourceRegionMinimumRequirement,
-  ResourceRegionMinimumRequirementSchema,
-} from "./modules/sites/model/atoms/index.js";
+} from "./modules/habitat/index.js";

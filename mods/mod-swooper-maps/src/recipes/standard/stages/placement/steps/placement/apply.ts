@@ -1,66 +1,48 @@
+import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/modules/regions/artifacts/index.js";
+import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
+import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
+import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import type { MapContext, TraceJsonObject } from "@swooper/mapgen-core";
-
-import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
+import type { ArtifactReadValueOf, DeepReadonly } from "@swooper/mapgen-core/authoring";
 import {
   type CurrentEngineHeightfield,
-  type EngineHeightfieldSnapshot,
+  type EngineHeightfieldObservation,
   engineLandMaskFromWaterMask,
 } from "../../../../current-engine-surface.js";
 import { logAsciiMap, logTerrainStats } from "../../log.js";
 
-type PlacementOutputsV1 = Static<
-  typeof import("../../artifacts/placement-outputs.artifact.js").artifact.schema
+type LandmassRegionSlotByTile = ArtifactReadValueOf<
+  typeof placementRegionArtifacts.landmassRegionSlotByTile
 >;
-type LandmassRegionSlotByTile = Static<
-  typeof import("../../artifacts/index.js").artifacts["landmassRegionSlotByTile"]["schema"]
+type NaturalWonderPlacement = ArtifactReadValueOf<
+  typeof placementWonderArtifacts.naturalWonderPlacement
 >;
-type NaturalWonderPlacement = Static<
-  typeof import("../../artifacts/index.js").artifacts["naturalWonderPlacement"]["schema"]
+type ResourcePlacementOutcomes = ArtifactReadValueOf<
+  typeof resourceSiteArtifacts.resourcePlacementOutcomes
 >;
-type EngineTerrainSnapshot = Static<
-  typeof import("../../artifacts/index.js").artifacts["placementEngineTerrainSnapshot"]["schema"]
->;
-type PlacementEngineState = Static<
-  typeof import("../../artifacts/index.js").artifacts["engineState"]["schema"]
->;
-type PlacementSurfacePreparation = Static<
-  typeof import("../../artifacts/index.js").artifacts["placementSurfacePreparation"]["schema"]
->;
-type ResourcePlacementOutcomes = Static<
-  typeof import("../../artifacts/index.js").artifacts["resourcePlacementOutcomes"]["schema"]
->;
-type DiscoveryPlacementOutcomes = Static<
-  typeof import("../../artifacts/index.js").artifacts["discoveryPlacementOutcomes"]["schema"]
->;
-type AdvancedStartAssignment = Static<
-  typeof import("../../artifacts/index.js").artifacts["advancedStartAssignment"]["schema"]
->;
-type StartAssignment = Static<
-  typeof import("../../artifacts/index.js").artifacts["startAssignment"]["schema"]
->;
+type StartAssignment = ArtifactReadValueOf<typeof placementStartArtifacts.startAssignment>;
 
 type ApplyPlacementArgs = {
   context: MapContext;
   currentEngineHeightfield: CurrentEngineHeightfield;
   naturalWonderPlacement: DeepReadonly<NaturalWonderPlacement>;
-  surfacePreparation: DeepReadonly<PlacementSurfacePreparation>;
   resourcePlacement: DeepReadonly<ResourcePlacementOutcomes>;
   startAssignment: DeepReadonly<StartAssignment>;
-  discoveryPlacement: DeepReadonly<DiscoveryPlacementOutcomes>;
-  advancedStartAssignment: DeepReadonly<AdvancedStartAssignment>;
   landmassRegionSlotByTile: DeepReadonly<LandmassRegionSlotByTile>;
   topographyLandMask: DeepReadonly<Uint8Array>;
-  publishOutputs: (outputs: PlacementOutputsV1) => DeepReadonly<PlacementOutputsV1>;
-  publishEngineState?: (engineState: PlacementEngineState) => DeepReadonly<PlacementEngineState>;
-  publishEngineTerrainSnapshot?: (
-    snapshot: EngineTerrainSnapshot
-  ) => DeepReadonly<EngineTerrainSnapshot>;
 };
 
 /** Completed placement evidence needed by the terminal step's optional visualization facet. */
 export type ApplyPlacementResult = Readonly<{
-  engineSnapshot: EngineHeightfieldSnapshot;
+  engineObservation: EngineHeightfieldObservation;
   waterDrift: Uint8Array;
+  summary: Readonly<{
+    slotCounts: Readonly<{ none: number; west: number; east: number }>;
+    naturalWondersCount: number;
+    resourcesCount: number;
+    startsAssigned: number;
+    waterDriftCount: number;
+  }>;
 }>;
 
 /**
@@ -68,24 +50,18 @@ export type ApplyPlacementResult = Readonly<{
  * mutated the Civ7 engine.
  *
  * This terminal step intentionally has no product materialization helpers. It
- * verifies artifacts, captures final engine snapshots, and publishes summary
- * evidence so the recipe can observe placement completion without hiding more
+ * reads immutable products, records the final adapter observation, and returns
+ * summary evidence so the recipe can observe placement completion without hiding more
  * engine writes behind a broad `apply` owner.
  */
 export function applyPlacementPlan({
   context,
   currentEngineHeightfield,
   naturalWonderPlacement,
-  surfacePreparation,
   resourcePlacement,
   startAssignment,
-  discoveryPlacement,
-  advancedStartAssignment,
   landmassRegionSlotByTile,
   topographyLandMask,
-  publishOutputs,
-  publishEngineState = (engineState) => engineState,
-  publishEngineTerrainSnapshot = (snapshot) => snapshot,
 }: ApplyPlacementArgs): ApplyPlacementResult {
   const { width, height } = context.setup.dimensions;
   const emit = (payload: TraceJsonObject): void => {
@@ -99,7 +75,12 @@ export function applyPlacementPlan({
   // terminal step consumes it directly instead of re-normalizing it through a
   // cross-step helper import.
   const slotByTile = landmassRegionSlotByTile.slotByTile;
-  const slotCounts = surfacePreparation.slotCounts;
+  const slotCounts = { none: 0, west: 0, east: 0 };
+  for (const slot of slotByTile) {
+    if (slot === 1) slotCounts.west += 1;
+    else if (slot === 2) slotCounts.east += 1;
+    else slotCounts.none += 1;
+  }
   const resourcesPlaced = resourcePlacement.summary.placedCount;
   const startsAssigned = startAssignment.assigned;
   const startTierSummary = {
@@ -112,27 +93,17 @@ export function applyPlacementPlan({
     candidateCount: startAssignment.candidateCount,
     tierCounts: startAssignment.tierCounts,
   };
-  const discoveriesPlanned = discoveryPlacement.summary.plannedCount;
-  const discoveriesPlaced = discoveryPlacement.summary.placedCount;
-
-  if (
-    !advancedStartAssignment.fertilityRecalculated ||
-    !advancedStartAssignment.advancedStartsAssigned
-  ) {
-    throw new Error("[Placement] Advanced start evidence is incomplete.");
-  }
-
   logTerrainStats(context, "Final", currentEngineHeightfield);
   logAsciiMap(context, currentEngineHeightfield);
 
   // Compare the final Morphology land classification with the engine surface
   // after all placement product work has completed.
-  const engineSnapshot: EngineHeightfieldSnapshot = {
+  const engineObservation: EngineHeightfieldObservation = {
     terrain: currentEngineHeightfield.terrain,
     elevation: currentEngineHeightfield.elevation,
     landMask: engineLandMaskFromWaterMask(currentEngineHeightfield.waterMask),
   };
-  const engineLandMask = engineSnapshot.landMask;
+  const engineLandMask = engineObservation.landMask;
   let waterDriftCount = 0;
   const waterDrift = new Uint8Array(engineLandMask.length);
   for (let i = 0; i < engineLandMask.length; i++) {
@@ -142,31 +113,6 @@ export function applyPlacementPlan({
       waterDrift[i] = (engineLandMask[i] ?? 0) === 1 ? 1 : 2;
     }
   }
-  publishEngineTerrainSnapshot({
-    stage: "placement/placement",
-    width,
-    height,
-    landMask: engineSnapshot.landMask,
-    terrain: engineSnapshot.terrain,
-    elevation: engineSnapshot.elevation,
-  });
-
-  publishEngineState({
-    width,
-    height,
-    slotByTile: new Uint8Array(slotByTile),
-    engineLandMask,
-    slotCounts,
-    startsAssigned,
-    resourcesAttempted: true,
-    resourcesPlaced,
-    waterDriftCount,
-    wondersPlanned: naturalWonderPlacement.plannedCount,
-    wondersPlaced: naturalWonderPlacement.placedCount,
-    discoveriesPlanned,
-    discoveriesPlaced,
-  });
-
   emit({
     type: "placement.parity",
     slotCounts,
@@ -174,17 +120,19 @@ export function applyPlacementPlan({
     wondersPlaced: naturalWonderPlacement.placedCount,
     resourcesAttempted: true,
     resourcesPlaced,
-    discoveriesPlanned,
-    discoveriesPlaced,
     waterDriftCount,
     starts: startTierSummary,
   });
 
-  publishOutputs({
-    naturalWondersCount: naturalWonderPlacement.placedCount,
-    resourcesCount: resourcesPlaced,
-    startsAssigned,
-    discoveriesCount: discoveriesPlaced,
-  });
-  return { engineSnapshot, waterDrift };
+  return {
+    engineObservation,
+    waterDrift,
+    summary: {
+      slotCounts,
+      naturalWondersCount: naturalWonderPlacement.placedCount,
+      resourcesCount: resourcesPlaced,
+      startsAssigned,
+      waterDriftCount,
+    },
+  };
 }

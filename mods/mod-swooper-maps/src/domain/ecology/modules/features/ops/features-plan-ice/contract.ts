@@ -1,8 +1,8 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { FeaturePlacementSchema } from "../../model/atoms/index.js";
+import { IceFeaturePlacementSchema } from "../../model/atoms/index.js";
 import scoreThresholdDefinition from "./strategies/score-threshold/config.js";
 
-/** Converts freeze suitability into sparse ice intent without claiming reserved or occupied tiles. Every implementation shares this admitted input and output boundary. */
+/** Converts freeze suitability into sparse ice intent without claiming an occupied tile. Every implementation shares this admitted input and output boundary. */
 const PlanIceContract = defineOp({
   kind: "plan",
   id: "ecology/features/plan-ice",
@@ -14,12 +14,9 @@ const PlanIceContract = defineOp({
     featureOccupancyMask: TypedArraySchemas.u8({
       description: "0 = unoccupied, nonzero = already claimed by an ecology feature intent.",
     }),
-    reserved: TypedArraySchemas.u8({
-      description: "0 = tile can be claimed, 1 = permanently blocked",
-    }),
   }),
   output: Type.Object({
-    placements: Type.Array(FeaturePlacementSchema),
+    placements: Type.Array(IceFeaturePlacementSchema),
   }),
   strategies: [scoreThresholdDefinition],
 });

@@ -41,7 +41,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Controls the environmental weights used to classify soils and fertility.",
+      description:
+        "Balanced pedology controls. Climate, relief, sediment, bedrock, and fertility limits are applied exactly as authored without strategy-specific amplification.",
     }
   ),
 });

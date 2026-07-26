@@ -1,7 +1,5 @@
-import hydrology from "@mapgen/domain/hydrology";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../../../contract-manifest.js";
-import { HydrologyClimateRefinePublicSchema } from "../../public.config.js";
 import { ClimateRefineStep } from "./steps/climate-refine/step.js";
 
 const HydrologyDrynessKnobSchema = Type.Union(
@@ -59,50 +57,14 @@ const knobsSchema = Type.Object(
   }
 );
 
-function defaultEnvelope<const Strategy extends string>(
-  operation: Readonly<{ defaultStrategy: Strategy }>,
-  config: unknown
-) {
-  return { strategy: operation.defaultStrategy, config };
-}
-
 /**
- * Compiles bounded precipitation, thermal, albedo, and cryosphere refinement
- * controls into the post-hydrography climate pass.
+ * Applies bounded precipitation, thermal, albedo, and cryosphere refinement in
+ * the post-hydrography climate pass.
  */
 export default createStage({
   id: "hydrology-climate-refine",
   knobsSchema,
-  public: HydrologyClimateRefinePublicSchema,
   steps: orderStandardStageSteps("hydrology-climate-refine", {
     "climate-refine": ClimateRefineStep,
-  }),
-  compile: ({ config }: { config: Record<string, unknown> }) => ({
-    "climate-refine": {
-      computePrecipitation: {
-        strategy: "refine",
-        config: config.precipitationRefinement,
-      },
-      computeRadiativeForcing: defaultEnvelope(
-        hydrology.climate.ops.computeRadiativeForcing,
-        config.solarForcing
-      ),
-      computeThermalState: defaultEnvelope(
-        hydrology.climate.ops.computeThermalState,
-        config.thermalState
-      ),
-      applyAlbedoFeedback: defaultEnvelope(
-        hydrology.cryosphere.ops.applyAlbedoFeedback,
-        config.albedoFeedback
-      ),
-      computeCryosphereState: defaultEnvelope(
-        hydrology.cryosphere.ops.computeCryosphereState,
-        config.cryosphereState
-      ),
-      computeLandWaterBudget: defaultEnvelope(
-        hydrology.climate.ops.computeLandWaterBudget,
-        config.landWaterBudget
-      ),
-    },
   }),
 } as const);

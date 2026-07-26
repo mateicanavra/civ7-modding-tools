@@ -3,7 +3,7 @@ import { admitMapSetup } from "@swooper/mapgen-core";
 import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 
 import morphologyErosionStage from "../../../../../../../../src/recipes/standard/stages/morphology/erosion/index.js";
-import { GeomorphologyStepContract } from "../../../../../../../../src/recipes/standard/stages/morphology/erosion/steps/geomorphology/config.js";
+import { config as geomorphologyStepConfig } from "../../../../../../../../src/recipes/standard/stages/morphology/erosion/steps/geomorphology/config.js";
 import { GeomorphologyStep } from "../../../../../../../../src/recipes/standard/stages/morphology/erosion/steps/geomorphology/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import {
@@ -20,9 +20,10 @@ const setup = admitMapSetup({
 function normalizeErosion(erosion: "normal" | "high") {
   if (!GeomorphologyStep.normalize) throw new Error("Geomorphology must normalize erosion.");
   const stageConfig = createStandardRecipeTestConfig()["morphology-erosion"];
-  stageConfig.geomorphicCycle.geomorphology.fluvial.rate = 0.2;
-  stageConfig.geomorphicCycle.geomorphology.diffusion.rate = 0.3;
-  stageConfig.geomorphicCycle.geomorphology.deposition.rate = 0.1;
+  const geomorphology = stageConfig.geomorphology.geomorphology.config.geomorphology;
+  geomorphology.fluvial.rate = 0.2;
+  geomorphology.diffusion.rate = 0.3;
+  geomorphology.deposition.rate = 0.1;
   stageConfig.knobs.erosion = erosion;
   const admitted = validateSchemaValueForTest(
     morphologyErosionStage.surfaceSchema,
@@ -31,12 +32,12 @@ function normalizeErosion(erosion: "normal" | "high") {
   );
   const { knobs, rawSteps } = morphologyErosionStage.toInternal({ setup, stageConfig: admitted });
   const config = validateSchemaValueForTest(
-    GeomorphologyStepContract.schema,
+    geomorphologyStepConfig.schema,
     rawSteps.geomorphology,
     "/morphology-erosion/geomorphology"
   );
   return validateSchemaValueForTest(
-    GeomorphologyStepContract.schema,
+    geomorphologyStepConfig.schema,
     GeomorphologyStep.normalize(config, { setup, knobs }),
     "/morphology-erosion/geomorphology"
   );

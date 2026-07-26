@@ -3,7 +3,7 @@ import { createStep } from "@swooper/mapgen-core/authoring";
 import { interleaveXY } from "@swooper/mapgen-viz";
 import { defineStandardVizMeta } from "../../../../../viz.js";
 import { pointsFromPlateSeeds } from "../../../viz.js";
-import { PlateGraphStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const GROUP_PLATE_GRAPH = "Foundation / Plate Graph";
 
@@ -11,11 +11,11 @@ const GROUP_PLATE_GRAPH = "Foundation / Plate Graph";
  * Partitions the mesh and initial crust into the stable plate graph whose
  * identities are shared by motion and tectonic-history computation.
  */
-export const PlateGraphStep = createStep(PlateGraphStepContract, {
-  run: (context, config, ops, deps) => {
+export const PlateGraphStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const crust = deps.artifacts.foundationInitialCrust.read(context);
-    const stepId = `foundation/${PlateGraphStepContract.id}`;
+    const stepId = `foundation/${config.id}`;
     const rngSeed = ctxRandom(
       context,
       ctxRandomLabel(stepId, "foundation/compute-plate-graph"),
@@ -35,7 +35,7 @@ export const PlateGraphStep = createStep(PlateGraphStepContract, {
         crust: { maturity: crust.maturity, strength: crust.strength },
         rngSeed,
       },
-      config.computePlateGraph
+      stepConfig.computePlateGraph
     );
 
     deps.artifacts.foundationPlateGraph.publish(context, plateGraphResult.plateGraph);

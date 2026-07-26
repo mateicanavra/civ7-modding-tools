@@ -11,6 +11,7 @@ mods/<mod>/src/domain/<domain>/
   model/                    # optional vocabulary shared by multiple modules
     atoms/
     policy/
+    rules/
   modules/
     <semantic-module>/
       index.ts
@@ -19,6 +20,7 @@ mods/<mod>/src/domain/<domain>/
       model/                # optional vocabulary local to this module
         atoms/
         policy/
+        rules/
       artifacts/
       ops/
 ```
@@ -37,8 +39,10 @@ authorship modular, dependency flow transparent, and strategy selection under
 explicit control.
 
 There is no root `ops.ts` binding or flat domain operation collection. The
-domain `router.ts` composes module routers, while each module owns its `ops/`
-contract and implementation registry under the operation blueprint.
+domain `contract.ts` composes module contracts and its `router.ts` composes
+module routers. Each module contract directly composes its leaf operation
+contracts and each module router directly binds the matching implementations;
+`ops/` contains operation directories rather than another registry layer.
 
 `model/` is the same optional kind slot at both levels, not a root-domain
 default. An atom or policy descends to the module that fully owns its meaning;

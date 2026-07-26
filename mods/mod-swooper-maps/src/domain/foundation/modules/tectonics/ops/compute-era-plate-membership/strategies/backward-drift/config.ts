@@ -36,6 +36,10 @@ export default defineStrategy({
         }
       ),
     },
-    { additionalProperties: false }
+    {
+      additionalProperties: false,
+      description:
+        "Era weights and backward-advection steps used to reconstruct historical plate membership from present-day plate seeds.",
+    }
   ),
 });

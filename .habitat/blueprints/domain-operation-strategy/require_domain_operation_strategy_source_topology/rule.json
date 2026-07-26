@@ -11,7 +11,7 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "advisory",
+  "lane": "enforced",
   "forbids": "domain operation strategy authorities outside a closed aggregate-and-leaf topology",
   "why": "Each operation's strategies directory aggregates implementations only, while each semantic strategy is a complete leaf with its own authored config definition and implementation entrypoint. The operation contract composes leaf definitions directly, avoiding a definition barrel cycle while preserving selectable behavior identity. The hierarchy prevents generic default identities and helper cabinets, and leaves definition binding, default inference, and implementation completeness to TypeScript and the operation SDK.",
   "remediate": "Keep only strategies/index.ts plus semantically named kebab-case strategies/<strategy-id>/{config.ts,index.ts} leaves. Import leaf configs directly from the operation contract; remove strategy-root config or contract barrels, flat strategy modules, and any default strategy directory.",

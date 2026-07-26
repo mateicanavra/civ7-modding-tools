@@ -24,7 +24,7 @@ const RiversStepConfigSchema = Type.Object(
  * final topography. It publishes Hydrology evidence before map-rivers performs any engine
  * projection.
  */
-export const RiversStepContract = defineStep({
+export const config = defineStep({
   id: "rivers",
   requires: [],
   provides: [],

@@ -3,13 +3,13 @@ level: error
 ---
 # Require Domain Operation Implementation Artifact Boundary
 
-Operation implementations, local types, and rules consume private algorithm
-`Params` / `Result` shapes composed from smaller semantic atom types when those
-parts are genuinely shared. Complete artifact payloads remain local to artifact
-owners, while complete input/output envelopes remain local to operation
-contracts. Implementation helpers do not import artifact authority, reconstruct
-types from artifact schemas, or turn a whole artifact container into a model
-atom merely to regain its type.
+Operation entrypoints, semantic strategy implementations, and rules consume
+private algorithm `Params` / `Result` shapes composed from smaller semantic atom
+types when those parts are genuinely shared. Complete artifact payloads remain
+local to artifact owners, while complete input/output envelopes remain local to
+operation contracts. Implementation helpers do not import artifact authority,
+reconstruct types from artifact schemas, or turn a whole artifact container
+into a model atom merely to regain its type.
 
 ```grit
 language js(typescript)
@@ -50,8 +50,10 @@ type Drift = Static<
   typeof import("../../../artifacts/index.js").artifacts.drift.schema
 >;
 
-// @filename: mods/example-mod/src/domain/climate/modules/thermal/ops/measure-rain/types.ts
-export type Rain = Static<typeof import("../../artifacts/rain.artifact.js").artifact.schema>;
+// @filename: mods/example-mod/src/domain/climate/modules/thermal/ops/measure-rain/strategies/water-budget/index.ts
+type Rain = Static<typeof import("../../../../artifacts/rain.artifact.js").artifact.schema>;
+
+export default Rain;
 ```
 
 ## Ignores Fixture

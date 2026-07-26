@@ -56,7 +56,7 @@ const ClimateBaselineStepConfigSchema = Type.Object(
  * shelf evidence. It publishes wind, climate, and seasonality together so river routing and
  * refinement start from one deterministic climate vintage.
  */
-export const ClimateBaselineStepContract = defineStep({
+export const config = defineStep({
   id: "climate-baseline",
   requires: [],
   provides: [],

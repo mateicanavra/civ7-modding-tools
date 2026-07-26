@@ -113,7 +113,8 @@ fail-hard parity gates.
 #### Scenario: map-* stage audit runs
 - **WHEN** a change keeps a `map-*` stage
 - **THEN** the stage owns projection/materialization, effects, adapter writes,
-  map artifacts, projection knobs, or parity evidence
+  projection knobs, parity evidence, or handoffs through immutable domain
+  products selected from their owning catalogs
 - **AND** Studio grouping or internal implementation seams alone are
   insufficient justification
 
@@ -129,10 +130,16 @@ and SHALL NOT manufacture fake dependency chains that only encode ordering.
 - **AND** maintenance operations remain transactional unless they gain an
   independent contract or consumer
 
-#### Scenario: Resource or discovery reconciliation is drafted
-- **WHEN** a change gates resource or discovery placement
+#### Scenario: Resource reconciliation is drafted
+- **WHEN** a change gates resource placement
 - **THEN** it uses typed placement outcomes and typed rejection reasons
 - **AND** it does not gate on naive `placed === planned` equality
+
+#### Scenario: Discovery placement is drafted
+- **WHEN** a change invokes Civ7's official discovery generator
+- **THEN** Civ7 remains the selection and materialization authority
+- **AND** Swooper retains attempted, placed, and rejected totals as successful
+  observation evidence without inventing a discovery plan or causal artifact
 
 ### Requirement: Guardrails Encode Achieved Structure
 
@@ -350,26 +357,30 @@ independent artifacts, effects, or consumers.
 - **THEN** the proposal names the independent contract or leaves the operation
   transactional
 
-### Requirement: Resource And Discovery Reconciliation Uses Typed Outcomes
+### Requirement: Resource Reconciliation Uses Typed Outcomes
 
-Resource and discovery placement SHALL reconcile planned intent against typed
-projection outcomes instead of comparing total planned and placed counts.
+Resource placement SHALL reconcile planned intent against typed projection
+outcomes instead of comparing total planned and placed counts.
 
-#### Scenario: Engine rejects a planned resource or discovery
-- **WHEN** the engine does not place a planned resource or discovery
+#### Scenario: Engine rejects a planned resource
+- **WHEN** the engine does not place a planned resource
 - **THEN** the reconciliation records a typed rejection reason
 - **AND** the pipeline fails only if the rejection is untyped, unexplained, or
   contradicts the planned type/location contract
 
-### Requirement: Official Generator Output Is Not Silent Truth
+### Requirement: Discovery Generation Is Observed, Not Reimplemented
 
-The reconciliation change SHALL update authority records when official
-generator output is no longer accepted as silent placement truth.
+Discovery placement SHALL invoke Civ7's official narrative-coupled generator
+after resources and starts are materialized. The successful step SHALL retain
+attempted, placed, and rejected totals through typed metrics and live log
+evidence.
 
-#### Scenario: Docs still call official generator output authoritative
-- **WHEN** implementation owns typed placement intent and reconciliation
-- **THEN** docs, ADRs, or deferrals that describe best-effort official
-  generator output as accepted truth are updated or superseded
+#### Scenario: Civ7 rejects discovery attempts
+- **WHEN** the official generator attempts more discoveries than the live
+  narrative system accepts
+- **THEN** rejected count equals attempted count minus placed count
+- **AND** the observation remains evidence rather than a Swooper-authored plan,
+  per-tile outcome artifact, or alternate generator
 
 ### Requirement: Guard Enablement Cites Completed Cleanup
 
@@ -486,23 +497,35 @@ compatibility wrappers.
   owner
 - **AND** the old owner is not kept as an alias or fallback
 
-### Requirement: Projection Evidence Is Projection-Owned
+### Requirement: Artifact Authority Is Domain-Module Owned
 
-Projection/readback artifacts SHALL be owned by the stage or product boundary
-that materializes or observes engine state, not by the upstream truth domain.
+Artifacts SHALL represent immutable domain/module products. Each artifact
+definition and catalog SHALL live with the direct producing domain module;
+recipe steps may select, read, and publish those exact authorities, but recipe
+stages SHALL NOT define artifact catalogs.
 
-#### Scenario: map projection stages record engine readback
-- **WHEN** map-hydrology stamps lakes or map-rivers models rivers and records
-  observed engine state
-- **THEN** the projection artifact ids use the owning map projection namespace
-  (`artifact:map.hydrology.*` for lake readback and `artifact:map.rivers.*`
-  for river readback)
-- **AND** Hydrology hydrography artifacts remain truth-only
+#### Scenario: A projection step publishes an immutable product
+- **WHEN** map-rivers derives a stable navigable-river selection for downstream
+  consumers
+- **THEN** its step contract selects the product from the Hydrology hydrography
+  module's artifact catalog
+- **AND** the stable runtime id
+  `artifact:map.rivers.projectedNavigableRivers` denotes the product lane rather
+  than assigning catalog ownership to the recipe stage
+
+#### Scenario: A projection or placement step observes current engine state
+- **WHEN** the step reads current Civ7 terrain, water, biome, feature, river, or
+  placement state through its declared adapter capabilities
+- **THEN** that mutable state remains an invocation-local observation
+- **AND** completed scalar or component evidence may flow through metrics,
+  trace, or visualization facets without becoming a pipeline artifact
 
 ### Requirement: map-* Stages Do Not Plan Domain Truth
 
-`map-*` stages SHALL consume upstream truth artifacts and project them into
-engine state, effects, map artifacts, and readback evidence.
+`map-*` stages SHALL consume upstream truth artifacts and immutable domain
+products, project them into engine state and effects, and observe current
+engine state locally. They SHALL NOT own artifact catalogs or publish mutable
+engine snapshots as pipeline artifacts.
 
 #### Scenario: A projection step needs ridge or foothill masks
 - **WHEN** map-morphology stamps mountains, ridges, or foothills
@@ -516,10 +539,11 @@ Placement product/effect contracts SHALL be represented as explicit steps when
 they own a distinct gameplay product or engine effect.
 
 #### Scenario: Placement applies resources, starts, discoveries, or advanced starts
-- **WHEN** a placement product writes engine state or publishes typed outcomes
+- **WHEN** a placement product writes engine state, publishes typed outcomes,
+  or records successful engine-owned materialization
 - **THEN** the product has a named step contract with its own provides/effects
-- **AND** the final placement summary consumes those product results instead of
-  re-running the product logic through a broad monolith
+- **AND** observation-only results may flow through metrics/log evidence rather
+  than a fake artifact consumed only to encode ordering
 
 ### Requirement: Strategy Config Schemas Stay With Real Owners
 
@@ -644,10 +668,10 @@ rather than isolated implementation details.
 #### Scenario: Hydrology artifacts are validated
 
 - **WHEN** Hydrology publishes climate or hydrography artifacts
-- **THEN** runtime typed-array/size validation is owned by the producing step
-  publication boundary or by generic MapGen-core artifact machinery
-- **AND** stage artifact registries remain schema/contract surfaces unless a
-  categorical artifact-module architecture is introduced for all in-kind stages
+- **THEN** each exact Hydrology module artifact authority owns its payload
+  schema and semantic refinement, applied by generic MapGen-core machinery
+- **AND** the direct module's `artifacts/index.ts` is the sole catalog while
+  recipe stages define no artifact registry
 - **AND** broad domain helper buckets do not become the default owner for
   unrelated artifact payload validation
 

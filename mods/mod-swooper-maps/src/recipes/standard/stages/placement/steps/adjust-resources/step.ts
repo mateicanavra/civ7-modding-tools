@@ -2,15 +2,15 @@ import { OFFICIAL_RESOURCE_BY_TYPE, type OfficialResourceType } from "@civ7/map-
 import { deriveStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { warnLog } from "../../log.js";
-import { AdjustResourcesStepContract } from "./config.js";
+import { config } from "./config.js";
 import { projectResourceSupportViz } from "./viz.js";
 
 /**
  * Performs the bounded post-start support pass, moving or adding planned sites
  * before stamping while preserving typed provenance and explicit shortfalls.
  */
-export const AdjustResourcesStep = createStep(AdjustResourcesStepContract, {
-  run: (context, config, ops, deps) => {
+export const AdjustResourcesStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const plan = deps.artifacts.resourcePlan.read(context);
     const eligibility = deps.artifacts.resourceEligibility.read(context);
     const startAssignment = deps.artifacts.startAssignment.read(context);
@@ -55,7 +55,7 @@ export const AdjustResourcesStep = createStep(AdjustResourcesStepContract, {
       landmassTileCounts: landmasses.landmasses.map((landmass) => landmass.tileCount),
       regionSlotByTile: regionSlots.slotByTile as Uint8Array,
     };
-    const adjusted = ops.support(supportInput, config.support);
+    const adjusted = ops.support(supportInput, stepConfig.support);
 
     if (adjusted.shortfalls.length > 0) {
       // Typed shortfalls (S5): adjustments that would violate an S3 plan

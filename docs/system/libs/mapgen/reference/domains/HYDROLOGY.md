@@ -58,6 +58,10 @@ Hydrology provides:
 - `artifact:hydrology.hydrography` (canonical drainage routing + discharge + river class snapshot)
 - `artifact:hydrology.riverNetwork` (upstream area, hierarchy, mouth, slope,
   and permanence fields consumed by river projection)
+- `artifact:map.rivers.projectedNavigableRivers` (stable runtime id for the
+  immutable Hydrology hydrography module's Civ7-projectable river selection;
+  `map.rivers` identifies the product lane, not stage catalog ownership, and
+  mutable engine readback is not retained)
 - `artifact:hydrology.climateIndices` (advisory indices for downstream consumption)
 - `artifact:hydrology.cryosphere` (cryosphere products; neutralized when knob disables it)
 
@@ -67,7 +71,8 @@ Hydrology's semantic products are cataloged by their owning module:
 
 - `modules/climate/artifacts`: baseline/final climate, seasonality, indices, and winds,
 - `modules/cryosphere/artifacts`: snow, sea-ice, albedo, and frozen-ground state,
-- `modules/hydrography/artifacts`: drainage, river-network, and lake intent.
+- `modules/hydrography/artifacts`: drainage, river-network, projection-ready lake
+  intent, and immutable Civ7-projectable river intent.
 
 The `modules/ocean` branch currently supplies invocation-local geometry, current,
 and thermal state to climate composition; it does not publish a durable ocean artifact.
@@ -105,20 +110,24 @@ The Standard recipe uses operation contracts such as:
 - `computeLandWaterBudget`
 - `computeCryosphereState`, `applyAlbedoFeedback`
 
-Navigable-river terrain selection is intentionally not a Hydrology operation. It is a
-map-rivers projection rule that consumes admitted Hydrology artifacts without redefining
-Hydrology's physical river model.
+Navigable-river terrain selection is intentionally not a second physical river
+model. The map-rivers projection rule derives an immutable Hydrology-owned
+projectable subset from admitted river truth plus the current engine terrain
+constraint; engine mutation and readback remain local to the projection step.
 
 ## Config + knobs posture
 
-Author-facing control is primarily via stage knobs (compiled at stage compile time). In the standard recipe:
+The Standard recipe exposes bound operation envelopes directly and adds a
+small set of stage knobs for product-level posture:
 
 - `hydrology-climate-baseline` knobs: `dryness`, `temperature`, `seasonality`, `oceanCoupling`
-- `hydrology-hydrography` knobs: `riverDensity` (physical river-network classification density), `lakeiness` (sink-derived lake intent expansion)
+- `hydrology-hydrography` knobs: `riverDensity` (physical river-network classification density), `lakeiness` (a relative sink-derived lake-intent posture whose `normal` value preserves directly authored basin controls)
 - `hydrology-climate-refine` knobs: `dryness`, `temperature`, `cryosphere`
 - `map-rivers` knobs: `navigableRiverDensity` (Civ-visible navigable river trunk projection only)
 
-Some steps also expose flat step config surfaces for explicit overrides (e.g., seasonality posture).
+Step schemas and their bound operation contracts remain the advanced
+configuration surface. Knobs transform those admitted configs; they do not
+replace or reconstruct their shape.
 
 ## River network benchmark contract
 
@@ -137,12 +146,13 @@ The `map-hydrology` stage:
 
 - is projection-only,
 - writes every sample from final `artifact:hydrology.climateField` to the adapter exactly once,
-- then projects static lake intent before engine elevation,
+- then projects static, mountain-safe `artifact:hydrology.lakePlan` intent before engine elevation,
 - and does not compute a second rainfall or lake model.
 
 The `map-rivers` stage consumes Hydrology hydrography after `map-elevation` has
-built engine elevation, then publishes projected navigable river terrain and
-river readback evidence. This matches Civ7's terrain lifecycle: static water
+built engine elevation, publishes the immutable projectable river selection,
+then keeps mutable Civ7 mutation/readback as local trace, metrics, and
+visualization evidence. This matches Civ7's terrain lifecycle: static water
 before elevation, rivers after elevation.
 
 Hydrology routing is the canonical water-movement graph. It is derived from
@@ -212,15 +222,15 @@ different writer surface is discovered and proven.
   - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/climate/baseline/index.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/hydrography/index.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/climate/refine/index.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map/hydrology/index.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map/rivers/index.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/projection/index.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/rivers/index.ts`
 - Step contracts (truth stages):
   - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/hydrography/steps/rivers/config.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/climate/refine/steps/climate-refine/config.ts`
 - Step contracts (projection stage):
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map/hydrology/steps/lakes/config.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map/rivers/steps/plot-rivers/config.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/projection/steps/lakes/config.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/rivers/steps/plot-rivers/config.ts`
 - Effect tag registry: `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
 

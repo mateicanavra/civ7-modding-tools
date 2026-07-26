@@ -6,13 +6,19 @@ import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export default defineStrategy({
   id: "habitat-confidence",
-  config: Type.Object({
-    minConfidence01: Type.Number({
-      minimum: 0,
-      maximum: 1,
-      default: 0.24,
+  config: Type.Object(
+    {
+      minConfidence01: Type.Number({
+        minimum: 0,
+        maximum: 1,
+        default: 0.24,
+        description:
+          "Wetland-family score below which hydromorphic substrate remains evidence rather than placement intent.",
+      }),
+    },
+    {
       description:
-        "Family-local admission threshold: wetland scores below this remain substrate signal, not placement intent.",
-    }),
-  }),
+        "Shared confidence floor used to select the strongest eligible wetland-family intent per tile.",
+    }
+  ),
 });

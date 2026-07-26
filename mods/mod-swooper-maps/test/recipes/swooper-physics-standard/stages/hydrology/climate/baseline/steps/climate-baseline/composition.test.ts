@@ -13,7 +13,7 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import hydrologyClimateBaselineStage from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/baseline/index.js";
-import { ClimateBaselineStepContract } from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.js";
+import { config as climateBaselineStepConfig } from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.js";
 import { ClimateBaselineStep } from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../../setup.js";
 import {
@@ -48,7 +48,7 @@ function climateBaselineConfig(options: Readonly<{ axialTiltDeg?: number }> = {}
   const stageConfig = createStandardRecipeTestConfig()["hydrology-climate-baseline"];
   if (options.axialTiltDeg !== undefined) {
     stageConfig.knobs.seasonality = "normal";
-    stageConfig.seasonalCycle.axialTiltDeg = options.axialTiltDeg;
+    stageConfig["climate-baseline"].seasonality.axialTiltDeg = options.axialTiltDeg;
   }
   const admitted = validateSchemaValueForTest(
     hydrologyClimateBaselineStage.surfaceSchema,
@@ -60,12 +60,12 @@ function climateBaselineConfig(options: Readonly<{ axialTiltDeg?: number }> = {}
     stageConfig: admitted,
   });
   const config = validateSchemaValueForTest(
-    ClimateBaselineStepContract.schema,
+    climateBaselineStepConfig.schema,
     rawSteps["climate-baseline"],
     "/hydrology-climate-baseline/climate-baseline"
   );
   return validateSchemaValueForTest(
-    ClimateBaselineStepContract.schema,
+    climateBaselineStepConfig.schema,
     ClimateBaselineStep.normalize(config, { setup, knobs }),
     "/hydrology-climate-baseline/climate-baseline"
   );

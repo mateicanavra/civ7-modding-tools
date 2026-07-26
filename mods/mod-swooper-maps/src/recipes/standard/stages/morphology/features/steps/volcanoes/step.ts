@@ -8,7 +8,7 @@ import { createStep } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampFinite } from "@swooper/mapgen-core/lib/math";
 import { defineStandardVizMeta } from "../../../../../viz.js";
 import type { MorphologyVolcanismKnob } from "../../index.js";
-import { VolcanoesStepContract } from "./config.js";
+import { config } from "./config.js";
 
 type VolcanoKind = "subductionArc" | "rift" | "hotspot";
 
@@ -19,8 +19,8 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * Selects and classifies volcano intent from projected tectonic activity and
  * final land truth; engine volcano placement remains downstream.
  */
-export const VolcanoesStep = createStep(VolcanoesStepContract, {
-  normalize: (config, ctx) => {
+export const VolcanoesStep = createStep(config, {
+  normalize: (stepConfig, ctx) => {
     const { volcanism } = ctx.knobs as Readonly<{ volcanism?: MorphologyVolcanismKnob }>;
     const densityMultiplier =
       MORPHOLOGY_VOLCANISM_BASE_DENSITY_MULTIPLIER[volcanism ?? "normal"] ?? 1.0;
@@ -30,27 +30,30 @@ export const VolcanoesStep = createStep(VolcanoesStepContract, {
       MORPHOLOGY_VOLCANISM_CONVERGENT_MULTIPLIER_MULTIPLIER[volcanism ?? "normal"] ?? 1.0;
 
     const volcanoesSelection =
-      config.volcanoes.strategy === "plate-hotspot-ranking"
+      stepConfig.volcanoes.strategy === "plate-hotspot-ranking"
         ? {
-            ...config.volcanoes,
+            ...stepConfig.volcanoes,
             config: {
-              ...config.volcanoes.config,
-              baseDensity: clampFinite(config.volcanoes.config.baseDensity * densityMultiplier, 0),
+              ...stepConfig.volcanoes.config,
+              baseDensity: clampFinite(
+                stepConfig.volcanoes.config.baseDensity * densityMultiplier,
+                0
+              ),
               hotspotWeight: clampFinite(
-                config.volcanoes.config.hotspotWeight * hotspotMultiplier,
+                stepConfig.volcanoes.config.hotspotWeight * hotspotMultiplier,
                 0
               ),
               convergentMultiplier: clampFinite(
-                config.volcanoes.config.convergentMultiplier * convergentMultiplier,
+                stepConfig.volcanoes.config.convergentMultiplier * convergentMultiplier,
                 0
               ),
             },
           }
-        : config.volcanoes;
+        : stepConfig.volcanoes;
 
-    return { ...config, volcanoes: volcanoesSelection };
+    return { ...stepConfig, volcanoes: volcanoesSelection };
   },
-  run: (context, config, ops, deps) => {
+  run: (context, stepConfig, ops, deps) => {
     const plates = deps.artifacts.foundationPlates.read(context);
     const topography = deps.artifacts.topography.read(context);
     const { width, height } = context.setup.dimensions;
@@ -67,7 +70,7 @@ export const VolcanoesStep = createStep(VolcanoesStepContract, {
         volcanism: plates.volcanism,
         rngSeed,
       },
-      config.volcanoes
+      stepConfig.volcanoes
     );
 
     const size = width * height;

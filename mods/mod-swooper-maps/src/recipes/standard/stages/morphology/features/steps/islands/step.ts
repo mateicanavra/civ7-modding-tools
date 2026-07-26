@@ -2,7 +2,7 @@ import { deriveStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampInt16 } from "@swooper/mapgen-core/lib/math";
 import { defineStandardVizMeta } from "../../../../../viz.js";
-import { IslandsStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const GROUP_ISLANDS = "Morphology / Islands";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
@@ -11,8 +11,8 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * Plans tectonically informed island peaks, applies them to a producer-owned
  * topography copy, and publishes the canonical final Morphology topography.
  */
-export const IslandsStep = createStep(IslandsStepContract, {
-  run: (context, config, ops, deps) => {
+export const IslandsStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
     const plates = deps.artifacts.foundationPlates.read(context);
     const topography = deps.artifacts.erodedTopography.read(context);
@@ -33,7 +33,7 @@ export const IslandsStep = createStep(IslandsStepContract, {
         volcanism: plates.volcanism,
         rngSeed,
       },
-      config.islands
+      stepConfig.islands
     );
 
     for (const edit of plan.edits) {

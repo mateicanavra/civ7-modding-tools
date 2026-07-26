@@ -169,7 +169,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Coastline carving controls for Morphology coast shape.",
+      description:
+        "Bay and fjord frequency, noise gates, and plate-boundary bias used to carve deterministic coastline shape.",
     }
   ),
 });

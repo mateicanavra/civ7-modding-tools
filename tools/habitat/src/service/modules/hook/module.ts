@@ -25,6 +25,7 @@ import {
   prePushHookSourceCheck,
   prePushHookSourceCheckPaths,
   resolvePrePushBase,
+  runAgentStop,
   runPrePushAffected,
   runPrePushRunMany,
   stagedHookCheck,
@@ -61,6 +62,9 @@ export const module: HabitatModule<"hook", HookModuleContext> = service.hook.use
 
 function makeHookModuleContext(hookContext: HookProcedureContext) {
   return {
+    agentStop: {
+      run: () => runAgentStop(hookContext),
+    },
     lifecycle: {
       finalizePreCommit: finalizePreCommitEffect,
       finalizePrePush: finalizePrePushEffect,

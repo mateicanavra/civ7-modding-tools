@@ -3,9 +3,10 @@ level: error
 ---
 # Require Domain Module Router Binding Shape
 
-A semantic module `router.ts` binds its local contract to the implementation
-registry owned by `ops/index.ts`. It exposes one default executable module and
-contains no operation implementations, helpers, or alternate exports.
+A semantic module `router.ts` is the direct executable aggregate for its leaf
+operation implementations. It imports the module contract and each operation
+implementation from their canonical leaves, binds the exact implementation
+record inline with `createDomainSubdomainRouter`, and exposes only that router.
 
 ```grit
 language js(typescript)
@@ -18,13 +19,15 @@ or {
     ! $body <: contains `import contract from "./contract.js"`
   },
   program(statements=$body) where {
-    ! $body <: contains `import implementations from "./ops/index.js"`
+    ! $body <: contains `import $operation from $source` where {
+      $source <: r"^[\"']\./ops/[a-z0-9]+(?:-[a-z0-9]+)*/index\.js[\"']$"
+    }
   },
   program(statements=$body) where {
-    ! $body <: contains `const $router = createDomainSubdomainRouter(contract, implementations)`
+    ! $body <: contains `const $router = createDomainSubdomainRouter(contract, { $implementations })`
   },
   program(statements=$body) where {
-    $body <: contains `const $router = createDomainSubdomainRouter(contract, implementations)`,
+    $body <: contains `const $router = createDomainSubdomainRouter(contract, { $implementations })`,
     ! $body <: contains `export default $router`
   },
   export_statement() as $export where {
@@ -35,8 +38,10 @@ or {
       ! $statement <: or {
         `import { createDomainSubdomainRouter } from "@swooper/mapgen-core/authoring"`,
         `import contract from "./contract.js"`,
-        `import implementations from "./ops/index.js"`,
-        `const $router = createDomainSubdomainRouter(contract, implementations)`,
+        `import $operation from $source` where {
+          $source <: r"^[\"']\./ops/[a-z0-9]+(?:-[a-z0-9]+)*/index\.js[\"']$"
+        },
+        `const $router = createDomainSubdomainRouter(contract, { $implementations })`,
         `export default $router`
       }
     }
@@ -50,19 +55,11 @@ or {
 // @filename: mods/example-mod/src/domain/geology/modules/tectonics/router.ts
 import { createDomainSubdomainRouter } from "@swooper/mapgen-core/authoring";
 import contract from "./contract.js";
-import implementations from "./ops/index.js";
+import computeMotion from "./ops/compute-motion/index.js";
 
-const tectonics = createDomainSubdomainRouter(contract, implementations);
+const tectonics = createDomainSubdomainRouter(contract, { computeMotion });
 export default tectonics;
-export { implementations };
-
-// @filename: mods/example-mod/src/domain/weather/modules/climate/router.ts
-import { createDomainSubdomainRouter } from "@swooper/mapgen-core/authoring";
-import contract from "./contract.js";
-import implementations from "./ops/implementations.js";
-
-const climate = createDomainSubdomainRouter(contract, implementations);
-export default climate;
+export { computeMotion };
 ```
 
 ## Ignores Fixture
@@ -71,8 +68,8 @@ export default climate;
 // @filename: mods/example-mod/src/domain/geology/modules/tectonics/router.ts
 import { createDomainSubdomainRouter } from "@swooper/mapgen-core/authoring";
 import contract from "./contract.js";
-import implementations from "./ops/index.js";
+import computeMotion from "./ops/compute-motion/index.js";
 
-const tectonics = createDomainSubdomainRouter(contract, implementations);
+const tectonics = createDomainSubdomainRouter(contract, { computeMotion });
 export default tectonics;
 ```

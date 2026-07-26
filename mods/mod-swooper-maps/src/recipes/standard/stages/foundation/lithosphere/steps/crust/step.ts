@@ -1,7 +1,7 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { interleaveXY } from "@swooper/mapgen-viz";
 import { defineStandardVizMeta } from "../../../../../viz.js";
-import { CrustStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const GROUP_CRUST = "Foundation / Crust";
 
@@ -9,8 +9,8 @@ const GROUP_CRUST = "Foundation / Crust";
  * Computes initial crust from the shared mesh and mantle forcing before plate
  * partitioning, keeping bootstrap crust distinct from later tectonic evolution.
  */
-export const CrustStep = createStep(CrustStepContract, {
-  run: (context, config, ops, deps) => {
+export const CrustStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const mantleForcing = deps.artifacts.foundationMantleForcing.read(context);
     const crustResult = ops.computeCrust(
@@ -23,7 +23,7 @@ export const CrustStep = createStep(CrustStepContract, {
           stress: mantleForcing.stress,
         },
       },
-      config.computeCrust
+      stepConfig.computeCrust
     );
 
     deps.artifacts.foundationInitialCrust.publish(context, crustResult.crust);

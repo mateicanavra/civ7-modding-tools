@@ -6,8 +6,6 @@ import {
   mkdirSync,
   openSync,
   realpathSync,
-  renameSync,
-  unlinkSync,
   writeFileSync,
 } from "node:fs";
 import { basename, isAbsolute, join, relative, resolve, sep } from "node:path";
@@ -27,31 +25,11 @@ import {
   type VizManifestV2,
   type VizPathRef,
 } from "@swooper/mapgen-viz";
-
-let atomicWriteSequence = 0;
-
-function writeFileAtomic(path: string, data: string | Uint8Array): void {
-  atomicWriteSequence += 1;
-  const temporaryPath = `${path}.tmp-${process.pid}-${atomicWriteSequence}`;
-  let temporaryFileCreated = false;
-  try {
-    writeFileSync(temporaryPath, data, { flag: "wx" });
-    temporaryFileCreated = true;
-    renameSync(temporaryPath, path);
-  } catch (error) {
-    if (temporaryFileCreated) {
-      try {
-        unlinkSync(temporaryPath);
-      } catch {
-        // Preserve the original publication failure.
-      }
-    }
-    throw error;
-  }
-}
+import { writeFileAtomically } from "./internal/atomic-file.js";
+import { publishJsonEvidence } from "./publication.js";
 
 function writeBinaryAtomic(path: string, view: ArrayBufferView): void {
-  writeFileAtomic(path, Buffer.from(view.buffer, view.byteOffset, view.byteLength));
+  writeFileAtomically(path, Buffer.from(view.buffer, view.byteOffset, view.byteLength));
 }
 
 function resolveDirectChildName(parentDirectory: string, childIdentity: string): string {
@@ -148,7 +126,7 @@ type DumpStepIdentity = Readonly<{
 }>;
 
 function publishManifest(runDir: string, manifest: VizManifestV2<VizPathRef>): void {
-  writeFileAtomic(join(runDir, "manifest.json"), JSON.stringify(manifest, null, 2));
+  publishJsonEvidence({ path: join(runDir, "manifest.json"), evidence: manifest });
 }
 
 type DumpRunStatePlan = Readonly<{

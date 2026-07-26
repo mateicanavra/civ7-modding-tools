@@ -49,7 +49,7 @@ export default defineStrategy({
     {
       additionalProperties: false,
       description:
-        "Shared compute substrate tuning for feature planning masks. This should stay small and reusable.",
+        "Hydrography, coast-distance, elevation, and discharge thresholds used to derive reusable feature-habitat masks.",
     }
   ),
 });

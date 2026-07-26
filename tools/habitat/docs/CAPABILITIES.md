@@ -46,7 +46,7 @@ The direct command `bun habitat` dispatches through the root `habitat` script to
 | `classify` | `bun habitat classify <path-or-diff>` | Classifies a path, diff text, or patch file into owning project metadata, tags, rule-routing facts, graph-backed target guidance, explicit unavailable target facts, and refusal states for malformed/pathless or unresolved inputs. |
 | `fix` | `bun habitat fix --dry-run [--rule <id> ...]`; `bun habitat fix` | `--dry-run` previews only transformations explicitly admitted by registered `rule.json` authority and reports their file impacts. Omission selects all admitted rules; repeated `--rule` selects one or many atomically. The non-dry invocation refuses before service realization. It never writes, formats, gates, rolls back, or establishes commit readiness. |
 | `graph` | `bun habitat graph --json` | Runs workspace graph generation and prints the project graph JSON. |
-| `hook` | `bun habitat hook pre-commit`, `bun habitat hook pre-push` | Provides the stable Husky hook entrypoint. Hooks are local friction reduction; CI and explicit verification remain authoritative. |
+| `hook` | `bun habitat hook agent-stop`, `bun habitat hook pre-commit`, `bun habitat hook pre-push` | Provides stable Codex and Husky hook entrypoints. `agent-stop` runs the enforced Habitat structure-rule registry slice once; Git hooks retain their staged or affected scopes. Hooks are local friction reduction; CI and explicit verification remain authoritative. |
 
 Root scripts also expose graph-owned entrypoints:
 
@@ -332,6 +332,11 @@ Husky delegates directly to Habitat:
 
 - `.husky/pre-commit` -> `bun habitat hook pre-commit`
 - `.husky/pre-push` -> `bun habitat hook pre-push`
+
+Codex delegates its repository-local `Stop` hook to
+`bun habitat hook agent-stop`. The hook uses admitted registry facts to select
+only enforced Habitat structure rules. It refuses an invalid or empty registry
+selection and never expands into Nx, Grit, script, or file-layer execution.
 
 Pre-commit is a workstation hook check. It checks resources state, staged
 file-layer protections, partial-staging risk, staged formatting checks, and

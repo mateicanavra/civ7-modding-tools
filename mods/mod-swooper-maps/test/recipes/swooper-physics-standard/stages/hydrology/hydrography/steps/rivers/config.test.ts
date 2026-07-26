@@ -3,7 +3,7 @@ import { admitMapSetup } from "@swooper/mapgen-core";
 import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 
 import hydrologyHydrographyStage from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/index.js";
-import { RiversStepContract } from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/steps/rivers/config.js";
+import { config as riversStepConfig } from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/steps/rivers/config.js";
 import { RiversStep } from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/steps/rivers/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import {
@@ -20,8 +20,8 @@ const setup = admitMapSetup({
 function normalizeRiverDensity(riverDensity: "normal" | "dense") {
   if (!RiversStep.normalize) throw new Error("Rivers must normalize physical density.");
   const stageConfig = createStandardRecipeTestConfig()["hydrology-hydrography"];
-  stageConfig.riverNetwork.minorPercentile = 0.86;
-  stageConfig.riverNetwork.majorPercentile = 0.96;
+  stageConfig.rivers.projectRiverNetwork.config.minorPercentile = 0.86;
+  stageConfig.rivers.projectRiverNetwork.config.majorPercentile = 0.96;
   stageConfig.knobs.riverDensity = riverDensity;
   const admitted = validateSchemaValueForTest(
     hydrologyHydrographyStage.surfaceSchema,
@@ -33,12 +33,12 @@ function normalizeRiverDensity(riverDensity: "normal" | "dense") {
     stageConfig: admitted,
   });
   const config = validateSchemaValueForTest(
-    RiversStepContract.schema,
+    riversStepConfig.schema,
     rawSteps.rivers,
     "/hydrology-hydrography/rivers"
   );
   return validateSchemaValueForTest(
-    RiversStepContract.schema,
+    riversStepConfig.schema,
     RiversStep.normalize(config, { setup, knobs }),
     "/hydrology-hydrography/rivers"
   );

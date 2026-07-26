@@ -2,8 +2,9 @@ import { describe, expect, it } from "bun:test";
 import { admitMapSetup } from "@swooper/mapgen-core";
 import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 
+import { buildStandardRecipeDefaultConfig } from "../../../../../../../../src/recipes/standard/artifacts.js";
 import morphologyFeaturesStage from "../../../../../../../../src/recipes/standard/stages/morphology/features/index.js";
-import { MountainsStepContract } from "../../../../../../../../src/recipes/standard/stages/morphology/features/steps/mountains/config.js";
+import { config as mountainsStepConfig } from "../../../../../../../../src/recipes/standard/stages/morphology/features/steps/mountains/config.js";
 import { MountainsStep } from "../../../../../../../../src/recipes/standard/stages/morphology/features/steps/mountains/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import {
@@ -20,13 +21,25 @@ const setup = admitMapSetup({
 function normalizeOrogeny(orogeny: "normal" | "high") {
   if (!MountainsStep.normalize) throw new Error("Mountains must normalize orogeny.");
   const stageConfig = createStandardRecipeTestConfig()["morphology-features"];
-  stageConfig.mountainRanges.tectonicActivity = 0.8;
-  stageConfig.mountainRanges.ridgeWidthTiles = 1;
-  stageConfig.mountainRanges.foothillExtentTiles = 3;
-  stageConfig.mountainRanges.interiorHighlandExpression = 0.55;
-  stageConfig.mountainRanges.terrainTextureFractalMix = 0.5;
-  stageConfig.mountainRanges.tectonicSignalSensitivity = 1;
+  const mountainRanges = stageConfig.knobs.mountainRanges;
+  if (!mountainRanges) throw new Error("The test config must author coupled mountain ranges.");
+  mountainRanges.tectonicActivity = 0.8;
+  mountainRanges.ridgeWidthTiles = 1;
+  mountainRanges.foothillExtentTiles = 3;
+  mountainRanges.interiorHighlandExpression = 0.55;
+  mountainRanges.terrainTextureFractalMix = 0.5;
+  mountainRanges.tectonicSignalSensitivity = 1;
+  stageConfig.mountains.ridges.config.tectonicIntensity = 9;
+  stageConfig.mountains.foothills.config.tectonicIntensity = 8;
+  stageConfig.mountains.roughLands.config.tectonicIntensity = 7;
   stageConfig.knobs.orogeny = orogeny;
+  return normalizeStageConfig(stageConfig);
+}
+
+function normalizeStageConfig(
+  stageConfig: ReturnType<typeof createStandardRecipeTestConfig>["morphology-features"]
+) {
+  if (!MountainsStep.normalize) throw new Error("Mountains must normalize its authoring controls.");
   const admitted = validateSchemaValueForTest(
     morphologyFeaturesStage.surfaceSchema,
     stageConfig,
@@ -34,19 +47,29 @@ function normalizeOrogeny(orogeny: "normal" | "high") {
   );
   const { knobs, rawSteps } = morphologyFeaturesStage.toInternal({ setup, stageConfig: admitted });
   const config = validateSchemaValueForTest(
-    MountainsStepContract.schema,
+    mountainsStepConfig.schema,
     rawSteps.mountains,
     "/morphology-features/mountains"
   );
   return validateSchemaValueForTest(
-    MountainsStepContract.schema,
+    mountainsStepConfig.schema,
     MountainsStep.normalize(config, { setup, knobs }),
     "/morphology-features/mountains"
   );
 }
 
 describe("morphology mountain authoring", () => {
-  it("applies one high-orogeny transform to every authored mountain family member", () => {
+  it("keeps the Standard default coupled to its established range posture", () => {
+    const stageConfig = structuredClone(buildStandardRecipeDefaultConfig()["morphology-features"]);
+    const normalized = normalizeStageConfig(stageConfig);
+
+    expect(normalized.ridges.config.mountainRangeSpacingTiles).toBe(20);
+    expect(normalized.ridges.config.mountainRangeLengthTiles).toBe(22);
+    expect(normalized.ridges.config.mountainThreshold).toBeCloseTo(0.25, 6);
+    expect(normalized.ridges.config.mountainMaxFraction).toBeCloseTo(0.094, 6);
+  });
+
+  it("applies coupled range authoring before one high-orogeny family transform", () => {
     const neutral = normalizeOrogeny("normal");
     const high = normalizeOrogeny("high");
 
@@ -67,5 +90,20 @@ describe("morphology mountain authoring", () => {
         6
       );
     }
+  });
+
+  it("preserves independently authored operation envelopes when coupled authoring is disabled", () => {
+    const stageConfig = createStandardRecipeTestConfig()["morphology-features"];
+    stageConfig.knobs.mountainRanges = null;
+    stageConfig.knobs.orogeny = "normal";
+    stageConfig.mountains.ridges.config.tectonicIntensity = 0.41;
+    stageConfig.mountains.foothills.config.tectonicIntensity = 0.52;
+    stageConfig.mountains.roughLands.config.tectonicIntensity = 0.63;
+
+    const normalized = normalizeStageConfig(stageConfig);
+
+    expect(normalized.ridges.config.tectonicIntensity).toBe(0.41);
+    expect(normalized.foothills.config.tectonicIntensity).toBe(0.52);
+    expect(normalized.roughLands.config.tectonicIntensity).toBe(0.63);
   });
 });

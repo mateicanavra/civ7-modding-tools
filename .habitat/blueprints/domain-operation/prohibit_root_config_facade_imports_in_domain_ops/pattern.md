@@ -143,7 +143,7 @@ import config from "../../config.js";
 
 export const value = config;
 
-// @filename: mods/mod-swooper-maps/src/recipes/example/stages/biosphere/steps/estimate-habitat/step.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/biosphere/ecology/steps/estimate-habitat/step.ts
 import config from "../../config.js";
 
 export const value = config;

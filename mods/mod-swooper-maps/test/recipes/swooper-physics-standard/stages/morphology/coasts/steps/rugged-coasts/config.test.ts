@@ -4,7 +4,7 @@ import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 import { Value } from "typebox/value";
 
 import morphologyCoastsStage from "../../../../../../../../src/recipes/standard/stages/morphology/coasts/index.js";
-import { RuggedCoastsStepContract } from "../../../../../../../../src/recipes/standard/stages/morphology/coasts/steps/rugged-coasts/config.js";
+import { config as ruggedCoastsStepConfig } from "../../../../../../../../src/recipes/standard/stages/morphology/coasts/steps/rugged-coasts/config.js";
 import { RuggedCoastsStep } from "../../../../../../../../src/recipes/standard/stages/morphology/coasts/steps/rugged-coasts/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import {
@@ -21,9 +21,9 @@ const setup = admitMapSetup({
 function normalizeRuggedness(coastRuggedness: "normal" | "rugged") {
   if (!RuggedCoastsStep.normalize) throw new Error("Rugged coasts must normalize ruggedness.");
   const stageConfig = createStandardRecipeTestConfig()["morphology-coasts"];
-  stageConfig.coastlineShape.plateBias.bayWeight = 0.5;
-  stageConfig.coastlineShape.plateBias.bayNoiseBonus = 0.7;
-  stageConfig.coastlineShape.plateBias.fjordWeight = 0.4;
+  stageConfig["rugged-coasts"].coastlines.config.coast.plateBias.bayWeight = 0.5;
+  stageConfig["rugged-coasts"].coastlines.config.coast.plateBias.bayNoiseBonus = 0.7;
+  stageConfig["rugged-coasts"].coastlines.config.coast.plateBias.fjordWeight = 0.4;
   stageConfig.knobs.coastRuggedness = coastRuggedness;
   const admitted = validateSchemaValueForTest(
     morphologyCoastsStage.surfaceSchema,
@@ -32,12 +32,12 @@ function normalizeRuggedness(coastRuggedness: "normal" | "rugged") {
   );
   const { knobs, rawSteps } = morphologyCoastsStage.toInternal({ setup, stageConfig: admitted });
   const config = validateSchemaValueForTest(
-    RuggedCoastsStepContract.schema,
-    Value.Default(RuggedCoastsStepContract.schema, Value.Clone(rawSteps["rugged-coasts"])),
+    ruggedCoastsStepConfig.schema,
+    Value.Default(ruggedCoastsStepConfig.schema, Value.Clone(rawSteps["rugged-coasts"])),
     "/morphology-coasts/rugged-coasts"
   );
   return validateSchemaValueForTest(
-    RuggedCoastsStepContract.schema,
+    ruggedCoastsStepConfig.schema,
     RuggedCoastsStep.normalize(config, { setup, knobs }),
     "/morphology-coasts/rugged-coasts"
   );

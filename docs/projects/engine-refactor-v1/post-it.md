@@ -2,50 +2,61 @@
 
 ## Rolling Focus
 
-**Frame:** intent before test mechanics. A test earns its place by proving
-behavior that its named owner can change; SDK admission guarantees stay with
-the SDK, product targets stay with metrics studies, and exact operation,
-artifact, policy, module, and cross-module behaviors descend to those owners.
-Relocation follows classification, and deletion wins over a more elegant home
-for the wrong test category.
+**Frame:** kind before instance, authority before relocation. Recipe stages
+are nested by the semantic domain or phase that owns the work; projection is a
+leaf capability inside that owner, not a parallel top-level `map` family.
+External `public.config.ts` stage surfaces are not an authoring kind. Ordinary
+stage configuration is inferred from bound operation config, knobs, and
+additive step schema; a rare intentional full public override stays inline in
+the concrete stage definition with its meaningful compiler. Immutable domain
+products, live engine observation, and diagnostic evidence are distinct
+authorities and must not be recast as interchangeable recipe artifacts.
 
-**Authority order:** production behavior -> existing guarantee -> narrowest
-semantic owner -> test fixture -> recursive test topology -> verification.
-Positive structure closes each admitted test kind after the corpus expresses
-that model; source-to-test allowlists and generic `runtime`, `operations`,
-`recipe`, `support`, or `testing` cabinets remain forbidden.
+**Authority order:** stage/domain meaning -> generic recipe-stage blueprint ->
+red corpus -> mechanical relocation or deletion -> consumer regeneration ->
+behavior proof. Positive structure defines the legal stage and config kinds;
+niche rules may protect actual Standard behavior but cannot compensate for a
+missing generic destination.
 
-**Current container:** disposition the initiative's temporary NOTE packets
-before opening another test family. Foundation test ownership is sealed: every
-survivor names an exact operation or artifact behavior, duplicate SDK
-guarantees and dead cross-module fixtures are gone, incidental generation uses
-the shared Civ7 setup, and the full owner proof is green. Each remaining NOTE
-must now be read as temporary input, absorbed into this rolling frame or its
-actual semantic authority, then deleted once its guidance has another owner.
-No NOTE becomes a backlog or permanent architecture surface. Placement and
-Resources test ownership follow in separate Graphite layers; Morphology,
-Ecology, and Hydrology remain sealed reference sieves.
+**Enforcement gravity:** a correct scaffold plus an advisory rule is guidance,
+not a ratchet. Every newly admitted kind must finish with its generic blueprint
+law enforced, its fixtures truthful, and its current corpus at zero. Mechanical
+relocation may preserve legacy interiors only as a transient red state; copied
+files do not become valid merely because their destination is correct.
+Aggregate files likewise survive only when they add authority: module
+`contract.ts` composes leaf operation contracts directly and module `router.ts`
+binds leaf implementations directly. Intermediate `ops/contract.ts` and
+`ops/index.ts` registries add no cycle break or invariant and therefore are not
+part of the nested module kind.
+
+**Current container:** lock affirmed blueprint identity at the commit boundary.
+Habitat compares HEAD with the staged index so a stable rule may move only
+within its owning blueprint and may retire only as one complete declared
+authority packet. Candidate-path admission is shared with the canonical
+registry, and Git path-action parsing fails closed. This guard must remain
+unregistered self-protection rather than becoming another rule that can demote
+itself.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
 state is adapter observation; metrics, diagnostics, trace, and visualization
-are separate capabilities. Core owns the generic authoring/execution and
-domain-composition SDK, not Swooper's domain model.
+are separate capabilities. Generic surface comparison and live readback belong
+to MapGen diagnostics and Civ7 observation owners; the mod may retain only thin
+Standard replay/reporting commands. Core owns the generic authoring/execution
+and domain-composition SDK, not Swooper's domain model.
 
-**Gradient:** classify every NOTE by the semantic decision or container it
-informs, strengthen the rolling frame or canonical owner where information
-would otherwise be lost, and delete every fully integrated packet. Preserve
-only genuinely unintegrated guidance with an explicit present owner, never as
-ambient protected clutter. Once the baseline is clean, apply the same complete
-intent sieve to Placement, then Resources: identify the already-owned
-guarantee, delete duplicate schema/admission/cardinality proofs, split mixed
-tests, move surviving behavior to the narrowest causal owner, and replace
-incidental dimensions and seeds with shared Civ7 presets. Preserve synthetic
-geometry only where geometry is the subject. After the corpus is truthful, add
-only the smallest generic positive ratchet the repeated shape earns. Knip and
-JSDoc burn-down follow physical ownership so dead code is deleted before prose
-is repaired. The program ends only when generic laws, source tree, types,
-tests, Knip, and the boundary graph agree.
+Target artifact authorship is one weighted `defineArtifact` expression. The
+next authoring-API container must contextually type the inline schema refinement
+and supply its issue accumulator and admitted validation context; artifact
+modules then stop importing framework issue/context types or allocating and
+threading their own issue arrays. This remains a dedicated semantic container,
+not a compatibility overload hidden inside the stage-plane move.
+
+**Gradient:** seal the reviewed continuity guard as one Habitat layer. With
+kind-law drift no longer able to pass a hook, continue the diagnostics/live
+ownership purification, Placement and Resources test sieve, accurate Knip
+deletion, and JSDoc burn-down. The program ends only when generic laws, source
+tree, types, tests, Knip, and the boundary graph agree.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -57,10 +68,11 @@ better expressions of this same frame update it in place. Add a prior-focus
 entry only when the governing model or admitted direction changes enough to
 produce materially different work.
 
-**Protected context:** A.2 remains separate. User-owned root configuration,
-map-config edits, unassessed NOTE packets, and unrelated worktrees stay outside
-semantic cuts. Once a NOTE is classified and integrated, deleting that
-temporary packet is the cleanup cut rather than a protected-file violation.
+**Protected context:** A.2 remains separate. Confirmed user-owned edits and
+unrelated worktrees stay outside semantic cuts; ownership is verified rather
+than inferred indefinitely from an inherited dirty-state ledger. Temporary
+NOTE packets have been classified into this frame or their canonical owner and
+should not survive as ambient repository state.
 
 **Generic primitive boundary:** Core may own only mechanically generic
 primitives such as clamps, hashes, interpolation/mixes, vectors, and grid/index
@@ -68,8 +80,26 @@ mechanics. Humidity, rainfall, currents, river classes, and other semantic
 concepts remain with their owning domain or module; deduplication never grants
 Core ownership of domain meaning.
 
+**Semantic literal authority:** executable domain decisions and authored
+config normalization must expose behavior-bearing thresholds, weights, labels,
+and selectors as named constants at the nearest truthful owner. File-local
+mechanics stay at the top of their file; shared semantic values move to the
+nearest module/domain `model/policy` only when multiple consumers prove that
+scope. The generic kind law targets the authoring sites that create hidden
+behavior, not incidental indexes, arithmetic identities, schema metadata, or
+tests.
+
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-24 - Domain Test Ownership
+
+Tests were classified by the behavior and causal owner they could actually
+regress. SDK admission guarantees stayed with Core, product targets stayed with
+metrics studies, exact operation and artifact laws descended through the
+recursive domain-test hierarchy, and synthetic grids survived only when local
+geometry was the oracle. Morphology, Ecology, Hydrology, and Foundation were
+sealed as independent Graphite layers before returning to production topology.
 
 ### 2026-07-24 - Authoring SDK Grammar
 

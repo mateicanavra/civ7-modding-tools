@@ -1,4 +1,3 @@
-import morphology from "@mapgen/domain/morphology";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../../contract-manifest.js";
 import { ComputeShelfStep } from "./steps/compute-shelf/step.js";
@@ -11,37 +10,6 @@ const MorphologyShelfWidthKnobSchema = Type.Union(
     default: "normal",
     description:
       "Controls coastal shelf width posture (narrow/normal/wide) by applying deterministic multipliers over shelf classifier distance caps.",
-  }
-);
-
-const ShelfMaskConfigSchema = Type.Object(
-  {
-    breakGradient: Type.Number({
-      default: 8,
-      minimum: 0.5,
-      maximum: 200,
-      description:
-        "Seabed gradient (bathymetry units per tile-hop) at or above which the seafloor is treated as the steep continental slope (post-break), excluding it from the shelf. A difference of bathymetry, so the datum cancels — NOT a depth quantile and NOT a depth band. Read against the sculpted margin profile.",
-    }),
-    breakGradientScale: Type.Number({
-      default: 1,
-      minimum: 0,
-      maximum: 8,
-      description:
-        "Break-gradient multiplier compiled from the authored shelf-width posture (narrow<1 gives a stricter gradient and narrower shelf; wide>1 gives a more permissive gradient and wider shelf).",
-    }),
-    activeClosenessThreshold: Type.Number({
-      default: 0.35,
-      minimum: 0,
-      maximum: 1,
-      description:
-        "Boundary-closeness (0..1) above which a convergent/transform margin counts as active. Diagnostic only: the margin posture is already sculpted into the terrain the gradient reads.",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description:
-      "Physical-break shelf classifier: the gentle pre-break apron (seabed gradient below the break-gradient threshold) flood-connected to shore. No depth quantile, no datum reference, no tile-distance caps.",
   }
 );
 
@@ -62,37 +30,14 @@ const knobsSchema = Type.Object(
   }
 );
 
-const publicSchema = Type.Object(
-  {
-    shelf: ShelfMaskConfigSchema,
-  },
-  {
-    additionalProperties: false,
-    description: "Continental-shelf shaping controls (margin-aware, depth-gated, cap-free).",
-  }
-);
-
-function defaultEnvelope<const Strategy extends string>(
-  operation: Readonly<{ defaultStrategy: Strategy }>,
-  config: unknown
-) {
-  return { strategy: operation.defaultStrategy, config };
-}
-
 /**
- * Compiles shelf-width controls into the post-feature physical-break classifier,
- * so shelves and coastline metrics reflect the final island-bearing landmask.
+ * Runs the post-feature physical-break classifier so shelves and coastline
+ * metrics reflect the final island-bearing landmask.
  */
 export default createStage({
   id: "morphology-shelf",
   knobsSchema,
-  public: publicSchema,
   steps: orderStandardStageSteps("morphology-shelf", {
     "compute-shelf": ComputeShelfStep,
-  }),
-  compile: ({ config }: { config: Record<string, unknown> }) => ({
-    "compute-shelf": {
-      shelfMask: defaultEnvelope(morphology.shelf.ops.computeShelfMask, config.shelf),
-    },
   }),
 } as const);

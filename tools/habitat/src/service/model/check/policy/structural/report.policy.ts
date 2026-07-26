@@ -26,6 +26,7 @@ import { factsForRuleIds } from "@habitat/cli/service/model/rules/policy/catalog
 import { selectRules } from "@habitat/cli/service/model/rules/policy/selection.policy";
 import { Clock, Effect, Match } from "effect";
 import { Value } from "typebox/value";
+import { affirmedBlueprintContinuityReportEffect } from "./blueprint-continuity-execution.policy.js";
 import type { RuleExecutionRecord, StructuralExecutionContext } from "./context.policy.js";
 import { executeSelectedRulesEffect, rulesForExecution } from "./execution.policy.js";
 import { constructCheckReportEffect, selectorRefusalReportEffect } from "./selection.policy.js";
@@ -115,6 +116,9 @@ export function createCheckReportEffect<R>(
 
     if (options.baselineIntegrity)
       reports.push(yield* baselineIntegrityReportEffect<R>(options.base ?? "main", context));
+    if (options.staged && selectedRules.some((rule) => rule.runner.name === "habitat")) {
+      reports.push(yield* affirmedBlueprintContinuityReportEffect<R>(context));
+    }
     return yield* constructCheckReportEffect({ command: request.command.serialized, reports });
   });
 }

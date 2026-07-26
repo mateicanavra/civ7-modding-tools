@@ -1,19 +1,19 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { PlanPlotEffectsStepContract } from "./config.js";
+import { config } from "./config.js";
 import { buildPlotEffectsInput } from "./inputs.js";
 
 /**
  * Scores climate- and biome-driven snow, sand, burned, and jungle effects into
  * a deterministic intent plan; map-ecology alone applies that plan to Civ7.
  */
-export const PlanPlotEffectsStep = createStep(PlanPlotEffectsStepContract, {
-  run: (context, config, ops, deps) => {
+export const PlanPlotEffectsStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const artifacts = {
       classification: deps.artifacts.biomeClassification.read(context),
       climateIndices: deps.artifacts.climateIndices.read(context),
       topography: deps.artifacts.topography.read(context),
     };
-    const input = buildPlotEffectsInput(context, artifacts, PlanPlotEffectsStepContract.id);
+    const input = buildPlotEffectsInput(context, artifacts, config.id);
     const scoreSnow = ops.scoreSnow(
       {
         width: input.width,
@@ -25,7 +25,7 @@ export const PlanPlotEffectsStep = createStep(PlanPlotEffectsStepContract, {
         aridityIndex: input.aridityIndex,
         freezeIndex: input.freezeIndex,
       },
-      config.scoreSnow
+      stepConfig.scoreSnow
     );
     const scoreSand = ops.scoreSand(
       {
@@ -39,7 +39,7 @@ export const PlanPlotEffectsStep = createStep(PlanPlotEffectsStepContract, {
         aridityIndex: input.aridityIndex,
         freezeIndex: input.freezeIndex,
       },
-      config.scoreSand
+      stepConfig.scoreSand
     );
     const scoreBurned = ops.scoreBurned(
       {
@@ -53,7 +53,7 @@ export const PlanPlotEffectsStep = createStep(PlanPlotEffectsStepContract, {
         aridityIndex: input.aridityIndex,
         freezeIndex: input.freezeIndex,
       },
-      config.scoreBurned
+      stepConfig.scoreBurned
     );
     const scoreJungle = ops.scoreJungle(
       {
@@ -65,7 +65,7 @@ export const PlanPlotEffectsStep = createStep(PlanPlotEffectsStepContract, {
         effectiveMoisture: input.effectiveMoisture,
         surfaceTemperature: input.surfaceTemperature,
       },
-      config.scoreJungle
+      stepConfig.scoreJungle
     );
 
     const result = ops.plotEffects(
@@ -82,7 +82,7 @@ export const PlanPlotEffectsStep = createStep(PlanPlotEffectsStepContract, {
         jungleScore01: scoreJungle.score01,
         jungleEligibleMask: scoreJungle.eligibleMask,
       },
-      config.plotEffects
+      stepConfig.plotEffects
     );
 
     deps.artifacts.plotEffectPlan.publish(context, result.placements);

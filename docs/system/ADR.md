@@ -205,6 +205,9 @@ tuner and Civ7-side JavaScript responsibilities until those nodes are extracted.
 
 **Status:** Accepted
 **Date:** 2026-06-10
+**Amended by:** ADR-014. The product taxonomy and operation-owned controls
+remain authoritative; the former stage-level grouped public wrapper has been
+retired in favor of the complete step and operation-derived surface.
 **Context:** Before the placement-realignment workstream, the placement stage's knob surface was hollow: the stage `knobs` schema was empty, resources exposed only density/min-spacing/share-cap, the start-sector knobs were hardwired inert, studio exposed no placement controls at all, and the controls users actually wanted (sparsity, resource↔resource affinity/exclusion, resource↔start support) did not exist (diagnosis RC7). Hand-shadowed public schemas had already drifted from op reality elsewhere in the stage.
 **Decision:** Placement public config is organized as **semantic knob groups per product** (`resources`, `starts`, `support`, plus `naturalWonders`/`discoveries`), and each op-backed group is **derived from the owning op's default strategy config schema** (the foundation pattern) — never hand-shadowed. The taxonomy treats density AND sparsity, rarity fidelity, type-aware spacing, resource↔resource affinity/exclusion, and the resource↔start relationship (support floor, radius, equity tolerance, strength) as first-class controls alongside start scoring weights, spacing floor/desired buffers, fairness tolerance, and coastal/river/StartBias preferences. Every knob declares an explicit min/max range; **defaults are Earth-like** (they reproduce the predeclared expectation gates in `docs/projects/placement-realignment/expectations.md`) and knobs expand outward from that baseline to their declared extremes.
 **Consequences:**
@@ -356,3 +359,38 @@ manifests. No v1 adapter or inferred stage fallback is admitted.
   parse step ids to recreate it.
 - Viz owns serialized v2 admission; mod diagnostics own filesystem orchestration and comparison.
 - Existing v1 dumps are historical evidence and must be regenerated before use.
+
+## ADR-014: Recipe stages expose operation-derived configuration by default
+
+**Status:** Accepted (amends ADR-010)
+**Date:** 2026-07-24
+**Context:** Standard stages accumulated four shared `public.config.ts` modules
+that rebuilt operation strategy schemas behind friendly aliases and profile
+names. The files crossed domain boundaries to reconstruct authoring surfaces,
+duplicated defaults already admitted by step contracts, and became large
+parallel configuration authorities. Stage knobs now provide the smaller
+facility those profiles were reaching for: one semantic choice can tune one or
+more already-shaped operation configs without replacing their authored structure.
+**Decision:** A recipe stage normally exposes the complete schemas of its
+steps, including operation envelopes composed by `defineStep`, plus any
+stage-wide knobs. External stage `public.config.ts` modules are not an
+authoring kind. A full `public` override is exceptional: it must be a
+`Type.Object(...)` authored inline in the concrete `createStage` definition and
+must have a meaningful compiler that intentionally hides and translates the
+internal surface. Renaming keys, choosing an operation strategy, recreating
+defaults, or fanning one value into multiple operation occurrences does not
+qualify.
+**Consequences:**
+- Advanced authors retain every operation strategy and config field through
+  the ordinary generated recipe schema. A knob's neutral/default posture
+  preserves directly authored values; non-neutral postures transform those
+  values relatively instead of replacing them with a second absolute baseline.
+- Shipped map configs remain the named product presets. A future profile may
+  become a knob only when it has independent product meaning and
+  shape-preservingly tunes explicit operation config. Cross-operation coupling
+  is strong evidence for a knob, but is not required when one operation has a
+  real product-level posture distinct from its advanced numeric controls.
+- Strategy schema descriptions are user-facing authoring documentation and
+  must remain semantic and contextual at their owning operation.
+- The recipe-stage blueprint excludes external public-config files and rejects
+  detached public overrides plus obvious empty or passthrough compiler wrappers.

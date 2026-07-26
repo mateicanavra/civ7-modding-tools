@@ -9,12 +9,12 @@ resource ids are verified.
 
 ## Target Authority Refs
 
-- `openspec/changes/resource-stage-architecture`: resource stage operation
+- `openspec/changes/archive/2026-07-24-resource-stage-architecture`: resource stage operation
   sequence, including `plan-resource-groups` and symbolic/runtime proof
   boundaries.
-- `openspec/changes/resource-earthlike-expectations-artifact`: typed
+- `openspec/changes/archive/2026-07-24-resource-earthlike-expectations-artifact`: typed
   `artifact:resources.earthlikeExpectations` source rows.
-- `openspec/changes/resource-earthlike-expectations`: aquatic group
+- `openspec/changes/archive/2026-07-24-resource-earthlike-expectations`: aquatic group
   expectations for fish, pearls, whales, crabs, cowrie, and turtles, including
   crabs navigable-river proxy preservation.
 

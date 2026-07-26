@@ -91,6 +91,24 @@ describe("rule registry contract", () => {
     });
   });
 
+  test("rejects rules whose owner project is absent from the registry index", () => {
+    const result = parseRuleRegistryDocument(
+      registryDocument([baseRule({ ownerProject: "missing-owner" })]),
+      "inline-registry.json"
+    );
+
+    expect(result).toMatchObject({
+      ok: false,
+      issues: [
+        {
+          code: "registry-owner-project-unknown",
+          path: "inline-registry.json/rules/0/ownerProject",
+          message: 'Rule "sample-rule" declares unknown ownerProject "missing-owner".',
+        },
+      ],
+    });
+  });
+
   test.each([
     ["ownerTool", "unknown-tool"],
     ["detect", ["fixture", "command"]],
@@ -129,6 +147,49 @@ describe("rule registry contract", () => {
       ),
       "registry-schema-invalid"
     );
+  });
+
+  test("keeps affirmed blueprint authority enforced and hook-scoped", () => {
+    const blueprintManifest = ".habitat/blueprints/domain/require-domain-shape/rule.json";
+
+    expectInvalid(
+      parseRuleRegistryDocument(
+        registryDocument([
+          baseRule({
+            lane: "advisory",
+            manifestFilePath: blueprintManifest,
+          }),
+        ]),
+        "inline-registry.json"
+      ),
+      "registry-schema-invalid"
+    );
+
+    expectInvalid(
+      parseRuleRegistryDocument(
+        registryDocument([
+          baseRule({
+            runner: gritRunner("require-domain-shape"),
+            manifestFilePath: blueprintManifest,
+          }),
+        ]),
+        "inline-registry.json"
+      ),
+      "registry-schema-invalid"
+    );
+
+    expect(
+      parseRuleRegistryDocument(
+        registryDocument([
+          baseRule({
+            runner: gritRunner("require-domain-shape"),
+            hookCheck: true,
+            manifestFilePath: blueprintManifest,
+          }),
+        ]),
+        "inline-registry.json"
+      )
+    ).toMatchObject({ ok: true });
   });
 
   test("rejects missing manifest identity, placement, and runner facts", () => {

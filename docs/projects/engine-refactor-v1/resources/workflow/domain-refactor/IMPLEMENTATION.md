@@ -1,345 +1,304 @@
 ---
 name: domain-refactor-implementation-subflow
 description: |
-  Detailed implementation sub-flow for refactoring a domain to operation modules.
-  Focuses on slice planning + slice completion checklist + sizing guardrails.
+  Detailed implementation sub-flow for refactoring a domain into semantic
+  modules and operation directories. Focuses on slice planning, completion,
+  and sizing guardrails.
 ---
 
 # SUB-FLOW: Domain Refactor Implementation (Slices)
 
-This is the detailed “how-to” for the **implementation phase** of a domain refactor.
+This is the detailed implementation phase for a domain refactor.
 
-This sub-flow assumes you already produced:
-- a domain inventory (all callsites, contracts, config surfaces, typed arrays, deletions), and
-- a locked op catalog (ids, kinds, schema ownership, config resolution plan).
+It assumes you already produced:
 
-Keep open while implementing:
+- a domain inventory covering callsites, contracts, configuration, artifacts,
+  shared model vocabulary, and deletions; and
+- a locked operation catalog covering semantic module ownership, operation ids
+  and kinds, strategy definitions, schemas, and config resolution.
+
+Keep these references open while implementing:
+
 - `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/references/implementation-reference.md`
 - `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/references/implementation-traps-and-locked-decisions.md`
+- `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/references/op-and-config-design.md`
+- `docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`
 
-## Execution posture (directional guidance)
+## Execution posture
 
-- Keep slices end-to-end and pipeline-green. Do not carry partial migrations forward “until cleanup.”
-- Prefer durable fix anchors. When a behavior is wrong, fix it at contracts/schemas/normalize boundaries first.
-- Default to deletions. Within scope, remove legacy surfaces, compat, placeholders, and dead bags; do not preserve them “just in case.”
-- If a locked decision is threatened, stop the line: update the Phase 3 issue and add a guardrail before proceeding.
+- Keep slices end-to-end and green. Do not carry partial migrations forward
+  until a later cleanup.
+- Prefer durable fix anchors. Correct behavior at contract, schema,
+  normalization, or ownership boundaries before patching replaceable internals.
+- Default to deletion. Remove legacy surfaces, compatibility layers,
+  placeholders, and dead bags within the slice that migrates their consumers.
+- Stop when a locked decision is threatened. Update the owning Phase 3 issue
+  and add an executable guardrail before proceeding.
 
-## Phase 2 posture locks (gates; enforce per slice)
+## Target ownership spine
 
-These locks are not “directional”; they are non-negotiable. If you touch any relevant code paths in a slice, add guardrails (tests/scans) in the same slice.
+The active structure is:
+
+```text
+domain
+  -> modules
+    -> ops
+      -> semantic operation directories
+        -> semantic strategy directories
+```
+
+Every domain and direct module has one `contract.ts`, one `router.ts`, and one
+`index.ts`.
+
+- A domain contract directly composes its module contracts.
+- A domain router directly composes its module routers.
+- A module contract directly composes its leaf operation contracts.
+- A module router directly binds the corresponding leaf operation
+  implementations.
+- The module's `ops/` directory contains only semantic operation directories;
+  it is not another aggregate layer.
+- An operation owns `contract.ts`, `index.ts`, optional `rules/`, and
+  `strategies/`.
+- A strategy owns `strategies/<semantic-id>/config.ts` and
+  `strategies/<semantic-id>/index.ts`; `strategies/index.ts` collects executable
+  strategies.
+
+Do not add a flat domain operation cabinet, a per-operation type bag, a generic
+strategy identity, or child-contract re-export barrels. Model atoms, policy,
+rules, and immutable artifacts belong at the lowest truthful semantic owner.
+
+## Phase 2 posture locks
+
+These locks are non-negotiable. If a slice touches a relevant path, preserve or
+extend its executable guardrails in the same slice.
 
 Canonical anchors:
+
 - `docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md`
-- The Phase 2 canon for the domain you are implementing (typically: `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/<domain>/spec/PHASE-2-*.md`)
+- The Phase 2 canon for the domain being implemented, usually under
+  `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/<domain>/spec/`
 
-- **Topology invariant:** Civ7 is `wrapX=true`, `wrapY=false` always. No env/config/knob for wrap; wrap flags must not appear in op/step/artifact contracts.
-- **Boundary:** Physics domains publish truth-only artifacts (pure). Gameplay owns `artifact:map.*` projections/annotations and all adapter stamping/materialization.
-- **No backfeeding:** Physics steps MUST NOT `require`/consume `artifact:map.*` or `effect:map.*`.
-- **Effects are boolean:** `effect:map.<thing><Verb>` (use a semantically correct verb; keep verbs short and consolidated; no receipts/hashes/versions).
-- **Hard ban:** no `artifact:map.realized.*` namespace anywhere.
-- **TerrainBuilder no-drift:** Civ7 elevation/cliffs come from `TerrainBuilder.buildElevation()` and cannot be set directly. Any cliff/elevation-band-correct decisions belong in Gameplay after `effect:map.elevationBuilt`.
-- **Effect honesty via freeze:** any published `artifact:map.*` intent consumed by stamping must be publish-once/frozen before stamping begins; assert the `effect:map.*` only after successful adapter writes.
+- **Topology invariant:** Civ7 is always `wrapX=true`, `wrapY=false`. Wrap
+  behavior is not an author knob and does not cross operation, step, or
+  artifact contracts.
+- **Boundary:** physics domains publish truth-only artifacts. Projection and
+  materialization own `artifact:map.*`, adapter writes, and engine-facing
+  annotations.
+- **No backfeeding:** physics steps do not consume `artifact:map.*` or
+  `effect:map.*`.
+- **Effects are boolean:** an `effect:map.<thing><Verb>` tag is provided only
+  after the corresponding adapter write succeeds.
+- **Hard ban:** no `artifact:map.realized.*` namespace.
+- **TerrainBuilder no-drift:** Civ7 elevation and cliffs come from
+  `TerrainBuilder.buildElevation()`. Decisions that require built elevation
+  belong after `effect:map.elevationBuilt`.
+- **Effect honesty via freeze:** projection intent consumed by stamping is
+  write-once before stamping begins.
 
-## How to think about slicing (guardrails)
+## Slice sizing
 
-You (the implementer) choose slices **ad hoc** based on the domain inventory. The workflow is not prescriptive about slice boundaries, but it is strict about slice **completion** (no half-migrations).
+Choose slices from the domain inventory. Slice boundaries are flexible, but
+slice completion is not.
 
 Hard guardrails:
-- Preserve step granularity. Do not “collapse” multiple legacy steps into one mega-step to make the refactor easier.
-- Preserve op granularity. Avoid noun-first “bucket ops” (e.g. `placement`, `terrain`, `features`) that become dumping grounds.
-- Prefer verb-forward ops that each do one job: `compute*`, `plan*`, `score*`, `select*` (see ADR-ER1-034).
 
-Healthy slice sizing heuristics:
-- Default slice = **one step** (or a small, tightly-coupled cluster of steps that must migrate together due to shared contracts/artifacts/config).
-- A slice should be small enough that you can:
-  - delete the legacy path(s) used by that slice immediately, and
-  - keep reviewability (diff is explainable without a second spike).
-- If you catch yourself writing “and also” repeatedly when describing the slice, it’s probably too broad.
+- Preserve meaningful step granularity. Do not collapse causally distinct work
+  into a mega-step to simplify migration.
+- Preserve operation granularity. Avoid noun-first bucket operations such as
+  `placement`, `terrain`, or `features`.
+- Prefer stable, verb-forward operations such as `compute*`, `plan*`, `score*`,
+  and `select*`.
 
-Anti-patterns (do not do this):
-- “One slice for the whole domain” unless the domain genuinely only has one step/op surface.
-- “One op that does everything” where the op id reads like a noun or a domain label rather than an action.
-- “We’ll keep the old path until the end” (dual paths = half-migration risk).
+The default slice is one step, or a small cluster that must move together
+because it shares a contract, artifact, or configuration boundary. A healthy
+slice is small enough to delete its legacy path immediately and explain the
+whole diff without another investigation.
 
-## Drift response protocol (required if you notice drift)
+Avoid:
 
-If you detect drift or a locked decision is violated, pause and:
-1. Write a short status report (what changed, what is in-flight, what is next).
-2. Update the Phase 3 issue to insert the locked decision as a gate.
-3. Replace “later” buckets with explicit subissues and branches.
-4. Add guardrails (string/surface checks or contract-guard tests) to prevent reintroduction.
+- one slice for a whole domain unless it truly has one operation surface;
+- one operation that absorbs unrelated behavior; and
+- keeping the old path until the final slice.
 
-## Slice planning artifact (required before coding)
+## Drift response protocol
 
-Before writing code, write a short slicing plan in the domain issue doc:
-- Slice name (A/B/C… or a short slug)
-- Step(s) included (ids + file paths)
-- Ops to create/modify (ids + kinds)
-- Legacy entrypoints to delete in that slice (file paths / exports)
-- Tests to add/update for that slice (op contract test + any thin integration edge)
-- Expected guardrail scope (which domains to run via `REFRACTOR_DOMAINS=...`)
-- Locked decisions + bans (and how each becomes a guardrail)
-- If the slice touches Gameplay stamping/build steps: name the `effect:map.*` tags introduced/required, enforce projection intent freeze, and enforce TerrainBuilder no-drift (`build-elevation` ordering; no implicit re-builds).
-- Step decomposition plan (causality spine → step boundaries → artifacts/buffers)
-- Consumer inventory + migration matrix (break/fix by slice)
+If implementation reveals drift or ambiguity:
 
-## Slice completion checklist (repeat for each slice)
+1. Record what changed, what is in flight, and the decision now required.
+2. Update the Phase 3 issue so the decision is an explicit gate.
+3. Replace vague later-work buckets with concrete subissues and slices.
+4. Add the structural, contract, or behavior guardrail that prevents
+   reintroduction.
 
-This is the “definition of done” for a slice. You must complete it before moving to the next slice.
+## Slice planning artifact
 
-### 1) Extract ops for the slice
+Before coding, record in the domain issue:
 
-- Create/update the op module(s) needed by this slice under `mods/mod-swooper-maps/src/domain/<domain>/ops/**`.
-- Op contracts are POJO/POJO-ish only (typed arrays ok); no adapters/context/RNG callbacks cross the boundary.
-- Run handlers assume normalized config (no hidden defaults or fallback values).
-- If you touch a “semantic knob” (lists/pairs/weights/modes), ensure its meaning + missing/empty/null + determinism expectations are explicitly documented (Phase 2 semantics table) and enforced by tests; do not infer semantics ad hoc in `run(...)`.
-- Each op module is contract-first and follows the canonical shape:
-  - `contract.ts` via `defineOp`
-  - `types.ts` exporting a single `OpTypeBag`
-  - `rules/` + `rules/index.ts`
-  - `strategies/` + `strategies/index.ts`
-  - `index.ts` exporting the created op and re-exporting contract + types
-- Op schemas + `defaultConfig` + optional `normalize` are colocated with the op module.
+- slice name;
+- step ids and paths;
+- owning domain modules and operations to create or modify;
+- legacy entrypoints and exports deleted by the slice;
+- operation contract tests and thin integration edges;
+- expected Habitat classifications, project targets, and policy rules;
+- locked decisions and how each is enforced;
+- projection effects, freeze points, and TerrainBuilder ordering when relevant;
+- causality spine, step boundaries, and produced/consumed artifacts; and
+- consumer migration matrix.
 
-### 2) Wire steps for the slice
+## Slice completion checklist
 
-- Promote the migrated step(s) into the contract-first step module shape:
-  - `contract.ts` (metadata-only via `defineStep`)
-  - `index.ts` (orchestration only, created via bound `createStep`)
-  - `lib/**` (pure helpers such as `inputs.ts`/`apply.ts`, optional)
-- Step contracts declare op contracts via `ops: { <key>: domain.ops.<opKey> }`.
-- `defineStep({ ops })` automatically merges each op contract’s `config` schema into the step schema.
-- Step modules call injected runtime ops via `run(context, config, ops)` (no local op binding, no importing implementations).
+Complete every section before starting the next slice.
 
-### 3) Delete legacy for the slice
+### 1) Place model and artifacts at their truthful owner
 
-- Delete the legacy entrypoints and helpers that the migrated step(s) used.
-- Do not leave compat exports or an “old/new” switch.
-- Remove any compat/projection surfaces from this domain. Do not introduce transitional compatibility as a refactor technique; migrate consumers and delete in-slice.
-- No dual-path compute: if old and new both produce the same concept, delete the old path in this slice (the slice design must include consumer migration so it can).
+- Choose the direct semantic module before adding an operation.
+- Keep shared model atoms, policy, and rules at the lowest owner whose siblings
+  genuinely share them.
+- Keep operation-private algorithm types and rules private.
+- Define immutable artifacts in the exact module that produces them and expose
+  them through that module's artifact catalog.
+- Do not use an artifact payload or operation envelope as a substitute for
+  decomposed domain vocabulary.
 
-### 4) Tests for the slice
+### 2) Author each operation contract-first
 
-- Add at least one op contract test for the op(s) introduced/changed in this slice.
-- If artifact/config contracts changed across steps, add one thin integration test that exercises the edge.
-- Keep tests deterministic (fixed seeds; no RNG callbacks crossing op boundary).
-- If the slice introduces or changes probabilistic behavior (weights), add a deterministic test that would fail if RNG/seed semantics drift.
+Create the operation under:
 
-### 5) Documentation for the slice (required)
-
-- Treat documentation as part of the slice definition of done.
-- For any touched exported symbol (op contracts, step contracts, strategy exports, helper functions used cross-file):
-  - Trace callsites/references first (code-intel; do not guess intent).
-  - Add/refresh JSDoc on the definition site with behavior-oriented notes (what/why/edge cases).
-- For any touched TypeBox schema field (especially config):
-  - Ensure it has a meaningful `description` explaining behavioral impact and interactions (not just type).
-
-#### Knobs + advanced config composition: locked contract (with examples)
-
-This is the highest-frequency failure mode when refactoring domains that have:
-- **knobs** (author intent; scenario-level controls), and
-- **advanced config** (explicit typed numeric/structural tuning).
-
-Treat knobs + advanced config as a **single locked author contract**. It must be:
-- predictable for authors (knobs-only and advanced-config+knobs behave the same way),
-- stable for implementers (no “intent inference” hacks),
-- and test-locked (so semantics can’t drift during later slices).
-
-Rationale (author mental model):
-- Knobs are the primary surface most authors will use when they are not editing advanced config directly.
-- Advanced config is always available and editable; knobs operate **on top of whatever advanced config is set**.
-- A knob is intentionally a broader brush: one knob may influence multiple parameters at once.
-- Despite that, composition must remain deterministic and auditable: knobs are layered over advanced config in a controlled, test-locked way.
-
-Canonical contract (single rule; no ambiguity):
-- **Step config is the typed/defaulted baseline** (schemas + `defaultConfig`).
-- **Knobs apply after** as deterministic transforms over that baseline (not “fill missing”, not “presence-based precedence”).
-- **Bans:** presence detection, compare-to-default gating, and any attempt to infer “author intent” from whether a value was explicitly set vs defaulted.
-
-##### ✅ Good: apply knobs as pure transforms after schema defaulting
-
-In this codebase, step schemas are validated and defaulted before `step.normalize(...)` runs.
-That makes `step.normalize` the stable boundary for applying knob transforms: it always sees a fully-shaped config.
-
-```ts
-// GOOD: knobs apply after normalization as a deterministic transform.
-// No "only-if-missing", no presence checks, no compare-to-default sentinels.
-normalize: (cfg, ctx) => {
-  const wetnessScale = DRYNESS_WETNESS_SCALE[ctx.knobs.dryness];
-  return {
-    ...cfg,
-    computePrecipitation: {
-      ...cfg.computePrecipitation,
-      config: {
-        ...cfg.computePrecipitation.config,
-        rainfallScale: cfg.computePrecipitation.config.rainfallScale * wetnessScale,
-      },
-    },
-  };
-}
+```text
+mods/mod-swooper-maps/src/domain/<domain>/modules/<module>/ops/<operation>/
+  contract.ts
+  index.ts
+  rules/                         # optional
+  strategies/
+    index.ts
+    <semantic-id>/
+      config.ts
+      index.ts
 ```
 
-##### ❌ Bad: “compare-to-default” gating (a.k.a. deep-merge-by-hand)
+- `contract.ts` owns the shared input schema, output schema, and complete tuple
+  of strategy definitions.
+- Input and output are POJO-like data plus typed arrays. Adapters, execution
+  context, and RNG callbacks never cross this boundary.
+- Each strategy definition has a semantic id and lives with its config schema.
+  A sole strategy is inferred; a multi-strategy operation explicitly selects
+  its semantic default.
+- `index.ts` creates one executable operation from the contract and executable
+  strategy tuple.
+- Rules consume decomposed model atoms or private algorithm types, not inferred
+  operation-envelope types.
+- Runtime handlers assume admitted, normalized config. They do not add hidden
+  defaults or fallbacks.
 
-Avoid patterns that apply knob logic only “if the config still equals a particular default number”.
-This hides behavior, violates the “knobs apply last” contract, and breaks when an author explicitly sets a value equal to the default.
+For any semantic knob or weighted choice, document and test its meaning,
+missing/empty/null behavior, composition, and determinism.
 
-```ts
-// BAD: compare-to-default sentinel gating (breaks "knobs apply last")
-if (cfg.computeThermalState.config.baseTemperatureC === 14) {
-  cfg.computeThermalState.config.baseTemperatureC = baseTempFromKnobs(knobs);
-}
+### 3) Compose module and domain surfaces directly
+
+- Add the leaf operation contract directly to the owning module's
+  `contract.ts`.
+- Add the leaf implementation under the same key directly to the module's
+  `router.ts`.
+- Keep the module `index.ts` narrow; do not publish leaf operation contracts as
+  parallel named exports.
+- If a new module is introduced, compose its contract and router directly from
+  the domain's `contract.ts` and `router.ts`, then expose only the intended
+  domain surface from `index.ts`.
+- Keep contract keys, router keys, and canonical contract identity symmetric.
+
+### 4) Wire recipe steps
+
+Each authored step uses:
+
+```text
+mods/mod-swooper-maps/src/recipes/<recipe>/stages/<family>/<stage>/steps/<step>/
+  config.ts
+  step.ts
 ```
 
-##### How to lock the contract with tests (minimum framing)
+- `config.ts` owns `defineStep(...)`, declares operation contracts, exact
+  artifact requirements/provisions, dependency/effect tags, and only
+  step-owned schema fields.
+- `step.ts` owns `createStep(...)` behavior.
+- Runtime code receives operations and artifact runtimes through
+  `run(context, config, ops, deps)`.
+- Read map dimensions from `context.setup.dimensions`.
+- Call injected `ops.<key>` implementations; do not import operation
+  implementations or call their private rules.
+- Read and publish only declared immutable products through
+  `deps.artifacts.<key>`.
+- Stages order steps. They do not recreate domain contracts or artifact
+  catalogs.
 
-You do not need a huge test suite, but you do need at least one test that would fail if “knobs last” drifts.
+### 5) Delete legacy surfaces
 
-Minimum cases to cover (name the tests in the Phase 3 issue doc):
-- Knobs-only: baseline defaults + knob transform applies.
-- Advanced-config + knobs: baseline overrides + knob transform still applies.
-- Explicitly-set-to-default edge case: author sets a value equal to its default + knob transform still applies (this is what compare-to-default gating breaks).
+- Delete the migrated entrypoints, helpers, compatibility exports, and
+  old/new switches in the same slice.
+- Migrate every consumer before deleting the old authority; do not leave dual
+  compute paths.
+- Remove empty directories, unused config bags, translators, and projections
+  that no longer have an owner.
 
-Where to assert:
-- Prefer asserting on the post-normalization config (compiled plan config / `step.normalize(...)` output), not on emergent runtime outcomes.
-- Add a cheap contract-guard test for forbidden patterns if the domain has a history of regressing here (e.g., compare-to-default sentinels for specific fields).
+### 6) Test behavior and contracts
 
-##### ✅ Good: rely on schema defaulting; normalize should not re-parse and re-default
+- Add at least one domain-local operation contract test for every operation
+  introduced or materially changed.
+- Add a thin integration test when artifact or config contracts cross steps.
+- Use fixed seeds and explicit `rngSeed` inputs. RNG callbacks do not cross an
+  operation boundary.
+- For weighted behavior, add a deterministic test that fails when seed or
+  selection semantics drift.
+- Assert normalized config directly for authored-config composition rather
+  than relying only on emergent map output.
 
-In this codebase, step schemas are validated and defaulted before `step.normalize(...)` runs.
-`step.normalize` should therefore be reserved for **pure derived values** (if any), not:
-- interpreting unknown/invalid knob values,
-- “helpfully” defaulting missing fields,
-- adding fallback semantics after validation.
+### 7) Update documentation at the owner
 
-```ts
-// GOOD: normalize assumes validated/defaulted shape; only derives a value.
-normalize: (cfg) => ({ ...cfg, derived: derive(cfg) })
-```
+- Trace callsites before documenting exported symbols.
+- Add behavior-oriented JSDoc where an exported contract, operation, strategy,
+  artifact, or cross-file helper needs context.
+- Give TypeBox fields meaningful `description` text that explains behavioral
+  impact and relevant interactions.
+- Update canonical authoring references when a public contract changes. Do not
+  duplicate a second canonical model in project notes.
 
-```ts
-// BAD: normalize re-parses knobs and silently defaults (drift-prone and undocumented).
-normalize: (_cfg, ctx) => ({ ..._cfg, foo: isRecord(ctx.knobs) ? ctx.knobs.foo ?? "x" : "x" })
-```
+### 8) Run structural and project proof
 
-##### ✅ Good: multipliers and mappings are named, documented constants (or explicit inputs)
+Classify every unfamiliar or structurally changed path:
 
-If a knob implies numeric scaling, do not bury multipliers as “magic numbers” deep in normalization logic.
-Choose one of:
-- **Internal constant** (if it must not be tuned): name it and document the rationale.
-- **Explicit input** (if it is a tuning degree of freedom): surface it as advanced config or an intensity knob.
-
-```ts
-// GOOD: named constant, documented once, reused everywhere
-export const DRYNESS_RAINFALL_SCALE = { wet: 1.15, mix: 1.0, dry: 0.85 } as const;
-```
-
-```ts
-// BAD: magic numbers scattered throughout step.normalize/run
-const drynessScale = dryness === "wet" ? 1.15 : dryness === "dry" ? 0.85 : 1.0;
-```
-
-##### ✅ Good: schema reuse only for *meaningfully identical* knobs; otherwise define stage-local knobs
-
-Schema definition convention (keep one clean standard):
-- Prefer **inline knob schemas at the stage boundary** (next to `createStage({ knobsSchema: ... })`), so the schema and its docs stay colocated with the stage that consumes it.
-- Only define schemas out-of-line if they are actually imported elsewhere. In that case, put them under a shared folder (e.g. `domain/<domain>/shared/**`) and import them.
-
-If a knob has the same meaning across stages, reuse the same leaf schema (shared meaning).
-If the meaning differs by stage, define **stage-local** knobs with stage-local docs (do not share a name).
-
-Also: if your project requires “redundant” docs, do it deliberately:
-- keep shared leaf schemas for type/validation,
-- re-declare stage knob objects so each **property** can have stage-scoped JSDoc + `description`.
-
-```ts
-// GOOD: stage-local knobs schema defined inline; leaf schema can be inline or imported if truly shared.
-createStage({
-  id: "hydrology-climate-baseline",
-  knobsSchema: Type.Object(
-    {
-      /**
-       * Global moisture availability bias (not regional).
-       *
-       * Stage scope:
-       * - Used to scale baseline rainfall/moisture sourcing only.
-       * - Must not change hydrography projection thresholds.
-       */
-      dryness: Type.Optional(
-        Type.Union([Type.Literal("wet"), Type.Literal("mix"), Type.Literal("dry")], {
-          default: "mix",
-          description: "Global moisture availability preset (used by climate baseline only).",
-        })
-      ),
-    },
-    { description: "Hydrology climate-baseline knobs." }
-  ),
-  steps: [/* ... */],
-});
-```
-
-```ts
-// BAD: defining a monolithic exported KnobsSchema just to pluck `.properties.*` later.
-// This pattern encourages central docs that drift from stage behavior and makes stage schemas look undocumented.
-export const HydrologyKnobsSchema = Type.Object({
-  dryness: Type.Optional(Type.Union([/* ... */])),
-  /* ...many unrelated knobs... */
-});
-export const ClimateBaselineKnobsSchema = Type.Object({
-  dryness: HydrologyKnobsSchema.properties.dryness,
-  /* ... */
-});
-```
-
-### 6) Guardrails for the slice
-
-Single must-run guardrail gate:
 ```bash
-REFRACTOR_DOMAINS="<domain>[,<domain2>...]" ./scripts/lint/lint-domain-refactor-guardrails.sh
+bun habitat classify <path>
 ```
 
-If it fails, iterate until clean (no exceptions).
+Run every target reported by classification. For the standard MapGen domain
+surface, the normal proof is:
 
-If a locked decision/banned surface was introduced in this slice, add a guardrail (test/scan) in the same slice.
+```bash
+nx run-many -t check test build -p mapgen-core mod-swooper-maps
+```
 
-### 6.5) Survivability validation (required for fixes and review-driven changes)
+Behavioral changes also require the relevant diagnostic or in-game proof. A
+build alone does not prove generated-map behavior.
 
-Before committing the slice, confirm:
-- The fix is anchored at a stable interface (domain boundary / config normalization) rather than an implementation detail likely to be replaced in a later slice.
-- Any non-trivial config semantics touched are locked by tests (not just prose).
+### 9) Commit the complete slice
 
-### 7) Commit the slice (Graphite-only)
+Use the repository's Graphite workflow and keep one logical slice per layer:
 
-- Commit when the slice is fully complete (no partial commits for a slice).
 ```bash
 gt add -A
 gt modify --commit -am "refactor(<domain>): <slice summary>"
 ```
 
-## Final slice additions (end-of-domain completion)
+## Final slice additions
 
-In the final slice, do the “around-the-block” cleanup:
-- remove now-unused shared helpers that existed only to support legacy paths,
-- remove obsolete exports/re-exports that bypass the op boundary,
-- update docs/presets/tests that referenced removed legacy structures.
-- do not leave behind deprecated shims/compat layers. If a shim exists, the slice plan is wrong; redesign the slice to migrate consumers and delete the legacy surface in-slice.
+The final slice performs the surrounding cleanup:
 
-Before the full repo gates, run the fast refactor gates:
-```bash
-REFRACTOR_DOMAINS="<domain>" ./scripts/lint/lint-domain-refactor-guardrails.sh
-bun run check
-```
+- remove shared helpers that existed only for retired paths;
+- remove obsolete exports that bypass module and operation boundaries;
+- update docs, presets, tests, and recipe wiring that named retired structures;
+- confirm no placeholders or compatibility layers remain; and
+- run the full reported Habitat and Nx proof, plus live verification for
+  behavior-changing work.
 
-Then run the full verification gates:
-```bash
-bun run --cwd packages/mapgen-core check
-bun run --cwd packages/mapgen-core test
-bun run --cwd mods/mod-swooper-maps check
-bun run --cwd mods/mod-swooper-maps test
-bun run --cwd mods/mod-swooper-maps build
-bun run deploy:mods
-```
-
-Finally, do the Phase 5 traceability pass:
-- Update the Phase 3 issue doc Lookback 4 (what changed vs plan, and why).
-- Record any environmental gate constraints (e.g. deploy not runnable locally) with evidence. Do not defer in-scope migrations/deletions; redesign slices until they are straight-through cutovers.
+Finish the Phase 5 traceability pass by recording what changed from the plan
+and why. Environmental limits may block an operational gate, but they do not
+justify leaving an in-scope migration or deletion half complete.

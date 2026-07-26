@@ -109,3 +109,39 @@ export function appendArtifactTypedArrayIssues<T extends SupportedTypedArray>(
   }
   return true;
 }
+
+/**
+ * Appends admission issues for grid coordinates outside the admitted map or repeated in one set.
+ *
+ * Artifact schemas remain responsible for coordinate value shape. This helper owns only the
+ * generic relational mechanics shared by immutable tile-indexed products.
+ */
+export function appendArtifactGridCoordinateIssues(
+  issues: ArtifactValidationIssue[],
+  label: string,
+  coordinates: readonly Readonly<{ x: number; y: number }>[],
+  dimensions: Readonly<{ width: number; height: number }> | undefined
+): void {
+  const seen = new Set<string>();
+
+  for (const [index, coordinate] of coordinates.entries()) {
+    const key = `${coordinate.x},${coordinate.y}`;
+    if (seen.has(key)) {
+      issues.push({ message: `${label}[${index}] duplicates the tile claim at ${key}.` });
+    } else {
+      seen.add(key);
+    }
+
+    if (
+      dimensions &&
+      (coordinate.x < 0 ||
+        coordinate.x >= dimensions.width ||
+        coordinate.y < 0 ||
+        coordinate.y >= dimensions.height)
+    ) {
+      issues.push({
+        message: `${label}[${index}] coordinate ${key} is outside ${dimensions.width}x${dimensions.height}.`,
+      });
+    }
+  }
+}

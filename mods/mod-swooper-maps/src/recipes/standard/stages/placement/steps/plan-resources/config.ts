@@ -6,17 +6,18 @@ import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modu
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { artifacts as morphologyTerrainArtifacts } from "@mapgen/domain/morphology/modules/terrain/artifacts/index.js";
+import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/modules/regions/artifacts/index.js";
 import resources from "@mapgen/domain/resources";
+import { artifacts as resourceDemandArtifacts } from "@mapgen/domain/resources/modules/demand/artifacts/index.js";
+import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
-import { artifacts as mapRiversArtifacts } from "../../../map/rivers/artifacts/index.js";
-import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 
 /**
  * Defines resource intent from final physics truth and the declared Civ7
  * legality surface; downstream steps may adjust intent but not re-author policy.
  */
-export const PlanResourcesStepContract = defineStep({
+export const config = defineStep({
   id: "plan-resources",
   engine: ["readCurrentMapSurface", "isResourceRequiredForAge"] as const,
   requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.surfacePrepared],
@@ -30,17 +31,17 @@ export const PlanResourcesStepContract = defineStep({
       morphologyTerrainArtifacts.beltDrivers,
       hydrographyArtifacts.hydrography,
       hydrographyArtifacts.lakePlan,
-      mapRiversArtifacts.projectedNavigableRivers,
+      hydrographyArtifacts.projectedNavigableRivers,
       climateArtifacts.climateIndices,
       cryosphereArtifacts.cryosphere,
       biomeArtifacts.biomeClassification,
       pedologyArtifacts.pedology,
-      placementArtifacts.landmassRegionSlotByTile,
+      placementRegionArtifacts.landmassRegionSlotByTile,
     ],
     provides: [
-      placementArtifacts.resourceDemandPlan,
-      placementArtifacts.resourcePlan,
-      placementArtifacts.resourceEligibility,
+      resourceDemandArtifacts.resourceDemandPlan,
+      resourceSiteArtifacts.resourcePlan,
+      resourceDemandArtifacts.resourceEligibility,
     ],
   },
   ops: {

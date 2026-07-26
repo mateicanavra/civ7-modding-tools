@@ -9,7 +9,7 @@ This slice introduces that rollup without changing placement behavior.
 
 ## Target Authority Refs
 
-- `openspec/changes/resource-stage-architecture`: `plan-resource-groups`
+- `openspec/changes/archive/2026-07-24-resource-stage-architecture`: `plan-resource-groups`
   consumes group plans and publishes `artifact:resources.groupPlans`.
 - `openspec/changes/resource-aquatic-operation-contract`
 - `openspec/changes/resource-cultivated-operation-contract`

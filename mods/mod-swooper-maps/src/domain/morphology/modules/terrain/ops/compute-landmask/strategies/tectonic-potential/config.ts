@@ -72,7 +72,7 @@ export default defineStrategy({
     {
       additionalProperties: false,
       description:
-        "Landmask shaping controls. Landmask is derived from Foundation crust truth + provenance stability (continent potential), not from noise-first thresholding.",
+        "Continent-potential scale, smoothing, connectivity, and craton-memory controls used to derive land from crust truth and provenance stability.",
     }
   ),
 });

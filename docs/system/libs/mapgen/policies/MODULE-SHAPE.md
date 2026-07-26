@@ -30,14 +30,18 @@ Keep MapGen code and docs aligned to a stable module boundary model:
 - Add new behavior by:
   - adding an op under the relevant domain module's `ops/` directory, or
   - adding a new strategy (when behavior is a parametric variation),
-  - then wiring it through a step contract.
+  - then selecting its contract and declared artifacts in step `config.ts` and
+    calling its injected implementation from `step.ts`.
 - Compose each domain from direct children under `modules/`. A direct module
-  owns `contract.ts`, `router.ts`, an operation registry, and any artifacts it
-  produces. The hierarchy currently stops after this direct module level.
-- Use the singular `ops/contract.ts` as the module's operation-contract
-  registry and `ops/index.ts` as its implementation registry. Contract
-  authorities are default-only; the registry does not re-export constituent
-  leaf contracts.
+  owns singular `contract.ts`, `router.ts`, and `index.ts` surfaces plus any
+  artifacts it produces. The hierarchy currently stops after this direct
+  module level.
+- Compose leaf operation contracts directly in the module `contract.ts` and
+  bind the corresponding implementations directly in the module `router.ts`.
+  The module's `ops/` directory contains only semantic operation directories.
+- Keep domain and module `index.ts` surfaces narrow. Consumers select contracts
+  through the public nested domain contract rather than named child-contract
+  re-exports.
 - Create optional `model/atoms` or `model/policy` only when the owning domain or
   module has real shared vocabulary at that level.
 - Keep complete operation input/output envelopes as direct inline schemas in
@@ -56,10 +60,16 @@ Keep MapGen code and docs aligned to a stable module boundary model:
 - Steps that contain heavy domain computation (should live in ops/strategies).
 - Flat domain-level operation or artifact cabinets that erase their semantic
   module owner.
+- Intermediate operation registries inside a module's `ops/` directory.
 - Empty model directories or vocabulary hoisted above its lowest common owner.
 - Reusing a contract input/output envelope or complete artifact payload schema
   as domain model vocabulary, even through a renamed atom.
-- Publicly exporting internal-only types from deep inside ops/rules in a way that forces downstream type coupling.
+- Per-operation envelope type bags or public exports of private rule/strategy
+  algorithm types.
+- Generic strategy identities that hide the behavior being selected.
+- Named leaf-contract re-exports beside the aggregate domain/module authority.
+- Step runtimes that read dimensions outside `context.setup.dimensions`, import
+  operation implementations directly, or access undeclared artifacts.
 - “Reach across domains” imports that bypass the SDK boundary model.
 
 ## Ground truth anchors

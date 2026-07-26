@@ -10,15 +10,31 @@ forbidden = ["artifacts"]
 
 [[scopes]]
 name = "recipe-stage-semantic-containers"
-root = "mods/*/src/recipes/*/stages/*(!(*.*|steps|artifacts)/)!(*.*|steps|artifacts)"
+root = "mods/*/src/recipes/*/stages/*(!(*.*|steps|artifacts|model)/)!(*.*|steps|artifacts|model)"
 kind = "directory"
 mode = "closed"
 allowed = [
   "+([a-z0-9])*(-+([a-z0-9]))",
   "index.ts",
   "steps",
+  "model",
   "viz.ts",
   "log.ts",
-  "public.config.ts",
 ]
 forbidden = ["artifacts"]
+
+[[scopes]]
+name = "recipe-stage-models"
+root = "mods/*/src/recipes/*/stages/*(!(*.*|steps|artifacts|model)/)!(*.*|steps|artifacts|model)/model"
+kind = "directory"
+mode = "closed"
+required = ["policy"]
+
+[[scopes]]
+name = "recipe-stage-policies"
+root = "mods/*/src/recipes/*/stages/*(!(*.*|steps|artifacts|model)/)!(*.*|steps|artifacts|model)/model/policy"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+allowed = ["*.ts"]
+forbidden = ["index.ts"]

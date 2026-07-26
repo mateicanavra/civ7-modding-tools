@@ -11,6 +11,12 @@ import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
+import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/modules/regions/artifacts/index.js";
+import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
+import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
+import { artifacts as resourceDemandArtifacts } from "@mapgen/domain/resources/modules/demand/artifacts/index.js";
+import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
+import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
 import { admitMapSetup, createMapContext, type MapContext } from "@swooper/mapgen-core";
 import {
   type ArtifactReadValueOf,
@@ -23,30 +29,44 @@ import {
 import { Value } from "typebox/value";
 import { canonicalRecipeConfig } from "../../../maps/configs/canonical.js";
 import standardRecipe from "../recipe.js";
-import { artifacts as mapEcologyArtifacts } from "../stages/map/ecology/artifacts/index.js";
-import { artifacts as mapHydrologyArtifacts } from "../stages/map/hydrology/artifacts/index.js";
-import { artifacts as mapRiversArtifacts } from "../stages/map/rivers/artifacts/index.js";
-import { artifacts as placementArtifacts } from "../stages/placement/artifacts/index.js";
+import {
+  type StandardDiscoveryPlacementMeasurements,
+  StandardDiscoveryPlacementMeasurementsSchema,
+} from "./families/discovery-placement.js";
+import {
+  type StandardFeatureProjectionMeasurements,
+  StandardFeatureProjectionMeasurementsSchema,
+} from "./families/ecology-projection.js";
+import {
+  type StandardLakeProjectionMeasurements,
+  StandardLakeProjectionMeasurementsSchema,
+} from "./families/hydrology/lake-projection.js";
 import {
   type StandardRiverNetworkMeasurements,
   StandardRiverNetworkMeasurementsSchema,
 } from "./families/hydrology/river-network.js";
+import {
+  type StandardPlacementSurfaceMeasurements,
+  StandardPlacementSurfaceMeasurementsSchema,
+} from "./families/placement-surface.js";
 import { defineStandardMapMetricScenario, type StandardMapMetricScenario } from "./scenario.js";
 
 type Volcanoes = ArtifactReadValueOf<typeof morphologyLandformsArtifacts.volcanoes>;
 type Landmasses = ArtifactReadValueOf<typeof morphologyLandformsArtifacts.landmasses>;
 type Pedology = ArtifactReadValueOf<typeof pedologyArtifacts.pedology>;
 type ProjectedNavigableRivers = ArtifactReadValueOf<
-  typeof mapRiversArtifacts.projectedNavigableRivers
+  typeof hydrographyArtifacts.projectedNavigableRivers
 >;
-type ResourceDemandPlan = ArtifactReadValueOf<typeof placementArtifacts.resourceDemandPlan>;
-type ResourceEligibility = ArtifactReadValueOf<typeof placementArtifacts.resourceEligibility>;
-type ResourcePlan = ArtifactReadValueOf<typeof placementArtifacts.resourcePlan>;
-type ResourcePlanAdjusted = ArtifactReadValueOf<typeof placementArtifacts.resourcePlanAdjusted>;
+type ResourceDemandPlan = ArtifactReadValueOf<typeof resourceDemandArtifacts.resourceDemandPlan>;
+type ResourceEligibility = ArtifactReadValueOf<typeof resourceDemandArtifacts.resourceEligibility>;
+type ResourcePlan = ArtifactReadValueOf<typeof resourceSiteArtifacts.resourcePlan>;
+type ResourcePlanAdjusted = ArtifactReadValueOf<
+  typeof resourceSupportArtifacts.resourcePlanAdjusted
+>;
 type ResourcePlacementOutcomes = ArtifactReadValueOf<
-  typeof placementArtifacts.resourcePlacementOutcomes
+  typeof resourceSiteArtifacts.resourcePlacementOutcomes
 >;
-type StartAssignment = ArtifactReadValueOf<typeof placementArtifacts.startAssignment>;
+type StartAssignment = ArtifactReadValueOf<typeof placementStartArtifacts.startAssignment>;
 
 type ResourceDemandExclusionReason = ResourceDemandPlan["excluded"][number]["reason"];
 type StandardScenarioIneligibleReason = Extract<
@@ -134,10 +154,9 @@ export type StandardMapCapture = Readonly<{
     aridityIndex: Float32Array;
   }>;
   projection: Readonly<{
-    lakeMask: Uint8Array;
-    lakeSinkMismatchCount: number;
-    finalLakeWaterDriftCount: number;
-    finalLakeClassificationDriftCount: number;
+    discoveryGeneration: StandardDiscoveryPlacementMeasurements;
+    lakes: StandardLakeProjectionMeasurements;
+    placementSurface: StandardPlacementSurfaceMeasurements;
     navigableRivers: Pick<
       ProjectedNavigableRivers,
       | "selectedTileCount"
@@ -266,14 +285,43 @@ export function captureStandardMapScenario(
 
   const context = createMapContext({ setup, adapter });
   let riverNetworkSummary: StandardRiverNetworkMeasurements | undefined;
+  let discoveryGeneration: StandardDiscoveryPlacementMeasurements | undefined;
+  let featureProjection: StandardFeatureProjectionMeasurements | undefined;
+  let lakeProjection: StandardLakeProjectionMeasurements | undefined;
+  let placementSurface: StandardPlacementSurfaceMeasurements | undefined;
   let metricFailure: unknown;
   standardRecipe.run(context, canonicalRecipeConfig(admittedScenario.config), {
     log: () => {},
     facets: {
       metrics: (projection) => {
+        const discoveryCandidate = projection["placement.discoveryGeneration"];
+        if (discoveryCandidate !== undefined) {
+          discoveryGeneration = Value.Parse(
+            StandardDiscoveryPlacementMeasurementsSchema,
+            discoveryCandidate
+          );
+        }
         const candidate = projection["hydrology.riverNetwork"];
         if (candidate !== undefined) {
           riverNetworkSummary = Value.Parse(StandardRiverNetworkMeasurementsSchema, candidate);
+        }
+        const featureCandidate = projection["ecology.featureProjection"];
+        if (featureCandidate !== undefined) {
+          featureProjection = Value.Parse(
+            StandardFeatureProjectionMeasurementsSchema,
+            featureCandidate
+          );
+        }
+        const lakeCandidate = projection["map.hydrology.lakeProjection"];
+        if (lakeCandidate !== undefined) {
+          lakeProjection = Value.Parse(StandardLakeProjectionMeasurementsSchema, lakeCandidate);
+        }
+        const placementCandidate = projection["placement.surfacePreparation"];
+        if (placementCandidate !== undefined) {
+          placementSurface = Value.Parse(
+            StandardPlacementSurfaceMeasurementsSchema,
+            placementCandidate
+          );
         }
       },
       onError: ({ facet, error }) => {
@@ -285,15 +333,40 @@ export function captureStandardMapScenario(
   if (!riverNetworkSummary) {
     throw new Error("Standard metric capture requires Hydrology river-network benchmark evidence.");
   }
+  if (!discoveryGeneration) {
+    throw new Error("Standard metric capture requires Placement discovery-generation evidence.");
+  }
+  if (!featureProjection) {
+    throw new Error("Standard metric capture requires Ecology feature-projection evidence.");
+  }
+  if (!lakeProjection) {
+    throw new Error("Standard metric capture requires Hydrology lake-projection evidence.");
+  }
+  if (!placementSurface) {
+    throw new Error("Standard metric capture requires Placement surface-preparation evidence.");
+  }
 
-  return copyCompletedRun(admittedScenario, context, adapter, riverNetworkSummary);
+  return copyCompletedRun(
+    admittedScenario,
+    context,
+    adapter,
+    riverNetworkSummary,
+    discoveryGeneration,
+    featureProjection,
+    lakeProjection,
+    placementSurface
+  );
 }
 
 function copyCompletedRun(
   scenario: StandardMapMetricScenario,
   context: MapContext,
   adapter: ReturnType<typeof createMockAdapter>,
-  riverNetworkSummary: StandardRiverNetworkMeasurements
+  riverNetworkSummary: StandardRiverNetworkMeasurements,
+  discoveryGeneration: StandardDiscoveryPlacementMeasurements,
+  featureProjection: StandardFeatureProjectionMeasurements,
+  lakeProjection: StandardLakeProjectionMeasurements,
+  placementSurface: StandardPlacementSurfaceMeasurements
 ): StandardMapCapture {
   const selection = resolveMapSelection(scenario);
   const { width, height } = selection.dimensions;
@@ -306,13 +379,9 @@ function copyCompletedRun(
   const lakePlanValue = readValidatedArtifact(context, hydrographyArtifacts.lakePlan);
   const hydrographyValue = readValidatedArtifact(context, hydrographyArtifacts.hydrography);
   const climateIndicesValue = readValidatedArtifact(context, climateArtifacts.climateIndices);
-  const lakeProjectionValue = readValidatedArtifact(
-    context,
-    mapHydrologyArtifacts.engineProjectionLakes
-  );
   const navigableRiverValue = readValidatedArtifact(
     context,
-    mapRiversArtifacts.projectedNavigableRivers
+    hydrographyArtifacts.projectedNavigableRivers
   );
   const riverReadbackValue = adapter.readRiverProjection(
     width,
@@ -321,40 +390,32 @@ function copyCompletedRun(
   );
   const biomeValue = readValidatedArtifact(context, biomeArtifacts.biomeClassification);
   const pedologyValue = readValidatedArtifact(context, pedologyArtifacts.pedology);
-  const featureDiagnosticsValue = readValidatedArtifact(
-    context,
-    mapEcologyArtifacts.featureApplyDiagnostics
-  );
-  const placementSurfaceValue = readValidatedArtifact(
-    context,
-    placementArtifacts.placementSurfacePreparation
-  );
   const regionSlotsValue = readValidatedArtifact(
     context,
-    placementArtifacts.landmassRegionSlotByTile
+    placementRegionArtifacts.landmassRegionSlotByTile
   );
   const resourceDemandPlanValue = readValidatedArtifact(
     context,
-    placementArtifacts.resourceDemandPlan
+    resourceDemandArtifacts.resourceDemandPlan
   );
   const resourceEligibilityValue = readValidatedArtifact(
     context,
-    placementArtifacts.resourceEligibility
+    resourceDemandArtifacts.resourceEligibility
   );
-  const resourcePlanValue = readValidatedArtifact(context, placementArtifacts.resourcePlan);
+  const resourcePlanValue = readValidatedArtifact(context, resourceSiteArtifacts.resourcePlan);
   const adjustedResourcePlanValue = readValidatedArtifact(
     context,
-    placementArtifacts.resourcePlanAdjusted
+    resourceSupportArtifacts.resourcePlanAdjusted
   );
   const resourceOutcomesValue = readValidatedArtifact(
     context,
-    placementArtifacts.resourcePlacementOutcomes
+    resourceSiteArtifacts.resourcePlacementOutcomes
   );
   const naturalWonderPlacementValue = readValidatedArtifact(
     context,
-    placementArtifacts.naturalWonderPlacement
+    placementWonderArtifacts.naturalWonderPlacement
   );
-  const startValue = readValidatedArtifact(context, placementArtifacts.startAssignment);
+  const startValue = readValidatedArtifact(context, placementStartArtifacts.startAssignment);
   const landMask = copyUint8Grid(
     "morphology.topography.landMask",
     topographyValue.landMask,
@@ -499,14 +560,15 @@ function copyCompletedRun(
       ),
     }),
     projection: Object.freeze({
-      lakeMask: copyUint8Grid(
-        "map.hydrology.engineProjectionLakes.lakeMask",
-        lakeProjectionValue.lakeMask,
-        gridSize
-      ),
-      lakeSinkMismatchCount: lakeProjectionValue.sinkMismatchCount,
-      finalLakeWaterDriftCount: placementSurfaceValue.finalLakeWaterDriftCount,
-      finalLakeClassificationDriftCount: placementSurfaceValue.finalLakeClassificationDriftCount,
+      discoveryGeneration: Object.freeze({ ...discoveryGeneration }),
+      lakes: Object.freeze({
+        ...lakeProjection,
+        components: Object.freeze({ ...lakeProjection.components }),
+      }),
+      placementSurface: Object.freeze({
+        ...placementSurface,
+        slotCounts: Object.freeze({ ...placementSurface.slotCounts }),
+      }),
       navigableRivers: Object.freeze({
         selectedTileCount: navigableRiverValue.selectedTileCount,
         targetTileCount: navigableRiverValue.targetTileCount,
@@ -525,9 +587,9 @@ function copyCompletedRun(
         selectedRiverRejectedCount: riverReadbackValue.rejectedNavigableRiverTileCount,
         extraEngineRiverCount: riverReadbackValue.extraNavigableRiverTileCount,
       }),
-      featureAttempts: Object.freeze({ ...featureDiagnosticsValue.attemptedByFeature }),
+      featureAttempts: Object.freeze({ ...featureProjection.attemptedByFeature }),
       featureRejections: Object.freeze({
-        ...featureDiagnosticsValue.rejectedCanHaveFeatureByFeature,
+        ...featureProjection.rejectedCanHaveFeatureByFeature,
       }),
     }),
     resources: Object.freeze({

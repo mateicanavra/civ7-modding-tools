@@ -19,11 +19,19 @@
 Placement is the standard recipe's gameplay-product vertical: the pipeline boundary where "map content" becomes "gameplay outcomes":
 
 - plan and assign player starts,
-- plan and place natural wonders, resources, and discoveries,
+- plan and place natural wonders and resources, and invoke Civ7-owned
+  discovery generation,
 - guarantee the resource↔start support relationship,
-- and publish placement outputs for verification and debugging.
+- and project completed product evidence through metrics, traces, and visualization.
 
-Placement is **plan-authoritative and engine-facing**: deterministic plans are computed from pipeline artifacts, dependency-free static policy, and declared adapter policy queries, then materialized through typed adapter intent APIs with typed reconciliation of engine feasibility. Engine state readbacks are evidence-only (see [`docs/system/ADR.md`](/system/ADR.md) ADR-009).
+Placement is **plan-authoritative where Swooper owns the product and
+engine-facing throughout**: natural-wonder, resource, and start plans are
+computed from pipeline artifacts, dependency-free static policy, and declared
+invocation-local adapter observations, then materialized through typed adapter
+intent APIs. Civ7 remains authoritative for narrative-coupled discovery
+generation. Current engine surfaces are never published as cross-step
+artifacts; readbacks and generator counts are evidence-only (see
+[`docs/system/ADR.md`](/system/ADR.md) ADR-009).
 
 Naming note: a future Gameplay domain consolidation may absorb starts/discoveries/wonders orchestration, but `domain/resources` owns resource planning and is not re-owned by that absorption (ADR-008). See [`docs/system/libs/mapgen/reference/domains/GAMEPLAY.md`](/system/libs/mapgen/reference/domains/GAMEPLAY.md).
 
@@ -31,7 +39,7 @@ Naming note: a future Gameplay domain consolidation may absorb starts/discoverie
 
 One stage, `placement`, with 11 steps split at real product/effect contracts (engine-refactor-v1 D3 posture; maintenance transactional). Step order:
 
-1. `derive-placement-inputs` — builds `placementInputs` (mapInfo/starts/wonders/config) and publishes the natural-wonder and discovery plans.
+1. `derive-placement-inputs` — admits final physical and engine surfaces and publishes natural-wonder intent.
 2. `plot-landmass-regions` — landmass-region slots (the regional mechanism driving seat assignment; the official `chooseStartSectors` sector grid is intentionally not used — ADR-008 amendment).
 3. `place-natural-wonders` — deterministic full-stamp-or-fail wonder materialization (first promoted product boundary).
 4. `prepare-placement-surface` — transactional engine-surface preparation (terrain validation, area recalc, water cache, landmass-region restamping); gates the legality surface read by planning AND the stamps.
@@ -39,9 +47,9 @@ One stage, `placement`, with 11 steps split at real product/effect contracts (en
 6. `assign-starts` — op-owned start selection over PLANNED resource sites; publishes `startAssignment` (per-player `StartRecord[]` + `fairnessReport`).
 7. `adjust-resources` — bounded resource↔start support pass over the plan (floor + equity), count-preserving moves with typed provenance; publishes `resourcePlanAdjusted`.
 8. `place-resources` — thin stamp of the ADJUSTED intents + typed reconcile; publishes `resourcePlacementOutcomes`.
-9. `place-discoveries` — discovery stamp + typed outcomes.
+9. `place-discoveries` — delegates discovery placement to Civ7 and emits observed runtime evidence.
 10. `assign-advanced-starts` — engine advanced-start regions + fertility recalculation (engine effects only; no per-plot readback surface exists).
-11. `placement` (terminal) — verified engine effect (`effect:engine.placementApplied`), physics-vs-engine parity evidence (waterDrift), `placementOutputs`.
+11. `placement` (terminal) — verified engine effect (`effect:engine.placementApplied`) plus physics-vs-engine parity metrics, trace evidence, and visualization.
 
 The plan→starts→support-adjust→stamp ordering is a deliberate contract: resource *planning* happens before starts (starts score planned sites), resource *stamping* happens after the support pass, so the support guarantee is enforced on the plan rather than by post-stamp mutation (which would need an engine resource-removal capability that does not exist).
 
@@ -52,7 +60,11 @@ See: [`docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`](/system/libs/mapge
 All placement *decision* logic lives in domain ops (plan → select → reconcile); recipe materializers are thin stamp+verify shells (foundation/morphology pattern):
 
 - `domain/resources` owns resource planning end-to-end (ADR-008): demand/eligibility planning, habitat-lane derivation, site selection, and the support-adjustment pass.
-- `domain/placement` owns start selection (four-rung fallback ladder, fairness balancing, seat identity, StartBias scoring inside `plan-starts`), wonder/discovery planning.
+- `domain/placement` owns natural-wonder planning, landmass-region
+  classification, and start selection (four-rung fallback ladder, fairness
+  balancing, seat identity, StartBias scoring inside `plan-starts`). Discovery
+  placement is delegated to Civ7 as a recipe effect rather than modeled as a
+  Placement operation.
 - `@civ7/map-policy` owns static resource facts (`Weight`, `MinimumPerHemisphere`, age validity, and roster-independent `Staple`/`UnlocksCiv` basis). `EngineAdapter` owns the exact active-roster `isResourceRequiredForAge` query used by planning.
 - Selection strategies never throw on degraded inputs: every degradation is recorded as typed data (seat `status`/`rung`/`imputedFlags`, per-type shortfalls) instead of being silently rescued. The only hard-fail is zero settleable land with seats requested.
 - Player identity: the adapter exposes an alive-majors READ surface (`getAliveMajorIds()`); the `plan-starts` op's `seat-identity.ts` policy is the single point mapping seats→playerIds, recorded per seat as `playerIdSource`.
@@ -64,7 +76,9 @@ Placement requires (dependency tags):
 - `effect:map.riversPlotted` (from `map-rivers`)
 - `effect:engine.featuresApplied` (from `map-ecology`)
 - topography/morphology/hydrology artifacts for authored planning surfaces (including elevation, mountains, volcanoes, hydrography, pedology, and climate inputs)
-- current Civ7 terrain, biome, and feature classifications through the step's declared engine capabilities; Ecology projection snapshots remain diagnostic evidence rather than placement authority
+- current Civ7 terrain, biome, and feature classifications through the step's
+  declared engine capabilities; those mutable surfaces are invocation-local
+  adapter observations rather than placement artifacts
 
 Placement provides (product/effect chain, in pipeline order):
 
@@ -82,47 +96,74 @@ Ordering between steps is carried by this effect-tag chain alone; there are no o
 
 Runtime semantics (ADR-009 regime):
 
-- The deterministic plan is the authority for typed intent; materializers stamp intents through the adapter and reconcile engine feasibility with per-tile typed rejection reasons — never re-deciding types, never falling back to official generators as truth.
+- Swooper-authored deterministic plans are the authority for typed intent;
+  resource materialization stamps those intents through the adapter and
+  reconciles engine feasibility with per-tile typed rejection reasons, never
+  re-deciding types or falling back to Civ7's resource generator.
+- Discovery is the explicit exception to Swooper plan authority: the ordered
+  placement step supplies seated-major exclusions and the polar margin to
+  Civ7's official generator, then projects attempted/placed/rejected counts
+  through typed metrics and the live log. It publishes no discovery plan,
+  per-tile reconciliation rows, or causal artifact.
 - Shortfalls are recorded (typed, per-type, per-reason), never forced: no whole-map fallback, no least-used-type rebalance, no spacing decay below authored floors.
-- Engine state readbacks are evidence-only. Exactly three declared engine-surface reads exist, each documented in its step contract: the wonder-planning post-maintenance terrain surface (`derive-placement-inputs`), the resource legality surface (`plan-resources`), and the terminal comparison between final Morphology topography and engine land-mask evidence (`placement`). The roster-dependent resource requirement query is a separate, declared `EngineAdapter` policy input.
-- `derive-placement-inputs` consumes admitted biome and feature projection artifacts; it does not reread those earlier engine surface vintages or depend on mutable context fields.
+- Current-engine observations are explicit capabilities on the exact step that
+  needs them: terrain/biome/feature classifications feed natural-wonder
+  planning in `derive-placement-inputs`; maintenance-boundary readbacks remain
+  invocation-local in `prepare-placement-surface`; the prepared legality
+  surface feeds `plan-resources`; and terminal `placement` projects final
+  Morphology-vs-engine parity evidence. Materializers may also read the engine
+  surface they immediately mutate or reconcile. The roster-dependent resource
+  requirement query is a separate declared adapter policy input.
+- `derive-placement-inputs` consumes the immutable biome-classification product
+  for physical suitability and observes current terrain, biome, and feature
+  classifications once through declared adapter capabilities. It does not
+  publish a current-engine snapshot or depend on mutable context fields.
 - If the live requirement policy is unavailable, planning admits a regional minimum only for an age-valid resource with roster-independent `Staple`/`UnlocksCiv` basis. Every other unavailable decision is typed `unresolved`, never collapsed to `false`.
 - Placement apply is fail-hard; natural wonders use deterministic full-stamp-or-fail semantics; resource readback mismatches are fail-hard.
-- Surface preparation (terrain validation, area recalculation, water cache storage, landmass-region restamping, fertility recalculation) remains transactional because no independent consumer exists.
+- Surface preparation owns terrain validation, area recalculation, water-cache
+  storage, and landmass-region restamping as one transaction because no
+  independent consumer exists. Pedology's immutable fertility field remains
+  the input to authored start/resource planning; Civ7 fertility recalculation
+  belongs only to the later `assign-advanced-starts` engine-effect step.
 
 ## Key artifacts
 
-Artifact owners are one-per-file under
-`mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts/*.artifact.ts`.
-The stage artifact index assembles one direct catalog of those authorities. Every `Artifact`
-owns the complete structural and semantic validator used by
-publication and validated reads (including count reconciliation, digest-to-row agreement,
-grid partitions, and buffer lengths). Inventory:
+Artifacts are immutable domain products, not recipe-stage state. Placement and
+Resources module catalogs own their artifacts beside the operations that
+produce them; the Standard recipe imports those exact catalogs. Every artifact
+owns the complete structural and semantic validator used by publication and
+validated reads. Inventory:
 
 | Artifact | Published by | Substance |
 | --- | --- | --- |
-| `placementInputs` | derive-placement-inputs | mapInfo/starts/wonders/config (single-publish; no embedded plans) |
-| `naturalWonderPlan`, `discoveryPlan` | derive-placement-inputs | deterministic plans |
+| `naturalWonderPlan` | derive-placement-inputs | deterministic scored wonder intent owned by `placement/modules/wonders` |
 | `naturalWonderPlacement` | place-natural-wonders | placed/relocated/rejected coordinateRows |
+| `landmassRegionSlotByTile` | plot-landmass-regions | deterministic region classification owned by `placement/modules/regions` |
 | `resourceDemandPlan` | plan-resources | per-type target counts with static policy facts and typed region-minimum authority/provenance |
 | `resourcePlan` | plan-resources | typed per-plot site intents (type, family, lane, phase, inHabitat) + per-type shortfalls + region minimums |
 | `resourceEligibility` | plan-resources | per-type habitat/legal/intensity fields (the constraint surface the adjuster works inside) |
 | `startAssignment` | assign-starts | per-player `StartRecord[]` (components, tier, score, rung, status, imputedFlags, playerIdSource) + `fairnessReport` (worstPairGap, swaps, relaxations) + `inputCoverage` |
 | `resourcePlanAdjusted` | adjust-resources | adjusted intents with typed support provenance (action, reason, seatIndex) |
 | `resourcePlacementOutcomes` | place-resources | typed reconciliation (planned/placed/rejected/byPhase/shortfalls) |
-| `discoveryPlacementOutcomes` | place-discoveries | typed outcomes |
-| `advancedStartAssignment` | assign-advanced-starts | engine-effect booleans |
-| `placementSurfacePreparation` | prepare-placement-surface | maintenance/drift counters |
-| `placementOutputs`, `engineState` | placement (terminal) | verification/debug surface (only measured fields; no hardcoded-zero placeholders) |
-
-Placement owns its gameplay projection artifacts (`landmassRegionSlotByTile`, `placementSurfaceValidationBoundary`, and `placementEngineTerrainSnapshot`) beside the placement stage. Map dimensions and wrap policy come from admitted setup and static Civ7 policy rather than a second published metadata artifact; each surviving artifact carries complete validation authority.
+Discovery placement, advanced-start assignment, surface maintenance, and
+terminal parity are effects or observations rather than immutable domain
+products. Their completion flows through typed effect tags. Discovery counts
+flow through its typed metric facet and live log; other observation evidence
+uses the capability appropriate to its consumer. No ordering-only,
+current-engine-snapshot, or aggregate-output pseudo artifact is published.
 
 ## Ops surface
 
-`domain/placement` exposes two semantic modules in causal order:
+`domain/placement` exposes three semantic modules in causal order:
 
-- `wonders.ops.planWonders`, then `wonders.ops.planNaturalWonders` — deterministic map-size demand followed by natural-wonder site planning from pipeline artifacts.
-- `starts.ops.planStarts` — candidate admission against wonder evidence (plus impassability and volcano screens), scoring (fertility/freshwater/climate-comfort/resource-support/roughness/StartBias), tiering, four-rung selection ladder, fairness balancing, seat identity.
+- `wonders.ops.planWonders`, then `wonders.ops.planNaturalWonders` —
+  deterministic map-size demand followed by natural-wonder site planning from
+  pipeline artifacts.
+- `regions.ops.projectLandmassRegions` — seam-safe whole-landmass assignment to balanced west/east gameplay regions; Civ7 region-id mutation remains a recipe effect.
+- `starts.ops.planStarts` — candidate admission against wonder and region
+  evidence (plus impassability and volcano screens), scoring
+  (fertility/freshwater/climate-comfort/resource-support/roughness/StartBias),
+  tiering, four-rung selection ladder, fairness balancing, and seat identity.
 
 `domain/resources` ops (layout: `lib/` corpus + runtime-ids, `policy/` shared predicates, per-op `policy/` modules):
 
@@ -133,13 +174,20 @@ Placement owns its gameplay projection artifacts (`landmassRegionSlotByTile`, `p
 
 Symbolic→runtime resource ids are proven by a three-way agreement check (corpus slot == policy V0 table index == V1 row type), hard-failing on any divergence.
 
-## Config posture (knob groups)
+## Config posture (operation-derived)
 
-The `placement` stage public surface has six groups: `knobs`, `naturalWonders`, `discoveries`, `resources`, `starts`, `support`. The `resources`, `starts`, and `support` groups are **derived from the owning op's default strategy config schema** (foundation pattern) — there is no hand-shadowed schema, and the studio panel reads the generated recipe artifacts (`build:studio-recipes`). Knob taxonomy (semantic groups, density+sparsity+relationship controls, Earth-like defaults with declared min/max): ADR-010.
+The `placement` stage has no parallel public-config assembly and no
+stage-level knob surface. Its authoring shape is composed from the eleven
+causal step contracts and their bound operation envelopes, so advanced
+placement capability remains available without a hand-shadowed schema. The
+Studio panel consumes the same generated recipe authority
+(`build:studio-recipes`).
 
-- `resources`: density, sparsity, rarityFidelity, siteSpacingTiles, perTypeSpacingFloorScale, equityMaxDensityRatio, per-family density, affinity/exclusion rules.
-- `starts`: spacing floor/desired (official 6/12 buffers), scoring weights (fertility, freshwater, climate comfort + extreme penalty, resource support, roughness divisor), tier bias, ranking blend, fairness tolerance, coastal/river preference, StartBias weight, per-hemisphere player-count overrides.
-- `support`: enabled, supportFloor, supportRadiusTiles, equityTolerance, strength.
+The operation-owned surfaces include resource density, spacing, family
+affinity and exclusions; start viability, scoring, spacing and fairness; and
+resource-to-start support adjustment. Their defaults, ranges, and semantic
+descriptions live with the strategy configs that execute those decisions.
+ADR-010 remains the product taxonomy rather than a second configuration owner.
 
 Policy data comes from `@civ7/map-policy` generated tables and corpus (`CIV7_BROWSER_TABLES_V0` byte-stable + `CIV7_POLICY_TABLES_V1`: resource catalog rows, valid ages, required leaders, minimum-amount modifiers, StartBias tables, start globals), regenerated only via `nx run civ7-map-policy:generate` from the `.civ7/outputs/resources` submodule. That package owns `Weight`, `MinimumPerHemisphere`, age validity, and the static `Staple`/`UnlocksCiv` fallback basis; it does not approximate the roster-dependent live requirement decision. Natural-wonder membership is derived directly from those tables and proved by owner-local map-policy tests. There are no `globalThis.GameInfo` reads in the recipe layer; the resource catalog and exact live requirement query flow through `EngineAdapter`.
 
@@ -169,12 +217,9 @@ Policy data comes from `@civ7/map-policy` generated tables and corpus (`CIV7_BRO
 - Realignment project (diagnosis, expectations, refactor plan, per-slice evidence): `docs/projects/placement-realignment/`
 - ADR-008 (domain/resources owns resource planning; landmass-region divergence), ADR-009 (deterministic typed reconciliation; readbacks evidence-only), ADR-010 (knob taxonomy): `docs/system/ADR.md`
 - Stage definition: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/index.ts`
-- Stage public config surface: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/index.ts`
-- Placement artifact catalog: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts/index.ts`; each contract and validator lives in its adjacent one-module-per-file `*.artifact.ts` module.
+- Stage composition and operation-derived surface: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/index.ts` plus the configuration module owned by each child step
+- Placement artifact catalogs: `mods/mod-swooper-maps/src/domain/placement/modules/{regions,starts,wonders}/artifacts/`
+- Resource artifact catalogs: `mods/mod-swooper-maps/src/domain/resources/modules/{demand,sites,support}/artifacts/`
 - Domain ops: `mods/mod-swooper-maps/src/domain/placement/modules/starts/ops/`, `mods/mod-swooper-maps/src/domain/placement/modules/wonders/ops/`, `mods/mod-swooper-maps/src/domain/resources/modules/*/ops/`
 - Policy tables: `packages/civ7-map-policy/src/civ7-tables.gen.ts` (generator-only writes)
 - Tag registry: `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
-
-## Open questions
-
-- Which placement outputs should be considered part of a stable contract surface vs ad-hoc debugging counters?

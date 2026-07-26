@@ -1,5 +1,5 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { ResourceAffinityRuleSchema } from "../../../../../../model/atoms/resource-site-plan.schema.js";
+import { ResourceAffinityRuleSchema } from "../../../../../../model/atoms/resource-affinity-rule.schema.js";
 
 /**
  * Tunes deterministic blue-noise selection while preserving per-type ranges, spacing floors,

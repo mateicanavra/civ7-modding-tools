@@ -1,10 +1,5 @@
 import { createStage } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import {
-  compilePlacementPublicConfig,
-  PlacementKnobsSchema,
-  PlacementPublicSchema,
-} from "./public.config.js";
 import { AdjustResourcesStep } from "./steps/adjust-resources/step.js";
 import { AssignAdvancedStartsStep } from "./steps/assign-advanced-starts/step.js";
 import { AssignStartsStep } from "./steps/assign-starts/step.js";
@@ -29,8 +24,6 @@ import { PreparePlacementSurfaceStep } from "./steps/prepare-placement-surface/s
  */
 export default createStage({
   id: "placement",
-  knobsSchema: PlacementKnobsSchema,
-  public: PlacementPublicSchema,
   steps: orderStandardStageSteps("placement", {
     "derive-placement-inputs": DerivePlacementInputsStep,
     "plot-landmass-regions": PlotLandmassRegionsStep,
@@ -44,6 +37,4 @@ export default createStage({
     "assign-advanced-starts": AssignAdvancedStartsStep,
     placement: PlacementStep,
   }),
-  compile: ({ config }: { config: Record<string, unknown> }) =>
-    compilePlacementPublicConfig(config),
 } as const);

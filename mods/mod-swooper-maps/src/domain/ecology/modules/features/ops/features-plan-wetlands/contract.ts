@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { FeaturePlacementSchema } from "../../model/atoms/index.js";
+import { WetlandFeaturePlacementSchema } from "../../model/atoms/index.js";
 import habitatConfidenceDefinition from "./strategies/habitat-confidence/config.js";
 
 /** Chooses the strongest wetland-family habitat per unoccupied land tile after substrate-specific scoring. Every implementation shares this admitted input and output boundary. */
@@ -35,12 +35,9 @@ const PlanWetlandsContract = defineOp({
     featureOccupancyMask: TypedArraySchemas.u8({
       description: "0 = unoccupied, nonzero = already claimed by an ecology feature intent.",
     }),
-    reserved: TypedArraySchemas.u8({
-      description: "0 = tile can be claimed, 1 = permanently blocked",
-    }),
   }),
   output: Type.Object({
-    placements: Type.Array(FeaturePlacementSchema),
+    placements: Type.Array(WetlandFeaturePlacementSchema),
   }),
   strategies: [habitatConfidenceDefinition],
 });

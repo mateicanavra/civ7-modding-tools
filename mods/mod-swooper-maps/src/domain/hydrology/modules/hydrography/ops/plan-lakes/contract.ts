@@ -13,7 +13,9 @@ const PlanLakesContract = defineOp({
   input: Type.Object({
     width: Type.Integer({ minimum: 1, description: "Tile grid width (columns)." }),
     height: Type.Integer({ minimum: 1, description: "Tile grid height (rows)." }),
-    landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
+    landMask: TypedArraySchemas.u8({
+      description: "Morphology land mask per tile (1=land, 0=water).",
+    }),
     flowDir: TypedArraySchemas.i32({
       description:
         "Hydrology-conditioned receiver index per tile (or -1 for typed terminal basins).",

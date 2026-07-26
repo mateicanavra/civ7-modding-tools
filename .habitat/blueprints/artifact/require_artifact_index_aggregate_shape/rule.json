@@ -11,7 +11,7 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "advisory",
+  "lane": "enforced",
   "forbids": "semantic-module artifact collections outside the positive index plus artifact-module topology",
   "why": "Every artifact-producing semantic module owns one index and immutable data-product modules. Closing that positive physical directory shape makes direct membership auditable while the typed defineArtifactCatalog API owns registered module compatibility without a second source parser.",
   "remediate": "Keep only index.ts and *.artifact.ts modules in each semantic-module artifact collection. Inline artifact-private schemas and move genuinely shared primitives to the nearest atoms owner.",

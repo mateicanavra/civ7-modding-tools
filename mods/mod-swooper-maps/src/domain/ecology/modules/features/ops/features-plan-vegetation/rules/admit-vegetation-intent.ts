@@ -1,4 +1,4 @@
-import type { FeatureIntentKey } from "../../../model/atoms/index.js";
+import type { VegetationFeatureIntentKey } from "../../../model/atoms/index.js";
 
 /**
  * Vegetation features use different signal amplitudes because closed canopy,
@@ -7,7 +7,7 @@ import type { FeatureIntentKey } from "../../../model/atoms/index.js";
  * family-wide threshold that lets rainforest erase lower-amplitude ecotypes.
  */
 export function admitVegetationIntent(
-  candidate: Readonly<{ feature: FeatureIntentKey; confidence01: number }>,
+  candidate: Readonly<{ feature: VegetationFeatureIntentKey; confidence01: number }>,
   policy: Readonly<{
     forestMinConfidence01: number;
     rainforestMinConfidence01: number;
@@ -26,7 +26,7 @@ function clampThreshold(value: number): number {
 
 /** Resolves the authored confidence floor for one vegetation feature identity. */
 export function minConfidenceForFeature(
-  feature: FeatureIntentKey,
+  feature: VegetationFeatureIntentKey,
   policy: Readonly<{
     forestMinConfidence01: number;
     rainforestMinConfidence01: number;

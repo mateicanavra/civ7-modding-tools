@@ -597,7 +597,7 @@ export default defineStrategy({
     {
       additionalProperties: false,
       description:
-        "Mountain-range controls for shared ridge, foothill, rough-land terrain classification.",
+        "Relief, substrate, fractal texture, cluster extent, and terrain-budget controls used to plan broken rough-land intent.",
     }
   ),
 });

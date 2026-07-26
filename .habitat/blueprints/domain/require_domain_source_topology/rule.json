@@ -11,7 +11,7 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "advisory",
+  "lane": "enforced",
   "forbids": "domain roots outside the positive contract, router, model, and semantic module spine",
   "why": "A domain root is one public aggregate over semantic modules. Keeping modules under modules/ and shared vocabulary under model/ prevents routers, atoms, and policy from appearing as equivalent direct children while leaving each child kind to its own blueprint.",
   "remediate": "Keep index.ts, contract.ts, router.ts, and modules; add model only for vocabulary genuinely shared by multiple modules, and move every other child to its owning kind.",

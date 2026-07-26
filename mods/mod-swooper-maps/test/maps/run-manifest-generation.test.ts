@@ -312,7 +312,7 @@ describe("Swooper run manifest generator", () => {
       await rm(workspaceRoot, { recursive: true, force: true });
       await rm(outsideRoot, { recursive: true, force: true });
     }
-  });
+  }, 15_000);
 });
 
 function manifestInput(

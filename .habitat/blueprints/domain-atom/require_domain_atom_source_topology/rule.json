@@ -11,7 +11,7 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "advisory",
+  "lane": "enforced",
   "forbids": "domain atom roots outside their closed schema and index surface",
   "why": "Domain atoms are small composable schema vocabularies shared across real consumers. Closing the kind prevents atoms from becoming a general helper, policy, data, or validation cabinet.",
   "remediate": "Keep index.ts and named *.schema.ts modules only; move policy, data, validation, and executable behavior to their owning kinds.",

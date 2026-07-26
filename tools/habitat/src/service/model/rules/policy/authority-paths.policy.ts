@@ -90,14 +90,15 @@ function authorityPathIndex(
 ): Map<string, HabitatAuthorityRulePathInput> {
   const index = new Map<string, HabitatAuthorityRulePathInput>();
   for (const rule of rules) {
-    for (const authorityPath of referencedAuthorityPaths(rule)) {
+    for (const authorityPath of referencedRuleAuthorityPaths(rule)) {
       index.set(normalizeRepoPath(authorityPath), rule);
     }
   }
   return index;
 }
 
-function referencedAuthorityPaths(rule: HabitatAuthorityRulePathInput): string[] {
+/** Returns the complete authority packet explicitly referenced by one rule manifest. */
+export function referencedRuleAuthorityPaths(rule: HabitatAuthorityRulePathInput): string[] {
   const paths: string[] = [];
   if (rule.manifestFilePath) paths.push(rule.manifestFilePath);
   if (rule.runner.name === "grit") {

@@ -12,9 +12,9 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "domain operation collections or operation roots outside the positive operation blueprint spine",
-  "why": "The domain-operation blueprint owns the singular operation-contract registry and executable-leaf topology inside a semantic domain module. Direct domain-root operation source is structurally excluded; the parent module law only admits the operation slot and does not duplicate its internals.",
-  "remediate": "Place operation source under the owning domain module. Keep the module collection-level contract.ts registry and index.ts implementation registry, keep contract.ts and index.ts in each operation root, and retain only the explicitly admitted operation-local capabilities.",
+  "forbids": "domain operation collections or operation roots outside the positive leaf contract, implementation, rules, and strategy spine",
+  "why": "A module's ops directory contains semantic operation leaves only; the module contract and router already own declarative and executable aggregation. Complete input and output types remain contract-only, private implementation shapes stay with their sole owner, and shared semantic vocabulary moves to the nearest model atoms.",
+  "remediate": "Place each operation under its owning domain module with contract.ts, index.ts, strategies, and optional rules. Compose leaf contracts directly in the module contract and leaf implementations directly in the module router; do not add collection-level registries or operation type bags.",
   "message": "Domain operations must match the positive operation blueprint spine.",
   "pathCoverage": [
     {

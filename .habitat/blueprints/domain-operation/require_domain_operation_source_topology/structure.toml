@@ -40,11 +40,7 @@ root = "mods/*/src/domain/!(*.*)/modules/!(*.*)/ops"
 kind = "directory"
 mode = "closed"
 required = [
-  "contract.ts",
-  "index.ts",
-]
-allowed = [
-  "!(*.*)",
+  "+([a-z0-9])*(-+([a-z0-9]))",
 ]
 
 [[scopes]]
@@ -57,7 +53,6 @@ required = [
   "index.ts",
 ]
 allowed = [
-  "types.ts",
   "rules",
   "strategies",
 ]

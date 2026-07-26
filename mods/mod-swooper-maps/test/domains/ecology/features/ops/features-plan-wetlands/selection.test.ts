@@ -31,12 +31,10 @@ describe("planWetlands (joint resolver)", () => {
     scoreOasis01[1] = 1;
     // tileIndex 2 -> bog
     scoreTundraBog01[2] = 1;
-    // tileIndex 3 -> mangrove (but reserved should block it)
+    // tileIndex 3 -> mangrove
     scoreMangrove01[3] = 1;
 
     const featureOccupancyMask = new Uint8Array(size);
-    const reserved = new Uint8Array(size);
-    reserved[3] = 1;
     const habitat = broadWetlandHabitatFields(size);
 
     const result = ecology.features.ops.planWetlands.run(
@@ -51,12 +49,16 @@ describe("planWetlands (joint resolver)", () => {
         scoreWateringHole01,
         ...habitat,
         featureOccupancyMask,
-        reserved,
       },
       selection
     );
 
-    expect(result.placements.map((p) => p.feature)).toEqual(["marsh", "oasis", "tundra-bog"]);
+    expect(result.placements.map((p) => p.feature)).toEqual([
+      "marsh",
+      "oasis",
+      "tundra-bog",
+      "mangrove",
+    ]);
   });
 
   it("is deterministic and seed-independent for exact ties", () => {
@@ -77,7 +79,6 @@ describe("planWetlands (joint resolver)", () => {
       scoreWateringHole01: new Float32Array(size).fill(1),
       ...broadWetlandHabitatFields(size),
       featureOccupancyMask: new Uint8Array(size),
-      reserved: new Uint8Array(size),
     } as const;
 
     const a = ecology.features.ops.planWetlands.run({ ...input, seed: 123 }, selection);

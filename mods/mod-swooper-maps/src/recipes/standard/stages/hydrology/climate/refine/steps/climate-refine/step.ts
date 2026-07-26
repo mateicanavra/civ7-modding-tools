@@ -9,7 +9,7 @@ import {
   HYDROLOGY_DRYNESS_WETNESS_SCALE,
   HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C,
 } from "../../../model/policy/climate-knob-policy.js";
-import { ClimateRefineStepContract } from "./config.js";
+import { config } from "./config.js";
 import { computeRiverAdjacencyMaskFromRiverClass } from "./rules/river-adjacency.js";
 import { buildClimateRefineVizProjections } from "./viz.js";
 
@@ -26,8 +26,8 @@ const EFFECTIVE_MOISTURE_MAJOR_RIVER_BONUS = 8;
  * Refines baseline climate against topography and hydrography, publishing physical products while
  * returning advisory diagnostics only to optional evidence projectors.
  */
-export const ClimateRefineStep = createStep(ClimateRefineStepContract, {
-  normalize: (config, ctx) => {
+export const ClimateRefineStep = createStep(config, {
+  normalize: (stepConfig, ctx) => {
     const { dryness, temperature, cryosphere } = ctx.knobs as {
       dryness: HydrologyDrynessKnob;
       temperature: HydrologyTemperatureKnob;
@@ -37,7 +37,7 @@ export const ClimateRefineStep = createStep(ClimateRefineStepContract, {
     const wetnessScale = HYDROLOGY_DRYNESS_WETNESS_SCALE[dryness];
     const baseTemperatureC = HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C[temperature];
 
-    const next = { ...config };
+    const next = { ...stepConfig };
 
     if (next.computeThermalState.strategy === "insolation-lapse-rate") {
       const deltaC = baseTemperatureC - HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C.temperate;
@@ -110,7 +110,7 @@ export const ClimateRefineStep = createStep(ClimateRefineStepContract, {
 
     return next;
   },
-  run: (context, config, ops, deps) => {
+  run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
     const windField = deps.artifacts.windField.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);
@@ -140,7 +140,7 @@ export const ClimateRefineStep = createStep(ClimateRefineStepContract, {
       humidityF32[i] = humidity / 255;
     }
 
-    const stepId = `hydrology/${ClimateRefineStepContract.id}`;
+    const stepId = `hydrology/${config.id}`;
     const perlinSeed = ctxRandom(
       context,
       ctxRandomLabel(stepId, "hydrology/compute-precipitation/noise"),
@@ -169,7 +169,7 @@ export const ClimateRefineStep = createStep(ClimateRefineStepContract, {
         riverAdjacency,
         perlinSeed,
       },
-      config.computePrecipitation
+      stepConfig.computePrecipitation
     );
 
     const riparianBonusByTile = new Float32Array(size);
@@ -216,7 +216,7 @@ export const ClimateRefineStep = createStep(ClimateRefineStepContract, {
 
     const forcing = ops.computeRadiativeForcing(
       { width, height, latitudeByRow },
-      config.computeRadiativeForcing
+      stepConfig.computeRadiativeForcing
     );
     const thermal = ops.computeThermalState(
       {
@@ -226,7 +226,7 @@ export const ClimateRefineStep = createStep(ClimateRefineStepContract, {
         elevation: topography.elevation,
         landMask: topography.landMask,
       },
-      config.computeThermalState
+      stepConfig.computeThermalState
     );
 
     const albedoFeedback = ops.applyAlbedoFeedback(
@@ -237,7 +237,7 @@ export const ClimateRefineStep = createStep(ClimateRefineStepContract, {
         rainfall: refined.rainfall,
         surfaceTemperatureC: thermal.surfaceTemperatureC,
       },
-      config.applyAlbedoFeedback
+      stepConfig.applyAlbedoFeedback
     );
 
     const cryosphere = ops.computeCryosphereState(
@@ -248,7 +248,7 @@ export const ClimateRefineStep = createStep(ClimateRefineStepContract, {
         surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,
         rainfall: refined.rainfall,
       },
-      config.computeCryosphereState
+      stepConfig.computeCryosphereState
     );
 
     const waterBudget = ops.computeLandWaterBudget(
@@ -260,7 +260,7 @@ export const ClimateRefineStep = createStep(ClimateRefineStepContract, {
         humidity: refined.humidity,
         surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,
       },
-      config.computeLandWaterBudget
+      stepConfig.computeLandWaterBudget
     );
 
     const diagnostics = ops.computeClimateDiagnostics(
@@ -274,7 +274,7 @@ export const ClimateRefineStep = createStep(ClimateRefineStepContract, {
         windV: windField.windV,
         rainfall: refined.rainfall,
       },
-      config.computeClimateDiagnostics
+      stepConfig.computeClimateDiagnostics
     );
 
     const climateField = deps.artifacts.climateField.publish(context, {

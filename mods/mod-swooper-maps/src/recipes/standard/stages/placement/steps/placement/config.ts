@@ -1,20 +1,23 @@
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/modules/regions/artifacts/index.js";
+import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
+import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
+import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import {
   MAP_PROJECTION_EFFECT_TAGS,
   PLACEMENT_PRODUCT_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "../../../../tag-contracts.js";
-import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 
 /**
  * Terminal placement evidence step. DECLARED parity read (ADR-009): this step
  * intentionally reads final Morphology topography and compares its land mask
- * against an engine readback snapshot - that product-vs-engine comparison
- * (waterDriftCount, placementEngineTerrainSnapshot) is the step's product,
- * so both sides of the comparison are evidence inputs, not planning truth.
+ * against a current engine readback. That product-vs-engine comparison is
+ * projected as metrics, trace evidence, and visualization rather than stored
+ * as another immutable domain artifact.
  */
-export const PlacementStepContract = defineStep({
+export const config = defineStep({
   id: "placement",
   engine: ["getTerrainType", "getElevation", "isWater"] as const,
   requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.advancedStartsAssigned],
@@ -24,19 +27,11 @@ export const PlacementStepContract = defineStep({
   ],
   artifacts: {
     requires: [
-      placementArtifacts.naturalWonderPlacement,
-      placementArtifacts.placementSurfacePreparation,
-      placementArtifacts.resourcePlacementOutcomes,
-      placementArtifacts.startAssignment,
-      placementArtifacts.discoveryPlacementOutcomes,
-      placementArtifacts.advancedStartAssignment,
-      placementArtifacts.landmassRegionSlotByTile,
+      placementWonderArtifacts.naturalWonderPlacement,
+      resourceSiteArtifacts.resourcePlacementOutcomes,
+      placementStartArtifacts.startAssignment,
+      placementRegionArtifacts.landmassRegionSlotByTile,
       morphologyLandformsArtifacts.topography,
-    ],
-    provides: [
-      placementArtifacts.placementOutputs,
-      placementArtifacts.engineState,
-      placementArtifacts.placementEngineTerrainSnapshot,
     ],
   },
   schema: Type.Object({}),

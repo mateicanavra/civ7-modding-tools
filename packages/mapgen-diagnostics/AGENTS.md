@@ -4,8 +4,9 @@ Scope: `packages/mapgen-diagnostics/**`
 
 ## What This Package Is
 
-- Reusable Node/Bun capture, filesystem evidence reads, exact binary admission,
-  inventory, and neutral diffing for path-backed MapGen diagnostics.
+- Reusable Node/Bun capture, atomic JSON evidence publication, filesystem
+  evidence reads, exact binary admission and comparison, inventory, and neutral
+  diffing for path-backed MapGen diagnostics.
 - Public API is the package root only. Do not add environment subpaths or deep
   imports.
 - The package may consume MapGen Core, MapGen Viz, and Node built-ins. It must

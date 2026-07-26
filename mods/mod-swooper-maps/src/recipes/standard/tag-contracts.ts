@@ -22,8 +22,6 @@ export const MAP_PROJECTION_EFFECT_TAGS = {
     lakesPlotted: "effect:map.lakesPlotted",
     riversPlotted: "effect:map.riversPlotted",
     hydrologyLakesParityCaptured: "effect:map.hydrologyLakesParityCaptured",
-    ecologyBiomesParityCaptured: "effect:map.ecologyBiomesParityCaptured",
-    ecologyFeaturesParityCaptured: "effect:map.ecologyFeaturesParityCaptured",
     placementParityCaptured: "effect:map.placementParityCaptured",
   },
 } as const;

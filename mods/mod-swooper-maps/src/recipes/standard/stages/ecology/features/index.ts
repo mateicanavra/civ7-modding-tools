@@ -1,9 +1,5 @@
 import { createStage } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../../contract-manifest.js";
-import {
-  compileEcologyFeaturesPublicConfig,
-  EcologyFeaturesPublicSchema,
-} from "../public.config.js";
 import { PlanFloodplainsStep } from "./steps/plan-floodplains/step.js";
 import { PlanIceStep } from "./steps/plan-ice/step.js";
 import { PlanPlotEffectsStep } from "./steps/plan-plot-effects/step.js";
@@ -15,14 +11,12 @@ import { ScoreLayersStep } from "./steps/score-layers/step.js";
 /**
  * Ecology feature planning stage.
  *
- * The feature-family operations share one ordered occupancy pipeline. Keeping
- * them in one stage preserves the real handoff surface (score layers plus
- * occupancy snapshots) without promoting vegetation/ice/reef/wetland wrappers
- * into fake recipe-level stage identities.
+ * Feature-family planners share one suitability product and publish admitted intent artifacts in
+ * causal order. Keeping them in one stage preserves the real planning boundary without promoting
+ * individual feature families into fake recipe-level stage identities.
  */
 export default createStage({
   id: "ecology-features",
-  public: EcologyFeaturesPublicSchema,
   steps: orderStandardStageSteps("ecology-features", {
     "score-layers": ScoreLayersStep,
     "plan-floodplains": PlanFloodplainsStep,
@@ -32,6 +26,4 @@ export default createStage({
     "plan-vegetation": PlanVegetationStep,
     "plan-plot-effects": PlanPlotEffectsStep,
   }),
-  compile: ({ config }: { config: Record<string, unknown> }) =>
-    compileEcologyFeaturesPublicConfig(config),
 } as const);

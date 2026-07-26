@@ -90,7 +90,7 @@ export default defineStrategy({
     {
       additionalProperties: false,
       description:
-        "Relief controls for translating Foundation crust and tectonic signals into map terrain elevation.",
+        "Crust-height, boundary, clustering, and tectonic-relief weights used to translate Foundation evidence into base elevation.",
     }
   ),
 });

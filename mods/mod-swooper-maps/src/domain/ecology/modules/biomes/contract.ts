@@ -1,8 +1,13 @@
 import { defineDomainSubdomain } from "@swooper/mapgen-core/authoring/contracts";
 
-import ops from "./ops/contract.js";
+import BiomeClassificationContract from "./ops/classify-biomes/contract.js";
 
 /** Biome branch contract for classification and deterministic edge refinement. */
-const biomes = defineDomainSubdomain({ id: "biomes", ops });
+const biomes = defineDomainSubdomain({
+  id: "biomes",
+  ops: {
+    classifyBiomes: BiomeClassificationContract,
+  },
+});
 
 export default biomes;

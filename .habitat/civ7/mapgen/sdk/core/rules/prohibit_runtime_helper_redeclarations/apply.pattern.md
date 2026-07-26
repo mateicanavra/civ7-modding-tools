@@ -11,7 +11,7 @@ language js(typescript)
 
 or {
   program($statements) where {
-    $filename <: r".*mods/[^/]+/src/(?:recipes/.*/stages/[^/]+/steps/[^/]+/.*|domain/.*/ops/.*/strategies/.*)\.ts$",
+    $filename <: r".*mods/[^/]+/src/(?:recipes/[^/]+/stages/(?:[^/]+/)+steps/[^/]+/.*|domain/.*/ops/.*/strategies/.*)\.ts$",
     not { $filename <: r".*/config\.ts$" },
     not { $filename <: r".*\.(?:test|spec)\.ts$" },
     not { $filename <: r".*/(?:__tests__|tests?)/.*\.ts$" },
@@ -23,7 +23,7 @@ or {
     $anchor += `\nimport { clamp01 } from "@swooper/mapgen-core";`
   },
   program($statements) as $program where {
-    $filename <: r".*mods/[^/]+/src/(?:recipes/.*/stages/[^/]+/steps/[^/]+/.*|domain/.*/ops/.*/strategies/.*)\.ts$",
+    $filename <: r".*mods/[^/]+/src/(?:recipes/[^/]+/stages/(?:[^/]+/)+steps/[^/]+/.*|domain/.*/ops/.*/strategies/.*)\.ts$",
     not { $filename <: r".*/config\.ts$" },
     not { $filename <: r".*\.(?:test|spec)\.ts$" },
     not { $filename <: r".*/(?:__tests__|tests?)/.*\.ts$" },
@@ -43,7 +43,7 @@ or {
 ## Rewrites plain clamp01 helper
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/steps/demo/step.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/hydrology/climate/steps/demo/step.ts
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 function clamp01(value: number): number {
@@ -54,7 +54,7 @@ export const demo = clamp01(0.5);
 ```
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/steps/demo/step.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/hydrology/climate/steps/demo/step.ts
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { clamp01 } from "@swooper/mapgen-core";
 
@@ -65,7 +65,7 @@ export const demo = clamp01(0.5);
 ## Rewrites helper below a recipe step
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/steps/demo/helpers/range.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/hydrology/climate/steps/demo/helpers/range.ts
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 function clamp01(value: number): number {
@@ -76,7 +76,7 @@ export const demo = clamp01(0.5);
 ```
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/steps/demo/helpers/range.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/hydrology/climate/steps/demo/helpers/range.ts
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { clamp01 } from "@swooper/mapgen-core";
 
@@ -87,7 +87,7 @@ export const demo = clamp01(0.5);
 ## Rewrites non-finite clamp01 helper to explicit clampPct calls
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/domain/morphology/ops/demo/strategies/default.ts
+// @filename: mods/example-mod/src/domain/morphology/modules/terrain/ops/demo/strategies/balanced/index.ts
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 function clamp01(value: number): number {
@@ -102,7 +102,7 @@ export const negativeInfinity = clamp01(-Infinity);
 ```
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/domain/morphology/ops/demo/strategies/default.ts
+// @filename: mods/example-mod/src/domain/morphology/modules/terrain/ops/demo/strategies/balanced/index.ts
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { clampPct } from "@swooper/mapgen-core";
 
@@ -116,7 +116,7 @@ export const negativeInfinity = clampPct(-Infinity, 0, 1, 0);
 ## Ignores non-equivalent clamp01 fallback
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/domain/morphology/ops/demo/strategies/default.ts
+// @filename: mods/example-mod/src/domain/morphology/modules/terrain/ops/demo/strategies/balanced/index.ts
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 function clamp01(value: number): number {
@@ -139,7 +139,7 @@ function clamp01(value: number): number {
 ## Ignores recipe step config and tests
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology/steps/demo/config.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/morphology/features/steps/demo/config.ts
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 function clamp01(value: number): number {
@@ -150,7 +150,7 @@ export const demo = clamp01(0.5);
 ```
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology/steps/demo/step.test.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/morphology/features/steps/demo/step.test.ts
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 function clamp01(value: number): number {
@@ -161,7 +161,7 @@ export const demo = clamp01(0.5);
 ```
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology/steps/demo/__tests__/helper.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/morphology/features/steps/demo/__tests__/helper.ts
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 function clamp01(value: number): number {
@@ -174,7 +174,7 @@ export const demo = clamp01(0.5);
 ## Ignores helper with no import anchor
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/domain/morphology/ops/demo/strategies/default.ts
+// @filename: mods/example-mod/src/domain/morphology/modules/terrain/ops/demo/strategies/balanced/index.ts
 function clamp01(value: number): number {
   return Math.max(0, Math.min(1, value));
 }

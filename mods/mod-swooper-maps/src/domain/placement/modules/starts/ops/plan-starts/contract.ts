@@ -1,4 +1,15 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { StartFairnessReportSchema } from "../../model/atoms/start-fairness.schema.js";
+import {
+  StartInputCoverageRowSchema,
+  StartRejectionCountSchema,
+  StartTierCountsSchema,
+} from "../../model/atoms/start-planning-evidence.schema.js";
+import {
+  StartCandidateTierSchema,
+  StartComponentsSchema,
+  StartSeatSchema,
+} from "../../model/atoms/start-seat.schema.js";
 import viabilityFairnessDefinition from "./strategies/viability-fairness/config.js";
 
 const StartsBaseSchema = Type.Object(
@@ -20,160 +31,6 @@ const StartsBaseSchema = Type.Object(
     description:
       "Regional slot contributions supplied by Civ7 map-size metadata. Their sum bounds admitted player demand; planning may reapportion admitted players across generated regions.",
   }
-);
-
-const StartCandidateTierSchema = Type.Union([
-  Type.Literal("primary"),
-  Type.Literal("islandCluster"),
-  Type.Literal("marginal"),
-]);
-
-const StartRejectionReasonSchema = Type.Union([
-  Type.Literal("water"),
-  Type.Literal("lake"),
-  Type.Literal("mountain"),
-  Type.Literal("volcano"),
-  Type.Literal("natural-wonder"),
-  Type.Literal("single-tile-island"),
-  Type.Literal("insufficient-landmass"),
-  Type.Literal("insufficient-expansion"),
-  Type.Literal("insufficient-island-cluster"),
-]);
-
-const StartSeatRungSchema = Type.Union(
-  [
-    Type.Literal("regional"),
-    Type.Literal("open-pool"),
-    Type.Literal("quality-relaxed"),
-    Type.Literal("spacing-relaxed"),
-  ],
-  {
-    description:
-      "Fallback ladder rung that seated the player. Every rung is scored; non-regional rungs are degradations recorded per seat.",
-  }
-);
-
-const StartComponentsSchema = Type.Object(
-  {
-    freshwater: Type.Number({ minimum: 0, maximum: 1 }),
-    fertility: Type.Number({ minimum: 0, maximum: 1 }),
-    expansion: Type.Number({ minimum: 0, maximum: 1 }),
-    climate: Type.Number({ minimum: 0, maximum: 1 }),
-    resource: Type.Number({ minimum: 0, maximum: 1 }),
-    roughness: Type.Number({
-      minimum: 0,
-      maximum: 1,
-      description: "Roughness penalty magnitude (0 = flat, 1 = max rugged).",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description: "Retained per-start component vector (target card A1).",
-  }
-);
-
-const StartRecordSchema = Type.Object(
-  {
-    seatIndex: Type.Integer({ minimum: 0 }),
-    playerId: Type.Integer({
-      minimum: 0,
-      description: "Engine player id stamped via setStartPosition.",
-    }),
-    playerIdSource: Type.Union([Type.Literal("alive-majors"), Type.Literal("slot-index")], {
-      description:
-        "Identity authority for this seat: an exact adapter-reported alive-major ID, or a slot-index fallback used only when the alive-major observation is empty.",
-    }),
-    regionSlot: Type.Integer({
-      minimum: 1,
-      maximum: 2,
-      description:
-        "Immutable requested homeland region for the seat (1=west, 2=east); fallback never rewrites it.",
-    }),
-    realizedRegionSlot: Type.Integer({
-      minimum: 0,
-      maximum: 2,
-      description:
-        "Terminal homeland region of the selected plot after fallback and fairness (1=west, 2=east); 0 only when unseated.",
-    }),
-    plotIndex: Type.Integer({
-      minimum: -1,
-      description: "Chosen start plot; -1 records an unseated player (degrade-as-data).",
-    }),
-    rung: StartSeatRungSchema,
-    status: Type.Union([Type.Literal("full"), Type.Literal("degraded")]),
-    tier: Type.Union([StartCandidateTierSchema, Type.Literal("none")], {
-      description: "Viability tier of the chosen plot; 'none' for quality-relaxed seats.",
-    }),
-    score: Type.Number({
-      minimum: 0,
-      maximum: 1,
-      description: "Published 0..1 viability score under fixed weight normalization.",
-    }),
-    components: StartComponentsSchema,
-    achievedSpacing: Type.Integer({
-      minimum: -1,
-      description:
-        "Min odd-q distance to any other seated start; -1 when not measurable (single seat or unseated).",
-    }),
-    imputedFlags: Type.Array(Type.String(), {
-      description:
-        "Components whose inputs were missing and neutral-imputed, plus seat-level degradations (e.g. spacing-below-floor, unseated). Never silently empty when imputation happened.",
-    }),
-  },
-  { additionalProperties: false }
-);
-
-const FairnessRelaxationSchema = Type.Object(
-  {
-    seatIndex: Type.Integer({ minimum: 0 }),
-    kind: Type.Union([Type.Literal("spacing"), Type.Literal("region"), Type.Literal("quality")]),
-    from: Type.Number(),
-    to: Type.Number(),
-  },
-  { additionalProperties: false }
-);
-
-const FairnessSwapSchema = Type.Object(
-  {
-    seatIndex: Type.Integer({ minimum: 0 }),
-    fromPlotIndex: Type.Integer({ minimum: 0 }),
-    toPlotIndex: Type.Integer({ minimum: 0 }),
-    fromScore: Type.Number(),
-    toScore: Type.Number(),
-  },
-  { additionalProperties: false }
-);
-
-const FairnessReportSchema = Type.Object(
-  {
-    tolerance: Type.Number({ minimum: 0 }),
-    parity: Type.Array(Type.Number(), {
-      description: "Per-seat published scores (the cross-start parity frame).",
-    }),
-    worstPairGap: Type.Union([Type.Number(), Type.Null()], {
-      description: "Largest score gap between any two seated starts (E1.6).",
-    }),
-    balanced: Type.Boolean({
-      description: "worstPairGap <= tolerance after the balancing pass (or < 2 seats).",
-    }),
-    swaps: Type.Array(FairnessSwapSchema, {
-      description: "Deterministic balancing swaps applied to shrink the worst-pair gap.",
-    }),
-    relaxations: Type.Array(FairnessRelaxationSchema, {
-      description:
-        "Every spacing/region/quality relaxation step taken during selection — never silently swallowed.",
-    }),
-  },
-  { additionalProperties: false }
-);
-
-const InputCoverageRowSchema = Type.Object(
-  {
-    input: Type.String(),
-    status: Type.Union([Type.Literal("provided"), Type.Literal("imputed")]),
-    affectsComponent: Type.String(),
-  },
-  { additionalProperties: false }
 );
 
 const SeatBiasSchema = Type.Object(
@@ -334,23 +191,8 @@ const PlanStartsContract = defineOp({
       description:
         "Land tiles that pass the hard screens (non-lake/mountain/volcano/wonder). Zero with players requested is the only hard-fail arm.",
     }),
-    rejectionCounts: Type.Array(
-      Type.Object(
-        {
-          reason: StartRejectionReasonSchema,
-          count: Type.Integer({ minimum: 0 }),
-        },
-        { additionalProperties: false }
-      )
-    ),
-    tierCounts: Type.Object(
-      {
-        primary: Type.Integer({ minimum: 0 }),
-        islandCluster: Type.Integer({ minimum: 0 }),
-        marginal: Type.Integer({ minimum: 0 }),
-      },
-      { additionalProperties: false }
-    ),
+    rejectionCounts: Type.Array(StartRejectionCountSchema),
+    tierCounts: StartTierCountsSchema,
     scoreByTile: TypedArraySchemas.f32({
       description:
         "Per-tile start viability score (0..1). Non-candidates are zero; shown in Studio.",
@@ -374,15 +216,15 @@ const PlanStartsContract = defineOp({
         { additionalProperties: false }
       )
     ),
-    seats: Type.Array(StartRecordSchema, {
+    seats: Type.Array(StartSeatSchema, {
       description:
         "One typed intent per admitted player in west-then-east seat order. The materializer stamps these exact identities without adding map-capacity surplus seats.",
     }),
-    fairnessReport: FairnessReportSchema,
+    fairnessReport: StartFairnessReportSchema,
     status: Type.Union([Type.Literal("full"), Type.Literal("degraded")], {
       description: "full = every seat seated on the regional rung at or above the spacing floor.",
     }),
-    inputCoverage: Type.Array(InputCoverageRowSchema, {
+    inputCoverage: Type.Array(StartInputCoverageRowSchema, {
       description:
         "Per-input coverage assertion results; imputed rows are surfaced, never silently neutral-defaulted.",
     }),

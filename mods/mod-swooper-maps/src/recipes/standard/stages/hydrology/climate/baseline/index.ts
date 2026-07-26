@@ -1,7 +1,5 @@
-import hydrology from "@mapgen/domain/hydrology";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../../../contract-manifest.js";
-import { HydrologyClimateBaselinePublicSchema } from "../../public.config.js";
 import { ClimateBaselineStep } from "./steps/climate-baseline/step.js";
 
 const HydrologyDrynessKnobSchema = Type.Union(
@@ -80,63 +78,14 @@ const knobsSchema = Type.Object(
   }
 );
 
-function defaultEnvelope<const Strategy extends string>(
-  operation: Readonly<{ defaultStrategy: Strategy }>,
-  config: unknown
-) {
-  return { strategy: operation.defaultStrategy, config };
-}
-
 /**
- * Compiles moisture, temperature, seasonality, and ocean controls into the
- * single baseline pass that publishes a shared climate and wind vintage.
+ * Publishes one shared baseline climate and wind vintage under the authored
+ * moisture, temperature, seasonality, and ocean controls.
  */
 export default createStage({
   id: "hydrology-climate-baseline",
   knobsSchema,
-  public: HydrologyClimateBaselinePublicSchema,
   steps: orderStandardStageSteps("hydrology-climate-baseline", {
     "climate-baseline": ClimateBaselineStep,
-  }),
-  compile: ({ config }: { config: Record<string, unknown> }) => ({
-    "climate-baseline": {
-      seasonality: config.seasonalCycle,
-      computeRadiativeForcing: defaultEnvelope(
-        hydrology.climate.ops.computeRadiativeForcing,
-        config.solarForcing
-      ),
-      computeThermalState: defaultEnvelope(
-        hydrology.climate.ops.computeThermalState,
-        config.thermalState
-      ),
-      computeAtmosphericCirculation: defaultEnvelope(
-        hydrology.climate.ops.computeAtmosphericCirculation,
-        config.atmosphericCirculation
-      ),
-      computeOceanSurfaceCurrents: defaultEnvelope(
-        hydrology.ocean.ops.computeOceanSurfaceCurrents,
-        config.oceanCurrents
-      ),
-      computeOceanGeometry: defaultEnvelope(
-        hydrology.ocean.ops.computeOceanGeometry,
-        config.oceanGeometry
-      ),
-      computeOceanThermalState: defaultEnvelope(
-        hydrology.ocean.ops.computeOceanThermalState,
-        config.oceanThermalState
-      ),
-      computeEvaporationSources: defaultEnvelope(
-        hydrology.climate.ops.computeEvaporationSources,
-        config.evaporation
-      ),
-      transportMoisture: defaultEnvelope(
-        hydrology.climate.ops.transportMoisture,
-        config.moistureTransport
-      ),
-      computePrecipitation: defaultEnvelope(
-        hydrology.climate.ops.computePrecipitation,
-        config.precipitation
-      ),
-    },
   }),
 } as const);

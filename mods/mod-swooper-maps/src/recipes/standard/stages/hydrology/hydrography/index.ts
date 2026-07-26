@@ -1,7 +1,5 @@
-import hydrology from "@mapgen/domain/hydrology";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../../contract-manifest.js";
-import { HydrologyHydrographyPublicSchema } from "../public.config.js";
 import { LakesStep } from "./steps/lakes/step.js";
 import { RiversStep } from "./steps/rivers/step.js";
 
@@ -48,42 +46,15 @@ const knobsSchema = Type.Object(
   }
 );
 
-function defaultEnvelope<const Strategy extends string>(
-  operation: Readonly<{ defaultStrategy: Strategy }>,
-  config: unknown
-) {
-  return { strategy: operation.defaultStrategy, config };
-}
-
 /**
- * Orders canonical river computation before lake planning and compiles their
- * density controls without crossing into downstream Civ7 projection.
+ * Orders canonical river computation before lake planning without crossing
+ * into downstream Civ7 projection.
  */
 export default createStage({
   id: "hydrology-hydrography",
   knobsSchema,
-  public: HydrologyHydrographyPublicSchema,
   steps: orderStandardStageSteps("hydrology-hydrography", {
     rivers: RiversStep,
     lakes: LakesStep,
-  }),
-  compile: ({ config }: { config: Record<string, unknown> }) => ({
-    rivers: {
-      drainageRouting: defaultEnvelope(
-        hydrology.hydrography.ops.computeDrainageRouting,
-        config.drainageRouting
-      ),
-      accumulateDischarge: defaultEnvelope(
-        hydrology.hydrography.ops.accumulateDischarge,
-        config.runoff
-      ),
-      projectRiverNetwork: defaultEnvelope(
-        hydrology.hydrography.ops.projectRiverNetwork,
-        config.riverNetwork
-      ),
-    },
-    lakes: {
-      planLakes: defaultEnvelope(hydrology.hydrography.ops.planLakes, config.lakes),
-    },
   }),
 } as const);

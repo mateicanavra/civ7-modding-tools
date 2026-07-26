@@ -7,7 +7,7 @@ import {
   buildResourcePlacementRuntimeTelemetry,
   placeResourcesWithTypedOutcomes,
 } from "../../../../../../src/recipes/standard/stages/placement/steps/place-resources/materialize.js";
-import { TEST_MAP_SIZE } from "../../../../../setup.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
 
 type PlanIntent = {
   plotIndex: number;
@@ -85,7 +85,7 @@ describe("resource placement diagnostics", () => {
       height,
       mapInfo: TEST_MAP_SIZE.mapInfo,
       mapSizeId: TEST_MAP_SIZE.id,
-      rng: createLabelRng(1931),
+      rng: createLabelRng(TEST_MAP_SEED),
       canHaveResource: (_x, _y, resourceType) => resourceType !== 9,
     });
 
@@ -134,7 +134,7 @@ describe("resource placement diagnostics", () => {
       height,
       mapInfo: TEST_MAP_SIZE.mapInfo,
       mapSizeId: TEST_MAP_SIZE.id,
-      rng: createLabelRng(1932),
+      rng: createLabelRng(TEST_MAP_SEED),
     });
     const broken = plan(width, height, [intent(0, width, "RESOURCE_GOLD")]) as {
       plannedCount: number;
@@ -165,7 +165,7 @@ describe("resource placement diagnostics", () => {
       height,
       mapInfo: TEST_MAP_SIZE.mapInfo,
       mapSizeId: TEST_MAP_SIZE.id,
-      rng: createLabelRng(1934),
+      rng: createLabelRng(TEST_MAP_SEED),
       // Engine rejects everything: a rescuing materializer would hunt for an
       // alternative plot (possibly a river tile); plan authority must not.
       canHaveResource: () => false,

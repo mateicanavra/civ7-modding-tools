@@ -20,7 +20,7 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/recipes/**/stages/*/steps/*/**/!(*.test|*.spec|config).ts",
+        "mods/*/src/recipes/*/stages/**/steps/*/**/!(*.test|*.spec|config).ts",
         "mods/*/src/domain/**/ops/**/strategies/**/*.ts"
       ]
     }
@@ -37,10 +37,7 @@
     "patternName": "prohibit_runtime_calls_to_runvalidated",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods/mod-swooper-maps/src/recipes",
-        "mods/mod-swooper-maps/src/domain"
-      ]
+      "roots": ["mods"]
     }
   }
 }

@@ -3,7 +3,7 @@ import { admitMapSetup } from "@swooper/mapgen-core";
 import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 
 import hydrologyClimateBaselineStage from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/baseline/index.js";
-import { ClimateBaselineStepContract } from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.js";
+import { config as climateBaselineConfig } from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.js";
 import { ClimateBaselineStep } from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../../setup.js";
 import {
@@ -20,7 +20,11 @@ const setup = admitMapSetup({
 function normalizeDryness(dryness: "wet" | "mix") {
   if (!ClimateBaselineStep.normalize) throw new Error("Climate baseline must normalize dryness.");
   const stageConfig = createStandardRecipeTestConfig()["hydrology-climate-baseline"];
-  stageConfig.precipitation.rainfallScale = 100;
+  const precipitation = stageConfig["climate-baseline"].computePrecipitation;
+  if (precipitation.strategy !== "vector") {
+    throw new Error("Climate baseline must author vector precipitation.");
+  }
+  precipitation.config.rainfallScale = 100;
   stageConfig.knobs.dryness = dryness;
   stageConfig.knobs.temperature = "temperate";
   stageConfig.knobs.seasonality = "normal";
@@ -35,12 +39,12 @@ function normalizeDryness(dryness: "wet" | "mix") {
     stageConfig: admitted,
   });
   const config = validateSchemaValueForTest(
-    ClimateBaselineStepContract.schema,
+    climateBaselineConfig.schema,
     rawSteps["climate-baseline"],
     "/hydrology-climate-baseline/climate-baseline"
   );
   return validateSchemaValueForTest(
-    ClimateBaselineStepContract.schema,
+    climateBaselineConfig.schema,
     ClimateBaselineStep.normalize(config, { setup, knobs }),
     "/hydrology-climate-baseline/climate-baseline"
   );

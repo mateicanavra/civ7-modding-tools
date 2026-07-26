@@ -9,7 +9,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  * Hydrology computes canonical drainage routing separately over final
  * Morphology topography.
  */
-export const RoutingStepContract = defineStep({
+export const config = defineStep({
   id: "routing",
   requires: [],
   provides: [],

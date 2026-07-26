@@ -11,15 +11,10 @@ import type { MapContext } from "@swooper/mapgen-core";
 import type { Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import type { CurrentEnginePlacementTypes } from "../../../../current-engine-surface.js";
 
-import { DerivePlacementInputsStepContract } from "./config.js";
+import { config as derivePlacementInputsConfig } from "./config.js";
 
-type DerivePlacementInputsConfig = Static<typeof DerivePlacementInputsStepContract.schema>;
-type DerivePlacementInputsOps = StepRuntimeOps<
-  NonNullable<typeof DerivePlacementInputsStepContract.ops>
->;
-type PlacementInputsV1 = Static<
-  typeof import("../../artifacts/placement-inputs.artifact.js").artifact.schema
->;
+type DerivePlacementInputsConfig = Static<typeof derivePlacementInputsConfig.schema>;
+type DerivePlacementInputsOps = StepRuntimeOps<NonNullable<typeof derivePlacementInputsConfig.ops>>;
 type PlanNaturalWondersOutput = Static<(typeof placement.wonders.ops.planNaturalWonders)["output"]>;
 
 const FEATURE_VALID_TERRAIN_TYPE_INDICES =
@@ -49,9 +44,8 @@ const FEATURE_TAGS_BY_FEATURE_TYPE = CIV7_BROWSER_TABLES_V0.featureTagsByFeature
   readonly string[] | undefined
 >;
 
-/** Placement inputs, natural-wonder intent, and the exact surfaces evaluated to produce it. */
+/** Natural-wonder intent and the exact surfaces evaluated to produce it. */
 export type PlacementInputsBuildResult = {
-  inputs: PlacementInputsV1;
   naturalWonderPlan: PlanNaturalWondersOutput;
   naturalWonderPlanSurfaces: {
     terrainType: Int32Array;
@@ -83,7 +77,7 @@ function buildNaturalWonderBlockedMask(width: number, height: number): Uint8Arra
 
 /**
  * Builds placement inputs from map info, authored config, admitted engine catalogs,
- * and pipeline artifacts — and runs the natural-wonder planner.
+ * and immutable domain products — and runs the natural-wonder planner.
  *
  * This is the boundary step (`kind:mod`) that lets the pure planner stay
  * engine-/policy-free: it resolves each catalog wonder's MATERIALIZATION
@@ -95,11 +89,12 @@ function buildNaturalWonderBlockedMask(width: number, height: number): Uint8Arra
  * so the op never sees an unstampable shape.
  *
  * It also forwards already-computed physical signals (vegetation, moisture,
- * temperature, fertility, discharge, slope) — never recomputed — and the engine
- * terrain/biome/feature surfaces (terrain is a DECLARED readback, while biome and
- * feature are artifact evidence) plus the polar-water
- * `naturalWonderBlockedMask`. Returns the assembled inputs and the planner's
- * `naturalWonderPlan` (the intent that `place-natural-wonders` later stamps).
+ * temperature, fertility, discharge, slope) — never recomputed — and current
+ * engine terrain/biome/feature observations admitted through the adapter boundary,
+ * plus the polar-water
+ * `naturalWonderBlockedMask`. Returns the planner's `naturalWonderPlan`
+ * (the intent that `place-natural-wonders` later stamps) and the exact
+ * observations used to derive it.
  */
 export function buildPlacementInputs(
   context: MapContext,
@@ -134,10 +129,6 @@ export function buildPlacementInputs(
 ): PlacementInputsBuildResult {
   const { mapInfo, naturalWonderCatalog, currentPlacementTypes } = engineEvidence;
   const { width, height } = context.setup.dimensions;
-  const baseStarts = {
-    playersLandmass1: mapInfo.PlayersLandmass1 ?? 4,
-    playersLandmass2: mapInfo.PlayersLandmass2 ?? 4,
-  };
   const wondersPlan = ops.wonders({ mapInfo }, config.wonders);
   const plannedNaturalWonderCatalog = naturalWonderCatalog.flatMap((entry) => {
     const featureType = entry.featureType | 0;
@@ -204,12 +195,6 @@ export function buildPlacementInputs(
     config.naturalWonders
   );
   return {
-    inputs: {
-      mapInfo,
-      starts: baseStarts,
-      wonders: wondersPlan,
-      placementConfig: config,
-    },
     naturalWonderPlan,
     naturalWonderPlanSurfaces: {
       terrainType,

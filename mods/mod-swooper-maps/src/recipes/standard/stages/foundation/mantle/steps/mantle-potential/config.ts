@@ -8,7 +8,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  * source field before forcing is derived, separating authored mantle structure from its
  * physical effects.
  */
-export const MantlePotentialStepContract = defineStep({
+export const config = defineStep({
   id: "mantle-potential",
   requires: [],
   provides: [],

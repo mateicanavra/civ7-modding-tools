@@ -2,7 +2,7 @@ import { createStep } from "@swooper/mapgen-core/authoring";
 import { defineVizMeta } from "@swooper/mapgen-viz";
 import { defineStandardVizMeta } from "../../../../../viz.js";
 import { pointsFromTileCentroids, segmentsFromTileTopologyNeighbors } from "../../../viz.js";
-import { PlateTopologyStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const GROUP_PLATE_TOPOLOGY = "Foundation / Plate Topology";
 
@@ -10,8 +10,8 @@ const GROUP_PLATE_TOPOLOGY = "Foundation / Plate Topology";
  * Summarizes projected tile-space plate IDs into whole-plate adjacency, ensuring
  * topology reflects the same raster vintage consumed by downstream map stages.
  */
-export const PlateTopologyStep = createStep(PlateTopologyStepContract, {
-  run: (context, config, ops, deps) => {
+export const PlateTopologyStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     // Plate adjacency is derived from the projected tile plate-id field via the
     // compute-plate-topology op (tile-derived; see the op contract for the
     // mesh-native follow-on note).
@@ -20,7 +20,7 @@ export const PlateTopologyStep = createStep(PlateTopologyStepContract, {
 
     const { plateTopology } = ops.computePlateTopology(
       { plateIds: plates.id, width, height },
-      config.computePlateTopology
+      stepConfig.computePlateTopology
     );
     const topologyPlates = plateTopology.plates;
 

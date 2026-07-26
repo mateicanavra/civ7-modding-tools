@@ -10,7 +10,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  * Defines Foundation's mesh-to-tile projection boundary. It projects crust, plate, tectonic,
  * and provenance truth into map artifacts while leaving terrain shaping to Morphology.
  */
-export const ProjectionStepContract = defineStep({
+export const config = defineStep({
   id: "projection",
   requires: [],
   provides: [],

@@ -1,7 +1,7 @@
 import type { TraceJsonObject } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { runPlacementProductStep } from "../../log.js";
-import { AssignStartsStepContract } from "./config.js";
+import { config } from "./config.js";
 import { materializeStartAssignment } from "./materialize.js";
 import { projectStartAssignmentViz } from "./viz.js";
 
@@ -9,9 +9,8 @@ import { projectStartAssignmentViz } from "./viz.js";
  * Assigns player seats against the resource plan and final physical truth,
  * before the support pass adjusts resources and stamping makes them immutable.
  */
-export const AssignStartsStep = createStep(AssignStartsStepContract, {
-  run: (context, config, _ops, deps) => {
-    const placementInputs = deps.artifacts.placementInputs.read(context);
+export const AssignStartsStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const resourcePlan = deps.artifacts.resourcePlan.read(context);
     const naturalWonderPlacement = deps.artifacts.naturalWonderPlacement.read(context);
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
@@ -24,10 +23,18 @@ export const AssignStartsStep = createStep(AssignStartsStepContract, {
     const lakePlan = deps.artifacts.lakePlan.read(context);
     const climateIndices = deps.artifacts.climateIndices.read(context);
     const pedology = deps.artifacts.pedology.read(context);
-    const baseStarts = placementInputs.starts;
+    const mapSizeId = deps.engine.getMapSizeId(context);
+    const mapInfo = deps.engine.lookupMapInfo(context, mapSizeId);
+    if (!mapInfo) {
+      throw new Error("[Placement] Civ7 map metadata is unavailable for the active map size.");
+    }
+    const baseStarts = {
+      playersLandmass1: mapInfo.PlayersLandmass1 ?? 4,
+      playersLandmass2: mapInfo.PlayersLandmass2 ?? 4,
+    };
     const slotByTile = landmassRegionSlotByTile.slotByTile as Uint8Array;
     const { width, height } = context.setup.dimensions;
-    const plan = _ops.starts(
+    const plan = ops.starts(
       {
         baseStarts: {
           playersLandmass1: baseStarts.playersLandmass1,
@@ -61,7 +68,7 @@ export const AssignStartsStep = createStep(AssignStartsStepContract, {
         // seatBiases: per-civ StartBias rows need live player→civ data; the
         // offline default is neutral (Milestone A wires the live half).
       },
-      config.starts as Parameters<typeof _ops.starts>[1]
+      stepConfig.starts
     );
     const emit = (payload: TraceJsonObject): void => {
       context.trace.event(() => payload);

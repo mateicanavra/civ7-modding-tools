@@ -12,6 +12,10 @@ export default defineStrategy({
         description: "Threshold used to compute lastActiveEra (0..255).",
       }),
     },
-    { additionalProperties: false }
+    {
+      additionalProperties: false,
+      description:
+        "Activity admission threshold used to reduce per-era tectonic fields into cumulative and recency evidence.",
+    }
   ),
 });

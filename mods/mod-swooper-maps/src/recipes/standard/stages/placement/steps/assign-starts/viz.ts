@@ -1,5 +1,6 @@
 import placement from "@mapgen/domain/placement";
-import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
+import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
+import type { ArtifactReadValueOf, DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 import type { VizProjection, VizRgbaColor } from "@swooper/mapgen-viz";
 import {
   buildPlacementPointBuffers,
@@ -11,9 +12,7 @@ import {
 } from "../../viz.js";
 
 type PlanStartsOutput = Static<(typeof placement.starts.ops.planStarts)["output"]>;
-type StartAssignmentArtifact = Static<
-  typeof import("../../artifacts/index.js").artifacts["startAssignment"]["schema"]
->;
+type StartAssignmentArtifact = ArtifactReadValueOf<typeof placementStartArtifacts.startAssignment>;
 
 const START_POSITION_COLORS: readonly VizRgbaColor[] = [
   [59, 130, 246, 230],

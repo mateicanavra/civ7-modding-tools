@@ -20,7 +20,7 @@ import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import { createEmptyFeatureScoreLayers } from "../../fixtures/feature-score-layers.js";
 
 describe("ecology-features plan-vegetation step", () => {
-  it("publishes terminal forest intent from the selected score layer", () => {
+  it("publishes terminal forest intent from admitted feature suitability", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const setup = admitMapSetup({
@@ -46,17 +46,15 @@ describe("ecology-features plan-vegetation step", () => {
       const layers = createEmptyFeatureScoreLayers(size);
       layers.forest.fill(1);
 
-      publishTestArtifact(stepContext, featureArtifacts.scoreLayers, {
+      publishTestArtifact(stepContext, featureArtifacts.featureSuitability, {
         width,
         height,
         layers,
       });
-      publishTestArtifact(stepContext, featureArtifacts.occupancyWetlands, {
-        width,
-        height,
-        featureOccupancyMask: new Uint8Array(size),
-        reserved: new Uint8Array(size),
-      });
+      publishTestArtifact(stepContext, featureArtifacts.floodplainIntents, []);
+      publishTestArtifact(stepContext, featureArtifacts.iceIntents, []);
+      publishTestArtifact(stepContext, featureArtifacts.reefIntents, []);
+      publishTestArtifact(stepContext, featureArtifacts.wetlandIntents, []);
       publishTestArtifact(stepContext, biomeArtifacts.biomeClassification, {
         width,
         height,
@@ -127,7 +125,7 @@ describe("ecology-features plan-vegetation step", () => {
       );
     });
 
-    const intents = readValidatedArtifact(ctx, featureArtifacts.featureIntentsVegetation);
+    const intents = readValidatedArtifact(ctx, featureArtifacts.vegetationIntents);
     expect(intents.length).toBeGreaterThan(0);
     expect(intents.every(({ feature }) => feature === "forest")).toBe(true);
   });

@@ -4,10 +4,12 @@ export {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   type EarthlikeResourceExpectation,
   type ResourceExpectationGroupId,
-  type ResourceExpectationRangeEvidence,
   type ResourceExpectationStatus,
-  type ResourceExpectedCountRange,
 } from "./model/policy/earthlike-expectations.js";
+export {
+  type ResourceExpectationRangeEvidence,
+  type ResourceExpectedCountRange,
+} from "./model/atoms/expected-count-range.schema.js";
 export {
   buildHabitatEligibility,
   type HabitatEligibility,

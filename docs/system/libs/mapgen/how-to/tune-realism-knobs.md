@@ -50,14 +50,25 @@ In your config object, change only stage `knobs` values (unless you have a speci
 
 Examples of common “realism” knob sets (see anchors for exact ranges and mapping):
 
-- `foundation.knobs.plateCount`: integer baseline (e.g., `20`–`36`)
-- `foundation.knobs.plateActivity`: scalar `0..1` (e.g., `0.25` calmer, `0.5` baseline, `0.75` more active)
-- `morphology-coasts.knobs.seaLevel`: `low | earthlike | high`
+- `foundation-tectonics.knobs.plateActivity`: scalar `0..1` (e.g., `0.25` calmer, `0.5` neutral, `0.75` more active)
+- `morphology-coasts.knobs.seaLevel`: `land-heavy | earthlike | water-heavy`
 - `morphology-coasts.knobs.coastRuggedness`: `smooth | normal | rugged`
-- `morphology-coasts.knobs.shelfWidth`: `narrow | normal | wide`
+- `morphology-shelf.knobs.shelfWidth`: `narrow | normal | wide`
 - `morphology-erosion.knobs.erosion`: `low | normal | high`
-- `hydrology-*.knobs.dryness`: `wet | mix | dry`
-- `hydrology-*.knobs.temperature`: `cold | temperate | hot`
+- `morphology-features.knobs.orogeny`: `low | normal | high`
+- `morphology-features.knobs.volcanism`: `low | normal | high`
+- `hydrology-climate-baseline.knobs.dryness`: `wet | mix | dry`
+- `hydrology-climate-baseline.knobs.temperature`: `cold | temperate | hot`
+- `hydrology-climate-baseline.knobs.seasonality`: `low | normal | high`
+- `hydrology-climate-baseline.knobs.oceanCoupling`: `off | simple | earthlike`
+- `hydrology-climate-refine.knobs.cryosphere`: `off | on`
+- `hydrology-hydrography.knobs.riverDensity`: `sparse | normal | dense`
+- `hydrology-hydrography.knobs.lakeiness`: `few | normal | many`
+
+Stage knobs are semantic transforms over the complete operation config. Their
+neutral/default values preserve directly authored advanced fields. Select a
+non-neutral posture when you want the stage to shift those values together;
+edit the operation config directly when you need exact numeric control.
 
 ### 3) Run in Studio to validate quickly
 

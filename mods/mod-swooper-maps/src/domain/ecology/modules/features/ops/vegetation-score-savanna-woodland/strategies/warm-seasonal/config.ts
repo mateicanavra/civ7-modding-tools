@@ -6,5 +6,12 @@ import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export default defineStrategy({
   id: "warm-seasonal",
-  config: Type.Object({}, { additionalProperties: false }),
+  config: Type.Object(
+    {},
+    {
+      additionalProperties: false,
+      description:
+        "Savanna-woodland suitability uses fixed warm, seasonal-moisture, open-biomass response curves with no authored parameters.",
+    }
+  ),
 });

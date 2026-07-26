@@ -17,7 +17,9 @@ import {
   type FinalSurfaceSnapshot,
   hashParityValue,
   parseCompleteExactAuthorshipEvidencePacket,
+  runLocalFinalSurfaceSnapshot,
 } from "../../scripts/live/live-parity";
+import { admitStandardMapConfig } from "../../src/maps/configs/canonical.js";
 import { TEST_GAME_SEED, TEST_MAP_SEED, TEST_MAP_SIZE } from "../setup.js";
 
 const pipelineConfig = STANDARD_RECIPE_CONFIG;
@@ -88,6 +90,51 @@ test("local final-surface replay uses supplied frozen envelope bounds without ch
   expect(frozenReplay.latitudeBounds).toEqual(frozenEnvelope.latitudeBounds);
   expect(frozenReplay.latitudeBounds).not.toEqual(defaultReplay.latitudeBounds);
   expect(frozenReplay.mapInfo).toEqual(defaultReplay.mapInfo);
+});
+
+test("local final-surface replay retains exact Placement maintenance boundaries", () => {
+  const { width, height } = TEST_MAP_SIZE.dimensions;
+  const snapshot = runLocalFinalSurfaceSnapshot({
+    width,
+    height,
+    seed: TEST_MAP_SEED,
+    config: admitStandardMapConfig(canonicalConfig),
+  });
+  const terrainProjection = snapshot.evidence?.terrainProjection as
+    | {
+        projectedLakes?: { lakeMask?: readonly number[] };
+        placementMaintenanceBoundaries?: Record<
+          "before-validate" | "after-validate" | "after-maintenance",
+          {
+            variantKey: string;
+            dimensions: { width: number; height: number };
+            fields: Record<string, { format: string; values: readonly number[] }>;
+          }
+        >;
+      }
+    | undefined;
+
+  expect(terrainProjection?.projectedLakes?.lakeMask).toHaveLength(width * height);
+  expect(Object.keys(terrainProjection?.placementMaintenanceBoundaries ?? {})).toEqual([
+    "before-validate",
+    "after-validate",
+    "after-maintenance",
+  ]);
+
+  for (const [variant, boundary] of Object.entries(
+    terrainProjection?.placementMaintenanceBoundaries ?? {}
+  )) {
+    expect(boundary.variantKey).toBe(variant);
+    expect(boundary.dimensions).toEqual({ width, height });
+    expect(Object.keys(boundary.fields)).toEqual(["terrain", "waterMask", "lakeMask", "areaId"]);
+    expect(boundary.fields.terrain?.format).toBe("i32");
+    expect(boundary.fields.waterMask?.format).toBe("u8");
+    expect(boundary.fields.lakeMask?.format).toBe("u8");
+    expect(boundary.fields.areaId?.format).toBe("i32");
+    for (const field of Object.values(boundary.fields)) {
+      expect(field.values).toHaveLength(width * height);
+    }
+  }
 });
 
 test("terminal river diagnostics observe engine mutations after projection intent is fixed", () => {
@@ -216,7 +263,7 @@ function snapshot(args: {
     finalLakeWaterDriftCount: number;
     finalLakeClassificationDriftCount: number;
   };
-  featureApplyDiagnostics?: {
+  featureProjection?: {
     attemptedByFeature?: Record<string, number>;
     appliedByFeature?: Record<string, number>;
     rejectedCanHaveFeatureByFeature?: Record<string, number>;
@@ -344,9 +391,9 @@ function snapshot(args: {
           },
         }
       : {}),
-    ...(args.featureApplyDiagnostics
+    ...(args.featureProjection
       ? {
-          featureApplyDiagnostics: args.featureApplyDiagnostics,
+          featureProjection: args.featureProjection,
         }
       : {}),
   };
@@ -761,7 +808,7 @@ describe("final-surface parity evidence", () => {
         source: "local-mapgen",
         resourceCoordinateEvidence: true,
         feature: [floodplainFeature, forestFeature],
-        featureApplyDiagnostics: featureApply,
+        featureProjection: featureApply,
       }),
       live: snapshot({ source: "live-civ7", feature: [floodplainFeature, forestFeature] }),
     });
@@ -814,7 +861,7 @@ describe("final-surface parity evidence", () => {
       local: snapshot({
         source: "local-mapgen",
         resourceCoordinateEvidence: true,
-        featureApplyDiagnostics: featureApply,
+        featureProjection: featureApply,
       }),
       live: snapshot({ source: "live-civ7" }),
     });
@@ -867,7 +914,7 @@ describe("final-surface parity evidence", () => {
         source: "local-mapgen",
         resourceCoordinateEvidence: true,
         feature: [floodplainFeature, forestFeature],
-        featureApplyDiagnostics: featureApply,
+        featureProjection: featureApply,
       }),
       live: snapshot({ source: "live-civ7", feature: [0, forestFeature] }),
     });

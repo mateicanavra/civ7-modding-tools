@@ -20,6 +20,10 @@ export default defineStrategy({
           "Sets the minimum boundary intensity required before a segment affects tectonic regime classification.",
       }),
     },
-    { additionalProperties: false }
+    {
+      additionalProperties: false,
+      description:
+        "Relative-motion scaling and inactivity thresholds used to classify plate-boundary regime and intensity.",
+    }
   ),
 });

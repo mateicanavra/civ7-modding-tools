@@ -6,36 +6,42 @@ import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export default defineStrategy({
   id: "warm-shallow-lake",
-  config: Type.Object({
-    tempWarmStartC: Type.Number({
-      default: 16,
-      minimum: -100,
-      maximum: 100,
-      description: "Temperature where lotus suitability begins increasing.",
-    }),
-    tempWarmEndC: Type.Number({
-      default: 32,
-      minimum: -100,
-      maximum: 100,
-      description: "Temperature where lotus suitability reaches its warm optimum.",
-    }),
-    shallowDepthM: Type.Integer({
-      default: 0,
-      minimum: 0,
-      maximum: 12000,
-      description: "Shallow-water depth used for lotus scoring.",
-    }),
-    deepDepthM: Type.Integer({
-      default: 40,
-      minimum: 0,
-      maximum: 12000,
-      description: "Deep-water limit used for lotus scoring.",
-    }),
-    maxDistanceToCoast: Type.Integer({
-      default: 2,
-      minimum: 0,
-      maximum: 512,
-      description: "Maximum tile distance from coast for lotus suitability.",
-    }),
-  }),
+  config: Type.Object(
+    {
+      tempWarmStartC: Type.Number({
+        default: 16,
+        minimum: -100,
+        maximum: 100,
+        description: "Temperature where lotus suitability begins increasing.",
+      }),
+      tempWarmEndC: Type.Number({
+        default: 32,
+        minimum: -100,
+        maximum: 100,
+        description: "Temperature where lotus suitability reaches its warm optimum.",
+      }),
+      shallowDepthM: Type.Integer({
+        default: 0,
+        minimum: 0,
+        maximum: 12000,
+        description: "Shallow-water depth used for lotus scoring.",
+      }),
+      deepDepthM: Type.Integer({
+        default: 40,
+        minimum: 0,
+        maximum: 12000,
+        description: "Deep-water limit used for lotus scoring.",
+      }),
+      maxDistanceToCoast: Type.Integer({
+        default: 2,
+        minimum: 0,
+        maximum: 512,
+        description: "Maximum tile distance from coast for lotus suitability.",
+      }),
+    },
+    {
+      description:
+        "Warm-water, shallow-lake depth, and coast-distance bounds used to score lotus habitat.",
+    }
+  ),
 });

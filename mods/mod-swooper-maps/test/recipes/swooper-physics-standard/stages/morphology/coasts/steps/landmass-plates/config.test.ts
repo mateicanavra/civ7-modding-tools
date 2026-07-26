@@ -3,7 +3,7 @@ import { admitMapSetup } from "@swooper/mapgen-core";
 import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 
 import morphologyCoastsStage from "../../../../../../../../src/recipes/standard/stages/morphology/coasts/index.js";
-import { LandmassPlatesStepContract } from "../../../../../../../../src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.js";
+import { config as landmassPlatesStepConfig } from "../../../../../../../../src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.js";
 import { LandmassPlatesStep } from "../../../../../../../../src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import {
@@ -20,7 +20,7 @@ const setup = admitMapSetup({
 function normalizeSeaLevel(seaLevel: "earthlike" | "water-heavy") {
   if (!LandmassPlatesStep.normalize) throw new Error("Landmass plates must normalize sea level.");
   const stageConfig = createStandardRecipeTestConfig()["morphology-coasts"];
-  stageConfig.waterCoverage.targetWaterPercent = 43;
+  stageConfig["landmass-plates"].seaLevel.config.targetWaterPercent = 43;
   stageConfig.knobs.seaLevel = seaLevel;
   const admitted = validateSchemaValueForTest(
     morphologyCoastsStage.surfaceSchema,
@@ -29,12 +29,12 @@ function normalizeSeaLevel(seaLevel: "earthlike" | "water-heavy") {
   );
   const { knobs, rawSteps } = morphologyCoastsStage.toInternal({ setup, stageConfig: admitted });
   const config = validateSchemaValueForTest(
-    LandmassPlatesStepContract.schema,
+    landmassPlatesStepConfig.schema,
     rawSteps["landmass-plates"],
     "/morphology-coasts/landmass-plates"
   );
   return validateSchemaValueForTest(
-    LandmassPlatesStepContract.schema,
+    landmassPlatesStepConfig.schema,
     LandmassPlatesStep.normalize(config, { setup, knobs }),
     "/morphology-coasts/landmass-plates"
   );

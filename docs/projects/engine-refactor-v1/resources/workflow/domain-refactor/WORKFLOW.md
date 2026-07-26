@@ -59,25 +59,33 @@ Canonical anchors:
 
 Non-negotiable locks:
 - **Topology invariant:** Civ7 is `wrapX=true`, `wrapY=false` always. No env/config/knob for wrap; wrap flags must not appear in op/step/artifact contracts.
-- **Boundary:** Physics domains publish truth-only artifacts (pure). Gameplay owns `artifact:map.*` projections/annotations and all adapter stamping/materialization.
-- **No backfeeding:** Physics steps MUST NOT `require`/consume `artifact:map.*` or `effect:map.*`.
+- **Boundary:** Domain modules own immutable data products; recipe projection steps own adapter
+  reads and writes. A runtime artifact id does not make a recipe stage its owner.
+- **No backfeeding:** Physics steps MUST NOT consume current engine state or engine-write effects.
 - **Effects are boolean:** `effect:map.<thing><Verb>` (use a semantically correct verb; keep verbs short and consolidated; no receipts/hashes/versions).
 - **Hard ban:** no `artifact:map.realized.*` namespace anywhere.
 - **TerrainBuilder no-drift:** Civ7 elevation/cliffs come from `TerrainBuilder.buildElevation()` and cannot be set directly. Any cliff/elevation-band-correct decisions belong in Gameplay after `effect:map.elevationBuilt`.
-- **Effect honesty via freeze:** any published `artifact:map.*` intent consumed by stamping must be publish-once/frozen before stamping begins; assert the `effect:map.*` only after successful adapter writes.
+- **Effect honesty:** publish domain intent once before stamping and assert an
+  `effect:map.*` only after successful adapter writes.
 
 ### Maximal boundary posture (truth vs map projection/materialization)
 
 This is a hard, repo-wide modeling and implementation posture for domain refactors:
 
-- Physics domains are **truth-only**: they publish truth artifacts and run physics logic, but they MUST NOT consume map-layer projections or stamping effects.
-  - Physics truth MAY be tile-indexed and MAY include `tileIndex` (this is allowed). The ban is on engine/game-facing ids, adapter coupling, and consuming `artifact:map.*` / `effect:map.*`.
-  - Physics steps MUST NOT `require`/consume `artifact:map.*`.
+- Physics domains are **truth-only**: they publish immutable domain artifacts and run physics
+  logic, but they MUST NOT consume current engine state or stamping effects.
+  - Physics truth MAY be tile-indexed and MAY include `tileIndex` (this is allowed). The ban is on
+    engine/game-facing ids, adapter coupling, and engine observation in physics operations.
   - Physics steps MUST NOT `require`/consume `effect:map.*`.
-- Gameplay/map layer owns projections + materialization:
-  - `artifact:map.*` is the canonical map-facing projection/annotation layer (including observability/debug layers).
-  - Adapter/engine reads and writes happen only in Gameplay-owned steps and must provide `effect:map.<thing><Verb>` (e.g., `effect:map.mountainsPlotted`, `effect:map.elevationBuilt`).
-  - Hard ban: do not introduce `artifact:map.realized.*` (use effects for execution guarantees; use narrowly scoped `artifact:map.*` observation layers only when needed).
+- Recipe projection steps own materialization:
+  - Adapter/engine reads and writes happen only in projection steps and must provide
+    `effect:map.<thing><Verb>` (e.g., `effect:map.mountainsPlotted`,
+    `effect:map.elevationBuilt`).
+  - Current engine state is observed through the invocation-local adapter. It is not published as
+    an artifact because it can change after any adapter mutation.
+  - Metrics, visualization, trace, and diagnostics remain distinct evidence capabilities; do not
+    turn their outputs into pipeline artifacts.
+  - Hard ban: do not introduce `artifact:map.realized.*`.
 
 Cutover posture:
 - No legacy paths. No shims. No dual-path behavior. If current code violates this boundary, the fix is to reclassify that work into the Gameplay/materialization lane and adjust dependencies so physics truth remains truth-only.
@@ -115,28 +123,39 @@ Recommended “outside view” doc set (create only what you need; keep it small
 
 ### Architecture rules
 
-- **Contract-first:** All domain logic is behind op contracts (`mods/mod-swooper-maps/src/domain/<domain>/ops/**`).
+- **Contract-first:** All domain logic is behind module-owned operation contracts
+  (`mods/mod-swooper-maps/src/domain/<domain>/modules/<module>/ops/<operation>/contract.ts`);
+  the nested domain/module/operation/strategy kind laws under `.habitat/blueprints/`
+  are executable topology authority.
 - **No op composition:** Ops are atomic; ops must not call other ops (composition happens in steps/stages).
 - **Steps are orchestration:** step modules must not import op implementations; they call injected ops in `run(ctx, config, ops, deps)`.
 - **Single-path deps access:** step runtime must not reach into alternate dependency paths (no `ctx.deps`); dependencies are accessed via the `deps` parameter only.
-- **Artifacts are stage-owned (contracts) and contract-first:** each stage defines artifact contracts in `mods/mod-swooper-maps/src/recipes/standard/stages/<stage>/artifacts.ts`; step contracts declare `artifacts.requires` / `artifacts.provides` using those stage-owned contracts.
+- **Artifacts are domain-module-owned and contract-first:** each immutable data product lives under
+  `mods/mod-swooper-maps/src/domain/<domain>/modules/<module>/artifacts/`; step configs select the
+  exact producing module's catalog handles in `artifacts.requires` / `artifacts.provides`.
+- **Stages do not own artifact catalogs:** recipe stages order authored steps; they must not define
+  or aggregate artifact authorities.
 - **Stage ids are author contracts:** stage ids must be stable once published unless you are explicitly migrating consumers and references. Choose semantic stage names/ids; avoid generic labels like “pre/core/post.” If pipeline braiding/interleaving constrains stage count or ordering, document the constraints and downstream impact in Phase 3 planning.
 - **No ad-hoc artifact imports in steps:** step implementations read/publish artifacts via `deps.artifacts.<artifactName>.*` (no direct imports from recipe-level `artifacts.*`, and no direct `ctx.artifacts` access in normal authoring).
-- **Buffers are not artifacts (conceptual rule):** buffers are mutable, shared working layers (e.g., heightfield/elevation, climate field, routing indices) that multiple steps/stages refine over time.
-  - **Today (intentional compromise):** some buffers are still routed through artifact contracts for gating/typing; publish the buffer artifact **once**, then mutate the underlying buffer in place (do **not** re-publish).
-  - **Modeling posture:** always describe buffers as buffers in domain specs and refactor plans; treat any artifact wrapping as a temporary wiring strategy, not as a domain-model truth statement.
+- **No shared mutable pipeline buffers:** causal data crossing a step boundary is an immutable,
+  write-once artifact owned by its producing domain module. Mutable scratch state stays inside the
+  operation or step invocation that owns it and is not exposed as a second pipeline store.
 - **Narrative overlays are forbidden (this refactor phase):** treat “stories”, “narratives”, and “overlays” as legacy-only concepts and remove them as dependencies/surfaces.
   - If a narrative overlay/story artifact is load-bearing today, replace it with a canonical, domain-anchored representation (artifact/buffer/field) and migrate consumers to that contract.
   - Do not add “non-load-bearing” overlays: they create implicit dependencies and consumer confusion. Narrative/overlay systems can be re-introduced later on top of clean, canonical domain cores.
 - **Compile-time normalization:** defaults + `step.normalize` + `op.normalize`; runtime does not “fix up” config.
-- **Import discipline:** step `contract.ts` imports only `@mapgen/domain/<domain>` + stage-local contracts (e.g. `../artifacts.ts`); no deep imports under `@mapgen/domain/<domain>/**`, and no `@mapgen/domain/<domain>/ops`.
+- **Import discipline:** step `config.ts` imports operation contracts from the domain contract
+  entrypoint and artifact handles from the exact public module catalog. It does not import
+  executable routers, private operation implementations, or recipe-owned artifact catalogs.
 
 ### Legacy + pipeline ownership rules
 
 - **Do not propagate legacy patterns:** do not copy legacy authoring patterns forward. Implement changes only through the canonical architecture.
 - **Explicit legacy audit required:** every existing config property, rule/policy, and domain function must be inventoried and explicitly classified as model-relevant or legacy. Unclassified surfaces are a gate failure.
 - **Authoritative modeling (not “code cleanup”):** prefer the physically grounded target model over preserving legacy behavior; delete/replace broken or nonsensical behavior as needed.
-- **Cross-pipeline consistency is required:** when the domain model changes contracts/artifacts, update downstream steps and stage-owned artifact contracts in the same refactor so the whole pipeline stays internally consistent (no “temporary mismatch”).
+- **Cross-pipeline consistency is required:** when the domain model changes contracts/artifacts,
+  update the exact module catalog and every downstream step selection in the same refactor so the
+  whole pipeline stays internally consistent (no “temporary mismatch”).
 - **Upstream model intake (non-root):** review the prior domain’s Phase 2 modeling spike and pipeline delta list, then explicitly document which authoritative inputs this domain will adopt and which legacy inputs will be deleted. Also review any upstream refactor changes that touched this domain (compat shims, temporary adapters, legacy pathways) and explicitly plan their removal.
 - **Downstream model intake (non-leaf):** review downstream domain docs and current consumer callsites, then explicitly document which downstream consumers must change to honor the authoritative model.
 - **No upstream compat surfaces:** the domain being refactored must not publish legacy compat or projection surfaces. If downstream needs transitional compatibility, it must be implemented in the downstream domain with explicit `DEPRECATED` / `DEPRECATE ME` markers. Upstream refactors must update downstream consumers in the same change.
@@ -447,11 +466,21 @@ Remove only the worktrees you created for this refactor.
 
 ## Golden reference (Ecology exemplar)
 
-- Domain contract entrypoint: `mods/mod-swooper-maps/src/domain/ecology/index.ts`
-- Op contracts router: `mods/mod-swooper-maps/src/domain/ecology/ops/contracts.ts`
-- Op implementations router: `mods/mod-swooper-maps/src/domain/ecology/ops/index.ts`
-- Stage-owned artifact contracts: `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/artifacts.ts`
-- Representative step contract: `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/biomes/contract.ts`
+- Domain contract: `mods/mod-swooper-maps/src/domain/ecology/contract.ts`
+- Executable domain router: `mods/mod-swooper-maps/src/domain/ecology/router.ts`
+- Biomes module contract: `mods/mod-swooper-maps/src/domain/ecology/modules/biomes/contract.ts`
+- Biomes module artifact catalog:
+  `mods/mod-swooper-maps/src/domain/ecology/modules/biomes/artifacts/index.ts`
+- Nested stage:
+  `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/biomes/index.ts`
+- Representative step config and runtime:
+  `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/biomes/steps/biomes/config.ts`
+  and
+  `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/biomes/steps/biomes/step.ts`
+- Artifact authority:
+  `docs/system/libs/mapgen/reference/ARTIFACTS.md`
+- Artifact authoring:
+  `docs/system/libs/mapgen/how-to/add-a-new-artifact.md`
 
 ## Reference index
 
@@ -459,8 +488,8 @@ Read once before Phase 0.5:
 - `docs/projects/engine-refactor-v1/resources/repomix/gpt-config-architecture-converged.md`
 - `docs/projects/engine-refactor-v1/resources/spec/SPEC-step-domain-operation-modules.md`
 - `docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md`
-- `docs/projects/engine-refactor-v1/resources/spec/recipe-compile/DX-ARTIFACTS-PROPOSAL.md`
-- `docs/projects/engine-refactor-v1/issues/LOCAL-TBD-M8-U21-artifacts-step-owned-deps.md`
+- `docs/system/libs/mapgen/reference/ARTIFACTS.md`
+- `docs/system/libs/mapgen/how-to/add-a-new-artifact.md`
 
 Consult while modeling (Phase 2):
 - `docs/projects/engine-refactor-v1/resources/spec/adr/adr-er1-030-operation-inputs-policy.md`

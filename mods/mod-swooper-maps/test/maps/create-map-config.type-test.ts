@@ -5,7 +5,6 @@ import type { ExtendsStrict, IsEqual, IsStringLiteral } from "type-fest";
 import { buildStandardRecipeDefaultConfig } from "../../src/recipes/standard/artifacts.js";
 import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import foundationMantleStage from "../../src/recipes/standard/stages/foundation/mantle/index.js";
-import { FoundationMantlePublicSchema } from "../../src/recipes/standard/stages/foundation/public.config.js";
 
 type Expect<T extends true> = T;
 
@@ -47,8 +46,8 @@ export type ComputeMeshEnvelopeFromStepSchemaConfigIsObject = Expect<
   ExtendsStrict<ComputeMeshEnvelopeFromStepSchemaConfig, object, { strictAny: true }>
 >;
 
-type FoundationMantlePublicConfig = Static<typeof FoundationMantlePublicSchema>;
-type MeshPlateCount = FoundationMantlePublicConfig["meshResolution"]["plateCount"];
+type MeshEnvelope = NonNullable<FoundationMantleConfig["mesh"]>["computeMesh"];
+type MeshPlateCount = MeshEnvelope["config"]["plateCount"];
 export type MeshPlateCountIsNumber = Expect<IsEqual<MeshPlateCount, number>>;
 
 type FoundationTectonicsConfig = NonNullable<StandardRecipeConfig["foundation-tectonics"]>;

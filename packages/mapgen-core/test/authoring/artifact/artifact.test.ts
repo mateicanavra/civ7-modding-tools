@@ -6,6 +6,7 @@ import {
   ArtifactDoublePublishError,
   ArtifactMissingError,
   ArtifactValidationError,
+  appendArtifactGridCoordinateIssues,
   appendArtifactTypedArrayIssues,
   createStep,
   defineArtifact,
@@ -65,6 +66,26 @@ describe("artifact authoring", () => {
     expect(issues).toEqual([
       { message: "Expected wrongConstructor to be Int16Array." },
       { message: "Expected wrongLength length 4 (received 3)." },
+    ]);
+  });
+
+  it("reports repeated and out-of-bounds artifact grid coordinates", () => {
+    const issues: Array<{ message: string }> = [];
+
+    appendArtifactGridCoordinateIssues(
+      issues,
+      "placements",
+      [
+        { x: 2, y: 1 },
+        { x: 2, y: 1 },
+        { x: 4, y: 2 },
+      ],
+      { width: 4, height: 3 }
+    );
+
+    expect(issues).toEqual([
+      { message: "placements[1] duplicates the tile claim at 2,1." },
+      { message: "placements[2] coordinate 4,2 is outside 4x3." },
     ]);
   });
 

@@ -11,10 +11,10 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "advisory",
-  "forbids": "semantic-module contract files exposing operation contracts or any authority besides their singular default defineDomainSubdomain result",
-  "why": "A semantic module contract is one aggregate identity over its operation registry. Keeping constituent contracts private preserves one contract authority while leaving execution to the router.",
-  "remediate": "Import the default ./ops/contract.js registry, compose one local defineDomainSubdomain binding, and export only that binding as default.",
+  "lane": "enforced",
+  "forbids": "semantic-module contract files delegating through an operation registry, exposing leaf contracts, or owning any authority besides one direct defineDomainSubdomain aggregate",
+  "why": "The semantic module contract is already the rightful declarative aggregate. It composes canonical leaf operation contracts directly, eliminating a second registry authority while leaving executable binding to the router.",
+  "remediate": "Default-import each leaf operation contract from ./ops/<operation>/contract.js, compose them inline in one defineDomainSubdomain call, and export only that module contract as default.",
   "message": "Domain module contract.ts must expose one default aggregate contract authority only.",
   "pathCoverage": [
     {

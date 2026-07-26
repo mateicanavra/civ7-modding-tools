@@ -2,21 +2,22 @@ import { deriveCiv7CoastProjection } from "@civ7/map-policy";
 import type { TraceJsonObject } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { captureEngineTerrainClassification } from "../../../../current-engine-surface.js";
+import { measureStandardPlacementSurface } from "../../../../metrics/families/placement-surface.js";
 import { restoreProjectedCoastTerrain } from "../../../../water-surface-parity.js";
 import { logTerrainStats, runPlacementProductStep } from "../../log.js";
-import { PreparePlacementSurfaceStepContract } from "./config.js";
+import { config } from "./config.js";
 import { readFinalLakeProjection } from "./lake-readback.js";
 import { applyLandmassRegionSlots } from "./landmass-regions.js";
-import { readTerrainValidationBoundarySnapshot } from "./terrain-validation-readback.js";
-import { projectPlacementSurfaceDriftViz } from "./viz.js";
+import { readTerrainValidationBoundary } from "./terrain-validation-readback.js";
+import { projectPlacementSurfaceViz } from "./viz.js";
 
 /**
  * Executes the transactional terrain validation, coast restoration, water
  * storage, and region restamping required before placement products read Civ7.
  */
-export const PreparePlacementSurfaceStep = createStep(PreparePlacementSurfaceStepContract, {
-  run: (context, _config, _ops, deps) => {
-    const engineProjectionLakes = deps.artifacts.engineProjectionLakes.read(context);
+export const PreparePlacementSurfaceStep = createStep(config, {
+  run: (context, _stepConfig, _ops, deps) => {
+    const projectedLakes = deps.artifacts.projectedLakes.read(context);
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
     const shelf = deps.artifacts.shelf.read(context);
     const topography = deps.artifacts.topography.read(context);
@@ -42,15 +43,15 @@ export const PreparePlacementSurfaceStep = createStep(PreparePlacementSurfaceSte
       });
     const readAreaId = (x: number, y: number) => deps.engine.getAreaId(context, x, y);
     const initialSurface = readCurrentTerrainClassification();
+    const acceptedLakeMask = projectedLakes.lakeMask;
     logTerrainStats(context, "Initial", initialSurface);
 
-    const beforeValidate = readTerrainValidationBoundarySnapshot(
+    const beforeValidate = readTerrainValidationBoundary(
       initialSurface,
       readAreaId,
       "placement/prepare-surface/before-validate"
     );
-    let afterValidate = beforeValidate;
-    runPlacementProductStep("placement.terrain.validate", emit, () => {
+    const afterValidate = runPlacementProductStep("placement.terrain.validate", emit, () => {
       deps.engine.validateAndFixTerrain(context);
       restoreProjectedCoastTerrain(
         dimensions,
@@ -65,13 +66,13 @@ export const PreparePlacementSurfaceStep = createStep(PreparePlacementSurfaceSte
         "placement/prepare-surface/after-validate"
       );
       const afterValidateSurface = readCurrentTerrainClassification();
-      afterValidate = readTerrainValidationBoundarySnapshot(
+      emit({ type: "placement.terrain.validated" });
+      logTerrainStats(context, "After validateAndFixTerrain", afterValidateSurface);
+      return readTerrainValidationBoundary(
         afterValidateSurface,
         readAreaId,
         "placement/prepare-surface/after-validate"
       );
-      emit({ type: "placement.terrain.validated" });
-      logTerrainStats(context, "After validateAndFixTerrain", afterValidateSurface);
     });
     runPlacementProductStep("placement.areas.recalculate", emit, () => {
       deps.engine.recalculateAreas(context);
@@ -95,15 +96,12 @@ export const PreparePlacementSurfaceStep = createStep(PreparePlacementSurfaceSte
       emit({ type: "placement.landmassRegion.restamped" });
     });
     const afterMaintenanceSurface = readCurrentTerrainClassification();
-    const afterMaintenance = readTerrainValidationBoundarySnapshot(
+    const afterMaintenance = readTerrainValidationBoundary(
       afterMaintenanceSurface,
       readAreaId,
       "placement/prepare-surface/after-maintenance"
     );
-    const finalLakeReadback = readFinalLakeProjection(
-      afterMaintenanceSurface,
-      engineProjectionLakes.lakeMask
-    );
+    const finalLakeReadback = readFinalLakeProjection(afterMaintenanceSurface, acceptedLakeMask);
     emit({ type: "placement.lakes.finalReadback", ...finalLakeReadback });
     console.log(
       `[SWOOPER_MOD] PLACEMENT_SURFACE_PREPARATION_V1 ${JSON.stringify(finalLakeReadback)}`
@@ -117,26 +115,20 @@ export const PreparePlacementSurfaceStep = createStep(PreparePlacementSurfaceSte
       else slotCounts.none += 1;
     }
 
-    deps.artifacts.placementSurfaceValidationBoundary.publish(context, {
-      width,
-      height,
+    return {
+      acceptedLakeMask,
       beforeValidate,
       afterValidate,
       afterMaintenance,
-    });
-
-    deps.artifacts.placementSurfacePreparation.publish(context, {
-      width,
-      height,
       slotCounts,
-      ...finalLakeReadback,
-    });
-
-    return {
-      acceptedLakeMask: engineProjectionLakes.lakeMask as Uint8Array,
-      beforeValidate,
-      afterMaintenance,
+      finalLakeReadback,
     };
   },
-  viz: ({ result, dimensions }) => projectPlacementSurfaceDriftViz({ ...result, dimensions }),
+  metrics: ({ result }) => ({
+    "placement.surfacePreparation": measureStandardPlacementSurface({
+      slotCounts: result.slotCounts,
+      ...result.finalLakeReadback,
+    }),
+  }),
+  viz: ({ result, dimensions }) => projectPlacementSurfaceViz({ ...result, dimensions }),
 });

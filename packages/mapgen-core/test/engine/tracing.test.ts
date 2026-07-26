@@ -10,7 +10,12 @@ import {
   StepRegistry,
 } from "@mapgen/engine/index.js";
 import { createTraceSessionForTest } from "@mapgen/testing/index.js";
-import { sha256Hex, type TraceEvent, TraceEventSchema } from "@mapgen/trace/index.js";
+import {
+  sha256Hex,
+  stableStringify,
+  type TraceEvent,
+  TraceEventSchema,
+} from "@mapgen/trace/index.js";
 import { Type } from "typebox";
 import { Value } from "typebox/value";
 
@@ -206,6 +211,16 @@ describe("pipeline tracing", () => {
     expect(sha256Hex("\ud800")).toBe(
       "83d544ccc223c057d2bf80d3f2a32982c32c3c0db8e2674820da5064783fb097"
     );
+  });
+
+  it("sorts canonical object keys by code unit rather than host locale", () => {
+    expect(
+      stableStringify({
+        camelCase: 1,
+        "kebab-case": 2,
+        Alpha: 3,
+      })
+    ).toBe('{"Alpha":3,"camelCase":1,"kebab-case":2}');
   });
 
   it("emits run/step timing events with runId and plan fingerprint", () => {

@@ -16,7 +16,7 @@ candidate scoring, adapter materialization, or runtime id proof.
   resources appear in generated maps.
 - `openspec/changes/resource-group-plan-rollup`: symbolic group plans remain
   visible upstream of runtime-facing placement.
-- `openspec/changes/resource-stage-architecture`: runtime behavior changes
+- `openspec/changes/archive/2026-07-24-resource-stage-architecture`: runtime behavior changes
   must preserve evidence boundaries and avoid overclaiming hard proof.
 
 ## What Changes

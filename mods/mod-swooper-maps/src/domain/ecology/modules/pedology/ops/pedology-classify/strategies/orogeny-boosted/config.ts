@@ -41,7 +41,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Controls the environmental weights used to classify soils and fertility.",
+      description:
+        "Orogeny-boosted pedology controls. Authored weights establish the baseline before this strategy strengthens relief influence and bounds fertility in uplift-dominated terrain.",
     }
   ),
 });

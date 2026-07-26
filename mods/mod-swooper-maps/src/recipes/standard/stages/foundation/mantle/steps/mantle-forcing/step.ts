@@ -5,7 +5,7 @@ import {
   defineStandardVizMeta,
   STANDARD_VIZ_COLORS,
 } from "../../../../../viz.js";
-import { MantleForcingStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const GROUP_MANTLE = "Foundation / Mantle";
 
@@ -13,8 +13,8 @@ const GROUP_MANTLE = "Foundation / Mantle";
  * Converts mantle potential into the velocity, stress, and vertical forcing
  * vintage shared by lithosphere and tectonic consumers.
  */
-export const MantleForcingStep = createStep(MantleForcingStepContract, {
-  run: (context, config, ops, deps) => {
+export const MantleForcingStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const mantlePotential = deps.artifacts.foundationMantlePotential.read(context);
 
@@ -33,7 +33,7 @@ export const MantleForcingStep = createStep(MantleForcingStepContract, {
           potential: mantlePotential.potential,
         },
       },
-      config.computeMantleForcing
+      stepConfig.computeMantleForcing
     );
 
     deps.artifacts.foundationMantleForcing.publish(context, mantleResult.mantleForcing);

@@ -72,6 +72,10 @@ export interface StructuralGitPort<R = never> {
     repoPath: string,
     options?: { readonly cwd?: string }
   ) => Effect.Effect<string | null, never, R>;
+  readonly showIndex: (
+    repoPath: string,
+    options?: { readonly cwd?: string }
+  ) => Effect.Effect<string | null, never, R>;
 }
 
 export interface StructuralNxPort<R = never> {

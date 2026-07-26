@@ -1,4 +1,3 @@
-import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 /// <reference types="@civ7/types" />
 
 import {
@@ -19,9 +18,13 @@ import {
 } from "@civ7/studio-contract";
 import type { StudioRunGenerationManifest } from "@civ7/studio-run-workspace";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyCoastsArtifacts } from "@mapgen/domain/morphology/modules/coasts/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
+import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
+import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
+import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
 import {
   createLabelRng,
   createMapContext,
@@ -37,18 +40,45 @@ import {
 } from "@swooper/mapgen-core/authoring";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import { compareExactNumericGrids } from "@swooper/mapgen-diagnostics";
+import type { VizGridFieldsProjection, VizProjection } from "@swooper/mapgen-viz";
+import { Value } from "typebox/value";
 import {
   admitStandardMapConfig,
   canonicalRecipeConfig,
   type StandardMapConfigEnvelope,
 } from "../../src/maps/configs/canonical.js";
+import {
+  type StandardDiscoveryPlacementMeasurements,
+  StandardDiscoveryPlacementMeasurementsSchema,
+} from "../../src/recipes/standard/metrics/families/discovery-placement.js";
+import {
+  type StandardFeatureProjectionMeasurements,
+  StandardFeatureProjectionMeasurementsSchema,
+} from "../../src/recipes/standard/metrics/families/ecology-projection.js";
+import {
+  type StandardLakeProjectionMeasurements,
+  StandardLakeProjectionMeasurementsSchema,
+} from "../../src/recipes/standard/metrics/families/hydrology/lake-projection.js";
+import {
+  type StandardPlacementSurfaceMeasurements,
+  StandardPlacementSurfaceMeasurementsSchema,
+} from "../../src/recipes/standard/metrics/families/placement-surface.js";
 import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
-import { artifacts as mapEcologyArtifacts } from "../../src/recipes/standard/stages/map/ecology/artifacts/index.js";
-import { artifacts as mapHydrologyArtifacts } from "../../src/recipes/standard/stages/map/hydrology/artifacts/index.js";
-import { artifacts as mapRiversArtifacts } from "../../src/recipes/standard/stages/map/rivers/artifacts/index.js";
-import { artifacts as placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts/index.js";
 
 const FINAL_SURFACE_KEYS = ["terrain", "biome", "feature", "resource"] as const;
+const PLACEMENT_MAINTENANCE_BOUNDARY_VARIANTS = [
+  "before-validate",
+  "after-validate",
+  "after-maintenance",
+] as const;
+const PLACEMENT_MAINTENANCE_BOUNDARY_FIELDS = [
+  "terrain",
+  "waterMask",
+  "lakeMask",
+  "areaId",
+] as const;
+
+type PlacementMaintenanceBoundaryVariant = (typeof PLACEMENT_MAINTENANCE_BOUNDARY_VARIANTS)[number];
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   if (value == null || typeof value !== "object" || Array.isArray(value)) return false;
@@ -514,9 +544,10 @@ export type CompleteExactAuthorshipEvidence = Extract<
 >;
 
 type LocalTraceEvidence = {
+  discoveryGeneration?: StandardDiscoveryPlacementMeasurements;
   placementParity?: unknown;
   featureIntents?: unknown;
-  featureApplyDiagnostics?: unknown;
+  featureProjection?: StandardFeatureProjectionMeasurements;
   naturalWonderPlan?: unknown;
   naturalWonderPlanInput?: unknown;
   naturalWonderPlacement?: unknown;
@@ -616,6 +647,16 @@ export function runLocalFinalSurfaceSnapshot(
   });
   const context = createMapContext({ setup: plan.setup, adapter });
   const traceEvents: TraceEvent[] = [];
+  let discoveryGeneration: StandardDiscoveryPlacementMeasurements | undefined;
+  let featureProjection: StandardFeatureProjectionMeasurements | undefined;
+  let lakeProjection: StandardLakeProjectionMeasurements | undefined;
+  let placementSurface: StandardPlacementSurfaceMeasurements | undefined;
+  const placementMaintenanceBoundaries = new Map<
+    PlacementMaintenanceBoundaryVariant,
+    VizGridFieldsProjection
+  >();
+  let metricFailure: unknown;
+  let vizFailure: unknown;
 
   standardRecipe.execute(context, plan, {
     trace: {
@@ -623,7 +664,64 @@ export function runLocalFinalSurfaceSnapshot(
       sink: createMemoryTraceSink(traceEvents),
     },
     log: () => {},
+    facets: {
+      metrics: (projection) => {
+        const discoveryCandidate = projection["placement.discoveryGeneration"];
+        if (discoveryCandidate !== undefined) {
+          discoveryGeneration = Value.Parse(
+            StandardDiscoveryPlacementMeasurementsSchema,
+            discoveryCandidate
+          );
+        }
+        const featureCandidate = projection["ecology.featureProjection"];
+        if (featureCandidate !== undefined) {
+          featureProjection = Value.Parse(
+            StandardFeatureProjectionMeasurementsSchema,
+            featureCandidate
+          );
+        }
+        const lakeCandidate = projection["map.hydrology.lakeProjection"];
+        if (lakeCandidate !== undefined) {
+          lakeProjection = Value.Parse(StandardLakeProjectionMeasurementsSchema, lakeCandidate);
+        }
+        const placementCandidate = projection["placement.surfacePreparation"];
+        if (placementCandidate !== undefined) {
+          placementSurface = Value.Parse(
+            StandardPlacementSurfaceMeasurementsSchema,
+            placementCandidate
+          );
+        }
+      },
+      viz: (projections) => {
+        capturePlacementMaintenanceBoundaryProjections(projections, placementMaintenanceBoundaries);
+      },
+      onError: ({ facet, error }) => {
+        if (facet === "metrics") metricFailure = error;
+        if (facet === "viz") vizFailure = error;
+      },
+    },
   });
+  if (metricFailure !== undefined) throw metricFailure;
+  if (vizFailure !== undefined) throw vizFailure;
+  if (!discoveryGeneration) {
+    throw new Error("Local parity replay requires Placement discovery-generation measurements.");
+  }
+  if (!featureProjection) {
+    throw new Error("Local parity replay requires Ecology feature-projection measurements.");
+  }
+  if (!lakeProjection) {
+    throw new Error("Local parity replay requires Hydrology lake-projection measurements.");
+  }
+  if (!placementSurface) {
+    throw new Error("Local parity replay requires Placement surface-preparation measurements.");
+  }
+  for (const variant of PLACEMENT_MAINTENANCE_BOUNDARY_VARIANTS) {
+    if (!placementMaintenanceBoundaries.has(variant)) {
+      throw new Error(
+        `Local parity replay requires Placement maintenance-boundary visualization "${variant}".`
+      );
+    }
+  }
 
   const size = width * height;
   const terrain = new Array<number>(size);
@@ -641,47 +739,50 @@ export function runLocalFinalSurfaceSnapshot(
   }
 
   const evidence: LocalTraceEvidence = {};
+  evidence.discoveryGeneration = discoveryGeneration;
   for (const event of traceEvents) {
     if (event.kind !== "step.event" || !isPlainObject(event.data)) continue;
     if (event.data.type === "placement.parity") evidence.placementParity = event.data;
     if (event.data.type === "naturalWonder.planInput") evidence.naturalWonderPlanInput = event.data;
   }
   evidence.featureIntents = {
-    floodplains: observeArtifact(context, featureArtifacts.featureIntentsFloodplains),
-    vegetation: observeArtifact(context, featureArtifacts.featureIntentsVegetation),
-    wetlands: observeArtifact(context, featureArtifacts.featureIntentsWetlands),
-    reefs: observeArtifact(context, featureArtifacts.featureIntentsReefs),
-    ice: observeArtifact(context, featureArtifacts.featureIntentsIce),
+    floodplains: observeArtifact(context, featureArtifacts.floodplainIntents),
+    vegetation: observeArtifact(context, featureArtifacts.vegetationIntents),
+    wetlands: observeArtifact(context, featureArtifacts.wetlandIntents),
+    reefs: observeArtifact(context, featureArtifacts.reefIntents),
+    ice: observeArtifact(context, featureArtifacts.iceIntents),
   };
-  const featureApplyDiagnostics = observeArtifact(
-    context,
-    mapEcologyArtifacts.featureApplyDiagnostics
-  );
-  if (featureApplyDiagnostics !== undefined) {
-    evidence.featureApplyDiagnostics = featureApplyDiagnostics;
-  }
-  const naturalWonderPlan = observeArtifact(context, placementArtifacts.naturalWonderPlan);
+  evidence.featureProjection = featureProjection;
+  const naturalWonderPlan = observeArtifact(context, placementWonderArtifacts.naturalWonderPlan);
   if (naturalWonderPlan !== undefined) evidence.naturalWonderPlan = naturalWonderPlan;
   const naturalWonderPlacement = observeArtifact(
     context,
-    placementArtifacts.naturalWonderPlacement
+    placementWonderArtifacts.naturalWonderPlacement
   );
   if (naturalWonderPlacement !== undefined)
     evidence.naturalWonderPlacement = naturalWonderPlacement;
-  const resourcePlan = observeArtifact(context, placementArtifacts.resourcePlan);
+  const resourcePlan = observeArtifact(context, resourceSiteArtifacts.resourcePlan);
   if (resourcePlan !== undefined) evidence.resourcePlan = resourcePlan;
   // S5: the stamped intents are the support-ADJUSTED plan; capture it so the
   // per-plot parity join classifies against what was actually stamped.
-  const resourcePlanAdjusted = observeArtifact(context, placementArtifacts.resourcePlanAdjusted);
+  const resourcePlanAdjusted = observeArtifact(
+    context,
+    resourceSupportArtifacts.resourcePlanAdjusted
+  );
   if (resourcePlanAdjusted !== undefined) evidence.resourcePlanAdjusted = resourcePlanAdjusted;
   const resourcePlacementOutcomes = observeArtifact(
     context,
-    placementArtifacts.resourcePlacementOutcomes
+    resourceSiteArtifacts.resourcePlacementOutcomes
   );
   if (resourcePlacementOutcomes !== undefined) {
     evidence.resourcePlacementOutcomes = resourcePlacementOutcomes;
   }
-  evidence.terrainProjection = buildTerrainProjectionEvidence(context);
+  evidence.terrainProjection = buildTerrainProjectionEvidence(
+    context,
+    lakeProjection,
+    placementSurface,
+    placementMaintenanceBoundaries
+  );
   const riverMetadata = buildLocalRiverMetadataSnapshot(context, adapter, width, height);
 
   return {
@@ -712,7 +813,7 @@ function buildLocalRiverMetadataSnapshot(
   width: number,
   height: number
 ): RiverMetadataSnapshot | undefined {
-  const projected = observeArtifact(context, mapRiversArtifacts.projectedNavigableRivers);
+  const projected = observeArtifact(context, hydrographyArtifacts.projectedNavigableRivers);
   if (projected === undefined) return undefined;
   return captureCurrentRiverMetadata(adapter, projected, { width, height });
 }
@@ -751,7 +852,15 @@ export function captureCurrentRiverMetadata(
   }) as RiverMetadataSnapshot;
 }
 
-function buildTerrainProjectionEvidence(context: ReturnType<typeof createMapContext>): unknown {
+function buildTerrainProjectionEvidence(
+  context: ReturnType<typeof createMapContext>,
+  lakeProjection: StandardLakeProjectionMeasurements,
+  placementSurface: StandardPlacementSurfaceMeasurements,
+  placementMaintenanceBoundaries: ReadonlyMap<
+    PlacementMaintenanceBoundaryVariant,
+    VizGridFieldsProjection
+  >
+): unknown {
   const carvedCoastline = observeArtifact(context, morphologyCoastsArtifacts.carvedCoastline);
   const topography = observeArtifact(context, morphologyLandformsArtifacts.topography);
   const shelf = observeArtifact(context, morphologyShelfArtifacts.shelf);
@@ -765,26 +874,7 @@ function buildTerrainProjectionEvidence(context: ReturnType<typeof createMapCont
         })
       : undefined;
   const hydrologyLakePlan = observeArtifact(context, hydrographyArtifacts.lakePlan);
-  const mapHydrologyProjection = observeArtifact(
-    context,
-    mapHydrologyArtifacts.engineProjectionLakes
-  );
-  const hydrologyTerrainSnapshot = observeArtifact(
-    context,
-    mapHydrologyArtifacts.hydrologyLakesEngineTerrainSnapshot
-  );
-  const placementSurfacePreparation = observeArtifact(
-    context,
-    placementArtifacts.placementSurfacePreparation
-  );
-  const placementTerrainSnapshot = observeArtifact(
-    context,
-    placementArtifacts.placementEngineTerrainSnapshot
-  );
-  const placementValidationBoundary = observeArtifact(
-    context,
-    placementArtifacts.placementSurfaceValidationBoundary
-  );
+  const projectedLakes = observeArtifact(context, hydrographyArtifacts.projectedLakes);
   return stripUndefined({
     carvedCoastline: pickSerializableFields(carvedCoastline, [
       "coastalLand",
@@ -811,48 +901,98 @@ function buildTerrainProjectionEvidence(context: ReturnType<typeof createMapCont
       "plannedLakeTileCount",
       "sinkLakeCount",
     ]),
-    mapHydrologyProjection: pickSerializableFields(mapHydrologyProjection, [
-      "width",
-      "height",
-      "lakeMask",
-      "plannedLakeMask",
-      "engineWaterMask",
-      "engineLakeMask",
-      "engineTerrain",
-      "engineAreaId",
-      "terrainMismatchMask",
-      "sinkMismatchCount",
+    projectedLakes: pickSerializableFields(projectedLakes, ["lakeMask"]),
+    lakeProjection: pickSerializableFields(lakeProjection, [
+      "version",
+      "plannedLakeTileCount",
+      "morphologyProtectedLakeTileCount",
+      "stampedLakeTileCount",
+      "rejectedLakeTileCount",
       "nonLakeTileCount",
       "terrainMismatchTileCount",
-      "morphologyProtectedLakeTileCount",
+      "components",
     ]),
-    hydrologyTerrainSnapshot: pickSerializableFields(hydrologyTerrainSnapshot, [
-      "stage",
-      "width",
-      "height",
-      "landMask",
-      "terrain",
-    ]),
-    placementSurfacePreparation: pickSerializableFields(placementSurfacePreparation, [
+    placementSurfacePreparation: pickSerializableFields(placementSurface, [
       "acceptedLakeTileCount",
       "finalLakeWaterDriftCount",
       "finalLakeClassificationDriftCount",
     ]),
-    placementTerrainSnapshot: pickSerializableFields(placementTerrainSnapshot, [
-      "stage",
-      "width",
-      "height",
-      "landMask",
-      "terrain",
-    ]),
-    placementValidationBoundary: pickSerializableFields(placementValidationBoundary, [
-      "width",
-      "height",
-      "beforeValidate",
-      "afterValidate",
-      "afterMaintenance",
-    ]),
+    placementMaintenanceBoundaries: serializePlacementMaintenanceBoundaryEvidence(
+      placementMaintenanceBoundaries,
+      context.setup.dimensions
+    ),
   });
+}
+
+function capturePlacementMaintenanceBoundaryProjections(
+  projections: readonly VizProjection[],
+  captured: Map<PlacementMaintenanceBoundaryVariant, VizGridFieldsProjection>
+): void {
+  for (const projection of projections) {
+    if (
+      projection.kind !== "gridFields" ||
+      projection.dataTypeKey !== "map.placement.surface.maintenanceBoundary" ||
+      !isPlacementMaintenanceBoundaryVariant(projection.variantKey)
+    ) {
+      continue;
+    }
+    if (captured.has(projection.variantKey)) {
+      throw new Error(
+        `Local parity replay received duplicate Placement maintenance-boundary visualization "${projection.variantKey}".`
+      );
+    }
+    captured.set(projection.variantKey, projection);
+  }
+}
+
+function serializePlacementMaintenanceBoundaryEvidence(
+  captured: ReadonlyMap<PlacementMaintenanceBoundaryVariant, VizGridFieldsProjection>,
+  dimensions: Readonly<{ width: number; height: number }>
+): Readonly<Record<PlacementMaintenanceBoundaryVariant, unknown>> {
+  const serializeVariant = (variant: PlacementMaintenanceBoundaryVariant) => {
+    const projection = captured.get(variant);
+    if (!projection) {
+      throw new Error(
+        `Local parity replay requires Placement maintenance-boundary visualization "${variant}".`
+      );
+    }
+    if (
+      projection.dims.width !== dimensions.width ||
+      projection.dims.height !== dimensions.height
+    ) {
+      throw new Error(
+        `Placement maintenance-boundary visualization "${variant}" dimensions ${projection.dims.width}x${projection.dims.height} do not match the admitted ${dimensions.width}x${dimensions.height} map.`
+      );
+    }
+    const fields = Object.fromEntries(
+      PLACEMENT_MAINTENANCE_BOUNDARY_FIELDS.map((fieldName) => {
+        const field = projection.fields[fieldName];
+        if (!field) {
+          throw new Error(
+            `Placement maintenance-boundary visualization "${variant}" is missing field "${fieldName}".`
+          );
+        }
+        return [fieldName, serializeEvidenceValue(field)];
+      })
+    );
+    return {
+      variantKey: variant,
+      dimensions: { ...projection.dims },
+      fields,
+    };
+  };
+
+  return {
+    "before-validate": serializeVariant("before-validate"),
+    "after-validate": serializeVariant("after-validate"),
+    "after-maintenance": serializeVariant("after-maintenance"),
+  };
+}
+
+function isPlacementMaintenanceBoundaryVariant(
+  value: string | undefined
+): value is PlacementMaintenanceBoundaryVariant {
+  return PLACEMENT_MAINTENANCE_BOUNDARY_VARIANTS.some((variant) => variant === value);
 }
 
 function pickSerializableFields(
@@ -1698,9 +1838,7 @@ function buildFloodplainActiveParityReport(
   diffs: ReadonlyArray<SurfaceDiffSummary>
 ): FloodplainActiveParityReport | undefined {
   const localCounters = readFloodplainFeatureApplyCounters(
-    isPlainObject(local.evidence?.featureApplyDiagnostics)
-      ? local.evidence.featureApplyDiagnostics
-      : undefined
+    isPlainObject(local.evidence?.featureProjection) ? local.evidence.featureProjection : undefined
   );
   const exactFeatureApply = exactLogRecord(exact)?.featureApply;
   const exactCounters = readFloodplainFeatureApplyCounters(

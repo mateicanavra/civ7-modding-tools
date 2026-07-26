@@ -1,8 +1,8 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { measureStandardRiverNetwork } from "../../../../../metrics/families/hydrology/river-network.js";
 import { defineStandardVizMeta } from "../../../../../viz.js";
-import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "../../model/policy/hydrography-knob-policy.js";
-import { LakesStepContract } from "./config.js";
+import { applyHydrologyLakeinessPolicy } from "../../model/policy/hydrography-knob-policy.js";
+import { config } from "./config.js";
 
 type HydrologyLakeinessKnob = "few" | "normal" | "many";
 
@@ -13,29 +13,30 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * Derives deterministic lake intent and river-network structure from canonical hydrography;
  * aggregate benchmark evidence is projected to metrics rather than retained as pipeline state.
  */
-export const LakesStep = createStep(LakesStepContract, {
-  normalize: (config, ctx) => {
+export const LakesStep = createStep(config, {
+  normalize: (stepConfig, ctx) => {
     const { lakeiness = "normal" as HydrologyLakeinessKnob } = ctx.knobs as {
       lakeiness?: HydrologyLakeinessKnob;
     };
-    if (config.planLakes.strategy !== "sink-discharge-budget") return config;
+    if (stepConfig.planLakes.strategy !== "sink-discharge-budget") return stepConfig;
 
-    const policy = HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY[lakeiness];
+    const terminalBasinControls = applyHydrologyLakeinessPolicy(
+      stepConfig.planLakes.config,
+      lakeiness
+    );
 
     return {
-      ...config,
+      ...stepConfig,
       planLakes: {
-        ...config.planLakes,
+        ...stepConfig.planLakes,
         config: {
-          ...config.planLakes.config,
-          maxUpstreamSteps: policy.maxUpstreamSteps,
-          sinkDischargePercentileMin: policy.sinkDischargePercentileMin,
-          maxLakeLandFraction: policy.maxLakeLandFraction,
+          ...stepConfig.planLakes.config,
+          ...terminalBasinControls,
         },
       },
     };
   },
-  run: (context, config, ops, deps) => {
+  run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
     const topography = deps.artifacts.topography.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);
@@ -50,7 +51,7 @@ export const LakesStep = createStep(LakesStepContract, {
         discharge: hydrography.discharge,
         sinkMask: hydrography.sinkMask,
       },
-      config.planLakes
+      stepConfig.planLakes
     );
 
     const publishedLakePlan = deps.artifacts.lakePlan.publish(context, {
@@ -75,7 +76,7 @@ export const LakesStep = createStep(LakesStepContract, {
         terminalType: hydrography.terminalType,
         lakeMask: publishedLakePlan.lakeMask,
       },
-      config.classifyRiverNetwork
+      stepConfig.classifyRiverNetwork
     );
 
     const publishedRiverNetwork = deps.artifacts.riverNetwork.publish(context, {

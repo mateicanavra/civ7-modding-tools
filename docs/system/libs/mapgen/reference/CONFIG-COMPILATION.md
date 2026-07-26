@@ -34,11 +34,12 @@ value after that point.
 At a high level, `compileRecipeConfig(...)` does:
 
 1) For each stage:
-   - validate the supplied public stage config unchanged against its authoring
-     schema
+   - validate the supplied complete stage config unchanged against its
+     generated authoring schema
    - run `stage.toInternal({ setup, stageConfig })` to produce:
      - `knobs` (derived tuning values)
-     - `rawSteps` (recipe-produced internal per-step inputs)
+     - `rawSteps` (the ordinary step-config surface, or the output of a rare
+       inline semantic public compiler)
    - error if `toInternal` references unknown step ids
 
 2) For each step in the stage:
@@ -51,9 +52,12 @@ At a high level, `compileRecipeConfig(...)` does:
 The output is per-stage, per-step compiled config that is then inserted into `RecipeV2.steps[].config`.
 
 The step materialization in item 2 is the only defaulting boundary in this
-algorithm. It cannot accept or repair incomplete public recipe config: it runs
-only after a complete public stage value has passed validation and the stage has
-translated that value into an internal step envelope.
+algorithm. It cannot accept or repair incomplete recipe config: it runs only
+after a complete stage value has passed validation. Ordinary stages expose
+their step schemas and bound operation envelopes directly. A full semantic
+public override is exceptional, is defined inline in the concrete stage, and
+earns its compiler by intentionally hiding and translating that internal
+surface.
 
 `MapSetup` is admitted at the run boundary. Step normalization may derive configuration from that
 already-valid physical setup; domain-operation normalization never receives setup and cannot become

@@ -11,7 +11,7 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "advisory",
+  "lane": "enforced",
   "forbids": "nested cabinets or non-TypeScript members inside domain policy roots",
   "why": "Domain policy is a flat set of named static laws owned by its nearest semantic container.",
   "remediate": "Keep named TypeScript policy modules directly under policy; move nested capabilities to their own semantic kind.",

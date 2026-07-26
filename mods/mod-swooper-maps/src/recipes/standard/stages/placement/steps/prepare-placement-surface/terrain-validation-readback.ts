@@ -1,7 +1,7 @@
 import type { CurrentEngineTerrainClassification } from "../../../../current-engine-surface.js";
 
-/** Exact engine terrain and classification snapshot at one maintenance boundary. */
-export type TerrainValidationBoundarySnapshot = Readonly<{
+/** Exact adapter readback of engine terrain and classification at one maintenance boundary. */
+export type TerrainValidationBoundaryReadback = Readonly<{
   stage: string;
   terrain: Int32Array;
   waterMask: Uint8Array;
@@ -14,11 +14,11 @@ export type TerrainValidationBoundarySnapshot = Readonly<{
  * facts around validation/cache boundaries; it does not mutate terrain or
  * authorize terrain policy changes by itself.
  */
-export function readTerrainValidationBoundarySnapshot(
+export function readTerrainValidationBoundary(
   currentSurface: CurrentEngineTerrainClassification,
   readAreaId: (x: number, y: number) => number,
   stage: string
-): TerrainValidationBoundarySnapshot {
+): TerrainValidationBoundaryReadback {
   const { width, height } = currentSurface;
   const areaId = new Int32Array(width * height);
   for (let y = 0; y < height; y++) {

@@ -6,7 +6,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 /**
  * Publishes initial Morphology evidence from Foundation crust and tectonic history.
  */
-export const LandmassPlatesStepContract = defineStep({
+export const config = defineStep({
   id: "landmass-plates",
   requires: [],
   provides: [],

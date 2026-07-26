@@ -4,7 +4,7 @@ import { admitPositiveResourceRegionMinimum } from "@mapgen/domain/resources";
 import resources from "@mapgen/domain/resources/router";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
-import { artifacts as placementArtifacts } from "../../../../src/recipes/standard/stages/placement/artifacts/index.js";
+import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 
 type SelectInput = Parameters<typeof resources.sites.ops.selectResourceSites.run>[0];
 type Demand = Pick<
@@ -243,12 +243,12 @@ describe("select-resource-sites operation contract", () => {
     });
     const result = run(input);
     const context = { dimensions: syntheticDimensions };
-    expect(placementArtifacts.resourcePlan.validate(result, context)).toEqual([]);
+    expect(resourceSiteArtifacts.resourcePlan.validate(result, context)).toEqual([]);
 
     const missing = structuredClone(result);
     missing.perType[0]!.shortfalls.splice(0);
     expect(
-      placementArtifacts.resourcePlan
+      resourceSiteArtifacts.resourcePlan
         .validate(missing, context)
         .some((entry) => entry.message.includes("requires one terminal shortfall"))
     ).toBe(true);
@@ -256,7 +256,7 @@ describe("select-resource-sites operation contract", () => {
     const wrongType = structuredClone(result);
     wrongType.perType[0]!.shortfalls[0]!.resourceType = "RESOURCE_B";
     expect(
-      placementArtifacts.resourcePlan
+      resourceSiteArtifacts.resourcePlan
         .validate(wrongType, context)
         .some((entry) => entry.message.includes("names another resource type"))
     ).toBe(true);
@@ -264,7 +264,7 @@ describe("select-resource-sites operation contract", () => {
     const wrongCount = structuredClone(result);
     wrongCount.perType[0]!.shortfalls[0]!.count += 1;
     expect(
-      placementArtifacts.resourcePlan
+      resourceSiteArtifacts.resourcePlan
         .validate(wrongCount, context)
         .some((entry) => entry.message.includes("terminal deficit"))
     ).toBe(true);
@@ -272,7 +272,7 @@ describe("select-resource-sites operation contract", () => {
     const stale = structuredClone(result);
     stale.perType[0]!.effectiveTargetCount = stale.perType[0]!.plannedCount;
     expect(
-      placementArtifacts.resourcePlan
+      resourceSiteArtifacts.resourcePlan
         .validate(stale, context)
         .some((entry) => entry.message.includes("requires no terminal shortfall"))
     ).toBe(true);

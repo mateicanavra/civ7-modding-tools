@@ -1,119 +1,151 @@
-# Structure + Module Shape (Reference)
+# Domain Structure And Module Shape
 
-This is the reference for **where code lives** and **how modules are shaped** when refactoring a domain to operation modules in this repo.
+This reference describes the active nested MapGen domain model. Executable
+authority lives in `.habitat/blueprints/`; `.habitat/scopes/domain/` explains
+the same model for authors. Historical examples and project notes do not
+override those generic kind laws.
 
-If any existing code (including ecology) conflicts with a hard rule in this workflow package or the linked ADRs/spec, treat the **docs as canonical** and fix the code during the refactor (do not weaken the rule).
+## Ownership Spine
 
-Canonical spec:
-- `docs/projects/engine-refactor-v1/resources/spec/SPEC-step-domain-operation-modules.md`
+```text
+mods/<mod>/src/domain/<domain>/
+  contract.ts
+  router.ts
+  index.ts
+  model/                         # optional vocabulary shared by sibling modules
+    atoms/
+    policy/
+    rules/
+  modules/
+    <module>/
+      contract.ts
+      router.ts
+      index.ts
+      model/                     # optional vocabulary local to this module
+        atoms/
+        policy/
+        rules/
+      artifacts/                 # optional immutable products owned by this module
+        index.ts
+        *.artifact.ts
+      ops/
+        <operation>/
+          contract.ts
+          index.ts
+          rules/                 # optional private implementation rules
+          strategies/
+            index.ts
+            <semantic-id>/
+              config.ts
+              index.ts
+```
 
-Canonical architecture:
-- `docs/projects/engine-refactor-v1/resources/repomix/gpt-config-architecture-converged.md`
+The hierarchy is semantic:
 
-Canonical example:
-- `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/examples/VOLCANO.md`
+- A domain composes module contracts and executable routers.
+- A module owns its operations, immutable artifacts, and local model language.
+- An operation defines one input/output contract shared by every strategy.
+- A strategy leaf owns one semantic configuration definition and one
+  implementation of that operation contract.
+- Model atoms, policy, and rules live at the lowest level that owns their
+  meaning. They rise only when sibling modules genuinely share them.
 
-## Repo map (this repo)
+Closed means closed. Do not add a root `ops.ts`, a flat domain `ops/`, root
+artifacts, `model/schemas`, operation `types.ts`, flat strategy files, generic
+helper cabinets, or compatibility barrels. Content that does not fit the spine
+must descend to its semantic owner, rise to a genuine shared owner, move to an
+exterior authority, or be deleted.
 
-Use these as the **literal roots** when executing the workflow in `civ7-modding-tools`.
+## Aggregate Surfaces
 
-- Standard content package:
-  - Package root: `mods/mod-swooper-maps/` (see `mods/mod-swooper-maps/AGENTS.md`)
-  - Code root: `mods/mod-swooper-maps/src/`
-  - Generated artifacts: `mods/mod-swooper-maps/mod/` (read-only; never hand-edit)
-- Core SDK:
-  - Package root: `packages/mapgen-core/`
-  - Authoring contracts: `packages/mapgen-core/src/authoring/` (`defineStep`, `createStepFor`, `defineOp`, `createOp`)
-  - Plan compilation (config canonicalization boundary): `packages/mapgen-core/src/engine/execution-plan.ts`
-- Standard recipe (stage braid reality):
-  - Recipe root: `mods/mod-swooper-maps/src/recipes/standard/`
-  - Stage order source of truth: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
-- Domains:
-  - Domain root: `mods/mod-swooper-maps/src/domain/<domain>/`
-  - Domain ops: `mods/mod-swooper-maps/src/domain/<domain>/ops/**`
-- Tracking docs:
-  - Domain issue docs: `docs/projects/engine-refactor-v1/issues/**`
-  - Cross-cutting decision log: `docs/projects/engine-refactor-v1/triage.md`
+Each aggregate surface is singular and narrow:
 
-## Domain layout (target shape)
+- Domain `contract.ts` exports the domain contract composed from direct module
+  contracts.
+- Domain `router.ts` exports the executable domain router composed from direct
+  module routers.
+- Domain `index.ts` exports the intended public domain surface.
+- Module `contract.ts` exports the module contract composed from its operation
+  contract registry and artifact catalog.
+- Module `router.ts` binds that contract to the module's executable operations.
+- Module `index.ts` exports the intended public module surface.
+- `artifacts/index.ts` exports the singular artifact catalog.
 
-Domain root:
-- `mods/mod-swooper-maps/src/domain/<domain>/`
+Do not re-export every child contract or implementation beside its aggregate.
+Consumers select through the aggregate they are allowed to know.
 
-Domain contract entrypoint (contract-only; safe to import from step contracts):
-- `mods/mod-swooper-maps/src/domain/<domain>/index.ts`
-  - exports a `defineDomain({ id, ops })` domain contract
-  - must not re-export runtime op implementations
+## Operation And Strategy Shape
 
-Domain ops (contracts + implementations):
-- `mods/mod-swooper-maps/src/domain/<domain>/ops/**` (one op per module)
-- `mods/mod-swooper-maps/src/domain/<domain>/ops/contracts.ts` (aggregates op contracts)
-- `mods/mod-swooper-maps/src/domain/<domain>/ops/index.ts` (aggregates op implementations)
+An operation contract lives in `<operation>/contract.ts` and owns:
 
-Domain public surface:
-- Steps import op contracts through the domain contract entrypoint (`@mapgen/domain/<domain>`, via `domain.ops.<opKey>`).
-- Recipe wiring imports op implementations through `@mapgen/domain/<domain>/ops` (only at the recipe wiring layer).
+- stable semantic id and kind;
+- one inline input schema;
+- one inline output schema;
+- the complete tuple of strategy definitions imported from semantic strategy
+  `config.ts` files.
 
-## Op module shape (one op per module)
+The operation `index.ts` creates one executable operation from that contract
+and the executable strategy tuple in `strategies/index.ts`. It does not export
+an additional type bag or child contract surface.
 
-Each op is a directory module under `ops/**` (no exceptions):
-- `mods/mod-swooper-maps/src/domain/<domain>/ops/<op>/contract.ts` (op contract via `defineOp`)
-- `mods/mod-swooper-maps/src/domain/<domain>/ops/<op>/types.ts` (type-only exports via `OpTypeBag`)
-- `mods/mod-swooper-maps/src/domain/<domain>/ops/<op>/rules/` (pure rule helpers)
-- `mods/mod-swooper-maps/src/domain/<domain>/ops/<op>/rules/index.ts` (runtime barrel)
-- `mods/mod-swooper-maps/src/domain/<domain>/ops/<op>/strategies/` (strategy implementations)
-- `mods/mod-swooper-maps/src/domain/<domain>/ops/<op>/strategies/index.ts` (runtime barrel)
-- `mods/mod-swooper-maps/src/domain/<domain>/ops/<op>/index.ts` (exports exactly one op via `createOp`)
+Each `strategies/<semantic-id>/config.ts` exports one `defineStrategy(...)`
+definition containing the semantic id and authored config schema. Its
+`index.ts` uses `createStrategy(operationContract, strategyDefinition, ...)`
+to implement the shared operation input/output contract. A one-strategy
+operation infers its sole default; a multi-strategy operation explicitly
+selects a semantic default. `"default"` is not a strategy identity.
 
-Directory discipline (canonical):
-- Always create `rules/` and `strategies/` directories for an op, even if one of them remains empty for now.
-- Do not introduce single-file ops or alternate layouts.
+Rules and strategies consume model atoms for shared schema vocabulary. They do
+not import artifact schemas or operation input/output types as a substitute for
+decomposition.
 
-Import direction rules (hard):
-- `contract.ts` never imports from `rules/**` or `strategies/**`.
-- `rules/**` must not import `../contract.js` (type-only or runtime). Use `../types.js` for types and core SDK packages for utilities.
-- `rules/index.ts` is runtime-only; it exports helpers, not types.
-- `strategies/**` import `../contract.js`, `../rules/index.js`, and optionally `../types.js` for type annotations.
-- `index.ts` imports the contract and the strategies barrel, calls `createOp`, then re-exports `*` from `./contract.js` and `type *` from `./types.js`.
+## Artifact Shape
 
-Reference example:
-- `mods/mod-swooper-maps/src/domain/ecology/ops/classify-biomes/index.ts`
+Artifacts belong to the domain module that produces their immutable semantic
+data. Each `*.artifact.ts` file exports one `artifact` created by a single
+weighted `defineArtifact(...)` definition:
 
-## Step module shape (orchestration-only steps)
+- artifact-private schema is authored inline;
+- complete structural and semantic admission is attached through `refine`;
+- only genuinely shared schema primitives come from the owning model's atoms;
+- no detached schema, validator, issue contract, or second artifact authority
+  is exported.
 
-Steps are contract-first and orchestration-only:
-- `contract.ts` contains metadata only (`id`, `phase`, `requires`, `provides`, `schema`).
-- `index.ts` attaches optional `normalize` and required `run` using a bound `createStep` from `createStepFor<TContext>()`.
+Recipe stages do not own domain artifact catalogs. Current engine state is read
+through the invocation-local adapter and is not published as an immutable
+artifact that immediately becomes stale.
 
-Recommended structure:
-- `mods/mod-swooper-maps/src/recipes/standard/stages/<stage>/steps/<step>/contract.ts`
-- `mods/mod-swooper-maps/src/recipes/standard/stages/<stage>/steps/<step>/index.ts`
-- `mods/mod-swooper-maps/src/recipes/standard/stages/<stage>/steps/<step>/lib/**` (helpers; optional)
+## Recipe Boundary
 
-Step logic responsibilities:
-- `contract.ts` defines the schema and dependency metadata only.
-- `contract.ts` declares op contracts via `ops: { <key>: domain.ops.<opKey> }` (and must not deep import implementation paths).
-- `defineStep({ ops })` automatically merges each op contract’s `config` schema into the step schema; step schemas should only define step-owned props.
-- `index.ts` builds inputs, calls injected runtime ops, and publishes artifacts.
-- `lib/**` contains pure helpers (e.g., `inputs.ts`, `apply.ts`) with no registry awareness.
-- Step modules do not bind ops locally; they receive a typed `ops` object as the third arg in `run(context, config, ops)`.
-- Use canonical dependency keys from the standard registry file; do not inline new key strings in refactored steps:
-  - `mods/mod-swooper-maps/src/recipes/standard/tags.ts` (`M3_DEPENDENCY_TAGS`, `M4_EFFECT_TAGS`, `STANDARD_TAG_DEFINITIONS`)
+Step `config.ts` selects operation contracts from public domain/module
+contracts and artifact handles from the exact owning module catalog. Step
+`step.ts` receives executable operations and declared artifact runtimes from
+`createStep`; it does not deep-import operation implementations or access raw
+artifact storage.
 
-Reference example:
-- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/features/index.ts`
+Runtime recipe wiring imports the public domain routers. Stages establish
+recipe order and projection/materialization boundaries; they do not recreate
+domain contracts, artifacts, or policy.
 
-## Standard content config exports (avoid duplication)
+## Enforcement
 
-Standard config schema exports live under:
-- `mods/mod-swooper-maps/src/domain/**/config.ts`
+Before editing unfamiliar domain structure, run:
 
-Rule:
-- When an op owns a config schema, the standard config schema module must **re-export** it from the op contract, not re-author it.
+```text
+bun habitat classify <path>
+```
 
-Reference example (thin re-export pattern):
-- `mods/mod-swooper-maps/src/domain/ecology/config.ts`
+Then run the exact targets and rules it reports. The generic laws under these
+blueprints are the source of structural truth:
 
-Concrete expectation:
-- Refactored step contracts import op contracts from the domain module (`@mapgen/domain/<domain>`, via `domain.ops.*`).
-- The config schema bundle (`@mapgen/domain/config`) remains the canonical author-facing schema surface, but it is a thin barrel over domain-owned op contracts.
+- `.habitat/blueprints/domain/`
+- `.habitat/blueprints/domain-subdomain/`
+- `.habitat/blueprints/domain-operation/`
+- `.habitat/blueprints/domain-operation-strategy/`
+- `.habitat/blueprints/domain-atom/`
+- `.habitat/blueprints/domain-policy/`
+- `.habitat/blueprints/artifact/`
+
+Do not replace those kind laws with recipe-, domain-, module-, or filename
+inventories. Niche rules may narrow a real local invariant, but they never
+redefine the blueprint.

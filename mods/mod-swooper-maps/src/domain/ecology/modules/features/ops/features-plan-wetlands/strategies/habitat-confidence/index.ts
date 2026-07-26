@@ -1,10 +1,10 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
+import type { WetlandFeaturePlacement } from "../../../../model/atoms/index.js";
 import {
   choosePhysicalCandidate,
   confidenceFromScore01,
   stressFromConfidence01,
 } from "../../../../model/policy/feature-score-selection.js";
-import type { FeatureIntentKey } from "../../../../model/atoms/index.js";
 import Contract from "../../contract.js";
 import { admitWetlandIntent } from "../../rules/admit-wetland-intent.js";
 import StrategyDefinition from "./config.js";
@@ -17,13 +17,11 @@ const habitatConfidenceStrategy = createStrategy(Contract, StrategyDefinition, {
     const size = width * height;
     const flatLandMask = input.flatLandMask;
 
-    const placements: Array<{ x: number; y: number; feature: FeatureIntentKey; weight?: number }> =
-      [];
+    const placements: WetlandFeaturePlacement[] = [];
     void input.seed;
 
     for (let i = 0; i < size; i++) {
       if (flatLandMask[i] !== 1) continue;
-      if (input.reserved[i] !== 0) continue;
       if (input.featureOccupancyMask[i] !== 0) continue;
 
       const marsh = input.scoreMarsh01[i] ?? 0;

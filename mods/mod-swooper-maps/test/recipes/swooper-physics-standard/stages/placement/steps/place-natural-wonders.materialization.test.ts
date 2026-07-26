@@ -3,7 +3,7 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter as createBaseMockAdapter, type MockAdapterConfig } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 
-import { artifacts as placementArtifacts } from "../../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
+import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
 import {
   buildNaturalWonderPlacementRuntimeTelemetry,
   stampNaturalWondersFromPlan,
@@ -152,7 +152,7 @@ describe("natural wonder placement materialization", () => {
       requestedCount: 1,
     });
     const validateObserved = (observedNaturalWonderPlotIndices: readonly number[]): string =>
-      placementArtifacts.naturalWonderPlacement
+      placementWonderArtifacts.naturalWonderPlacement
         .validate(
           { ...stats, observedNaturalWonderPlotIndices },
           { dimensions: SYNTHETIC_REDWOOD_DIMENSIONS }
@@ -164,7 +164,7 @@ describe("natural wonder placement materialization", () => {
     expect(validateObserved([10, 9, 13])).toContain("must be sorted in ascending order");
     expect(validateObserved([9, 10, 13, 24])).toContain("exceeds map cell count 24");
     expect(validateObserved([10, 13])).toContain("placed anchor 9 is absent");
-    expect(placementArtifacts.naturalWonderPlacement.validate(stats)).toEqual([]);
+    expect(placementWonderArtifacts.naturalWonderPlacement.validate(stats)).toEqual([]);
   });
 
   it("uses feature-specific terrain policy instead of a generic land-water default", () => {

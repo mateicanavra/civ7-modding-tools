@@ -11,22 +11,22 @@ language js(typescript)
 
 or {
   `$value ?? {}` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/.*/stages/[^/]+/steps/[^/]+/.*\.ts$",
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)+steps/[^/]+/.*\.ts$",
     not { $filename <: r".*/config\.ts$" },
     not { $filename <: r".*\.(?:test|spec)\.ts$" },
     not { $filename <: r".*/(?:__tests__|tests?)/.*\.ts$" }
   },
   `Value.Default($args)` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/.*/stages/[^/]+/steps/[^/]+/.*\.ts$",
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)+steps/[^/]+/.*\.ts$",
     not { $filename <: r".*/config\.ts$" },
     not { $filename <: r".*\.(?:test|spec)\.ts$" },
     not { $filename <: r".*/(?:__tests__|tests?)/.*\.ts$" }
   },
   `$value ?? {}` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$"
+    $filename <: r".*mods/[^/]+/src/domain/.*/ops/.*\.ts$"
   },
   `Value.Default($args)` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$"
+    $filename <: r".*mods/[^/]+/src/domain/.*/ops/.*\.ts$"
   }
 }
 ```
@@ -34,46 +34,46 @@ or {
 ## Matches fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot/step.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/biomes/steps/project-biomes/step.ts
 const config = input.config ?? {};
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot/helpers/runtime.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/biomes/steps/project-biomes/helpers/runtime.ts
 const helperConfig = input.config ?? {};
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/index.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/score-biomes/index.ts
 const config = opConfig ?? {};
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/strategies/default.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/score-biomes/strategies/balanced/index.ts
 const config = strategyConfig ?? {};
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/index.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/score-biomes/index.ts
 const schema = Value.Default(schemaNode);
 ```
 
 ## Ignores fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/index.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/index.ts
 const config = stageConfig ?? {};
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot/config.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/biomes/steps/project-biomes/config.ts
 const config = input.config ?? {};
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot/step.tsx
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/ecology/biomes/steps/project-biomes/step.tsx
 const config = input.config ?? {};
 
-// @filename: mods/other-mod/src/recipes/standard/stages/ecology/steps/plot/step.ts
+// @filename: apps/not-a-mod/src/recipes/sample-recipe/stages/ecology/biomes/steps/project-biomes/step.ts
 const config = input.config ?? {};
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/index.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/score-biomes/index.ts
 const config = input.config ?? { fallback: true };
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/index.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/score-biomes/index.ts
 const config = input.config || {};
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/index.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/score-biomes/index.ts
 const schema = defaults.Value.Default(schemaNode);
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/index.ts
+// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/score-biomes/index.ts
 const source = "config ?? {}";
 ```

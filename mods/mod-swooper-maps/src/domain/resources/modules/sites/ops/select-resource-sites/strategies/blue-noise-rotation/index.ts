@@ -1,7 +1,7 @@
 import type { OfficialResourceType } from "@civ7/map-policy";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
-import type { ResourceRegionMinimumRequirement } from "../../../../model/atoms/region-minimum-requirement.schema.js";
+import type { ResourceRegionMinimumRequirement } from "../../../../../../model/atoms/region-minimum-requirement.schema.js";
 import { spacingFloorFor } from "../../../../model/policy/spacing-floors.js";
 import Contract from "../../contract.js";
 import StrategyDefinition from "./config.js";

@@ -6,11 +6,11 @@ import { artifacts as tectonicsArtifacts } from "@mapgen/domain/foundation/modul
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Defines the ordered tectonic-history computation over stable plate motion and graph
- * identity. It publishes segments, events, era fields, rollups, current state, and provenance
- * as one coherent history vintage.
+ * Defines current plate motion and the ordered tectonic-history computation over
+ * one shared operation configuration. It publishes motion, segments, era fields,
+ * rollups, current state, and provenance as one coherent history vintage.
  */
-export const TectonicsStepContract = defineStep({
+export const config = defineStep({
   id: "tectonics",
   requires: [],
   provides: [],
@@ -20,9 +20,9 @@ export const TectonicsStepContract = defineStep({
       mantleArtifacts.mantleForcing,
       lithosphereArtifacts.initialCrust,
       lithosphereArtifacts.plateGraph,
-      tectonicsArtifacts.plateMotion,
     ],
     provides: [
+      tectonicsArtifacts.plateMotion,
       tectonicsArtifacts.tectonicSegments,
       tectonicsArtifacts.tectonicHistory,
       tectonicsArtifacts.tectonicProvenance,

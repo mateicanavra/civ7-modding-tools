@@ -11,7 +11,7 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "advisory",
+  "lane": "enforced",
   "forbids": "domain router files exposing helpers, implementations, constituent module routers, or any authority besides their singular default createDomainRouter result",
   "why": "A domain router is the executable aggregate over its declared module contracts. Keeping runtime composition to one local contract plus direct module routers preserves the contract/runtime phase boundary and prevents alternate execution surfaces.",
   "remediate": "Import createDomainRouter from @swooper/mapgen-core/authoring, the local ./contract.js default, and each direct module router from ./modules/<module>/router.js; bind them once and default-export only that router.",

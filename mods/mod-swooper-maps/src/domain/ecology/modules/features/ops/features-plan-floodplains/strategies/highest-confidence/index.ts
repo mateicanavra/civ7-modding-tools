@@ -1,15 +1,18 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
+import type {
+  FloodplainFeatureIntentKey,
+  FloodplainFeaturePlacement,
+} from "../../../../model/atoms/index.js";
 import {
   choosePhysicalCandidate,
   confidenceFromScore01,
   stressFromConfidence01,
 } from "../../../../model/policy/feature-score-selection.js";
-import type { FeatureIntentKey } from "../../../../model/atoms/index.js";
 import Contract from "../../contract.js";
 import StrategyDefinition from "./config.js";
 
 type FloodplainCandidate = Readonly<{
-  feature: FeatureIntentKey;
+  feature: FloodplainFeatureIntentKey;
   score01: number;
   tileIndex: number;
 }>;
@@ -21,12 +24,10 @@ const highestConfidenceStrategy = createStrategy(Contract, StrategyDefinition, {
     const height = input.height;
     const size = width * height;
 
-    const placements: Array<{ x: number; y: number; feature: FeatureIntentKey; weight?: number }> =
-      [];
+    const placements: FloodplainFeaturePlacement[] = [];
     void input.seed;
 
     for (let i = 0; i < size; i++) {
-      if (input.reserved[i] !== 0) continue;
       if (input.featureOccupancyMask[i] !== 0) continue;
 
       const candidates: FloodplainCandidate[] = [

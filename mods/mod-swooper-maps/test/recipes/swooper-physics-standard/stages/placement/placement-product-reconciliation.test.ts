@@ -3,21 +3,29 @@ import { describe, expect, it } from "bun:test";
 import {
   createMockAdapter,
   MockAdapter,
+  type OfficialDiscoveryGenerationResult,
   type ResourcePlacementIntent,
   type ResourcePlacementOutcome,
 } from "@civ7/adapter";
 import type { MapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
+import { Value } from "typebox/value";
 
-import { artifacts as placementArtifacts } from "../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
+import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
+import {
+  type StandardDiscoveryPlacementMeasurements,
+  StandardDiscoveryPlacementMeasurementsSchema,
+} from "../../../../../src/recipes/standard/metrics/families/discovery-placement.js";
 import {
   runStandardRecipeTestMap,
   type StandardRecipeTestAdapterInput,
+  type StandardRecipeTestOptions,
 } from "../../fixtures/standard-recipe.js";
 
 type PlacementRecipeHarnessOptions = {
   createAdapter?: (input: StandardRecipeTestAdapterInput) => MockAdapter;
+  execution?: StandardRecipeTestOptions["execution"];
 };
 
 /**
@@ -28,6 +36,7 @@ type PlacementRecipeHarnessOptions = {
  */
 function runStandardPlacementRecipe({
   createAdapter,
+  execution,
 }: PlacementRecipeHarnessOptions = {}): Readonly<{ adapter: MockAdapter; context: MapContext }> {
   const options = {
     mapInfo: {
@@ -39,16 +48,12 @@ function runStandardPlacementRecipe({
     },
   } as const;
   return createAdapter
-    ? runStandardRecipeTestMap({ ...options, createAdapter })
-    : runStandardRecipeTestMap(options);
+    ? runStandardRecipeTestMap({ ...options, createAdapter, execution })
+    : runStandardRecipeTestMap({ ...options, execution });
 }
 
 function readResourceOutcomes(context: ReturnType<typeof runStandardPlacementRecipe>["context"]) {
-  return readValidatedArtifact(context, placementArtifacts.resourcePlacementOutcomes);
-}
-
-function readDiscoveryOutcomes(context: ReturnType<typeof runStandardPlacementRecipe>["context"]) {
-  return readValidatedArtifact(context, placementArtifacts.discoveryPlacementOutcomes);
+  return readValidatedArtifact(context, resourceSiteArtifacts.resourcePlacementOutcomes);
 }
 
 class MismatchingResourceAdapter extends MockAdapter {
@@ -87,21 +92,45 @@ class UntypedResourceRejectionAdapter extends MockAdapter {
   }
 }
 
+class PartiallyAcceptingDiscoveryAdapter extends MockAdapter {
+  override generateOfficialDiscoveries(
+    width: number,
+    height: number,
+    startPositions: ReadonlyArray<number>,
+    polarMargin: number
+  ): OfficialDiscoveryGenerationResult {
+    super.generateOfficialDiscoveries(width, height, startPositions, polarMargin);
+    return { attemptedCount: 7, placedCount: 5 };
+  }
+}
+
 describe("placement reconciliation", () => {
-  it("places resources through typed intents and discoveries through the official generator", () => {
+  it("places resources through typed intents and projects Civ7 discovery-generation counts", () => {
+    let discoveryGeneration: StandardDiscoveryPlacementMeasurements | undefined;
     const { adapter, context } = runStandardPlacementRecipe({
       createAdapter: ({ preset, mapInfo, mapSeed }) =>
-        createMockAdapter({
+        new PartiallyAcceptingDiscoveryAdapter({
           ...preset.dimensions,
           mapInfo,
           mapSizeId: preset.id,
           rng: createLabelRng(mapSeed),
-          officialDiscoveriesPlacedCount: 5,
         }),
+      execution: {
+        facets: {
+          metrics: (projection) => {
+            const candidate = projection["placement.discoveryGeneration"];
+            if (candidate !== undefined) {
+              discoveryGeneration = Value.Parse(
+                StandardDiscoveryPlacementMeasurementsSchema,
+                candidate
+              );
+            }
+          },
+        },
+      },
     });
 
     const resourceOutcomes = readResourceOutcomes(context);
-    const discoveryOutcomes = readDiscoveryOutcomes(context);
     // Snow and the official RESOURCE generator stay off: the mod owns resource
     // placement via typed intents (engine indices + readback).
     expect(adapter.calls.generateSnow.length).toBe(0);
@@ -111,12 +140,16 @@ describe("placement reconciliation", () => {
 
     // Discoveries defer to Civ7's official generator (narrative-coupled type and
     // availability), not a map-side catalog: the step calls it exactly once and
-    // records the observed counts; it never stamps per-tile discovery intents.
+    // never stamps per-tile discovery intents. Its successful observation closes
+    // through metrics rather than a fake causal artifact.
     expect(adapter.calls.generateOfficialDiscoveries.length).toBe(1);
     expect(adapter.calls.stampDiscovery.length).toBe(0);
-    expect(discoveryOutcomes.summary.plannedCount).toBe(5);
-    expect(discoveryOutcomes.summary.placedCount).toBe(5);
-    expect(discoveryOutcomes.summary.rejectedCount).toBe(0);
+    expect(discoveryGeneration).toEqual({
+      version: 1,
+      attemptedCount: 7,
+      placedCount: 5,
+      rejectedCount: 2,
+    });
   });
 
   it("records typed resource rejections without relocation when the engine oracle rejects every intent", () => {

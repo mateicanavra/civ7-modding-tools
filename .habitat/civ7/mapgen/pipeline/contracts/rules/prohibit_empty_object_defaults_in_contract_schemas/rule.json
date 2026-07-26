@@ -22,7 +22,7 @@
       "patterns": [
         "mods/*/src/domain/**/ops/**/contract.ts",
         "mods/*/src/domain/**/ops/**/*.contract.ts",
-        "mods/*/src/recipes/**/stages/*/steps/*/config.ts"
+        "mods/*/src/recipes/*/stages/**/steps/*/config.ts"
       ]
     }
   ],
@@ -38,10 +38,7 @@
     "patternName": "prohibit_empty_object_defaults_in_contract_schemas",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods/mod-swooper-maps/src/recipes",
-        "mods/mod-swooper-maps/src/domain"
-      ]
+      "roots": ["mods"]
     }
   }
 }

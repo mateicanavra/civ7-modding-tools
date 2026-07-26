@@ -1,7 +1,7 @@
 type MapDimensions = Readonly<{ width: number; height: number }>;
 
-/** Detached full-width terrain evidence retained by Swooper projection artifacts. */
-export type EngineHeightfieldSnapshot = Readonly<{
+/** Detached full-width adapter observation retained for placement visualization. */
+export type EngineHeightfieldObservation = Readonly<{
   terrain: Int32Array;
   elevation: Int16Array;
   landMask: Uint8Array;
@@ -32,7 +32,7 @@ export type CurrentEnginePlacementTypes = Readonly<{
   featureType: Int32Array;
 }>;
 
-/** Copies the engine water classification into the land-mask convention used by artifacts. */
+/** Copies the engine water classification into Morphology's land-mask convention. */
 export function engineLandMaskFromWaterMask(waterMask: Uint8Array): Uint8Array {
   return Uint8Array.from(waterMask, (isWater) => (isWater === 1 ? 0 : 1));
 }

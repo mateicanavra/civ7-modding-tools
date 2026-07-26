@@ -20,7 +20,7 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/recipes/**/stages/*/steps/*/config.ts",
+        "mods/*/src/recipes/*/stages/**/steps/*/config.ts",
         "mods/*/src/domain/**/ops/**/contract.ts",
         "mods/*/src/domain/**/ops/**/types.ts",
         "mods/*/src/domain/**/ops/**/index.ts",
@@ -41,10 +41,7 @@
     "patternName": "prohibit_bare_value_export_all_from_contract_surfaces",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods/mod-swooper-maps/src/recipes",
-        "mods/mod-swooper-maps/src/domain"
-      ]
+      "roots": ["mods"]
     }
   }
 }

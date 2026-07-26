@@ -1,60 +1,42 @@
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { PlanIceStepContract } from "./config.js";
+import {
+  assertFeatureIntentCandidatesAvailable,
+  deriveFeatureOccupancy,
+} from "../../model/policy/derive-feature-occupancy.js";
+import { config } from "./config.js";
 
 /**
- * Plans ice from its shared suitability layer after floodplains reserve tiles,
- * publishing truth-only intent and the occupancy snapshot consumed by reefs.
+ * Plans ice from shared suitability after admitted floodplain intents claim their tiles.
  */
-export const PlanIceStep = createStep(PlanIceStepContract, {
-  run: (context, config, ops, deps) => {
-    const base = deps.artifacts.occupancyFloodplains.read(context);
-    const scoreLayers = deps.artifacts.scoreLayers.read(context);
+export const PlanIceStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
+    const floodplainIntents = deps.artifacts.floodplainIntents.read(context);
+    const suitability = deps.artifacts.featureSuitability.read(context);
     const { width, height } = context.setup.dimensions;
+    const featureOccupancyMask = deriveFeatureOccupancy(
+      context.setup.dimensions,
+      floodplainIntents
+    );
 
-    const seed = ctxStepSeed(context, PlanIceStepContract.id, "ecology/plan-ice");
+    const seed = ctxStepSeed(context, config.id, "ecology/plan-ice");
     const placements = ops.planIce(
       {
         width,
         height,
         seed,
-        score01: scoreLayers.layers.ice,
-        featureOccupancyMask: base.featureOccupancyMask,
-        reserved: base.reserved,
+        score01: suitability.layers.ice,
+        featureOccupancyMask,
       },
-      config.planIce
+      stepConfig.planIce
     ).placements;
 
     placements.sort((a, b) => a.y * width + a.x - (b.y * width + b.x));
-
-    const featureOccupancyMask = new Uint8Array(base.featureOccupancyMask);
-    const reserved = new Uint8Array(base.reserved);
-
-    for (const placement of placements) {
-      if (placement.feature !== "ice") {
-        throw new Error(`plan-ice expected ice placements (received ${placement.feature})`);
-      }
-      const x = placement.x | 0;
-      const y = placement.y | 0;
-      if (x < 0 || x >= width || y < 0 || y >= height) {
-        throw new Error(`plan-ice placement out of bounds: (${x},${y})`);
-      }
-      const idx = y * width + x;
-      if (reserved[idx] !== 0) {
-        throw new Error(`plan-ice attempted to claim reserved tileIndex=${idx} (${x},${y})`);
-      }
-      if (featureOccupancyMask[idx] !== 0) {
-        throw new Error(`plan-ice attempted to claim occupied tileIndex=${idx} (${x},${y})`);
-      }
-      featureOccupancyMask[idx] = 1;
-    }
-
-    deps.artifacts.featureIntentsIce.publish(context, placements);
-    deps.artifacts.occupancyIce.publish(context, {
-      width,
-      height,
+    assertFeatureIntentCandidatesAvailable(
+      context.setup.dimensions,
       featureOccupancyMask,
-      reserved,
-    });
+      placements
+    );
+    deps.artifacts.iceIntents.publish(context, placements);
   },
 });

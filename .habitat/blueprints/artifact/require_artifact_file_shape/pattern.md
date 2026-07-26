@@ -33,7 +33,7 @@ predicate disallowed_public_artifact_dependency($source) {
 }
 
 predicate disallowed_domain_module_artifact_dependency($source) {
-  ! $source <: r"^[\"']?(?:@swooper/mapgen-core/(?:authoring/contracts|lib(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*)|@civ7/(?:types|map-policy)|@mapgen/domain/[a-z0-9]+(?:-[a-z0-9]+)*|(?:\.\./model|(?:\.\./){3}model)/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js)[\"']?$"
+  ! $source <: r"^[\"']?(?:@swooper/mapgen-core/(?:authoring/contracts|lib(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*)|@civ7/(?:types|map-policy)|(?:\.\./model|(?:\.\./){3}model)/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js)[\"']?$"
 }
 
 or {

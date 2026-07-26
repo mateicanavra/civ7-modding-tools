@@ -1,6 +1,10 @@
 import { type Static, Type } from "typebox";
 
-export const HookNameSchema = Type.Union([Type.Literal("pre-commit"), Type.Literal("pre-push")]);
+export const HookNameSchema = Type.Union([
+  Type.Literal("agent-stop"),
+  Type.Literal("pre-commit"),
+  Type.Literal("pre-push"),
+]);
 export type HookName = Static<typeof HookNameSchema>;
 
 export const ResourceStateKindSchema = Type.Union([

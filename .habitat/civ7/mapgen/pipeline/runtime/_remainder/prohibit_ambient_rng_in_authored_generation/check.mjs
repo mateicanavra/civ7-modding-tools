@@ -9,9 +9,6 @@ import {
   walkFiles,
 } from "../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs";
 
-const allowed = new Set([
-  "src/recipes/standard/stages/placement/steps/place-discoveries/materialize.ts:official-discovery-generator",
-]);
 const roots = [path.join(modRoot, "src/domain"), path.join(modRoot, "src/recipes/standard")];
 const patterns = [
   { name: "direct-adapter-rng", re: /\.\s*getRandomNumber\s*\(/u },
@@ -47,7 +44,10 @@ for (const file of roots.flatMap((root) => walkFiles(root, [".ts"]))) {
     const line = lines[i] ?? "";
     for (const { name, re } of patterns) {
       if (!re.test(line)) continue;
-      if (allowed.has(`${rel}:${name}`)) continue;
+      // Step contracts explicitly select engine capabilities, and createStep narrows
+      // deps.engine to that declared set. The type-owned capability boundary is the
+      // positive authority; this remainder rule only catches ambient/direct access.
+      if (name.startsWith("official-") && /\bdeps\.engine\./u.test(line)) continue;
       findings.push({ file: repoRel(file), line: i + 1, rule: name, detail: line.trim() });
     }
     if (inAuthoredGeneration && /from\s+["']@swooper\/mapgen-core\/lib\/rng/u.test(line)) {

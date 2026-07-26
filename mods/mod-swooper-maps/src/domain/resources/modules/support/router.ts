@@ -1,9 +1,11 @@
 import { createDomainSubdomainRouter } from "@swooper/mapgen-core/authoring";
 
 import contract from "./contract.js";
-import implementations from "./ops/index.js";
+import adjustResourceSupport from "./ops/adjust-resource-support/index.js";
 
 /** Executable post-start resource-support branch. */
-const support = createDomainSubdomainRouter(contract, implementations);
+const support = createDomainSubdomainRouter(contract, {
+  adjustResourceSupport,
+});
 
 export default support;

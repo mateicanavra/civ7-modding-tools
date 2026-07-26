@@ -121,16 +121,16 @@ Step contracts use the same artifact object for requirements and provisions. `cr
 behavior only:
 
 ```ts
-const PlateGraphStepContract = defineStep({
+export const config = defineStep({
   // ...id, tags, ops, and schema...
   artifacts: {
     provides: [artifacts.plateGraph],
   },
 });
 
-createStep(PlateGraphStepContract, {
-  run: (context, config, ops, deps) => {
-    const plateGraph = buildPlateGraph(context, config, ops);
+createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
+    const plateGraph = buildPlateGraph(context, stepConfig, ops);
     deps.artifacts.plateGraph.publish(context, plateGraph);
   },
 });

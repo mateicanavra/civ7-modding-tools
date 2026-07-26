@@ -1,10 +1,7 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import type { FeatureIntentKey } from "../../../../model/atoms/index.js";
+import type { ReefFeaturePlacement } from "../../../../model/atoms/index.js";
 import PlanReefsContract from "../../contract.js";
-import {
-  admitReefIntent,
-  selectReefIntentCandidate,
-} from "../../rules/admit-reef-intent.js";
+import { admitReefIntent, selectReefIntentCandidate } from "../../rules/admit-reef-intent.js";
 import StrategyDefinition from "./config.js";
 
 /**
@@ -17,12 +14,10 @@ const diagonalStrideStrategy = createStrategy(PlanReefsContract, StrategyDefinit
     const height = input.height;
     const size = width * height;
 
-    const placements: Array<{ x: number; y: number; feature: FeatureIntentKey; weight?: number }> =
-      [];
+    const placements: ReefFeaturePlacement[] = [];
     void input.seed;
 
     for (let i = 0; i < size; i++) {
-      if (input.reserved[i] !== 0) continue;
       if (input.featureOccupancyMask[i] !== 0) continue;
 
       const best = selectReefIntentCandidate(input, i);

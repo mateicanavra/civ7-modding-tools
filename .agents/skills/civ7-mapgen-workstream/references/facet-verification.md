@@ -60,7 +60,7 @@ When the branch resolves to **display**, the fix is one of a small set of files 
 **Caveat — wrong layer *metadata* is not a Studio fix.**
 `meta.categories` / `meta.palette` / `meta.label` / `dataTypeKey` /
 `variantKey` are recipe-owned. The current authoring surface is the owning
-step's optional `createStep(contract, { viz })` facet; legacy steps may still
+step's optional `createStep(config, { viz })` facet; legacy steps may still
 emit through `context.viz.dumpGrid/dumpPoints/dumpSegments/dumpGridFields` while
 they migrate. Private helpers belong in `steps/<step>/viz.ts`; shared owner-stage
 helpers belong in `stages/<stage-root>/viz.ts`, where `<stage-root>` is the

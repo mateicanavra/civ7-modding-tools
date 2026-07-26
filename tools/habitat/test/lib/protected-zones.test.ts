@@ -3,9 +3,9 @@ import {
   declarationForFileLayerRule,
   defaultHostPolicyDocument,
   evaluateProtectedMutationGuard,
+  parseStagedPathsFromNameStatus,
   readHostPolicyState,
   runFileLayerProtectedMutationRule,
-  stagedPathsFromNameStatus,
   unavailableHostPolicyState,
 } from "@habitat/cli/service/model/host/index";
 import { describe, expect, test } from "vitest";
@@ -126,13 +126,36 @@ describe("protected zone file-layer execution", () => {
     expect(result.diagnostics[0]?.severity).toBe("error");
   });
 
-  test("classifies rename and copy name-status paths", () => {
-    expect(stagedPathsFromNameStatus("R100\0old.ts\0new.ts\0C100\0a.ts\0b.ts\0")).toEqual([
-      { path: "old.ts", action: "renamed-from" },
-      { path: "new.ts", action: "renamed-to" },
-      { path: "a.ts", action: "copied-from" },
-      { path: "b.ts", action: "copied-to" },
-    ]);
+  test("preserves add, modify, delete, rename, and copy name-status actions", () => {
+    expect(
+      parseStagedPathsFromNameStatus(
+        "A\0added.ts\0M\0modified.ts\0D\0deleted.ts\0R100\0old.ts\0new.ts\0C100\0a.ts\0b.ts\0"
+      )
+    ).toEqual({
+      ok: true,
+      paths: [
+        { path: "added.ts", action: "added" },
+        { path: "modified.ts", action: "modified" },
+        { path: "deleted.ts", action: "deleted" },
+        { path: "old.ts", action: "renamed-from" },
+        { path: "new.ts", action: "renamed-to" },
+        { path: "a.ts", action: "copied-from" },
+        { path: "b.ts", action: "copied-to" },
+      ],
+    });
+  });
+
+  test.each([
+    ["missing terminal NUL", "D\0deleted.ts"],
+    ["missing deleted path", "D\0"],
+    ["incomplete rename", "R100\0old.ts\0"],
+    ["unknown status", "Q\0path.ts\0"],
+    ["type-change status", "T\0path.ts\0"],
+    ["unmerged status", "U\0path.ts\0"],
+    ["rename score above 100", "R101\0old.ts\0new.ts\0"],
+    ["copy score above 100", "C999\0old.ts\0new.ts\0"],
+  ])("refuses %s in cached name-status output", (_, output) => {
+    expect(parseStagedPathsFromNameStatus(output)).toMatchObject({ ok: false });
   });
 
   test("returns not-applicable decisions for clean staged paths", () => {

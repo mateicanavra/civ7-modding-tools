@@ -7,7 +7,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  * adjacency. It deliberately follows Foundation projection because its topology is derived
  * from the projected raster vintage.
  */
-export const PlateTopologyStepContract = defineStep({
+export const config = defineStep({
   id: "plate-topology",
   requires: [],
   provides: [],

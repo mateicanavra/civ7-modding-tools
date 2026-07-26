@@ -5,7 +5,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 /**
  * Publishes the landmass decomposition artifact from the final land mask.
  */
-export const LandmassesStepContract = defineStep({
+export const config = defineStep({
   id: "landmasses",
   requires: [],
   provides: [],

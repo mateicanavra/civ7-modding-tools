@@ -1,10 +1,8 @@
-import { collectMaskComponentsOddQ } from "@swooper/mapgen-core/lib/grid";
 import {
   type ComponentMetricSummary,
   type CountMetric,
   countMetricMask,
   measureMetricCount,
-  summarizeMetricComponents,
 } from "@swooper/mapgen-metrics";
 
 import type { StandardMapCapture } from "../capture.js";
@@ -20,12 +18,13 @@ export type StandardGeographyMetrics = Readonly<{
   shelfBeyondShoreline: CountMetric;
   plannedLakes: CountMetric;
   projectedLakes: CountMetric;
+  lakeProjectionCandidateCount: number;
+  lakeProjectionProtectedCount: number;
   projectedLakeComponents: ComponentMetricSummary;
   singleTileLakeTiles: CountMetric;
-  lakeWaterDriftCount: number;
+  lakeProjectionRejectedCount: number;
   finalLakeWaterDriftCount: number;
   finalLakeClassificationDriftCount: number;
-  lakeProjectionMismatchCount: number;
 }>;
 
 /** Measures geography from copied recipe-model and observed engine evidence without judgment. */
@@ -33,12 +32,11 @@ export function measureStandardGeography(capture: StandardMapCapture): StandardG
   const { width, height } = capture.provenance;
   const tileCount = width * height;
   const plannedLand = countMetricMask(capture.model.landMask);
-  const projectedLakeCount = countMetricMask(capture.projection.lakeMask).count;
+  const projectedLakeCount = capture.projection.lakes.stampedLakeTileCount;
   let realizedWaterCount = 0;
   let coastWaterCount = 0;
   let deepOceanCount = 0;
   let shelfBeyondShorelineCount = 0;
-  let lakeWaterDriftCount = 0;
 
   for (let index = 0; index < tileCount; index += 1) {
     const water = capture.observation.isWater[index] === 1;
@@ -48,7 +46,6 @@ export function measureStandardGeography(capture: StandardMapCapture): StandardG
       if (terrain === capture.observation.coastTerrain) coastWaterCount += 1;
       if (terrain === capture.observation.oceanTerrain) deepOceanCount += 1;
     }
-    if (capture.projection.lakeMask[index] === 1 && !water) lakeWaterDriftCount += 1;
     if (
       capture.model.shelfMask[index] === 1 &&
       capture.model.coastalWater[index] === 0 &&
@@ -58,9 +55,7 @@ export function measureStandardGeography(capture: StandardMapCapture): StandardG
     }
   }
 
-  const projectedLakeComponents = summarizeMetricComponents(
-    collectMaskComponentsOddQ({ mask: capture.projection.lakeMask, width, height })
-  );
+  const projectedLakeComponents = capture.projection.lakes.components;
   const realizedLandCount = tileCount - realizedWaterCount;
   return Object.freeze({
     tileCount,
@@ -75,14 +70,16 @@ export function measureStandardGeography(capture: StandardMapCapture): StandardG
       plannedLand.count
     ),
     projectedLakes: measureMetricCount(projectedLakeCount, plannedLand.count),
+    lakeProjectionCandidateCount: capture.projection.lakes.plannedLakeTileCount,
+    lakeProjectionProtectedCount: capture.projection.lakes.morphologyProtectedLakeTileCount,
     projectedLakeComponents,
     singleTileLakeTiles: measureMetricCount(
       projectedLakeComponents.singleTileComponentCount,
       projectedLakeCount
     ),
-    lakeWaterDriftCount,
-    finalLakeWaterDriftCount: capture.projection.finalLakeWaterDriftCount,
-    finalLakeClassificationDriftCount: capture.projection.finalLakeClassificationDriftCount,
-    lakeProjectionMismatchCount: capture.projection.lakeSinkMismatchCount,
+    lakeProjectionRejectedCount: capture.projection.lakes.rejectedLakeTileCount,
+    finalLakeWaterDriftCount: capture.projection.placementSurface.finalLakeWaterDriftCount,
+    finalLakeClassificationDriftCount:
+      capture.projection.placementSurface.finalLakeClassificationDriftCount,
   });
 }

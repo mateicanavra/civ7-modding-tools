@@ -86,6 +86,12 @@ describe("Standard map product metrics", () => {
       count: resources.placedCount,
       population: resources.placedCount,
     });
+    expect(first.metrics.placement.discoveryGeneration).toEqual({
+      version: 1,
+      attemptedCount: 0,
+      placedCount: 0,
+      rejectedCount: 0,
+    });
     expect(
       resources.placedInHabitatByPhase.rotation.population +
         resources.placedInHabitatByPhase["range-floor"].population +

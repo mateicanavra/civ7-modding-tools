@@ -11,7 +11,7 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "advisory",
+  "lane": "enforced",
   "forbids": "artifact owner files outside their canonical one-object authority, closed dependency, export, and admission shape",
   "why": "Artifact owners define immutable MapGen data products. Exact-file acquisition lets Grit require one exported artifact = defineArtifact(...) authority without searching unrelated mod source. The artifact owns its complete payload schema and optional relational refinement inline; imported atoms may contribute smaller primitives and cohesive subentities but never replace that root container. Core constructs structural validation and composes the refinement into the same authority.",
   "remediate": "In *.artifact.ts, export only artifact = defineArtifact({ name, id, schema: Type.*(...), refine?: (...) => ... }) plus erased TypeScript types. Compose exact imported atom files only for smaller schema parts. Never use a detached or imported whole schema as the artifact root, delegate refinement to another binding, export a second runtime authority, or reimplement structural TypeBox admission.",

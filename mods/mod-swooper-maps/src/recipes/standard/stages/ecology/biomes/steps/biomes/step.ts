@@ -6,7 +6,7 @@ import {
   assertBiomeIndexVizCategoriesCoverSymbols,
   BIOME_INDEX_VIZ_CATEGORIES,
 } from "../../viz.js";
-import { BiomesStepContract } from "./config.js";
+import { config } from "./config.js";
 
 const GROUP_BIOMES = "Ecology / Biomes";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
@@ -15,8 +15,8 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * Classifies refined climate, soil, cryosphere, and topography into stable
  * biome truth; Civ7 biome IDs remain owned by the later map-ecology projection.
  */
-export const BiomesStep = createStep(BiomesStepContract, {
-  run: (context, config, ops, deps) => {
+export const BiomesStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
 
     const climateIndices = deps.artifacts.climateIndices.read(context);
@@ -37,7 +37,7 @@ export const BiomesStep = createStep(BiomesStepContract, {
         soilType: pedology.soilType,
         fertility: pedology.fertility,
       },
-      config.classify
+      stepConfig.classify
     );
 
     const size = width * height;

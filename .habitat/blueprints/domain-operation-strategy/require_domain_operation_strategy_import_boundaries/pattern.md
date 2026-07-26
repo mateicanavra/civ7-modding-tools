@@ -8,12 +8,13 @@ semantic id and authored config schema, with no executable behavior and no
 dependency on its operation contract. Each leaf implementation binds that
 strategy definition to the local operation contract, owns optional
 configuration normalization and deterministic execution, and may
-compose private algorithm vocabulary, policy, and rules owned by the same
-operation. Both leaf roles may consume dependencies from ancestor model owners,
+compose private algorithm vocabulary and rules owned by the same operation.
+Semantic policy comes from the nearest module or domain model owner. Both leaf
+roles may consume dependencies from ancestor model owners,
 regardless of how deeply an operation is nested; the domain-model structure law
-owns the allowed children beneath `model/`. Cross-domain
-dependencies must use an admitted public domain root or public model surface;
-private sibling-operation and cross-domain interiors remain forbidden. Both
+owns the allowed children beneath `model/`. Cross-domain dependencies must
+name the exact public model owner; whole domain contract roots, private sibling
+operations, and cross-domain interiors remain forbidden. Both
 roles may consume shared map policy. Among MapGen Core surfaces, configs use
 only authoring contracts; implementations may also use the public Core root,
 authoring, and library computation surfaces. The package export map and
@@ -35,7 +36,7 @@ predicate disallowed_strategy_config_dependency($source) {
 }
 
 predicate disallowed_strategy_implementation_dependency($source) {
-  ! $source <: r"^[\"']?(?:@civ7/map-policy|@mapgen/domain/[a-z0-9]+(?:-[a-z0-9]+)*(?:/index\.js|/(?:model|modules/[a-z0-9]+(?:-[a-z0-9]+)*/model)/(?:[a-z0-9]+(?:-[a-z0-9]+)*/)*(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*)\.js)?|@swooper/mapgen-core(?:/authoring(?:/contracts)?|/lib(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*)?|\./config\.js|\.\./\.\./contract\.js|\.\./\.\./(?:policy|rules)/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){4,}model/(?:[a-z0-9]+(?:-[a-z0-9]+)*/)*(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*)\.js)[\"']?$"
+  ! $source <: r"^[\"']?(?:@civ7/map-policy|@mapgen/domain/[a-z0-9]+(?:-[a-z0-9]+)*/(?:model|modules/[a-z0-9]+(?:-[a-z0-9]+)*/model)/(?:[a-z0-9]+(?:-[a-z0-9]+)*/)*(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*)\.js|@swooper/mapgen-core(?:/authoring(?:/contracts)?|/lib(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*)?|\./config\.js|\.\./\.\./contract\.js|\.\./\.\./rules/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){4,}model/(?:[a-z0-9]+(?:-[a-z0-9]+)*/)*(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*)\.js)[\"']?$"
 }
 
 or {
@@ -163,7 +164,6 @@ import { RIVER_CLASS } from "@mapgen/domain/hydrology/model/policy/river-class.j
 import { LAKE_POLICY } from "@mapgen/domain/hydrology/modules/hydrography/model/policy/lakes.js";
 import OperationContract from "../../contract.js";
 import strategyDefinition from "./config.js";
-import { RELIEF_POLICY } from "../../policy/index.js";
 import { computeRelief } from "../../rules/compute-relief.js";
 import { normalizeRelief } from "../../rules/index.js";
 import { TileClassSchema } from "../../../../model/atoms/tile-class.schema.js";
@@ -179,7 +179,6 @@ export default createStrategy(OperationContract, strategyDefinition, {
         GLOBAL_RELIEF_CAP +
         MOUNTAIN_POLICY +
         WORLD_POLICY +
-        RELIEF_POLICY +
         RIVER_CLASS +
         LAKE_POLICY,
       TileClassSchema,
