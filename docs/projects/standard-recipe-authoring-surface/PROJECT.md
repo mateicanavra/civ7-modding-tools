@@ -1,5 +1,5 @@
 # Project: Standard Recipe Authoring Surface Cleanup
-**Status:** Active
+**Status:** Complete
 **Timeline:** 2026-05-31 -> stacked cleanup train
 **Teams:** MapGen / Swooper Maps
 
@@ -12,9 +12,9 @@ defaults and bounds, deterministic compilation into internal stage/step/op
 config, and no accidental exposure of private strategy parameters, stale legacy
 options, projection plumbing, generated-only internals, or runtime artifacts.
 
-This project is downstream of existing authority. It does not replace the
-architecture normalization packet, the flat stage config invariant, or the
-public config boundary OpenSpec work.
+This project is a historical execution record. Current authoring authority lives
+in the architecture normalization packet and canonical MapGen system docs;
+completed OpenSpec slices do not remain live design authority.
 
 ## Authority
 

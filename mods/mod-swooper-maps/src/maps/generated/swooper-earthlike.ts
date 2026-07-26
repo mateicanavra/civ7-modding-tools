@@ -539,15 +539,9 @@ const mapConfig = {
         }
       }
     },
-    "map-morphology": {
-      "knobs": {}
-    },
-    "map-hydrology": {
-      "knobs": {}
-    },
-    "map-elevation": {
-      "knobs": {}
-    },
+    "map-morphology": {},
+    "map-hydrology": {},
+    "map-elevation": {},
     "map-rivers": {
       "knobs": {
         "navigableRiverDensity": "normal"
@@ -745,20 +739,7 @@ const mapConfig = {
         }
       }
     },
-    "map-ecology": {
-      "knobs": {},
-      "biomeBindings": {
-        "snow": "BIOME_TUNDRA",
-        "tundra": "BIOME_TUNDRA",
-        "boreal": "BIOME_TUNDRA",
-        "temperateDry": "BIOME_PLAINS",
-        "temperateHumid": "BIOME_GRASSLAND",
-        "tropicalSeasonal": "BIOME_PLAINS",
-        "tropicalRainforest": "BIOME_TROPICAL",
-        "desert": "BIOME_DESERT",
-        "marine": "BIOME_MARINE"
-      }
-    },
+    "map-ecology": {},
     "placement": {
       "knobs": {},
       "naturalWonders": {
@@ -828,7 +809,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-earthlike",
-  configHash: "12f6eef320ec308a50562cd6ea8d43b5cbcc865497001e7542157ff50a91d2ce",
-  envelopeHash: "d9e016e0ccb38fc139e86f49127647b974e5aaa7752681d7aad0d40a81a56fb8",
+  configHash: "2bbeb31cb441c1d35b2b2fd86413b755ee39c1a89a875ff68966a49bbc591be9",
+  envelopeHash: "6e751739884a5109dcb14fb3c6048d33b5b6c56de04cf7b2eec0f086c3722950",
   config: mapConfig.config,
 });

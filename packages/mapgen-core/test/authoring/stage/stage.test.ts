@@ -20,7 +20,13 @@ const TEST_SETUP = admitMapSetup({
 describe("authoring SDK", () => {
   const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 
-  const makeContract = (id: string, schema = EmptyStepConfigSchema) =>
+  const makeContract = <
+    const Id extends string,
+    const Schema extends TObject = typeof EmptyStepConfigSchema,
+  >(
+    id: Id,
+    schema: Schema = EmptyStepConfigSchema as Schema
+  ) =>
     defineStep({
       id,
       requires: [],
@@ -95,6 +101,149 @@ describe("authoring SDK", () => {
     const created = Value.Create(schema);
     expect(() => Value.Assert(schema, created)).not.toThrow();
     expect(created).toEqual({ "stage-a": { knobs: {}, "step-a": { value: 1 } } });
+  });
+
+  it("represents configurationless compiled stages as one closed empty authored object", () => {
+    const stepSchema = Type.Object(
+      { amount: Type.Number({ default: 1 }) },
+      { additionalProperties: false }
+    );
+    const step = createStep(makeContract("step-a", stepSchema), { run: () => {} });
+    let observedSetup = TEST_SETUP;
+    const stage = createStage({
+      id: "fixed-stage",
+      compile: ({ setup, knobs, config }) => {
+        observedSetup = setup;
+        expect(knobs).toBe(config);
+        expect(Object.isFrozen(knobs)).toBe(true);
+        return { "step-a": { amount: setup.dimensions.width } };
+      },
+      steps: [step],
+    });
+
+    const schema = deriveRecipeConfigSchema([stage]);
+    expect(Value.Create(schema)).toEqual({ "fixed-stage": {} });
+    expect(Value.Check(schema, { "fixed-stage": {} })).toBe(true);
+    expect(Value.Check(schema, { "fixed-stage": { knobs: {} } })).toBe(false);
+    expect(Value.Check(schema, { "fixed-stage": { "step-a": {} } })).toBe(false);
+    expect(stage.authoring.config.layer).toBe("configurationless");
+    expect(stage.authoring.config.focusPathsByStepId).toEqual({ "step-a": [] });
+    expect(stage.toInternal({ setup: TEST_SETUP, stageConfig: {} }).rawSteps).toEqual({
+      "step-a": { amount: TEST_SETUP.dimensions.width },
+    });
+    expect(observedSetup).toBe(TEST_SETUP);
+  });
+
+  it("infers configurationless stage surfaces from closed empty step schemas", () => {
+    const stepA = createStep(makeContract("step-a"), { run: () => {} });
+    const stepB = createStep(makeContract("step-b"), { run: () => {} });
+    const stage = createStage({
+      id: "fixed-stage",
+      steps: [stepA, stepB] as const,
+    });
+
+    expect(Value.Create(stage.surfaceSchema)).toEqual({});
+    expect(Value.Check(stage.surfaceSchema, {})).toBe(true);
+    expect(Value.Check(stage.surfaceSchema, { "step-a": {} })).toBe(false);
+    expect(stage.authoring.config.layer).toBe("configurationless");
+    expect(stage.authoring.config.focusPathsByStepId).toEqual({ "step-a": [], "step-b": [] });
+    expect(stage.toInternal({ setup: TEST_SETUP, stageConfig: {} })).toEqual({
+      knobs: {},
+      rawSteps: {},
+    });
+  });
+
+  it("keeps real knobs while inferring empty step configuration", () => {
+    const step = createStep(makeContract("step-a"), { run: () => {} });
+    const stage = createStage({
+      id: "knobs-only",
+      knobsSchema: Type.Object(
+        { enabled: Type.Boolean({ default: true }) },
+        { additionalProperties: false }
+      ),
+      steps: [step] as const,
+    });
+
+    expect(Value.Create(stage.surfaceSchema)).toEqual({ knobs: { enabled: true } });
+    expect(Value.Check(stage.surfaceSchema, { knobs: { enabled: false } })).toBe(true);
+    expect(Value.Check(stage.surfaceSchema, { knobs: { enabled: false }, "step-a": {} })).toBe(
+      false
+    );
+    expect(
+      stage.toInternal({ setup: TEST_SETUP, stageConfig: { knobs: { enabled: false } } })
+    ).toEqual({ knobs: { enabled: false }, rawSteps: {} });
+  });
+
+  it("keeps only nonempty step config on mixed internal stages", () => {
+    const emptyStep = createStep(makeContract("empty-step"), { run: () => {} });
+    const configuredStep = createStep(
+      makeContract(
+        "configured-step",
+        Type.Object({ amount: Type.Number({ default: 2 }) }, { additionalProperties: false })
+      ),
+      { run: () => {} }
+    );
+    const stage = createStage({
+      id: "mixed-stage",
+      steps: [emptyStep, configuredStep] as const,
+    });
+
+    expect(Value.Create(stage.surfaceSchema)).toEqual({ "configured-step": { amount: 2 } });
+    expect(Value.Check(stage.surfaceSchema, { "configured-step": { amount: 3 } })).toBe(true);
+    expect(
+      Value.Check(stage.surfaceSchema, { "empty-step": {}, "configured-step": { amount: 3 } })
+    ).toBe(false);
+    expect(stage.authoring.config.layer).toBe("internal-step-config");
+    expect(stage.authoring.config.focusPathsByStepId).toEqual({
+      "empty-step": [],
+      "configured-step": ["configured-step"],
+    });
+  });
+
+  it("rejects dynamically keyed step config before empty-surface inference", () => {
+    const dynamicStep = createStep(
+      makeContract(
+        "dynamic-step",
+        Type.Object(
+          {},
+          {
+            additionalProperties: false,
+            patternProperties: { "^x-": Type.Number() },
+          }
+        )
+      ),
+      { run: () => {} }
+    );
+
+    expect(() => createStage({ id: "dynamic-stage", steps: [dynamicStep] })).toThrow(
+      'Complete recipe config object at "stage/dynamic-stage/dynamic-step" must use statically named properties'
+    );
+  });
+
+  it("keeps real knobs as the only authored field on knobs-only compiled stages", () => {
+    const step = createStep(makeContract("step-a"), { run: () => {} });
+    const stage = createStage({
+      id: "knobs-only",
+      knobsSchema: Type.Object(
+        { enabled: Type.Boolean({ default: true }) },
+        { additionalProperties: false }
+      ),
+      compile: ({ knobs, config }) => {
+        expect(knobs).toEqual({ enabled: false });
+        expect(Object.isFrozen(config)).toBe(true);
+        return { "step-a": {} };
+      },
+      steps: [step],
+    });
+
+    expect(Value.Create(stage.surfaceSchema)).toEqual({ knobs: { enabled: true } });
+    expect(Value.Check(stage.surfaceSchema, { knobs: { enabled: false } })).toBe(true);
+    expect(Value.Check(stage.surfaceSchema, { knobs: { enabled: false }, "step-a": {} })).toBe(
+      false
+    );
+    expect(
+      stage.toInternal({ setup: TEST_SETUP, stageConfig: { knobs: { enabled: false } } }).rawSteps
+    ).toEqual({ "step-a": {} });
   });
 
   it("derives required recipe objects and preserves only composable annotations", () => {
@@ -213,18 +362,6 @@ describe("authoring SDK", () => {
           { additionalProperties: false }
         ),
       ],
-      [
-        "record",
-        Type.Object(
-          {
-            nested: Type.Record(
-              Type.String(),
-              Type.Object({ amount: optional() }, { additionalProperties: false })
-            ),
-          },
-          { additionalProperties: false }
-        ),
-      ],
     ];
 
     for (const [label, publicSchema] of cases) {
@@ -238,6 +375,26 @@ describe("authoring SDK", () => {
         })
       ).toThrow(new RegExp(`stage/public-${label}/.*amount.*optional`));
     }
+  });
+
+  it("rejects dynamically keyed records from complete recipe configuration", () => {
+    const step = createStep(makeContract("alpha"), { run: () => {} });
+    const publicSchema = Type.Object(
+      { nested: Type.Record(Type.String(), Type.Number()) },
+      { additionalProperties: false }
+    );
+
+    expect(() =>
+      createStage({
+        id: "public-record",
+        knobsSchema: EmptyKnobsSchema,
+        public: publicSchema,
+        compile: () => ({ alpha: {} }),
+        steps: [step],
+      })
+    ).toThrow(
+      'Complete recipe config object at "stage/public-record/nested" must use statically named properties'
+    );
   });
 
   it("rejects optional properties on internal stage surfaces", () => {
@@ -499,7 +656,7 @@ describe("authoring SDK", () => {
       id: "foundation",
       knobsSchema: EmptyKnobsSchema,
       public: publicSchema,
-      compile: () => ({ knobs: {} }),
+      compile: () => ({ knobs: {} }) as unknown as { alpha?: unknown },
       steps: [step],
     });
     expect(() => stage.toInternal({ setup: TEST_SETUP, stageConfig: { climate: 1 } })).toThrow(

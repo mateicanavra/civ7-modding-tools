@@ -10,8 +10,10 @@ type TileBucket = {
   placements: Placement[];
 };
 
+const MAX_FEATURES_PER_TILE = 1;
+
 export const defaultStrategy = createStrategy(FeaturesApplyContract, "default", {
-  run: (input, config) => {
+  run: (input) => {
     // Stamping is strict in M3: no probabilistic gating and no silent drops.
     // Any collision (multiple placements for a tile) is treated as a bug and fails loudly.
     // Weight semantics are forbidden: allow only unset/1 so legacy fudging can't leak through.
@@ -30,9 +32,9 @@ export const defaultStrategy = createStrategy(FeaturesApplyContract, "default", 
 
         const key = `${x},${y}`;
         const tile = seen.get(key) ?? { x, y, placements: [] };
-        if (tile.placements.length >= config.maxPerTile) {
+        if (tile.placements.length >= MAX_FEATURES_PER_TILE) {
           throw new Error(
-            `features-apply collision: tile=(${x},${y}) has >${config.maxPerTile} placements (example feature=${placement.feature})`
+            `features-apply collision: tile=(${x},${y}) has >${MAX_FEATURES_PER_TILE} placements (example feature=${placement.feature})`
           );
         }
 

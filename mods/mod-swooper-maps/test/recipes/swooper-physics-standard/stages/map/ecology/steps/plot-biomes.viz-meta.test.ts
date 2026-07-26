@@ -1,20 +1,24 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { Value } from "typebox/value";
-import { resolveEngineBiomeIds } from "../../../../../../../src/recipes/standard/stages/map-ecology/steps/plot-biomes/engine-biome-bindings.js";
+import { resolveEngineBiomeIds } from "../../../../../../../src/recipes/standard/stages/map-ecology/steps/plot-biomes/biome-projection-policy.js";
 import { buildEngineBiomeIdVizCategories } from "../../../../../../../src/recipes/standard/stages/map-ecology/viz.js";
-import { BiomeEngineBindingsSchema } from "../../../../../../../src/recipes/standard/stages/map-projection-public-config.js";
 import { TEST_MAP_SIZE } from "../../../../../../map-size.js";
 
 describe("plot biomes viz meta (engine biomeId)", () => {
+  it("refuses projection when an official Civ7 biome global is unavailable", () => {
+    expect(() => resolveEngineBiomeIds({ getBiomeGlobal: () => -1 })).toThrow(
+      "missing biome global"
+    );
+  });
+
   it("declares explicit stable categories/colors for engine biomeId", () => {
     const adapter = createMockAdapter({
       ...TEST_MAP_SIZE.dimensions,
       mapInfo: TEST_MAP_SIZE.mapInfo,
     });
 
-    const resolved = resolveEngineBiomeIds(adapter, Value.Create(BiomeEngineBindingsSchema));
+    const resolved = resolveEngineBiomeIds(adapter);
     const categoriesA = buildEngineBiomeIdVizCategories(resolved);
     const categoriesB = buildEngineBiomeIdVizCategories(resolved);
 

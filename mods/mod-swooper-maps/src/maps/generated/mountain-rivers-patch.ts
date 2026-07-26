@@ -529,15 +529,9 @@ const mapConfig = {
         }
       }
     },
-    "map-morphology": {
-      "knobs": {}
-    },
-    "map-hydrology": {
-      "knobs": {}
-    },
-    "map-elevation": {
-      "knobs": {}
-    },
+    "map-morphology": {},
+    "map-hydrology": {},
+    "map-elevation": {},
     "map-rivers": {
       "knobs": {
         "navigableRiverDensity": "normal"
@@ -735,20 +729,7 @@ const mapConfig = {
         }
       }
     },
-    "map-ecology": {
-      "knobs": {},
-      "biomeBindings": {
-        "snow": "BIOME_TUNDRA",
-        "tundra": "BIOME_TUNDRA",
-        "boreal": "BIOME_TUNDRA",
-        "temperateDry": "BIOME_PLAINS",
-        "temperateHumid": "BIOME_GRASSLAND",
-        "tropicalSeasonal": "BIOME_PLAINS",
-        "tropicalRainforest": "BIOME_TROPICAL",
-        "desert": "BIOME_DESERT",
-        "marine": "BIOME_MARINE"
-      }
-    },
+    "map-ecology": {},
     "placement": {
       "naturalWonders": {
         "minSpacingTiles": 6
@@ -828,7 +809,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountain-rivers-patch",
-  configHash: "8812fb44107af5caf63714f611e86cf00b1329b156dd2b4ab7f15f8d6f59d671",
-  envelopeHash: "b2bdab48cc4d9c0bdeef0ec6b98a9248b22973edb677f5e6d7763e3ba87b7178",
+  configHash: "eee589d35c932251ef0c7eb655110c3c4b7327eeae574c7235d8ffb5f8b4eccf",
+  envelopeHash: "615fa5b28b3c24a39d3a2ab1c96e88836f0f2d378ff2833cb34cde230e158e14",
   config: mapConfig.config,
 });

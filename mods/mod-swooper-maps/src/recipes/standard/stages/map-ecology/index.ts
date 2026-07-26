@@ -1,18 +1,8 @@
-import { createStage, Type } from "@swooper/mapgen-core/authoring";
+import { createStage } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import { MapEcologyPublicSchema } from "../map-projection-public-config.js";
 import { FeaturesApplyStep } from "./steps/features-apply/step.js";
 import { PlotBiomesStep } from "./steps/plot-biomes/step.js";
 import { PlotEffectsStep } from "./steps/plot-effects/step.js";
-
-const MapEcologyKnobsSchema = Type.Object(
-  {},
-  {
-    additionalProperties: false,
-    description:
-      "Map ecology knobs. Ecology projection currently has no author-facing stage knobs.",
-  }
-);
 
 /**
  * Engine-facing Ecology projection.
@@ -23,13 +13,8 @@ const MapEcologyKnobsSchema = Type.Object(
  */
 export default createStage({
   id: "map-ecology",
-  knobsSchema: MapEcologyKnobsSchema,
-  public: MapEcologyPublicSchema,
-  compile: ({ config }: { config: { biomeBindings: unknown } }) => ({
-    "plot-biomes": { bindings: config.biomeBindings },
-    "features-apply": {},
-    "plot-effects": {},
-  }),
+  // The apply operation is fixed projection policy, not an author-facing envelope.
+  compile: () => ({}),
   steps: orderStandardStageSteps("map-ecology", {
     "plot-biomes": PlotBiomesStep,
     "features-apply": FeaturesApplyStep,

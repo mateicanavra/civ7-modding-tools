@@ -722,34 +722,15 @@ const mapConfig = {
         "minConfidence01": 0.5
       }
     },
-    "map-morphology": {
-      "knobs": {}
-    },
-    "map-hydrology": {
-      "knobs": {}
-    },
-    "map-elevation": {
-      "knobs": {}
-    },
+    "map-morphology": {},
+    "map-hydrology": {},
+    "map-elevation": {},
     "map-rivers": {
       "knobs": {
         "navigableRiverDensity": "dense"
       }
     },
-    "map-ecology": {
-      "knobs": {},
-      "biomeBindings": {
-        "snow": "BIOME_TUNDRA",
-        "tundra": "BIOME_TUNDRA",
-        "boreal": "BIOME_TUNDRA",
-        "temperateDry": "BIOME_PLAINS",
-        "temperateHumid": "BIOME_GRASSLAND",
-        "tropicalSeasonal": "BIOME_PLAINS",
-        "tropicalRainforest": "BIOME_TROPICAL",
-        "desert": "BIOME_DESERT",
-        "marine": "BIOME_MARINE"
-      }
-    },
+    "map-ecology": {},
     "placement": {
       "knobs": {},
       "naturalWonders": {
@@ -829,7 +810,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "shattered-ring",
-  configHash: "9b1dea61486ccc6d615835e7b01b4531f294573ca058b87e06f572d75139dfd9",
-  envelopeHash: "6e53b105dab7c40483a79ed8e083799b1abea46f8ea78dcf16494c55eef34f3e",
+  configHash: "22b72427dbe1a6ec31dd71c4219a21371052c4bc91399b9b4ff2fc4164a3298b",
+  envelopeHash: "9579e9bf306e9996037f37029a86ec5856f2fe67f871c5fcb05651b64605dfa1",
   config: mapConfig.config,
 });

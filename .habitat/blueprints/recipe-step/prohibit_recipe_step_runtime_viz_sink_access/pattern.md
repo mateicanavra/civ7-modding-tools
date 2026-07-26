@@ -11,13 +11,13 @@ language js(typescript)
 
 or {
   `$target.viz` where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/.*\.ts$",
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*steps/[^/]+/.*\.ts$",
     not { $filename <: r".*/config\.ts$" },
     not { $filename <: r".*\.(?:test|spec)\.ts$" },
     not { $filename <: r".*/(?:__tests__|tests?)/.*\.ts$" }
   },
   `$target["viz"]` where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/.*\.ts$",
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*steps/[^/]+/.*\.ts$",
     not { $filename <: r".*/config\.ts$" },
     not { $filename <: r".*\.(?:test|spec)\.ts$" },
     not { $filename <: r".*/(?:__tests__|tests?)/.*\.ts$" }

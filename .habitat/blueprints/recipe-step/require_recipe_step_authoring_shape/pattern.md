@@ -20,25 +20,25 @@ language js(typescript)
 
 or {
   program(statements=$body) where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/config\.ts$",
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*steps/[^/]+/config\.ts$",
     ! $body <: contains `export const $contract = defineStep($args)`
   },
   `export const $contract = defineStep($args)` where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/config\.ts$",
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*steps/[^/]+/config\.ts$",
     ! $contract <: r"^[A-Z][A-Za-z0-9]*StepContract$"
   },
   `export const $contract = defineStep($args)` where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/([^/]+)/config\.ts$"($step_id),
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*steps/([^/]+)/config\.ts$"($step_id),
     ! $args <: `{ $..., id: "$step_id", $... }`
   },
   `defineStep({ $..., phase: $_, $... })` where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/config\.ts$"
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*steps/[^/]+/config\.ts$"
   },
   `defineStep({ $..., stageId: $_, $... })` where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/config\.ts$"
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*steps/[^/]+/config\.ts$"
   },
   program(statements=$body) where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/config\.ts$",
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*steps/[^/]+/config\.ts$",
     $calls = [],
     $body <: some bubble($calls) $statement where {
       $statement <: contains bubble($calls) `defineStep($_)` as $call where {
@@ -49,21 +49,21 @@ or {
     ! $call_count <: 1
   },
   program(statements=$body) where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/step\.ts$",
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*steps/[^/]+/step\.ts$",
     ! $body <: contains `export const $step = createStep($contract, $implementation)`
   },
   `export const $step = createStep($contract, $implementation)` where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/step\.ts$",
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*steps/[^/]+/step\.ts$",
     ! $step <: r"^[A-Z][A-Za-z0-9]*Step$"
   },
   `createStep($_, { $..., phase: $_, $... })` where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/step\.ts$"
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*steps/[^/]+/step\.ts$"
   },
   `createStep($_, { $..., stageId: $_, $... })` where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/step\.ts$"
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*steps/[^/]+/step\.ts$"
   },
   program(statements=$body) where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/step\.ts$",
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*steps/[^/]+/step\.ts$",
     $calls = [],
     $body <: some bubble($calls) $statement where {
       $statement <: contains bubble($calls) `createStep($_)` as $call where {
@@ -79,7 +79,7 @@ or {
     `export { $..., $value as default, $... } from $source`,
     `export { $..., default, $... } from $source`
   } where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/(?:config|step)\.ts$"
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*steps/[^/]+/(?:config|step)\.ts$"
   }
 }
 ```

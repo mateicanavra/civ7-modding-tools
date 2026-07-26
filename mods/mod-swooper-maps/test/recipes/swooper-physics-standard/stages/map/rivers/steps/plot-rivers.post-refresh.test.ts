@@ -382,12 +382,7 @@ describe("map-rivers/plot-rivers", () => {
         promotedOceanToCoast: 0,
       });
 
-      LakesStep.run(
-        context,
-        { projectionReadback: true },
-        {},
-        buildStepTestDependencies(LakesStep)
-      );
+      LakesStep.run(context, {}, {}, buildStepTestDependencies(LakesStep));
       PlotRiversStep.run(
         context,
         {

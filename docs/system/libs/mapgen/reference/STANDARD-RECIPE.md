@@ -25,10 +25,11 @@ Active MapGen / Swooper Maps normalization work is governed by
 This reference records the current standard recipe surface, but parts of it are
 known to be transitional during the OpenSpec change train:
 
-- Config posture uses flat stage surfaces. Stages without a public transform use
-  `{ knobs?, [stepId]?: stepConfig }`; stages with an explicit public+compile
-  transform use `{ knobs?, [publicKey]?: publicConfig }`. Persisted SDK-native
-  `advanced` wrappers are rejected.
+- Config posture uses flat, closed stage surfaces. Internal stages use
+  `{ knobs?, [stepId]?: stepConfig }`; compiled stages use
+  `{ knobs?, [publicKey]?: publicConfig }`. A compiled stage with no authored
+  controls persists exactly `{}` while still compiling fixed step config.
+  Persisted SDK-native `advanced` wrappers and fictional empty knobs are rejected.
 - Import boundaries and guardrails are updated by their respective
   `openspec/changes/normalize-*` slices.
 
@@ -101,8 +102,10 @@ Stage-level posture:
 
 - Wrapper-only `advanced` stage surfaces have been removed. Step overrides live
   at `<stageId>.<stepId>`.
-- Projection `map-*` stages expose semantic projection/materialization controls
-  and compile empty runtime steps, readback, and fixed defaults internally.
+- Projection `map-*` stages compile fixed materialization step config without
+  exposing empty knobs or public schemas. `map-rivers` retains its real
+  `navigableRiverDensity` knob; the fixed Swooper biome-to-Civ7 projection policy
+  stays beside `plot-biomes` rather than becoming authored configuration.
   `map-hydrology` projects the final-refined rainfall surface, then stamps static
   lake water before `map-elevation` builds engine elevation; `map-rivers`
   projects the Civ-visible navigable river terrain subset from Hydrology river

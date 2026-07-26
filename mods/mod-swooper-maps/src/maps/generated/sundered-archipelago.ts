@@ -721,34 +721,15 @@ const mapConfig = {
         "minConfidence01": 0.5
       }
     },
-    "map-morphology": {
-      "knobs": {}
-    },
-    "map-hydrology": {
-      "knobs": {}
-    },
-    "map-elevation": {
-      "knobs": {}
-    },
+    "map-morphology": {},
+    "map-hydrology": {},
+    "map-elevation": {},
     "map-rivers": {
       "knobs": {
         "navigableRiverDensity": "dense"
       }
     },
-    "map-ecology": {
-      "knobs": {},
-      "biomeBindings": {
-        "snow": "BIOME_TUNDRA",
-        "tundra": "BIOME_TUNDRA",
-        "boreal": "BIOME_TUNDRA",
-        "temperateDry": "BIOME_PLAINS",
-        "temperateHumid": "BIOME_GRASSLAND",
-        "tropicalSeasonal": "BIOME_PLAINS",
-        "tropicalRainforest": "BIOME_TROPICAL",
-        "desert": "BIOME_DESERT",
-        "marine": "BIOME_MARINE"
-      }
-    },
+    "map-ecology": {},
     "placement": {
       "knobs": {},
       "naturalWonders": {
@@ -828,7 +809,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "sundered-archipelago",
-  configHash: "8b8947f819fc7cda7032aada9f93e0f991e6637e8fe4d1a37a1e9defbf442a32",
-  envelopeHash: "c9a19437b8ffa165706faac939ae0bc3888426dc0e5dfeb65fe164c77b911756",
+  configHash: "d4145983528afb63b2e8ff9c2697affe0336ae79fd033e570b1056a99812176d",
+  envelopeHash: "862b22040930b82af51a13154ff148d42f325f8501aa8a40fda29ba606a945da",
   config: mapConfig.config,
 });

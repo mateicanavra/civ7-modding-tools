@@ -9,7 +9,7 @@ import {
 import { RecipeCompileError } from "@mapgen/compiler/recipe-compile.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
 import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
-import { Type } from "typebox";
+import { type TObject, Type } from "typebox";
 import { Value } from "typebox/value";
 
 const baseSetup = admitMapSetup({
@@ -19,7 +19,13 @@ const baseSetup = admitMapSetup({
 });
 const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 
-const makeContract = (id: string, schema = EmptyStepConfigSchema) =>
+const makeContract = <
+  const Id extends string,
+  const Schema extends TObject = typeof EmptyStepConfigSchema,
+>(
+  id: Id,
+  schema: Schema = EmptyStepConfigSchema as Schema
+) =>
   defineStep({
     id,
     requires: [],
@@ -134,7 +140,14 @@ describe("recipe authoring", () => {
 
     expect(() =>
       recipe.compile(baseSetup, {
-        foundation: { knobs: {}, alpha: { count: 1, extra: "nope" } },
+        foundation: {
+          knobs: {},
+          alpha: {
+            count: 1,
+            // @ts-expect-error Runtime admission independently rejects unknown step config keys.
+            extra: "nope",
+          },
+        },
       })
     ).toThrow(RecipeCompileError);
   });
@@ -148,7 +161,7 @@ describe("recipe authoring", () => {
       stages: [stage],
       compileOpsById: {},
     });
-    const config = { foundation: { knobs: {}, alpha: {} } };
+    const config = { foundation: { knobs: {} } };
     const admittedSetup = admitMapSetup({
       mapSeed: 42,
       dimensions: { width: 2, height: 2 },

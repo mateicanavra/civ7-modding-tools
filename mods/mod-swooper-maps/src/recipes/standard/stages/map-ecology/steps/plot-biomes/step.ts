@@ -6,23 +6,23 @@ import {
   STANDARD_VIZ_COLORS,
 } from "../../../../viz.js";
 import { buildEngineBiomeIdVizCategories } from "../../viz.js";
+import { resolveEngineBiomeIds } from "./biome-projection-policy.js";
 import { PlotBiomesStepContract } from "./config.js";
-import { resolveEngineBiomeIds } from "./engine-biome-bindings.js";
 import { clampToByte } from "./helpers/apply.js";
 
 const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 /**
- * Binds Ecology biome symbols to configured Civ7 IDs, applies them to land,
+ * Binds Ecology biome symbols to the fixed Swooper Civ7 policy, applies them to land,
  * and publishes the binding evidence consumed by placement.
  */
 export const PlotBiomesStep = createStep(PlotBiomesStepContract, {
-  run: (context, config, _ops, deps) => {
+  run: (context, _config, _ops, deps) => {
     const { width, height } = context.setup.dimensions;
     const classification = deps.artifacts.biomeClassification.read(context);
     const topography = deps.artifacts.topography.read(context);
-    const engineBiomeIds = resolveEngineBiomeIds(context.adapter, config.bindings);
+    const engineBiomeIds = resolveEngineBiomeIds(context.adapter);
     const { land: engineBindings, marine: marineBiome } = engineBiomeIds;
 
     const size = width * height;

@@ -1,0 +1,23 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "recipe-stage-collections"
+root = "mods/*/src/recipes/*/stages"
+kind = "directory"
+mode = "closed"
+allowed = ["+([a-z0-9])*(-+([a-z0-9]))"]
+
+[[scopes]]
+name = "recipe-stage-family-or-stage-containers"
+root = "mods/*/src/recipes/*/stages/+([a-z0-9])*(-+([a-z0-9]))"
+kind = "directory"
+mode = "closed"
+allowed = [
+  "+([a-z0-9])*(-+([a-z0-9]))",
+  "index.ts",
+  "steps",
+  "artifacts",
+  "viz.ts",
+  "log.ts",
+  "public.config.ts",
+]

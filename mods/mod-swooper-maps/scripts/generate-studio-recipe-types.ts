@@ -29,11 +29,41 @@ function stableJson(value: unknown): JsonObject {
   return parsed;
 }
 
+function schemaForTypeGeneration(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(schemaForTypeGeneration);
+  if (!value || typeof value !== "object") return value;
+
+  const schema = Object.fromEntries(
+    Object.entries(value).map(([key, child]) => [key, schemaForTypeGeneration(child)])
+  ) as JsonObject;
+  const properties = schema.properties;
+  const patternProperties = schema.patternProperties;
+  const hasNoNamedProperties =
+    properties !== null &&
+    typeof properties === "object" &&
+    !Array.isArray(properties) &&
+    Object.keys(properties).length === 0;
+  const hasNoPatternProperties =
+    patternProperties === undefined ||
+    (patternProperties !== null &&
+      typeof patternProperties === "object" &&
+      !Array.isArray(patternProperties) &&
+      Object.keys(patternProperties).length === 0);
+
+  if (
+    schema.type === "object" &&
+    schema.additionalProperties === false &&
+    hasNoNamedProperties &&
+    hasNoPatternProperties
+  ) {
+    schema.tsType = "Readonly<Record<string, never>>";
+  }
+  return schema;
+}
+
 type StageLike = Readonly<{
   id: string;
-  knobsSchema: TObject;
   steps: readonly Readonly<{ contract: Readonly<{ id: string; schema: TSchema }> }>[];
-  public?: TObject;
   surfaceSchema: TObject;
   authoring: StageAuthoringModel;
   toInternal: (args: { setup: unknown; stageConfig: unknown }) => {
@@ -228,13 +258,17 @@ await writeFile(
   resolve(pkgRoot, "dist", "recipes", "standard.defaults.json"),
   JSON.stringify(standardDefaultsClean, null, 2)
 );
-const standardConfigTypes = await compile(standardSchemaJson, "StandardRecipeConfig", {
-  bannerComment: "",
-  style: {
-    singleQuote: false,
-    semi: true,
-  },
-});
+const standardConfigTypes = await compile(
+  schemaForTypeGeneration(standardSchemaJson) as JsonObject,
+  "StandardRecipeConfig",
+  {
+    bannerComment: "",
+    style: {
+      singleQuote: false,
+      semi: true,
+    },
+  }
+);
 
 const standardDts = [
   `import type { RecipeModule } from "@swooper/mapgen-core/authoring";`,

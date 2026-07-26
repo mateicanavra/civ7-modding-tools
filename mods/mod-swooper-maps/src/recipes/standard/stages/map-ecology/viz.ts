@@ -2,7 +2,7 @@ import { BIOME_SYMBOL_ORDER, type BiomeSymbol } from "@mapgen/domain/ecology";
 import type { VizLayerCategory } from "@swooper/mapgen-viz";
 
 import { BIOME_INDEX_VIZ_CATEGORIES } from "../ecology-biomes/viz.js";
-import type { ResolvedEngineBiomeIds } from "./steps/plot-biomes/engine-biome-bindings.js";
+import type { resolveEngineBiomeIds } from "./steps/plot-biomes/biome-projection-policy.js";
 
 const MARINE_LABEL = "marine";
 type NumericVizLayerCategory = VizLayerCategory & Readonly<{ value: number }>;
@@ -25,7 +25,7 @@ function colorForBiomeSymbol(symbol: BiomeSymbol): VizLayerCategory["color"] {
  * - Colors reuse the truth biome palette where possible.
  */
 export function buildEngineBiomeIdVizCategories(
-  args: ResolvedEngineBiomeIds
+  args: ReturnType<typeof resolveEngineBiomeIds>
 ): readonly [NumericVizLayerCategory, ...NumericVizLayerCategory[]] {
   const byEngineId = new Map<number, { symbols: BiomeSymbol[]; marine: boolean }>();
 

@@ -186,8 +186,10 @@ Studio, presets, docs, tests, and migration scripts. Leaving it unresolved makes
 every stage cleanup uncertain.
 
 **Normalization principle:** use one default stage authoring surface:
-`{ knobs?, [stepId]?: stepConfig }`. Keep `public + compile` only for genuine
-surface transforms.
+`{ knobs?, [stepId]?: stepConfig }`. Compile presence denotes a semantic
+authoring transform; when that transform has no knobs or public keys, the exact
+persisted surface is `{}` and fixed step configuration remains private. Keep a
+public schema only for genuine authored controls.
 
 ### 3. Ownership And Colocation Drift
 
@@ -363,6 +365,11 @@ plans, occupancy, and final projection inputs.
 they consume truth artifacts and own projection/materialization effects,
 adapter writes, `artifact:map.*` handoffs, parity diagnostics, or
 projection-specific knobs.
+
+Projection behavior does not itself create authored configuration. Fixed
+projection stages use configurationless compiled surfaces; Swooper-specific
+binding policy stays local to its projection step and official Civ7 identities
+come from Civ7 policy.
 
 If a `map-*` stage exists only for Studio grouping, debug navigation, or an
 internal implementation seam, collapse it or solve the presentation need with

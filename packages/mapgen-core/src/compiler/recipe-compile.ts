@@ -1,4 +1,4 @@
-import type { TObject, TSchema } from "typebox";
+import type { TSchema } from "typebox";
 import { Value } from "typebox/value";
 
 import type { DomainOpCompileAny } from "../authoring/bindings.js";
@@ -37,14 +37,7 @@ export type StageToInternalResult<StepId extends string = string, Knobs = unknow
 
 export type StageContractAny = Readonly<{
   id: string;
-  knobsSchema: TObject;
-  public?: TObject;
   surfaceSchema: TSchema;
-  authoring?: Readonly<{
-    config: Readonly<{
-      schema: TSchema;
-    }>;
-  }>;
   toInternal: (args: { setup: MapSetup; stageConfig: unknown }) => StageToInternalResult;
   steps: readonly StepModuleAny[];
 }>;
@@ -122,7 +115,7 @@ export function compileRecipeConfig<const TStages extends readonly StageContract
   for (const stage of recipe.stages) {
     const stageId = stage.id;
     const stagePath = `/config/${stageId}`;
-    const configSchema = stage.authoring?.config.schema ?? stage.surfaceSchema;
+    const configSchema = stage.surfaceSchema;
 
     const { value: stageConfig, errors: stageErrors } = validateSchemaValue(
       configSchema as TSchema,

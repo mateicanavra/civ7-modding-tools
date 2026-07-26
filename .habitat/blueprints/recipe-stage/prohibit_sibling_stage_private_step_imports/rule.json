@@ -19,10 +19,10 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"]
+      "patterns": ["mods/*/src/recipes/*/stages/**/*.ts"]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
+  "scanRoots": ["mods"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/baseline.json"

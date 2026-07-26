@@ -9,7 +9,6 @@ import {
   publishTestArtifact,
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
-import { Value } from "typebox/value";
 import {
   artifactModules as ecologyArtifactModules,
   artifacts as ecologyArtifacts,
@@ -17,7 +16,6 @@ import {
 import { BiomesStep as biomesStep } from "../../../../../../../src/recipes/standard/stages/ecology-biomes/steps/biomes/step.js";
 import { artifactModules as hydrologyClimateRefineArtifactModules } from "../../../../../../../src/recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
 import { PlotBiomesStep as plotBiomesStep } from "../../../../../../../src/recipes/standard/stages/map-ecology/steps/plot-biomes/step.js";
-import { BiomeEngineBindingsSchema } from "../../../../../../../src/recipes/standard/stages/map-projection-public-config.js";
 import { artifactModules as morphologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 
 describe("biomes step", () => {
@@ -79,12 +77,7 @@ describe("biomes step", () => {
       const ops = ecology.ops.bind(biomesStep.contract.ops!).runtime;
       biomesStep.run(ctx, { classify: classifyConfig }, ops, buildStepTestDependencies(biomesStep));
 
-      plotBiomesStep.run(
-        ctx,
-        { bindings: Value.Create(BiomeEngineBindingsSchema) },
-        {},
-        buildStepTestDependencies(plotBiomesStep)
-      );
+      plotBiomesStep.run(ctx, {}, {}, buildStepTestDependencies(plotBiomesStep));
     });
 
     const bindings = ctx.artifacts.get(ecologyArtifacts.biomeBindings.id) as

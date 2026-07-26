@@ -83,7 +83,7 @@ export const LakesStep = createStep(LakesStepContract, {
       engineLandMask: engineAfter.landMask,
     };
   },
-  viz: ({ result, config, dimensions }) => {
+  viz: ({ result, dimensions }) => {
     const projections: VizProjection[] = [
       {
         kind: "grid",
@@ -98,34 +98,32 @@ export const LakesStep = createStep(LakesStepContract, {
         }),
       },
     ];
-    if (config.projectionReadback) {
-      projections.push(
-        {
-          kind: "grid",
-          dataTypeKey: "map.hydrology.lakes.engineLakeMask",
-          spaceId: TILE_SPACE_ID,
-          dims: dimensions,
-          field: { format: "u8", values: result.projection.stampedLakeMask },
-          meta: defineStandardVizMeta("map.hydrology.lakes.engineLakeMask", "category.distinct", {
-            label: "Lake Mask (Engine)",
-            group: GROUP_MAP_HYDROLOGY,
-            role: "engine",
-          }),
-        },
-        {
-          kind: "grid",
-          dataTypeKey: "map.hydrology.lakes.rejectedLakeMask",
-          spaceId: TILE_SPACE_ID,
-          dims: dimensions,
-          field: { format: "u8", values: result.projection.rejectedLakeMask },
-          meta: defineStandardVizMeta("map.hydrology.lakes.rejectedLakeMask", "category.distinct", {
-            label: "Rejected Lake Mask",
-            group: GROUP_MAP_HYDROLOGY,
-            visibility: "debug",
-          }),
-        }
-      );
-    }
+    projections.push(
+      {
+        kind: "grid",
+        dataTypeKey: "map.hydrology.lakes.engineLakeMask",
+        spaceId: TILE_SPACE_ID,
+        dims: dimensions,
+        field: { format: "u8", values: result.projection.stampedLakeMask },
+        meta: defineStandardVizMeta("map.hydrology.lakes.engineLakeMask", "category.distinct", {
+          label: "Lake Mask (Engine)",
+          group: GROUP_MAP_HYDROLOGY,
+          role: "engine",
+        }),
+      },
+      {
+        kind: "grid",
+        dataTypeKey: "map.hydrology.lakes.rejectedLakeMask",
+        spaceId: TILE_SPACE_ID,
+        dims: dimensions,
+        field: { format: "u8", values: result.projection.rejectedLakeMask },
+        meta: defineStandardVizMeta("map.hydrology.lakes.rejectedLakeMask", "category.distinct", {
+          label: "Rejected Lake Mask",
+          group: GROUP_MAP_HYDROLOGY,
+          visibility: "debug",
+        }),
+      }
+    );
     projections.push(
       {
         kind: "grid",

@@ -22,6 +22,104 @@ function expectCompileError(run: () => unknown): RecipeCompileError {
 }
 
 describe("compileRecipeConfig", () => {
+  it("materializes fixed step config from a configurationless compiled stage", () => {
+    const stage = createStage({
+      id: "fixed",
+      compile: ({ setup, knobs, config }) => {
+        expect(Object.isFrozen(knobs)).toBe(true);
+        expect(config).toBe(knobs);
+        return { alpha: { value: setup.mapSeed } };
+      },
+      steps: [
+        {
+          contract: {
+            id: "alpha",
+            schema: Type.Object(
+              { value: Type.Number({ default: 0 }) },
+              { additionalProperties: false }
+            ),
+          },
+        },
+      ],
+    });
+
+    expect(
+      compileRecipeConfig({
+        setup: TEST_SETUP,
+        recipe: { stages: [stage] },
+        config: { fixed: {} },
+        compileOpsById: {},
+      })
+    ).toEqual({ fixed: { alpha: { value: TEST_SETUP.mapSeed } } });
+  });
+
+  it("keeps omitted knobs out of internal config while normalizers receive one empty value", () => {
+    let observedKnobs: unknown;
+    const stage = createStage({
+      id: "internal",
+      steps: [
+        {
+          contract: {
+            id: "alpha",
+            schema: Type.Object(
+              { value: Type.Number({ default: 1 }) },
+              { additionalProperties: false }
+            ),
+          },
+          normalize: (config: unknown, { knobs }: { knobs: unknown }) => {
+            observedKnobs = knobs;
+            return config;
+          },
+        },
+      ],
+    });
+
+    expect(Value.Create(stage.surfaceSchema)).toEqual({ alpha: { value: 1 } });
+    expect(
+      compileRecipeConfig({
+        setup: TEST_SETUP,
+        recipe: { stages: [stage] },
+        config: { internal: { alpha: { value: 2 } } },
+        compileOpsById: {},
+      })
+    ).toEqual({ internal: { alpha: { value: 2 } } });
+    expect(observedKnobs).toEqual({});
+    expect(Object.isFrozen(observedKnobs)).toBe(true);
+  });
+
+  it("keeps omitted knobs out of semantic public config", () => {
+    const stage = createStage({
+      id: "public",
+      public: Type.Object({ amount: Type.Number({ default: 1 }) }, { additionalProperties: false }),
+      compile: ({ knobs, config }) => {
+        expect(knobs).toEqual({});
+        expect(Object.isFrozen(knobs)).toBe(true);
+        return { alpha: { value: config.amount } };
+      },
+      steps: [
+        {
+          contract: {
+            id: "alpha",
+            schema: Type.Object(
+              { value: Type.Number({ default: 0 }) },
+              { additionalProperties: false }
+            ),
+          },
+        },
+      ],
+    });
+
+    expect(Value.Create(stage.surfaceSchema)).toEqual({ amount: 1 });
+    expect(
+      compileRecipeConfig({
+        setup: TEST_SETUP,
+        recipe: { stages: [stage] },
+        config: { public: { amount: 3 } },
+        compileOpsById: {},
+      })
+    ).toEqual({ public: { alpha: { value: 3 } } });
+  });
+
   it("retains one admitted setup snapshot while stage compilation observes it", () => {
     const setupInput = {
       mapSeed: 17,

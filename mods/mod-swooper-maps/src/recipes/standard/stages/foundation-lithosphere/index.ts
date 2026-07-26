@@ -3,7 +3,7 @@ import { orderStandardStageSteps } from "../../contract-manifest.js";
 import {
   compileFoundationLithospherePublicConfig,
   FoundationLithospherePublicSchema,
-} from "../foundation-public-config.js";
+} from "../foundation/public.config.js";
 import { CrustStep } from "./steps/crust/step.js";
 import { PlateGraphStep } from "./steps/plate-graph/step.js";
 

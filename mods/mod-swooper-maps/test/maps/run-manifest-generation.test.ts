@@ -118,23 +118,27 @@ describe("Swooper run manifest generator", () => {
     { timeout: 15_000 }
   );
 
-  test("preserves the complete canonical config in a generated run manifest", async () => {
-    const workspaceRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-config-"));
-    try {
-      const manifestRef = await writeStudioRunGenerationManifest({
-        manifestInput: manifestInput(),
-        workspaceRoot,
-      });
-      const manifest = await readStudioRunGenerationManifest(manifestRef.path);
-      await generateSwooperRunGeneratedModFromManifestPath(manifestRef.path);
+  test(
+    "preserves the complete canonical config in a generated run manifest",
+    async () => {
+      const workspaceRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-config-"));
+      try {
+        const manifestRef = await writeStudioRunGenerationManifest({
+          manifestInput: manifestInput(),
+          workspaceRoot,
+        });
+        const manifest = await readStudioRunGenerationManifest(manifestRef.path);
+        await generateSwooperRunGeneratedModFromManifestPath(manifestRef.path);
 
-      expect(manifest.payload.launchEnvelope.canonicalConfig).toMatchObject({
-        id: "latest-juicy",
-      });
-    } finally {
-      await rm(workspaceRoot, { recursive: true, force: true });
-    }
-  });
+        expect(manifest.payload.launchEnvelope.canonicalConfig).toMatchObject({
+          id: "latest-juicy",
+        });
+      } finally {
+        await rm(workspaceRoot, { recursive: true, force: true });
+      }
+    },
+    { timeout: 15_000 }
+  );
 
   test("returns a verified Standard render input from the deserialized manifest", async () => {
     const workspaceRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-verification-"));

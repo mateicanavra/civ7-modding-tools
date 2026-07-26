@@ -542,15 +542,9 @@ const mapConfig = {
         }
       }
     },
-    "map-morphology": {
-      "knobs": {}
-    },
-    "map-hydrology": {
-      "knobs": {}
-    },
-    "map-elevation": {
-      "knobs": {}
-    },
+    "map-morphology": {},
+    "map-hydrology": {},
+    "map-elevation": {},
     "map-rivers": {
       "knobs": {
         "navigableRiverDensity": "normal"
@@ -748,20 +742,7 @@ const mapConfig = {
         }
       }
     },
-    "map-ecology": {
-      "knobs": {},
-      "biomeBindings": {
-        "snow": "BIOME_TUNDRA",
-        "tundra": "BIOME_TUNDRA",
-        "boreal": "BIOME_TUNDRA",
-        "temperateDry": "BIOME_PLAINS",
-        "temperateHumid": "BIOME_GRASSLAND",
-        "tropicalSeasonal": "BIOME_PLAINS",
-        "tropicalRainforest": "BIOME_TROPICAL",
-        "desert": "BIOME_DESERT",
-        "marine": "BIOME_MARINE"
-      }
-    },
+    "map-ecology": {},
     "placement": {
       "knobs": {},
       "naturalWonders": {
@@ -841,7 +822,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "latest-juicy",
-  configHash: "54d6231dcd708cfda1c5323f2a4f9c0f22b84aeb71607c74261f083f6b72b1ae",
-  envelopeHash: "9ef864ef2dd20152848358fd3d6b598c9e3538bf0b182caefca0d2ab1d82f735",
+  configHash: "20d6b15d5df7b893b30352cdba5e4cb5a3f650e8d14c9f68145778e80a1329f5",
+  envelopeHash: "611c4eeeddfbca6fcba58bacfb436b5fdbf8d26ab3592cc99d72d0710c6fc58f",
   config: mapConfig.config,
 });

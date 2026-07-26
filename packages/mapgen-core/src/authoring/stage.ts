@@ -1,21 +1,23 @@
 import type { MapSetup } from "@mapgen/core/map-setup.js";
 import {
+  IsObject,
   ObjectOptions,
-  type Static,
   type TObject,
   type TObjectOptions,
   type TSchema,
   Type,
 } from "typebox";
+import { Value } from "typebox/value";
 import { assertCompleteRecipeConfigSchema } from "./recipe-config-schema.js";
 import { applySchemaConventions } from "./schema.js";
 import { assertStageId } from "./stage-id.js";
 import {
+  type EmptyStageConfig,
   RESERVED_STAGE_KEY,
   type StageAuthoringModel,
   type StageContract,
-  type StageContractAny,
   type StageDef,
+  type StageObservation,
   type StageToInternalResult,
 } from "./types.js";
 
@@ -77,40 +79,61 @@ function objectProperties(schema: TObject): Record<string, TSchema> {
   return schema.properties;
 }
 
+const EMPTY_STAGE_SCHEMA = Type.Object({}, { additionalProperties: false });
+const EMPTY_STAGE_VALUE: EmptyStageConfig = Object.freeze({});
+
+function stageSurfaceDescription(stageId: string, propertyCount: number): string {
+  return propertyCount === 0
+    ? `The "${stageId}" recipe stage has no author-facing configuration.`
+    : `Author-facing configuration for the "${stageId}" recipe stage.`;
+}
+
 function buildInternalAsPublicSurfaceSchema(
+  stageId: string,
   steps: readonly Readonly<{
     contract: Readonly<{
       id: string;
       schema: TSchema;
     }>;
   }>[],
-  knobsSchema: TObject
+  knobsSchema?: TObject
 ): TObject {
-  const properties: Record<string, TSchema> = {
-    knobs: knobsSchema,
-  };
+  const properties: Record<string, TSchema> = {};
+  if (knobsSchema) properties.knobs = knobsSchema;
   for (const step of steps) {
-    if (step.contract.id === RESERVED_STAGE_KEY) continue;
+    if (step.contract.id === RESERVED_STAGE_KEY || hasClosedEmptyStepConfig(step)) continue;
     properties[step.contract.id] = step.contract.schema;
   }
-  return Type.Object(properties, { additionalProperties: false });
+  const propertyCount = Object.keys(properties).length;
+  return Type.Object(properties, {
+    additionalProperties: false,
+    ...(propertyCount === 0 ? { description: stageSurfaceDescription(stageId, 0) } : {}),
+  });
 }
 
-function buildPublicSurfaceSchema(publicSchema: TObject, knobsSchema: TObject): TObject {
+function buildPublicSurfaceSchema(
+  stageId: string,
+  publicSchema: TObject,
+  knobsSchema?: TObject
+): TObject {
   const source = ObjectOptions(publicSchema);
+  const properties = {
+    ...(knobsSchema ? { knobs: knobsSchema } : {}),
+    ...objectProperties(publicSchema),
+  };
   const annotations: TObjectOptions = {};
   if (typeof source.title === "string") annotations.title = source.title;
-  if (typeof source.description === "string") annotations.description = source.description;
+  annotations.description =
+    typeof source.description === "string"
+      ? source.description
+      : stageSurfaceDescription(stageId, Object.keys(properties).length);
   if (typeof source.readOnly === "boolean") annotations.readOnly = source.readOnly;
   if (typeof source.writeOnly === "boolean") annotations.writeOnly = source.writeOnly;
   if (Object.prototype.hasOwnProperty.call(source, "gs")) annotations.gs = source.gs;
-  return Type.Object(
-    { knobs: knobsSchema, ...objectProperties(publicSchema) },
-    {
-      ...annotations,
-      additionalProperties: false,
-    }
-  );
+  return Type.Object(properties, {
+    ...annotations,
+    additionalProperties: false,
+  });
 }
 
 function buildStageAuthoringModel(args: {
@@ -121,25 +144,32 @@ function buildStageAuthoringModel(args: {
     }>;
   }>[];
   surfaceSchema: TObject;
-  publicSchema?: TObject | undefined;
+  compiled: boolean;
 }): StageAuthoringModel {
-  const publicProps = args.publicSchema ? objectProperties(args.publicSchema) : null;
+  const surfaceProps = objectProperties(args.surfaceSchema);
   const focusPathsByStepId = Object.fromEntries(
     args.steps
       .filter((step) => step.contract.id !== RESERVED_STAGE_KEY)
       .map((step) => [
         step.contract.id,
-        publicProps === null
+        Object.prototype.hasOwnProperty.call(surfaceProps, step.contract.id)
           ? [step.contract.id]
-          : Object.prototype.hasOwnProperty.call(publicProps, step.contract.id)
-            ? [step.contract.id]
-            : [],
+          : [],
       ])
   );
+  const hasInternalStepConfig =
+    !args.compiled &&
+    Object.keys(focusPathsByStepId).some((id) => focusPathsByStepId[id]!.length > 0);
+  const layer =
+    Object.keys(surfaceProps).length === 0
+      ? "configurationless"
+      : hasInternalStepConfig
+        ? "internal-step-config"
+        : "semantic-public-config";
   return {
     stageId: args.stageId,
     config: {
-      layer: args.publicSchema ? "semantic-public-config" : "internal-step-config",
+      layer,
       schema: args.surfaceSchema,
       focusPathsByStepId,
     },
@@ -163,7 +193,7 @@ type StepsArray = readonly Readonly<{
 type RuntimeStageDefinition = Readonly<{
   id: string;
   steps: StepsArray;
-  knobsSchema: TObject;
+  knobsSchema?: TObject;
   public?: TObject;
   compile?: unknown;
 }>;
@@ -172,78 +202,126 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function compilePublicStage(
+function hasClosedEmptyStepConfig(step: StepsArray[number]): boolean {
+  const schema = step.contract.schema;
+  const patternProperties = IsObject(schema) ? ObjectOptions(schema).patternProperties : undefined;
+  return (
+    IsObject(schema) &&
+    ObjectOptions(schema).additionalProperties === false &&
+    Object.keys(schema.properties).length === 0 &&
+    (!patternProperties || Object.keys(patternProperties).length === 0) &&
+    Value.Check(schema, EMPTY_STAGE_VALUE)
+  );
+}
+
+function compileStage(
   compile: unknown,
   args: Readonly<{ setup: MapSetup; knobs: unknown; config: Record<string, unknown> }>
 ): Record<string, unknown> {
   if (typeof compile !== "function") {
-    throw new Error("Public stage requires a compile function");
+    throw new Error("Compiled stage requires a compile function");
   }
   const result: unknown = compile(args);
-  if (!isRecord(result)) throw new Error("Public stage compile must return an object");
+  if (!isRecord(result)) throw new Error("Stage compile must return an object");
   return result;
 }
 
 /**
  * Defines a recipe stage and its declared step surface.
  *
- * Public stages translate authored config into step config using the admitted setup supplied by
- * recipe compilation. Internal stages pass their declared step config through without inventing a
- * second setup or configuration authority.
+ * A compile function marks one semantic authoring boundary. When every step has a closed empty
+ * schema, the stage infers the same boundary and persists only its real knobs, if any, instead of
+ * requiring a compile function that manufactures empty step objects. Omitted knobs stay absent
+ * from authored configuration while compilation and normalization receive one frozen empty value.
+ * Internal stages with authored step fields pass those fields through without another authority.
  */
+export function createStage<const Id extends string, const TSteps extends StepsArray = StepsArray>(
+  def: StageDef<Id, undefined, TSteps, undefined, false> & {
+    knobsSchema?: undefined;
+    public?: undefined;
+    compile?: undefined;
+  }
+): StageContract<Id, undefined, TSteps, undefined, false>;
+
 export function createStage<
   const Id extends string,
   const KnobsSchema extends TObject,
   const TSteps extends StepsArray = StepsArray,
-  Knobs = Static<KnobsSchema>,
 >(
-  def: StageDef<Id, KnobsSchema, Knobs, TSteps, undefined> & {
+  def: StageDef<Id, KnobsSchema, TSteps, undefined, false> & {
     public?: undefined;
     compile?: undefined;
   }
-): StageContract<Id, KnobsSchema, Knobs, TSteps, undefined>;
+): StageContract<Id, KnobsSchema, TSteps, undefined, false>;
+
+export function createStage<const Id extends string, const TSteps extends StepsArray = StepsArray>(
+  def: StageDef<Id, undefined, TSteps, undefined, true> & {
+    knobsSchema?: undefined;
+    public?: undefined;
+  }
+): StageContract<Id, undefined, TSteps, undefined, true>;
+
+export function createStage<
+  const Id extends string,
+  const KnobsSchema extends TObject,
+  const TSteps extends StepsArray = StepsArray,
+>(
+  def: StageDef<Id, KnobsSchema, TSteps, undefined, true> & {
+    public?: undefined;
+  }
+): StageContract<Id, KnobsSchema, TSteps, undefined, true>;
 
 export function createStage<
   const Id extends string,
   const KnobsSchema extends TObject,
   const PublicSchema extends TObject,
   const TSteps extends StepsArray = StepsArray,
-  Knobs = Static<KnobsSchema>,
 >(
-  def: StageDef<Id, KnobsSchema, Knobs, TSteps, PublicSchema> & {
+  def: StageDef<Id, KnobsSchema, TSteps, PublicSchema, true> & {
     public: PublicSchema;
   }
-): StageContract<Id, KnobsSchema, Knobs, TSteps, PublicSchema>;
+): StageContract<Id, KnobsSchema, TSteps, PublicSchema, true>;
 
-export function createStage(def: RuntimeStageDefinition): StageContractAny {
+export function createStage<
+  const Id extends string,
+  const PublicSchema extends TObject,
+  const TSteps extends StepsArray = StepsArray,
+>(
+  def: StageDef<Id, undefined, TSteps, PublicSchema, true> & {
+    knobsSchema?: undefined;
+    public: PublicSchema;
+  }
+): StageContract<Id, undefined, TSteps, PublicSchema, true>;
+
+export function createStage(def: RuntimeStageDefinition): StageObservation {
   const stageId = def.id;
-  const isPublic = def.public !== undefined;
+  const isCompiled = typeof def.compile === "function";
   const compile = def.compile;
   const stepIds = def.steps.map((step) => step.contract.id);
   assertStageIds([stageId]);
   assertNoReservedStageKeys({ stageId, stepIds, publicSchema: def.public });
   assertKebabCaseStepIds({ stageId, stepIds });
 
-  if (isPublic && typeof compile !== "function") {
+  if (def.public && !isCompiled) {
     throw new Error(`stage("${stageId}") defines "public" but does not define "compile"`);
   }
 
-  applySchemaConventions(def.knobsSchema, `stage:${def.id}.knobs`);
+  if (def.knobsSchema) applySchemaConventions(def.knobsSchema, `stage:${def.id}.knobs`);
   if (def.public) applySchemaConventions(def.public, `stage:${def.id}.public`);
 
   for (const step of def.steps) {
     assertSchema(step.contract.schema, step.contract.id, stageId);
   }
 
-  const surfaceSchema = def.public
-    ? buildPublicSurfaceSchema(def.public, def.knobsSchema)
-    : buildInternalAsPublicSurfaceSchema(def.steps, def.knobsSchema);
+  const surfaceSchema = isCompiled
+    ? buildPublicSurfaceSchema(stageId, def.public ?? EMPTY_STAGE_SCHEMA, def.knobsSchema)
+    : buildInternalAsPublicSurfaceSchema(stageId, def.steps, def.knobsSchema);
   assertCompleteRecipeConfigSchema(surfaceSchema, `stage/${def.id}`);
   const authoring = buildStageAuthoringModel({
     stageId,
     steps: def.steps,
     surfaceSchema,
-    publicSchema: def.public,
+    compiled: isCompiled,
   });
 
   const toInternal = ({
@@ -254,20 +332,20 @@ export function createStage(def: RuntimeStageDefinition): StageContractAny {
     stageConfig: unknown;
   }): StageToInternalResult<string, unknown> => {
     if (!isRecord(stageConfig)) throw new Error(`stage("${stageId}") config must be an object`);
-    const { knobs, ...configPart } = stageConfig;
-    const rawSteps = isPublic
-      ? compilePublicStage(compile, { setup, knobs, config: configPart })
-      : configPart;
+    const { knobs: authoredKnobs, ...configPart } = stageConfig;
+    const knobs = def.knobsSchema ? authoredKnobs : EMPTY_STAGE_VALUE;
+    const config = def.public ? configPart : EMPTY_STAGE_VALUE;
+    const rawSteps = isCompiled ? compileStage(compile, { setup, knobs, config }) : configPart;
     if (Object.prototype.hasOwnProperty.call(rawSteps, RESERVED_STAGE_KEY)) {
       throw new Error(`stage("${stageId}") compile returned reserved key "${RESERVED_STAGE_KEY}"`);
     }
     return { knobs, rawSteps };
   };
 
-  return { ...def, surfaceSchema, authoring, toInternal } as StageContractAny;
+  return { ...def, surfaceSchema, authoring, toInternal } as StageObservation;
 }
 
-export function deriveStageAuthoringModel<TStage extends Pick<StageContractAny, "authoring">>(
+export function deriveStageAuthoringModel<TStage extends Pick<StageObservation, "authoring">>(
   stage: TStage
 ): TStage["authoring"] {
   return stage.authoring;

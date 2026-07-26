@@ -28,11 +28,11 @@ import type {
   RecipeExecutionOptions,
   RecipeModule,
   RecipePublicConfigOf,
-  StageContract,
+  StageObservation,
   Step,
 } from "./types.js";
 
-type AnyStage = StageContract<any, any, any, any, any>;
+type AnyStage = StageObservation;
 
 type StepOccurrence = {
   stageId: string;
@@ -236,10 +236,10 @@ function finalizeOccurrences(input: {
         consumerStepId: fullId,
         owner: `recipe:${input.recipeId}`,
       });
-      const facets = (authored.metrics || authored.viz) && {
+      const facets = ((authored.metrics || authored.viz) && {
         metrics: authored.metrics,
         viz: authored.viz,
-      };
+      }) as MapGenStep<unknown>["facets"] | undefined;
 
       const boundOps =
         authored.contract.ops &&

@@ -722,34 +722,15 @@ const mapConfig = {
         "minConfidence01": 0.5
       }
     },
-    "map-morphology": {
-      "knobs": {}
-    },
-    "map-hydrology": {
-      "knobs": {}
-    },
-    "map-elevation": {
-      "knobs": {}
-    },
+    "map-morphology": {},
+    "map-hydrology": {},
+    "map-elevation": {},
     "map-rivers": {
       "knobs": {
         "navigableRiverDensity": "sparse"
       }
     },
-    "map-ecology": {
-      "knobs": {},
-      "biomeBindings": {
-        "snow": "BIOME_TUNDRA",
-        "tundra": "BIOME_TUNDRA",
-        "boreal": "BIOME_TUNDRA",
-        "temperateDry": "BIOME_PLAINS",
-        "temperateHumid": "BIOME_GRASSLAND",
-        "tropicalSeasonal": "BIOME_PLAINS",
-        "tropicalRainforest": "BIOME_TROPICAL",
-        "desert": "BIOME_DESERT",
-        "marine": "BIOME_MARINE"
-      }
-    },
+    "map-ecology": {},
     "placement": {
       "knobs": {},
       "naturalWonders": {
@@ -829,7 +810,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-desert-mountains",
-  configHash: "ae4285e43adefe2b90f6ce07e81567042f68de51664fc30adc2445c747e1b47d",
-  envelopeHash: "c33b10b8d3b18280d059a95d4d9572899b0daf00ba8b5e80ae018dcb913e8573",
+  configHash: "6ac72e0b34bbf46725a99081114591e8199ea341c8de26d106d79d8d43d319d1",
+  envelopeHash: "7001b9baa8a06c55dd9ac8731b48be13a795094e3e318e6438bec753eaab260e",
   config: mapConfig.config,
 });

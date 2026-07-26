@@ -20,12 +20,12 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/recipes/*/stages/*/steps/*/config.ts",
-        "mods/*/src/recipes/*/stages/*/steps/*/step.ts"
+        "mods/*/src/recipes/*/stages/**/steps/*/config.ts",
+        "mods/*/src/recipes/*/stages/**/steps/*/step.ts"
       ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes"],
+  "scanRoots": ["mods"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/recipe-step/require_recipe_step_authoring_shape/baseline.json"

@@ -55,7 +55,7 @@ describe("authoring: hello recipe compile/execute", () => {
     const adapter = createMockAdapter({ width: 8, height: 6, mapSizeId: 1 });
     const ctx = createMapContext({ setup: baseSetup, adapter });
 
-    const plan = recipe.compile(baseSetup, { foundation: { knobs: {}, hello: {} } });
+    const plan = recipe.compile(baseSetup, { foundation: { knobs: {} } });
     expect(plan.nodes).toHaveLength(1);
     expect(plan.nodes[0]?.stepId).toContain("hello");
 

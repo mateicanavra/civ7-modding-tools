@@ -92,8 +92,9 @@ Other ops exist and may be used by additional steps (see the domain contracts).
 
 Current posture in the standard recipe:
 - `ecology-pedology`, `ecology-biomes`, and `ecology-features` expose flat step-scoped config surfaces.
-- `map-ecology` stage compiles a strict public config surface into projection step configs.
-- knobs are present but currently empty at the stage level.
+- `map-ecology` persists exactly `{}` because projection has no author-facing controls.
+- Its compile boundary materializes the private feature-application op envelope, while fixed biome
+  projection policy stays beside `plot-biomes` and uses official identities from Civ7 policy.
 
 Key contract point: strategy config schemas stay with their owning op contracts or named op-family modules. The shared Ecology artifact surface is allowed because multiple truth and projection stages consume the same artifact invariants; it is not a dumping ground for strategy-owned config.
 

@@ -57,7 +57,7 @@ migration.
             prohibit_empty_object_defaults_in_contract_schemas
         swooper-maps-standard-recipe
           rules
-            preserve_standard_stage_topology_and_path_invariants
+            verify_runtime_stage_order_matches_contract_manifest
 ```
 
 Niches are authored jurisdictions and may nest when a current context becomes a

@@ -4,7 +4,7 @@ import {
   compilePlacementPublicConfig,
   PlacementKnobsSchema,
   PlacementPublicSchema,
-} from "../placement-public-config.js";
+} from "./public.config.js";
 import { AdjustResourcesStep } from "./steps/adjust-resources/step.js";
 import { AssignAdvancedStartsStep } from "./steps/assign-advanced-starts/step.js";
 import { AssignStartsStep } from "./steps/assign-starts/step.js";

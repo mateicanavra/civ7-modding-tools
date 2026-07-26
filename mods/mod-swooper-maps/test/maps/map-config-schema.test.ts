@@ -103,6 +103,33 @@ describe("Shipped map configs", () => {
     }
   });
 
+  it("persists fixed projection stages as exact empty objects", async () => {
+    const configs = await loadSwooperMapConfigRegistry();
+
+    for (const { canonicalConfig } of configs) {
+      expect(canonicalConfig.config["map-morphology"], canonicalConfig.id).toEqual({});
+      expect(canonicalConfig.config["map-hydrology"], canonicalConfig.id).toEqual({});
+      expect(canonicalConfig.config["map-elevation"], canonicalConfig.id).toEqual({});
+      expect(canonicalConfig.config["map-ecology"], canonicalConfig.id).toEqual({});
+      expect(canonicalConfig.config["map-rivers"], canonicalConfig.id).toEqual({
+        knobs: { navigableRiverDensity: expect.any(String) },
+      });
+    }
+  });
+
+  it("rejects retired biome projection bindings", async () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+    const [fixture] = await loadSwooperMapConfigRegistry();
+    if (!fixture) throw new Error("Expected a shipped Swooper map config");
+    const raw = structuredClone(fixture.canonicalConfig) as Record<string, unknown>;
+    const config = raw.config;
+    if (!isRecord(config)) throw new Error("Expected a config object");
+    config["map-ecology"] = { biomeBindings: {} };
+
+    expect(Value.Check(schema, config)).toBe(false);
+    expect(() => admitStandardMapConfig(raw)).toThrow("Unknown key");
+  });
+
   it("rejects incomplete and unknown config JSON without special cases", async () => {
     const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
     const envelopeSchema = buildCanonicalMapConfigSchema(schema);
