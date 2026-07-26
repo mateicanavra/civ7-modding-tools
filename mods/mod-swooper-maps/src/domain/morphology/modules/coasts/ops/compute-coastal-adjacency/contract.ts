@@ -8,10 +8,9 @@ import strategyDefinition from "./strategies/wrapped-hex-adjacency/config.js";
  * of the opposite class: land touching water => coastalLand; water touching land
  * => coastalWater. Geometry-only, no physics, no config.
  *
- * This is the pure form of the adjacency pass that compute-coastline-metrics runs
- * internally after carving. It is its own op because the carve op cannot delegate
- * (op-calls-op is forbidden) and the post-features shelf stage needs adjacency on
- * the FINAL post-island land mask — a different vintage than the carved coastline.
+ * The base-coastline step runs it against initial Morphology topography, while
+ * the post-features shelf stage runs it again against final post-island land.
+ * Those callers deliberately preserve distinct coastline vintages.
  */
 const ComputeCoastalAdjacencyContract = defineOp({
   kind: "compute",

@@ -171,8 +171,7 @@ const mapConfig = {
     },
     "morphology-coasts": {
       "knobs": {
-        "seaLevel": "earthlike",
-        "coastRuggedness": "normal"
+        "seaLevel": "earthlike"
       },
       "landmass-plates": {
         "beltDrivers": {
@@ -255,37 +254,9 @@ const mapConfig = {
           }
         }
       },
-      "rugged-coasts": {
-        "coastlines": {
-          "strategy": "plate-aware-carving",
-          "config": {
-            "coast": {
-              "plateBias": {
-                "threshold": 0.15,
-                "power": 1.3,
-                "convergent": 3,
-                "transform": 0.2,
-                "divergent": 0.5,
-                "interior": 0.35,
-                "bayWeight": 0.75,
-                "bayNoiseBonus": 0.1,
-                "fjordWeight": 0.8
-              },
-              "bay": {
-                "noiseGateAdd": 0,
-                "rollDenActive": 4,
-                "rollDenDefault": 5
-              },
-              "fjord": {
-                "baseDenom": 12,
-                "activeBonus": 1,
-                "passiveBonus": 2
-              }
-            }
-          }
-        },
-        "reconcileHeightfield": {
-          "strategy": "carved-coast-datum",
+      "coastline-evidence": {
+        "adjacency": {
+          "strategy": "wrapped-hex-adjacency",
           "config": {}
         },
         "distanceToCoast": {
@@ -1392,7 +1363,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-desert-mountains",
-  configHash: "25370231f4b84cac13cdd9f72ed78dac6654f93e02f7dd3efc24e047e629d75a",
-  envelopeHash: "76c23e57e342835d9f2c6a98bfd18ffde80fd22853631178bd720d79ba803ad3",
+  configHash: "4aa2b1fac0280a245803d54eab61c19fa4ad7df8f89401864f92010f144e226d",
+  envelopeHash: "135c940260f52875c4d82938a482c60d4382b79a8d50407abf9f4b5a35a69f54",
   config: mapConfig.config,
 });

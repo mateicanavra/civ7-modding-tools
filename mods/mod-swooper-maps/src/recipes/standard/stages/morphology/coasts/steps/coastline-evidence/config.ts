@@ -3,23 +3,17 @@ import { artifacts as morphologyCoastsArtifacts } from "@mapgen/domain/morpholog
 import { artifacts as morphologyTerrainArtifacts } from "@mapgen/domain/morphology/modules/terrain/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
-/**
- * Produces coastline metrics and applies ruggedization adjustments.
- */
+/** Derives immutable pre-island shoreline evidence from base Morphology topography. */
 export const config = defineStep({
-  id: "rugged-coasts",
+  id: "coastline-evidence",
   requires: [],
   provides: [],
   artifacts: {
-    requires: [morphologyTerrainArtifacts.beltDrivers, morphologyTerrainArtifacts.baseTopography],
-    provides: [
-      morphologyCoastsArtifacts.carvedTopography,
-      morphologyCoastsArtifacts.carvedCoastline,
-    ],
+    requires: [morphologyTerrainArtifacts.baseTopography],
+    provides: [morphologyCoastsArtifacts.baseCoastline],
   },
   ops: {
-    coastlines: morphology.coasts.ops.computeCoastlineMetrics,
-    reconcileHeightfield: morphology.coasts.ops.reconcileHeightfieldFromCoast,
+    adjacency: morphology.coasts.ops.computeCoastalAdjacency,
     distanceToCoast: morphology.coasts.ops.computeDistanceToCoast,
   },
 });

@@ -31,8 +31,8 @@ import { config as riversConfig } from "./stages/hydrology/hydrography/steps/riv
 import { config as mapHydrologyLakesConfig } from "./stages/hydrology/projection/steps/lakes/config.js";
 import { config as projectRainfallConfig } from "./stages/hydrology/projection/steps/project-rainfall/config.js";
 import { config as plotRiversConfig } from "./stages/hydrology/rivers/steps/plot-rivers/config.js";
+import { config as coastlineEvidenceConfig } from "./stages/morphology/coasts/steps/coastline-evidence/config.js";
 import { config as landmassPlatesConfig } from "./stages/morphology/coasts/steps/landmass-plates/config.js";
-import { config as ruggedCoastsConfig } from "./stages/morphology/coasts/steps/rugged-coasts/config.js";
 import { config as buildElevationConfig } from "./stages/morphology/elevation/steps/build-elevation/config.js";
 import { config as geomorphologyConfig } from "./stages/morphology/erosion/steps/geomorphology/config.js";
 import { config as islandsConfig } from "./stages/morphology/features/steps/islands/config.js";
@@ -77,7 +77,7 @@ export const standardStageContractManifest = [
   stage("foundation-tectonics", [tectonicsConfig]),
   stage("foundation-orogeny", [crustEvolutionConfig]),
   stage("foundation-projection", [projectionConfig, plateTopologyConfig]),
-  stage("morphology-coasts", [landmassPlatesConfig, ruggedCoastsConfig]),
+  stage("morphology-coasts", [landmassPlatesConfig, coastlineEvidenceConfig]),
   stage("morphology-routing", [routingConfig]),
   stage("morphology-erosion", [geomorphologyConfig]),
   stage("morphology-features", [islandsConfig, mountainsConfig, volcanoesConfig, landmassesConfig]),

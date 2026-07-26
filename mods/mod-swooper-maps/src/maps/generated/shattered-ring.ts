@@ -171,8 +171,7 @@ const mapConfig = {
     },
     "morphology-coasts": {
       "knobs": {
-        "seaLevel": "earthlike",
-        "coastRuggedness": "normal"
+        "seaLevel": "earthlike"
       },
       "landmass-plates": {
         "beltDrivers": {
@@ -255,37 +254,9 @@ const mapConfig = {
           }
         }
       },
-      "rugged-coasts": {
-        "coastlines": {
-          "strategy": "plate-aware-carving",
-          "config": {
-            "coast": {
-              "plateBias": {
-                "threshold": 0.4,
-                "power": 1.4,
-                "convergent": 2.2,
-                "transform": 0.3,
-                "divergent": -0.3,
-                "interior": 0.5,
-                "bayWeight": 0.9,
-                "bayNoiseBonus": 0.6,
-                "fjordWeight": 0.7
-              },
-              "bay": {
-                "noiseGateAdd": 0,
-                "rollDenActive": 4,
-                "rollDenDefault": 5
-              },
-              "fjord": {
-                "baseDenom": 12,
-                "activeBonus": 1,
-                "passiveBonus": 2
-              }
-            }
-          }
-        },
-        "reconcileHeightfield": {
-          "strategy": "carved-coast-datum",
+      "coastline-evidence": {
+        "adjacency": {
+          "strategy": "wrapped-hex-adjacency",
           "config": {}
         },
         "distanceToCoast": {
@@ -1392,7 +1363,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "shattered-ring",
-  configHash: "23c8c2c7636c9ba02f81a7f5e2a0ca8b814e1c2d0fc12db02d6b1464d930c639",
-  envelopeHash: "1c5024905b0b7eaed59e2b6c5de42cf163b7c5e0a08bf82bc02dcc03ecc2481c",
+  configHash: "e1c2c1161ed669824c24878eee2d0a0bbc313ec763919d593ba94651f41d8c22",
+  envelopeHash: "a8f771a1da248f71f157e75ae5767d1f8a2486153102aef33c1a7b11dea03837",
   config: mapConfig.config,
 });

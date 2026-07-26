@@ -59,7 +59,6 @@ Representative example (artifact + ops wiring; excerpt; see full file in anchors
 
 ```ts
 import morphology from "@mapgen/domain/morphology";
-import { artifacts as morphologyCoastsArtifacts } from "@mapgen/domain/morphology/modules/coasts/artifacts/index.js";
 import { artifacts as morphologyErosionArtifacts } from "@mapgen/domain/morphology/modules/erosion/artifacts/index.js";
 import { artifacts as morphologyRoutingArtifacts } from "@mapgen/domain/morphology/modules/routing/artifacts/index.js";
 import { artifacts as morphologyTerrainArtifacts } from "@mapgen/domain/morphology/modules/terrain/artifacts/index.js";
@@ -73,7 +72,7 @@ export const config = defineStep({
   provides: [],
   artifacts: {
     requires: [
-      morphologyCoastsArtifacts.carvedTopography,
+      morphologyTerrainArtifacts.baseTopography,
       morphologyRoutingArtifacts.routing,
       morphologyTerrainArtifacts.baseSubstrate,
     ],
@@ -161,7 +160,7 @@ export const GeomorphologyStep = createStep(config, {
     return stepConfig;
   },
   run: (context, stepConfig, ops, deps) => {
-    const topography = deps.artifacts.carvedTopography.read(context);
+    const topography = deps.artifacts.baseTopography.read(context);
     const routing = deps.artifacts.routing.read(context);
     const substrate = deps.artifacts.baseSubstrate.read(context);
     const elevation = new Int16Array(topography.elevation);

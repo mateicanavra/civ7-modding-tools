@@ -24,7 +24,7 @@ export const config = defineStep({
       morphologyLandformsArtifacts.topography,
       morphologyErosionArtifacts.substrate,
       morphologyRoutingArtifacts.routing,
-      morphologyCoastsArtifacts.carvedCoastline,
+      morphologyCoastsArtifacts.baseCoastline,
     ],
     provides: [morphologyLandformsArtifacts.mountains],
   },

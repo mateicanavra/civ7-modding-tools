@@ -1,6 +1,6 @@
 import morphology from "@mapgen/domain/morphology";
-import { artifacts as morphologyCoastsArtifacts } from "@mapgen/domain/morphology/modules/coasts/artifacts/index.js";
 import { artifacts as morphologyRoutingArtifacts } from "@mapgen/domain/morphology/modules/routing/artifacts/index.js";
+import { artifacts as morphologyTerrainArtifacts } from "@mapgen/domain/morphology/modules/terrain/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -14,7 +14,7 @@ export const config = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [morphologyCoastsArtifacts.carvedTopography],
+    requires: [morphologyTerrainArtifacts.baseTopography],
     provides: [morphologyRoutingArtifacts.routing],
   },
   ops: {

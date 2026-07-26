@@ -122,7 +122,6 @@ const STEP_LABEL_OVERRIDES: Record<string, string> = {
   "plate-topology": "Plate Topology",
   "climate-baseline": "Climate Baseline",
   "climate-refine": "Climate Refine",
-  "rugged-coasts": "Rugged Coasts",
   "landmass-plates": "Landmass Plates",
 };
 

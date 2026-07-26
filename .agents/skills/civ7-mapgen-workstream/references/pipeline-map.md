@@ -59,7 +59,7 @@ PHYSICS / TRUTH STAGES (compute + publish artifacts; MUST NOT touch the adapter)
   3  foundation-tectonics          tectonics (current motion + history)
   4  foundation-orogeny            crust evolution
   5  foundation-projection         tile-space foundation fields + plate topology (not engine projection)
-  6  morphology-coasts             landmass plates, rugged coasts
+  6  morphology-coasts             landmass plates, coherent base topography, coastline evidence
   7  morphology-routing            flow routing
   8  morphology-erosion            geomorphic cycle (stream-power + diffusion)
   9  morphology-features           islands, mountains, volcanoes, landmasses
@@ -119,7 +119,7 @@ implementations. Counts below are verified from those module authorities:
 | Domain | Ops | Character |
 |---|---|---|
 | `foundation` | 17 | mesh, mantle potential/forcing, crust + evolution, plate graph/motion, tectonic segments, era membership, segment/hotspot events, era tectonic fields, history rollups, tectonics current, tracer advection, provenance, plate tensors |
-| `morphology` | 15 | base topography, belt drivers, coastline metrics, flow routing, geomorphic cycle, landmask, landmasses, sea level, shelf mask, substrate, island chains, foothills, ridges, rough lands, volcanoes |
+| `morphology` | 17 | belt drivers, base topography, continental margins, sea level, landmask, base coastline adjacency/distance evidence, flow routing, geomorphic cycle, substrate, island chains, foothills, ridges, rough lands, volcanoes, landmasses, and the final shelf mask |
 | `hydrology` | 18 | Baseline climate composes radiative/thermal forcing, circulation, ocean coupling, evaporation, moisture transport, and precipitation; hydrography then solves drainage, discharge, river projection, lake intent, and causal classification; climate refinement closes with cryosphere/albedo, land-water budget, and advisory diagnostics. Navigable-river selection is a map-rivers rule. |
 | `ecology` | 32 | biome classify, pedology classify/aggregate, edge refine, feature/vegetation substrate, 5 vegetation + 5 wetland + 4 reef score ops, ice score, 4 plot-effects score ops, plan plot-effects, plan floodplains/wetlands/reefs/ice/vegetation, features apply. The most granular domain. |
 | `placement` | 3 | `wonders.planNaturalWonders`, `regions.projectLandmassRegions`, `starts.planStarts` |
@@ -254,9 +254,12 @@ foundation-* ──▶ artifact:foundation.{mesh,initialCrust,crust,plateGraph,t
                                       plates,crustTiles,...}
    │
    ▼
-morphology-* ──▶ artifact:morphology.topography   (elevation + seaLevel + landMask + bathymetry — canonical terrain truth)
-                 artifact:morphology.{routing, carvedCoastline, shelf(post-island shelfMask/coast metrics),
-                                      mountains, volcanoes, beltDrivers, landmasses}
+morphology-* ──▶ artifact:morphology.topography.base    (coherent pre-erosion terrain vintage)
+                 artifact:morphology.topography.eroded  (post-geomorphic, pre-island vintage)
+                 artifact:morphology.topography         (final elevation + seaLevel + landMask + bathymetry)
+                 artifact:morphology.{routing, baseCoastline(pre-island adjacency/distance evidence),
+                                      shelf(post-island shelfMask/coast metrics), mountains, volcanoes,
+                                      beltDrivers, landmasses}
    │
    ▼
 hydrology  ──▶ artifact:hydrology.baselineClimateField  (routing + refinement vintage)

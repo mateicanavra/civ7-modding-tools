@@ -1,7 +1,7 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Registers publish-once geomorphic routing derived from carved relief before erosion.
+ * Registers publish-once geomorphic routing derived from base relief before erosion.
  * Morphology erosion and landform planning consume this snapshot; Hydrology derives its
  * separate depression-conditioned drainage evidence from final Morphology topography.
  */

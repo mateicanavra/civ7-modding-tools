@@ -4,7 +4,7 @@ import { clamp01 } from "@swooper/mapgen-core/lib/math";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 
 import ComputeLandmaskContract from "../../contract.js";
-import { assertRiftPotentialEraPresent } from "../../rules/index.js";
+import { assertRiftPotentialEraPresent, reconcileTopography } from "../../rules/index.js";
 import StrategyDefinition from "./config.js";
 
 /**
@@ -316,48 +316,6 @@ function fillToTarget(params: {
   }
 }
 
-function computeDistanceToCoast(width: number, height: number, landMask: Uint8Array): Uint16Array {
-  const size = width * height;
-  const distanceToCoast = new Uint16Array(size);
-  distanceToCoast.fill(65535);
-  const queue = new Int32Array(size);
-  let head = 0;
-  let tail = 0;
-
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const i = y * width + x;
-      const isLand = landMask[i] === 1;
-      let isCoastal = false;
-      forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
-        if (isCoastal) return;
-        const ni = ny * width + nx;
-        if ((landMask[ni] === 1) !== isLand) isCoastal = true;
-      });
-      if (isCoastal) {
-        distanceToCoast[i] = 0;
-        queue[tail++] = i;
-      }
-    }
-  }
-
-  while (head < tail) {
-    const idx = queue[head++]!;
-    const y = (idx / width) | 0;
-    const x = idx - y * width;
-    const dist = distanceToCoast[idx] ?? 0;
-    forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
-      const ni = ny * width + nx;
-      const next = (dist + 1) as number;
-      if ((distanceToCoast[ni] ?? 65535) <= next) return;
-      distanceToCoast[ni] = next;
-      queue[tail++] = ni;
-    });
-  }
-
-  return distanceToCoast;
-}
-
 /** Binds the `tectonic-potential` algorithm to the shared `morphology/compute-landmask` operation contract. */
 export default createStrategy(ComputeLandmaskContract, StrategyDefinition, {
   run: (input, config) => {
@@ -639,7 +597,6 @@ export default createStrategy(ComputeLandmaskContract, StrategyDefinition, {
     });
     fillToTarget({ width, height, landMask, potential, desiredLandCount });
 
-    const distanceToCoast = computeDistanceToCoast(width, height, landMask);
-    return { landMask, distanceToCoast };
+    return reconcileTopography({ landMask, elevation: input.elevation, seaLevel });
   },
 });

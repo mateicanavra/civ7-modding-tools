@@ -28,18 +28,18 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** collapse class/elevation/bathymetry reconciliation to one
-Morphology rule authority and make each real state transition return a coherent
-topography. The initial landmass step locally repairs the partial result of
-`compute-landmask`; rugged-coasts calls a parameter-free reconciliation
-operation after its coastline operation has already produced the authoritative
-carved land mask. Close the generic domain `model/rules` kind first. Then make
-landmask computation and coastline carving each return their complete
-topography vintage through the same neutral rule, delete the standalone
-reconciliation operation and empty authored config, and remove `coastMask` as a
-second classification authority. Preserve product behavior and trace timing,
-but do not preserve obsolete operation/config identity or move domain logic
-into recipe steps. A.2 and post-A.2 product proof remain outside this
+**Current container:** collapse class/elevation/bathymetry reconciliation into
+the landmask operation that owns the only real pre-erosion topography
+transition. The initial landmass step locally repaired `compute-landmask`; the
+next step claimed a second "carved" vintage through a coastline operation and a
+parameter-free reconciliation operation. Causal review proved the fjord branch
+never changed the surface and the bay gate is unreachable for every shipped
+posture across the finite Perlin seed space and Civ7 map bounds. The entire
+second transition is therefore false authority, not behavior to preserve.
+Delete its operation, config, knob, RNG surface, test, and redundant topography
+artifact. Retain one base-topography product and one independently useful
+pre-island coastline-evidence product derived by the real adjacency and
+distance operations. A.2 and post-A.2 product proof remain outside this
 container.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
@@ -57,13 +57,15 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** seal the closed domain/module model-rule destination, then delete
-the standalone reconciliation operation, duplicate recipe algorithm, empty
-config surface, and redundant coast mask. Propagate complete coherent
-topography from the two actual state transitions, prove class/datum consistency
-and input immutability on the shared Civ7 test preset, regenerate consumers,
-and seal generated currentness, Swooper type/test, and the existing positive
-domain/step laws before taking the next earnedness candidate.
+**Gradient:** delete the false coastline transition to its roots: standalone
+reconciliation, coast mutation operation, coast mask, fjord and bay controls,
+ruggedness knob, RNG stream, and carved-topography artifact. Keep topography
+reconciliation beside the landmask operation; route routing and erosion
+directly to base topography; retain only adjacency plus distance as
+`baseCoastline` evidence. Remove duplicate coast-distance computation,
+regenerate every canonical config consumer, and prove the unchanged product
+through the native recipe graph plus the existing positive domain/artifact/step
+laws before taking the next earnedness candidate.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty

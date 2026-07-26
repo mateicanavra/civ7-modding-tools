@@ -171,8 +171,7 @@ const mapConfig = {
     },
     "morphology-coasts": {
       "knobs": {
-        "seaLevel": "earthlike",
-        "coastRuggedness": "normal"
+        "seaLevel": "earthlike"
       },
       "landmass-plates": {
         "beltDrivers": {
@@ -255,37 +254,9 @@ const mapConfig = {
           }
         }
       },
-      "rugged-coasts": {
-        "coastlines": {
-          "strategy": "plate-aware-carving",
-          "config": {
-            "coast": {
-              "plateBias": {
-                "threshold": 0.35,
-                "power": 1.5,
-                "convergent": 2,
-                "transform": 0.5,
-                "divergent": -0.2,
-                "interior": 0.3,
-                "bayWeight": 1.2,
-                "bayNoiseBonus": 0.8,
-                "fjordWeight": 0.9
-              },
-              "bay": {
-                "noiseGateAdd": 0,
-                "rollDenActive": 4,
-                "rollDenDefault": 5
-              },
-              "fjord": {
-                "baseDenom": 12,
-                "activeBonus": 1,
-                "passiveBonus": 2
-              }
-            }
-          }
-        },
-        "reconcileHeightfield": {
-          "strategy": "carved-coast-datum",
+      "coastline-evidence": {
+        "adjacency": {
+          "strategy": "wrapped-hex-adjacency",
           "config": {}
         },
         "distanceToCoast": {
@@ -1391,7 +1362,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "sundered-archipelago",
-  configHash: "d62df0a00cc838876786f69cef5e68955a0e66ab725f833f148752f6fa78ef85",
-  envelopeHash: "d0655378dcf62e93a419bbc20ab4076ca86645b03c18c2a7fea53d21b46f447e",
+  configHash: "3856018d6fd4a6eb19517346f815c6e5bd7aa0d5ad04414e86036aef62b47687",
+  envelopeHash: "7719a1f496558a22c27cf7a40fe6e1737ab74da0b79fdac67801e8485423ce01",
   config: mapConfig.config,
 });
