@@ -12,8 +12,8 @@ import {
   DiagnosticToolUnavailableCommandObservationSchema,
   type NativeGritSelectedRuleApplyDryRunObservationRequest,
   NativeGritSelectedRuleApplyDryRunObservationRequestSchema,
-  type NativeGritSelectedRuleJsonCheckRequest,
-  NativeGritSelectedRuleJsonCheckRequestSchema,
+  type NativeGritSelectedRulesJsonCheckRequest,
+  NativeGritSelectedRulesJsonCheckRequestSchema,
   type NativeGritTargetCommandRequest,
   NativeGritTargetCommandRequestSchema,
 } from "./command.schema.js";
@@ -26,7 +26,7 @@ import {
 
 const GritCheckAcquisitionEvidenceSchema = Type.Object(
   {
-    request: NativeGritSelectedRuleJsonCheckRequestSchema,
+    request: NativeGritSelectedRulesJsonCheckRequestSchema,
     command: DiagnosticCompletedCommandObservationSchema,
   },
   { additionalProperties: false }
@@ -230,7 +230,7 @@ export type GritParseFailure = Static<typeof GritParseFailureSchema>;
 export type GritIncompleteFailure = Static<typeof GritIncompleteFailureSchema>;
 
 export interface GritCheckAcquisitionEvidence {
-  readonly request: NativeGritSelectedRuleJsonCheckRequest;
+  readonly request: NativeGritSelectedRulesJsonCheckRequest;
   readonly command: DiagnosticCompletedCommandObservation;
 }
 
@@ -607,7 +607,7 @@ function assertNeverEvent(event: never): never {
 }
 
 export function checkAcquisitionEvidence(
-  request: NativeGritSelectedRuleJsonCheckRequest,
+  request: NativeGritSelectedRulesJsonCheckRequest,
   command: DiagnosticCompletedCommandObservation
 ): GritAcquisitionEvidenceResult<GritCheckAcquisitionEvidence> {
   return validateAcquisitionEvidence(GritCheckAcquisitionEvidenceSchema, { request, command });

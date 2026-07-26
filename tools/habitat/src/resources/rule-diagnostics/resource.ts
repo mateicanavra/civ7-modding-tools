@@ -13,30 +13,42 @@ export type RuleDiagnosticDemand = {
     | { readonly kind: "paths"; readonly paths: readonly string[] };
 };
 
-export type RuleDiagnosticExecutionResult =
-  | {
-      readonly kind: "executed";
-      readonly result: RuleRunResult;
-      readonly durationMs: number;
-    }
-  | {
-      readonly kind: "not-applicable";
-      readonly reason: "no-matched-scan-roots";
-      readonly durationMs: number;
-    }
-  | {
-      readonly kind: "failed";
-      readonly failure: DiagnosticProviderFailureKind;
-      readonly detail: string;
-      readonly diagnostics: readonly [HabitatDiagnostic, ...HabitatDiagnostic[]];
-      readonly durationMs: number;
-    }
-  | {
-      readonly kind: "refused";
-      readonly decision: DiagnosticScanRootRefusal;
-      readonly detail: string;
-      readonly durationMs: number;
-    };
+/** Provider-neutral evidence that several demanded rules shared one diagnostic execution. */
+export type RuleDiagnosticExecutionTiming = Readonly<{
+  kind: "shared";
+  groupId: string;
+  durationMs: number;
+  ruleCount: number;
+}>;
+
+interface RuleDiagnosticExecutionMeasurement {
+  readonly durationMs: number;
+  readonly timing?: RuleDiagnosticExecutionTiming;
+}
+
+/** One terminal diagnostic disposition plus truthful dedicated or shared timing evidence. */
+export type RuleDiagnosticExecutionResult = RuleDiagnosticExecutionMeasurement &
+  (
+    | {
+        readonly kind: "executed";
+        readonly result: RuleRunResult;
+      }
+    | {
+        readonly kind: "not-applicable";
+        readonly reason: "no-matched-scan-roots";
+      }
+    | {
+        readonly kind: "failed";
+        readonly failure: DiagnosticProviderFailureKind;
+        readonly detail: string;
+        readonly diagnostics: readonly [HabitatDiagnostic, ...HabitatDiagnostic[]];
+      }
+    | {
+        readonly kind: "refused";
+        readonly decision: DiagnosticScanRootRefusal;
+        readonly detail: string;
+      }
+  );
 
 /** Stable diagnostic capability consumed by rule execution. */
 export interface RuleDiagnosticsService {

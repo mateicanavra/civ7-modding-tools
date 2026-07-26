@@ -7,7 +7,7 @@ import type {
 import type { HabitatDiagnostic } from "@habitat/cli/service/model/check/index";
 import type { RuleRunResult } from "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy";
 import type { RuleStructureFacts } from "@habitat/cli/service/model/rules/index";
-import { Effect } from "effect";
+import { Effect, Match } from "effect";
 import { parse as parseToml } from "smol-toml";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
@@ -61,6 +61,12 @@ interface MatchedRoot {
   readonly kind: "directory" | "file" | "other" | "missing";
 }
 
+interface StructureTraversalCache {
+  readonly kindsByRepoPath: Map<string, MatchedRoot["kind"]>;
+  readonly childrenByRepoPath: Map<string, readonly HabitatDirectoryEntry[]>;
+  readonly walksByLiteralBase: Map<string, readonly MatchedRoot[]>;
+}
+
 export function parseStructureCheckSpec(
   contents: string
 ): { ok: true; spec: StructureCheckSpec } | { ok: false; message: string } {
@@ -88,8 +94,12 @@ export function runStructureRulesEffect<R>(
   options: StructureCheckOptions<R>
 ): Effect.Effect<Map<string, RuleRunResult>, never, R> {
   return Effect.gen(function* () {
+    const cache = makeStructureTraversalCache();
     const entries = yield* Effect.forEach(rules, (rule) =>
-      Effect.map(runStructureRuleEffect<R>(rule, options), (result) => [rule.id, result] as const)
+      Effect.map(
+        runStructureRuleEffect<R>(rule, options, cache),
+        (result) => [rule.id, result] as const
+      )
     );
     return new Map(entries);
   });
@@ -97,7 +107,8 @@ export function runStructureRulesEffect<R>(
 
 function runStructureRuleEffect<R>(
   rule: RuleStructureFacts,
-  options: StructureCheckOptions<R>
+  options: StructureCheckOptions<R>,
+  cache: StructureTraversalCache
 ): Effect.Effect<RuleRunResult, never, R> {
   return Effect.gen(function* () {
     const structurePath = path.resolve(options.repoRoot, rule.runner.files.structure);
@@ -123,7 +134,7 @@ function runStructureRuleEffect<R>(
       ];
       return { exitCode: 1, diagnostics };
     }
-    return yield* evaluateStructureCheckEffect<R>(rule, parsed.spec, options);
+    return yield* evaluateStructureCheckWithCacheEffect<R>(rule, parsed.spec, options, cache);
   });
 }
 
@@ -132,10 +143,21 @@ export function evaluateStructureCheckEffect<R>(
   spec: StructureCheckSpec,
   options: StructureCheckOptions<R>
 ): Effect.Effect<RuleRunResult, never, R> {
+  return Effect.suspend(() =>
+    evaluateStructureCheckWithCacheEffect(rule, spec, options, makeStructureTraversalCache())
+  );
+}
+
+function evaluateStructureCheckWithCacheEffect<R>(
+  rule: RuleStructureFacts,
+  spec: StructureCheckSpec,
+  options: StructureCheckOptions<R>,
+  cache: StructureTraversalCache
+): Effect.Effect<RuleRunResult, never, R> {
   return Effect.gen(function* () {
     const diagnostics: HabitatDiagnostic[] = [];
     for (const scope of spec.scopes) {
-      diagnostics.push(...(yield* evaluateScopeEffect<R>(rule, scope, options)));
+      diagnostics.push(...(yield* evaluateScopeEffect<R>(rule, scope, options, cache)));
     }
     return { exitCode: diagnostics.length > 0 ? 1 : 0, diagnostics };
   });
@@ -144,11 +166,12 @@ export function evaluateStructureCheckEffect<R>(
 function evaluateScopeEffect<R>(
   rule: RuleStructureFacts,
   scope: StructureCheckScope,
-  options: StructureCheckOptions<R>
+  options: StructureCheckOptions<R>,
+  cache: StructureTraversalCache
 ): Effect.Effect<HabitatDiagnostic[], never, R> {
   return Effect.gen(function* () {
     const diagnostics: HabitatDiagnostic[] = [];
-    const roots = yield* matchedRootsEffect<R>(scope.root, options);
+    const roots = yield* matchedRootsEffect<R>(scope.root, options, cache);
     const matchingKindRoots = roots.filter((root) => root.kind === scope.kind);
     const wrongKindRoots = roots.filter(
       (root) => root.kind !== "missing" && root.kind !== scope.kind
@@ -173,9 +196,7 @@ function evaluateScopeEffect<R>(
     }
     for (const root of matchingKindRoots) {
       if (scope.kind === "file") continue;
-      const children = yield* options.fileSystem
-        .readDirectory(path.resolve(options.repoRoot, root.repoPath))
-        .pipe(Effect.catchAll(() => Effect.succeed([])));
+      const children = yield* readDirectoryCachedEffect<R>(root.repoPath, options, cache);
       diagnostics.push(...evaluateDirectoryChildren(rule, scope, root.repoPath, children));
     }
     return diagnostics;
@@ -237,19 +258,18 @@ function evaluateDirectoryChildren(
 
 function matchedRootsEffect<R>(
   rootGlob: string,
-  options: StructureCheckOptions<R>
-): Effect.Effect<MatchedRoot[], never, R> {
+  options: StructureCheckOptions<R>,
+  cache: StructureTraversalCache
+): Effect.Effect<readonly MatchedRoot[], never, R> {
   return Effect.gen(function* () {
     const normalizedRoot = normalizeRepoPath(rootGlob);
     const isGlob = hasGlobSyntax(normalizedRoot);
     if (!isGlob) {
-      const kind = yield* pathKindEffect<R>(normalizedRoot, options);
+      const kind = yield* pathKindEffect<R>(normalizedRoot, options, cache);
       return kind === "missing" ? [] : [{ repoPath: normalizedRoot, kind }];
     }
     const base = literalWalkBase(normalizedRoot);
-    const baseKind = yield* pathKindEffect<R>(base, options);
-    if (baseKind === "missing") return [];
-    const candidates = yield* walkRepoPathsEffect<R>(base, options);
+    const candidates = yield* walkRepoPathsEffect<R>(base, options, cache);
     const rootMatches = picomatch(normalizedRoot, { contains: false, dot: true });
     return candidates.filter((candidate) => rootMatches(candidate.repoPath));
   });
@@ -257,39 +277,110 @@ function matchedRootsEffect<R>(
 
 function walkRepoPathsEffect<R>(
   repoPath: string,
-  options: StructureCheckOptions<R>
-): Effect.Effect<MatchedRoot[], never, R> {
+  options: StructureCheckOptions<R>,
+  cache: StructureTraversalCache
+): Effect.Effect<readonly MatchedRoot[], never, R> {
   return Effect.gen(function* () {
-    const kind = yield* pathKindEffect<R>(repoPath, options);
-    if (kind === "missing") return [];
+    const cached = cache.walksByLiteralBase.get(repoPath);
+    if (cached) return cached;
+
+    const kind = yield* pathKindEffect<R>(repoPath, options, cache);
+    if (kind === "missing") {
+      const missingWalk: readonly MatchedRoot[] = [];
+      cache.walksByLiteralBase.set(repoPath, missingWalk);
+      return missingWalk;
+    }
+
     const out: MatchedRoot[] = [{ repoPath, kind }];
-    if (kind !== "directory") return out;
+    if (kind === "directory") {
+      yield* appendDescendantPathsEffect<R>(repoPath, options, cache, out);
+    }
+    const completedWalk: readonly MatchedRoot[] = out;
+    cache.walksByLiteralBase.set(repoPath, completedWalk);
+    return completedWalk;
+  });
+}
+
+function appendDescendantPathsEffect<R>(
+  repoPath: string,
+  options: StructureCheckOptions<R>,
+  cache: StructureTraversalCache,
+  out: MatchedRoot[]
+): Effect.Effect<void, never, R> {
+  return Effect.gen(function* () {
+    const children = yield* readDirectoryCachedEffect<R>(repoPath, options, cache);
+    for (const child of children) {
+      const { name, kind } = child;
+      const childRepoPath = `${repoPath}/${name}`;
+      cacheListedPathKind(childRepoPath, kind, cache);
+      out.push({ repoPath: childRepoPath, kind });
+      if (kind === "directory") {
+        yield* appendDescendantPathsEffect<R>(childRepoPath, options, cache, out);
+      }
+    }
+  });
+}
+
+function cacheListedPathKind(
+  repoPath: string,
+  kind: HabitatDirectoryEntry["kind"],
+  cache: StructureTraversalCache
+): void {
+  if (kind === "other" || cache.kindsByRepoPath.has(repoPath)) return;
+  cache.kindsByRepoPath.set(repoPath, kind);
+}
+
+function readDirectoryCachedEffect<R>(
+  repoPath: string,
+  options: StructureCheckOptions<R>,
+  cache: StructureTraversalCache
+): Effect.Effect<readonly HabitatDirectoryEntry[], never, R> {
+  return Effect.gen(function* () {
+    const cached = cache.childrenByRepoPath.get(repoPath);
+    if (cached) return cached;
     const children = yield* options.fileSystem
       .readDirectory(path.resolve(options.repoRoot, repoPath))
       .pipe(Effect.catchAll(() => Effect.succeed([])));
-    for (const child of children) {
-      out.push(...(yield* walkRepoPathsEffect<R>(`${repoPath}/${child.name}`, options)));
-    }
-    return out;
+    cache.childrenByRepoPath.set(repoPath, children);
+    return children;
   });
 }
 
 function pathKindEffect<R>(
   repoPath: string,
-  options: StructureCheckOptions<R>
+  options: StructureCheckOptions<R>,
+  cache: StructureTraversalCache
 ): Effect.Effect<MatchedRoot["kind"], never, R> {
   return Effect.gen(function* () {
+    const cached = cache.kindsByRepoPath.get(repoPath);
+    if (cached) return cached;
+
     const absolute = path.resolve(options.repoRoot, repoPath);
     const isDirectory = yield* options.fileSystem
       .isDirectory(absolute)
       .pipe(Effect.catchAll(() => Effect.succeed(false)));
-    if (isDirectory) return "directory" as const;
+    if (isDirectory) {
+      cache.kindsByRepoPath.set(repoPath, "directory");
+      return "directory" as const;
+    }
     const isFile = yield* options.fileSystem
       .isFile(absolute)
       .pipe(Effect.catchAll(() => Effect.succeed(false)));
-    if (isFile) return "file" as const;
-    return "missing" as const;
+    const kind: "file" | "missing" = Match.value(isFile).pipe(
+      Match.when(true, (): "file" => "file"),
+      Match.orElse((): "missing" => "missing")
+    );
+    cache.kindsByRepoPath.set(repoPath, kind);
+    return kind;
   });
+}
+
+function makeStructureTraversalCache(): StructureTraversalCache {
+  return {
+    kindsByRepoPath: new Map(),
+    childrenByRepoPath: new Map(),
+    walksByLiteralBase: new Map(),
+  };
 }
 
 function matchers(patterns: readonly string[]): Map<string, (candidate: string) => boolean> {
