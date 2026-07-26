@@ -29,13 +29,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** burn the MapGen exported-value documentation contract to
-zero on the live topology. Exported runtime capabilities with consumers retain
-concise declaration-site JSDoc that explains semantic purpose, behavior,
-invariants, flow, or non-obvious gotchas; dead or redundant exports are deleted
-rather than documented. Re-export barrels inherit the owning declaration's
-documentation, and type-only declarations remain outside this value-contract
-law.
+**Current container:** freeze and certify the exact foundation tree, then
+converge its Graphite history without replay or duplicate CI fan-out. The
+implementation train is closed unless proof exposes a concrete regression.
+Delivery work now preserves the tested tree while reconciling native Graphite
+ancestry, folding only the already approved semantic families, submitting one
+coherent stack, merging bottom to top, and draining obsolete worktrees and
+processes. A.2 and post-A.2 product proof remain outside this container.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -52,17 +52,15 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** recensus the live JSDoc rule independently of its stale historical
-baseline, trace questionable exports before preserving them, and partition the
-remaining declarations by semantic owner. Delete dead exports first; then add
-brief behavior-oriented documentation to the surviving contracts. Replace the
-243-row historical baseline with an empty lock, run the focused rule and
-compiler/Knip checks demanded by any deletions, review semantic quality on the
-frozen diff, and commit before the final exact-tree integrated seal. The full
-graph exposed two inherited proof blockers while this cut was buffered: stale
-Core stage fixtures and a misplaced adapter-owned authoring-method catalog.
-Land those as independent lower semantic repairs rather than hiding them in the
-documentation cut.
+**Gradient:** establish one authoritative proof ledger for the frozen head,
+run only native Nx-owned build, type, test, policy, boundary, dead-code,
+OpenSpec, and generated-currentness owners, and repair only failures that belong
+to this delivered tree. Restore trustworthy Narsil indexing and use it only to
+corroborate references, cycles, and boundary crossings after compiler and Knip
+authority pass. Then resolve the pending Graphite restack in the real delivery
+path, preserve the exact tree through the approved semantic fold, submit
+without multiplying CI rows, merge the whole stack, sync once, attach the
+primary worktree to merged `main`, and point the retained Studio runner there.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -97,6 +95,17 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Exported Capability Contract
+
+The live MapGen topology was recensused independently of its stale historical
+baseline. Dead exports were deleted; surviving consumed runtime values gained
+concise behavior-oriented declaration-site JSDoc; re-export barrels inherited
+their owner documentation; and the generic rule expanded across Core,
+diagnostics, metrics, visualization, maps, domains, and recipes with an empty
+baseline. Two graph-exposed blockers were repaired as lower semantic layers:
+Core stage fixtures now inherit admitted defaults, and MapGen Core owns authored
+engine-method policy without a runtime Adapter dependency.
 
 ### 2026-07-26 - Weighted Artifact Kind
 
