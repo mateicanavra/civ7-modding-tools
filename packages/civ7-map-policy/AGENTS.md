@@ -6,6 +6,9 @@ Scope: `packages/civ7-map-policy/**`
 - Does not own MapGen physics, morphology, ecology, placement strategy, recipe
   order, generated mod output, or direct Civ7 runtime calls.
 - Keep this package small: add policies only when at least one operation or verifier needs the same Civ policy outside a single local helper.
+- Runtime source remains a leaf `kind:library`. `scripts/` is the package's
+  separate `kind:package-tool` project and may consume only public library and
+  plugin surfaces; callers continue to use the parent package's Nx aliases.
 
 Tooling:
 

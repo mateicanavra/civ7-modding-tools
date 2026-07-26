@@ -1,25 +1,31 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "civ7-map-policy",
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "!{projectRoot}/scripts/**/*", "sharedGlobals"]
+  },
   "tags": ["kind:library"],
   "targets": {
     "build": {
+      "inputs": ["default", "^default", "typescriptRuntime"],
       "dependsOn": ["^build", "generated:check"]
     },
     "generate": {
-      "executor": "nx:run-commands",
-      "cache": false,
-      "options": {
-        "command": "bun --conditions bun-source packages/civ7-map-policy/scripts/generate.ts --write"
-      }
-    },
-    "generated:check": {
-      "executor": "nx:run-commands",
+      "executor": "nx:noop",
       "cache": false,
       "outputs": [],
-      "options": {
-        "command": "bun --conditions bun-source packages/civ7-map-policy/scripts/generate.ts"
-      }
+      "dependsOn": [{ "projects": ["civ7-map-policy-tools"], "target": "generate" }]
+    },
+    "generated:check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": [],
+      "dependsOn": [{ "projects": ["civ7-map-policy-tools"], "target": "generated:check" }]
+    },
+    "check:tools": {
+      "executor": "nx:noop",
+      "outputs": [],
+      "dependsOn": [{ "projects": ["civ7-map-policy-tools"], "target": "check:tools" }]
     },
     "check": {
       "executor": "nx:noop",

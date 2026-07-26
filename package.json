@@ -28,6 +28,7 @@
   "workspaces": [
     "apps/*",
     "packages/*",
+    "packages/civ7-map-policy/scripts",
     "packages/plugins/*",
     "mods/*",
     "tools/*"

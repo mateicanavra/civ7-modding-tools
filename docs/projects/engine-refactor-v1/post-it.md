@@ -28,16 +28,16 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** collapse resource planning into the two products that
-actually survive execution: admitted per-resource demand and selected resource
-sites. The four fixed family-planner wrappers do not retain independent
-behavior: they duplicated the same habitat predicate, emitted diagnostic
-copies that no consumer used, and exposed only empty strategy config. One
-terminal resolver now owns the exact canonical expectation corpus, habitat
-eligibility, disposition, and demand. Site selection consumes that immutable
-authority and publishes the distinct intent product. A.2, initial setup
-options, broader placement logging, and post-A.2 product proof remain outside
-this container.
+**Current container:** repair the project-plane identity of Civ7 map-policy
+generation, then reduce the completed cleanup stack without changing its
+certified tree. The runtime policy package remains a `kind:library`;
+package-local generation/currentness source is a distinct
+`kind:package-tool`; and `@civ7/plugin-files/generated-file-plan` remains the
+single generic filesystem admission/currentness/materialization owner. Public
+`civ7-map-policy` Nx targets remain stable aliases to the narrower execution
+owner. This is the sole inherited CI blocker admitted before the approved
+stack fold. A.2 and the remaining semantic cleanup stay outside this
+container.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -54,20 +54,15 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** delete the four family planners, `planResourceGroups`, and their
-wiring-only tests; let `resolveResourceDemands` read the frozen expectation
-corpus and build each canonical habitat predicate exactly once; publish exact
-candidate membership, disposition, authored ranges, masks, intensity,
-exclusions, and map cardinality in `resourceDemandPlan`; delete
-`resourceEligibility`; and split `plan-resources` into demand planning followed
-by site selection. Rewire adjustment, metrics, visualization, shipped config,
-and generated consumers once. Preserve stable visualization keys and temporal
-distinction between original selected sites and the post-start support-adjusted
-plan. Bind published dimensions to the active execution grid and require
-candidate, range, mask, count, group, family, and lane evidence to agree at
-artifact admission. Product tests prove demand policy, selection geometry,
-adjustment, and real preset outcomes; SDK-default and impossible-wiring tests
-retire.
+**Gradient:** project the package's scripts as one closed package-tool owner;
+replace its cross-project relative source reach with the existing public
+policy surface; preserve generator task UX through exact Nx dependency aliases;
+ratchet the tag taxonomy and boundary configuration together; prove the
+resolved source graph contains package-tool -> library/plugin edges and no
+library -> plugin edge. Then certify the exact stack, fold its eighteen
+semantic commits into one review family without changing the tree, submit and
+merge through Graphite, sync once without a global restack, and reopen the
+remaining cleanup on merged main.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -102,6 +97,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Resource Demand Authority
+
+Resource planning collapsed into admitted per-resource demand followed by
+selected resource sites. Four duplicate family planners, the synthetic group
+planner, duplicate eligibility artifact, and wiring-only tests were deleted;
+one terminal resolver now owns the exact canonical expectation corpus,
+habitat evidence, disposition, and demand while site selection owns the
+distinct immutable intent product.
 
 ### 2026-07-26 - Discovery Provider Authority
 

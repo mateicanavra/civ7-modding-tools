@@ -13,13 +13,13 @@ import { execSync } from "node:child_process";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { CIV7_RIVER_TYPE_METADATA_SOURCE } from "@civ7/map-policy/river-type-metadata-source";
 import {
   applyGeneratedFilePlan,
   type GeneratedFilePlan,
   type GeneratedFilePlanIssue,
   inspectGeneratedFilePlan,
 } from "@civ7/plugin-files/generated-file-plan";
-import { CIV7_RIVER_TYPE_METADATA_SOURCE } from "../src/river-type-metadata.source.js";
 import { generateSetupParameterSource } from "./setup-parameters.js";
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
