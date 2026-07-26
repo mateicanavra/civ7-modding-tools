@@ -5,7 +5,6 @@ export const STANDARD_ENGINE_EFFECT_TAGS = {
     biomesApplied: "effect:engine.biomesApplied",
     featuresApplied: "effect:engine.featuresApplied",
     plotEffectsApplied: "effect:engine.plotEffectsApplied",
-    placementApplied: "effect:engine.placementApplied",
   },
 } as const;
 
@@ -22,7 +21,6 @@ export const MAP_PROJECTION_EFFECT_TAGS = {
     lakesPlotted: "effect:map.lakesPlotted",
     riversPlotted: "effect:map.riversPlotted",
     hydrologyLakesParityCaptured: "effect:map.hydrologyLakesParityCaptured",
-    placementParityCaptured: "effect:map.placementParityCaptured",
   },
 } as const;
 
@@ -31,8 +29,6 @@ export const PLACEMENT_PRODUCT_EFFECT_TAGS = {
   placement: {
     naturalWondersPlaced: "effect:placement.naturalWondersPlaced",
     surfacePrepared: "effect:placement.surfacePrepared",
-    resourcesPlanned: "effect:placement.resourcesPlanned",
-    resourcesAdjusted: "effect:placement.resourcesAdjusted",
     resourcesPlaced: "effect:placement.resourcesPlaced",
     startsAssigned: "effect:placement.startsAssigned",
     discoveriesPlaced: "effect:placement.discoveriesPlaced",

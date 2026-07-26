@@ -49,7 +49,10 @@ One stage, `placement`, with 11 steps split at real product/effect contracts (en
 8. `place-resources` — thin stamp of the ADJUSTED intents + typed reconcile; publishes `resourcePlacementOutcomes`.
 9. `place-discoveries` — delegates discovery placement to Civ7 and emits observed runtime evidence.
 10. `assign-advanced-starts` — engine advanced-start regions + fertility recalculation (engine effects only; no per-plot readback surface exists).
-11. `placement` (terminal) — verified engine effect (`effect:engine.placementApplied`) plus physics-vs-engine parity metrics, trace evidence, and visualization.
+11. `observe-placement-parity` — exact final Civ7
+    terrain/elevation/water observation plus projected-surface parity trace and
+    visualization. Accepted Hydrology lakes are part of the expected water
+    surface, not drift from raw Morphology land.
 
 The plan→starts→support-adjust→stamp ordering is a deliberate contract: resource *planning* happens before starts (starts score planned sites), resource *stamping* happens after the support pass, so the support guarantee is enforced on the plan rather than by post-stamp mutation (which would need an engine resource-removal capability that does not exist).
 
@@ -84,15 +87,20 @@ Placement provides (product/effect chain, in pipeline order):
 
 - `effect:placement.naturalWondersPlaced`
 - `effect:placement.surfacePrepared`
-- `effect:placement.resourcesPlanned`
 - `effect:placement.startsAssigned`
-- `effect:placement.resourcesAdjusted`
 - `effect:placement.resourcesPlaced`
 - `effect:placement.discoveriesPlaced`
 - `effect:placement.advancedStartsAssigned`
-- `effect:engine.placementApplied` (verified terminal effect)
 
-Ordering between steps is carried by this effect-tag chain alone; there are no ordering-only artifact reads (read-and-discard requires are forbidden).
+Immutable plan and adjustment artifacts carry their own causal edges. Effect
+tags remain only for engine or lifecycle transitions with no immutable data
+product, except `startsAssigned`: its artifact deliberately admits typed
+degraded assignments, while the effect predicate is the stricter continuation
+gate requiring every admitted seat to be assigned. There are no parallel
+`resourcesPlanned` or `resourcesAdjusted` ordering authorities and no
+read-and-discard artifact requirements. Terminal parity evidence is the
+successful observer result plus its trace and visualization projections, not
+another effect tag.
 
 Runtime semantics (ADR-009 regime):
 
@@ -110,10 +118,12 @@ Runtime semantics (ADR-009 regime):
   the step that needs them: terrain/biome/feature classifications feed natural-wonder
   planning in `plan-natural-wonders`; maintenance-boundary readbacks remain
   invocation-local in `prepare-placement-surface`; the prepared legality
-  surface feeds `plan-resources`; and terminal `placement` projects final
-  Morphology-vs-engine parity evidence. Materializers may also read the engine
-  surface they immediately mutate or reconcile. The roster-dependent resource
-  requirement query is a separate declared adapter policy input.
+  surface feeds `plan-resources`; and terminal `observe-placement-parity`
+  projects final expected-surface-vs-engine parity evidence from Morphology
+  topography and accepted Hydrology lakes. Materializers may also read the
+  engine surface they immediately mutate or reconcile. The
+  roster-dependent resource requirement query is a separate declared adapter
+  policy input.
 - `plan-natural-wonders` consumes the immutable biome-classification product
   for physical suitability and observes current terrain, biome, and feature
   classifications once through declared adapter capabilities. It does not

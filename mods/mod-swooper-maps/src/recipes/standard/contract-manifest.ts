@@ -48,10 +48,10 @@ import { config as computeShelfConfig } from "./stages/morphology/shelf/steps/co
 import { config as adjustResourcesConfig } from "./stages/placement/steps/adjust-resources/config.js";
 import { config as assignAdvancedStartsConfig } from "./stages/placement/steps/assign-advanced-starts/config.js";
 import { config as assignStartsConfig } from "./stages/placement/steps/assign-starts/config.js";
+import { config as observePlacementParityConfig } from "./stages/placement/steps/observe-placement-parity/config.js";
 import { config as placeDiscoveriesConfig } from "./stages/placement/steps/place-discoveries/config.js";
 import { config as placeNaturalWondersConfig } from "./stages/placement/steps/place-natural-wonders/config.js";
 import { config as placeResourcesConfig } from "./stages/placement/steps/place-resources/config.js";
-import { config as placementConfig } from "./stages/placement/steps/placement/config.js";
 import { config as planNaturalWondersConfig } from "./stages/placement/steps/plan-natural-wonders/config.js";
 import { config as planResourcesConfig } from "./stages/placement/steps/plan-resources/config.js";
 import { config as plotLandmassRegionsConfig } from "./stages/placement/steps/plot-landmass-regions/config.js";
@@ -117,7 +117,7 @@ export const standardStageContractManifest = [
     placeResourcesConfig,
     placeDiscoveriesConfig,
     assignAdvancedStartsConfig,
-    placementConfig,
+    observePlacementParityConfig,
   ]),
 ] as const satisfies readonly StandardContractStageManifest[];
 

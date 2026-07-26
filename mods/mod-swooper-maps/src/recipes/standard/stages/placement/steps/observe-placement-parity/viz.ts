@@ -6,7 +6,7 @@ import {
   transparentNoneCategory,
 } from "../../viz.js";
 
-type PlacementCompletionVizResult = Readonly<{
+type PlacementParityVizResult = Readonly<{
   engineObservation: Readonly<{
     terrain: Int32Array;
     elevation: Int16Array;
@@ -19,8 +19,8 @@ type PlacementCompletionVizResult = Readonly<{
  * Projects the final engine surface and its physics-comparison drift after placement completes.
  * The adapter observation is borrowed exactly as read; only the drift array is derived.
  */
-export function projectPlacementCompletionViz(
-  result: PlacementCompletionVizResult,
+export function projectPlacementParityViz(
+  result: PlacementParityVizResult,
   dimensions: Readonly<{ width: number; height: number }>
 ): readonly VizProjection[] {
   const projections: VizProjection[] = [];
@@ -35,14 +35,14 @@ export function projectPlacementCompletionViz(
         "map.placement.engine.waterDrift",
         [
           transparentNoneCategory("In Agreement"),
-          { value: 1, label: "Engine Land / Physics Water", color: [34, 197, 94, 235] },
-          { value: 2, label: "Engine Water / Physics Land", color: [239, 68, 68, 235] },
+          { value: 1, label: "Engine Land / Projected Water", color: [34, 197, 94, 235] },
+          { value: 2, label: "Engine Water / Projected Land", color: [239, 68, 68, 235] },
         ],
         {
-          label: "Engine vs Physics Water Drift",
+          label: "Engine vs Projected Water Drift",
           visibility: "debug",
           description:
-            "Tiles where the post-placement engine land mask disagrees with the Morphology physics land mask (the waterDriftCount parity evidence).",
+            "Tiles where the post-placement engine land mask disagrees with the projected land and accepted-lake surface.",
         }
       ),
     });

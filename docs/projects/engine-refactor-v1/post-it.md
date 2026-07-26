@@ -28,17 +28,20 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** seal current Civ7 map observation at the adapter
-boundary. Standard steps currently reconstruct detached terrain, elevation,
-biome, feature, water, and lake surfaces through mod-local tile loops even
-though the adapter already owns the engine readback contract. Delete that
-second acquisition authority. The adapter exposes exact, detached bulk map
-layers backed by one internal acquisition primitive; steps request only the
-layers their product comparison needs and retain invocation timing. A
-water-only parity check must not silently acquire biome, feature, elevation,
-and river state. Swooper keeps product interpretation and parity policy, never
-engine probing or durable snapshots. A.2, initial setup options, and post-A.2
-product proof remain outside this container.
+**Current container:** purify Placement's causal authority after confirming
+that the old `derive-placement-inputs` coordination knot was already deleted at
+its root. Surviving placement steps mostly own real product or lifecycle
+boundaries; do not split them merely because their executable is large.
+Instead, remove false coordination state inside those boundaries. Artifact
+publication already carries planning and adjustment causality, so parallel
+`resourcesPlanned` and `resourcesAdjusted` effects add a second ordering
+authority. The terminal `placement` step places nothing: it is an exact final
+engine observer and projected-surface parity projection over Morphology
+topography plus accepted Hydrology lakes, not the owner of a global placement
+effect or a second aggregate product summary. Rename it for that behavior and
+delete the false surfaces rather than preserving them more elegantly. A.2,
+initial setup options, and post-A.2 product proof remain outside this
+container.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -55,17 +58,20 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** define adapter-owned bulk reads for the engine's terrain,
-elevation, biome, feature, water, lake, area, and river layers, and share one
-acquisition primitive across production and mock adapters. Delete the unused
-complete-surface aggregate rather than retaining a privileged broad read.
-Replace mod-local capture helpers at their exact lifecycle points, tighten each
-step's engine capability declaration, move the water-to-land parity transform
-to its recipe policy owner, and delete `current-engine-surface.ts`. Preserve
-observation timing in this ownership cut; any product-timing correction lands
-separately. Retain only tests that prove detached adapter evidence or observable
-Swooper product behavior, then seal the cut through the native
-adapter/Core/Swooper graph.
+**Gradient:** remove the redundant resource plan/adjustment effect tags and let
+their required artifacts remain the single causal edges. Retire the global
+`placementApplied` tag and its adapter call-evidence bookkeeping because the
+real product effects plus `advancedStartsAssigned` already prove the ordered
+placement lifecycle. Rename the terminal step to `observe-placement-parity`;
+retain only topography, accepted projected-lake continuity, exact
+current-engine terrain/elevation/water reads, parity trace, and visualization.
+Delete its four aggregate product reads, unconsumed `placement.completion`
+metric, and unconsumed parity-completion tag. Update current system
+documentation and behavior tests, regenerate owned outputs, and seal through
+the native adapter/Core/Swooper graph. Then recensus the two remaining
+materializers for provider-contract reimplementation: preserve product
+retry/reconciliation policy while deleting adapter input and readback
+validation duplicated inside steps.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -100,6 +106,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Current Engine Observation Authority
+
+Civ7 adapter observation became the sole acquisition boundary for current
+terrain, elevation, biome, feature, water, lake, area, and river surfaces.
+Standard steps request only exact detached layers at their real lifecycle
+points; the unused complete-surface aggregate and mod-local probing helper were
+deleted. Product parity transforms remain recipe-owned, while engine probing
+and readback construction remain adapter-owned.
 
 ### 2026-07-26 - Topography Reconciliation Authority
 

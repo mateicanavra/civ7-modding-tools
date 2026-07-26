@@ -27,7 +27,7 @@ export const config = defineStep({
     "isResourceRequiredForAge",
   ] as const,
   requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.surfacePrepared],
-  provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlanned],
+  provides: [],
   artifacts: {
     requires: [
       morphologyLandformsArtifacts.topography,

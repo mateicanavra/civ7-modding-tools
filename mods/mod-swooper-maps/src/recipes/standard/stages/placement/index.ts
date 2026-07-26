@@ -3,10 +3,10 @@ import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { AdjustResourcesStep } from "./steps/adjust-resources/step.js";
 import { AssignAdvancedStartsStep } from "./steps/assign-advanced-starts/step.js";
 import { AssignStartsStep } from "./steps/assign-starts/step.js";
+import { ObservePlacementParityStep } from "./steps/observe-placement-parity/step.js";
 import { PlaceDiscoveriesStep } from "./steps/place-discoveries/step.js";
 import { PlaceNaturalWondersStep } from "./steps/place-natural-wonders/step.js";
 import { PlaceResourcesStep } from "./steps/place-resources/step.js";
-import { PlacementStep } from "./steps/placement/step.js";
 import { PlanNaturalWondersStep } from "./steps/plan-natural-wonders/step.js";
 import { PlanResourcesStep } from "./steps/plan-resources/step.js";
 import { PlotLandmassRegionsStep } from "./steps/plot-landmass-regions/step.js";
@@ -35,6 +35,6 @@ export default createStage({
     "place-resources": PlaceResourcesStep,
     "place-discoveries": PlaceDiscoveriesStep,
     "assign-advanced-starts": AssignAdvancedStartsStep,
-    placement: PlacementStep,
+    "observe-placement-parity": ObservePlacementParityStep,
   }),
 } as const);

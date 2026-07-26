@@ -517,10 +517,6 @@ export class MockAdapter implements EngineAdapter {
     this.effectEvidence.add(effectId);
   }
 
-  private recordPlacementEffect(): void {
-    this.recordEffect(ENGINE_EFFECT_TAGS.placementApplied);
-  }
-
   verifyEffect(effectId: string): boolean {
     if (effectId === "effect:engine.landmassApplied") {
       // Best-effort: landmass should create at least some land and some water.
@@ -765,7 +761,6 @@ export class MockAdapter implements EngineAdapter {
     const hasResource = resourceType !== this.NO_RESOURCE;
     if (!hadResource && hasResource) this.resourcesPlaced += 1;
     if (hadResource && !hasResource) this.resourcesPlaced = Math.max(0, this.resourcesPlaced - 1);
-    this.recordPlacementEffect();
   }
 
   canHaveResource(x: number, y: number, resourceType: number): boolean {
@@ -1428,7 +1423,6 @@ export class MockAdapter implements EngineAdapter {
       direction,
       elevation: resolvedElevation,
     });
-    this.recordPlacementEffect();
     return {
       status: "placed",
       plotIndex,
@@ -1453,7 +1447,6 @@ export class MockAdapter implements EngineAdapter {
       discoveryVisualType,
       discoveryActivationType,
     });
-    this.recordPlacementEffect();
     return true;
   }
 
@@ -1534,7 +1527,6 @@ export class MockAdapter implements EngineAdapter {
       startPositions: resolvedStartPositions,
       polarMargin: resolvedPolarMargin,
     });
-    this.recordPlacementEffect();
     // The mock does not run the real generator; it reports the configured count
     // as both attempted and placed (no engine-side rejection in the mock).
     return {
@@ -1558,14 +1550,12 @@ export class MockAdapter implements EngineAdapter {
     });
     const placedCount = this.officialResourcesPlacedCount;
     this.resourcesPlaced += placedCount;
-    this.recordPlacementEffect();
     return placedCount;
   }
 
   generateSnow(width: number, height: number): void {
     this.calls.generateSnow.push({ width, height });
     // Mock: no-op
-    this.recordPlacementEffect();
   }
 
   assignStartPositions(
@@ -1583,7 +1573,6 @@ export class MockAdapter implements EngineAdapter {
       startSectorRows,
       startSectorCols,
     });
-    this.recordPlacementEffect();
     // Mock: return array of placeholder positions (one per player)
     const totalPlayers = playersLandmass1 + playersLandmass2;
     return Array.from({ length: totalPlayers }, (_, i) => i * 100);
@@ -1591,7 +1580,6 @@ export class MockAdapter implements EngineAdapter {
 
   setStartPosition(plotIndex: number, playerId: number): void {
     this.calls.setStartPosition.push({ plotIndex, playerId });
-    this.recordPlacementEffect();
   }
 
   getAliveMajorIds(): number[] {
@@ -1610,19 +1598,16 @@ export class MockAdapter implements EngineAdapter {
   assignAdvancedStartRegions(): void {
     this.calls.assignAdvancedStartRegions++;
     // Mock: no-op
-    this.recordPlacementEffect();
   }
 
   addFloodplains(minLength: number, maxLength: number): void {
     this.calls.addFloodplains.push({ minLength, maxLength });
     // Mock: no-op
-    this.recordPlacementEffect();
   }
 
   recalculateFertility(): void {
     this.calls.recalculateFertility++;
     // Mock: no-op
-    this.recordPlacementEffect();
   }
 
   chooseStartSectors(

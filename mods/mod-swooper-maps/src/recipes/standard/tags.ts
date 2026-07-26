@@ -14,24 +14,25 @@ const VERIFIED_EFFECT_SATISFIES: Partial<Record<string, EffectTagSatisfiesProper
   [STANDARD_ENGINE_EFFECT_TAGS.engine.biomesApplied]: {
     satisfies: (evidence) => evidence.verifyEffect(),
   },
-  [STANDARD_ENGINE_EFFECT_TAGS.engine.placementApplied]: {
-    satisfies: (evidence) => isPlacementAppliedSatisfied(evidence),
+  [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned]: {
+    satisfies: (evidence) => isStartAssignmentSatisfied(evidence),
   },
 };
 
 /**
- * Runtime definitions for every Standard effect tag. Biome completion verifies adapter evidence;
- * terminal placement verifies the domain-owned start assignment. Data dependencies are registered
- * by their step-selected Artifact authorities instead of this catalog.
+ * Runtime definitions for every Standard effect tag. Biome completion verifies
+ * adapter evidence; start completion verifies the domain-owned assignment.
+ * Data dependencies are registered by their step-selected Artifact authorities
+ * instead of this catalog.
  */
 export const STANDARD_TAG_DEFINITIONS: readonly DependencyTagDefinition[] = [
   ...Object.values(MAP_PROJECTION_EFFECT_TAGS.map).map(effectTagDefinition),
-  ...Object.values(PLACEMENT_PRODUCT_EFFECT_TAGS.placement).map(effectTagDefinition),
-  ...Object.values(STANDARD_ENGINE_EFFECT_TAGS.engine).map(standardEngineEffectTagDefinition),
+  ...Object.values(PLACEMENT_PRODUCT_EFFECT_TAGS.placement).map(verifiedEffectTagDefinition),
+  ...Object.values(STANDARD_ENGINE_EFFECT_TAGS.engine).map(verifiedEffectTagDefinition),
 ];
 
 /** Requires canonical start evidence to assign every seat with zero unseated players. */
-function isPlacementAppliedSatisfied(evidence: DependencyEvidence): boolean {
+function isStartAssignmentSatisfied(evidence: DependencyEvidence): boolean {
   const assignment = evidence.observeArtifact(placementStartArtifacts.startAssignment);
   if (!assignment.found) return false;
   return (
@@ -48,7 +49,7 @@ function effectTagDefinition(id: string): DependencyTagDefinition {
   };
 }
 
-function standardEngineEffectTagDefinition(id: string): DependencyTagDefinition {
+function verifiedEffectTagDefinition(id: string): DependencyTagDefinition {
   return {
     ...effectTagDefinition(id),
     ...VERIFIED_EFFECT_SATISFIES[id],

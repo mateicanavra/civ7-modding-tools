@@ -47,7 +47,7 @@ const EXPECTED_KEYS_BY_STEP: Record<string, readonly string[]> = {
   ],
   "adjust-resources": ["placement.resources.supportAdjustment", "placement.starts.supportRadius"],
   "place-resources": ["placement.resources.outcome"],
-  placement: ["map.placement.engine.landMask", "map.placement.engine.waterDrift"],
+  "observe-placement-parity": ["map.placement.engine.landMask", "map.placement.engine.waterDrift"],
 };
 
 describe("Standard placement visualization", () => {

@@ -106,10 +106,6 @@ export class Civ7Adapter implements EngineAdapter {
     this.effectEvidence.add(effectId);
   }
 
-  private recordPlacementEffect(): void {
-    this.recordEffect(ENGINE_EFFECT_TAGS.placementApplied);
-  }
-
   private countPlacedResources(): number {
     const noResource = this.NO_RESOURCE | 0;
     let count = 0;
@@ -387,7 +383,6 @@ export class Civ7Adapter implements EngineAdapter {
       throw new Error("[Adapter] ResourceBuilder.setResourceType is unavailable.");
     }
     rb.setResourceType(x, y, resourceType);
-    this.recordPlacementEffect();
   }
 
   canHaveResource(x: number, y: number, resourceType: number): boolean {
@@ -1043,7 +1038,6 @@ export class Civ7Adapter implements EngineAdapter {
         };
       }
     }
-    this.recordPlacementEffect();
     return {
       status: "placed",
       plotIndex,
@@ -1082,7 +1076,6 @@ export class Civ7Adapter implements EngineAdapter {
       discoveryVisualType,
       discoveryActivationType
     );
-    if (placed) this.recordPlacementEffect();
     return Boolean(placed);
   }
 
@@ -1216,7 +1209,6 @@ export class Civ7Adapter implements EngineAdapter {
     const countedPlaced = Math.max(0, resourcesAfter - resourcesBefore);
     const placedCount = Math.max(0, observedPlacedCount, countedPlaced);
 
-    this.recordPlacementEffect();
     return placedCount;
   }
 
@@ -1292,13 +1284,11 @@ export class Civ7Adapter implements EngineAdapter {
       mapConstructibles.addDiscovery = originalAddDiscovery;
     }
 
-    this.recordPlacementEffect();
     return { attemptedCount, placedCount };
   }
 
   generateSnow(width: number, height: number): void {
     civ7GenerateSnow(width, height);
-    this.recordPlacementEffect();
   }
 
   assignStartPositions(
@@ -1310,7 +1300,6 @@ export class Civ7Adapter implements EngineAdapter {
     startSectorCols: number,
     startSectors: number[]
   ): number[] {
-    this.recordPlacementEffect();
     const result = civ7AssignStartPositions(
       playersLandmass1,
       playersLandmass2,
@@ -1331,7 +1320,6 @@ export class Civ7Adapter implements EngineAdapter {
     ).StartPositioner;
     if (startPositioner?.setStartPosition) {
       startPositioner.setStartPosition(plotIndex, playerId);
-      this.recordPlacementEffect();
     }
   }
 
@@ -1365,7 +1353,6 @@ export class Civ7Adapter implements EngineAdapter {
 
   assignAdvancedStartRegions(): void {
     civ7AssignAdvancedStartRegions();
-    this.recordPlacementEffect();
   }
 
   addFloodplains(minLength: number, maxLength: number): void {
@@ -1374,7 +1361,6 @@ export class Civ7Adapter implements EngineAdapter {
     if (typeof tb.addFloodplains === "function") {
       tb.addFloodplains(minLength, maxLength);
     }
-    this.recordPlacementEffect();
   }
 
   recalculateFertility(): void {
@@ -1388,7 +1374,6 @@ export class Civ7Adapter implements EngineAdapter {
         "[Civ7Adapter] FertilityBuilder not available - fertility will be calculated by engine defaults"
       );
     }
-    this.recordPlacementEffect();
   }
 }
 
