@@ -28,16 +28,19 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** collapse Pedology relief to one domain authority. The
-Standard step currently derives land-aware hex-neighbor relief, while the
-domain operation accepts an optional slope and silently substitutes normalized
-altitude when it is absent. These are different measurements, so caller shape
-changes product semantics. Move the exact existing relief derivation behind the
-operation boundary, remove the optional input and recipe-owned algorithm, and
-prove the behavior at the Pedology operation owner. Keep the earned step as
-read -> classify -> publish -> visualize orchestration. Do not absorb the
-separate behavior-changing bedrock-age question into this preservation cut.
-A.2 and post-A.2 product proof remain outside this container.
+**Current container:** collapse class/elevation/bathymetry reconciliation to one
+Morphology rule authority and make each real state transition return a coherent
+topography. The initial landmass step locally repairs the partial result of
+`compute-landmask`; rugged-coasts calls a parameter-free reconciliation
+operation after its coastline operation has already produced the authoritative
+carved land mask. Close the generic domain `model/rules` kind first. Then make
+landmask computation and coastline carving each return their complete
+topography vintage through the same neutral rule, delete the standalone
+reconciliation operation and empty authored config, and remove `coastMask` as a
+second classification authority. Preserve product behavior and trace timing,
+but do not preserve obsolete operation/config identity or move domain logic
+into recipe steps. A.2 and post-A.2 product proof remain outside this
+container.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -54,12 +57,13 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** delete the duplicate relief calculation and false altitude
-fallback, narrow the shared operation contract, add one preset-sized semantic
-behavior proof, then seal the exact Swooper type/test and relevant positive
-kind laws. After that, resume the closed-step earnedness census and take the
-next complete behavior-preserving owner collapse rather than opening a broad
-step rewrite.
+**Gradient:** seal the closed domain/module model-rule destination, then delete
+the standalone reconciliation operation, duplicate recipe algorithm, empty
+config surface, and redundant coast mask. Propagate complete coherent
+topography from the two actual state transitions, prove class/datum consistency
+and input immutability on the shared Civ7 test preset, regenerate consumers,
+and seal generated currentness, Swooper type/test, and the existing positive
+domain/step laws before taking the next earnedness candidate.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty

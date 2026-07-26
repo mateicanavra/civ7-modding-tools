@@ -23,3 +23,39 @@ allowed = [
   "policy",
   "rules",
 ]
+
+[[scopes]]
+name = "mapgen-domain-root-model-rules"
+root = "mods/*/src/domain/!(*.*)/model/rules"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+allowed = [
+  "+([a-z0-9])*(-+([a-z0-9])).ts",
+]
+forbidden = [
+  "common.ts",
+  "helpers.ts",
+  "index.ts",
+  "shared.ts",
+  "types.ts",
+  "utils.ts",
+]
+
+[[scopes]]
+name = "mapgen-domain-module-model-rules"
+root = "mods/*/src/domain/!(*.*)/modules/!(*.*)/model/rules"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+allowed = [
+  "+([a-z0-9])*(-+([a-z0-9])).ts",
+]
+forbidden = [
+  "common.ts",
+  "helpers.ts",
+  "index.ts",
+  "shared.ts",
+  "types.ts",
+  "utils.ts",
+]

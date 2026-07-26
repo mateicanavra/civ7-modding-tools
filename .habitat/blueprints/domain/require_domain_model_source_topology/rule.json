@@ -12,9 +12,9 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "domain or module model roots outside the positive atom and policy owner topology",
-  "why": "The model source kind owns vocabulary at the nearest semantic domain or module level. Keeping this topology separate prevents router structure from mixing with atoms and policy or recursively recreating child-kind authority.",
-  "remediate": "Keep schema-bearing reusable vocabulary in atoms and semantic decisions in policy; hoist only vocabulary shared by multiple modules, and move every other child to its actual owner or delete it.",
+  "forbids": "domain or module model roots outside the positive atom, policy, and shared-rule owner topology",
+  "why": "The model source kind owns vocabulary and neutral shared domain logic at the nearest semantic domain or module level. Keeping this topology separate prevents router structure from mixing with atoms, policy, or rules and prevents shared logic from becoming another nested registry or helper cabinet.",
+  "remediate": "Keep schema-bearing reusable vocabulary in atoms, semantic decisions in policy, and flat semantically named shared algorithms in rules. Hoist only members shared by multiple modules, forbid rule barrels, and move every other child to its actual owner or delete it.",
   "message": "Domain model roots must match the positive domain-model blueprint spine.",
   "pathCoverage": [
     {
