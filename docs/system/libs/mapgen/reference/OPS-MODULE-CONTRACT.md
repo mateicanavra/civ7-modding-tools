@@ -94,6 +94,10 @@ cardinality metadata. Select the mode by the exact relation the input owns:
   and is reserved for inputs that genuinely have no fixed input-relative
   cardinality.
 
+`"map-grid"` is contextual artifact cardinality. Operation contracts have no
+admitted setup context and refuse that mode when the operation is constructed;
+use the ordinary input-relative modes above.
+
 ```ts
 input: Type.Object({
   width: Type.Integer({ minimum: 1 }),
@@ -108,9 +112,10 @@ input: Type.Object({
 }),
 ```
 
-Only typed-array schemas reachable through an operation's input compile this
-metadata into runtime admission. Operation outputs and artifact schemas do not;
-their owners retain responsibility for any constructor or relational checks.
+The schema-owned typed-array compiler is shared, but each boundary selects its
+capabilities. Operation inputs compile input-relative metadata and refuse
+contextual `"map-grid"`; artifacts compile the same exact-constructor walker
+with admitted dimensions.
 
 ## Type authority
 

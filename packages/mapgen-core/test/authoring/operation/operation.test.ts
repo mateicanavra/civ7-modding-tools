@@ -683,6 +683,35 @@ describe("operation authoring", () => {
     );
   });
 
+  it("refuses context-relative map-grid cardinality at operation construction", () => {
+    const contract = defineOp({
+      kind: "compute",
+      id: "test/contextual-cardinality-operation-input",
+      input: Type.Object(
+        {
+          grid: TypedArraySchemas.u8({ cardinality: "map-grid" }),
+        },
+        { additionalProperties: false }
+      ),
+      output: Type.Integer(),
+      strategies: [
+        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
+      ],
+    });
+
+    expect(() =>
+      createOp(contract, {
+        strategies: [
+          createStrategy(contract, contract.strategies.single, {
+            run: (input) => input.grid.length,
+          }),
+        ],
+      })
+    ).toThrow(
+      'Operation typed-array cardinality "map-grid" requires an admitted validation context'
+    );
+  });
+
   it("refuses all typed-array admission issues deterministically before strategy execution", () => {
     const contract = defineOp({
       kind: "compute",
