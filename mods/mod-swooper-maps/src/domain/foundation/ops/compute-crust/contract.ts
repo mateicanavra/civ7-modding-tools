@@ -1,9 +1,8 @@
 import type { Static, TSchema } from "@swooper/mapgen-core/authoring/contracts";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-
-import { Schema as FoundationCrustSchema } from "../../artifacts/crust.artifact.js";
 import { Schema as FoundationMantleForcingSchema } from "../../artifacts/mantle-forcing.artifact.js";
 import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
+import { CrustSchema as FoundationCrustSchema } from "../../model/schemas/crust.schema.js";
 
 function withDescription<T extends TSchema>(schema: T, description: string) {
   const { additionalProperties: _additionalProperties, default: _default, ...rest } = schema as any;

@@ -27,6 +27,7 @@ const LakesStepConfigSchema = Type.Object(
  */
 export const LakesStepContract = defineStep({
   id: "lakes",
+  engine: ["stampLakes"] as const,
   requires: [],
   provides: [
     MAP_PROJECTION_EFFECT_TAGS.map.lakesPlotted,

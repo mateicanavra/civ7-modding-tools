@@ -1,5 +1,6 @@
 import * as ecology from "@mapgen/domain/ecology";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { captureEngineWaterMask } from "../../../../current-engine-surface.js";
 import {
   defineStandardVizCategoryMeta,
   defineStandardVizMeta,
@@ -22,12 +23,14 @@ export const PlotBiomesStep = createStep(PlotBiomesStepContract, {
     const { width, height } = context.setup.dimensions;
     const classification = deps.artifacts.biomeClassification.read(context);
     const topography = deps.artifacts.topography.read(context);
-    const engineBiomeIds = resolveEngineBiomeIds(context.adapter);
+    const engineBiomeIds = resolveEngineBiomeIds({
+      getBiomeGlobal: (key) => deps.engine.getBiomeGlobal(context, key),
+    });
     const { land: engineBindings, marine: marineBiome } = engineBiomeIds;
 
     const size = width * height;
-    const engineBiomeId = new Uint16Array(size);
-    const projectedBiomeId = new Uint8Array(size);
+    const engineBiomeId = new Int32Array(size);
+    const projectedBiomeId = new Int32Array(size);
     const projectedTemperature = new Uint8Array(size);
     const bindingClass = new Uint8Array(size);
     const idToSymbols = new Map<number, Set<string>>();
@@ -47,7 +50,7 @@ export const PlotBiomesStep = createStep(PlotBiomesStepContract, {
       for (let x = 0; x < width; x++) {
         const idx = rowOffset + x;
         if (topography.landMask[idx] === 0) {
-          context.adapter.setBiomeType(x, y, marineBiome);
+          deps.engine.setBiomeType(context, x, y, marineBiome);
           engineBiomeId[idx] = marineBiome;
           projectedBiomeId[idx] = marineBiome;
           projectedTemperature[idx] = clampToByte(classification.surfaceTemperature[idx]! + 50);
@@ -58,7 +61,7 @@ export const PlotBiomesStep = createStep(PlotBiomesStepContract, {
         if (biomeIdx === 255) continue;
         const symbol = ecology.biomeSymbolFromIndex(biomeIdx);
         const engineId = engineBindings[symbol];
-        context.adapter.setBiomeType(x, y, engineId);
+        deps.engine.setBiomeType(context, x, y, engineId);
         engineBiomeId[idx] = engineId;
         projectedBiomeId[idx] = engineId;
         projectedTemperature[idx] = clampToByte(classification.surfaceTemperature[idx]! + 50);
@@ -71,12 +74,13 @@ export const PlotBiomesStep = createStep(PlotBiomesStepContract, {
       }
     }
 
+    const engineWaterMask = captureEngineWaterMask(context.setup.dimensions, (x, y) =>
+      deps.engine.isWater(context, x, y)
+    );
     let landWaterMismatchCount = 0;
     for (let i = 0; i < size; i++) {
-      const x = i % width;
-      const y = (i / width) | 0;
       const wantsLand = topography.landMask[i] === 1;
-      const isLand = !context.adapter.isWater(x, y);
+      const isLand = engineWaterMask[i] !== 1;
       if (wantsLand !== isLand) landWaterMismatchCount += 1;
     }
 
@@ -106,7 +110,7 @@ export const PlotBiomesStep = createStep(PlotBiomesStepContract, {
         dataTypeKey: "map.ecology.biomeId",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "u8", values: result.projectedBiomeId },
+        field: { format: "i32", values: result.projectedBiomeId },
         meta: defineStandardVizCategoryMeta("map.ecology.biomeId", biomeIdCategories, {
           label: "Biome Id (Engine)",
           group: GROUP_MAP_ECOLOGY,

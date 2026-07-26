@@ -20,6 +20,7 @@ A step contract defines:
 - `id` (kebab-case, stable)
 - `requires` / `provides` tags (validated)
 - optional `artifacts` requires/provides (preferred over mixing artifact tags into requires/provides)
+- optional `engine` method keys (an exact occurrence-scoped adapter capability set)
 - `schema` (TypeBox schema; closed by default)
 - optional `ops` decl (op contracts used by the step, with schema-enveloped strategies)
 
@@ -42,11 +43,14 @@ import { artifactModules as mapRiversArtifactModules } from "../../artifacts/ind
 /** Contract and compiled configuration boundary for Civ7 river projection. */
 export const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
+  engine: [
+    "setTerrainType",
+    "modelRivers",
+    "validateAndFixTerrain",
+    "readRiverProjection",
+  ] as const,
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
-  provides: [
-    MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
-    MAP_PROJECTION_EFFECT_TAGS.map.riversParityCaptured,
-  ],
+  provides: [MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted],
   artifacts: {
     requires: [
       hydrologyHydrographyArtifacts.hydrography,
@@ -54,11 +58,7 @@ export const PlotRiversStepContract = defineStep({
       hydrologyHydrographyArtifacts.riverNetworkMetrics,
       mapMorphologyArtifacts.coastClassification,
     ],
-    provides: [
-      mapRiversArtifactModules.projectedNavigableRivers,
-      mapRiversArtifactModules.engineProjectionRivers,
-      mapRiversArtifactModules.riversEngineTerrainSnapshot,
-    ],
+    provides: [mapRiversArtifactModules.projectedNavigableRivers],
   },
   ops: {
     selectNavigableRiverTerrain: hydrology.ops.selectNavigableRiverTerrain,
@@ -78,6 +78,10 @@ A step module pairs a step contract with an implementation:
 step contract. Implementations cannot declare a second artifact-provider surface. Steps
 with no provided artifacts, an empty provides tuple, or requires-only artifact dependencies
 have no provider runtime map.
+
+The same contract binds `deps.engine` to only the declared adapter methods. Calls are
+context-first (`deps.engine.method(context, ...)`) and valid only during that exact step
+occurrence; `MapContext` never exposes the raw adapter.
 
 Representative example (createStep boundary; excerpt; see full file in anchors):
 
@@ -106,16 +110,17 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
       },
       config.selectNavigableRiverTerrain
     );
-    // ... stamp projected.riverMask as TERRAIN_NAVIGABLE_RIVER ...
-    // ... refresh Civ caches and publish projected + engine readback artifacts ...
+    // ... stamp projected.riverMask through deps.engine.setTerrainType(context, ...) ...
+    // ... refresh Civ caches, publish projected intent, and keep immediate readback as evidence ...
   },
 });
 ```
 
 Do not use the old `TerrainBuilder.modelRivers` delegation pattern as a new
 MapGen truth template. Hydrology owns river truth; `map-rivers` projects the
-Civ-visible navigable terrain subset, records planned minor/major intent, and
-captures engine readback as a separate proof surface. A bounded
+Civ-visible navigable terrain subset and records planned minor/major intent.
+Mutable engine readback is observed at the decision or proof boundary that needs it; it is not a
+later-consumed artifact. A bounded
 adapter-owned `modelRivers(...)` call is allowed only after Hydrology-selected
 terrain stamping, as native Civ materialization for metadata/model/cache state.
 

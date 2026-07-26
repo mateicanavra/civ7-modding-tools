@@ -1,5 +1,6 @@
 import type { TraceJsonObject } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { captureEngineTerrainClassification } from "../../../../current-engine-surface.js";
 import { restoreProjectedCoastTerrain } from "../../../../water-surface-parity.js";
 import { logTerrainStats, runPlacementProductStep } from "../../log.js";
 import { PreparePlacementSurfaceStepContract } from "./config.js";
@@ -17,61 +18,81 @@ export const PreparePlacementSurfaceStep = createStep(PreparePlacementSurfaceSte
     const engineProjectionLakes = deps.artifacts.engineProjectionLakes.read(context);
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
     const coastClassification = deps.artifacts.coastClassification.read(context);
-    const { adapter, trace } = context;
     const { width, height } = context.setup.dimensions;
+    const dimensions = context.setup.dimensions;
     const slotByTile = landmassRegionSlotByTile.slotByTile as Uint8Array;
     const emit = (payload: TraceJsonObject): void => {
-      if (!trace?.isVerbose) return;
-      trace.event(() => payload);
+      context.trace.event(() => payload);
     };
 
-    logTerrainStats(context, "Initial");
+    const readCurrentTerrainClassification = () =>
+      captureEngineTerrainClassification(dimensions, {
+        getTerrainType: (x, y) => deps.engine.getTerrainType(context, x, y),
+        isWater: (x, y) => deps.engine.isWater(context, x, y),
+        isLake: (x, y) => deps.engine.isLake(context, x, y),
+      });
+    const readAreaId = (x: number, y: number) => deps.engine.getAreaId(context, x, y);
+    const initialSurface = readCurrentTerrainClassification();
+    logTerrainStats(context, "Initial", initialSurface);
 
     const beforeValidate = readTerrainValidationBoundarySnapshot(
-      adapter,
-      width,
-      height,
+      initialSurface,
+      readAreaId,
       "placement/prepare-surface/before-validate"
     );
     let afterValidate = beforeValidate;
     runPlacementProductStep("placement.terrain.validate", emit, () => {
-      adapter.validateAndFixTerrain();
+      deps.engine.validateAndFixTerrain(context);
       restoreProjectedCoastTerrain(
-        context,
+        dimensions,
+        context.trace,
+        {
+          getTerrainType: (x, y) => deps.engine.getTerrainType(context, x, y),
+          setTerrainType: (x, y, terrainType) =>
+            deps.engine.setTerrainType(context, x, y, terrainType),
+          storeWaterData: () => deps.engine.storeWaterData(context),
+        },
         coastClassification,
         "placement/prepare-surface/after-validate"
       );
+      const afterValidateSurface = readCurrentTerrainClassification();
       afterValidate = readTerrainValidationBoundarySnapshot(
-        adapter,
-        width,
-        height,
+        afterValidateSurface,
+        readAreaId,
         "placement/prepare-surface/after-validate"
       );
       emit({ type: "placement.terrain.validated" });
-      logTerrainStats(context, "After validateAndFixTerrain");
+      logTerrainStats(context, "After validateAndFixTerrain", afterValidateSurface);
     });
     runPlacementProductStep("placement.areas.recalculate", emit, () => {
-      adapter.recalculateAreas();
+      deps.engine.recalculateAreas(context);
       emit({ type: "placement.areas.recalculated" });
     });
     runPlacementProductStep("placement.water.store", emit, () => {
-      adapter.storeWaterData();
+      deps.engine.storeWaterData(context);
       emit({ type: "placement.water.stored" });
     });
     runPlacementProductStep("placement.landmassRegion.restamp", emit, () => {
-      applyLandmassRegionSlots(adapter, width, height, slotByTile);
+      applyLandmassRegionSlots(
+        {
+          getLandmassId: (name) => deps.engine.getLandmassId(context, name),
+          setLandmassRegionId: (x, y, regionId) =>
+            deps.engine.setLandmassRegionId(context, x, y, regionId),
+        },
+        width,
+        height,
+        slotByTile
+      );
       emit({ type: "placement.landmassRegion.restamped" });
     });
+    const afterMaintenanceSurface = readCurrentTerrainClassification();
     const afterMaintenance = readTerrainValidationBoundarySnapshot(
-      adapter,
-      width,
-      height,
+      afterMaintenanceSurface,
+      readAreaId,
       "placement/prepare-surface/after-maintenance"
     );
     const finalLakeReadback = readFinalLakeProjection(
-      adapter,
-      width,
-      height,
+      afterMaintenanceSurface,
       engineProjectionLakes.lakeMask
     );
     emit({ type: "placement.lakes.finalReadback", ...finalLakeReadback });

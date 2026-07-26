@@ -127,9 +127,9 @@ export const PlotLandmassRegionsStep = createStep(PlotLandmassRegionsStepContrac
       landmasses: landmasses.landmasses,
     });
 
-    const westRegionId = context.adapter.getLandmassId("WEST");
-    const eastRegionId = context.adapter.getLandmassId("EAST");
-    const noneRegionId = context.adapter.getLandmassId("NONE");
+    const westRegionId = deps.engine.getLandmassId(context, "WEST");
+    const eastRegionId = deps.engine.getLandmassId(context, "EAST");
+    const noneRegionId = deps.engine.getLandmassId(context, "NONE");
 
     const size = width * height;
     for (let i = 0; i < size; i++) {
@@ -137,7 +137,7 @@ export const PlotLandmassRegionsStep = createStep(PlotLandmassRegionsStepContrac
       const x = i - y * width;
       const slot = (slotByTile[i] ?? 0) as RegionSlot;
       const regionId = slot === 1 ? westRegionId : slot === 2 ? eastRegionId : noneRegionId;
-      context.adapter.setLandmassRegionId(x, y, regionId);
+      deps.engine.setLandmassRegionId(context, x, y, regionId);
     }
 
     deps.artifacts.projectionMeta.publish(context, {

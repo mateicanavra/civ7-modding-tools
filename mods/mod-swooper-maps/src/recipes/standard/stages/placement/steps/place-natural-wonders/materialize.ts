@@ -5,13 +5,26 @@ import type {
 } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0, getNaturalWonderFootprintIndices } from "@civ7/map-policy";
 import placement from "@mapgen/domain/placement";
-import type { MapContext } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 
 type NaturalWonderPlan = Static<(typeof placement.ops.planNaturalWonders)["output"]>;
 
+type NaturalWonderEngine = Readonly<{
+  getFeatureType: (x: number, y: number) => number;
+  getTerrainType: (x: number, y: number) => number;
+  setTerrainType: (x: number, y: number, terrainType: number) => void;
+  placeNaturalWonder: (
+    x: number,
+    y: number,
+    featureType: number,
+    direction: number,
+    elevation?: number
+  ) => NaturalWonderPlacementOutcome;
+}>;
+
 type StampNaturalWondersFromPlanArgs = {
-  adapter: MapContext["adapter"];
+  engine: NaturalWonderEngine;
+  noFeatureType: number;
   width: number;
   height: number;
   wonders: DeepReadonly<NaturalWonderPlan>;
@@ -236,7 +249,7 @@ function getValidTerrainTypesForFeature(featureType: number): readonly number[] 
  * relocations, self-oriented footprints, and residue from rejected mutations.
  */
 function observeNaturalWonderPlotIndices(
-  adapter: MapContext["adapter"],
+  engine: Pick<NaturalWonderEngine, "getFeatureType">,
   width: number,
   height: number,
   attemptedFeatureTypes: ReadonlySet<number>
@@ -246,7 +259,7 @@ function observeNaturalWonderPlotIndices(
   for (let plotIndex = 0; plotIndex < width * height; plotIndex += 1) {
     const y = Math.trunc(plotIndex / width);
     const x = plotIndex - y * width;
-    if (attemptedFeatureTypes.has(adapter.getFeatureType(x, y) | 0)) {
+    if (attemptedFeatureTypes.has(engine.getFeatureType(x, y) | 0)) {
       observedPlotIndices.push(plotIndex);
     }
   }
@@ -254,7 +267,7 @@ function observeNaturalWonderPlotIndices(
 }
 
 function ensureFeatureValidTerrain(
-  adapter: MapContext["adapter"],
+  engine: Pick<NaturalWonderEngine, "getTerrainType" | "setTerrainType">,
   x: number,
   y: number,
   height: number,
@@ -264,13 +277,13 @@ function ensureFeatureValidTerrain(
   if (validTerrainTypes.length === 0) return "blocked";
   if (y < POLAR_WATER_ROWS || y >= height - POLAR_WATER_ROWS) return "blocked";
 
-  const currentTerrain = adapter.getTerrainType(x, y) | 0;
+  const currentTerrain = engine.getTerrainType(x, y) | 0;
   if (validTerrainTypes.includes(currentTerrain)) return "unchanged";
 
   const targetTerrain = validTerrainTypes[0];
   if (!Number.isFinite(targetTerrain) || targetTerrain < 0) return "blocked";
 
-  adapter.setTerrainType(x, y, targetTerrain | 0);
+  engine.setTerrainType(x, y, targetTerrain | 0);
   return "adjusted";
 }
 
@@ -319,14 +332,15 @@ function buildNaturalWonderAnchorCandidates(
 /**
  * Attempts to stamp one natural wonder at a single anchor: recomputes the
  * parity-aware footprint for THIS anchor, runs the occupancy + valid-terrain
- * pre-check, calls `adapter.placeNaturalWonder`, and verifies strict readback.
+ * pre-check, calls the admitted engine placement capability, and verifies strict readback.
  * Returns a `placed`/`rejected` discriminated result plus the terrain
  * adjustments performed (real map mutations, counted even when the attempt is
  * later superseded). The engine is the final legality authority — this is the
  * per-anchor unit the retry loop iterates over.
  */
 function attemptStampNaturalWonderAtAnchor(args: {
-  adapter: MapContext["adapter"];
+  engine: NaturalWonderEngine;
+  noFeatureType: number;
   anchorPlotIndex: number;
   width: number;
   height: number;
@@ -335,7 +349,16 @@ function attemptStampNaturalWonderAtAnchor(args: {
   plannedElevation: number | undefined;
   rawElevation: number | undefined;
 }): NaturalWonderAnchorAttempt {
-  const { adapter, width, height, featureType, direction, plannedElevation, rawElevation } = args;
+  const {
+    engine,
+    noFeatureType,
+    width,
+    height,
+    featureType,
+    direction,
+    plannedElevation,
+    rawElevation,
+  } = args;
   const plotIndex = args.anchorPlotIndex;
   const y = (plotIndex / width) | 0;
   const x = plotIndex - y * width;
@@ -368,7 +391,7 @@ function attemptStampNaturalWonderAtAnchor(args: {
   for (const footprintPlotIndex of footprint) {
     const fy = (footprintPlotIndex / width) | 0;
     const fx = footprintPlotIndex - fy * width;
-    if ((adapter.getFeatureType(fx, fy) | 0) !== (adapter.NO_FEATURE | 0)) {
+    if ((engine.getFeatureType(fx, fy) | 0) !== (noFeatureType | 0)) {
       const reason = `occupied:${footprintPlotIndex}`;
       return {
         status: "rejected",
@@ -386,7 +409,7 @@ function attemptStampNaturalWonderAtAnchor(args: {
         },
       };
     }
-    const terrainStatus = ensureFeatureValidTerrain(adapter, fx, fy, height, featureType);
+    const terrainStatus = ensureFeatureValidTerrain(engine, fx, fy, height, featureType);
     if (terrainStatus === "blocked") {
       const reason = `terrain-policy:${footprintPlotIndex}`;
       return {
@@ -407,7 +430,7 @@ function attemptStampNaturalWonderAtAnchor(args: {
     }
     if (terrainStatus === "adjusted") terrainAdjusted += 1;
   }
-  const outcome: NaturalWonderPlacementOutcome = adapter.placeNaturalWonder(
+  const outcome: NaturalWonderPlacementOutcome = engine.placeNaturalWonder(
     x,
     y,
     featureType,
@@ -457,7 +480,7 @@ function attemptStampNaturalWonderAtAnchor(args: {
   for (const footprintPlotIndex of footprint) {
     const fy = (footprintPlotIndex / width) | 0;
     const fx = footprintPlotIndex - fy * width;
-    if ((adapter.getFeatureType(fx, fy) | 0) !== featureType) {
+    if ((engine.getFeatureType(fx, fy) | 0) !== featureType) {
       readbackMismatch = true;
       break;
     }
@@ -506,7 +529,8 @@ function attemptStampNaturalWonderAtAnchor(args: {
  * killing otherwise playable map generation.
  */
 export function stampNaturalWondersFromPlan({
-  adapter,
+  engine,
+  noFeatureType,
   width,
   height,
   wonders,
@@ -616,7 +640,8 @@ export function stampNaturalWondersFromPlan({
     let firstRejection: NaturalWonderAnchorAttemptRejected | null = null;
     for (const anchorPlotIndex of anchorCandidates) {
       const attempt = attemptStampNaturalWonderAtAnchor({
-        adapter,
+        engine,
+        noFeatureType,
         anchorPlotIndex,
         width,
         height,
@@ -655,7 +680,7 @@ export function stampNaturalWondersFromPlan({
     coordinateEvidence: naturalWonderCoordinateEvidence(coordinateRows),
     coordinateRows,
     observedNaturalWonderPlotIndices: observeNaturalWonderPlotIndices(
-      adapter,
+      engine,
       width,
       height,
       attemptedFeatureTypes

@@ -1,11 +1,13 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Foundation crust tiles artifact payload (tile-space crust driver tensors). */
@@ -13,43 +15,43 @@ export const Schema = Type.Object(
   {
     /** Crust type per tile (0=oceanic, 1=continental), sampled via tileToCellIndex. */
     type: TypedArraySchemas.u8({
-      shape: null,
+      cardinality: null,
       description: "Crust type per tile (0=oceanic, 1=continental), sampled via tileToCellIndex.",
     }),
     /** Crust maturity per tile (0=basaltic lid, 1=cratonic), sampled via tileToCellIndex. */
     maturity: TypedArraySchemas.f32({
-      shape: null,
+      cardinality: null,
       description:
         "Crust maturity per tile (0=basaltic lid, 1=cratonic), sampled via tileToCellIndex.",
     }),
     /** Crust thickness proxy per tile (0..1), sampled via tileToCellIndex. */
     thickness: TypedArraySchemas.f32({
-      shape: null,
+      cardinality: null,
       description: "Crust thickness proxy per tile (0..1), sampled via tileToCellIndex.",
     }),
     /** Crust damage per tile (0..255), sampled via tileToCellIndex. */
     damage: TypedArraySchemas.u8({
-      shape: null,
+      cardinality: null,
       description: "Crust damage per tile (0..255), sampled via tileToCellIndex.",
     }),
     /** Crust age per tile (0=new, 255=ancient), sampled via tileToCellIndex. */
     age: TypedArraySchemas.u8({
-      shape: null,
+      cardinality: null,
       description: "Crust thermal age per tile (0=new, 255=ancient), sampled via tileToCellIndex.",
     }),
     /** Crust buoyancy proxy per tile (0..1), sampled via tileToCellIndex. */
     buoyancy: TypedArraySchemas.f32({
-      shape: null,
+      cardinality: null,
       description: "Crust buoyancy proxy per tile (0..1), sampled via tileToCellIndex.",
     }),
     /** Isostatic base elevation proxy per tile (0..1), sampled via tileToCellIndex. */
     baseElevation: TypedArraySchemas.f32({
-      shape: null,
+      cardinality: null,
       description: "Isostatic base elevation proxy per tile (0..1), sampled via tileToCellIndex.",
     }),
     /** Lithospheric strength proxy per tile (0..1), sampled via tileToCellIndex. */
     strength: TypedArraySchemas.f32({
-      shape: null,
+      cardinality: null,
       description: "Lithospheric strength proxy per tile (0..1), sampled via tileToCellIndex.",
     }),
   },
@@ -67,19 +69,12 @@ export const artifact = defineArtifact({
 });
 
 /** Validates every crust tensor's typed-array kind and one-value-per-tile cardinality. */
-export function validate(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const issues = [...validateArtifactSchema(Schema, value)];
-  if (value === null || typeof value !== "object") {
-    if (context?.dimensions) {
-      issues.push({
-        message: "[FoundationArtifact] Missing foundation crustTiles artifact payload.",
-      });
-    }
-    return Object.freeze(issues);
-  }
+): readonly ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
 
   const crust = value as Record<string, unknown>;
   const size = artifactCellCount(context);
@@ -106,3 +101,6 @@ export function validate(
 
   return Object.freeze(issues);
 }
+
+/** Admits one typed crust sample per map tile after Core validates the closed artifact shape. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

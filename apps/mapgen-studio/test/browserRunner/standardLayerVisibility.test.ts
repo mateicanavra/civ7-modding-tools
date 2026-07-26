@@ -1,3 +1,4 @@
+import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { STANDARD_RECIPE_CONFIG } from "mod-swooper-maps/recipes/standard-artifacts";
 import { describe, expect, it, vi } from "vitest";
 import type { BrowserRunEvent, BrowserRunRequest } from "../../src/browser-runner/protocol";
@@ -10,9 +11,11 @@ type WorkerHarness = {
 
 type WorkerHarnessOptions = Readonly<{
   failVizDataTypeKey?: string;
+  pipelineConfig?: unknown;
 }>;
 
 const TEST_RUN_TOKEN = "standard-layer-visibility";
+const TEST_MAP_SIZE = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
 
 const workerModuleHarness = vi.hoisted(() => {
   const events: BrowserRunEvent[] = [];
@@ -76,12 +79,15 @@ async function runStandardRecipeInWorker(
       generation: 1,
       recipeId: "standard",
       seed: 1780185340,
-      mapSizeId: "MAPSIZE_TINY",
-      dimensions: { width: 8, height: 6 },
-      latitudeBounds: { topLatitude: 70, bottomLatitude: -70 },
-      playerCount: 2,
+      mapSizeId: TEST_MAP_SIZE.id,
+      dimensions: TEST_MAP_SIZE.dimensions,
+      latitudeBounds: {
+        topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude,
+        bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude,
+      },
+      playerCount: TEST_MAP_SIZE.defaultPlayers,
       resourcesMode: "balanced",
-      pipelineConfig: STANDARD_RECIPE_CONFIG,
+      pipelineConfig: options?.pipelineConfig ?? STANDARD_RECIPE_CONFIG,
     },
   });
 
@@ -99,6 +105,21 @@ async function runStandardRecipeInWorker(
 }
 
 describe("standard browser runner layer visibility", () => {
+  it("reports execution rejection without publishing successful completion", async () => {
+    const events = await runStandardRecipeInWorker({ pipelineConfig: {} });
+    const terminalEvents = events.filter(
+      (event) =>
+        event.type === "run.finished" || event.type === "run.error" || event.type === "run.canceled"
+    );
+
+    expect(terminalEvents).toEqual([
+      expect.objectContaining({
+        type: "run.error",
+        message: expect.stringContaining("Invalid recipe config"),
+      }),
+    ]);
+  });
+
   it("keeps core balance layers visible with debug layers off", async () => {
     const privateDiagnostics = vi.spyOn(console, "error").mockImplementation(() => {});
     try {

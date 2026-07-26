@@ -20,8 +20,8 @@ describe("MapContext test execution", () => {
   it("returns a synchronous test action result", () => {
     const context = createTestContext();
 
-    const draw = withMapContextExecutionForTest(context, () =>
-      ctxRandom(context, "test-execution", 100)
+    const draw = withMapContextExecutionForTest(context, (stepContext) =>
+      ctxRandom(stepContext, "test-execution", 100)
     );
 
     expect(draw).toBeGreaterThanOrEqual(0);
@@ -38,6 +38,20 @@ describe("MapContext test execution", () => {
     ).toThrow("test failure");
     expect(() => withMapContextExecutionForTest(context, () => undefined)).toThrow(
       "MapGen context has already completed an execution."
+    );
+  });
+
+  it("revokes the test step context when the action returns", () => {
+    const context = createTestContext();
+    let retainedStepContext: Parameters<typeof ctxRandom>[0] | undefined;
+
+    withMapContextExecutionForTest(context, (stepContext) => {
+      retainedStepContext = stepContext;
+      ctxRandom(stepContext, "during-test-execution", 100);
+    });
+
+    expect(() => ctxRandom(retainedStepContext!, "after-test-execution", 100)).toThrow(
+      "context returned by createMapContext"
     );
   });
 
@@ -69,5 +83,23 @@ describe("MapContext test execution", () => {
     expect(() => withMapContextExecutionForTest(context, () => undefined)).toThrow(
       "MapGen context has already completed an execution."
     );
+  });
+
+  it("rejects an accessor-backed then candidate without invoking its accessor", () => {
+    const context = createTestContext();
+    let accessorReads = 0;
+    const candidate = {};
+    Object.defineProperty(candidate, "then", {
+      enumerable: true,
+      get: () => {
+        accessorReads += 1;
+        return () => undefined;
+      },
+    });
+
+    expect(() =>
+      withMapContextExecutionForTest(context, (() => candidate) as unknown as () => never)
+    ).toThrow("MapContext test executions must be synchronous.");
+    expect(accessorReads).toBe(0);
   });
 });

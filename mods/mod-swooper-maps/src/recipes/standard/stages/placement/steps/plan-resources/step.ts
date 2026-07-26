@@ -27,12 +27,12 @@ export const PlanResourcesStep = createStep(PlanResourcesStepContract, {
     const hydrography = deps.artifacts.hydrography.read(context);
     const lakePlan = deps.artifacts.lakePlan.read(context);
     const projectedNavigableRivers = deps.artifacts.projectedNavigableRivers.read(context);
-    const engineProjectionRivers = deps.artifacts.engineProjectionRivers.read(context);
     const climateIndices = deps.artifacts.climateIndices.read(context);
     const cryosphere = deps.artifacts.cryosphere.read(context);
     const biomeClassification = deps.artifacts.biomeClassification.read(context);
     const pedology = deps.artifacts.pedology.read(context);
     const regionSlots = deps.artifacts.landmassRegionSlotByTile.read(context);
+    const currentEngineSurface = deps.engine.readCurrentMapSurface(context);
 
     // --- step 2: habitat lane derivation (domain/resources op) ------------------------------
     const habitat = ops.habitat(
@@ -168,7 +168,7 @@ export const PlanResourcesStep = createStep(PlanResourcesStepContract, {
     );
 
     // --- id evidence + policy legality + demand rows --------------------------------------------
-    const legalitySurface = readResourceLegalitySurface(context);
+    const legalitySurface = readResourceLegalitySurface(currentEngineSurface);
     const plannedRows = groups.groups.flatMap((group) => group.plans);
     const requiredForAgeByResourceType = new Map<OfficialResourceType, boolean | null>();
     const runtimeIds = resolveResourceRuntimeIds();
@@ -180,7 +180,8 @@ export const PlanResourcesStep = createStep(PlanResourcesStepContract, {
       if (requiredForAgeByResourceType.has(resourceType)) continue;
       requiredForAgeByResourceType.set(
         resourceType,
-        context.adapter.isResourceRequiredForAge(
+        deps.engine.isResourceRequiredForAge(
+          context,
           resolved.resourceTypeId,
           INITIAL_MAP_RESOURCE_AUTHORING_AGE
         )
@@ -193,7 +194,7 @@ export const PlanResourcesStep = createStep(PlanResourcesStepContract, {
       width,
       height,
       projectedNavigableRivers,
-      engineProjectionRivers,
+      currentEngineSurface,
     });
     const demandResult = buildResourceDemands({
       width,
@@ -247,7 +248,7 @@ export const PlanResourcesStep = createStep(PlanResourcesStepContract, {
       })),
     });
 
-    context.trace?.event(() => ({
+    context.trace.event(() => ({
       type: "placement.resources.plan",
       plannedCount: plan.plannedCount,
       rotationCount: plan.rotationCount,

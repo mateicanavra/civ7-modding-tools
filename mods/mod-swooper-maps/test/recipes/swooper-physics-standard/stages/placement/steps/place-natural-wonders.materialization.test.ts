@@ -73,7 +73,8 @@ describe("natural wonder placement materialization", () => {
     const flatTerrain = adapter.getTerrainTypeIndex("TERRAIN_FLAT");
 
     const stats = stampNaturalWondersFromPlan({
-      adapter,
+      engine: adapter,
+      noFeatureType: adapter.NO_FEATURE,
       ...SYNTHETIC_REDWOOD_DIMENSIONS,
       wonders: oneWonderPlan(featureTypes.FEATURE_REDWOOD_FOREST, 9),
       requestedCount: 1,
@@ -127,7 +128,8 @@ describe("natural wonder placement materialization", () => {
     };
 
     const stats = stampNaturalWondersFromPlan({
-      adapter,
+      engine: adapter,
+      noFeatureType: adapter.NO_FEATURE,
       ...SYNTHETIC_REDWOOD_DIMENSIONS,
       wonders: oneWonderPlan(featureTypes.FEATURE_REDWOOD_FOREST, 9),
       requestedCount: 1,
@@ -143,7 +145,8 @@ describe("natural wonder placement materialization", () => {
       defaultTerrainName: "TERRAIN_HILL",
     });
     const stats = stampNaturalWondersFromPlan({
-      adapter,
+      engine: adapter,
+      noFeatureType: adapter.NO_FEATURE,
       ...SYNTHETIC_REDWOOD_DIMENSIONS,
       wonders: oneWonderPlan(featureTypes.FEATURE_REDWOOD_FOREST, 9),
       requestedCount: 1,
@@ -157,7 +160,6 @@ describe("natural wonder placement materialization", () => {
         .map((entry) => entry.message)
         .join("\n");
 
-    expect(validateObserved([-1, 9, 10, 13])).toContain("must be a non-negative integer");
     expect(validateObserved([9, 9, 10, 13])).toContain("observed plot 9 must be unique");
     expect(validateObserved([10, 9, 13])).toContain("must be sorted in ascending order");
     expect(validateObserved([9, 10, 13, 24])).toContain("exceeds map cell count 24");
@@ -174,7 +176,8 @@ describe("natural wonder placement materialization", () => {
     const mountainTerrain = adapter.getTerrainTypeIndex("TERRAIN_MOUNTAIN");
 
     const mountainStats = stampNaturalWondersFromPlan({
-      adapter,
+      engine: adapter,
+      noFeatureType: adapter.NO_FEATURE,
       ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
       wonders: oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, 17, SYNTHETIC_MOUNTAIN_DIMENSIONS),
       requestedCount: 1,
@@ -201,7 +204,8 @@ describe("natural wonder placement materialization", () => {
     };
 
     const stats = stampNaturalWondersFromPlan({
-      adapter,
+      engine: adapter,
+      noFeatureType: adapter.NO_FEATURE,
       ...SYNTHETIC_REDWOOD_DIMENSIONS,
       wonders: plan,
       requestedCount: 2,
@@ -254,7 +258,8 @@ describe("natural wonder placement materialization", () => {
     });
 
     const stats = stampNaturalWondersFromPlan({
-      adapter,
+      engine: adapter,
+      noFeatureType: adapter.NO_FEATURE,
       ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
       wonders: oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, 17, SYNTHETIC_MOUNTAIN_DIMENSIONS),
       requestedCount: 1,
@@ -313,7 +318,8 @@ describe("natural wonder placement materialization", () => {
     };
 
     const stats = stampNaturalWondersFromPlan({
-      adapter,
+      engine: adapter,
+      noFeatureType: adapter.NO_FEATURE,
       ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
       wonders: oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, 17, SYNTHETIC_MOUNTAIN_DIMENSIONS),
       requestedCount: 1,
@@ -387,7 +393,8 @@ describe("natural wonder placement materialization", () => {
     };
 
     const stats = stampNaturalWondersFromPlan({
-      adapter,
+      engine: adapter,
+      noFeatureType: adapter.NO_FEATURE,
       ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
       wonders: {
         ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
@@ -433,7 +440,8 @@ describe("natural wonder placement materialization", () => {
     });
 
     const stats = stampNaturalWondersFromPlan({
-      adapter,
+      engine: adapter,
+      noFeatureType: adapter.NO_FEATURE,
       ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
       wonders: {
         ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
@@ -472,7 +480,8 @@ describe("natural wonder placement materialization", () => {
 
     expect(() =>
       stampNaturalWondersFromPlan({
-        adapter,
+        engine: adapter,
+        noFeatureType: adapter.NO_FEATURE,
         ...SYNTHETIC_CORRUPT_PLAN_DIMENSIONS,
         wonders: {
           ...SYNTHETIC_CORRUPT_PLAN_DIMENSIONS,

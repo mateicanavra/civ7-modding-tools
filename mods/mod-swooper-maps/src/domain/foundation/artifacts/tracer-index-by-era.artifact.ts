@@ -1,38 +1,36 @@
-import type { Static } from "@swooper/mapgen-core/authoring/contracts";
-import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { Value } from "typebox/value";
+import type { ArtifactValidationIssue, Static } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  appendArtifactTypedArrayIssues,
+  defineArtifact,
+  defineArtifactValidator,
+  Type,
+  TypedArraySchemas,
+} from "@swooper/mapgen-core/authoring/contracts";
 
-export const Schema = Type.Array(TypedArraySchemas.u32({ shape: null }));
+/** Structural contract for tracer-index arrays ordered by tectonic era. */
+export const Schema = Type.Array(TypedArraySchemas.u32({ cardinality: null }));
 
+/** Per-era tracer-index state published by Foundation. */
 export type Artifact = Static<typeof Schema>;
 
+/** Registers Foundation's per-era tracer-index artifact. */
 export const artifact = defineArtifact({
   name: "foundationTracerIndexByEra",
   id: "artifact:foundation.tracerIndexByEra",
   schema: Schema,
 });
 
-function issue(message: string): { message: string } {
-  return { message };
+function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
+  const eras = value as Artifact;
+  const length = eras.find((era): era is Uint32Array => era instanceof Uint32Array)?.length ?? 0;
+  const issues: ArtifactValidationIssue[] = [];
+
+  if (eras.length <= 0) issues.push({ message: "tracerIndexByEra must be a nonempty era list" });
+  eras.forEach((era, index) => {
+    appendArtifactTypedArrayIssues(issues, `tracerIndexByEra[${index}]`, era, Uint32Array, length);
+  });
+  return issues;
 }
 
-export function validate(value: unknown): readonly { message: string }[] {
-  const issues = Array.from(Value.Errors(Schema, value), (error) =>
-    issue(
-      `${(error as { path?: string; instancePath?: string }).path ?? (error as { instancePath?: string }).instancePath ?? "/"} ${error.message}`
-    )
-  );
-  if (!Array.isArray(value) || value.length <= 0) {
-    issues.push(issue("tracerIndexByEra must be a nonempty era list"));
-  } else {
-    const length = value.find((arr): arr is Uint32Array => arr instanceof Uint32Array)?.length ?? 0;
-    value.forEach((arr, index) => {
-      if (!(arr instanceof Uint32Array)) {
-        issues.push(issue(`tracerIndexByEra[${index}] must be Uint32Array`));
-      } else if (arr.length !== length) {
-        issues.push(issue(`tracerIndexByEra[${index}] length must match prior eras`));
-      }
-    });
-  }
-  return Object.freeze(issues);
-}
+/** Validates a nonempty era list with exact constructors and consistent cell cardinality. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

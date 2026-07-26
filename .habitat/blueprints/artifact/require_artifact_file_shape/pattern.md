@@ -3,50 +3,59 @@ level: error
 ---
 # Require Artifact File Shape
 
-Artifact owner files expose a stable contract API. The file-specific artifact
-name belongs in the `defineArtifact(...)` payload and in registry imports, not
-in exported validation/assertion/helper names.
+Artifact owner files expose one stable contract API. Core binds every complete
+validator to the exact artifact schema; owners may contribute only local
+cardinality, relational, or domain checks through that constructor.
 
 ```grit
 language js(typescript)
 
-or {
-  program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/.*/artifacts/[^/]+\.artifact\.ts$",
-    ! $body <: contains `export const Schema = $schema`
-  },
-  program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/.*/artifacts/[^/]+\.artifact\.ts$",
-    ! $body <: contains `export const artifact = defineArtifact($definition)`
-  },
-  program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/.*/artifacts/[^/]+\.artifact\.ts$",
-    ! $body <: contains `export function validate($params) { $validatorBody }`,
-    ! $body <: contains `export function validate($params): $returnType { $validatorBody }`,
-    ! $body <: contains `export const validate = $validator`
-  },
-  `export function $name($params) { $body }` where {
-    $filename <: r".*mods/mod-swooper-maps/src/.*/artifacts/[^/]+\.artifact\.ts$",
-    $name <: r"^(?:validate|assert)[A-Z].*"
-  },
-  `export const $name = $validator` where {
-    $filename <: r".*mods/mod-swooper-maps/src/.*/artifacts/[^/]+\.artifact\.ts$",
-    $name <: r"^(?:validate|assert)[A-Z].*"
-  },
-  `export const $name = artifact` where {
-    $filename <: r".*mods/mod-swooper-maps/src/.*/artifacts/[^/]+\.artifact\.ts$",
-    $name <: r".+Artifact$"
-  },
-  `export { artifact as $name }` where {
-    $filename <: r".*mods/mod-swooper-maps/src/.*/artifacts/[^/]+\.artifact\.ts$",
-    $name <: r".+Artifact$"
-  },
-  `export const $name = defineArtifact($definition)` where {
-    $filename <: r".*mods/mod-swooper-maps/src/.*/artifacts/[^/]+\.artifact\.ts$",
-    ! $name <: r"^artifact$"
-  },
-  program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/.*/artifacts/contract/.*\.(?:artifact|contract)\.ts$"
+predicate lacks_required_artifact_surface($body) {
+  or {
+    ! $body <: contains `export const Schema = $schema`,
+    ! $body <: contains `export const artifact = defineArtifact({ $..., schema: Schema, $... })`,
+    ! $body <: contains or {
+      `export const validate = defineArtifactValidator(artifact)`,
+      `export const validate = defineArtifactValidator(artifact, $local)`
+    }
+  }
+}
+
+program() as $program where {
+  $filename <: r".*mods/[^/]+/src/(?:[^/]+/)*artifacts/[^/]+\.artifact\.ts$",
+  or {
+    lacks_required_artifact_surface($program),
+    $program <: contains or {
+      import_statement(source=$source) where {
+        ! $source <: r"^[\"']?(?:@swooper/mapgen-core/(?:authoring/contracts|lib(?:/[^\"']*)?)|@civ7/(?:types|map-policy)(?:/[^\"']*)?|@mapgen/domain/[^/\"']+(?:/model/(?:schemas|policy|data)(?:/[^\"']*)?)?|\.\./model/(?:schemas|policy|data)/[^\"']+\.js)[\"']?$"
+      },
+      `import($source)`,
+      `import { $... } from "typebox/value"`,
+      `import * as $value from "typebox/value"`,
+      `Value.Errors($args)`,
+      `validateArtifactSchema($args)`,
+      `export const $name = $value` where {
+        ! $name <: r"^(?:Schema|artifact|validate)$"
+      },
+      `export let $name = $value`,
+      `export var $name = $value`,
+      `export function $name($params) { $body }`,
+      `export class $name { $body }`,
+      `export enum $name { $body }`,
+      `export default $value`,
+      `export { $exports } from $source`,
+      `export * from $source`,
+      `export { $exports }`,
+      `type $name = $definition` where {
+        $name <: r"^(?:ArtifactValidationIssue|ValidationIssue)$"
+      },
+      `interface $name { $body }` where {
+        $name <: r"^(?:ArtifactValidationIssue|ValidationIssue)$"
+      },
+      `export { artifact as $name }` where {
+        $name <: r".+Artifact$"
+      }
+    }
   }
 }
 ```
@@ -54,28 +63,31 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/domain/foundation/artifacts/missing-schema.artifact.ts
-import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
+// @filename: mods/example-mod/src/features/artifacts/missing-schema.artifact.ts
+import {
+  defineArtifact,
+  defineArtifactValidator,
+  Type,
+} from "@swooper/mapgen-core/authoring/contracts";
 
+const LocalSchema = Type.Object({});
 export const artifact = defineArtifact({
   name: "missingSchema",
   id: "artifact:demo.missingSchema",
-  schema: Type.Object({}),
+  schema: LocalSchema,
 });
-export function validate(value: unknown) {
-  return [];
-}
+export const validate = defineArtifactValidator(artifact);
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/artifacts/missing-artifact.artifact.ts
+// @filename: mods/example-mod/src/features/artifacts/missing-artifact.artifact.ts
 import { Type } from "@swooper/mapgen-core/authoring/contracts";
 
 export const Schema = Type.Object({});
-export function validate(value: unknown) {
-  return [];
-}
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/artifacts/missing-validate.artifact.ts
-import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
+// @filename: mods/example-mod/src/features/artifacts/missing-validate.artifact.ts
+import {
+  defineArtifact,
+  Type,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 export const Schema = Type.Object({});
 export const artifact = defineArtifact({
@@ -84,32 +96,82 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-validator.artifact.ts
-import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
+// @filename: mods/example-mod/src/features/artifacts/exported-artifact-authority.artifact.ts
+import {
+  defineArtifact,
+  defineArtifactValidator,
+  Type,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 export const Schema = Type.Object({});
 export const artifact = defineArtifact({
-  name: "semanticValidator",
-  id: "artifact:demo.semanticValidator",
+  name: "additionalArtifactAuthority",
+  id: "artifact:demo.additionalArtifactAuthority",
   schema: Schema,
 });
-export function validateSemanticValidatorArtifact(value: unknown) {
-  return [];
-}
+export const shadowArtifact = defineArtifact({
+  name: "shadowArtifactAuthority",
+  id: "artifact:demo.shadowArtifactAuthority",
+  schema: Schema,
+});
+export const validate = defineArtifactValidator(artifact);
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-validator-const.artifact.ts
-import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
+// @filename: mods/example-mod/src/features/artifacts/exported-validator-authority.artifact.ts
+import {
+  defineArtifact,
+  defineArtifactValidator,
+  Type,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 export const Schema = Type.Object({});
 export const artifact = defineArtifact({
-  name: "semanticValidatorConst",
-  id: "artifact:demo.semanticValidatorConst",
+  name: "additionalValidatorAuthority",
+  id: "artifact:demo.additionalValidatorAuthority",
   schema: Schema,
 });
-export const validateSemanticValidatorArtifact = (value: unknown) => [];
+export const validate = defineArtifactValidator(artifact);
+export const shadowValidate = defineArtifactValidator(artifact);
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-alias.artifact.ts
-import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
+// @filename: mods/example-mod/src/features/artifacts/direct-typebox.artifact.ts
+import {
+  defineArtifact,
+  defineArtifactValidator,
+  Type,
+} from "@swooper/mapgen-core/authoring/contracts";
+import { Value } from "typebox/value";
+
+export const Schema = Type.Object({});
+export const artifact = defineArtifact({
+  name: "directTypebox",
+  id: "artifact:demo.directTypebox",
+  schema: Schema,
+});
+const validateLocal = (value: unknown) => Array.from(Value.Errors(Schema, value));
+export const validate = defineArtifactValidator(artifact, validateLocal);
+
+// @filename: mods/example-mod/src/features/artifacts/local-issue-type.artifact.ts
+import {
+  defineArtifact,
+  defineArtifactValidator,
+  Type,
+} from "@swooper/mapgen-core/authoring/contracts";
+
+export const Schema = Type.Object({});
+export const artifact = defineArtifact({
+  name: "localIssueType",
+  id: "artifact:demo.localIssueType",
+  schema: Schema,
+});
+type ValidationIssue = Readonly<{ message: string }>;
+const validateLocal = (): ValidationIssue[] => [];
+export const validate = defineArtifactValidator(artifact, validateLocal);
+
+// @filename: mods/example-mod/src/features/artifacts/semantic-alias.artifact.ts
+import {
+  defineArtifact,
+  defineArtifactValidator,
+  Type,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 export const Schema = Type.Object({});
 export const artifact = defineArtifact({
@@ -117,83 +179,126 @@ export const artifact = defineArtifact({
   id: "artifact:demo.semanticAlias",
   schema: Schema,
 });
+export const validate = defineArtifactValidator(artifact);
 export const semanticAliasArtifact = artifact;
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/artifacts/exported-semantic-alias.artifact.ts
-import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
+// @filename: mods/example-mod/src/features/artifacts/runtime-behavior.artifact.ts
+import {
+  defineArtifact,
+  defineArtifactValidator,
+  Type,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 export const Schema = Type.Object({});
 export const artifact = defineArtifact({
-  name: "exportedSemanticAlias",
-  id: "artifact:demo.exportedSemanticAlias",
+  name: "runtimeBehavior",
+  id: "artifact:demo.runtimeBehavior",
   schema: Schema,
 });
-export { artifact as exportedSemanticAliasArtifact };
+export const validate = defineArtifactValidator(artifact);
+export const runMutation = () => undefined;
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-artifact.artifact.ts
-import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
-
-export const Schema = Type.Object({});
-export const semanticArtifact = defineArtifact({
-  name: "semanticArtifact",
-  id: "artifact:demo.semanticArtifact",
-  schema: Schema,
-});
-
-// @filename: mods/mod-swooper-maps/src/domain/foundation/artifacts/contract/legacy.contract.ts
-import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
+// @filename: mods/example-mod/src/features/artifacts/runtime-class.artifact.ts
+import {
+  defineArtifact,
+  defineArtifactValidator,
+  Type,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 export const Schema = Type.Object({});
 export const artifact = defineArtifact({
-  name: "legacy",
-  id: "artifact:demo.legacy",
+  name: "runtimeClass",
+  id: "artifact:demo.runtimeClass",
   schema: Schema,
 });
+export const validate = defineArtifactValidator(artifact);
+export class ArtifactRuntime {}
+
+// @filename: mods/example-mod/src/features/artifacts/runtime-reexport.artifact.ts
+import {
+  defineArtifact,
+  defineArtifactValidator,
+  Type,
+} from "@swooper/mapgen-core/authoring/contracts";
+
+export const Schema = Type.Object({});
+export const artifact = defineArtifact({
+  name: "runtimeReexport",
+  id: "artifact:demo.runtimeReexport",
+  schema: Schema,
+});
+export const validate = defineArtifactValidator(artifact);
+export { runArtifact } from "../runtime.js";
+
+// @filename: mods/example-mod/src/features/artifacts/runtime-import.artifact.ts
+import { readFileSync } from "node:fs";
+import {
+  defineArtifact,
+  defineArtifactValidator,
+  Type,
+} from "@swooper/mapgen-core/authoring/contracts";
+
+export const Schema = Type.Object({ source: Type.Literal(readFileSync.name) });
+export const artifact = defineArtifact({
+  name: "runtimeImport",
+  id: "artifact:demo.runtimeImport",
+  schema: Schema,
+});
+export const validate = defineArtifactValidator(artifact);
+
 ```
 
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/domain/foundation/artifacts/plate-motion.artifact.ts
-import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-export const Schema = Type.Object({});
+// @filename: mods/example-mod/src/features/artifacts/plate-motion.artifact.ts
+import type { ArtifactValidationIssue } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  defineArtifact,
+  defineArtifactValidator,
+  Type,
+} from "@swooper/mapgen-core/authoring/contracts";
+
+export const Schema = Type.Object({ value: Type.Number() });
 export type Artifact = unknown;
 export const artifact = defineArtifact({
   name: "plateMotion",
   id: "artifact:foundation.plateMotion",
   schema: Schema,
 });
-export function validate(value: unknown) {
-  return [];
+function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
+  return value === null ? [{ message: "Plate motion must be present." }] : [];
 }
-export function assert(value: unknown) {
-  return value;
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts/start-assignment.artifact.ts
-import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
+// @filename: mods/example-mod/src/features/artifacts/message-bearing-payload.artifact.ts
+import {
+  defineArtifact,
+  defineArtifactValidator,
+  Type,
+} from "@swooper/mapgen-core/authoring/contracts";
 
-export const StartAssignmentArtifactSchema = Type.Object({});
-export const Schema = StartAssignmentArtifactSchema;
+type ArtifactMetadata = { message: string };
+export const Schema = Type.Object({ message: Type.String() });
+export type Artifact = ArtifactMetadata;
 export const artifact = defineArtifact({
-  name: "startAssignment",
-  id: "artifact:placement.startAssignment",
+  name: "messageBearingPayload",
+  id: "artifact:demo.messageBearingPayload",
   schema: Schema,
 });
-export function validate(value: unknown) {
-  return [];
-}
+export const validate = defineArtifactValidator(artifact);
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts.ts
+// @filename: mods/example-mod/src/features/artifacts.ts
 import { artifact as startAssignmentArtifact } from "./artifacts/start-assignment.artifact.js";
 
 export const placementArtifacts = {
   startAssignment: startAssignmentArtifact,
 };
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/config.ts
+// @filename: mods/example-mod/src/features/projection/config.ts
 export function validateProjectionArtifact(value: unknown) {
   return value;
 }
+
 ```

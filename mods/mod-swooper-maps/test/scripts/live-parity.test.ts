@@ -1,20 +1,24 @@
 import { describe, expect, test } from "bun:test";
 
+import { createMockAdapter } from "@civ7/adapter";
 import {
   CIV7_BROWSER_TABLES_V0,
   NO_RIVER_TYPE,
   RIVER_TYPE_MINOR,
   RIVER_TYPE_NAVIGABLE,
 } from "@civ7/map-policy";
+import { createLabelRng } from "@swooper/mapgen-core";
 import { STANDARD_RECIPE_CONFIG } from "mod-swooper-maps/recipes/standard-artifacts";
 import {
   buildFinalSurfaceParityReport,
   type CompleteExactAuthorshipEvidence,
+  captureCurrentRiverMetadata,
   createFinalSurfaceParityMapInfo,
   type FinalSurfaceSnapshot,
   hashParityValue,
   parseCompleteExactAuthorshipEvidencePacket,
 } from "../../scripts/live/live-parity";
+import { TEST_MAP_SIZE } from "../map-size.js";
 
 const pipelineConfig = STANDARD_RECIPE_CONFIG;
 const SYNTHETIC_PARITY_DIMENSIONS = { width: 2, height: 1 } as const;
@@ -83,6 +87,37 @@ test("local final-surface replay uses supplied frozen envelope bounds without ch
   expect(frozenReplay.latitudeBounds).toEqual(frozenEnvelope.latitudeBounds);
   expect(frozenReplay.latitudeBounds).not.toEqual(defaultReplay.latitudeBounds);
   expect(frozenReplay.mapInfo).toEqual(defaultReplay.mapInfo);
+});
+
+test("terminal river diagnostics observe engine mutations after projection intent is fixed", () => {
+  const { width, height } = TEST_MAP_SIZE.dimensions;
+  const adapter = createMockAdapter({
+    width,
+    height,
+    mapInfo: TEST_MAP_SIZE.mapInfo,
+    mapSizeId: TEST_MAP_SIZE.id,
+    rng: createLabelRng(1234),
+  });
+  const size = width * height;
+  const riverMask = new Uint8Array(size);
+  riverMask[0] = 1;
+  const projected = {
+    riverMask,
+    plannedMinorRiverMask: new Uint8Array(size),
+    plannedMajorRiverMask: riverMask.slice(),
+  };
+  const navigableRiverTerrain = adapter.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER");
+
+  adapter.setTerrainType(0, 0, navigableRiverTerrain);
+  adapter.modelRivers(4, 12, navigableRiverTerrain);
+  adapter.setTerrainType(1, 0, navigableRiverTerrain);
+  adapter.modelRivers(4, 12, navigableRiverTerrain);
+
+  const metadata = captureCurrentRiverMetadata(adapter, projected, { width, height });
+
+  expect(metadata.projectedNavigableTerrain?.values[1]).toBe(0);
+  expect(metadata.terrainNavigableRiver?.values[1]).toBe(1);
+  expect(metadata.navigableRiver?.values[1]).toBe(1);
 });
 
 function exactEvidencePacket(

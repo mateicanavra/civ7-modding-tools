@@ -1,19 +1,20 @@
 import {
   type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Runtime contract for feature-projection attempts, acceptances, typed rejection counts, and
  * the per-tile rejection mask used to diagnose engine drift from Ecology intent.
  */
-export const FeatureApplyDiagnosticsArtifactSchema = Type.Object(
+export const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -33,10 +34,7 @@ export const FeatureApplyDiagnosticsArtifactSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export type FeatureApplyDiagnosticsArtifact = Static<typeof FeatureApplyDiagnosticsArtifactSchema>;
-
-/** Canonical schema entrypoint for admitting feature-application diagnostic evidence. */
-export const Schema = FeatureApplyDiagnosticsArtifactSchema;
+export type FeatureApplyDiagnosticsArtifact = Static<typeof Schema>;
 
 /**
  * Registers map-ecology evidence for attempted, applied, and rejected feature intents,
@@ -52,12 +50,12 @@ export const artifact = defineArtifact({
 /**
  * Validates feature-application diagnostics, including the rejection-mask kind and cardinality.
  */
-export function validate(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const issues = [...validateArtifactSchema(Schema, value)];
-  if (value === null || typeof value !== "object") return Object.freeze(issues);
+): readonly ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
   const candidate = value as Record<string, unknown>;
   appendArtifactTypedArrayIssues(
     issues,
@@ -68,3 +66,6 @@ export function validate(
   );
   return Object.freeze(issues);
 }
+
+/** Admits the map-sized typed rejection mask after Core validates diagnostic counts. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

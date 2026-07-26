@@ -62,21 +62,28 @@ type BoundOps<
   Decl extends Record<string, { id: string }>,
   Registry extends Record<string, unknown>,
 > = {
-  [K in keyof Decl]: Registry[Decl[K]["id"] & keyof Registry];
+  readonly [K in keyof Decl]: Registry[Decl[K]["id"] & keyof Registry];
+};
+
+type MutableBoundOps<
+  Decl extends Record<string, { id: string }>,
+  Registry extends Record<string, unknown>,
+> = {
+  -readonly [K in keyof Decl]: Registry[Decl[K]["id"] & keyof Registry];
 };
 
 function bindOps<
   Decl extends Record<string, { id: string }>,
   Registry extends Record<string, unknown>,
 >(decl: Decl, registryById: Registry): BoundOps<Decl, Registry> {
-  const out = {} as BoundOps<Decl, Registry>;
+  const out = {} as MutableBoundOps<Decl, Registry>;
   for (const key of Object.keys(decl) as Array<keyof Decl>) {
     const opId = decl[key].id;
     const op = registryById[opId as keyof Registry];
     if (!op) throw new OpBindingError(String(key), opId);
-    out[key] = op as BoundOps<Decl, Registry>[typeof key];
+    out[key] = op as MutableBoundOps<Decl, Registry>[typeof key];
   }
-  return out;
+  return Object.freeze(out) as BoundOps<Decl, Registry>;
 }
 
 function buildOpsById<const TOps extends Record<string, DomainOpCompileAny>>(

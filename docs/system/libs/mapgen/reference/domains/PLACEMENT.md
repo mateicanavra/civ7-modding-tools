@@ -63,7 +63,8 @@ Placement requires (dependency tags):
 
 - `effect:map.riversPlotted` (from `map-rivers`)
 - `effect:engine.featuresApplied` (from `map-ecology`)
-- ecology/topography/morphology/hydrology artifacts for planning surfaces (biome via `ecology.biomeBindings`, feature via `ecology.featureEngineSnapshot`, elevation via `topography.elevation`, plus mountains/volcanoes/hydrography/pedology/climate inputs)
+- topography/morphology/hydrology artifacts for authored planning surfaces (including elevation, mountains, volcanoes, hydrography, pedology, and climate inputs)
+- current Civ7 terrain, biome, and feature classifications through the step's declared engine capabilities; Ecology projection snapshots remain diagnostic evidence rather than placement authority
 
 Placement provides (product/effect chain, in pipeline order):
 

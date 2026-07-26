@@ -17,12 +17,12 @@ export class StepRegistry {
     this.tags = options.tags ?? new TagRegistry();
   }
 
-  /** Adds one dependency tag to the registry's closed execution vocabulary. */
+  /** Adds one explicit effect tag to the registry's closed execution vocabulary. */
   registerTag(definition: DependencyTagDefinition): void {
     this.tags.registerTag(definition);
   }
 
-  /** Adds a related set of dependency tags through the same duplicate-safe authority. */
+  /** Adds related effect tags through the same duplicate-safe authority. */
   registerTags(definitions: readonly DependencyTagDefinition[]): void {
     this.tags.registerTags(definitions);
   }

@@ -1,12 +1,12 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
-  artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -24,7 +24,7 @@ export const Schema = Type.Object(
       minimum: 1,
       description: "Admitted map height in tiles for the observed engine feature surface.",
     }),
-    featureType: TypedArraySchemas.i16({
+    featureType: TypedArraySchemas.i32({
       description:
         "Post-Ecology Civ7 feature ID per tile in row-major order after feature stamping and terrain validation; the engine no-feature sentinel is retained as evidence.",
     }),
@@ -32,7 +32,7 @@ export const Schema = Type.Object(
   {
     additionalProperties: false,
     description:
-      "Immutable, write-once evidence of the complete engine feature surface produced by map-ecology and consumed by placement planning.",
+      "Immutable, write-once diagnostic evidence of the complete engine feature surface produced by map-ecology.",
   }
 );
 
@@ -40,8 +40,8 @@ export const Schema = Type.Object(
 export type FeatureEngineSnapshot = Static<typeof Schema>;
 
 /**
- * Registers the only cross-step Ecology feature projection state. The apply step owns the engine
- * mutation; this copied snapshot records its post-Ecology result without becoming mutation authority.
+ * Registers post-projection diagnostic evidence for Ecology features. The apply step owns the
+ * engine mutation; placement observes current engine state instead of consuming this snapshot.
  */
 export const artifact = defineArtifact({
   name: "featureEngineSnapshot",
@@ -49,43 +49,27 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-type ValidationIssue = Readonly<{ message: string }>;
-
-function validateSpatialCardinality(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
-): readonly ValidationIssue[] {
-  if (!value || typeof value !== "object") return [];
-  const candidate = value as Partial<FeatureEngineSnapshot>;
-  const issues: ValidationIssue[] = [];
-  const admittedCellCount =
-    Number.isInteger(candidate.width) && Number.isInteger(candidate.height)
-      ? (candidate.width as number) * (candidate.height as number)
-      : undefined;
-  const featureTypeAdmitted = appendArtifactTypedArrayIssues(
+): readonly ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
+  const admittedCellCount = value.width * value.height;
+  appendArtifactTypedArrayIssues(
     issues,
     "featureEngineSnapshot.featureType",
-    candidate.featureType,
-    Int16Array,
+    value.featureType,
+    Int32Array,
     admittedCellCount
   );
 
   const dimensions = context?.dimensions;
   if (dimensions) {
-    if (candidate.width !== dimensions.width || candidate.height !== dimensions.height) {
+    if (value.width !== dimensions.width || value.height !== dimensions.height) {
       issues.push({
-        message: `Feature engine snapshot dimensions ${String(candidate.width)}x${String(candidate.height)} do not match map dimensions ${dimensions.width}x${dimensions.height}.`,
+        message: `Feature engine snapshot dimensions ${value.width}x${value.height} do not match map dimensions ${dimensions.width}x${dimensions.height}.`,
       });
-    }
-    const runCellCount = artifactCellCount(context);
-    if (featureTypeAdmitted && runCellCount !== admittedCellCount) {
-      appendArtifactTypedArrayIssues(
-        issues,
-        "featureEngineSnapshot.featureType",
-        candidate.featureType,
-        Int16Array,
-        runCellCount
-      );
     }
   }
 
@@ -93,15 +77,6 @@ function validateSpatialCardinality(
 }
 
 /**
- * Admits the snapshot through the shared artifact mechanism: TypeBox closes its shape and typed
- * surface, while semantic checks bind dimensions and cardinality to both the payload and run.
+ * Binds the typed feature surface to the payload dimensions and the payload dimensions to the run.
  */
-export function validate(
-  value: unknown,
-  context?: ArtifactValidationContext
-): readonly ValidationIssue[] {
-  return Object.freeze([
-    ...validateArtifactSchema(Schema, value),
-    ...validateSpatialCardinality(value, context),
-  ]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

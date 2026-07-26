@@ -17,6 +17,7 @@ import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/
  */
 export const PlotBiomesStepContract = defineStep({
   id: "plot-biomes",
+  engine: ["getBiomeGlobal", "setBiomeType", "isWater"] as const,
   requires: [],
   provides: [
     STANDARD_ENGINE_EFFECT_TAGS.engine.biomesApplied,

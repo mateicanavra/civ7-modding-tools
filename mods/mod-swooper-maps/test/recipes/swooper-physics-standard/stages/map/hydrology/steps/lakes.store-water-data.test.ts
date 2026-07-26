@@ -3,6 +3,7 @@ import { describe, expect, it } from "bun:test";
 import { type LakeProjectionResult, MockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
+import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import {
   buildStepTestDependencies,
@@ -10,6 +11,7 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { artifactModules as hydrologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
+import { artifactModules as mapHydrologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/map-hydrology/artifacts/index.js";
 import { LakesStep } from "../../../../../../../src/recipes/standard/stages/map-hydrology/steps/lakes/step.js";
 import { artifactModules as morphologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 
@@ -172,13 +174,13 @@ function executeLakesStep(
   lakeMask: Uint8Array,
   mountainMask?: Uint8Array
 ): Exclude<ReturnType<typeof LakesStep.run>, Promise<unknown>> {
-  return withMapContextExecutionForTest(context, () => {
-    seedLakePlan(context, lakeMask, mountainMask);
+  return withMapContextExecutionForTest(context, (stepContext) => {
+    seedLakePlan(stepContext, lakeMask, mountainMask);
     const result = LakesStep.run(
-      context as any,
+      stepContext,
       {},
-      {} as any,
-      buildStepTestDependencies(LakesStep)
+      {},
+      buildStepTestDependencies(LakesStep, stepContext)
     );
     if (result instanceof Promise) {
       throw new Error("The lakes step must remain synchronous.");
@@ -212,11 +214,12 @@ describe("map-hydrology/lakes", () => {
     ]);
     expect(adapter.isWater(1, 1)).toBe(true);
 
-    const projection = context.artifacts.get("artifact:map.hydrology.engineProjectionLakes") as
-      | { nonLakeTileCount?: number; terrainMismatchTileCount?: number }
-      | undefined;
-    expect(projection?.nonLakeTileCount ?? -1).toBe(0);
-    expect(projection?.terrainMismatchTileCount ?? -1).toBe(0);
+    const projection = readValidatedArtifact(
+      context,
+      mapHydrologyArtifactModules.engineProjectionLakes
+    );
+    expect(projection.nonLakeTileCount).toBe(0);
+    expect(projection.terrainMismatchTileCount).toBe(0);
   });
 
   it("records projection rejection as diagnostics without throwing", () => {
@@ -234,13 +237,13 @@ describe("map-hydrology/lakes", () => {
     lakeMask[1 + width] = 1;
     const result = executeLakesStep(context, lakeMask);
 
-    const projection = context.artifacts.get("artifact:map.hydrology.engineProjectionLakes") as
-      | { sinkMismatchCount: number; nonLakeTileCount?: number; terrainMismatchTileCount?: number }
-      | undefined;
-    expect(projection).toBeDefined();
-    expect(projection?.sinkMismatchCount ?? 0).toBe(1);
-    expect(projection?.nonLakeTileCount ?? 0).toBe(1);
-    expect(projection?.terrainMismatchTileCount ?? 0).toBe(0);
+    const projection = readValidatedArtifact(
+      context,
+      mapHydrologyArtifactModules.engineProjectionLakes
+    );
+    expect(projection.sinkMismatchCount).toBe(1);
+    expect(projection.nonLakeTileCount).toBe(1);
+    expect(projection.terrainMismatchTileCount).toBe(0);
 
     const projectViz = LakesStep.viz;
     if (!projectViz) throw new Error("Expected the lakes step to expose its evidence projector");
@@ -306,10 +309,11 @@ describe("map-hydrology/lakes", () => {
     expect(stamped?.[mountainTile]).toBe(0);
     expect(stamped?.[plainLakeTile]).toBe(1);
 
-    const projection = context.artifacts.get("artifact:map.hydrology.engineProjectionLakes") as
-      | { plannedLakeMask?: Uint8Array; morphologyProtectedLakeTileCount?: number }
-      | undefined;
-    expect(projection?.plannedLakeMask?.[mountainTile]).toBe(1);
-    expect(projection?.morphologyProtectedLakeTileCount).toBe(1);
+    const projection = readValidatedArtifact(
+      context,
+      mapHydrologyArtifactModules.engineProjectionLakes
+    );
+    expect(projection.plannedLakeMask[mountainTile]).toBe(1);
+    expect(projection.morphologyProtectedLakeTileCount).toBe(1);
   });
 });

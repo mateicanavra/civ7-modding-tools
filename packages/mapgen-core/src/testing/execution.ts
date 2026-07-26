@@ -1,41 +1,47 @@
 import {
   beginMapContextExecutionInternal,
+  enterMapContextStepInternal,
   finishMapContextExecutionInternal,
+  leaveMapContextStepInternal,
   type MapContext,
 } from "@mapgen/core/map-context.js";
+import { classifyThenable, containThenable } from "@mapgen/lib/async/thenable.js";
+import type { StepTrace } from "@mapgen/trace/index.js";
+import { DIRECT_TEST_STEP_ID } from "./authority.js";
 
-function isThenable(value: unknown): value is PromiseLike<unknown> {
-  return (
-    (typeof value === "object" || typeof value === "function") &&
-    value !== null &&
-    "then" in value &&
-    typeof value.then === "function"
-  );
-}
+const TEST_STEP_TRACE: StepTrace = Object.freeze({ event: () => undefined });
 
-type SynchronousAction<Action extends () => unknown> = Action &
+type TestAction = (context: MapContext) => unknown;
+
+type SynchronousAction<Action extends TestAction> = Action &
   (Extract<ReturnType<Action>, PromiseLike<unknown>> extends never ? unknown : never);
 
 /**
- * Runs one synchronous test action inside the same one-shot MapContext lifecycle used by the
+ * Runs one synchronous test action through the same root-to-step capability transition used by the
  * production executor.
  *
  * Use this only for focused step and artifact tests that intentionally bypass a compiled recipe.
- * The context always becomes terminal, including when the action throws, so tests cannot reuse a
- * context or leave an unclosed execution behind.
+ * The action receives a revocable step context; the root remains observation-only. Both the step
+ * capability and root execution become terminal when the action returns or throws.
  */
-export function withMapContextExecutionForTest<Action extends () => unknown>(
+export function withMapContextExecutionForTest<Action extends TestAction>(
   context: MapContext,
   action: SynchronousAction<Action>
 ): ReturnType<Action> {
   beginMapContextExecutionInternal(context);
   try {
-    const result = action();
-    if (isThenable(result)) {
-      void result.then(undefined, () => undefined);
-      throw new Error("MapContext test executions must be synchronous.");
+    const stepContext = enterMapContextStepInternal(context, DIRECT_TEST_STEP_ID, TEST_STEP_TRACE);
+    try {
+      const result = action(stepContext);
+      const completion = classifyThenable(result);
+      if (completion.kind !== "none") {
+        containThenable(completion);
+        throw new Error("MapContext test executions must be synchronous.");
+      }
+      return result as ReturnType<Action>;
+    } finally {
+      leaveMapContextStepInternal(context, stepContext);
     }
-    return result as ReturnType<Action>;
   } finally {
     finishMapContextExecutionInternal(context);
   }

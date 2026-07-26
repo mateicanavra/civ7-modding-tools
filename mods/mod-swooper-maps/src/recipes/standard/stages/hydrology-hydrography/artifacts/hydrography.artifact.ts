@@ -1,12 +1,14 @@
 import { findInvalidRiverClassIndex } from "@mapgen/domain/hydrology/model/policy/river-class.js";
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -15,7 +17,7 @@ import {
  * This is the canonical read path for “river-ness” and discharge-like signals inside the pipeline.
  * Engine rivers/lakes may differ because they are downstream projections of this model.
  */
-export const HydrologyHydrographyArtifactSchema = Type.Object(
+export const Schema = Type.Object(
   {
     /** Local runoff source proxy per tile (derived from precipitation/humidity inputs). */
     runoff: TypedArraySchemas.f32({
@@ -76,9 +78,6 @@ export const HydrologyHydrographyArtifactSchema = Type.Object(
   }
 );
 
-/** Canonical schema entrypoint for Hydrology routing, discharge, and river-class evidence. */
-export const Schema = HydrologyHydrographyArtifactSchema;
-
 /**
  * Registers canonical Hydrology routing, runoff, discharge, river class, and
  * drainage-depression model before engine projection. Consumers must use this artifact rather
@@ -90,18 +89,13 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-export type ArtifactValidationIssue = Readonly<{ message: string }>;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function validatePayload(value: unknown, expectedLength?: number): ArtifactValidationIssue[] {
+function validateLocal(
+  input: unknown,
+  context?: ArtifactValidationContext
+): ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const expectedLength = artifactCellCount(context);
   const errors: ArtifactValidationIssue[] = [];
-  if (!isRecord(value)) {
-    errors.push({ message: "Missing hydrology hydrography artifact payload." });
-    return errors;
-  }
   const candidate = value as {
     runoff?: unknown;
     discharge?: unknown;
@@ -237,12 +231,4 @@ function validateCategoricalGrid(
  * verifies every tile field matches that width × height. It returns accumulated issues so
  * artifact admission can reject a structurally valid but spatially inconsistent payload.
  */
-export function validate(
-  value: unknown,
-  context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  return Object.freeze([
-    ...validateArtifactSchema(Schema, value),
-    ...validatePayload(value, artifactCellCount(context)),
-  ]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

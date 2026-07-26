@@ -33,7 +33,7 @@ function warnStartDegradations(
       `[Placement] Start assignment degraded to ${path} for ${seatIndices.length} seat(s) ` +
         `(seat indices: ${seatIndices.join(", ")}); regional viability guarantees were relaxed for those seats.`
     );
-    context.trace?.event(() => ({
+    context.trace.event(() => ({
       type: "placement.starts.fallback",
       level: "warn",
       path,
@@ -48,7 +48,7 @@ function warnStartDegradations(
       `[Placement] Seat ${seat.seatIndex} seated below the hard spacing floor ` +
         `(achievedSpacing=${seat.achievedSpacing}); the alternative was an unseated player.`
     );
-    context.trace?.event(() => ({
+    context.trace.event(() => ({
       type: "placement.starts.spacingBelowFloor",
       level: "warn",
       seatIndex: seat.seatIndex,
@@ -62,7 +62,7 @@ function warnStartDegradations(
       `[Placement] ${reassigned.length} seat(s) region-reassigned (seat indices: ` +
         `${seatIndices.join(", ")}); their configured landmass region has zero start candidates on this map.`
     );
-    context.trace?.event(() => ({
+    context.trace.event(() => ({
       type: "placement.starts.regionReassigned",
       level: "warn",
       seats: reassigned.length,
@@ -82,9 +82,9 @@ function warnStartDegradations(
 export function materializeStartAssignment(args: {
   context: MapContext;
   plan: DeepReadonly<PlanStartsOutput>;
+  setStartPosition: (plotIndex: number, playerId: number) => void;
 }): StartAssignmentArtifact {
-  const { context, plan } = args;
-  const { adapter } = context;
+  const { context, plan, setStartPosition } = args;
   const { width, height } = context.setup.dimensions;
   if (plan.width !== width || plan.height !== height) {
     throw new Error(
@@ -105,7 +105,7 @@ export function materializeStartAssignment(args: {
   const tierAssignments = { primary: 0, islandCluster: 0, marginal: 0, none: 0 };
   for (const seat of seats) {
     if (seat.plotIndex < 0) continue;
-    adapter.setStartPosition(seat.plotIndex, seat.playerId);
+    setStartPosition(seat.plotIndex, seat.playerId);
     assigned++;
     if (seat.rung === "regional") rungCounts.regional++;
     else if (seat.rung === "open-pool") rungCounts.openPool++;

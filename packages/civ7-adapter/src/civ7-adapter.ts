@@ -17,12 +17,17 @@ import {
   RIVER_TYPE_MINOR,
   RIVER_TYPE_NAVIGABLE,
 } from "@civ7/map-policy";
+import {
+  captureCurrentRiverSurface,
+  deriveRiverProjectionFromCurrentSurface,
+} from "./current-map-surface.js";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
 import {
   type Civ7ResourceAgePolicyRuntime,
   queryCiv7ResourceRequirementForAge,
 } from "./resource-age-policy.js";
 import type {
+  CurrentMapSurface,
   DiscoveryPlacementIntent,
   DiscoveryPlacementOutcome,
   EngineAdapter,
@@ -604,124 +609,131 @@ export class Civ7Adapter implements EngineAdapter {
     TerrainBuilder.storeWaterData();
   }
 
-  readRiverProjection(
-    width: number,
-    height: number,
-    plannedNavigableRiverMask: Uint8Array
-  ): RiverProjectionResult {
-    const size = Math.max(0, (width | 0) * (height | 0));
-    if (plannedNavigableRiverMask.length !== size) {
-      throw new Error(
-        `[Civ7Adapter] Invalid river mask length for readRiverProjection (expected ${size}, got ${plannedNavigableRiverMask.length}).`
-      );
-    }
-
-    const navigableRiverTerrain = this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER");
+  /** Reads and detaches the current Civ7 terrain, biome, feature, water, and river surfaces. */
+  readCurrentMapSurface(): CurrentMapSurface {
+    const { width, height } = this;
+    const size = width * height;
+    const terrainType = new Int32Array(size);
+    const elevation = new Int16Array(size);
+    const biomeType = new Int32Array(size);
+    const featureType = new Int32Array(size);
+    const waterMask = new Uint8Array(size);
+    const lakeMask = new Uint8Array(size);
+    const riverType = new Int32Array(size);
+    const riverMask = new Uint8Array(size);
+    const navigableRiverMask = new Uint8Array(size);
+    const minorRiverMask = new Uint8Array(size);
     const riverTypes = (
       globalThis as typeof globalThis & {
         RiverTypes?: Record<string, number>;
       }
     ).RiverTypes;
     const noRiverType =
-      typeof riverTypes?.NO_RIVER === "number" ? riverTypes.NO_RIVER : NO_RIVER_TYPE;
+      typeof riverTypes?.NO_RIVER === "number" ? riverTypes.NO_RIVER | 0 : NO_RIVER_TYPE;
     const minorRiverType =
-      typeof riverTypes?.RIVER_MINOR === "number" ? riverTypes.RIVER_MINOR : RIVER_TYPE_MINOR;
+      typeof riverTypes?.RIVER_MINOR === "number" ? riverTypes.RIVER_MINOR | 0 : RIVER_TYPE_MINOR;
     const navigableRiverType =
       typeof riverTypes?.RIVER_NAVIGABLE === "number"
-        ? riverTypes.RIVER_NAVIGABLE
+        ? riverTypes.RIVER_NAVIGABLE | 0
         : RIVER_TYPE_NAVIGABLE;
     const gameplayMap = GameplayMap as unknown as {
       getRiverType?: (x: number, y: number) => number;
     };
-    const minorRiverStampingSupported = typeof gameplayMap.getRiverType === "function";
-    const stampedNavigableRiverMask = new Uint8Array(size);
-    const rejectedNavigableRiverMask = new Uint8Array(size);
-    const engineTerrain = new Int32Array(size);
-    const engineRiverType = new Int32Array(size);
-    const engineIsRiverMask = new Uint8Array(size);
-    const engineNavigableRiverMask = new Uint8Array(size);
-    const engineMinorRiverMask = new Uint8Array(size);
-    const terrainNavigableRiverMask = new Uint8Array(size);
-    const navigableRiverMismatchMask = new Uint8Array(size);
-    let plannedNavigableRiverTileCount = 0;
-    let stampedNavigableRiverTileCount = 0;
-    let rejectedNavigableRiverTileCount = 0;
-    let extraNavigableRiverTileCount = 0;
-    let navigableRiverMismatchTileCount = 0;
-    let engineRiverTileCount = 0;
-    let engineNavigableRiverTileCount = 0;
-    let engineMinorRiverTileCount = 0;
-    let terrainNavigableRiverTileCount = 0;
+    const typeReadbackSupported = typeof gameplayMap.getRiverType === "function";
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
-        const idx = y * width + x;
-        const planned = plannedNavigableRiverMask[idx] === 1;
-        const terrain = this.getTerrainType(x, y) | 0;
-        const riverType = this.getRiverType(x, y) | 0;
-        const isRiver = this.isRiver(x, y);
-        const isNavigable = this.isNavigableRiver(x, y) || riverType === navigableRiverType;
-        const hasNavigableTerrain = terrain === navigableRiverTerrain;
-        const isMinor = isRiver && riverType === minorRiverType;
-        const hasRiverMetadata = riverType !== noRiverType;
-
-        engineTerrain[idx] = terrain;
-        engineRiverType[idx] = riverType;
-        engineIsRiverMask[idx] = isRiver || hasRiverMetadata ? 1 : 0;
-        engineNavigableRiverMask[idx] = isNavigable ? 1 : 0;
-        engineMinorRiverMask[idx] = isMinor ? 1 : 0;
-        terrainNavigableRiverMask[idx] = hasNavigableTerrain ? 1 : 0;
-
-        if (planned) plannedNavigableRiverTileCount += 1;
-        if (isRiver || hasRiverMetadata) engineRiverTileCount += 1;
-        if (isNavigable) engineNavigableRiverTileCount += 1;
-        if (isMinor) engineMinorRiverTileCount += 1;
-        if (hasNavigableTerrain) terrainNavigableRiverTileCount += 1;
-
-        if (planned && hasNavigableTerrain) {
-          stampedNavigableRiverMask[idx] = 1;
-          stampedNavigableRiverTileCount += 1;
-        } else if (planned) {
-          rejectedNavigableRiverMask[idx] = 1;
-          rejectedNavigableRiverTileCount += 1;
-        } else if (hasNavigableTerrain) {
-          extraNavigableRiverTileCount += 1;
-        }
-
-        if ((planned ? 1 : 0) !== (hasNavigableTerrain ? 1 : 0)) {
-          navigableRiverMismatchMask[idx] = 1;
-          navigableRiverMismatchTileCount += 1;
-        }
+        const index = y * width + x;
+        const observedRiverType = this.getRiverType(x, y) | 0;
+        const hasRiverMetadata = observedRiverType !== noRiverType;
+        const isRiver = this.isRiver(x, y) || hasRiverMetadata;
+        const isNavigable = this.isNavigableRiver(x, y) || observedRiverType === navigableRiverType;
+        terrainType[index] = this.getTerrainType(x, y) | 0;
+        elevation[index] = this.getElevation(x, y) | 0;
+        biomeType[index] = this.getBiomeType(x, y) | 0;
+        featureType[index] = this.getFeatureType(x, y) | 0;
+        waterMask[index] = this.isWater(x, y) ? 1 : 0;
+        lakeMask[index] = this.isLake(x, y) ? 1 : 0;
+        riverType[index] = observedRiverType;
+        riverMask[index] = isRiver ? 1 : 0;
+        navigableRiverMask[index] = isNavigable ? 1 : 0;
+        minorRiverMask[index] = isRiver && observedRiverType === minorRiverType ? 1 : 0;
       }
     }
 
-    return {
+    return Object.freeze({
       width,
       height,
-      plannedNavigableRiverMask,
-      stampedNavigableRiverMask,
-      rejectedNavigableRiverMask,
-      engineTerrain,
-      engineRiverType,
-      engineIsRiverMask,
-      engineNavigableRiverMask,
-      engineMinorRiverMask,
-      terrainNavigableRiverMask,
-      navigableRiverMismatchMask,
-      plannedNavigableRiverTileCount,
-      stampedNavigableRiverTileCount,
-      rejectedNavigableRiverTileCount,
-      extraNavigableRiverTileCount,
-      navigableRiverMismatchTileCount,
-      engineRiverTileCount,
-      engineNavigableRiverTileCount,
-      engineMinorRiverTileCount,
-      terrainNavigableRiverTileCount,
-      minorRiverStampingSupported,
-      minorRiverUnsupportedReason: minorRiverStampingSupported
+      terrainType,
+      elevation,
+      biomeType,
+      featureType,
+      waterMask,
+      lakeMask,
+      riverType,
+      riverMask,
+      navigableRiverMask,
+      minorRiverMask,
+      sentinels: Object.freeze({
+        navigableRiverTerrainType: this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER") | 0,
+      }),
+      riverMetadata: Object.freeze({
+        typeReadbackSupported,
+        unsupportedReason: typeReadbackSupported
+          ? "Native Civ river-type metadata readback is available after TerrainBuilder.modelRivers; exact Hydrology minor-river parity must be proven by comparing planned minor intent to engineMinorRiverMask."
+          : "Native Civ minor-river metadata readback is unavailable in this runtime; exact Hydrology minor-river parity cannot be proven from readCurrentMapSurface.",
+      }),
+    });
+  }
+
+  readRiverProjection(
+    width: number,
+    height: number,
+    plannedNavigableRiverMask: Uint8Array
+  ): RiverProjectionResult {
+    if (width !== this.width || height !== this.height) {
+      throw new Error(
+        `[Civ7Adapter] River projection dimensions ${width}x${height} do not match the current map ${this.width}x${this.height}.`
+      );
+    }
+    const riverTypes = (
+      globalThis as typeof globalThis & {
+        RiverTypes?: Record<string, number>;
+      }
+    ).RiverTypes;
+    const noRiverType =
+      typeof riverTypes?.NO_RIVER === "number" ? riverTypes.NO_RIVER | 0 : NO_RIVER_TYPE;
+    const minorRiverType =
+      typeof riverTypes?.RIVER_MINOR === "number" ? riverTypes.RIVER_MINOR | 0 : RIVER_TYPE_MINOR;
+    const navigableRiverType =
+      typeof riverTypes?.RIVER_NAVIGABLE === "number"
+        ? riverTypes.RIVER_NAVIGABLE | 0
+        : RIVER_TYPE_NAVIGABLE;
+    const gameplayMap = GameplayMap as unknown as {
+      getRiverType?: (x: number, y: number) => number;
+    };
+    const typeReadbackSupported = typeof gameplayMap.getRiverType === "function";
+    const surface = captureCurrentRiverSurface({
+      width,
+      height,
+      noRiverType,
+      minorRiverType,
+      navigableRiverType,
+      navigableRiverTerrainType: this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER") | 0,
+      typeReadbackSupported,
+      unsupportedReason: typeReadbackSupported
         ? "Native Civ river-type metadata readback is available after TerrainBuilder.modelRivers; exact Hydrology minor-river parity must be proven by comparing planned minor intent to engineMinorRiverMask."
         : "Native Civ minor-river metadata readback is unavailable in this runtime; exact Hydrology minor-river parity cannot be proven from readRiverProjection.",
-    };
+      getTerrainType: (x, y) => this.getTerrainType(x, y),
+      getRiverType: (x, y) => this.getRiverType(x, y),
+      isRiver: (x, y) => this.isRiver(x, y),
+      isNavigableRiver: (x, y) => this.isNavigableRiver(x, y),
+    });
+    return deriveRiverProjectionFromCurrentSurface(
+      surface,
+      plannedNavigableRiverMask,
+      "Civ7Adapter"
+    );
   }
 
   generateLakes(width: number, height: number, tilesPerLake: number): void {

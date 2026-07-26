@@ -21,6 +21,10 @@ Define how MapGen runs can be inspected and debugged deterministically:
 - Trace configuration and sinks are explicit execution options, not map setup or product identity.
 - Absence of the trace capability is the only disabled state. A present config emits basic step
   lifecycle events by default, with `steps` overrides selecting `off` or `verbose` per step.
+- Authored steps receive only `context.trace.event(...)`. The executor owns run/step identity,
+  verbosity selection, and session lifecycle; the step port becomes inert when its invocation ends.
+- Lazy event producers are evaluated only for verbose steps and are failure-contained so
+  observation cannot change generation behavior.
 - Trace plumbing should not change pipeline semantics (only observability).
 
 ## Visualization hooks

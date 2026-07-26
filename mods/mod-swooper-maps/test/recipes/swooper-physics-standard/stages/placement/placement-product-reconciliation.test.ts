@@ -7,10 +7,10 @@ import {
   type ResourcePlacementOutcome,
 } from "@civ7/adapter";
 import type { MapContext } from "@swooper/mapgen-core";
-import type { Static } from "@swooper/mapgen-core/authoring";
+import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
-import { artifacts as placementArtifacts } from "../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
+import { artifactModules as placementArtifactModules } from "../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
 import {
   runStandardRecipeTestMap,
   type StandardRecipeTestAdapterInput,
@@ -20,10 +20,6 @@ type PlacementRecipeHarnessOptions = {
   createAdapter?: (input: StandardRecipeTestAdapterInput) => MockAdapter;
   seed?: number;
 };
-
-type ResourcePlacementOutcomes = Static<
-  (typeof placementArtifacts.resourcePlacementOutcomes)["schema"]
->;
 
 /**
  * Runs D4 placement reconciliation through the standard recipe instead of
@@ -51,21 +47,11 @@ function runStandardPlacementRecipe({
 }
 
 function readResourceOutcomes(context: ReturnType<typeof runStandardPlacementRecipe>["context"]) {
-  return context.artifacts.get(placementArtifacts.resourcePlacementOutcomes.id) as
-    | ResourcePlacementOutcomes
-    | undefined;
+  return readValidatedArtifact(context, placementArtifactModules.resourcePlacementOutcomes);
 }
 
 function readDiscoveryOutcomes(context: ReturnType<typeof runStandardPlacementRecipe>["context"]) {
-  return context.artifacts.get(placementArtifacts.discoveryPlacementOutcomes.id) as
-    | {
-        summary: {
-          plannedCount: number;
-          placedCount: number;
-          rejectedCount: number;
-        };
-      }
-    | undefined;
+  return readValidatedArtifact(context, placementArtifactModules.discoveryPlacementOutcomes);
 }
 
 class MismatchingResourceAdapter extends MockAdapter {
@@ -121,8 +107,6 @@ describe("placement reconciliation", () => {
 
     const resourceOutcomes = readResourceOutcomes(context);
     const discoveryOutcomes = readDiscoveryOutcomes(context);
-    if (!resourceOutcomes) throw new Error("Missing resource placement outcomes.");
-
     // Snow and the official RESOURCE generator stay off: the mod owns resource
     // placement via typed intents (engine indices + readback).
     expect(adapter.calls.generateSnow.length).toBe(0);
@@ -135,9 +119,9 @@ describe("placement reconciliation", () => {
     // records the observed counts; it never stamps per-tile discovery intents.
     expect(adapter.calls.generateOfficialDiscoveries.length).toBe(1);
     expect(adapter.calls.stampDiscovery.length).toBe(0);
-    expect(discoveryOutcomes?.summary.plannedCount).toBe(5);
-    expect(discoveryOutcomes?.summary.placedCount).toBe(5);
-    expect(discoveryOutcomes?.summary.rejectedCount).toBe(0);
+    expect(discoveryOutcomes.summary.plannedCount).toBe(5);
+    expect(discoveryOutcomes.summary.placedCount).toBe(5);
+    expect(discoveryOutcomes.summary.rejectedCount).toBe(0);
   });
 
   it("records typed resource rejections without relocation when the engine oracle rejects every intent", () => {
@@ -158,8 +142,6 @@ describe("placement reconciliation", () => {
         }),
     });
     const resourceOutcomes = readResourceOutcomes(context);
-    if (!resourceOutcomes) throw new Error("Missing resource placement outcomes.");
-
     expect(adapter.calls.generateOfficialResources.length).toBe(0);
     expect(adapter.calls.setResourceType.length).toBe(0);
     expect(resourceOutcomes.summary.plannedCount).toBeGreaterThan(0);

@@ -1,11 +1,13 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -14,7 +16,7 @@ import {
  * These are advisory indices: consumers should treat them as derived products and not re-derive ad hoc indices from
  * raw rainfall/temperature unless they own the semantics and have tests locking the contract.
  */
-export const HydrologyClimateIndicesSchema = Type.Object(
+export const Schema = Type.Object(
   {
     /** Surface temperature proxy (C); used for biome gating, freeze logic, and “cold/warm” narrative bias. */
     surfaceTemperatureC: TypedArraySchemas.f32({ description: "Surface temperature proxy (C)." }),
@@ -45,9 +47,6 @@ export const HydrologyClimateIndicesSchema = Type.Object(
   }
 );
 
-/** Canonical schema entrypoint for refined climate indices shared with downstream domains. */
-export const Schema = HydrologyClimateIndicesSchema;
-
 /**
  * Registers refined per-tile temperature, evapotranspiration, aridity, freeze, and related
  * climate indices. Ecology consumes these normalized physical signals instead of deriving
@@ -59,15 +58,13 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-type ArtifactValidationIssue = Readonly<{ message: string }>;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function validatePayload(value: unknown, expectedLength?: number): ArtifactValidationIssue[] {
+function validateLocal(
+  input: unknown,
+  context?: ArtifactValidationContext
+): ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const expectedLength = artifactCellCount(context);
   const errors: ArtifactValidationIssue[] = [];
-  if (!isRecord(value)) return [{ message: "Missing hydrology climate indices artifact payload." }];
   const candidate = value as {
     surfaceTemperatureC?: unknown;
     effectiveMoisture?: unknown;
@@ -118,12 +115,4 @@ function validatePayload(value: unknown, expectedLength?: number): ArtifactValid
  * verifies every tile field matches that width × height. It returns accumulated issues so
  * artifact admission can reject a structurally valid but spatially inconsistent payload.
  */
-export function validate(
-  value: unknown,
-  context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  return Object.freeze([
-    ...validateArtifactSchema(Schema, value),
-    ...validatePayload(value, artifactCellCount(context)),
-  ]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

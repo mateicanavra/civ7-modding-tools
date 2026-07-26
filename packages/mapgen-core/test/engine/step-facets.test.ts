@@ -1,10 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import {
-  defineArtifact,
-  implementArtifactModules,
-  validateArtifactSchema,
-} from "@mapgen/authoring/index.js";
+import { implementArtifactModules } from "@mapgen/authoring/artifact/runtime.js";
+import { defineArtifact, defineArtifactValidator } from "@mapgen/authoring/index.js";
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
 import { PipelineAbortError } from "@mapgen/engine/errors.js";
 import {
@@ -18,6 +15,7 @@ import {
   type StepFacetSinks,
   StepRegistry,
 } from "@mapgen/engine/index.js";
+import { registerDependencyTagsInternal } from "@mapgen/engine/tags.js";
 import type { TraceEvent } from "@mapgen/trace/index.js";
 import { Type } from "typebox";
 
@@ -27,12 +25,11 @@ const facetedStepArtifact = defineArtifact({
   id: PROVIDED_TAG,
   schema: Type.Boolean(),
 });
-const facetedStepArtifacts = implementArtifactModules([
-  {
-    artifact: facetedStepArtifact,
-    validate: (value: unknown) => validateArtifactSchema(facetedStepArtifact.schema, value),
-  },
-]);
+const facetedStepModule = {
+  artifact: facetedStepArtifact,
+  validate: defineArtifactValidator(facetedStepArtifact),
+};
+const facetedStepArtifacts = implementArtifactModules([facetedStepModule]);
 const TEST_ENV = {
   mapSeed: 7,
   dimensions: { width: 8, height: 6 },
@@ -69,13 +66,13 @@ function captureFacetRegistry(
 ): StepRegistry {
   const registry = new StepRegistry();
   if (step.provides.includes(PROVIDED_TAG)) {
-    registry.registerTags([
+    registerDependencyTagsInternal(registry.getTagRegistry(), [
       {
         id: PROVIDED_TAG,
         kind: "artifact",
-        satisfies: (context) => {
+        satisfies: (evidence) => {
           onProvides?.();
-          return context.artifacts.has(PROVIDED_TAG);
+          return evidence.observeArtifact(facetedStepModule).found;
         },
       },
     ]);
@@ -180,7 +177,15 @@ describe("step facets", () => {
     const executor = new PipelineExecutor(registry, { log: () => {} });
 
     executor.executePlan(createTestContext(plan.setup), plan, {
-      trace: { config: {}, sink: { emit: (event) => syncEvents.push(event) } },
+      trace: {
+        config: {},
+        sink: {
+          emit: (event) => {
+            syncEvents.push(event);
+            return undefined;
+          },
+        },
+      },
       facets: {
         metrics: (_projection, context) => {
           syncContexts.push(context);
@@ -188,7 +193,15 @@ describe("step facets", () => {
       },
     });
     await executor.executePlanAsync(createTestContext(plan.setup), plan, {
-      trace: { config: {}, sink: { emit: (event) => asyncEvents.push(event) } },
+      trace: {
+        config: {},
+        sink: {
+          emit: (event) => {
+            asyncEvents.push(event);
+            return undefined;
+          },
+        },
+      },
       facets: {
         metrics: (_projection, context) => {
           asyncContexts.push(context);

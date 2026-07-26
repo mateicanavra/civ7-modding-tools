@@ -60,13 +60,13 @@ function executeBuildElevation(
   lakeMask: Uint8Array,
   sinkMismatchCount: number
 ): void {
-  withMapContextExecutionForTest(context, () => {
-    publishBuildElevationInputs(context, width, height, landMask, lakeMask, sinkMismatchCount);
+  withMapContextExecutionForTest(context, (stepContext) => {
+    publishBuildElevationInputs(stepContext, width, height, landMask, lakeMask, sinkMismatchCount);
     BuildElevationStep.run(
-      context as any,
+      stepContext,
       {},
-      {} as any,
-      buildStepTestDependencies(BuildElevationStep)
+      {},
+      buildStepTestDependencies(BuildElevationStep, stepContext)
     );
   });
 }

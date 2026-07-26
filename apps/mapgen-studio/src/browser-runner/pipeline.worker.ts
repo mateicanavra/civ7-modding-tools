@@ -110,7 +110,7 @@ function createWorkerFacetFailureReporter(execution: {
 async function runRecipe(
   request: Extract<BrowserRunRequest, { type: "run.start" }>,
   abortSignal: { readonly aborted: boolean }
-): Promise<{ didEmitFinished: boolean }> {
+): Promise<void> {
   const {
     runToken,
     generation,
@@ -166,23 +166,18 @@ async function runRecipe(
 
   const context = createMapContext({ setup, adapter });
 
-  let didEmitFinished = false;
-  const postFromTrace = (event: BrowserRunEvent, transfer?: Transferable[]): void => {
-    if (event.type === "run.finished") didEmitFinished = true;
-    post(event, transfer);
-  };
   const workerTraceSink = createWorkerTraceSink({
     runToken,
     generation,
-    post: postFromTrace,
+    post,
     abortSignal,
   });
   let didEmitStarted = false;
   const traceSink: TraceSink = {
-    emit: (event: TraceEvent): void => {
+    emit: (event: TraceEvent): undefined => {
       if (event.kind === "run.start" && !didEmitStarted) {
         didEmitStarted = true;
-        postFromTrace({
+        post({
           type: "run.started",
           runToken,
           generation,
@@ -191,6 +186,7 @@ async function runRecipe(
         });
       }
       workerTraceSink.emit(event);
+      return undefined;
     },
   };
 
@@ -203,7 +199,7 @@ async function runRecipe(
       viz: createWorkerVizFacetSink({
         runToken,
         generation,
-        post: postFromTrace,
+        post,
         abortSignal,
       }),
       onError: createWorkerFacetFailureReporter({ runToken, generation }),
@@ -212,8 +208,6 @@ async function runRecipe(
     // Yield between steps so cooperative cancellation (via postMessage) can be observed.
     yieldToEventLoop: true,
   });
-
-  return { didEmitFinished };
 }
 
 type ActiveRun = {
@@ -243,12 +237,11 @@ self.onmessage = (ev: MessageEvent<BrowserRunRequest>) => {
     active = { runToken: msg.runToken, generation: msg.generation, abortController };
 
     runRecipe(msg, abortController.signal).then(
-      ({ didEmitFinished }) => {
+      () => {
         // If we were canceled, `worker-trace-sink` suppresses user-facing events; emit run.canceled explicitly.
         if (abortController.signal.aborted) {
           post({ type: "run.canceled", runToken: msg.runToken, generation: msg.generation });
-        } else if (!didEmitFinished) {
-          // Some pipelines may not emit a trace `run.finish` event. Ensure the UI always receives run completion.
+        } else {
           post({ type: "run.finished", runToken: msg.runToken, generation: msg.generation });
         }
         if (active?.runToken === msg.runToken && active.generation === msg.generation)

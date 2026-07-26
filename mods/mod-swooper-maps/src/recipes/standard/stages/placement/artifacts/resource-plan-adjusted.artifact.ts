@@ -1,6 +1,11 @@
 import resources from "@mapgen/domain/resources";
-import type { ArtifactValidationContext, Static } from "@swooper/mapgen-core/authoring/contracts";
-import { defineArtifact, validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
+  defineArtifact,
+  defineArtifactValidator,
+  type Static,
+} from "@swooper/mapgen-core/authoring/contracts";
 import { getHexRadiusIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 
 /** Support-adjusted resource plan (`artifact:placement.resourcePlanAdjusted`). One artifact per file by repo convention. */
@@ -10,7 +15,6 @@ export const Schema = resources.ops.adjustResourceSupport.output;
 type ResourcePlanAdjusted = Static<typeof Schema>;
 type AdjustedIntent = ResourcePlanAdjusted["intents"][number];
 type Shortfall = ResourcePlanAdjusted["shortfalls"][number];
-type ValidationIssue = { message: string };
 
 const FLOOR_SHORTFALL_REASONS = new Set<Shortfall["reason"]>([
   "no-admitted-adjustment",
@@ -30,7 +34,7 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-function issue(message: string): ValidationIssue {
+function issue(message: string): ArtifactValidationIssue {
   return { message };
 }
 
@@ -57,13 +61,13 @@ function adjustmentKey(row: {
 }
 
 function plotInBounds(plotIndex: number, size: number): boolean {
-  return Number.isInteger(plotIndex) && plotIndex >= 0 && plotIndex < size;
+  return plotIndex < size;
 }
 
 function validateDimensions(
   value: ResourcePlanAdjusted,
   context: ArtifactValidationContext | undefined,
-  issues: ValidationIssue[]
+  issues: ArtifactValidationIssue[]
 ): number | null {
   const size = value.width * value.height;
   if (!Number.isSafeInteger(size) || size <= 0) {
@@ -91,7 +95,7 @@ function validateIntentGeometry(
   width: number,
   height: number,
   size: number,
-  issues: ValidationIssue[]
+  issues: ArtifactValidationIssue[]
 ): void {
   const seenPlots = new Set<number>();
   for (const intent of intents) {
@@ -99,7 +103,7 @@ function validateIntentGeometry(
       issues.push(issue(`resourcePlanAdjusted intent plot ${intent.plotIndex} is out of bounds.`));
       continue;
     }
-    if (intent.x < 0 || intent.x >= width || intent.y < 0 || intent.y >= height) {
+    if (intent.x >= width || intent.y >= height) {
       issues.push(
         issue(
           `resourcePlanAdjusted intent coordinate ${intent.x},${intent.y} is outside ${width}x${height}.`
@@ -127,7 +131,7 @@ function validateIntentGeometry(
 function validateAdjustmentEvidence(
   value: ResourcePlanAdjusted,
   size: number,
-  issues: ValidationIssue[]
+  issues: ArtifactValidationIssue[]
 ): readonly number[] {
   const expectedRows = new Map<string, number>();
   const actualRows = new Map<string, number>();
@@ -248,7 +252,7 @@ function validatePerStartEvidence(
   value: ResourcePlanAdjusted,
   preAdjustmentPlots: readonly number[],
   size: number,
-  issues: ValidationIssue[]
+  issues: ArtifactValidationIssue[]
 ): void {
   const seatIndices = new Set<number>();
   const playerIds = new Set<number>();
@@ -328,7 +332,7 @@ function validateShortfalls(
   value: ResourcePlanAdjusted,
   seatIndices: ReadonlySet<number>,
   gapAfter: number | null,
-  issues: ValidationIssue[]
+  issues: ArtifactValidationIssue[]
 ): void {
   const active = value.settings.enabled && value.settings.strength > 0;
   const floorRowsBySeat = new Map<number, Shortfall[]>();
@@ -407,7 +411,10 @@ function validateShortfalls(
   }
 }
 
-function validateInactiveEvidence(value: ResourcePlanAdjusted, issues: ValidationIssue[]): void {
+function validateInactiveEvidence(
+  value: ResourcePlanAdjusted,
+  issues: ArtifactValidationIssue[]
+): void {
   if (value.settings.enabled && value.settings.strength > 0) return;
   if (value.adjustments.length > 0 || value.moveCount !== 0 || value.addCount !== 0) {
     issues.push(issue("inactive resource evidence must not record moves or additions."));
@@ -429,15 +436,12 @@ function validateInactiveEvidence(value: ResourcePlanAdjusted, issues: Validatio
  * spacing, causal reason selection, input-seat completeness, or stamped engine outcomes; those
  * belong to their producing operation and downstream materialization owners.
  */
-export function validate(
+function validateLocal(
   value: unknown,
   context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const schemaIssues = [...validateArtifactSchema(Schema, value)];
-  if (schemaIssues.length > 0) return Object.freeze(schemaIssues);
-
+): readonly ArtifactValidationIssue[] {
   const adjusted = value as ResourcePlanAdjusted;
-  const issues: ValidationIssue[] = [];
+  const issues: ArtifactValidationIssue[] = [];
   const size = validateDimensions(adjusted, context, issues);
   if (adjusted.plannedCount !== adjusted.intents.length) {
     issues.push(
@@ -454,3 +458,6 @@ export function validate(
   }
   return Object.freeze(issues);
 }
+
+/** Admits coherent adjusted intents, provenance, support, equity, and terminal shortfall evidence. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

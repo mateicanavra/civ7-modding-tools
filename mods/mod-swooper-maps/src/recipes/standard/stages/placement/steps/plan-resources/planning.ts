@@ -1,4 +1,4 @@
-import { getCiv7StandardMapSizePresetForDimensions } from "@civ7/adapter";
+import { type CurrentMapSurface, getCiv7StandardMapSizePresetForDimensions } from "@civ7/adapter";
 import {
   buildResourceLegalityMask,
   CIV7_POLICY_TABLES_V1,
@@ -32,7 +32,6 @@ import {
   type HabitatIntensityFieldName,
   type HabitatMaskFieldName,
 } from "@mapgen/domain/resources/model/schemas";
-import type { MapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
 import type { ResourceDemandExclusionReason } from "../../artifacts/resource-demand-plan.artifact.js";
 
@@ -118,27 +117,21 @@ export function assertHabitatFieldsOutput(
 /**
  * Reads the prepared engine surface for policy-legality evaluation.
  *
- * Declared engine-surface read (ADR-009 context): the legality masks must see
- * exactly what the reconcile-time `canHaveResource` oracle sees — the final
- * engine surface after placement maintenance. Reconstructing this surface
- * from artifacts is S6 scope.
+ * Legality must see the same current surface as the later engine feasibility check, so this
+ * projection preserves the adapter's full-width ids rather than reconstructing mutable state from
+ * earlier artifacts.
  */
-export function readResourceLegalitySurface(context: MapContext): ResourceLegalitySurface {
-  const { width, height } = context.setup.dimensions;
-  const size = width * height;
-  const biomeType = new Uint8Array(size);
-  const terrainType = new Uint8Array(size);
-  const featureType = new Int16Array(size);
-  const engineWaterMask = new Uint8Array(size);
-  for (let i = 0; i < size; i++) {
-    const y = (i / width) | 0;
-    const x = i - y * width;
-    biomeType[i] = Math.max(0, context.adapter.getBiomeType(x, y) | 0);
-    terrainType[i] = Math.max(0, context.adapter.getTerrainType(x, y) | 0);
-    featureType[i] = context.adapter.getFeatureType(x, y) | 0;
-    engineWaterMask[i] = context.adapter.isWater(x, y) ? 1 : 0;
-  }
-  return { width, height, biomeType, terrainType, featureType, engineWaterMask };
+export function readResourceLegalitySurface(
+  currentSurface: CurrentMapSurface
+): ResourceLegalitySurface {
+  return {
+    width: currentSurface.width,
+    height: currentSurface.height,
+    biomeType: currentSurface.biomeType,
+    terrainType: currentSurface.terrainType,
+    featureType: currentSurface.featureType,
+    engineWaterMask: currentSurface.waterMask,
+  };
 }
 
 /**
@@ -178,9 +171,9 @@ export function expectationsForGroup<const G extends ResourceExpectationGroupId>
 }
 
 /**
- * Union of the planned + engine-projected river masks from the map-rivers
- * stage. Product requirement (rivers stack): no resources on river tiles —
- * including navigable-river water tiles (no fish on navigable rivers).
+ * Union of immutable projected river intent and the current engine river surface.
+ * Product requirement (rivers stack): no resources on river tiles, including
+ * navigable-river water tiles (no fish on navigable rivers).
  */
 export function buildRiverResourceExclusionMask(args: {
   width: number;
@@ -190,12 +183,10 @@ export function buildRiverResourceExclusionMask(args: {
     plannedMajorRiverMask?: Uint8Array;
     plannedMinorRiverMask?: Uint8Array;
   };
-  engineProjectionRivers?: {
-    engineIsRiverMask?: Uint8Array;
-    terrainNavigableRiverMask?: Uint8Array;
-    engineNavigableRiverMask?: Uint8Array;
-    engineMinorRiverMask?: Uint8Array;
+  currentEngineSurface?: {
     riverMask?: Uint8Array;
+    navigableRiverMask?: Uint8Array;
+    minorRiverMask?: Uint8Array;
   };
 }): Uint8Array {
   const size = args.width * args.height;
@@ -219,20 +210,9 @@ export function buildRiverResourceExclusionMask(args: {
     "projectedNavigableRivers.plannedMinorRiverMask",
     args.projectedNavigableRivers?.plannedMinorRiverMask
   );
-  add("engineProjectionRivers.riverMask", args.engineProjectionRivers?.riverMask);
-  add(
-    "engineProjectionRivers.terrainNavigableRiverMask",
-    args.engineProjectionRivers?.terrainNavigableRiverMask
-  );
-  add("engineProjectionRivers.engineIsRiverMask", args.engineProjectionRivers?.engineIsRiverMask);
-  add(
-    "engineProjectionRivers.engineNavigableRiverMask",
-    args.engineProjectionRivers?.engineNavigableRiverMask
-  );
-  add(
-    "engineProjectionRivers.engineMinorRiverMask",
-    args.engineProjectionRivers?.engineMinorRiverMask
-  );
+  add("currentEngineSurface.riverMask", args.currentEngineSurface?.riverMask);
+  add("currentEngineSurface.navigableRiverMask", args.currentEngineSurface?.navigableRiverMask);
+  add("currentEngineSurface.minorRiverMask", args.currentEngineSurface?.minorRiverMask);
   return mask;
 }
 
@@ -258,7 +238,7 @@ export function buildResourceDemands(args: {
   legalitySurface: ResourceLegalitySurface;
   /**
    * Exact live required-for-age observations for planned resources with an official regional
-   * minimum. `null` records that the adapter surface is unavailable; omitted entries are refused.
+   * minimum. `null` records that the engine observation is unavailable; omitted entries are refused.
    */
   requiredForAgeByResourceType: ReadonlyMap<OfficialResourceType, boolean | null>;
   /**

@@ -1,13 +1,15 @@
 import {
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Terminal engine-state evidence (`artifact:placementEngineState`). One artifact per file by repo convention. */
-const PlacementEngineStateV1Schema = Type.Object(
+/** Runtime schema for terminal Civ7 placement readback and product totals. */
+export const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -44,9 +46,6 @@ const PlacementEngineStateV1Schema = Type.Object(
   { additionalProperties: false }
 );
 
-/** Runtime schema for terminal Civ7 placement readback and product totals. */
-export const Schema = PlacementEngineStateV1Schema;
-
 /** Registers the terminal Civ7 placement readback and aggregate product outcomes. */
 export const artifact = defineArtifact({
   name: "engineState",
@@ -54,32 +53,20 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-type ValidationIssue = { message: string };
-
-function issue(message: string): ValidationIssue {
+function issue(message: string): ArtifactValidationIssue {
   return { message };
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-function isCount(value: unknown): value is number {
-  return Number.isInteger(value) && (value as number) >= 0;
-}
-
 /**
- * Shape-level validation for the terminal placement summary. It checks map-sized
- * surfaces and non-negative totals without claiming that slot counts were derived
- * from the corresponding slot buffer.
+ * Relational validation for the terminal placement summary. It checks map-sized
+ * surfaces and coherent aggregate totals without claiming that slot counts were
+ * derived from the corresponding slot buffer.
  */
 
-function validatePayload(value: unknown): ValidationIssue[] {
-  if (!isRecord(value)) return [issue("engineState artifact must be an object.")];
-  const issues: ValidationIssue[] = [];
-  const width = Number(value.width);
-  const height = Number(value.height);
-  const product = width * height;
+function validateLocal(input: unknown): ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
+  const product = value.width * value.height;
   const size = Number.isSafeInteger(product) && product > 0 ? product : undefined;
   if (size === undefined) {
     issues.push(
@@ -100,35 +87,20 @@ function validatePayload(value: unknown): ValidationIssue[] {
     Uint8Array,
     size
   );
-  const slotCounts = isRecord(value.slotCounts) ? value.slotCounts : null;
-  if (
-    !slotCounts ||
-    !isCount(slotCounts.none) ||
-    !isCount(slotCounts.west) ||
-    !isCount(slotCounts.east)
-  ) {
-    issues.push(issue("engineState.slotCounts must carry none/west/east counts."));
-  } else if (size !== undefined && slotCounts.none + slotCounts.west + slotCounts.east !== size) {
+  const { slotCounts } = value;
+  if (size !== undefined && slotCounts.none + slotCounts.west + slotCounts.east !== size) {
     issues.push(
       issue(
         `slotCounts ${slotCounts.none}+${slotCounts.west}+${slotCounts.east} != map size ${size}.`
       )
     );
   }
-  if (
-    isCount(value.wondersPlanned) &&
-    isCount(value.wondersPlaced) &&
-    value.wondersPlaced > value.wondersPlanned
-  ) {
+  if (value.wondersPlaced > value.wondersPlanned) {
     issues.push(
       issue(`wondersPlaced ${value.wondersPlaced} exceeds wondersPlanned ${value.wondersPlanned}.`)
     );
   }
-  if (
-    isCount(value.discoveriesPlanned) &&
-    isCount(value.discoveriesPlaced) &&
-    value.discoveriesPlaced > value.discoveriesPlanned
-  ) {
+  if (value.discoveriesPlaced > value.discoveriesPlanned) {
     issues.push(
       issue(
         `discoveriesPlaced ${value.discoveriesPlaced} exceeds discoveriesPlanned ${value.discoveriesPlanned}.`
@@ -143,6 +115,4 @@ function validatePayload(value: unknown): ValidationIssue[] {
  * size, and bounded wonder/discovery outcomes before publication. It does not
  * reconcile each slot count against the slot buffer.
  */
-export function validate(value: unknown): readonly { message: string }[] {
-  return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

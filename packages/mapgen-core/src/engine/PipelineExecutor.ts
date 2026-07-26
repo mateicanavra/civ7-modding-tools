@@ -2,8 +2,9 @@ import type { MapContext } from "@mapgen/core/map-context.js";
 import {
   assertMapContextInternal,
   beginMapContextExecutionInternal,
+  enterMapContextStepInternal,
   finishMapContextExecutionInternal,
-  setMapContextTraceInternal,
+  leaveMapContextStepInternal,
 } from "@mapgen/core/map-context.js";
 import {
   MissingDependencyError,
@@ -32,8 +33,8 @@ import {
   validateDependencyTags,
 } from "@mapgen/engine/tags.js";
 import type { MapGenStep, PipelineStepResult } from "@mapgen/engine/types.js";
-import type { TraceSession } from "@mapgen/trace/index.js";
-import { createNoopTraceSession } from "@mapgen/trace/index.js";
+import { classifyThenable, containThenable } from "@mapgen/lib/async/thenable.js";
+import { createNoopTraceSessionInternal, type TraceSession } from "@mapgen/trace/session.js";
 
 export interface PipelineExecutorOptions {
   logPrefix?: string;
@@ -94,7 +95,7 @@ function traceSessionForExecution(
   trace: PlanTraceOptions | null | undefined
 ): TraceSession {
   return trace === null || trace === undefined
-    ? createNoopTraceSession()
+    ? createNoopTraceSessionInternal()
     : createTraceSessionForExecutionInternal(runId, planFingerprint, trace);
 }
 
@@ -121,6 +122,46 @@ function nowMs(): number {
     // ignore
   }
   return Date.now();
+}
+
+function readonlySetSnapshot(values: ReadonlySet<string>): ReadonlySet<string> {
+  const stored = new Set(Array.from(values).sort());
+  let snapshot: ReadonlySet<string>;
+  snapshot = new Proxy(stored, {
+    get: (target, property) => {
+      if (property === "add" || property === "delete" || property === "clear") return undefined;
+      if (property === "forEach") {
+        return (
+          callback: (value: string, value2: string, set: ReadonlySet<string>) => void,
+          thisArg?: unknown
+        ): void => {
+          for (const value of target) callback.call(thisArg, value, value, snapshot);
+        };
+      }
+      const value = Reflect.get(target, property, target);
+      return typeof value === "function" ? value.bind(target) : value;
+    },
+  });
+  return Object.freeze(snapshot);
+}
+
+function commitSatisfiedProvides(
+  stepId: string,
+  provides: readonly string[],
+  context: MapContext,
+  satisfied: Set<string>,
+  tagRegistry: TagRegistry
+): void {
+  const candidateSatisfied = new Set(satisfied);
+  for (const tag of provides) candidateSatisfied.add(tag);
+  const candidateState = { satisfied: candidateSatisfied };
+  const missingProvides = provides.filter(
+    (tag) => !isDependencyTagSatisfied(tag, context, candidateState, tagRegistry)
+  );
+  if (missingProvides.length > 0) {
+    throw new UnsatisfiedProvidesError(stepId, missingProvides);
+  }
+  for (const tag of provides) satisfied.add(tag);
 }
 
 function assertPlanContextSetup(context: MapContext, plan: ExecutionPlan): void {
@@ -226,9 +267,8 @@ export class PipelineExecutor {
     facetIdentity: PipelineFacetIdentity | undefined
   ): { stepResults: PipelineStepResult[]; satisfied: ReadonlySet<string> } {
     const stepResults: PipelineStepResult[] = [];
-    const satisfied = computeInitialSatisfiedTags(context);
+    const satisfied = computeInitialSatisfiedTags();
     const satisfactionState = { satisfied };
-    const baseTrace = context.trace;
 
     const total = nodes.length;
 
@@ -252,28 +292,29 @@ export class PipelineExecutor {
           });
         }
 
-        const stepMeta = { stepId: step.id, stageId: step.stageId };
-        const previousTrace = context.trace;
-        setMapContextTraceInternal(context, trace.createStepScope(stepMeta));
+        const stepMeta = { stepId: step.id, stageId: step.stageId, stepIndex: index };
+        const traceLease = trace.openStepTrace(stepMeta);
+        let stepContext: MapContext;
+        try {
+          stepContext = enterMapContextStepInternal(context, step.id, traceLease.trace);
+        } catch (error) {
+          traceLease.close();
+          throw error;
+        }
 
-        this.log(`${this.logPrefix} [${index + 1}/${total}] start ${step.id}`);
-        trace.emitStepStart(stepMeta);
         const t0 = nowMs();
         try {
-          const result = step.run(context, node.config);
-          if (result && typeof (result as PromiseLike<unknown>).then === "function") {
+          this.log(`${this.logPrefix} [${index + 1}/${total}] start ${step.id}`);
+          trace.emitStepStart(stepMeta);
+          const result = step.run(stepContext, node.config);
+          const completion = classifyThenable(result);
+          if (completion.kind !== "none") {
+            containThenable(completion);
             throw new Error(
-              `Step "${step.id}" returned a Promise in a sync executor call. Use executePlanAsync().`
+              `Step "${step.id}" returned a thenable or ambiguous completion in a sync executor call. Use executePlanAsync().`
             );
           }
-          for (const tag of step.provides) satisfied.add(tag);
-
-          const missingProvides = step.provides.filter(
-            (tag) => !isDependencyTagSatisfied(tag, context, satisfactionState, tagRegistry)
-          );
-          if (missingProvides.length > 0) {
-            throw new UnsatisfiedProvidesError(step.id, missingProvides);
-          }
+          commitSatisfiedProvides(step.id, step.provides, context, satisfied, tagRegistry);
 
           if (facetIdentity) {
             dispatchStepFacets({
@@ -319,20 +360,22 @@ export class PipelineExecutor {
           }
           break;
         } finally {
-          setMapContextTraceInternal(context, previousTrace);
+          try {
+            leaveMapContextStepInternal(context, stepContext);
+          } finally {
+            traceLease.close();
+          }
         }
       }
 
       const success = stepResults.every((result) => result.success);
       const error = stepResults.find((result) => !result.success)?.error;
       trace.emitRunFinish({ success, error });
-      return { stepResults, satisfied };
+      return { stepResults, satisfied: readonlySetSnapshot(satisfied) };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       trace.emitRunFinish({ success: false, error: errorMessage });
       throw err;
-    } finally {
-      setMapContextTraceInternal(context, baseTrace);
     }
   }
 
@@ -415,9 +458,8 @@ export class PipelineExecutor {
     facetIdentity: PipelineFacetIdentity | undefined
   ): Promise<{ stepResults: PipelineStepResult[]; satisfied: ReadonlySet<string> }> {
     const stepResults: PipelineStepResult[] = [];
-    const satisfied = computeInitialSatisfiedTags(context);
+    const satisfied = computeInitialSatisfiedTags();
     const satisfactionState = { satisfied };
-    const baseTrace = context.trace;
 
     const total = nodes.length;
 
@@ -448,23 +490,22 @@ export class PipelineExecutor {
           });
         }
 
-        const stepMeta = { stepId: step.id, stageId: step.stageId };
-        const previousTrace = context.trace;
-        setMapContextTraceInternal(context, trace.createStepScope(stepMeta));
+        const stepMeta = { stepId: step.id, stageId: step.stageId, stepIndex: index };
+        const traceLease = trace.openStepTrace(stepMeta);
+        let stepContext: MapContext;
+        try {
+          stepContext = enterMapContextStepInternal(context, step.id, traceLease.trace);
+        } catch (error) {
+          traceLease.close();
+          throw error;
+        }
 
-        this.log(`${this.logPrefix} [${index + 1}/${total}] start ${step.id}`);
-        trace.emitStepStart(stepMeta);
         const t0 = nowMs();
         try {
-          const result = await step.run(context, node.config);
-          for (const tag of step.provides) satisfied.add(tag);
-
-          const missingProvides = step.provides.filter(
-            (tag) => !isDependencyTagSatisfied(tag, context, satisfactionState, tagRegistry)
-          );
-          if (missingProvides.length > 0) {
-            throw new UnsatisfiedProvidesError(step.id, missingProvides);
-          }
+          this.log(`${this.logPrefix} [${index + 1}/${total}] start ${step.id}`);
+          trace.emitStepStart(stepMeta);
+          const result = await step.run(stepContext, node.config);
+          commitSatisfiedProvides(step.id, step.provides, context, satisfied, tagRegistry);
           if (abortSignal?.aborted) throw new PipelineAbortError();
           if (facetIdentity) {
             dispatchStepFacets({
@@ -511,7 +552,11 @@ export class PipelineExecutor {
           }
           break;
         } finally {
-          setMapContextTraceInternal(context, previousTrace);
+          try {
+            leaveMapContextStepInternal(context, stepContext);
+          } finally {
+            traceLease.close();
+          }
         }
 
         // If enabled, yield between steps to allow cancellation/messages to be processed.
@@ -523,13 +568,11 @@ export class PipelineExecutor {
       const success = stepResults.every((result) => result.success);
       const error = stepResults.find((result) => !result.success)?.error;
       trace.emitRunFinish({ success, error });
-      return { stepResults, satisfied };
+      return { stepResults, satisfied: readonlySetSnapshot(satisfied) };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       trace.emitRunFinish({ success: false, error: errorMessage });
       throw err;
-    } finally {
-      setMapContextTraceInternal(context, baseTrace);
     }
   }
 }

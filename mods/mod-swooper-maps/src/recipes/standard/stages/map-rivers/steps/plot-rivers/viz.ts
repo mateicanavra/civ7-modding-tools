@@ -15,7 +15,6 @@ export type PlotRiversVizEvidence = Readonly<{
   }>;
   topographyLandMask: Uint8Array;
   engineEvidence: Readonly<{
-    engineLandMask: Uint8Array;
     riverReadback: Readonly<{
       terrainNavigableRiverMask: Uint8Array;
       engineNavigableRiverMask: Uint8Array;
@@ -159,19 +158,6 @@ export function buildPlotRiversVizProjections(
         label: "Land Mask (Final Morphology)",
         group: GROUP_MAP_RIVERS,
         role: "physics",
-        visibility: "debug",
-      }),
-    },
-    {
-      kind: "grid",
-      dataTypeKey: "map.rivers.engineLandMask",
-      spaceId: TILE_SPACE_ID,
-      dims: dimensions,
-      field: { format: "u8", values: result.engineEvidence.engineLandMask },
-      meta: defineStandardVizMeta("map.rivers.engineLandMask", "category.distinct", {
-        label: "Land Mask (Engine After Rivers)",
-        group: GROUP_MAP_RIVERS,
-        role: "engine",
         visibility: "debug",
       }),
     }

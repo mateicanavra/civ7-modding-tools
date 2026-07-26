@@ -1,11 +1,13 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 const NavigableRiverSignalStatusSchema = Type.Union(
@@ -21,7 +23,8 @@ const NavigableRiverSignalStatusSchema = Type.Union(
   }
 );
 
-const MapRiversProjectedNavigableRiversArtifactSchema = Type.Object(
+/** Runtime schema for MapGen-authored navigable-river intent and its selection proof. */
+export const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -62,7 +65,7 @@ const MapRiversProjectedNavigableRiversArtifactSchema = Type.Object(
       description: "Count of selected navigable-river chains.",
     }),
     selectedChainLengths: TypedArraySchemas.u16({
-      shape: null,
+      cardinality: null,
       description:
         "Length in tiles of each selected navigable-river chain, ordered by endpoint selection priority.",
     }),
@@ -138,9 +141,6 @@ const MapRiversProjectedNavigableRiversArtifactSchema = Type.Object(
   }
 );
 
-/** Runtime schema for MapGen-authored navigable-river intent and its selection proof. */
-export const Schema = MapRiversProjectedNavigableRiversArtifactSchema;
-
 /**
  * Registers MapGen's selected navigable-river subset and its selection proof;
  * downstream ecology consumes this intent rather than engine readback.
@@ -152,38 +152,39 @@ export const artifact = defineArtifact({
 });
 
 /**
- * Validates projection dimensions, typed intent masks, chain metrics, bounded
- * fractions, and the low-signal classification.
+ * Binds typed intent masks to map cardinality and chain lengths to the selected chain count.
  */
-export function validate(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const issues = [...validateArtifactSchema(Schema, value)];
-  if (value === null || typeof value !== "object") return Object.freeze(issues);
-  const candidate = value as Record<string, unknown>;
+): readonly ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
   const cellCount = artifactCellCount(context);
-  appendArtifactTypedArrayIssues(issues, "riverMask", candidate.riverMask, Uint8Array, cellCount);
+  appendArtifactTypedArrayIssues(issues, "riverMask", value.riverMask, Uint8Array, cellCount);
   appendArtifactTypedArrayIssues(
     issues,
     "plannedMinorRiverMask",
-    candidate.plannedMinorRiverMask,
+    value.plannedMinorRiverMask,
     Uint8Array,
     cellCount
   );
   appendArtifactTypedArrayIssues(
     issues,
     "plannedMajorRiverMask",
-    candidate.plannedMajorRiverMask,
+    value.plannedMajorRiverMask,
     Uint8Array,
     cellCount
   );
   appendArtifactTypedArrayIssues(
     issues,
     "selectedChainLengths",
-    candidate.selectedChainLengths,
+    value.selectedChainLengths,
     Uint16Array,
-    typeof candidate.selectedChainCount === "number" ? candidate.selectedChainCount : undefined
+    value.selectedChainCount
   );
   return Object.freeze(issues);
 }
+
+/** Admits map-sized river intent masks and chain-aligned lengths after structural admission. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

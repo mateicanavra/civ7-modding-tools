@@ -1,5 +1,6 @@
-import type { ArtifactContract } from "./contract.js";
-import type { ArtifactValidationContext, ArtifactValidationIssue } from "./validation.js";
+import { type ArtifactContract, assertCanonicalArtifactContract } from "./contract.js";
+import type { ArtifactValidator } from "./validation.js";
+import { assertArtifactValidatorBoundTo } from "./validation.js";
 
 /**
  * One artifact contract paired with its complete structural and semantic admission function.
@@ -8,13 +9,31 @@ import type { ArtifactValidationContext, ArtifactValidationIssue } from "./valid
  */
 export type ArtifactModule<C extends ArtifactContract = ArtifactContract> = Readonly<{
   artifact: C;
-  validate: (
-    value: unknown,
-    context?: ArtifactValidationContext
-  ) => readonly ArtifactValidationIssue[];
+  validate: ArtifactValidator<C>;
 }>;
 
 type ArtifactModules = Readonly<Record<string, ArtifactModule>>;
+
+type ArtifactSourceModule<C extends ArtifactContract = ArtifactContract> = ArtifactModule<C> &
+  Readonly<{
+    Schema: C["schema"];
+  }>;
+
+type ArtifactSourceModules = Readonly<Record<string, ArtifactSourceModule>>;
+
+type SchemaBoundArtifactSourceModules<Modules extends ArtifactSourceModules> = Readonly<{
+  [Key in keyof Modules]: ArtifactSourceModule<Modules[Key]["artifact"]>;
+}>;
+
+type ExactArtifactSourceModules<Modules extends ArtifactSourceModules> = Readonly<{
+  [Key in keyof Modules]: Modules[Key] &
+    Record<Exclude<keyof Modules[Key], keyof ArtifactSourceModule>, never>;
+}>;
+
+/** Exact artifact-validator pairing for a tuple crossing a type-erased module boundary. */
+export type SchemaBoundArtifactModuleList<Modules extends readonly ArtifactModule[]> = Readonly<{
+  [Key in keyof Modules]: ArtifactModule<Modules[Key]["artifact"]>;
+}>;
 
 type ArtifactHandles<Modules extends ArtifactModules> = Readonly<{
   [Key in Extract<keyof Modules, string>]: Modules[Key]["artifact"];
@@ -35,12 +54,71 @@ export type ArtifactCatalog<Modules extends ArtifactModules> = Readonly<{
 }>;
 
 /**
+ * Snapshots the minimal artifact authority from own data properties only.
+ * Exact factory provenance and artifact-validator binding are checked before the frozen pair can
+ * cross a type-erased runtime boundary; accessors and unrelated namespace exports are not retained.
+ */
+export function snapshotArtifactModule<const C extends ArtifactContract>(
+  value: ArtifactModule<C>,
+  location: string
+): ArtifactModule<C>;
+export function snapshotArtifactModule(value: unknown, location: string): ArtifactModule;
+export function snapshotArtifactModule(value: unknown, location: string): ArtifactModule {
+  if (value === null || typeof value !== "object") {
+    throw new Error(`${location} must contain an artifact module`);
+  }
+
+  const artifactDescriptor = Object.getOwnPropertyDescriptor(value, "artifact");
+  const validateDescriptor = Object.getOwnPropertyDescriptor(value, "validate");
+  if (!artifactDescriptor || !("value" in artifactDescriptor)) {
+    throw new Error(`${location} must own an artifact data property`);
+  }
+  if (!validateDescriptor || !("value" in validateDescriptor)) {
+    throw new Error(`${location} must own a validate data property`);
+  }
+
+  const artifact: unknown = artifactDescriptor.value;
+  assertCanonicalArtifactContract(artifact);
+  const validate: unknown = validateDescriptor.value;
+  assertArtifactValidatorBoundTo(artifact, validate);
+  return Object.freeze({ artifact, validate });
+}
+
+function snapshotArtifactSourceModule(value: unknown, location: string): ArtifactModule {
+  if (value === null || typeof value !== "object") {
+    throw new Error(`${location} must contain an artifact source module`);
+  }
+
+  const artifact = readArtifactSourceAuthority(value, "artifact", location);
+  const validate = readArtifactSourceAuthority(value, "validate", location);
+  return snapshotArtifactModule({ artifact, validate }, location);
+}
+
+function readArtifactSourceAuthority(
+  source: object,
+  key: "artifact" | "validate",
+  location: string
+): unknown {
+  const descriptor = Object.getOwnPropertyDescriptor(source, key);
+  if (!descriptor) throw new Error(`${location} must own a ${key} export`);
+  if ("value" in descriptor) return descriptor.value;
+  if (!descriptor.get) throw new Error(`${location} ${key} export must be readable`);
+  return descriptor.get.call(source);
+}
+
+/**
  * Defines one artifact catalog without duplicating its handles or validators in sibling maps.
  * Catalog keys are consumer-facing lookup names; artifact ids and names remain contract authority.
  * Duplicate ids or names are refused because either would make runtime publication ambiguous.
+ * Native and transformed ESM namespace getters are evaluated exactly once at this source
+ * boundary. Build metadata and source-only exports are projected away; the returned catalog
+ * retains only the frozen runtime artifact-validator pair.
  */
-export function defineArtifactCatalog<const Modules extends ArtifactModules>(
-  modules: Modules & StringKeyedModules<Modules>
+export function defineArtifactCatalog<const Modules extends ArtifactSourceModules>(
+  modules: Modules &
+    SchemaBoundArtifactSourceModules<Modules> &
+    ExactArtifactSourceModules<Modules> &
+    StringKeyedModules<Modules>
 ): ArtifactCatalog<Modules> {
   const prototype = Object.getPrototypeOf(modules);
   if (prototype !== Object.prototype && prototype !== null) {
@@ -67,14 +145,12 @@ export function defineArtifactCatalog<const Modules extends ArtifactModules>(
       throw new Error(`artifact catalog module key "${key}" must be a data property`);
     }
 
-    const module = descriptor.value as ArtifactModule | null | undefined;
-    if (module === null || typeof module !== "object") {
-      throw new Error(`artifact catalog module key "${key}" must contain an artifact module`);
-    }
-    const { artifact, validate } = module;
-    if (artifact === null || typeof artifact !== "object" || typeof validate !== "function") {
-      throw new Error(`artifact catalog module key "${key}" must contain an artifact module`);
-    }
+    const module = snapshotArtifactSourceModule(
+      descriptor.value,
+      `artifact catalog module key "${key}"`
+    );
+    const artifact = module.artifact;
+    const validate = module.validate;
     if (names.has(artifact.name)) {
       throw new Error(`duplicate artifact name "${artifact.name}" in artifact catalog`);
     }

@@ -17,7 +17,6 @@ import swooperEarthlikeConfigRaw from "../../../../src/maps/configs/swooper-eart
 import standardRecipe, {
   type StandardRecipeConfig,
 } from "../../../../src/recipes/standard/recipe.js";
-import { initializeStandardRuntime } from "../../../../src/recipes/standard/runtime.js";
 import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 type StandardRecipeExecutionOptions = NonNullable<Parameters<typeof standardRecipe.run>[2]>;
@@ -134,10 +133,6 @@ function runStandardRecipeTestMapWithAdapter<TAdapter extends MockAdapter>(
   });
   const adapter = options.createAdapter({ preset, mapInfo, seed: options.seed });
   const context = createMapContext({ setup, adapter });
-  initializeStandardRuntime(context, {
-    mapInfo,
-    logPrefix: "[standard-product-test]",
-  });
   const preparation = { preset, context, adapter } as const;
   options.prepare?.(preparation);
   standardRecipe.run(context, options.recipeConfig ?? mapConfig.config, {

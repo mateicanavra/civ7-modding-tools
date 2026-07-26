@@ -17,10 +17,6 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./engine": {
-      "types": "./dist/engine/index.d.ts",
-      "import": "./dist/engine/index.js"
-    },
     "./authoring": {
       "types": "./dist/authoring/index.d.ts",
       "import": "./dist/authoring/index.js"

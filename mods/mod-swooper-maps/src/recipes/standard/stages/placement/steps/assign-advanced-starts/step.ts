@@ -10,16 +10,15 @@ import { AssignAdvancedStartsStepContract } from "./config.js";
 export const AssignAdvancedStartsStep = createStep(AssignAdvancedStartsStepContract, {
   run: (context, _config, _ops, deps) => {
     const emit = (payload: TraceJsonObject): void => {
-      if (!context.trace?.isVerbose) return;
       context.trace.event(() => payload);
     };
 
     runPlacementProductStep("placement.fertility.recalculate", emit, () => {
-      context.adapter.recalculateFertility();
+      deps.engine.recalculateFertility(context);
       emit({ type: "placement.fertility.recalculated" });
     });
     runPlacementProductStep("placement.advancedStart.assign", emit, () => {
-      context.adapter.assignAdvancedStartRegions();
+      deps.engine.assignAdvancedStartRegions(context);
     });
     deps.artifacts.advancedStartAssignment.publish(context, {
       fertilityRecalculated: true,

@@ -1,11 +1,13 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 const VolcanoKindSchema = Type.Union([
@@ -14,7 +16,8 @@ const VolcanoKindSchema = Type.Union([
   Type.Literal("hotspot"),
 ]);
 
-const MorphologyVolcanoesArtifactSchema = Type.Object(
+/** Runtime schema for immutable volcano vents and their map-tile-sized intent mask. */
+export const Schema = Type.Object(
   {
     volcanoMask: TypedArraySchemas.u8({
       description: "Mask (1/0): tiles containing a volcano vent.",
@@ -42,9 +45,6 @@ const MorphologyVolcanoesArtifactSchema = Type.Object(
   }
 );
 
-/** Runtime schema for immutable volcano vents and their map-tile-sized intent mask. */
-export const Schema = MorphologyVolcanoesArtifactSchema;
-
 /** Registers immutable volcano intent and its tile mask for later Civ7 projection. */
 export const artifact = defineArtifact({
   name: "volcanoes",
@@ -52,67 +52,21 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-type ArtifactValidationIssue = Readonly<{ message: string }>;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function validatePayload(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
 ): ArtifactValidationIssue[] {
-  if (!isRecord(value)) {
-    return [{ message: "Missing volcanoes artifact." }];
-  }
+  const value = input as Static<typeof Schema>;
   const issues: ArtifactValidationIssue[] = [];
-  const candidate = value as { volcanoMask?: unknown; volcanoes?: unknown };
-  if (
-    !appendArtifactTypedArrayIssues(
-      issues,
-      "volcanoes.volcanoMask",
-      candidate.volcanoMask,
-      Uint8Array,
-      artifactCellCount(context)
-    )
-  ) {
-    return issues;
-  }
-  if (!Array.isArray(candidate.volcanoes)) {
-    issues.push({ message: "Expected volcanoes.volcanoes to be an array." });
-    return issues;
-  }
-  for (const entry of candidate.volcanoes) {
-    if (!isRecord(entry) || typeof entry.tileIndex !== "number" || entry.tileIndex < 0) {
-      issues.push({
-        message: "Expected volcanoes.volcanoes entries to include a non-negative tileIndex.",
-      });
-      return issues;
-    }
-    if (entry.kind !== "subductionArc" && entry.kind !== "rift" && entry.kind !== "hotspot") {
-      issues.push({ message: "Expected volcanoes.volcanoes entries to include a Phase 2 kind." });
-      return issues;
-    }
-    if (typeof entry.strength01 !== "number" || entry.strength01 < 0 || entry.strength01 > 1) {
-      issues.push({
-        message: "Expected volcanoes.volcanoes entries to include strength01 within [0,1].",
-      });
-      return issues;
-    }
-  }
+  appendArtifactTypedArrayIssues(
+    issues,
+    "volcanoes.volcanoMask",
+    value.volcanoMask,
+    Uint8Array,
+    artifactCellCount(context)
+  );
   return issues;
 }
 
-/**
- * Validates the volcano mask and each vent's nonnegative tile index, admitted
- * tectonic kind, and normalized strength in `[0, 1]`.
- */
-export function validate(
-  value: unknown,
-  context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  return Object.freeze([
-    ...validateArtifactSchema(Schema, value),
-    ...validatePayload(value, context),
-  ]);
-}
+/** Requires the volcano intent mask to use one Uint8 value per map tile. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

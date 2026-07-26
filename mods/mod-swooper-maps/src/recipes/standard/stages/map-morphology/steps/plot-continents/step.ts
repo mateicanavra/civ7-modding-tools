@@ -1,5 +1,8 @@
-import { snapshotEngineHeightfield } from "@civ7/adapter/mapgen";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import {
+  captureEngineHeightfield,
+  engineLandMaskFromWaterMask,
+} from "../../../../current-engine-surface.js";
 import { defineStandardVizMeta } from "../../../../viz.js";
 import {
   assertWaterDriftWithinPolicy,
@@ -20,23 +23,45 @@ export const PlotContinentsStep = createStep(PlotContinentsStepContract, {
     const coastClassification = deps.artifacts.coastClassification.read(context);
     const { width, height } = context.setup.dimensions;
 
-    context.adapter.validateAndFixTerrain();
-    context.adapter.recalculateAreas();
-    context.adapter.stampContinents();
-    restoreProjectedCoastTerrain(context, coastClassification, "map-morphology/plot-continents");
+    deps.engine.validateAndFixTerrain(context);
+    deps.engine.recalculateAreas(context);
+    deps.engine.stampContinents(context);
+    restoreProjectedCoastTerrain(
+      context.setup.dimensions,
+      context.trace,
+      {
+        getTerrainType: (x, y) => deps.engine.getTerrainType(context, x, y),
+        setTerrainType: (x, y, terrainType) =>
+          deps.engine.setTerrainType(context, x, y, terrainType),
+        storeWaterData: () => deps.engine.storeWaterData(context),
+      },
+      coastClassification,
+      "map-morphology/plot-continents"
+    );
 
-    const engine = snapshotEngineHeightfield(context.adapter);
+    const engine = captureEngineHeightfield(context.setup.dimensions, {
+      getTerrainType: (x, y) => deps.engine.getTerrainType(context, x, y),
+      getElevation: (x, y) => deps.engine.getElevation(context, x, y),
+      isWater: (x, y) => deps.engine.isWater(context, x, y),
+    });
+    const engineLandMask = engineLandMaskFromWaterMask(engine.waterMask);
     deps.artifacts.continentValidationTerrainSnapshot.publish(context, {
       stage: "map-morphology/plot-continents",
       width,
       height,
-      landMask: engine.landMask,
+      landMask: engineLandMask,
       terrain: engine.terrain,
       elevation: engine.elevation,
     });
 
-    assertWaterDriftWithinPolicy(context, topography.landMask, "map-morphology/plot-continents");
-    return { physicsLandMask: topography.landMask, engineLandMask: engine.landMask };
+    assertWaterDriftWithinPolicy(
+      context.setup.dimensions,
+      context.trace,
+      engine.waterMask,
+      topography.landMask,
+      "map-morphology/plot-continents"
+    );
+    return { physicsLandMask: topography.landMask, engineLandMask };
   },
   viz: ({ result, dimensions }) => [
     {

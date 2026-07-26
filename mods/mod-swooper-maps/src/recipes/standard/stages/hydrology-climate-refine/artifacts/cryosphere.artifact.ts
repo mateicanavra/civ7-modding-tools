@@ -1,11 +1,13 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -13,7 +15,7 @@ import {
  *
  * When `cryosphere` knob is `"off"`, these layers are still published but intentionally neutralized by config.
  */
-export const HydrologyCryosphereSchema = Type.Object(
+export const Schema = Type.Object(
   {
     /** Snow cover fraction (0..255) per tile. */
     snowCover: TypedArraySchemas.u8({ description: "Snow cover fraction (0..255) per tile." }),
@@ -40,9 +42,6 @@ export const HydrologyCryosphereSchema = Type.Object(
   }
 );
 
-/** Canonical schema entrypoint for snow, sea-ice, albedo, and frozen-ground state. */
-export const Schema = HydrologyCryosphereSchema;
-
 /**
  * Registers refined snow, sea-ice, albedo, ground-ice, permafrost, and melt-potential fields.
  * Downstream biome and ice planning consume one dimension-aligned cryosphere vintage.
@@ -53,15 +52,13 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-type ArtifactValidationIssue = Readonly<{ message: string }>;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function validatePayload(value: unknown, expectedLength?: number): ArtifactValidationIssue[] {
+function validateLocal(
+  input: unknown,
+  context?: ArtifactValidationContext
+): ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const expectedLength = artifactCellCount(context);
   const errors: ArtifactValidationIssue[] = [];
-  if (!isRecord(value)) return [{ message: "Missing hydrology cryosphere artifact payload." }];
   const candidate = value as {
     snowCover?: unknown;
     seaIceCover?: unknown;
@@ -120,12 +117,4 @@ function validatePayload(value: unknown, expectedLength?: number): ArtifactValid
  * verifies every tile field matches that width × height. It returns accumulated issues so
  * artifact admission can reject a structurally valid but spatially inconsistent payload.
  */
-export function validate(
-  value: unknown,
-  context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  return Object.freeze([
-    ...validateArtifactSchema(Schema, value),
-    ...validatePayload(value, artifactCellCount(context)),
-  ]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

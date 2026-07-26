@@ -40,14 +40,16 @@ A pipeline run is:
    - executor iterates nodes in order
    - requires/provides validated via tag registry
    - step executes and publishes its write-once artifact evidence
-   - trace scope is created per step
+   - executor opens and revokes one narrow step-event lease per invocation
    - after successful execution and provider admission, optional metrics and visualization facets
      project completed evidence into matching environment-owned sinks
 
 ## Data model (tags, artifacts, fields)
 
 - **Tags** are the dependency contract language: steps declare `requires[]` and `provides[]`.
-- **Artifacts** are pipeline-internal products keyed by artifact tag ids.
+- **Artifacts** are pipeline-internal products stored and read through their exact canonical
+  artifact contract objects. Stable artifact ids remain the dependency and diagnostic vocabulary;
+  they are not storage keys.
 - **Fields/effects** are adapter-level outputs (Civ7 engine-facing).
 
 The system uses tags to prevent “accidental ordering”: if a step’s prerequisites aren’t satisfied, the executor fails early.
@@ -68,7 +70,8 @@ generation success.
 
 ## Ground truth anchors
 
-- Trace sessions + scopes: `packages/mapgen-core/src/trace/index.ts`
+- Public trace contracts: `packages/mapgen-core/src/trace/index.ts`
+- Executor-owned trace sessions and step leases: `packages/mapgen-core/src/trace/session.ts`
 - Executor tag gating + trace scoping: `packages/mapgen-core/src/engine/PipelineExecutor.ts`
 - Optional facet dispatch: `packages/mapgen-core/src/engine/step-facets.ts`
 - Tag validation/satisfaction: `packages/mapgen-core/src/engine/tags.ts`

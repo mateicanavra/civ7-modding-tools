@@ -25,18 +25,28 @@ always refused.
 - Producers publish artifacts once.
 - Consumers read as immutable; if they need mutation, they must copy first.
 - Republishing is an error.
-- `MapContext.artifacts` is a frozen `has`/`get` query facade, not the backing store. Even an
-  untyped cast cannot recover `set`, `delete`, or `clear`; declared artifact runtimes retain the
-  only production publication path.
+- Publication and reads retain the admitted value reference. Core does not deep-freeze or snapshot
+  artifact payload memory; immutability is enforced by pipeline ownership rather than hostile
+  JavaScript memory protection. Typed-array mutators are not yet excluded from every consumer type
+  signature.
+- Artifact storage is private to MapGen Core. `MapContext` exposes no raw store or query facade.
+- Authored steps read and publish only through their declared `deps.artifacts` capabilities.
+- Metrics, diagnostics, and other post-run observers use `readValidatedArtifact` or
+  `observeValidatedArtifact` with the exact artifact module whose validator owns admission.
 
 Representative artifact owner (`topography.artifact.ts`; excerpt):
 
 ```ts
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
+  type Static,
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Closed structural schema for the topography published by morphology. */
@@ -56,11 +66,54 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-/** Admits topography values through the contract's closed structural schema. */
-export function validate(value: unknown): readonly { message: string }[] {
-  return validateArtifactSchema(Schema, value);
+function validateLocal(
+  value: unknown,
+  context: ArtifactValidationContext | undefined
+): readonly ArtifactValidationIssue[] {
+  const topography = value as Static<typeof Schema>;
+  const expectedLength = artifactCellCount(context);
+  const issues: ArtifactValidationIssue[] = [];
+  appendArtifactTypedArrayIssues(
+    issues,
+    "elevation",
+    topography.elevation,
+    Int16Array,
+    expectedLength
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "landMask",
+    topography.landMask,
+    Uint8Array,
+    expectedLength
+  );
+  return issues;
 }
+
+/** Admits topography structure, exact typed arrays, and map-grid cardinality. */
+export const validate = defineArtifactValidator(artifact, validateLocal);
 ```
+
+`defineArtifactValidator` is the only complete-validator constructor. It binds
+structural admission to `artifact.schema`; an optional private callback may add
+cardinality, relational, or domain issues after structure succeeds. Artifact
+owners do not call TypeBox validation directly or redeclare the issue contract.
+The local callback stays `unknown` because typed-array constructors and
+cardinality live in Core's runtime metadata layer rather than TypeBox's
+structural type; owners use Core's typed-array helpers for those checks.
+
+The complete runtime API of an artifact source module is exactly `Schema`,
+`artifact`, and `validate`; supporting schemas and validator helpers remain
+private. Runtime imports are limited to MapGen contract/lib APIs, static Civ7
+types and policy, and public domain contract/schema/policy/data surfaces.
+Adapter, engine, recipe, private operation implementation, Node/browser, and
+artifact-owner dependencies are outside the kind.
+
+Artifact-private schemas stay inline. A schema primitive shared across domain
+concepts or artifact vintages belongs to the owning domain's `model/schemas`
+surface as plain domain vocabulary. It never carries artifact validation,
+issue/context types, artifact construction, or complete payload admission;
+artifact owners bind those concerns locally.
 
 The adjacent catalog is the single selection surface for provider modules and
 consumer handles:
@@ -99,13 +152,13 @@ createStep(TopographyStepContract, {
 
 `defineStep` snapshots the selected provider modules, and `createStep` derives the frozen
 artifact-name-keyed runtime from that contract authority. The module validator is the sole
-admission authority for publication, satisfaction checks, and validated reads.
-`implementArtifactModules(...)` remains lower-level runtime support; it is not the step
-authoring surface.
+admission authority for publication, satisfaction checks, and validated reads. Runtime
+construction and satisfaction callbacks remain private to recipe composition; neither is an
+authored step capability.
 
 ## Ground truth anchors
 
-- Artifact runtime (write-once enforcement, read-only reads): `packages/mapgen-core/src/authoring/artifact/runtime.ts`
+- Artifact runtime (write-once enforcement, zero-copy ownership contract): `packages/mapgen-core/src/authoring/artifact/runtime.ts`
 - Artifact module and catalog derivation: `packages/mapgen-core/src/authoring/artifact/module.ts`
 - Artifact types and DeepReadonly: `packages/mapgen-core/src/authoring/artifact/contract.ts`
 - Artifact-store ownership: `packages/mapgen-core/src/core/map-context.ts`

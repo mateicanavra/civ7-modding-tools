@@ -2,16 +2,14 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import ecology from "@mapgen/domain/ecology/ops";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
+import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
   normalizeOperationSelectionForTest,
   publishTestArtifact,
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
-import {
-  artifactModules as ecologyArtifactModules,
-  artifacts as ecologyArtifacts,
-} from "../../../../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
+import { artifactModules as ecologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
 import { PlanReefsStep as planReefsStep } from "../../../../../../../src/recipes/standard/stages/ecology-features/steps/plan-reefs/step.js";
 import { artifactModules as hydrologyHydrographyArtifactModules } from "../../../../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
 import { createEmptyFeatureScoreLayers } from "../fixtures/feature-score-layers.js";
@@ -32,18 +30,22 @@ describe("ecology-features plan-reefs step", () => {
 
     const ctx = createMapContext({ setup, adapter });
 
-    withMapContextExecutionForTest(ctx, () => {
+    withMapContextExecutionForTest(ctx, (stepContext) => {
       const layers = createEmptyFeatureScoreLayers(size);
       layers.reef.fill(1);
 
-      publishTestArtifact(ctx, ecologyArtifactModules.scoreLayers, { width, height, layers });
-      publishTestArtifact(ctx, ecologyArtifactModules.occupancyIce, {
+      publishTestArtifact(stepContext, ecologyArtifactModules.scoreLayers, {
+        width,
+        height,
+        layers,
+      });
+      publishTestArtifact(stepContext, ecologyArtifactModules.occupancyIce, {
         width,
         height,
         featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       });
-      publishTestArtifact(ctx, hydrologyHydrographyArtifactModules.lakePlan, {
+      publishTestArtifact(stepContext, hydrologyHydrographyArtifactModules.lakePlan, {
         width,
         height,
         lakeMask: new Uint8Array(size),
@@ -58,19 +60,17 @@ describe("ecology-features plan-reefs step", () => {
         ),
       };
       const ops = ecology.ops.bind(planReefsStep.contract.ops!).runtime;
-      planReefsStep.run(ctx, config, ops, buildStepTestDependencies(planReefsStep));
-
-      const intents = ctx.artifacts.get(ecologyArtifacts.featureIntentsReefs.id);
-      expect(intents).toBeTruthy();
-      expect(Array.isArray(intents)).toBe(true);
-      expect((intents as unknown[]).length).toBeGreaterThan(0);
-
-      const occupancy = ctx.artifacts.get(ecologyArtifacts.occupancyReefs.id) as any;
-      expect(occupancy).toBeTruthy();
-      expect(occupancy.width).toBe(width);
-      expect(occupancy.height).toBe(height);
-      expect(occupancy.featureOccupancyMask instanceof Uint8Array).toBe(true);
-      expect(occupancy.reserved instanceof Uint8Array).toBe(true);
+      planReefsStep.run(stepContext, config, ops, buildStepTestDependencies(planReefsStep));
     });
+
+    const intents = readValidatedArtifact(ctx, ecologyArtifactModules.featureIntentsReefs);
+    expect(Array.isArray(intents)).toBe(true);
+    expect(intents.length).toBeGreaterThan(0);
+
+    const occupancy = readValidatedArtifact(ctx, ecologyArtifactModules.occupancyReefs);
+    expect(occupancy.width).toBe(width);
+    expect(occupancy.height).toBe(height);
+    expect(occupancy.featureOccupancyMask instanceof Uint8Array).toBe(true);
+    expect(occupancy.reserved instanceof Uint8Array).toBe(true);
   });
 });

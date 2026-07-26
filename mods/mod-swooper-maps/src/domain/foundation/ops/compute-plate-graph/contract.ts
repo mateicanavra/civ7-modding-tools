@@ -1,10 +1,9 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-
-import { Schema as FoundationCrustSchema } from "../../artifacts/crust.artifact.js";
 import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
 import type { Artifact as FoundationPlateGraphArtifact } from "../../artifacts/plate-graph.artifact.js";
 import { Schema as FoundationPlateGraphSchema } from "../../artifacts/plate-graph.artifact.js";
+import { CrustSchema as FoundationCrustSchema } from "../../model/schemas/crust.schema.js";
 
 const StrategySchema = Type.Object(
   {

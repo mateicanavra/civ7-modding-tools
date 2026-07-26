@@ -22,7 +22,10 @@ Canonical MapGen vocabulary used across docs (policies, reference, tutorials).
 - **RecipeV2 (runtime)**: A structural representation of steps (id + enabled + config) that is used to compile an execution plan.
 - **Run request / run boundary**: The input boundary that is compiled into an execution plan and then executed.
 - **Map setup**: Immutable physical initial conditions for one run: seed, dimensions, and latitude bounds.
-- **Map context**: One run-scoped carrier for setup, adapter, deterministic random state, artifacts, and the executor's current trace scope.
+- **Map context**: One run-scoped author surface exposing immutable setup, the direct engine adapter,
+  and the active step's revocable event port. Core privately owns artifact storage, deterministic
+  random state, execution identity, and trace lifecycle. Declared artifact, random, trace, and
+  effect-evidence capabilities are occurrence-scoped; the adapter itself is not.
 - **Execution plan**: A list/graph of execution nodes derived from the recipe, registry, and `MapSetup`.
 - **Step**: A single execution unit with a stable id, `requires/provides`, and an implementation.
 - **Stage (authoring)**: The recipe-owned grouping that assigns each composed step its exact `stageId`, organizes authoring, and compiles stage-specific config into step configs.

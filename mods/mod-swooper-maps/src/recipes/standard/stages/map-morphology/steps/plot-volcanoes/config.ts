@@ -9,6 +9,7 @@ import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/
  */
 export const PlotVolcanoesStepContract = defineStep({
   id: "plot-volcanoes",
+  engine: ["setTerrainType", "setFeatureType", "isWater"] as const,
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.volcanoesPlotted],
   artifacts: {

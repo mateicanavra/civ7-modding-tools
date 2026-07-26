@@ -35,10 +35,15 @@ complete structural and semantic admission validator.
 
 ```ts
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
+  type Static,
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Closed structural schema for the routing fields published by the morphology step. */
@@ -59,14 +64,49 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-/** Admits routing values through the contract's closed structural schema. */
-export function validate(value: unknown): readonly { message: string }[] {
-  return validateArtifactSchema(Schema, value);
+function validateLocal(
+  value: unknown,
+  context: ArtifactValidationContext | undefined
+): readonly ArtifactValidationIssue[] {
+  const routing = value as Static<typeof Schema>;
+  const expectedLength = artifactCellCount(context);
+  const issues: ArtifactValidationIssue[] = [];
+  appendArtifactTypedArrayIssues(issues, "flowDir", routing.flowDir, Int32Array, expectedLength);
+  appendArtifactTypedArrayIssues(
+    issues,
+    "flowAccum",
+    routing.flowAccum,
+    Float32Array,
+    expectedLength
+  );
+  return issues;
 }
+
+/** Admits routing structure, exact typed arrays, and map-grid cardinality. */
+export const validate = defineArtifactValidator(artifact, validateLocal);
 ```
 
-Add domain invariants to `validate(...)` after schema validation when the schema
-alone cannot express complete admission.
+When the schema alone cannot express complete admission, pass one private local
+validator as the constructor's second argument. Core always projects structural
+issues first and invokes local validation only for structurally admitted values;
+the local callback owns only cardinality, relational, or domain laws.
+Typed-array schemas use runtime metadata beyond TypeBox's structural model, so
+the callback remains `unknown` and should use Core's typed-array admission
+helpers rather than asserting constructors by hand.
+
+Keep the runtime module surface closed to `Schema`, `artifact`, and `validate`.
+Supporting schemas and validation helpers stay private. Import runtime values
+only from MapGen contract/lib APIs, static Civ7 types and policy, public domain
+contract/schema/policy/data surfaces; artifact modules do not depend on
+adapters, engines, recipes, private operation implementations, Node/browser
+APIs, or other artifact owner modules.
+
+Keep an artifact-private schema inline. When multiple domain concepts or
+artifact vintages genuinely share a schema primitive, place that plain schema
+and its derived type under the owning domain's `model/schemas` surface. Model
+schema files do not own artifact validation, issue/context types, artifact
+construction, or complete artifact payload admission; each artifact owner
+binds its own validation setup.
 
 ### 2) Register the module once
 

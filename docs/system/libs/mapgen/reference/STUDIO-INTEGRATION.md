@@ -216,5 +216,7 @@ Recipe selection + artifacts boundary:
 Core SDK contracts this seam depends on:
 - Step facet contracts: `packages/mapgen-core/src/engine/step-facets.ts`
 - Portable visualization projection and materialization contracts: `packages/mapgen-viz/src/index.ts`
-- Derive stable run id: `packages/mapgen-core/src/engine/index.ts`
-- Trace session + sinks: `packages/mapgen-core/src/trace/index.ts`
+- Stable plan fingerprint + fresh run identity: `packages/mapgen-core/src/engine/observability.ts`
+  and `packages/mapgen-core/src/core/map-context.ts`
+- Public trace contracts and sinks: `packages/mapgen-core/src/trace/index.ts`
+- Executor-owned trace session: `packages/mapgen-core/src/trace/session.ts`

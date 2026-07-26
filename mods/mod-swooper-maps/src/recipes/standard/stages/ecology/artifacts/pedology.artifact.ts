@@ -1,26 +1,24 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Runtime contract for Ecology's per-tile soil class and normalized fertility truth. */
-export const PedologyArtifactSchema = Type.Object({
+export const Schema = Type.Object({
   width: Type.Integer({ minimum: 1 }),
   height: Type.Integer({ minimum: 1 }),
   soilType: TypedArraySchemas.u8({ description: "Soil type index per tile." }),
   fertility: TypedArraySchemas.f32({ description: "Fertility per tile (0..1)." }),
 });
 
-export type PedologyArtifact = Static<typeof PedologyArtifactSchema>;
-
-/** Canonical schema entrypoint used by pedology publication and payload admission. */
-export const Schema = PedologyArtifactSchema;
+export type PedologyArtifact = Static<typeof Schema>;
 
 /**
  * Registers per-tile soil class and normalized fertility derived from morphology and baseline
@@ -33,21 +31,12 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-export type ArtifactValidationIssue = Readonly<{ message: string }>;
-
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function validatePayload(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
 ): ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
   const errors: ArtifactValidationIssue[] = [];
-  if (!isRecord(value)) {
-    if (context?.dimensions) errors.push({ message: "Invalid pedology artifact payload." });
-    return errors;
-  }
   const dimensions = context?.dimensions;
   const size = artifactCellCount(context);
   if (dimensions && (value.width !== dimensions.width || value.height !== dimensions.height)) {
@@ -63,10 +52,4 @@ function validatePayload(
  * every tile field matches that width × height. It returns accumulated issues so artifact
  * admission can reject a structurally valid but spatially inconsistent payload.
  */
-export function validate(
-  value: unknown,
-  context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const schemaIssues = validateArtifactSchema(Schema, value);
-  return Object.freeze([...schemaIssues, ...validatePayload(value, context)]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

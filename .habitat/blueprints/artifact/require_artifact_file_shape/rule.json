@@ -12,17 +12,17 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "artifact owner files without the stable artifact contract export shape",
-  "why": "Artifact owner files are the reusable contract surface for immutable MapGen data products; every artifact file must expose the same stable owner API, including publish-time validation, rather than instance-specific validation or artifact aliases.",
-  "remediate": "Use one artifact owner per artifacts/*.artifact.ts file with exported Schema, exported artifact = defineArtifact(...), exported validate(...), generic assert names only when justified, and no semantic artifact alias exports.",
-  "message": "Artifact files must use the stable artifact contract file shape.",
+  "forbids": "artifact owner files outside their closed source, dependency, and validation-authority shape",
+  "why": "Artifact owners define immutable MapGen data products. Grit requires the canonical Schema/artifact/validate surface and its complete legal dependency and export classes. Core then proves exact factory, schema, validator, and runtime-export identity for every registered artifact module. Shared domain vocabulary remains independent of artifact admission under the owning domain model.",
+  "remediate": "In *.artifact.ts, export only Schema, artifact, validate, and erased TypeScript types; bind validate directly to artifact with defineArtifactValidator. Keep artifact-local checks private, never reimplement structural TypeBox admission, and import genuinely shared schema primitives from the owning domain's public model/schemas surface.",
+  "message": "Artifact owner files must retain their closed schema-bound source and dependency shape.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/**/artifacts/*.artifact.ts"]
+      "patterns": ["mods/*/src/**/artifacts/*.artifact.ts"]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src"],
+  "scanRoots": ["mods"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/artifact/require_artifact_file_shape/baseline.json"

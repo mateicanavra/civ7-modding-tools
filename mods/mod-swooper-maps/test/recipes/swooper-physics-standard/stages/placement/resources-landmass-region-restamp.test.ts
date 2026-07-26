@@ -3,18 +3,14 @@ import { describe, expect, it } from "bun:test";
 import { MockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import type { MapContext } from "@swooper/mapgen-core";
-import type { Static } from "@swooper/mapgen-core/authoring";
+import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
-import { artifacts as placementArtifacts } from "../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
+import { artifactModules as placementArtifactModules } from "../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
 import {
   runStandardRecipeTestMap,
   type StandardRecipeTestAdapterInput,
 } from "../../fixtures/standard-recipe.js";
-
-type ResourcePlacementOutcomes = Static<
-  (typeof placementArtifacts.resourcePlacementOutcomes)["schema"]
->;
 
 class RegionSensitiveResourceAdapter extends MockAdapter {
   readonly callOrder: string[] = [];
@@ -96,10 +92,10 @@ describe("placement resources landmass-region restamp", () => {
 
     const firstRestamp = adapter.callOrder.indexOf("setLandmassRegionId");
     const firstResourceIntent = adapter.callOrder.indexOf("placeResourceIntent");
-    const resourceOutcomes = context.artifacts.get(
-      placementArtifacts.resourcePlacementOutcomes.id
-    ) as ResourcePlacementOutcomes | undefined;
-    if (!resourceOutcomes) throw new Error("Missing resource placement outcomes.");
+    const resourceOutcomes = readValidatedArtifact(
+      context,
+      placementArtifactModules.resourcePlacementOutcomes
+    );
 
     expect(firstRestamp).toBeGreaterThanOrEqual(0);
     expect(firstResourceIntent).toBeGreaterThan(firstRestamp);

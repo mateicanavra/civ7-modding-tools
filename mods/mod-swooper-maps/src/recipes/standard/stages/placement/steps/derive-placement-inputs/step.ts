@@ -1,4 +1,5 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { captureEnginePlacementTypes } from "../../../../current-engine-surface.js";
 import {
   definePlacementVizMeta,
   PLACEMENT_TILE_SPACE_ID,
@@ -29,11 +30,12 @@ export const DerivePlacementInputsStep = createStep(DerivePlacementInputsStepCon
     // projection artifacts remain diagnostics for materialization drift.
     const lakePlan = deps.artifacts.lakePlan.read(context);
     const biomeClassification = deps.artifacts.biomeClassification.read(context);
-    // Engine biome surface: the plot-biomes projection artifact, not a readback.
-    const biomeBindings = deps.artifacts.biomeBindings.read(context);
-    // Engine feature surface: the validated snapshot published after feature projection.
-    const featureEngineSnapshot = deps.artifacts.featureEngineSnapshot.read(context);
     const pedology = deps.artifacts.pedology.read(context);
+    const mapSizeId = deps.engine.getMapSizeId(context);
+    const mapInfo = deps.engine.lookupMapInfo(context, mapSizeId);
+    if (!mapInfo) {
+      throw new Error("[Placement] Civ7 map metadata is unavailable for the active map size.");
+    }
 
     const { inputs, naturalWonderPlan, naturalWonderPlanSurfaces } = buildPlacementInputs(
       context,
@@ -56,13 +58,16 @@ export const DerivePlacementInputsStep = createStep(DerivePlacementInputsStepCon
           aridityIndex: biomeClassification.aridityIndex as Float32Array,
           vegetationDensity: biomeClassification.vegetationDensity as Float32Array,
         },
-        biomeBindings: { engineBiomeId: biomeBindings.engineBiomeId as Uint16Array },
-        featureEngineSnapshot: {
-          width: featureEngineSnapshot.width,
-          height: featureEngineSnapshot.height,
-          featureType: featureEngineSnapshot.featureType as Int16Array,
-        },
         pedology: { fertility: pedology.fertility as Float32Array },
+      },
+      {
+        mapInfo,
+        naturalWonderCatalog: deps.engine.getNaturalWonderCatalog(context),
+        currentPlacementTypes: captureEnginePlacementTypes(context.setup.dimensions, {
+          getTerrainType: (x, y) => deps.engine.getTerrainType(context, x, y),
+          getBiomeType: (x, y) => deps.engine.getBiomeType(context, x, y),
+          getFeatureType: (x, y) => deps.engine.getFeatureType(context, x, y),
+        }),
       }
     );
     const naturalWonderPlanInputTelemetry = buildNaturalWonderPlanInputRuntimeTelemetry({

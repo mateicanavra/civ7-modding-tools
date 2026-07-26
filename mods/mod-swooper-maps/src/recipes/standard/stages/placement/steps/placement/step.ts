@@ -1,4 +1,5 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { captureEngineHeightfield } from "../../../../current-engine-surface.js";
 import { applyPlacementPlan } from "./apply.js";
 import { PlacementStepContract } from "./config.js";
 import { projectPlacementCompletionViz } from "./viz.js";
@@ -17,9 +18,15 @@ export const PlacementStep = createStep(PlacementStepContract, {
     const advancedStartAssignment = deps.artifacts.advancedStartAssignment.read(context);
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
     const topography = deps.artifacts.topography.read(context);
+    const currentEngineHeightfield = captureEngineHeightfield(context.setup.dimensions, {
+      getTerrainType: (x, y) => deps.engine.getTerrainType(context, x, y),
+      getElevation: (x, y) => deps.engine.getElevation(context, x, y),
+      isWater: (x, y) => deps.engine.isWater(context, x, y),
+    });
 
     return applyPlacementPlan({
       context,
+      currentEngineHeightfield,
       naturalWonderPlacement,
       surfacePreparation,
       resourcePlacement,

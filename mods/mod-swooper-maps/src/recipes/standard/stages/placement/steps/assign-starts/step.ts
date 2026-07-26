@@ -34,7 +34,7 @@ export const AssignStartsStep = createStep(AssignStartsStepContract, {
           playersLandmass2: baseStarts.playersLandmass2,
         },
         // Alive-majors READ surface; the op owns the slot→player mapping (D3).
-        alivePlayerIds: context.adapter.getAliveMajorIds(),
+        alivePlayerIds: deps.engine.getAliveMajorIds(context),
         width,
         height,
         landMask: topography.landMask as Uint8Array,
@@ -64,12 +64,16 @@ export const AssignStartsStep = createStep(AssignStartsStepContract, {
       config.starts as Parameters<typeof _ops.starts>[1]
     );
     const emit = (payload: TraceJsonObject): void => {
-      if (!context.trace?.isVerbose) return;
       context.trace.event(() => payload);
     };
 
     const assignment = runPlacementProductStep("placement.starts", emit, () =>
-      materializeStartAssignment({ context, plan })
+      materializeStartAssignment({
+        context,
+        plan,
+        setStartPosition: (plotIndex, playerId) =>
+          deps.engine.setStartPosition(context, plotIndex, playerId),
+      })
     );
     deps.artifacts.startAssignment.publish(context, assignment);
     return { plan, assignment };

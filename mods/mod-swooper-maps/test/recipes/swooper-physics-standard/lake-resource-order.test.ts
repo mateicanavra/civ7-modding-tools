@@ -2,9 +2,10 @@ import { describe, expect, it } from "bun:test";
 
 import { type LakeProjectionResult, MockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
+import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
-import { artifacts as placementArtifacts } from "../../../src/recipes/standard/stages/placement/artifacts/index.js";
+import { artifactModules as placementArtifactModules } from "../../../src/recipes/standard/stages/placement/artifacts/index.js";
 import { runStandardRecipeTestMap } from "./fixtures/standard-recipe.js";
 
 /**
@@ -122,15 +123,16 @@ describe("map-hydrology lakes area/water ordering", () => {
       (call, index) => index > firstAreaRefreshAfterLakes && call === "storeWaterData"
     );
     const firstResourceIntent = adapter.callOrder.indexOf("placeResourceIntent");
-    const resourceOutcomes = context.artifacts.get(
-      placementArtifacts.resourcePlacementOutcomes.id
-    ) as { summary?: { plannedCount?: number } } | undefined;
+    const resourceOutcomes = readValidatedArtifact(
+      context,
+      placementArtifactModules.resourcePlacementOutcomes
+    );
 
     expect(firstLakeStamp).toBeGreaterThanOrEqual(0);
     expect(firstAreaRefreshAfterLakes).toBeGreaterThan(firstLakeStamp);
     expect(firstWaterRefreshAfterLakes).toBeGreaterThan(firstAreaRefreshAfterLakes);
     expect(firstResourceIntent).toBeGreaterThan(firstWaterRefreshAfterLakes);
-    expect(resourceOutcomes?.summary?.plannedCount ?? 0).toBeGreaterThan(0);
+    expect(resourceOutcomes.summary.plannedCount).toBeGreaterThan(0);
     expect(adapter.calls.generateOfficialResources.length).toBe(0);
   });
 });

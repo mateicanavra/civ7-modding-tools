@@ -70,12 +70,16 @@ export const PlaceResourcesStep = createStep(PlaceResourcesStepContract, {
     const plan = deps.artifacts.resourcePlanAdjusted.read(context);
     const { width, height } = context.setup.dimensions;
     const emit = (payload: TraceJsonObject): void => {
-      if (!context.trace?.isVerbose) return;
       context.trace.event(() => payload);
     };
 
     const outcomes = runPlacementProductStep("placement.resources", emit, () =>
-      placeResourcesWithTypedOutcomes({ adapter: context.adapter, width, height, plan })
+      placeResourcesWithTypedOutcomes({
+        placeResourceIntent: (...args) => deps.engine.placeResourceIntent(context, ...args),
+        width,
+        height,
+        plan,
+      })
     );
     if (outcomes.reconciliation.rejectedCount > 0) {
       // Typed reconcile (D4): engine-legality rejections are recorded as
@@ -84,7 +88,7 @@ export const PlaceResourcesStep = createStep(PlaceResourcesStepContract, {
         `[Placement] Resource reconciliation recorded ${outcomes.reconciliation.rejectedCount}/` +
           `${outcomes.reconciliation.plannedCount} typed rejections (no relocation, no type re-decision).`
       );
-      context.trace?.event(() => ({
+      context.trace.event(() => ({
         type: "placement.resources.reconciliationShortfall",
         level: "warn",
         rejectedCount: outcomes.reconciliation.rejectedCount,
@@ -93,7 +97,7 @@ export const PlaceResourcesStep = createStep(PlaceResourcesStepContract, {
       }));
     }
     logResourcePlacementRuntimeTelemetry(
-      context.adapter.getResourceCatalog(),
+      deps.engine.getResourceCatalog(context),
       outcomes.summary,
       outcomes.reconciliation,
       outcomes.outcomes

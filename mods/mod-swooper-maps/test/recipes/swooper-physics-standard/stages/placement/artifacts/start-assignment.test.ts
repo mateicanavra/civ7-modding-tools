@@ -1,6 +1,12 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
+import {
+  type ArtifactContract,
+  type ArtifactModule,
+  type DependencyEvidence,
+  observeValidatedArtifact,
+} from "@swooper/mapgen-core/authoring";
 import { publishTestArtifact, withMapContextExecutionForTest } from "@swooper/mapgen-core/testing";
 
 import { artifactModules as placementArtifactModules } from "../../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
@@ -75,8 +81,13 @@ describe("placement start-assignment artifacts", () => {
     );
     if (!definition?.satisfies) throw new Error("Missing placement completion predicate.");
 
-    const createContext = () =>
-      createMapContext({
+    const createHarness = () => {
+      const adapter = createMockAdapter({
+        ...TEST_MAP_SIZE.dimensions,
+        mapInfo: TEST_MAP_SIZE.mapInfo,
+        mapSizeId: TEST_MAP_SIZE.id,
+      });
+      const context = createMapContext({
         setup: admitMapSetup({
           mapSeed: 1,
           dimensions: TEST_MAP_SIZE.dimensions,
@@ -85,30 +96,31 @@ describe("placement start-assignment artifacts", () => {
             bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
           },
         }),
-        adapter: createMockAdapter({
-          ...TEST_MAP_SIZE.dimensions,
-          mapInfo: TEST_MAP_SIZE.mapInfo,
-          mapSizeId: TEST_MAP_SIZE.id,
-        }),
+        adapter,
       });
-    const state = {
-      satisfied: new Set([STANDARD_ENGINE_EFFECT_TAGS.engine.placementApplied]),
+      return { adapter, context };
     };
     const satisfies = (
       assignment: ReturnType<typeof makeSyntheticStartAssignment>,
       startsAssigned: number
     ) => {
-      const context = createContext();
-      return withMapContextExecutionForTest(context, () => {
-        publishTestArtifact(context, placementArtifactModules.startAssignment, assignment);
-        publishTestArtifact(context, placementArtifactModules.placementOutputs, {
+      const { adapter, context } = createHarness();
+      withMapContextExecutionForTest(context, (stepContext) => {
+        publishTestArtifact(stepContext, placementArtifactModules.startAssignment, assignment);
+        publishTestArtifact(stepContext, placementArtifactModules.placementOutputs, {
           naturalWondersCount: 0,
           resourcesCount: 0,
           startsAssigned,
           discoveriesCount: 0,
         });
-        return definition.satisfies?.(context, state);
       });
+      const evidence = Object.freeze({
+        verifyEffect: () => adapter.verifyEffect(definition.id),
+        observeArtifact<C extends ArtifactContract>(module: ArtifactModule<C>) {
+          return observeValidatedArtifact(context, module);
+        },
+      }) satisfies DependencyEvidence;
+      return definition.satisfies?.(evidence);
     };
 
     const completeAssignment = makeSyntheticStartAssignment(10);

@@ -17,17 +17,25 @@ const PlotRiversStepConfigSchema = Type.Object(
 );
 
 /**
- * Defines river projection after elevation exists, requiring Hydrology truth and declaring the
- * planned plus engine-readback artifacts used for parity. The implementation owns navigable-river
- * selection and Civ7 mutation.
+ * Defines river projection after elevation exists, requiring Hydrology truth and publishing the
+ * immutable navigable-river plan. Mutable Civ7 readback remains invocation-local evidence rather
+ * than becoming a later-consumed artifact snapshot.
  */
 export const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
+  engine: [
+    "isWater",
+    "getTerrainType",
+    "setTerrainType",
+    "modelRivers",
+    "validateAndFixTerrain",
+    "storeWaterData",
+    "defineNamedRivers",
+    "recalculateAreas",
+    "readRiverProjection",
+  ] as const,
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
-  provides: [
-    MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
-    MAP_PROJECTION_EFFECT_TAGS.map.riversParityCaptured,
-  ],
+  provides: [MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted],
   artifacts: {
     requires: [
       hydrologyHydrographyArtifacts.hydrography,
@@ -36,11 +44,7 @@ export const PlotRiversStepContract = defineStep({
       mapMorphologyArtifacts.coastClassification,
       morphologyArtifacts.topography,
     ],
-    provides: [
-      mapRiversArtifactModules.projectedNavigableRivers,
-      mapRiversArtifactModules.engineProjectionRivers,
-      mapRiversArtifactModules.riversEngineTerrainSnapshot,
-    ],
+    provides: [mapRiversArtifactModules.projectedNavigableRivers],
   },
   ops: {
     selectNavigableRiverTerrain: hydrology.ops.selectNavigableRiverTerrain,

@@ -1,13 +1,15 @@
 import {
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Per-type eligibility fields (`artifact:placement.resourceEligibility`). One artifact per file by repo convention. */
-const ResourceEligibilityArtifactSchema = Type.Object(
+/** Runtime schema for the exact habitat, legality, and intensity fields used during planning. */
+export const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -37,9 +39,6 @@ const ResourceEligibilityArtifactSchema = Type.Object(
   }
 );
 
-/** Runtime schema for the exact habitat, legality, and intensity fields used during planning. */
-export const Schema = ResourceEligibilityArtifactSchema;
-
 /**
  * Registers the exact habitat, legality, and intensity surfaces under which
  * each symbolic resource demand was planned and later support-adjusted.
@@ -50,22 +49,14 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-type ValidationIssue = { message: string };
-
-function issue(message: string): ValidationIssue {
+function issue(message: string): ArtifactValidationIssue {
   return { message };
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-function validatePayload(value: unknown): ValidationIssue[] {
-  if (!isRecord(value)) return [issue("resourceEligibility artifact must be an object.")];
-  const issues: ValidationIssue[] = [];
-  const width = Number(value.width);
-  const height = Number(value.height);
-  const product = width * height;
+function validateLocal(input: unknown): ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
+  const product = value.width * value.height;
   const size = Number.isSafeInteger(product) && product > 0 ? product : undefined;
   if (size === undefined) {
     issues.push(
@@ -74,18 +65,9 @@ function validatePayload(value: unknown): ValidationIssue[] {
       )
     );
   }
-  const rows = Array.isArray(value.rows) ? value.rows : null;
-  if (!rows) {
-    issues.push(issue("resourceEligibility.rows must be an array."));
-    return issues;
-  }
   const seenTypes = new Set<string>();
-  for (const row of rows) {
-    if (!isRecord(row)) {
-      issues.push(issue("resourceEligibility row must be an object."));
-      continue;
-    }
-    const type = String(row.resourceType);
+  for (const row of value.rows) {
+    const type = row.resourceType;
     if (seenTypes.has(type))
       issues.push(issue(`resourceEligibility row ${type} appears more than once.`));
     seenTypes.add(type);
@@ -115,6 +97,4 @@ function validatePayload(value: unknown): ValidationIssue[] {
 }
 
 /** Requires unique resource rows and map-sized habitat, legality, and intensity fields. */
-export function validate(value: unknown): readonly { message: string }[] {
-  return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

@@ -1,14 +1,17 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
-const MapMorphologyCoastClassificationArtifactSchema = Type.Object(
+/** Runtime schema for the authored coast classes and masks captured before engine stamping. */
+export const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1, description: "Map width in tiles." }),
     height: Type.Integer({ minimum: 1, description: "Map height in tiles." }),
@@ -40,9 +43,6 @@ const MapMorphologyCoastClassificationArtifactSchema = Type.Object(
   }
 );
 
-/** Runtime schema for the authored coast classes and masks captured before engine stamping. */
-export const Schema = MapMorphologyCoastClassificationArtifactSchema;
-
 /**
  * Registers the pre-stamp coast policy result consumed by continent projection
  * and coast parity diagnostics.
@@ -54,12 +54,12 @@ export const artifact = defineArtifact({
 });
 
 /** Validates the closed coast classes, masks, dimensions, and promotion count. */
-export function validate(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const issues = [...validateArtifactSchema(Schema, value)];
-  if (value === null || typeof value !== "object") return Object.freeze(issues);
+): readonly ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
   const candidate = value as Record<string, unknown>;
   const cellCount = artifactCellCount(context);
   appendArtifactTypedArrayIssues(
@@ -86,3 +86,6 @@ export function validate(
   );
   return Object.freeze(issues);
 }
+
+/** Admits map-sized typed coast-policy surfaces after Core validates their closed shape. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

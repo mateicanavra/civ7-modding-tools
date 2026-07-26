@@ -16,7 +16,9 @@ describe("features apply viz meta (engine featureType)", () => {
       ...TEST_MAP_SIZE.dimensions,
       mapInfo: TEST_MAP_SIZE.mapInfo,
     });
-    const featureEngineIdsByKey = resolveFeatureKeyLookups(adapter).byKey;
+    const featureEngineIdsByKey = resolveFeatureKeyLookups((key) =>
+      adapter.getFeatureTypeIndex(key)
+    ).byKey;
 
     const categoriesA = buildFeatureTypeVizCategories(featureEngineIdsByKey);
     const categoriesB = buildFeatureTypeVizCategories(featureEngineIdsByKey);

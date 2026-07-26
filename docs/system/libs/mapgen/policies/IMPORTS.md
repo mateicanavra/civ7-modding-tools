@@ -27,10 +27,13 @@ Use the explicit export map of the package.
 Examples (public surfaces):
 
 ```ts
+import type { StepFacetSinks } from "@swooper/mapgen-core";
 import { createRecipe } from "@swooper/mapgen-core/authoring";
-import { PipelineExecutor } from "@swooper/mapgen-core/engine";
 import { validateStrict } from "@swooper/mapgen-core/compiler/normalize";
 ```
+
+Recipe modules own plan compilation and execution. Mutable executor registries and the low-level
+plan compiler are package internals, not a second downstream integration API.
 
 ### 2) Within a single package, internal relative imports are allowed
 
@@ -97,7 +100,8 @@ This policy is the simplest guardrail that keeps the ecosystem coherent: use the
 ## Ground truth anchors
 
 - Exported entrypoints (source of truth for allowed imports): `packages/mapgen-core/package.json`
-- Internal workspace aliases are used inside the monorepo only: `packages/mapgen-core/src/engine/index.ts`
+- Internal workspace aliases and execution modules remain package implementation details under
+  `packages/mapgen-core/src/`.
 - Target posture for packaging and boundaries: `docs/projects/engine-refactor-v1/resources/spec/SPEC-packaging-and-file-structure.md`
 - Recipe import guard: Habitat Grit rule in
   `.habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/rule.json`

@@ -59,7 +59,7 @@ Think of MapGen as these layers:
    - executor runs step nodes with:
      - tag gating (requires/provides),
      - artifact admission and write-once publication,
-     - trace scopes,
+     - executor-owned trace sessions and revocable step-event leases,
      - optional post-step metrics/visualization facet sinks.
 7) **Consumers**
    - Studio and other runtimes run the pipeline via a run boundary (often a worker).
@@ -69,8 +69,11 @@ Think of MapGen as these layers:
 
 - Domains own ops and shared semantics; steps own orchestration, not algorithms.
 - Stages own author surface shape; recipes own pipeline composition and ordering.
-- The executor owns dependency validation, trace scope, and optional facet dispatch; steps must not
-  reimplement gating or observe an environment sink.
+- The executor owns dependency validation, trace identity/selection/lifecycle, and optional facet
+  dispatch; steps must not reimplement gating or observe an environment sink.
+- Occurrence-scoped authority covers declared artifact access, exact engine methods, deterministic
+  random helpers, step trace events, and effect-satisfaction evidence. The executor retains the raw
+  adapter privately; each step receives only the engine methods named by its frozen contract.
 - Studio owns UX and run boundary; it must not require SDK internals beyond stable surfaces.
 
 ## Anti-goals

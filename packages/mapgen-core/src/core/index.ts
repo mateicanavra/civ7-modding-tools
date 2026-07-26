@@ -6,7 +6,6 @@
  */
 
 export {
-  type ArtifactStoreView,
   type CreateMapContextInput,
   createMapContext,
   type MapContext,

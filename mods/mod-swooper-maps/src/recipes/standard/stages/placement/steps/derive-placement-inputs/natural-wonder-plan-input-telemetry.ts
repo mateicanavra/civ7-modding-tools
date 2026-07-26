@@ -63,9 +63,9 @@ type NaturalWonderPlanInputTelemetryArgs = {
       aridityIndex: Float32Array;
     };
     naturalWonderPlanSurfaces: {
-      terrainType: Uint8Array;
-      biomeType: Uint8Array;
-      featureType: Int16Array;
+      terrainType: Int32Array;
+      biomeType: Int32Array;
+      featureType: Int32Array;
       blockedMask: Uint8Array;
     };
   };
@@ -165,7 +165,6 @@ export function traceNaturalWonderPlanInputRuntimeTelemetry(
   context: MapContext,
   telemetry: NaturalWonderPlanInputRuntimeTelemetry
 ): void {
-  if (!context.trace?.isVerbose) return;
   context.trace.event(() => ({
     type: "naturalWonder.planInput",
     ...telemetry,

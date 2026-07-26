@@ -1,7 +1,11 @@
-import { snapshotEngineHeightfield } from "@civ7/adapter/mapgen";
 import type { MapContext, TraceJsonObject } from "@swooper/mapgen-core";
 
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
+import {
+  type CurrentEngineHeightfield,
+  type EngineHeightfieldSnapshot,
+  engineLandMaskFromWaterMask,
+} from "../../../../current-engine-surface.js";
 import type { PlacementOutputsV1 } from "../../artifacts/placement-outputs.artifact.js";
 import { logAsciiMap, logTerrainStats } from "../../log.js";
 
@@ -35,6 +39,7 @@ type StartAssignment = Static<
 
 type ApplyPlacementArgs = {
   context: MapContext;
+  currentEngineHeightfield: CurrentEngineHeightfield;
   naturalWonderPlacement: DeepReadonly<NaturalWonderPlacement>;
   surfacePreparation: DeepReadonly<PlacementSurfacePreparation>;
   resourcePlacement: DeepReadonly<ResourcePlacementOutcomes>;
@@ -49,8 +54,6 @@ type ApplyPlacementArgs = {
     snapshot: EngineTerrainSnapshot
   ) => DeepReadonly<EngineTerrainSnapshot>;
 };
-
-type EngineHeightfieldSnapshot = ReturnType<typeof snapshotEngineHeightfield>;
 
 /** Completed placement evidence needed by the terminal step's optional visualization facet. */
 export type ApplyPlacementResult = Readonly<{
@@ -69,6 +72,7 @@ export type ApplyPlacementResult = Readonly<{
  */
 export function applyPlacementPlan({
   context,
+  currentEngineHeightfield,
   naturalWonderPlacement,
   surfacePreparation,
   resourcePlacement,
@@ -81,11 +85,9 @@ export function applyPlacementPlan({
   publishEngineState = (engineState) => engineState,
   publishEngineTerrainSnapshot = (snapshot) => snapshot,
 }: ApplyPlacementArgs): ApplyPlacementResult {
-  const { trace } = context;
   const { width, height } = context.setup.dimensions;
   const emit = (payload: TraceJsonObject): void => {
-    if (!trace?.isVerbose) return;
-    trace.event(() => payload);
+    context.trace.event(() => payload);
   };
 
   emit({ type: "placement.start", message: "[SWOOPER_MOD] === placement summary ===" });
@@ -118,12 +120,16 @@ export function applyPlacementPlan({
     throw new Error("[Placement] Advanced start evidence is incomplete.");
   }
 
-  logTerrainStats(context, "Final");
-  logAsciiMap(context);
+  logTerrainStats(context, "Final", currentEngineHeightfield);
+  logAsciiMap(context, currentEngineHeightfield);
 
   // Compare the final Morphology land classification with the engine surface
   // after all placement product work has completed.
-  const engineSnapshot = snapshotEngineHeightfield(context.adapter);
+  const engineSnapshot: EngineHeightfieldSnapshot = {
+    terrain: currentEngineHeightfield.terrain,
+    elevation: currentEngineHeightfield.elevation,
+    landMask: engineLandMaskFromWaterMask(currentEngineHeightfield.waterMask),
+  };
   const engineLandMask = engineSnapshot.landMask;
   let waterDriftCount = 0;
   const waterDrift = new Uint8Array(engineLandMask.length);

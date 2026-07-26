@@ -1,14 +1,17 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
-const MorphologyCoastlineMetricsArtifactSchema = Type.Object(
+/** Runtime schema for the pre-island carved coastline snapshot. */
+export const Schema = Type.Object(
   {
     coastalLand: TypedArraySchemas.u8({ description: "Mask (1/0): land tiles adjacent to water." }),
     coastalWater: TypedArraySchemas.u8({
@@ -26,9 +29,6 @@ const MorphologyCoastlineMetricsArtifactSchema = Type.Object(
   }
 );
 
-/** Runtime schema for the pre-island carved coastline snapshot. */
-export const Schema = MorphologyCoastlineMetricsArtifactSchema;
-
 /**
  * Registers the pre-island carved coastline snapshot used by downstream
  * terrain shaping; post-island coastline truth belongs to the shelf artifact.
@@ -39,23 +39,12 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-type ArtifactValidationIssue = Readonly<{ message: string }>;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function validatePayload(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
 ): ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
   const errors: ArtifactValidationIssue[] = [];
-  if (!isRecord(value)) {
-    if (context?.dimensions) {
-      errors.push({ message: "Missing coastline metrics." });
-    }
-    return errors;
-  }
   const size = artifactCellCount(context);
   const candidate = value as {
     coastalLand?: unknown;
@@ -87,10 +76,4 @@ function validatePayload(
 }
 
 /** Validates mask/distance array kinds and their map-sized cardinality when known. */
-export function validate(
-  value: unknown,
-  context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const schemaIssues = validateArtifactSchema(Schema, value);
-  return Object.freeze([...schemaIssues, ...validatePayload(value, context)]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

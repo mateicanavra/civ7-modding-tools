@@ -12,7 +12,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createTraceSession } from "@swooper/mapgen-core";
+import { createTraceSessionForTest } from "@swooper/mapgen-core/testing";
 import { admitPathVizManifest, createVizLayerKey, type PathVizManifest } from "@swooper/mapgen-viz";
 import { createDiagnosticDumpAdapters } from "../src/index.js";
 
@@ -37,7 +37,7 @@ describe("diagnostic dump adapters", () => {
       ];
 
       for (const escaped of escapedTargets) {
-        const session = createTraceSession({
+        const session = createTraceSessionForTest({
           runId: escaped.runId,
           planFingerprint: "trace-containment-plan",
           config: {},
@@ -168,13 +168,13 @@ describe("diagnostic dump adapters", () => {
     const outputRoot = mkdtempSync(join(tmpdir(), "swooper-viz-facet-"));
     try {
       const outputs = createDiagnosticDumpAdapters({ outputRoot });
-      const session = createTraceSession({
+      const session = createTraceSessionForTest({
         runId: "facet-run",
         planFingerprint: "facet-plan",
         config: { steps: { "test.facet-step": "verbose" } },
         sink: outputs.traceSink,
       });
-      session.emitStepStart({ stepId: "test.facet-step", stageId: "foundation" });
+      session.emitStepStart({ stepId: "test.facet-step", stageId: "foundation", stepIndex: 0 });
       const backing = new Uint8Array([90, 4, 7, 91]);
       outputs.facetSinks.viz?.(
         [
@@ -226,7 +226,7 @@ describe("diagnostic dump adapters", () => {
     try {
       const runId = "executor-index-run";
       const outputs = createDiagnosticDumpAdapters({ outputRoot });
-      const session = createTraceSession({
+      const session = createTraceSessionForTest({
         runId,
         planFingerprint: "executor-index-plan",
         config: {
@@ -238,8 +238,8 @@ describe("diagnostic dump adapters", () => {
         sink: outputs.traceSink,
       });
 
-      session.emitStepStart({ stepId: "test.untraced-step", stageId: "foundation" });
-      session.emitStepStart({ stepId: "test.traced-step", stageId: "morphology" });
+      session.emitStepStart({ stepId: "test.untraced-step", stageId: "foundation", stepIndex: 0 });
+      session.emitStepStart({ stepId: "test.traced-step", stageId: "morphology", stepIndex: 1 });
       expect(readManifest(outputRoot, runId).steps).toEqual([]);
 
       outputs.facetSinks.viz?.(
@@ -282,13 +282,13 @@ describe("diagnostic dump adapters", () => {
       const runId = "partial-trace-run";
       const stepId = "test.late-faceted-step";
       const outputs = createDiagnosticDumpAdapters({ outputRoot });
-      const session = createTraceSession({
+      const session = createTraceSessionForTest({
         runId,
         planFingerprint: "partial-trace-plan",
         config: { steps: { [stepId]: "verbose" } },
         sink: outputs.traceSink,
       });
-      session.emitStepStart({ stepId, stageId: "foundation" });
+      session.emitStepStart({ stepId, stageId: "foundation", stepIndex: 0 });
       const projections = [
         {
           kind: "grid" as const,
@@ -339,6 +339,7 @@ describe("diagnostic dump adapters", () => {
         kind: "step.start",
         stepId: "test.step",
         stageId: "foundation",
+        stepIndex: 0,
       });
       const tracePath = join(runDir, "trace.jsonl");
       const manifestPath = join(runDir, "manifest.json");
@@ -359,6 +360,7 @@ describe("diagnostic dump adapters", () => {
         kind: "step.finish",
         stepId: "test.step",
         stageId: "morphology",
+        stepIndex: 0,
         success: false,
       });
 
@@ -414,13 +416,13 @@ describe("diagnostic dump adapters", () => {
     try {
       const outputs = createDiagnosticDumpAdapters({ outputRoot });
       const run = (runId: string, first: Uint8Array, second: Uint8Array): void => {
-        const session = createTraceSession({
+        const session = createTraceSessionForTest({
           runId,
           planFingerprint: `${runId}-plan`,
           config: { steps: { "test.step": "verbose" } },
           sink: outputs.traceSink,
         });
-        session.emitStepStart({ stepId: "test.step", stageId: "foundation" });
+        session.emitStepStart({ stepId: "test.step", stageId: "foundation", stepIndex: 0 });
         const publish = (values: Uint8Array): void => {
           outputs.facetSinks.viz?.(
             [
@@ -483,13 +485,13 @@ describe("diagnostic dump adapters", () => {
     try {
       const runId = "duplicate-batch-run";
       const outputs = createDiagnosticDumpAdapters({ outputRoot });
-      const session = createTraceSession({
+      const session = createTraceSessionForTest({
         runId,
         planFingerprint: "duplicate-batch-plan",
         config: { steps: { "test.step": "verbose" } },
         sink: outputs.traceSink,
       });
-      session.emitStepStart({ stepId: "test.step", stageId: "foundation" });
+      session.emitStepStart({ stepId: "test.step", stageId: "foundation", stepIndex: 0 });
       const dataDirectory = join(outputRoot, runId, "data");
       const beforeDuplicate = readdirSync(dataDirectory).sort();
       const projection = {
@@ -523,13 +525,13 @@ describe("diagnostic dump adapters", () => {
       const runId = "atomic-run";
       const runDir = join(outputRoot, runId);
       const outputs = createDiagnosticDumpAdapters({ outputRoot });
-      const session = createTraceSession({
+      const session = createTraceSessionForTest({
         runId,
         planFingerprint: "atomic-plan",
         config: { steps: { "test.step": "verbose" } },
         sink: outputs.traceSink,
       });
-      session.emitStepStart({ stepId: "test.step", stageId: "foundation" });
+      session.emitStepStart({ stepId: "test.step", stageId: "foundation", stepIndex: 0 });
       const dump = (a: number, b: number, dataTypeKey = "test.atomic"): void => {
         outputs.facetSinks.viz?.(
           [

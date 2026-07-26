@@ -4,6 +4,7 @@ import { createMockAdapter } from "@civ7/adapter";
 import ecology from "@mapgen/domain/ecology/ops";
 import { RIVER_CLASS_MAJOR } from "@mapgen/domain/hydrology/model/policy/river-class.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
+import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
   normalizeOperationSelectionForTest,
@@ -73,25 +74,25 @@ describe("ecology-features plan-floodplains step", () => {
       adapter: createMockAdapter(syntheticDimensions),
     });
 
-    const intents = withMapContextExecutionForTest(context, () => {
-      publishTestArtifact(context, morphologyArtifactModules.topography, {
+    withMapContextExecutionForTest(context, (stepContext) => {
+      publishTestArtifact(stepContext, morphologyArtifactModules.topography, {
         elevation: new Int16Array(size).fill(24),
         seaLevel: 0,
         landMask,
         bathymetry: new Int16Array(size),
       });
-      publishTestArtifact(context, ecologyArtifactModules.scoreLayers, {
+      publishTestArtifact(stepContext, ecologyArtifactModules.scoreLayers, {
         ...syntheticDimensions,
         layers,
       });
-      publishTestArtifact(context, ecologyArtifactModules.occupancyBase, {
+      publishTestArtifact(stepContext, ecologyArtifactModules.occupancyBase, {
         ...syntheticDimensions,
         featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       });
       const dependencies = buildStepTestDependencies(PlanFloodplainsStep);
       PlanFloodplainsStep.run(
-        context,
+        stepContext,
         {
           planFloodplains: normalizeOperationSelectionForTest(ecology.ops.planFloodplains, {
             ...ecology.ops.planFloodplains.defaultConfig,
@@ -104,8 +105,11 @@ describe("ecology-features plan-floodplains step", () => {
         ecology.ops.bind(PlanFloodplainsStep.contract.ops!).runtime,
         dependencies
       );
-      return dependencies.artifacts.featureIntentsFloodplains.read(context);
     });
+    const intents = readValidatedArtifact(
+      context,
+      ecologyArtifactModules.featureIntentsFloodplains
+    );
 
     expect(intents).toHaveLength(1);
     expect(intents[0]).toMatchObject({

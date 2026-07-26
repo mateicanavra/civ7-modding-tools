@@ -1,3 +1,4 @@
+import { NO_FEATURE_TYPE } from "@civ7/map-policy";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import {
   buildPlacementPointBuffers,
@@ -30,9 +31,23 @@ export const PlaceNaturalWondersStep = createStep(PlaceNaturalWondersStepContrac
     const placementInputs = deps.artifacts.placementInputs.read(context);
     const naturalWonderPlan = deps.artifacts.naturalWonderPlan.read(context);
     const { width, height } = context.setup.dimensions;
+    const engine = {
+      getFeatureType: (x: number, y: number) => deps.engine.getFeatureType(context, x, y),
+      getTerrainType: (x: number, y: number) => deps.engine.getTerrainType(context, x, y),
+      setTerrainType: (x: number, y: number, terrainType: number) =>
+        deps.engine.setTerrainType(context, x, y, terrainType),
+      placeNaturalWonder: (
+        x: number,
+        y: number,
+        featureType: number,
+        direction: number,
+        elevation?: number
+      ) => deps.engine.placeNaturalWonder(context, x, y, featureType, direction, elevation),
+    };
 
     const stamping: NaturalWonderStampingStats = stampNaturalWondersFromPlan({
-      adapter: context.adapter,
+      engine,
+      noFeatureType: NO_FEATURE_TYPE,
       width,
       height,
       wonders: naturalWonderPlan,

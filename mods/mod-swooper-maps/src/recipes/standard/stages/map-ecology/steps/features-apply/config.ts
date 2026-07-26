@@ -17,6 +17,16 @@ import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/
  */
 export const FeaturesApplyStepContract = defineStep({
   id: "features-apply",
+  engine: [
+    "getFeatureTypeIndex",
+    "canHaveFeature",
+    "setFeatureType",
+    "validateAndFixTerrain",
+    "getFeatureType",
+    "getTerrainType",
+    "isWater",
+    "recalculateAreas",
+  ] as const,
   requires: [],
   provides: [
     STANDARD_ENGINE_EFFECT_TAGS.engine.featuresApplied,

@@ -1,14 +1,17 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
-const MorphologyMountainsArtifactSchema = Type.Object(
+/** Runtime schema for Morphology-owned mountain, foothill, and rough-land intent. */
+export const Schema = Type.Object(
   {
     mountainMask: TypedArraySchemas.u8({
       description: "Mask (1/0): Morphology model intent for mountain terrain.",
@@ -48,9 +51,6 @@ const MorphologyMountainsArtifactSchema = Type.Object(
   }
 );
 
-/** Runtime schema for Morphology-owned mountain, foothill, and rough-land intent. */
-export const Schema = MorphologyMountainsArtifactSchema;
-
 /**
  * Registers Morphology-owned mountain, foothill, and rough-land intent for
  * later engine projection and placement suitability.
@@ -65,45 +65,45 @@ export const artifact = defineArtifact({
  * Validates map-sized typed arrays for mountain-family intent and keeps each membership mask
  * binary. Potential fields remain byte-valued measurements rather than membership masks.
  */
-export function validate(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const issues = [...validateArtifactSchema(Schema, value)];
-  if (isRecord(value)) {
-    const size = artifactCellCount(context);
-    for (const key of [
-      "mountainMask",
-      "mountainRegionMask",
-      "hillMask",
-      "foothillMask",
-      "roughLandMask",
-    ] as const) {
-      if (
-        appendArtifactTypedArrayIssues(issues, `mountains.${key}`, value[key], Uint8Array, size)
-      ) {
-        validateBinaryMask(issues, `mountains.${key}`, value[key]);
-      }
+): readonly ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
+  const size = artifactCellCount(context);
+  for (const key of [
+    "mountainMask",
+    "mountainRegionMask",
+    "hillMask",
+    "foothillMask",
+    "roughLandMask",
+  ] as const) {
+    if (appendArtifactTypedArrayIssues(issues, `mountains.${key}`, value[key], Uint8Array, size)) {
+      validateBinaryMask(issues, `mountains.${key}`, value[key]);
     }
-    appendArtifactTypedArrayIssues(
-      issues,
-      "mountains.mountainRegionIdByTile",
-      value.mountainRegionIdByTile,
-      Int32Array,
-      size
-    );
-    for (const key of ["orogenyPotential", "fracturePotential", "roughnessPotential"] as const) {
-      appendArtifactTypedArrayIssues(issues, `mountains.${key}`, value[key], Uint8Array, size);
-    }
+  }
+  appendArtifactTypedArrayIssues(
+    issues,
+    "mountains.mountainRegionIdByTile",
+    value.mountainRegionIdByTile,
+    Int32Array,
+    size
+  );
+  for (const key of ["orogenyPotential", "fracturePotential", "roughnessPotential"] as const) {
+    appendArtifactTypedArrayIssues(issues, `mountains.${key}`, value[key], Uint8Array, size);
   }
   return Object.freeze(issues);
 }
 
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
+/** Admits map-sized mountain fields and binary terrain masks after structural admission. */
+export const validate = defineArtifactValidator(artifact, validateLocal);
 
-function validateBinaryMask(issues: { message: string }[], label: string, value: unknown): void {
+function validateBinaryMask(
+  issues: ArtifactValidationIssue[],
+  label: string,
+  value: unknown
+): void {
   if (!(value instanceof Uint8Array)) return;
   for (let index = 0; index < value.length; index += 1) {
     if (value[index] !== 0 && value[index] !== 1) {

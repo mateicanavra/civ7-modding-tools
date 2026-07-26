@@ -103,7 +103,11 @@ describe("start materializer (thin shell)", () => {
     const planned = plan(input);
     const { adapter, context } = contextFor();
 
-    const assignment = materializeStartAssignment({ context, plan: planned });
+    const assignment = materializeStartAssignment({
+      context,
+      plan: planned,
+      setStartPosition: adapter.setStartPosition.bind(adapter),
+    });
 
     expect(assignment.assigned).toBe(2);
     expect(adapter.calls.setStartPosition.map((call) => call.playerId).sort()).toEqual([4, 9]);
@@ -123,11 +127,15 @@ describe("start materializer (thin shell)", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const input = makeInput(width, height, 1, 0);
     const planned = plan(input);
-    const { context } = contextFor();
+    const { adapter, context } = contextFor();
 
-    expect(() => materializeStartAssignment({ context, plan: planned })).toThrow(
-      /No settleable land candidates/
-    );
+    expect(() =>
+      materializeStartAssignment({
+        context,
+        plan: planned,
+        setStartPosition: adapter.setStartPosition.bind(adapter),
+      })
+    ).toThrow(/No settleable land candidates/);
   });
 
   it("materializes degraded plans as data (no assign-or-throw)", () => {
@@ -143,7 +151,11 @@ describe("start materializer (thin shell)", () => {
     });
     const { adapter, context } = contextFor();
 
-    const assignment = materializeStartAssignment({ context, plan: planned });
+    const assignment = materializeStartAssignment({
+      context,
+      plan: planned,
+      setStartPosition: adapter.setStartPosition.bind(adapter),
+    });
 
     expect(assignment.assigned).toBe(2);
     expect(assignment.unseatedCount).toBe(1);

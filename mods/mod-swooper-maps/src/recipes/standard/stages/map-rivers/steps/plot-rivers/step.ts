@@ -1,4 +1,3 @@
-import { snapshotEngineHeightfield } from "@civ7/adapter/mapgen";
 import { CIV7_BROWSER_TABLES_V0, CIV7_DEFAULT_RIVER_MODELING_ARGS } from "@civ7/map-policy";
 import {
   HYDROLOGY_FLOW_INTERMITTENT,
@@ -131,39 +130,40 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
     const terrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
 
     const logStats = (label: string) => {
-      if (!context.trace.isVerbose) return;
-      let flat = 0,
-        hill = 0,
-        mtn = 0,
-        water = 0;
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          if (context.adapter.isWater(x, y)) {
-            water++;
-            continue;
+      context.trace.event(() => {
+        let flat = 0,
+          hill = 0,
+          mtn = 0,
+          water = 0;
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            if (deps.engine.isWater(context, x, y)) {
+              water++;
+              continue;
+            }
+            const t = deps.engine.getTerrainType(context, x, y);
+            if (t === terrain.TERRAIN_MOUNTAIN) mtn++;
+            else if (t === terrain.TERRAIN_HILL) hill++;
+            else flat++;
           }
-          const t = context.adapter.getTerrainType(x, y);
-          if (t === terrain.TERRAIN_MOUNTAIN) mtn++;
-          else if (t === terrain.TERRAIN_HILL) hill++;
-          else flat++;
         }
-      }
-      const total = width * height;
-      const land = Math.max(1, flat + hill + mtn);
-      context.trace.event(() => ({
-        type: "rivers.terrainStats",
-        label,
-        totals: {
-          land,
-          water,
-          landShare: Number(((land / total) * 100).toFixed(1)),
-        },
-        shares: {
-          mountains: Number(((mtn / land) * 100).toFixed(1)),
-          hills: Number(((hill / land) * 100).toFixed(1)),
-          flat: Number(((flat / land) * 100).toFixed(1)),
-        },
-      }));
+        const total = width * height;
+        const land = Math.max(1, flat + hill + mtn);
+        return {
+          type: "rivers.terrainStats",
+          label,
+          totals: {
+            land,
+            water,
+            landShare: Number(((land / total) * 100).toFixed(1)),
+          },
+          shares: {
+            mountains: Number(((mtn / land) * 100).toFixed(1)),
+            hills: Number(((hill / land) * 100).toFixed(1)),
+            flat: Number(((flat / land) * 100).toFixed(1)),
+          },
+        };
+      });
     };
 
     const size = width * height;
@@ -171,8 +171,8 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const idx = y * width + x;
-        if (context.adapter.isWater(x, y)) continue;
-        if (context.adapter.getTerrainType(x, y) === terrain.TERRAIN_MOUNTAIN) continue;
+        if (deps.engine.isWater(context, x, y)) continue;
+        if (deps.engine.getTerrainType(context, x, y) === terrain.TERRAIN_MOUNTAIN) continue;
         projectableLandMask[idx] = 1;
       }
     }
@@ -282,7 +282,8 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
     logStats("PRE-RIVERS");
     for (let i = 0; i < size; i++) {
       if (materialized.riverMask[i] !== 1) continue;
-      context.adapter.setTerrainType(
+      deps.engine.setTerrainType(
+        context,
         i % width,
         Math.floor(i / width),
         terrain.TERRAIN_NAVIGABLE_RIVER
@@ -300,7 +301,8 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
     // and named-river definition. Keep Hydrology as source truth, but use the
     // adapter-owned native boundary so Civ creates river metadata/model objects
     // rather than terrain-only rows.
-    context.adapter.modelRivers(
+    deps.engine.modelRivers(
+      context,
       CIV7_DEFAULT_RIVER_MODELING_ARGS.minLength,
       CIV7_DEFAULT_RIVER_MODELING_ARGS.maxLength,
       terrain.TERRAIN_NAVIGABLE_RIVER
@@ -312,66 +314,34 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
       maxLength: CIV7_DEFAULT_RIVER_MODELING_ARGS.maxLength,
     }));
     logStats("POST-MODEL-RIVERS");
-    context.adapter.validateAndFixTerrain();
-    restoreProjectedCoastTerrain(context, coastClassification, "map-rivers/plot-rivers");
+    deps.engine.validateAndFixTerrain(context);
+    restoreProjectedCoastTerrain(
+      context.setup.dimensions,
+      context.trace,
+      {
+        getTerrainType: (x, y) => deps.engine.getTerrainType(context, x, y),
+        setTerrainType: (x, y, terrainType) =>
+          deps.engine.setTerrainType(context, x, y, terrainType),
+        storeWaterData: () => deps.engine.storeWaterData(context),
+      },
+      coastClassification,
+      "map-rivers/plot-rivers"
+    );
     logStats("POST-VALIDATE");
-    context.adapter.defineNamedRivers();
+    deps.engine.defineNamedRivers(context);
 
     // River modeling and validation can rewrite terrain after elevation. Refresh
     // area and water caches here so ecology and placement read the final engine
     // topology rather than the pre-river projection surface.
-    context.adapter.recalculateAreas();
-    context.adapter.storeWaterData();
+    deps.engine.recalculateAreas(context);
+    deps.engine.storeWaterData(context);
 
-    const engine = snapshotEngineHeightfield(context.adapter);
-    const riverReadback = context.adapter.readRiverProjection(
+    const riverReadback = deps.engine.readRiverProjection(
+      context,
       width,
       height,
       materialized.riverMask
     );
-    const lakeMask = new Uint8Array(size);
-    for (let i = 0; i < size; i++) {
-      const isWater = (engine.landMask[i] ?? 1) === 0;
-      if (isWater) lakeMask[i] = 1;
-    }
-
-    const sinkMismatchCount = lakeMask.reduce((acc, _v, idx) => {
-      if ((hydrography.sinkMask[idx] ?? 0) === 1 && lakeMask[idx] === 0) return acc + 1;
-      return acc;
-    }, 0);
-
-    deps.artifacts.engineProjectionRivers.publish(context, {
-      width,
-      height,
-      lakeMask,
-      riverMask: riverReadback.terrainNavigableRiverMask,
-      engineRiverType: riverReadback.engineRiverType,
-      engineIsRiverMask: riverReadback.engineIsRiverMask,
-      engineNavigableRiverMask: riverReadback.engineNavigableRiverMask,
-      engineMinorRiverMask: riverReadback.engineMinorRiverMask,
-      terrainNavigableRiverMask: riverReadback.terrainNavigableRiverMask,
-      rejectedNavigableRiverMask: riverReadback.rejectedNavigableRiverMask,
-      sinkMismatchCount,
-      riverMismatchCount: riverReadback.navigableRiverMismatchTileCount,
-      selectedRiverRejectedCount: riverReadback.rejectedNavigableRiverTileCount,
-      extraEngineRiverCount: riverReadback.extraNavigableRiverTileCount,
-      engineRiverTileCount: riverReadback.engineRiverTileCount,
-      engineNavigableRiverTileCount: riverReadback.engineNavigableRiverTileCount,
-      engineMinorRiverTileCount: riverReadback.engineMinorRiverTileCount,
-      terrainNavigableRiverTileCount: riverReadback.terrainNavigableRiverTileCount,
-      minorRiverStampingSupported: riverReadback.minorRiverStampingSupported,
-      minorRiverUnsupportedReason: riverReadback.minorRiverUnsupportedReason,
-    });
-
-    deps.artifacts.riversEngineTerrainSnapshot.publish(context, {
-      stage: "map-rivers/plot-rivers",
-      width,
-      height,
-      landMask: engine.landMask,
-      terrain: engine.terrain,
-      elevation: engine.elevation,
-    });
-
     context.trace.event(() => ({
       type: "map.rivers.parity",
       riverMismatchCount: riverReadback.navigableRiverMismatchTileCount,
@@ -386,7 +356,6 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
       ),
     }));
     const engineEvidence: PlotRiversVizEvidence["engineEvidence"] = {
-      engineLandMask: engine.landMask,
       riverReadback,
     };
     return {

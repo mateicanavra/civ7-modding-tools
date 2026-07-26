@@ -2,6 +2,7 @@ import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import type { FeatureData } from "@civ7/types";
 import { xyFromIndex } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { captureEngineWaterMask } from "../../../../current-engine-surface.js";
 import { defineStandardVizMeta } from "../../../../viz.js";
 import { assertNoWaterDrift } from "../../../../water-surface-parity.js";
 import { PlotVolcanoesStepContract } from "./config.js";
@@ -24,7 +25,8 @@ export const PlotVolcanoesStep = createStep(PlotVolcanoesStepContract, {
       const y = (index / width) | 0;
       const x = index - y * width;
       if (x < 0 || x >= width || y < 0 || y >= height) continue;
-      context.adapter.setTerrainType(
+      deps.engine.setTerrainType(
+        context,
         x,
         y,
         CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_MOUNTAIN
@@ -34,10 +36,18 @@ export const PlotVolcanoesStep = createStep(PlotVolcanoesStepContract, {
         Direction: -1,
         Elevation: 0,
       };
-      context.adapter.setFeatureType(x, y, featureData);
+      deps.engine.setFeatureType(context, x, y, featureData);
     }
 
-    assertNoWaterDrift(context, topography.landMask, "map-morphology/plot-volcanoes");
+    const engineWaterMask = captureEngineWaterMask(context.setup.dimensions, (x, y) =>
+      deps.engine.isWater(context, x, y)
+    );
+    assertNoWaterDrift(
+      context.setup.dimensions,
+      engineWaterMask,
+      topography.landMask,
+      "map-morphology/plot-volcanoes"
+    );
     return plan;
   },
   viz: ({ result: plan, dimensions }) => {

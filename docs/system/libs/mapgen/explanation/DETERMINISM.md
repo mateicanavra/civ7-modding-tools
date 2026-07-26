@@ -43,5 +43,7 @@ When determinism is in doubt:
 - Map setup: `packages/mapgen-core/src/core/map-setup.ts`
 - Map context: `packages/mapgen-core/src/core/map-context.ts`
 - RNG helpers: `packages/mapgen-core/src/core/random.ts`
-- Run identity derivation: `packages/mapgen-core/src/engine/execution-plan.ts`
-- Trace session + stable stringify: `packages/mapgen-core/src/trace/index.ts`
+- Stable plan identity: `packages/mapgen-core/src/engine/execution-plan.ts`
+- Fresh execution-attempt identity: `packages/mapgen-core/src/core/map-context.ts`
+- Public trace contracts + stable stringify: `packages/mapgen-core/src/trace/index.ts`
+- Executor-owned trace session: `packages/mapgen-core/src/trace/session.ts`

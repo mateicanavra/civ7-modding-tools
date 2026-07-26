@@ -1,5 +1,10 @@
 import resources from "@mapgen/domain/resources";
-import { defineArtifact, validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  type ArtifactValidationIssue,
+  defineArtifact,
+  defineArtifactValidator,
+  type Static,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 /** Site-selection resource plan (`artifact:placement.resourcePlan`). One artifact per file by repo convention. */
 
@@ -12,14 +17,8 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-type ValidationIssue = { message: string };
-
-function issue(message: string): ValidationIssue {
+function issue(message: string): ArtifactValidationIssue {
   return { message };
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
 }
 
 /**
@@ -28,21 +27,16 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  * These check cross-field invariants the schemas cannot express.
  */
 
-function validatePayload(value: unknown): ValidationIssue[] {
-  if (!isRecord(value)) return [issue("resourcePlan artifact must be an object.")];
-  const issues: ValidationIssue[] = [];
-  const width = Number(value.width);
-  const height = Number(value.height);
-  const size = width * height;
+function validateLocal(input: unknown): ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
+  const size = value.width * value.height;
   if (!Number.isSafeInteger(size) || size <= 0) {
     return [
       issue(`resourcePlan has invalid dimensions ${String(value.width)}x${String(value.height)}.`),
     ];
   }
-  const intents = Array.isArray(value.intents) ? value.intents : null;
-  const perType = Array.isArray(value.perType) ? value.perType : null;
-  if (!intents) return [issue("resourcePlan.intents must be an array.")];
-  if (!perType) return [issue("resourcePlan.perType must be an array.")];
+  const { intents, perType } = value;
 
   if (value.plannedCount !== intents.length) {
     issues.push(
@@ -55,9 +49,8 @@ function validatePayload(value: unknown): ValidationIssue[] {
   const seenPlots = new Set<number>();
   const countsByType = new Map<string, number>();
   for (const intent of intents) {
-    if (!isRecord(intent)) continue;
-    const plotIndex = Number(intent.plotIndex);
-    if (!Number.isInteger(plotIndex) || plotIndex < 0 || plotIndex >= size) {
+    const { plotIndex } = intent;
+    if (plotIndex >= size) {
       issues.push(
         issue(`resourcePlan intent plotIndex ${String(intent.plotIndex)} out of bounds.`)
       );
@@ -67,31 +60,29 @@ function validatePayload(value: unknown): ValidationIssue[] {
       issues.push(issue(`resourcePlan plans two intents on plot ${plotIndex}.`));
     }
     seenPlots.add(plotIndex);
-    const type = String(intent.resourceType);
+    const type = intent.resourceType;
     countsByType.set(type, (countsByType.get(type) ?? 0) + 1);
   }
 
   for (const row of perType) {
-    if (!isRecord(row)) continue;
-    const type = String(row.resourceType);
-    const planned = Number(row.plannedCount);
+    const type = row.resourceType;
+    const planned = row.plannedCount;
     const observed = countsByType.get(type) ?? 0;
     if (planned !== observed) {
       issues.push(
         issue(`resourcePlan perType ${type} plannedCount ${planned} != intent count ${observed}.`)
       );
     }
-    const maxCount = Number(row.maxCount);
+    const maxCount = row.maxCount;
     if (planned > maxCount) {
       issues.push(
         issue(`resourcePlan perType ${type} plannedCount ${planned} exceeds maxCount ${maxCount}.`)
       );
     }
 
-    const effectiveTarget = Number(row.effectiveTargetCount);
+    const effectiveTarget = row.effectiveTargetCount;
     const expectedShortfall = Math.max(0, effectiveTarget - planned);
-    const shortfalls = Array.isArray(row.shortfalls) ? row.shortfalls : null;
-    if (!Number.isSafeInteger(expectedShortfall) || !shortfalls) continue;
+    const { shortfalls } = row;
     if (shortfalls.length !== (expectedShortfall > 0 ? 1 : 0)) {
       issues.push(
         issue(
@@ -101,7 +92,7 @@ function validatePayload(value: unknown): ValidationIssue[] {
       continue;
     }
     const shortfall = shortfalls[0];
-    if (!isRecord(shortfall)) continue;
+    if (!shortfall) continue;
     if (shortfall.resourceType !== row.resourceType) {
       issues.push(issue(`resourcePlan perType ${type} shortfall names another resource type.`));
     }
@@ -120,6 +111,4 @@ function validatePayload(value: unknown): ValidationIssue[] {
  * Validates map bounds, unique intent plots, count coherence, declared maxima, and the exact
  * terminal shortfall implied by each resource type's effective target.
  */
-export function validate(value: unknown): readonly { message: string }[] {
-  return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

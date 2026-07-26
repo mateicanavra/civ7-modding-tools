@@ -7,20 +7,17 @@ import {
 } from "@civ7/map-policy";
 import { admitMapSetup, createMapContext, type MapContext } from "@swooper/mapgen-core";
 import {
+  type ArtifactReadValueOf,
   assertFloat32Array,
   assertInt32Array,
   assertUint8Array,
   assertUint16Array,
-} from "@swooper/mapgen-core/authoring";
-import {
-  type ArtifactReadValueOf,
   readValidatedArtifact,
-} from "@swooper/mapgen-core/authoring/contracts";
+} from "@swooper/mapgen-core/authoring";
 
 import { canonicalRecipeConfig } from "../../../maps/configs/canonical.js";
 import { artifactModules as standardArtifactModules } from "../artifacts/index.js";
 import standardRecipe from "../recipe.js";
-import { initializeStandardRuntime } from "../runtime.js";
 import { artifactModules as ecologyArtifactModules } from "../stages/ecology/artifacts/index.js";
 import { artifactModules as hydrologyHydrographyArtifactModules } from "../stages/hydrology-hydrography/artifacts/index.js";
 import { artifactModules as mapHydrologyArtifactModules } from "../stages/map-hydrology/artifacts/index.js";
@@ -37,9 +34,6 @@ type RiverNetworkMetrics = ArtifactReadValueOf<
 >;
 type ProjectedNavigableRivers = ArtifactReadValueOf<
   typeof mapRiversArtifactModules.projectedNavigableRivers.artifact
->;
-type EngineProjectionRivers = ArtifactReadValueOf<
-  typeof mapRiversArtifactModules.engineProjectionRivers.artifact
 >;
 type ResourceDemandPlan = ArtifactReadValueOf<
   typeof placementArtifactModules.resourceDemandPlan.artifact
@@ -161,13 +155,12 @@ export type StandardMapCapture = Readonly<{
       | "projectionSignalStatus"
       | "plannedMajorRiverTileCount"
     >;
-    riverReadback: Pick<
-      EngineProjectionRivers,
-      | "terrainNavigableRiverTileCount"
-      | "riverMismatchCount"
-      | "selectedRiverRejectedCount"
-      | "extraEngineRiverCount"
-    >;
+    riverReadback: Readonly<{
+      terrainNavigableRiverTileCount: number;
+      riverMismatchCount: number;
+      selectedRiverRejectedCount: number;
+      extraEngineRiverCount: number;
+    }>;
     featureAttempts: Readonly<Record<string, number>>;
     featureRejections: Readonly<Record<string, number>>;
   }>;
@@ -276,10 +269,6 @@ export function captureStandardMapScenario(
   });
 
   const context = createMapContext({ setup, adapter });
-  initializeStandardRuntime(context, {
-    mapInfo: selection.mapInfo,
-    logPrefix: "[map-product-metrics]",
-  });
   standardRecipe.run(context, canonicalRecipeConfig(admittedScenario.config), {
     log: () => {},
   });
@@ -320,9 +309,10 @@ function copyCompletedRun(
     context,
     mapRiversArtifactModules.projectedNavigableRivers
   );
-  const riverReadbackValue = readValidatedArtifact(
-    context,
-    mapRiversArtifactModules.engineProjectionRivers
+  const riverReadbackValue = adapter.readRiverProjection(
+    width,
+    height,
+    navigableRiverValue.riverMask
   );
   const biomeValue = readValidatedArtifact(context, ecologyArtifactModules.biomeClassification);
   const pedologyValue = readValidatedArtifact(context, ecologyArtifactModules.pedology);
@@ -529,9 +519,9 @@ function copyCompletedRun(
       }),
       riverReadback: Object.freeze({
         terrainNavigableRiverTileCount: riverReadbackValue.terrainNavigableRiverTileCount,
-        riverMismatchCount: riverReadbackValue.riverMismatchCount,
-        selectedRiverRejectedCount: riverReadbackValue.selectedRiverRejectedCount,
-        extraEngineRiverCount: riverReadbackValue.extraEngineRiverCount,
+        riverMismatchCount: riverReadbackValue.navigableRiverMismatchTileCount,
+        selectedRiverRejectedCount: riverReadbackValue.rejectedNavigableRiverTileCount,
+        extraEngineRiverCount: riverReadbackValue.extraNavigableRiverTileCount,
       }),
       featureAttempts: Object.freeze({ ...featureDiagnosticsValue.attemptedByFeature }),
       featureRejections: Object.freeze({

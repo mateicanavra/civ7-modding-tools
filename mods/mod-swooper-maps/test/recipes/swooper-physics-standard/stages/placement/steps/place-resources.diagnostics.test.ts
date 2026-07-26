@@ -90,7 +90,7 @@ describe("resource placement diagnostics", () => {
     });
 
     const outcomes = placeResourcesWithTypedOutcomes({
-      adapter,
+      placeResourceIntent: adapter.placeResourceIntent.bind(adapter),
       width,
       height,
       plan: plan(width, height, [
@@ -143,7 +143,7 @@ describe("resource placement diagnostics", () => {
 
     expect(() =>
       placeResourcesWithTypedOutcomes({
-        adapter,
+        placeResourceIntent: adapter.placeResourceIntent.bind(adapter),
         width,
         height,
         plan: broken as Parameters<typeof placeResourcesWithTypedOutcomes>[0]["plan"],
@@ -172,7 +172,7 @@ describe("resource placement diagnostics", () => {
     });
 
     const outcomes = placeResourcesWithTypedOutcomes({
-      adapter,
+      placeResourceIntent: adapter.placeResourceIntent.bind(adapter),
       width,
       height,
       plan: plan(width, height, [

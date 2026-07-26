@@ -1,7 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
-import { ArtifactValidationError, implementArtifactModules } from "@swooper/mapgen-core/authoring";
+import { ArtifactValidationError } from "@swooper/mapgen-core/authoring";
+import { publishTestArtifact, withMapContextExecutionForTest } from "@swooper/mapgen-core/testing";
 import { artifactModules as baselineModules } from "../../../../../../../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts/index.js";
 import { artifactModules as refineModules } from "../../../../../../../../src/recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
 
@@ -39,7 +40,6 @@ describe("Standard climate artifact vintages", () => {
   });
 
   it("fails publication rather than coercing an out-of-domain producer result", () => {
-    const runtime = implementArtifactModules([refineModules.climateField]);
     const mapContext = createMapContext({
       setup: admitMapSetup({
         mapSeed: 1,
@@ -50,10 +50,12 @@ describe("Standard climate artifact vintages", () => {
     });
 
     expect(() =>
-      runtime.climateField.publish(mapContext, {
-        rainfall: new Uint8Array([0, 1, 200, 201]),
-        humidity: new Uint8Array(SYNTHETIC_CARDINALITY),
-      })
+      withMapContextExecutionForTest(mapContext, (stepContext) =>
+        publishTestArtifact(stepContext, refineModules.climateField, {
+          rainfall: new Uint8Array([0, 1, 200, 201]),
+          humidity: new Uint8Array(SYNTHETIC_CARDINALITY),
+        })
+      )
     ).toThrow(ArtifactValidationError);
   });
 });

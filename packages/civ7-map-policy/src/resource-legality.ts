@@ -32,11 +32,11 @@ export type ResourceLegalitySurface = {
   readonly width: number;
   readonly height: number;
   /** Engine-format biome index per tile. */
-  readonly biomeType: Uint8Array;
+  readonly biomeType: Int32Array;
   /** Engine-format terrain index per tile. */
-  readonly terrainType: Uint8Array;
+  readonly terrainType: Int32Array;
   /** Engine-format feature index per tile (-1 = none). */
-  readonly featureType: Int16Array;
+  readonly featureType: Int32Array;
   /** Engine water reading per tile (1 = water), used for adjacent-to-land flags. */
   readonly engineWaterMask: Uint8Array;
 };

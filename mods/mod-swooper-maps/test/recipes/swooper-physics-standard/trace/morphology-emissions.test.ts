@@ -35,7 +35,12 @@ describe("Morphology tracing (observability hardening smoke)", () => {
       execution: {
         trace: {
           config: { steps: traceSteps },
-          sink: { emit: (event) => events.push(event) },
+          sink: {
+            emit: (event) => {
+              events.push(event);
+              return undefined;
+            },
+          },
         },
       },
     });

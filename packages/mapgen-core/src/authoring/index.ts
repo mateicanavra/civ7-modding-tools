@@ -5,6 +5,7 @@ export type {
   StepFacetSinks,
   StepFacets,
 } from "@mapgen/engine/step-facets.js";
+export type { DependencyEvidence, DependencyTagDefinition } from "@mapgen/engine/tags.js";
 export type { Static, TSchema } from "typebox";
 export { Type } from "typebox";
 export type {
@@ -14,10 +15,12 @@ export type {
   ArtifactReadValueOf,
   ArtifactValidationContext,
   ArtifactValidationIssue,
+  ArtifactValidator,
   ArtifactValueOf,
   DeepReadonly,
   ProvidedArtifactRuntime,
   RequiredArtifactRuntime,
+  ValidatedArtifactObservation,
 } from "./artifact/index.js";
 export {
   ArtifactDoublePublishError,
@@ -27,9 +30,9 @@ export {
   artifactCellCount,
   defineArtifact,
   defineArtifactCatalog,
-  implementArtifactModules,
+  defineArtifactValidator,
+  observeValidatedArtifact,
   readValidatedArtifact,
-  validateArtifactSchema,
 } from "./artifact/index.js";
 export type {
   DomainOpCompileAny,
@@ -101,7 +104,13 @@ export { buildRecipeDag } from "./recipe-dag.js";
 export { stripSchemaMetadataRoot } from "./sanitize-config-root.js";
 export { createStage, deriveStageAuthoringModel } from "./stage.js";
 export { assertStageId, StageIdSchema } from "./stage-id.js";
-export type { OpContractAny, StepContract, StepOpsDecl, StepRuntimeOps } from "./step/index.js";
+export type {
+  OpContractAny,
+  StepContract,
+  StepEngineDecl,
+  StepOpsDecl,
+  StepRuntimeOps,
+} from "./step/index.js";
 export { createStep, defineStep } from "./step/index.js";
 export { TypedArraySchemas } from "./typed-array-schemas.js";
 export {

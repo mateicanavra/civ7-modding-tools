@@ -164,6 +164,7 @@ describe("serialized diagnostic evidence", () => {
           kind: "step.start",
           stepId: "test.step",
           stageId: "foundation",
+          stepIndex: 0,
         },
         {
           tsMs: 3,
@@ -172,6 +173,7 @@ describe("serialized diagnostic evidence", () => {
           kind: "step.event",
           stepId: "test.step",
           stageId: "foundation",
+          stepIndex: 0,
           data: { kind: "test.summary", count: 3 },
         },
         {
@@ -181,6 +183,7 @@ describe("serialized diagnostic evidence", () => {
           kind: "step.finish",
           stepId: "test.step",
           stageId: "foundation",
+          stepIndex: 0,
           durationMs: 2,
           success: true,
         },

@@ -7,3 +7,9 @@ export {
   validateSchemaValueForTest,
 } from "./operation.js";
 export { buildStepTestDependencies } from "./step.js";
+export {
+  createTraceSessionForTest,
+  type TraceSessionTestHarness,
+  type TraceSessionTestInput,
+  type TraceStepTestMeta,
+} from "./trace.js";

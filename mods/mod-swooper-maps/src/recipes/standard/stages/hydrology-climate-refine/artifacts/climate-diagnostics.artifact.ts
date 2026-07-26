@@ -1,18 +1,20 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Runtime contract for advisory rain-shadow, continentality, and convergence rasters. These
  * fields support diagnostics and narrative bias without becoming Hydrology source truth.
  */
-export const HydrologyClimateDiagnosticsSchema = Type.Object(
+export const Schema = Type.Object(
   {
     /** Advisory rain shadow proxy (0..1); used for debugging and optional downstream narrative biasing. */
     rainShadowIndex: TypedArraySchemas.f32({
@@ -36,9 +38,6 @@ export const HydrologyClimateDiagnosticsSchema = Type.Object(
   }
 );
 
-/** Canonical schema entrypoint for admitting refined-climate diagnostic rasters. */
-export const Schema = HydrologyClimateDiagnosticsSchema;
-
 /**
  * Registers Hydrology's aggregate climate benchmark evidence after refinement. Diagnostics and
  * Studio consumers observe these summaries without feeding them back into climate truth.
@@ -49,16 +48,13 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-type ArtifactValidationIssue = Readonly<{ message: string }>;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function validatePayload(value: unknown, expectedLength?: number): ArtifactValidationIssue[] {
+function validateLocal(
+  input: unknown,
+  context?: ArtifactValidationContext
+): ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const expectedLength = artifactCellCount(context);
   const errors: ArtifactValidationIssue[] = [];
-  if (!isRecord(value))
-    return [{ message: "Missing hydrology climate diagnostics artifact payload." }];
   const candidate = value as {
     rainShadowIndex?: unknown;
     continentalityIndex?: unknown;
@@ -94,12 +90,4 @@ function validatePayload(value: unknown, expectedLength?: number): ArtifactValid
  * issues so artifact admission can reject a structurally valid but spatially inconsistent
  * payload.
  */
-export function validate(
-  value: unknown,
-  context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  return Object.freeze([
-    ...validateArtifactSchema(Schema, value),
-    ...validatePayload(value, artifactCellCount(context)),
-  ]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

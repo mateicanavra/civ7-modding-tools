@@ -1,14 +1,15 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
-import { defineArtifact } from "@swooper/mapgen-core/authoring/contracts";
+import { MorphologySubstrateSchema } from "@mapgen/domain/morphology/model/schemas/index.js";
 import {
-  createMorphologySubstrateSchema,
-  validateMorphologySubstrate,
-} from "./substrate.schema.js";
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
+  defineArtifact,
+  defineArtifactValidator,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 /** Closed schema for tectonically derived substrate before geomorphic erosion. */
-export const Schema = createMorphologySubstrateSchema(
-  "Initial Morphology erodibility and sediment fields before geomorphic erosion."
-);
+export const Schema = MorphologySubstrateSchema;
 
 /** Registers the base substrate consumed only by geomorphology. */
 export const artifact = defineArtifact({
@@ -17,7 +18,29 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-/** Admits base substrate with exact per-tile cardinality. */
-export function validate(value: unknown, context?: ArtifactValidationContext) {
-  return validateMorphologySubstrate(Schema, value, context);
+function validateLocal(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly ArtifactValidationIssue[] {
+  const candidate = value as Record<string, unknown>;
+  const size = artifactCellCount(context);
+  const issues: ArtifactValidationIssue[] = [];
+  appendArtifactTypedArrayIssues(
+    issues,
+    "substrate.erodibilityK",
+    candidate.erodibilityK,
+    Float32Array,
+    size
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "substrate.sedimentDepth",
+    candidate.sedimentDepth,
+    Float32Array,
+    size
+  );
+  return issues;
 }
+
+/** Admits map-sized base substrate fields after Core validates the vintage shape. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

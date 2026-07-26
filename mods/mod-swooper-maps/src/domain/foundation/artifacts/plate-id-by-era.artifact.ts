@@ -1,37 +1,36 @@
-import type { Static } from "@swooper/mapgen-core/authoring/contracts";
-import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { Value } from "typebox/value";
+import type { ArtifactValidationIssue, Static } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  appendArtifactTypedArrayIssues,
+  defineArtifact,
+  defineArtifactValidator,
+  Type,
+  TypedArraySchemas,
+} from "@swooper/mapgen-core/authoring/contracts";
 
-export const Schema = Type.Array(TypedArraySchemas.i16({ shape: null }));
+/** Structural contract for plate membership arrays ordered by tectonic era. */
+export const Schema = Type.Array(TypedArraySchemas.i16({ cardinality: null }));
 
+/** Per-era plate membership state published by Foundation. */
 export type Artifact = Static<typeof Schema>;
 
+/** Registers Foundation's per-era plate-membership artifact. */
 export const artifact = defineArtifact({
   name: "foundationPlateIdByEra",
   id: "artifact:foundation.plateIdByEra",
   schema: Schema,
 });
 
-function issue(message: string): { message: string } {
-  return { message };
+function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
+  const eras = value as Artifact;
+  const length = eras.find((era): era is Int16Array => era instanceof Int16Array)?.length ?? 0;
+  const issues: ArtifactValidationIssue[] = [];
+
+  if (eras.length <= 0) issues.push({ message: "plateIdByEra must be a nonempty era list" });
+  eras.forEach((era, index) => {
+    appendArtifactTypedArrayIssues(issues, `plateIdByEra[${index}]`, era, Int16Array, length);
+  });
+  return issues;
 }
 
-export function validate(value: unknown): readonly { message: string }[] {
-  const issues = Array.from(Value.Errors(Schema, value), (error) =>
-    issue(
-      `${(error as { path?: string; instancePath?: string }).path ?? (error as { instancePath?: string }).instancePath ?? "/"} ${error.message}`
-    )
-  );
-  if (!Array.isArray(value) || value.length <= 0) {
-    issues.push(issue("plateIdByEra must be a nonempty era list"));
-  } else {
-    const length = value.find((arr): arr is Int16Array => arr instanceof Int16Array)?.length ?? 0;
-    value.forEach((arr, index) => {
-      if (!(arr instanceof Int16Array))
-        issues.push(issue(`plateIdByEra[${index}] must be Int16Array`));
-      else if (arr.length !== length)
-        issues.push(issue(`plateIdByEra[${index}] length must match prior eras`));
-    });
-  }
-  return Object.freeze(issues);
-}
+/** Validates a nonempty era list with exact constructors and consistent cell cardinality. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

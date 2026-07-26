@@ -11,7 +11,7 @@ const ComputeTectonicsCurrentContract = defineOp({
   input: Type.Object(
     {
       newestEra: FoundationTectonicEraFieldsInternalSchema,
-      upliftTotal: TypedArraySchemas.u8({ shape: null }),
+      upliftTotal: TypedArraySchemas.u8({ cardinality: null }),
     },
     { additionalProperties: false }
   ),

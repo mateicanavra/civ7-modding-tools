@@ -3,6 +3,7 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import morphologyDomain from "@mapgen/domain/morphology/ops";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
+import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
   publishTestArtifact,
@@ -44,8 +45,8 @@ describe("morphology-features volcano materialization", () => {
     });
     const dependencies = buildStepTestDependencies(VolcanoesStep);
 
-    withMapContextExecutionForTest(context, () => {
-      publishTestArtifact(context, standardArtifactModules.foundationPlates, {
+    withMapContextExecutionForTest(context, (stepContext) => {
+      publishTestArtifact(stepContext, standardArtifactModules.foundationPlates, {
         id: new Int16Array(size),
         boundaryCloseness: new Uint8Array(size),
         boundaryType,
@@ -58,7 +59,7 @@ describe("morphology-features volcano materialization", () => {
         movementV: new Int8Array(size),
         rotation: new Int8Array(size),
       });
-      publishTestArtifact(context, morphologyArtifactModules.topography, {
+      publishTestArtifact(stepContext, morphologyArtifactModules.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask,
@@ -66,7 +67,7 @@ describe("morphology-features volcano materialization", () => {
       });
 
       VolcanoesStep.run(
-        context,
+        stepContext,
         { volcanoes: structuredClone(morphologyDomain.ops.planVolcanoes.defaultConfig) },
         {
           volcanoes: () => ({
@@ -82,18 +83,18 @@ describe("morphology-features volcano materialization", () => {
         },
         dependencies
       );
-
-      const evidence = dependencies.artifacts.volcanoes.read(context);
-      expect(evidence.volcanoes).toEqual([
-        { tileIndex: riftIndex, kind: "rift", strength01: 128 / 255 },
-        { tileIndex: subductionIndex, kind: "subductionArc", strength01: 1 },
-        { tileIndex: hotspotIndex, kind: "hotspot", strength01: 64 / 255 },
-      ]);
-      expect(
-        Array.from(evidence.volcanoMask.entries())
-          .filter(([, present]) => present === 1)
-          .map(([tileIndex]) => tileIndex)
-      ).toEqual([riftIndex, subductionIndex, hotspotIndex]);
     });
+
+    const evidence = readValidatedArtifact(context, morphologyArtifactModules.volcanoes);
+    expect(evidence.volcanoes).toEqual([
+      { tileIndex: riftIndex, kind: "rift", strength01: 128 / 255 },
+      { tileIndex: subductionIndex, kind: "subductionArc", strength01: 1 },
+      { tileIndex: hotspotIndex, kind: "hotspot", strength01: 64 / 255 },
+    ]);
+    expect(
+      Array.from(evidence.volcanoMask.entries())
+        .filter(([, present]) => present === 1)
+        .map(([tileIndex]) => tileIndex)
+    ).toEqual([riftIndex, subductionIndex, hotspotIndex]);
   });
 });

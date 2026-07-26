@@ -28,8 +28,6 @@ export type TypedArraySchemaOptions = TSchemaOptions &
      * such as `plan.width` for embedded plans, and `null` for constructor-only values.
      */
     cardinality?: TypedArrayCardinalityPaths | null;
-    /** @deprecated Use `cardinality: null`; retained while artifact schemas migrate. */
-    shape?: null;
   }>;
 
 type DefaultGridCardinality = readonly ["width", "height"];
@@ -49,9 +47,7 @@ type CardinalityOfOptions<Options extends TypedArraySchemaOptions | undefined> =
     ? DefaultGridCardinality
     : "cardinality" extends keyof Options
       ? CardinalityFromValue<Options["cardinality"]>
-      : Options extends Readonly<{ shape: null }>
-        ? null
-        : DefaultGridCardinality;
+      : DefaultGridCardinality;
 
 function unsafe<T, const Options extends TypedArraySchemaOptions | undefined>(
   ctor: string,
@@ -59,16 +55,8 @@ function unsafe<T, const Options extends TypedArraySchemaOptions | undefined>(
 ): TTypedArraySchema<T, CardinalityOfOptions<Options>> {
   // NOTE: TypeBox does not expose first-class typed-array schema builders.
   // We treat typed arrays as POJO-ish runtime values and use `Type.Unsafe<T>` purely for Static typing.
-  const { cardinality, shape, ...rest } = options ?? {};
-  const hasCardinality =
-    options !== undefined && Object.prototype.hasOwnProperty.call(options, "cardinality");
-  const runtimeCardinality = hasCardinality
-    ? cardinality === undefined
-      ? ["width", "height"]
-      : cardinality
-    : shape === null
-      ? null
-      : ["width", "height"];
+  const { cardinality, ...rest } = options ?? {};
+  const runtimeCardinality = cardinality === undefined ? ["width", "height"] : cardinality;
 
   return Type.Unsafe<T>(
     Type.Any({

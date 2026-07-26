@@ -1,10 +1,34 @@
 import { describe, expect, it } from "bun:test";
-import { createMockAdapter } from "@civ7/adapter";
-import { createMapContext } from "@mapgen/core/map-context.js";
+import { type AuthoredEngineAdapterKey, createMockAdapter } from "@civ7/adapter";
+import {
+  createMapContext,
+  invokeMapContextAdapterMethodInternal,
+} from "@mapgen/core/map-context.js";
 import { admitMapSetup, type MapSetup } from "@mapgen/core/map-setup.js";
-import { createNoopTraceScope } from "@mapgen/trace/index.js";
 
 describe("MapContext setup authority", () => {
+  it("refuses concrete adapter helpers at the private invocation boundary", () => {
+    const setup = admitMapSetup({
+      mapSeed: 11,
+      dimensions: { width: 8, height: 6 },
+      latitudeBounds: { topLatitude: 70, bottomLatitude: -70 },
+    });
+    const context = createMapContext({
+      setup,
+      adapter: createMockAdapter({ width: 8, height: 6 }),
+    });
+
+    expect(() =>
+      invokeMapContextAdapterMethodInternal(
+        context,
+        context,
+        "forged-step",
+        "reset" as AuthoredEngineAdapterKey,
+        []
+      )
+    ).toThrow('Engine adapter method "reset" is not admitted for authored use.');
+  });
+
   it("retains the admitted setup snapshot as the context's sole physical identity", () => {
     const setupInput = {
       mapSeed: 17,
@@ -73,30 +97,24 @@ describe("MapContext setup authority", () => {
     const initialTrace = context.trace;
 
     expect(Reflect.set(context, "setup", admitMapSetup({ ...setup, mapSeed: 30 }))).toBe(false);
-    expect(Reflect.set(context, "trace", createNoopTraceScope())).toBe(false);
+    expect(Reflect.set(context, "trace", { event: () => undefined })).toBe(false);
     expect(Reflect.set(context, "sharedState", { value: 1 })).toBe(false);
     expect(context.setup).toBe(setup);
     expect(context.trace).toBe(initialTrace);
     expect(Reflect.get(context, "rng")).toBeUndefined();
-    expect(Object.isFrozen(context.artifacts)).toBe(true);
-    expect(Reflect.get(context.artifacts, "set")).toBeUndefined();
-    expect(Reflect.get(context.artifacts, "delete")).toBeUndefined();
-    expect(Reflect.get(context.artifacts, "clear")).toBeUndefined();
-    expect(() =>
-      Reflect.apply(Map.prototype.set, context.artifacts as unknown as Map<string, unknown>, [
-        "artifact:test.forbidden",
-        true,
-      ])
-    ).toThrow(TypeError);
-    expect(context.artifacts.has("artifact:test.forbidden")).toBe(false);
+    expect(Reflect.get(context, "artifacts")).toBeUndefined();
+    expect(Reflect.get(context, "adapter")).toBeUndefined();
+    expect(Object.keys(context)).toEqual(["setup", "trace"]);
     expect(Object.getOwnPropertyDescriptor(context, "setup")).toMatchObject({
       writable: false,
       configurable: false,
     });
     expect(Object.getOwnPropertyDescriptor(context, "trace")).toMatchObject({
-      set: undefined,
+      writable: false,
       configurable: false,
     });
+    expect(Object.isFrozen(context.trace)).toBe(true);
+    expect(Reflect.set(context.trace, "event", () => undefined)).toBe(false);
     expect(Object.isFrozen(context)).toBe(true);
   });
 

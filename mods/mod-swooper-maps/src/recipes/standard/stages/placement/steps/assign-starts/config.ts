@@ -17,6 +17,7 @@ import {
  */
 export const AssignStartsStepContract = defineStep({
   id: "assign-starts",
+  engine: ["getAliveMajorIds", "setStartPosition"] as const,
   requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlanned],
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned],
   artifacts: {
