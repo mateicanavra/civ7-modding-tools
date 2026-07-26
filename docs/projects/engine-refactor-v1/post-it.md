@@ -2,15 +2,14 @@
 
 ## Rolling Focus
 
-**Frame:** kind before instance, authority before relocation. Recipe stages
-are nested by the semantic domain or phase that owns the work; projection is a
-leaf capability inside that owner, not a parallel top-level `map` family.
-External `public.config.ts` stage surfaces are not an authoring kind. Ordinary
-stage configuration is inferred from bound operation config, knobs, and
-additive step schema; a rare intentional full public override stays inline in
-the concrete stage definition with its meaningful compiler. Immutable domain
-products, live engine observation, and diagnostic evidence are distinct
-authorities and must not be recast as interchangeable recipe artifacts.
+**Frame:** kind before instance, intent before ownership, authority before
+relocation. A closed file shape is the start of semantic review, not proof that
+the responsibilities retained inside its allowed files are earned. Recipe
+steps orchestrate admitted dependencies, operation calls, publication, and
+first-class evidence; they do not become owners of domain algorithms, setup
+normalization, or synthetic coordination models merely because that logic can
+fit inside `step.ts` or `config.ts`. Prefer safe deletion and state collapse
+over preserving an obsolete boundary more elegantly.
 
 **Authority order:** stage/domain meaning -> generic recipe-stage blueprint ->
 red corpus -> mechanical relocation or deletion -> consumer regeneration ->
@@ -29,13 +28,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** freeze and certify the exact foundation tree, then
-converge its Graphite history without replay or duplicate CI fan-out. The
-implementation train is closed unless proof exposes a concrete regression.
-Delivery work now preserves the tested tree while reconciling native Graphite
-ancestry, folding only the already approved semantic families, submitting one
-coherent stack, merging bottom to top, and draining obsolete worktrees and
-processes. A.2 and post-A.2 product proof remain outside this container.
+**Current container:** cash in semantic earnedness behind the newly closed
+recipe-step kind, beginning with Placement's `derive-placement-inputs`
+orchestration knot. Determine the product behavior first, then remove dead
+coordination states, relocate domain computation to its singular operation
+owner, and rename or collapse the surviving step around what it actually
+produces. The container closes only when its behavior oracle, test ownership,
+generated recipe surfaces, and generic kind law all agree. A.2 and post-A.2
+product proof remain outside this container.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -52,15 +52,13 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** establish one authoritative proof ledger for the frozen head,
-run only native Nx-owned build, type, test, policy, boundary, dead-code,
-OpenSpec, and generated-currentness owners, and repair only failures that belong
-to this delivered tree. Restore trustworthy Narsil indexing and use it only to
-corroborate references, cycles, and boundary crossings after compiler and Knip
-authority pass. Then resolve the pending Graphite restack in the real delivery
-path, preserve the exact tree through the approved semantic fold, submit
-without multiplying CI rows, merge the whole stack, sync once, attach the
-primary worktree to merged `main`, and point the retained Studio runner there.
+**Gradient:** trace the placement planner from static setup and current-engine
+observation through its two domain operations, immutable plan artifact,
+materialization consumer, metrics, visualization, parity capture, and tests.
+Use that complete behavior graph to decide what survives. Burn down one
+behavior-preserving semantic owner at a time, land it immediately, then apply
+the same earnedness lens to the remaining closed steps instead of launching a
+broad hybrid rewrite.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -95,6 +93,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Exact-Tree Delivery Convergence
+
+The certified foundation tree was folded into twenty reviewed Graphite
+families without changing its tree, submitted as one stack, merged bottom to
+top, and synced exactly once without a global restack. Obsolete worktrees were
+drained after preserving their intentional edits; primary `main`, Narsil, and
+the retained Studio runner now point at the same merged tree. This completed
+delivery hygiene and reopened semantic cleanup from a clean authority base.
 
 ### 2026-07-26 - Exported Capability Contract
 
