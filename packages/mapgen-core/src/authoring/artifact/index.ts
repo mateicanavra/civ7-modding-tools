@@ -21,14 +21,3 @@ export {
   readValidatedArtifact,
   type ValidatedArtifactObservation,
 } from "./validated-read.js";
-export type {
-  ArtifactRefinement,
-  ArtifactValidationContext,
-  ArtifactValidationIssue,
-  ArtifactValidator,
-} from "./validation.js";
-export {
-  appendArtifactGridCoordinateIssues,
-  appendArtifactTypedArrayIssues,
-  artifactCellCount,
-} from "./validation.js";

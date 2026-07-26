@@ -1,13 +1,4 @@
-import {
-  type ArtifactValidationContext,
-  type ArtifactValidationIssue,
-  appendArtifactTypedArrayIssues,
-  artifactCellCount,
-  defineArtifact,
-  type Static,
-  Type,
-  TypedArraySchemas,
-} from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 const MorphologyLandmassArtifactSchema = Type.Object(
   {
@@ -62,6 +53,7 @@ export const artifact = defineArtifact({
     {
       landmasses: Type.Immutable(Type.Array(MorphologyLandmassArtifactSchema)),
       landmassIdByTile: TypedArraySchemas.i32({
+        cardinality: "map-grid",
         description:
           "Per-tile landmass component id (-1 for water). Values map to the landmasses[] entries.",
       }),
@@ -71,17 +63,4 @@ export const artifact = defineArtifact({
       description: "Landmass decomposition snapshot (Phase 2 schema; immutable at F2).",
     }
   ),
-  refine: (input: unknown, context?: ArtifactValidationContext): ArtifactValidationIssue[] => {
-    const value = input as Static<typeof artifact.schema>;
-    const errors: ArtifactValidationIssue[] = [];
-    appendArtifactTypedArrayIssues(
-      errors,
-      "landmasses.landmassIdByTile",
-      value.landmassIdByTile,
-      Int32Array,
-      artifactCellCount(context)
-    );
-
-    return errors;
-  },
 });

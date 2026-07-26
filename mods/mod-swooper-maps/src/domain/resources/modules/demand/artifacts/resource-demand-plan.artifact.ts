@@ -3,12 +3,7 @@ import {
   type OfficialAgeType,
   type OfficialResourceType,
 } from "@civ7/map-policy";
-import {
-  type ArtifactValidationIssue,
-  defineArtifact,
-  type Static,
-  Type,
-} from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
 import {
   type ResourceDemandExclusion,
   type ResourceDemandExclusionReason,
@@ -23,16 +18,7 @@ import {
   type InitialMapResourceAuthoringStatus,
 } from "../model/policy/initial-map-authoring.js";
 
-type ResourceGroupSummary = Static<typeof ResourceGroupSummarySchema>;
-type ResourceDemandPlanPayload = Readonly<{
-  age: typeof INITIAL_MAP_RESOURCE_AUTHORING_AGE;
-  minimumAmountModifier: number;
-  groups: Readonly<{ groups: readonly ResourceGroupSummary[] }>;
-  demands: readonly ResourceDemandSummaryRow[];
-  excluded: readonly ResourceDemandExclusion[];
-}>;
-type PlannerStatus =
-  ResourceDemandPlanPayload["groups"]["groups"][number]["plans"][number]["status"];
+type PlannerStatus = Static<typeof ResourceGroupSummarySchema>["plans"][number]["status"];
 
 /** Registers symbolic per-resource demand and eligibility before site selection. */
 export const artifact = defineArtifact({
@@ -74,41 +60,34 @@ export const artifact = defineArtifact({
         "Per-resource symbolic demand and admitted legal capacity before deterministic site selection.",
     }
   ),
-  refine: (input): readonly ArtifactValidationIssue[] => {
-    const value = input as ResourceDemandPlanPayload;
-    const issues: ArtifactValidationIssue[] = [];
-
+  refine: (value, { issues }) => {
     const demandByType = new Map<string, ResourceDemandSummaryRow>();
     for (const row of value.demands) {
       if (demandByType.has(row.resourceType)) {
-        issues.push(issue(`Demand ${row.resourceType} appears more than once.`));
+        issues.add(`Demand ${row.resourceType} appears more than once.`);
       }
       demandByType.set(row.resourceType, row);
       if (row.minCount > row.maxCount) {
-        issues.push(
-          issue(`Demand ${row.resourceType} minCount ${row.minCount} > maxCount ${row.maxCount}.`)
+        issues.add(
+          `Demand ${row.resourceType} minCount ${row.minCount} > maxCount ${row.maxCount}.`
         );
       }
       if (row.targetCount > row.maxCount) {
-        issues.push(
-          issue(
-            `Demand ${row.resourceType} targetCount ${row.targetCount} > maxCount ${row.maxCount}.`
-          )
+        issues.add(
+          `Demand ${row.resourceType} targetCount ${row.targetCount} > maxCount ${row.maxCount}.`
         );
       }
       if (row.legalTileCount <= 0) {
-        issues.push(
-          issue(
-            `Demand ${row.resourceType} has zero admitted legal tiles; it must be excluded, not planned.`
-          )
+        issues.add(
+          `Demand ${row.resourceType} has zero admitted legal tiles; it must be excluded, not planned.`
         );
       }
     }
 
-    const exclusionByType = new Map<string, ResourceDemandPlanPayload["excluded"][number]>();
+    const exclusionByType = new Map<string, ResourceDemandExclusion>();
     for (const row of value.excluded) {
       if (exclusionByType.has(row.resourceType)) {
-        issues.push(issue(`Exclusion ${row.resourceType} appears more than once.`));
+        issues.add(`Exclusion ${row.resourceType} appears more than once.`);
       }
       exclusionByType.set(row.resourceType, row);
     }
@@ -118,7 +97,7 @@ export const artifact = defineArtifact({
       for (const plan of group.plans) {
         const resourceType = plan.resourceType;
         if (candidateStatusByType.has(resourceType)) {
-          issues.push(issue(`Planner candidate ${resourceType} appears more than once.`));
+          issues.add(`Planner candidate ${resourceType} appears more than once.`);
         }
         candidateStatusByType.set(resourceType, plan.status);
 
@@ -126,25 +105,25 @@ export const artifact = defineArtifact({
         const exclusion = exclusionByType.get(resourceType);
         const terminalCount = Number(demand !== undefined) + Number(exclusion !== undefined);
         if (terminalCount !== 1) {
-          issues.push(
-            issue(
-              `Planner candidate ${resourceType} must have exactly one terminal demand or exclusion; found ${terminalCount}.`
-            )
+          issues.add(
+            `Planner candidate ${resourceType} must have exactly one terminal demand or exclusion; found ${terminalCount}.`
           );
         }
         if (demand && plan.status !== "planned") {
-          issues.push(
-            issue(
-              `Demand ${resourceType} requires planner status planned; received ${String(plan.status)}.`
-            )
+          issues.add(
+            `Demand ${resourceType} requires planner status planned; received ${String(plan.status)}.`
           );
         }
         if (demand) {
-          issues.push(...validateDemandPredicate(resourceType, plan.status, value.age));
+          validateDemandPredicate(resourceType, plan.status, value.age, issues.add);
         }
         if (exclusion) {
-          issues.push(
-            ...validateExclusionPredicate(resourceType, plan.status, value.age, exclusion.reason)
+          validateExclusionPredicate(
+            resourceType,
+            plan.status,
+            value.age,
+            exclusion.reason,
+            issues.add
           );
         }
       }
@@ -152,107 +131,91 @@ export const artifact = defineArtifact({
 
     for (const resourceType of demandByType.keys()) {
       if (!candidateStatusByType.has(resourceType)) {
-        issues.push(issue(`Demand ${resourceType} has no planner candidate.`));
+        issues.add(`Demand ${resourceType} has no planner candidate.`);
       }
     }
     for (const resourceType of exclusionByType.keys()) {
       if (!candidateStatusByType.has(resourceType)) {
-        issues.push(issue(`Exclusion ${resourceType} has no planner candidate.`));
+        issues.add(`Exclusion ${resourceType} has no planner candidate.`);
       }
     }
-    return issues;
   },
 });
-
-function issue(message: string): ArtifactValidationIssue {
-  return { message };
-}
 
 function validateDemandPredicate(
   resourceType: string,
   plannerStatus: PlannerStatus,
-  age: typeof INITIAL_MAP_RESOURCE_AUTHORING_AGE
-): ArtifactValidationIssue[] {
-  if (plannerStatus !== "planned") return [];
+  age: typeof INITIAL_MAP_RESOURCE_AUTHORING_AGE,
+  addIssue: (message: string) => void
+): void {
+  if (plannerStatus !== "planned") return;
   if (!isOfficialResourceType(resourceType)) {
-    return [issue(`Demand ${resourceType} requires membership in the official resource corpus.`)];
+    addIssue(`Demand ${resourceType} requires membership in the official resource corpus.`);
+    return;
   }
   const ageStatus = resourceAgeStatus(resourceType, age);
-  return ageStatus === "eligible"
-    ? []
-    : [
-        issue(
-          `Demand ${resourceType} requires age-policy status eligible for ${age}; received ${ageStatus}.`
-        ),
-      ];
+  if (ageStatus !== "eligible") {
+    addIssue(
+      `Demand ${resourceType} requires age-policy status eligible for ${age}; received ${ageStatus}.`
+    );
+  }
 }
 
 function validateExclusionPredicate(
   resourceType: string,
   plannerStatus: PlannerStatus,
   artifactAge: typeof INITIAL_MAP_RESOURCE_AUTHORING_AGE,
-  reason: ResourceDemandExclusionReason
-): ArtifactValidationIssue[] {
+  reason: ResourceDemandExclusionReason,
+  addIssue: (message: string) => void
+): void {
   const official = isOfficialResourceType(resourceType);
   const ageStatus = official ? resourceAgeStatus(resourceType, artifactAge) : "unknown";
 
   switch (reason.kind) {
     case "outside-official-resource-corpus":
-      return official
-        ? [
-            issue(
-              `Outside-corpus exclusion ${resourceType} requires absence from the official resource corpus.`
-            ),
-          ]
-        : [];
+      if (official) {
+        addIssue(
+          `Outside-corpus exclusion ${resourceType} requires absence from the official resource corpus.`
+        );
+      }
+      return;
     case "planner-status":
       if (!official) {
-        return [
-          issue(
-            `Planner-status exclusion ${resourceType} requires membership in the official resource corpus.`
-          ),
-        ];
+        addIssue(
+          `Planner-status exclusion ${resourceType} requires membership in the official resource corpus.`
+        );
+        return;
       }
-      return plannerStatus !== "planned" && reason.status === plannerStatus
-        ? []
-        : [
-            issue(
-              `Planner-status exclusion ${resourceType} records ${reason.status} but planner status is ${plannerStatus}.`
-            ),
-          ];
+      if (plannerStatus === "planned" || reason.status !== plannerStatus) {
+        addIssue(
+          `Planner-status exclusion ${resourceType} records ${reason.status} but planner status is ${plannerStatus}.`
+        );
+      }
+      return;
     case "age-policy": {
-      const issues: ArtifactValidationIssue[] = [];
       if (!official || plannerStatus !== "planned") {
-        issues.push(
-          issue(
-            `Age-policy exclusion ${resourceType} requires a planned candidate in the official resource corpus.`
-          )
+        addIssue(
+          `Age-policy exclusion ${resourceType} requires a planned candidate in the official resource corpus.`
         );
       }
       if (reason.age !== artifactAge) {
-        issues.push(
-          issue(
-            `Age-policy exclusion ${resourceType} records age ${reason.age} but artifact age is ${artifactAge}.`
-          )
+        addIssue(
+          `Age-policy exclusion ${resourceType} records age ${reason.age} but artifact age is ${artifactAge}.`
         );
       }
       if (ageStatus === "eligible" || reason.status !== ageStatus) {
-        issues.push(
-          issue(
-            `Age-policy exclusion ${resourceType} records ${reason.status} but source policy status is ${ageStatus}.`
-          )
+        addIssue(
+          `Age-policy exclusion ${resourceType} records ${reason.status} but source policy status is ${ageStatus}.`
         );
       }
-      return issues;
+      return;
     }
     case "no-admitted-legal-tiles":
-      return official && plannerStatus === "planned" && ageStatus === "eligible"
-        ? []
-        : [
-            issue(
-              `No-admitted-legal-tiles exclusion ${resourceType} requires a planned, official, age-eligible candidate; received planner status ${plannerStatus} and age status ${ageStatus}.`
-            ),
-          ];
+      if (!official || plannerStatus !== "planned" || ageStatus !== "eligible") {
+        addIssue(
+          `No-admitted-legal-tiles exclusion ${resourceType} requires a planned, official, age-eligible candidate; received planner status ${plannerStatus} and age status ${ageStatus}.`
+        );
+      }
   }
 }
 

@@ -1,21 +1,16 @@
-import type { ArtifactValidationIssue } from "@swooper/mapgen-core/authoring/contracts";
-import {
-  appendArtifactTypedArrayIssues,
-  defineArtifact,
-  Type,
-} from "@swooper/mapgen-core/authoring/contracts";
-import {
-  type TectonicProvenanceFields,
-  TectonicProvenanceFieldsSchema,
-} from "../model/atoms/tectonic-provenance-fields.schema.js";
-import { type TracerIndex, TracerIndexSchema } from "../model/atoms/tracer-index.schema.js";
+import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { TectonicProvenanceFieldsSchema } from "../model/atoms/tectonic-provenance-fields.schema.js";
+import { TracerIndexSchema } from "../model/atoms/tracer-index.schema.js";
 
-type TectonicProvenance = Readonly<{
-  eraCount: number;
-  cellCount: number;
-  tracerIndex: ReadonlyArray<TracerIndex>;
-  provenance: TectonicProvenanceFields;
-}>;
+const TECTONIC_PROVENANCE_FIELD_KEYS = [
+  "originEra",
+  "originPlateId",
+  "lastBoundaryEra",
+  "lastBoundaryType",
+  "lastBoundaryPolarity",
+  "lastBoundaryIntensity",
+  "crustAge",
+] as const;
 
 /** Registers Foundation's tectonic-provenance artifact. */
 export const artifact = defineArtifact({
@@ -34,39 +29,23 @@ export const artifact = defineArtifact({
       description: "Advected tracer history and per-cell tectonic lineage evidence.",
     }
   ),
-  refine: (value): readonly ArtifactValidationIssue[] => {
-    const artifactValue = value as TectonicProvenance;
-    const issues: ArtifactValidationIssue[] = [];
-    if (artifactValue.tracerIndex.length !== artifactValue.eraCount) {
-      issues.push({ message: "tracerIndex length must match eraCount" });
+  refine: (value, { issues }) => {
+    if (value.tracerIndex.length !== value.eraCount) {
+      issues.add("tracerIndex length must match eraCount");
     }
-    artifactValue.tracerIndex.forEach((tracer, eraIndex) => {
-      appendArtifactTypedArrayIssues(
-        issues,
-        `tracerIndex[${eraIndex}]`,
-        tracer,
-        Uint32Array,
-        artifactValue.cellCount
-      );
+    value.tracerIndex.forEach((tracer, eraIndex) => {
+      if (tracer.length !== value.cellCount) {
+        issues.add(
+          `Expected tracerIndex[${eraIndex}] length ${value.cellCount} (received ${tracer.length}).`
+        );
+      }
     });
-    const provenance = artifactValue.provenance;
-    for (const [key, constructor] of [
-      ["originEra", Uint8Array],
-      ["originPlateId", Int16Array],
-      ["lastBoundaryEra", Uint8Array],
-      ["lastBoundaryType", Uint8Array],
-      ["lastBoundaryPolarity", Int8Array],
-      ["lastBoundaryIntensity", Uint8Array],
-      ["crustAge", Uint8Array],
-    ] as const) {
-      appendArtifactTypedArrayIssues(
-        issues,
-        key,
-        provenance[key],
-        constructor,
-        artifactValue.cellCount
-      );
+    for (const key of TECTONIC_PROVENANCE_FIELD_KEYS) {
+      if (value.provenance[key].length !== value.cellCount) {
+        issues.add(
+          `Expected ${key} length ${value.cellCount} (received ${value.provenance[key].length}).`
+        );
+      }
     }
-    return issues;
   },
 });

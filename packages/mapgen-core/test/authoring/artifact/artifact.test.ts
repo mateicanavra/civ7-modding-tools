@@ -6,8 +6,6 @@ import {
   ArtifactDoublePublishError,
   ArtifactMissingError,
   ArtifactValidationError,
-  appendArtifactGridCoordinateIssues,
-  appendArtifactTypedArrayIssues,
   createStep,
   defineArtifact,
   defineStep,
@@ -51,44 +49,6 @@ function executeContextStep(
 }
 
 describe("artifact authoring", () => {
-  it("reports exact typed-array constructors and cardinality through one admission primitive", () => {
-    const issues: Array<{ message: string }> = [];
-
-    expect(appendArtifactTypedArrayIssues(issues, "field", new Int16Array(4), Int16Array, 4)).toBe(
-      true
-    );
-    expect(
-      appendArtifactTypedArrayIssues(issues, "wrongConstructor", new Uint16Array(4), Int16Array, 4)
-    ).toBe(false);
-    expect(
-      appendArtifactTypedArrayIssues(issues, "wrongLength", new Int16Array(3), Int16Array, 4)
-    ).toBe(true);
-    expect(issues).toEqual([
-      { message: "Expected wrongConstructor to be Int16Array." },
-      { message: "Expected wrongLength length 4 (received 3)." },
-    ]);
-  });
-
-  it("reports repeated and out-of-bounds artifact grid coordinates", () => {
-    const issues: Array<{ message: string }> = [];
-
-    appendArtifactGridCoordinateIssues(
-      issues,
-      "placements",
-      [
-        { x: 2, y: 1 },
-        { x: 2, y: 1 },
-        { x: 4, y: 2 },
-      ],
-      { width: 4, height: 3 }
-    );
-
-    expect(issues).toEqual([
-      { message: "placements[1] duplicates the tile claim at 2,1." },
-      { message: "placements[2] coordinate 4,2 is outside 4x3." },
-    ]);
-  });
-
   it("retains the same artifact authorities for requirements and providers", () => {
     const required = defineArtifact({
       name: "requiredArtifact",
@@ -269,8 +229,10 @@ describe("artifact authoring", () => {
       name: "runtimeArtifact",
       id: "artifact:test.runtime",
       schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
-      refine: (value) =>
-        (value as { value: number }).value > 0 ? [] : [{ message: "value must be positive" }],
+      refine: (value, { issues }) => {
+        if (value.value <= 0) issues.add("value must be positive");
+        return undefined;
+      },
     });
     const runtimes = implementArtifacts([artifact]);
     const setup = admitMapSetup({ ...baseSetup, dimensions: { width: 1, height: 1 } });
@@ -346,7 +308,7 @@ describe("artifact authoring", () => {
       schema: first.schema,
       refine: () => {
         secondValidationCalls += 1;
-        return [];
+        return undefined;
       },
     });
     const runtimes = implementArtifacts([first]);
@@ -371,7 +333,10 @@ describe("artifact authoring", () => {
       name: "changingAdmission",
       id: "artifact:test.changing-admission",
       schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
-      refine: () => (valid ? [] : [{ message: "observation is no longer valid" }]),
+      refine: (_value, { issues }) => {
+        if (!valid) issues.add("observation is no longer valid");
+        return undefined;
+      },
     });
     const runtimes = implementArtifacts([artifact]);
     const setup = admitMapSetup({ ...baseSetup, dimensions: { width: 1, height: 1 } });

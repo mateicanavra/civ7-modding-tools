@@ -29,13 +29,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** make Knip a truthful repository reachability owner, then
-delete only what that model and direct consumer evidence prove dead. Workspace
-entries describe actual executable, generated, type-test, and public-package
-roots; exceptions require a named dynamic or virtual owner rather than a
-baseline or broad ignore. Knip reports reachability and dependency drift,
-TypeScript owns local usage and type validity, Nx owns task scheduling, and
-Habitat delegates the zero-corpus gate without starting a second scheduler.
+**Current container:** collapse artifact admission into one weighted
+`defineArtifact` authority. TypeBox owns portable structural admission; Core's
+enumerable typed-array metadata owns exact constructor and cardinality
+admission; a contextual refinement runs only after both have succeeded.
+Refinements receive the schema-inferred immutable value, admitted dimensions,
+derived cell count, and one Core-owned issue sink. Artifact files do not import
+validation framework types, allocate issue arrays, or repeat typed-array
+constructor/cardinality checks.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -52,14 +53,17 @@ modules then stop importing framework issue/context types or allocating and
 threading their own issue arrays. This remains a dedicated semantic container,
 not a compatibility overload hidden inside the stage-plane move.
 
-**Gradient:** remove redundant Knip entry/config hints, prove or delete every
-dependency exception, model the remaining dynamic and virtual owners exactly,
-run the complete reachability census, and disposition each finding as deletion,
-qualified entrypoint, or public contract. Reach zero before enforcing strict
-config hints and registering the existing `habitat:check:dead-code` leaf in the
-native policy graph. Then burn consumed-export JSDoc and semantic descriptions
-to zero. The program ends only when generic laws, source tree, types, tests,
-Knip, and the boundary graph agree.
+**Gradient:** first extract the existing operation-only typed-array walker into
+one schema-owned admission primitive without changing operation behavior. Add
+an explicit map-grid cardinality source for artifact values, make artifact
+validation context mandatory, and replace returned issue arrays with a
+synchronous provided sink. Prove the Core type/runtime transition, then migrate
+the 58 artifact owners in causal groups: schema-only, constructor/cardinality
+only, self-contained semantic laws, and helper-heavy semantic laws. Delete the
+retired artifact validation exports, update the generic closed artifact law and
+fixtures, and reach zero before the next container. TypeBox `Type.Refine` does
+not replace this path because its function-backed evidence disappears from
+serialized schemas.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty

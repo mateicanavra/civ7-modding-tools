@@ -1,9 +1,4 @@
-import {
-  type ArtifactValidationIssue,
-  defineArtifact,
-  type Static,
-  Type,
-} from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
 
 const ResourcePlacementRejectionReasonSchema = Type.Union([
@@ -190,7 +185,11 @@ type ResourcePlacementOutcome = ResourcePlacementOutcomes["outcomes"][number];
 type ResourcePlacementStatus = ResourcePlacementOutcome["status"];
 type ResourcePlacementReason = Static<typeof ResourcePlacementReasonSchema>;
 type ResourcePlacementReasonCount = Static<typeof ResourcePlacementReasonCountSchema>;
-type ResourcePlacementResourceSummary = Static<typeof ResourcePlacementResourceSummarySchema>;
+type ResourcePlacementResourceSummary = Readonly<
+  Omit<Static<typeof ResourcePlacementResourceSummarySchema>, "reasons"> & {
+    reasons: readonly ResourcePlacementReasonCount[];
+  }
+>;
 type ResourceReconciliationShortfall = Static<typeof ResourceReconciliationShortfallSchema>;
 
 const RESOURCE_PLACEMENT_STATUSES = ["placed", "rejected", "mismatch"] as const;
@@ -403,16 +402,14 @@ export const artifact = defineArtifact({
         "Typed resource-intent reconciliation in which Civ7 stamping records rejections without changing planned resource identity or choosing fallback plots.",
     }
   ),
-  refine: (input): readonly ArtifactValidationIssue[] => {
-    const value = input as ResourcePlacementOutcomes;
-    const issues: ArtifactValidationIssue[] = [];
+  refine: (value, { issues }) => {
     const derived = deriveOutcomeAuthorities(value.outcomes);
     const countKeys = ["plannedCount", "placedCount", "rejectedCount", "mismatchCount"] as const;
     for (const key of countKeys) {
       if (value.summary[key] !== derived.summary[key]) {
-        issues.push({
-          message: `summary.${key} ${value.summary[key]} != outcomes-derived ${derived.summary[key]}.`,
-        });
+        issues.add(
+          `summary.${key} ${value.summary[key]} != outcomes-derived ${derived.summary[key]}.`
+        );
       }
     }
 
@@ -420,33 +417,30 @@ export const artifact = defineArtifact({
       const authoredDigest = value.summary.coordinateEvidence[status];
       const derivedDigest = derived.summary.coordinateEvidence[status];
       if (authoredDigest.count !== derivedDigest.count) {
-        issues.push({
-          message: `summary.coordinateEvidence.${status}.count ${authoredDigest.count} != outcomes-derived ${derivedDigest.count}.`,
-        });
+        issues.add(
+          `summary.coordinateEvidence.${status}.count ${authoredDigest.count} != outcomes-derived ${derivedDigest.count}.`
+        );
       }
       if (authoredDigest.hash32 !== derivedDigest.hash32) {
-        issues.push({
-          message: `summary.coordinateEvidence.${status}.hash32 ${authoredDigest.hash32} != outcomes-derived ${derivedDigest.hash32}.`,
-        });
+        issues.add(
+          `summary.coordinateEvidence.${status}.hash32 ${authoredDigest.hash32} != outcomes-derived ${derivedDigest.hash32}.`
+        );
       }
     }
 
     if (!reasonCountsMatch(value.summary.byReason, derived.summary.byReason)) {
-      issues.push({
-        message: "summary.byReason must exactly match canonical outcomes-derived reason counts.",
-      });
+      issues.add("summary.byReason must exactly match canonical outcomes-derived reason counts.");
     }
     if (!resourceSummariesMatch(value.summary.byResource, derived.summary.byResource)) {
-      issues.push({
-        message:
-          "summary.byResource must exactly match canonical outcomes-derived per-resource counts and reasons.",
-      });
+      issues.add(
+        "summary.byResource must exactly match canonical outcomes-derived per-resource counts and reasons."
+      );
     }
 
     if (derived.summary.mismatchCount > 0) {
-      issues.push({
-        message: `outcomes contain ${derived.summary.mismatchCount} fail-hard mismatch row(s); mismatch outcomes must never be published.`,
-      });
+      issues.add(
+        `outcomes contain ${derived.summary.mismatchCount} fail-hard mismatch row(s); mismatch outcomes must never be published.`
+      );
     }
 
     const { reconciliation } = value;
@@ -457,17 +451,16 @@ export const artifact = defineArtifact({
     };
     for (const key of ["plannedCount", "placedCount", "rejectedCount"] as const) {
       if (reconciliation[key] !== reconciliationCounts[key]) {
-        issues.push({
-          message: `reconciliation.${key} ${reconciliation[key]} != outcomes-derived ${reconciliationCounts[key]}.`,
-        });
+        issues.add(
+          `reconciliation.${key} ${reconciliation[key]} != outcomes-derived ${reconciliationCounts[key]}.`
+        );
       }
     }
 
     if (!shortfallsMatch(reconciliation.shortfalls, derived.shortfalls)) {
-      issues.push({
-        message:
-          "reconciliation.shortfalls must exactly match canonical rejected-outcome resource/reason counts.",
-      });
+      issues.add(
+        "reconciliation.shortfalls must exactly match canonical rejected-outcome resource/reason counts."
+      );
     }
 
     const phasePlacedCount =
@@ -476,20 +469,19 @@ export const artifact = defineArtifact({
       reconciliation.byPhase.regionMinimum +
       reconciliation.byPhase.support;
     if (phasePlacedCount !== derived.summary.placedCount) {
-      issues.push({
-        message: `reconciliation.byPhase total ${phasePlacedCount} != outcomes-derived placedCount ${derived.summary.placedCount}.`,
-      });
+      issues.add(
+        `reconciliation.byPhase total ${phasePlacedCount} != outcomes-derived placedCount ${derived.summary.placedCount}.`
+      );
     }
     if (reconciliation.supportAdjustedPlacedCount > derived.summary.placedCount) {
-      issues.push({
-        message: `reconciliation.supportAdjustedPlacedCount ${reconciliation.supportAdjustedPlacedCount} exceeds outcomes-derived placedCount ${derived.summary.placedCount}.`,
-      });
+      issues.add(
+        `reconciliation.supportAdjustedPlacedCount ${reconciliation.supportAdjustedPlacedCount} exceeds outcomes-derived placedCount ${derived.summary.placedCount}.`
+      );
     }
     if (reconciliation.byPhase.support > reconciliation.supportAdjustedPlacedCount) {
-      issues.push({
-        message: `reconciliation.byPhase.support ${reconciliation.byPhase.support} exceeds supportAdjustedPlacedCount ${reconciliation.supportAdjustedPlacedCount}.`,
-      });
+      issues.add(
+        `reconciliation.byPhase.support ${reconciliation.byPhase.support} exceeds supportAdjustedPlacedCount ${reconciliation.supportAdjustedPlacedCount}.`
+      );
     }
-    return issues;
   },
 });

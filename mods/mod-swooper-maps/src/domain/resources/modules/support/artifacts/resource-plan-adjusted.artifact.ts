@@ -1,10 +1,4 @@
-import {
-  type ArtifactValidationContext,
-  type ArtifactValidationIssue,
-  defineArtifact,
-  type Static,
-  Type,
-} from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { getHexRadiusIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import {
   type AdjustedResourceIntent,
@@ -79,30 +73,21 @@ export const artifact = defineArtifact({
         "Terminal symbolic resource plan after bounded player-start support and equity adjustment.",
     }
   ),
-  refine: (input, context): readonly ArtifactValidationIssue[] => {
-    const adjusted = input as ResourcePlanAdjusted;
-    const issues: ArtifactValidationIssue[] = [];
-    const size = validateDimensions(adjusted, context, issues);
+  refine: (adjusted, { dimensions, issues }) => {
+    const size = validateDimensions(adjusted, dimensions, issues.add);
     if (adjusted.plannedCount !== adjusted.intents.length) {
-      issues.push(
-        issue(
-          `resourcePlanAdjusted.plannedCount ${adjusted.plannedCount} != intents.length ${adjusted.intents.length}.`
-        )
+      issues.add(
+        `resourcePlanAdjusted.plannedCount ${adjusted.plannedCount} != intents.length ${adjusted.intents.length}.`
       );
     }
     if (size !== null) {
-      validateIntentGeometry(adjusted.intents, adjusted.width, adjusted.height, size, issues);
-      const preAdjustmentPlots = validateAdjustmentEvidence(adjusted, size, issues);
-      validatePerStartEvidence(adjusted, preAdjustmentPlots, size, issues);
-      validateInactiveEvidence(adjusted, issues);
+      validateIntentGeometry(adjusted.intents, adjusted.width, adjusted.height, size, issues.add);
+      const preAdjustmentPlots = validateAdjustmentEvidence(adjusted, size, issues.add);
+      validatePerStartEvidence(adjusted, preAdjustmentPlots, size, issues.add);
+      validateInactiveEvidence(adjusted, issues.add);
     }
-    return Object.freeze(issues);
   },
 });
-
-function issue(message: string): ArtifactValidationIssue {
-  return { message };
-}
 
 function increment(map: Map<string, number>, key: string): void {
   map.set(key, (map.get(key) ?? 0) + 1);
@@ -132,25 +117,17 @@ function plotInBounds(plotIndex: number, size: number): boolean {
 
 function validateDimensions(
   value: ResourcePlanAdjusted,
-  context: ArtifactValidationContext | undefined,
-  issues: ArtifactValidationIssue[]
+  dimensions: Readonly<{ width: number; height: number }>,
+  addIssue: (message: string) => void
 ): number | null {
   const size = value.width * value.height;
   if (!Number.isSafeInteger(size) || size <= 0) {
-    issues.push(
-      issue(`resourcePlanAdjusted has invalid dimensions ${value.width}x${value.height}.`)
-    );
+    addIssue(`resourcePlanAdjusted has invalid dimensions ${value.width}x${value.height}.`);
     return null;
   }
-  const executionDimensions = context?.dimensions;
-  if (
-    executionDimensions &&
-    (executionDimensions.width !== value.width || executionDimensions.height !== value.height)
-  ) {
-    issues.push(
-      issue(
-        `resourcePlanAdjusted dimensions ${value.width}x${value.height} do not match execution dimensions ${executionDimensions.width}x${executionDimensions.height}.`
-      )
+  if (dimensions.width !== value.width || dimensions.height !== value.height) {
+    addIssue(
+      `resourcePlanAdjusted dimensions ${value.width}x${value.height} do not match execution dimensions ${dimensions.width}x${dimensions.height}.`
     );
   }
   return size;
@@ -161,34 +138,28 @@ function validateIntentGeometry(
   width: number,
   height: number,
   size: number,
-  issues: ArtifactValidationIssue[]
+  addIssue: (message: string) => void
 ): void {
   const seenPlots = new Set<number>();
   for (const intent of intents) {
     if (!plotInBounds(intent.plotIndex, size)) {
-      issues.push(issue(`resourcePlanAdjusted intent plot ${intent.plotIndex} is out of bounds.`));
+      addIssue(`resourcePlanAdjusted intent plot ${intent.plotIndex} is out of bounds.`);
       continue;
     }
     if (intent.x >= width || intent.y >= height) {
-      issues.push(
-        issue(
-          `resourcePlanAdjusted intent coordinate ${intent.x},${intent.y} is outside ${width}x${height}.`
-        )
+      addIssue(
+        `resourcePlanAdjusted intent coordinate ${intent.x},${intent.y} is outside ${width}x${height}.`
       );
     }
     const expectedX = intent.plotIndex % width;
     const expectedY = Math.floor(intent.plotIndex / width);
     if (intent.x !== expectedX || intent.y !== expectedY) {
-      issues.push(
-        issue(
-          `resourcePlanAdjusted intent plot ${intent.plotIndex} encodes ${expectedX},${expectedY}, received ${intent.x},${intent.y}.`
-        )
+      addIssue(
+        `resourcePlanAdjusted intent plot ${intent.plotIndex} encodes ${expectedX},${expectedY}, received ${intent.x},${intent.y}.`
       );
     }
     if (seenPlots.has(intent.plotIndex)) {
-      issues.push(
-        issue(`resourcePlanAdjusted plans two final intents on plot ${intent.plotIndex}.`)
-      );
+      addIssue(`resourcePlanAdjusted plans two final intents on plot ${intent.plotIndex}.`);
     }
     seenPlots.add(intent.plotIndex);
   }
@@ -197,7 +168,7 @@ function validateIntentGeometry(
 function validateAdjustmentEvidence(
   value: ResourcePlanAdjusted,
   size: number,
-  issues: ArtifactValidationIssue[]
+  addIssue: (message: string) => void
 ): readonly number[] {
   const expectedRows = new Map<string, number>();
   const actualRows = new Map<string, number>();
@@ -207,9 +178,7 @@ function validateAdjustmentEvidence(
     const support = intent.support;
     if (!support) {
       if (intent.phase === "support") {
-        issues.push(
-          issue(`support-phase intent on plot ${intent.plotIndex} must carry add provenance.`)
-        );
+        addIssue(`support-phase intent on plot ${intent.plotIndex} must carry add provenance.`);
       }
       preAdjustmentPlots.push(intent.plotIndex);
       continue;
@@ -217,15 +186,11 @@ function validateAdjustmentEvidence(
 
     if (support.action === "add") {
       if (intent.phase !== "support") {
-        issues.push(
-          issue(`added intent on plot ${intent.plotIndex} must use the support planning phase.`)
-        );
+        addIssue(`added intent on plot ${intent.plotIndex} must use the support planning phase.`);
       }
     } else {
       if (intent.phase === "support") {
-        issues.push(
-          issue(`moved intent on plot ${intent.plotIndex} cannot use the support phase.`)
-        );
+        addIssue(`moved intent on plot ${intent.plotIndex} cannot use the support phase.`);
       }
       preAdjustmentPlots.push(support.fromPlotIndex);
     }
@@ -243,16 +208,14 @@ function validateAdjustmentEvidence(
   let adds = 0;
   for (const row of value.adjustments) {
     if (!plotInBounds(row.toPlotIndex, size)) {
-      issues.push(
-        issue(`resourcePlanAdjusted adjustment destination ${row.toPlotIndex} is out of bounds.`)
-      );
+      addIssue(`resourcePlanAdjusted adjustment destination ${row.toPlotIndex} is out of bounds.`);
     }
     if (row.action === "move") {
       moves += 1;
       if (!plotInBounds(row.fromPlotIndex, size)) {
-        issues.push(issue(`move adjustment source ${row.fromPlotIndex} is out of bounds.`));
+        addIssue(`move adjustment source ${row.fromPlotIndex} is out of bounds.`);
       } else if (row.fromPlotIndex === row.toPlotIndex) {
-        issues.push(issue(`move adjustment source and destination must be different plots.`));
+        addIssue("move adjustment source and destination must be different plots.");
       }
     } else {
       adds += 1;
@@ -261,20 +224,16 @@ function validateAdjustmentEvidence(
   }
 
   if (moves !== value.moveCount || adds !== value.addCount) {
-    issues.push(
-      issue(
-        `resourcePlanAdjusted adjustment rows contain ${moves} moves/${adds} adds, recorded ${value.moveCount}/${value.addCount}.`
-      )
+    addIssue(
+      `resourcePlanAdjusted adjustment rows contain ${moves} moves/${adds} adds, recorded ${value.moveCount}/${value.addCount}.`
     );
   }
   for (const key of new Set([...expectedRows.keys(), ...actualRows.keys()])) {
     const expected = expectedRows.get(key) ?? 0;
     const actual = actualRows.get(key) ?? 0;
     if (expected !== actual) {
-      issues.push(
-        issue(
-          `resourcePlanAdjusted adjustment/provenance row ${key} occurs ${actual} time(s), expected ${expected}.`
-        )
+      addIssue(
+        `resourcePlanAdjusted adjustment/provenance row ${key} occurs ${actual} time(s), expected ${expected}.`
       );
     }
   }
@@ -282,12 +241,12 @@ function validateAdjustmentEvidence(
   const seenPreAdjustmentPlots = new Set<number>();
   for (const plotIndex of preAdjustmentPlots) {
     if (!plotInBounds(plotIndex, size)) {
-      issues.push(issue(`resourcePlanAdjusted pre-adjustment plot ${plotIndex} is out of bounds.`));
+      addIssue(`resourcePlanAdjusted pre-adjustment plot ${plotIndex} is out of bounds.`);
       continue;
     }
     if (seenPreAdjustmentPlots.has(plotIndex)) {
-      issues.push(
-        issue(`resourcePlanAdjusted reconstructs two pre-adjustment intents on plot ${plotIndex}.`)
+      addIssue(
+        `resourcePlanAdjusted reconstructs two pre-adjustment intents on plot ${plotIndex}.`
       );
     }
     seenPreAdjustmentPlots.add(plotIndex);
@@ -318,7 +277,7 @@ function validatePerStartEvidence(
   value: ResourcePlanAdjusted,
   preAdjustmentPlots: readonly number[],
   size: number,
-  issues: ArtifactValidationIssue[]
+  addIssue: (message: string) => void
 ): void {
   const seatIndices = new Set<number>();
   const playerIds = new Set<number>();
@@ -328,20 +287,20 @@ function validatePerStartEvidence(
 
   for (const row of value.perStart) {
     if (seatIndices.has(row.seatIndex)) {
-      issues.push(issue(`resourcePlanAdjusted repeats seat ${row.seatIndex}.`));
+      addIssue(`resourcePlanAdjusted repeats seat ${row.seatIndex}.`);
     }
     if (playerIds.has(row.playerId)) {
-      issues.push(issue(`resourcePlanAdjusted repeats player ${row.playerId}.`));
+      addIssue(`resourcePlanAdjusted repeats player ${row.playerId}.`);
     }
     if (seatPlots.has(row.plotIndex)) {
-      issues.push(issue(`resourcePlanAdjusted repeats start plot ${row.plotIndex}.`));
+      addIssue(`resourcePlanAdjusted repeats start plot ${row.plotIndex}.`);
     }
     seatIndices.add(row.seatIndex);
     playerIds.add(row.playerId);
     seatPlots.add(row.plotIndex);
 
     if (!plotInBounds(row.plotIndex, size)) {
-      issues.push(issue(`resourcePlanAdjusted start plot ${row.plotIndex} is out of bounds.`));
+      addIssue(`resourcePlanAdjusted start plot ${row.plotIndex} is out of bounds.`);
       continue;
     }
     const supportBefore = supportCount(
@@ -353,52 +312,44 @@ function validatePerStartEvidence(
     );
     const supportAfter = supportCount(finalPlots, row.plotIndex, value.width, value.height, radius);
     if (row.supportBefore !== supportBefore) {
-      issues.push(
-        issue(
-          `resourcePlanAdjusted seat ${row.seatIndex} supportBefore ${row.supportBefore} != reconstructed ${supportBefore}.`
-        )
+      addIssue(
+        `resourcePlanAdjusted seat ${row.seatIndex} supportBefore ${row.supportBefore} != reconstructed ${supportBefore}.`
       );
     }
     if (row.supportAfter !== supportAfter) {
-      issues.push(
-        issue(
-          `resourcePlanAdjusted seat ${row.seatIndex} supportAfter ${row.supportAfter} != reconstructed ${supportAfter}.`
-        )
+      addIssue(
+        `resourcePlanAdjusted seat ${row.seatIndex} supportAfter ${row.supportAfter} != reconstructed ${supportAfter}.`
       );
     }
   }
 
   for (const row of value.adjustments) {
     if (!seatIndices.has(row.seatIndex)) {
-      issues.push(issue(`resourcePlanAdjusted adjustment names unknown seat ${row.seatIndex}.`));
+      addIssue(`resourcePlanAdjusted adjustment names unknown seat ${row.seatIndex}.`);
     }
   }
 
   const gapBefore = gapOf(value.perStart.map((row) => row.supportBefore));
   const gapAfter = gapOf(value.perStart.map((row) => row.supportAfter));
   if (value.equity.gapBefore !== gapBefore) {
-    issues.push(
-      issue(
-        `resourcePlanAdjusted equity.gapBefore ${String(value.equity.gapBefore)} != derived ${String(gapBefore)}.`
-      )
+    addIssue(
+      `resourcePlanAdjusted equity.gapBefore ${String(value.equity.gapBefore)} != derived ${String(gapBefore)}.`
     );
   }
   if (value.equity.gapAfter !== gapAfter) {
-    issues.push(
-      issue(
-        `resourcePlanAdjusted equity.gapAfter ${String(value.equity.gapAfter)} != derived ${String(gapAfter)}.`
-      )
+    addIssue(
+      `resourcePlanAdjusted equity.gapAfter ${String(value.equity.gapAfter)} != derived ${String(gapAfter)}.`
     );
   }
 
-  validateShortfalls(value, seatIndices, gapAfter, issues);
+  validateShortfalls(value, seatIndices, gapAfter, addIssue);
 }
 
 function validateShortfalls(
   value: ResourcePlanAdjusted,
   seatIndices: ReadonlySet<number>,
   gapAfter: number | null,
-  issues: ArtifactValidationIssue[]
+  addIssue: (message: string) => void
 ): void {
   const active = value.settings.enabled && value.settings.strength > 0;
   const floorRowsBySeat = new Map<number, Shortfall[]>();
@@ -407,11 +358,11 @@ function validateShortfalls(
 
   for (const row of value.shortfalls) {
     if (!seatIndices.has(row.seatIndex)) {
-      issues.push(issue(`resourcePlanAdjusted shortfall names unknown seat ${row.seatIndex}.`));
+      addIssue(`resourcePlanAdjusted shortfall names unknown seat ${row.seatIndex}.`);
     }
     const rowKey = `${row.seatIndex}:${row.reason}`;
     if (seenRows.has(rowKey)) {
-      issues.push(issue(`resourcePlanAdjusted repeats terminal shortfall ${rowKey}.`));
+      addIssue(`resourcePlanAdjusted repeats terminal shortfall ${rowKey}.`);
     }
     seenRows.add(rowKey);
 
@@ -420,17 +371,15 @@ function validateShortfalls(
       rows.push(row);
       floorRowsBySeat.set(row.seatIndex, rows);
       if (active && row.reason === "adjustment-disabled") {
-        issues.push(issue(`active resource adjustment cannot report adjustment-disabled.`));
+        addIssue("active resource adjustment cannot report adjustment-disabled.");
       }
       if (!active && row.reason !== "adjustment-disabled") {
-        issues.push(
-          issue(`inactive resource adjustment must report floor deficits as adjustment-disabled.`)
-        );
+        addIssue("inactive resource adjustment must report floor deficits as adjustment-disabled.");
       }
     } else if (EQUITY_SHORTFALL_REASONS.has(row.reason)) {
       equityRows.push(row);
       if (!active) {
-        issues.push(issue(`inactive resource adjustment cannot report an equity shortfall.`));
+        addIssue("inactive resource adjustment cannot report an equity shortfall.");
       }
     }
   }
@@ -438,31 +387,25 @@ function validateShortfalls(
   for (const seat of value.perStart) {
     const rows = floorRowsBySeat.get(seat.seatIndex) ?? [];
     if (rows.length > 1) {
-      issues.push(
-        issue(`resourcePlanAdjusted seat ${seat.seatIndex} has multiple terminal floor reasons.`)
-      );
+      addIssue(`resourcePlanAdjusted seat ${seat.seatIndex} has multiple terminal floor reasons.`);
     }
     const recorded = rows.reduce((sum, row) => sum + row.missing, 0);
     const expected = Math.max(0, value.settings.supportFloor - seat.supportAfter);
     if (recorded !== expected) {
-      issues.push(
-        issue(
-          `resourcePlanAdjusted seat ${seat.seatIndex} floor shortfall ${recorded} != terminal deficit ${expected}.`
-        )
+      addIssue(
+        `resourcePlanAdjusted seat ${seat.seatIndex} floor shortfall ${recorded} != terminal deficit ${expected}.`
       );
     }
   }
 
   if (equityRows.length > 1) {
-    issues.push(issue("resourcePlanAdjusted must report at most one terminal equity shortfall."));
+    addIssue("resourcePlanAdjusted must report at most one terminal equity shortfall.");
   }
   const recordedEquity = equityRows.reduce((sum, row) => sum + row.missing, 0);
   const expectedEquity = active ? Math.max(0, (gapAfter ?? 0) - value.settings.equityTolerance) : 0;
   if (recordedEquity !== expectedEquity) {
-    issues.push(
-      issue(
-        `resourcePlanAdjusted equity shortfall ${recordedEquity} != terminal excess ${expectedEquity}.`
-      )
+    addIssue(
+      `resourcePlanAdjusted equity shortfall ${recordedEquity} != terminal excess ${expectedEquity}.`
     );
   }
   const [equityRow] = equityRows;
@@ -470,25 +413,23 @@ function validateShortfalls(
     const minimum = Math.min(...value.perStart.map((row) => row.supportAfter));
     const seat = value.perStart.find((candidate) => candidate.seatIndex === equityRow.seatIndex);
     if (seat && seat.supportAfter !== minimum) {
-      issues.push(
-        issue(`resourcePlanAdjusted equity shortfall must identify a minimum-support seat.`)
-      );
+      addIssue("resourcePlanAdjusted equity shortfall must identify a minimum-support seat.");
     }
   }
 }
 
 function validateInactiveEvidence(
   value: ResourcePlanAdjusted,
-  issues: ArtifactValidationIssue[]
+  addIssue: (message: string) => void
 ): void {
   if (value.settings.enabled && value.settings.strength > 0) return;
   if (value.adjustments.length > 0 || value.moveCount !== 0 || value.addCount !== 0) {
-    issues.push(issue("inactive resource evidence must not record moves or additions."));
+    addIssue("inactive resource evidence must not record moves or additions.");
   }
   if (value.intents.some((intent) => intent.support !== undefined)) {
-    issues.push(issue("inactive resource evidence must not record adjustment provenance."));
+    addIssue("inactive resource evidence must not record adjustment provenance.");
   }
   if (value.perStart.some((row) => row.supportBefore !== row.supportAfter)) {
-    issues.push(issue("inactive resource evidence must preserve every recorded support count."));
+    addIssue("inactive resource evidence must preserve every recorded support count.");
   }
 }

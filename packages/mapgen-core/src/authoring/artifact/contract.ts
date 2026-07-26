@@ -189,7 +189,7 @@ export function defineArtifact<
   name: Name;
   id: Id;
   schema: Schema;
-  refine?: ArtifactRefinement;
+  refine?: ArtifactRefinement<Schema>;
 }): Artifact<Name, Id, Schema> {
   const admitted = readArtifactDefinitionData(def);
   assertValidArtifactName(admitted.name);
@@ -208,7 +208,7 @@ export function defineArtifact<
   freezeSchemaGraph(schema);
   const validate = createArtifactValidatorInternal(
     schema,
-    admitted.refine as ArtifactRefinement | undefined
+    admitted.refine as ArtifactRefinement<Schema> | undefined
   );
   const artifact = Object.freeze({ name, id, schema, validate });
   assertArtifactShape(artifact);

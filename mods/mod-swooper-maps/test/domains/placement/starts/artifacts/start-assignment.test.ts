@@ -2,6 +2,8 @@ import { describe, expect, it } from "bun:test";
 import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
 import { TEST_MAP_SIZE } from "../../../../setup.js";
 
+const VALIDATION_CONTEXT = { dimensions: TEST_MAP_SIZE.dimensions };
+
 function makeSyntheticStartAssignment(seatCount: number, assigned = seatCount) {
   const seats = Array.from({ length: seatCount }, (_value, seatIndex) => {
     const seated = seatIndex < assigned;
@@ -62,39 +64,50 @@ function makeSyntheticStartAssignment(seatCount: number, assigned = seatCount) {
 
 function hasIssue(value: unknown, messageFragment: string): boolean {
   return placementStartArtifacts.startAssignment
-    .validate(value)
+    .validate(value, VALIDATION_CONTEXT)
     .some((issue) => issue.message.includes(messageFragment));
 }
 
 describe("placement start-assignment artifacts", () => {
   it("validates rung counts and fairness report consistency", () => {
     const assignment = makeSyntheticStartAssignment(0);
-    expect(placementStartArtifacts.startAssignment.validate(assignment)).toEqual([]);
+    expect(
+      placementStartArtifacts.startAssignment.validate(assignment, VALIDATION_CONTEXT)
+    ).toEqual([]);
 
     expect(
       placementStartArtifacts.startAssignment
-        .validate({
-          ...assignment,
-          rungCounts: { ...assignment.rungCounts, regional: 1 },
-        })
+        .validate(
+          {
+            ...assignment,
+            rungCounts: { ...assignment.rungCounts, regional: 1 },
+          },
+          VALIDATION_CONTEXT
+        )
         .some((issue) => issue.message.includes("rungCounts.regional"))
     ).toBe(true);
     expect(
       placementStartArtifacts.startAssignment
-        .validate({
-          ...assignment,
-          fairnessReport: { ...assignment.fairnessReport, parity: [1] },
-        })
+        .validate(
+          {
+            ...assignment,
+            fairnessReport: { ...assignment.fairnessReport, parity: [1] },
+          },
+          VALIDATION_CONTEXT
+        )
         .some((issue) => issue.message.includes("fairnessReport.parity"))
     ).toBe(true);
 
     const complete = makeSyntheticStartAssignment(1);
     expect(
       placementStartArtifacts.startAssignment
-        .validate({
-          ...complete,
-          seats: [{ ...complete.seats[0]!, realizedRegionSlot: 0 }],
-        })
+        .validate(
+          {
+            ...complete,
+            seats: [{ ...complete.seats[0]!, realizedRegionSlot: 0 }],
+          },
+          VALIDATION_CONTEXT
+        )
         .some((issue) => issue.message.includes("realizedRegionSlot 1 or 2"))
     ).toBe(true);
   });
@@ -208,7 +221,9 @@ describe("placement start-assignment artifacts", () => {
       marginalAssigned: 1,
       noneAssigned: 1,
     };
-    expect(placementStartArtifacts.startAssignment.validate(reconciled)).toEqual([]);
+    expect(
+      placementStartArtifacts.startAssignment.validate(reconciled, VALIDATION_CONTEXT)
+    ).toEqual([]);
 
     for (const rung of ["regional", "openPool", "qualityRelaxed", "spacingRelaxed"] as const) {
       const invalid = {

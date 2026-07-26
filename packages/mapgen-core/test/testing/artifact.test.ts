@@ -4,10 +4,9 @@ import { createMockAdapter } from "@civ7/adapter";
 import {
   ArtifactDoublePublishError,
   ArtifactValidationError,
-  appendArtifactTypedArrayIssues,
-  artifactCellCount,
   defineArtifact,
   readValidatedArtifact,
+  TypedArraySchemas,
 } from "@mapgen/authoring/index.js";
 import { createMapContext } from "@mapgen/core/map-context.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
@@ -19,21 +18,10 @@ const syntheticDimensions = { width: 2, height: 2 } as const;
 const gridArtifact = defineArtifact({
   name: "testGrid",
   id: "artifact:test.testing-grid",
-  schema: Type.Object({ values: Type.Any() }, { additionalProperties: false }),
-  refine: (
-    value: unknown,
-    context?: Readonly<{ dimensions?: Readonly<{ width: number; height: number }> }>
-  ) => {
-    const issues: Array<{ message: string }> = [];
-    appendArtifactTypedArrayIssues(
-      issues,
-      "values",
-      (value as { values: unknown }).values,
-      Uint8Array,
-      artifactCellCount(context)
-    );
-    return issues;
-  },
+  schema: Type.Object(
+    { values: TypedArraySchemas.u8({ cardinality: "map-grid" }) },
+    { additionalProperties: false }
+  ),
 });
 
 function createSyntheticContext() {
@@ -59,7 +47,7 @@ describe("artifact testing surface", () => {
         })
       ).toThrow(
         expect.objectContaining({
-          issues: [{ message: "Expected values length 4 (received 3)." }],
+          issues: [{ message: "Expected $.values length 4 (received 3)." }],
         })
       );
 

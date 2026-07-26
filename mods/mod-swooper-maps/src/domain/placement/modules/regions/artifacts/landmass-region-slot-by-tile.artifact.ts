@@ -1,11 +1,4 @@
-import {
-  type ArtifactValidationIssue,
-  appendArtifactTypedArrayIssues,
-  artifactCellCount,
-  defineArtifact,
-  Type,
-  TypedArraySchemas,
-} from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Registers gameplay region slots derived from Morphology landmasses before placement. */
 export const artifact = defineArtifact({
@@ -14,6 +7,7 @@ export const artifact = defineArtifact({
   schema: Type.Object(
     {
       slotByTile: TypedArraySchemas.u8({
+        cardinality: "map-grid",
         description:
           "Per-tile gameplay region slot in tile-index order: 0 none, 1 west, or 2 east.",
       }),
@@ -24,33 +18,16 @@ export const artifact = defineArtifact({
         "Gameplay-owned region-slot projection derived from Morphology landmasses before player placement.",
     }
   ),
-  refine: (input, context): readonly ArtifactValidationIssue[] => {
-    const { slotByTile } = input as Readonly<{ slotByTile: Uint8Array }>;
-    const issues: ArtifactValidationIssue[] = [];
-    if (
-      !appendArtifactTypedArrayIssues(
-        issues,
-        "landmassRegionSlotByTile.slotByTile",
-        slotByTile,
-        Uint8Array,
-        artifactCellCount(context)
-      )
-    ) {
-      return issues;
-    }
+  refine: ({ slotByTile }, { issues }) => {
     if (slotByTile.length === 0) {
-      issues.push({ message: "landmassRegionSlotByTile.slotByTile must be non-empty." });
-      return issues;
+      issues.add("landmassRegionSlotByTile.slotByTile must be non-empty.");
     }
     for (let index = 0; index < slotByTile.length; index++) {
       const slot = slotByTile[index] ?? 0;
       if (slot > 2) {
-        issues.push({
-          message: `slotByTile[${index}] = ${slot} outside the slot domain {0,1,2}.`,
-        });
-        return issues;
+        issues.add(`slotByTile[${index}] = ${slot} outside the slot domain {0,1,2}.`);
+        break;
       }
     }
-    return issues;
   },
 });

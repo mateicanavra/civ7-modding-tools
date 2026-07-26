@@ -1,20 +1,4 @@
-import {
-  type ArtifactValidationContext,
-  type ArtifactValidationIssue,
-  appendArtifactTypedArrayIssues,
-  artifactCellCount,
-  defineArtifact,
-  Type,
-  TypedArraySchemas,
-} from "@swooper/mapgen-core/authoring/contracts";
-
-type ClimateIndices = Readonly<{
-  surfaceTemperatureC: Float32Array;
-  effectiveMoisture: Float32Array;
-  pet: Float32Array;
-  aridityIndex: Float32Array;
-  freezeIndex: Float32Array;
-}>;
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Registers refined per-tile temperature, evapotranspiration, aridity, freeze, and related
@@ -27,21 +11,26 @@ export const artifact = defineArtifact({
   schema: Type.Object(
     {
       surfaceTemperatureC: TypedArraySchemas.f32({
+        cardinality: "map-grid",
         description:
           "Surface temperature proxy in degrees Celsius used for biome gating and freeze behavior.",
       }),
       effectiveMoisture: TypedArraySchemas.f32({
+        cardinality: "map-grid",
         description:
           "Moisture available to Ecology after rainfall, humidity, and nearby river influence are combined.",
       }),
       pet: TypedArraySchemas.f32({
+        cardinality: "map-grid",
         description:
           "Potential evapotranspiration proxy in rainfall units used to distinguish water demand from supply.",
       }),
       aridityIndex: TypedArraySchemas.f32({
+        cardinality: "map-grid",
         description: "Dryness ratio derived from precipitation and evapotranspiration (0..1).",
       }),
       freezeIndex: TypedArraySchemas.f32({
+        cardinality: "map-grid",
         description: "Persistence of freezing conditions per tile (0..1).",
       }),
     },
@@ -51,48 +40,4 @@ export const artifact = defineArtifact({
         "Derived Hydrology climate signals consumed by Ecology and product analysis without re-deriving climate policy.",
     }
   ),
-  refine: (
-    input: unknown,
-    context?: ArtifactValidationContext
-  ): readonly ArtifactValidationIssue[] => {
-    const value = input as ClimateIndices;
-    const expectedLength = artifactCellCount(context);
-    const errors: ArtifactValidationIssue[] = [];
-    appendArtifactTypedArrayIssues(
-      errors,
-      "climateIndices.surfaceTemperatureC",
-      value.surfaceTemperatureC,
-      Float32Array,
-      expectedLength
-    );
-    appendArtifactTypedArrayIssues(
-      errors,
-      "climateIndices.effectiveMoisture",
-      value.effectiveMoisture,
-      Float32Array,
-      expectedLength
-    );
-    appendArtifactTypedArrayIssues(
-      errors,
-      "climateIndices.pet",
-      value.pet,
-      Float32Array,
-      expectedLength
-    );
-    appendArtifactTypedArrayIssues(
-      errors,
-      "climateIndices.aridityIndex",
-      value.aridityIndex,
-      Float32Array,
-      expectedLength
-    );
-    appendArtifactTypedArrayIssues(
-      errors,
-      "climateIndices.freezeIndex",
-      value.freezeIndex,
-      Float32Array,
-      expectedLength
-    );
-    return errors;
-  },
 });

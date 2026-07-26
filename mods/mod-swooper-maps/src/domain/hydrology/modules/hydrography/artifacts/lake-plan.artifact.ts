@@ -1,20 +1,4 @@
-import {
-  type ArtifactValidationContext,
-  type ArtifactValidationIssue,
-  appendArtifactTypedArrayIssues,
-  artifactCellCount,
-  defineArtifact,
-  Type,
-  TypedArraySchemas,
-} from "@swooper/mapgen-core/authoring/contracts";
-
-type LakePlan = Readonly<{
-  width: number;
-  height: number;
-  lakeMask: Uint8Array;
-  plannedLakeTileCount: number;
-  sinkLakeCount: number;
-}>;
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Registers deterministic lake intent and its drainage evidence before map-hydrology stamps
@@ -34,6 +18,7 @@ export const artifact = defineArtifact({
         description: "Map-grid height represented by the lake intent mask.",
       }),
       lakeMask: TypedArraySchemas.u8({
+        cardinality: "map-grid",
         description: "Hydrology lake intent per tile (1=planned lake, 0=not planned).",
       }),
       plannedLakeTileCount: Type.Integer({
@@ -51,30 +36,16 @@ export const artifact = defineArtifact({
         "Hydrology lake intent and the drainage evidence used by map projection and placement.",
     }
   ),
-  refine: (
-    input: unknown,
-    context?: ArtifactValidationContext
-  ): readonly ArtifactValidationIssue[] => {
-    const value = input as LakePlan;
-    const issues: ArtifactValidationIssue[] = [];
-    appendArtifactTypedArrayIssues(
-      issues,
-      "lakeMask",
-      value.lakeMask,
-      Uint8Array,
-      artifactCellCount(context)
-    );
+  refine: (value, { issues }) => {
     let plannedLakeTileCount = 0;
     for (const cell of value.lakeMask) {
       if (cell === 1) plannedLakeTileCount += 1;
     }
     if (value.plannedLakeTileCount !== plannedLakeTileCount) {
-      issues.push({
-        message:
-          `plannedLakeTileCount ${value.plannedLakeTileCount} does not match ` +
-          `the ${plannedLakeTileCount} planned tiles in lakeMask.`,
-      });
+      issues.add(
+        `plannedLakeTileCount ${value.plannedLakeTileCount} does not match ` +
+          `the ${plannedLakeTileCount} planned tiles in lakeMask.`
+      );
     }
-    return Object.freeze(issues);
   },
 });

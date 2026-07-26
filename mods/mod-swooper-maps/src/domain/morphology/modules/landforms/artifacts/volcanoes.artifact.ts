@@ -1,13 +1,4 @@
-import {
-  type ArtifactValidationContext,
-  type ArtifactValidationIssue,
-  appendArtifactTypedArrayIssues,
-  artifactCellCount,
-  defineArtifact,
-  type Static,
-  Type,
-  TypedArraySchemas,
-} from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 const VolcanoKindSchema = Type.Union([
   Type.Literal("subductionArc"),
@@ -25,6 +16,7 @@ export const artifact = defineArtifact({
   schema: Type.Object(
     {
       volcanoMask: TypedArraySchemas.u8({
+        cardinality: "map-grid",
         description: "Mask (1/0): tiles containing a volcano vent.",
       }),
       volcanoes: Type.Immutable(
@@ -52,16 +44,4 @@ export const artifact = defineArtifact({
       description: "Volcano intent snapshot (Phase 2 schema; immutable at F2).",
     }
   ),
-  refine: (input: unknown, context?: ArtifactValidationContext): ArtifactValidationIssue[] => {
-    const value = input as Static<typeof artifact.schema>;
-    const issues: ArtifactValidationIssue[] = [];
-    appendArtifactTypedArrayIssues(
-      issues,
-      "volcanoes.volcanoMask",
-      value.volcanoMask,
-      Uint8Array,
-      artifactCellCount(context)
-    );
-    return issues;
-  },
 });

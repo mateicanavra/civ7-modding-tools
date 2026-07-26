@@ -1,5 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
+import { TEST_MAP_SIZE } from "../../../../setup.js";
+
+const VALIDATION_CONTEXT = { dimensions: TEST_MAP_SIZE.dimensions };
 
 function coherentResourcePlacementOutcomes() {
   return {
@@ -84,7 +87,7 @@ function coherentResourcePlacementOutcomes() {
 
 function validationMessages(value: unknown): string[] {
   return resourceSiteArtifacts.resourcePlacementOutcomes
-    .validate(value)
+    .validate(value, VALIDATION_CONTEXT)
     .map((issue) => issue.message);
 }
 
