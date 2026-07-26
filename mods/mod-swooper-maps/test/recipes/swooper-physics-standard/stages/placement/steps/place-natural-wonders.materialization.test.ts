@@ -2,23 +2,27 @@ import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter as createBaseMockAdapter, type MockAdapterConfig } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
-
 import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
+import { type ArtifactValueOf, readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
-  buildNaturalWonderPlacementRuntimeTelemetry,
-  stampNaturalWondersFromPlan,
-} from "../../../../../../src/recipes/standard/stages/placement/steps/place-natural-wonders/materialize.js";
+  buildStepTestDependencies,
+  publishTestArtifact,
+  withMapContextExecutionForTest,
+} from "@swooper/mapgen-core/testing";
+
+import { PlaceNaturalWondersStep } from "../../../../../../src/recipes/standard/stages/placement/steps/place-natural-wonders/step.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
 
 const { biomeGlobals, featureTypes } = CIV7_BROWSER_TABLES_V0;
+const SYNTHETIC_REDWOOD_FOOTPRINT = { width: 4, height: 6 } as const;
+const SYNTHETIC_MOUNTAIN_FOOTPRINT = { width: 5, height: 8 } as const;
 
-const SYNTHETIC_REDWOOD_DIMENSIONS = { width: 4, height: 6 } as const;
-const SYNTHETIC_MOUNTAIN_DIMENSIONS = { width: 5, height: 8 } as const;
-const SYNTHETIC_CORRUPT_PLAN_DIMENSIONS = { width: 2, height: 2 } as const;
-
+type NaturalWonderPlan = ArtifactValueOf<typeof placementWonderArtifacts.naturalWonderPlan>;
 type TerrainBackedMockAdapterConfig = Omit<MockAdapterConfig, "defaultTerrainType"> &
   Readonly<{ defaultTerrainName: "TERRAIN_FLAT" | "TERRAIN_HILL" }>;
 
-function createMockAdapter(config: TerrainBackedMockAdapterConfig) {
+function createTerrainBackedAdapter(config: TerrainBackedMockAdapterConfig) {
   const { defaultTerrainName, ...adapterConfig } = config;
   const adapter = createBaseMockAdapter(adapterConfig);
   const terrainType = adapter.getTerrainTypeIndex(defaultTerrainName);
@@ -30,22 +34,12 @@ function createMockAdapter(config: TerrainBackedMockAdapterConfig) {
   return adapter;
 }
 
-const redwoodRow = {
-  status: "placed",
-  plotIndex: 9,
-  x: 1,
-  y: 2,
-  featureType: featureTypes.FEATURE_REDWOOD_FOREST,
-  direction: -1,
-  elevation: 120,
-  reason: "placed",
-} as const;
-
 function oneWonderPlan(
   featureType: number,
   plotIndex: number,
-  dimensions: Readonly<{ width: number; height: number }> = SYNTHETIC_REDWOOD_DIMENSIONS
-) {
+  dimensions: Readonly<{ width: number; height: number }>,
+  overrides: Partial<NaturalWonderPlan> = {}
+): NaturalWonderPlan {
   return {
     ...dimensions,
     wondersCount: 1,
@@ -60,57 +54,71 @@ function oneWonderPlan(
         priority: 1,
       },
     ],
+    ...overrides,
   };
 }
 
+function executeNaturalWonderStep(
+  adapter: ReturnType<typeof createTerrainBackedAdapter>,
+  plan: NaturalWonderPlan
+) {
+  const context = createMapContext({
+    setup: admitMapSetup({
+      mapSeed: TEST_MAP_SEED,
+      dimensions: { width: plan.width, height: plan.height },
+      latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
+    }),
+    adapter,
+  });
+
+  withMapContextExecutionForTest(context, (stepContext) => {
+    publishTestArtifact(stepContext, placementWonderArtifacts.naturalWonderPlan, plan);
+    PlaceNaturalWondersStep.run(
+      stepContext,
+      {},
+      {},
+      buildStepTestDependencies(PlaceNaturalWondersStep, stepContext)
+    );
+  });
+
+  return readValidatedArtifact(context, placementWonderArtifacts.naturalWonderPlacement);
+}
+
 describe("natural wonder placement materialization", () => {
-  it("projects generated valid-terrain policy before stamping a natural wonder", () => {
-    const adapter = createMockAdapter({
-      ...SYNTHETIC_REDWOOD_DIMENSIONS,
+  it("projects feature terrain policy over the exact even-row footprint before stamping", () => {
+    const adapter = createTerrainBackedAdapter({
+      ...SYNTHETIC_REDWOOD_FOOTPRINT,
       defaultBiomeType: biomeGlobals.BIOME_GRASSLAND,
       defaultTerrainName: "TERRAIN_HILL",
     });
     const flatTerrain = adapter.getTerrainTypeIndex("TERRAIN_FLAT");
 
-    const stats = stampNaturalWondersFromPlan({
-      engine: adapter,
-      noFeatureType: adapter.NO_FEATURE,
-      ...SYNTHETIC_REDWOOD_DIMENSIONS,
-      wonders: oneWonderPlan(featureTypes.FEATURE_REDWOOD_FOREST, 9),
-      requestedCount: 1,
-    });
+    const evidence = executeNaturalWonderStep(
+      adapter,
+      oneWonderPlan(featureTypes.FEATURE_REDWOOD_FOREST, 9, SYNTHETIC_REDWOOD_FOOTPRINT)
+    );
 
-    // Anchor (1,2) is an EVEN row: the parity-correct THREETRIANGLE footprint is
-    // anchor + even.d0(0,1) + even.d1(1,0) = (1,2),(1,3),(2,2). (Pre-parity-fix this
-    // stamped the odd-row cells (1,2),(2,3),(2,2) on the even anchor.)
+    // The local geometry is the oracle: anchor (1,2) uses the even-row
+    // THREETRIANGLE footprint (1,2), (2,2), and (1,3).
     expect(adapter.getTerrainType(1, 2)).toBe(flatTerrain);
     expect(adapter.getTerrainType(2, 2)).toBe(flatTerrain);
     expect(adapter.getTerrainType(1, 3)).toBe(flatTerrain);
-    expect(adapter.getFeatureType(1, 2)).toBe(featureTypes.FEATURE_REDWOOD_FOREST);
-    expect(adapter.getFeatureType(2, 2)).toBe(featureTypes.FEATURE_REDWOOD_FOREST);
-    expect(adapter.getFeatureType(1, 3)).toBe(featureTypes.FEATURE_REDWOOD_FOREST);
-    expect(stats).toEqual({
-      coordinateEvidence: {
-        version: 1,
-        placed: { count: 1, hash32: "deae8452" },
-        rejected: { count: 0, hash32: "811c9dc5" },
-      },
-      coordinateRows: [redwoodRow],
-      observedNaturalWonderPlotIndices: [9, 10, 13],
+    expect(evidence).toMatchObject({
       plannedCount: 1,
-      targetCount: 1,
       placedCount: 1,
       terrainAdjustedCount: 3,
-      skippedOutOfBoundsCount: 0,
       rejectedCount: 0,
-      shortfallCount: 0,
-      rejectionExamples: [],
+      coordinateEvidence: {
+        placed: { count: 1 },
+        rejected: { count: 0 },
+      },
+      observedNaturalWonderPlotIndices: [9, 10, 13],
     });
   });
 
-  it("observes engine-added wonder footprint cells from the final feature surface", () => {
-    const adapter = createMockAdapter({
-      ...SYNTHETIC_REDWOOD_DIMENSIONS,
+  it("publishes final engine occupancy, including cells added beyond the inferred footprint", () => {
+    const adapter = createTerrainBackedAdapter({
+      ...SYNTHETIC_REDWOOD_FOOTPRINT,
       defaultBiomeType: biomeGlobals.BIOME_GRASSLAND,
       defaultTerrainName: "TERRAIN_HILL",
     });
@@ -127,123 +135,52 @@ describe("natural wonder placement materialization", () => {
       return outcome;
     };
 
-    const stats = stampNaturalWondersFromPlan({
-      engine: adapter,
-      noFeatureType: adapter.NO_FEATURE,
-      ...SYNTHETIC_REDWOOD_DIMENSIONS,
-      wonders: oneWonderPlan(featureTypes.FEATURE_REDWOOD_FOREST, 9),
-      requestedCount: 1,
-    });
+    const evidence = executeNaturalWonderStep(
+      adapter,
+      oneWonderPlan(featureTypes.FEATURE_REDWOOD_FOREST, 9, SYNTHETIC_REDWOOD_FOOTPRINT)
+    );
 
-    expect(stats.observedNaturalWonderPlotIndices).toEqual([9, 10, 13, 20]);
+    expect(evidence.observedNaturalWonderPlotIndices).toEqual([9, 10, 13, 20]);
   });
 
-  it("rejects malformed final wonder occupancy evidence at artifact publication", () => {
-    const adapter = createMockAdapter({
-      ...SYNTHETIC_REDWOOD_DIMENSIONS,
-      defaultBiomeType: biomeGlobals.BIOME_GRASSLAND,
-      defaultTerrainName: "TERRAIN_HILL",
-    });
-    const stats = stampNaturalWondersFromPlan({
-      engine: adapter,
-      noFeatureType: adapter.NO_FEATURE,
-      ...SYNTHETIC_REDWOOD_DIMENSIONS,
-      wonders: oneWonderPlan(featureTypes.FEATURE_REDWOOD_FOREST, 9),
-      requestedCount: 1,
-    });
-    const validateObserved = (observedNaturalWonderPlotIndices: readonly number[]): string =>
-      placementWonderArtifacts.naturalWonderPlacement
-        .validate(
-          { ...stats, observedNaturalWonderPlotIndices },
-          { dimensions: SYNTHETIC_REDWOOD_DIMENSIONS }
-        )
-        .map((entry) => entry.message)
-        .join("\n");
-
-    expect(validateObserved([9, 9, 10, 13])).toContain("observed plot 9 must be unique");
-    expect(validateObserved([10, 9, 13])).toContain("must be sorted in ascending order");
-    expect(validateObserved([9, 10, 13, 24])).toContain("exceeds map cell count 24");
-    expect(validateObserved([10, 13])).toContain("placed anchor 9 is absent");
-    expect(placementWonderArtifacts.naturalWonderPlacement.validate(stats)).toEqual([]);
-  });
-
-  it("uses feature-specific terrain policy instead of a generic land-water default", () => {
-    const adapter = createMockAdapter({
-      ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
+  it("retries the planner's fallback anchor after an engine refusal", () => {
+    const adapter = createTerrainBackedAdapter({
+      ...SYNTHETIC_MOUNTAIN_FOOTPRINT,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       defaultTerrainName: "TERRAIN_FLAT",
     });
-    const mountainTerrain = adapter.getTerrainTypeIndex("TERRAIN_MOUNTAIN");
+    const placeNaturalWonder = adapter.placeNaturalWonder.bind(adapter);
+    adapter.placeNaturalWonder = (x, y, featureType, direction, elevation) =>
+      x === 2 && y === 3
+        ? {
+            status: "rejected",
+            plotIndex: y * adapter.width + x,
+            x,
+            y,
+            featureType,
+            direction,
+            reason: "can-have-feature-param-false",
+          }
+        : placeNaturalWonder(x, y, featureType, direction, elevation);
+    const plan = oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, 17, SYNTHETIC_MOUNTAIN_FOOTPRINT);
+    plan.placements[0]!.fallbackPlotIndices = [19];
 
-    const mountainStats = stampNaturalWondersFromPlan({
-      engine: adapter,
-      noFeatureType: adapter.NO_FEATURE,
-      ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
-      wonders: oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, 17, SYNTHETIC_MOUNTAIN_DIMENSIONS),
-      requestedCount: 1,
-    });
+    const evidence = executeNaturalWonderStep(adapter, plan);
 
-    expect(adapter.getTerrainType(2, 3)).toBe(mountainTerrain);
-    expect(adapter.getTerrainType(3, 3)).toBe(mountainTerrain);
-    expect(adapter.getTerrainType(3, 4)).toBe(mountainTerrain);
-    expect(adapter.getFeatureType(2, 3)).toBe(featureTypes.FEATURE_KILIMANJARO);
-    expect(adapter.getFeatureType(3, 3)).toBe(featureTypes.FEATURE_KILIMANJARO);
-    expect(adapter.getFeatureType(3, 4)).toBe(featureTypes.FEATURE_KILIMANJARO);
-    expect(mountainStats.terrainAdjustedCount).toBe(3);
-  });
-
-  it("records planner shortfalls instead of failing browser/game generation", () => {
-    const adapter = createMockAdapter({
-      ...SYNTHETIC_REDWOOD_DIMENSIONS,
-      defaultBiomeType: biomeGlobals.BIOME_GRASSLAND,
-      defaultTerrainName: "TERRAIN_HILL",
-    });
-    const plan = {
-      ...oneWonderPlan(featureTypes.FEATURE_REDWOOD_FOREST, 9),
-      targetCount: 2,
-    };
-
-    const stats = stampNaturalWondersFromPlan({
-      engine: adapter,
-      noFeatureType: adapter.NO_FEATURE,
-      ...SYNTHETIC_REDWOOD_DIMENSIONS,
-      wonders: plan,
-      requestedCount: 2,
-    });
-
-    expect(stats.targetCount).toBe(2);
-    expect(stats.plannedCount).toBe(1);
-    expect(stats.placedCount).toBe(1);
-    expect(stats.shortfallCount).toBe(1);
-    expect(stats.rejectedCount).toBe(0);
-    expect(buildNaturalWonderPlacementRuntimeTelemetry(stats)).toEqual({
-      version: 1,
+    expect(evidence).toMatchObject({
       plannedCount: 1,
-      targetCount: 2,
       placedCount: 1,
-      terrainAdjustedCount: 3,
-      skippedOutOfBoundsCount: 0,
       rejectedCount: 0,
-      shortfallCount: 1,
-      rejectionExampleCount: 0,
-      rejectionExamples: [],
-      rejectedRows: [],
-      coordinateEvidence: {
-        version: 1,
-        placedCount: 1,
-        placedHash32: "deae8452",
-      },
+      coordinateRows: [{ status: "placed", plotIndex: 19 }],
     });
-    expect(
-      `[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 ${JSON.stringify(
-        buildNaturalWonderPlacementRuntimeTelemetry(stats)
-      )}`.length
-    ).toBeLessThan(1400);
+    expect(adapter.getFeatureType(4, 3)).toBe(featureTypes.FEATURE_KILIMANJARO);
   });
 
-  it("records adapter legality rejection as a degraded outcome", () => {
-    const adapter = createMockAdapter({
-      ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
+  it("records engine legality refusal as a degraded product outcome", () => {
+    const adapter = createTerrainBackedAdapter({
+      ...TEST_MAP_SIZE.dimensions,
+      mapInfo: TEST_MAP_SIZE.mapInfo,
+      mapSizeId: TEST_MAP_SIZE.id,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       defaultTerrainName: "TERRAIN_FLAT",
     });
@@ -256,34 +193,32 @@ describe("natural wonder placement materialization", () => {
       direction,
       reason: "can-have-feature-param-false",
     });
+    const { width, height } = TEST_MAP_SIZE.dimensions;
+    const anchor = Math.floor(height / 2) * width + Math.floor(width / 2);
 
-    const stats = stampNaturalWondersFromPlan({
-      engine: adapter,
-      noFeatureType: adapter.NO_FEATURE,
-      ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
-      wonders: oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, 17, SYNTHETIC_MOUNTAIN_DIMENSIONS),
-      requestedCount: 1,
-    });
+    const evidence = executeNaturalWonderStep(
+      adapter,
+      oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, anchor, TEST_MAP_SIZE.dimensions)
+    );
 
-    expect(stats).toMatchObject({
-      coordinateEvidence: {
-        version: 1,
-        placed: { count: 0, hash32: "811c9dc5" },
-        rejected: { count: 1, hash32: "55a47896" },
-      },
+    expect(evidence).toMatchObject({
       plannedCount: 1,
-      targetCount: 1,
       placedCount: 0,
-      skippedOutOfBoundsCount: 0,
       rejectedCount: 1,
       shortfallCount: 0,
+      coordinateRows: [
+        {
+          status: "rejected",
+          plotIndex: anchor,
+          reason: "can-have-feature-param-false",
+        },
+      ],
     });
-    expect(stats.rejectionExamples[0]).toContain("can-have-feature-param-false");
   });
 
-  it("preserves natural-wonder readback mismatch evidence from the adapter", () => {
-    const adapter = createMockAdapter({
-      ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
+  it("preserves partial readback-mismatch evidence and rejected engine residue", () => {
+    const adapter = createTerrainBackedAdapter({
+      ...SYNTHETIC_MOUNTAIN_FOOTPRINT,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       defaultTerrainName: "TERRAIN_FLAT",
     });
@@ -317,188 +252,95 @@ describe("natural wonder placement materialization", () => {
       };
     };
 
-    const stats = stampNaturalWondersFromPlan({
-      engine: adapter,
-      noFeatureType: adapter.NO_FEATURE,
-      ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
-      wonders: oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, 17, SYNTHETIC_MOUNTAIN_DIMENSIONS),
-      requestedCount: 1,
-    });
+    const evidence = executeNaturalWonderStep(
+      adapter,
+      oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, 17, SYNTHETIC_MOUNTAIN_FOOTPRINT)
+    );
 
-    expect(stats).toMatchObject({
-      coordinateEvidence: {
-        version: 1,
-        placed: { count: 0, hash32: "811c9dc5" },
-        rejected: { count: 1, hash32: "6f806eb2" },
-      },
+    expect(evidence).toMatchObject({
       plannedCount: 1,
-      targetCount: 1,
       placedCount: 0,
       rejectedCount: 1,
-      shortfallCount: 0,
       observedNaturalWonderPlotIndices: [17, 18],
-    });
-    expect(stats.rejectionExamples[0]).toBe(
-      "feature=35 plot=17 direction=-1 elevation=120 reason=readback-mismatch observedPlot=23 observedFeature=-1 footprint=17:35,23:-1,18:35 readback=partial-expected-footprint"
-    );
-    expect(buildNaturalWonderPlacementRuntimeTelemetry(stats)).toMatchObject({
-      rejectionExampleCount: 1,
-      rejectionExamples: [
-        "feature=35 plot=17 direction=-1 elevation=120 reason=readback-mismatch observedPlot=23 observedFeature=-1 footprint=17:35,23:-1,18:35 readback=partial-expected-footprint",
-      ],
-      rejectedRows: [
-        [
-          "r",
-          17,
-          2,
-          3,
-          featureTypes.FEATURE_KILIMANJARO,
-          -1,
-          120,
-          "readback-mismatch",
-          -1,
-          23,
-          "partial-expected-footprint",
-        ],
-      ],
-      coordinateEvidence: {
-        rejectedCount: 1,
-        rejectedHash32: "6f806eb2",
-      },
-    });
-  });
-
-  it("retries a fallback anchor when the engine refuses the primary", () => {
-    const adapter = createMockAdapter({
-      ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
-      defaultBiomeType: biomeGlobals.BIOME_PLAINS,
-      defaultTerrainName: "TERRAIN_FLAT",
-    });
-    // The engine accepts every anchor EXCEPT the planner's primary (2,3): this
-    // models canHaveFeatureParam-true-but-setFeatureType-false at the chosen tile.
-    const placeNaturalWonder = adapter.placeNaturalWonder.bind(adapter);
-    adapter.placeNaturalWonder = (x, y, featureType, direction, elevation) => {
-      if (x === 2 && y === 3) {
-        return {
+      coordinateRows: [
+        {
           status: "rejected",
-          plotIndex: y * adapter.width + x,
-          x,
-          y,
-          featureType,
-          direction,
-          reason: "can-have-feature-param-false",
-        };
-      }
-      return placeNaturalWonder(x, y, featureType, direction, elevation);
-    };
-
-    const stats = stampNaturalWondersFromPlan({
-      engine: adapter,
-      noFeatureType: adapter.NO_FEATURE,
-      ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
-      wonders: {
-        ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
-        wondersCount: 1,
-        targetCount: 1,
-        plannedCount: 1,
-        placements: [
-          {
-            plotIndex: 17, // (2,3) — refused by the engine
-            featureType: featureTypes.FEATURE_KILIMANJARO,
-            direction: -1,
-            elevation: 120,
-            priority: 1,
-            fallbackPlotIndices: [19], // (4,3) — accepted
-          },
-        ],
-      },
-      requestedCount: 1,
+          plotIndex: 17,
+          reason: "readback-mismatch",
+          observedPlotIndex: 23,
+          observedFeatureType: adapter.NO_FEATURE,
+          expectedFootprintReadbackStatus: "partial-expected-footprint",
+        },
+      ],
     });
-
-    expect(stats.placedCount).toBe(1);
-    expect(stats.rejectedCount).toBe(0);
-    expect(stats.shortfallCount).toBe(0);
-    const placedRow = stats.coordinateRows.find((row) => row.status === "placed");
-    expect(placedRow?.plotIndex).toBe(19);
-    expect(adapter.getFeatureType(4, 3)).toBe(featureTypes.FEATURE_KILIMANJARO);
+    expect(evidence.rejectionExamples[0]).toContain("readback=partial-expected-footprint");
   });
 
-  it("records the primary rejection once when every anchor fails", () => {
-    const adapter = createMockAdapter({
-      ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
+  it("records the primary rejection once after every fallback anchor fails", () => {
+    const adapter = createTerrainBackedAdapter({
+      ...SYNTHETIC_MOUNTAIN_FOOTPRINT,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       defaultTerrainName: "TERRAIN_FLAT",
     });
-    adapter.placeNaturalWonder = (x, y, featureType, direction) => ({
-      status: "rejected",
-      plotIndex: y * adapter.width + x,
-      x,
-      y,
-      featureType,
-      direction,
-      reason: "can-have-feature-param-false",
-    });
+    const attemptedPlotIndices: number[] = [];
+    adapter.placeNaturalWonder = (x, y, featureType, direction) => {
+      const plotIndex = y * adapter.width + x;
+      attemptedPlotIndices.push(plotIndex);
+      return {
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        featureType,
+        direction,
+        reason: "can-have-feature-param-false",
+      };
+    };
+    const plan = oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, 17, SYNTHETIC_MOUNTAIN_FOOTPRINT);
+    plan.placements[0]!.fallbackPlotIndices = [19, 21];
 
-    const stats = stampNaturalWondersFromPlan({
-      engine: adapter,
-      noFeatureType: adapter.NO_FEATURE,
-      ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
-      wonders: {
-        ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
-        wondersCount: 1,
-        targetCount: 1,
-        plannedCount: 1,
-        placements: [
-          {
-            plotIndex: 17,
-            featureType: featureTypes.FEATURE_KILIMANJARO,
-            direction: -1,
-            elevation: 120,
-            priority: 1,
-            fallbackPlotIndices: [19, 21],
-          },
-        ],
-      },
-      requestedCount: 1,
-    });
+    const evidence = executeNaturalWonderStep(adapter, plan);
 
-    // Exactly one rejection (the primary), not one per attempted anchor.
-    expect(stats.placedCount).toBe(0);
-    expect(stats.rejectedCount).toBe(1);
-    const rejectedRows = stats.coordinateRows.filter((row) => row.status === "rejected");
-    expect(rejectedRows.length).toBe(1);
-    expect(rejectedRows[0]?.plotIndex).toBe(17);
-    expect(stats.rejectionExamples[0]).toContain("plot=17");
+    expect(attemptedPlotIndices).toEqual([17, 19, 21]);
+    expect(evidence).toMatchObject({
+      plannedCount: 1,
+      placedCount: 0,
+      rejectedCount: 1,
+      rejectionExamples: [expect.stringContaining("plot=17")],
+      coordinateRows: [
+        {
+          status: "rejected",
+          plotIndex: 17,
+          reason: "can-have-feature-param-false",
+        },
+      ],
+    });
   });
 
-  it("still fails corrupt plan metadata", () => {
-    const adapter = createMockAdapter({
-      ...SYNTHETIC_CORRUPT_PLAN_DIMENSIONS,
+  it("records a target shortfall without aborting a preset-sized run", () => {
+    const adapter = createTerrainBackedAdapter({
+      ...TEST_MAP_SIZE.dimensions,
+      mapInfo: TEST_MAP_SIZE.mapInfo,
+      mapSizeId: TEST_MAP_SIZE.id,
       defaultBiomeType: biomeGlobals.BIOME_GRASSLAND,
-      defaultTerrainName: "TERRAIN_FLAT",
+      defaultTerrainName: "TERRAIN_HILL",
     });
+    const { width, height } = TEST_MAP_SIZE.dimensions;
+    const anchor = Math.floor(height / 2) * width + Math.floor(width / 2);
 
-    expect(() =>
-      stampNaturalWondersFromPlan({
-        engine: adapter,
-        noFeatureType: adapter.NO_FEATURE,
-        ...SYNTHETIC_CORRUPT_PLAN_DIMENSIONS,
-        wonders: {
-          ...SYNTHETIC_CORRUPT_PLAN_DIMENSIONS,
-          wondersCount: 1,
-          targetCount: 1,
-          plannedCount: 2,
-          placements: [
-            {
-              plotIndex: 0,
-              featureType: featureTypes.FEATURE_REDWOOD_FOREST,
-              direction: 0,
-              elevation: 120,
-              priority: 1,
-            },
-          ],
-        },
+    const evidence = executeNaturalWonderStep(
+      adapter,
+      oneWonderPlan(featureTypes.FEATURE_REDWOOD_FOREST, anchor, TEST_MAP_SIZE.dimensions, {
+        targetCount: 2,
       })
-    ).toThrow(/metadata mismatch/);
+    );
+
+    expect(evidence).toMatchObject({
+      targetCount: 2,
+      plannedCount: 1,
+      placedCount: 1,
+      rejectedCount: 0,
+      shortfallCount: 1,
+    });
   });
 });

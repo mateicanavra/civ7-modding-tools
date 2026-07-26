@@ -1,4 +1,5 @@
 import {
+  isAnyRiverClass,
   isMajorRiverClass,
   isMinorRiverClass,
   RIVER_CLASS_NONE,
@@ -10,7 +11,6 @@ import {
   HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C,
 } from "../../../model/policy/climate-knob-policy.js";
 import { config } from "./config.js";
-import { computeRiverAdjacencyMaskFromRiverClass } from "./rules/river-adjacency.js";
 import { buildClimateRefineVizProjections } from "./viz.js";
 
 type HydrologyCryosphereKnob = "off" | "on";
@@ -21,6 +21,47 @@ const EFFECTIVE_MOISTURE_HUMIDITY_WEIGHT = 0.35;
 const EFFECTIVE_MOISTURE_RIPARIAN_RADIUS = 1;
 const EFFECTIVE_MOISTURE_MINOR_RIVER_BONUS = 4;
 const EFFECTIVE_MOISTURE_MAJOR_RIVER_BONUS = 8;
+
+/** Projects a configurable neighborhood mask from immutable Hydrology river classifications. */
+function computeRiverAdjacencyMaskFromRiverClass(options: {
+  width: number;
+  height: number;
+  riverClass: Uint8Array;
+  radius?: number;
+}): Uint8Array {
+  const width = options.width;
+  const height = options.height;
+  const radius = Math.max(0, options.radius ?? 1) | 0;
+  const size = width * height;
+
+  const mask = new Uint8Array(size);
+  if (radius <= 0) {
+    for (let i = 0; i < size; i++) mask[i] = isAnyRiverClass(options.riverClass[i]) ? 1 : 0;
+    return mask;
+  }
+
+  for (let y = 0; y < height; y++) {
+    const y0 = Math.max(0, y - radius);
+    const y1 = Math.min(height - 1, y + radius);
+    for (let x = 0; x < width; x++) {
+      const x0 = Math.max(0, x - radius);
+      const x1 = Math.min(width - 1, x + radius);
+      let adjacent = 0;
+      for (let ny = y0; ny <= y1 && !adjacent; ny++) {
+        const row = ny * width;
+        for (let nx = x0; nx <= x1; nx++) {
+          if (isAnyRiverClass(options.riverClass[row + nx])) {
+            adjacent = 1;
+            break;
+          }
+        }
+      }
+      mask[y * width + x] = adjacent;
+    }
+  }
+
+  return mask;
+}
 
 /**
  * Refines baseline climate against topography and hydrography, publishing physical products while

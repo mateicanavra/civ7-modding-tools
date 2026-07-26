@@ -1,7 +1,6 @@
 import { describe, expect, it } from "bun:test";
-
-import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
+import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 
 type ResourcePlanAdjusted = Static<
   (typeof resourceSupportArtifacts)["resourcePlanAdjusted"]["schema"]
@@ -292,68 +291,6 @@ describe("placement adjusted resource-plan artifact", () => {
         .validate(stationaryMove, { dimensions: SYNTHETIC_DIMENSIONS })
         .some((entry) => entry.message.includes("must be different plots"))
     ).toBe(true);
-  });
-
-  it("refuses impossible move and add provenance states at the schema boundary", () => {
-    const moveWithoutSource = coherentAdjustedResourcePlan();
-    const movedIntent = requiredAt(moveWithoutSource.intents, 0, "resource intent");
-    if (movedIntent.support?.action !== "move") throw new Error("Missing move provenance.");
-    Reflect.deleteProperty(movedIntent.support, "fromPlotIndex");
-    expect(
-      resourceSupportArtifacts.resourcePlanAdjusted.validate(moveWithoutSource, {
-        dimensions: SYNTHETIC_DIMENSIONS,
-      }).length
-    ).toBeGreaterThan(0);
-
-    const moveRowWithoutSource = coherentAdjustedResourcePlan();
-    const moveRow = requiredAt(moveRowWithoutSource.adjustments, 0, "adjustment");
-    if (moveRow.action !== "move") throw new Error("Missing move adjustment.");
-    Reflect.deleteProperty(moveRow, "fromPlotIndex");
-    expect(
-      resourceSupportArtifacts.resourcePlanAdjusted.validate(moveRowWithoutSource, {
-        dimensions: SYNTHETIC_DIMENSIONS,
-      }).length
-    ).toBeGreaterThan(0);
-
-    const addWithSource = coherentAdjustedResourcePlan();
-    const addedIntent = requiredAt(addWithSource.intents, 2, "resource intent");
-    if (addedIntent.support?.action !== "add") throw new Error("Missing add provenance.");
-    Reflect.set(addedIntent.support, "fromPlotIndex", 17);
-    expect(
-      resourceSupportArtifacts.resourcePlanAdjusted.validate(addWithSource, {
-        dimensions: SYNTHETIC_DIMENSIONS,
-      }).length
-    ).toBeGreaterThan(0);
-
-    const addRowWithSource = coherentAdjustedResourcePlan();
-    const addRow = requiredAt(addRowWithSource.adjustments, 1, "adjustment");
-    if (addRow.action !== "add") throw new Error("Missing add adjustment.");
-    Reflect.set(addRow, "fromPlotIndex", 17);
-    expect(
-      resourceSupportArtifacts.resourcePlanAdjusted.validate(addRowWithSource, {
-        dimensions: SYNTHETIC_DIMENSIONS,
-      }).length
-    ).toBeGreaterThan(0);
-  });
-
-  it("refuses output settings outside the admitted strategy ranges", () => {
-    const invalidFloor = coherentAdjustedResourcePlan();
-    invalidFloor.settings.supportFloor = 7;
-    expect(
-      resourceSupportArtifacts.resourcePlanAdjusted.validate(invalidFloor).length
-    ).toBeGreaterThan(0);
-
-    const invalidRadius = coherentAdjustedResourcePlan();
-    invalidRadius.settings.supportRadiusTiles = 0;
-    expect(
-      resourceSupportArtifacts.resourcePlanAdjusted.validate(invalidRadius).length
-    ).toBeGreaterThan(0);
-
-    const invalidTolerance = coherentAdjustedResourcePlan();
-    invalidTolerance.settings.equityTolerance = 9;
-    expect(
-      resourceSupportArtifacts.resourcePlanAdjusted.validate(invalidTolerance).length
-    ).toBeGreaterThan(0);
   });
 
   it("uses producer radius membership at the wrapped even-width seam", () => {

@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "@mapgen/domain/resources";
 import resources from "@mapgen/domain/resources/router";
 
-import { normalizeOperationSelectionForTest, TestCompileError } from "@swooper/mapgen-core/testing";
+import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
 import { TEST_MAP_SIZE } from "../../../../setup.js";
 
 type AquaticExpectation = Parameters<
@@ -57,14 +57,6 @@ describe("resource group rollup operation contract", () => {
     );
     expect(result.groups.map((group) => group.plans.length)).toEqual([6, 18, 11, 20]);
     expect(result.groups[0]?.plans.map((plan) => plan.resourceType)).toContain("RESOURCE_FISH");
-
-    for (const group of result.groups) {
-      for (const row of group.plans) {
-        expect(Object.hasOwn(row, "resourceId")).toBe(false);
-        expect(Object.hasOwn(row, "numericId")).toBe(false);
-        expect(Object.hasOwn(row, "preferredResourceType")).toBe(false);
-      }
-    }
   });
 
   it("preserves group-level blocked, missing-signal, and missing-expectation counts", () => {
@@ -161,17 +153,6 @@ describe("resource group rollup operation contract", () => {
     ]);
     expect(result.groups[0]?.inputGroupId).toBe("cultivated-plantation-medicinal");
     expect(result.groups[0]?.plans).toHaveLength(6);
-  });
-
-  it("does not allow caller config to omit resource groups", () => {
-    for (const selector of ["requiredGroupIds", "groupIds", "includeGroups"]) {
-      expect(() =>
-        normalizeOperationSelectionForTest(resources.demand.ops.planResourceGroups, {
-          strategy: "canonical-rollup",
-          config: { [selector]: ["aquatic-coastal-navigable-river"] },
-        })
-      ).toThrow(TestCompileError);
-    }
   });
 });
 

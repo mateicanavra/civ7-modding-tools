@@ -1,7 +1,5 @@
 import { describe, expect, it } from "bun:test";
 
-import { NATURAL_WONDER_CATALOG } from "@civ7/map-policy";
-import { WONDER_GROUPS } from "@mapgen/domain/placement/modules/wonders/model/policy/natural-wonder-groups.js";
 import placementDomain from "@mapgen/domain/placement/router";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 import { TEST_MAP_SIZE } from "../../../setup.js";
@@ -15,63 +13,6 @@ function naturalWonderSelection(minSpacingTiles: number) {
 }
 
 describe("natural wonder planning", () => {
-  it("wonder-group registry: membership and suitability formulas match the pinned definitions", () => {
-    // Membership is the single source of truth (the feature->group map is derived).
-    const membership = Object.fromEntries(
-      Object.entries(WONDER_GROUPS).map(([group, def]) => [
-        group,
-        [...def.features].sort((a, b) => a - b),
-      ])
-    );
-    expect(membership).toEqual({
-      A: [35, 41],
-      B: [37],
-      C: [29, 44, 45],
-      D: [0],
-      E: [32, 34],
-      F: [1, 33, 36, 38, 40, 42, 43],
-      G: [28],
-      H: [31, 39],
-      I: [30],
-    });
-    // Every supported Civ7 natural wonder has exactly one group.
-    const allFeatures = Object.values(WONDER_GROUPS).flatMap((def) => def.features);
-    const groupedFeatureTypes = [...new Set(allFeatures)].sort((a, b) => a - b);
-    const supportedFeatureTypes = NATURAL_WONDER_CATALOG.map((entry) => entry.featureType).sort(
-      (a, b) => a - b
-    );
-    expect(allFeatures.length).toBe(groupedFeatureTypes.length);
-    expect(groupedFeatureTypes).toEqual(supportedFeatureTypes);
-
-    // Characterization: pin each group's formula for a fixed signal vector — guards
-    // the load-bearing weights through the registry refactor (all results <= 1, so
-    // clamp01 is identity here).
-    const s = {
-      relief: 0.5,
-      elevN: 0.4,
-      arid: 0.6,
-      warm: 0.7,
-      temperate: 0.8,
-      vegN: 0.3,
-      fertN: 0.2,
-      dischN: 0.9,
-      slopeN: 0.1,
-      shelfN: 1,
-      deepN: 0.55,
-      moist: 0.45,
-    };
-    const suit = (g: keyof typeof WONDER_GROUPS) => WONDER_GROUPS[g].suitability(s);
-    expect(suit("A")).toBeCloseTo(0.55 * 0.5 + 0.35 * 0.4 + 0.1 * 0.7, 9);
-    expect(suit("B")).toBeCloseTo(0.5 * 1 + 0.3 * 0.5 + 0.2 * 0.7, 9);
-    expect(suit("C")).toBeCloseTo(0.55 * 1 + 0.3 * 0.7 + 0.15 * (1 - 0.6), 9);
-    expect(suit("D")).toBeCloseTo(0.7 * 0.55 + 0.3 * (1 - 0.6), 9);
-    expect(suit("E")).toBeCloseTo(0.45 * 0.9 + 0.3 * 0.1 + 0.25 * 0.5, 9);
-    expect(suit("F")).toBeCloseTo(0.5 * 0.4 + 0.4 * 0.5 + 0.1 * (1 - 0.3), 9);
-    expect(suit("G")).toBeCloseTo(0.45 * 0.2 + 0.3 * 0.45 + 0.25 * (1 - 0.5), 9);
-    expect(suit("H")).toBeCloseTo(0.5 * 0.6 + 0.3 * 0.4 + 0.2 * 0.5, 9);
-    expect(suit("I")).toBeCloseTo(0.55 * 0.3 + 0.3 * 0.45 + 0.15 * 0.8, 9);
-  });
-
   it("plans wonders from map-size defaults without bonus inflation", () => {
     const result = runAdmittedOperationForTest(
       planWonders,

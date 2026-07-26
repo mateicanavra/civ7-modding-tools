@@ -38,7 +38,9 @@ This how-to is **recipe-level** (steps are authored/registered in a recipe). It 
 
 ### 2) Define the step contract (`defineStep`)
 
-- Create `steps/<step-id>/config.ts`; the directory name must equal the contract id.
+- Create the closed `steps/<step-id>/` leaf; the directory name must equal the
+  contract id. It contains required `config.ts` and `step.ts`, and may contain
+  `viz.ts` only when the step attaches that visualization.
 - Export that leaf-owned step contract as `config`. Composition code may alias
   imported configs to avoid collisions; the leaf export itself is never renamed.
 - Use `defineStep({ id, requires, provides, artifacts, ops, schema })`.
@@ -114,16 +116,19 @@ export const config = defineStep({
 ```
 
 `plot-rivers` deliberately has no domain operation for engine-constrained
-navigable selection. Its `step.ts` calls the pure
-`steps/plot-rivers/rules/select-navigable-river-terrain.ts` rule using thresholds
-compiled from the stage-owned `model/policy/navigable-river-projection.ts`. Use
-the same distinction when behavior belongs to one recipe projection rather than
-the reusable domain model.
+navigable selection. Its `step.ts` calls the stage-owned
+`model/policy/navigable-river-projection.ts` policy using thresholds compiled
+from the same owner. Use the same distinction when behavior belongs to one
+recipe projection rather than the reusable domain model; do not create a
+step-local `rules/` or helper cabinet.
 
 ### 3) Implement the step (`createStep`)
 
 - Create `steps/<step-id>/step.ts`, import `{ config }` from the sibling
-  `config.ts`, and call `createStep(config, { normalize?, run })`.
+  `config.ts`, and call `createStep(config, { normalize?, run, viz? })`.
+- Keep private execution in `step.ts`. Move reusable logic to the nearest
+  qualified stage/domain/SDK owner, and use `viz.ts` only for substantial pure
+  visualization projection attached by the step.
 - Keep step code “boring”: read inputs from `deps`/artifacts, mutate only permitted state, publish
   only allowed artifacts, and emit structured debug events only through `context.trace`.
 - Return any completed evidence needed by optional `metrics` or `viz` projectors. Recipe algorithms

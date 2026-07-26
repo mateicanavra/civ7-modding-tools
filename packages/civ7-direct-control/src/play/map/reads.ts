@@ -2,7 +2,7 @@ import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
 import { canonicalMapSizeTypeScriptSource } from "../../runtime/map-size-type-source.js";
 import { probeHelperSource } from "../../runtime/probe.js";
-import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { schemaPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7Command, executeCiv7TunerCommand } from "../../session/execute.js";
 
 import type {
@@ -25,6 +25,12 @@ import type {
   Civ7PlotSnapshotField,
   Civ7PlotSnapshotInput,
   Civ7PlotSnapshotResult,
+} from "./types.js";
+import {
+  Civ7MapGridResultSchema,
+  Civ7MapSummaryResultSchema,
+  Civ7NativeRiverObjectsResultSchema,
+  Civ7PlotSnapshotResultSchema,
 } from "./types.js";
 import { validateMapBounds, validateMapLocation } from "./validation.js";
 
@@ -112,7 +118,7 @@ export async function getCiv7PlotSnapshot(
   dependencies: PlotSnapshotReadDependencies = defaultMapReadDependencies
 ): Promise<Civ7PlotSnapshotResult> {
   dependencies.validateMapLocation(input);
-  const fields = normalizePlotFields(input.fields);
+  const fields = normalizeCiv7PlotFields(input.fields);
   const result = await dependencies.executeTunerCommand({
     ...options,
     command: buildPlotSnapshotCommand({ ...input, fields: Array.from(fields) }, dependencies),
@@ -137,7 +143,7 @@ export async function getCiv7MapGrid(
     command: buildMapGridCommand(
       {
         ...input,
-        fields: normalizePlotFields(input.fields),
+        fields: normalizeCiv7PlotFields(input.fields),
         maxPlots,
       },
       dependencies
@@ -454,7 +460,11 @@ function plotSnapshotScriptSource(
     };`;
 }
 
-function normalizePlotFields(
+/**
+ * Validates, deduplicates, and default-fills the plot fact selectors shared by
+ * bounded map reads and the full-grid aggregate.
+ */
+export function normalizeCiv7PlotFields(
   fields: ReadonlyArray<Civ7PlotSnapshotField> | undefined
 ): ReadonlyArray<Civ7PlotSnapshotField> {
   const selected: ReadonlyArray<Civ7PlotSnapshotField> = fields?.length
@@ -519,13 +529,14 @@ const defaultMapReadDependencies: MapReadDependencies = {
   executeTunerCommand: executeCiv7TunerCommand,
   hardMapGridMaxPlots: HARD_CIV7_MAP_GRID_MAX_PLOTS,
   jsLiteral,
-  parseMapGrid: (result, label) => jsonPayloadFromCommandResult<Civ7MapGridResult>(result, label),
+  parseMapGrid: (result, label) =>
+    schemaPayloadFromCommandResult(result, label, Civ7MapGridResultSchema),
   parseMapSummary: (result, label) =>
-    jsonPayloadFromCommandResult<Civ7MapSummaryResult>(result, label),
+    schemaPayloadFromCommandResult(result, label, Civ7MapSummaryResultSchema),
   parseNativeRiverObjects: (result, label) =>
-    jsonPayloadFromCommandResult<Civ7NativeRiverObjectsResult>(result, label),
+    schemaPayloadFromCommandResult(result, label, Civ7NativeRiverObjectsResultSchema),
   parsePlotSnapshot: (result, label) =>
-    jsonPayloadFromCommandResult<Civ7PlotSnapshotResult>(result, label),
+    schemaPayloadFromCommandResult(result, label, Civ7PlotSnapshotResultSchema),
   probeHelperSource,
   validateMapBounds,
   validateMapLocation,

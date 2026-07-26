@@ -13,8 +13,8 @@ import {
   STANDARD_VIZ_COLORS,
 } from "../../../../../viz.js";
 import type { MorphologyMountainRangesKnob, MorphologyOrogenyKnob } from "../../index.js";
+import { resolveMountainRangesControl } from "../../model/policy/mountain-ranges.js";
 import { config } from "./config.js";
-import { resolveMountainRangesControl } from "./mountain-ranges.js";
 
 const GROUP_MORPHOLOGY_FEATURES = "Morphology / Features";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;

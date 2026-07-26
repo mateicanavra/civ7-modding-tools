@@ -29,13 +29,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** lock affirmed blueprint identity at the commit boundary.
-Habitat compares HEAD with the staged index so a stable rule may move only
-within its owning blueprint and may retire only as one complete declared
-authority packet. Candidate-path admission is shared with the canonical
-registry, and Git path-action parsing fails closed. This guard must remain
-unregistered self-protection rather than becoming another rule that can demote
-itself.
+**Current container:** cash the normalized Placement and Resources test plane
+into intent-true ownership. A surviving test must exercise product policy,
+algorithm behavior, semantic artifact law, concrete projection/materialization,
+or metric-study behavior at its causal owner. Closed-schema admission, required
+keys, publication wiring, removed legacy fields, and source topology remain
+owned by the SDK, TypeScript, and Habitat; recipe tests do not earn a second
+copy of those guarantees. Relocation follows meaning rather than preserving a
+historical `runtime`, `recipe`, or broad metric cabinet.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -52,11 +53,13 @@ modules then stop importing framework issue/context types or allocating and
 threading their own issue arrays. This remains a dedicated semantic container,
 not a compatibility overload hidden inside the stage-plane move.
 
-**Gradient:** seal the reviewed continuity guard as one Habitat layer. With
-kind-law drift no longer able to pass a hook, continue the diagnostics/live
-ownership purification, Placement and Resources test sieve, accurate Knip
-deletion, and JSDoc burn-down. The program ends only when generic laws, source
-tree, types, tests, Knip, and the boundary graph agree.
+**Gradient:** delete provider-guarantee and legacy-key assertions, relocate
+surviving policy/artifact/viz cases to their causal owners, remove recipe/step
+duplication, and split the broad world-metrics owner by semantic family without
+changing behavior. Then run accurate Knip deletion, burn consumed-export JSDoc
+and semantic descriptions to zero, and bind truthful dead-code proof into the
+native quality graph. The program ends only when generic laws, source tree,
+types, tests, Knip, and the boundary graph agree.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -91,6 +94,16 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-25 - Closed Recipe-Step Kind
+
+The generic recipe-step blueprint was restored as a closed positive kind:
+every step leaf owns `config.ts` and `step.ts`, with `viz.ts` admitted only when
+the executable attaches it as a first-class visualization facet. Loose helper,
+rule, input, materialization, and telemetry cabinets were inlined, deleted, or
+relocated to qualified policy and stage-support owners; the stale
+placement-specific shape rule retired after the generic law and focused
+behavior proofs reached zero.
 
 ### 2026-07-24 - Domain Test Ownership
 

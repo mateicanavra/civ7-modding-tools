@@ -1,8 +1,67 @@
+import type { PlotEffectKey } from "@civ7/map-policy";
+import type { PlotEffectIntentKey } from "@mapgen/domain/ecology/modules/plot-effects/model/atoms/index.js";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { defineStandardVizCategoryMeta } from "../../../../../viz.js";
-import { applyPlotEffectPlacements } from "./apply.js";
 import { config } from "./config.js";
 import { PLOT_EFFECT_VIZ_CATEGORIES, plotEffectVizValue } from "./viz.js";
+
+/**
+ * Exhaustive projection from Ecology plot-effect intent to Civ7 runtime keys. Keeping this map
+ * explicit prevents the projection stage from reinterpreting semantic effect choices.
+ */
+const PLOT_EFFECT_KEY_BY_INTENT: Readonly<Record<PlotEffectIntentKey, PlotEffectKey>> = {
+  "snow-light": "PLOTEFFECT_SNOW_LIGHT_PERMANENT",
+  "snow-medium": "PLOTEFFECT_SNOW_MEDIUM_PERMANENT",
+  "snow-heavy": "PLOTEFFECT_SNOW_HEAVY_PERMANENT",
+  sand: "PLOTEFFECT_SAND",
+  burned: "PLOTEFFECT_BURNED",
+  frostbite: "PLOTEFFECT_FROSTBITE",
+  "desert-heat": "PLOTEFFECT_DESERT_HEAT",
+  "jungle-fever": "PLOTEFFECT_JUNGLE_FEVER",
+};
+
+type PlotEffectPlacement = {
+  x: number;
+  y: number;
+  plotEffect: PlotEffectIntentKey;
+};
+
+type PlotEffectEngine = Readonly<{
+  getPlotEffectTypeIndex: (key: PlotEffectKey) => number;
+  addPlotEffect: (x: number, y: number, plotEffectType: number) => void;
+}>;
+
+const resolvePlotEffectIndex = (engine: PlotEffectEngine, key: PlotEffectKey): number => {
+  const index = engine.getPlotEffectTypeIndex(key);
+  if (typeof index !== "number" || Number.isNaN(index) || index < 0) {
+    throw new Error(`PlotEffectsStep: Unknown plot-effect key "${key}".`);
+  }
+  return index;
+};
+
+/**
+ * Applies preplanned plot effects to the engine adapter.
+ *
+ * The placement policy belongs to Ecology; this helper deliberately accepts a
+ * readonly artifact snapshot so map-ecology cannot mutate or reinterpret truth
+ * while projecting it into Civ7 runtime state.
+ */
+function applyPlotEffectPlacements(
+  engine: PlotEffectEngine,
+  placements: ReadonlyArray<PlotEffectPlacement>
+): void {
+  const resolved = new Map<PlotEffectKey, number>();
+
+  for (const placement of placements) {
+    const engineKey = PLOT_EFFECT_KEY_BY_INTENT[placement.plotEffect];
+    let plotEffectType = resolved.get(engineKey);
+    if (plotEffectType == null) {
+      plotEffectType = resolvePlotEffectIndex(engine, engineKey);
+      resolved.set(engineKey, plotEffectType);
+    }
+    engine.addPlotEffect(placement.x, placement.y, plotEffectType);
+  }
+}
 
 const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
 

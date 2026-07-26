@@ -12,10 +12,10 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "recipe step source files outside one kebab-case directory containing config.ts and step.ts, including flat files, contract/index barrel variants, and artifact authorities anywhere beneath a step",
-  "why": "A recipe step has one filesystem container and consumes domain-owned artifacts rather than defining them. Requiring one kebab-case directory with config.ts and step.ts removes flat and barrel-based alternate source topologies, while recursive descendant coverage prevents helpers from smuggling artifact ownership beneath the step.",
-  "remediate": "Move each step beneath a kebab-case directory, rename its contract module to config.ts, rename its executable module to step.ts, remove step barrels, and relocate every artifact authority to its owning domain.",
-  "message": "Recipe step source must use one kebab-case <step-directory>/{config.ts,step.ts} container.",
+  "forbids": "recipe step source outside one closed kebab-case directory containing config.ts, step.ts, and at most the optional viz.ts support module",
+  "why": "A recipe step has one closed filesystem container: config.ts declares its authored contract, step.ts owns execution and visibly attaches optional authoring capabilities, and viz.ts may hold substantial pure visualization projections behind that attachment. Loose helpers, nested implementation cabinets, barrels, and artifact authorities obscure ownership and let implementation concerns escape the executable owner.",
+  "remediate": "Move each step beneath a kebab-case directory, retain required config.ts and step.ts plus viz.ts only when the step visibly attaches that visualization, inline private execution into step.ts, and relocate reusable capabilities or immutable products to their actual recipe, domain, SDK, diagnostics, metrics, or visualization owner.",
+  "message": "Recipe step source must use one closed kebab-case container with config.ts, step.ts, and only its optional viz.ts support module.",
   "pathCoverage": [
     {
       "kind": "exact-path",

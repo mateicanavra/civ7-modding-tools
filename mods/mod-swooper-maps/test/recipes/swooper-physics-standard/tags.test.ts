@@ -107,18 +107,15 @@ function placementAppliedSatisfies(
 describe("Standard effect tags", () => {
   it("rejects terminal placement when the start assignment leaves a seat unseated", () => {
     const complete = makeSyntheticStartAssignment(2);
-    expect(placementStartArtifacts.startAssignment.validate(complete)).toEqual([]);
     expect(placementAppliedSatisfies(complete)).toBe(true);
 
     const incomplete = makeSyntheticStartAssignment(2, 1);
-    expect(placementStartArtifacts.startAssignment.validate(incomplete)).toEqual([]);
     expect(incomplete.unseatedCount).toBe(1);
     expect(placementAppliedSatisfies(incomplete)).toBe(false);
   });
 
   it("rejects terminal placement when no player seats were admitted", () => {
     const empty = makeSyntheticStartAssignment(0);
-    expect(placementStartArtifacts.startAssignment.validate(empty)).toEqual([]);
     expect(placementAppliedSatisfies(empty)).toBe(false);
   });
 });

@@ -4,7 +4,6 @@ import { createStep } from "@swooper/mapgen-core/authoring";
 import { measureStandardDiscoveryPlacement } from "../../../../metrics/families/discovery-placement.js";
 import { runPlacementProductStep } from "../../log.js";
 import { config } from "./config.js";
-import { placeOfficialDiscoveries } from "./materialize.js";
 
 /**
  * Runs Civ7 discovery generation only after resources and starts are stamped,
@@ -23,16 +22,27 @@ export const PlaceDiscoveriesStep = createStep(config, {
       context.trace.event(() => payload);
     };
 
-    const outcomes = runPlacementProductStep("placement.discoveries", emit, () =>
-      placeOfficialDiscoveries({
-        generateOfficialDiscoveries: (...args) =>
-          deps.engine.generateOfficialDiscoveries(context, ...args),
+    const outcomes = runPlacementProductStep("placement.discoveries", emit, () => {
+      // Discovery identity and availability are live narrative-system products,
+      // so the official generator remains the sole placement authority. This
+      // step only normalizes its observed counts for metrics and logging.
+      const result = deps.engine.generateOfficialDiscoveries(
+        context,
         width,
         height,
         startPositions,
-        polarMargin,
-      })
-    );
+        polarMargin
+      );
+      const attemptedCount = Math.max(0, result.attemptedCount | 0);
+      const placedCount = Math.max(0, Math.min(attemptedCount, result.placedCount | 0));
+      return {
+        summary: {
+          attemptedCount,
+          placedCount,
+          rejectedCount: attemptedCount - placedCount,
+        },
+      };
+    });
 
     // Unconditional engine-safe telemetry (`console.log` is the only console
     // method available in the Civ7 MapGeneration context) so the live

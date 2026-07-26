@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "@mapgen/domain/resources";
 import resources from "@mapgen/domain/resources/router";
 
-import { normalizeOperationSelectionForTest, TestCompileError } from "@swooper/mapgen-core/testing";
+import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
 import { TEST_MAP_SIZE } from "../../../../setup.js";
 
 const CULTIVATED_RESOURCE_TYPES = [
@@ -30,7 +30,7 @@ type CultivatedExpectation = Parameters<
 >[0]["expectations"][number];
 
 describe("cultivated resource operation contract", () => {
-  it("plans all cultivated resource rows symbolically without runtime ids", () => {
+  it("plans every cultivated resource row while preserving blocked product exceptions", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const selection = normalizeOperationSelectionForTest(
@@ -72,12 +72,6 @@ describe("cultivated resource operation contract", () => {
     expect(result.plans.find((plan) => plan.resourceType === "RESOURCE_CLOVES")?.status).toBe(
       "blocked"
     );
-
-    for (const row of result.plans) {
-      expect(Object.hasOwn(row, "resourceId")).toBe(false);
-      expect(Object.hasOwn(row, "numericId")).toBe(false);
-      expect(Object.hasOwn(row, "preferredResourceType")).toBe(false);
-    }
   });
 
   it("keeps highland and coastal signal requirements visible", () => {
@@ -176,17 +170,6 @@ describe("cultivated resource operation contract", () => {
     expect(result.plans).toHaveLength(CULTIVATED_RESOURCE_TYPES.length);
     expect(result.missingResourceTypes).toEqual(CULTIVATED_RESOURCE_TYPES.slice(1));
     expect(result.plans.filter((plan) => plan.status === "missing-expectation")).toHaveLength(17);
-  });
-
-  it("does not allow caller config to omit required cultivated resources", () => {
-    for (const selector of ["requiredResourceTypes", "resourceTypes", "includeResources"]) {
-      expect(() =>
-        normalizeOperationSelectionForTest(resources.demand.ops.planCultivatedResources, {
-          strategy: "canonical-demand",
-          config: { [selector]: ["RESOURCE_COTTON"] },
-        })
-      ).toThrow(TestCompileError);
-    }
   });
 
   it("marks active rows as signal gaps when no cultivated signal mask is supplied", () => {

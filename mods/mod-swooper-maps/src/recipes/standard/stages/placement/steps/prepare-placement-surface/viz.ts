@@ -1,11 +1,18 @@
 import type { VizProjection } from "@swooper/mapgen-viz";
 import {
   definePlacementVizCategoryMeta,
-  PLACEMENT_VIZ_GROUP,
   PLACEMENT_TILE_SPACE_ID,
+  PLACEMENT_VIZ_GROUP,
   transparentNoneCategory,
 } from "../../viz.js";
-import type { TerrainValidationBoundaryReadback } from "./terrain-validation-readback.js";
+
+type TerrainValidationBoundaryReadback = Readonly<{
+  stage: string;
+  terrain: Int32Array;
+  waterMask: Uint8Array;
+  lakeMask: Uint8Array;
+  areaId: Int32Array;
+}>;
 
 /**
  * Projects exact maintenance-boundary readbacks plus the derived drift behind

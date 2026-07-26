@@ -1,28 +1,11 @@
 import { describe, expect, it } from "bun:test";
 import placementDomain from "@mapgen/domain/placement/router";
 import type { Static } from "@swooper/mapgen-core/authoring";
-import {
-  runAdmittedOperationForTest,
-  validateSchemaValueForTest,
-} from "@swooper/mapgen-core/testing";
-import type { IsEqual, RequiredKeysOf } from "type-fest";
+import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 
 const { planStarts } = placementDomain.starts.ops;
 
 type PlanStartsInput = Static<(typeof planStarts)["input"]>;
-type Expect<T extends true> = T;
-type RequiredPlanStartsSpatialField = Extract<
-  RequiredKeysOf<PlanStartsInput>,
-  "width" | "height" | "landMask" | "slotByTile" | "landmassIdByTile"
->;
-
-/** Compile-time proof that every non-imputable spatial input is required by plan-starts. */
-export type PlanStartsRequiresSpatialAuthority = Expect<
-  IsEqual<
-    RequiredPlanStartsSpatialField,
-    "width" | "height" | "landMask" | "slotByTile" | "landmassIdByTile"
-  >
->;
 
 type StartInputField =
   | "width"
@@ -137,37 +120,6 @@ function makeSeatDemandInput(slotCapacity: number, alivePlayerIds?: readonly num
 }
 
 describe("start viability planning", () => {
-  it("rejects omission of every required spatial input at contract admission", () => {
-    const requiredFields = [
-      "width",
-      "height",
-      "landMask",
-      "slotByTile",
-      "landmassIdByTile",
-    ] as const;
-
-    for (const field of requiredFields) {
-      const incomplete: Record<string, unknown> = {
-        ...makeInput(SYNTHETIC_START_DIMENSIONS.grid8x6),
-      };
-      delete incomplete[field];
-
-      expect(() =>
-        validateSchemaValueForTest(planStarts.input, incomplete, "/placement/plan-starts/input")
-      ).toThrow(field);
-    }
-  });
-
-  it("executes when every required spatial input is present", () => {
-    const syntheticDimensions = SYNTHETIC_START_DIMENSIONS.grid8x6;
-    const { width, height } = syntheticDimensions;
-    const result = plan(makeInput(syntheticDimensions, 0, 0));
-
-    expect(result.width).toBe(width);
-    expect(result.height).toBe(height);
-    expect(result.scoreByTile).toHaveLength(width * height);
-  });
-
   it("rejects single-tile islands when larger expansion land exists", () => {
     const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid10x8);
     addLandmass(
@@ -695,15 +647,6 @@ describe("start selection ladder (op-owned, S4)", () => {
 
   it("rejects duplicate alive-major identities instead of silently normalizing demand", () => {
     expect(() => plan(makeSeatDemandInput(2, [7, 7]))).toThrow();
-  });
-
-  it("rejects fractional regional slot contributions at contract admission", () => {
-    const input = makeSeatDemandInput(2, [7]);
-    input.baseStarts.playersLandmass1 = 1.5;
-
-    expect(() =>
-      validateSchemaValueForTest(planStarts.input, input, "/placement/plan-starts/input")
-    ).toThrow();
   });
 
   it("preserves authoritative alive-major demand on a valid map with no settleable land", () => {

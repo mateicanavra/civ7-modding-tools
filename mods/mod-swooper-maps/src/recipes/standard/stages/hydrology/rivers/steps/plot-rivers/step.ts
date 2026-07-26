@@ -15,9 +15,9 @@ import { restoreProjectedCoastTerrain } from "../../../../../water-surface-parit
 import {
   NAVIGABLE_RIVER_PROJECTION_POLICY,
   type NavigableRiverDensityKnob,
+  selectNavigableRiverTerrain,
 } from "../../model/policy/navigable-river-projection.js";
 import { config } from "./config.js";
-import { selectNavigableRiverTerrain } from "./rules/select-navigable-river-terrain.js";
 import { buildPlotRiversVizProjections, type PlotRiversVizEvidence } from "./viz.js";
 
 type ProjectionSignalStatus =

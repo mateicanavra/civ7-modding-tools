@@ -36,6 +36,7 @@ export class Civ7DirectControlSession {
   private consecutiveResponseTimeouts = 0;
   private totalResponseTimeouts = 0;
   private connecting: Promise<Civ7DirectControlEndpoint> | undefined;
+  private connectionEpochValue = 0;
 
   constructor(options: Civ7DirectControlOptions = {}) {
     this.config = resolveCiv7DirectControlConfig(options);
@@ -43,6 +44,16 @@ export class Civ7DirectControlSession {
 
   get endpoint(): Civ7DirectControlEndpoint | undefined {
     return this.endpointValue;
+  }
+
+  /**
+   * Monotonic identity of the physical tuner socket owned by this logical
+   * session. Zero means no socket has been acquired yet; every successful
+   * physical acquisition increments the epoch, including reconnects to the
+   * same host and port.
+   */
+  get connectionEpoch(): number {
+    return this.connectionEpochValue;
   }
 
   /**
@@ -90,6 +101,7 @@ export class Civ7DirectControlSession {
         });
         this.socket = socket;
         this.endpointValue = { host, port: this.config.port };
+        this.connectionEpochValue += 1;
         this.buffer = Buffer.alloc(0);
         socket.on("data", (chunk) => this.handleData(socket, chunk));
         socket.once("error", (err) => {
@@ -177,8 +189,13 @@ export class Civ7DirectControlSession {
       throw new Civ7DirectControlError("command-failed", "Civ7 command must not be empty");
     }
     const states = await this.queryStates({ timeoutMs: options.timeoutMs });
+    const stateConnectionEpoch = this.connectionEpoch;
     const state = selectCiv7TunerState(states, options.state);
-    const response = await this.request(`CMD:${state.id}:${command}`, options.timeoutMs);
+    const response = await this.requestOnConnectionEpoch(
+      `CMD:${state.id}:${command}`,
+      stateConnectionEpoch,
+      options.timeoutMs
+    );
     const endpoint = this.endpoint;
     if (!endpoint) {
       throw new Civ7DirectControlError(
@@ -203,6 +220,39 @@ export class Civ7DirectControlSession {
         `Civ7 tuner socket is closed before ${message}`
       );
     }
+    return await this.sendRequest(socket, message, timeoutMs);
+  }
+
+  private requestOnConnectionEpoch(
+    message: string,
+    expectedConnectionEpoch: number,
+    timeoutMs = this.config.timeoutMs
+  ): Promise<Civ7TunerFrame> {
+    const socket = this.socket;
+    if (
+      this.connectionEpochValue !== expectedConnectionEpoch ||
+      !socket ||
+      !isReusableSocket(socket)
+    ) {
+      throw new Civ7DirectControlError(
+        "socket-closed",
+        "Civ7 tuner connection changed after state selection; command was not sent",
+        {
+          details: {
+            expectedConnectionEpoch,
+            observedConnectionEpoch: this.connectionEpochValue,
+          },
+        }
+      );
+    }
+    return this.sendRequest(socket, message, timeoutMs);
+  }
+
+  private async sendRequest(
+    socket: Socket,
+    message: string,
+    timeoutMs: number
+  ): Promise<Civ7TunerFrame> {
     const listenerId = allocateListenerId();
     const response = new Promise<Civ7TunerFrame>((resolve, reject) => {
       const timer = setTimeout(() => {

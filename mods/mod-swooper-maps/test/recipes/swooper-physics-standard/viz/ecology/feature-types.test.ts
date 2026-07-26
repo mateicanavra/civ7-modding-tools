@@ -1,9 +1,8 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { FEATURE_PLACEMENT_KEYS } from "@civ7/map-policy";
+import { FEATURE_PLACEMENT_KEYS, type FeatureKey } from "@civ7/map-policy";
 
-import { resolveFeatureKeyLookups } from "../../../../../src/recipes/standard/stages/ecology/projection/steps/features-apply/feature-keys.js";
 import {
   buildFeatureTypeVizCategories,
   FEATURE_TYPE_NONE_VALUE,
@@ -16,9 +15,9 @@ describe("features apply viz meta (engine featureType)", () => {
       ...TEST_MAP_SIZE.dimensions,
       mapInfo: TEST_MAP_SIZE.mapInfo,
     });
-    const featureEngineIdsByKey = resolveFeatureKeyLookups((key) =>
-      adapter.getFeatureTypeIndex(key)
-    ).byKey;
+    const featureEngineIdsByKey = Object.fromEntries(
+      FEATURE_PLACEMENT_KEYS.map((key) => [key, adapter.getFeatureTypeIndex(key)])
+    ) as Record<FeatureKey, number>;
 
     const categories = buildFeatureTypeVizCategories(featureEngineIdsByKey);
     const values = categories.map((category) => category.value);

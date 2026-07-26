@@ -26,3 +26,56 @@ export function fnv1a32String(input: string): number {
 export function fnv1a32StringHex(input: string): string {
   return fnv1a32String(input).toString(16).padStart(8, "0");
 }
+
+/**
+ * Hashes signed 32-bit values as four little-endian bytes with the FNV-1a recurrence.
+ *
+ * JavaScript numbers are interpreted through the same `ToInt32` bitwise coercion
+ * used by typed-array evidence producers. Callers must quantize fractional
+ * measurements before hashing when the fraction is semantically significant.
+ */
+export function fnv1a32Int32Values(values: Iterable<number>): number {
+  let hash = FNV1A_32_OFFSET_BASIS;
+  for (const value of values) {
+    hash ^= value & 0xff;
+    hash = Math.imul(hash, FNV1A_32_PRIME);
+    hash ^= (value >> 8) & 0xff;
+    hash = Math.imul(hash, FNV1A_32_PRIME);
+    hash ^= (value >> 16) & 0xff;
+    hash = Math.imul(hash, FNV1A_32_PRIME);
+    hash ^= (value >> 24) & 0xff;
+    hash = Math.imul(hash, FNV1A_32_PRIME);
+  }
+  return hash >>> 0;
+}
+
+/**
+ * Formats {@link fnv1a32Int32Values} as a stable eight-character lowercase hex digest.
+ */
+export function fnv1a32Int32ValuesHex(values: Iterable<number>): string {
+  return fnv1a32Int32Values(values).toString(16).padStart(8, "0");
+}
+
+/**
+ * Hashes the exact logical byte window exposed by an ArrayBuffer view.
+ *
+ * Bytes are mixed in increasing address order from `byteOffset` through
+ * `byteOffset + byteLength`; bytes outside a subview never participate.
+ * Numeric interpretation and endianness remain the producer's responsibility:
+ * this function deliberately preserves the view's stored representation so
+ * fractional typed-array values and other bit-level evidence cannot collapse.
+ */
+export function fnv1a32Bytes(view: ArrayBufferView): number {
+  const bytes = new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
+  let hash = FNV1A_32_OFFSET_BASIS;
+  for (const byte of bytes) {
+    hash ^= byte;
+    hash = Math.imul(hash, FNV1A_32_PRIME);
+  }
+  return hash >>> 0;
+}
+
+/** Formats {@link fnv1a32Bytes} as a stable eight-character lowercase hex digest. */
+export function fnv1a32BytesHex(view: ArrayBufferView): string {
+  return fnv1a32Bytes(view).toString(16).padStart(8, "0");
+}

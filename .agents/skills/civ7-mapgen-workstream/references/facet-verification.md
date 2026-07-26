@@ -33,9 +33,15 @@ Two authoritative discriminators answer this; never argue the branch from a scre
 | Discriminator | What it compares | Reading |
 |---|---|---|
 | `diff-layers.ts` (`diag:diff`) | two **local** run manifests (`manifest.json` + `.bin`), per-layer Hamming / maxAbsDiff, filterable by `--prefix` / `--dataTypeKey` | non-zero diff in the data ⇒ **generation** bug, in `domain/*` or `recipes/*` |
-| `FinalSurfaceParityProof.unresolvedLinks` | **local** mapgen output vs the **live** Civ7 engine grid | empty (`status:"complete"`) ⇒ generation matches live; if the parity is clean and only Studio looks wrong, the bug is **display** |
+| Standard parity report | correlated Standard replay vs one coherent **live** Civ7 map observation | `complete-pass` ⇒ the admitted product surfaces match; `complete-failed` names generation/product mismatches; `blocked-unresolved` preserves known comparisons but does not close the branch |
 
-If local-vs-local and local-vs-live both agree and only the Studio canvas is wrong, generation is correct — stop editing `domain/*`. A display bug **never** moves `unresolvedLinks` (the proof compares raw mapgen output to the Civ7 runtime, not rendered pixels). Non-empty parity is triaged from the canonical proof's unresolved links and retained private evidence rather than a second classification implementation.
+If local-vs-local and a `complete-pass` local-vs-live report both agree while
+only the Studio canvas is wrong, generation is correct: stop editing
+`domain/*`. A display bug cannot create a raw product-comparison failure because
+the parity command never inspects rendered pixels. Treat `blocked-unresolved`
+as bounded evidence, not as proof that generation matched; inspect its retained
+comparison, failure, and unresolved links rather than creating a second
+classification implementation.
 
 ### Producing the binaries to diff
 
@@ -133,7 +139,7 @@ The runnable, ordered checklist with the exact failure-recovery branch is **`ass
 - **rejectPattern:** `/\[mapgen-failure\]|Map generation failed|\[recipe:[^\]]+\].*fail|StepExecutionError|\b(?:TextEncoder|Uncaught|Exception|Error)\b/i`.
 - **Deploy gate:** the verifier SHA-256-compares local `mods/mod-swooper-maps/mod/maps/<name>.js` vs the deployed copy and requires both river-materialization markers (`map.rivers.authoredTerrainMaterialization`, `POST-AUTHORED-RIVERS`) in both. Mismatch ⇒ exit 2, `recoveryHint: "nx run mod-swooper-maps:deploy"`. **Always deploy immediately before a mutating verify** (nx cache can serve stale output).
 - **Tuner:** `127.0.0.1:4318`; the `Tuner` scripting state (not `App UI`) is command-ready only after Begin Game. The live verifier calls `@civ7/control-orpc` `lifecycle.singlePlayer.start`, which requires post-start tuner evidence. Standard write/prep ownership remains in the deployed map recipe.
-- **Parity follow-up:** after a clean live run, `verify --mode final-surface-parity --request-id <id> --studio-url http://127.0.0.1:5174` fetches the `exactAuthorshipProof` from Studio `/rpc/runInGame/status`, runs `runLocalFinalSurfaceSnapshot`, and emits the proof. `parityStatus:"blocked"` usually means a missing `sourceSnapshot` in the start request, not a generation defect.
+- **Parity follow-up:** for a map launched through Studio Run in Game, `verify --mode final-surface-parity --request-id <id> --studio-url http://127.0.0.1:5174` uses public status only to reach private diagnostics and the immutable generation manifest. The Standard recipe owner admits the raw exact-authorship evidence, performs one correlated deterministic replay, and compares it with exactly one coherent Direct Control map observation. `complete-pass` alone exits 0; product failures, correlation blockers, and `blocked-unresolved` exit 2. The latter currently retains `identity.cross-window-game-instance` because no supported token spans the Studio launch and later observation windows; seed, turn, dimensions, endpoint, and map content are not substitute identity.
 - **Exit codes:** `0` ok · `1` exception · `2` stage-failure · `3` run-not-verified.
 
 ### Live constraints — set expectations honestly (these are normal, not exceptional)

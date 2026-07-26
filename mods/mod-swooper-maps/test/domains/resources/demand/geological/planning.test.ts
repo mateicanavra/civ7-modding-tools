@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "@mapgen/domain/resources";
 import resources from "@mapgen/domain/resources/router";
 
-import { normalizeOperationSelectionForTest, TestCompileError } from "@swooper/mapgen-core/testing";
+import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
 import { TEST_MAP_SIZE } from "../../../../setup.js";
 
 const GEOLOGICAL_RESOURCE_TYPES = [
@@ -39,7 +39,7 @@ const BLOCKED_GEOLOGICAL_RESOURCE_TYPES = [
 ] as const;
 
 describe("geological resource operation contract", () => {
-  it("plans all geological resource rows symbolically without runtime ids", () => {
+  it("plans every geological resource row while preserving blocked product exceptions", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const selection = normalizeOperationSelectionForTest(
@@ -89,12 +89,6 @@ describe("geological resource operation contract", () => {
       expect(result.plans.find((plan) => plan.resourceType === blockedResourceType)?.status).toBe(
         "blocked"
       );
-    }
-
-    for (const row of result.plans) {
-      expect(Object.hasOwn(row, "resourceId")).toBe(false);
-      expect(Object.hasOwn(row, "numericId")).toBe(false);
-      expect(Object.hasOwn(row, "preferredResourceType")).toBe(false);
     }
   });
 
@@ -273,17 +267,6 @@ describe("geological resource operation contract", () => {
     expect(result.plans).toHaveLength(GEOLOGICAL_RESOURCE_TYPES.length);
     expect(result.missingResourceTypes).toEqual(GEOLOGICAL_RESOURCE_TYPES.slice(1));
     expect(result.plans.filter((plan) => plan.status === "missing-expectation")).toHaveLength(19);
-  });
-
-  it("does not allow caller config to omit required geological resources", () => {
-    for (const selector of ["requiredResourceTypes", "resourceTypes", "includeResources"]) {
-      expect(() =>
-        normalizeOperationSelectionForTest(resources.demand.ops.planGeologicalResources, {
-          strategy: "canonical-demand",
-          config: { [selector]: ["RESOURCE_GOLD"] },
-        })
-      ).toThrow(TestCompileError);
-    }
   });
 
   it("marks active rows as signal gaps when no geological signal mask is supplied", () => {

@@ -1,15 +1,106 @@
 import { deriveCiv7CoastProjection } from "@civ7/map-policy";
 import type { TraceJsonObject } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { captureEngineTerrainClassification } from "../../../../current-engine-surface.js";
+import {
+  type CurrentEngineTerrainClassification,
+  captureEngineTerrainClassification,
+} from "../../../../current-engine-surface.js";
 import { measureStandardPlacementSurface } from "../../../../metrics/families/placement-surface.js";
 import { restoreProjectedCoastTerrain } from "../../../../water-surface-parity.js";
 import { logTerrainStats, runPlacementProductStep } from "../../log.js";
 import { config } from "./config.js";
-import { readFinalLakeProjection } from "./lake-readback.js";
-import { applyLandmassRegionSlots } from "./landmass-regions.js";
-import { readTerrainValidationBoundary } from "./terrain-validation-readback.js";
 import { projectPlacementSurfaceViz } from "./viz.js";
+
+type TerrainValidationBoundaryReadback = Readonly<{
+  stage: string;
+  terrain: Int32Array;
+  waterMask: Uint8Array;
+  lakeMask: Uint8Array;
+  areaId: Int32Array;
+}>;
+
+type RegionSlot = 0 | 1 | 2;
+
+/**
+ * Records exact engine terrain and classification around one maintenance
+ * boundary. The detached snapshot is diagnostic evidence, not causal state.
+ */
+function readTerrainValidationBoundary(
+  currentSurface: CurrentEngineTerrainClassification,
+  readAreaId: (x: number, y: number) => number,
+  stage: string
+): TerrainValidationBoundaryReadback {
+  const { width, height } = currentSurface;
+  const areaId = new Int32Array(width * height);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      areaId[y * width + x] = readAreaId(x, y) | 0;
+    }
+  }
+  return {
+    stage,
+    terrain: Int32Array.from(currentSurface.terrain),
+    waterMask: Uint8Array.from(currentSurface.waterMask),
+    lakeMask: Uint8Array.from(currentSurface.lakeMask),
+    areaId,
+  };
+}
+
+/**
+ * Counts accepted lake tiles dried or declassified by Civ7 maintenance. Lake
+ * truth remains owned by Hydrology; this is only final boundary readback.
+ */
+function readFinalLakeProjection(
+  currentSurface: CurrentEngineTerrainClassification,
+  acceptedLakeMask: Uint8Array
+): Readonly<{
+  acceptedLakeTileCount: number;
+  finalLakeWaterDriftCount: number;
+  finalLakeClassificationDriftCount: number;
+}> {
+  const { width, height } = currentSurface;
+  const size = width * height;
+  let acceptedLakeTileCount = 0;
+  let finalLakeWaterDriftCount = 0;
+  let finalLakeClassificationDriftCount = 0;
+  for (let i = 0; i < size; i++) {
+    if (acceptedLakeMask[i] !== 1) continue;
+    acceptedLakeTileCount++;
+    if (currentSurface.waterMask[i] !== 1) finalLakeWaterDriftCount++;
+    if (currentSurface.lakeMask[i] !== 1) finalLakeClassificationDriftCount++;
+  }
+  return {
+    acceptedLakeTileCount,
+    finalLakeWaterDriftCount,
+    finalLakeClassificationDriftCount,
+  };
+}
+
+/**
+ * Restamps abstract placement-region slots after area recalculation rewrites
+ * Civ7's region bookkeeping.
+ */
+function applyLandmassRegionSlots(
+  engine: Readonly<{
+    getLandmassId: (name: "NONE" | "WEST" | "EAST") => number;
+    setLandmassRegionId: (x: number, y: number, regionId: number) => void;
+  }>,
+  width: number,
+  height: number,
+  slotByTile: Uint8Array
+): void {
+  const size = width * height;
+  const westRegionId = engine.getLandmassId("WEST");
+  const eastRegionId = engine.getLandmassId("EAST");
+  const noneRegionId = engine.getLandmassId("NONE");
+  for (let i = 0; i < size; i++) {
+    const y = (i / width) | 0;
+    const x = i - y * width;
+    const slot = (slotByTile[i] ?? 0) as RegionSlot;
+    const regionId = slot === 1 ? westRegionId : slot === 2 ? eastRegionId : noneRegionId;
+    engine.setLandmassRegionId(x, y, regionId);
+  }
+}
 
 /**
  * Executes the transactional terrain validation, coast restoration, water
@@ -34,7 +125,6 @@ export const PreparePlacementSurfaceStep = createStep(config, {
     const emit = (payload: TraceJsonObject): void => {
       context.trace.event(() => payload);
     };
-
     const readCurrentTerrainClassification = () =>
       captureEngineTerrainClassification(dimensions, {
         getTerrainType: (x, y) => deps.engine.getTerrainType(context, x, y),
@@ -108,13 +198,11 @@ export const PreparePlacementSurfaceStep = createStep(config, {
     );
 
     const slotCounts = { none: 0, west: 0, east: 0 };
-    for (let i = 0; i < slotByTile.length; i++) {
-      const slot = slotByTile[i] ?? 0;
-      if (slot === 1) slotCounts.west += 1;
-      else if (slot === 2) slotCounts.east += 1;
-      else slotCounts.none += 1;
+    for (const slot of slotByTile) {
+      if (slot === 1) slotCounts.west++;
+      else if (slot === 2) slotCounts.east++;
+      else slotCounts.none++;
     }
-
     return {
       acceptedLakeMask,
       beforeValidate,

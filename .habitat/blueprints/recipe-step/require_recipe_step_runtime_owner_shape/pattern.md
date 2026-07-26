@@ -9,7 +9,9 @@ Recipe and stage composition retain stage identity. Local helpers may support
 execution, but only erased type and interface declarations may join the
 canonical runtime export. Runtime callbacks name the admitted value
 `stepConfig` (or `_stepConfig` when unused), keeping it distinct from the
-imported static `config` owner.
+imported static `config` owner. When the closed step leaf owns optional
+`viz.ts`, the sibling import is meaningful only through the executable's
+first-class `viz` facet.
 
 ```grit
 language js(typescript)
@@ -27,6 +29,12 @@ or {
         $step <: r"^[A-Z][A-Za-z0-9]*Step$"
       }
     }
+  },
+  program(statements=$body) where {
+    $body <: contains import_statement(source=$source) where {
+      $source <: r"^[\"']\./viz\.js[\"']$"
+    },
+    ! $body <: contains `export const $step = createStep(config, { $..., viz: $viz, $... })`
   },
   `export const $name = $value` where {
     or {
@@ -104,6 +112,15 @@ export const MixedConfigIdentityStep = createStep(config, {
   normalize: (options, context) => options,
   run: (context, options, ops, deps) => undefined,
 });
+
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/detached-viz/step.ts
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { config } from "./config.js";
+import { projectWeather } from "./viz.js";
+
+export const DetachedVizStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => projectWeather(context),
+});
 ```
 
 ## Ignores Fixture
@@ -132,5 +149,16 @@ import { config } from "./config.js";
 /** Observes weather without reading authored configuration. */
 export const ObserveWeatherStep = createStep(config, {
   run: (context, _stepConfig, ops, deps) => undefined,
+});
+
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/visualize-weather/step.ts
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { config } from "./config.js";
+import { projectWeather } from "./viz.js";
+
+/** Simulates weather and exposes its authored visualization projection. */
+export const VisualizeWeatherStep = createStep(config, {
+  run: (context, stepConfig, ops, deps) => undefined,
+  viz: ({ result, dimensions }) => projectWeather(result, dimensions),
 });
 ```
