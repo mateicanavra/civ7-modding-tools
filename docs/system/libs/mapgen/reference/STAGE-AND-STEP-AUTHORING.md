@@ -22,11 +22,12 @@ immutable product authorities for reads and publication.
 A step contract defines:
 
 - `id` (kebab-case, stable)
+- optional `description` (the sole semantic description authority for the step)
 - `requires` / `provides` tags (validated)
 - optional `artifacts` requires/provides (preferred over mixing artifact tags into requires/provides)
 - optional `engine` method keys (an exact occurrence-scoped adapter capability set)
-- `schema` (TypeBox schema; closed by default)
 - optional `ops` decl (op contracts used by the step, with schema-enveloped strategies)
+- optional additive `schema` for genuine step-local authored fields
 
 The step is a closed authoring kind. Its directory contains exactly
 `config.ts` and `step.ts`, plus an optional `viz.ts` only when the step
@@ -34,6 +35,14 @@ definition attaches that visualization. Private orchestration stays in
 `step.ts`. Reusable policy, algorithms, immutable products, diagnostics, and
 metrics move to their qualified stage, domain, recipe, or SDK owner rather than
 becoming loose step helpers.
+
+Operation config is composed into the step schema automatically. Omit `schema`
+when that operation surface is complete; Core creates a fresh closed empty
+object when a step has neither operation nor step-local fields. An explicit
+schema adds only real step-local authoring and must not be an empty shell or
+restate bound operation config. Root-schema `description` is refused: author
+the step's purpose once through `description`, which Core projects onto the
+final composed schema consumed by Stage and Studio.
 
 Representative example (dependency tags + artifact requirements; excerpt; see full file in anchors):
 

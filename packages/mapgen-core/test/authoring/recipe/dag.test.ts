@@ -7,7 +7,6 @@ import {
   defineStep,
 } from "@mapgen/authoring/index.js";
 
-import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
 import { Type } from "typebox";
 
 const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false, default: {} });
@@ -49,7 +48,6 @@ function step(input: {
       requires: requires.length ? ["effect:test.externalReady"] : [],
       provides: [],
       artifacts: { requires },
-      schema: EmptyStepConfigSchema,
     });
     return createStep(contract, { run: () => {} });
   }
@@ -66,7 +64,6 @@ function step(input: {
       requires,
       provides: providedArtifacts,
     },
-    schema: EmptyStepConfigSchema,
   });
   return createStep(contract, { run: () => {} });
 }

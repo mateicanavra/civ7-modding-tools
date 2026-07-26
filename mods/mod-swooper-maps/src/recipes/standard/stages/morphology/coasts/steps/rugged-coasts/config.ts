@@ -1,7 +1,7 @@
 import morphology from "@mapgen/domain/morphology";
 import { artifacts as morphologyCoastsArtifacts } from "@mapgen/domain/morphology/modules/coasts/artifacts/index.js";
 import { artifacts as morphologyTerrainArtifacts } from "@mapgen/domain/morphology/modules/terrain/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Produces coastline metrics and applies ruggedization adjustments.
@@ -22,5 +22,4 @@ export const config = defineStep({
     reconcileHeightfield: morphology.coasts.ops.reconcileHeightfieldFromCoast,
     distanceToCoast: morphology.coasts.ops.computeDistanceToCoast,
   },
-  schema: Type.Object({}),
 });

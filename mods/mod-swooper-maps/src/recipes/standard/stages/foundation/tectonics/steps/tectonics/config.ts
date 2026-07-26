@@ -3,7 +3,7 @@ import { artifacts as lithosphereArtifacts } from "@mapgen/domain/foundation/mod
 import { artifacts as mantleArtifacts } from "@mapgen/domain/foundation/modules/mantle/artifacts";
 import { artifacts as meshArtifacts } from "@mapgen/domain/foundation/modules/mesh/artifacts";
 import { artifacts as tectonicsArtifacts } from "@mapgen/domain/foundation/modules/tectonics/artifacts";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Defines current plate motion and the ordered tectonic-history computation over
@@ -41,5 +41,4 @@ export const config = defineStep({
     computeTracerAdvection: foundation.tectonics.ops.computeTracerAdvection,
     computeTectonicProvenance: foundation.tectonics.ops.computeTectonicProvenance,
   },
-  schema: Type.Object({}, { additionalProperties: false }),
 });

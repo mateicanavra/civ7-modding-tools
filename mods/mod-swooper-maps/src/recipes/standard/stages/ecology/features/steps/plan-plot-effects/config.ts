@@ -3,7 +3,7 @@ import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biom
 import { artifacts as plotEffectArtifacts } from "@mapgen/domain/ecology/modules/plot-effects/artifacts/index.js";
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Plot-effect planning belongs to Ecology truth, not map projection.
@@ -14,6 +14,8 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "plan-plot-effects",
+  description:
+    "Computes climate-driven plot-effect intent before the later engine-projection boundary.",
   requires: [],
   provides: [],
   artifacts: {
@@ -31,11 +33,4 @@ export const config = defineStep({
     scoreJungle: ecology.plotEffects.ops.scorePlotEffectsJungle,
     plotEffects: ecology.plotEffects.ops.planPlotEffects,
   },
-  schema: Type.Object(
-    {},
-    {
-      description:
-        "Computes climate-driven plot-effect intent. Engine projection is handled by map-ecology.",
-    }
-  ),
 });

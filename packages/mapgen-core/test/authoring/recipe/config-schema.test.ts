@@ -33,7 +33,6 @@ describe("recipe config schema", () => {
         requires: [],
         provides: [],
         ops: { privateOp: op },
-        schema: Type.Object({}, { additionalProperties: false }),
       }),
       { run: () => {} }
     );

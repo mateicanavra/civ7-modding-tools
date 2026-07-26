@@ -10,7 +10,6 @@ import {
 } from "@mapgen/authoring/index.js";
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
-import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
 import {
   buildStepTestDependencies,
   publishTestArtifact,
@@ -46,7 +45,6 @@ const doubleStep = createStep(
     requires: [],
     provides: [],
     artifacts: { requires: [inputArtifact], provides: [outputArtifact] },
-    schema: EmptyStepConfigSchema,
   }),
   {
     run: (context, _config, _ops, deps) => {
@@ -69,7 +67,6 @@ describe("step testing surface", () => {
         requires: [],
         provides: [],
         engine: engineMethods,
-        schema: EmptyStepConfigSchema,
       }),
       {
         run: (stepContext, _config, _ops, dependencies) =>
@@ -108,7 +105,6 @@ describe("step testing surface", () => {
       id: "invalid-engine-declaration",
       requires: [],
       provides: [],
-      schema: EmptyStepConfigSchema,
     } as const;
 
     expect(() =>
@@ -136,7 +132,6 @@ describe("step testing surface", () => {
       id: "forged-engine-method",
       requires: [],
       provides: [],
-      schema: EmptyStepConfigSchema,
     } as const;
 
     expect(() => defineUncheckedStep({ ...base, engine: ["notAnEngineMethod"] })).toThrow(

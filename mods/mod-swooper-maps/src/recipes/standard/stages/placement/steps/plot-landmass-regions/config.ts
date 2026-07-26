@@ -1,7 +1,7 @@
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import placement from "@mapgen/domain/placement";
 import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/modules/regions/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../tag-contracts.js";
 
 /**
@@ -20,5 +20,4 @@ export const config = defineStep({
   ops: {
     regions: placement.regions.ops.projectLandmassRegions,
   },
-  schema: Type.Object({}, { additionalProperties: false }),
 });

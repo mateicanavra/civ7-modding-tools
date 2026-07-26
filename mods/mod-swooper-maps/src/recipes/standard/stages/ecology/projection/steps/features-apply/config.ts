@@ -1,7 +1,7 @@
 import ecology from "@mapgen/domain/ecology";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import { STANDARD_ENGINE_EFFECT_TAGS } from "../../../../../tag-contracts.js";
 
 /**
@@ -11,6 +11,7 @@ import { STANDARD_ENGINE_EFFECT_TAGS } from "../../../../../tag-contracts.js";
  */
 export const config = defineStep({
   id: "features-apply",
+  description: "Applies admitted feature-placement intent to the current Civ7 map.",
   engine: [
     "getFeatureTypeIndex",
     "canHaveFeature",
@@ -36,10 +37,4 @@ export const config = defineStep({
   ops: {
     apply: ecology.features.ops.applyFeatures,
   },
-  schema: Type.Object(
-    {},
-    {
-      description: "Configuration for applying planned feature placements to the map.",
-    }
-  ),
 });

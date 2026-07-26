@@ -5,7 +5,7 @@ import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modu
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import placement from "@mapgen/domain/placement";
 import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import {
   MAP_PROJECTION_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
@@ -46,5 +46,4 @@ export const config = defineStep({
     wonders: placement.wonders.ops.planWonders,
     naturalWonders: placement.wonders.ops.planNaturalWonders,
   },
-  schema: Type.Object({}),
 });

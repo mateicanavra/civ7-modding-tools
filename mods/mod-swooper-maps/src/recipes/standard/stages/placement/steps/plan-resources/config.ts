@@ -10,7 +10,7 @@ import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/
 import resources from "@mapgen/domain/resources";
 import { artifacts as resourceDemandArtifacts } from "@mapgen/domain/resources/modules/demand/artifacts/index.js";
 import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 
 /**
@@ -54,5 +54,4 @@ export const config = defineStep({
     demands: resources.demand.ops.resolveResourceDemands,
     selectSites: resources.sites.ops.selectResourceSites,
   },
-  schema: Type.Object({}),
 });

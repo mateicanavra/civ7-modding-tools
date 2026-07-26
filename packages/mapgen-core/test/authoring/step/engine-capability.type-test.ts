@@ -11,7 +11,6 @@ const SurfaceStep = createStep(
     requires: [],
     provides: [],
     engine: ["readCurrentMapSurface", "getTerrainType"],
-    schema: Type.Object({}, { additionalProperties: false }),
   }),
   {
     run: (context, _config, _ops, dependencies) => {
@@ -44,7 +43,6 @@ defineStep({
   provides: [],
   // @ts-expect-error Engine declarations must retain a literal tuple so the dependency surface is exact.
   engine: widenedEngineMethods,
-  schema: Type.Object({}, { additionalProperties: false }),
 });
 
 defineStep({
@@ -53,7 +51,6 @@ defineStep({
   provides: [],
   // @ts-expect-error Effect verification is executor-private.
   engine: ["verifyEffect"],
-  schema: Type.Object({}, { additionalProperties: false }),
 });
 
 defineStep({
@@ -62,7 +59,6 @@ defineStep({
   provides: [],
   // @ts-expect-error Adapter RNG is not authored MapGen randomness.
   engine: ["getRandomNumber"],
-  schema: Type.Object({}, { additionalProperties: false }),
 });
 
 defineStep({
@@ -71,7 +67,6 @@ defineStep({
   provides: [],
   // @ts-expect-error Unknown adapter methods cannot enter a step contract.
   engine: ["notAnEngineMethod"],
-  schema: Type.Object({}, { additionalProperties: false }),
 });
 
 defineStep({
@@ -80,7 +75,6 @@ defineStep({
   provides: [],
   // @ts-expect-error Concrete adapter helpers are not authored engine capabilities.
   engine: ["reset"],
-  schema: Type.Object({}, { additionalProperties: false }),
 });
 
 void SurfaceStep;

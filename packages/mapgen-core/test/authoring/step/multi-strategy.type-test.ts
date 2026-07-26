@@ -27,9 +27,25 @@ const MultiOpStepContract = defineStep({
   id: "multi-op-step",
   requires: [],
   provides: [],
-  schema: Type.Object({}, { additionalProperties: false }),
   ops: { multi: MultiStrategyOp },
 });
+
+const EmptyStepContract = defineStep({
+  id: "empty-step",
+  requires: [],
+  provides: [],
+});
+
+defineStep({
+  id: "invalid-explicit-empty-step",
+  requires: [],
+  provides: [],
+  // @ts-expect-error Empty step-local schemas must be omitted so Core owns the empty surface.
+  schema: Type.Object({}),
+});
+
+type EmptyStepConfig = Static<(typeof EmptyStepContract)["schema"]>;
+export type OmittedStepSchemaIsEmpty = Expect<IsEqual<keyof EmptyStepConfig, never>>;
 
 type StepRuntimeConfig = Static<(typeof MultiOpStepContract)["schema"]>;
 export type StepHasMulti = Expect<
@@ -63,7 +79,6 @@ const FastDefaultStepContract = defineStep({
   id: "fast-default-step",
   requires: [],
   provides: [],
-  schema: Type.Object({}, { additionalProperties: false }),
   ops: { multi: { contract: MultiStrategyOp, defaultStrategy: "fast" } },
 });
 
@@ -76,7 +91,6 @@ const ReusableFastDefaultStepContract = defineStep({
   id: "reusable-fast-default-step",
   requires: [],
   provides: [],
-  schema: Type.Object({}, { additionalProperties: false }),
   ops: { multi: reusableFastDefault },
 });
 
@@ -84,7 +98,6 @@ defineStep({
   id: "invalid-inline-default-step",
   requires: [],
   provides: [],
-  schema: Type.Object({}, { additionalProperties: false }),
   ops: {
     // @ts-expect-error A step override must name a strategy from its own contract.
     multi: {

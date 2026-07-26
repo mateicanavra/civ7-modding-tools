@@ -1,5 +1,5 @@
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
 
 /**
@@ -8,6 +8,7 @@ import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
  */
 export const config = defineStep({
   id: "plot-mountains",
+  description: "Projects admitted Morphology mountain intent onto the current Civ7 map.",
   engine: ["setTerrainType", "isWater"] as const,
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.mountainsPlotted],
@@ -15,12 +16,4 @@ export const config = defineStep({
     requires: [morphologyLandformsArtifacts.mountains, morphologyLandformsArtifacts.topography],
     provides: [],
   },
-  schema: Type.Object(
-    {},
-    {
-      additionalProperties: false,
-      description:
-        "Gameplay mountain projection config. Mountain intent is produced by Morphology.",
-    }
-  ),
 });

@@ -1,5 +1,5 @@
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
 
 /**
@@ -15,5 +15,4 @@ export const config = defineStep({
     requires: [morphologyLandformsArtifacts.topography, morphologyLandformsArtifacts.volcanoes],
     provides: [],
   },
-  schema: Type.Object({}),
 });

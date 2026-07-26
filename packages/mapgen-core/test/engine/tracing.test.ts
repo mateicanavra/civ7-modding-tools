@@ -550,7 +550,6 @@ describe("pipeline tracing", () => {
       id: "alpha",
       requires: [],
       provides: [],
-      schema: Type.Object({}, { additionalProperties: false }),
     });
     const step = createStep(contract, { run: () => {} });
     const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });

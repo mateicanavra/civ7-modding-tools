@@ -46,8 +46,6 @@ const ClimateBaselineStepConfigSchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description:
-      "Climate baseline step config with complete seasonality values and operation envelopes.",
   }
 );
 
@@ -58,6 +56,7 @@ const ClimateBaselineStepConfigSchema = Type.Object(
  */
 export const config = defineStep({
   id: "climate-baseline",
+  description: "Computes baseline wind, climate, and seasonality from final Morphology evidence.",
   requires: [],
   provides: [],
   artifacts: {

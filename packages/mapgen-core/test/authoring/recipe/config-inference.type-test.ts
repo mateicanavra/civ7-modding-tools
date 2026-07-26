@@ -35,7 +35,6 @@ const MultiOpStep = createStep(
     id: "multi-op-step",
     requires: [],
     provides: [],
-    schema: Type.Object({}, { additionalProperties: false }),
     ops: { multi: MultiStrategyOp },
   }),
   { run: () => {} }

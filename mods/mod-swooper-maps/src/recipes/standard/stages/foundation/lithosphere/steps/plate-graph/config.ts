@@ -1,7 +1,7 @@
 import foundation from "@mapgen/domain/foundation";
 import { artifacts as lithosphereArtifacts } from "@mapgen/domain/foundation/modules/lithosphere/artifacts";
 import { artifacts as meshArtifacts } from "@mapgen/domain/foundation/modules/mesh/artifacts";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Defines plate partitioning over the mesh and initial crust. It publishes the graph used by
@@ -18,5 +18,4 @@ export const config = defineStep({
   ops: {
     computePlateGraph: foundation.lithosphere.ops.computePlateGraph,
   },
-  schema: Type.Object({}, { additionalProperties: false }),
 });

@@ -43,8 +43,17 @@ This how-to is **recipe-level** (steps are authored/registered in a recipe). It 
   `viz.ts` only when the step attaches that visualization.
 - Export that leaf-owned step contract as `config`. Composition code may alias
   imported configs to avoid collisions; the leaf export itself is never renamed.
-- Use `defineStep({ id, requires, provides, artifacts, ops, schema })`.
+- Use `defineStep({ id, description, requires, provides, artifacts, ops })`.
 - Wire **artifact requirements** (and any required ops) explicitly into the contract.
+- Put the step's causal, reader-facing purpose in the optional first-class
+  `description`. Core projects that one authority onto the final composed
+  TypeBox schema for Stage and Studio consumers.
+- Omit `schema` when the step has no genuine step-local authoring. Operation
+  config is composed into the step surface automatically, and Core supplies a
+  fresh closed empty object when neither surface contributes fields. Add an
+  explicit `schema` only for real additive step-local fields; never use an
+  empty shell, restate operation config, or put the step description on the
+  root schema.
 
 Representative example (artifact + ops wiring; excerpt; see full file in anchors):
 
@@ -54,11 +63,12 @@ import { artifacts as morphologyCoastsArtifacts } from "@mapgen/domain/morpholog
 import { artifacts as morphologyErosionArtifacts } from "@mapgen/domain/morphology/modules/erosion/artifacts/index.js";
 import { artifacts as morphologyRoutingArtifacts } from "@mapgen/domain/morphology/modules/routing/artifacts/index.js";
 import { artifacts as morphologyTerrainArtifacts } from "@mapgen/domain/morphology/modules/terrain/artifacts/index.js";
-import { Type, defineStep } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Contract and compiled configuration boundary for geomorphic evolution. */
 export const config = defineStep({
   id: "geomorphology",
+  description: "Evolves admitted terrain through the configured geomorphic cycle.",
   requires: [],
   provides: [],
   artifacts: {
@@ -72,7 +82,6 @@ export const config = defineStep({
   ops: {
     geomorphology: morphology.erosion.ops.computeGeomorphicCycle,
   },
-  schema: Type.Object({}),
 });
 ```
 

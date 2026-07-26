@@ -55,7 +55,6 @@ const AsyncFacetedStep = createStep(
     id: "async-faceted-step",
     requires: [],
     provides: [],
-    schema: Type.Object({}, { additionalProperties: false }),
   }),
   {
     run: async () => ({ score: 3 }),

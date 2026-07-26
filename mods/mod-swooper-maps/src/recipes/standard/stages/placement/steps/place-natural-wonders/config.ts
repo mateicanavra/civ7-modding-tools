@@ -1,5 +1,5 @@
 import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 
@@ -19,5 +19,4 @@ export const config = defineStep({
     requires: [placementWonderArtifacts.naturalWonderPlan],
     provides: [placementWonderArtifacts.naturalWonderPlacement],
   },
-  schema: Type.Object({}, { additionalProperties: false }),
 });

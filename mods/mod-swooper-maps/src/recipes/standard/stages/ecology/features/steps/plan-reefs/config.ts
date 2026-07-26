@@ -1,7 +1,7 @@
 import ecology from "@mapgen/domain/ecology";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Defines ordered reef-family planning from suitability, lake truth, and admitted upstream
@@ -9,6 +9,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "plan-reefs",
+  description: "Plans deterministic reef-family intent after floodplain and ice intent.",
   requires: [],
   provides: [],
   artifacts: {
@@ -23,10 +24,4 @@ export const config = defineStep({
   ops: {
     planReefs: ecology.features.ops.planReefs,
   },
-  schema: Type.Object(
-    {},
-    {
-      description: "Deterministic reef-family planning after admitted floodplain and ice intents.",
-    }
-  ),
 });

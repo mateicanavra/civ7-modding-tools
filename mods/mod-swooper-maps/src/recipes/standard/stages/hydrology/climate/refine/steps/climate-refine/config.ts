@@ -3,7 +3,7 @@ import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/
 import { artifacts as cryosphereArtifacts } from "@mapgen/domain/hydrology/modules/cryosphere/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Hydrology refinement step with optional diagnostic projection (bounded, deterministic).
@@ -15,14 +15,6 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  * - Bound operation envelopes expose exact advanced controls.
  * - Hydrology knobs apply relative product-level transforms during step normalization.
  */
-const ClimateRefineStepConfigSchema = Type.Object(
-  {},
-  {
-    description:
-      "Advanced operation controls for precipitation, thermal, cryosphere, water-budget, and diagnostic refinement. Stage knobs apply relative moisture, temperature, and cryosphere postures without replacing these values.",
-  }
-);
-
 /**
  * Defines cryosphere/albedo refinement and derived climate indices over baseline climate and
  * topography. It publishes the final-refined climate surface and derived physical indices before
@@ -30,6 +22,8 @@ const ClimateRefineStepConfigSchema = Type.Object(
  */
 export const config = defineStep({
   id: "climate-refine",
+  description:
+    "Refines precipitation, thermal, cryosphere, water-budget, and climate diagnostic evidence.",
   requires: [],
   provides: [],
   artifacts: {
@@ -57,5 +51,4 @@ export const config = defineStep({
     computeLandWaterBudget: hydrology.climate.ops.computeLandWaterBudget,
     computeClimateDiagnostics: hydrology.climate.ops.computeClimateDiagnostics,
   },
-  schema: ClimateRefineStepConfigSchema,
 });

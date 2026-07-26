@@ -3,7 +3,7 @@ import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/
 import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
 import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
 import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import {
   MAP_PROJECTION_EFFECT_TAGS,
   PLACEMENT_PRODUCT_EFFECT_TAGS,
@@ -34,5 +34,4 @@ export const config = defineStep({
       morphologyLandformsArtifacts.topography,
     ],
   },
-  schema: Type.Object({}),
 });

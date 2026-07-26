@@ -1,7 +1,7 @@
 import foundation from "@mapgen/domain/foundation";
 import { artifacts as mantleArtifacts } from "@mapgen/domain/foundation/modules/mantle/artifacts";
 import { artifacts as meshArtifacts } from "@mapgen/domain/foundation/modules/mesh/artifacts";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Defines the conversion from mantle potential into velocity, stress, and
@@ -19,5 +19,4 @@ export const config = defineStep({
   ops: {
     computeMantleForcing: foundation.mantle.ops.computeMantleForcing,
   },
-  schema: Type.Object({}, { additionalProperties: false }),
 });

@@ -1,6 +1,6 @@
 import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 
@@ -22,5 +22,4 @@ export const config = defineStep({
     requires: [resourceSupportArtifacts.resourcePlanAdjusted],
     provides: [resourceSiteArtifacts.resourcePlacementOutcomes],
   },
-  schema: Type.Object({}, { additionalProperties: false }),
 });

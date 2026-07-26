@@ -4,7 +4,7 @@ import { artifacts as meshArtifacts } from "@mapgen/domain/foundation/modules/me
 import { artifacts as orogenyArtifacts } from "@mapgen/domain/foundation/modules/orogeny/artifacts";
 import { artifacts as projectionArtifacts } from "@mapgen/domain/foundation/modules/projection/artifacts";
 import { artifacts as tectonicsArtifacts } from "@mapgen/domain/foundation/modules/tectonics/artifacts";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Defines Foundation's mesh-to-tile projection boundary. It projects crust, plate, tectonic,
@@ -34,5 +34,4 @@ export const config = defineStep({
   ops: {
     computePlates: foundation.projection.ops.computePlatesTensors,
   },
-  schema: Type.Object({}, { additionalProperties: false }),
 });
