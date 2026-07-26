@@ -10,6 +10,7 @@ import {
   createStep,
   defineOp,
   defineStep,
+  defineStrategy,
   Type,
 } from "@mapgen/authoring/index.js";
 import type { IsEqual, IsStringLiteral } from "type-fest";
@@ -22,10 +23,16 @@ const MultiStrategyOp = defineOp({
   input: Type.Object({}, { additionalProperties: false }),
   output: Type.Object({}, { additionalProperties: false }),
   defaultStrategy: "balanced",
-  strategies: {
-    balanced: Type.Object({ plateauCount: Type.Integer() }, { additionalProperties: false }),
-    fast: Type.Object({ turbo: Type.Boolean() }, { additionalProperties: false }),
-  },
+  strategies: [
+    defineStrategy({
+      id: "balanced",
+      config: Type.Object({ plateauCount: Type.Integer() }, { additionalProperties: false }),
+    }),
+    defineStrategy({
+      id: "fast",
+      config: Type.Object({ turbo: Type.Boolean() }, { additionalProperties: false }),
+    }),
+  ],
 });
 
 const MultiOpStep = createStep(

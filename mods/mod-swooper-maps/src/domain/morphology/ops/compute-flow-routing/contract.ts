@@ -1,11 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-
-const RoutingConfigSchema = Type.Object(
-  {},
-  {
-    description: "Routing configuration (currently no tunable knobs).",
-  }
-);
+import strategyDefinition from "./strategies/steepest-descent/config.js";
 
 /**
  * Computes Morphology's geomorphic routing proxy from elevation and land mask.
@@ -32,9 +26,7 @@ const ComputeFlowRoutingContract = defineOp({
       description: "Basin identifier per tile (or -1 on water and unassigned terrain).",
     }),
   }),
-  strategies: {
-    "steepest-descent": RoutingConfigSchema,
-  },
+  strategies: [strategyDefinition],
 });
 
 export default ComputeFlowRoutingContract;

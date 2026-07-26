@@ -5,7 +5,14 @@ import {
   stressFromConfidence01,
 } from "../../../model/policy/feature-score-selection.js";
 import type { FeatureIntentKey } from "../../../model/schemas/index.js";
-import type { PlanReefsTypes } from "../types.js";
+
+type ReefScoreInput = Readonly<{
+  scoreReef01: Float32Array;
+  scoreColdReef01: Float32Array;
+  scoreAtoll01: Float32Array;
+  scoreLotus01: Float32Array;
+  lakeMask: Uint8Array;
+}>;
 
 /**
  * Reef planning scores describe broad ocean suitability; they are not placement
@@ -42,10 +49,7 @@ export function admitReefStride(
  * Lotus is eligible only on admitted lake tiles, so spacing strategies cannot diverge on habitat.
  */
 export function selectReefIntentCandidate(
-  input: Pick<
-    PlanReefsTypes["input"],
-    "scoreReef01" | "scoreColdReef01" | "scoreAtoll01" | "scoreLotus01" | "lakeMask"
-  >,
+  input: ReefScoreInput,
   tileIndex: number
 ): PhysicalCandidate<FeatureIntentKey> | null {
   const confidence = {

@@ -1,7 +1,11 @@
 import type { Tagged } from "type-fest";
 import type { Static, TArray, TIntersect, TObject, TProperties, TSchema, TUnion } from "typebox";
 
-import type { TTypedArraySchema, TypedArrayCardinalityPaths } from "../typed-array-schemas.js";
+import type {
+  TTypedArraySchema,
+  TypedArrayCardinality,
+  TypedArrayCardinalityPaths,
+} from "../typed-array-schemas.js";
 import {
   isTypedArrayOf,
   type SupportedTypedArray,
@@ -17,10 +21,18 @@ type PropertyPathSegment = Readonly<{
 const arrayItem = Object.freeze({ kind: "array-item" as const });
 type ValuePathSegment = PropertyPathSegment | typeof arrayItem;
 
+type TypedArrayRuntimeCardinality =
+  | Readonly<{ mode: "constructor-only" }>
+  | Readonly<{
+      mode: "path-product";
+      paths: TypedArrayCardinalityPaths;
+      addend: number;
+    }>;
+
 type TypedArrayRuntimeMetadata = Readonly<{
   kind: "typed-array";
   ctor: SupportedTypedArrayName;
-  cardinality: TypedArrayCardinalityPaths | null;
+  cardinality: TypedArrayRuntimeCardinality;
 }>;
 
 type SupportedTypedArrayName = keyof typeof supportedTypedArrayConstructors;
@@ -35,10 +47,18 @@ const supportedTypedArrayConstructors = Object.freeze({
   Float32Array,
 });
 
+type TypedArrayAdmissionCardinality =
+  | Readonly<{ mode: "constructor-only" }>
+  | Readonly<{
+      mode: "path-product";
+      paths: readonly (readonly string[])[];
+      addend: number;
+    }>;
+
 type TypedArrayAdmissionAlternative = Readonly<{
   constructorName: SupportedTypedArrayName;
   constructor: TypedArrayConstructor<SupportedTypedArray>;
-  cardinalityPaths: readonly (readonly string[])[] | null;
+  cardinality: TypedArrayAdmissionCardinality;
 }>;
 
 type TypedArrayAdmissionCheck = Readonly<{
@@ -64,7 +84,7 @@ export type GridBuffer<Value extends SupportedTypedArray> = Tagged<Value, "MapGe
 type MapDirectAdmittedSchema<Schema extends TSchema> =
   Schema extends TTypedArraySchema<
     infer Value extends SupportedTypedArray,
-    infer Cardinality extends TypedArrayCardinalityPaths | null
+    infer Cardinality extends TypedArrayCardinality
   >
     ? [Cardinality] extends [readonly ["width", "height"]]
       ? readonly ["width", "height"] extends Cardinality
@@ -92,7 +112,7 @@ type MapAdmittedIntersection<Types extends TSchema[]> = Types extends [
   : unknown;
 
 type MapAdmittedInputSchema<Schema extends TSchema> =
-  Schema extends TTypedArraySchema<SupportedTypedArray, TypedArrayCardinalityPaths | null>
+  Schema extends TTypedArraySchema<SupportedTypedArray, TypedArrayCardinality>
     ? MapDirectAdmittedSchema<Schema>
     : Schema extends TArray<infer Item extends TSchema>
       ? MapAdmittedArray<Schema, Item>
@@ -138,11 +158,13 @@ export type OperationInputAdmissionIssue =
       path: string;
       cardinalityPaths: readonly string[];
       factors: readonly number[];
+      addend: number;
     }>
   | Readonly<{
       code: "typed-array-cardinality";
       path: string;
       cardinalityPaths: readonly string[];
+      addend: number;
       expectedLength: number;
       observedLength: number;
     }>;
@@ -327,20 +349,24 @@ function compileAlternative(
   rootSchema: TSchema,
   metadata: TypedArrayRuntimeMetadata
 ): TypedArrayAdmissionAlternative {
-  const cardinalityPaths =
-    metadata.cardinality === null
-      ? null
-      : Object.freeze(
-          metadata.cardinality.map((path) => {
-            const segments = parseSourcePath(path);
-            assertCardinalitySource(rootSchema, path, segments);
-            return Object.freeze(segments);
-          })
-        );
+  const cardinality: TypedArrayAdmissionCardinality =
+    metadata.cardinality.mode === "constructor-only"
+      ? Object.freeze({ mode: "constructor-only" })
+      : Object.freeze({
+          mode: "path-product",
+          paths: Object.freeze(
+            metadata.cardinality.paths.map((path) => {
+              const segments = parseSourcePath(path);
+              assertCardinalitySource(rootSchema, path, segments);
+              return Object.freeze(segments);
+            })
+          ),
+          addend: metadata.cardinality.addend,
+        });
   return Object.freeze({
     constructorName: metadata.ctor,
     constructor: supportedTypedArrayConstructors[metadata.ctor],
-    cardinalityPaths,
+    cardinality,
   });
 }
 
@@ -419,18 +445,66 @@ function readTypedArrayMetadata(schema: TSchema): TypedArrayRuntimeMetadata | nu
     throw new Error(`Missing typed-array cardinality metadata for ${runtime.ctor}`);
   }
   const cardinality = runtime.cardinality;
-  if (cardinality !== null && (!Array.isArray(cardinality) || cardinality.length === 0)) {
-    throw new Error(`Invalid typed-array cardinality metadata for ${runtime.ctor}`);
+  if (cardinality === "constructor-only") {
+    return {
+      kind: "typed-array",
+      ctor: runtime.ctor as SupportedTypedArrayName,
+      cardinality: Object.freeze({ mode: "constructor-only" }),
+    };
   }
-  const admittedCardinality: TypedArrayCardinalityPaths | null =
-    cardinality === null
-      ? null
-      : readCardinalityPaths(cardinality, runtime.ctor as SupportedTypedArrayName);
+  const constructorName = runtime.ctor as SupportedTypedArrayName;
+  const relation = readTypedArrayCardinality(cardinality, constructorName);
   return {
     kind: "typed-array",
-    ctor: runtime.ctor as SupportedTypedArrayName,
-    cardinality: admittedCardinality,
+    ctor: constructorName,
+    cardinality: relation,
   };
+}
+
+function readTypedArrayCardinality(
+  cardinality: unknown,
+  constructorName: SupportedTypedArrayName
+): Extract<TypedArrayRuntimeCardinality, { mode: "path-product" }> {
+  if (Array.isArray(cardinality)) {
+    if (cardinality.length === 0) invalidTypedArrayCardinality(constructorName);
+    return Object.freeze({
+      mode: "path-product",
+      paths: readCardinalityPaths(cardinality, constructorName),
+      addend: 0,
+    });
+  }
+  if (!isRecord(cardinality) || Reflect.ownKeys(cardinality).length !== 2) {
+    invalidTypedArrayCardinality(constructorName);
+  }
+  const factorsDescriptor = Object.getOwnPropertyDescriptor(cardinality, "factors");
+  const addendDescriptor = Object.getOwnPropertyDescriptor(cardinality, "addend");
+  if (
+    !factorsDescriptor?.enumerable ||
+    !("value" in factorsDescriptor) ||
+    !addendDescriptor?.enumerable ||
+    !("value" in addendDescriptor)
+  ) {
+    invalidTypedArrayCardinality(constructorName);
+  }
+  const factors = factorsDescriptor.value as unknown;
+  const addend = addendDescriptor.value as unknown;
+  if (
+    !Array.isArray(factors) ||
+    factors.length === 0 ||
+    !Number.isSafeInteger(addend) ||
+    (addend as number) < 0
+  ) {
+    invalidTypedArrayCardinality(constructorName);
+  }
+  return Object.freeze({
+    mode: "path-product",
+    paths: readCardinalityPaths(factors as readonly unknown[], constructorName),
+    addend: addend as number,
+  });
+}
+
+function invalidTypedArrayCardinality(constructorName: SupportedTypedArrayName): never {
+  throw new Error(`Invalid typed-array cardinality metadata for ${constructorName}`);
 }
 
 function readCardinalityPaths(
@@ -759,10 +833,12 @@ function validateCardinality(
   alternative: TypedArrayAdmissionAlternative,
   issues: OperationInputAdmissionIssue[]
 ): void {
-  if (alternative.cardinalityPaths === null) return;
+  if (alternative.cardinality.mode === "constructor-only") return;
+  const cardinalityPaths = alternative.cardinality.paths;
+  const addend = alternative.cardinality.addend;
   let expectedLength = 1;
   const factors: number[] = [];
-  for (const sourceSegments of alternative.cardinalityPaths) {
+  for (const sourceSegments of cardinalityPaths) {
     const sourcePath = sourceSegments.join(".");
     const source = readPath(root, sourceSegments);
     if (!Number.isSafeInteger(source) || (source as number) < 0) {
@@ -784,24 +860,36 @@ function validateCardinality(
         Object.freeze({
           code: "typed-array-cardinality-overflow" as const,
           path: observed.path,
-          cardinalityPaths: Object.freeze(
-            alternative.cardinalityPaths.map((segments) => segments.join("."))
-          ),
+          cardinalityPaths: Object.freeze(cardinalityPaths.map((segments) => segments.join("."))),
           factors: Object.freeze([...factors]),
+          addend,
         })
       );
       return;
     }
     expectedLength = nextLength;
   }
+  const productPlusAddendLength = expectedLength + addend;
+  if (!Number.isSafeInteger(productPlusAddendLength)) {
+    issues.push(
+      Object.freeze({
+        code: "typed-array-cardinality-overflow" as const,
+        path: observed.path,
+        cardinalityPaths: Object.freeze(cardinalityPaths.map((segments) => segments.join("."))),
+        factors: Object.freeze([...factors]),
+        addend,
+      })
+    );
+    return;
+  }
+  expectedLength = productPlusAddendLength;
   if (observed.value.length !== expectedLength) {
     issues.push(
       Object.freeze({
         code: "typed-array-cardinality" as const,
         path: observed.path,
-        cardinalityPaths: Object.freeze(
-          alternative.cardinalityPaths.map((segments) => segments.join("."))
-        ),
+        cardinalityPaths: Object.freeze(cardinalityPaths.map((segments) => segments.join("."))),
+        addend,
         expectedLength,
         observedLength: observed.value.length,
       })
@@ -882,24 +970,26 @@ function sameAlternative(
 ): boolean {
   return (
     left.constructorName === right.constructorName &&
-    sameCardinalityPaths(left.cardinalityPaths, right.cardinalityPaths)
+    sameCardinality(left.cardinality, right.cardinality)
   );
 }
 
-function sameCardinalityPaths(
-  left: readonly (readonly string[])[] | null,
-  right: readonly (readonly string[])[] | null
+function sameCardinality(
+  left: TypedArrayAdmissionCardinality,
+  right: TypedArrayAdmissionCardinality
 ): boolean {
+  if (left.mode !== right.mode) return false;
+  if (left.mode === "constructor-only") return true;
+  if (right.mode !== "path-product") return false;
+  const rightPaths = right.paths;
   return (
-    left === right ||
-    (left !== null &&
-      right !== null &&
-      left.length === right.length &&
-      left.every(
-        (path, index) =>
-          path.length === right[index]!.length &&
-          path.every((segment, pathIndex) => segment === right[index]![pathIndex])
-      ))
+    left.addend === right.addend &&
+    left.paths.length === rightPaths.length &&
+    left.paths.every(
+      (path, index) =>
+        path.length === rightPaths[index]!.length &&
+        path.every((segment, pathIndex) => segment === rightPaths[index]![pathIndex])
+    )
   );
 }
 

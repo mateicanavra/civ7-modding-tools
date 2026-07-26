@@ -4,63 +4,63 @@ import { type Static, Type, TypedArraySchemas } from "@swooper/mapgen-core/autho
 export const TectonicEraFieldsSchema = Type.Object(
   {
     boundaryType: TypedArraySchemas.u8({
-      cardinality: null,
+      cardinality: "constructor-only",
       description: "Quantized tectonic boundary regime at each mesh cell for this era.",
     }),
     boundaryPolarity: TypedArraySchemas.i8({
-      cardinality: null,
+      cardinality: "constructor-only",
       description: "Signed convergent-boundary polarity at each mesh cell for this era.",
     }),
     boundaryIntensity: TypedArraySchemas.u8({
-      cardinality: null,
+      cardinality: "constructor-only",
       description: "Combined tectonic boundary intensity at each mesh cell for this era.",
     }),
     upliftPotential: TypedArraySchemas.u8({
-      cardinality: null,
+      cardinality: "constructor-only",
       description: "Quantized orogenic uplift potential at each mesh cell for this era.",
     }),
     collisionPotential: TypedArraySchemas.u8({
-      cardinality: null,
+      cardinality: "constructor-only",
       description: "Quantized collision potential at each mesh cell for this era.",
     }),
     subductionPotential: TypedArraySchemas.u8({
-      cardinality: null,
+      cardinality: "constructor-only",
       description: "Quantized subduction potential at each mesh cell for this era.",
     }),
     riftPotential: TypedArraySchemas.u8({
-      cardinality: null,
+      cardinality: "constructor-only",
       description: "Quantized extensional rift potential at each mesh cell for this era.",
     }),
     shearStress: TypedArraySchemas.u8({
-      cardinality: null,
+      cardinality: "constructor-only",
       description: "Quantized transform-boundary shear stress at each mesh cell for this era.",
     }),
     volcanism: TypedArraySchemas.u8({
-      cardinality: null,
+      cardinality: "constructor-only",
       description: "Quantized volcanic activity potential at each mesh cell for this era.",
     }),
     fracture: TypedArraySchemas.u8({
-      cardinality: null,
+      cardinality: "constructor-only",
       description: "Quantized accumulated fracture potential at each mesh cell for this era.",
     }),
     riftOriginPlate: TypedArraySchemas.i16({
-      cardinality: null,
+      cardinality: "constructor-only",
       description: "Originating plate identifier for the rift signal at each mesh cell.",
     }),
     volcanismOriginPlate: TypedArraySchemas.i16({
-      cardinality: null,
+      cardinality: "constructor-only",
       description: "Originating plate identifier for the volcanic signal at each mesh cell.",
     }),
     volcanismEventType: TypedArraySchemas.u8({
-      cardinality: null,
+      cardinality: "constructor-only",
       description: "Tectonic event class responsible for the volcanic signal at each mesh cell.",
     }),
     boundaryDriftU: TypedArraySchemas.i8({
-      cardinality: null,
+      cardinality: "constructor-only",
       description: "Quantized east-west boundary drift at each mesh cell for this era.",
     }),
     boundaryDriftV: TypedArraySchemas.i8({
-      cardinality: null,
+      cardinality: "constructor-only",
       description: "Quantized north-south boundary drift at each mesh cell for this era.",
     }),
   },

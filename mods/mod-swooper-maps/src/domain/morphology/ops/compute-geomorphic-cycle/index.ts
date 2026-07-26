@@ -1,15 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ComputeGeomorphicCycleContract from "./contract.js";
-import { streamPowerDiffusionStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const computeGeomorphicCycle = createOp(ComputeGeomorphicCycleContract, {
-  strategies: {
-    "stream-power-diffusion": streamPowerDiffusionStrategy,
-  },
-});
-
-export type * from "./contract.js";
-export type * from "./types.js";
+/** Computes erosion, diffusion, and deposition deltas across the configured geomorphic eras. */
+const computeGeomorphicCycle = createOp(ComputeGeomorphicCycleContract, { strategies });
 
 export default computeGeomorphicCycle;

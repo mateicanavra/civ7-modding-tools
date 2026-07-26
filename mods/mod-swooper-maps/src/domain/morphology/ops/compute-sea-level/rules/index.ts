@@ -1,8 +1,12 @@
 import { clamp } from "@swooper/mapgen-core/lib/math";
 
-import type { ComputeSeaLevelTypes } from "../types.js";
-
 type LabelRng = (range: number, label: string) => number;
+
+type HypsometryConfig = Readonly<{
+  targetWaterPercent: number;
+  targetScalar: number;
+  variance: number;
+}>;
 
 const DEFAULT_BOUNDARY_THRESHOLD = 200;
 const DEFAULT_TARGET_STEP = 5;
@@ -16,10 +20,7 @@ const MAX_TARGET_ADJUSTMENT_PCT = 20; // percentage points
 /**
  * Applies variance to the target water percent using a deterministic RNG.
  */
-export function resolveTargetPercent(
-  config: ComputeSeaLevelTypes["config"]["hypsometric-target"],
-  rng: LabelRng
-): number {
+export function resolveTargetPercent(config: HypsometryConfig, rng: LabelRng): number {
   const targetBase = config.targetWaterPercent;
   const targetScaled = targetBase * config.targetScalar;
   const variance = config.variance;

@@ -25,7 +25,7 @@ export const PlacementKnobsSchema = Type.Object(
 
 /** Author-facing natural-wonder spacing controls admitted by the selected planning strategy. */
 export const PlacementNaturalWondersSchema = requiredPublicSchema(
-  placement.ops.planNaturalWonders.strategies["suitability-diversity"],
+  placement.ops.planNaturalWonders.strategies["suitability-diversity"].config,
   "Natural wonder placement controls for spacing planned wonder stamps before Civ7 feature materialization."
 );
 
@@ -34,19 +34,19 @@ export const PlacementNaturalWondersSchema = requiredPublicSchema(
 
 /** Author-facing resource site-selection controls; demand remains domain-corpus owned. */
 export const PlacementResourcesSchema = requiredPublicSchema(
-  resources.sites.ops.selectResourceSites.strategies["blue-noise-rotation"],
+  resources.sites.ops.selectResourceSites.strategies["blue-noise-rotation"].config,
   "Resource site-selection controls: density and sparsity scaling within authored per-type ranges, official-Weight rarity fidelity, blue-noise site spacing, per-type spacing-floor scaling, per-landmass equity ceiling, per-family density overrides, and resource-resource affinity/exclusion rules. Per-type targets come from the resource-domain earthlike expectation corpus, not authored config."
 );
 
 /** Author-facing start viability, spacing, ranking, and fairness controls. */
 export const PlacementStartsSchema = requiredPublicSchema(
-  placement.ops.planStarts.strategies["viability-fairness"],
+  placement.ops.planStarts.strategies["viability-fairness"].config,
   "Start placement controls: first-age expansion viability and island-start tiers, spacing floor/target (official 6/12 buffers), scoring weights (fertility, freshwater, climate comfort, resource support, roughness with tunable divisor), tier bias, ranking blend, fairness tolerance for the balancing pass, and coastal/river start preference."
 );
 
 /** Author-facing post-start resource-support and cross-player equity controls. */
 export const PlacementSupportSchema = requiredPublicSchema(
-  resources.support.ops.adjustResourceSupport.strategies["support-equity"],
+  resources.support.ops.adjustResourceSupport.strategies["support-equity"].config,
   "Resource-to-start support pass controls (S5; runs after start assignment and before resource stamping): per-start support floor within a radius, cross-player equity tolerance, enable switch, and adjustment strength. Earth-like defaults reproduce the E3.1/E3.2 gates."
 );
 

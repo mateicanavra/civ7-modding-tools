@@ -14,25 +14,24 @@ import {
   defineDomainSubdomain,
   defineOp,
   defineStep,
+  defineStrategy,
   Type,
 } from "@mapgen/authoring/index.js";
 import { createMapContext } from "@mapgen/core/map-context.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
 
-function operation<const Id extends string>(id: Id, value: string) {
+function operation(id: string, value: string) {
   const contract = defineOp({
     kind: "compute",
     id,
     input: Type.Object({}, { additionalProperties: false }),
     output: Type.String(),
-    strategies: {
-      measured: Type.Object({}, { additionalProperties: false }),
-    },
+    strategies: [
+      defineStrategy({ id: "measured", config: Type.Object({}, { additionalProperties: false }) }),
+    ],
   });
   const implementation = createOp(contract, {
-    strategies: {
-      measured: createStrategy(contract, "measured", { run: () => value }),
-    },
+    strategies: [createStrategy(contract, contract.strategies.measured, { run: () => value })],
   });
   return { contract, implementation } as const;
 }
@@ -273,26 +272,32 @@ describe("domain composition", () => {
       input: Type.Object({ value: Type.Integer() }, { additionalProperties: false }),
       output: Type.Integer(),
       defaultStrategy: "measured",
-      strategies: {
-        measured: Type.Object(
-          { factor: Type.Integer({ default: 2 }) },
-          { additionalProperties: false }
-        ),
-        accelerated: Type.Object(
-          { factor: Type.Integer({ default: 3 }) },
-          { additionalProperties: false }
-        ),
-      },
+      strategies: [
+        defineStrategy({
+          id: "measured",
+          config: Type.Object(
+            { factor: Type.Integer({ default: 2 }) },
+            { additionalProperties: false }
+          ),
+        }),
+        defineStrategy({
+          id: "accelerated",
+          config: Type.Object(
+            { factor: Type.Integer({ default: 3 }) },
+            { additionalProperties: false }
+          ),
+        }),
+      ],
     });
     const implementation = createOp(contract, {
-      strategies: {
-        measured: createStrategy(contract, "measured", {
+      strategies: [
+        createStrategy(contract, contract.strategies.measured, {
           run: (input, config) => input.value * config.factor,
         }),
-        accelerated: createStrategy(contract, "accelerated", {
+        createStrategy(contract, contract.strategies.accelerated, {
           run: (input, config) => input.value * config.factor,
         }),
-      },
+      ],
     });
     const ocean = defineDomainSubdomain({ id: "ocean", ops: { scale: contract } });
     const hydrology = defineDomain("hydrology", { ocean });

@@ -3,13 +3,14 @@ level: error
 ---
 # Require Domain Operation Implementation Type Boundary
 
-An operation contract is the sole owner of its input, output, and strategy
-envelopes. Operation entrypoints may bind the default contract value, but
-implementation types and rules do not derive shared working types from that
-envelope. Smaller reusable schema primitives and cohesive subentity types live
-in the nearest model atoms; algorithm-private `Params` / `Result` shapes remain
-private to the operation implementation. A complete operation or artifact
-container is never moved into atoms merely to make its type importable.
+An operation contract is the sole owner of its input and output envelopes.
+Operation and semantic strategy entrypoints may bind the default contract value,
+but strategy leaves, implementation types, and rules do not derive shared
+working types from that envelope. Smaller reusable schema primitives and
+cohesive subentity types live in the nearest model atoms; algorithm-private
+`Params` / `Result` shapes remain private to the operation implementation. A
+complete operation or artifact container is never moved into atoms merely to
+make its type importable.
 
 ```grit
 language js(typescript)
@@ -73,9 +74,24 @@ export type ShapeReliefInput = Contract["input"];
 
 // @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/index.ts
 import Contract from "./contract.js";
+import strategies from "./strategies/index.js";
 
 type ShapeReliefOutput = Contract["output"];
-export default createOp(Contract, {});
+export default createOp(Contract, { strategies });
+
+// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/contract.ts
+import type { OpTypeBagOf } from "@swooper/mapgen-core/authoring/contracts";
+import OperationContract from "../../contract.js";
+
+export type ShapeReliefTypes = OpTypeBagOf<typeof OperationContract>;
+
+// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
+import OperationContract from "../../contract.js";
+
+type ShapeReliefOutput = OperationContract["output"];
+export default createStrategy(OperationContract, strategyContract, {
+  run: (input) => input,
+});
 ```
 
 ## Ignores Fixture
@@ -100,7 +116,16 @@ export function projectRelief(queue: ReliefWorkQueue): Float32Array {
 // @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/index.ts
 import { createOp } from "@swooper/mapgen-core/authoring";
 import Contract from "./contract.js";
-import { plateDrivenStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-export default createOp(Contract, { strategies: { "plate-driven": plateDrivenStrategy } });
+export default createOp(Contract, { strategies });
+
+// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
+import { createStrategy } from "@swooper/mapgen-core/authoring";
+import OperationContract from "../../contract.js";
+import strategyContract from "./contract.js";
+
+export default createStrategy(OperationContract, strategyContract, {
+  run: (input) => ({ relief: input.seed }),
+});
 ```

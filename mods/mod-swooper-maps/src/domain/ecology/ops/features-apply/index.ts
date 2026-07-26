@@ -1,14 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
+
 import FeaturesApplyContract from "./contract.js";
-import { strictSingleOccupancyStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const applyFeatures = createOp(FeaturesApplyContract, {
-  strategies: {
-    "strict-single-occupancy": strictSingleOccupancyStrategy,
-  },
-});
-
-export type * from "./contract.js";
-export type * from "./types.js";
-
-export default applyFeatures;
+/** Merges feature-family plans into one deterministic placement sequence and rejects multiple features on the same tile. */
+export default createOp(FeaturesApplyContract, { strategies });

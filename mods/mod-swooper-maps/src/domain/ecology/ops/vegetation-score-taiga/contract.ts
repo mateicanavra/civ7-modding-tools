@@ -1,5 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import coldForestDefinition from "./strategies/cold-forest/config.js";
 
+/** Scores cold forest habitat from energy, water, cold stress, and biomass evidence. Every implementation shares this admitted input and output boundary. */
 const ScoreVegetationTaigaContract = defineOp({
   kind: "compute",
   id: "ecology/vegetation/score/taiga",
@@ -20,9 +22,7 @@ const ScoreVegetationTaigaContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Taiga suitability score per tile (0..1)." }),
   }),
-  strategies: {
-    "cold-forest": Type.Object({}, { additionalProperties: false }),
-  },
+  strategies: [coldForestDefinition],
 });
 
 export default ScoreVegetationTaigaContract;

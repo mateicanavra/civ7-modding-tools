@@ -1,46 +1,9 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import balancedDefinition from "./strategies/balanced/config.js";
+import coastalShelfDefinition from "./strategies/coastal-shelf/config.js";
+import orogenyBoostedDefinition from "./strategies/orogeny-boosted/config.js";
 
-/** Shared configuration shape for pedology strategies that reweight the same classifier. */
-const PedologyClassifyStrategySchema = Type.Object(
-  {
-    climateWeight: Type.Number({
-      minimum: 0,
-      maximum: 5,
-      default: 1.2,
-      description: "Controls the influence of rainfall and humidity on soil fertility.",
-    }),
-    reliefWeight: Type.Number({
-      minimum: 0,
-      maximum: 5,
-      default: 0.8,
-      description: "Controls the fertility penalty from steep or rugged terrain.",
-    }),
-    sedimentWeight: Type.Number({
-      minimum: 0,
-      maximum: 5,
-      default: 1.1,
-      description: "Controls the influence of sediment depth on soil fertility.",
-    }),
-    bedrockWeight: Type.Number({
-      minimum: 0,
-      maximum: 5,
-      default: 0.6,
-      description: "Controls the influence of bedrock age on soil fertility.",
-    }),
-    fertilityCeiling: Type.Number({
-      minimum: 0,
-      maximum: 1,
-      default: 0.95,
-      description: "Caps the normalized fertility score assigned to a tile.",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description: "Controls the environmental weights used to classify soils and fertility.",
-  }
-);
-
-/** Contract for deriving soil class and fertility from admitted terrain and climate evidence. */
+/** Derives soil class and fertility from climate, relief, sediment, and bedrock through one shared classifier boundary. Every implementation shares this admitted input and output boundary. */
 const PedologyClassifyContract = defineOp({
   kind: "compute",
   id: "ecology/pedology/classify",
@@ -75,11 +38,7 @@ const PedologyClassifyContract = defineOp({
     fertility: TypedArraySchemas.f32({ description: "Fertility score per tile (0..1)." }),
   }),
   defaultStrategy: "balanced",
-  strategies: {
-    balanced: PedologyClassifyStrategySchema,
-    "coastal-shelf": PedologyClassifyStrategySchema,
-    "orogeny-boosted": PedologyClassifyStrategySchema,
-  },
+  strategies: [balancedDefinition, coastalShelfDefinition, orogenyBoostedDefinition],
 });
 
 export default PedologyClassifyContract;

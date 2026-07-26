@@ -25,11 +25,11 @@ export const artifact = defineArtifact({
     {
       cellCount: Type.Integer({ minimum: 1, description: "Number of cells in the mesh." }),
       wrapWidth: Type.Number({ description: "Periodic east-west span of the mesh." }),
-      siteX: TypedArraySchemas.f32({ cardinality: null }),
-      siteY: TypedArraySchemas.f32({ cardinality: null }),
-      neighborsOffsets: TypedArraySchemas.i32({ cardinality: null }),
-      neighbors: TypedArraySchemas.i32({ cardinality: null }),
-      areas: TypedArraySchemas.f32({ cardinality: null }),
+      siteX: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
+      siteY: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
+      neighborsOffsets: TypedArraySchemas.i32({ cardinality: "constructor-only" }),
+      neighbors: TypedArraySchemas.i32({ cardinality: "constructor-only" }),
+      areas: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
       bbox: MeshBoundingBoxSchema,
     },
     {

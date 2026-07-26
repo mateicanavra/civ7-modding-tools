@@ -2,41 +2,7 @@ import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authorin
 import { PlateSchema } from "../../../lithosphere/model/atoms/plate.schema.js";
 import { ProjectedTectonicHistoryEraSchema } from "../../model/atoms/tectonic-history-era.schema.js";
 import { ProjectedTectonicHistoryRollupsSchema } from "../../model/atoms/tectonic-history-rollups.schema.js";
-
-/** FoundationModelProjection strategy configuration for computing tile-space plate tensors. */
-const StrategySchema = Type.Object(
-  {
-    boundaryInfluenceDistance: Type.Integer({
-      default: 5,
-      minimum: 1,
-      maximum: 32,
-      description: "Tile-distance influence radius for boundary closeness.",
-    }),
-    boundaryDecay: Type.Number({
-      default: 0.55,
-      minimum: 0.05,
-      maximum: 1,
-      description: "Exponential decay applied to boundary closeness by distance.",
-    }),
-    movementScale: Type.Number({
-      default: 100,
-      minimum: 1,
-      maximum: 200,
-      description: "Scale factor mapping plate velocity to int8 tile fields.",
-    }),
-    rotationScale: Type.Number({
-      default: 100,
-      minimum: 1,
-      maximum: 200,
-      description: "Scale factor mapping plate rotation to int8 tile fields.",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description:
-      "FoundationModelProjection strategy configuration for computing tile-space plate tensors.",
-  }
-);
+import foundationModelProjectionDefinition from "./strategies/foundation-model-projection/config.js";
 
 /**
  * Contract for projecting mesh-space crust and tectonic evidence onto the map tile grid.
@@ -214,9 +180,7 @@ const ComputePlatesTensorsContract = defineOp({
       description: "Tile-space projection outputs published by the Foundation projection step.",
     }
   ),
-  strategies: {
-    "foundation-model-projection": StrategySchema,
-  },
+  strategies: [foundationModelProjectionDefinition],
 });
 
 export default ComputePlatesTensorsContract;

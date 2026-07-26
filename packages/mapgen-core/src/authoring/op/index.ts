@@ -16,10 +16,11 @@ export type {
   StrategyDescriptorFor,
   StrategyImpl,
   StrategyImplFor,
-  StrategyImplMapFor,
   StrategySelection,
 } from "./strategy.js";
 export { createStrategy } from "./strategy.js";
+export type { StrategyDefinition } from "./strategy-definition.js";
+export { defineStrategy } from "./strategy-definition.js";
 export type {
   DomainOp,
   DomainOpKind,
@@ -27,5 +28,4 @@ export type {
   OpStrategyId,
   OpTypeBag,
   OpTypeBagOf,
-  StrategyConfigSchemas,
 } from "./types.js";

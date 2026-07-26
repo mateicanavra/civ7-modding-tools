@@ -1,39 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import bioclimaticSubstrateDefinition from "./strategies/bioclimatic-substrate/config.js";
 
-const VegetationSubstrateConfigSchema = Type.Object(
-  {
-    moistureNormalization: Type.Number({
-      description:
-        "Effective moisture value mapped to water01=1.0. Default aligns with humid threshold + padding in biome classification.",
-      default: 230,
-      minimum: 1,
-      maximum: 1_000,
-    }),
-    temperatureMinC: Type.Number({
-      description: "Surface temperature (C) mapped to energy01=0.0.",
-      default: -20,
-      minimum: -100,
-      maximum: 100,
-    }),
-    temperatureMaxC: Type.Number({
-      description: "Surface temperature (C) mapped to energy01=1.0.",
-      default: 40,
-      minimum: -100,
-      maximum: 100,
-    }),
-  },
-  {
-    additionalProperties: false,
-    description:
-      "Normalization constants for vegetation substrate fields. Keep these stable and minimal; upstream physics should drive realism.",
-  }
-);
-
-/**
- * Computes normalized vegetation planning fields (0..1) used by per-feature score ops.
- *
- * Ops are compute-only: no picking, no routing, no ordering assumptions.
- */
+/** Normalizes climate and soil evidence into shared energy, water, stress, biomass, and fertility fields used by vegetation scorers. Every implementation shares this admitted input and output boundary. */
 const ComputeVegetationSubstrateContract = defineOp({
   kind: "compute",
   id: "ecology/vegetation/compute-substrate",
@@ -73,9 +41,7 @@ const ComputeVegetationSubstrateContract = defineOp({
     }),
     fertility01: TypedArraySchemas.f32({ description: "Normalized fertility proxy (0..1)." }),
   }),
-  strategies: {
-    "bioclimatic-substrate": VegetationSubstrateConfigSchema,
-  },
+  strategies: [bioclimaticSubstrateDefinition],
 });
 
 export default ComputeVegetationSubstrateContract;

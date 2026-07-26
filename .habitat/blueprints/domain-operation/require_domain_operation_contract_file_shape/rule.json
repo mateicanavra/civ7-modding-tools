@@ -12,9 +12,9 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "advisory",
-  "forbids": "domain operation contract files outside the positive contract-owner shape: defineOp must be the singular default export, and imports must come only from contract authoring, nearest model atoms and policy, and sanctioned external policy packages",
-  "why": "Operation contracts are the sole owners of complete operation input/output envelopes. Those roots are authored directly in defineOp and may compose smaller nearest-owner atoms, but they never borrow an artifact payload or become reusable model vocabulary. Strategy configuration has its own semantic strategy-leaf owner; the current advisory seals the surrounding authority and dependency boundary while that topology migration remains a successor.",
-  "remediate": "Inline complete input and output Type.* schemas directly in defineOp, decompose reusable schema parts into the nearest atoms owner, and move each strategy configuration schema to its semantic strategy leaf contract. Remove artifact dependencies, detached InputSchema/OutputSchema/StrategySchema authorities, and named exports; keep createOp/createStage usage outside contract files. The strategy-leaf API and global corpus enforcement land in the dedicated successor rather than being simulated here.",
+  "forbids": "domain operation contract files outside the positive contract-owner shape: defineOp must be the singular default export, and imports must come only from contract authoring, direct semantic strategy definitions, nearest model atoms and policy, and sanctioned external policy packages",
+  "why": "Operation contracts are the sole owners of complete operation input/output envelopes. Those roots are authored directly in defineOp and may compose smaller nearest-owner atoms, but they never borrow an artifact payload or become reusable model vocabulary. Each strategy configuration has its own semantic leaf definition, which the operation contract imports directly without a definition barrel or contract cycle.",
+  "remediate": "Inline complete input and output Type.* schemas directly in defineOp, decompose reusable schema parts into the nearest atoms owner, and import each strategy definition directly from ./strategies/<semantic-id>/config.js. Remove root config bags, artifact dependencies, detached InputSchema/OutputSchema/StrategySchema authorities, and named exports; keep createOp/createStage usage outside contract files.",
   "message": "Operation contract files must own the positive operation contract shape.",
   "pathCoverage": [
     {

@@ -24,12 +24,12 @@ export const artifact = defineArtifact({
     {
       version: Type.Integer({ minimum: 1 }),
       cellCount: Type.Integer({ minimum: 1 }),
-      potential: TypedArraySchemas.f32({ cardinality: null }),
+      potential: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
       sourceCount: Type.Integer({ minimum: 0 }),
-      sourceType: TypedArraySchemas.i8({ cardinality: null }),
-      sourceCell: TypedArraySchemas.u32({ cardinality: null }),
-      sourceAmplitude: TypedArraySchemas.f32({ cardinality: null }),
-      sourceRadius: TypedArraySchemas.f32({ cardinality: null }),
+      sourceType: TypedArraySchemas.i8({ cardinality: "constructor-only" }),
+      sourceCell: TypedArraySchemas.u32({ cardinality: "constructor-only" }),
+      sourceAmplitude: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
+      sourceRadius: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
     },
     {
       additionalProperties: false,

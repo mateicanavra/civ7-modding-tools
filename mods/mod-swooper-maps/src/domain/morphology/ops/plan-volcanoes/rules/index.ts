@@ -1,10 +1,17 @@
 import { clamp } from "@swooper/mapgen-core/lib/math";
 
-import type { PlanVolcanoesTypes } from "../types.js";
-
 type LabelRng = (range: number, label: string) => number;
 
-type VolcanoConfig = PlanVolcanoesTypes["config"]["plate-hotspot-ranking"];
+type VolcanoConfig = Readonly<{
+  baseDensity: number;
+  minSpacing: number;
+  boundaryThreshold: number;
+  hotspotWeight: number;
+  shieldPenalty: number;
+  randomJitter: number;
+  minVolcanoes: number;
+  maxVolcanoes: number;
+}>;
 
 const BOUNDARY_CONVERGENT = 1;
 const BOUNDARY_DIVERGENT = 2;

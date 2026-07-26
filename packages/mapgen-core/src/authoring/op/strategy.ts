@@ -2,17 +2,21 @@ import type { Static, TSchema } from "typebox";
 import {
   assertCanonicalOpContract,
   type OpContractAny,
-  readCanonicalOpStrategies,
+  readCanonicalOpStrategyDefinitions,
 } from "./contract.js";
 import type { AdmittedOperationInput } from "./input-admission.js";
+import {
+  assertCanonicalStrategyDefinition,
+  type StrategyDefinitionAny,
+} from "./strategy-definition.js";
 
 type NoInfer<T> = [T][T extends any ? 0 : never];
-type StrategyAuthority = Readonly<{
+type StrategyImplementationAuthority = Readonly<{
   contract: OpContractAny;
-  strategyId: string;
+  definition: StrategyDefinitionAny;
   implementation: StrategyImpl<TSchema, TSchema, unknown>;
 }>;
-const strategyAuthority = new WeakMap<object, StrategyAuthority>();
+const strategyImplementationAuthority = new WeakMap<object, StrategyImplementationAuthority>();
 
 /** Public authoring surface for one strategy; executable behavior remains private to `createOp`. */
 export type OpStrategy<ConfigSchema extends TSchema> = Readonly<{
@@ -64,71 +68,114 @@ export type StrategyDescriptor<
   StrategyId extends string = string,
 > = StrategyDescriptorToken<ConfigSchema, InputSchema, Output, ContractId, StrategyId>;
 
+type StrategyDefinitionFor<C extends OpContractAny> = C["strategies"][keyof C["strategies"] &
+  string];
+
+/** Strategy implementation shape inferred from one canonical strategy definition. */
+export type StrategyImplForDefinition<
+  C extends OpContractAny,
+  Definition extends StrategyDefinitionFor<C>,
+> = StrategyImpl<Definition["config"], C["input"], Static<C["output"]>>;
+
 /** Strategy implementation shape inferred from one contract strategy id. */
 export type StrategyImplFor<
   C extends OpContractAny,
   Id extends keyof C["strategies"] & string,
-> = StrategyImpl<C["strategies"][Id], C["input"], Static<C["output"]>>;
+> = StrategyImplForDefinition<C, C["strategies"][Id]>;
+
+/** Opaque descriptor type for one canonical strategy leaf implementation. */
+export type StrategyDescriptorForDefinition<
+  C extends OpContractAny,
+  Definition extends StrategyDefinitionFor<C>,
+> = StrategyDescriptor<
+  Definition["config"],
+  C["input"],
+  Static<C["output"]>,
+  C["id"],
+  Definition["id"]
+>;
 
 /** Opaque descriptor type for one declared strategy implementation. */
 export type StrategyDescriptorFor<
   C extends OpContractAny,
   Id extends keyof C["strategies"] & string,
-> = StrategyDescriptor<C["strategies"][Id], C["input"], Static<C["output"]>, C["id"], Id>;
+> = StrategyDescriptorForDefinition<C, C["strategies"][Id]>;
 
-/** Complete sealed implementation map required to construct one operation. */
-export type StrategyImplMapFor<C extends OpContractAny> = Readonly<{
+/** Any sealed strategy descriptor belonging to one operation contract. */
+export type StrategyDescriptorForOp<C extends OpContractAny> = {
   [K in keyof C["strategies"] & string]: StrategyDescriptorFor<C, K>;
-}>;
+}[keyof C["strategies"] & string];
 
-/** Seals executable strategy behavior behind an opaque descriptor consumed only by `createOp`. */
+/** Seals executable behavior against the exact strategy leaf composed into an operation contract. */
 export function createStrategy<
   const C extends OpContractAny,
-  const Id extends keyof C["strategies"] & string,
->(contract: C, id: Id, impl: StrategyImplFor<C, Id>): StrategyDescriptorFor<C, Id> {
+  const Definition extends StrategyDefinitionFor<C>,
+>(
+  contract: C,
+  definition: Definition,
+  implementation: StrategyImplForDefinition<C, Definition>
+): StrategyDescriptorForDefinition<C, Definition>;
+
+export function createStrategy(contract: any, strategyInput: any, implementation: any): any {
   assertCanonicalOpContract(contract);
-  if (!readCanonicalOpStrategies(contract).some((entry) => entry.key === id)) {
-    throw new Error(`Operation ${contract.id} has no strategy "${id}"`);
+  const strategyDefinitions = readCanonicalOpStrategyDefinitions(contract);
+  const definition = strategyInput;
+  assertCanonicalStrategyDefinition(definition);
+  if (!strategyDefinitions.some(({ value }) => value === definition)) {
+    throw new Error(
+      `Strategy definition ${definition.id} is not the exact leaf composed into operation ${contract.id}`
+    );
   }
-  if (impl === null || typeof impl !== "object") {
-    throw new TypeError(`Strategy ${contract.id}#${id} implementation must be an object`);
+  if (implementation === null || typeof implementation !== "object") {
+    throw new TypeError(
+      `Strategy ${contract.id}#${definition.id} implementation must be an object`
+    );
   }
-  const run = readStrategyFunction(impl, contract.id, id, "run", true)!;
-  const normalize = readStrategyFunction(impl, contract.id, id, "normalize", false);
-  const implementation = Object.freeze({
+  const run = readStrategyFunction(implementation, contract.id, definition.id, "run", true)!;
+  const normalize = readStrategyFunction(
+    implementation,
+    contract.id,
+    definition.id,
+    "normalize",
+    false
+  );
+  const sealedImplementation = Object.freeze({
     run,
     ...(normalize === undefined ? {} : { normalize }),
   }) as StrategyImpl<TSchema, TSchema, unknown>;
   const descriptor = Object.freeze(
-    new StrategyDescriptorToken<C["strategies"][Id], C["input"], Static<C["output"]>, C["id"], Id>()
+    new StrategyDescriptorToken<TSchema, TSchema, unknown, string, string>()
   );
-  strategyAuthority.set(descriptor, { contract, strategyId: id, implementation });
-  return descriptor as StrategyDescriptorFor<C, Id>;
+  strategyImplementationAuthority.set(descriptor, {
+    contract,
+    definition,
+    implementation: sealedImplementation,
+  });
+  return descriptor;
 }
 
-/** @internal Returns the sealed strategy behavior to Core's operation factory. */
-export function readStrategyImplementation<
-  ConfigSchema extends TSchema,
-  InputSchema extends TSchema,
-  Output,
-  ContractId extends string,
-  StrategyId extends string,
->(
-  descriptor: StrategyDescriptor<ConfigSchema, InputSchema, Output, ContractId, StrategyId>,
-  expectedContract: Readonly<{ id: ContractId }>,
-  expectedStrategyId: StrategyId
-): StrategyImpl<ConfigSchema, InputSchema, Output> {
+/** @internal Returns sealed behavior and semantic identity to Core's operation factory. */
+export function readStrategyBinding(
+  descriptor: unknown,
+  expectedContract: OpContractAny
+): Readonly<{
+  definition: StrategyDefinitionAny;
+  implementation: StrategyImpl<TSchema, TSchema, unknown>;
+}> {
   const authority =
     descriptor !== null && typeof descriptor === "object"
-      ? strategyAuthority.get(descriptor)
+      ? strategyImplementationAuthority.get(descriptor)
       : undefined;
   if (!authority) throw new Error("Invalid MapGen strategy descriptor");
-  if (authority.contract !== expectedContract || authority.strategyId !== expectedStrategyId) {
+  if (authority.contract !== expectedContract) {
     throw new Error(
-      `Strategy descriptor ${authority.contract.id}#${authority.strategyId} cannot implement ${expectedContract.id}#${expectedStrategyId}`
+      `Strategy descriptor ${authority.contract.id}#${authority.definition.id} cannot implement ${expectedContract.id}#${authority.definition.id}`
     );
   }
-  return authority.implementation as StrategyImpl<ConfigSchema, InputSchema, Output>;
+  return Object.freeze({
+    definition: authority.definition,
+    implementation: authority.implementation,
+  });
 }
 
 export type { StrategySelection } from "./types.js";

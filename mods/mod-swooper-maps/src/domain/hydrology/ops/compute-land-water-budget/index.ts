@@ -1,12 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
+
 import ComputeLandWaterBudgetContract from "./contract.js";
-import { petAridityStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const computeLandWaterBudget = createOp(ComputeLandWaterBudgetContract, {
-  strategies: { "pet-aridity": petAridityStrategy },
-});
-
-export type * from "./contract.js";
-export type * from "./types.js";
-
-export default computeLandWaterBudget;
+/** Balances rainfall, humidity, and temperature into potential evapotranspiration and terrestrial aridity. */
+export default createOp(ComputeLandWaterBudgetContract, { strategies });

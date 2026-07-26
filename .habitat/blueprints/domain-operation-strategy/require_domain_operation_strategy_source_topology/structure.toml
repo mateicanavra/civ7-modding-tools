@@ -1,33 +1,35 @@
 schemaVersion = 1
 
 [[scopes]]
-name = "mapgen-legacy-domain-operation-strategy-roots"
-root = "mods/*/src/domain/!(*.*)/ops/!(*.*)/strategies"
+name = "mapgen-domain-operations-require-strategies"
+root = "mods/*/src/domain/**/ops/!(*.*)"
 kind = "directory"
-mode = "closed"
-allowEmpty = true
+mode = "open"
 required = [
-  "index.ts",
-]
-allowed = [
-  "+([a-z0-9])*(-+([a-z0-9])).ts",
-]
-forbidden = [
-  "default.ts",
+  "strategies",
 ]
 
 [[scopes]]
-name = "mapgen-domain-module-operation-strategy-roots"
-root = "mods/*/src/domain/!(*.*)/modules/!(*.*)/ops/!(*.*)/strategies"
+name = "mapgen-domain-operation-strategy-roots"
+root = "mods/*/src/domain/**/ops/!(*.*)/strategies"
 kind = "directory"
 mode = "closed"
 allowEmpty = true
 required = [
   "index.ts",
-]
-allowed = [
-  "+([a-z0-9])*(-+([a-z0-9])).ts",
+  "+([a-z0-9])*(-+([a-z0-9]))",
 ]
 forbidden = [
-  "default.ts",
+  "default",
+]
+
+[[scopes]]
+name = "mapgen-domain-operation-strategy-leaves"
+root = "mods/*/src/domain/**/ops/!(*.*)/strategies/+([a-z0-9])*(-+([a-z0-9]))"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+required = [
+  "config.ts",
+  "index.ts",
 ]

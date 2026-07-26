@@ -1,44 +1,8 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
-import { BiomeSymbolSchema } from "../../model/schemas/index.js";
+import aridThermalDefinition from "./strategies/arid-thermal/config.js";
 
-const PlotEffectsScoreBurnedConfigSchema = Type.Object({
-  minAridity: Type.Number({
-    default: 0.45,
-    minimum: 0,
-    maximum: 1,
-    description: "Burned is eligible when aridityIndex >= minAridity (0..1).",
-  }),
-  minTemperature: Type.Number({
-    default: 20,
-    minimum: -100,
-    maximum: 100,
-    description: "Burned is eligible when surfaceTemperature >= minTemperature (C).",
-  }),
-  maxFreeze: Type.Number({
-    default: 0.2,
-    minimum: 0,
-    maximum: 1,
-    description: "Burned is eligible when freezeIndex <= maxFreeze (0..1).",
-  }),
-  maxVegetation: Type.Number({
-    default: 0.35,
-    minimum: 0,
-    maximum: 1,
-    description: "Burned is eligible when vegetationDensity <= maxVegetation (0..1).",
-  }),
-  maxMoisture: Type.Number({
-    default: 110,
-    minimum: 0,
-    maximum: 1_000,
-    description: "Burned is eligible when effectiveMoisture <= maxMoisture.",
-  }),
-  allowedBiomes: Type.Array(BiomeSymbolSchema, {
-    default: ["temperateDry", "tropicalSeasonal"],
-    description: "Biome symbols allowed to emit burned plot effects (allowlist).",
-  }),
-});
-
+/** Scores hot, arid, sparse, unfrozen land in admitted biomes for burned plot-effect intent. Every implementation shares this admitted input and output boundary. */
 const PlotEffectsScoreBurnedContract = defineOp({
   kind: "compute",
   id: "ecology/plot-effects/score/burned",
@@ -63,9 +27,7 @@ const PlotEffectsScoreBurnedContract = defineOp({
       description: "Eligibility mask per tile (1=eligible for selection, 0=ineligible).",
     }),
   }),
-  strategies: {
-    "arid-thermal": PlotEffectsScoreBurnedConfigSchema,
-  },
+  strategies: [aridThermalDefinition],
 });
 
 export default PlotEffectsScoreBurnedContract;

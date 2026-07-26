@@ -1,7 +1,8 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { FeaturePlacementSchema } from "../../model/schemas/index.js";
+import scoreThresholdDefinition from "./strategies/score-threshold/config.js";
 
-/** Contract for admitting sparse ice intent from scored freeze evidence. */
+/** Converts freeze suitability into sparse ice intent without claiming reserved or occupied tiles. Every implementation shares this admitted input and output boundary. */
 const PlanIceContract = defineOp({
   kind: "plan",
   id: "ecology/features/plan-ice",
@@ -20,17 +21,7 @@ const PlanIceContract = defineOp({
   output: Type.Object({
     placements: Type.Array(FeaturePlacementSchema),
   }),
-  strategies: {
-    "score-threshold": Type.Object({
-      minConfidence01: Type.Number({
-        minimum: 0,
-        maximum: 1,
-        default: 0.5,
-        description:
-          "Family-local admission threshold: freeze scores below this remain coldness signal, not ice intent.",
-      }),
-    }),
-  },
+  strategies: [scoreThresholdDefinition],
 });
 
 export default PlanIceContract;

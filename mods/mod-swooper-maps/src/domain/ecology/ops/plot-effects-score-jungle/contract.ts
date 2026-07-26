@@ -1,36 +1,8 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
-import { BiomeSymbolSchema } from "../../model/schemas/index.js";
+import hotWetDenseDefinition from "./strategies/hot-wet-dense/config.js";
 
-// Jungle stress = the physical "deep rainforest is dangerous" signal: HOT + HUMID + DENSE.
-// Mirrors the sand scorer's shape but inverts the climate axes (sand wants arid/sparse; jungle
-// wants wet/lush). High score = hottest, wettest, most overgrown interior rainforest — where
-// JUNGLE_FEVER (heat exhaustion + disease) belongs.
-const PlotEffectsScoreJungleConfigSchema = Type.Object({
-  minTemperature: Type.Number({
-    default: 22,
-    minimum: -100,
-    maximum: 100,
-    description: "Jungle is eligible when surfaceTemperature >= minTemperature (C).",
-  }),
-  minMoisture: Type.Number({
-    default: 110,
-    minimum: 0,
-    maximum: 1_000,
-    description: "Jungle is eligible when effectiveMoisture >= minMoisture.",
-  }),
-  minVegetation: Type.Number({
-    default: 0.45,
-    minimum: 0,
-    maximum: 1,
-    description: "Jungle is eligible when vegetationDensity >= minVegetation (0..1).",
-  }),
-  allowedBiomes: Type.Array(BiomeSymbolSchema, {
-    default: ["tropicalRainforest"],
-    description: "Biome symbols allowed to emit jungle plot effects (allowlist).",
-  }),
-});
-
+/** Scores hot, wet, densely vegetated rainforest for jungle plot-effect intent. Every implementation shares this admitted input and output boundary. */
 const PlotEffectsScoreJungleContract = defineOp({
   kind: "compute",
   id: "ecology/plot-effects/score/jungle",
@@ -53,9 +25,7 @@ const PlotEffectsScoreJungleContract = defineOp({
       description: "Eligibility mask per tile (1=eligible for selection, 0=ineligible).",
     }),
   }),
-  strategies: {
-    "hot-wet-dense": PlotEffectsScoreJungleConfigSchema,
-  },
+  strategies: [hotWetDenseDefinition],
 });
 
 export default PlotEffectsScoreJungleContract;

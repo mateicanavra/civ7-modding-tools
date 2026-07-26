@@ -1,14 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import PlotEffectsScoreSandContract from "./contract.js";
-import { aridThermalStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const scorePlotEffectsSand = createOp(PlotEffectsScoreSandContract, {
-  strategies: {
-    "arid-thermal": aridThermalStrategy,
-  },
-});
-
-export type * from "./contract.js";
-
-export default scorePlotEffectsSand;
+/** Scores warm, arid, sparse, unfrozen land in admitted biomes for sand plot-effect intent. */
+export default createOp(PlotEffectsScoreSandContract, { strategies });

@@ -1,4 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import suitabilityDiversityDefinition from "./strategies/suitability-diversity/config.js";
 
 /**
  * Defines the pure planning boundary for selecting natural wonders and primary/fallback anchors
@@ -99,16 +100,7 @@ const PlanNaturalWondersContract = defineOp({
       })
     ),
   }),
-  strategies: {
-    "suitability-diversity": Type.Object({
-      minSpacingTiles: Type.Integer({
-        minimum: 0,
-        maximum: 16,
-        default: 6,
-        description: "Minimum hex spacing between planned natural wonder placements.",
-      }),
-    }),
-  },
+  strategies: [suitabilityDiversityDefinition],
 });
 
 export default PlanNaturalWondersContract;

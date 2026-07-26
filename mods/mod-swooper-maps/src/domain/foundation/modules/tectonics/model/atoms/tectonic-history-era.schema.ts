@@ -3,14 +3,14 @@ import { type Static, Type, TypedArraySchemas } from "@swooper/mapgen-core/autho
 /** Durable deformation fields retained for one reconstructed tectonic era. */
 export const TectonicHistoryEraSchema = Type.Object(
   {
-    boundaryType: TypedArraySchemas.u8({ cardinality: null }),
-    upliftPotential: TypedArraySchemas.u8({ cardinality: null }),
-    collisionPotential: TypedArraySchemas.u8({ cardinality: null }),
-    subductionPotential: TypedArraySchemas.u8({ cardinality: null }),
-    riftPotential: TypedArraySchemas.u8({ cardinality: null }),
-    shearStress: TypedArraySchemas.u8({ cardinality: null }),
-    volcanism: TypedArraySchemas.u8({ cardinality: null }),
-    fracture: TypedArraySchemas.u8({ cardinality: null }),
+    boundaryType: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+    upliftPotential: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+    collisionPotential: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+    subductionPotential: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+    riftPotential: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+    shearStress: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+    volcanism: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+    fracture: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
   },
   {
     additionalProperties: false,

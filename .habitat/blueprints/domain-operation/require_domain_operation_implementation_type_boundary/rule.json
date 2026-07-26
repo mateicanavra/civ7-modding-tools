@@ -12,20 +12,19 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "advisory",
-  "forbids": "operation entrypoints, local types, and rules deriving shared working types from an operation contract input/output envelope or re-exporting contract authority",
-  "why": "The contract file is the sole composition owner for complete operation input and output envelopes. Implementation code consumes admitted values through private working shapes; only smaller reusable primitives and cohesive subentities come from nearest-owner model atoms. Moving the whole envelope or an artifact payload into atoms would preserve the same hidden coupling under a different path.",
+  "forbids": "operation entrypoints, strategy leaves, local types, and rules deriving shared working types from an operation contract input/output envelope or re-exporting contract authority",
+  "why": "The contract file is the sole composition owner for complete operation input and output envelopes. Implementation code, including semantic strategy leaves, consumes admitted values through private working shapes; only smaller reusable primitives and cohesive subentities come from nearest-owner model atoms. Moving the whole envelope or an artifact payload into atoms would preserve the same hidden coupling under a different path.",
   "remediate": "Keep algorithm-private Params/Result types local, move only genuinely shared primitives or cohesive subentities to model/atoms, delete OpTypeBagOf and contract input/output projections, and reserve the default contract import for runtime binding. Do not create payload-shaped atoms as substitutes for operation or artifact authority.",
   "message": "Operation implementation types must use private working shapes and smaller atoms, not contract envelopes or artifact-shaped model aliases.",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/domain/*/ops/*/index.ts",
-        "mods/*/src/domain/*/ops/*/types.ts",
-        "mods/*/src/domain/*/ops/*/rules/**/*.ts",
-        "mods/*/src/domain/*/modules/*/ops/*/index.ts",
-        "mods/*/src/domain/*/modules/*/ops/*/types.ts",
-        "mods/*/src/domain/*/modules/*/ops/*/rules/**/*.ts"
+        "mods/*/src/domain/**/ops/*/index.ts",
+        "mods/*/src/domain/**/ops/*/types.ts",
+        "mods/*/src/domain/**/ops/*/rules/**/*.ts",
+        "mods/*/src/domain/**/ops/*/strategies/*/contract.ts",
+        "mods/*/src/domain/**/ops/*/strategies/*/index.ts"
       ]
     }
   ],

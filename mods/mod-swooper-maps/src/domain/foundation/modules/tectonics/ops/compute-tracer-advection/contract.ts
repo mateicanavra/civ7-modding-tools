@@ -1,5 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { TracerIndexSchema } from "../../model/atoms/tracer-index.schema.js";
+import boundaryDriftDefinition from "./strategies/boundary-drift/config.js";
 
 /**
  * Contract for tracing mesh-cell lineage backward through reconstructed tectonic motion.
@@ -16,8 +17,10 @@ const ComputeTracerAdvectionContract = defineOp({
           wrapWidth: Type.Number(),
           siteX: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
           siteY: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
-          neighborsOffsets: TypedArraySchemas.i32({ cardinality: null }),
-          neighbors: TypedArraySchemas.i32({ cardinality: null }),
+          neighborsOffsets: TypedArraySchemas.i32({
+            cardinality: { factors: ["mesh.cellCount"], addend: 1 },
+          }),
+          neighbors: TypedArraySchemas.i32({ cardinality: "constructor-only" }),
         },
         { additionalProperties: false }
       ),
@@ -52,9 +55,7 @@ const ComputeTracerAdvectionContract = defineOp({
         "Oldest-to-newest source-cell maps for provenance advection: era zero is identity, and each later map selects a prior-era cell using boundary drift with mantle fallback.",
     }
   ),
-  strategies: {
-    "boundary-drift": Type.Object({}, { additionalProperties: false }),
-  },
+  strategies: [boundaryDriftDefinition],
 });
 
 export default ComputeTracerAdvectionContract;

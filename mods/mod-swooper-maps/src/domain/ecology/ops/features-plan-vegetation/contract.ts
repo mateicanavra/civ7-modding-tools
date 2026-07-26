@@ -1,6 +1,8 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { FeaturePlacementSchema } from "../../model/schemas/index.js";
+import habitatConfidenceDefinition from "./strategies/habitat-confidence/config.js";
 
+/** Chooses the strongest forest-family habitat per unoccupied land tile under family-specific confidence floors. Every implementation shares this admitted input and output boundary. */
 const PlanVegetationContract = defineOp({
   kind: "plan",
   id: "ecology/features/plan-vegetation",
@@ -57,45 +59,7 @@ const PlanVegetationContract = defineOp({
   output: Type.Object({
     placements: Type.Array(FeaturePlacementSchema),
   }),
-  strategies: {
-    "habitat-confidence": Type.Object({
-      forestMinConfidence01: Type.Number({
-        minimum: 0,
-        maximum: 1,
-        default: 0.16,
-        description:
-          "Forest admission threshold: lower-scoring temperate canopy signal remains biome cover, not feature intent.",
-      }),
-      rainforestMinConfidence01: Type.Number({
-        minimum: 0,
-        maximum: 1,
-        default: 0.22,
-        description:
-          "Rainforest admission threshold: keeps tropical closed-canopy intent from absorbing all warm wet land.",
-      }),
-      taigaMinConfidence01: Type.Number({
-        minimum: 0,
-        maximum: 1,
-        default: 0.12,
-        description:
-          "Taiga admission threshold: cold forest scores are lower-amplitude because cold stress is part of the habitat.",
-      }),
-      savannaWoodlandMinConfidence01: Type.Number({
-        minimum: 0,
-        maximum: 1,
-        default: 0.1,
-        description:
-          "Savanna woodland admission threshold: warm seasonal woodland is patchier than closed forest.",
-      }),
-      sagebrushSteppeMinConfidence01: Type.Number({
-        minimum: 0,
-        maximum: 1,
-        default: 0.08,
-        description:
-          "Sagebrush steppe admission threshold: semiarid open-cover scores are intentionally sparse and lower-amplitude.",
-      }),
-    }),
-  },
+  strategies: [habitatConfidenceDefinition],
 });
 
 export default PlanVegetationContract;

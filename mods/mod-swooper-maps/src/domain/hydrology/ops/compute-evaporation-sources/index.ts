@@ -1,12 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
+
 import ComputeEvaporationSourcesContract from "./contract.js";
-import { thermalSurfaceStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const computeEvaporationSources = createOp(ComputeEvaporationSourcesContract, {
-  strategies: { "thermal-surface": thermalSurfaceStrategy },
-});
-
-export type * from "./contract.js";
-export type * from "./types.js";
-
-export default computeEvaporationSources;
+/** Converts exposed land and ocean thermal state into bounded moisture sources for atmospheric transport. */
+export default createOp(ComputeEvaporationSourcesContract, { strategies });

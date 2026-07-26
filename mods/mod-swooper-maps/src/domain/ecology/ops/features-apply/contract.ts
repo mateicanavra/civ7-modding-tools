@@ -1,6 +1,8 @@
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { FeaturePlacementSchema } from "../../model/schemas/index.js";
+import strictSingleOccupancyDefinition from "./strategies/strict-single-occupancy/config.js";
 
+/** Merges feature-family plans into one deterministic placement sequence and rejects multiple features on the same tile. Every implementation shares this admitted input and output boundary. */
 const FeaturesApplyContract = defineOp({
   kind: "plan",
   id: "ecology/features/apply",
@@ -36,15 +38,7 @@ const FeaturesApplyContract = defineOp({
       description: "Aggregated feature placements after merging all concerns.",
     }
   ),
-  strategies: {
-    "strict-single-occupancy": Type.Object(
-      {},
-      {
-        description:
-          "Feature consolidation has no authored parameters; each Civ7 tile admits exactly one planned feature.",
-      }
-    ),
-  },
+  strategies: [strictSingleOccupancyDefinition],
 });
 
 export default FeaturesApplyContract;

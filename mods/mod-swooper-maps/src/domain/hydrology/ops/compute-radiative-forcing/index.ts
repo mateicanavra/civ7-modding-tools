@@ -1,12 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
+
 import ComputeRadiativeForcingContract from "./contract.js";
-import { latitudeInsolationStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const computeRadiativeForcing = createOp(ComputeRadiativeForcingContract, {
-  strategies: { "latitude-insolation": latitudeInsolationStrategy },
-});
-
-export type * from "./contract.js";
-export type * from "./types.js";
-
-export default computeRadiativeForcing;
+/** Converts latitude and seasonal phase into a bounded per-tile insolation field. */
+export default createOp(ComputeRadiativeForcingContract, { strategies });

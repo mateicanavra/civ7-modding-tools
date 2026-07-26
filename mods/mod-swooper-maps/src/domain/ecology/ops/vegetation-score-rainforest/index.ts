@@ -1,14 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ScoreVegetationRainforestContract from "./contract.js";
-import { warmHumidStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const scoreVegetationRainforest = createOp(ScoreVegetationRainforestContract, {
-  strategies: {
-    "warm-humid": warmHumidStrategy,
-  },
-});
-
-export type * from "./contract.js";
-
-export default scoreVegetationRainforest;
+/** Scores warm humid closed-canopy habitat from energy, water, stress, and biomass evidence. */
+export default createOp(ScoreVegetationRainforestContract, { strategies });

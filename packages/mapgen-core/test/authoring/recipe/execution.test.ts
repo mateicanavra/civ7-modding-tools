@@ -8,6 +8,7 @@ import {
   createStrategy,
   defineOp,
   defineStep,
+  defineStrategy,
   deriveRecipeConfigSchema,
 } from "@mapgen/authoring/index.js";
 import { createMapContext } from "@mapgen/core/map-context.js";
@@ -147,21 +148,24 @@ describe("authoring: hello recipe compile/execute", () => {
       id: "test/ops/tree-plan",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({ ok: Type.Boolean() }, { additionalProperties: false }),
-      strategies: {
-        configured: Type.Object(
-          { enabled: Type.Boolean({ default: true }) },
-          { additionalProperties: false }
-        ),
-      },
+      strategies: [
+        defineStrategy({
+          id: "configured",
+          config: Type.Object(
+            { enabled: Type.Boolean({ default: true }) },
+            { additionalProperties: false }
+          ),
+        }),
+      ],
     });
 
     const treePlan = createOp(contract, {
-      strategies: {
-        configured: createStrategy(contract, "configured", {
+      strategies: [
+        createStrategy(contract, contract.strategies.configured, {
           normalize: (config) => ({ ...config, enabled: false }),
           run: (_input, config) => ({ ok: config.enabled }),
         }),
-      },
+      ],
     });
 
     const stepContract = defineStep({

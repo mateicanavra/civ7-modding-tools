@@ -1,6 +1,7 @@
 <toc>
   <item id="purpose" title="Purpose"/>
   <item id="contract" title="Contract"/>
+  <item id="operation-input-admission" title="Operation input admission"/>
   <item id="types" title="Type authority"/>
   <item id="strategies" title="Strategies (how variability is encoded)"/>
   <item id="anchors" title="Ground truth anchors"/>
@@ -28,10 +29,11 @@ of arbitrary operation folders.
 - Each leaf operation's `contract.ts` is the only owner of its input/output
   envelopes, authors both roots directly inside `defineOp`, and exports its
   contract as the default authority.
-- Each strategy's configuration schema belongs to that semantic strategy
-  leaf's `contract.ts`. The dedicated strategy-topology successor will settle
-  and enforce the typed registration API; detached `StrategySchema` authorities
-  in operation contracts are not the destination.
+- Each strategy's semantic definition belongs to that leaf's `config.ts`: one
+  immutable id plus its authored config schema, returned by `defineStrategy`.
+- The operation contract imports leaf configs directly and supplies their
+  definition tuple to `defineOp`. There is no strategy-root config or contract
+  aggregate; `strategies/index.ts` aggregates implementations only.
 - Each module's singular `ops/contract.ts` privately collects its operation
   contracts and exports only the aggregate default authority.
 - Each module's `ops/index.ts` binds the corresponding implementations.
@@ -39,23 +41,51 @@ of arbitrary operation folders.
   `defineDomainSubdomain`; its `router.ts` supplies the implementations through
   `createDomainSubdomainRouter`.
 
-Representative input/output surface. The complete `defineOp` example returns
-after the strategy leaf contract API lands; this fragment does not present an
-empty strategy registry that Core would refuse:
+Representative operation contract surface:
 
 ```ts
-// Direct properties inside defineOp({ ... }):
+import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
+import plateDrivenDefinition from "./strategies/plate-driven/config.js";
+
+export default defineOp({
+  kind: "compute",
+  id: "world/shape-relief",
+  input: Type.Object({ strength: Type.Number() }),
+  output: Type.Object({ relief: Type.Number() }),
+  strategies: [plateDrivenDefinition],
+});
+```
+
+## Operation input admission
+
+Operation inputs are the canonical compilation boundary for typed-array
+cardinality metadata. Select the mode by the exact relation the input owns:
+
+- omitted `cardinality` means the conventional grid product `width * height`;
+- a path tuple means the exact product of the referenced numeric input paths;
+- `{ factors, addend }` means that product plus a fixed nonnegative addend,
+  including the terminal entry in a CSR offsets array; and
+- `"constructor-only"` checks the exact constructor without a length relation
+  and is reserved for inputs that genuinely have no fixed input-relative
+  cardinality.
+
+```ts
 input: Type.Object({
-  bounds: GridBoundsSchema,
-  segmentEvents: Type.Array(TectonicEventSchema),
-  hotspotEvents: Type.Array(TectonicEventSchema),
-  weight: Type.Number({ minimum: 0, maximum: 10 }),
-}),
-output: Type.Object({
-  era: Type.Integer({ minimum: 0 }),
-  events: Type.Array(TectonicEventSchema),
+  width: Type.Integer({ minimum: 1 }),
+  height: Type.Integer({ minimum: 1 }),
+  cellCount: Type.Integer({ minimum: 1 }),
+  grid: TypedArraySchemas.u8(),
+  latitudeByRow: TypedArraySchemas.f32({ cardinality: ["height"] }),
+  offsets: TypedArraySchemas.i32({
+    cardinality: { factors: ["cellCount"], addend: 1 },
+  }),
+  samples: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
 }),
 ```
+
+Only typed-array schemas reachable through an operation's input compile this
+metadata into runtime admission. Operation outputs and artifact schemas do not;
+their owners retain responsibility for any constructor or relational checks.
 
 ## Type authority
 
@@ -85,11 +115,23 @@ Ops use a “strategy envelope”:
 - a multi-strategy operation explicitly names `defaultStrategy`; object order never selects behavior
 - strategy ids describe behavior; `"default"` is not a valid strategy identity
 
-Strategy configuration belongs to `strategies/<semantic-id>/contract.ts`, not
-to a detached root constant in the operation contract. Existing inline or
-detached operation-owned strategy schemas remain migration input until the
-strategy-topology successor establishes the exact typed registration API; this
-reference does not claim that global corpus is already sealed.
+Strategy definition belongs to `strategies/<semantic-id>/config.ts`, not to a
+detached root constant or a strategy-root barrel. The file exports one default
+`defineStrategy({ id, config })` authority. Its sibling `index.ts` imports that
+definition plus the shared operation `contract.ts`, then binds the implementation
+with `createStrategy(OperationContract, StrategyDefinition, implementation)`.
+The operation's `strategies/index.ts` aggregates only those implementations.
+
+```text
+shape-relief/
+  contract.ts
+  index.ts
+  strategies/
+    index.ts
+    plate-driven/
+      config.ts
+      index.ts
+```
 
 Every returned contract exposes the resolved `defaultStrategy` and TypeBox-materialized
 `defaultConfig`, regardless of whether the author inferred or declared the default.
@@ -97,21 +139,22 @@ This is a hard authoring cut: raw operation envelopes that selected `"default"` 
 the operation's semantic strategy id. Recipe-level persisted configuration remains governed by
 its stage public schema and compile mapping rather than by raw operation envelopes.
 
-Representative example (createOp binds strategy implementations by id; excerpt; see full file in anchors):
+Representative implementation composition:
 
 ```ts
 import { createOp } from "@swooper/mapgen-core/authoring";
 import ComputePlateTopologyContract from "./contract.js";
-import { wrappedHexAdjacencyStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
 export default createOp(ComputePlateTopologyContract, {
-  strategies: { "wrapped-hex-adjacency": wrappedHexAdjacencyStrategy },
+  strategies,
 });
 ```
 
 ## Ground truth anchors
 
 - Op contract definition: `packages/mapgen-core/src/authoring/op/contract.ts`
+- Strategy definition factory: `packages/mapgen-core/src/authoring/op/strategy-definition.ts`
 - Op creation and strategy enforcement: `packages/mapgen-core/src/authoring/op/create.ts`
 - Strategy schema/envelope: `packages/mapgen-core/src/authoring/op/envelope.ts`
 - Binding compile-time ops by id: `packages/mapgen-core/src/authoring/bindings.ts`

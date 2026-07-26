@@ -1,14 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
+
 import PlanPlotEffectsContract from "./contract.js";
-import { rankedCoverageStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const planPlotEffects = createOp(PlanPlotEffectsContract, {
-  strategies: {
-    "ranked-coverage": rankedCoverageStrategy,
-  },
-});
-
-export type * from "./contract.js";
-export type * from "./types.js";
-
-export default planPlotEffects;
+/** Ranks snow, sand, burned, and jungle suitability into deterministic coverage budgets and optional hazard intent. */
+export default createOp(PlanPlotEffectsContract, { strategies });

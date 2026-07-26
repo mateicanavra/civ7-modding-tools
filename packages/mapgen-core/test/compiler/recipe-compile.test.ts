@@ -1,5 +1,11 @@
 import { describe, expect, it } from "bun:test";
-import { createOp, createStage, createStrategy, defineOp } from "@mapgen/authoring/index.js";
+import {
+  createOp,
+  createStage,
+  createStrategy,
+  defineOp,
+  defineStrategy,
+} from "@mapgen/authoring/index.js";
 import { compileRecipeConfig, RecipeCompileError } from "@mapgen/compiler/recipe-compile.js";
 import { admitMapSetup, type MapSetup } from "@mapgen/core/map-setup.js";
 import { Type } from "typebox";
@@ -178,12 +184,15 @@ describe("compileRecipeConfig", () => {
       id: "test/op",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({}, { additionalProperties: false }),
-      strategies: {
-        compiled: Type.Object(
-          { tag: Type.String({ default: "before-op" }) },
-          { additionalProperties: false }
-        ),
-      },
+      strategies: [
+        defineStrategy({
+          id: "compiled",
+          config: Type.Object(
+            { tag: Type.String({ default: "before-op" }) },
+            { additionalProperties: false }
+          ),
+        }),
+      ],
     } as const);
     const stepSchema = Type.Object(
       { value: Type.String(), trees: op.config },
@@ -215,15 +224,15 @@ describe("compileRecipeConfig", () => {
       steps: [step],
     });
     const compileOp = createOp(op, {
-      strategies: {
-        compiled: createStrategy(op, "compiled", {
+      strategies: [
+        createStrategy(op, op.strategies.compiled, {
           normalize: (config) => {
             calls.push("op.normalize");
             return { ...config, tag: "op" };
           },
           run: () => ({}),
         }),
-      },
+      ],
     });
 
     const result = compileRecipeConfig({
@@ -320,12 +329,15 @@ describe("compileRecipeConfig", () => {
       id: "test/delete-required",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({}, { additionalProperties: false }),
-      strategies: {
-        compiled: Type.Object(
-          { amount: Type.Number({ default: 1 }) },
-          { additionalProperties: false }
-        ),
-      },
+      strategies: [
+        defineStrategy({
+          id: "compiled",
+          config: Type.Object(
+            { amount: Type.Number({ default: 1 }) },
+            { additionalProperties: false }
+          ),
+        }),
+      ],
     } as const);
     const knobsSchema = Type.Object({}, { additionalProperties: false });
     const publicSchema = Type.Object({}, { additionalProperties: false });
@@ -345,12 +357,12 @@ describe("compileRecipeConfig", () => {
       ],
     });
     const compileOp = createOp(op, {
-      strategies: {
-        compiled: createStrategy(op, "compiled", {
+      strategies: [
+        createStrategy(op, op.strategies.compiled, {
           normalize: () => ({}) as never,
           run: () => ({}),
         }),
-      },
+      ],
     });
 
     const error = expectCompileError(() =>

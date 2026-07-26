@@ -2,7 +2,7 @@ import { type Static, TypedArraySchemas } from "@swooper/mapgen-core/authoring/s
 
 /** Plate identifier for every mesh cell in one reconstructed tectonic era. */
 export const PlateMembershipSchema = TypedArraySchemas.i16({
-  cardinality: null,
+  cardinality: "constructor-only",
   description: "Plate identifier for every mesh cell in one reconstructed tectonic era.",
 });
 

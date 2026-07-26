@@ -1,4 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import newestEraCompositeDefinition from "./strategies/newest-era-composite/config.js";
 
 /** Contract for projecting the newest era and cumulative uplift into canonical current tectonic state. */
 const ComputeTectonicsCurrentContract = defineOp({
@@ -38,13 +39,13 @@ const ComputeTectonicsCurrentContract = defineOp({
     {
       tectonics: Type.Object(
         {
-          boundaryType: TypedArraySchemas.u8({ cardinality: null }),
-          upliftPotential: TypedArraySchemas.u8({ cardinality: null }),
-          riftPotential: TypedArraySchemas.u8({ cardinality: null }),
-          shearStress: TypedArraySchemas.u8({ cardinality: null }),
-          volcanism: TypedArraySchemas.u8({ cardinality: null }),
-          fracture: TypedArraySchemas.u8({ cardinality: null }),
-          cumulativeUplift: TypedArraySchemas.u8({ cardinality: null }),
+          boundaryType: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          upliftPotential: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          riftPotential: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          shearStress: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          volcanism: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          fracture: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          cumulativeUplift: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
         },
         { additionalProperties: false }
       ),
@@ -55,9 +56,7 @@ const ComputeTectonicsCurrentContract = defineOp({
         "Mesh-wide present-state tectonic surface combining the newest era's active boundary and deformation signals with cumulative uplift from the full history.",
     }
   ),
-  strategies: {
-    "newest-era-composite": Type.Object({}, { additionalProperties: false }),
-  },
+  strategies: [newestEraCompositeDefinition],
 });
 
 export default ComputeTectonicsCurrentContract;

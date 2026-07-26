@@ -11,44 +11,20 @@ their destination kind is sealed.
 law -> source conformance -> verification. A niche may refine a kind but may not
 recreate, weaken, or hardcode its membership.
 
-**Current container:** Resources and the minimal root/module laws are sealed.
-Foundation is the next whole-domain burn-down: mesh, mantle, lithosphere,
-tectonics, orogeny, and projection form one ordered aggregate under
-`modules/`. The domain root is only the aggregate `contract.ts`, `router.ts`,
-public `index.ts`, and its shared `model/`; model atoms and policy cannot sit
-beside semantic modules as though they were equivalent kinds. Each module owns
-its operations and immutable artifacts and may own the same optional
-`model/{atoms,policy}` slot. Vocabulary descends to the lowest module that fully
-owns it and rises only when multiple sibling modules prove a shared edge; no
-empty model shell is created. Operation registries are the singular
-`ops/contract.ts`. Operation input and output envelopes exist only in their
-contract file and are authored inline at the `defineOp` callsite; detached
-`InputSchema`/`OutputSchema` aliases are not secondary authorities. Strategy
-configuration belongs to a closed strategy leaf
-`strategies/<semantic-id>/{contract.ts,index.ts}` rather than remaining as a
-detached schema inside the parent operation contract; sibling
-`strategies/{contract.ts,index.ts}` files aggregate contracts and executable
-descriptors separately. Contracts
-compose the smallest named model atoms they actually require, while rules,
-strategies, and implementation helpers consume
-those atom types or private algorithm-local types directly. They never
-reconstruct working types from an artifact schema or project them back out of
-an operation envelope. Atoms are schema primitives and cohesive subentities,
-not complete container schemas reused wholesale. Each artifact owns its full
-publication schema and each operation owns its full boundary envelope; both
-may compose the same smaller atoms without borrowing the other's container.
-Duplicated whole-container shapes are a signal to narrow the operation input
-or decompose a smaller semantic atom. Four
-intermediate tectonic payloads lose false
-artifact identity and remain plain module-model atoms. No flat compatibility
-catalog survives. For every law, `required` names the fixed
-spine, `allowed` names deliberate flexibility, and everything else is excluded
-without a second forbidden inventory. Membership and topology stay in
-`pathCoverage` and `structure.toml`; Grit expresses only cheap relationships
-inside the admitted kind; TypeScript owns composition, key identity, duplicate
-refusal, and artifact-validator binding by construction. Current positive
-schemas and public types are the complete authority for authored keys; removed
-keys receive no historical tombstone rules.
+**Current container:** Operation envelopes, named typed-array cardinality, and
+strategy authorship are sealed as positive kinds. Every semantic strategy owns
+`strategies/<semantic-id>/{config.ts,index.ts}`; the operation contract remains
+the sole shared input/output authority; one strategy is necessarily the default
+and multiple strategies name their default explicitly. The immediate shrink-only
+cleanup removes Core's zero-production-consumer schema-map, string-id, and
+implementation-map compatibility paths after migrating its own test fixtures.
+The active structural burn-down then moves Ecology from its never-completed flat
+root into semantic modules for pedology, biomes, features, and plot effects.
+The existing generic domain and module blueprints define that destination: the
+domain root composes module contracts and routers, each operation and immutable
+product moves to its lowest rightful module, and vocabulary rises to the root
+model only when multiple modules prove the edge. No Ecology enumeration or
+niche-shaped substitute is admitted.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -56,29 +32,33 @@ state is adapter observation; metrics, diagnostics, trace, and visualization
 are separate capabilities. Core owns the generic authoring/execution and
 domain-composition SDK, not Swooper's domain model.
 
-**Gradient:** first repair the generic domain, module, operation, and strategy
-kind laws for the nested destination. Then relocate Foundation atomically into
-its six semantic modules, preserve every operation identity and behavior, zip
-each artifact to its real owner, move shared vocabulary under the nearest
-`model/`, replace whole-container schema borrowing with independent boundary
-composition from smaller semantic atoms, and delete false artifacts and
-low-value schema-repetition tests. A subdomain is a
-semantic router: operations expose swappable strategies, and strategies
-compose the module's rules, policy, and atoms through transparent dependencies.
-Verify the complete Foundation/Standard consumer graph, then seal the branch
-before the next whole-domain slice. Keep successor laws advisory for the mixed
-interval; promote the domain and child laws to enforced only at zero and retire
-flat laws in the same semantic cut.
-The immediate mechanical successors first make every operation `defineOp` call
-directly own its inline input/output envelopes, then move strategy schemas and
-implementations into their leaf strategy kind behind one typed Core
-`defineStrategy` authority. Typed-array inputs also declare honest cardinality
-intent at that boundary: fixed grid, plate, segment, and era fields bind to an
-explicit count path; only genuinely variable adjacency, event, and list values
-use constructor-only admission. The schema API should name those modes rather
-than leaving `cardinality: null` as an opaque routine escape hatch. These
-structural corpora must settle before
-reopening operation-to-artifact or other pipeline relationship design.
+**Gradient:** delete the retired strategy compatibility surface, prove the one
+canonical Core API, and commit that shrink-only boundary. Then recompose Ecology
+one complete semantic module at a time while preserving operation ids, strategy
+identities, artifact ids, authored defaults, and algorithms. Update the stale
+Ecology router guidance and turn the already-red generic domain/module laws
+green without weakening them or adding a niche exception. Hydrology follows;
+Placement waits for its protected user edit; Morphology follows the artifact-
+vintage decision last. Prove each domain through the native Nx graph and focused
+kind owners before its semantic commit.
+After the mechanical kinds are homogeneous, semantically recompose
+`packages/mapgen-core/src/authoring` so its hierarchy truthfully expresses the
+authoring SDK's concepts, ownership, dependency direction, and public surfaces;
+use niche enforcement only after that package-specific model is clear rather
+than inventing a generic library law. Then normalize repeated module/domain
+schema parts into small model atoms, admitting a cohesive model entity only
+when it has independent domain meaning rather than because two containers share
+a complete shape. This begins only after Core can express composition-safe
+local cardinality relations; a model atom must not bake in one consumer's
+root-relative path, weaken admission, or become a parameterized schema helper.
+The structural atom kind and human semantic review own that judgment; no broad
+duplicate-property scanner guesses identity from repeated field names. Collapse
+artifact authoring to one weighted definition, then
+reopen the domain, artifact, and pipeline graph as one design question. A
+subdomain remains a semantic router: operations expose swappable strategies,
+and strategies compose the module's rules, policy, and atoms through transparent
+dependencies. These structural corpora must settle before reopening
+operation-to-artifact or other pipeline relationship design.
 For every structural kind, `required` names only the fixed spine, `allowed`
 names optional or generative members, and `closed` rejects everything else.
 Relocate one semantic module at a time, hoisting vocabulary only when a real

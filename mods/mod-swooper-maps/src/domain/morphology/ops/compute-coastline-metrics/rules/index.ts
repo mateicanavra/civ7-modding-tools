@@ -1,12 +1,28 @@
 import { clamp } from "@swooper/mapgen-core/lib/math";
 
-import type { ComputeCoastlineMetricsTypes } from "../types.js";
+type PlateBiasConfig = Readonly<{
+  threshold: number;
+  power: number;
+  convergent: number;
+  transform: number;
+  divergent: number;
+  interior: number;
+  bayWeight: number;
+  bayNoiseBonus: number;
+  fjordWeight: number;
+}>;
 
-type CoastConfig = ComputeCoastlineMetricsTypes["config"]["plate-aware-carving"]["coast"];
-type PlateBiasConfig = CoastConfig["plateBias"];
+type BayConfig = Readonly<{
+  noiseGateAdd: number;
+  rollDenActive: number;
+  rollDenDefault: number;
+}>;
 
-type BayConfig = CoastConfig["bay"];
-type FjordConfig = CoastConfig["fjord"];
+type FjordConfig = Readonly<{
+  baseDenom: number;
+  activeBonus: number;
+  passiveBonus: number;
+}>;
 
 const BOUNDARY_CONVERGENT = 1;
 const BOUNDARY_DIVERGENT = 2;

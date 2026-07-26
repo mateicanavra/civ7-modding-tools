@@ -1,4 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import strategyDefinition from "./strategies/multi-source-hex-bfs/config.js";
 
 /**
  * Shared multi-source BFS that labels every tile with its hex-distance to the
@@ -31,15 +32,7 @@ const ComputeDistanceToCoastContract = defineOp({
         "Hex-distance to the nearest coastal seed per tile (0 = coastal). Unreachable tiles are 65535.",
     }),
   }),
-  strategies: {
-    "multi-source-hex-bfs": Type.Object(
-      {},
-      {
-        additionalProperties: false,
-        description: "Parameter-free multi-source hex BFS from the coastal seed mask.",
-      }
-    ),
-  },
+  strategies: [strategyDefinition],
 });
 
 export default ComputeDistanceToCoastContract;

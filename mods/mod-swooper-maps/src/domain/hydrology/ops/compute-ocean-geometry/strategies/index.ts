@@ -1,1 +1,4 @@
-export { connectedBasinsStrategy } from "./connected-basins.js";
+import connectedBasins from "./connected-basins/index.js";
+
+/** Connected basins are the sole geometry posture because basin identity and coast vectors must share one topology. */
+export default [connectedBasins] as const;

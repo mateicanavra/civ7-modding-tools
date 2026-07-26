@@ -1,14 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ScoreWetMarshContract from "./contract.js";
-import { temperateHydromorphicStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const scoreWetMarsh = createOp(ScoreWetMarshContract, {
-  strategies: {
-    "temperate-hydromorphic": temperateHydromorphicStrategy,
-  },
-});
-
-export type * from "./contract.js";
-
-export default scoreWetMarsh;
+/** Scores temperate saturated land from hydromorphic substrate, water, fertility, aridity, and temperature. */
+export default createOp(ScoreWetMarshContract, { strategies });

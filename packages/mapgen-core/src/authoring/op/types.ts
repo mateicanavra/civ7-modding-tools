@@ -1,16 +1,15 @@
 import type { Static, TSchema, TUnsafe } from "typebox";
+import type { StrategyDefinition } from "./strategy-definition.js";
 
 // Allow ops with specific input/config types to flow through generic registries.
 type BivariantCallback<Args extends unknown[], Return> = {
   bivarianceHack(...args: Args): Return;
 }["bivarianceHack"];
 
-type StrategiesLike = Readonly<Record<string, TSchema>>;
+type StrategyDefinitionsLike = Readonly<Record<string, StrategyDefinition<string, TSchema>>>;
 type RuntimeStrategiesLike = Readonly<Record<string, { config: TSchema }>>;
 
 type StrategyConfigSchemaOf<T> = T extends { config: infer C extends TSchema } ? C : never;
-
-export type StrategyConfigSchemas = Readonly<Record<string, TSchema>>;
 
 export type StrategySelection<Strategies extends RuntimeStrategiesLike> = {
   [K in keyof Strategies & string]: Readonly<{
@@ -23,26 +22,26 @@ export type OpContractLike = Readonly<{
   input: TSchema;
   output: TSchema;
   defaultStrategy: string;
-  strategies: StrategiesLike;
+  strategies: StrategyDefinitionsLike;
 }>;
 
-export type OpStrategyId<TStrategies extends StrategiesLike> = keyof TStrategies & string;
+export type OpStrategyId<TStrategies extends StrategyDefinitionsLike> = keyof TStrategies & string;
 
 export type OpTypeBag<
   InputSchema extends TSchema,
   OutputSchema extends TSchema,
-  Strategies extends StrategiesLike,
+  Strategies extends StrategyDefinitionsLike,
 > = Readonly<{
   input: Static<InputSchema>;
   output: Static<OutputSchema>;
   strategyId: OpStrategyId<Strategies>;
   config: Readonly<{
-    [K in OpStrategyId<Strategies>]: Static<Strategies[K]>;
+    [K in OpStrategyId<Strategies>]: Static<Strategies[K]["config"]>;
   }>;
   envelope: {
     [K in OpStrategyId<Strategies>]: Readonly<{
       strategy: K;
-      config: Static<Strategies[K]>;
+      config: Static<Strategies[K]["config"]>;
     }>;
   }[OpStrategyId<Strategies>];
 }>;

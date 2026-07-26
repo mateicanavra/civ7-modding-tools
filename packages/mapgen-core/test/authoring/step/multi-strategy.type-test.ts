@@ -1,5 +1,5 @@
 import type { Static, StepRuntimeOps } from "@mapgen/authoring/index.js";
-import { defineOp, defineStep, Type } from "@mapgen/authoring/index.js";
+import { defineOp, defineStep, defineStrategy, Type } from "@mapgen/authoring/index.js";
 import type { IsAny, IsEqual, IsNever, IsUnknown, Or } from "type-fest";
 import type { StepOpUse } from "../../../src/authoring/step/ops.js";
 
@@ -11,10 +11,16 @@ const MultiStrategyOp = defineOp({
   input: Type.Object({}, { additionalProperties: false }),
   output: Type.Object({}, { additionalProperties: false }),
   defaultStrategy: "balanced",
-  strategies: {
-    balanced: Type.Object({ plateauCount: Type.Integer() }, { additionalProperties: false }),
-    fast: Type.Object({ turbo: Type.Boolean() }, { additionalProperties: false }),
-  },
+  strategies: [
+    defineStrategy({
+      id: "balanced",
+      config: Type.Object({ plateauCount: Type.Integer() }, { additionalProperties: false }),
+    }),
+    defineStrategy({
+      id: "fast",
+      config: Type.Object({ turbo: Type.Boolean() }, { additionalProperties: false }),
+    }),
+  ],
 });
 
 const MultiOpStepContract = defineStep({

@@ -4,6 +4,7 @@ import {
   createOp,
   createStrategy,
   defineOp,
+  defineStrategy,
   OperationInputAdmissionError,
   TypedArraySchemas,
 } from "@mapgen/authoring/index.js";
@@ -33,15 +34,18 @@ function createTestingOperation() {
       },
       { additionalProperties: false }
     ),
-    strategies: {
-      named: Type.Object({ label: Type.String() }, { additionalProperties: false }),
-    },
+    strategies: [
+      defineStrategy({
+        id: "named",
+        config: Type.Object({ label: Type.String() }, { additionalProperties: false }),
+      }),
+    ],
   });
   let normalizations = 0;
   let runs = 0;
   const operation = createOp(contract, {
-    strategies: {
-      named: createStrategy(contract, "named", {
+    strategies: [
+      createStrategy(contract, contract.strategies.named, {
         normalize: (config) => {
           normalizations += 1;
           if (config.label === "throw") throw new Error("strategy normalization exploded");
@@ -54,7 +58,7 @@ function createTestingOperation() {
           return { label: config.label, observedLength: input.values.length };
         },
       }),
-    },
+    ],
   });
   return {
     operation,

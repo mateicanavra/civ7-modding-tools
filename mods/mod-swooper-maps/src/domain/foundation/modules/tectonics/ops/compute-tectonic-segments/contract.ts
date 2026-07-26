@@ -1,25 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { PlateSchema } from "../../../lithosphere/model/atoms/plate.schema.js";
-
-const StrategySchema = Type.Object(
-  {
-    intensityScale: Type.Number({
-      default: 900,
-      minimum: 1,
-      maximum: 10_000,
-      description:
-        "Controls how strongly relative plate motion maps into 0..255 boundary segment intensities.",
-    }),
-    regimeMinIntensity: Type.Integer({
-      default: 4,
-      minimum: 0,
-      maximum: 255,
-      description:
-        "Sets the minimum boundary intensity required before a segment affects tectonic regime classification.",
-    }),
-  },
-  { additionalProperties: false }
-);
+import relativeMotionRegimesDefinition from "./strategies/relative-motion-regimes/config.js";
 
 /**
  * Contract for classifying the plate graph's boundary edges from relative plate motion.
@@ -36,8 +17,10 @@ const ComputeTectonicSegmentsContract = defineOp({
           wrapWidth: Type.Number(),
           siteX: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
           siteY: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
-          neighborsOffsets: TypedArraySchemas.i32({ cardinality: null }),
-          neighbors: TypedArraySchemas.i32({ cardinality: null }),
+          neighborsOffsets: TypedArraySchemas.i32({
+            cardinality: { factors: ["mesh.cellCount"], addend: 1 },
+          }),
+          neighbors: TypedArraySchemas.i32({ cardinality: "constructor-only" }),
         },
         { additionalProperties: false }
       ),
@@ -75,19 +58,19 @@ const ComputeTectonicSegmentsContract = defineOp({
       segments: Type.Object(
         {
           segmentCount: Type.Integer({ minimum: 0 }),
-          aCell: TypedArraySchemas.i32({ cardinality: null }),
-          bCell: TypedArraySchemas.i32({ cardinality: null }),
-          plateA: TypedArraySchemas.i16({ cardinality: null }),
-          plateB: TypedArraySchemas.i16({ cardinality: null }),
-          regime: TypedArraySchemas.u8({ cardinality: null }),
-          polarity: TypedArraySchemas.i8({ cardinality: null }),
-          compression: TypedArraySchemas.u8({ cardinality: null }),
-          extension: TypedArraySchemas.u8({ cardinality: null }),
-          shear: TypedArraySchemas.u8({ cardinality: null }),
-          volcanism: TypedArraySchemas.u8({ cardinality: null }),
-          fracture: TypedArraySchemas.u8({ cardinality: null }),
-          driftU: TypedArraySchemas.i8({ cardinality: null }),
-          driftV: TypedArraySchemas.i8({ cardinality: null }),
+          aCell: TypedArraySchemas.i32({ cardinality: "constructor-only" }),
+          bCell: TypedArraySchemas.i32({ cardinality: "constructor-only" }),
+          plateA: TypedArraySchemas.i16({ cardinality: "constructor-only" }),
+          plateB: TypedArraySchemas.i16({ cardinality: "constructor-only" }),
+          regime: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          polarity: TypedArraySchemas.i8({ cardinality: "constructor-only" }),
+          compression: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          extension: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          shear: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          volcanism: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          fracture: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          driftU: TypedArraySchemas.i8({ cardinality: "constructor-only" }),
+          driftV: TypedArraySchemas.i8({ cardinality: "constructor-only" }),
         },
         { additionalProperties: false }
       ),
@@ -98,9 +81,7 @@ const ComputeTectonicSegmentsContract = defineOp({
         "Canonical plate-boundary table with aligned cell and plate endpoints, classified regime and polarity, event intensities, and drift for each segment.",
     }
   ),
-  strategies: {
-    "relative-motion-regimes": StrategySchema,
-  },
+  strategies: [relativeMotionRegimesDefinition],
 });
 
 export default ComputeTectonicSegmentsContract;

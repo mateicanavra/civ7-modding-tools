@@ -1,15 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ComputeCoastlineMetricsContract from "./contract.js";
-import { plateAwareCarvingStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const computeCoastlineMetrics = createOp(ComputeCoastlineMetricsContract, {
-  strategies: {
-    "plate-aware-carving": plateAwareCarvingStrategy,
-  },
-});
-
-export type * from "./contract.js";
-export type * from "./types.js";
+/** Carves plate-aware coastlines and returns the resulting land, coast, and adjacency masks. */
+const computeCoastlineMetrics = createOp(ComputeCoastlineMetricsContract, { strategies });
 
 export default computeCoastlineMetrics;

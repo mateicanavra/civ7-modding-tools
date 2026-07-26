@@ -1,14 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ComputeShelfMaskContract from "./contract.js";
-import { physicalBreakConnectivityStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const computeShelfMask = createOp(ComputeShelfMaskContract, {
-  strategies: {
-    "physical-break-connectivity": physicalBreakConnectivityStrategy,
-  },
-});
-
-export type * from "./contract.js";
+/** Identifies shore-connected shelf water from the sculpted continental-break gradient. */
+const computeShelfMask = createOp(ComputeShelfMaskContract, { strategies });
 
 export default computeShelfMask;

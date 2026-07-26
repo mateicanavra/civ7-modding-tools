@@ -1,15 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ComputeBaseTopographyContract from "./contract.js";
-import { tectonicReliefStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const computeBaseTopography = createOp(ComputeBaseTopographyContract, {
-  strategies: {
-    "tectonic-relief": tectonicReliefStrategy,
-  },
-});
-
-export type * from "./contract.js";
-export type * from "./types.js";
+/** Produces the initial elevation field from crust isostasy and tectonic relief signals. */
+const computeBaseTopography = createOp(ComputeBaseTopographyContract, { strategies });
 
 export default computeBaseTopography;

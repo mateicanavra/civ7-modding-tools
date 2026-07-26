@@ -1,15 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ComputeLandmassesContract from "./contract.js";
-import { wrappedHexComponentsStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const computeLandmasses = createOp(ComputeLandmassesContract, {
-  strategies: {
-    "wrapped-hex-components": wrappedHexComponentsStrategy,
-  },
-});
-
-export type * from "./contract.js";
-export type * from "./types.js";
+/** Decomposes the land mask into wrapped-hex landmass components and bounds. */
+const computeLandmasses = createOp(ComputeLandmassesContract, { strategies });
 
 export default computeLandmasses;

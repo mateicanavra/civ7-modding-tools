@@ -1,6 +1,8 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { FeaturePlacementSchema } from "../../model/schemas/index.js";
+import habitatConfidenceDefinition from "./strategies/habitat-confidence/config.js";
 
+/** Chooses the strongest wetland-family habitat per unoccupied land tile after substrate-specific scoring. Every implementation shares this admitted input and output boundary. */
 const PlanWetlandsContract = defineOp({
   kind: "plan",
   id: "ecology/features/plan-wetlands",
@@ -40,17 +42,7 @@ const PlanWetlandsContract = defineOp({
   output: Type.Object({
     placements: Type.Array(FeaturePlacementSchema),
   }),
-  strategies: {
-    "habitat-confidence": Type.Object({
-      minConfidence01: Type.Number({
-        minimum: 0,
-        maximum: 1,
-        default: 0.24,
-        description:
-          "Family-local admission threshold: wetland scores below this remain substrate signal, not placement intent.",
-      }),
-    }),
-  },
+  strategies: [habitatConfidenceDefinition],
 });
 
 export default PlanWetlandsContract;

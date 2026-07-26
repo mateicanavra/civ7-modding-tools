@@ -1,4 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import sinkDischargeBudgetDefinition from "./strategies/sink-discharge-budget/config.js";
 
 /**
  * Hydrology lake planning is the truth-side counterpart to engine lake stamping.
@@ -39,31 +40,7 @@ const PlanLakesContract = defineOp({
       description: "Count of sink tiles mapped to lake tiles.",
     }),
   }),
-  strategies: {
-    "sink-discharge-budget": Type.Object({
-      maxUpstreamSteps: Type.Integer({
-        minimum: 0,
-        maximum: 8,
-        default: 0,
-        description:
-          "How many upstream drainage hops to include from sink tiles when expanding planned lakes.",
-      }),
-      sinkDischargePercentileMin: Type.Number({
-        minimum: 0,
-        maximum: 1,
-        default: 0.78,
-        description:
-          "Minimum percentile among positive land-sink discharge values required for terminal-basin lake admission.",
-      }),
-      maxLakeLandFraction: Type.Number({
-        minimum: 0,
-        maximum: 1,
-        default: 0.06,
-        description:
-          "Maximum share of land tiles that may be admitted as primary sink lakes before upstream expansion.",
-      }),
-    }),
-  },
+  strategies: [sinkDischargeBudgetDefinition],
 });
 
 export default PlanLakesContract;

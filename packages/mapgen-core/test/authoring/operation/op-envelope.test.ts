@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { buildOpEnvelopeSchema } from "@mapgen/authoring/op/envelope.js";
+import { defineStrategy } from "@mapgen/authoring/op/strategy-definition.js";
 import { Type } from "typebox";
 import { Value } from "typebox/value";
 
@@ -14,7 +15,12 @@ describe("op envelope defaults", () => {
     expect(() =>
       buildOpEnvelopeSchema(
         "test/missing-default",
-        { available: Type.Object({}, { additionalProperties: false }) },
+        {
+          available: defineStrategy({
+            id: "available",
+            config: Type.Object({}, { additionalProperties: false }),
+          }),
+        },
         "missing"
       )
     ).toThrow('op(test/missing-default) missing strategy "missing" (available: available)');
@@ -24,19 +30,25 @@ describe("op envelope defaults", () => {
     const result = buildOpEnvelopeSchema(
       "test/ordered-strategies",
       {
-        first: Type.Object(
-          { requiredWithoutDefault: Type.String() },
-          { additionalProperties: false }
-        ),
-        selected: Type.Object(
-          {
-            nested: Type.Object(
-              { count: Type.Integer({ default: 3 }) },
-              { additionalProperties: false }
-            ),
-          },
-          { additionalProperties: false }
-        ),
+        first: defineStrategy({
+          id: "first",
+          config: Type.Object(
+            { requiredWithoutDefault: Type.String() },
+            { additionalProperties: false }
+          ),
+        }),
+        selected: defineStrategy({
+          id: "selected",
+          config: Type.Object(
+            {
+              nested: Type.Object(
+                { count: Type.Integer({ default: 3 }) },
+                { additionalProperties: false }
+              ),
+            },
+            { additionalProperties: false }
+          ),
+        }),
       },
       "selected"
     );
@@ -52,15 +64,18 @@ describe("op envelope defaults", () => {
     const result = buildOpEnvelopeSchema(
       "test/native-create",
       {
-        selected: Type.Object(
-          {
-            nested: Type.Object(
-              { label: Type.String(), count: Type.Integer({ default: 3 }) },
-              { additionalProperties: false }
-            ),
-          },
-          { additionalProperties: false }
-        ),
+        selected: defineStrategy({
+          id: "selected",
+          config: Type.Object(
+            {
+              nested: Type.Object(
+                { label: Type.String(), count: Type.Integer({ default: 3 }) },
+                { additionalProperties: false }
+              ),
+            },
+            { additionalProperties: false }
+          ),
+        }),
       },
       "selected"
     );

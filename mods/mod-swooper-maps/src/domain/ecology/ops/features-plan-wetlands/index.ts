@@ -1,14 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
+
 import PlanWetlandsContract from "./contract.js";
-import { habitatConfidenceStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const planWetlands = createOp(PlanWetlandsContract, {
-  strategies: {
-    "habitat-confidence": habitatConfidenceStrategy,
-  },
-});
-
-export type * from "./contract.js";
-export type * from "./types.js";
-
-export default planWetlands;
+/** Chooses the strongest wetland-family habitat per unoccupied land tile after substrate-specific scoring. */
+export default createOp(PlanWetlandsContract, { strategies });

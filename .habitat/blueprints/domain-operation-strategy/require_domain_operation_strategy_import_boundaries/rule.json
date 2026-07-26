@@ -12,16 +12,17 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "advisory",
-  "forbids": "domain operation strategies importing anything outside their default local contract binding, type-only private algorithm vocabulary, local rules, ancestor semantic model atoms and policy, shared map policy, and sanctioned MapGen Core computation surfaces; strategies also cannot derive types from contract input/output envelopes",
-  "why": "A semantic module is a router, while each operation strategy is a swappable implementation of one local contract. A positive dependency boundary keeps strategy choice modular and transparent without turning contract envelopes, recipes, adapters, engines, sibling operations, or unrelated implementations into hidden type or runtime inputs.",
-  "remediate": "Bind createStrategy to the default local contract value, move reusable schema vocabulary or policy to the nearest model owner, keep private algorithm types and computation local, and compose other operations through the owning router instead of importing their implementations.",
+  "forbids": "domain operation strategy implementation aggregates or leaves outside their singular default-export and role-specific positive dependency surfaces",
+  "why": "A semantic module is a router, while each operation strategy is one swappable definition-and-implementation leaf under one local operation. The leaf config owns the semantic id and authored configuration schema without depending on the operation contract; the leaf implementation alone binds that definition to the shared operation contract. Dependencies follow owner axes: same-operation policy and rules, ancestor model owners, admitted public domain surfaces, and public computation packages. The domain-model structure law separately owns valid children beneath model. Closing each admitted file to one default authority keeps strategy choice modular and transparent without hidden registries, contract cycles, recipes, adapters, engines, private sibling operations, or unrelated implementations.",
+  "remediate": "Give every implementation aggregate and leaf file one default authority and no named exports. Compose aggregate implementations only from default semantic leaf entrypoints. Keep a leaf config on authoring contracts and ancestor or public model authorities. Bind the default local operation contract and leaf strategy definition only from the leaf implementation; keep implementation dependencies on same-operation policy/rules, ancestor model authorities, and admitted public surfaces. Promote shared logic to an ancestor model owner instead of reaching into a private sibling operation.",
   "message": "Strategy dependencies must stay on the positive semantic strategy surface.",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/domain/*/ops/*/strategies/*.ts",
-        "mods/*/src/domain/*/modules/*/ops/*/strategies/*.ts"
+        "mods/*/src/domain/**/ops/*/strategies/index.ts",
+        "mods/*/src/domain/**/ops/*/strategies/*/config.ts",
+        "mods/*/src/domain/**/ops/*/strategies/*/index.ts"
       ]
     }
   ],

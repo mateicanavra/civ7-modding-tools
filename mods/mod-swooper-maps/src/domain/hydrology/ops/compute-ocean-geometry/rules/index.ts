@@ -1,7 +1,19 @@
 import { clampInt } from "@swooper/mapgen-core";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 
-import type { ComputeOceanGeometryOptions, ComputeOceanGeometryOutput } from "../types.js";
+type OceanGeometryOptions = Readonly<{
+  maxCoastDistance: number;
+  maxCoastVectorDistance: number;
+}>;
+
+type OceanGeometryResult = Readonly<{
+  basinId: Int32Array;
+  coastDistance: Uint16Array;
+  coastNormalU: Int8Array;
+  coastNormalV: Int8Array;
+  coastTangentU: Int8Array;
+  coastTangentV: Int8Array;
+}>;
 
 const INF_U16 = 0xffff;
 
@@ -14,8 +26,8 @@ export function computeOceanGeometry(
   height: number,
   isWaterMask: Uint8Array,
   coastalWaterMask: Uint8Array,
-  options: ComputeOceanGeometryOptions
-): ComputeOceanGeometryOutput {
+  options: OceanGeometryOptions
+): OceanGeometryResult {
   const size = width * height;
   const basinId = new Int32Array(size);
   const coastDistance = new Uint16Array(size);

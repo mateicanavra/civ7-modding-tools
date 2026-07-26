@@ -1,5 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import warmIntertidalDefinition from "./strategies/warm-intertidal/config.js";
 
+/** Scores warm intertidal coast habitat from water, fertility, aridity, and temperature evidence. Every implementation shares this admitted input and output boundary. */
 const ScoreWetMangroveContract = defineOp({
   kind: "compute",
   id: "ecology/wet/score/mangrove",
@@ -18,40 +20,7 @@ const ScoreWetMangroveContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Mangrove suitability score per tile (0..1)." }),
   }),
-  strategies: {
-    "warm-intertidal": Type.Object({
-      waterMin01: Type.Number({
-        default: 0.45,
-        minimum: 0,
-        maximum: 1,
-        description: "Minimum water availability for mangrove suitability.",
-      }),
-      fertilityMin01: Type.Number({
-        default: 0.15,
-        minimum: 0,
-        maximum: 1,
-        description: "Minimum soil fertility for mangrove suitability.",
-      }),
-      aridityMax01: Type.Number({
-        default: 0.7,
-        minimum: 0,
-        maximum: 1,
-        description: "Maximum aridity for mangrove suitability.",
-      }),
-      tempWarmStartC: Type.Number({
-        default: 18,
-        minimum: -100,
-        maximum: 100,
-        description: "Temperature where mangrove suitability begins increasing.",
-      }),
-      tempWarmEndC: Type.Number({
-        default: 30,
-        minimum: -100,
-        maximum: 100,
-        description: "Temperature where mangrove suitability reaches its warm optimum.",
-      }),
-    }),
-  },
+  strategies: [warmIntertidalDefinition],
 });
 
 export default ScoreWetMangroveContract;

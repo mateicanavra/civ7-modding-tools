@@ -7,18 +7,18 @@ Operation contract files own the complete operation input/output envelopes.
 Those two root schemas are direct inline `Type.*(...)` expressions that may
 compose smaller atoms and policy from the nearest module or domain model; they
 never borrow a complete artifact schema or export detached `InputSchema` /
-`OutputSchema` authorities. Strategy configuration belongs to the semantic
-strategy leaf contract, not to a detached `StrategySchema` in the operation
-contract. Contract files expose only their singular default `defineOp`
-authority and must not outsource their envelope to `config.ts` bags, sibling or
-cross-domain operation contracts, shared type buckets, recipe/stage authoring
-surfaces, or runtime operation constructors.
+`OutputSchema` authorities. Strategy configuration belongs to each semantic
+strategy leaf definition, imported directly from
+`./strategies/<semantic-id>/config.js`, not to a detached `StrategySchema` in
+the operation contract. Contract files expose only their singular default
+`defineOp` authority and must not outsource their envelope to root `config.ts`
+bags, sibling or cross-domain operation contracts, shared type buckets,
+recipe/stage authoring surfaces, or runtime operation constructors.
 
 This advisory enforces direct input/output ownership plus the singular
-authority, dependency, export, and constructor boundary across the mixed
-operation corpus. Strategy-leaf ownership remains the immediate successor
-ratchet; it is stated here as remediation rather than falsely claimed as
-zero-baseline enforcement before that mechanical migration lands.
+authority, dependency, export, and constructor boundary across the operation
+corpus. The strategy topology rule separately requires direct semantic leaf
+definitions; this rule admits exactly that parent-to-leaf dependency.
 
 ```grit
 language js(typescript)
@@ -28,11 +28,11 @@ predicate is_inline_type_schema($value) {
 }
 
 predicate disallowed_root_operation_contract_dependency($source) {
-  ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|\.\./\.\./model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js)[\"']?$"
+  ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|\./strategies/[a-z0-9]+(?:-[a-z0-9]+)*/config\.js|\.\./\.\./model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js)[\"']?$"
 }
 
 predicate disallowed_module_operation_contract_dependency($source) {
-  ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|\.\./\.\./model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){4}model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){3}[a-z0-9]+(?:-[a-z0-9]+)*/model/atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)\.js)[\"']?$"
+  ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|\./strategies/[a-z0-9]+(?:-[a-z0-9]+)*/config\.js|\.\./\.\./model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){4}model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){3}[a-z0-9]+(?:-[a-z0-9]+)*/model/atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)\.js)[\"']?$"
 }
 
 or {
@@ -233,13 +233,14 @@ export const demo = createOp(DemoContract, {});
 ```typescript
 // @filename: mods/example-mod/src/domain/foundation/modules/geology/ops/demo/contract.ts
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
+import measuredDefinition from "./strategies/measured/config.js";
 
 const DemoContract = defineOp({
   kind: "compute",
   id: "foundation/demo",
   input: Type.Object({}, { additionalProperties: false }),
   output: Type.Object({}, { additionalProperties: false }),
-  strategies: { measured: Type.Object({}, { additionalProperties: false }) },
+  strategies: [measuredDefinition],
 });
 
 export default DemoContract;
@@ -248,6 +249,7 @@ export default DemoContract;
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { PlateEventSchema } from "../../model/atoms/plate-event.schema.js";
 import { GridBoundsSchema } from "../../../mesh/model/atoms/grid-bounds.schema.js";
+import measuredDefinition from "./strategies/measured/config.js";
 
 export default defineOp({
   kind: "compute",
@@ -260,12 +262,12 @@ export default defineOp({
     acceptedEvents: Type.Array(PlateEventSchema),
     rejectedCount: Type.Integer({ minimum: 0 }),
   }),
-  strategies: { measured: Type.Object({}, { additionalProperties: false }) },
+  strategies: [measuredDefinition],
 });
 
 ```
 
-The final inline strategy object above is tolerated by this current advisory,
-not the destination example. The successor strategy-contract slice moves that
-configuration to `strategies/measured/contract.ts`, settles the typed binding
-API, and only then turns the prohibition into enforced current-tree law.
+The strategy topology rule owns the requirement that `measuredDefinition`
+comes from `strategies/measured/config.ts`; this contract rule admits that
+direct dependency while continuing to reject root config bags and unrelated
+operation surfaces.

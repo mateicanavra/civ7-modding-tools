@@ -1,12 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
+
 import ComputeOceanThermalStateContract from "./contract.js";
-import { latitudeCurrentAdvectionStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const computeOceanThermalState = createOp(ComputeOceanThermalStateContract, {
-  strategies: { "latitude-current-advection": latitudeCurrentAdvectionStrategy },
-});
-
-export type * from "./contract.js";
-export type * from "./types.js";
-
-export default computeOceanThermalState;
+/** Advects latitudinal ocean temperature along currents and classifies sea ice over admitted water. */
+export default createOp(ComputeOceanThermalStateContract, { strategies });

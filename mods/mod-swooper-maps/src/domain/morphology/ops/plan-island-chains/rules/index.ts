@@ -1,15 +1,21 @@
-import type { PlanIslandChainsTypes } from "../types.js";
-
 type LabelRng = (range: number, label: string) => number;
 
-type IslandConfig = PlanIslandChainsTypes["config"]["plate-aware-volcanic"]["islands"];
+type IslandConfig = Readonly<{
+  fractalThresholdPercent: number;
+  minDistFromLandRadius: number;
+  baseIslandDenNearActive: number;
+  baseIslandDenElse: number;
+  hotspotSeedDenom: number;
+  clusterMax: number;
+  microcontinentChance: number;
+}>;
+
+type IslandChainsConfig = Readonly<{ islands: IslandConfig }>;
 
 /**
  * Normalizes island placement tunables from authored config.
  */
-export function normalizeIslandTunables(
-  config: PlanIslandChainsTypes["config"]["plate-aware-volcanic"]
-): {
+export function normalizeIslandTunables(config: IslandChainsConfig): {
   threshold: number;
   minDist: number;
   baseDenActive: number;

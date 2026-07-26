@@ -1,14 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ScoreVegetationSagebrushSteppeContract from "./contract.js";
-import { semiaridOpenStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const scoreVegetationSagebrushSteppe = createOp(ScoreVegetationSagebrushSteppeContract, {
-  strategies: {
-    "semiarid-open": semiaridOpenStrategy,
-  },
-});
-
-export type * from "./contract.js";
-
-export default scoreVegetationSagebrushSteppe;
+/** Scores semiarid open vegetation from energy, water stress, and biomass evidence. */
+export default createOp(ScoreVegetationSagebrushSteppeContract, { strategies });

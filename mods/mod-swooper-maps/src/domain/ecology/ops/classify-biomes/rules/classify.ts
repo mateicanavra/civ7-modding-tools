@@ -1,5 +1,4 @@
 import { BIOME_SYMBOL_TO_INDEX } from "../../../model/schemas/index.js";
-import type { BiomeClassificationTypes } from "../types.js";
 import { aridityShiftForIndex, shiftMoistureZone } from "./aridity.js";
 import { biomeSymbolForZones } from "./lookup.js";
 import { moistureZoneOf } from "./moisture.js";
@@ -7,7 +6,24 @@ import { temperatureZoneOf } from "./temperature.js";
 import { clamp01 } from "./util.js";
 import { vegetationDensityForBiome } from "./vegetation.js";
 
-type BiophysicalGaussianConfig = BiomeClassificationTypes["config"]["biophysical-gaussian"];
+type BiophysicalGaussianConfig = Readonly<{
+  moisture: Readonly<{ thresholds: readonly [number, number, number, number] }>;
+  vegetation: Readonly<{
+    base: number;
+    moistureWeight: number;
+    moistureNormalizationPadding: number;
+  }>;
+  temperature: Readonly<{
+    polarCutoff: number;
+    tundraCutoff: number;
+    midLatitude: number;
+    tropicalThreshold: number;
+  }>;
+  aridity: Readonly<{
+    moistureShiftThresholds: readonly [number, number];
+    vegetationPenalty: number;
+  }>;
+}>;
 
 /**
  * Classifies land tiles into biome symbols and vegetation density from prepared

@@ -1,5 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import warmShallowLakeDefinition from "./strategies/warm-shallow-lake/config.js";
 
+/** Scores warm shallow lake water near shore for lake-lotus habitat. Every implementation shares this admitted input and output boundary. */
 const ScoreLotusContract = defineOp({
   kind: "compute",
   id: "ecology/reef/score/lotus",
@@ -23,40 +25,7 @@ const ScoreLotusContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Lotus suitability score per tile (0..1)." }),
   }),
-  strategies: {
-    "warm-shallow-lake": Type.Object({
-      tempWarmStartC: Type.Number({
-        default: 16,
-        minimum: -100,
-        maximum: 100,
-        description: "Temperature where lotus suitability begins increasing.",
-      }),
-      tempWarmEndC: Type.Number({
-        default: 32,
-        minimum: -100,
-        maximum: 100,
-        description: "Temperature where lotus suitability reaches its warm optimum.",
-      }),
-      shallowDepthM: Type.Integer({
-        default: 0,
-        minimum: 0,
-        maximum: 12_000,
-        description: "Shallow-water depth used for lotus scoring.",
-      }),
-      deepDepthM: Type.Integer({
-        default: 40,
-        minimum: 0,
-        maximum: 12_000,
-        description: "Deep-water limit used for lotus scoring.",
-      }),
-      maxDistanceToCoast: Type.Integer({
-        default: 2,
-        minimum: 0,
-        maximum: 512,
-        description: "Maximum tile distance from coast for lotus suitability.",
-      }),
-    }),
-  },
+  strategies: [warmShallowLakeDefinition],
 });
 
 export default ScoreLotusContract;

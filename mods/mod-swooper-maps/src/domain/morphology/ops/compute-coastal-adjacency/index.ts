@@ -1,14 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ComputeCoastalAdjacencyContract from "./contract.js";
-import { wrappedHexAdjacencyStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const computeCoastalAdjacency = createOp(ComputeCoastalAdjacencyContract, {
-  strategies: {
-    "wrapped-hex-adjacency": wrappedHexAdjacencyStrategy,
-  },
-});
-
-export type * from "./contract.js";
+/** Labels land and water tiles that meet along the current wrapped-hex shoreline. */
+const computeCoastalAdjacency = createOp(ComputeCoastalAdjacencyContract, { strategies });
 
 export default computeCoastalAdjacency;

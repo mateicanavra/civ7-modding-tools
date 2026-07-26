@@ -1,42 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { PlateSchema } from "../../../lithosphere/model/atoms/plate.schema.js";
 import { PlateMembershipSchema } from "../../model/atoms/plate-membership.schema.js";
-
-const StrategySchema = Type.Object(
-  {
-    eraWeights: Type.Array(
-      Type.Number({
-        minimum: 0,
-        maximum: 10,
-        description:
-          "Controls one era's contribution weight when pseudo-evolution history is rolled forward.",
-      }),
-      {
-        default: [0.3, 0.25, 0.2, 0.15, 0.1],
-        minItems: 5,
-        maxItems: 8,
-        description:
-          "Controls per-era history weights from oldest to newest; array length determines era count (5..8).",
-      }
-    ),
-    driftStepsByEra: Type.Array(
-      Type.Integer({
-        minimum: 0,
-        maximum: 16,
-        description:
-          "Controls one era's drift step count when reconstructing plate membership history.",
-      }),
-      {
-        default: [12, 9, 6, 3, 1],
-        minItems: 5,
-        maxItems: 8,
-        description:
-          "Controls per-era drift steps from oldest to newest; array length determines era count (5..8).",
-      }
-    ),
-  },
-  { additionalProperties: false }
-);
+import backwardDriftDefinition from "./strategies/backward-drift/config.js";
 
 /**
  * Contract for reconstructing each mesh cell's plate membership across tectonic eras.
@@ -53,8 +18,10 @@ const ComputeEraPlateMembershipContract = defineOp({
           wrapWidth: Type.Number(),
           siteX: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
           siteY: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
-          neighborsOffsets: TypedArraySchemas.i32({ cardinality: null }),
-          neighbors: TypedArraySchemas.i32({ cardinality: null }),
+          neighborsOffsets: TypedArraySchemas.i32({
+            cardinality: { factors: ["mesh.cellCount"], addend: 1 },
+          }),
+          neighbors: TypedArraySchemas.i32({ cardinality: "constructor-only" }),
         },
         { additionalProperties: false }
       ),
@@ -88,9 +55,7 @@ const ComputeEraPlateMembershipContract = defineOp({
         "Oldest-to-newest pseudo-history schedule: each weighted era carries one mesh-wide cell-to-plate assignment used to reconstruct tectonic events.",
     }
   ),
-  strategies: {
-    "backward-drift": StrategySchema,
-  },
+  strategies: [backwardDriftDefinition],
 });
 
 export default ComputeEraPlateMembershipContract;

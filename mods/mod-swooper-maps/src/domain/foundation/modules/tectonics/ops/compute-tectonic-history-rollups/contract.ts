@@ -1,18 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { PlateMembershipSchema } from "../../model/atoms/plate-membership.schema.js";
 import { TectonicHistoryEraSchema } from "../../model/atoms/tectonic-history-era.schema.js";
-
-const StrategySchema = Type.Object(
-  {
-    activityThreshold: Type.Integer({
-      default: 1,
-      minimum: 0,
-      maximum: 255,
-      description: "Threshold used to compute lastActiveEra (0..255).",
-    }),
-  },
-  { additionalProperties: false }
-);
+import cumulativeEraRollupDefinition from "./strategies/cumulative-era-rollup/config.js";
 
 /**
  * Contract for reducing era fields into cumulative tectonic-history evidence.
@@ -63,17 +52,17 @@ const ComputeTectonicHistoryRollupsContract = defineOp({
           eraCount: Type.Integer({ minimum: 5, maximum: 8 }),
           eras: Type.Immutable(Type.Array(TectonicHistoryEraSchema)),
           plateIdByEra: Type.Immutable(Type.Array(PlateMembershipSchema)),
-          upliftTotal: TypedArraySchemas.u8({ cardinality: null }),
-          collisionTotal: TypedArraySchemas.u8({ cardinality: null }),
-          subductionTotal: TypedArraySchemas.u8({ cardinality: null }),
-          fractureTotal: TypedArraySchemas.u8({ cardinality: null }),
-          volcanismTotal: TypedArraySchemas.u8({ cardinality: null }),
-          upliftRecentFraction: TypedArraySchemas.u8({ cardinality: null }),
-          collisionRecentFraction: TypedArraySchemas.u8({ cardinality: null }),
-          subductionRecentFraction: TypedArraySchemas.u8({ cardinality: null }),
-          lastActiveEra: TypedArraySchemas.u8({ cardinality: null }),
-          lastCollisionEra: TypedArraySchemas.u8({ cardinality: null }),
-          lastSubductionEra: TypedArraySchemas.u8({ cardinality: null }),
+          upliftTotal: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          collisionTotal: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          subductionTotal: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          fractureTotal: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          volcanismTotal: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          upliftRecentFraction: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          collisionRecentFraction: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          subductionRecentFraction: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          lastActiveEra: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          lastCollisionEra: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          lastSubductionEra: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
         },
         { additionalProperties: false }
       ),
@@ -84,9 +73,7 @@ const ComputeTectonicHistoryRollupsContract = defineOp({
         "Mesh-wide tectonic history that preserves every reconstructed era and plate assignment while aggregating cumulative, recent, and last-active signals per cell.",
     }
   ),
-  strategies: {
-    "cumulative-era-rollup": StrategySchema,
-  },
+  strategies: [cumulativeEraRollupDefinition],
 });
 
 export default ComputeTectonicHistoryRollupsContract;
