@@ -94,7 +94,7 @@ export class Civ7TunerBackoffError extends Data.TaggedError("Civ7TunerBackoffErr
 }
 
 /** Admission refused because the owning Studio runtime is closing. */
-export class Civ7TunerClosingError extends Data.TaggedError("Civ7TunerClosingError")<{}> {
+export class Civ7TunerClosingError extends Data.TaggedError("Civ7TunerClosingError") {
   override get message(): string {
     return "Civ7 tuner admission is closed because the Studio runtime is shutting down";
   }
@@ -172,10 +172,10 @@ function makeCiv7TunerSessionService(options: Civ7TunerSessionOptions = {}) {
       Effect.map(() => session)
     );
     const use = <A>(run: (o: { readonly session: Civ7DirectControlSession }) => Promise<A>) => {
-      const invoke = Effect.tryPromise({
-        try: () => run({ session }),
-        catch: (err) => err,
-      }).pipe(Effect.uninterruptible);
+      const invoke = Effect.tryPromise(() => run({ session })).pipe(
+        Effect.mapError((failure) => failure.error),
+        Effect.uninterruptible
+      );
       return lease.pipe(Effect.andThen(invoke), Effect.scoped);
     };
     function activeGateTimestamp(openUntil: number, now: number): string | null {

@@ -43,10 +43,7 @@ function makeSaveDeployWorkflow(
   }>
 ): SaveDeployWorkflowApi {
   const tryPromise = <A>(try_: () => Promise<A>) =>
-    Effect.tryPromise({
-      try: try_,
-      catch: (err) => err,
-    });
+    Effect.tryPromise(try_).pipe(Effect.mapError((failure) => failure.error));
 
   return {
     start: (workflow) =>

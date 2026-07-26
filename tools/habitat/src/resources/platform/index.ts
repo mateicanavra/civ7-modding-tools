@@ -2,12 +2,16 @@ export { cachePath, ensurePatternCacheRoot } from "./cache.js";
 export {
   type HabitatDirectoryEntry,
   type HabitatFileSystemReadPort,
+  type HabitatPathKind,
+  type HabitatStructureFileSystemReadPort,
   hashFileSync,
   isDirectory,
   isFile,
   makeDirectory,
   pathExistsSync,
+  pathKindNoFollow,
   readDirectory,
+  readDirectoryNoFollow,
   readText,
   writeText,
 } from "./filesystem.js";

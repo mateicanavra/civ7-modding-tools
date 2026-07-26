@@ -69,6 +69,13 @@ export type DiagnosticConsumptionOutcome = Static<typeof DiagnosticConsumptionOu
 export const BaselineApplicationOutcomeSchema = Type.Union([
   Type.Object(
     {
+      kind: Type.Literal("baseline-skipped"),
+      reason: Type.Literal("non-baselinable-disposition"),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
       kind: Type.Literal("baseline-applied"),
       locked: Type.Boolean(),
       diagnostics: Type.Array(HabitatDiagnosticSchema),

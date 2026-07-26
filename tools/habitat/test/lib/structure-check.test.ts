@@ -1,4 +1,5 @@
-import type { HabitatDirectoryEntry } from "@habitat/cli/resources/platform/index";
+import { FileReadFailed } from "@habitat/cli/resources/errors/index";
+import type { HabitatDirectoryEntry, HabitatPathKind } from "@habitat/cli/resources/platform/index";
 import type { RuleStructureFacts } from "@habitat/cli/service/model/rules/index";
 import {
   evaluateStructureCheckEffect,
@@ -6,7 +7,7 @@ import {
   runStructureRulesEffect,
   type StructureCheckSpec,
 } from "@habitat/cli/service/model/structure-check/index";
-import { Effect } from "effect";
+import { Effect, Match } from "effect";
 import { describe, expect, test } from "vitest";
 
 const repoRoot = "/repo";
@@ -33,9 +34,22 @@ name = "root"
 root = "packages/*"
 kind = "directory"
 mode = "open"
+allowEmpty = true
 required = ["index.ts"]
 `)
-    ).toMatchObject({ ok: true });
+    ).toMatchObject({ ok: true, spec: { scopes: [{ allowEmpty: true }] } });
+
+    expect(
+      parseStructureCheckSpec(`
+schemaVersion = 1
+
+[[scopes]]
+name = "root"
+root = "packages/*"
+kind = "directory"
+mode = "open"
+`)
+    ).toMatchObject({ ok: true, spec: { scopes: [{ allowEmpty: false }] } });
 
     expect(parseStructureCheckSpec("schemaVersion =")).toMatchObject({ ok: false });
     expect(
@@ -64,6 +78,7 @@ describe("structure-check evaluator", () => {
             root: "pkg",
             kind: "directory",
             mode: "closed",
+            allowEmpty: false,
             required: ["src", "README.md"],
             allowed: ["package.json"],
           },
@@ -72,6 +87,7 @@ describe("structure-check evaluator", () => {
             root: "pkg/src",
             kind: "directory",
             mode: "open",
+            allowEmpty: false,
             required: ["index.ts"],
           },
         ],
@@ -88,8 +104,20 @@ describe("structure-check evaluator", () => {
       {
         schemaVersion: 1,
         scopes: [
-          { name: "missing", root: "pkg/missing", kind: "directory", mode: "open" },
-          { name: "wrong-kind", root: "pkg/README.md", kind: "directory", mode: "open" },
+          {
+            name: "missing",
+            root: "pkg/missing",
+            kind: "directory",
+            mode: "open",
+            allowEmpty: false,
+          },
+          {
+            name: "wrong-kind",
+            root: "pkg/README.md",
+            kind: "directory",
+            mode: "open",
+            allowEmpty: false,
+          },
         ],
       },
       fixtures()
@@ -104,7 +132,14 @@ describe("structure-check evaluator", () => {
       {
         schemaVersion: 1,
         scopes: [
-          { name: "closed", root: "pkg", kind: "directory", mode: "closed", required: ["src"] },
+          {
+            name: "closed",
+            root: "pkg",
+            kind: "directory",
+            mode: "closed",
+            allowEmpty: false,
+            required: ["src"],
+          },
         ],
       },
       fixtures()
@@ -112,7 +147,16 @@ describe("structure-check evaluator", () => {
     const open = await runWithFs(
       {
         schemaVersion: 1,
-        scopes: [{ name: "open", root: "pkg", kind: "directory", mode: "open", required: ["src"] }],
+        scopes: [
+          {
+            name: "open",
+            root: "pkg",
+            kind: "directory",
+            mode: "open",
+            allowEmpty: false,
+            required: ["src"],
+          },
+        ],
       },
       fixtures()
     );
@@ -131,6 +175,7 @@ describe("structure-check evaluator", () => {
             root: "pkg",
             kind: "directory",
             mode: "closed",
+            allowEmpty: false,
             required: ["src"],
             allowed: ["README.md"],
             forbidden: ["src"],
@@ -153,6 +198,7 @@ describe("structure-check evaluator", () => {
             root: "pkg",
             kind: "directory",
             mode: "open",
+            allowEmpty: false,
             required: ["index.ts"],
           },
         ],
@@ -168,8 +214,20 @@ describe("structure-check evaluator", () => {
       {
         schemaVersion: 1,
         scopes: [
-          { name: "file-root", root: "pkg/src/index.ts", kind: "file", mode: "open" },
-          { name: "directory-as-file", root: "pkg/src", kind: "file", mode: "open" },
+          {
+            name: "file-root",
+            root: "pkg/src/index.ts",
+            kind: "file",
+            mode: "open",
+            allowEmpty: false,
+          },
+          {
+            name: "directory-as-file",
+            root: "pkg/src",
+            kind: "file",
+            mode: "open",
+            allowEmpty: false,
+          },
         ],
       },
       fixtures()
@@ -177,6 +235,342 @@ describe("structure-check evaluator", () => {
 
     expect(messages(result)).toContain("[wrong-root-kind]");
     expect(result.diagnostics).toHaveLength(1);
+  });
+
+  test("bounds non-globstar traversal to the depth encoded by the root glob", async () => {
+    const fixture = fixtures({
+      files: new Map([[`${repoRoot}/pkg/alpha/src/deep/index.ts`, ""]]),
+      directories: new Map([
+        [`${repoRoot}/pkg`, [{ name: "alpha", kind: "directory" }]],
+        [`${repoRoot}/pkg/alpha`, [{ name: "src", kind: "directory" }]],
+        [`${repoRoot}/pkg/alpha/src`, [{ name: "deep", kind: "directory" }]],
+        [`${repoRoot}/pkg/alpha/src/deep`, [{ name: "index.ts", kind: "file" }]],
+      ]),
+    });
+
+    const result = await runWithFs(
+      {
+        schemaVersion: 1,
+        scopes: [
+          {
+            name: "source-roots",
+            root: "pkg/*/src",
+            kind: "directory",
+            mode: "open",
+            allowEmpty: false,
+          },
+        ],
+      },
+      fixture
+    );
+
+    expect(result).toEqual({ exitCode: 0, diagnostics: [] });
+    expect(fixture.events.filter((event) => event.startsWith("readdir:"))).toEqual([
+      `readdir:${repoRoot}/pkg`,
+      `readdir:${repoRoot}/pkg/alpha`,
+      `readdir:${repoRoot}/pkg/alpha/src`,
+    ]);
+  });
+
+  test("matches bounded globs whose literal base is the repository root", async () => {
+    const fixture = fixtures({
+      files: new Map([
+        [`${repoRoot}/apps/cli/package.json`, "{}"],
+        [`${repoRoot}/packages/core/package.json`, "{}"],
+      ]),
+      directories: new Map([
+        [
+          repoRoot,
+          [
+            { name: "apps", kind: "directory" },
+            { name: "packages", kind: "directory" },
+          ],
+        ],
+        [`${repoRoot}/apps`, [{ name: "cli", kind: "directory" }]],
+        [`${repoRoot}/apps/cli`, [{ name: "package.json", kind: "file" }]],
+        [`${repoRoot}/packages`, [{ name: "core", kind: "directory" }]],
+        [`${repoRoot}/packages/core`, [{ name: "package.json", kind: "file" }]],
+      ]),
+    });
+
+    const result = await runWithFs(
+      {
+        schemaVersion: 1,
+        scopes: [
+          {
+            name: "workspace-projects",
+            root: "{apps,packages}/*",
+            kind: "directory",
+            mode: "open",
+            allowEmpty: false,
+            required: ["package.json"],
+          },
+        ],
+      },
+      fixture
+    );
+
+    expect(result).toEqual({ exitCode: 0, diagnostics: [] });
+    expect(fixture.events.filter((event) => event.startsWith("readdir:"))).toEqual([
+      `readdir:${repoRoot}`,
+      `readdir:${repoRoot}/apps`,
+      `readdir:${repoRoot}/packages`,
+      `readdir:${repoRoot}/apps/cli`,
+      `readdir:${repoRoot}/packages/core`,
+    ]);
+  });
+
+  test("preserves recursive globstar root matching", async () => {
+    const fixture = fixtures({
+      files: new Map([[`${repoRoot}/pkg/alpha/deep/target/index.ts`, ""]]),
+      directories: new Map([
+        [`${repoRoot}/pkg`, [{ name: "alpha", kind: "directory" }]],
+        [`${repoRoot}/pkg/alpha`, [{ name: "deep", kind: "directory" }]],
+        [`${repoRoot}/pkg/alpha/deep`, [{ name: "target", kind: "directory" }]],
+        [`${repoRoot}/pkg/alpha/deep/target`, [{ name: "index.ts", kind: "file" }]],
+      ]),
+    });
+
+    const result = await runWithFs(
+      {
+        schemaVersion: 1,
+        scopes: [
+          {
+            name: "recursive-targets",
+            root: "pkg/**/target",
+            kind: "directory",
+            mode: "open",
+            allowEmpty: false,
+            required: ["index.ts"],
+          },
+        ],
+      },
+      fixture
+    );
+
+    expect(result).toEqual({ exitCode: 0, diagnostics: [] });
+    expect(fixture.events.filter((event) => event.startsWith("readdir:"))).toEqual([
+      `readdir:${repoRoot}/pkg`,
+      `readdir:${repoRoot}/pkg/alpha`,
+      `readdir:${repoRoot}/pkg/alpha/deep`,
+      `readdir:${repoRoot}/pkg/alpha/deep/target`,
+    ]);
+  });
+
+  test("does not treat double-star text inside one segment as recursive globstar", async () => {
+    const fixture = fixtures({
+      files: new Map([
+        [`${repoRoot}/pkg/root.ts`, ""],
+        [`${repoRoot}/pkg/deep/nested.ts`, ""],
+      ]),
+      directories: new Map([
+        [
+          `${repoRoot}/pkg`,
+          [
+            { name: "root.ts", kind: "file" },
+            { name: "deep", kind: "directory" },
+          ],
+        ],
+        [`${repoRoot}/pkg/deep`, [{ name: "nested.ts", kind: "file" }]],
+      ]),
+    });
+
+    const result = await runWithFs(
+      {
+        schemaVersion: 1,
+        scopes: [
+          {
+            name: "direct-typescript-files",
+            root: "pkg/**.ts",
+            kind: "file",
+            mode: "open",
+            allowEmpty: false,
+          },
+        ],
+      },
+      fixture
+    );
+
+    expect(result).toEqual({ exitCode: 0, diagnostics: [] });
+    expect(fixture.events.filter((event) => event.startsWith("readdir:"))).toEqual([
+      `readdir:${repoRoot}/pkg`,
+    ]);
+  });
+
+  test("keeps slash-spanning negative extglobs unbounded", async () => {
+    const fixture = fixtures({
+      files: new Map([[`${repoRoot}/pkg/a/a/a/x/index.ts`, ""]]),
+      directories: new Map([
+        [`${repoRoot}/pkg`, [{ name: "a", kind: "directory" }]],
+        [`${repoRoot}/pkg/a`, [{ name: "a", kind: "directory" }]],
+        [`${repoRoot}/pkg/a/a`, [{ name: "a", kind: "directory" }]],
+        [`${repoRoot}/pkg/a/a/a`, [{ name: "x", kind: "directory" }]],
+        [`${repoRoot}/pkg/a/a/a/x`, [{ name: "index.ts", kind: "file" }]],
+      ]),
+    });
+
+    const result = await runWithFs(
+      {
+        schemaVersion: 1,
+        scopes: [
+          {
+            name: "negative-extglob-targets",
+            root: "pkg/!(foo/bar)/x",
+            kind: "directory",
+            mode: "open",
+            allowEmpty: false,
+          },
+        ],
+      },
+      fixture
+    );
+
+    expect(result).toEqual({ exitCode: 0, diagnostics: [] });
+    expect(fixture.events.filter((event) => event.startsWith("readdir:"))).toContain(
+      `readdir:${repoRoot}/pkg/a/a/a`
+    );
+  });
+
+  test.each([
+    "pkg/+(a/)x",
+    "pkg/*(a/)x",
+  ])("keeps slash-spanning repeated extglob %s unbounded", async (root) => {
+    const fixture = fixtures({
+      files: new Map([[`${repoRoot}/pkg/a/a/a/x/index.ts`, ""]]),
+      directories: new Map([
+        [`${repoRoot}/pkg`, [{ name: "a", kind: "directory" }]],
+        [`${repoRoot}/pkg/a`, [{ name: "a", kind: "directory" }]],
+        [`${repoRoot}/pkg/a/a`, [{ name: "a", kind: "directory" }]],
+        [`${repoRoot}/pkg/a/a/a`, [{ name: "x", kind: "directory" }]],
+        [`${repoRoot}/pkg/a/a/a/x`, [{ name: "index.ts", kind: "file" }]],
+      ]),
+    });
+
+    const result = await runWithFs(
+      {
+        schemaVersion: 1,
+        scopes: [
+          {
+            name: "repeated-extglob-targets",
+            root,
+            kind: "directory",
+            mode: "open",
+            allowEmpty: false,
+          },
+        ],
+      },
+      fixture
+    );
+
+    expect(result).toEqual({ exitCode: 0, diagnostics: [] });
+    expect(fixture.events.filter((event) => event.startsWith("readdir:"))).toContain(
+      `readdir:${repoRoot}/pkg/a/a/a`
+    );
+  });
+
+  test("keeps leading-negated root globs unbounded", async () => {
+    const fixture = fixtures({
+      files: new Map([[`${repoRoot}/nested/a/b/c/index.ts`, ""]]),
+      directories: new Map([
+        [repoRoot, [{ name: "nested", kind: "directory" }]],
+        [`${repoRoot}/nested`, [{ name: "a", kind: "directory" }]],
+        [`${repoRoot}/nested/a`, [{ name: "b", kind: "directory" }]],
+        [`${repoRoot}/nested/a/b`, [{ name: "c", kind: "directory" }]],
+        [`${repoRoot}/nested/a/b/c`, [{ name: "index.ts", kind: "file" }]],
+      ]),
+    });
+
+    const result = await runWithFs(
+      {
+        schemaVersion: 1,
+        scopes: [
+          {
+            name: "all-but-excluded",
+            root: "!excluded",
+            kind: "directory",
+            mode: "open",
+            allowEmpty: false,
+          },
+        ],
+      },
+      fixture
+    );
+
+    expect(messages(result)).toContain("nested/a/b/c/index.ts is file");
+    expect(fixture.events.filter((event) => event.startsWith("readdir:"))).toContain(
+      `readdir:${repoRoot}/nested/a/b/c`
+    );
+  });
+
+  test("excludes ignored descendants from matching and traversal", async () => {
+    const fixture = fixtures({
+      files: new Map([[`${repoRoot}/pkg/alpha/index.ts`, ""]]),
+      directories: new Map([
+        [
+          `${repoRoot}/pkg`,
+          [
+            { name: "alpha", kind: "directory" },
+            { name: "ignored", kind: "directory" },
+          ],
+        ],
+        [`${repoRoot}/pkg/alpha`, [{ name: "index.ts", kind: "file" }]],
+        [`${repoRoot}/pkg/ignored`, [{ name: "nested", kind: "directory" }]],
+        [`${repoRoot}/pkg/ignored/nested`, [{ name: "bad.ts", kind: "file" }]],
+      ]),
+      visibleFiles: ["pkg/alpha/index.ts"],
+    });
+
+    const result = await runWithFs(
+      {
+        schemaVersion: 1,
+        scopes: [
+          {
+            name: "visible-package-roots",
+            root: "pkg/*",
+            kind: "directory",
+            mode: "open",
+            allowEmpty: false,
+            required: ["index.ts"],
+          },
+        ],
+      },
+      fixture
+    );
+
+    expect(result).toEqual({ exitCode: 0, diagnostics: [] });
+    expect(fixture.events.filter((event) => event.startsWith("readdir:"))).toEqual([
+      `readdir:${repoRoot}/pkg`,
+      `readdir:${repoRoot}/pkg/alpha`,
+    ]);
+  });
+
+  test("requires at least one root by default and permits explicit optional geometries", async () => {
+    const fixture = fixtures({
+      files: new Map([[`${repoRoot}/pkg/index.ts`, ""]]),
+      directories: new Map([
+        [`${repoRoot}/pkg`, [{ name: "index.ts", kind: "file" }]],
+        [`${repoRoot}/optional`, []],
+      ]),
+    });
+    const baseScope = {
+      name: "optional-kind",
+      root: "optional/*",
+      kind: "directory",
+      mode: "open",
+      allowEmpty: false,
+    } as const;
+
+    const required = await runWithFs({ schemaVersion: 1, scopes: [baseScope] }, fixture);
+    const optional = await runWithFs(
+      {
+        schemaVersion: 1,
+        scopes: [{ ...baseScope, allowEmpty: true }],
+      },
+      fixture
+    );
+
+    expect(messages(required)).toContain("[root-missing]");
+    expect(optional).toEqual({ exitCode: 0, diagnostics: [] });
   });
 
   test("reuses one ordered glob traversal across scopes and trusts listed entry kinds", async () => {
@@ -197,6 +591,7 @@ describe("structure-check evaluator", () => {
           ],
         ],
       ]),
+      visibleFiles: ["pkg/alpha/zeta.txt", "pkg/alpha/alpha.txt", "pkg/socket"],
     });
     const result = await runWithFs(
       {
@@ -207,12 +602,14 @@ describe("structure-check evaluator", () => {
             root: "pkg/*",
             kind: "directory",
             mode: "closed",
+            allowEmpty: false,
           },
           {
             name: "forbidden-roots",
             root: "pkg/*",
             kind: "directory",
             mode: "open",
+            allowEmpty: false,
             forbidden: ["alpha.txt"],
           },
         ],
@@ -237,18 +634,20 @@ describe("structure-check evaluator", () => {
     ]);
   });
 
-  test("keeps literal other entries missing regardless of scope order", async () => {
+  test("keeps literal other entries classified regardless of scope order", async () => {
     const globScope = {
       name: "glob-roots",
       root: "pkg/*",
       kind: "directory",
       mode: "open",
+      allowEmpty: false,
     } as const;
     const literalScope = {
       name: "literal-other",
       root: "pkg/socket",
       kind: "directory",
       mode: "open",
+      allowEmpty: false,
     } as const;
 
     for (const scopes of [
@@ -259,17 +658,121 @@ describe("structure-check evaluator", () => {
         { schemaVersion: 1, scopes },
         fixtures({
           directories: new Map([[`${repoRoot}/pkg`, [{ name: "socket", kind: "other" }]]]),
+          visibleFiles: ["pkg/socket"],
         })
       );
       const rendered = messages(result);
 
       expect(rendered).toContain(
-        'Structure scope "literal-other" matched no directory roots for pkg/socket.'
+        'Structure scope "literal-other" expected directory root, but pkg/socket is other.'
       );
       expect(rendered).toContain(
         'Structure scope "glob-roots" expected directory root, but pkg/socket is other.'
       );
     }
+  });
+
+  test("classifies tracked symlinks and gitlinks as other without traversing them", async () => {
+    const fixture = fixtures({
+      directories: new Map([
+        [
+          `${repoRoot}/pkg`,
+          [
+            { name: "linked-file", kind: "file" },
+            { name: "submodule", kind: "directory" },
+          ],
+        ],
+        [`${repoRoot}/pkg/submodule`, [{ name: "outside.ts", kind: "file" }]],
+      ]),
+      visibleFiles: ["pkg/linked-file", "pkg/submodule/outside.ts"],
+    });
+
+    const result = await Effect.runPromise(
+      evaluateStructureCheckEffect(
+        rule,
+        {
+          schemaVersion: 1,
+          scopes: [
+            {
+              name: "tracked-non-files",
+              root: "pkg/*",
+              kind: "directory",
+              mode: "open",
+              allowEmpty: false,
+            },
+          ],
+        },
+        {
+          repoRoot,
+          fileSystem: port(fixture),
+          visibleFiles: gitVisibleFiles(fixture),
+          trackedNonFilePaths: ["pkg/linked-file", "pkg/submodule"],
+        }
+      )
+    );
+
+    expect(messages(result)).toContain("pkg/linked-file is other");
+    expect(messages(result)).toContain("pkg/submodule is other");
+    expect(fixture.events).not.toContain(`readdir:${repoRoot}/pkg/submodule`);
+  });
+
+  test("refuses descendants whose intermediate directory is a symlink", async () => {
+    const fixture = fixtures({
+      files: new Map([[`${repoRoot}/pkg/file.ts`, "outside\n"]]),
+      directories: new Map([[repoRoot, [{ name: "pkg", kind: "other" }]]]),
+      visibleFiles: ["pkg/file.ts"],
+    });
+
+    const result = await runWithFs(
+      {
+        schemaVersion: 1,
+        scopes: [
+          {
+            name: "literal-file",
+            root: "pkg/file.ts",
+            kind: "file",
+            mode: "open",
+            allowEmpty: false,
+          },
+        ],
+      },
+      fixture
+    );
+
+    expect(messages(result)).toContain("pkg/file.ts is other");
+    expect(fixture.events.filter((event) => event.startsWith("stat:"))).toEqual([
+      `stat:${repoRoot}/pkg`,
+    ]);
+  });
+
+  test("treats a tracked but deleted literal root as missing", async () => {
+    const fixture = fixtures({
+      files: new Map(),
+      directories: new Map([[`${repoRoot}/pkg`, []]]),
+      visibleFiles: ["pkg/deleted.ts"],
+    });
+
+    const result = await runWithFs(
+      {
+        schemaVersion: 1,
+        scopes: [
+          {
+            name: "optional-file",
+            root: "pkg/deleted.ts",
+            kind: "file",
+            mode: "open",
+            allowEmpty: true,
+          },
+        ],
+      },
+      fixture
+    );
+
+    expect(result).toEqual({ exitCode: 0, diagnostics: [] });
+    expect(fixture.events.filter((event) => event.startsWith("stat:"))).toEqual([
+      `stat:${repoRoot}/pkg`,
+      `stat:${repoRoot}/pkg/deleted.ts`,
+    ]);
   });
 
   test("reuses the completed in-memory walk for identical literal bases", async () => {
@@ -287,13 +790,26 @@ describe("structure-check evaluator", () => {
           ],
         ],
       ]),
+      visibleFiles: ["pkg/alpha.ts", "pkg/beta.ts"],
     });
     const result = await runWithFs(
       {
         schemaVersion: 1,
         scopes: [
-          { name: "first-files", root: "pkg/*", kind: "file", mode: "open" },
-          { name: "second-files", root: "pkg/*", kind: "file", mode: "open" },
+          {
+            name: "first-files",
+            root: "pkg/*",
+            kind: "file",
+            mode: "open",
+            allowEmpty: false,
+          },
+          {
+            name: "second-files",
+            root: "pkg/*",
+            kind: "file",
+            mode: "open",
+            allowEmpty: false,
+          },
         ],
       },
       fixture
@@ -309,10 +825,19 @@ describe("structure-check evaluator", () => {
         [`${repoRoot}/pkg`, [{ name: "alpha", kind: "directory" }]],
         [`${repoRoot}/pkg/alpha`, []],
       ]),
+      visibleFiles: ["pkg/alpha/.gitkeep"],
     });
     const spec = {
       schemaVersion: 1,
-      scopes: [{ name: "roots", root: "pkg/*", kind: "directory", mode: "open" }],
+      scopes: [
+        {
+          name: "roots",
+          root: "pkg/*",
+          kind: "directory",
+          mode: "open",
+          allowEmpty: false,
+        },
+      ],
     } as const satisfies StructureCheckSpec;
 
     await runWithFs(spec, fixture);
@@ -356,6 +881,8 @@ required = ["src"]
       runStructureRulesEffect([rule], {
         repoRoot,
         fileSystem: port(fixture),
+        visibleFiles: gitVisibleFiles(fixture),
+        trackedNonFilePaths: [],
       })
     );
 
@@ -387,11 +914,14 @@ mode = "open"
         [`${repoRoot}/pkg`, [{ name: "alpha", kind: "directory" }]],
         [`${repoRoot}/pkg/alpha`, []],
       ]),
+      visibleFiles: ["pkg/alpha/.gitkeep"],
     });
 
     const execution = runStructureRulesEffect([firstRule, secondRule], {
       repoRoot,
       fileSystem: port(fixture),
+      visibleFiles: gitVisibleFiles(fixture),
+      trackedNonFilePaths: [],
     });
     const results = await Effect.runPromise(execution);
 
@@ -427,6 +957,8 @@ async function runWithFs(
     evaluateStructureCheckEffect(rule, spec, {
       repoRoot,
       fileSystem: port(fixture),
+      visibleFiles: gitVisibleFiles(fixture),
+      trackedNonFilePaths: [],
     })
   );
 }
@@ -463,6 +995,7 @@ function fixtures(
   overrides: {
     files?: ReadonlyMap<string, string>;
     directories?: ReadonlyMap<string, readonly HabitatDirectoryEntry[]>;
+    visibleFiles?: readonly string[];
   } = {}
 ) {
   return {
@@ -487,20 +1020,25 @@ function fixtures(
         ],
         [`${repoRoot}/pkg/src`, [{ name: "index.ts", kind: "file" }]],
       ]),
+    visibleFiles: overrides.visibleFiles,
   };
+}
+
+function gitVisibleFiles(fixture: ReturnType<typeof fixtures>): readonly string[] {
+  return (
+    fixture.visibleFiles ??
+    [...fixture.files.keys()]
+      .filter((filePath) => filePath.startsWith(`${repoRoot}/`))
+      .map((filePath) => filePath.slice(repoRoot.length + 1))
+  );
 }
 
 function port(fixture: ReturnType<typeof fixtures>) {
   return {
-    isDirectory: (targetPath: string) =>
+    pathKind: (targetPath: string) =>
       Effect.sync(() => {
         fixture.events.push(`stat:${targetPath}`);
-        return fixture.directories.has(targetPath);
-      }),
-    isFile: (targetPath: string) =>
-      Effect.sync(() => {
-        fixture.events.push(`stat:${targetPath}`);
-        return fixture.files.has(targetPath);
+        return fixturePathKind(fixture, targetPath);
       }),
     readDirectory: (targetPath: string) =>
       fixture.directories.has(targetPath)
@@ -508,15 +1046,57 @@ function port(fixture: ReturnType<typeof fixtures>) {
             fixture.events.push(`readdir:${targetPath}`);
             return fixture.directories.get(targetPath) ?? [];
           })
-        : Effect.fail(new Error(`Missing directory fixture: ${targetPath}`)),
+        : Effect.fail(
+            new FileReadFailed({
+              path: targetPath,
+              cause: "Missing directory fixture",
+            })
+          ),
     readText: (targetPath: string) =>
       fixture.files.has(targetPath)
         ? Effect.sync(() => {
             fixture.events.push(`read:${targetPath}`);
             return fixture.files.get(targetPath) ?? "";
           })
-        : Effect.fail(new Error(`Missing file fixture: ${targetPath}`)),
+        : Effect.fail(
+            new FileReadFailed({
+              path: targetPath,
+              cause: "Missing file fixture",
+            })
+          ),
   };
+}
+
+function fixturePathKind(
+  fixture: ReturnType<typeof fixtures>,
+  targetPath: string
+): HabitatPathKind {
+  return Match.value(targetPath).pipe(
+    Match.when(
+      (candidate) => fixture.directories.has(candidate),
+      (): HabitatPathKind => "directory"
+    ),
+    Match.when(
+      (candidate) => fixture.files.has(candidate),
+      (): HabitatPathKind => "file"
+    ),
+    Match.when(
+      (candidate) =>
+        [...fixture.directories].some(([directory, entries]) =>
+          entries.some((entry) => `${directory}/${entry.name}` === candidate)
+        ),
+      (candidate): HabitatPathKind =>
+        [...fixture.directories]
+          .flatMap(([directory, entries]) =>
+            entries.map((entry) => ({
+              entry,
+              targetPath: `${directory}/${entry.name}`,
+            }))
+          )
+          .find(({ targetPath: listedPath }) => listedPath === candidate)?.entry.kind ?? "missing"
+    ),
+    Match.orElse((): HabitatPathKind => "missing")
+  );
 }
 
 function messages(result: { diagnostics: readonly { message: string }[] }): string {

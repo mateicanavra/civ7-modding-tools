@@ -7,7 +7,7 @@ import {
   type Civ7TunerSessionApi,
   makeCiv7TunerSessionLayer,
 } from "@civ7/studio-server";
-import { Cause, Effect, Exit, Fiber, ManagedRuntime, Option } from "effect";
+import { Cause, Data, Effect, Exit, Fiber, ManagedRuntime, Option } from "effect";
 import { afterEach, describe, expect, test } from "vitest";
 
 // Pins for the Effect-scoped shared tuner session (mapgen-studio-tuner-session):
@@ -25,6 +25,12 @@ type FakeTuner = Readonly<{
   setSilentCommand: (command: string, silent: boolean) => void;
   close: () => Promise<void>;
 }>;
+
+class UnrelatedTunerFailure extends Data.TaggedError("UnrelatedTunerFailure")<{}> {
+  override get message(): string {
+    return "connection refused";
+  }
+}
 
 const cleanups: Array<() => Promise<void>> = [];
 
@@ -332,16 +338,14 @@ describe("Civ7TunerSession (Effect scoped shared session)", () => {
     );
     tuner.setSilent(true);
 
-    const observeTimeout = Effect.tryPromise({
-      try: () =>
-        executeCiv7Command({
-          port: tuner.port,
-          command: "timeout-inside-safe-envelope",
-          timeoutMs: 40,
-          session: service.session,
-        }),
-      catch: (cause) => cause,
-    }).pipe(Effect.either);
+    const observeTimeout = Effect.tryPromise(() =>
+      executeCiv7Command({
+        port: tuner.port,
+        command: "timeout-inside-safe-envelope",
+        timeoutMs: 40,
+        session: service.session,
+      })
+    ).pipe(Effect.either);
     const admittedTimeout = service.lease.pipe(Effect.andThen(observeTimeout), Effect.scoped);
     const resolved = await runtime.runPromise(admittedTimeout);
     expect(resolved._tag).toBe("Left");
@@ -372,7 +376,7 @@ describe("Civ7TunerSession (Effect scoped shared session)", () => {
     );
     await new Promise((resolve) => setTimeout(resolve, 80));
 
-    const connectionRefused = Effect.fail(new Error("connection refused"));
+    const connectionRefused = Effect.fail(new UnrelatedTunerFailure());
     const unrelatedFailure = service.lease.pipe(Effect.andThen(connectionRefused), Effect.scoped);
     const unrelated = await runtime.runPromiseExit(unrelatedFailure);
     expect(unrelated._tag).toBe("Failure");

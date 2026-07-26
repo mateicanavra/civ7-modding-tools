@@ -21,6 +21,7 @@ import {
 import {
   CommandRunner,
   captureOutput,
+  type HabitatCommandResult,
   type HabitatProcessRequest,
   makeHabitatCommandResult,
   materializeDefaultHabitatCommand,
@@ -69,6 +70,80 @@ describe("vendor providers", () => {
       ["merge-base", "HEAD", "origin/main"],
       ["status", "--short", "--branch"],
     ]);
+  });
+
+  test("GitProvider enumerates visible paths and tracked non-file modes in one batch", async () => {
+    const observed: string[][] = [];
+    const result = await Effect.runPromise(
+      GitProvider.pipe(
+        Effect.flatMap((git) => git.visiblePathInventory()),
+        Effect.provide(
+          makeFakeGitProviderLayer((argv, options) =>
+            recordGitCommand(
+              observed,
+              "git-state",
+              "git",
+              argv,
+              options.cwd,
+              [
+                "? untracked file.ts",
+                "H 100644 11111 0\tregular.ts",
+                "H 120000 22222 0\tlinked file",
+                "H 160000 33333 0\tvendor/submodule",
+              ].join("\0") + "\0"
+            )
+          )
+        )
+      )
+    );
+
+    expect(result).toEqual({
+      paths: ["untracked file.ts", "regular.ts", "linked file", "vendor/submodule"],
+      trackedNonFilePaths: ["linked file", "vendor/submodule"],
+    });
+    expect(observed).toEqual([
+      [
+        "ls-files",
+        "--cached",
+        "--others",
+        "--exclude-standard",
+        "--stage",
+        "--abbrev=1",
+        "-t",
+        "-z",
+      ],
+    ]);
+  });
+
+  test("GitProvider refuses failed or truncated visible-path inventories", async () => {
+    const failed = await visiblePathInventoryFromResult({
+      exit: { code: 1, signal: null, interrupted: false },
+    });
+    const truncated = await visiblePathInventoryFromResult({
+      stdout: { ...captureOutput("H 100644 11111 0\tregular.ts\0"), truncated: true },
+    });
+    const malformed = await visiblePathInventoryFromResult({
+      stdout: captureOutput("unclassified row\0"),
+    });
+    const unterminated = await visiblePathInventoryFromResult({
+      stdout: captureOutput("H 100644 11111 0\tregular.ts"),
+    });
+    const interiorEmptyRecord = await visiblePathInventoryFromResult({
+      stdout: captureOutput("H 100644 11111 0\tregular.ts\0\0"),
+    });
+
+    expect(failed).toBeNull();
+    expect(truncated).toBeNull();
+    expect(malformed).toBeNull();
+    expect(unterminated).toBeNull();
+    expect(interiorEmptyRecord).toBeNull();
+  });
+
+  test("GitProvider accepts an empty visible-path inventory", async () => {
+    expect(await visiblePathInventoryFromResult({ stdout: captureOutput("") })).toEqual({
+      paths: [],
+      trackedNonFilePaths: [],
+    });
   });
 
   test("GraphiteProvider owns stack parent discovery", async () => {
@@ -379,6 +454,40 @@ describe("vendor providers", () => {
     });
   });
 });
+
+function visiblePathInventoryFromResult(overrides: Partial<HabitatCommandResult>) {
+  return Effect.runPromise(
+    GitProvider.pipe(
+      Effect.flatMap((git) => git.visiblePathInventory()),
+      Effect.provide(
+        makeFakeGitProviderLayer((_argv, options) =>
+          makeHabitatCommandResult(
+            {
+              commandId: "git-visible-path-inventory",
+              kind: "git-state",
+              executable: "git",
+              argv: [],
+              cwd: options.cwd,
+            },
+            overrides
+          )
+        )
+      )
+    )
+  );
+}
+
+function recordGitCommand(
+  observed: string[][],
+  kind: Parameters<typeof commandResult>[0],
+  executable: string,
+  argv: readonly string[],
+  cwd: string,
+  stdout: string
+) {
+  observed.push([...argv]);
+  return commandResult(kind, executable, argv, cwd, stdout);
+}
 
 function commandResult(
   kind: Parameters<typeof makeHabitatCommandResult>[0]["kind"],

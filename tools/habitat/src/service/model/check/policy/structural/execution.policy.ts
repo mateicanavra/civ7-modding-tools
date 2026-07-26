@@ -101,14 +101,49 @@ export function executeSelectedRulesEffect<R>(
 function executeStructureRulesEffect<R>(
   structureRules: readonly StructureRuleFact[],
   results: Map<string, RuleExecutionRecord>,
-  context: Pick<StructuralExecutionContext<R>, "repoRoot" | "structureFileSystem">
+  context: Pick<StructuralExecutionContext<R>, "git" | "repoRoot" | "structureFileSystem">
 ): Effect.Effect<void, never, R> {
   if (structureRules.length === 0) return Effect.void;
   return Effect.gen(function* () {
     const started = yield* Clock.currentTimeMillis;
+    const inventory = yield* context.git.visiblePathInventory({
+      cwd: context.repoRoot,
+    });
+    if (inventory === null) {
+      const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
+      for (const rule of structureRules) {
+        const detail =
+          "Git could not provide the complete visible path inventory required for bounded structure evaluation.";
+        results.set(rule.id, {
+          result: {
+            exitCode: 1,
+            diagnostics: [
+              {
+                ruleId: rule.id,
+                path: ".",
+                message: `Git visible-path inventory unavailable: ${detail}`,
+                severity: rule.lane === "advisory" ? "advisory" : "error",
+                baselined: false,
+              },
+            ],
+          },
+          durationMs,
+          timing: sharedStructureTiming(structureRules.length, durationMs),
+          disposition: {
+            kind: "execution-failed",
+            source: "git-provider",
+            failure: "GitVisiblePathInventoryUnavailable",
+            detail,
+          },
+        });
+      }
+      return;
+    }
     const structureResults = yield* runStructureRulesEffect<R>(structureRules, {
       repoRoot: context.repoRoot,
       fileSystem: context.structureFileSystem,
+      visibleFiles: inventory.paths,
+      trackedNonFilePaths: inventory.trackedNonFilePaths,
     });
     const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
     for (const rule of structureRules) {
@@ -117,15 +152,7 @@ function executeStructureRulesEffect<R>(
         results.set(rule.id, {
           result,
           durationMs,
-          timing:
-            structureRules.length > 1
-              ? {
-                  kind: "shared",
-                  groupId: "habitat:structure-rules",
-                  durationMs,
-                  ruleCount: structureRules.length,
-                }
-              : undefined,
+          timing: sharedStructureTiming(structureRules.length, durationMs),
           disposition: { kind: "executed", durationMs },
         });
       }
@@ -134,6 +161,17 @@ function executeStructureRulesEffect<R>(
 }
 
 type StructureRuleFact = StructuralExecutionContext["rules"]["structure"][number];
+
+function sharedStructureTiming(ruleCount: number, durationMs: number) {
+  return ruleCount > 1
+    ? {
+        kind: "shared" as const,
+        groupId: "habitat:structure-rules",
+        durationMs,
+        ruleCount,
+      }
+    : undefined;
+}
 
 function factsByRuleId<T extends { id: string }>(facts: readonly T[]): Map<string, T> {
   return new Map(facts.map((fact) => [fact.id, fact]));

@@ -13,13 +13,16 @@
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "domain artifact source directories outside the positive artifact blueprint topology",
-  "why": "Every selected domain artifact directory owns one index and one or more immutable data-product modules. Closing that positive physical directory shape makes its direct membership auditable while the typed defineArtifactCatalog API owns registered module compatibility without a second source parser.",
-  "remediate": "Keep only index.ts and one or more *.artifact.ts modules in each selected domain artifacts directory. Inline artifact-private schemas and move genuinely shared primitives to the owning domain model.",
+  "why": "Every selected current domain-root artifact directory owns one index and immutable data-product modules. Closing that positive physical directory shape makes direct membership auditable while the typed defineArtifactCatalog API owns registered module compatibility without a second source parser.",
+  "remediate": "Keep only index.ts and *.artifact.ts modules in each selected domain artifacts directory. Inline artifact-private schemas and move genuinely shared primitives to the owning domain model.",
   "message": "Artifact directories must match the positive artifact blueprint source topology.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/domain/*/artifacts", "mods/*/src/domain/*/artifacts/**"]
+      "patterns": [
+        "mods/*/src/domain/*/artifacts",
+        "mods/*/src/domain/*/artifacts/**"
+      ]
     }
   ],
   "supportFiles": {

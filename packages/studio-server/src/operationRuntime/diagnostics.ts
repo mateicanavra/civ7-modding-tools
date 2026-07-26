@@ -9,7 +9,7 @@ import {
   resolveRunWorkspaceRoot,
   SAFE_RUN_REQUEST_ID,
 } from "@civ7/studio-run-workspace";
-import { Effect } from "effect";
+import { Cause, Effect } from "effect";
 import { Value } from "typebox/value";
 import { SAFE_RUN_DIAGNOSTICS_ID } from "../runInGamePublic.js";
 import { writeRunAttributionReport } from "./attributionReport.js";
@@ -70,8 +70,8 @@ export function writeRunDiagnostics(
         requestId: operation.requestId,
       });
     },
-    catch: (err) => err,
-  });
+    catch: (error) => new Cause.UnknownException(error),
+  }).pipe(Effect.mapError((failure) => failure.error));
 }
 
 async function readDiagnosticsRecord(

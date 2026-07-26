@@ -43,9 +43,8 @@ export const service: EffectImplementerInternal<
       repoRoot: context.deps.platform.repoRoot,
       rules: context.deps.rules,
       structureFileSystem: {
-        isDirectory: context.deps.platform.isDirectory,
-        isFile: context.deps.platform.isFileEffect,
-        readDirectory: context.deps.platform.readDirectory,
+        pathKind: context.deps.platform.pathKindNoFollow,
+        readDirectory: context.deps.platform.readDirectoryNoFollow,
         readText: context.deps.platform.readText,
       },
     };

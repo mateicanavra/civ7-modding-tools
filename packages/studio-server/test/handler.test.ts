@@ -19,7 +19,7 @@ import { createORPCClient, isDefinedError, ORPCError, safe } from "@orpc/client"
 import { RPCLink } from "@orpc/client/fetch";
 import type { RouterClient } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
-import { Effect, Layer, ManagedRuntime, Option } from "effect";
+import { Data, Effect, Layer, ManagedRuntime, Option } from "effect";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import {
@@ -838,7 +838,7 @@ describe("studio-server RPC handler", () => {
   });
 
   test("keeps civ7.live.status at 200 with one coherent error when observation fails", async () => {
-    const read = vi.fn(() => Effect.fail(new Error("tuner down")));
+    const read = vi.fn(() => Effect.fail(new TestEffectFailure({ message: "tuner down" })));
     await withRouterCiv7Client(
       { ...unavailableTunerClient("unused"), playableStatus: read },
       async ({ client }) => {
@@ -1538,16 +1538,22 @@ function recipeDagResult(
 
 function unavailableTunerClient(message: string): Civ7TunerClient {
   return Civ7TunerClient.make({
-    playableStatus: () => Effect.fail(new Error(message)),
-    mapSummary: () => Effect.fail(new Error(message)),
-    gameInfoRows: () => Effect.fail(new Error(message)),
-    setupSnapshot: () => Effect.fail(new Error(message)),
-    savedConfigurations: () => Effect.fail(new Error(message)),
-    mapGrid: () => Effect.fail(new Error(message)),
-    playerSummary: () => Effect.fail(new Error(message)),
-    unitSummary: () => Effect.fail(new Error(message)),
-    citySummary: () => Effect.fail(new Error(message)),
+    playableStatus: () => Effect.fail(new TestEffectFailure({ message })),
+    mapSummary: () => Effect.fail(new TestEffectFailure({ message })),
+    gameInfoRows: () => Effect.fail(new TestEffectFailure({ message })),
+    setupSnapshot: () => Effect.fail(new TestEffectFailure({ message })),
+    savedConfigurations: () => Effect.fail(new TestEffectFailure({ message })),
+    mapGrid: () => Effect.fail(new TestEffectFailure({ message })),
+    playerSummary: () => Effect.fail(new TestEffectFailure({ message })),
+    unitSummary: () => Effect.fail(new TestEffectFailure({ message })),
+    citySummary: () => Effect.fail(new TestEffectFailure({ message })),
   });
+}
+
+class TestEffectFailure extends Data.TaggedError("TestEffectFailure")<{
+  readonly message: string;
+}> {
+  override readonly name = "Error";
 }
 
 function tunerClientWithSetupSnapshot(snapshot: Civ7SetupSnapshotResult): Civ7TunerClient {

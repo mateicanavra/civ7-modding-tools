@@ -3,6 +3,7 @@ import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
 } from "@habitat/cli/resources/command/index";
+import { FileReadFailed } from "@habitat/cli/resources/errors/index";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import type { RuleDiagnosticsService } from "@habitat/cli/resources/rule-diagnostics/index";
 import {
@@ -671,7 +672,14 @@ describe("rule selector boundary", () => {
       readText: (candidate: string) =>
         Match.value(candidate).pipe(
           Match.when(baselineAuthority.absolute, () => Effect.succeed(baselineAuthority.source)),
-          Match.orElse((unexpected) => Effect.fail(new Error(`Unexpected read: ${unexpected}`)))
+          Match.orElse((unexpected) =>
+            Effect.fail(
+              new FileReadFailed({
+                path: unexpected,
+                cause: "Unexpected baseline fixture read",
+              })
+            )
+          )
         ),
       writeText: () => Effect.void,
     };
@@ -743,6 +751,7 @@ describe("rule selector boundary", () => {
           git: {
             diffNameOnly: () => unrelatedFailure,
             diffNameStatus: () => unrelatedFailure,
+            visiblePathInventory: () => unrelatedFailure,
             lsTreeNameOnly: () => Effect.succeed(null),
             mergeBase: () => Effect.succeed(null),
             show: () => Effect.succeed(null),
@@ -750,7 +759,11 @@ describe("rule selector boundary", () => {
           ruleDiagnostics: { runRules },
           nx: { runMany: () => unrelatedFailure, runTarget: () => unrelatedFailure },
           rules,
-          structureFileSystem: baselineFileSystem,
+          structureFileSystem: {
+            pathKind: () => Effect.succeed("missing" as const),
+            readDirectory: baselineFileSystem.readDirectory,
+            readText: baselineFileSystem.readText,
+          },
         }
       );
     for (const disposition of dispositions) {

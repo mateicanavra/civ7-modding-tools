@@ -47,6 +47,74 @@ describe("check summaries", () => {
     expect(Value.Check(HookCheckSummarySchema, hookSummary)).toBe(true);
   });
 
+  test("projects Git inventory failure as a general execution failure", () => {
+    const original = report({
+      ok: false,
+      rules: [
+        rule({
+          status: "fail",
+          disposition: {
+            kind: "execution-failed",
+            source: "git-provider",
+            failure: "GitVisiblePathInventoryUnavailable",
+            detail: "inventory unavailable",
+          },
+          diagnostics: [diagnostic("Git visible-path inventory unavailable")],
+        }),
+      ],
+    });
+    const parsed = Value.Parse(CheckReportSchema, JSON.parse(JSON.stringify(original)));
+    const hookSummary = hookCheckSummary(parsed);
+    const verifySummary = verifyCheckSummary(parsed);
+
+    expect(parsed.rules[0]?.disposition).toEqual(original.rules[0]?.disposition);
+    expect(hookSummary.kind).toBe("execution-failed");
+    expect(verifySummary.refusedCount).toBe(1);
+    expect(verifySummary.skippedAffectedReason).toBe("execution-failed");
+    expect(Value.Check(HookCheckSummarySchema, hookSummary)).toBe(true);
+
+    const invalid = structuredClone(original);
+    if (invalid.rules[0]?.diagnostics[0]) {
+      invalid.rules[0].diagnostics[0].baselined = true;
+    }
+    expect(validateCheckReport(invalid)).toContain(
+      "/rules/0/diagnostics: execution-failed diagnostics cannot be baselined"
+    );
+  });
+
+  test("prioritizes a general execution failure over diagnostic unavailability", () => {
+    const mixed = report({
+      ok: false,
+      rules: [
+        rule({
+          ruleId: "diagnostic-rule",
+          status: "fail",
+          disposition: {
+            kind: "execution-failed",
+            source: "diagnostic-provider",
+            failure: "DiagnosticOutputMalformed",
+            detail: "wrapped JSON",
+          },
+          diagnostics: [diagnostic(renderDiagnosticProviderFailure("DiagnosticOutputMalformed"))],
+        }),
+        rule({
+          ruleId: "structure-rule",
+          status: "fail",
+          disposition: {
+            kind: "execution-failed",
+            source: "git-provider",
+            failure: "GitVisiblePathInventoryUnavailable",
+            detail: "inventory unavailable",
+          },
+          diagnostics: [diagnostic("Git visible-path inventory unavailable")],
+        }),
+      ],
+    });
+
+    expect(hookCheckSummary(mixed).kind).toBe("execution-failed");
+    expect(verifyCheckSummary(mixed).skippedAffectedReason).toBe("execution-failed");
+  });
+
   test.each(scanRootRefusals)("roundtrips typed acquisition-root refusal $reason", (decision) => {
     const original = report({
       ok: false,

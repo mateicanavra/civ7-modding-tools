@@ -9,7 +9,7 @@ import {
   resolveRunWorkspaceRoot,
   SAFE_RUN_REQUEST_ID,
 } from "@civ7/studio-run-workspace";
-import { Effect, type Scope } from "effect";
+import { Cause, Effect, type Scope } from "effect";
 import {
   dependencyUnavailable,
   operationBlocked,
@@ -221,8 +221,11 @@ export function releaseRuntimeOwnershipLease(
         await rm(path, { force: true });
       });
     },
-    catch: (err) => err,
-  }).pipe(Effect.catchAll(() => Effect.void));
+    catch: (error) => new Cause.UnknownException(error),
+  }).pipe(
+    Effect.mapError((failure) => failure.error),
+    Effect.catchAll(() => Effect.void)
+  );
 }
 
 /**
@@ -289,8 +292,8 @@ export function writeRunOperationRecord(
       );
       await writeJsonFile(path, toRunOperationRecord(operation, identity));
     },
-    catch: (err) => err,
-  });
+    catch: (error) => new Cause.UnknownException(error),
+  }).pipe(Effect.mapError((failure) => failure.error));
 }
 
 export function readAbandonedRunOperationRecords(
@@ -328,8 +331,9 @@ export function readAbandonedRunOperationRecords(
       }
       return records;
     },
-    catch: (err) => err,
+    catch: (error) => new Cause.UnknownException(error),
   }).pipe(
+    Effect.mapError((failure) => failure.error),
     Effect.catchAll((error) =>
       Effect.sync(() => {
         console.error("[studio-server] failed to scan Run in Game operation records", error);
@@ -364,8 +368,11 @@ export function releaseStaleRuntimeOwnershipLease(
         return lease;
       });
     },
-    catch: (err) => err,
-  }).pipe(Effect.catchAll(() => Effect.succeed(undefined)));
+    catch: (error) => new Cause.UnknownException(error),
+  }).pipe(
+    Effect.mapError((failure) => failure.error),
+    Effect.catchAll(() => Effect.succeed(undefined))
+  );
 }
 
 /**
@@ -408,8 +415,8 @@ export function cleanupRunInGameRetention(
         }
       }
     },
-    catch: (err) => err,
-  });
+    catch: (error) => new Cause.UnknownException(error),
+  }).pipe(Effect.mapError((failure) => failure.error));
 }
 
 /**
@@ -447,16 +454,19 @@ export function acquireRuntimeDaemonHeartbeat(
         timer.unref();
         return { heartbeatPath, timer };
       },
-      catch: (err) => err,
-    }),
+      catch: (error) => new Cause.UnknownException(error),
+    }).pipe(Effect.mapError((failure) => failure.error)),
     ({ heartbeatPath, timer }) =>
       Effect.tryPromise({
         try: async () => {
           clearInterval(timer);
           await rm(heartbeatPath, { force: true });
         },
-        catch: (err) => err,
-      }).pipe(Effect.catchAll(() => Effect.void))
+        catch: (error) => new Cause.UnknownException(error),
+      }).pipe(
+        Effect.mapError((failure) => failure.error),
+        Effect.catchAll(() => Effect.void)
+      )
   ).pipe(
     Effect.asVoid,
     Effect.catchAll((error) =>

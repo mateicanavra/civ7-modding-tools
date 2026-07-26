@@ -1,4 +1,5 @@
 import path from "node:path";
+import { FileReadFailed } from "@habitat/cli/resources/errors/index";
 import {
   habitatAuthorityPathPlan,
   loadRuleRegistryDocument,
@@ -438,11 +439,21 @@ function virtualRegistryFileSystem(files: Record<string, string>): RuleRegistryF
     readDirectory: (registryPath) =>
       directories.has(registryPath)
         ? Effect.succeed(directoryEntries(registryPath, directories, filePaths))
-        : Effect.fail(new Error(`not a directory: ${registryPath}`)),
+        : Effect.fail(
+            new FileReadFailed({
+              path: registryPath,
+              cause: "Registry fixture path is not a directory",
+            })
+          ),
     readText: (registryPath) =>
       registryPath in files
         ? Effect.succeed(files[registryPath] as string)
-        : Effect.fail(new Error(`missing file: ${registryPath}`)),
+        : Effect.fail(
+            new FileReadFailed({
+              path: registryPath,
+              cause: "Missing registry fixture file",
+            })
+          ),
   };
 }
 

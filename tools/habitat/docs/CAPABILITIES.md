@@ -109,6 +109,31 @@ placement inventory facts, explicit runner file references, and explicit
 artifact references. `.habitat/index.json` supplies root registry metadata,
 including owner roots.
 
+### Native Structure Runner
+
+`habitat:structure` evaluates each TOML scope against the Git-visible worktree:
+tracked files and non-ignored untracked files are enumerated once per structure
+batch. Ignored build outputs and dependency trees therefore cannot become
+accidental structure roots.
+
+Ordinary root globs traverse only the maximum depth expressed by the glob.
+Globstars, leading negation, and negative extglobs that span path separators
+retain recursive matching over the bounded Git-visible inventory. A scope
+requires at least one matching root by default; set `allowEmpty = true` only
+when the declared package kind or other geometry is intentionally optional.
+Direct-child `required`, `allowed`, and `forbidden` semantics remain unchanged.
+See the
+[structure-check TOML reference](../../../docs/projects/habitat-harness/structure-check/structure-check-runner-spec-shape.md#toml-shape).
+
+If Git cannot provide one complete visible-path inventory, the structure batch
+does not inspect the filesystem or apply baselines. CheckReport v2 emits the
+existing `execution-failed` disposition with `source = "git-provider"` and
+`failure = "GitVisiblePathInventoryUnavailable"`; hook and verify summaries use
+the general `execution-failed` state rather than diagnostic-provider language.
+This is an intentional additive CheckReport v2 discriminator extension: the
+report envelope and failure semantics are unchanged, while exhaustive consumers
+must recognize the new source/failure pair.
+
 ### Live Rule Inventory
 
 Rule-pack totals, lane mix, runner mix, and owner distribution are mutable

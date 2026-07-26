@@ -81,6 +81,16 @@ const DiagnosticExecutionFailedSchema = Type.Object(
   { additionalProperties: false }
 );
 
+const GitInventoryExecutionFailedSchema = Type.Object(
+  {
+    kind: Type.Literal("execution-failed"),
+    source: Type.Literal("git-provider"),
+    failure: Type.Literal("GitVisiblePathInventoryUnavailable"),
+    detail: Type.String({ minLength: 1 }),
+  },
+  { additionalProperties: false }
+);
+
 export const RuleReportDispositionSchema = Type.Union([
   Type.Object({ kind: Type.Literal("executed") }, { additionalProperties: false }),
   Type.Object(
@@ -92,6 +102,7 @@ export const RuleReportDispositionSchema = Type.Union([
   ),
   DiagnosticDependencyRefusedSchema,
   DiagnosticExecutionFailedSchema,
+  GitInventoryExecutionFailedSchema,
   Type.Object(
     {
       kind: Type.Literal("selector-refused"),
@@ -224,6 +235,7 @@ export const RuleExecutionDispositionSchema = Type.Union([
   ),
   DiagnosticDependencyRefusedSchema,
   DiagnosticExecutionFailedSchema,
+  GitInventoryExecutionFailedSchema,
 ]);
 export type RuleExecutionDisposition = Static<typeof RuleExecutionDispositionSchema>;
 
@@ -282,6 +294,7 @@ export const HookCheckSummarySchema = Type.Object(
       Type.Literal("selector-refused"),
       Type.Literal("dependency-refused"),
       Type.Literal("diagnostic-unavailable"),
+      Type.Literal("execution-failed"),
       Type.Literal("baseline-refused"),
       Type.Literal("not-applicable"),
     ]),
@@ -338,6 +351,15 @@ export function validateCheckReport(value: unknown): string[] {
 function validateRuleReportDisposition(rule: RuleReport, index: number): string[] {
   if (rule.disposition.kind === "baseline-integrity" && rule.lane !== "enforced") {
     return [`/rules/${index}/lane: baseline-integrity disposition requires lane enforced`];
+  }
+  if (
+    (rule.disposition.kind === "dependency-refused" ||
+      rule.disposition.kind === "execution-failed") &&
+    rule.diagnostics.some((diagnostic) => diagnostic.baselined)
+  ) {
+    return [
+      `/rules/${index}/diagnostics: ${rule.disposition.kind} diagnostics cannot be baselined`,
+    ];
   }
   const expectedStatus = deriveRuleReportStatus(rule);
   if (rule.status === expectedStatus) return [];

@@ -1,9 +1,10 @@
+import type { GitVisiblePathInventory } from "@habitat/cli/providers/git/index";
 import type {
   CommandProviderError,
   HabitatCommandResult,
   HabitatProcessRequest,
 } from "@habitat/cli/resources/command/index";
-import type { HabitatFileSystemReadPort } from "@habitat/cli/resources/platform/index";
+import type { HabitatStructureFileSystemReadPort } from "@habitat/cli/resources/platform/index";
 import type { RuleDiagnosticsService } from "@habitat/cli/resources/rule-diagnostics/index";
 import type { BaselineFileSystemPort } from "@habitat/cli/service/model/baseline/index";
 import type {
@@ -30,7 +31,7 @@ export interface StructuralExecutionContext<R = never> {
   readonly ruleDiagnostics: RuleDiagnosticsService;
   readonly nx: StructuralNxPort<R>;
   readonly rules: RuleFactsCatalog;
-  readonly structureFileSystem: HabitatFileSystemReadPort<R>;
+  readonly structureFileSystem: HabitatStructureFileSystemReadPort<R>;
 }
 
 export interface StructuralBiomePort<R = never> {
@@ -59,6 +60,9 @@ export interface StructuralGitPort<R = never> {
     repoPath: string,
     options?: { readonly cwd?: string }
   ) => Effect.Effect<readonly string[] | null, never, R>;
+  readonly visiblePathInventory: (options?: {
+    readonly cwd?: string;
+  }) => Effect.Effect<GitVisiblePathInventory | null, never, R>;
   readonly mergeBase: (
     ref: string,
     options?: { readonly cwd?: string }
