@@ -270,12 +270,12 @@ export function getNaturalWonderFootprintOffsetsByParity(
  * and rejects any footprint running off the top/bottom edge (returns `null`).
  *
  * This is the placement-correct counterpart to the parity-agnostic
- * {@link getNaturalWonderFootprintOffsets}: the materialize step recomputes the
- * footprint per candidate anchor with this before its occupancy/terrain pre-check
- * and post-place readback. For a self-orienting 4-tile wonder at the `-1`
- * sentinel the offsets are anchor-only, so this returns `[anchorIndex]` and the
- * engine owns/verifies the other three cells. `direction` defaults to the policy
- * direction; callers normally pass the resolved materialization direction.
+ * {@link getNaturalWonderFootprintOffsets}: the Civ7 adapter resolves each
+ * candidate anchor with this while owning legality, mutation, and strict
+ * footprint readback. For a self-orienting 4-tile wonder at the `-1` sentinel
+ * the offsets are anchor-only, so this returns `[anchorIndex]` and the engine
+ * owns the other three cells. `direction` defaults to the policy direction;
+ * callers normally pass the resolved materialization direction.
  *
  * @returns footprint plot indices, or `null` if the class is unsupported or the
  *   footprint falls outside the map.

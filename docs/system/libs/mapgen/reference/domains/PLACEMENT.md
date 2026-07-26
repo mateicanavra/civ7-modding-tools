@@ -41,7 +41,7 @@ One stage, `placement`, with 11 steps split at real product/effect contracts (en
 
 1. `plan-natural-wonders` — admits final physical and engine surfaces plus active Civ7 map-size demand, then publishes natural-wonder intent.
 2. `plot-landmass-regions` — landmass-region slots (the regional mechanism driving seat assignment; the official `chooseStartSectors` sector grid is intentionally not used — ADR-008 amendment).
-3. `place-natural-wonders` — deterministic full-stamp-or-fail wonder materialization (first promoted product boundary).
+3. `place-natural-wonders` — ordered primary/fallback wonder materialization with typed adapter reconciliation (first promoted product boundary).
 4. `prepare-placement-surface` — transactional engine-surface preparation (terrain validation, area recalc, water cache, landmass-region restamping); gates the legality surface read by planning AND the stamps.
 5. `plan-resources` — demand planning (family planners + group rollup), habitat-lane derivation, blue-noise site selection emitting typed per-plot intents; publishes `resourceDemandPlan`, `resourcePlan`, `resourceEligibility`.
 6. `assign-starts` — op-owned start selection over PLANNED resource sites; publishes `startAssignment` (per-player `StartRecord[]` + `fairnessReport`).
@@ -60,7 +60,9 @@ See: [`docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`](/system/libs/mapge
 
 ## Ownership (decision logic lives in domain ops)
 
-All placement *decision* logic lives in domain ops (plan → select → reconcile); recipe materializers are thin stamp+verify shells (foundation/morphology pattern):
+All placement *decision* logic lives in domain ops (plan → select → reconcile);
+recipe materializers are thin sequencing and reconciliation shells over typed
+adapter-owned mutation/readback boundaries:
 
 - `domain/resources` owns resource planning end-to-end (ADR-008): demand/eligibility planning, habitat-lane derivation, site selection, and the support-adjustment pass.
 - `domain/placement` owns natural-wonder planning, landmass-region
@@ -129,7 +131,11 @@ Runtime semantics (ADR-009 regime):
   classifications once through declared adapter capabilities. It does not
   publish a current-engine snapshot or depend on mutable context fields.
 - If the live requirement policy is unavailable, planning admits a regional minimum only for an age-valid resource with roster-independent `Staple`/`UnlocksCiv` basis. Every other unavailable decision is typed `unresolved`, never collapsed to `false`.
-- Placement apply is fail-hard; natural wonders use deterministic full-stamp-or-fail semantics; resource readback mismatches are fail-hard.
+- Natural-wonder planning is deterministic; materialization preserves the
+  planner's ordered primary/fallback policy while the adapter owns footprint
+  resolution, legality, mutation, and strict readback. Exhausted candidates are
+  recorded as a degraded product outcome. Resource readback mismatches remain
+  fail-hard.
 - Surface preparation owns terrain validation, area recalculation, water-cache
   storage, and landmass-region restamping as one transaction because no
   independent consumer exists. Pedology's immutable fertility field remains
@@ -147,7 +153,7 @@ validated reads. Inventory:
 | Artifact | Published by | Substance |
 | --- | --- | --- |
 | `naturalWonderPlan` | plan-natural-wonders | deterministic scored wonder intent owned by `placement/modules/wonders` |
-| `naturalWonderPlacement` | place-natural-wonders | placed/relocated/rejected coordinateRows |
+| `naturalWonderPlacement` | place-natural-wonders | placed/rejected coordinate rows plus final occupied wonder plots |
 | `landmassRegionSlotByTile` | plot-landmass-regions | deterministic region classification owned by `placement/modules/regions` |
 | `resourceDemandPlan` | plan-resources | per-type target counts with static policy facts and typed region-minimum authority/provenance |
 | `resourcePlan` | plan-resources | typed per-plot site intents (type, family, lane, phase, inHabitat) + per-type shortfalls + region minimums |

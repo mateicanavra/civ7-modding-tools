@@ -12,7 +12,7 @@ import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
  */
 export const config = defineStep({
   id: "place-natural-wonders",
-  engine: ["getFeatureType", "getTerrainType", "setTerrainType", "placeNaturalWonder"] as const,
+  engine: ["getFeatureType", "placeNaturalWonder"] as const,
   requires: [],
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.naturalWondersPlaced],
   artifacts: {

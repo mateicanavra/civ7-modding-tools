@@ -28,20 +28,17 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** purify Placement's causal authority after confirming
-that the old `derive-placement-inputs` coordination knot was already deleted at
-its root. Surviving placement steps mostly own real product or lifecycle
-boundaries; do not split them merely because their executable is large.
-Instead, remove false coordination state inside those boundaries. Artifact
-publication already carries planning and adjustment causality, so parallel
-`resourcesPlanned` and `resourcesAdjusted` effects add a second ordering
-authority. The terminal `placement` step places nothing: it is an exact final
-engine observer and projected-surface parity projection over Morphology
-topography plus accepted Hydrology lakes, not the owner of a global placement
-effect or a second aggregate product summary. Rename it for that behavior and
-delete the false surfaces rather than preserving them more elegantly. A.2,
-initial setup options, and post-A.2 product proof remain outside this
-container.
+**Current container:** purify Placement's two remaining materializers after
+the old `derive-placement-inputs` coordination knot and false causal effect
+surfaces were deleted at their roots. A recipe materializer owns product
+sequencing, fallback policy, reconciliation, and evidence projection; it does
+not independently derive provider footprints, re-admit provider inputs,
+rewrite terrain to satisfy provider policy, or repeat provider readback.
+Natural wonders go through one adapter-owned footprint/legality/write/readback
+boundary per ordered candidate. Resources follow as a separate sealed cut,
+preserving Swooper's exact plan and typed shortfall authority while deleting
+recipe-side dimensions and outcome revalidation. A.2, initial setup options,
+and post-A.2 product proof remain outside this container.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -58,20 +55,16 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** remove the redundant resource plan/adjustment effect tags and let
-their required artifacts remain the single causal edges. Retire the global
-`placementApplied` tag and its adapter call-evidence bookkeeping because the
-real product effects plus `advancedStartsAssigned` already prove the ordered
-placement lifecycle. Rename the terminal step to `observe-placement-parity`;
-retain only topography, accepted projected-lake continuity, exact
-current-engine terrain/elevation/water reads, parity trace, and visualization.
-Delete its four aggregate product reads, unconsumed `placement.completion`
-metric, and unconsumed parity-completion tag. Update current system
-documentation and behavior tests, regenerate owned outputs, and seal through
-the native adapter/Core/Swooper graph. Then recensus the two remaining
-materializers for provider-contract reimplementation: preserve product
-retry/reconciliation policy while deleting adapter input and readback
-validation duplicated inside steps.
+**Gradient:** delete natural-wonder footprint inference, occupancy/terrain
+preflight, terrain repair, and second readback from the recipe step; retain
+ordered primary/fallback selection, one terminal result per planned wonder,
+target shortfall, final occupied-feature observation, and telemetry/viz
+projection. Prove the multi-tile footprint and strict readback at the adapter
+boundary, delete the impossible-plan terrain-repair test, and seal the cut.
+Then apply the same authority test to resource materialization: preserve
+no-relocation intent, typed shortfalls, and fail-hard readback mismatch while
+deleting adapter-owned input and outcome checks. Finally recensus the remaining
+placement tests against those settled provider/product boundaries.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -106,6 +99,14 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Placement Causal Authority
+
+Placement planning and adjustment artifacts became the sole causal edges for
+their immutable products. Duplicate resource effect tags, the false global
+placement effect, adapter call-evidence bookkeeping, and the terminal aggregate
+summary were deleted. The terminal step became an exact current-engine parity
+observer over Morphology topography plus accepted Hydrology lakes.
 
 ### 2026-07-26 - Current Engine Observation Authority
 

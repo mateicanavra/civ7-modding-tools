@@ -104,10 +104,51 @@ describe("typed placement outcomes", () => {
       direction: 0,
       elevation: 120,
     });
+    expect(
+      [9, 10, 13].map((plotIndex) =>
+        adapter.getFeatureType(plotIndex % 4, Math.trunc(plotIndex / 4))
+      )
+    ).toEqual([featureType, featureType, featureType]);
     expect(rejected).toMatchObject({
       status: "rejected",
       reason: "out-of-bounds",
     });
+  });
+
+  it("rejects a partial natural-wonder write with exact footprint readback", () => {
+    const adapter = createMockAdapter({
+      width: 4,
+      height: 6,
+      defaultBiomeType: CIV7_BROWSER_TABLES_V0.biomeGlobals.BIOME_GRASSLAND,
+      defaultTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_FLAT,
+    });
+    const featureType = CIV7_BROWSER_TABLES_V0.featureTypes.FEATURE_REDWOOD_FOREST;
+    const setFeatureType = adapter.setFeatureType.bind(adapter);
+    adapter.setFeatureType = (x, y, featureData) => {
+      if (x === 2 && y === 2) return;
+      setFeatureType(x, y, featureData);
+    };
+
+    const outcome = adapter.placeNaturalWonder(1, 2, featureType, 0, 120);
+
+    expect(outcome).toMatchObject({
+      status: "rejected",
+      plotIndex: 9,
+      x: 1,
+      y: 2,
+      featureType,
+      direction: 0,
+      elevation: 120,
+      reason: "readback-mismatch",
+      observedFeatureType: adapter.NO_FEATURE,
+      observedPlotIndex: 10,
+      expectedFootprintReadbackStatus: "partial-expected-footprint",
+    });
+    expect(outcome.status === "rejected" ? outcome.expectedFootprintReadback : undefined).toEqual([
+      { plotIndex: 9, observedFeatureType: featureType },
+      { plotIndex: 13, observedFeatureType: featureType },
+      { plotIndex: 10, observedFeatureType: adapter.NO_FEATURE },
+    ]);
   });
 
   it("matches live-observed adjacent-land resource behavior narrowly", () => {
