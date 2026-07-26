@@ -53,11 +53,6 @@ icon = "run"
 command = "nx run mapgen-studio:dev"
 
 [[actions]]
-name = "Build standard MapGen visualization"
-icon = "debug"
-command = "nx run mod-swooper-maps:viz:standard"
-
-[[actions]]
 name = "Build MapGen diagnostic dump"
 icon = "debug"
 command = "nx run mod-swooper-maps:diag:dump"

@@ -54,6 +54,15 @@
         "cwd": "{workspaceRoot}"
       }
     },
+    "check:dead-code": {
+      "command": "knip --no-progress",
+      "cache": true,
+      "inputs": ["{workspaceRoot}/**/*", "{workspaceRoot}/.gitignore"],
+      "outputs": [],
+      "options": {
+        "cwd": "{workspaceRoot}"
+      }
+    },
     "check": {
       "executor": "nx:noop",
       "cache": false,

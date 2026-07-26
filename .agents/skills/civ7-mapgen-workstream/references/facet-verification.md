@@ -35,12 +35,12 @@ Two authoritative discriminators answer this; never argue the branch from a scre
 | `diff-layers.ts` (`diag:diff`) | two **local** run manifests (`manifest.json` + `.bin`), per-layer Hamming / maxAbsDiff, filterable by `--prefix` / `--dataTypeKey` | non-zero diff in the data ⇒ **generation** bug, in `domain/*` or `recipes/*` |
 | `FinalSurfaceParityProof.unresolvedLinks` | **local** mapgen output vs the **live** Civ7 engine grid | empty (`status:"complete"`) ⇒ generation matches live; if the parity is clean and only Studio looks wrong, the bug is **display** |
 
-If local-vs-local and local-vs-live both agree and only the Studio canvas is wrong, generation is correct — stop editing `domain/*`. A display bug **never** moves `unresolvedLinks` (the proof compares raw mapgen output to the Civ7 runtime, not rendered pixels). `surface-delta-context.ts` `evidenceClass` labels (`local-only-ecology-feature`, `natural-wonder-offset-*`, `local-assigned-live-empty`) further triage a non-empty parity.
+If local-vs-local and local-vs-live both agree and only the Studio canvas is wrong, generation is correct — stop editing `domain/*`. A display bug **never** moves `unresolvedLinks` (the proof compares raw mapgen output to the Civ7 runtime, not rendered pixels). Non-empty parity is triaged from the canonical proof's unresolved links and retained private evidence rather than a second classification implementation.
 
 ### Producing the binaries to diff
 
-`nx run mod-swooper-maps:viz:standard` (default 48×30 / seed 1337 /
-swooper-earthlike) writes a dump under
+`nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --seed 1337`
+writes a preset-shaped Swooper Earthlike dump under
 `mods/mod-swooper-maps/dist/visualization/<runId>/{manifest.json,data/*.bin}`.
 Inspect with `nx run mod-swooper-maps:diag:diff -- <args>`. (Full diagnostics
 inventory: `references/pipeline-map.md`.)
@@ -86,7 +86,7 @@ tuning, then amended with evidence.
 2. Metric families under `src/recipes/standard/metrics/families` measure one completed Standard run without embedding pass/fail policy.
 3. `MetricTarget`s under `src/recipes/standard/metrics/targets` own product expectations. Logical `*.study.ts` modules under `src/recipes/standard/metrics/studies/benchmarks` bind them to named Civ7 map-size presets and stable seed cohorts. `STANDARD_METRIC_STUDIES` assembles the bank and deduplicates identical scenario captures.
 4. `src/recipes/standard/metrics/studies/STUDIES.md` is the Standard recipe research index. Each executable study is colocated with a sheet describing its hypothesis, dimensions, seeds, measurements, and expected outcomes.
-5. `nx run mod-swooper-maps:metrics:report` emits the complete machine-readable evaluation; `nx run mod-swooper-maps:test` is the behavioral gate. Use `diag:dump` / `diag:analyze` only for trace and visualization investigation, not as a second metrics authority.
+5. `nx run mod-swooper-maps:metrics:report` emits the complete machine-readable evaluation; `nx run mod-swooper-maps:test` is the behavioral gate. Use `diag:dump`, `diag:list`, `diag:diff`, and `diag:trace` only for trace and visualization investigation, not as a second metrics authority.
 6. Targets are **regime-family based** (wet / arid / mountain / closed / archipelago), **not** single scalars — never collapse a regime distribution to one number. Earth anchors include HydroLAKES ~1.8% of land, non-perennial river share 51–60%, endorheic ~1/5 of land, and passive-vs-active margin shelf-width contrast. `riverClass` is `0/1/≥2`; only `≥2` projects to `TERRAIN_NAVIGABLE_RIVER`.
 
 Historical workstream docs retain the evidence and amendments for the studies they

@@ -92,7 +92,7 @@ The four archetypes map onto the request taxonomy:
 
 **Request shape:** *"The Studio is fragile / state is everywhere"* — a display/runtime problem, **not** a generation problem.
 
-**The discriminator first.** Before treating this as a generation bug, the team confirmed generation was correct: the raw dump binaries (`diag:dump` / `viz:standard` output) were right, and `FinalSurfaceParityProof.unresolvedLinks` was empty. The defect was that the *client* was compensating for a daemon that did not own its state. The clean separator between "generation wrong" and "view wrong" is `diff-layers.ts` (local-vs-local) + `unresolvedLinks` (local-vs-live) — see `references/facet-verification.md` and the bug-classification table in `references/facet-civ7-domain.md`.
+**The discriminator first.** Before treating this as a generation bug, the team confirmed generation was correct: the raw `diag:dump` binaries were right, and `FinalSurfaceParityProof.unresolvedLinks` was empty. The defect was that the *client* was compensating for a daemon that did not own its state. The clean separator between "generation wrong" and "view wrong" is `diff-layers.ts` (local-vs-local) + `unresolvedLinks` (local-vs-live) — see `references/facet-verification.md` and the bug-classification table in `references/facet-civ7-domain.md`.
 
 **Evidence / diagnostics.** Daemon state was smeared across 4 localStorage keys, 5 polling loops, a watchdog, and 3 oRPC mounts (`PLAN.md`, `RUNTIME-EFFECT-REFACTOR-FRAME.md`).
 

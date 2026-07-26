@@ -225,37 +225,13 @@
         "cwd": "mods/mod-swooper-maps"
       }
     },
-    "viz:standard": {
-      "command": "bun ./scripts/diagnostics/standard-run.ts",
-      "dependsOn": ["viz:runtime-deps"],
-      "cache": false,
-      "options": {
-        "cwd": "mods/mod-swooper-maps"
-      }
-    },
     "diag:dump": {
       "command": "bun ./scripts/diagnostics/run-standard-dump.ts",
-      "dependsOn": ["viz:runtime-deps"],
+      "dependsOn": ["diag:runtime-deps"],
       "cache": false,
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
-    },
-    "diag:analyze": {
-      "dependsOn": [
-        {
-          "projects": ["mapgen-diagnostics"],
-          "target": "build"
-        },
-        {
-          "projects": ["mapgen-core"],
-          "target": "build"
-        },
-        {
-          "projects": ["mapgen-metrics"],
-          "target": "build"
-        }
-      ]
     },
     "diag:diff": {
       "dependsOn": [
@@ -281,7 +257,7 @@
         }
       ]
     },
-    "viz:runtime-deps": {
+    "diag:runtime-deps": {
       "executor": "nx:noop",
       "dependsOn": [
         {

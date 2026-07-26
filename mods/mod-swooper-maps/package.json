@@ -35,7 +35,6 @@
     }
   },
   "scripts": {
-    "diag:analyze": "bun ./scripts/diagnostics/analyze-dump.ts",
     "diag:diff": "bun ./scripts/diagnostics/diff-layers.ts",
     "diag:list": "bun ./scripts/diagnostics/list-layers.ts",
     "diag:trace": "bun ./scripts/diagnostics/extract-trace.ts",

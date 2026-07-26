@@ -23,39 +23,6 @@ const modes = new Map<string, Mode>([
       live: true,
     },
   ],
-  [
-    "output-parity",
-    {
-      script: "scripts/live/verify-output-parity.ts",
-      description:
-        "Load a map live and diff its engine output vs the headless recipe surface (Studio-free).",
-      live: true,
-    },
-  ],
-  [
-    "resource-delta-feasibility",
-    {
-      script: "scripts/live/verify-resource-delta-feasibility.ts",
-      description: "Classify resource deltas through live ResourceBuilder probes.",
-      live: true,
-    },
-  ],
-  [
-    "feature-delta-feasibility",
-    {
-      script: "scripts/live/verify-feature-delta-feasibility.ts",
-      description: "Classify feature deltas through live FeatureBuilder probes.",
-      live: true,
-    },
-  ],
-  [
-    "terrain-edge-live-context",
-    {
-      script: "scripts/live/verify-terrain-edge-live-context.ts",
-      description: "Read live terrain-edge context for final-surface deltas.",
-      live: true,
-    },
-  ],
 ]);
 
 const aliases = new Map<string, string>([["studio-run-in-game:live", "studio-run-in-game-live"]]);
