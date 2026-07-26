@@ -1,13 +1,38 @@
+import { isAnyRiverClass } from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-class.js";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
+import { computeMaskDistanceFieldOddQ } from "@swooper/mapgen-core/lib/grid";
 
 import ComputePrecipitationContract from "../../contract.js";
-import {
-  clampRainfall,
-  isAdjacentToRivers,
-  isLowBasinClosed,
-  rainfallToHumidityU8,
-} from "../../rules/index.js";
+import { clampRainfall, isLowBasinClosed, rainfallToHumidityU8 } from "../../rules/index.js";
 import RefineDefinition from "./config.js";
+
+function buildRiverCorridorMask(
+  width: number,
+  height: number,
+  riverClass: Uint8Array,
+  radius: number
+): Uint8Array {
+  const size = width * height;
+  const sources: number[] = [];
+  for (let tileIndex = 0; tileIndex < size; tileIndex++) {
+    if (isAnyRiverClass(riverClass[tileIndex]!)) sources.push(tileIndex);
+  }
+  const traversable = new Uint8Array(size).fill(1);
+  const distance = computeMaskDistanceFieldOddQ({
+    mask: traversable,
+    width,
+    height,
+    sources,
+    maxDistance: radius,
+  });
+  const corridor = new Uint8Array(size);
+  const admittedRadius = Math.max(1, radius | 0);
+  for (let tileIndex = 0; tileIndex < size; tileIndex++) {
+    const tileDistance = distance[tileIndex]!;
+    if (tileDistance >= 0 && tileDistance <= admittedRadius) corridor[tileIndex] = 1;
+  }
+  return corridor;
+}
 
 /**
  * Copies the admitted baseline arrays, adds river-adjacency and enclosed-basin wetness on land, then
@@ -23,6 +48,12 @@ const refineStrategy = createStrategy(ComputePrecipitationContract, RefineDefini
     const humidity = new Uint8Array(input.humidityIn);
 
     const adjacencyRadius = config.riverCorridor.adjacencyRadius | 0;
+    const riverCorridorMask = buildRiverCorridorMask(
+      width,
+      height,
+      input.riverClass,
+      adjacencyRadius
+    );
     const lowlandElevationMax = config.riverCorridor.lowlandElevationMax | 0;
     const lowlandBonus = config.riverCorridor.lowlandAdjacencyBonus;
     const highlandBonus = config.riverCorridor.highlandAdjacencyBonus;
@@ -41,7 +72,7 @@ const refineStrategy = createStrategy(ComputePrecipitationContract, RefineDefini
         let rf = rainfall[i] | 0;
         const elev = input.elevation[i] | 0;
 
-        if (isAdjacentToRivers(x, y, width, height, input.riverAdjacency, adjacencyRadius)) {
+        if (riverCorridorMask[i] === 1) {
           rf += elev < lowlandElevationMax ? lowlandBonus : highlandBonus;
         }
 

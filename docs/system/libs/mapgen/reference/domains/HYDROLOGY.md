@@ -21,7 +21,7 @@ Hydrology produces climate and water-cycle products for downstream consumption:
 - atmospheric wind and moisture-transport state,
 - depression-conditioned drainage routing over Morphology topography,
 - discharge and hydrography evidence,
-- refined indices (aridity/freeze/etc) and optional cryosphere products,
+- refined terrestrial indices (effective moisture, aridity, and freeze) and optional cryosphere products,
   and related diagnostics.
 
 Hydrology also feeds engine-facing projection steps, which are explicitly
@@ -91,7 +91,7 @@ operations they execute:
 
 - `ocean`: ocean geometry, surface currents, and thermal state,
 - `climate`: radiative and thermal forcing, atmospheric circulation, moisture transport,
-  precipitation and water budget,
+  precipitation, and the river-aware terrestrial water budget,
 - `cryosphere`: cryosphere state and albedo feedback,
 - `hydrography`: drainage, discharge, causal river-network classification, and lake intent.
 

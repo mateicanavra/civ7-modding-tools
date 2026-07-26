@@ -1,15 +1,15 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import petAridityDefinition from "./strategies/pet-aridity/config.js";
 
-/** Computes potential evapotranspiration and aridity from admitted terrestrial climate fields. */
+/** Computes terrestrial moisture supply, potential evapotranspiration, and aridity. */
 const ComputeLandWaterBudgetContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-land-water-budget",
   /**
-   * Computes land water budget proxies (PET and aridity).
+   * Computes terrestrial effective moisture, PET, and aridity.
    *
-   * This op derives gameplay-oriented, deterministic indices from rainfall/humidity/temperature.
-   * Consumers should treat these outputs as advisory indices (use them, don’t re-derive ad hoc variants).
+   * This op combines rainfall, humidity, temperature, and river hierarchy into deterministic
+   * advisory indices. Consumers use these outputs rather than re-deriving local variants.
    */
   input: Type.Object(
     {
@@ -25,20 +25,31 @@ const ComputeLandWaterBudgetContract = defineOp({
       humidity: TypedArraySchemas.u8({ description: "Humidity (0..255) per tile." }),
       /** Surface temperature proxy (C). */
       surfaceTemperatureC: TypedArraySchemas.f32({ description: "Surface temperature proxy (C)." }),
+      /** Hydrology river hierarchy used to derive local riparian moisture influence. */
+      riverClass: TypedArraySchemas.u8({
+        description:
+          "Hydrology river class per tile (0=none, 1=minor, 2+=major) used for riparian moisture.",
+      }),
     },
     {
       additionalProperties: false,
-      description: "Inputs for land water budget proxies (deterministic, data-only).",
+      description:
+        "Admitted climate and river inputs for deterministic terrestrial water-budget indices.",
     }
   ),
   /**
-   * Land water budget outputs (PET + aridity index).
+   * Terrestrial water-budget outputs (effective moisture, PET, and aridity).
    */
   output: Type.Object(
     {
       /** Potential evapotranspiration proxy (rainfall units, advisory). */
       pet: TypedArraySchemas.f32({
         description: "Potential evapotranspiration proxy (rainfall units, advisory).",
+      }),
+      /** Rainfall, humidity, and nearby river influence expressed on one terrestrial moisture scale. */
+      effectiveMoisture: TypedArraySchemas.f32({
+        description:
+          "Land-only rainfall + 0.35*humidity + radius-1 wrapped-hex river bonus (minor=4, major=8); the authored rainfall and humidity maxima yield 297.25, and water is 0.",
       }),
       /** Aridity index (0..1) derived from precipitation vs PET (advisory). */
       aridityIndex: TypedArraySchemas.f32({
@@ -47,7 +58,8 @@ const ComputeLandWaterBudgetContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Land water budget outputs (PET proxy and aridity index).",
+      description:
+        "Land water budget outputs: effective terrestrial moisture, PET proxy, and aridity index.",
     }
   ),
   strategies: [petAridityDefinition],

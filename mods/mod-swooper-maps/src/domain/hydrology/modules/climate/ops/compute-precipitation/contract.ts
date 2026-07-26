@@ -35,9 +35,10 @@ const ComputePrecipitationContract = defineOp({
       rainfallIn: TypedArraySchemas.u8({ description: "Input rainfall (0..200) per tile." }),
       /** Input humidity (0..255) per tile (optional seed/feedback from prior passes). */
       humidityIn: TypedArraySchemas.u8({ description: "Input humidity (0..255) per tile." }),
-      /** River adjacency mask per tile (1=adjacent, 0=not adjacent). */
-      riverAdjacency: TypedArraySchemas.u8({
-        description: "River adjacency mask per tile (1=adjacent, 0=not adjacent).",
+      /** Hydrology river hierarchy used by strategies that model corridor moisture. */
+      riverClass: TypedArraySchemas.u8({
+        description:
+          "Hydrology river class per tile (0=none, 1=minor, 2+=major) for corridor moisture.",
       }),
       /** Deterministic Perlin seed (derived in the step; pure data). */
       perlinSeed: Type.Integer({

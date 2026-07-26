@@ -28,16 +28,15 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** prove which recipe-step boundaries are semantically
-earned, then remove only the false state and misplaced computation revealed by
-that proof. Size is not the classifier. Baseline and refined climate are real
-causal passes; shared feature scoring is a coherent scoring-to-planning
-boundary unless consumer analysis disproves it. Unconsumed registered state is
-not a product, and domain algorithms do not become orchestration merely because
-they were written inside `step.ts`. The first collapse removes the
-unconsumed climate-seasonality artifact while retaining invocation-local
-visualization evidence; the same container then moves effective-moisture and
-floodplain scoring computation to their exact Hydrology and Ecology owners.
+**Current container:** untangle riparian climate influence as one Hydrology
+domain behavior. The baseline and refined climate steps remain earned causal
+passes, but recipe orchestration must not pre-expand river masks, reinterpret
+hex geometry, or derive terrestrial indices. Raw admitted river hierarchy
+crosses operation boundaries once; precipitation interprets its authored
+corridor radius, and the land-water budget owns effective moisture beside PET
+and aridity. The already-sealed seasonality collapse proves the same law:
+unconsumed registered state is not a product, and invocation-local evidence
+does not become an artifact merely because visualization consumes it.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -54,16 +53,15 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** delete the dead artifact registration and keep seasonal
-amplitudes local to the producer result and visualization facet; prove the
-seasonal behavior directly rather than through storage. Then extract the
-hex-aware effective-moisture calculation from climate refinement and the
-feature-family floodplain scoring calculation from score-layer orchestration,
-preserving their authored configuration and deterministic streams. Finally
-sieve the adjacent tests by intent: domain behavior and product studies
-survive, while provider publication and impossible-admission simulations do
-not. Each completed owner move seals as its own Graphite layer before the next
-algorithm is touched.
+**Gradient:** pass raw `riverClass` into precipitation and water-budget
+operations; interpret both influences on Civ7's wrapped hex graph; publish
+operation-owned `effectiveMoisture`; delete duplicate square-mask expansion,
+manual admitted-grid guards, and recipe-local moisture loops. Prove exact
+hex-footprint, river-tier, water-zero, and deterministic behavior at the domain
+owner. Then seal this layer before extracting feature-family floodplain scoring
+from score-layer orchestration. The adjacent test sieve follows on the
+normalized plane: domain behavior and product studies survive, while provider
+publication and impossible-admission simulations do not.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty

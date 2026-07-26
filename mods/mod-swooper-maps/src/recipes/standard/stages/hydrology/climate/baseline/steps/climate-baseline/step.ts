@@ -596,7 +596,7 @@ export const ClimateBaselineStep = createStep(config, {
             humidityF32: moisture.humidity,
             rainfallIn: zeros,
             humidityIn: zeros,
-            riverAdjacency: zeros,
+            riverClass: zeros,
             perlinSeed,
           },
           stepConfig.computePrecipitation
@@ -669,7 +669,7 @@ export const ClimateBaselineStep = createStep(config, {
             humidityF32: moisture.humidity,
             rainfallIn: zeros,
             humidityIn: zeros,
-            riverAdjacency: zeros,
+            riverClass: zeros,
             perlinSeed,
           },
           stepConfig.computePrecipitation

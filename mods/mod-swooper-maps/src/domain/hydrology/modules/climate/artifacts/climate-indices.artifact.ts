@@ -18,7 +18,7 @@ export const artifact = defineArtifact({
       effectiveMoisture: TypedArraySchemas.f32({
         cardinality: "map-grid",
         description:
-          "Moisture available to Ecology after rainfall, humidity, and nearby river influence are combined.",
+          "Land-only rainfall + 0.35*humidity + radius-1 wrapped-hex river bonus (minor=4, major=8); the authored rainfall and humidity maxima yield 297.25, and water remains 0.",
       }),
       pet: TypedArraySchemas.f32({
         cardinality: "map-grid",

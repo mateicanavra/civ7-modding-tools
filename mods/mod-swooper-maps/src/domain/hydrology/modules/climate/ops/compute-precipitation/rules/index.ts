@@ -22,44 +22,6 @@ export function rainfallToHumidityU8(rainfall: number): number {
 }
 
 /**
- * Tests a precomputed river-adjacency mask for a local precipitation-corridor influence.
- *
- * Radius one reads the current mask cell because the producer has already expanded adjacency;
- * larger radii add a square search of `radius - 1` cells around it.
- *
- * @param x - Origin tile column.
- * @param y - Origin tile row.
- * @param width - Tile-grid width.
- * @param height - Tile-grid height.
- * @param riverAdjacency - Binary, pre-expanded river-adjacency mask.
- * @param radius - Strategy radius, clamped to at least one.
- * @returns Whether any sampled mask cell is marked adjacent to a river.
- */
-export function isAdjacentToRivers(
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  riverAdjacency: Uint8Array,
-  radius: number
-): boolean {
-  const r = Math.max(1, radius | 0);
-  if (r === 1) return riverAdjacency[idx(x, y, width)] === 1;
-
-  const rr = r - 1;
-  for (let dy = -rr; dy <= rr; dy++) {
-    const ny = y + dy;
-    if (ny < 0 || ny >= height) continue;
-    for (let dx = -rr; dx <= rr; dx++) {
-      const nx = x + dx;
-      if (nx < 0 || nx >= width) continue;
-      if (riverAdjacency[idx(nx, ny, width)] === 1) return true;
-    }
-  }
-  return false;
-}
-
-/**
  * Applies the refinement strategy's local low-basin proxy around one tile.
  *
  * This is deliberately a bounded square-neighborhood test, not drainage routing: a basin is
