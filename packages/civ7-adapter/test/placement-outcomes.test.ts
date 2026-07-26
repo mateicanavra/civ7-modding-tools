@@ -99,34 +99,6 @@ describe("typed placement outcomes", () => {
     expect(adapter.calls.setResourceType).toEqual([{ x: 1, y: 1, resourceType: 7 }]);
   });
 
-  it("returns typed discovery outcomes and structural rejections", () => {
-    const adapter = createMockAdapter({ width: 4, height: 3 });
-
-    const placed = adapter.placeDiscoveryIntent(4, 3, {
-      plotIndex: 6,
-      discoveryVisualType: 2687284451,
-      discoveryActivationType: 2398750021,
-    });
-    const rejected = adapter.placeDiscoveryIntent(4, 3, {
-      plotIndex: -1,
-      discoveryVisualType: 2687284451,
-      discoveryActivationType: 2398750021,
-    });
-
-    expect(placed).toEqual({
-      status: "placed",
-      plotIndex: 6,
-      x: 2,
-      y: 1,
-      discoveryVisualType: 2687284451,
-      discoveryActivationType: 2398750021,
-    });
-    expect(rejected).toMatchObject({
-      status: "rejected",
-      reason: "out-of-bounds",
-    });
-  });
-
   it("returns typed natural-wonder outcomes and structural rejections", () => {
     const adapter = createMockAdapter({
       width: 4,

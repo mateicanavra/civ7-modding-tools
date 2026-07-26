@@ -28,14 +28,15 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** collapse Placement's duplicate landmass-region
-projection/restamp authority after the resource materializer boundary was
-sealed. Surface preparation owns one post-wonder engine-maintenance
-transaction: terrain validation, coast restoration, area recalculation, water
-storage, and exact lake readback. Landmass-region projection runs afterward as
-the sole engine write and immutable region-artifact publisher, so maintenance
-cannot erase a projection that another step must repeat. A.2, initial setup
-options, and post-A.2 product proof remain outside this container.
+**Current container:** purify discovery materialization around the one product
+authority that actually exists: Civ7's narrative-coupled official generator.
+The adapter owns active map dimensions, generator invocation, exact
+`addDiscovery` interception, restoration, error attribution, and valid observed
+counts. The recipe supplies admitted seated starts plus the official polar
+margin, then projects the typed result into metrics and telemetry. Abandoned
+per-tile discovery intent, outcome, and stamping APIs are not preserved beside
+that bulk authority. A.2, initial setup options, and post-A.2 product proof
+remain outside this container.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -52,14 +53,16 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** reorder the canonical Placement sequence to
-`place-natural-wonders -> prepare-placement-surface -> plot-landmass-regions`.
-Delete prepare's region artifact/tag/engine dependencies, duplicate projection
-loop, restamp trace, and unused slot-count metric. Let the region artifact carry
-the causal edge after the one engine projection; remove its duplicate effect
-tag. Delete call-order and generic-failure tests that existed only to protect
-the knot, preserve focused maintenance and region behavior at their actual
-owners, and prove the complete recipe graph before sealing the cut.
+**Gradient:** remove recipe-supplied dimensions and result re-admission from
+`place-discoveries`; narrow `generateOfficialDiscoveries` to the remaining
+semantic inputs and let both production and mock adapters expose their own
+dimensions in call evidence. Delete `stampDiscovery`, `placeDiscoveryIntent`,
+their outcome contracts, mock ledgers, MapGen engine-authority admissions, and
+the duplicate Map Policy types. Replace the obsolete per-tile adapter test with
+focused official-generator interception/restoration/error/count proof, keep
+the full-recipe discovery metric behavior, and remove the resource
+materializer's redundant `surfacePrepared` edge because its adjusted-plan
+artifact already carries causality.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -94,6 +97,29 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Landmass Region Projection Authority
+
+Post-wonder surface maintenance became one engine transaction followed by one
+landmass-region projection and immutable artifact publication. The duplicate
+pre-maintenance projection, restamp loop, ordering effect, slot-count metric,
+and broad call-order tests were deleted; exact slot-to-Civ7 materialization
+gained one focused behavior owner.
+
+### 2026-07-26 - Resource Materialization Authority
+
+Resource placement became intent-only at the recipe boundary. Production and
+mock adapters now own dimensions, coordinate resolution, feasibility, engine
+mutation, and exact readback while Swooper retains ordered product
+reconciliation, typed shortfalls, phase provenance, telemetry, and fail-hard
+mismatch policy.
+
+### 2026-07-26 - Natural Wonder Materialization Authority
+
+Natural-wonder planning and placement were separated into deterministic intent
+and adapter-owned engine materialization. Duplicate provider logic and
+coordination state were deleted while exact fallback, rejection, partial
+readback, and final occupancy evidence moved to focused product owners.
 
 ### 2026-07-26 - Placement Causal Authority
 

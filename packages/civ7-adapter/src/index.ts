@@ -40,9 +40,6 @@ export { createMockAdapter, MockAdapter } from "./mock-adapter.js";
 export type {
   ContinentBounds,
   CurrentRiverSurface,
-  DiscoveryPlacementIntent,
-  DiscoveryPlacementOutcome,
-  DiscoveryPlacementRejectionReason,
   EngineAdapter,
   EngineAdapterMethodKey,
   FeatureData,

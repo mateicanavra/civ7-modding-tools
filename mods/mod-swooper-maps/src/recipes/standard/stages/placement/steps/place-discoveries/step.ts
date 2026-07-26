@@ -11,7 +11,6 @@ import { config } from "./config.js";
  */
 export const PlaceDiscoveriesStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
-    const { width, height } = context.setup.dimensions;
     // Civ7's official generator gates discoveries away from major starts; feed it
     // the seated start plots (drop unseated -1 sentinels) exactly as the base
     // maps pass `startPositions` from assignStartPositions.
@@ -25,22 +24,9 @@ export const PlaceDiscoveriesStep = createStep(config, {
     const outcomes = runPlacementProductStep("placement.discoveries", emit, () => {
       // Discovery identity and availability are live narrative-system products,
       // so the official generator remains the sole placement authority. This
-      // step only normalizes its observed counts for metrics and logging.
-      const result = deps.engine.generateOfficialDiscoveries(
-        context,
-        width,
-        height,
-        startPositions,
-        polarMargin
-      );
-      const attemptedCount = Math.max(0, result.attemptedCount | 0);
-      const placedCount = Math.max(0, Math.min(attemptedCount, result.placedCount | 0));
+      // step projects the adapter's typed observations into metrics and logging.
       return {
-        summary: {
-          attemptedCount,
-          placedCount,
-          rejectedCount: attemptedCount - placedCount,
-        },
+        summary: deps.engine.generateOfficialDiscoveries(context, startPositions, polarMargin),
       };
     });
 
@@ -55,7 +41,7 @@ export const PlaceDiscoveriesStep = createStep(config, {
         polarMargin,
         attemptedCount: outcomes.summary.attemptedCount,
         placedCount: outcomes.summary.placedCount,
-        rejectedCount: outcomes.summary.rejectedCount,
+        rejectedCount: outcomes.summary.attemptedCount - outcomes.summary.placedCount,
       })}`
     );
 

@@ -116,9 +116,6 @@ export {
   startFootprintTiles,
 } from "./starts.js";
 export type {
-  DiscoveryPlacementIntent,
-  DiscoveryPlacementOutcome,
-  DiscoveryPlacementRejectionReason,
   NaturalWonderCatalogEntry,
   ResourcePlacementIntent,
   ResourcePlacementMismatchReason,

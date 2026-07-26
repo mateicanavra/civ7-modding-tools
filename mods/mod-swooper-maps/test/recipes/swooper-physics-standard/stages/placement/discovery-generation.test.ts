@@ -1,7 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
 import { MockAdapter, type OfficialDiscoveryGenerationResult } from "@civ7/adapter";
+import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
+import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
 import type { MapContext } from "@swooper/mapgen-core";
+import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { Value } from "typebox/value";
 import {
@@ -45,12 +48,10 @@ function runStandardDiscoveryRecipe({
 
 class PartiallyAcceptingDiscoveryAdapter extends MockAdapter {
   override generateOfficialDiscoveries(
-    width: number,
-    height: number,
     startPositions: ReadonlyArray<number>,
     polarMargin: number
   ): OfficialDiscoveryGenerationResult {
-    super.generateOfficialDiscoveries(width, height, startPositions, polarMargin);
+    super.generateOfficialDiscoveries(startPositions, polarMargin);
     return { attemptedCount: 7, placedCount: 5 };
   }
 }
@@ -58,7 +59,7 @@ class PartiallyAcceptingDiscoveryAdapter extends MockAdapter {
 describe("discovery generation", () => {
   it("projects Civ7 discovery-generation counts without map-side discovery intents", () => {
     let discoveryGeneration: StandardDiscoveryPlacementMeasurements | undefined;
-    const { adapter } = runStandardDiscoveryRecipe({
+    const { adapter, context } = runStandardDiscoveryRecipe({
       createAdapter: ({ preset, mapInfo, mapSeed }) =>
         new PartiallyAcceptingDiscoveryAdapter({
           ...preset.dimensions,
@@ -80,13 +81,22 @@ describe("discovery generation", () => {
         },
       },
     });
+    const startAssignment = readValidatedArtifact(context, placementStartArtifacts.startAssignment);
+    const startPositions = startAssignment.positions.filter((plotIndex) => plotIndex >= 0);
+    const polarMargin = Math.max(0, CIV7_BROWSER_TABLES_V0.mapGlobals.polarWaterRows | 0);
 
     // Discoveries defer to Civ7's official generator (narrative-coupled type and
-    // availability), not a map-side catalog: the step calls it exactly once and
-    // never stamps per-tile discovery intents. Its successful observation closes
-    // through metrics rather than a fake causal artifact.
-    expect(adapter.calls.generateOfficialDiscoveries.length).toBe(1);
-    expect(adapter.calls.stampDiscovery.length).toBe(0);
+    // availability), not a map-side catalog. The one bulk call receives the
+    // exact admitted start exclusions; its observation closes through metrics
+    // rather than a fake causal artifact.
+    expect(adapter.calls.generateOfficialDiscoveries).toEqual([
+      {
+        width: adapter.width,
+        height: adapter.height,
+        startPositions,
+        polarMargin,
+      },
+    ]);
     expect(discoveryGeneration).toEqual({
       version: 1,
       attemptedCount: 7,

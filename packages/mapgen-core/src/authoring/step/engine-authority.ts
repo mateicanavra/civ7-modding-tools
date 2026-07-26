@@ -76,8 +76,6 @@ const AUTHORED_ENGINE_ADAPTER_METHODS = Object.freeze([
   "getFeatureTypeIndex",
   "stampNaturalWonder",
   "placeNaturalWonder",
-  "stampDiscovery",
-  "placeDiscoveryIntent",
   "generateOfficialResources",
   "generateOfficialDiscoveries",
   "generateSnow",

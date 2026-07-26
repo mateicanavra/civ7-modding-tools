@@ -25,8 +25,6 @@ import { ENGINE_EFFECT_TAGS } from "./effects.js";
 import { getCiv7RowLatitude } from "./map-metadata.js";
 import type {
   CurrentRiverSurface,
-  DiscoveryPlacementIntent,
-  DiscoveryPlacementOutcome,
   EngineAdapter,
   FeatureData,
   LakeProjectionResult,
@@ -403,12 +401,6 @@ export class MockAdapter implements EngineAdapter {
       direction: number;
       elevation: number;
     }>;
-    stampDiscovery: Array<{
-      x: number;
-      y: number;
-      discoveryVisualType: number;
-      discoveryActivationType: number;
-    }>;
     generateOfficialDiscoveries: Array<{
       width: number;
       height: number;
@@ -496,7 +488,6 @@ export class MockAdapter implements EngineAdapter {
       designateBiomes: [],
       addFeatures: [],
       stampNaturalWonder: [],
-      stampDiscovery: [],
       generateOfficialDiscoveries: [],
       generateOfficialResources: [],
       generateSnow: [],
@@ -1461,86 +1452,12 @@ export class MockAdapter implements EngineAdapter {
     };
   }
 
-  stampDiscovery(
-    x: number,
-    y: number,
-    discoveryVisualType: number,
-    discoveryActivationType: number
-  ): boolean {
-    if (x < 0 || x >= this.width || y < 0 || y >= this.height) return false;
-    this.calls.stampDiscovery.push({
-      x,
-      y,
-      discoveryVisualType,
-      discoveryActivationType,
-    });
-    return true;
-  }
-
-  placeDiscoveryIntent(
-    width: number,
-    height: number,
-    intent: DiscoveryPlacementIntent
-  ): DiscoveryPlacementOutcome {
-    // Keep mock discovery behavior aligned with Civ7Adapter: placement success
-    // is explicit evidence, and rejection is a typed result the recipe can
-    // publish for review/debugging.
-    const resolvedWidth = Math.max(0, Math.trunc(width));
-    const resolvedHeight = Math.max(0, Math.trunc(height));
-    const plotIndex = Number.isFinite(intent.plotIndex) ? Math.trunc(intent.plotIndex) : -1;
-    const discoveryVisualType = Number.isFinite(intent.discoveryVisualType)
-      ? Math.trunc(intent.discoveryVisualType)
-      : -1;
-    const discoveryActivationType = Number.isFinite(intent.discoveryActivationType)
-      ? Math.trunc(intent.discoveryActivationType)
-      : -1;
-    const y = resolvedWidth > 0 ? Math.trunc(plotIndex / resolvedWidth) : -1;
-    const x = resolvedWidth > 0 ? plotIndex - y * resolvedWidth : -1;
-
-    if (plotIndex < 0 || x < 0 || y < 0 || x >= resolvedWidth || y >= resolvedHeight) {
-      return {
-        status: "rejected",
-        plotIndex,
-        x,
-        y,
-        discoveryVisualType,
-        discoveryActivationType,
-        reason: "out-of-bounds",
-      };
-    }
-    if (discoveryVisualType < 0 || discoveryActivationType < 0) {
-      return {
-        status: "rejected",
-        plotIndex,
-        x,
-        y,
-        discoveryVisualType,
-        discoveryActivationType,
-        reason: "invalid-discovery-type",
-      };
-    }
-
-    const placed = this.stampDiscovery(x, y, discoveryVisualType, discoveryActivationType);
-    if (!placed) {
-      return {
-        status: "rejected",
-        plotIndex,
-        x,
-        y,
-        discoveryVisualType,
-        discoveryActivationType,
-        reason: "adapter-rejected",
-      };
-    }
-    return { status: "placed", plotIndex, x, y, discoveryVisualType, discoveryActivationType };
-  }
-
   generateOfficialDiscoveries(
-    width: number,
-    height: number,
     startPositions: ReadonlyArray<number>,
     polarMargin: number
   ): OfficialDiscoveryGenerationResult {
+    const width = this.width;
+    const height = this.height;
     const resolvedStartPositions = (Array.isArray(startPositions) ? startPositions : [])
       .filter((value) => Number.isFinite(value) && value >= 0)
       .map((value) => Math.trunc(value));
@@ -1556,10 +1473,10 @@ export class MockAdapter implements EngineAdapter {
     });
     // The mock does not run the real generator; it reports the configured count
     // as both attempted and placed (no engine-side rejection in the mock).
-    return {
+    return Object.freeze({
       attemptedCount: this.officialDiscoveriesPlacedCount,
       placedCount: this.officialDiscoveriesPlacedCount,
-    };
+    });
   }
 
   generateOfficialResources(
@@ -1701,7 +1618,6 @@ export class MockAdapter implements EngineAdapter {
     this.calls.designateBiomes.length = 0;
     this.calls.addFeatures.length = 0;
     this.calls.stampNaturalWonder.length = 0;
-    this.calls.stampDiscovery.length = 0;
     this.calls.generateOfficialDiscoveries.length = 0;
     this.calls.generateOfficialResources.length = 0;
     this.calls.generateSnow.length = 0;

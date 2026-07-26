@@ -53,10 +53,14 @@ This policy prevents derived outputs from becoming accidental “sources of trut
   `canHaveResource`, `getTerrainType`, `getFeatureType`, and `getResourceType`.
 - **Projection/materialization:** adapter calls such as `setTerrainType`,
   `setBiomeType`, `setFeatureType`, `setResourceType`, `stampLakes`,
-  `placeResourceIntent`, `placeDiscoveryIntent`, and `setStartPosition`.
+  `placeResourceIntent`, and `setStartPosition`.
+- **Engine-owned runtime products:** `generateOfficialDiscoveries` delegates
+  discovery identity, availability, and placement to Civ7's live narrative
+  system, then returns observed attempt and acceptance counts. This terminal
+  product is not authored map truth and does not feed earlier generation.
 - **Engine compatibility only:** `getRandomNumber` and official generators such
-  as resource/discovery/snow/biome/start generators. Standard authored
-  generation must not depend on these.
+  as resource, snow, biome, and start generators. Standard authored truth must
+  not depend on these.
 
 ## Ground truth anchors
 

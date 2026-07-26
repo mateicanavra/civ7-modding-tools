@@ -28,8 +28,6 @@ import {
 } from "./resource-age-policy.js";
 import type {
   CurrentRiverSurface,
-  DiscoveryPlacementIntent,
-  DiscoveryPlacementOutcome,
   EngineAdapter,
   FeatureData,
   LakeProjectionResult,
@@ -1044,94 +1042,6 @@ export class Civ7Adapter implements EngineAdapter {
     };
   }
 
-  stampDiscovery(
-    x: number,
-    y: number,
-    discoveryVisualType: number,
-    discoveryActivationType: number
-  ): boolean {
-    const mapConstructibles = (
-      globalThis as typeof globalThis & {
-        MapConstructibles?: {
-          addDiscovery?: (
-            x: number,
-            y: number,
-            discoveryVisualType: number,
-            discoveryActivationType: number
-          ) => boolean;
-        };
-      }
-    ).MapConstructibles;
-    if (!mapConstructibles?.addDiscovery) {
-      throw new Error("[Adapter] MapConstructibles.addDiscovery is unavailable.");
-    }
-    const placed = mapConstructibles.addDiscovery(
-      x,
-      y,
-      discoveryVisualType,
-      discoveryActivationType
-    );
-    return Boolean(placed);
-  }
-
-  placeDiscoveryIntent(
-    width: number,
-    height: number,
-    intent: DiscoveryPlacementIntent
-  ): DiscoveryPlacementOutcome {
-    // Discovery placement has no stable post-write readback, so the adapter
-    // exposes Civ7 acceptance/rejection as explicit reconciliation evidence
-    // instead of making the recipe infer success from generator counts.
-    const resolvedWidth = Math.max(0, Math.trunc(width));
-    const resolvedHeight = Math.max(0, Math.trunc(height));
-    const plotIndex = Number.isFinite(intent.plotIndex) ? Math.trunc(intent.plotIndex) : -1;
-    const discoveryVisualType = Number.isFinite(intent.discoveryVisualType)
-      ? Math.trunc(intent.discoveryVisualType)
-      : -1;
-    const discoveryActivationType = Number.isFinite(intent.discoveryActivationType)
-      ? Math.trunc(intent.discoveryActivationType)
-      : -1;
-    const y = resolvedWidth > 0 ? Math.trunc(plotIndex / resolvedWidth) : -1;
-    const x = resolvedWidth > 0 ? plotIndex - y * resolvedWidth : -1;
-
-    if (plotIndex < 0 || x < 0 || y < 0 || x >= resolvedWidth || y >= resolvedHeight) {
-      return {
-        status: "rejected",
-        plotIndex,
-        x,
-        y,
-        discoveryVisualType,
-        discoveryActivationType,
-        reason: "out-of-bounds",
-      };
-    }
-    if (discoveryVisualType < 0 || discoveryActivationType < 0) {
-      return {
-        status: "rejected",
-        plotIndex,
-        x,
-        y,
-        discoveryVisualType,
-        discoveryActivationType,
-        reason: "invalid-discovery-type",
-      };
-    }
-
-    const placed = this.stampDiscovery(x, y, discoveryVisualType, discoveryActivationType);
-    if (!placed) {
-      return {
-        status: "rejected",
-        plotIndex,
-        x,
-        y,
-        discoveryVisualType,
-        discoveryActivationType,
-        reason: "adapter-rejected",
-      };
-    }
-    return { status: "placed", plotIndex, x, y, discoveryVisualType, discoveryActivationType };
-  }
-
   generateOfficialResources(
     width: number,
     height: number,
@@ -1208,13 +1118,11 @@ export class Civ7Adapter implements EngineAdapter {
   }
 
   generateOfficialDiscoveries(
-    width: number,
-    height: number,
     startPositions: ReadonlyArray<number>,
     polarMargin: number
   ): OfficialDiscoveryGenerationResult {
-    const resolvedWidth = Math.max(0, Math.trunc(width));
-    const resolvedHeight = Math.max(0, Math.trunc(height));
+    const resolvedWidth = this.width;
+    const resolvedHeight = this.height;
     const resolvedStartPositions = (Array.isArray(startPositions) ? startPositions : [])
       .filter((value) => Number.isFinite(value) && value >= 0)
       .map((value) => Math.trunc(value));
@@ -1279,7 +1187,7 @@ export class Civ7Adapter implements EngineAdapter {
       mapConstructibles.addDiscovery = originalAddDiscovery;
     }
 
-    return { attemptedCount, placedCount };
+    return Object.freeze({ attemptedCount, placedCount });
   }
 
   generateSnow(width: number, height: number): void {

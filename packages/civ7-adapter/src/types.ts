@@ -81,26 +81,6 @@ export type ResourcePlacementOutcome =
     };
 
 /**
- * Named discovery rejection reasons mirror resource reconciliation without
- * pretending Civ7 exposes resource-like discovery readback.
- */
-export type DiscoveryPlacementRejectionReason =
-  | "out-of-bounds"
-  | "invalid-discovery-type"
-  | "adapter-rejected";
-
-/**
- * A single deterministic discovery request from placement planning. Visual and
- * activation ids stay paired so the adapter can materialize the exact catalog
- * entry selected by the planner.
- */
-export interface DiscoveryPlacementIntent {
-  plotIndex: number;
-  discoveryVisualType: number;
-  discoveryActivationType: number;
-}
-
-/**
  * Counts observed while running Civ7's official discovery generator.
  * `attemptedCount` = `MapConstructibles.addDiscovery` calls the generator made;
  * `placedCount` = calls the engine accepted. `attempted - placed` is the
@@ -109,33 +89,9 @@ export interface DiscoveryPlacementIntent {
  * mod observes counts rather than re-deriving engine ids.
  */
 export interface OfficialDiscoveryGenerationResult {
-  attemptedCount: number;
-  placedCount: number;
+  readonly attemptedCount: number;
+  readonly placedCount: number;
 }
-
-/**
- * Discovery reconciliation result for one planned intent. The adapter can only
- * confirm placement or expose a named rejection, so there is no discovery
- * mismatch state until Civ7 offers richer readback.
- */
-export type DiscoveryPlacementOutcome =
-  | {
-      status: "placed";
-      plotIndex: number;
-      x: number;
-      y: number;
-      discoveryVisualType: number;
-      discoveryActivationType: number;
-    }
-  | {
-      status: "rejected";
-      plotIndex: number;
-      x: number;
-      y: number;
-      discoveryVisualType: number;
-      discoveryActivationType: number;
-      reason: DiscoveryPlacementRejectionReason;
-    };
 
 /**
  * Natural-wonder rejection reasons expose which adapter/materialization
@@ -803,29 +759,6 @@ export interface EngineAdapter {
   ): NaturalWonderPlacementOutcome;
 
   /**
-   * Stamp a discovery deterministically at a specific tile.
-   * Returns true when the placement succeeds.
-   */
-  stampDiscovery(
-    x: number,
-    y: number,
-    discoveryVisualType: number,
-    discoveryActivationType: number
-  ): boolean;
-
-  /**
-   * Materialize one planned discovery intent and report a typed per-tile outcome.
-   * Discovery placement has no stable engine readback equivalent to resources,
-   * so the adapter is the boundary that converts Civ7 acceptance into named
-   * reconciliation evidence.
-   */
-  placeDiscoveryIntent(
-    width: number,
-    height: number,
-    intent: DiscoveryPlacementIntent
-  ): DiscoveryPlacementOutcome;
-
-  /**
    * Run Civ7's official resource generator.
    * Wraps /base-standard/maps/resource-generator.js generateResources().
    *
@@ -845,8 +778,6 @@ export interface EngineAdapter {
    * {@link OfficialDiscoveryGenerationResult}).
    */
   generateOfficialDiscoveries(
-    width: number,
-    height: number,
     startPositions: ReadonlyArray<number>,
     polarMargin: number
   ): OfficialDiscoveryGenerationResult;

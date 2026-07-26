@@ -70,33 +70,3 @@ export type ResourcePlacementOutcome =
       reason: ResourcePlacementMismatchReason;
       observedResourceType: number;
     };
-
-export type DiscoveryPlacementRejectionReason =
-  | "out-of-bounds"
-  | "invalid-discovery-type"
-  | "adapter-rejected";
-
-export interface DiscoveryPlacementIntent {
-  plotIndex: number;
-  discoveryVisualType: number;
-  discoveryActivationType: number;
-}
-
-export type DiscoveryPlacementOutcome =
-  | {
-      status: "placed";
-      plotIndex: number;
-      x: number;
-      y: number;
-      discoveryVisualType: number;
-      discoveryActivationType: number;
-    }
-  | {
-      status: "rejected";
-      plotIndex: number;
-      x: number;
-      y: number;
-      discoveryVisualType: number;
-      discoveryActivationType: number;
-      reason: DiscoveryPlacementRejectionReason;
-    };
