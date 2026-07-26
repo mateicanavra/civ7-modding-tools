@@ -331,6 +331,7 @@ describe("natural wonder placement materialization", () => {
     const evidence = executeNaturalWonderStep(
       adapter,
       oneWonderPlan(featureTypes.FEATURE_REDWOOD_FOREST, anchor, TEST_MAP_SIZE.dimensions, {
+        wondersCount: 2,
         targetCount: 2,
       })
     );
