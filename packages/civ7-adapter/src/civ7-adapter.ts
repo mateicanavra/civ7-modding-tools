@@ -10,7 +10,6 @@
 import {
   CIV7_BROWSER_TABLES_V0,
   getNaturalWonderFootprintIndices,
-  NATURAL_WONDER_CATALOG,
   NO_RESOURCE,
   NO_RIVER_TYPE,
   type OfficialAgeType,
@@ -37,7 +36,6 @@ import type {
   MapInfo,
   MapInitParams,
   MapSizeId,
-  NaturalWonderCatalogEntry,
   NaturalWonderPlacementOutcome,
   OfficialDiscoveryGenerationResult,
   PlotTagName,
@@ -1298,10 +1296,6 @@ export class Civ7Adapter implements EngineAdapter {
 
     this.recordPlacementEffect();
     return { attemptedCount, placedCount };
-  }
-
-  getNaturalWonderCatalog(): NaturalWonderCatalogEntry[] {
-    return NATURAL_WONDER_CATALOG;
   }
 
   generateSnow(width: number, height: number): void {

@@ -73,7 +73,6 @@ const AUTHORED_ENGINE_ADAPTER_METHODS = Object.freeze([
   "placeDiscoveryIntent",
   "generateOfficialResources",
   "generateOfficialDiscoveries",
-  "getNaturalWonderCatalog",
   "generateSnow",
   "assignStartPositions",
   "setStartPosition",

@@ -13,11 +13,6 @@ import type { FeatureData } from "@civ7/types";
 /** Civ7's native feature-placement payload, re-exported for adapter API compatibility. */
 export type { FeatureData } from "@civ7/types";
 
-export interface NaturalWonderCatalogEntry {
-  featureType: number;
-  direction: number;
-}
-
 /**
  * Runtime resource catalog row used to enrich placement telemetry with
  * symbolic resource names. The live adapter reads GameInfo.Resources; the
@@ -832,9 +827,6 @@ export interface EngineAdapter {
     startPositions: ReadonlyArray<number>,
     polarMargin: number
   ): OfficialDiscoveryGenerationResult;
-
-  /** Engine catalog of natural wonder feature definitions. */
-  getNaturalWonderCatalog(): NaturalWonderCatalogEntry[];
 
   /**
    * Generate snow terrain

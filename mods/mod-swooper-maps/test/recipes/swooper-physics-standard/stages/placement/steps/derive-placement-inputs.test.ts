@@ -175,94 +175,6 @@ function createCapturingOps(
 }
 
 describe("derive placement inputs step", () => {
-  it("passes explicit projected natural-wonder direction and current engine identity", () => {
-    const { width, height } = TEST_MAP_SIZE.dimensions;
-    const mapInfo = { ...TEST_MAP_SIZE.mapInfo };
-    const { adapter, context } = createContext({
-      width,
-      height,
-      mapInfo,
-      mapSizeId: TEST_MAP_SIZE.id,
-      defaultTerrainType: 700,
-      defaultBiomeType: 900,
-      naturalWonderCatalog: [{ featureType: featureTypes.FEATURE_KILIMANJARO, direction: -1 }],
-    });
-    adapter.setFeatureType(0, 0, { Feature: 40_000, Direction: -1, Elevation: 0 });
-    let captured: NaturalWonderPlannerInput | undefined;
-    const ops = createCapturingOps((input) => {
-      captured = input;
-    });
-
-    withMapContextExecutionForTest(context, (stepContext) => {
-      publishPlacementInputs(stepContext);
-      DerivePlacementInputsStep.run(
-        stepContext,
-        placementConfig(),
-        ops,
-        buildStepTestDependencies(DerivePlacementInputsStep, stepContext)
-      );
-    });
-
-    expect(captured?.featureCatalog).toHaveLength(1);
-    expect(captured?.featureCatalog?.[0]).toMatchObject({
-      direction: 0,
-      footprintOffsetsByParity: {
-        even: [
-          { dx: 0, dy: 0 },
-          { dx: 0, dy: 1 },
-          { dx: 1, dy: 0 },
-        ],
-        odd: [
-          { dx: 0, dy: 0 },
-          { dx: 1, dy: 1 },
-          { dx: 1, dy: 0 },
-        ],
-      },
-    });
-    expect(captured?.terrainType?.[0]).toBe(700);
-    expect(captured?.biomeType?.[0]).toBe(900);
-    expect(captured?.featureType).toBeInstanceOf(Int32Array);
-    expect(captured?.featureType?.[0]).toBe(40_000);
-  });
-
-  it("keeps recovered four-tile wonders in the catalog with anchor-only footprints", () => {
-    const { width, height } = TEST_MAP_SIZE.dimensions;
-    const mapInfo = { ...TEST_MAP_SIZE.mapInfo };
-    const { context } = createContext({
-      width,
-      height,
-      mapInfo,
-      mapSizeId: TEST_MAP_SIZE.id,
-      defaultTerrainType: terrainTypeIndices.TERRAIN_MOUNTAIN,
-      defaultBiomeType: biomeGlobals.BIOME_PLAINS,
-      naturalWonderCatalog: [{ featureType: featureTypes.FEATURE_BARRIER_REEF, direction: -1 }],
-    });
-    let captured: NaturalWonderPlannerInput | undefined;
-    const ops = createCapturingOps((input) => {
-      captured = input;
-    });
-
-    withMapContextExecutionForTest(context, (stepContext) => {
-      publishPlacementInputs(stepContext);
-      DerivePlacementInputsStep.run(
-        stepContext,
-        placementConfig(),
-        ops,
-        buildStepTestDependencies(DerivePlacementInputsStep, stepContext)
-      );
-    });
-
-    expect(captured?.featureCatalog).toHaveLength(1);
-    expect(captured?.featureCatalog?.[0]).toMatchObject({
-      featureType: featureTypes.FEATURE_BARRIER_REEF,
-      direction: -1,
-      footprintOffsetsByParity: {
-        even: [{ dx: 0, dy: 0 }],
-        odd: [{ dx: 0, dy: 0 }],
-      },
-    });
-  });
-
   it("projects the same typed planning-input measurement produced by the step", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const { context } = createContext({
@@ -272,7 +184,6 @@ describe("derive placement inputs step", () => {
       mapSizeId: TEST_MAP_SIZE.id,
       defaultTerrainType: terrainTypeIndices.TERRAIN_MOUNTAIN,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
-      naturalWonderCatalog: [{ featureType: featureTypes.FEATURE_KILIMANJARO, direction: -1 }],
     });
     const placement = {
       plotIndex: 5,

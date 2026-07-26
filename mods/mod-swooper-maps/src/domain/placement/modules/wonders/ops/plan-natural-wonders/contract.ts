@@ -54,29 +54,45 @@ const PlanNaturalWondersContract = defineOp({
       description:
         "Mask (1/0): tile terrain/placement is protected by static map policy and must not host natural-wonder placement.",
     }),
-    featureCatalog: Type.Array(
-      Type.Object({
-        featureType: Type.Integer({ minimum: 0 }),
-        direction: Type.Integer(),
-        validTerrainTypes: Type.Optional(Type.Array(Type.Integer({ minimum: 0 }))),
-        validBiomeTypes: Type.Optional(Type.Array(Type.Integer({ minimum: 0 }))),
-        minimumElevation: Type.Optional(Type.Number()),
-        noLake: Type.Optional(Type.Boolean()),
-        placeFirst: Type.Optional(Type.Boolean()),
-        placementClass: Type.Optional(Type.String()),
-        naturalWonderTiles: Type.Optional(Type.Integer({ minimum: 1 })),
-        featureTags: Type.Optional(Type.Array(Type.String())),
-        // Parity-keyed footprint offsets (odd-R): the even-row and odd-row offset
-        // lists for this wonder's class/direction. The op applies `(anchorY & 1)`
-        // at the concrete anchor. Computed in derive-placement-inputs via the
-        // map-policy byParity helper; the op stays mapgen-core-only.
-        footprintOffsetsByParity: Type.Optional(
+    featureCatalog: Type.Immutable(
+      Type.Array(
+        Type.ReadonlyObject(
           Type.Object({
-            even: Type.Array(Type.Object({ dx: Type.Integer(), dy: Type.Integer() })),
-            odd: Type.Array(Type.Object({ dx: Type.Integer(), dy: Type.Integer() })),
+            featureType: Type.Integer({ minimum: 0 }),
+            direction: Type.Integer(),
+            validTerrainTypes: Type.Optional(
+              Type.Immutable(Type.Array(Type.Integer({ minimum: 0 })))
+            ),
+            validBiomeTypes: Type.Optional(
+              Type.Immutable(Type.Array(Type.Integer({ minimum: 0 })))
+            ),
+            minimumElevation: Type.Optional(Type.Number()),
+            noLake: Type.Optional(Type.Boolean()),
+            placeFirst: Type.Optional(Type.Boolean()),
+            featureTags: Type.Optional(Type.Immutable(Type.Array(Type.String()))),
+            // Parity-keyed footprint offsets (odd-R): the even-row and odd-row offset
+            // lists for this wonder's class/direction. The op applies `(anchorY & 1)`
+            // at the concrete anchor. Computed in derive-placement-inputs via the
+            // map-policy byParity helper; the op stays mapgen-core-only.
+            footprintOffsetsByParity: Type.Optional(
+              Type.ReadonlyObject(
+                Type.Object({
+                  even: Type.Immutable(
+                    Type.Array(
+                      Type.ReadonlyObject(Type.Object({ dx: Type.Integer(), dy: Type.Integer() }))
+                    )
+                  ),
+                  odd: Type.Immutable(
+                    Type.Array(
+                      Type.ReadonlyObject(Type.Object({ dx: Type.Integer(), dy: Type.Integer() }))
+                    )
+                  ),
+                })
+              )
+            ),
           })
-        ),
-      })
+        )
+      )
     ),
   }),
   output: Type.Object({

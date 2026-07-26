@@ -11,7 +11,6 @@ import {
   getNaturalWonderFootprintIndices,
   hasUnsupportedNaturalWonderPolicyTags,
   isResourceAdjacentToLandRuntimeOptional,
-  NATURAL_WONDER_CATALOG,
   NO_RIVER_TYPE,
   type OfficialAgeType,
   RIVER_TYPE_MINOR,
@@ -34,7 +33,6 @@ import type {
   MapInfo,
   MapInitParams,
   MapSizeId,
-  NaturalWonderCatalogEntry,
   NaturalWonderPlacementOutcome,
   OfficialDiscoveryGenerationResult,
   PlotTagName,
@@ -240,8 +238,6 @@ export const DEFAULT_PLOT_EFFECT_TYPES: MockPlotEffectType[] = [
   { id: 7, name: "PLOTEFFECT_JUNGLE_FEVER", tags: ["JUNGLE", "FEVER", "HAZARD"] },
 ];
 
-const DEFAULT_NATURAL_WONDER_CATALOG: NaturalWonderCatalogEntry[] = NATURAL_WONDER_CATALOG;
-
 const DEFAULT_NO_RESOURCE = ADAPTER_NO_RESOURCE;
 const STANDARD_OCEAN_WATER_COLUMNS = 4;
 
@@ -333,8 +329,6 @@ export interface MockAdapterConfig {
   isResourceRequiredForAge?: (resourceTypeId: number, ageType: OfficialAgeType) => boolean | null;
   /** Sentinel used to represent "no resource". */
   noResourceSentinel?: number;
-  /** Natural wonder feature catalog used by deterministic planners. */
-  naturalWonderCatalog?: NaturalWonderCatalogEntry[];
   /** Plot effect types and tag sets for getPlotEffectTypesContainingTags. */
   plotEffectTypes?: MockPlotEffectType[];
   /**
@@ -387,7 +381,6 @@ export class MockAdapter implements EngineAdapter {
     ageType: OfficialAgeType
   ) => boolean | null;
   private noResourceSentinel: number;
-  private naturalWonderCatalog: NaturalWonderCatalogEntry[];
   private plotEffectTypes: Array<{ id: number; name: string; tags: Set<string> }>;
   private plotEffectsByIndex: Map<number, Set<number>>;
   private readonly effectEvidence = new Set<string>();
@@ -481,12 +474,6 @@ export class MockAdapter implements EngineAdapter {
     this.canHaveFeatureFn = config.canHaveFeature;
     this.canHaveResourceFn = config.canHaveResource;
     this.isResourceRequiredForAgeFn = config.isResourceRequiredForAge;
-    this.naturalWonderCatalog = (config.naturalWonderCatalog ?? DEFAULT_NATURAL_WONDER_CATALOG).map(
-      (entry) => ({
-        featureType: entry.featureType,
-        direction: entry.direction,
-      })
-    );
     this.plotEffectTypes = (config.plotEffectTypes ?? DEFAULT_PLOT_EFFECT_TYPES).map((entry) => ({
       id: entry.id,
       name: entry.name,
@@ -1541,13 +1528,6 @@ export class MockAdapter implements EngineAdapter {
     return placedCount;
   }
 
-  getNaturalWonderCatalog(): NaturalWonderCatalogEntry[] {
-    return this.naturalWonderCatalog.map((entry) => ({
-      featureType: entry.featureType,
-      direction: entry.direction,
-    }));
-  }
-
   generateSnow(width: number, height: number): void {
     this.calls.generateSnow.push({ width, height });
     // Mock: no-op
@@ -1698,14 +1678,6 @@ export class MockAdapter implements EngineAdapter {
     this.canHaveResourceFn = config.canHaveResource ?? this.canHaveResourceFn;
     this.isResourceRequiredForAgeFn =
       config.isResourceRequiredForAge ?? this.isResourceRequiredForAgeFn;
-    this.naturalWonderCatalog = (
-      config.naturalWonderCatalog ??
-      this.naturalWonderCatalog ??
-      DEFAULT_NATURAL_WONDER_CATALOG
-    ).map((entry) => ({
-      featureType: entry.featureType,
-      direction: entry.direction,
-    }));
     this.plotEffectTypes = (config.plotEffectTypes ?? DEFAULT_PLOT_EFFECT_TYPES).map((entry) => ({
       id: entry.id,
       name: entry.name,

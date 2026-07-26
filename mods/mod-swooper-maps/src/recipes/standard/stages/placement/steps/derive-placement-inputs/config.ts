@@ -20,7 +20,6 @@ export const config = defineStep({
   engine: [
     "getMapSizeId",
     "lookupMapInfo",
-    "getNaturalWonderCatalog",
     "getTerrainType",
     "getBiomeType",
     "getFeatureType",

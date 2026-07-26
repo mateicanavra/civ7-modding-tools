@@ -4,7 +4,10 @@ export {
   CIV7_MARINE_BIOME_GLOBAL,
   type Civ7BiomeGlobal,
 } from "./biome-globals.js";
-export { isSupportedNaturalWonder, NATURAL_WONDER_CATALOG } from "./catalogs/natural-wonders.js";
+export {
+  buildNaturalWonderBlockedMask,
+  NATURAL_WONDER_CATALOG,
+} from "./catalogs/natural-wonders.js";
 export type {
   Civ7BrowserTablesV0,
   Civ7MapResourceMinimumAmountModifierRowV1,

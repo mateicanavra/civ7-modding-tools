@@ -1,10 +1,9 @@
 import type { MapInfo } from "@civ7/adapter";
 import {
+  buildNaturalWonderBlockedMask,
   CIV7_BROWSER_TABLES_V0,
-  getNaturalWonderFootprintOffsetsByParity,
-  type NaturalWonderCatalogEntry,
+  NATURAL_WONDER_CATALOG,
   NO_FEATURE_TYPE,
-  resolveNaturalWonderMaterializationDirection,
 } from "@civ7/map-policy";
 import placement from "@mapgen/domain/placement";
 import type { MapContext } from "@swooper/mapgen-core";
@@ -66,7 +65,6 @@ type PlacementPhysicalInputs = {
 
 type PlacementInputEngineEvidence = Readonly<{
   mapInfo: MapInfo;
-  naturalWonderCatalog: readonly NaturalWonderCatalogEntry[];
   currentPlacementTypes: CurrentEnginePlacementTypes;
 }>;
 
@@ -75,45 +73,6 @@ type PlacementInputsBuildResult = {
   plannerInput: StandardNaturalWonderPlannerInput;
   strategySelection: PlanNaturalWondersStrategySelection;
 };
-
-const FEATURE_VALID_TERRAIN_TYPE_INDICES =
-  CIV7_BROWSER_TABLES_V0.featureValidTerrainTypeIndices as Record<
-    string,
-    readonly number[] | undefined
-  >;
-const FEATURE_VALID_BIOME_TYPE_INDICES =
-  CIV7_BROWSER_TABLES_V0.featureValidBiomeTypeIndices as Record<
-    string,
-    readonly number[] | undefined
-  >;
-const FEATURE_POLICIES = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
-  string,
-  | {
-      noLake: boolean;
-      minimumElevation?: number;
-      placementClass?: string;
-      naturalWonderTiles?: number;
-      naturalWonderDirection?: number;
-      naturalWonderPlaceFirst?: boolean;
-    }
-  | undefined
->;
-const FEATURE_TAGS_BY_FEATURE_TYPE = CIV7_BROWSER_TABLES_V0.featureTagsByFeatureType as Record<
-  string,
-  readonly string[] | undefined
->;
-
-function buildNaturalWonderBlockedMask(width: number, height: number): Uint8Array {
-  const mask = new Uint8Array(width * height);
-  const polarWaterRows = Math.max(0, CIV7_BROWSER_TABLES_V0.mapGlobals.polarWaterRows | 0);
-  if (polarWaterRows === 0) return mask;
-  for (let y = 0; y < height; y++) {
-    if (y >= polarWaterRows && y < height - polarWaterRows) continue;
-    const rowStart = y * width;
-    mask.fill(1, rowStart, rowStart + width);
-  }
-  return mask;
-}
 
 /**
  * Admits immutable physical products, current Civ7 identity surfaces, and
@@ -127,42 +86,9 @@ function buildPlacementInputs(
   physical: PlacementPhysicalInputs,
   engineEvidence: PlacementInputEngineEvidence
 ): PlacementInputsBuildResult {
-  const { mapInfo, naturalWonderCatalog, currentPlacementTypes } = engineEvidence;
+  const { mapInfo, currentPlacementTypes } = engineEvidence;
   const { width, height } = context.setup.dimensions;
   const wondersPlan = ops.wonders({ mapInfo }, stepConfig.wonders);
-  const featureCatalog = naturalWonderCatalog.flatMap((entry) => {
-    const featureType = entry.featureType | 0;
-    const policy = FEATURE_POLICIES[String(featureType)];
-    const materializationDirection = resolveNaturalWonderMaterializationDirection(
-      policy,
-      entry.direction | 0
-    );
-    const footprintOffsetsByParity = getNaturalWonderFootprintOffsetsByParity(
-      policy,
-      materializationDirection
-    );
-    if (!footprintOffsetsByParity) return [];
-    return [
-      {
-        featureType,
-        direction: materializationDirection,
-        validTerrainTypes: [...(FEATURE_VALID_TERRAIN_TYPE_INDICES[String(featureType)] ?? [])],
-        validBiomeTypes: [...(FEATURE_VALID_BIOME_TYPE_INDICES[String(featureType)] ?? [])],
-        ...(policy?.minimumElevation !== undefined
-          ? { minimumElevation: policy.minimumElevation }
-          : {}),
-        ...(policy?.noLake ? { noLake: true } : {}),
-        ...(policy?.naturalWonderPlaceFirst ? { placeFirst: true } : {}),
-        ...(policy?.placementClass ? { placementClass: policy.placementClass } : {}),
-        ...(policy?.naturalWonderTiles ? { naturalWonderTiles: policy.naturalWonderTiles } : {}),
-        featureTags: [...(FEATURE_TAGS_BY_FEATURE_TYPE[String(featureType)] ?? [])],
-        footprintOffsetsByParity: {
-          even: [...footprintOffsetsByParity.even],
-          odd: [...footprintOffsetsByParity.odd],
-        },
-      },
-    ];
-  });
   const { terrainType, biomeType, featureType } = currentPlacementTypes;
   const naturalWonderBlockedMask = buildNaturalWonderBlockedMask(width, height);
   const plannerInput = {
@@ -188,7 +114,7 @@ function buildPlacementInputs(
     featureType,
     noFeatureType: NO_FEATURE_TYPE,
     naturalWonderBlockedMask,
-    featureCatalog,
+    featureCatalog: NATURAL_WONDER_CATALOG,
   } satisfies StandardNaturalWonderPlannerInput;
   const strategySelection = stepConfig.naturalWonders;
   const naturalWonderPlan = ops.naturalWonders(plannerInput, strategySelection);
@@ -246,7 +172,6 @@ export const DerivePlacementInputsStep = createStep(config, {
       physical,
       {
         mapInfo,
-        naturalWonderCatalog: deps.engine.getNaturalWonderCatalog(context),
         currentPlacementTypes: captureEnginePlacementTypes(context.setup.dimensions, {
           getTerrainType: (x, y) => deps.engine.getTerrainType(context, x, y),
           getBiomeType: (x, y) => deps.engine.getBiomeType(context, x, y),
