@@ -146,5 +146,5 @@ Domain contract references:
 
 - Standard recipe composition: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
 - Example stage schema/knobs posture: `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/mantle/index.ts`
-- Stage authoring contract: `packages/mapgen-core/src/authoring/stage.ts`
+- Stage authoring contract: `packages/mapgen-core/src/authoring/stage/create.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`

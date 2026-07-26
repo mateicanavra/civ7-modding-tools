@@ -46,10 +46,18 @@ MapGenPublic.PipelineExecutor;
 MapGenPublic.StepRegistry;
 // @ts-expect-error Mutable dependency-tag registration is private to recipe composition.
 MapGenPublic.TagRegistry;
+// @ts-expect-error Steps bind operation contracts directly; the retired op-reference wrapper is absent.
+MapGenAuthoring.opRef;
 
 // @ts-expect-error Production trace lifecycle types remain private to the executor.
 type PublicTraceSession = MapGenTrace.TraceSession;
+// @ts-expect-error The retired op-reference wrapper type is not part of public authorship.
+type PublicOpRef = MapGenAuthoring.OpRef;
+// @ts-expect-error Strategy definitions and descriptors supersede the unused declaration-only shape.
+type PublicOpStrategy = MapGenAuthoring.OpStrategy;
 
 void (undefined as unknown as PublicTraceSession);
+void (undefined as unknown as PublicOpRef);
+void (undefined as unknown as PublicOpStrategy);
 void (undefined as unknown as PublicStepFacetSinks);
 void (undefined as unknown as PublicStepFacetFailure);

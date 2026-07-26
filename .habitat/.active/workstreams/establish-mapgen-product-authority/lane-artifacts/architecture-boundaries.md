@@ -65,7 +65,7 @@ Authority and policy:
 
 Representative source anchors:
 
-- `packages/mapgen-core/src/authoring/stage.ts`
+- `packages/mapgen-core/src/authoring/stage/create.ts`
 - `packages/mapgen-core/src/compiler/recipe-compile.ts`
 - `packages/mapgen-core/src/engine/PipelineExecutor.ts`
 - `packages/civ7-adapter/src/types.ts`
@@ -157,7 +157,7 @@ Non-owner claims:
 
 Constructibility:
 
-- `packages/mapgen-core/src/authoring/stage.ts` implements the default flat
+- `packages/mapgen-core/src/authoring/stage/create.ts` implements the default flat
   stage surface `{ knobs?, [stepId]?: stepConfig }` when no public transform is
   declared, and semantic public+compile stages when a real transform exists.
 - `packages/mapgen-core/src/compiler/recipe-compile.ts` validates strict

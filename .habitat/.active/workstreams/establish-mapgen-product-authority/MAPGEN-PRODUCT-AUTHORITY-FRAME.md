@@ -151,7 +151,7 @@ Sources:
 
 - `docs/projects/engine-refactor-v1/architecture-normalization-packet.md`
 - `docs/projects/engine-refactor-v1/resources/spec/adr/adr-er1-035-config-normalization-and-derived-defaults.md`
-- `packages/mapgen-core/src/authoring/stage.ts`
+- `packages/mapgen-core/src/authoring/stage/create.ts`
 - `packages/mapgen-core/src/compiler/recipe-compile.ts`
 
 Layer 2 consequence:
@@ -252,9 +252,9 @@ Source evidence:
 
 - `packages/mapgen-core/src/authoring/artifact/**`
 - `packages/mapgen-core/src/authoring/step/contract.ts`
-- `packages/mapgen-core/src/authoring/stage.ts`
-- `packages/mapgen-core/src/authoring/domain.ts`
-- `packages/mapgen-core/src/authoring/op/**`
+- `packages/mapgen-core/src/authoring/stage/**`
+- `packages/mapgen-core/src/authoring/domain/**`
+- `packages/mapgen-core/src/authoring/operation/**`
 - `packages/mapgen-core/src/compiler/recipe-compile.ts`
 - `packages/mapgen-core/src/engine/tags.ts`
 - `packages/mapgen-core/src/engine/PipelineExecutor.ts`
@@ -400,7 +400,7 @@ general artifact model.
 Constructible evidence:
 
 - `packages/mapgen-core/src/authoring/step/contract.ts`
-- `packages/mapgen-core/src/authoring/types.ts`
+- `packages/mapgen-core/src/authoring/step/types.ts`
 
 Claim:
 
@@ -412,7 +412,7 @@ building, and bounded orchestration.
 
 Constructible evidence:
 
-- `packages/mapgen-core/src/authoring/stage.ts`
+- `packages/mapgen-core/src/authoring/stage/create.ts`
 - `packages/mapgen-core/src/compiler/recipe-compile.ts`
 
 Claim:
@@ -427,7 +427,7 @@ Constructible evidence:
 
 - `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
 - `mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts`
-- `packages/mapgen-core/src/authoring/recipe.ts`
+- `packages/mapgen-core/src/authoring/recipe/create.ts`
 
 Claim:
 
@@ -460,10 +460,10 @@ tag-family and owner validation.
 
 Constructible evidence:
 
-- `packages/mapgen-core/src/authoring/domain.ts`
-- `packages/mapgen-core/src/authoring/op/**`
-- `packages/mapgen-core/src/authoring/bindings.ts`
-- `mods/mod-swooper-maps/src/domain/*/ops/**`
+- `packages/mapgen-core/src/authoring/domain/**`
+- `packages/mapgen-core/src/authoring/operation/**`
+- `packages/mapgen-core/src/authoring/operation/bindings.ts`
+- `mods/mod-swooper-maps/src/domain/**/ops/**`
 
 Claim:
 
@@ -628,10 +628,10 @@ Engine-refactor specification evidence:
 Constructibility anchors:
 
 - `packages/mapgen-core/src/authoring/artifact/**`
-- `packages/mapgen-core/src/authoring/stage.ts`
+- `packages/mapgen-core/src/authoring/stage/**`
 - `packages/mapgen-core/src/authoring/step/contract.ts`
-- `packages/mapgen-core/src/authoring/domain.ts`
-- `packages/mapgen-core/src/authoring/op/**`
+- `packages/mapgen-core/src/authoring/domain/**`
+- `packages/mapgen-core/src/authoring/operation/**`
 - `packages/mapgen-core/src/compiler/recipe-compile.ts`
 - `packages/mapgen-core/src/engine/tags.ts`
 - `packages/mapgen-core/src/engine/PipelineExecutor.ts`

@@ -23,11 +23,11 @@ export type {
   DomainContractAny,
   DomainSubdomainContract,
   DomainSubdomainContractAny,
-} from "./domain.js";
-export { defineDomain, defineDomainSubdomain } from "./domain.js";
-export { defineOp } from "./op/contract.js";
-export type { StrategyDefinition } from "./op/strategy-definition.js";
-export { defineStrategy } from "./op/strategy-definition.js";
-export type { OpTypeBagOf } from "./op/types.js";
+} from "./domain/contract.js";
+export { defineDomain, defineDomainSubdomain } from "./domain/contract.js";
+export { defineOp } from "./operation/contract.js";
+export type { StrategyDefinition } from "./operation/strategy-definition.js";
+export { defineStrategy } from "./operation/strategy-definition.js";
+export type { OpTypeBagOf } from "./operation/types.js";
+export { TypedArraySchemas } from "./schema/typed-array.js";
 export { defineStep } from "./step/contract.js";
-export { TypedArraySchemas } from "./typed-array-schemas.js";

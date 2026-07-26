@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { buildOpEnvelopeSchema } from "@mapgen/authoring/op/envelope.js";
-import { defineStrategy } from "@mapgen/authoring/op/strategy-definition.js";
+import { buildOpEnvelopeSchema } from "@mapgen/authoring/operation/envelope.js";
+import { defineStrategy } from "@mapgen/authoring/operation/strategy-definition.js";
 import { Type } from "typebox";
 import { Value } from "typebox/value";
 
@@ -58,6 +58,19 @@ describe("op envelope defaults", () => {
       config: { nested: { count: 3 } },
     });
     expect(Value.Check(result.schema, result.defaultConfig)).toBe(true);
+    expect(result.schema).toMatchObject({
+      description: 'Strategy selection for operation "test/ordered-strategies".',
+      anyOf: [
+        {
+          description:
+            'Configuration for the "first" strategy of operation "test/ordered-strategies".',
+        },
+        {
+          description:
+            'Configuration for the "selected" strategy of operation "test/ordered-strategies".',
+        },
+      ],
+    });
   });
 
   it("creates required nested strategy objects without structural defaults", () => {

@@ -205,8 +205,17 @@ describe("authoring: hello recipe compile/execute", () => {
     const configSchema = Type.Object(
       {
         foundation: Type.Object(
-          { knobs: EmptyKnobsSchema, "use-op": stepContract.schema },
-          { additionalProperties: false }
+          {
+            knobs: EmptyKnobsSchema,
+            "use-op": Type.With(stepContract.schema, {
+              description:
+                'Author-facing configuration for the "use-op" step in the "foundation" recipe stage.',
+            }),
+          },
+          {
+            additionalProperties: false,
+            description: 'Author-facing configuration for the "foundation" recipe stage.',
+          }
         ),
       },
       { additionalProperties: false }

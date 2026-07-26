@@ -72,8 +72,8 @@ Use sources in this order:
 1. **This packet** for current normalization decisions and sequencing.
 2. **Current code** as implementation evidence, especially:
    - `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
-   - `packages/mapgen-core/src/authoring/stage.ts`
-   - `packages/mapgen-core/src/authoring/recipe.ts`
+   - `packages/mapgen-core/src/authoring/stage/create.ts`
+   - `packages/mapgen-core/src/authoring/recipe/create.ts`
    - `packages/mapgen-core/src/engine/PipelineExecutor.ts`
 3. **Canonical MapGen and Swooper docs** for standing architecture:
    - `docs/system/libs/mapgen/MAPGEN.md`

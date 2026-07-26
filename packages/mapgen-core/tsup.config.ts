@@ -8,7 +8,7 @@ export default defineConfig({
     "src/authoring/index.ts",
     "src/authoring/contracts.ts",
     "src/authoring/schema/index.ts",
-    "src/authoring/recipe-dag.ts",
+    "src/authoring/recipe/dag.ts",
     "src/compiler/normalize.ts",
     "src/trace/index.ts",
     "src/testing/index.ts",

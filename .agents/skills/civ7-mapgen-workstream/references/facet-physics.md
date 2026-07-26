@@ -26,7 +26,7 @@ Behavioral realism is tuned or swapped at the **op / strategy** layer. An op (`d
 2. **Swap strategy** — select a different existing key (e.g. precipitation `refine` instead of `vector`; atmospheric circulation `latitude` instead of `geostrophic-proxy`). Selection happens in exactly one of three places — see below.
 3. **Add a strategy** — author a new physical model as a new strategy key on the op, leaving the old one intact. The full add-a-strategy recipe (contract + `strategies/<id>.ts` + `createOp` binding + activation) is in `assets/recipe-scaffolds.md`. This is the preferred shape for a genuinely new physical model: it is reversible and A/B-testable against the incumbent.
 
-**Where a strategy is selected** (the three control points — verified in `packages/mapgen-core/src/authoring/op/create.ts` runtime dispatch `runtimeStrategies[cfg.strategy].run(...)`):
+**Where a strategy is selected** (the three control points — verified in `packages/mapgen-core/src/authoring/operation/create.ts` runtime dispatch `runtimeStrategies[cfg.strategy].run(...)`):
 - **(a)** a public stage's `compile()` hard-codes the literal, e.g. hydrology-climate-refine sets `computePrecipitation: { strategy: "refine", config: ... }`;
 - **(b)** a step contract's `StepOpUse.defaultStrategy` changes the schema default (what you get when the envelope is omitted), e.g. `climate-refine/config.ts` declares `defaultStrategy: "refine"`;
 - **(c)** the op envelope authored directly in an internal (non-public) stage's step config in the map `.config.json`.

@@ -74,6 +74,8 @@ Think of MapGen as these layers:
 - Occurrence-scoped authority covers declared artifact access, exact engine methods, deterministic
   random helpers, step trace events, and effect-satisfaction evidence. The executor retains the raw
   adapter privately; each step receives only the engine methods named by its frozen contract.
+- Authoring factories detach caller-owned contract graphs and capture tuple/map declarations through
+  data descriptors, so admission never invokes accessors or retains mutable container structure.
 - Studio owns UX and run boundary; it must not require SDK internals beyond stable surfaces.
 
 ## Anti-goals
@@ -85,6 +87,7 @@ Think of MapGen as these layers:
 ## Ground truth anchors
 
 - Step + stage + recipe authoring surfaces: `packages/mapgen-core/src/authoring/index.ts`
+- Authoring caller-data and contract-graph snapshotting: `packages/mapgen-core/src/authoring/snapshot/`
 - Config compilation: `packages/mapgen-core/src/compiler/recipe-compile.ts`
 - Execution plan schema + compilation hooks: `packages/mapgen-core/src/engine/execution-plan.ts`
 - Pipeline executor (tag gating + trace scoping): `packages/mapgen-core/src/engine/PipelineExecutor.ts`

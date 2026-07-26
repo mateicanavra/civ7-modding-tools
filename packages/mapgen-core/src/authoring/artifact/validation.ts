@@ -6,7 +6,7 @@ import {
   isTypedArrayOf,
   type SupportedTypedArray,
   type TypedArrayConstructor,
-} from "../typed-arrays.js";
+} from "../schema/typed-array.js";
 
 /** One stable, human-readable artifact admission failure. */
 export type ArtifactValidationIssue = Readonly<{ message: string }>;

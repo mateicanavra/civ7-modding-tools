@@ -1,9 +1,10 @@
 import type { TSchema } from "typebox";
 import { Value } from "typebox/value";
 
-import type { DomainOpCompileAny } from "../authoring/bindings.js";
+import type { CompileOpsById } from "../authoring/operation/bindings.js";
+import type { CompiledRecipeConfigOf, RecipePublicConfigOf } from "../authoring/recipe/types.js";
+import { RESERVED_STAGE_KEY } from "../authoring/stage/reserved-key.js";
 import type { StepOpsDecl } from "../authoring/step/ops.js";
-import type { CompiledRecipeConfigOf, RecipePublicConfigOf } from "../authoring/types.js";
 import { admitMapSetup, type MapSetup, type MapSetupInput } from "../core/map-setup.js";
 import type { NormalizeContext } from "../engine/types.js";
 import { type CompileErrorItem, RecipeCompileError } from "./errors.js";
@@ -16,8 +17,6 @@ import {
 
 export type { CompileErrorCode, CompileErrorItem } from "./errors.js";
 export { RecipeCompileError } from "./errors.js";
-
-export type CompileOpsById = Readonly<Record<string, DomainOpCompileAny>>;
 
 export type StepContractAny = Readonly<{
   id: string;
@@ -41,8 +40,6 @@ export type StageContractAny = Readonly<{
   toInternal: (args: { setup: MapSetup; stageConfig: unknown }) => StageToInternalResult;
   steps: readonly StepModuleAny[];
 }>;
-
-const RESERVED_STAGE_KEY = "knobs";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);

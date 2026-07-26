@@ -22,8 +22,8 @@
       "import": "./dist/authoring/index.js"
     },
     "./authoring/recipe-dag": {
-      "types": "./dist/authoring/recipe-dag.d.ts",
-      "import": "./dist/authoring/recipe-dag.js"
+      "types": "./dist/authoring/recipe/dag.d.ts",
+      "import": "./dist/authoring/recipe/dag.js"
     },
     "./authoring/contracts": {
       "types": "./dist/authoring/contracts.d.ts",

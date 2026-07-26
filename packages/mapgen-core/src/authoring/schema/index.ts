@@ -5,4 +5,4 @@ export type { Static, TObject, TSchema } from "typebox";
 export { Type } from "typebox";
 
 /** Typed-array schema builders with MapGen cardinality annotations. */
-export { TypedArraySchemas } from "../typed-array-schemas.js";
+export { TypedArraySchemas } from "./typed-array.js";

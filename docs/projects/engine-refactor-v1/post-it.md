@@ -2,52 +2,29 @@
 
 ## Rolling Focus
 
-**Frame:** authority before instance. Define each reusable kind as a small,
-positive, generic law; make the current tree red against that law; then perform
-the mechanical burn-down. Physical source moves are violation evidence until
-their destination kind is sealed.
+**Frame:** intent before test mechanics. A test earns its place by proving
+behavior that its named owner can change; SDK admission guarantees stay with
+the SDK, product targets stay with metrics studies, and exact operation,
+artifact, policy, module, and cross-module behaviors descend to those owners.
+Relocation follows classification, and deletion wins over a more elegant home
+for the wrong test category.
 
-**Authority order:** behavioral intent -> ownership -> boundary -> blueprint
-law -> source conformance -> verification. A niche may refine a kind but may not
-recreate, weaken, or hardcode its membership.
+**Authority order:** production behavior -> existing guarantee -> narrowest
+semantic owner -> test fixture -> recursive test topology -> verification.
+Positive structure closes each admitted test kind after the corpus expresses
+that model; source-to-test allowlists and generic `runtime`, `operations`,
+`recipe`, `support`, or `testing` cabinets remain forbidden.
 
-**Current container:** Hydrology's module hierarchy, module policy boundary,
-closed module contract surfaces, and the strategy-authoring scaffolds are
-sealed. The mod-local test setup authority is also sealed: one switchable Civ7
-preset, one map-seed
-default, and one deliberately distinct game-seed default for tests whose
-subject is not size or seed. Morphology's semantic production hierarchy and
-immutable topography vintages are sealed; active attention is cashing that
-ownership into the physical test corpus at domain, module, operation, and
-artifact levels.
-Operation-local `rngSeed` remains derived entropy rather than setup identity,
-and production `MapSetup` does not pretend to carry game seed before the
-initial-setup authority layer actually admits it. Operation envelopes, named
-typed-array cardinality, and strategy authorship remain sealed as positive
-kinds. Every semantic strategy owns
-`strategies/<semantic-id>/{config.ts,index.ts}`; the operation contract remains
-the sole shared input/output authority; one strategy is necessarily the default
-and multiple strategies name their default explicitly. Core's obsolete
-schema-map, string-id, and implementation-map compatibility paths are deleted.
-Each module's paired `ops/contract.ts` and `ops/index.ts` is an intentional
-declaration/runtime phase boundary: contract composition never imports runtime
-implementations, while the implementation registry is typed exactly against
-the singular contract registry. Tests mirror semantic ownership: domain-wide
-behavior stays at the domain level and module/operation behavior descends to
-its actual module concern, never a generic operations cabinet.
-Ecology is sealed as semantic modules for pedology, biomes, features, and plot
-effects. Hydrology is sealed as climate, ocean, cryosphere, and hydrography
-modules. Engine-constrained river materialization belongs to map-rivers rather
-than a counterfeit fifth domain module; aggregate river measurements belong to
-the Standard metrics facet rather than pipeline state. Climate algorithms and
-their advisory observation operation share module-owned physical rules, artifact
-publication returns the exact admitted evidence consumed by facets, and river
-classification follows admitted lake intent under its truthful operation
-identity. The existing generic domain and module blueprints define this
-destination: the domain root composes module contracts and routers, each
-operation and immutable product lives with its lowest rightful module, and
-vocabulary rises to the root model only when multiple modules prove the edge.
-No domain enumeration or niche-shaped substitute is admitted.
+**Current container:** first restore one executable Studio/MapGen test identity:
+Studio consumes the Nx-built MapGen package rather than mixing source aliases
+with bundled consumers, Core-generated stage and operation schemas carry their
+own contextual metadata, and stale visualization expectations follow current
+product layer identities. Then cash the recursive domain-test topology into
+Ecology, Hydrology, Foundation, Placement, and Resources in separate Graphite
+layers. Domain roots retain only cross-module behavior; module roots retain
+cross-operation behavior; exact behavior lives with the owning operation,
+artifact, or policy. Recipe-level product outcomes remain recipe-owned metrics
+targets or studies.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -55,44 +32,16 @@ state is adapter observation; metrics, diagnostics, trace, and visualization
 are separate capabilities. Core owns the generic authoring/execution and
 domain-composition SDK, not Swooper's domain model.
 
-**Gradient:** mirror Morphology's sealed module partition in its tests. Keep
-only genuinely cross-module behavior at the domain root; descend module,
-operation, and artifact behavior to the matching owner; delete assertions that
-merely restate Core admission or primitive guarantees. Use the shared Civ7 map
-preset and test seeds wherever size and seed are incidental, while preserving
-explicit size/seed experiments as such. The sealed generic domain-test kind
-owns the recursive physical shape; semantic review proves that each directory
-names a real owner without a Morphology-specific path list or source-to-test
-allowlist.
-Placement waits for its protected user edit. Prove each domain through the
-native Nx graph and focused kind owners before its semantic commit.
-After the mechanical kinds are homogeneous, semantically recompose
-`packages/mapgen-core/src/authoring` so its hierarchy truthfully expresses the
-authoring SDK's concepts, ownership, dependency direction, and public surfaces;
-use niche enforcement only after that package-specific model is clear rather
-than inventing a generic library law. Then normalize repeated module/domain
-schema parts into small model atoms, admitting a cohesive model entity only
-when it has independent domain meaning rather than because two containers share
-a complete shape. This begins only after Core can express composition-safe
-local cardinality relations; a model atom must not bake in one consumer's
-root-relative path, weaken admission, or become a parameterized schema helper.
-The structural atom kind and human semantic review own that judgment; no broad
-duplicate-property scanner guesses identity from repeated field names. Collapse
-artifact authoring to one weighted definition, then
-reopen the domain, artifact, and pipeline graph as one design question. A
-subdomain remains a semantic router: operations expose swappable strategies,
-and strategies compose the module's rules, policy, and atoms through transparent
-dependencies. These structural corpora must settle before reopening
-operation-to-artifact or other pipeline relationship design.
-For every structural kind, `required` names only the fixed spine, `allowed`
-names optional or generative members, and `closed` rejects everything else.
-Relocate one semantic module at a time, hoisting vocabulary only when a real
-cross-module edge proves it shared. Then drain the remaining recipe artifacts
-into adapter observation, domain products, or metrics/diagnostics evidence.
-Retire a niche rule after a named generic or typed owner proves a live
-invariant, or when the current positive shape makes its historical subject
-nonexistent. The program ends only when generic laws, source tree, types,
-tests, Knip, and the boundary graph agree.
+**Gradient:** for each family, inventory by intent, identify the already-owned
+guarantee, delete duplicate schema/admission/cardinality proofs, split mixed
+tests, move surviving behavior to the narrowest causal owner, replace incidental
+dimensions and seeds with shared Civ7 presets, then run the full mod test owner
+and focused Habitat laws. Preserve synthetic geometry only where geometry is
+the subject. After the corpus is truthful, add only the smallest generic
+positive ratchet the repeated shape earns. Knip and JSDoc burn-down follow
+physical ownership so dead code is deleted before prose is repaired. The
+program ends only when generic laws, source tree, types, tests, Knip, and the
+boundary graph agree.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -116,6 +65,24 @@ Core ownership of domain meaning.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-24 - Authoring SDK Grammar
+
+MapGen Core's authored language was recomposed around `artifact`, `domain`,
+`operation`, `recipe`, `schema`, `snapshot`, `stage`, and `step`, leaving only
+the public root facades. A small package-specific positive law turned legacy
+flat helpers into migration inventory. Each owner was moved and sealed without
+changing published specifiers; dead schema, strategy, and sanitization surfaces
+retired instead of being carried forward.
+
+### 2026-07-24 - Morphology Test Ownership
+
+Morphology's production hierarchy and immutable topography vintages were
+cashed into the test corpus: domain-wide behavior stayed at the domain root,
+module and operation behavior descended to its real owner, semantic artifact
+admission kept its own directory, and duplicate Core-guarantee assertions were
+deleted. Incidental dimensions and seeds use the shared Civ7 test setup while
+explicit size, seed, and local-topology experiments remain visible exceptions.
 
 ### 2026-07-22 - Domain Aggregate Ownership
 

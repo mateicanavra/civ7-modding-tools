@@ -34,6 +34,25 @@ export {
   readValidatedArtifact,
 } from "./artifact/index.js";
 export type {
+  DomainAggregateContract,
+  DomainAggregateContractAny,
+  DomainContract,
+  DomainContractAny,
+  DomainModule,
+  DomainOpImplementationsForContracts,
+  DomainRouter,
+  DomainSubdomainContract,
+  DomainSubdomainContractAny,
+  DomainSubdomainRouter,
+} from "./domain/index.js";
+export {
+  createDomain,
+  createDomainRouter,
+  createDomainSubdomainRouter,
+  defineDomain,
+  defineDomainSubdomain,
+} from "./domain/index.js";
+export type {
   DomainCompileRoot,
   DomainOpCompileAny,
   DomainOpRuntime,
@@ -42,28 +61,8 @@ export type {
   DomainOpsSurface,
   OpId,
   OpsById,
-} from "./bindings.js";
-export { collectCompileOps, runtimeOp } from "./bindings.js";
-export type {
-  DomainAggregateContract,
-  DomainAggregateContractAny,
-  DomainContract,
-  DomainContractAny,
-  DomainSubdomainContract,
-  DomainSubdomainContractAny,
-} from "./domain.js";
-export { defineDomain, defineDomainSubdomain } from "./domain.js";
-export type {
-  DomainModule,
-  DomainOpImplementationsForContracts,
-  DomainRouter,
-  DomainSubdomainRouter,
-} from "./domain-router.js";
-export {
-  createDomain,
-  createDomainRouter,
-  createDomainSubdomainRouter,
-} from "./domain-router.js";
+} from "./operation/bindings.js";
+export { collectCompileOps, runtimeOp } from "./operation/bindings.js";
 export type {
   AdmittedBuffer,
   AdmittedOperationInput,
@@ -73,8 +72,6 @@ export type {
   OpContract,
   OpContractLike,
   OperationInputAdmissionIssue,
-  OpRef,
-  OpStrategy,
   OpStrategyId,
   OpTypeBag,
   OpTypeBagOf,
@@ -84,19 +81,18 @@ export type {
   StrategyImpl,
   StrategyImplFor,
   StrategySelection,
-} from "./op/index.js";
+} from "./operation/index.js";
 export {
   createOp,
   createStrategy,
   defineOp,
   defineStrategy,
   OperationInputAdmissionError,
-  opRef,
-} from "./op/index.js";
-export { createRecipe } from "./recipe.js";
-export { deriveRecipeConfigSchema } from "./recipe-config-schema.js";
+} from "./operation/index.js";
 export type {
   BuildRecipeDagInput,
+  CompiledRecipeConfigOf,
+  RecipeConfig,
   RecipeDag,
   RecipeDagArtifactRef,
   RecipeDagDiagnostic,
@@ -106,20 +102,11 @@ export type {
   RecipeDagStageInput,
   RecipeDagStep,
   RecipeDagStepContractInput,
-} from "./recipe-dag.js";
-export { buildRecipeDag } from "./recipe-dag.js";
-export { stripSchemaMetadataRoot } from "./sanitize-config-root.js";
-export { createStage, deriveStageAuthoringModel } from "./stage.js";
-export { assertStageId, StageIdSchema } from "./stage-id.js";
-export type {
-  OpContractAny,
-  StepContract,
-  StepEngineDecl,
-  StepOpsDecl,
-  StepRuntimeOps,
-} from "./step/index.js";
-export { createStep, defineStep } from "./step/index.js";
-export { TypedArraySchemas } from "./typed-array-schemas.js";
+  RecipeDefinition,
+  RecipeModule,
+  RecipePublicConfigOf,
+} from "./recipe/index.js";
+export { buildRecipeDag, createRecipe, deriveRecipeConfigSchema } from "./recipe/index.js";
 export {
   assertFloat32Array,
   assertInt8Array,
@@ -137,21 +124,30 @@ export {
   isUint8Array,
   isUint16Array,
   isUint32Array,
-} from "./typed-arrays.js";
+  TypedArraySchemas,
+} from "./schema/typed-array.js";
 export type {
-  CompiledRecipeConfigOf,
-  RecipeConfig,
-  RecipeDefinition,
-  RecipeModule,
-  RecipePublicConfigOf,
-  Stage,
   StageAuthoringConfigLayer,
   StageAuthoringModel,
   StageAuthoringRuntimeStep,
-  StageContractAny,
-  StageModule,
   StageObservation,
+} from "./stage/index.js";
+export {
+  assertStageId,
+  createStage,
+  deriveStageAuthoringModel,
+  StageIdSchema,
+} from "./stage/index.js";
+export type {
+  OpContractAny,
+  StepContract,
+  StepEngineDecl,
+  StepOpsDecl,
+  StepRuntimeOps,
+} from "./step/index.js";
+export { createStep, defineStep } from "./step/index.js";
+export type {
   Step,
   StepDeps,
   StepModule,
-} from "./types.js";
+} from "./step/types.js";

@@ -1,4 +1,4 @@
-import { assertStageId } from "@mapgen/authoring/stage-id.js";
+import { assertStageId } from "@mapgen/authoring/stage/identity.js";
 import type { MapContext } from "@mapgen/core/map-context.js";
 import { DuplicateStepError, UnknownStepError } from "@mapgen/engine/errors.js";
 import {

@@ -19,7 +19,7 @@ const importSpecifierPattern =
 
 function resolveLocalImport(fromFile: string, specifier: string): string | null {
   if (specifier === "@swooper/mapgen-core/authoring/recipe-dag") {
-    return resolve(repoRoot, "packages/mapgen-core/src/authoring/recipe-dag.ts");
+    return resolve(repoRoot, "packages/mapgen-core/src/authoring/recipe/dag.ts");
   }
   if (specifier === "@swooper/mapgen-core/authoring/contracts") {
     return resolve(repoRoot, "packages/mapgen-core/src/authoring/contracts.ts");
@@ -99,7 +99,7 @@ requireIncludes(studioContractsSource, "../standard/contract-manifest.js", "stud
 for (const expectedPath of [
   "mods/mod-swooper-maps/src/recipes/studio-contracts/index.ts",
   "mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts",
-  "packages/mapgen-core/src/authoring/recipe-dag.ts",
+  "packages/mapgen-core/src/authoring/recipe/dag.ts",
   "packages/mapgen-core/src/authoring/contracts.ts",
 ]) {
   if (!graphPaths.includes(expectedPath)) failures.push(`import graph missing ${expectedPath}`);

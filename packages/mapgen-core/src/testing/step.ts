@@ -4,7 +4,7 @@ import type {
   StepEngineDecl,
 } from "@mapgen/authoring/step/contract.js";
 import { buildDeclaredStepDependencies } from "@mapgen/authoring/step/dependencies.js";
-import type { StepDeps } from "@mapgen/authoring/types.js";
+import type { StepDeps } from "@mapgen/authoring/step/types.js";
 import type { MapContext } from "@mapgen/core/map-context.js";
 import { DIRECT_TEST_STEP_ID } from "./authority.js";
 
