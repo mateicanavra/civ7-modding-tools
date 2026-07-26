@@ -171,8 +171,7 @@ const mapConfig = {
     },
     "morphology-coasts": {
       "knobs": {
-        "seaLevel": "earthlike",
-        "coastRuggedness": "normal"
+        "seaLevel": "earthlike"
       },
       "landmass-plates": {
         "beltDrivers": {
@@ -255,37 +254,9 @@ const mapConfig = {
           }
         }
       },
-      "rugged-coasts": {
-        "coastlines": {
-          "strategy": "plate-aware-carving",
-          "config": {
-            "coast": {
-              "bay": {
-                "noiseGateAdd": 0.05,
-                "rollDenActive": 4,
-                "rollDenDefault": 7
-              },
-              "fjord": {
-                "baseDenom": 15,
-                "activeBonus": 2,
-                "passiveBonus": 1
-              },
-              "plateBias": {
-                "threshold": 0.42,
-                "power": 1.3,
-                "convergent": 1.5,
-                "transform": 0.35,
-                "divergent": -0.45,
-                "interior": 0.35,
-                "bayWeight": 0.9,
-                "bayNoiseBonus": 0.45,
-                "fjordWeight": 0.85
-              }
-            }
-          }
-        },
-        "reconcileHeightfield": {
-          "strategy": "carved-coast-datum",
+      "coastline-evidence": {
+        "adjacency": {
+          "strategy": "wrapped-hex-adjacency",
           "config": {}
         },
         "distanceToCoast": {
@@ -1246,11 +1217,7 @@ const mapConfig = {
           "config": {}
         }
       },
-      "derive-placement-inputs": {
-        "wonders": {
-          "strategy": "map-metadata",
-          "config": {}
-        },
+      "plan-natural-wonders": {
         "naturalWonders": {
           "strategy": "suitability-diversity",
           "config": {
@@ -1258,7 +1225,17 @@ const mapConfig = {
           }
         }
       },
-      "plan-resources": {
+      "plan-resource-demands": {
+        "habitat": {
+          "strategy": "quantile-physical-lanes",
+          "config": {}
+        },
+        "demands": {
+          "strategy": "policy-constrained",
+          "config": {}
+        }
+      },
+      "select-resource-sites": {
         "selectSites": {
           "strategy": "blue-noise-rotation",
           "config": {
@@ -1276,34 +1253,6 @@ const mapConfig = {
             },
             "affinityRules": []
           }
-        },
-        "habitat": {
-          "strategy": "quantile-physical-lanes",
-          "config": {}
-        },
-        "aquatic": {
-          "strategy": "canonical-demand",
-          "config": {}
-        },
-        "cultivated": {
-          "strategy": "canonical-demand",
-          "config": {}
-        },
-        "terrestrial": {
-          "strategy": "canonical-demand",
-          "config": {}
-        },
-        "geological": {
-          "strategy": "canonical-demand",
-          "config": {}
-        },
-        "groups": {
-          "strategy": "canonical-rollup",
-          "config": {}
-        },
-        "demands": {
-          "strategy": "policy-constrained",
-          "config": {}
         }
       },
       "assign-starts": {
@@ -1395,7 +1344,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountain-rivers-patch",
-  configHash: "0345009980591a8476f4b04ec54e1670052339720acdaab4bfa1f45c669df23f",
-  envelopeHash: "6b96103acc8ddafaa97d1535df43bcb06bf3d6d03e15a187692a5bd87680ab0d",
+  configHash: "ef7fe48b866ed012d9a3b95414e5cb0508ce64afb65bc54d3a7a05306be1f9a5",
+  envelopeHash: "2b79334dba384f65bdb86597e6675a78248730f77985d59e2f63365ec2131e77",
   config: mapConfig.config,
 });

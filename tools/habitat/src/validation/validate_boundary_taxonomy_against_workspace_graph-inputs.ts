@@ -24,7 +24,7 @@ export async function readWorkspaceManifestProjects(
   const workspacePatterns = rootPackage.workspaces ?? [];
   const manifestRoots = new Set<string>(["."]);
   for (const pattern of workspacePatterns) {
-    for (const workspaceRoot of await expandSimpleWorkspacePattern(root, pattern)) {
+    for (const workspaceRoot of await expandWorkspacePattern(root, pattern)) {
       manifestRoots.add(workspaceRoot);
     }
   }
@@ -99,25 +99,36 @@ async function readProjectJsonTags(root: string, projectRoot: string): Promise<s
   }
 }
 
-async function expandSimpleWorkspacePattern(root: string, pattern: string): Promise<string[]> {
-  if (!pattern.endsWith("/*")) {
-    throw new Error(`Unsupported workspace pattern ${pattern}`);
-  }
-  const parent = pattern.slice(0, -2);
-  const parentPath = path.join(root, parent);
-  const entries = await fs.readdir(parentPath, { withFileTypes: true });
-  const roots: string[] = [];
-  for (const entry of entries) {
-    if (!entry.isDirectory()) continue;
-    const workspaceRoot = normalizeRepoPath(path.join(parent, entry.name));
-    try {
-      await fs.access(path.join(root, workspaceRoot, "package.json"));
-      roots.push(workspaceRoot);
-    } catch {
-      // Workspace globs may include non-package directories; ignore them.
+async function expandWorkspacePattern(root: string, pattern: string): Promise<string[]> {
+  if (pattern.endsWith("/*")) {
+    const parent = pattern.slice(0, -2);
+    if (hasWorkspaceGlobSyntax(parent)) {
+      throw new Error(`Unsupported workspace pattern "${pattern}"`);
     }
+    const parentPath = path.join(root, parent);
+    const entries = await fs.readdir(parentPath, { withFileTypes: true });
+    const roots: string[] = [];
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+      const workspaceRoot = normalizeRepoPath(path.join(parent, entry.name));
+      try {
+        await fs.access(path.join(root, workspaceRoot, "package.json"));
+        roots.push(workspaceRoot);
+      } catch {
+        // Workspace globs may include non-package directories; ignore them.
+      }
+    }
+    return roots;
   }
-  return roots;
+  if (hasWorkspaceGlobSyntax(pattern)) {
+    throw new Error(`Unsupported workspace pattern "${pattern}"`);
+  }
+  await fs.access(path.join(root, pattern, "package.json"));
+  return [normalizeRepoPath(pattern)];
+}
+
+function hasWorkspaceGlobSyntax(pattern: string): boolean {
+  return /[*?[\]{}()!]/u.test(pattern);
 }
 
 function isNodeError(error: unknown): error is NodeJS.ErrnoException {

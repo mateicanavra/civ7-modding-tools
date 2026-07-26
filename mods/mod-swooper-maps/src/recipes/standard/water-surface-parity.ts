@@ -77,6 +77,14 @@ function expectedTerrainForWaterClass(waterClass: number): number | null {
 }
 
 /**
+ * Projects Civ7's water-mask convention into the land-mask convention used by
+ * Standard product parity checks.
+ */
+export function landMaskFromWaterMask(waterMask: Uint8Array): Uint8Array {
+  return Uint8Array.from(waterMask, (isWater) => (isWater === 1 ? 0 : 1));
+}
+
+/**
  * Restores the Standard recipe's authored coast and ocean terrain after Civ7 maintenance calls.
  *
  * Land terrain is deliberately skipped so mountains, hills, volcanoes, and natural wonders

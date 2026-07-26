@@ -1,5 +1,5 @@
 import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 
@@ -24,5 +24,4 @@ export const config = defineStep({
   artifacts: {
     requires: [placementStartArtifacts.startAssignment],
   },
-  schema: Type.Object({}, { additionalProperties: false }),
 });

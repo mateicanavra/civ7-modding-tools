@@ -58,7 +58,6 @@ type ProjectedNavigableRivers = ArtifactReadValueOf<
   typeof hydrographyArtifacts.projectedNavigableRivers
 >;
 type ResourceDemandPlan = ArtifactReadValueOf<typeof resourceDemandArtifacts.resourceDemandPlan>;
-type ResourceEligibility = ArtifactReadValueOf<typeof resourceDemandArtifacts.resourceEligibility>;
 type ResourcePlan = ArtifactReadValueOf<typeof resourceSiteArtifacts.resourcePlan>;
 type ResourcePlanAdjusted = ArtifactReadValueOf<
   typeof resourceSupportArtifacts.resourcePlanAdjusted
@@ -68,36 +67,55 @@ type ResourcePlacementOutcomes = ArtifactReadValueOf<
 >;
 type StartAssignment = ArtifactReadValueOf<typeof placementStartArtifacts.startAssignment>;
 
-type ResourceDemandExclusionReason = ResourceDemandPlan["excluded"][number]["reason"];
+type AdmittedResourceDemandCandidate = ResourceDemandPlan["candidates"]["admitted"][number];
+type ResourceDemandExclusions = ResourceDemandPlan["candidates"]["excluded"];
+type ExcludedResourceDemandCandidate =
+  | ResourceDemandExclusions["expectationBlocked"][number]
+  | ResourceDemandExclusions["ageDeferred"][number]
+  | ResourceDemandExclusions["noLegalSites"][number];
+type ResourceDemandCandidate = AdmittedResourceDemandCandidate | ExcludedResourceDemandCandidate;
+type ResourceDemandExclusionReason = ExcludedResourceDemandCandidate["reason"];
 type StandardScenarioIneligibleReason = Extract<
   ResourceDemandExclusionReason,
-  { kind: "no-admitted-legal-tiles" }
+  { kind: "no-legal-sites" }
 >;
 
-/** Artifact-owned planner or age-policy exclusion distinct from scenario-specific map capacity. */
+/** Artifact-owned expectation or age-policy exclusion distinct from scenario-specific map capacity. */
 export type StandardResourceExclusionReason = Exclude<
   ResourceDemandExclusionReason,
   StandardScenarioIneligibleReason
 >;
 
-/** One family-planner candidate paired with its terminal demand-admission evidence. */
-type StandardResourceCandidate = Readonly<{
+/** One canonical resource expectation paired with its terminal demand-admission evidence. */
+type StandardResourceCandidateBase = Readonly<{
   resourceType: string;
   runtimeResourceTypeId: number | null;
-  groupId: ResourceDemandPlan["groups"]["groups"][number]["groupId"];
-  plannerStatus: ResourceDemandPlan["groups"]["groups"][number]["plans"][number]["status"];
+  groupId: ResourceDemandCandidate["source"]["groupId"];
+  expectationStatus: ResourceDemandCandidate["source"]["expectationStatus"];
+}>;
+
+type StandardResourceSiteEvidence = Readonly<{
   targetIntentCount: number;
-  plannerEligibleTileCount: number;
-  admission:
-    | Readonly<{
+  habitatTileCount: number;
+}>;
+
+type StandardResourceCandidateAdmission =
+  | (StandardResourceSiteEvidence &
+      Readonly<{
         kind: "admitted";
-        habitatTileCount: number;
         legalTileCount: number;
         eligibleTileCount: number;
-      }>
-    | Readonly<{ kind: "scenario-ineligible"; reason: StandardScenarioIneligibleReason }>
-    | Readonly<{ kind: "excluded"; reason: StandardResourceExclusionReason }>;
-}>;
+        habitatMask: Uint8Array;
+      }>)
+  | (StandardResourceSiteEvidence &
+      Readonly<{
+        kind: "scenario-ineligible";
+        reason: StandardScenarioIneligibleReason;
+      }>)
+  | Readonly<{ kind: "excluded"; reason: StandardResourceExclusionReason }>;
+
+type StandardResourceCandidate = StandardResourceCandidateBase &
+  Readonly<{ admission: StandardResourceCandidateAdmission }>;
 
 /** One feature key and the Civ7 surface law used to validate its realized placement. */
 export type StandardFeatureRuntime = Readonly<{
@@ -181,9 +199,6 @@ export type StandardMapCapture = Readonly<{
   }>;
   resources: Readonly<{
     candidates: readonly StandardResourceCandidate[];
-    eligibility: readonly Readonly<
-      Pick<ResourceEligibility["rows"][number], "resourceType" | "habitatMask">
-    >[];
     intents: readonly Pick<
       ResourcePlanAdjusted["intents"][number],
       "plotIndex" | "resourceType" | "family" | "laneKind" | "phase" | "regionSlot"
@@ -398,10 +413,6 @@ function copyCompletedRun(
     context,
     resourceDemandArtifacts.resourceDemandPlan
   );
-  const resourceEligibilityValue = readValidatedArtifact(
-    context,
-    resourceDemandArtifacts.resourceEligibility
-  );
   const resourcePlanValue = readValidatedArtifact(context, resourceSiteArtifacts.resourcePlan);
   const adjustedResourcePlanValue = readValidatedArtifact(
     context,
@@ -565,10 +576,7 @@ function copyCompletedRun(
         ...lakeProjection,
         components: Object.freeze({ ...lakeProjection.components }),
       }),
-      placementSurface: Object.freeze({
-        ...placementSurface,
-        slotCounts: Object.freeze({ ...placementSurface.slotCounts }),
-      }),
+      placementSurface: Object.freeze({ ...placementSurface }),
       navigableRivers: Object.freeze({
         selectedTileCount: navigableRiverValue.selectedTileCount,
         targetTileCount: navigableRiverValue.targetTileCount,
@@ -593,19 +601,7 @@ function copyCompletedRun(
       }),
     }),
     resources: Object.freeze({
-      candidates: copyResourceCandidates(resourceDemandPlanValue),
-      eligibility: Object.freeze(
-        resourceEligibilityValue.rows.map((row) =>
-          Object.freeze({
-            resourceType: row.resourceType,
-            habitatMask: copyUint8Grid(
-              `placement.resourceEligibility.${row.resourceType}.habitatMask`,
-              row.habitatMask,
-              gridSize
-            ),
-          })
-        )
-      ),
+      candidates: copyResourceCandidates(resourceDemandPlanValue, gridSize),
       intents: Object.freeze(
         adjustedResourcePlanValue.intents.map((intent) =>
           Object.freeze({
@@ -801,75 +797,81 @@ function copyAliveMajorIds(adapter: ReturnType<typeof createMockAdapter>): reado
   return Object.freeze(ids);
 }
 
-function copyResourceCandidates(value: ResourceDemandPlan): readonly StandardResourceCandidate[] {
+function copyResourceCandidates(
+  value: ResourceDemandPlan,
+  gridSize: number
+): readonly StandardResourceCandidate[] {
   const runtimeIds = new Map<string, number>(
     [...resolveResourceRuntimeIds().byType].map(([resourceType, resolved]) => [
       resourceType,
       resolved.resourceTypeId,
     ])
   );
-  const demands = uniqueByResourceType(value.demands, "resource demand");
-  const exclusions = uniqueByResourceType(value.excluded, "resource exclusion");
-  const seen = new Set<string>();
-  const candidates: StandardResourceCandidate[] = [];
-
-  for (const group of value.groups.groups) {
-    for (const plan of group.plans) {
-      if (seen.has(plan.resourceType)) {
-        throw new Error(`Standard metric capture found duplicate candidate ${plan.resourceType}.`);
-      }
-      seen.add(plan.resourceType);
-      const demand = demands.get(plan.resourceType);
-      const exclusion = exclusions.get(plan.resourceType);
-      candidates.push(
+  const excluded = value.candidates.excluded;
+  return Object.freeze([
+    ...value.candidates.admitted.map(
+      (candidate): StandardResourceCandidate =>
         Object.freeze({
-          resourceType: plan.resourceType,
-          runtimeResourceTypeId: runtimeIds.get(plan.resourceType) ?? null,
-          groupId: group.groupId,
-          plannerStatus: plan.status,
-          targetIntentCount: plan.targetIntentCount,
-          plannerEligibleTileCount: plan.eligibleTileCount,
-          admission: copyResourceAdmission(plan.resourceType, demand, exclusion),
+          ...copyResourceCandidateIdentity(candidate, runtimeIds),
+          admission: Object.freeze({
+            kind: "admitted",
+            targetIntentCount: candidate.source.targetIntentCount,
+            habitatTileCount: candidate.source.habitatTileCount,
+            legalTileCount: candidate.demand.legalTileCount,
+            eligibleTileCount: candidate.demand.eligibleTileCount,
+            habitatMask: copyUint8Grid(
+              `placement.resourceDemandPlan.${candidate.source.resourceType}.habitatMask`,
+              candidate.source.habitatMask,
+              gridSize
+            ),
+          }),
         })
-      );
-    }
-  }
-
-  if (seen.size !== demands.size + exclusions.size) {
-    throw new Error("Standard metric resource candidates do not close demand and exclusion rows.");
-  }
-  return Object.freeze(candidates);
+    ),
+    ...excluded.noLegalSites.map(
+      (candidate): StandardResourceCandidate =>
+        Object.freeze({
+          ...copyResourceCandidateIdentity(candidate, runtimeIds),
+          admission: Object.freeze({
+            kind: "scenario-ineligible",
+            targetIntentCount: candidate.source.targetIntentCount,
+            habitatTileCount: candidate.source.habitatTileCount,
+            reason: copyResourceExclusionReason(candidate.reason),
+          }),
+        })
+    ),
+    ...excluded.expectationBlocked.map(
+      (candidate): StandardResourceCandidate =>
+        Object.freeze({
+          ...copyResourceCandidateIdentity(candidate, runtimeIds),
+          admission: Object.freeze({
+            kind: "excluded",
+            reason: copyResourceExclusionReason(candidate.reason),
+          }),
+        })
+    ),
+    ...excluded.ageDeferred.map(
+      (candidate): StandardResourceCandidate =>
+        Object.freeze({
+          ...copyResourceCandidateIdentity(candidate, runtimeIds),
+          admission: Object.freeze({
+            kind: "excluded",
+            reason: copyResourceExclusionReason(candidate.reason),
+          }),
+        })
+    ),
+  ]);
 }
 
-function copyResourceAdmission(
-  resourceType: string,
-  demand: ResourceDemandPlan["demands"][number] | undefined,
-  exclusion: ResourceDemandPlan["excluded"][number] | undefined
-): StandardResourceCandidate["admission"] {
-  if (demand && exclusion) {
-    throw new Error(`Standard metric candidate ${resourceType} is both admitted and excluded.`);
-  }
-  if (demand) {
-    return Object.freeze({
-      kind: "admitted",
-      habitatTileCount: demand.habitatTileCount,
-      legalTileCount: demand.legalTileCount,
-      eligibleTileCount: demand.eligibleTileCount,
-    });
-  }
-  if (exclusion?.reason.kind === "no-admitted-legal-tiles") {
-    return Object.freeze({
-      kind: "scenario-ineligible",
-      reason: copyResourceExclusionReason(exclusion.reason),
-    });
-  }
-  if (exclusion) {
-    return Object.freeze({
-      kind: "excluded",
-      reason: copyResourceExclusionReason(exclusion.reason),
-    });
-  }
-  throw new Error(`Standard metric candidate ${resourceType} has no terminal admission row.`);
+function copyResourceCandidateIdentity(
+  candidate: ResourceDemandCandidate,
+  runtimeIds: ReadonlyMap<string, number>
+): StandardResourceCandidateBase {
+  return Object.freeze({
+    resourceType: candidate.source.resourceType,
+    runtimeResourceTypeId: runtimeIds.get(candidate.source.resourceType) ?? null,
+    groupId: candidate.source.groupId,
+    expectationStatus: candidate.source.expectationStatus,
+  });
 }
 
 function copyResourceExclusionReason(
@@ -882,30 +884,18 @@ function copyResourceExclusionReason(
   reason: ResourceDemandExclusionReason
 ): ResourceDemandExclusionReason {
   switch (reason.kind) {
-    case "outside-official-resource-corpus":
-    case "no-admitted-legal-tiles":
+    case "expectation-blocked":
       return Object.freeze({ kind: reason.kind });
-    case "planner-status":
-      return Object.freeze({ kind: reason.kind, status: reason.status });
     case "age-policy":
       return Object.freeze({ kind: reason.kind, status: reason.status, age: reason.age });
+    case "no-legal-sites":
+      return Object.freeze({
+        kind: reason.kind,
+        legalMask: reason.legalMask.slice(),
+      });
     default:
       return assertNever(reason);
   }
-}
-
-function uniqueByResourceType<T extends Readonly<{ resourceType: string }>>(
-  rows: readonly T[],
-  label: string
-): ReadonlyMap<string, T> {
-  const byType = new Map<string, T>();
-  for (const row of rows) {
-    if (byType.has(row.resourceType)) {
-      throw new Error(`Standard metric capture found duplicate ${label} ${row.resourceType}.`);
-    }
-    byType.set(row.resourceType, row);
-  }
-  return byType;
 }
 
 function requireInt32(name: string, value: number): number {

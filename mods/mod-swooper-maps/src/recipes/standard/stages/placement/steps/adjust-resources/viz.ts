@@ -81,7 +81,7 @@ export function projectResourceSupportViz(input: {
         {
           label: "Resource Support Adjustments",
           description:
-            "Support-pass plan changes: moved-site origins and destinations plus additions, split by why they served a start (support floor vs cross-player equity). Untouched plan sites stay on the plan-resources step's intent layer.",
+            "Support-pass plan changes: moved-site origins and destinations plus additions, split by why they served a start (support floor vs cross-player equity). Untouched plan sites stay on the select-resource-sites step's intent layer.",
         }
       ),
     },

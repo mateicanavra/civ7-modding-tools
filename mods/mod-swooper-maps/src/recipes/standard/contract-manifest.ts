@@ -31,8 +31,8 @@ import { config as riversConfig } from "./stages/hydrology/hydrography/steps/riv
 import { config as mapHydrologyLakesConfig } from "./stages/hydrology/projection/steps/lakes/config.js";
 import { config as projectRainfallConfig } from "./stages/hydrology/projection/steps/project-rainfall/config.js";
 import { config as plotRiversConfig } from "./stages/hydrology/rivers/steps/plot-rivers/config.js";
+import { config as coastlineEvidenceConfig } from "./stages/morphology/coasts/steps/coastline-evidence/config.js";
 import { config as landmassPlatesConfig } from "./stages/morphology/coasts/steps/landmass-plates/config.js";
-import { config as ruggedCoastsConfig } from "./stages/morphology/coasts/steps/rugged-coasts/config.js";
 import { config as buildElevationConfig } from "./stages/morphology/elevation/steps/build-elevation/config.js";
 import { config as geomorphologyConfig } from "./stages/morphology/erosion/steps/geomorphology/config.js";
 import { config as islandsConfig } from "./stages/morphology/features/steps/islands/config.js";
@@ -48,14 +48,15 @@ import { config as computeShelfConfig } from "./stages/morphology/shelf/steps/co
 import { config as adjustResourcesConfig } from "./stages/placement/steps/adjust-resources/config.js";
 import { config as assignAdvancedStartsConfig } from "./stages/placement/steps/assign-advanced-starts/config.js";
 import { config as assignStartsConfig } from "./stages/placement/steps/assign-starts/config.js";
-import { config as derivePlacementInputsConfig } from "./stages/placement/steps/derive-placement-inputs/config.js";
+import { config as observePlacementParityConfig } from "./stages/placement/steps/observe-placement-parity/config.js";
 import { config as placeDiscoveriesConfig } from "./stages/placement/steps/place-discoveries/config.js";
 import { config as placeNaturalWondersConfig } from "./stages/placement/steps/place-natural-wonders/config.js";
 import { config as placeResourcesConfig } from "./stages/placement/steps/place-resources/config.js";
-import { config as placementConfig } from "./stages/placement/steps/placement/config.js";
-import { config as planResourcesConfig } from "./stages/placement/steps/plan-resources/config.js";
+import { config as planNaturalWondersConfig } from "./stages/placement/steps/plan-natural-wonders/config.js";
+import { config as planResourceDemandsConfig } from "./stages/placement/steps/plan-resource-demands/config.js";
 import { config as plotLandmassRegionsConfig } from "./stages/placement/steps/plot-landmass-regions/config.js";
 import { config as preparePlacementSurfaceConfig } from "./stages/placement/steps/prepare-placement-surface/config.js";
+import { config as selectResourceSitesConfig } from "./stages/placement/steps/select-resource-sites/config.js";
 
 export type StandardContractStageManifest = RecipeDagStageInput;
 
@@ -77,7 +78,7 @@ export const standardStageContractManifest = [
   stage("foundation-tectonics", [tectonicsConfig]),
   stage("foundation-orogeny", [crustEvolutionConfig]),
   stage("foundation-projection", [projectionConfig, plateTopologyConfig]),
-  stage("morphology-coasts", [landmassPlatesConfig, ruggedCoastsConfig]),
+  stage("morphology-coasts", [landmassPlatesConfig, coastlineEvidenceConfig]),
   stage("morphology-routing", [routingConfig]),
   stage("morphology-erosion", [geomorphologyConfig]),
   stage("morphology-features", [islandsConfig, mountainsConfig, volcanoesConfig, landmassesConfig]),
@@ -107,17 +108,18 @@ export const standardStageContractManifest = [
   ]),
   stage("map-ecology", [plotBiomesConfig, featuresApplyConfig, plotEffectsConfig]),
   stage("placement", [
-    derivePlacementInputsConfig,
-    plotLandmassRegionsConfig,
+    planNaturalWondersConfig,
     placeNaturalWondersConfig,
     preparePlacementSurfaceConfig,
-    planResourcesConfig,
+    plotLandmassRegionsConfig,
+    planResourceDemandsConfig,
+    selectResourceSitesConfig,
     assignStartsConfig,
     adjustResourcesConfig,
     placeResourcesConfig,
     placeDiscoveriesConfig,
     assignAdvancedStartsConfig,
-    placementConfig,
+    observePlacementParityConfig,
   ]),
 ] as const satisfies readonly StandardContractStageManifest[];
 

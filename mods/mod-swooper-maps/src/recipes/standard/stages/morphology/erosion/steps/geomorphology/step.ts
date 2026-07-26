@@ -55,7 +55,7 @@ export const GeomorphologyStep = createStep(config, {
     return { ...stepConfig, geomorphology: geomorphologySelection };
   },
   run: (context, stepConfig, ops, deps) => {
-    const topography = deps.artifacts.carvedTopography.read(context);
+    const topography = deps.artifacts.baseTopography.read(context);
     const routing = deps.artifacts.routing.read(context);
     const substrate = deps.artifacts.baseSubstrate.read(context);
     const { width, height } = context.setup.dimensions;

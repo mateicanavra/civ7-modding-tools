@@ -9,7 +9,7 @@ const ResourceExpectationRangeEvidenceSchema = Type.Union([
 /**
  * Closed count-range evidence carried by each resource expectation: one standard-earthlike
  * baseline, nonnegative min/target/max counts, and the authority strength for that range.
- * Family planners preserve this shape when reporting warning-only coverage.
+ * Terminal demand resolution preserves this evidence unchanged from the canonical source row.
  */
 export const ResourceExpectedCountRangeSchema = Type.Object(
   {

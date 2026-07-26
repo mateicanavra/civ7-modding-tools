@@ -2,7 +2,7 @@ import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authorin
 import strategyDefinition from "./strategies/tectonic-potential/config.js";
 
 /**
- * Derives the land mask and coastline distance field from a low-frequency continent potential grounded in Foundation truth.
+ * Derives a coherent land mask, elevation field, and bathymetry from Foundation truth.
  */
 const ComputeLandmaskContract = defineOp({
   kind: "compute",
@@ -81,9 +81,18 @@ const ComputeLandmaskContract = defineOp({
     }),
   }),
   output: Type.Object({
-    landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
-    distanceToCoast: TypedArraySchemas.u16({
-      description: "Distance to nearest coast in tiles (0=coast).",
+    landMask: TypedArraySchemas.u8({
+      description: "Reconciled land mask per tile (1=land, 0=water).",
+    }),
+    elevation: TypedArraySchemas.i16({
+      description:
+        "Reconciled elevation: land is above sea level and water is at or below sea level.",
+    }),
+    seaLevel: Type.Number({
+      description: "Sea-level datum used to reconcile surface class, elevation, and bathymetry.",
+    }),
+    bathymetry: TypedArraySchemas.i16({
+      description: "Reconciled bathymetry: 0 on land and elevation minus sea level in water.",
     }),
   }),
   strategies: [strategyDefinition],

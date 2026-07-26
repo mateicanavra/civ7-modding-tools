@@ -1,18 +1,18 @@
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import placement from "@mapgen/domain/placement";
 import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/modules/regions/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../tag-contracts.js";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
+import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 
 /**
- * Defines the pre-placement landmass-region projection from Morphology truth, declaring the
- * per-tile slot map and metadata used to interpret the engine-facing surface.
+ * Defines the single landmass-region projection after engine-surface
+ * maintenance, publishing the per-tile slot evidence consumed by placement.
  */
 export const config = defineStep({
   id: "plot-landmass-regions",
   engine: ["getLandmassId", "setLandmassRegionId"] as const,
-  requires: [],
-  provides: [MAP_PROJECTION_EFFECT_TAGS.map.landmassRegionsPlotted],
+  requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.surfacePrepared],
+  provides: [],
   artifacts: {
     requires: [morphologyLandformsArtifacts.topography, morphologyLandformsArtifacts.landmasses],
     provides: [placementRegionArtifacts.landmassRegionSlotByTile],
@@ -20,5 +20,4 @@ export const config = defineStep({
   ops: {
     regions: placement.regions.ops.projectLandmassRegions,
   },
-  schema: Type.Object({}, { additionalProperties: false }),
 });

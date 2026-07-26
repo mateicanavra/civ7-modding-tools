@@ -9,7 +9,7 @@ import strategyDefinition from "./strategies/multi-source-hex-bfs/config.js";
  * source). The op is geometry-only: it has no physics and no config — it simply
  * floods outward over the odd-Q hex grid. It is reused at two points in the
  * pipeline that previously each carried their own copy of the BFS:
- *  - stage-2 coast carving (distance from the carved coastline), and
+ *  - base-coastline evidence (distance from the initial shoreline), and
  *  - the post-features shelf stage (distance from the post-island coastline).
  *
  * Tiles unreachable from any seed (or every tile, when the seed mask is empty)

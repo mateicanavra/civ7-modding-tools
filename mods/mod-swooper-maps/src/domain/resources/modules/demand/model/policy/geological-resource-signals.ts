@@ -72,34 +72,6 @@ export type GeologicalResourceSignals = {
 };
 
 /**
- * Canonical ordered geological resource set owned by this planning family. The family planner
- * iterates this list so missing expectations and signal coverage are reported for every
- * admitted type.
- */
-export const GEOLOGICAL_RESOURCE_TYPES: readonly GeologicalResourceType[] = [
-  "RESOURCE_GOLD",
-  "RESOURCE_GOLD_DISTANT_LANDS",
-  "RESOURCE_SILVER",
-  "RESOURCE_SILVER_DISTANT_LANDS",
-  "RESOURCE_GYPSUM",
-  "RESOURCE_JADE",
-  "RESOURCE_KAOLIN",
-  "RESOURCE_MARBLE",
-  "RESOURCE_IRON",
-  "RESOURCE_SALT",
-  "RESOURCE_LAPIS_LAZULI",
-  "RESOURCE_NITER",
-  "RESOURCE_COAL",
-  "RESOURCE_NICKEL",
-  "RESOURCE_OIL",
-  "RESOURCE_CLAY",
-  "RESOURCE_LIMESTONE",
-  "RESOURCE_TIN",
-  "RESOURCE_PITCH",
-  "RESOURCE_RUBIES",
-];
-
-/**
  * Physical eligibility policy for each geological resource, mapping it to an admitted geologic
  * lane plus primary and suppressing substrate masks. Empty primary lists intentionally keep
  * officially visible but currently unplaceable types blocked instead of assigning generic

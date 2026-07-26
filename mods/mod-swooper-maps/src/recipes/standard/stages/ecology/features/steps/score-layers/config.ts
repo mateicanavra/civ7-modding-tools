@@ -6,7 +6,7 @@ import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Defines the shared Ecology scoring boundary over final morphology, hydrology, biome, and
@@ -15,6 +15,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "score-layers",
+  description: "Computes one shared per-tile suitability layer for every feature intent.",
   requires: [],
   provides: [],
   artifacts: {
@@ -51,11 +52,4 @@ export const config = defineStep({
     scoreReefLotus: ecology.features.ops.scoreReefLotus,
     scoreIce: ecology.features.ops.scoreIce,
   },
-  schema: Type.Object(
-    {},
-    {
-      description:
-        "Computes one shared per-tile suitability layer for every admitted feature intent.",
-    }
-  ),
 });

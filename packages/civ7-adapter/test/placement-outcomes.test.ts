@@ -15,7 +15,7 @@ describe("typed placement outcomes", () => {
   it("returns placed resource outcomes with readback evidence", () => {
     const adapter = createMockAdapter({ width: 4, height: 3, canHaveResource: () => true });
 
-    const outcome = adapter.placeResourceIntent(4, 3, {
+    const outcome = adapter.placeResourceIntent({
       plotIndex: 5,
       resourceType: 7,
     });
@@ -38,7 +38,7 @@ describe("typed placement outcomes", () => {
       canHaveResource: () => false,
     });
 
-    const outcome = adapter.placeResourceIntent(4, 3, {
+    const outcome = adapter.placeResourceIntent({
       plotIndex: 5,
       resourceType: 7,
     });
@@ -55,32 +55,48 @@ describe("typed placement outcomes", () => {
     expect(adapter.calls.setResourceType.length).toBe(0);
   });
 
-  it("returns typed discovery outcomes and structural rejections", () => {
+  it("rejects resource intents outside the mock adapter's own dimensions", () => {
     const adapter = createMockAdapter({ width: 4, height: 3 });
 
-    const placed = adapter.placeDiscoveryIntent(4, 3, {
-      plotIndex: 6,
-      discoveryVisualType: 2687284451,
-      discoveryActivationType: 2398750021,
-    });
-    const rejected = adapter.placeDiscoveryIntent(4, 3, {
-      plotIndex: -1,
-      discoveryVisualType: 2687284451,
-      discoveryActivationType: 2398750021,
+    const outcome = adapter.placeResourceIntent({
+      plotIndex: 12,
+      resourceType: 7,
     });
 
-    expect(placed).toEqual({
-      status: "placed",
-      plotIndex: 6,
-      x: 2,
-      y: 1,
-      discoveryVisualType: 2687284451,
-      discoveryActivationType: 2398750021,
-    });
-    expect(rejected).toMatchObject({
+    expect(outcome).toEqual({
       status: "rejected",
+      plotIndex: 12,
+      x: 0,
+      y: 3,
+      resourceType: 7,
       reason: "out-of-bounds",
     });
+    expect(adapter.calls.setResourceType.length).toBe(0);
+  });
+
+  it("returns mismatch evidence when mock readback differs from the stamped resource", () => {
+    const adapter = createMockAdapter({
+      width: 4,
+      height: 3,
+      canHaveResource: () => true,
+    });
+    adapter.getResourceType = () => adapter.NO_RESOURCE;
+
+    const outcome = adapter.placeResourceIntent({
+      plotIndex: 5,
+      resourceType: 7,
+    });
+
+    expect(outcome).toEqual({
+      status: "mismatch",
+      plotIndex: 5,
+      x: 1,
+      y: 1,
+      resourceType: 7,
+      reason: "wrong-resource-type",
+      observedResourceType: adapter.NO_RESOURCE,
+    });
+    expect(adapter.calls.setResourceType).toEqual([{ x: 1, y: 1, resourceType: 7 }]);
   });
 
   it("returns typed natural-wonder outcomes and structural rejections", () => {
@@ -104,10 +120,51 @@ describe("typed placement outcomes", () => {
       direction: 0,
       elevation: 120,
     });
+    expect(
+      [9, 10, 13].map((plotIndex) =>
+        adapter.getFeatureType(plotIndex % 4, Math.trunc(plotIndex / 4))
+      )
+    ).toEqual([featureType, featureType, featureType]);
     expect(rejected).toMatchObject({
       status: "rejected",
       reason: "out-of-bounds",
     });
+  });
+
+  it("rejects a partial natural-wonder write with exact footprint readback", () => {
+    const adapter = createMockAdapter({
+      width: 4,
+      height: 6,
+      defaultBiomeType: CIV7_BROWSER_TABLES_V0.biomeGlobals.BIOME_GRASSLAND,
+      defaultTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_FLAT,
+    });
+    const featureType = CIV7_BROWSER_TABLES_V0.featureTypes.FEATURE_REDWOOD_FOREST;
+    const setFeatureType = adapter.setFeatureType.bind(adapter);
+    adapter.setFeatureType = (x, y, featureData) => {
+      if (x === 2 && y === 2) return;
+      setFeatureType(x, y, featureData);
+    };
+
+    const outcome = adapter.placeNaturalWonder(1, 2, featureType, 0, 120);
+
+    expect(outcome).toMatchObject({
+      status: "rejected",
+      plotIndex: 9,
+      x: 1,
+      y: 2,
+      featureType,
+      direction: 0,
+      elevation: 120,
+      reason: "readback-mismatch",
+      observedFeatureType: adapter.NO_FEATURE,
+      observedPlotIndex: 10,
+      expectedFootprintReadbackStatus: "partial-expected-footprint",
+    });
+    expect(outcome.status === "rejected" ? outcome.expectedFootprintReadback : undefined).toEqual([
+      { plotIndex: 9, observedFeatureType: featureType },
+      { plotIndex: 13, observedFeatureType: featureType },
+      { plotIndex: 10, observedFeatureType: adapter.NO_FEATURE },
+    ]);
   });
 
   it("matches live-observed adjacent-land resource behavior narrowly", () => {

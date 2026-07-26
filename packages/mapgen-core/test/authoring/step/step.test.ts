@@ -9,7 +9,6 @@ describe("step authoring", () => {
       id,
       requires: [],
       provides: [],
-      schema: EmptyStepConfigSchema,
     });
 
   it("createStep rejects structural contracts before retaining an implementation", () => {
@@ -33,8 +32,68 @@ describe("step authoring", () => {
     expect(implementationReads).toBe(0);
   });
 
-  it("createStep accepts explicit empty schema", () => {
+  it("createStep accepts the SDK-owned empty schema", () => {
     expect(() => createStep(makeContract("alpha"), { run: () => {} })).not.toThrow();
+  });
+
+  it("creates a fresh closed empty schema when step-local authoring is omitted", () => {
+    const first = defineStep({
+      id: "omitted-schema-first",
+      requires: [],
+      provides: [],
+    });
+    const second = defineStep({
+      id: "omitted-schema-second",
+      requires: [],
+      provides: [],
+    });
+
+    expect(first.schema).not.toBe(second.schema);
+    expect(first.schema.type).toBe("object");
+    expect(first.schema.properties).toEqual({});
+    expect(Reflect.get(first.schema, "additionalProperties")).toBe(false);
+    expect(Value.Create(first.schema)).toEqual({});
+  });
+
+  it("owns semantic description and projects it onto the composed schema", () => {
+    const contract = defineStep({
+      id: "described-step",
+      description: "Explains the causal outcome owned by this step.",
+      requires: [],
+      provides: [],
+    });
+
+    expect(contract.description).toBe("Explains the causal outcome owned by this step.");
+    expect(Reflect.get(contract.schema, "description")).toBe(
+      "Explains the causal outcome owned by this step."
+    );
+    expect(Object.isFrozen(contract)).toBe(true);
+  });
+
+  it("refuses empty explicit schemas and root-schema description authority", () => {
+    for (const schema of [Type.Object({}), Type.Object({}, { additionalProperties: false })]) {
+      expect(() =>
+        defineStep({
+          id: "redundant-empty-schema",
+          requires: [],
+          provides: [],
+          schema: schema as never,
+        })
+      ).toThrow("schema adds no authored fields");
+    }
+
+    expect(() =>
+      defineStep({
+        id: "duplicate-description-authority",
+        description: "Canonical step description.",
+        requires: [],
+        provides: [],
+        schema: Type.Object(
+          { enabled: Type.Boolean({ default: true }) },
+          { description: "Competing schema description." }
+        ),
+      })
+    ).toThrow("schema cannot own description; author it through step.description");
   });
 
   it("createStep keeps the supplied contract authoritative over implementation object extras", () => {
@@ -102,7 +161,6 @@ describe("step authoring", () => {
       id: "aliased-contract",
       requires: [],
       provides: [],
-      schema: EmptyStepConfigSchema,
     };
 
     expect(() => defineStep({ ...contractInput, ...{ phase: "foundation" } } as never)).toThrow(
@@ -116,7 +174,7 @@ describe("step authoring", () => {
     ).toThrow("recipe composition owns stage identity");
   });
 
-  it("materializes an explicit step default without mutating the operation contract", () => {
+  it("composes operation config over an omitted step schema without mutating the operation", () => {
     const operation = defineOp({
       kind: "compute",
       id: "test/step-default-authority",
@@ -144,7 +202,6 @@ describe("step authoring", () => {
       id: "fast-step",
       requires: [],
       provides: [],
-      schema: EmptyStepConfigSchema,
       ops: { calculation: { contract: operation, defaultStrategy: "fast" } },
     });
 
@@ -167,7 +224,6 @@ describe("step authoring", () => {
         id: "invalid-empty-default-step",
         requires: [],
         provides: [],
-        schema: EmptyStepConfigSchema,
         ops: {
           calculation: {
             contract: operation,
@@ -182,7 +238,6 @@ describe("step authoring", () => {
         id: "missing-default-override-step",
         requires: [],
         provides: [],
-        schema: EmptyStepConfigSchema,
         ops: {
           calculation: { contract: operation } as never,
         },
@@ -211,10 +266,11 @@ describe("step authoring", () => {
         enabled: Type.Boolean({ default: true }),
         label: Type.Codec(Type.String()).Decode(decode).Encode(encode),
       },
-      { additionalProperties: false, description: "Original step schema." }
+      { additionalProperties: false }
     );
     const contract = defineStep({
       id: "detached-schema",
+      description: "Original step description.",
       requires: [],
       provides: [],
       schema: stepSchema,
@@ -222,6 +278,8 @@ describe("step authoring", () => {
     });
 
     expect(contract.schema).not.toBe(stepSchema);
+    expect(contract.description).toBe("Original step description.");
+    expect(Reflect.get(contract.schema, "description")).toBe("Original step description.");
     expect(contract.ops?.calculation.strategies.balanced.config).not.toBe(strategySchema);
     expect(Object.isFrozen(contract.schema)).toBe(false);
     expect(Object.isFrozen(contract.ops?.calculation.strategies.balanced.config)).toBe(false);
@@ -284,13 +342,13 @@ describe("step authoring", () => {
       {
         additionalProperties: false,
         $id: "AnnotatedStep",
-        description: "Step configuration whose root annotations survive operation composition.",
         default: { enabled: true },
       }
     );
     Reflect.set(schema, symbolAnnotation, shared);
     const contract = defineStep({
       id: "root-annotation-options",
+      description: "Step configuration whose root annotations survive operation composition.",
       requires: [],
       provides: [],
       schema,
@@ -398,7 +456,10 @@ describe("step authoring", () => {
     }
 
     const annotation = new MutableAnnotation();
-    const annotatedSchema = Type.Object({}, { additionalProperties: false });
+    const annotatedSchema = Type.Object(
+      { enabled: Type.Boolean() },
+      { additionalProperties: false }
+    );
     Reflect.set(annotatedSchema, "annotation", annotation);
     expect(() =>
       defineStep({
@@ -419,7 +480,10 @@ describe("step authoring", () => {
         return 1;
       },
     });
-    const accessorSchema = Type.Object({}, { additionalProperties: false });
+    const accessorSchema = Type.Object(
+      { enabled: Type.Boolean() },
+      { additionalProperties: false }
+    );
     Reflect.set(accessorSchema, "metadata", metadata);
     expect(() =>
       defineStep({
@@ -436,7 +500,7 @@ describe("step authoring", () => {
       ["set-annotated-schema", new Set(["value"])],
       ["typed-array-annotated-schema", new Uint8Array([1])],
     ] as const) {
-      const schema = Type.Object({}, { additionalProperties: false });
+      const schema = Type.Object({ enabled: Type.Boolean() }, { additionalProperties: false });
       Reflect.set(schema, "extension", extension);
       expect(() => defineStep({ id, requires: [], provides: [], schema })).toThrow(
         "must contain only plain schema data"
@@ -446,7 +510,7 @@ describe("step authoring", () => {
 
     const cyclicMetadata: { self?: unknown } = {};
     cyclicMetadata.self = cyclicMetadata;
-    const cyclicSchema = Type.Object({}, { additionalProperties: false });
+    const cyclicSchema = Type.Object({ enabled: Type.Boolean() }, { additionalProperties: false });
     Reflect.set(cyclicSchema, "metadata", cyclicMetadata);
     expect(() =>
       defineStep({
@@ -476,7 +540,7 @@ describe("step authoring", () => {
         },
       }
     );
-    const schema = Type.Object({}, { additionalProperties: false });
+    const schema = Type.Object({ enabled: Type.Boolean() }, { additionalProperties: false });
     Reflect.set(schema, "metadata", metadata);
 
     const contract = defineStep({
@@ -504,7 +568,6 @@ describe("step authoring", () => {
         id: "BadId",
         requires: [],
         provides: [],
-        schema: EmptyStepConfigSchema,
       })
     ).toThrow(/BadId/);
   });
@@ -518,7 +581,6 @@ describe("step authoring", () => {
         return [];
       },
       provides: [],
-      schema: EmptyStepConfigSchema,
     };
 
     expect(() => defineStep(accessorDefinition)).toThrow(
@@ -534,7 +596,6 @@ describe("step authoring", () => {
       requires,
       provides,
       artifacts: undefined,
-      schema: EmptyStepConfigSchema,
       ops: undefined,
     } as const;
     const definition = new Proxy(
@@ -572,7 +633,6 @@ describe("step authoring", () => {
         ["id", 1],
         ["requires", 1],
         ["provides", 1],
-        ["schema", 1],
       ])
     );
   });
@@ -596,7 +656,6 @@ describe("step authoring", () => {
       id: "hostile-dependencies",
       requires,
       provides: [],
-      schema: EmptyStepConfigSchema,
     });
 
     expect(() => defineStep(definition(sparse))).toThrow("dense array without extra keys");

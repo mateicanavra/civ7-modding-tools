@@ -4,7 +4,6 @@ import { MockAdapter } from "@civ7/adapter";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
-import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/modules/regions/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import {
@@ -33,9 +32,6 @@ function executePreparation(adapter: MockAdapter, acceptedLakeMask: Uint8Array) 
   return withMapContextExecutionForTest(context, (stepContext) => {
     publishTestArtifact(stepContext, hydrographyArtifacts.projectedLakes, {
       lakeMask: acceptedLakeMask,
-    });
-    publishTestArtifact(stepContext, placementRegionArtifacts.landmassRegionSlotByTile, {
-      slotByTile: new Uint8Array(size),
     });
     publishTestArtifact(stepContext, morphologyShelfArtifacts.shelf, {
       shelfMask: new Uint8Array(size),

@@ -52,7 +52,6 @@ Examples of common “realism” knob sets (see anchors for exact ranges and map
 
 - `foundation-tectonics.knobs.plateActivity`: scalar `0..1` (e.g., `0.25` calmer, `0.5` neutral, `0.75` more active)
 - `morphology-coasts.knobs.seaLevel`: `land-heavy | earthlike | water-heavy`
-- `morphology-coasts.knobs.coastRuggedness`: `smooth | normal | rugged`
 - `morphology-shelf.knobs.shelfWidth`: `narrow | normal | wide`
 - `morphology-erosion.knobs.erosion`: `low | normal | high`
 - `morphology-features.knobs.orogeny`: `low | normal | high`

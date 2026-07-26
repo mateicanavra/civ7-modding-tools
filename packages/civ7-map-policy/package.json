@@ -9,6 +9,12 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./river-type-metadata-source": {
+      "bun-source": "./src/river-type-metadata.source.ts",
+      "types": "./dist/river-type-metadata-source.d.ts",
+      "import": "./dist/river-type-metadata-source.js",
+      "require": "./dist/river-type-metadata-source.cjs"
+    },
     "./setup": {
       "types": "./dist/setup.d.ts",
       "import": "./dist/setup.js",
@@ -18,17 +24,13 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsup --config scripts/tsup.config.ts",
+    "build": "tsup --config tsup.config.ts",
     "check:test": "tsc -p test/tsconfig.json --noEmit",
     "check:tools": "tsc -p scripts/tsconfig.json --noEmit",
     "test": "bun test",
-    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
-    "verify": "bun ./scripts/verify.ts"
+    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
   },
   "dependencies": {
     "typebox": "catalog:"
-  },
-  "devDependencies": {
-    "fast-xml-parser": "^5.3.3"
   }
 }

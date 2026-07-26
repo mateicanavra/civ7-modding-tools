@@ -6,7 +6,7 @@ import {
   SeaLevelDatumSchema,
 } from "../../../model/atoms/index.js";
 
-/** Registers the base topography consumed only by coastline carving. */
+/** Registers coherent base topography shared by coastline evidence, routing, and erosion. */
 export const artifact = defineArtifact({
   name: "baseTopography",
   id: "artifact:morphology.topography.base",
@@ -19,7 +19,8 @@ export const artifact = defineArtifact({
     },
     {
       additionalProperties: false,
-      description: "Initial Morphology topography before coastline carving.",
+      description:
+        "Coherent base Morphology topography consumed by coastline observation and early geomorphic shaping.",
     }
   ),
 });

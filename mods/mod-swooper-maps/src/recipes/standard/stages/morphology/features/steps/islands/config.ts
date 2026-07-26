@@ -2,7 +2,7 @@ import { artifacts as foundationProjectionArtifacts } from "@mapgen/domain/found
 import morphology from "@mapgen/domain/morphology";
 import { artifacts as morphologyErosionArtifacts } from "@mapgen/domain/morphology/modules/erosion/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Plans island chain edits (coastal and volcanic accents).
@@ -18,5 +18,4 @@ export const config = defineStep({
   ops: {
     islands: morphology.landforms.ops.planIslandChains,
   },
-  schema: Type.Object({}),
 });

@@ -20,11 +20,15 @@ full recipe config in one source file.
 Shipped map variants are authored only as
 `mods/mod-swooper-maps/src/maps/configs/*.config.json`. Each file contains the
 map id, display name, description, recipe id, sort order, optional latitude
-bounds, and the full flat standard-recipe config payload. `bun run --cwd
-mods/mod-swooper-maps gen:maps` validates that directory and generates the
-per-map entry modules plus Civ7 map rows, modinfo imports, localization rows,
-and the Studio built-in config catalog. Do not hand-author shipped map wrappers
-or shipped `.config.ts` files.
+bounds, and the full flat standard-recipe config payload.
+`nx run mod-swooper-maps:gen:maps` validates that directory and generates the
+tracked per-map entry modules plus Civ7 map rows, modinfo imports, and
+localization rows. `gen:studio-map-catalog` separately projects the same source
+index into Studio's built-in catalog. Do not hand-author shipped map wrappers
+or shipped `.config.ts` files. The native `mod-swooper-maps:build` graph depends
+on `generated:check`, which compares the complete tracked map and mod output
+plan with the canonical inputs and is the currentness authority for those
+files.
 
 ## Physics-Truth Cutover (Ecology + Placement)
 
@@ -42,10 +46,13 @@ Current architecture for ecology, lakes, and placement is intentionally physics-
   Civ7-projectable river selection
   (`artifact:map.rivers.projectedNavigableRivers`). The stable `map.rivers`
   runtime namespace identifies that projection product, not a stage catalog.
-- Mutable/current Civ7 state is observed fresh through declared adapter
-  capabilities and remains invocation-local. Metrics facets may retain
-  completed scalar or component evidence, but neither the observation nor the
-  facet evidence is a pipeline artifact.
+- Mutable/current Civ7 state is observed fresh through exact, declared adapter
+  bulk-layer capabilities and remains invocation-local. Terrain, elevation,
+  biome, feature, water, lake, area, and river reads return detached storage;
+  steps request only the layers needed at that lifecycle boundary rather than a
+  privileged complete-surface snapshot. Metrics facets may retain completed
+  scalar or component evidence, but neither the observation nor the facet
+  evidence is a pipeline artifact.
 - Runtime parity is now treated as a contract boundary:
   - lake plan vs engine water mask mismatch is emitted as projection evidence,
   - biome/placement land-water drift is always emitted and remains a strict-candidate gate until a post-hydrology authoritative land mask artifact is finalized.

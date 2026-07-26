@@ -4,7 +4,7 @@ import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/fe
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Defines the final ordered Ecology family planner. It combines habitat truth with all admitted
@@ -12,6 +12,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "plan-vegetation",
+  description: "Plans deterministic vegetation-family intent after all upstream feature intent.",
   requires: [],
   provides: [],
   artifacts: {
@@ -34,10 +35,4 @@ export const config = defineStep({
   ops: {
     planVegetation: ecology.features.ops.planVegetation,
   },
-  schema: Type.Object(
-    {},
-    {
-      description: "Deterministic vegetation-family planning after all upstream feature intents.",
-    }
-  ),
 });

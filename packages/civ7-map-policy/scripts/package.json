@@ -1,0 +1,11 @@
+{
+  "name": "@civ7/map-policy-tools",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@civ7/map-policy": "workspace:*",
+    "@civ7/plugin-files": "workspace:*",
+    "fast-xml-parser": "^5.3.3"
+  }
+}

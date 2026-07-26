@@ -13,11 +13,6 @@ import type { FeatureData } from "@civ7/types";
 /** Civ7's native feature-placement payload, re-exported for adapter API compatibility. */
 export type { FeatureData } from "@civ7/types";
 
-export interface NaturalWonderCatalogEntry {
-  featureType: number;
-  direction: number;
-}
-
 /**
  * Runtime resource catalog row used to enrich placement telemetry with
  * symbolic resource names. The live adapter reads GameInfo.Resources; the
@@ -86,26 +81,6 @@ export type ResourcePlacementOutcome =
     };
 
 /**
- * Named discovery rejection reasons mirror resource reconciliation without
- * pretending Civ7 exposes resource-like discovery readback.
- */
-export type DiscoveryPlacementRejectionReason =
-  | "out-of-bounds"
-  | "invalid-discovery-type"
-  | "adapter-rejected";
-
-/**
- * A single deterministic discovery request from placement planning. Visual and
- * activation ids stay paired so the adapter can materialize the exact catalog
- * entry selected by the planner.
- */
-export interface DiscoveryPlacementIntent {
-  plotIndex: number;
-  discoveryVisualType: number;
-  discoveryActivationType: number;
-}
-
-/**
  * Counts observed while running Civ7's official discovery generator.
  * `attemptedCount` = `MapConstructibles.addDiscovery` calls the generator made;
  * `placedCount` = calls the engine accepted. `attempted - placed` is the
@@ -114,33 +89,9 @@ export interface DiscoveryPlacementIntent {
  * mod observes counts rather than re-deriving engine ids.
  */
 export interface OfficialDiscoveryGenerationResult {
-  attemptedCount: number;
-  placedCount: number;
+  readonly attemptedCount: number;
+  readonly placedCount: number;
 }
-
-/**
- * Discovery reconciliation result for one planned intent. The adapter can only
- * confirm placement or expose a named rejection, so there is no discovery
- * mismatch state until Civ7 offers richer readback.
- */
-export type DiscoveryPlacementOutcome =
-  | {
-      status: "placed";
-      plotIndex: number;
-      x: number;
-      y: number;
-      discoveryVisualType: number;
-      discoveryActivationType: number;
-    }
-  | {
-      status: "rejected";
-      plotIndex: number;
-      x: number;
-      y: number;
-      discoveryVisualType: number;
-      discoveryActivationType: number;
-      reason: DiscoveryPlacementRejectionReason;
-    };
 
 /**
  * Natural-wonder rejection reasons expose which adapter/materialization
@@ -270,21 +221,16 @@ export interface LakeProjectionResult {
 }
 
 /**
- * Detached read of the mutable Civ7 map surface at one instant.
+ * Detached read of Civ7's current river and terrain classification at one instant.
  *
- * Engine ids use signed 32-bit arrays because Civ7 ids are integers, not byte-sized enums. Boolean
- * classifications use byte masks. Every adapter call returns fresh arrays, so consumers may retain
- * evidence without observing later engine mutations through shared storage.
+ * River metadata remains distinct from navigable-river terrain because the runtime can expose
+ * either signal independently. Every adapter call returns fresh arrays so retained evidence does
+ * not change when the engine advances.
  */
-export interface CurrentMapSurface {
+export interface CurrentRiverSurface {
   readonly width: number;
   readonly height: number;
   readonly terrainType: Int32Array;
-  readonly elevation: Int16Array;
-  readonly biomeType: Int32Array;
-  readonly featureType: Int32Array;
-  readonly waterMask: Uint8Array;
-  readonly lakeMask: Uint8Array;
   readonly riverType: Int32Array;
   readonly riverMask: Uint8Array;
   readonly navigableRiverMask: Uint8Array;
@@ -435,10 +381,40 @@ export interface EngineAdapter {
   readonly height: number;
 
   /**
-   * Reads the complete mutable map surface through one detached adapter-owned observation.
-   * Callers receive current engine evidence, never a live view into adapter storage.
+   * Reads current terrain ids into fresh row-major storage.
+   * Full-width integers preserve Civ7 ids without narrowing them to byte enums.
    */
-  readCurrentMapSurface(): CurrentMapSurface;
+  readCurrentMapTerrainTypes(): Int32Array;
+
+  /** Reads current engine elevations into fresh row-major signed storage. */
+  readCurrentMapElevations(): Int16Array;
+
+  /**
+   * Reads current biome ids into fresh row-major storage.
+   * Full-width integers preserve Civ7 ids without narrowing them to byte enums.
+   */
+  readCurrentMapBiomeTypes(): Int32Array;
+
+  /**
+   * Reads current feature ids into fresh row-major storage.
+   * Full-width integers preserve Civ7 ids without narrowing them to byte enums.
+   */
+  readCurrentMapFeatureTypes(): Int32Array;
+
+  /** Reads Civ7's current water classification into a fresh row-major byte mask. */
+  readCurrentMapWaterMask(): Uint8Array;
+
+  /** Reads Civ7's current lake classification into a fresh row-major byte mask. */
+  readCurrentMapLakeMask(): Uint8Array;
+
+  /** Reads Civ7's current area ids into fresh row-major full-width integer storage. */
+  readCurrentMapAreaIds(): Int32Array;
+
+  /**
+   * Reads detached terrain and river classifications for parity and runtime evidence.
+   * Terrain identity remains separate from river metadata because Civ7 can expose them separately.
+   */
+  readCurrentRiverSurface(): CurrentRiverSurface;
 
   // === MAP INIT / MAP INFO ===
 
@@ -586,14 +562,12 @@ export interface EngineAdapter {
 
   /**
    * Materialize one planned resource intent and report a typed per-tile outcome.
-   * This keeps Civ7 feasibility/readback at the adapter boundary while letting
-   * MapGen reconcile deterministic intent without count-equality gates.
+   * Adapter-owned map dimensions convert the linear plot index to engine
+   * coordinates and enforce bounds before Civ7 feasibility and readback.
+   * MapGen therefore supplies only deterministic intent and reconciles the
+   * typed outcome without duplicating runtime geometry.
    */
-  placeResourceIntent(
-    width: number,
-    height: number,
-    intent: ResourcePlacementIntent
-  ): ResourcePlacementOutcome;
+  placeResourceIntent(intent: ResourcePlacementIntent): ResourcePlacementOutcome;
 
   // === PLOT EFFECTS ===
 
@@ -785,29 +759,6 @@ export interface EngineAdapter {
   ): NaturalWonderPlacementOutcome;
 
   /**
-   * Stamp a discovery deterministically at a specific tile.
-   * Returns true when the placement succeeds.
-   */
-  stampDiscovery(
-    x: number,
-    y: number,
-    discoveryVisualType: number,
-    discoveryActivationType: number
-  ): boolean;
-
-  /**
-   * Materialize one planned discovery intent and report a typed per-tile outcome.
-   * Discovery placement has no stable engine readback equivalent to resources,
-   * so the adapter is the boundary that converts Civ7 acceptance into named
-   * reconciliation evidence.
-   */
-  placeDiscoveryIntent(
-    width: number,
-    height: number,
-    intent: DiscoveryPlacementIntent
-  ): DiscoveryPlacementOutcome;
-
-  /**
    * Run Civ7's official resource generator.
    * Wraps /base-standard/maps/resource-generator.js generateResources().
    *
@@ -827,14 +778,9 @@ export interface EngineAdapter {
    * {@link OfficialDiscoveryGenerationResult}).
    */
   generateOfficialDiscoveries(
-    width: number,
-    height: number,
     startPositions: ReadonlyArray<number>,
     polarMargin: number
   ): OfficialDiscoveryGenerationResult;
-
-  /** Engine catalog of natural wonder feature definitions. */
-  getNaturalWonderCatalog(): NaturalWonderCatalogEntry[];
 
   /**
    * Generate snow terrain

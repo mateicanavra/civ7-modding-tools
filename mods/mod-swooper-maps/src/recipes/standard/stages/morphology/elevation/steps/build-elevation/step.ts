@@ -1,11 +1,10 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
 import type { VizProjection } from "@swooper/mapgen-viz";
-import {
-  captureEngineHeightfield,
-  engineLandMaskFromWaterMask,
-} from "../../../../../current-engine-surface.js";
 import { defineStandardVizMeta } from "../../../../../viz.js";
-import { assertWaterDriftWithinPolicy } from "../../../../../water-surface-parity.js";
+import {
+  assertWaterDriftWithinPolicy,
+  landMaskFromWaterMask,
+} from "../../../../../water-surface-parity.js";
 import { config } from "./config.js";
 
 const GROUP_MAP_ELEVATION = "Map / Elevation (Engine)";
@@ -20,12 +19,8 @@ export const BuildElevationStep = createStep(config, {
     const topography = deps.artifacts.topography.read(context);
     const { width, height } = context.setup.dimensions;
 
-    const projectedSurface = captureEngineHeightfield(context.setup.dimensions, {
-      getTerrainType: (x, y) => deps.engine.getTerrainType(context, x, y),
-      getElevation: (x, y) => deps.engine.getElevation(context, x, y),
-      isWater: (x, y) => deps.engine.isWater(context, x, y),
-    });
-    const expectedLandMask = engineLandMaskFromWaterMask(projectedSurface.waterMask);
+    const projectedWaterMask = deps.engine.readCurrentMapWaterMask(context);
+    const expectedLandMask = landMaskFromWaterMask(projectedWaterMask);
 
     /**
      * Civ7 builds visual elevation from the terrain surface already in the engine.
@@ -42,16 +37,12 @@ export const BuildElevationStep = createStep(config, {
     deps.engine.buildElevation(context);
     deps.engine.recalculateAreas(context);
 
-    const engine = captureEngineHeightfield(context.setup.dimensions, {
-      getTerrainType: (x, y) => deps.engine.getTerrainType(context, x, y),
-      getElevation: (x, y) => deps.engine.getElevation(context, x, y),
-      isWater: (x, y) => deps.engine.isWater(context, x, y),
-    });
-    const engineLandMask = engineLandMaskFromWaterMask(engine.waterMask);
+    const engineWaterMask = deps.engine.readCurrentMapWaterMask(context);
+    const engineLandMask = landMaskFromWaterMask(engineWaterMask);
     assertWaterDriftWithinPolicy(
       context.setup.dimensions,
       context.trace,
-      engine.waterMask,
+      engineWaterMask,
       expectedLandMask,
       "map-elevation/build-elevation"
     );
@@ -77,8 +68,8 @@ export const BuildElevationStep = createStep(config, {
       expectedLandMask,
       engine: {
         landMask: engineLandMask,
-        terrain: engine.terrain,
-        elevation: engine.elevation,
+        terrain: deps.engine.readCurrentMapTerrainTypes(context),
+        elevation: deps.engine.readCurrentMapElevations(context),
       },
       driftMask,
     };

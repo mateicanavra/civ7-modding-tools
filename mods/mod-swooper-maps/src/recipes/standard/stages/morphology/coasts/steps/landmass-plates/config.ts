@@ -1,7 +1,7 @@
 import { artifacts as foundationProjectionArtifacts } from "@mapgen/domain/foundation/modules/projection/artifacts";
 import morphology from "@mapgen/domain/morphology";
 import { artifacts as morphologyTerrainArtifacts } from "@mapgen/domain/morphology/modules/terrain/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Publishes initial Morphology evidence from Foundation crust and tectonic history.
@@ -30,5 +30,4 @@ export const config = defineStep({
     seaLevel: morphology.terrain.ops.computeSeaLevel,
     landmask: morphology.terrain.ops.computeLandmask,
   },
-  schema: Type.Object({}),
 });

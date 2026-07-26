@@ -10,22 +10,21 @@ const SurfaceStep = createStep(
     id: "surface-observer",
     requires: [],
     provides: [],
-    engine: ["readCurrentMapSurface", "getTerrainType"],
-    schema: Type.Object({}, { additionalProperties: false }),
+    engine: ["readCurrentMapWaterMask", "readCurrentMapTerrainTypes"],
   }),
   {
     run: (context, _config, _ops, dependencies) => {
-      const surface = dependencies.engine.readCurrentMapSurface(context);
-      const terrain = dependencies.engine.getTerrainType(context, 0, 0);
-      type SurfaceWidthIsNumber = Expect<IsEqual<typeof surface.width, number>>;
-      type TerrainIsNumber = Expect<IsEqual<typeof terrain, number>>;
-      void (undefined as unknown as SurfaceWidthIsNumber);
-      void (undefined as unknown as TerrainIsNumber);
+      const waterMask = dependencies.engine.readCurrentMapWaterMask(context);
+      const terrainTypes = dependencies.engine.readCurrentMapTerrainTypes(context);
+      type WaterMaskIsUint8Array = Expect<IsEqual<typeof waterMask, Uint8Array>>;
+      type TerrainTypesIsInt32Array = Expect<IsEqual<typeof terrainTypes, Int32Array>>;
+      void (undefined as unknown as WaterMaskIsUint8Array);
+      void (undefined as unknown as TerrainTypesIsInt32Array);
 
       // @ts-expect-error Undeclared engine methods are absent from this step's dependency surface.
       dependencies.engine.getBiomeType(context, 0, 0);
       // @ts-expect-error Engine methods are context-first occurrence capabilities.
-      dependencies.engine.readCurrentMapSurface();
+      dependencies.engine.readCurrentMapWaterMask();
       // @ts-expect-error Raw adapter identity is never part of authored dependencies.
       dependencies.engine.adapter;
     },
@@ -44,7 +43,6 @@ defineStep({
   provides: [],
   // @ts-expect-error Engine declarations must retain a literal tuple so the dependency surface is exact.
   engine: widenedEngineMethods,
-  schema: Type.Object({}, { additionalProperties: false }),
 });
 
 defineStep({
@@ -53,7 +51,6 @@ defineStep({
   provides: [],
   // @ts-expect-error Effect verification is executor-private.
   engine: ["verifyEffect"],
-  schema: Type.Object({}, { additionalProperties: false }),
 });
 
 defineStep({
@@ -62,7 +59,6 @@ defineStep({
   provides: [],
   // @ts-expect-error Adapter RNG is not authored MapGen randomness.
   engine: ["getRandomNumber"],
-  schema: Type.Object({}, { additionalProperties: false }),
 });
 
 defineStep({
@@ -71,7 +67,6 @@ defineStep({
   provides: [],
   // @ts-expect-error Unknown adapter methods cannot enter a step contract.
   engine: ["notAnEngineMethod"],
-  schema: Type.Object({}, { additionalProperties: false }),
 });
 
 defineStep({
@@ -80,7 +75,6 @@ defineStep({
   provides: [],
   // @ts-expect-error Concrete adapter helpers are not authored engine capabilities.
   engine: ["reset"],
-  schema: Type.Object({}, { additionalProperties: false }),
 });
 
 void SurfaceStep;

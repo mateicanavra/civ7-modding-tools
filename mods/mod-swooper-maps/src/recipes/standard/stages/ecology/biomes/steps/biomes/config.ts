@@ -4,7 +4,7 @@ import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/p
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as cryosphereArtifacts } from "@mapgen/domain/hydrology/modules/cryosphere/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Defines the Ecology truth step that classifies biome and vegetation fields from refined
@@ -13,6 +13,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "biomes",
+  description: "Classifies biome and vegetation fields from admitted physical evidence.",
   requires: [],
   provides: [],
   artifacts: {
@@ -27,10 +28,4 @@ export const config = defineStep({
   ops: {
     classify: ecology.biomes.ops.classifyBiomes,
   },
-  schema: Type.Object(
-    {},
-    {
-      description: "Biome classification configuration.",
-    }
-  ),
 });

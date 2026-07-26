@@ -4,7 +4,7 @@ import { artifacts as morphologyErosionArtifacts } from "@mapgen/domain/morpholo
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyRoutingArtifacts } from "@mapgen/domain/morphology/modules/routing/artifacts/index.js";
 import { artifacts as morphologyTerrainArtifacts } from "@mapgen/domain/morphology/modules/terrain/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Mountain planning is Morphology truth, not map projection.
@@ -15,6 +15,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "mountains",
+  description: "Plans Morphology mountain intent from admitted physical evidence.",
   requires: [],
   provides: [],
   artifacts: {
@@ -23,7 +24,7 @@ export const config = defineStep({
       morphologyLandformsArtifacts.topography,
       morphologyErosionArtifacts.substrate,
       morphologyRoutingArtifacts.routing,
-      morphologyCoastsArtifacts.carvedCoastline,
+      morphologyCoastsArtifacts.baseCoastline,
     ],
     provides: [morphologyLandformsArtifacts.mountains],
   },
@@ -32,12 +33,4 @@ export const config = defineStep({
     foothills: morphology.landforms.ops.planFoothills,
     roughLands: morphology.landforms.ops.planRoughLands,
   },
-  schema: Type.Object(
-    {},
-    {
-      additionalProperties: false,
-      description:
-        "Morphology mountain intent config (op envelopes for morphology/plan-ridges + morphology/plan-foothills).",
-    }
-  ),
 });

@@ -3,7 +3,7 @@ import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/p
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as morphologyErosionArtifacts } from "@mapgen/domain/morphology/modules/erosion/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Defines soil and fertility classification from topography, substrate, and final climate.
@@ -12,6 +12,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "pedology",
+  description: "Classifies soil and fertility from admitted topography, substrate, and climate.",
   requires: [],
   provides: [],
   artifacts: {
@@ -25,10 +26,4 @@ export const config = defineStep({
   ops: {
     classify: ecology.pedology.ops.classifyPedology,
   },
-  schema: Type.Object(
-    {},
-    {
-      description: "Configuration for classifying soils and fertility in the pedology step.",
-    }
-  ),
 });

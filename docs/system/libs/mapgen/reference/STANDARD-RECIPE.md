@@ -121,8 +121,9 @@ Stage-level posture:
   strategy config schema (no hand-shadowed schemas). Adapter resource catalogs
   and runtime player counts are supplied by the run environment rather than
   authored map config. Resource planning runs before start assignment;
-  resource stamping runs after the support pass (`plan-resources →
-  assign-starts → adjust-resources → place-resources`). The final `placement`
+  resource stamping runs after the support pass (`plan-resource-demands →
+  select-resource-sites → assign-starts → adjust-resources →
+  place-resources`). The final `placement`
   step consumes product artifacts; it does not rerun product materialization.
   See [`docs/system/libs/mapgen/reference/domains/PLACEMENT.md`](/system/libs/mapgen/reference/domains/PLACEMENT.md).
 

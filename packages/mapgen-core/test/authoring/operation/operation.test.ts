@@ -569,7 +569,6 @@ describe("operation authoring", () => {
         requires: [],
         provides: [],
         ops: { trees: contract },
-        schema: Type.Object({}, { additionalProperties: false }),
       }),
       { run: () => {} }
     );

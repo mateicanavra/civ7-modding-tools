@@ -26,12 +26,6 @@ const PedologyClassifyContract = defineOp({
         Type.Undefined(),
       ])
     ),
-    slope: Type.Optional(
-      Type.Union([
-        TypedArraySchemas.f32({ description: "Optional slope or relief proxy (0..1)." }),
-        Type.Undefined(),
-      ])
-    ),
   }),
   output: Type.Object({
     soilType: TypedArraySchemas.u8({ description: "Soil palette index per tile." }),

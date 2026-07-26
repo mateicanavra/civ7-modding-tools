@@ -2,15 +2,14 @@
 
 ## Rolling Focus
 
-**Frame:** kind before instance, authority before relocation. Recipe stages
-are nested by the semantic domain or phase that owns the work; projection is a
-leaf capability inside that owner, not a parallel top-level `map` family.
-External `public.config.ts` stage surfaces are not an authoring kind. Ordinary
-stage configuration is inferred from bound operation config, knobs, and
-additive step schema; a rare intentional full public override stays inline in
-the concrete stage definition with its meaningful compiler. Immutable domain
-products, live engine observation, and diagnostic evidence are distinct
-authorities and must not be recast as interchangeable recipe artifacts.
+**Frame:** kind before instance, intent before ownership, authority before
+relocation. A closed file shape is the start of semantic review, not proof that
+the responsibilities retained inside its allowed files are earned. Recipe
+steps orchestrate admitted dependencies, operation calls, publication, and
+first-class evidence; they do not become owners of domain algorithms, setup
+normalization, or synthetic coordination models merely because that logic can
+fit inside `step.ts` or `config.ts`. Prefer safe deletion and state collapse
+over preserving an obsolete boundary more elegantly.
 
 **Authority order:** stage/domain meaning -> generic recipe-stage blueprint ->
 red corpus -> mechanical relocation or deletion -> consumer regeneration ->
@@ -29,13 +28,16 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** freeze and certify the exact foundation tree, then
-converge its Graphite history without replay or duplicate CI fan-out. The
-implementation train is closed unless proof exposes a concrete regression.
-Delivery work now preserves the tested tree while reconciling native Graphite
-ancestry, folding only the already approved semantic families, submitting one
-coherent stack, merging bottom to top, and draining obsolete worktrees and
-processes. A.2 and post-A.2 product proof remain outside this container.
+**Current container:** repair the project-plane identity of Civ7 map-policy
+generation, then reduce the completed cleanup stack without changing its
+certified tree. The runtime policy package remains a `kind:library`;
+package-local generation/currentness source is a distinct
+`kind:package-tool`; and `@civ7/plugin-files/generated-file-plan` remains the
+single generic filesystem admission/currentness/materialization owner. Public
+`civ7-map-policy` Nx targets remain stable aliases to the narrower execution
+owner. This is the sole inherited CI blocker admitted before the approved
+stack fold. A.2 and the remaining semantic cleanup stay outside this
+container.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -52,15 +54,15 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** establish one authoritative proof ledger for the frozen head,
-run only native Nx-owned build, type, test, policy, boundary, dead-code,
-OpenSpec, and generated-currentness owners, and repair only failures that belong
-to this delivered tree. Restore trustworthy Narsil indexing and use it only to
-corroborate references, cycles, and boundary crossings after compiler and Knip
-authority pass. Then resolve the pending Graphite restack in the real delivery
-path, preserve the exact tree through the approved semantic fold, submit
-without multiplying CI rows, merge the whole stack, sync once, attach the
-primary worktree to merged `main`, and point the retained Studio runner there.
+**Gradient:** project the package's scripts as one closed package-tool owner;
+replace its cross-project relative source reach with the existing public
+policy surface; preserve generator task UX through exact Nx dependency aliases;
+ratchet the tag taxonomy and boundary configuration together; prove the
+resolved source graph contains package-tool -> library/plugin edges and no
+library -> plugin edge. Then certify the exact stack, fold its eighteen
+semantic commits into one review family without changing the tree, submit and
+merge through Graphite, sync once without a global restack, and reopen the
+remaining cleanup on merged main.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -95,6 +97,82 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Resource Demand Authority
+
+Resource planning collapsed into admitted per-resource demand followed by
+selected resource sites. Four duplicate family planners, the synthetic group
+planner, duplicate eligibility artifact, and wiring-only tests were deleted;
+one terminal resolver now owns the exact canonical expectation corpus,
+habitat evidence, disposition, and demand while site selection owns the
+distinct immutable intent product.
+
+### 2026-07-26 - Discovery Provider Authority
+
+Discovery materialization collapsed around Civ7's narrative-coupled official
+generator. The adapter now owns active dimensions, generator invocation, exact
+`addDiscovery` interception, restoration, error attribution, and observed
+counts; abandoned per-tile discovery intent, stamping APIs, duplicate policy
+types, and their wiring tests were deleted.
+
+### 2026-07-26 - Landmass Region Projection Authority
+
+Post-wonder surface maintenance became one engine transaction followed by one
+landmass-region projection and immutable artifact publication. The duplicate
+pre-maintenance projection, restamp loop, ordering effect, slot-count metric,
+and broad call-order tests were deleted; exact slot-to-Civ7 materialization
+gained one focused behavior owner.
+
+### 2026-07-26 - Resource Materialization Authority
+
+Resource placement became intent-only at the recipe boundary. Production and
+mock adapters now own dimensions, coordinate resolution, feasibility, engine
+mutation, and exact readback while Swooper retains ordered product
+reconciliation, typed shortfalls, phase provenance, telemetry, and fail-hard
+mismatch policy.
+
+### 2026-07-26 - Natural Wonder Materialization Authority
+
+Natural-wonder planning and placement were separated into deterministic intent
+and adapter-owned engine materialization. Duplicate provider logic and
+coordination state were deleted while exact fallback, rejection, partial
+readback, and final occupancy evidence moved to focused product owners.
+
+### 2026-07-26 - Placement Causal Authority
+
+Placement planning and adjustment artifacts became the sole causal edges for
+their immutable products. Duplicate resource effect tags, the false global
+placement effect, adapter call-evidence bookkeeping, and the terminal aggregate
+summary were deleted. The terminal step became an exact current-engine parity
+observer over Morphology topography plus accepted Hydrology lakes.
+
+### 2026-07-26 - Current Engine Observation Authority
+
+Civ7 adapter observation became the sole acquisition boundary for current
+terrain, elevation, biome, feature, water, lake, area, and river surfaces.
+Standard steps request only exact detached layers at their real lifecycle
+points; the unused complete-surface aggregate and mod-local probing helper were
+deleted. Product parity transforms remain recipe-owned, while engine probing
+and readback construction remain adapter-owned.
+
+### 2026-07-26 - Topography Reconciliation Authority
+
+Class, elevation, and bathymetry reconciliation collapsed into the landmask
+operation that owns the only real pre-erosion topography transition. The
+standalone reconciliation operation, unreachable coastline mutation, dead
+fjord/bay controls, ruggedness knob, RNG stream, carved mask, and redundant
+topography vintage were deleted. Routing and erosion now consume one coherent
+base topography product while `baseCoastline` retains only independently useful
+adjacency and distance evidence.
+
+### 2026-07-26 - Exact-Tree Delivery Convergence
+
+The certified foundation tree was folded into twenty reviewed Graphite
+families without changing its tree, submitted as one stack, merged bottom to
+top, and synced exactly once without a global restack. Obsolete worktrees were
+drained after preserving their intentional edits; primary `main`, Narsil, and
+the retained Studio runner now point at the same merged tree. This completed
+delivery hygiene and reopened semantic cleanup from a clean authority base.
 
 ### 2026-07-26 - Exported Capability Contract
 

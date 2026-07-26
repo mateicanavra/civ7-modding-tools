@@ -15,19 +15,6 @@
  *   import type { EngineAdapter } from "@civ7/adapter";
  */
 
-export type {
-  Civ7BrowserTablesV0,
-  NaturalWonderFootprintOffset,
-  NaturalWonderPlacementPolicy,
-} from "@civ7/map-policy";
-export {
-  CIV7_BROWSER_TABLES_V0,
-  getNaturalWonderFootprintIndices,
-  getNaturalWonderFootprintOffsets,
-  hasUnsupportedNaturalWonderPolicyTags,
-  NATURAL_WONDER_CATALOG,
-  resolveNaturalWonderPlacementDirection,
-} from "@civ7/map-policy";
 export type { EngineEffectTagId } from "./effects.js";
 export { ENGINE_EFFECT_TAGS } from "./effects.js";
 export type {
@@ -52,10 +39,7 @@ export { createMockAdapter, MockAdapter } from "./mock-adapter.js";
 // Re-export types
 export type {
   ContinentBounds,
-  CurrentMapSurface,
-  DiscoveryPlacementIntent,
-  DiscoveryPlacementOutcome,
-  DiscoveryPlacementRejectionReason,
+  CurrentRiverSurface,
   EngineAdapter,
   EngineAdapterMethodKey,
   FeatureData,

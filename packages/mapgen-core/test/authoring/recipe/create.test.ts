@@ -11,7 +11,7 @@ import { RecipeCompileError } from "@mapgen/compiler/recipe-compile.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
 import type { DependencyTagDefinition } from "@mapgen/engine/index.js";
 import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
-import { type TObject, Type } from "typebox";
+import { Type } from "typebox";
 import { Value } from "typebox/value";
 
 const baseSetup = admitMapSetup({
@@ -21,19 +21,7 @@ const baseSetup = admitMapSetup({
 });
 const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 
-const makeContract = <
-  const Id extends string,
-  const Schema extends TObject = typeof EmptyStepConfigSchema,
->(
-  id: Id,
-  schema: Schema = EmptyStepConfigSchema as Schema
-) =>
-  defineStep({
-    id,
-    requires: [],
-    provides: [],
-    schema,
-  });
+const makeContract = (id: string) => defineStep({ id, requires: [], provides: [] });
 
 describe("recipe authoring", () => {
   it("createRecipe rejects missing tagDefinitions", () => {
@@ -101,7 +89,6 @@ describe("recipe authoring", () => {
         id: "alpha",
         requires: ["bad:tag"],
         provides: [],
-        schema: EmptyStepConfigSchema,
       }),
       { run: () => {} }
     );
@@ -124,7 +111,6 @@ describe("recipe authoring", () => {
         requires: [],
         provides: [],
         artifacts: { provides: [artifact] },
-        schema: EmptyStepConfigSchema,
       }),
       { run: () => {} }
     );
@@ -165,7 +151,6 @@ describe("recipe authoring", () => {
         artifacts: {
           provides: [providedArtifact],
         },
-        schema: EmptyStepConfigSchema,
       }),
       { run: () => undefined }
     );
@@ -175,7 +160,6 @@ describe("recipe authoring", () => {
         requires: [],
         provides: [],
         artifacts: { requires: [requiredArtifact] },
-        schema: EmptyStepConfigSchema,
       }),
       { run: () => undefined }
     );
@@ -209,7 +193,6 @@ describe("recipe authoring", () => {
         requires: [],
         provides: [],
         artifacts: { requires: [externalArtifact] },
-        schema: EmptyStepConfigSchema,
       }),
       { run: () => undefined }
     );
@@ -296,7 +279,9 @@ describe("recipe authoring", () => {
       { count: Type.Number({ default: 2 }) },
       { additionalProperties: false }
     );
-    const step = createStep(makeContract("alpha", schema), { run: () => {} });
+    const step = createStep(defineStep({ id: "alpha", requires: [], provides: [], schema }), {
+      run: () => {},
+    });
     const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
     const recipe = createRecipe({
       id: "core.base",
@@ -370,7 +355,9 @@ describe("recipe authoring", () => {
       { count: Type.Number({ default: 2 }) },
       { additionalProperties: false }
     );
-    const step = createStep(makeContract("alpha", schema), { run: () => {} });
+    const step = createStep(defineStep({ id: "alpha", requires: [], provides: [], schema }), {
+      run: () => {},
+    });
     const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
     const stages = [stage];
     const recipe = createRecipe({

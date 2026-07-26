@@ -72,11 +72,11 @@ The physical chain: a **mesh** (flat/periodic, not a sphere) → **mantle potent
 
 ## MORPHOLOGY — landforms & erosion
 
-`src/domain/morphology/modules/*/ops/*` — 15 operations. Turns tectonic
+`src/domain/morphology/modules/*/ops/*` — 17 operations. Turns tectonic
 provenance into terrain. Producing modules own the immutable terrain vintages
 and products consumed by downstream Hydrology and recipe projection.
 
-The physical chain: **belt drivers** (`compute-belt-drivers`: maps `FoundationTectonicProvenanceTiles` → mountain / rift / volcano *belt seeds* with uplift intensity, width, decay sigma — config-light, "derived fields are physics outputs") → **base topography** (`compute-base-topography`) + substrate → rugged-coast carving and its pre-island `carvedCoastline` vintage → **geomorphic cycle** (`compute-geomorphic-cycle`: the erosion engine, below) → **sea level** (`compute-sea-level`) → discrete landform planners (`plan-foothills`, `plan-ridges`, `plan-rough-lands`, `plan-volcanoes`, `plan-island-chains`) → final post-island **shelf mask** (`compute-shelf-mask`) and `shelf` artifact.
+The physical chain: **belt drivers** (`compute-belt-drivers`: maps `FoundationTectonicProvenanceTiles` → mountain / rift / volcano *belt seeds* with uplift intensity, width, decay sigma — config-light, "derived fields are physics outputs") → continental-margin sculpting, **base topography**, substrate, sea-level solve, and coherent land/water reconciliation → pre-island `baseCoastline` adjacency/distance evidence → flow routing → **geomorphic cycle** (`compute-geomorphic-cycle`: the erosion engine, below), which publishes the eroded-topography vintage → discrete landform planners (`plan-foothills`, `plan-ridges`, `plan-rough-lands`, `plan-volcanoes`, `plan-island-chains`) and the final topography vintage → final post-island **shelf mask** (`compute-shelf-mask`) and `shelf` artifact.
 
 **The erosion model (`compute-geomorphic-cycle/rules/index.ts`) is a Stream Power Incision Model.** Verified in source: per land tile, `streamPower = clamp(discharge · slope, 0, 1)`; `erosion = erosionRate · erodibility[i] · streamPower`; plus Laplacian **hillslope diffusion** (`diffusionDelta = (neighborAvg − elev) · diffusionRate`) and **sediment deposition** routed downslope (`settles = baseSediment · depositionRate · (1 − streamPower)`). All three rates carry an `ageScale` for **young / mature / old** world-age scaling. This is the SPIM family `E = K·A^m·S^n` in discharge·slope form (the discharge term is the drainage-area proxy `A^m`; slope is `S^n` with the exponents folded into the clamped product).
 

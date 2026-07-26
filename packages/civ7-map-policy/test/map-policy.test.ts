@@ -1,9 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 
 import {
   applyCiv7CoastRingPolicy,
+  buildNaturalWonderBlockedMask,
   CIV7_BROWSER_TABLES_V0,
   CIV7_COAST_RING_POLICY_V0,
   CIV7_DEFAULT_RIVER_MODELING_ARGS,
@@ -14,7 +13,6 @@ import {
   getNaturalWonderFootprintIndices,
   getNaturalWonderFootprintOffsetsByParity,
   isResourceAdjacentToLandRuntimeOptional,
-  isSupportedNaturalWonder,
   NATURAL_WONDER_CATALOG,
   NO_RIVER_TYPE,
   RESOURCE_ADJACENT_TO_LAND_RUNTIME_OPTIONAL_TYPE_IDS,
@@ -96,20 +94,6 @@ describe("@civ7/map-policy", () => {
     expect(CIV7_BROWSER_TABLES_V0.riverTypes).toEqual(CIV7_RIVER_TYPE_METADATA_SOURCE);
   });
 
-  it("keeps ambient Civ7 runtime RiverTypes declarations generated from the same source", () => {
-    const dts = readFileSync(
-      join(import.meta.dir, "../../civ7-types/generated/river-types.gen.d.ts"),
-      "utf8"
-    );
-
-    for (const source of CIV7_RIVER_TYPE_METADATA_SOURCE.source) {
-      expect(dts).toContain(source);
-    }
-    for (const [key, value] of Object.entries(CIV7_RIVER_TYPE_METADATA_SOURCE.values)) {
-      expect(dts).toContain(`readonly ${key}: ${value};`);
-    }
-  });
-
   it("stamps a single land-adjacent coast ring (not a distance band) via odd-R adjacency", () => {
     const width = 7;
     const height = 5;
@@ -174,6 +158,16 @@ describe("@civ7/map-policy", () => {
       string,
       { placementClass?: string; naturalWonderTiles?: number; naturalWonderDirection?: number }
     >;
+    const validTerrainTypes =
+      CIV7_BROWSER_TABLES_V0.featureValidTerrainTypeIndices as unknown as Record<
+        string,
+        readonly number[] | undefined
+      >;
+    const validBiomeTypes =
+      CIV7_BROWSER_TABLES_V0.featureValidBiomeTypeIndices as unknown as Record<
+        string,
+        readonly number[] | undefined
+      >;
     const catalogFeatureTypes = NATURAL_WONDER_CATALOG.map((entry) => entry.featureType);
 
     // Full set: previously-dropped 4-tile / tagged / placeFirst wonders are eligible.
@@ -186,6 +180,45 @@ describe("@civ7/map-policy", () => {
     expect(catalogFeatureTypes).toContain(featureTypes.FEATURE_MACHAPUCHARE);
     expect(catalogFeatureTypes).toContain(featureTypes.FEATURE_MOUNT_FUJI);
     expect(catalogFeatureTypes).toContain(featureTypes.FEATURE_VIHREN);
+    const kilimanjaro = NATURAL_WONDER_CATALOG.find(
+      (entry) => entry.featureType === featureTypes.FEATURE_KILIMANJARO
+    );
+    const barrierReef = NATURAL_WONDER_CATALOG.find(
+      (entry) => entry.featureType === featureTypes.FEATURE_BARRIER_REEF
+    );
+    if (!kilimanjaro || !barrierReef) {
+      throw new Error("Expected shipped natural wonders to be present in static policy.");
+    }
+    expect(kilimanjaro).toMatchObject({
+      direction: 0,
+      featureTags: ["VOLCANO"],
+      footprintOffsetsByParity: {
+        even: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 1 },
+          { dx: 1, dy: 0 },
+        ],
+        odd: [
+          { dx: 0, dy: 0 },
+          { dx: 1, dy: 1 },
+          { dx: 1, dy: 0 },
+        ],
+      },
+    });
+    expect(kilimanjaro.validTerrainTypes).toEqual([
+      ...(validTerrainTypes[String(featureTypes.FEATURE_KILIMANJARO)] ?? []),
+    ]);
+    expect(kilimanjaro.validBiomeTypes).toEqual([
+      ...(validBiomeTypes[String(featureTypes.FEATURE_KILIMANJARO)] ?? []),
+    ]);
+    expect(barrierReef).toMatchObject({
+      direction: -1,
+      noLake: true,
+      footprintOffsetsByParity: {
+        even: [{ dx: 0, dy: 0 }],
+        odd: [{ dx: 0, dy: 0 }],
+      },
+    });
     const redwoodPolicy = policies[String(featureTypes.FEATURE_REDWOOD_FOREST)]!;
     expect(resolveNaturalWonderPlacementDirection(redwoodPolicy)).toBe(-1);
     expect(resolveNaturalWonderMaterializationDirection(redwoodPolicy)).toBe(0);
@@ -301,7 +334,50 @@ describe("@civ7/map-policy", () => {
     // No silent drops: catalog size equals the count of natural-wonder rows.
     const nwRowCount = Object.values(policies).filter((p) => p?.naturalWonderTiles).length;
     expect(NATURAL_WONDER_CATALOG.length).toBe(nwRowCount);
-    expect(isSupportedNaturalWonder(featureTypes.FEATURE_BARRIER_REEF)).toBe(true);
+    expect(NATURAL_WONDER_CATALOG.map((entry) => entry.featureType)).toContain(
+      featureTypes.FEATURE_BARRIER_REEF
+    );
+  });
+
+  it("publishes deeply frozen natural-wonder planner policy", () => {
+    expect(Object.isFrozen(NATURAL_WONDER_CATALOG)).toBe(true);
+
+    for (const entry of NATURAL_WONDER_CATALOG) {
+      expect(Object.isFrozen(entry)).toBe(true);
+      expect(Object.isFrozen(entry.validTerrainTypes)).toBe(true);
+      expect(Object.isFrozen(entry.validBiomeTypes)).toBe(true);
+      expect(Object.isFrozen(entry.featureTags)).toBe(true);
+      expect(Object.isFrozen(entry.footprintOffsetsByParity)).toBe(true);
+      expect(Object.isFrozen(entry.footprintOffsetsByParity.even)).toBe(true);
+      expect(Object.isFrozen(entry.footprintOffsetsByParity.odd)).toBe(true);
+      for (const offset of [
+        ...entry.footprintOffsetsByParity.even,
+        ...entry.footprintOffsetsByParity.odd,
+      ]) {
+        expect(Object.isFrozen(offset)).toBe(true);
+      }
+    }
+
+    const first = NATURAL_WONDER_CATALOG[0]!;
+    const originalDirection = first.direction;
+    expect(Reflect.set(first, "direction", originalDirection + 1)).toBe(false);
+    expect(first.direction).toBe(originalDirection);
+  });
+
+  it("derives the natural-wonder exclusion mask from Civ7 polar-row policy", () => {
+    const width = 8;
+    const height = 6;
+    const polarRows = CIV7_BROWSER_TABLES_V0.mapGlobals.polarWaterRows;
+    const mask = buildNaturalWonderBlockedMask(width, height);
+
+    expect(polarRows).toBe(2);
+    expect(mask).toHaveLength(width * height);
+    for (let y = 0; y < height; y++) {
+      const expected = y < polarRows || y >= height - polarRows ? 1 : 0;
+      expect([...mask.subarray(y * width, (y + 1) * width)]).toEqual(
+        new Array<number>(width).fill(expected)
+      );
+    }
   });
 
   it("self-orients 4-tile wonders (engine sentinel -1, anchor-only offline footprint)", () => {

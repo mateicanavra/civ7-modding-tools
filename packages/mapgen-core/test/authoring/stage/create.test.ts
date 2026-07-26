@@ -19,19 +19,10 @@ const TEST_SETUP = admitMapSetup({
 describe("authoring SDK", () => {
   const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 
-  const makeContract = <
-    const Id extends string,
-    const Schema extends TObject = typeof EmptyStepConfigSchema,
-  >(
-    id: Id,
-    schema: Schema = EmptyStepConfigSchema as Schema
-  ) =>
-    defineStep({
-      id,
-      requires: [],
-      provides: [],
-      schema,
-    });
+  const makeContract = (id: string, schema?: TObject) =>
+    schema === undefined
+      ? defineStep({ id, requires: [], provides: [] })
+      : defineStep({ id, requires: [], provides: [], schema });
 
   it("createStage rejects steps without explicit schemas", () => {
     expect(() =>
@@ -113,12 +104,18 @@ describe("authoring SDK", () => {
   it("preserves a semantic description authored by an internal step", () => {
     const stepSchema = Type.Object(
       { amount: Type.Number({ default: 1 }) },
-      {
-        additionalProperties: false,
-        description: "Controls the amount of material deposited by this step.",
-      }
+      { additionalProperties: false }
     );
-    const step = createStep(makeContract("deposit-material", stepSchema), { run: () => {} });
+    const step = createStep(
+      defineStep({
+        id: "deposit-material",
+        description: "Controls the amount of material deposited by this step.",
+        requires: [],
+        provides: [],
+        schema: stepSchema,
+      }),
+      { run: () => {} }
+    );
     const stage = createStage({ id: "morphology", steps: [step] });
     const stepSurface = stage.surfaceSchema.properties["deposit-material"];
     if (!IsObject(stepSurface)) throw new Error("Expected an object step surface.");
@@ -231,7 +228,7 @@ describe("authoring SDK", () => {
       makeContract(
         "dynamic-step",
         Type.Object(
-          {},
+          { enabled: Type.Boolean({ default: true }) },
           {
             additionalProperties: false,
             patternProperties: { "^x-": Type.Number() },
@@ -389,7 +386,6 @@ describe("authoring SDK", () => {
         id: "knobs",
         requires: [],
         provides: [],
-        schema: EmptyStepConfigSchema,
       }),
       { run: () => {} }
     );

@@ -6,8 +6,8 @@ import { PLACEMENT_VIZ_GROUP } from "../../../../src/recipes/standard/stages/pla
 import { runStandardRecipeTestMap } from "../fixtures/standard-recipe.js";
 
 /**
- * Every placement step emits decision-substance evidence for its authored
- * contribution to the completed product.
+ * Every visualization-bearing placement step emits decision-substance evidence
+ * for its authored contribution to the completed product.
  *
  * assign-advanced-starts and place-discoveries are the recorded exceptions:
  * advanced-starts' only product is two engine-side effect booleans (fertility
@@ -16,7 +16,7 @@ import { runStandardRecipeTestMap } from "../fixtures/standard-recipe.js";
  * readback to visualize) — both verified in-game, not in Studio.
  */
 const EXPECTED_KEYS_BY_STEP: Record<string, readonly string[]> = {
-  "derive-placement-inputs": ["placement.wonders.plannedSites"],
+  "plan-natural-wonders": ["placement.wonders.plannedSites"],
   "plot-landmass-regions": ["placement.landmassRegions.regionSlot"],
   "place-natural-wonders": ["placement.wonders.outcome"],
   "prepare-placement-surface": [
@@ -24,7 +24,7 @@ const EXPECTED_KEYS_BY_STEP: Record<string, readonly string[]> = {
     "map.placement.surface.lakeDrift",
     "map.placement.surface.terrainValidationDrift",
   ],
-  "plan-resources": [
+  "select-resource-sites": [
     "placement.resources.intents",
     "placement.resources.eligibleTypeCount",
     "placement.resources.legalTypeCount",
@@ -47,7 +47,7 @@ const EXPECTED_KEYS_BY_STEP: Record<string, readonly string[]> = {
   ],
   "adjust-resources": ["placement.resources.supportAdjustment", "placement.starts.supportRadius"],
   "place-resources": ["placement.resources.outcome"],
-  placement: ["map.placement.engine.landMask", "map.placement.engine.waterDrift"],
+  "observe-placement-parity": ["map.placement.engine.landMask", "map.placement.engine.waterDrift"],
 };
 
 describe("Standard placement visualization", () => {

@@ -1,15 +1,6 @@
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
-
-const ProjectRainfallStepConfigSchema = Type.Object(
-  {},
-  {
-    additionalProperties: false,
-    description:
-      "Rainfall projection has no author-facing configuration; it materializes the admitted final climate surface exactly once.",
-  }
-);
 
 /**
  * Declares the sole engine projection boundary for Hydrology rainfall. It consumes
@@ -17,6 +8,7 @@ const ProjectRainfallStepConfigSchema = Type.Object(
  */
 export const config = defineStep({
   id: "project-rainfall",
+  description: "Materializes the admitted final climate rainfall surface exactly once.",
   engine: ["setRainfall"] as const,
   requires: [],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.rainfallProjected],
@@ -24,5 +16,4 @@ export const config = defineStep({
     requires: [climateArtifacts.climateField],
     provides: [],
   },
-  schema: ProjectRainfallStepConfigSchema,
 });

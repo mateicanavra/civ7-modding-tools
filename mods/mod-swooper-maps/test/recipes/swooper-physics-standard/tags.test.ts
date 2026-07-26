@@ -9,10 +9,8 @@ import {
 } from "@swooper/mapgen-core/authoring";
 import { publishTestArtifact, withMapContextExecutionForTest } from "@swooper/mapgen-core/testing";
 
-import {
-  STANDARD_ENGINE_EFFECT_TAGS,
-  STANDARD_TAG_DEFINITIONS,
-} from "../../../src/recipes/standard/tags.js";
+import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../src/recipes/standard/tag-contracts.js";
+import { STANDARD_TAG_DEFINITIONS } from "../../../src/recipes/standard/tags.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../setup.js";
 
 const ASSIGNMENT_GRID = TEST_MAP_SIZE.dimensions;
@@ -75,14 +73,14 @@ function makeSyntheticStartAssignment(seatCount: number, assigned = seatCount) {
   };
 }
 
-function placementAppliedSatisfies(
+function startsAssignedSatisfies(
   assignment: ReturnType<typeof makeSyntheticStartAssignment>
 ): boolean {
   const definition = STANDARD_TAG_DEFINITIONS.find(
-    ({ id }) => id === STANDARD_ENGINE_EFFECT_TAGS.engine.placementApplied
+    ({ id }) => id === PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned
   );
   const satisfies = definition?.satisfies;
-  if (!definition || !satisfies) throw new Error("Missing placement completion predicate.");
+  if (!definition || !satisfies) throw new Error("Missing start-assignment completion predicate.");
 
   const adapter = createMockAdapter(ASSIGNMENT_GRID);
   const context = createMapContext({
@@ -105,17 +103,17 @@ function placementAppliedSatisfies(
 }
 
 describe("Standard effect tags", () => {
-  it("rejects terminal placement when the start assignment leaves a seat unseated", () => {
+  it("rejects start completion when the assignment leaves a seat unseated", () => {
     const complete = makeSyntheticStartAssignment(2);
-    expect(placementAppliedSatisfies(complete)).toBe(true);
+    expect(startsAssignedSatisfies(complete)).toBe(true);
 
     const incomplete = makeSyntheticStartAssignment(2, 1);
     expect(incomplete.unseatedCount).toBe(1);
-    expect(placementAppliedSatisfies(incomplete)).toBe(false);
+    expect(startsAssignedSatisfies(incomplete)).toBe(false);
   });
 
-  it("rejects terminal placement when no player seats were admitted", () => {
+  it("rejects start completion when no player seats were admitted", () => {
     const empty = makeSyntheticStartAssignment(0);
-    expect(placementAppliedSatisfies(empty)).toBe(false);
+    expect(startsAssignedSatisfies(empty)).toBe(false);
   });
 });

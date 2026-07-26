@@ -1,44 +1,10 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { buildScalarFieldProjections } from "@swooper/mapgen-viz";
 import { defineStandardVizMeta } from "../../../../../viz.js";
 import { config } from "./config.js";
 
 const GROUP_PEDOLOGY = "Ecology / Pedology";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
-
-function computeLocalReliefProxy(args: {
-  width: number;
-  height: number;
-  landMask: Uint8Array;
-  elevation: Int16Array;
-}): Float32Array {
-  const { width, height, landMask, elevation } = args;
-  const size = width * height;
-  const maxDropByTile = new Float32Array(size);
-  let maxDrop = 1;
-
-  for (let i = 0; i < size; i++) {
-    if (landMask[i] !== 1) continue;
-    const x = i % width;
-    const y = Math.floor(i / width);
-    const here = elevation[i] ?? 0;
-    let localMaxDrop = 0;
-    forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
-      const ni = ny * width + nx;
-      if (landMask[ni] !== 1) return;
-      localMaxDrop = Math.max(localMaxDrop, Math.abs(here - (elevation[ni] ?? 0)));
-    });
-    maxDropByTile[i] = localMaxDrop;
-    maxDrop = Math.max(maxDrop, localMaxDrop);
-  }
-
-  const invMaxDrop = 1 / maxDrop;
-  for (let i = 0; i < size; i++) {
-    maxDropByTile[i] *= invMaxDrop;
-  }
-  return maxDropByTile;
-}
 
 /**
  * Derives canonical soil type and fertility from substrate, topography, and
@@ -50,12 +16,6 @@ export const PedologyStep = createStep(config, {
     const topography = deps.artifacts.topography.read(context);
     const substrate = deps.artifacts.substrate.read(context);
     const { width, height } = context.setup.dimensions;
-    const slope = computeLocalReliefProxy({
-      width,
-      height,
-      landMask: topography.landMask,
-      elevation: topography.elevation,
-    });
 
     const result = ops.classify(
       {
@@ -66,7 +26,6 @@ export const PedologyStep = createStep(config, {
         rainfall: climateField.rainfall,
         humidity: climateField.humidity,
         sedimentDepth: substrate.sedimentDepth,
-        slope,
       },
       stepConfig.classify
     );

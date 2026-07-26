@@ -28,6 +28,7 @@ Two enforcement planes — do not conflate them:
 | `kind:control` | Runtime control of a live Civ7 instance: socket protocol (`direct-control`) and oRPC service surface (`control-orpc`, `studio-server`) | `packages/civ7-direct-control/AGENTS.md`; Habitat `grit-control-orpc-contract-ownership`; root `AGENTS.md` ("runtime Civ7 control belongs in @civ7/direct-control") |
 | `kind:library` | Pure leaf libraries: types, config, policy facts, metrics/viz contracts and evaluators; no domain orchestration, broadly importable | `packages/civ7-types`, `config`, `civ7-map-policy`, `mapgen-metrics`, `mapgen-viz` package docs |
 | `kind:plugin` | Reusable CLI/SDK helper libraries, leaf-local | `packages/plugins/*`; `packages/cli/AGENTS.md` |
+| `kind:package-tool` | Package-owned, non-runtime build, generation, and currentness programs; callable through Nx targets but not imported by product source | package-local `scripts/project.json`; root `AGENTS.md` task ownership |
 | `kind:mod` | Game-facing mod packages (recipes, domains, map configs, game runtime wrappers) | `mods/*`; `docs/system/ARCHITECTURE.md` |
 | `kind:tooling` | Repo-local dev tooling (the habitat harness itself) | new with this workstream |
 
@@ -97,6 +98,7 @@ treatment without adding a concrete tag or constraint row.
 | civ7-types | `packages/civ7-types` | `kind:library` |
 | civ7-config | `packages/config` | `kind:library` |
 | civ7-map-policy | `packages/civ7-map-policy` | `kind:library` |
+| civ7-map-policy-tools | `packages/civ7-map-policy/scripts` | `kind:package-tool` |
 | mapgen-viz | `packages/mapgen-viz` | `kind:library` |
 | plugin-files | `packages/plugins/plugin-files` | `kind:plugin` |
 | plugin-git | `packages/plugins/plugin-git` | `kind:plugin` |
@@ -141,6 +143,7 @@ owned by their Grit/file-layer rules.
 | `kind:engine` | `kind:adapter`, `kind:library` | core purity: mapgen-core sees adapter *types* only, never runtime values (`mapgen-core-runtime-civ7`, G3) |
 | `kind:mapgen-tool` | `kind:engine`, `kind:library`, `kind:control` | reusable MapGen tooling may compose neutral execution, projection, and future live-control capabilities without importing product or harness owners |
 | `kind:plugin` | `kind:plugin`, `kind:library` | plugins stay leaf-local (`cli/AGENTS.md`) |
+| `kind:package-tool` | `kind:library`, `kind:plugin` | package build/generation programs consume only leaf contracts and reusable CLI/file helpers; no source kind may import package tools |
 | `kind:sdk` | `kind:engine`, `kind:adapter`, `kind:library`, `kind:plugin` | SDK composes engine+adapter; mapgen subpath isolation (G11) stays grit-owned |
 | `kind:control` | `kind:control`, `kind:library`, `kind:adapter`, `kind:engine` | control service layering (`control-orpc` over `direct-control`); lifecycle ownership remains governed by the control note above, and contract-ownership rules stay grit-owned. Architecture review 2026-06-12: no control→mod edge exists, and main `331534895` (studio-server) explicitly forbids that direction in code comments — the previously drafted `kind:mod` allowance was dropped pre-lock as falsely provenanced |
 | `kind:mod` | `kind:sdk`, `kind:engine`, `kind:mapgen-tool`, `kind:adapter`, `kind:library`, `kind:control`, `kind:plugin` | mods consume SDK/engine/MapGen tooling/adapter/policy/control and plugin utilities needed for mod package workflows |

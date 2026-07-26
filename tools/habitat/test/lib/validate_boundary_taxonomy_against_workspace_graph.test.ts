@@ -1,4 +1,5 @@
-import { readFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import {
@@ -105,6 +106,42 @@ describe("boundary taxonomy verifier", () => {
       project: "habitat-service",
       root: "tools/habitat/src/service",
     });
+  });
+
+  test("admits exact nested workspaces and refuses unsupported glob syntax", async () => {
+    const root = await mkdtemp(path.join(tmpdir(), "habitat-workspaces-"));
+    const nestedRoot = path.join(root, "packages/example/tools");
+    try {
+      await mkdir(nestedRoot, { recursive: true });
+      await writeFile(
+        path.join(root, "package.json"),
+        JSON.stringify({ name: "workspace-root", workspaces: ["packages/example/tools"] })
+      );
+      await writeFile(
+        path.join(nestedRoot, "package.json"),
+        JSON.stringify({ name: "@example/tools" })
+      );
+      await writeFile(
+        path.join(nestedRoot, "project.json"),
+        JSON.stringify({ tags: ["kind:package-tool"] })
+      );
+
+      expect(await readWorkspaceManifestProjects(root)).toContainEqual({
+        name: "@example/tools",
+        root: "packages/example/tools",
+        tags: ["kind:package-tool"],
+      });
+
+      await writeFile(
+        path.join(root, "package.json"),
+        JSON.stringify({ name: "workspace-root", workspaces: ["packages/*/*"] })
+      );
+      await expect(readWorkspaceManifestProjects(root)).rejects.toThrow(
+        'Unsupported workspace pattern "packages/*/*"'
+      );
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
   });
 
   test("uses all matching source tags so dual-tag control-to-sdk edges fail", async () => {

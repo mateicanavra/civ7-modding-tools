@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "ensure:studio-recipe-artifacts": "node ./scripts/ensure-studio-recipe-artifacts.mjs",
-    "gen:civ7-tables": "bun ../../scripts/mapgen-studio/generate-civ7-browser-tables.ts",
     "lint:react-compiler": "node ../../.habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/lint-react-compiler.mjs"
   },
   "dependencies": {

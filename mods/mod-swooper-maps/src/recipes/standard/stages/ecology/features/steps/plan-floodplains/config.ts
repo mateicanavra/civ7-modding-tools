@@ -1,6 +1,6 @@
 import ecology from "@mapgen/domain/ecology";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Defines the first ordered feature-family planner. It consumes shared suitability evidence,
@@ -8,6 +8,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "plan-floodplains",
+  description: "Plans deterministic floodplain-family intent from shared suitability evidence.",
   requires: [],
   provides: [],
   artifacts: {
@@ -17,10 +18,4 @@ export const config = defineStep({
   ops: {
     planFloodplains: ecology.features.ops.planFloodplains,
   },
-  schema: Type.Object(
-    {},
-    {
-      description: "Deterministic floodplain-family planning from shared suitability evidence.",
-    }
-  ),
 });

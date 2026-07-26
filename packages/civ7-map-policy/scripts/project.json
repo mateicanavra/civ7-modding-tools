@@ -1,0 +1,29 @@
+{
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "name": "civ7-map-policy-tools",
+  "tags": ["kind:package-tool"],
+  "targets": {
+    "check:tools": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "tsc -p packages/civ7-map-policy/scripts/tsconfig.json --noEmit"
+      }
+    },
+    "generate": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "command": "bun --conditions bun-source packages/civ7-map-policy/scripts/generate.ts --write"
+      }
+    },
+    "generated:check": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "command": "bun --conditions bun-source packages/civ7-map-policy/scripts/generate.ts"
+      }
+    }
+  }
+}

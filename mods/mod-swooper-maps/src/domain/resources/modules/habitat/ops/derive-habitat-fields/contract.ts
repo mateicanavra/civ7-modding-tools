@@ -10,7 +10,7 @@ import quantilePhysicalLanesDefinition from "./strategies/quantile-physical-lane
  * (placement-realignment S3 step 2). Inputs are pipeline artifacts only
  * (morphology topography/coastline/mountains/belts, hydrology hydrography +
  * lake plan, ecology biome classification + pedology, cryosphere); outputs
- * are the exact mask field names declared by the family planner contracts,
+ * are the exact mask field names consumed by terminal resource-demand resolution,
  * including the marine/aquatic lanes (E2.4), plus per-family intensity
  * fields that modulate inhomogeneous-Poisson site selection (E2.5).
  */

@@ -10,7 +10,6 @@
 import {
   CIV7_BROWSER_TABLES_V0,
   getNaturalWonderFootprintIndices,
-  NATURAL_WONDER_CATALOG,
   NO_RESOURCE,
   NO_RIVER_TYPE,
   type OfficialAgeType,
@@ -18,6 +17,7 @@ import {
   RIVER_TYPE_NAVIGABLE,
 } from "@civ7/map-policy";
 import {
+  captureCurrentMapLayer,
   captureCurrentRiverSurface,
   deriveRiverProjectionFromCurrentSurface,
 } from "./current-map-surface.js";
@@ -27,9 +27,7 @@ import {
   queryCiv7ResourceRequirementForAge,
 } from "./resource-age-policy.js";
 import type {
-  CurrentMapSurface,
-  DiscoveryPlacementIntent,
-  DiscoveryPlacementOutcome,
+  CurrentRiverSurface,
   EngineAdapter,
   FeatureData,
   LakeProjectionResult,
@@ -37,7 +35,6 @@ import type {
   MapInfo,
   MapInitParams,
   MapSizeId,
-  NaturalWonderCatalogEntry,
   NaturalWonderPlacementOutcome,
   OfficialDiscoveryGenerationResult,
   PlotTagName,
@@ -105,10 +102,6 @@ export class Civ7Adapter implements EngineAdapter {
 
   private recordEffect(effectId: string): void {
     this.effectEvidence.add(effectId);
-  }
-
-  private recordPlacementEffect(): void {
-    this.recordEffect(ENGINE_EFFECT_TAGS.placementApplied);
   }
 
   private countPlacedResources(): number {
@@ -388,7 +381,6 @@ export class Civ7Adapter implements EngineAdapter {
       throw new Error("[Adapter] ResourceBuilder.setResourceType is unavailable.");
     }
     rb.setResourceType(x, y, resourceType);
-    this.recordPlacementEffect();
   }
 
   canHaveResource(x: number, y: number, resourceType: number): boolean {
@@ -459,25 +451,20 @@ export class Civ7Adapter implements EngineAdapter {
     return rows.sort((a, b) => a.index - b.index);
   }
 
-  placeResourceIntent(
-    width: number,
-    height: number,
-    intent: ResourcePlacementIntent
-  ): ResourcePlacementOutcome {
+  placeResourceIntent(intent: ResourcePlacementIntent): ResourcePlacementOutcome {
     // D4 placement reconciliation treats Civ7 feasibility as adapter-owned.
     // The recipe supplies deterministic intent; this boundary translates it
     // into an engine write plus readback evidence without falling back to the
     // aggregate official resource generator.
-    const resolvedWidth = Math.max(0, Math.trunc(width));
-    const resolvedHeight = Math.max(0, Math.trunc(height));
+    const { width, height } = this;
     const plotIndex = Number.isFinite(intent.plotIndex) ? Math.trunc(intent.plotIndex) : -1;
     const resourceType = Number.isFinite(intent.resourceType)
       ? Math.trunc(intent.resourceType)
       : this.NO_RESOURCE;
-    const y = resolvedWidth > 0 ? Math.trunc(plotIndex / resolvedWidth) : -1;
-    const x = resolvedWidth > 0 ? plotIndex - y * resolvedWidth : -1;
+    const y = width > 0 ? Math.trunc(plotIndex / width) : -1;
+    const x = width > 0 ? plotIndex - y * width : -1;
 
-    if (plotIndex < 0 || x < 0 || y < 0 || x >= resolvedWidth || y >= resolvedHeight) {
+    if (plotIndex < 0 || x < 0 || y < 0 || x >= width || y >= height) {
       return { status: "rejected", plotIndex, x, y, resourceType, reason: "out-of-bounds" };
     }
     if (resourceType < 0 || resourceType === (this.NO_RESOURCE | 0)) {
@@ -609,20 +596,77 @@ export class Civ7Adapter implements EngineAdapter {
     TerrainBuilder.storeWaterData();
   }
 
-  /** Reads and detaches the current Civ7 terrain, biome, feature, water, and river surfaces. */
-  readCurrentMapSurface(): CurrentMapSurface {
+  /** Reads current Civ7 terrain ids into fresh row-major full-width storage. */
+  readCurrentMapTerrainTypes(): Int32Array {
+    return captureCurrentMapLayer(
+      this.width,
+      this.height,
+      Int32Array,
+      (x, y) => this.getTerrainType(x, y) | 0
+    );
+  }
+
+  /** Reads current Civ7 elevations into fresh row-major signed storage. */
+  readCurrentMapElevations(): Int16Array {
+    return captureCurrentMapLayer(
+      this.width,
+      this.height,
+      Int16Array,
+      (x, y) => this.getElevation(x, y) | 0
+    );
+  }
+
+  /** Reads current Civ7 biome ids into fresh row-major full-width storage. */
+  readCurrentMapBiomeTypes(): Int32Array {
+    return captureCurrentMapLayer(
+      this.width,
+      this.height,
+      Int32Array,
+      (x, y) => this.getBiomeType(x, y) | 0
+    );
+  }
+
+  /** Reads current Civ7 feature ids into fresh row-major full-width storage. */
+  readCurrentMapFeatureTypes(): Int32Array {
+    return captureCurrentMapLayer(
+      this.width,
+      this.height,
+      Int32Array,
+      (x, y) => this.getFeatureType(x, y) | 0
+    );
+  }
+
+  /** Reads Civ7's current water classification into a fresh row-major byte mask. */
+  readCurrentMapWaterMask(): Uint8Array {
+    return captureCurrentMapLayer(this.width, this.height, Uint8Array, (x, y) =>
+      this.isWater(x, y) ? 1 : 0
+    );
+  }
+
+  /** Reads Civ7's current lake classification into a fresh row-major byte mask. */
+  readCurrentMapLakeMask(): Uint8Array {
+    return captureCurrentMapLayer(this.width, this.height, Uint8Array, (x, y) =>
+      this.isLake(x, y) ? 1 : 0
+    );
+  }
+
+  /** Reads Civ7's current area ids into fresh row-major full-width storage. */
+  readCurrentMapAreaIds(): Int32Array {
+    return captureCurrentMapLayer(
+      this.width,
+      this.height,
+      Int32Array,
+      (x, y) => this.getAreaId(x, y) | 0
+    );
+  }
+
+  /**
+   * Reads detached terrain and river classifications from current Civ7 engine state.
+   * River metadata stays distinct from navigable-river terrain because either signal can exist
+   * independently in the embedded runtime.
+   */
+  readCurrentRiverSurface(): CurrentRiverSurface {
     const { width, height } = this;
-    const size = width * height;
-    const terrainType = new Int32Array(size);
-    const elevation = new Int16Array(size);
-    const biomeType = new Int32Array(size);
-    const featureType = new Int32Array(size);
-    const waterMask = new Uint8Array(size);
-    const lakeMask = new Uint8Array(size);
-    const riverType = new Int32Array(size);
-    const riverMask = new Uint8Array(size);
-    const navigableRiverMask = new Uint8Array(size);
-    const minorRiverMask = new Uint8Array(size);
     const riverTypes = (
       globalThis as typeof globalThis & {
         RiverTypes?: Record<string, number>;
@@ -641,48 +685,21 @@ export class Civ7Adapter implements EngineAdapter {
     };
     const typeReadbackSupported = typeof gameplayMap.getRiverType === "function";
 
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        const index = y * width + x;
-        const observedRiverType = this.getRiverType(x, y) | 0;
-        const hasRiverMetadata = observedRiverType !== noRiverType;
-        const isRiver = this.isRiver(x, y) || hasRiverMetadata;
-        const isNavigable = this.isNavigableRiver(x, y) || observedRiverType === navigableRiverType;
-        terrainType[index] = this.getTerrainType(x, y) | 0;
-        elevation[index] = this.getElevation(x, y) | 0;
-        biomeType[index] = this.getBiomeType(x, y) | 0;
-        featureType[index] = this.getFeatureType(x, y) | 0;
-        waterMask[index] = this.isWater(x, y) ? 1 : 0;
-        lakeMask[index] = this.isLake(x, y) ? 1 : 0;
-        riverType[index] = observedRiverType;
-        riverMask[index] = isRiver ? 1 : 0;
-        navigableRiverMask[index] = isNavigable ? 1 : 0;
-        minorRiverMask[index] = isRiver && observedRiverType === minorRiverType ? 1 : 0;
-      }
-    }
-
-    return Object.freeze({
+    return captureCurrentRiverSurface({
       width,
       height,
-      terrainType,
-      elevation,
-      biomeType,
-      featureType,
-      waterMask,
-      lakeMask,
-      riverType,
-      riverMask,
-      navigableRiverMask,
-      minorRiverMask,
-      sentinels: Object.freeze({
-        navigableRiverTerrainType: this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER") | 0,
-      }),
-      riverMetadata: Object.freeze({
-        typeReadbackSupported,
-        unsupportedReason: typeReadbackSupported
-          ? "Native Civ river-type metadata readback is available after TerrainBuilder.modelRivers; exact Hydrology minor-river parity must be proven by comparing planned minor intent to engineMinorRiverMask."
-          : "Native Civ minor-river metadata readback is unavailable in this runtime; exact Hydrology minor-river parity cannot be proven from readCurrentMapSurface.",
-      }),
+      noRiverType,
+      minorRiverType,
+      navigableRiverType,
+      navigableRiverTerrainType: this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER") | 0,
+      typeReadbackSupported,
+      unsupportedReason: typeReadbackSupported
+        ? "Native Civ river-type metadata readback is available after TerrainBuilder.modelRivers; exact Hydrology minor-river parity must be proven by comparing planned minor intent to engineMinorRiverMask."
+        : "Native Civ minor-river metadata readback is unavailable in this runtime; exact Hydrology minor-river parity cannot be proven from readCurrentRiverSurface.",
+      getTerrainType: (x, y) => this.getTerrainType(x, y),
+      getRiverType: (x, y) => this.getRiverType(x, y),
+      isRiver: (x, y) => this.isRiver(x, y),
+      isNavigableRiver: (x, y) => this.isNavigableRiver(x, y),
     });
   }
 
@@ -696,41 +713,8 @@ export class Civ7Adapter implements EngineAdapter {
         `[Civ7Adapter] River projection dimensions ${width}x${height} do not match the current map ${this.width}x${this.height}.`
       );
     }
-    const riverTypes = (
-      globalThis as typeof globalThis & {
-        RiverTypes?: Record<string, number>;
-      }
-    ).RiverTypes;
-    const noRiverType =
-      typeof riverTypes?.NO_RIVER === "number" ? riverTypes.NO_RIVER | 0 : NO_RIVER_TYPE;
-    const minorRiverType =
-      typeof riverTypes?.RIVER_MINOR === "number" ? riverTypes.RIVER_MINOR | 0 : RIVER_TYPE_MINOR;
-    const navigableRiverType =
-      typeof riverTypes?.RIVER_NAVIGABLE === "number"
-        ? riverTypes.RIVER_NAVIGABLE | 0
-        : RIVER_TYPE_NAVIGABLE;
-    const gameplayMap = GameplayMap as unknown as {
-      getRiverType?: (x: number, y: number) => number;
-    };
-    const typeReadbackSupported = typeof gameplayMap.getRiverType === "function";
-    const surface = captureCurrentRiverSurface({
-      width,
-      height,
-      noRiverType,
-      minorRiverType,
-      navigableRiverType,
-      navigableRiverTerrainType: this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER") | 0,
-      typeReadbackSupported,
-      unsupportedReason: typeReadbackSupported
-        ? "Native Civ river-type metadata readback is available after TerrainBuilder.modelRivers; exact Hydrology minor-river parity must be proven by comparing planned minor intent to engineMinorRiverMask."
-        : "Native Civ minor-river metadata readback is unavailable in this runtime; exact Hydrology minor-river parity cannot be proven from readRiverProjection.",
-      getTerrainType: (x, y) => this.getTerrainType(x, y),
-      getRiverType: (x, y) => this.getRiverType(x, y),
-      isRiver: (x, y) => this.isRiver(x, y),
-      isNavigableRiver: (x, y) => this.isNavigableRiver(x, y),
-    });
     return deriveRiverProjectionFromCurrentSurface(
-      surface,
+      this.readCurrentRiverSurface(),
       plannedNavigableRiverMask,
       "Civ7Adapter"
     );
@@ -1047,7 +1031,6 @@ export class Civ7Adapter implements EngineAdapter {
         };
       }
     }
-    this.recordPlacementEffect();
     return {
       status: "placed",
       plotIndex,
@@ -1057,95 +1040,6 @@ export class Civ7Adapter implements EngineAdapter {
       direction,
       elevation: resolvedElevation,
     };
-  }
-
-  stampDiscovery(
-    x: number,
-    y: number,
-    discoveryVisualType: number,
-    discoveryActivationType: number
-  ): boolean {
-    const mapConstructibles = (
-      globalThis as typeof globalThis & {
-        MapConstructibles?: {
-          addDiscovery?: (
-            x: number,
-            y: number,
-            discoveryVisualType: number,
-            discoveryActivationType: number
-          ) => boolean;
-        };
-      }
-    ).MapConstructibles;
-    if (!mapConstructibles?.addDiscovery) {
-      throw new Error("[Adapter] MapConstructibles.addDiscovery is unavailable.");
-    }
-    const placed = mapConstructibles.addDiscovery(
-      x,
-      y,
-      discoveryVisualType,
-      discoveryActivationType
-    );
-    if (placed) this.recordPlacementEffect();
-    return Boolean(placed);
-  }
-
-  placeDiscoveryIntent(
-    width: number,
-    height: number,
-    intent: DiscoveryPlacementIntent
-  ): DiscoveryPlacementOutcome {
-    // Discovery placement has no stable post-write readback, so the adapter
-    // exposes Civ7 acceptance/rejection as explicit reconciliation evidence
-    // instead of making the recipe infer success from generator counts.
-    const resolvedWidth = Math.max(0, Math.trunc(width));
-    const resolvedHeight = Math.max(0, Math.trunc(height));
-    const plotIndex = Number.isFinite(intent.plotIndex) ? Math.trunc(intent.plotIndex) : -1;
-    const discoveryVisualType = Number.isFinite(intent.discoveryVisualType)
-      ? Math.trunc(intent.discoveryVisualType)
-      : -1;
-    const discoveryActivationType = Number.isFinite(intent.discoveryActivationType)
-      ? Math.trunc(intent.discoveryActivationType)
-      : -1;
-    const y = resolvedWidth > 0 ? Math.trunc(plotIndex / resolvedWidth) : -1;
-    const x = resolvedWidth > 0 ? plotIndex - y * resolvedWidth : -1;
-
-    if (plotIndex < 0 || x < 0 || y < 0 || x >= resolvedWidth || y >= resolvedHeight) {
-      return {
-        status: "rejected",
-        plotIndex,
-        x,
-        y,
-        discoveryVisualType,
-        discoveryActivationType,
-        reason: "out-of-bounds",
-      };
-    }
-    if (discoveryVisualType < 0 || discoveryActivationType < 0) {
-      return {
-        status: "rejected",
-        plotIndex,
-        x,
-        y,
-        discoveryVisualType,
-        discoveryActivationType,
-        reason: "invalid-discovery-type",
-      };
-    }
-
-    const placed = this.stampDiscovery(x, y, discoveryVisualType, discoveryActivationType);
-    if (!placed) {
-      return {
-        status: "rejected",
-        plotIndex,
-        x,
-        y,
-        discoveryVisualType,
-        discoveryActivationType,
-        reason: "adapter-rejected",
-      };
-    }
-    return { status: "placed", plotIndex, x, y, discoveryVisualType, discoveryActivationType };
   }
 
   generateOfficialResources(
@@ -1220,18 +1114,15 @@ export class Civ7Adapter implements EngineAdapter {
     const countedPlaced = Math.max(0, resourcesAfter - resourcesBefore);
     const placedCount = Math.max(0, observedPlacedCount, countedPlaced);
 
-    this.recordPlacementEffect();
     return placedCount;
   }
 
   generateOfficialDiscoveries(
-    width: number,
-    height: number,
     startPositions: ReadonlyArray<number>,
     polarMargin: number
   ): OfficialDiscoveryGenerationResult {
-    const resolvedWidth = Math.max(0, Math.trunc(width));
-    const resolvedHeight = Math.max(0, Math.trunc(height));
+    const resolvedWidth = this.width;
+    const resolvedHeight = this.height;
     const resolvedStartPositions = (Array.isArray(startPositions) ? startPositions : [])
       .filter((value) => Number.isFinite(value) && value >= 0)
       .map((value) => Math.trunc(value));
@@ -1296,17 +1187,11 @@ export class Civ7Adapter implements EngineAdapter {
       mapConstructibles.addDiscovery = originalAddDiscovery;
     }
 
-    this.recordPlacementEffect();
-    return { attemptedCount, placedCount };
-  }
-
-  getNaturalWonderCatalog(): NaturalWonderCatalogEntry[] {
-    return NATURAL_WONDER_CATALOG;
+    return Object.freeze({ attemptedCount, placedCount });
   }
 
   generateSnow(width: number, height: number): void {
     civ7GenerateSnow(width, height);
-    this.recordPlacementEffect();
   }
 
   assignStartPositions(
@@ -1318,7 +1203,6 @@ export class Civ7Adapter implements EngineAdapter {
     startSectorCols: number,
     startSectors: number[]
   ): number[] {
-    this.recordPlacementEffect();
     const result = civ7AssignStartPositions(
       playersLandmass1,
       playersLandmass2,
@@ -1339,7 +1223,6 @@ export class Civ7Adapter implements EngineAdapter {
     ).StartPositioner;
     if (startPositioner?.setStartPosition) {
       startPositioner.setStartPosition(plotIndex, playerId);
-      this.recordPlacementEffect();
     }
   }
 
@@ -1373,7 +1256,6 @@ export class Civ7Adapter implements EngineAdapter {
 
   assignAdvancedStartRegions(): void {
     civ7AssignAdvancedStartRegions();
-    this.recordPlacementEffect();
   }
 
   addFloodplains(minLength: number, maxLength: number): void {
@@ -1382,7 +1264,6 @@ export class Civ7Adapter implements EngineAdapter {
     if (typeof tb.addFloodplains === "function") {
       tb.addFloodplains(minLength, maxLength);
     }
-    this.recordPlacementEffect();
   }
 
   recalculateFertility(): void {
@@ -1396,7 +1277,6 @@ export class Civ7Adapter implements EngineAdapter {
         "[Civ7Adapter] FertilityBuilder not available - fertility will be calculated by engine defaults"
       );
     }
-    this.recordPlacementEffect();
   }
 }
 

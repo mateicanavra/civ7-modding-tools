@@ -1,5 +1,4 @@
 import { describe, expect, it } from "bun:test";
-import { type Civ7StandardMapSizePreset, getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { Value } from "typebox/value";
 import {
   measureStandardNaturalWonderPlanInput,
@@ -14,13 +13,8 @@ type SurfaceDigestKey = Exclude<
   "version" | "plotCount"
 >;
 
-const ALTERNATE_MAP_SIZE = getCiv7StandardMapSizePreset(
-  TEST_MAP_SIZE.id === "MAPSIZE_TINY" ? "MAPSIZE_SMALL" : "MAPSIZE_TINY"
-);
-
 function measurementInput(
   options: Readonly<{
-    mapSize?: Civ7StandardMapSizePreset;
     wondersCount?: number;
     coastTerrainType?: number;
     mountainTerrainType?: number;
@@ -30,8 +24,7 @@ function measurementInput(
     minSpacingTiles?: number;
   }> = {}
 ): MeasurementInput {
-  const mapSize = options.mapSize ?? TEST_MAP_SIZE;
-  const { width, height } = mapSize.dimensions;
+  const { width, height } = TEST_MAP_SIZE.dimensions;
   const plotCount = width * height;
   const landMask = new Uint8Array(plotCount).fill(1);
   const elevation = new Int16Array(plotCount).fill(100);
@@ -358,17 +351,6 @@ describe("Standard natural-wonder planning-input measurements", () => {
     });
     expect(configChange.plannerInput.strategy.configHash32).not.toBe(
       baseline.plannerInput.strategy.configHash32
-    );
-  });
-
-  it("uses real Civ7 preset dimensions without inventing a synthetic grid", () => {
-    const measurements = measureStandardNaturalWonderPlanInput(
-      measurementInput({ mapSize: ALTERNATE_MAP_SIZE })
-    );
-
-    expect(measurements.plannerInput.dimensions).toEqual(ALTERNATE_MAP_SIZE.dimensions);
-    expect(measurements.plannerInput.surfaceDigests.plotCount).toBe(
-      ALTERNATE_MAP_SIZE.dimensions.width * ALTERNATE_MAP_SIZE.dimensions.height
     );
   });
 

@@ -1,12 +1,18 @@
 import { describe, expect, it } from "bun:test";
 
 import { NO_RIVER_TYPE, RIVER_TYPE_NAVIGABLE } from "@civ7/map-policy";
-import { createMockAdapter } from "../src/mock-adapter.js";
+import { createMockAdapter, MockAdapter } from "../src/mock-adapter.js";
 
 const TERRAIN_MOUNTAIN = 0;
 const TERRAIN_FLAT = 2;
 const TERRAIN_COAST = 3;
 const TERRAIN_OCEAN = 4;
+
+class RiverMetadataAdapter extends MockAdapter {
+  override getRiverType(x: number, y: number): number {
+    return x === 3 && y === 0 ? RIVER_TYPE_NAVIGABLE : NO_RIVER_TYPE;
+  }
+}
 
 describe("mock adapter terrain policy", () => {
   it("does not expand coast solely from land adjacency during terrain validation", () => {
@@ -141,7 +147,11 @@ describe("mock adapter terrain policy", () => {
   });
 
   it("reads navigable river projection parity while preserving native minor metadata capability", () => {
-    const adapter = createMockAdapter({ width: 5, height: 2, defaultTerrainType: TERRAIN_FLAT });
+    const adapter = new RiverMetadataAdapter({
+      width: 5,
+      height: 2,
+      defaultTerrainType: TERRAIN_FLAT,
+    });
     const navigableRiverTerrain = adapter.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER");
     const planned = new Uint8Array(10);
     planned[1] = 1;
@@ -151,8 +161,6 @@ describe("mock adapter terrain policy", () => {
     adapter.setTerrainType(1, 0, navigableRiverTerrain);
     adapter.setTerrainType(2, 0, navigableRiverTerrain);
     adapter.setTerrainType(4, 0, navigableRiverTerrain);
-    (adapter as unknown as { riverTypes: Int8Array }).riverTypes[3] = RIVER_TYPE_NAVIGABLE;
-    (adapter as unknown as { riverMask: Uint8Array }).riverMask[3] = 1;
 
     const projection = adapter.readRiverProjection(5, 2, planned);
 
@@ -161,8 +169,6 @@ describe("mock adapter terrain policy", () => {
     expect(adapter.getRiverType(1, 0)).toBe(NO_RIVER_TYPE);
     expect(adapter.isRiver(1, 0)).toBe(false);
     expect(adapter.isNavigableRiver(1, 0)).toBe(false);
-    expect(adapter.isAdjacentToRivers(1, 1)).toBe(false);
-    expect(adapter.isAdjacentToRivers(3, 1)).toBe(true);
     expect(projection.stampedNavigableRiverTileCount).toBe(2);
     expect(projection.rejectedNavigableRiverTileCount).toBe(1);
     expect(projection.extraNavigableRiverTileCount).toBe(1);

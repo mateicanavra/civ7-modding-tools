@@ -185,8 +185,7 @@ const mapConfig = {
     },
     "morphology-coasts": {
       "knobs": {
-        "seaLevel": "earthlike",
-        "coastRuggedness": "normal"
+        "seaLevel": "earthlike"
       },
       "landmass-plates": {
         "beltDrivers": {
@@ -269,37 +268,9 @@ const mapConfig = {
           }
         }
       },
-      "rugged-coasts": {
-        "coastlines": {
-          "strategy": "plate-aware-carving",
-          "config": {
-            "coast": {
-              "bay": {
-                "noiseGateAdd": 0.05,
-                "rollDenActive": 4,
-                "rollDenDefault": 7
-              },
-              "fjord": {
-                "baseDenom": 15,
-                "activeBonus": 2,
-                "passiveBonus": 1
-              },
-              "plateBias": {
-                "threshold": 0.42,
-                "power": 1.3,
-                "convergent": 1.5,
-                "transform": 0.35,
-                "divergent": -0.45,
-                "interior": 0.35,
-                "bayWeight": 0.9,
-                "bayNoiseBonus": 0.45,
-                "fjordWeight": 0.85
-              }
-            }
-          }
-        },
-        "reconcileHeightfield": {
-          "strategy": "carved-coast-datum",
+      "coastline-evidence": {
+        "adjacency": {
+          "strategy": "wrapped-hex-adjacency",
           "config": {}
         },
         "distanceToCoast": {
@@ -1260,11 +1231,7 @@ const mapConfig = {
           "config": {}
         }
       },
-      "derive-placement-inputs": {
-        "wonders": {
-          "strategy": "map-metadata",
-          "config": {}
-        },
+      "plan-natural-wonders": {
         "naturalWonders": {
           "strategy": "suitability-diversity",
           "config": {
@@ -1272,7 +1239,17 @@ const mapConfig = {
           }
         }
       },
-      "plan-resources": {
+      "plan-resource-demands": {
+        "habitat": {
+          "strategy": "quantile-physical-lanes",
+          "config": {}
+        },
+        "demands": {
+          "strategy": "policy-constrained",
+          "config": {}
+        }
+      },
+      "select-resource-sites": {
         "selectSites": {
           "strategy": "blue-noise-rotation",
           "config": {
@@ -1290,34 +1267,6 @@ const mapConfig = {
             },
             "affinityRules": []
           }
-        },
-        "habitat": {
-          "strategy": "quantile-physical-lanes",
-          "config": {}
-        },
-        "aquatic": {
-          "strategy": "canonical-demand",
-          "config": {}
-        },
-        "cultivated": {
-          "strategy": "canonical-demand",
-          "config": {}
-        },
-        "terrestrial": {
-          "strategy": "canonical-demand",
-          "config": {}
-        },
-        "geological": {
-          "strategy": "canonical-demand",
-          "config": {}
-        },
-        "groups": {
-          "strategy": "canonical-rollup",
-          "config": {}
-        },
-        "demands": {
-          "strategy": "policy-constrained",
-          "config": {}
         }
       },
       "assign-starts": {
@@ -1395,7 +1344,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-earthlike",
-  configHash: "f20852c3836af27e3e316e0643fe0a44e3c35d17098df3e51a94ee95a0e8905f",
-  envelopeHash: "28ee9c0f96615d54121ba355db58fec9b0b968a4cbb9a2b5f84671fb593d3085",
+  configHash: "3043fa73e747f81476e17b56b217fc044d8e7039acca32ac53f747862240e0a8",
+  envelopeHash: "14072a1bdffecb52a72308fe09c4a6fc25b78078b6cd1e9e5d341389359a22dc",
   config: mapConfig.config,
 });

@@ -37,32 +37,9 @@ type ResourcePlacementCoordinateDigest =
   ResourcePlacementOutcomes["summary"]["coordinateEvidence"]["placed"];
 
 type PlaceResourcesWithTypedOutcomesArgs = {
-  placeResourceIntent: (
-    width: number,
-    height: number,
-    intent: ResourcePlacementIntent
-  ) => ResourcePlacementOutcome;
-  width: number;
-  height: number;
+  placeResourceIntent: (intent: ResourcePlacementIntent) => ResourcePlacementOutcome;
   plan: DeepReadonly<ResourcePlanOutput>;
 };
-
-const RESOURCE_REJECTION_REASONS = new Set<string>([
-  "out-of-bounds",
-  "invalid-resource-type",
-  "cannot-have-resource",
-]);
-const RESOURCE_MISMATCH_REASONS = new Set<string>(["wrong-resource-type"]);
-
-function expectedTileForIntent(
-  width: number,
-  plotIndex: number
-): { plotIndex: number; x: number; y: number } {
-  const resolvedPlotIndex = Number.isFinite(plotIndex) ? Math.trunc(plotIndex) : -1;
-  const y = Math.trunc(resolvedPlotIndex / width);
-  const x = resolvedPlotIndex - y * width;
-  return { plotIndex: resolvedPlotIndex, x, y };
-}
 
 function buildResourcePlacementCoordinateDigest(
   outcomes: readonly ResourcePlacementOutcome[],
@@ -109,9 +86,7 @@ function summarizeResourceOutcomes(
   const byReason = new Map<ResourcePlacementReason, number>();
 
   for (const outcome of outcomes) {
-    const resourceType = Number.isFinite(outcome.resourceType)
-      ? Math.trunc(outcome.resourceType)
-      : -1;
+    const resourceType = outcome.resourceType;
     let resourceSummary = byResource.get(resourceType);
     if (!resourceSummary) {
       resourceSummary = {
@@ -171,52 +146,6 @@ function summarizeResourceOutcomes(
   };
 }
 
-function assertResourceOutcomeMatchesIntent(
-  outcome: ResourcePlacementOutcome,
-  intent: ResourcePlacementIntent,
-  width: number
-): void {
-  const expected = expectedTileForIntent(width, intent.plotIndex);
-  const expectedResourceType = Number.isFinite(intent.resourceType)
-    ? Math.trunc(intent.resourceType)
-    : -1;
-  const status = (outcome as { status?: unknown }).status;
-
-  if (status !== "placed" && status !== "rejected" && status !== "mismatch") {
-    throw new Error(
-      `[Placement] Resource placement returned untyped outcome status (${String(status)}).`
-    );
-  }
-  if (
-    outcome.plotIndex !== expected.plotIndex ||
-    outcome.x !== expected.x ||
-    outcome.y !== expected.y ||
-    outcome.resourceType !== expectedResourceType
-  ) {
-    throw new Error(
-      `[Placement] Resource placement outcome location/type drifted from intent (intent=${expected.plotIndex}:${expectedResourceType}, outcome=${outcome.plotIndex}:${outcome.resourceType}).`
-    );
-  }
-  if (outcome.status === "rejected" && !RESOURCE_REJECTION_REASONS.has(outcome.reason)) {
-    throw new Error(
-      `[Placement] Resource placement returned an untyped rejection reason (${String(outcome.reason)}).`
-    );
-  }
-  if (outcome.status === "mismatch" && !RESOURCE_MISMATCH_REASONS.has(outcome.reason)) {
-    throw new Error(
-      `[Placement] Resource placement returned an untyped mismatch reason (${String(outcome.reason)}).`
-    );
-  }
-  if (
-    outcome.status === "placed" &&
-    (outcome.observedResourceType | 0) !== (expectedResourceType | 0)
-  ) {
-    throw new Error(
-      `[Placement] Resource placement reported placed but readback differed (${expectedResourceType}->${outcome.observedResourceType}).`
-    );
-  }
-}
-
 /**
  * Thin materializer (placement-realignment S3 / D4, reordered by S5 / D3):
  * stamps the typed plot intents from the ADJUSTED resource plan (site
@@ -231,8 +160,6 @@ function assertResourceOutcomeMatchesIntent(
  */
 function placeResourcesWithTypedOutcomes({
   placeResourceIntent,
-  width,
-  height,
   plan,
 }: PlaceResourcesWithTypedOutcomesArgs): ResourcePlacementOutcomes {
   const outcomes: ResourcePlacementOutcome[] = [];
@@ -248,8 +175,7 @@ function placeResourcesWithTypedOutcomes({
       plotIndex: planned.plotIndex,
       resourceType: resourceTypeId,
     };
-    const outcome = placeResourceIntent(width, height, intent);
-    assertResourceOutcomeMatchesIntent(outcome, intent, width);
+    const outcome = placeResourceIntent(intent);
     outcomes.push(outcome);
     if (outcome.status === "placed") {
       const phase = planned.phase;
@@ -376,16 +302,13 @@ function resourceOutcomeCategoryValue(outcome: ResourceOutcomeRow): number {
 export const PlaceResourcesStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
     const plan = deps.artifacts.resourcePlanAdjusted.read(context);
-    const { width, height } = context.setup.dimensions;
     const emit = (payload: TraceJsonObject): void => {
       context.trace.event(() => payload);
     };
 
     const outcomes = runPlacementProductStep("placement.resources", emit, () =>
       placeResourcesWithTypedOutcomes({
-        placeResourceIntent: (...args) => deps.engine.placeResourceIntent(context, ...args),
-        width,
-        height,
+        placeResourceIntent: (intent) => deps.engine.placeResourceIntent(context, intent),
         plan,
       })
     );
@@ -427,7 +350,7 @@ export const PlaceResourcesStep = createStep(config, {
           {
             label: "Resource Stamping Outcomes",
             description:
-              "Typed reconcile outcomes per planned resource intent: placed, or rejected with the recorded reason (no relocation, no type re-decision). Per-type identity lives on the plan-resources intent layer.",
+              "Typed reconcile outcomes per planned resource intent: placed, or rejected with the recorded reason (no relocation, no type re-decision). Per-type identity lives on the select-resource-sites intent layer.",
           }
         ),
       },

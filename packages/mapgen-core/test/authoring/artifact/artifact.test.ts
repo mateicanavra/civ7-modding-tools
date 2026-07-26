@@ -67,7 +67,6 @@ describe("artifact authoring", () => {
       requires: ["effect:test.ready"],
       provides: [],
       artifacts: { requires, provides },
-      schema: EmptyStepConfigSchema,
     });
 
     requires.length = 0;
@@ -110,7 +109,6 @@ describe("artifact authoring", () => {
         id: "raw-artifact",
         requires: [first.id],
         provides: [],
-        schema: EmptyStepConfigSchema,
       })
     ).toThrow(/cannot declare artifact ids.*artifacts\.requires\/provides/i);
     expect(() =>
@@ -119,7 +117,6 @@ describe("artifact authoring", () => {
         requires: [],
         provides: [],
         artifacts: { requires: [first], provides: [first] },
-        schema: EmptyStepConfigSchema,
       })
     ).toThrow(/artifacts\.requires/);
     expect(() =>
@@ -128,7 +125,6 @@ describe("artifact authoring", () => {
         requires: [],
         provides: [],
         artifacts: { requires: [first], provides: [duplicateName] },
-        schema: EmptyStepConfigSchema,
       })
     ).toThrow('declares duplicate artifact name "sharedArtifact"');
     expect(() =>
@@ -137,7 +133,6 @@ describe("artifact authoring", () => {
         requires: [],
         provides: [],
         artifacts: { requires: [first], provides: [duplicateId] },
-        schema: EmptyStepConfigSchema,
       })
     ).toThrow(`declares artifact "${first.id}" in both artifacts.requires and artifacts.provides`);
     expect(() =>
@@ -146,7 +141,6 @@ describe("artifact authoring", () => {
         requires: [],
         provides: [],
         artifacts: { provides: [mutable] },
-        schema: EmptyStepConfigSchema,
       } as never)
     ).toThrow("must be a canonical artifact");
   });
@@ -178,7 +172,6 @@ describe("artifact authoring", () => {
         requires: [],
         provides: [],
         artifacts: { provides: crossRealm },
-        schema: EmptyStepConfigSchema,
       })
     ).not.toThrow();
     expect(() =>
@@ -187,7 +180,6 @@ describe("artifact authoring", () => {
         requires: [],
         provides: [],
         artifacts: { provides: sparse },
-        schema: EmptyStepConfigSchema,
       })
     ).toThrow(/dense array without extra keys/);
     expect(() =>
@@ -196,7 +188,6 @@ describe("artifact authoring", () => {
         requires: [],
         provides: [],
         artifacts: { provides: extraKey },
-        schema: EmptyStepConfigSchema,
       })
     ).toThrow(/dense array without extra keys/);
     expect(() =>
@@ -205,7 +196,6 @@ describe("artifact authoring", () => {
         requires: [],
         provides: [],
         artifacts: { provides: accessorEntry },
-        schema: EmptyStepConfigSchema,
       })
     ).toThrow(/data property/);
     expect(reads).toBe(0);
@@ -217,7 +207,6 @@ describe("artifact authoring", () => {
       requires: [],
       provides: [],
       artifacts: { provides: [] },
-      schema: EmptyStepConfigSchema,
     });
 
     const step = createStep(contract, { run: () => {} });
@@ -372,7 +361,6 @@ describe("artifact authoring", () => {
         requires: [],
         provides: [],
         artifacts: { requires: [inputArtifact] },
-        schema: EmptyStepConfigSchema,
       }),
       { run: () => undefined }
     );
@@ -382,7 +370,6 @@ describe("artifact authoring", () => {
         requires: [],
         provides: [],
         artifacts: { provides: [outputArtifact] },
-        schema: EmptyStepConfigSchema,
       }),
       { run: () => undefined }
     );

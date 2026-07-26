@@ -171,8 +171,7 @@ const mapConfig = {
     },
     "morphology-coasts": {
       "knobs": {
-        "seaLevel": "earthlike",
-        "coastRuggedness": "normal"
+        "seaLevel": "earthlike"
       },
       "landmass-plates": {
         "beltDrivers": {
@@ -255,37 +254,9 @@ const mapConfig = {
           }
         }
       },
-      "rugged-coasts": {
-        "coastlines": {
-          "strategy": "plate-aware-carving",
-          "config": {
-            "coast": {
-              "plateBias": {
-                "threshold": 0.35,
-                "power": 1.5,
-                "convergent": 2,
-                "transform": 0.5,
-                "divergent": -0.2,
-                "interior": 0.3,
-                "bayWeight": 1.2,
-                "bayNoiseBonus": 0.8,
-                "fjordWeight": 0.9
-              },
-              "bay": {
-                "noiseGateAdd": 0,
-                "rollDenActive": 4,
-                "rollDenDefault": 5
-              },
-              "fjord": {
-                "baseDenom": 12,
-                "activeBonus": 1,
-                "passiveBonus": 2
-              }
-            }
-          }
-        },
-        "reconcileHeightfield": {
-          "strategy": "carved-coast-datum",
+      "coastline-evidence": {
+        "adjacency": {
+          "strategy": "wrapped-hex-adjacency",
           "config": {}
         },
         "distanceToCoast": {
@@ -1246,11 +1217,7 @@ const mapConfig = {
           "config": {}
         }
       },
-      "derive-placement-inputs": {
-        "wonders": {
-          "strategy": "map-metadata",
-          "config": {}
-        },
+      "plan-natural-wonders": {
         "naturalWonders": {
           "strategy": "suitability-diversity",
           "config": {
@@ -1258,7 +1225,17 @@ const mapConfig = {
           }
         }
       },
-      "plan-resources": {
+      "plan-resource-demands": {
+        "habitat": {
+          "strategy": "quantile-physical-lanes",
+          "config": {}
+        },
+        "demands": {
+          "strategy": "policy-constrained",
+          "config": {}
+        }
+      },
+      "select-resource-sites": {
         "selectSites": {
           "strategy": "blue-noise-rotation",
           "config": {
@@ -1276,34 +1253,6 @@ const mapConfig = {
             },
             "affinityRules": []
           }
-        },
-        "habitat": {
-          "strategy": "quantile-physical-lanes",
-          "config": {}
-        },
-        "aquatic": {
-          "strategy": "canonical-demand",
-          "config": {}
-        },
-        "cultivated": {
-          "strategy": "canonical-demand",
-          "config": {}
-        },
-        "terrestrial": {
-          "strategy": "canonical-demand",
-          "config": {}
-        },
-        "geological": {
-          "strategy": "canonical-demand",
-          "config": {}
-        },
-        "groups": {
-          "strategy": "canonical-rollup",
-          "config": {}
-        },
-        "demands": {
-          "strategy": "policy-constrained",
-          "config": {}
         }
       },
       "assign-starts": {
@@ -1395,7 +1344,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "sundered-archipelago",
-  configHash: "4e39244e6b484f7acb96676565dab527a7ef06e605e2f4e964987db6f4e47fac",
-  envelopeHash: "854c10d282e50b670633d429a9b64aeff99f194dd8763ec659c976a56bf65492",
+  configHash: "26e0d4101d8ffdbcaa263677f55a9cdc88591c982ed508c764f678e331f8f70b",
+  envelopeHash: "f489f7887d40564375dbb54ec5c2c9a840e7705d8cb00cedc5717e1890ee8625",
   config: mapConfig.config,
 });

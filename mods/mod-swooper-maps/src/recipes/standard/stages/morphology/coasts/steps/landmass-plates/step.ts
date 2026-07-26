@@ -1,11 +1,11 @@
 import { DEFAULT_ELEVATION_SCALE } from "@mapgen/domain/morphology/model/policy/elevation-scale.js";
-import { MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA } from "@mapgen/domain/morphology/modules/coasts/model/policy/coast-knob-policy.js";
+import { MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA } from "@mapgen/domain/morphology/modules/coasts/model/policy/sea-level-knob-policy.js";
 // SINGLE SOURCE OF TRUTH for the absolute-elevation quantization scale: the same constant
 // base topography quantizes with, imported so the margin sculpt derives its profile on the
 // exact engine scale rather than mirroring it as a config field.
 import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
+import { clampFinite } from "@swooper/mapgen-core/lib/math";
 import {
   defineStandardVizCategoryMeta,
   defineStandardVizMeta,
@@ -197,44 +197,17 @@ export const LandmassPlatesStep = createStep(config, {
       stepConfig.landmask
     );
 
-    const elevation = new Int16Array(baseTopography.elevation);
-    const landMask = new Uint8Array(landmask.landMask);
-    const stats = collectBaseTerrainStats(width, height, elevation, landMask);
     // (Removed `relaxUndrivenInteriorDomes`: it artificially lowered undriven interior land to fake
     // relief on the old flat unimodal hump. With bimodal crust relief, undriven interiors are real
     // cratons that should ride high — the heuristic now double-counted and carved them back down.)
 
-    const seaLevelValue = seaLevel.seaLevel;
-    const waterElevation = clampInt16(Math.floor(seaLevelValue));
-    const landElevation = clampInt16(Math.floor(seaLevelValue) + 1);
-    for (let i = 0; i < elevation.length; i++) {
-      const isLand = landMask[i] === 1;
-      const current = elevation[i] ?? 0;
-      if (isLand) {
-        if (current <= seaLevelValue) elevation[i] = landElevation;
-      } else {
-        if (current > seaLevelValue) elevation[i] = waterElevation;
-      }
-    }
-
-    const bathymetry = new Int16Array(width * height);
-    for (let i = 0; i < bathymetry.length; i++) {
-      const elevationMeters = elevation[i] ?? 0;
-      const isLand = landMask[i] === 1;
-      if (isLand) {
-        bathymetry[i] = 0;
-        continue;
-      }
-      const delta = Math.min(0, elevationMeters - seaLevelValue);
-      bathymetry[i] = clampInt16(roundHalfAwayFromZero(delta));
-    }
-
     const topography = {
-      elevation,
-      seaLevel: seaLevelValue,
-      landMask,
-      bathymetry,
+      elevation: landmask.elevation,
+      seaLevel: landmask.seaLevel,
+      landMask: landmask.landMask,
+      bathymetry: landmask.bathymetry,
     };
+    const stats = collectBaseTerrainStats(width, height, topography.elevation, topography.landMask);
 
     context.trace.event(() => ({
       kind: "morphology.landmassPlates.summary",
@@ -242,7 +215,7 @@ export const LandmassPlatesStep = createStep(config, {
       waterTiles: stats.waterCount,
       elevationMin: stats.minElevation,
       elevationMax: stats.maxElevation,
-      seaLevel: seaLevelValue,
+      seaLevel: topography.seaLevel,
     }));
     const beltDriverFields = {
       boundaryCloseness: beltDrivers.boundaryCloseness,

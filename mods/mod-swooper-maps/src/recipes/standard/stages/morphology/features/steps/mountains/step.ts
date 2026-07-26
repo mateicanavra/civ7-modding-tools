@@ -144,7 +144,7 @@ export const MountainsStep = createStep(config, {
     const beltDrivers = deps.artifacts.beltDrivers.read(context);
     const substrate = deps.artifacts.substrate.read(context);
     const routing = deps.artifacts.routing.read(context);
-    const carvedCoastline = deps.artifacts.carvedCoastline.read(context);
+    const baseCoastline = deps.artifacts.baseCoastline.read(context);
     const { width, height } = context.setup.dimensions;
     const baseSeed = deriveStepSeed(context.setup.mapSeed, "morphology:planMountains");
 
@@ -209,7 +209,7 @@ export const MountainsStep = createStep(config, {
         erodibilityK: substrate.erodibilityK,
         sedimentDepth: substrate.sedimentDepth,
         flowAccum: routing.flowAccum,
-        distanceToCoast: carvedCoastline.distanceToCoast,
+        distanceToCoast: baseCoastline.distanceToCoast,
         fractalRoughLand,
       },
       stepConfig.roughLands

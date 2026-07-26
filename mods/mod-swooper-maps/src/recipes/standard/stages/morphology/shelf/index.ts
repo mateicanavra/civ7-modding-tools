@@ -16,8 +16,7 @@ const MorphologyShelfWidthKnobSchema = Type.Union(
 /**
  * Morphology-shelf computes the continental shelf AFTER islands/mountains, so the
  * shelf and the post-island coastline reflect final land. The shelfWidth knob lives
- * here (it drives the cap-free break-depth scale); coast ruggedness stays in
- * morphology-coasts with the carving step.
+ * here because it drives the cap-free break-depth scale.
  */
 const knobsSchema = Type.Object(
   {

@@ -1,6 +1,6 @@
 import ecology from "@mapgen/domain/ecology";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Defines ordered ice planning from Ecology suitability evidence and admitted floodplain
@@ -8,6 +8,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "plan-ice",
+  description: "Plans deterministic ice intent after admitted floodplain intent.",
   requires: [],
   provides: [],
   artifacts: {
@@ -17,10 +18,4 @@ export const config = defineStep({
   ops: {
     planIce: ecology.features.ops.planIce,
   },
-  schema: Type.Object(
-    {},
-    {
-      description: "Deterministic ice planning after admitted floodplain intents.",
-    }
-  ),
 });

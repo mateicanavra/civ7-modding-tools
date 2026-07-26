@@ -1,5 +1,5 @@
 import { artifacts as plotEffectArtifacts } from "@mapgen/domain/ecology/modules/plot-effects/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import { STANDARD_ENGINE_EFFECT_TAGS } from "../../../../../tag-contracts.js";
 
 /**
@@ -10,16 +10,11 @@ import { STANDARD_ENGINE_EFFECT_TAGS } from "../../../../../tag-contracts.js";
  */
 export const config = defineStep({
   id: "plot-effects",
+  description: "Applies admitted Ecology plot-effect intent to the current Civ7 map.",
   engine: ["getPlotEffectTypeIndex", "addPlotEffect"] as const,
   requires: [],
   provides: [STANDARD_ENGINE_EFFECT_TAGS.engine.plotEffectsApplied],
   artifacts: {
     requires: [plotEffectArtifacts.plotEffectPlan],
   },
-  schema: Type.Object(
-    {},
-    {
-      description: "Projection-only application for planned plot effects.",
-    }
-  ),
 });

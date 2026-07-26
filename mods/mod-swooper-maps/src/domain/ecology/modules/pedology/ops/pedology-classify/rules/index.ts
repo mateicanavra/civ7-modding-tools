@@ -1,4 +1,5 @@
 import { clamp01 } from "@swooper/mapgen-core";
+import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 
 type PedologyInput = Readonly<{
   width: number;
@@ -9,7 +10,6 @@ type PedologyInput = Readonly<{
   humidity: Uint8Array;
   sedimentDepth?: Float32Array;
   bedrockAge?: Int16Array;
-  slope?: Float32Array;
 }>;
 
 type PedologyWeights = Readonly<{
@@ -32,7 +32,7 @@ type PedologyOutput = Readonly<{
  */
 export function classifyPedology(input: PedologyInput, config: PedologyWeights): PedologyOutput {
   const size = input.width * input.height;
-  const relief = computeReliefProxy(input.slope, input.elevation, size);
+  const relief = computeLocalReliefProxy(input);
   const sediment = input.sedimentDepth;
   const bedrock = input.bedrockAge;
 
@@ -62,28 +62,38 @@ export function classifyPedology(input: PedologyInput, config: PedologyWeights):
 }
 
 /**
- * Returns a normalized relief field, using slope when provided or elevation as a fallback.
+ * Derives normalized local relief from elevation differences between neighboring land tiles.
+ * Water never contributes to a land tile's relief, preserving the coastline-independent
+ * pedology behavior previously owned by the Standard recipe step.
  */
-function computeReliefProxy(
-  slope: Float32Array | undefined,
-  elevation: Int16Array,
-  size: number
+function computeLocalReliefProxy(
+  input: Pick<PedologyInput, "width" | "height" | "landMask" | "elevation">
 ): Float32Array {
-  if (slope) {
-    return slope;
-  }
-  // Fallback: normalize elevation magnitude as a proxy for relief.
-  let maxAbs = 1;
+  const { width, height, landMask, elevation } = input;
+  const size = width * height;
+  const maxDropByTile = new Float32Array(size);
+  let maxDrop = 1;
+
   for (let i = 0; i < size; i++) {
-    const value = Math.abs(elevation[i] ?? 0);
-    if (value > maxAbs) maxAbs = value;
+    if (landMask[i] !== 1) continue;
+    const x = i % width;
+    const y = Math.floor(i / width);
+    const here = elevation[i] ?? 0;
+    let localMaxDrop = 0;
+    forEachHexNeighborOddQ(x, y, width, height, (neighborX, neighborY) => {
+      const neighborIndex = neighborY * width + neighborX;
+      if (landMask[neighborIndex] !== 1) return;
+      localMaxDrop = Math.max(localMaxDrop, Math.abs(here - (elevation[neighborIndex] ?? 0)));
+    });
+    maxDropByTile[i] = localMaxDrop;
+    maxDrop = Math.max(maxDrop, localMaxDrop);
   }
-  const result = new Float32Array(size);
-  const inv = 1 / maxAbs;
+
+  const invMaxDrop = 1 / maxDrop;
   for (let i = 0; i < size; i++) {
-    result[i] = clamp01(Math.abs(elevation[i] ?? 0) * inv);
+    maxDropByTile[i] *= invMaxDrop;
   }
-  return result;
+  return maxDropByTile;
 }
 
 /**

@@ -20,7 +20,7 @@ describe("resource demand Earthlike expectation policy", () => {
     expect(order.every((resourceType) => resourceType.startsWith("RESOURCE_"))).toBe(true);
   });
 
-  it("provides complete planner inputs with ordered representative ranges", () => {
+  it("provides complete terminal source policy with ordered representative ranges", () => {
     const groups = new Set<string>();
     const statuses = new Set<string>();
 

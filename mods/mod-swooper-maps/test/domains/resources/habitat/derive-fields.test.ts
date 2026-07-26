@@ -58,7 +58,7 @@ describe("derive-habitat-fields operation contract", () => {
     };
   }
 
-  it("covers every habitat signal field the family planners declare", () => {
+  it("covers every field used by canonical resource habitat signals", () => {
     const declared = new Set<string>(HABITAT_MASK_FIELD_NAMES);
     for (const [resourceType, signal] of RESOURCE_HABITAT_SIGNALS) {
       for (const field of [...signal.primary, ...signal.suppress]) {

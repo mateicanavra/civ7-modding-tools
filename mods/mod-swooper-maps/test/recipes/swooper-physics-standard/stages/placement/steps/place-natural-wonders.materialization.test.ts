@@ -20,7 +20,7 @@ const SYNTHETIC_MOUNTAIN_FOOTPRINT = { width: 5, height: 8 } as const;
 
 type NaturalWonderPlan = ArtifactValueOf<typeof placementWonderArtifacts.naturalWonderPlan>;
 type TerrainBackedMockAdapterConfig = Omit<MockAdapterConfig, "defaultTerrainType"> &
-  Readonly<{ defaultTerrainName: "TERRAIN_FLAT" | "TERRAIN_HILL" }>;
+  Readonly<{ defaultTerrainName: "TERRAIN_FLAT" | "TERRAIN_HILL" | "TERRAIN_MOUNTAIN" }>;
 
 function createTerrainBackedAdapter(config: TerrainBackedMockAdapterConfig) {
   const { defaultTerrainName, ...adapterConfig } = config;
@@ -85,42 +85,11 @@ function executeNaturalWonderStep(
 }
 
 describe("natural wonder placement materialization", () => {
-  it("projects feature terrain policy over the exact even-row footprint before stamping", () => {
-    const adapter = createTerrainBackedAdapter({
-      ...SYNTHETIC_REDWOOD_FOOTPRINT,
-      defaultBiomeType: biomeGlobals.BIOME_GRASSLAND,
-      defaultTerrainName: "TERRAIN_HILL",
-    });
-    const flatTerrain = adapter.getTerrainTypeIndex("TERRAIN_FLAT");
-
-    const evidence = executeNaturalWonderStep(
-      adapter,
-      oneWonderPlan(featureTypes.FEATURE_REDWOOD_FOREST, 9, SYNTHETIC_REDWOOD_FOOTPRINT)
-    );
-
-    // The local geometry is the oracle: anchor (1,2) uses the even-row
-    // THREETRIANGLE footprint (1,2), (2,2), and (1,3).
-    expect(adapter.getTerrainType(1, 2)).toBe(flatTerrain);
-    expect(adapter.getTerrainType(2, 2)).toBe(flatTerrain);
-    expect(adapter.getTerrainType(1, 3)).toBe(flatTerrain);
-    expect(evidence).toMatchObject({
-      plannedCount: 1,
-      placedCount: 1,
-      terrainAdjustedCount: 3,
-      rejectedCount: 0,
-      coordinateEvidence: {
-        placed: { count: 1 },
-        rejected: { count: 0 },
-      },
-      observedNaturalWonderPlotIndices: [9, 10, 13],
-    });
-  });
-
   it("publishes final engine occupancy, including cells added beyond the inferred footprint", () => {
     const adapter = createTerrainBackedAdapter({
       ...SYNTHETIC_REDWOOD_FOOTPRINT,
       defaultBiomeType: biomeGlobals.BIOME_GRASSLAND,
-      defaultTerrainName: "TERRAIN_HILL",
+      defaultTerrainName: "TERRAIN_FLAT",
     });
     const placeNaturalWonder = adapter.placeNaturalWonder.bind(adapter);
     adapter.placeNaturalWonder = (x, y, featureType, direction, elevation) => {
@@ -147,7 +116,7 @@ describe("natural wonder placement materialization", () => {
     const adapter = createTerrainBackedAdapter({
       ...SYNTHETIC_MOUNTAIN_FOOTPRINT,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
-      defaultTerrainName: "TERRAIN_FLAT",
+      defaultTerrainName: "TERRAIN_MOUNTAIN",
     });
     const placeNaturalWonder = adapter.placeNaturalWonder.bind(adapter);
     adapter.placeNaturalWonder = (x, y, featureType, direction, elevation) =>
@@ -323,7 +292,7 @@ describe("natural wonder placement materialization", () => {
       mapInfo: TEST_MAP_SIZE.mapInfo,
       mapSizeId: TEST_MAP_SIZE.id,
       defaultBiomeType: biomeGlobals.BIOME_GRASSLAND,
-      defaultTerrainName: "TERRAIN_HILL",
+      defaultTerrainName: "TERRAIN_FLAT",
     });
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const anchor = Math.floor(height / 2) * width + Math.floor(width / 2);

@@ -24,8 +24,6 @@ const PlotRiversStepConfigSchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description:
-      "Navigable-river projection thresholds retained when the density knob is null and replaced by its selected preset otherwise.",
   }
 );
 
@@ -36,6 +34,8 @@ const PlotRiversStepConfigSchema = Type.Object(
  */
 export const config = defineStep({
   id: "plot-rivers",
+  description:
+    "Projects admitted river evidence and retains author-facing navigable-river thresholds.",
   engine: [
     "isWater",
     "getTerrainType",

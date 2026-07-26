@@ -33,6 +33,16 @@ type SchemaWithOps<
     : TObject<PropsOf<Schema> & OpPropsFromDecl<Ops>>
   : Schema;
 
+function createEmptyStepSchema() {
+  return Type.Object({}, { additionalProperties: false });
+}
+
+type EmptyStepSchema = ReturnType<typeof createEmptyStepSchema>;
+
+type StepSchema<Schema extends TObject | undefined> = Schema extends TObject
+  ? Schema
+  : EmptyStepSchema;
+
 function objectProperties(schema: TObject): Record<string, TSchema> {
   return ((schema as any).properties as Record<string, TSchema> | undefined) ?? {};
 }
@@ -48,7 +58,6 @@ const COMPOSABLE_STEP_SCHEMA_OPTION_KEYS = new Set<PropertyKey>([
   "$schema",
   "$id",
   "title",
-  "description",
   "default",
   "readOnly",
   "writeOnly",
@@ -365,6 +374,7 @@ export type StepContract<
   Engine extends StepEngineDecl | undefined = StepEngineDecl | undefined,
 > = Readonly<{
   id: Id;
+  description?: string;
   requires: readonly DependencyTag[];
   provides: readonly DependencyTag[];
   artifacts?: Artifacts;
@@ -373,21 +383,32 @@ export type StepContract<
   ops?: Ops;
 }>;
 
-type StepContractInput<
-  Schema extends TObject,
+type StepContractBaseInput<
   Id extends string,
   Ops extends StepOpsDeclInput | undefined,
   Artifacts extends StepArtifactsDeclInput | undefined,
   Engine extends StepEngineDecl | undefined,
 > = Readonly<{
   id: Id;
+  description?: string;
   requires: readonly DependencyTag[];
   provides: readonly DependencyTag[];
   artifacts?: Artifacts;
   engine?: Engine;
-  schema: Schema;
   ops?: Ops;
 }>;
+
+type StepContractInput<
+  Schema extends TObject | undefined,
+  Id extends string,
+  Ops extends StepOpsDeclInput | undefined,
+  Artifacts extends StepArtifactsDeclInput | undefined,
+  Engine extends StepEngineDecl | undefined,
+> = StepContractBaseInput<Id, Ops, Artifacts, Engine> &
+  Readonly<{
+    schema?: Schema &
+      (Schema extends TObject ? (keyof PropsOf<Schema> extends never ? never : unknown) : unknown);
+  }>;
 
 const STEP_ID_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -428,6 +449,7 @@ function snapshotEngineDecl(stepId: string, value: unknown): StepEngineDecl | un
 
 function snapshotStepDefinition(def: unknown): Readonly<{
   id: unknown;
+  description: unknown;
   requires: unknown;
   provides: unknown;
   artifacts: unknown;
@@ -440,7 +462,7 @@ function snapshotStepDefinition(def: unknown): Readonly<{
   }
   assertNoStepStageIdentityAliases(def, "step contract");
 
-  const required = (key: "id" | "requires" | "provides" | "schema"): unknown => {
+  const required = (key: "id" | "requires" | "provides"): unknown => {
     const property = readOptionalOwnDataProperty(def, key, `step contract ${key}`);
     if (!property.present) {
       throw new TypeError(`step contract must own ${key}`);
@@ -448,16 +470,22 @@ function snapshotStepDefinition(def: unknown): Readonly<{
     return property.value;
   };
   const artifacts = readOptionalOwnDataProperty(def, "artifacts", "step contract artifacts");
+  const description = readOptionalOwnDataProperty(def, "description", "step contract description");
   const engine = readOptionalOwnDataProperty(def, "engine", "step contract engine");
   const ops = readOptionalOwnDataProperty(def, "ops", "step contract ops");
+  const id = required("id");
+  const requires = required("requires");
+  const provides = required("provides");
+  const schema = readOptionalOwnDataProperty(def, "schema", "step contract schema");
 
   return {
-    id: required("id"),
-    requires: required("requires"),
-    provides: required("provides"),
+    id,
+    description: description.value,
+    requires,
+    provides,
     artifacts: artifacts.value,
     engine: engine.value,
-    schema: required("schema"),
+    schema: schema.value,
     ops: ops.value,
   };
 }
@@ -466,36 +494,36 @@ function snapshotStepDefinition(def: unknown): Readonly<{
  * Admits and freezes a step contract, deriving dependency tags from its artifact authorities.
  */
 export function defineStep<
-  const Schema extends TObject,
   const Id extends string,
+  const Schema extends TObject | undefined = undefined,
   const Engine extends StepEngineDecl | undefined = undefined,
 >(
   def: StepContractInput<Schema, Id, undefined, undefined, Engine> &
     ValidatedStepEngineDeclInput<Engine>
-): StepContract<Schema, Id, undefined, undefined, Engine>;
+): StepContract<StepSchema<Schema>, Id, undefined, undefined, Engine>;
 
 export function defineStep<
-  const Schema extends TObject,
   const Id extends string,
   const Artifacts extends StepArtifactsDeclInput,
+  const Schema extends TObject | undefined = undefined,
   const Engine extends StepEngineDecl | undefined = undefined,
 >(
   def: StepContractInput<Schema, Id, undefined, Artifacts, Engine> & {
     artifacts: Artifacts;
   } & ValidatedStepEngineDeclInput<Engine>
-): StepContract<Schema, Id, undefined, StepArtifactsDeclFromInput<Artifacts>, Engine>;
+): StepContract<StepSchema<Schema>, Id, undefined, StepArtifactsDeclFromInput<Artifacts>, Engine>;
 
 export function defineStep<
-  const Schema extends TObject,
   const Id extends string,
   const Ops extends StepOpsDeclInput,
+  const Schema extends TObject | undefined = undefined,
   const Engine extends StepEngineDecl | undefined = undefined,
 >(
   def: StepContractInput<Schema, Id, Ops, undefined, Engine> & {
     ops: Ops & ValidatedStepOpsDeclInput<Ops>;
   } & ValidatedStepEngineDeclInput<Engine>
 ): StepContract<
-  SchemaWithOps<Schema, StepOpsDeclNormalizedFromInput<Ops>>,
+  SchemaWithOps<StepSchema<Schema>, StepOpsDeclNormalizedFromInput<Ops>>,
   Id,
   StepOpsDeclNormalizedFromInput<Ops>,
   undefined,
@@ -503,10 +531,10 @@ export function defineStep<
 >;
 
 export function defineStep<
-  const Schema extends TObject,
   const Id extends string,
   const Ops extends StepOpsDeclInput,
   const Artifacts extends StepArtifactsDeclInput,
+  const Schema extends TObject | undefined = undefined,
   const Engine extends StepEngineDecl | undefined = undefined,
 >(
   def: StepContractInput<Schema, Id, Ops, Artifacts, Engine> & {
@@ -514,7 +542,7 @@ export function defineStep<
     artifacts: Artifacts;
   } & ValidatedStepEngineDeclInput<Engine>
 ): StepContract<
-  SchemaWithOps<Schema, StepOpsDeclNormalizedFromInput<Ops>>,
+  SchemaWithOps<StepSchema<Schema>, StepOpsDeclNormalizedFromInput<Ops>>,
   Id,
   StepOpsDeclNormalizedFromInput<Ops>,
   StepArtifactsDeclFromInput<Artifacts>,
@@ -527,6 +555,13 @@ export function defineStep(def: any): any {
     throw new Error(`step id "${String(admitted.id)}" must be kebab-case (e.g. "plot-vegetation")`);
   }
   const stepId = admitted.id;
+  if (
+    admitted.description !== undefined &&
+    (typeof admitted.description !== "string" || admitted.description.trim().length === 0)
+  ) {
+    throw new TypeError(`step "${stepId}" description must be a non-empty string`);
+  }
+  const description = admitted.description as string | undefined;
   const declaredRequires = snapshotDependencyTagList(stepId, "requires", admitted.requires);
   const declaredProvides = snapshotDependencyTagList(stepId, "provides", admitted.provides);
 
@@ -593,15 +628,37 @@ export function defineStep(def: any): any {
         }) as StepOpsDeclInput);
   const ops = detachedOps ? normalizeOpsDecl({ stepId, ops: detachedOps }) : undefined;
 
-  const declaredSchema = snapshotContractGraph(
-    admitted.schema,
-    `step "${stepId}" schema`
-  ) as TObject;
+  const declaredSchema =
+    admitted.schema === undefined
+      ? createEmptyStepSchema()
+      : (snapshotContractGraph(admitted.schema, `step "${stepId}" schema`) as TObject);
+  if (
+    admitted.schema !== undefined &&
+    Object.prototype.hasOwnProperty.call(declaredSchema, "description")
+  ) {
+    throw new TypeError(
+      `step "${stepId}" schema cannot own description; author it through step.description`
+    );
+  }
+  if (admitted.schema !== undefined && Object.keys(objectProperties(declaredSchema)).length === 0) {
+    throw new TypeError(
+      `step "${stepId}" schema adds no authored fields; omit schema and use step.description for semantic context`
+    );
+  }
   const schema = ops ? buildSchemaWithOps({ stepId, schema: declaredSchema, ops }) : declaredSchema;
+  if (description !== undefined) {
+    Object.defineProperty(schema, "description", {
+      configurable: true,
+      enumerable: true,
+      writable: true,
+      value: description,
+    });
+  }
   applySchemaConventions(schema);
 
   const contract = {
     id: stepId,
+    ...(description === undefined ? {} : { description }),
     requires,
     provides,
     ...(hasArtifacts ? { artifacts } : {}),

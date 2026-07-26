@@ -11,22 +11,20 @@ import {
   getNaturalWonderFootprintIndices,
   hasUnsupportedNaturalWonderPolicyTags,
   isResourceAdjacentToLandRuntimeOptional,
-  NATURAL_WONDER_CATALOG,
   NO_RIVER_TYPE,
   type OfficialAgeType,
   RIVER_TYPE_MINOR,
   RIVER_TYPE_NAVIGABLE,
 } from "@civ7/map-policy";
 import {
+  captureCurrentMapLayer,
   captureCurrentRiverSurface,
   deriveRiverProjectionFromCurrentSurface,
 } from "./current-map-surface.js";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
 import { getCiv7RowLatitude } from "./map-metadata.js";
 import type {
-  CurrentMapSurface,
-  DiscoveryPlacementIntent,
-  DiscoveryPlacementOutcome,
+  CurrentRiverSurface,
   EngineAdapter,
   FeatureData,
   LakeProjectionResult,
@@ -34,7 +32,6 @@ import type {
   MapInfo,
   MapInitParams,
   MapSizeId,
-  NaturalWonderCatalogEntry,
   NaturalWonderPlacementOutcome,
   OfficialDiscoveryGenerationResult,
   PlotTagName,
@@ -240,8 +237,6 @@ export const DEFAULT_PLOT_EFFECT_TYPES: MockPlotEffectType[] = [
   { id: 7, name: "PLOTEFFECT_JUNGLE_FEVER", tags: ["JUNGLE", "FEVER", "HAZARD"] },
 ];
 
-const DEFAULT_NATURAL_WONDER_CATALOG: NaturalWonderCatalogEntry[] = NATURAL_WONDER_CATALOG;
-
 const DEFAULT_NO_RESOURCE = ADAPTER_NO_RESOURCE;
 const STANDARD_OCEAN_WATER_COLUMNS = 4;
 
@@ -333,8 +328,6 @@ export interface MockAdapterConfig {
   isResourceRequiredForAge?: (resourceTypeId: number, ageType: OfficialAgeType) => boolean | null;
   /** Sentinel used to represent "no resource". */
   noResourceSentinel?: number;
-  /** Natural wonder feature catalog used by deterministic planners. */
-  naturalWonderCatalog?: NaturalWonderCatalogEntry[];
   /** Plot effect types and tag sets for getPlotEffectTypesContainingTags. */
   plotEffectTypes?: MockPlotEffectType[];
   /**
@@ -387,7 +380,6 @@ export class MockAdapter implements EngineAdapter {
     ageType: OfficialAgeType
   ) => boolean | null;
   private noResourceSentinel: number;
-  private naturalWonderCatalog: NaturalWonderCatalogEntry[];
   private plotEffectTypes: Array<{ id: number; name: string; tags: Set<string> }>;
   private plotEffectsByIndex: Map<number, Set<number>>;
   private readonly effectEvidence = new Set<string>();
@@ -408,12 +400,6 @@ export class MockAdapter implements EngineAdapter {
       featureType: number;
       direction: number;
       elevation: number;
-    }>;
-    stampDiscovery: Array<{
-      x: number;
-      y: number;
-      discoveryVisualType: number;
-      discoveryActivationType: number;
     }>;
     generateOfficialDiscoveries: Array<{
       width: number;
@@ -481,12 +467,6 @@ export class MockAdapter implements EngineAdapter {
     this.canHaveFeatureFn = config.canHaveFeature;
     this.canHaveResourceFn = config.canHaveResource;
     this.isResourceRequiredForAgeFn = config.isResourceRequiredForAge;
-    this.naturalWonderCatalog = (config.naturalWonderCatalog ?? DEFAULT_NATURAL_WONDER_CATALOG).map(
-      (entry) => ({
-        featureType: entry.featureType,
-        direction: entry.direction,
-      })
-    );
     this.plotEffectTypes = (config.plotEffectTypes ?? DEFAULT_PLOT_EFFECT_TYPES).map((entry) => ({
       id: entry.id,
       name: entry.name,
@@ -508,7 +488,6 @@ export class MockAdapter implements EngineAdapter {
       designateBiomes: [],
       addFeatures: [],
       stampNaturalWonder: [],
-      stampDiscovery: [],
       generateOfficialDiscoveries: [],
       generateOfficialResources: [],
       generateSnow: [],
@@ -527,10 +506,6 @@ export class MockAdapter implements EngineAdapter {
 
   private recordEffect(effectId: string): void {
     this.effectEvidence.add(effectId);
-  }
-
-  private recordPlacementEffect(): void {
-    this.recordEffect(ENGINE_EFFECT_TAGS.placementApplied);
   }
 
   verifyEffect(effectId: string): boolean {
@@ -777,7 +752,6 @@ export class MockAdapter implements EngineAdapter {
     const hasResource = resourceType !== this.NO_RESOURCE;
     if (!hadResource && hasResource) this.resourcesPlaced += 1;
     if (hadResource && !hasResource) this.resourcesPlaced = Math.max(0, this.resourcesPlaced - 1);
-    this.recordPlacementEffect();
   }
 
   canHaveResource(x: number, y: number, resourceType: number): boolean {
@@ -847,23 +821,18 @@ export class MockAdapter implements EngineAdapter {
       .sort((a, b) => a.index - b.index);
   }
 
-  placeResourceIntent(
-    width: number,
-    height: number,
-    intent: ResourcePlacementIntent
-  ): ResourcePlacementOutcome {
+  placeResourceIntent(intent: ResourcePlacementIntent): ResourcePlacementOutcome {
     // Mirror the production adapter contract so recipe tests exercise typed
     // reconciliation outcomes instead of a mock-only placement shortcut.
-    const resolvedWidth = Math.max(0, Math.trunc(width));
-    const resolvedHeight = Math.max(0, Math.trunc(height));
+    const { width, height } = this;
     const plotIndex = Number.isFinite(intent.plotIndex) ? Math.trunc(intent.plotIndex) : -1;
     const resourceType = Number.isFinite(intent.resourceType)
       ? Math.trunc(intent.resourceType)
       : this.NO_RESOURCE;
-    const y = resolvedWidth > 0 ? Math.trunc(plotIndex / resolvedWidth) : -1;
-    const x = resolvedWidth > 0 ? plotIndex - y * resolvedWidth : -1;
+    const y = width > 0 ? Math.trunc(plotIndex / width) : -1;
+    const x = width > 0 ? plotIndex - y * width : -1;
 
-    if (plotIndex < 0 || x < 0 || y < 0 || x >= resolvedWidth || y >= resolvedHeight) {
+    if (plotIndex < 0 || x < 0 || y < 0 || x >= width || y >= height) {
       return { status: "rejected", plotIndex, x, y, resourceType, reason: "out-of-bounds" };
     }
     if (resourceType < 0 || resourceType === (this.NO_RESOURCE | 0)) {
@@ -1008,41 +977,89 @@ export class MockAdapter implements EngineAdapter {
     }
   }
 
-  /** Returns a detached current-map observation with the same widths as the production adapter. */
-  readCurrentMapSurface(): CurrentMapSurface {
-    const { width, height } = this;
-    const size = width * height;
-    const riverMask = new Uint8Array(size);
-    const navigableRiverMask = new Uint8Array(size);
-    const minorRiverMask = new Uint8Array(size);
-    for (let index = 0; index < size; index++) {
-      const riverType = this.riverTypes[index] ?? MOCK_NO_RIVER;
-      riverMask[index] = riverType === MOCK_NO_RIVER ? 0 : 1;
-      navigableRiverMask[index] = riverType === MOCK_RIVER_NAVIGABLE ? 1 : 0;
-      minorRiverMask[index] = riverType === MOCK_RIVER_MINOR ? 1 : 0;
-    }
+  /** Reads current mock terrain ids through the same overridable getter used by point reads. */
+  readCurrentMapTerrainTypes(): Int32Array {
+    return captureCurrentMapLayer(
+      this.width,
+      this.height,
+      Int32Array,
+      (x, y) => this.getTerrainType(x, y) | 0
+    );
+  }
 
-    return Object.freeze({
-      width,
-      height,
-      terrainType: this.terrainTypes.slice(),
-      elevation: this.elevations.slice(),
-      biomeType: this.biomes.slice(),
-      featureType: this.features.slice(),
-      waterMask: this.waterMask.slice(),
-      lakeMask: this.lakeMask.slice(),
-      riverType: this.riverTypes.slice(),
-      riverMask,
-      navigableRiverMask,
-      minorRiverMask,
-      sentinels: Object.freeze({
-        navigableRiverTerrainType: this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER"),
-      }),
-      riverMetadata: Object.freeze({
-        typeReadbackSupported: true,
-        unsupportedReason:
-          "MockAdapter mirrors Civ river-type metadata readback semantics; exact Hydrology minor-river parity remains diagnostic and must compare planned minor intent to engineMinorRiverMask.",
-      }),
+  /** Reads current mock elevations through the same overridable getter used by point reads. */
+  readCurrentMapElevations(): Int16Array {
+    return captureCurrentMapLayer(
+      this.width,
+      this.height,
+      Int16Array,
+      (x, y) => this.getElevation(x, y) | 0
+    );
+  }
+
+  /** Reads current mock biome ids through the same overridable getter used by point reads. */
+  readCurrentMapBiomeTypes(): Int32Array {
+    return captureCurrentMapLayer(
+      this.width,
+      this.height,
+      Int32Array,
+      (x, y) => this.getBiomeType(x, y) | 0
+    );
+  }
+
+  /** Reads current mock feature ids through the same overridable getter used by point reads. */
+  readCurrentMapFeatureTypes(): Int32Array {
+    return captureCurrentMapLayer(
+      this.width,
+      this.height,
+      Int32Array,
+      (x, y) => this.getFeatureType(x, y) | 0
+    );
+  }
+
+  /** Reads the current mock water classification through the overridable point-read boundary. */
+  readCurrentMapWaterMask(): Uint8Array {
+    return captureCurrentMapLayer(this.width, this.height, Uint8Array, (x, y) =>
+      this.isWater(x, y) ? 1 : 0
+    );
+  }
+
+  /** Reads the current mock lake classification through the overridable point-read boundary. */
+  readCurrentMapLakeMask(): Uint8Array {
+    return captureCurrentMapLayer(this.width, this.height, Uint8Array, (x, y) =>
+      this.isLake(x, y) ? 1 : 0
+    );
+  }
+
+  /** Reads current mock area ids through the same overridable getter used by point reads. */
+  readCurrentMapAreaIds(): Int32Array {
+    return captureCurrentMapLayer(
+      this.width,
+      this.height,
+      Int32Array,
+      (x, y) => this.getAreaId(x, y) | 0
+    );
+  }
+
+  /**
+   * Reads detached terrain and river classifications through the mock's public getter semantics.
+   * This preserves subclass behavior rather than exposing or copying private backing arrays.
+   */
+  readCurrentRiverSurface(): CurrentRiverSurface {
+    return captureCurrentRiverSurface({
+      width: this.width,
+      height: this.height,
+      noRiverType: MOCK_NO_RIVER,
+      minorRiverType: MOCK_RIVER_MINOR,
+      navigableRiverType: MOCK_RIVER_NAVIGABLE,
+      navigableRiverTerrainType: this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER"),
+      typeReadbackSupported: true,
+      unsupportedReason:
+        "MockAdapter mirrors Civ river-type metadata readback semantics; exact Hydrology minor-river parity remains diagnostic and must compare planned minor intent to engineMinorRiverMask.",
+      getTerrainType: (x, y) => this.getTerrainType(x, y),
+      getRiverType: (x, y) => this.getRiverType(x, y),
+      isRiver: (x, y) => this.isRiver(x, y),
+      isNavigableRiver: (x, y) => this.isNavigableRiver(x, y),
     });
   }
 
@@ -1056,23 +1073,8 @@ export class MockAdapter implements EngineAdapter {
         `[MockAdapter] River projection dimensions ${width}x${height} do not match the current map ${this.width}x${this.height}.`
       );
     }
-    const surface = captureCurrentRiverSurface({
-      width,
-      height,
-      noRiverType: MOCK_NO_RIVER,
-      minorRiverType: MOCK_RIVER_MINOR,
-      navigableRiverType: MOCK_RIVER_NAVIGABLE,
-      navigableRiverTerrainType: this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER"),
-      typeReadbackSupported: true,
-      unsupportedReason:
-        "MockAdapter mirrors Civ river-type metadata readback semantics; exact Hydrology minor-river parity remains diagnostic and must compare planned minor intent to engineMinorRiverMask.",
-      getTerrainType: (x, y) => this.getTerrainType(x, y),
-      getRiverType: (x, y) => this.getRiverType(x, y),
-      isRiver: (x, y) => this.isRiver(x, y),
-      isNavigableRiver: (x, y) => this.isNavigableRiver(x, y),
-    });
     return deriveRiverProjectionFromCurrentSurface(
-      surface,
+      this.readCurrentRiverSurface(),
       plannedNavigableRiverMask,
       "MockAdapter"
     );
@@ -1407,7 +1409,38 @@ export class MockAdapter implements EngineAdapter {
       direction,
       elevation: resolvedElevation,
     });
-    this.recordPlacementEffect();
+    const expectedFootprintReadback = footprint.map((plotIndex) => {
+      const fy = Math.trunc(plotIndex / this.width);
+      const fx = plotIndex - fy * this.width;
+      return {
+        plotIndex,
+        observedFeatureType: this.getFeatureType(fx, fy) | 0,
+      };
+    });
+    for (const readback of expectedFootprintReadback) {
+      if (readback.observedFeatureType !== (featureType | 0)) {
+        const matchingFootprintCells = expectedFootprintReadback.filter(
+          (cell) => cell.observedFeatureType === (featureType | 0)
+        ).length;
+        return {
+          status: "rejected",
+          plotIndex,
+          x,
+          y,
+          featureType,
+          direction,
+          elevation: resolvedElevation,
+          reason: "readback-mismatch",
+          observedFeatureType: readback.observedFeatureType,
+          observedPlotIndex: readback.plotIndex,
+          expectedFootprintReadback,
+          expectedFootprintReadbackStatus:
+            matchingFootprintCells === 0
+              ? "empty-expected-footprint"
+              : "partial-expected-footprint",
+        };
+      }
+    }
     return {
       status: "placed",
       plotIndex,
@@ -1419,87 +1452,12 @@ export class MockAdapter implements EngineAdapter {
     };
   }
 
-  stampDiscovery(
-    x: number,
-    y: number,
-    discoveryVisualType: number,
-    discoveryActivationType: number
-  ): boolean {
-    if (x < 0 || x >= this.width || y < 0 || y >= this.height) return false;
-    this.calls.stampDiscovery.push({
-      x,
-      y,
-      discoveryVisualType,
-      discoveryActivationType,
-    });
-    this.recordPlacementEffect();
-    return true;
-  }
-
-  placeDiscoveryIntent(
-    width: number,
-    height: number,
-    intent: DiscoveryPlacementIntent
-  ): DiscoveryPlacementOutcome {
-    // Keep mock discovery behavior aligned with Civ7Adapter: placement success
-    // is explicit evidence, and rejection is a typed result the recipe can
-    // publish for review/debugging.
-    const resolvedWidth = Math.max(0, Math.trunc(width));
-    const resolvedHeight = Math.max(0, Math.trunc(height));
-    const plotIndex = Number.isFinite(intent.plotIndex) ? Math.trunc(intent.plotIndex) : -1;
-    const discoveryVisualType = Number.isFinite(intent.discoveryVisualType)
-      ? Math.trunc(intent.discoveryVisualType)
-      : -1;
-    const discoveryActivationType = Number.isFinite(intent.discoveryActivationType)
-      ? Math.trunc(intent.discoveryActivationType)
-      : -1;
-    const y = resolvedWidth > 0 ? Math.trunc(plotIndex / resolvedWidth) : -1;
-    const x = resolvedWidth > 0 ? plotIndex - y * resolvedWidth : -1;
-
-    if (plotIndex < 0 || x < 0 || y < 0 || x >= resolvedWidth || y >= resolvedHeight) {
-      return {
-        status: "rejected",
-        plotIndex,
-        x,
-        y,
-        discoveryVisualType,
-        discoveryActivationType,
-        reason: "out-of-bounds",
-      };
-    }
-    if (discoveryVisualType < 0 || discoveryActivationType < 0) {
-      return {
-        status: "rejected",
-        plotIndex,
-        x,
-        y,
-        discoveryVisualType,
-        discoveryActivationType,
-        reason: "invalid-discovery-type",
-      };
-    }
-
-    const placed = this.stampDiscovery(x, y, discoveryVisualType, discoveryActivationType);
-    if (!placed) {
-      return {
-        status: "rejected",
-        plotIndex,
-        x,
-        y,
-        discoveryVisualType,
-        discoveryActivationType,
-        reason: "adapter-rejected",
-      };
-    }
-    return { status: "placed", plotIndex, x, y, discoveryVisualType, discoveryActivationType };
-  }
-
   generateOfficialDiscoveries(
-    width: number,
-    height: number,
     startPositions: ReadonlyArray<number>,
     polarMargin: number
   ): OfficialDiscoveryGenerationResult {
+    const width = this.width;
+    const height = this.height;
     const resolvedStartPositions = (Array.isArray(startPositions) ? startPositions : [])
       .filter((value) => Number.isFinite(value) && value >= 0)
       .map((value) => Math.trunc(value));
@@ -1513,13 +1471,12 @@ export class MockAdapter implements EngineAdapter {
       startPositions: resolvedStartPositions,
       polarMargin: resolvedPolarMargin,
     });
-    this.recordPlacementEffect();
     // The mock does not run the real generator; it reports the configured count
     // as both attempted and placed (no engine-side rejection in the mock).
-    return {
+    return Object.freeze({
       attemptedCount: this.officialDiscoveriesPlacedCount,
       placedCount: this.officialDiscoveriesPlacedCount,
-    };
+    });
   }
 
   generateOfficialResources(
@@ -1537,21 +1494,12 @@ export class MockAdapter implements EngineAdapter {
     });
     const placedCount = this.officialResourcesPlacedCount;
     this.resourcesPlaced += placedCount;
-    this.recordPlacementEffect();
     return placedCount;
-  }
-
-  getNaturalWonderCatalog(): NaturalWonderCatalogEntry[] {
-    return this.naturalWonderCatalog.map((entry) => ({
-      featureType: entry.featureType,
-      direction: entry.direction,
-    }));
   }
 
   generateSnow(width: number, height: number): void {
     this.calls.generateSnow.push({ width, height });
     // Mock: no-op
-    this.recordPlacementEffect();
   }
 
   assignStartPositions(
@@ -1569,7 +1517,6 @@ export class MockAdapter implements EngineAdapter {
       startSectorRows,
       startSectorCols,
     });
-    this.recordPlacementEffect();
     // Mock: return array of placeholder positions (one per player)
     const totalPlayers = playersLandmass1 + playersLandmass2;
     return Array.from({ length: totalPlayers }, (_, i) => i * 100);
@@ -1577,7 +1524,6 @@ export class MockAdapter implements EngineAdapter {
 
   setStartPosition(plotIndex: number, playerId: number): void {
     this.calls.setStartPosition.push({ plotIndex, playerId });
-    this.recordPlacementEffect();
   }
 
   getAliveMajorIds(): number[] {
@@ -1596,19 +1542,16 @@ export class MockAdapter implements EngineAdapter {
   assignAdvancedStartRegions(): void {
     this.calls.assignAdvancedStartRegions++;
     // Mock: no-op
-    this.recordPlacementEffect();
   }
 
   addFloodplains(minLength: number, maxLength: number): void {
     this.calls.addFloodplains.push({ minLength, maxLength });
     // Mock: no-op
-    this.recordPlacementEffect();
   }
 
   recalculateFertility(): void {
     this.calls.recalculateFertility++;
     // Mock: no-op
-    this.recordPlacementEffect();
   }
 
   chooseStartSectors(
@@ -1675,7 +1618,6 @@ export class MockAdapter implements EngineAdapter {
     this.calls.designateBiomes.length = 0;
     this.calls.addFeatures.length = 0;
     this.calls.stampNaturalWonder.length = 0;
-    this.calls.stampDiscovery.length = 0;
     this.calls.generateOfficialDiscoveries.length = 0;
     this.calls.generateOfficialResources.length = 0;
     this.calls.generateSnow.length = 0;
@@ -1698,14 +1640,6 @@ export class MockAdapter implements EngineAdapter {
     this.canHaveResourceFn = config.canHaveResource ?? this.canHaveResourceFn;
     this.isResourceRequiredForAgeFn =
       config.isResourceRequiredForAge ?? this.isResourceRequiredForAgeFn;
-    this.naturalWonderCatalog = (
-      config.naturalWonderCatalog ??
-      this.naturalWonderCatalog ??
-      DEFAULT_NATURAL_WONDER_CATALOG
-    ).map((entry) => ({
-      featureType: entry.featureType,
-      direction: entry.direction,
-    }));
     this.plotEffectTypes = (config.plotEffectTypes ?? DEFAULT_PLOT_EFFECT_TYPES).map((entry) => ({
       id: entry.id,
       name: entry.name,

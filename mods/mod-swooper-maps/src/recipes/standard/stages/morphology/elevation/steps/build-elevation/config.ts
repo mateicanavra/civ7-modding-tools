@@ -1,5 +1,5 @@
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
 
@@ -13,9 +13,9 @@ export const config = defineStep({
   engine: [
     "recalculateAreas",
     "buildElevation",
-    "getTerrainType",
-    "getElevation",
-    "isWater",
+    "readCurrentMapTerrainTypes",
+    "readCurrentMapElevations",
+    "readCurrentMapWaterMask",
   ] as const,
   requires: [
     MAP_PROJECTION_EFFECT_TAGS.map.mountainsPlotted,
@@ -26,5 +26,4 @@ export const config = defineStep({
   artifacts: {
     requires: [morphologyLandformsArtifacts.topography],
   },
-  schema: Type.Object({}),
 });

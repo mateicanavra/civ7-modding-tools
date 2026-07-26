@@ -109,7 +109,6 @@ describe("tag registry", () => {
         id: "legacy-field-consumer",
         requires: ["field:test.legacy"],
         provides: [],
-        schema: Type.Object({}, { additionalProperties: false }),
       }),
       { run: () => {} }
     );
@@ -468,7 +467,6 @@ describe("tag registry", () => {
         requires: [],
         provides: [],
         artifacts: { provides: [artifact] },
-        schema: Type.Object({}, { additionalProperties: false }),
       }),
       { run: () => {} }
     );

@@ -18,15 +18,6 @@ import type {
 } from "./terrestrial-resource-signals.js";
 import { TERRESTRIAL_SIGNALS } from "./terrestrial-resource-signals.js";
 
-/**
- * Per-type habitat signal lookup shared between the family demand planners
- * (which count eligible tiles) and the site-selection wiring (which needs the
- * same eligibility as a per-tile mask). The signal tables themselves live
- * with their family ops; this module aggregates them and provides the mask
- * builder. A contract test asserts the mask cardinality equals the family
- * planners' eligibleTileCount so the two readings cannot drift.
- */
-
 export type ResourceFamilyId = ResourceFamily;
 
 type ResourceHabitatMaskField =
@@ -42,6 +33,7 @@ type ResourceHabitatMaskField =
 export type ResourceHabitatSignal = {
   readonly family: ResourceFamilyId;
   readonly laneId: string;
+  readonly laneKind: "land" | "water";
   readonly primary: readonly ResourceHabitatMaskField[];
   readonly suppress: readonly ResourceHabitatMaskField[];
 };
@@ -49,6 +41,7 @@ export type ResourceHabitatSignal = {
 function withFamily<
   T extends {
     readonly laneId?: string;
+    readonly laneKind?: "land" | "water";
     readonly primary: readonly ResourceHabitatMaskField[];
     readonly suppress: readonly ResourceHabitatMaskField[];
   },
@@ -61,6 +54,7 @@ function withFamily<
     {
       family,
       laneId: signal.laneId ?? family,
+      laneKind: signal.laneKind ?? (family === "aquatic" ? "water" : "land"),
       primary: signal.primary,
       suppress: signal.suppress,
     },
@@ -68,8 +62,8 @@ function withFamily<
 }
 
 /**
- * Canonical per-resource habitat signals shared by demand planning and site eligibility. Keeping
- * one map prevents family counts and tile masks from applying different physical predicates.
+ * Canonical per-resource habitat identity and physical predicate used by terminal demand
+ * resolution. Keeping one map binds family, lane, medium, and tile eligibility to one authority.
  */
 export const RESOURCE_HABITAT_SIGNALS: ReadonlyMap<OfficialResourceType, ResourceHabitatSignal> =
   new Map([
@@ -88,9 +82,8 @@ export type HabitatEligibility = {
 };
 
 /**
- * Builds the per-type habitat eligibility mask: union of present primary lane
- * masks minus present suppression masks — the same predicate the family
- * planners apply when counting eligible tiles.
+ * Builds one resource's habitat eligibility mask as the union of present primary lane masks
+ * minus present suppression masks.
  */
 export function buildHabitatEligibility(
   fields: HabitatMaskFields,

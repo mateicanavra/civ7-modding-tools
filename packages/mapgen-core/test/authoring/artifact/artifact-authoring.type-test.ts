@@ -1,5 +1,4 @@
 import { createStep, defineArtifact, defineStep, Type } from "@mapgen/authoring/index.js";
-import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
 
 const inputArtifact = defineArtifact({
   name: "inputArtifact",
@@ -17,14 +16,12 @@ const providerContract = defineStep({
   requires: [],
   provides: [],
   artifacts: { provides: [outputArtifact] },
-  schema: EmptyStepConfigSchema,
 });
 const consumerContract = defineStep({
   id: "artifact-consumer",
   requires: [],
   provides: [],
   artifacts: { requires: [inputArtifact] },
-  schema: EmptyStepConfigSchema,
 });
 
 const provider = createStep(providerContract, {

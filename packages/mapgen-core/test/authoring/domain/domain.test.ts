@@ -315,7 +315,6 @@ describe("domain composition", () => {
           defaultStrategy: "accelerated",
         },
       },
-      schema: Type.Object({}, { additionalProperties: false }),
     });
     const step = createStep(stepContract, {
       run: (_context, config, ops) => {

@@ -1,13 +1,8 @@
 import { FEATURE_PLACEMENT_KEYS, type FeatureKey } from "@civ7/map-policy";
 import type { FeatureIntentKey } from "@mapgen/domain/ecology/modules/features/model/atoms/index.js";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import {
-  captureEngineFeatureTypes,
-  captureEngineTerrainTypes,
-  captureEngineWaterMask,
-  engineLandMaskFromWaterMask,
-} from "../../../../../current-engine-surface.js";
 import { measureStandardFeatureProjection } from "../../../../../metrics/families/ecology-projection.js";
+import { landMaskFromWaterMask } from "../../../../../water-surface-parity.js";
 import { config } from "./config.js";
 import { buildFeaturesApplyVizProjections } from "./viz.js";
 
@@ -236,21 +231,15 @@ export const FeaturesApplyStep = createStep(config, {
       deps.engine.validateAndFixTerrain(context);
     }
 
-    const featureType = captureEngineFeatureTypes(context.setup.dimensions, (x, y) =>
-      deps.engine.getFeatureType(context, x, y)
-    );
+    const featureType = deps.engine.readCurrentMapFeatureTypes(context);
 
     const engine =
       applied > 0
         ? (() => {
-            const waterMask = captureEngineWaterMask(context.setup.dimensions, (x, y) =>
-              deps.engine.isWater(context, x, y)
-            );
+            const waterMask = deps.engine.readCurrentMapWaterMask(context);
             return {
-              landMask: engineLandMaskFromWaterMask(waterMask),
-              terrain: captureEngineTerrainTypes(context.setup.dimensions, (x, y) =>
-                deps.engine.getTerrainType(context, x, y)
-              ),
+              landMask: landMaskFromWaterMask(waterMask),
+              terrain: deps.engine.readCurrentMapTerrainTypes(context),
             };
           })()
         : undefined;

@@ -8,7 +8,7 @@ import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/
 import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
 import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
 import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 
 /**
@@ -19,7 +19,7 @@ import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 export const config = defineStep({
   id: "assign-starts",
   engine: ["getMapSizeId", "lookupMapInfo", "getAliveMajorIds", "setStartPosition"] as const,
-  requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlanned],
+  requires: [],
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned],
   artifacts: {
     requires: [
@@ -41,5 +41,4 @@ export const config = defineStep({
   ops: {
     starts: placement.starts.ops.planStarts,
   },
-  schema: Type.Object({}, { additionalProperties: false }),
 });

@@ -1,12 +1,9 @@
 import { deriveCiv7CoastProjection } from "@civ7/map-policy";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import {
-  captureEngineHeightfield,
-  engineLandMaskFromWaterMask,
-} from "../../../../../current-engine-surface.js";
 import { defineStandardVizMeta } from "../../../../../viz.js";
 import {
   assertWaterDriftWithinPolicy,
+  landMaskFromWaterMask,
   restoreProjectedCoastTerrain,
 } from "../../../../../water-surface-parity.js";
 import { config } from "./config.js";
@@ -47,16 +44,12 @@ export const PlotContinentsStep = createStep(config, {
       "map-morphology/plot-continents"
     );
 
-    const engine = captureEngineHeightfield(context.setup.dimensions, {
-      getTerrainType: (x, y) => deps.engine.getTerrainType(context, x, y),
-      getElevation: (x, y) => deps.engine.getElevation(context, x, y),
-      isWater: (x, y) => deps.engine.isWater(context, x, y),
-    });
-    const engineLandMask = engineLandMaskFromWaterMask(engine.waterMask);
+    const engineWaterMask = deps.engine.readCurrentMapWaterMask(context);
+    const engineLandMask = landMaskFromWaterMask(engineWaterMask);
     assertWaterDriftWithinPolicy(
       context.setup.dimensions,
       context.trace,
-      engine.waterMask,
+      engineWaterMask,
       topography.landMask,
       "map-morphology/plot-continents"
     );

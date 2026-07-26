@@ -4,7 +4,7 @@ import placementDomain from "@mapgen/domain/placement/router";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 import { TEST_MAP_SIZE } from "../../../setup.js";
 
-const { planNaturalWonders, planWonders } = placementDomain.wonders.ops;
+const { planNaturalWonders } = placementDomain.wonders.ops;
 
 function naturalWonderSelection(minSpacingTiles: number) {
   const selection = structuredClone(planNaturalWonders.defaultConfig);
@@ -13,69 +13,6 @@ function naturalWonderSelection(minSpacingTiles: number) {
 }
 
 describe("natural wonder planning", () => {
-  it("plans wonders from map-size defaults without bonus inflation", () => {
-    const result = runAdmittedOperationForTest(
-      planWonders,
-      { mapInfo: { NumNaturalWonders: 2 } },
-      structuredClone(planWonders.defaultConfig)
-    );
-    expect(result.wondersCount).toBe(2);
-  });
-
-  it("plans zero wonders when map-size default is absent", () => {
-    const result = runAdmittedOperationForTest(
-      planWonders,
-      { mapInfo: {} },
-      structuredClone(planWonders.defaultConfig)
-    );
-    expect(result.wondersCount).toBe(0);
-  });
-
-  it("plans deterministic natural wonder placements from physical fields", () => {
-    const { width, height } = TEST_MAP_SIZE.dimensions;
-    const size = width * height;
-    const result = runAdmittedOperationForTest(
-      planNaturalWonders,
-      {
-        width,
-        height,
-        wondersCount: 2,
-        landMask: new Uint8Array(size).fill(1),
-        elevation: Int16Array.from({ length: size }, (_, index) => (index * 37) % 120),
-        aridityIndex: new Float32Array(size).fill(0.3),
-        riverClass: new Uint8Array(size),
-        lakeMask: new Uint8Array(size),
-        coastTerrainType: 2,
-        mountainTerrainType: 3,
-        iceFeatureType: 4,
-        terrainType: new Int32Array(size).fill(1),
-        biomeType: new Int32Array(size).fill(1),
-        featureType: new Int32Array(size).fill(-1),
-        noFeatureType: -1,
-        naturalWonderBlockedMask: new Uint8Array(size),
-        featureCatalog: [
-          {
-            featureType: 35,
-            direction: 0,
-            footprintOffsetsByParity: { even: [{ dx: 0, dy: 0 }], odd: [{ dx: 0, dy: 0 }] },
-          },
-          {
-            featureType: 41,
-            direction: 1,
-            footprintOffsetsByParity: { even: [{ dx: 0, dy: 0 }], odd: [{ dx: 0, dy: 0 }] },
-          },
-        ],
-      },
-      naturalWonderSelection(1)
-    );
-
-    expect(result.targetCount).toBe(2);
-    expect(result.plannedCount).toBe(2);
-    expect(result.placements.length).toBe(2);
-    expect(result.placements[0]?.featureType).toBe(35);
-    expect(result.placements[1]?.featureType).toBe(41);
-  });
-
   it("drops explicit empty natural-wonder footprints from placement candidates", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
@@ -164,53 +101,6 @@ describe("natural wonder planning", () => {
     for (const placement of first.placements) {
       expect(placement.priority).toBeGreaterThanOrEqual(0);
       expect(placement.priority).toBeLessThanOrEqual(1);
-    }
-  });
-
-  it("emits next-best fallback anchors for materialize retry", () => {
-    const { width, height } = TEST_MAP_SIZE.dimensions;
-    const size = width * height;
-    const result = runAdmittedOperationForTest(
-      planNaturalWonders,
-      {
-        width,
-        height,
-        wondersCount: 1,
-        landMask: new Uint8Array(size).fill(1),
-        elevation: Int16Array.from({ length: size }, (_, index) => (index * 37) % 120),
-        aridityIndex: new Float32Array(size).fill(0.3),
-        riverClass: new Uint8Array(size),
-        lakeMask: new Uint8Array(size),
-        coastTerrainType: 2,
-        mountainTerrainType: 3,
-        iceFeatureType: 4,
-        terrainType: new Int32Array(size).fill(1),
-        biomeType: new Int32Array(size).fill(1),
-        featureType: new Int32Array(size).fill(-1),
-        noFeatureType: -1,
-        naturalWonderBlockedMask: new Uint8Array(size),
-        featureCatalog: [
-          {
-            featureType: 35, // Kilimanjaro (group A); anchor-only here
-            direction: 0,
-            footprintOffsetsByParity: { even: [{ dx: 0, dy: 0 }], odd: [{ dx: 0, dy: 0 }] },
-          },
-        ],
-      },
-      naturalWonderSelection(0)
-    );
-
-    expect(result.placements.length).toBe(1);
-    const placement = result.placements[0]!;
-    const fallbacks = placement.fallbackPlotIndices ?? [];
-    // Fallbacks exist, are capped, distinct, exclude the primary, and are valid.
-    expect(fallbacks.length).toBeGreaterThan(0);
-    expect(fallbacks.length).toBeLessThanOrEqual(6);
-    expect(new Set(fallbacks).size).toBe(fallbacks.length);
-    expect(fallbacks).not.toContain(placement.plotIndex);
-    for (const idx of fallbacks) {
-      expect(idx).toBeGreaterThanOrEqual(0);
-      expect(idx).toBeLessThan(size);
     }
   });
 

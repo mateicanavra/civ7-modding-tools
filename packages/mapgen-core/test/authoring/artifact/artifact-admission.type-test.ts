@@ -135,7 +135,6 @@ defineStep({
   id: "canonical-artifact-provider",
   requires: [],
   provides: [],
-  schema: Type.Object({}, { additionalProperties: false }),
   artifacts: { requires: [firstArtifact], provides: [secondArtifact] },
 });
 
@@ -154,7 +153,6 @@ defineStep({
   id: "legacy-wrapper-provider",
   requires: [],
   provides: [],
-  schema: Type.Object({}, { additionalProperties: false }),
   // @ts-expect-error Step providers accept the same Artifact authority used by requirements.
   artifacts: { provides: [{ artifact: firstArtifact, validate: firstArtifact.validate }] },
 });

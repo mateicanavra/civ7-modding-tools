@@ -1,6 +1,6 @@
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
 
 /**
@@ -9,15 +9,6 @@ import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
  * Hydrology owns lake intent. This map stage only materializes that intent and
  * records readback evidence from the adapter.
  */
-const LakesStepConfigSchema = Type.Object(
-  {},
-  {
-    additionalProperties: false,
-    description:
-      "Lake projection has no authored step configuration; stamping and readback evidence are unconditional at the engine boundary.",
-  }
-);
-
 /**
  * Defines the engine-facing lake projection boundary over Hydrology intent and
  * Morphology's protected mountain surface. The implementation owns Civ7 mutation
@@ -25,6 +16,7 @@ const LakesStepConfigSchema = Type.Object(
  */
 export const config = defineStep({
   id: "lakes",
+  description: "Projects admitted lake intent and records immutable projection evidence.",
   engine: ["stampLakes"] as const,
   requires: [],
   provides: [
@@ -35,5 +27,4 @@ export const config = defineStep({
     requires: [hydrographyArtifacts.lakePlan, morphologyLandformsArtifacts.mountains],
     provides: [hydrographyArtifacts.projectedLakes],
   },
-  schema: LakesStepConfigSchema,
 });

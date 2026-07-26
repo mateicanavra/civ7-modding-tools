@@ -10,7 +10,6 @@ import {
 } from "@mapgen/authoring/index.js";
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
-import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
 import {
   buildStepTestDependencies,
   publishTestArtifact,
@@ -46,7 +45,6 @@ const doubleStep = createStep(
     requires: [],
     provides: [],
     artifacts: { requires: [inputArtifact], provides: [outputArtifact] },
-    schema: EmptyStepConfigSchema,
   }),
   {
     run: (context, _config, _ops, deps) => {
@@ -62,18 +60,17 @@ const defineUncheckedStep = (definition: unknown): unknown =>
 
 describe("step testing surface", () => {
   it("binds only declared engine methods to the exact active step occurrence", () => {
-    const engineMethods = ["readCurrentMapSurface"] as const;
+    const engineMethods = ["readCurrentMapWaterMask"] as const;
     const engineStep = createStep(
       defineStep({
         id: "observe-current-surface",
         requires: [],
         provides: [],
         engine: engineMethods,
-        schema: EmptyStepConfigSchema,
       }),
       {
         run: (stepContext, _config, _ops, dependencies) =>
-          dependencies.engine.readCurrentMapSurface(stepContext),
+          dependencies.engine.readCurrentMapWaterMask(stepContext),
       }
     );
     const firstRoot = createSyntheticContext();
@@ -86,13 +83,15 @@ describe("step testing surface", () => {
 
     withMapContextExecutionForTest(firstRoot, (stepContext) => {
       const dependencies = buildStepTestDependencies(engineStep, stepContext);
-      expect(Object.keys(dependencies.engine)).toEqual(["readCurrentMapSurface"]);
+      expect(Object.keys(dependencies.engine)).toEqual(["readCurrentMapWaterMask"]);
       expect(Reflect.get(dependencies.engine, "verifyEffect")).toBeUndefined();
       expect(Reflect.get(dependencies.engine, "getRandomNumber")).toBeUndefined();
       expect(Reflect.get(stepContext, "adapter")).toBeUndefined();
-      expect(dependencies.engine.readCurrentMapSurface(stepContext).width).toBe(2);
+      expect(Array.from(dependencies.engine.readCurrentMapWaterMask(stepContext))).toEqual([
+        0, 0, 0, 0,
+      ]);
       retainedContext = stepContext;
-      retainedRead = dependencies.engine.readCurrentMapSurface;
+      retainedRead = dependencies.engine.readCurrentMapWaterMask;
     });
 
     expect(() => retainedRead?.(retainedContext!)).toThrow("context returned by createMapContext");
@@ -108,13 +107,12 @@ describe("step testing surface", () => {
       id: "invalid-engine-declaration",
       requires: [],
       provides: [],
-      schema: EmptyStepConfigSchema,
     } as const;
 
     expect(() =>
       defineStep({
         ...base,
-        engine: ["readCurrentMapSurface", "readCurrentMapSurface"] as const,
+        engine: ["readCurrentMapWaterMask", "readCurrentMapWaterMask"] as const,
       })
     ).toThrow("multiple times");
     expect(() => defineUncheckedStep({ ...base, engine: ["verifyEffect"] })).toThrow(
@@ -126,7 +124,7 @@ describe("step testing surface", () => {
     const sparse: string[] = [];
     sparse.length = 1;
     expect(() => defineUncheckedStep({ ...base, engine: sparse })).toThrow("dense array");
-    const decorated = ["readCurrentMapSurface"];
+    const decorated = ["readCurrentMapWaterMask"];
     Object.defineProperty(decorated, Symbol("smuggled"), { value: true });
     expect(() => defineUncheckedStep({ ...base, engine: decorated })).toThrow("without extra keys");
   });
@@ -136,7 +134,6 @@ describe("step testing surface", () => {
       id: "forged-engine-method",
       requires: [],
       provides: [],
-      schema: EmptyStepConfigSchema,
     } as const;
 
     expect(() => defineUncheckedStep({ ...base, engine: ["notAnEngineMethod"] })).toThrow(

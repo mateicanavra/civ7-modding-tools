@@ -31,7 +31,6 @@ describe("authoring: hello recipe compile/execute", () => {
       id: "hello",
       requires: [],
       provides: [],
-      schema: Type.Object({}, { additionalProperties: false }),
     });
     const helloStep = createStep(helloContract, {
       run: () => {
@@ -175,7 +174,6 @@ describe("authoring: hello recipe compile/execute", () => {
       ops: {
         trees: contract,
       },
-      schema: Type.Object({}, { additionalProperties: false }),
     });
 
     const step = createStep(stepContract, {

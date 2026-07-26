@@ -2,14 +2,14 @@
   "schemaVersion": 2,
   "kind": "habitat.ruleAuthorityCleanup.operationalLedger",
   "status": "canonical-operational-source",
-  "updatedOn": "2026-07-21",
+  "updatedOn": "2026-07-26",
   "recordPolicy": "This JSON file is the only machine-readable operational source for rule authority cleanup: live rule rows, retired/stale references, queued/completed slices, blockers, findings, counts, and gate state. Markdown receipts may explain completed slices, but they must not duplicate or define active rule rows, queue, blockers, or counts.",
   "controllingFrame": ".habitat/.active/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/.active/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
   "corpus": {
-    "liveManifestCount": 125,
-    "currentRowCount": 125,
-    "retiredHistoricalRowCount": 40,
+    "liveManifestCount": 108,
+    "currentRowCount": 121,
+    "retiredHistoricalRowCount": 45,
     "duplicateLiveRows": []
   },
   "counts": {
@@ -18,31 +18,31 @@
       "closed structure inversion": 2,
       "consolidation/dedup": 1,
       "context admission": 27,
-      "no action": 53,
-      "positive authority creation": 15,
-      "retirement/garbage collection": 3,
+      "no action": 52,
+      "positive authority creation": 13,
+      "retirement/garbage collection": 2,
       "runtime/source validation": 3,
       "split by owner": 14
     },
     "packetNeeded": {
-      "false": 125
+      "false": 121
     },
     "layer2Status": {
       "blocked-prior-source-owner-design": 1,
       "decision-packet-accepted; deletion-blocked-partial-absorber": 1,
       "decision-packet-accepted; split-generalization-needed": 3,
       "excluded-native-rail-not-semantic-remediation": 1,
-      "none": 88,
-      "packet-complete": 17,
+      "none": 87,
+      "packet-complete": 14,
       "transition-decision-accepted": 14
     }
   },
   "gateState": {
-    "currentLayer": "MapGen final ratchet: recipe-stage topology authority.",
-    "currentGate": "Seal the generic recipe-stage topology layer before changing aggregate policy execution.",
+    "currentLayer": "MapGen final ratchet: Civ7 generated-currentness authority retirement.",
+    "currentGate": "Seal exact package-owned generated currentness as the sole content oracle while preserving Habitat host classification and recovery.",
     "mutationAuthorization": "Only the active root-owned final-ratchet Graphite stack; A.2 remains separately owned and unstarted.",
     "nextSliceId": null,
-    "nextLegalAction": "Commit the reviewed recipe-stage topology layer, then remove redundant aggregate structure traversal in a separate performance layer.",
+    "nextLegalAction": "Commit the reviewed Civ7 generated-authority retirement layer, then return to the next independently framed MapGen final-ratchet container.",
     "operationalSourceOfTruth": ".habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json"
   },
   "rules": [
@@ -63,38 +63,6 @@
       "expectedRemediation": "Stay live in domain-operation boundary.",
       "evidenceNote": "Engine runtime values absent from ops; Habitat check passed.",
       "currentPath": ".habitat/blueprints/domain-operation/block_engine_runtime_imports_from_domain_ops/rule.json"
-    },
-    {
-      "ruleId": "block_hand_edits_to_generated_civ7_types",
-      "lane": "Civ7 platform/resources",
-      "actionDecision": "positive authority creation",
-      "packetNeeded": false,
-      "expectedRemediation": "retain as protected generated-zone file-layer instance; do not treat as generator/currentness proof or resource-derived package kind",
-      "evidenceNote": "The guard is correct, but it is one of repeated local generated-surface blockers under resource package lanes. This wants a single generated-zone authority. Layer 2 packet generated-zone-and-resource-derived-package-authority: The rule is valid hand-edit protection for packages/civ7-types/generated/**. Host policy already declares civ7-types-generated as an external-resource surface. The generated river types file has a transitional/old generator label, so this guard proves staged mutation protection only, not freshness or generator authority.",
-      "currentPath": ".habitat/civ7/resources/civ7-types/rules/block_hand_edits_to_generated_civ7_types/rule.json",
-      "layer2Status": "packet-complete",
-      "packetSliceId": "generated-zone-and-resource-derived-package-authority",
-      "wholeRuleFit": "context/consolidate into generated-zone authority",
-      "ruleIdPlan": "retain as protected generated-zone file-layer instance; do not treat as generator/currentness proof or resource-derived package kind",
-      "semanticDecision": "The rule is valid hand-edit protection for packages/civ7-types/generated/**. Host policy already declares civ7-types-generated as an external-resource surface. The generated river types file has a transitional/old generator label, so this guard proves staged mutation protection only, not freshness or generator authority.",
-      "residualFollowUp": "Settle civ7-types generator/recovery story separately; do not broaden into resource-derived package authority.",
-      "implementationReadiness": "no action or metadata cleanup only; keep file-layer guard as live authority"
-    },
-    {
-      "ruleId": "block_hand_edits_to_generated_map_policy_tables",
-      "lane": "Civ7 platform/resources",
-      "actionDecision": "positive authority creation",
-      "packetNeeded": false,
-      "expectedRemediation": "retain as protected generated-zone file-layer instance with map-policy workflow recovery",
-      "evidenceNote": "Same repeated generated-surface pattern as Civ7 types. Correct invariant, weak local owner. Layer 2 packet generated-zone-and-resource-derived-package-authority: The rule is valid hand-edit protection for the generated map-policy table file. Host policy already declares civ7-map-policy-tables as a generated surface, and package verify owns regeneration/currentness.",
-      "currentPath": ".habitat/civ7/resources/map-policy/rules/block_hand_edits_to_generated_map_policy_tables/rule.json",
-      "layer2Status": "packet-complete",
-      "packetSliceId": "generated-zone-and-resource-derived-package-authority",
-      "wholeRuleFit": "context/consolidate into generated-zone authority",
-      "ruleIdPlan": "retain as protected generated-zone file-layer instance with map-policy workflow recovery",
-      "semanticDecision": "The rule is valid hand-edit protection for the generated map-policy table file. Host policy already declares civ7-map-policy-tables as a generated surface, and package verify owns regeneration/currentness.",
-      "residualFollowUp": "Normalize command spelling in a future metadata cleanup if needed, but do not change this into an output-text correctness check.",
-      "implementationReadiness": "no action or metadata cleanup only; keep file-layer guard as live authority"
     },
     {
       "ruleId": "block_studio_config_leakage_into_shipped_catalog",
@@ -364,22 +332,6 @@
       "evidenceNote": "A.2 review found mixed owners: operation topology and dependency clauses belong to generic domain-operation authority, while artifact and projection currentness remain exterior concerns.",
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/preserve_decomposed_foundation_contract_surfaces/rule.json",
       "layer2Status": "decision-packet-accepted; split-generalization-needed"
-    },
-    {
-      "ruleId": "preserve_evidence_provenance_labels",
-      "lane": "Civ7 platform/resources",
-      "actionDecision": "retirement/garbage collection",
-      "packetNeeded": false,
-      "expectedRemediation": "delete independent Habitat output-text provenance check after confirming map-policy verify template and byte comparison remain the oracle",
-      "evidenceNote": "This checks generated output text correctness. The label policy matters, but the oracle should be the generator/verify path, not an independent Habitat output-text assertion. Layer 2 packet generated-zone-and-resource-derived-package-authority: The provenance label matters, but the current Habitat script reads generated output text and checks three strings. The invariant belongs to packages/civ7-map-policy/scripts/verify.ts and its generated template/currentness verification, not a separate Habitat output-text assertion.",
-      "currentPath": ".habitat/civ7/resources/map-policy/rules/preserve_evidence_provenance_labels/rule.json",
-      "layer2Status": "packet-complete",
-      "packetSliceId": "generated-zone-and-resource-derived-package-authority",
-      "wholeRuleFit": "retire / replace by generator verify",
-      "ruleIdPlan": "delete independent Habitat output-text provenance check after confirming map-policy verify template and byte comparison remain the oracle",
-      "semanticDecision": "The provenance label matters, but the current Habitat script reads generated output text and checks three strings. The invariant belongs to packages/civ7-map-policy/scripts/verify.ts and its generated template/currentness verification, not a separate Habitat output-text assertion.",
-      "residualFollowUp": "During Layer 3, rely on map-policy verify/currentness and keep generated-zone protection; remove this Habitat check as duplicate weak output-text enforcement.",
-      "implementationReadiness": "ready garbage-collection candidate, but local only and not a cascade stop"
     },
     {
       "ruleId": "preserve_mapgen_core_runtime_neutrality",
@@ -957,15 +909,6 @@
       "expectedRemediation": "Implemented: admitted the G9 wrapper-only `advanced` guard into the standard recipe rules lane as live context authority.",
       "evidenceNote": "G9 docs explicitly retain a Habitat guard for standard recipe source and map configs. The current Grit predicate is source-shape recurrence protection, passes, and does not belong in a package-test junk drawer or a generic config remainder. Corrective local-proxy review left this settled: it is broad standard-recipe persisted `advanced` recurrence protection, not a stage-specific proxy.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/rule.json"
-    },
-    {
-      "ruleId": "protect_generated_map_entrypoints_from_hand_edits",
-      "lane": "mixed blueprints",
-      "actionDecision": "no action",
-      "packetNeeded": false,
-      "expectedRemediation": "Stay as generated-zone guard.",
-      "evidenceNote": "Generated files carry headers and are recreated by generator.",
-      "currentPath": ".habitat/blueprints/mod-map/protect_generated_map_entrypoints_from_hand_edits/rule.json"
     },
     {
       "ruleId": "require_artifact_file_shape",
@@ -3259,6 +3202,19 @@
   ],
   "retiredRules": [
     {
+      "ruleId": "protect_generated_map_entrypoints_from_hand_edits",
+      "lane": "mixed blueprints",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Retired without replacement. Nx `mod-swooper-maps:generated:check` owns exact generated-output currentness while host policy retains generated-path classification.",
+      "evidenceNote": "The file-layer guard observed only staged paths and therefore refused owner-generated output exactly as it refused hand-authored drift. Deterministic currentness detects missing, mismatched, and unexpected tracked output without claiming unobservable write provenance.",
+      "currentPath": null,
+      "previousPath": ".habitat/blueprints/mod-map/protect_generated_map_entrypoints_from_hand_edits/rule.json",
+      "retiredBy": "refactor(habitat): retire unobservable generated edit guard",
+      "retiredOn": "2026-07-26",
+      "retiredReason": "Staged-path mutation cannot distinguish generator output from a hand edit; the existing Nx-owned currentness oracle already proves the only meaningful repository state."
+    },
+    {
       "ruleId": "require_standard_recipe_tag_catalog_owner_tokens",
       "lane": "standard recipe top-level",
       "actionDecision": "retirement/garbage collection",
@@ -3768,6 +3724,83 @@
         "runtimeRule": "verify_runtime_stage_order_matches_contract_manifest",
         "reachabilityTarget": "habitat:check:dead-code"
       }
+    },
+    {
+      "ruleId": "block_hand_edits_to_generated_civ7_types",
+      "lane": "Civ7 platform/resources",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Habitat packet deleted; `civ7-map-policy:generated:check` owns exact river declaration currentness, and `civ7-types:check` delegates to that owner.",
+      "evidenceNote": "The file-layer guard could observe only a staged generated path, not whether its bytes came from the owner generator. The map-policy generated-file plan now materializes and byte-compares the river declaration together with both policy outputs.",
+      "currentPath": null,
+      "previousPath": ".habitat/civ7/resources/civ7-types/rules/block_hand_edits_to_generated_civ7_types/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "MapGen final-ratchet Civ7 generated-currentness authority seal",
+      "retiredReason": "Exact package-owned currentness is an observable oracle; staged action provenance is not.",
+      "authorityDestination": {
+        "package": "packages/civ7-map-policy",
+        "nxTarget": "civ7-map-policy:generated:check",
+        "delegatedNxTarget": "civ7-types:check",
+        "hostDeclaration": "civ7-types-generated"
+      },
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-civ7-generated-currentness-authority.md"
+    },
+    {
+      "ruleId": "block_hand_edits_to_generated_map_policy_tables",
+      "lane": "Civ7 platform/resources",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Habitat packet deleted; `civ7-map-policy:generated:check` owns exact map-policy table currentness.",
+      "evidenceNote": "The file-layer guard rejected every staged table change, including the exact bytes produced by its documented regeneration command. The package generated-file plan now proves missing, mismatched, and unexpected output state directly.",
+      "currentPath": null,
+      "previousPath": ".habitat/civ7/resources/map-policy/rules/block_hand_edits_to_generated_map_policy_tables/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "MapGen final-ratchet Civ7 generated-currentness authority seal",
+      "retiredReason": "Exact package-owned currentness supersedes an unobservable staged hand-edit proxy.",
+      "authorityDestination": {
+        "package": "packages/civ7-map-policy",
+        "nxTarget": "civ7-map-policy:generated:check",
+        "hostDeclaration": "civ7-map-policy-tables"
+      },
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-civ7-generated-currentness-authority.md"
+    },
+    {
+      "ruleId": "block_hand_edits_to_generated_setup_parameters",
+      "lane": "Civ7 platform/resources",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Habitat packet deleted; `civ7-map-policy:generated:check` owns exact setup-parameter currentness.",
+      "evidenceNote": "This live packet had no active cleanup-ledger row, but it used the same unobservable staged-path proxy as its two siblings. The package generated-file plan includes the complete setup-parameter output.",
+      "currentPath": null,
+      "previousPath": ".habitat/civ7/resources/map-policy/rules/block_hand_edits_to_generated_setup_parameters/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "MapGen final-ratchet Civ7 generated-currentness authority seal",
+      "retiredReason": "Exact package-owned currentness supersedes an unobservable staged hand-edit proxy.",
+      "authorityDestination": {
+        "package": "packages/civ7-map-policy",
+        "nxTarget": "civ7-map-policy:generated:check",
+        "hostDeclaration": "civ7-setup-parameters"
+      },
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-civ7-generated-currentness-authority.md"
+    },
+    {
+      "ruleId": "preserve_evidence_provenance_labels",
+      "lane": "Civ7 platform/resources",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Habitat packet deleted; the map-policy generator authors provenance labels and exact generated currentness preserves them.",
+      "evidenceNote": "The independent Habitat script checked three output strings after generation. The package-generated file plan already derives the complete table bytes from the canonical generator and rejects any committed byte drift.",
+      "currentPath": null,
+      "previousPath": ".habitat/civ7/resources/map-policy/rules/preserve_evidence_provenance_labels/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "MapGen final-ratchet Civ7 generated-currentness authority seal",
+      "retiredReason": "A partial output-text oracle duplicated and weakened the exact package-owned generated-byte oracle.",
+      "authorityDestination": {
+        "package": "packages/civ7-map-policy",
+        "nxTarget": "civ7-map-policy:generated:check",
+        "generatedOutput": "packages/civ7-map-policy/src/civ7-tables.gen.ts"
+      },
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-civ7-generated-currentness-authority.md"
     }
   ],
   "staleRules": [

@@ -19,7 +19,7 @@
  * BOUNDARY (load-bearing, `kind:plan`): this op imports only
  * `@swooper/mapgen-core`. It MUST NOT import `@civ7/map-policy` or the engine.
  * Footprint geometry crosses the boundary as contract DATA
- * (`footprintOffsetsByParity`, computed in derive-placement-inputs); the op
+ * (`footprintOffsetsByParity`, computed in plan-natural-wonders); the op
  * resolves odd-R parity at each concrete anchor via that data.
  *
  * Adjacency: the predicate neighborhood uses mapgen-core's
@@ -525,7 +525,7 @@ function wrappedX(x: number, width: number): number {
  * Resolves a wonder's footprint to concrete plot indices at one anchor. Picks the
  * offset list for the ANCHOR row's parity (`y & 1`) — odd and even rows carry
  * distinct offsets because the engine grid is odd-R (the byParity data forwarded
- * by derive-placement-inputs from map-policy) — then walks it from the anchor,
+ * by plan-natural-wonders from map-policy) — then walks it from the anchor,
  * wrapping in X (cylinder) and rejecting any footprint that runs off the top/
  * bottom edge.
  *

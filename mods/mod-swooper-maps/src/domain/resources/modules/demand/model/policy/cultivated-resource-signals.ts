@@ -48,35 +48,10 @@ type CultivatedLaneId =
 
 export type CultivatedResourceSignals = {
   readonly laneId: CultivatedLaneId;
+  readonly laneKind?: "land" | "water";
   readonly primary: readonly CultivatedMaskField[];
   readonly suppress: readonly CultivatedSuppressionField[];
 };
-
-/**
- * Canonical ordered cultivated resource set owned by this planning family. The family planner
- * iterates this list so missing expectations and signal coverage are reported for every
- * admitted type.
- */
-export const CULTIVATED_RESOURCE_TYPES: readonly CultivatedResourceType[] = [
-  "RESOURCE_COTTON",
-  "RESOURCE_DATES",
-  "RESOURCE_DYES",
-  "RESOURCE_INCENSE",
-  "RESOURCE_SILK",
-  "RESOURCE_WINE",
-  "RESOURCE_COCOA",
-  "RESOURCE_SPICES",
-  "RESOURCE_SUGAR",
-  "RESOURCE_TEA",
-  "RESOURCE_COFFEE",
-  "RESOURCE_TOBACCO",
-  "RESOURCE_CITRUS",
-  "RESOURCE_QUININE",
-  "RESOURCE_MANGOS",
-  "RESOURCE_RICE",
-  "RESOURCE_CLOVES",
-  "RESOURCE_FLAX",
-];
 
 /**
  * Physical eligibility policy for each cultivated resource, mapping it to an admitted
@@ -97,6 +72,7 @@ export const CULTIVATED_SIGNALS: Record<CultivatedResourceType, CultivatedResour
   },
   RESOURCE_DYES: {
     laneId: "marine-dye",
+    laneKind: "water",
     primary: ["coastalMarineMask"],
     suppress: [],
   },

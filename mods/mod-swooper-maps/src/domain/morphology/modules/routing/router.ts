@@ -3,7 +3,7 @@ import contract from "./contract.js";
 import computeFlowRouting from "./ops/compute-flow-routing/index.js";
 
 /**
- * Canonically binds the Routing contract to receiver and drainage derivation over carved relief,
+ * Canonically binds the Routing contract to receiver and drainage derivation over base relief,
  * supplying the flow topology used by geomorphic evolution. The Morphology router is the sole
  * executable aggregate; step authoring continues to reference the contract.
  */

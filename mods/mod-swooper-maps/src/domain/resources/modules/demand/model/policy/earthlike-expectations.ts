@@ -3,20 +3,15 @@ import {
   OFFICIAL_RESOURCE_CORPUS,
   type OfficialResourceType,
 } from "@civ7/map-policy";
+import type { ResourceFamily } from "../../../../model/atoms/resource-family.schema.js";
 import type {
   ResourceExpectationRangeEvidence,
   ResourceExpectedCountRange,
 } from "../atoms/expected-count-range.schema.js";
-
-/** Stable resource-family cohorts measured by the Earthlike demand policy. */
-export type ResourceExpectationGroupId =
-  | "aquatic-coastal-navigable-river"
-  | "cultivated-plantation-medicinal"
-  | "terrestrial-animal-forest-wild"
-  | "geological-mineral-gemstone-industrial";
-
-/** Planner disposition for one official resource expectation. */
-export type ResourceExpectationStatus = "expected" | "blocked";
+import type {
+  ResourceExpectationGroupId,
+  ResourceExpectationStatus,
+} from "../atoms/resource-expectation.schema.js";
 
 /** Planner-consumed physical expectation for one official Civ7 resource. */
 export type EarthlikeResourceExpectation = {
@@ -30,17 +25,16 @@ export type EarthlikeResourceExpectation = {
   readonly caveats: readonly string[];
 };
 
-/** Mutable planner input projected from one frozen Earthlike expectation row. */
-export type ResourceExpectationInput<G extends ResourceExpectationGroupId> = {
-  resourceType: OfficialResourceType;
-  groupId: G;
-  status: EarthlikeResourceExpectation["status"];
-  earthlikePredicate: string;
-  expectedCountRange: ResourceExpectedCountRange;
-  conditionMultipliers: string[];
-  signalRequirements: string[];
-  caveats: string[];
-};
+/**
+ * Canonical habitat family required by each Earthlike expectation cohort.
+ * Terminal resolution fails closed when a resource signal disagrees with this ownership.
+ */
+export const RESOURCE_EXPECTATION_IDENTITY_BY_GROUP = {
+  "aquatic-coastal-navigable-river": { family: "aquatic" },
+  "cultivated-plantation-medicinal": { family: "cultivated" },
+  "terrestrial-animal-forest-wild": { family: "terrestrial" },
+  "geological-mineral-gemstone-industrial": { family: "geological" },
+} as const satisfies Record<ResourceExpectationGroupId, Readonly<{ family: ResourceFamily }>>;
 
 const BASELINE = "standard-earthlike-map" as const;
 const BLOCKED_ROW_TYPES = new Set<OfficialResourceType>([
@@ -583,27 +577,6 @@ export const EARTHLIKE_RESOURCE_EXPECTATIONS = deepFreeze(
     return toExpectation(definition);
   })
 );
-
-/**
- * Projects the frozen Earthlike authority for one family into mutable planner input without
- * allowing downstream schema admission or normalization to mutate the canonical policy table.
- */
-export function resourceExpectationsForGroup<const G extends ResourceExpectationGroupId>(
-  groupId: G
-): Array<ResourceExpectationInput<G>> {
-  return EARTHLIKE_RESOURCE_EXPECTATIONS.filter(
-    (row): row is EarthlikeResourceExpectation & { readonly groupId: G } => row.groupId === groupId
-  ).map((row) => ({
-    resourceType: row.resourceType,
-    groupId: row.groupId,
-    status: row.status,
-    earthlikePredicate: row.earthlikePredicate,
-    expectedCountRange: { ...row.expectedCountRange },
-    conditionMultipliers: [...row.conditionMultipliers],
-    signalRequirements: [...row.signalRequirements],
-    caveats: [...row.caveats],
-  }));
-}
 
 const definitionTypes = new Set(DEFINITIONS.map((entry) => entry.resourceType));
 if (definitionTypes.size !== DEFINITIONS.length) {
