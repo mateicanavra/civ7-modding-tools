@@ -10,7 +10,12 @@ import computeRadiativeForcing from "./ops/compute-radiative-forcing/index.js";
 import computeThermalState from "./ops/compute-thermal-state/index.js";
 import transportMoisture from "./ops/transport-moisture/index.js";
 
-/** Executable Hydrology climate branch. */
+/**
+ * Canonically binds the Climate contract to the forcing, circulation, moisture, precipitation,
+ * budget, and diagnostic implementations that produce baseline and refined climate evidence. The
+ * Hydrology router is the sole executable aggregate; step authoring continues to reference the
+ * contract.
+ */
 const climate = createDomainSubdomainRouter(contract, {
   computeRadiativeForcing,
   computeThermalState,

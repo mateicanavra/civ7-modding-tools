@@ -1,8 +1,5 @@
-import {
-  type AuthoredEngineAdapterKey,
-  type EngineAdapter,
-  isAuthoredEngineAdapterKey,
-} from "@civ7/adapter";
+import type { EngineAdapter } from "@civ7/adapter";
+import type { AuthoredEngineAdapterKey } from "@mapgen/authoring/step/engine-authority.js";
 import { assertMapSetupInternal, type MapSetup } from "@mapgen/core/map-setup.js";
 import { createLabelRng, type LabelRng } from "@mapgen/lib/rng/label.js";
 import type { StepTrace } from "@mapgen/trace/index.js";
@@ -301,9 +298,6 @@ export function invokeMapContextAdapterMethodInternal(
   key: AuthoredEngineAdapterKey,
   args: readonly unknown[]
 ): unknown {
-  if (!isAuthoredEngineAdapterKey(key)) {
-    throw new Error(`Engine adapter method "${String(key)}" is not admitted for authored use.`);
-  }
   if (context !== boundContext || getActiveMapContextStepIdInternal(context) !== consumerStepId) {
     throw new Error(
       `Engine capability for step "${consumerStepId}" requires that step's exact active context.`

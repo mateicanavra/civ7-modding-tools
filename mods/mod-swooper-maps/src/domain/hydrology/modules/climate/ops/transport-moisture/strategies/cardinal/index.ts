@@ -5,7 +5,11 @@ import TransportMoistureContract from "../../contract.js";
 import { upwindIndex } from "../../rules/index.js";
 import CardinalDefinition from "./config.js";
 
-/** Cardinalized winds provide deterministic iterative moisture transport with bounded retention and decay. */
+/**
+ * Repeatedly mixes local evaporation with one coarse upwind donor selected from wind and latitude.
+ * A fixed iteration budget and per-pass clamping avoid convergence-dependent output and keep
+ * humidity in `0..1`.
+ */
 const cardinalStrategy = createStrategy(TransportMoistureContract, CardinalDefinition, {
   run: (input, config) => {
     const width = input.width;

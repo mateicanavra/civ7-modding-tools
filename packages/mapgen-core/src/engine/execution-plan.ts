@@ -124,6 +124,11 @@ export const RecipeStepV2Schema = Type.Object(
 
 export type RecipeStepV2 = Static<typeof RecipeStepV2Schema>;
 
+/**
+ * Closed serialized recipe envelope accepted by execution-plan compilation.
+ * Structural validation happens here; `compileExecutionPlan` separately enforces unique step ids
+ * and resolves each enabled step against the supplied registry.
+ */
 export const RecipeV2Schema = Type.Object(
   {
     schemaVersion: Type.Literal(2),
@@ -135,6 +140,11 @@ export const RecipeV2Schema = Type.Object(
 
 export type RecipeV2 = Static<typeof RecipeV2Schema>;
 
+/**
+ * Structural wire schema joining a versioned recipe with the physical map setup for one run.
+ * Plan compilation still snapshots hostile inputs and admits setup through the canonical MapSetup
+ * boundary before producing executable state.
+ */
 export const RunRequestSchema = Type.Object(
   {
     recipe: RecipeV2Schema,
@@ -177,6 +187,10 @@ export interface ExecutionPlanCompileErrorItem {
   stepId?: string;
 }
 
+/**
+ * Aggregates run-request and registry-resolution failures discovered before execution begins.
+ * Callers can project `errors` into authoring UI using stable paths without parsing the message.
+ */
 export class ExecutionPlanCompileError extends Error {
   readonly errors: ExecutionPlanCompileErrorItem[];
 

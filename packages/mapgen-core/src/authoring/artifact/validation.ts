@@ -130,15 +130,15 @@ type ArtifactRefinementValue<T> = T extends SupportedTypedArray
               : T;
 
 /** One stable, human-readable artifact admission failure. */
-export type ArtifactValidationIssue = Readonly<{ message: string }>;
+type ArtifactValidationIssue = Readonly<{ message: string }>;
 
 /** Runtime facts required by complete artifact admission. */
-export type ArtifactValidationContext = Readonly<{
+type ArtifactValidationContext = Readonly<{
   dimensions: Readonly<{ width: number; height: number }>;
 }>;
 
 /** Core-owned semantic issue accumulator available only while one refinement is running. */
-export type ArtifactIssueSink = Readonly<{
+type ArtifactIssueSink = Readonly<{
   add: (message: string) => void;
   addGridCoordinates: (
     label: string,
@@ -147,7 +147,7 @@ export type ArtifactIssueSink = Readonly<{
 }>;
 
 /** Admitted contextual facilities supplied to an artifact's semantic refinement. */
-export type ArtifactRefinementFacilities = Readonly<{
+type ArtifactRefinementFacilities = Readonly<{
   dimensions: Readonly<{ width: number; height: number }>;
   cellCount: number;
   issues: ArtifactIssueSink;

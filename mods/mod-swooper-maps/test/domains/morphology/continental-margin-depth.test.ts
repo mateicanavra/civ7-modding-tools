@@ -3,11 +3,8 @@ import { describe, expect, it } from "bun:test";
 import morphology from "@mapgen/domain/morphology/router";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 
-const {
-  computeCoastalAdjacency,
-  computeDistanceToCoast,
-  computeSculptContinentalMargin,
-} = morphology.coasts.ops;
+const { computeCoastalAdjacency, computeDistanceToCoast, computeSculptContinentalMargin } =
+  morphology.coasts.ops;
 const { computeShelfMask } = morphology.shelf.ops;
 
 function countMask(mask: Uint8Array): number {

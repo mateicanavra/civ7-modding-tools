@@ -1,7 +1,6 @@
 import { describe, expect, it } from "bun:test";
-
-import resources from "@mapgen/domain/resources/router";
 import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
+import resources from "@mapgen/domain/resources/router";
 import { getHexRadiusIndicesOddQ, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 

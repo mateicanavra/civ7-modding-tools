@@ -1,6 +1,9 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Registers Foundation's mantle-forcing artifact. */
+/**
+ * Publishes the per-cell velocity, stress, divergence, and upwelling forcing shared by crust
+ * initialization and tectonic motion, keeping both branches on one causal mantle vintage.
+ */
 export const artifact = defineArtifact({
   name: "foundationMantleForcing",
   id: "artifact:foundation.mantleForcing",

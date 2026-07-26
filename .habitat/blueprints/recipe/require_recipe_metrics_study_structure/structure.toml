@@ -4,22 +4,31 @@ schemaVersion = 1
 name = "recipe-metrics-capability-roots"
 root = "mods/*/src/recipes/*/metrics"
 kind = "directory"
-mode = "open"
+mode = "closed"
 required = [
   "index.ts",
+  "capture.ts",
+  "sample.ts",
+  "scenario.ts",
   "families",
   "targets",
   "studies",
 ]
+allowed = ["policy"]
 
 [[scopes]]
 name = "recipe-metrics-study-bank-roots"
 root = "mods/*/src/recipes/*/metrics/studies"
 kind = "directory"
-mode = "open"
+mode = "closed"
 required = [
   "index.ts",
   "STUDIES.md",
+  "catalog.ts",
+  "define.ts",
+  "evaluate.ts",
+  "model.ts",
+  "scenarios.ts",
   "families",
   "benchmarks",
 ]
@@ -28,25 +37,40 @@ required = [
 name = "recipe-metrics-family-modules"
 root = "mods/*/src/recipes/*/metrics/families"
 kind = "directory"
-mode = "open"
+mode = "closed"
 required = [
   "*.ts",
 ]
+allowed = ["+([a-z0-9])*(-+([a-z0-9]))"]
+
+[[scopes]]
+name = "recipe-metrics-nested-family-modules"
+root = "mods/*/src/recipes/*/metrics/families/+([a-z0-9])*(-+([a-z0-9]))"
+kind = "directory"
+mode = "closed"
+required = ["*.ts"]
 
 [[scopes]]
 name = "recipe-metrics-target-modules"
 root = "mods/*/src/recipes/*/metrics/targets"
 kind = "directory"
-mode = "open"
+mode = "closed"
 required = [
   "*.ts",
 ]
 
 [[scopes]]
+name = "recipe-metrics-policy-modules"
+root = "mods/*/src/recipes/*/metrics/policy"
+kind = "directory"
+mode = "closed"
+required = ["*.ts"]
+
+[[scopes]]
 name = "recipe-metrics-study-family-docs"
 root = "mods/*/src/recipes/*/metrics/studies/families"
 kind = "directory"
-mode = "open"
+mode = "closed"
 required = [
   "*.md",
 ]
@@ -55,7 +79,7 @@ required = [
 name = "recipe-metrics-study-benchmarks"
 root = "mods/*/src/recipes/*/metrics/studies/benchmarks"
 kind = "directory"
-mode = "open"
+mode = "closed"
 required = [
   "*.study.ts",
   "*.md",

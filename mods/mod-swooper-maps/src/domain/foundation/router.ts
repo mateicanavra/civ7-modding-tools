@@ -8,7 +8,11 @@ import orogeny from "./modules/orogeny/router.js";
 import projection from "./modules/projection/router.js";
 import tectonics from "./modules/tectonics/router.js";
 
-/** Executable Foundation router consumed by recipe compilation. */
+/**
+ * Binds Foundation's mesh-through-tile-projection contracts to the executable chain that produces
+ * the recipe's deepest physical evidence. Recipe runtime compilation consumes this router; step
+ * authoring imports the contract-only domain.
+ */
 const foundation = createDomainRouter(contract, {
   mesh,
   mantle,

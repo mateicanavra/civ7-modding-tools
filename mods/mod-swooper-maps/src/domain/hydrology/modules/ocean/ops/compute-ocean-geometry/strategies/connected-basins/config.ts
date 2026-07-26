@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Connected-component and coast-distance traversal derive basin identity, normals, and tangents from one topology. */
+/**
+ * Defines the coast-distance traversal cap and the narrower range that retains coast vectors.
+ * Defaults preserve broad basin context while limiting normal and tangent evidence to ten coastal
+ * steps.
+ */
 export default defineStrategy({
   id: "connected-basins",
   config: Type.Object(

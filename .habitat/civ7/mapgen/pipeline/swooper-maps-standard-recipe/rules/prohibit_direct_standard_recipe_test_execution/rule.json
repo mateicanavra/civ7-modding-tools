@@ -19,10 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/test/**/*.ts",
-        "mods/mod-swooper-maps/test/**/*.tsx"
-      ]
+      "patterns": ["mods/mod-swooper-maps/test/**/*.ts", "mods/mod-swooper-maps/test/**/*.tsx"]
     }
   ],
   "hookCheck": true,
@@ -37,9 +34,7 @@
     "patternName": "prohibit_direct_standard_recipe_test_execution",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods/mod-swooper-maps/test"
-      ]
+      "roots": ["mods/mod-swooper-maps/test"]
     }
   }
 }

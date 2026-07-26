@@ -7,7 +7,11 @@ import planRidges from "./ops/plan-ridges/index.js";
 import planRoughLands from "./ops/plan-rough-lands/index.js";
 import planVolcanoes from "./ops/plan-volcanoes/index.js";
 
-/** Executable Morphology landforms branch bound to its admitted operation implementations. */
+/**
+ * Canonically binds the Landforms contract to island, landmass, ridge, foothill, rough-land, and
+ * volcano planning that completes Morphology truth. The Morphology router is the sole executable
+ * aggregate; step authoring continues to reference the contract.
+ */
 const landforms = createDomainSubdomainRouter(contract, {
   planIslandChains,
   computeLandmasses,

@@ -1,6 +1,9 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Registers Foundation's mantle-potential artifact. */
+/**
+ * Publishes the scalar mantle potential consumed by forcing derivation together with the
+ * deterministic thermal-source population that explains it.
+ */
 export const artifact = defineArtifact({
   name: "foundationMantlePotential",
   id: "artifact:foundation.mantlePotential",

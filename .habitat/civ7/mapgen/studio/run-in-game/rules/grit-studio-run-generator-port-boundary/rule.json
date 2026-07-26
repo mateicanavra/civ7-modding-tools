@@ -40,10 +40,7 @@
     "patternName": "grit_studio_run_generator_port_boundary",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "packages/studio-server/src",
-        "apps/mapgen-studio/src/server"
-      ]
+      "roots": ["packages/studio-server/src", "apps/mapgen-studio/src/server"]
     }
   }
 }

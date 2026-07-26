@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** One or two vector-weighted upwind neighbors advect evaporation-sourced humidity with bounded retention. */
+/**
+ * Defines the fixed pass count, donor influence, retention, and secondary-donor cutoff for the
+ * default vector transport posture. Defaults retain a second upwind neighbor only when it carries
+ * meaningful directional weight.
+ */
 export default defineStrategy({
   id: "vector-advection",
   config: Type.Object(

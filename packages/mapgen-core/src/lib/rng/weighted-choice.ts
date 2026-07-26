@@ -1,3 +1,7 @@
+/**
+ * Maps a finite roll onto the positive finite weight mass using modulo, so negative rolls wrap consistently.
+ * Nonpositive and non-finite weights are ignored; no usable mass or an unresolvable roll returns `-1`.
+ */
 export function weightedChoiceIndex(weights: readonly number[], roll: number): number {
   let total = 0;
   for (const w of weights) {
@@ -17,6 +21,11 @@ export function weightedChoiceIndex(weights: readonly number[], roll: number): n
   return -1;
 }
 
+/**
+ * Selects an item from the shared prefix of the item and weight arrays, copying that weight prefix.
+ * Neither input is mutated.
+ * Empty prefixes, unusable weights, and nullish selected entries return `null`.
+ */
 export function weightedChoice<T>(
   items: readonly T[],
   weights: readonly number[],

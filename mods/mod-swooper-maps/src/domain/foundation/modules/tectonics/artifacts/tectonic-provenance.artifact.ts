@@ -12,7 +12,11 @@ const TECTONIC_PROVENANCE_FIELD_KEYS = [
   "crustAge",
 ] as const;
 
-/** Registers Foundation's tectonic-provenance artifact. */
+/**
+ * Publishes advected tracer history and each cell's reconstructed origin and latest boundary
+ * encounter for tile projection. Admission aligns tracer vintages to `eraCount` and every lineage
+ * field to `cellCount`.
+ */
 export const artifact = defineArtifact({
   name: "foundationTectonicProvenance",
   id: "artifact:foundation.tectonicProvenance",

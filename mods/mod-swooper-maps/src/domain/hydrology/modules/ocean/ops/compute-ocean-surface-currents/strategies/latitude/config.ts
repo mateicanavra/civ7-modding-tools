@@ -1,6 +1,9 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Latitude bands provide deterministic zonal currents when wind-and-gyre projection is not selected. */
+/**
+ * Exposes one global strength control for the latitude-band current fallback. Its neutral default
+ * preserves the deterministic band profile, while zero removes ocean-current coupling entirely.
+ */
 export default defineStrategy({
   id: "latitude",
   config: Type.Object(

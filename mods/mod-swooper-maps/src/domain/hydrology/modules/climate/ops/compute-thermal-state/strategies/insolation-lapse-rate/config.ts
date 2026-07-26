@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Insolation response, elevation lapse, land state, and SST combine on one bounded temperature scale. */
+/**
+ * Defines the sea-level baseline, insolation response, lapse rate, land cooling, and hard
+ * temperature bounds. Defaults use a terrestrial lapse rate while allowing admitted SST to remain
+ * authoritative over water.
+ */
 export default defineStrategy({
   id: "insolation-lapse-rate",
   config: Type.Object(

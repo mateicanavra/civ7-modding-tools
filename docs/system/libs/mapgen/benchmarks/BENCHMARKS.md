@@ -27,7 +27,9 @@ targets, scenarios, studies, and report projection beside that recipe.
 | Layer | Authority | Rule |
 | --- | --- | --- |
 | Measurement primitive | `packages/mapgen-metrics/src/` | Refuse malformed or missing evidence; make no product judgment. |
-| Recipe metric family | `<recipe>/metrics/families/*.ts` | Project one completed capture into neutral, reusable facts. |
+| Recipe scenario/capture | `<recipe>/metrics/{scenario,capture,sample}.ts` | Admit one complete product identity, capture one completed run, and compose its neutral measurements. |
+| Recipe metric family | `<recipe>/metrics/families/**/*.ts` | Project one completed capture into neutral, reusable facts; nested directories preserve genuine family hierarchy. |
+| Recipe metric policy | `<recipe>/metrics/policy/*.ts` | Own optional product-specific interpretation shared by multiple families without becoming benchmark thresholds. |
 | Benchmark target | `<recipe>/metrics/targets/*.ts` | A `MetricTarget` names a nonempty set of product expectations and comparators. |
 | Executable study | `<recipe>/metrics/studies/benchmarks/*.study.ts` | A recipe study binds configuration, named dimensions, stable seeds, sample targets, and cohort targets. |
 | Study sheet | `<recipe>/metrics/studies/benchmarks/*.md` | Explain the hypothesis, inputs, measurements, expected outcomes, and proof command; never configure execution. |

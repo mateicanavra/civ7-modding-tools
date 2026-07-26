@@ -283,13 +283,16 @@ describe("authoring SDK", () => {
     const publicSchema = Type.Object(
       {
         requiredValue: Type.Number({ default: 1 }),
-        label: Type.Union([
-          Type.Object({ mode: Type.Literal("default") }, { additionalProperties: false }),
-          Type.Object(
-            { mode: Type.Literal("custom"), value: Type.String({ default: "Custom" }) },
-            { additionalProperties: false }
-          ),
-        ]),
+        label: Type.Union(
+          [
+            Type.Object({ mode: Type.Literal("default") }, { additionalProperties: false }),
+            Type.Object(
+              { mode: Type.Literal("custom"), value: Type.String({ default: "Custom" }) },
+              { additionalProperties: false }
+            ),
+          ],
+          { default: { mode: "default" } }
+        ),
       },
       {
         $id: "test-stage-schema",
@@ -351,7 +354,7 @@ describe("authoring SDK", () => {
     const beta = createStep(makeContract("beta"), { run: () => {} });
     const publicSchema = Type.Object(
       {
-        climate: Type.Number(),
+        climate: Type.Number({ default: 0 }),
         beta: Type.Object({}, { additionalProperties: false }),
       },
       { additionalProperties: false }
@@ -419,7 +422,7 @@ describe("authoring SDK", () => {
     const step = createStep(makeContract("alpha"), { run: () => {} });
     const publicSchema = Type.Object(
       {
-        climate: Type.Number(),
+        climate: Type.Number({ default: 0 }),
       },
       { additionalProperties: false }
     );
@@ -437,7 +440,10 @@ describe("authoring SDK", () => {
 
   it("createStage rejects undefined and non-object public compile results", () => {
     const step = createStep(makeContract("alpha"), { run: () => {} });
-    const publicSchema = Type.Object({ climate: Type.Number() }, { additionalProperties: false });
+    const publicSchema = Type.Object(
+      { climate: Type.Number({ default: 0 }) },
+      { additionalProperties: false }
+    );
 
     for (const invalidResult of [undefined, "not-an-object"]) {
       const compile = new Proxy(() => ({ alpha: {} }), {

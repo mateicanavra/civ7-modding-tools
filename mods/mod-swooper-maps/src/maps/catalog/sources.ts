@@ -1,5 +1,9 @@
 import { CatalogSourceIndex } from "./sourceIndex.js";
 
+/**
+ * Repository-relative namespace for authored map configuration sources.
+ * Catalog validation and generation share this prefix so every indexed map has one file identity.
+ */
 export const CATALOG_CONFIG_PATH_PREFIX = "mods/mod-swooper-maps/src/maps/configs/";
 const CATALOG_CONFIG_PATH_SUFFIX = ".config.json";
 
@@ -29,6 +33,11 @@ export function readCatalogSourceIndex(
   return parseCatalogSourceIndex(CatalogSourceIndex, options).entries;
 }
 
+/**
+ * Admits an unknown catalog index while preserving its authored map order.
+ * Generation uses this throwing boundary so invalid or unresolved sources fail before output is
+ * materialized.
+ */
 export function parseCatalogSourceIndex(
   value: unknown,
   options: CatalogSourceIndexValidationOptions = {}
@@ -42,6 +51,11 @@ export function parseCatalogSourceIndex(
   return { ok: true, entries: value as readonly CatalogSourceEntry[] };
 }
 
+/**
+ * Projects an indexed source path to the filename identity used for config admission.
+ * Rejecting paths outside the authored namespace prevents catalog and envelope identity from
+ * diverging.
+ */
 export function catalogConfigFileNameFromPath(configPath: string): string {
   if (
     !configPath.startsWith(CATALOG_CONFIG_PATH_PREFIX) ||
@@ -55,6 +69,10 @@ export function catalogConfigFileNameFromPath(configPath: string): string {
   return configPath.slice(CATALOG_CONFIG_PATH_PREFIX.length);
 }
 
+/**
+ * Collects catalog membership defects without throwing so generation can report them together.
+ * The check owns path shape, uniqueness, and optional repository-resolution evidence.
+ */
 export function validateCatalogSourceIndex(
   value: unknown,
   options: CatalogSourceIndexValidationOptions = {}

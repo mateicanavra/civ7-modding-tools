@@ -3,7 +3,11 @@ import ComputeTectonicsCurrentContract from "../../contract.js";
 import { buildTectonicsCurrent } from "../../rules/index.js";
 import NewestEraCompositeDefinition from "./config.js";
 
-/** Attaches newest-era composition to the current-tectonics operation contract. */
+/**
+ * Copies present-day boundary and stress evidence from the newest era and joins it with cumulative
+ * uplift from the full history. This keeps "current" and "cumulative" vintages explicit in one
+ * downstream product.
+ */
 export default createStrategy(ComputeTectonicsCurrentContract, NewestEraCompositeDefinition, {
   run: (input) => {
     const tectonics = buildTectonicsCurrent({

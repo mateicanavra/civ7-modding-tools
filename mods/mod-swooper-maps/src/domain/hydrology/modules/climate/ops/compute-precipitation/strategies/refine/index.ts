@@ -9,7 +9,11 @@ import {
 } from "../../rules/index.js";
 import RefineDefinition from "./config.js";
 
-/** River-corridor and low-basin effects refine admitted rainfall without redefining the baseline climate field. */
+/**
+ * Copies the admitted baseline arrays, adds river-adjacency and enclosed-basin wetness on land, then
+ * reclamps rainfall and recomputes humidity. Copy-on-entry preserves the baseline artifact as a
+ * distinct causal vintage.
+ */
 const refineStrategy = createStrategy(ComputePrecipitationContract, RefineDefinition, {
   run: (input, config) => {
     const width = input.width;

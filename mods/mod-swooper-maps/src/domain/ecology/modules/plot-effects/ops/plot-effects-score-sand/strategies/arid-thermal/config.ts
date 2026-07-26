@@ -7,40 +7,46 @@ import { BiomeSymbolSchema } from "../../../../../../model/atoms/index.js";
  */
 export default defineStrategy({
   id: "arid-thermal",
-  config: Type.Object({
-    minAridity: Type.Number({
-      default: 0.55,
-      minimum: 0,
-      maximum: 1,
-      description: "Sand is eligible when aridityIndex >= minAridity (0..1).",
-    }),
-    minTemperature: Type.Number({
-      default: 18,
-      minimum: -100,
-      maximum: 100,
-      description: "Sand is eligible when surfaceTemperature >= minTemperature (C).",
-    }),
-    maxFreeze: Type.Number({
-      default: 0.25,
-      minimum: 0,
-      maximum: 1,
-      description: "Sand is eligible when freezeIndex <= maxFreeze (0..1).",
-    }),
-    maxVegetation: Type.Number({
-      default: 0.2,
-      minimum: 0,
-      maximum: 1,
-      description: "Sand is eligible when vegetationDensity <= maxVegetation (0..1).",
-    }),
-    maxMoisture: Type.Number({
-      default: 90,
-      minimum: 0,
-      maximum: 1000,
-      description: "Sand is eligible when effectiveMoisture <= maxMoisture.",
-    }),
-    allowedBiomes: Type.Array(BiomeSymbolSchema, {
-      default: ["desert", "temperateDry"],
-      description: "Biome symbols allowed to emit sand plot effects (allowlist).",
-    }),
-  }),
+  config: Type.Object(
+    {
+      minAridity: Type.Number({
+        default: 0.55,
+        minimum: 0,
+        maximum: 1,
+        description: "Sand is eligible when aridityIndex >= minAridity (0..1).",
+      }),
+      minTemperature: Type.Number({
+        default: 18,
+        minimum: -100,
+        maximum: 100,
+        description: "Sand is eligible when surfaceTemperature >= minTemperature (C).",
+      }),
+      maxFreeze: Type.Number({
+        default: 0.25,
+        minimum: 0,
+        maximum: 1,
+        description: "Sand is eligible when freezeIndex <= maxFreeze (0..1).",
+      }),
+      maxVegetation: Type.Number({
+        default: 0.2,
+        minimum: 0,
+        maximum: 1,
+        description: "Sand is eligible when vegetationDensity <= maxVegetation (0..1).",
+      }),
+      maxMoisture: Type.Number({
+        default: 90,
+        minimum: 0,
+        maximum: 1000,
+        description: "Sand is eligible when effectiveMoisture <= maxMoisture.",
+      }),
+      allowedBiomes: Type.Array(BiomeSymbolSchema, {
+        default: ["desert", "temperateDry"],
+        description: "Biome symbols allowed to emit sand plot effects (allowlist).",
+      }),
+    },
+    {
+      description:
+        "Aridity, heat, moisture, vegetation, and biome controls used to admit sand effects.",
+    }
+  ),
 });

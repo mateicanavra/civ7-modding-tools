@@ -5,6 +5,7 @@ import {
   spawnResultFromCommandResult,
 } from "@habitat/cli/resources/command/index";
 import type { HabitatCommandResult } from "@habitat/cli/resources/command/types";
+import type { GitVisiblePathInventory } from "@habitat/cli/service/model/check/policy/structural/context.policy";
 import { Context, Effect, Layer } from "effect";
 
 export {
@@ -20,11 +21,6 @@ export {
 
 type GitCommandEffect = Effect.Effect<HabitatCommandResult, CommandProviderError>;
 type GitTextEffect = Effect.Effect<string | null>;
-
-export interface GitVisiblePathInventory {
-  readonly paths: readonly string[];
-  readonly trackedNonFilePaths: readonly string[];
-}
 
 export interface GitCommandOptions {
   cwd?: string;

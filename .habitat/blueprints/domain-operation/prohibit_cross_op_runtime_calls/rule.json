@@ -19,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/*/src/domain/*/modules/*/ops/*/index.ts"
-      ]
+      "patterns": ["mods/*/src/domain/*/modules/*/ops/*/index.ts"]
     }
   ],
   "hookCheck": true,
@@ -36,9 +34,7 @@
     "patternName": "prohibit_cross_op_runtime_calls",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods"
-      ]
+      "roots": ["mods"]
     }
   }
 }

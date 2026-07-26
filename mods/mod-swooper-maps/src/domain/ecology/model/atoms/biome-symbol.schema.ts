@@ -15,7 +15,11 @@ export const BIOME_SYMBOL_ORDER = [
 /** Semantic biome identities produced by Ecology before Civ7 projection chooses engine IDs. */
 export type BiomeSymbol = (typeof BIOME_SYMBOL_ORDER)[number];
 
-/** Canonical numeric encoding for each semantic Ecology biome. */
+/**
+ * Maps every Ecology biome symbol to its stable artifact and visualization encoding.
+ *
+ * Consumers use this table rather than relying on incidental array or engine ordinals.
+ */
 export const BIOME_SYMBOL_TO_INDEX: Readonly<Record<BiomeSymbol, number>> = Object.freeze(
   BIOME_SYMBOL_ORDER.reduce(
     (acc, symbol, index) => {

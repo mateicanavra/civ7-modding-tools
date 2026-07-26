@@ -19,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "packages/civ7-map-policy/src/**"
-      ]
+      "patterns": ["packages/civ7-map-policy/src/**"]
     },
     {
       "kind": "project-owner"
@@ -39,9 +37,7 @@
     "patternName": "ensure_map_policy_dependency_independence",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "packages/civ7-map-policy/src"
-      ]
+      "roots": ["packages/civ7-map-policy/src"]
     }
   }
 }

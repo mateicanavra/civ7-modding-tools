@@ -26,5 +26,5 @@ export type {
 // Re-export tracing primitives
 export * from "@mapgen/trace/index.js";
 
-// Package version
+/** MapGen Core package version exposed to host tooling; kept aligned with package metadata. */
 export const VERSION = "0.1.0";

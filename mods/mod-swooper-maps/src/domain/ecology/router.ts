@@ -6,7 +6,11 @@ import features from "./modules/features/router.js";
 import pedology from "./modules/pedology/router.js";
 import plotEffects from "./modules/plot-effects/router.js";
 
-/** Executable Ecology router consumed by recipe compilation. */
+/**
+ * Binds Ecology's soil, biome, feature, and plot-effect contracts to the executable chain that
+ * turns physical evidence into Ecology truth and placement intent. Recipe runtime compilation
+ * consumes this router; step authoring imports the contract-only domain.
+ */
 const ecology = createDomainRouter(contract, {
   pedology,
   biomes,

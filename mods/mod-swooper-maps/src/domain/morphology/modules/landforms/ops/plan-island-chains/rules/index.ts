@@ -104,7 +104,8 @@ export function selectIslandKind(params: {
 }
 
 /**
- * Resolves cluster size for island seeds.
+ * Draws a cluster size from one through the authored maximum using the stable island-cluster RNG
+ * label, so every admitted island seed produces at least one tile.
  */
 export function resolveClusterCount(islands: IslandConfig, rng: LabelRng): number {
   const clusterMax = Math.max(1, islands.clusterMax | 0);

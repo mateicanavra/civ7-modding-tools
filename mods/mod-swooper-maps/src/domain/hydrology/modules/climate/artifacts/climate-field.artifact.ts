@@ -1,6 +1,10 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Registers the final climate artifact consumed by map projection and Ecology. */
+/**
+ * Publishes the final rainfall and humidity vintage after river-corridor and cryosphere refinement;
+ * map projection and Ecology consume this surface rather than the baseline. Admission preserves map
+ * cardinality and Civ7's inclusive `0..200` rainfall domain.
+ */
 export const artifact = defineArtifact({
   name: "climateField",
   id: "artifact:hydrology.climateField",

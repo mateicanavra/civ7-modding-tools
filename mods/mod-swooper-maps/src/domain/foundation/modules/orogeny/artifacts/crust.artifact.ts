@@ -12,7 +12,10 @@ const CRUST_ARRAY_KEYS = [
   "strength",
 ] as const;
 
-/** Registers Foundation's evolved crust artifact. */
+/**
+ * Publishes the mature mesh-space crust after tectonic evolution for later tile projection.
+ * Admission requires every nonempty crust field to remain index-aligned.
+ */
 export const artifact = defineArtifact({
   name: "foundationCrust",
   id: "artifact:foundation.crust",

@@ -26,8 +26,17 @@ export type ValidatedMapConfig = Readonly<{
   localizationDescriptionTag: string;
 }>;
 
+/**
+ * Closed runtime envelope schema for Standard map configurations.
+ * Studio and artifact generators use it to admit metadata and the compiled recipe surface through
+ * the same boundary.
+ */
 export const STANDARD_MAP_CONFIG_ENVELOPE_SCHEMA = buildCanonicalMapConfigSchema();
 
+/**
+ * Canonical latitude window offered to callers constructing a Standard map envelope.
+ * Admission requires explicit bounds and does not silently inject this default.
+ */
 export const DEFAULT_CANONICAL_MAP_LATITUDE_BOUNDS = {
   topLatitude: 80,
   bottomLatitude: -80,
@@ -40,6 +49,10 @@ function isStandardMapConfigEnvelopeForSchema(
   return value.recipe === "standard" && Value.Check(recipeSchema, value.config);
 }
 
+/**
+ * Narrows an already canonical envelope when its discriminator and nested Standard config agree.
+ * Use {@link admitStandardMapConfig} instead when the value still needs snapshot admission.
+ */
 export function isStandardMapConfigEnvelope(
   value: CanonicalMapConfigEnvelope
 ): value is StandardMapConfigEnvelope {
@@ -54,18 +67,36 @@ export function admitStandardMapConfig(
   return admitStandardMapConfigWithSchema(value, recipeSchema);
 }
 
+/**
+ * Admits a portable Standard envelope and returns the nested config consumed by recipe execution.
+ * Generated entrypoints and test tooling use this boundary to keep catalog metadata out of the
+ * recipe compiler.
+ */
 export function canonicalRecipeConfig(value: unknown): StandardRecipeConfig {
   return admitStandardMapConfig(value).config;
 }
 
+/**
+ * Hashes only the authored recipe settings for configuration-content correlation.
+ * Envelope metadata can therefore change without altering this digest.
+ */
 export function canonicalMapConfigContentDigest(config: StandardMapConfigEnvelope): string {
   return sha256Hex(stableStringify(config.config));
 }
 
+/**
+ * Hashes the complete canonical envelope for catalog and provenance identity.
+ * Metadata, latitude bounds, and recipe-setting changes all intentionally affect this digest.
+ */
 export function canonicalMapConfigDigest(config: CanonicalMapConfigEnvelope): string {
   return sha256Hex(stableStringify(config));
 }
 
+/**
+ * Builds the closed map-envelope schema around a supplied Standard recipe schema.
+ * Studio generation and focused tests substitute the current compiled recipe surface without
+ * duplicating envelope rules.
+ */
 export function buildCanonicalMapConfigSchema(
   recipeConfigSchema: TSchema = STANDARD_RECIPE_CONFIG_SCHEMA
 ): TObject {
@@ -89,15 +120,27 @@ export function buildCanonicalMapConfigSchema(
   );
 }
 
+/**
+ * Derives the map identity candidate from a canonical config filename.
+ * The caller remains responsible for suffix admission before using the stem as an id.
+ */
 export function mapConfigFileStem(fileName: string): string {
   return fileName.replace(/\.config\.json$/i, "");
 }
 
+/**
+ * Derives the stable Civ7 localization key shared by generated catalog, XML, and text artifacts.
+ */
 export function mapLocalizationTag(id: string, field: "name" | "description"): string {
   const suffix = field === "name" ? "NAME" : "DESCRIPTION";
   return `LOC_MAP_${id.toUpperCase().replace(/[^A-Z0-9]+/g, "_")}_${suffix}`;
 }
 
+/**
+ * Admits a raw map envelope and binds it to its source filename identity.
+ * Catalog generation consumes the returned names so script, localization, and config outputs
+ * cannot drift from the canonical map id.
+ */
 export function validateCanonicalMapConfig(args: {
   fileName: string;
   raw: unknown;

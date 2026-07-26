@@ -19,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/*/src/domain/*/modules/*/ops/*/contract.ts"
-      ]
+      "patterns": ["mods/*/src/domain/*/modules/*/ops/*/contract.ts"]
     }
   ],
   "hookCheck": true,

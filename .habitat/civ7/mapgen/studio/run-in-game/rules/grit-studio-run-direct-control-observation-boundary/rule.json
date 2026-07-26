@@ -43,10 +43,7 @@
     "patternName": "grit_studio_run_direct_control_observation_boundary",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "packages/studio-server/src",
-        "apps/mapgen-studio/src/server"
-      ]
+      "roots": ["packages/studio-server/src", "apps/mapgen-studio/src/server"]
     }
   }
 }

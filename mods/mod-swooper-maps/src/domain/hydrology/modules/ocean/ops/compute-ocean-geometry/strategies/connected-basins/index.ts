@@ -4,7 +4,11 @@ import ComputeOceanGeometryContract from "../../contract.js";
 import { computeOceanGeometry } from "../../rules/index.js";
 import ConnectedBasinsDefinition from "./config.js";
 
-/** Connected-component and coast-distance traversal derive basin identity, normals, and tangents from one topology. */
+/**
+ * Derives connected basin identity, coast distance, normals, and tangents from the same water
+ * topology traversal. Sharing the traversal prevents current projection from mixing incompatible
+ * basin and coastline evidence.
+ */
 const connectedBasinsStrategy = createStrategy(
   ComputeOceanGeometryContract,
   ConnectedBasinsDefinition,

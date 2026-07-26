@@ -4,7 +4,11 @@ import ComputeAtmosphericCirculationContract from "../../contract.js";
 import { computeWindsEarthlike } from "../../rules/index.js";
 import GeostrophicProxyDefinition from "./config.js";
 
-/** Pressure gradients, planetary waves, land heating, and orography produce coherent tile-varying winds without a fluid simulation. */
+/**
+ * Synthesizes seeded wind vectors from latitude circulation, pressure gradients, planetary waves,
+ * and optional land and terrain coupling. Fixed smoothing and `maxSpeed` quantization keep the
+ * result deterministic and bounded.
+ */
 const geostrophicProxyStrategy = createStrategy(
   ComputeAtmosphericCirculationContract,
   GeostrophicProxyDefinition,

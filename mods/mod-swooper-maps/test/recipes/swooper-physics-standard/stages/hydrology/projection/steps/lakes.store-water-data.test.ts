@@ -297,12 +297,12 @@ describe("map-hydrology/lakes", () => {
     expect(projectedLakes.lakeMask[plainLakeTile]).toBe(1);
     expect(result.projection.plannedLakeTileCount).toBe(1);
     expect(result.morphologyProtectedLakeTileCount).toBe(1);
-    expect(
-      result.projection.plannedLakeTileCount + result.morphologyProtectedLakeTileCount
-    ).toBe(2);
-    expect(
-      result.projection.stampedLakeTileCount + result.projection.rejectedLakeTileCount
-    ).toBe(result.projection.plannedLakeTileCount);
+    expect(result.projection.plannedLakeTileCount + result.morphologyProtectedLakeTileCount).toBe(
+      2
+    );
+    expect(result.projection.stampedLakeTileCount + result.projection.rejectedLakeTileCount).toBe(
+      result.projection.plannedLakeTileCount
+    );
 
     const projectMetrics = LakesStep.metrics;
     if (!projectMetrics) throw new Error("Expected the lakes step to measure projection evidence");

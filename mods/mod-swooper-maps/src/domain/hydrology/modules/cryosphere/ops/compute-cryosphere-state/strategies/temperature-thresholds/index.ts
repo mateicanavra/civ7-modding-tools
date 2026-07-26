@@ -5,7 +5,11 @@ import ComputeCryosphereStateContract from "../../contract.js";
 import { clampU8, lerp01 } from "../../rules/index.js";
 import TemperatureThresholdsDefinition from "./config.js";
 
-/** One temperature scale coherently classifies snow, sea ice, albedo, freeze, permafrost, and melt potential. */
+/**
+ * Classifies every frozen-water product from the same admitted temperature and rainfall sample.
+ * Land and water outputs are mutually exclusive, and normalized intermediate fields are clamped
+ * before they feed albedo, permafrost, ground ice, or melt evidence.
+ */
 const temperatureThresholdsStrategy = createStrategy(
   ComputeCryosphereStateContract,
   TemperatureThresholdsDefinition,

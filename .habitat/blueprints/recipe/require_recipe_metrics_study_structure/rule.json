@@ -12,10 +12,10 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "recipe metrics capability roots without the required measurement, target, and study-bank topology",
-  "why": "Metrics are an optional recipe capability, but every recipe that carries a metrics root must colocate neutral families, benchmark targets, executable studies, family sheets, and benchmark one-pagers in one predictable structure.",
-  "remediate": "Add the required families, targets, and structured studies surfaces beneath the recipe metrics root.",
-  "message": "Recipe metrics capability roots must match the positive metrics study topology.",
+  "forbids": "recipe metrics capability roots outside the closed measurement, target, policy, and study-bank topology",
+  "why": "Metrics are an optional recipe capability, but every recipe that carries a metrics root has one closed system of scenario admission, capture, neutral families, benchmark targets, optional product policy, executable studies, family sheets, and benchmark one-pagers. Named nested family modules preserve semantic hierarchy without opening a generic support cabinet.",
+  "remediate": "Keep the canonical scenario, capture, sample, family, target, optional policy, and structured study-bank surfaces beneath the recipe metrics root; move every other concern to its actual recipe, domain, SDK, diagnostics, or documentation owner.",
+  "message": "Recipe metrics capability roots must match the closed positive metrics study topology.",
   "pathCoverage": [
     {
       "kind": "exact-path",

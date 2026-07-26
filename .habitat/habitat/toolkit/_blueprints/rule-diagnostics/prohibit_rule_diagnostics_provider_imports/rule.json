@@ -19,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "tools/habitat/src/**/*.ts"
-      ]
+      "patterns": ["tools/habitat/src/**/*.ts"]
     },
     {
       "kind": "project-owner"
@@ -39,9 +37,7 @@
     "patternName": "prohibit_rule_diagnostics_provider_imports",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "tools/habitat/src"
-      ]
+      "roots": ["tools/habitat/src"]
     }
   }
 }

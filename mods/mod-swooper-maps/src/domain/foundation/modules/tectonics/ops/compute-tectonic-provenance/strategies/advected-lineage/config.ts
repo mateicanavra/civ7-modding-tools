@@ -1,6 +1,9 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Closed configuration contract for reconstructing provenance from advected lineage. */
+/**
+ * Declares a parameter-free provenance posture: admitted tracer history, plate graph, and era
+ * fields fully determine lineage and boundary resets.
+ */
 export default defineStrategy({
   id: "advected-lineage",
   config: Type.Object(

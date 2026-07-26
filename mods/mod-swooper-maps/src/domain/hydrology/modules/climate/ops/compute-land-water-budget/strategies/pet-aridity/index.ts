@@ -4,7 +4,11 @@ import ComputeLandWaterBudgetContract from "../../contract.js";
 import { lerp01 } from "../../rules/index.js";
 import PetAridityDefinition from "./config.js";
 
-/** Thermal and humidity response balance precipitation demand into potential evapotranspiration and aridity. */
+/**
+ * Derives bounded PET and aridity from temperature, humidity, and rainfall on land tiles; water
+ * remains exactly zero. The shared denominator keeps aridity finite even when both demand and
+ * precipitation vanish.
+ */
 const petAridityStrategy = createStrategy(ComputeLandWaterBudgetContract, PetAridityDefinition, {
   run: (input, config) => {
     const width = input.width;

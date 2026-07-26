@@ -4,7 +4,11 @@ import AccumulateDischargeContract from "../../contract.js";
 import { clampMin } from "../../rules/index.js";
 import TopologicalRunoffDefinition from "./config.js";
 
-/** Rainfall scaling, infiltration, humidity dampening, and a source floor feed receiver-ordered runoff accumulation. */
+/**
+ * Derives per-land-tile runoff, classifies terminal sinks and water outlets, then accumulates
+ * discharge in receiver-topological order. A cycle is rejected rather than silently dropping or
+ * double-counting flow.
+ */
 const topologicalRunoffStrategy = createStrategy(
   AccumulateDischargeContract,
   TopologicalRunoffDefinition,

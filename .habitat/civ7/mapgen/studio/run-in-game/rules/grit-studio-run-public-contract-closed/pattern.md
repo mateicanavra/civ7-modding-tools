@@ -14,11 +14,7 @@ language js(typescript)
 or {
   program(statements=$body) where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    ! $body <: contains `export const publicRunStatusTypeSchema = Type.Union($variants)`
-  },
-  program(statements=$body) where {
-    $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    ! $body <: contains `export const operationStatusTypeSchema = publicRunStatusTypeSchema`
+    ! $body <: contains `export const operationStatusTypeSchema = Type.Union($variants)`
   },
   program(statements=$body) where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
@@ -37,71 +33,71 @@ or {
     ! $body <: contains `runInGameDiagnostics: (input) =>
         lookupRunDiagnostics(input.diagnosticsId, { workspaceRoot: runInGameWorkspaceRoot })`
   },
-  `export const publicRunStatusTypeSchema = Type.Object($fields, $options)` where {
+  `export const operationStatusTypeSchema = Type.Object($fields, $options)` where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$"
   },
-  `export const publicRunStatusTypeSchema = Type.Intersect($schemas)` where {
+  `export const operationStatusTypeSchema = Type.Intersect($schemas)` where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$"
   },
   `Type.Unknown()` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const operationStatusTypeSchema = Type.Union($variants)`
   },
   `Type.Any()` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const operationStatusTypeSchema = Type.Union($variants)`
   },
   `Type.Record($key, $value)` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const operationStatusTypeSchema = Type.Union($variants)`
   },
   `details: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const operationStatusTypeSchema = Type.Union($variants)`
   },
   `error: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const operationStatusTypeSchema = Type.Union($variants)`
   },
   `result: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const operationStatusTypeSchema = Type.Union($variants)`
   },
   `diagnostics: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const operationStatusTypeSchema = Type.Union($variants)`
   },
   `sections: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const operationStatusTypeSchema = Type.Union($variants)`
   },
   `materialization: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const operationStatusTypeSchema = Type.Union($variants)`
   },
   `exactAuthorshipProof: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const operationStatusTypeSchema = Type.Union($variants)`
   },
   `attribution: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const operationStatusTypeSchema = Type.Union($variants)`
   },
   `launchEnvelope: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const operationStatusTypeSchema = Type.Union($variants)`
   },
   `generationManifest: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const operationStatusTypeSchema = Type.Union($variants)`
   },
   `runCorrelation: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const operationStatusTypeSchema = Type.Union($variants)`
   },
   `runArtifactId: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const operationStatusTypeSchema = Type.Union($variants)`
   },
   `details: $value` as $match where {
     $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
@@ -166,10 +162,10 @@ or {
 
 ```typescript
 // @filename: packages/studio-contract/src/runInGame.ts
-export const publicRunStatusTypeSchema = Type.Object({ status: Type.String() });
+export const operationStatusTypeSchema = Type.Object({ status: Type.String() });
 
 // @filename: packages/studio-contract/src/runInGame.ts
-export const publicRunStatusTypeSchema = Type.Union([
+export const operationStatusTypeSchema = Type.Union([
   Type.Object({ status: Type.Literal("failed"), details: Type.Unknown() }, { additionalProperties: false }),
 ]);
 
@@ -191,10 +187,13 @@ const api = {};
 
 ```typescript
 // @filename: packages/studio-contract/src/runInGame.ts
-export const publicRunStatusTypeSchema = Type.Union([
+export const operationStatusTypeSchema = Type.Union([
   Type.Object({ status: Type.Literal("running"), phase: Type.Literal("deploying") }, { additionalProperties: false }),
 ]);
-export const operationStatusTypeSchema = publicRunStatusTypeSchema;
+const requestIdInputSchema = contractSchema(
+  Type.Object({ requestId: Type.String({ minLength: 1 }) }, { additionalProperties: false }),
+  { cleanUnknownProperties: false },
+);
 export const diagnostics = oc
   .input(contractSchema(Type.Object({ diagnosticsId: Type.String({ minLength: 1 }) })))
   .output(contractSchema(diagnosticsLookupResultSchema));

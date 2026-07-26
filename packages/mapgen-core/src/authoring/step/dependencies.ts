@@ -1,4 +1,3 @@
-import type { AuthoredEngineAdapterKey } from "@civ7/adapter";
 import type { MapContext } from "@mapgen/core/map-context.js";
 import {
   getActiveMapContextStepIdInternal,
@@ -115,13 +114,7 @@ function bindEngineDependencies(
   const bound: Record<string, (context: MapContext, ...args: unknown[]) => unknown> = {};
   for (const key of engine) {
     bound[key] = (invocationContext, ...args) =>
-      invokeMapContextAdapterMethodInternal(
-        invocationContext,
-        context,
-        consumerStepId,
-        key as AuthoredEngineAdapterKey,
-        args
-      );
+      invokeMapContextAdapterMethodInternal(invocationContext, context, consumerStepId, key, args);
   }
   return Object.freeze(bound);
 }

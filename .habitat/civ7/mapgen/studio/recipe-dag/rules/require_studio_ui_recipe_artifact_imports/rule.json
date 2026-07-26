@@ -19,10 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "apps/mapgen-studio/src/**/*.ts",
-        "apps/mapgen-studio/src/**/*.tsx"
-      ]
+      "patterns": ["apps/mapgen-studio/src/**/*.ts", "apps/mapgen-studio/src/**/*.tsx"]
     }
   ],
   "hookCheck": true,
@@ -37,9 +34,7 @@
     "patternName": "require_studio_ui_recipe_artifact_imports",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "apps/mapgen-studio/src"
-      ]
+      "roots": ["apps/mapgen-studio/src"]
     }
   }
 }

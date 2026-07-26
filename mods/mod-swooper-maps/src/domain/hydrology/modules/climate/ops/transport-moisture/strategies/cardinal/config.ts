@@ -1,6 +1,9 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Cardinalized winds provide deterministic iterative moisture transport with bounded retention and decay. */
+/**
+ * Defines the fixed pass count, donor influence, and retention for the cardinal transport fallback.
+ * Defaults trade directional precision for a stable, inexpensive 28-pass moisture field.
+ */
 export default defineStrategy({
   id: "cardinal",
   config: Type.Object(

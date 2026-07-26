@@ -1,6 +1,9 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** River-corridor and low-basin effects refine admitted rainfall without redefining the baseline climate field. */
+/**
+ * Defines local river-corridor and closed-basin bonuses applied during climate refinement. Defaults
+ * keep both effects spatially narrow so the baseline remains the dominant rainfall signal.
+ */
 export default defineStrategy({
   id: "refine",
   config: Type.Object(

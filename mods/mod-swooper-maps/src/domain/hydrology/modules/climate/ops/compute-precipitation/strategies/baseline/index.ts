@@ -7,7 +7,11 @@ import ComputePrecipitationContract from "../../contract.js";
 import { clampRainfall, rainfallToHumidityU8 } from "../../rules/index.js";
 import BaselineDefinition from "./config.js";
 
-/** Humidity scaling, texture, coastal moisture, and orography produce the deterministic baseline rainfall field. */
+/**
+ * Maps transported humidity to land rainfall, then applies coastal moisture, upwind barrier
+ * drying, and seeded Perlin texture. Every sample is clamped to Civ7's rainfall range and its
+ * humidity output is derived from that admitted value.
+ */
 const baselineStrategy = createStrategy(ComputePrecipitationContract, BaselineDefinition, {
   run: (input, config) => {
     const width = input.width;

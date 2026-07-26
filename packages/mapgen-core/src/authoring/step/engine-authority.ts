@@ -1,13 +1,12 @@
-import type { EngineAdapterMethodKey } from "./types.js";
+import type { EngineAdapterMethodKey } from "@civ7/adapter";
 
 /**
  * Engine methods that authored MapGen steps may request as occurrence-scoped capabilities.
  *
- * This adapter-owned registry is both the runtime admission authority and the source of the
- * authored key type. Adding an adapter method does not expose it to recipe code accidentally:
- * the method must be admitted here deliberately.
+ * Adding an adapter method does not expose it to recipe code accidentally: step authoring must
+ * deliberately admit that method here before a frozen step contract can request it.
  */
-export const AUTHORED_ENGINE_ADAPTER_METHODS = Object.freeze([
+const AUTHORED_ENGINE_ADAPTER_METHODS = Object.freeze([
   "readCurrentMapSurface",
   "getMapSizeId",
   "lookupMapInfo",
@@ -86,7 +85,7 @@ export const AUTHORED_ENGINE_ADAPTER_METHODS = Object.freeze([
   "needHumanNearEquator",
 ] as const satisfies readonly EngineAdapterMethodKey[]);
 
-/** One adapter method explicitly admitted for authored MapGen step use. */
+/** One adapter method explicitly admitted by MapGen step authoring. */
 export type AuthoredEngineAdapterKey = (typeof AUTHORED_ENGINE_ADAPTER_METHODS)[number];
 
 const authoredEngineAdapterMethodSet: ReadonlySet<string> = new Set(
@@ -94,8 +93,8 @@ const authoredEngineAdapterMethodSet: ReadonlySet<string> = new Set(
 );
 
 /**
- * Reports whether an untrusted step declaration names an adapter method explicitly admitted for
- * authored use. Concrete adapter helpers and executor-private methods are rejected by omission.
+ * Reports whether an untrusted step declaration names an engine method that authored MapGen steps
+ * may request. Concrete adapter helpers and executor-private methods are rejected by omission.
  */
 export function isAuthoredEngineAdapterKey(value: unknown): value is AuthoredEngineAdapterKey {
   return typeof value === "string" && authoredEngineAdapterMethodSet.has(value);

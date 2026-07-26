@@ -213,7 +213,7 @@ describe("compileRecipeConfig", () => {
     };
     const knobsSchema = Type.Object({}, { additionalProperties: false });
     const publicSchema = Type.Object(
-      { publicValue: Type.String() },
+      { publicValue: Type.String({ default: "base" }) },
       { additionalProperties: false }
     );
     const stage = createStage({

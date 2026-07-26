@@ -19,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/*/src/domain/*/modules/*/ops/**/*.ts"
-      ]
+      "patterns": ["mods/*/src/domain/*/modules/*/ops/**/*.ts"]
     }
   ],
   "hookCheck": true,
@@ -36,9 +34,7 @@
     "patternName": "prohibit_rng_callback_state_in_ops",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods"
-      ]
+      "roots": ["mods"]
     }
   }
 }

@@ -39,9 +39,7 @@
     "patternName": "require_domain_atom_owner_shape",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods"
-      ]
+      "roots": ["mods"]
     }
   }
 }

@@ -3,7 +3,11 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import PlanLakesContract from "../../contract.js";
 import SinkDischargeBudgetDefinition from "./config.js";
 
-/** High-discharge terminal sinks enter a bounded lake budget before controlled upstream expansion. */
+/**
+ * Ranks positive-discharge land sinks by discharge with tile index as the stable tie-breaker,
+ * admits a bounded primary set, then expands only along upstream receiver links. The land-fraction
+ * budget applies before expansion, matching the authored control.
+ */
 const sinkDischargeBudgetStrategy = createStrategy(
   PlanLakesContract,
   SinkDischargeBudgetDefinition,

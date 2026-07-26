@@ -19,19 +19,6 @@ export function isValidRiverClass(value: number | undefined): boolean {
 }
 
 /**
- * Locates malformed river evidence before an artifact crosses the Hydrology boundary.
- *
- * @param values - River-class field to validate in tile-index order.
- * @returns The first invalid tile index, or `-1` when every class is admissible.
- */
-export function findInvalidRiverClassIndex(values: ArrayLike<number>): number {
-  for (let i = 0; i < values.length; i++) {
-    if (!isValidRiverClass(values[i])) return i;
-  }
-  return -1;
-}
-
-/**
  * Tests for the exact headwater/minor class without including future major refinements.
  *
  * @param value - Encoded river class from Hydrology evidence.

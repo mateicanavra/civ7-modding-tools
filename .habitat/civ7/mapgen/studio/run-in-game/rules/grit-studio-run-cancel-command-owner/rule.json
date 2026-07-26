@@ -42,10 +42,7 @@
     "patternName": "grit_studio_run_cancel_command_owner",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "packages/studio-contract/src",
-        "packages/studio-server/src"
-      ]
+      "roots": ["packages/studio-contract/src", "packages/studio-server/src"]
     }
   }
 }

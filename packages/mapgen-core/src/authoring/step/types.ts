@@ -1,4 +1,4 @@
-import type { AuthoredEngineAdapterKey, EngineAdapter } from "@civ7/adapter";
+import type { EngineAdapter } from "@civ7/adapter";
 import type { MapContext } from "@mapgen/core/map-context.js";
 import type { StepFacets } from "@mapgen/engine/step-facets.js";
 import type { NormalizeContext } from "@mapgen/engine/types.js";
@@ -12,6 +12,7 @@ import type {
   StepContract,
   StepEngineDecl,
 } from "./contract.js";
+import type { AuthoredEngineAdapterKey } from "./engine-authority.js";
 
 type ArtifactsByName<T extends readonly Artifact[]> = {
   [Name in T[number]["name"] & string]: Extract<T[number], { name: Name }>;

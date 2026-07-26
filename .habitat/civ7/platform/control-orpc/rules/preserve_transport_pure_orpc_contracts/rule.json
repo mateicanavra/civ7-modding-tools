@@ -37,9 +37,7 @@
     "patternName": "preserve_transport_pure_orpc_contracts",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "packages/civ7-control-orpc/src"
-      ]
+      "roots": ["packages/civ7-control-orpc/src"]
     }
   }
 }

@@ -29,14 +29,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** ratchet the generic artifact kind around the sealed
-weighted `defineArtifact` authority. A module-owned artifact collection is
-closed and nonempty: one catalog `index.ts` plus one or more
-`*.artifact.ts` owners. Each owner directly inlines its complete root schema and
-optional semantic refinement, exports only `artifact`, and imports only the
-small authoring surface plus qualified Core, Civ7 static, or nearest model
-atoms/policy. Structure and exact member acquisition select the kind; Grit
-checks only relationships inside those admitted files.
+**Current container:** freeze and certify the exact foundation tree, then
+converge its Graphite history without replay or duplicate CI fan-out. The
+implementation train is closed unless proof exposes a concrete regression.
+Delivery work now preserves the tested tree while reconciling native Graphite
+ancestry, folding only the already approved semantic families, submitting one
+coherent stack, merging bottom to top, and draining obsolete worktrees and
+processes. A.2 and post-A.2 product proof remain outside this container.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -46,20 +45,22 @@ to MapGen diagnostics and Civ7 observation owners; the mod may retain only thin
 Standard replay/reporting commands. Core owns the generic authoring/execution
 and domain-composition SDK, not Swooper's domain model.
 
-Artifact authorship is now one weighted `defineArtifact` expression. Its inline
-schema refinement is contextually typed and receives admitted dimensions,
-derived cell count, and a Core-owned issue accumulator. Artifact modules no
-longer import framework issue/context types or allocate and thread their own
-issue arrays. Refinement typed arrays expose an observation-only compile-time
-surface without pretending the zero-copy artifact read plane is runtime-frozen.
+Artifact authorship is sealed as one weighted `defineArtifact` expression in a
+closed, nonempty module artifact collection. Its inline schema refinement is
+contextually typed and receives admitted dimensions, derived cell count, and a
+Core-owned issue accumulator. The generic artifact law selects exact members
+and enforces their closed import, export, root-schema, and refinement surfaces
+without broad source scans.
 
-**Gradient:** make the artifact collection grammar closed and nonempty, narrow
-file/catalog acquisition to real domain-module artifact members, and positively
-close the framework import combinations. Refresh fixtures against the sealed
-single-definition API, delete the retired historical artifact-ID blacklist,
-and prove the file, catalog, collection, and operation-boundary laws together
-without a broad Grit scan. Reach zero, review the frozen law, and commit before
-selecting the next unfinished final-ratchet container.
+**Gradient:** establish one authoritative proof ledger for the frozen head,
+run only native Nx-owned build, type, test, policy, boundary, dead-code,
+OpenSpec, and generated-currentness owners, and repair only failures that belong
+to this delivered tree. Restore trustworthy Narsil indexing and use it only to
+corroborate references, cycles, and boundary crossings after compiler and Knip
+authority pass. Then resolve the pending Graphite restack in the real delivery
+path, preserve the exact tree through the approved semantic fold, submit
+without multiplying CI rows, merge the whole stack, sync once, attach the
+primary worktree to merged `main`, and point the retained Studio runner there.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -94,6 +95,27 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Exported Capability Contract
+
+The live MapGen topology was recensused independently of its stale historical
+baseline. Dead exports were deleted; surviving consumed runtime values gained
+concise behavior-oriented declaration-site JSDoc; re-export barrels inherited
+their owner documentation; and the generic rule expanded across Core,
+diagnostics, metrics, visualization, maps, domains, and recipes with an empty
+baseline. Two graph-exposed blockers were repaired as lower semantic layers:
+Core stage fixtures now inherit admitted defaults, and MapGen Core owns authored
+engine-method policy without a runtime Adapter dependency.
+
+### 2026-07-26 - Weighted Artifact Kind
+
+Artifact authorship collapsed into one `defineArtifact` authority with
+TypeBox structural admission, exact typed-array constructor and cardinality
+admission, and a contextually typed semantic refinement over an observation-only
+value surface. Domain-module artifact collections became closed and nonempty;
+exact member acquisition and the generic artifact blueprint now enforce one
+catalog plus one-or-more inline artifact owners without global source scans or
+historical-key blacklists.
 
 ### 2026-07-25 - Test Intent Cash-In
 

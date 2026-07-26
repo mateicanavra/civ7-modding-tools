@@ -1,8 +1,15 @@
 import { wrapDeltaPeriodic } from "@mapgen/lib/math/wrap.js";
 
+/** Horizontal center spacing for pointy-top unit hexes in the canonical projected map space. */
 export const HEX_WIDTH = Math.sqrt(3);
+
+/** Vertical row spacing for pointy-top unit hexes in the canonical projected map space. */
 export const HEX_HEIGHT = 1.5;
+
+/** Half the canonical vertical row spacing for geometry derived on the same projection scale. */
 export const HALF_HEX_HEIGHT = HEX_HEIGHT / 2;
+
+/** Horizontal offset applied to odd rows in Civ7's row-offset plot grid. */
 export const HALF_HEX_WIDTH = HEX_WIDTH / 2;
 
 /**

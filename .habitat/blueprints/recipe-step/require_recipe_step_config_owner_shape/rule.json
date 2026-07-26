@@ -19,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/*/src/recipes/*/stages/**/steps/*/config.ts"
-      ]
+      "patterns": ["mods/*/src/recipes/*/stages/**/steps/*/config.ts"]
     }
   ],
   "hookCheck": true,
@@ -36,9 +34,7 @@
     "patternName": "require_recipe_step_config_owner_shape",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods"
-      ]
+      "roots": ["mods"]
     }
   }
 }

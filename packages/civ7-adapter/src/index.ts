@@ -30,11 +30,6 @@ export {
 } from "@civ7/map-policy";
 export type { EngineEffectTagId } from "./effects.js";
 export { ENGINE_EFFECT_TAGS } from "./effects.js";
-export type { AuthoredEngineAdapterKey } from "./engine-adapter-authority.js";
-export {
-  AUTHORED_ENGINE_ADAPTER_METHODS,
-  isAuthoredEngineAdapterKey,
-} from "./engine-adapter-authority.js";
 export type {
   Civ7LatitudeBounds,
   Civ7StandardMapInfo,

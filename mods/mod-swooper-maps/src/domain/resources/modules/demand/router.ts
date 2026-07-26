@@ -8,7 +8,11 @@ import planResourceGroups from "./ops/plan-resource-groups/index.js";
 import planTerrestrialResources from "./ops/plan-terrestrial-resources/index.js";
 import resolveResourceDemands from "./ops/resolve-resource-demands/index.js";
 
-/** Executable resource-demand branch. */
+/**
+ * Canonically binds the Demand contract to family planning, reconciliation, and symbolic demand
+ * resolution that feeds site selection. The Resources router is the sole executable aggregate;
+ * step authoring continues to reference the contract.
+ */
 const demand = createDomainSubdomainRouter(contract, {
   planAquaticResources,
   planCultivatedResources,

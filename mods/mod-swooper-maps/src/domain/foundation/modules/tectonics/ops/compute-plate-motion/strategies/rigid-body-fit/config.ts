@@ -1,6 +1,9 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Configuration contract for fitting rigid plate motion to mantle forcing. */
+/**
+ * Defines angular-velocity bounds, optional one-pass forcing smoothing, and residual-diagnostic
+ * resolution for rigid plate fitting. Defaults leave forcing unsmoothed and all fit scales neutral.
+ */
 export default defineStrategy({
   id: "rigid-body-fit",
   config: Type.Object(

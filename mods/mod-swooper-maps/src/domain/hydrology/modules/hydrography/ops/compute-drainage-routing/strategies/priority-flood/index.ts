@@ -4,7 +4,11 @@ import ComputeDrainageRoutingContract from "../../contract.js";
 import { computeDrainageRouting } from "../../rules/index.js";
 import PriorityFloodDefinition from "./config.js";
 
-/** Depression-aware priority flooding assigns receivers, basins, sinks, outlets, and terminal types together. */
+/**
+ * Runs depression-aware priority flooding as one coupled solve for routing elevation, receivers,
+ * basins, sinks, outlets, and terminal types. Keeping these products in one traversal prevents
+ * downstream discharge from observing contradictory topology.
+ */
 const priorityFloodStrategy = createStrategy(
   ComputeDrainageRoutingContract,
   PriorityFloodDefinition,

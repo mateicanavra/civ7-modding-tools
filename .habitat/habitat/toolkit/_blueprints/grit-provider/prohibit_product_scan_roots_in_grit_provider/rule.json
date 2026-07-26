@@ -19,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/**"
-      ]
+      "patterns": ["tools/habitat/src/resources/rule-diagnostics/providers/grit/**"]
     },
     {
       "kind": "project-owner"
@@ -39,9 +37,7 @@
     "patternName": "prohibit_product_scan_roots_in_grit_provider",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit"
-      ]
+      "roots": ["tools/habitat/src/resources/rule-diagnostics/providers/grit"]
     }
   }
 }

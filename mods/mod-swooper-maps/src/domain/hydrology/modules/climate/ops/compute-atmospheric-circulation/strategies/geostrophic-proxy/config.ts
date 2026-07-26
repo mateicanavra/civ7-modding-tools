@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Pressure gradients, planetary waves, land heating, and orography produce coherent tile-varying winds without a fluid simulation. */
+/**
+ * Defines the authored component weights, pressure scale, smoothing budget, and output scale for
+ * Hydrology's default circulation posture. Defaults favor strong zonal flow with bounded regional
+ * variation rather than fluid-simulation cost.
+ */
 export default defineStrategy({
   id: "geostrophic-proxy",
   config: Type.Object(

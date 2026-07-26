@@ -42,6 +42,16 @@ function formatErrors(
   return formatted;
 }
 
+/**
+ * Snapshots untrusted authored data into frozen portable JSON, then validates it without applying
+ * schema defaults. Recipe compilation uses this boundary before and after normalization so
+ * normalizers cannot smuggle aliases, accessors, or non-portable values into compiled config.
+ *
+ * @param schema - TypeBox schema that defines the admitted configuration shape.
+ * @param input - Untrusted authored value to detach before validation.
+ * @param path - JSON-pointer root attached to any resulting compile diagnostics.
+ * @returns The detached value plus zero or more structured compile errors.
+ */
 export function validateStrict<T>(
   schema: TSchema,
   input: unknown,
@@ -57,6 +67,16 @@ export function validateStrict<T>(
   return validateSchemaValue(schema, snapshot.value, path);
 }
 
+/**
+ * Validates an already-snapshotted value while containing TypeBox failures as compile diagnostics.
+ * Unlike `validateStrict`, this helper neither clones nor freezes its input; callers use it only
+ * after another boundary has established ownership.
+ *
+ * @param schema - TypeBox schema to check without materializing defaults.
+ * @param value - Caller-owned value that has already crossed its trust boundary.
+ * @param path - JSON-pointer root attached to validation diagnostics.
+ * @returns The original value and deterministic validation errors.
+ */
 export function validateSchemaValue<T>(
   schema: TSchema,
   value: unknown,
@@ -78,6 +98,17 @@ export function validateSchemaValue<T>(
   }
 }
 
+/**
+ * Applies each declared operation's selected strategy normalizer to its top-level step envelope.
+ * Contract-to-implementation binding failures and normalizer exceptions are accumulated as recipe
+ * compile errors, while the caller's configuration object remains unchanged.
+ *
+ * @param step - Step contract whose operation declarations define the expected envelopes.
+ * @param stepConfig - Strictly validated step configuration to normalize.
+ * @param compileOpsById - Canonical executable operations available to recipe compilation.
+ * @param path - JSON-pointer root used for operation-specific diagnostics.
+ * @returns The normalized step configuration and any binding or normalization failures.
+ */
 export function normalizeOpsTopLevel(
   step: StepModuleAny,
   stepConfig: Record<string, unknown>,

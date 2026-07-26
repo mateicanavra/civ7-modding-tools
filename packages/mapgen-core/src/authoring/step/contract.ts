@@ -1,4 +1,3 @@
-import { type AuthoredEngineAdapterKey, isAuthoredEngineAdapterKey } from "@civ7/adapter";
 import type { DependencyTag } from "@mapgen/engine/index.js";
 import { type TObject, type TSchema, Type } from "typebox";
 import { type Artifact, assertArtifact } from "../artifact/contract.js";
@@ -8,6 +7,7 @@ import type { OpTypeBagOf } from "../operation/types.js";
 import { applySchemaConventions } from "../schema/conventions.js";
 import { freezeContractGraph, snapshotContractGraph } from "../snapshot/contract-graph.js";
 import { registerCanonicalStepContractInternal } from "./authority.js";
+import { type AuthoredEngineAdapterKey, isAuthoredEngineAdapterKey } from "./engine-authority.js";
 import { assertNoStepStageIdentityAliases } from "./identity.js";
 import type {
   OpContractAny,

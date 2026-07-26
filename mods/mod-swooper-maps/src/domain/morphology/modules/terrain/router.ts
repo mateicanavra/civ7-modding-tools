@@ -6,7 +6,11 @@ import computeLandmask from "./ops/compute-landmask/index.js";
 import computeSeaLevel from "./ops/compute-sea-level/index.js";
 import computeSubstrate from "./ops/compute-substrate/index.js";
 
-/** Executable Morphology terrain branch bound to its admitted operation implementations. */
+/**
+ * Canonically binds the Terrain contract to belt-driver, base-relief, sea-level, landmask, and
+ * substrate implementations that seed coastline carving. The Morphology router is the sole
+ * executable aggregate; step authoring continues to reference the contract.
+ */
 const terrain = createDomainSubdomainRouter(contract, {
   computeBeltDrivers,
   computeBaseTopography,

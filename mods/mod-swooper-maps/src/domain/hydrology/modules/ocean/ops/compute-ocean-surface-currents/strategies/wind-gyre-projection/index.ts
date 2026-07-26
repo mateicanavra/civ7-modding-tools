@@ -4,7 +4,11 @@ import ComputeOceanSurfaceCurrentsContract from "../../contract.js";
 import { computeCurrentsEarthlike } from "../../rules/index.js";
 import WindGyreProjectionDefinition from "./config.js";
 
-/** Wind imprint, Ekman deflection, basin gyres, and coastal flow produce coherent bounded surface currents. */
+/**
+ * Combines wind imprint, hemisphere-aware Ekman drift, optional basin gyres, and coast-aligned flow,
+ * then smooths and reduces divergence on water. Fixed solver passes and `maxSpeed` quantization keep
+ * the current field deterministic and bounded.
+ */
 const windGyreProjectionStrategy = createStrategy(
   ComputeOceanSurfaceCurrentsContract,
   WindGyreProjectionDefinition,

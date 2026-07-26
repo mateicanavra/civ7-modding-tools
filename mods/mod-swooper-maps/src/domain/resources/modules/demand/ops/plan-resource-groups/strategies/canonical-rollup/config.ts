@@ -6,5 +6,12 @@ import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export default defineStrategy({
   id: "canonical-rollup",
-  config: Type.Object({}, { additionalProperties: false }),
+  config: Type.Object(
+    {},
+    {
+      additionalProperties: false,
+      description:
+        "Fixed rollup policy that reconciles aquatic, cultivated, terrestrial, and geological demand evidence without re-authoring family plans.",
+    }
+  ),
 });

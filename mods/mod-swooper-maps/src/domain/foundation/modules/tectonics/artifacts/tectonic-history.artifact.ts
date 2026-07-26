@@ -27,7 +27,11 @@ const TECTONIC_HISTORY_ERA_KEYS = [
   "fracture",
 ] as const;
 
-/** Registers Foundation's tectonic-history artifact. */
+/**
+ * Publishes the ordered reconstruction vintage: five to eight eras of plate membership and
+ * tectonic fields plus cumulative and recency rollups. Admission ties both era collections to
+ * `eraCount` and every field to one mesh-cell cardinality.
+ */
 export const artifact = defineArtifact({
   name: "foundationTectonicHistory",
   id: "artifact:foundation.tectonicHistory",
