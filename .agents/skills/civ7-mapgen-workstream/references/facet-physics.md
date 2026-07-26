@@ -90,7 +90,7 @@ The physical chain: **belt drivers** (`compute-belt-drivers`: maps `FoundationTe
 
 ## HYDROLOGY — the coupled climate–water–ocean system (deepest domain)
 
-`src/domain/hydrology/modules/*/ops/*` — 18 ops. The longest physical chain and the most multi-strategy ops — most behavioral climate/river asks land here. The recipe runs it as **hydrology-climate-baseline → hydrology-hydrography → hydrology-climate-refine** (climate is computed, drainage/rivers solved, then climate refined). Publishes routing/refinement vintage `artifact:hydrology.baselineClimateField`, final consumer vintage `artifact:hydrology.climateField`, and `artifact:hydrology.{climateSeasonality,climateIndices,cryosphere,hydrography,lakePlan,riverNetwork}`. River benchmark summaries go to the metrics sink, while climate-diagnostic fields remain invocation-local visualization evidence.
+`src/domain/hydrology/modules/*/ops/*` — 18 ops. The longest physical chain and the most multi-strategy ops — most behavioral climate/river asks land here. The recipe runs it as **hydrology-climate-baseline → hydrology-hydrography → hydrology-climate-refine** (climate is computed, drainage/rivers solved, then climate refined). Publishes routing/refinement vintage `artifact:hydrology.baselineClimateField`, final consumer vintage `artifact:hydrology.climateField`, and `artifact:hydrology.{climateIndices,cryosphere,hydrography,lakePlan,riverNetwork}`. Seasonal amplitudes and climate-diagnostic fields remain invocation-local visualization evidence; river benchmark summaries go to the metrics sink.
 
 The physical chain (op by op):
 

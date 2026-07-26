@@ -17,13 +17,15 @@ const GROUP_OCEAN = "Hydrology / Ocean";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 type BaselineClimateField = ArtifactReadValueOf<typeof climateArtifacts.baselineClimateField>;
-type ClimateSeasonality = ArtifactReadValueOf<typeof climateArtifacts.climateSeasonality>;
 type WindField = ArtifactReadValueOf<typeof climateArtifacts.windField>;
 
 /** Completed baseline-climate evidence borrowed by the optional visualization facet. */
 type ClimateBaselineVizEvidence = Readonly<{
   baselineClimateField: BaselineClimateField;
-  climateSeasonality: ClimateSeasonality;
+  seasonalAmplitudes: Readonly<{
+    rainfallAmplitude: Uint8Array;
+    humidityAmplitude: Uint8Array;
+  }>;
   windField: WindField;
   currentField: Readonly<{
     currentU: Int8Array;
@@ -59,7 +61,7 @@ export function buildClimateBaselineVizProjections(
   dimensions: VizDims
 ): readonly VizProjection[] {
   const projections: VizProjection[] = [];
-  const { baselineClimateField, climateSeasonality, windField, currentField } = result;
+  const { baselineClimateField, seasonalAmplitudes, windField, currentField } = result;
 
   if (result.oceanGeometry) {
     projections.push(
@@ -225,7 +227,7 @@ export function buildClimateBaselineVizProjections(
       dataTypeKey: "hydrology.climate.seasonality.rainfallAmplitude",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: climateSeasonality.rainfallAmplitude },
+      field: { format: "u8", values: seasonalAmplitudes.rainfallAmplitude },
       meta: defineStandardVizMeta(
         "hydrology.climate.seasonality.rainfallAmplitude",
         "field.intensity",
@@ -237,7 +239,7 @@ export function buildClimateBaselineVizProjections(
       dataTypeKey: "hydrology.climate.seasonality.humidityAmplitude",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: climateSeasonality.humidityAmplitude },
+      field: { format: "u8", values: seasonalAmplitudes.humidityAmplitude },
       meta: defineStandardVizMeta(
         "hydrology.climate.seasonality.humidityAmplitude",
         "field.intensity",

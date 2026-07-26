@@ -264,8 +264,8 @@ morphology-* ──▶ artifact:morphology.topography.base    (coherent pre-eros
    ▼
 hydrology  ──▶ artifact:hydrology.baselineClimateField  (routing + refinement vintage)
                artifact:hydrology.climateField          (final-refined consumer vintage)
-               artifact:hydrology.{climateSeasonality, climateIndices, cryosphere, hydrography,
-                                   lakePlan, riverNetwork}
+               artifact:hydrology.{climateIndices, cryosphere, hydrography, lakePlan, riverNetwork}
+               seasonal amplitudes remain invocation-local visualization evidence
    │
    ▼
 ecology    ──▶ artifact:ecology.{biomeClassification, soils, scoreLayers, plotEffectPlan}
