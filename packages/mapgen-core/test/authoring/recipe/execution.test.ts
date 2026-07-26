@@ -71,7 +71,7 @@ describe("authoring: hello recipe compile/execute", () => {
       id: "observe-seed",
       requires: [],
       provides: [],
-      schema: Type.Object({ seed: Type.Number() }, { additionalProperties: false }),
+      schema: Type.Object({ seed: Type.Number({ default: 0 }) }, { additionalProperties: false }),
     });
     const step = createStep(contract, {
       normalize: (_config, { setup }) => {
@@ -236,7 +236,7 @@ describe("authoring: hello recipe compile/execute", () => {
       id: "facet-output",
       requires: [],
       provides: [],
-      schema: Type.Object({ score: Type.Number() }, { additionalProperties: false }),
+      schema: Type.Object({ score: Type.Number({ default: 0 }) }, { additionalProperties: false }),
     });
     const facetStep = createStep(facetContract, {
       run: (_context, config) => ({ score: config.score }),
