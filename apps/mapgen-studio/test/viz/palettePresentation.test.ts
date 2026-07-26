@@ -218,7 +218,7 @@ describe("resolved visualization palette presentation", () => {
 
     expect(renderColor(0, palette)).toEqual([35, 35, 41, 72]);
     expect(renderColor(0.5, palette)).toEqual([35, 35, 41, 150]);
-    expect(renderColor(1, palette)).toEqual([35, 35, 41, 230]);
+    expect(renderColor(1, palette)).toEqual([35, 35, 41, 255]);
   });
 
   it("labels declared palette domains", () => {

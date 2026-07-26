@@ -254,10 +254,9 @@ supersedes the Pass-4 dock placement, keeps the console split + icon contract:
   geometry — regular pointy-top hexes on the odd-R row-offset lattice (the
   hex-convention audit proved `tile.hexOddQ` mislabels that grid; the model's
   column-offset projection is not a regular tiling, hence the "squished"
-  look it produced). Border ink: see the Y-wave amendment below — the X6
-  constant-graphite ink (`#0d0d11`, α200) is superseded by the fill-derived
-  border rule (a page-colored seam dissolved the lattice into dots at fit
-  zoom). Unfilled tiles draw nothing (unchanged).
+  look it produced). Border ink: every present tile uses the shared
+  design-system graphite border (`#34343d`, fully opaque), independent of its
+  semantic fill hue. Unfilled tiles draw nothing (unchanged).
 
 ## DAG-tab amendment (2026-06-12, handoff-mandated): stage views
 
@@ -282,16 +281,14 @@ Decisions (see `openspec/changes/mapgen-studio-dag-tab/design.md`):
   recipe; pipeline selection/expansion live in `viewStore` as
   pipeline-prefixed fields, distinct from map-explore selection.
 
-## Y-wave amendment (2026-06-12, user-grounded): tile border rule, flat config accordion, selector drift
+## Y-wave amendment (2026-06-12, user-grounded): tile presentation, flat config accordion, selector drift
 
-- **The one tile-border RULE (supersedes X6's constant ink):** a tile's
-  border is its OWN fill pulled toward black (`fill × 0.55`, fully opaque) —
-  self-grout, owned by `tileBorderColorForFill` in `presentation.ts`. The X6
-  page-substrate constant was invisible between dark fills at fit zoom
-  (Huge-map tiles are a few pixels wide), dissolving the tessellation into
-  dots; a fill-derived seam is darker than its fill BY CONSTRUCTION, so the
-  lattice reads at every zoom, both themes, every palette — and still
-  recedes like etched grout up close. Unfilled tiles still draw nothing.
+- **The one tile-presentation RULE (supersedes X6 and the fill-derived
+  amendment):** omitted scalar palettes resolve to one dark-graphite ramp
+  (`#232329`) from translucent to fully opaque. Every present tile uses the
+  shared design-system graphite border (`#34343d`, fully opaque), independent
+  of its semantic fill hue, so the map reads as one matte survey surface while
+  preserving the hex lattice. Unfilled/no-data tiles still draw nothing.
 - **Default layer preference: the map studio defaults to the MAP.** When
   layer selection resets (step/stage switch, fresh manifest), prefer the
   step's tile-space GRID layer over whichever layer the worker emitted
