@@ -29,14 +29,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** cash the normalized Placement and Resources test plane
-into intent-true ownership. A surviving test must exercise product policy,
-algorithm behavior, semantic artifact law, concrete projection/materialization,
-or metric-study behavior at its causal owner. Closed-schema admission, required
-keys, publication wiring, removed legacy fields, and source topology remain
-owned by the SDK, TypeScript, and Habitat; recipe tests do not earn a second
-copy of those guarantees. Relocation follows meaning rather than preserving a
-historical `runtime`, `recipe`, or broad metric cabinet.
+**Current container:** make Knip a truthful repository reachability owner, then
+delete only what that model and direct consumer evidence prove dead. Workspace
+entries describe actual executable, generated, type-test, and public-package
+roots; exceptions require a named dynamic or virtual owner rather than a
+baseline or broad ignore. Knip reports reachability and dependency drift,
+TypeScript owns local usage and type validity, Nx owns task scheduling, and
+Habitat delegates the zero-corpus gate without starting a second scheduler.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -53,13 +52,14 @@ modules then stop importing framework issue/context types or allocating and
 threading their own issue arrays. This remains a dedicated semantic container,
 not a compatibility overload hidden inside the stage-plane move.
 
-**Gradient:** delete provider-guarantee and legacy-key assertions, relocate
-surviving policy/artifact/viz cases to their causal owners, remove recipe/step
-duplication, and split the broad world-metrics owner by semantic family without
-changing behavior. Then run accurate Knip deletion, burn consumed-export JSDoc
-and semantic descriptions to zero, and bind truthful dead-code proof into the
-native quality graph. The program ends only when generic laws, source tree,
-types, tests, Knip, and the boundary graph agree.
+**Gradient:** remove redundant Knip entry/config hints, prove or delete every
+dependency exception, model the remaining dynamic and virtual owners exactly,
+run the complete reachability census, and disposition each finding as deletion,
+qualified entrypoint, or public contract. Reach zero before enforcing strict
+config hints and registering the existing `habitat:check:dead-code` leaf in the
+native policy graph. Then burn consumed-export JSDoc and semantic descriptions
+to zero. The program ends only when generic laws, source tree, types, tests,
+Knip, and the boundary graph agree.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -94,6 +94,16 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-25 - Test Intent Cash-In
+
+Placement, Resources, map-config, and Standard-recipe tests were re-evaluated
+from intent before ownership and topology. Provider guarantees, retired-key
+assertions, source wiring, and duplicate product checks were deleted; surviving
+policy, artifact, metric-study, and visualization behavior moved to its causal
+owner. The broad world-metrics test became semantic family studies over one
+lazy isolated Standard fixture, and the native Swooper test compiler graph plus
+three independent review axes sealed the cut.
 
 ### 2026-07-25 - Closed Recipe-Step Kind
 

@@ -4,21 +4,21 @@
     ".": {
       "entry": [
         ".habitat/**/{check,fix,generate}.{ts,mts,cts,js,mjs,cjs}",
-        ".habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/lint-react-compiler.mjs",
-        "*.config.{ts,mts,cts,js,mjs,cjs}",
-        "eslint.*.mjs"
+        ".habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/lint-react-compiler.mjs"
       ],
       "project": [".habitat/**/*.{ts,mts,cts,js,mjs,cjs}", "*.{ts,mts,cts,js,mjs,cjs}"],
-      // Habitat acquires the pinned Grit binary through provider construction, while the
-      // Storybook test runner is launched by the mapgen-studio-ui Nx target.
-      "ignoreDependencies": ["@getgrit/cli", "@storybook/test-runner"],
+      // Habitat acquires the pinned Grit binary through provider construction. TypeBox
+      // supports root-level TypeScript references, while string-width deliberately anchors
+      // the yargs 17 CommonJS dependency path.
+      "ignoreDependencies": ["@getgrit/cli", "string-width", "typebox"],
       "biome": {
         "config": ["biome.json", "biome.effect.json"]
       },
       "nx": {
         "config": ["nx.json", "{apps,mods,packages,tools}/**/project.json", "package.json"]
       },
-      // The Effect source-only reference lives under .repos and is not part of this workspace.
+      // Restrict Vitest's otherwise workspace-global defaults so the source-only Effect
+      // reference under .repos is never misclassified as authored workspace code.
       "vitest": {
         "config": ["vitest.config.ts"],
         "entry": [
@@ -27,17 +27,12 @@
       }
     },
     "apps/docs": {
-      "entry": [
-        "scripts/dev-staged.ts",
-        "scripts/sync-resources.ts",
-        "snippets/**/*.{js,jsx,ts,tsx}"
-      ]
+      // Mintlify resolves rooted snippet imports from the docs workspace.
+      "entry": ["snippets/**/*.{js,jsx,ts,tsx}"],
+      "ignoreDependencies": ["mintlify"]
     },
     "apps/mapgen-studio": {
       "entry": ["test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"]
-    },
-    "mods/mod-civ7-intelligence-bridge": {
-      "ignore": ["mod/**"]
     },
     "mods/mod-swooper-maps": {
       "entry": [
@@ -51,6 +46,7 @@
     },
     "packages/cli": {
       "entry": ["bin/dev.ts", "src/hooks/prerun/promptMissingArgs.ts"],
+      // Civ7 data discovery invokes the host's POSIX `which` command to locate sqlite3.
       "ignoreBinaries": ["which"]
     },
     "packages/mapgen-core": {
@@ -60,13 +56,11 @@
       "entry": ["test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"]
     },
     "packages/mapgen-studio-ui": {
-      "entry": [
-        "scripts/light-canary.mjs",
-        "src/styles/fonts.css",
-        "test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"
-      ],
-      // Nx owns the continuous Storybook process and invokes wait-on before test-storybook.
-      "ignoreDependencies": ["wait-on"]
+      "entry": ["src/styles/fonts.css", "test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"],
+      // The light-canary commands intentionally load Playwright from the isolated,
+      // lockfile-owned .ds-sync tool environment. Nx owns the Storybook command,
+      // but Knip does not project binaries from its executor-less target string.
+      "ignoreDependencies": ["@storybook/test-runner", "playwright", "wait-on"]
     },
     "packages/mapgen-studio-ui/.ds-sync": {
       "entry": [
@@ -76,13 +70,17 @@
         "lib/{preview-rebuild,remote-diff}.mjs",
         "lib/{bundle,common,css-fallback,css,detect,docs,dts,emit,preview-gen-storybook,previews,source-kit,source-storybook,story-imports}.mjs"
       ],
-      "project": ["**/*.mjs"]
+      "project": ["**/*.mjs"],
+      // dts.mjs locates React declarations through the installed filesystem tree.
+      "ignoreDependencies": ["@types/react"]
     },
     "packages/mapgen-viz": {
       "entry": ["test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"]
     },
     "tools/habitat": {
-      "entry": ["bin/dev.ts", "scripts/validate-boundary-taxonomy-against-workspace-graph.ts"],
+      // The project-boundary Habitat rule invokes this owner through its checked-in shell adapter.
+      "entry": ["scripts/validate-boundary-taxonomy-against-workspace-graph.ts"],
+      // Command tests pass `fix` to Habitat's own CLI; it is not an external executable.
       "ignoreBinaries": ["fix"]
     }
   }

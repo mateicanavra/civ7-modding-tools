@@ -87,7 +87,6 @@
     "@civ7/plugin-mods": "workspace:*",
     "@oclif/core": "^4.11.4",
     "@oclif/plugin-help": "^6.2.50",
-    "effect": "3.21.3",
     "tslib": "^2.8.1"
   },
   "engines": {
