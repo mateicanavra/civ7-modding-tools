@@ -8,16 +8,20 @@ This is a runnable checklist, not a concept doc. The display-vs-generation branc
 
 ## 0. Prerequisites (build order is load-bearing)
 
-`@swooper/mapgen-core` is the engine substrate the mod compiles against. **Build core first, then the mod, then deploy** — a stale core silently bakes old op behavior into the deployed bundle and the SHA-256 deploy check will *pass* on the wrong logic.
+`@swooper/mapgen-core` is the engine substrate the mod compiles against. Run
+the mod's Nx-owned build or deploy target so Nx owns upstream build ordering;
+do not build workspace dependencies through a second manual graph. A stale
+dependency can silently bake old behavior into the deployed bundle while the
+SHA-256 deploy check still passes on the wrong logic.
 
-1. Build the engine substrate: `nx run @swooper/mapgen-core:build` (or the workspace build that covers it). Skipping this is the most common cause of "I fixed the op but the live run shows old behavior."
-2. Build + deploy the mod: `nx run mod-swooper-maps:deploy`. Deploy copies built bundles into the game Mods folder and is what the verifier SHA-256-compares.
+1. Build the mod through its project graph: `nx run mod-swooper-maps:build`.
+2. Build + deploy the mod: `nx run mod-swooper-maps:deploy`. The deploy target depends on the build and copies built bundles into the game Mods folder; the verifier SHA-256-compares those outputs.
    - Local script: `mods/mod-swooper-maps/mod/maps/<name>.js`
    - Deployed script (darwin): `~/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/<name>.js`
    - Deploy is **not optional before every mutating verify** — nx cache or a partial deploy will leave drift that exits the gate with `recoveryHint: "nx run mod-swooper-maps:deploy"`. Always deploy immediately before a mutating run.
    - **New or renamed map config** → run `bun run gen:maps` (regenerate entrypoints) then deploy before the gate; the generated map-script must exist at `mod/maps/<name>.js` and match the `SWOOPER_MAP_SCRIPT_PATTERN` deploy check. See `references/pipeline-map.md` (map configs → generated entrypoints).
 3. Tuner enabled: `EnableTuner 1` in Civ7 `AppOptions.txt` (no leading semicolon). Tuner socket = `127.0.0.1:4318`. (Owner: `civ7-operational-debugging` → `references/firetuner-runtime.md`.)
-4. Studio running on `http://127.0.0.1:5174` **if** you intend to run the `final-surface-parity` proof afterward (it fetches `exactAuthorshipProof` over Studio oRPC).
+4. Studio running on `http://127.0.0.1:5174` **if** you intend to run the `final-surface-parity` proof afterward. The parity command uses the public operation status only to reach the bounded private diagnostics record and its generation manifest.
 
 ---
 
@@ -83,9 +87,11 @@ nx run mod-swooper-maps:verify:operational -- --mode studio-run-in-game-live \
 
 ---
 
-## 4. Request-id / proof-file flow (parity proof)
+## 4. Request-id / private-diagnostics flow (parity proof)
 
-On success, step 9 mints `proofId = createCiv7ControlRequestId("studio-run-in-game-live-proof")` → `"studio-run-in-game-live-proof-<base36 time>-<base36 pid>"`, printed in the JSON report. Capture that `requestId`, then run the parity proof on the **same live session** (it compares seed/turn/gameHash):
+The parity command verifies a map launched through Studio's **Run in Game**
+workflow. Capture that operation's `requestId` or retained private
+`diagnosticsId`, leave the resulting Civ7 game running, and invoke:
 
 ```bash
 nx run mod-swooper-maps:verify:operational -- --mode final-surface-parity \
@@ -94,10 +100,28 @@ nx run mod-swooper-maps:verify:operational -- --mode final-surface-parity \
   --output /tmp/parity-proof.json
 ```
 
-It POSTs `{ json: { requestId } }` to `${studioUrl}/rpc/runInGame/status` (oRPC — **not** the retired REST `/api/civ7/run-in-game/status`), extracts `exactAuthorshipProof`, runs a headless `runLocalFinalSurfaceSnapshot`, and reads the live grid via `getCiv7FullMapGrid` (terrain/biome/feature/resource/hydrology, `includeHidden: true`) + `getCiv7NativeRiverObjects`.
+For `--request-id`, public status is only a bridge to the retained private
+diagnostics record. Acquisition verifies the private Run in Game envelope and
+its immutable generation-manifest reference, then the Standard recipe owner
+admits the raw exact-authorship evidence and issues the only deterministic
+replay authority. A ready request performs that replay and exactly one coherent
+`getCiv7MapSurfaceObservation` covering terrain, biome, feature, resource,
+hydrology, native rivers, wire identity, map identity, and turn stability.
+`--diagnostics-id` skips the short-lived public status lookup;
+`--evidence-file` replays a saved private diagnostics record.
 
-- `parityStatus: "complete"` → exit 0. The local mapgen output matches the live engine grid.
-- `parityStatus: "blocked"` → `exactAuthorshipProof` had `unresolvedLinks` (commonly a missing `sourceSnapshot` because the run-in-game driver did not supply one). `unresolvedLinks` is the discriminator that proves **generation matched live** — a display bug never moves it (see `references/facet-verification.md` overlay (i)).
+- `status: "complete-pass"` → exit 0. Every admitted product comparison passed and no required identity/evidence link remains unresolved.
+- `status: "complete-failed"` → exit 2. One or more exact product comparisons failed.
+- `status: "blocked-unresolved"` → exit 2. Known comparisons remain visible, including failures, but a required evidence link is unavailable.
+- `status: "correlation-failed"` or `"correlation-blocked"` → exit 2 without replaying or reading Civ7.
+- Acquisition, transport, replay, observation, or publication exceptions → exit 1.
+
+The current live/control surfaces do not expose one supported game-instance
+token shared by the Studio launch window and the later Direct Control
+observation window. Until that capability exists, an otherwise matching report
+honestly retains `identity.cross-window-game-instance` and remains
+`blocked-unresolved`; seed, turn, dimensions, endpoint, and surface content are
+not promoted into substitute identity.
 
 ---
 
@@ -114,8 +138,8 @@ Alias: `studio-run-in-game:live`→`studio-run-in-game-live`.
 
 The former output-parity, delta-feasibility, terrain-edge, placement-legality, and
 required-for-age probes were milestone-scoped characterization scripts, not durable
-operational gates. Their recorded evidence remains historical. Canonical
-`FinalSurfaceParityProof` owns current local-vs-live comparison; its unresolved links
+operational gates. Their recorded evidence remains historical. The Standard
+parity report owns current local-vs-live comparison; its unresolved links
 and retained private evidence own run-specific triage. Map Policy tests own static resource facts and the age-valid
 `Staple`/`UnlocksCiv` fallback; exact roster-dependent
 `isResourceRequiredForAge` flows through `EngineAdapter`. When that live policy
@@ -141,7 +165,7 @@ After any §6 fix: **re-build core → re-deploy → re-run §2** (a fix is not 
 
 Close with one closure label per claim (owner: `civ7-operational-debugging` → `references/proof-boundaries.md`). For a map-gen change specifically:
 
-- **`in-game observed`** — only when a mutating live run reached `[mapgen-complete]` + `"seed":<N>` with no rejectPattern hit. Name the map script, map size, seed, player count, and the `requestId` (e.g. `studio-run-in-game-live-proof-...`). Optionally add `parityStatus: "complete"` to assert generation matched the live grid.
+- **`in-game observed`** — only when a mutating live run reached `[mapgen-complete]` + `"seed":<N>` with no rejectPattern hit. Name the map script, map size, map seed, game seed, player count, and the correlated request identifier. Add `status: "complete-pass"` only when the Standard parity report actually reached that state; a successful live generation plus `blocked-unresolved` remains an explicitly bounded observation, not complete parity.
 - **`generated`** — Studio/dump binaries were inspected (`diag:diff`, viz canvas). This is the **ceiling** for Studio-only evidence; it does **not** close a generation change.
 - **`deployed` / `built`** — deploy SHA-256 passed / core+mod built. Necessary but not sufficient.
 - **`unresolved`** — the live gate did not run, blocked on parity `unresolvedLinks`, or only OS-capture failed (note that capture failure ≠ gen failure).
@@ -154,9 +178,9 @@ Hand the labeled proof to finalization (loop step 10 → `civ7-open-spec-workstr
 
 ## Evidence anchors (live source — re-derive, don't trust this snapshot)
 
-- `mods/mod-swooper-maps/scripts/verify.ts` — dispatcher for the six current modes.
+- `mods/mod-swooper-maps/scripts/verify.ts` — dispatcher for the current operational modes.
 - `mods/mod-swooper-maps/scripts/live/verify-studio-run-in-game-live.ts` — the gate; `waitForFreshLogMarkers` call + `REQUIRED_SWOOPER_RIVER_MATERIALIZATION_MARKERS`.
-- `mods/mod-swooper-maps/scripts/live/verify-final-surface-parity.ts` — parity proof / `exactAuthorshipProof`.
+- `mods/mod-swooper-maps/scripts/live/verify-final-surface-parity.ts` — private-diagnostics acquisition, correlated Standard replay, one coherent live observation, report composition, and atomic publication.
 - `packages/civ7-direct-control/src/proof/log-markers.ts` — `waitForFreshLogMarkers` + `snapshotFile`.
 - `packages/civ7-control-orpc/src/modules/lifecycle/procedures/single-player-start.ts` — the correlated setup/start lifecycle.
 - `packages/civ7-direct-control/src/session/{constants,request-id}.ts` — tuner port/host, `createCiv7ControlRequestId`.

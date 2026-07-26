@@ -29,13 +29,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** compose one honest Standard parity result from exact
-authorship, deterministic replay, and one coherent live Civ7 observation. The
-recipe owns causal product measurements; Studio preserves their raw payloads;
-manifest correlation issues the only replay authority; Direct Control owns the
-wire/map/turn-stable observation. Known contradictions remain visible beside
-missing evidence, and unsupported cross-window game-instance identity blocks
-closure rather than being inferred from seeds, turns, dimensions, or hashes.
+**Current container:** cash the normalized Placement and Resources test plane
+into intent-true ownership. A surviving test must exercise product policy,
+algorithm behavior, semantic artifact law, concrete projection/materialization,
+or metric-study behavior at its causal owner. Closed-schema admission, required
+keys, publication wiring, removed legacy fields, and source topology remain
+owned by the SDK, TypeScript, and Habitat; recipe tests do not earn a second
+copy of those guarantees. Relocation follows meaning rather than preserving a
+historical `runtime`, `recipe`, or broad metric cabinet.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -52,13 +53,12 @@ modules then stop importing framework issue/context types or allocating and
 threading their own issue arrays. This remains a dedicated semantic container,
 not a compatibility overload hidden inside the stage-plane move.
 
-**Gradient:** seal the typed Standard parity model and its exact natural-wonder
-planner-input measurement. Then cut the live command down to diagnostics
-acquisition, correlated replay, one Direct Control observation, report
-composition, and atomic publication; delete the legacy parity monolith and its
-duplicate test owner in that same layer. Continue with the Placement and
-Resources test sieve, accurate Knip deletion, and JSDoc burn-down only after
-those containers seal. The program ends only when generic laws, source tree,
+**Gradient:** delete provider-guarantee and legacy-key assertions, relocate
+surviving policy/artifact/viz cases to their causal owners, remove recipe/step
+duplication, and split the broad world-metrics owner by semantic family without
+changing behavior. Then run accurate Knip deletion, burn consumed-export JSDoc
+and semantic descriptions to zero, and bind truthful dead-code proof into the
+native quality graph. The program ends only when generic laws, source tree,
 types, tests, Knip, and the boundary graph agree.
 
 **Release cadence:** cut each directionally reviewed law or completed
