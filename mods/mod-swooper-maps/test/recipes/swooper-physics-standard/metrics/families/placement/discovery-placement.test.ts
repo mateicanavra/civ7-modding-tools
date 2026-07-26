@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { measureStandardDiscoveryPlacement } from "../../../../src/recipes/standard/metrics/families/discovery-placement.js";
+import { measureStandardDiscoveryPlacement } from "../../../../../../src/recipes/standard/metrics/families/discovery-placement.js";
 
 describe("Standard discovery-placement measurements", () => {
   it("derives rejected placements from the observed attempt and acceptance counts", () => {

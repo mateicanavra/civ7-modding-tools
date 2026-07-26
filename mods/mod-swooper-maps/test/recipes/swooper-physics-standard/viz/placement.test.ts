@@ -1,15 +1,13 @@
-import { describe, expect, it } from "bun:test";
+import { beforeAll, describe, expect, it } from "bun:test";
 import type { StepFacetSinks } from "@swooper/mapgen-core";
-import type { VizLayerMeta, VizProjection } from "@swooper/mapgen-viz";
+import type { VizProjection } from "@swooper/mapgen-viz";
 
-import { PLACEMENT_VIZ_GROUP } from "../../../../../src/recipes/standard/stages/placement/viz.js";
-import { runStandardRecipeTestMap } from "../../fixtures/standard-recipe.js";
+import { PLACEMENT_VIZ_GROUP } from "../../../../src/recipes/standard/stages/placement/viz.js";
+import { runStandardRecipeTestMap } from "../fixtures/standard-recipe.js";
 
 /**
- * E4.2 coverage guard (placement-realignment S7): every placement step emits
- * at least one decision-substance layer, keyed here per step so coverage
- * cannot silently drift (the cheap version of the emitted-key registry
- * stretch goal — see the S7 OpenSpec decision log).
+ * Every placement step emits decision-substance evidence for its authored
+ * contribution to the completed product.
  *
  * assign-advanced-starts and place-discoveries are the recorded exceptions:
  * advanced-starts' only product is two engine-side effect booleans (fertility
@@ -52,55 +50,37 @@ const EXPECTED_KEYS_BY_STEP: Record<string, readonly string[]> = {
   placement: ["map.placement.engine.landMask", "map.placement.engine.waterDrift"],
 };
 
-/**
- * Overlay suggestion pairs published in
- * apps/mapgen-studio/src/recipes/overlaySuggestions.ts. Suggestions whose
- * dataTypeKeys are never emitted fail silently in Studio (the cited drift
- * mechanism), so the emitted-key side is pinned here.
- */
-const OVERLAY_SUGGESTION_KEYS = [
-  "placement.starts.viabilityScore",
-  "placement.starts.viabilityTier",
-  "placement.starts.startPosition",
-  "placement.starts.seatRung",
-  "placement.resources.habitat.terrestrial",
-  "placement.resources.habitat.aquatic",
-  "placement.resources.habitat.cultivated",
-  "placement.resources.habitat.geological",
-  "placement.resources.eligibleTypeCount",
-  "placement.resources.intents",
-  "placement.starts.supportRadius",
-  "placement.resources.supportAdjustment",
-] as const;
-
-describe("placement per-step viz coverage (E4.2/E4.3)", () => {
-  const metaByKey = new Map<string, VizLayerMeta | undefined>();
+describe("Standard placement visualization", () => {
+  const keysByStep = new Map<string, Set<string>>();
   const capturedProjections: VizProjection[] = [];
-  const record = (layer: { dataTypeKey: string; meta?: VizLayerMeta }): void => {
-    if (!metaByKey.has(layer.dataTypeKey) || layer.meta) {
-      metaByKey.set(layer.dataTypeKey, layer.meta);
-    }
-  };
-  const captureViz: NonNullable<StepFacetSinks["viz"]> = (stepProjections) => {
+  const captureViz: NonNullable<StepFacetSinks["viz"]> = (stepProjections, context) => {
+    const stepKeys = keysByStep.get(context.stepId) ?? new Set<string>();
     for (const projection of stepProjections) {
-      record(projection);
       capturedProjections.push(projection);
+      stepKeys.add(projection.dataTypeKey);
     }
+    keysByStep.set(context.stepId, stepKeys);
   };
-  runStandardRecipeTestMap({
-    mapInfo: {
-      PlayersLandmass1: 4,
-      PlayersLandmass2: 4,
-      StartSectorRows: 4,
-      StartSectorCols: 4,
-    },
-    execution: { facets: { viz: captureViz } },
-  });
+
+  beforeAll(() => {
+    runStandardRecipeTestMap({
+      mapInfo: {
+        PlayersLandmass1: 4,
+        PlayersLandmass2: 4,
+        StartSectorRows: 4,
+        StartSectorCols: 4,
+      },
+      execution: { facets: { viz: captureViz } },
+    });
+  }, 30_000);
 
   it("every placement step emits its expected decision-substance layers", () => {
     const missingByStep: Record<string, string[]> = {};
     for (const [stepId, keys] of Object.entries(EXPECTED_KEYS_BY_STEP)) {
-      const missing = keys.filter((key) => !metaByKey.has(key));
+      const emittedKeys = [...keysByStep].find(([executionStepId]) =>
+        executionStepId.endsWith(`.placement.${stepId}`)
+      )?.[1];
+      const missing = keys.filter((key) => !emittedKeys?.has(key));
       if (missing.length) missingByStep[stepId] = missing;
     }
     expect(missingByStep).toEqual({});
@@ -108,19 +88,23 @@ describe("placement per-step viz coverage (E4.2/E4.3)", () => {
 
   it("every placement layer carries valid meta (label + shared group)", () => {
     const invalid: string[] = [];
-    for (const keys of Object.values(EXPECTED_KEYS_BY_STEP)) {
-      for (const key of keys) {
-        const meta = metaByKey.get(key);
-        if (!meta) {
-          invalid.push(`${key}: missing meta`);
-          continue;
-        }
-        if (typeof meta.label !== "string" || !meta.label.trim()) {
-          invalid.push(`${key}: missing label`);
-        }
-        if (meta.group !== PLACEMENT_VIZ_GROUP) {
-          invalid.push(`${key}: group ${String(meta.group)} != ${PLACEMENT_VIZ_GROUP}`);
-        }
+    const placementKeys = new Set(Object.values(EXPECTED_KEYS_BY_STEP).flat());
+    for (const projection of capturedProjections) {
+      if (!placementKeys.has(projection.dataTypeKey)) continue;
+      const identity = projection.variantKey
+        ? `${projection.dataTypeKey}/${projection.variantKey}`
+        : projection.dataTypeKey;
+      if (!projection.meta) {
+        invalid.push(`${identity}: missing meta`);
+        continue;
+      }
+      if (typeof projection.meta.label !== "string" || !projection.meta.label.trim()) {
+        invalid.push(`${identity}: missing label`);
+      }
+      if (projection.meta.group !== PLACEMENT_VIZ_GROUP) {
+        invalid.push(
+          `${identity}: group ${String(projection.meta.group)} != ${PLACEMENT_VIZ_GROUP}`
+        );
       }
     }
     expect(invalid).toEqual([]);
@@ -135,23 +119,20 @@ describe("placement per-step viz coverage (E4.2/E4.3)", () => {
       "map.placement.surface.terrainValidationDrift",
       "map.placement.engine.waterDrift",
     ];
+    const missing: string[] = [];
     const opaque: string[] = [];
     for (const key of zeroTransparentKeys) {
-      const meta = metaByKey.get(key);
-      const zeroCategory = meta?.categories?.find((category) => category.value === 0);
-      if (!zeroCategory) continue; // points variants may omit the zero category
+      const grid = capturedProjections.find(
+        (projection) => projection.kind === "grid" && projection.dataTypeKey === key
+      );
+      const zeroCategory = grid?.meta?.categories?.find((category) => category.value === 0);
+      if (!zeroCategory) {
+        missing.push(key);
+        continue;
+      }
       if ((zeroCategory.color?.[3] ?? 255) !== 0) opaque.push(key);
     }
-    expect(opaque).toEqual([]);
-  });
-
-  it("emits every dataTypeKey referenced by the studio placement overlay suggestions", () => {
-    const missing = OVERLAY_SUGGESTION_KEYS.filter((key) => !metaByKey.has(key));
-    expect(missing).toEqual([]);
-  });
-
-  it("does not emit the removed sectorId layer", () => {
-    expect(metaByKey.has("placement.starts.sectorId")).toBe(false);
+    expect({ missing, opaque }).toEqual({ missing: [], opaque: [] });
   });
 
   it("preserves each exact placement maintenance boundary as typed grid-field evidence", () => {

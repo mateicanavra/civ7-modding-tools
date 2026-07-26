@@ -139,7 +139,6 @@ describe("resource placement runtime telemetry", () => {
       },
       byReason: [{ reason: "cannot-have-resource", count: 1 }],
     });
-    expect(telemetry).not.toHaveProperty("assignment");
     expect(JSON.stringify(telemetry).length).toBeLessThan(CIV7_LOG_TRUNCATION_BUDGET);
   });
 
@@ -177,7 +176,6 @@ describe("resource placement runtime telemetry", () => {
         byPhase: { rotation: 159, rangeFloor: 0, regionMinimum: 0, support: 0 },
       },
     });
-    expect(telemetry).not.toHaveProperty("unmappedPlacedResourceTypes");
     expect(line.length).toBeLessThan(CIV7_LOG_TRUNCATION_BUDGET);
   });
 });

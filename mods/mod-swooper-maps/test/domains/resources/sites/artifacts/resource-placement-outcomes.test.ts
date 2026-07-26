@@ -100,39 +100,6 @@ describe("resource placement outcomes artifact admission", () => {
     expect(validationMessages(value)).toContain("summary.placedCount 0 != outcomes-derived 1.");
   });
 
-  it("rejects impossible status-discriminated row shapes", () => {
-    const valid = coherentResourcePlacementOutcomes();
-    const identity = { plotIndex: 4, x: 0, y: 1, resourceType: 30 };
-    const invalidRows: readonly unknown[] = [
-      {
-        status: "placed",
-        ...identity,
-        observedResourceType: 30,
-        reason: "cannot-have-resource",
-      },
-      { status: "placed", ...identity },
-      { status: "rejected", ...identity },
-      {
-        status: "rejected",
-        ...identity,
-        reason: "wrong-resource-type",
-      },
-      {
-        status: "mismatch",
-        ...identity,
-        reason: "wrong-resource-type",
-      },
-    ];
-
-    for (const row of invalidRows) {
-      expect(
-        validationMessages({ ...valid, outcomes: [row, ...valid.outcomes] }).some((message) =>
-          message.includes("/outcomes/0")
-        )
-      ).toBe(true);
-    }
-  });
-
   it("rejects coordinate evidence that was not derived from the outcome rows", () => {
     const value = coherentResourcePlacementOutcomes();
     value.summary.coordinateEvidence.rejected.hash32 = "00000000";

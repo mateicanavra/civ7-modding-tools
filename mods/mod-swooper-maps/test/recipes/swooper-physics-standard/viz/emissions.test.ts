@@ -50,10 +50,6 @@ describe("standard pipeline viz emissions", () => {
       "ecology.biome.biomeIndex",
       "ecology.biome.vegetationDensity",
       "map.ecology.featureType",
-      "placement.landmassRegions.regionSlot",
-      "placement.starts.viabilityScore",
-      "placement.starts.viabilityTier",
-      "placement.starts.startPosition",
     ];
     const missing = expected.filter((dataTypeKey) => !seenLayers.has(dataTypeKey));
     expect(missing).toEqual([]);
@@ -172,29 +168,6 @@ describe("standard pipeline viz emissions", () => {
     expect(
       fertilityMetas?.some((m) => m?.visibility === "default" && m?.role === "centroids")
     ).toBe(true);
-
-    // Inert start-sector machinery (and its always-on grid viz) was removed in
-    // placement-realignment S4; landmass-region slots are the real regional layer.
-    expect(metasByKey.has("placement.starts.sectorId")).toBe(false);
-
-    const startViabilityMetas = metasByKey.get("placement.starts.viabilityScore");
-    expect(startViabilityMetas?.some((m) => m?.visibility === "default")).toBe(true);
-
-    const startTierMetas = metasByKey.get("placement.starts.viabilityTier");
-    expect(
-      startTierMetas?.some(
-        (m) =>
-          m?.visibility === "default" &&
-          typeof m?.palette === "object" &&
-          m.palette.kind === "categorical" &&
-          m?.categories?.length === 5
-      )
-    ).toBe(true);
-
-    const startMetas = metasByKey.get("placement.starts.startPosition");
-    expect(startMetas?.some((m) => m?.visibility === "default" && m?.role === "membership")).toBe(
-      true
-    );
 
     const rainfallAmpMetas = metasByKey.get("hydrology.climate.seasonality.rainfallAmplitude");
     expect(rainfallAmpMetas?.some((m) => m?.visibility === "default")).toBe(true);

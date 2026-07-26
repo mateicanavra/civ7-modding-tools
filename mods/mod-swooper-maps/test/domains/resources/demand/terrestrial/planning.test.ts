@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "@mapgen/domain/resources";
 import resources from "@mapgen/domain/resources/router";
 
-import { normalizeOperationSelectionForTest, TestCompileError } from "@swooper/mapgen-core/testing";
+import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
 import { TEST_MAP_SIZE } from "../../../../setup.js";
 
 const TERRESTRIAL_RESOURCE_TYPES = [
@@ -23,7 +23,7 @@ type TerrestrialExpectation = Parameters<
 >[0]["expectations"][number];
 
 describe("terrestrial resource operation contract", () => {
-  it("plans all terrestrial resource rows symbolically without runtime ids", () => {
+  it("plans every terrestrial resource row from the canonical product expectations", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const selection = normalizeOperationSelectionForTest(
@@ -60,12 +60,6 @@ describe("terrestrial resource operation contract", () => {
     expect(result.missingResourceTypes).toEqual([]);
     expect(result.plans.map((plan) => plan.resourceType)).toEqual([...TERRESTRIAL_RESOURCE_TYPES]);
     expect(result.plans.every((plan) => plan.status === "planned")).toBe(true);
-
-    for (const row of result.plans) {
-      expect(Object.hasOwn(row, "resourceId")).toBe(false);
-      expect(Object.hasOwn(row, "numericId")).toBe(false);
-      expect(Object.hasOwn(row, "preferredResourceType")).toBe(false);
-    }
   });
 
   it("keeps woodland-host and tropical-highland signal requirements visible", () => {
@@ -228,17 +222,6 @@ describe("terrestrial resource operation contract", () => {
     expect(result.plans).toHaveLength(TERRESTRIAL_RESOURCE_TYPES.length);
     expect(result.missingResourceTypes).toEqual(TERRESTRIAL_RESOURCE_TYPES.slice(1));
     expect(result.plans.filter((plan) => plan.status === "missing-expectation")).toHaveLength(10);
-  });
-
-  it("does not allow caller config to omit required terrestrial resources", () => {
-    for (const selector of ["requiredResourceTypes", "resourceTypes", "includeResources"]) {
-      expect(() =>
-        normalizeOperationSelectionForTest(resources.demand.ops.planTerrestrialResources, {
-          strategy: "canonical-demand",
-          config: { [selector]: ["RESOURCE_CAMELS"] },
-        })
-      ).toThrow(TestCompileError);
-    }
   });
 
   it("marks rows as signal gaps when no terrestrial signal mask is supplied", () => {

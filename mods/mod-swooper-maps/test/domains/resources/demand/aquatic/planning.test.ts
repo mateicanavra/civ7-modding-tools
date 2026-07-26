@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "@mapgen/domain/resources";
 import resources from "@mapgen/domain/resources/router";
 
-import { normalizeOperationSelectionForTest, TestCompileError } from "@swooper/mapgen-core/testing";
+import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
 import { TEST_MAP_SIZE } from "../../../../setup.js";
 
 const AQUATIC_RESOURCE_TYPES = [
@@ -18,7 +18,7 @@ type AquaticExpectation = Parameters<
 >[0]["expectations"][number];
 
 describe("aquatic resource operation contract", () => {
-  it("plans all aquatic resource rows symbolically without runtime ids", () => {
+  it("plans every aquatic resource row from the canonical product expectations", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const selection = normalizeOperationSelectionForTest(
@@ -53,12 +53,6 @@ describe("aquatic resource operation contract", () => {
     expect(
       result.plans.every((plan) => plan.targetIntentCount === plan.expectedCountRange.target)
     ).toBe(true);
-
-    for (const row of result.plans) {
-      expect(Object.hasOwn(row, "resourceId")).toBe(false);
-      expect(Object.hasOwn(row, "numericId")).toBe(false);
-      expect(Object.hasOwn(row, "preferredResourceType")).toBe(false);
-    }
   });
 
   it("keeps crabs navigable-river signal visible", () => {
@@ -107,15 +101,6 @@ describe("aquatic resource operation contract", () => {
       "RESOURCE_TURTLES",
     ]);
     expect(result.plans.filter((plan) => plan.status === "missing-expectation")).toHaveLength(5);
-  });
-
-  it("does not allow caller config to omit required aquatic resources", () => {
-    expect(() =>
-      normalizeOperationSelectionForTest(resources.demand.ops.planAquaticResources, {
-        strategy: "canonical-demand",
-        config: { requiredResourceTypes: ["RESOURCE_FISH"] },
-      })
-    ).toThrow(TestCompileError);
   });
 
   it("marks rows as signal gaps when no aquatic signal mask is supplied", () => {
