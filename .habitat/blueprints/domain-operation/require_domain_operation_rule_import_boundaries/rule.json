@@ -19,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/*/src/domain/*/modules/*/ops/*/rules/*.ts"
-      ]
+      "patterns": ["mods/*/src/domain/*/modules/*/ops/*/rules/*.ts"]
     }
   ],
   "hookCheck": true,

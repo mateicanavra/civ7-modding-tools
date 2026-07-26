@@ -37,9 +37,7 @@
     "patternName": "require_domain_policy_owner_shape",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods"
-      ]
+      "roots": ["mods"]
     }
   }
 }

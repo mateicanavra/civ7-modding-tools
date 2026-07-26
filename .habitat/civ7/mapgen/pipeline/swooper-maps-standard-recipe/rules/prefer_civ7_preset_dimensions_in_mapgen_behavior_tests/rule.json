@@ -19,10 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/test/**/*.ts",
-        "mods/mod-swooper-maps/test/**/*.tsx"
-      ]
+      "patterns": ["mods/mod-swooper-maps/test/**/*.ts", "mods/mod-swooper-maps/test/**/*.tsx"]
     }
   ],
   "supportFiles": {
@@ -36,9 +33,7 @@
     "patternName": "prefer_civ7_preset_dimensions_in_mapgen_behavior_tests",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods/mod-swooper-maps/test"
-      ]
+      "roots": ["mods/mod-swooper-maps/test"]
     }
   }
 }

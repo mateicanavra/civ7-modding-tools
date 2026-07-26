@@ -39,10 +39,7 @@
     "patternName": "grit_studio_run_public_contract_closed",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "packages/studio-contract/src",
-        "packages/studio-server/src/operationRuntime"
-      ]
+      "roots": ["packages/studio-contract/src", "packages/studio-server/src/operationRuntime"]
     }
   }
 }

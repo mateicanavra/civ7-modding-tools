@@ -19,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "packages/mapgen-core/src/**/*.ts"
-      ]
+      "patterns": ["packages/mapgen-core/src/**/*.ts"]
     }
   ],
   "hookCheck": true,
@@ -36,9 +34,7 @@
     "patternName": "preserve_mapgen_core_runtime_neutrality",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "packages/mapgen-core/src"
-      ]
+      "roots": ["packages/mapgen-core/src"]
     }
   }
 }

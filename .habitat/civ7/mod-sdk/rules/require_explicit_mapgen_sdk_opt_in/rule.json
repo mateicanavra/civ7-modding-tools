@@ -19,10 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "packages/sdk/src/index.ts",
-        "packages/sdk/src/**/*.ts"
-      ]
+      "patterns": ["packages/sdk/src/index.ts", "packages/sdk/src/**/*.ts"]
     }
   ],
   "hookCheck": true,
@@ -37,9 +34,7 @@
     "patternName": "require_explicit_mapgen_sdk_opt_in",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "packages/sdk/src"
-      ]
+      "roots": ["packages/sdk/src"]
     }
   }
 }

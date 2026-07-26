@@ -19,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/recipes/standard/tag-contracts.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/tag-contracts.ts"]
     }
   ],
   "supportFiles": {
@@ -35,9 +33,7 @@
     "patternName": "require_standard_recipe_map_effect_name_suffixes",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods/mod-swooper-maps/src/recipes/standard"
-      ]
+      "roots": ["mods/mod-swooper-maps/src/recipes/standard"]
     }
   }
 }

@@ -1,9 +1,6 @@
 import { clamp01, normalizeRange } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import {
-  type BiomeSymbol,
-  biomeSymbolFromIndex,
-} from "../../../../../../model/atoms/index.js";
+import { type BiomeSymbol, biomeSymbolFromIndex } from "../../../../../../model/atoms/index.js";
 
 import Contract from "../../contract.js";
 import StrategyDefinition from "./config.js";

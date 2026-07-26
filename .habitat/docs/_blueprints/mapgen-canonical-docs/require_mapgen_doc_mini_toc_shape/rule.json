@@ -19,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "docs/system/libs/mapgen/**/*.md"
-      ]
+      "patterns": ["docs/system/libs/mapgen/**/*.md"]
     }
   ],
   "supportFiles": {
@@ -35,9 +33,7 @@
     "patternName": "require_mapgen_doc_mini_toc_shape",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "docs/system/libs/mapgen"
-      ]
+      "roots": ["docs/system/libs/mapgen"]
     }
   }
 }

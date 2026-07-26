@@ -19,12 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "apps/**/*.ts",
-        "apps/**/*.tsx",
-        "packages/**/*.ts",
-        "packages/**/*.tsx"
-      ]
+      "patterns": ["apps/**/*.ts", "apps/**/*.tsx", "packages/**/*.ts", "packages/**/*.tsx"]
     }
   ],
   "hookCheck": true,
@@ -39,10 +34,7 @@
     "patternName": "require_sanctioned_direct_control_session_owners",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "apps/mapgen-studio/src",
-        "packages"
-      ]
+      "roots": ["apps/mapgen-studio/src", "packages"]
     }
   }
 }

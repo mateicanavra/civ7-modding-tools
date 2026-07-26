@@ -15,9 +15,7 @@ export function upwindOffset(
   } else if (v !== 0) {
     return { dx: 0, dy: v > 0 ? 1 : -1 };
   }
-  return absoluteLatitude < 30 || absoluteLatitude >= 60
-    ? { dx: -1, dy: 0 }
-    : { dx: 1, dy: 0 };
+  return absoluteLatitude < 30 || absoluteLatitude >= 60 ? { dx: -1, dy: 0 } : { dx: 1, dy: 0 };
 }
 
 /**
@@ -54,10 +52,7 @@ export function upwindBarrierDistance(
     if (nextX < 0 || nextX >= width || nextY < 0 || nextY >= height) break;
 
     const nextIndex = idx(nextX, nextY, width);
-    if (
-      landMask[nextIndex] === 1 &&
-      (elevation[nextIndex] ?? 0) >= options.barrierElevationM
-    ) {
+    if (landMask[nextIndex] === 1 && (elevation[nextIndex] ?? 0) >= options.barrierElevationM) {
       return step;
     }
     currentX = nextX;

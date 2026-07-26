@@ -41,9 +41,7 @@
     "patternName": "grit_studio_run_operation_identity_owner",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "packages/studio-server/src/operationRuntime"
-      ]
+      "roots": ["packages/studio-server/src/operationRuntime"]
     }
   }
 }
