@@ -1,4 +1,3 @@
-import type { GitVisiblePathInventory } from "@habitat/cli/providers/git/index";
 import type {
   CommandProviderError,
   HabitatCommandResult,
@@ -44,6 +43,12 @@ export interface StructuralCommandPort<R = never> {
   readonly run: (
     request: HabitatProcessRequest
   ) => Effect.Effect<HabitatCommandResult, CommandProviderError, R>;
+}
+
+/** Git-visible workspace paths admitted for structural rule acquisition. */
+export interface GitVisiblePathInventory {
+  readonly paths: readonly string[];
+  readonly trackedNonFilePaths: readonly string[];
 }
 
 export interface StructuralGitPort<R = never> {
