@@ -2,7 +2,7 @@ import {
   MORPHOLOGY_OROGENY_HILL_THRESHOLD_DELTA,
   MORPHOLOGY_OROGENY_MOUNTAIN_THRESHOLD_DELTA,
   MORPHOLOGY_OROGENY_TECTONIC_INTENSITY_MULTIPLIER,
-} from "@mapgen/domain/morphology/model/policy/landform-knob-policy.js";
+} from "@mapgen/domain/morphology/modules/landforms/model/policy/landform-knob-policy.js";
 import { deriveStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampFinite } from "@swooper/mapgen-core/lib/math";

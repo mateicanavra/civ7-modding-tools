@@ -1,4 +1,4 @@
-import { isAnyRiverClass } from "@mapgen/domain/hydrology/model/policy/river-class.js";
+import { isAnyRiverClass } from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-class.js";
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { PlanVegetationStepContract } from "./config.js";

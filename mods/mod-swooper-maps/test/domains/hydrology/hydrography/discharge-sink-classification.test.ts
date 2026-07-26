@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 
-import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/router";
 
-const { accumulateDischarge } = hydrologyOpsPublic.ops;
+const { accumulateDischarge } = hydrologyOpsPublic.hydrography.ops;
 describe("hydrology sink classification", () => {
   it("marks terminal land tiles as sinks", () => {
     const syntheticDimensions = { width: 4, height: 4 } as const;

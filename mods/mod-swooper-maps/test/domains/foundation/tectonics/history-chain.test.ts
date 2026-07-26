@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import foundation from "@mapgen/domain/foundation/router";
-import { TEST_MAP_SIZE } from "../../../map-size.js";
+import { TEST_MAP_SIZE } from "../../../setup.js";
 import { deriveMantleForcing, derivePlateMotion } from "./fixtures/tectonic-operation-chain.js";
 import { runTectonicHistoryChain } from "./fixtures/tectonics-history.js";
 

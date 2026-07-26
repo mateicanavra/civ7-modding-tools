@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import placementDomain from "@mapgen/domain/placement/ops";
+import placementDomain from "@mapgen/domain/placement/router";
 import type { Static } from "@swooper/mapgen-core/authoring";
 import {
   runAdmittedOperationForTest,

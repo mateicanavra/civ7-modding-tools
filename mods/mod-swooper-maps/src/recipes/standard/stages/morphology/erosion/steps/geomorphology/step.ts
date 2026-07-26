@@ -1,4 +1,4 @@
-import { MORPHOLOGY_EROSION_RATE_MULTIPLIER } from "@mapgen/domain/morphology/model/policy/erosion-knob-policy.js";
+import { MORPHOLOGY_EROSION_RATE_MULTIPLIER } from "@mapgen/domain/morphology/modules/erosion/model/policy/erosion-knob-policy.js";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
 import { buildScalarFieldProjections } from "@swooper/mapgen-viz";

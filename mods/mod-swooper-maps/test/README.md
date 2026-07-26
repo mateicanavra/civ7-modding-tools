@@ -6,13 +6,22 @@ owns it rather than in this mod's test tree.
 
 ## Ownership Roots
 
-- `domains/<domain>/<capability>` owns algorithm and policy behavior for one
-  Swooper domain. A generic `operations` cabinet is not an owner.
+- `domains/<domain>/*.test.ts` owns behavior that genuinely spans the domain
+  aggregate or multiple modules.
+- `domains/<domain>/<module>` owns algorithm, policy, and artifact behavior for
+  one semantic production module. Descend further by the concern or operation
+  behavior under test; generic `operations`, `runtime`, `support`, and `testing`
+  cabinets are not owners.
+- Artifact admission tests live under the exact module's `artifacts/`
+  directory. Reusable test setup lives under the smallest common semantic
+  owner's `fixtures/` directory rather than a domain-wide support cabinet.
 - `recipes/swooper-physics-standard` owns concrete Standard config,
   composition, cross-stage orchestration, and whole-product behavior.
 - `recipes/swooper-physics-standard/fixtures/standard-recipe.ts` is the sole
   direct Standard recipe test runner. Whole-recipe tests select a static Civ7
   map-size preset through this fixture; they do not invent product dimensions.
+- `setup.ts` owns the suite-wide Civ7 preset, map seed, and game seed for tests
+  where those inputs are incidental rather than part of the behavioral oracle.
 - `recipes/swooper-physics-standard/metrics` owns Standard scenario capture and
   map-product metric behavior.
 - `recipes/swooper-physics-standard/trace` and `viz` own the recipe's optional
@@ -36,17 +45,23 @@ multiple targets without rerunning it.
 Classify a test by its SUT and behavioral owner. Execution labels such as unit,
 integration, conformance, offline, and live do not create ownership roots.
 Structural and import topology belongs to Habitat, not source-string tests.
+Habitat closes the generic physical shape of domain test trees; matching a test
+directory to its actual production module remains semantic review until
+first-class blueprint membership can prove that relationship without a
+source-to-test allowlist.
 
 Direct operation, step, artifact, and fault-mechanics tests may use a small
 synthetic grid when its cardinality is the subject or fixture. Such dimensions
 must be named as synthetic and never presented as a Civ7 product map size.
 
-Map-size-independent behavior tests use the root `TEST_MAP_SIZE` selection,
-which defaults to Civ7 Tiny. Run that broad test regime against another shipped
-size with `SWOOPER_TEST_MAP_SIZE=MAPSIZE_STANDARD nx run mod-swooper-maps:test`.
-Keep an explicit preset only when size participates in the oracle, such as a
-cross-size matrix, a calibrated product study, map-size admission, or exact
-coordinate evidence.
+Map-size-independent behavior tests use `TEST_MAP_SIZE` from `test/setup.ts`,
+which defaults to Civ7 Tiny. The same fixture exports deliberately distinct
+`TEST_MAP_SEED` and `TEST_GAME_SEED` values so tests cannot silently conflate
+map generation with game setup. Switch the broad regime with
+`SWOOPER_TEST_MAP_SIZE`, `SWOOPER_TEST_MAP_SEED`, and `SWOOPER_TEST_GAME_SEED`.
+Keep an explicit preset or seed only when that input participates in the oracle,
+such as a cross-size matrix, seed cohort, deterministic RNG test, admission
+boundary, or exact coordinate evidence.
 
 ## Test Claims
 

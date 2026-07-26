@@ -7,7 +7,7 @@ import {
   buildResourcePlacementRuntimeTelemetry,
   placeResourcesWithTypedOutcomes,
 } from "../../../../../../src/recipes/standard/stages/placement/steps/place-resources/materialize.js";
-import { TEST_MAP_SIZE } from "../../../../../map-size.js";
+import { TEST_MAP_SIZE } from "../../../../../setup.js";
 
 type PlanIntent = {
   plotIndex: number;

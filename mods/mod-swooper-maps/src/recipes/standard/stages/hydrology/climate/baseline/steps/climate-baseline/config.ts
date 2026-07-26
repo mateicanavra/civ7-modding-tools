@@ -1,5 +1,7 @@
-import hydrology, { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import hydrology from "@mapgen/domain/hydrology";
+import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -59,23 +61,23 @@ export const ClimateBaselineStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [morphologyArtifacts.topography, morphologyArtifacts.shelf],
+    requires: [morphologyLandformsArtifacts.topography, morphologyShelfArtifacts.shelf],
     provides: [
-      hydrologyArtifacts.baselineClimateField,
-      hydrologyArtifacts.climateSeasonality,
-      hydrologyArtifacts.windField,
+      climateArtifacts.baselineClimateField,
+      climateArtifacts.climateSeasonality,
+      climateArtifacts.windField,
     ],
   },
   ops: {
-    computeRadiativeForcing: hydrology.ops.computeRadiativeForcing,
-    computeThermalState: hydrology.ops.computeThermalState,
-    computeAtmosphericCirculation: hydrology.ops.computeAtmosphericCirculation,
-    computeOceanSurfaceCurrents: hydrology.ops.computeOceanSurfaceCurrents,
-    computeOceanGeometry: hydrology.ops.computeOceanGeometry,
-    computeOceanThermalState: hydrology.ops.computeOceanThermalState,
-    computeEvaporationSources: hydrology.ops.computeEvaporationSources,
-    transportMoisture: hydrology.ops.transportMoisture,
-    computePrecipitation: hydrology.ops.computePrecipitation,
+    computeRadiativeForcing: hydrology.climate.ops.computeRadiativeForcing,
+    computeThermalState: hydrology.climate.ops.computeThermalState,
+    computeAtmosphericCirculation: hydrology.climate.ops.computeAtmosphericCirculation,
+    computeOceanSurfaceCurrents: hydrology.ocean.ops.computeOceanSurfaceCurrents,
+    computeOceanGeometry: hydrology.ocean.ops.computeOceanGeometry,
+    computeOceanThermalState: hydrology.ocean.ops.computeOceanThermalState,
+    computeEvaporationSources: hydrology.climate.ops.computeEvaporationSources,
+    transportMoisture: hydrology.climate.ops.transportMoisture,
+    computePrecipitation: hydrology.climate.ops.computePrecipitation,
   },
   schema: ClimateBaselineStepConfigSchema,
 });

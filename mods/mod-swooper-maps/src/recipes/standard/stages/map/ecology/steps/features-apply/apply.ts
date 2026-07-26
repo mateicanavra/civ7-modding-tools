@@ -1,5 +1,5 @@
 import type { FeatureKey } from "@civ7/map-policy";
-import type { FeatureIntentKey } from "@mapgen/domain/ecology/model/schemas/index.js";
+import type { FeatureIntentKey } from "@mapgen/domain/ecology/modules/features/model/atoms/index.js";
 
 const FEATURE_KEY_BY_INTENT: Readonly<Record<FeatureIntentKey, FeatureKey>> = {
   forest: "FEATURE_FOREST",

@@ -1,6 +1,6 @@
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
-import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
+import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import {
   MAP_PROJECTION_EFFECT_TAGS,
@@ -23,9 +23,9 @@ export const PlotBiomesStepContract = defineStep({
   ],
   artifacts: {
     requires: [
-      ecologyArtifacts.biomeClassification,
-      hydrologyArtifacts.climateIndices,
-      morphologyArtifacts.topography,
+      biomeArtifacts.biomeClassification,
+      climateArtifacts.climateIndices,
+      morphologyLandformsArtifacts.topography,
     ],
     provides: [mapEcologyArtifacts.biomeBindings],
   },

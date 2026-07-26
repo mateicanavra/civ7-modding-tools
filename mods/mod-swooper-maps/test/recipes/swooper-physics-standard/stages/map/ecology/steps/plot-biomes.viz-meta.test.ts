@@ -3,7 +3,7 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { resolveEngineBiomeIds } from "../../../../../../../src/recipes/standard/stages/map/ecology/steps/plot-biomes/biome-projection-policy.js";
 import { buildEngineBiomeIdVizCategories } from "../../../../../../../src/recipes/standard/stages/map/ecology/viz.js";
-import { TEST_MAP_SIZE } from "../../../../../../map-size.js";
+import { TEST_MAP_SIZE } from "../../../../../../setup.js";
 
 describe("plot biomes viz meta (engine biomeId)", () => {
   it("refuses projection when an official Civ7 biome global is unavailable", () => {

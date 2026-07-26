@@ -1,5 +1,6 @@
-import ecology, { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import ecology from "@mapgen/domain/ecology";
+import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import {
   MAP_PROJECTION_EFFECT_TAGS,
@@ -31,12 +32,12 @@ export const FeaturesApplyStepContract = defineStep({
   ],
   artifacts: {
     requires: [
-      ecologyArtifacts.featureIntentsVegetation,
-      ecologyArtifacts.featureIntentsWetlands,
-      ecologyArtifacts.featureIntentsFloodplains,
-      ecologyArtifacts.featureIntentsReefs,
-      ecologyArtifacts.featureIntentsIce,
-      morphologyArtifacts.topography,
+      featureArtifacts.featureIntentsVegetation,
+      featureArtifacts.featureIntentsWetlands,
+      featureArtifacts.featureIntentsFloodplains,
+      featureArtifacts.featureIntentsReefs,
+      featureArtifacts.featureIntentsIce,
+      morphologyLandformsArtifacts.topography,
     ],
     provides: [
       mapEcologyArtifacts.featureApplyDiagnostics,
@@ -44,7 +45,7 @@ export const FeaturesApplyStepContract = defineStep({
     ],
   },
   ops: {
-    apply: ecology.ops.applyFeatures,
+    apply: ecology.features.ops.applyFeatures,
   },
   schema: Type.Object(
     {},

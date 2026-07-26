@@ -1,5 +1,8 @@
-import { default as hydrology, artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import hydrology from "@mapgen/domain/hydrology";
+import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
+import { artifacts as cryosphereArtifacts } from "@mapgen/domain/hydrology/modules/cryosphere/artifacts/index.js";
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -30,28 +33,28 @@ export const ClimateRefineStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [
-      morphologyArtifacts.topography,
-      hydrologyArtifacts.baselineClimateField,
-      hydrologyArtifacts.windField,
-      hydrologyArtifacts.hydrography,
+      morphologyLandformsArtifacts.topography,
+      climateArtifacts.baselineClimateField,
+      climateArtifacts.windField,
+      hydrographyArtifacts.hydrography,
     ],
     provides: [
-      hydrologyArtifacts.climateField,
-      hydrologyArtifacts.climateIndices,
-      hydrologyArtifacts.cryosphere,
+      climateArtifacts.climateField,
+      climateArtifacts.climateIndices,
+      cryosphereArtifacts.cryosphere,
     ],
   },
   ops: {
     computePrecipitation: {
-      contract: hydrology.ops.computePrecipitation,
+      contract: hydrology.climate.ops.computePrecipitation,
       defaultStrategy: "refine",
     },
-    computeRadiativeForcing: hydrology.ops.computeRadiativeForcing,
-    computeThermalState: hydrology.ops.computeThermalState,
-    applyAlbedoFeedback: hydrology.ops.applyAlbedoFeedback,
-    computeCryosphereState: hydrology.ops.computeCryosphereState,
-    computeLandWaterBudget: hydrology.ops.computeLandWaterBudget,
-    computeClimateDiagnostics: hydrology.ops.computeClimateDiagnostics,
+    computeRadiativeForcing: hydrology.climate.ops.computeRadiativeForcing,
+    computeThermalState: hydrology.climate.ops.computeThermalState,
+    applyAlbedoFeedback: hydrology.cryosphere.ops.applyAlbedoFeedback,
+    computeCryosphereState: hydrology.cryosphere.ops.computeCryosphereState,
+    computeLandWaterBudget: hydrology.climate.ops.computeLandWaterBudget,
+    computeClimateDiagnostics: hydrology.climate.ops.computeClimateDiagnostics,
   },
   schema: ClimateRefineStepConfigSchema,
 });

@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
-import ecology from "@mapgen/domain/ecology/ops";
-import { RIVER_CLASS_MAJOR } from "@mapgen/domain/hydrology/model/policy/river-class.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
+import ecology from "@mapgen/domain/ecology/router";
+import { RIVER_CLASS_MAJOR } from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-class.js";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -14,7 +14,7 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { PlanFloodplainsStep } from "../../../../../../../src/recipes/standard/stages/ecology/features/steps/plan-floodplains/step.js";
-import { TEST_MAP_SIZE } from "../../../../../../map-size.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../setup.js";
 import { createEmptyFeatureScoreLayers } from "../fixtures/feature-score-layers.js";
 
 const FLOODPLAIN_INTENT_KEYS = new Set([
@@ -43,7 +43,7 @@ describe("ecology-features plan-floodplains step", () => {
     navigableRiverMask[riverIndex] = 1;
     discharge[riverIndex] = 160;
 
-    const substrate = ecology.ops.computeFeatureSubstrate.run(
+    const substrate = ecology.features.ops.computeFeatureSubstrate.run(
       {
         ...TEST_MAP_SIZE.dimensions,
         riverClass,
@@ -54,10 +54,10 @@ describe("ecology-features plan-floodplains step", () => {
         discharge,
         sinkMask: new Uint8Array(size),
       },
-      normalizeOperationSelectionForTest(ecology.ops.computeFeatureSubstrate, {
-        ...ecology.ops.computeFeatureSubstrate.defaultConfig,
+      normalizeOperationSelectionForTest(ecology.features.ops.computeFeatureSubstrate, {
+        ...ecology.features.ops.computeFeatureSubstrate.defaultConfig,
         config: {
-          ...ecology.ops.computeFeatureSubstrate.defaultConfig.config,
+          ...ecology.features.ops.computeFeatureSubstrate.defaultConfig.config,
           lowlandMaxElevationAboveSeaM: 80,
           floodplainDischargeMin: 96,
         },
@@ -68,7 +68,7 @@ describe("ecology-features plan-floodplains step", () => {
 
     const context = createMapContext({
       setup: admitMapSetup({
-        mapSeed: 24681357,
+        mapSeed: TEST_MAP_SEED,
         dimensions: TEST_MAP_SIZE.dimensions,
         latitudeBounds: {
           topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
@@ -83,17 +83,17 @@ describe("ecology-features plan-floodplains step", () => {
     });
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: new Int16Array(size).fill(24),
         seaLevel: 0,
         landMask,
         bathymetry: new Int16Array(size),
       });
-      publishTestArtifact(stepContext, ecologyArtifacts.scoreLayers, {
+      publishTestArtifact(stepContext, featureArtifacts.scoreLayers, {
         ...TEST_MAP_SIZE.dimensions,
         layers,
       });
-      publishTestArtifact(stepContext, ecologyArtifacts.occupancyBase, {
+      publishTestArtifact(stepContext, featureArtifacts.occupancyBase, {
         ...TEST_MAP_SIZE.dimensions,
         featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
@@ -102,19 +102,22 @@ describe("ecology-features plan-floodplains step", () => {
       PlanFloodplainsStep.run(
         stepContext,
         {
-          planFloodplains: normalizeOperationSelectionForTest(ecology.ops.planFloodplains, {
-            ...ecology.ops.planFloodplains.defaultConfig,
-            config: {
-              ...ecology.ops.planFloodplains.defaultConfig.config,
-              minConfidence01: 0.5,
-            },
-          }),
+          planFloodplains: normalizeOperationSelectionForTest(
+            ecology.features.ops.planFloodplains,
+            {
+              ...ecology.features.ops.planFloodplains.defaultConfig,
+              config: {
+                ...ecology.features.ops.planFloodplains.defaultConfig.config,
+                minConfidence01: 0.5,
+              },
+            }
+          ),
         },
-        ecology.ops.bind(PlanFloodplainsStep.contract.ops!).runtime,
+        ecology.features.ops.bind(PlanFloodplainsStep.contract.ops!).runtime,
         dependencies
       );
     });
-    const intents = readValidatedArtifact(context, ecologyArtifacts.featureIntentsFloodplains);
+    const intents = readValidatedArtifact(context, featureArtifacts.featureIntentsFloodplains);
 
     expect(intents).toHaveLength(1);
     expect(intents[0]).toMatchObject({

@@ -1,0 +1,88 @@
+import { createStrategy } from "@swooper/mapgen-core/authoring";
+import { clamp01 } from "@swooper/mapgen-core/lib/math";
+
+import ComputeCryosphereStateContract from "../../contract.js";
+import { clampU8, lerp01 } from "../../rules/index.js";
+import TemperatureThresholdsDefinition from "./config.js";
+
+/** One temperature scale coherently classifies snow, sea ice, albedo, freeze, permafrost, and melt potential. */
+const temperatureThresholdsStrategy = createStrategy(
+  ComputeCryosphereStateContract,
+  TemperatureThresholdsDefinition,
+  {
+    run: (input, config) => {
+      const width = input.width;
+      const height = input.height;
+      const size = width * height;
+
+      const snowCover = new Uint8Array(size);
+      const seaIceCover = new Uint8Array(size);
+      const albedo = new Uint8Array(size);
+      const freezeIndex = new Float32Array(size);
+      const groundIce01 = new Float32Array(size);
+      const permafrost01 = new Float32Array(size);
+      const meltPotential01 = new Float32Array(size);
+
+      const precipitationInfluence = config.precipitationInfluence;
+      const baseAlbedo = config.baseAlbedo | 0;
+      const snowBoost = config.snowAlbedoBoost | 0;
+      const seaIceBoost = config.seaIceAlbedoBoost | 0;
+      const permafrostStart = config.permafrostStartFreezeIndex;
+      const permafrostFull = config.permafrostFullFreezeIndex;
+      const permafrostDenom = Math.max(1e-6, permafrostFull - permafrostStart);
+      const groundIceSnowInfluence = config.groundIceSnowInfluence;
+
+      for (let i = 0; i < size; i++) {
+        const temp = input.surfaceTemperatureC[i] ?? 0;
+        const rain = (input.rainfall[i] ?? 0) / 200;
+        const isLand = input.landMask[i] === 1;
+
+        const freeze = lerp01(temp, config.freezeIndexStartC, config.freezeIndexFullC);
+        freezeIndex[i] = freeze;
+
+        if (isLand) {
+          const base = lerp01(temp, config.landSnowStartC, config.landSnowFullC);
+          const precipBoost = 1 + precipitationInfluence * clamp01(rain);
+          snowCover[i] = clampU8(base * 255 * precipBoost);
+          seaIceCover[i] = 0;
+        } else {
+          snowCover[i] = 0;
+          const ice = lerp01(temp, config.seaIceStartC, config.seaIceFullC);
+          seaIceCover[i] = clampU8(ice * 255);
+        }
+
+        const snowF = (snowCover[i] ?? 0) / 255;
+        const iceF = (seaIceCover[i] ?? 0) / 255;
+        albedo[i] = clampU8(baseAlbedo + snowBoost * snowF + seaIceBoost * iceF);
+
+        if (isLand) {
+          const permafrost = clamp01((freeze - permafrostStart) / permafrostDenom);
+          permafrost01[i] = permafrost;
+
+          groundIce01[i] = clamp01(
+            freeze * (1 - groundIceSnowInfluence + groundIceSnowInfluence * snowF)
+          );
+
+          const melt = lerp01(temp, config.meltStartC, config.meltFullC);
+          meltPotential01[i] = clamp01(melt * snowF);
+        } else {
+          groundIce01[i] = 0;
+          permafrost01[i] = 0;
+          meltPotential01[i] = 0;
+        }
+      }
+
+      return {
+        snowCover,
+        seaIceCover,
+        albedo,
+        freezeIndex,
+        groundIce01,
+        permafrost01,
+        meltPotential01,
+      } as const;
+    },
+  }
+);
+
+export default temperatureThresholdsStrategy;

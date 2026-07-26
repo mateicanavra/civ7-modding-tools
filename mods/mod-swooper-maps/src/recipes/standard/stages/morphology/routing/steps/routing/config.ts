@@ -1,4 +1,6 @@
-import morphology, { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import morphology from "@mapgen/domain/morphology";
+import { artifacts as morphologyCoastsArtifacts } from "@mapgen/domain/morphology/modules/coasts/artifacts/index.js";
+import { artifacts as morphologyRoutingArtifacts } from "@mapgen/domain/morphology/modules/routing/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -12,11 +14,11 @@ export const RoutingStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [morphologyArtifacts.carvedTopography],
-    provides: [morphologyArtifacts.routing],
+    requires: [morphologyCoastsArtifacts.carvedTopography],
+    provides: [morphologyRoutingArtifacts.routing],
   },
   ops: {
-    routing: morphology.ops.computeFlowRouting,
+    routing: morphology.routing.ops.computeFlowRouting,
   },
   schema: Type.Object({}),
 });

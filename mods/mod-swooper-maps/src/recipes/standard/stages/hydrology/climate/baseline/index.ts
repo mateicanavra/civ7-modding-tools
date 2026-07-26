@@ -102,33 +102,39 @@ export default createStage({
     "climate-baseline": {
       seasonality: config.seasonalCycle,
       computeRadiativeForcing: defaultEnvelope(
-        hydrology.ops.computeRadiativeForcing,
+        hydrology.climate.ops.computeRadiativeForcing,
         config.solarForcing
       ),
-      computeThermalState: defaultEnvelope(hydrology.ops.computeThermalState, config.thermalState),
+      computeThermalState: defaultEnvelope(
+        hydrology.climate.ops.computeThermalState,
+        config.thermalState
+      ),
       computeAtmosphericCirculation: defaultEnvelope(
-        hydrology.ops.computeAtmosphericCirculation,
+        hydrology.climate.ops.computeAtmosphericCirculation,
         config.atmosphericCirculation
       ),
       computeOceanSurfaceCurrents: defaultEnvelope(
-        hydrology.ops.computeOceanSurfaceCurrents,
+        hydrology.ocean.ops.computeOceanSurfaceCurrents,
         config.oceanCurrents
       ),
       computeOceanGeometry: defaultEnvelope(
-        hydrology.ops.computeOceanGeometry,
+        hydrology.ocean.ops.computeOceanGeometry,
         config.oceanGeometry
       ),
       computeOceanThermalState: defaultEnvelope(
-        hydrology.ops.computeOceanThermalState,
+        hydrology.ocean.ops.computeOceanThermalState,
         config.oceanThermalState
       ),
       computeEvaporationSources: defaultEnvelope(
-        hydrology.ops.computeEvaporationSources,
+        hydrology.climate.ops.computeEvaporationSources,
         config.evaporation
       ),
-      transportMoisture: defaultEnvelope(hydrology.ops.transportMoisture, config.moistureTransport),
+      transportMoisture: defaultEnvelope(
+        hydrology.climate.ops.transportMoisture,
+        config.moistureTransport
+      ),
       computePrecipitation: defaultEnvelope(
-        hydrology.ops.computePrecipitation,
+        hydrology.climate.ops.computePrecipitation,
         config.precipitation
       ),
     },

@@ -1,13 +1,13 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import placementDomain from "@mapgen/domain/placement/ops";
+import placementDomain from "@mapgen/domain/placement/router";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 import { artifacts as placementArtifacts } from "../../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
 import { materializeStartAssignment } from "../../../../../../src/recipes/standard/stages/placement/steps/assign-starts/materialize.js";
-import { TEST_MAP_SIZE } from "../../../../../map-size.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
 
 const { planStarts } = placementDomain.ops;
 type StartInput = Static<(typeof planStarts)["input"]>;
@@ -80,7 +80,7 @@ function contextFor() {
   });
   const context = createMapContext({
     setup: admitMapSetup({
-      mapSeed: 1,
+      mapSeed: TEST_MAP_SEED,
       dimensions: TEST_MAP_SIZE.dimensions,
       latitudeBounds: {
         topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,

@@ -1,4 +1,6 @@
-import morphology, { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import morphology from "@mapgen/domain/morphology";
+import { artifacts as morphologyTerrainArtifacts } from "@mapgen/domain/morphology/modules/terrain/artifacts/index.js";
+import { artifacts as morphologyCoastsArtifacts } from "@mapgen/domain/morphology/modules/coasts/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -9,13 +11,16 @@ export const RuggedCoastsStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [morphologyArtifacts.beltDrivers, morphologyArtifacts.baseTopography],
-    provides: [morphologyArtifacts.carvedTopography, morphologyArtifacts.carvedCoastline],
+    requires: [morphologyTerrainArtifacts.beltDrivers, morphologyTerrainArtifacts.baseTopography],
+    provides: [
+      morphologyCoastsArtifacts.carvedTopography,
+      morphologyCoastsArtifacts.carvedCoastline,
+    ],
   },
   ops: {
-    coastlines: morphology.ops.computeCoastlineMetrics,
-    reconcileHeightfield: morphology.ops.reconcileHeightfieldFromCoast,
-    distanceToCoast: morphology.ops.computeDistanceToCoast,
+    coastlines: morphology.coasts.ops.computeCoastlineMetrics,
+    reconcileHeightfield: morphology.coasts.ops.reconcileHeightfieldFromCoast,
+    distanceToCoast: morphology.coasts.ops.computeDistanceToCoast,
   },
   schema: Type.Object({}),
 });

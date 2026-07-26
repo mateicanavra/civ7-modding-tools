@@ -4,7 +4,7 @@ import { MockAdapter } from "@civ7/adapter";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { captureEngineTerrainClassification } from "../../../../../../src/recipes/standard/current-engine-surface.js";
 import { readFinalLakeProjection } from "../../../../../../src/recipes/standard/stages/placement/steps/prepare-placement-surface/lake-readback.js";
-import { TEST_MAP_SIZE } from "../../../../../map-size.js";
+import { TEST_MAP_SIZE } from "../../../../../setup.js";
 
 describe("placement final lake readback", () => {
   it("counts accepted lake tiles that placement-time maintenance dries or declassifies", () => {

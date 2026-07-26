@@ -7,7 +7,6 @@
   <item id="config" title="Config posture"/>
   <item id="projection" title="Engine projection notes (map-ecology)"/>
   <item id="anchors" title="Ground truth anchors"/>
-  <item id="open-questions" title="Open questions"/>
 </toc>
 
 # Ecology domain
@@ -55,8 +54,15 @@ Projection posture:
 
 ## Key artifacts
 
-Ecology's semantic data products are owned by its domain catalog:
-- `mods/mod-swooper-maps/src/domain/ecology/artifacts/index.ts`
+Ecology's semantic data products are owned by the module that produces them:
+- Pedology: `mods/mod-swooper-maps/src/domain/ecology/modules/pedology/artifacts/index.ts`
+- Biomes: `mods/mod-swooper-maps/src/domain/ecology/modules/biomes/artifacts/index.ts`
+- Features: `mods/mod-swooper-maps/src/domain/ecology/modules/features/artifacts/index.ts`
+- Plot effects: `mods/mod-swooper-maps/src/domain/ecology/modules/plot-effects/artifacts/index.ts`
+
+There is deliberately no root Ecology artifact aggregate. Steps import the exact producing module's
+catalog, keeping artifact ownership visible and preventing the root domain from becoming a second
+discovery surface.
 
 Projection-only engine evidence remains with its map-stage owner:
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map/ecology/artifacts/index.ts`
@@ -65,27 +71,21 @@ Projection evidence has distinct semantics: `biomeBindings` records symbolic-to-
 binding outcomes, while `featureEngineSnapshot` records exactly one post-Ecology engine feature ID per
 tile after feature stamping and terrain validation. Neither artifact is mutation authority.
 
-Note: some Ecology artifact schemas are currently permissive (`Type.Any()` fields). Treat those as implementation detail until tightened.
-
 ## Ops surface
 
-Ecology domain ops used by the standard recipe are split along the target architecture boundaries:
-- Compute substrate ops (shared compute layers used by multiple planners):
-  - `computeFeatureSubstrate`
-- Pedology/biome truth planners:
-  - `classifyPedology`, `aggregatePedology`
-  - `classifyBiomes`, `refineBiomeEdges`
-- Feature intent planners (truth stage `ecology-features`):
-  - Vegetation signals (compute) used by step-owned picking: `computeVegetationSubstrate`, `scoreVegetation*`
-  - Other intent planners: `planWetlands`, `planReefs`, `planIce`
-  - Planner-local `policies/` files own score-to-intent admission for each feature family. Do not route
-    feature admission through generic `shared` helpers or projection code.
-- Plot effect planners (truth stage `ecology-features`):
-  - `planPlotEffects`
-- Atomic per-feature placement planners (truth stage, disabled-by-default; see config posture):
-  - Wet placements: `planWetPlacement*`
-- Projection ops (projection stage `map-ecology`):
-  - `applyFeatures`
+The root contract composes four semantic modules in causal order. Runtime consumers use the matching
+root router; neither surface flattens module ownership:
+
+- `pedology`: soil classification and published pedology fields
+- `biomes`: biome classification with its owned edge refinement
+- `features`: shared substrate derivation, feature-family scoring, feature-intent planning, and
+  `applyFeatures`
+- `plotEffects`: plot-effect scoring and `planPlotEffects`
+
+Cross-operation feature scoring and selection policy lives under
+`modules/features/model/policy/`. Planner-specific admission and substrate derivation remain private
+rules of their owning operation, without introducing operation-local policy folders or routing domain
+decisions through projection code.
 
 Other ops exist and may be used by additional steps (see the domain contracts).
 
@@ -93,11 +93,13 @@ Other ops exist and may be used by additional steps (see the domain contracts).
 
 Current posture in the standard recipe:
 - `ecology-pedology`, `ecology-biomes`, and `ecology-features` expose flat step-scoped config surfaces.
-- `map-ecology` persists exactly `{}` because projection has no author-facing controls.
-- Its compile boundary materializes the private feature-application op envelope, while fixed biome
-  projection policy stays beside `plot-biomes` and uses official identities from Civ7 policy.
+- `map-ecology` defines neither an author-facing configuration schema nor a `compile` callback. Its
+  projection steps have no authored tuning to translate, while fixed biome projection policy stays
+  beside `plot-biomes` and uses official identities from Civ7 policy.
 
-Key contract point: strategy config schemas stay with their owning op contracts or named op-family modules. The shared Ecology artifact surface is allowed because multiple truth and projection stages consume the same artifact invariants; it is not a dumping ground for strategy-owned config.
+Key contract point: each strategy owns its configuration schema, while each semantic module owns the
+artifacts and model vocabulary its operations share. Cross-stage consumption does not move artifact
+authority to the root domain.
 
 Feature scoring and planning stay separate:
 - Score ops produce continuous physical suitability fields. A positive score is not itself a placement command.
@@ -121,10 +123,14 @@ The `map-ecology` stage:
   - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/features/index.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map/ecology/index.ts`
-- Ecology truth artifacts: `mods/mod-swooper-maps/src/domain/ecology/artifacts/index.ts`
-- Ecology domain op catalog (contracts + implementations):
-  - `mods/mod-swooper-maps/src/domain/ecology/ops/contract.ts`
-  - `mods/mod-swooper-maps/src/domain/ecology/ops/index.ts`
+- Ecology domain composition:
+  - `mods/mod-swooper-maps/src/domain/ecology/contract.ts`
+  - `mods/mod-swooper-maps/src/domain/ecology/router.ts`
+- Ecology module contracts, routers, operations, and artifact catalogs:
+  - `mods/mod-swooper-maps/src/domain/ecology/modules/pedology/`
+  - `mods/mod-swooper-maps/src/domain/ecology/modules/biomes/`
+  - `mods/mod-swooper-maps/src/domain/ecology/modules/features/`
+  - `mods/mod-swooper-maps/src/domain/ecology/modules/plot-effects/`
 - Example step contracts (truth stage):
   - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/pedology/steps/pedology/config.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/biomes/steps/biomes/config.ts`
@@ -140,7 +146,3 @@ The `map-ecology` stage:
   - `.habitat/blueprints/recipe-stage/require_recipe_stage_source_topology/rule.json`
   - `mods/mod-swooper-maps/src/recipes/standard/metrics/studies/benchmarks/earthlike-ecology.study.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/metrics/targets/ecology.ts`
-
-## Open questions
-
-- Tightening Ecology artifact schemas: which fields should be typed as typed arrays vs structured objects, and where should those schemas live (content vs SDK)?

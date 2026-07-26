@@ -12,7 +12,7 @@ import {
   validateCanonicalMapConfig,
 } from "../../src/maps/configs/canonical";
 import standardRecipe, { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
-import { TEST_MAP_SIZE } from "../map-size";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../setup.js";
 
 const repoRoot = resolve(import.meta.dirname, "../../../..");
 
@@ -251,7 +251,7 @@ describe("Shipped map configs", () => {
       const canonicalConfig = config.canonicalConfig;
       const compiled = standardRecipe.compileConfig(
         {
-          mapSeed: 123,
+          mapSeed: TEST_MAP_SEED,
           dimensions: TEST_MAP_SIZE.dimensions,
           latitudeBounds: canonicalConfig.latitudeBounds,
         },

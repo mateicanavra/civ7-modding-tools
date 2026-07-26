@@ -6,14 +6,14 @@ import { Value } from "typebox/value";
 import hydrologyHydrographyStage from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/index.js";
 import { LakesStepContract } from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/steps/lakes/config.js";
 import { LakesStep } from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/steps/lakes/step.js";
-import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 import {
   createStandardRecipeTestConfig,
   standardMapConfig,
 } from "../../../../../fixtures/standard-recipe.js";
 
 const setup = admitMapSetup({
-  mapSeed: 123,
+  mapSeed: TEST_MAP_SEED,
   dimensions: TEST_MAP_SIZE.dimensions,
   latitudeBounds: standardMapConfig.latitudeBounds,
 });

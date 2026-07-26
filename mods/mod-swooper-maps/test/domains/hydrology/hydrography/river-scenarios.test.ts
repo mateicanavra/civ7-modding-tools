@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "@mapgen/domain/hydrology/model/policy/hydrography-knob-policy.js";
-import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/router";
+import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "../../../../src/recipes/standard/stages/hydrology/hydrography/model/policy/hydrography-knob-policy.js";
 
-const { accumulateDischarge, planLakes, projectRiverNetwork } = hydrologyOpsPublic.ops;
+const { accumulateDischarge, planLakes, projectRiverNetwork } = hydrologyOpsPublic.hydrography.ops;
 const SIMPLE_DISCHARGE_CONFIG = {
   runoffScale: 1,
   infiltrationFraction: 0,

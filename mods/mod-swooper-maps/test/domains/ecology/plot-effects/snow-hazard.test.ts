@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import ecology from "@mapgen/domain/ecology/ops";
+import ecology from "@mapgen/domain/ecology/router";
 import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
 
 // Deep-cold hazard: the snow channel emits abstract snow tier intent and co-places
@@ -10,13 +10,13 @@ const size = width * height;
 
 const runSnowPlan = (snowConfig: Record<string, unknown>) => {
   const planSelection = normalizeOperationSelectionForTest(
-    ecology.ops.planPlotEffects,
+    ecology.plotEffects.ops.planPlotEffects,
     {
-      ...ecology.ops.planPlotEffects.defaultConfig,
+      ...ecology.plotEffects.ops.planPlotEffects.defaultConfig,
       config: {
-        ...ecology.ops.planPlotEffects.defaultConfig.config,
+        ...ecology.plotEffects.ops.planPlotEffects.defaultConfig.config,
         snow: {
-          ...ecology.ops.planPlotEffects.defaultConfig.config.snow,
+          ...ecology.plotEffects.ops.planPlotEffects.defaultConfig.config.snow,
           ...snowConfig,
         },
       },
@@ -28,7 +28,7 @@ const runSnowPlan = (snowConfig: Record<string, unknown>) => {
   const snowScore01 = new Float32Array([0.92, 0.87, 0.84, 0.5]);
   const snowEligibleMask = new Uint8Array(size).fill(1);
 
-  return ecology.ops.planPlotEffects.run(
+  return ecology.plotEffects.ops.planPlotEffects.run(
     {
       width,
       height,

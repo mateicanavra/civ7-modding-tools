@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
+import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
 
 const SYNTHETIC_DIMENSIONS = { width: 1, height: 1 } as const;
 const SYNTHETIC_CARDINALITY = SYNTHETIC_DIMENSIONS.width * SYNTHETIC_DIMENSIONS.height;
@@ -20,7 +20,7 @@ describe("ecology-biomes biome-classification artifact", () => {
     payload.biomeIndex[0] = 8;
     payload.treeLine01[0] = Number.NaN;
 
-    const messages = ecologyArtifacts.biomeClassification
+    const messages = biomeArtifacts.biomeClassification
       .validate(payload, { dimensions: SYNTHETIC_DIMENSIONS })
       .map((issue) => issue.message);
     expect(messages.some((message) => message.includes("closed biome vocabulary"))).toBe(true);
@@ -32,7 +32,7 @@ describe("ecology-biomes biome-classification artifact", () => {
     value.biomeIndex[0] = 255;
 
     expect(
-      ecologyArtifacts.biomeClassification.validate(value, {
+      biomeArtifacts.biomeClassification.validate(value, {
         dimensions: SYNTHETIC_DIMENSIONS,
       })
     ).toEqual([]);

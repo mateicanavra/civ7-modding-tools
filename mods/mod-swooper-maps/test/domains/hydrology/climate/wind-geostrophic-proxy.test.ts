@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
 
-import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
-import { TEST_MAP_SIZE } from "../../../map-size.js";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/router";
+import { TEST_MAP_SIZE } from "../../../setup.js";
 
-const { computeAtmosphericCirculation } = hydrologyOpsPublic.ops;
+const { computeAtmosphericCirculation } = hydrologyOpsPublic.climate.ops;
 function idx(x: number, y: number, width: number): number {
   return y * width + x;
 }

@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
-
 import { createMockAdapter } from "@civ7/adapter";
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
-import ecology from "@mapgen/domain/ecology/ops";
-import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
+import ecology from "@mapgen/domain/ecology/router";
+import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
+import { artifacts as cryosphereArtifacts } from "@mapgen/domain/hydrology/modules/cryosphere/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -16,14 +16,14 @@ import {
 import { BiomesStep as biomesStep } from "../../../../../../../../src/recipes/standard/stages/ecology/biomes/steps/biomes/step.js";
 import { artifacts as mapEcologyArtifacts } from "../../../../../../../../src/recipes/standard/stages/map/ecology/artifacts/index.js";
 import { PlotBiomesStep as plotBiomesStep } from "../../../../../../../../src/recipes/standard/stages/map/ecology/steps/plot-biomes/step.js";
-import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 
 describe("plot biomes step", () => {
   it("projects marine and land biome bindings into Civ7", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const setup = admitMapSetup({
-      mapSeed: 0,
+      mapSeed: TEST_MAP_SEED,
       dimensions: TEST_MAP_SIZE.dimensions,
       latitudeBounds: {
         topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
@@ -42,13 +42,13 @@ describe("plot biomes step", () => {
     elevation[0] = 0;
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation,
         seaLevel: 0,
         landMask,
         bathymetry: new Int16Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyArtifacts.cryosphere, {
+      publishTestArtifact(stepContext, cryosphereArtifacts.cryosphere, {
         snowCover: new Uint8Array(size),
         seaIceCover: new Uint8Array(size),
         albedo: new Uint8Array(size),
@@ -56,14 +56,14 @@ describe("plot biomes step", () => {
         permafrost01: new Float32Array(size),
         meltPotential01: new Float32Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyArtifacts.climateIndices, {
+      publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
         surfaceTemperatureC: new Float32Array(size).fill(15),
         effectiveMoisture: new Float32Array(size).fill(160),
         pet: new Float32Array(size),
         aridityIndex: new Float32Array(size).fill(0.2),
         freezeIndex: new Float32Array(size).fill(0.05),
       });
-      publishTestArtifact(stepContext, ecologyArtifacts.pedology, {
+      publishTestArtifact(stepContext, pedologyArtifacts.pedology, {
         width,
         height,
         soilType: new Uint8Array(size).fill(0),
@@ -71,10 +71,10 @@ describe("plot biomes step", () => {
       });
 
       const classifyConfig = normalizeOperationSelectionForTest(
-        ecology.ops.classifyBiomes,
-        ecology.ops.classifyBiomes.defaultConfig
+        ecology.biomes.ops.classifyBiomes,
+        ecology.biomes.ops.classifyBiomes.defaultConfig
       );
-      const ecologyOps = ecology.ops.bind(biomesStep.contract.ops!).runtime;
+      const ecologyOps = ecology.biomes.ops.bind(biomesStep.contract.ops!).runtime;
       biomesStep.run(
         stepContext,
         { classify: classifyConfig },

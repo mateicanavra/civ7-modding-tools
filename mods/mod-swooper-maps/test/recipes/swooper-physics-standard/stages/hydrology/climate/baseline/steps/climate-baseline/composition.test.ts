@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
-
 import { createMockAdapter } from "@civ7/adapter";
-import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
-import hydrologyDomain from "@mapgen/domain/hydrology/ops";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
+import hydrologyDomain from "@mapgen/domain/hydrology/router";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -15,21 +15,25 @@ import {
 import hydrologyClimateBaselineStage from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/baseline/index.js";
 import { ClimateBaselineStepContract } from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.js";
 import { ClimateBaselineStep } from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/step.js";
-import { TEST_MAP_SIZE } from "../../../../../../../../map-size.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../../setup.js";
 import {
   createStandardRecipeTestConfig,
   standardMapConfig,
 } from "../../../../../../fixtures/standard-recipe.js";
 
 const setup = admitMapSetup({
-  mapSeed: 123,
+  mapSeed: TEST_MAP_SEED,
   dimensions: TEST_MAP_SIZE.dimensions,
   latitudeBounds: standardMapConfig.latitudeBounds,
 });
 
-type OceanCurrentsInput = Parameters<typeof hydrologyDomain.ops.computeOceanSurfaceCurrents.run>[0];
-type OceanThermalInput = Parameters<typeof hydrologyDomain.ops.computeOceanThermalState.run>[0];
-type ThermalStateInput = Parameters<typeof hydrologyDomain.ops.computeThermalState.run>[0];
+type OceanCurrentsInput = Parameters<
+  typeof hydrologyDomain.ocean.ops.computeOceanSurfaceCurrents.run
+>[0];
+type OceanThermalInput = Parameters<
+  typeof hydrologyDomain.ocean.ops.computeOceanThermalState.run
+>[0];
+type ThermalStateInput = Parameters<typeof hydrologyDomain.climate.ops.computeThermalState.run>[0];
 
 function climateBaselineConfig() {
   if (!ClimateBaselineStep.normalize) {
@@ -91,23 +95,24 @@ describe("hydrology climate-baseline composition", () => {
     let currentCall = 0;
     let thermalCurrentU: Int8Array | undefined;
     let thermalCurrentV: Int8Array | undefined;
+    let currentField: Readonly<{ currentU: Int8Array; currentV: Int8Array }> | undefined;
     const thermalSstInputs: Array<Float32Array | undefined> = [];
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask: new Uint8Array(size),
         bathymetry: new Int16Array(size),
       });
-      publishTestArtifact(stepContext, morphologyArtifacts.shelf, {
+      publishTestArtifact(stepContext, morphologyShelfArtifacts.shelf, {
         shelfMask: new Uint8Array(size),
         coastalLand: new Uint8Array(size),
         coastalWater: new Uint8Array(size),
         distanceToCoast: new Uint16Array(size),
       });
 
-      ClimateBaselineStep.run(
+      const result = ClimateBaselineStep.run(
         stepContext,
         config,
         {
@@ -148,6 +153,10 @@ describe("hydrology climate-baseline composition", () => {
         },
         dependencies
       );
+      if (result instanceof Promise) {
+        throw new Error("Climate baseline composition is synchronous in the Standard recipe.");
+      }
+      currentField = result.currentField;
     });
 
     expect(currentInputs).toHaveLength(config.seasonality.modeCount);
@@ -164,13 +173,13 @@ describe("hydrology climate-baseline composition", () => {
     expect(thermalSstInputs).toHaveLength(config.seasonality.modeCount);
     for (const observedSst of thermalSstInputs) expect(observedSst).toBe(sstC);
 
-    const windField = readValidatedArtifact(context, hydrologyArtifacts.windField);
+    const windField = readValidatedArtifact(context, climateArtifacts.windField);
     expect(Array.from(windField.windU)).toEqual(Array.from(windU));
     expect(Array.from(windField.windV)).toEqual(Array.from(windV));
-    expect(Array.from(windField.currentU)).toEqual(
+    expect(Array.from(currentField?.currentU ?? [])).toEqual(
       Array.from(new Int8Array(size).fill(expectedCurrentU))
     );
-    expect(Array.from(windField.currentV)).toEqual(
+    expect(Array.from(currentField?.currentV ?? [])).toEqual(
       Array.from(new Int8Array(size).fill(expectedCurrentV))
     );
   });

@@ -18,45 +18,45 @@ or {
 ## Matches fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/geology/ops/estimate-crust/index.ts
 ops.bind(computeMesh, input);
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/geology/ops/estimate-crust/index.ts
 runValidated(operation);
 
-// @filename: mods/mod-swooper-maps/src/domain/hydrology/ops/plan-rivers/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/drainage/ops/route-channels/index.ts
 const value = items.map((item) => runValidated(item));
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 export async function run() {
   return await ops.bind(scoreBiomes, input);
 }
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/geology/ops/estimate-crust/index.ts
 ops?.bind(computeMesh, input);
 ```
 
 ## Ignores fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/geology/ops/estimate-crust/index.ts
 otherOps.bind(computeMesh, input);
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/geology/ops/estimate-crust/index.ts
 ops.bindLater(computeMesh, input);
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/geology/ops/estimate-crust/index.ts
 const bind = ops.bind;
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/geology/ops/estimate-crust/index.ts
 op.runValidated(input, config);
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/geology/ops/estimate-crust/index.ts
 const validator = runValidated;
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/geology/ops/estimate-crust/index.ts
 runValidatedLater(operation);
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
+// @filename: mods/mod-swooper-maps/src/domain/world/modules/geology/ops/estimate-crust/index.ts
 const source = "ops.bind(runValidated)";
 ```

@@ -123,9 +123,9 @@ export default createOp(Contract, { strategies });
 // @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import OperationContract from "../../contract.js";
-import strategyContract from "./contract.js";
+import definition from "./config.js";
 
-export default createStrategy(OperationContract, strategyContract, {
+export default createStrategy(OperationContract, definition, {
   run: (input) => ({ relief: input.seed }),
 });
 ```

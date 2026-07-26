@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
-import ecology from "@mapgen/domain/ecology/ops";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
+import ecology from "@mapgen/domain/ecology/router";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { observeValidatedArtifact, readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -13,6 +13,7 @@ import {
 } from "@swooper/mapgen-core/testing";
 import { artifacts as mapEcologyArtifacts } from "../../../../../../../src/recipes/standard/stages/map/ecology/artifacts/index.js";
 import { FeaturesApplyStep as featuresApplyStep } from "../../../../../../../src/recipes/standard/stages/map/ecology/steps/features-apply/step.js";
+import { TEST_MAP_SEED } from "../../../../../../setup.js";
 
 const SYNTHETIC_DIMENSIONS = { width: 2, height: 2 } as const;
 
@@ -20,7 +21,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
   it("fails loudly when intents contain unknown feature keys", () => {
     const { width, height } = SYNTHETIC_DIMENSIONS;
     const setup = admitMapSetup({
-      mapSeed: 0,
+      mapSeed: TEST_MAP_SEED,
       dimensions: SYNTHETIC_DIMENSIONS,
       latitudeBounds: { topLatitude: 1, bottomLatitude: -1 },
     });
@@ -31,7 +32,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
 
     expect(() =>
       withMapContextExecutionForTest(ctx, (stepContext) => {
-        publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+        publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
           elevation: new Int16Array(width * height),
           seaLevel: 0,
           landMask: new Uint8Array(width * height).fill(1),
@@ -39,23 +40,23 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
         });
 
         const vegetationIntent = { x: 0, y: 0, feature: "forest" } as const;
-        publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsVegetation, [
+        publishTestArtifact(stepContext, featureArtifacts.featureIntentsVegetation, [
           vegetationIntent,
         ]);
         // Simulate corrupted external evidence without widening the closed authored feature type.
         Reflect.set(vegetationIntent, "feature", "FEATURE_DOES_NOT_EXIST");
-        publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsWetlands, []);
-        publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsFloodplains, []);
-        publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsReefs, []);
-        publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsIce, []);
+        publishTestArtifact(stepContext, featureArtifacts.featureIntentsWetlands, []);
+        publishTestArtifact(stepContext, featureArtifacts.featureIntentsFloodplains, []);
+        publishTestArtifact(stepContext, featureArtifacts.featureIntentsReefs, []);
+        publishTestArtifact(stepContext, featureArtifacts.featureIntentsIce, []);
 
         const config = {
           apply: normalizeOperationSelectionForTest(
-            ecology.ops.applyFeatures,
-            ecology.ops.applyFeatures.defaultConfig
+            ecology.features.ops.applyFeatures,
+            ecology.features.ops.applyFeatures.defaultConfig
           ),
         };
-        const ops = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
+        const ops = ecology.features.ops.bind(featuresApplyStep.contract.ops!).runtime;
         featuresApplyStep.run(
           stepContext,
           config,
@@ -72,7 +73,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
   it("keeps canHaveFeature rejections non-fatal and publishes diagnostics", () => {
     const { width, height } = SYNTHETIC_DIMENSIONS;
     const setup = admitMapSetup({
-      mapSeed: 0,
+      mapSeed: TEST_MAP_SEED,
       dimensions: SYNTHETIC_DIMENSIONS,
       latitudeBounds: { topLatitude: 1, bottomLatitude: -1 },
     });
@@ -88,28 +89,28 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
     const ctx = createMapContext({ setup, adapter });
 
     withMapContextExecutionForTest(ctx, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: new Int16Array(width * height),
         seaLevel: 0,
         landMask: new Uint8Array(width * height).fill(1),
         bathymetry: new Int16Array(width * height),
       });
 
-      publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsVegetation, [
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsVegetation, [
         { x: 0, y: 0, feature: "forest" },
       ]);
-      publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsWetlands, []);
-      publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsFloodplains, []);
-      publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsReefs, []);
-      publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsIce, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsWetlands, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsFloodplains, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsReefs, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsIce, []);
 
       const config = {
         apply: normalizeOperationSelectionForTest(
-          ecology.ops.applyFeatures,
-          ecology.ops.applyFeatures.defaultConfig
+          ecology.features.ops.applyFeatures,
+          ecology.features.ops.applyFeatures.defaultConfig
         ),
       };
-      const ops = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
+      const ops = ecology.features.ops.bind(featuresApplyStep.contract.ops!).runtime;
 
       expect(() =>
         featuresApplyStep.run(
@@ -141,7 +142,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
   it("publishes the complete engine surface after terrain validation", () => {
     const { width, height } = SYNTHETIC_DIMENSIONS;
     const setup = admitMapSetup({
-      mapSeed: 0,
+      mapSeed: TEST_MAP_SEED,
       dimensions: SYNTHETIC_DIMENSIONS,
       latitudeBounds: { topLatitude: 1, bottomLatitude: -1 },
     });
@@ -163,27 +164,27 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
     const ctx = createMapContext({ setup, adapter });
 
     withMapContextExecutionForTest(ctx, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: new Int16Array(width * height),
         seaLevel: 0,
         landMask: new Uint8Array(width * height).fill(1),
         bathymetry: new Int16Array(width * height),
       });
-      publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsVegetation, [
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsVegetation, [
         { x: 0, y: 0, feature: "forest" },
       ]);
-      publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsWetlands, []);
-      publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsFloodplains, []);
-      publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsReefs, []);
-      publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsIce, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsWetlands, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsFloodplains, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsReefs, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsIce, []);
 
       const config = {
         apply: normalizeOperationSelectionForTest(
-          ecology.ops.applyFeatures,
-          ecology.ops.applyFeatures.defaultConfig
+          ecology.features.ops.applyFeatures,
+          ecology.features.ops.applyFeatures.defaultConfig
         ),
       };
-      const ops = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
+      const ops = ecology.features.ops.bind(featuresApplyStep.contract.ops!).runtime;
 
       featuresApplyStep.run(
         stepContext,

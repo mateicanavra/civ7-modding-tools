@@ -35,7 +35,7 @@ import {
   isAnyRiverClass,
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_NONE,
-} from "@mapgen/domain/hydrology/model/policy/river-class.js";
+} from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-class.js";
 import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { getHexNeighborIndicesOddQ, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";

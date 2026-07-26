@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import ecology from "@mapgen/domain/ecology/ops";
+import ecology from "@mapgen/domain/ecology/router";
 import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
 
 const createInput = () => {
@@ -24,12 +24,12 @@ describe("plot effects (owned)", () => {
   it("places permanent snow plot effects when thresholds pass", () => {
     const input = createInput();
     const scoreSnowSelection = normalizeOperationSelectionForTest(
-      ecology.ops.scorePlotEffectsSnow,
-      ecology.ops.scorePlotEffectsSnow.defaultConfig,
+      ecology.plotEffects.ops.scorePlotEffectsSnow,
+      ecology.plotEffects.ops.scorePlotEffectsSnow.defaultConfig,
       { path: "/ops/scorePlotEffectsSnow" }
     );
 
-    const scoreSnowResult = ecology.ops.scorePlotEffectsSnow.run(
+    const scoreSnowResult = ecology.plotEffects.ops.scorePlotEffectsSnow.run(
       {
         width: input.width,
         height: input.height,
@@ -44,13 +44,13 @@ describe("plot effects (owned)", () => {
     );
 
     const planSelection = normalizeOperationSelectionForTest(
-      ecology.ops.planPlotEffects,
+      ecology.plotEffects.ops.planPlotEffects,
       {
-        ...ecology.ops.planPlotEffects.defaultConfig,
+        ...ecology.plotEffects.ops.planPlotEffects.defaultConfig,
         config: {
-          ...ecology.ops.planPlotEffects.defaultConfig.config,
+          ...ecology.plotEffects.ops.planPlotEffects.defaultConfig.config,
           snow: {
-            ...ecology.ops.planPlotEffects.defaultConfig.config.snow,
+            ...ecology.plotEffects.ops.planPlotEffects.defaultConfig.config.snow,
             enabled: true,
             coveragePct: 100,
             lightThreshold: 0.1,
@@ -62,7 +62,7 @@ describe("plot effects (owned)", () => {
       { path: "/ops/planPlotEffects" }
     );
 
-    const result = ecology.ops.planPlotEffects.run(
+    const result = ecology.plotEffects.ops.planPlotEffects.run(
       {
         width: input.width,
         height: input.height,

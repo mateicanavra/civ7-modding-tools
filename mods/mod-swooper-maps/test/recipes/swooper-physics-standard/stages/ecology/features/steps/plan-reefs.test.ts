@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
-import ecology from "@mapgen/domain/ecology/ops";
-import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
+import ecology from "@mapgen/domain/ecology/router";
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -12,7 +12,7 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { PlanReefsStep as planReefsStep } from "../../../../../../../src/recipes/standard/stages/ecology/features/steps/plan-reefs/step.js";
-import { TEST_MAP_SIZE } from "../../../../../../map-size.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../setup.js";
 import { createEmptyFeatureScoreLayers } from "../fixtures/feature-score-layers.js";
 
 describe("ecology-features plan-reefs step", () => {
@@ -20,7 +20,7 @@ describe("ecology-features plan-reefs step", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const setup = admitMapSetup({
-      mapSeed: 123,
+      mapSeed: TEST_MAP_SEED,
       dimensions: TEST_MAP_SIZE.dimensions,
       latitudeBounds: {
         topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
@@ -41,18 +41,18 @@ describe("ecology-features plan-reefs step", () => {
       const layers = createEmptyFeatureScoreLayers(size);
       layers.reef.fill(1);
 
-      publishTestArtifact(stepContext, ecologyArtifacts.scoreLayers, {
+      publishTestArtifact(stepContext, featureArtifacts.scoreLayers, {
         width,
         height,
         layers,
       });
-      publishTestArtifact(stepContext, ecologyArtifacts.occupancyIce, {
+      publishTestArtifact(stepContext, featureArtifacts.occupancyIce, {
         width,
         height,
         featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyArtifacts.lakePlan, {
+      publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, {
         width,
         height,
         lakeMask: new Uint8Array(size),
@@ -62,19 +62,19 @@ describe("ecology-features plan-reefs step", () => {
 
       const config = {
         planReefs: normalizeOperationSelectionForTest(
-          ecology.ops.planReefs,
-          ecology.ops.planReefs.defaultConfig
+          ecology.features.ops.planReefs,
+          ecology.features.ops.planReefs.defaultConfig
         ),
       };
-      const ops = ecology.ops.bind(planReefsStep.contract.ops!).runtime;
+      const ops = ecology.features.ops.bind(planReefsStep.contract.ops!).runtime;
       planReefsStep.run(stepContext, config, ops, buildStepTestDependencies(planReefsStep));
     });
 
-    const intents = readValidatedArtifact(ctx, ecologyArtifacts.featureIntentsReefs);
+    const intents = readValidatedArtifact(ctx, featureArtifacts.featureIntentsReefs);
     expect(Array.isArray(intents)).toBe(true);
     expect(intents.length).toBeGreaterThan(0);
 
-    const occupancy = readValidatedArtifact(ctx, ecologyArtifacts.occupancyReefs);
+    const occupancy = readValidatedArtifact(ctx, featureArtifacts.occupancyReefs);
     expect(occupancy.width).toBe(width);
     expect(occupancy.height).toBe(height);
     expect(occupancy.featureOccupancyMask instanceof Uint8Array).toBe(true);

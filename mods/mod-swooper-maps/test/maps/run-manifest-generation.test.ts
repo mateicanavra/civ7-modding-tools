@@ -23,6 +23,7 @@ import {
   type StandardMapConfigEnvelope,
 } from "../../src/maps/configs/canonical";
 import { expectCiv7MapScriptCompatibility } from "../build/fixtures/civ7-map-script-compatibility";
+import { TEST_GAME_SEED, TEST_MAP_SEED, TEST_MAP_SIZE } from "../setup.js";
 
 describe("Swooper run manifest generator", () => {
   test("requires exactly one manifest path", () => {
@@ -155,7 +156,7 @@ describe("Swooper run manifest generator", () => {
       expect(verifiedRun.renderInput.config).toEqual(
         admitStandardMapConfig(manifest.payload.launchEnvelope.canonicalConfig)
       );
-      expect(verifiedRun.renderInput.seed).toBe(1538316418);
+      expect(verifiedRun.renderInput.seed).toBe(TEST_MAP_SEED);
       expect(verifiedRun.renderInput.correlation.requestId).toBe(manifest.payload.requestId);
     } finally {
       await rm(workspaceRoot, { recursive: true, force: true });
@@ -325,10 +326,10 @@ function manifestInput(
   if (!sourceCanonicalConfig) throw new Error("latest-juicy config fixture is missing");
   const canonicalConfig = sourceCanonicalConfig;
   const launchEnvelope = {
-    seed: 1538316418,
-    gameSeed: -1538316418,
+    seed: TEST_MAP_SEED,
+    gameSeed: TEST_GAME_SEED,
     worldSettings: {
-      mapSize: "MAPSIZE_STANDARD",
+      mapSize: TEST_MAP_SIZE.id,
     },
     setupConfig: {
       gameOptions: {},

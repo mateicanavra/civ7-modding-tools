@@ -2,7 +2,8 @@ import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import {
@@ -12,7 +13,7 @@ import {
 } from "@swooper/mapgen-core/testing";
 import { PlotCoastsStep } from "../../../../../../../src/recipes/standard/stages/map/morphology/steps/plot-coasts/step.js";
 import { PlotContinentsStep } from "../../../../../../../src/recipes/standard/stages/map/morphology/steps/plot-continents/step.js";
-import { TEST_MAP_SIZE } from "../../../../../../map-size.js";
+import { TEST_MAP_SIZE } from "../../../../../../setup.js";
 
 function shelfFixture(size: number, shelfMask: Uint8Array, coastalWater: Uint8Array) {
   return {
@@ -61,7 +62,7 @@ describe("map-morphology/plot-coasts", () => {
     shelfMask[width + 2] = 1; // (2,1)
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask,
@@ -69,7 +70,7 @@ describe("map-morphology/plot-coasts", () => {
       });
       publishTestArtifact(
         stepContext,
-        morphologyArtifacts.shelf,
+        morphologyShelfArtifacts.shelf,
         shelfFixture(size, shelfMask, coastalWater)
       );
 
@@ -128,7 +129,7 @@ describe("map-morphology/plot-coasts", () => {
     shelfMask[shelfIndex] = 1;
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask,
@@ -136,7 +137,7 @@ describe("map-morphology/plot-coasts", () => {
       });
       publishTestArtifact(
         stepContext,
-        morphologyArtifacts.shelf,
+        morphologyShelfArtifacts.shelf,
         shelfFixture(size, shelfMask, coastalWater)
       );
 

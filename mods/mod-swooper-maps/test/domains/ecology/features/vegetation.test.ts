@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/model/schemas/index.js";
-import ecology from "@mapgen/domain/ecology/ops";
+import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology";
+import ecology from "@mapgen/domain/ecology/router";
 
 import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
 
@@ -21,8 +21,8 @@ describe("planVegetation (joint resolver)", () => {
     const { width, height } = syntheticDimensions;
     const size = width * height;
     const selection = normalizeOperationSelectionForTest(
-      ecology.ops.planVegetation,
-      ecology.ops.planVegetation.defaultConfig
+      ecology.features.ops.planVegetation,
+      ecology.features.ops.planVegetation.defaultConfig
     );
 
     const scoreForest01 = new Float32Array(size);
@@ -56,7 +56,7 @@ describe("planVegetation (joint resolver)", () => {
     const reserved = new Uint8Array(size);
     reserved[3] = 1;
 
-    const result = ecology.ops.planVegetation.run(
+    const result = ecology.features.ops.planVegetation.run(
       {
         width,
         height,
@@ -82,8 +82,8 @@ describe("planVegetation (joint resolver)", () => {
     const { width, height } = syntheticDimensions;
     const size = width * height;
     const selection = normalizeOperationSelectionForTest(
-      ecology.ops.planVegetation,
-      ecology.ops.planVegetation.defaultConfig
+      ecology.features.ops.planVegetation,
+      ecology.features.ops.planVegetation.defaultConfig
     );
 
     const input = {
@@ -100,8 +100,8 @@ describe("planVegetation (joint resolver)", () => {
       reserved: new Uint8Array(size),
     } as const;
 
-    const a = ecology.ops.planVegetation.run({ ...input, seed: 123 }, selection);
-    const b = ecology.ops.planVegetation.run({ ...input, seed: 987654 }, selection);
+    const a = ecology.features.ops.planVegetation.run({ ...input, seed: 123 }, selection);
+    const b = ecology.features.ops.planVegetation.run({ ...input, seed: 987654 }, selection);
     expect(b).toEqual(a);
   });
 
@@ -109,10 +109,10 @@ describe("planVegetation (joint resolver)", () => {
     const syntheticDimensions = { width: 1, height: 3 } as const;
     const { width, height } = syntheticDimensions;
     const size = width * height;
-    const selection = normalizeOperationSelectionForTest(ecology.ops.planVegetation, {
-      ...ecology.ops.planVegetation.defaultConfig,
+    const selection = normalizeOperationSelectionForTest(ecology.features.ops.planVegetation, {
+      ...ecology.features.ops.planVegetation.defaultConfig,
       config: {
-        ...ecology.ops.planVegetation.defaultConfig.config,
+        ...ecology.features.ops.planVegetation.defaultConfig.config,
         forestMinConfidence01: 0.2,
         rainforestMinConfidence01: 0.5,
         taigaMinConfidence01: 0.1,
@@ -142,7 +142,7 @@ describe("planVegetation (joint resolver)", () => {
     habitat.surfaceTemperature[2] = 18;
     habitat.vegetationDensity[2] = 0.2;
 
-    const result = ecology.ops.planVegetation.run(
+    const result = ecology.features.ops.planVegetation.run(
       {
         width,
         height,
@@ -170,10 +170,10 @@ describe("planVegetation (joint resolver)", () => {
     const syntheticDimensions = { width: 1, height: 2 } as const;
     const { width, height } = syntheticDimensions;
     const size = width * height;
-    const selection = normalizeOperationSelectionForTest(ecology.ops.planVegetation, {
-      ...ecology.ops.planVegetation.defaultConfig,
+    const selection = normalizeOperationSelectionForTest(ecology.features.ops.planVegetation, {
+      ...ecology.features.ops.planVegetation.defaultConfig,
       config: {
-        ...ecology.ops.planVegetation.defaultConfig.config,
+        ...ecology.features.ops.planVegetation.defaultConfig.config,
         forestMinConfidence01: 0,
         rainforestMinConfidence01: 0,
         taigaMinConfidence01: 0,
@@ -189,7 +189,7 @@ describe("planVegetation (joint resolver)", () => {
     habitat.surfaceTemperature[1] = 22;
     habitat.vegetationDensity.fill(0.2);
 
-    const result = ecology.ops.planVegetation.run(
+    const result = ecology.features.ops.planVegetation.run(
       {
         width,
         height,

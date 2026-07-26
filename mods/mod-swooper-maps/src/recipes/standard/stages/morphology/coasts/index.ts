@@ -709,18 +709,18 @@ export default createStage({
   }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     "landmass-plates": {
-      beltDrivers: defaultEnvelope(morphology.ops.computeBeltDrivers, {}),
-      substrate: defaultEnvelope(morphology.ops.computeSubstrate, config.substrate),
-      baseTopography: defaultEnvelope(morphology.ops.computeBaseTopography, config.relief),
+      beltDrivers: defaultEnvelope(morphology.terrain.ops.computeBeltDrivers, {}),
+      substrate: defaultEnvelope(morphology.terrain.ops.computeSubstrate, config.substrate),
+      baseTopography: defaultEnvelope(morphology.terrain.ops.computeBaseTopography, config.relief),
       sculptContinentalMargin: defaultEnvelope(
-        morphology.ops.computeSculptContinentalMargin,
+        morphology.coasts.ops.computeSculptContinentalMargin,
         config.continentalMargin
       ),
-      seaLevel: defaultEnvelope(morphology.ops.computeSeaLevel, config.waterCoverage),
-      landmask: defaultEnvelope(morphology.ops.computeLandmask, config.continents),
+      seaLevel: defaultEnvelope(morphology.terrain.ops.computeSeaLevel, config.waterCoverage),
+      landmask: defaultEnvelope(morphology.terrain.ops.computeLandmask, config.continents),
     },
     "rugged-coasts": {
-      coastlines: defaultEnvelope(morphology.ops.computeCoastlineMetrics, {
+      coastlines: defaultEnvelope(morphology.coasts.ops.computeCoastlineMetrics, {
         coast: config.coastlineShape,
       }),
     },

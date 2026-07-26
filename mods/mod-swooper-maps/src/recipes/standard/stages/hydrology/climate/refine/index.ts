@@ -34,7 +34,7 @@ const knobsSchema = Type.Object(
      * Global moisture availability bias (not regional).
      *
      * Stage scope:
-     * - Transforms bounded refine deltas and diagnostics biases.
+     * - Transforms bounded precipitation-refinement deltas.
      * - Must not change baseline climate generation (that belongs to climate-baseline).
      */
     dryness: HydrologyDrynessKnobSchema,
@@ -42,7 +42,7 @@ const knobsSchema = Type.Object(
      * Global thermal bias.
      *
      * Stage scope:
-     * - Transforms thermal regime over the defaulted baseline for refine/diagnostics.
+     * - Transforms the refined thermal regime over the defaulted baseline.
      */
     temperature: HydrologyTemperatureKnobSchema,
     /**
@@ -68,7 +68,7 @@ function defaultEnvelope<const Strategy extends string>(
 
 /**
  * Compiles bounded precipitation, thermal, albedo, and cryosphere refinement
- * controls into the post-hydrography climate diagnostic pass.
+ * controls into the post-hydrography climate pass.
  */
 export default createStage({
   id: "hydrology-climate-refine",
@@ -84,25 +84,24 @@ export default createStage({
         config: config.precipitationRefinement,
       },
       computeRadiativeForcing: defaultEnvelope(
-        hydrology.ops.computeRadiativeForcing,
+        hydrology.climate.ops.computeRadiativeForcing,
         config.solarForcing
       ),
-      computeThermalState: defaultEnvelope(hydrology.ops.computeThermalState, config.thermalState),
+      computeThermalState: defaultEnvelope(
+        hydrology.climate.ops.computeThermalState,
+        config.thermalState
+      ),
       applyAlbedoFeedback: defaultEnvelope(
-        hydrology.ops.applyAlbedoFeedback,
+        hydrology.cryosphere.ops.applyAlbedoFeedback,
         config.albedoFeedback
       ),
       computeCryosphereState: defaultEnvelope(
-        hydrology.ops.computeCryosphereState,
+        hydrology.cryosphere.ops.computeCryosphereState,
         config.cryosphereState
       ),
       computeLandWaterBudget: defaultEnvelope(
-        hydrology.ops.computeLandWaterBudget,
+        hydrology.climate.ops.computeLandWaterBudget,
         config.landWaterBudget
-      ),
-      computeClimateDiagnostics: defaultEnvelope(
-        hydrology.ops.computeClimateDiagnostics,
-        config.diagnostics
       ),
     },
   }),

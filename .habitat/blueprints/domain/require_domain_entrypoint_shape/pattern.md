@@ -43,9 +43,9 @@ or {
 ```typescript
 // @filename: mods/example-mod/src/domain/weather/index.ts
 import { defineDomain } from "@swooper/mapgen-core/authoring/contracts";
-import ops from "./ops/contract.js";
+import thermal from "./modules/thermal/contract.js";
 
-const domain = defineDomain({ id: "weather", ops } as const);
+const domain = defineDomain("weather", { thermal });
 export default domain;
 
 // @filename: mods/alternate-mod/src/domain/terrain/index.ts
@@ -59,7 +59,7 @@ export { executeSettlement } from "./modules/build-settlement/ops/build/index.js
 
 // @filename: mods/example-mod/src/domain/ocean/index.ts
 export { default } from "./contract.js";
-export { OceanCellSchema } from "./atoms/index.js";
+export { OceanCellSchema } from "./model/atoms/index.js";
 
 // @filename: mods/example-mod/src/domain/ecology/index.ts
 export { default } from "./contract.js";

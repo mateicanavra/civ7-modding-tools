@@ -1,6 +1,8 @@
-import { default as ecology, artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
-import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import ecology from "@mapgen/domain/ecology";
+import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
+import { artifacts as plotEffectArtifacts } from "@mapgen/domain/ecology/modules/plot-effects/artifacts/index.js";
+import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -16,18 +18,18 @@ export const PlanPlotEffectsStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [
-      morphologyArtifacts.topography,
-      hydrologyArtifacts.climateIndices,
-      ecologyArtifacts.biomeClassification,
+      morphologyLandformsArtifacts.topography,
+      climateArtifacts.climateIndices,
+      biomeArtifacts.biomeClassification,
     ],
-    provides: [ecologyArtifacts.plotEffectPlan],
+    provides: [plotEffectArtifacts.plotEffectPlan],
   },
   ops: {
-    scoreSnow: ecology.ops.scorePlotEffectsSnow,
-    scoreSand: ecology.ops.scorePlotEffectsSand,
-    scoreBurned: ecology.ops.scorePlotEffectsBurned,
-    scoreJungle: ecology.ops.scorePlotEffectsJungle,
-    plotEffects: ecology.ops.planPlotEffects,
+    scoreSnow: ecology.plotEffects.ops.scorePlotEffectsSnow,
+    scoreSand: ecology.plotEffects.ops.scorePlotEffectsSand,
+    scoreBurned: ecology.plotEffects.ops.scorePlotEffectsBurned,
+    scoreJungle: ecology.plotEffects.ops.scorePlotEffectsJungle,
+    plotEffects: ecology.plotEffects.ops.planPlotEffects,
   },
   schema: Type.Object(
     {},

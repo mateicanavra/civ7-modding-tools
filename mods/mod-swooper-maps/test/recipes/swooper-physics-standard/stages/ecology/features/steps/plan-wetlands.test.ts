@@ -1,10 +1,11 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
-import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/model/schemas/index.js";
-import ecology from "@mapgen/domain/ecology/ops";
-import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology";
+import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
+import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
+import ecology from "@mapgen/domain/ecology/router";
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -14,7 +15,7 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { PlanWetlandsStep as planWetlandsStep } from "../../../../../../../src/recipes/standard/stages/ecology/features/steps/plan-wetlands/step.js";
-import { TEST_MAP_SIZE } from "../../../../../../map-size.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../setup.js";
 import { createEmptyFeatureScoreLayers } from "../fixtures/feature-score-layers.js";
 
 describe("ecology-features plan-wetlands step", () => {
@@ -22,7 +23,7 @@ describe("ecology-features plan-wetlands step", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const setup = admitMapSetup({
-      mapSeed: 123,
+      mapSeed: TEST_MAP_SEED,
       dimensions: TEST_MAP_SIZE.dimensions,
       latitudeBounds: {
         topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
@@ -44,25 +45,25 @@ describe("ecology-features plan-wetlands step", () => {
       const layers = createEmptyFeatureScoreLayers(size);
       layers.marsh.fill(1);
 
-      publishTestArtifact(stepContext, ecologyArtifacts.biomeClassification, {
+      publishTestArtifact(stepContext, biomeArtifacts.biomeClassification, {
         width,
         height,
         biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid),
         vegetationDensity: new Float32Array(size).fill(0.4),
         treeLine01: new Float32Array(size),
       });
-      publishTestArtifact(stepContext, ecologyArtifacts.scoreLayers, {
+      publishTestArtifact(stepContext, featureArtifacts.scoreLayers, {
         width,
         height,
         layers,
       });
-      publishTestArtifact(stepContext, ecologyArtifacts.occupancyReefs, {
+      publishTestArtifact(stepContext, featureArtifacts.occupancyReefs, {
         width,
         height,
         featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyArtifacts.hydrography, {
+      publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
         runoff: new Float32Array(size),
         discharge: new Float32Array(size),
         riverClass: new Uint8Array(size),
@@ -74,20 +75,20 @@ describe("ecology-features plan-wetlands step", () => {
         depressionDepth: new Float32Array(size),
         terminalType: new Uint8Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyArtifacts.lakePlan, {
+      publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, {
         width,
         height,
         lakeMask: new Uint8Array(size),
         plannedLakeTileCount: 0,
         sinkLakeCount: 0,
       });
-      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask: new Uint8Array(size).fill(1),
         bathymetry: new Int16Array(size),
       });
-      publishTestArtifact(stepContext, morphologyArtifacts.mountains, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.mountains, {
         mountainMask: new Uint8Array(size),
         mountainRegionMask: new Uint8Array(size),
         mountainRegionIdByTile: new Int32Array(size).fill(-1),
@@ -98,26 +99,26 @@ describe("ecology-features plan-wetlands step", () => {
         fracturePotential: new Uint8Array(size),
         roughnessPotential: new Uint8Array(size),
       });
-      publishTestArtifact(stepContext, morphologyArtifacts.volcanoes, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.volcanoes, {
         volcanoMask: new Uint8Array(size),
         volcanoes: [],
       });
 
       const config = {
         planWetlands: normalizeOperationSelectionForTest(
-          ecology.ops.planWetlands,
-          ecology.ops.planWetlands.defaultConfig
+          ecology.features.ops.planWetlands,
+          ecology.features.ops.planWetlands.defaultConfig
         ),
       };
-      const ops = ecology.ops.bind(planWetlandsStep.contract.ops!).runtime;
+      const ops = ecology.features.ops.bind(planWetlandsStep.contract.ops!).runtime;
       planWetlandsStep.run(stepContext, config, ops, buildStepTestDependencies(planWetlandsStep));
     });
 
-    const intents = readValidatedArtifact(ctx, ecologyArtifacts.featureIntentsWetlands);
+    const intents = readValidatedArtifact(ctx, featureArtifacts.featureIntentsWetlands);
     expect(Array.isArray(intents)).toBe(true);
     expect(intents.length).toBeGreaterThan(0);
 
-    const occupancy = readValidatedArtifact(ctx, ecologyArtifacts.occupancyWetlands);
+    const occupancy = readValidatedArtifact(ctx, featureArtifacts.occupancyWetlands);
     expect(occupancy.width).toBe(width);
     expect(occupancy.height).toBe(height);
     expect(occupancy.featureOccupancyMask instanceof Uint8Array).toBe(true);

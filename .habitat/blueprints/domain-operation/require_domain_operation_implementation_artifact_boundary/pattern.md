@@ -50,7 +50,7 @@ type Drift = Static<
   typeof import("../../../artifacts/index.js").artifacts.drift.schema
 >;
 
-// @filename: mods/example-mod/src/domain/climate/ops/measure-rain/types.ts
+// @filename: mods/example-mod/src/domain/climate/modules/thermal/ops/measure-rain/types.ts
 export type Rain = Static<typeof import("../../artifacts/rain.artifact.js").artifact.schema>;
 ```
 

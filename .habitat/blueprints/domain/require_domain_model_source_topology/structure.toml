@@ -9,6 +9,7 @@ allowEmpty = true
 allowed = [
   "atoms",
   "policy",
+  "rules",
 ]
 
 [[scopes]]
@@ -20,4 +21,5 @@ allowEmpty = true
 allowed = [
   "atoms",
   "policy",
+  "rules",
 ]

@@ -11,10 +11,10 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "advisory",
+  "lane": "enforced",
   "forbids": "recipe or map source importing domain code outside the aggregate contract, runtime router, model atoms or policy, and module-owned artifact catalogs",
   "why": "Recipes compose a domain through its aggregate contract and router, consume immutable products from their semantic module, and read named vocabulary from the nearest model owner. They do not reach through a module into operations, rules, or private implementations.",
-  "remediate": null,
+  "remediate": "Import the aggregate contract from @mapgen/domain/<domain>, runtime composition from its /router surface, shared vocabulary from the nearest model/atoms or model/policy owner, and immutable products from the exact modules/<module>/artifacts catalog. Move any needed private operation behavior behind one of those public owners instead of deep-importing it.",
   "message": "Recipe and map source may import domain code only through the root contract/router, nearest model atoms or policy, and module artifact catalogs.",
   "pathCoverage": [
     {

@@ -1,6 +1,6 @@
+import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
-import { artifacts as hydrologyClimateRefineArtifacts } from "@mapgen/domain/hydrology";
 
 const ProjectRainfallStepConfigSchema = Type.Object(
   {},
@@ -21,7 +21,7 @@ export const ProjectRainfallStepContract = defineStep({
   requires: [],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.rainfallProjected],
   artifacts: {
-    requires: [hydrologyClimateRefineArtifacts.climateField],
+    requires: [climateArtifacts.climateField],
     provides: [],
   },
   schema: ProjectRainfallStepConfigSchema,

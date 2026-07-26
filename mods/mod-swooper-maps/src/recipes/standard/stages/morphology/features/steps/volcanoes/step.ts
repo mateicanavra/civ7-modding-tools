@@ -2,7 +2,7 @@ import {
   MORPHOLOGY_VOLCANISM_BASE_DENSITY_MULTIPLIER,
   MORPHOLOGY_VOLCANISM_CONVERGENT_MULTIPLIER_MULTIPLIER,
   MORPHOLOGY_VOLCANISM_HOTSPOT_WEIGHT_MULTIPLIER,
-} from "@mapgen/domain/morphology/model/policy/landform-knob-policy.js";
+} from "@mapgen/domain/morphology/modules/landforms/model/policy/landform-knob-policy.js";
 import { deriveStepSeed, xyFromIndex } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampFinite } from "@swooper/mapgen-core/lib/math";

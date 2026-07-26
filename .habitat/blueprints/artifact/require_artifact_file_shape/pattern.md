@@ -32,10 +32,6 @@ predicate disallowed_public_artifact_dependency($source) {
   ! $source <: r"^[\"']?(?:@swooper/mapgen-core/(?:authoring/contracts|lib(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*)|@civ7/(?:types|map-policy)|@mapgen/domain/[a-z0-9]+(?:-[a-z0-9]+)*)[\"']?$"
 }
 
-predicate disallowed_domain_root_artifact_dependency($source) {
-  ! $source <: r"^[\"']?(?:@swooper/mapgen-core/(?:authoring/contracts|lib(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*)|@civ7/(?:types|map-policy)|@mapgen/domain/[a-z0-9]+(?:-[a-z0-9]+)*|\.\./model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js)[\"']?$"
-}
-
 predicate disallowed_domain_module_artifact_dependency($source) {
   ! $source <: r"^[\"']?(?:@swooper/mapgen-core/(?:authoring/contracts|lib(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*)|@civ7/(?:types|map-policy)|@mapgen/domain/[a-z0-9]+(?:-[a-z0-9]+)*|(?:\.\./model|(?:\.\./){3}model)/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js)[\"']?$"
 }
@@ -53,15 +49,10 @@ or {
     ! is_inline_artifact_refinement($refine)
   },
   import_statement(source=$source) where {
-    $filename <: r".*mods/[^/]+/src/domain/[^/]+/artifacts/[^/]+\.artifact\.ts$",
-    disallowed_domain_root_artifact_dependency($source)
-  },
-  import_statement(source=$source) where {
     $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/artifacts/[^/]+\.artifact\.ts$",
     disallowed_domain_module_artifact_dependency($source)
   },
   import_statement(source=$source) where {
-    ! $filename <: r".*mods/[^/]+/src/domain/[^/]+/artifacts/[^/]+\.artifact\.ts$",
     ! $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/artifacts/[^/]+\.artifact\.ts$",
     disallowed_public_artifact_dependency($source)
   },
@@ -146,7 +137,7 @@ export const artifact = defineArtifact({
 });
 
 // @filename: mods/example-mod/src/domain/geology/modules/strata/artifacts/private-operation-contract.artifact.ts
-import Contract from "../ops/classify-surface/config.js";
+import Contract from "../ops/classify-surface/contract.js";
 import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 const Schema = Type.Object({});

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import ecology from "@mapgen/domain/ecology/ops";
+import ecology from "@mapgen/domain/ecology/router";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 
 describe("ecology defaults regression", () => {
@@ -7,7 +7,7 @@ describe("ecology defaults regression", () => {
     const syntheticDimensions = { width: 2, height: 1 } as const;
     const { width, height } = syntheticDimensions;
     const result = runAdmittedOperationForTest(
-      ecology.ops.classifyBiomes,
+      ecology.biomes.ops.classifyBiomes,
       {
         width,
         height,
@@ -19,7 +19,7 @@ describe("ecology defaults regression", () => {
         soilType: new Uint8Array([0, 0]),
         fertility: new Float32Array([0, 0]),
       },
-      ecology.ops.classifyBiomes.defaultConfig
+      ecology.biomes.ops.classifyBiomes.defaultConfig
     );
 
     expect(result.surfaceTemperature[0]).toBeGreaterThan(result.surfaceTemperature[1]);
@@ -29,7 +29,7 @@ describe("ecology defaults regression", () => {
     const syntheticDimensions = { width: 1, height: 1 } as const;
     const { width, height } = syntheticDimensions;
     const result = runAdmittedOperationForTest(
-      ecology.ops.planWetlands,
+      ecology.features.ops.planWetlands,
       {
         width,
         height,
@@ -43,7 +43,7 @@ describe("ecology defaults regression", () => {
         featureOccupancyMask: new Uint8Array([0]),
         reserved: new Uint8Array([0]),
       },
-      ecology.ops.planWetlands.defaultConfig
+      ecology.features.ops.planWetlands.defaultConfig
     );
 
     expect(result.placements).toHaveLength(0);
@@ -53,7 +53,7 @@ describe("ecology defaults regression", () => {
     const syntheticDimensions = { width: 1, height: 1 } as const;
     const { width, height } = syntheticDimensions;
     const substrate = runAdmittedOperationForTest(
-      ecology.ops.computeVegetationSubstrate,
+      ecology.features.ops.computeVegetationSubstrate,
       {
         width,
         height,
@@ -65,18 +65,18 @@ describe("ecology defaults regression", () => {
         vegetationDensity: new Float32Array([0.6]),
         fertility: new Float32Array([0]),
       },
-      ecology.ops.computeVegetationSubstrate.defaultConfig
+      ecology.features.ops.computeVegetationSubstrate.defaultConfig
     );
 
     const result = runAdmittedOperationForTest(
-      ecology.ops.scoreVegetationForest,
+      ecology.features.ops.scoreVegetationForest,
       {
         width,
         height,
         landMask: new Uint8Array([1]),
         ...substrate,
       },
-      ecology.ops.scoreVegetationForest.defaultConfig
+      ecology.features.ops.scoreVegetationForest.defaultConfig
     );
 
     const score = result.score01[0];

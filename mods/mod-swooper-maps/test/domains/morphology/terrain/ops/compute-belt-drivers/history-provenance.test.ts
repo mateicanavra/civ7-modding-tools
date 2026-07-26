@@ -1,0 +1,155 @@
+import { describe, expect, it } from "bun:test";
+
+import morphologyDomain from "@mapgen/domain/morphology/router";
+import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
+import { TEST_MAP_SIZE } from "../../../../../setup.js";
+import { createBeltDriverEvidence } from "./fixtures/belt-driver-evidence.js";
+
+const { computeBeltDrivers } = morphologyDomain.terrain.ops;
+
+function sumMask(mask: Uint8Array): number {
+  let count = 0;
+  for (let i = 0; i < mask.length; i++) if (mask[i] === 1) count++;
+  return count;
+}
+
+describe("morphology belt synthesis (history + provenance)", () => {
+  it("noise-only inputs cannot create belts", () => {
+    const { width, height } = TEST_MAP_SIZE.dimensions;
+    const { historyTiles, provenanceTiles } = createBeltDriverEvidence(width, height, 3);
+
+    const drivers = computeBeltDrivers.run(
+      {
+        width,
+        height,
+        historyTiles,
+        provenanceTiles,
+      },
+      computeBeltDrivers.defaultConfig
+    );
+
+    expect(sumMask(drivers.beltMask)).toBe(0);
+    expect(Array.from(drivers.boundaryCloseness)).toEqual(Array(width * height).fill(0));
+    expect(Array.from(drivers.upliftPotential)).toEqual(Array(width * height).fill(0));
+  });
+
+  it("belt corridors remain contiguous under gap filling", () => {
+    const syntheticDimensions = { width: 20, height: 1 } as const;
+    const { width, height } = syntheticDimensions;
+    const { historyTiles, provenanceTiles } = createBeltDriverEvidence(width, height, 3);
+    const era = historyTiles.perEra[2]!;
+
+    // Declare a boundary corridor, but shape intensity so we get stable, deterministic seed peaks.
+    for (let i = 4; i <= 11; i++) {
+      era.boundaryType[i] = 1;
+      historyTiles.rollups.lastActiveEra[i] = 2;
+    }
+    era.upliftPotential[6] = 180;
+    era.upliftPotential[8] = 220;
+    era.upliftPotential[10] = 190;
+
+    const drivers = computeBeltDrivers.run(
+      {
+        width,
+        height,
+        historyTiles,
+        provenanceTiles,
+      },
+      computeBeltDrivers.defaultConfig
+    );
+
+    // Belts are seeded from a sparse spine, but proximity influence should still reach
+    // corridor-adjacent tiles. Ensure we're not collapsing into "no belts" behavior.
+    expect(sumMask(drivers.beltMask)).toBeGreaterThan(0);
+    expect(drivers.boundaryCloseness[8]).toBeGreaterThan(200);
+    expect(drivers.boundaryCloseness[7]).toBeGreaterThan(0);
+    expect(drivers.boundaryCloseness[0]).toBe(0);
+  });
+
+  it("diffusion seeds only from positive-intensity sources (zero-intensity belt tiles do not suppress seeding)", () => {
+    const syntheticDimensions = { width: 20, height: 1 } as const;
+    const { width, height } = syntheticDimensions;
+    const { historyTiles, provenanceTiles } = createBeltDriverEvidence(width, height, 3);
+    const era = historyTiles.perEra[2]!;
+
+    // Declare a long convergent boundary corridor with intensity only on an interior segment.
+    // Gap-fill produces a beltMask corridor that includes some boundaryType tiles with zero intensity.
+    // Those zero-intensity belt tiles must not become diffusion "seeds" (otherwise they can suppress
+    // influence by becoming the nearest seed with intensity=0).
+    for (let i = 4; i <= 14; i++) {
+      era.boundaryType[i] = 1;
+      historyTiles.rollups.lastActiveEra[i] = 2;
+    }
+    for (let i = 6; i <= 12; i++) {
+      era.upliftPotential[i] = 220;
+    }
+
+    const drivers = computeBeltDrivers.run(
+      {
+        width,
+        height,
+        historyTiles,
+        provenanceTiles,
+      },
+      computeBeltDrivers.defaultConfig
+    );
+
+    // Belt exists (component length >= MIN_BELT_LENGTH), so tiles near the corridor should receive influence.
+    expect(sumMask(drivers.beltMask)).toBeGreaterThan(0);
+    expect(drivers.boundaryCloseness[4]).toBeGreaterThan(0);
+    expect(drivers.boundaryCloseness[0]).toBe(0);
+  });
+
+  it("older belts diffuse wider than newer belts", () => {
+    const syntheticDimensions = { width: 24, height: 1 } as const;
+    const { width, height } = syntheticDimensions;
+    const { historyTiles, provenanceTiles } = createBeltDriverEvidence(width, height, 3);
+    const authorBelt = (input: {
+      start: number;
+      end: number;
+      seed: number;
+      eraIndex: number;
+      recentFraction: number;
+    }) => {
+      const era = historyTiles.perEra[input.eraIndex]!;
+      for (let index = input.start; index <= input.end; index++) {
+        era.boundaryType[index] = BOUNDARY_TYPE.convergent;
+        era.upliftPotential[index] = 1;
+        historyTiles.rollups.upliftTotal[index] = 1;
+        historyTiles.rollups.upliftRecentFraction[index] = input.recentFraction;
+        historyTiles.rollups.lastActiveEra[index] = input.eraIndex;
+        provenanceTiles.originEra[index] = input.eraIndex;
+        provenanceTiles.lastBoundaryType[index] = BOUNDARY_TYPE.convergent;
+      }
+      era.upliftPotential[input.seed] = 220;
+      historyTiles.rollups.upliftTotal[input.seed] = 220;
+    };
+
+    authorBelt({ start: 2, end: 7, seed: 4, eraIndex: 2, recentFraction: 255 });
+    authorBelt({ start: 16, end: 21, seed: 18, eraIndex: 0, recentFraction: 0 });
+
+    const drivers = computeBeltDrivers.run(
+      {
+        width,
+        height,
+        historyTiles,
+        provenanceTiles,
+      },
+      computeBeltDrivers.defaultConfig
+    );
+
+    // Newer belts should diffuse over fewer tiles than older belts.
+    const newSeed = 4;
+    const oldSeed = 18;
+    let newInfluence = 0;
+    let oldInfluence = 0;
+    for (let i = 0; i < width; i++) {
+      if ((drivers.boundaryCloseness[i] ?? 0) <= 0) continue;
+      if ((drivers.beltNearestSeed[i] ?? -1) === newSeed) newInfluence++;
+      if ((drivers.beltNearestSeed[i] ?? -1) === oldSeed) oldInfluence++;
+    }
+    expect(newInfluence).toBeGreaterThan(0);
+    expect(oldInfluence).toBeGreaterThan(0);
+    expect(oldInfluence).toBeGreaterThan(newInfluence);
+  });
+});

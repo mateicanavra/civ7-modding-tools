@@ -8,7 +8,7 @@ import {
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_MINOR,
   RIVER_CLASS_NONE,
-} from "@mapgen/domain/hydrology/model/policy/river-class.js";
+} from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-class.js";
 
 describe("hydrology river class contract", () => {
   it("keeps minor and major/projectable river intent distinct", () => {

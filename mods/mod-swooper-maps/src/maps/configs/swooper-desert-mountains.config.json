@@ -67,20 +67,8 @@
         "regimeMinIntensity": 4
       },
       "tectonicEras": {
-        "eraWeights": [
-          0.3,
-          0.25,
-          0.2,
-          0.15,
-          0.1
-        ],
-        "driftStepsByEra": [
-          12,
-          9,
-          6,
-          3,
-          1
-        ]
+        "eraWeights": [0.3, 0.25, 0.2, 0.15, 0.1],
+        "driftStepsByEra": [12, 9, 6, 3, 1]
       },
       "tectonicFields": {
         "beltInfluenceDistance": 8,
@@ -433,12 +421,6 @@
         "petTemperatureWeight": 140,
         "humidityDampening": 0.45
       },
-      "diagnostics": {
-        "barrierSteps": 4,
-        "barrierElevationM": 500,
-        "continentalityMaxDist": 12,
-        "convergenceNormalization": 64
-      },
       "knobs": {
         "dryness": "dry",
         "temperature": "temperate",
@@ -469,12 +451,7 @@
           "tropicalThreshold": 25
         },
         "moisture": {
-          "thresholds": [
-            180,
-            240,
-            300,
-            340
-          ]
+          "thresholds": [180, 240, 300, 340]
         },
         "aridity": {
           "temperatureMin": 2,
@@ -485,10 +462,7 @@
           "rainfallWeight": 0.95,
           "bias": 24,
           "normalization": 76,
-          "moistureShiftThresholds": [
-            0.38,
-            0.62
-          ],
+          "moistureShiftThresholds": [0.38, 0.62],
           "vegetationPenalty": 0.31
         },
         "vegetation": {
@@ -640,10 +614,7 @@
           "maxFreeze": 0.2,
           "maxVegetation": 0.15,
           "maxMoisture": 70,
-          "allowedBiomes": [
-            "desert",
-            "temperateDry"
-          ]
+          "allowedBiomes": ["desert", "temperateDry"]
         },
         "burned": {
           "minAridity": 0.62,
@@ -651,19 +622,13 @@
           "maxFreeze": 0.15,
           "maxVegetation": 0.22,
           "maxMoisture": 90,
-          "allowedBiomes": [
-            "desert",
-            "temperateDry",
-            "tropicalSeasonal"
-          ]
+          "allowedBiomes": ["desert", "temperateDry", "tropicalSeasonal"]
         },
         "jungle": {
           "minTemperature": 22,
           "minMoisture": 110,
           "minVegetation": 0.45,
-          "allowedBiomes": [
-            "tropicalRainforest"
-          ]
+          "allowedBiomes": ["tropicalRainforest"]
         }
       },
       "plotEffectCoverage": {
@@ -700,15 +665,6 @@
     "map-rivers": {
       "knobs": {
         "navigableRiverDensity": "sparse"
-      },
-      "plot-rivers": {
-        "selectNavigableRiverTerrain": {
-          "strategy": "endpoint-chain-ranking",
-          "config": {
-            "endpointDischargePercentileMin": 0.94,
-            "targetMajorTileFraction": 0.28
-          }
-        }
       }
     },
     "map-ecology": {

@@ -44,7 +44,7 @@ const contracts = { computeMotion: ComputeMotionContract } as const;
 export default contracts;
 export { ComputeMotionContract };
 
-// @filename: mods/example-mod/src/domain/climate/ops/contract.ts
+// @filename: mods/example-mod/src/domain/climate/modules/thermal/ops/contract.ts
 export const contracts = {} as const;
 export default contracts;
 ```

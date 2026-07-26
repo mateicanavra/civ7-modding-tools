@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 
-import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/router";
 
-const { projectRiverNetwork } = hydrologyOpsPublic.ops;
+const { projectRiverNetwork } = hydrologyOpsPublic.hydrography.ops;
 describe("hydrology/project-river-network (default strategy)", () => {
   it("produces no rivers when all land discharge is zero", () => {
     const syntheticDimensions = { width: 4, height: 3 } as const;

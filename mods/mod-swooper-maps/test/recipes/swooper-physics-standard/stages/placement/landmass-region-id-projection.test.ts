@@ -7,12 +7,10 @@ import { runStandardRecipeTestMap } from "../../fixtures/standard-recipe.js";
 
 describe("placement landmass region projection", () => {
   it("projects landmass regions before typed resources and starts through adapter constants", () => {
-    const seed = 1337;
     const callOrder: string[] = [];
     const regionIds: number[] = [];
 
     const { adapter } = runStandardRecipeTestMap({
-      seed,
       mapInfo: {
         PlayersLandmass1: 1,
         PlayersLandmass2: 1,
@@ -20,12 +18,12 @@ describe("placement landmass region projection", () => {
         StartSectorCols: 1,
         NumNaturalWonders: 0,
       },
-      createAdapter: ({ preset, mapInfo }) => {
+      createAdapter: ({ preset, mapInfo, mapSeed }) => {
         const instrumented = createMockAdapter({
           ...preset.dimensions,
           mapInfo,
           mapSizeId: preset.id,
-          rng: createLabelRng(seed),
+          rng: createLabelRng(mapSeed),
         });
         const originalSetLandmassRegionId = instrumented.setLandmassRegionId.bind(instrumented);
         instrumented.setLandmassRegionId = (x, y, regionId) => {

@@ -2,7 +2,10 @@ import type { NonEmptyTuple } from "type-fest";
 import type { StandardMapCapture } from "./capture.js";
 import { measureStandardEcology, type StandardEcologyMetrics } from "./families/ecology.js";
 import { measureStandardGeography, type StandardGeographyMetrics } from "./families/geography.js";
-import { measureStandardHydrology, type StandardHydrologyMetrics } from "./families/hydrology.js";
+import {
+  measureStandardHydrology,
+  type StandardHydrologyMetrics,
+} from "./families/hydrology/index.js";
 import { measureStandardPlacement, type StandardPlacementMetrics } from "./families/placement.js";
 import { measureStandardRelief, type StandardReliefMetrics } from "./families/relief.js";
 import { measureStandardResources, type StandardResourceMetrics } from "./families/resources.js";

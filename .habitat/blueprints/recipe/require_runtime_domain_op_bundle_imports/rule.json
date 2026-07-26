@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "require_runtime_domain_op_bundle_imports",
-  "title": "Require Runtime Domain Op Bundle Imports",
+  "title": "Require Runtime Domain Router Imports",
   "placement": {
     "niche": "civ7/mapgen/pipeline",
     "blueprint": "recipe",
@@ -13,8 +13,8 @@
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "recipe compilation importing domain contract roots instead of executable routers",
-  "why": "Compiled recipes use aggregate routers or temporary flat op bundles; contracts are for step/domain boundaries.",
-  "remediate": null,
+  "why": "Compiled recipes compose executable domain routers; declaration contracts are reserved for domain and step authoring boundaries.",
+  "remediate": "Import @mapgen/domain/<domain>/router from recipe runtime roots, and import the domain contract only from declaration or step-authoring code.",
   "message": "Recipe runtime files must import the domain's executable router surface.",
   "pathCoverage": [
     {

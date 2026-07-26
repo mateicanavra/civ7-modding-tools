@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/model/schemas/index.js";
-import ecology from "@mapgen/domain/ecology/ops";
+import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology";
+import ecology from "@mapgen/domain/ecology/router";
 import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
 
 function f32(size: number, value: number): Float32Array {
@@ -25,7 +25,7 @@ describe("ecology feature planner policies", () => {
     const size = width * height;
     const weakPositive = 0.05;
 
-    const reefs = ecology.ops.planReefs.run(
+    const reefs = ecology.features.ops.planReefs.run(
       {
         width,
         height,
@@ -38,10 +38,10 @@ describe("ecology feature planner policies", () => {
         featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
-      normalizeOperationSelectionForTest(ecology.ops.planReefs, ecology.ops.planReefs.defaultConfig)
+      normalizeOperationSelectionForTest(ecology.features.ops.planReefs, ecology.features.ops.planReefs.defaultConfig)
     );
 
-    const wetlands = ecology.ops.planWetlands.run(
+    const wetlands = ecology.features.ops.planWetlands.run(
       {
         width,
         height,
@@ -56,12 +56,12 @@ describe("ecology feature planner policies", () => {
         reserved: new Uint8Array(size),
       },
       normalizeOperationSelectionForTest(
-        ecology.ops.planWetlands,
-        ecology.ops.planWetlands.defaultConfig
+        ecology.features.ops.planWetlands,
+        ecology.features.ops.planWetlands.defaultConfig
       )
     );
 
-    const vegetation = ecology.ops.planVegetation.run(
+    const vegetation = ecology.features.ops.planVegetation.run(
       {
         width,
         height,
@@ -77,12 +77,12 @@ describe("ecology feature planner policies", () => {
         reserved: new Uint8Array(size),
       },
       normalizeOperationSelectionForTest(
-        ecology.ops.planVegetation,
-        ecology.ops.planVegetation.defaultConfig
+        ecology.features.ops.planVegetation,
+        ecology.features.ops.planVegetation.defaultConfig
       )
     );
 
-    const ice = ecology.ops.planIce.run(
+    const ice = ecology.features.ops.planIce.run(
       {
         width,
         height,
@@ -91,7 +91,7 @@ describe("ecology feature planner policies", () => {
         featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
-      normalizeOperationSelectionForTest(ecology.ops.planIce, ecology.ops.planIce.defaultConfig)
+      normalizeOperationSelectionForTest(ecology.features.ops.planIce, ecology.features.ops.planIce.defaultConfig)
     );
 
     expect(reefs.placements).toEqual([]);
@@ -104,7 +104,7 @@ describe("ecology feature planner policies", () => {
     const syntheticDimensions = { width: 3, height: 1 } as const;
     const { width, height } = syntheticDimensions;
     const size = width * height;
-    const selection = normalizeOperationSelectionForTest(ecology.ops.planReefs, {
+    const selection = normalizeOperationSelectionForTest(ecology.features.ops.planReefs, {
       strategy: "diagonal-stride",
       config: { minConfidence01: 0.5, stride: 1 },
     });
@@ -120,11 +120,11 @@ describe("ecology feature planner policies", () => {
       reserved: new Uint8Array(size),
     };
 
-    const withoutLakes = ecology.ops.planReefs.run(
+    const withoutLakes = ecology.features.ops.planReefs.run(
       { ...input, lakeMask: new Uint8Array(size) },
       selection
     );
-    const withLakes = ecology.ops.planReefs.run(
+    const withLakes = ecology.features.ops.planReefs.run(
       { ...input, lakeMask: new Uint8Array(size).fill(1) },
       selection
     );
@@ -137,7 +137,7 @@ describe("ecology feature planner policies", () => {
     const syntheticDimensions = { width: 6, height: 1 } as const;
     const { width, height } = syntheticDimensions;
     const size = width * height;
-    const result = ecology.ops.planReefs.run(
+    const result = ecology.features.ops.planReefs.run(
       {
         width,
         height,
@@ -150,7 +150,7 @@ describe("ecology feature planner policies", () => {
         featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
-      normalizeOperationSelectionForTest(ecology.ops.planReefs, {
+      normalizeOperationSelectionForTest(ecology.features.ops.planReefs, {
         strategy: "diagonal-stride",
         config: { minConfidence01: 0.5, stride: 2 },
       })

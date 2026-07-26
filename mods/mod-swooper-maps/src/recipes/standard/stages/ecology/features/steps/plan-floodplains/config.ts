@@ -1,4 +1,5 @@
-import ecology, { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
+import ecology from "@mapgen/domain/ecology";
+import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -11,11 +12,11 @@ export const PlanFloodplainsStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyBase],
-    provides: [ecologyArtifacts.featureIntentsFloodplains, ecologyArtifacts.occupancyFloodplains],
+    requires: [featureArtifacts.scoreLayers, featureArtifacts.occupancyBase],
+    provides: [featureArtifacts.featureIntentsFloodplains, featureArtifacts.occupancyFloodplains],
   },
   ops: {
-    planFloodplains: ecology.ops.planFloodplains,
+    planFloodplains: ecology.features.ops.planFloodplains,
   },
   schema: Type.Object(
     {},

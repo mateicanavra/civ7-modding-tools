@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { PLOT_EFFECT_INTENT_KEYS } from "@mapgen/domain/ecology";
+import { PLOT_EFFECT_INTENT_KEYS } from "@mapgen/domain/ecology/modules/plot-effects/model/atoms/index.js";
 import {
   PLOT_EFFECT_VIZ_CATEGORIES,
   PLOT_EFFECT_VIZ_VALUE_BY_KEY,

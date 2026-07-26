@@ -18,7 +18,6 @@ import {
 
 type PlacementRecipeHarnessOptions = {
   createAdapter?: (input: StandardRecipeTestAdapterInput) => MockAdapter;
-  seed?: number;
 };
 
 /**
@@ -29,10 +28,8 @@ type PlacementRecipeHarnessOptions = {
  */
 function runStandardPlacementRecipe({
   createAdapter,
-  seed = 1337,
 }: PlacementRecipeHarnessOptions = {}): Readonly<{ adapter: MockAdapter; context: MapContext }> {
   const options = {
-    seed,
     mapInfo: {
       PlayersLandmass1: 1,
       PlayersLandmass2: 1,
@@ -92,15 +89,13 @@ class UntypedResourceRejectionAdapter extends MockAdapter {
 
 describe("placement reconciliation", () => {
   it("places resources through typed intents and discoveries through the official generator", () => {
-    const seed = 1337;
     const { adapter, context } = runStandardPlacementRecipe({
-      seed,
-      createAdapter: ({ preset, mapInfo }) =>
+      createAdapter: ({ preset, mapInfo, mapSeed }) =>
         createMockAdapter({
           ...preset.dimensions,
           mapInfo,
           mapSizeId: preset.id,
-          rng: createLabelRng(seed),
+          rng: createLabelRng(mapSeed),
           officialDiscoveriesPlacedCount: 5,
         }),
     });
@@ -125,19 +120,17 @@ describe("placement reconciliation", () => {
   });
 
   it("records typed resource rejections without relocation when the engine oracle rejects every intent", () => {
-    const seed = 1441;
     // Plan-authority cutover (S3/D4): the plan is built within static policy
     // legality; a divergent live oracle produces typed per-intent rejections
     // (recorded shortfalls), never relocation, type re-decision, or official
     // generator fallback.
     const { adapter, context } = runStandardPlacementRecipe({
-      seed,
-      createAdapter: ({ preset, mapInfo }) =>
+      createAdapter: ({ preset, mapInfo, mapSeed }) =>
         createMockAdapter({
           ...preset.dimensions,
           mapInfo,
           mapSizeId: preset.id,
-          rng: createLabelRng(seed),
+          rng: createLabelRng(mapSeed),
           canHaveResource: () => false,
         }),
     });
@@ -155,18 +148,16 @@ describe("placement reconciliation", () => {
   });
 
   it("fails hard when resource readback contradicts typed intent", () => {
-    const seed = 1661;
     let adapter: MismatchingResourceAdapter | undefined;
 
     expect(() =>
       runStandardPlacementRecipe({
-        seed,
-        createAdapter: ({ preset, mapInfo }) => {
+        createAdapter: ({ preset, mapInfo, mapSeed }) => {
           adapter = new MismatchingResourceAdapter({
             ...preset.dimensions,
             mapInfo,
             mapSizeId: preset.id,
-            rng: createLabelRng(seed),
+            rng: createLabelRng(mapSeed),
           });
           return adapter;
         },
@@ -179,18 +170,16 @@ describe("placement reconciliation", () => {
   });
 
   it("fails hard when resource outcomes omit typed rejection reasons", () => {
-    const seed = 1771;
     let adapter: UntypedResourceRejectionAdapter | undefined;
 
     expect(() =>
       runStandardPlacementRecipe({
-        seed,
-        createAdapter: ({ preset, mapInfo }) => {
+        createAdapter: ({ preset, mapInfo, mapSeed }) => {
           adapter = new UntypedResourceRejectionAdapter({
             ...preset.dimensions,
             mapInfo,
             mapSizeId: preset.id,
-            rng: createLabelRng(seed),
+            rng: createLabelRng(mapSeed),
           });
           return adapter;
         },

@@ -1,4 +1,7 @@
-import morphology, { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import morphology from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyTerrainArtifacts } from "@mapgen/domain/morphology/modules/terrain/artifacts/index.js";
+import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -13,13 +16,13 @@ export const ComputeShelfStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [morphologyArtifacts.topography, morphologyArtifacts.beltDrivers],
-    provides: [morphologyArtifacts.shelf],
+    requires: [morphologyLandformsArtifacts.topography, morphologyTerrainArtifacts.beltDrivers],
+    provides: [morphologyShelfArtifacts.shelf],
   },
   ops: {
-    coastalAdjacency: morphology.ops.computeCoastalAdjacency,
-    distanceToCoast: morphology.ops.computeDistanceToCoast,
-    shelfMask: morphology.ops.computeShelfMask,
+    coastalAdjacency: morphology.coasts.ops.computeCoastalAdjacency,
+    distanceToCoast: morphology.coasts.ops.computeDistanceToCoast,
+    shelfMask: morphology.shelf.ops.computeShelfMask,
   },
   schema: Type.Object({}),
 });

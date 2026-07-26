@@ -478,12 +478,6 @@ const mapConfig = {
         "petBase": 19,
         "petTemperatureWeight": 82,
         "humidityDampening": 0.5
-      },
-      "diagnostics": {
-        "barrierSteps": 2,
-        "barrierElevationM": 1000,
-        "continentalityMaxDist": 14,
-        "convergenceNormalization": 78
       }
     },
     "ecology-pedology": {
@@ -549,15 +543,6 @@ const mapConfig = {
     "map-rivers": {
       "knobs": {
         "navigableRiverDensity": "normal"
-      },
-      "plot-rivers": {
-        "selectNavigableRiverTerrain": {
-          "strategy": "endpoint-chain-ranking",
-          "config": {
-            "endpointDischargePercentileMin": 0.94,
-            "targetMajorTileFraction": 0.28
-          }
-        }
       }
     },
     "ecology-features": {
@@ -838,7 +823,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "latest-juicy",
-  configHash: "b5e6e5e4d48c2d367fcf93df043aef24b12558b22a3f972f82fd1f77bd2f70c8",
-  envelopeHash: "39608656c1999d84965001fce3b2b48f14d1c1470822c094aa317dff4516f826",
+  configHash: "4290b35dc606e622c8597ba843ab880d66db8901ffd70fd5193ba703ea69496c",
+  envelopeHash: "ed801c31e5bd6e651e3917f056df2b8e20483bd67a963d92f7e5ff2ccbaae301",
   config: mapConfig.config,
 });

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_router_aggregate_shape",
+  "title": "Require Domain Router Aggregate Shape",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "advisory",
+  "forbids": "domain router files exposing helpers, implementations, constituent module routers, or any authority besides their singular default createDomainRouter result",
+  "why": "A domain router is the executable aggregate over its declared module contracts. Keeping runtime composition to one local contract plus direct module routers preserves the contract/runtime phase boundary and prevents alternate execution surfaces.",
+  "remediate": "Import createDomainRouter from @swooper/mapgen-core/authoring, the local ./contract.js default, and each direct module router from ./modules/<module>/router.js; bind them once and default-export only that router.",
+  "message": "Domain router.ts must expose one default aggregate runtime authority only.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/*/src/domain/*/router.ts"]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain/require_domain_router_aggregate_shape/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/domain/require_domain_router_aggregate_shape/pattern.md"
+    },
+    "patternName": "require_domain_router_aggregate_shape",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["mods"]
+    }
+  }
+}

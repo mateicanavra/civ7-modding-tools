@@ -18,7 +18,7 @@ import {
   hashParityValue,
   parseCompleteExactAuthorshipEvidencePacket,
 } from "../../scripts/live/live-parity";
-import { TEST_MAP_SIZE } from "../map-size.js";
+import { TEST_GAME_SEED, TEST_MAP_SEED, TEST_MAP_SIZE } from "../setup.js";
 
 const pipelineConfig = STANDARD_RECIPE_CONFIG;
 const SYNTHETIC_PARITY_DIMENSIONS = { width: 2, height: 1 } as const;
@@ -36,8 +36,9 @@ const canonicalConfig = {
 };
 const canonicalConfigDigest = hashParityValue(canonicalConfig);
 const launchEnvelope = {
-  seed: 1234,
-  worldSettings: { mapSize: "MAPSIZE_TINY" },
+  seed: TEST_MAP_SEED,
+  gameSeed: TEST_GAME_SEED,
+  worldSettings: { mapSize: TEST_MAP_SIZE.id },
   setupConfig: { gameOptions: {}, mapOptions: {}, playerOptions: [] },
   canonicalConfig,
 };
@@ -96,7 +97,7 @@ test("terminal river diagnostics observe engine mutations after projection inten
     height,
     mapInfo: TEST_MAP_SIZE.mapInfo,
     mapSizeId: TEST_MAP_SIZE.id,
-    rng: createLabelRng(1234),
+    rng: createLabelRng(TEST_MAP_SEED),
   });
   const size = width * height;
   const riverMask = new Uint8Array(size);
@@ -133,20 +134,20 @@ function exactEvidencePacket(
     launchEnvelopeDigest,
     request: {
       recipeId: "mod-swooper-maps/standard",
-      seed: 1234,
-      gameSeed: -1234,
-      mapSize: "MAPSIZE_TINY",
+      seed: TEST_MAP_SEED,
+      gameSeed: TEST_GAME_SEED,
+      mapSize: TEST_MAP_SIZE.id,
     },
     materialization: requestGeneratedMaterialization,
     civSetup: {
       mapScript: requestGeneratedMaterialization.mapScript,
-      mapSize: "MAPSIZE_TINY",
-      mapSeed: 1234,
-      gameSeed: -1234,
+      mapSize: TEST_MAP_SIZE.id,
+      mapSeed: TEST_MAP_SEED,
+      gameSeed: TEST_GAME_SEED,
       rowCount: 1,
     },
     runtime: {
-      seed: 1234,
+      seed: TEST_MAP_SEED,
       ...SYNTHETIC_PARITY_DIMENSIONS,
       plotCount: SYNTHETIC_PARITY_CARDINALITY,
       turn: 1,
@@ -158,7 +159,7 @@ function exactEvidencePacket(
       requestId: "run-1",
       canonicalConfigDigest,
       launchEnvelopeDigest,
-      seed: 1234,
+      seed: TEST_MAP_SEED,
       dimensions: SYNTHETIC_PARITY_DIMENSIONS,
       evidencePayload: {},
       completionPayload: {},
@@ -353,7 +354,7 @@ function snapshot(args: {
     source: args.source,
     width,
     height,
-    seed: 1234,
+    seed: TEST_MAP_SEED,
     canonicalConfigDigest,
     launchEnvelopeDigest,
     surfaces: {
@@ -374,7 +375,7 @@ function snapshot(args: {
               gameHash: args.gameHash ?? 99,
               width,
               height,
-              seed: 1234,
+              seed: TEST_MAP_SEED,
               plotCount: SYNTHETIC_PARITY_CARDINALITY,
             },
             fullGrid: {
@@ -1051,7 +1052,7 @@ describe("final-surface parity evidence", () => {
           requestId: "run-1",
           canonicalConfigDigest,
           launchEnvelopeDigest,
-          seed: 1234,
+          seed: TEST_MAP_SEED,
           dimensions: SYNTHETIC_PARITY_DIMENSIONS,
           resourcePlacement: {
             coordinateEvidence: {
@@ -1082,7 +1083,7 @@ describe("final-surface parity evidence", () => {
           requestId: "run-1",
           canonicalConfigDigest,
           launchEnvelopeDigest,
-          seed: 1234,
+          seed: TEST_MAP_SEED,
           dimensions: SYNTHETIC_PARITY_DIMENSIONS,
           naturalWonderPlan: {
             planRows: [
@@ -1128,7 +1129,7 @@ describe("final-surface parity evidence", () => {
           requestId: "run-1",
           canonicalConfigDigest,
           launchEnvelopeDigest,
-          seed: 1234,
+          seed: TEST_MAP_SEED,
           dimensions: SYNTHETIC_PARITY_DIMENSIONS,
           naturalWonderPlan: {
             planRows: [
@@ -1174,7 +1175,7 @@ describe("final-surface parity evidence", () => {
           requestId: "run-1",
           canonicalConfigDigest,
           launchEnvelopeDigest,
-          seed: 1234,
+          seed: TEST_MAP_SEED,
           dimensions: SYNTHETIC_PARITY_DIMENSIONS,
           naturalWonderPlanInput: {
             surfaceDigests: {
@@ -1256,7 +1257,7 @@ describe("final-surface parity evidence", () => {
           requestId: "run-1",
           canonicalConfigDigest,
           launchEnvelopeDigest,
-          seed: 1234,
+          seed: TEST_MAP_SEED,
           dimensions: SYNTHETIC_PARITY_DIMENSIONS,
           resourcePlacement: {
             stats: {

@@ -9,15 +9,6 @@ const fixedProjectionConfig: StandardRecipeConfig["map-morphology"] = {};
 const fixedProjectionKnobs: StandardRecipeConfig["map-morphology"] = { knobs: {} };
 const riverProjectionConfig: StandardRecipeConfig["map-rivers"] = {
   knobs: { navigableRiverDensity: "normal" },
-  "plot-rivers": {
-    selectNavigableRiverTerrain: {
-      strategy: "endpoint-chain-ranking",
-      config: {
-        endpointDischargePercentileMin: 0.94,
-        targetMajorTileFraction: 0.28,
-      },
-    },
-  },
 };
 
 // @ts-expect-error A persisted recipe config requires every stage.

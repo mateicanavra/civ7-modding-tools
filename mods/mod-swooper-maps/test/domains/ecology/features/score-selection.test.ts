@@ -3,7 +3,7 @@ import { describe, expect, it } from "bun:test";
 import {
   choosePhysicalCandidate,
   comparePhysicalCandidates,
-} from "@mapgen/domain/ecology/model/policy/feature-score-selection.js";
+} from "@mapgen/domain/ecology/modules/features/model/policy/feature-score-selection.js";
 
 describe("feature score selection policy", () => {
   it("orders candidates by confidence desc, then stress asc, then tile index asc", () => {

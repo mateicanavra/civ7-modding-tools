@@ -1,3 +1,6 @@
+import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
+import { artifacts as cryosphereArtifacts } from "@mapgen/domain/hydrology/modules/cryosphere/artifacts/index.js";
+import type { ArtifactReadValueOf } from "@swooper/mapgen-core/authoring";
 import { buildScalarFieldProjections, type VizDims, type VizProjection } from "@swooper/mapgen-viz";
 import { defineStandardVizMeta } from "../../../../../../viz.js";
 
@@ -7,24 +10,15 @@ const GROUP_CRYOSPHERE = "Hydrology / Cryosphere";
 const GROUP_DIAGNOSTICS = "Hydrology / Diagnostics";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
-/** Refined physical products and advisory diagnostics observed by the visualization facet. */
-export type ClimateRefineVizEvidence = Readonly<{
-  climateField: Readonly<{ rainfall: Uint8Array; humidity: Uint8Array }>;
-  climateIndices: Readonly<{
-    surfaceTemperatureC: Float32Array;
-    effectiveMoisture: Float32Array;
-    pet: Float32Array;
-    aridityIndex: Float32Array;
-    freezeIndex: Float32Array;
-  }>;
-  cryosphere: Readonly<{
-    snowCover: Uint8Array;
-    seaIceCover: Uint8Array;
-    albedo: Uint8Array;
-    groundIce01: Float32Array;
-    permafrost01: Float32Array;
-    meltPotential01: Float32Array;
-  }>;
+type ClimateField = ArtifactReadValueOf<typeof climateArtifacts.climateField>;
+type ClimateIndices = ArtifactReadValueOf<typeof climateArtifacts.climateIndices>;
+type Cryosphere = ArtifactReadValueOf<typeof cryosphereArtifacts.cryosphere>;
+
+/** Refined physical products and admitted inputs observed by the visualization facet. */
+type ClimateRefineVizEvidence = Readonly<{
+  climateField: ClimateField;
+  climateIndices: ClimateIndices;
+  cryosphere: Cryosphere;
   diagnostics: Readonly<{
     rainShadowIndex: Float32Array;
     continentalityIndex: Float32Array;
@@ -40,6 +34,7 @@ export function buildClimateRefineVizProjections(
   result: ClimateRefineVizEvidence,
   dimensions: VizDims
 ): readonly VizProjection[] {
+  const diagnostics = result.diagnostics;
   return [
     ...buildScalarFieldProjections({
       dataTypeKey: "hydrology.climate.rainfall",
@@ -199,7 +194,7 @@ export function buildClimateRefineVizProjections(
       dataTypeKey: "hydrology.climate.diagnostics.rainShadowIndex",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "f32", values: result.diagnostics.rainShadowIndex },
+      field: { format: "f32", values: diagnostics.rainShadowIndex },
       meta: defineStandardVizMeta("hydrology.climate.diagnostics.rainShadowIndex", "field.signed", {
         label: "Rain Shadow Index",
         group: GROUP_DIAGNOSTICS,
@@ -211,7 +206,7 @@ export function buildClimateRefineVizProjections(
       dataTypeKey: "hydrology.climate.diagnostics.continentalityIndex",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "f32", values: result.diagnostics.continentalityIndex },
+      field: { format: "f32", values: diagnostics.continentalityIndex },
       meta: defineStandardVizMeta(
         "hydrology.climate.diagnostics.continentalityIndex",
         "field.intensity",
@@ -223,7 +218,7 @@ export function buildClimateRefineVizProjections(
       dataTypeKey: "hydrology.climate.diagnostics.convergenceIndex",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "f32", values: result.diagnostics.convergenceIndex },
+      field: { format: "f32", values: diagnostics.convergenceIndex },
       meta: defineStandardVizMeta(
         "hydrology.climate.diagnostics.convergenceIndex",
         "field.signed",

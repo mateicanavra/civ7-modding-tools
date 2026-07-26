@@ -515,20 +515,20 @@ export default createStage({
     const mountainRanges = resolveMountainRangesPublicConfig(config.mountainRanges);
     return {
       islands: {
-        islands: defaultEnvelope(morphology.ops.planIslandChains, {
+        islands: defaultEnvelope(morphology.landforms.ops.planIslandChains, {
           islands: config.islandChains,
         }),
       },
       mountains: {
-        ridges: defaultEnvelope(morphology.ops.planRidges, mountainRanges),
-        foothills: defaultEnvelope(morphology.ops.planFoothills, mountainRanges),
-        roughLands: defaultEnvelope(morphology.ops.planRoughLands, mountainRanges),
+        ridges: defaultEnvelope(morphology.landforms.ops.planRidges, mountainRanges),
+        foothills: defaultEnvelope(morphology.landforms.ops.planFoothills, mountainRanges),
+        roughLands: defaultEnvelope(morphology.landforms.ops.planRoughLands, mountainRanges),
       },
       volcanoes: {
-        volcanoes: defaultEnvelope(morphology.ops.planVolcanoes, config.volcanoes),
+        volcanoes: defaultEnvelope(morphology.landforms.ops.planVolcanoes, config.volcanoes),
       },
       landmasses: {
-        landmasses: defaultEnvelope(morphology.ops.computeLandmasses, {}),
+        landmasses: defaultEnvelope(morphology.landforms.ops.computeLandmasses, {}),
       },
     };
   },

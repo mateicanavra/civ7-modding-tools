@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import ecology from "@mapgen/domain/ecology/ops";
+import ecology from "@mapgen/domain/ecology/router";
 import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
 
 describe("ecology floodplain planning", () => {
@@ -8,10 +8,10 @@ describe("ecology floodplain planning", () => {
     const { width, height } = syntheticDimensions;
     const size = width * height;
     const selection = normalizeOperationSelectionForTest(
-      ecology.ops.planFloodplains,
-      ecology.ops.planFloodplains.defaultConfig
+      ecology.features.ops.planFloodplains,
+      ecology.features.ops.planFloodplains.defaultConfig
     );
-    const result = ecology.ops.planFloodplains.run(
+    const result = ecology.features.ops.planFloodplains.run(
       {
         width,
         height,

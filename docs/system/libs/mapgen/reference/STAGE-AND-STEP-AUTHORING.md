@@ -26,14 +26,17 @@ A step contract defines:
 
 Representative example (dependency tags + artifact requirements; excerpt; see full file in anchors):
 
-The example reflects the current transitional `@mapgen/domain/*` alias. Use
-only its admitted domain root or `/ops` surface while the active package
-ownership migration removes the alias; do not add new alias mappings or deep
-imports.
+The `@mapgen/domain/*` alias is the current mod-local domain surface. Contract
+authors consume the pure root contract and the exact producing module's
+artifact catalog; recipe runtime composition consumes `/router`. A few flat
+domains still expose transitional `/ops` and root artifact catalogs until their
+module migrations land. Do not reproduce those compatibility surfaces in a
+modular domain.
 
 ```ts
-import hydrology, { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as hydrologyHydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
@@ -57,20 +60,25 @@ export const PlotRiversStepContract = defineStep({
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted],
   artifacts: {
     requires: [
-      hydrologyArtifacts.hydrography,
-      hydrologyArtifacts.lakePlan,
-      hydrologyArtifacts.riverNetwork,
-      morphologyArtifacts.shelf,
-      morphologyArtifacts.topography,
+      hydrologyHydrographyArtifacts.hydrography,
+      hydrologyHydrographyArtifacts.lakePlan,
+      hydrologyHydrographyArtifacts.riverNetwork,
+      morphologyShelfArtifacts.shelf,
+      morphologyLandformsArtifacts.topography,
     ],
     provides: [mapRiversArtifacts.projectedNavigableRivers],
   },
-  ops: {
-    selectNavigableRiverTerrain: hydrology.ops.selectNavigableRiverTerrain,
-  },
-  schema: Type.Object({}, { additionalProperties: false }),
+  schema: Type.Object({
+    endpointDischargePercentileMin: Type.Number({ minimum: 0, maximum: 1 }),
+    targetMajorTileFraction: Type.Number({ minimum: 0, maximum: 1 }),
+  }),
 });
 ```
+
+Step contracts import the domain root contract when selecting operations and
+the exact module catalog when selecting artifacts. They never import a domain
+router. The runtime-only `@mapgen/domain/<domain>/router` surface is composed
+once by the recipe root to register executable implementations.
 
 ## Step module (createStep)
 
@@ -93,18 +101,13 @@ Representative example (createStep boundary; excerpt; see full file in anchors):
 ```ts
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { PlotRiversStepContract } from "./config.js";
+import { selectNavigableRiverTerrain } from "./rules/select-navigable-river-terrain.js";
 
 /** Projects admitted river evidence into Civ7 and captures engine readback. */
 export const PlotRiversStep = createStep(PlotRiversStepContract, {
-  normalize: (config, ctx) => {
-    // Shape-preserving; may use ctx.knobs deterministically. For rivers, this
-    // is where map-rivers navigableRiverDensity resolves the Hydrology-owned
-    // navigable-river projection policy without mutating Hydrology truth.
-    return config;
-  },
   run: (context, config, ops, deps) => {
     const hydrography = deps.artifacts.hydrography.read(context);
-    const projected = ops.selectNavigableRiverTerrain(
+    const projected = selectNavigableRiverTerrain(
       {
         width: context.setup.dimensions.width,
         height: context.setup.dimensions.height,
@@ -113,7 +116,7 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
         flowDir: hydrography.flowDir,
         projectableLandMask: /* finalized projectable terrain mask */,
       },
-      config.selectNavigableRiverTerrain
+      config
     );
     // ... stamp projected.riverMask through deps.engine.setTerrainType(context, ...) ...
     // ... refresh Civ caches, publish projected intent, and keep immediate readback as evidence ...

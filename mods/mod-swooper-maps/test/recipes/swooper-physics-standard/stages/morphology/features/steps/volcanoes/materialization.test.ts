@@ -2,8 +2,8 @@ import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
 import { artifacts as foundationProjectionArtifacts } from "@mapgen/domain/foundation/modules/projection/artifacts";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
-import morphologyDomain from "@mapgen/domain/morphology/ops";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import morphologyDomain from "@mapgen/domain/morphology/router";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -12,7 +12,7 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { VolcanoesStep } from "../../../../../../../../src/recipes/standard/stages/morphology/features/steps/volcanoes/step.js";
-import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
 
 describe("morphology-features volcano materialization", () => {
   it("filters invalid and water plans before deriving sorted tectonic evidence", () => {
@@ -34,7 +34,7 @@ describe("morphology-features volcano materialization", () => {
     volcanism[hotspotIndex] = 64;
 
     const setup = admitMapSetup({
-      mapSeed: 424242,
+      mapSeed: TEST_MAP_SEED,
       dimensions: TEST_MAP_SIZE.dimensions,
       latitudeBounds: { topLatitude: 70, bottomLatitude: -70 },
     });
@@ -58,7 +58,7 @@ describe("morphology-features volcano materialization", () => {
         movementV: new Int8Array(size),
         rotation: new Int8Array(size),
       });
-      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask,
@@ -67,7 +67,7 @@ describe("morphology-features volcano materialization", () => {
 
       VolcanoesStep.run(
         stepContext,
-        { volcanoes: structuredClone(morphologyDomain.ops.planVolcanoes.defaultConfig) },
+        { volcanoes: structuredClone(morphologyDomain.landforms.ops.planVolcanoes.defaultConfig) },
         {
           volcanoes: () => ({
             volcanoes: [
@@ -84,7 +84,7 @@ describe("morphology-features volcano materialization", () => {
       );
     });
 
-    const evidence = readValidatedArtifact(context, morphologyArtifacts.volcanoes);
+    const evidence = readValidatedArtifact(context, morphologyLandformsArtifacts.volcanoes);
     expect(evidence.volcanoes).toEqual([
       { tileIndex: riftIndex, kind: "rift", strength01: 128 / 255 },
       { tileIndex: subductionIndex, kind: "subductionArc", strength01: 1 },

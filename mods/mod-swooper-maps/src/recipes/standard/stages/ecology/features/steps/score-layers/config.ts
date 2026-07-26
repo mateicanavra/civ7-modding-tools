@@ -1,6 +1,11 @@
-import { default as ecology, artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
-import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import ecology from "@mapgen/domain/ecology";
+import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
+import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
+import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
+import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { artifacts as mapRiversArtifacts } from "../../../../map/rivers/artifacts/index.js";
 
@@ -15,37 +20,37 @@ export const ScoreLayersStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [
-      ecologyArtifacts.biomeClassification,
-      ecologyArtifacts.pedology,
-      hydrologyArtifacts.climateIndices,
-      hydrologyArtifacts.hydrography,
-      hydrologyArtifacts.lakePlan,
+      biomeArtifacts.biomeClassification,
+      pedologyArtifacts.pedology,
+      climateArtifacts.climateIndices,
+      hydrographyArtifacts.hydrography,
+      hydrographyArtifacts.lakePlan,
       mapRiversArtifacts.projectedNavigableRivers,
-      morphologyArtifacts.topography,
-      morphologyArtifacts.shelf,
-      morphologyArtifacts.mountains,
-      morphologyArtifacts.volcanoes,
+      morphologyLandformsArtifacts.topography,
+      morphologyShelfArtifacts.shelf,
+      morphologyLandformsArtifacts.mountains,
+      morphologyLandformsArtifacts.volcanoes,
     ],
-    provides: [ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyBase],
+    provides: [featureArtifacts.scoreLayers, featureArtifacts.occupancyBase],
   },
   ops: {
-    vegetationSubstrate: ecology.ops.computeVegetationSubstrate,
-    featureSubstrate: ecology.ops.computeFeatureSubstrate,
-    scoreForest: ecology.ops.scoreVegetationForest,
-    scoreRainforest: ecology.ops.scoreVegetationRainforest,
-    scoreTaiga: ecology.ops.scoreVegetationTaiga,
-    scoreSavannaWoodland: ecology.ops.scoreVegetationSavannaWoodland,
-    scoreSagebrushSteppe: ecology.ops.scoreVegetationSagebrushSteppe,
-    scoreWetMarsh: ecology.ops.scoreWetMarsh,
-    scoreWetTundraBog: ecology.ops.scoreWetTundraBog,
-    scoreWetMangrove: ecology.ops.scoreWetMangrove,
-    scoreWetOasis: ecology.ops.scoreWetOasis,
-    scoreWetWateringHole: ecology.ops.scoreWetWateringHole,
-    scoreReef: ecology.ops.scoreReef,
-    scoreColdReef: ecology.ops.scoreColdReef,
-    scoreReefAtoll: ecology.ops.scoreReefAtoll,
-    scoreReefLotus: ecology.ops.scoreReefLotus,
-    scoreIce: ecology.ops.scoreIce,
+    vegetationSubstrate: ecology.features.ops.computeVegetationSubstrate,
+    featureSubstrate: ecology.features.ops.computeFeatureSubstrate,
+    scoreForest: ecology.features.ops.scoreVegetationForest,
+    scoreRainforest: ecology.features.ops.scoreVegetationRainforest,
+    scoreTaiga: ecology.features.ops.scoreVegetationTaiga,
+    scoreSavannaWoodland: ecology.features.ops.scoreVegetationSavannaWoodland,
+    scoreSagebrushSteppe: ecology.features.ops.scoreVegetationSagebrushSteppe,
+    scoreWetMarsh: ecology.features.ops.scoreWetMarsh,
+    scoreWetTundraBog: ecology.features.ops.scoreWetTundraBog,
+    scoreWetMangrove: ecology.features.ops.scoreWetMangrove,
+    scoreWetOasis: ecology.features.ops.scoreWetOasis,
+    scoreWetWateringHole: ecology.features.ops.scoreWetWateringHole,
+    scoreReef: ecology.features.ops.scoreReef,
+    scoreColdReef: ecology.features.ops.scoreColdReef,
+    scoreReefAtoll: ecology.features.ops.scoreReefAtoll,
+    scoreReefLotus: ecology.features.ops.scoreReefLotus,
+    scoreIce: ecology.features.ops.scoreIce,
   },
   schema: Type.Object(
     {},

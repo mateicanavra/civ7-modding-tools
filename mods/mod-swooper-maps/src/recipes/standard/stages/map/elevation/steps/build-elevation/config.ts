@@ -1,4 +1,4 @@
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
@@ -25,7 +25,10 @@ export const BuildElevationStepContract = defineStep({
   ],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
   artifacts: {
-    requires: [morphologyArtifacts.topography, mapHydrologyArtifacts.engineProjectionLakes],
+    requires: [
+      morphologyLandformsArtifacts.topography,
+      mapHydrologyArtifacts.engineProjectionLakes,
+    ],
   },
   schema: Type.Object({}),
 });

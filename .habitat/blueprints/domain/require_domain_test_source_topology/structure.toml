@@ -1,0 +1,35 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "mapgen-domain-test-collections"
+root = "mods/*/test/domains"
+kind = "directory"
+mode = "closed"
+allowed = ["+([a-z0-9])*(-+([a-z0-9]))"]
+
+[[scopes]]
+name = "mapgen-domain-test-roots"
+root = "mods/*/test/domains/+([a-z0-9])*(-+([a-z0-9]))"
+kind = "directory"
+mode = "closed"
+allowed = [
+  "*.test.ts",
+  "+([a-z0-9])*(-+([a-z0-9]))",
+]
+
+[[scopes]]
+name = "mapgen-domain-test-semantic-containers"
+root = "mods/*/test/domains/+([a-z0-9])*(-+([a-z0-9]))/*(!(*.*|fixtures)/)!(*.*|fixtures)"
+kind = "directory"
+mode = "closed"
+allowed = [
+  "*.test.ts",
+  "+([a-z0-9])*(-+([a-z0-9]))",
+]
+
+[[scopes]]
+name = "mapgen-domain-test-fixtures"
+root = "mods/*/test/domains/+([a-z0-9])*(-+([a-z0-9]))/*(!(*.*)/)fixtures"
+kind = "directory"
+mode = "closed"
+allowed = ["*.ts"]

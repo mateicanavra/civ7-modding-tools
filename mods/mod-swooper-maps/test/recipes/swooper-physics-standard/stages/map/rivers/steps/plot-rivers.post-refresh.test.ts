@@ -1,14 +1,13 @@
 import { describe, expect, it } from "bun:test";
-
 import { MockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0, RIVER_TYPE_NAVIGABLE } from "@civ7/map-policy";
-import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import {
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_MINOR,
-} from "@mapgen/domain/hydrology/model/policy/river-class.js";
-import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+} from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-class.js";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
@@ -19,9 +18,7 @@ import {
 } from "@swooper/mapgen-core/testing";
 import { artifacts as mapRiversArtifacts } from "../../../../../../../src/recipes/standard/stages/map/rivers/artifacts/index.js";
 import { PlotRiversStep } from "../../../../../../../src/recipes/standard/stages/map/rivers/steps/plot-rivers/step.js";
-import { TEST_MAP_SIZE } from "../../../../../../map-size.js";
-
-const { selectNavigableRiverTerrain } = hydrologyOpsPublic.ops;
+import { TEST_MAP_SIZE } from "../../../../../../setup.js";
 
 class RiverCacheRefreshAdapter extends MockAdapter {
   private cachedWater: Uint8Array;
@@ -126,7 +123,7 @@ describe("map-rivers/plot-rivers", () => {
     expect(adapter.getTerrainType(0, 0)).toBe(flatTerrain);
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, hydrologyArtifacts.hydrography, {
+      publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
         runoff: new Float32Array(size),
         discharge,
         riverClass,
@@ -138,7 +135,7 @@ describe("map-rivers/plot-rivers", () => {
         depressionDepth: new Float32Array(size),
         terminalType: new Uint8Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyArtifacts.riverNetwork, {
+      publishTestArtifact(stepContext, hydrographyArtifacts.riverNetwork, {
         upstreamArea: Int32Array.from({ length: size }, (_value, index) =>
           index < width ? index + 1 : 1
         ),
@@ -149,20 +146,20 @@ describe("map-rivers/plot-rivers", () => {
           index < width ? 3 : index < width * 2 ? 2 : 0
         ),
       });
-      publishTestArtifact(stepContext, hydrologyArtifacts.lakePlan, {
+      publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, {
         width,
         height,
         lakeMask: new Uint8Array(size),
         plannedLakeTileCount: 0,
         sinkLakeCount: 0,
       });
-      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask: new Uint8Array(size).fill(1),
         bathymetry: new Int16Array(size),
       });
-      publishTestArtifact(stepContext, morphologyArtifacts.shelf, {
+      publishTestArtifact(stepContext, morphologyShelfArtifacts.shelf, {
         shelfMask: new Uint8Array(size),
         coastalLand: new Uint8Array(size),
         coastalWater: new Uint8Array(size),
@@ -171,13 +168,8 @@ describe("map-rivers/plot-rivers", () => {
 
       PlotRiversStep.run(
         stepContext,
-        {
-          selectNavigableRiverTerrain: {
-            strategy: "endpoint-chain-ranking",
-            config: { endpointDischargePercentileMin: 0.94, targetMajorTileFraction: 0.28 },
-          },
-        },
-        { selectNavigableRiverTerrain: selectNavigableRiverTerrain.run },
+        { endpointDischargePercentileMin: 0.94, targetMajorTileFraction: 0.28 },
+        {},
         buildStepTestDependencies(PlotRiversStep, stepContext)
       );
     });

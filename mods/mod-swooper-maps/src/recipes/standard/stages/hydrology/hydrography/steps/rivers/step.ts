@@ -1,9 +1,9 @@
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { defineStandardVizMeta } from "../../../../../viz.js";
 import {
   HYDROLOGY_RIVER_DENSITY_MAJOR_PERCENTILE,
   HYDROLOGY_RIVER_DENSITY_MINOR_PERCENTILE,
-} from "@mapgen/domain/hydrology/model/policy/hydrography-knob-policy.js";
-import { createStep } from "@swooper/mapgen-core/authoring";
-import { defineStandardVizMeta } from "../../../../../viz.js";
+} from "../../model/policy/hydrography-knob-policy.js";
 import { RiversStepContract } from "./config.js";
 
 type HydrologyRiverDensityKnob = "sparse" | "normal" | "dense";
@@ -46,10 +46,7 @@ export const RiversStep = createStep(RiversStepContract, {
   },
   run: (context, config, ops, deps) => {
     const { width, height } = context.setup.dimensions;
-    const topography = deps.artifacts.topography.read(context) as {
-      elevation: Int16Array;
-      landMask: Uint8Array;
-    };
+    const topography = deps.artifacts.topography.read(context);
     const baselineClimateField = deps.artifacts.baselineClimateField.read(context);
     const routing = ops.drainageRouting(
       {
@@ -84,7 +81,7 @@ export const RiversStep = createStep(RiversStepContract, {
       config.projectRiverNetwork
     );
 
-    const hydrography = {
+    return deps.artifacts.hydrography.publish(context, {
       runoff: discharge.runoff,
       discharge: discharge.discharge,
       riverClass: projected.riverClass,
@@ -95,9 +92,7 @@ export const RiversStep = createStep(RiversStepContract, {
       routingElevation: routing.routingElevation,
       depressionDepth: routing.depressionDepth,
       terminalType: routing.terminalType,
-    };
-    deps.artifacts.hydrography.publish(context, hydrography);
-    return hydrography;
+    });
   },
   viz: ({ result: hydrography, dimensions }) => [
     {

@@ -83,7 +83,6 @@ describe("placement per-step viz coverage (E4.2/E4.3)", () => {
     for (const projection of projections) record(projection);
   };
   runStandardRecipeTestMap({
-    seed: 1337,
     mapInfo: {
       PlayersLandmass1: 4,
       PlayersLandmass2: 4,

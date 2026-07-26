@@ -1,3 +1,4 @@
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 /// <reference types="@civ7/types" />
 
 import {
@@ -17,9 +18,10 @@ import {
   snapshotRunInGameExactAuthorshipEvidence,
 } from "@civ7/studio-contract";
 import type { StudioRunGenerationManifest } from "@civ7/studio-run-workspace";
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
-import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
+import { artifacts as morphologyCoastsArtifacts } from "@mapgen/domain/morphology/modules/coasts/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import {
   createLabelRng,
   createMapContext,
@@ -645,11 +647,11 @@ export function runLocalFinalSurfaceSnapshot(
     if (event.data.type === "naturalWonder.planInput") evidence.naturalWonderPlanInput = event.data;
   }
   evidence.featureIntents = {
-    floodplains: observeArtifact(context, ecologyArtifacts.featureIntentsFloodplains),
-    vegetation: observeArtifact(context, ecologyArtifacts.featureIntentsVegetation),
-    wetlands: observeArtifact(context, ecologyArtifacts.featureIntentsWetlands),
-    reefs: observeArtifact(context, ecologyArtifacts.featureIntentsReefs),
-    ice: observeArtifact(context, ecologyArtifacts.featureIntentsIce),
+    floodplains: observeArtifact(context, featureArtifacts.featureIntentsFloodplains),
+    vegetation: observeArtifact(context, featureArtifacts.featureIntentsVegetation),
+    wetlands: observeArtifact(context, featureArtifacts.featureIntentsWetlands),
+    reefs: observeArtifact(context, featureArtifacts.featureIntentsReefs),
+    ice: observeArtifact(context, featureArtifacts.featureIntentsIce),
   };
   const featureApplyDiagnostics = observeArtifact(
     context,
@@ -750,9 +752,9 @@ export function captureCurrentRiverMetadata(
 }
 
 function buildTerrainProjectionEvidence(context: ReturnType<typeof createMapContext>): unknown {
-  const carvedCoastline = observeArtifact(context, morphologyArtifacts.carvedCoastline);
-  const topography = observeArtifact(context, morphologyArtifacts.topography);
-  const shelf = observeArtifact(context, morphologyArtifacts.shelf);
+  const carvedCoastline = observeArtifact(context, morphologyCoastsArtifacts.carvedCoastline);
+  const topography = observeArtifact(context, morphologyLandformsArtifacts.topography);
+  const shelf = observeArtifact(context, morphologyShelfArtifacts.shelf);
   const mapMorphologyCoastPolicy =
     topography && shelf
       ? deriveCiv7CoastProjection({
@@ -762,7 +764,7 @@ function buildTerrainProjectionEvidence(context: ReturnType<typeof createMapCont
           coastalWater: shelf.coastalWater,
         })
       : undefined;
-  const hydrologyLakePlan = observeArtifact(context, hydrologyArtifacts.lakePlan);
+  const hydrologyLakePlan = observeArtifact(context, hydrographyArtifacts.lakePlan);
   const mapHydrologyProjection = observeArtifact(
     context,
     mapHydrologyArtifacts.engineProjectionLakes

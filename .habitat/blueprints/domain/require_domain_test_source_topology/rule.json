@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_test_source_topology",
+  "title": "Require Domain Test Source Topology",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "domain test trees containing non-test source outside an explicit fixture owner or directories outside the recursive semantic hierarchy",
+  "why": "Domain tests mirror behavioral ownership: domain-wide claims may remain at the domain root, while module and operation behavior descends through semantic directories. The structure law closes the physical test kind without guessing which production module a directory represents; that membership remains a semantic review decision until Habitat owns first-class blueprint membership.",
+  "remediate": "Keep domain-wide *.test.ts files at the domain root, place narrower tests under kebab-case module and concern directories, and keep non-test helpers only in the nearest fixtures directory. Do not add source-to-test allowlists or execution-shaped operations, runtime, support, or testing cabinets.",
+  "message": "Domain test source must match the positive domain, semantic-container, and fixture topology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/*/test/domains", "mods/*/test/domains/**"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain/require_domain_test_source_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/domain/require_domain_test_source_topology/structure.toml"
+    }
+  }
+}

@@ -1,6 +1,11 @@
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
-import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
+import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
+import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
+import { artifacts as cryosphereArtifacts } from "@mapgen/domain/hydrology/modules/cryosphere/artifacts/index.js";
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
+import { artifacts as morphologyTerrainArtifacts } from "@mapgen/domain/morphology/modules/terrain/artifacts/index.js";
 import resources from "@mapgen/domain/resources";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
@@ -18,18 +23,18 @@ export const PlanResourcesStepContract = defineStep({
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlanned],
   artifacts: {
     requires: [
-      morphologyArtifacts.topography,
-      morphologyArtifacts.shelf,
-      morphologyArtifacts.landmasses,
-      morphologyArtifacts.mountains,
-      morphologyArtifacts.beltDrivers,
-      hydrologyArtifacts.hydrography,
-      hydrologyArtifacts.lakePlan,
+      morphologyLandformsArtifacts.topography,
+      morphologyShelfArtifacts.shelf,
+      morphologyLandformsArtifacts.landmasses,
+      morphologyLandformsArtifacts.mountains,
+      morphologyTerrainArtifacts.beltDrivers,
+      hydrographyArtifacts.hydrography,
+      hydrographyArtifacts.lakePlan,
       mapRiversArtifacts.projectedNavigableRivers,
-      hydrologyArtifacts.climateIndices,
-      hydrologyArtifacts.cryosphere,
-      ecologyArtifacts.biomeClassification,
-      ecologyArtifacts.pedology,
+      climateArtifacts.climateIndices,
+      cryosphereArtifacts.cryosphere,
+      biomeArtifacts.biomeClassification,
+      pedologyArtifacts.pedology,
       placementArtifacts.landmassRegionSlotByTile,
     ],
     provides: [

@@ -28,7 +28,7 @@ const ShelfMaskConfigSchema = Type.Object(
       minimum: 0,
       maximum: 8,
       description:
-        "Global break-gradient scale set from the shelfWidth knob (narrow<1 => stricter gradient => narrower shelf; wide>1 => more permissive => wider). Authors use the knob; normalize() injects this value.",
+        "Break-gradient multiplier compiled from the authored shelf-width posture (narrow<1 gives a stricter gradient and narrower shelf; wide>1 gives a more permissive gradient and wider shelf).",
     }),
     activeClosenessThreshold: Type.Number({
       default: 0.35,
@@ -92,7 +92,7 @@ export default createStage({
   }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     "compute-shelf": {
-      shelfMask: defaultEnvelope(morphology.ops.computeShelfMask, config.shelf),
+      shelfMask: defaultEnvelope(morphology.shelf.ops.computeShelfMask, config.shelf),
     },
   }),
 } as const);

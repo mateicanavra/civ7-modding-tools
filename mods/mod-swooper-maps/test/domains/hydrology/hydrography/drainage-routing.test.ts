@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/router";
 
-const { computeDrainageRouting } = hydrologyOpsPublic.ops;
+const { computeDrainageRouting } = hydrologyOpsPublic.hydrography.ops;
 const TERMINAL_OCEAN = 1;
 const TERMINAL_CLOSED_BASIN = 2;
 

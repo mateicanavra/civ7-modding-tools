@@ -18,7 +18,7 @@
 Hydrology produces climate and water-cycle products for downstream consumption:
 
 - baseline and final-refined climate fields (rainfall/humidity),
-- winds + moisture transport state,
+- atmospheric wind and moisture-transport state,
 - depression-conditioned drainage routing over Morphology topography,
 - discharge and hydrography evidence,
 - refined indices (aridity/freeze/etc) and optional cryosphere products,
@@ -63,17 +63,32 @@ Hydrology provides:
 
 ## Key artifacts
 
-Hydrology's semantic data products are owned by its domain catalog:
+Hydrology's semantic products are cataloged by their owning module:
 
-- `mods/mod-swooper-maps/src/domain/hydrology/artifacts/index.ts`
+- `modules/climate/artifacts`: baseline/final climate, seasonality, indices, and winds,
+- `modules/cryosphere/artifacts`: snow, sea-ice, albedo, and frozen-ground state,
+- `modules/hydrography/artifacts`: drainage, river-network, and lake intent.
 
-Aggregate river benchmark evidence is emitted through the Lakes step's metrics
-facet rather than retained as pipeline state. Climate diagnostics similarly
-remain invocation-local output consumed by visualization.
+The `modules/ocean` branch currently supplies invocation-local geometry, current,
+and thermal state to climate composition; it does not publish a durable ocean artifact.
+
+Aggregate river benchmark evidence is calculated and emitted by the Standard
+recipe's Lakes metrics projector rather than retained as pipeline state.
+Advisory terrain/wind climate diagnostics are derived by the climate module's
+pure observation operation and remain invocation-local input to visualization.
 
 ## Ops surface
 
-Hydrology domain ops are bound by step contracts. In the standard recipe, Hydrology uses op contracts such as:
+Hydrology composes four capability modules and 18 operations. Step contracts bind only the
+operations they execute:
+
+- `ocean`: ocean geometry, surface currents, and thermal state,
+- `climate`: radiative and thermal forcing, atmospheric circulation, moisture transport,
+  precipitation and water budget,
+- `cryosphere`: cryosphere state and albedo feedback,
+- `hydrography`: drainage, discharge, causal river-network classification, and lake intent.
+
+The Standard recipe uses operation contracts such as:
 
 - `computeRadiativeForcing`
 - `computeThermalState`
@@ -86,10 +101,13 @@ Hydrology domain ops are bound by step contracts. In the standard recipe, Hydrol
 - `accumulateDischarge`
 - `projectRiverNetwork`
 - `planLakes`
-- `computeRiverNetworkMetrics`
+- `classifyRiverNetwork`
 - `computeLandWaterBudget`
-- `computeClimateDiagnostics`
 - `computeCryosphereState`, `applyAlbedoFeedback`
+
+Navigable-river terrain selection is intentionally not a Hydrology operation. It is a
+map-rivers projection rule that consumes admitted Hydrology artifacts without redefining
+Hydrology's physical river model.
 
 ## Config + knobs posture
 
@@ -208,4 +226,6 @@ different writer surface is discovered and proven.
 
 ## Open questions
 
-- `artifact:hydrology._internal.windField` is currently tagged as internal; do we want a stable public wind artifact tag (or should downstream consumers continue to rely on derived outputs only)?
+- `artifact:hydrology._internal.windField` publishes atmospheric wind only. Ocean currents remain
+  invocation-local baseline evidence for thermal coupling and visualization; promote them only if
+  a downstream causal consumer emerges.

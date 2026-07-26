@@ -446,12 +446,6 @@ const mapConfig = {
         "petTemperatureWeight": 140,
         "humidityDampening": 0.45
       },
-      "diagnostics": {
-        "barrierSteps": 4,
-        "barrierElevationM": 500,
-        "continentalityMaxDist": 12,
-        "convergenceNormalization": 64
-      },
       "knobs": {
         "dryness": "dry",
         "temperature": "temperate",
@@ -713,15 +707,6 @@ const mapConfig = {
     "map-rivers": {
       "knobs": {
         "navigableRiverDensity": "sparse"
-      },
-      "plot-rivers": {
-        "selectNavigableRiverTerrain": {
-          "strategy": "endpoint-chain-ranking",
-          "config": {
-            "endpointDischargePercentileMin": 0.94,
-            "targetMajorTileFraction": 0.28
-          }
-        }
       }
     },
     "map-ecology": {
@@ -826,7 +811,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-desert-mountains",
-  configHash: "70bd0aa2932c281a7ff825f8a03c5b719cc79112aec7dd559411b3cf13afb069",
-  envelopeHash: "c6aafffbe1aab8f82520c0843177e5f525bc1817b91fc16247b4478370d2a311",
+  configHash: "3e81c7e88ec887a8b00728f49aa19aa42d642678ffcf9ad37f934c87f20018cb",
+  envelopeHash: "2468102f6a0deabbaee9c5b109d6144a91527faeae57e1e92f6b4091d1c87cc1",
   config: mapConfig.config,
 });

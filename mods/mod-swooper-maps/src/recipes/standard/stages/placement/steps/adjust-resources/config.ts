@@ -1,4 +1,4 @@
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import resources from "@mapgen/domain/resources";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
@@ -18,7 +18,7 @@ export const AdjustResourcesStepContract = defineStep({
       placementArtifacts.resourceEligibility,
       placementArtifacts.startAssignment,
       placementArtifacts.landmassRegionSlotByTile,
-      morphologyArtifacts.landmasses,
+      morphologyLandformsArtifacts.landmasses,
     ],
     provides: [placementArtifacts.resourcePlanAdjusted],
   },

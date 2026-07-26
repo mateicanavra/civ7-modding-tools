@@ -1,6 +1,7 @@
-import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "@mapgen/domain/hydrology/model/policy/hydrography-knob-policy.js";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { measureStandardRiverNetwork } from "../../../../../metrics/families/hydrology/river-network.js";
 import { defineStandardVizMeta } from "../../../../../viz.js";
+import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "../../model/policy/hydrography-knob-policy.js";
 import { LakesStepContract } from "./config.js";
 
 type HydrologyLakeinessKnob = "few" | "normal" | "many";
@@ -52,16 +53,15 @@ export const LakesStep = createStep(LakesStepContract, {
       config.planLakes
     );
 
-    const publishedLakePlan = {
+    const publishedLakePlan = deps.artifacts.lakePlan.publish(context, {
       width,
       height,
       lakeMask: lakePlan.lakeMask,
       plannedLakeTileCount: lakePlan.plannedLakeTileCount,
       sinkLakeCount: lakePlan.sinkLakeCount,
-    };
-    deps.artifacts.lakePlan.publish(context, publishedLakePlan);
+    });
 
-    const riverNetworkMetrics = ops.computeRiverNetworkMetrics(
+    const riverNetwork = ops.classifyRiverNetwork(
       {
         width,
         height,
@@ -69,30 +69,45 @@ export const LakesStep = createStep(LakesStepContract, {
         elevation: topography.elevation,
         routingElevation: hydrography.routingElevation,
         depressionDepth: hydrography.depressionDepth,
-        runoff: hydrography.runoff,
+        discharge: hydrography.discharge,
+        riverClass: hydrography.riverClass,
+        flowDir: hydrography.flowDir,
+        terminalType: hydrography.terminalType,
+        lakeMask: publishedLakePlan.lakeMask,
+      },
+      config.classifyRiverNetwork
+    );
+
+    const publishedRiverNetwork = deps.artifacts.riverNetwork.publish(context, {
+      upstreamArea: riverNetwork.upstreamArea,
+      streamOrderProxy: riverNetwork.streamOrderProxy,
+      mouthType: riverNetwork.mouthType,
+      slopeClass: riverNetwork.slopeClass,
+      flowPermanenceProxy: riverNetwork.flowPermanenceProxy,
+    });
+    return {
+      lakePlan: publishedLakePlan,
+      riverNetwork: publishedRiverNetwork,
+      riverNetworkMeasurementInput: {
+        width,
+        height,
+        landMask: topography.landMask,
         discharge: hydrography.discharge,
         riverClass: hydrography.riverClass,
         flowDir: hydrography.flowDir,
         basinId: hydrography.basinId,
-        terminalType: hydrography.terminalType,
-        lakeMask: lakePlan.lakeMask,
+        lakeMask: publishedLakePlan.lakeMask,
+        upstreamArea: publishedRiverNetwork.upstreamArea,
+        streamOrderProxy: publishedRiverNetwork.streamOrderProxy,
+        mouthType: publishedRiverNetwork.mouthType,
+        flowPermanenceProxy: publishedRiverNetwork.flowPermanenceProxy,
       },
-      config.computeRiverNetworkMetrics
-    );
-
-    deps.artifacts.riverNetwork.publish(context, {
-      upstreamArea: riverNetworkMetrics.upstreamArea,
-      streamOrderProxy: riverNetworkMetrics.streamOrderProxy,
-      mouthType: riverNetworkMetrics.mouthType,
-      slopeClass: riverNetworkMetrics.slopeClass,
-      flowPermanenceProxy: riverNetworkMetrics.flowPermanenceProxy,
-    });
-    return { lakePlan: publishedLakePlan, riverNetworkMetrics };
+    };
   },
   metrics: ({ result }) => ({
-    "hydrology.riverNetwork": result.riverNetworkMetrics.measurements,
+    "hydrology.riverNetwork": measureStandardRiverNetwork(result.riverNetworkMeasurementInput),
   }),
-  viz: ({ result: { lakePlan, riverNetworkMetrics }, dimensions }) => [
+  viz: ({ result: { lakePlan, riverNetwork }, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "hydrology.lakes.lakePlan",
@@ -109,7 +124,7 @@ export const LakesStep = createStep(LakesStepContract, {
       dataTypeKey: "hydrology.hydrography.upstreamArea",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "i32", values: riverNetworkMetrics.upstreamArea },
+      field: { format: "i32", values: riverNetwork.upstreamArea },
       meta: defineStandardVizMeta("hydrology.hydrography.upstreamArea", "field.intensity", {
         label: "Upstream Area",
         group: GROUP_HYDROGRAPHY,
@@ -121,7 +136,7 @@ export const LakesStep = createStep(LakesStepContract, {
       dataTypeKey: "hydrology.hydrography.streamOrderProxy",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: riverNetworkMetrics.streamOrderProxy },
+      field: { format: "u8", values: riverNetwork.streamOrderProxy },
       meta: defineStandardVizMeta("hydrology.hydrography.streamOrderProxy", "category.distinct", {
         label: "Stream Order Proxy",
         group: GROUP_HYDROGRAPHY,
@@ -133,7 +148,7 @@ export const LakesStep = createStep(LakesStepContract, {
       dataTypeKey: "hydrology.hydrography.mouthType",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: riverNetworkMetrics.mouthType },
+      field: { format: "u8", values: riverNetwork.mouthType },
       meta: defineStandardVizMeta("hydrology.hydrography.mouthType", "category.distinct", {
         label: "River Mouth Type",
         group: GROUP_HYDROGRAPHY,
@@ -145,7 +160,7 @@ export const LakesStep = createStep(LakesStepContract, {
       dataTypeKey: "hydrology.hydrography.slopeClass",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: riverNetworkMetrics.slopeClass },
+      field: { format: "u8", values: riverNetwork.slopeClass },
       meta: defineStandardVizMeta("hydrology.hydrography.slopeClass", "category.distinct", {
         label: "River Slope Class",
         group: GROUP_HYDROGRAPHY,
@@ -157,7 +172,7 @@ export const LakesStep = createStep(LakesStepContract, {
       dataTypeKey: "hydrology.hydrography.flowPermanenceProxy",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: riverNetworkMetrics.flowPermanenceProxy },
+      field: { format: "u8", values: riverNetwork.flowPermanenceProxy },
       meta: defineStandardVizMeta(
         "hydrology.hydrography.flowPermanenceProxy",
         "category.distinct",

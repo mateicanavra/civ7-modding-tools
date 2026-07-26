@@ -1,10 +1,11 @@
 import { describe, expect, it } from "bun:test";
-
 import { createMockAdapter } from "@civ7/adapter";
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
-import ecology from "@mapgen/domain/ecology/ops";
-import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
+import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
+import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
+import ecology from "@mapgen/domain/ecology/router";
+import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
+import { artifacts as cryosphereArtifacts } from "@mapgen/domain/hydrology/modules/cryosphere/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -14,14 +15,14 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { BiomesStep as biomesStep } from "../../../../../../../src/recipes/standard/stages/ecology/biomes/steps/biomes/step.js";
-import { TEST_MAP_SIZE } from "../../../../../../map-size.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../setup.js";
 
 describe("biomes step", () => {
   it("publishes classifier-owned biome and vegetation truth from Hydrology climate indices", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const setup = admitMapSetup({
-      mapSeed: 0,
+      mapSeed: TEST_MAP_SEED,
       dimensions: TEST_MAP_SIZE.dimensions,
       latitudeBounds: {
         topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
@@ -57,13 +58,13 @@ describe("biomes step", () => {
     );
 
     withMapContextExecutionForTest(ctx, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation,
         seaLevel: 0,
         landMask,
         bathymetry: new Int16Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyArtifacts.cryosphere, {
+      publishTestArtifact(stepContext, cryosphereArtifacts.cryosphere, {
         snowCover: new Uint8Array(size),
         seaIceCover: new Uint8Array(size),
         albedo: new Uint8Array(size),
@@ -72,14 +73,14 @@ describe("biomes step", () => {
         meltPotential01: new Float32Array(size),
       });
 
-      publishTestArtifact(stepContext, hydrologyArtifacts.climateIndices, {
+      publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
         surfaceTemperatureC,
         effectiveMoisture: effectiveMoistureIn,
         pet: new Float32Array(size),
         aridityIndex,
         freezeIndex,
       });
-      publishTestArtifact(stepContext, ecologyArtifacts.pedology, {
+      publishTestArtifact(stepContext, pedologyArtifacts.pedology, {
         width,
         height,
         soilType: new Uint8Array(size).fill(0),
@@ -87,11 +88,11 @@ describe("biomes step", () => {
       });
 
       const classifyConfig = normalizeOperationSelectionForTest(
-        ecology.ops.classifyBiomes,
-        ecology.ops.classifyBiomes.defaultConfig
+        ecology.biomes.ops.classifyBiomes,
+        ecology.biomes.ops.classifyBiomes.defaultConfig
       );
 
-      const ops = ecology.ops.bind(biomesStep.contract.ops!).runtime;
+      const ops = ecology.biomes.ops.bind(biomesStep.contract.ops!).runtime;
       biomesStep.run(
         stepContext,
         { classify: classifyConfig },
@@ -100,7 +101,7 @@ describe("biomes step", () => {
       );
     });
 
-    const classification = readValidatedArtifact(ctx, ecologyArtifacts.biomeClassification);
+    const classification = readValidatedArtifact(ctx, biomeArtifacts.biomeClassification);
     expect(Array.from(classification.biomeIndex)).not.toContain(255);
     expect(new Set(classification.biomeIndex).size).toBeGreaterThan(1);
     expect(new Set(classification.vegetationDensity).size).toBeGreaterThan(1);
@@ -110,7 +111,7 @@ describe("biomes step", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const setup = admitMapSetup({
-      mapSeed: 0,
+      mapSeed: TEST_MAP_SEED,
       dimensions: TEST_MAP_SIZE.dimensions,
       latitudeBounds: {
         topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
@@ -119,8 +120,8 @@ describe("biomes step", () => {
     });
 
     const classifyConfig = normalizeOperationSelectionForTest(
-      ecology.ops.classifyBiomes,
-      ecology.ops.classifyBiomes.defaultConfig
+      ecology.biomes.ops.classifyBiomes,
+      ecology.biomes.ops.classifyBiomes.defaultConfig
     );
 
     const run = (effectiveMoistureIn: Float32Array): Float32Array => {
@@ -137,13 +138,13 @@ describe("biomes step", () => {
       const elevation = new Int16Array(size).fill(1);
 
       withMapContextExecutionForTest(ctx, (stepContext) => {
-        publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+        publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
           elevation,
           seaLevel: 0,
           landMask,
           bathymetry: new Int16Array(size),
         });
-        publishTestArtifact(stepContext, hydrologyArtifacts.cryosphere, {
+        publishTestArtifact(stepContext, cryosphereArtifacts.cryosphere, {
           snowCover: new Uint8Array(size),
           seaIceCover: new Uint8Array(size),
           albedo: new Uint8Array(size),
@@ -151,21 +152,21 @@ describe("biomes step", () => {
           permafrost01: new Float32Array(size),
           meltPotential01: new Float32Array(size),
         });
-        publishTestArtifact(stepContext, hydrologyArtifacts.climateIndices, {
+        publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
           surfaceTemperatureC: new Float32Array(size).fill(15),
           effectiveMoisture: effectiveMoistureIn,
           pet: new Float32Array(size),
           aridityIndex: new Float32Array(size).fill(0.2),
           freezeIndex: new Float32Array(size).fill(0.05),
         });
-        publishTestArtifact(stepContext, ecologyArtifacts.pedology, {
+        publishTestArtifact(stepContext, pedologyArtifacts.pedology, {
           width,
           height,
           soilType: new Uint8Array(size).fill(0),
           fertility: new Float32Array(size).fill(0.5),
         });
 
-        const ops = ecology.ops.bind(biomesStep.contract.ops!).runtime;
+        const ops = ecology.biomes.ops.bind(biomesStep.contract.ops!).runtime;
         biomesStep.run(
           stepContext,
           { classify: classifyConfig },
@@ -173,7 +174,7 @@ describe("biomes step", () => {
           buildStepTestDependencies(biomesStep)
         );
       });
-      return readValidatedArtifact(ctx, ecologyArtifacts.biomeClassification).vegetationDensity;
+      return readValidatedArtifact(ctx, biomeArtifacts.biomeClassification).vegetationDensity;
     };
 
     const baseline = new Float32Array(size).fill(120);
