@@ -36,6 +36,12 @@ function isPortableScalar(schema: TSchema): boolean {
   );
 }
 
+function assertExplicitDefault(schema: TSchema, path: string): void {
+  if (!IsDefault(schema)) {
+    throw new Error(`Complete authored config value at "${path}" must declare a default`);
+  }
+}
+
 function isEmptyObjectDefault(schema: TObject): boolean {
   return (
     Object.keys(schema.properties).length > 0 &&
@@ -48,9 +54,16 @@ function isEmptyObjectDefault(schema: TObject): boolean {
 /**
  * Refuses incomplete or non-portable authored configuration before `Value.Create` is authoritative.
  * Every nested key must be statically named, required, closed, and represented by supported
- * TypeBox algebra so generated defaults and serialized configuration retain the same shape.
+ * TypeBox algebra. Author-selected scalars and collections declare explicit defaults; literal and
+ * null values are self-defining. A union or collection default owns that complete choice/value
+ * while its members remain structurally checked. This keeps generated defaults and serialized
+ * configuration in the same deliberate shape instead of accepting TypeBox's implicit values.
  */
 export function assertCompleteConfigSchema(schema: TSchema, path: string): void {
+  assertCompleteConfigNode(schema, path, true);
+}
+
+function assertCompleteConfigNode(schema: TSchema, path: string, requiresDefault: boolean): void {
   if (IsOptional(schema)) {
     throw new Error(`Complete authored config schema at "${path}" is optional`);
   }
@@ -75,29 +88,32 @@ export function assertCompleteConfigSchema(schema: TSchema, path: string): void 
       throw new Error(`Complete authored config object at "${path}" uses a structural default`);
     }
     for (const [key, property] of Object.entries(schema.properties)) {
-      assertCompleteConfigSchema(property, `${path}/${key}`);
+      assertCompleteConfigNode(property, `${path}/${key}`, requiresDefault);
     }
     return;
   }
   if (IsUnion(schema)) {
+    if (requiresDefault) assertExplicitDefault(schema, path);
     schema.anyOf.forEach((member, index) =>
-      assertCompleteConfigSchema(member, `${path}/union:${index}`)
+      assertCompleteConfigNode(member, `${path}/union:${index}`, false)
     );
     return;
   }
   if (IsArray(schema)) {
-    assertCompleteConfigSchema(schema.items, `${path}/items`);
+    if (requiresDefault) assertExplicitDefault(schema, path);
+    assertCompleteConfigNode(schema.items, `${path}/items`, false);
     return;
   }
   if (IsTuple(schema)) {
+    if (requiresDefault) assertExplicitDefault(schema, path);
     schema.items.forEach((item, index) =>
-      assertCompleteConfigSchema(item, `${path}/tuple:${index}`)
+      assertCompleteConfigNode(item, `${path}/tuple:${index}`, false)
     );
     return;
   }
   if (IsIntersect(schema)) {
     schema.allOf.forEach((member, index) =>
-      assertCompleteConfigSchema(member, `${path}/intersect:${index}`)
+      assertCompleteConfigNode(member, `${path}/intersect:${index}`, requiresDefault)
     );
     return;
   }
@@ -119,4 +135,5 @@ export function assertCompleteConfigSchema(schema: TSchema, path: string): void 
       `Complete authored config schema at "${path}" contains an unsupported, unresolved, or non-portable TypeBox kind`
     );
   }
+  if (requiresDefault && !IsNull(schema)) assertExplicitDefault(schema, path);
 }

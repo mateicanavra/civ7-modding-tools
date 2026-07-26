@@ -1,23 +1,63 @@
 import { describe, expect, it } from "bun:test";
 import { assertCompleteConfigSchema } from "@mapgen/authoring/schema/config.js";
 import { type TSchema, Type } from "typebox";
+import { Value } from "typebox/value";
 
 describe("complete authored configuration", () => {
   it("admits closed, required, portable TypeBox algebra", () => {
     const schema = Type.Object(
       {
         scalar: Type.Number({ default: 1 }),
-        union: Type.Union([Type.Literal("automatic"), Type.Literal("manual")]),
-        array: Type.Array(Type.String()),
-        tuple: Type.Tuple([Type.Boolean(), Type.Integer()]),
+        union: Type.Union([Type.Literal("automatic"), Type.Literal("manual")], {
+          default: "automatic",
+        }),
+        array: Type.Array(Type.String(), { default: [] }),
+        tuple: Type.Tuple([Type.Boolean(), Type.Integer()], {
+          default: [false, 0],
+        }),
         intersection: Type.Intersect([
-          Type.Object({ enabled: Type.Boolean() }, { additionalProperties: false }),
+          Type.Object(
+            { enabled: Type.Boolean({ default: false }) },
+            { additionalProperties: false }
+          ),
         ]),
       },
       { additionalProperties: false }
     );
 
     expect(() => assertCompleteConfigSchema(schema, "config")).not.toThrow();
+    expect(Value.Create(schema)).toEqual({
+      scalar: 1,
+      union: "automatic",
+      array: [],
+      tuple: [false, 0],
+      intersection: { enabled: false },
+    });
+  });
+
+  it("refuses implicit TypeBox defaults for authored scalar and collection values", () => {
+    const cases: readonly TSchema[] = [
+      Type.Number(),
+      Type.Integer(),
+      Type.String(),
+      Type.Boolean(),
+      Type.Enum(["automatic", "manual"]),
+      Type.TemplateLiteral("value-${string}"),
+      Type.Array(Type.String()),
+      Type.Tuple([Type.Boolean()]),
+      Type.Union([Type.Literal("automatic"), Type.Literal("manual")]),
+    ];
+
+    for (const schema of cases) {
+      expect(() => assertCompleteConfigSchema(schema, "config/value")).toThrow(
+        /must declare a default/
+      );
+    }
+  });
+
+  it("treats literal and null values as self-defining", () => {
+    expect(() => assertCompleteConfigSchema(Type.Literal("fixed"), "config/literal")).not.toThrow();
+    expect(() => assertCompleteConfigSchema(Type.Null(), "config/null")).not.toThrow();
   });
 
   it("refuses optional properties throughout supported schema algebra", () => {
@@ -28,12 +68,19 @@ describe("complete authored configuration", () => {
         { nested: Type.Object({ amount: optional() }, { additionalProperties: false }) },
         { additionalProperties: false }
       ),
-      Type.Union([
-        Type.Object({ amount: optional() }, { additionalProperties: false }),
-        Type.Object({ amount: Type.Number() }, { additionalProperties: false }),
-      ]),
-      Type.Array(Type.Object({ amount: optional() }, { additionalProperties: false })),
-      Type.Tuple([Type.Object({ amount: optional() }, { additionalProperties: false })]),
+      Type.Union(
+        [
+          Type.Object({ amount: optional() }, { additionalProperties: false }),
+          Type.Object({ amount: Type.Number() }, { additionalProperties: false }),
+        ],
+        { default: { amount: 1 } }
+      ),
+      Type.Array(Type.Object({ amount: optional() }, { additionalProperties: false }), {
+        default: [],
+      }),
+      Type.Tuple([Type.Object({ amount: optional() }, { additionalProperties: false })], {
+        default: [{}],
+      }),
       Type.Intersect([Type.Object({ amount: optional() }, { additionalProperties: false })]),
     ];
 
