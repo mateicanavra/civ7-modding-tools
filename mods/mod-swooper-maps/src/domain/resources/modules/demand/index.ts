@@ -1,15 +1,16 @@
 export { default } from "./contract.js";
-
-export {
-  EARTHLIKE_RESOURCE_EXPECTATIONS,
-  type EarthlikeResourceExpectation,
-  type ResourceExpectationGroupId,
-  type ResourceExpectationStatus,
-} from "./model/policy/earthlike-expectations.js";
 export {
   type ResourceExpectationRangeEvidence,
   type ResourceExpectedCountRange,
 } from "./model/atoms/expected-count-range.schema.js";
+export {
+  EARTHLIKE_RESOURCE_EXPECTATIONS,
+  type EarthlikeResourceExpectation,
+  type ResourceExpectationGroupId,
+  type ResourceExpectationInput,
+  type ResourceExpectationStatus,
+  resourceExpectationsForGroup,
+} from "./model/policy/earthlike-expectations.js";
 export {
   buildHabitatEligibility,
   type HabitatEligibility,
@@ -30,3 +31,4 @@ export {
   type InitialMapResourceAuthoringStatus,
   isInitialMapResourceType,
 } from "./model/policy/initial-map-authoring.js";
+export { resolveResourceRegionMinimumRequirement } from "./model/policy/resource-region-minimum.js";

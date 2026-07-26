@@ -1300,6 +1300,10 @@ const mapConfig = {
         "groups": {
           "strategy": "canonical-rollup",
           "config": {}
+        },
+        "demands": {
+          "strategy": "policy-constrained",
+          "config": {}
         }
       },
       "assign-starts": {
@@ -1391,7 +1395,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountains-of-time-original",
-  configHash: "477afaf8a0313ab09146793163b095abca59929d6f058f004e5744faafc387e8",
-  envelopeHash: "e62a8211467aae2a34591a61422b3275d915d6ab0978583c6b6f3b5f22249a6a",
+  configHash: "524511f4b53bc09dfd33b1c24e1fe8f3dd54d5cab5de23ead9b8ecd8d7d4d45d",
+  envelopeHash: "cb9efb627d6cc1827490d04517659cfb0ed4ff482141c4c0624209f9026aa6c9",
   config: mapConfig.config,
 });

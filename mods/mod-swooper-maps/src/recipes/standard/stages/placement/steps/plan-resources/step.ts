@@ -1,15 +1,16 @@
-import { type OfficialResourceType, resolveResourceRuntimeIds } from "@civ7/map-policy";
-import { INITIAL_MAP_RESOURCE_AUTHORING_AGE } from "@mapgen/domain/resources";
+import { getCiv7StandardMapSizePresetForDimensions } from "@civ7/adapter";
+import {
+  type OfficialResourceType,
+  resolveMapResourceMinimumAmountModifier,
+  resolveResourceRuntimeIds,
+} from "@civ7/map-policy";
+import {
+  INITIAL_MAP_RESOURCE_AUTHORING_AGE,
+  resourceExpectationsForGroup,
+} from "@mapgen/domain/resources";
 import { deriveStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { config } from "./config.js";
-import {
-  assertHabitatFieldsOutput,
-  buildResourceDemands,
-  buildRiverResourceExclusionMask,
-  expectationsForGroup,
-  readResourceLegalitySurface,
-} from "./planning.js";
 import { projectResourcePlanViz } from "./viz.js";
 
 /**
@@ -63,98 +64,96 @@ export const PlanResourcesStep = createStep(config, {
       },
       stepConfig.habitat
     );
-    const plannerHabitat = assertHabitatFieldsOutput(habitat, width * height);
-
     // --- step 1: family demand/eligibility planners (domain/resources ops) ------------------
     const aquaticInput: Parameters<typeof ops.aquatic>[0] = {
       width,
       height,
-      expectations: expectationsForGroup("aquatic-coastal-navigable-river"),
-      coastalWaterMask: plannerHabitat.coastalWaterMask,
-      shelfMask: plannerHabitat.shelfMask,
-      warmShallowWaterMask: plannerHabitat.warmShallowWaterMask,
-      coldProductiveWaterMask: plannerHabitat.coldProductiveWaterMask,
-      reefOrProtectedShallowsMask: plannerHabitat.reefOrProtectedShallowsMask,
-      estuaryMask: plannerHabitat.estuaryMask,
-      navigableRiverMouthMask: plannerHabitat.navigableRiverMouthMask,
-      lakeMask: plannerHabitat.lakeMask,
-      iceMask: plannerHabitat.iceMask,
+      expectations: resourceExpectationsForGroup("aquatic-coastal-navigable-river"),
+      coastalWaterMask: habitat.coastalWaterMask,
+      shelfMask: habitat.shelfMask,
+      warmShallowWaterMask: habitat.warmShallowWaterMask,
+      coldProductiveWaterMask: habitat.coldProductiveWaterMask,
+      reefOrProtectedShallowsMask: habitat.reefOrProtectedShallowsMask,
+      estuaryMask: habitat.estuaryMask,
+      navigableRiverMouthMask: habitat.navigableRiverMouthMask,
+      lakeMask: habitat.lakeMask,
+      iceMask: habitat.iceMask,
     };
     const aquatic = ops.aquatic(aquaticInput, stepConfig.aquatic);
 
     const cultivatedInput: Parameters<typeof ops.cultivated>[0] = {
       width,
       height,
-      expectations: expectationsForGroup("cultivated-plantation-medicinal"),
-      warmAlluvialMask: plannerHabitat.warmAlluvialMask,
-      floodplainOrRiverMask: plannerHabitat.floodplainOrRiverMask,
-      warmGrassPlainsMask: plannerHabitat.warmGrassPlainsMask,
-      oasisOrDesertWaterMask: plannerHabitat.oasisOrDesertWaterMask,
-      aridDryWoodlandMask: plannerHabitat.aridDryWoodlandMask,
-      coastalMarineMask: plannerHabitat.coastalMarineMask,
-      humidTropicalForestMask: plannerHabitat.humidTropicalForestMask,
-      wetTropicsMask: plannerHabitat.wetTropicsMask,
-      highlandOrReliefMask: plannerHabitat.highlandOrReliefMask,
-      temperateDryPlainsMask: plannerHabitat.temperateDryPlainsMask,
-      savannaForestMask: plannerHabitat.savannaForestMask,
-      tropicalFruitMask: plannerHabitat.tropicalFruitMask,
-      wetlandPaddyMask: plannerHabitat.wetlandPaddyMask,
-      coolTemperatePlainsMask: plannerHabitat.coolTemperatePlainsMask,
-      coldMask: plannerHabitat.coldMask,
-      aridWithoutWaterMask: plannerHabitat.aridWithoutWaterMask,
-      waterloggedMask: plannerHabitat.waterloggedMask,
+      expectations: resourceExpectationsForGroup("cultivated-plantation-medicinal"),
+      warmAlluvialMask: habitat.warmAlluvialMask,
+      floodplainOrRiverMask: habitat.floodplainOrRiverMask,
+      warmGrassPlainsMask: habitat.warmGrassPlainsMask,
+      oasisOrDesertWaterMask: habitat.oasisOrDesertWaterMask,
+      aridDryWoodlandMask: habitat.aridDryWoodlandMask,
+      coastalMarineMask: habitat.coastalMarineMask,
+      humidTropicalForestMask: habitat.humidTropicalForestMask,
+      wetTropicsMask: habitat.wetTropicsMask,
+      highlandOrReliefMask: habitat.highlandOrReliefMask,
+      temperateDryPlainsMask: habitat.temperateDryPlainsMask,
+      savannaForestMask: habitat.savannaForestMask,
+      tropicalFruitMask: habitat.tropicalFruitMask,
+      wetlandPaddyMask: habitat.wetlandPaddyMask,
+      coolTemperatePlainsMask: habitat.coolTemperatePlainsMask,
+      coldMask: habitat.coldMask,
+      aridWithoutWaterMask: habitat.aridWithoutWaterMask,
+      waterloggedMask: habitat.waterloggedMask,
     };
     const cultivated = ops.cultivated(cultivatedInput, stepConfig.cultivated);
 
     const terrestrialInput: Parameters<typeof ops.terrestrial>[0] = {
       width,
       height,
-      expectations: expectationsForGroup("terrestrial-animal-forest-wild"),
-      aridRangelandMask: plannerHabitat.aridRangelandMask,
-      openGrassPlainsMask: plannerHabitat.openGrassPlainsMask,
-      tundraColdEdgeMask: plannerHabitat.tundraColdEdgeMask,
-      hillHighlandMask: plannerHabitat.hillHighlandMask,
-      savannaWateringHoleMask: plannerHabitat.savannaWateringHoleMask,
-      tropicalForestEdgeMask: plannerHabitat.tropicalForestEdgeMask,
-      taigaBorealForestMask: plannerHabitat.taigaBorealForestMask,
-      moistWoodlandEdgeMask: plannerHabitat.moistWoodlandEdgeMask,
-      tropicalForestMask: plannerHabitat.tropicalForestMask,
-      diverseWildHabitatMask: plannerHabitat.diverseWildHabitatMask,
-      tropicalHighlandMask: plannerHabitat.tropicalHighlandMask,
-      coldMask: plannerHabitat.coldMask,
-      aridWithoutWaterMask: plannerHabitat.aridWithoutWaterMask,
-      denseForestMask: plannerHabitat.denseForestMask,
-      cultivatedPressureMask: plannerHabitat.cultivatedPressureMask,
+      expectations: resourceExpectationsForGroup("terrestrial-animal-forest-wild"),
+      aridRangelandMask: habitat.aridRangelandMask,
+      openGrassPlainsMask: habitat.openGrassPlainsMask,
+      tundraColdEdgeMask: habitat.tundraColdEdgeMask,
+      hillHighlandMask: habitat.hillHighlandMask,
+      savannaWateringHoleMask: habitat.savannaWateringHoleMask,
+      tropicalForestEdgeMask: habitat.tropicalForestEdgeMask,
+      taigaBorealForestMask: habitat.taigaBorealForestMask,
+      moistWoodlandEdgeMask: habitat.moistWoodlandEdgeMask,
+      tropicalForestMask: habitat.tropicalForestMask,
+      diverseWildHabitatMask: habitat.diverseWildHabitatMask,
+      tropicalHighlandMask: habitat.tropicalHighlandMask,
+      coldMask: habitat.coldMask,
+      aridWithoutWaterMask: habitat.aridWithoutWaterMask,
+      denseForestMask: habitat.denseForestMask,
+      cultivatedPressureMask: habitat.cultivatedPressureMask,
     };
     const terrestrial = ops.terrestrial(terrestrialInput, stepConfig.terrestrial);
 
     const geologicalInput: Parameters<typeof ops.geological>[0] = {
       width,
       height,
-      expectations: expectationsForGroup("geological-mineral-gemstone-industrial"),
-      orogenyMask: plannerHabitat.orogenyMask,
-      alluvialPlacerMask: plannerHabitat.alluvialPlacerMask,
-      tundraDesertHillMask: plannerHabitat.tundraDesertHillMask,
-      evaporiteBasinMask: plannerHabitat.evaporiteBasinMask,
-      sedimentaryBasinMask: plannerHabitat.sedimentaryBasinMask,
-      ultramaficMask: plannerHabitat.ultramaficMask,
-      weatheringClayFlatMask: plannerHabitat.weatheringClayFlatMask,
-      carbonateBeltMask: plannerHabitat.carbonateBeltMask,
-      cratonMask: plannerHabitat.cratonMask,
-      closedBasinMask: plannerHabitat.closedBasinMask,
-      aridSoilMask: plannerHabitat.aridSoilMask,
-      forestWetlandBasinMask: plannerHabitat.forestWetlandBasinMask,
-      hydrocarbonBasinMask: plannerHabitat.hydrocarbonBasinMask,
-      wetAlluvialMask: plannerHabitat.wetAlluvialMask,
-      graniteBeltMask: plannerHabitat.graniteBeltMask,
-      oilAdjacencyMask: plannerHabitat.oilAdjacencyMask,
-      metamorphicBeltMask: plannerHabitat.metamorphicBeltMask,
-      collisionBeltMask: plannerHabitat.collisionBeltMask,
-      flatNonGeologicMask: plannerHabitat.flatNonGeologicMask,
-      wetSuppressionMask: plannerHabitat.wetSuppressionMask,
-      humidSuppressionMask: plannerHabitat.humidSuppressionMask,
-      offshoreMask: plannerHabitat.offshoreMask,
-      igneousTerrainMask: plannerHabitat.igneousTerrainMask,
+      expectations: resourceExpectationsForGroup("geological-mineral-gemstone-industrial"),
+      orogenyMask: habitat.orogenyMask,
+      alluvialPlacerMask: habitat.alluvialPlacerMask,
+      tundraDesertHillMask: habitat.tundraDesertHillMask,
+      evaporiteBasinMask: habitat.evaporiteBasinMask,
+      sedimentaryBasinMask: habitat.sedimentaryBasinMask,
+      ultramaficMask: habitat.ultramaficMask,
+      weatheringClayFlatMask: habitat.weatheringClayFlatMask,
+      carbonateBeltMask: habitat.carbonateBeltMask,
+      cratonMask: habitat.cratonMask,
+      closedBasinMask: habitat.closedBasinMask,
+      aridSoilMask: habitat.aridSoilMask,
+      forestWetlandBasinMask: habitat.forestWetlandBasinMask,
+      hydrocarbonBasinMask: habitat.hydrocarbonBasinMask,
+      wetAlluvialMask: habitat.wetAlluvialMask,
+      graniteBeltMask: habitat.graniteBeltMask,
+      oilAdjacencyMask: habitat.oilAdjacencyMask,
+      metamorphicBeltMask: habitat.metamorphicBeltMask,
+      collisionBeltMask: habitat.collisionBeltMask,
+      flatNonGeologicMask: habitat.flatNonGeologicMask,
+      wetSuppressionMask: habitat.wetSuppressionMask,
+      humidSuppressionMask: habitat.humidSuppressionMask,
+      offshoreMask: habitat.offshoreMask,
+      igneousTerrainMask: habitat.igneousTerrainMask,
     };
     const geological = ops.geological(geologicalInput, stepConfig.geological);
     const groups = ops.groups(
@@ -168,43 +167,52 @@ export const PlanResourcesStep = createStep(config, {
     );
 
     // --- id evidence + policy legality + demand rows --------------------------------------------
-    const legalitySurface = readResourceLegalitySurface(currentEngineSurface);
     const plannedRows = groups.groups.flatMap((group) => group.plans);
-    const requiredForAgeByResourceType = new Map<OfficialResourceType, boolean | null>();
+    const requiredForAge: Record<string, boolean | null> = {};
+    const observedResourceTypes = new Set<OfficialResourceType>();
     const runtimeIds = resolveResourceRuntimeIds();
     for (const row of plannedRows) {
       if (row.status !== "planned") continue;
       const resourceType = row.resourceType as OfficialResourceType;
       const resolved = runtimeIds.byType.get(resourceType);
       if (!resolved || resolved.minimumPerHemisphere <= 0) continue;
-      if (requiredForAgeByResourceType.has(resourceType)) continue;
-      requiredForAgeByResourceType.set(
-        resourceType,
-        deps.engine.isResourceRequiredForAge(
-          context,
-          resolved.resourceTypeId,
-          INITIAL_MAP_RESOURCE_AUTHORING_AGE
-        )
+      if (observedResourceTypes.has(resourceType)) continue;
+      observedResourceTypes.add(resourceType);
+      requiredForAge[resourceType] = deps.engine.isResourceRequiredForAge(
+        context,
+        resolved.resourceTypeId,
+        INITIAL_MAP_RESOURCE_AUTHORING_AGE
       );
     }
-    // Rivers product requirement: no resources on river tiles (planned or
-    // engine-projected, navigable water included). Excluded at the legality
-    // seam so it flows through site selection, support, and stamping.
-    const riverResourceExclusionMask = buildRiverResourceExclusionMask({
-      width,
-      height,
-      projectedNavigableRivers,
-      currentEngineSurface,
-    });
-    const demandResult = buildResourceDemands({
-      width,
-      height,
-      plannedRows,
-      habitat: plannerHabitat,
-      legalitySurface,
-      requiredForAgeByResourceType,
-      riverResourceExclusionMask,
-    });
+    const riverMasks = [
+      projectedNavigableRivers.riverMask,
+      projectedNavigableRivers.plannedMajorRiverMask,
+      projectedNavigableRivers.plannedMinorRiverMask,
+      currentEngineSurface.riverMask,
+      currentEngineSurface.navigableRiverMask,
+      currentEngineSurface.minorRiverMask,
+    ].filter((mask): mask is Uint8Array => mask !== undefined);
+    const mapSize = getCiv7StandardMapSizePresetForDimensions(width, height);
+    const demandResult = ops.demands(
+      {
+        ...habitat,
+        width,
+        height,
+        plannedRows,
+        legalitySurface: {
+          biomeType: currentEngineSurface.biomeType,
+          terrainType: currentEngineSurface.terrainType,
+          featureType: currentEngineSurface.featureType,
+          engineWaterMask: currentEngineSurface.waterMask,
+        },
+        requiredForAge,
+        riverMasks,
+        minimumAmountModifier: mapSize
+          ? resolveMapResourceMinimumAmountModifier("DEFAULT", mapSize.id)
+          : 0,
+      },
+      stepConfig.demands
+    );
 
     // --- step 3: site selection (domain/resources op) ----------------------------------------
     const landmassTileCounts = landmasses.landmasses.map((row) => row.tileCount);

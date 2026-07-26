@@ -1305,6 +1305,10 @@
         "groups": {
           "strategy": "canonical-rollup",
           "config": {}
+        },
+        "demands": {
+          "strategy": "policy-constrained",
+          "config": {}
         }
       },
       "assign-starts": {

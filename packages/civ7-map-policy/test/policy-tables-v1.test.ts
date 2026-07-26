@@ -1,6 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
-import { CIV7_BROWSER_TABLES_V0, CIV7_POLICY_TABLES_V1 } from "../src/index.js";
+import {
+  CIV7_BROWSER_TABLES_V0,
+  CIV7_POLICY_TABLES_V1,
+  resolveMapResourceMinimumAmountModifier,
+} from "../src/index.js";
 
 const resourceIndexByType = CIV7_BROWSER_TABLES_V0.resourceTypes as Record<string, number>;
 
@@ -40,6 +44,11 @@ describe("CIV7_POLICY_TABLES_V1", () => {
     expect(defaults.length).toBeGreaterThanOrEqual(4);
     const tiny = defaults.find((row) => row.mapSizeType === "MAPSIZE_TINY");
     expect(tiny?.amount).toBe(-4);
+  });
+
+  it("resolves exact resource-minimum modifiers and treats omitted zero rows as zero", () => {
+    expect(resolveMapResourceMinimumAmountModifier("DEFAULT", "MAPSIZE_TINY")).toBe(-4);
+    expect(resolveMapResourceMinimumAmountModifier("DEFAULT", "MAPSIZE_STANDARD")).toBe(0);
   });
 
   it("attributes every StartBias row to exactly one civilization or leader", () => {

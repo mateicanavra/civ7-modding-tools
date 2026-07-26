@@ -36,7 +36,7 @@ export const artifact = defineArtifact({
         "Bounded natural-wonder plan whose ranked symbolic intents are stamped without changing wonder identity.",
     }
   ),
-  refine: (input): readonly ArtifactValidationIssue[] => {
+  refine: (input, context): readonly ArtifactValidationIssue[] => {
     const value = input as NaturalWonderPlan;
     const issues: ArtifactValidationIssue[] = [];
     const size = value.width * value.height;
@@ -47,6 +47,15 @@ export const artifact = defineArtifact({
         },
       ];
     }
+    const executionDimensions = context?.dimensions;
+    if (
+      executionDimensions &&
+      (executionDimensions.width !== value.width || executionDimensions.height !== value.height)
+    ) {
+      issues.push({
+        message: `naturalWonderPlan dimensions ${value.width}x${value.height} do not match execution dimensions ${executionDimensions.width}x${executionDimensions.height}.`,
+      });
+    }
     if (value.plannedCount !== value.placements.length) {
       issues.push({
         message: `plannedCount ${String(value.plannedCount)} != placements.length ${value.placements.length}.`,
@@ -55,6 +64,11 @@ export const artifact = defineArtifact({
     if (value.plannedCount > value.targetCount) {
       issues.push({
         message: `plannedCount ${String(value.plannedCount)} exceeds targetCount ${String(value.targetCount)}.`,
+      });
+    }
+    if (value.targetCount > value.wondersCount) {
+      issues.push({
+        message: `targetCount ${String(value.targetCount)} exceeds wondersCount ${String(value.wondersCount)}.`,
       });
     }
     const seenPlots = new Set<number>();
@@ -71,6 +85,23 @@ export const artifact = defineArtifact({
         });
       }
       seenPlots.add(placement.plotIndex);
+
+      const seenAnchors = new Set<number>([placement.plotIndex]);
+      for (const fallbackPlotIndex of placement.fallbackPlotIndices ?? []) {
+        if (fallbackPlotIndex >= size) {
+          issues.push({
+            message: `naturalWonderPlan fallback anchor ${fallbackPlotIndex} for primary ${placement.plotIndex} is out of bounds.`,
+          });
+          continue;
+        }
+        if (seenAnchors.has(fallbackPlotIndex)) {
+          issues.push({
+            message: `naturalWonderPlan anchor ${fallbackPlotIndex} is repeated for primary ${placement.plotIndex}.`,
+          });
+          continue;
+        }
+        seenAnchors.add(fallbackPlotIndex);
+      }
     }
     return issues;
   },

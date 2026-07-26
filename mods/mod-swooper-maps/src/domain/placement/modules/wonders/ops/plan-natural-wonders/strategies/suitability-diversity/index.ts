@@ -3,7 +3,7 @@
  *
  * Selects a subset of the catalog's natural wonders for one map and assigns each
  * a primary anchor (plus fallback anchors), deterministically and with NO RNG.
- * It emits intent only; `place-natural-wonders/materialize.ts` stamps it and the
+ * It emits intent only; the `place-natural-wonders` step stamps it and the
  * engine is the final legality authority. The three passes:
  *
  *   1. per-tile suitability  — `suitabilityAt` scores each (requirement-group,

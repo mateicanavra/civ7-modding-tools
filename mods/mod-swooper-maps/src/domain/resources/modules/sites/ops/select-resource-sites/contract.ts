@@ -1,18 +1,11 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import {
-  ResourceFamilySchema,
-  ResourceSymbolSchema,
-} from "../../../../model/atoms/resource-family.schema.js";
-import {
   ResourcePlanPerTypeSchema,
   ResourcePlanRegionMinimumSchema,
   ResourcePlanSettingsSchema,
 } from "../../../../model/atoms/resource-plan-evidence.schema.js";
-import {
-  ResourceLaneKindSchema,
-  ResourcePlanIntentSchema,
-} from "../../../../model/atoms/resource-site-intent.schema.js";
-import { ResourceRegionMinimumRequirementSchema } from "../../../../model/atoms/region-minimum-requirement.schema.js";
+import { ResourcePlanIntentSchema } from "../../../../model/atoms/resource-site-intent.schema.js";
+import { ResourceDemandRowSchema } from "../../../demand/model/atoms/resource-demand.schema.js";
 import blueNoiseRotationDefinition from "./strategies/blue-noise-rotation/config.js";
 
 /**
@@ -30,36 +23,6 @@ import blueNoiseRotationDefinition from "./strategies/blue-noise-rotation/config
  * after rotation with typed provenance; shortfalls are recorded, never
  * silently rescued.
  */
-
-const DemandRowSchema = Type.Object(
-  {
-    resourceType: ResourceSymbolSchema,
-    family: ResourceFamilySchema,
-    laneId: Type.String(),
-    laneKind: ResourceLaneKindSchema,
-    weight: Type.Number({
-      minimum: 1,
-      description: "Official GameInfo.Resources Weight (deficit-rotation denominator).",
-    }),
-    targetCount: Type.Integer({ minimum: 0 }),
-    minCount: Type.Integer({ minimum: 0 }),
-    maxCount: Type.Integer({ minimum: 0 }),
-    regionMinimumRequirement: ResourceRegionMinimumRequirementSchema,
-    habitatMask: TypedArraySchemas.u8({
-      cardinality: ["width", "height"],
-      description: "Habitat lane eligibility (1=in-lane).",
-    }),
-    legalMask: TypedArraySchemas.u8({
-      cardinality: ["width", "height"],
-      description: "Per-resource policy legality from Resource_ValidPlacements rows (1=legal).",
-    }),
-    intensity: TypedArraySchemas.f32({
-      cardinality: ["width", "height"],
-      description: "Habitat intensity (0..1) modulating site acceptance within the lane.",
-    }),
-  },
-  { additionalProperties: false }
-);
 
 /**
  * Admits deterministic concrete site selection from typed per-resource demands, habitat/policy
@@ -90,7 +53,7 @@ const SelectResourceSitesContract = defineOp({
         description:
           "MapResourceMinimumAmountModifier amount for the active map type/size (added to MinimumPerHemisphere).",
       }),
-      demands: Type.Array(DemandRowSchema),
+      demands: Type.Array(ResourceDemandRowSchema),
     },
     { additionalProperties: false }
   ),

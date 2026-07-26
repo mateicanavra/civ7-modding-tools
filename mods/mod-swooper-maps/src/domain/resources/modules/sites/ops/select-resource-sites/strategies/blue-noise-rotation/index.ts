@@ -1,6 +1,7 @@
 import type { OfficialResourceType } from "@civ7/map-policy";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
+import { fnv1a32String } from "@swooper/mapgen-core/lib/hash";
 import type { ResourceRegionMinimumRequirement } from "../../../../../../model/atoms/region-minimum-requirement.schema.js";
 import { spacingFloorFor } from "../../../../model/policy/spacing-floors.js";
 import Contract from "../../contract.js";
@@ -72,15 +73,6 @@ function hash01(seed: number, a: number, b: number): number {
   return hash32(seed, a, b) / 0x100000000;
 }
 
-function resourceSalt(resourceType: string): number {
-  let hash = 0x811c9dc5;
-  for (let i = 0; i < resourceType.length; i++) {
-    hash ^= resourceType.charCodeAt(i);
-    hash = Math.imul(hash, 0x01000193) >>> 0;
-  }
-  return hash >>> 0;
-}
-
 function countMask(mask: Uint8Array): number {
   let count = 0;
   for (let i = 0; i < mask.length; i++) if (mask[i] !== 0) count += 1;
@@ -141,7 +133,7 @@ const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
       return {
         index,
         resourceType: row.resourceType,
-        resourceSalt: resourceSalt(row.resourceType),
+        resourceSalt: fnv1a32String(row.resourceType),
         family: row.family,
         laneId: row.laneId,
         laneKind: row.laneKind,

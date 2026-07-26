@@ -1300,6 +1300,10 @@ const mapConfig = {
         "groups": {
           "strategy": "canonical-rollup",
           "config": {}
+        },
+        "demands": {
+          "strategy": "policy-constrained",
+          "config": {}
         }
       },
       "assign-starts": {
@@ -1391,7 +1395,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountain-patch",
-  configHash: "769995199bba4d31b98ff923ae2a32c051f0aef150518914fdb88dc611a44852",
-  envelopeHash: "b1d08628dafb3361a8ce8d30b1777ef056edddbfaf73bbbd730a6d93115d690e",
+  configHash: "0345009980591a8476f4b04ec54e1670052339720acdaab4bfa1f45c669df23f",
+  envelopeHash: "89f09126e0a323ae98f138924f2821e4cb20ac5eb44264d71feedca8cc719a55",
   config: mapConfig.config,
 });

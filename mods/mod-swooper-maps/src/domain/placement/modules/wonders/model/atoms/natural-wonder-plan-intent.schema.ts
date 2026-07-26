@@ -6,7 +6,9 @@ export const NaturalWonderPlanIntentSchema = Type.Object(
     plotIndex: Type.Integer({ minimum: 0 }),
     featureType: Type.Integer({ minimum: 0 }),
     direction: Type.Integer(),
-    elevation: Type.Number(),
+    elevation: Type.Integer({
+      description: "Planned Civ7 elevation value at the natural-wonder anchor.",
+    }),
     priority: Type.Number({ minimum: 0, maximum: 1 }),
     fallbackPlotIndices: Type.Optional(
       Type.Array(Type.Integer({ minimum: 0 }), {
