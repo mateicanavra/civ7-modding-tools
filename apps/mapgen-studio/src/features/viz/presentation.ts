@@ -84,7 +84,7 @@ function collectResolvedCategoryIds(
 const NEUTRAL_SCALAR_RAMP: ReadonlyArray<RgbaColor> = [
   [35, 35, 41, 72],
   [35, 35, 41, 150],
-  [35, 35, 41, 230],
+  [35, 35, 41, 255],
 ];
 
 // Nonfinite/no-data evidence remains transparent under the existing tile contract. A finite

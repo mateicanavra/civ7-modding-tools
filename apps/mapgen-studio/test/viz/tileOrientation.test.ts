@@ -208,7 +208,7 @@ describe("tile-space rendering orientation", () => {
 
     const neutralFill = hexLayer.props.getFillColor(3);
     const neutralLine = hexLayer.props.getLineColor(3);
-    expect(neutralFill).toEqual([35, 35, 41, 230]);
+    expect(neutralFill).toEqual([35, 35, 41, 255]);
     expect(neutralLine).toEqual(TILE_BORDER_COLOR);
     expect(neutralLine.slice(0, 3)).not.toEqual(neutralFill.slice(0, 3));
   });
