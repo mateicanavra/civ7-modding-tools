@@ -28,17 +28,16 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** complete generated-currentness ownership after retiring
-the first impossible staged-path provenance guard. The Civ7 map-policy
-generator already derives two tracked outputs from pinned official resources,
-while the ambient river declaration still names a deleted generator and is
-only compared by a brittle test. Fold that declaration into the same exact
-generated file plan, wire non-mutating currentness into the native package
-build/check graph, and prove missing, mismatched, and unexpected outputs at the
-generic file-plan owner. Only then may the three sibling action-provenance
-guards and the redundant generated-header lint retire; generated-path
-classification and recovery routing remain. A.2 and post-A.2 product proof
-remain outside this container.
+**Current container:** collapse Pedology relief to one domain authority. The
+Standard step currently derives land-aware hex-neighbor relief, while the
+domain operation accepts an optional slope and silently substitutes normalized
+altitude when it is absent. These are different measurements, so caller shape
+changes product semantics. Move the exact existing relief derivation behind the
+operation boundary, remove the optional input and recipe-owned algorithm, and
+prove the behavior at the Pedology operation owner. Keep the earned step as
+read -> classify -> publish -> visualize orchestration. Do not absorb the
+separate behavior-changing bedrock-age question into this preservation cut.
+A.2 and post-A.2 product proof remain outside this container.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -55,13 +54,12 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** make one map-policy-owned generator/currentness plan authoritative
-for its policy tables, setup parameters, and ambient river declarations; attach
-that proof to native Nx build/check ownership; then retire the three redundant
-staged-mutation guards and generated-header lint atomically without weakening
-host classification. Seal owner capability and Habitat retirement as separate
-Graphite cuts, then return to the remaining closed steps and burn down one
-behavior-preserving semantic owner at a time.
+**Gradient:** delete the duplicate relief calculation and false altitude
+fallback, narrow the shared operation contract, add one preset-sized semantic
+behavior proof, then seal the exact Swooper type/test and relevant positive
+kind laws. After that, resume the closed-step earnedness census and take the
+next complete behavior-preserving owner collapse rather than opening a broad
+step rewrite.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
