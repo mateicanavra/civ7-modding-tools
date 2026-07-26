@@ -152,7 +152,7 @@ describe("@civ7/map-policy", () => {
     expect(shelfMask[4]).toBe(0);
   });
 
-  it("models supported natural-wonder footprints and filters unsupported catalog entries", () => {
+  it("publishes every natural-wonder row with supported planner geometry", () => {
     const { featureTypes } = CIV7_BROWSER_TABLES_V0;
     const policies = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
       string,
@@ -219,6 +219,19 @@ describe("@civ7/map-policy", () => {
         odd: [{ dx: 0, dy: 0 }],
       },
     });
+    for (const entry of NATURAL_WONDER_CATALOG) {
+      expect(Object.hasOwn(entry, "minimumElevation")).toBe(true);
+      expect(Object.hasOwn(entry, "noLake")).toBe(true);
+      expect(Object.hasOwn(entry, "placeFirst")).toBe(true);
+      expect(entry.minimumElevation === null || Number.isFinite(entry.minimumElevation)).toBe(true);
+      expect(typeof entry.noLake).toBe("boolean");
+      expect(typeof entry.placeFirst).toBe("boolean");
+      expect(Array.isArray(entry.validTerrainTypes)).toBe(true);
+      expect(Array.isArray(entry.validBiomeTypes)).toBe(true);
+      expect(Array.isArray(entry.featureTags)).toBe(true);
+      expect(entry.footprintOffsetsByParity.even.length).toBeGreaterThan(0);
+      expect(entry.footprintOffsetsByParity.odd.length).toBeGreaterThan(0);
+    }
     const redwoodPolicy = policies[String(featureTypes.FEATURE_REDWOOD_FOREST)]!;
     expect(resolveNaturalWonderPlacementDirection(redwoodPolicy)).toBe(-1);
     expect(resolveNaturalWonderMaterializationDirection(redwoodPolicy)).toBe(0);

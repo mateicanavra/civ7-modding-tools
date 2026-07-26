@@ -28,7 +28,7 @@ predicate is_inline_type_schema($value) {
 }
 
 predicate disallowed_operation_contract_dependency($source) {
-  ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|\./strategies/[a-z0-9]+(?:-[a-z0-9]+)*/config\.js|\.\./\.\./model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){4}model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){3}[a-z0-9]+(?:-[a-z0-9]+)*/model/atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)\.js)[\"']?$"
+  ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|type-fest|\./strategies/[a-z0-9]+(?:-[a-z0-9]+)*/config\.js|\.\./\.\./model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){4}model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){3}[a-z0-9]+(?:-[a-z0-9]+)*/model/atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)\.js)[\"']?$"
 }
 
 or {
@@ -213,12 +213,17 @@ export const demo = createOp(DemoContract, {});
 ```typescript
 // @filename: mods/example-mod/src/domain/foundation/modules/geology/ops/demo/contract.ts
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
+import type { NonEmptyTuple } from "type-fest";
 import measuredDefinition from "./strategies/measured/config.js";
 
 const DemoContract = defineOp({
   kind: "compute",
   id: "foundation/demo",
-  input: Type.Object({}, { additionalProperties: false }),
+  input: Type.Object({
+    samples: Type.Unsafe<NonEmptyTuple<number>>(
+      Type.Array(Type.Number(), { minItems: 1 })
+    ),
+  }, { additionalProperties: false }),
   output: Type.Object({}, { additionalProperties: false }),
   strategies: [measuredDefinition],
 });

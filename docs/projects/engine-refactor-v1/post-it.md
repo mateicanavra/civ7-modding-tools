@@ -28,17 +28,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** complete Morphology's immutable volcano-intent product.
-The domain planner owns candidate selection, periodic-hex spacing, honest
-boundary-regime classification, strength, the sparse ordered intent list, and
-its exact dense mask. The recipe truth step owns only admitted binding,
-invocation, publication, trace, and visualization; it must not filter, sort,
-classify, or reconstruct the product. Civ7 projection remains a separate
-engine-mutation boundary and immediately verifies the exact current terrain and
-feature state it stamps without publishing stale engine readback as a domain
-artifact. Later Hydrology lake projection preserves that admitted landform
-rather than overwriting its mountain terrain while retaining its volcano
-feature.
+**Current container:** finish natural-wonder planner input authority after the
+aggregate `derive-placement-inputs` step was correctly deleted. The Placement
+operation owns one truthful required input contract. The Standard recipe binds
+its admitted artifacts, static Civ7 policy, and invocation-local engine
+observations to that contract; metrics observes the same contract downstream.
+Metrics must not strengthen an intentionally weakened operation type, and the
+planner must not silently replace omitted causal surfaces with neutral values.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -55,17 +51,19 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** define the shared volcano-intent atom at the Landforms module
-model, make `plan-volcanoes` return the complete immutable product, strengthen
-artifact admission to exact list/mask coherence, and split rule ownership out
-of the stale barrel. Delete recipe-side product construction and the test that
-proves compensation for impossible provider corruption. Keep projection
-mutation separate, add immediate final-state verification, and make product
-metrics measure exact missing, extra, and wrong-terrain tiles rather than count
-coincidence. Prove determinism, input immutability, disabled output, wrapped
-spacing, classification, target response, artifact coherence, downstream lake
-protection, native compiler/test/policy owners, and the complete metrics bank,
-then seal the container as one Graphite layer.
+**Gradient:** require all six physical suitability surfaces at the
+`placement/plan-natural-wonders` operation boundary; make Civ7 policy emit one
+total, deeply frozen planner catalog; and delete hidden neutral substitution,
+catalog repair, and conflicting-identity deduplication from the strategy. Make
+the Standard step rely on the operation's inferred input rather than a
+metrics-owned strengthening, and let the natural-wonder input measurement
+consume the operation contract directly. Preserve Core's existing implicit
+width-by-height typed-array admission rather than adding manual cardinality
+checks. Make footprint parity nonempty in both TypeBox metadata and the static
+TypeFest surface, with canonical Civ7 policy construction as its runtime owner;
+delete planner tests that bypass those authorities to simulate impossible
+catalog rows. Repair focused product fixtures, prove exact compiler and product
+behavior, then seal the container as one Graphite layer.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -100,6 +98,16 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Complete Volcano Intent
+
+Volcano planning became the sole owner of deterministic candidate selection,
+periodic-hex spacing, honest tectonic setting, strength, and exact sparse-list
+plus dense-mask intent. Recipe-owned product reconstruction and impossible
+provider-corruption testing retired; Civ7 projection gained immediate exact
+readback, later lake projection preserves final volcano landforms, and the
+completed-map metrics bank now closes missing, extra, and wrong-terrain
+volcano outcomes.
 
 ### 2026-07-26 - Complete Island Topography
 

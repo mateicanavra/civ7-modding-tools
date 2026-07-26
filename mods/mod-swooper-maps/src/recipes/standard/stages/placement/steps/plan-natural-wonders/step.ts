@@ -8,7 +8,6 @@ import { createStep } from "@swooper/mapgen-core/authoring";
 import {
   measureStandardNaturalWonderPlanInput,
   STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY,
-  type StandardNaturalWonderPlanInputMeasurementInput,
 } from "../../../../metrics/families/placement/natural-wonder-plan-input.js";
 import {
   logNaturalWonderPlanInputRuntimeTelemetry,
@@ -20,9 +19,6 @@ import {
   UNIT_SCORE_VALUE_SPEC,
 } from "../../viz.js";
 import { config } from "./config.js";
-
-type StandardNaturalWonderPlannerInput =
-  StandardNaturalWonderPlanInputMeasurementInput["plannerInput"];
 
 /**
  * Plans natural-wonder intent from immutable physical products, current Civ7
@@ -44,11 +40,12 @@ export const PlanNaturalWondersStep = createStep(config, {
       throw new Error("[Placement] Civ7 map metadata is unavailable for the active map size.");
     }
 
-    const rawWondersCount = mapInfo.NumNaturalWonders;
-    const wondersCount =
-      typeof rawWondersCount === "number" && Number.isFinite(rawWondersCount)
-        ? Math.max(0, Math.round(rawWondersCount))
-        : 0;
+    const wondersCount = mapInfo.NumNaturalWonders;
+    if (typeof wondersCount !== "number" || !Number.isInteger(wondersCount) || wondersCount < 0) {
+      throw new Error(
+        "[Placement] Civ7 map metadata has no valid natural-wonder count for the active map size."
+      );
+    }
     const terrainType = deps.engine.readCurrentMapTerrainTypes(context);
     const biomeType = deps.engine.readCurrentMapBiomeTypes(context);
     const featureType = deps.engine.readCurrentMapFeatureTypes(context);
@@ -76,7 +73,7 @@ export const PlanNaturalWondersStep = createStep(config, {
       noFeatureType: NO_FEATURE_TYPE,
       naturalWonderBlockedMask: buildNaturalWonderBlockedMask(width, height),
       featureCatalog: NATURAL_WONDER_CATALOG,
-    } satisfies StandardNaturalWonderPlannerInput;
+    };
     const strategySelection = stepConfig.naturalWonders;
     const naturalWonderPlan = ops.naturalWonders(plannerInput, strategySelection);
     deps.artifacts.naturalWonderPlan.publish(context, naturalWonderPlan);

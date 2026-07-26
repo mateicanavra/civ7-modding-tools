@@ -1,7 +1,7 @@
 import placement from "@mapgen/domain/placement";
 import { stableStringify } from "@swooper/mapgen-core";
 import { fnv1a32BytesHex, fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
-import type { ReadonlyDeep, SetRequired } from "type-fest";
+import type { ReadonlyDeep } from "type-fest";
 import { type Static, Type } from "typebox";
 
 const HASH32_PATTERN = "^[0-9a-f]{8}$";
@@ -9,19 +9,9 @@ const MAX_INPUT_ROWS = 16;
 const PARTS_PER_MILLION = 1_000_000;
 
 type PlanNaturalWondersInput = Static<(typeof placement.wonders.ops.planNaturalWonders)["input"]>;
+type PlanNaturalWondersOutput = Static<(typeof placement.wonders.ops.planNaturalWonders)["output"]>;
 type PlanNaturalWondersStrategySelection = Static<
   (typeof placement.wonders.ops.planNaturalWonders)["config"]
->;
-type StandardRequiredSuitabilitySurface =
-  | "vegetationDensity"
-  | "effectiveMoisture"
-  | "surfaceTemperature"
-  | "fertility"
-  | "discharge"
-  | "slopeClass";
-type StandardPlanNaturalWondersInput = SetRequired<
-  PlanNaturalWondersInput,
-  StandardRequiredSuitabilitySurface
 >;
 
 /**
@@ -323,14 +313,11 @@ export const STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY =
   "placement.naturalWonderPlanInput" as const;
 
 /** Exact Standard planner request and selected strategy needed to measure one admitted plan. */
-export type StandardNaturalWonderPlanInputMeasurementInput = Readonly<{
-  plannerInput: StandardPlanNaturalWondersInput;
+export type StandardNaturalWonderPlanInputMeasurementInput = {
+  plannerInput: PlanNaturalWondersInput;
   strategySelection: PlanNaturalWondersStrategySelection;
-  plan: Readonly<{
-    plannedCount: number;
-    placements: readonly Readonly<{ plotIndex: number; featureType: number }>[];
-  }>;
-}>;
+  plan: PlanNaturalWondersOutput;
+};
 
 /**
  * Closes the exact admitted natural-wonder planner request into deterministic,
