@@ -1067,6 +1067,10 @@ const mapConfig = {
             "alpineElevationMaxM": 3400,
             "alpineFreezeMin01": 0.55
           }
+        },
+        "scoreFloodplains": {
+          "strategy": "alluvial-relief",
+          "config": {}
         }
       },
       "plan-floodplains": {
@@ -1344,7 +1348,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountains-of-time-original",
-  configHash: "c73d31b4b51d1395c77d9c5edfc511c65c967a0e65dc7ed00cc91fba7736f53d",
-  envelopeHash: "2d2763b981ebda4ef849781a1b90a45dda8c3ef7da25ceb7defdf8c8178c3cbd",
+  configHash: "c53ac503a485524418197fafc4192e23b147d1b3ef6baa1f7fac397ac46deb03",
+  envelopeHash: "18a49c88cc8b04993f434c1d87bc0949a18c3e331bc70378d70df416154addc7",
   config: mapConfig.config,
 });

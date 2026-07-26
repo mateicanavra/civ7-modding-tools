@@ -8,6 +8,7 @@ import PlanIceContract from "./ops/features-plan-ice/contract.js";
 import PlanReefsContract from "./ops/features-plan-reefs/contract.js";
 import PlanVegetationContract from "./ops/features-plan-vegetation/contract.js";
 import PlanWetlandsContract from "./ops/features-plan-wetlands/contract.js";
+import ScoreFloodplainsContract from "./ops/floodplain-score/contract.js";
 import ScoreIceContract from "./ops/ice-score-ice/contract.js";
 import ScoreAtollContract from "./ops/reef-score-atoll/contract.js";
 import ScoreColdReefContract from "./ops/reef-score-cold-reef/contract.js";
@@ -45,6 +46,7 @@ const features = defineDomainSubdomain({
     scoreReefAtoll: ScoreAtollContract,
     scoreReefLotus: ScoreLotusContract,
     scoreIce: ScoreIceContract,
+    scoreFloodplains: ScoreFloodplainsContract,
     planFloodplains: PlanFloodplainsContract,
     planWetlands: PlanWetlandsContract,
     planReefs: PlanReefsContract,

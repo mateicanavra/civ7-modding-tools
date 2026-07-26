@@ -1081,6 +1081,10 @@ const mapConfig = {
             "alpineElevationMaxM": 3400,
             "alpineFreezeMin01": 0.55
           }
+        },
+        "scoreFloodplains": {
+          "strategy": "alluvial-relief",
+          "config": {}
         }
       },
       "plan-floodplains": {
@@ -1344,7 +1348,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-earthlike",
-  configHash: "3043fa73e747f81476e17b56b217fc044d8e7039acca32ac53f747862240e0a8",
-  envelopeHash: "14072a1bdffecb52a72308fe09c4a6fc25b78078b6cd1e9e5d341389359a22dc",
+  configHash: "39bc2bd6e95ab0595a88f5760a96cc3f22a50be55c09d87a74c37c07dd012aa5",
+  envelopeHash: "cacfcff8289e591cd85c48713cde044c650e66afc6baff5794dd81ccd2117a02",
   config: mapConfig.config,
 });

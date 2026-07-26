@@ -2,6 +2,7 @@ export {
   FEATURE_INTENT_KEYS,
   type FeatureIntentKey,
   FeaturePlacementSchema,
+  FLOODPLAIN_FEATURE_INTENT_KEYS,
   type FloodplainFeatureIntentKey,
   type FloodplainFeaturePlacement,
   FloodplainFeaturePlacementSchema,

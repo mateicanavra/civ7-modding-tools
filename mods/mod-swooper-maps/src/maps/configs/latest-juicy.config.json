@@ -1067,6 +1067,10 @@
             "alpineElevationMaxM": 3400,
             "alpineFreezeMin01": 0.55
           }
+        },
+        "scoreFloodplains": {
+          "strategy": "alluvial-relief",
+          "config": {}
         }
       },
       "plan-floodplains": {

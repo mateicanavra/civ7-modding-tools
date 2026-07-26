@@ -110,6 +110,9 @@ authority to the root domain.
 Feature scoring and planning stay separate:
 - Score ops produce continuous physical suitability fields. A positive score is not itself a placement command.
 - Planner-local policies decide whether a suitability candidate is strong enough to become an intent.
+- Floodplain scoring combines admitted river tier, alluvial substrate, local relief, fertility, and
+  biome identity into the ten family score fields; the floodplain planner separately chooses which
+  scored identity, if any, becomes intent.
 - Reef-family habitat eligibility is reef-owned: warm reefs use warm shallow near-coast shelf water, cold reefs use colder deeper shelf/edge water, atolls use isolated warm shallow banks, and `FEATURE_LOTUS` uses warm shallow near-land water.
 - Wetland-family habitat eligibility is wet-feature-owned through named substrate masks: marsh and tundra bog require hydromorphic substrate, mangrove requires intertidal coast, and oasis/watering-hole features require isolated lowland water-source substrate plus arid scoring.
 

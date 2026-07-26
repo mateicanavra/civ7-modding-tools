@@ -28,15 +28,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** untangle riparian climate influence as one Hydrology
-domain behavior. The baseline and refined climate steps remain earned causal
-passes, but recipe orchestration must not pre-expand river masks, reinterpret
-hex geometry, or derive terrestrial indices. Raw admitted river hierarchy
-crosses operation boundaries once; precipitation interprets its authored
-corridor radius, and the land-water budget owns effective moisture beside PET
-and aridity. The already-sealed seasonality collapse proves the same law:
-unconsumed registered state is not a product, and invocation-local evidence
-does not become an artifact merely because visualization consumes it.
+**Current container:** extract floodplain-family suitability as one Ecology
+Features domain behavior. Continuous physical scoring and configured intent
+admission remain distinct operations: the scoring owner interprets admitted
+river, terrain, fertility, biome, and seeded patch evidence into the ten
+floodplain score fields; the planner continues to choose the strongest admitted
+feature identity. The shared feature-suitability artifact remains the one
+scoring vintage consumed across ordered family planners. The recipe step only
+invokes domain operations, publishes that vintage, and projects visualization.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -53,15 +52,16 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** pass raw `riverClass` into precipitation and water-budget
-operations; interpret both influences on Civ7's wrapped hex graph; publish
-operation-owned `effectiveMoisture`; delete duplicate square-mask expansion,
-manual admitted-grid guards, and recipe-local moisture loops. Prove exact
-hex-footprint, river-tier, water-zero, and deterministic behavior at the domain
-owner. Then seal this layer before extracting feature-family floodplain scoring
-from score-layer orchestration. The adjacent test sieve follows on the
-normalized plane: domain behavior and product studies survive, while provider
-publication and impossible-admission simulations do not.
+**Gradient:** add the missing floodplain scoring operation, move the existing
+alluvial-relief formula and exact odd-q neighborhood behavior into its semantic
+strategy, bind it through the Features contract/router, and delete scoring
+helpers, constants, noise, biome dispatch, and raster loops from recipe
+orchestration. Prove family identity, river tier, terrain exclusion,
+determinism, bounds, and response relationships at the domain owner; regenerate
+the authored map configs and seal the cut. Then run the adjacent Ecology
+Features test sieve on the normalized plane, deleting provider guarantees and
+impossible-admission scenarios while preserving exact domain behavior and
+product studies.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -96,6 +96,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Riparian Climate Influence
+
+River hierarchy now crosses the Hydrology operation boundary as raw admitted
+evidence. Precipitation interprets its authored corridor on the wrapped hex
+graph, the land-water budget owns effective moisture beside PET and aridity,
+and recipe-local square-mask expansion and moisture derivation were deleted.
+Focused domain proofs cover exact footprint, river tier, water-zero, response,
+and deterministic behavior.
 
 ### 2026-07-26 - Package Tool Delivery Boundary
 

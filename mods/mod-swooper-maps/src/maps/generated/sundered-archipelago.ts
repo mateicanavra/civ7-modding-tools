@@ -1055,6 +1055,10 @@ const mapConfig = {
             "alpineElevationMaxM": 3400,
             "alpineFreezeMin01": 0.55
           }
+        },
+        "scoreFloodplains": {
+          "strategy": "alluvial-relief",
+          "config": {}
         }
       },
       "plan-floodplains": {
@@ -1344,7 +1348,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "sundered-archipelago",
-  configHash: "26e0d4101d8ffdbcaa263677f55a9cdc88591c982ed508c764f678e331f8f70b",
-  envelopeHash: "f489f7887d40564375dbb54ec5c2c9a840e7705d8cb00cedc5717e1890ee8625",
+  configHash: "802940260cccb7c658a4aa93f4b1cd7f3185624bfbdb414539bf336ecce253b6",
+  envelopeHash: "573907508262a64bea9d29fa349a6c2ca2151a02f431d76b324848235e4ba51f",
   config: mapConfig.config,
 });

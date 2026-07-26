@@ -1,53 +1,10 @@
 import { deriveCiv7CoastProjection, WATER_CLASS_OCEAN } from "@civ7/map-policy";
-import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology";
-import { clamp01, ctxStepSeed } from "@swooper/mapgen-core";
+import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { forEachHexNeighborOddQ, getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
-import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 import { defineStandardVizMeta } from "../../../../../viz.js";
 import { config } from "./config.js";
 
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
-const MINOR_FLOODPLAIN_DISCHARGE_NORMALIZER = 1000;
-const FLOODPLAIN_RELIEF_NORMALIZER_M = 260;
-const FLOODPLAIN_PATCH_NOISE_SCALE = 0.11;
-
-function maxAdjacentNavigableDischarge(
-  tileIndex: number,
-  width: number,
-  height: number,
-  navigableRiverMask: Uint8Array,
-  discharge: Float32Array
-): number {
-  const y = (tileIndex / width) | 0;
-  const x = tileIndex - y * width;
-  let max = 0;
-  for (const neighbor of getHexNeighborIndicesOddQ(x, y, width, height)) {
-    if ((navigableRiverMask[neighbor] ?? 0) !== 1) continue;
-    max = Math.max(max, discharge[neighbor] ?? 0);
-  }
-  return max;
-}
-
-function localReliefM(
-  tileIndex: number,
-  width: number,
-  height: number,
-  landMask: Uint8Array,
-  elevation: Int16Array
-): number {
-  if (landMask[tileIndex] !== 1) return Number.POSITIVE_INFINITY;
-  const y = (tileIndex / width) | 0;
-  const x = tileIndex - y * width;
-  const here = elevation[tileIndex] ?? 0;
-  let relief = 0;
-  forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
-    const neighbor = ny * width + nx;
-    if (landMask[neighbor] !== 1) return;
-    relief = Math.max(relief, Math.abs(here - (elevation[neighbor] ?? 0)));
-  });
-  return relief;
-}
 
 /**
  * Computes every feature family's suitability layer once over shared ecology,
@@ -277,103 +234,24 @@ export const ScoreLayersStep = createStep(config, {
       stepConfig.scoreIce
     ).score01;
 
-    const floodplainScores = {
-      "desert-floodplain-minor": new Float32Array(size),
-      "desert-floodplain-navigable": new Float32Array(size),
-      "grassland-floodplain-minor": new Float32Array(size),
-      "grassland-floodplain-navigable": new Float32Array(size),
-      "plains-floodplain-minor": new Float32Array(size),
-      "plains-floodplain-navigable": new Float32Array(size),
-      "tropical-floodplain-minor": new Float32Array(size),
-      "tropical-floodplain-navigable": new Float32Array(size),
-      "tundra-floodplain-minor": new Float32Array(size),
-      "tundra-floodplain-navigable": new Float32Array(size),
-    } as const;
-    const floodplainNoise = new PerlinNoise(
-      ctxStepSeed(context, config.id, "ecology/floodplain-alluvial-patches")
-    );
-
-    for (let i = 0; i < size; i++) {
-      if (
-        ecologyLandMask[i] !== 1 ||
-        lakePlan.lakeMask[i] === 1 ||
-        mountains.mountainMask[i] === 1 ||
-        mountains.hillMask[i] === 1 ||
-        volcanoes.volcanoMask[i] === 1
-      ) {
-        continue;
-      }
-
-      const isFloodplainSubstrate = featureSubstrate.floodplainMask[i] === 1;
-      const isNavigableFloodplain =
-        isFloodplainSubstrate && featureSubstrate.navigableRiverMask[i] === 1;
-      const adjacentNavigableDischarge = maxAdjacentNavigableDischarge(
-        i,
+    const floodplainScores = ops.scoreFloodplains(
+      {
         width,
         height,
-        featureSubstrate.navigableRiverMask,
-        hydrography.discharge
-      );
-      const isMinorFloodplain =
-        isFloodplainSubstrate && !isNavigableFloodplain && adjacentNavigableDischarge > 0;
-      if (!isMinorFloodplain && !isNavigableFloodplain) continue;
-
-      const dischargeScore = isNavigableFloodplain
-        ? 1
-        : clamp01(adjacentNavigableDischarge / MINOR_FLOODPLAIN_DISCHARGE_NORMALIZER);
-      const y = (i / width) | 0;
-      const x = i - y * width;
-      const reliefScore =
-        1 -
-        clamp01(
-          localReliefM(i, width, height, ecologyLandMask, topography.elevation) /
-            FLOODPLAIN_RELIEF_NORMALIZER_M
-        );
-      const fertilityScore = clamp01(pedology.fertility[i] ?? 0);
-      const patchScore = clamp01(
-        (floodplainNoise.noise2D(
-          x * FLOODPLAIN_PATCH_NOISE_SCALE,
-          y * FLOODPLAIN_PATCH_NOISE_SCALE
-        ) +
-          1) /
-          2
-      );
-      const score =
-        dischargeScore *
-        (0.35 + reliefScore * 0.65) *
-        (0.55 + fertilityScore * 0.45) *
-        (0.3 + patchScore * 0.7);
-      switch (classification.biomeIndex[i]) {
-        case BIOME_SYMBOL_TO_INDEX.desert:
-          (isNavigableFloodplain
-            ? floodplainScores["desert-floodplain-navigable"]
-            : floodplainScores["desert-floodplain-minor"])[i] = score;
-          break;
-        case BIOME_SYMBOL_TO_INDEX.temperateHumid:
-          (isNavigableFloodplain
-            ? floodplainScores["grassland-floodplain-navigable"]
-            : floodplainScores["grassland-floodplain-minor"])[i] = score;
-          break;
-        case BIOME_SYMBOL_TO_INDEX.temperateDry:
-        case BIOME_SYMBOL_TO_INDEX.tropicalSeasonal:
-          (isNavigableFloodplain
-            ? floodplainScores["plains-floodplain-navigable"]
-            : floodplainScores["plains-floodplain-minor"])[i] = score;
-          break;
-        case BIOME_SYMBOL_TO_INDEX.tropicalRainforest:
-          (isNavigableFloodplain
-            ? floodplainScores["tropical-floodplain-navigable"]
-            : floodplainScores["tropical-floodplain-minor"])[i] = score;
-          break;
-        case BIOME_SYMBOL_TO_INDEX.snow:
-        case BIOME_SYMBOL_TO_INDEX.tundra:
-        case BIOME_SYMBOL_TO_INDEX.boreal:
-          (isNavigableFloodplain
-            ? floodplainScores["tundra-floodplain-navigable"]
-            : floodplainScores["tundra-floodplain-minor"])[i] = score;
-          break;
-      }
-    }
+        seed: ctxStepSeed(context, config.id, "ecology/floodplain-alluvial-patches"),
+        landMask: ecologyLandMask,
+        biomeIndex: classification.biomeIndex,
+        fertility: pedology.fertility,
+        floodplainMask: featureSubstrate.floodplainMask,
+        navigableRiverMask: featureSubstrate.navigableRiverMask,
+        discharge: hydrography.discharge,
+        elevation: topography.elevation,
+        mountainMask: mountains.mountainMask,
+        hillMask: mountains.hillMask,
+        volcanoMask: volcanoes.volcanoMask,
+      },
+      stepConfig.scoreFloodplains
+    ).layers;
 
     const layers = {
       forest: forestScore,

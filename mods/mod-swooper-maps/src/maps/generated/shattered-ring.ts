@@ -1055,6 +1055,10 @@ const mapConfig = {
             "alpineElevationMaxM": 3400,
             "alpineFreezeMin01": 0.55
           }
+        },
+        "scoreFloodplains": {
+          "strategy": "alluvial-relief",
+          "config": {}
         }
       },
       "plan-floodplains": {
@@ -1345,7 +1349,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "shattered-ring",
-  configHash: "707f907c6de1ee092ae15978bd96258849aeb11bada94fcec29c7dc5c30306f6",
-  envelopeHash: "0507bb8ba13469d7f700d3cc507c2e573f3f44f6fad1f65c0047fb848544c0d3",
+  configHash: "c3421509655fe43943fe02599e457e5a0cef4944a8887ded66582aa23a5c4448",
+  envelopeHash: "f3f2b112f177c46a0759adf314f53904a5b621a0e3f7e3447b44927309203a81",
   config: mapConfig.config,
 });

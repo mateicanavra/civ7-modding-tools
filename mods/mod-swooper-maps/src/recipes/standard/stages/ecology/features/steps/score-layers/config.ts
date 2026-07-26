@@ -51,5 +51,6 @@ export const config = defineStep({
     scoreReefAtoll: ecology.features.ops.scoreReefAtoll,
     scoreReefLotus: ecology.features.ops.scoreReefLotus,
     scoreIce: ecology.features.ops.scoreIce,
+    scoreFloodplains: ecology.features.ops.scoreFloodplains,
   },
 });

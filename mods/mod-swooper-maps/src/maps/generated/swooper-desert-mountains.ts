@@ -1055,6 +1055,10 @@ const mapConfig = {
             "alpineElevationMaxM": 3400,
             "alpineFreezeMin01": 0.55
           }
+        },
+        "scoreFloodplains": {
+          "strategy": "alluvial-relief",
+          "config": {}
         }
       },
       "plan-floodplains": {
@@ -1345,7 +1349,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-desert-mountains",
-  configHash: "2fdba5d09c39177ae3e01bd653eb7677b29f7afd1895fe8a52bf636ea5fa9baa",
-  envelopeHash: "3ab8e974670e13452248aa3f6056409a2d22e9a89e593f8b07b640936ec2a9e6",
+  configHash: "18c5d1ecb633ff54ddea5f135a106506f970fa52bf33d42e00c7bf137c8c1b50",
+  envelopeHash: "9476fc5c844a4340a997d7ab21f7cfb137604546e637a7965bb209a2fae46550",
   config: mapConfig.config,
 });

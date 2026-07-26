@@ -1100,6 +1100,10 @@ const mapConfig = {
             "alpineElevationMaxM": 3400,
             "alpineFreezeMin01": 0.55
           }
+        },
+        "scoreFloodplains": {
+          "strategy": "alluvial-relief",
+          "config": {}
         }
       },
       "plan-floodplains": {
@@ -1357,7 +1361,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "latest-juicy",
-  configHash: "bc97705c807a2924115709c44328dfa85bde9bd6e1401b178db6e85e0dc0ec5d",
-  envelopeHash: "a2f8b978ff98818a6a66d2c44cdcebd3b6390f9b95dc91dff33a1d75d288a491",
+  configHash: "74ee6c4fc8cd3a7ea5dfdbe5f7eb0d0c67454e58c72fe8d77911d553c7ad2e31",
+  envelopeHash: "49a6c6bdf05bc77a47be8b16e550869150c47c83fab15da45e83eb95b6414ba3",
   config: mapConfig.config,
 });
