@@ -28,13 +28,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** cash the normalized Ecology Features architecture into
-its test corpus. Each surviving test must falsify one durable domain behavior,
-Standard authorship transform, exact recipe orchestration edge, or product
-outcome. Core admission, TypeBox structure, artifact publication mechanics,
-impossible post-admission states, source wiring, and accidental cross-operation
-relationships are not Swooper product tests and retire rather than gaining a
-cleaner fixture.
+**Current container:** complete Morphology's geomorphic-cycle ownership. The
+domain operation owns the whole relief/substrate transition: erosion and
+sediment deltas, input immutability, land-water identity preservation,
+elevation clamping, bathymetry rebuilding, and completed result allocation. The
+recipe step owns only admitted binding, invocation, publication, trace, and
+visualization. An authored knob the algorithm never reads is a lying state and
+retires rather than gaining an implementation during a behavior-preserving cut.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -51,15 +51,15 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** classify every Ecology Features domain and recipe-stage test by
-its actual oracle and causal owner. Delete provider guarantees, corrupted-schema
-simulations, impossible-admission cases, and accidental cross-operation
-invariants. Preserve exact family scoring and planning behavior, ordered intent
-collision semantics, meaningful config transforms, projection/materialization,
-and shared product studies only at their true owner. Normalize any surviving
-test destination exposed by the sieve, run the focused and native Swooper
-owners, obtain fresh testing/product and architecture review, then seal the
-corpus as its own Graphite layer.
+**Gradient:** expand the geomorphic-cycle contract to return coherent
+topography, substrate, and diagnostic deltas; move the exact existing
+application/clamp/rebuild sequence into its operation-owned rule; delete the
+unused talus configuration from the strategy and canonical map configs; reduce
+the step to direct publication and evidence. Prove physics response, immutable
+inputs, nonaliased outputs, land-water coherence, trace/viz continuity, native
+compiler/test/policy owners, generated currentness, and the complete metrics
+bank. Correct the canonical authoring guide that currently teaches the rejected
+half-operation pattern, then seal the container as one Graphite layer.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -94,6 +94,13 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Ecology Features Test Ownership
+
+The normalized Features architecture was cashed into its test corpus. Generic
+artifact admission and impossible post-admission cases retired; family
+threshold, occupancy, arbitration, habitat, scoring, ordered recipe collision,
+projection, and product-study oracles now remain only at their causal owners.
 
 ### 2026-07-26 - Floodplain Suitability Ownership
 

@@ -288,8 +288,7 @@ const mapConfig = {
                 "n": 1
               },
               "diffusion": {
-                "rate": 0.2,
-                "talus": 0.5
+                "rate": 0.2
               },
               "deposition": {
                 "rate": 0.1
@@ -1349,7 +1348,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "shattered-ring",
-  configHash: "c3421509655fe43943fe02599e457e5a0cef4944a8887ded66582aa23a5c4448",
-  envelopeHash: "f3f2b112f177c46a0759adf314f53904a5b621a0e3f7e3447b44927309203a81",
+  configHash: "0d7bef0e5de48521d4e8be8330ca18b6860a61ac1a66025a48e8835f50ffbe7e",
+  envelopeHash: "8f793202a6b46236a5cfffdf7ea9211cd597521d57e7723dc1460721d261278c",
   config: mapConfig.config,
 });

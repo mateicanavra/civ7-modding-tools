@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import morphologyDomain from "@mapgen/domain/morphology/router";
+import { clampInt16 } from "@swooper/mapgen-core/lib/math";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 import { TEST_MAP_SIZE } from "../../../../../setup.js";
 
@@ -115,6 +116,7 @@ describe("compute-geomorphic-cycle stream-power erosion and sediment transport",
         width,
         height,
         elevation,
+        seaLevel: 0,
         landMask,
         flowDir: routing.flowDir,
         flowAccum: routing.flowAccum,
@@ -130,6 +132,7 @@ describe("compute-geomorphic-cycle stream-power erosion and sediment transport",
         width,
         height,
         elevation,
+        seaLevel: 0,
         landMask,
         flowDir: routing.flowDir,
         flowAccum: routing.flowAccum,
@@ -139,8 +142,38 @@ describe("compute-geomorphic-cycle stream-power erosion and sediment transport",
       selection
     );
 
-    expect(Array.from(first.elevationDelta)).toEqual(Array.from(second.elevationDelta));
-    expect(Array.from(first.sedimentDelta)).toEqual(Array.from(second.sedimentDelta));
+    expect(Array.from(first.deltas.elevationDelta)).toEqual(
+      Array.from(second.deltas.elevationDelta)
+    );
+    expect(Array.from(first.deltas.sedimentDelta)).toEqual(Array.from(second.deltas.sedimentDelta));
+    expect(first.deltas.elevationDelta.some((value) => value !== 0)).toBe(true);
+    expect(first.deltas.sedimentDelta.some((value) => value !== 0)).toBe(true);
+
+    let changedAboveLandFloor = 0;
+    let elevationReconstructs = true;
+    let sedimentReconstructs = true;
+    for (let i = 0; i < size; i++) {
+      const evolvedElevation = clampInt16(
+        Math.round((elevation[i] ?? 0) + (first.deltas.elevationDelta[i] ?? 0))
+      );
+      const expectedElevation =
+        landMask[i] === 1 ? Math.max(1, evolvedElevation) : Math.min(0, evolvedElevation);
+      if (first.topography.elevation[i] !== expectedElevation) elevationReconstructs = false;
+      const expectedSediment = Math.fround(
+        Math.max(0, (sedimentDepth[i] ?? 0) + (first.deltas.sedimentDelta[i] ?? 0))
+      );
+      if (first.substrate.sedimentDepth[i] !== expectedSediment) sedimentReconstructs = false;
+      if (
+        first.deltas.elevationDelta[i] !== 0 &&
+        expectedElevation === evolvedElevation &&
+        expectedElevation > 1
+      ) {
+        changedAboveLandFloor++;
+      }
+    }
+    expect(elevationReconstructs).toBe(true);
+    expect(sedimentReconstructs).toBe(true);
+    expect(changedAboveLandFloor).toBeGreaterThan(0);
 
     let maxFlow = 1;
     let maxDrop = 1;
@@ -189,7 +222,7 @@ describe("compute-geomorphic-cycle stream-power erosion and sediment transport",
         Math.pow(aNorm, selection.config.geomorphology.fluvial.m) *
         Math.pow(slopeNorm, selection.config.geomorphology.fluvial.n);
 
-      const delta = first.elevationDelta[i] ?? 0;
+      const delta = first.deltas.elevationDelta[i] ?? 0;
       const erosion = delta < 0 ? -delta : 0;
       powers.push({ power, erosion });
 

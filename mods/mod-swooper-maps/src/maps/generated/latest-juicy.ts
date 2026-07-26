@@ -321,8 +321,7 @@ const mapConfig = {
                 "n": 1
               },
               "diffusion": {
-                "rate": 0.23,
-                "talus": 0.5
+                "rate": 0.23
               },
               "deposition": {
                 "rate": 0.21
@@ -1361,7 +1360,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "latest-juicy",
-  configHash: "74ee6c4fc8cd3a7ea5dfdbe5f7eb0d0c67454e58c72fe8d77911d553c7ad2e31",
-  envelopeHash: "49a6c6bdf05bc77a47be8b16e550869150c47c83fab15da45e83eb95b6414ba3",
+  configHash: "7f7ccd8c2facbfd5679133bb36b44b371a66ea9aa1c5904961546986b70ce15b",
+  envelopeHash: "01001973f655fcbd5cacc8a2dbf97ca9999da0eda4a5fa7f8321d01d278a99fb",
   config: mapConfig.config,
 });

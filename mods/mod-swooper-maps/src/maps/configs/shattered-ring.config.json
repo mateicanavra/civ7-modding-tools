@@ -263,8 +263,7 @@
                 "n": 1
               },
               "diffusion": {
-                "rate": 0.2,
-                "talus": 0.5
+                "rate": 0.2
               },
               "deposition": {
                 "rate": 0.1

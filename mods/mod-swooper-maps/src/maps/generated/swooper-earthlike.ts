@@ -302,8 +302,7 @@ const mapConfig = {
                 "n": 1
               },
               "diffusion": {
-                "rate": 0.23,
-                "talus": 0.5
+                "rate": 0.23
               },
               "deposition": {
                 "rate": 0.21
@@ -1348,7 +1347,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-earthlike",
-  configHash: "39bc2bd6e95ab0595a88f5760a96cc3f22a50be55c09d87a74c37c07dd012aa5",
-  envelopeHash: "cacfcff8289e591cd85c48713cde044c650e66afc6baff5794dd81ccd2117a02",
+  configHash: "c4fdd07db8ab2fb3fad86cf7eb70e8a14de6eb39fef3268eb32139790f878119",
+  envelopeHash: "d98a218923493d9644b61d805eaba2f3a0cdb13eca2b22b10ec0ac7c377ccecf",
   config: mapConfig.config,
 });

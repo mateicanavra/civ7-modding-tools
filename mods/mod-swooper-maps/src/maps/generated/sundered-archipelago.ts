@@ -288,8 +288,7 @@ const mapConfig = {
                 "n": 1
               },
               "diffusion": {
-                "rate": 0.2,
-                "talus": 0.5
+                "rate": 0.2
               },
               "deposition": {
                 "rate": 0.1
@@ -1348,7 +1347,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "sundered-archipelago",
-  configHash: "802940260cccb7c658a4aa93f4b1cd7f3185624bfbdb414539bf336ecce253b6",
-  envelopeHash: "573907508262a64bea9d29fa349a6c2ca2151a02f431d76b324848235e4ba51f",
+  configHash: "e3fecf624879c307561aa1440e7ab02bdb6ac4b82e4823833b403840e18df13d",
+  envelopeHash: "ae52b6870f778529a060d2ae5db75f80a0c752e1f80cbdaf4af5a76b407e8322",
   config: mapConfig.config,
 });

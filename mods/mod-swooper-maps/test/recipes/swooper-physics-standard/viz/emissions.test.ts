@@ -24,6 +24,8 @@ describe("standard pipeline viz emissions", () => {
     const expected = [
       "foundation.plates.tilePlateId",
       "foundation.tectonics.boundaryType",
+      "morphology.geomorphology.elevationDelta",
+      "morphology.geomorphology.sedimentDelta",
       "morphology.topography.elevation",
       "morphology.shelf.shelfMask",
       "morphology.shelf.breakDepth",

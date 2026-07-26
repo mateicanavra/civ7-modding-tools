@@ -288,8 +288,7 @@ const mapConfig = {
                 "n": 1
               },
               "diffusion": {
-                "rate": 0.23,
-                "talus": 0.5
+                "rate": 0.23
               },
               "deposition": {
                 "rate": 0.21
@@ -1348,7 +1347,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountain-patch",
-  configHash: "692fe2cbae7250618f84d27db1debc3b0e17eb183adfa79f9f4157c805935bc8",
-  envelopeHash: "e949f58997e52b1a5790c2e734609b67a6913b241f56cbb88aa2801ba16dc7f2",
+  configHash: "3523cc059347cad1e92773a072becdff1c049aabb77814480d10ebe4265eb696",
+  envelopeHash: "f03e5cab4c5791e0111a866a50db06accd75de248b785c5b200cb2ac4cd03902",
   config: mapConfig.config,
 });

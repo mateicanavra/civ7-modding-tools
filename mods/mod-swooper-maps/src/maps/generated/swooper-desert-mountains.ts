@@ -288,8 +288,7 @@ const mapConfig = {
                 "n": 1
               },
               "diffusion": {
-                "rate": 0.12,
-                "talus": 0.45
+                "rate": 0.12
               },
               "deposition": {
                 "rate": 0.07
@@ -1349,7 +1348,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-desert-mountains",
-  configHash: "18c5d1ecb633ff54ddea5f135a106506f970fa52bf33d42e00c7bf137c8c1b50",
-  envelopeHash: "9476fc5c844a4340a997d7ab21f7cfb137604546e637a7965bb209a2fae46550",
+  configHash: "dd8836c893df3adfd6c6842039c3274cec7deb3ec2868a889d5dd1c80fcd5ea6",
+  envelopeHash: "7ad7d43ba7c07439cc4f9bad8e8d77cf1aaf9621c1557bb67806235d8146829a",
   config: mapConfig.config,
 });

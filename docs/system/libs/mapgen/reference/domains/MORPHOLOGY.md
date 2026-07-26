@@ -392,14 +392,17 @@ depression-conditioned drainage routing from Morphology topography.
 - `packages/mapgen-core/src/lib/grid/flow-routing.ts` (`selectFlowReceiver` generic hex-grid primitive)
 - `mods/mod-swooper-maps/src/domain/morphology/modules/routing/ops/compute-flow-routing/strategies/steepest-descent/index.ts` (receiver selection, Morphology accumulation, and `basinId.fill(-1)`)
 
-#### `morphology/compute-geomorphic-cycle` → `{ elevationDelta, sedimentDelta }`
+#### `morphology/compute-geomorphic-cycle` → `{ topography, substrate, deltas }`
 
-Computes elevation and sediment deltas for a geomorphic relaxation pass.
+Evolves base relief and substrate through the configured geomorphic cycle,
+preserves the admitted land-water identity, and returns coherent post-erosion
+products plus diagnostic elevation and sediment deltas.
 
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/domain/morphology/modules/erosion/ops/compute-geomorphic-cycle/contract.ts` (`ComputeGeomorphicCycleContract`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/step.ts` (copying base topography and substrate, then publishing eroded topography and final substrate)
+- `mods/mod-swooper-maps/src/domain/morphology/modules/erosion/ops/compute-geomorphic-cycle/rules/index.ts` (constructing coherent eroded topography and substrate)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/step.ts` (publishing the operation-owned products)
 
 #### `morphology/compute-landmasses` → `{ landmasses, landmassIdByTile }`
 
@@ -574,8 +577,8 @@ Derives and publishes flow-routing evidence from base topography.
 
 ### `morphology-erosion` (`geomorphology`)
 
-Applies geomorphic relaxation to base topography and substrate, then
-publishes distinct post-erosion identities consumed downstream.
+Invokes Morphology's complete geomorphic transition over base topography and
+substrate, then publishes its distinct post-erosion identities downstream.
 
 **Requires**
 
@@ -592,7 +595,8 @@ publishes distinct post-erosion identities consumed downstream.
 
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/index.ts` (`steps: [geomorphology]`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/config.ts` (`config.artifacts`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/step.ts` (producing the post-erosion topography/substrate vintage)
+- `mods/mod-swooper-maps/src/domain/morphology/modules/erosion/ops/compute-geomorphic-cycle/contract.ts` (owning the complete post-erosion product)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/step.ts` (publishing the post-erosion topography/substrate vintage)
 
 ### `morphology-features` (`islands` → `mountains` → `volcanoes` → `landmasses`)
 

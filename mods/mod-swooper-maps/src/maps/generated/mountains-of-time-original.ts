@@ -288,8 +288,7 @@ const mapConfig = {
                 "n": 1
               },
               "diffusion": {
-                "rate": 0.23,
-                "talus": 0.5
+                "rate": 0.23
               },
               "deposition": {
                 "rate": 0.21
@@ -1348,7 +1347,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountains-of-time-original",
-  configHash: "c53ac503a485524418197fafc4192e23b147d1b3ef6baa1f7fac397ac46deb03",
-  envelopeHash: "18a49c88cc8b04993f434c1d87bc0949a18c3e331bc70378d70df416154addc7",
+  configHash: "3fc09b18ca9b9cb99418fecfc8a064003c46f3237b62643c2e5b58b404e2f576",
+  envelopeHash: "295c398e6dba8955e53849518f258af5ffe65778ee31734d3319ee0ba8f8c56d",
   config: mapConfig.config,
 });

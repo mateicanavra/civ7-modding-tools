@@ -5,7 +5,7 @@ import { artifacts as morphologyTerrainArtifacts } from "@mapgen/domain/morpholo
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Applies geomorphic cycle deltas to copied topography and substrate, then publishes new vintages.
+ * Publishes the coherent topography and substrate produced by the geomorphic cycle.
  */
 export const config = defineStep({
   id: "geomorphology",
