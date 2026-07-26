@@ -6,5 +6,12 @@ import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export default defineStrategy({
   id: "canonical-demand",
-  config: Type.Object({}, { additionalProperties: false }),
+  config: Type.Object(
+    {},
+    {
+      additionalProperties: false,
+      description:
+        "Fixed terrestrial-resource demand policy derived from canonical expectations and land-habitat evidence; it exposes no authored controls.",
+    }
+  ),
 });

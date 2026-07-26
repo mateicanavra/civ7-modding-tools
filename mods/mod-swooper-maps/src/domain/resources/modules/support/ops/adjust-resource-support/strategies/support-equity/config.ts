@@ -42,6 +42,10 @@ export default defineStrategy({
           "Scales the adjustment budget: per-start floor fills apply ceil(strength × deficit) units and the equity pass budget scales with strength. 1 uses the full budget; 0 is record-only while still measuring.",
       }),
     },
-    { additionalProperties: false }
+    {
+      additionalProperties: false,
+      description:
+        "Bounded start-support controls that improve nearby resource access while preserving legality, spacing, ranges, regions, exclusions, and landmass equity.",
+    }
   ),
 });

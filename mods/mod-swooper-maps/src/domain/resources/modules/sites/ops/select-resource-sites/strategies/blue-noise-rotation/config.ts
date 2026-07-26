@@ -89,6 +89,10 @@ export default defineStrategy({
           "Resource-resource affinity/exclusion rules (E3.4). Exclusion makes a type ineligible within radius of the partner; affinity biases the rotation toward it.",
       }),
     },
-    { additionalProperties: false }
+    {
+      additionalProperties: false,
+      description:
+        "Deterministic blue-noise site-selection controls for resource density, rarity, spacing, landmass equity, family weights, and inter-resource affinity.",
+    }
   ),
 });

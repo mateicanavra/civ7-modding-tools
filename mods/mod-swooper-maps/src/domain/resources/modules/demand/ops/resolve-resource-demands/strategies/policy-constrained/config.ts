@@ -6,5 +6,12 @@ import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export default defineStrategy({
   id: "policy-constrained",
-  config: Type.Object({}, { additionalProperties: false }),
+  config: Type.Object(
+    {},
+    {
+      additionalProperties: false,
+      description:
+        "Fixed demand-resolution policy that applies Civ7 legality, initial-age, habitat, and river exclusions without authored tuning.",
+    }
+  ),
 });

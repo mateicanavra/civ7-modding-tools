@@ -11,6 +11,7 @@ export default defineStrategy({
     {
       highOrderConfluenceUpstreamAreaMin: Type.Integer({
         minimum: 0,
+        maximum: 2_147_483_647,
         default: 64,
         description:
           "Minimum receiver upstream-area required before a >=2-tributary confluence may escalate stream-order proxy beyond order 2. Headwater (order 1->2) confluences ignore this floor; it suppresses spurious order-3 promotions on small networks where tiny equal-order branches merge.",
