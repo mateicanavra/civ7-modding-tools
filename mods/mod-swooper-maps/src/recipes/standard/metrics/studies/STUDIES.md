@@ -11,9 +11,11 @@ The generic subsystem contract lives in [Map product benchmarks](../../../../../
 
 ```text
 metrics/
+  scenario.ts             admitted Standard run identity
   capture.ts              completed Standard recipe evidence
   sample.ts               composition of all neutral metric families
-  families/*.ts           measurements only
+  families/**/*.ts        measurements only, nested by genuine family hierarchy
+  policy/*.ts             shared product interpretation without target thresholds
   targets/*.ts            MetricTarget benchmark policy
   studies/
     index.ts               stable study-module surface
