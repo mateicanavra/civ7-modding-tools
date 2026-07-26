@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Full wind vectors and terrain gradients turn transported humidity into uplift- and convergence-aware precipitation. */
+/**
+ * Defines the base humidity, texture, and coastal controls plus uplift and convergence weights for
+ * the default precipitation posture. Defaults retain the scalar rainfall backbone while adding
+ * moderate vector-aware terrain response.
+ */
 export default defineStrategy({
   id: "vector",
   config: Type.Object(

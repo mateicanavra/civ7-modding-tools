@@ -1,6 +1,9 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Configuration contract for reducing era fields into cumulative history evidence. */
+/**
+ * Exposes the minimum activity admitted when resolving the most recent active era. The default of
+ * one treats any quantized signal as history while leaving cumulative field reduction unchanged.
+ */
 export default defineStrategy({
   id: "cumulative-era-rollup",
   config: Type.Object(

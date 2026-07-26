@@ -1,6 +1,9 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Latitude bands and seeded jet variation provide a deterministic low-cost prevailing-wind fallback. */
+/**
+ * Exposes jet count, strength, and directional variance for the inexpensive latitude fallback.
+ * Defaults use three moderately variable bands when the product circulation model is not selected.
+ */
 export default defineStrategy({
   id: "latitude",
   config: Type.Object(

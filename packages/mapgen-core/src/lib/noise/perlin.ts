@@ -1,3 +1,8 @@
+/**
+ * Mutable seeded implementation of classic improved Perlin noise for repeatable terrain perturbations.
+ * `setSeed` rebuilds the permutation, so sampling is stateless between calls for a fixed integer seed
+ * and repeats every 256 lattice units in each dimension.
+ */
 export class PerlinNoise {
   private p: number[] = new Array(512);
   private permutation = [

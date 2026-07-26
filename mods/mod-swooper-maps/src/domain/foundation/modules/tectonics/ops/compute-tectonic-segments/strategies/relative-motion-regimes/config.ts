@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Configuration contract for classifying plate boundaries from relative motion. */
+/**
+ * Defines how relative plate motion is quantized into boundary intensity and when a weak segment
+ * remains inactive. Defaults retain small but meaningful motion while suppressing sub-threshold
+ * regime noise.
+ */
 export default defineStrategy({
   id: "relative-motion-regimes",
   config: Type.Object(

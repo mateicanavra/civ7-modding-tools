@@ -181,6 +181,17 @@ export function isArtifact(value: unknown): value is Artifact {
   }
 }
 
+/**
+ * Creates the canonical authority used to declare, validate, and publish one artifact.
+ *
+ * The factory snapshots identity through owned data properties, applies Core schema conventions,
+ * freezes the schema graph, and binds structural and typed-array admission ahead of the optional
+ * semantic refinement. Step contracts and artifact runtimes can therefore share one immutable
+ * definition without rebuilding its validation path.
+ *
+ * @param def - Artifact identity, TypeBox schema, and optional synchronous semantic refinement.
+ * @returns The frozen artifact authority consumed by catalogs, steps, and write-once runtimes.
+ */
 export function defineArtifact<
   const Name extends string,
   const Id extends string,

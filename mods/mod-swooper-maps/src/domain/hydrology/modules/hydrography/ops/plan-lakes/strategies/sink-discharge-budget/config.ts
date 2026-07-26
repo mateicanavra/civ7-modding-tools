@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** High-discharge terminal sinks enter a bounded lake budget before controlled upstream expansion. */
+/**
+ * Defines the sink-discharge percentile, primary-lake land budget, and optional upstream expansion
+ * depth. Defaults admit only the upper 22 percent of positive sink discharge, cap primary lakes at
+ * six percent of land, and disable expansion.
+ */
 export default defineStrategy({
   id: "sink-discharge-budget",
   config: Type.Object({

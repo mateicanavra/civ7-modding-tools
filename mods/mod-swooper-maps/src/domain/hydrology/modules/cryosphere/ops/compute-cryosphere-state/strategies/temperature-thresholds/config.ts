@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** One temperature scale coherently classifies snow, sea ice, albedo, freeze, permafrost, and melt potential. */
+/**
+ * Defines one coherent threshold family for snow, sea ice, freeze, permafrost, melt, ground ice,
+ * and albedo. Defaults keep those related products on the same temperature and precipitation
+ * posture rather than exposing independent classifiers.
+ */
 export default defineStrategy({
   id: "temperature-thresholds",
   config: Type.Object(

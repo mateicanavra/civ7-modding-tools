@@ -1,7 +1,11 @@
 import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { PlateTopologyNodeSchema } from "../model/atoms/plate-topology-node.schema.js";
 
-/** Registers Foundation's plate-topology artifact. */
+/**
+ * Publishes tile-space plate areas, centroids, and adjacency for topology-aware downstream
+ * consumers. Admission preserves direct indexing by requiring canonical plate ids, exact count
+ * alignment, and in-range neighbor references.
+ */
 export const artifact = defineArtifact({
   name: "foundationPlateTopology",
   id: "artifact:foundation.plateTopology",

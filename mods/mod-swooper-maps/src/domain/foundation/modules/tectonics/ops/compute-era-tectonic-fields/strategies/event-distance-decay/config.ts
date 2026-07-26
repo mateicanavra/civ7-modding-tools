@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Configuration contract for spreading tectonic events through bounded distance decay. */
+/**
+ * Defines the mesh-neighbor influence radius, exponential decay, and neutral activity gain for
+ * per-era event emission. Defaults spread evidence across eight hops while preserving authored
+ * plate activity until a stage-level knob scales it.
+ */
 export default defineStrategy({
   id: "event-distance-decay",
   config: Type.Object(

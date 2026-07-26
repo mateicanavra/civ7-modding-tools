@@ -8,7 +8,11 @@ function clampNumber(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
-/** Land-water thermal response, wind, SST, and sea ice produce bounded per-tile evaporation sources. */
+/**
+ * Normalizes surface temperature into evaporation, substitutes SST on water, suppresses sea-ice
+ * tiles, and applies a bounded wind boost. Non-finite or missing temperatures fall to the cold end
+ * of the authored window rather than contaminating the moisture field.
+ */
 const thermalSurfaceStrategy = createStrategy(
   ComputeEvaporationSourcesContract,
   ThermalSurfaceDefinition,

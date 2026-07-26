@@ -1,6 +1,9 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Depression-aware priority flooding assigns receivers, basins, sinks, outlets, and terminal types together. */
+/**
+ * Controls whether north and south map edges may act as external drainage outlets. The default
+ * keeps those edges closed, so admitted water or an internal sink terminates every land path.
+ */
 export default defineStrategy({
   id: "priority-flood",
   config: Type.Object(

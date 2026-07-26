@@ -12,7 +12,11 @@ import computeTectonicSegments from "./ops/compute-tectonic-segments/index.js";
 import computeTectonicsCurrent from "./ops/compute-tectonics-current/index.js";
 import computeTracerAdvection from "./ops/compute-tracer-advection/index.js";
 
-/** Executable Foundation tectonics branch. */
+/**
+ * Canonically binds the Tectonics contract to the motion, event, history, current-state, and
+ * provenance implementations that evolve the plate model. The Foundation router is the sole
+ * executable aggregate; step authoring continues to reference the contract.
+ */
 const tectonics = createDomainSubdomainRouter(contract, {
   computePlateMotion,
   computeTectonicSegments,

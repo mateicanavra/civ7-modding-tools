@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Wind imprint, Ekman deflection, basin gyres, and coastal flow produce coherent bounded surface currents. */
+/**
+ * Defines wind, Ekman, gyre, and coastal weights plus smoothing, divergence-projection, and output
+ * budgets for the default current posture. Defaults retain every component while bounding both
+ * solver cost and quantized speed.
+ */
 export default defineStrategy({
   id: "wind-gyre-projection",
   config: Type.Object(

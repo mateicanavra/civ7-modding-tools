@@ -4,7 +4,11 @@ import ComputeOceanThermalStateContract from "../../contract.js";
 import { computeOceanThermalState } from "../../rules/index.js";
 import LatitudeCurrentAdvectionDefinition from "./config.js";
 
-/** Current-weighted advection reshapes a latitudinal SST field before a shared threshold classifies sea ice. */
+/**
+ * Initializes SST from latitude, advects and diffuses it along admitted currents, then classifies
+ * sea ice with the same authored threshold. Fixed passes keep the thermal state reproducible while
+ * shelf and current evidence reshape the zonal baseline.
+ */
 const latitudeCurrentAdvectionStrategy = createStrategy(
   ComputeOceanThermalStateContract,
   LatitudeCurrentAdvectionDefinition,

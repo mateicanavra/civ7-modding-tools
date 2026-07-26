@@ -132,7 +132,11 @@ function isMountainBlockedClosedBasin(
   return landNeighborCount > 0 && minNeighborRelief >= MOUNTAIN_BLOCKED_RELIEF_MIN;
 }
 
-/** One drainage network yields coherent hierarchy, mouth, slope, and permanence classifications. */
+/**
+ * Traverses one acyclic receiver graph to derive contributing area and Strahler-like hierarchy,
+ * then propagates mouth evidence upstream and classifies slope and permanence. Rejecting cycles
+ * keeps every reported measurement tied to the same causal river network.
+ */
 const hydrographicClassificationStrategy = createStrategy(
   ClassifyRiverNetworkContract,
   HydrographicClassificationDefinition,

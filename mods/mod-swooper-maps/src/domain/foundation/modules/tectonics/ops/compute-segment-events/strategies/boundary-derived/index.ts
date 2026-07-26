@@ -3,7 +3,11 @@ import ComputeSegmentEventsContract from "../../contract.js";
 import { buildBoundaryEventsFromSegments } from "../../rules/index.js";
 import BoundaryDerivedDefinition from "./config.js";
 
-/** Attaches boundary-segment event derivation to the segment-event operation contract. */
+/**
+ * Converts classified boundary segments into tectonic events using their regime, polarity,
+ * intensity, and local crust context. It preserves segment-derived causality instead of
+ * reclassifying boundaries at the event layer.
+ */
 export default createStrategy(ComputeSegmentEventsContract, BoundaryDerivedDefinition, {
   run: (input) => {
     const mesh = input.mesh;

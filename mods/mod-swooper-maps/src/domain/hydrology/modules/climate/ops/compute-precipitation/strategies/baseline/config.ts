@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Humidity scaling, texture, coastal moisture, and orography produce the deterministic baseline rainfall field. */
+/**
+ * Defines humidity mapping, seeded texture, coastal bonuses, and rain-shadow controls for the
+ * scalar baseline alternative. Defaults favor broadly humidity-driven rainfall with modest local
+ * texture and a four-tile orographic search.
+ */
 export default defineStrategy({
   id: "baseline",
   config: Type.Object(

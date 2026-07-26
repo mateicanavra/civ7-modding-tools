@@ -1,6 +1,9 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Land-water thermal response, wind, SST, and sea ice produce bounded per-tile evaporation sources. */
+/**
+ * Defines separate land and ocean evaporation strengths plus the active temperature window.
+ * Defaults make open water the dominant moisture source while retaining weak land evaporation.
+ */
 export default defineStrategy({
   id: "thermal-surface",
   config: Type.Object(

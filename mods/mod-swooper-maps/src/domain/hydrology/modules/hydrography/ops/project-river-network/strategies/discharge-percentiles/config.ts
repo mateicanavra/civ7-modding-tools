@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Scale-relative discharge thresholds classify minor and major river intent while preserving routing connectivity. */
+/**
+ * Defines map-relative minor and major discharge percentiles plus absolute safety floors. Defaults
+ * select the upper 15 percent for rivers and upper five percent for major candidates while
+ * preserving `major >= minor`.
+ */
 export default defineStrategy({
   id: "discharge-percentiles",
   config: Type.Object(

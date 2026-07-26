@@ -9,6 +9,11 @@ export type MaskComponentOddQ = Readonly<{
   diameter: number;
 }>;
 
+/**
+ * Allocates a multi-source distance field through mask cells equal to `1` on the Civ7 hex grid.
+ * X wraps and Y clips; invalid dimensions or mask length return an all-`-1` field, with `-1`
+ * also marking cells unreachable from every admitted source.
+ */
 export function computeMaskDistanceFieldOddQ(
   input: Readonly<{
     mask: Uint8Array;
@@ -64,6 +69,11 @@ function farthestReachable(
   return { index: bestIndex, distance: Math.max(0, bestDistance) };
 }
 
+/**
+ * Partitions mask cells equal to `1` into X-periodic, Y-bounded Civ7 hex components.
+ * IDs follow row-major discovery order; each allocated component records deterministic
+ * two-sweep BFS endpoints and a geodesic span estimate for downstream shape metrics.
+ */
 export function collectMaskComponentsOddQ(
   input: Readonly<{
     mask: Uint8Array;

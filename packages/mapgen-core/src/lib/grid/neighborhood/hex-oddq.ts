@@ -28,6 +28,11 @@ const OFFSETS_EVEN_ROW: readonly (readonly [number, number])[] = [
   [-1, 1],
 ];
 
+/**
+ * Allocates row-major indices for the valid neighbors of a Civ7 odd-row-offset hex tile.
+ * Despite the legacy `OddQ` name, parity is keyed by row; X wraps, Y clips, and direction order is stable.
+ * Narrow periodic grids may produce duplicate indices because direction aliases are not deduplicated.
+ */
 export function getHexNeighborIndicesOddQ(
   x: number,
   y: number,
@@ -49,6 +54,11 @@ export function getHexNeighborIndicesOddQ(
   return indices;
 }
 
+/**
+ * Visits Civ7 odd-row-offset hex neighbors without allocating an index array.
+ * Callback coordinates wrap across X and omit neighbors beyond the bounded Y edges.
+ * Distinct directions may revisit the same tile on a narrow periodic grid.
+ */
 export function forEachHexNeighborOddQ(
   x: number,
   y: number,
@@ -67,6 +77,10 @@ export function forEachHexNeighborOddQ(
   }
 }
 
+/**
+ * Visits hex neighbors with their canonical zero-based direction slot.
+ * Y-edge omissions leave gaps in direction indices rather than renumbering the remaining neighbors.
+ */
 export function forEachHexNeighborOddQWithDirection(
   x: number,
   y: number,
@@ -86,6 +100,11 @@ export function forEachHexNeighborOddQWithDirection(
   }
 }
 
+/**
+ * Allocates the unique tiles within a graph radius, including the center, in deterministic BFS order.
+ * The search uses X-periodic, Y-bounded odd-row adjacency; invalid extents or centers return `[]`,
+ * while a nonpositive radius returns only the admitted center.
+ */
 export function getHexRadiusIndicesOddQ(
   centerIndex: number,
   width: number,

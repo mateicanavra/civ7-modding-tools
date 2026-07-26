@@ -7,7 +7,11 @@ import scorePlotEffectsJungle from "./ops/plot-effects-score-jungle/index.js";
 import scorePlotEffectsSand from "./ops/plot-effects-score-sand/index.js";
 import scorePlotEffectsSnow from "./ops/plot-effects-score-snow/index.js";
 
-/** Executable Ecology plot-effect branch. */
+/**
+ * Canonically binds the Plot Effects contract to scoring and planning implementations that produce
+ * Civ7-facing snow, sand, burned, and jungle intent. The Ecology router is the sole executable
+ * aggregate; step authoring continues to reference the contract.
+ */
 const plotEffects = createDomainSubdomainRouter(contract, {
   scorePlotEffectsSnow,
   scorePlotEffectsSand,

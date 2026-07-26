@@ -9,6 +9,11 @@ export type CsrPointMesh2D = Readonly<{
   neighbors: Int32Array;
 }>;
 
+/**
+ * Estimates representative mesh spacing by averaging valid undirected CSR edges up to a scan cap.
+ * X distance uses the nearest periodic image, reverse duplicates and degenerate edges are skipped,
+ * and meshes with no usable edge return the neutral spacing `1`.
+ */
 export function meanMeshEdgeLength(mesh: CsrPointMesh2D, maxEdges = 100_000): number {
   const cellCount = mesh.cellCount | 0;
   if (cellCount <= 0) return 1;
@@ -40,6 +45,10 @@ export function meanMeshEdgeLength(mesh: CsrPointMesh2D, maxEdges = 100_000): nu
   return count > 0 ? sum / count : 1;
 }
 
+/**
+ * Finds the closest site by squared distance, using periodic X and unwrapped Y.
+ * The scan allocates nothing, returns `-1` for an empty mesh, and preserves the first cell on exact ties.
+ */
 export function findNearestMeshCell(mesh: CsrPointMesh2D, x: number, y: number): number {
   const cellCount = mesh.cellCount | 0;
   if (cellCount <= 0) return -1;
@@ -60,6 +69,11 @@ export function findNearestMeshCell(mesh: CsrPointMesh2D, x: number, y: number):
   return best;
 }
 
+/**
+ * Selects the CSR neighbor whose periodic edge vector has the greatest raw dot product with a direction.
+ * Because edges are not normalized, both alignment and edge length affect the score; invalid cells,
+ * empty adjacency, or zero/non-finite vectors return the original cell, and the first tie wins.
+ */
 export function selectMeshNeighborByVectorProjection(params: {
   mesh: CsrPointMesh2D;
   cellId: number;

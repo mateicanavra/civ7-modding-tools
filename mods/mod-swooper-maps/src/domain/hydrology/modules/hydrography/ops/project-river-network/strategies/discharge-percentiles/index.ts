@@ -32,7 +32,11 @@ function strongestUpstreamMinor(
   return best;
 }
 
-/** Scale-relative discharge thresholds classify minor and major river intent while preserving routing connectivity. */
+/**
+ * Resolves thresholds from positive land discharge, marks the minor network, then promotes each
+ * major endpoint along its strongest connected upstream path. The major threshold is never allowed
+ * below the minor threshold, preserving a nested river classification.
+ */
 const dischargePercentilesStrategy = createStrategy(
   ProjectRiverNetworkContract,
   DischargePercentilesDefinition,

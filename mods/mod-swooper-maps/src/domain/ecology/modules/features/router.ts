@@ -25,7 +25,11 @@ import scoreWetOasis from "./ops/wet-score-oasis/index.js";
 import scoreWetTundraBog from "./ops/wet-score-tundra-bog/index.js";
 import scoreWetWateringHole from "./ops/wet-score-watering-hole/index.js";
 
-/** Executable Ecology feature branch. */
+/**
+ * Canonically binds the Features contract to substrate, scoring, intent-planning, and aggregation
+ * implementations consumed by map-ecology. The Ecology router is the sole executable aggregate;
+ * step authoring continues to reference the contract.
+ */
 const features = createDomainSubdomainRouter(contract, {
   computeFeatureSubstrate,
   computeVegetationSubstrate,

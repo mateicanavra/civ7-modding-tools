@@ -1,7 +1,11 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { MeshBoundingBoxSchema } from "../model/atoms/bounding-box.schema.js";
 
-/** Registers Foundation's neighborhood-mesh artifact. */
+/**
+ * Publishes the wrapped cell geometry and CSR neighborhood topology used as Foundation's common
+ * indexing substrate. Artifact admission keeps every cell-sized field aligned and rejects an
+ * invalid periodic span before downstream physical passes run.
+ */
 export const artifact = defineArtifact({
   name: "foundationMesh",
   id: "artifact:foundation.mesh",

@@ -3,7 +3,11 @@ import ComputeRadiativeForcingContract from "../../contract.js";
 import { computeInsolationByLatitude } from "../../rules/index.js";
 import LatitudeInsolationDefinition from "./config.js";
 
-/** Latitude, seasonality, and polar attenuation produce deterministic bounded insolation for every tile. */
+/**
+ * Evaluates absolute latitude once per row and broadcasts the resulting insolation across that row.
+ * This intentionally yields deterministic zonal forcing; longitudinal and seasonal variation enter
+ * later climate operations.
+ */
 const latitudeInsolationStrategy = createStrategy(
   ComputeRadiativeForcingContract,
   LatitudeInsolationDefinition,

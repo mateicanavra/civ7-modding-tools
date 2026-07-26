@@ -17,6 +17,11 @@ export type CompileErrorItem = Readonly<{
   opId?: string;
 }>;
 
+/**
+ * Aggregates every configuration failure discovered during one recipe compilation pass.
+ * Authoring clients inspect `errors` for stable paths and owner ids instead of parsing the combined
+ * human-readable message.
+ */
 export class RecipeCompileError extends Error {
   readonly errors: CompileErrorItem[];
 

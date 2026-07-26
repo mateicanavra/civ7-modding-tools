@@ -15,6 +15,11 @@ const DEFAULT_NEIGHBORS_8: readonly (readonly [number, number])[] = [
   [-1, -1],
 ];
 
+/**
+ * Runs a multi-source BFS over a bounded rectangular grid, using square 8-neighbor adjacency by default.
+ * The new row-major `Int16Array` stores `0` at sources and `-1` where custom adjacency cannot reach;
+ * coordinates never wrap.
+ */
 export function distanceTransform(
   width: number,
   height: number,

@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Thermal and humidity response balance precipitation demand into potential evapotranspiration and aridity. */
+/**
+ * Defines the temperature response, PET baseline, and humidity dampening used by the land-water
+ * budget. Defaults model moderate atmospheric demand while leaving rainfall as the balancing
+ * supply.
+ */
 export default defineStrategy({
   id: "pet-aridity",
   config: Type.Object(

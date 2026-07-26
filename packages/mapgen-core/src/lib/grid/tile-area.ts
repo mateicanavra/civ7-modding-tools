@@ -1,3 +1,9 @@
+/**
+ * Estimates a whole-map target count as tile area divided by representative spacing squared.
+ * Dimensions are coerced to signed 32-bit integers and clamped at zero; callers normally supply
+ * admitted map dimensions. Empty maps or nonpositive spacing return `0`, while an enabled nonempty
+ * map is guaranteed at least one target.
+ */
 export function resolveTileAreaSpacingTarget(params: {
   width: number;
   height: number;

@@ -11,6 +11,11 @@ import {
   assertArtifact,
 } from "./contract.js";
 
+/**
+ * Signals that a step attempted to read a declared artifact before any producer published it.
+ * Dependency gating and runtime reads retain the artifact identity and active consumer for
+ * actionable pipeline diagnostics.
+ */
 export class ArtifactMissingError extends Error {
   public readonly artifactId: string;
   public readonly artifactName: string;
@@ -27,6 +32,11 @@ export class ArtifactMissingError extends Error {
   }
 }
 
+/**
+ * Signals that a producer violated the artifact store's write-once lifecycle.
+ * The original publication remains authoritative; this error identifies the later producer that
+ * attempted to replace it.
+ */
 export class ArtifactDoublePublishError extends Error {
   public readonly artifactId: string;
   public readonly artifactName: string;
@@ -43,6 +53,11 @@ export class ArtifactDoublePublishError extends Error {
   }
 }
 
+/**
+ * Reports structural, typed-array, or semantic admission failures at artifact publication.
+ * Validation issues remain inspectable as a batch, while `cause` preserves an unexpected validator
+ * exception without allowing malformed evidence into the run.
+ */
 export class ArtifactValidationError extends Error {
   public readonly artifactId: string;
   public readonly artifactName: string;

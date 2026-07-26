@@ -3,7 +3,11 @@ import ComputeOceanSurfaceCurrentsContract from "../../contract.js";
 import { computeCurrents } from "../../rules/index.js";
 import LatitudeDefinition from "./config.js";
 
-/** Latitude bands provide deterministic zonal currents when wind-and-gyre projection is not selected. */
+/**
+ * Projects deterministic zonal currents from latitude over water tiles only. It deliberately
+ * ignores wind, basin, and coastline evidence, making it the stable fallback to wind-gyre
+ * projection.
+ */
 const latitudeStrategy = createStrategy(ComputeOceanSurfaceCurrentsContract, LatitudeDefinition, {
   run: (input, config) => {
     const width = input.width;

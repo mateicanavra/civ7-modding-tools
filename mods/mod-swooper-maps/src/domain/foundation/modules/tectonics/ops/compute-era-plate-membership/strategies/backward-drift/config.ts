@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Configuration contract for reconstructing plate membership by drifting seeds backward. */
+/**
+ * Defines oldest-to-newest era weights and backward-advection budgets; both arrays must describe
+ * the same five to eight eras. Defaults reconstruct five increasingly recent eras with
+ * progressively shorter drift.
+ */
 export default defineStrategy({
   id: "backward-drift",
   config: Type.Object(

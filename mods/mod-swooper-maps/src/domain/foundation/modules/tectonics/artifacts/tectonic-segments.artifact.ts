@@ -1,6 +1,10 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Registers Foundation's tectonic-segments artifact. */
+/**
+ * Publishes classified plate-boundary edges with polarity, regime, drift, and event intensities
+ * consumed by tectonic event reconstruction. Cardinality admission keeps every signal aligned to
+ * the same segment identity.
+ */
 export const artifact = defineArtifact({
   name: "foundationTectonicSegments",
   id: "artifact:foundation.tectonicSegments",

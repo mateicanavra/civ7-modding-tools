@@ -29,14 +29,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** ratchet the generic artifact kind around the sealed
-weighted `defineArtifact` authority. A module-owned artifact collection is
-closed and nonempty: one catalog `index.ts` plus one or more
-`*.artifact.ts` owners. Each owner directly inlines its complete root schema and
-optional semantic refinement, exports only `artifact`, and imports only the
-small authoring surface plus qualified Core, Civ7 static, or nearest model
-atoms/policy. Structure and exact member acquisition select the kind; Grit
-checks only relationships inside those admitted files.
+**Current container:** burn the MapGen exported-value documentation contract to
+zero on the live topology. Exported runtime capabilities with consumers retain
+concise declaration-site JSDoc that explains semantic purpose, behavior,
+invariants, flow, or non-obvious gotchas; dead or redundant exports are deleted
+rather than documented. Re-export barrels inherit the owning declaration's
+documentation, and type-only declarations remain outside this value-contract
+law.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -46,20 +45,24 @@ to MapGen diagnostics and Civ7 observation owners; the mod may retain only thin
 Standard replay/reporting commands. Core owns the generic authoring/execution
 and domain-composition SDK, not Swooper's domain model.
 
-Artifact authorship is now one weighted `defineArtifact` expression. Its inline
-schema refinement is contextually typed and receives admitted dimensions,
-derived cell count, and a Core-owned issue accumulator. Artifact modules no
-longer import framework issue/context types or allocate and thread their own
-issue arrays. Refinement typed arrays expose an observation-only compile-time
-surface without pretending the zero-copy artifact read plane is runtime-frozen.
+Artifact authorship is sealed as one weighted `defineArtifact` expression in a
+closed, nonempty module artifact collection. Its inline schema refinement is
+contextually typed and receives admitted dimensions, derived cell count, and a
+Core-owned issue accumulator. The generic artifact law selects exact members
+and enforces their closed import, export, root-schema, and refinement surfaces
+without broad source scans.
 
-**Gradient:** make the artifact collection grammar closed and nonempty, narrow
-file/catalog acquisition to real domain-module artifact members, and positively
-close the framework import combinations. Refresh fixtures against the sealed
-single-definition API, delete the retired historical artifact-ID blacklist,
-and prove the file, catalog, collection, and operation-boundary laws together
-without a broad Grit scan. Reach zero, review the frozen law, and commit before
-selecting the next unfinished final-ratchet container.
+**Gradient:** recensus the live JSDoc rule independently of its stale historical
+baseline, trace questionable exports before preserving them, and partition the
+remaining declarations by semantic owner. Delete dead exports first; then add
+brief behavior-oriented documentation to the surviving contracts. Replace the
+243-row historical baseline with an empty lock, run the focused rule and
+compiler/Knip checks demanded by any deletions, review semantic quality on the
+frozen diff, and commit before the final exact-tree integrated seal. The full
+graph exposed two inherited proof blockers while this cut was buffered: stale
+Core stage fixtures and a misplaced adapter-owned authoring-method catalog.
+Land those as independent lower semantic repairs rather than hiding them in the
+documentation cut.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -94,6 +97,16 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Weighted Artifact Kind
+
+Artifact authorship collapsed into one `defineArtifact` authority with
+TypeBox structural admission, exact typed-array constructor and cardinality
+admission, and a contextually typed semantic refinement over an observation-only
+value surface. Domain-module artifact collections became closed and nonempty;
+exact member acquisition and the generic artifact blueprint now enforce one
+catalog plus one-or-more inline artifact owners without global source scans or
+historical-key blacklists.
 
 ### 2026-07-25 - Test Intent Cash-In
 

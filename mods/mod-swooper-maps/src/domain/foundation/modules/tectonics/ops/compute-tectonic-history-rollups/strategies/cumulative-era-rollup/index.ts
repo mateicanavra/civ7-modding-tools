@@ -3,7 +3,11 @@ import ComputeTectonicHistoryRollupsContract from "../../contract.js";
 import { buildTectonicHistoryRollups } from "../../rules/index.js";
 import CumulativeEraRollupDefinition from "./config.js";
 
-/** Attaches cumulative era aggregation to the tectonic-history operation contract. */
+/**
+ * Reduces ordered era fields and membership into cumulative totals, recent fractions, and
+ * last-active evidence. The authored threshold affects recency admission, not the underlying era
+ * fields.
+ */
 export default createStrategy(
   ComputeTectonicHistoryRollupsContract,
   CumulativeEraRollupDefinition,

@@ -1,6 +1,10 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Registers Foundation's plate-motion artifact. */
+/**
+ * Publishes fitted rigid-body motion per plate together with plate- and cell-level residual
+ * evidence. Boundary classification, history reconstruction, and projection therefore consume the
+ * same motion fit and its quality signal.
+ */
 export const artifact = defineArtifact({
   name: "foundationPlateMotion",
   id: "artifact:foundation.plateMotion",

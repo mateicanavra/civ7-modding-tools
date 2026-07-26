@@ -4,6 +4,10 @@ import { quantizeI8Symmetric } from "@mapgen/lib/math/quantize.js";
 
 export type Vec2 = Readonly<{ x: number; y: number }>;
 
+/**
+ * Symmetric signed-byte magnitude used for vector components.
+ * Excluding `-128` gives positive and negative unit directions the same physical scale.
+ */
 export const I8_VECTOR_MAX_ABS = 127;
 
 // Odd-R (row-offset) neighbor offsets — MUST match the canonical table in
@@ -27,40 +31,55 @@ const OFFSETS_EVEN_ROW: readonly (readonly [number, number])[] = [
   [-1, 1],
 ];
 
+/** Allocates a two-component vector record without normalization or finiteness checks. */
 export function vec2(x: number, y: number): Vec2 {
   return { x, y };
 }
 
+/**
+ * Computes the scalar dot product used for alignment and projection scores.
+ * Operands are not normalized, so their magnitudes remain part of the result.
+ */
 export function vec2Dot(a: Vec2, b: Vec2): number {
   return a.x * b.x + a.y * b.y;
 }
 
+/** Computes the Z component of the 2D cross product used by orientation and curl calculations. */
 export function vec2CrossZ(a: Vec2, b: Vec2): number {
   return a.x * b.y - a.y * b.x;
 }
 
+/** Computes squared Euclidean magnitude when callers can avoid the cost of a square root. */
 export function vec2LengthSquared(v: Vec2): number {
   return v.x * v.x + v.y * v.y;
 }
 
+/** Computes Euclidean magnitude in the caller's coordinate space. */
 export function vec2Length(v: Vec2): number {
   return Math.sqrt(vec2LengthSquared(v));
 }
 
+/**
+ * Allocates a unit vector for finite magnitudes above the near-zero threshold.
+ * Degenerate input returns the supplied fallback reference unchanged, defaulting to `{ x: 0, y: 0 }`.
+ */
 export function vec2Normalize(v: Vec2, fallback: Vec2 = { x: 0, y: 0 }): Vec2 {
   const len = vec2Length(v);
   if (!Number.isFinite(len) || len <= 1e-12) return fallback;
   return { x: v.x / len, y: v.y / len };
 }
 
+/** Allocates a vector with both components multiplied by the supplied scalar. */
 export function vec2Scale(v: Vec2, s: number): Vec2 {
   return { x: v.x * s, y: v.y * s };
 }
 
+/** Allocates the component-wise sum of two vectors. */
 export function vec2Add(a: Vec2, b: Vec2): Vec2 {
   return { x: a.x + b.x, y: a.y + b.y };
 }
 
+/** Allocates the component-wise difference `a - b`. */
 export function vec2Sub(a: Vec2, b: Vec2): Vec2 {
   return { x: a.x - b.x, y: a.y - b.y };
 }
@@ -78,11 +97,19 @@ export function quantizeI8Signed(value: number, maxAbs: number): number {
   return clampInt(scaled, -I8_VECTOR_MAX_ABS, I8_VECTOR_MAX_ABS);
 }
 
+/**
+ * Expands a truncated signed-byte component back onto the caller's physical `maxAbs` scale.
+ * Invalid or nonpositive scales return `0`; the input is not clamped to signed-byte bounds.
+ */
 export function dequantizeI8Signed(value: number, maxAbs: number): number {
   if (!Number.isFinite(value) || !Number.isFinite(maxAbs) || maxAbs <= 0) return 0;
   return (Math.trunc(value) / I8_VECTOR_MAX_ABS) * maxAbs;
 }
 
+/**
+ * Normalizes a direction and quantizes each component to the symmetric `[-127, 127]` encoding.
+ * Tiny or non-finite vectors collapse to a newly allocated zero vector.
+ */
 export function quantizeUnitVec2I8(x: number, y: number): Vec2 {
   const len = Math.sqrt(x * x + y * y);
   if (!Number.isFinite(len) || len <= 1e-9) return { x: 0, y: 0 };
@@ -114,6 +141,10 @@ function computeHexNeighborDirectionVectorsOddQ(
 const HEX_NEIGHBOR_DIRS_EVEN = computeHexNeighborDirectionVectorsOddQ(0, OFFSETS_EVEN_ROW);
 const HEX_NEIGHBOR_DIRS_ODD = computeHexNeighborDirectionVectorsOddQ(1, OFFSETS_ODD_ROW);
 
+/**
+ * Returns the cached projected direction vectors for an even or odd Civ7 row.
+ * Order matches the canonical neighbor table and callers must treat the shared array and records as immutable.
+ */
 export function getHexNeighborDirectionVectorsOddQ(isOddRow: boolean): readonly Vec2[] {
   return isOddRow ? HEX_NEIGHBOR_DIRS_ODD : HEX_NEIGHBOR_DIRS_EVEN;
 }

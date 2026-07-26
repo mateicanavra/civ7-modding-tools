@@ -5,6 +5,7 @@ class StepRegistryError extends Error {
   }
 }
 
+/** Refuses registration when another immutable step already owns the same recipe-wide identity. */
 export class DuplicateStepError extends StepRegistryError {
   constructor(stepId: string) {
     super(`Step "${stepId}" is already registered.`);
@@ -12,6 +13,7 @@ export class DuplicateStepError extends StepRegistryError {
   }
 }
 
+/** Reports a recipe or caller lookup for a step that the active registry does not own. */
 export class UnknownStepError extends StepRegistryError {
   constructor(stepId: string) {
     super(`Unknown step "${stepId}".`);
@@ -26,6 +28,10 @@ class DependencyTagError extends Error {
   }
 }
 
+/**
+ * Rejects a dependency tag whose identifier or declared kind violates the registry namespace.
+ * Artifact tags are recipe-derived authorities; authored registrations are limited to effect tags.
+ */
 export class InvalidDependencyTagError extends DependencyTagError {
   constructor(tag: string) {
     super(`Invalid dependency tag "${tag}".`);
@@ -33,6 +39,7 @@ export class InvalidDependencyTagError extends DependencyTagError {
   }
 }
 
+/** Reports a dependency edge or lookup whose tag has no definition in the active registry. */
 export class UnknownDependencyTagError extends DependencyTagError {
   constructor(tag: string) {
     super(`Unknown dependency tag "${tag}".`);
@@ -40,6 +47,7 @@ export class UnknownDependencyTagError extends DependencyTagError {
   }
 }
 
+/** Refuses a second authority for an already registered dependency-tag identity. */
 export class DuplicateDependencyTagError extends DependencyTagError {
   constructor(tag: string) {
     super(`Dependency tag "${tag}" is already registered.`);
@@ -47,6 +55,10 @@ export class DuplicateDependencyTagError extends DependencyTagError {
   }
 }
 
+/**
+ * Rejects a dependency-tag example that fails its definition's synchronous admission check.
+ * This keeps invalid or asynchronous demo evidence out of the registry snapshot.
+ */
 export class InvalidDependencyTagDemoError extends DependencyTagError {
   constructor(tag: string) {
     super(`Invalid demo payload for dependency tag "${tag}".`);
@@ -54,6 +66,10 @@ export class InvalidDependencyTagDemoError extends DependencyTagError {
   }
 }
 
+/**
+ * Stops a step before execution when one or more declared prerequisites are not satisfied.
+ * The captured satisfied set makes dependency-order defects diagnosable without replaying the run.
+ */
 export class MissingDependencyError extends Error {
   readonly stepId: string;
   readonly missing: readonly string[];
@@ -73,6 +89,10 @@ export class MissingDependencyError extends Error {
   }
 }
 
+/**
+ * Reports that a completed step did not establish the postcondition for every declared provision.
+ * The executor leaves those tags unsatisfied so downstream steps cannot observe false evidence.
+ */
 export class UnsatisfiedProvidesError extends Error {
   readonly stepId: string;
   readonly missingProvides: readonly string[];
@@ -85,6 +105,11 @@ export class UnsatisfiedProvidesError extends Error {
   }
 }
 
+/**
+ * Wraps an exception at the step execution boundary while preserving the original cause.
+ * Throw-mode executors use this stable error to attribute failures without double-wrapping errors
+ * that already carry step identity or cancellation semantics.
+ */
 export class StepExecutionError extends Error {
   readonly stepId: string;
   readonly cause: unknown;

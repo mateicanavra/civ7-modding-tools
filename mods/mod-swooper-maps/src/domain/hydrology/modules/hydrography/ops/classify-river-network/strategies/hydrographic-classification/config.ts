@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** One drainage network yields coherent hierarchy, mouth, slope, and permanence classifications. */
+/**
+ * Exposes only the contributing-area gate for high-order confluences; the default of 64 suppresses
+ * spurious order-three promotion on small networks. All other river classification thresholds
+ * remain stable Hydrology policy.
+ */
 export default defineStrategy({
   id: "hydrographic-classification",
   config: Type.Object(

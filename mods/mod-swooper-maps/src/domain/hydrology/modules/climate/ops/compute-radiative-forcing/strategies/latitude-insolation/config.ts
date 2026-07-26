@@ -1,6 +1,9 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Latitude, seasonality, and polar attenuation produce deterministic bounded insolation for every tile. */
+/**
+ * Defines equatorial and polar forcing endpoints plus the latitude falloff exponent. Defaults
+ * produce a smooth monotonic gradient without exposing row- or tile-level noise controls.
+ */
 export default defineStrategy({
   id: "latitude-insolation",
   config: Type.Object(

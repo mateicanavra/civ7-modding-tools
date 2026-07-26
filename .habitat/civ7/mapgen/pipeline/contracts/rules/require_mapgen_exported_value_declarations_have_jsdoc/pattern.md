@@ -3,12 +3,14 @@ level: error
 ---
 # Require MapGen Exported Value Declarations To Have JSDoc
 
-Authored domain, recipe, and reusable diagnostic capability value exports are
-cross-module contracts. Their defining declarations require adjacent nonempty
-JSDoc. This rule rejects only missing, empty, and obvious placeholder blocks;
-review owns whether accepted documentation explains the value's behavior,
-purpose, or invariants. A direct anonymous default value is documented at its
-export statement; re-export barrels inherit documentation from the owner.
+Authored MapGen SDK, domain, recipe, and reusable diagnostic capability value
+exports are cross-module contracts. Their defining declarations require adjacent
+nonempty JSDoc. This rule rejects only missing, empty, and obvious placeholder
+blocks; review owns whether accepted documentation explains the value's
+behavior, purpose, or invariants. A direct anonymous default value is documented
+at its export statement; re-export barrels inherit documentation from the
+owner. A TypeScript overload family has one documentation owner: its first
+signature.
 
 This structural rule deliberately checks the authored value-export superset.
 Knip and review own whether an export has a real consumer, while review owns the
@@ -26,20 +28,38 @@ predicate lacks_declaration_jsdoc($declaration) {
   }
 }
 
+predicate follows_exported_overload_signature($export, $declaration) {
+  $declaration <: or {
+    function_signature(name=$name),
+    function_declaration(name=$name)
+  },
+  $previous = before $export,
+  $previous <: export_statement(declaration=function_signature(name=$name))
+}
+
+predicate follows_local_overload_signature($declaration) {
+  $declaration <: or {
+    function_signature(name=$name),
+    function_declaration(name=$name)
+  },
+  $previous = before $declaration,
+  $previous <: function_signature(name=$name)
+}
+
 or {
   export_statement(declaration=$declaration) as $export where {
-    $filename <: r".*(?:mods/mod-swooper-maps/src/(?:domain|recipes)|packages/mapgen-diagnostics/src)/.*\.ts$",
     $declaration <: or {
       lexical_declaration(),
       variable_declaration(),
+      function_signature(),
       function_declaration(),
       class_declaration(),
       enum_declaration()
     },
+    ! follows_exported_overload_signature($export, $declaration),
     lacks_declaration_jsdoc($export)
   },
   `export default $value` as $export where {
-    $filename <: r".*(?:mods/mod-swooper-maps/src/(?:domain|recipes)|packages/mapgen-diagnostics/src)/.*\.ts$",
     ! $value <: identifier(),
     lacks_declaration_jsdoc($export)
   },
@@ -48,17 +68,18 @@ or {
     `export { $..., $name, $... }`,
     `export { $..., $name as $_, $... }`
   } as $export where {
-    $filename <: r".*(?:mods/mod-swooper-maps/src/(?:domain|recipes)|packages/mapgen-diagnostics/src)/.*\.ts$",
     $program <: contains or {
       lexical_declaration() as $declaration where {
         $declaration <: contains variable_declarator(name=$name),
         lacks_declaration_jsdoc($declaration)
       },
       or {
+        function_signature(name=$name),
         function_declaration(name=$name),
         class_declaration(name=$name),
         enum_declaration(name=$name)
       } as $declaration where {
+        ! follows_local_overload_signature($declaration),
         lacks_declaration_jsdoc($declaration)
       }
     }
@@ -110,6 +131,18 @@ export default createStage({
   id: "ecology",
   steps: [],
 });
+
+// @filename: packages/mapgen-core/src/authoring/step/contract.ts
+export function defineFixtureStep(definition: { id: string }): { id: string };
+export function defineFixtureStep(definition: { id: string; tags: readonly string[] }): {
+  id: string;
+  tags: readonly string[];
+};
+export function defineFixtureStep(
+  definition: { id: string } | { id: string; tags: readonly string[] }
+) {
+  return definition;
+}
 ```
 
 ## Ignores fixture
@@ -157,8 +190,16 @@ export default createStage({
   steps: [],
 });
 
-// @filename: packages/mapgen-core/src/domain/ecology/model/policy/climate.ts
-export function resolveFutureCoreClimateBand(latitude: number): number {
-  return Math.floor(latitude / 10);
+// @filename: packages/mapgen-core/src/authoring/step/contract.ts
+/** Admits one fixture step while preserving its optional authored tags. */
+export function defineFixtureStep(definition: { id: string }): { id: string };
+export function defineFixtureStep(definition: { id: string; tags: readonly string[] }): {
+  id: string;
+  tags: readonly string[];
+};
+export function defineFixtureStep(
+  definition: { id: string } | { id: string; tags: readonly string[] }
+) {
+  return definition;
 }
 ```

@@ -10,7 +10,11 @@ const CURRENT_TECTONICS_ARRAY_KEYS = [
   "cumulativeUplift",
 ] as const;
 
-/** Registers Foundation's current-tectonics artifact. */
+/**
+ * Publishes present-day boundary and stress fields composed from the newest reconstructed era while
+ * retaining cumulative uplift for crust evolution and projection. Admission requires one nonempty,
+ * index-aligned field set.
+ */
 export const artifact = defineArtifact({
   name: "foundationTectonics",
   id: "artifact:foundation.tectonics",

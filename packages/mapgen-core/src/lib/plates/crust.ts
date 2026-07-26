@@ -11,6 +11,10 @@ import { rollUnit } from "@mapgen/lib/rng/unit.js";
 
 type RngFunction = (max: number, label?: string) => number;
 
+/**
+ * Numeric crust classes stored in plate-indexed byte arrays.
+ * `OCEANIC = 0` deliberately matches a newly allocated `Uint8Array`'s default state.
+ */
 export enum CrustType {
   OCEANIC = 0,
   CONTINENTAL = 1,

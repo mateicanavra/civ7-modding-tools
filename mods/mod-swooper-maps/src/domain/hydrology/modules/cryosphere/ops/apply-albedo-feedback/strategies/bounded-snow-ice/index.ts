@@ -4,7 +4,11 @@ import ApplyAlbedoFeedbackContract from "../../contract.js";
 import { clampNumber, lerp01 } from "../../rules/index.js";
 import BoundedSnowIceDefinition from "./config.js";
 
-/** Latitude gates and frozen-state thresholds iteratively correct temperature while bounding every albedo feedback pass. */
+/**
+ * Reclassifies fractional land snow and sea ice from the current temperature on each pass, applies
+ * their cooling, and clamps the next state. A fixed pass count makes feedback deterministic and
+ * prevents unstable convergence from becoming part of the climate contract.
+ */
 const boundedSnowIceStrategy = createStrategy(
   ApplyAlbedoFeedbackContract,
   BoundedSnowIceDefinition,

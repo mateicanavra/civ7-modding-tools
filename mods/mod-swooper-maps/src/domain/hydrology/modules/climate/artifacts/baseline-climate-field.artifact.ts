@@ -1,6 +1,10 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Registers the baseline climate artifact consumed by routing and climate refinement. */
+/**
+ * Publishes the pre-hydrography rainfall and humidity vintage so river routing and later climate
+ * refinement share one causal baseline. Admission preserves map cardinality and Civ7's inclusive
+ * `0..200` rainfall domain.
+ */
 export const artifact = defineArtifact({
   name: "baselineClimateField",
   id: "artifact:hydrology.baselineClimateField",

@@ -47,7 +47,11 @@ function elevationGradientOddQ(
   return { x: gx / w, y: gy / w };
 }
 
-/** Full wind vectors and terrain gradients turn transported humidity into uplift- and convergence-aware precipitation. */
+/**
+ * Combines transported humidity with coastal moisture, seeded texture, windward elevation
+ * gradients, and wind convergence over the shared engine-compatible hex neighborhood. Rainfall is
+ * land-only, clamped to Civ7's range, and is the sole source of returned humidity.
+ */
 const vectorStrategy = createStrategy(ComputePrecipitationContract, VectorDefinition, {
   run: (input, config) => {
     const width = input.width;

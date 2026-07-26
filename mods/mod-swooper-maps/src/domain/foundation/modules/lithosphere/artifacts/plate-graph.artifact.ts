@@ -1,7 +1,10 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { PlateSchema } from "../model/atoms/plate.schema.js";
 
-/** Registers Foundation's plate-graph artifact. */
+/**
+ * Publishes mesh-cell plate membership with the index-aligned plate identities consumed by
+ * downstream tectonic history and projection.
+ */
 export const artifact = defineArtifact({
   name: "foundationPlateGraph",
   id: "artifact:foundation.plateGraph",

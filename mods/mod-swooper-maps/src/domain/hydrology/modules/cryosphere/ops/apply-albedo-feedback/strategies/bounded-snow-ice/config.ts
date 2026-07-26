@@ -1,6 +1,9 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Latitude gates and frozen-state thresholds iteratively correct temperature while bounding every albedo feedback pass. */
+/**
+ * Defines the fixed feedback budget, snow and sea-ice cooling strengths, phase thresholds, and hard
+ * temperature bounds. The default four passes provide visible feedback without a convergence loop.
+ */
 export default defineStrategy({
   id: "bounded-snow-ice",
   config: Type.Object(

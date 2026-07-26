@@ -3,7 +3,11 @@ import ComputeThermalStateContract from "../../contract.js";
 import { clampNumber } from "../../rules/index.js";
 import InsolationLapseRateDefinition from "./config.js";
 
-/** Insolation response, elevation lapse, land state, and SST combine on one bounded temperature scale. */
+/**
+ * Converts insolation and elevation into bounded land temperature, with an explicit continental
+ * cooling term. When SST evidence exists, water tiles take that value directly instead of
+ * recomputing ocean temperature from the atmospheric proxy.
+ */
 const insolationLapseRateStrategy = createStrategy(
   ComputeThermalStateContract,
   InsolationLapseRateDefinition,

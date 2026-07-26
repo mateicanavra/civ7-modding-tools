@@ -1,6 +1,9 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Closed configuration contract for advecting tracers with reconstructed boundary drift. */
+/**
+ * Declares a parameter-free tracer posture: admitted mantle forcing and era fields fully determine
+ * backward lineage transport across the mesh.
+ */
 export default defineStrategy({
   id: "boundary-drift",
   config: Type.Object(

@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Rainfall scaling, infiltration, humidity dampening, and a source floor feed receiver-ordered runoff accumulation. */
+/**
+ * Defines how rainfall becomes local runoff through scaling, infiltration, humidity dampening, and
+ * a source floor. Defaults preserve most rainfall signal while leaving receiver topology entirely
+ * under the drainage operation's authority.
+ */
 export default defineStrategy({
   id: "topological-runoff",
   config: Type.Object(

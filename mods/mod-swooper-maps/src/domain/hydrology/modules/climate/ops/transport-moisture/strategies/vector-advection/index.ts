@@ -97,7 +97,11 @@ function selectUpwind(
   return { i0, w0, i1, w1 };
 }
 
-/** One or two vector-weighted upwind neighbors advect evaporation-sourced humidity with bounded retention. */
+/**
+ * Repeatedly mixes local evaporation with one or two vector-aligned donors from the shared
+ * engine-compatible hex neighborhood, falling back to zonal transport for calm or degenerate wind.
+ * Fixed passes and clamping keep humidity deterministic and within `0..1`.
+ */
 const vectorAdvectionStrategy = createStrategy(
   TransportMoistureContract,
   VectorAdvectionDefinition,

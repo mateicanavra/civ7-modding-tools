@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-export const repoRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], {
+const repoRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], {
   encoding: "utf8",
 }).trim();
 export const modRoot = path.join(repoRoot, "mods/mod-swooper-maps");
