@@ -27,12 +27,12 @@ const Civ7StrategyFrontSummaryInputSchema = Type.Object(
 );
 export type Civ7StrategyFrontSummaryInput = Static<typeof Civ7StrategyFrontSummaryInputSchema>;
 
-export const Civ7StrategyRelationshipClassificationSchema = Type.Union([
+const Civ7StrategyRelationshipClassificationSchema = Type.Union([
   Type.Literal("self"),
   Type.Literal("relationship-unproven"),
 ]);
 
-export const Civ7StrategyRelationshipLabelPolicySchema = Type.Object(
+const Civ7StrategyRelationshipLabelPolicySchema = Type.Object(
   {
     relationshipSource: Type.Literal("not-classified"),
     relationshipProof: Type.Literal("none"),
@@ -42,7 +42,7 @@ export const Civ7StrategyRelationshipLabelPolicySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7StrategyFrontSourceStatusSchema = Type.Object(
+const Civ7StrategyFrontSourceStatusSchema = Type.Object(
   {
     targetCandidates: Type.Literal("read"),
     battlefieldScan: Type.Literal("read"),
@@ -51,7 +51,7 @@ export const Civ7StrategyFrontSourceStatusSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7StrategyFrontTargetCandidateSchema = Type.Object(
+const Civ7StrategyFrontTargetCandidateSchema = Type.Object(
   {
     owner: Type.Integer({ minimum: 0 }),
     relationship: Type.Literal("relationship-unproven"),
@@ -68,7 +68,7 @@ export const Civ7StrategyFrontTargetCandidateSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7StrategyFrontPointOfInterestSchema = Type.Object(
+const Civ7StrategyFrontPointOfInterestSchema = Type.Object(
   {
     kind: Type.String(),
     severity: Type.String(),
@@ -90,7 +90,7 @@ const Civ7StrategyFrontPressureSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7StrategyObservedOwnerSchema = Type.Object(
+const Civ7StrategyObservedOwnerSchema = Type.Object(
   {
     owner: Type.Integer({ minimum: 0 }),
     relationship: Civ7StrategyRelationshipClassificationSchema,
@@ -103,7 +103,7 @@ export const Civ7StrategyObservedOwnerSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7StrategyFrontSummaryNextStepSchema = Type.Object(
+const Civ7StrategyFrontSummaryNextStepSchema = Type.Object(
   {
     kind: Type.Union([
       Type.Literal("inspect-target-candidate"),
@@ -165,9 +165,7 @@ const Civ7StrategyTargetCandidatesInputSchema = Type.Object(
   },
   { additionalProperties: false }
 );
-export type Civ7StrategyTargetCandidatesInput = Static<
-  typeof Civ7StrategyTargetCandidatesInputSchema
->;
+type Civ7StrategyTargetCandidatesInput = Static<typeof Civ7StrategyTargetCandidatesInputSchema>;
 
 const Civ7StrategyTargetCandidatesNextStepSchema = Type.Object(
   {
@@ -274,7 +272,7 @@ const Civ7StrategyDestinationAnalysisInputSchema = Type.Object(
   },
   { additionalProperties: false }
 );
-export type Civ7StrategyDestinationAnalysisInput = Static<
+type Civ7StrategyDestinationAnalysisInput = Static<
   typeof Civ7StrategyDestinationAnalysisInputSchema
 >;
 
@@ -377,9 +375,7 @@ const Civ7StrategyBattlefieldScanInputSchema = Type.Object(
   },
   { additionalProperties: false }
 );
-export type Civ7StrategyBattlefieldScanInput = Static<
-  typeof Civ7StrategyBattlefieldScanInputSchema
->;
+type Civ7StrategyBattlefieldScanInput = Static<typeof Civ7StrategyBattlefieldScanInputSchema>;
 
 const Civ7StrategyBattlefieldNextStepSchema = Type.Object(
   {
@@ -764,14 +760,14 @@ const Civ7StrategyFormationSnapshotResultStandardSchema = toStandardSchema(
   Civ7StrategyFormationSnapshotResultSchema
 );
 
-export type Civ7StrategyFrontSummaryContract = ContractProcedure<
+type Civ7StrategyFrontSummaryContract = ContractProcedure<
   typeof Civ7StrategyFrontSummaryInputStandardSchema,
   typeof Civ7StrategyFrontSummaryResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7StrategyFrontSummaryContract: Civ7StrategyFrontSummaryContract =
+const Civ7StrategyFrontSummaryContract: Civ7StrategyFrontSummaryContract =
   civ7ControlOrpcContractBase
     .input(Civ7StrategyFrontSummaryInputStandardSchema)
     .output(Civ7StrategyFrontSummaryResultStandardSchema)
@@ -782,14 +778,14 @@ export const Civ7StrategyFrontSummaryContract: Civ7StrategyFrontSummaryContract 
       risk: "read-only",
     });
 
-export type Civ7StrategyTargetCandidatesContract = ContractProcedure<
+type Civ7StrategyTargetCandidatesContract = ContractProcedure<
   typeof Civ7StrategyTargetCandidatesInputStandardSchema,
   typeof Civ7StrategyTargetCandidatesResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7StrategyTargetCandidatesContract: Civ7StrategyTargetCandidatesContract =
+const Civ7StrategyTargetCandidatesContract: Civ7StrategyTargetCandidatesContract =
   civ7ControlOrpcContractBase
     .input(Civ7StrategyTargetCandidatesInputStandardSchema)
     .output(Civ7StrategyTargetCandidatesResultStandardSchema)
@@ -800,14 +796,14 @@ export const Civ7StrategyTargetCandidatesContract: Civ7StrategyTargetCandidatesC
       risk: "read-only",
     });
 
-export type Civ7StrategyDestinationAnalysisContract = ContractProcedure<
+type Civ7StrategyDestinationAnalysisContract = ContractProcedure<
   typeof Civ7StrategyDestinationAnalysisInputStandardSchema,
   typeof Civ7StrategyDestinationAnalysisResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7StrategyDestinationAnalysisContract: Civ7StrategyDestinationAnalysisContract =
+const Civ7StrategyDestinationAnalysisContract: Civ7StrategyDestinationAnalysisContract =
   civ7ControlOrpcContractBase
     .input(Civ7StrategyDestinationAnalysisInputStandardSchema)
     .output(Civ7StrategyDestinationAnalysisResultStandardSchema)
@@ -818,14 +814,14 @@ export const Civ7StrategyDestinationAnalysisContract: Civ7StrategyDestinationAna
       risk: "read-only",
     });
 
-export type Civ7StrategyBattlefieldScanContract = ContractProcedure<
+type Civ7StrategyBattlefieldScanContract = ContractProcedure<
   typeof Civ7StrategyBattlefieldScanInputStandardSchema,
   typeof Civ7StrategyBattlefieldScanResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7StrategyBattlefieldScanContract: Civ7StrategyBattlefieldScanContract =
+const Civ7StrategyBattlefieldScanContract: Civ7StrategyBattlefieldScanContract =
   civ7ControlOrpcContractBase
     .input(Civ7StrategyBattlefieldScanInputStandardSchema)
     .output(Civ7StrategyBattlefieldScanResultStandardSchema)
@@ -836,14 +832,14 @@ export const Civ7StrategyBattlefieldScanContract: Civ7StrategyBattlefieldScanCon
       risk: "read-only",
     });
 
-export type Civ7StrategyCivilianRouteTriageContract = ContractProcedure<
+type Civ7StrategyCivilianRouteTriageContract = ContractProcedure<
   typeof Civ7StrategyCivilianRouteTriageInputStandardSchema,
   typeof Civ7StrategyCivilianRouteTriageResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7StrategyCivilianRouteTriageContract: Civ7StrategyCivilianRouteTriageContract =
+const Civ7StrategyCivilianRouteTriageContract: Civ7StrategyCivilianRouteTriageContract =
   civ7ControlOrpcContractBase
     .input(Civ7StrategyCivilianRouteTriageInputStandardSchema)
     .output(Civ7StrategyCivilianRouteTriageResultStandardSchema)
@@ -854,14 +850,14 @@ export const Civ7StrategyCivilianRouteTriageContract: Civ7StrategyCivilianRouteT
       risk: "read-only",
     });
 
-export type Civ7StrategyFormationSnapshotContract = ContractProcedure<
+type Civ7StrategyFormationSnapshotContract = ContractProcedure<
   typeof Civ7StrategyFormationSnapshotInputStandardSchema,
   typeof Civ7StrategyFormationSnapshotResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7StrategyFormationSnapshotContract: Civ7StrategyFormationSnapshotContract =
+const Civ7StrategyFormationSnapshotContract: Civ7StrategyFormationSnapshotContract =
   civ7ControlOrpcContractBase
     .input(Civ7StrategyFormationSnapshotInputStandardSchema)
     .output(Civ7StrategyFormationSnapshotResultStandardSchema)

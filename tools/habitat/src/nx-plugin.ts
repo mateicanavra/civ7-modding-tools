@@ -7,11 +7,7 @@ import {
   type NxRuleRegistryDocument,
   type NxRuleRegistryRecord,
 } from "./nx-rule-registry-loader.ts";
-import {
-  habitatAuthorityProjectName,
-  habitatAuthorityRoot,
-  ruleRegistryRepoPath,
-} from "./resources/authority-paths.ts";
+import { habitatAuthorityProjectName, habitatAuthorityRoot } from "./resources/authority-paths.ts";
 import { repoRoot } from "./resources/paths.ts";
 import { ruleGraphFactsForNxPlugin } from "./service/model/graph/dto/rule-graph-facts.dto.ts";
 import {
@@ -33,7 +29,7 @@ import {
 } from "./service/model/workspace/dto/workspace.schema.ts";
 import { workspaceGraphTargetNames } from "./service/model/workspace/policy/workspace-targets.policy.ts";
 
-const rulesPath = path.join(repoRoot, ruleRegistryRepoPath);
+const rulesPath = path.join(repoRoot, habitatAuthorityRoot);
 
 const harnessInternalBoundaryProjects = [
   {
@@ -69,7 +65,7 @@ const harnessInternalBoundaryProjects = [
 ] as const;
 
 export const createNodes = [
-  `${ruleRegistryRepoPath}/**/*.json`,
+  `${habitatAuthorityRoot}/**/*.json`,
   (configFiles: readonly string[], options: unknown) => {
     const registry = loadRuleRegistryDocumentForNxPlugin(rulesPath);
     const projects = buildInferredProjects({

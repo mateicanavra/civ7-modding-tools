@@ -8,7 +8,7 @@ import {
   type VizSpaceId,
 } from "@swooper/mapgen-viz";
 
-export type RiverLakeInspectorLane =
+type RiverLakeInspectorLane =
   | "hydrology"
   | "projection"
   | "terrain-readback"
@@ -18,7 +18,7 @@ export type RiverLakeInspectorLane =
   | "rendered"
   | "acceptance";
 
-export type RiverLakeInspectorEvidenceClass =
+type RiverLakeInspectorEvidenceClass =
   | "hydrology-model"
   | "projection-plan"
   | "terrain-readback"
@@ -29,14 +29,9 @@ export type RiverLakeInspectorEvidenceClass =
   | "civ-rendered"
   | "product-acceptance";
 
-export type RiverLakeInspectorClaimStatus =
-  | "available"
-  | "pass"
-  | "fail"
-  | "unresolved"
-  | "out-of-scope";
+type RiverLakeInspectorClaimStatus = "available" | "pass" | "fail" | "unresolved" | "out-of-scope";
 
-export type RiverLakeInspectorMaskCategory =
+type RiverLakeInspectorMaskCategory =
   | "physical-river-model"
   | "navigable-projection"
   | "engine-terrain-readback"
@@ -47,7 +42,7 @@ export type RiverLakeInspectorMaskCategory =
   | "mismatch-debug"
   | "evidence-only";
 
-export type RiverLakeInspectorPalette = Readonly<{
+type RiverLakeInspectorPalette = Readonly<{
   paletteId: string;
   label: string;
   activeColor: string;
@@ -55,13 +50,13 @@ export type RiverLakeInspectorPalette = Readonly<{
   debugColor: string;
 }>;
 
-export type RiverLakeInspectorMaskPresentation = Readonly<{
+type RiverLakeInspectorMaskPresentation = Readonly<{
   category: RiverLakeInspectorMaskCategory;
   categoryLabel: string;
   palette: RiverLakeInspectorPalette;
 }>;
 
-export type RiverLakeInspectorDisplayStatus =
+type RiverLakeInspectorDisplayStatus =
   | "hydrology-model-present"
   | "projection-plan-present"
   | "terrain-readback-present"
@@ -102,7 +97,7 @@ export type RiverLakeInspectorLayerRef = Readonly<{
   presentation: RiverLakeInspectorMaskPresentation;
 }>;
 
-export type RiverLakeInspectorRow = Readonly<{
+type RiverLakeInspectorRow = Readonly<{
   rowKey: string;
   lane: RiverLakeInspectorLane;
   laneLabel: string;

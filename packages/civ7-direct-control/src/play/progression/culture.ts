@@ -44,7 +44,7 @@ type CultureChoiceCloseoutRequestDependencies = CultureChoiceCloseoutCommandDepe
     validatePlayerId: (playerId: number) => void;
   }>;
 
-export function buildCultureChoiceCloseoutCommand(
+function buildCultureChoiceCloseoutCommand(
   input: Civ7CultureChoiceCloseoutInput,
   dependencies: CultureChoiceCloseoutCommandDependencies
 ): string {
@@ -54,7 +54,7 @@ export function buildCultureChoiceCloseoutCommand(
   })()`;
 }
 
-export function cultureChoiceCloseoutSource(): string {
+function cultureChoiceCloseoutSource(): string {
   return `${probeHelperSource()}
     const toComponentId = (value) => {
       if (!value || typeof value !== "object") return null;

@@ -20,7 +20,7 @@ export type GeologicalResourceType =
   | "RESOURCE_PITCH"
   | "RESOURCE_RUBIES";
 
-export type GeologicalLaneId =
+type GeologicalLaneId =
   | "orogenic-hydrothermal"
   | "blocked-derivative"
   | "evaporite-sedimentary"

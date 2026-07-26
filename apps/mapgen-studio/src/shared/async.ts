@@ -1,9 +1,4 @@
-// Small async primitives shared across Studio features. Extracted verbatim from
-// `App.tsx` during the app-decomposition slice.
-
-export function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => window.setTimeout(resolve, ms));
-}
+// Async error classification shared across Studio features.
 
 export function isAbortLikeError(err: unknown): boolean {
   return Boolean(

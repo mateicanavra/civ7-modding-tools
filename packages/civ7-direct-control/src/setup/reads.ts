@@ -252,7 +252,7 @@ export function buildSetupSnapshotCommand(dependencies: SetupReadDependencies): 
   })()`;
 }
 
-export function buildSetupShellAdmissionCommand(
+function buildSetupShellAdmissionCommand(
   policy: Civ7SetupShellAdmissionPolicy,
   dependencies: SetupReadDependencies
 ): string {
@@ -283,7 +283,7 @@ function buildSetupShellReloadCommand(dependencies: SetupReadDependencies): stri
   })()`;
 }
 
-export function buildSetupMapRowsCommand(
+function buildSetupMapRowsCommand(
   input: Civ7SetupMapRowsInput & { limit: number },
   dependencies: SetupReadDependencies
 ): string {

@@ -124,7 +124,7 @@ export type Civ7TargetModReconciliationResult = Readonly<{
   verified: boolean;
 }>;
 
-export type Civ7TargetModReconciliationCommandResult = Readonly<{
+type Civ7TargetModReconciliationCommandResult = Readonly<{
   targetModId: string;
   targetInstalled: boolean;
   targetWasEnabled: boolean;
@@ -846,7 +846,7 @@ function parseSetupOptions<T extends TSchema>(schema: T, value: unknown, label: 
   return Value.Parse(schema, value);
 }
 
-export function normalizeSavedGameConfigurationRef(
+function normalizeSavedGameConfigurationRef(
   input: Civ7SavedGameConfigurationRef
 ): Civ7SavedGameConfigurationRef {
   const fileName = validateSavedConfigFileName(input.fileName);

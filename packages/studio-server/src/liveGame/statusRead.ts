@@ -3,7 +3,7 @@ import type { LiveGameStatusBody } from "@civ7/studio-contract";
 import { Effect, Option } from "effect";
 import { Civ7TunerClient } from "../services/Civ7TunerClient.js";
 
-export type LiveGameStatusOutput = LiveGameStatusBody &
+type LiveGameStatusOutput = LiveGameStatusBody &
   Readonly<{
     ok: boolean;
     playable: boolean;

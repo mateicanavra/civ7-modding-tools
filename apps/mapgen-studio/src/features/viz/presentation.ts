@@ -36,7 +36,7 @@ export type VizRenderedScalarPresentation = Readonly<{
 }>;
 
 /** One human-readable legend entry paired with the exact color used by the renderer. */
-export type VizLegendItem = { label: string; color: RgbaColor };
+type VizLegendItem = { label: string; color: RgbaColor };
 
 /** Legend presentation for one selected layer and its exact owning-step presentation context. */
 export type VizLegendModel = {

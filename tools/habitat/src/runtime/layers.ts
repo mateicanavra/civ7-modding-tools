@@ -4,7 +4,7 @@ import { makeBiomeProviderLayer } from "@habitat/cli/providers/biome/index";
 import { makeGitProviderLayer, makeGitStateProviderLayer } from "@habitat/cli/providers/git/index";
 import { makeGraphiteProviderLayer } from "@habitat/cli/providers/graphite/index";
 import { makeNxProviderLayer } from "@habitat/cli/providers/nx/index";
-import { ruleRegistryRepoPath } from "@habitat/cli/resources/authority-paths";
+import { habitatAuthorityRoot } from "@habitat/cli/resources/authority-paths";
 import { CommandRunnerLive } from "@habitat/cli/resources/command/index";
 import { HabitatConfig, HabitatConfigLive } from "@habitat/cli/resources/config/index";
 import { HabitatPlatform, makeHabitatPlatformService } from "@habitat/cli/resources/platform/index";
@@ -32,7 +32,7 @@ const HabitatRepoScopedLive = Layer.unwrapEffect(
     const config = yield* configResource.get;
     const platformService = makeHabitatPlatformService({ repoRoot: config.repoRoot });
     const facts = yield* loadRuleRegistryDocumentEffect(
-      path.join(platformService.repoRoot, ruleRegistryRepoPath),
+      path.join(platformService.repoRoot, habitatAuthorityRoot),
       {
         isDirectory: platformService.isDirectory,
         readDirectory: platformService.readDirectory,

@@ -172,7 +172,7 @@ function buildSettlementRecommendationsCommand(
   })()`;
 }
 
-export function settlementRecommendationsSource(): string {
+function settlementRecommendationsSource(): string {
   return `${probeHelperSource()}
     const toComponentId = (value) => {
       if (!value) return null;

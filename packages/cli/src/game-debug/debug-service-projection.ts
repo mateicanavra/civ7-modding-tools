@@ -20,10 +20,9 @@ export const DEBUG_SERVICE_PROJECTION_FIELD_CLASSES = [
   "resource-log-database-proof",
 ] as const;
 
-export type DebugServiceProjectionFieldClass =
-  (typeof DEBUG_SERVICE_PROJECTION_FIELD_CLASSES)[number];
+type DebugServiceProjectionFieldClass = (typeof DEBUG_SERVICE_PROJECTION_FIELD_CLASSES)[number];
 
-export type DebugServiceProjectionPathSegment = string | number;
+type DebugServiceProjectionPathSegment = string | number;
 
 export type DebugServiceProjectionExpectation = Readonly<{
   fieldClass: DebugServiceProjectionFieldClass;
@@ -57,7 +56,7 @@ export function debugServiceProjectionMissingPaths(
     .map(({ fieldClass, path, description }) => ({ fieldClass, path, description }));
 }
 
-export function hasDebugServiceProjectionPath(
+function hasDebugServiceProjectionPath(
   payload: unknown,
   path: readonly DebugServiceProjectionPathSegment[]
 ): boolean {

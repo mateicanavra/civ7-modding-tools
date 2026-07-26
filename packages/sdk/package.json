@@ -38,8 +38,7 @@
   },
   "devDependencies": {
     "@civ7/types": "workspace:*",
-    "@types/jstoxml": "^5.0.0",
-    "@types/lodash": "^4.17.23"
+    "@types/jstoxml": "^5.0.0"
   },
   "engines": {
     "node": "22.22.0"

@@ -5,16 +5,9 @@
 // These are default options that can be overridden via props.
 // ============================================================================
 
-import type {
-  DataTypeOption,
-  KnobOptionsMap,
-  MapSize,
-  RenderModeOption,
-  ResourceMode,
-  SelectOption,
-} from "@swooper/mapgen-studio-ui/types";
+import type { MapSize, SelectOption } from "@swooper/mapgen-studio-ui/types";
 
-export interface MapSizeOption extends SelectOption<MapSize> {
+interface MapSizeOption extends SelectOption<MapSize> {
   dimensions: string;
   width: number;
   height: number;
@@ -59,41 +52,3 @@ export const MAP_SIZE_OPTIONS: readonly MapSizeOption[] = [
 ] as const;
 
 export const PLAYER_COUNT_OPTIONS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const;
-
-export const RESOURCE_MODE_OPTIONS: readonly SelectOption<ResourceMode>[] = [
-  { value: "balanced", label: "Balanced" },
-  { value: "strategic", label: "Strategic" },
-] as const;
-
-// ============================================================================
-// View Options (defaults - can be overridden via props)
-// ============================================================================
-
-/** Default data type options (what data is being visualized) */
-export const DEFAULT_DATA_TYPE_OPTIONS: readonly DataTypeOption[] = [
-  { value: "mesh", label: "Mesh" },
-  { value: "crust", label: "Crust" },
-  { value: "tectonics", label: "Tectonics" },
-] as const;
-
-/** Default render mode options (how data is rendered/transformed) */
-export const DEFAULT_RENDER_MODE_OPTIONS: readonly RenderModeOption[] = [
-  { value: "hexagonal", label: "Hexagonal", icon: "hexagon" },
-  { value: "points", label: "Points", icon: "points" },
-  { value: "fields", label: "Fields", icon: "fields" },
-  { value: "heatmap", label: "Heatmap", icon: "heatmap" },
-] as const;
-
-// ============================================================================
-// Knob Options (defaults - can be overridden via props)
-// ============================================================================
-
-export const DEFAULT_KNOB_OPTIONS: KnobOptionsMap = {
-  seaLevel: ["land-heavy", "earthlike", "water-heavy"],
-  erosion: ["low", "normal", "high"],
-  coastRuggedness: ["smooth", "normal", "rugged"],
-  dryness: ["wet", "mix", "dry"],
-  temperature: ["cold", "temperate", "hot"],
-  seasonality: ["low", "normal", "high"],
-  oceanCoupling: ["weak", "earthlike", "strong"],
-} as const;

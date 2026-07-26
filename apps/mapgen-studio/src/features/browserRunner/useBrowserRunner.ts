@@ -5,9 +5,9 @@ import { toVizEvent } from "./adapter";
 import { formatErrorForUi } from "./errorFormat";
 import { createWorkerClient } from "./workerClient";
 
-export type BrowserRunnerStatus = "idle" | "running" | "finished" | "error";
+type BrowserRunnerStatus = "idle" | "running" | "finished" | "error";
 
-export type BrowserRunnerInputs = {
+type BrowserRunnerInputs = {
   recipeId: string;
   seed: number;
   mapSizeId: string;
@@ -18,7 +18,7 @@ export type BrowserRunnerInputs = {
   pipelineConfig: unknown;
 };
 
-export type BrowserRunnerState = {
+type BrowserRunnerState = {
   status: BrowserRunnerStatus;
   running: boolean;
   lastStep: { stepId: string; stepIndex: number } | null;

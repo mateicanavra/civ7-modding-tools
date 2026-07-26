@@ -25,23 +25,23 @@ export type Civ7GovernmentCelebrationChoiceInput = Static<
   typeof Civ7GovernmentCelebrationChoiceInputSchema
 >;
 
-export const Civ7GovernmentChoicePostconditionClassificationSchema = Type.Union([
+const Civ7GovernmentChoicePostconditionClassificationSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("pending-runtime-proof"),
   Type.Literal("missing-postcondition"),
 ]);
 
-export const Civ7GovernmentChoiceProofOutcomeSchema = Type.Union([
+const Civ7GovernmentChoiceProofOutcomeSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("unknown"),
 ]);
 
-export const Civ7GovernmentChoiceRequestStatusSchema = Type.Union([
+const Civ7GovernmentChoiceRequestStatusSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("sent-unverified"),
 ]);
 
-export const Civ7GovernmentChoiceValidationSummarySchema = Type.Object(
+const Civ7GovernmentChoiceValidationSummarySchema = Type.Object(
   {
     beforeValid: Type.Boolean(),
     afterValid: Type.Boolean(),
@@ -49,7 +49,7 @@ export const Civ7GovernmentChoiceValidationSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7GovernmentChoicePostconditionSummarySchema = Type.Object(
+const Civ7GovernmentChoicePostconditionSummarySchema = Type.Object(
   {
     classification: Civ7GovernmentChoicePostconditionClassificationSchema,
     reason: Type.String(),
@@ -61,7 +61,7 @@ export const Civ7GovernmentChoicePostconditionSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7GovernmentChoiceNextStepSchema = Type.Object(
+const Civ7GovernmentChoiceNextStepSchema = Type.Object(
   {
     kind: Type.Union([Type.Literal("do-not-repeat"), Type.Literal("inspect-government-choice")]),
     source: Type.Literal("government.choice.request"),
@@ -70,7 +70,7 @@ export const Civ7GovernmentChoiceNextStepSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7GovernmentCelebrationChoiceNextStepSchema = Type.Object(
+const Civ7GovernmentCelebrationChoiceNextStepSchema = Type.Object(
   {
     kind: Type.Union([Type.Literal("do-not-repeat"), Type.Literal("inspect-government-choice")]),
     source: Type.Literal("government.celebration.choice.request"),
@@ -119,32 +119,31 @@ const Civ7GovernmentCelebrationChoiceResultStandardSchema = toStandardSchema(
   Civ7GovernmentCelebrationChoiceResultSchema
 );
 
-export type Civ7GovernmentChoiceContract = ContractProcedure<
+type Civ7GovernmentChoiceContract = ContractProcedure<
   typeof Civ7GovernmentChoiceInputStandardSchema,
   typeof Civ7GovernmentChoiceResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7GovernmentChoiceContract: Civ7GovernmentChoiceContract =
-  civ7ControlOrpcContractBase
-    .input(Civ7GovernmentChoiceInputStandardSchema)
-    .output(Civ7GovernmentChoiceResultStandardSchema)
-    .meta({
-      family: "government",
-      procedureKey: "government.choice.request",
-      proofBoundary: "local-package-test",
-      risk: "mutation",
-    });
+const Civ7GovernmentChoiceContract: Civ7GovernmentChoiceContract = civ7ControlOrpcContractBase
+  .input(Civ7GovernmentChoiceInputStandardSchema)
+  .output(Civ7GovernmentChoiceResultStandardSchema)
+  .meta({
+    family: "government",
+    procedureKey: "government.choice.request",
+    proofBoundary: "local-package-test",
+    risk: "mutation",
+  });
 
-export type Civ7GovernmentCelebrationChoiceContract = ContractProcedure<
+type Civ7GovernmentCelebrationChoiceContract = ContractProcedure<
   typeof Civ7GovernmentCelebrationChoiceInputStandardSchema,
   typeof Civ7GovernmentCelebrationChoiceResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7GovernmentCelebrationChoiceContract: Civ7GovernmentCelebrationChoiceContract =
+const Civ7GovernmentCelebrationChoiceContract: Civ7GovernmentCelebrationChoiceContract =
   civ7ControlOrpcContractBase
     .input(Civ7GovernmentCelebrationChoiceInputStandardSchema)
     .output(Civ7GovernmentCelebrationChoiceResultStandardSchema)

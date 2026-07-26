@@ -39,7 +39,7 @@ export type StandardRiverProjectionCapture = Readonly<{
 }>;
 
 /** Civ7-observed river surfaces and native-object evidence from one stable read window. */
-export type StandardLiveRiverCapture = Readonly<{
+type StandardLiveRiverCapture = Readonly<{
   terrainNavigableRiver: StandardParityGrid;
   riverType: StandardParityGrid;
   river: StandardParityGrid;
@@ -144,7 +144,7 @@ export type StandardExactProductEvidence<T> =
   | Readonly<{ status: "missing"; evidenceLink: string }>;
 
 /** Closed outcome of one product evidence claim. */
-export type StandardParityComparisonStatus = "pass" | "fail" | "unresolved" | "not-applicable";
+type StandardParityComparisonStatus = "pass" | "fail" | "unresolved" | "not-applicable";
 
 /** One evidence-backed parity claim with stable links for report consumers. */
 export type StandardParityComparison = Readonly<{

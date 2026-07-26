@@ -5,8 +5,3 @@
 // ============================================================================
 
 export { useThemePreference } from "./useTheme";
-export {
-  type UseViewStateOptions,
-  type UseViewStateReturn,
-  useViewState,
-} from "./useViewState";

@@ -2,7 +2,7 @@ import { readdir, readFile, stat } from "node:fs/promises";
 import { homedir } from "node:os";
 import { basename, join, relative } from "node:path";
 
-export const DEFAULT_CIV7_APP_RESOURCES_ROOT = join(
+const DEFAULT_CIV7_APP_RESOURCES_ROOT = join(
   homedir(),
   "Library",
   "Application Support",
@@ -15,7 +15,7 @@ export const DEFAULT_CIV7_APP_RESOURCES_ROOT = join(
   "Resources"
 );
 
-export type Civ7SetupCatalogOption = Readonly<{
+type Civ7SetupCatalogOption = Readonly<{
   value: string;
   label: string;
   source: "official-resource-mirror" | "app-resources";

@@ -27,7 +27,7 @@ const VEGETATION_FEATURES = new Set([
 const MINIMUM_LAND_TILES_PER_LATITUDE_ROW = 20;
 
 /** Neutral row-wise biome measurements retained for latitude and banding studies. */
-export type StandardBiomeRowMetrics = Readonly<{
+type StandardBiomeRowMetrics = Readonly<{
   landRowCount: number;
   medianBiomeDiversity: number | null;
   maximumBiomeDiversity: number | null;

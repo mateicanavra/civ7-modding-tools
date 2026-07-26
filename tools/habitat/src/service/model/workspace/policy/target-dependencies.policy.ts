@@ -70,12 +70,6 @@ export function resolveTargetDependencyDeclaration(
   );
 }
 
-export const sameProjectTarget = sameProjectTargetDependency;
-export const explicitProjectTarget = explicitProjectTargetDependency;
-export const aggregateWorkspaceTarget = aggregateWorkspaceDependency;
-export const multiDependencyTarget = multiDependencyTargetRelationship;
-export const resolveDependencyDeclaration = resolveTargetDependencyDeclaration;
-
 function parseDeclaration(value: unknown): TargetDependencyDeclaration {
   return Value.Parse(TargetDependencyDeclarationSchema, value);
 }

@@ -14,7 +14,7 @@ import type {
 } from "../ports/index.js";
 import type { SaveDeployWorkflowTransitions } from "./workflowTransitions.js";
 
-export type SaveDeployWorkflowStart = Readonly<{
+type SaveDeployWorkflowStart = Readonly<{
   requestId: string;
   input: SaveDeployRequest;
   transitions: SaveDeployWorkflowTransitions;

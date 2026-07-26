@@ -1,6 +1,6 @@
 import type { VizInlineRef, VizLayerEntryV2 } from "@swooper/mapgen-viz";
 
-export type BrowserRunStartRequest = {
+type BrowserRunStartRequest = {
   type: "run.start";
   runToken: string;
   generation: number;
@@ -26,7 +26,7 @@ export type BrowserRunStartRequest = {
   pipelineConfig: unknown;
 };
 
-export type BrowserRunCancelRequest = {
+type BrowserRunCancelRequest = {
   type: "run.cancel";
   runToken: string;
   generation: number;
@@ -34,7 +34,7 @@ export type BrowserRunCancelRequest = {
 
 export type BrowserRunRequest = BrowserRunStartRequest | BrowserRunCancelRequest;
 
-export type BrowserRunStartedEvent = {
+type BrowserRunStartedEvent = {
   type: "run.started";
   runToken: string;
   generation: number;
@@ -42,7 +42,7 @@ export type BrowserRunStartedEvent = {
   planFingerprint: string;
 };
 
-export type BrowserRunProgressEvent = {
+type BrowserRunProgressEvent = {
   type: "run.progress";
   runToken: string;
   generation: number;
@@ -60,13 +60,13 @@ export type BrowserVizLayerUpsertEvent = {
   layer: VizLayerEntryV2<VizInlineRef>;
 };
 
-export type BrowserRunFinishedEvent = {
+type BrowserRunFinishedEvent = {
   type: "run.finished";
   runToken: string;
   generation: number;
 };
 
-export type BrowserRunCanceledEvent = {
+type BrowserRunCanceledEvent = {
   type: "run.canceled";
   runToken: string;
   generation: number;

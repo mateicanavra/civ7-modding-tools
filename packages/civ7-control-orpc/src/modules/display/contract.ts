@@ -25,7 +25,7 @@ const Civ7DisplayClosedRowSchema = Type.Object(
 );
 
 const Civ7DisplayQueueCurrentInputSchema = Type.Object({}, { additionalProperties: false });
-export type Civ7DisplayQueueCurrentInput = Static<typeof Civ7DisplayQueueCurrentInputSchema>;
+type Civ7DisplayQueueCurrentInput = Static<typeof Civ7DisplayQueueCurrentInputSchema>;
 
 const Civ7DisplayQueueCurrentResultSchema = Type.Object(
   {
@@ -44,7 +44,7 @@ const Civ7DisplayQueueCloseInputSchema = Type.Object(
   },
   { additionalProperties: false }
 );
-export type Civ7DisplayQueueCloseInput = Static<typeof Civ7DisplayQueueCloseInputSchema>;
+type Civ7DisplayQueueCloseInput = Static<typeof Civ7DisplayQueueCloseInputSchema>;
 
 const Civ7DisplayQueueCloseResultSchema = Type.Object(
   {
@@ -76,7 +76,7 @@ const Civ7DisplayExploreRequestInputSchema = Type.Object(
   },
   { additionalProperties: false }
 );
-export type Civ7DisplayExploreRequestInput = Static<typeof Civ7DisplayExploreRequestInputSchema>;
+type Civ7DisplayExploreRequestInput = Static<typeof Civ7DisplayExploreRequestInputSchema>;
 
 const Civ7DisplayExploreVisibilityProbeSchema = Type.Object(
   {

@@ -172,10 +172,8 @@ export type Civ7AppUiSnapshotResult = Readonly<{
   snapshot: Civ7AppUiSnapshot;
 }>;
 
-export type Civ7AppUiSnapshotContract = Readonly<Static<typeof Civ7AppUiSnapshotSchema>>;
-export type Civ7AppUiSnapshotResultContract = Readonly<
-  Static<typeof Civ7AppUiSnapshotResultSchema>
->;
+type Civ7AppUiSnapshotContract = Readonly<Static<typeof Civ7AppUiSnapshotSchema>>;
+type Civ7AppUiSnapshotResultContract = Readonly<Static<typeof Civ7AppUiSnapshotResultSchema>>;
 
 export type AppUiSnapshotDependencies = Readonly<{
   executeAppUiCommand: (

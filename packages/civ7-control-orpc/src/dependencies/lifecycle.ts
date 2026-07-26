@@ -33,7 +33,7 @@ import {
 } from "@civ7/direct-control";
 
 /** Provider-neutral identity needed to ask Civ7 to load one saved setup file. */
-export type Civ7ControlOrpcSavedConfigIdentity = Omit<Civ7SavedGameConfigurationRef, "path">;
+type Civ7ControlOrpcSavedConfigIdentity = Omit<Civ7SavedGameConfigurationRef, "path">;
 
 /** Direct-control atoms consumed by the Effect-owned control-oRPC lifecycle. */
 export type Civ7ControlOrpcDirectLifecycleFacade = Readonly<{

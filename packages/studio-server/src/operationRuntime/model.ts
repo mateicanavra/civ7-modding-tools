@@ -15,7 +15,7 @@ import type {
 
 export const OPERATION_TTL_MS = 30 * 60_000;
 
-export type RuntimeOperationKind = "run-in-game" | "save-deploy" | "autoplay";
+type RuntimeOperationKind = "run-in-game" | "save-deploy" | "autoplay";
 
 export type RuntimeActiveSlot =
   | Readonly<{
@@ -32,7 +32,7 @@ export type RuntimeActiveSlot =
       phase: string;
     }>;
 
-export type RuntimeTombstone = Readonly<{
+type RuntimeTombstone = Readonly<{
   requestId: string;
   kind: Exclude<RuntimeOperationKind, "autoplay">;
   expiredAt: string;

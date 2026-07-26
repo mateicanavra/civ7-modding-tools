@@ -344,7 +344,7 @@ function isNodeNotFound(err: unknown): boolean {
 }
 
 /** Swooper owns Standard semantic admission and preserves Studio's frozen snapshot. */
-export function createSwooperRunInGameCanonicalConfigAdmission(): NonNullable<
+function createSwooperRunInGameCanonicalConfigAdmission(): NonNullable<
   StudioOperationRuntimePorts["runInGameCanonicalConfigAdmission"]
 > {
   return {

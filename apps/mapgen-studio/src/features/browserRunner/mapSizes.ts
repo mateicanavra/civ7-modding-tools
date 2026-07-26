@@ -4,7 +4,7 @@ export type Civ7MapSizePreset = {
   dimensions: { width: number; height: number };
 };
 
-export const CIV7_MAP_SIZES: Civ7MapSizePreset[] = [
+const CIV7_MAP_SIZES: Civ7MapSizePreset[] = [
   { id: "MAPSIZE_TINY", label: "Tiny", dimensions: { width: 60, height: 38 } },
   { id: "MAPSIZE_SMALL", label: "Small", dimensions: { width: 74, height: 46 } },
   { id: "MAPSIZE_STANDARD", label: "Standard", dimensions: { width: 84, height: 54 } },
@@ -14,8 +14,4 @@ export const CIV7_MAP_SIZES: Civ7MapSizePreset[] = [
 
 export function getCiv7MapSizePreset(id: Civ7MapSizePreset["id"]): Civ7MapSizePreset {
   return CIV7_MAP_SIZES.find((m) => m.id === id) ?? CIV7_MAP_SIZES[CIV7_MAP_SIZES.length - 1]!;
-}
-
-export function formatMapSizeLabel(p: Civ7MapSizePreset): string {
-  return `${p.label} (${p.dimensions.width}×${p.dimensions.height})`;
 }

@@ -1,4 +1,4 @@
-export type { OpContract, OpContractAny } from "./contract.js";
+export type { OpContract } from "./contract.js";
 export { defineOp } from "./contract.js";
 export { createOp } from "./create.js";
 export type {

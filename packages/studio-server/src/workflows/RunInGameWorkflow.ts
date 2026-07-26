@@ -18,7 +18,7 @@ import type {
 import { Civ7WorkflowControl, type Civ7WorkflowControlApi } from "../ports/index.js";
 import type { RunInGameWorkflowTransitions } from "./workflowTransitions.js";
 
-export type RunInGameWorkflowStart = Readonly<{
+type RunInGameWorkflowStart = Readonly<{
   requestId: string;
   prepared: RunInGamePreparedRequest;
   transitions: RunInGameWorkflowTransitions;

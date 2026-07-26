@@ -30,7 +30,7 @@ export type TerrestrialSuppressionField =
   | "denseForestMask"
   | "cultivatedPressureMask";
 
-export type TerrestrialLaneId =
+type TerrestrialLaneId =
   | "arid-rangeland"
   | "open-grazing"
   | "highland-pastoral"

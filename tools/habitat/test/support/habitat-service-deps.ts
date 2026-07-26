@@ -8,7 +8,7 @@ import {
   runManyArgv,
   runTargetArgv,
 } from "@habitat/cli/providers/nx/index";
-import { ruleRegistryRepoPath } from "@habitat/cli/resources/authority-paths";
+import { habitatAuthorityRoot } from "@habitat/cli/resources/authority-paths";
 import { captureOutput, makeHabitatCommandResult } from "@habitat/cli/resources/command/index";
 import type { HabitatProcessRequest } from "@habitat/cli/resources/command/types";
 import { repoRoot } from "@habitat/cli/resources/paths";
@@ -24,7 +24,7 @@ import { Effect } from "effect";
 
 export function makeTestRuleFacts() {
   return ruleFactsCatalog(
-    loadRuleRegistryDocument(path.join(repoRoot, ruleRegistryRepoPath), {
+    loadRuleRegistryDocument(path.join(repoRoot, habitatAuthorityRoot), {
       isDirectory: isDirectorySync,
       readDirectory: readDirectorySync,
       readText: readTextSync,

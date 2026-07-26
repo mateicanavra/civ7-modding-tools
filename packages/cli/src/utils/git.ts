@@ -1,6 +1,5 @@
 import * as fs from "node:fs";
 import {
-  clearSubtreeConfigs,
   configureRemoteAndFetch,
   getLocalConfig,
   getRemotePushConfig,
@@ -15,9 +14,7 @@ import {
 } from "@civ7/plugin-git";
 
 export {
-  clearSubtreeConfigs,
   getRemotePushConfig,
-  getRemoteUrl,
   listSubtreeConfigs,
   type RemotePushConfig,
   removeSubtreeConfig,
@@ -40,7 +37,7 @@ export function isNonEmptyDir(dir: string): boolean {
 
 // Generic git subtree helpers -----------------------------------------------
 
-export interface Logger {
+interface Logger {
   log: (msg: string) => void;
 }
 
@@ -83,25 +80,12 @@ export async function requireRemoteNameForSlug(
   return name;
 }
 
-export async function getRepoUrlForSlug(domain: string, slug: string): Promise<string | undefined> {
+async function getRepoUrlForSlug(domain: string, slug: string): Promise<string | undefined> {
   try {
     return (await getLocalConfig(`civ7.${domain}.${slug}.repoUrl`)) ?? undefined;
   } catch {
     return undefined;
   }
-}
-
-export async function requireRepoUrlForSlug(
-  domain: string,
-  slug: string,
-  opts: { verbose?: boolean } = {}
-): Promise<string> {
-  const { verbose = false } = opts;
-  const url = await getRepoUrlForSlug(domain, slug);
-  if (!url) {
-    throw new Error(`No repoUrl configured for ${domain} "${slug}". Run setup first.`);
-  }
-  return url;
 }
 
 export interface ResolveBranchOptions {

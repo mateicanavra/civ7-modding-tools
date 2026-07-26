@@ -4,7 +4,7 @@ import { assertSafeRunRequestId, jailedRunWorkspacePath } from "@civ7/studio-run
 import type { RunInGameInternalOperation } from "./model.js";
 import { type JsonValue, privateJson } from "./privateJson.js";
 
-export const RUN_ATTRIBUTION_REPORT_FILE = "attribution/attribution.json";
+const RUN_ATTRIBUTION_REPORT_FILE = "attribution/attribution.json";
 
 const RUN_ATTRIBUTION_SECTION_DEFINITIONS = [
   { id: "source", key: "source" },
@@ -17,7 +17,7 @@ const RUN_ATTRIBUTION_SECTION_DEFINITIONS = [
   { id: "terminal-result", key: "terminalResult" },
 ] as const;
 
-export type RunAttributionSectionId = (typeof RUN_ATTRIBUTION_SECTION_DEFINITIONS)[number]["id"];
+type RunAttributionSectionId = (typeof RUN_ATTRIBUTION_SECTION_DEFINITIONS)[number]["id"];
 
 type RunAttributionSectionKey = (typeof RUN_ATTRIBUTION_SECTION_DEFINITIONS)[number]["key"];
 type MissingRunAttributionSections = readonly [
@@ -27,7 +27,7 @@ type MissingRunAttributionSections = readonly [
 type RunAttributionSections = Readonly<Record<RunAttributionSectionKey, unknown>>;
 type PartialRunAttributionSections = Readonly<Partial<RunAttributionSections>>;
 
-export type RunAttributionReportStatus = "complete" | "incomplete";
+type RunAttributionReportStatus = "complete" | "incomplete";
 
 type RunAttributionReportBase = Readonly<{
   schemaVersion: 1;
@@ -35,21 +35,21 @@ type RunAttributionReportBase = Readonly<{
   runArtifactId?: string;
 }>;
 
-export type CompleteRunAttributionReport = RunAttributionReportBase &
+type CompleteRunAttributionReport = RunAttributionReportBase &
   Readonly<{
     status: "complete";
     missingSections: readonly [];
     sections: RunAttributionSections;
   }>;
 
-export type IncompleteRunAttributionReport = RunAttributionReportBase &
+type IncompleteRunAttributionReport = RunAttributionReportBase &
   Readonly<{
     status: "incomplete";
     missingSections: MissingRunAttributionSections;
     sections: PartialRunAttributionSections;
   }>;
 
-export type RunAttributionReport = CompleteRunAttributionReport | IncompleteRunAttributionReport;
+type RunAttributionReport = CompleteRunAttributionReport | IncompleteRunAttributionReport;
 
 type JsonRunAttributionReport = Readonly<{
   schemaVersion: 1;
@@ -70,9 +70,7 @@ export type RunAttributionReportReference = Readonly<{
  * facts. Public projections get only a diagnostics id; this report is for the
  * explicit diagnostics lookup path.
  */
-export function buildRunAttributionReport(
-  operation: RunInGameInternalOperation
-): RunAttributionReport {
+function buildRunAttributionReport(operation: RunInGameInternalOperation): RunAttributionReport {
   const sections: PartialRunAttributionSections = {
     ...sourceSection(operation),
     ...manifestSection(operation),
@@ -118,7 +116,7 @@ export async function writeRunAttributionReport(
   return { path, report };
 }
 
-export function runAttributionReportPath(workspaceRoot: string, requestId: string): string {
+function runAttributionReportPath(workspaceRoot: string, requestId: string): string {
   assertSafeRunRequestId(requestId);
   return jailedRunWorkspacePath(workspaceRoot, requestId, RUN_ATTRIBUTION_REPORT_FILE);
 }

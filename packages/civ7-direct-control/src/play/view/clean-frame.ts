@@ -62,8 +62,8 @@ export const CIV7_CLEAN_FRAME_HIDDEN_WORLD_RULES: ReadonlyArray<string> = [
   "small-narratives",
 ];
 
-export const DEFAULT_CIV7_VIEW_BRIDGE_ATTEMPTS = 6;
-export const CIV7_VIEW_BRIDGE_RETRY_MS = 500;
+const DEFAULT_CIV7_VIEW_BRIDGE_ATTEMPTS = 6;
+const CIV7_VIEW_BRIDGE_RETRY_MS = 500;
 
 const civ7TunerStateSchema = Type.Object(
   {

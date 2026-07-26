@@ -67,7 +67,7 @@ type SelectionLadderResult = {
 const TIER_ORDER = ["primary", "islandCluster", "marginal", "none"] as const;
 
 /** Maps an admitted start tier to its stable quality rank; `none` remains the last resort. */
-export function tierValue(tier: SelectableTile["tier"]): number {
+function tierValue(tier: SelectableTile["tier"]): number {
   if (tier === "primary") return 3;
   if (tier === "islandCluster") return 2;
   if (tier === "marginal") return 1;

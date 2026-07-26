@@ -269,7 +269,7 @@ function buildValidationData<T, S extends StrictRJSFSchema, F extends FormContex
 }
 
 /** A CSP-safe rjsf `ValidatorType` backed by TypeBox's JSON Schema interpreter. */
-export class TypeboxValidator<
+class TypeboxValidator<
   T = unknown,
   S extends StrictRJSFSchema = RJSFSchema,
   F extends FormContextType = Record<string, unknown>,

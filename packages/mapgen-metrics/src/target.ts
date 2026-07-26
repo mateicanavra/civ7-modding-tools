@@ -12,10 +12,10 @@ export type MetricValue =
   | Readonly<{ [key: string]: MetricValue }>;
 
 /** Closed comparison law for values that can be compared structurally. */
-export type EqualMetricComparator = Readonly<{ kind: "equal"; value: MetricValue }>;
+type EqualMetricComparator = Readonly<{ kind: "equal"; value: MetricValue }>;
 
 /** Closed comparison law for ordered finite numeric facts. */
-export type NumericMetricComparator =
+type NumericMetricComparator =
   | Readonly<{ kind: "at-least"; value: number }>
   | Readonly<{ kind: "at-most"; value: number }>;
 

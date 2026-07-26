@@ -66,7 +66,7 @@ export type Civ7ProgressionTraditionChangeInput = Static<
   typeof Civ7ProgressionTraditionChangeInputSchema
 >;
 
-export const Civ7ProgressionChoicePostconditionClassificationSchema = Type.Union([
+const Civ7ProgressionChoicePostconditionClassificationSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("pending-runtime-proof"),
   Type.Literal("turn-unblocked"),
@@ -80,7 +80,7 @@ export const Civ7ProgressionChoicePostconditionClassificationSchema = Type.Union
   Type.Literal("culture-choice-sticky-blocker"),
 ]);
 
-export const Civ7ProgressionChoiceProofOutcomeSchema = Type.Union([
+const Civ7ProgressionChoiceProofOutcomeSchema = Type.Union([
   Type.Literal("cleared"),
   Type.Literal("state-changed"),
   Type.Literal("still-blocked"),
@@ -90,13 +90,13 @@ export const Civ7ProgressionChoiceProofOutcomeSchema = Type.Union([
   Type.Literal("unknown"),
 ]);
 
-export const Civ7ProgressionChoiceRequestStatusSchema = Type.Union([
+const Civ7ProgressionChoiceRequestStatusSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("sent-confirmed"),
   Type.Literal("sent-unverified"),
 ]);
 
-export const Civ7ProgressionChoiceEvidenceSummarySchema = Type.Object(
+const Civ7ProgressionChoiceEvidenceSummarySchema = Type.Object(
   {
     beforeBlockerPresent: Type.Boolean(),
     afterReadStatus: Type.Union([
@@ -110,7 +110,7 @@ export const Civ7ProgressionChoiceEvidenceSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7ProgressionChoicePostconditionSummarySchema = Type.Object(
+const Civ7ProgressionChoicePostconditionSummarySchema = Type.Object(
   {
     classification: Civ7ProgressionChoicePostconditionClassificationSchema,
     reason: Type.String(),
@@ -126,7 +126,7 @@ export const Civ7ProgressionChoicePostconditionSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7ProgressionTechnologyChoiceNextStepSchema = Type.Object(
+const Civ7ProgressionTechnologyChoiceNextStepSchema = Type.Object(
   {
     kind: Type.Union([
       Type.Literal("refresh-attention"),
@@ -139,7 +139,7 @@ export const Civ7ProgressionTechnologyChoiceNextStepSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7ProgressionCultureChoiceNextStepSchema = Type.Object(
+const Civ7ProgressionCultureChoiceNextStepSchema = Type.Object(
   {
     kind: Type.Union([
       Type.Literal("refresh-attention"),
@@ -186,23 +186,23 @@ export type Civ7ProgressionCultureChoiceResult = Static<
   typeof Civ7ProgressionCultureChoiceResultSchema
 >;
 
-export const Civ7ProgressionTargetPostconditionClassificationSchema = Type.Union([
+const Civ7ProgressionTargetPostconditionClassificationSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("pending-runtime-proof"),
   Type.Literal("missing-postcondition"),
 ]);
 
-export const Civ7ProgressionTargetProofOutcomeSchema = Type.Union([
+const Civ7ProgressionTargetProofOutcomeSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("unknown"),
 ]);
 
-export const Civ7ProgressionTargetRequestStatusSchema = Type.Union([
+const Civ7ProgressionTargetRequestStatusSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("sent-unverified"),
 ]);
 
-export const Civ7ProgressionTargetValidationSummarySchema = Type.Object(
+const Civ7ProgressionTargetValidationSummarySchema = Type.Object(
   {
     beforeValid: Type.Boolean(),
     afterValid: Type.Boolean(),
@@ -210,7 +210,7 @@ export const Civ7ProgressionTargetValidationSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7ProgressionTargetPostconditionSummarySchema = Type.Object(
+const Civ7ProgressionTargetPostconditionSummarySchema = Type.Object(
   {
     classification: Civ7ProgressionTargetPostconditionClassificationSchema,
     reason: Type.String(),
@@ -222,7 +222,7 @@ export const Civ7ProgressionTargetPostconditionSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7ProgressionTechnologyTargetNextStepSchema = Type.Object(
+const Civ7ProgressionTechnologyTargetNextStepSchema = Type.Object(
   {
     kind: Type.Union([Type.Literal("do-not-repeat"), Type.Literal("inspect-progression-target")]),
     source: Type.Literal("progression.technology.target.request"),
@@ -231,7 +231,7 @@ export const Civ7ProgressionTechnologyTargetNextStepSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7ProgressionCultureTargetNextStepSchema = Type.Object(
+const Civ7ProgressionCultureTargetNextStepSchema = Type.Object(
   {
     kind: Type.Union([Type.Literal("do-not-repeat"), Type.Literal("inspect-progression-target")]),
     source: Type.Literal("progression.culture.target.request"),
@@ -725,14 +725,14 @@ const Civ7ProgressionTraditionsResultStandardSchema = toStandardSchema(
   Civ7ProgressionTraditionsResultSchema
 );
 
-export type Civ7ProgressionTechnologyChoiceContract = ContractProcedure<
+type Civ7ProgressionTechnologyChoiceContract = ContractProcedure<
   typeof Civ7ProgressionChoiceInputStandardSchema,
   typeof Civ7ProgressionTechnologyChoiceResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7ProgressionTechnologyChoiceContract: Civ7ProgressionTechnologyChoiceContract =
+const Civ7ProgressionTechnologyChoiceContract: Civ7ProgressionTechnologyChoiceContract =
   civ7ControlOrpcContractBase
     .input(Civ7ProgressionChoiceInputStandardSchema)
     .output(Civ7ProgressionTechnologyChoiceResultStandardSchema)
@@ -743,14 +743,14 @@ export const Civ7ProgressionTechnologyChoiceContract: Civ7ProgressionTechnologyC
       risk: "mutation",
     });
 
-export type Civ7ProgressionCultureChoiceContract = ContractProcedure<
+type Civ7ProgressionCultureChoiceContract = ContractProcedure<
   typeof Civ7ProgressionChoiceInputStandardSchema,
   typeof Civ7ProgressionCultureChoiceResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7ProgressionCultureChoiceContract: Civ7ProgressionCultureChoiceContract =
+const Civ7ProgressionCultureChoiceContract: Civ7ProgressionCultureChoiceContract =
   civ7ControlOrpcContractBase
     .input(Civ7ProgressionChoiceInputStandardSchema)
     .output(Civ7ProgressionCultureChoiceResultStandardSchema)
@@ -761,14 +761,14 @@ export const Civ7ProgressionCultureChoiceContract: Civ7ProgressionCultureChoiceC
       risk: "mutation",
     });
 
-export type Civ7ProgressionTechnologyTargetContract = ContractProcedure<
+type Civ7ProgressionTechnologyTargetContract = ContractProcedure<
   typeof Civ7ProgressionTargetInputStandardSchema,
   typeof Civ7ProgressionTechnologyTargetResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7ProgressionTechnologyTargetContract: Civ7ProgressionTechnologyTargetContract =
+const Civ7ProgressionTechnologyTargetContract: Civ7ProgressionTechnologyTargetContract =
   civ7ControlOrpcContractBase
     .input(Civ7ProgressionTargetInputStandardSchema)
     .output(Civ7ProgressionTechnologyTargetResultStandardSchema)
@@ -779,14 +779,14 @@ export const Civ7ProgressionTechnologyTargetContract: Civ7ProgressionTechnologyT
       risk: "mutation",
     });
 
-export type Civ7ProgressionCultureTargetContract = ContractProcedure<
+type Civ7ProgressionCultureTargetContract = ContractProcedure<
   typeof Civ7ProgressionTargetInputStandardSchema,
   typeof Civ7ProgressionCultureTargetResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7ProgressionCultureTargetContract: Civ7ProgressionCultureTargetContract =
+const Civ7ProgressionCultureTargetContract: Civ7ProgressionCultureTargetContract =
   civ7ControlOrpcContractBase
     .input(Civ7ProgressionTargetInputStandardSchema)
     .output(Civ7ProgressionCultureTargetResultStandardSchema)

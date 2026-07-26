@@ -156,7 +156,7 @@ export {
   materializationStatus,
   normalizeRunInGameSetupConfig,
   operationStatusTypeSchema,
-  publicRunStatusTypeSchema,
+  operationStatusTypeSchema as publicRunStatusTypeSchema,
   RUN_IN_GAME_PHASES,
   runDiagnosticsRecordSchema,
   runInGameSeed,
@@ -179,4 +179,5 @@ export type {
   StudioOperationEvent,
   StudioOperationsCurrent,
 } from "./studio.js";
+export { studioEventSchema, studioOperationEventSchema } from "./studio.js";
 export { civ7, live, mapConfigEnvelope, mapConfigs, runInGame, studio };

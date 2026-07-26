@@ -1,6 +1,6 @@
 import { module } from "./module.js";
 
-export const verifyRouter = {
+export const router = {
   changes: module.changes.effect(function* ({ context, input }) {
     const startedMs = yield* context.currentTimeMillis;
     const startedAt = context.epochMillisToIsoString(startedMs);
@@ -54,5 +54,3 @@ export const verifyRouter = {
     };
   }),
 };
-
-export const router = verifyRouter;

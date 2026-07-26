@@ -54,7 +54,7 @@ export function typedArrayConstructorFor(
 export type TypedArrayCardinalityPaths = readonly [string, ...string[]];
 
 /** Input-relative numeric factors plus a fixed nonnegative addend for an admitted length. */
-export type TypedArrayProductPlusAddendCardinality = Readonly<{
+type TypedArrayProductPlusAddendCardinality = Readonly<{
   factors: TypedArrayCardinalityPaths;
   addend: number;
 }>;

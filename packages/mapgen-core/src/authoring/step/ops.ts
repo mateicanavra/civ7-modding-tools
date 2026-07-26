@@ -65,7 +65,7 @@ type BivariantFn<Args extends unknown[], R> = {
   bivarianceHack(...args: Args): R;
 }["bivarianceHack"];
 
-export type RuntimeOpFromContract<C extends OpContractAny> = BivariantFn<
+type RuntimeOpFromContract<C extends OpContractAny> = BivariantFn<
   [input: Static<C["input"]>, config: OpTypeBagOf<C>["envelope"]],
   Static<C["output"]>
 > &

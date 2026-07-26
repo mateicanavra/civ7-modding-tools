@@ -1,18 +1,14 @@
 import {
-  buildLiveGameErrorState,
   buildLiveGameState,
   hashLiveGameValue,
   type LiveGameBindingStatus,
   type LiveGameSnapshotStatus,
   type LiveGameState,
   type LiveGameStatusBody,
-  type LiveGameStatusKind,
   stableLiveGameStringify,
 } from "@civ7/studio-contract";
 
-export type LiveRuntimeStatusKind = LiveGameStatusKind;
-
-export type LiveRuntimeSnapshotStatus = LiveGameSnapshotStatus;
+type LiveRuntimeSnapshotStatus = LiveGameSnapshotStatus;
 
 export type LiveRuntimeBindingStatus = LiveGameBindingStatus;
 
@@ -65,11 +61,11 @@ const DEFAULT_VISIBLE_SNAPSHOT_BOUNDS: LiveRuntimeSnapshotBounds = {
 
 const DEFAULT_VISIBLE_SNAPSHOT_FIELDS = ["terrain", "biome", "feature", "resource"] as const;
 
-export function stableLiveRuntimeStringify(value: unknown): string {
+function stableLiveRuntimeStringify(value: unknown): string {
   return stableLiveGameStringify(value);
 }
 
-export function hashLiveRuntimeValue(value: unknown): string {
+function hashLiveRuntimeValue(value: unknown): string {
   return hashLiveGameValue(value);
 }
 
@@ -80,14 +76,6 @@ export function buildLiveRuntimeStatusState(args: {
   bindingStatus?: LiveRuntimeBindingStatus;
 }): LiveRuntimeStatusState {
   return buildLiveGameState(args);
-}
-
-export function buildLiveRuntimeErrorState(args: {
-  error: unknown;
-  observedAt: string;
-  failureCount: number;
-}): LiveRuntimeStatusState {
-  return buildLiveGameErrorState(args);
 }
 
 export function buildLiveRuntimeSnapshotRequest(args: {

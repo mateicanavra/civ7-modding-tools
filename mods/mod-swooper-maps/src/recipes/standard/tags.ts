@@ -6,11 +6,7 @@ import {
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "./tag-contracts.js";
 
-export {
-  MAP_PROJECTION_EFFECT_TAGS,
-  PLACEMENT_PRODUCT_EFFECT_TAGS,
-  STANDARD_ENGINE_EFFECT_TAGS,
-} from "./tag-contracts.js";
+export { STANDARD_ENGINE_EFFECT_TAGS } from "./tag-contracts.js";
 
 type EffectTagSatisfiesProperties = Pick<DependencyTagDefinition, "satisfies">;
 
@@ -33,13 +29,6 @@ export const STANDARD_TAG_DEFINITIONS: readonly DependencyTagDefinition[] = [
   ...Object.values(PLACEMENT_PRODUCT_EFFECT_TAGS.placement).map(effectTagDefinition),
   ...Object.values(STANDARD_ENGINE_EFFECT_TAGS.engine).map(standardEngineEffectTagDefinition),
 ];
-
-/** Registers the complete Standard dependency-tag vocabulary with the supplied recipe registry. */
-export function registerStandardTags(registry: {
-  registerTags: (definitions: readonly DependencyTagDefinition[]) => void;
-}): void {
-  registry.registerTags(STANDARD_TAG_DEFINITIONS);
-}
 
 /** Requires canonical start evidence to assign every seat with zero unseated players. */
 function isPlacementAppliedSatisfied(evidence: DependencyEvidence): boolean {

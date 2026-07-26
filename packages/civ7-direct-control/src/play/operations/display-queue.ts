@@ -49,8 +49,8 @@ export const CIV7_KNOWN_DISPLAY_CATEGORIES: ReadonlyArray<string> = [
   "VictoryAchieved",
 ];
 
-export const DEFAULT_CIV7_DISPLAY_BRIDGE_ATTEMPTS = 6;
-export const CIV7_DISPLAY_BRIDGE_RETRY_MS = 500;
+const DEFAULT_CIV7_DISPLAY_BRIDGE_ATTEMPTS = 6;
+const CIV7_DISPLAY_BRIDGE_RETRY_MS = 500;
 
 const civ7TunerStateSchema = Type.Object(
   {

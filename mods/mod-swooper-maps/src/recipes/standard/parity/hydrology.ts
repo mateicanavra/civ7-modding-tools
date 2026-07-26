@@ -12,7 +12,7 @@ import type {
 const FLOODPLAIN_FEATURE_KEY_PATTERN = /^FEATURE_[A-Z]+_FLOODPLAIN_(?:MINOR|NAVIGABLE)$/;
 
 /** Bounded cell witness connecting planned, projected, and live river states. */
-export type StandardRiverParityExample = Readonly<{
+type StandardRiverParityExample = Readonly<{
   x: number;
   y: number;
   plannedMinor: number | null;
@@ -24,7 +24,7 @@ export type StandardRiverParityExample = Readonly<{
 }>;
 
 /** River parity result spanning terrain, metadata, and native Civ7 object evidence. */
-export type StandardRiverParityComparison = Readonly<{
+type StandardRiverParityComparison = Readonly<{
   terrain: StandardParityComparison;
   metadata: StandardParityComparison;
   nativeObjects: StandardParityComparison;
@@ -51,7 +51,7 @@ export type StandardRiverParityComparison = Readonly<{
 }>;
 
 /** Exact-versus-replay comparison of final lake placement and drift counters. */
-export type StandardLakeParityComparison = Readonly<{
+type StandardLakeParityComparison = Readonly<{
   claim: StandardParityComparison;
   local: StandardLakeFinalCounters;
   exact?: StandardLakeFinalCounters;
@@ -59,7 +59,7 @@ export type StandardLakeParityComparison = Readonly<{
 }>;
 
 /** Floodplain counter comparison closed against the final live feature surface. */
-export type StandardFloodplainParityComparison = Readonly<{
+type StandardFloodplainParityComparison = Readonly<{
   claim: StandardParityComparison;
   local: StandardFloodplainApplyCounters;
   exact?: StandardFloodplainApplyCounters;

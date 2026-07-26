@@ -240,7 +240,7 @@ export async function restartCiv7GameAndBegin(
   });
 }
 
-export function buildBeginGameCommand(
+function buildBeginGameCommand(
   dependencies: Pick<RestartBeginDependencies, "beginGameCommand" | "uiLoadingStates">
 ): string {
   return `(() => {
@@ -258,7 +258,7 @@ export function buildBeginGameCommand(
   })()`;
 }
 
-export function beginGameResultFromCommand(command: Civ7CommandResult): Civ7BeginGameResult {
+function beginGameResultFromCommand(command: Civ7CommandResult): Civ7BeginGameResult {
   const payload = jsonPayloadFromCommandResult<Civ7BeginGamePayload>(command, "Civ7 Begin");
   const status = payload.status;
   switch (status) {

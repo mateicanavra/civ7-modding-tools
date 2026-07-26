@@ -7,7 +7,7 @@ export type DagPoint = Readonly<{
   y: number;
 }>;
 
-export type StagePosition = Readonly<{
+type StagePosition = Readonly<{
   x: number;
   y: number;
   width: number;
@@ -44,13 +44,13 @@ export type RoutedArtifactEdgeLabel = Readonly<{
   labelY: number;
 }>;
 
-export type DomainBand = Readonly<{
+type DomainBand = Readonly<{
   id: string;
   y: number;
   height: number;
 }>;
 
-export type RankColumn = Readonly<{
+type RankColumn = Readonly<{
   rank: number;
   x: number;
   label: string;

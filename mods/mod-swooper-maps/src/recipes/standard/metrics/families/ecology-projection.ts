@@ -1,7 +1,7 @@
 import { type Static, Type } from "typebox";
 
 /** Closed measurements emitted after the Standard biome-projection step. */
-export const StandardBiomeProjectionMeasurementsSchema = Type.Object(
+const StandardBiomeProjectionMeasurementsSchema = Type.Object(
   {
     version: Type.Literal(1, {
       description: "Schema version for the Standard biome-projection measurement record.",

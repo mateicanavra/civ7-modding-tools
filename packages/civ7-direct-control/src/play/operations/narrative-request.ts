@@ -174,7 +174,7 @@ const defaultNarrativeChoiceRequestDependencies: NarrativeChoiceRequestDependenc
   },
 };
 
-export function buildNarrativeChoiceRequestCommand(
+function buildNarrativeChoiceRequestCommand(
   input: Civ7NarrativeChoiceInput,
   dependencies: Pick<NarrativeChoiceRequestDependencies, "jsLiteral">
 ): string {
@@ -184,7 +184,7 @@ export function buildNarrativeChoiceRequestCommand(
   })()`;
 }
 
-export function narrativeChoiceRequestSource(): string {
+function narrativeChoiceRequestSource(): string {
   return `${probeHelperSource()}
     const toComponentId = (value) => {
       if (!value || typeof value !== "object") return null;

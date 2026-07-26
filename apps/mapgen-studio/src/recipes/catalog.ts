@@ -4,7 +4,7 @@ import type { XSchema } from "typebox/schema";
 
 export type StudioRecipeId = string;
 
-export type StudioRecipeUiMeta = Readonly<{
+type StudioRecipeUiMeta = Readonly<{
   namespace: string;
   recipeId: string;
   stages: ReadonlyArray<

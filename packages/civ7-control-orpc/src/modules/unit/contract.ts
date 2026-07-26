@@ -18,16 +18,16 @@ const Civ7UnitTargetActionInputSchema = Type.Object(
   },
   { additionalProperties: false }
 );
-export type Civ7UnitTargetActionInput = Static<typeof Civ7UnitTargetActionInputSchema>;
+type Civ7UnitTargetActionInput = Static<typeof Civ7UnitTargetActionInputSchema>;
 
 const Civ7UnitTargetActionInputStandardSchema = toStandardSchema(Civ7UnitTargetActionInputSchema);
 
-export const Civ7UnitTargetActionFamilySchema = Type.Union([
+const Civ7UnitTargetActionFamilySchema = Type.Union([
   Type.Literal("unit-operation"),
   Type.Literal("unit-command"),
 ]);
 
-export const Civ7UnitTargetActionVerificationClassificationSchema = Type.Union([
+const Civ7UnitTargetActionVerificationClassificationSchema = Type.Union([
   Type.Literal("target-reached"),
   Type.Literal("path-shortfall"),
   Type.Literal("unit-state-changed"),
@@ -37,7 +37,7 @@ export const Civ7UnitTargetActionVerificationClassificationSchema = Type.Union([
   Type.Literal("missing-postcondition"),
 ]);
 
-export const Civ7UnitTargetActionProofOutcomeSchema = Type.Union([
+const Civ7UnitTargetActionProofOutcomeSchema = Type.Union([
   Type.Literal("cleared"),
   Type.Literal("state-changed"),
   Type.Literal("no-state-change"),
@@ -45,14 +45,14 @@ export const Civ7UnitTargetActionProofOutcomeSchema = Type.Union([
   Type.Literal("unknown"),
 ]);
 
-export const Civ7UnitTargetActionRequestStatusSchema = Type.Union([
+const Civ7UnitTargetActionRequestStatusSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("sent-confirmed"),
   Type.Literal("sent-guarded"),
   Type.Literal("sent-unverified"),
 ]);
 
-export const Civ7UnitTargetActionSelectedSummarySchema = Type.Object(
+const Civ7UnitTargetActionSelectedSummarySchema = Type.Object(
   {
     family: Civ7UnitTargetActionFamilySchema,
     operationType: Type.String(),
@@ -63,7 +63,7 @@ export const Civ7UnitTargetActionSelectedSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7UnitTargetActionValidationSummarySchema = Type.Object(
+const Civ7UnitTargetActionValidationSummarySchema = Type.Object(
   {
     candidateCount: Type.Integer({ minimum: 0 }),
     acceptedCandidateCount: Type.Integer({ minimum: 0 }),
@@ -72,7 +72,7 @@ export const Civ7UnitTargetActionValidationSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7UnitTargetActionPostconditionSummarySchema = Type.Object(
+const Civ7UnitTargetActionPostconditionSummarySchema = Type.Object(
   {
     classification: Civ7UnitTargetActionVerificationClassificationSchema,
     reason: Type.String(),
@@ -88,7 +88,7 @@ export const Civ7UnitTargetActionPostconditionSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7UnitTargetActionNextStepSchema = Type.Object(
+const Civ7UnitTargetActionNextStepSchema = Type.Object(
   {
     kind: Type.Union([
       Type.Literal("refresh-attention"),
@@ -138,7 +138,7 @@ export type Civ7UnitResettleInput = Static<typeof Civ7UnitResettleInputSchema>;
 
 const Civ7UnitResettleInputStandardSchema = toStandardSchema(Civ7UnitResettleInputSchema);
 
-export const Civ7UnitCommandPostconditionClassificationSchema = Type.Union([
+const Civ7UnitCommandPostconditionClassificationSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("queue-advanced"),
   Type.Literal("selected-unit-changed"),
@@ -150,7 +150,7 @@ export const Civ7UnitCommandPostconditionClassificationSchema = Type.Union([
   Type.Literal("missing-postcondition"),
 ]);
 
-export const Civ7UnitCommandProofOutcomeSchema = Type.Union([
+const Civ7UnitCommandProofOutcomeSchema = Type.Union([
   Type.Literal("cleared"),
   Type.Literal("state-changed"),
   Type.Literal("no-state-change"),
@@ -158,14 +158,14 @@ export const Civ7UnitCommandProofOutcomeSchema = Type.Union([
   Type.Literal("unknown"),
 ]);
 
-export const Civ7UnitCommandRequestStatusSchema = Type.Union([
+const Civ7UnitCommandRequestStatusSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("sent-confirmed"),
   Type.Literal("sent-guarded"),
   Type.Literal("sent-unverified"),
 ]);
 
-export const Civ7UnitCommandSummarySchema = Type.Union([
+const Civ7UnitCommandSummarySchema = Type.Union([
   Type.Object(
     {
       kind: Type.Literal("upgrade"),
@@ -183,7 +183,7 @@ export const Civ7UnitCommandSummarySchema = Type.Union([
   ),
 ]);
 
-export const Civ7UnitCommandValidationSummarySchema = Type.Object(
+const Civ7UnitCommandValidationSummarySchema = Type.Object(
   {
     beforeValid: Type.Boolean(),
     afterValid: Type.Boolean(),
@@ -191,7 +191,7 @@ export const Civ7UnitCommandValidationSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7UnitCommandPostconditionSummarySchema = Type.Object(
+const Civ7UnitCommandPostconditionSummarySchema = Type.Object(
   {
     classification: Civ7UnitCommandPostconditionClassificationSchema,
     reason: Type.String(),
@@ -203,7 +203,7 @@ export const Civ7UnitCommandPostconditionSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7UnitCommandNextStepSchema = Type.Object(
+const Civ7UnitCommandNextStepSchema = Type.Object(
   {
     kind: Type.Union([
       Type.Literal("refresh-attention"),
@@ -234,32 +234,31 @@ export type Civ7UnitCommandResult = Static<typeof Civ7UnitCommandResultSchema>;
 
 const Civ7UnitCommandResultStandardSchema = toStandardSchema(Civ7UnitCommandResultSchema);
 
-export type Civ7UnitTargetActionContract = ContractProcedure<
+type Civ7UnitTargetActionContract = ContractProcedure<
   typeof Civ7UnitTargetActionInputStandardSchema,
   typeof Civ7UnitTargetActionResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7UnitTargetActionContract: Civ7UnitTargetActionContract =
-  civ7ControlOrpcContractBase
-    .input(Civ7UnitTargetActionInputStandardSchema)
-    .output(Civ7UnitTargetActionResultStandardSchema)
-    .meta({
-      family: "unit",
-      procedureKey: "unit.target.action.request",
-      proofBoundary: "local-package-test",
-      risk: "mutation",
-    });
+const Civ7UnitTargetActionContract: Civ7UnitTargetActionContract = civ7ControlOrpcContractBase
+  .input(Civ7UnitTargetActionInputStandardSchema)
+  .output(Civ7UnitTargetActionResultStandardSchema)
+  .meta({
+    family: "unit",
+    procedureKey: "unit.target.action.request",
+    proofBoundary: "local-package-test",
+    risk: "mutation",
+  });
 
-export type Civ7UnitUpgradeContract = ContractProcedure<
+type Civ7UnitUpgradeContract = ContractProcedure<
   typeof Civ7UnitUpgradeInputStandardSchema,
   typeof Civ7UnitCommandResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7UnitUpgradeContract: Civ7UnitUpgradeContract = civ7ControlOrpcContractBase
+const Civ7UnitUpgradeContract: Civ7UnitUpgradeContract = civ7ControlOrpcContractBase
   .input(Civ7UnitUpgradeInputStandardSchema)
   .output(Civ7UnitCommandResultStandardSchema)
   .meta({
@@ -269,14 +268,14 @@ export const Civ7UnitUpgradeContract: Civ7UnitUpgradeContract = civ7ControlOrpcC
     risk: "mutation",
   });
 
-export type Civ7UnitResettleContract = ContractProcedure<
+type Civ7UnitResettleContract = ContractProcedure<
   typeof Civ7UnitResettleInputStandardSchema,
   typeof Civ7UnitCommandResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7UnitResettleContract: Civ7UnitResettleContract = civ7ControlOrpcContractBase
+const Civ7UnitResettleContract: Civ7UnitResettleContract = civ7ControlOrpcContractBase
   .input(Civ7UnitResettleInputStandardSchema)
   .output(Civ7UnitCommandResultStandardSchema)
   .meta({

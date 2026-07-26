@@ -13,7 +13,7 @@ const Civ7NotificationDismissInputSchema = Type.Object(
   },
   { additionalProperties: false }
 );
-export type Civ7NotificationDismissInput = Static<typeof Civ7NotificationDismissInputSchema>;
+type Civ7NotificationDismissInput = Static<typeof Civ7NotificationDismissInputSchema>;
 
 const Civ7NotificationDismissInputStandardSchema = toStandardSchema(
   Civ7NotificationDismissInputSchema
@@ -39,7 +39,7 @@ const Civ7NotificationQueueInputSchema = Type.Object(
   },
   { additionalProperties: false }
 );
-export type Civ7NotificationQueueInput = Static<typeof Civ7NotificationQueueInputSchema>;
+type Civ7NotificationQueueInput = Static<typeof Civ7NotificationQueueInputSchema>;
 
 const Civ7NotificationQueueDismissInputSchema = Type.Object(
   {
@@ -49,16 +49,14 @@ const Civ7NotificationQueueDismissInputSchema = Type.Object(
   },
   { additionalProperties: false }
 );
-export type Civ7NotificationQueueDismissInput = Static<
-  typeof Civ7NotificationQueueDismissInputSchema
->;
+type Civ7NotificationQueueDismissInput = Static<typeof Civ7NotificationQueueDismissInputSchema>;
 
 const Civ7NotificationQueueInputStandardSchema = toStandardSchema(Civ7NotificationQueueInputSchema);
 const Civ7NotificationQueueDismissInputStandardSchema = toStandardSchema(
   Civ7NotificationQueueDismissInputSchema
 );
 
-export const Civ7NotificationDismissalProofOutcomeSchema = Type.Union([
+const Civ7NotificationDismissalProofOutcomeSchema = Type.Union([
   Type.Literal("cleared"),
   Type.Literal("state-changed"),
   Type.Literal("still-blocked"),
@@ -68,13 +66,13 @@ export const Civ7NotificationDismissalProofOutcomeSchema = Type.Union([
   Type.Literal("unknown"),
 ]);
 
-export const Civ7NotificationDismissalRequestStatusSchema = Type.Union([
+const Civ7NotificationDismissalRequestStatusSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("sent-confirmed"),
   Type.Literal("sent-unverified"),
 ]);
 
-export const Civ7NotificationDismissalPostconditionClassificationSchema = Type.Union([
+const Civ7NotificationDismissalPostconditionClassificationSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("missing-after"),
   Type.Literal("notification-disappeared"),
@@ -87,7 +85,7 @@ export const Civ7NotificationDismissalPostconditionClassificationSchema = Type.U
   Type.Literal("no-state-change"),
 ]);
 
-export const Civ7NotificationDismissalPostconditionSummarySchema = Type.Object(
+const Civ7NotificationDismissalPostconditionSummarySchema = Type.Object(
   {
     classification: Type.Union([
       Civ7NotificationDismissalPostconditionClassificationSchema,
@@ -106,7 +104,7 @@ export const Civ7NotificationDismissalPostconditionSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7NotificationDismissalValidationSummarySchema = Type.Object(
+const Civ7NotificationDismissalValidationSummarySchema = Type.Object(
   {
     beforeExists: Type.Boolean(),
     canDismiss: Type.Boolean(),
@@ -115,7 +113,7 @@ export const Civ7NotificationDismissalValidationSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7NotificationDismissalNextStepSchema = Type.Object(
+const Civ7NotificationDismissalNextStepSchema = Type.Object(
   {
     kind: Type.Union([
       Type.Literal("refresh-attention"),
@@ -363,14 +361,14 @@ const Civ7NotificationQueueDismissResultStandardSchema = toStandardSchema(
   Civ7NotificationQueueDismissResultSchema
 );
 
-export type Civ7NotificationDismissalContract = ContractProcedure<
+type Civ7NotificationDismissalContract = ContractProcedure<
   typeof Civ7NotificationDismissInputStandardSchema,
   typeof Civ7NotificationDismissalResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7NotificationDismissalContract: Civ7NotificationDismissalContract =
+const Civ7NotificationDismissalContract: Civ7NotificationDismissalContract =
   civ7ControlOrpcContractBase
     .input(Civ7NotificationDismissInputStandardSchema)
     .output(Civ7NotificationDismissalResultStandardSchema)

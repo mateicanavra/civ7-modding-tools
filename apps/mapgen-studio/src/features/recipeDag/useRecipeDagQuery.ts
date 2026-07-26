@@ -18,11 +18,6 @@ import { orpcClient } from "../../lib/orpc";
  * runtime-one-mount slice) — the client never imports recipe modules.
  */
 
-// Re-homed with the package's PipelineStage (the component owns the union its
-// `status` prop renders); imported back and re-exported so app consumers keep
-// this module as their source.
-export type { RecipeDagLoadStatus };
-
 export type RecipeDagQueryView = Readonly<{
   dag: RecipeDagResult | null;
   status: RecipeDagLoadStatus;

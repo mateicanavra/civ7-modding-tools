@@ -23,7 +23,7 @@ function resolve<T>(updater: Updater<T>, prev: T): T {
   return typeof updater === "function" ? (updater as (p: T) => T)(prev) : updater;
 }
 
-export type EraMode = "auto" | "fixed";
+type EraMode = "auto" | "fixed";
 
 // `StageView` is component-owned (StageViewTabs re-homed it to
 // @swooper/mapgen-studio-ui); the store imports it back and re-exports so

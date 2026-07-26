@@ -65,7 +65,7 @@ export async function readCiv7World(
   return client.world.current({});
 }
 
-export const DEFAULT_CIV7_WORLD_PLOT_FIELDS: ReadonlyArray<Civ7WorldPlotField> = [
+const DEFAULT_CIV7_WORLD_PLOT_FIELDS: ReadonlyArray<Civ7WorldPlotField> = [
   "terrain",
   "biome",
   "feature",

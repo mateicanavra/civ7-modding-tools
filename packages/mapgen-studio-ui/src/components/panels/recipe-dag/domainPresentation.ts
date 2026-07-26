@@ -20,7 +20,7 @@ export type RecipeDagDomainPresentation = Readonly<{
   strokeWidth?: number;
 }>;
 
-export type RecipeDagDomainLaneColors = Readonly<{
+type RecipeDagDomainLaneColors = Readonly<{
   lightFill: string;
   lightAccent: string;
   darkFill: string;

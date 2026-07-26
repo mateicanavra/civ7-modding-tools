@@ -69,7 +69,7 @@ type OpContractAuthority = Readonly<{
 const opContractAuthority = new WeakMap<object, OpContractAuthority>();
 const RESERVED_OPERATION_IDS = new Set(["__proto__", "constructor", "prototype"]);
 
-export type OpContractCore<
+type OpContractCore<
   Kind extends DomainOpKind,
   Id extends string,
   InputSchema extends TSchema,

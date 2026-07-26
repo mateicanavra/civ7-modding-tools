@@ -1,4 +1,4 @@
-export class StepRegistryError extends Error {
+class StepRegistryError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "StepRegistryError";
@@ -19,7 +19,7 @@ export class UnknownStepError extends StepRegistryError {
   }
 }
 
-export class DependencyTagError extends Error {
+class DependencyTagError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "DependencyTagError";

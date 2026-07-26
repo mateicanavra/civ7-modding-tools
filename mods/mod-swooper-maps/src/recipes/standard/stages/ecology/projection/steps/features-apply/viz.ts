@@ -14,7 +14,7 @@ const UNKNOWN_FEATURE_COLOR: VizLayerCategory["color"] = [148, 163, 184, 180];
  * Stable RGBA category colors for every authored Civ7 feature key. Module initialization checks
  * catalog completeness so a new placeable feature cannot silently receive an arbitrary palette.
  */
-export const FEATURE_TYPE_VIZ_COLORS_BY_KEY: Readonly<
+const FEATURE_TYPE_VIZ_COLORS_BY_KEY: Readonly<
   Partial<Record<FeatureKey, VizLayerCategory["color"]>>
 > = {
   FEATURE_FOREST: [34, 197, 94, 235],

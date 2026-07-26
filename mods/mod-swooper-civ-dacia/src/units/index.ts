@@ -15,7 +15,7 @@ import { murusEngineer } from "@units/murus-engineer";
 import { extractComponents } from "@utils";
 
 // Collect all unit packages
-export const unitPackages = [murusEngineer, falxman];
+const unitPackages = [murusEngineer, falxman];
 
 // Extract and export components
 const {

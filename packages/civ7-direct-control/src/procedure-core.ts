@@ -204,7 +204,7 @@ export const Civ7ProcedureCoreErrorReasonSchema = Type.Union([
   Type.Literal("handler-failed"),
 ]);
 
-export const Civ7ProcedureCoreErrorCodeSchema = Type.Union([
+const Civ7ProcedureCoreErrorCodeSchema = Type.Union([
   Type.Literal("procedure-descriptor-invalid"),
   Type.Literal("procedure-call-failed"),
 ]);

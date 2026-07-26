@@ -20,13 +20,13 @@ const Civ7AttentionCurrentInputSchema = Type.Object(
 );
 export type Civ7AttentionCurrentInput = Static<typeof Civ7AttentionCurrentInputSchema>;
 
-export const Civ7AttentionSourceReadStatusSchema = Type.Union([
+const Civ7AttentionSourceReadStatusSchema = Type.Union([
   Type.Literal("read"),
   Type.Literal("skipped-not-playable"),
   Type.Literal("skipped-unsupported"),
 ]);
 
-export const Civ7AttentionTurnCompletionSchema = Type.Object(
+const Civ7AttentionTurnCompletionSchema = Type.Object(
   {
     hasSentTurnComplete: Type.Union([Type.Boolean(), Type.Null()]),
     canEndTurn: Type.Union([Type.Boolean(), Type.Null()]),
@@ -40,7 +40,7 @@ export const Civ7AttentionTurnCompletionSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7AttentionBlockerSchema = Type.Object(
+const Civ7AttentionBlockerSchema = Type.Object(
   {
     source: Type.Union([
       Type.Literal("notification"),
@@ -57,7 +57,7 @@ export const Civ7AttentionBlockerSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7AttentionDecisionSchema = Type.Object(
+const Civ7AttentionDecisionSchema = Type.Object(
   {
     source: Type.Literal("notification"),
     category: Type.String(),
@@ -70,7 +70,7 @@ export const Civ7AttentionDecisionSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7AttentionReadyActorSchema = Type.Object(
+const Civ7AttentionReadyActorSchema = Type.Object(
   {
     kind: Type.Union([Type.Literal("unit"), Type.Literal("city")]),
     componentId: NullableComponentIdSchema,
@@ -81,7 +81,7 @@ export const Civ7AttentionReadyActorSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7AttentionNextStepSchema = Type.Object(
+const Civ7AttentionNextStepSchema = Type.Object(
   {
     kind: Type.Union([
       Type.Literal("restore-readiness"),
@@ -310,41 +310,39 @@ const Civ7AttentionPrioritiesResultStandardSchema = toStandardSchema(
   Civ7AttentionPrioritiesResultSchema
 );
 
-export type Civ7AttentionCurrentContract = ContractProcedure<
+type Civ7AttentionCurrentContract = ContractProcedure<
   typeof Civ7AttentionCurrentInputStandardSchema,
   typeof Civ7AttentionCurrentResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7AttentionCurrentContract: Civ7AttentionCurrentContract =
-  civ7ControlOrpcContractBase
-    .input(Civ7AttentionCurrentInputStandardSchema)
-    .output(Civ7AttentionCurrentResultStandardSchema)
-    .meta({
-      family: "attention",
-      procedureKey: "attention.current",
-      proofBoundary: "local-package-test",
-      risk: "read-only",
-    });
+const Civ7AttentionCurrentContract: Civ7AttentionCurrentContract = civ7ControlOrpcContractBase
+  .input(Civ7AttentionCurrentInputStandardSchema)
+  .output(Civ7AttentionCurrentResultStandardSchema)
+  .meta({
+    family: "attention",
+    procedureKey: "attention.current",
+    proofBoundary: "local-package-test",
+    risk: "read-only",
+  });
 
-export type Civ7AttentionPrioritiesContract = ContractProcedure<
+type Civ7AttentionPrioritiesContract = ContractProcedure<
   typeof Civ7AttentionPrioritiesInputStandardSchema,
   typeof Civ7AttentionPrioritiesResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7AttentionPrioritiesContract: Civ7AttentionPrioritiesContract =
-  civ7ControlOrpcContractBase
-    .input(Civ7AttentionPrioritiesInputStandardSchema)
-    .output(Civ7AttentionPrioritiesResultStandardSchema)
-    .meta({
-      family: "attention",
-      procedureKey: "attention.priorities",
-      proofBoundary: "local-package-test",
-      risk: "read-only",
-    });
+const Civ7AttentionPrioritiesContract: Civ7AttentionPrioritiesContract = civ7ControlOrpcContractBase
+  .input(Civ7AttentionPrioritiesInputStandardSchema)
+  .output(Civ7AttentionPrioritiesResultStandardSchema)
+  .meta({
+    family: "attention",
+    procedureKey: "attention.priorities",
+    proofBoundary: "local-package-test",
+    risk: "read-only",
+  });
 
 export type Civ7AttentionContract = Readonly<{
   current: Civ7AttentionCurrentContract;

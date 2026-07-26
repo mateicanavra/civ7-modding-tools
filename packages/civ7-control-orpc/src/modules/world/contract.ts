@@ -11,7 +11,7 @@ const NullableNumberSchema = Type.Union([Type.Number(), Type.Null()]);
 const NullableIntegerSchema = Type.Union([Type.Integer(), Type.Null()]);
 
 const Civ7WorldCurrentInputSchema = Type.Object({}, { additionalProperties: false });
-export type Civ7WorldCurrentInput = Static<typeof Civ7WorldCurrentInputSchema>;
+type Civ7WorldCurrentInput = Static<typeof Civ7WorldCurrentInputSchema>;
 
 const Civ7WorldCurrentSourceStatusSchema = Type.Union([
   Type.Literal("read"),
@@ -122,7 +122,7 @@ const Civ7WorldPlotFieldSchema = Type.Union([
   Type.Literal("city"),
   Type.Literal("units"),
 ]);
-export type Civ7WorldPlotField = Static<typeof Civ7WorldPlotFieldSchema>;
+type Civ7WorldPlotField = Static<typeof Civ7WorldPlotFieldSchema>;
 
 const Civ7WorldHiddenInfoPolicySchema = Type.Union([
   Type.Literal("include-hidden"),
@@ -156,7 +156,7 @@ const Civ7WorldPlotReadInputSchema = Type.Object(
   },
   { additionalProperties: false }
 );
-export type Civ7WorldPlotReadInput = Static<typeof Civ7WorldPlotReadInputSchema>;
+type Civ7WorldPlotReadInput = Static<typeof Civ7WorldPlotReadInputSchema>;
 
 const Civ7WorldPlotSnapshotSchema = Type.Object(
   {
@@ -227,7 +227,7 @@ const Civ7WorldGridReadInputSchema = Type.Object(
   },
   { additionalProperties: false }
 );
-export type Civ7WorldGridReadInput = Static<typeof Civ7WorldGridReadInputSchema>;
+type Civ7WorldGridReadInput = Static<typeof Civ7WorldGridReadInputSchema>;
 
 const Civ7WorldGridReadResultSchema = Type.Object(
   {
@@ -272,28 +272,28 @@ const Civ7WorldPlotReadResultStandardSchema = toStandardSchema(Civ7WorldPlotRead
 const Civ7WorldGridReadInputStandardSchema = toStandardSchema(Civ7WorldGridReadInputSchema);
 const Civ7WorldGridReadResultStandardSchema = toStandardSchema(Civ7WorldGridReadResultSchema);
 
-export type Civ7WorldCurrentContract = ContractProcedure<
+type Civ7WorldCurrentContract = ContractProcedure<
   typeof Civ7WorldCurrentInputStandardSchema,
   typeof Civ7WorldCurrentResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export type Civ7WorldPlotReadContract = ContractProcedure<
+type Civ7WorldPlotReadContract = ContractProcedure<
   typeof Civ7WorldPlotReadInputStandardSchema,
   typeof Civ7WorldPlotReadResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export type Civ7WorldGridReadContract = ContractProcedure<
+type Civ7WorldGridReadContract = ContractProcedure<
   typeof Civ7WorldGridReadInputStandardSchema,
   typeof Civ7WorldGridReadResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7WorldCurrentContract: Civ7WorldCurrentContract = civ7ControlOrpcContractBase
+const Civ7WorldCurrentContract: Civ7WorldCurrentContract = civ7ControlOrpcContractBase
   .input(Civ7WorldCurrentInputStandardSchema)
   .output(Civ7WorldCurrentResultStandardSchema)
   .meta({
@@ -303,7 +303,7 @@ export const Civ7WorldCurrentContract: Civ7WorldCurrentContract = civ7ControlOrp
     risk: "read-only",
   });
 
-export const Civ7WorldPlotReadContract: Civ7WorldPlotReadContract = civ7ControlOrpcContractBase
+const Civ7WorldPlotReadContract: Civ7WorldPlotReadContract = civ7ControlOrpcContractBase
   .input(Civ7WorldPlotReadInputStandardSchema)
   .output(Civ7WorldPlotReadResultStandardSchema)
   .meta({
@@ -313,7 +313,7 @@ export const Civ7WorldPlotReadContract: Civ7WorldPlotReadContract = civ7ControlO
     risk: "read-only",
   });
 
-export const Civ7WorldGridReadContract: Civ7WorldGridReadContract = civ7ControlOrpcContractBase
+const Civ7WorldGridReadContract: Civ7WorldGridReadContract = civ7ControlOrpcContractBase
   .input(Civ7WorldGridReadInputStandardSchema)
   .output(Civ7WorldGridReadResultStandardSchema)
   .meta({

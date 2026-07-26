@@ -359,7 +359,7 @@ export type Civ7NativeRiverObjectsInput = Readonly<
   Static<typeof Civ7NativeRiverObjectsInputSchema>
 >;
 
-export const Civ7NativeRiverObjectPlotSchema = Type.Object(
+const Civ7NativeRiverObjectPlotSchema = Type.Object(
   {
     raw: Type.Unknown(),
     index: Type.Union([Type.Integer({ minimum: 0, maximum: 1_000_000 }), Type.Null()]),
@@ -368,7 +368,7 @@ export const Civ7NativeRiverObjectPlotSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export type Civ7NativeRiverObjectPlot = Readonly<Static<typeof Civ7NativeRiverObjectPlotSchema>>;
+type Civ7NativeRiverObjectPlot = Readonly<Static<typeof Civ7NativeRiverObjectPlotSchema>>;
 
 export const Civ7NativeRiverObjectSampleSchema = Type.Object(
   {

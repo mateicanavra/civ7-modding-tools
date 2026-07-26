@@ -89,10 +89,8 @@ export type Civ7TunerHealthResult = Readonly<{
 }>;
 
 export type Civ7TunerHealthInput = Readonly<Static<typeof Civ7TunerHealthInputSchema>>;
-export type Civ7TunerHealthSnapshotContract = Readonly<
-  Static<typeof Civ7TunerHealthSnapshotSchema>
->;
-export type Civ7TunerHealthResultContract = Readonly<Static<typeof Civ7TunerHealthResultSchema>>;
+type Civ7TunerHealthSnapshotContract = Readonly<Static<typeof Civ7TunerHealthSnapshotSchema>>;
+type Civ7TunerHealthResultContract = Readonly<Static<typeof Civ7TunerHealthResultSchema>>;
 
 export type TunerHealthSessionDependencies = Readonly<{
   executeSessionCommandWithReconnect: (
@@ -143,7 +141,7 @@ const defaultTunerHealthDependencies: TunerHealthDependencies = {
   executeSessionCommandWithReconnect,
 };
 
-export function buildTunerHealthCommand(): string {
+function buildTunerHealthCommand(): string {
   return `(() => {
     const g = globalThis;
     ${probeHelperSource()}
@@ -182,7 +180,7 @@ export function buildTunerHealthCommand(): string {
   })()`;
 }
 
-export function tunerHealthFromCommandResult(result: Civ7CommandResult): Civ7TunerHealthResult {
+function tunerHealthFromCommandResult(result: Civ7CommandResult): Civ7TunerHealthResult {
   try {
     const snapshot = JSON.parse(result.output[0] ?? "{}") as Civ7TunerHealthSnapshot;
     return {
@@ -201,7 +199,7 @@ export function tunerHealthFromCommandResult(result: Civ7CommandResult): Civ7Tun
   }
 }
 
-export async function checkCiv7TunerHealthWithSession(
+async function checkCiv7TunerHealthWithSession(
   session: Civ7DirectControlSession,
   timeoutMs: number | undefined,
   dependencies: TunerHealthSessionDependencies

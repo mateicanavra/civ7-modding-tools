@@ -57,7 +57,7 @@ export type OpConfigSchema<Strategies extends RuntimeStrategiesLike> = TUnsafe<
 >;
 
 /** The configuration case selected by an operation's explicit default authority. */
-export type DefaultStrategySelection<
+type DefaultStrategySelection<
   Strategies extends RuntimeStrategiesLike,
   DefaultStrategy extends keyof Strategies & string,
 > = Extract<StrategySelection<Strategies>, Readonly<{ strategy: DefaultStrategy }>>;

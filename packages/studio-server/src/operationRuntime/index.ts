@@ -1,17 +1,10 @@
-export { createStudioOperationId } from "./ids.js";
 export type {
   CanonicalRunInGameRequest,
-  RunInGameCanonicalConfigAdmission,
   RunInGameDeployment,
-  RunInGameEvidence,
-  RunInGameGeneratedMod,
   RunInGameLogEvidence,
   RunInGamePreparedRequest,
   RunInGameRuntimeObservation,
   RunInGameStarted,
-  SaveDeployDeployed,
-  SaveDeployPreparedRequest,
-  SaveDeploySaved,
   StudioDaemonIdentity,
   StudioOperationRuntimePorts,
 } from "./ports.js";

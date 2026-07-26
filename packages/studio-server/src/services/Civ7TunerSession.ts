@@ -30,7 +30,7 @@ import { Clock, Context, Data, Effect, Layer, Match, Option, Ref } from "effect"
  * replacement (proportional complexity).
  */
 
-export interface Civ7TunerSessionGateOptions {
+interface Civ7TunerSessionGateOptions {
   /** Consecutive admitted leases with response timeouts that open the gate. */
   readonly threshold?: number;
   /** How long reads fail fast before the gate half-opens. */

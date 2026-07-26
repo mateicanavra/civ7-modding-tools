@@ -12,7 +12,7 @@ export interface Civ7ControlOrpcProcedureAdmission {
 }
 
 /** Host-owned publication hooks for lifecycle facts proved before final readback completes. */
-export type Civ7ControlOrpcLifecycleProgress = Readonly<{
+type Civ7ControlOrpcLifecycleProgress = Readonly<{
   singlePlayerStarted: Effect<void, unknown>;
 }>;
 

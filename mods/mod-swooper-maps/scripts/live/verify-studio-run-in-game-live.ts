@@ -118,10 +118,9 @@ export type SwooperMapScriptDeploymentStage = Readonly<{
   recoveryHint?: string;
 }>;
 
-export const SWOOPER_MAP_SCRIPT_PATTERN =
-  /^\{swooper-maps\}\/maps\/([a-z0-9]+(?:-[a-z0-9]+)*\.js)$/;
+const SWOOPER_MAP_SCRIPT_PATTERN = /^\{swooper-maps\}\/maps\/([a-z0-9]+(?:-[a-z0-9]+)*\.js)$/;
 
-export const REQUIRED_SWOOPER_RIVER_MATERIALIZATION_MARKERS = [
+const REQUIRED_SWOOPER_RIVER_MATERIALIZATION_MARKERS = [
   "map.rivers.authoredTerrainMaterialization",
   "POST-AUTHORED-RIVERS",
 ] as const;
@@ -261,7 +260,7 @@ function parseOptionValue(value: string): Civ7SetupOptionValue {
  * file that matched (deduped by path) so the caller can reject ambiguous
  * queries instead of silently picking one.
  */
-export function matchSavedGameConfigurations(
+function matchSavedGameConfigurations(
   configurations: ReadonlyArray<Civ7SavedGameConfiguration>,
   query: string
 ): ReadonlyArray<Civ7SavedGameConfiguration> {

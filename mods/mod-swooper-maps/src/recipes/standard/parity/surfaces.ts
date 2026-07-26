@@ -7,7 +7,7 @@ import {
 } from "./types.js";
 
 /** Bounded cell witness explaining one final-surface mismatch or missing readback. */
-export type StandardSurfaceMismatchExample = Readonly<{
+type StandardSurfaceMismatchExample = Readonly<{
   x: number;
   y: number;
   local: number | null;

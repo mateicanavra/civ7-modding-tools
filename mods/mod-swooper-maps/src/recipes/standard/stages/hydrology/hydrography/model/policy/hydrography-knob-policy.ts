@@ -17,7 +17,7 @@ const MAX_LAKE_UPSTREAM_STEPS = 8;
  * only a small number of high-discharge basins and expands them one upstream
  * hop so visible lakes read as basin features instead of circular sink noise.
  */
-export const HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY = {
+const HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY = {
   few: {
     sinkDischargePercentileMin: 0.97,
     maxLakeLandFraction: 0.0015,

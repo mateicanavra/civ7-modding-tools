@@ -8,18 +8,18 @@ import { Civ7ControlOrpcComponentIdSchema } from "../../model/primitives";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
 const Civ7TurnCompletionInputSchema = Type.Object({}, { additionalProperties: false });
-export type Civ7TurnCompletionInput = Static<typeof Civ7TurnCompletionInputSchema>;
+type Civ7TurnCompletionInput = Static<typeof Civ7TurnCompletionInputSchema>;
 
 const Civ7TurnCompletionInputStandardSchema = toStandardSchema(Civ7TurnCompletionInputSchema);
 
-export const Civ7TurnCompletionRequestStatusSchema = Type.Union([
+const Civ7TurnCompletionRequestStatusSchema = Type.Union([
   Type.Literal("not-sent"),
   Type.Literal("sent-confirmed"),
   Type.Literal("sent-guarded"),
   Type.Literal("sent-unverified"),
 ]);
 
-export const Civ7TurnCompletionPostconditionClassificationSchema = Type.Union([
+const Civ7TurnCompletionPostconditionClassificationSchema = Type.Union([
   Type.Literal("turn-advanced"),
   Type.Literal("turn-complete-sent"),
   Type.Literal("already-complete"),
@@ -29,7 +29,7 @@ export const Civ7TurnCompletionPostconditionClassificationSchema = Type.Union([
   Type.Literal("pending-runtime-proof"),
 ]);
 
-export const Civ7TurnCompletionProofOutcomeSchema = Type.Union([
+const Civ7TurnCompletionProofOutcomeSchema = Type.Union([
   Type.Literal("cleared"),
   Type.Literal("state-changed"),
   Type.Literal("not-sent"),
@@ -37,7 +37,7 @@ export const Civ7TurnCompletionProofOutcomeSchema = Type.Union([
   Type.Literal("unknown"),
 ]);
 
-export const Civ7TurnCompletionProbeSummarySchema = Type.Object(
+const Civ7TurnCompletionProbeSummarySchema = Type.Object(
   {
     turn: Type.Union([Type.Number(), Type.Null()]),
     turnDate: Type.Union([Type.String(), Type.Null()]),
@@ -49,7 +49,7 @@ export const Civ7TurnCompletionProbeSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7TurnCompletionPostconditionSummarySchema = Type.Object(
+const Civ7TurnCompletionPostconditionSummarySchema = Type.Object(
   {
     classification: Civ7TurnCompletionPostconditionClassificationSchema,
     reason: Type.String(),
@@ -65,7 +65,7 @@ export const Civ7TurnCompletionPostconditionSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7TurnCompletionNextStepSchema = Type.Object(
+const Civ7TurnCompletionNextStepSchema = Type.Object(
   {
     kind: Type.Union([
       Type.Literal("refresh-attention"),
@@ -93,14 +93,14 @@ export type Civ7TurnCompletionResult = Static<typeof Civ7TurnCompletionResultSch
 
 const Civ7TurnCompletionResultStandardSchema = toStandardSchema(Civ7TurnCompletionResultSchema);
 
-export type Civ7TurnCompletionContract = ContractProcedure<
+type Civ7TurnCompletionContract = ContractProcedure<
   typeof Civ7TurnCompletionInputStandardSchema,
   typeof Civ7TurnCompletionResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7TurnCompletionContract: Civ7TurnCompletionContract = civ7ControlOrpcContractBase
+const Civ7TurnCompletionContract: Civ7TurnCompletionContract = civ7ControlOrpcContractBase
   .input(Civ7TurnCompletionInputStandardSchema)
   .output(Civ7TurnCompletionResultStandardSchema)
   .meta({

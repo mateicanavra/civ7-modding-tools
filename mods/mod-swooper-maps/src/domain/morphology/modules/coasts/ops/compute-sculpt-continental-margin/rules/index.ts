@@ -2,11 +2,11 @@ import { clamp, clamp01 } from "@swooper/mapgen-core/lib/math";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 
 /** Shared convergent-boundary code used to classify narrow active continental margins. */
-export const BOUNDARY_CONVERGENT = BOUNDARY_TYPE.convergent;
+const BOUNDARY_CONVERGENT = BOUNDARY_TYPE.convergent;
 /** Shared divergent-boundary code used to classify narrow rifted continental margins. */
-export const BOUNDARY_DIVERGENT = BOUNDARY_TYPE.divergent;
+const BOUNDARY_DIVERGENT = BOUNDARY_TYPE.divergent;
 /** Shared transform-boundary code treated as active when tectonic closeness is sufficient. */
-export const BOUNDARY_TRANSFORM = BOUNDARY_TYPE.transform;
+const BOUNDARY_TRANSFORM = BOUNDARY_TYPE.transform;
 
 /** Sentinel for "no margin reached this tile" in the margin-hop BFS (matches u16 UNREACHED convention). */
 export const MARGIN_UNREACHED = 65535;
@@ -20,7 +20,7 @@ export const MARGIN_UNREACHED = 65535;
  * run, so the slope length scale is the apron length scale divided by this ratio. A value of
  * 4 means the slope drops four times as fast as the apron, producing a clear, readable break.
  */
-export const BREAK_SLOPE_RATIO = 4;
+const BREAK_SLOPE_RATIO = 4;
 
 type Config = Readonly<{
   activeApronFactor: number;
@@ -118,7 +118,7 @@ export function deriveBreakElevation(relief: Relief, config: Config): number {
  * This is the real deep-ocean floor base topography already laid down; the slope descends to it
  * and the carve-down min never invents anything deeper. No foreign magic depth.
  */
-export function deriveOceanicFloor(relief: Relief): number {
+function deriveOceanicFloor(relief: Relief): number {
   return Math.round(relief.oceanicHeight * relief.elevationScale);
 }
 

@@ -91,7 +91,7 @@ export async function readCiv7StartPositions(
   return dependencies.parseStartPositions(result, "Civ7 start positions");
 }
 
-export function buildStartPositionsCommand(
+function buildStartPositionsCommand(
   dependencies: Pick<StartPositionsReadDependencies, "probeHelperSource">
 ): string {
   // CAVEAT (live-verified): there is no start-plot getter anywhere on the player prototype

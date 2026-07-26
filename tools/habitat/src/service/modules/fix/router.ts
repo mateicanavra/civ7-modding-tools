@@ -6,7 +6,7 @@ import type {
 import { Match } from "effect";
 import { module } from "./module.js";
 
-export const fixRouter = {
+export const router = {
   previewPatterns: module.previewPatterns.effect(function* ({ context, input }) {
     const demand = Match.value(input.rules).pipe(
       Match.when(undefined, () => ({})),
@@ -18,8 +18,6 @@ export const fixRouter = {
     return renderFixPreview(result);
   }),
 };
-
-export const router = fixRouter;
 
 function renderFixPreview(result: RuleFixPreviewResult): SpawnResult {
   return Match.value(result).pipe(

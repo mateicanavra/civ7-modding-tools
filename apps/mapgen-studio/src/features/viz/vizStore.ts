@@ -2,7 +2,7 @@ import type { VizEvent } from "../../shared/vizEvents";
 import { ingestVizEvent } from "./ingest";
 import type { VizManifestV2 } from "./model";
 
-export type VizStoreSnapshot = Readonly<{
+type VizStoreSnapshot = Readonly<{
   streamManifest: VizManifestV2 | null;
   selectedStepId: string | null;
   selectedLayerKey: string | null;
@@ -21,7 +21,7 @@ export type VizStore = {
   setShowDebugLayers(next: boolean): void;
 };
 
-export function createVizStore(): VizStore {
+function createVizStore(): VizStore {
   const listeners = new Set<() => void>();
 
   let streamManifest: VizManifestV2 | null = null;

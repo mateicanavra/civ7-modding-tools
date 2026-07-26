@@ -33,6 +33,7 @@
     "design-sync:check": "node scripts/design-sync-check.mjs",
     "dev": "tsup --watch",
     "test": "vitest run --config ../../vitest.config.ts --project mapgen-studio-ui",
+    "test:light-canary": "node scripts/light-canary.mjs .design-sync/light-canary",
     "test:light-canary-browser": "node scripts/light-canary-browser-test.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "verify": "node scripts/verify.mjs"
@@ -67,6 +68,7 @@
     "@rjsf/validator-ajv8": "6.2.5",
     "@storybook/addon-docs": "9.1.20",
     "@storybook/react-vite": "9.1.20",
+    "@storybook/test-runner": "0.23.0",
     "@tailwindcss/cli": "4.3.0",
     "@tailwindcss/vite": "4.3.0",
     "@testing-library/dom": "10.4.1",

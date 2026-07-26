@@ -32,8 +32,6 @@ export async function patternGenerator(
 
 export { candidateAuthorityPaths } from "./paths.ts";
 
-export default patternGenerator;
-
 function ruleManifestIdCollisionPathFor(tree: Tree, ruleId: string): string | null {
   for (const manifestPath of candidateCollisionRuleManifestPaths(tree, ".habitat")) {
     const manifest = readJsonIfObject(tree, manifestPath);

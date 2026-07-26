@@ -1,7 +1,7 @@
 import { CatalogSourceIndex } from "./sourceIndex.js";
 
 export const CATALOG_CONFIG_PATH_PREFIX = "mods/mod-swooper-maps/src/maps/configs/";
-export const CATALOG_CONFIG_PATH_SUFFIX = ".config.json";
+const CATALOG_CONFIG_PATH_SUFFIX = ".config.json";
 
 export type CatalogSourceEntry = string;
 

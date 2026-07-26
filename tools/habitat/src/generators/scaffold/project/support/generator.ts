@@ -18,8 +18,3 @@ export async function projectGenerator(
   if (decision.kind === "refuse-scaffold") throwScaffoldRefusal(decision.refusal);
   writeProjectScaffold(tree, decision);
 }
-
-export { PROJECT_KIND_CONTRACTS } from "@habitat/cli/generators/scaffold/model";
-export type { HabitatProjectGeneratorOptions } from "./schema.ts";
-export { HabitatProjectGeneratorOptionsSchema } from "./schema.ts";
-export default projectGenerator;

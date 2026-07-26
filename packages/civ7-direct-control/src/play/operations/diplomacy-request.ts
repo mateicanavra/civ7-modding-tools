@@ -177,7 +177,7 @@ const defaultDiplomacyResponseRequestDependencies: DiplomacyResponseRequestDepen
   },
 };
 
-export function buildDiplomacyResponseCloseoutCommand(
+function buildDiplomacyResponseCloseoutCommand(
   input: Civ7DiplomacyResponseInput,
   dependencies: Pick<DiplomacyResponseRequestDependencies, "jsLiteral">
 ): string {
@@ -187,7 +187,7 @@ export function buildDiplomacyResponseCloseoutCommand(
   })()`;
 }
 
-export function diplomacyResponseCloseoutSource(): string {
+function diplomacyResponseCloseoutSource(): string {
   return `${probeHelperSource()}
     const toComponentId = (value) => {
       if (!value || typeof value !== "object") return null;

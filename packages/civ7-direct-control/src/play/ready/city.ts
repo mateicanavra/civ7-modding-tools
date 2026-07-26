@@ -176,7 +176,7 @@ const runtimeObjectReaderSource = (): string => `const callMaybe = (value, key) 
       return undefined;
     };`;
 
-export function readyCityViewSource(): string {
+function readyCityViewSource(): string {
   return `${probeHelperSource()}
     ${runtimeObjectReaderSource()}
     const readNumericField = (value, lowerKey, upperKey) => {

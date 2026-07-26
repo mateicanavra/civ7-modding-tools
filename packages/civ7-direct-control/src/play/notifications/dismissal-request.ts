@@ -123,7 +123,7 @@ type NotificationDismissalRequestDependencies = Readonly<{
   jsLiteral: (value: unknown) => string;
 }>;
 
-export function buildNotificationDismissalCommand(
+function buildNotificationDismissalCommand(
   input: Civ7NotificationDismissInput,
   options: { send: boolean; verificationAttempts?: number },
   dependencies: Pick<NotificationDismissalRequestDependencies, "jsLiteral">

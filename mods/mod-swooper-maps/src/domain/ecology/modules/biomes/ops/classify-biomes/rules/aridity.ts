@@ -1,17 +1,4 @@
-import { clamp01 } from "./util.js";
-
 type MoistureZone = "arid" | "semiArid" | "subhumid" | "humid" | "perhumid";
-
-type AridityPolicy = Readonly<{
-  temperatureMin: number;
-  temperatureMax: number;
-  petBase: number;
-  petTemperatureWeight: number;
-  humidityDampening: number;
-  rainfallWeight: number;
-  bias: number;
-  normalization: number;
-}>;
 
 const MOISTURE_ORDER: ReadonlyArray<MoistureZone> = [
   "arid",
@@ -20,27 +7,6 @@ const MOISTURE_ORDER: ReadonlyArray<MoistureZone> = [
   "humid",
   "perhumid",
 ];
-
-/**
- * Computes a normalized aridity index from temperature, humidity, and rainfall inputs.
- */
-export function computeAridityIndex(params: {
-  temperature: number;
-  humidity: number;
-  rainfall: number;
-  cfg: AridityPolicy;
-}): number {
-  const { temperature, humidity, rainfall, cfg } = params;
-  const tempRange = Math.max(1e-6, cfg.temperatureMax - cfg.temperatureMin);
-  const tempNorm = clamp01((temperature - cfg.temperatureMin) / tempRange);
-  const humidityNorm = clamp01(humidity / 255);
-
-  const pet = cfg.petBase + cfg.petTemperatureWeight * tempNorm;
-  const dampenedPet = pet * (1 - cfg.humidityDampening * humidityNorm);
-  const aridityRaw = dampenedPet - rainfall * cfg.rainfallWeight + cfg.bias;
-
-  return clamp01(aridityRaw / Math.max(1e-6, cfg.normalization));
-}
 
 /**
  * Returns how many aridity thresholds the index exceeds (shift count).

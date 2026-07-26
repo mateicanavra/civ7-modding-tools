@@ -7,9 +7,9 @@ import type { Civ7ControlOrpcProcedureMeta } from "../../metadata";
 import { toStandardSchema } from "../../typebox-standard-schema";
 
 const Civ7ReadinessCurrentInputSchema = Type.Object({}, { additionalProperties: false });
-export type Civ7ReadinessCurrentInput = Static<typeof Civ7ReadinessCurrentInputSchema>;
+type Civ7ReadinessCurrentInput = Static<typeof Civ7ReadinessCurrentInputSchema>;
 
-export const Civ7ReadinessLevelSchema = Type.Union([
+const Civ7ReadinessLevelSchema = Type.Union([
   Type.Literal("tuner-ready"),
   Type.Literal("app-ui-game"),
   Type.Literal("begin-ready"),
@@ -18,7 +18,7 @@ export const Civ7ReadinessLevelSchema = Type.Union([
   Type.Literal("unavailable"),
 ]);
 
-export const Civ7ReadinessCapabilitySchema = Type.Object(
+const Civ7ReadinessCapabilitySchema = Type.Object(
   {
     canObserve: Type.Boolean(),
     canMutate: Type.Boolean(),
@@ -27,7 +27,7 @@ export const Civ7ReadinessCapabilitySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7ReadinessSourceSummarySchema = Type.Object(
+const Civ7ReadinessSourceSummarySchema = Type.Object(
   {
     gameUi: Type.Object(
       {
@@ -48,12 +48,12 @@ export const Civ7ReadinessSourceSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7ReadinessControllerProcedureRiskSchema = Type.Union([
+const Civ7ReadinessControllerProcedureRiskSchema = Type.Union([
   Type.Literal("read-only"),
   Type.Literal("mutation"),
 ]);
 
-export const Civ7ReadinessControllerProcedureSchema = Type.Object(
+const Civ7ReadinessControllerProcedureSchema = Type.Object(
   {
     procedureKey: Type.String({ minLength: 1 }),
     risk: Civ7ReadinessControllerProcedureRiskSchema,
@@ -61,14 +61,14 @@ export const Civ7ReadinessControllerProcedureSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const Civ7ReadinessControllerSummarySchema = Type.Object(
+const Civ7ReadinessControllerSummarySchema = Type.Object(
   {
     supportedProcedures: Type.Array(Civ7ReadinessControllerProcedureSchema),
   },
   { additionalProperties: false }
 );
 
-export const Civ7ReadinessNextStepSchema = Type.Object(
+const Civ7ReadinessNextStepSchema = Type.Object(
   {
     kind: Type.Union([
       Type.Literal("read-attention"),
@@ -103,23 +103,22 @@ export type Civ7ReadinessCurrentResult = Static<typeof Civ7ReadinessCurrentResul
 const Civ7ReadinessCurrentInputStandardSchema = toStandardSchema(Civ7ReadinessCurrentInputSchema);
 const Civ7ReadinessCurrentResultStandardSchema = toStandardSchema(Civ7ReadinessCurrentResultSchema);
 
-export type Civ7ReadinessCurrentContract = ContractProcedure<
+type Civ7ReadinessCurrentContract = ContractProcedure<
   typeof Civ7ReadinessCurrentInputStandardSchema,
   typeof Civ7ReadinessCurrentResultStandardSchema,
   Civ7ControlOrpcErrorMap,
   Civ7ControlOrpcProcedureMeta
 >;
 
-export const Civ7ReadinessCurrentContract: Civ7ReadinessCurrentContract =
-  civ7ControlOrpcContractBase
-    .input(Civ7ReadinessCurrentInputStandardSchema)
-    .output(Civ7ReadinessCurrentResultStandardSchema)
-    .meta({
-      family: "readiness",
-      procedureKey: "readiness.current",
-      proofBoundary: "local-package-test",
-      risk: "runtime-support",
-    });
+const Civ7ReadinessCurrentContract: Civ7ReadinessCurrentContract = civ7ControlOrpcContractBase
+  .input(Civ7ReadinessCurrentInputStandardSchema)
+  .output(Civ7ReadinessCurrentResultStandardSchema)
+  .meta({
+    family: "readiness",
+    procedureKey: "readiness.current",
+    proofBoundary: "local-package-test",
+    risk: "runtime-support",
+  });
 
 export type Civ7ReadinessContract = Readonly<{
   current: Civ7ReadinessCurrentContract;

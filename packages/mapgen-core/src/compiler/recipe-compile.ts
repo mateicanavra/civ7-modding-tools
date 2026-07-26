@@ -15,21 +15,20 @@ import {
   validateStrict,
 } from "./normalize.js";
 
-export type { CompileErrorCode, CompileErrorItem } from "./errors.js";
 export { RecipeCompileError } from "./errors.js";
 
-export type StepContractAny = Readonly<{
+type StepContractAny = Readonly<{
   id: string;
   schema: TSchema;
   ops?: StepOpsDecl;
 }>;
 
-export type StepModuleAny = Readonly<{
+type StepModuleAny = Readonly<{
   contract: StepContractAny;
   normalize?: (config: unknown, ctx: NormalizeContext) => unknown;
 }>;
 
-export type StageToInternalResult<StepId extends string = string, Knobs = unknown> = Readonly<{
+type StageToInternalResult<StepId extends string = string, Knobs = unknown> = Readonly<{
   knobs: Knobs;
   rawSteps: Partial<Record<StepId, unknown>>;
 }>;

@@ -4,7 +4,7 @@ export type Civ7MutationRequestStatus =
   | "sent-guarded"
   | "sent-unverified";
 
-export type Civ7MutationProofConfidence = "confirmed" | "pending-runtime-proof" | "unverified";
+type Civ7MutationProofConfidence = "confirmed" | "pending-runtime-proof" | "unverified";
 
 export type Civ7MutationPostconditionState = Readonly<{
   confidence: Civ7MutationProofConfidence;

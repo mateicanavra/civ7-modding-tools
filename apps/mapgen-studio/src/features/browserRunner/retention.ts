@@ -5,10 +5,7 @@ export type PinnedSelection = {
   retainLayer: boolean;
 };
 
-export function shouldRetainLayer(
-  pinnedStepId: string | null,
-  pinnedLayerKey: string | null
-): boolean {
+function shouldRetainLayer(pinnedStepId: string | null, pinnedLayerKey: string | null): boolean {
   return Boolean(pinnedStepId && pinnedLayerKey && pinnedLayerKey.startsWith(`${pinnedStepId}::`));
 }
 

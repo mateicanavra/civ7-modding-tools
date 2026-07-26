@@ -1,6 +1,6 @@
 import type { BrowserRunEvent, BrowserRunRequest } from "../../browser-runner/protocol";
 
-export type WorkerClientHandlers = {
+type WorkerClientHandlers = {
   onEvent(event: BrowserRunEvent): void;
   onError(error: unknown): void;
 };

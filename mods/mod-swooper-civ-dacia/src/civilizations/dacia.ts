@@ -343,8 +343,3 @@ export const dacia: CivilizationPackage = {
     leaders: [catherineUnlock],
   },
 };
-
-// Export unlocks directly for backward compatibility
-export const civilizationUnlockToMongolia = unlockToMongolia;
-export const civilizationUnlockToPrussia = unlockToPrussia;
-export const leaderCatherineUnlock = catherineUnlock;

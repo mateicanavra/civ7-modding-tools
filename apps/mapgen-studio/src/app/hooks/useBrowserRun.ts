@@ -28,7 +28,7 @@ import type { ToastFn } from "./useToast";
  * these members so `useBrowserRun` depends on the viz *surface* it uses, not the
  * full `useVizState` result (the host passes the whole `viz` handle in).
  */
-export type BrowserRunVizHandle = Pick<
+type BrowserRunVizHandle = Pick<
   UseVizStateResult,
   | "selectedStepId"
   | "selectedLayerKey"

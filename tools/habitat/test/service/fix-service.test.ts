@@ -1,5 +1,5 @@
 import type { RuleFixPreviewDemand } from "@habitat/cli/resources/rule-fix-preview/index";
-import { fixRouter } from "@habitat/cli/service/modules/fix/router";
+import { router as fixRouter } from "@habitat/cli/service/modules/fix/router";
 import { habitatServiceRouter } from "@habitat/cli/service/router";
 import { createRouterClient } from "@orpc/server";
 import { Effect } from "effect";

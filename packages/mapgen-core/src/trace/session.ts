@@ -11,14 +11,14 @@ import {
 import { Value } from "typebox/value";
 
 /** @internal Exact step identity supplied by the executor for trace evidence. */
-export type TraceStepMeta = Readonly<{
+type TraceStepMeta = Readonly<{
   stepId: string;
   stageId: string;
   stepIndex: number;
 }>;
 
 /** @internal Revocable author trace port owned by one executor step invocation. */
-export type TraceStepLease = Readonly<{
+type TraceStepLease = Readonly<{
   trace: StepTrace;
   close: () => void;
 }>;

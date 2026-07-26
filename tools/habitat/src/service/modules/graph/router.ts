@@ -1,6 +1,6 @@
 import { module } from "./module.js";
 
-export const graphRouter = {
+export const router = {
   workspaceGraph: module.workspaceGraph.effect(function* ({ context, errors }) {
     return yield* context.withWorkspaceGraphFile(function* (graphPath) {
       const spawnResult = yield* context.runNxWorkspaceGraph({ outputPath: graphPath });
@@ -24,5 +24,3 @@ export const graphRouter = {
     });
   }),
 };
-
-export const router = graphRouter;

@@ -275,7 +275,7 @@ const defaultProductionChoiceDependencies: ProductionChoiceDependencies = {
   jsLiteral,
 };
 
-export function buildProductionChoiceRequestCommand(
+function buildProductionChoiceRequestCommand(
   input: Civ7ProductionChoiceInput,
   options: { send: boolean },
   dependencies: Pick<ProductionChoiceDependencies, "jsLiteral">
@@ -286,7 +286,7 @@ export function buildProductionChoiceRequestCommand(
   })()`;
 }
 
-export function productionChoiceRequestSource(): string {
+function productionChoiceRequestSource(): string {
   return `${probeHelperSource()}
     const toComponentId = (value) => {
       if (!value || typeof value !== "object") return null;
