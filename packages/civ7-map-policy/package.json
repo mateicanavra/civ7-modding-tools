@@ -11,7 +11,8 @@
     },
     "./setup": {
       "types": "./dist/setup.d.ts",
-      "import": "./dist/setup.js"
+      "import": "./dist/setup.js",
+      "require": "./dist/setup.cjs"
     }
   },
   "main": "./dist/index.js",

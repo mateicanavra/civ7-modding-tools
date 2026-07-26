@@ -5,7 +5,7 @@ export default defineConfig({
     index: "src/index.ts",
     setup: "src/setup.ts",
   },
-  format: ["esm"],
+  format: ["esm", "cjs"],
   target: "esnext",
   dts: true,
   clean: true,
