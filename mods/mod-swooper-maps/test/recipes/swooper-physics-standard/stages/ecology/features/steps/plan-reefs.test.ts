@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { artifactModules as ecologyArtifactModules } from "@mapgen/domain/ecology";
+import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
 import ecology from "@mapgen/domain/ecology/ops";
-import { artifactModules as hydrologyHydrographyArtifactModules } from "@mapgen/domain/hydrology";
+import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -41,18 +41,18 @@ describe("ecology-features plan-reefs step", () => {
       const layers = createEmptyFeatureScoreLayers(size);
       layers.reef.fill(1);
 
-      publishTestArtifact(stepContext, ecologyArtifactModules.scoreLayers, {
+      publishTestArtifact(stepContext, ecologyArtifacts.scoreLayers, {
         width,
         height,
         layers,
       });
-      publishTestArtifact(stepContext, ecologyArtifactModules.occupancyIce, {
+      publishTestArtifact(stepContext, ecologyArtifacts.occupancyIce, {
         width,
         height,
         featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyHydrographyArtifactModules.lakePlan, {
+      publishTestArtifact(stepContext, hydrologyArtifacts.lakePlan, {
         width,
         height,
         lakeMask: new Uint8Array(size),
@@ -70,11 +70,11 @@ describe("ecology-features plan-reefs step", () => {
       planReefsStep.run(stepContext, config, ops, buildStepTestDependencies(planReefsStep));
     });
 
-    const intents = readValidatedArtifact(ctx, ecologyArtifactModules.featureIntentsReefs);
+    const intents = readValidatedArtifact(ctx, ecologyArtifacts.featureIntentsReefs);
     expect(Array.isArray(intents)).toBe(true);
     expect(intents.length).toBeGreaterThan(0);
 
-    const occupancy = readValidatedArtifact(ctx, ecologyArtifactModules.occupancyReefs);
+    const occupancy = readValidatedArtifact(ctx, ecologyArtifacts.occupancyReefs);
     expect(occupancy.width).toBe(width);
     expect(occupancy.height).toBe(height);
     expect(occupancy.featureOccupancyMask instanceof Uint8Array).toBe(true);

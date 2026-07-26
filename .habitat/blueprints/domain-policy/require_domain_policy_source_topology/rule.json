@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_policy_source_topology",
+  "title": "Require Domain Policy Source Topology",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-policy",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "advisory",
+  "forbids": "nested cabinets or non-TypeScript members inside domain policy roots",
+  "why": "Domain policy is a flat set of named static laws owned by its nearest semantic container.",
+  "remediate": "Keep named TypeScript policy modules directly under policy; move nested capabilities to their own semantic kind.",
+  "message": "Domain policy roots should remain flat and TypeScript-only.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/domain/*/model/policy",
+        "mods/*/src/domain/*/model/policy/**",
+        "mods/*/src/domain/*/modules/*/model/policy",
+        "mods/*/src/domain/*/modules/*/model/policy/**"
+      ]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-policy/require_domain_policy_source_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/domain-policy/require_domain_policy_source_topology/structure.toml"
+    }
+  }
+}

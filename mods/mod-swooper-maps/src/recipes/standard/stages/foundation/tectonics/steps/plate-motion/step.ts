@@ -99,9 +99,24 @@ export const PlateMotionStep = createStep(PlateMotionStepContract, {
 
     const plateMotionResult = ops.computePlateMotion(
       {
-        mesh,
-        plateGraph,
-        mantleForcing,
+        mesh: {
+          cellCount: mesh.cellCount,
+          wrapWidth: mesh.wrapWidth,
+          siteX: mesh.siteX,
+          siteY: mesh.siteY,
+          areas: mesh.areas,
+          neighborsOffsets: mesh.neighborsOffsets,
+          neighbors: mesh.neighbors,
+        },
+        plateGraph: {
+          cellToPlate: plateGraph.cellToPlate,
+          plates: plateGraph.plates,
+        },
+        mantleForcing: {
+          cellCount: mantleForcing.cellCount,
+          forcingU: mantleForcing.forcingU,
+          forcingV: mantleForcing.forcingV,
+        },
       },
       config.computePlateMotion
     );

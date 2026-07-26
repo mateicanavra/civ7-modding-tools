@@ -5,7 +5,7 @@ import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
-import { artifactModules as placementArtifactModules } from "../../../src/recipes/standard/stages/placement/artifacts/index.js";
+import { artifacts as placementArtifacts } from "../../../src/recipes/standard/stages/placement/artifacts/index.js";
 import { runStandardRecipeTestMap } from "./fixtures/standard-recipe.js";
 
 /**
@@ -125,7 +125,7 @@ describe("map-hydrology lakes area/water ordering", () => {
     const firstResourceIntent = adapter.callOrder.indexOf("placeResourceIntent");
     const resourceOutcomes = readValidatedArtifact(
       context,
-      placementArtifactModules.resourcePlacementOutcomes
+      placementArtifacts.resourcePlacementOutcomes
     );
 
     expect(firstLakeStamp).toBeGreaterThanOrEqual(0);

@@ -4,7 +4,6 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
@@ -24,7 +23,7 @@ const NavigableRiverSignalStatusSchema = Type.Union(
 );
 
 /** Runtime schema for MapGen-authored navigable-river intent and its selection proof. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -149,11 +148,13 @@ export const artifact = defineArtifact({
   name: "projectedNavigableRivers",
   id: "artifact:map.rivers.projectedNavigableRivers",
   schema: Schema,
+  refine: validateLocal,
 });
 
 /**
  * Binds typed intent masks to map cardinality and chain lengths to the selected chain count.
  */
+/** Admits map-sized river intent masks and chain-aligned lengths after structural admission. */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -185,6 +186,3 @@ function validateLocal(
   );
   return Object.freeze(issues);
 }
-
-/** Admits map-sized river intent masks and chain-aligned lengths after structural admission. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

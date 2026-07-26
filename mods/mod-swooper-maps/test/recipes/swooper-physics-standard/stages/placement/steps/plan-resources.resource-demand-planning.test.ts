@@ -9,11 +9,11 @@ import {
 } from "@civ7/map-policy";
 import {
   admitPositiveResourceRegionMinimum,
+  EARTHLIKE_RESOURCE_EXPECTATIONS,
   getInitialMapResourcePolicyForType,
   INITIAL_MAP_RESOURCE_AUTHORING_AGE,
+  RESOURCE_HABITAT_SIGNALS,
 } from "@mapgen/domain/resources";
-import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
-import { RESOURCE_HABITAT_SIGNALS } from "@mapgen/domain/resources/model/policy/habitat-eligibility.js";
 import {
   buildResourceDemands,
   buildRiverResourceExclusionMask,

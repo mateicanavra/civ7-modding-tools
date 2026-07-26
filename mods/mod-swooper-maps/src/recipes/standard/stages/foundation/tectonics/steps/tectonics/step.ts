@@ -1,4 +1,4 @@
-import { resolvePlateActivityOrogenyMultiplier } from "@mapgen/domain/foundation/model/policy/plate-activity.js";
+import { resolvePlateActivityOrogenyMultiplier } from "@mapgen/domain/foundation/modules/tectonics/model/policy/plate-activity.js";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { interleaveXY, type VizProjection, type VizVariantKey } from "@swooper/mapgen-viz";
 import {
@@ -46,15 +46,56 @@ export const TectonicsStep = createStep(TectonicsStepContract, {
     const crust = deps.artifacts.foundationInitialCrust.read(context);
     const plateGraph = deps.artifacts.foundationPlateGraph.read(context);
     const plateMotion = deps.artifacts.foundationPlateMotion.read(context);
+    const topologyMesh = {
+      cellCount: mesh.cellCount,
+      wrapWidth: mesh.wrapWidth,
+      siteX: mesh.siteX,
+      siteY: mesh.siteY,
+      neighborsOffsets: mesh.neighborsOffsets,
+      neighbors: mesh.neighbors,
+    } as const;
+    const motionMesh = { ...topologyMesh, areas: mesh.areas } as const;
+    const motionForcing = {
+      cellCount: mantleForcing.cellCount,
+      forcingU: mantleForcing.forcingU,
+      forcingV: mantleForcing.forcingV,
+    } as const;
+    const plateGraphInput = {
+      cellToPlate: plateGraph.cellToPlate,
+      plates: plateGraph.plates,
+    } as const;
+    const segmentCrust = { strength: crust.strength, type: crust.type } as const;
+    const plateMotionInput = {
+      cellCount: plateMotion.cellCount,
+      plateCount: plateMotion.plateCount,
+      plateCenterX: plateMotion.plateCenterX,
+      plateCenterY: plateMotion.plateCenterY,
+      plateVelocityX: plateMotion.plateVelocityX,
+      plateVelocityY: plateMotion.plateVelocityY,
+      plateOmega: plateMotion.plateOmega,
+    } as const;
 
     const segmentsResult = ops.computeTectonicSegments(
-      { mesh, crust, plateGraph, plateMotion },
+      {
+        mesh: topologyMesh,
+        crust: segmentCrust,
+        plateGraph: plateGraphInput,
+        plateMotion: plateMotionInput,
+      },
       config.computeTectonicSegments
     );
     deps.artifacts.foundationTectonicSegments.publish(context, segmentsResult.segments);
 
     const eraPlateMembership = ops.computeEraPlateMembership(
-      { mesh, plateGraph, plateMotion },
+      {
+        mesh: topologyMesh,
+        plateGraph: plateGraphInput,
+        plateMotion: {
+          plateCount: plateMotion.plateCount,
+          plateVelocityX: plateMotion.plateVelocityX,
+          plateVelocityY: plateMotion.plateVelocityY,
+        },
+      },
       config.computeEraPlateMembership
     );
 
@@ -65,31 +106,77 @@ export const TectonicsStep = createStep(TectonicsStepContract, {
         eraPlateMembership.plateIdByEra[eraPlateMembership.plateIdByEra.length - 1];
       if (!eraPlateId) continue;
 
-      const eraPlateGraph: typeof plateGraph = {
+      const eraPlateGraph = {
         cellToPlate: eraPlateId,
         plates: plateGraph.plates,
-      };
+      } as const;
       const eraPlateMotion = ops.computePlateMotion(
-        { mesh, mantleForcing, plateGraph: eraPlateGraph },
+        {
+          mesh: motionMesh,
+          mantleForcing: motionForcing,
+          plateGraph: eraPlateGraph,
+        },
         config.computePlateMotion
       ).plateMotion;
       const eraSegments = ops.computeTectonicSegments(
-        { mesh, crust, plateGraph: eraPlateGraph, plateMotion: eraPlateMotion },
+        {
+          mesh: topologyMesh,
+          crust: segmentCrust,
+          plateGraph: eraPlateGraph,
+          plateMotion: {
+            cellCount: eraPlateMotion.cellCount,
+            plateCount: eraPlateMotion.plateCount,
+            plateCenterX: eraPlateMotion.plateCenterX,
+            plateCenterY: eraPlateMotion.plateCenterY,
+            plateVelocityX: eraPlateMotion.plateVelocityX,
+            plateVelocityY: eraPlateMotion.plateVelocityY,
+            plateOmega: eraPlateMotion.plateOmega,
+          },
+        },
         config.computeTectonicSegments
       ).segments;
       const segmentEvents = ops.computeSegmentEvents(
-        { mesh, crust, segments: eraSegments },
+        {
+          mesh: { cellCount: mesh.cellCount },
+          crust: { type: crust.type },
+          segments: {
+            segmentCount: eraSegments.segmentCount,
+            aCell: eraSegments.aCell,
+            bCell: eraSegments.bCell,
+            plateA: eraSegments.plateA,
+            plateB: eraSegments.plateB,
+            regime: eraSegments.regime,
+            polarity: eraSegments.polarity,
+            compression: eraSegments.compression,
+            extension: eraSegments.extension,
+            shear: eraSegments.shear,
+            volcanism: eraSegments.volcanism,
+            fracture: eraSegments.fracture,
+            driftU: eraSegments.driftU,
+            driftV: eraSegments.driftV,
+          },
+        },
         config.computeSegmentEvents
       );
       const hotspotEvents = ops.computeHotspotEvents(
-        { mesh, mantleForcing, eraPlateId },
+        {
+          mesh: { cellCount: mesh.cellCount },
+          mantleForcing: {
+            upwellingClass: mantleForcing.upwellingClass,
+            forcingMag: mantleForcing.forcingMag,
+            stress: mantleForcing.stress,
+            forcingU: mantleForcing.forcingU,
+            forcingV: mantleForcing.forcingV,
+          },
+          eraPlateId,
+        },
         config.computeHotspotEvents
       );
       const t = eraPlateMembership.eraCount > 1 ? era / (eraPlateMembership.eraCount - 1) : 0;
       const eraGain = OROGENY_ERA_GAIN_MIN + (OROGENY_ERA_GAIN_MAX - OROGENY_ERA_GAIN_MIN) * t;
       const eraFields = ops.computeEraTectonicFields(
         {
-          mesh,
+          mesh: topologyMesh,
           segmentEvents: segmentEvents.events,
           hotspotEvents: hotspotEvents.events,
           weight: eraPlateMembership.eraWeights[era] ?? 0,
@@ -101,7 +188,11 @@ export const TectonicsStep = createStep(TectonicsStepContract, {
     }
 
     const historyResult = ops.computeTectonicHistoryRollups(
-      { eras: eraFieldsChain, plateIdByEra: eraPlateMembership.plateIdByEra },
+      {
+        cellCount: mesh.cellCount,
+        eras: eraFieldsChain,
+        plateIdByEra: eraPlateMembership.plateIdByEra,
+      },
       config.computeTectonicHistoryRollups
     );
     const newestEra =
@@ -110,18 +201,42 @@ export const TectonicsStep = createStep(TectonicsStepContract, {
       throw new Error("[Foundation] tectonics step failed to derive newest era fields.");
     }
     const tectonicsResult = ops.computeTectonicsCurrent(
-      { newestEra, upliftTotal: historyResult.tectonicHistory.upliftTotal },
+      {
+        cellCount: mesh.cellCount,
+        newestEra,
+        upliftTotal: historyResult.tectonicHistory.upliftTotal,
+      },
       config.computeTectonicsCurrent
     );
     const tracerResult = ops.computeTracerAdvection(
-      { mesh, mantleForcing, eras: eraFieldsChain, eraCount: eraPlateMembership.eraCount },
+      {
+        mesh: topologyMesh,
+        mantleForcing: {
+          forcingU: mantleForcing.forcingU,
+          forcingV: mantleForcing.forcingV,
+        },
+        eras: eraFieldsChain.map((eraFields) => ({
+          boundaryDriftU: eraFields.boundaryDriftU,
+          boundaryDriftV: eraFields.boundaryDriftV,
+        })),
+        eraCount: eraPlateMembership.eraCount,
+      },
       config.computeTracerAdvection
     );
     const provenanceResult = ops.computeTectonicProvenance(
       {
-        mesh,
-        plateGraph,
-        eras: eraFieldsChain,
+        mesh: { cellCount: mesh.cellCount },
+        plateGraph: { cellToPlate: plateGraph.cellToPlate },
+        eras: eraFieldsChain.map((eraFields) => ({
+          boundaryType: eraFields.boundaryType,
+          boundaryPolarity: eraFields.boundaryPolarity,
+          boundaryIntensity: eraFields.boundaryIntensity,
+          riftPotential: eraFields.riftPotential,
+          volcanism: eraFields.volcanism,
+          riftOriginPlate: eraFields.riftOriginPlate,
+          volcanismOriginPlate: eraFields.volcanismOriginPlate,
+          volcanismEventType: eraFields.volcanismEventType,
+        })),
         tracerIndex: tracerResult.tracerIndex,
         eraCount: eraPlateMembership.eraCount,
       },

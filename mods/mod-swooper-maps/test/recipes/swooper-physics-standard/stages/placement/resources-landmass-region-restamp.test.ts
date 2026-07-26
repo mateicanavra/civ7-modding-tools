@@ -6,7 +6,7 @@ import type { MapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
-import { artifactModules as placementArtifactModules } from "../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
+import { artifacts as placementArtifacts } from "../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
 import {
   runStandardRecipeTestMap,
   type StandardRecipeTestAdapterInput,
@@ -94,7 +94,7 @@ describe("placement resources landmass-region restamp", () => {
     const firstResourceIntent = adapter.callOrder.indexOf("placeResourceIntent");
     const resourceOutcomes = readValidatedArtifact(
       context,
-      placementArtifactModules.resourcePlacementOutcomes
+      placementArtifacts.resourcePlacementOutcomes
     );
 
     expect(firstRestamp).toBeGreaterThanOrEqual(0);

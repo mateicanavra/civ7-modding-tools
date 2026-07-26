@@ -27,8 +27,8 @@ This enables reproducibility, caching, and reliable inspection.
 - Producers publish an artifact once.
 - Consumers read artifacts as immutable (treat the returned value as read-only).
 - Authored steps use only artifact readers and publishers derived from their declared contract.
-- Post-run observers query through an exact artifact module, which reapplies that module's complete
-  validator before exposing evidence.
+- Post-run observers query through an exact `Artifact`, which reapplies its complete validator
+  before exposing evidence.
 - If a consumer needs to mutate, it must copy first (caller-owned copy).
 
 Publication and reads are zero-copy: Core stores and returns the producer's admitted reference. It

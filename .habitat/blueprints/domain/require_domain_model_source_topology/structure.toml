@@ -1,0 +1,23 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "mapgen-domain-root-models"
+root = "mods/*/src/domain/!(*.*)/model"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+allowed = [
+  "atoms",
+  "policy",
+]
+
+[[scopes]]
+name = "mapgen-domain-module-models"
+root = "mods/*/src/domain/!(*.*)/modules/!(*.*)/model"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+allowed = [
+  "atoms",
+  "policy",
+]

@@ -26,10 +26,10 @@ Does not apply to:
 
 Required behavior:
 - the file exposes exactly one canonical pipeline data-product artifact authority;
-- the artifact value is defined by a file-local `Schema`;
+- the artifact value is defined by a private file-local `Schema`;
 - the artifact contract is exported as `artifact = defineArtifact(...)`;
-- publish-time validation is exported as
-  `validate = defineArtifactValidator(artifact, optionalLocalValidator)`;
+- `defineArtifact` binds structural admission and an optional private
+  refinement into the same artifact;
 - the contract owns validation rules for the artifact value; operation code
   owns call-site choice and contextual values, not reusable artifact-shape
   predicates.
@@ -37,23 +37,25 @@ Required behavior:
 Stable export surface:
 
 ```ts
-export const Schema = ...;
-export type Artifact = Static<typeof Schema>;
-export const artifact = defineArtifact(...);
+const Schema = ...;
 function validateLocal(
   value: unknown,
   context?: ArtifactValidationContext
 ): readonly ArtifactValidationIssue[];
-export const validate = defineArtifactValidator(artifact, validateLocal);
+export const artifact = defineArtifact({
+  name: "...",
+  id: "artifact:domain.name",
+  schema: Schema,
+  refine: validateLocal,
+});
 ```
 
 The type export may be semantically named when that materially improves
-call-site readability or generated declaration output. No other runtime export
-is admitted. Callers that need semantic clarity should namespace-import the
-contract module.
+call-site readability or generated declaration output. No runtime export beside
+`artifact` is admitted. Catalogs import it under the semantic lookup name.
 
 Validator shape:
-- Core's constructor always projects structural issues from `artifact.schema`
+- `defineArtifact` always projects structural issues from `artifact.schema`
   before invoking the optional local validator;
 - the local validator owns only cardinality, relational, or domain laws and
   returns Core's readonly issue contract without mutating, normalizing, filling,
@@ -64,7 +66,7 @@ Validator shape:
 
 Import boundary:
 - runtime values may come only from MapGen contract/lib surfaces, static Civ7
-  type and policy owners, or public domain contract/schema/policy/data surfaces;
+  type and policy owners, or public domain contract/schema/policy surfaces;
 - artifact owners do not import adapters, engines, recipes, private operation
   implementations, Node/browser APIs, or other artifact owner modules;
 - dynamic imports and runtime re-export indirection are outside the kind.
@@ -79,7 +81,7 @@ Authority separation:
 
 Violation messages:
 - artifact files without the canonical artifact authority or with competing exported authorities;
-- any runtime export beyond stable `Schema`, `artifact`, and `validate`;
+- any runtime export beyond stable `artifact`;
 - additional exported artifact or validator authorities, direct TypeBox error
   projection, or local aliases/interfaces named `ArtifactValidationIssue` or
   `ValidationIssue`;
@@ -98,8 +100,7 @@ validation and runtime behavior. Structure owns physical children; Grit
 requires the artifact kind's canonical exports, closed imports, and lack of
 competing or structural-validation authority. Shared domain schema vocabulary
 lives under the owning domain model and has no artifact validation authority.
-TypeScript owns artifact
-factory provenance, exact Schema/validator binding, and the closed runtime
+TypeScript owns exact schema/refinement binding and the closed runtime
 export surface for registered modules. Durable sibling-to-catalog completeness
 waits for Habitat's first-class `blueprint.toml` membership capability rather
 than a local source parser.

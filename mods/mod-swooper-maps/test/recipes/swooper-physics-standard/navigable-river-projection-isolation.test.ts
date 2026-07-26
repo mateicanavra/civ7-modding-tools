@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
+import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
-
-import { artifactModules as hydrographyArtifactModules } from "@mapgen/domain/hydrology";
-import { artifactModules as mapRiversArtifactModules } from "../../../src/recipes/standard/stages/map/rivers/artifacts/index.js";
+import { artifacts as mapRiversArtifacts } from "../../../src/recipes/standard/stages/map/rivers/artifacts/index.js";
 import {
   createStandardRecipeTestConfig,
   runStandardRecipeTestMap,
@@ -16,13 +15,10 @@ function runRiverProjection(input: {
   recipeConfig["hydrology-hydrography"].knobs.riverDensity = input.riverDensity;
   recipeConfig["map-rivers"].knobs.navigableRiverDensity = input.navigableRiverDensity;
   const { context, adapter, preset } = runStandardRecipeTestMap({ seed: 123, recipeConfig });
-  const projected = readValidatedArtifact(
-    context,
-    mapRiversArtifactModules.projectedNavigableRivers
-  );
+  const projected = readValidatedArtifact(context, mapRiversArtifacts.projectedNavigableRivers);
 
   return {
-    hydrography: readValidatedArtifact(context, hydrographyArtifactModules.hydrography),
+    hydrography: readValidatedArtifact(context, hydrologyArtifacts.hydrography),
     projected,
     readback: adapter.readRiverProjection(
       preset.dimensions.width,

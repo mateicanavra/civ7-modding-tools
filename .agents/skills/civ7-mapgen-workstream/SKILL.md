@@ -125,9 +125,12 @@ map, and the benchmark overlay are in `references/facet-verification.md`.
 
 ## Vocabulary (current — from live source)
 
-The structure vocabulary nests **domain → op → strategy → step → stage → recipe →
-artifact** (re-derive from live source, not `mapgen:*`; authoring factories live in
-`@swooper/mapgen-core/authoring`). The 22-stage manifest braids four lanes:
+The structure vocabulary nests **domain → module → operation → strategy** on
+the product side and **recipe → stage → step** on the orchestration side.
+Immutable artifacts live with their direct producing domain module and flow
+through declared step requirements/provisions; they are not a parallel flat
+domain cabinet. Re-derive details from live source, not `mapgen:*`; authoring
+factories live in `@swooper/mapgen-core/authoring`. The 22-stage manifest braids four lanes:
 **physics/truth** (`foundation-*`, `morphology-*`, `hydrology-*`,
 `ecology-pedology`, `ecology-biomes`; adapter-free), the adapter-free
 **`ecology-features` planner**, **map projection** (`map-*`), and the mixed

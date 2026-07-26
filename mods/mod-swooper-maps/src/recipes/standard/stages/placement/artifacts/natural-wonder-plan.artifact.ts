@@ -2,25 +2,29 @@ import placement from "@mapgen/domain/placement";
 import {
   type ArtifactValidationIssue,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Natural-wonder plan (`artifact:placement.naturalWonderPlan`). One artifact per file by repo convention. */
 
-export const Schema = placement.ops.planNaturalWonders.output;
+const Schema = placement.ops.planNaturalWonders.output;
 
 /** Registers the bounded, scored natural-wonder intent consumed by stamping. */
 export const artifact = defineArtifact({
   name: "naturalWonderPlan",
   id: "artifact:placement.naturalWonderPlan",
   schema: Schema,
+  refine: validateLocal,
 });
 
 function issue(message: string): ArtifactValidationIssue {
   return { message };
 }
 
+/**
+ * Validates map dimensions, placement-count agreement, the target ceiling,
+ * and unique in-bounds anchors.
+ */
 function validateLocal(input: unknown): ArtifactValidationIssue[] {
   const value = input as Static<typeof Schema>;
   const issues: ArtifactValidationIssue[] = [];
@@ -59,9 +63,3 @@ function validateLocal(input: unknown): ArtifactValidationIssue[] {
   }
   return issues;
 }
-
-/**
- * Validates map dimensions, placement-count agreement, the target ceiling,
- * and unique in-bounds anchors.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

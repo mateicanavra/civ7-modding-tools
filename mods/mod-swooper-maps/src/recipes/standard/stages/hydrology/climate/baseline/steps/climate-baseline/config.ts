@@ -1,6 +1,4 @@
-import hydrology, {
-  artifactModules as hydrologyClimateBaselineArtifactModules,
-} from "@mapgen/domain/hydrology";
+import hydrology, { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
@@ -63,9 +61,9 @@ export const ClimateBaselineStepContract = defineStep({
   artifacts: {
     requires: [morphologyArtifacts.topography, morphologyArtifacts.shelf],
     provides: [
-      hydrologyClimateBaselineArtifactModules.baselineClimateField,
-      hydrologyClimateBaselineArtifactModules.climateSeasonality,
-      hydrologyClimateBaselineArtifactModules.windField,
+      hydrologyArtifacts.baselineClimateField,
+      hydrologyArtifacts.climateSeasonality,
+      hydrologyArtifacts.windField,
     ],
   },
   ops: {

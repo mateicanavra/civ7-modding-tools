@@ -121,9 +121,9 @@ The `map-ecology` stage:
   - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/features/index.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map/ecology/index.ts`
-- Ecology truth artifacts: `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/artifacts/index.ts`
+- Ecology truth artifacts: `mods/mod-swooper-maps/src/domain/ecology/artifacts/index.ts`
 - Ecology domain op catalog (contracts + implementations):
-  - `mods/mod-swooper-maps/src/domain/ecology/ops/contracts.ts`
+  - `mods/mod-swooper-maps/src/domain/ecology/ops/contract.ts`
   - `mods/mod-swooper-maps/src/domain/ecology/ops/index.ts`
 - Example step contracts (truth stage):
   - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/pedology/steps/pedology/config.ts`
@@ -136,7 +136,7 @@ The `map-ecology` stage:
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
 - Architecture guardrails (import bans and parity gates):
   - `.habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/rule.json`
-  - `.habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/rule.json`
+  - `.habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/rule.json`
   - `.habitat/blueprints/recipe-stage/require_recipe_stage_source_topology/rule.json`
   - `mods/mod-swooper-maps/src/recipes/standard/metrics/studies/benchmarks/earthlike-ecology.study.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/metrics/targets/ecology.ts`

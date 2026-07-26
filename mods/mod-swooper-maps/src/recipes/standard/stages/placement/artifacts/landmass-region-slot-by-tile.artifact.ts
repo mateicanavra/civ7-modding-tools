@@ -4,14 +4,13 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Runtime contract for the gameplay region slot assigned to every map tile. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     slotByTile: TypedArraySchemas.u8({
       description: "Per-tile landmass region slot (0=none, 1=west, 2=east), in tileIndex order.",
@@ -29,6 +28,7 @@ export const artifact = defineArtifact({
   name: "landmassRegionSlotByTile",
   id: "artifact:map.landmassRegionSlotByTile",
   schema: Schema,
+  refine: validateLocal,
 });
 
 function issue(message: string): ArtifactValidationIssue {
@@ -36,6 +36,7 @@ function issue(message: string): ArtifactValidationIssue {
 }
 
 /** Enforces map cardinality and the closed gameplay-region slot domain. */
+/** Requires a nonempty Uint8 tile map whose values stay in `{0, 1, 2}`. */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -67,6 +68,3 @@ function validateLocal(
   }
   return issues;
 }
-
-/** Requires a nonempty Uint8 tile map whose values stay in `{0, 1, 2}`. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

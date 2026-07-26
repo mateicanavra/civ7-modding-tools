@@ -9,10 +9,10 @@ export type { DependencyEvidence, DependencyTagDefinition } from "@mapgen/engine
 export type { Static, TSchema } from "typebox";
 export { Type } from "typebox";
 export type {
+  Artifact,
   ArtifactCatalog,
-  ArtifactContract,
-  ArtifactModule,
   ArtifactReadValueOf,
+  ArtifactRefinement,
   ArtifactValidationContext,
   ArtifactValidationIssue,
   ArtifactValidator,
@@ -30,7 +30,6 @@ export {
   artifactCellCount,
   defineArtifact,
   defineArtifactCatalog,
-  defineArtifactValidator,
   observeValidatedArtifact,
   readValidatedArtifact,
 } from "./artifact/index.js";

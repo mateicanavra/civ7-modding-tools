@@ -24,8 +24,15 @@ export const PlateGraphStep = createStep(PlateGraphStepContract, {
 
     const plateGraphResult = ops.computePlateGraph(
       {
-        mesh,
-        crust,
+        mesh: {
+          cellCount: mesh.cellCount,
+          wrapWidth: mesh.wrapWidth,
+          siteX: mesh.siteX,
+          siteY: mesh.siteY,
+          neighborsOffsets: mesh.neighborsOffsets,
+          neighbors: mesh.neighbors,
+        },
+        crust: { maturity: crust.maturity, strength: crust.strength },
         rngSeed,
       },
       config.computePlateGraph

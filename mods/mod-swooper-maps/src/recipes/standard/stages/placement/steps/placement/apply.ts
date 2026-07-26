@@ -6,9 +6,11 @@ import {
   type EngineHeightfieldSnapshot,
   engineLandMaskFromWaterMask,
 } from "../../../../current-engine-surface.js";
-import type { PlacementOutputsV1 } from "../../artifacts/placement-outputs.artifact.js";
 import { logAsciiMap, logTerrainStats } from "../../log.js";
 
+type PlacementOutputsV1 = Static<
+  typeof import("../../artifacts/placement-outputs.artifact.js").artifact.schema
+>;
 type LandmassRegionSlotByTile = Static<
   typeof import("../../artifacts/index.js").artifacts["landmassRegionSlotByTile"]["schema"]
 >;

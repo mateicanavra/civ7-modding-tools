@@ -4,13 +4,12 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
 } from "@swooper/mapgen-core/authoring/contracts";
 import { FeatureOccupancySchema } from "../model/schemas/index.js";
 
 /** Runtime contract for occupancy after wetland intents and before vegetation planning. */
-export const Schema = FeatureOccupancySchema;
+const Schema = FeatureOccupancySchema;
 
 export type OccupancyArtifact = Static<typeof Schema>;
 
@@ -23,8 +22,15 @@ export const artifact = defineArtifact({
   name: "occupancyWetlands",
   id: "artifact:ecology.occupancy.wetlands",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/**
+ * Validates post-wetland occupancy against its closed schema and, when map dimensions are
+ * supplied, verifies every tile field matches that width × height. It returns accumulated
+ * issues so artifact admission can reject a structurally valid but spatially inconsistent
+ * payload.
+ */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -46,11 +52,3 @@ function validateLocal(
   appendArtifactTypedArrayIssues(issues, "reserved", value.reserved, Uint8Array, size);
   return issues;
 }
-
-/**
- * Validates post-wetland occupancy against its closed schema and, when map dimensions are
- * supplied, verifies every tile field matches that width × height. It returns accumulated
- * issues so artifact admission can reject a structurally valid but spatially inconsistent
- * payload.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

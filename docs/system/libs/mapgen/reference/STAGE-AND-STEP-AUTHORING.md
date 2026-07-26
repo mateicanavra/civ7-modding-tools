@@ -37,7 +37,7 @@ import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
-import { artifactModules as mapRiversArtifactModules } from "../../artifacts/index.js";
+import { artifacts as mapRiversArtifacts } from "../../artifacts/index.js";
 
 /** Contract and compiled configuration boundary for Civ7 river projection. */
 export const PlotRiversStepContract = defineStep({
@@ -63,7 +63,7 @@ export const PlotRiversStepContract = defineStep({
       morphologyArtifacts.shelf,
       morphologyArtifacts.topography,
     ],
-    provides: [mapRiversArtifactModules.projectedNavigableRivers],
+    provides: [mapRiversArtifacts.projectedNavigableRivers],
   },
   ops: {
     selectNavigableRiverTerrain: hydrology.ops.selectNavigableRiverTerrain,
@@ -79,10 +79,10 @@ A step module pairs a step contract with an implementation:
 - optional `normalize(config, ctx)` hook (must be shape-preserving)
 - `run(context, config, ops, deps)` implementation
 
-`createStep` derives the provider runtime map from the modules already admitted by the
-step contract. Implementations cannot declare a second artifact-provider surface. Steps
-with no provided artifacts, an empty provides tuple, or requires-only artifact dependencies
-have no provider runtime map.
+`createStep` derives the provider runtime map from the artifacts already admitted by the step
+contract. Requirements and provisions select the same canonical artifact objects; implementations
+cannot declare a second provider or validator surface. Steps with no provided artifacts, an empty
+provides tuple, or requires-only artifact dependencies have no provider runtime map.
 
 The same contract binds `deps.engine` to only the declared adapter methods. Calls are
 context-first (`deps.engine.method(context, ...)`) and valid only during that exact step
@@ -164,7 +164,7 @@ topology by sorting or repairing the authored recipe.
 
 - Step contract definition and invariants: `packages/mapgen-core/src/authoring/step/contract.ts`
 - Step module creation: `packages/mapgen-core/src/authoring/step/create.ts`
-- Artifact module implementation: `packages/mapgen-core/src/authoring/artifact/runtime.ts`
+- Artifact runtime implementation: `packages/mapgen-core/src/authoring/artifact/runtime.ts`
 - Config compilation uses StageContractAny/StepModuleAny: `packages/mapgen-core/src/compiler/recipe-compile.ts`
 - Recipe DAG projection: `packages/mapgen-core/src/authoring/recipe-dag.ts`
 - Policy: schemas and validation: `docs/system/libs/mapgen/policies/SCHEMAS-AND-VALIDATION.md`

@@ -1,7 +1,6 @@
 import {
   type ArtifactValidationIssue,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
 } from "@swooper/mapgen-core/authoring/contracts";
@@ -140,7 +139,7 @@ const ResourceReconciliationSummarySchema = Type.Object(
 );
 
 /** Runtime schema reconciling authoritative resource intents with Civ7 stamping outcomes. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     summary: ResourcePlacementSummarySchema,
     reconciliation: ResourceReconciliationSummarySchema,
@@ -161,8 +160,13 @@ export const artifact = defineArtifact({
   name: "resourcePlacementOutcomes",
   id: "artifact:placement.resourcePlacementOutcomes",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/**
+ * Requires one outcome per intent, zero publishable mismatches, coherent
+ * placed/rejected totals, and agreement between summary and reconciliation.
+ */
 function validateLocal(input: unknown): ArtifactValidationIssue[] {
   const value = input as Static<typeof Schema>;
   const issues: ArtifactValidationIssue[] = [];
@@ -185,9 +189,3 @@ function validateLocal(input: unknown): ArtifactValidationIssue[] {
   }
   return issues;
 }
-
-/**
- * Requires one outcome per intent, zero publishable mismatches, coherent
- * placed/rejected totals, and agreement between summary and reconciliation.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

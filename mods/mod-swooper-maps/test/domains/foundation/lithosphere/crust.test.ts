@@ -1,13 +1,50 @@
 import { describe, expect, it } from "bun:test";
-import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import foundation from "@mapgen/domain/foundation/router";
 import { TEST_MAP_SIZE } from "../../../map-size.js";
-import { deriveMantleForcing, derivePlateMotion } from "../fixtures/tectonic-operation-chain.js";
-import { runTectonicHistoryChain } from "../fixtures/tectonics-history.js";
+import {
+  deriveMantleForcing,
+  derivePlateMotion,
+} from "../tectonics/fixtures/tectonic-operation-chain.js";
+import { runTectonicHistoryChain } from "../tectonics/fixtures/tectonics-history.js";
 
-const { computeCrust, computeMesh, computePlateGraph, computePlatesTensors } =
-  foundationOpsPublic.ops;
+const { computeMesh } = foundation.mesh.ops;
+const { computeCrust, computePlateGraph } = foundation.lithosphere.ops;
+const { computePlatesTensors } = foundation.projection.ops;
 
 describe("foundation crust", () => {
+  it("refuses mesh-field cardinality mismatches at the operation boundary", () => {
+    let refusal: unknown;
+    try {
+      computeCrust.run(
+        {
+          mesh: { cellCount: 2 },
+          mantleForcing: {
+            cellCount: 2,
+            divergence: new Float32Array(2),
+            forcingMag: new Float32Array(1),
+            stress: new Float32Array(2),
+          },
+        },
+        computeCrust.defaultConfig
+      );
+    } catch (error) {
+      refusal = error;
+    }
+
+    expect(refusal).toMatchObject({
+      opId: "foundation/compute-crust",
+      issues: [
+        {
+          code: "typed-array-cardinality",
+          path: "$.mantleForcing.forcingMag",
+          cardinalityPaths: ["mesh.cellCount"],
+          expectedLength: 2,
+          observedLength: 1,
+        },
+      ],
+    });
+  });
+
   it("initializes a basaltic lid with bounded fields", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
@@ -25,10 +62,7 @@ describe("foundation crust", () => {
     ).mesh;
 
     const mantleForcing = deriveMantleForcing(mesh, 11);
-    const crust = computeCrust.run(
-      { mesh, mantleForcing, rngSeed: 11 },
-      computeCrust.defaultConfig
-    ).crust;
+    const crust = computeCrust.run({ mesh, mantleForcing }, computeCrust.defaultConfig).crust;
 
     let minStrength = Number.POSITIVE_INFINITY;
     let maxStrength = Number.NEGATIVE_INFINITY;
@@ -69,10 +103,7 @@ describe("foundation crust", () => {
 
     const mesh = computeMesh.run({ width, height, rngSeed: 10 }, meshConfig).mesh;
     const mantleForcing = deriveMantleForcing(mesh, 11);
-    const crust = computeCrust.run(
-      { mesh, mantleForcing, rngSeed: 11 },
-      computeCrust.defaultConfig
-    ).crust;
+    const crust = computeCrust.run({ mesh, mantleForcing }, computeCrust.defaultConfig).crust;
     const plateGraph = computePlateGraph.run(
       { mesh, crust, rngSeed: 12 },
       {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import foundation from "@mapgen/domain/foundation/router";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 
 const {
@@ -13,7 +13,7 @@ const {
   computeTectonicSegments,
   computeTectonicsCurrent,
   computeTracerAdvection,
-} = foundationOpsPublic.ops;
+} = foundation.tectonics.ops;
 const OROGENY_ERA_GAIN_MIN = 0.85;
 const OROGENY_ERA_GAIN_MAX = 1.15;
 
@@ -206,6 +206,7 @@ function runDecomposedTectonics(params: {
 
   const historyRollups = computeTectonicHistoryRollups.run(
     {
+      cellCount: mesh.cellCount,
       eras,
       plateIdByEra: eraPlateMembership.plateIdByEra,
     },
@@ -219,6 +220,7 @@ function runDecomposedTectonics(params: {
 
   const tectonicsCurrent = computeTectonicsCurrent.run(
     {
+      cellCount: mesh.cellCount,
       newestEra,
       upliftTotal: historyRollups.tectonicHistory.upliftTotal,
     },

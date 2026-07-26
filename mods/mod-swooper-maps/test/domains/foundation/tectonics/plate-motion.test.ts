@@ -1,15 +1,11 @@
 import { describe, expect, it } from "bun:test";
-import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import foundation from "@mapgen/domain/foundation/router";
 import { TEST_MAP_SIZE } from "../../../map-size.js";
 
-const {
-  computeCrust,
-  computeMantleForcing,
-  computeMantlePotential,
-  computeMesh,
-  computePlateGraph,
-  computePlateMotion,
-} = foundationOpsPublic.ops;
+const { computeMesh } = foundation.mesh.ops;
+const { computeMantleForcing, computeMantlePotential } = foundation.mantle.ops;
+const { computeCrust, computePlateGraph } = foundation.lithosphere.ops;
+const { computePlateMotion } = foundation.tectonics.ops;
 function allFinite(values: Float32Array): boolean {
   for (let i = 0; i < values.length; i++) {
     const v = values[i] ?? 0;
@@ -35,10 +31,7 @@ describe("foundation plate motion (D03r)", () => {
       { mesh, mantlePotential },
       computeMantleForcing.defaultConfig
     ).mantleForcing;
-    const crust = computeCrust.run(
-      { mesh, mantleForcing, rngSeed: 12 },
-      computeCrust.defaultConfig
-    ).crust;
+    const crust = computeCrust.run({ mesh, mantleForcing }, computeCrust.defaultConfig).crust;
     const plateGraph = computePlateGraph.run(
       { mesh, crust, rngSeed: 13 },
       computePlateGraph.defaultConfig
@@ -76,7 +69,7 @@ describe("foundation plate motion (D03r)", () => {
       computeMantleForcing.defaultConfig
     ).mantleForcing;
     const crust = computeCrust.run(
-      { mesh, mantleForcing: mantleForcingBase, rngSeed: 112 },
+      { mesh, mantleForcing: mantleForcingBase },
       computeCrust.defaultConfig
     ).crust;
     const plateGraph = computePlateGraph.run(
@@ -164,7 +157,7 @@ describe("foundation plate motion (D03r)", () => {
       forcingV,
     };
     const crust = computeCrust.run(
-      { mesh, mantleForcing: mantleForcingA, rngSeed: 22 },
+      { mesh, mantleForcing: mantleForcingA },
       computeCrust.defaultConfig
     ).crust;
     const plateGraph = computePlateGraph.run(
@@ -200,10 +193,7 @@ describe("foundation plate motion (D03r)", () => {
       { mesh, mantlePotential },
       computeMantleForcing.defaultConfig
     ).mantleForcing;
-    const crust = computeCrust.run(
-      { mesh, mantleForcing, rngSeed: 32 },
-      computeCrust.defaultConfig
-    ).crust;
+    const crust = computeCrust.run({ mesh, mantleForcing }, computeCrust.defaultConfig).crust;
     const plateGraph = computePlateGraph.run(
       { mesh, crust, rngSeed: 33 },
       computePlateGraph.defaultConfig

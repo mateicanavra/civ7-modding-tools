@@ -4,7 +4,6 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
@@ -14,7 +13,7 @@ import {
  * Runtime contract for deterministic lake intent, map dimensions, and the sink evidence that
  * explains how many planned tiles came from hydrography minima.
  */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -45,9 +44,11 @@ export const artifact = defineArtifact({
   name: "lakePlan",
   id: "artifact:hydrology.lakePlan",
   schema: Schema,
+  refine: validateLocal,
 });
 
 /** Validates lake-plan structure, mask kind, and map-sized cardinality when known. */
+/** Admits the map-sized typed lake-intent mask after Core validates the plan shape. */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -64,6 +65,3 @@ function validateLocal(
   );
   return Object.freeze(issues);
 }
-
-/** Admits the map-sized typed lake-intent mask after Core validates the plan shape. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

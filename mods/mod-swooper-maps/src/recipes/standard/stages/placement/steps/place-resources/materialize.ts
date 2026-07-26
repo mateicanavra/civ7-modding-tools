@@ -9,7 +9,7 @@ import { type OfficialResourceType, requireResourceRuntimeId } from "@civ7/map-p
 import resources from "@mapgen/domain/resources";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 
-type ResourcePlanOutput = Static<(typeof resources.ops.adjustResourceSupport)["output"]>;
+type ResourcePlanOutput = Static<(typeof resources.support.ops.adjustResourceSupport)["output"]>;
 type ResourcePlacementOutcomes = Static<
   typeof import("../../artifacts/index.js").artifacts["resourcePlacementOutcomes"]["schema"]
 >;

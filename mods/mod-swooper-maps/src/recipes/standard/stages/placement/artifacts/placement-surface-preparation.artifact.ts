@@ -1,13 +1,12 @@
 import {
   type ArtifactValidationIssue,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Runtime schema for the prepared engine surface and lake-preservation evidence. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -50,6 +49,7 @@ export const artifact = defineArtifact({
   name: "placementSurfacePreparation",
   id: "artifact:placement.surfacePreparation",
   schema: Schema,
+  refine: validateLocal,
 });
 
 function issue(message: string): ArtifactValidationIssue {
@@ -62,6 +62,10 @@ function issue(message: string): ArtifactValidationIssue {
  * lake drift counters must stay within the accepted lake corpus.
  */
 
+/**
+ * Requires slot counts to total the grid size and lake drift counts not to
+ * exceed the accepted lake corpus.
+ */
 function validateLocal(input: unknown): ArtifactValidationIssue[] {
   const value = input as Static<typeof Schema>;
   const issues: ArtifactValidationIssue[] = [];
@@ -90,9 +94,3 @@ function validateLocal(input: unknown): ArtifactValidationIssue[] {
   }
   return issues;
 }
-
-/**
- * Requires slot counts to total the grid size and lake drift counts not to
- * exceed the accepted lake corpus.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

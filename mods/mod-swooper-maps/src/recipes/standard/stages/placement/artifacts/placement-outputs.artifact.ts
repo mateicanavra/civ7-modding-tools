@@ -1,13 +1,8 @@
-import {
-  defineArtifact,
-  defineArtifactValidator,
-  type Static,
-  Type,
-} from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Terminal placement summary (`artifact:placementOutputs`). One artifact per file by repo convention. */
+/** Terminal placement summary (`artifact:placementOutputs`). */
 
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     naturalWondersCount: Type.Integer({ minimum: 0 }),
     resourcesCount: Type.Integer({ minimum: 0 }),
@@ -25,6 +20,3 @@ export const artifact = defineArtifact({
   id: "artifact:placementOutputs",
   schema: Schema,
 });
-
-/** Requires every published product total to be a nonnegative integer count. */
-export const validate = defineArtifactValidator(artifact);

@@ -4,7 +4,6 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
@@ -17,7 +16,7 @@ const VolcanoKindSchema = Type.Union([
 ]);
 
 /** Runtime schema for immutable volcano vents and their map-tile-sized intent mask. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     volcanoMask: TypedArraySchemas.u8({
       description: "Mask (1/0): tiles containing a volcano vent.",
@@ -50,8 +49,10 @@ export const artifact = defineArtifact({
   name: "volcanoes",
   id: "artifact:morphology.volcanoes",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/** Requires the volcano intent mask to use one Uint8 value per map tile. */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -67,6 +68,3 @@ function validateLocal(
   );
   return issues;
 }
-
-/** Requires the volcano intent mask to use one Uint8 value per map tile. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

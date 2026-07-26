@@ -4,7 +4,6 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
@@ -52,7 +51,7 @@ const MorphologyLandmassArtifactSchema = Type.Object(
 );
 
 /** Runtime schema for connected land components and the per-tile component lookup. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     landmasses: Type.Immutable(Type.Array(MorphologyLandmassArtifactSchema)),
     landmassIdByTile: TypedArraySchemas.i32({
@@ -74,8 +73,13 @@ export const artifact = defineArtifact({
   name: "landmasses",
   id: "artifact:morphology.landmasses",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/**
+ * Requires the per-tile component lookup to be an Int32 map-sized surface;
+ * water remains represented by the schema's `-1` sentinel.
+ */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -92,9 +96,3 @@ function validateLocal(
 
   return errors;
 }
-
-/**
- * Requires the per-tile component lookup to be an Int32 map-sized surface;
- * water remains represented by the schema's `-1` sentinel.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import foundation from "@mapgen/domain/foundation/router";
 import { HEX_WIDTH } from "@swooper/mapgen-core/lib/grid";
 
-const { computePlatesTensors } = foundationOpsPublic.ops;
+const { computePlatesTensors } = foundation.projection.ops;
 describe("foundation tile projection (materials)", () => {
   it("projects tileToCellIndex with wrapX and deterministic tie-breakers", () => {
     const syntheticDimensions = { width: 2, height: 1 } as const;

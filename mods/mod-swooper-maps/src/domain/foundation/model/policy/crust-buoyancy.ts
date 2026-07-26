@@ -7,10 +7,11 @@ import { clamp01 } from "@swooper/mapgen-core/lib/math";
  * and the era-integrated evolution (`compute-crust-evolution`) so the two can no
  * longer silently diverge (they previously carried byte-identical private copies).
  *
- * WHY here: foundation-internal physical constants live under `domain/foundation/model/policy`
- * (cf. `tectonic-event-types.ts`). Buoyancy is NOT author-configurable — crust
- * evolution follows the tectonic history — so these are physical coefficients, never
- * authoring knobs, and must never be tuned to a downstream land/ocean output ratio.
+ * WHY here: both Lithosphere and Orogeny depend on the same Foundation-level
+ * buoyancy law, so the nearest honest owner is `foundation/model/policy` rather
+ * than either module. Buoyancy is NOT author-configurable: crust evolution
+ * follows tectonic history, so these are physical coefficients, never authoring
+ * knobs, and must never be tuned to a downstream land/ocean output ratio.
  */
 
 /**
@@ -19,17 +20,17 @@ import { clamp01 } from "@swooper/mapgen-core/lib/math";
  * oceanic-vs-continental split emerges from the maturity / thickness / age terms below,
  * not from this constant. (Formerly mis-named `OCEANIC_BASE_ELEVATION`.)
  */
-export const CRUST_BASE_BUOYANCY = 0.32;
+const CRUST_BASE_BUOYANCY = 0.32;
 
 /** Thermal subsidence depth: cooling lithosphere sinks with thermal age. */
-export const OCEANIC_AGE_DEPTH = 0.22;
+const OCEANIC_AGE_DEPTH = 0.22;
 /** Differentiated (mature) crust is more buoyant. */
-export const MATURITY_BUOYANCY_BOOST = 0.45;
+const MATURITY_BUOYANCY_BOOST = 0.45;
 /** Thicker crust floats higher (isostasy). */
-export const THICKNESS_BUOYANCY_BOOST = 0.25;
+const THICKNESS_BUOYANCY_BOOST = 0.25;
 
 /** Maturity at/above which a cell is classified continental crust. */
-export const MATURITY_CONTINENT_THRESHOLD = 0.55;
+const MATURITY_CONTINENT_THRESHOLD = 0.55;
 
 /**
  * Isostatic-support ramp over crustal thickness. Thin crust (basaltic oceanic lithosphere; thinned
@@ -37,15 +38,15 @@ export const MATURITY_CONTINENT_THRESHOLD = 0.55;
  * keels / orogenic roots) is isostatically buoyant and does not subside. Brackets the basaltic floor
  * (~0.25–0.35 → full subsidence) and a consolidated keel (~0.75+ → none).
  */
-export const ISOSTASY_THIN_THICKNESS = 0.35;
-export const ISOSTASY_THICK_THICKNESS = 0.75;
+const ISOSTASY_THIN_THICKNESS = 0.35;
+const ISOSTASY_THICK_THICKNESS = 0.75;
 
-/** Lithospheric-strength factor floors (thermalAge / maturity / thickness). */
-export const STRENGTH_BASE_MIN = 0.45;
-export const STRENGTH_MATURITY_MIN = 0.5;
-export const STRENGTH_THICKNESS_MIN = 0.55;
+/** Minimum lithospheric-strength contribution before thermal aging. */
+const STRENGTH_BASE_MIN = 0.45;
+const STRENGTH_MATURITY_MIN = 0.5;
+const STRENGTH_THICKNESS_MIN = 0.55;
 
-export interface CrustBuoyancyInputs {
+interface CrustBuoyancyInputs {
   maturity: number;
   thickness: number;
   thermalAge01: number;
@@ -62,7 +63,7 @@ function smoothstep(edge0: number, edge1: number, x: number): number {
  * Isostatic support in [0,1] from crustal thickness: 0 = thin / poorly supported (subsides with
  * age), 1 = thick / buoyant (does not subside).
  */
-export function isostaticSupport(thickness: number): number {
+function isostaticSupport(thickness: number): number {
   return smoothstep(ISOSTASY_THIN_THICKNESS, ISOSTASY_THICK_THICKNESS, clamp01(thickness));
 }
 
@@ -96,14 +97,32 @@ export function isContinentalMaturity(maturity: number): boolean {
   return maturity >= MATURITY_CONTINENT_THRESHOLD;
 }
 
+/**
+ * Maps normalized thermal age to the crust-strength factor shared by initialization and evolution.
+ *
+ * @param age01 - Admitted thermal age, where zero is newly formed crust and one is fully cooled.
+ * @returns A bounded factor that strengthens crust as it cools.
+ */
 export function strengthFromThermalAge(age01: number): number {
   return STRENGTH_BASE_MIN + (1 - STRENGTH_BASE_MIN) * clamp01(age01);
 }
 
+/**
+ * Maps normalized compositional maturity to the strength factor used by both crust vintages.
+ *
+ * @param maturity - Admitted differentiation maturity from basaltic to continental composition.
+ * @returns A bounded factor that strengthens crust as differentiation matures.
+ */
 export function strengthFromMaturity(maturity: number): number {
   return STRENGTH_MATURITY_MIN + (1 - STRENGTH_MATURITY_MIN) * clamp01(maturity);
 }
 
+/**
+ * Maps normalized crustal thickness to the shared isostatic strength contribution.
+ *
+ * @param thickness - Admitted relative thickness for the crust cell being classified.
+ * @returns A bounded factor that increases strength for thicker crust.
+ */
 export function strengthFromThickness(thickness: number): number {
   return STRENGTH_THICKNESS_MIN + (1 - STRENGTH_THICKNESS_MIN) * clamp01(thickness);
 }

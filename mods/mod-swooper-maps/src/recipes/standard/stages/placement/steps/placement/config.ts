@@ -1,14 +1,11 @@
+import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import {
   MAP_PROJECTION_EFFECT_TAGS,
   PLACEMENT_PRODUCT_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "../../../../tag-contracts.js";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
-import {
-  artifactModules as placementArtifactModules,
-  artifacts as placementArtifacts,
-} from "../../artifacts/index.js";
+import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 
 /**
  * Terminal placement evidence step. DECLARED parity read (ADR-009): this step
@@ -37,9 +34,9 @@ export const PlacementStepContract = defineStep({
       morphologyArtifacts.topography,
     ],
     provides: [
-      placementArtifactModules.placementOutputs,
-      placementArtifactModules.engineState,
-      placementArtifactModules.placementEngineTerrainSnapshot,
+      placementArtifacts.placementOutputs,
+      placementArtifacts.engineState,
+      placementArtifacts.placementEngineTerrainSnapshot,
     ],
   },
   schema: Type.Object({}),

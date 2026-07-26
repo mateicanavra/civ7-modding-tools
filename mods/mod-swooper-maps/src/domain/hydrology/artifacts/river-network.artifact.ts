@@ -4,7 +4,6 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
@@ -14,7 +13,7 @@ import {
  * Runtime contract for per-tile river hierarchy, mouth, slope, and permanence classifications
  * derived before engine projection.
  */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     upstreamArea: TypedArraySchemas.i32({
       description: "Contributing land-tile count draining through each land tile.",
@@ -52,11 +51,13 @@ export const artifact = defineArtifact({
   name: "riverNetwork",
   id: "artifact:hydrology.riverNetwork",
   schema: Schema,
+  refine: validateLocal,
 });
 
 /**
  * Validates river-network structure, exact field kinds, and map-sized cardinality when known.
  */
+/** Admits map-sized typed river-network fields after structural admission. */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -90,6 +91,3 @@ function validateLocal(
   );
   return Object.freeze(issues);
 }
-
-/** Admits map-sized typed river-network fields after structural admission. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

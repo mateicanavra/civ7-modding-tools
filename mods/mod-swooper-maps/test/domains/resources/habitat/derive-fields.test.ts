@@ -1,11 +1,11 @@
 import { describe, expect, it } from "bun:test";
-import { RESOURCE_HABITAT_SIGNALS } from "@mapgen/domain/resources/model/policy/habitat-eligibility.js";
 import {
   HABITAT_INTENSITY_FIELD_NAMES,
   HABITAT_MASK_FIELD_NAMES,
   type HabitatFieldsOutput,
-} from "@mapgen/domain/resources/model/schemas/habitat-fields.schema.js";
-import resources from "@mapgen/domain/resources/ops";
+  RESOURCE_HABITAT_SIGNALS,
+} from "@mapgen/domain/resources";
+import resources from "@mapgen/domain/resources/router";
 
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 import { TEST_MAP_SIZE } from "../../../map-size.js";
@@ -69,9 +69,9 @@ describe("derive-habitat-fields operation contract", () => {
 
   it("bounds every resource-family habitat intensity to its declared unit interval", () => {
     const result = runAdmittedOperationForTest(
-      resources.ops.deriveHabitatFields,
+      resources.habitat.ops.deriveHabitatFields,
       syntheticInput(),
-      structuredClone(resources.ops.deriveHabitatFields.defaultConfig)
+      structuredClone(resources.habitat.ops.deriveHabitatFields.defaultConfig)
     ) as HabitatFieldsOutput;
 
     for (const field of HABITAT_INTENSITY_FIELD_NAMES) {
@@ -85,9 +85,9 @@ describe("derive-habitat-fields operation contract", () => {
   it("keeps aquatic lanes on water and terrestrial lanes on land (E2.4 marine lane)", () => {
     const input = syntheticInput();
     const result = runAdmittedOperationForTest(
-      resources.ops.deriveHabitatFields,
+      resources.habitat.ops.deriveHabitatFields,
       input,
-      structuredClone(resources.ops.deriveHabitatFields.defaultConfig)
+      structuredClone(resources.habitat.ops.deriveHabitatFields.defaultConfig)
     ) as HabitatFieldsOutput;
     let coastalCount = 0;
     for (let i = 0; i < size; i++) {

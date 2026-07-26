@@ -9,22 +9,22 @@ Role:
 directory-local aggregate for artifact owner modules.
 
 Required shape:
-- namespace-import every sibling `*.artifact.ts` owner module;
-- register the complete sibling set with one `defineArtifactCatalog` call;
-- expose `catalog.modules` as `artifactModules` and `catalog.artifacts` as
-  `artifacts`;
+- named-import `artifact` from every sibling `*.artifact.ts` owner under its
+  catalog key;
+- export the complete sibling set directly as
+  `export const artifacts = defineArtifactCatalog({ ... })`;
 - contain no artifact schema, artifact validation logic, operation behavior, or
   migration narrative.
 
 Allowed contents:
-- imports from sibling `*.artifact.ts` files;
+- named artifact imports from sibling `*.artifact.ts` files;
 - one `defineArtifactCatalog({ ... })` call over the sibling modules;
-- the derived `artifactModules` and `artifacts` exports;
-- type-only helpers for those derived surfaces if needed.
+- the direct `artifacts` export.
 
 Authority separation:
-- `*.artifact.ts` files own artifact payload contracts and validation;
-- `index.ts` owns the single module catalog and its two derived public surfaces;
+- each `*.artifact.ts` file owns one artifact's identity, private schema, and
+  complete validation;
+- `index.ts` owns the single direct artifact catalog;
 - recipe/stage registries still own recipe topology and dependency wiring.
 
 Violation messages:
@@ -32,5 +32,5 @@ Violation messages:
 - artifact schema or `defineArtifact(...)` calls in the index;
 - registry/dependency topology encoded in the index;
 - imports from non-sibling artifact files;
-- parallel `artifactContracts` or `validators` maps that duplicate catalog
-  authority.
+- namespace imports or parallel contract, validator, or module maps that
+  duplicate artifact authority.

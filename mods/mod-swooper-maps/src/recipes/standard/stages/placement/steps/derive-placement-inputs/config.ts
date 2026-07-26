@@ -7,7 +7,7 @@ import {
   MAP_PROJECTION_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "../../../../tag-contracts.js";
-import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
+import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 
 /**
  * Defines placement-input admission from final physics artifacts and declared
@@ -38,10 +38,7 @@ export const DerivePlacementInputsStepContract = defineStep({
       ecologyArtifacts.biomeClassification,
       ecologyArtifacts.pedology,
     ],
-    provides: [
-      placementArtifactModules.placementInputs,
-      placementArtifactModules.naturalWonderPlan,
-    ],
+    provides: [placementArtifacts.placementInputs, placementArtifacts.naturalWonderPlan],
   },
   ops: {
     wonders: placement.ops.planWonders,

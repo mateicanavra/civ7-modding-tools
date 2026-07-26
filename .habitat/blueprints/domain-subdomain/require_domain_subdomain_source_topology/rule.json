@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_subdomain_source_topology",
+  "title": "Require Domain Subdomain Source Topology",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-subdomain",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "advisory",
+  "forbids": "semantic module roots outside their positive contract, router, operation, model, and artifact spine",
+  "why": "A semantic module is one non-empty operation contract and router boundary. Its local vocabulary lives under model/, immutable data products live under artifacts/, and each nested kind retains its own authority.",
+  "remediate": "Keep index.ts, contract.ts, router.ts, and ops; retain model or artifacts only when the module owns those capabilities; move every other child to its actual kind owner.",
+  "message": "Domain modules should match the positive semantic-router blueprint spine.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/*/src/domain/*/modules/*", "mods/*/src/domain/*/modules/*/**"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-subdomain/require_domain_subdomain_source_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/domain-subdomain/require_domain_subdomain_source_topology/structure.toml"
+    }
+  }
+}

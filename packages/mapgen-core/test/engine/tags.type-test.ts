@@ -1,4 +1,4 @@
-import { defineArtifact, defineArtifactValidator, Type } from "@mapgen/authoring/index.js";
+import { defineArtifact, Type } from "@mapgen/authoring/index.js";
 import type { MapContext } from "@mapgen/core/map-context.js";
 import type { DependencyEvidence, DependencyTagDefinition } from "@mapgen/engine/index.js";
 
@@ -13,8 +13,7 @@ const artifact = defineArtifact({
   id: "artifact:test.tag-evidence",
   schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
 });
-const module = { artifact, validate: defineArtifactValidator(artifact) };
-const observation = evidence.observeArtifact(module);
+const observation = evidence.observeArtifact(artifact);
 function acceptNumber(value: number): true {
   void value;
   return true;
@@ -73,7 +72,7 @@ const asyncDemoDefinition: DependencyTagDefinition = {
 
 const explicitArtifactDefinition: DependencyTagDefinition = {
   id: "artifact:test.explicit-bypass",
-  // @ts-expect-error Artifact dependency definitions are generated from admitted modules.
+  // @ts-expect-error Artifact dependency definitions are generated from admitted authorities.
   kind: "artifact",
 };
 

@@ -18,10 +18,33 @@ export const CrustEvolutionStep = createStep(CrustEvolutionStepContract, {
 
     const crustResult = ops.computeCrustEvolution(
       {
-        mesh,
-        initialCrust,
-        tectonics,
-        tectonicHistory,
+        mesh: {
+          cellCount: mesh.cellCount,
+          neighborsOffsets: mesh.neighborsOffsets,
+          neighbors: mesh.neighbors,
+        },
+        initialCrust: {
+          thickness: initialCrust.thickness,
+          strength: initialCrust.strength,
+        },
+        tectonics: {
+          boundaryType: tectonics.boundaryType,
+          cumulativeUplift: tectonics.cumulativeUplift,
+          riftPotential: tectonics.riftPotential,
+          shearStress: tectonics.shearStress,
+        },
+        tectonicHistory: {
+          eraCount: tectonicHistory.eraCount,
+          eras: tectonicHistory.eras.map((era) => ({
+            upliftPotential: era.upliftPotential,
+            riftPotential: era.riftPotential,
+            shearStress: era.shearStress,
+            volcanism: era.volcanism,
+            fracture: era.fracture,
+          })),
+          upliftTotal: tectonicHistory.upliftTotal,
+          fractureTotal: tectonicHistory.fractureTotal,
+        },
       },
       config.computeCrustEvolution
     );

@@ -15,7 +15,6 @@ import {
 import {
   type ArtifactValidationIssue,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
 } from "@swooper/mapgen-core/authoring/contracts";
@@ -79,11 +78,11 @@ const ResourceDemandExclusionReasonSchema = Type.Union([
 export type ResourceDemandExclusionReason = Static<typeof ResourceDemandExclusionReasonSchema>;
 
 /** Runtime schema for symbolic per-resource demand and admitted legal capacity. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     age: Type.Literal(INITIAL_MAP_RESOURCE_AUTHORING_AGE),
     minimumAmountModifier: Type.Integer(),
-    groups: resources.ops.planResourceGroups.output,
+    groups: resources.demand.ops.planResourceGroups.output,
     demands: Type.Array(ResourceDemandSummaryRowSchema),
     excluded: Type.Array(
       Type.Object(
@@ -111,6 +110,7 @@ export const artifact = defineArtifact({
   name: "resourceDemandPlan",
   id: "artifact:placement.resourceDemandPlan",
   schema: Schema,
+  refine: validateLocal,
 });
 
 function issue(message: string): ArtifactValidationIssue {
@@ -123,6 +123,11 @@ function issue(message: string): ArtifactValidationIssue {
  * These check cross-field invariants the schemas cannot express.
  */
 
+/**
+ * Requires one terminal demand or exclusion per unique planner candidate and derives each terminal
+ * predicate from planner status, official-corpus membership, and the artifact age's source policy.
+ * Count bounds and positive admitted legal capacity remain mandatory for demand rows.
+ */
 function validateLocal(input: unknown): ArtifactValidationIssue[] {
   const value = input as ResourceDemandPlanPayload;
   const issues: ArtifactValidationIssue[] = [];
@@ -309,10 +314,3 @@ function resourceAgeStatus(
 ): InitialMapResourceAuthoringStatus | "unknown" {
   return getInitialMapResourcePolicyForType(resourceType, age)?.status ?? "unknown";
 }
-
-/**
- * Requires one terminal demand or exclusion per unique planner candidate and derives each terminal
- * predicate from planner status, official-corpus membership, and the artifact age's source policy.
- * Count bounds and positive admitted legal capacity remain mandatory for demand rows.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

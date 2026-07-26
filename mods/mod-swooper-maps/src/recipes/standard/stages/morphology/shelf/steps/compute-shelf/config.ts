@@ -1,7 +1,4 @@
-import morphology, {
-  artifactModules as morphologyArtifactModules,
-  artifacts as morphologyArtifacts,
-} from "@mapgen/domain/morphology";
+import morphology, { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -17,7 +14,7 @@ export const ComputeShelfStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [morphologyArtifacts.topography, morphologyArtifacts.beltDrivers],
-    provides: [morphologyArtifactModules.shelf],
+    provides: [morphologyArtifacts.shelf],
   },
   ops: {
     coastalAdjacency: morphology.ops.computeCoastalAdjacency,

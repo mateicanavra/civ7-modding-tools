@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { implementArtifactModules } from "@mapgen/authoring/artifact/runtime.js";
-import { defineArtifact, defineArtifactValidator } from "@mapgen/authoring/index.js";
+import { implementArtifacts } from "@mapgen/authoring/artifact/runtime.js";
+import { defineArtifact } from "@mapgen/authoring/index.js";
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
 import {
   compileExecutionPlan,
@@ -39,23 +39,15 @@ const outputArtifact = defineArtifact({
   id: ARTIFACT_IDS.output,
   schema: EvidenceSchema,
 });
-const requiredInputModule = {
-  artifact: requiredInputArtifact,
-  validate: defineArtifactValidator(requiredInputArtifact),
-};
-const outputModule = {
-  artifact: outputArtifact,
-  validate: defineArtifactValidator(outputArtifact),
-};
-const testArtifactRuntimes = implementArtifactModules([requiredInputModule, outputModule]);
+const testArtifactRuntimes = implementArtifacts([requiredInputArtifact, outputArtifact]);
 
 function hasRequiredInputEvidence(evidence: DependencyEvidence): boolean {
-  const observation = evidence.observeArtifact(requiredInputModule);
+  const observation = evidence.observeArtifact(requiredInputArtifact);
   return observation.found && observation.value.valid === true;
 }
 
 function hasOutputEvidence(evidence: DependencyEvidence): boolean {
-  const observation = evidence.observeArtifact(outputModule);
+  const observation = evidence.observeArtifact(outputArtifact);
   return observation.found && observation.value.valid === true;
 }
 

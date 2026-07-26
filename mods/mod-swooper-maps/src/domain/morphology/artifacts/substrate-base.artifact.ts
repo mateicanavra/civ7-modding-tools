@@ -4,20 +4,21 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
 } from "@swooper/mapgen-core/authoring/contracts";
 import { MorphologySubstrateSchema } from "../model/schemas/index.js";
 
 /** Closed schema for tectonically derived substrate before geomorphic erosion. */
-export const Schema = MorphologySubstrateSchema;
+const Schema = MorphologySubstrateSchema;
 
 /** Registers the base substrate consumed only by geomorphology. */
 export const artifact = defineArtifact({
   name: "baseSubstrate",
   id: "artifact:morphology.substrate.base",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/** Admits map-sized base substrate fields after Core validates the vintage shape. */
 function validateLocal(
   value: unknown,
   context?: ArtifactValidationContext
@@ -41,6 +42,3 @@ function validateLocal(
   );
   return issues;
 }
-
-/** Admits map-sized base substrate fields after Core validates the vintage shape. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

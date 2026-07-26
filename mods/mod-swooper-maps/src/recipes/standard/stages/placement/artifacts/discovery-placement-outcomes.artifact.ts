@@ -1,7 +1,6 @@
 import {
   type ArtifactValidationIssue,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
 } from "@swooper/mapgen-core/authoring/contracts";
@@ -27,7 +26,7 @@ const DiscoveryPlacementSummarySchema = Type.Object(
 );
 
 /** Runtime schema reconciling official-generator discovery attempts and outcomes. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     summary: DiscoveryPlacementSummarySchema,
   },
@@ -43,6 +42,7 @@ export const artifact = defineArtifact({
   name: "discoveryPlacementOutcomes",
   id: "artifact:placement.discoveryPlacementOutcomes",
   schema: Schema,
+  refine: validateLocal,
 });
 
 function issue(message: string): ArtifactValidationIssue {
@@ -55,6 +55,7 @@ function issue(message: string): ArtifactValidationIssue {
  * planned attempts equal accepted plus rejected outcomes.
  */
 
+/** Ensures `placed + rejected === planned` after structural count admission. */
 function validateLocal(input: unknown): ArtifactValidationIssue[] {
   const value = input as Static<typeof Schema>;
   const { plannedCount, placedCount, rejectedCount } = value.summary;
@@ -66,6 +67,3 @@ function validateLocal(input: unknown): ArtifactValidationIssue[] {
         ),
       ];
 }
-
-/** Ensures `placed + rejected === planned` after structural count admission. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

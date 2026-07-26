@@ -1,8 +1,4 @@
-import {
-  default as hydrology,
-  artifactModules as hydrologyArtifactModules,
-  artifacts as hydrologyArtifacts,
-} from "@mapgen/domain/hydrology";
+import { default as hydrology, artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
@@ -40,9 +36,9 @@ export const ClimateRefineStepContract = defineStep({
       hydrologyArtifacts.hydrography,
     ],
     provides: [
-      hydrologyArtifactModules.climateField,
-      hydrologyArtifactModules.climateIndices,
-      hydrologyArtifactModules.cryosphere,
+      hydrologyArtifacts.climateField,
+      hydrologyArtifacts.climateIndices,
+      hydrologyArtifacts.cryosphere,
     ],
   },
   ops: {

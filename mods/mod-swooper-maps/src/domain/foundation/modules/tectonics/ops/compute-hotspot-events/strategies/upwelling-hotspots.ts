@@ -1,0 +1,18 @@
+import { createStrategy } from "@swooper/mapgen-core/authoring";
+import ComputeHotspotEventsContract from "../contract.js";
+import { buildHotspotEvents } from "../rules/index.js";
+
+/** Attaches mantle-upwelling hotspot selection to the hotspot-event operation contract. */
+export const upwellingHotspotsStrategy = createStrategy(
+  ComputeHotspotEventsContract,
+  "upwelling-hotspots",
+  {
+    run: (input) => {
+      const mesh = input.mesh;
+      const mantleForcing = input.mantleForcing;
+      const plateIds = Int16Array.from(input.eraPlateId);
+      const events = buildHotspotEvents({ mesh, mantleForcing, eraPlateId: plateIds });
+      return { events } as const;
+    },
+  }
+);

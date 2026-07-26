@@ -1,9 +1,4 @@
-import {
-  defineArtifact,
-  defineArtifactValidator,
-  type Static,
-  Type,
-} from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { PlotEffectIntentKeySchema } from "../model/schemas/plot-effect-intent.schema.js";
 
 /**
@@ -22,7 +17,7 @@ const PlotEffectPlacementIntentSchema = Type.Object(
 );
 
 /** Ordered Ecology intent contract for plot effects projected later into Civ7 state. */
-export const Schema = Type.Array(PlotEffectPlacementIntentSchema);
+const Schema = Type.Array(PlotEffectPlacementIntentSchema);
 
 export type PlotEffectPlanArtifact = Static<typeof Schema>;
 
@@ -36,6 +31,3 @@ export const artifact = defineArtifact({
   id: "artifact:ecology.plotEffectPlan",
   schema: Schema,
 });
-
-/** Returns every TypeBox schema issue for the plot-effect plan without throwing. */
-export const validate = defineArtifactValidator(artifact);

@@ -25,7 +25,7 @@ MapGenCore.readMapContextArtifactInternal;
 // @ts-expect-error Artifact-observation lifecycle admission is private to MapGen Core.
 MapGenCore.assertTerminalMapContextObservationInternal;
 // @ts-expect-error Runtime artifact construction is private to recipe composition.
-MapGenAuthoring.implementArtifactModules;
+MapGenAuthoring.implementArtifacts;
 // @ts-expect-error In-run artifact observation is private to executor dependency predicates.
 MapGenAuthoring.observeValidatedArtifactInternal;
 // @ts-expect-error Contract-only modules cannot acquire runtime observation authority.

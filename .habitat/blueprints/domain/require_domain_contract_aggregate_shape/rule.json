@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_contract_aggregate_shape",
+  "title": "Require Domain Contract Aggregate Shape",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "advisory",
+  "forbids": "domain aggregate contract files exposing constituent module contracts or any authority besides their singular default defineDomain result",
+  "why": "A domain contract is one aggregate identity over direct semantic modules. Keeping constituent contracts private prevents callers from selecting partial or alternate contract authorities through the aggregate owner.",
+  "remediate": "Import direct module contracts from ./modules/<module>/contract.js, compose one local defineDomain binding, and export only that binding as default.",
+  "message": "Domain contract.ts must expose one default aggregate contract authority only.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/*/src/domain/*/contract.ts"]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain/require_domain_contract_aggregate_shape/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/domain/require_domain_contract_aggregate_shape/pattern.md"
+    },
+    "patternName": "require_domain_contract_aggregate_shape",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["mods"]
+    }
+  }
+}

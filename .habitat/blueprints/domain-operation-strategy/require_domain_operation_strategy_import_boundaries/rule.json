@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_operation_strategy_import_boundaries",
+  "title": "Require Domain Operation Strategy Import Boundaries",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-operation-strategy",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "advisory",
+  "forbids": "domain operation strategies importing anything outside their default local contract binding, type-only private algorithm vocabulary, local rules, ancestor semantic model atoms and policy, shared map policy, and sanctioned MapGen Core computation surfaces; strategies also cannot derive types from contract input/output envelopes",
+  "why": "A semantic module is a router, while each operation strategy is a swappable implementation of one local contract. A positive dependency boundary keeps strategy choice modular and transparent without turning contract envelopes, recipes, adapters, engines, sibling operations, or unrelated implementations into hidden type or runtime inputs.",
+  "remediate": "Bind createStrategy to the default local contract value, move reusable schema vocabulary or policy to the nearest model owner, keep private algorithm types and computation local, and compose other operations through the owning router instead of importing their implementations.",
+  "message": "Strategy dependencies must stay on the positive semantic strategy surface.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/domain/*/ops/*/strategies/*.ts",
+        "mods/*/src/domain/*/modules/*/ops/*/strategies/*.ts"
+      ]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-operation-strategy/require_domain_operation_strategy_import_boundaries/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/domain-operation-strategy/require_domain_operation_strategy_import_boundaries/pattern.md"
+    },
+    "patternName": "require_domain_operation_strategy_import_boundaries",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["mods"]
+    }
+  }
+}

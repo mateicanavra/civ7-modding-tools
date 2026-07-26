@@ -1,0 +1,17 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "mapgen-domain-subdomain-roots"
+root = "mods/*/src/domain/!(*.*)/modules/!(*.*)"
+kind = "directory"
+mode = "closed"
+required = [
+  "index.ts",
+  "contract.ts",
+  "router.ts",
+  "ops",
+]
+allowed = [
+  "artifacts",
+  "model",
+]

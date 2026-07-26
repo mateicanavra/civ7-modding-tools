@@ -1,7 +1,6 @@
-import foundation, {
-  artifactModules as foundationArtifactModules,
-  artifacts as foundationArtifacts,
-} from "@mapgen/domain/foundation";
+import foundation from "@mapgen/domain/foundation";
+import { artifacts as lithosphereArtifacts } from "@mapgen/domain/foundation/modules/lithosphere/artifacts";
+import { artifacts as meshArtifacts } from "@mapgen/domain/foundation/modules/mesh/artifacts";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -13,11 +12,11 @@ export const PlateGraphStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [foundationArtifacts.mesh, foundationArtifacts.initialCrust],
-    provides: [foundationArtifactModules.plateGraph],
+    requires: [meshArtifacts.mesh, lithosphereArtifacts.initialCrust],
+    provides: [lithosphereArtifacts.plateGraph],
   },
   ops: {
-    computePlateGraph: foundation.ops.computePlateGraph,
+    computePlateGraph: foundation.lithosphere.ops.computePlateGraph,
   },
   schema: Type.Object({}, { additionalProperties: false }),
 });

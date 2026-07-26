@@ -1,7 +1,4 @@
-import ecology, {
-  artifactModules as ecologyArtifactModules,
-  artifacts as ecologyArtifacts,
-} from "@mapgen/domain/ecology";
+import ecology, { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
@@ -21,7 +18,7 @@ export const PlanIceStepContract = defineStep({
       ecologyArtifacts.biomeClassification,
       morphologyArtifacts.topography,
     ],
-    provides: [ecologyArtifactModules.featureIntentsIce, ecologyArtifactModules.occupancyIce],
+    provides: [ecologyArtifacts.featureIntentsIce, ecologyArtifacts.occupancyIce],
   },
   ops: {
     planIce: ecology.ops.planIce,

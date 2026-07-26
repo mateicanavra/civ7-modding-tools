@@ -3,51 +3,34 @@ level: error
 ---
 # Require Domain Entrypoint Shape
 
-A domain root `index.ts` owns exactly one public domain contract. It imports
-`defineDomain` from Core contracts, imports the operation-contract registry,
-binds the directory's literal identity once, and default-exports that binding.
-Named re-exports may expose only the domain's model or artifact owner slots.
+A domain root `index.ts` is a declaration-only public barrel. It exposes the
+domain contract from `contract.ts` as its default export and may add only
+explicit named re-exports from the domain's `model/` or `modules/` owners.
+Contract composition belongs in `contract.ts`; router composition belongs in
+`router.ts`.
 
 ```grit
 language js(typescript)
 
-predicate lacks_domain_entrypoint_surface($body, $domain_id) {
-  or {
-    ! $body <: contains `import { defineDomain } from "@swooper/mapgen-core/authoring/contracts"`,
-    ! $body <: contains `import ops from "./ops/contracts.js"`,
-    ! $body <: contains `const domain = defineDomain({ id: "$domain_id", ops } as const)`,
-    ! $body <: contains `export default domain`
-  }
+predicate lacks_domain_contract_entrypoint($body) {
+  ! $body <: contains `export { default } from "./contract.js"`
 }
 
 or {
   program(statements=$body) where {
-    $filename <: r".*mods/[^/]+/src/domain/([^/]+)/index\.ts$"($domain_id),
-    lacks_domain_entrypoint_surface($body, $domain_id)
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/index\.ts$",
+    lacks_domain_contract_entrypoint($body)
   },
   program(statements=$body) where {
-    $calls = [],
-    $body <: some bubble($calls) $statement where {
-      $statement <: contains bubble($calls) `defineDomain($_)` as $call where {
-        $calls += $call
-      }
-    },
-    $call_count = length(target=$calls),
-    ! $call_count <: 1
-  },
-  program(statements=$body) where {
-    $filename <: r".*mods/[^/]+/src/domain/([^/]+)/index\.ts$"($domain_id),
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/index\.ts$",
     $body <: some $statement where {
       ! $statement <: or {
-        `import { defineDomain } from "@swooper/mapgen-core/authoring/contracts"`,
-        `import ops from "./ops/contracts.js"`,
-        `const domain = defineDomain({ id: "$domain_id", ops } as const)`,
-        `export default domain`,
+        `export { default } from "./contract.js"`,
         `export { $exports } from $source` where {
-          $source <: r"^[\"']\./(?:model/[^\"']+|artifacts/index\.js)[\"']$"
+          $source <: r"^[\"']\./(?:model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)|modules/[a-z0-9]+(?:-[a-z0-9]+)*/index)\.js[\"']$"
         },
         `export type { $exports } from $source` where {
-          $source <: r"^[\"']\./(?:model/[^\"']+|artifacts/index\.js)[\"']$"
+          $source <: r"^[\"']\./(?:model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)|modules/[a-z0-9]+(?:-[a-z0-9]+)*/index)\.js[\"']$"
         }
       }
     }
@@ -60,47 +43,52 @@ or {
 ```typescript
 // @filename: mods/example-mod/src/domain/weather/index.ts
 import { defineDomain } from "@swooper/mapgen-core/authoring/contracts";
-import ops from "./ops/contracts.js";
+import ops from "./ops/contract.js";
 
-const domain = defineDomain({ id: "climate", ops } as const);
+const domain = defineDomain({ id: "weather", ops } as const);
 export default domain;
 
 // @filename: mods/alternate-mod/src/domain/terrain/index.ts
-import { defineDomain } from "@swooper/mapgen-core/authoring/contracts";
-import ops from "./ops/contracts.js";
+import contract from "./contract.js";
 
-const shadow = defineDomain({ id: "terrain", ops } as const);
-const domain = defineDomain({ id: "terrain", ops } as const);
-export default domain;
+export default contract;
 
 // @filename: mods/example-mod/src/domain/settlement/index.ts
-import { defineDomain } from "@swooper/mapgen-core/authoring/contracts";
-import ops from "./ops/contracts.js";
-
-const domain = defineDomain({ id: "settlement", ops } as const);
-export default domain;
-export { executeSettlement } from "./ops/build-settlement/index.js";
+export { default } from "./contract.js";
+export { executeSettlement } from "./modules/build-settlement/ops/build/index.js";
 
 // @filename: mods/example-mod/src/domain/ocean/index.ts
-import { defineDomain } from "@swooper/mapgen-core/authoring/contracts";
-import ops from "./ops/contracts.js";
+export { default } from "./contract.js";
+export { OceanCellSchema } from "./atoms/index.js";
 
-const domain = defineDomain({ id: "ocean", ops } as const);
-export default domain;
-export * from ".";
+// @filename: mods/example-mod/src/domain/ecology/index.ts
+export { default } from "./contract.js";
+export { default as router } from "./router.js";
+
+// @filename: mods/example-mod/src/domain/resources/index.ts
+export { default } from "./contract.js";
+export * from "./modules/demand/index.js";
+
+// @filename: mods/example-mod/src/domain/geology/index.ts
+export { default } from "./contract.js";
+export { executeSettlement } from "./modules/build-settlement/ops/build/index.js";
 ```
 
 ## Ignores Fixture
 
 ```typescript
 // @filename: mods/example-mod/src/domain/weather/index.ts
-import { defineDomain } from "@swooper/mapgen-core/authoring/contracts";
-import ops from "./ops/contracts.js";
+export { default } from "./contract.js";
 
-const domain = defineDomain({ id: "weather", ops } as const);
-
-export default domain;
-export type { WeatherSymbol } from "./model/schemas/index.js";
-export { WEATHER_POLICY } from "./model/policy/weather.js";
-export { artifactModules, artifacts } from "./artifacts/index.js";
+// @filename: mods/alternate-mod/src/domain/resources/index.ts
+export { default } from "./contract.js";
+export {
+  ResourceFamilySchema,
+  type ResourceSymbol,
+} from "./model/atoms/index.js";
+export type { ResourcePolicy } from "./model/policy/resource-policy.js";
+export {
+  default as demand,
+  type DemandContract,
+} from "./modules/demand/index.js";
 ```

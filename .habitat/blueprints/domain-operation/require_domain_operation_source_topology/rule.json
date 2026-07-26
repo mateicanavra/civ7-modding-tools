@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_operation_source_topology",
+  "title": "Require Domain Operation Source Topology",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-operation",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "domain operation collections or operation roots outside the positive operation blueprint spine",
+  "why": "The domain-operation blueprint owns the singular operation-contract registry and executable-leaf topology. The parent module law only admits the operation slot and does not duplicate its internals.",
+  "remediate": "Keep the collection-level contract.ts registry and index.ts implementation registry, keep contract.ts and index.ts in each operation root, and retain only the explicitly admitted operation-local capabilities.",
+  "message": "Domain operations must match the positive operation blueprint spine.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/domain/*/ops",
+        "mods/*/src/domain/*/ops/**",
+        "mods/*/src/domain/*/modules/*/ops",
+        "mods/*/src/domain/*/modules/*/ops/**"
+      ]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-operation/require_domain_operation_source_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/domain-operation/require_domain_operation_source_topology/structure.toml"
+    }
+  }
+}

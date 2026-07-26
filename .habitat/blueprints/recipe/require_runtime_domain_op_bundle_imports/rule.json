@@ -12,16 +12,14 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "recipe compilation importing domain contract roots instead of runtime ops",
-  "why": "Compiled recipes use runtime op bundles; contracts are for step/domain boundaries.",
+  "forbids": "recipe compilation importing domain contract roots instead of executable routers",
+  "why": "Compiled recipes use aggregate routers or temporary flat op bundles; contracts are for step/domain boundaries.",
   "remediate": null,
-  "message": "Recipe runtime files must import @mapgen/domain/<domain>/ops for runtime domains.",
+  "message": "Recipe runtime files must import the domain's executable router surface.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/*/src/recipes/**/recipe.ts"
-      ]
+      "patterns": ["mods/*/src/recipes/**/recipe.ts"]
     }
   ],
   "hookCheck": true,
@@ -36,9 +34,7 @@
     "patternName": "require_runtime_domain_op_bundle_imports",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods/mod-swooper-maps/src/recipes"
-      ]
+      "roots": ["mods/mod-swooper-maps/src/recipes"]
     }
   }
 }

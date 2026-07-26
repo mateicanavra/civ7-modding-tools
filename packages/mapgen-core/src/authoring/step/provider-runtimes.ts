@@ -1,7 +1,7 @@
-import type { ArtifactContract } from "../artifact/contract.js";
+import type { Artifact } from "../artifact/contract.js";
 import type { ImplementedArtifactRuntime } from "../artifact/runtime.js";
 
-type ProviderRuntimeMap = Readonly<Record<string, ImplementedArtifactRuntime<ArtifactContract>>>;
+type ProviderRuntimeMap = Readonly<Record<string, ImplementedArtifactRuntime<Artifact>>>;
 
 const providerRuntimesByStep = new WeakMap<object, ProviderRuntimeMap>();
 

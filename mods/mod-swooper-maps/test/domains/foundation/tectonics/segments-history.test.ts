@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import foundation from "@mapgen/domain/foundation/router";
 
 const {
   computeEraPlateMembership,
@@ -9,7 +9,7 @@ const {
   computeSegmentEvents,
   computeTectonicHistoryRollups,
   computeTectonicSegments,
-} = foundationOpsPublic.ops;
+} = foundation.tectonics.ops;
 const OROGENY_ERA_GAIN_MIN = 0.85;
 const OROGENY_ERA_GAIN_MAX = 1.15;
 
@@ -206,6 +206,7 @@ function runDecomposedTectonicHistory(params: {
 
   return computeTectonicHistoryRollups.run(
     {
+      cellCount: mesh.cellCount,
       eras,
       plateIdByEra: eraPlateMembership.plateIdByEra,
     },

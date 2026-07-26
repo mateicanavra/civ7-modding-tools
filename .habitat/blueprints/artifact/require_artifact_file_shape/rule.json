@@ -11,17 +11,15 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "enforced",
-  "forbids": "domain artifact owner files outside their canonical constructor bindings, domain-qualified id, closed dependency, export, and validation-authority shape",
-  "why": "Artifact owners define immutable domain data products. Exact-file acquisition lets Grit require one canonical exported Schema, artifact, and schema-bound validator surface with a literal artifact:<owning-domain>. id and a closed import surface, without searching unrelated mod source. Core factory provenance, catalog admission, and Knip own private runtime construction and dead code. Shared domain vocabulary remains independent of artifact admission under the owning domain model.",
-  "remediate": "In *.artifact.ts, make the literal artifact id begin artifact:<owning-domain>., export only Schema, artifact, validate, and erased TypeScript types, and bind validate directly to artifact with defineArtifactValidator. Import the artifact API only from @swooper/mapgen-core/authoring/contracts and genuinely shared schema, policy, or data primitives only from the owning domain's relative model surface. Keep artifact-local checks private and never reimplement structural TypeBox admission.",
-  "message": "Artifact owner files must retain their domain-qualified id and closed schema-bound source and dependency shape.",
+  "lane": "advisory",
+  "forbids": "artifact owner files outside their canonical one-object authority, closed dependency, export, and admission shape",
+  "why": "Artifact owners define immutable MapGen data products. Exact-file acquisition lets Grit require one exported artifact = defineArtifact(...) authority without searching unrelated mod source. The artifact owns its complete payload schema and optional relational refinement inline; imported atoms may contribute smaller primitives and cohesive subentities but never replace that root container. Core constructs structural validation and composes the refinement into the same authority.",
+  "remediate": "In *.artifact.ts, export only artifact = defineArtifact({ name, id, schema: Type.*(...), refine?: (...) => ... }) plus erased TypeScript types. Compose exact imported atom files only for smaller schema parts. Never use a detached or imported whole schema as the artifact root, delegate refinement to another binding, export a second runtime authority, or reimplement structural TypeBox admission.",
+  "message": "Artifact owner files must expose one canonical artifact authority with a closed dependency and admission shape.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/*/src/domain/*/artifacts/*.artifact.ts"
-      ]
+      "patterns": ["mods/*/src/**/artifacts/*.artifact.ts"]
     }
   ],
   "hookCheck": true,
@@ -36,9 +34,7 @@
     "patternName": "require_artifact_file_shape",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods"
-      ]
+      "roots": ["mods"]
     }
   }
 }

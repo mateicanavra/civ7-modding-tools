@@ -4,7 +4,6 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
@@ -17,7 +16,7 @@ import { findInvalidRiverClassIndex } from "../model/policy/river-class.js";
  * This is the canonical read path for “river-ness” and discharge-like signals inside the pipeline.
  * Engine rivers/lakes may differ because they are downstream projections of this model.
  */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     /** Local runoff source proxy per tile (derived from precipitation/humidity inputs). */
     runoff: TypedArraySchemas.f32({
@@ -78,8 +77,14 @@ export const artifact = defineArtifact({
   name: "hydrography",
   id: "artifact:hydrology.hydrography",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/**
+ * Validates hydrography against its closed schema and, when map dimensions are supplied,
+ * verifies every tile field matches that width × height. It returns accumulated issues so
+ * artifact admission can reject a structurally valid but spatially inconsistent payload.
+ */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -208,10 +213,3 @@ function validateCategoricalGrid(
     }
   }
 }
-
-/**
- * Validates hydrography against its closed schema and, when map dimensions are supplied,
- * verifies every tile field matches that width × height. It returns accumulated issues so
- * artifact admission can reject a structurally valid but spatially inconsistent payload.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

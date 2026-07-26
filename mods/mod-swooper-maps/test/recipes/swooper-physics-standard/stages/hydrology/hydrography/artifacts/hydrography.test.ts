@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { artifactModules as hydrologyHydrographyArtifactModules } from "@mapgen/domain/hydrology";
+import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 
 const SYNTHETIC_DIMENSIONS = { width: 1, height: 1 } as const;
 const SYNTHETIC_CARDINALITY = SYNTHETIC_DIMENSIONS.width * SYNTHETIC_DIMENSIONS.height;
@@ -22,7 +22,7 @@ describe("hydrography artifact", () => {
     payload.outletMask[0] = 2;
     payload.terminalType[0] = 3;
 
-    const messages = hydrologyHydrographyArtifactModules.hydrography
+    const messages = hydrologyArtifacts.hydrography
       .validate(payload, { dimensions: SYNTHETIC_DIMENSIONS })
       .map((issue) => issue.message);
     expect(messages.some((message) => message.includes("outletMask"))).toBe(true);

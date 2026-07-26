@@ -1,12 +1,12 @@
+export type { ArtifactCatalog } from "./catalog.js";
+export { defineArtifactCatalog } from "./catalog.js";
 export type {
-  ArtifactContract,
+  Artifact,
   ArtifactReadValueOf,
   ArtifactValueOf,
   DeepReadonly,
 } from "./contract.js";
 export { defineArtifact } from "./contract.js";
-export type { ArtifactCatalog, ArtifactModule } from "./module.js";
-export { defineArtifactCatalog } from "./module.js";
 export type {
   ProvidedArtifactRuntime,
   RequiredArtifactRuntime,
@@ -22,12 +22,9 @@ export {
   type ValidatedArtifactObservation,
 } from "./validated-read.js";
 export type {
+  ArtifactRefinement,
   ArtifactValidationContext,
   ArtifactValidationIssue,
   ArtifactValidator,
 } from "./validation.js";
-export {
-  appendArtifactTypedArrayIssues,
-  artifactCellCount,
-  defineArtifactValidator,
-} from "./validation.js";
+export { appendArtifactTypedArrayIssues, artifactCellCount } from "./validation.js";

@@ -4,7 +4,6 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
@@ -14,7 +13,7 @@ import {
  * Runtime contract for feature-projection attempts, acceptances, typed rejection counts, and
  * the per-tile rejection mask used to diagnose engine drift from Ecology intent.
  */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -45,11 +44,13 @@ export const artifact = defineArtifact({
   name: "featureApplyDiagnostics",
   id: "artifact:ecology.featureApplyDiagnostics",
   schema: Schema,
+  refine: validateLocal,
 });
 
 /**
  * Validates feature-application diagnostics, including the rejection-mask kind and cardinality.
  */
+/** Admits the map-sized typed rejection mask after Core validates diagnostic counts. */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -66,6 +67,3 @@ function validateLocal(
   );
   return Object.freeze(issues);
 }
-
-/** Admits the map-sized typed rejection mask after Core validates diagnostic counts. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

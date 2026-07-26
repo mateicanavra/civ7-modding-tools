@@ -4,7 +4,6 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
@@ -15,7 +14,7 @@ import {
  * Winds are atmosphere-wide forcing while currents are ocean-only coupling; compact signed
  * components preserve their direction and relative intensity without pretending to be SI units.
  */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     windU: TypedArraySchemas.i8({
       description: "Atmospheric east-west forcing component per map tile (-127..127).",
@@ -46,8 +45,15 @@ export const artifact = defineArtifact({
   name: "windField",
   id: "artifact:hydrology._internal.windField",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/**
+ * Validates internal wind and current field against its closed schema and, when map dimensions
+ * are supplied, verifies every tile field matches that width × height. It returns accumulated
+ * issues so artifact admission can reject a structurally valid but spatially inconsistent
+ * payload.
+ */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -79,11 +85,3 @@ function validateLocal(
   );
   return errors;
 }
-
-/**
- * Validates internal wind and current field against its closed schema and, when map dimensions
- * are supplied, verifies every tile field matches that width × height. It returns accumulated
- * issues so artifact admission can reject a structurally valid but spatially inconsistent
- * payload.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_operation_implementation_type_boundary",
+  "title": "Require Domain Operation Implementation Type Boundary",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-operation",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "advisory",
+  "forbids": "operation entrypoints, local types, and rules deriving shared working types from an operation contract input/output envelope or re-exporting contract authority",
+  "why": "The contract file is the sole composition owner for complete operation input and output envelopes. Implementation code consumes admitted values through private working shapes; only smaller reusable primitives and cohesive subentities come from nearest-owner model atoms. Moving the whole envelope or an artifact payload into atoms would preserve the same hidden coupling under a different path.",
+  "remediate": "Keep algorithm-private Params/Result types local, move only genuinely shared primitives or cohesive subentities to model/atoms, delete OpTypeBagOf and contract input/output projections, and reserve the default contract import for runtime binding. Do not create payload-shaped atoms as substitutes for operation or artifact authority.",
+  "message": "Operation implementation types must use private working shapes and smaller atoms, not contract envelopes or artifact-shaped model aliases.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/domain/*/ops/*/index.ts",
+        "mods/*/src/domain/*/ops/*/types.ts",
+        "mods/*/src/domain/*/ops/*/rules/**/*.ts",
+        "mods/*/src/domain/*/modules/*/ops/*/index.ts",
+        "mods/*/src/domain/*/modules/*/ops/*/types.ts",
+        "mods/*/src/domain/*/modules/*/ops/*/rules/**/*.ts"
+      ]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-operation/require_domain_operation_implementation_type_boundary/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/domain-operation/require_domain_operation_implementation_type_boundary/pattern.md"
+    },
+    "patternName": "require_domain_operation_implementation_type_boundary",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["mods"]
+    }
+  }
+}

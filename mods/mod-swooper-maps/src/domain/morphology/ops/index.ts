@@ -12,13 +12,14 @@ import computeSculptContinentalMargin from "./compute-sculpt-continental-margin/
 import computeSeaLevel from "./compute-sea-level/index.js";
 import computeShelfMask from "./compute-shelf-mask/index.js";
 import computeSubstrate from "./compute-substrate/index.js";
-import type { contracts } from "./contracts.js";
 import planFoothills from "./plan-foothills/index.js";
 import planIslandChains from "./plan-island-chains/index.js";
 import planRidges from "./plan-ridges/index.js";
 import planRoughLands from "./plan-rough-lands/index.js";
 import planVolcanoes from "./plan-volcanoes/index.js";
 import reconcileHeightfieldFromCoast from "./reconcile-heightfield-from-coast/index.js";
+
+type Contracts = typeof import("./contract.js").default;
 
 const implementations = {
   computeBaseTopography,
@@ -40,6 +41,6 @@ const implementations = {
   planRoughLands,
   planVolcanoes,
   reconcileHeightfieldFromCoast,
-} as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
+} as const satisfies DomainOpImplementationsForContracts<Contracts>;
 
 export default implementations;

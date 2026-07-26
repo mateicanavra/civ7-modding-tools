@@ -1,7 +1,8 @@
-import foundation, {
-  artifactModules as foundationArtifactModules,
-  artifacts as foundationArtifacts,
-} from "@mapgen/domain/foundation";
+import foundation from "@mapgen/domain/foundation";
+import { artifacts as lithosphereArtifacts } from "@mapgen/domain/foundation/modules/lithosphere/artifacts";
+import { artifacts as mantleArtifacts } from "@mapgen/domain/foundation/modules/mantle/artifacts";
+import { artifacts as meshArtifacts } from "@mapgen/domain/foundation/modules/mesh/artifacts";
+import { artifacts as tectonicsArtifacts } from "@mapgen/domain/foundation/modules/tectonics/artifacts";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -14,15 +15,11 @@ export const PlateMotionStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [
-      foundationArtifacts.mesh,
-      foundationArtifacts.plateGraph,
-      foundationArtifacts.mantleForcing,
-    ],
-    provides: [foundationArtifactModules.plateMotion],
+    requires: [meshArtifacts.mesh, lithosphereArtifacts.plateGraph, mantleArtifacts.mantleForcing],
+    provides: [tectonicsArtifacts.plateMotion],
   },
   ops: {
-    computePlateMotion: foundation.ops.computePlateMotion,
+    computePlateMotion: foundation.tectonics.ops.computePlateMotion,
   },
   schema: Type.Object({}, { additionalProperties: false }),
 });

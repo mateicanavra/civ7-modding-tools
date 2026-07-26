@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import { MockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
-import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
+import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import {
@@ -11,7 +11,7 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { BuildElevationStep } from "../../../../../../../src/recipes/standard/stages/map/elevation/steps/build-elevation/step.js";
-import { artifactModules as mapHydrologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/map/hydrology/artifacts/index.js";
+import { artifacts as mapHydrologyArtifacts } from "../../../../../../../src/recipes/standard/stages/map/hydrology/artifacts/index.js";
 
 const SYNTHETIC_BOUNDED_DRIFT_DIMENSIONS = { width: 10, height: 10 } as const;
 const SYNTHETIC_EXCESSIVE_DRIFT_DIMENSIONS = { width: 4, height: 3 } as const;
@@ -26,13 +26,13 @@ function publishBuildElevationInputs(
   sinkMismatchCount: number
 ): void {
   const size = width * height;
-  publishTestArtifact(context, morphologyArtifactModules.topography, {
+  publishTestArtifact(context, morphologyArtifacts.topography, {
     elevation: new Int16Array(size),
     seaLevel: 0,
     landMask,
     bathymetry: new Int16Array(size),
   });
-  publishTestArtifact(context, mapHydrologyArtifactModules.engineProjectionLakes, {
+  publishTestArtifact(context, mapHydrologyArtifacts.engineProjectionLakes, {
     width,
     height,
     lakeMask,

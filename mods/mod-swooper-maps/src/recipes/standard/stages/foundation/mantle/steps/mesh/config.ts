@@ -1,6 +1,5 @@
-import foundation, {
-  artifactModules as foundationArtifactModules,
-} from "@mapgen/domain/foundation";
+import foundation from "@mapgen/domain/foundation";
+import { artifacts as meshArtifacts } from "@mapgen/domain/foundation/modules/mesh/artifacts";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -13,10 +12,10 @@ export const MeshStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    provides: [foundationArtifactModules.mesh],
+    provides: [meshArtifacts.mesh],
   },
   ops: {
-    computeMesh: foundation.ops.computeMesh,
+    computeMesh: foundation.mesh.ops.computeMesh,
   },
   schema: Type.Object({}, { additionalProperties: false }),
 });

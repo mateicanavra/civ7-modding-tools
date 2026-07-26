@@ -128,23 +128,28 @@ Does not own:
 
 ## MapGen Domain Module Layout
 
-Normalized internal layout for `mods/mod-swooper-maps/src/domain/<domain>/`
-(accepted 2026-06-10 during placement-realignment S3; apply when touching any
-domain module, and migrate adjacent files you already own in the change):
+Normalized internal layout for `mods/mod-swooper-maps/src/domain/<domain>/`:
 
-- `ops/<op-id>/` — one directory per operation: `contract.ts`, `index.ts`,
-  `types.ts`, `strategies/`. Policy logic used by an operation lives in
-  individual files under `ops/<op-id>/policy/` (one concern per file), never
-  inline in strategy bodies when it encodes official-game or repo policy.
-- `policy/` — domain-level policy modules shared across operations
-  (for example legality predicates, habitat eligibility, authoring-age
-  policy). One concern per file; no barrels beyond the domain index.
-- `lib/` — reference data corpora and their derivations (official corpus,
-  earthlike expectations, runtime-id proofs). Data, not algorithms.
-- `artifacts/` — artifact contracts, split into individual
-  `<artifact>.artifact.ts` files (one `defineArtifact` per file). Do not add a
-  `contract/` child unless a future accepted owner law introduces real sibling
-  classes under `artifacts/`; do not grow multi-artifact `artifacts.ts` files.
+- The domain root is an aggregate semantic router: `contract.ts`, `router.ts`,
+  public `index.ts`, `modules/`, and an optional `model/` for vocabulary proven
+  shared by multiple direct modules.
+- Each `modules/<module>/` is the cohesive owner of one operation family. It
+  owns `contract.ts`, `router.ts`, `index.ts`, `ops/`, any immutable artifacts
+  it produces, and an optional local `model/`.
+- `ops/<op-id>/` owns one operation contract and implementation. Its complete
+  input/output envelopes are inline in `contract.ts`; strategies and rules do
+  not reconstruct types from those envelopes or from artifact schemas.
+- `model/atoms/` owns only small composable schema primitives or cohesive
+  subentities. `model/policy/` owns stable decisions at the lowest domain or
+  module scope that covers every real consumer. Neither is a helper or config
+  cabinet.
+- `artifacts/` lives with the direct producing module. Each
+  `<artifact>.artifact.ts` owns one inline `defineArtifact` authority, and the
+  adjacent `index.ts` is that module's sole artifact catalog.
+
+The accepted positive kind laws live under `.habitat/blueprints/domain*` and
+`.habitat/blueprints/artifact`; use those structures rather than preserving a
+flat compatibility layout.
 
 ## Official Resources
 

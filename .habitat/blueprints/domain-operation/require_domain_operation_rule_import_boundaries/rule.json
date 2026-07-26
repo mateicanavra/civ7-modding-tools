@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_operation_rule_import_boundaries",
+  "title": "Require Domain Operation Rule Import Boundaries",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-operation",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "advisory",
+  "forbids": "operation rules importing outside shared MapGen primitives, type-only local algorithm vocabulary, sibling rules, and exact ancestor model atoms and policy; direct-module rules may additionally consume named sibling-module atoms",
+  "why": "Rules are private algorithm mechanics inside one operation. A positive dependency boundary keeps contracts and artifacts as composition owners while preserving transparent access to the semantic vocabulary actually owned by the rule's module and domain.",
+  "remediate": "Pass admitted values from the strategy, move reusable semantic schema and types to the nearest model/atoms owner, move reusable decisions to model/policy, and keep private algorithm composition inside the operation rules directory.",
+  "message": "Operation rules must stay within their positive algorithm and model dependency boundary.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/domain/*/ops/*/rules/*.ts",
+        "mods/*/src/domain/*/modules/*/ops/*/rules/*.ts"
+      ]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-operation/require_domain_operation_rule_import_boundaries/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/domain-operation/require_domain_operation_rule_import_boundaries/pattern.md"
+    },
+    "patternName": "require_domain_operation_rule_import_boundaries",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["mods"]
+    }
+  }
+}

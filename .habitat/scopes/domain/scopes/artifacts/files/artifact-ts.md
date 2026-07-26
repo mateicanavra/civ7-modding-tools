@@ -10,11 +10,11 @@ one pipeline data-product contract.
 
 Required shape:
 - one artifact contract per file;
-- a file-local `Schema` defines the artifact payload contract;
+- a private file-local `Schema` defines the artifact payload contract;
 - a file-local `artifact` export defines the artifact with
   `defineArtifact(...)`;
-- a file-local `validate = defineArtifactValidator(artifact, ...)` export binds
-  publish-time structural validation to the exact artifact schema;
+- an optional private refinement contributes only relational or domain checks;
+- `defineArtifact` binds structural and local admission into `artifact.validate`;
 - supporting types exist only to express that artifact contract.
 
 Allowed contents:
@@ -36,26 +36,24 @@ Violation messages:
 - multiple artifact definitions;
 - artifact registries;
 - executable implementation logic unrelated to schema construction or validation;
-- direct TypeBox error projection or a complete validator not constructed by
-  Core's schema-bound artifact validator;
+- direct TypeBox error projection or a second complete validator;
 - local aliases or interfaces named `ArtifactValidationIssue` or
   `ValidationIssue`;
 - operation input normalization or repair logic;
-- runtime exports beyond `Schema`, `artifact`, and `validate`;
+- runtime exports beyond `artifact`;
 - single-artifact example payloads encoded as file-shape requirements;
 - narrative notes or markdown-equivalent content.
 
 Import/export boundary:
-- exports the artifact contract owner surface using stable per-file names:
-  `Schema`, `artifact`, and required schema-bound `validate`;
+- exports one runtime artifact authority using the stable per-file name
+  `artifact`;
 - imports runtime values only from MapGen contract/lib surfaces, static Civ7
-  types and policy, or public domain contract/schema/policy/data surfaces;
+  types and policy, or public domain contract/schema/policy surfaces;
 - does not import adapters, engines, recipes, private operation implementations,
   Node/browser APIs, or another artifact owner module;
 - semantically named artifact types are allowed only when they improve call-site
   readability or generated declaration output;
-- callers that need a semantic import name should namespace-import the module
-  rather than require semantic function exports.
+- callers import `artifact` under the semantic catalog key.
 
 Enforcement:
 domain structure for placement; artifact blueprint

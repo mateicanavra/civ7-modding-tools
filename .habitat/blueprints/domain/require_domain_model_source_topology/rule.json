@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_model_source_topology",
+  "title": "Require Domain Model Source Topology",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "advisory",
+  "forbids": "domain or module model roots outside the positive atom and policy owner topology",
+  "why": "The model source kind owns vocabulary at the nearest semantic domain or module level. Keeping this topology separate prevents router structure from mixing with atoms and policy or recursively recreating child-kind authority.",
+  "remediate": "Keep schema-bearing reusable vocabulary in atoms and semantic decisions in policy; hoist only vocabulary shared by multiple modules, and move every other child to its actual owner or delete it.",
+  "message": "Domain model roots must match the positive domain-model blueprint spine.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/domain/*/model",
+        "mods/*/src/domain/*/model/**",
+        "mods/*/src/domain/*/modules/*/model",
+        "mods/*/src/domain/*/modules/*/model/**"
+      ]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain/require_domain_model_source_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/domain/require_domain_model_source_topology/structure.toml"
+    }
+  }
+}

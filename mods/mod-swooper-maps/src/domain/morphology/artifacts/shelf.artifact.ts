@@ -4,14 +4,13 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Runtime schema for post-island coastline and gradient-break shelf truth. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     shelfMask: TypedArraySchemas.u8({
       description:
@@ -42,8 +41,10 @@ export const artifact = defineArtifact({
   name: "shelf",
   id: "artifact:morphology.shelf",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/** Validates every persistent shelf and coastline field against the admitted map dimensions. */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -64,6 +65,3 @@ function validateLocal(
   );
   return errors;
 }
-
-/** Validates every persistent shelf and coastline field against the admitted map dimensions. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

@@ -3,7 +3,6 @@ import {
   type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
@@ -14,7 +13,7 @@ import {
  * Width and height admit the tile coordinate space; `featureType` contains exactly one observed
  * engine feature ID for every tile in row-major order, including the engine's no-feature sentinel.
  */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     width: Type.Integer({
       minimum: 1,
@@ -36,7 +35,7 @@ export const Schema = Type.Object(
   }
 );
 
-/** Immutable-by-contract feature projection evidence admitted by the artifact module. */
+/** Immutable-by-contract feature projection evidence admitted by this artifact authority. */
 export type FeatureEngineSnapshot = Static<typeof Schema>;
 
 /**
@@ -47,8 +46,12 @@ export const artifact = defineArtifact({
   name: "featureEngineSnapshot",
   id: "artifact:ecology.featureEngineSnapshot",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/**
+ * Binds the typed feature surface to the payload dimensions and the payload dimensions to the run.
+ */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -75,8 +78,3 @@ function validateLocal(
 
   return issues;
 }
-
-/**
- * Binds the typed feature surface to the payload dimensions and the payload dimensions to the run.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

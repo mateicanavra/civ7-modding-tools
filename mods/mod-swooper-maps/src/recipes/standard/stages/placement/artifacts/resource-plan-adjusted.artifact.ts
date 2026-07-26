@@ -3,14 +3,13 @@ import {
   type ArtifactValidationContext,
   type ArtifactValidationIssue,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
 } from "@swooper/mapgen-core/authoring/contracts";
 import { getHexRadiusIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 
 /** Support-adjusted resource plan (`artifact:placement.resourcePlanAdjusted`). One artifact per file by repo convention. */
 
-export const Schema = resources.ops.adjustResourceSupport.output;
+const Schema = resources.support.ops.adjustResourceSupport.output;
 
 type ResourcePlanAdjusted = Static<typeof Schema>;
 type AdjustedIntent = ResourcePlanAdjusted["intents"][number];
@@ -32,6 +31,7 @@ export const artifact = defineArtifact({
   name: "resourcePlanAdjusted",
   id: "artifact:placement.resourcePlanAdjusted",
   schema: Schema,
+  refine: validateLocal,
 });
 
 function issue(message: string): ArtifactValidationIssue {
@@ -436,6 +436,7 @@ function validateInactiveEvidence(
  * spacing, causal reason selection, input-seat completeness, or stamped engine outcomes; those
  * belong to their producing operation and downstream materialization owners.
  */
+/** Admits coherent adjusted intents, provenance, support, equity, and terminal shortfall evidence. */
 function validateLocal(
   value: unknown,
   context?: ArtifactValidationContext
@@ -458,6 +459,3 @@ function validateLocal(
   }
   return Object.freeze(issues);
 }
-
-/** Admits coherent adjusted intents, provenance, support, equity, and terminal shortfall evidence. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

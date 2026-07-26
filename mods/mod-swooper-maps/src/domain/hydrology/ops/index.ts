@@ -14,11 +14,12 @@ import computePrecipitation from "./compute-precipitation/index.js";
 import computeRadiativeForcing from "./compute-radiative-forcing/index.js";
 import computeRiverNetworkMetrics from "./compute-river-network-metrics/index.js";
 import computeThermalState from "./compute-thermal-state/index.js";
-import type { contracts } from "./contracts.js";
 import planLakes from "./plan-lakes/index.js";
 import projectRiverNetwork from "./project-river-network/index.js";
 import selectNavigableRiverTerrain from "./select-navigable-river-terrain/index.js";
 import transportMoisture from "./transport-moisture/index.js";
+
+type Contracts = typeof import("./contract.js").default;
 
 const implementations = {
   computeRadiativeForcing,
@@ -40,6 +41,6 @@ const implementations = {
   computeRiverNetworkMetrics,
   planLakes,
   selectNavigableRiverTerrain,
-} as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
+} as const satisfies DomainOpImplementationsForContracts<Contracts>;
 
 export default implementations;

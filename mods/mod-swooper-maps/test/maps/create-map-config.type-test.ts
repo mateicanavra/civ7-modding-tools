@@ -4,8 +4,8 @@ import type { Static } from "@swooper/mapgen-core/authoring";
 import type { ExtendsStrict, IsEqual, IsStringLiteral } from "type-fest";
 import { buildStandardRecipeDefaultConfig } from "../../src/recipes/standard/artifacts.js";
 import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
-import { FoundationMantlePublicSchema } from "../../src/recipes/standard/stages/foundation/public.config.js";
 import foundationMantleStage from "../../src/recipes/standard/stages/foundation/mantle/index.js";
+import { FoundationMantlePublicSchema } from "../../src/recipes/standard/stages/foundation/public.config.js";
 
 type Expect<T extends true> = T;
 
@@ -25,7 +25,7 @@ type FoundationMantleConfig = NonNullable<StandardRecipeConfig["foundation-mantl
 // @ts-expect-error Unknown step ids are not part of the stage config.
 type NoBogusStep = FoundationMantleConfig["bogus-step"];
 
-type ComputeMeshOp = typeof foundationDomain.ops.computeMesh;
+type ComputeMeshOp = typeof foundationDomain.mesh.ops.computeMesh;
 type ComputeMeshStrategyIds = keyof ComputeMeshOp["strategies"] & string;
 export type ComputeMeshStrategyIdsAreNarrow = Expect<IsStringLiteral<ComputeMeshStrategyIds>>;
 

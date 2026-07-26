@@ -2,14 +2,13 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import {
-  type ArtifactContract,
-  type ArtifactModule,
+  type Artifact,
   type DependencyEvidence,
   observeValidatedArtifact,
 } from "@swooper/mapgen-core/authoring";
 import { publishTestArtifact, withMapContextExecutionForTest } from "@swooper/mapgen-core/testing";
 
-import { artifactModules as placementArtifactModules } from "../../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
+import { artifacts as placementArtifacts } from "../../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
 import {
   STANDARD_ENGINE_EFFECT_TAGS,
   STANDARD_TAG_DEFINITIONS,
@@ -106,8 +105,8 @@ describe("placement start-assignment artifacts", () => {
     ) => {
       const { adapter, context } = createHarness();
       withMapContextExecutionForTest(context, (stepContext) => {
-        publishTestArtifact(stepContext, placementArtifactModules.startAssignment, assignment);
-        publishTestArtifact(stepContext, placementArtifactModules.placementOutputs, {
+        publishTestArtifact(stepContext, placementArtifacts.startAssignment, assignment);
+        publishTestArtifact(stepContext, placementArtifacts.placementOutputs, {
           naturalWondersCount: 0,
           resourcesCount: 0,
           startsAssigned,
@@ -116,29 +115,29 @@ describe("placement start-assignment artifacts", () => {
       });
       const evidence = Object.freeze({
         verifyEffect: () => adapter.verifyEffect(definition.id),
-        observeArtifact<C extends ArtifactContract>(module: ArtifactModule<C>) {
-          return observeValidatedArtifact(context, module);
+        observeArtifact<A extends Artifact>(artifact: A) {
+          return observeValidatedArtifact(context, artifact);
         },
       }) satisfies DependencyEvidence;
       return definition.satisfies?.(evidence);
     };
 
     const completeAssignment = makeSyntheticStartAssignment(10);
-    expect(placementArtifactModules.startAssignment.validate(completeAssignment)).toEqual([]);
+    expect(placementArtifacts.startAssignment.validate(completeAssignment)).toEqual([]);
     expect(satisfies(completeAssignment, 10)).toBe(true);
     expect(satisfies(completeAssignment, 11)).toBe(false);
 
     const partialAssignment = makeSyntheticStartAssignment(10, 9);
-    expect(placementArtifactModules.startAssignment.validate(partialAssignment)).toEqual([]);
+    expect(placementArtifacts.startAssignment.validate(partialAssignment)).toEqual([]);
     expect(satisfies(partialAssignment, 9)).toBe(false);
   });
 
   it("validates rung counts and fairness report consistency", () => {
     const assignment = makeSyntheticStartAssignment(0);
-    expect(placementArtifactModules.startAssignment.validate(assignment)).toEqual([]);
+    expect(placementArtifacts.startAssignment.validate(assignment)).toEqual([]);
 
     expect(
-      placementArtifactModules.startAssignment
+      placementArtifacts.startAssignment
         .validate({
           ...assignment,
           rungCounts: { ...assignment.rungCounts, regional: 1 },
@@ -146,7 +145,7 @@ describe("placement start-assignment artifacts", () => {
         .some((issue) => issue.message.includes("rungCounts.regional"))
     ).toBe(true);
     expect(
-      placementArtifactModules.startAssignment
+      placementArtifacts.startAssignment
         .validate({
           ...assignment,
           fairnessReport: { ...assignment.fairnessReport, parity: [1] },
@@ -156,7 +155,7 @@ describe("placement start-assignment artifacts", () => {
 
     const complete = makeSyntheticStartAssignment(1);
     expect(
-      placementArtifactModules.startAssignment
+      placementArtifacts.startAssignment
         .validate({
           ...complete,
           seats: [{ ...complete.seats[0]!, realizedRegionSlot: 0 }],

@@ -11,20 +11,16 @@ language js(typescript)
 
 or {
   import_statement(source=$source) where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/[^/]+/index\.ts$",
-    $source <: r"^[\"']?(?:\.\./[^/]+/index\.js|@mapgen/domain/[^/]+/ops(?:/index\.js)?)[\"']?$"
+    $source <: r"^[\"']?(?:\.\./(?:[^/]+/)?index\.js|@mapgen/domain/[^/]+/(?:[^/]+/)*(?:ops(?:/index\.js)?|router(?:\.js)?))[\"']?$"
   },
   `export { $exports } from $source` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/[^/]+/index\.ts$",
-    $source <: r"^[\"']?(?:\.\./[^/]+/index\.js|@mapgen/domain/[^/]+/ops(?:/index\.js)?)[\"']?$"
+    $source <: r"^[\"']?(?:\.\./(?:[^/]+/)?index\.js|@mapgen/domain/[^/]+/(?:[^/]+/)*(?:ops(?:/index\.js)?|router(?:\.js)?))[\"']?$"
   },
   `export * from $source` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/[^/]+/index\.ts$",
-    $source <: r"^[\"']?(?:\.\./[^/]+/index\.js|@mapgen/domain/[^/]+/ops(?:/index\.js)?)[\"']?$"
+    $source <: r"^[\"']?(?:\.\./(?:[^/]+/)?index\.js|@mapgen/domain/[^/]+/(?:[^/]+/)*(?:ops(?:/index\.js)?|router(?:\.js)?))[\"']?$"
   },
   `import($source)` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/[^/]+/index\.ts$",
-    $source <: r"^[\"']?(?:\.\./[^/]+/index\.js|@mapgen/domain/[^/]+/ops(?:/index\.js)?)[\"']?$"
+    $source <: r"^[\"']?(?:\.\./(?:[^/]+/)?index\.js|@mapgen/domain/[^/]+/(?:[^/]+/)*(?:ops(?:/index\.js)?|router(?:\.js)?))[\"']?$"
   }
 }
 ```
@@ -57,8 +53,21 @@ import rivers from '@mapgen/domain/hydrology/ops';
 
 export const value = rivers;
 
+// @filename: mods/mod-swooper-maps/src/domain/hydrology/ocean/ops/plan-currents/index.ts
+import hydrology from "@mapgen/domain/hydrology/ocean/router.js";
+
+export const value = hydrology;
+
+// @filename: mods/mod-swooper-maps/src/domain/ecology/biomes/ops/classify/index.ts
+import ecologyOps from "@mapgen/domain/ecology/biomes/ops";
+
+export const value = ecologyOps;
+
 // @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
 import "../compute-mesh/index.js";
+
+// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
+import "../index.js";
 
 // @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
 export { computeMesh } from "../compute-mesh/index.js";
@@ -104,36 +113,6 @@ export const value = privateOp;
 import privateOp from "@mapgen/domain/foundation/ops-by-id";
 
 export const value = privateOp;
-
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/index.ts
-import computeMesh from "./compute-mesh/index.js";
-
-export const value = computeMesh;
-
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/rules/index.ts
-import computeMesh from "../compute-mesh/index.js";
-
-export const value = computeMesh;
-
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.tsx
-import computeMesh from "../compute-mesh/index.js";
-
-export const value = computeMesh;
-
-// @filename: mods/other-mod/src/domain/foundation/ops/compute-crust/index.ts
-import computeMesh from "../compute-mesh/index.js";
-
-export const value = computeMesh;
-
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/demo/step.ts
-import foundationOps from "@mapgen/domain/foundation/ops";
-
-export const value = foundationOps;
-
-// @filename: mods/mod-swooper-maps/test/foundation/prohibit_cross_op_runtime_calls.test.ts
-import computeMesh from "../src/domain/foundation/ops/compute-mesh/index.js";
-
-export const value = computeMesh;
 
 // @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
 export { defaultStrategy } from "./strategies/index.js";

@@ -4,14 +4,13 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Runtime schema for publish-once receivers, accumulation, and basin assignments. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     flowDir: TypedArraySchemas.i32({
       description: "Steepest-descent receiver index per tile (or -1 for sinks/edges).",
@@ -35,8 +34,13 @@ export const artifact = defineArtifact({
   name: "routing",
   id: "artifact:morphology.routing",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/**
+ * Validates routing array kinds and, when dimensions are supplied, exact
+ * map-sized cardinality; `-1` receiver/basin sentinels remain schema values.
+ */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -56,9 +60,3 @@ function validateLocal(
   appendArtifactTypedArrayIssues(errors, "routing.basinId", candidate.basinId, Int32Array, size);
   return errors;
 }
-
-/**
- * Validates routing array kinds and, when dimensions are supplied, exact
- * map-sized cardinality; `-1` receiver/basin sentinels remain schema values.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

@@ -5,10 +5,10 @@ import {
 } from "@mapgen/domain/resources";
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 
-import { artifactModules as placementArtifactModules } from "../../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
-import { Schema as ResourceDemandPlanSchema } from "../../../../../../src/recipes/standard/stages/placement/artifacts/resource-demand-plan.artifact.js";
+import { artifacts as placementArtifacts } from "../../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
+import { artifact as ResourceDemandPlanArtifact } from "../../../../../../src/recipes/standard/stages/placement/artifacts/resource-demand-plan.artifact.js";
 
-type ResourceDemandPlanPayload = Static<typeof ResourceDemandPlanSchema>;
+type ResourceDemandPlanPayload = Static<typeof ResourceDemandPlanArtifact.schema>;
 
 describe("placement resource-demand-plan artifact", () => {
   it("requires exactly one terminal resource disposition for every planner candidate", () => {
@@ -147,7 +147,7 @@ describe("placement resource-demand-plan artifact", () => {
 });
 
 function resourceDemandMessages(value: ResourceDemandPlanPayload): string[] {
-  return placementArtifactModules.resourceDemandPlan.validate(value).map((issue) => issue.message);
+  return placementArtifacts.resourceDemandPlan.validate(value).map((issue) => issue.message);
 }
 
 function scenarioExcludedPayload(): ResourceDemandPlanPayload {

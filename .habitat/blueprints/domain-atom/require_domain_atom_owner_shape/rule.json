@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_atom_owner_shape",
+  "title": "Require Domain Atom Owner Shape",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-atom",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "domain or module model atoms outside their canonical schema-authoring dependency, re-export, and non-authority shape",
+  "why": "Model atoms are small reusable schema primitives, cohesive subentities, derived types, and stable identities, not complete artifact payloads, operation envelopes, artifact validators, policy resolvers, or stage authoring surfaces. Exact acquisition selects only root-domain and direct-module atoms, while source authority prevents runtime contracts or validation from being smuggled into the kind.",
+  "remediate": "Keep only genuinely composable schema parts at the nearest owning model/atoms directory, import schema authoring only from @swooper/mapgen-core/authoring/schema, and keep relative dependencies inside sibling atoms. Return complete artifact payload schemas to their artifact files, keep complete operation input/output envelopes inline in leaf contract.ts, and move artifact admission, semantic policy, and stage configuration to their respective owners.",
+  "message": "Domain model atoms must remain plain composable vocabulary without artifact, operation, recipe, or stage authority.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/domain/*/model/atoms/index.ts",
+        "mods/*/src/domain/*/model/atoms/*.schema.ts",
+        "mods/*/src/domain/*/modules/*/model/atoms/index.ts",
+        "mods/*/src/domain/*/modules/*/model/atoms/*.schema.ts"
+      ]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-atom/require_domain_atom_owner_shape/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/domain-atom/require_domain_atom_owner_shape/pattern.md"
+    },
+    "patternName": "require_domain_atom_owner_shape",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods"
+      ]
+    }
+  }
+}

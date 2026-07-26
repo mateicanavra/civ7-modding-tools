@@ -1,7 +1,4 @@
-import morphology, {
-  artifactModules as morphologyArtifactModules,
-  artifacts as morphologyArtifacts,
-} from "@mapgen/domain/morphology";
+import morphology, { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -23,7 +20,7 @@ export const MountainsStepContract = defineStep({
       morphologyArtifacts.routing,
       morphologyArtifacts.carvedCoastline,
     ],
-    provides: [morphologyArtifactModules.mountains],
+    provides: [morphologyArtifacts.mountains],
   },
   ops: {
     ridges: morphology.ops.planRidges,

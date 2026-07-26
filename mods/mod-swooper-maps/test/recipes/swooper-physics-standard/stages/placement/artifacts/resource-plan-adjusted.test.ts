@@ -1,11 +1,9 @@
 import { describe, expect, it } from "bun:test";
 
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
-import { artifactModules as placementArtifactModules } from "../../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
+import { artifacts as placementArtifacts } from "../../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
 
-type ResourcePlanAdjusted = Static<
-  (typeof placementArtifactModules)["resourcePlanAdjusted"]["artifact"]["schema"]
->;
+type ResourcePlanAdjusted = Static<(typeof placementArtifacts)["resourcePlanAdjusted"]["schema"]>;
 
 const SYNTHETIC_DIMENSIONS = { width: 5, height: 4 } as const;
 const SYNTHETIC_SEAM_DIMENSIONS = { width: 2, height: 2 } as const;
@@ -151,7 +149,7 @@ function inactiveResourcePlan(): ResourcePlanAdjusted {
 describe("placement adjusted resource-plan artifact", () => {
   it("reconciles coherent resource moves, additions, provenance, and support evidence", () => {
     expect(
-      placementArtifactModules.resourcePlanAdjusted.validate(coherentAdjustedResourcePlan(), {
+      placementArtifacts.resourcePlanAdjusted.validate(coherentAdjustedResourcePlan(), {
         dimensions: SYNTHETIC_DIMENSIONS,
       })
     ).toEqual([]);
@@ -161,7 +159,7 @@ describe("placement adjusted resource-plan artifact", () => {
     const support = coherentAdjustedResourcePlan();
     support.perStart[1]!.supportAfter = 1;
     expect(
-      placementArtifactModules.resourcePlanAdjusted
+      placementArtifacts.resourcePlanAdjusted
         .validate(support, { dimensions: SYNTHETIC_DIMENSIONS })
         .some((entry) => entry.message.includes("supportAfter"))
     ).toBe(true);
@@ -169,7 +167,7 @@ describe("placement adjusted resource-plan artifact", () => {
     const gap = coherentAdjustedResourcePlan();
     gap.equity.gapBefore = 0;
     expect(
-      placementArtifactModules.resourcePlanAdjusted
+      placementArtifacts.resourcePlanAdjusted
         .validate(gap, { dimensions: SYNTHETIC_DIMENSIONS })
         .some((entry) => entry.message.includes("gapBefore"))
     ).toBe(true);
@@ -177,7 +175,7 @@ describe("placement adjusted resource-plan artifact", () => {
     const singleSeat = inactiveResourcePlan();
     singleSeat.equity.gapAfter = 0;
     expect(
-      placementArtifactModules.resourcePlanAdjusted
+      placementArtifacts.resourcePlanAdjusted
         .validate(singleSeat, { dimensions: SYNTHETIC_DIMENSIONS })
         .some((entry) => entry.message.includes("gapAfter"))
     ).toBe(true);
@@ -185,7 +183,7 @@ describe("placement adjusted resource-plan artifact", () => {
 
   it("requires exact terminal floor-shortfall evidence", () => {
     expect(
-      placementArtifactModules.resourcePlanAdjusted.validate(inactiveResourcePlan(), {
+      placementArtifacts.resourcePlanAdjusted.validate(inactiveResourcePlan(), {
         dimensions: SYNTHETIC_DIMENSIONS,
       })
     ).toEqual([]);
@@ -207,7 +205,7 @@ describe("placement adjusted resource-plan artifact", () => {
       const value = inactiveResourcePlan();
       mutate(value);
       expect(
-        placementArtifactModules.resourcePlanAdjusted.validate(value, {
+        placementArtifacts.resourcePlanAdjusted.validate(value, {
           dimensions: SYNTHETIC_DIMENSIONS,
         }).length
       ).toBeGreaterThan(0);
@@ -239,14 +237,14 @@ describe("placement adjusted resource-plan artifact", () => {
     value.shortfalls = [{ seatIndex: 0, reason: "equity-unresolvable", missing: 1 }];
 
     expect(
-      placementArtifactModules.resourcePlanAdjusted.validate(value, {
+      placementArtifacts.resourcePlanAdjusted.validate(value, {
         dimensions: SYNTHETIC_DIMENSIONS,
       })
     ).toEqual([]);
 
     requiredAt(value.shortfalls, 0, "equity shortfall").missing = 2;
     expect(
-      placementArtifactModules.resourcePlanAdjusted
+      placementArtifacts.resourcePlanAdjusted
         .validate(value, { dimensions: SYNTHETIC_DIMENSIONS })
         .some((entry) => entry.message.includes("equity shortfall"))
     ).toBe(true);
@@ -256,7 +254,7 @@ describe("placement adjusted resource-plan artifact", () => {
     const inactive = coherentAdjustedResourcePlan();
     inactive.settings.enabled = false;
     expect(
-      placementArtifactModules.resourcePlanAdjusted
+      placementArtifacts.resourcePlanAdjusted
         .validate(inactive, { dimensions: SYNTHETIC_DIMENSIONS })
         .some((entry) => entry.message.includes("inactive resource evidence"))
     ).toBe(true);
@@ -264,7 +262,7 @@ describe("placement adjusted resource-plan artifact", () => {
     const mismatched = coherentAdjustedResourcePlan();
     requiredAt(mismatched.adjustments, 0, "adjustment").reason = "support-equity";
     expect(
-      placementArtifactModules.resourcePlanAdjusted
+      placementArtifacts.resourcePlanAdjusted
         .validate(mismatched, { dimensions: SYNTHETIC_DIMENSIONS })
         .some((entry) => entry.message.includes("adjustment/provenance"))
     ).toBe(true);
@@ -275,7 +273,7 @@ describe("placement adjusted resource-plan artifact", () => {
     movedIntent.support.seatIndex = 8;
     requiredAt(unknownSeat.adjustments, 0, "adjustment").seatIndex = 8;
     expect(
-      placementArtifactModules.resourcePlanAdjusted
+      placementArtifacts.resourcePlanAdjusted
         .validate(unknownSeat, { dimensions: SYNTHETIC_DIMENSIONS })
         .some((entry) => entry.message.includes("adjustment names unknown seat"))
     ).toBe(true);
@@ -288,7 +286,7 @@ describe("placement adjusted resource-plan artifact", () => {
     if (stationaryAdjustment.action !== "move") throw new Error("Missing move adjustment.");
     stationaryAdjustment.fromPlotIndex = stationaryIntent.plotIndex;
     expect(
-      placementArtifactModules.resourcePlanAdjusted
+      placementArtifacts.resourcePlanAdjusted
         .validate(stationaryMove, { dimensions: SYNTHETIC_DIMENSIONS })
         .some((entry) => entry.message.includes("must be different plots"))
     ).toBe(true);
@@ -300,7 +298,7 @@ describe("placement adjusted resource-plan artifact", () => {
     if (movedIntent.support?.action !== "move") throw new Error("Missing move provenance.");
     Reflect.deleteProperty(movedIntent.support, "fromPlotIndex");
     expect(
-      placementArtifactModules.resourcePlanAdjusted.validate(moveWithoutSource, {
+      placementArtifacts.resourcePlanAdjusted.validate(moveWithoutSource, {
         dimensions: SYNTHETIC_DIMENSIONS,
       }).length
     ).toBeGreaterThan(0);
@@ -310,7 +308,7 @@ describe("placement adjusted resource-plan artifact", () => {
     if (moveRow.action !== "move") throw new Error("Missing move adjustment.");
     Reflect.deleteProperty(moveRow, "fromPlotIndex");
     expect(
-      placementArtifactModules.resourcePlanAdjusted.validate(moveRowWithoutSource, {
+      placementArtifacts.resourcePlanAdjusted.validate(moveRowWithoutSource, {
         dimensions: SYNTHETIC_DIMENSIONS,
       }).length
     ).toBeGreaterThan(0);
@@ -320,7 +318,7 @@ describe("placement adjusted resource-plan artifact", () => {
     if (addedIntent.support?.action !== "add") throw new Error("Missing add provenance.");
     Reflect.set(addedIntent.support, "fromPlotIndex", 17);
     expect(
-      placementArtifactModules.resourcePlanAdjusted.validate(addWithSource, {
+      placementArtifacts.resourcePlanAdjusted.validate(addWithSource, {
         dimensions: SYNTHETIC_DIMENSIONS,
       }).length
     ).toBeGreaterThan(0);
@@ -330,7 +328,7 @@ describe("placement adjusted resource-plan artifact", () => {
     if (addRow.action !== "add") throw new Error("Missing add adjustment.");
     Reflect.set(addRow, "fromPlotIndex", 17);
     expect(
-      placementArtifactModules.resourcePlanAdjusted.validate(addRowWithSource, {
+      placementArtifacts.resourcePlanAdjusted.validate(addRowWithSource, {
         dimensions: SYNTHETIC_DIMENSIONS,
       }).length
     ).toBeGreaterThan(0);
@@ -339,20 +337,20 @@ describe("placement adjusted resource-plan artifact", () => {
   it("refuses output settings outside the admitted strategy ranges", () => {
     const invalidFloor = coherentAdjustedResourcePlan();
     invalidFloor.settings.supportFloor = 7;
-    expect(
-      placementArtifactModules.resourcePlanAdjusted.validate(invalidFloor).length
-    ).toBeGreaterThan(0);
+    expect(placementArtifacts.resourcePlanAdjusted.validate(invalidFloor).length).toBeGreaterThan(
+      0
+    );
 
     const invalidRadius = coherentAdjustedResourcePlan();
     invalidRadius.settings.supportRadiusTiles = 0;
-    expect(
-      placementArtifactModules.resourcePlanAdjusted.validate(invalidRadius).length
-    ).toBeGreaterThan(0);
+    expect(placementArtifacts.resourcePlanAdjusted.validate(invalidRadius).length).toBeGreaterThan(
+      0
+    );
 
     const invalidTolerance = coherentAdjustedResourcePlan();
     invalidTolerance.settings.equityTolerance = 9;
     expect(
-      placementArtifactModules.resourcePlanAdjusted.validate(invalidTolerance).length
+      placementArtifacts.resourcePlanAdjusted.validate(invalidTolerance).length
     ).toBeGreaterThan(0);
   });
 
@@ -393,7 +391,7 @@ describe("placement adjusted resource-plan artifact", () => {
     };
 
     expect(
-      placementArtifactModules.resourcePlanAdjusted.validate(seam, {
+      placementArtifacts.resourcePlanAdjusted.validate(seam, {
         dimensions: SYNTHETIC_SEAM_DIMENSIONS,
       })
     ).toEqual([]);
@@ -403,7 +401,7 @@ describe("placement adjusted resource-plan artifact", () => {
     const coordinate = coherentAdjustedResourcePlan();
     requiredAt(coordinate.intents, 0, "resource intent").x = 2;
     expect(
-      placementArtifactModules.resourcePlanAdjusted
+      placementArtifacts.resourcePlanAdjusted
         .validate(coordinate, { dimensions: SYNTHETIC_DIMENSIONS })
         .some((entry) => entry.message.includes("encodes"))
     ).toBe(true);
@@ -416,13 +414,13 @@ describe("placement adjusted resource-plan artifact", () => {
     if (adjustment.action !== "move") throw new Error("Missing move adjustment.");
     adjustment.fromPlotIndex = 10;
     expect(
-      placementArtifactModules.resourcePlanAdjusted
+      placementArtifacts.resourcePlanAdjusted
         .validate(duplicateSource, { dimensions: SYNTHETIC_DIMENSIONS })
         .some((entry) => entry.message.includes("pre-adjustment"))
     ).toBe(true);
 
     expect(
-      placementArtifactModules.resourcePlanAdjusted
+      placementArtifacts.resourcePlanAdjusted
         .validate(coherentAdjustedResourcePlan(), {
           dimensions: SYNTHETIC_TRANSPOSED_DIMENSIONS,
         })

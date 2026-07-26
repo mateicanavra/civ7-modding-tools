@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_ops_contract_registry_surface",
+  "title": "Require Domain Ops Contract Registry Surface",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-operation",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "advisory",
+  "forbids": "ops/contract.ts registries exposing constituent operation contracts or any authority besides their singular default registry",
+  "why": "The operation-contract registry is one typed aggregate consumed by the module contract and implementation registry. Keeping constituent contracts private prevents alternate import routes and preserves operation ownership.",
+  "remediate": "Default-import each sibling operation contract, assemble one private const contracts registry, export it as default, and remove every constituent named re-export.",
+  "message": "Domain ops/contract.ts must expose one default contract registry authority only.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/domain/*/ops/contract.ts",
+        "mods/*/src/domain/*/modules/*/ops/contract.ts"
+      ]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-operation/require_domain_ops_contract_registry_surface/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/domain-operation/require_domain_ops_contract_registry_surface/pattern.md"
+    },
+    "patternName": "require_domain_ops_contract_registry_surface",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["mods"]
+    }
+  }
+}

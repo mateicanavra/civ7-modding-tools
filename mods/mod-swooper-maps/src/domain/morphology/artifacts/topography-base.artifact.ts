@@ -4,20 +4,21 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
 } from "@swooper/mapgen-core/authoring/contracts";
 import { MorphologyTopographySchema } from "../model/schemas/index.js";
 
 /** Closed schema for the initial landmass topography before coastline carving. */
-export const Schema = MorphologyTopographySchema;
+const Schema = MorphologyTopographySchema;
 
 /** Registers the base topography consumed only by coastline carving. */
 export const artifact = defineArtifact({
   name: "baseTopography",
   id: "artifact:morphology.topography.base",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/** Admits map-sized base topography fields after Core validates the vintage shape. */
 function validateLocal(
   value: unknown,
   context?: ArtifactValidationContext
@@ -48,6 +49,3 @@ function validateLocal(
   );
   return issues;
 }
-
-/** Admits map-sized base topography fields after Core validates the vintage shape. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

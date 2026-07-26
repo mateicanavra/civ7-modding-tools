@@ -1,11 +1,12 @@
 import { describe, expect, it } from "bun:test";
-import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import foundation from "@mapgen/domain/foundation/router";
 import { TEST_MAP_SIZE } from "../../../map-size.js";
-import { deriveMantleForcing, derivePlateMotion } from "../fixtures/tectonic-operation-chain.js";
-import { runTectonicHistoryChain } from "../fixtures/tectonics-history.js";
+import { deriveMantleForcing, derivePlateMotion } from "./fixtures/tectonic-operation-chain.js";
+import { runTectonicHistoryChain } from "./fixtures/tectonics-history.js";
 
-const { computeCrust, computeMesh, computePlateGraph, computeTectonicSegments } =
-  foundationOpsPublic.ops;
+const { computeMesh } = foundation.mesh.ops;
+const { computeCrust, computePlateGraph } = foundation.lithosphere.ops;
+const { computeTectonicSegments } = foundation.tectonics.ops;
 
 describe("foundation tectonic operation history chain", () => {
   it("keeps crust, plate graph, segments, and history deterministic and internally consistent", () => {
@@ -29,7 +30,6 @@ describe("foundation tectonic operation history chain", () => {
       {
         mesh,
         mantleForcing,
-        rngSeed: 3,
       },
       computeCrust.defaultConfig
     ).crust;
@@ -38,7 +38,6 @@ describe("foundation tectonic operation history chain", () => {
       {
         mesh,
         mantleForcing,
-        rngSeed: 3,
       },
       computeCrust.defaultConfig
     ).crust;

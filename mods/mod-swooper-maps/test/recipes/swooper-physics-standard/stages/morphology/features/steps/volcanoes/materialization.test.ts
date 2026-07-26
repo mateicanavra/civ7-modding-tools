@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { artifactModules as foundationArtifactModules } from "@mapgen/domain/foundation";
-import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
+import { artifacts as foundationProjectionArtifacts } from "@mapgen/domain/foundation/modules/projection/artifacts";
+import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import morphologyDomain from "@mapgen/domain/morphology/ops";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
@@ -45,7 +45,7 @@ describe("morphology-features volcano materialization", () => {
     const dependencies = buildStepTestDependencies(VolcanoesStep);
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, foundationArtifactModules.plates, {
+      publishTestArtifact(stepContext, foundationProjectionArtifacts.plates, {
         id: new Int16Array(size),
         boundaryCloseness: new Uint8Array(size),
         boundaryType,
@@ -58,7 +58,7 @@ describe("morphology-features volcano materialization", () => {
         movementV: new Int8Array(size),
         rotation: new Int8Array(size),
       });
-      publishTestArtifact(stepContext, morphologyArtifactModules.topography, {
+      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask,
@@ -84,7 +84,7 @@ describe("morphology-features volcano materialization", () => {
       );
     });
 
-    const evidence = readValidatedArtifact(context, morphologyArtifactModules.volcanoes);
+    const evidence = readValidatedArtifact(context, morphologyArtifacts.volcanoes);
     expect(evidence.volcanoes).toEqual([
       { tileIndex: riftIndex, kind: "rift", strength01: 128 / 255 },
       { tileIndex: subductionIndex, kind: "subductionArc", strength01: 1 },

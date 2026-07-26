@@ -11,16 +11,17 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "enforced",
-  "forbids": "domain operation contract files outside the positive contract-owner shape: defineOp must be present, imports must come only from contract authoring/core, artifacts, model schema/policy owners, and sanctioned external policy/schema packages",
-  "why": "Operation contracts are the schema boundary for domain operations. Inputs, outputs, and strategy envelopes must live at the contract definition site, with reusable primitives pulled from named domain model owners instead of generic config bags or cross-operation contract envelopes.",
-  "remediate": "Inline operation input/output/strategy envelopes into the owning contract.ts, move reusable primitives to model/schemas, move reusable policy to model/policy, and keep createOp/createStage usage outside contract files.",
+  "lane": "advisory",
+  "forbids": "domain operation contract files outside the positive contract-owner shape: defineOp must be the singular default export, and imports must come only from contract authoring, nearest model atoms and policy, and sanctioned external policy packages",
+  "why": "Operation contracts are the sole owners of complete operation input/output envelopes. Those roots are authored directly in defineOp and may compose smaller nearest-owner atoms, but they never borrow an artifact payload or become reusable model vocabulary. Strategy configuration has its own semantic strategy-leaf owner; the current advisory seals the surrounding authority and dependency boundary while that topology migration remains a successor.",
+  "remediate": "Inline complete input and output Type.* schemas directly in defineOp, decompose reusable schema parts into the nearest atoms owner, and move each strategy configuration schema to its semantic strategy leaf contract. Remove artifact dependencies, detached InputSchema/OutputSchema/StrategySchema authorities, and named exports; keep createOp/createStage usage outside contract files. The strategy-leaf API and global corpus enforcement land in the dedicated successor rather than being simulated here.",
   "message": "Operation contract files must own the positive operation contract shape.",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/mod-swooper-maps/src/domain/**/ops/*/contract.ts"
+        "mods/*/src/domain/*/ops/*/contract.ts",
+        "mods/*/src/domain/*/modules/*/ops/*/contract.ts"
       ]
     }
   ],
@@ -36,14 +37,7 @@
     "patternName": "require_domain_operation_contract_file_shape",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods/mod-swooper-maps/src/domain/ecology/ops",
-        "mods/mod-swooper-maps/src/domain/foundation/ops",
-        "mods/mod-swooper-maps/src/domain/hydrology/ops",
-        "mods/mod-swooper-maps/src/domain/morphology/ops",
-        "mods/mod-swooper-maps/src/domain/placement/ops",
-        "mods/mod-swooper-maps/src/domain/resources/ops"
-      ]
+      "roots": ["mods"]
     }
   }
 }

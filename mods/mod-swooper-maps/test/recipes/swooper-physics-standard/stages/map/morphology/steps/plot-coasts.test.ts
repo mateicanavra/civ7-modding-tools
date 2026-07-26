@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
-import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
+import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import {
@@ -61,7 +61,7 @@ describe("map-morphology/plot-coasts", () => {
     shelfMask[width + 2] = 1; // (2,1)
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyArtifactModules.topography, {
+      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask,
@@ -69,7 +69,7 @@ describe("map-morphology/plot-coasts", () => {
       });
       publishTestArtifact(
         stepContext,
-        morphologyArtifactModules.shelf,
+        morphologyArtifacts.shelf,
         shelfFixture(size, shelfMask, coastalWater)
       );
 
@@ -128,7 +128,7 @@ describe("map-morphology/plot-coasts", () => {
     shelfMask[shelfIndex] = 1;
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyArtifactModules.topography, {
+      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask,
@@ -136,7 +136,7 @@ describe("map-morphology/plot-coasts", () => {
       });
       publishTestArtifact(
         stepContext,
-        morphologyArtifactModules.shelf,
+        morphologyArtifacts.shelf,
         shelfFixture(size, shelfMask, coastalWater)
       );
 

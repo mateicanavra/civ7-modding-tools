@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { artifactModules as ecologyArtifactModules } from "@mapgen/domain/ecology";
+import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
 import ecology from "@mapgen/domain/ecology/ops";
-import { artifactModules as hydrologyClimateRefineArtifactModules } from "@mapgen/domain/hydrology";
-import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
+import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -57,13 +57,13 @@ describe("biomes step", () => {
     );
 
     withMapContextExecutionForTest(ctx, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyArtifactModules.topography, {
+      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
         elevation,
         seaLevel: 0,
         landMask,
         bathymetry: new Int16Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyClimateRefineArtifactModules.cryosphere, {
+      publishTestArtifact(stepContext, hydrologyArtifacts.cryosphere, {
         snowCover: new Uint8Array(size),
         seaIceCover: new Uint8Array(size),
         albedo: new Uint8Array(size),
@@ -72,14 +72,14 @@ describe("biomes step", () => {
         meltPotential01: new Float32Array(size),
       });
 
-      publishTestArtifact(stepContext, hydrologyClimateRefineArtifactModules.climateIndices, {
+      publishTestArtifact(stepContext, hydrologyArtifacts.climateIndices, {
         surfaceTemperatureC,
         effectiveMoisture: effectiveMoistureIn,
         pet: new Float32Array(size),
         aridityIndex,
         freezeIndex,
       });
-      publishTestArtifact(stepContext, ecologyArtifactModules.pedology, {
+      publishTestArtifact(stepContext, ecologyArtifacts.pedology, {
         width,
         height,
         soilType: new Uint8Array(size).fill(0),
@@ -100,7 +100,7 @@ describe("biomes step", () => {
       );
     });
 
-    const classification = readValidatedArtifact(ctx, ecologyArtifactModules.biomeClassification);
+    const classification = readValidatedArtifact(ctx, ecologyArtifacts.biomeClassification);
     expect(Array.from(classification.biomeIndex)).not.toContain(255);
     expect(new Set(classification.biomeIndex).size).toBeGreaterThan(1);
     expect(new Set(classification.vegetationDensity).size).toBeGreaterThan(1);
@@ -137,13 +137,13 @@ describe("biomes step", () => {
       const elevation = new Int16Array(size).fill(1);
 
       withMapContextExecutionForTest(ctx, (stepContext) => {
-        publishTestArtifact(stepContext, morphologyArtifactModules.topography, {
+        publishTestArtifact(stepContext, morphologyArtifacts.topography, {
           elevation,
           seaLevel: 0,
           landMask,
           bathymetry: new Int16Array(size),
         });
-        publishTestArtifact(stepContext, hydrologyClimateRefineArtifactModules.cryosphere, {
+        publishTestArtifact(stepContext, hydrologyArtifacts.cryosphere, {
           snowCover: new Uint8Array(size),
           seaIceCover: new Uint8Array(size),
           albedo: new Uint8Array(size),
@@ -151,14 +151,14 @@ describe("biomes step", () => {
           permafrost01: new Float32Array(size),
           meltPotential01: new Float32Array(size),
         });
-        publishTestArtifact(stepContext, hydrologyClimateRefineArtifactModules.climateIndices, {
+        publishTestArtifact(stepContext, hydrologyArtifacts.climateIndices, {
           surfaceTemperatureC: new Float32Array(size).fill(15),
           effectiveMoisture: effectiveMoistureIn,
           pet: new Float32Array(size),
           aridityIndex: new Float32Array(size).fill(0.2),
           freezeIndex: new Float32Array(size).fill(0.05),
         });
-        publishTestArtifact(stepContext, ecologyArtifactModules.pedology, {
+        publishTestArtifact(stepContext, ecologyArtifacts.pedology, {
           width,
           height,
           soilType: new Uint8Array(size).fill(0),
@@ -173,8 +173,7 @@ describe("biomes step", () => {
           buildStepTestDependencies(biomesStep)
         );
       });
-      return readValidatedArtifact(ctx, ecologyArtifactModules.biomeClassification)
-        .vegetationDensity;
+      return readValidatedArtifact(ctx, ecologyArtifacts.biomeClassification).vegetationDensity;
     };
 
     const baseline = new Float32Array(size).fill(120);

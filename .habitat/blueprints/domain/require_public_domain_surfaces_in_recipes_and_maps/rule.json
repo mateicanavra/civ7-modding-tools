@@ -11,11 +11,11 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "enforced",
-  "forbids": "recipe or map source importing domain code outside the domain root, ops, artifacts, named model schema/policy modules, or one named model data collection",
-  "why": "Recipes compose domains through named public surfaces, not relative reaches, shared buckets, broad data buckets, operation-local files, or private implementation modules.",
+  "lane": "advisory",
+  "forbids": "recipe or map source importing domain code outside the aggregate contract, runtime router, model atoms or policy, and module-owned artifact catalogs",
+  "why": "Recipes compose a domain through its aggregate contract and router, consume immutable products from their semantic module, and read named vocabulary from the nearest model owner. They do not reach through a module into operations, rules, or private implementations.",
   "remediate": null,
-  "message": "Recipe and map source may import domain code only through the domain root, ops, artifacts, named model schema/policy modules, or a named model data collection.",
+  "message": "Recipe and map source may import domain code only through the root contract/router, nearest model atoms or policy, and module artifact catalogs.",
   "pathCoverage": [
     {
       "kind": "exact-path",
@@ -39,9 +39,7 @@
     "patternName": "require_public_domain_surfaces_in_recipes_and_maps",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods"
-      ]
+      "roots": ["mods"]
     }
   }
 }

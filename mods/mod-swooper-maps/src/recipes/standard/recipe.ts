@@ -1,9 +1,9 @@
 import ecologyDomain from "@mapgen/domain/ecology/ops";
-import foundationDomain from "@mapgen/domain/foundation/ops";
+import foundationDomain from "@mapgen/domain/foundation/router";
 import hydrologyDomain from "@mapgen/domain/hydrology/ops";
 import morphologyDomain from "@mapgen/domain/morphology/ops";
 import placementDomain from "@mapgen/domain/placement/ops";
-import resourcesDomain from "@mapgen/domain/resources/ops";
+import resourcesDomain from "@mapgen/domain/resources/router";
 import {
   type CompiledRecipeConfigOf,
   collectCompileOps,

@@ -6,7 +6,7 @@ import {
   MAP_PROJECTION_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "../../../../../tag-contracts.js";
-import { artifactModules as mapEcologyArtifactModules } from "../../artifacts/index.js";
+import { artifacts as mapEcologyArtifacts } from "../../artifacts/index.js";
 
 /**
  * Defines the translation from Ecology biome symbols to fixed official Civ7 biome identities. It
@@ -27,7 +27,7 @@ export const PlotBiomesStepContract = defineStep({
       hydrologyArtifacts.climateIndices,
       morphologyArtifacts.topography,
     ],
-    provides: [mapEcologyArtifactModules.biomeBindings],
+    provides: [mapEcologyArtifacts.biomeBindings],
   },
   schema: Type.Object(
     {},

@@ -2,7 +2,6 @@ import {
   type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
@@ -36,7 +35,7 @@ const EngineTerrainFactsSnapshotSchema = Type.Object(
  * Runtime contract for the three engine-fact snapshots bracketing terrain validation and final
  * maintenance, allowing placement-surface drift to be localized to one boundary.
  */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -59,8 +58,10 @@ export const artifact = defineArtifact({
   name: "placementSurfaceValidationBoundary",
   id: "artifact:map.placementSurfaceValidationBoundary",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/** Binds every boundary snapshot's typed engine surfaces to the payload dimensions. */
 function validateLocal(input: unknown): ArtifactValidationIssue[] {
   const value = input as Static<typeof Schema>;
   const issues: ArtifactValidationIssue[] = [];
@@ -86,6 +87,3 @@ function validateLocal(input: unknown): ArtifactValidationIssue[] {
   }
   return issues;
 }
-
-/** Binds every boundary snapshot's typed engine surfaces to the payload dimensions. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

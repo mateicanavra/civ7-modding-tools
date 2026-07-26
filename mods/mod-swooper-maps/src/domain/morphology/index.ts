@@ -1,9 +1,9 @@
 import { defineDomain } from "@swooper/mapgen-core/authoring/contracts";
 
-import ops from "./ops/contracts.js";
+import ops from "./ops/contract.js";
 
 const domain = defineDomain({ id: "morphology", ops } as const);
 
-export { artifactModules, artifacts } from "./artifacts/index.js";
+export { artifacts } from "./artifacts/index.js";
 
 export default domain;

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { implementArtifactModules } from "@mapgen/authoring/artifact/runtime.js";
-import { defineArtifact, defineArtifactValidator } from "@mapgen/authoring/index.js";
+import { implementArtifacts } from "@mapgen/authoring/artifact/runtime.js";
+import { defineArtifact } from "@mapgen/authoring/index.js";
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
 import { PipelineAbortError } from "@mapgen/engine/errors.js";
 import {
@@ -25,11 +25,7 @@ const facetedStepArtifact = defineArtifact({
   id: PROVIDED_TAG,
   schema: Type.Boolean(),
 });
-const facetedStepModule = {
-  artifact: facetedStepArtifact,
-  validate: defineArtifactValidator(facetedStepArtifact),
-};
-const facetedStepArtifacts = implementArtifactModules([facetedStepModule]);
+const facetedStepArtifacts = implementArtifacts([facetedStepArtifact]);
 const TEST_ENV = {
   mapSeed: 7,
   dimensions: { width: 8, height: 6 },
@@ -72,7 +68,7 @@ function captureFacetRegistry(
         kind: "artifact",
         satisfies: (evidence) => {
           onProvides?.();
-          return evidence.observeArtifact(facetedStepModule).found;
+          return evidence.observeArtifact(facetedStepArtifact).found;
         },
       },
     ]);

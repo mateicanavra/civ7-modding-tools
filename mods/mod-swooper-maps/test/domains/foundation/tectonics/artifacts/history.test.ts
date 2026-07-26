@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import { artifactModules as foundationArtifactModules } from "@mapgen/domain/foundation/artifacts";
+import { artifacts } from "@mapgen/domain/foundation/modules/tectonics/artifacts";
 
-const { plateIdByEra, tectonicEraFields, tectonicHistory, tectonicProvenance, tracerIndexByEra } =
-  foundationArtifactModules;
+const { tectonicHistory, tectonicProvenance } = artifacts;
 const SYNTHETIC_CELL_COUNT = 3;
 const MINIMUM_ERA_COUNT = 5;
 
@@ -72,26 +71,6 @@ function validTectonicProvenance(eraCount = MINIMUM_ERA_COUNT) {
   };
 }
 
-function validEraFields() {
-  return {
-    boundaryType: u8(),
-    boundaryPolarity: i8(),
-    boundaryIntensity: u8(),
-    upliftPotential: u8(),
-    collisionPotential: u8(),
-    subductionPotential: u8(),
-    riftPotential: u8(),
-    shearStress: u8(),
-    volcanism: u8(),
-    fracture: u8(),
-    riftOriginPlate: i16(),
-    volcanismOriginPlate: i16(),
-    volcanismEventType: u8(),
-    boundaryDriftU: i8(),
-    boundaryDriftV: i8(),
-  };
-}
-
 function validationMessages(
   validate: (value: unknown) => readonly { message: string }[],
   value: unknown
@@ -127,7 +106,14 @@ describe("foundation tectonic-history artifacts", () => {
     ).toContain("upliftPotential");
 
     expect(
-      validationMessages(plateIdByEra.validate, [i16(), new Int16Array(SYNTHETIC_CELL_COUNT - 1)])
+      validationMessages(tectonicHistory.validate, {
+        ...history,
+        plateIdByEra: [
+          i16(),
+          new Int16Array(SYNTHETIC_CELL_COUNT - 1),
+          ...history.plateIdByEra.slice(2),
+        ],
+      })
     ).toContain("plateIdByEra");
   });
 
@@ -145,23 +131,5 @@ describe("foundation tectonic-history artifacts", () => {
         provenance: { ...provenance.provenance, originPlateId: u8() },
       })
     ).toContain("originPlateId");
-    expect(validationMessages(tracerIndexByEra.validate, [u32(), new Int32Array(3)])).toContain(
-      "tracerIndexByEra"
-    );
-  });
-
-  it("keeps every per-era field on its declared typed-array constructor and cardinality", () => {
-    const era = validEraFields();
-    expect(tectonicEraFields.validate([era])).toEqual([]);
-    expect(
-      validationMessages(tectonicEraFields.validate, [
-        { ...era, boundaryDriftV: new Float32Array(SYNTHETIC_CELL_COUNT) },
-      ])
-    ).toContain("boundaryDriftV");
-    expect(
-      validationMessages(tectonicEraFields.validate, [
-        { ...era, volcanism: new Uint8Array(SYNTHETIC_CELL_COUNT - 1) },
-      ])
-    ).toContain("volcanism");
   });
 });

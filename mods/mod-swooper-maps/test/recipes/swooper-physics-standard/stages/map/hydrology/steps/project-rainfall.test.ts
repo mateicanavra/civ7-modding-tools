@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { MockAdapter } from "@civ7/adapter";
-import { artifactModules as hydrologyClimateRefineArtifactModules } from "@mapgen/domain/hydrology";
+import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import {
   buildStepTestDependencies,
@@ -34,7 +34,7 @@ describe("map-hydrology/project-rainfall", () => {
       adapter,
     });
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, hydrologyClimateRefineArtifactModules.climateField, {
+      publishTestArtifact(stepContext, hydrologyArtifacts.climateField, {
         rainfall,
         humidity: new Uint8Array(width * height),
       });

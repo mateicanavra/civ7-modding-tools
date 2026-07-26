@@ -4,14 +4,13 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Runtime contract for the engine terrain snapshot immediately after lake projection. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     stage: Type.String({
       description: "Step identifier that produced this snapshot.",
@@ -43,9 +42,11 @@ export const artifact = defineArtifact({
   name: "hydrologyLakesEngineTerrainSnapshot",
   id: "artifact:map.hydrologyLakesEngineTerrainSnapshot",
   schema: Schema,
+  refine: validateLocal,
 });
 
 /** Validates the post-lake engine snapshot's dimensions and typed tile surfaces. */
+/** Admits map-sized typed terrain readback captured after lake projection. */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -59,6 +60,3 @@ function validateLocal(
   appendArtifactTypedArrayIssues(issues, "elevation", candidate.elevation, Int16Array, cellCount);
   return Object.freeze(issues);
 }
-
-/** Admits map-sized typed terrain readback captured after lake projection. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

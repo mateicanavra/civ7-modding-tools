@@ -1,8 +1,5 @@
-import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
-import morphology, {
-  artifactModules as morphologyArtifactModules,
-  artifacts as morphologyArtifacts,
-} from "@mapgen/domain/morphology";
+import { artifacts as foundationProjectionArtifacts } from "@mapgen/domain/foundation/modules/projection/artifacts";
+import morphology, { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -13,8 +10,8 @@ export const IslandsStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [foundationArtifacts.plates, morphologyArtifacts.erodedTopography],
-    provides: [morphologyArtifactModules.topography],
+    requires: [foundationProjectionArtifacts.plates, morphologyArtifacts.erodedTopography],
+    provides: [morphologyArtifacts.topography],
   },
   ops: {
     islands: morphology.ops.planIslandChains,

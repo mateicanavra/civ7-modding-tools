@@ -6,21 +6,21 @@ Subject:
 `<domain>/artifacts/`
 
 Ownership boundary:
-artifact owner files plus one optional local aggregate. Each `*.artifact.ts`
-file defines one pipeline data-product contract and its schema, artifact
-definition, publish-time validator, and any narrow assertion surface justified
-by direct operation-boundary use. `index.ts` may only aggregate those owner
-modules through one `defineArtifactCatalog` call and expose the catalog-derived
-`artifactModules` and `artifacts`; it must not define artifact payload schema,
-artifact validation logic, operation behavior, or parallel contract/validator
-maps.
+artifact owner files plus one local aggregate. Each `*.artifact.ts` file defines
+one canonical artifact with `defineArtifact({ name, id, schema, refine? })`.
+That artifact owns identity, a private structural schema, and complete
+publish-time admission. Its only runtime export is `artifact`; a private
+`refine` callback may add relational or domain issues after Core admits
+structure. `index.ts` may only named-import sibling artifacts and directly
+export one `artifacts` catalog; it must not define payload schema, validation,
+operation behavior, or parallel contract/validator/module maps.
 
 Architectural evidence:
 pipeline data products need explicit contracts consumed by stages, steps, or
-artifact assemblers. The only accepted sibling to artifact owner files is a
-directory-local aggregate index for importing the artifact surface as one
-source. Implementation belongs to operations/model/core, and examples/notes
-belong to evidence, tests, or docs.
+artifact catalogs. Requirements and provisions use the same artifact authority.
+The only accepted sibling to artifact owner files is the directory-local
+aggregate index. Implementation belongs to operations/model/core, and
+examples/notes belong to evidence, tests, or docs.
 
 Controlling rationale:
 the scope is closed to `*.artifact.ts` owner files plus a narrow `index.ts`

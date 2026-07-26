@@ -12,15 +12,16 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "domain ops/index.ts registries doing anything other than importing operation entrypoints and assembling the default implementation registry",
-  "why": "The domain operation registry assembles operation implementations for root ops.ts. Helper constants, reusable policy, contract schemas, data, source-forwarded details, and convenience operation exports must move to their owning files or be consumed through the domain ops object.",
-  "remediate": "Keep ops/index.ts to implementation imports, the implementations registry, and the default export. Move reusable helpers to model/policy or model/schemas, keep operation-local internals in operation-local files, and consume operations through the domain ops object.",
+  "forbids": "domain ops/index.ts registries doing anything other than importing the singular ./contract.js registry and operation entrypoints, then assembling the default implementation registry",
+  "why": "The module operation registry binds the singular default authority declared by ops/contract.ts to operation implementations. Helper constants, reusable policy, contract schemas, data, source-forwarded details, and convenience operation exports must move to their owning files or be consumed through the module ops object.",
+  "remediate": "Derive Contracts from typeof import(\"./contract.js\").default and keep ops/index.ts to implementation imports, the implementations registry, and the default export. Move reusable helpers to model owners, keep operation-local internals in operation-local files, and consume operations through the module ops object.",
   "message": "Domain ops/index.ts must be the implementation registry only.",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/mod-swooper-maps/src/domain/*/ops/index.ts"
+        "mods/*/src/domain/*/ops/index.ts",
+        "mods/*/src/domain/*/modules/*/ops/index.ts"
       ]
     }
   ],
@@ -36,14 +37,7 @@
     "patternName": "require_domain_ops_registry_surface",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods/mod-swooper-maps/src/domain/ecology/ops/index.ts",
-        "mods/mod-swooper-maps/src/domain/foundation/ops/index.ts",
-        "mods/mod-swooper-maps/src/domain/hydrology/ops/index.ts",
-        "mods/mod-swooper-maps/src/domain/morphology/ops/index.ts",
-        "mods/mod-swooper-maps/src/domain/placement/ops/index.ts",
-        "mods/mod-swooper-maps/src/domain/resources/ops/index.ts"
-      ]
+      "roots": ["mods"]
     }
   }
 }

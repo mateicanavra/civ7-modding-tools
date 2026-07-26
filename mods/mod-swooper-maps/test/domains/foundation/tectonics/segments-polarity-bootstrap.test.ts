@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import foundation from "@mapgen/domain/foundation/router";
 
-const { computeTectonicSegments } = foundationOpsPublic.ops;
+const { computeTectonicSegments } = foundation.tectonics.ops;
 function makeTwoCellMesh(): any {
   return {
     cellCount: 2,

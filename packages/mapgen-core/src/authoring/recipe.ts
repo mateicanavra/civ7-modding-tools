@@ -22,8 +22,7 @@ import {
   type InternalDependencyTagDefinition,
   registerDependencyTagsInternal,
 } from "../engine/tags.js";
-import { isCanonicalArtifact } from "./artifact/authority.js";
-import type { ArtifactModule } from "./artifact/module.js";
+import { isArtifact, type Artifact } from "./artifact/contract.js";
 import { bindRuntimeOps, type DomainOpRuntimeAny, runtimeOp } from "./bindings.js";
 import { isCanonicalDomainOp } from "./op/create.js";
 import { assertStageIds } from "./stage.js";
@@ -58,7 +57,7 @@ type StepOccurrence = {
 function snapshotAuthorship<T>(value: T, seen = new WeakMap<object, unknown>()): T {
   if ((typeof value !== "object" || value === null) && typeof value !== "function") return value;
   if (typeof value === "function") return value;
-  if (isCanonicalArtifact(value)) return value;
+  if (isArtifact(value)) return value;
   if (isCanonicalDomainOp(value)) return value;
   if (isCanonicalStepContractInternal(value)) return value;
 
@@ -168,8 +167,8 @@ function assertExactArtifactEdges(
   stepId: string,
   authored: AnyStage["steps"][number]
 ): void {
-  const required = authored.contract.artifacts?.requires?.map((contract) => contract.id) ?? [];
-  const provided = authored.contract.artifacts?.provides?.map((module) => module.artifact.id) ?? [];
+  const required = authored.contract.artifacts?.requires?.map((artifact) => artifact.id) ?? [];
+  const provided = authored.contract.artifacts?.provides?.map((artifact) => artifact.id) ?? [];
   const declaredRequired = artifactTagIds(authored.contract.requires);
   const declaredProvided = artifactTagIds(authored.contract.provides);
   if (
@@ -234,10 +233,7 @@ function collectArtifactTagDefinitions(input: {
   stages: readonly AnyStage[];
 }): InternalDependencyTagDefinition[] {
   const defs = new Map<string, InternalDependencyTagDefinition>();
-  const providers = new Map<
-    string,
-    Readonly<{ contract: ArtifactModule["artifact"]; stepId: string }>
-  >();
+  const providers = new Map<string, Readonly<{ artifact: Artifact; stepId: string }>>();
 
   for (const stage of input.stages) {
     for (const authored of stage.steps) {
@@ -251,23 +247,22 @@ function collectArtifactTagDefinitions(input: {
       assertExactArtifactEdges(input.recipeId, fullId, authored);
 
       const provides = authored.contract.artifacts?.provides ?? [];
-      for (const module of provides as readonly ArtifactModule[]) {
-        const contract = module.artifact;
-        const existing = providers.get(contract.id);
+      for (const artifact of provides) {
+        const existing = providers.get(artifact.id);
         existing === undefined ||
-          rejectDuplicateArtifactProvider(input.recipeId, contract.id, existing.stepId, fullId);
+          rejectDuplicateArtifactProvider(input.recipeId, artifact.id, existing.stepId, fullId);
         resolveProvidedArtifactRuntimeInternal(
           authored,
-          contract,
+          artifact,
           fullId,
           `recipe:${input.recipeId}`
         );
-        defs.set(contract.id, {
-          id: contract.id,
+        defs.set(artifact.id, {
+          id: artifact.id,
           kind: "artifact",
-          satisfies: (evidence) => evidence.observeArtifact(module).found,
+          satisfies: (evidence) => evidence.observeArtifact(artifact).found,
         });
-        providers.set(contract.id, { contract, stepId: fullId });
+        providers.set(artifact.id, { artifact, stepId: fullId });
       }
     }
   }
@@ -275,12 +270,12 @@ function collectArtifactTagDefinitions(input: {
   for (const stage of input.stages) {
     for (const authored of stage.steps) {
       const required = authored.contract.artifacts?.requires ?? [];
-      for (const contract of required) {
-        const provider = providers.get(contract.id);
+      for (const artifact of required) {
+        const provider = providers.get(artifact.id);
         if (!provider) {
           rejectMissingArtifactProvider(
             input.recipeId,
-            contract.id,
+            artifact.id,
             computeFullStepId({
               namespace: input.namespace,
               recipeId: input.recipeId,
@@ -289,10 +284,10 @@ function collectArtifactTagDefinitions(input: {
             })
           );
         }
-        if (provider.contract !== contract) {
-          rejectMismatchedArtifactContract(
+        if (provider.artifact !== artifact) {
+          rejectMismatchedArtifactAuthority(
             input.recipeId,
-            contract.id,
+            artifact.id,
             provider.stepId,
             computeFullStepId({
               namespace: input.namespace,
@@ -319,14 +314,14 @@ function rejectMissingArtifactProvider(
   );
 }
 
-function rejectMismatchedArtifactContract(
+function rejectMismatchedArtifactAuthority(
   recipeId: string,
   artifactId: string,
   providerStepId: string,
   consumerStepId: string
 ): never {
   throw new Error(
-    `[recipe:${recipeId}] artifact "${artifactId}" must use one exact contract identity; provider ${providerStepId}, consumer ${consumerStepId}`
+    `[recipe:${recipeId}] artifact "${artifactId}" must use one exact authority identity; provider ${providerStepId}, consumer ${consumerStepId}`
   );
 }
 

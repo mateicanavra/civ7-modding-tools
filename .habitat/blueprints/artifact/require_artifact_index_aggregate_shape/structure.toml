@@ -1,10 +1,11 @@
 schemaVersion = 1
 
 [[scopes]]
-name = "mapgen-artifact-directories"
-root = "mods/*/src/domain/!(*.*)/artifacts"
+name = "mapgen-domain-module-artifact-collections"
+root = "mods/*/src/domain/*/modules/*/artifacts"
 kind = "directory"
 mode = "closed"
+allowEmpty = true
 required = [
   "index.ts",
 ]
