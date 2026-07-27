@@ -108,7 +108,7 @@ describe("ecology-features plan-wetlands step", () => {
           ecology.features.ops.planWetlands.defaultConfig
         ),
       };
-      const ops = ecology.features.ops.bind(planWetlandsStep.contract.ops!).runtime;
+      const ops = ecology.features.ops.bind(planWetlandsStep.contract.ops!);
       planWetlandsStep.run(stepContext, config, ops, buildStepTestDependencies(planWetlandsStep));
     });
 

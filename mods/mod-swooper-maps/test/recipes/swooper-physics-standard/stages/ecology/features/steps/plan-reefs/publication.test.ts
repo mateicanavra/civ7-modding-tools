@@ -63,7 +63,7 @@ describe("ecology-features plan-reefs step", () => {
           ecology.features.ops.planReefs.defaultConfig
         ),
       };
-      const ops = ecology.features.ops.bind(planReefsStep.contract.ops!).runtime;
+      const ops = ecology.features.ops.bind(planReefsStep.contract.ops!);
       planReefsStep.run(stepContext, config, ops, buildStepTestDependencies(planReefsStep));
     });
 
@@ -113,19 +113,15 @@ describe("ecology-features plan-reefs step", () => {
             ecology.features.ops.planReefs.defaultConfig
           ),
         };
-        const runtimeOps = ecology.features.ops.bind(planReefsStep.contract.ops!).runtime;
-        const planReefs = Object.assign(
-          () => ({ placements: [{ ...collision, feature: "reef" as const }] }),
-          {
-            id: runtimeOps.planReefs.id,
-            kind: runtimeOps.planReefs.kind,
-          }
-        );
+        const ops = ecology.features.ops.bind(planReefsStep.contract.ops!);
+        const planReefs: typeof ops.planReefs = () => ({
+          placements: [{ ...collision, feature: "reef" as const }],
+        });
 
         planReefsStep.run(
           stepContext,
           config,
-          { ...runtimeOps, planReefs },
+          { ...ops, planReefs },
           buildStepTestDependencies(planReefsStep)
         );
       })

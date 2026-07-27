@@ -100,7 +100,7 @@ const concreteProductRecipe = createRecipe({
   initialSetup: ProductInitialSetup,
   tagDefinitions: [],
   stages: [],
-  compileOpsById: {},
+  operations: {},
 });
 
 function mapDefinitionTypeAssertions(): void {

@@ -1,6 +1,6 @@
 import * as MapGenAuthoring from "@mapgen/authoring/index.js";
 import {
-  collectCompileOps,
+  collectOperations,
   createDomain,
   createDomainRouter,
   createDomainSubdomainRouter,
@@ -43,6 +43,15 @@ const flatContract = defineDomain({
   ops: { measure: contract },
 });
 const flatDomain = createDomain(flatContract, { measure: operation });
+const unrelatedContract = defineOp({
+  kind: "compute",
+  id: "type-test/domain/unrelated",
+  input: Type.Object({}, { additionalProperties: false }),
+  output: Type.String(),
+  strategies: [
+    defineStrategy({ id: "measured", config: Type.Object({}, { additionalProperties: false }) }),
+  ],
+});
 
 export type DomainRootKindIsCategorical = Expect<
   IsEqual<(typeof aggregateContract)["kind"], "domain">
@@ -62,16 +71,16 @@ defineDomain("invalid", { legacy: flatContract });
 createDomainRouter(flatContract, { measurement: subdomainRouter });
 
 // @ts-expect-error Structural copies lose root authority and cannot enter recipe compilation.
-collectCompileOps({ ...aggregateRouter });
+collectOperations({ ...aggregateRouter });
 
 // @ts-expect-error Structural copies lose root authority and cannot enter recipe compilation.
-collectCompileOps({ ...flatDomain });
+collectOperations({ ...flatDomain });
 
 // @ts-expect-error Structural copies lose strategy authority and cannot implement an operation.
 createOp(contract, { strategies: [{ ...strategy }] });
 
-// @ts-expect-error Low-level compile binding is internal to the compiler and domain router.
-MapGenAuthoring.bindCompileOps;
+// @ts-expect-error A subdomain router can bind only contracts implemented by that subdomain.
+subdomainRouter.ops.bind({ unrelated: unrelatedContract });
 
-// @ts-expect-error Low-level runtime binding is internal to recipe construction and domain routers.
-MapGenAuthoring.bindRuntimeOps;
+// @ts-expect-error Low-level operation binding is internal to the compiler and domain router.
+MapGenAuthoring.bindOperations;

@@ -93,7 +93,7 @@ describe("biomes step", () => {
         ecology.biomes.ops.classifyBiomes.defaultConfig
       );
 
-      const ops = ecology.biomes.ops.bind(biomesStep.contract.ops!).runtime;
+      const ops = ecology.biomes.ops.bind(biomesStep.contract.ops!);
       biomesStep.run(
         stepContext,
         { classify: classifyConfig },
@@ -164,7 +164,7 @@ describe("biomes step", () => {
           fertility: new Float32Array(size).fill(0.5),
         });
 
-        const ops = ecology.biomes.ops.bind(biomesStep.contract.ops!).runtime;
+        const ops = ecology.biomes.ops.bind(biomesStep.contract.ops!);
         biomesStep.run(
           stepContext,
           { classify: classifyConfig },

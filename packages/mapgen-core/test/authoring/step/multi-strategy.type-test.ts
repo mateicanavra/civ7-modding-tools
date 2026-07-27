@@ -98,11 +98,11 @@ const MultiStrategyInputArtifact = defineArtifact({
 declare const publishedInput: ArtifactReadValueOf<typeof MultiStrategyInputArtifact>;
 
 if (false) {
-  const runtimeOps = {} as RuntimeOps;
-  const multi = runtimeOps.multi;
+  const boundOps = {} as RuntimeOps;
+  const multi = boundOps.multi;
   multi(publishedInput, {} as RuntimeOpConfig);
   // @ts-expect-error Step operation capability bindings are immutable across executions.
-  runtimeOps.multi = multi;
+  boundOps.multi = multi;
 
   const input = {} as Parameters<typeof multi>[0];
   // @ts-expect-error Step operation inputs are observational data, so abstract inputs are readonly.

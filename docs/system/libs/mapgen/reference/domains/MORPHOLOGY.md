@@ -32,9 +32,9 @@ MORPHOLOGY converts Foundation’s tectonic driver fields into **tile-space terr
 
 The domain contract composes six causal modules: `terrain`, `coasts`,
 `routing`, `erosion`, `landforms`, and `shelf`. Each module owns its operation
-contracts, runtime implementations, policy, and immutable artifact catalog.
+contracts, executable implementations, policy, and immutable artifact catalog.
 The domain root exposes the aggregate declaration contract; recipe execution
-uses the separate runtime router.
+uses the executable router.
 
 **Ground truth anchors**
 
@@ -86,7 +86,8 @@ artifact evidence consumed through declared step contracts.
 
 ## Contract
 
-For the common “ops module” wiring pattern (op contracts, op envelope schemas, binding, and compile/runtime registries), see:
+For the common “ops module” wiring pattern (operation contracts, envelopes,
+canonical implementations, and recipe collection), see:
 
 - [`docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`](/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md)
 
@@ -722,8 +723,8 @@ volcano, natural-wonder, and other land projection steps.
 This page contains many inline “Ground truth anchors” callouts. This section collects the canonical entrypoints:
 
 - Domain declaration: `mods/mod-swooper-maps/src/domain/morphology/contract.ts`
-- Domain runtime router: `mods/mod-swooper-maps/src/domain/morphology/router.ts`
-- Module contract/runtime law: [`docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`](/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md)
+- Domain executable router: `mods/mod-swooper-maps/src/domain/morphology/router.ts`
+- Module contract/executable law: [`docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`](/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md)
 - Standard recipe stages:
   - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/index.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/routing/index.ts`

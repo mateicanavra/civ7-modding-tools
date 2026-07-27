@@ -37,8 +37,9 @@ type AssignStartsOps = StepRuntimeOps<NonNullable<(typeof AssignStartsStep.contr
 type LandTile = readonly [x: number, y: number];
 
 const ASSIGN_STARTS_OP_CONTRACTS = AssignStartsStep.contract.ops!;
-const ASSIGN_STARTS_OPS = placement.starts.ops.bind(ASSIGN_STARTS_OP_CONTRACTS)
-  .runtime satisfies AssignStartsOps;
+const ASSIGN_STARTS_OPS = placement.starts.ops.bind(
+  ASSIGN_STARTS_OP_CONTRACTS
+) satisfies AssignStartsOps;
 
 function assignStartsConfig(
   configure?: (config: (typeof placement.starts.ops.planStarts.defaultConfig)["config"]) => void

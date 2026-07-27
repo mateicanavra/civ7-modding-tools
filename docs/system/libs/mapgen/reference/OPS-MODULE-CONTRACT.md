@@ -24,7 +24,8 @@ of arbitrary operation folders.
 ## Contract
 
 - Ops are defined by an op contract id (stable string id).
-- Ops implementations are bound by id at compile time.
+- Executable ops are collected once by canonical id into the recipe's `operations` registry.
+- Compilation and step execution bind against that same registry; there is no parallel runtime registry.
 - Op variability is encoded via a `strategy` envelope rather than ad-hoc branching.
 - Each leaf operation's `contract.ts` is the only owner of its input/output
   envelopes, authors both roots directly inside `defineOp`, and exports its
@@ -204,7 +205,7 @@ export default createOp(ComputePlateTopologyContract, {
 - Strategy definition factory: `packages/mapgen-core/src/authoring/operation/strategy-definition.ts`
 - Op creation and strategy enforcement: `packages/mapgen-core/src/authoring/operation/create.ts`
 - Strategy schema/envelope: `packages/mapgen-core/src/authoring/operation/envelope.ts`
-- Binding compile/runtime ops by canonical identity: `packages/mapgen-core/src/authoring/operation/bindings.ts`
+- Collecting and binding canonical executable ops: `packages/mapgen-core/src/authoring/operation/bindings.ts`
 - Current operation-authoring guide: `docs/system/libs/mapgen/how-to/add-an-op.md`
 - Example module contract and router:
   `mods/mod-swooper-maps/src/domain/foundation/modules/mesh/contract.ts`,

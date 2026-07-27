@@ -58,17 +58,7 @@ export {
   basePhysicalInitialSetupDefinition,
   defineInitialSetup,
 } from "./initial-setup/index.js";
-export type {
-  DomainCompileRoot,
-  DomainOpCompileAny,
-  DomainOpRuntime,
-  DomainOpRuntimeAny,
-  DomainOpsRouter,
-  DomainOpsSurface,
-  OpId,
-  OpsById,
-} from "./operation/bindings.js";
-export { collectCompileOps, runtimeOp } from "./operation/bindings.js";
+export { collectOperations } from "./operation/bindings.js";
 export type {
   AdmittedBuffer,
   AdmittedOperationInput,

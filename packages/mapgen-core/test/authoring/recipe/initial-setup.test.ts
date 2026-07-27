@@ -81,7 +81,7 @@ function createInitialSetupRecipe(
     initialSetup,
     tagDefinitions: [],
     stages: [stage],
-    compileOpsById: {},
+    operations: {},
   });
 }
 
@@ -326,7 +326,7 @@ describe("recipe initial setup authority", () => {
         initialSetup: recipeAuthority,
         tagDefinitions: [],
         stages: [stage],
-        compileOpsById: {},
+        operations: {},
       })
     ).toThrow(
       'declares initial setup authority "test/declared", not recipe authority "test/recipe"'
@@ -359,7 +359,7 @@ describe("recipe initial setup authority", () => {
       id: "test.physical-only",
       tagDefinitions: [],
       stages: [stage],
-      compileOpsById: {},
+      operations: {},
     });
     const plan = recipe.compile(initialInput().physical, { foundation: { knobs: {} } });
     const context = createMapContext({

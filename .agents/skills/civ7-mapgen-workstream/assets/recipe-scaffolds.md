@@ -16,7 +16,7 @@ for the truth-vs-projection stage split and the vocabulary.
 |---|---|---|
 | `@swooper/mapgen-core/authoring/schema` | `Type`, `TypedArraySchemas` — schema construction without runtime authoring dependencies | schema declarations in domain models, ops, steps, and artifacts |
 | `@swooper/mapgen-core/authoring/contracts` | `defineOp`, `defineStrategy`, `defineStep`, `defineArtifact`, `defineArtifactCatalog`, `defineDomain`, `defineDomainSubdomain` — contracts, strategy definitions, artifact admission, and aggregate assembly | op and domain-module `contract.ts`, domain `contract.ts`, strategy and recipe-step `config.ts`, `*.artifact.ts`, artifact catalogs |
-| `@swooper/mapgen-core/authoring` | `createOp`, `createStrategy`, `createStep`, `createStage`, `createRecipe`, `createDomainSubdomainRouter`, `createDomainRouter`, `collectCompileOps` — attach runtime implementations and compose executable routers | op runtime `index.ts`, module and domain `router.ts`, recipe-step `step.ts`, strategy, stage, and recipe files |
+| `@swooper/mapgen-core/authoring` | `createOp`, `createStrategy`, `createStep`, `createStage`, `createRecipe`, `createDomainSubdomainRouter`, `createDomainRouter`, `collectOperations` — attach executable implementations and compose canonical operation routers | operation implementation `index.ts`, module and domain `router.ts`, recipe-step `step.ts`, strategy, stage, and recipe files |
 
 `@mapgen/domain/<domain>` is the contract-only domain root. Recipe wiring imports
 the executable domain from `@mapgen/domain/<domain>/router`. Artifacts and model
@@ -33,7 +33,7 @@ files are `.ts`.
 
 An op lives in
 `src/domain/<domain>/modules/<module>/ops/<op-name>/` as a five-file minimum:
-the operation `contract.ts` and runtime `index.ts`, the runtime tuple at
+the operation `contract.ts` and implementation `index.ts`, the executable tuple at
 `strategies/index.ts`, and one `config.ts` + `index.ts` pair under
 `strategies/<semantic-id>/`. Choose the direct semantic module that owns the
 operation's policy and outputs; never add a flat domain-wide op cabinet. The
@@ -95,7 +95,7 @@ export default MyOpContract;
 ```
 
 **`strategies/measured-response/index.ts`** — `createStrategy` seals the exact
-operation contract + leaf definition pair around the runtime implementation.
+operation contract + leaf definition pair around the implementation.
 ```ts
 // src/domain/<domain>/modules/<module>/ops/<op-name>/strategies/measured-response/index.ts
 import { createStrategy } from "@swooper/mapgen-core/authoring";
@@ -120,7 +120,7 @@ import measuredResponse from "./measured-response/index.js";
 export default [measuredResponse] as const;
 ```
 
-**`index.ts`** — `createOp` checks the definition and runtime tuples for exact semantic
+**`index.ts`** — `createOp` checks the definition and executable tuples for exact semantic
 and identity symmetry at construction.
 ```ts
 // src/domain/<domain>/modules/<module>/ops/<op-name>/index.ts
@@ -163,8 +163,8 @@ export default moduleRouter;
 > aggregate authorities.
 
 The op is now part of its direct semantic module. It is not yet *run* by anything —
-wire it into a step (section 3) and ensure the module's runtime router reaches the
-domain router collected by `compileOpsById` (section 4).
+wire it into a step (section 3) and ensure the module's executable router reaches the
+domain router collected into the recipe's `operations` registry (section 4).
 
 ---
 
@@ -213,7 +213,7 @@ export default createStrategy(MyOpContract, StrategyDefinition, {
 });
 ```
 
-**Step D — extend the runtime tuple** in `strategies/index.ts`:
+**Step D — extend the executable tuple** in `strategies/index.ts`:
 ```ts
 import measuredResponse from "./measured-response/index.js";
 import myVariant from "./my-variant/index.js";
@@ -391,9 +391,16 @@ stage("my-stage-id", [myStepConfig /* , ...in execution order */ ]),
 import myStage from "./stages/my-family/my-stage/index.js";
 const stages = orderStandardStages({ /* ...existing..., */ "my-stage-id": myStage } as const);
 
-// 3. recipe.ts — if the stage introduces a NEW domain, add its runtime router to collectCompileOps:
+// 3. recipe.ts — if the stage introduces a NEW domain, add its executable router to collectOperations:
 import myDomain from "@mapgen/domain/<my-domain>/router";
-export const compileOpsById = collectCompileOps(foundationDomain, morphologyDomain, myDomain);
+import { collectOperations, createRecipe } from "@swooper/mapgen-core/authoring";
+
+const operations = collectOperations(foundationDomain, morphologyDomain, myDomain);
+
+const recipe = createRecipe({
+  /* ...existing authorship..., */
+  operations,
+});
 ```
 
 > Decide the lane before authoring. Manifest stages 1–15 are adapter-free
@@ -532,10 +539,10 @@ publish/read runtime from that contract while binding behavior only.
 | Forget to... | Failure surface |
 |---|---|
 | add an op contract or implementation to the module `contract.ts` / `router.ts` | `createDomainSubdomainRouter` exact-key or canonical-contract mismatch |
-| add executable strategy to `strategies/index.ts` | `createOp` construction throws: contract definition has no matching runtime descriptor |
+| add executable strategy to `strategies/index.ts` | `createOp` construction throws: contract definition has no matching executable strategy |
 | add step to `standardStageContractManifest` | `orderStandardStageSteps` throws (unknown step id) |
 | add stage to `recipe.ts` `orderStandardStages` | stage silently absent from the pipeline (no error) — verify the run |
-| pass a new domain to `collectCompileOps` | compile-time op resolution fails for that domain's ops |
+| pass a new domain to `collectOperations` | recipe construction or compilation cannot resolve that domain's operations |
 | keep `default` strategy key | `defineOp`/`buildOpEnvelopeSchema` throws at module load |
 
 After authoring, the technical arm is only half done: a recipe that *compiles* is not a

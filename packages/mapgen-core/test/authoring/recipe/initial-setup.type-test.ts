@@ -108,7 +108,7 @@ export const ExactInitialSetupRecipe = createRecipe({
   initialSetup: ExactInitialSetup,
   tagDefinitions: [],
   stages: [stage],
-  compileOpsById: {},
+  operations: {},
 });
 
 type ExpectedInput = DeepReadonlyInitialSetup<Static<(typeof ExactInitialSetup)["schema"]>>;
@@ -153,7 +153,7 @@ const OtherRecipe = createRecipe({
   initialSetup: ExactInitialSetup,
   tagDefinitions: [],
   stages: [stage],
-  compileOpsById: {},
+  operations: {},
 });
 const otherEvidence = OtherRecipe.inspectPlan(
   OtherRecipe.compile(exactInput, { foundation: { knobs: {} } })

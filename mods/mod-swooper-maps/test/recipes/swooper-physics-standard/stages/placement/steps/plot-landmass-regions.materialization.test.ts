@@ -20,8 +20,6 @@ type PlotLandmassRegionsOps = StepRuntimeOps<
   NonNullable<(typeof PlotLandmassRegionsStep.contract)["ops"]>
 >;
 
-const REGION_OP_CONTRACT = PlotLandmassRegionsStep.contract.ops!.regions;
-
 describe("landmass-region materialization", () => {
   it("writes every region slot to its exact Civ7 identity and publishes the same slot field", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
@@ -51,10 +49,7 @@ describe("landmass-region materialization", () => {
       writeCounts[index]++;
       setLandmassRegionId(x, y, regionId);
     };
-    const regions = Object.assign(
-      (): ReturnType<PlotLandmassRegionsOps["regions"]> => ({ slotByTile }),
-      { id: REGION_OP_CONTRACT.id, kind: REGION_OP_CONTRACT.kind }
-    );
+    const regions: PlotLandmassRegionsOps["regions"] = () => ({ slotByTile });
     const ops: PlotLandmassRegionsOps = { regions };
 
     withMapContextExecutionForTest(context, (stepContext) => {

@@ -31,17 +31,17 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** collapse operation input ownership to the two states the
-runtime actually has: caller-provided observational input and Core-admitted
-strategy input. `OperationInput<Schema>` is the canonical deeply read-only
-authoring projection; mutable schema-shaped values and immutable artifact reads
-both flow through the same zero-copy call surface. Core performs structural and
-cardinality admission once, strategies receive only the admitted view, and
-outputs remain newly owned values. Delete the public Borrow concept and every
-consumer annotation that escaped with it, then thermonuclearly inspect the
-adjacent SDK layer for wrappers, markers, fallback paths, or duplicate
-authorities that likewise narrate TypeScript without representing a real
-runtime state. Seal that exact layer before resuming Placement reconciliation.
+**Current container:** collapse executable operation binding to one authority.
+The operation created from its contract and strategies already owns the exact
+admitted `run` transition; a second `DomainOpRuntime` object, parallel runtime
+registry, reverse WeakMap, or `{ compile, runtime }` bundle does not represent
+another capability. Domain routers bind contracts to canonical operations
+once. Recipe compilation retains that identity and gives each step a frozen
+binding record containing only the exact run callables its contract admits.
+Delete every runtime wrapper, registry, marker, and compatibility projection
+that merely recopies operation identity. Preserve contract mismatch rejection,
+strategy selection, admission,
+and observable error behavior.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -58,18 +58,15 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** delete the false intermediate state first. One readonly operation
-input type flows through direct calls, step bindings, and artifact forwarding;
-one admission transition adds genuine structural and grid-cardinality proof;
-one ordinary output type carries newly owned data. Keep readonly typing honest
-as an authoring constraint rather than runtime isolation. Remove public deep
-readonly machinery, ownership markers, wrappers, casts, and compensation copies
-that no longer earn a state or boundary. Compare the remaining operation,
-strategy, schema-admission, domain-router, artifact-runtime, and visualization
-surfaces against the same test: if a concept does not correspond to runtime
-behavior or one necessary authoring capability, delete it rather than polish it.
-Compiler, focused behavior, and exact-tree proof close the layer; Placement then
-resumes on the smaller SDK.
+**Gradient:** start at the canonical operation and follow execution outward.
+Replace wrapper construction with exact `.run` projection; collapse compile and
+runtime binding maps into the single contract-to-operation authority; remove
+recipe/runtime registries that can disagree; update direct consumers; delete
+tests that only prove the impossible parallel state and retain tests for exact
+identity, frozen access, admission, and execution behavior. Then inspect the
+adjacent artifact capability boundary with the same filter, but do not mix that
+next state transition into this cut. Compiler, focused behavior, public-surface,
+and exact-tree proof close this layer before the next branch.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -104,6 +101,17 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-27 - Observational Operation Input Sealed
+
+Core now exposes one deeply read-only operation input authoring view and one
+real admission transition into strategy execution. Mutable caller values and
+immutable artifact reads share the same zero-copy call surface; structural and
+grid-cardinality evidence is added once; outputs remain ordinary newly owned
+values. `BorrowedValue` and `OwnedValue` are gone, typed-array callback aliases
+cannot smuggle mutability, and visualization materialization retains only one
+owned binary snapshot. The adjacent SDK audit then exposed executable binding
+as the next false state rather than extending this completed cut.
 
 ### 2026-07-27 - Borrowed Operation Input Rejected
 

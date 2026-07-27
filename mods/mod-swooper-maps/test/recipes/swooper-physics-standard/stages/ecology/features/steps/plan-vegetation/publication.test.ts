@@ -117,7 +117,7 @@ describe("ecology-features plan-vegetation step", () => {
           ecology.features.ops.planVegetation.defaultConfig
         ),
       };
-      const ops = ecology.features.ops.bind(planVegetationStep.contract.ops!).runtime;
+      const ops = ecology.features.ops.bind(planVegetationStep.contract.ops!);
       planVegetationStep.run(
         stepContext,
         config,

@@ -51,8 +51,6 @@ type PlanNaturalWondersOps = StepRuntimeOps<
 >;
 type NaturalWonderPlannerInput = Parameters<PlanNaturalWondersOps["naturalWonders"]>[0];
 type NaturalWonderPlannerOutput = ReturnType<PlanNaturalWondersOps["naturalWonders"]>;
-const PLAN_NATURAL_WONDERS_OP_CONTRACTS = PlanNaturalWondersStep.contract.ops!;
-
 function placementConfig() {
   return {
     naturalWonders: normalizeOperationSelectionForTest(
@@ -148,26 +146,17 @@ function createCapturingOps(
   captureNaturalWonderInput: (input: NaturalWonderPlannerInput) => void,
   placements: NaturalWonderPlannerOutput["placements"] = []
 ): PlanNaturalWondersOps {
-  const naturalWonders = Object.assign(
-    (
-      input: NaturalWonderPlannerInput,
-      _config: Parameters<PlanNaturalWondersOps["naturalWonders"]>[1]
-    ): ReturnType<PlanNaturalWondersOps["naturalWonders"]> => {
-      captureNaturalWonderInput(input);
-      return {
-        width: input.width,
-        height: input.height,
-        wondersCount: input.wondersCount,
-        targetCount: placements.length,
-        plannedCount: placements.length,
-        placements,
-      };
-    },
-    {
-      id: PLAN_NATURAL_WONDERS_OP_CONTRACTS.naturalWonders.id,
-      kind: PLAN_NATURAL_WONDERS_OP_CONTRACTS.naturalWonders.kind,
-    }
-  );
+  const naturalWonders: PlanNaturalWondersOps["naturalWonders"] = (input) => {
+    captureNaturalWonderInput(input);
+    return {
+      width: input.width,
+      height: input.height,
+      wondersCount: input.wondersCount,
+      targetCount: placements.length,
+      plannedCount: placements.length,
+      placements,
+    };
+  };
   return { naturalWonders };
 }
 

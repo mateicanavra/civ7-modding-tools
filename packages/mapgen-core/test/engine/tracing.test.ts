@@ -557,7 +557,7 @@ describe("pipeline tracing", () => {
       id: "trace",
       tagDefinitions: [],
       stages: [stage],
-      compileOpsById: {},
+      operations: {},
     });
 
     const config = { foundation: { knobs: {} } };

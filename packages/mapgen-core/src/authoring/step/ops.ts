@@ -1,7 +1,5 @@
-import type { Static } from "typebox";
-
 import { isCanonicalOpContract, type OpContractAny } from "../operation/contract.js";
-import type { OperationInput, OpTypeBagOf } from "../operation/types.js";
+import type { OperationRun } from "../operation/types.js";
 
 export type { OpContractAny } from "../operation/contract.js";
 
@@ -61,18 +59,11 @@ export type ValidatedStepOpsDeclInput<Ops extends StepOpsDeclInput> = Readonly<{
 
 export type StepOpsDecl = Readonly<Record<string, OpContractAny>>;
 
-type BivariantFn<Args extends unknown[], R> = {
-  bivarianceHack(...args: Args): R;
-}["bivarianceHack"];
-
-type RuntimeOpFromContract<C extends OpContractAny> = BivariantFn<
-  [input: OperationInput<C["input"]>, config: OpTypeBagOf<C>["envelope"]],
-  Static<C["output"]>
-> &
-  Readonly<{
-    id: C["id"];
-    kind: C["kind"];
-  }>;
+type RuntimeOpFromContract<C extends OpContractAny> = OperationRun<
+  C["input"],
+  C["output"],
+  C["strategies"]
+>;
 
 export type StepRuntimeOps<Decl> = [Decl] extends [StepOpsDecl]
   ? { readonly [K in keyof Decl]: RuntimeOpFromContract<Decl[K]> }

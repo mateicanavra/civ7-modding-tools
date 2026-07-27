@@ -119,7 +119,7 @@ describe("tag registry", () => {
         id: "core.closed-dependency-kinds",
         tagDefinitions: [],
         stages: [stage],
-        compileOpsById: {},
+        operations: {},
       })
     ).toThrow(/expected artifact:\/effect:/);
   });
@@ -476,7 +476,7 @@ describe("tag registry", () => {
       id: "core.base",
       tagDefinitions: [],
       stages: [stage],
-      compileOpsById: {},
+      operations: {},
     });
 
     const adapter = createMockAdapter({ width: 2, height: 2 });

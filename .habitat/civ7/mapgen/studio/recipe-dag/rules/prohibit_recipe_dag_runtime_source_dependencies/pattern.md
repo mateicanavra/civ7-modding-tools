@@ -39,10 +39,7 @@ or {
   `createStep` where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/studio-contracts/.*\.ts$"
   },
-  `collectCompileOps` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/studio-contracts/.*\.ts$"
-  },
-  `compileOpsById` where {
+  `collectOperations` where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/studio-contracts/.*\.ts$"
   },
   `implementArtifactModules` where {
@@ -71,6 +68,9 @@ const browser = "browser-test";
 
 // @filename: mods/mod-swooper-maps/src/recipes/studio-contracts/index.ts
 const helper = createStep;
+
+// @filename: mods/mod-swooper-maps/src/recipes/studio-contracts/index.ts
+const operations = collectOperations(domain);
 
 // @filename: mods/mod-swooper-maps/src/recipes/studio-contracts/index.ts
 const helper = implementArtifactModules;

@@ -1,7 +1,7 @@
 import type { TSchema } from "typebox";
 import { Value } from "typebox/value";
 
-import type { CompileOpsById } from "../authoring/operation/bindings.js";
+import type { OperationRegistry } from "../authoring/operation/bindings.js";
 import type { CompiledRecipeConfigOf, RecipePublicConfigOf } from "../authoring/recipe/types.js";
 import { RESERVED_STAGE_KEY } from "../authoring/stage/reserved-key.js";
 import type { StepOpsDecl } from "../authoring/step/ops.js";
@@ -68,7 +68,7 @@ export function compileRecipeConfig<const TStages extends readonly StageContract
   setup: MapSetup | MapSetupInput;
   recipe: Readonly<{ stages: TStages }>;
   config: RecipePublicConfigOf<TStages>;
-  compileOpsById: CompileOpsById;
+  operations: OperationRegistry;
 }): CompiledRecipeConfigOf<TStages> {
   const errors: CompileErrorItem[] = [];
   const out: Record<string, Record<string, unknown>> = {};
@@ -96,7 +96,7 @@ export function compileRecipeConfig<const TStages extends readonly StageContract
     ]);
   }
   const config = configValue;
-  const compileOpsById = args.compileOpsById;
+  const operations = args.operations;
   const declaredStageIds = new Set(recipe.stages.map((stage) => stage.id));
 
   for (const stageKey of Object.keys(config)) {
@@ -222,7 +222,7 @@ export function compileRecipeConfig<const TStages extends readonly StageContract
       const { value: opNormalized, errors: opNormErrors } = normalizeOpsTopLevel(
         step,
         normalized as Record<string, unknown>,
-        compileOpsById,
+        operations,
         stepPath
       );
       if (opNormErrors.length > 0) {

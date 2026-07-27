@@ -31,7 +31,7 @@ import {
   isInitialSetupDefinitionInternal,
   readInitialSetupValueInternal,
 } from "../initial-setup/definition.js";
-import { bindRuntimeOps, type DomainOpRuntimeAny, runtimeOp } from "../operation/bindings.js";
+import { bindOperationRuns, type OperationRegistry } from "../operation/bindings.js";
 import { isCanonicalDomainOp } from "../operation/create.js";
 import { assertStageIds } from "../stage/identity.js";
 import type { StageObservation } from "../stage/types.js";
@@ -367,7 +367,7 @@ function finalizeOccurrences(input: {
   namespace?: string;
   recipeId: string;
   stages: readonly AnyStage[];
-  runtimeOpsById: Readonly<Record<string, DomainOpRuntimeAny>>;
+  operations: OperationRegistry;
 }): StepOccurrence[] {
   const out: StepOccurrence[] = [];
 
@@ -386,8 +386,7 @@ function finalizeOccurrences(input: {
       }) as MapGenStep<unknown>["facets"] | undefined;
 
       const boundOps =
-        authored.contract.ops &&
-        bindRuntimeOps(authored.contract.ops as any, input.runtimeOpsById as any);
+        authored.contract.ops && bindOperationRuns(authored.contract.ops, input.operations);
 
       out.push({
         stageId: stage.id,
@@ -516,17 +515,11 @@ export function createRecipe<
   assertCanonicalRecipeSteps(authorship.id, authorship.stages);
   assertExactInitialSetupAuthorities(authorship.id, authorship.stages, initialSetup);
 
-  const runtimeOpsById =
-    authorship.runtimeOpsById ??
-    (Object.fromEntries(
-      Object.entries(authorship.compileOpsById).map(([id, op]) => [id, runtimeOp(op)])
-    ) as Readonly<Record<string, DomainOpRuntimeAny>>);
-
   const occurrences = finalizeOccurrences({
     namespace: authorship.namespace,
     recipeId: authorship.id,
     stages: authorship.stages,
-    runtimeOpsById,
+    operations: authorship.operations,
   });
   const artifactTagDefinitions = collectArtifactTagDefinitions({
     namespace: authorship.namespace,
@@ -568,7 +561,7 @@ export function createRecipe<
       setup,
       recipe: { stages: authorship.stages },
       config,
-      compileOpsById: authorship.compileOpsById,
+      operations: authorship.operations,
     }) as CompiledRecipeConfigOf<TStages>;
   }
 

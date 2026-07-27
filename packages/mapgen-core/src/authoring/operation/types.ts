@@ -2,11 +2,6 @@ import type { Static, TSchema, TUnsafe } from "typebox";
 import type { ReadonlyData } from "../data/readonly-data.js";
 import type { StrategyDefinition } from "./strategy-definition.js";
 
-// Allow ops with specific input/config types to flow through generic registries.
-type BivariantCallback<Args extends unknown[], Return> = {
-  bivarianceHack(...args: Args): Return;
-}["bivarianceHack"];
-
 type StrategyDefinitionsLike = Readonly<Record<string, StrategyDefinition<string, TSchema>>>;
 type RuntimeStrategiesLike = Readonly<Record<string, { config: TSchema }>>;
 
@@ -19,6 +14,16 @@ type StrategyConfigSchemaOf<T> = T extends { config: infer C extends TSchema } ?
  * authors but does not provide runtime isolation against structural widening or explicit casts.
  */
 export type OperationInput<InputSchema extends TSchema> = ReadonlyData<Static<InputSchema>>;
+
+/** Canonical callable signature shared by executable operations and step-scoped bindings. */
+export type OperationRun<
+  InputSchema extends TSchema,
+  OutputSchema extends TSchema,
+  Strategies extends RuntimeStrategiesLike,
+> = (
+  input: OperationInput<InputSchema>,
+  config: StrategySelection<Strategies>
+) => Static<OutputSchema>;
 
 export type StrategySelection<Strategies extends RuntimeStrategiesLike> = {
   [K in keyof Strategies & string]: Readonly<{
@@ -107,15 +112,12 @@ export type DomainOp<
   defaultStrategy: DefaultStrategy;
   defaultConfig: DefaultStrategySelection<Strategies, DefaultStrategy>;
   strategies: Strategies;
-  run: BivariantCallback<
-    [OperationInput<InputSchema>, StrategySelection<Strategies>],
-    Static<OutputSchema>
-  >;
+  run: OperationRun<InputSchema, OutputSchema, Strategies>;
   /**
    * Normalizes one selected operation configuration during compilation.
    *
    * Physical map setup is already admitted by the pipeline boundary and is intentionally absent;
    * operation normalization owns only the operation's authored configuration values.
    */
-  normalize: BivariantCallback<[StrategySelection<Strategies>], StrategySelection<Strategies>>;
+  normalize: (config: StrategySelection<Strategies>) => StrategySelection<Strategies>;
 }>;

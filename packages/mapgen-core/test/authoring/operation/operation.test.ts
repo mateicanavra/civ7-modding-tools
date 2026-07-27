@@ -1,21 +1,14 @@
 import { describe, expect, it } from "bun:test";
 import {
   createOp,
-  createRecipe,
-  createStage,
-  createStep,
   createStrategy,
   defineOp,
-  defineStep,
   defineStrategy,
   OperationInputAdmissionError,
-  runtimeOp,
   TypedArraySchemas,
 } from "@mapgen/authoring/index.js";
 import { Type } from "typebox";
-import { bindCompileOps, bindRuntimeOps } from "../../../src/authoring/operation/bindings.js";
-
-const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
+import { bindOperationRuns, bindOperations } from "../../../src/authoring/operation/bindings.js";
 
 describe("operation authoring", () => {
   it("composes canonical strategy leaves and derives tuple implementation identities", () => {
@@ -460,7 +453,7 @@ describe("operation authoring", () => {
     ).toThrow("Invalid MapGen strategy descriptor");
   });
 
-  it("binds compile/runtime ops by contract ids", () => {
+  it("binds canonical operations and their exact run callables by contract ids", () => {
     const contract = defineOp({
       kind: "plan",
       id: "ecology/trees",
@@ -470,25 +463,24 @@ describe("operation authoring", () => {
         defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
       ],
     });
-    const compileOp = createOp(contract, {
+    const operation = createOp(contract, {
       strategies: [createStrategy(contract, contract.strategies.single, { run: () => "ok" })],
     });
     const declarations = { trees: contract } as const;
 
-    const compileOps = bindCompileOps(declarations, { [compileOp.id]: compileOp });
-    expect(compileOps.trees).toBe(compileOp);
-    expect(Object.isFrozen(compileOps)).toBe(true);
-    expect(() => Object.defineProperty(compileOps, "trees", { value: undefined })).toThrow();
+    const operations = bindOperations(declarations, { [operation.id]: operation });
+    expect(operations.trees).toBe(operation);
+    expect(Object.isFrozen(operations)).toBe(true);
+    expect(() => Object.defineProperty(operations, "trees", { value: undefined })).toThrow();
 
-    const runtimeOps = bindRuntimeOps(declarations, { [compileOp.id]: runtimeOp(compileOp) });
-    expect(runtimeOps.trees.id).toBe(compileOp.id);
-    expect(Object.isFrozen(runtimeOps)).toBe(true);
-    expect(() => Object.defineProperty(runtimeOps, "trees", { value: undefined })).toThrow();
-    expect(runtimeOp(compileOp)).toBe(runtimeOp(compileOp));
-    expect(Object.isFrozen(runtimeOp(compileOp))).toBe(true);
+    const runs = bindOperationRuns(declarations, { [operation.id]: operation });
+    expect(runs.trees).toBe(operation.run);
+    expect(runs.trees({}, operation.defaultConfig)).toBe("ok");
+    expect(Object.isFrozen(runs)).toBe(true);
+    expect(() => Object.defineProperty(runs, "trees", { value: undefined })).toThrow();
   });
 
-  it("bindCompileOps throws when registry is missing an op id", () => {
+  it("bindOperations throws when registry is missing an op id", () => {
     const contract = defineOp({
       kind: "plan",
       id: "test/ops/missing",
@@ -498,7 +490,7 @@ describe("operation authoring", () => {
         defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
       ],
     });
-    expect(() => bindCompileOps({ trees: contract }, {})).toThrow(/missing/i);
+    expect(() => bindOperations({ trees: contract }, {})).toThrow(/missing/i);
   });
 
   it("refuses registry keys and values that do not retain exact contract authority", () => {
@@ -530,59 +522,15 @@ describe("operation authoring", () => {
         }),
       ],
     });
-    const runtime = runtimeOp(implementation);
-
-    expect(() => bindCompileOps({ exact: contract }, { wrong: implementation })).toThrow(
+    expect(() => bindOperations({ exact: contract }, { wrong: implementation })).toThrow(
       'registry key "wrong" must equal "test/ops/exact-binding"'
     );
-    expect(() => bindRuntimeOps({ exact: contract }, { wrong: runtime })).toThrow(
-      'registry key "wrong" must equal "test/ops/exact-binding"'
-    );
-    expect(() => bindCompileOps({ exact: contract }, { [alternate.id]: alternate })).toThrow(
+    expect(() => bindOperations({ exact: contract }, { [alternate.id]: alternate })).toThrow(
       "must implement its exact operation contract"
     );
-    expect(() =>
-      bindRuntimeOps({ exact: contract }, { [alternate.id]: runtimeOp(alternate) })
-    ).toThrow("must implement its exact operation contract");
-  });
-
-  it("createRecipe rejects missing runtime op implementations for step-declared ops", () => {
-    const contract = defineOp({
-      kind: "plan",
-      id: "test/ops/missing-runtime",
-      input: Type.Object({}, { additionalProperties: false }),
-      output: Type.Object({}, { additionalProperties: false }),
-      strategies: [
-        defineStrategy({ id: "single", config: Type.Object({}, { additionalProperties: false }) }),
-      ],
-    });
-    const op = createOp(contract, {
-      strategies: [
-        createStrategy(contract, contract.strategies.single, {
-          run: () => ({}),
-        }),
-      ],
-    });
-    const step = createStep(
-      defineStep({
-        id: "alpha",
-        requires: [],
-        provides: [],
-        ops: { trees: contract },
-      }),
-      { run: () => {} }
+    expect(() => bindOperationRuns({ exact: contract }, { [alternate.id]: alternate })).toThrow(
+      "must implement its exact operation contract"
     );
-    const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
-
-    expect(() =>
-      createRecipe({
-        id: "core.base",
-        tagDefinitions: [],
-        stages: [stage],
-        compileOpsById: { [op.id]: op },
-        runtimeOpsById: {},
-      })
-    ).toThrow(/Missing op implementation/i);
   });
 
   it("admits exact typed-array constructors and declared cardinalities before one strategy run", () => {

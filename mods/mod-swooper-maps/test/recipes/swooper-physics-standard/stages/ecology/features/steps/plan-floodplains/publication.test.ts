@@ -60,7 +60,7 @@ describe("ecology-features plan-floodplains step", () => {
             }
           ),
         },
-        ecology.features.ops.bind(PlanFloodplainsStep.contract.ops!).runtime,
+        ecology.features.ops.bind(PlanFloodplainsStep.contract.ops!),
         dependencies
       );
     });

@@ -39,7 +39,7 @@
   steps and their bound operations. A rare semantic override stays inline at
   the concrete stage and must translate the complete external surface rather
   than forwarding or manufacturing empty step objects.
-- **recipe** — global stage/step order. `createRecipe({ id, namespace, tagDefinitions, stages, compileOpsById })`. Standard recipe id `mod-swooper-maps/standard`. Ordering is enforced by `contract-manifest.ts`, not by key order in `recipe.ts`.
+- **recipe** — global stage/step order. `createRecipe({ id, namespace, tagDefinitions, stages, operations })`, where `operations` is the one canonical executable registry returned by `collectOperations(...)`. Standard recipe id `mod-swooper-maps/standard`. Ordering is enforced by `contract-manifest.ts`, not by key order in `recipe.ts`.
 - **artifact** — named, typed, write-once causal data owned by the domain module that defines the immutable product. One `*.artifact.ts` file owns one weighted `defineArtifact({ name, id, schema, refine? })` definition with its schema inline. `defineArtifactCatalog` closes the module catalog. Engine observation and metrics/viz/trace evidence remain those capabilities rather than becoming causal artifacts.
 - **knob** — an optional stage-wide semantic authoring control, applied through compilation only when it adds real authoring value.
 
@@ -128,7 +128,7 @@ implementations. Counts below are verified from those module authorities:
 | `narrative` | 0 | no ops, no stage (see above) |
 
 > Op counts = the operation contracts directly composed by module
-> `contract.ts` files. Confirm runtime symmetry in the matching module
+> `contract.ts` files. Confirm executable symmetry in the matching module
 > `router.ts`; there is no intermediate operation registry.
 
 ---
@@ -156,7 +156,7 @@ domain/<domain>/
         contract.ts         shared input/output contract plus strategy definitions
         index.ts            createOp(contract, strategy tuple)
         strategies/
-          index.ts          runtime implementation tuple
+          index.ts          executable implementation tuple
           <semantic-id>/
             config.ts       semantic id plus strategy configuration
             index.ts        implementation of the shared operation contract
@@ -164,7 +164,7 @@ domain/<domain>/
 ```
 
 The `@mapgen/domain/*` alias exposes two deliberate faces: the root contract for
-step authoring and `/router` for recipe runtime collection. Consumers import
+step authoring and `/router` for recipe operation collection. Consumers import
 artifacts or model facts from the exact owning module; module indexes do not
 re-export those secondary surfaces.
 
@@ -187,7 +187,7 @@ would promote to `stages/morphology/shelf/viz.ts`, not the residual
   directly in the module `contract.ts` and bind its implementation directly in
   the module `router.ts`.
 - New **step** → add the step contract to `standardStageContractManifest` (sets order) and the runtime step to the stage's `orderStandardStageSteps({...})`.
-- New **stage** → add to `standardStageContractManifest` (position = pipeline order), add to `orderStandardStages({...})` in `recipe.ts`; if it brings a new domain, add that domain to `collectCompileOps(...)`.
+- New **stage** → add to `standardStageContractManifest` (position = pipeline order), add to `orderStandardStages({...})` in `recipe.ts`; if it brings a new domain, add that domain to `collectOperations(...)`.
 - New **artifact** → add one `domain/<domain>/modules/<owner>/artifacts/<name>.artifact.ts` file with one inline `defineArtifact({ name, id, schema, refine? })`; register it once in that module's `artifacts/index.ts` using `defineArtifactCatalog`. Step contracts select exact artifact definitions in `artifacts.requires` and `artifacts.provides`; `createStep` derives read/publish runtimes from that contract.
 
 ---
@@ -298,7 +298,7 @@ To find who produces/consumes a given key, grep its `artifact:` id across
 
 | `@swooper/mapgen-core` (engine substrate) owns | The mod (`mods/mod-swooper-maps`) authors |
 |---|---|
-| The authoring API (`defineOp/defineStep/defineArtifact/defineArtifactCatalog/defineDomain`, `createOp/createStep/createStage/createRecipe/createDomainRouter/collectCompileOps`) | All domain algorithms (modules, ops, strategies, rules) |
+| The authoring API (`defineOp/defineStep/defineArtifact/defineArtifactCatalog/defineDomain`, `createOp/createStep/createStage/createRecipe/createDomainRouter/collectOperations`) | All domain algorithms (modules, ops, strategies, rules) |
 | Execution infra: PipelineExecutor, StepRegistry, write-once artifact runtime, reusable TypeBox schema validation, trace/viz | Domain artifact schemas + ids + relational validators; stage orchestration; recipe ordering; real authoring schemas |
 | Strategy dispatch (`runtimeStrategies[cfg.strategy]`) | Game-facing entrypoints, map configs, presets |
 | Zero Civ7 knowledge | Civ7 enters only at map entrypoints + `map-*`/`placement` adapter calls |
