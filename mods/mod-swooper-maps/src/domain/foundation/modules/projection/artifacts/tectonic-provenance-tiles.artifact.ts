@@ -5,7 +5,7 @@ import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/au
  * projected from Foundation's reconstructed tectonic history.
  */
 export const artifact = defineArtifact({
-  name: "foundationTectonicProvenanceTiles",
+  name: "tectonicProvenanceTiles",
   id: "artifact:foundation.tectonicProvenanceTiles",
   schema: Type.Object(
     {

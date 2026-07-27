@@ -16,7 +16,7 @@ const CURRENT_TECTONICS_ARRAY_KEYS = [
  * index-aligned field set.
  */
 export const artifact = defineArtifact({
-  name: "foundationTectonics",
+  name: "currentTectonics",
   id: "artifact:foundation.tectonics",
   schema: Type.Object(
     {

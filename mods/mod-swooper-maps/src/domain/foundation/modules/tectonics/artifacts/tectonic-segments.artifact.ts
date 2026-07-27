@@ -6,7 +6,7 @@ import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/au
  * the same segment identity.
  */
 export const artifact = defineArtifact({
-  name: "foundationTectonicSegments",
+  name: "tectonicSegments",
   id: "artifact:foundation.tectonicSegments",
   schema: Type.Object(
     {

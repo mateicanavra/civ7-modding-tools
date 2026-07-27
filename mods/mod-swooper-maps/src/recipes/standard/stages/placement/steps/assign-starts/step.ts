@@ -170,17 +170,17 @@ function materializeStartAssignment(args: {
  */
 export const AssignStartsStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const resourcePlan = deps.artifacts.resourcePlan.read(context);
-    const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
-    const topography = deps.artifacts.topography.read(context);
-    const landmasses = deps.artifacts.landmasses.read(context);
-    const mountains = deps.artifacts.mountains.read(context);
-    const volcanoes = deps.artifacts.volcanoes.read(context);
-    const shelf = deps.artifacts.shelf.read(context);
-    const hydrography = deps.artifacts.hydrography.read(context);
-    const lakePlan = deps.artifacts.lakePlan.read(context);
-    const climateIndices = deps.artifacts.climateIndices.read(context);
-    const pedology = deps.artifacts.pedology.read(context);
+    const resourcePlan = deps.artifacts.resourcePlan.read();
+    const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read();
+    const topography = deps.artifacts.topography.read();
+    const landmasses = deps.artifacts.landmasses.read();
+    const mountains = deps.artifacts.mountains.read();
+    const volcanoes = deps.artifacts.volcanoes.read();
+    const shelf = deps.artifacts.shelf.read();
+    const hydrography = deps.artifacts.hydrography.read();
+    const lakePlan = deps.artifacts.lakePlan.read();
+    const climateIndices = deps.artifacts.climateIndices.read();
+    const pedology = deps.artifacts.pedology.read();
     const currentFeatureTypes = deps.engine.readCurrentMapFeatureTypes(context);
     const slotByTile = landmassRegionSlotByTile.slotByTile as Uint8Array;
     const { width, height } = context.setup.dimensions;
@@ -220,7 +220,7 @@ export const AssignStartsStep = createStep(config, {
       setStartPosition: (plotIndex, playerId) =>
         deps.engine.setStartPosition(context, plotIndex, playerId),
     });
-    deps.artifacts.startAssignment.publish(context, assignment);
+    deps.artifacts.startAssignment.publish(assignment);
     return { plan, assignment };
   },
   viz: ({ result, dimensions }) => projectStartAssignmentViz({ ...result, dimensions }),

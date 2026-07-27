@@ -12,7 +12,7 @@ const GROUP_MANTLE = "Foundation / Mantle";
  */
 export const MantlePotentialStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const mesh = deps.artifacts.foundationMesh.read(context);
+    const mesh = deps.artifacts.mesh.read();
     const stepId = `foundation/${config.id}`;
     const rngSeed = ctxRandom(
       context,
@@ -35,7 +35,7 @@ export const MantlePotentialStep = createStep(config, {
       stepConfig.computeMantlePotential
     );
 
-    deps.artifacts.foundationMantlePotential.publish(context, mantleResult.mantlePotential);
+    deps.artifacts.mantlePotential.publish(mantleResult.mantlePotential);
     return { mesh, mantlePotential: mantleResult.mantlePotential };
   },
   viz: ({ result: { mesh, mantlePotential } }) => [

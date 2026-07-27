@@ -14,7 +14,7 @@ const CRUST_ARRAY_KEYS = [
 
 /** Registers the initial Foundation crust vintage that seeds tectonic evolution. */
 export const artifact = defineArtifact({
-  name: "foundationInitialCrust",
+  name: "initialCrust",
   id: "artifact:foundation.initialCrust",
   schema: Type.Object(
     {

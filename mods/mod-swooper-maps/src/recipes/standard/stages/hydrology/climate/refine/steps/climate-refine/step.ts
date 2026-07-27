@@ -101,11 +101,11 @@ export const ClimateRefineStep = createStep(config, {
   },
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
-    const windField = deps.artifacts.windField.read(context);
-    const hydrography = deps.artifacts.hydrography.read(context);
-    const topography = deps.artifacts.topography.read(context);
+    const windField = deps.artifacts.windField.read();
+    const hydrography = deps.artifacts.hydrography.read();
+    const topography = deps.artifacts.topography.read();
 
-    const baselineClimateField = deps.artifacts.baselineClimateField.read(context);
+    const baselineClimateField = deps.artifacts.baselineClimateField.read();
 
     const { topLatitude, bottomLatitude } = context.setup.latitudeBounds;
     const latitudeByRow = new Float32Array(height);
@@ -214,18 +214,18 @@ export const ClimateRefineStep = createStep(config, {
       stepConfig.computeClimateDiagnostics
     );
 
-    const climateField = deps.artifacts.climateField.publish(context, {
+    const climateField = deps.artifacts.climateField.publish({
       rainfall: new Uint8Array(refined.rainfall),
       humidity: new Uint8Array(refined.humidity),
     });
-    const climateIndices = deps.artifacts.climateIndices.publish(context, {
+    const climateIndices = deps.artifacts.climateIndices.publish({
       surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,
       effectiveMoisture: waterBudget.effectiveMoisture,
       pet: waterBudget.pet,
       aridityIndex: waterBudget.aridityIndex,
       freezeIndex: cryosphere.freezeIndex,
     });
-    const publishedCryosphere = deps.artifacts.cryosphere.publish(context, {
+    const publishedCryosphere = deps.artifacts.cryosphere.publish({
       snowCover: cryosphere.snowCover,
       seaIceCover: cryosphere.seaIceCover,
       albedo: cryosphere.albedo,

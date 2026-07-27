@@ -47,9 +47,9 @@ const doubleStep = createStep(
     artifacts: { requires: [inputArtifact], provides: [outputArtifact] },
   }),
   {
-    run: (context, _config, _ops, deps) => {
-      const input = deps.artifacts.inputValue.read(context);
-      deps.artifacts.outputValue.publish(context, { value: input.value * 2 });
+    run: (_context, _config, _ops, deps) => {
+      const input = deps.artifacts.inputValue.read();
+      deps.artifacts.outputValue.publish({ value: input.value * 2 });
       return input.value * 2;
     },
   }
@@ -149,14 +149,19 @@ describe("step testing surface", () => {
     let result: number | Promise<number> | undefined;
     withMapContextExecutionForTest(context, (stepContext) => {
       publishTestArtifact(stepContext, inputArtifact, { value: 3 });
-      result = doubleStep.run(stepContext, {}, {}, buildStepTestDependencies(doubleStep));
+      result = doubleStep.run(
+        stepContext,
+        {},
+        {},
+        buildStepTestDependencies(doubleStep, stepContext)
+      );
     });
 
     expect(result).toBe(6);
     expect(readValidatedArtifact(context, outputArtifact)).toEqual({ value: 6 });
     expect(() =>
       withMapContextExecutionForTest(context, (stepContext) => {
-        doubleStep.run(stepContext, {}, {}, buildStepTestDependencies(doubleStep));
+        doubleStep.run(stepContext, {}, {}, buildStepTestDependencies(doubleStep, stepContext));
       })
     ).toThrow("MapGen context has already completed an execution.");
   });
@@ -165,27 +170,8 @@ describe("step testing surface", () => {
     const context = createSyntheticContext();
     expect(() =>
       withMapContextExecutionForTest(context, (stepContext) => {
-        doubleStep.run(stepContext, {}, {}, buildStepTestDependencies(doubleStep));
+        doubleStep.run(stepContext, {}, {}, buildStepTestDependencies(doubleStep, stepContext));
       })
     ).toThrow(ArtifactMissingError);
-  });
-
-  it("rejects structural steps that lack private provider authority", () => {
-    const forgedStep = {
-      contract: doubleStep.contract,
-      artifacts: {
-        outputValue: {
-          contract: inputArtifact,
-          read: () => ({ value: 1 }),
-          publish: () => ({ value: 1 }),
-          satisfies: () => true,
-        },
-      },
-      run: () => {},
-    };
-
-    expect(() => buildStepTestDependencies(forgedStep as never, undefined as never)).toThrow(
-      'missing artifact runtime for "outputValue"'
-    );
   });
 });

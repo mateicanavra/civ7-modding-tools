@@ -40,11 +40,7 @@ import {
   isCanonicalStepContractInternal,
   isCanonicalStepInternal,
 } from "../step/authority.js";
-import {
-  buildDeclaredStepDependencies,
-  resolveProvidedArtifactRuntimeInternal,
-} from "../step/dependencies.js";
-import { copyStepProviderRuntimesInternal } from "../step/provider-runtimes.js";
+import { buildDeclaredStepDependencies } from "../step/dependencies.js";
 import type {
   CompiledRecipeConfigOf,
   RecipeAsyncExecutionOptions,
@@ -125,7 +121,6 @@ function snapshotAuthorship<T>(value: T, seen = new WeakMap<object, unknown>()):
       value: snapshotAuthorship(descriptor.value, seen),
     });
   }
-  copyStepProviderRuntimesInternal(value, snapshot);
   copyCanonicalStepAuthorityInternal(value, snapshot);
   return Object.freeze(snapshot) as T;
 }
@@ -278,12 +273,6 @@ function collectArtifactTagDefinitions(input: {
         const existing = providers.get(artifact.id);
         existing === undefined ||
           rejectDuplicateArtifactProvider(input.recipeId, artifact.id, existing.stepId, fullId);
-        resolveProvidedArtifactRuntimeInternal(
-          authored,
-          artifact,
-          fullId,
-          `recipe:${input.recipeId}`
-        );
         defs.set(artifact.id, {
           id: artifact.id,
           kind: "artifact",

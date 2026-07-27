@@ -64,7 +64,12 @@ describe("ecology-features plan-reefs step", () => {
         ),
       };
       const ops = ecology.features.ops.bind(planReefsStep.contract.ops!);
-      planReefsStep.run(stepContext, config, ops, buildStepTestDependencies(planReefsStep));
+      planReefsStep.run(
+        stepContext,
+        config,
+        ops,
+        buildStepTestDependencies(planReefsStep, stepContext)
+      );
     });
 
     const intents = readValidatedArtifact(ctx, featureArtifacts.reefIntents);
@@ -122,7 +127,7 @@ describe("ecology-features plan-reefs step", () => {
           stepContext,
           config,
           { ...ops, planReefs },
-          buildStepTestDependencies(planReefsStep)
+          buildStepTestDependencies(planReefsStep, stepContext)
         );
       })
     ).toThrow("occupied tile");

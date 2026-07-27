@@ -17,7 +17,7 @@ const CRUST_ARRAY_KEYS = [
  * Admission requires every nonempty crust field to remain index-aligned.
  */
 export const artifact = defineArtifact({
-  name: "foundationCrust",
+  name: "crust",
   id: "artifact:foundation.crust",
   schema: Type.Object(
     {

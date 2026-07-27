@@ -109,7 +109,12 @@ describe("ecology-features plan-wetlands step", () => {
         ),
       };
       const ops = ecology.features.ops.bind(planWetlandsStep.contract.ops!);
-      planWetlandsStep.run(stepContext, config, ops, buildStepTestDependencies(planWetlandsStep));
+      planWetlandsStep.run(
+        stepContext,
+        config,
+        ops,
+        buildStepTestDependencies(planWetlandsStep, stepContext)
+      );
     });
 
     const intents = readValidatedArtifact(ctx, featureArtifacts.wetlandIntents);

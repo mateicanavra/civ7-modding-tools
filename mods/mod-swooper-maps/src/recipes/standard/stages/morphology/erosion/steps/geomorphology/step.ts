@@ -54,9 +54,9 @@ export const GeomorphologyStep = createStep(config, {
     return { ...stepConfig, geomorphology: geomorphologySelection };
   },
   run: (context, stepConfig, ops, deps) => {
-    const topography = deps.artifacts.baseTopography.read(context);
-    const routing = deps.artifacts.routing.read(context);
-    const substrate = deps.artifacts.baseSubstrate.read(context);
+    const topography = deps.artifacts.baseTopography.read();
+    const routing = deps.artifacts.routing.read();
+    const substrate = deps.artifacts.baseSubstrate.read();
     const { width, height } = context.setup.dimensions;
 
     const result = ops.geomorphology(
@@ -108,8 +108,8 @@ export const GeomorphologyStep = createStep(config, {
       };
     });
 
-    deps.artifacts.erodedTopography.publish(context, result.topography);
-    deps.artifacts.substrate.publish(context, result.substrate);
+    deps.artifacts.erodedTopography.publish(result.topography);
+    deps.artifacts.substrate.publish(result.substrate);
     return result;
   },
   viz: ({ result, dimensions }) => [

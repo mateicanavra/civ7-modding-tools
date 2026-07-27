@@ -23,8 +23,8 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  */
 export const PlotCoastsStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
-    const topography = deps.artifacts.topography.read(context);
-    const shelf = deps.artifacts.shelf.read(context);
+    const topography = deps.artifacts.topography.read();
+    const shelf = deps.artifacts.shelf.read();
     const { width, height } = context.setup.dimensions;
 
     const coastProjection = deriveCiv7CoastProjection({

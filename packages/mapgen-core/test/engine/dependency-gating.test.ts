@@ -1,6 +1,5 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { implementArtifacts } from "@mapgen/authoring/artifact/runtime.js";
 import { defineArtifact } from "@mapgen/authoring/index.js";
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
 import {
@@ -12,6 +11,7 @@ import {
   StepExecutionError,
   StepRegistry,
 } from "@mapgen/engine/index.js";
+import { publishTestArtifact } from "@mapgen/testing/index.js";
 import { Type } from "typebox";
 
 const ARTIFACT_IDS = {
@@ -39,7 +39,6 @@ const outputArtifact = defineArtifact({
   id: ARTIFACT_IDS.output,
   schema: EvidenceSchema,
 });
-const testArtifactRuntimes = implementArtifacts([requiredInputArtifact, outputArtifact]);
 
 function hasRequiredInputEvidence(evidence: DependencyEvidence): boolean {
   const observation = evidence.observeArtifact(requiredInputArtifact);
@@ -126,9 +125,9 @@ describe("dependency gating", () => {
       run: (current) => {
         secondContext = current;
         expect(() =>
-          testArtifactRuntimes.output.publish(retainedFirstContext!, { valid: true })
+          publishTestArtifact(retainedFirstContext!, outputArtifact, { valid: true })
         ).toThrow("context returned by createMapContext");
-        testArtifactRuntimes.output.publish(current, { valid: true });
+        publishTestArtifact(current, outputArtifact, { valid: true });
       },
     });
     const plan = compilePlan(registry, ["retain-first-context", "exercise-second-context"]);
@@ -139,11 +138,11 @@ describe("dependency gating", () => {
     expect(retainedFirstContext).not.toBe(rootContext);
     expect(secondContext).not.toBe(rootContext);
     expect(secondContext).not.toBe(retainedFirstContext);
-    expect(() => testArtifactRuntimes.requiredInput.publish(rootContext, { valid: true })).toThrow(
+    expect(() => publishTestArtifact(rootContext, requiredInputArtifact, { valid: true })).toThrow(
       "currently active step context"
     );
     expect(() =>
-      testArtifactRuntimes.requiredInput.publish(retainedFirstContext!, { valid: true })
+      publishTestArtifact(retainedFirstContext!, requiredInputArtifact, { valid: true })
     ).toThrow("context returned by createMapContext");
   });
 
@@ -204,7 +203,7 @@ describe("dependency gating", () => {
       requires: [],
       provides: [TEST_TAGS.effect.requiredInputReady],
       run: (current) => {
-        testArtifactRuntimes.requiredInput.publish(current, { valid: false });
+        publishTestArtifact(current, requiredInputArtifact, { valid: false });
       },
     });
 
@@ -250,7 +249,7 @@ describe("dependency gating", () => {
       requires: [],
       provides: [TEST_TAGS.effect.operationApplied],
       run: (current) => {
-        testArtifactRuntimes.output.publish(current, { valid: false });
+        publishTestArtifact(current, outputArtifact, { valid: false });
       },
     });
 

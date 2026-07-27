@@ -5,7 +5,7 @@ import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/au
  * space for Morphology and diagnostic consumers.
  */
 export const artifact = defineArtifact({
-  name: "foundationCrustTiles",
+  name: "crustTiles",
   id: "artifact:foundation.crustTiles",
   schema: Type.Object(
     {

@@ -1,5 +1,4 @@
 import { describe, expect, it } from "bun:test";
-import { implementArtifacts } from "@mapgen/authoring/artifact/runtime.js";
 import {
   defineArtifact,
   defineArtifactCatalog,
@@ -47,8 +46,9 @@ describe("artifact admission", () => {
       schema: artifact.schema,
       validate: artifact.validate,
     });
-    expect(defineArtifactCatalog({ portable })).toEqual({ portable });
-    expect(() => implementArtifacts([portable])).not.toThrow();
+    expect(defineArtifactCatalog({ validatedArtifact: portable })).toEqual({
+      validatedArtifact: portable,
+    });
 
     const mutable = {
       name: artifact.name,
@@ -300,47 +300,36 @@ describe("artifact admission", () => {
     expect(Object.isFrozen(invalidNameSchema)).toBe(false);
   });
 
-  it("copies a direct catalog and rejects duplicate semantic identities", () => {
+  it("copies a direct catalog and requires one lookup identity", () => {
     const first = defineTestArtifact();
     const second = defineArtifact({
       name: "secondArtifact",
       id: "artifact:test.admission.second",
       schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
     });
-    const source = { consumerFirst: first, consumerSecond: second };
+    const source = { validatedArtifact: first, secondArtifact: second };
     const catalog = defineArtifactCatalog(source);
 
-    Reflect.set(source, "consumerFirst", second);
-    expect(catalog).toEqual({ consumerFirst: first, consumerSecond: second });
-    expect(catalog.consumerFirst).toBe(first);
-    expect(catalog.consumerSecond).toBe(second);
+    Reflect.set(source, "validatedArtifact", second);
+    expect(catalog).toEqual({ validatedArtifact: first, secondArtifact: second });
+    expect(catalog.validatedArtifact).toBe(first);
+    expect(catalog.secondArtifact).toBe(second);
     expect(Object.isFrozen(catalog)).toBe(true);
 
-    const duplicateName = defineArtifact({
-      name: first.name,
-      id: "artifact:test.admission.duplicate-name",
-      schema: Type.Object({}, { additionalProperties: false }),
-    });
     const duplicateId = defineArtifact({
       name: "duplicateId",
       id: first.id,
       schema: Type.Object({}, { additionalProperties: false }),
     });
-    expect(() => defineArtifactCatalog({ first, duplicateName })).toThrow(
-      `duplicate artifact name "${first.name}"`
+    expect(() => defineArtifactCatalog({ consumerFirst: first } as never)).toThrow(
+      'artifact catalog key "consumerFirst" must match artifact name "validatedArtifact"'
     );
-    expect(() => defineArtifactCatalog({ first, duplicateId })).toThrow(
-      `duplicate artifact id "${first.id}"`
-    );
-    expect(() => implementArtifacts([first, duplicateName])).toThrow(
-      `duplicate artifact name "${first.name}"`
-    );
-    expect(() => implementArtifacts([first, duplicateId])).toThrow(
+    expect(() => defineArtifactCatalog({ validatedArtifact: first, duplicateId })).toThrow(
       `duplicate artifact id "${first.id}"`
     );
   });
 
-  it("rejects accessor catalog entries and malformed runtime collections without executing them", () => {
+  it("rejects accessor catalog entries without executing them", () => {
     const artifact = defineTestArtifact();
     let reads = 0;
     const accessorCatalog = Object.defineProperty({}, "artifact", {
@@ -354,21 +343,5 @@ describe("artifact admission", () => {
       'artifact catalog key "artifact" must be an enumerable data property'
     );
     expect(reads).toBe(0);
-
-    const accessorArray = [artifact];
-    Object.defineProperty(accessorArray, "0", {
-      enumerable: true,
-      get: () => {
-        reads += 1;
-        return artifact;
-      },
-    });
-    expect(() => implementArtifacts(accessorArray as never)).toThrow(
-      "artifact at index 0 must be an enumerable data property"
-    );
-    expect(reads).toBe(0);
-    expect(() => implementArtifacts({ 0: artifact, length: 1 } as never)).toThrow(
-      "artifacts must be an array"
-    );
   });
 });

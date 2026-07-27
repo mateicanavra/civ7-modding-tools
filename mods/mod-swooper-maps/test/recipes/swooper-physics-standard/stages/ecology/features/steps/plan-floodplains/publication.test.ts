@@ -45,7 +45,7 @@ describe("ecology-features plan-floodplains step", () => {
         ...TEST_MAP_SIZE.dimensions,
         layers,
       });
-      const dependencies = buildStepTestDependencies(PlanFloodplainsStep);
+      const dependencies = buildStepTestDependencies(PlanFloodplainsStep, stepContext);
       PlanFloodplainsStep.run(
         stepContext,
         {

@@ -10,11 +10,11 @@ const GROUP_CRUST = "Foundation / Crust";
  * final crust vintage consumed by Morphology, without projecting history as relief.
  */
 export const CrustEvolutionStep = createStep(config, {
-  run: (context, stepConfig, ops, deps) => {
-    const mesh = deps.artifacts.foundationMesh.read(context);
-    const initialCrust = deps.artifacts.foundationInitialCrust.read(context);
-    const tectonics = deps.artifacts.foundationTectonics.read(context);
-    const tectonicHistory = deps.artifacts.foundationTectonicHistory.read(context);
+  run: (_context, stepConfig, ops, deps) => {
+    const mesh = deps.artifacts.mesh.read();
+    const initialCrust = deps.artifacts.initialCrust.read();
+    const tectonics = deps.artifacts.currentTectonics.read();
+    const tectonicHistory = deps.artifacts.tectonicHistory.read();
 
     const crustResult = ops.computeCrustEvolution(
       {
@@ -48,7 +48,7 @@ export const CrustEvolutionStep = createStep(config, {
       stepConfig.computeCrustEvolution
     );
 
-    deps.artifacts.foundationCrust.publish(context, crustResult.crust);
+    deps.artifacts.crust.publish(crustResult.crust);
     return { mesh, crust: crustResult.crust };
   },
   viz: ({ result: { mesh, crust } }) => {

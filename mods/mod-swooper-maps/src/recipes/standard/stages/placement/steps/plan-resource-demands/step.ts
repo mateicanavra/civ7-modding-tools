@@ -19,17 +19,17 @@ const CUSTOM_MAP_RESOURCE_MINIMUM_AMOUNT_MODIFIER = 0;
 export const PlanResourceDemandsStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
-    const topography = deps.artifacts.topography.read(context);
-    const shelf = deps.artifacts.shelf.read(context);
-    const mountains = deps.artifacts.mountains.read(context);
-    const beltDrivers = deps.artifacts.beltDrivers.read(context);
-    const hydrography = deps.artifacts.hydrography.read(context);
-    const lakePlan = deps.artifacts.lakePlan.read(context);
-    const projectedNavigableRivers = deps.artifacts.projectedNavigableRivers.read(context);
-    const climateIndices = deps.artifacts.climateIndices.read(context);
-    const cryosphere = deps.artifacts.cryosphere.read(context);
-    const biomeClassification = deps.artifacts.biomeClassification.read(context);
-    const pedology = deps.artifacts.pedology.read(context);
+    const topography = deps.artifacts.topography.read();
+    const shelf = deps.artifacts.shelf.read();
+    const mountains = deps.artifacts.mountains.read();
+    const beltDrivers = deps.artifacts.beltDrivers.read();
+    const hydrography = deps.artifacts.hydrography.read();
+    const lakePlan = deps.artifacts.lakePlan.read();
+    const projectedNavigableRivers = deps.artifacts.projectedNavigableRivers.read();
+    const climateIndices = deps.artifacts.climateIndices.read();
+    const cryosphere = deps.artifacts.cryosphere.read();
+    const biomeClassification = deps.artifacts.biomeClassification.read();
+    const pedology = deps.artifacts.pedology.read();
     const currentRiverSurface = deps.engine.readCurrentRiverSurface(context);
     const currentBiomeTypes = deps.engine.readCurrentMapBiomeTypes(context);
     const currentFeatureTypes = deps.engine.readCurrentMapFeatureTypes(context);
@@ -107,7 +107,7 @@ export const PlanResourceDemandsStep = createStep(config, {
       stepConfig.demands
     );
 
-    deps.artifacts.resourceDemandPlan.publish(context, demandPlan);
+    deps.artifacts.resourceDemandPlan.publish(demandPlan);
 
     const excludedCount =
       demandPlan.candidates.excluded.expectationBlocked.length +

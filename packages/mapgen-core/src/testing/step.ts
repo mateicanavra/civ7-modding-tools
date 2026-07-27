@@ -35,9 +35,11 @@ type StepInitialSetupOf<TStep extends TestableStep> =
     : TStep["contract"]["initialSetup"];
 
 type TestContextArgs<TStep extends TestableStep> =
-  StepEngineOf<TStep> extends readonly [] | undefined
-    ? StepInitialSetupOf<TStep> extends undefined
-      ? readonly [context?: MapContext]
+  StepArtifactsOf<TStep> extends undefined
+    ? StepEngineOf<TStep> extends readonly [] | undefined
+      ? StepInitialSetupOf<TStep> extends undefined
+        ? readonly [context?: MapContext]
+        : readonly [context: MapContext]
       : readonly [context: MapContext]
     : readonly [context: MapContext];
 

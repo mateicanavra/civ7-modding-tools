@@ -14,7 +14,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
 export const CoastlineEvidenceStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
-    const topography = deps.artifacts.baseTopography.read(context);
+    const topography = deps.artifacts.baseTopography.read();
     const adjacency = ops.adjacency(
       {
         width,
@@ -56,7 +56,7 @@ export const CoastlineEvidenceStep = createStep(config, {
       };
     });
 
-    deps.artifacts.baseCoastline.publish(context, baseCoastline);
+    deps.artifacts.baseCoastline.publish(baseCoastline);
     return baseCoastline;
   },
   viz: ({ result: baseCoastline, dimensions }) => [

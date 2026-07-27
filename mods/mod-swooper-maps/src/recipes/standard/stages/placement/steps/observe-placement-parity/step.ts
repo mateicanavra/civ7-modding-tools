@@ -11,8 +11,8 @@ import { projectPlacementParityViz } from "./viz.js";
  */
 export const ObservePlacementParityStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
-    const topography = deps.artifacts.topography.read(context);
-    const projectedLakes = deps.artifacts.projectedLakes.read(context);
+    const topography = deps.artifacts.topography.read();
+    const projectedLakes = deps.artifacts.projectedLakes.read();
     const { width, height } = context.setup.dimensions;
     const terminalSnapshot = {
       width,

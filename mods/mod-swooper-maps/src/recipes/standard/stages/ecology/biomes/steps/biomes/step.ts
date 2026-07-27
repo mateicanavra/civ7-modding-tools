@@ -19,11 +19,11 @@ export const BiomesStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
 
-    const climateIndices = deps.artifacts.climateIndices.read(context);
-    const topography = deps.artifacts.topography.read(context);
+    const climateIndices = deps.artifacts.climateIndices.read();
+    const topography = deps.artifacts.topography.read();
     const { landMask } = topography;
-    const pedology = deps.artifacts.pedology.read(context);
-    const cryosphere = deps.artifacts.cryosphere.read(context);
+    const pedology = deps.artifacts.pedology.read();
+    const cryosphere = deps.artifacts.cryosphere.read();
 
     const result = ops.classify(
       {
@@ -55,7 +55,7 @@ export const BiomesStep = createStep(config, {
       meltPotential01: cryosphere.meltPotential01,
       treeLine01,
     };
-    deps.artifacts.biomeClassification.publish(context, {
+    deps.artifacts.biomeClassification.publish({
       width,
       height,
       biomeIndex: classification.biomeIndex,

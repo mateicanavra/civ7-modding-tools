@@ -11,8 +11,8 @@ import { config } from "./config.js";
  */
 export const PlanIceStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const floodplainIntents = deps.artifacts.floodplainIntents.read(context);
-    const suitability = deps.artifacts.featureSuitability.read(context);
+    const floodplainIntents = deps.artifacts.floodplainIntents.read();
+    const suitability = deps.artifacts.featureSuitability.read();
     const { width, height } = context.setup.dimensions;
     const featureOccupancyMask = deriveFeatureOccupancy(
       context.setup.dimensions,
@@ -37,6 +37,6 @@ export const PlanIceStep = createStep(config, {
       featureOccupancyMask,
       placements
     );
-    deps.artifacts.iceIntents.publish(context, placements);
+    deps.artifacts.iceIntents.publish(placements);
   },
 });

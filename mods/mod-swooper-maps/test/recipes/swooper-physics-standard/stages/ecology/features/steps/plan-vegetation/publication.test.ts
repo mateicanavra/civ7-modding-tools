@@ -122,7 +122,7 @@ describe("ecology-features plan-vegetation step", () => {
         stepContext,
         config,
         ops,
-        buildStepTestDependencies(planVegetationStep)
+        buildStepTestDependencies(planVegetationStep, stepContext)
       );
     });
 

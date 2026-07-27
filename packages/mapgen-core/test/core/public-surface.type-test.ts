@@ -24,7 +24,7 @@ MapGenCore.assertMapSetupInternal;
 MapGenCore.readMapContextArtifactInternal;
 // @ts-expect-error Artifact-observation lifecycle admission is private to MapGen Core.
 MapGenCore.assertTerminalMapContextObservationInternal;
-// @ts-expect-error Runtime artifact construction is private to recipe composition.
+// @ts-expect-error Artifact capabilities derive directly from declared authorities per occurrence.
 MapGenAuthoring.implementArtifacts;
 // @ts-expect-error In-run artifact observation is private to executor dependency predicates.
 MapGenAuthoring.observeValidatedArtifactInternal;

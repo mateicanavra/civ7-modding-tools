@@ -5,7 +5,7 @@ import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/au
  * initialization and tectonic motion, keeping both branches on one causal mantle vintage.
  */
 export const artifact = defineArtifact({
-  name: "foundationMantleForcing",
+  name: "mantleForcing",
   id: "artifact:foundation.mantleForcing",
   schema: Type.Object(
     {

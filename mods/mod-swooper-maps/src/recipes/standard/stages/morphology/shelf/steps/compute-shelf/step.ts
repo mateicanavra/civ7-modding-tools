@@ -44,8 +44,8 @@ export const ComputeShelfStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
     const size = width * height;
-    const beltDrivers = deps.artifacts.beltDrivers.read(context);
-    const topography = deps.artifacts.topography.read(context);
+    const beltDrivers = deps.artifacts.beltDrivers.read();
+    const topography = deps.artifacts.topography.read();
 
     // Final topography includes complete island formation and is immutable after publication.
     const landMask = topography.landMask;
@@ -155,7 +155,7 @@ export const ComputeShelfStep = createStep(config, {
       nearshoreCandidateMask,
       shelfBreakDepthByTile,
     };
-    deps.artifacts.shelf.publish(context, shelf);
+    deps.artifacts.shelf.publish(shelf);
     return { bathymetry, landMask, shelf, evidence };
   },
   viz: ({ result: { bathymetry, landMask, shelf, evidence }, dimensions }) => [

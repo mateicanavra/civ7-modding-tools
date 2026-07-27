@@ -12,9 +12,9 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  */
 export const PedologyStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const climateField = deps.artifacts.climateField.read(context);
-    const topography = deps.artifacts.topography.read(context);
-    const substrate = deps.artifacts.substrate.read(context);
+    const climateField = deps.artifacts.climateField.read();
+    const topography = deps.artifacts.topography.read();
+    const substrate = deps.artifacts.substrate.read();
     const { width, height } = context.setup.dimensions;
 
     const result = ops.classify(
@@ -35,7 +35,7 @@ export const PedologyStep = createStep(config, {
       height,
       ...result,
     };
-    deps.artifacts.pedology.publish(context, pedology);
+    deps.artifacts.pedology.publish(pedology);
     return pedology;
   },
   viz: ({ result: pedology, dimensions }) => [

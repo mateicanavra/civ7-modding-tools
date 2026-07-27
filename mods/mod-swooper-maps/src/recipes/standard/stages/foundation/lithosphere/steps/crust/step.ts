@@ -10,9 +10,9 @@ const GROUP_CRUST = "Foundation / Crust";
  * partitioning, keeping bootstrap crust distinct from later tectonic evolution.
  */
 export const CrustStep = createStep(config, {
-  run: (context, stepConfig, ops, deps) => {
-    const mesh = deps.artifacts.foundationMesh.read(context);
-    const mantleForcing = deps.artifacts.foundationMantleForcing.read(context);
+  run: (_context, stepConfig, ops, deps) => {
+    const mesh = deps.artifacts.mesh.read();
+    const mantleForcing = deps.artifacts.mantleForcing.read();
     const crustResult = ops.computeCrust(
       {
         mesh: { cellCount: mesh.cellCount },
@@ -25,7 +25,7 @@ export const CrustStep = createStep(config, {
       stepConfig.computeCrust
     );
 
-    deps.artifacts.foundationInitialCrust.publish(context, crustResult.crust);
+    deps.artifacts.initialCrust.publish(crustResult.crust);
     return { mesh, crust: crustResult.crust };
   },
   viz: ({ result: { mesh, crust } }) => {

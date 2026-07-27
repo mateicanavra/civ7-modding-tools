@@ -337,7 +337,7 @@ Computes substrate evidence from tile-space tectonic potentials and crust typing
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/domain/morphology/modules/terrain/ops/compute-substrate/contract.ts` (`ComputeSubstrateContract`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/step.ts` (calling `ops.substrate` with `foundationPlates` + `foundationCrustTiles`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/step.ts` (calling `ops.substrate` with `plates` + `crustTiles`)
 
 #### `morphology/compute-base-topography` → `{ elevation }`
 

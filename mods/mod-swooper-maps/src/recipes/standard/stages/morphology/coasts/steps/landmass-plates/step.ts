@@ -74,9 +74,9 @@ export const LandmassPlatesStep = createStep(config, {
     return { ...stepConfig, seaLevel: seaLevelSelection };
   },
   run: (context, stepConfig, ops, deps) => {
-    const crustTiles = deps.artifacts.foundationCrustTiles.read(context);
-    const historyTiles = deps.artifacts.foundationTectonicHistoryTiles.read(context);
-    const provenanceTiles = deps.artifacts.foundationTectonicProvenanceTiles.read(context);
+    const crustTiles = deps.artifacts.crustTiles.read();
+    const historyTiles = deps.artifacts.tectonicHistoryTiles.read();
+    const provenanceTiles = deps.artifacts.tectonicProvenanceTiles.read();
     const { width, height } = context.setup.dimensions;
     const stepId = `morphology/${config.id}`;
 
@@ -253,9 +253,9 @@ export const LandmassPlatesStep = createStep(config, {
       beltDistance: beltDrivers.beltDistance,
       beltNearestSeed: beltDrivers.beltNearestSeed,
     };
-    deps.artifacts.baseTopography.publish(context, topography);
-    deps.artifacts.baseSubstrate.publish(context, substrate);
-    deps.artifacts.beltDrivers.publish(context, beltDriverFields);
+    deps.artifacts.baseTopography.publish(topography);
+    deps.artifacts.baseSubstrate.publish(substrate);
+    deps.artifacts.beltDrivers.publish(beltDriverFields);
     return { topography, substrate, beltDrivers: beltDriverFields };
   },
   viz: ({ result: { topography, substrate, beltDrivers }, dimensions }) => [

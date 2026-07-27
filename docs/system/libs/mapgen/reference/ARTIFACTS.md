@@ -18,8 +18,9 @@ One `Artifact` owns a data product's identity, schema, and complete admission va
 `refine` callback for relational or domain laws. Typed-array constructor and cardinality admission
 is compiled from the schema at definition time. Catalogs directly collect these
 authorities with `defineArtifactCatalog(...)`; there is no parallel contract, validator, or module
-registry. Catalog keys are local lookup names and need not equal an artifact's runtime `name`,
-while duplicate artifact ids or names are always refused.
+registry. A catalog key must equal its artifact's `name`, so contracts and step dependencies retain
+one property identity. The `artifact:` id remains the globally unique semantic identity; duplicate
+ids or names are always refused.
 
 Artifacts live with the direct domain module that produces them. Each module's
 `artifacts/index.ts` is its single catalog; aggregate domains do not recreate a
@@ -57,7 +58,7 @@ import {
 import { PlateSchema } from "../model/atoms/plate.schema.js";
 
 export const artifact = defineArtifact({
-  name: "foundationPlateGraph",
+  name: "plateGraph",
   id: "artifact:foundation.plateGraph",
   schema: Type.Object({
     plates: Type.Array(PlateSchema),
@@ -132,16 +133,17 @@ export const config = defineStep({
 createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const plateGraph = buildPlateGraph(context, stepConfig, ops);
-    deps.artifacts.plateGraph.publish(context, plateGraph);
+    deps.artifacts.plateGraph.publish(plateGraph);
   },
 });
 ```
 
-`defineStep` snapshots the selected artifacts, and `createStep` derives the frozen
-artifact-name-keyed runtime from that contract authority. Each artifact's validator is the sole
-admission authority for publication, satisfaction checks, and validated reads. Runtime
-construction and satisfaction callbacks remain private to recipe composition; neither is an
-authored step capability.
+`defineStep` snapshots the selected artifacts, while `createStep` binds behavior only. At each
+step invocation, Core derives exact occurrence-bound `read()` and `publish(value)` capabilities
+directly from those contract authorities. There is no provider runtime registry, map, or cache.
+Each artifact's validator remains the sole admission authority for publication, satisfaction
+checks, and validated reads. Storage and satisfaction callbacks remain private to recipe
+execution; neither is an authored step capability.
 
 ## Ground truth anchors
 

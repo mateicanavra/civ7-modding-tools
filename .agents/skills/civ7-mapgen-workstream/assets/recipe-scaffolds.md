@@ -324,9 +324,9 @@ export const MyStep = createStep(config, {
   // optional: normalize: (stepConfig, ctx) => stepConfig,
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
-    const input = deps.artifacts.someInput.read(context);
+    const input = deps.artifacts.someInput.read();
     const output = ops.myOp({ width, height, myInput: input.myData }, stepConfig.myOp);
-    deps.artifacts.surfaceMask.publish(context, { width, height, landMask: output.myOutput });
+    deps.artifacts.surfaceMask.publish({ width, height, landMask: output.myOutput });
   },
 });
 ```
@@ -346,9 +346,10 @@ legacy direct `context.viz` calls live in
    (position = within-stage execution order).
 2. The stage's `index.ts` — add the runtime step to `orderStandardStageSteps(...)`.
 
-> Gotchas: `artifacts.requires` selects artifact contracts, while `artifacts.provides`
-> selects artifact modules so the contract and semantic validator have one authoring owner.
-> `createStep` binds behavior only and derives publication runtimes from the contract. Do
+> Gotchas: `artifacts.requires` and `artifacts.provides` select the same canonical artifact
+> authorities, so identity, schema, and admission retain one owner. `createStep` binds behavior
+> only; Core derives exact occurrence-bound `read()` and `publish(value)` capabilities directly
+> from the step contract at invocation. Do
 > NOT add `artifact:` ids to the top-level `requires`/`provides` arrays — `defineStep`
 > merges them automatically and throws if you double-list. Op keys in `ops:` must NOT
 > collide with any key in `schema:` — `defineStep` throws on collision.
@@ -433,26 +434,18 @@ consumers. Current examples are Ecology pedology at
 
 An id MUST start with `artifact:` and MUST NOT carry a `@vN` suffix
 (`defineArtifact` throws on both). The runtime `name` is camelCase
-(`/^[a-z][a-zA-Z0-9]*$/`). Catalog keys are consumer-facing lookup names and may
-differ from runtime artifact names.
+(`/^[a-z][a-zA-Z0-9]*$/`). Its catalog key must be that exact name, giving contracts
+and step dependencies one property identity. The `artifact:` id remains the globally
+unique semantic identity used by the pipeline.
 
 **`modules/<module>/artifacts/surface-mask.artifact.ts` — the single complete
 artifact authority:**
 ```ts
 import {
-  type ArtifactValidationContext,
-  type ArtifactValidationIssue,
-  appendArtifactTypedArrayIssues,
   defineArtifact,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
-
-type SurfaceMask = Readonly<{
-  width: number;
-  height: number;
-  landMask: Uint8Array;
-}>;
 
 /** Registers the write-once surface classification consumed by downstream map stages. */
 export const artifact = defineArtifact({
@@ -463,6 +456,7 @@ export const artifact = defineArtifact({
       width: Type.Integer({ minimum: 1, description: "Map width represented by the mask." }),
       height: Type.Integer({ minimum: 1, description: "Map height represented by the mask." }),
       landMask: TypedArraySchemas.u8({
+        cardinality: "map-grid",
         description: "One byte per tile in row-major order: 1 for land and 0 for water.",
       }),
     },
@@ -471,30 +465,17 @@ export const artifact = defineArtifact({
       description: "Authoritative land/water classification for one complete map surface.",
     }
   ),
-  refine: (
-    input: unknown,
-    context?: ArtifactValidationContext
-  ): readonly ArtifactValidationIssue[] => {
-    const value = input as SurfaceMask;
-    const issues: ArtifactValidationIssue[] = [];
-    const expectedSize = value.width * value.height;
-    const isMask = appendArtifactTypedArrayIssues(
-      issues,
-      "surfaceMask.landMask",
-      value.landMask,
-      Uint8Array,
-      expectedSize
-    );
-    if (
-      context?.dimensions &&
-      (value.width !== context.dimensions.width || value.height !== context.dimensions.height)
-    ) {
-      issues.push({ message: "surfaceMask dimensions must match the active map." });
+  refine: (value, { dimensions, cellCount, issues }) => {
+    if (value.width !== dimensions.width || value.height !== dimensions.height) {
+      issues.add("surfaceMask dimensions must match the admitted map.");
     }
-    if (isMask && value.landMask.some((cell) => cell !== 0 && cell !== 1)) {
-      issues.push({ message: "surfaceMask.landMask accepts only 0 (water) or 1 (land)." });
+    for (let index = 0; index < cellCount; index += 1) {
+      const cell = value.landMask[index];
+      if (cell !== 0 && cell !== 1) {
+        issues.add(`surfaceMask.landMask[${index}] must be 0 (water) or 1 (land).`);
+      }
     }
-    return issues;
+    return undefined;
   },
 });
 ```
@@ -514,18 +495,22 @@ consumers):**
 import { artifacts as myModuleArtifacts } from "@mapgen/domain/<domain>/modules/<module>/artifacts/index.js";
 
 // producing step contract: artifacts: { provides: [myModuleArtifacts.surfaceMask] }
-deps.artifacts.surfaceMask.publish(context, { width, height, landMask });
+deps.artifacts.surfaceMask.publish({ width, height, landMask });
 
 // consuming step contract: artifacts: { requires: [myModuleArtifacts.surfaceMask] }
-const value = deps.artifacts.surfaceMask.read(context);
+const value = deps.artifacts.surfaceMask.read();
 ```
 
 `defineArtifact` always performs structural schema admission first and invokes
-the optional inline `refine` only after structure succeeds. Refinement owns exact
-typed-array constructors, cardinality, cross-field relations, and domain laws the
-schema cannot express; a schema-complete artifact omits it. `defineStep` snapshots
-the selected artifact authorities, and `createStep` derives the validated
-publish/read runtime from that contract while binding behavior only.
+the optional inline `refine` only after structure and typed-array metadata admission
+succeed. Refinement owns cross-field relations and domain laws the schema cannot
+express; a schema-complete artifact omits it. Its inferred facilities expose admitted
+`dimensions`, derived `cellCount`, and the Core-owned `issues` sink. Use
+`issues.add(...)` for semantic findings and `issues.addGridCoordinates(...)` for generic
+coordinate bounds/duplication checks; do not import validation framework types or allocate
+an issue array. `defineStep` snapshots the selected artifact authorities. At each invocation,
+Core derives frozen `read()` and `publish(value)` capabilities directly from that contract;
+there is no authored provider runtime, map, or cache.
 
 > Artifact ids use `artifact:<domain>.<name>` (for example,
 > `artifact:morphology.topography`). `effect:<name>` tags express execution guarantees in

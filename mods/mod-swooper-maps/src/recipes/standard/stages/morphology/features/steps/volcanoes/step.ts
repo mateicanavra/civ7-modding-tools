@@ -52,8 +52,8 @@ export const VolcanoesStep = createStep(config, {
     return { ...stepConfig, volcanoes: volcanoesSelection };
   },
   run: (context, stepConfig, ops, deps) => {
-    const plates = deps.artifacts.foundationPlates.read(context);
-    const topography = deps.artifacts.topography.read(context);
+    const plates = deps.artifacts.plates.read();
+    const topography = deps.artifacts.topography.read();
     const { width, height } = context.setup.dimensions;
     const rngSeed = deriveStepSeed(context.setup.mapSeed, "morphology:planVolcanoes");
 
@@ -75,7 +75,7 @@ export const VolcanoesStep = createStep(config, {
       kind: "morphology.volcanoes.summary",
       volcanoes: volcanoEvidence.volcanoes.length,
     }));
-    deps.artifacts.volcanoes.publish(context, volcanoEvidence);
+    deps.artifacts.volcanoes.publish(volcanoEvidence);
     return volcanoEvidence;
   },
   viz: ({ result: { volcanoMask, volcanoes }, dimensions }) => {

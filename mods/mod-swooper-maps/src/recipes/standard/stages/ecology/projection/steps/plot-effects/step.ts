@@ -71,7 +71,7 @@ const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
  */
 export const PlotEffectsStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
-    const placements = deps.artifacts.plotEffectPlan.read(context);
+    const placements = deps.artifacts.plotEffectPlan.read();
 
     if (placements.length > 0) {
       applyPlotEffectPlacements(

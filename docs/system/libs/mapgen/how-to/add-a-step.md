@@ -97,7 +97,7 @@ Notes:
   that the step can actually execute, read, or publish.
 - Artifact definitions and catalogs live with the direct producing domain
   module. Do not add an `artifacts/` catalog to a recipe stage; a stable
-  artifact runtime namespace does not transfer catalog ownership to that stage.
+  artifact dependency name does not transfer catalog ownership to that stage.
 
 Representative example (dependency tags; excerpt; see full file in anchors):
 
@@ -161,9 +161,9 @@ export const GeomorphologyStep = createStep(config, {
     return stepConfig;
   },
   run: (context, stepConfig, ops, deps) => {
-    const topography = deps.artifacts.baseTopography.read(context);
-    const routing = deps.artifacts.routing.read(context);
-    const substrate = deps.artifacts.baseSubstrate.read(context);
+    const topography = deps.artifacts.baseTopography.read();
+    const routing = deps.artifacts.routing.read();
+    const substrate = deps.artifacts.baseSubstrate.read();
 
     const result = ops.geomorphology(
       {
@@ -180,8 +180,8 @@ export const GeomorphologyStep = createStep(config, {
       stepConfig.geomorphology
     );
 
-    deps.artifacts.erodedTopography.publish(context, result.topography);
-    deps.artifacts.substrate.publish(context, result.substrate);
+    deps.artifacts.erodedTopography.publish(result.topography);
+    deps.artifacts.substrate.publish(result.substrate);
     context.trace.event(() => ({ kind: "morphology.geomorphology.summary" }));
     return result;
   },

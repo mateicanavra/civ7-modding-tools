@@ -1,7 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { runInNewContext } from "node:vm";
 import { createMockAdapter } from "@civ7/adapter";
-import { implementArtifacts } from "@mapgen/authoring/artifact/runtime.js";
 import {
   ArtifactDoublePublishError,
   ArtifactMissingError,
@@ -14,8 +12,13 @@ import {
 } from "@mapgen/authoring/index.js";
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
-import { compileExecutionPlan, PipelineExecutor, StepRegistry } from "@mapgen/engine/index.js";
-import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
+import {
+  compileExecutionPlan,
+  PipelineExecutor,
+  StepExecutionError,
+  StepRegistry,
+} from "@mapgen/engine/index.js";
+import { publishTestArtifact } from "@mapgen/testing/index.js";
 import { Type } from "typebox";
 import { buildDeclaredStepDependencies } from "../../../src/authoring/step/dependencies.js";
 
@@ -145,75 +148,55 @@ describe("artifact authoring", () => {
     ).toThrow("must be a canonical artifact");
   });
 
-  it("admits only dense own artifact entries without invoking accessors", () => {
+  it("reports missing evidence through a declared reader", () => {
     const artifact = defineArtifact({
-      name: "arrayArtifact",
-      id: "artifact:test.step.array",
-      schema: Type.Object({}, { additionalProperties: false }),
+      name: "missingArtifact",
+      id: "artifact:test.missing",
+      schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
     });
-    const crossRealm = runInNewContext("[]") as Array<typeof artifact>;
-    crossRealm.push(artifact);
-    const sparse = new Array<typeof artifact>(1);
-    const extraKey = [artifact];
-    Object.defineProperty(extraKey, "metadata", { enumerable: true, value: "unexpected" });
-    let reads = 0;
-    const accessorEntry = [artifact];
-    Object.defineProperty(accessorEntry, "0", {
-      enumerable: true,
-      get: () => {
-        reads += 1;
-        return artifact;
-      },
+    const reader = createStep(
+      defineStep({
+        id: "missing-artifact-reader",
+        requires: [],
+        provides: [],
+        artifacts: { requires: [artifact] },
+      }),
+      {
+        run: (_context, _config, _ops, deps) => deps.artifacts.missingArtifact.read(),
+      }
+    );
+    const context = createMapContext({
+      setup: admitMapSetup({ ...baseSetup, dimensions: { width: 1, height: 1 } }),
+      adapter: createMockAdapter({ width: 1, height: 1 }),
     });
 
-    expect(() =>
-      defineStep({
-        id: "cross-realm-artifacts",
-        requires: [],
-        provides: [],
-        artifacts: { provides: crossRealm },
-      })
-    ).not.toThrow();
-    expect(() =>
-      defineStep({
-        id: "sparse-artifacts",
-        requires: [],
-        provides: [],
-        artifacts: { provides: sparse },
-      })
-    ).toThrow(/dense array without extra keys/);
-    expect(() =>
-      defineStep({
-        id: "extra-key-artifacts",
-        requires: [],
-        provides: [],
-        artifacts: { provides: extraKey },
-      })
-    ).toThrow(/dense array without extra keys/);
-    expect(() =>
-      defineStep({
-        id: "accessor-artifacts",
-        requires: [],
-        provides: [],
-        artifacts: { provides: accessorEntry },
-      })
-    ).toThrow(/data property/);
-    expect(reads).toBe(0);
+    let thrown: unknown;
+    try {
+      executeContextStep(
+        context,
+        (stepContext) =>
+          reader.run(
+            stepContext,
+            {},
+            {},
+            buildDeclaredStepDependencies(reader, {
+              consumerStepId: reader.contract.id,
+              owner: "artifact-authoring-test",
+              context: stepContext,
+            })
+          ),
+        reader.contract.id
+      );
+    } catch (error) {
+      thrown = error;
+    }
+    expect(thrown).toBeInstanceOf(StepExecutionError);
+    expect(thrown instanceof StepExecutionError && thrown.cause).toBeInstanceOf(
+      ArtifactMissingError
+    );
   });
 
-  it("omits provider dependencies when a step declares no artifacts", () => {
-    const contract = defineStep({
-      id: "empty-artifact-provider",
-      requires: [],
-      provides: [],
-      artifacts: { provides: [] },
-    });
-
-    const step = createStep(contract, { run: () => {} });
-    expect(Object.prototype.hasOwnProperty.call(step, "artifacts")).toBe(false);
-  });
-
-  it("enforces missing, validation, write-once, and active-execution laws", () => {
+  it("enforces validation and write-once publication through a declared provider", () => {
     const artifact = defineArtifact({
       name: "runtimeArtifact",
       id: "artifact:test.runtime",
@@ -223,31 +206,51 @@ describe("artifact authoring", () => {
         return undefined;
       },
     });
-    const runtimes = implementArtifacts([artifact]);
+    const provider = createStep(
+      defineStep({
+        id: "runtime-artifact-provider",
+        requires: [],
+        provides: [],
+        artifacts: { provides: [artifact] },
+      }),
+      {
+        run: (_context, _config, _ops, deps) => {
+          expect(() => deps.artifacts.runtimeArtifact.publish({ value: 0 })).toThrow(
+            expect.objectContaining({
+              issues: [{ message: "value must be positive" }],
+            })
+          );
+          expect(() =>
+            deps.artifacts.runtimeArtifact.publish({ value: "invalid" } as never)
+          ).toThrow(ArtifactValidationError);
+          deps.artifacts.runtimeArtifact.publish({ value: 1 });
+          expect(() => deps.artifacts.runtimeArtifact.publish({ value: 2 })).toThrow(
+            ArtifactDoublePublishError
+          );
+        },
+      }
+    );
     const setup = admitMapSetup({ ...baseSetup, dimensions: { width: 1, height: 1 } });
     const context = createMapContext({
       setup,
       adapter: createMockAdapter({ width: 1, height: 1 }),
     });
 
-    expect(() => runtimes.runtimeArtifact.read(context)).toThrow(ArtifactMissingError);
-    expect(() => runtimes.runtimeArtifact.publish(context, { value: 1 })).toThrow(
-      "active step context"
+    executeContextStep(
+      context,
+      (stepContext) =>
+        provider.run(
+          stepContext,
+          {},
+          {},
+          buildDeclaredStepDependencies(provider, {
+            consumerStepId: provider.contract.id,
+            owner: "artifact-authoring-test",
+            context: stepContext,
+          })
+        ),
+      provider.contract.id
     );
-    executeContextStep(context, (activeContext) => {
-      expect(() => runtimes.runtimeArtifact.publish(activeContext, { value: 0 })).toThrow(
-        expect.objectContaining({
-          issues: [{ message: "value must be positive" }],
-        })
-      );
-      expect(() =>
-        runtimes.runtimeArtifact.publish(activeContext, { value: "invalid" } as never)
-      ).toThrow(ArtifactValidationError);
-      runtimes.runtimeArtifact.publish(activeContext, { value: 1 });
-      expect(() => runtimes.runtimeArtifact.publish(activeContext, { value: 2 })).toThrow(
-        ArtifactDoublePublishError
-      );
-    });
     expect(readValidatedArtifact(context, artifact)).toEqual({ value: 1 });
   });
 
@@ -257,7 +260,6 @@ describe("artifact authoring", () => {
       id: "artifact:test.observation",
       schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
     });
-    const runtimes = implementArtifacts([artifact]);
     const setup = admitMapSetup({ ...baseSetup, dimensions: { width: 1, height: 1 } });
     const context = createMapContext({
       setup,
@@ -271,7 +273,7 @@ describe("artifact authoring", () => {
       expect(() => observeValidatedArtifact(context, artifact)).toThrow(
         "after execution has completed"
       );
-      runtimes.observedArtifact.publish(stepContext, { value: 1 });
+      publishTestArtifact(stepContext, artifact, { value: 1 });
     });
 
     expect(readValidatedArtifact(context, artifact)).toEqual({ value: 1 });
@@ -300,7 +302,6 @@ describe("artifact authoring", () => {
         return undefined;
       },
     });
-    const runtimes = implementArtifacts([first]);
     const setup = admitMapSetup({ ...baseSetup, dimensions: { width: 1, height: 1 } });
     const context = createMapContext({
       setup,
@@ -308,7 +309,7 @@ describe("artifact authoring", () => {
     });
 
     executeContextStep(context, (stepContext) => {
-      runtimes.firstIdentity.publish(stepContext, { value: 7 });
+      publishTestArtifact(stepContext, first, { value: 7 });
     });
 
     expect(readValidatedArtifact(context, first)).toEqual({ value: 7 });
@@ -327,7 +328,6 @@ describe("artifact authoring", () => {
         return undefined;
       },
     });
-    const runtimes = implementArtifacts([artifact]);
     const setup = admitMapSetup({ ...baseSetup, dimensions: { width: 1, height: 1 } });
     const context = createMapContext({
       setup,
@@ -335,7 +335,7 @@ describe("artifact authoring", () => {
     });
 
     executeContextStep(context, (stepContext) => {
-      runtimes.changingAdmission.publish(stepContext, { value: 7 });
+      publishTestArtifact(stepContext, artifact, { value: 7 });
     });
     valid = false;
     expect(() => readValidatedArtifact(context, artifact)).toThrow("Invalid artifact");
@@ -354,7 +354,6 @@ describe("artifact authoring", () => {
       id: "artifact:test.capability.output",
       schema: inputArtifact.schema,
     });
-    const inputRuntimes = implementArtifacts([inputArtifact]);
     const reader = createStep(
       defineStep({
         id: "reader",
@@ -373,35 +372,45 @@ describe("artifact authoring", () => {
       }),
       { run: () => undefined }
     );
-    const readerDeps = buildDeclaredStepDependencies(reader, {
-      consumerStepId: "reader",
-      owner: "artifact-authoring-test",
-    });
-    const providerDeps = buildDeclaredStepDependencies(provider, {
-      consumerStepId: "provider",
-      owner: "artifact-authoring-test",
-    });
+    let retainedRead: (() => Readonly<{ value: number }>) | undefined;
+    let retainedPublish: ((value: { value: number }) => Readonly<{ value: number }>) | undefined;
     const registry = new StepRegistry();
     registry.register({
       id: "seed",
       stageId: "artifact-test",
       requires: [],
       provides: [],
-      run: (context) => inputRuntimes.inputValue.publish(context, { value: 3 }),
+      run: (context) => publishTestArtifact(context, inputArtifact, { value: 3 }),
     });
     registry.register({
       id: "reader",
       stageId: "artifact-test",
       requires: [],
       provides: [],
-      run: (context) => expect(readerDeps.artifacts.inputValue.read(context)).toEqual({ value: 3 }),
+      run: (context) => {
+        const dependencies = buildDeclaredStepDependencies(reader, {
+          consumerStepId: reader.contract.id,
+          owner: "artifact-authoring-test",
+          context,
+        });
+        expect(dependencies.artifacts.inputValue.read()).toEqual({ value: 3 });
+        retainedRead = dependencies.artifacts.inputValue.read;
+      },
     });
     registry.register({
       id: "provider",
       stageId: "artifact-test",
       requires: [],
       provides: [],
-      run: (context) => providerDeps.artifacts.outputValue.publish(context, { value: 6 }),
+      run: (context) => {
+        const dependencies = buildDeclaredStepDependencies(provider, {
+          consumerStepId: provider.contract.id,
+          owner: "artifact-authoring-test",
+          context,
+        });
+        dependencies.artifacts.outputValue.publish({ value: 6 });
+        retainedPublish = dependencies.artifacts.outputValue.publish;
+      },
     });
     registry.register({
       id: "borrower",
@@ -409,10 +418,24 @@ describe("artifact authoring", () => {
       requires: [],
       provides: [],
       run: (context) => {
-        expect(() => readerDeps.artifacts.inputValue.read(context)).toThrow(
+        expect(() => retainedRead?.()).toThrow("context returned by createMapContext");
+        expect(() => retainedPublish?.({ value: 9 })).toThrow(
+          "context returned by createMapContext"
+        );
+        const wrongReader = buildDeclaredStepDependencies(reader, {
+          consumerStepId: reader.contract.id,
+          owner: "artifact-authoring-test",
+          context,
+        });
+        const wrongPublisher = buildDeclaredStepDependencies(provider, {
+          consumerStepId: provider.contract.id,
+          owner: "artifact-authoring-test",
+          context,
+        });
+        expect(() => wrongReader.artifacts.inputValue.read()).toThrow(
           'Artifact capability for step "reader" requires that step\'s exact active context.'
         );
-        expect(() => providerDeps.artifacts.outputValue.publish(context, { value: 9 })).toThrow(
+        expect(() => wrongPublisher.artifacts.outputValue.publish({ value: 9 })).toThrow(
           'Artifact capability for step "provider" requires that step\'s exact active context.'
         );
       },
@@ -434,5 +457,13 @@ describe("artifact authoring", () => {
 
     new PipelineExecutor(registry).executePlan(context, plan);
     expect(readValidatedArtifact(context, outputArtifact)).toEqual({ value: 6 });
+    const rootReader = buildDeclaredStepDependencies(reader, {
+      consumerStepId: reader.contract.id,
+      owner: "artifact-authoring-test",
+      context,
+    });
+    expect(() => rootReader.artifacts.inputValue.read()).toThrow(
+      'Artifact capability for step "reader" requires that step\'s exact active context.'
+    );
   });
 });

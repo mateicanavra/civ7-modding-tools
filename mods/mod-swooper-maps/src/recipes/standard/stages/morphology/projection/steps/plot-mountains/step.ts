@@ -9,8 +9,8 @@ import { config } from "./config.js";
  */
 export const PlotMountainsStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
-    const topography = deps.artifacts.topography.read(context);
-    const mountains = deps.artifacts.mountains.read(context);
+    const topography = deps.artifacts.topography.read();
+    const mountains = deps.artifacts.mountains.read();
     const { width, height } = context.setup.dimensions;
 
     // Projection-only: Morphology has already decided mountain/hill intent.

@@ -79,12 +79,12 @@ function captureSeasonalEvidence(axialTiltDeg: number) {
     setup,
     adapter: createMockAdapter({ width, height }),
   });
-  const dependencies = buildStepTestDependencies(ClimateBaselineStep);
   const seasonPhases: number[] = [];
   let rainfallAmplitude: ArrayLike<number> | undefined;
   let humidityAmplitude: ArrayLike<number> | undefined;
 
   withMapContextExecutionForTest(context, (stepContext) => {
+    const dependencies = buildStepTestDependencies(ClimateBaselineStep, stepContext);
     publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
       elevation: new Int16Array(size),
       seaLevel: 0,
@@ -168,7 +168,6 @@ describe("hydrology climate-baseline composition", () => {
       setup,
       adapter: createMockAdapter({ width, height }),
     });
-    const dependencies = buildStepTestDependencies(ClimateBaselineStep);
     const windU = new Int8Array(size).fill(7);
     const windV = new Int8Array(size).fill(-3);
     const currentValuesU = Array.from(
@@ -205,6 +204,7 @@ describe("hydrology climate-baseline composition", () => {
     const thermalSstInputs: Array<ArrayLike<number> | undefined> = [];
 
     withMapContextExecutionForTest(context, (stepContext) => {
+      const dependencies = buildStepTestDependencies(ClimateBaselineStep, stepContext);
       publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,

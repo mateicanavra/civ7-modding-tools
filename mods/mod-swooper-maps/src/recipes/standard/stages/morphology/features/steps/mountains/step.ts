@@ -140,11 +140,11 @@ export const MountainsStep = createStep(config, {
     };
   },
   run: (context, stepConfig, ops, deps) => {
-    const topography = deps.artifacts.topography.read(context);
-    const beltDrivers = deps.artifacts.beltDrivers.read(context);
-    const substrate = deps.artifacts.substrate.read(context);
-    const routing = deps.artifacts.routing.read(context);
-    const baseCoastline = deps.artifacts.baseCoastline.read(context);
+    const topography = deps.artifacts.topography.read();
+    const beltDrivers = deps.artifacts.beltDrivers.read();
+    const substrate = deps.artifacts.substrate.read();
+    const routing = deps.artifacts.routing.read();
+    const baseCoastline = deps.artifacts.baseCoastline.read();
     const { width, height } = context.setup.dimensions;
     const baseSeed = deriveStepSeed(context.setup.mapSeed, "morphology:planMountains");
 
@@ -257,7 +257,7 @@ export const MountainsStep = createStep(config, {
         roughLandHillTiles,
       };
     });
-    deps.artifacts.mountains.publish(context, plan);
+    deps.artifacts.mountains.publish(plan);
     return plan;
   },
   viz: ({ result: plan, dimensions }) => [

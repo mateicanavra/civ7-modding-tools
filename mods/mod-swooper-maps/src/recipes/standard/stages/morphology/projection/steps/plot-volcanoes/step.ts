@@ -11,8 +11,8 @@ import { config } from "./config.js";
  */
 export const PlotVolcanoesStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
-    const topography = deps.artifacts.topography.read(context);
-    const plan = deps.artifacts.volcanoes.read(context);
+    const topography = deps.artifacts.topography.read();
+    const plan = deps.artifacts.volcanoes.read();
     const { width } = context.setup.dimensions;
 
     for (const entry of plan.volcanoes) {

@@ -4,8 +4,7 @@ import type { StepFacets } from "@mapgen/engine/step-facets.js";
 import type { NormalizeContext } from "@mapgen/engine/types.js";
 import type { Static } from "typebox";
 
-import type { Artifact } from "../artifact/contract.js";
-import type { ProvidedArtifactRuntime, RequiredArtifactRuntime } from "../artifact/runtime.js";
+import type { Artifact, ArtifactReadValueOf, ArtifactValueOf } from "../artifact/contract.js";
 import type { InitialSetupDefinition, InitialSetupValueOf } from "../initial-setup/definition.js";
 import type {
   StepArtifactsDecl,
@@ -28,16 +27,26 @@ type ArtifactByName<T extends readonly Artifact[], K extends string> = Extract<
 
 type ArtifactListOrEmpty<T> = T extends readonly Artifact[] ? T : readonly [];
 
+/** Reads one declared artifact through the currently active step occurrence. */
+export type ArtifactReader<A extends Artifact> = Readonly<{
+  read: () => ArtifactReadValueOf<A>;
+}>;
+
+/** Publishes one declared artifact through the currently active step occurrence. */
+export type ArtifactPublisher<A extends Artifact> = Readonly<{
+  publish: (value: ArtifactValueOf<A>) => ArtifactReadValueOf<A>;
+}>;
+
 type StepArtifactsSurface<TArtifacts extends StepArtifactsDeclAny | undefined> =
   TArtifacts extends StepArtifactsDecl<infer Requires, infer Provides>
     ? {
-        readonly [K in ArtifactNameOf<ArtifactListOrEmpty<Requires>>]: RequiredArtifactRuntime<
+        readonly [K in ArtifactNameOf<ArtifactListOrEmpty<Requires>>]: ArtifactReader<
           ArtifactByName<ArtifactListOrEmpty<Requires>, K>
         >;
       } & {
         readonly [K in Provides extends readonly Artifact[]
           ? ArtifactNameOf<Provides>
-          : never]: ProvidedArtifactRuntime<
+          : never]: ArtifactPublisher<
           ArtifactByName<Provides extends readonly Artifact[] ? Provides : readonly [], K>
         >;
       }

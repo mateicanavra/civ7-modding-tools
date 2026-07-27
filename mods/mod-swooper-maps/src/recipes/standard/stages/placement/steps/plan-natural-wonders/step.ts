@@ -29,13 +29,13 @@ import { config } from "./config.js";
 export const PlanNaturalWondersStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
-    const topography = deps.artifacts.topography.read(context);
-    const hydrography = deps.artifacts.hydrography.read(context);
-    const riverNetwork = deps.artifacts.riverNetwork.read(context);
-    const lakePlan = deps.artifacts.lakePlan.read(context);
-    const climateIndices = deps.artifacts.climateIndices.read(context);
-    const biomeClassification = deps.artifacts.biomeClassification.read(context);
-    const pedology = deps.artifacts.pedology.read(context);
+    const topography = deps.artifacts.topography.read();
+    const hydrography = deps.artifacts.hydrography.read();
+    const riverNetwork = deps.artifacts.riverNetwork.read();
+    const lakePlan = deps.artifacts.lakePlan.read();
+    const climateIndices = deps.artifacts.climateIndices.read();
+    const biomeClassification = deps.artifacts.biomeClassification.read();
+    const pedology = deps.artifacts.pedology.read();
     const wondersCount = deps.initialSetup.map.selection.mapInfo.NumNaturalWonders;
     const terrainType = deps.engine.readCurrentMapTerrainTypes(context);
     const biomeType = deps.engine.readCurrentMapBiomeTypes(context);
@@ -73,7 +73,7 @@ export const PlanNaturalWondersStep = createStep(config, {
     void plannerInputEvidenceIsExhaustive;
     const strategySelection = stepConfig.naturalWonders;
     const naturalWonderPlan = ops.naturalWonders(plannerInput, strategySelection);
-    deps.artifacts.naturalWonderPlan.publish(context, naturalWonderPlan);
+    deps.artifacts.naturalWonderPlan.publish(naturalWonderPlan);
     const naturalWonderPlanInput = measureStandardNaturalWonderPlanInput({
       plannerInput,
       strategySelection,

@@ -16,7 +16,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  */
 export const BuildElevationStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
-    const topography = deps.artifacts.topography.read(context);
+    const topography = deps.artifacts.topography.read();
     const { width, height } = context.setup.dimensions;
 
     const projectedWaterMask = deps.engine.readCurrentMapWaterMask(context);

@@ -1,6 +1,5 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { implementArtifacts } from "@mapgen/authoring/artifact/runtime.js";
 import { defineArtifact } from "@mapgen/authoring/index.js";
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
 import { PipelineAbortError } from "@mapgen/engine/errors.js";
@@ -16,6 +15,7 @@ import {
   StepRegistry,
 } from "@mapgen/engine/index.js";
 import { registerDependencyTagsInternal } from "@mapgen/engine/tags.js";
+import { publishTestArtifact } from "@mapgen/testing/index.js";
 import type { TraceEvent } from "@mapgen/trace/index.js";
 import { Type } from "typebox";
 
@@ -25,7 +25,6 @@ const facetedStepArtifact = defineArtifact({
   id: PROVIDED_TAG,
   schema: Type.Boolean(),
 });
-const facetedStepArtifacts = implementArtifacts([facetedStepArtifact]);
 const TEST_ENV = {
   mapSeed: 7,
   dimensions: { width: 8, height: 6 },
@@ -88,7 +87,7 @@ describe("step facets", () => {
       provides: [PROVIDED_TAG],
       run: (context, config) => {
         order.push("run");
-        facetedStepArtifacts.facetedStep.publish(context, true);
+        publishTestArtifact(context, facetedStepArtifact, true);
         borrowedResult = { score: config.scale * 2 };
         return borrowedResult;
       },
@@ -410,7 +409,7 @@ describe("step facets", () => {
       provides: [PROVIDED_TAG],
       run: async (context) => {
         order.push("run");
-        facetedStepArtifacts.facetedStep.publish(context, true);
+        publishTestArtifact(context, facetedStepArtifact, true);
         abortSignal.aborted = true;
         return { score: 1 };
       },

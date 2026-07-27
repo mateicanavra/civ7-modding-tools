@@ -3,13 +3,11 @@ import type { MapContext } from "@mapgen/core/map-context.js";
 import type { NormalizeContext } from "@mapgen/engine/index.js";
 import type { StepFacets } from "@mapgen/engine/step-facets.js";
 import type { Static } from "typebox";
-import { implementArtifacts } from "../artifact/runtime.js";
 import type { InitialSetupDefinition } from "../initial-setup/definition.js";
 import { assertCanonicalStepContractInternal, registerCanonicalStepInternal } from "./authority.js";
 import type { StepContract } from "./contract.js";
 import { assertNoStepStageIdentityAliases } from "./identity.js";
 import type { StepRuntimeOps } from "./ops.js";
-import { registerStepProviderRuntimesInternal } from "./provider-runtimes.js";
 import type { StepDeps, StepModule } from "./types.js";
 
 type StepConfigOf<C extends StepContract<any, any, any, any, any, any>> = Static<C["schema"]>;
@@ -93,8 +91,8 @@ function captureStepImplementation(stepId: string, impl: unknown): CapturedStepI
 }
 
 /**
- * Binds executable step behavior to its admitted contract. Provider runtimes derive from the
- * contract's artifact authorities, so an implementation cannot install a second validator.
+ * Binds executable step behavior to its admitted contract. Artifact capabilities derive directly
+ * from the contract during each occurrence, so implementations cannot install another authority.
  * The run result is inferred once and becomes the typed input to optional post-provides projectors.
  */
 export function createStep<
@@ -115,11 +113,6 @@ export function createStep<
   }
   assertCanonicalStepContractInternal(contract);
   const captured = captureStepImplementation(contract.id, impl);
-  const providedArtifacts = contract.artifacts?.provides;
-  const artifacts =
-    providedArtifacts === undefined || providedArtifacts.length === 0
-      ? undefined
-      : implementArtifacts(providedArtifacts);
 
   const step = Object.freeze({
     contract,
@@ -128,7 +121,6 @@ export function createStep<
     ...(captured.metrics === undefined ? {} : { metrics: captured.metrics }),
     ...(captured.viz === undefined ? {} : { viz: captured.viz }),
   }) as unknown as StepModule<C, TResult>;
-  if (artifacts !== undefined) registerStepProviderRuntimesInternal(step, artifacts);
   registerCanonicalStepInternal(step);
   return step;
 }

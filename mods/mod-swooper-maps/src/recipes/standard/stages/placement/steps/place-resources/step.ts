@@ -97,7 +97,7 @@ function projectResourcePlacementOutcome(
  */
 export const PlaceResourcesStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
-    const plan = deps.artifacts.resourcePlanAdjusted.read(context);
+    const plan = deps.artifacts.resourcePlanAdjusted.read();
     const outcomes: ResourceOutcomeRow[] = [];
 
     for (const planned of plan.intents) {

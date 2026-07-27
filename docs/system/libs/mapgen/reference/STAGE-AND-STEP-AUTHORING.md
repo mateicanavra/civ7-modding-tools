@@ -111,10 +111,10 @@ A step module pairs a step contract with an implementation:
 - optional `normalize(config, ctx)` hook (must be shape-preserving)
 - `run(context, config, ops, deps)` implementation
 
-`createStep` derives the provider runtime map from the artifacts already admitted by the step
-contract. Requirements and provisions select the same canonical artifact objects; implementations
-cannot declare a second provider or validator surface. Steps with no provided artifacts, an empty
-provides tuple, or requires-only artifact dependencies have no provider runtime map.
+`createStep` binds behavior only. Requirements and provisions select the same canonical artifact
+objects, so implementations cannot declare a second provider or validator surface. At each
+invocation, Core derives only the exact occurrence-bound `read()` and `publish(value)` capabilities
+declared by that step contract; there is no provider runtime registry, map, or cache.
 
 The same contract binds `deps.engine` to only the declared adapter methods. Calls are
 context-first (`deps.engine.method(context, ...)`) and valid only during that exact step
@@ -130,7 +130,7 @@ import { config } from "./config.js";
 /** Projects admitted river evidence into Civ7 and captures engine readback. */
 export const PlotRiversStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const hydrography = deps.artifacts.hydrography.read(context);
+    const hydrography = deps.artifacts.hydrography.read();
     const projected = selectNavigableRiverTerrain(
       {
         width: context.setup.dimensions.width,

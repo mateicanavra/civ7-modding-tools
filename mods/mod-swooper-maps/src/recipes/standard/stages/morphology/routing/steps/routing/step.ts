@@ -17,7 +17,7 @@ function clampI8(value: number): number {
  */
 export const RoutingStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const topography = deps.artifacts.baseTopography.read(context);
+    const topography = deps.artifacts.baseTopography.read();
     const { width, height } = context.setup.dimensions;
     const routing = ops.routing(
       {
@@ -63,7 +63,7 @@ export const RoutingStep = createStep(config, {
         flowAccumMean: landTiles ? Number((sumFlow / landTiles).toFixed(4)) : 0,
       };
     });
-    deps.artifacts.routing.publish(context, routing);
+    deps.artifacts.routing.publish(routing);
     return routing;
   },
   viz: ({ result: routing, dimensions }) => {

@@ -91,7 +91,7 @@ import { config } from "./config.js";
 export const ProjectionStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const result = ops.computePlates(/* admitted inputs */, stepConfig.computePlates);
-    deps.artifacts.foundationPlates.publish(context, result.plates);
+    deps.artifacts.plates.publish(result.plates);
     return result;
   },
   viz: ({ result, dimensions }) => [

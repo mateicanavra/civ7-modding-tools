@@ -6,7 +6,7 @@ import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/au
  * same motion fit and its quality signal.
  */
 export const artifact = defineArtifact({
-  name: "foundationPlateMotion",
+  name: "plateMotion",
   id: "artifact:foundation.plateMotion",
   schema: Type.Object(
     {

@@ -137,7 +137,7 @@ function materializeNaturalWonders(args: {
  */
 export const PlaceNaturalWondersStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
-    const naturalWonderPlan = deps.artifacts.naturalWonderPlan.read(context);
+    const naturalWonderPlan = deps.artifacts.naturalWonderPlan.read();
     const { exactLogCompatibility, measurements } = materializeNaturalWonders({
       engine: {
         placeNaturalWonder: (

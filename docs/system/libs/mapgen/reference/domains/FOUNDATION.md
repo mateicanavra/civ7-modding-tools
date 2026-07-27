@@ -489,7 +489,7 @@ Downstream domains in the standard recipe primarily consume **tile projections**
 
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/step.ts` (reading projected Foundation crust, history, and provenance evidence)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/step.ts` (`deps.artifacts.foundationPlates.read`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/step.ts` (`deps.artifacts.plates.read`)
 
 ### Drift notes (target vs current)
 

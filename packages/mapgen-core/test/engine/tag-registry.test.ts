@@ -1,6 +1,5 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { implementArtifacts } from "@mapgen/authoring/artifact/runtime.js";
 import {
   createRecipe,
   createStage,
@@ -21,6 +20,7 @@ import {
   UnknownDependencyTagError,
 } from "@mapgen/engine/index.js";
 import { isDependencyTagSatisfied, registerDependencyTagsInternal } from "@mapgen/engine/tags.js";
+import { publishTestArtifact } from "@mapgen/testing/index.js";
 import { Type } from "typebox";
 
 const TEST_TAGS = {
@@ -142,7 +142,6 @@ describe("tag registry", () => {
         satisfies: (evidence) => evidence.observeArtifact(artifact).found,
       },
     ]);
-    const runtimes = implementArtifacts([artifact]);
 
     expect(
       isDependencyTagSatisfied(
@@ -154,7 +153,7 @@ describe("tag registry", () => {
     ).toBe(false);
 
     executeContextStep(context, (activeContext) => {
-      runtimes.genericArtifact.publish(activeContext, {});
+      publishTestArtifact(activeContext, artifact, {});
     });
     expect(isDependencyTagSatisfied(artifact.id, context, { satisfied: new Set() }, registry)).toBe(
       false
@@ -418,7 +417,6 @@ describe("tag registry", () => {
       id: "artifact:test.in-run-observation",
       schema: Type.Object({ valid: Type.Boolean() }, { additionalProperties: false }),
     });
-    const runtimes = implementArtifacts([artifact]);
     let observed = false;
     function observePublishedArtifact(evidence: DependencyEvidence): boolean {
       observed = true;
@@ -438,7 +436,7 @@ describe("tag registry", () => {
       stageId: "foundation",
       requires: [],
       provides: [artifact.id],
-      run: (context) => runtimes.inRunObservation.publish(context, { valid: true }),
+      run: (context) => publishTestArtifact(context, artifact, { valid: true }),
     });
     const plan = compilePlan(registry, baseSetup, ["publish-observed-artifact"]);
     const context = createMapContext({

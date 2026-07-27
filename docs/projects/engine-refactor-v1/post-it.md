@@ -31,17 +31,16 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** collapse executable operation binding to one authority.
-The operation created from its contract and strategies already owns the exact
-admitted `run` transition; a second `DomainOpRuntime` object, parallel runtime
-registry, reverse WeakMap, or `{ compile, runtime }` bundle does not represent
-another capability. Domain routers bind contracts to canonical operations
-once. Recipe compilation retains that identity and gives each step a frozen
-binding record containing only the exact run callables its contract admits.
-Delete every runtime wrapper, registry, marker, and compatibility projection
-that merely recopies operation identity. Preserve contract mismatch rejection,
-strategy selection, admission,
-and observable error behavior.
+**Current container:** project occurrence-bound artifact capabilities directly
+from one artifact authority. `defineArtifact` already owns identity, schema,
+and complete admission. A second `{ artifact, read, publish }` runtime cached
+against a step, copied through recipe snapshotting, verified during graph
+construction, and wrapped again at invocation is not another capability.
+Delete that hidden state. The exact declared artifact and active step occurrence
+derive one reader or publisher at dependency binding. Those bound capabilities
+do not ask authors to resubmit the context they already capture. Preserve exact
+identity, declared access, publication admission, write-once storage, active
+occurrence ownership, and terminal observation.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -58,15 +57,16 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** start at the canonical operation and follow execution outward.
-Replace wrapper construction with exact `.run` projection; collapse compile and
-runtime binding maps into the single contract-to-operation authority; remove
-recipe/runtime registries that can disagree; update direct consumers; delete
-tests that only prove the impossible parallel state and retain tests for exact
-identity, frozen access, admission, and execution behavior. Then inspect the
-adjacent artifact capability boundary with the same filter, but do not mix that
-next state transition into this cut. Compiler, focused behavior, public-surface,
-and exact-tree proof close this layer before the next branch.
+**Gradient:** start at the canonical artifact and follow one occurrence outward.
+Replace the provider-runtime WeakMap with direct reader/publisher projection;
+remove snapshot propagation, structural rechecks, and wrapper-over-wrapper
+construction; make bound capabilities contextless; migrate consumers and tests;
+repair the active scaffold that still teaches the retired validator API. Then
+normalize the one remaining catalog/access naming split only if it is still a
+mechanical consequence of the same authority. Repeated post-publication
+validation and generic dependency observation remain separately visible design
+questions rather than being smuggled into this cut. Compiler, focused behavior,
+public-surface, docs, and exact-tree proof close the layer before the next branch.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -101,6 +101,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-27 - Executable Operation Binding Sealed
+
+One canonical operation now carries its contract, strategy identity, admission,
+and executable transition from domain composition through recipe compilation to
+step invocation. The parallel `DomainOpRuntime` authority, compile/runtime
+bundle, reverse WeakMap, marker, and duplicated registry retired. Steps receive
+only the exact frozen run callables admitted by their contracts; mismatch,
+strategy selection, and observable failure behavior remain intact.
 
 ### 2026-07-27 - Observational Operation Input Sealed
 

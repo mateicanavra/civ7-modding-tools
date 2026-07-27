@@ -13,18 +13,18 @@ import { config } from "./config.js";
  */
 export const PlanVegetationStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const floodplainIntents = deps.artifacts.floodplainIntents.read(context);
-    const iceIntents = deps.artifacts.iceIntents.read(context);
-    const reefIntents = deps.artifacts.reefIntents.read(context);
-    const wetlandIntents = deps.artifacts.wetlandIntents.read(context);
-    const classification = deps.artifacts.biomeClassification.read(context);
-    const climateIndices = deps.artifacts.climateIndices.read(context);
-    const suitability = deps.artifacts.featureSuitability.read(context);
-    const hydrography = deps.artifacts.hydrography.read(context);
-    const topography = deps.artifacts.topography.read(context);
-    const lakePlan = deps.artifacts.lakePlan.read(context);
-    const mountains = deps.artifacts.mountains.read(context);
-    const volcanoes = deps.artifacts.volcanoes.read(context);
+    const floodplainIntents = deps.artifacts.floodplainIntents.read();
+    const iceIntents = deps.artifacts.iceIntents.read();
+    const reefIntents = deps.artifacts.reefIntents.read();
+    const wetlandIntents = deps.artifacts.wetlandIntents.read();
+    const classification = deps.artifacts.biomeClassification.read();
+    const climateIndices = deps.artifacts.climateIndices.read();
+    const suitability = deps.artifacts.featureSuitability.read();
+    const hydrography = deps.artifacts.hydrography.read();
+    const topography = deps.artifacts.topography.read();
+    const lakePlan = deps.artifacts.lakePlan.read();
+    const mountains = deps.artifacts.mountains.read();
+    const volcanoes = deps.artifacts.volcanoes.read();
     const { width, height } = context.setup.dimensions;
     const size = width * height;
     const featureOccupancyMask = deriveFeatureOccupancy(
@@ -76,6 +76,6 @@ export const PlanVegetationStep = createStep(config, {
       featureOccupancyMask,
       placements
     );
-    deps.artifacts.vegetationIntents.publish(context, placements);
+    deps.artifacts.vegetationIntents.publish(placements);
   },
 });

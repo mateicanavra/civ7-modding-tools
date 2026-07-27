@@ -14,9 +14,9 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  */
 export const LakesStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
-    const lakePlan = deps.artifacts.lakePlan.read(context);
-    const mountains = deps.artifacts.mountains.read(context);
-    const volcanoes = deps.artifacts.volcanoes.read(context);
+    const lakePlan = deps.artifacts.lakePlan.read();
+    const mountains = deps.artifacts.mountains.read();
+    const volcanoes = deps.artifacts.volcanoes.read();
     const { width, height } = context.setup.dimensions;
     const size = width * height;
 
@@ -42,7 +42,7 @@ export const LakesStep = createStep(config, {
     // The adapter is the only engine boundary. Stamping plus readback stays there
     // so later steps observe current Civ7 state instead of consuming stale snapshots.
     const projection = deps.engine.stampLakes(context, width, height, projectionLakeMask);
-    deps.artifacts.projectedLakes.publish(context, {
+    deps.artifacts.projectedLakes.publish({
       lakeMask: Uint8Array.from(projection.stampedLakeMask),
     });
     const engineLandMask = landMaskFromWaterMask(projection.engineWaterMask);

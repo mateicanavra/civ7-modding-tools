@@ -327,8 +327,7 @@ export function verifyMapContextEffectInternal(context: MapContext, effectId: st
 
 /**
  * @internal Observes raw artifact storage by exact artifact identity for Core-owned capabilities.
- * capabilities. Artifact ids remain diagnostic and dependency evidence; they never authorize a
- * stored value.
+ * Artifact ids remain diagnostic and dependency evidence; they never authorize a stored value.
  */
 export function readMapContextArtifactInternal(
   context: MapContext,
@@ -341,7 +340,7 @@ export function readMapContextArtifactInternal(
 }
 
 /**
- * @internal Publishes through the exact canonical contract retained by an artifact runtime;
+ * @internal Publishes through the exact canonical artifact selected by an occurrence capability;
  * callers never receive the mutable store.
  */
 export function publishMapContextArtifactInternal(

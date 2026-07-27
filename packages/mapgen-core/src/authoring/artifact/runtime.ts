@@ -4,12 +4,7 @@ import {
   publishMapContextArtifactInternal,
   readMapContextArtifactInternal,
 } from "@mapgen/core/map-context.js";
-import {
-  type Artifact,
-  type ArtifactReadValueOf,
-  type ArtifactValueOf,
-  assertArtifact,
-} from "./contract.js";
+import { type Artifact, type ArtifactReadValueOf, type ArtifactValueOf } from "./contract.js";
 
 /**
  * Signals that a step attempted to read a declared artifact before any producer published it.
@@ -84,90 +79,20 @@ export class ArtifactValidationError extends Error {
   }
 }
 
-type ArtifactRuntimes<Artifacts extends readonly Artifact[]> = Readonly<{
-  [Entry in Artifacts[number] as Entry["name"]]: ImplementedArtifactRuntime<Entry>;
-}>;
-
-export type RequiredArtifactRuntime<A extends Artifact> = Readonly<{
-  /**
-   * Read the stored artifact reference under the pipeline's immutable ownership contract.
-   *
-   * IMPORTANT:
-   * - This does not perform runtime snapshotting/copying in production.
-   * - The public view hides mutation and backing storage, but the retained runtime value is not
-   *   frozen; a producer or external alias that escaped before publication could still mutate it.
-   * - If mutation is needed, callers must copy first (caller-owned copy).
-   */
-  read: (context: MapContext) => ArtifactReadValueOf<A>;
-}>;
-
-export type ProvidedArtifactRuntime<A extends Artifact> = Readonly<{
-  /**
-   * Publish an artifact (write-once).
-   *
-   * IMPORTANT:
-   * - Publishing stores the provided value reference (no deep freeze, no snapshotting in prod).
-   * - Producers must treat published values as immutable once stored.
-   */
-  publish: (context: MapContext, value: ArtifactValueOf<A>) => ArtifactReadValueOf<A>;
-}>;
-
-/** @internal Complete provider binding retained by recipe composition, never authored step code. */
-export type ImplementedArtifactRuntime<A extends Artifact> = RequiredArtifactRuntime<A> &
-  ProvidedArtifactRuntime<A> &
-  Readonly<{ artifact: A }>;
-
-function resolveStepId(context: MapContext): string {
-  return getActiveMapContextStepIdInternal(context) ?? "unknown";
-}
-
-function snapshotArtifacts(artifacts: readonly Artifact[]): readonly Artifact[] {
-  if (!Array.isArray(artifacts)) {
-    throw new Error("artifacts must be an array");
-  }
-  const ownKeys = Reflect.ownKeys(artifacts);
-  if (ownKeys.length !== artifacts.length + 1) {
-    throw new Error("artifacts must be a dense array without extra keys");
-  }
-
-  const snapshots: Artifact[] = [];
-  for (let index = 0; index < artifacts.length; index += 1) {
-    const descriptor = Object.getOwnPropertyDescriptor(artifacts, String(index));
-    if (!descriptor || !("value" in descriptor) || !descriptor.enumerable) {
-      throw new Error(`artifact at index ${index} must be an enumerable data property`);
+function requireArtifactOccurrence(context: MapContext, expectedStepId?: string): string {
+  const activeStepId = getActiveMapContextStepIdInternal(context);
+  if (
+    activeStepId === undefined ||
+    (expectedStepId !== undefined && activeStepId !== expectedStepId)
+  ) {
+    if (expectedStepId === undefined) {
+      throw new Error("Artifact capability requires the currently active step context.");
     }
-    assertArtifact(descriptor.value);
-    snapshots.push(descriptor.value);
+    throw new Error(
+      `Artifact capability for step "${expectedStepId}" requires that step's exact active context.`
+    );
   }
-  return Object.freeze(snapshots);
-}
-
-function assertUniqueArtifacts(artifacts: readonly Artifact[]): void {
-  const names = new Set<string>();
-  const ids = new Set<string>();
-  for (const artifact of artifacts) {
-    if (names.has(artifact.name)) {
-      throw new Error(`duplicate artifact name "${artifact.name}" in provides list`);
-    }
-    if (ids.has(artifact.id)) {
-      throw new Error(`duplicate artifact id "${artifact.id}" in provides list`);
-    }
-    names.add(artifact.name);
-    ids.add(artifact.id);
-  }
-}
-
-function readStored<A extends Artifact>(
-  context: MapContext,
-  artifact: A
-): {
-  hasValue: boolean;
-  value: ArtifactValueOf<A> | undefined;
-} {
-  const observation = readMapContextArtifactInternal(context, artifact);
-  return observation.found
-    ? { hasValue: true, value: observation.value as ArtifactValueOf<A> }
-    : { hasValue: false, value: undefined };
+  return activeStepId;
 }
 
 function normalizeIssues(error: unknown): readonly { message: string }[] {
@@ -177,65 +102,59 @@ function normalizeIssues(error: unknown): readonly { message: string }[] {
   return [{ message: String(error) }];
 }
 
-/**
- * Builds write-once runtimes from canonical artifacts. Each artifact's complete validator runs
- * once per publish or satisfaction observation; callers cannot replace the admission path.
- */
-export function implementArtifacts<const Artifacts extends readonly Artifact[]>(
-  artifacts: Artifacts
-): ArtifactRuntimes<Artifacts> {
-  const snapshots = snapshotArtifacts(artifacts);
-  assertUniqueArtifacts(snapshots);
-  const entries: Array<readonly [string, ImplementedArtifactRuntime<Artifact>]> = [];
+/** @internal Reads one admitted artifact through its exact identity and active occurrence. */
+export function readArtifactValueInternal<A extends Artifact>(
+  context: MapContext,
+  artifact: A,
+  expectedStepId?: string
+): ArtifactReadValueOf<A> {
+  const consumerStepId = requireArtifactOccurrence(context, expectedStepId);
+  const observation = readMapContextArtifactInternal(context, artifact);
+  if (!observation.found) {
+    throw new ArtifactMissingError({
+      artifactId: artifact.id,
+      artifactName: artifact.name,
+      consumerStepId,
+    });
+  }
+  return observation.value as ArtifactReadValueOf<A>;
+}
 
-  for (const artifact of snapshots) {
-    const runtime: ImplementedArtifactRuntime<typeof artifact> = {
-      artifact,
-      read: (context) => {
-        const { hasValue, value } = readStored(context, artifact);
-        if (!hasValue) {
-          throw new ArtifactMissingError({
-            artifactId: artifact.id,
-            artifactName: artifact.name,
-            consumerStepId: resolveStepId(context),
-          });
-        }
-        return value as ArtifactReadValueOf<typeof artifact>;
-      },
-      publish: (context, value) => {
-        if (readMapContextArtifactInternal(context, artifact).found) {
-          throw new ArtifactDoublePublishError({
-            artifactId: artifact.id,
-            artifactName: artifact.name,
-            producerStepId: resolveStepId(context),
-          });
-        }
-
-        let issues: readonly { message: string }[];
-        let cause: unknown;
-        try {
-          issues = artifact.validate(value, { dimensions: context.setup.dimensions });
-        } catch (error) {
-          cause = error;
-          issues = normalizeIssues(error);
-        }
-
-        if (issues.length > 0) {
-          throw new ArtifactValidationError({
-            artifactId: artifact.id,
-            artifactName: artifact.name,
-            producerStepId: resolveStepId(context),
-            issues,
-            cause,
-          });
-        }
-
-        publishMapContextArtifactInternal(context, artifact, value);
-        return value as ArtifactReadValueOf<typeof artifact>;
-      },
-    };
-    entries.push([artifact.name, runtime]);
+/** @internal Admits and publishes one artifact through its exact active occurrence. */
+export function publishArtifactValueInternal<A extends Artifact>(
+  context: MapContext,
+  artifact: A,
+  value: ArtifactValueOf<A>,
+  expectedStepId?: string
+): ArtifactReadValueOf<A> {
+  const producerStepId = requireArtifactOccurrence(context, expectedStepId);
+  if (readMapContextArtifactInternal(context, artifact).found) {
+    throw new ArtifactDoublePublishError({
+      artifactId: artifact.id,
+      artifactName: artifact.name,
+      producerStepId,
+    });
   }
 
-  return Object.freeze(Object.fromEntries(entries)) as ArtifactRuntimes<Artifacts>;
+  let issues: readonly { message: string }[];
+  let cause: unknown;
+  try {
+    issues = artifact.validate(value, { dimensions: context.setup.dimensions });
+  } catch (error) {
+    cause = error;
+    issues = normalizeIssues(error);
+  }
+
+  if (issues.length > 0) {
+    throw new ArtifactValidationError({
+      artifactId: artifact.id,
+      artifactName: artifact.name,
+      producerStepId,
+      issues,
+      cause,
+    });
+  }
+
+  publishMapContextArtifactInternal(context, artifact, value);
+  return value as ArtifactReadValueOf<A>;
 }

@@ -6,7 +6,7 @@ import { PlateSchema } from "../model/atoms/plate.schema.js";
  * downstream tectonic history and projection.
  */
 export const artifact = defineArtifact({
-  name: "foundationPlateGraph",
+  name: "plateGraph",
   id: "artifact:foundation.plateGraph",
   schema: Type.Object(
     {

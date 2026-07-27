@@ -7,7 +7,7 @@ import { PlateTopologyNodeSchema } from "../model/atoms/plate-topology-node.sche
  * alignment, and in-range neighbor references.
  */
 export const artifact = defineArtifact({
-  name: "foundationPlateTopology",
+  name: "plateTopology",
   id: "artifact:foundation.plateTopology",
   schema: Type.Object(
     {

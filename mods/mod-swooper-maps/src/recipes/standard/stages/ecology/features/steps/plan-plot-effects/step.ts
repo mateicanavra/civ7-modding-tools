@@ -8,9 +8,9 @@ import { config } from "./config.js";
  */
 export const PlanPlotEffectsStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const classification = deps.artifacts.biomeClassification.read(context);
-    const climateIndices = deps.artifacts.climateIndices.read(context);
-    const topography = deps.artifacts.topography.read(context);
+    const classification = deps.artifacts.biomeClassification.read();
+    const climateIndices = deps.artifacts.climateIndices.read();
+    const topography = deps.artifacts.topography.read();
     const { width, height } = context.setup.dimensions;
     const scoreSnow = ops.scoreSnow(
       {
@@ -83,6 +83,6 @@ export const PlanPlotEffectsStep = createStep(config, {
       stepConfig.plotEffects
     );
 
-    deps.artifacts.plotEffectPlan.publish(context, result.placements);
+    deps.artifacts.plotEffectPlan.publish(result.placements);
   },
 });

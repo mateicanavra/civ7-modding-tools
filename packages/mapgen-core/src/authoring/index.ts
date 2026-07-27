@@ -14,8 +14,6 @@ export type {
   ArtifactReadValueOf,
   ArtifactValueOf,
   DeepReadonly,
-  ProvidedArtifactRuntime,
-  RequiredArtifactRuntime,
   ValidatedArtifactObservation,
 } from "./artifact/index.js";
 export {

@@ -98,7 +98,7 @@ describe("biomes step", () => {
         stepContext,
         { classify: classifyConfig },
         ops,
-        buildStepTestDependencies(biomesStep)
+        buildStepTestDependencies(biomesStep, stepContext)
       );
     });
 
@@ -169,7 +169,7 @@ describe("biomes step", () => {
           stepContext,
           { classify: classifyConfig },
           ops,
-          buildStepTestDependencies(biomesStep)
+          buildStepTestDependencies(biomesStep, stepContext)
         );
       });
       return readValidatedArtifact(ctx, biomeArtifacts.biomeClassification).vegetationDensity;

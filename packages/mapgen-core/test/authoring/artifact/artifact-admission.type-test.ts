@@ -1,4 +1,3 @@
-import { implementArtifacts } from "@mapgen/authoring/artifact/runtime.js";
 import {
   type Artifact,
   type ArtifactValueOf,
@@ -125,7 +124,9 @@ const wrongName: Artifact<"otherArtifact"> = firstArtifact;
 void wrongName;
 
 defineArtifactCatalog({ firstArtifact, secondArtifact });
-implementArtifacts([firstArtifact, secondArtifact] as const);
+
+// @ts-expect-error Catalog and step dependency property identity is singular.
+defineArtifactCatalog({ alias: firstArtifact });
 
 defineStep({
   id: "canonical-artifact-provider",
@@ -141,9 +142,6 @@ const missingValidator = {
 };
 // @ts-expect-error A complete artifact authority always carries admission behavior.
 defineArtifactCatalog({ missingValidator });
-
-// @ts-expect-error Runtime construction accepts canonical Artifact values, not legacy wrappers.
-implementArtifacts([{ artifact: firstArtifact, validate: firstArtifact.validate }]);
 
 defineStep({
   id: "legacy-wrapper-provider",

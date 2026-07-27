@@ -55,13 +55,13 @@ function gridProjection(
 export const ProjectionStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
-    const mesh = deps.artifacts.foundationMesh.read(context);
-    const crust = deps.artifacts.foundationCrust.read(context);
-    const plateGraph = deps.artifacts.foundationPlateGraph.read(context);
-    const plateMotion = deps.artifacts.foundationPlateMotion.read(context);
-    const tectonics = deps.artifacts.foundationTectonics.read(context);
-    const tectonicHistory = deps.artifacts.foundationTectonicHistory.read(context);
-    const tectonicProvenance = deps.artifacts.foundationTectonicProvenance.read(context);
+    const mesh = deps.artifacts.mesh.read();
+    const crust = deps.artifacts.crust.read();
+    const plateGraph = deps.artifacts.plateGraph.read();
+    const plateMotion = deps.artifacts.plateMotion.read();
+    const tectonics = deps.artifacts.currentTectonics.read();
+    const tectonicHistory = deps.artifacts.tectonicHistory.read();
+    const tectonicProvenance = deps.artifacts.tectonicProvenance.read();
 
     const platesResult = ops.computePlates(
       {
@@ -128,16 +128,10 @@ export const ProjectionStep = createStep(config, {
       stepConfig.computePlates
     );
 
-    deps.artifacts.foundationPlates.publish(context, platesResult.plates);
-    deps.artifacts.foundationCrustTiles.publish(context, platesResult.crustTiles);
-    deps.artifacts.foundationTectonicHistoryTiles.publish(
-      context,
-      platesResult.tectonicHistoryTiles
-    );
-    deps.artifacts.foundationTectonicProvenanceTiles.publish(
-      context,
-      platesResult.tectonicProvenanceTiles
-    );
+    deps.artifacts.plates.publish(platesResult.plates);
+    deps.artifacts.crustTiles.publish(platesResult.crustTiles);
+    deps.artifacts.tectonicHistoryTiles.publish(platesResult.tectonicHistoryTiles);
+    deps.artifacts.tectonicProvenanceTiles.publish(platesResult.tectonicProvenanceTiles);
 
     return platesResult;
   },

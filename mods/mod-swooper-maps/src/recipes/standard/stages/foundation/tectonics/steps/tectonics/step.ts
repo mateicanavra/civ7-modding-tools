@@ -130,11 +130,11 @@ export const TectonicsStep = createStep(config, {
       },
     };
   },
-  run: (context, stepConfig, ops, deps) => {
-    const mesh = deps.artifacts.foundationMesh.read(context);
-    const mantleForcing = deps.artifacts.foundationMantleForcing.read(context);
-    const crust = deps.artifacts.foundationInitialCrust.read(context);
-    const plateGraph = deps.artifacts.foundationPlateGraph.read(context);
+  run: (_context, stepConfig, ops, deps) => {
+    const mesh = deps.artifacts.mesh.read();
+    const mantleForcing = deps.artifacts.mantleForcing.read();
+    const crust = deps.artifacts.initialCrust.read();
+    const plateGraph = deps.artifacts.plateGraph.read();
     const topologyMesh = {
       cellCount: mesh.cellCount,
       wrapWidth: mesh.wrapWidth,
@@ -160,7 +160,7 @@ export const TectonicsStep = createStep(config, {
       },
       stepConfig.computePlateMotion
     ).plateMotion;
-    deps.artifacts.foundationPlateMotion.publish(context, plateMotion);
+    deps.artifacts.plateMotion.publish(plateMotion);
     const segmentCrust = { strength: crust.strength, type: crust.type } as const;
     const plateMotionInput = {
       plateCount: plateMotion.plateCount,
@@ -180,7 +180,7 @@ export const TectonicsStep = createStep(config, {
       },
       stepConfig.computeTectonicSegments
     );
-    deps.artifacts.foundationTectonicSegments.publish(context, segmentsResult.segments);
+    deps.artifacts.tectonicSegments.publish(segmentsResult.segments);
 
     const eraPlateMembership = ops.computeEraPlateMembership(
       {
@@ -338,12 +338,9 @@ export const TectonicsStep = createStep(config, {
       stepConfig.computeTectonicProvenance
     );
 
-    deps.artifacts.foundationTectonicHistory.publish(context, historyResult.tectonicHistory);
-    deps.artifacts.foundationTectonicProvenance.publish(
-      context,
-      provenanceResult.tectonicProvenance
-    );
-    deps.artifacts.foundationTectonics.publish(context, tectonicsResult.tectonics);
+    deps.artifacts.tectonicHistory.publish(historyResult.tectonicHistory);
+    deps.artifacts.tectonicProvenance.publish(provenanceResult.tectonicProvenance);
+    deps.artifacts.currentTectonics.publish(tectonicsResult.tectonics);
     return {
       mesh,
       plateGraph,
