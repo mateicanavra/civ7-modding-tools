@@ -18,7 +18,13 @@ import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
  */
 export const config = defineStep({
   id: "assign-starts",
-  engine: ["getMapSizeId", "lookupMapInfo", "getAliveMajorIds", "setStartPosition"] as const,
+  engine: [
+    "emitRuntimeWarning",
+    "getMapSizeId",
+    "lookupMapInfo",
+    "getAliveMajorIds",
+    "setStartPosition",
+  ] as const,
   requires: [],
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned],
   artifacts: {

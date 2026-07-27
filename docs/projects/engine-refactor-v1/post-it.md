@@ -28,12 +28,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** delete recipe-local synthetic lifecycle ownership from
-Placement. `PipelineExecutor` already owns step start, finish, duration, and
-failure attribution. `runPlacementProductStep` cannot invent nested pseudo-step
-boundaries inside an admitted step merely to wrap direct engine calls. Each
-surviving placement step keeps its earned product or effect boundary and
-executes that behavior directly under the one executor-owned lifecycle.
+**Current container:** move Civ7 runtime-warning compatibility out of Placement.
+Product steps own the condition and message they report, but they cannot own a
+host capability shim for choosing `console.warn` versus the engine-safe
+`console.log`. The Civ7 adapter owns that runtime fact and exposes one admitted
+warning capability through each step contract that needs it. Structured trace
+and artifact evidence remain the product authority; warnings remain human-facing
+operational convenience.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -50,14 +51,14 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** enumerate every `runPlacementProductStep` call, preserve the
-underlying engine transaction in its already-admitted step, and delete the
-wrapper plus any trace choreography or tests that exist only to prove its
-alternate lifecycle. Retain independently valuable product evidence at its
-actual owner. Prove focused maintenance and advanced-start behavior, exact
-compiler ownership, and zero remaining helper references, then seal this as
-one Graphite layer before dissolving the unrelated concerns still collected in
-`placement/log.ts`.
+**Gradient:** add one runtime-warning method to the adapter contract, implement
+the Civ7 console fallback at that owner, admit the method through Core's
+step-engine capability selector, and update only the three Placement consumers.
+Delete the recipe-local warning shim while preserving each product-specific
+message and structured evidence. Prove adapter, Core, and Placement compiler
+ownership plus focused warning behavior, then seal this layer before moving the
+three stable exact-log protocols into Standard parity and deleting the remaining
+unearned ASCII/stat projections and `placement/log.ts` cabinet.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -92,6 +93,14 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Placement Lifecycle Authority
+
+Placement's recipe-local pseudo-lifecycle wrapper retired. Engine transactions
+now execute directly inside their admitted steps while `PipelineExecutor` alone
+owns start, finish, duration, failure attribution, abort behavior, and causal
+error preservation. Product metrics, artifacts, telemetry, and visualization
+remain unchanged.
 
 ### 2026-07-26 - Terminal Placement Parity
 

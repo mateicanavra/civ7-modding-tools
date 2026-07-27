@@ -15,7 +15,7 @@ import {
 } from "@swooper/mapgen-core/authoring";
 import { fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
 
-import { logResourcePlacementRuntimeTelemetry, warnLog } from "../../log.js";
+import { logResourcePlacementRuntimeTelemetry } from "../../log.js";
 import {
   buildPlacementPointBuffers,
   definePlacementVizCategoryMeta,
@@ -305,7 +305,8 @@ export const PlaceResourcesStep = createStep(config, {
     if (outcomes.reconciliation.rejectedCount > 0) {
       // Typed reconcile (D4): engine-legality rejections are recorded as
       // shortfalls with reasons; the plan's type-at-plot is never re-decided.
-      warnLog(
+      deps.engine.emitRuntimeWarning(
+        context,
         `[Placement] Resource reconciliation recorded ${outcomes.reconciliation.rejectedCount}/` +
           `${outcomes.reconciliation.plannedCount} typed rejections (no relocation, no type re-decision).`
       );

@@ -1,6 +1,5 @@
 import { deriveStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { warnLog } from "../../log.js";
 import { config } from "./config.js";
 import { projectResourceSupportViz } from "./viz.js";
 
@@ -54,7 +53,8 @@ export const AdjustResourcesStep = createStep(config, {
       const summary = adjusted.shortfalls
         .map((row) => `seat ${row.seatIndex}: ${row.reason} x${row.missing}`)
         .join("; ");
-      warnLog(
+      deps.engine.emitRuntimeWarning(
+        context,
         `[Placement] Resource support pass recorded ${adjusted.shortfalls.length} typed shortfall(s): ${summary}.`
       );
       context.trace.event(() => ({
