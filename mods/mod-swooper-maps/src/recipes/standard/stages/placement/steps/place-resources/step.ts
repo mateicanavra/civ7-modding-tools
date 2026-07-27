@@ -7,7 +7,6 @@ import type {
 import { type OfficialResourceType, requireResourceRuntimeId } from "@civ7/map-policy";
 import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
-import type { TraceJsonObject } from "@swooper/mapgen-core";
 import {
   type ArtifactReadValueOf,
   type ArtifactValueOf,
@@ -16,11 +15,7 @@ import {
 } from "@swooper/mapgen-core/authoring";
 import { fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
 
-import {
-  logResourcePlacementRuntimeTelemetry,
-  runPlacementProductStep,
-  warnLog,
-} from "../../log.js";
+import { logResourcePlacementRuntimeTelemetry, warnLog } from "../../log.js";
 import {
   buildPlacementPointBuffers,
   definePlacementVizCategoryMeta,
@@ -302,16 +297,11 @@ function resourceOutcomeCategoryValue(outcome: ResourceOutcomeRow): number {
 export const PlaceResourcesStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
     const plan = deps.artifacts.resourcePlanAdjusted.read(context);
-    const emit = (payload: TraceJsonObject): void => {
-      context.trace.event(() => payload);
-    };
 
-    const outcomes = runPlacementProductStep("placement.resources", emit, () =>
-      placeResourcesWithTypedOutcomes({
-        placeResourceIntent: (intent) => deps.engine.placeResourceIntent(context, intent),
-        plan,
-      })
-    );
+    const outcomes = placeResourcesWithTypedOutcomes({
+      placeResourceIntent: (intent) => deps.engine.placeResourceIntent(context, intent),
+      plan,
+    });
     if (outcomes.reconciliation.rejectedCount > 0) {
       // Typed reconcile (D4): engine-legality rejections are recorded as
       // shortfalls with reasons; the plan's type-at-plot is never re-decided.

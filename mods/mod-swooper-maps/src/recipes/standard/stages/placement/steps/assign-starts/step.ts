@@ -1,13 +1,13 @@
 import placement from "@mapgen/domain/placement";
 import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
-import type { MapContext, TraceJsonObject } from "@swooper/mapgen-core";
+import type { MapContext } from "@swooper/mapgen-core";
 import {
   type ArtifactValueOf,
   createStep,
   type DeepReadonly,
   type Static,
 } from "@swooper/mapgen-core/authoring";
-import { runPlacementProductStep, warnLog } from "../../log.js";
+import { warnLog } from "../../log.js";
 import { config } from "./config.js";
 import { projectStartAssignmentViz } from "./viz.js";
 
@@ -222,17 +222,12 @@ export const AssignStartsStep = createStep(config, {
       },
       stepConfig.starts
     );
-    const emit = (payload: TraceJsonObject): void => {
-      context.trace.event(() => payload);
-    };
-    const assignment = runPlacementProductStep("placement.starts", emit, () =>
-      materializeStartAssignment({
-        context,
-        plan,
-        setStartPosition: (plotIndex, playerId) =>
-          deps.engine.setStartPosition(context, plotIndex, playerId),
-      })
-    );
+    const assignment = materializeStartAssignment({
+      context,
+      plan,
+      setStartPosition: (plotIndex, playerId) =>
+        deps.engine.setStartPosition(context, plotIndex, playerId),
+    });
     deps.artifacts.startAssignment.publish(context, assignment);
     return { plan, assignment };
   },

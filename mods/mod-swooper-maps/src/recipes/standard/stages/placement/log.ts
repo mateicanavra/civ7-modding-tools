@@ -2,7 +2,7 @@ import type { ResourceCatalogEntry } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import placement from "@mapgen/domain/placement";
 import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
-import type { MapContext, TraceJsonObject } from "@swooper/mapgen-core";
+import type { MapContext } from "@swooper/mapgen-core";
 import type { ArtifactValueOf, DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 import { fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
 import type { StandardNaturalWonderPlanInputMeasurements } from "../../metrics/families/placement/natural-wonder-plan-input.js";
@@ -63,25 +63,6 @@ export function warnLog(message: string): void {
     return;
   }
   sink.log(`[warn] ${message}`);
-}
-
-/**
- * Runs one placement product effect under the stage's shared trace and abort policy.
- * Mutating steps remain the behavior owners while every failure is emitted and rethrown
- * with the same placement boundary semantics.
- */
-export function runPlacementProductStep<T>(
-  stepId: string,
-  emit: (payload: TraceJsonObject) => void,
-  fn: () => T
-): T {
-  try {
-    return fn();
-  } catch (error) {
-    const message = toErrorMessage(error);
-    emit({ type: `${stepId}.error`, error: message });
-    throw new Error(`[SWOOPER_MOD] Aborting placement: ${stepId} failed (${message}).`);
-  }
 }
 
 /**
@@ -347,8 +328,4 @@ export function logNaturalWonderPlanInputRuntimeTelemetry(
   measurements: StandardNaturalWonderPlanInputMeasurements
 ): void {
   console.log(`[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V2 ${JSON.stringify(measurements)}`);
-}
-
-function toErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
 }

@@ -1,8 +1,6 @@
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
-import type { TraceJsonObject } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { measureStandardDiscoveryPlacement } from "../../../../metrics/families/discovery-placement.js";
-import { runPlacementProductStep } from "../../log.js";
 import { config } from "./config.js";
 
 /**
@@ -17,18 +15,13 @@ export const PlaceDiscoveriesStep = createStep(config, {
     const startAssignment = deps.artifacts.startAssignment.read(context);
     const startPositions = startAssignment.positions.filter((plotIndex) => plotIndex >= 0);
     const polarMargin = Math.max(0, CIV7_BROWSER_TABLES_V0.mapGlobals.polarWaterRows | 0);
-    const emit = (payload: TraceJsonObject): void => {
-      context.trace.event(() => payload);
-    };
 
-    const outcomes = runPlacementProductStep("placement.discoveries", emit, () => {
-      // Discovery identity and availability are live narrative-system products,
-      // so the official generator remains the sole placement authority. This
-      // step projects the adapter's typed observations into metrics and logging.
-      return {
-        summary: deps.engine.generateOfficialDiscoveries(context, startPositions, polarMargin),
-      };
-    });
+    // Discovery identity and availability are live narrative-system products,
+    // so the official generator remains the sole placement authority. This
+    // step projects the adapter's typed observations into metrics and logging.
+    const outcomes = {
+      summary: deps.engine.generateOfficialDiscoveries(context, startPositions, polarMargin),
+    };
 
     // Unconditional engine-safe telemetry (`console.log` is the only console
     // method available in the Civ7 MapGeneration context) so the live

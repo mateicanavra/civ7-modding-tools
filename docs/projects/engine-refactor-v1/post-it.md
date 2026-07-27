@@ -28,14 +28,12 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** collapse terminal placement parity into one lifecycle
-owner. `prepare-placement-surface` owns only the engine maintenance transaction
-that restores and validates the playable surface. It cannot claim final product
-state before later placement transitions run. `observe-placement-parity`, gated
-after advanced starts, owns one terminal engine snapshot and every parity
-measurement derived from it. Metrics, replay, Studio evidence, and product
-proof consume that one measurement rather than reconstructing competing
-notions of final water and lake state.
+**Current container:** delete recipe-local synthetic lifecycle ownership from
+Placement. `PipelineExecutor` already owns step start, finish, duration, and
+failure attribution. `runPlacementProductStep` cannot invent nested pseudo-step
+boundaries inside an admitted step merely to wrap direct engine calls. Each
+surviving placement step keeps its earned product or effect boundary and
+executes that behavior directly under the one executor-owned lifecycle.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -52,16 +50,14 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** remove final-readback, product-metric, and product-log claims from
-surface preparation while preserving its real maintenance and visualization
-behavior. Extend the terminal observer to acquire one detached terrain,
-elevation, water, and lake snapshot after all placement transitions, then
-derive whole-surface water drift and accepted-lake water/classification drift
-from that same state. Replace the old placement-surface metric, parity protocol,
-Studio marker, and benchmark consumers without compatibility aliases. Delete
-tests that only prove the displaced early owner, preserve product falsification
-at the terminal owner, run exact graph proof, and seal the container as one
-Graphite layer.
+**Gradient:** enumerate every `runPlacementProductStep` call, preserve the
+underlying engine transaction in its already-admitted step, and delete the
+wrapper plus any trace choreography or tests that exist only to prove its
+alternate lifecycle. Retain independently valuable product evidence at its
+actual owner. Prove focused maintenance and advanced-start behavior, exact
+compiler ownership, and zero remaining helper references, then seal this as
+one Graphite layer before dissolving the unrelated concerns still collected in
+`placement/log.ts`.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -96,6 +92,14 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Terminal Placement Parity
+
+Surface maintenance relinquished its premature final-product claims. One
+post-advanced-start observer now acquires the terminal terrain, elevation,
+water, and lake snapshot and owns all whole-surface and accepted-lake parity
+counters. Metrics, replay, Studio exact evidence, and product proof consume the
+same closed measurement without aliases or reconstruction.
 
 ### 2026-07-26 - Natural-Wonder Planner Input Authority
 
