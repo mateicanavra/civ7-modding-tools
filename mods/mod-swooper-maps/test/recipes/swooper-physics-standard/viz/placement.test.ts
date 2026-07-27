@@ -21,7 +21,6 @@ const EXPECTED_KEYS_BY_STEP: Record<string, readonly string[]> = {
   "place-natural-wonders": ["placement.wonders.outcome"],
   "prepare-placement-surface": [
     "map.placement.surface.maintenanceBoundary",
-    "map.placement.surface.lakeDrift",
     "map.placement.surface.terrainValidationDrift",
   ],
   "select-resource-sites": [
@@ -115,7 +114,6 @@ describe("Standard placement visualization", () => {
       "placement.landmassRegions.regionSlot",
       "placement.starts.startPosition",
       "placement.starts.supportRadius",
-      "map.placement.surface.lakeDrift",
       "map.placement.surface.terrainValidationDrift",
       "map.placement.engine.waterDrift",
     ];

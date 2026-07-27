@@ -41,7 +41,7 @@ One stage, `placement`, with 12 steps split at real product/effect contracts (en
 
 1. `plan-natural-wonders` — admits final physical and engine surfaces plus active Civ7 map-size demand, then publishes natural-wonder intent.
 2. `place-natural-wonders` — ordered primary/fallback wonder materialization with typed adapter reconciliation (first promoted product boundary).
-3. `prepare-placement-surface` — transactional engine-surface preparation (terrain validation, coast restoration, area recalc, water cache, and final lake readback); gates the legality surface read by planning and the stamps.
+3. `prepare-placement-surface` — transactional engine-surface maintenance (terrain validation, coast restoration, area recalc, and water cache); gates the legality surface read by planning and the stamps without claiming final product state.
 4. `plot-landmass-regions` — projects landmass-region slots after engine maintenance, then publishes the immutable regional product used by resource and start planning. The official `chooseStartSectors` sector grid is intentionally not used (ADR-008 amendment).
 5. `plan-resource-demands` — derives habitat lanes and resolves the exact canonical expectation corpus into one complete admitted/excluded demand ledger against current Civ7 legality; publishes `resourceDemandPlan`.
 6. `select-resource-sites` — deterministic blue-noise selection over admitted demand and regional topology; publishes typed per-plot `resourcePlan` intent.
@@ -50,10 +50,13 @@ One stage, `placement`, with 12 steps split at real product/effect contracts (en
 9. `place-resources` — thin stamp of the ADJUSTED intents + typed reconcile; publishes `resourcePlacementOutcomes`.
 10. `place-discoveries` — delegates discovery placement to Civ7 and emits observed runtime evidence.
 11. `assign-advanced-starts` — engine advanced-start regions + fertility recalculation (engine effects only; no per-plot readback surface exists).
-12. `observe-placement-parity` — exact final Civ7
-    terrain/elevation/water observation plus projected-surface parity trace and
-    visualization. Accepted Hydrology lakes are part of the expected water
-    surface, not drift from raw Morphology land.
+12. `observe-placement-parity` — the single terminal Civ7
+    terrain/elevation/water/lake observation after advanced-start assignment.
+    Its `placement.parity` metric and `PLACEMENT_PARITY_V1` exact-log evidence
+    derive whole-surface water drift plus accepted-lake
+    water/classification drift from that same snapshot. Accepted Hydrology
+    lakes are part of the expected water surface, not drift from raw
+    Morphology land.
 
 The plan→starts→support-adjust→stamp ordering is a deliberate contract: resource *planning* happens before starts (starts score planned sites), resource *stamping* happens after the support pass, so the support guarantee is enforced on the plan rather than by post-stamp mutation (which would need an engine resource-removal capability that does not exist).
 
@@ -126,9 +129,11 @@ Runtime semantics (ADR-009 regime):
   invocation-local in `prepare-placement-surface`; the prepared legality
   surface feeds `plan-resource-demands`; the post-maintenance region projection
   publishes the immutable slot product used by resource and start planning;
-  and terminal `observe-placement-parity`
-  projects final expected-surface-vs-engine parity evidence from Morphology
-  topography and accepted Hydrology lakes. Materializers may also read the
+  and terminal `observe-placement-parity`, after every placement transition,
+  owns the one final terrain, elevation, water, and lake snapshot used by
+  metrics, trace, visualization, exact logs, and replay parity. It compares
+  Morphology topography plus accepted Hydrology lakes with the engine surface.
+  Materializers may also read the
   engine surface they immediately mutate or reconcile. The
   roster-dependent resource requirement query is a separate declared adapter
   policy input.
@@ -143,8 +148,9 @@ Runtime semantics (ADR-009 regime):
   recorded as a degraded product outcome. Resource readback mismatches remain
   fail-hard.
 - Surface preparation owns terrain validation, coast restoration, area
-  recalculation, water-cache storage, and final lake readback as one
-  transaction. Landmass-region projection follows that transaction exactly
+  recalculation, and water-cache storage as one maintenance transaction.
+  It does not own final readback or product proof because later placement
+  transitions still run. Landmass-region projection follows that transaction exactly
   once, so area maintenance cannot erase an earlier write and no consumer must
   restamp it. Pedology's immutable fertility field remains the input to
   authored start/resource planning; Civ7 fertility recalculation belongs only

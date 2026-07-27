@@ -249,6 +249,12 @@ export const STANDARD_INTEGRITY_TARGET = {
       0.08
     ),
     equalTo<StandardMapProductSample>(
+      "final-water-surface-drift",
+      "The final engine water surface exactly preserves modeled land, modeled water, and every admitted lake.",
+      (sample) => sample.metrics.geography.waterDriftCount,
+      0
+    ),
+    equalTo<StandardMapProductSample>(
       "final-lake-water-drift",
       "Final placement preserves Hydrology's admitted lake tiles as water.",
       (sample) => sample.metrics.geography.finalLakeWaterDriftCount,

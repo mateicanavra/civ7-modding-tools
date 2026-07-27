@@ -46,9 +46,9 @@ import {
   StandardRiverNetworkMeasurementsSchema,
 } from "./families/hydrology/river-network.js";
 import {
-  type StandardPlacementSurfaceMeasurements,
-  StandardPlacementSurfaceMeasurementsSchema,
-} from "./families/placement-surface.js";
+  type StandardPlacementParityMeasurements,
+  StandardPlacementParityMeasurementsSchema,
+} from "./families/placement-parity.js";
 import { defineStandardMapMetricScenario, type StandardMapMetricScenario } from "./scenario.js";
 
 type Volcanoes = ArtifactReadValueOf<typeof morphologyLandformsArtifacts.volcanoes>;
@@ -174,7 +174,7 @@ export type StandardMapCapture = Readonly<{
   projection: Readonly<{
     discoveryGeneration: StandardDiscoveryPlacementMeasurements;
     lakes: StandardLakeProjectionMeasurements;
-    placementSurface: StandardPlacementSurfaceMeasurements;
+    placementParity: StandardPlacementParityMeasurements;
     navigableRivers: Pick<
       ProjectedNavigableRivers,
       | "selectedTileCount"
@@ -303,7 +303,7 @@ export function captureStandardMapScenario(
   let discoveryGeneration: StandardDiscoveryPlacementMeasurements | undefined;
   let featureProjection: StandardFeatureProjectionMeasurements | undefined;
   let lakeProjection: StandardLakeProjectionMeasurements | undefined;
-  let placementSurface: StandardPlacementSurfaceMeasurements | undefined;
+  let placementParity: StandardPlacementParityMeasurements | undefined;
   let metricFailure: unknown;
   standardRecipe.run(context, canonicalRecipeConfig(admittedScenario.config), {
     log: () => {},
@@ -331,10 +331,10 @@ export function captureStandardMapScenario(
         if (lakeCandidate !== undefined) {
           lakeProjection = Value.Parse(StandardLakeProjectionMeasurementsSchema, lakeCandidate);
         }
-        const placementCandidate = projection["placement.surfacePreparation"];
+        const placementCandidate = projection["placement.parity"];
         if (placementCandidate !== undefined) {
-          placementSurface = Value.Parse(
-            StandardPlacementSurfaceMeasurementsSchema,
+          placementParity = Value.Parse(
+            StandardPlacementParityMeasurementsSchema,
             placementCandidate
           );
         }
@@ -357,8 +357,8 @@ export function captureStandardMapScenario(
   if (!lakeProjection) {
     throw new Error("Standard metric capture requires Hydrology lake-projection evidence.");
   }
-  if (!placementSurface) {
-    throw new Error("Standard metric capture requires Placement surface-preparation evidence.");
+  if (!placementParity) {
+    throw new Error("Standard metric capture requires terminal Placement parity evidence.");
   }
 
   return copyCompletedRun(
@@ -369,7 +369,7 @@ export function captureStandardMapScenario(
     discoveryGeneration,
     featureProjection,
     lakeProjection,
-    placementSurface
+    placementParity
   );
 }
 
@@ -381,7 +381,7 @@ function copyCompletedRun(
   discoveryGeneration: StandardDiscoveryPlacementMeasurements,
   featureProjection: StandardFeatureProjectionMeasurements,
   lakeProjection: StandardLakeProjectionMeasurements,
-  placementSurface: StandardPlacementSurfaceMeasurements
+  placementParity: StandardPlacementParityMeasurements
 ): StandardMapCapture {
   const selection = resolveMapSelection(scenario);
   const { width, height } = selection.dimensions;
@@ -576,7 +576,7 @@ function copyCompletedRun(
         ...lakeProjection,
         components: Object.freeze({ ...lakeProjection.components }),
       }),
-      placementSurface: Object.freeze({ ...placementSurface }),
+      placementParity: Object.freeze({ ...placementParity }),
       navigableRivers: Object.freeze({
         selectedTileCount: navigableRiverValue.selectedTileCount,
         targetTileCount: navigableRiverValue.targetTileCount,

@@ -2,11 +2,18 @@
 
 Lake gates:
 
-- exact log includes `PLACEMENT_SURFACE_PREPARATION_V1` with
-  `acceptedLakeTileCount`;
+- the single terminal observer runs after advanced-start assignment and emits
+  `PLACEMENT_PARITY_V1` from one terrain, elevation, water, and lake snapshot;
+- exact log includes `waterDriftCount`, `acceptedLakeTileCount`,
+  `finalLakeWaterDriftCount`, and `finalLakeClassificationDriftCount`;
+- whole-surface water drift is `0`;
 - final accepted-lake water drift is `0`;
 - final accepted-lake classification drift is `0`;
 - `missing-exact-log` is unresolved, not pass.
+
+Surface preparation owns terrain validation, coast restoration, area
+recalculation, and water-cache maintenance. It is not a final-product evidence
+owner because later placement transitions can still mutate the engine surface.
 
 Floodplain gates:
 

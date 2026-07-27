@@ -16,8 +16,10 @@ import { SelectResourceSitesStep } from "./steps/select-resource-sites/step.js";
 /**
  * Placement exposes each gameplay product as a step boundary. Surface
  * preparation remains grouped because terrain validation, area recalc, water
- * storage, and final lake readback form one transactional precondition for the
+ * storage, and coast restoration form one transactional precondition for the
  * single downstream landmass-region projection and all placement products.
+ * Terminal parity remains separate so it observes the engine only after every
+ * placement transition has completed.
  *
  * Resource ordering (S5, D3 contract change): planning stays before starts;
  * stamping runs after the resource↔start support pass —

@@ -36,9 +36,9 @@ import {
   StandardNaturalWonderPlanInputMeasurementsSchema,
 } from "../metrics/families/placement/natural-wonder-plan-input.js";
 import {
-  type StandardPlacementSurfaceMeasurements,
-  StandardPlacementSurfaceMeasurementsSchema,
-} from "../metrics/families/placement-surface.js";
+  type StandardPlacementParityMeasurements,
+  StandardPlacementParityMeasurementsSchema,
+} from "../metrics/families/placement-parity.js";
 import standardRecipe from "../recipe.js";
 import type {
   StandardFinalSurfaceCapture,
@@ -136,7 +136,7 @@ function runStandardParityReplay(input: StandardParityReplayInput): StandardLoca
   let featureProjection: StandardFeatureProjectionMeasurements | undefined;
   let lakeProjection: StandardLakeProjectionMeasurements | undefined;
   let naturalWonderPlanInput: StandardNaturalWonderPlanInputMeasurements | undefined;
-  let placementSurface: StandardPlacementSurfaceMeasurements | undefined;
+  let placementParity: StandardPlacementParityMeasurements | undefined;
   let metricFailure: unknown;
 
   standardRecipe.execute(context, plan, {
@@ -162,10 +162,10 @@ function runStandardParityReplay(input: StandardParityReplayInput): StandardLoca
             naturalWonderInputCandidate
           );
         }
-        const placementCandidate = projection["placement.surfacePreparation"];
+        const placementCandidate = projection["placement.parity"];
         if (placementCandidate !== undefined) {
-          placementSurface = Value.Parse(
-            StandardPlacementSurfaceMeasurementsSchema,
+          placementParity = Value.Parse(
+            StandardPlacementParityMeasurementsSchema,
             placementCandidate
           );
         }
@@ -187,8 +187,8 @@ function runStandardParityReplay(input: StandardParityReplayInput): StandardLoca
       "Standard parity replay requires typed natural-wonder planning-input measurements."
     );
   }
-  if (placementSurface === undefined) {
-    throw new Error("Standard parity replay requires Placement surface-preparation measurements.");
+  if (placementParity === undefined) {
+    throw new Error("Standard parity replay requires terminal Placement parity measurements.");
   }
 
   const naturalWonderPlan = observeArtifact(context, placementWonderArtifacts.naturalWonderPlan);
@@ -212,14 +212,10 @@ function runStandardParityReplay(input: StandardParityReplayInput): StandardLoca
     hydrology: {
       rivers: captureRiverProjection(context, adapter, metadata.dimensions),
       lakeProjection,
-      finalLakes: {
-        acceptedLakeTileCount: placementSurface.acceptedLakeTileCount,
-        finalLakeWaterDriftCount: placementSurface.finalLakeWaterDriftCount,
-        finalLakeClassificationDriftCount: placementSurface.finalLakeClassificationDriftCount,
-      },
       featureProjection,
     },
     placement: {
+      terminalParity: placementParity,
       naturalWonderPlanEvidence: naturalWonderPlanEvidence(naturalWonderPlan),
       naturalWonderPlanInput: { status: "present", value: naturalWonderPlanInput },
       resourcePlanIntents: resourcePlan.intents,

@@ -112,6 +112,39 @@ describe("Standard parity report state", () => {
     expect(report.unresolvedLinks).toContain("surface.terrain.live-readback");
   });
 
+  test("fails terminal placement parity when exact and replay agree on nonzero water drift", () => {
+    const base = captures();
+    const report = buildStandardParityReport({
+      ...base,
+      exact: {
+        ...base.exact,
+        placementParity: {
+          status: "present",
+          value: {
+            version: 1,
+            waterDriftCount: 1,
+            acceptedLakeTileCount: 0,
+            finalLakeWaterDriftCount: 0,
+            finalLakeClassificationDriftCount: 0,
+          },
+        },
+      },
+      local: {
+        ...base.local,
+        placement: {
+          ...base.local.placement,
+          terminalParity: {
+            ...base.local.placement.terminalParity,
+            waterDriftCount: 1,
+          },
+        },
+      },
+    });
+
+    expect(report.placement.terminalParity.claim.status).toBe("fail");
+    expect(report.failureLinks).toContain("placement-parity.drift");
+  });
+
   test("compares river terrain even when a metadata grid has incompatible cardinality", () => {
     const base = captures();
     const terrain = new Array<number | null>(COMPARISON_PLOT_COUNT).fill(0);
@@ -273,9 +306,11 @@ function captures(): Readonly<{
   return {
     exact: {
       authorship: exactAuthorship(),
-      lakes: {
+      placementParity: {
         status: "present",
         value: {
+          version: 1,
+          waterDriftCount: 0,
           acceptedLakeTileCount: 0,
           finalLakeWaterDriftCount: 0,
           finalLakeClassificationDriftCount: 0,
@@ -332,11 +367,6 @@ function captures(): Readonly<{
           minorRiverStamping: { status: "supported" },
         },
         lakeProjection: {} as StandardLocalParityCapture["hydrology"]["lakeProjection"],
-        finalLakes: {
-          acceptedLakeTileCount: 0,
-          finalLakeWaterDriftCount: 0,
-          finalLakeClassificationDriftCount: 0,
-        },
         featureProjection: {
           attemptedByFeature: {},
           appliedByFeature: {},
@@ -344,6 +374,13 @@ function captures(): Readonly<{
         } as StandardLocalParityCapture["hydrology"]["featureProjection"],
       },
       placement: {
+        terminalParity: {
+          version: 1,
+          waterDriftCount: 0,
+          acceptedLakeTileCount: 0,
+          finalLakeWaterDriftCount: 0,
+          finalLakeClassificationDriftCount: 0,
+        },
         naturalWonderPlanEvidence: {
           version: 1,
           plannedCount: 0,

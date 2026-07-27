@@ -28,13 +28,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** finish natural-wonder planner input authority after the
-aggregate `derive-placement-inputs` step was correctly deleted. The Placement
-operation owns one truthful required input contract. The Standard recipe binds
-its admitted artifacts, static Civ7 policy, and invocation-local engine
-observations to that contract; metrics observes the same contract downstream.
-Metrics must not strengthen an intentionally weakened operation type, and the
-planner must not silently replace omitted causal surfaces with neutral values.
+**Current container:** collapse terminal placement parity into one lifecycle
+owner. `prepare-placement-surface` owns only the engine maintenance transaction
+that restores and validates the playable surface. It cannot claim final product
+state before later placement transitions run. `observe-placement-parity`, gated
+after advanced starts, owns one terminal engine snapshot and every parity
+measurement derived from it. Metrics, replay, Studio evidence, and product
+proof consume that one measurement rather than reconstructing competing
+notions of final water and lake state.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -51,19 +52,16 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** require all six physical suitability surfaces at the
-`placement/plan-natural-wonders` operation boundary; make Civ7 policy emit one
-total, deeply frozen planner catalog; and delete hidden neutral substitution,
-catalog repair, and conflicting-identity deduplication from the strategy. Make
-the Standard step rely on the operation's inferred input rather than a
-metrics-owned strengthening, and let the natural-wonder input measurement
-consume the operation contract directly. Preserve Core's existing implicit
-width-by-height typed-array admission rather than adding manual cardinality
-checks. Make footprint parity nonempty in both TypeBox metadata and the static
-TypeFest surface, with canonical Civ7 policy construction as its runtime owner;
-delete planner tests that bypass those authorities to simulate impossible
-catalog rows. Repair focused product fixtures, prove exact compiler and product
-behavior, then seal the container as one Graphite layer.
+**Gradient:** remove final-readback, product-metric, and product-log claims from
+surface preparation while preserving its real maintenance and visualization
+behavior. Extend the terminal observer to acquire one detached terrain,
+elevation, water, and lake snapshot after all placement transitions, then
+derive whole-surface water drift and accepted-lake water/classification drift
+from that same state. Replace the old placement-surface metric, parity protocol,
+Studio marker, and benchmark consumers without compatibility aliases. Delete
+tests that only prove the displaced early owner, preserve product falsification
+at the terminal owner, run exact graph proof, and seal the container as one
+Graphite layer.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -98,6 +96,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Natural-Wonder Planner Input Authority
+
+Natural-wonder planning now admits all six physical suitability surfaces at
+one operation boundary. Civ7 policy owns one total, deeply frozen catalog with
+statically nonempty footprints; the strategy no longer repairs catalogs,
+deduplicates identities, or substitutes neutral grids. The Standard step and
+metrics consume the exact operation contract, and focused policy plus product
+proofs sealed the transition.
 
 ### 2026-07-26 - Complete Volcano Intent
 

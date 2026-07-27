@@ -2,7 +2,6 @@ import type { StandardSurfaceComparison } from "./surfaces.js";
 import type {
   StandardExactParityCapture,
   StandardFloodplainApplyCounters,
-  StandardLakeFinalCounters,
   StandardLiveParityCapture,
   StandardLocalParityCapture,
   StandardParityComparison,
@@ -50,14 +49,6 @@ type StandardRiverParityComparison = Readonly<{
   examples: ReadonlyArray<StandardRiverParityExample>;
 }>;
 
-/** Exact-versus-replay comparison of final lake placement and drift counters. */
-type StandardLakeParityComparison = Readonly<{
-  claim: StandardParityComparison;
-  local: StandardLakeFinalCounters;
-  exact?: StandardLakeFinalCounters;
-  mismatchedFields: ReadonlyArray<keyof StandardLakeFinalCounters>;
-}>;
-
 /** Floodplain counter comparison closed against the final live feature surface. */
 type StandardFloodplainParityComparison = Readonly<{
   claim: StandardParityComparison;
@@ -66,14 +57,13 @@ type StandardFloodplainParityComparison = Readonly<{
   mismatchedFields: ReadonlyArray<keyof StandardFloodplainApplyCounters>;
 }>;
 
-/** Standard Hydrology parity result across rivers, lakes, and floodplain projection. */
+/** Standard Hydrology parity across rivers and floodplain projection. */
 export type StandardHydrologyParityComparison = Readonly<{
   rivers: StandardRiverParityComparison;
-  lakes: StandardLakeParityComparison;
   floodplains: StandardFloodplainParityComparison;
 }>;
 
-/** Compares Standard Hydrology plans and counters with exact and live product evidence. */
+/** Compares Standard Hydrology plans with exact and live product evidence. */
 export function compareStandardHydrology(args: {
   exact: StandardExactParityCapture;
   local: StandardLocalParityCapture;
@@ -82,7 +72,6 @@ export function compareStandardHydrology(args: {
 }): StandardHydrologyParityComparison {
   return {
     rivers: compareStandardRivers(args.local, args.live),
-    lakes: compareStandardLakes(args.exact, args.local),
     floodplains: compareStandardFloodplains(args.exact, args.local, args.featureSurface),
   };
 }
@@ -284,68 +273,6 @@ function compareStandardRivers(
     nativeRiverObjectSampleCount:
       readback.nativeObjects.status === "present" ? readback.nativeObjects.sampleCount : 0,
     examples,
-  };
-}
-
-function compareStandardLakes(
-  exact: StandardExactParityCapture,
-  local: StandardLocalParityCapture
-): StandardLakeParityComparison {
-  const localCounters = local.hydrology.finalLakes;
-  if (exact.lakes.status === "missing") {
-    return {
-      claim: {
-        status: "unresolved",
-        reason: "Exact-authorship evidence lacks final lake readback counters.",
-        evidenceLinks: [exact.lakes.evidenceLink],
-      },
-      local: localCounters,
-      mismatchedFields: [],
-    };
-  }
-  const exactCounters = exact.lakes.value;
-  const fields = [
-    "acceptedLakeTileCount",
-    "finalLakeWaterDriftCount",
-    "finalLakeClassificationDriftCount",
-  ] as const satisfies readonly (keyof StandardLakeFinalCounters)[];
-  const mismatchedFields = fields.filter((field) => localCounters[field] !== exactCounters[field]);
-  if (mismatchedFields.length > 0) {
-    return {
-      claim: {
-        status: "fail",
-        reason: "Exact and local final lake readback counters diverge.",
-        evidenceLinks: mismatchedFields.map((field) => `lake-final.${field}`),
-      },
-      local: localCounters,
-      exact: exactCounters,
-      mismatchedFields,
-    };
-  }
-  if (
-    localCounters.finalLakeWaterDriftCount !== 0 ||
-    localCounters.finalLakeClassificationDriftCount !== 0
-  ) {
-    return {
-      claim: {
-        status: "fail",
-        reason: "Final lake counters agree, but accepted lakes drifted after placement.",
-        evidenceLinks: ["lake-final.drift"],
-      },
-      local: localCounters,
-      exact: exactCounters,
-      mismatchedFields: [],
-    };
-  }
-  return {
-    claim: {
-      status: "pass",
-      reason: "Exact and local lake counters match with zero final lake drift.",
-      evidenceLinks: ["lake-final"],
-    },
-    local: localCounters,
-    exact: exactCounters,
-    mismatchedFields: [],
   };
 }
 

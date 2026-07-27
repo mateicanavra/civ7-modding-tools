@@ -2,6 +2,7 @@ import { snapshotRunInGameExactAuthorshipEvidence } from "@civ7/studio-contract"
 import { type Static, type TSchema, Type } from "typebox";
 import { Value } from "typebox/value";
 import { StandardNaturalWonderPlanInputMeasurementsSchema } from "../metrics/families/placement/natural-wonder-plan-input.js";
+import { StandardPlacementParityMeasurementsSchema } from "../metrics/families/placement-parity.js";
 import type {
   CompleteExactAuthorshipEvidence,
   StandardExactParityCapture,
@@ -50,11 +51,6 @@ const ResourcePlacementRejectionRowSchema = Type.Object(
   { additionalProperties: false }
 );
 
-const LakeEvidenceSchema = Type.Object({
-  acceptedLakeTileCount: Type.Integer({ minimum: 0 }),
-  finalLakeWaterDriftCount: Type.Integer({ minimum: 0 }),
-  finalLakeClassificationDriftCount: Type.Integer({ minimum: 0 }),
-});
 const FloodplainEvidenceSchema = Type.Object({
   stats: Type.Object({
     attempted: Type.Integer({ minimum: 0 }),
@@ -125,11 +121,13 @@ export function admitStandardExactParityCapture(value: unknown): StandardExactPa
     status: "admitted",
     capture: {
       authorship: snapshot,
-      lakes: projectExactProduct(
-        exactLogValue(snapshot, "placementSurfacePreparation"),
-        LakeEvidenceSchema,
-        "exact-authorship.log.placement-surface-preparation",
+      placementParity: projectExactLogPayload(
+        exactLogValue(snapshot, "placementParity"),
+        StandardPlacementParityMeasurementsSchema,
+        "exact-authorship.log.placement-parity",
         (evidence) => ({
+          version: 1,
+          waterDriftCount: evidence.waterDriftCount,
           acceptedLakeTileCount: evidence.acceptedLakeTileCount,
           finalLakeWaterDriftCount: evidence.finalLakeWaterDriftCount,
           finalLakeClassificationDriftCount: evidence.finalLakeClassificationDriftCount,
@@ -154,9 +152,11 @@ export function admitStandardExactParityCapture(value: unknown): StandardExactPa
           })),
         })
       ),
-      naturalWonderPlanInput: projectNaturalWonderPlanInput(
+      naturalWonderPlanInput: projectExactLogPayload(
         exactLogValue(snapshot, "naturalWonderPlanInput"),
-        "exact-authorship.log.natural-wonder-plan-input"
+        StandardNaturalWonderPlanInputMeasurementsSchema,
+        "exact-authorship.log.natural-wonder-plan-input",
+        (evidence) => evidence
       ),
       resourcePlacement: projectResourcePlacementEvidence(
         exactLogValue(snapshot, "resourcePlacement"),
@@ -229,21 +229,17 @@ function projectResourcePlacementEvidence(
   };
 }
 
-function projectNaturalWonderPlanInput(
+function projectExactLogPayload<TSchemaValue extends TSchema, TProduct>(
   value: unknown,
-  evidenceLink: string
-): StandardExactParityCapture["naturalWonderPlanInput"] {
+  schema: TSchemaValue,
+  evidenceLink: string,
+  project: (value: Static<TSchemaValue>) => TProduct
+): StandardExactProductEvidence<TProduct> {
   if (!Value.Check(ExactLogPayloadSchema, value)) {
     return { status: "missing", evidenceLink };
   }
   const { payload } = Value.Parse(ExactLogPayloadSchema, value);
-  if (!Value.Check(StandardNaturalWonderPlanInputMeasurementsSchema, payload)) {
-    return { status: "missing", evidenceLink };
-  }
-  return {
-    status: "present",
-    value: Value.Parse(StandardNaturalWonderPlanInputMeasurementsSchema, payload),
-  };
+  return projectExactProduct(payload, schema, evidenceLink, project);
 }
 
 function exactLogValue(evidence: CompleteExactAuthorshipEvidence, key: string): unknown {
