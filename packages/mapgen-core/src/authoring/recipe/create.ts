@@ -2,9 +2,9 @@ import type { MapContext } from "@mapgen/core/map-context.js";
 import {
   compileExecutionPlan,
   computePlanFingerprint,
-  type DependencyTagDefinition,
   type DependencyTagKind,
   DuplicateDependencyTagError,
+  type EffectDependencyTag,
   type ExecutionPlan,
   type MapGenStep,
   type MapSetup,
@@ -18,7 +18,8 @@ import type { ReadonlyDeep } from "type-fest";
 import { compileRecipeConfig } from "../../compiler/recipe-compile.js";
 import { assertExecutionPlanRegistryInternal } from "../../engine/execution-plan.js";
 import {
-  type InternalDependencyTagDefinition,
+  type ArtifactDependencyTag,
+  type DependencyTag,
   registerDependencyTagsInternal,
 } from "../../engine/tags.js";
 import { type Artifact, isArtifact } from "../artifact/contract.js";
@@ -253,8 +254,8 @@ function collectArtifactTagDefinitions(input: {
   namespace?: string;
   recipeId: string;
   stages: readonly AnyStage[];
-}): InternalDependencyTagDefinition[] {
-  const defs = new Map<string, InternalDependencyTagDefinition>();
+}): ArtifactDependencyTag[] {
+  const definitions = new Map<string, ArtifactDependencyTag>();
   const providers = new Map<string, Readonly<{ artifact: Artifact; stepId: string }>>();
 
   for (const stage of input.stages) {
@@ -267,16 +268,15 @@ function collectArtifactTagDefinitions(input: {
         stepId,
       });
       assertExactArtifactEdges(input.recipeId, fullId, authored);
-
       const provides = authored.contract.artifacts?.provides ?? [];
       for (const artifact of provides) {
         const existing = providers.get(artifact.id);
         existing === undefined ||
           rejectDuplicateArtifactProvider(input.recipeId, artifact.id, existing.stepId, fullId);
-        defs.set(artifact.id, {
+        definitions.set(artifact.id, {
           id: artifact.id,
           kind: "artifact",
-          satisfies: (evidence) => evidence.observeArtifact(artifact).found,
+          artifact,
         });
         providers.set(artifact.id, { artifact, stepId: fullId });
       }
@@ -317,7 +317,7 @@ function collectArtifactTagDefinitions(input: {
     }
   }
 
-  return Array.from(defs.values());
+  return Array.from(definitions.values());
 }
 
 function rejectMissingArtifactProvider(
@@ -406,10 +406,10 @@ function finalizeOccurrences(input: {
 
 function collectTagDefinitions(
   occurrences: readonly StepOccurrence[],
-  explicit: readonly DependencyTagDefinition[],
-  artifactTagDefinitions: readonly InternalDependencyTagDefinition[]
-): InternalDependencyTagDefinition[] {
-  const defs = new Map<string, InternalDependencyTagDefinition>();
+  explicit: readonly EffectDependencyTag[],
+  artifactTagDefinitions: readonly ArtifactDependencyTag[]
+): DependencyTag[] {
+  const defs = new Map<string, DependencyTag>();
   const generatedArtifactTagIds = new Set(
     artifactTagDefinitions.map((definition) => definition.id)
   );
@@ -421,21 +421,18 @@ function collectTagDefinitions(
     for (const tag of occ.step.provides) tagIds.add(tag);
   }
   for (const id of tagIds) {
-    defs.set(id, { id, kind: inferTagKind(id) });
+    if (inferTagKind(id) === "effect") defs.set(id, { id, kind: "effect" });
   }
 
-  for (const def of artifactTagDefinitions) {
-    defs.set(def.id, def);
+  for (const definition of artifactTagDefinitions) {
+    defs.set(definition.id, definition);
   }
 
   for (const def of explicit) {
     if (generatedArtifactTagIds.has(def.id) || explicitTagIds.has(def.id)) {
       throw new DuplicateDependencyTagError(def.id);
     }
-    if (
-      (def as InternalDependencyTagDefinition).kind === "artifact" ||
-      def.id.startsWith("artifact:")
-    ) {
+    if ((def as DependencyTag).kind === "artifact" || def.id.startsWith("artifact:")) {
       throw new Error(
         `Explicit artifact dependency tag "${def.id}" is not admitted; declare the canonical contract or module through step artifacts.*`
       );
@@ -449,8 +446,8 @@ function collectTagDefinitions(
 
 function buildRegistry(
   occurrences: readonly StepOccurrence[],
-  tagDefinitions: readonly DependencyTagDefinition[],
-  artifactTagDefinitions: readonly InternalDependencyTagDefinition[]
+  tagDefinitions: readonly EffectDependencyTag[],
+  artifactTagDefinitions: readonly ArtifactDependencyTag[]
 ): StepRegistry {
   const tags = new TagRegistry();
   registerDependencyTagsInternal(

@@ -4,7 +4,7 @@ import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/fe
 import ecology from "@mapgen/domain/ecology/router";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
-import { observeValidatedArtifact, readValidatedArtifact } from "@swooper/mapgen-core/authoring";
+import { observeArtifact, readArtifact } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
   normalizeOperationSelectionForTest,
@@ -72,7 +72,7 @@ describe("ecology-features plan-reefs step", () => {
       );
     });
 
-    const intents = readValidatedArtifact(ctx, featureArtifacts.reefIntents);
+    const intents = readArtifact(ctx, featureArtifacts.reefIntents);
     expect(intents.length).toBeGreaterThan(0);
     expect(intents.every(({ feature }) => feature === "reef")).toBe(true);
   });
@@ -132,7 +132,7 @@ describe("ecology-features plan-reefs step", () => {
       })
     ).toThrow("occupied tile");
 
-    expect(observeValidatedArtifact(ctx, featureArtifacts.reefIntents)).toEqual({
+    expect(observeArtifact(ctx, featureArtifacts.reefIntents)).toEqual({
       found: false,
     });
   });

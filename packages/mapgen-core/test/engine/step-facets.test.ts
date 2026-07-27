@@ -55,20 +55,14 @@ function createPlan(registry: StepRegistry, stepId: string) {
   );
 }
 
-function captureFacetRegistry(
-  step: MapGenStep<TestConfig, TestResult>,
-  onProvides?: () => void
-): StepRegistry {
+function captureFacetRegistry(step: MapGenStep<TestConfig, TestResult>): StepRegistry {
   const registry = new StepRegistry();
   if (step.provides.includes(PROVIDED_TAG)) {
     registerDependencyTagsInternal(registry.getTagRegistry(), [
       {
         id: PROVIDED_TAG,
         kind: "artifact",
-        satisfies: (evidence) => {
-          onProvides?.();
-          return evidence.observeArtifact(facetedStepArtifact).found;
-        },
+        artifact: facetedStepArtifact,
       },
     ]);
   }
@@ -111,7 +105,7 @@ describe("step facets", () => {
         },
       },
     };
-    const registry = captureFacetRegistry(step, () => order.push("provides"));
+    const registry = captureFacetRegistry(step);
     const plan = createPlan(registry, step.id);
     const contexts: StepFacetSinkContext[] = [];
 
@@ -135,14 +129,7 @@ describe("step facets", () => {
     );
 
     expect(execution.stepResults[0]?.success).toBe(true);
-    expect(order).toEqual([
-      "run",
-      "provides",
-      "metrics.project",
-      "metrics.sink",
-      "viz.project",
-      "viz.sink",
-    ]);
+    expect(order).toEqual(["run", "metrics.project", "metrics.sink", "viz.project", "viz.sink"]);
     expect(contexts).toHaveLength(2);
     expect(contexts[0]?.runId.length).toBeGreaterThan(0);
     expect(contexts[0]?.planFingerprint.length).toBeGreaterThan(0);
@@ -213,6 +200,34 @@ describe("step facets", () => {
     expect(syncRunId).not.toBe(asyncRunId);
     expect(syncContexts[0]).toMatchObject({ runId: syncRunId, planFingerprint });
     expect(asyncContexts[0]).toMatchObject({ runId: asyncRunId, planFingerprint });
+  });
+
+  it("does not project facets when a declared artifact was not published", () => {
+    let projected = false;
+    const step: MapGenStep<TestConfig, TestResult> = {
+      id: "missing-provide",
+      stageId: "foundation",
+      requires: [],
+      provides: [PROVIDED_TAG],
+      run: () => ({ score: 1 }),
+      facets: {
+        metrics: () => {
+          projected = true;
+          return { score: 1 };
+        },
+      },
+    };
+    const registry = captureFacetRegistry(step);
+    const plan = createPlan(registry, step.id);
+
+    const execution = new PipelineExecutor(registry, { log: () => {} }).executePlanReport(
+      createTestContext(plan.setup),
+      plan,
+      { facets: { metrics: () => {} } }
+    );
+
+    expect(execution.stepResults[0]).toMatchObject({ stepId: step.id, success: false });
+    expect(projected).toBe(false);
   });
 
   it("allocates a fresh identity for each untraced facet execution", () => {
@@ -424,7 +439,7 @@ describe("step facets", () => {
         },
       },
     };
-    const registry = captureFacetRegistry(step, () => order.push("provides"));
+    const registry = captureFacetRegistry(step);
     const plan = createPlan(registry, step.id);
 
     let thrown: unknown;
@@ -442,6 +457,6 @@ describe("step facets", () => {
     }
 
     expect(thrown).toBeInstanceOf(PipelineAbortError);
-    expect(order).toEqual(["run", "provides"]);
+    expect(order).toEqual(["run"]);
   });
 });

@@ -93,14 +93,31 @@ describe("tag registry", () => {
 
   it("reserves artifact dependency registration for recipe-owned authorities", () => {
     const registry = new TagRegistry();
+    const artifact = defineArtifact({
+      name: "ownedArtifact",
+      id: "artifact:test.owned",
+      schema: Type.Unknown(),
+    });
 
     expect(() =>
       registry.registerTag({ id: "artifact:test.snapshot", kind: "artifact" } as never)
     ).toThrow(InvalidDependencyTagError);
     expect(() => registry.registerTag({ id: "effect:test.applied", kind: "effect" })).not.toThrow();
+    expect(() =>
+      registry.registerTag({ id: "effect:test.forged-kind", kind: "field" } as never)
+    ).toThrow(InvalidDependencyTagError);
     expect(() => registry.registerTag({ id: "field:test.legacy", kind: "field" } as never)).toThrow(
       InvalidDependencyTagError
     );
+    expect(() =>
+      registerDependencyTagsInternal(registry, [
+        { id: "artifact:test.wrong-id", kind: "artifact", artifact },
+      ])
+    ).toThrow(InvalidDependencyTagError);
+
+    registerDependencyTagsInternal(registry, [{ id: artifact.id, kind: "artifact", artifact }]);
+    expect(registry.get(artifact.id)).toEqual({ id: artifact.id, kind: "artifact", artifact });
+    expect(Object.isFrozen(registry.get(artifact.id))).toBe(true);
   });
 
   it("rejects legacy field ids during recipe tag inference", () => {
@@ -124,7 +141,7 @@ describe("tag registry", () => {
     ).toThrow(/expected artifact:\/effect:/);
   });
 
-  it("requires explicit provision and a passing artifact predicate for satisfaction", () => {
+  it("requires both explicit provision and exact artifact presence for satisfaction", () => {
     const artifact = defineArtifact({
       name: "genericArtifact",
       id: "artifact:test.generic",
@@ -139,7 +156,7 @@ describe("tag registry", () => {
       {
         id: artifact.id,
         kind: "artifact",
-        satisfies: (evidence) => evidence.observeArtifact(artifact).found,
+        artifact,
       },
     ]);
 
@@ -230,12 +247,7 @@ describe("tag registry", () => {
     await Promise.resolve();
   });
 
-  it("revokes each dependency-evidence capability after its predicate returns", () => {
-    const artifact = defineArtifact({
-      name: "revokedEvidence",
-      id: "artifact:test.revoked-evidence",
-      schema: Type.Unknown(),
-    });
+  it("revokes effect evidence after its predicate returns", () => {
     const context = createMapContext({
       setup: baseSetup,
       adapter: createMockAdapter({ width: 2, height: 2 }),
@@ -246,26 +258,13 @@ describe("tag registry", () => {
       return true;
     }
     const registry = new TagRegistry();
-    registerDependencyTagsInternal(registry, [
-      {
-        id: artifact.id,
-        kind: "artifact",
-        satisfies: retainEvidence,
-      },
-    ]);
+    const effectId = "effect:test.revoked-evidence";
+    registry.registerTag({ id: effectId, kind: "effect", satisfies: retainEvidence });
 
     expect(
-      isDependencyTagSatisfied(
-        artifact.id,
-        context,
-        { satisfied: new Set([artifact.id]) },
-        registry
-      )
+      isDependencyTagSatisfied(effectId, context, { satisfied: new Set([effectId]) }, registry)
     ).toBe(true);
     expect(() => retained?.verifyEffect()).toThrow(
-      "available only during its satisfaction predicate"
-    );
-    expect(() => retained?.observeArtifact(artifact)).toThrow(
       "available only during its satisfaction predicate"
     );
   });
@@ -409,47 +408,6 @@ describe("tag registry", () => {
     const { stepResults } = executor.executePlanReport(ctx, plan);
 
     expect(stepResults[0]?.success).toBe(true);
-  });
-
-  it("evaluates artifact postconditions through private in-run observation", () => {
-    const artifact = defineArtifact({
-      name: "inRunObservation",
-      id: "artifact:test.in-run-observation",
-      schema: Type.Object({ valid: Type.Boolean() }, { additionalProperties: false }),
-    });
-    let observed = false;
-    function observePublishedArtifact(evidence: DependencyEvidence): boolean {
-      observed = true;
-      const observation = evidence.observeArtifact(artifact);
-      return observation.found && observation.value.valid;
-    }
-    const registry = new StepRegistry();
-    registerDependencyTagsInternal(registry.getTagRegistry(), [
-      {
-        id: artifact.id,
-        kind: "artifact",
-        satisfies: observePublishedArtifact,
-      },
-    ]);
-    registry.register({
-      id: "publish-observed-artifact",
-      stageId: "foundation",
-      requires: [],
-      provides: [artifact.id],
-      run: (context) => publishTestArtifact(context, artifact, { valid: true }),
-    });
-    const plan = compilePlan(registry, baseSetup, ["publish-observed-artifact"]);
-    const context = createMapContext({
-      setup: plan.setup,
-      adapter: createMockAdapter({ width: 2, height: 2 }),
-    });
-
-    const { stepResults } = new PipelineExecutor(registry).executePlanReport(context, plan);
-
-    expect(observed).toBe(true);
-    expect(stepResults).toEqual([
-      expect.objectContaining({ stepId: "publish-observed-artifact", success: true }),
-    ]);
   });
 
   it("fails fast when a provider step skips artifact publish", () => {

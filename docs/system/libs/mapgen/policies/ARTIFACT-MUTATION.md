@@ -27,8 +27,9 @@ This enables reproducibility, caching, and reliable inspection.
 - Producers publish an artifact once.
 - Consumers read artifacts as immutable (treat the returned value as read-only).
 - Authored steps use only artifact readers and publishers derived from their declared contract.
-- Post-run observers query through an exact `Artifact`, which reapplies its complete validator
-  before exposing evidence.
+- Post-run observers query through an exact `Artifact` after execution completes. Publication has
+  already admitted present evidence; observation does not rerun validation or claim to detect
+  mutation.
 - If a consumer needs to mutate, it must copy first (caller-owned copy).
 
 Publication and reads are zero-copy: Core stores and returns the producer's admitted reference. It
@@ -49,4 +50,5 @@ data universe.
 ## Ground truth anchors
 
 - Write-once enforcement and zero-copy ownership contract: `packages/mapgen-core/src/authoring/artifact/runtime.ts`
+- Post-run exact-identity observation: `packages/mapgen-core/src/authoring/artifact/observation.ts`
 - Runtime context and artifact store: `packages/mapgen-core/src/core/map-context.ts`

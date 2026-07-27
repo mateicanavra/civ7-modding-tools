@@ -4,7 +4,7 @@ import { MockAdapter, type OfficialDiscoveryGenerationResult } from "@civ7/adapt
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
 import type { MapContext } from "@swooper/mapgen-core";
-import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
+import { readArtifact } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { Value } from "typebox/value";
 import {
@@ -81,7 +81,7 @@ describe("discovery generation", () => {
         },
       },
     });
-    const startAssignment = readValidatedArtifact(context, placementStartArtifacts.startAssignment);
+    const startAssignment = readArtifact(context, placementStartArtifacts.startAssignment);
     const startPositions = startAssignment.positions.filter((plotIndex) => plotIndex >= 0);
     const polarMargin = Math.max(0, CIV7_BROWSER_TABLES_V0.mapGlobals.polarWaterRows | 0);
 

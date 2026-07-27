@@ -6,6 +6,8 @@ import {
 } from "@mapgen/core/map-context.js";
 import { type Artifact, type ArtifactReadValueOf, type ArtifactValueOf } from "./contract.js";
 
+const activeArtifactPublications = new WeakMap<MapContext, Set<Artifact>>();
+
 /**
  * Signals that a step attempted to read a declared artifact before any producer published it.
  * Dependency gating and runtime reads retain the artifact identity and active consumer for
@@ -102,6 +104,32 @@ function normalizeIssues(error: unknown): readonly { message: string }[] {
   return [{ message: String(error) }];
 }
 
+function claimArtifactPublication(
+  context: MapContext,
+  artifact: Artifact,
+  producerStepId: string
+): void {
+  let active = activeArtifactPublications.get(context);
+  if (!active) {
+    active = new Set();
+    activeArtifactPublications.set(context, active);
+  }
+  if (active.has(artifact) || readMapContextArtifactInternal(context, artifact).found) {
+    throw new ArtifactDoublePublishError({
+      artifactId: artifact.id,
+      artifactName: artifact.name,
+      producerStepId,
+    });
+  }
+  active.add(artifact);
+}
+
+function releaseArtifactPublication(context: MapContext, artifact: Artifact): void {
+  const active = activeArtifactPublications.get(context);
+  active?.delete(artifact);
+  if (active?.size === 0) activeArtifactPublications.delete(context);
+}
+
 /** @internal Reads one admitted artifact through its exact identity and active occurrence. */
 export function readArtifactValueInternal<A extends Artifact>(
   context: MapContext,
@@ -128,33 +156,30 @@ export function publishArtifactValueInternal<A extends Artifact>(
   expectedStepId?: string
 ): ArtifactReadValueOf<A> {
   const producerStepId = requireArtifactOccurrence(context, expectedStepId);
-  if (readMapContextArtifactInternal(context, artifact).found) {
-    throw new ArtifactDoublePublishError({
-      artifactId: artifact.id,
-      artifactName: artifact.name,
-      producerStepId,
-    });
-  }
-
-  let issues: readonly { message: string }[];
-  let cause: unknown;
+  claimArtifactPublication(context, artifact, producerStepId);
   try {
-    issues = artifact.validate(value, { dimensions: context.setup.dimensions });
-  } catch (error) {
-    cause = error;
-    issues = normalizeIssues(error);
-  }
+    let issues: readonly { message: string }[];
+    let cause: unknown;
+    try {
+      issues = artifact.validate(value, { dimensions: context.setup.dimensions });
+    } catch (error) {
+      cause = error;
+      issues = normalizeIssues(error);
+    }
 
-  if (issues.length > 0) {
-    throw new ArtifactValidationError({
-      artifactId: artifact.id,
-      artifactName: artifact.name,
-      producerStepId,
-      issues,
-      cause,
-    });
-  }
+    if (issues.length > 0) {
+      throw new ArtifactValidationError({
+        artifactId: artifact.id,
+        artifactName: artifact.name,
+        producerStepId,
+        issues,
+        cause,
+      });
+    }
 
-  publishMapContextArtifactInternal(context, artifact, value);
-  return value as ArtifactReadValueOf<A>;
+    publishMapContextArtifactInternal(context, artifact, value);
+    return value as ArtifactReadValueOf<A>;
+  } finally {
+    releaseArtifactPublication(context, artifact);
+  }
 }

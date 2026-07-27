@@ -7,7 +7,7 @@ import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/
 import { artifacts as cryosphereArtifacts } from "@mapgen/domain/hydrology/modules/cryosphere/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
-import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
+import { readArtifact } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
   normalizeOperationSelectionForTest,
@@ -102,7 +102,7 @@ describe("biomes step", () => {
       );
     });
 
-    const classification = readValidatedArtifact(ctx, biomeArtifacts.biomeClassification);
+    const classification = readArtifact(ctx, biomeArtifacts.biomeClassification);
     expect(Array.from(classification.biomeIndex)).not.toContain(255);
     expect(new Set(classification.biomeIndex).size).toBeGreaterThan(1);
     expect(new Set(classification.vegetationDensity).size).toBeGreaterThan(1);
@@ -172,7 +172,7 @@ describe("biomes step", () => {
           buildStepTestDependencies(biomesStep, stepContext)
         );
       });
-      return readValidatedArtifact(ctx, biomeArtifacts.biomeClassification).vegetationDensity;
+      return readArtifact(ctx, biomeArtifacts.biomeClassification).vegetationDensity;
     };
 
     const baseline = new Float32Array(size).fill(120);

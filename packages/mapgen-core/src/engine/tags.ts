@@ -1,10 +1,9 @@
-import type { Artifact } from "@mapgen/authoring/artifact/contract.js";
-import {
-  observeValidatedArtifactInternal,
-  type ValidatedArtifactObservation,
-} from "@mapgen/authoring/artifact/validated-read.js";
+import { type Artifact, assertArtifact } from "@mapgen/authoring/artifact/contract.js";
 import type { MapContext } from "@mapgen/core/map-context.js";
-import { verifyMapContextEffectInternal } from "@mapgen/core/map-context.js";
+import {
+  readMapContextArtifactInternal,
+  verifyMapContextEffectInternal,
+} from "@mapgen/core/map-context.js";
 import {
   DuplicateDependencyTagError,
   InvalidDependencyTagDemoError,
@@ -23,7 +22,6 @@ type SatisfactionState = Readonly<{
 export interface DependencyEvidence {
   /** Verifies only the effect tag whose satisfaction predicate is currently being evaluated. */
   readonly verifyEffect: () => boolean;
-  readonly observeArtifact: <A extends Artifact>(artifact: A) => ValidatedArtifactObservation<A>;
 }
 
 function invokeSatisfactionPredicate(
@@ -35,8 +33,6 @@ function invokeSatisfactionPredicate(
   const currentContext = (): MapContext => activeContext ?? rejectRevokedDependencyEvidence();
   const evidence: DependencyEvidence = Object.freeze({
     verifyEffect: () => verifyMapContextEffectInternal(currentContext(), tag),
-    observeArtifact: <A extends Artifact>(artifact: A) =>
-      observeValidatedArtifactInternal(currentContext(), artifact),
   });
   try {
     const result: unknown = satisfies(evidence);
@@ -60,35 +56,28 @@ function rejectInvalidDemoResult(tag: string, result: unknown): never {
   throw new InvalidDependencyTagDemoError(tag);
 }
 
-type DependencyTagDefinitionBase = Readonly<{
+/** Immutable authority for one explicitly registered effect dependency. */
+export type EffectDependencyTag = Readonly<{
   readonly id: string;
+  readonly kind: "effect";
   readonly satisfies?: (evidence: DependencyEvidence) => boolean;
   readonly demo?: unknown;
   readonly validateDemo?: (demo: unknown) => boolean;
 }>;
 
-/** Immutable authority for one explicitly registered effect dependency. */
-export type DependencyTagDefinition = DependencyTagDefinitionBase &
-  Readonly<{
-    kind: "effect";
-  }>;
+/** @internal Exact artifact authority selected by recipe composition for one causal edge id. */
+export type ArtifactDependencyTag = Readonly<{
+  readonly id: string;
+  readonly kind: "artifact";
+  readonly artifact: Artifact;
+}>;
 
-type ArtifactDependencyTagDefinition = DependencyTagDefinitionBase &
-  Readonly<{
-    kind: "artifact";
-  }>;
+/** Closed dependency authority resolved from one step edge id. */
+export type DependencyTag = EffectDependencyTag | ArtifactDependencyTag;
 
-/** @internal Complete dependency authority retained after recipe-owned artifact admission. */
-export type InternalDependencyTagDefinition =
-  | DependencyTagDefinition
-  | ArtifactDependencyTagDefinition;
+const registryDefinitions = new WeakMap<TagRegistry, Map<string, DependencyTag>>();
 
-const registryDefinitions = new WeakMap<
-  TagRegistry,
-  Map<string, InternalDependencyTagDefinition>
->();
-
-function definitionsFor(registry: TagRegistry): Map<string, InternalDependencyTagDefinition> {
+function definitionsFor(registry: TagRegistry): Map<string, DependencyTag> {
   const definitions = registryDefinitions.get(registry);
   if (!definitions) throw new Error("MapGen dependency registry is not initialized.");
   return definitions;
@@ -96,29 +85,60 @@ function definitionsFor(registry: TagRegistry): Map<string, InternalDependencyTa
 
 function registerDefinition(
   registry: TagRegistry,
-  candidate: InternalDependencyTagDefinition,
+  candidate: DependencyTag,
   allowArtifact: boolean
 ): void {
-  const { id, kind, satisfies, demo, validateDemo } = candidate;
-  const definition = Object.freeze({
-    id,
-    kind,
-    satisfies,
-    demo,
-    validateDemo,
-  }) as InternalDependencyTagDefinition;
+  let definition: DependencyTag;
+  if (candidate.kind === "artifact") {
+    definition = snapshotArtifactDefinition(candidate, allowArtifact);
+  } else if (candidate.kind === "effect") {
+    definition = snapshotEffectDefinition(candidate);
+  } else {
+    rejectInvalidDependencyTag(candidate);
+  }
   const definitions = definitionsFor(registry);
   if (definitions.has(definition.id)) {
     throw new DuplicateDependencyTagError(definition.id);
   }
-  if ((!allowArtifact && definition.kind === "artifact") || !isTagKindCompatible(id, kind)) {
+  if (!isTagKindCompatible(definition.id, definition.kind)) {
     throw new InvalidDependencyTagError(definition.id);
   }
-  if (definition.demo !== undefined) {
+  if (definition.kind === "effect" && definition.demo !== undefined) {
     const admitted: unknown = definition.validateDemo?.(definition.demo);
     admitted === true || rejectInvalidDemoResult(definition.id, admitted);
   }
   definitions.set(definition.id, definition);
+}
+
+function rejectInvalidDependencyTag(candidate: { readonly id?: unknown }): never {
+  throw new InvalidDependencyTagError(String(candidate.id));
+}
+
+function snapshotArtifactDefinition(
+  candidate: ArtifactDependencyTag,
+  allowArtifact: boolean
+): ArtifactDependencyTag {
+  if (!allowArtifact) throw new InvalidDependencyTagError(candidate.id);
+  assertArtifact(candidate.artifact);
+  if (candidate.id !== candidate.artifact.id) {
+    throw new InvalidDependencyTagError(candidate.id);
+  }
+  return Object.freeze({
+    id: candidate.id,
+    kind: "artifact",
+    artifact: candidate.artifact,
+  });
+}
+
+function snapshotEffectDefinition(candidate: EffectDependencyTag): EffectDependencyTag {
+  const { id, satisfies, demo, validateDemo } = candidate;
+  return Object.freeze({
+    id,
+    kind: "effect",
+    satisfies,
+    demo,
+    validateDemo,
+  });
 }
 
 /** Registers the closed dependency-tag authority used when compiling execution plans. */
@@ -128,21 +148,21 @@ export class TagRegistry {
   }
 
   /** Admits one explicit effect definition by owned snapshot. Artifact authority comes from modules. */
-  registerTag(candidate: DependencyTagDefinition): void {
+  registerTag(candidate: EffectDependencyTag): void {
     registerDefinition(this, candidate, false);
   }
 
   /** Admits each definition through the same validation and snapshot boundary as `registerTag`. */
-  registerTags(definitions: readonly DependencyTagDefinition[]): void {
+  registerTags(definitions: readonly EffectDependencyTag[]): void {
     for (const definition of definitions) {
       this.registerTag(definition);
     }
   }
 
   /** Returns the immutable registered definition for a known dependency tag. */
-  get(tag: string): InternalDependencyTagDefinition {
+  get(tag: string): DependencyTag {
     this.validateTag(tag);
-    return definitionsFor(this).get(tag) as InternalDependencyTagDefinition;
+    return definitionsFor(this).get(tag) as DependencyTag;
   }
 
   /** Reports whether this registry owns a definition for the exact tag id. */
@@ -178,14 +198,12 @@ export class TagRegistry {
   }
 }
 
-/** @internal Registers recipe-derived artifact definitions through canonical artifact authority. */
+/** @internal Registers recipe-derived artifact and effect edges through their exact authorities. */
 export function registerDependencyTagsInternal(
   registry: TagRegistry,
-  definitions: readonly InternalDependencyTagDefinition[]
+  definitions: readonly DependencyTag[]
 ): void {
-  for (const definition of definitions) {
-    registerDefinition(registry, definition, true);
-  }
+  for (const definition of definitions) registerDefinition(registry, definition, true);
 }
 
 /** Verifies that every dependency tag is registered in the supplied authority. */
@@ -202,6 +220,9 @@ export function isDependencyTagSatisfied(
 ): boolean {
   const definition = registry.get(tag);
   if (!state.satisfied.has(tag)) return false;
+  if (definition.kind === "artifact") {
+    return readMapContextArtifactInternal(context, definition.artifact).found;
+  }
   if (definition.satisfies) {
     return invokeSatisfactionPredicate(tag, context, definition.satisfies);
   }
@@ -216,6 +237,5 @@ export function computeInitialSatisfiedTags(): Set<string> {
 
 function isTagKindCompatible(id: string, kind: DependencyTagKind): boolean {
   if (kind === "artifact") return id.startsWith("artifact:");
-  if (kind === "effect") return id.startsWith("effect:");
-  return false;
+  return kind === "effect" && id.startsWith("effect:");
 }

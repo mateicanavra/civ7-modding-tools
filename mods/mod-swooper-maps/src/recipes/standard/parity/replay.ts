@@ -8,7 +8,7 @@ import { createLabelRng, createMapContext } from "@swooper/mapgen-core";
 import {
   type Artifact,
   type ArtifactReadValueOf,
-  observeValidatedArtifact,
+  observeArtifact,
 } from "@swooper/mapgen-core/authoring";
 import { fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
 import { Value } from "typebox/value";
@@ -68,11 +68,11 @@ export type StandardParityReplayAuthority = Readonly<{
 
 const replayInputs = new WeakMap<StandardParityReplayAuthority, StandardParityReplayInput>();
 
-function observeArtifact<A extends Artifact>(
+function requireArtifact<A extends Artifact>(
   context: ReturnType<typeof createMapContext>,
   artifact: A
 ): ArtifactReadValueOf<A> {
-  const observation = observeValidatedArtifact(context, artifact);
+  const observation = observeArtifact(context, artifact);
   if (!observation.found) {
     throw new Error(`Standard parity replay did not publish required artifact "${artifact.id}".`);
   }
@@ -182,8 +182,8 @@ function runStandardParityReplay(input: StandardParityReplayInput): StandardLoca
     throw new Error("Standard parity replay requires terminal resource-placement measurements.");
   }
 
-  const naturalWonderPlan = observeArtifact(context, placementWonderArtifacts.naturalWonderPlan);
-  const resourcePlan = observeArtifact(context, resourceSupportArtifacts.resourcePlanAdjusted);
+  const naturalWonderPlan = requireArtifact(context, placementWonderArtifacts.naturalWonderPlan);
+  const resourcePlan = requireArtifact(context, resourceSupportArtifacts.resourcePlanAdjusted);
 
   return {
     source: "standard-replay",
@@ -284,7 +284,7 @@ function captureRiverProjection(
   adapter: Pick<EngineAdapter, "readRiverProjection">,
   dimensions: Readonly<{ width: number; height: number }>
 ): StandardRiverProjectionCapture {
-  const projected = observeArtifact(context, hydrographyArtifacts.projectedNavigableRivers);
+  const projected = requireArtifact(context, hydrographyArtifacts.projectedNavigableRivers);
   const { width, height } = dimensions;
   const size = width * height;
   const readback = adapter.readRiverProjection(width, height, projected.riverMask);

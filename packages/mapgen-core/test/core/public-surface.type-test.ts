@@ -8,8 +8,8 @@ import * as MapGenTrace from "@mapgen/trace/index.js";
 
 void MapGenCore.admitMapSetup;
 void MapGenCore.MapSetupSchema;
-void MapGenAuthoring.readValidatedArtifact;
-void MapGenAuthoring.observeValidatedArtifact;
+void MapGenAuthoring.readArtifact;
+void MapGenAuthoring.observeArtifact;
 void MapGenEngine.TagRegistry;
 void MapGenTesting.createTraceSessionForTest;
 void MapGenTrace.TraceEventSchema;
@@ -17,6 +17,12 @@ void MapGenPublic.VERSION;
 
 type PublicStepFacetSinks = MapGenPublic.StepFacetSinks;
 type PublicStepFacetFailure = MapGenPublic.StepFacetFailure;
+type PublicArtifactObservation = MapGenAuthoring.ArtifactObservation<MapGenAuthoring.Artifact>;
+
+// @ts-expect-error Artifact dependency authorities are derived by recipe composition, not authored.
+type PublicArtifactDependencyTag = MapGenAuthoring.ArtifactDependencyTag;
+// @ts-expect-error The resolved dependency union is internal to recipe and executor composition.
+type PublicDependencyTag = MapGenAuthoring.DependencyTag;
 
 // @ts-expect-error Internal setup-authenticity assertions are not part of the public Core surface.
 MapGenCore.assertMapSetupInternal;
@@ -26,12 +32,12 @@ MapGenCore.readMapContextArtifactInternal;
 MapGenCore.assertTerminalMapContextObservationInternal;
 // @ts-expect-error Artifact capabilities derive directly from declared authorities per occurrence.
 MapGenAuthoring.implementArtifacts;
-// @ts-expect-error In-run artifact observation is private to executor dependency predicates.
-MapGenAuthoring.observeValidatedArtifactInternal;
+// @ts-expect-error Terminal artifact observation has no separate internal public capability.
+MapGenAuthoring.observeArtifactInternal;
 // @ts-expect-error Contract-only modules cannot acquire runtime observation authority.
-MapGenContracts.readValidatedArtifact;
+MapGenContracts.readArtifact;
 // @ts-expect-error Contract-only modules cannot acquire runtime observation authority.
-MapGenContracts.observeValidatedArtifact;
+MapGenContracts.observeArtifact;
 // @ts-expect-error Artifact authors declare exact typed arrays in schemas instead of plumbing helper arrays.
 MapGenAuthoring.appendArtifactTypedArrayIssues;
 // @ts-expect-error Grid-coordinate semantic issues are emitted through the contextual issue sink.
@@ -79,5 +85,8 @@ void (undefined as unknown as PublicArtifactValidationIssue);
 void (undefined as unknown as PublicArtifactRefinement);
 void (undefined as unknown as PublicArtifactValidator);
 void (undefined as unknown as PublicArtifactValidationContext);
+void (undefined as unknown as PublicArtifactDependencyTag);
+void (undefined as unknown as PublicDependencyTag);
 void (undefined as unknown as PublicStepFacetSinks);
 void (undefined as unknown as PublicStepFacetFailure);
+void (undefined as unknown as PublicArtifactObservation);

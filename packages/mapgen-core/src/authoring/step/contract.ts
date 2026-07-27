@@ -1,4 +1,4 @@
-import type { DependencyTag } from "@mapgen/engine/index.js";
+import type { DependencyTagId } from "@mapgen/engine/index.js";
 import { type TObject, type TSchema, Type } from "typebox";
 import { type Artifact, assertArtifact } from "../artifact/contract.js";
 import {
@@ -334,20 +334,20 @@ function snapshotDependencyTagList(
   stepId: string,
   property: "requires" | "provides",
   value: unknown
-): readonly DependencyTag[] {
+): readonly DependencyTagId[] {
   if (!Array.isArray(value)) {
     throw new TypeError(`step "${stepId}" ${property} must be an array`);
   }
 
   const location = `step "${stepId}" ${property}`;
   const length = readDenseArrayLength(value, location);
-  const tags: DependencyTag[] = [];
+  const tags: DependencyTagId[] = [];
   for (let index = 0; index < length; index += 1) {
     const tag = readDenseArrayEntry(value, index, location);
     if (typeof tag !== "string") {
       throw new TypeError(`${location} at index ${index} must be a string`);
     }
-    tags.push(tag as DependencyTag);
+    tags.push(tag as DependencyTagId);
   }
   return Object.freeze(tags);
 }
@@ -380,8 +380,8 @@ export type StepContract<
 > = Readonly<{
   id: Id;
   description?: string;
-  requires: readonly DependencyTag[];
-  provides: readonly DependencyTag[];
+  requires: readonly DependencyTagId[];
+  provides: readonly DependencyTagId[];
   artifacts?: Artifacts;
   engine?: Engine;
   initialSetup?: InitialSetup;
@@ -398,8 +398,8 @@ type StepContractBaseInput<
 > = Readonly<{
   id: Id;
   description?: string;
-  requires: readonly DependencyTag[];
-  provides: readonly DependencyTag[];
+  requires: readonly DependencyTagId[];
+  provides: readonly DependencyTagId[];
   artifacts?: Artifacts;
   engine?: Engine;
   initialSetup?: InitialSetup;

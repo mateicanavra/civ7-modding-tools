@@ -11,7 +11,7 @@ import {
 } from "@mapgen/authoring/index.js";
 import { RecipeCompileError } from "@mapgen/compiler/recipe-compile.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
-import type { DependencyTagDefinition } from "@mapgen/engine/index.js";
+import { type EffectDependencyTag, InvalidDependencyTagError } from "@mapgen/engine/index.js";
 import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
 import { Type } from "typebox";
 import { Value } from "typebox/value";
@@ -285,7 +285,7 @@ describe("recipe authoring", () => {
   it("rejects duplicate explicit dependency-tag definitions", () => {
     const step = createStep(makeContract("alpha"), { run: () => {} });
     const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
-    const definition: DependencyTagDefinition = {
+    const definition: EffectDependencyTag = {
       id: "effect:test.ready",
       kind: "effect",
     };
@@ -312,6 +312,20 @@ describe("recipe authoring", () => {
         operations: {},
       })
     ).toThrow(/Explicit artifact dependency tag.*not admitted/);
+  });
+
+  it("rejects forged dependency kinds instead of normalizing them into effects", () => {
+    const step = createStep(makeContract("alpha"), { run: () => {} });
+    const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
+
+    expect(() =>
+      createRecipe({
+        id: "core.closed-dependency-authority",
+        tagDefinitions: [{ id: "effect:test.forged-kind", kind: "field" }] as never,
+        stages: [stage],
+        operations: {},
+      })
+    ).toThrow(InvalidDependencyTagError);
   });
 
   it("compiles recipe-created complete config and rejects unknown keys", () => {

@@ -94,8 +94,8 @@ function cloneSeat(seat: DeepReadonly<StartSeatRecord>): StartSeatRecord {
 
 /**
  * Stamps the operation's typed seat intents and builds the immutable assignment
- * product. Unfillable maps remain degraded data; only a map with no settleable
- * candidate at all is rejected.
+ * product. Unfillable maps remain degraded data so the provider can publish
+ * exact failure evidence before refusing to complete the placement effect.
  */
 function materializeStartAssignment(args: {
   context: MapContext;
@@ -111,13 +111,6 @@ function materializeStartAssignment(args: {
     );
   }
   const seats = plan.seats;
-  if (seats.length > 0 && plan.settleableTileCount === 0) {
-    throw new Error(
-      `[Placement] No settleable land candidates exist for ${seats.length} requested start seat(s) ` +
-        `(candidates=${plan.candidateCount}, settleable=0).`
-    );
-  }
-
   let assigned = 0;
   const rungCounts = { regional: 0, openPool: 0, qualityRelaxed: 0, spacingRelaxed: 0 };
   const tierAssignments = { primary: 0, islandCluster: 0, marginal: 0, none: 0 };
@@ -162,6 +155,17 @@ function materializeStartAssignment(args: {
     tierCounts: { ...plan.tierCounts },
     inputCoverage: plan.inputCoverage.map((row) => ({ ...row })),
   };
+}
+
+function requireCompleteStartAssignment(assignment: DeepReadonly<StartAssignmentArtifact>): void {
+  const seatCount = assignment.seats.length;
+  if (seatCount > 0 && assignment.assigned === seatCount && assignment.unseatedCount === 0) {
+    return;
+  }
+  throw new Error(
+    `[Placement] Start assignment incomplete: assigned ${assignment.assigned} of ${seatCount} ` +
+      `seat(s), with ${assignment.unseatedCount} unseated.`
+  );
 }
 
 /**
@@ -221,6 +225,7 @@ export const AssignStartsStep = createStep(config, {
         deps.engine.setStartPosition(context, plotIndex, playerId),
     });
     deps.artifacts.startAssignment.publish(assignment);
+    requireCompleteStartAssignment(assignment);
     return { plan, assignment };
   },
   viz: ({ result, dimensions }) => projectStartAssignmentViz({ ...result, dimensions }),

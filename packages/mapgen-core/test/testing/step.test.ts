@@ -6,7 +6,7 @@ import {
   createStep,
   defineArtifact,
   defineStep,
-  readValidatedArtifact,
+  readArtifact,
 } from "@mapgen/authoring/index.js";
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
@@ -158,7 +158,7 @@ describe("step testing surface", () => {
     });
 
     expect(result).toBe(6);
-    expect(readValidatedArtifact(context, outputArtifact)).toEqual({ value: 6 });
+    expect(readArtifact(context, outputArtifact)).toEqual({ value: 6 });
     expect(() =>
       withMapContextExecutionForTest(context, (stepContext) => {
         doubleStep.run(stepContext, {}, {}, buildStepTestDependencies(doubleStep, stepContext));

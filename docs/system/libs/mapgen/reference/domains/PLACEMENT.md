@@ -79,7 +79,12 @@ adapter-owned mutation/readback boundaries:
   placement is delegated to Civ7 as a recipe effect rather than modeled as a
   Placement operation.
 - `@civ7/map-policy` owns static resource facts (`Weight`, `MinimumPerHemisphere`, age validity, and roster-independent `Staple`/`UnlocksCiv` basis). `EngineAdapter` owns the exact active-roster `isResourceRequiredForAge` query used by planning.
-- Selection strategies never throw on degraded inputs: every degradation is recorded as typed data (seat `status`/`rung`/`imputedFlags`, per-type shortfalls) instead of being silently rescued. The only hard-fail is zero settleable land with seats requested.
+- Start selection preserves degradation as typed planning data (seat
+  `status`/`rung`/`imputedFlags`, per-type shortfalls) instead of silently
+  rescuing it. After materialization, the step publishes the exact assignment
+  evidence but completes its continuation effect only when every admitted seat
+  was assigned; zero-seat, zero-settleable, and partial assignments therefore
+  fail at the provider boundary.
 - Player identity: Standard initial setup admits the exact ordered alive-major IDs once at
   GenerateMap time. The `plan-starts` operation seats those identities without padding or
   synthesizing players; its game-seed input only breaks otherwise-equal gameplay choices.
@@ -110,10 +115,11 @@ Placement provides (product/effect chain, in pipeline order):
 Immutable plan and adjustment artifacts carry their own causal edges. Effect
 tags remain only for engine or lifecycle transitions with no immutable data
 product, except `startsAssigned`: its artifact deliberately admits typed
-degraded assignments, while the effect predicate is the stricter continuation
-gate requiring every admitted seat to be assigned. There are no parallel
-`resourcesPlanned` or `resourcesAdjusted` ordering authorities and no
-read-and-discard artifact requirements. Terminal parity evidence is the
+degraded assignments, then the provider refuses to complete unless at least one
+seat exists and every seat is assigned. Failed attempts therefore retain exact
+assignment evidence while never committing the continuation effect. There are
+no parallel `resourcesPlanned` or `resourcesAdjusted` ordering authorities and
+no read-and-discard artifact requirements. Terminal parity evidence is the
 successful observer result plus its trace and visualization projections, not
 another effect tag.
 
@@ -175,8 +181,8 @@ Runtime semantics (ADR-009 regime):
 Artifacts are immutable domain products, not recipe-stage state. Placement and
 Resources module catalogs own their artifacts beside the operations that
 produce them; the Standard recipe imports those exact catalogs. Every artifact
-owns the complete structural and semantic validator used by publication and
-validated reads. Inventory:
+owns the complete structural and semantic validator used once at publication;
+later dependency gates and terminal reads observe the admitted store. Inventory:
 
 | Artifact | Published by | Substance |
 | --- | --- | --- |

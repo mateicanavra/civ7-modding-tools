@@ -41,8 +41,8 @@ public catalog, preserving the product's semantic owner.
   arbitrary callable members are not artifact data.
 - Artifact storage is private to MapGen Core. `MapContext` exposes no raw store or query facade.
 - Authored steps read and publish only through their declared `deps.artifacts` capabilities.
-- Metrics, diagnostics, and other post-run observers use `readValidatedArtifact` or
-  `observeValidatedArtifact` with the exact artifact whose validator owns admission.
+- Metrics, diagnostics, and other post-run observers use `readArtifact` or `observeArtifact` with
+  the exact artifact authority that selected the value at publication.
 
 The artifact owner owns its complete payload schema. Smaller reusable pieces,
 such as one `PlateSchema` subentity, may come from exact model-atom files, but a
@@ -90,8 +90,8 @@ to fields in the artifact value, and `"constructor-only"` deliberately declares 
 relation. The default `["width", "height"]` remains an input-relative path product rather than an
 alias for `"map-grid"`.
 
-Artifact validation context is mandatory. Production publication and validated reads supply it
-from the admitted map setup; direct validator tests pass
+Artifact validation context is mandatory. Production publication supplies it from the admitted map
+setup; direct validator tests pass
 `{ dimensions: { width, height } }` explicitly. Missing dimensions never disable cardinality
 checks.
 
@@ -141,13 +141,20 @@ createStep(config, {
 `defineStep` snapshots the selected artifacts, while `createStep` binds behavior only. At each
 step invocation, Core derives exact occurrence-bound `read()` and `publish(value)` capabilities
 directly from those contract authorities. There is no provider runtime registry, map, or cache.
-Each artifact's validator remains the sole admission authority for publication, satisfaction
-checks, and validated reads. Storage and satisfaction callbacks remain private to recipe
-execution; neither is an authored step capability.
+Each step keeps one ordered `requires` / `provides` id ledger for causal artifacts and effects. The
+registry resolves an `ArtifactDependencyTag` to its exact `Artifact` authority and an
+`EffectDependencyTag` to effect-specific policy. The registry and executor do not create a second
+runtime artifact graph; the current nested artifact declaration is authoring metadata used to retain
+the exact authorities from which `defineStep` derives that ledger.
+Each artifact's validator remains the sole admission authority at publication. Artifact dependency
+gates and terminal observers subsequently ask only whether that exact authority is present in the
+write-once store; they do not create a second admission transition or treat validation as mutation
+detection. Storage remains private to recipe execution and is not an authored step capability.
 
 ## Ground truth anchors
 
 - Artifact runtime (write-once enforcement, zero-copy ownership contract): `packages/mapgen-core/src/authoring/artifact/runtime.ts`
+- Terminal artifact observation: `packages/mapgen-core/src/authoring/artifact/observation.ts`
 - Artifact definition and value types: `packages/mapgen-core/src/authoring/artifact/contract.ts`
 - Schema-owned typed-array admission compiler: `packages/mapgen-core/src/authoring/schema/typed-array-admission.ts`
 - Artifact catalog: `packages/mapgen-core/src/authoring/artifact/catalog.ts`

@@ -8,12 +8,12 @@ export type {
 } from "./contract.js";
 export { defineArtifact } from "./contract.js";
 export {
+  type ArtifactObservation,
+  observeArtifact,
+  readArtifact,
+} from "./observation.js";
+export {
   ArtifactDoublePublishError,
   ArtifactMissingError,
   ArtifactValidationError,
 } from "./runtime.js";
-export {
-  observeValidatedArtifact,
-  readValidatedArtifact,
-  type ValidatedArtifactObservation,
-} from "./validated-read.js";

@@ -1,7 +1,7 @@
-import type { DependencyTagDefinition, MapGenStep } from "@mapgen/engine/index.js";
+import type { EffectDependencyTag, MapGenStep } from "@mapgen/engine/index.js";
 
 declare const registeredStep: MapGenStep;
-declare const registeredTag: DependencyTagDefinition;
+declare const registeredTag: EffectDependencyTag;
 
 // @ts-expect-error Registered step identity is immutable to consumers.
 registeredStep.id = "replacement";

@@ -3,7 +3,9 @@ import type { MapSetup } from "@mapgen/core/map-setup.js";
 import type { TSchema } from "typebox";
 import type { StepFacets } from "./step-projectors.js";
 
-export type DependencyTag = string;
+/** Causal edge id resolved to either an artifact or effect dependency authority. */
+export type DependencyTagId = string;
+
 /** Setup and stage knobs available while compiling one step's internal configuration. */
 export type NormalizeContext<TKnobs = unknown> = Readonly<{
   setup: MapSetup;
@@ -15,8 +17,8 @@ export interface MapGenStep<TConfig = unknown, TResult = unknown> {
   readonly id: string;
   /** Recipe-composition stage that owns this executable occurrence. */
   readonly stageId: string;
-  readonly requires: readonly DependencyTag[];
-  readonly provides: readonly DependencyTag[];
+  readonly requires: readonly DependencyTagId[];
+  readonly provides: readonly DependencyTagId[];
   readonly configSchema?: TSchema;
   readonly normalize?: (config: TConfig, ctx: NormalizeContext) => TConfig;
   readonly run: (context: MapContext, config: TConfig) => TResult | Promise<TResult>;

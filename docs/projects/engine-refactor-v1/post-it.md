@@ -31,16 +31,17 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** project occurrence-bound artifact capabilities directly
-from one artifact authority. `defineArtifact` already owns identity, schema,
-and complete admission. A second `{ artifact, read, publish }` runtime cached
-against a step, copied through recipe snapshotting, verified during graph
-construction, and wrapped again at invocation is not another capability.
-Delete that hidden state. The exact declared artifact and active step occurrence
-derive one reader or publisher at dependency binding. Those bound capabilities
-do not ask authors to resubmit the context they already capture. Preserve exact
-identity, declared access, publication admission, write-once storage, active
-occurrence ownership, and terminal observation.
+**Current container:** seal publication as the sole artifact admission and keep
+one causal dependency ledger. A step's ordered `requires` and `provides` ids
+name both artifact and effect edges; no second runtime artifact graph is
+admitted. The registry resolves an artifact id to its exact `Artifact` authority
+and an effect id to effect policy. Artifact satisfaction means only that the edge
+was causally committed and its exact admitted value is present in write-once
+storage. Terminal metrics and diagnostics observe that store without rerunning
+admission or pretending to prove immutability. The remaining nested artifact
+authoring selector is a duplicated directional shape, not a second runtime
+authority; the immediate child collapses it into the same top-level ordered
+dependency lists while retaining exact typed artifact capabilities.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -57,16 +58,15 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** start at the canonical artifact and follow one occurrence outward.
-Replace the provider-runtime WeakMap with direct reader/publisher projection;
-remove snapshot propagation, structural rechecks, and wrapper-over-wrapper
-construction; make bound capabilities contextless; migrate consumers and tests;
-repair the active scaffold that still teaches the retired validator API. Then
-normalize the one remaining catalog/access naming split only if it is still a
-mechanical consequence of the same authority. Repeated post-publication
-validation and generic dependency observation remain separately visible design
-questions rather than being smuggled into this cut. Compiler, focused behavior,
-public-surface, docs, and exact-tree proof close the layer before the next branch.
+**Gradient:** burn down the false second validator, generic artifact evidence
+callback, and validated-read naming. Keep the exact artifact authority on the
+`ArtifactDependencyTag`, keep effect-specific policy on the
+`EffectDependencyTag`, and keep only their closed discriminated union behind
+the string ledger. Move the one real start-completion product law to its
+provider boundary, preserve partial evidence on failure, then prove admission
+runs once across provision, consumer gates, and terminal observation. Close
+with state-machine, runtime, compiler, and exact-tree proof, then collapse the
+authoring lists before selecting another capability container.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -101,6 +101,17 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-27 - Occurrence-Bound Artifact Capability Sealed
+
+One `defineArtifact` authority now flows directly into each declared step
+occurrence. Core projects exact contextless `read()` and `publish(value)`
+capabilities from the active step and artifact declaration; the provider
+WeakMap, runtime wrappers, recipe snapshot propagation, graph rechecks, and
+wrapper-over-wrapper construction retired. Catalog keys and artifact names are
+one lookup identity, while global artifact ids remain unchanged. Exact
+identity, active-occurrence ownership, admission, write-once publication, and
+terminal observation remain behaviorally intact across all 53 migrated steps.
 
 ### 2026-07-27 - Executable Operation Binding Sealed
 

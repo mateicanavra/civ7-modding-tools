@@ -87,7 +87,7 @@ function contextRootForRead(context: MapContext): MapContext {
  * satisfaction call. The adapter remains private executor state; authored code can invoke only the
  * methods named by its frozen step contract through occurrence-scoped dependency wrappers. Artifacts
  * remain behind artifact-bound readers and publishers, while the root remains available to the executor
- * and post-run validated observers.
+ * and post-run terminal observers.
  */
 export interface MapContext {
   readonly [mapContextBrand]: true;
@@ -205,7 +205,7 @@ export function assertTerminalMapContextObservationInternal(context: MapContext)
   const state = mapContextExecutionStates.get(authority.root);
   if (authority.kind !== "root" || authority.root !== context || state?.status !== "terminal") {
     throw new Error(
-      "Validated artifact observation requires the root MapContext after execution has completed."
+      "Terminal artifact observation requires the root MapContext after execution has completed."
     );
   }
 }

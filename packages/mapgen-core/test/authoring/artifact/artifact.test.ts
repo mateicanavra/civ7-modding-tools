@@ -7,8 +7,8 @@ import {
   createStep,
   defineArtifact,
   defineStep,
-  observeValidatedArtifact,
-  readValidatedArtifact,
+  observeArtifact,
+  readArtifact,
 } from "@mapgen/authoring/index.js";
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
@@ -251,10 +251,64 @@ describe("artifact authoring", () => {
         ),
       provider.contract.id
     );
-    expect(readValidatedArtifact(context, artifact)).toEqual({ value: 1 });
+    expect(readArtifact(context, artifact)).toEqual({ value: 1 });
   });
 
-  it("admits public validated observation only through the completed root context", () => {
+  it("claims publication before validation so refinement cannot re-enter admission", () => {
+    let admissionCount = 0;
+    let reenterPublication: (() => void) | undefined;
+    const artifact = defineArtifact({
+      name: "reentrantArtifact",
+      id: "artifact:test.reentrant-publication",
+      schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
+      refine: () => {
+        admissionCount += 1;
+        expect(() => reenterPublication?.()).toThrow(ArtifactDoublePublishError);
+      },
+    });
+    const provider = createStep(
+      defineStep({
+        id: "reentrant-artifact-provider",
+        requires: [],
+        provides: [],
+        artifacts: { provides: [artifact] },
+      }),
+      {
+        run: (_context, _config, _ops, deps) => {
+          reenterPublication = () => {
+            deps.artifacts.reentrantArtifact.publish({ value: 2 });
+          };
+          deps.artifacts.reentrantArtifact.publish({ value: 1 });
+        },
+      }
+    );
+    const setup = admitMapSetup({ ...baseSetup, dimensions: { width: 1, height: 1 } });
+    const context = createMapContext({
+      setup,
+      adapter: createMockAdapter({ width: 1, height: 1 }),
+    });
+
+    executeContextStep(
+      context,
+      (stepContext) =>
+        provider.run(
+          stepContext,
+          {},
+          {},
+          buildDeclaredStepDependencies(provider, {
+            consumerStepId: provider.contract.id,
+            owner: "artifact-authoring-test",
+            context: stepContext,
+          })
+        ),
+      provider.contract.id
+    );
+
+    expect(readArtifact(context, artifact)).toEqual({ value: 1 });
+    expect(admissionCount).toBe(1);
+  });
+
+  it("admits public artifact observation only through the completed root context", () => {
     const artifact = defineArtifact({
       name: "observedArtifact",
       id: "artifact:test.observation",
@@ -267,31 +321,34 @@ describe("artifact authoring", () => {
     });
     let retainedStepContext: MapContext | undefined;
 
-    expect(() => readValidatedArtifact(context, artifact)).toThrow("after execution has completed");
+    expect(() => readArtifact(context, artifact)).toThrow("after execution has completed");
     executeContextStep(context, (stepContext) => {
       retainedStepContext = stepContext;
-      expect(() => observeValidatedArtifact(context, artifact)).toThrow(
-        "after execution has completed"
-      );
+      expect(() => observeArtifact(context, artifact)).toThrow("after execution has completed");
       publishTestArtifact(stepContext, artifact, { value: 1 });
     });
 
-    expect(readValidatedArtifact(context, artifact)).toEqual({ value: 1 });
-    expect(observeValidatedArtifact(context, artifact)).toEqual({
+    expect(readArtifact(context, artifact)).toEqual({ value: 1 });
+    expect(observeArtifact(context, artifact)).toEqual({
       found: true,
       value: { value: 1 },
     });
-    expect(() => readValidatedArtifact(retainedStepContext!, artifact)).toThrow(
+    expect(() => readArtifact(retainedStepContext!, artifact)).toThrow(
       "context returned by createMapContext"
     );
   });
 
-  it("keys storage and validation by exact artifact identity rather than id text", () => {
+  it("keys storage and observation by exact artifact identity without repeating admission", () => {
+    let firstValidationCalls = 0;
     let secondValidationCalls = 0;
     const first = defineArtifact({
       name: "firstIdentity",
       id: "artifact:test.exact-identity",
       schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
+      refine: () => {
+        firstValidationCalls += 1;
+        return undefined;
+      },
     });
     const second = defineArtifact({
       name: "secondIdentity",
@@ -312,35 +369,12 @@ describe("artifact authoring", () => {
       publishTestArtifact(stepContext, first, { value: 7 });
     });
 
-    expect(readValidatedArtifact(context, first)).toEqual({ value: 7 });
-    expect(observeValidatedArtifact(context, second)).toEqual({ found: false });
+    expect(readArtifact(context, first)).toEqual({ value: 7 });
+    expect(observeArtifact(context, first)).toEqual({ found: true, value: { value: 7 } });
+    expect(observeArtifact(context, second)).toEqual({ found: false });
+    expect(() => readArtifact(context, second)).toThrow(`Missing required artifact ${second.id}`);
+    expect(firstValidationCalls).toBe(1);
     expect(secondValidationCalls).toBe(0);
-  });
-
-  it("revalidates stored evidence with the same artifact authority before observation", () => {
-    let valid = true;
-    const artifact = defineArtifact({
-      name: "changingAdmission",
-      id: "artifact:test.changing-admission",
-      schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
-      refine: (_value, { issues }) => {
-        if (!valid) issues.add("observation is no longer valid");
-        return undefined;
-      },
-    });
-    const setup = admitMapSetup({ ...baseSetup, dimensions: { width: 1, height: 1 } });
-    const context = createMapContext({
-      setup,
-      adapter: createMockAdapter({ width: 1, height: 1 }),
-    });
-
-    executeContextStep(context, (stepContext) => {
-      publishTestArtifact(stepContext, artifact, { value: 7 });
-    });
-    valid = false;
-    expect(() => readValidatedArtifact(context, artifact)).toThrow("Invalid artifact");
-    valid = true;
-    expect(readValidatedArtifact(context, artifact)).toEqual({ value: 7 });
   });
 
   it("binds declared readers and publishers to their exact active step occurrence", () => {
@@ -456,7 +490,7 @@ describe("artifact authoring", () => {
     );
 
     new PipelineExecutor(registry).executePlan(context, plan);
-    expect(readValidatedArtifact(context, outputArtifact)).toEqual({ value: 6 });
+    expect(readArtifact(context, outputArtifact)).toEqual({ value: 6 });
     const rootReader = buildDeclaredStepDependencies(reader, {
       consumerStepId: reader.contract.id,
       owner: "artifact-authoring-test",

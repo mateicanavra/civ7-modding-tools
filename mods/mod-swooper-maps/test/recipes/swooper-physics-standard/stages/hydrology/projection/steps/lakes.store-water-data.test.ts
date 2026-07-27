@@ -4,7 +4,7 @@ import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
-import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
+import { readArtifact } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import {
   buildStepTestDependencies,
@@ -222,7 +222,7 @@ describe("map-hydrology/lakes", () => {
 
     expect(result.projection.nonLakeTileCount).toBe(0);
     expect(result.projection.terrainMismatchTileCount).toBe(0);
-    const projectedLakes = readValidatedArtifact(context, hydrographyArtifacts.projectedLakes);
+    const projectedLakes = readArtifact(context, hydrographyArtifacts.projectedLakes);
     expect(projectedLakes.lakeMask).toEqual(lakeMask);
   });
 
@@ -244,7 +244,7 @@ describe("map-hydrology/lakes", () => {
     expect(result.projection.rejectedLakeTileCount).toBe(1);
     expect(result.projection.nonLakeTileCount).toBe(1);
     expect(result.projection.terrainMismatchTileCount).toBe(0);
-    const projectedLakes = readValidatedArtifact(context, hydrographyArtifacts.projectedLakes);
+    const projectedLakes = readArtifact(context, hydrographyArtifacts.projectedLakes);
     expect(projectedLakes.lakeMask[1 + width]).toBe(0);
     expect(projectedLakes.lakeMask.reduce((count, value) => count + value, 0)).toBe(0);
 
@@ -312,7 +312,7 @@ describe("map-hydrology/lakes", () => {
     expect(result.plannedLakeMask[volcanoTile]).toBe(1);
     expect(projectedCandidates?.[volcanoTile]).toBe(0);
     expect(projectedCandidates?.[plainLakeTile]).toBe(1);
-    const projectedLakes = readValidatedArtifact(context, hydrographyArtifacts.projectedLakes);
+    const projectedLakes = readArtifact(context, hydrographyArtifacts.projectedLakes);
     expect(projectedLakes.lakeMask[mountainTile]).toBe(0);
     expect(projectedLakes.lakeMask[volcanoTile]).toBe(0);
     expect(projectedLakes.lakeMask[plainLakeTile]).toBe(1);

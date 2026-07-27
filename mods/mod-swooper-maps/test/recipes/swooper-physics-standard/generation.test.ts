@@ -5,7 +5,7 @@ import { artifacts as resourceDemandArtifacts } from "@mapgen/domain/resources/m
 import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
 import { deriveStepSeed } from "@swooper/mapgen-core";
-import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
+import { readArtifact } from "@swooper/mapgen-core/authoring";
 import { Value } from "typebox/value";
 
 import {
@@ -58,7 +58,7 @@ describe("Standard recipe generation", () => {
     if (resourcePlacement === undefined) {
       throw new Error("Standard generation did not emit terminal resource-placement evidence.");
     }
-    const starts = readValidatedArtifact(context, placementStartArtifacts.startAssignment);
+    const starts = readArtifact(context, placementStartArtifacts.startAssignment);
     expect(starts.seats.length).toBeGreaterThan(0);
     expect(starts.assigned).toBe(starts.seats.length);
     expect(starts.unseatedCount).toBe(0);
@@ -94,19 +94,13 @@ describe("Standard recipe generation", () => {
       mapSeed: TEST_MAP_SEED,
       gameSeed: alternateGameSeed,
     });
-    const baselinePlan = readValidatedArtifact(
-      baseline.context,
-      resourceSiteArtifacts.resourcePlan
-    );
-    const alternatePlan = readValidatedArtifact(
-      alternate.context,
-      resourceSiteArtifacts.resourcePlan
-    );
-    const baselineAdjusted = readValidatedArtifact(
+    const baselinePlan = readArtifact(baseline.context, resourceSiteArtifacts.resourcePlan);
+    const alternatePlan = readArtifact(alternate.context, resourceSiteArtifacts.resourcePlan);
+    const baselineAdjusted = readArtifact(
       baseline.context,
       resourceSupportArtifacts.resourcePlanAdjusted
     );
-    const alternateAdjusted = readValidatedArtifact(
+    const alternateAdjusted = readArtifact(
       alternate.context,
       resourceSupportArtifacts.resourcePlanAdjusted
     );
@@ -132,14 +126,11 @@ describe("Standard recipe generation", () => {
     const tinyPreset = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
     const official = runStandardRecipeTestMap({ presetId: tinyPreset.id });
     const custom = runStandardRecipeTestMap({ presetId: tinyPreset.id, mapInfo: {} });
-    const officialDemand = readValidatedArtifact(
+    const officialDemand = readArtifact(
       official.context,
       resourceDemandArtifacts.resourceDemandPlan
     );
-    const customDemand = readValidatedArtifact(
-      custom.context,
-      resourceDemandArtifacts.resourceDemandPlan
-    );
+    const customDemand = readArtifact(custom.context, resourceDemandArtifacts.resourceDemandPlan);
 
     expect(custom.context.setup.dimensions).toEqual(official.context.setup.dimensions);
     expect(officialDemand.minimumAmountModifier).toBe(-4);

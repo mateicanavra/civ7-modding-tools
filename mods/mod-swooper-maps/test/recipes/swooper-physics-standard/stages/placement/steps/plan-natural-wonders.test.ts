@@ -14,7 +14,7 @@ import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morpho
 import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
 import placement from "@mapgen/domain/placement/router";
 import { createMapContext, type MapContext } from "@swooper/mapgen-core";
-import { readValidatedArtifact, type StepRuntimeOps } from "@swooper/mapgen-core/authoring";
+import { readArtifact, type StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
   normalizeOperationSelectionForTest,
@@ -209,9 +209,7 @@ describe("plan natural wonders step", () => {
       },
       plannedCount: expectedWondersCount,
     });
-    expect(
-      readValidatedArtifact(context, placementWonderArtifacts.naturalWonderPlan)
-    ).toMatchObject({
+    expect(readArtifact(context, placementWonderArtifacts.naturalWonderPlan)).toMatchObject({
       width: preset.dimensions.width,
       height: preset.dimensions.height,
       wondersCount: expectedWondersCount,

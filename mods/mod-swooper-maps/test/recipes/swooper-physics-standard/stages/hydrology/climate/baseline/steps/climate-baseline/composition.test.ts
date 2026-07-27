@@ -5,7 +5,7 @@ import hydrologyDomain from "@mapgen/domain/hydrology/router";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
-import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
+import { readArtifact } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
   publishTestArtifact,
@@ -279,7 +279,7 @@ describe("hydrology climate-baseline composition", () => {
     expect(thermalSstInputs).toHaveLength(config.seasonality.modeCount);
     for (const observedSst of thermalSstInputs) expect(observedSst).toBe(sstC);
 
-    const windField = readValidatedArtifact(context, climateArtifacts.windField);
+    const windField = readArtifact(context, climateArtifacts.windField);
     expect(Array.from(windField.windU)).toEqual(Array.from(windU));
     expect(Array.from(windField.windV)).toEqual(Array.from(windV));
     expect(Array.from(currentField?.currentU ?? [])).toEqual(

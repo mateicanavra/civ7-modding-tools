@@ -2,7 +2,7 @@ import { assertStageId } from "@mapgen/authoring/stage/identity.js";
 import type { MapContext } from "@mapgen/core/map-context.js";
 import { DuplicateStepError, UnknownStepError } from "@mapgen/engine/errors.js";
 import {
-  type DependencyTagDefinition,
+  type EffectDependencyTag,
   TagRegistry,
   validateDependencyTags,
 } from "@mapgen/engine/tags.js";
@@ -18,12 +18,12 @@ export class StepRegistry {
   }
 
   /** Adds one explicit effect tag to the registry's closed execution vocabulary. */
-  registerTag(definition: DependencyTagDefinition): void {
+  registerTag(definition: EffectDependencyTag): void {
     this.tags.registerTag(definition);
   }
 
   /** Adds related effect tags through the same duplicate-safe authority. */
-  registerTags(definitions: readonly DependencyTagDefinition[]): void {
+  registerTags(definitions: readonly EffectDependencyTag[]): void {
     this.tags.registerTags(definitions);
   }
 

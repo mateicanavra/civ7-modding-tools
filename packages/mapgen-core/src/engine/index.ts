@@ -39,13 +39,15 @@ export type {
   StepFacets,
 } from "@mapgen/engine/step-facets.js";
 export type {
+  ArtifactDependencyTag,
   DependencyEvidence,
-  DependencyTagDefinition,
+  DependencyTag,
   DependencyTagKind,
+  EffectDependencyTag,
 } from "@mapgen/engine/tags.js";
 export { TagRegistry } from "@mapgen/engine/tags.js";
 export type {
-  DependencyTag,
+  DependencyTagId,
   MapGenStep,
   NormalizeContext,
   PipelineStepResult,

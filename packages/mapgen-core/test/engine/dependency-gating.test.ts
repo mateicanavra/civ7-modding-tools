@@ -1,16 +1,16 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { defineArtifact } from "@mapgen/authoring/index.js";
+import { defineArtifact, readArtifact } from "@mapgen/authoring/index.js";
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
 import {
   compileExecutionPlan,
-  type DependencyEvidence,
   type MapSetup,
   MissingDependencyError,
   PipelineExecutor,
   StepExecutionError,
   StepRegistry,
 } from "@mapgen/engine/index.js";
+import { registerDependencyTagsInternal } from "@mapgen/engine/tags.js";
 import { publishTestArtifact } from "@mapgen/testing/index.js";
 import { Type } from "typebox";
 
@@ -21,8 +21,7 @@ const ARTIFACT_IDS = {
 
 const TEST_TAGS = {
   effect: {
-    requiredInputReady: "effect:test.required-input-ready",
-    outputReady: "effect:test.output-ready",
+    prerequisiteApplied: "effect:test.prerequisite-applied",
     operationApplied: "effect:test.operationApplied",
     returnSnapshot: "effect:test.return-snapshot",
   },
@@ -40,31 +39,15 @@ const outputArtifact = defineArtifact({
   schema: EvidenceSchema,
 });
 
-function hasRequiredInputEvidence(evidence: DependencyEvidence): boolean {
-  const observation = evidence.observeArtifact(requiredInputArtifact);
-  return observation.found && observation.value.valid === true;
-}
-
-function hasOutputEvidence(evidence: DependencyEvidence): boolean {
-  const observation = evidence.observeArtifact(outputArtifact);
-  return observation.found && observation.value.valid === true;
-}
-
 const TEST_TAG_DEFINITIONS = [
   {
-    id: TEST_TAGS.effect.requiredInputReady,
+    id: TEST_TAGS.effect.prerequisiteApplied,
     kind: "effect",
-    satisfies: (evidence: DependencyEvidence) => hasRequiredInputEvidence(evidence),
-  },
-  {
-    id: TEST_TAGS.effect.outputReady,
-    kind: "effect",
-    satisfies: (evidence: DependencyEvidence) => hasOutputEvidence(evidence),
   },
   {
     id: TEST_TAGS.effect.operationApplied,
     kind: "effect",
-    satisfies: (evidence: DependencyEvidence) => hasOutputEvidence(evidence),
+    satisfies: () => false,
   },
 ] as const;
 
@@ -178,7 +161,7 @@ describe("dependency gating", () => {
     registry.register({
       id: "dependent-step",
       stageId: "placement",
-      requires: [TEST_TAGS.effect.requiredInputReady],
+      requires: [TEST_TAGS.effect.prerequisiteApplied],
       provides: [],
       run: () => {},
     });
@@ -190,32 +173,87 @@ describe("dependency gating", () => {
     const error = captureThrown(() => executor.executePlan(context, plan));
     expect(error).toBeInstanceOf(MissingDependencyError);
     expect(error instanceof MissingDependencyError && error.message).toMatch(
-      /dependent-step.*effect:test\.required-input-ready/
+      /dependent-step.*effect:test\.prerequisite-applied/
     );
   });
 
-  it("fails fast when a provided input has an invalid payload", () => {
+  it("fails before an artifact consumer runs when no provider has published its authority", () => {
     const registry = new StepRegistry();
-    registry.registerTags(TEST_TAG_DEFINITIONS);
+    registerDependencyTagsInternal(registry.getTagRegistry(), [
+      {
+        id: requiredInputArtifact.id,
+        kind: "artifact",
+        artifact: requiredInputArtifact,
+      },
+    ]);
+    let ran = false;
     registry.register({
-      id: "provide-input",
+      id: "artifact-consumer",
       stageId: "placement",
-      requires: [],
-      provides: [TEST_TAGS.effect.requiredInputReady],
-      run: (current) => {
-        publishTestArtifact(current, requiredInputArtifact, { valid: false });
+      requires: [requiredInputArtifact.id],
+      provides: [],
+      run: () => {
+        ran = true;
       },
     });
+    const plan = compilePlan(registry, ["artifact-consumer"]);
 
-    const executor = new PipelineExecutor(registry, { log: () => {} });
-    const plan = compilePlan(registry, ["provide-input"]);
+    const error = captureThrown(() =>
+      new PipelineExecutor(registry).executePlan(createTestContext(plan.setup), plan)
+    );
+
+    expect(error).toBeInstanceOf(MissingDependencyError);
+    expect(ran).toBe(false);
+  });
+
+  it("admits publication once while provider commit, consumer gating, and terminal reads observe it", () => {
+    let admissions = 0;
+    const admittedArtifact = defineArtifact({
+      name: "admittedOnce",
+      id: "artifact:test.admitted-once",
+      schema: EvidenceSchema,
+      refine: () => {
+        admissions += 1;
+      },
+    });
+    const registry = new StepRegistry();
+    registerDependencyTagsInternal(registry.getTagRegistry(), [
+      {
+        id: admittedArtifact.id,
+        kind: "artifact",
+        artifact: admittedArtifact,
+      },
+    ]);
+    const order: string[] = [];
+    registry.register({
+      id: "publish-input",
+      stageId: "placement",
+      requires: [],
+      provides: [admittedArtifact.id],
+      run: (current) => {
+        order.push("provider");
+        publishTestArtifact(current, admittedArtifact, { valid: true });
+      },
+    });
+    registry.register({
+      id: "consume-input",
+      stageId: "placement",
+      requires: [admittedArtifact.id],
+      provides: [],
+      run: () => {
+        order.push("consumer");
+      },
+    });
+    const plan = compilePlan(registry, ["publish-input", "consume-input"]);
+
     const context = createTestContext(plan.setup);
-    const { stepResults } = executor.executePlanReport(context, plan);
+    const result = new PipelineExecutor(registry).executePlan(context, plan);
 
-    expect(stepResults).toHaveLength(1);
-    expect(stepResults[0]?.success).toBe(false);
-    expect(stepResults[0]?.error).toContain("did not satisfy declared provides");
-    expect(stepResults[0]?.error).toContain(TEST_TAGS.effect.requiredInputReady);
+    expect(order).toEqual(["provider", "consumer"]);
+    expect(Array.from(result.satisfied)).toEqual([admittedArtifact.id]);
+    expect(result.stepResults.every(({ success }) => success)).toBe(true);
+    expect(readArtifact(context, admittedArtifact)).toEqual({ valid: true });
+    expect(admissions).toBe(1);
   });
 
   it("fails fast when declared output effects are missing", () => {
@@ -227,30 +265,6 @@ describe("dependency gating", () => {
       requires: [],
       provides: [TEST_TAGS.effect.operationApplied],
       run: () => {},
-    });
-
-    const executor = new PipelineExecutor(registry, { log: () => {} });
-    const plan = compilePlan(registry, ["apply-operation"]);
-    const context = createTestContext(plan.setup);
-    const { stepResults } = executor.executePlanReport(context, plan);
-
-    expect(stepResults).toHaveLength(1);
-    expect(stepResults[0]?.success).toBe(false);
-    expect(stepResults[0]?.error).toContain("did not satisfy declared provides");
-    expect(stepResults[0]?.error).toContain(TEST_TAGS.effect.operationApplied);
-  });
-
-  it("fails fast when output effects are backed by invalid state", () => {
-    const registry = new StepRegistry();
-    registry.registerTags(TEST_TAG_DEFINITIONS);
-    registry.register({
-      id: "apply-operation",
-      stageId: "placement",
-      requires: [],
-      provides: [TEST_TAGS.effect.operationApplied],
-      run: (current) => {
-        publishTestArtifact(current, outputArtifact, { valid: false });
-      },
     });
 
     const executor = new PipelineExecutor(registry, { log: () => {} });

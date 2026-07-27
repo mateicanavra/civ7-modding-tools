@@ -2,7 +2,7 @@ import type { MapContext } from "@mapgen/core/map-context.js";
 import type { ExecutionPlan, RecipeV2 } from "@mapgen/engine/execution-plan.js";
 import type { PlanTraceOptions } from "@mapgen/engine/observability.js";
 import type { StepFacetSinks } from "@mapgen/engine/step-facets.js";
-import type { DependencyTagDefinition } from "@mapgen/engine/tags.js";
+import type { EffectDependencyTag } from "@mapgen/engine/tags.js";
 import type { ReadonlyDeep } from "type-fest";
 import type { Static, TObject, TSchema } from "typebox";
 import type {
@@ -119,7 +119,7 @@ export type RecipeDefinition<
 > = Readonly<{
   id: TRecipeId;
   namespace?: string;
-  tagDefinitions: readonly DependencyTagDefinition[];
+  tagDefinitions: readonly EffectDependencyTag[];
   stages: TStages;
   operations: OperationRegistry;
 }> &

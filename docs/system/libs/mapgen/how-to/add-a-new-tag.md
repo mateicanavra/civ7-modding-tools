@@ -11,97 +11,100 @@
 
 ## Purpose
 
-Add a new **dependency tag** for pipeline gating (target posture: all requires/provides go through a registry; no magic).
+Add a causal artifact or effect dependency to the pipeline's closed authority registry.
 
 Routes to:
 
 - Tag reference: [`docs/system/libs/mapgen/reference/TAGS.md`](/system/libs/mapgen/reference/TAGS.md)
+- Artifact reference: [`docs/system/libs/mapgen/reference/ARTIFACTS.md`](/system/libs/mapgen/reference/ARTIFACTS.md)
 - Dependency id policy: [`docs/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md`](/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md)
 
 ## Prereqs
 
-- You know what kind of tag you’re adding:
-  - `kind: "artifact"` (write-once pipeline data), or
-  - `kind: "effect"` (adapter-visible engine effects).
-- You have a stable id string (e.g. `artifact:morphology.topography`, `effect:engine.biomesApplied`).
+- For cross-step data, you have the exact owning `Artifact` authority.
+- For an execution guarantee, you have a stable `effect:*` id and know whether successful provider
+  completion is sufficient evidence.
 
 ## Checklist
 
-### 1) Pick the correct tag kind
+### 1) Pick the authority kind
 
-- Use **artifact** tags to gate pipeline-internal products.
-- Use **effect** tags for adapter-visible “effects applied” signals.
-- Cross-step data is always a validated artifact vintage; local scratch arrays are not context state
-  or dependency tags.
+- Use an artifact for write-once pipeline data. Cross-step data is always a validated artifact
+  vintage; local scratch values are neither context state nor dependency tags.
+- Use an effect for an execution or external-materialization guarantee that carries no pipeline
+  data.
 
-### 2) Add the tag id constant
+### 2) Declare an artifact dependency
 
-- Define artifact IDs in their owning `defineArtifact` module.
-- Add effect IDs to the owning namespaced constant set for discoverability.
-
-Representative example (tag id constants; excerpt; see full file in anchors):
+Define the artifact in its owning module, then select that exact authority in the step contract:
 
 ```ts
-export const MAP_PROJECTION_EFFECT_TAGS = {
-  map: {
-    elevationBuilt: "effect:map.elevationBuilt",
-    mountainsPlotted: "effect:map.mountainsPlotted",
-    volcanoesPlotted: "effect:map.volcanoesPlotted",
+export const config = defineStep({
+  id: "build-plate-graph",
+  requires: [],
+  provides: [],
+  artifacts: {
+    provides: [artifacts.plateGraph],
   },
-} as const;
+});
 ```
 
-### 3) Register the tag definition
+`defineStep` derives the artifact id into the step's ordered `provides` ledger. Recipe composition
+then creates the corresponding `ArtifactDependencyTag` from the selected authority. Do not write an
+`artifact:*` id directly in `requires` or `provides`, and do not add an artifact authority to recipe
+`tagDefinitions` or a public registry method.
 
-- Effect tags add a `DependencyTagDefinition` entry:
-  - `id`
-  - `kind`
-  - optional `satisfies(evidence)` predicate for runtime validation
-- A predicate receives only `DependencyEvidence`: `verifyEffect()` is bound to the effect tag
-  currently being evaluated, while artifact reads require the exact `Artifact` authority. A predicate
-  cannot inspect another effect, setup, trace, adapter internals, or raw artifact storage.
-- Ensure the registry function registers the full set of definitions.
-- `Artifact` authorities carry their own IDs and complete validators when selected by step
-  contracts; do not duplicate them in the explicit effect registry.
+Publish through the occurrence-bound `deps.artifacts.<name>.publish(value)` capability. Artifact
+satisfaction is the successful provision plus presence of that exact authority in the private
+write-once store; there is no artifact satisfaction predicate.
 
-Representative registration example (excerpt; see full file in anchors):
+### 3) Define an effect dependency
+
+Add the id to its owning namespaced constant set, then add an `EffectDependencyTag` to the recipe's
+effect catalog:
 
 ```ts
-export const STANDARD_TAG_DEFINITIONS = [
-  ...Object.values(MAP_PROJECTION_EFFECT_TAGS.map).map(
-    (id): DependencyTagDefinition => ({ id, kind: "effect" })
-  ),
-] as const;
+import type { EffectDependencyTag } from "@swooper/mapgen-core/authoring";
 
-export function registerStandardTags(registry: {
-  registerTags: (defs: readonly DependencyTagDefinition[]) => void;
-}) {
-  registry.registerTags(STANDARD_TAG_DEFINITIONS);
-}
+export const STANDARD_TAG_DEFINITIONS: readonly EffectDependencyTag[] = [
+  {
+    id: STANDARD_ENGINE_EFFECT_TAGS.engine.biomesApplied,
+    kind: "effect",
+    satisfies: (evidence) => evidence.verifyEffect(),
+  },
+];
 ```
 
-### 4) Use the tag in step contracts
+Pass this catalog as the recipe's `tagDefinitions`. Omit `satisfies` when successful provider
+execution is sufficient. When present, the predicate must return a synchronous boolean and can
+verify only the effect currently being evaluated; predicates are effect-only and cannot inspect
+artifacts.
 
-- Add to `requires` and/or `provides` in step contracts.
-- Keep the tag list minimal and meaningful: avoid redundant tags when an artifact implies the same gating.
+### 4) Use the effect id in step contracts
+
+Add the `effect:*` string to `requires` and/or `provides`. Keep both ordered lists minimal. Artifact
+ids join the same resolved ledgers only through `artifacts.requires` and `artifacts.provides`.
 
 ## Verification
 
-- Run a pipeline execution with your tag required by a step:
-  - if missing, you should see `MissingDependencyError` naming your tag id (good)
-  - once satisfied, the pipeline should proceed without missing dependency failures
-- Run:
-  - `nx run mod-swooper-maps:test`
+- Require the dependency from a later step. Before provision, execution should report
+  `MissingDependencyError` with the id; after valid provision, execution should continue.
+- Run `nx run mod-swooper-maps:test`.
 
 ## Footguns
 
-- **Defining tags but never registering** them: unregistered tags are invalid and will be rejected by validation.
-- **Overusing tags**: tags are contracts; too many tags becomes coupling noise.
-- **Encoding mutable state as a dependency**: publish validated artifact evidence instead.
-- **Conflating artifact vs effect**: artifacts carry data; effects guarantee execution or materialization.
+- **Writing artifact ids into `requires` or `provides`**: select the exact authority through the
+  step's `artifacts` declaration instead.
+- **Explicitly registering an artifact**: artifact authorities are recipe-derived and public
+  registration rejects them.
+- **Using an effect predicate to validate data**: artifact admission belongs to the artifact's
+  publication validator; effect evidence cannot read artifact storage.
+- **Overusing effects**: dependency ids are contracts, and redundant guarantees add coupling noise.
 
 ## Ground truth anchors
 
-- Standard recipe tag registry: `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
-- Tag validation + satisfaction logic: `packages/mapgen-core/src/engine/tags.ts`
+- Standard effect catalog: `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
+- Step artifact declarations and ledger derivation: `packages/mapgen-core/src/authoring/step/contract.ts`
+- Recipe authority resolution: `packages/mapgen-core/src/authoring/recipe/create.ts`
+- Registry and satisfaction: `packages/mapgen-core/src/engine/tags.ts`
 - Dependency errors: `packages/mapgen-core/src/engine/errors.ts`

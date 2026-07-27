@@ -5,7 +5,7 @@ import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morpho
 import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/modules/regions/artifacts/index.js";
 import placement from "@mapgen/domain/placement/router";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
-import { readValidatedArtifact, type StepRuntimeOps } from "@swooper/mapgen-core/authoring";
+import { readArtifact, type StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
   normalizeOperationSelectionForTest,
@@ -87,7 +87,7 @@ describe("landmass-region materialization", () => {
     expect(writeCounts.every((count) => count === 1)).toBe(true);
     expect(writes).toEqual(expected);
     expect(
-      readValidatedArtifact(context, placementRegionArtifacts.landmassRegionSlotByTile).slotByTile
+      readArtifact(context, placementRegionArtifacts.landmassRegionSlotByTile).slotByTile
     ).toEqual(slotByTile);
   });
 });
