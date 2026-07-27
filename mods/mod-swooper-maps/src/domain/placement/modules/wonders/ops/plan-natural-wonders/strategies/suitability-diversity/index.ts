@@ -38,6 +38,7 @@ import {
 import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { getHexNeighborIndicesOddQ, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
+import { NATURAL_WONDER_FALLBACK_LIMIT } from "../../../../model/atoms/natural-wonder-plan-intent.schema.js";
 import {
   type GroupSuitabilitySignals,
   WONDER_GROUPS,
@@ -253,7 +254,7 @@ const suitabilityDiversity = createStrategy(
         direction: number;
         elevation: number;
         priority: number;
-        fallbackPlotIndices?: number[];
+        fallbacks?: Array<{ plotIndex: number; elevation: number }>;
       }> = [];
       const usedPlots = new Set<number>();
 
@@ -304,21 +305,20 @@ const suitabilityDiversity = createStrategy(
        * avoids every already-placed wonder AND the primary's own footprint
        * (`excluded`). Spaced candidates (>= `minSpacingTiles` from placed wonders)
        * are preferred and returned first, then unspaced ones fill up to
-       * `FALLBACK_CAP`. Suitability-descending (walks `plan.sorted`).
+       * `NATURAL_WONDER_FALLBACK_LIMIT`. Suitability-descending (walks `plan.sorted`).
        *
        * MUST be called BEFORE the primary footprint is added to `usedPlots`, so
        * fallbacks are scored as alternatives to the primary rather than as tiles
        * forbidden by it.
        */
-      const FALLBACK_CAP = 6;
       const collectFallbacks = (
         plan: WonderPlan,
         primaryPlotIndex: number,
         primaryFootprint: readonly number[]
-      ): number[] => {
+      ): Array<{ plotIndex: number; elevation: number }> => {
         const excluded = new Set(primaryFootprint);
-        const spaced: number[] = [];
-        const unspaced: number[] = [];
+        const spaced: Array<{ plotIndex: number; elevation: number }> = [];
+        const unspaced: Array<{ plotIndex: number; elevation: number }> = [];
         for (const { candidate } of plan.sorted) {
           if (candidate.plotIndex === primaryPlotIndex) continue;
           if (usedPlots.has(candidate.plotIndex) || excluded.has(candidate.plotIndex)) continue;
@@ -342,10 +342,13 @@ const suitabilityDiversity = createStrategy(
               }
             }
           }
-          (tooClose ? unspaced : spaced).push(candidate.plotIndex);
-          if (spaced.length >= FALLBACK_CAP) break;
+          (tooClose ? unspaced : spaced).push({
+            plotIndex: candidate.plotIndex,
+            elevation: candidate.elevation,
+          });
+          if (spaced.length >= NATURAL_WONDER_FALLBACK_LIMIT) break;
         }
-        return [...spaced, ...unspaced].slice(0, FALLBACK_CAP);
+        return [...spaced, ...unspaced].slice(0, NATURAL_WONDER_FALLBACK_LIMIT);
       };
 
       // Cross-wonder selection: diminishing-returns greedy. Each iteration places
@@ -409,7 +412,7 @@ const suitabilityDiversity = createStrategy(
         // Collect fallbacks BEFORE the primary footprint is marked used, so they
         // are scored as alternatives to the primary (excluding the primary's own
         // footprint), not as tiles forbidden by it.
-        const fallbackPlotIndices = collectFallbacks(plan, candidate.plotIndex, primaryFootprint);
+        const fallbacks = collectFallbacks(plan, candidate.plotIndex, primaryFootprint);
         for (const plotIndex of primaryFootprint) usedPlots.add(plotIndex);
         const group = wonderGroup(plan.feature.featureType);
         groupSelectedCount.set(group, (groupSelectedCount.get(group) ?? 0) + 1);
@@ -419,7 +422,7 @@ const suitabilityDiversity = createStrategy(
           direction: plan.feature.direction,
           elevation: candidate.elevation,
           priority: clamp01(suitability),
-          ...(fallbackPlotIndices.length > 0 ? { fallbackPlotIndices } : {}),
+          ...(fallbacks.length > 0 ? { fallbacks } : {}),
         });
         remaining.splice(bestIdx, 1);
       }

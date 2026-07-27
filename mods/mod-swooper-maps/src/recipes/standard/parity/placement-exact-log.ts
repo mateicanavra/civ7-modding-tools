@@ -2,17 +2,17 @@ import type { ResourceCatalogEntry } from "@civ7/adapter";
 import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
 import type { ArtifactValueOf, DeepReadonly } from "@swooper/mapgen-core/authoring";
 import { fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
-
+import {
+  type StandardNaturalWonderPlacementOutcome,
+  summarizeNaturalWonderPlacementOutcomes,
+} from "../metrics/families/placement/natural-wonder-placement.js";
 import type { StandardNaturalWonderPlanInputMeasurements } from "../metrics/families/placement/natural-wonder-plan-input.js";
 import type { StandardResourcePlacementMeasurements } from "../metrics/families/placement/resource-placement.js";
 import type { StandardPlacementParityMeasurements } from "../metrics/families/placement-parity.js";
 import type { StandardNaturalWonderPlanEvidence } from "./types.js";
 
 type NaturalWonderPlan = ArtifactValueOf<typeof placementWonderArtifacts.naturalWonderPlan>;
-type NaturalWonderPlacement = ArtifactValueOf<
-  typeof placementWonderArtifacts.naturalWonderPlacement
->;
-type NaturalWonderPlacementCoordinateRow = NaturalWonderPlacement["coordinateRows"][number];
+type NaturalWonderPlacementCoordinateRow = StandardNaturalWonderPlacementOutcome;
 
 type NaturalWonderPlanExactLogRow = readonly [
   status: "p",
@@ -37,7 +37,10 @@ type NaturalWonderPlacementExactLogRejectedRow = readonly [
   observedFeatureType: number | null,
   observedPlotIndex: number | null,
   expectedFootprintReadbackStatus: NonNullable<
-    NaturalWonderPlacementCoordinateRow["expectedFootprintReadbackStatus"]
+    Extract<
+      NaturalWonderPlacementCoordinateRow,
+      { status: "rejected"; reason: "readback-mismatch" }
+    >["expectedFootprintReadbackStatus"]
   > | null,
 ];
 
@@ -68,6 +71,17 @@ type PlacementExactLogMarker =
   | "NATURAL_WONDER_PLAN_V1"
   | "PLACEMENT_PARITY_V1"
   | "RESOURCE_PLACEMENT_V1";
+
+/**
+ * Compatibility input for the established NATURAL_WONDER_PLACEMENT_V1 wire.
+ *
+ * A successful chain retains its placed outcome. An exhausted fallback chain retains its first
+ * rejection, rather than the terminal rejection used by the Standard placement measurement.
+ */
+export type StandardNaturalWonderPlacementExactLogCompatibility = Readonly<{
+  requestedCount: number;
+  retainedOutcomes: readonly StandardNaturalWonderPlacementOutcome[];
+}>;
 
 function emitPlacementExactLog(marker: PlacementExactLogMarker, payload: unknown): void {
   console.log(`[SWOOPER_MOD] ${marker} ${JSON.stringify(payload)}`);
@@ -263,44 +277,37 @@ export function emitStandardNaturalWonderPlanInputExactLog(
 }
 
 function projectNaturalWonderPlacementExactLog(
-  placement: DeepReadonly<NaturalWonderPlacement>
+  compatibility: DeepReadonly<StandardNaturalWonderPlacementExactLogCompatibility>
 ): NaturalWonderPlacementExactLogPayload {
-  const rejectedRows: NaturalWonderPlacementExactLogRejectedRow[] = placement.coordinateRows
+  const placement = summarizeNaturalWonderPlacementOutcomes({
+    requestedCount: compatibility.requestedCount,
+    outcomes: compatibility.retainedOutcomes,
+  });
+  const rejectedRows: NaturalWonderPlacementExactLogRejectedRow[] = placement.outcomes
     .filter((row) => row.status === "rejected")
-    .map((row) => [
-      "r",
-      row.plotIndex,
-      row.x,
-      row.y,
-      row.featureType,
-      row.direction,
-      row.elevation ?? null,
-      row.reason,
-      row.observedFeatureType ?? null,
-      row.observedPlotIndex ?? null,
-      row.expectedFootprintReadbackStatus ?? null,
-    ]);
+    .map(projectNaturalWonderPlacementRejectedRow);
 
+  const { summary } = placement;
   return {
     version: 1,
-    plannedCount: placement.plannedCount,
-    targetCount: placement.targetCount,
-    placedCount: placement.placedCount,
-    terrainAdjustedCount: placement.terrainAdjustedCount,
-    skippedOutOfBoundsCount: placement.skippedOutOfBoundsCount,
-    rejectedCount: placement.rejectedCount,
-    shortfallCount: placement.shortfallCount,
-    rejectionExampleCount: placement.rejectionExamples.length,
-    rejectionExamples: [...placement.rejectionExamples],
+    plannedCount: summary.plannedCount,
+    targetCount: summary.requestedCount,
+    placedCount: summary.placedCount,
+    terrainAdjustedCount: 0,
+    skippedOutOfBoundsCount: 0,
+    rejectedCount: summary.rejectedCount,
+    shortfallCount: summary.shortfallCount,
+    rejectionExampleCount: summary.rejectionExamples.length,
+    rejectionExamples: [...summary.rejectionExamples],
     rejectedRows,
     coordinateEvidence: {
-      version: placement.coordinateEvidence.version,
-      placedCount: placement.coordinateEvidence.placed.count,
-      placedHash32: placement.coordinateEvidence.placed.hash32,
-      ...(placement.coordinateEvidence.rejected.count > 0
+      version: summary.coordinateEvidence.version,
+      placedCount: summary.coordinateEvidence.placed.count,
+      placedHash32: summary.coordinateEvidence.placed.hash32,
+      ...(summary.coordinateEvidence.rejected.count > 0
         ? {
-            rejectedCount: placement.coordinateEvidence.rejected.count,
-            rejectedHash32: placement.coordinateEvidence.rejected.hash32,
+            rejectedCount: summary.coordinateEvidence.rejected.count,
+            rejectedHash32: summary.coordinateEvidence.rejected.hash32,
           }
         : {}),
     },
@@ -314,12 +321,35 @@ function projectNaturalWonderPlacementExactLog(
  * line because the placed channel intentionally exposes only its count and FNV-1a digest.
  */
 export function emitStandardNaturalWonderPlacementExactLog(
-  placement: DeepReadonly<NaturalWonderPlacement>
+  compatibility: DeepReadonly<StandardNaturalWonderPlacementExactLogCompatibility>
 ): void {
   emitPlacementExactLog(
     "NATURAL_WONDER_PLACEMENT_V1",
-    projectNaturalWonderPlacementExactLog(placement)
+    projectNaturalWonderPlacementExactLog(compatibility)
   );
+}
+
+function projectNaturalWonderPlacementRejectedRow(
+  row: Extract<NaturalWonderPlacementCoordinateRow, { status: "rejected" }>
+): NaturalWonderPlacementExactLogRejectedRow {
+  const observedPair =
+    row.reason === "readback-mismatch" ||
+    (row.reason === "can-have-feature-param-false" && "observedPlotIndex" in row)
+      ? ([row.observedFeatureType, row.observedPlotIndex] as const)
+      : ([null, null] as const);
+  return [
+    "r",
+    row.plotIndex,
+    row.x,
+    row.y,
+    row.featureType,
+    row.direction,
+    row.elevation ?? null,
+    row.reason,
+    observedPair[0],
+    observedPair[1],
+    row.reason === "readback-mismatch" ? row.expectedFootprintReadbackStatus : null,
+  ];
 }
 
 /**

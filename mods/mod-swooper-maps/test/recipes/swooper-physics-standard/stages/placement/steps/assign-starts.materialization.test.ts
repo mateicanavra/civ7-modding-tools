@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
+import { NATURAL_WONDER_CATALOG } from "@civ7/map-policy";
 import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
@@ -8,7 +9,6 @@ import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morpho
 import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/modules/regions/artifacts/index.js";
 import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
-import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
 import placement from "@mapgen/domain/placement/router";
 import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import { admitMapSetup, createMapContext, type MapContext } from "@swooper/mapgen-core";
@@ -138,23 +138,6 @@ function publishAssignStartsInputs(context: MapContext, landTiles: readonly Land
       affinityRules: [],
     },
   });
-  publishTestArtifact(context, placementWonderArtifacts.naturalWonderPlacement, {
-    plannedCount: 0,
-    targetCount: 0,
-    placedCount: 0,
-    terrainAdjustedCount: 0,
-    skippedOutOfBoundsCount: 0,
-    rejectedCount: 0,
-    shortfallCount: 0,
-    rejectionExamples: [],
-    coordinateEvidence: {
-      version: 1,
-      placed: { count: 0, hash32: "811c9dc5" },
-      rejected: { count: 0, hash32: "811c9dc5" },
-    },
-    coordinateRows: [],
-    observedNaturalWonderPlotIndices: [],
-  });
   publishTestArtifact(context, placementRegionArtifacts.landmassRegionSlotByTile, {
     slotByTile,
   });
@@ -255,6 +238,45 @@ describe("assign starts step", () => {
     expect(
       adapter.calls.setStartPosition.map(({ plotIndex }) => plotIndex).sort((a, b) => a - b)
     ).toEqual([...assignment.positions].sort((a, b) => a - b));
+  });
+
+  it("excludes natural wonders observed on the current feature layer", () => {
+    const landTiles = Array.from(
+      { length: 80 },
+      (_value, index) => [1 + (index % 10), 1 + Math.floor(index / 10)] as const
+    );
+    const { context: baselineContext } = createAssignStartsContext([4]);
+
+    runAssignStartsStep(baselineContext, landTiles);
+    const baselineAssignment = readValidatedArtifact(
+      baselineContext,
+      placementStartArtifacts.startAssignment
+    );
+    const baselinePlotIndex = baselineAssignment.positions[0]!;
+    expect(baselinePlotIndex).toBeGreaterThanOrEqual(0);
+
+    const { adapter, context: observedContext } = createAssignStartsContext([4]);
+    const { width } = TEST_MAP_SIZE.dimensions;
+    const y = Math.floor(baselinePlotIndex / width);
+    const x = baselinePlotIndex - y * width;
+    const naturalWonderFeatureType = NATURAL_WONDER_CATALOG[0]!.featureType;
+    adapter.setFeatureType(x, y, {
+      Feature: naturalWonderFeatureType,
+      Direction: -1,
+      Elevation: 0,
+    });
+
+    runAssignStartsStep(observedContext, landTiles);
+    const observedAssignment = readValidatedArtifact(
+      observedContext,
+      placementStartArtifacts.startAssignment
+    );
+
+    expect(adapter.readCurrentMapFeatureTypes()[baselinePlotIndex]).toBe(naturalWonderFeatureType);
+    expect(observedAssignment.positions[0]).not.toBe(baselinePlotIndex);
+    expect(adapter.calls.setStartPosition.map(({ plotIndex }) => plotIndex)).not.toContain(
+      baselinePlotIndex
+    );
   });
 
   it("hard-fails only when requested seats have no settleable land candidate", () => {

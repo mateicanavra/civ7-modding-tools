@@ -40,7 +40,9 @@ Naming note: a future Gameplay domain consolidation may absorb starts/discoverie
 One stage, `placement`, with 12 steps split at real product/effect contracts (engine-refactor-v1 D3 posture; maintenance transactional). Step order:
 
 1. `plan-natural-wonders` — admits final physical and engine surfaces plus active Civ7 map-size demand, then publishes natural-wonder intent.
-2. `place-natural-wonders` — ordered primary/fallback wonder materialization with typed adapter reconciliation (first promoted product boundary).
+2. `place-natural-wonders` — ordered primary/fallback wonder materialization
+   with typed adapter reconciliation and terminal recipe measurement; current
+   feature occupancy remains engine state.
 3. `prepare-placement-surface` — transactional engine-surface maintenance (terrain validation, coast restoration, area recalc, and water cache); gates the legality surface read by planning and the stamps without claiming final product state.
 4. `plot-landmass-regions` — projects landmass-region slots after engine maintenance, then publishes the immutable regional product used by resource and start planning. The official `chooseStartSectors` sector grid is intentionally not used (ADR-008 amendment).
 5. `plan-resource-demands` — derives habitat lanes and resolves the exact canonical expectation corpus into one complete admitted/excluded demand ledger against current Civ7 legality; publishes `resourceDemandPlan`.
@@ -147,8 +149,13 @@ Runtime semantics (ADR-009 regime):
 - Natural-wonder planning is deterministic; materialization preserves the
   planner's ordered primary/fallback policy while the adapter owns footprint
   resolution, legality, mutation, and strict readback. Exhausted candidates are
-  recorded as a degraded product outcome. Resource readback mismatches remain
-  fail-hard.
+  recorded as degraded terminal evidence. The terminal measurement retains the
+  final rejection in each exhausted chain; the established
+  `NATURAL_WONDER_PLACEMENT_V1` wire separately retains the first rejection as
+  an explicit compatibility projection. `assign-starts` classifies official
+  wonder occupancy from a fresh engine feature-layer read after surface
+  preparation, rather than consuming an earlier placement snapshot. Resource
+  readback mismatches remain fail-hard.
 - Surface preparation owns terrain validation, coast restoration, area
   recalculation, and water-cache storage as one maintenance transaction.
   It does not own final readback or product proof because later placement
@@ -169,17 +176,23 @@ validated reads. Inventory:
 | Artifact | Published by | Substance |
 | --- | --- | --- |
 | `naturalWonderPlan` | plan-natural-wonders | deterministic scored wonder intent owned by `placement/modules/wonders` |
-| `naturalWonderPlacement` | place-natural-wonders | placed/rejected coordinate rows plus final occupied wonder plots |
 | `landmassRegionSlotByTile` | plot-landmass-regions | deterministic region classification owned by `placement/modules/regions` |
 | `resourceDemandPlan` | plan-resource-demands | one closed candidate ledger partitioned into admitted demand rows with habitat/legal/intensity evidence and excluded rows with typed terminal reasons |
 | `resourcePlan` | select-resource-sites | typed per-plot site intents (type, family, lane, phase, inHabitat) + per-type shortfalls + region minimums |
 | `startAssignment` | assign-starts | per-player `StartRecord[]` (components, tier, score, rung, status, imputedFlags, playerIdSource) + `fairnessReport` (worstPairGap, swaps, relaxations) + `inputCoverage` |
 | `resourcePlanAdjusted` | adjust-resources | adjusted intents with typed support provenance (action, reason, seatIndex) |
-Discovery placement, advanced-start assignment, surface maintenance, and
-resource materialization are effects or observations rather than immutable
-domain products. Resource materialization emits one typed terminal measurement
-whose enriched outcome rows and derived summaries feed benchmarks, deterministic
-replay, and the exact log; no later recipe step consumes that evidence.
+Natural-wonder, resource, and discovery materialization, advanced-start
+assignment, and surface maintenance are effects or observations rather than
+immutable domain products. Natural-wonder materialization emits one typed
+terminal measurement whose admitted final outcomes feed metrics and
+visualization. Its exact-log emitter instead receives an explicit compatibility
+view derived from the same admitted attempt sequence, retaining the first
+rejection for exhausted fallback chains without presenting that view as
+terminal evidence. Replay retains the deterministic plan and final feature
+surface instead. Resource materialization likewise emits one typed terminal
+measurement whose enriched outcome rows and derived summaries feed benchmarks,
+deterministic replay, and the exact log; no later recipe step consumes either
+terminal measurement.
 Discovery and resource counts flow through typed metric facets and live logs.
 Terminal parity remains a terminal observation without a redundant effect tag.
 Other observation evidence uses the capability appropriate to its consumer. No

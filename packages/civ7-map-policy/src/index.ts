@@ -6,6 +6,7 @@ export {
 } from "./biome-globals.js";
 export {
   buildNaturalWonderBlockedMask,
+  collectNaturalWonderPlotIndices,
   NATURAL_WONDER_CATALOG,
 } from "./catalogs/natural-wonders.js";
 export type {

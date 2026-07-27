@@ -28,14 +28,19 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** remove Resource Placement's terminal artifact-shaped
-measurement. `resourcePlacementOutcomes` has no downstream generation consumer:
-it stores adapter reconciliation rows beside two aggregate projections, then
-artifact admission recomputes those same projections to prove they agree.
-Materialization owns the engine effect and fail-hard mismatch boundary; Standard
-metrics owns the immutable JSON-safe measurement; parity owns the bounded live
-wire projection. A terminal observation does not become a domain product merely
-because later evidence tooling needs to retain it.
+**Current container:** retire Natural Wonder Placement's terminal artifact and
+its stale feature snapshot without weakening the causal wonder plan.
+`naturalWonderPlan` remains an immutable domain product consumed by
+materialization. `naturalWonderPlacement` instead stores command reconciliation,
+derived digests, and a point-in-time copy of mutable Civ7 feature state.
+Materialization owns adapter outcome admission and ordered fallback behavior;
+Standard metrics owns the immutable JSON-safe outcome measurement; parity owns
+the bounded live wire projection. Start planning and completed-product capture
+must read the current feature layer and classify official wonder identities
+through Civ7 policy rather than depend on an earlier recipe snapshot.
+Each fallback retains its own planned elevation. Terminal metrics retain the
+last adapter outcome, while the established V1 exact wire deliberately
+continues to project the first failed candidate when a chain fully rejects.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -52,17 +57,19 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** define one Standard resource-placement measurement from the
-materializer's irreducible typed outcome rows plus non-derivable plan provenance.
-Derive counts, per-type and per-reason summaries, shortfalls, phase totals, and
-coordinate digests once at that owner. Emit it through the step metrics facet;
-capture it explicitly in benchmark and deterministic-replay sinks; preserve the
-existing `RESOURCE_PLACEMENT_V1` bytes through the parity projector. Delete the
-domain artifact, its duplicate validator reconstruction, publication contract,
-artifact-admission ceremony, and every terminal artifact read. Keep mismatch
-fail-hard before evidence emission. Seal this complete product cut before
-applying the same intent-versus-current-state test to natural-wonder placement
-and start assignment.
+**Gradient:** define one Standard natural-wonder placement measurement from
+materializer-admitted placed/rejected outcome rows plus requested-count
+provenance. Derive counts, shortfall, bounded rejection examples, and exact
+coordinate digests once at that owner. Emit it through the step metrics facet
+and preserve the existing `NATURAL_WONDER_PLACEMENT_V1` bytes through the parity
+projector. Delete the terminal domain artifact, its duplicate reconstruction,
+publication contract, artifact-admission ceremony, and every terminal artifact
+read. Remove the materializer's full-grid observation pass; use the adapter's
+fresh feature-layer capability plus static Civ7 wonder classification at
+`assign-starts` and completed metric capture. Keep adapter identity drift
+fail-hard before evidence emission, preserve ordered primary/fallback attempts,
+carry each candidate's own elevation, and prove current engine occupancy rather
+than snapshot publication.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -97,6 +104,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Resource Placement Terminal Evidence
+
+Resource materialization now admits each Civ7 outcome against adjusted-plan
+identity before emitting one immutable Standard measurement. Counts, rejection
+summaries, shortfalls, phase totals, and exact coordinate digests have one
+owner; the live wire projection remains byte-compatible. The duplicate terminal
+domain artifact, reconstruction validator, publication contract, and
+artifact-admission tests retired.
 
 ### 2026-07-26 - Placement Exact-Log Authority
 

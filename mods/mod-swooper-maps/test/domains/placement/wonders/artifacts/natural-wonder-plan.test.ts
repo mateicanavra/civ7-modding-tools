@@ -23,7 +23,10 @@ function naturalWonderPlan(): NaturalWonderPlan {
         direction: -1,
         elevation: 120,
         priority: 1,
-        fallbackPlotIndices: [plotIndex + 1, plotIndex + 2],
+        fallbacks: [
+          { plotIndex: plotIndex + 1, elevation: 121 },
+          { plotIndex: plotIndex + 2, elevation: 122 },
+        ],
       },
     ],
   };
@@ -49,7 +52,12 @@ describe("naturalWonderPlan artifact admission", () => {
       placements: [
         {
           ...plan.placements[0]!,
-          fallbackPlotIndices: [primary, primary + 1, primary + 1, plan.width * plan.height],
+          fallbacks: [
+            { plotIndex: primary, elevation: 120 },
+            { plotIndex: primary + 1, elevation: 121 },
+            { plotIndex: primary + 1, elevation: 121 },
+            { plotIndex: plan.width * plan.height, elevation: 122 },
+          ],
         },
       ],
     };

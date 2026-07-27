@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
+import { NATURAL_WONDER_FALLBACK_LIMIT } from "@mapgen/domain/placement/modules/wonders/model/atoms/natural-wonder-plan-intent.schema.js";
 import placementDomain from "@mapgen/domain/placement/router";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 import type { NonEmptyTuple } from "type-fest";
@@ -163,15 +164,16 @@ describe("natural wonder planning", () => {
     // of every EARLIER placement (the usedPlots state when it was selected).
     for (let i = 0; i < result.placements.length; i++) {
       const placement = result.placements[i]!;
-      const fallbacks = placement.fallbackPlotIndices ?? [];
+      const fallbacks = placement.fallbacks ?? [];
       expect(fallbacks.length).toBeGreaterThan(0);
-      expect(fallbacks.length).toBeLessThanOrEqual(6);
+      expect(fallbacks.length).toBeLessThanOrEqual(NATURAL_WONDER_FALLBACK_LIMIT);
       const forbidden = new Set<number>(footprintOf(placement.plotIndex));
       for (let j = 0; j < i; j++) {
         for (const cell of footprintOf(result.placements[j]!.plotIndex)) forbidden.add(cell);
       }
-      for (const fallbackAnchor of fallbacks) {
-        for (const cell of footprintOf(fallbackAnchor)) {
+      for (const fallback of fallbacks) {
+        expect(fallback.elevation).toBe((fallback.plotIndex * 53) % 300);
+        for (const cell of footprintOf(fallback.plotIndex)) {
           expect(forbidden.has(cell)).toBe(false);
         }
       }

@@ -1,5 +1,6 @@
 import { createMockAdapter } from "@civ7/adapter";
 import {
+  collectNaturalWonderPlotIndices,
   FEATURE_PLACEMENT_KEYS,
   type FeatureKey,
   getEngineFeatureLegality,
@@ -13,7 +14,6 @@ import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morpho
 import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/modules/regions/artifacts/index.js";
 import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
-import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
 import { artifacts as resourceDemandArtifacts } from "@mapgen/domain/resources/modules/demand/artifacts/index.js";
 import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
@@ -45,6 +45,12 @@ import {
   type StandardRiverNetworkMeasurements,
   StandardRiverNetworkMeasurementsSchema,
 } from "./families/hydrology/river-network.js";
+import {
+  measureStandardNaturalWonderPlacement,
+  STANDARD_NATURAL_WONDER_PLACEMENT_METRIC_KEY,
+  type StandardNaturalWonderPlacementMeasurements,
+  StandardNaturalWonderPlacementMeasurementsSchema,
+} from "./families/placement/natural-wonder-placement.js";
 import {
   STANDARD_RESOURCE_PLACEMENT_METRIC_KEY,
   type StandardResourcePlacementMeasurements,
@@ -250,6 +256,7 @@ export type StandardMapCapture = Readonly<{
         worstPairGap: StartAssignment["fairnessReport"]["worstPairGap"];
         relaxations: readonly StartAssignment["fairnessReport"]["relaxations"][number][];
       }>;
+      naturalWonderPlacement: StandardNaturalWonderPlacementMeasurements;
       naturalWonderPlotIndices: readonly number[];
     }
   >;
@@ -303,6 +310,7 @@ export function captureStandardMapScenario(
   let featureProjection: StandardFeatureProjectionMeasurements | undefined;
   let lakeProjection: StandardLakeProjectionMeasurements | undefined;
   let placementParity: StandardPlacementParityMeasurements | undefined;
+  let naturalWonderPlacement: StandardNaturalWonderPlacementMeasurements | undefined;
   let resourcePlacement: StandardResourcePlacementMeasurements | undefined;
   let metricFailure: unknown;
   standardRecipe.run(context, canonicalRecipeConfig(admittedScenario.config), {
@@ -338,6 +346,14 @@ export function captureStandardMapScenario(
             placementCandidate
           );
         }
+        const naturalWonderPlacementCandidate =
+          projection[STANDARD_NATURAL_WONDER_PLACEMENT_METRIC_KEY];
+        if (naturalWonderPlacementCandidate !== undefined) {
+          naturalWonderPlacement = Value.Parse(
+            StandardNaturalWonderPlacementMeasurementsSchema,
+            naturalWonderPlacementCandidate
+          );
+        }
         const resourcePlacementCandidate = projection[STANDARD_RESOURCE_PLACEMENT_METRIC_KEY];
         if (resourcePlacementCandidate !== undefined) {
           resourcePlacement = Value.Parse(
@@ -367,6 +383,9 @@ export function captureStandardMapScenario(
   if (!placementParity) {
     throw new Error("Standard metric capture requires terminal Placement parity evidence.");
   }
+  if (!naturalWonderPlacement) {
+    throw new Error("Standard metric capture requires terminal natural-wonder placement evidence.");
+  }
   if (!resourcePlacement) {
     throw new Error("Standard metric capture requires terminal resource-placement evidence.");
   }
@@ -380,6 +399,7 @@ export function captureStandardMapScenario(
     featureProjection,
     lakeProjection,
     placementParity,
+    naturalWonderPlacement,
     resourcePlacement
   );
 }
@@ -393,6 +413,7 @@ function copyCompletedRun(
   featureProjection: StandardFeatureProjectionMeasurements,
   lakeProjection: StandardLakeProjectionMeasurements,
   placementParity: StandardPlacementParityMeasurements,
+  naturalWonderPlacement: StandardNaturalWonderPlacementMeasurements,
   resourcePlacement: StandardResourcePlacementMeasurements
 ): StandardMapCapture {
   const selection = resolveMapSelection(scenario);
@@ -429,10 +450,6 @@ function copyCompletedRun(
   const adjustedResourcePlanValue = readValidatedArtifact(
     context,
     resourceSupportArtifacts.resourcePlanAdjusted
-  );
-  const naturalWonderPlacementValue = readValidatedArtifact(
-    context,
-    placementWonderArtifacts.naturalWonderPlacement
   );
   const startValue = readValidatedArtifact(context, placementStartArtifacts.startAssignment);
   const landMask = copyUint8Grid(
@@ -707,9 +724,11 @@ function copyCompletedRun(
           startValue.fairnessReport.relaxations.map((row) => Object.freeze({ ...row }))
         ),
       }),
-      naturalWonderPlotIndices: Object.freeze([
-        ...naturalWonderPlacementValue.observedNaturalWonderPlotIndices,
-      ]),
+      naturalWonderPlacement: measureStandardNaturalWonderPlacement({
+        requestedCount: naturalWonderPlacement.summary.requestedCount,
+        outcomes: naturalWonderPlacement.outcomes,
+      }),
+      naturalWonderPlotIndices: Object.freeze(collectNaturalWonderPlotIndices(realized.feature)),
       assigned: startValue.assigned,
       unseatedCount: startValue.unseatedCount,
     }),

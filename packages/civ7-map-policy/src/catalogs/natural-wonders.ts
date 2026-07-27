@@ -108,6 +108,27 @@ export const NATURAL_WONDER_CATALOG: readonly NaturalWonderCatalogEntry[] = Obje
     .sort((a, b) => a.featureType - b.featureType)
 );
 
+const naturalWonderFeatureTypes: ReadonlySet<number> = new Set(
+  NATURAL_WONDER_CATALOG.map((entry) => entry.featureType)
+);
+
+/**
+ * Selects every current map cell whose feature identity is an official supported natural wonder.
+ *
+ * The input remains an adapter observation; this policy helper owns only static Civ7 identity
+ * classification and returns indices in the source layer's stable row-major order.
+ */
+export function collectNaturalWonderPlotIndices(featureTypes: ArrayLike<number>): number[] {
+  const plotIndices: number[] = [];
+  for (let plotIndex = 0; plotIndex < featureTypes.length; plotIndex += 1) {
+    const featureType = featureTypes[plotIndex];
+    if (featureType !== undefined && naturalWonderFeatureTypes.has(featureType)) {
+      plotIndices.push(plotIndex);
+    }
+  }
+  return plotIndices;
+}
+
 /**
  * Builds the static Civ7 exclusion surface for natural-wonder planning.
  *

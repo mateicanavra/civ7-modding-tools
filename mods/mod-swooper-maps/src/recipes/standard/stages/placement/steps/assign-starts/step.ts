@@ -1,3 +1,4 @@
+import { collectNaturalWonderPlotIndices } from "@civ7/map-policy";
 import placement from "@mapgen/domain/placement";
 import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
 import type { MapContext } from "@swooper/mapgen-core";
@@ -171,7 +172,6 @@ function materializeStartAssignment(args: {
 export const AssignStartsStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const resourcePlan = deps.artifacts.resourcePlan.read(context);
-    const naturalWonderPlacement = deps.artifacts.naturalWonderPlacement.read(context);
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
     const topography = deps.artifacts.topography.read(context);
     const landmasses = deps.artifacts.landmasses.read(context);
@@ -182,6 +182,7 @@ export const AssignStartsStep = createStep(config, {
     const lakePlan = deps.artifacts.lakePlan.read(context);
     const climateIndices = deps.artifacts.climateIndices.read(context);
     const pedology = deps.artifacts.pedology.read(context);
+    const currentFeatureTypes = deps.engine.readCurrentMapFeatureTypes(context);
     const mapSizeId = deps.engine.getMapSizeId(context);
     const mapInfo = deps.engine.lookupMapInfo(context, mapSizeId);
     if (!mapInfo) {
@@ -216,7 +217,7 @@ export const AssignStartsStep = createStep(config, {
         lakeMask: lakePlan.lakeMask as Uint8Array,
         mountainMask: mountains.mountainMask as Uint8Array,
         volcanoMask: volcanoes.volcanoMask as Uint8Array,
-        naturalWonderPlotIndices: [...naturalWonderPlacement.observedNaturalWonderPlotIndices],
+        naturalWonderPlotIndices: collectNaturalWonderPlotIndices(currentFeatureTypes),
         // Starts consume planned sites because resource stamping follows the
         // support-adjustment pass.
         plannedResourcePlotIndices: resourcePlan.intents.map((intent) => intent.plotIndex),

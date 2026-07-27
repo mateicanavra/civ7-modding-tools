@@ -17,7 +17,9 @@ import {
 } from "../../../../src/recipes/standard/parity/placement-exact-log.js";
 import { TEST_MAP_SIZE } from "../../../setup.js";
 
-type NaturalWonderPlacement = Parameters<typeof emitStandardNaturalWonderPlacementExactLog>[0];
+type NaturalWonderPlacementCompatibility = Parameters<
+  typeof emitStandardNaturalWonderPlacementExactLog
+>[0];
 type NaturalWonderPlan = Parameters<typeof emitStandardNaturalWonderPlanExactLog>[0];
 type NaturalWonderPlanInput = Parameters<typeof emitStandardNaturalWonderPlanInputExactLog>[0];
 type PlacementParity = Parameters<typeof emitStandardPlacementParityExactLog>[0];
@@ -41,22 +43,9 @@ const EMPTY_NATURAL_WONDER_PLAN = {
 } satisfies NaturalWonderPlan;
 
 const EMPTY_NATURAL_WONDER_PLACEMENT = {
-  plannedCount: 0,
-  targetCount: 0,
-  placedCount: 0,
-  terrainAdjustedCount: 0,
-  skippedOutOfBoundsCount: 0,
-  rejectedCount: 0,
-  shortfallCount: 0,
-  rejectionExamples: [],
-  coordinateEvidence: {
-    version: 1,
-    placed: { count: 0, hash32: EMPTY_HASH32 },
-    rejected: { count: 0, hash32: EMPTY_HASH32 },
-  },
-  coordinateRows: [],
-  observedNaturalWonderPlotIndices: [],
-} satisfies NaturalWonderPlacement;
+  requestedCount: 0,
+  retainedOutcomes: [],
+} satisfies NaturalWonderPlacementCompatibility;
 
 const EMPTY_NATURAL_WONDER_PLAN_INPUT = {
   version: 2,
@@ -271,6 +260,79 @@ describe("resource placement exact-log projection", () => {
       },
     });
     expect(line.length).toBeLessThan(CIV7_LOG_TRUNCATION_BUDGET);
+  });
+});
+
+describe("natural-wonder placement exact-log projection", () => {
+  it("preserves the non-empty row/digest wire and maps requested demand to targetCount", () => {
+    const compatibility = {
+      requestedCount: 3,
+      retainedOutcomes: [
+        {
+          status: "placed",
+          plotIndex: 10,
+          x: 10,
+          y: 0,
+          featureType: 30,
+          direction: 2,
+          elevation: 240,
+        },
+        {
+          status: "rejected",
+          plotIndex: 20,
+          x: 20,
+          y: 0,
+          featureType: 31,
+          direction: -1,
+          elevation: 180,
+          reason: "readback-mismatch",
+          observedFeatureType: -1,
+          observedPlotIndex: 21,
+          expectedFootprintReadback: [
+            { plotIndex: 20, observedFeatureType: 31 },
+            { plotIndex: 21, observedFeatureType: -1 },
+          ],
+          expectedFootprintReadbackStatus: "partial-expected-footprint",
+        },
+      ],
+    } satisfies NaturalWonderPlacementCompatibility;
+    const expected = {
+      version: 1,
+      plannedCount: 2,
+      targetCount: 3,
+      placedCount: 1,
+      terrainAdjustedCount: 0,
+      skippedOutOfBoundsCount: 0,
+      rejectedCount: 1,
+      shortfallCount: 1,
+      rejectionExampleCount: 1,
+      rejectionExamples: [
+        "feature=31 plot=20 direction=-1 elevation=180 reason=readback-mismatch " +
+          "observedPlot=21 observedFeature=-1 footprint=20:31,21:-1 " +
+          "readback=partial-expected-footprint",
+      ],
+      rejectedRows: [
+        ["r", 20, 20, 0, 31, -1, 180, "readback-mismatch", -1, 21, "partial-expected-footprint"],
+      ],
+      coordinateEvidence: {
+        version: 1,
+        placedCount: 1,
+        placedHash32: "dca34884",
+        rejectedCount: 1,
+        rejectedHash32: "29b4c7a6",
+      },
+    };
+    const log = spyOn(console, "log").mockImplementation(() => {});
+
+    try {
+      emitStandardNaturalWonderPlacementExactLog(compatibility);
+
+      expect(log.mock.calls).toEqual([
+        [`[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 ${JSON.stringify(expected)}`],
+      ]);
+    } finally {
+      log.mockRestore();
+    }
   });
 });
 
