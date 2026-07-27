@@ -1,4 +1,5 @@
-import placement from "@mapgen/domain/placement";
+import type { NaturalWonderCatalogEntry } from "@civ7/map-policy";
+import type { NaturalWonderPlanIntent } from "@mapgen/domain/placement/modules/wonders/model/atoms/natural-wonder-plan-intent.schema.js";
 import { stableStringify } from "@swooper/mapgen-core";
 import { fnv1a32BytesHex, fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
 import type { ReadonlyDeep } from "type-fest";
@@ -8,18 +9,39 @@ const HASH32_PATTERN = "^[0-9a-f]{8}$";
 const MAX_INPUT_ROWS = 16;
 const PARTS_PER_MILLION = 1_000_000;
 
-type PlanNaturalWondersInput = Static<(typeof placement.wonders.ops.planNaturalWonders)["input"]>;
-type PlanNaturalWondersOutput = Static<(typeof placement.wonders.ops.planNaturalWonders)["output"]>;
-type PlanNaturalWondersStrategySelection = Static<
-  (typeof placement.wonders.ops.planNaturalWonders)["config"]
->;
+type PlannerNumericSurface = Parameters<typeof fnv1a32BytesHex>[0] & ArrayLike<number>;
+
+/** Causal planner evidence retained by the Standard natural-wonder product measurement. */
+export type StandardNaturalWonderPlannerMeasurementSurface = Readonly<{
+  width: number;
+  height: number;
+  wondersCount: number;
+  landMask: PlannerNumericSurface;
+  elevation: PlannerNumericSurface;
+  aridityIndex: PlannerNumericSurface;
+  riverClass: PlannerNumericSurface;
+  lakeMask: PlannerNumericSurface;
+  vegetationDensity: PlannerNumericSurface;
+  effectiveMoisture: PlannerNumericSurface;
+  surfaceTemperature: PlannerNumericSurface;
+  fertility: PlannerNumericSurface;
+  discharge: PlannerNumericSurface;
+  slopeClass: PlannerNumericSurface;
+  coastTerrainType: number;
+  mountainTerrainType: number;
+  iceFeatureType: number;
+  terrainType: PlannerNumericSurface;
+  biomeType: PlannerNumericSurface;
+  featureType: PlannerNumericSurface;
+  noFeatureType: number;
+  naturalWonderBlockedMask: PlannerNumericSurface;
+  featureCatalog: readonly NaturalWonderCatalogEntry[];
+}>;
 
 /**
- * Exhaustive compile-time ownership ledger from every operation-input property
- * to its compact Standard measurement projection.
- *
- * Adding a planner-input property makes this declaration compiler-red until
- * the measurement assigns that causal channel an explicit evidence owner.
+ * Exhaustive ownership ledger from each planner-input channel to its retained Standard evidence.
+ * The operation-binding step separately proves that this recipe-owned surface has exactly the
+ * operation input's keys, so either side becoming richer forces an explicit measurement decision.
  */
 const STANDARD_NATURAL_WONDER_PLANNER_INPUT_EVIDENCE_OWNERS = {
   width: "plannerInput.dimensions.width",
@@ -45,8 +67,25 @@ const STANDARD_NATURAL_WONDER_PLANNER_INPUT_EVIDENCE_OWNERS = {
   noFeatureType: "plannerInput.engineConstants.noFeatureType",
   naturalWonderBlockedMask: "plannerInput.surfaceDigests.naturalWonderBlockedMaskHash32",
   featureCatalog: "plannerInput.featureCatalog",
-} as const satisfies Record<keyof PlanNaturalWondersInput, `plannerInput.${string}`>;
+} as const satisfies Record<
+  keyof StandardNaturalWonderPlannerMeasurementSurface,
+  `plannerInput.${string}`
+>;
 void STANDARD_NATURAL_WONDER_PLANNER_INPUT_EVIDENCE_OWNERS;
+
+type NaturalWonderStrategySelection = Readonly<{
+  strategy: string;
+  config: unknown;
+}>;
+
+type NaturalWonderPlan = Readonly<{
+  width: number;
+  height: number;
+  wondersCount: number;
+  targetCount: number;
+  plannedCount: number;
+  placements: readonly NaturalWonderPlanIntent[];
+}>;
 
 function digest(description: string) {
   return Type.String({ pattern: HASH32_PATTERN, description });
@@ -313,11 +352,11 @@ export const STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY =
   "placement.naturalWonderPlanInput" as const;
 
 /** Exact Standard planner request and selected strategy needed to measure one admitted plan. */
-export type StandardNaturalWonderPlanInputMeasurementInput = {
-  plannerInput: PlanNaturalWondersInput;
-  strategySelection: PlanNaturalWondersStrategySelection;
-  plan: PlanNaturalWondersOutput;
-};
+export type StandardNaturalWonderPlanInputMeasurementInput = Readonly<{
+  plannerInput: StandardNaturalWonderPlannerMeasurementSurface;
+  strategySelection: NaturalWonderStrategySelection;
+  plan: NaturalWonderPlan;
+}>;
 
 /**
  * Closes the exact admitted natural-wonder planner request into deterministic,

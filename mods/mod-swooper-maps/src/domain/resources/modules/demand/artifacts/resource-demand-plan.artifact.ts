@@ -41,7 +41,7 @@ type AdmittedCandidateLike = TerminalCandidateLike & {
   readonly source: SiteEvidenceSourceLike;
   readonly demand: {
     readonly weight: number;
-    readonly regionMinimumRequirement: ResourceDemand["regionMinimumRequirement"];
+    readonly regionMinimumRequirement: Readonly<ResourceDemand["regionMinimumRequirement"]>;
     readonly legalMask: ReadonlyMask;
     readonly intensity: ReadonlyMask;
     readonly legalTileCount: number;
@@ -451,7 +451,7 @@ function validateUnitIntensity(
 }
 
 function sameStaticRegionMinimumRequirement(
-  observed: ResourceDemand["regionMinimumRequirement"],
+  observed: Readonly<ResourceDemand["regionMinimumRequirement"]>,
   expected: ResourceDemand["regionMinimumRequirement"]
 ): boolean {
   if (observed.kind !== expected.kind) return false;

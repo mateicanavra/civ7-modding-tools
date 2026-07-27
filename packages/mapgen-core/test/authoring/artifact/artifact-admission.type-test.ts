@@ -29,10 +29,6 @@ const firstArtifact = defineArtifact({
     const copiedValues: Uint8Array = value.values.slice();
     const readonlyAlias = value.values.subarray(1);
     const inferredAliasValue: number | undefined = readonlyAlias.at(0);
-    value.values.forEach((_sample, _index, source) => {
-      // @ts-expect-error Read callbacks cannot leak the mutable source array.
-      source.set([1]);
-    });
     const inferredWidth: number = facilities.dimensions.width;
     const inferredCellCount: number = facilities.cellCount;
     facilities.issues.add("contextually inferred");

@@ -16,12 +16,12 @@ export type Civ7CoastProjection = Readonly<{
 export type Civ7CoastProjectionInput = Readonly<{
   width: number;
   height: number;
-  landMask: Uint8Array;
-  shelfMask: Uint8Array;
-  coastalWater: Uint8Array;
+  landMask: ArrayLike<number>;
+  shelfMask: ArrayLike<number>;
+  coastalWater: ArrayLike<number>;
 }>;
 
-function assertGridLength(label: string, value: Uint8Array, size: number): void {
+function assertGridLength(label: string, value: ArrayLike<number>, size: number): void {
   if (value.length !== size) {
     throw new Error(`[coastProjection] ${label} length ${value.length} does not match ${size}.`);
   }

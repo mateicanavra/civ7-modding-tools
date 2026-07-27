@@ -22,6 +22,7 @@ export type {
   DomainOp,
   DomainOpKind,
   OpContractLike,
+  OperationInput,
   OpStrategyId,
   OpTypeBag,
   OpTypeBagOf,

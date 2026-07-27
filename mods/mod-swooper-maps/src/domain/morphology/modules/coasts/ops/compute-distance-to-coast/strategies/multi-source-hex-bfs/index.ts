@@ -11,7 +11,7 @@ export default createStrategy(ComputeDistanceToCoastContract, StrategyDefinition
   run: (input) => {
     const { width, height } = input;
     const size = width * height;
-    const coastal = input.coastal as Uint8Array;
+    const coastal = input.coastal;
 
     const distance = new Uint16Array(size);
     distance.fill(UNREACHED);

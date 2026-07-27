@@ -1127,7 +1127,7 @@ export class MockAdapter implements EngineAdapter {
   readRiverProjection(
     width: number,
     height: number,
-    plannedNavigableRiverMask: Uint8Array
+    plannedNavigableRiverMask: ArrayLike<number>
   ): RiverProjectionResult {
     if (width !== this.width || height !== this.height) {
       throw new Error(

@@ -6,13 +6,22 @@ const { computeIslandTopography } = morphology.landforms.ops;
 /** Admitted operation input used to probe island formation over a real Civ7 map extent. */
 export type IslandTopographyInput = Parameters<typeof computeIslandTopography.run>[0];
 
+/** Mutable construction surface exposed only before the fixture crosses operation admission. */
+export type IslandTopographyFixtureDraft = Readonly<{
+  width: number;
+  height: number;
+  distanceToCoast: Uint16Array;
+}>;
+
 /**
  * Builds coherent post-erosion topography with enough open ocean for deterministic island growth.
  *
  * Sparse land in the polar padding gives preservation checks both land and water observations,
  * while all authored island candidates remain away from those fixed cells.
  */
-export function createIslandTopographyInput(): IslandTopographyInput {
+export function createIslandTopographyInput(
+  configure?: (draft: IslandTopographyFixtureDraft) => void
+): IslandTopographyInput {
   const { width, height } = TEST_MAP_SIZE.dimensions;
   const cellCount = width * height;
   const seaLevel = 0;
@@ -29,6 +38,9 @@ export function createIslandTopographyInput(): IslandTopographyInput {
     bathymetry[index] = isFixedLand ? 0 : elevation[index] - seaLevel;
   }
 
+  const distanceToCoast = new Uint16Array(cellCount).fill(8);
+  configure?.({ width, height, distanceToCoast });
+
   return {
     width,
     height,
@@ -36,7 +48,7 @@ export function createIslandTopographyInput(): IslandTopographyInput {
     seaLevel,
     landMask,
     bathymetry,
-    distanceToCoast: new Uint16Array(cellCount).fill(8),
+    distanceToCoast,
     boundaryCloseness: new Uint8Array(cellCount),
     boundaryType: new Uint8Array(cellCount),
     volcanism: new Uint8Array(cellCount),

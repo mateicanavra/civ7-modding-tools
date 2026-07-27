@@ -25,9 +25,9 @@ const FacetedStep = createStep(
         typeof result.samples extends Float32Array ? true : false
       >;
 
-      // @ts-expect-error The borrowed result binding cannot be replaced.
+      // @ts-expect-error The observed result binding cannot be replaced.
       input.result = result;
-      // @ts-expect-error The borrowed config binding cannot be replaced.
+      // @ts-expect-error The observed config binding cannot be replaced.
       input.config = config;
       // @ts-expect-error Execution dimensions are immutable author input.
       dimensions.width = 0;

@@ -167,6 +167,16 @@ describe("materializeVizProjection", () => {
       },
       {
         projection: {
+          kind: "grid" as const,
+          dataTypeKey: "invalid.scalar-representation",
+          spaceId: "tile.hexOddQ" as const,
+          dims: { width: 1, height: 1 },
+          field: { format: "u8" as const, values: new Int8Array(1) },
+        } as unknown as VizProjection,
+        message: "format u8 has no matching binary source",
+      },
+      {
+        projection: {
           kind: "points" as const,
           dataTypeKey: "invalid.points",
           spaceId: "world.xy" as const,
@@ -439,13 +449,16 @@ describe("materializeVizProjection", () => {
     });
   });
 
-  it("allows an inline adapter to copy an exact subview without mutating its source", () => {
+  it("transfers one exact owned subview snapshot to the inline materializer", () => {
     const backing = new Uint8Array([90, 4, 7, 91]);
     const values = new Uint8Array(backing.buffer, 1, 2);
-    const inline: VizBinaryMaterializer<VizInlineRef> = ({ source }) => {
-      const copy = new Uint8Array(source.byteLength);
-      copy.set(new Uint8Array(source.buffer, source.byteOffset, source.byteLength));
-      return { kind: "inline", buffer: copy.buffer };
+    const inline: VizBinaryMaterializer<VizInlineRef> = (slot) => {
+      expect(slot.bytes.byteLength).toBe(2);
+      expect(slot.bytes.buffer).not.toBe(backing.buffer);
+      expect(Array.from(slot.bytes)).toEqual([4, 7]);
+
+      slot.bytes[0] = 8;
+      return { kind: "inline", buffer: slot.bytes.buffer };
     };
     const layer = materializeVizProjection(
       {
@@ -465,8 +478,129 @@ describe("materializeVizProjection", () => {
     }
     expect(layer.field.data.buffer).not.toBe(backing.buffer);
     expect(layer.field.data.buffer.byteLength).toBe(2);
-    expect(Array.from(new Uint8Array(layer.field.data.buffer))).toEqual([4, 7]);
+    expect(Array.from(new Uint8Array(layer.field.data.buffer))).toEqual([8, 7]);
+    expect(layer.field.stats).toEqual({ min: 4, max: 7 });
     expect(Array.from(backing)).toEqual([90, 4, 7, 91]);
+  });
+
+  it("snapshots every point source before the first adapter callback", () => {
+    const values = new Uint8Array([5, 9]);
+    const calls: VizBinarySlot[] = [];
+    const layer = materializeVizProjection(
+      {
+        kind: "points",
+        dataTypeKey: "points.snapshot-order",
+        spaceId: "world.xy",
+        positions: new Float32Array([1, 2, 3, 4]),
+        values: { format: "u8", values },
+      },
+      context,
+      (slot) => {
+        calls.push(slot);
+        if (slot.kind === "points-positions") values.fill(0);
+        return { kind: "path", path: `${slot.kind}.bin` };
+      }
+    );
+
+    const valueSlot = calls.find((slot) => slot.kind === "points-values");
+    expect(valueSlot?.kind).toBe("points-values");
+    if (valueSlot?.kind !== "points-values") throw new Error("Expected point-value snapshot.");
+    expect(Array.from(valueSlot.bytes)).toEqual([5, 9]);
+    expect(layer.kind).toBe("points");
+    if (layer.kind !== "points") throw new Error("Expected points layer.");
+    expect(layer.values?.stats).toEqual({ min: 5, max: 9 });
+  });
+
+  it("snapshots every grid field before materializing the first field", () => {
+    const laterValues = new Float32Array([3, 7]);
+    const calls: VizBinarySlot[] = [];
+    const layer = materializeVizProjection(
+      {
+        kind: "gridFields",
+        dataTypeKey: "grid-fields.snapshot-order",
+        spaceId: "tile.hexOddQ",
+        dims: { width: 2, height: 1 },
+        fields: {
+          first: { format: "u8", values: new Uint8Array([1, 2]) },
+          later: { format: "f32", values: laterValues },
+        },
+      },
+      context,
+      (slot) => {
+        calls.push(slot);
+        if (slot.kind === "grid-field-values" && slot.fieldKey === "first") {
+          laterValues.fill(-100);
+        }
+        return { kind: "path", path: `${slot.kind}.bin` };
+      }
+    );
+
+    const laterSlot = calls.find(
+      (slot) => slot.kind === "grid-field-values" && slot.fieldKey === "later"
+    );
+    expect(laterSlot?.kind).toBe("grid-field-values");
+    if (laterSlot?.kind !== "grid-field-values") throw new Error("Expected later field snapshot.");
+    expect(Array.from(new Float32Array(laterSlot.bytes.buffer))).toEqual([3, 7]);
+    expect(layer.kind).toBe("gridFields");
+    if (layer.kind !== "gridFields") throw new Error("Expected grid-fields layer.");
+    expect(layer.fields.later?.stats).toEqual({ min: 3, max: 7 });
+  });
+
+  it("snapshots grid dimensions before the adapter can mutate projection metadata", () => {
+    const dims = { width: 2, height: 1 };
+    const layer = materializeVizProjection(
+      {
+        kind: "grid",
+        dataTypeKey: "grid.metadata-snapshot-order",
+        spaceId: "tile.hexOddQ",
+        dims,
+        field: { format: "u8", values: new Uint8Array([4, 8]) },
+      },
+      context,
+      () => {
+        dims.width = 99;
+        dims.height = 77;
+        return { kind: "path", path: "grid.bin" };
+      }
+    );
+
+    expect(layer).toMatchObject({ dims: { width: 2, height: 1 }, bounds: [0, 0, 2, 1] });
+  });
+
+  it("snapshots grid-field dimensions and vector relations before the first adapter callback", () => {
+    const dims = { width: 2, height: 1 };
+    const vector = { u: "u", v: "v", magnitude: "magnitude" };
+    const layer = materializeVizProjection(
+      {
+        kind: "gridFields",
+        dataTypeKey: "grid-fields.metadata-snapshot-order",
+        spaceId: "tile.hexOddQ",
+        dims,
+        fields: {
+          u: { format: "i8", values: new Int8Array([1, -1]) },
+          v: { format: "i8", values: new Int8Array([0, 1]) },
+          magnitude: { format: "f32", values: new Float32Array([1, 2]) },
+        },
+        vector,
+      },
+      context,
+      (slot) => {
+        if (slot.kind === "grid-field-values" && slot.fieldKey === "u") {
+          dims.width = 99;
+          dims.height = 77;
+          vector.u = "changed-u";
+          vector.v = "changed-v";
+          vector.magnitude = "changed-magnitude";
+        }
+        return { kind: "path", path: `${slot.kind}.bin` };
+      }
+    );
+
+    expect(layer).toMatchObject({
+      dims: { width: 2, height: 1 },
+      bounds: [0, 0, 2, 1],
+      vector: { u: "u", v: "v", magnitude: "magnitude" },
+    });
   });
 
   it("snapshots semantic metadata that participates in identity and statistics", () => {

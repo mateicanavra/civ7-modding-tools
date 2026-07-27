@@ -6,13 +6,13 @@ import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import ComputeTectonicSegmentsContract from "../../contract.js";
 import RelativeMotionRegimesDefinition from "./config.js";
 
-type PlateMotion = Readonly<{
-  plateVelocityX: Float32Array;
-  plateVelocityY: Float32Array;
-  plateOmega: Float32Array;
-  plateCenterX: Float32Array;
-  plateCenterY: Float32Array;
-}>;
+type PlateMotion = {
+  readonly plateVelocityX: ArrayLike<number>;
+  readonly plateVelocityY: ArrayLike<number>;
+  readonly plateOmega: ArrayLike<number>;
+  readonly plateCenterX: ArrayLike<number>;
+  readonly plateCenterY: ArrayLike<number>;
+};
 
 function velocityAtPoint(params: {
   plateId: number;
@@ -61,23 +61,11 @@ export default createStrategy(ComputeTectonicSegmentsContract, RelativeMotionReg
     const plateGraph = input.plateGraph;
     const plateMotion = input.plateMotion;
 
-    const cellCount = mesh.cellCount | 0;
-    if (crust.strength.length !== cellCount || crust.type.length !== cellCount) {
-      throw new Error("[Foundation] Invalid crust.cellCount for compute-tectonic-segments.");
-    }
-    if (plateGraph.cellToPlate.length !== cellCount) {
-      throw new Error("[Foundation] Invalid plateGraph.cellToPlate for compute-tectonic-segments.");
-    }
-    if ((plateMotion.cellCount | 0) !== cellCount) {
-      throw new Error("[Foundation] Invalid plateMotion.cellCount for compute-tectonic-segments.");
-    }
-    if ((plateMotion.plateCount | 0) !== (plateGraph.plates.length | 0)) {
-      throw new Error("[Foundation] Invalid plateMotion.plateCount for compute-tectonic-segments.");
-    }
+    const cellCount = mesh.cellCount;
 
     const wrapWidth = mesh.wrapWidth;
     const intensityScale = config.intensityScale;
-    const regimeMinIntensity = config.regimeMinIntensity | 0;
+    const regimeMinIntensity = config.regimeMinIntensity;
 
     const aCell: number[] = [];
     const bCell: number[] = [];

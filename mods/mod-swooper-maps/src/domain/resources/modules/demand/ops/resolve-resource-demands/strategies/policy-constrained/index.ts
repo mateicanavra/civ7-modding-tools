@@ -14,8 +14,6 @@ import {
   RESOURCE_EXPECTATION_IDENTITY_BY_GROUP,
 } from "../../../../model/policy/earthlike-expectations.js";
 import {
-  buildHabitatEligibility,
-  type HabitatMaskFields,
   RESOURCE_HABITAT_SIGNALS,
   type ResourceFamilyId,
 } from "../../../../model/policy/habitat-eligibility.js";
@@ -25,6 +23,7 @@ import {
 } from "../../../../model/policy/initial-map-authoring.js";
 import { resolveResourceRegionMinimumRequirement } from "../../../../model/policy/resource-region-minimum.js";
 import Contract from "../../contract.js";
+import { buildHabitatEligibility } from "../../rules/habitat-eligibility.js";
 import StrategyDefinition from "./config.js";
 
 /**
@@ -37,12 +36,11 @@ const policyConstrainedStrategy = createStrategy(Contract, StrategyDefinition, {
     const size = width * height;
     const age = INITIAL_MAP_RESOURCE_AUTHORING_AGE;
     const runtimeIds = resolveResourceRuntimeIds();
-    const habitat = input as HabitatMaskFields;
-    const intensityByFamily: Record<ResourceFamilyId, Float32Array> = {
-      aquatic: input.aquaticIntensity as Float32Array,
-      cultivated: input.cultivatedIntensity as Float32Array,
-      terrestrial: input.terrestrialIntensity as Float32Array,
-      geological: input.geologicalIntensity as Float32Array,
+    const outputIntensityByFamily: Record<ResourceFamilyId, Float32Array> = {
+      aquatic: Float32Array.from(input.aquaticIntensity),
+      cultivated: Float32Array.from(input.cultivatedIntensity),
+      terrestrial: Float32Array.from(input.terrestrialIntensity),
+      geological: Float32Array.from(input.geologicalIntensity),
     };
     const riverMask = unionMasks(input.riverMasks, size);
     const legalitySurface = { width, height, ...input.legalitySurface };
@@ -59,7 +57,7 @@ const policyConstrainedStrategy = createStrategy(Contract, StrategyDefinition, {
         resourceType,
         groupId: expectation.groupId,
         expectationStatus: expectation.status,
-        expectedCountRange: expectation.expectedCountRange,
+        expectedCountRange: { ...expectation.expectedCountRange },
       };
 
       if (expectation.status === "blocked") {
@@ -99,7 +97,7 @@ const policyConstrainedStrategy = createStrategy(Contract, StrategyDefinition, {
           `[resources] ${resourceType} expectation group ${expectation.groupId} requires family ${expectedIdentity.family}, but canonical habitat policy assigns ${signal.family}.`
         );
       }
-      const habitatEligibility = buildHabitatEligibility(habitat, size, signal);
+      const habitatEligibility = buildHabitatEligibility(input, size, signal);
       const source: ResourceDemandSource = {
         ...identity,
         expectationStatus: "expected",
@@ -155,7 +153,7 @@ const policyConstrainedStrategy = createStrategy(Contract, StrategyDefinition, {
           observedRequiredForAge: input.requiredForAge[resourceType] ?? null,
         }),
         legalMask,
-        intensity: intensityByFamily[signal.family],
+        intensity: outputIntensityByFamily[signal.family],
         legalTileCount,
         eligibleTileCount,
       };
@@ -175,7 +173,7 @@ const policyConstrainedStrategy = createStrategy(Contract, StrategyDefinition, {
   },
 });
 
-function unionMasks(masks: readonly Uint8Array[], size: number): Uint8Array {
+function unionMasks(masks: readonly ArrayLike<number>[], size: number): Uint8Array {
   const result = new Uint8Array(size);
   for (const mask of masks) {
     for (let index = 0; index < size; index += 1) {

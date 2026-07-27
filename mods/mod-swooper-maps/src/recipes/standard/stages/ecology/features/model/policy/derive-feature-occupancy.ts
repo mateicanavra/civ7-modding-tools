@@ -38,7 +38,7 @@ export function deriveFeatureOccupancy(
  */
 export function assertFeatureIntentCandidatesAvailable(
   dimensions: Readonly<{ width: number; height: number }>,
-  priorOccupancy: Uint8Array,
+  priorOccupancy: ArrayLike<number>,
   candidates: readonly FeatureIntentCoordinate[]
 ): void {
   for (const candidate of candidates) {

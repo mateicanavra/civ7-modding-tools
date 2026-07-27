@@ -6,6 +6,20 @@ import { deriveTestOperationSeed, TEST_MAP_SIZE } from "../../../../../setup.js"
 const { computeMesh } = foundation.mesh.ops;
 const { computeMantlePotential } = foundation.mantle.ops;
 
+function projectMantlePotentialMesh(
+  mesh: Readonly<{
+    cellCount: number;
+    wrapWidth: number;
+    siteX: Float32Array;
+    siteY: Float32Array;
+    neighborsOffsets: Int32Array;
+    neighbors: Int32Array;
+  }>
+) {
+  const { cellCount, wrapWidth, siteX, siteY, neighborsOffsets, neighbors } = mesh;
+  return { cellCount, wrapWidth, siteX, siteY, neighborsOffsets, neighbors };
+}
+
 describe("foundation/compute-mantle-potential", () => {
   it("builds a normalized signed field from opposing thermal source populations", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
@@ -27,7 +41,7 @@ describe("foundation/compute-mantle-potential", () => {
 
     const result = computeMantlePotential.run(
       {
-        mesh: generatedMesh,
+        mesh: projectMantlePotentialMesh(generatedMesh),
         rngSeed: deriveTestOperationSeed("test:foundation:mantle-potential"),
       },
       {
@@ -73,16 +87,14 @@ describe("foundation/compute-mantle-potential", () => {
   });
 
   it("uses wrapped distance when a source straddles the horizontal seam", () => {
-    const syntheticSeamMesh = {
+    const syntheticSeamMesh = projectMantlePotentialMesh({
       cellCount: 2,
       wrapWidth: 10,
       siteX: new Float32Array([0, 10]),
       siteY: new Float32Array([0, 0]),
       neighborsOffsets: new Int32Array([0, 1, 2]),
       neighbors: new Int32Array([1, 0]),
-      areas: new Float32Array([1, 1]),
-      bbox: { xl: 0, xr: 10, yt: 0, yb: 1 },
-    };
+    });
 
     const result = computeMantlePotential.run(
       {

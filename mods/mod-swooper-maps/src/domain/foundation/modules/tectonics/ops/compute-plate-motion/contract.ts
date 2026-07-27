@@ -34,7 +34,6 @@ const ComputePlateMotionContract = defineOp({
       ),
       mantleForcing: Type.Object(
         {
-          cellCount: Type.Integer({ minimum: 1 }),
           forcingU: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
           forcingV: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
         },

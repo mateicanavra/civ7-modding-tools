@@ -46,15 +46,18 @@ typed VizProjection
   policy.
 - Scalar format and typed-array representation are one closed union. Dimensions, cardinality,
   geometry, vector references, bounds, counts, and scalar statistics are validated centrally.
-- Binary materialization is the only environment boundary. The Studio worker copies each exact
-  typed-array view into an inline transferable buffer; `@swooper/mapgen-diagnostics` persists
-  that view and returns a relative path.
+- Binary materialization is the only environment boundary. The Viz kernel privately snapshots each
+  exact typed-array view, then derives bounds and scalar statistics from those snapshots before
+  invoking an environment adapter. Each binary slot transfers that single owned snapshot to its
+  synchronous materializer. Studio transfers its buffer inline; `@swooper/mapgen-diagnostics`
+  persists the same bytes and returns a relative path. No second copy capability or intermediate
+  ownership state exists, and caller-owned source storage never crosses the boundary.
 - `admitPathVizManifest` is the single runtime admission boundary for untrusted path-backed v2
   manifests. Viz owns the closed TypeBox schema and exact stage/step execution relation; the
   diagnostics package owns filesystem reads and supplies the parsed JSON value.
 - Materialization does not render, persist, emit trace events, or synthesize evidence; it serializes
   the projection it receives. Explicitly selected projection helpers may derive visualization-only
-  evidence such as vector magnitude from borrowed semantic sources before materialization.
+  evidence such as vector magnitude from completed semantic sources before materialization.
 - Steps author optional `viz` and `metrics` projectors inline on the same
   `createStep(config, { run, viz, metrics })` implementation that owns their result. Here
   `config` is the owner-local binding for the step contract, not a different

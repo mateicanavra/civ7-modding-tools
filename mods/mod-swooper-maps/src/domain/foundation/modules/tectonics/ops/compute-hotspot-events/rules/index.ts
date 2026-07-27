@@ -7,14 +7,14 @@ import { EVENT_TYPE, type TectonicEvent } from "../../../model/atoms/tectonic-ev
  */
 export function buildHotspotEvents(params: {
   mesh: Readonly<{ cellCount: number }>;
-  mantleForcing: Readonly<{
-    upwellingClass: Int8Array;
-    forcingMag: Float32Array;
-    stress: Float32Array;
-    forcingU: Float32Array;
-    forcingV: Float32Array;
-  }>;
-  eraPlateId: Int16Array;
+  mantleForcing: {
+    readonly upwellingClass: ArrayLike<number>;
+    readonly forcingMag: ArrayLike<number>;
+    readonly stress: ArrayLike<number>;
+    readonly forcingU: ArrayLike<number>;
+    readonly forcingV: ArrayLike<number>;
+  };
+  eraPlateId: ArrayLike<number>;
 }): TectonicEvent[] {
   const { mesh, mantleForcing, eraPlateId } = params;
   const events: TectonicEvent[] = [];

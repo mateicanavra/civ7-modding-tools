@@ -1,25 +1,27 @@
-import type { VizDims, VizProjection } from "@swooper/mapgen-viz";
+import type { VizDims, VizProjection, VizScalarSource } from "@swooper/mapgen-viz";
 import { defineStandardVizMeta } from "../../../../../viz.js";
 
 const GROUP_MAP_RIVERS = "Map / Rivers (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
+type Uint8VizValues = Extract<VizScalarSource, { format: "u8" }>["values"];
+type Float32VizValues = Extract<VizScalarSource, { format: "f32" }>["values"];
 
 /** Completed Hydrology intent and Civ7 river readback observed by the visualization facet. */
 export type PlotRiversVizEvidence = Readonly<{
-  riverClass: Uint8Array;
-  discharge: Float32Array;
+  riverClass: Uint8VizValues;
+  discharge: Float32VizValues;
   materialized: Readonly<{
-    riverMask: Uint8Array;
-    plannedMinorRiverMask: Uint8Array;
-    plannedMajorRiverMask: Uint8Array;
+    riverMask: Uint8VizValues;
+    plannedMinorRiverMask: Uint8VizValues;
+    plannedMajorRiverMask: Uint8VizValues;
   }>;
-  topographyLandMask: Uint8Array;
+  topographyLandMask: Uint8VizValues;
   engineEvidence: Readonly<{
     riverReadback: Readonly<{
-      terrainNavigableRiverMask: Uint8Array;
-      engineNavigableRiverMask: Uint8Array;
-      navigableRiverMismatchMask: Uint8Array;
-      engineMinorRiverMask: Uint8Array;
+      terrainNavigableRiverMask: Uint8VizValues;
+      engineNavigableRiverMask: Uint8VizValues;
+      navigableRiverMismatchMask: Uint8VizValues;
+      engineMinorRiverMask: Uint8VizValues;
     }>;
   }>;
 }>;

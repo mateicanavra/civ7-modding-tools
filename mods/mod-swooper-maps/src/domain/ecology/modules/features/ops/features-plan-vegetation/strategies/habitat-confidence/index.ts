@@ -16,13 +16,13 @@ import StrategyDefinition from "./config.js";
 function isBroadVegetationHabitat(
   feature: VegetationFeatureIntentKey,
   tileIndex: number,
-  fields: Readonly<{
-    biomeIndex: Uint8Array;
-    surfaceTemperature: Float32Array;
-    effectiveMoisture: Float32Array;
-    aridityIndex: Float32Array;
-    vegetationDensity: Float32Array;
-  }>
+  fields: {
+    readonly biomeIndex: ArrayLike<number>;
+    readonly surfaceTemperature: ArrayLike<number>;
+    readonly effectiveMoisture: ArrayLike<number>;
+    readonly aridityIndex: ArrayLike<number>;
+    readonly vegetationDensity: ArrayLike<number>;
+  }
 ): boolean {
   const biome = fields.biomeIndex[tileIndex] ?? 255;
   const temp = fields.surfaceTemperature[tileIndex] ?? 0;

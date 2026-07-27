@@ -38,7 +38,6 @@ const ComputeCrustEvolutionContract = defineOp({
       ),
       tectonicHistory: Type.Object(
         {
-          eraCount: Type.Integer({ minimum: 5, maximum: 8 }),
           eras: Type.Array(
             Type.Object(
               {
@@ -49,7 +48,8 @@ const ComputeCrustEvolutionContract = defineOp({
                 fracture: TypedArraySchemas.u8({ cardinality: ["mesh.cellCount"] }),
               },
               { additionalProperties: false }
-            )
+            ),
+            { minItems: 5, maxItems: 8 }
           ),
           upliftTotal: TypedArraySchemas.u8({ cardinality: ["mesh.cellCount"] }),
           fractureTotal: TypedArraySchemas.u8({ cardinality: ["mesh.cellCount"] }),

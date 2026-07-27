@@ -12,23 +12,27 @@ import { createVizLayerKey } from "./projection.js";
 import { assertVizVectorReferences, snapshotVizLayerMeta } from "./semantic.js";
 import { computeVizScalarStats } from "./stats.js";
 
-/** One binary slot the portable kernel delegates to an environment-owned adapter exactly once. */
-export type VizBinarySlot =
-  | Readonly<{ kind: "grid-values"; layerKey: string; source: VizBinarySource }>
-  | Readonly<{ kind: "points-positions"; layerKey: string; source: Float32Array }>
-  | Readonly<{ kind: "points-values"; layerKey: string; source: VizBinarySource }>
-  | Readonly<{ kind: "segments-geometry"; layerKey: string; source: Float32Array }>
-  | Readonly<{ kind: "segments-values"; layerKey: string; source: VizBinarySource }>
+type VizBinarySlotIdentity =
+  | Readonly<{ kind: "grid-values"; layerKey: string }>
+  | Readonly<{ kind: "points-positions"; layerKey: string }>
+  | Readonly<{ kind: "points-values"; layerKey: string }>
+  | Readonly<{ kind: "segments-geometry"; layerKey: string }>
+  | Readonly<{ kind: "segments-values"; layerKey: string }>
   | Readonly<{
       kind: "grid-field-values";
       layerKey: string;
       fieldKey: string;
-      source: VizBinarySource;
     }>;
 
+/** One binary slot whose bytes are owned by the synchronous host materializer. */
+export type VizBinarySlot = VizBinarySlotIdentity &
+  Readonly<{
+    bytes: Uint8Array<ArrayBuffer>;
+  }>;
+
 /**
- * Environment boundary that copies or persists one validated binary source and returns its ref.
- * Callback failures propagate; the kernel never retries a slot or mutates/detaches source buffers.
+ * Environment boundary that receives one owned snapshot for host transport or persistence.
+ * Callback failures propagate, and the kernel never retries or reuses a transferred slot.
  */
 export type VizBinaryMaterializer<Ref extends VizBinaryRef> = (slot: VizBinarySlot) => Ref;
 
@@ -56,8 +60,45 @@ function assertScalarCardinality(source: VizScalarSource, expected: number, labe
   }
 }
 
+function admitScalarBinarySource(source: VizScalarSource): VizBinarySource {
+  const values = source.values;
+  if (source.format === "u8" && values instanceof Uint8Array) return values;
+  if (source.format === "i8" && values instanceof Int8Array) return values;
+  if (source.format === "u16" && values instanceof Uint16Array) return values;
+  if (source.format === "i16" && values instanceof Int16Array) return values;
+  if (source.format === "i32" && values instanceof Int32Array) return values;
+  if (source.format === "f32" && values instanceof Float32Array) return values;
+  throw new TypeError(
+    `Visualization scalar format ${source.format} has no matching binary source.`
+  );
+}
+
+function admitFloat32Geometry(source: ArrayLike<number>, label: string): Float32Array {
+  if (source instanceof Float32Array) return source;
+  throw new TypeError(`${label} must be backed by Float32Array.`);
+}
+
+function snapshotBinarySource(source: VizBinarySource): Uint8Array<ArrayBuffer> {
+  const bytes = new Uint8Array(source.byteLength);
+  bytes.set(new Uint8Array(source.buffer, source.byteOffset, source.byteLength));
+  return bytes;
+}
+
+function snapshotDimensions(dims: Readonly<{ width: number; height: number }>): {
+  width: number;
+  height: number;
+} {
+  return { width: dims.width, height: dims.height };
+}
+
+function snapshotVectorRelation(
+  vector: Readonly<{ u: string; v: string; magnitude?: string }> | undefined
+): { u: string; v: string; magnitude?: string } | undefined {
+  return vector ? { ...vector } : undefined;
+}
+
 function deriveGeometryBounds(
-  values: Float32Array,
+  values: ArrayLike<number>,
   label: string
 ): [minX: number, minY: number, maxX: number, maxY: number] {
   if (values.length === 0) return [0, 0, 1, 1];
@@ -82,12 +123,49 @@ function deriveGeometryBounds(
 
 type VizScalarFieldEvidence = Omit<VizScalarField, "data">;
 
-function snapshotScalarField(source: VizScalarSource): VizScalarFieldEvidence {
+type VizScalarFieldSnapshot = Readonly<{
+  bytes: Uint8Array<ArrayBuffer>;
+  evidence: VizScalarFieldEvidence;
+}>;
+
+function scalarSourceFromSnapshot(
+  source: VizScalarSource,
+  bytes: Uint8Array<ArrayBuffer>,
+  valueSpec: VizValueSpec | undefined
+): VizScalarSource {
+  if (source.format === "u8")
+    return { format: "u8", values: new Uint8Array(bytes.buffer), valueSpec };
+  if (source.format === "i8")
+    return { format: "i8", values: new Int8Array(bytes.buffer), valueSpec };
+  if (source.format === "u16")
+    return { format: "u16", values: new Uint16Array(bytes.buffer), valueSpec };
+  if (source.format === "i16")
+    return { format: "i16", values: new Int16Array(bytes.buffer), valueSpec };
+  if (source.format === "i32")
+    return { format: "i32", values: new Int32Array(bytes.buffer), valueSpec };
+  return { format: "f32", values: new Float32Array(bytes.buffer), valueSpec };
+}
+
+function snapshotScalarField(source: VizScalarSource): VizScalarFieldSnapshot {
+  const bytes = snapshotBinarySource(admitScalarBinarySource(source));
+  const valueSpec = snapshotValueSpec(source.valueSpec);
+  const ownedSource = scalarSourceFromSnapshot(source, bytes, valueSpec);
   return {
-    format: source.format,
-    stats: computeVizScalarStats(source) ?? undefined,
-    valueSpec: snapshotValueSpec(source.valueSpec),
+    bytes,
+    evidence: {
+      format: source.format,
+      stats: computeVizScalarStats(ownedSource) ?? undefined,
+      valueSpec,
+    },
   };
+}
+
+function snapshotFloat32Geometry(
+  source: ArrayLike<number>,
+  label: string
+): Readonly<{ bytes: Uint8Array<ArrayBuffer>; values: Float32Array }> {
+  const bytes = snapshotBinarySource(admitFloat32Geometry(source, label));
+  return { bytes, values: new Float32Array(bytes.buffer) };
 }
 
 function materializeScalarField<Ref extends VizBinaryRef>(
@@ -144,7 +222,7 @@ function materializedIdentity(
  *
  * The function owns identity, bounds, counts, scalar statistics, vector references, and binary
  * slot order. It validates the complete projection before invoking the adapter, invokes that
- * adapter exactly once per slot, and never mutates or detaches an input buffer.
+ * adapter exactly once per slot, transferring the projection's sole owned binary snapshot.
  */
 export function materializeVizProjection<Ref extends VizBinaryRef>(
   projection: VizProjection,
@@ -154,20 +232,21 @@ export function materializeVizProjection<Ref extends VizBinaryRef>(
   const identity = materializedIdentity(projection, context);
 
   if (projection.kind === "grid") {
-    const size = assertPositiveDimensions(projection.dims.width, projection.dims.height);
+    const dims = snapshotDimensions(projection.dims);
+    const size = assertPositiveDimensions(dims.width, dims.height);
     assertScalarCardinality(projection.field, size, "Grid projection");
     const field = snapshotScalarField(projection.field);
     const ref = materializeBinary({
       kind: "grid-values",
       layerKey: identity.layerKey,
-      source: projection.field.values,
+      bytes: field.bytes,
     });
     return {
       ...identity,
       kind: "grid",
-      bounds: [0, 0, projection.dims.width, projection.dims.height],
-      dims: { ...projection.dims },
-      field: materializeScalarField(field, ref),
+      bounds: [0, 0, dims.width, dims.height],
+      dims,
+      field: materializeScalarField(field.evidence, ref),
     };
   }
 
@@ -178,25 +257,25 @@ export function materializeVizProjection<Ref extends VizBinaryRef>(
     if (!Number.isSafeInteger(count))
       throw new RangeError(`Point count exceeds safe integer range.`);
     if (projection.values) assertScalarCardinality(projection.values, count, "Point projection");
-    const bounds = deriveGeometryBounds(projection.positions, "Point projection");
-    const valueEvidence = projection.values ? snapshotScalarField(projection.values) : undefined;
+    const positionsSnapshot = snapshotFloat32Geometry(projection.positions, "Point geometry");
+    const valueSnapshot = projection.values ? snapshotScalarField(projection.values) : undefined;
+    const bounds = deriveGeometryBounds(positionsSnapshot.values, "Point projection");
 
     const positions = materializeBinary({
       kind: "points-positions",
       layerKey: identity.layerKey,
-      source: projection.positions,
+      bytes: positionsSnapshot.bytes,
     });
-    const values =
-      projection.values && valueEvidence
-        ? materializeScalarField(
-            valueEvidence,
-            materializeBinary({
-              kind: "points-values",
-              layerKey: identity.layerKey,
-              source: projection.values.values,
-            })
-          )
-        : undefined;
+    const values = valueSnapshot
+      ? materializeScalarField(
+          valueSnapshot.evidence,
+          materializeBinary({
+            kind: "points-values",
+            layerKey: identity.layerKey,
+            bytes: valueSnapshot.bytes,
+          })
+        )
+      : undefined;
     return { ...identity, kind: "points", bounds, count, positions, values };
   }
 
@@ -207,29 +286,31 @@ export function materializeVizProjection<Ref extends VizBinaryRef>(
     if (!Number.isSafeInteger(count))
       throw new RangeError(`Segment count exceeds safe integer range.`);
     if (projection.values) assertScalarCardinality(projection.values, count, "Segment projection");
-    const bounds = deriveGeometryBounds(projection.segments, "Segment projection");
-    const valueEvidence = projection.values ? snapshotScalarField(projection.values) : undefined;
+    const segmentsSnapshot = snapshotFloat32Geometry(projection.segments, "Segment geometry");
+    const valueSnapshot = projection.values ? snapshotScalarField(projection.values) : undefined;
+    const bounds = deriveGeometryBounds(segmentsSnapshot.values, "Segment projection");
 
     const segments = materializeBinary({
       kind: "segments-geometry",
       layerKey: identity.layerKey,
-      source: projection.segments,
+      bytes: segmentsSnapshot.bytes,
     });
-    const values =
-      projection.values && valueEvidence
-        ? materializeScalarField(
-            valueEvidence,
-            materializeBinary({
-              kind: "segments-values",
-              layerKey: identity.layerKey,
-              source: projection.values.values,
-            })
-          )
-        : undefined;
+    const values = valueSnapshot
+      ? materializeScalarField(
+          valueSnapshot.evidence,
+          materializeBinary({
+            kind: "segments-values",
+            layerKey: identity.layerKey,
+            bytes: valueSnapshot.bytes,
+          })
+        )
+      : undefined;
     return { ...identity, kind: "segments", bounds, count, segments, values };
   }
 
-  const size = assertPositiveDimensions(projection.dims.width, projection.dims.height);
+  const dims = snapshotDimensions(projection.dims);
+  const vector = snapshotVectorRelation(projection.vector);
+  const size = assertPositiveDimensions(dims.width, dims.height);
   const entries = Object.entries(projection.fields);
   if (entries.length === 0)
     throw new RangeError(`Grid-fields projection requires at least one field.`);
@@ -237,27 +318,27 @@ export function materializeVizProjection<Ref extends VizBinaryRef>(
     if (fieldKey.length === 0) throw new RangeError(`Grid-fields keys must not be empty.`);
     assertScalarCardinality(field, size, `Grid field ${fieldKey}`);
   }
-  assertVizVectorReferences(projection.fields, projection.vector);
+  assertVizVectorReferences(projection.fields, vector);
 
-  const fieldEvidence = entries.map(
-    ([fieldKey, field]) => [fieldKey, field, snapshotScalarField(field)] as const
+  const fieldSnapshots = entries.map(
+    ([fieldKey, field]) => [fieldKey, snapshotScalarField(field)] as const
   );
   const materializedFields: Array<readonly [string, VizScalarField<Ref>]> = [];
-  for (const [fieldKey, field, evidence] of fieldEvidence) {
+  for (const [fieldKey, snapshot] of fieldSnapshots) {
     const ref = materializeBinary({
       kind: "grid-field-values",
       layerKey: identity.layerKey,
       fieldKey,
-      source: field.values,
+      bytes: snapshot.bytes,
     });
-    materializedFields.push([fieldKey, materializeScalarField(evidence, ref)]);
+    materializedFields.push([fieldKey, materializeScalarField(snapshot.evidence, ref)]);
   }
   return {
     ...identity,
     kind: "gridFields",
-    bounds: [0, 0, projection.dims.width, projection.dims.height],
-    dims: { ...projection.dims },
+    bounds: [0, 0, dims.width, dims.height],
+    dims,
     fields: Object.fromEntries(materializedFields),
-    vector: projection.vector ? { ...projection.vector } : undefined,
+    vector,
   };
 }

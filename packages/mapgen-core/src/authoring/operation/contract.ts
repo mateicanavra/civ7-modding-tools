@@ -64,6 +64,7 @@ type ResolvedDefaultStrategy<
 > = [SingleKeyObject<Strategies>] extends [never] ? DefaultStrategy : keyof Strategies & string;
 
 type OpContractAuthority = Readonly<{
+  inputAdmissionSchema: TSchema;
   strategyDefinitions: OwnDataRecord<StrategyDefinitionAny>;
 }>;
 const opContractAuthority = new WeakMap<object, OpContractAuthority>();
@@ -124,6 +125,12 @@ export function readCanonicalOpStrategyDefinitions(
 ): OwnDataRecord<StrategyDefinitionAny> {
   assertCanonicalOpContract(contract);
   return opContractAuthority.get(contract)!.strategyDefinitions;
+}
+
+/** @internal Returns the private immutable input schema captured when the contract was defined. */
+export function readCanonicalOpInputAdmissionSchema(contract: OpContractAny): TSchema {
+  assertCanonicalOpContract(contract);
+  return opContractAuthority.get(contract)!.inputAdmissionSchema;
 }
 
 /**
@@ -205,6 +212,11 @@ export function defineOp(definitionInput: any): any {
   const output = snapshotContractGraph(authoredOutput, `op:${id}.output`) as TSchema;
   applySchemaConventions(input);
   applySchemaConventions(output);
+  const inputAdmissionSchema = snapshotContractGraph(
+    input,
+    `op:${id}.input admission authority`
+  ) as TSchema;
+  freezeContractGraph(inputAdmissionSchema);
   const strategyDefinitionAuthority = Object.freeze(
     authoredStrategyDefinitions.map(({ key, value }) => Object.freeze({ key, value }))
   );
@@ -231,7 +243,10 @@ export function defineOp(definitionInput: any): any {
   // materialized default are immutable; factory-owned schema snapshots are already detached.
   freezeContractGraph(contract.defaultConfig);
   Object.freeze(contract);
-  opContractAuthority.set(contract, { strategyDefinitions: strategyDefinitionAuthority });
+  opContractAuthority.set(contract, {
+    inputAdmissionSchema,
+    strategyDefinitions: strategyDefinitionAuthority,
+  });
   return contract;
 }
 

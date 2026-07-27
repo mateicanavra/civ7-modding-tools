@@ -1,7 +1,12 @@
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as cryosphereArtifacts } from "@mapgen/domain/hydrology/modules/cryosphere/artifacts/index.js";
 import type { ArtifactReadValueOf } from "@swooper/mapgen-core/authoring";
-import { buildScalarFieldProjections, type VizDims, type VizProjection } from "@swooper/mapgen-viz";
+import {
+  buildScalarFieldProjections,
+  type VizDims,
+  type VizProjection,
+  type VizScalarSource,
+} from "@swooper/mapgen-viz";
 import { defineStandardVizMeta } from "../../../../../../viz.js";
 
 const GROUP_CLIMATE = "Hydrology / Climate";
@@ -13,6 +18,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
 type ClimateField = ArtifactReadValueOf<typeof climateArtifacts.climateField>;
 type ClimateIndices = ArtifactReadValueOf<typeof climateArtifacts.climateIndices>;
 type Cryosphere = ArtifactReadValueOf<typeof cryosphereArtifacts.cryosphere>;
+type Float32VizValues = Extract<VizScalarSource, { format: "f32" }>["values"];
 
 /** Refined physical products and admitted inputs observed by the visualization facet. */
 type ClimateRefineVizEvidence = Readonly<{
@@ -20,9 +26,9 @@ type ClimateRefineVizEvidence = Readonly<{
   climateIndices: ClimateIndices;
   cryosphere: Cryosphere;
   diagnostics: Readonly<{
-    rainShadowIndex: Float32Array;
-    continentalityIndex: Float32Array;
-    convergenceIndex: Float32Array;
+    rainShadowIndex: Float32VizValues;
+    continentalityIndex: Float32VizValues;
+    convergenceIndex: Float32VizValues;
   }>;
 }>;
 

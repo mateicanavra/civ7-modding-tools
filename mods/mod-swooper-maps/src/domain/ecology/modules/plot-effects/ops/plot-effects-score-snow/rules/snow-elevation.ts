@@ -1,10 +1,10 @@
 import { clamp01 } from "@swooper/mapgen-core";
 
 type PlotEffectsInput = {
-  width: number;
-  height: number;
-  landMask: Uint8Array;
-  elevation: Int16Array;
+  readonly width: number;
+  readonly height: number;
+  readonly landMask: ArrayLike<number>;
+  readonly elevation: ArrayLike<number>;
 };
 
 type SnowElevationStats = {

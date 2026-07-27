@@ -122,7 +122,7 @@ describe("biomes step", () => {
       ecology.biomes.ops.classifyBiomes.defaultConfig
     );
 
-    const run = (effectiveMoistureIn: Float32Array): Float32Array => {
+    const run = (effectiveMoistureIn: Float32Array): ArrayLike<number> => {
       const adapter = createMockAdapter({
         ...TEST_MAP_SIZE.dimensions,
         mapInfo: TEST_MAP_SIZE.mapInfo,

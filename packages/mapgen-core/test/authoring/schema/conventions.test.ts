@@ -6,6 +6,10 @@ function additionalProperties(schema: TSchema): unknown {
   return (schema as Record<PropertyKey, unknown>).additionalProperties;
 }
 
+function unevaluatedProperties(schema: TSchema): unknown {
+  return (schema as Record<PropertyKey, unknown>).unevaluatedProperties;
+}
+
 describe("schema conventions", () => {
   it("closes nested TypeBox object algebra in place", () => {
     const nestedObject = Type.Object({ value: Type.Number() });
@@ -22,16 +26,11 @@ describe("schema conventions", () => {
     });
 
     expect(applySchemaConventions(schema)).toBe(schema);
-    for (const candidate of [
-      schema,
-      nestedObject,
-      arrayObject,
-      tupleObject,
-      unionObject,
-      intersectObject,
-    ]) {
+    for (const candidate of [schema, nestedObject, arrayObject, tupleObject, unionObject]) {
       expect(additionalProperties(candidate)).toBe(false);
     }
+    expect(additionalProperties(intersectObject)).toBeUndefined();
+    expect(unevaluatedProperties(schema.properties.intersect)).toBe(false);
   });
 
   it("preserves raw anyOf, oneOf, allOf, not, and tuple-item traversal", () => {
@@ -50,6 +49,11 @@ describe("schema conventions", () => {
     applySchemaConventions(schema);
 
     expect(additionalProperties(schema)).toBe(false);
-    for (const branch of branches) expect(additionalProperties(branch)).toBe(false);
+    for (const branch of [branches[0], branches[1], branches[3], branches[4], branches[5]]) {
+      expect(additionalProperties(branch!)).toBe(false);
+    }
+    expect(additionalProperties(branches[2]!)).toBeUndefined();
+    const rawProperties = (schema as TSchema & { properties: Record<string, TSchema> }).properties;
+    expect(unevaluatedProperties(rawProperties.all!)).toBe(false);
   });
 });

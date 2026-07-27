@@ -77,6 +77,7 @@ export type {
   GridBuffer,
   OpContract,
   OpContractLike,
+  OperationInput,
   OperationInputAdmissionIssue,
   OpStrategyId,
   OpTypeBag,

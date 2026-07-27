@@ -24,11 +24,11 @@ type SupportAdjustmentRow = Readonly<{
 
 /**
  * Projects the completed resource-support decision and its admitted start-radius context.
- * The function derives only portable geometry and borrows the completed adjustment evidence.
+ * The function derives only portable geometry from completed adjustment evidence.
  */
 export function projectResourceSupportViz(input: {
-  adjustments: ReadonlyArray<SupportAdjustmentRow>;
-  seats: ReadonlyArray<{ readonly seatIndex: number; readonly plotIndex: number }>;
+  adjustments: readonly SupportAdjustmentRow[];
+  seats: readonly Readonly<{ seatIndex: number; plotIndex: number }>[];
   supportRadiusTiles: number;
   dimensions: Readonly<{ width: number; height: number }>;
 }): readonly VizProjection[] {

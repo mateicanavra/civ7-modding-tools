@@ -94,8 +94,8 @@ export type RequiredArtifactRuntime<A extends Artifact> = Readonly<{
    *
    * IMPORTANT:
    * - This does not perform runtime snapshotting/copying in production.
-   * - It does not make hostile mutation impossible; typed arrays still expose mutator methods.
-   * - Consumers must treat the returned reference as immutable and must not mutate it.
+   * - The public view hides mutation and backing storage, but the retained runtime value is not
+   *   frozen; a producer or external alias that escaped before publication could still mutate it.
    * - If mutation is needed, callers must copy first (caller-owned copy).
    */
   read: (context: MapContext) => ArtifactReadValueOf<A>;

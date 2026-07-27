@@ -13,9 +13,6 @@ export {
   RESOURCE_EXPECTATION_IDENTITY_BY_GROUP,
 } from "./model/policy/earthlike-expectations.js";
 export {
-  buildHabitatEligibility,
-  type HabitatEligibility,
-  type HabitatMaskFields,
   RESOURCE_HABITAT_SIGNALS,
   type ResourceFamilyId,
   type ResourceHabitatSignal,

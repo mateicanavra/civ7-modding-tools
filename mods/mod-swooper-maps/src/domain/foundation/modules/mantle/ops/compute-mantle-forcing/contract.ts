@@ -25,7 +25,6 @@ const ComputeMantleForcingContract = defineOp({
       ),
       mantlePotential: Type.Object(
         {
-          cellCount: Type.Integer({ minimum: 1 }),
           potential: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
         },
         { additionalProperties: false }

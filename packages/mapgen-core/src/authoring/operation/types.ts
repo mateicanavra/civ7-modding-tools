@@ -1,4 +1,5 @@
 import type { Static, TSchema, TUnsafe } from "typebox";
+import type { ReadonlyData } from "../data/readonly-data.js";
 import type { StrategyDefinition } from "./strategy-definition.js";
 
 // Allow ops with specific input/config types to flow through generic registries.
@@ -10,6 +11,14 @@ type StrategyDefinitionsLike = Readonly<Record<string, StrategyDefinition<string
 type RuntimeStrategiesLike = Readonly<Record<string, { config: TSchema }>>;
 
 type StrategyConfigSchemaOf<T> = T extends { config: infer C extends TSchema } ? C : never;
+
+/**
+ * Canonical zero-copy observation surface for an operation's caller-provided input.
+ *
+ * Mutable schema-shaped values remain assignable at invocation. The readonly projection guides
+ * authors but does not provide runtime isolation against structural widening or explicit casts.
+ */
+export type OperationInput<InputSchema extends TSchema> = ReadonlyData<Static<InputSchema>>;
 
 export type StrategySelection<Strategies extends RuntimeStrategiesLike> = {
   [K in keyof Strategies & string]: Readonly<{
@@ -32,7 +41,7 @@ export type OpTypeBag<
   OutputSchema extends TSchema,
   Strategies extends StrategyDefinitionsLike,
 > = Readonly<{
-  input: Static<InputSchema>;
+  input: OperationInput<InputSchema>;
   output: Static<OutputSchema>;
   strategyId: OpStrategyId<Strategies>;
   config: Readonly<{
@@ -88,8 +97,9 @@ export type DomainOp<
   Strategies extends RuntimeStrategiesLike,
   Id extends string = string,
   DefaultStrategy extends keyof Strategies & string = keyof Strategies & string,
+  Kind extends DomainOpKind = DomainOpKind,
 > = Readonly<{
-  kind: DomainOpKind;
+  kind: Kind;
   id: Id;
   input: InputSchema;
   output: OutputSchema;
@@ -98,7 +108,7 @@ export type DomainOp<
   defaultConfig: DefaultStrategySelection<Strategies, DefaultStrategy>;
   strategies: Strategies;
   run: BivariantCallback<
-    [Static<InputSchema>, StrategySelection<Strategies>],
+    [OperationInput<InputSchema>, StrategySelection<Strategies>],
     Static<OutputSchema>
   >;
   /**

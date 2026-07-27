@@ -5,9 +5,11 @@ import {
   NO_FEATURE_TYPE,
 } from "@civ7/map-policy";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import type { IsEqual } from "type-fest";
 import {
   measureStandardNaturalWonderPlanInput,
   STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY,
+  type StandardNaturalWonderPlannerMeasurementSurface,
 } from "../../../../metrics/families/placement/natural-wonder-plan-input.js";
 import {
   emitStandardNaturalWonderPlanExactLog,
@@ -62,7 +64,13 @@ export const PlanNaturalWondersStep = createStep(config, {
       noFeatureType: NO_FEATURE_TYPE,
       naturalWonderBlockedMask: buildNaturalWonderBlockedMask(width, height),
       featureCatalog: NATURAL_WONDER_CATALOG,
-    };
+    } satisfies StandardNaturalWonderPlannerMeasurementSurface &
+      Parameters<typeof ops.naturalWonders>[0];
+    const plannerInputEvidenceIsExhaustive: IsEqual<
+      keyof StandardNaturalWonderPlannerMeasurementSurface,
+      keyof Parameters<typeof ops.naturalWonders>[0]
+    > = true;
+    void plannerInputEvidenceIsExhaustive;
     const strategySelection = stepConfig.naturalWonders;
     const naturalWonderPlan = ops.naturalWonders(plannerInput, strategySelection);
     deps.artifacts.naturalWonderPlan.publish(context, naturalWonderPlan);

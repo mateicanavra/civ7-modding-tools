@@ -1,5 +1,11 @@
 import type { Tagged } from "type-fest";
 import type { Static, TArray, TIntersect, TObject, TProperties, TSchema, TUnion } from "typebox";
+import type { ReadonlyData, ReadonlyDataArray, ReadonlyTypedArray } from "../data/readonly-data.js";
+import {
+  compileSchemaAdmission,
+  type SchemaAdmission,
+  type SchemaAdmissionIssue,
+} from "../schema/admission.js";
 import type {
   SupportedTypedArray,
   TTypedArraySchema,
@@ -11,21 +17,26 @@ import {
   type TypedArrayAdmissionPlan,
   validateTypedArrayAdmission,
 } from "../schema/typed-array-admission.js";
+import type { OperationInput } from "./types.js";
 
 /** Immutable operation-entry program compiled once from a contract input schema. */
 export type OperationInputAdmissionPlan = TypedArrayAdmissionPlan &
   Readonly<{
     opId: string;
+    structure: SchemaAdmission;
   }>;
 
 /** Exact-constructor typed array admitted under its declared non-grid cardinality contract. */
 export type AdmittedBuffer<Value extends SupportedTypedArray> = Tagged<
-  Value,
+  ReadonlyTypedArray<Value>,
   "MapGenAdmittedBuffer"
 >;
 
 /** Grid-coupled typed array whose declared cardinality has been admitted. */
-export type GridBuffer<Value extends SupportedTypedArray> = Tagged<Value, "MapGenGridBuffer">;
+export type GridBuffer<Value extends SupportedTypedArray> = Tagged<
+  ReadonlyTypedArray<Value>,
+  "MapGenGridBuffer"
+>;
 
 type MapDirectAdmittedSchema<Schema extends TSchema> =
   Schema extends TTypedArraySchema<
@@ -43,16 +54,13 @@ type MapDirectAdmittedSchema<Schema extends TSchema> =
         : AdmittedBuffer<Value>
     : never;
 
-type MapAdmittedArray<Schema extends TArray, Item extends TSchema> =
-  Static<Schema> extends unknown[]
-    ? MapAdmittedInputSchema<Item>[]
-    : readonly MapAdmittedInputSchema<Item>[];
+type MapAdmittedArray<Item extends TSchema> = ReadonlyDataArray<MapAdmittedInputSchema<Item>>;
 
-type MapAdmittedObject<Schema extends TObject, Properties extends TProperties> = {
-  [Key in keyof Static<Schema>]: Key extends keyof Properties
+type MapAdmittedObject<Schema extends TObject, Properties extends TProperties> = ReadonlyData<{
+  readonly [Key in keyof Static<Schema>]: Key extends keyof Properties
     ? MapAdmittedInputSchema<Extract<Properties[Key], TSchema>>
     : Static<Schema>[Key];
-};
+}>;
 
 type MapAdmittedIntersection<Types extends TSchema[]> = Types extends [
   infer Left extends TSchema,
@@ -65,18 +73,18 @@ type MapAdmittedInputSchema<Schema extends TSchema> =
   Schema extends TTypedArraySchema<SupportedTypedArray, TypedArrayCardinality>
     ? MapDirectAdmittedSchema<Schema>
     : Schema extends TArray<infer Item extends TSchema>
-      ? MapAdmittedArray<Schema, Item>
+      ? MapAdmittedArray<Item>
       : Schema extends TObject<infer Properties extends TProperties>
         ? MapAdmittedObject<Schema, Properties>
         : Schema extends TUnion<infer Types extends TSchema[]>
           ? MapAdmittedInputSchema<Types[number]>
           : Schema extends TIntersect<infer Types extends TSchema[]>
             ? MapAdmittedIntersection<Types>
-            : Static<Schema>;
+            : ReadonlyData<Static<Schema>>;
 
 /**
- * Transient strategy view produced only after Core admits every annotated typed-array field.
- * Public operation callers continue to supply the raw structural `Static<InputSchema>` value.
+ * Deeply readonly strategy view produced after Core admits every annotated typed-array field.
+ * Admission adds genuine typed-array proof brands without cloning or freezing the value.
  */
 export type AdmittedOperationInput<InputSchema extends TSchema> = Tagged<
   MapAdmittedInputSchema<InputSchema>,
@@ -84,7 +92,7 @@ export type AdmittedOperationInput<InputSchema extends TSchema> = Tagged<
 >;
 
 /** One deterministic, pathful refusal emitted by operation-input admission. */
-export type OperationInputAdmissionIssue = TypedArrayAdmissionIssue;
+export type OperationInputAdmissionIssue = SchemaAdmissionIssue | TypedArrayAdmissionIssue;
 
 /** Typed refusal raised before strategy selection can observe an inadmissible operation input. */
 export class OperationInputAdmissionError extends Error {
@@ -107,6 +115,7 @@ export function compileOperationInputAdmissionPlan(
 ): OperationInputAdmissionPlan {
   return Object.freeze({
     opId,
+    structure: compileSchemaAdmission(inputSchema),
     ...compileTypedArrayAdmissionPlan(inputSchema, {
       subject: "Operation",
       contextualCardinality: "refuse",
@@ -115,13 +124,17 @@ export function compileOperationInputAdmissionPlan(
 }
 
 /**
- * Executes one compiled admission transition and returns the same value under the strategy-only
- * admitted view. It never defaults, clones, or performs general TypeBox validation.
+ * Executes one compiled structural and typed-array admission transition, then returns the same
+ * value under the strategy-only admitted view. It never defaults, cleans, clones, or freezes.
  */
 export function admitOperationInput<InputSchema extends TSchema>(
   plan: OperationInputAdmissionPlan,
-  input: Static<InputSchema>
+  input: OperationInput<InputSchema>
 ): AdmittedOperationInput<InputSchema> {
+  const structuralIssues = plan.structure(input);
+  if (structuralIssues.length > 0) {
+    throw new OperationInputAdmissionError(plan.opId, structuralIssues);
+  }
   const issues = validateTypedArrayAdmission(plan, input);
   if (issues.length > 0) throw new OperationInputAdmissionError(plan.opId, issues);
   return input as AdmittedOperationInput<InputSchema>;

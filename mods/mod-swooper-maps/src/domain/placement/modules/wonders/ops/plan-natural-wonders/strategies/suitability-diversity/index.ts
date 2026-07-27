@@ -70,15 +70,15 @@ type FootprintOffsetsByParity = {
 };
 
 type NaturalWonderFeatureCandidate = {
-  featureType: number;
-  direction: number;
-  placeFirst: boolean;
-  validTerrainTypes: readonly number[];
-  validBiomeTypes: readonly number[];
-  minimumElevation: number | null;
-  noLake: boolean;
-  featureTags: readonly string[];
-  footprintOffsetsByParity: FootprintOffsetsByParity;
+  readonly featureType: number;
+  readonly direction: number;
+  readonly placeFirst: boolean;
+  readonly validTerrainTypes: readonly number[];
+  readonly validBiomeTypes: readonly number[];
+  readonly minimumElevation: number | null;
+  readonly noLake: boolean;
+  readonly featureTags: readonly string[];
+  readonly footprintOffsetsByParity: FootprintOffsetsByParity;
 };
 
 /**
@@ -464,7 +464,7 @@ function getFootprintIndices(args: {
   plotIndex: number;
   width: number;
   height: number;
-  footprintOffsetsByParity: FootprintOffsetsByParity;
+  footprintOffsetsByParity: Readonly<FootprintOffsetsByParity>;
 }): number[] | null {
   const y = (args.plotIndex / args.width) | 0;
   const x = args.plotIndex - y * args.width;
@@ -508,7 +508,7 @@ function hasTerrainWithinHexDistance(args: {
   centerIndex: number;
   width: number;
   height: number;
-  terrainType: Int32Array;
+  terrainType: ArrayLike<number>;
   targetTerrainType: number;
   maxDistance: number;
 }): boolean {
@@ -562,11 +562,11 @@ function satisfiesFeatureTags(args: {
   footprint: readonly number[];
   width: number;
   height: number;
-  landMask: Uint8Array;
-  terrainType: Int32Array;
-  biomeType: Int32Array;
-  featureType: Int32Array;
-  riverClass: Uint8Array;
+  landMask: ArrayLike<number>;
+  terrainType: ArrayLike<number>;
+  biomeType: ArrayLike<number>;
+  featureType: ArrayLike<number>;
+  riverClass: ArrayLike<number>;
   coastTerrainType: number;
   mountainTerrainType: number;
   iceFeatureType: number;
@@ -768,17 +768,17 @@ function isCandidateCompatibleWithFeature(args: {
   candidate: Candidate;
   width: number;
   height: number;
-  landMask: Uint8Array;
-  terrainType: Int32Array;
-  biomeType: Int32Array;
-  featureType: Int32Array;
-  riverClass: Uint8Array;
+  landMask: ArrayLike<number>;
+  terrainType: ArrayLike<number>;
+  biomeType: ArrayLike<number>;
+  featureType: ArrayLike<number>;
+  riverClass: ArrayLike<number>;
   coastTerrainType: number;
   mountainTerrainType: number;
   iceFeatureType: number;
   noFeatureType: number;
-  naturalWonderBlockedMask: Uint8Array;
-  lakeMask: Uint8Array;
+  naturalWonderBlockedMask: ArrayLike<number>;
+  lakeMask: ArrayLike<number>;
 }): boolean {
   const footprint = getFootprintIndices({
     plotIndex: args.candidate.plotIndex,

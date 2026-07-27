@@ -5,7 +5,7 @@ const DEFAULT_MAX_WATER_DRIFT_SHARE = 0.05;
 const DEFAULT_SAMPLE_LIMIT = 16;
 
 interface CoastProjectionSurface {
-  waterClass: Uint8Array;
+  waterClass: ArrayLike<number>;
 }
 
 type MapDimensions = Readonly<{ width: number; height: number }>;
@@ -80,7 +80,7 @@ function expectedTerrainForWaterClass(waterClass: number): number | null {
  * Projects Civ7's water-mask convention into the land-mask convention used by
  * Standard product parity checks.
  */
-export function landMaskFromWaterMask(waterMask: Uint8Array): Uint8Array {
+export function landMaskFromWaterMask(waterMask: ArrayLike<number>): Uint8Array {
   return Uint8Array.from(waterMask, (isWater) => (isWater === 1 ? 0 : 1));
 }
 
@@ -168,8 +168,8 @@ export function restoreProjectedCoastTerrain(
  */
 export function assertNoWaterDrift(
   dimensions: MapDimensions,
-  currentWaterMask: Uint8Array,
-  expectedLandMask: Uint8Array,
+  currentWaterMask: ArrayLike<number>,
+  expectedLandMask: ArrayLike<number>,
   label: string
 ): void {
   const { width, height } = dimensions;
@@ -203,8 +203,8 @@ export function assertNoWaterDrift(
  */
 function captureWaterDriftReport(
   dimensions: MapDimensions,
-  currentWaterMask: Uint8Array,
-  expectedLandMask: Uint8Array,
+  currentWaterMask: ArrayLike<number>,
+  expectedLandMask: ArrayLike<number>,
   label: string,
   options: WaterDriftPolicyOptions = {}
 ): WaterDriftReport {
@@ -266,8 +266,8 @@ function captureWaterDriftReport(
 export function assertWaterDriftWithinPolicy(
   dimensions: MapDimensions,
   trace: StepTrace,
-  currentWaterMask: Uint8Array,
-  expectedLandMask: Uint8Array,
+  currentWaterMask: ArrayLike<number>,
+  expectedLandMask: ArrayLike<number>,
   label: string,
   options: WaterDriftPolicyOptions = {}
 ): WaterDriftReport {

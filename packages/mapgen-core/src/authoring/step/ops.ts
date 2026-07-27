@@ -1,7 +1,7 @@
 import type { Static } from "typebox";
 
 import { isCanonicalOpContract, type OpContractAny } from "../operation/contract.js";
-import type { OpTypeBagOf } from "../operation/types.js";
+import type { OperationInput, OpTypeBagOf } from "../operation/types.js";
 
 export type { OpContractAny } from "../operation/contract.js";
 
@@ -66,7 +66,7 @@ type BivariantFn<Args extends unknown[], R> = {
 }["bivarianceHack"];
 
 type RuntimeOpFromContract<C extends OpContractAny> = BivariantFn<
-  [input: Static<C["input"]>, config: OpTypeBagOf<C>["envelope"]],
+  [input: OperationInput<C["input"]>, config: OpTypeBagOf<C>["envelope"]],
   Static<C["output"]>
 > &
   Readonly<{

@@ -34,11 +34,11 @@ export type DrainageRoutingResult = Readonly<{
  * @throws When a land tile remains unreachable or the derived receiver graph is cyclic.
  */
 export function computeDrainageRouting(params: {
-  width: number;
-  height: number;
-  elevation: Int16Array;
-  landMask: Uint8Array;
-  allowExternalEdgeOutlets: boolean;
+  readonly width: number;
+  readonly height: number;
+  readonly elevation: ArrayLike<number>;
+  readonly landMask: ArrayLike<number>;
+  readonly allowExternalEdgeOutlets: boolean;
 }): DrainageRoutingResult {
   const width = params.width;
   const height = params.height;
@@ -159,7 +159,10 @@ export function computeDrainageRouting(params: {
   };
 }
 
-function computeDrainageAccumulation(landMask: Uint8Array, flowDir: Int32Array): Float32Array {
+function computeDrainageAccumulation(
+  landMask: ArrayLike<number>,
+  flowDir: ArrayLike<number>
+): Float32Array {
   const size = landMask.length;
   const flowAccum = new Float32Array(size);
   const receiver = new Int32Array(size);
@@ -203,7 +206,7 @@ function computeDrainageAccumulation(landMask: Uint8Array, flowDir: Int32Array):
   return flowAccum;
 }
 
-function findLowestLandTile(elevation: Int16Array, landMask: Uint8Array): number {
+function findLowestLandTile(elevation: ArrayLike<number>, landMask: ArrayLike<number>): number {
   let best = -1;
   let bestElevation = Infinity;
   for (let i = 0; i < landMask.length; i++) {
@@ -220,8 +223,8 @@ function isRawLocalDrainageMinimum(
   index: number,
   width: number,
   height: number,
-  elevation: Int16Array,
-  landMask: Uint8Array
+  elevation: ArrayLike<number>,
+  landMask: ArrayLike<number>
 ): boolean {
   const here = elevation[index] ?? 0;
   const x = index % width;

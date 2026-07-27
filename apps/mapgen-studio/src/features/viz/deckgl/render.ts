@@ -3,9 +3,9 @@ import { LineLayer, PolygonLayer, ScatterplotLayer } from "@deck.gl/layers";
 import type {
   VizBinaryLayout,
   VizBinaryRef,
+  VizBinarySource,
   VizScalarField,
   VizScalarFormat,
-  VizScalarSource,
   VizScalarStats,
   VizSpaceId,
 } from "@swooper/mapgen-viz";
@@ -296,7 +296,7 @@ function decodeScalarArray(
   buffer: ArrayBuffer,
   layout: VizScalarBinaryLayout,
   label: string
-): VizScalarSource["values"] {
+): VizBinarySource {
   assertVizBinaryByteLength(buffer.byteLength, layout, label);
   const { format } = layout;
   switch (format) {
@@ -324,10 +324,7 @@ function decodeFloat32Geometry(
   return new Float32Array(buffer);
 }
 
-function scalarStats(
-  values: VizScalarSource["values"],
-  field: VizScalarField
-): VizScalarStats | null {
+function scalarStats(values: VizBinarySource, field: VizScalarField): VizScalarStats | null {
   return (
     field.stats ??
     computeVizScalarStats(

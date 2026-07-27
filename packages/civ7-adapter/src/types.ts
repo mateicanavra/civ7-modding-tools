@@ -695,7 +695,7 @@ export interface EngineAdapter {
   readRiverProjection(
     width: number,
     height: number,
-    plannedNavigableRiverMask: Uint8Array
+    plannedNavigableRiverMask: ArrayLike<number>
   ): RiverProjectionResult;
 
   /** Generate lakes (wraps Civ7 base-standard elevation terrain generator) */

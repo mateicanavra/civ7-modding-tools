@@ -14,10 +14,10 @@ export default createStrategy(ComputeShelfMaskContract, StrategyDefinition, {
     const { width, height } = input;
     const size = width * height;
 
-    const landMask = input.landMask as Uint8Array;
-    const bathymetry = input.bathymetry as Int16Array;
-    const boundaryCloseness = input.boundaryCloseness as Uint8Array;
-    const boundaryType = input.boundaryType as Uint8Array;
+    const landMask = input.landMask;
+    const bathymetry = input.bathymetry;
+    const boundaryCloseness = input.boundaryCloseness;
+    const boundaryType = input.boundaryType;
 
     const activeThresholdU8 = Math.floor(config.activeClosenessThreshold * 255);
     // The break-gradient threshold (bathymetry units per tile-hop). A gradient is a DIFFERENCE

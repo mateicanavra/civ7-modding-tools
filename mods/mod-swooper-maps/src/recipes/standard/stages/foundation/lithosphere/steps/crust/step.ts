@@ -17,7 +17,6 @@ export const CrustStep = createStep(config, {
       {
         mesh: { cellCount: mesh.cellCount },
         mantleForcing: {
-          cellCount: mantleForcing.cellCount,
           divergence: mantleForcing.divergence,
           forcingMag: mantleForcing.forcingMag,
           stress: mantleForcing.stress,

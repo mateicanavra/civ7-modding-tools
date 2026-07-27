@@ -1,133 +1,15 @@
 import { classifyThenable, containThenable } from "@mapgen/lib/async/thenable.js";
-import type { Primitive } from "type-fest";
 import type { Static, TSchema } from "typebox";
-import { Value } from "typebox/value";
 
-import type { SupportedTypedArray } from "../schema/typed-array.js";
+import type { ReadonlyData, ReadonlyDataArray } from "../data/readonly-data.js";
+import { compileSchemaAdmission } from "../schema/admission.js";
 import {
   compileTypedArrayAdmissionPlan,
   type TypedArrayAdmissionIssue,
   validateTypedArrayAdmission,
 } from "../schema/typed-array-admission.js";
 
-type ReadonlyArtifactTypedArray<T extends SupportedTypedArray> = {
-  readonly [index: number]: number;
-  readonly BYTES_PER_ELEMENT: number;
-  readonly byteLength: number;
-  readonly byteOffset: number;
-  readonly length: number;
-  readonly [Symbol.toStringTag]: string;
-  [Symbol.iterator](): ArrayIterator<number>;
-  at(index: number): number | undefined;
-  entries(): ArrayIterator<[number, number]>;
-  every(
-    predicate: (value: number, index: number, array: ReadonlyArtifactTypedArray<T>) => unknown,
-    thisArg?: unknown
-  ): boolean;
-  filter(
-    predicate: (value: number, index: number, array: ReadonlyArtifactTypedArray<T>) => unknown,
-    thisArg?: unknown
-  ): T;
-  find(
-    predicate: (value: number, index: number, array: ReadonlyArtifactTypedArray<T>) => boolean,
-    thisArg?: unknown
-  ): number | undefined;
-  findIndex(
-    predicate: (value: number, index: number, array: ReadonlyArtifactTypedArray<T>) => boolean,
-    thisArg?: unknown
-  ): number;
-  forEach(
-    callbackfn: (value: number, index: number, array: ReadonlyArtifactTypedArray<T>) => void,
-    thisArg?: unknown
-  ): void;
-  includes(searchElement: number, fromIndex?: number): boolean;
-  indexOf(searchElement: number, fromIndex?: number): number;
-  join(separator?: string): string;
-  keys(): ArrayIterator<number>;
-  lastIndexOf(searchElement: number, fromIndex?: number): number;
-  map(
-    callbackfn: (value: number, index: number, array: ReadonlyArtifactTypedArray<T>) => number,
-    thisArg?: unknown
-  ): T;
-  reduce(
-    callbackfn: (
-      previousValue: number,
-      currentValue: number,
-      currentIndex: number,
-      array: ReadonlyArtifactTypedArray<T>
-    ) => number
-  ): number;
-  reduce(
-    callbackfn: (
-      previousValue: number,
-      currentValue: number,
-      currentIndex: number,
-      array: ReadonlyArtifactTypedArray<T>
-    ) => number,
-    initialValue: number
-  ): number;
-  reduce<U>(
-    callbackfn: (
-      previousValue: U,
-      currentValue: number,
-      currentIndex: number,
-      array: ReadonlyArtifactTypedArray<T>
-    ) => U,
-    initialValue: U
-  ): U;
-  reduceRight(
-    callbackfn: (
-      previousValue: number,
-      currentValue: number,
-      currentIndex: number,
-      array: ReadonlyArtifactTypedArray<T>
-    ) => number
-  ): number;
-  reduceRight(
-    callbackfn: (
-      previousValue: number,
-      currentValue: number,
-      currentIndex: number,
-      array: ReadonlyArtifactTypedArray<T>
-    ) => number,
-    initialValue: number
-  ): number;
-  reduceRight<U>(
-    callbackfn: (
-      previousValue: U,
-      currentValue: number,
-      currentIndex: number,
-      array: ReadonlyArtifactTypedArray<T>
-    ) => U,
-    initialValue: U
-  ): U;
-  slice(start?: number, end?: number): T;
-  some(
-    predicate: (value: number, index: number, array: ReadonlyArtifactTypedArray<T>) => unknown,
-    thisArg?: unknown
-  ): boolean;
-  subarray(begin?: number, end?: number): ReadonlyArtifactTypedArray<T>;
-  toLocaleString(): string;
-  toString(): string;
-  values(): ArrayIterator<number>;
-  valueOf(): ReadonlyArtifactTypedArray<T>;
-};
-
-type ArtifactRefinementValue<T> = T extends SupportedTypedArray
-  ? ReadonlyArtifactTypedArray<T>
-  : T extends Primitive
-    ? T
-    : T extends (...args: never[]) => unknown
-      ? T
-      : T extends ReadonlyMap<infer Key, infer Value>
-        ? ReadonlyMap<ArtifactRefinementValue<Key>, ArtifactRefinementValue<Value>>
-        : T extends ReadonlySet<infer Item>
-          ? ReadonlySet<ArtifactRefinementValue<Item>>
-          : T extends readonly unknown[]
-            ? { readonly [Key in keyof T]: ArtifactRefinementValue<T[Key]> }
-            : T extends object
-              ? { readonly [Key in keyof T]: ArtifactRefinementValue<T[Key]> }
-              : T;
+type ArtifactRefinementValue<T> = ReadonlyData<T>;
 
 /** One stable, human-readable artifact admission failure. */
 type ArtifactValidationIssue = Readonly<{ message: string }>;
@@ -137,13 +19,13 @@ type ArtifactValidationContext = Readonly<{
   dimensions: Readonly<{ width: number; height: number }>;
 }>;
 
+type ArtifactGridCoordinate = Readonly<{ x: number; y: number }>;
+type ArtifactGridCoordinates = ReadonlyDataArray<ArtifactGridCoordinate>;
+
 /** Core-owned semantic issue accumulator available only while one refinement is running. */
 type ArtifactIssueSink = Readonly<{
   add: (message: string) => void;
-  addGridCoordinates: (
-    label: string,
-    coordinates: readonly Readonly<{ x: number; y: number }>[]
-  ) => void;
+  addGridCoordinates: (label: string, coordinates: ArtifactGridCoordinates) => void;
 }>;
 
 /** Admitted contextual facilities supplied to an artifact's semantic refinement. */
@@ -193,7 +75,7 @@ function createIssueCollector(
     append(message);
   });
   const addGridCoordinates = Object.freeze(
-    (label: string, coordinates: readonly Readonly<{ x: number; y: number }>[]): void => {
+    (label: string, coordinates: ArtifactGridCoordinates): void => {
       assertOpen();
       if (typeof label !== "string" || !Array.isArray(coordinates)) {
         throw new TypeError(
@@ -234,10 +116,13 @@ function createIssueCollector(
   });
 }
 
-function addStructuralIssues(collector: IssueCollector, schema: TSchema, value: unknown): void {
-  for (const error of Value.Errors(schema, value)) {
-    const path = error.instancePath || "/";
-    collector.addInternal(`${path} ${error.message}`);
+function addStructuralIssues(
+  collector: IssueCollector,
+  admission: ReturnType<typeof compileSchemaAdmission>,
+  value: unknown
+): void {
+  for (const issue of admission(value)) {
+    collector.addInternal(`${issue.path} ${issue.message}`);
   }
 }
 
@@ -293,6 +178,7 @@ export function createArtifactValidatorInternal<Schema extends TSchema>(
   schema: Schema,
   refine?: ArtifactRefinement<Schema>
 ): ArtifactValidator {
+  const structure = compileSchemaAdmission(schema);
   const typedArrays = compileTypedArrayAdmissionPlan(schema, {
     subject: "Artifact",
     contextualCardinality: "allow",
@@ -304,7 +190,7 @@ export function createArtifactValidatorInternal<Schema extends TSchema>(
   ): readonly ArtifactValidationIssue[] => {
     const dimensions = context.dimensions;
     const collector = createIssueCollector(dimensions);
-    addStructuralIssues(collector, schema, value);
+    addStructuralIssues(collector, structure, value);
     if (collector.hasIssues()) {
       collector.close();
       return collector.snapshot();

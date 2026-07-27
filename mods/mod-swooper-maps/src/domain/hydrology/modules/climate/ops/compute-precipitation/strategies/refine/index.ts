@@ -9,7 +9,7 @@ import RefineDefinition from "./config.js";
 function buildRiverCorridorMask(
   width: number,
   height: number,
-  riverClass: Uint8Array,
+  riverClass: ArrayLike<number>,
   radius: number
 ): Uint8Array {
   const size = width * height;

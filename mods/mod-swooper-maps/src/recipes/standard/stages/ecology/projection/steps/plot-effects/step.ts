@@ -20,11 +20,11 @@ const PLOT_EFFECT_KEY_BY_INTENT: Readonly<Record<PlotEffectIntentKey, PlotEffect
   "jungle-fever": "PLOTEFFECT_JUNGLE_FEVER",
 };
 
-type PlotEffectPlacement = {
+type PlotEffectPlacement = Readonly<{
   x: number;
   y: number;
   plotEffect: PlotEffectIntentKey;
-};
+}>;
 
 type PlotEffectEngine = Readonly<{
   getPlotEffectTypeIndex: (key: PlotEffectKey) => number;
@@ -48,7 +48,7 @@ const resolvePlotEffectIndex = (engine: PlotEffectEngine, key: PlotEffectKey): n
  */
 function applyPlotEffectPlacements(
   engine: PlotEffectEngine,
-  placements: ReadonlyArray<PlotEffectPlacement>
+  placements: readonly PlotEffectPlacement[]
 ): void {
   const resolved = new Map<PlotEffectKey, number>();
 

@@ -41,7 +41,7 @@ export function isLowBasinClosed(
   y: number,
   width: number,
   height: number,
-  elevation: Int16Array,
+  elevation: ArrayLike<number>,
   radius: number,
   openThresholdM: number
 ): boolean {

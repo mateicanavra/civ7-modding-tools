@@ -2,6 +2,9 @@
 
 ## Rolling Focus
 
+**Attractor filter:** Gravity. Observation. Admission. Ownership. Contract.
+Deletion. Density. Candor. Restraint.
+
 **Frame:** kind before instance, intent before ownership, authority before
 relocation. A closed file shape is the start of semantic review, not proof that
 the responsibilities retained inside its allowed files are earned. Recipe
@@ -28,15 +31,17 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** untangle the complete Placement stage on one normalized
-plane. A real Placement step must add recipe-level orchestration: select exact
-declared inputs, call domain operations or adapter capabilities, publish
-immutable products, or reconcile an engine mutation. Pseudo-steps that merely
-reshape setup, collect several operation configs, duplicate a domain decision,
-or preserve a retired coordination model are deleted at their root rather than
-made prettier inside the closed `config.ts`/`step.ts` shape. Finish the whole
-Placement stage before reopening its test corpus so semantic review occurs
-against one topology, not another hybrid.
+**Current container:** collapse operation input ownership to the two states the
+runtime actually has: caller-provided observational input and Core-admitted
+strategy input. `OperationInput<Schema>` is the canonical deeply read-only
+authoring projection; mutable schema-shaped values and immutable artifact reads
+both flow through the same zero-copy call surface. Core performs structural and
+cardinality admission once, strategies receive only the admitted view, and
+outputs remain newly owned values. Delete the public Borrow concept and every
+consumer annotation that escaped with it, then thermonuclearly inspect the
+adjacent SDK layer for wrappers, markers, fallback paths, or duplicate
+authorities that likewise narrate TypeScript without representing a real
+runtime state. Seal that exact layer before resuming Placement reconciliation.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -53,13 +58,18 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** read the Placement stage in causal order and classify every step
-by intent before ownership or file shape. Collapse obsolete setup-derivation,
-coordination, and alternate planning paths; push reusable decisions into their
-existing domain operation or Civ7 adapter owner; leave thin materialization and
-observation steps explicit. Regenerate the stage/config consumers, prove the
-complete Placement behavior surface, then audit tests against the normalized
-production plane and delete provider-guarantee or corruption-theater cases.
+**Gradient:** delete the false intermediate state first. One readonly operation
+input type flows through direct calls, step bindings, and artifact forwarding;
+one admission transition adds genuine structural and grid-cardinality proof;
+one ordinary output type carries newly owned data. Keep readonly typing honest
+as an authoring constraint rather than runtime isolation. Remove public deep
+readonly machinery, ownership markers, wrappers, casts, and compensation copies
+that no longer earn a state or boundary. Compare the remaining operation,
+strategy, schema-admission, domain-router, artifact-runtime, and visualization
+surfaces against the same test: if a concept does not correspond to runtime
+behavior or one necessary authoring capability, delete it rather than polish it.
+Compiler, focused behavior, and exact-tree proof close the layer; Placement then
+resumes on the smaller SDK.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -94,6 +104,17 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-27 - Borrowed Operation Input Rejected
+
+Artifact forwarding exposed a legitimate mutable-input mismatch, but the first
+repair elevated `BorrowedValue` into a public third state between caller input
+and admitted strategy input. Nothing was acquired, wrapped, released, cloned,
+or frozen, and TypeScript structural widening could bypass its strongest
+ownership claim. The direction therefore changed from propagating a Borrow
+capability to deleting it: operation inputs are observational by definition,
+admission is the only real transition, and hard runtime immutability remains a
+future storage/snapshot concern rather than type-level theater.
 
 ### 2026-07-27 - Exact Standard Initial Setup Authority
 

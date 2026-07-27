@@ -4,7 +4,7 @@ import { clamp01 } from "@swooper/mapgen-core/lib/math";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 
 import ComputeLandmaskContract from "../../contract.js";
-import { assertRiftPotentialEraPresent, reconcileTopography } from "../../rules/index.js";
+import { reconcileTopography } from "../../rules/index.js";
 import StrategyDefinition from "./config.js";
 
 /**
@@ -319,7 +319,6 @@ function fillToTarget(params: {
 /** Binds the `tectonic-potential` algorithm to the shared `morphology/compute-landmask` operation contract. */
 export default createStrategy(ComputeLandmaskContract, StrategyDefinition, {
   run: (input, config) => {
-    assertRiftPotentialEraPresent(input.riftPotentialByEra);
     const {
       width,
       height,
@@ -358,7 +357,7 @@ export default createStrategy(ComputeLandmaskContract, StrategyDefinition, {
     }
     desiredLandCount = Math.max(1, Math.min(size - 1, desiredLandCount));
 
-    const eraCount = Math.max(1, riftPotentialByEra.length | 0);
+    const eraCount = riftPotentialByEra.length;
 
     // Multi-scale continent potential:
     // - crust truth + provenance stability: low-frequency backbone

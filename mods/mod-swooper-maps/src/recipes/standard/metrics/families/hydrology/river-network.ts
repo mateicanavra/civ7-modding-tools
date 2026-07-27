@@ -202,16 +202,16 @@ export type StandardRiverNetworkMeasurements = Static<
 export type StandardRiverNetworkMeasurementInput = Readonly<{
   width: number;
   height: number;
-  landMask: Uint8Array;
-  discharge: Float32Array;
-  riverClass: Uint8Array;
-  flowDir: Int32Array;
-  basinId: Int32Array;
-  lakeMask: Uint8Array;
-  upstreamArea: Int32Array;
-  streamOrderProxy: Uint8Array;
-  mouthType: Uint8Array;
-  flowPermanenceProxy: Uint8Array;
+  landMask: ArrayLike<number>;
+  discharge: ArrayLike<number>;
+  riverClass: ArrayLike<number>;
+  flowDir: ArrayLike<number>;
+  basinId: ArrayLike<number>;
+  lakeMask: ArrayLike<number>;
+  upstreamArea: ArrayLike<number>;
+  streamOrderProxy: ArrayLike<number>;
+  mouthType: ArrayLike<number>;
+  flowPermanenceProxy: ArrayLike<number>;
 }>;
 
 function safeShare(numerator: number, denominator: number): number {

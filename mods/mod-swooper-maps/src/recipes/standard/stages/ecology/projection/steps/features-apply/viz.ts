@@ -1,5 +1,10 @@
 import { FEATURE_PLACEMENT_KEYS, type FeatureKey } from "@civ7/map-policy";
-import type { VizDims, VizLayerCategory, VizProjection } from "@swooper/mapgen-viz";
+import type {
+  VizDims,
+  VizLayerCategory,
+  VizProjection,
+  VizScalarSource,
+} from "@swooper/mapgen-viz";
 import { defineStandardVizCategoryMeta, defineStandardVizMeta } from "../../../../../viz.js";
 
 /**
@@ -8,6 +13,8 @@ import { defineStandardVizCategoryMeta, defineStandardVizMeta } from "../../../.
  */
 export const FEATURE_TYPE_NONE_VALUE = -1;
 type NumericVizLayerCategory = VizLayerCategory & Readonly<{ value: number }>;
+type Uint8VizValues = Extract<VizScalarSource, { format: "u8" }>["values"];
+type Int32VizValues = Extract<VizScalarSource, { format: "i32" }>["values"];
 const UNKNOWN_FEATURE_COLOR: VizLayerCategory["color"] = [148, 163, 184, 180];
 
 /**
@@ -72,7 +79,7 @@ function colorForKey(key: FeatureKey): VizLayerCategory["color"] {
  */
 export function buildFeatureTypeVizCategories(
   featureEngineIdsByKey: Readonly<Record<FeatureKey, number>>,
-  observedFeatureTypes?: Int32Array | ReadonlyArray<number>
+  observedFeatureTypes?: ArrayLike<number>
 ): readonly [NumericVizLayerCategory, ...NumericVizLayerCategory[]] {
   const byEngineId = new Map<number, FeatureKey[]>();
 
@@ -101,7 +108,9 @@ export function buildFeatureTypeVizCategories(
 
   if (observedFeatureTypes) {
     const seen = new Set<number>();
-    for (const value of observedFeatureTypes) {
+    for (let index = 0; index < observedFeatureTypes.length; index += 1) {
+      const value = observedFeatureTypes[index];
+      if (value === undefined) continue;
       if (!Number.isFinite(value) || value < 0) continue;
       seen.add(value | 0);
     }
@@ -123,15 +132,18 @@ export function buildFeatureTypeVizCategories(
 
 /** Completed Ecology feature-application evidence observed by the step visualization facet. */
 export type FeaturesApplyVizEvidence = Readonly<{
-  floodplainIntentMask: Uint8Array;
-  rejectionMask: Uint8Array;
-  floodplainAppliedMask: Uint8Array;
-  floodplainRejectedMask: Uint8Array;
+  floodplainIntentMask: Uint8VizValues;
+  rejectionMask: Uint8VizValues;
+  floodplainAppliedMask: Uint8VizValues;
+  floodplainRejectedMask: Uint8VizValues;
   applied: number;
-  featureType: Int32Array;
+  featureType: Int32VizValues;
   featureEngineIdsByKey: Readonly<Record<FeatureKey, number>>;
-  topographyLandMask?: Uint8Array;
-  engine?: Readonly<{ terrain: Int32Array; landMask: Uint8Array }>;
+  topographyLandMask?: Uint8VizValues;
+  engine?: Readonly<{
+    terrain: Int32VizValues;
+    landMask: Uint8VizValues;
+  }>;
 }>;
 
 /**

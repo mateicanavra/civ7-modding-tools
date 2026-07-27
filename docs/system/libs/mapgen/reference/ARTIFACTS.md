@@ -33,8 +33,11 @@ public catalog, preserving the product's semantic owner.
 - Republishing is an error.
 - Publication and reads retain the admitted value reference. Core does not deep-freeze or snapshot
   artifact payload memory; immutability is enforced by pipeline ownership rather than hostile
-  JavaScript memory protection. Typed-array mutators are not yet excluded from every consumer type
-  signature.
+  JavaScript memory protection. The consumer type is a deep readonly authoring projection that
+  removes direct typed-array mutators and mutable backing-storage capabilities. TypeScript
+  structural widening or an explicit cast can bypass that constraint, and a producer-retained raw
+  alias remains a runtime trust caveat. Take an explicit copy before producing mutable output;
+  arbitrary callable members are not artifact data.
 - Artifact storage is private to MapGen Core. `MapContext` exposes no raw store or query facade.
 - Authored steps read and publish only through their declared `deps.artifacts` capabilities.
 - Metrics, diagnostics, and other post-run observers use `readValidatedArtifact` or
@@ -42,7 +45,7 @@ public catalog, preserving the product's semantic owner.
 
 The artifact owner owns its complete payload schema. Smaller reusable pieces,
 such as one `PlateSchema` subentity, may come from exact model-atom files, but a
-complete artifact container never moves into atoms or gets borrowed wholesale
+complete artifact container never moves into atoms or gets reused wholesale
 by an operation contract (`plate-graph.artifact.ts`; excerpt):
 
 ```ts

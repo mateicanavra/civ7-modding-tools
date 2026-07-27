@@ -8,6 +8,10 @@ import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import type { TectonicEraFields } from "../../../model/atoms/tectonic-era-fields.schema.js";
 import { EVENT_TYPE, type TectonicEvent } from "../../../model/atoms/tectonic-event.schema.js";
 
+type TectonicEventInput = Omit<Readonly<TectonicEvent>, "seedCells"> & {
+  readonly seedCells: readonly number[];
+};
+
 const BELT_INFLUENCE_DISTANCE_CLAMP_MIN = 1;
 const BELT_INFLUENCE_DISTANCE_CLAMP_MAX = 64;
 const BELT_DECAY_CLAMP_MIN = 0.01;
@@ -99,7 +103,7 @@ function driftSeedCells(
   driftU: number,
   driftV: number,
   steps: number,
-  mesh: CsrPointMesh2D
+  mesh: Readonly<CsrPointMesh2D>
 ): Int32Array {
   if (steps <= 0 || (driftU === 0 && driftV === 0)) {
     return Int32Array.from(seeds);
@@ -130,15 +134,15 @@ function driftSeedCells(
  * These fields are the common evidence consumed by history rollups, current state, and provenance.
  */
 export function buildEraFields(params: {
-  mesh: CsrPointMesh2D;
-  events: ReadonlyArray<TectonicEvent>;
+  mesh: Readonly<CsrPointMesh2D>;
+  events: readonly TectonicEventInput[];
   weight: number;
   eraGain: number;
   activityGain: number;
   driftSteps: number;
   emission: EmissionParams;
 }): TectonicEraFields {
-  const cellCount = params.mesh.cellCount | 0;
+  const cellCount = params.mesh.cellCount;
   const R = params.emission.radius;
   const D = params.emission.decay;
 

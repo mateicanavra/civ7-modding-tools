@@ -42,16 +42,9 @@ function postWorkerVizLayer(options: {
   post({ type: "viz.layer.upsert", runToken, generation, layer }, collectTransferables(layer));
 }
 
-function cloneArrayBuffer(view: ArrayBufferView): ArrayBuffer {
-  const copy = new Uint8Array(view.byteLength);
-  copy.set(new Uint8Array(view.buffer, view.byteOffset, view.byteLength));
-  return copy.buffer;
-}
-
-const materializeInline: VizBinaryMaterializer<VizInlineRef> = ({ source }) => ({
-  kind: "inline",
-  buffer: cloneArrayBuffer(source),
-});
+const materializeInline: VizBinaryMaterializer<VizInlineRef> = ({ bytes }) => {
+  return { kind: "inline", buffer: bytes.buffer };
+};
 
 function materializeWorkerProjection(
   projection: VizProjection,

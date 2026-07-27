@@ -165,8 +165,8 @@ To align with current canon:
 - Worker installs a `TraceSink` that forwards `step.start` / `step.finish` to `run.progress`.
 - Worker installs `createWorkerVizFacetSink(...)` under `facets.viz`.
 - A step's pure `viz` projector runs only after `run` succeeds and its providers are admitted.
-- The facet sink attaches Core-owned identity, copies each exact typed-array view, materializes an
-  inline layer, and posts `viz.layer.upsert` with Transferables.
+- The facet sink attaches Core-owned identity, requests one host-owned copy from each Viz kernel
+  snapshot, materializes an inline layer, and posts `viz.layer.upsert` with Transferables.
 - Recipe-owned style choices arrive as resolved portable colors. The worker and Studio renderer do
   not maintain a recipe palette registry.
 

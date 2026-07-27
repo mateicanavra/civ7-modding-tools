@@ -20,7 +20,7 @@ export interface PlateNode {
 
 export type PlateGraph = PlateNode[];
 
-type PlateIdArray = Int16Array | Int8Array | Uint8Array | Uint16Array | number[];
+type PlateIdArray = ArrayLike<number>;
 
 function assertValidDimensions(plateIds: PlateIdArray, width: number, height: number): void {
   const expected = width * height;

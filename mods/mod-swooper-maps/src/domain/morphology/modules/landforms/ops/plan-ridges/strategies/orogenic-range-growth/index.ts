@@ -60,11 +60,11 @@ function applyRangeEnvelope(closenessNorm: number, rangeEnvelopeScale: number): 
 
 function resolveStrongestDriverByte(params: {
   i: number;
-  upliftPotential: Uint8Array;
-  collisionPotential: Uint8Array;
-  subductionPotential: Uint8Array;
-  riftPotential: Uint8Array;
-  tectonicStress: Uint8Array;
+  upliftPotential: ArrayLike<number>;
+  collisionPotential: ArrayLike<number>;
+  subductionPotential: ArrayLike<number>;
+  riftPotential: ArrayLike<number>;
+  tectonicStress: ArrayLike<number>;
 }): number {
   const {
     i,

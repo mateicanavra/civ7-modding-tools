@@ -33,9 +33,12 @@ This enables reproducibility, caching, and reliable inspection.
 
 Publication and reads are zero-copy: Core stores and returns the producer's admitted reference. It
 does not recursively freeze payload memory or defend against a retained hostile JavaScript
-reference. Immutability is therefore a pipeline ownership contract. Consumer signatures express
-readonly intent for ordinary structures, but do not yet make every typed-array mutation
-unrepresentable.
+reference. Immutability is therefore a pipeline ownership contract. Consumer signatures expose a
+deep readonly TypeScript projection that removes direct mutation affordances, including typed-array
+mutators and mutable backing-storage capabilities. That projection guides authors; structural
+widening, an explicit cast, or a producer-retained raw alias can still violate the runtime contract.
+Consumers must copy before taking mutable ownership. Callable members remain outside the artifact
+data universe.
 
 ### Disallowed
 

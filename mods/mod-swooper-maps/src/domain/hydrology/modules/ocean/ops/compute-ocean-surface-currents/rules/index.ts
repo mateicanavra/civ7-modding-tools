@@ -22,8 +22,8 @@ import { clamp01 } from "@swooper/mapgen-core/lib/math";
 export function computeCurrents(
   width: number,
   height: number,
-  latitudeByRow: Float32Array,
-  isWaterMask: Uint8Array,
+  latitudeByRow: ArrayLike<number>,
+  isWaterMask: ArrayLike<number>,
   strength: number
 ): { currentU: Int8Array; currentV: Int8Array } {
   const size = width * height;
@@ -98,7 +98,7 @@ function rotateLeft(v: Vec2): Vec2 {
 function smoothFieldWaterOddQ(
   width: number,
   height: number,
-  isWaterMask: Uint8Array,
+  isWaterMask: ArrayLike<number>,
   fx: Float32Array,
   fy: Float32Array,
   iters: number
@@ -148,7 +148,7 @@ function smoothFieldWaterOddQ(
 function projectDivergenceFreeOddQ(
   width: number,
   height: number,
-  isWaterMask: Uint8Array,
+  isWaterMask: ArrayLike<number>,
   fx: Float32Array,
   fy: Float32Array,
   iters: number
@@ -222,8 +222,8 @@ type BasinCenters = Readonly<{
 function computeBasinCenters(
   width: number,
   height: number,
-  isWaterMask: Uint8Array,
-  basinId: Int32Array
+  isWaterMask: ArrayLike<number>,
+  basinId: ArrayLike<number>
 ): BasinCenters {
   const size = width * height;
   let maxId = 0;
@@ -280,23 +280,23 @@ function computeBasinCenters(
 export function computeCurrentsEarthlike(
   width: number,
   height: number,
-  latitudeByRow: Float32Array,
-  isWaterMask: Uint8Array,
-  windU: Int8Array,
-  windV: Int8Array,
-  options: Readonly<{
-    basinId?: Int32Array;
-    coastDistance?: Uint16Array;
-    coastTangentU?: Int8Array;
-    coastTangentV?: Int8Array;
-    maxSpeed: number;
-    windStrength: number;
-    ekmanStrength: number;
-    gyreStrength: number;
-    coastStrength: number;
-    smoothIters: number;
-    projectionIters: number;
-  }>
+  latitudeByRow: ArrayLike<number>,
+  isWaterMask: ArrayLike<number>,
+  windU: ArrayLike<number>,
+  windV: ArrayLike<number>,
+  options: {
+    readonly basinId?: ArrayLike<number>;
+    readonly coastDistance?: ArrayLike<number>;
+    readonly coastTangentU?: ArrayLike<number>;
+    readonly coastTangentV?: ArrayLike<number>;
+    readonly maxSpeed: number;
+    readonly windStrength: number;
+    readonly ekmanStrength: number;
+    readonly gyreStrength: number;
+    readonly coastStrength: number;
+    readonly smoothIters: number;
+    readonly projectionIters: number;
+  }
 ): { currentU: Int8Array; currentV: Int8Array } {
   const size = width * height;
   const currentU = new Int8Array(size);

@@ -30,16 +30,16 @@ type BiophysicalGaussianConfig = Readonly<{
  * ecology fields using the classify-biomes operation policy.
  */
 export function classifyBiomesFromFields(args: {
-  width: number;
-  height: number;
-  landMask: Uint8Array;
-  effectiveMoistureF64: Float64Array;
-  surfaceTemperatureF64: Float64Array;
-  freezeIndex: Float32Array;
-  aridityIndexF64: Float64Array;
-  soilType: Uint8Array;
-  fertility: Float32Array;
-  config: BiophysicalGaussianConfig;
+  readonly width: number;
+  readonly height: number;
+  readonly landMask: ArrayLike<number>;
+  readonly effectiveMoistureF64: ArrayLike<number>;
+  readonly surfaceTemperatureF64: ArrayLike<number>;
+  readonly freezeIndex: ArrayLike<number>;
+  readonly aridityIndexF64: ArrayLike<number>;
+  readonly soilType: ArrayLike<number>;
+  readonly fertility: ArrayLike<number>;
+  readonly config: Readonly<BiophysicalGaussianConfig>;
 }): Readonly<{ biomeIndex: Uint8Array; vegetationDensity: Float32Array }> {
   const { width, height } = args;
   const size = width * height;

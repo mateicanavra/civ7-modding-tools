@@ -10,7 +10,7 @@ import { idx } from "@swooper/mapgen-core/lib/grid";
 export function computeDistanceToWater(
   width: number,
   height: number,
-  landMask: Uint8Array
+  landMask: ArrayLike<number>
 ): Int16Array {
   const distances = new Int16Array(width * height);
   distances.fill(-1);

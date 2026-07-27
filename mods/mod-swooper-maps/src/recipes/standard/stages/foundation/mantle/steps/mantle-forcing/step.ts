@@ -29,7 +29,6 @@ export const MantleForcingStep = createStep(config, {
           neighbors: mesh.neighbors,
         },
         mantlePotential: {
-          cellCount: mantlePotential.cellCount,
           potential: mantlePotential.potential,
         },
       },

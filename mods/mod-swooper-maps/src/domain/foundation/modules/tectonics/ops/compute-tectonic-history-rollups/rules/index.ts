@@ -1,12 +1,21 @@
 import { quantizeU8 } from "@swooper/mapgen-core/lib/math";
-import type { PlateMembership } from "../../../model/atoms/plate-membership.schema.js";
-import type { TectonicEraFields } from "../../../model/atoms/tectonic-era-fields.schema.js";
 import type { TectonicHistoryEra } from "../../../model/atoms/tectonic-history-era.schema.js";
+
+type TectonicEraInput = {
+  readonly boundaryType: ArrayLike<number>;
+  readonly upliftPotential: ArrayLike<number>;
+  readonly collisionPotential: ArrayLike<number>;
+  readonly subductionPotential: ArrayLike<number>;
+  readonly riftPotential: ArrayLike<number>;
+  readonly shearStress: ArrayLike<number>;
+  readonly volcanism: ArrayLike<number>;
+  readonly fracture: ArrayLike<number>;
+};
 
 type TectonicHistoryRollup = Readonly<{
   eraCount: number;
   eras: ReadonlyArray<TectonicHistoryEra>;
-  plateIdByEra: ReadonlyArray<PlateMembership>;
+  plateIdByEra: ReadonlyArray<Int16Array>;
   upliftTotal: Uint8Array;
   collisionTotal: Uint8Array;
   subductionTotal: Uint8Array;
@@ -25,8 +34,8 @@ type TectonicHistoryRollup = Readonly<{
  * The rollup is deterministic and preserves the original era sequence for downstream interpretation.
  */
 export function buildTectonicHistoryRollups(params: {
-  eras: ReadonlyArray<TectonicEraFields>;
-  plateIdByEra: ReadonlyArray<PlateMembership>;
+  eras: readonly TectonicEraInput[];
+  plateIdByEra: readonly ArrayLike<number>[];
   activityThreshold: number;
 }): TectonicHistoryRollup {
   const eras = params.eras;
@@ -139,16 +148,16 @@ export function buildTectonicHistoryRollups(params: {
   return {
     eraCount,
     eras: eras.map((era) => ({
-      boundaryType: era.boundaryType,
-      upliftPotential: era.upliftPotential,
-      collisionPotential: era.collisionPotential,
-      subductionPotential: era.subductionPotential,
-      riftPotential: era.riftPotential,
-      shearStress: era.shearStress,
-      volcanism: era.volcanism,
-      fracture: era.fracture,
+      boundaryType: Uint8Array.from(era.boundaryType),
+      upliftPotential: Uint8Array.from(era.upliftPotential),
+      collisionPotential: Uint8Array.from(era.collisionPotential),
+      subductionPotential: Uint8Array.from(era.subductionPotential),
+      riftPotential: Uint8Array.from(era.riftPotential),
+      shearStress: Uint8Array.from(era.shearStress),
+      volcanism: Uint8Array.from(era.volcanism),
+      fracture: Uint8Array.from(era.fracture),
     })),
-    plateIdByEra: params.plateIdByEra,
+    plateIdByEra: params.plateIdByEra.map((membership) => Int16Array.from(membership)),
     upliftTotal,
     collisionTotal,
     subductionTotal,

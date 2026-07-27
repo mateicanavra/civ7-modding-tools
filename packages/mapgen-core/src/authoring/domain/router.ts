@@ -26,10 +26,12 @@ type NoExtraKeys<Expected, Actual> =
   Exclude<keyof Actual, keyof Expected> extends never ? unknown : never;
 
 /** Executable operations required by each key in one pure operation-contract map. */
-export type DomainOpImplementationsForContracts<TContracts extends Record<string, { id: string }>> =
-  Readonly<{
-    [K in keyof TContracts]: DomainOpCompileAny & Readonly<{ id: TContracts[K]["id"] }>;
-  }>;
+export type DomainOpImplementationsForContracts<
+  TContracts extends Record<string, { id: string; kind: DomainOpCompileAny["kind"] }>,
+> = Readonly<{
+  [K in keyof TContracts]: DomainOpCompileAny &
+    Readonly<{ id: TContracts[K]["id"]; kind: TContracts[K]["kind"] }>;
+}>;
 
 /** Temporary flat domain module retained while existing domains adopt semantic branches. */
 export type DomainModule<

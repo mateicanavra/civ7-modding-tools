@@ -14,10 +14,6 @@ const ComputeBeltDriversContract = defineOp({
       height: Type.Integer({ minimum: 1, description: "Map height in tiles." }),
       historyTiles: Type.Object(
         {
-          eraCount: Type.Integer({
-            minimum: 1,
-            description: "Number of causal tectonic eras represented by the history rows.",
-          }),
           perEra: Type.Immutable(
             Type.Array(
               Type.Object(

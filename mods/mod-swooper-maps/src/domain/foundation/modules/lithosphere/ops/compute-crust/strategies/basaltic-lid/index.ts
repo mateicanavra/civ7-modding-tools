@@ -20,9 +20,6 @@ const basalticLid = createStrategy(ComputeCrustContract, BasalticLidDefinition, 
     const mesh = input.mesh;
     const mantleForcing = input.mantleForcing;
     const cellCount = mesh.cellCount | 0;
-    if ((mantleForcing.cellCount | 0) !== cellCount) {
-      throw new Error("[Foundation] Invalid mantleForcing.cellCount for compute-crust.");
-    }
 
     const maturity = new Float32Array(cellCount);
     const thickness = new Float32Array(cellCount);

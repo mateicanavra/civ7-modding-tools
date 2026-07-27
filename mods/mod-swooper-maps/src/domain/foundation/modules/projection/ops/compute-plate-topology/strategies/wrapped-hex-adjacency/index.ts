@@ -43,10 +43,7 @@ const wrappedHexAdjacency = createStrategy(
         const v = plateIds[i] | 0;
         if (v > maxId) maxId = v;
       }
-      const plateCount = Math.max(0, maxId + 1);
-      if (plateCount <= 0) {
-        throw new Error("[Foundation] compute-plate-topology requires at least one plate.");
-      }
+      const plateCount = maxId + 1;
 
       const plates = buildPlateTopology(plateIds, width, height, plateCount);
       validateTopologySymmetry(plates);

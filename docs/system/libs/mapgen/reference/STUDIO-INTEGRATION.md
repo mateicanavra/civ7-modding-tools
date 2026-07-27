@@ -189,7 +189,8 @@ Key posture:
   or the sink.
 - Visualization is independent of trace verbosity. Trace owns progress; the visualization facet
   owns portable layer projections.
-- The worker copies each exact typed-array view, then transfers the copy across the worker boundary.
+- The Viz kernel snapshots each exact typed-array view; the worker requests one host-owned byte copy
+  from that snapshot and transfers it across the worker boundary.
 - Standard recipe style choices have already resolved to portable colors before Studio receives a
   layer. Studio does not maintain a recipe palette registry.
 

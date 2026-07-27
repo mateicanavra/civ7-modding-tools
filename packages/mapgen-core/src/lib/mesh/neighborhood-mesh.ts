@@ -1,12 +1,13 @@
 import { wrapDeltaPeriodic } from "@mapgen/lib/math/wrap.js";
 
+/** Observation surface for a periodic point mesh and its CSR neighbor topology. */
 export type CsrPointMesh2D = Readonly<{
   cellCount: number;
   wrapWidth: number;
-  siteX: Float32Array;
-  siteY: Float32Array;
-  neighborsOffsets: Int32Array;
-  neighbors: Int32Array;
+  siteX: ArrayLike<number>;
+  siteY: ArrayLike<number>;
+  neighborsOffsets: ArrayLike<number>;
+  neighbors: ArrayLike<number>;
 }>;
 
 /**

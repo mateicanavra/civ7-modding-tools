@@ -41,12 +41,12 @@ export type NavigableRiverDensityKnob = keyof typeof NAVIGABLE_RIVER_PROJECTION_
 type NavigableRiverSelectionInput = Readonly<{
   width: number;
   height: number;
-  riverClass: Uint8Array;
-  discharge: Float32Array;
-  flowDir: Int32Array;
-  mouthType: Uint8Array;
-  lakeMask: Uint8Array;
-  projectableLandMask: Uint8Array;
+  riverClass: ArrayLike<number>;
+  discharge: ArrayLike<number>;
+  flowDir: ArrayLike<number>;
+  mouthType: ArrayLike<number>;
+  lakeMask: ArrayLike<number>;
+  projectableLandMask: ArrayLike<number>;
 }>;
 
 /** Projection plan and selection evidence consumed by the plot-rivers step. */
@@ -79,10 +79,10 @@ function percentileFloor(valuesAscending: readonly number[], percentile: number)
 
 function bestUnselectedUpstream(
   upstream: readonly number[],
-  discharge: Float32Array,
-  selectedMask: Uint8Array,
-  projectableLandMask: Uint8Array,
-  corridorMask: Uint8Array
+  discharge: ArrayLike<number>,
+  selectedMask: ArrayLike<number>,
+  projectableLandMask: ArrayLike<number>,
+  corridorMask: ArrayLike<number>
 ): number {
   let bestIndex = -1;
   let bestDischarge = -Infinity;

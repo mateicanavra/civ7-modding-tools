@@ -37,8 +37,8 @@ const HIGH_ORDER_CONFLUENCE_UPSTREAM_AREA_MIN_DEFAULT = 64;
 
 function computeLandReceiver(
   size: number,
-  landMask: Uint8Array,
-  flowDir: Int32Array
+  landMask: ArrayLike<number>,
+  flowDir: ArrayLike<number>
 ): { receiver: Int32Array; order: Int32Array } {
   const receiver = new Int32Array(size);
   const indegree = new Int32Array(size);
@@ -84,11 +84,11 @@ function classifySlopeClass(
   index: number,
   width: number,
   height: number,
-  landMask: Uint8Array,
-  elevation: Int16Array,
-  routingElevation: Float32Array,
-  receiver: Int32Array,
-  terminalType: Uint8Array
+  landMask: ArrayLike<number>,
+  elevation: ArrayLike<number>,
+  routingElevation: ArrayLike<number>,
+  receiver: ArrayLike<number>,
+  terminalType: ArrayLike<number>
 ): number {
   if (landMask[index] !== 1) return HYDROLOGY_SLOPE_NONE;
   const dest = receiver[index] ?? -1;
@@ -115,8 +115,8 @@ function isMountainBlockedClosedBasin(
   index: number,
   width: number,
   height: number,
-  landMask: Uint8Array,
-  elevation: Int16Array
+  landMask: ArrayLike<number>,
+  elevation: ArrayLike<number>
 ): boolean {
   const here = elevation[index] ?? 0;
   const x = index % width;

@@ -6,7 +6,7 @@ import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
  * Unreached tiles keep distance=255. Mask tiles have distance=0.
  */
 export function computeHexDistanceToMask(params: {
-  mask: Uint8Array;
+  mask: ArrayLike<number>;
   width: number;
   height: number;
   maxDistance: number;

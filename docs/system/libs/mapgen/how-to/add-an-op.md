@@ -49,7 +49,19 @@ domain). It routes to:
 - For a multi-strategy operation, add `defaultStrategy` explicitly; object order never selects behavior.
 - Make schemas explicit (TypedArray schemas for binary grids; keep descriptions meaningful).
 
-#### Typed-array input admission
+#### Input admission and ownership
+
+Core admits the complete TypeBox input shape and typed-array metadata once when the operation runs.
+An operation input is observational data, so `OperationInput` exposes the caller's exact reference
+through a deep readonly TypeScript projection. Admission then gives the strategy the same reference
+with any schema-owned relational proofs attached; there is no intermediate ownership state. Do not
+repeat shape/cardinality checks or mutate inputs. Allocate or copy only when producing newly owned
+output.
+
+Readonly typing is an authoring constraint, not runtime isolation: TypeScript structural widening or
+an explicit cast can bypass it, and Core does not clone, freeze, or proxy operation inputs. Hard
+runtime immutability would require a deliberate snapshot or storage boundary. Keep operation input a
+closed data graph; arbitrary callable members are not operation data.
 
 Choose typed-array cardinality from the input relation the operation can prove:
 
@@ -78,9 +90,8 @@ input: Type.Object({
 }),
 ```
 
-Operation inputs compile these input-relative modes through the shared
-schema-owned admission walker. Artifact definitions use the same walker with
-their mandatory admitted-dimensions context.
+Operation construction compiles structural admission plus these input-relative modes once. Artifact
+definitions use the same typed-array walker with their mandatory admitted-dimensions context.
 
 Representative owner-local operation contract:
 
@@ -194,7 +205,7 @@ nx run-many -t check test build -p mapgen-core mod-swooper-maps
 - **Breaking schema drift**: changing input/output schema is a breaking change for all steps that use the op.
 - **Artifact-schema coupling**: artifacts and operation envelopes own different
   complete containers. They may compose the same smaller atoms independently;
-  importing an artifact catalog or borrowing its payload reverses that
+  importing an artifact catalog or reusing its complete payload reverses that
   authority.
 - **Envelope-type leakage**: contract input/output types are admitted call
   shapes, not reusable rule or strategy types.

@@ -2,7 +2,7 @@ import type { MetricProjection } from "@swooper/mapgen-metrics";
 import type { VizProjection } from "@swooper/mapgen-viz";
 
 /**
- * Borrowed evidence a step projector may observe after the step's providers have been admitted.
+ * Observational evidence available after the step's providers have been admitted.
  * Projectors must not mutate the result, config, or any nested shared storage such as typed arrays;
  * the shallow readonly surface is deliberately honest about JavaScript's mutable binary views.
  */

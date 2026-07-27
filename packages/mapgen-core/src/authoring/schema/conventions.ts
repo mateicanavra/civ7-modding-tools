@@ -14,9 +14,9 @@ function propertySchemas(value: unknown): readonly TSchema[] {
   return isSchemaRecord(value) ? Object.values(value).filter(isSchemaRecord) : [];
 }
 
-function enforceSchemaConventions(schema: TSchema): void {
+function enforceSchemaConventions(schema: TSchema, closeCurrentObject = true): void {
   const record = schema as SchemaRecord;
-  if (IsObject(schema) || IsRecord(schema) || record.type === "object") {
+  if (closeCurrentObject && (IsObject(schema) || IsRecord(schema) || record.type === "object")) {
     if (record.additionalProperties === undefined) {
       record.additionalProperties = false;
     }
@@ -48,9 +48,14 @@ function enforceSchemaConventions(schema: TSchema): void {
   }
 
   if (IsIntersect(schema)) {
-    for (const member of schema.allOf) enforceSchemaConventions(member);
+    if (record.unevaluatedProperties === undefined) record.unevaluatedProperties = false;
+    for (const member of schema.allOf) enforceSchemaConventions(member, false);
   } else {
-    for (const member of schemaMembers(record.allOf)) enforceSchemaConventions(member);
+    const members = schemaMembers(record.allOf);
+    if (members.length > 0 && record.unevaluatedProperties === undefined) {
+      record.unevaluatedProperties = false;
+    }
+    for (const member of members) enforceSchemaConventions(member, false);
   }
 
   for (const member of schemaMembers(record.oneOf)) enforceSchemaConventions(member);

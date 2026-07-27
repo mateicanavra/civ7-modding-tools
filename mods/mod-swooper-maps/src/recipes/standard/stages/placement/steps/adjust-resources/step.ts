@@ -17,19 +17,7 @@ export const AdjustResourcesStep = createStep(config, {
 
     const supportInput: Parameters<typeof ops.support>[0] = {
       seed: deriveStepSeed(deps.initialSetup.gameSeed, "resources:adjustResourceSupport"),
-      plan: {
-        ...plan,
-        intents: plan.intents.map((intent) => ({ ...intent })),
-        perType: plan.perType.map((row) => ({
-          ...row,
-          shortfalls: row.shortfalls.map((shortfall) => ({ ...shortfall })),
-        })),
-        regionMinimums: plan.regionMinimums.map((row) => ({ ...row })),
-        settings: {
-          ...plan.settings,
-          affinityRules: plan.settings.affinityRules.map((rule) => ({ ...rule })),
-        },
-      },
+      plan,
       eligibility: demandPlan.candidates.admitted.map((candidate) => ({
         resourceType: candidate.source.resourceType,
         habitatMask: candidate.source.habitatMask,
@@ -41,9 +29,9 @@ export const AdjustResourcesStep = createStep(config, {
         playerId: seat.playerId,
         plotIndex: seat.plotIndex,
       })),
-      landmassIdByTile: landmasses.landmassIdByTile as Int32Array,
+      landmassIdByTile: landmasses.landmassIdByTile,
       landmassTileCounts: landmasses.landmasses.map((landmass) => landmass.tileCount),
-      regionSlotByTile: regionSlots.slotByTile as Uint8Array,
+      regionSlotByTile: regionSlots.slotByTile,
     };
     const adjusted = ops.support(supportInput, stepConfig.support);
 

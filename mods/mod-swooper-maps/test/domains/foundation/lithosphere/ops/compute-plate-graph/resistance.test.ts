@@ -6,6 +6,20 @@ import { deriveTestOperationSeed, TEST_MAP_SIZE } from "../../../../../setup.js"
 const { computeMesh } = foundation.mesh.ops;
 const { computePlateGraph } = foundation.lithosphere.ops;
 
+function projectPlateGraphMesh(
+  generatedMesh: Readonly<{
+    cellCount: number;
+    wrapWidth: number;
+    siteX: Float32Array;
+    siteY: Float32Array;
+    neighborsOffsets: Int32Array;
+    neighbors: Int32Array;
+  }>
+) {
+  const { cellCount, wrapWidth, siteX, siteY, neighborsOffsets, neighbors } = generatedMesh;
+  return { cellCount, wrapWidth, siteX, siteY, neighborsOffsets, neighbors };
+}
+
 function makeCrustStrength(
   generatedMesh: Readonly<{
     cellCount: number;
@@ -69,10 +83,11 @@ describe("foundation/compute-plate-graph resistance", () => {
       },
     };
     const rngSeed = deriveTestOperationSeed("test:foundation:plate-resistance");
+    const mesh = projectPlateGraphMesh(generatedMesh);
 
     const uniform = computePlateGraph.run(
       {
-        mesh: generatedMesh,
+        mesh,
         crust: makeCrustStrength(generatedMesh, false),
         rngSeed,
       },
@@ -80,7 +95,7 @@ describe("foundation/compute-plate-graph resistance", () => {
     ).plateGraph;
     const weakBand = computePlateGraph.run(
       {
-        mesh: generatedMesh,
+        mesh,
         crust: makeCrustStrength(generatedMesh, true),
         rngSeed,
       },

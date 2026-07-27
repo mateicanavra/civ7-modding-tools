@@ -1,13 +1,44 @@
 import {
   type AdmittedBuffer,
+  type ArtifactReadValueOf,
   createOp,
   createStrategy,
+  defineArtifact,
   defineOp,
   defineStrategy,
   type GridBuffer,
+  type OperationInput,
   Type,
   TypedArraySchemas,
 } from "@mapgen/authoring/index.js";
+import type { ReadonlyTypedArray } from "../../../src/authoring/data/readonly-data.js";
+
+// @ts-expect-error BorrowedValue is intentionally absent from the public authoring API.
+type RemovedBorrowedValue = import("@mapgen/authoring/index.js").BorrowedValue;
+void (0 as unknown as RemovedBorrowedValue);
+
+type Es2023Uint8Array = Uint8Array & {
+  findLast(
+    predicate: (value: number, index: number, array: Uint8Array) => boolean,
+    thisArg?: unknown
+  ): number | undefined;
+  findLastIndex(
+    predicate: (value: number, index: number, array: Uint8Array) => boolean,
+    thisArg?: unknown
+  ): number;
+};
+
+declare const es2023Values: ReadonlyTypedArray<Es2023Uint8Array>;
+es2023Values.findLast((_value, _index, array) => {
+  // @ts-expect-error ES2023 typed-array callbacks cannot recover an in-place mutator.
+  array.fill(1);
+  return true;
+});
+es2023Values.findLastIndex((_value, _index, array) => {
+  // @ts-expect-error ES2023 typed-array callbacks cannot recover an in-place mutator.
+  array.fill(1);
+  return true;
+});
 
 const widenedCardinalityOptions: Parameters<typeof TypedArraySchemas.u8>[0] = {
   cardinality: ["height"],
@@ -44,9 +75,11 @@ const InputAdmissionContract = defineOp({
       }),
       constructorOnly: TypedArraySchemas.i16({ cardinality: "constructor-only" }),
       widenedCardinality: TypedArraySchemas.u8(widenedCardinalityOptions),
-      explicitDefaultCardinality: TypedArraySchemas.u8({
-        cardinality: undefined,
-      }),
+      explicitDefaultCardinality: TypedArraySchemas.u8({ cardinality: undefined }),
+      opaque: Type.Unsafe<{
+        nested: { value: number };
+        samples: Uint8Array;
+      }>(Type.Any()),
       nested: Type.Optional(
         Type.Object(
           {
@@ -71,7 +104,13 @@ const InputAdmissionContract = defineOp({
     },
     { additionalProperties: false }
   ),
-  output: Type.Integer(),
+  output: Type.Object(
+    {
+      count: Type.Integer(),
+      samples: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+    },
+    { additionalProperties: false }
+  ),
   strategies: [
     defineStrategy({ id: "admitted", config: Type.Object({}, { additionalProperties: false }) }),
   ],
@@ -82,6 +121,67 @@ const strategy = createStrategy(
   InputAdmissionContract.strategies.admitted,
   {
     run: (input) => {
+      if (false) {
+        // @ts-expect-error Operation input objects are deeply readonly.
+        input.plan.width = 2;
+        // @ts-expect-error Admitted typed-array indexes are readonly.
+        input.grid[0] = 1;
+        // @ts-expect-error Admitted typed arrays omit in-place setters.
+        input.grid.set([1]);
+        // @ts-expect-error Admitted typed arrays omit in-place filling.
+        input.grid.fill(1);
+        // @ts-expect-error Aliasing subarrays retain the readonly surface.
+        input.grid.subarray().set([1]);
+        input.grid.every((_value, _index, array) => {
+          // @ts-expect-error Typed-array callbacks cannot recover an in-place mutator.
+          array.fill(1);
+          return true;
+        });
+        input.grid.filter((_value, _index, array) => {
+          // @ts-expect-error Typed-array callbacks cannot recover an in-place mutator.
+          array.fill(1);
+          return true;
+        });
+        input.grid.find((_value, _index, array) => {
+          // @ts-expect-error Typed-array callbacks cannot recover an in-place mutator.
+          array.fill(1);
+          return true;
+        });
+        input.grid.findIndex((_value, _index, array) => {
+          // @ts-expect-error Typed-array callbacks cannot recover an in-place mutator.
+          array.fill(1);
+          return true;
+        });
+        input.grid.forEach((_value, _index, array) => {
+          // @ts-expect-error Typed-array callbacks cannot recover an in-place mutator.
+          array.fill(1);
+        });
+        input.grid.map((value, _index, array) => {
+          // @ts-expect-error Typed-array callbacks cannot recover an in-place mutator.
+          array.fill(1);
+          return value;
+        });
+        input.grid.reduce((total, value, _index, array) => {
+          // @ts-expect-error Typed-array callbacks cannot recover an in-place mutator.
+          array.fill(1);
+          return total + value;
+        });
+        input.grid.reduceRight((total, value, _index, array) => {
+          // @ts-expect-error Typed-array callbacks cannot recover an in-place mutator.
+          array.fill(1);
+          return total + value;
+        });
+        input.grid.some((_value, _index, array) => {
+          // @ts-expect-error Typed-array callbacks cannot recover an in-place mutator.
+          array.fill(1);
+          return true;
+        });
+        // @ts-expect-error Typed arrays nested beneath unsafe schemas remain readonly.
+        input.opaque.samples.fill(1);
+        // @ts-expect-error Operation input arrays cannot grow.
+        input.nested!.rows.push({});
+      }
+
       const grid: GridBuffer<Uint8Array> = input.grid;
       const row: AdmittedBuffer<Float32Array> = input.latitudeByRow;
       const planned: AdmittedBuffer<Uint8Array> = input.planned;
@@ -95,15 +195,20 @@ const strategy = createStrategy(
           nestedValue;
         void admittedUnion;
       }
-      return (
-        grid.length +
-        row.length +
-        planned.length +
-        offsets.length +
-        constructorOnly.length +
-        widenedCardinality.length +
-        explicitDefaultCardinality.length
-      );
+
+      const mutableCopy = input.grid.slice();
+      mutableCopy.fill(1);
+      return {
+        count:
+          grid.length +
+          row.length +
+          planned.length +
+          offsets.length +
+          constructorOnly.length +
+          widenedCardinality.length +
+          explicitDefaultCardinality.length,
+        samples: mutableCopy,
+      };
     },
   }
 );
@@ -123,29 +228,44 @@ const OtherInputAdmissionContract = defineOp({
 const otherStrategy = createStrategy(
   OtherInputAdmissionContract,
   OtherInputAdmissionContract.strategies.admitted,
-  {
-    run: () => 0,
-  }
+  { run: () => ({ count: 0, samples: new Uint8Array() }) }
 );
 
 // @ts-expect-error A strategy descriptor is nominally bound to its contract identity.
 createOp(InputAdmissionContract, { strategies: [otherStrategy] });
 
-op.run(
-  {
-    width: 2,
-    height: 2,
-    plan: { width: 1, height: 2 },
-    grid: new Uint8Array(4),
-    latitudeByRow: new Float32Array(2),
-    planned: new Uint8Array(2),
-    offsets: new Int32Array(3),
-    constructorOnly: new Int16Array(1),
-    widenedCardinality: new Uint8Array(2),
-    explicitDefaultCardinality: new Uint8Array(4),
+const rawInput = {
+  width: 2,
+  height: 2,
+  plan: { width: 1, height: 2 },
+  grid: new Uint8Array(4),
+  latitudeByRow: new Float32Array(2),
+  planned: new Uint8Array(2),
+  offsets: new Int32Array(3),
+  constructorOnly: new Int16Array(1),
+  widenedCardinality: new Uint8Array(2),
+  explicitDefaultCardinality: new Uint8Array(4),
+  opaque: {
+    nested: { value: 1 },
+    samples: new Uint8Array(1),
   },
-  op.defaultConfig
-);
+};
+
+const readonlyInput: OperationInput<typeof InputAdmissionContract.input> = rawInput;
+const inputArtifact = defineArtifact({
+  name: "inputAdmissionFixture",
+  id: "artifact:test.input-admission-fixture",
+  schema: InputAdmissionContract.input,
+});
+declare const artifactInput: ArtifactReadValueOf<typeof inputArtifact>;
+
+op.run(rawInput, op.defaultConfig);
+op.run(readonlyInput, op.defaultConfig);
+op.run(artifactInput, op.defaultConfig);
+
+const output = op.run(rawInput, op.defaultConfig);
+output.count += 1;
+output.samples.fill(1);
 
 // @ts-expect-error Raw typed arrays have not crossed the operation-input admission boundary.
 const inadmissibleGrid: GridBuffer<Uint8Array> = new Uint8Array(4);

@@ -12,8 +12,7 @@ export default createStrategy(ComputeHotspotEventsContract, UpwellingHotspotsDef
   run: (input) => {
     const mesh = input.mesh;
     const mantleForcing = input.mantleForcing;
-    const plateIds = Int16Array.from(input.eraPlateId);
-    const events = buildHotspotEvents({ mesh, mantleForcing, eraPlateId: plateIds });
+    const events = buildHotspotEvents({ mesh, mantleForcing, eraPlateId: input.eraPlateId });
     return { events } as const;
   },
 });

@@ -11,52 +11,85 @@ type Demand = Pick<
   SelectInput["demands"][number],
   "resourceType" | "weight" | "targetCount" | "minCount" | "maxCount"
 > &
-  Partial<Pick<SelectInput["demands"][number], "regionMinimumRequirement">>;
+  Partial<Pick<SelectInput["demands"][number], "regionMinimumRequirement">> &
+  Readonly<{
+    habitatMask?: Uint8Array;
+    legalMask?: Uint8Array;
+    intensity?: Float32Array;
+  }>;
 
-function buildInput(args: {
-  width: number;
-  height: number;
-  demands: Demand[];
-  seed?: number;
-}): SelectInput {
-  const { width, height } = args;
-  const size = width * height;
-  const allLand = new Uint8Array(size).fill(1);
-  const regionSlotByTile = new Uint8Array(size);
-  for (let i = 0; i < size; i++) {
+const { width, height } = TEST_MAP_SIZE.dimensions;
+const cellCount = width * height;
+
+function countMask(mask: Uint8Array): number {
+  let count = 0;
+  for (const value of mask) if (value !== 0) count += 1;
+  return count;
+}
+
+function countEligible(habitatMask: Uint8Array, legalMask: Uint8Array): number {
+  let count = 0;
+  for (let index = 0; index < cellCount; index += 1) {
+    if (habitatMask[index] !== 0 && legalMask[index] !== 0) count += 1;
+  }
+  return count;
+}
+
+function maskFromPlots(...plotIndices: readonly number[]): Uint8Array {
+  const mask = new Uint8Array(cellCount);
+  for (const plotIndex of plotIndices) mask[plotIndex] = 1;
+  return mask;
+}
+
+function maskRectangle(columns: number, rows: number): Uint8Array {
+  const mask = new Uint8Array(cellCount);
+  for (let y = 0; y < rows; y += 1) {
+    for (let x = 0; x < columns; x += 1) mask[y * width + x] = 1;
+  }
+  return mask;
+}
+
+function buildInput(args: { demands: Demand[]; seed?: number }): SelectInput {
+  const allLand = new Uint8Array(cellCount).fill(1);
+  const regionSlotByTile = new Uint8Array(cellCount);
+  for (let i = 0; i < cellCount; i++) {
     regionSlotByTile[i] = i % width < width / 2 ? 1 : 2;
   }
-  const intensity = new Float32Array(size).fill(1);
   return {
     width,
     height,
     seed: args.seed ?? TEST_MAP_SEED,
     landMask: allLand,
-    lakeMask: new Uint8Array(size),
-    landmassIdByTile: new Int32Array(size),
-    landmassTileCounts: [size],
+    lakeMask: new Uint8Array(cellCount),
+    landmassIdByTile: new Int32Array(cellCount),
+    landmassTileCounts: [cellCount],
     regionSlotByTile,
     minimumAmountModifier: 0,
-    demands: args.demands.map((demand): SelectInput["demands"][number] => ({
-      resourceType: demand.resourceType,
-      family: "geological",
-      laneId: "probe",
-      laneKind: "land",
-      weight: demand.weight,
-      targetCount: demand.targetCount,
-      minCount: demand.minCount,
-      maxCount: demand.maxCount,
-      regionMinimumRequirement: demand.regionMinimumRequirement ?? {
-        kind: "not-applicable",
-        reason: "no-official-minimum",
-      },
-      habitatMask: allLand,
-      legalMask: allLand,
-      intensity,
-      habitatTileCount: size,
-      legalTileCount: size,
-      eligibleTileCount: size,
-    })),
+    demands: args.demands.map((demand): SelectInput["demands"][number] => {
+      const habitatMask = demand.habitatMask?.slice() ?? new Uint8Array(cellCount).fill(1);
+      const legalMask = demand.legalMask?.slice() ?? new Uint8Array(cellCount).fill(1);
+      const intensity = demand.intensity?.slice() ?? new Float32Array(cellCount).fill(1);
+      return {
+        resourceType: demand.resourceType,
+        family: "geological",
+        laneId: "probe",
+        laneKind: "land",
+        weight: demand.weight,
+        targetCount: demand.targetCount,
+        minCount: demand.minCount,
+        maxCount: demand.maxCount,
+        regionMinimumRequirement: demand.regionMinimumRequirement ?? {
+          kind: "not-applicable",
+          reason: "no-official-minimum",
+        },
+        habitatMask,
+        legalMask,
+        intensity,
+        habitatTileCount: countMask(habitatMask),
+        legalTileCount: countMask(legalMask),
+        eligibleTileCount: countEligible(habitatMask, legalMask),
+      };
+    }),
   };
 }
 
@@ -75,12 +108,11 @@ function run(
 
 describe("select-resource-sites operation contract", () => {
   it("allocates co-eligible rotation frequency proportional to 1/Weight (official deficit rotation, E2.1)", () => {
-    const syntheticDimensions = { width: 20, height: 12 } as const;
     // Scarce sites relative to targets so the rotation is the binding
     // mechanism: counts must fall as Weight rises.
+    const scarceAdmissionMask = maskRectangle(20, 12);
     const result = run(
       buildInput({
-        ...syntheticDimensions,
         demands: [5, 10, 20, 40].map(
           (weight): Demand => ({
             resourceType: `RESOURCE_W${weight}`,
@@ -88,6 +120,8 @@ describe("select-resource-sites operation contract", () => {
             targetCount: 60,
             minCount: 0,
             maxCount: 60,
+            habitatMask: scarceAdmissionMask,
+            legalMask: scarceAdmissionMask,
           })
         ),
       })
@@ -102,11 +136,8 @@ describe("select-resource-sites operation contract", () => {
   });
 
   it("honors per-type spacing floors and never plans above maxCount (E2.6, E2.7)", () => {
-    const syntheticDimensions = { width: 24, height: 16 } as const;
-    const { width } = syntheticDimensions;
     const result = run(
       buildInput({
-        ...syntheticDimensions,
         demands: [
           {
             resourceType: "RESOURCE_A",
@@ -141,11 +172,9 @@ describe("select-resource-sites operation contract", () => {
   });
 
   it("records one truthful terminal deficit when complete site admission ends", () => {
-    const syntheticDimensions = { width: 4, height: 3 } as const;
-    // The 4x3 periodic grid can satisfy the floor but not the target while preserving spacing.
+    const oneLegalSite = maskFromPlots(0);
     const result = run(
       buildInput({
-        ...syntheticDimensions,
         demands: [
           {
             resourceType: "RESOURCE_A",
@@ -153,6 +182,7 @@ describe("select-resource-sites operation contract", () => {
             targetCount: 8,
             minCount: 1,
             maxCount: 10,
+            legalMask: oneLegalSite,
           },
         ],
       })
@@ -171,7 +201,6 @@ describe("select-resource-sites operation contract", () => {
 
   it("collapses a terminal deficit with no legal site to complete admission failure", () => {
     const input = buildInput({
-      ...TEST_MAP_SIZE.dimensions,
       demands: [
         {
           resourceType: "RESOURCE_A",
@@ -179,12 +208,10 @@ describe("select-resource-sites operation contract", () => {
           targetCount: 1,
           minCount: 1,
           maxCount: 1,
+          legalMask: new Uint8Array(cellCount),
         },
       ],
     });
-    input.demands[0]!.legalMask.fill(0);
-    input.demands[0]!.legalTileCount = 0;
-    input.demands[0]!.eligibleTileCount = 0;
 
     expect(run(input).perType[0]!.shortfalls).toEqual([
       {
@@ -197,7 +224,6 @@ describe("select-resource-sites operation contract", () => {
 
   it("records a shortfall instead of widening range repair beyond habitat admission", () => {
     const input = buildInput({
-      ...TEST_MAP_SIZE.dimensions,
       demands: [
         {
           resourceType: "RESOURCE_A",
@@ -205,12 +231,10 @@ describe("select-resource-sites operation contract", () => {
           targetCount: 4,
           minCount: 2,
           maxCount: 4,
+          habitatMask: new Uint8Array(cellCount),
         },
       ],
     });
-    input.demands[0]!.habitatMask.fill(0);
-    input.demands[0]!.habitatTileCount = 0;
-    input.demands[0]!.eligibleTileCount = 0;
 
     const result = run(input);
     expect(result.intents).toEqual([]);
@@ -233,7 +257,6 @@ describe("select-resource-sites operation contract", () => {
     } as const;
     const required = run(
       buildInput({
-        ...TEST_MAP_SIZE.dimensions,
         demands: [
           {
             ...demand,
@@ -269,7 +292,6 @@ describe("select-resource-sites operation contract", () => {
     ] as const) {
       const skipped = run(
         buildInput({
-          ...TEST_MAP_SIZE.dimensions,
           demands: [{ ...demand, regionMinimumRequirement }],
         })
       );
@@ -279,10 +301,10 @@ describe("select-resource-sites operation contract", () => {
   });
 
   it("keeps exclusion hard during the region-minimum force pass", () => {
-    const syntheticDimensions = { width: 8, height: 6 } as const;
+    const westCenter = Math.floor(height / 2) * width + (width / 2 - 1);
+    const eastCenter = westCenter + 1;
     const result = run(
       buildInput({
-        ...syntheticDimensions,
         demands: [
           {
             resourceType: "RESOURCE_A",
@@ -290,6 +312,7 @@ describe("select-resource-sites operation contract", () => {
             targetCount: 1,
             minCount: 1,
             maxCount: 1,
+            legalMask: maskFromPlots(westCenter),
           },
           {
             resourceType: "RESOURCE_B",
@@ -297,6 +320,7 @@ describe("select-resource-sites operation contract", () => {
             targetCount: 0,
             minCount: 0,
             maxCount: 2,
+            legalMask: maskFromPlots(westCenter, eastCenter),
             regionMinimumRequirement: {
               kind: "required",
               minimumPerHemisphere: admitPositiveResourceRegionMinimum(1),
@@ -341,8 +365,6 @@ describe("select-resource-sites operation contract", () => {
   });
 
   it("expresses sparsity at knob max and resource-resource exclusion (E3.4)", () => {
-    const syntheticDimensions = { width: 32, height: 20 } as const;
-    const { width } = syntheticDimensions;
     const demands: Demand[] = [
       {
         resourceType: "RESOURCE_A",
@@ -359,8 +381,8 @@ describe("select-resource-sites operation contract", () => {
         maxCount: 20,
       },
     ];
-    const baseline = run(buildInput({ ...syntheticDimensions, demands }));
-    const sparse = run(buildInput({ ...syntheticDimensions, demands }), (config) => {
+    const baseline = run(buildInput({ demands }));
+    const sparse = run(buildInput({ demands }), (config) => {
       config.sparsity = 1;
       config.affinityRules = [
         { resourceA: "RESOURCE_A", resourceB: "RESOURCE_B", relation: "exclusion", radiusTiles: 4 },
@@ -388,7 +410,6 @@ describe("select-resource-sites operation contract", () => {
     const make = () =>
       run(
         buildInput({
-          ...TEST_MAP_SIZE.dimensions,
           demands: [
             {
               resourceType: "RESOURCE_A",

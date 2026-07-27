@@ -34,7 +34,6 @@ export const CrustEvolutionStep = createStep(config, {
           shearStress: tectonics.shearStress,
         },
         tectonicHistory: {
-          eraCount: tectonicHistory.eraCount,
           eras: tectonicHistory.eras.map((era) => ({
             upliftPotential: era.upliftPotential,
             riftPotential: era.riftPotential,

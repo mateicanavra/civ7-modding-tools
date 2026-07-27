@@ -11,7 +11,6 @@ describe("foundation/compute-crust", () => {
       {
         mesh: { cellCount: syntheticCellCount },
         mantleForcing: {
-          cellCount: syntheticCellCount,
           divergence: new Float32Array([0, 1, -1]),
           forcingMag: new Float32Array([0, 1, 1]),
           stress: new Float32Array([0, 1, 1]),

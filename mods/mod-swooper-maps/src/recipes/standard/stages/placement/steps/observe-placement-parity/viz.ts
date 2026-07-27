@@ -17,7 +17,7 @@ type PlacementParityVizResult = Readonly<{
 
 /**
  * Projects the final engine surface and its physics-comparison drift after placement completes.
- * The adapter observation is borrowed exactly as read; only the drift array is derived.
+ * The adapter observation is reused exactly as read; only the drift array is derived.
  */
 export function projectPlacementParityViz(
   result: PlacementParityVizResult,

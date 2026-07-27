@@ -15,12 +15,12 @@ function bandpass(x: number, lo: number, hi: number, s: number): number {
  * Scores savanna woodland suitability from warm, seasonal, biomass-bearing fields.
  */
 export function scoreSavannaWoodlandSuitability(args: {
-  size: number;
-  landMask: Uint8Array;
-  energy01: Float32Array;
-  water01: Float32Array;
-  waterStress01: Float32Array;
-  biomass01: Float32Array;
+  readonly size: number;
+  readonly landMask: ArrayLike<number>;
+  readonly energy01: ArrayLike<number>;
+  readonly water01: ArrayLike<number>;
+  readonly waterStress01: ArrayLike<number>;
+  readonly biomass01: ArrayLike<number>;
 }): Float32Array {
   const score01 = new Float32Array(args.size);
 

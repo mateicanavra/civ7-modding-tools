@@ -8,7 +8,7 @@ export function selectFlowReceiver(
   y: number,
   width: number,
   height: number,
-  elevation: Int16Array
+  elevation: ArrayLike<number>
 ): number {
   const i = y * width + x;
   let bestIdx = -1;

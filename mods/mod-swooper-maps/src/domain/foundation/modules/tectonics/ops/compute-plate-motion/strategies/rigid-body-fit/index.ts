@@ -20,15 +20,8 @@ export default createStrategy(ComputePlateMotionContract, RigidBodyFitDefinition
     const plateGraph = input.plateGraph;
     const mantleForcing = input.mantleForcing;
 
-    const cellCount = mesh.cellCount | 0;
-    if (plateGraph.cellToPlate.length !== cellCount) {
-      throw new Error("[Foundation] Invalid plateGraph.cellToPlate for compute-plate-motion.");
-    }
-    if ((mantleForcing.cellCount | 0) !== cellCount) {
-      throw new Error("[Foundation] Invalid mantleForcing.cellCount for compute-plate-motion.");
-    }
-
-    const plateCount = plateGraph.plates.length | 0;
+    const cellCount = mesh.cellCount;
+    const plateCount = plateGraph.plates.length;
     const wrapWidth = mesh.wrapWidth;
 
     const omegaFactor = Math.max(0, config.omegaFactor);
@@ -46,8 +39,8 @@ export default createStrategy(ComputePlateMotionContract, RigidBodyFitDefinition
       SMOOTHING_STEPS_CLAMP_MAX
     );
 
-    let forcingU: Float32Array = mantleForcing.forcingU;
-    let forcingV: Float32Array = mantleForcing.forcingV;
+    let forcingU: ArrayLike<number> = mantleForcing.forcingU;
+    let forcingV: ArrayLike<number> = mantleForcing.forcingV;
 
     if (smoothingSteps > 0) {
       const smoothedU = new Float32Array(cellCount);

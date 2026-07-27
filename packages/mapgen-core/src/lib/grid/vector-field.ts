@@ -178,8 +178,8 @@ export function bestHexNeighborDirectionIndexOddQ(velocity: Vec2, isOddRow: bool
 export function estimateDivergenceOddQ(
   width: number,
   height: number,
-  fieldX: Float32Array,
-  fieldY: Float32Array
+  fieldX: ArrayLike<number>,
+  fieldY: ArrayLike<number>
 ): Float32Array {
   const size = Math.max(0, width * height);
   const out = new Float32Array(size);
@@ -227,8 +227,8 @@ export function estimateDivergenceOddQ(
 export function estimateCurlZOddQ(
   width: number,
   height: number,
-  fieldX: Float32Array,
-  fieldY: Float32Array
+  fieldX: ArrayLike<number>,
+  fieldY: ArrayLike<number>
 ): Float32Array {
   const size = Math.max(0, width * height);
   const out = new Float32Array(size);

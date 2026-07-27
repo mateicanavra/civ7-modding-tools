@@ -17,8 +17,8 @@ function percentileThreshold(values: number[], p: number): number {
 
 function strongestUpstreamMinor(
   upstream: readonly number[],
-  discharge: Float32Array,
-  minorMask: Uint8Array
+  discharge: ArrayLike<number>,
+  minorMask: ArrayLike<number>
 ): number {
   let best = -1;
   let bestDischarge = -Infinity;

@@ -84,8 +84,30 @@ export const LandmassPlatesStep = createStep(config, {
       {
         width,
         height,
-        historyTiles,
-        provenanceTiles,
+        historyTiles: {
+          perEra: historyTiles.perEra.map((era) => ({
+            boundaryType: era.boundaryType,
+            upliftPotential: era.upliftPotential,
+            collisionPotential: era.collisionPotential,
+            subductionPotential: era.subductionPotential,
+            riftPotential: era.riftPotential,
+            shearStress: era.shearStress,
+          })),
+          rollups: {
+            upliftTotal: historyTiles.rollups.upliftTotal,
+            collisionTotal: historyTiles.rollups.collisionTotal,
+            subductionTotal: historyTiles.rollups.subductionTotal,
+            upliftRecentFraction: historyTiles.rollups.upliftRecentFraction,
+            collisionRecentFraction: historyTiles.rollups.collisionRecentFraction,
+            subductionRecentFraction: historyTiles.rollups.subductionRecentFraction,
+            lastActiveEra: historyTiles.rollups.lastActiveEra,
+          },
+        },
+        provenanceTiles: {
+          originEra: provenanceTiles.originEra,
+          originPlateId: provenanceTiles.originPlateId,
+          lastBoundaryType: provenanceTiles.lastBoundaryType,
+        },
       },
       stepConfig.beltDrivers
     );

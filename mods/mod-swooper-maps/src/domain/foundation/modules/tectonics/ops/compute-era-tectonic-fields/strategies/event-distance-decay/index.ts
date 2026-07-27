@@ -1,5 +1,4 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import type { TectonicEvent } from "../../../../model/atoms/tectonic-event.schema.js";
 import ComputeEraTectonicFieldsContract from "../../contract.js";
 import { buildEraFields, deriveEmissionParams } from "../../rules/index.js";
 import EventDistanceDecayDefinition from "./config.js";
@@ -11,9 +10,9 @@ import EventDistanceDecayDefinition from "./config.js";
 export default createStrategy(ComputeEraTectonicFieldsContract, EventDistanceDecayDefinition, {
   run: (input, config) => {
     const mesh = input.mesh;
-    const segmentEvents = (input.segmentEvents ?? []) as TectonicEvent[];
-    const hotspotEvents = (input.hotspotEvents ?? []) as TectonicEvent[];
-    const events: TectonicEvent[] = [...segmentEvents, ...hotspotEvents];
+    const segmentEvents = input.segmentEvents ?? [];
+    const hotspotEvents = input.hotspotEvents ?? [];
+    const events = [...segmentEvents, ...hotspotEvents];
     const emission = deriveEmissionParams({
       beltInfluenceDistance: config.beltInfluenceDistance,
       beltDecay: config.beltDecay,
