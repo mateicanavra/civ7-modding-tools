@@ -149,8 +149,7 @@ describe("recipe authoring", () => {
       defineStep({
         id: "alpha",
         requires: [],
-        provides: [],
-        artifacts: { provides: [artifact] },
+        provides: [artifact],
       }),
       { run: () => {} }
     );
@@ -187,19 +186,15 @@ describe("recipe authoring", () => {
       defineStep({
         id: "provider",
         requires: [],
-        provides: [],
-        artifacts: {
-          provides: [providedArtifact],
-        },
+        provides: [providedArtifact],
       }),
       { run: () => undefined }
     );
     const consumer = createStep(
       defineStep({
         id: "consumer",
-        requires: [],
+        requires: [requiredArtifact],
         provides: [],
-        artifacts: { requires: [requiredArtifact] },
       }),
       { run: () => undefined }
     );
@@ -230,9 +225,8 @@ describe("recipe authoring", () => {
     const consumer = createStep(
       defineStep({
         id: "consumer",
-        requires: [],
+        requires: [externalArtifact],
         provides: [],
-        artifacts: { requires: [externalArtifact] },
       }),
       { run: () => undefined }
     );

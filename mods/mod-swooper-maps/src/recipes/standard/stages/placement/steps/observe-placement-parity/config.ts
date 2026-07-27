@@ -17,9 +17,10 @@ export const config = defineStep({
     "readCurrentMapWaterMask",
     "readCurrentMapLakeMask",
   ] as const,
-  requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.advancedStartsAssigned],
+  requires: [
+    PLACEMENT_PRODUCT_EFFECT_TAGS.placement.advancedStartsAssigned,
+    morphologyLandformsArtifacts.topography,
+    hydrographyArtifacts.projectedLakes,
+  ],
   provides: [],
-  artifacts: {
-    requires: [morphologyLandformsArtifacts.topography, hydrographyArtifacts.projectedLakes],
-  },
 });

@@ -10,19 +10,22 @@ import { assertNoStepStageIdentityAliases } from "./identity.js";
 import type { StepRuntimeOps } from "./ops.js";
 import type { StepDeps, StepModule } from "./types.js";
 
-type StepConfigOf<C extends StepContract<any, any, any, any, any, any>> = Static<C["schema"]>;
-type StepOpsOf<C extends StepContract<any, any, any, any, any, any>> = StepRuntimeOps<
+type StepConfigOf<C extends StepContract<any, any, any, any, any, any, any>> = Static<C["schema"]>;
+type StepOpsOf<C extends StepContract<any, any, any, any, any, any, any>> = StepRuntimeOps<
   NonNullable<C["ops"]>
 >;
 
-type ArtifactsOf<C extends StepContract<any, any, any, any, any, any>> =
-  C extends StepContract<any, any, any, infer A, any, any> ? A : undefined;
+type RequiresOf<C extends StepContract<any, any, any, any, any, any, any>> =
+  C extends StepContract<any, any, any, infer Requires, any, any, any> ? Requires : readonly [];
 
-type EngineOf<C extends StepContract<any, any, any, any, any, any>> =
-  C extends StepContract<any, any, any, any, infer Engine, any> ? Engine : undefined;
+type ProvidesOf<C extends StepContract<any, any, any, any, any, any, any>> =
+  C extends StepContract<any, any, any, any, infer Provides, any, any> ? Provides : readonly [];
 
-type InitialSetupOf<C extends StepContract<any, any, any, any, any, any>> =
-  C extends StepContract<any, any, any, any, any, infer InitialSetup>
+type EngineOf<C extends StepContract<any, any, any, any, any, any, any>> =
+  C extends StepContract<any, any, any, any, any, infer Engine, any> ? Engine : undefined;
+
+type InitialSetupOf<C extends StepContract<any, any, any, any, any, any, any>> =
+  C extends StepContract<any, any, any, any, any, any, infer InitialSetup>
     ? InitialSetup extends InitialSetupDefinition
       ? InitialSetup
       : undefined
@@ -35,7 +38,7 @@ type StepImplBase<TContext, TConfig, TOps, TDeps, TResult> = Readonly<{
   StepFacets<TConfig, TResult>;
 
 type StepImpl<
-  C extends StepContract<any, any, any, any, any, any>,
+  C extends StepContract<any, any, any, any, any, any, any>,
   TConfig,
   TOps,
   TDeps,
@@ -96,7 +99,7 @@ function captureStepImplementation(stepId: string, impl: unknown): CapturedStepI
  * The run result is inferred once and becomes the typed input to optional post-provides projectors.
  */
 export function createStep<
-  const C extends StepContract<any, any, any, any, any, any>,
+  const C extends StepContract<any, any, any, any, any, any, any>,
   TResult = void,
 >(
   contract: C,
@@ -104,7 +107,7 @@ export function createStep<
     C,
     StepConfigOf<C>,
     StepOpsOf<C>,
-    StepDeps<ArtifactsOf<C>, EngineOf<C>, InitialSetupOf<C>>,
+    StepDeps<RequiresOf<C>, ProvidesOf<C>, EngineOf<C>, InitialSetupOf<C>>,
     TResult
   >
 ): StepModule<C, TResult> {

@@ -10,10 +10,8 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 export const config = defineStep({
   id: "mesh",
   requires: [],
-  provides: [],
-  artifacts: {
-    provides: [meshArtifacts.mesh],
-  },
+  provides: [meshArtifacts.mesh],
+
   ops: {
     computeMesh: foundation.mesh.ops.computeMesh,
   },

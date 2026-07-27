@@ -33,7 +33,7 @@
   Before naming a local helper, search MapGen Core's public libraries and import an existing
   primitive when semantics match. A deliberate divergence needs a distinct domain name and visible
   rationale; silently redefining a Core helper such as `clamp01` is not domain logic.
-- **step** — executable contract boundary. Owner-local `config.ts` exports the contract as `config = defineStep({ id, requires, provides, artifacts:{requires,provides}, ops, schema })`; `createStep(config, { normalize?, run, viz?, metrics? })` binds behavior plus optional post-run observation facets. Recipe composition may alias imported configs but never renames the leaf export. Recipe composition assigns the exact `stageId`; steps do not author a duplicate phase. `run(context, stepConfig, ops, deps)` receives admitted runtime configuration and publishes or reads through `deps.artifacts.<name>`, whose runtimes derive from the contract's provider modules.
+- **step** — executable contract boundary. Owner-local `config.ts` exports the contract as `config = defineStep({ id, requires, provides, ops, schema })`; those two ordered lists are the sole dependency surface and contain exact `Artifact` authorities alongside typed effect/completion id constants. `createStep(config, { normalize?, run, viz?, metrics? })` binds behavior plus optional post-run observation facets. Recipe composition may alias imported configs but never renames the leaf export. Recipe composition assigns the exact `stageId`; steps do not author a duplicate phase. `run(context, stepConfig, ops, deps)` receives admitted runtime configuration and publishes or reads through the typed `deps.artifacts.<name>` capabilities derived from the exact artifact selections.
 - **stage** — recipe-level authoring + ownership surface. `createStage({ id, steps, ... })`
   owns step composition; its ordinary config surface is derived from those
   steps and their bound operations. A rare semantic override stays inline at
@@ -188,7 +188,7 @@ would promote to `stages/morphology/shelf/viz.ts`, not the residual
   the module `router.ts`.
 - New **step** → add the step contract to `standardStageContractManifest` (sets order) and the runtime step to the stage's `orderStandardStageSteps({...})`.
 - New **stage** → add to `standardStageContractManifest` (position = pipeline order), add to `orderStandardStages({...})` in `recipe.ts`; if it brings a new domain, add that domain to `collectOperations(...)`.
-- New **artifact** → add one `domain/<domain>/modules/<owner>/artifacts/<name>.artifact.ts` file with one inline `defineArtifact({ name, id, schema, refine? })`; register it once in that module's `artifacts/index.ts` using `defineArtifactCatalog`. Step contracts select exact artifact definitions in `artifacts.requires` and `artifacts.provides`; `createStep` derives read/publish runtimes from that contract.
+- New **artifact** → add one `domain/<domain>/modules/<owner>/artifacts/<name>.artifact.ts` file with one inline `defineArtifact({ name, id, schema, refine? })`; register it once in that module's `artifacts/index.ts` using `defineArtifactCatalog`. Step contracts place exact artifact definitions directly in `requires` and `provides`; `createStep` derives read/publish runtimes from those selections. Raw `artifact:*` strings are not an authoring substitute.
 
 ---
 

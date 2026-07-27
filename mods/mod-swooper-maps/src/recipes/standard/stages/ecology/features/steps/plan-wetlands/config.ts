@@ -11,22 +11,19 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 export const config = defineStep({
   id: "plan-wetlands",
   description: "Plans deterministic wetland-family intent after floodplain, ice, and reef intent.",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [
-      featureArtifacts.featureSuitability,
-      featureArtifacts.floodplainIntents,
-      featureArtifacts.iceIntents,
-      featureArtifacts.reefIntents,
-      hydrographyArtifacts.hydrography,
-      hydrographyArtifacts.lakePlan,
-      morphologyLandformsArtifacts.topography,
-      morphologyLandformsArtifacts.mountains,
-      morphologyLandformsArtifacts.volcanoes,
-    ],
-    provides: [featureArtifacts.wetlandIntents],
-  },
+  requires: [
+    featureArtifacts.featureSuitability,
+    featureArtifacts.floodplainIntents,
+    featureArtifacts.iceIntents,
+    featureArtifacts.reefIntents,
+    hydrographyArtifacts.hydrography,
+    hydrographyArtifacts.lakePlan,
+    morphologyLandformsArtifacts.topography,
+    morphologyLandformsArtifacts.mountains,
+    morphologyLandformsArtifacts.volcanoes,
+  ],
+  provides: [featureArtifacts.wetlandIntents],
+
   ops: {
     planWetlands: ecology.features.ops.planWetlands,
   },

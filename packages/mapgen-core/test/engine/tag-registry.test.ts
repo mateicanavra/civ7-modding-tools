@@ -421,8 +421,7 @@ describe("tag registry", () => {
       defineStep({
         id: "alpha",
         requires: [],
-        provides: [],
-        artifacts: { provides: [artifact] },
+        provides: [artifact],
       }),
       { run: () => {} }
     );

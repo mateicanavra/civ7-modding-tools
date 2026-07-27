@@ -573,6 +573,15 @@ describe("step authoring", () => {
   });
 
   it("snapshots step authority once from own data properties without evaluating accessors", () => {
+    expect(() =>
+      defineStep({
+        id: "retired-artifact-selector",
+        requires: [],
+        provides: [],
+        artifacts: { requires: [], provides: [] },
+      } as never)
+    ).toThrow('step contract cannot own unsupported property "artifacts"');
+
     let accessorReads = 0;
     const accessorDefinition = {
       id: "accessor-step",
@@ -595,7 +604,6 @@ describe("step authoring", () => {
       id: "single-read-step",
       requires,
       provides,
-      artifacts: undefined,
       ops: undefined,
     } as const;
     const definition = new Proxy(
@@ -628,7 +636,6 @@ describe("step authoring", () => {
     expect(contract.provides).toEqual(["effect:test.complete"]);
     expect(descriptorReads).toEqual(
       new Map<PropertyKey, number>([
-        ["artifacts", 1],
         ["ops", 1],
         ["id", 1],
         ["requires", 1],

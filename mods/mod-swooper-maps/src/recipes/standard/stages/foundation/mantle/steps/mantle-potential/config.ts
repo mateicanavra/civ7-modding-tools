@@ -10,12 +10,9 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "mantle-potential",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [meshArtifacts.mesh],
-    provides: [mantleArtifacts.mantlePotential],
-  },
+  requires: [meshArtifacts.mesh],
+  provides: [mantleArtifacts.mantlePotential],
+
   ops: {
     computeMantlePotential: foundation.mantle.ops.computeMantlePotential,
   },

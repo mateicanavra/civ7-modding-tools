@@ -111,19 +111,18 @@ import morphology from "@mapgen/domain/morphology";
 import { artifacts as morphologyRoutingArtifacts } from "@mapgen/domain/morphology/modules/routing/artifacts/index.js";
 
 export const config = defineStep({
-  // ...id, tags, ops, and schema...
-  artifacts: {
-    provides: [morphologyRoutingArtifacts.routing],
-  },
+  // ...id, dependencies, ops, and schema...
+  requires: [],
+  provides: [morphologyRoutingArtifacts.routing],
   ops: {
     routing: morphology.routing.ops.computeFlowRouting,
   },
 });
 ```
 
-Downstream steps put the same value in `artifacts.requires`. Artifact
-dependencies already participate in dependency satisfaction; do not duplicate
-artifact ids as hand-authored tags.
+Downstream steps put the same value directly in `requires`. Artifact authorities
+already participate in dependency satisfaction; do not replace them with raw
+`artifact:*` ids.
 
 ### 4) Publish through the occurrence capability
 

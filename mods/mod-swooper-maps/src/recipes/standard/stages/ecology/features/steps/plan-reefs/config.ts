@@ -10,17 +10,14 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 export const config = defineStep({
   id: "plan-reefs",
   description: "Plans deterministic reef-family intent after floodplain and ice intent.",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [
-      featureArtifacts.featureSuitability,
-      featureArtifacts.floodplainIntents,
-      featureArtifacts.iceIntents,
-      hydrographyArtifacts.lakePlan,
-    ],
-    provides: [featureArtifacts.reefIntents],
-  },
+  requires: [
+    featureArtifacts.featureSuitability,
+    featureArtifacts.floodplainIntents,
+    featureArtifacts.iceIntents,
+    hydrographyArtifacts.lakePlan,
+  ],
+  provides: [featureArtifacts.reefIntents],
+
   ops: {
     planReefs: ecology.features.ops.planReefs,
   },

@@ -41,6 +41,7 @@ import {
   isCanonicalStepContractInternal,
   isCanonicalStepInternal,
 } from "../step/authority.js";
+import type { StepDependencyList } from "../step/contract.js";
 import { buildDeclaredStepDependencies } from "../step/dependencies.js";
 import type {
   CompiledRecipeConfigOf,
@@ -181,35 +182,16 @@ function assertExactInitialSetupAuthorities(
   }
 }
 
-function artifactTagIds(tags: readonly string[]): readonly string[] {
-  return tags.filter((tag) => tag.startsWith("artifact:"));
+function artifactDependencies(dependencies: StepDependencyList): readonly Artifact[] {
+  return dependencies.filter(
+    (dependency): dependency is Artifact => typeof dependency !== "string"
+  );
 }
 
-function assertExactArtifactEdges(
-  recipeId: string,
-  stepId: string,
-  authored: AnyStage["steps"][number]
-): void {
-  const required = authored.contract.artifacts?.requires?.map((artifact) => artifact.id) ?? [];
-  const provided = authored.contract.artifacts?.provides?.map((artifact) => artifact.id) ?? [];
-  const declaredRequired = artifactTagIds(authored.contract.requires);
-  const declaredProvided = artifactTagIds(authored.contract.provides);
-  if (
-    declaredRequired.length !== required.length ||
-    declaredRequired.some((id, index) => id !== required[index])
-  ) {
-    throw new Error(
-      `[recipe:${recipeId}] step "${stepId}" artifact requirements must derive exactly from contract.artifacts.requires`
-    );
-  }
-  if (
-    declaredProvided.length !== provided.length ||
-    declaredProvided.some((id, index) => id !== provided[index])
-  ) {
-    throw new Error(
-      `[recipe:${recipeId}] step "${stepId}" artifact provisions must derive exactly from contract.artifacts.provides`
-    );
-  }
+function dependencyIds(dependencies: StepDependencyList): readonly string[] {
+  return dependencies.map((dependency) =>
+    typeof dependency === "string" ? dependency : dependency.id
+  );
 }
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
@@ -267,8 +249,7 @@ function collectArtifactTagDefinitions(input: {
         stageId: stage.id,
         stepId,
       });
-      assertExactArtifactEdges(input.recipeId, fullId, authored);
-      const provides = authored.contract.artifacts?.provides ?? [];
+      const provides = artifactDependencies(authored.contract.provides);
       for (const artifact of provides) {
         const existing = providers.get(artifact.id);
         existing === undefined ||
@@ -285,7 +266,7 @@ function collectArtifactTagDefinitions(input: {
 
   for (const stage of input.stages) {
     for (const authored of stage.steps) {
-      const required = authored.contract.artifacts?.requires ?? [];
+      const required = artifactDependencies(authored.contract.requires);
       for (const artifact of required) {
         const provider = providers.get(artifact.id);
         if (!provider) {
@@ -383,8 +364,8 @@ function finalizeOccurrences(input: {
         step: {
           id: fullId,
           stageId: stage.id,
-          requires: authored.contract.requires,
-          provides: authored.contract.provides,
+          requires: dependencyIds(authored.contract.requires),
+          provides: dependencyIds(authored.contract.provides),
           configSchema: authored.contract.schema,
           normalize: authored.normalize as MapGenStep<unknown>["normalize"] | undefined,
           run: ((context: MapContext, config: unknown) => {
@@ -434,7 +415,7 @@ function collectTagDefinitions(
     }
     if ((def as DependencyTag).kind === "artifact" || def.id.startsWith("artifact:")) {
       throw new Error(
-        `Explicit artifact dependency tag "${def.id}" is not admitted; declare the canonical contract or module through step artifacts.*`
+        `Explicit artifact dependency tag "${def.id}" is not admitted; select the canonical artifact in the step requires/provides list.`
       );
     }
     explicitTagIds.add(def.id);

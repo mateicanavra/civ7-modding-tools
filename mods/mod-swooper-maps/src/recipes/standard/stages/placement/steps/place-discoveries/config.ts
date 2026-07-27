@@ -19,9 +19,7 @@ export const config = defineStep({
   requires: [
     PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned,
     PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlaced,
+    placementStartArtifacts.startAssignment,
   ],
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.discoveriesPlaced],
-  artifacts: {
-    requires: [placementStartArtifacts.startAssignment],
-  },
 });

@@ -14,14 +14,12 @@ const outputArtifact = defineArtifact({
 const providerContract = defineStep({
   id: "artifact-provider",
   requires: [],
-  provides: [],
-  artifacts: { provides: [outputArtifact] },
+  provides: [outputArtifact],
 });
 const consumerContract = defineStep({
   id: "artifact-consumer",
-  requires: [],
+  requires: [inputArtifact],
   provides: [],
-  artifacts: { requires: [inputArtifact] },
 });
 
 const provider = createStep(providerContract, {

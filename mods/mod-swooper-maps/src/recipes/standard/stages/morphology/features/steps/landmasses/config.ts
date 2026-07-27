@@ -7,12 +7,9 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "landmasses",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [morphologyLandformsArtifacts.topography],
-    provides: [morphologyLandformsArtifacts.landmasses],
-  },
+  requires: [morphologyLandformsArtifacts.topography],
+  provides: [morphologyLandformsArtifacts.landmasses],
+
   ops: {
     landmasses: morphology.landforms.ops.computeLandmasses,
   },

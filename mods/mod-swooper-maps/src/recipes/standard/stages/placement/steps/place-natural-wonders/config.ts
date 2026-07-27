@@ -13,9 +13,6 @@ import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 export const config = defineStep({
   id: "place-natural-wonders",
   engine: ["placeNaturalWonder"] as const,
-  requires: [],
+  requires: [placementWonderArtifacts.naturalWonderPlan],
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.naturalWondersPlaced],
-  artifacts: {
-    requires: [placementWonderArtifacts.naturalWonderPlan],
-  },
 });

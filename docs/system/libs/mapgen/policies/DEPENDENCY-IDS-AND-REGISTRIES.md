@@ -11,12 +11,11 @@
 
 ## Purpose
 
-Ensure all step dependencies (requires/provides) are:
-- explicit,
-- registered/validated,
-- and fail-fast when wrong.
+Ensure all step dependencies (`requires`/`provides`) are explicit, preserve
+their owning authority through compilation, and fail fast when wrong.
 
-This prevents “implicit coupling” where steps rely on strings that are never validated.
+This prevents implicit coupling and raw strings that discard artifact or
+completion ownership.
 
 ## Audience
 
@@ -25,15 +24,18 @@ This prevents “implicit coupling” where steps rely on strings that are never
 
 ## Allowed
 
-### 1) Requires/provides must be validated against the registry
+### 1) Author dependencies through their exact authority
 
-When a step is registered, its `requires` and `provides` are validated against the TagRegistry.
+Select canonical `Artifact` objects and typed completion constants together in
+the step's `requires` and `provides` lists. Recipe compilation verifies exact
+artifact provider/consumer identity, projects the selections to runtime ids,
+and registers that closed runtime ledger before steps are registered.
 
 ### 2) Prefer a small stable vocabulary for dependency kinds
 
 Use clear prefixes and keep them stable across docs and code:
 
-- `artifact:*` (published artifacts; write-once, read-only)
+- `artifact:*` (generated from selected artifact authorities; write-once, read-only)
 - `effect:*` (declared execution or materialization guarantees)
 
 Cross-step data is always a validated artifact vintage. Producer-local scratch state is neither
@@ -43,7 +45,8 @@ context state nor a dependency ID; do not add another dependency kind for it.
 
 ### 1) Ad-hoc dependency strings
 
-Do not add `requires/provides` strings without registering/validating them.
+Do not author raw dependency strings. Use the exact artifact authority or an
+owned typed completion constant.
 
 ### 2) “Soft” missing dependency behavior
 
@@ -51,9 +54,10 @@ Do not allow silent skips when requirements aren’t satisfied. Missing requirem
 
 ## Why
 
-Tag registries are the “type system” for pipeline wiring:
-- they’re the only practical way to keep a large pipeline coherent,
-- and they make tooling (viz, debug, validation) reliable.
+Exact artifact authorities are the type system for data edges. The runtime
+registry validates the closed id projection used by execution, while artifact
+admission and storage remain owned by the artifact runtime. Together they keep
+pipeline wiring and tooling coherent without a second authored edge model.
 
 ## Ground truth anchors
 

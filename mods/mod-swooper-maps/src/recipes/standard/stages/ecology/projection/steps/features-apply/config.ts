@@ -22,18 +22,16 @@ export const config = defineStep({
     "readCurrentMapWaterMask",
     "recalculateAreas",
   ] as const,
-  requires: [],
+  requires: [
+    featureArtifacts.vegetationIntents,
+    featureArtifacts.wetlandIntents,
+    featureArtifacts.floodplainIntents,
+    featureArtifacts.reefIntents,
+    featureArtifacts.iceIntents,
+    morphologyLandformsArtifacts.topography,
+  ],
   provides: [STANDARD_ENGINE_EFFECT_TAGS.engine.featuresApplied],
-  artifacts: {
-    requires: [
-      featureArtifacts.vegetationIntents,
-      featureArtifacts.wetlandIntents,
-      featureArtifacts.floodplainIntents,
-      featureArtifacts.reefIntents,
-      featureArtifacts.iceIntents,
-      morphologyLandformsArtifacts.topography,
-    ],
-  },
+
   ops: {
     apply: ecology.features.ops.applyFeatures,
   },

@@ -17,18 +17,16 @@ export const config = defineStep({
   id: "adjust-resources",
   initialSetup: STANDARD_INITIAL_SETUP,
   engine: ["emitRuntimeWarning"] as const,
-  requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned],
-  provides: [],
-  artifacts: {
-    requires: [
-      resourceSiteArtifacts.resourcePlan,
-      resourceDemandArtifacts.resourceDemandPlan,
-      placementStartArtifacts.startAssignment,
-      placementRegionArtifacts.landmassRegionSlotByTile,
-      morphologyLandformsArtifacts.landmasses,
-    ],
-    provides: [resourceSupportArtifacts.resourcePlanAdjusted],
-  },
+  requires: [
+    PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned,
+    resourceSiteArtifacts.resourcePlan,
+    resourceDemandArtifacts.resourceDemandPlan,
+    placementStartArtifacts.startAssignment,
+    placementRegionArtifacts.landmassRegionSlotByTile,
+    morphologyLandformsArtifacts.landmasses,
+  ],
+  provides: [resourceSupportArtifacts.resourcePlanAdjusted],
+
   ops: {
     support: resources.support.ops.adjustResourceSupport,
   },

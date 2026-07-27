@@ -31,17 +31,15 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** seal publication as the sole artifact admission and keep
-one causal dependency ledger. A step's ordered `requires` and `provides` ids
-name both artifact and effect edges; no second runtime artifact graph is
-admitted. The registry resolves an artifact id to its exact `Artifact` authority
-and an effect id to effect policy. Artifact satisfaction means only that the edge
-was causally committed and its exact admitted value is present in write-once
-storage. Terminal metrics and diagnostics observe that store without rerunning
-admission or pretending to prove immutability. The remaining nested artifact
-authoring selector is a duplicated directional shape, not a second runtime
-authority; the immediate child collapses it into the same top-level ordered
-dependency lists while retaining exact typed artifact capabilities.
+**Current container:** make each step's ordered `requires` and `provides` list
+the sole authored dependency graph. Completion guarantees remain ids; artifacts
+remain exact `Artifact` authorities rather than lossy strings. `defineStep`
+retains those exact selections for authoring and projects them to the runtime id
+ledger once. Typed occurrence capabilities derive directly from the selected
+artifact authorities; there is no private witness, registry, or second edge
+model. The nested `artifacts.requires` / `artifacts.provides` graph, append
+logic, and drift checks retire. `deps.artifacts` remains a typed capability
+projection, not another declaration.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -58,15 +56,14 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** burn down the false second validator, generic artifact evidence
-callback, and validated-read naming. Keep the exact artifact authority on the
-`ArtifactDependencyTag`, keep effect-specific policy on the
-`EffectDependencyTag`, and keep only their closed discriminated union behind
-the string ledger. Move the one real start-completion product law to its
-provider boundary, preserve partial evidence on failure, then prove admission
-runs once across provision, consumer gates, and terminal observation. Close
-with state-machine, runtime, compiler, and exact-tree proof, then collapse the
-authoring lists before selecting another capability container.
+**Gradient:** replace every nested artifact selector with its exact authority in
+the corresponding top-level list; collapse contract generics and snapshotting;
+derive typed artifact capabilities from the same lists; delete reconciliation
+and duplicate-direction checks; prove order, identity, DAG behavior, and exact
+per-step access. Then evaluate completion authority on the normalized plane:
+keep a builder only if it represents a real transition and closes provider
+behavior more cheaply; do not rename completion guarantees to events or derive
+them from engine call authorization merely because both concern execution.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -101,6 +98,17 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-27 - Artifact Admission And Observation Sealed
+
+Artifact publication is now the sole structural and semantic admission
+transition. Exact artifact authority, causal edge commitment, and write-once
+storage remain distinct runtime facts without a second validator; terminal
+consumers honestly observe already-admitted values. Reentrant publication is
+refused before validation, forged dependency discriminants are rejected, and
+partial start-assignment evidence no longer commits a false completion edge.
+The surviving nested artifact authoring selector is now exposed as the next
+duplicated state rather than being mistaken for runtime authority.
 
 ### 2026-07-27 - Occurrence-Bound Artifact Capability Sealed
 

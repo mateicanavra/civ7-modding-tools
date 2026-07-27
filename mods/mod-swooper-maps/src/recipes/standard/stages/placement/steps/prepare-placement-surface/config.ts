@@ -21,9 +21,10 @@ export const config = defineStep({
     "storeWaterData",
     "recalculateAreas",
   ] as const,
-  requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.naturalWondersPlaced],
+  requires: [
+    PLACEMENT_PRODUCT_EFFECT_TAGS.placement.naturalWondersPlaced,
+    morphologyShelfArtifacts.shelf,
+    morphologyLandformsArtifacts.topography,
+  ],
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.surfacePrepared],
-  artifacts: {
-    requires: [morphologyShelfArtifacts.shelf, morphologyLandformsArtifacts.topography],
-  },
 });

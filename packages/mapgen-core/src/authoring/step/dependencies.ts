@@ -7,16 +7,18 @@ import {
   type InitialSetupDefinition,
   readInitialSetupValueInternal,
 } from "../initial-setup/definition.js";
-import type { StepArtifactsDeclAny, StepEngineDecl } from "./contract.js";
+import type { StepDependencyList, StepEngineDecl } from "./contract.js";
 import type { ArtifactPublisher, ArtifactReader, StepDeps } from "./types.js";
 
 type DeclaredStep<
-  Artifacts extends StepArtifactsDeclAny | undefined,
+  Requires extends StepDependencyList,
+  Provides extends StepDependencyList,
   Engine extends StepEngineDecl | undefined,
   InitialSetup extends InitialSetupDefinition | undefined = InitialSetupDefinition | undefined,
 > = Readonly<{
   contract: Readonly<{
-    artifacts?: Artifacts;
+    requires: Requires;
+    provides: Provides;
     engine?: Engine;
     initialSetup?: InitialSetup;
   }>;
@@ -90,14 +92,14 @@ function requireArtifactContext(
  * Production recipe execution and focused step tests share this exact dependency authority.
  */
 export function buildDeclaredStepDependencies<
-  Artifacts extends StepArtifactsDeclAny | undefined,
+  Requires extends StepDependencyList,
+  Provides extends StepDependencyList,
   Engine extends StepEngineDecl | undefined,
   InitialSetup extends InitialSetupDefinition | undefined,
 >(
-  authored: DeclaredStep<Artifacts, Engine, InitialSetup>,
+  authored: DeclaredStep<Requires, Provides, Engine, InitialSetup>,
   input: Readonly<{ consumerStepId: string; owner: string; context?: MapContext }>
-): StepDeps<Artifacts, Engine, InitialSetup> {
-  const artifacts = authored.contract.artifacts;
+): StepDeps<Requires, Provides, Engine, InitialSetup> {
   const engine = bindEngineDependencies(
     authored.contract.engine,
     input.context,
@@ -114,22 +116,18 @@ export function buildDeclaredStepDependencies<
               authored.contract.initialSetup
             ),
           });
-  if (!artifacts) {
-    return Object.freeze({
-      artifacts: Object.freeze({}),
-      engine,
-      ...initialSetup,
-    }) as StepDeps<Artifacts, Engine, InitialSetup>;
-  }
-
-  const requires = artifacts.requires ?? [];
-  const provides = artifacts.provides ?? [];
+  const requires = authored.contract.requires.filter(
+    (dependency): dependency is Artifact => typeof dependency !== "string"
+  );
+  const provides = authored.contract.provides.filter(
+    (dependency): dependency is Artifact => typeof dependency !== "string"
+  );
   if (requires.length === 0 && provides.length === 0) {
     return Object.freeze({
       artifacts: Object.freeze({}),
       engine,
       ...initialSetup,
-    }) as StepDeps<Artifacts, Engine, InitialSetup>;
+    }) as StepDeps<Requires, Provides, Engine, InitialSetup>;
   }
 
   const context = requireArtifactContext(input.context, input.consumerStepId);
@@ -155,7 +153,7 @@ export function buildDeclaredStepDependencies<
     artifacts: Object.freeze(bound),
     engine,
     ...initialSetup,
-  }) as StepDeps<Artifacts, Engine, InitialSetup>;
+  }) as StepDeps<Requires, Provides, Engine, InitialSetup>;
 }
 
 function rejectMissingInitialSetupContext(stepId: string): never {

@@ -42,9 +42,8 @@ const outputArtifact = defineArtifact({
 const doubleStep = createStep(
   defineStep({
     id: "double-value",
-    requires: [],
-    provides: [],
-    artifacts: { requires: [inputArtifact], provides: [outputArtifact] },
+    requires: [inputArtifact],
+    provides: [outputArtifact],
   }),
   {
     run: (_context, _config, _ops, deps) => {

@@ -14,9 +14,12 @@ Define the closed dependency-authority model used to order steps and validate pi
 
 ## Contract
 
-- Each step retains one ordered string-id ledger for each of `requires` and `provides`. Direct
-  entries are effect ids; `defineStep` appends artifact ids derived from the exact authorities in
-  `artifacts.requires` and `artifacts.provides`.
+- `requires` and `provides` are the sole ordered authored dependency lists. Each
+  entry is either an exact `Artifact` authority or a typed effect/completion id
+  constant.
+- `defineStep` compiles both authored kinds into one ordered string-id ledger per
+  direction for the runtime `MapGenStep`, while retaining exact artifact
+  authority for typed `deps.artifacts` capabilities.
 - Recipe composition resolves every ledger id to the closed
   `EffectDependencyTag | ArtifactDependencyTag` union.
 - Unknown ids are registration errors; an unsatisfied requirement is an execution error.
@@ -44,10 +47,11 @@ export const STANDARD_TAG_DEFINITIONS: readonly EffectDependencyTag[] = [
 Pass the catalog as `tagDefinitions` when creating the recipe. `TagRegistry.registerTag` and
 `registerTags` likewise accept only `EffectDependencyTag` values.
 
-`ArtifactDependencyTag` is recipe-derived from the exact `Artifact` authorities selected by step
-`artifacts.requires` and `artifacts.provides` declarations. Authored code cannot explicitly register
-artifact dependency authorities or place them in recipe `tagDefinitions`; this prevents dependency
-identity from diverging from publication admission.
+`ArtifactDependencyTag` is recipe-derived from the exact `Artifact` authorities
+selected directly in step `requires` and `provides`. Authored code cannot use a
+raw `artifact:*` string, explicitly register artifact dependency authorities, or
+place them in recipe `tagDefinitions`; this prevents dependency identity from
+diverging from publication admission.
 
 The registry's resolved authority is the closed union:
 
@@ -58,7 +62,9 @@ type DependencyTag = EffectDependencyTag | ArtifactDependencyTag;
 ## Resolution and satisfaction
 
 Recipe composition merges explicit effect authorities with recipe-derived artifact authorities,
-then validates each step's ordered string ledgers against that closed registry.
+then validates each compiled step's ordered string ledgers against that closed registry. The DAG
+projects exact `Artifact` references into artifact edges and preserves string completion dependencies
+as metadata; it does not reconstruct artifact ownership from ids.
 
 - An artifact is satisfied when its provision has completed and its exact authority is present in
   the private write-once artifact store. Its validator runs at publication; dependency satisfaction

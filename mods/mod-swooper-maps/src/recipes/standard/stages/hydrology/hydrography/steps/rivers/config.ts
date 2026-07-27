@@ -19,12 +19,9 @@ export const config = defineStep({
   id: "rivers",
   description:
     "Publishes hydrography and river-classification evidence before later engine projection.",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [climateArtifacts.baselineClimateField, morphologyLandformsArtifacts.topography],
-    provides: [hydrographyArtifacts.hydrography],
-  },
+  requires: [climateArtifacts.baselineClimateField, morphologyLandformsArtifacts.topography],
+  provides: [hydrographyArtifacts.hydrography],
+
   ops: {
     drainageRouting: hydrology.hydrography.ops.computeDrainageRouting,
     accumulateDischarge: hydrology.hydrography.ops.accumulateDischarge,

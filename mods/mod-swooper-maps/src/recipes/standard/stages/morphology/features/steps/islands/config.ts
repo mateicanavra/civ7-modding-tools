@@ -10,16 +10,13 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "islands",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [
-      foundationProjectionArtifacts.plates,
-      morphologyErosionArtifacts.erodedTopography,
-      morphologyCoastsArtifacts.baseCoastline,
-    ],
-    provides: [morphologyLandformsArtifacts.topography],
-  },
+  requires: [
+    foundationProjectionArtifacts.plates,
+    morphologyErosionArtifacts.erodedTopography,
+    morphologyCoastsArtifacts.baseCoastline,
+  ],
+  provides: [morphologyLandformsArtifacts.topography],
+
   ops: {
     islands: morphology.landforms.ops.computeIslandTopography,
   },

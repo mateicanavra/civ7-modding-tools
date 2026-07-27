@@ -130,9 +130,8 @@ defineArtifactCatalog({ alias: firstArtifact });
 
 defineStep({
   id: "canonical-artifact-provider",
-  requires: [],
-  provides: [],
-  artifacts: { requires: [firstArtifact], provides: [secondArtifact] },
+  requires: [firstArtifact],
+  provides: [secondArtifact],
 });
 
 const missingValidator = {
@@ -146,7 +145,6 @@ defineArtifactCatalog({ missingValidator });
 defineStep({
   id: "legacy-wrapper-provider",
   requires: [],
-  provides: [],
   // @ts-expect-error Step providers accept the same Artifact authority used by requirements.
-  artifacts: { provides: [{ artifact: firstArtifact, validate: firstArtifact.validate }] },
+  provides: [{ artifact: firstArtifact, validate: firstArtifact.validate }],
 });

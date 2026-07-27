@@ -11,12 +11,9 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "routing",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [morphologyTerrainArtifacts.baseTopography],
-    provides: [morphologyRoutingArtifacts.routing],
-  },
+  requires: [morphologyTerrainArtifacts.baseTopography],
+  provides: [morphologyRoutingArtifacts.routing],
+
   ops: {
     routing: morphology.routing.ops.computeFlowRouting,
   },

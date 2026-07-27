@@ -18,9 +18,10 @@ export const config = defineStep({
     "setTerrainType",
     "storeWaterData",
   ] as const,
-  requires: [MAP_PROJECTION_EFFECT_TAGS.map.coastsPlotted],
+  requires: [
+    MAP_PROJECTION_EFFECT_TAGS.map.coastsPlotted,
+    morphologyLandformsArtifacts.topography,
+    morphologyShelfArtifacts.shelf,
+  ],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted],
-  artifacts: {
-    requires: [morphologyLandformsArtifacts.topography, morphologyShelfArtifacts.shelf],
-  },
 });

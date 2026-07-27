@@ -63,25 +63,22 @@ describe("artifact authoring", () => {
       id: "artifact:test.step.provided",
       schema: Type.Object({}, { additionalProperties: false }),
     });
-    const requires = [required];
+    const requires = ["effect:test.ready", required];
     const provides = [provided];
     const contract = defineStep({
       id: "artifact-authority",
-      requires: ["effect:test.ready"],
-      provides: [],
-      artifacts: { requires, provides },
+      requires,
+      provides,
     });
 
     requires.length = 0;
     provides.length = 0;
-    expect(contract.artifacts).toEqual({ requires: [required], provides: [provided] });
-    expect(contract.artifacts?.requires?.[0]).toBe(required);
-    expect(contract.artifacts?.provides?.[0]).toBe(provided);
-    expect(contract.requires).toEqual(["effect:test.ready", required.id]);
-    expect(contract.provides).toEqual([provided.id]);
-    expect(Object.isFrozen(contract.artifacts)).toBe(true);
-    expect(Object.isFrozen(contract.artifacts?.requires)).toBe(true);
-    expect(Object.isFrozen(contract.artifacts?.provides)).toBe(true);
+    expect(contract.requires).toEqual(["effect:test.ready", required]);
+    expect(contract.requires[1]).toBe(required);
+    expect(contract.provides).toEqual([provided]);
+    expect(contract.provides[0]).toBe(provided);
+    expect(Object.isFrozen(contract.requires)).toBe(true);
+    expect(Object.isFrozen(contract.provides)).toBe(true);
   });
 
   it("rejects raw artifact ids, duplicate bindings, and mutable lookalikes", () => {
@@ -113,37 +110,35 @@ describe("artifact authoring", () => {
         requires: [first.id],
         provides: [],
       })
-    ).toThrow(/cannot declare artifact ids.*artifacts\.requires\/provides/i);
+    ).toThrow(
+      'must use the canonical artifact authority instead of raw id "artifact:test.step.first"'
+    );
     expect(() =>
       defineStep({
         id: "duplicate-reference",
-        requires: [],
-        provides: [],
-        artifacts: { requires: [first], provides: [first] },
+        requires: [first],
+        provides: [first],
       })
-    ).toThrow(/artifacts\.requires/);
+    ).toThrow(`declares artifact "${first.id}" in both requires and provides`);
     expect(() =>
       defineStep({
         id: "duplicate-name",
-        requires: [],
-        provides: [],
-        artifacts: { requires: [first], provides: [duplicateName] },
+        requires: [first],
+        provides: [duplicateName],
       })
     ).toThrow('declares duplicate artifact name "sharedArtifact"');
     expect(() =>
       defineStep({
         id: "duplicate-id",
-        requires: [],
-        provides: [],
-        artifacts: { requires: [first], provides: [duplicateId] },
+        requires: [first],
+        provides: [duplicateId],
       })
-    ).toThrow(`declares artifact "${first.id}" in both artifacts.requires and artifacts.provides`);
+    ).toThrow(`declares artifact "${first.id}" in both requires and provides`);
     expect(() =>
       defineStep({
         id: "forged-artifact",
         requires: [],
-        provides: [],
-        artifacts: { provides: [mutable] },
+        provides: [mutable],
       } as never)
     ).toThrow("must be a canonical artifact");
   });
@@ -157,9 +152,8 @@ describe("artifact authoring", () => {
     const reader = createStep(
       defineStep({
         id: "missing-artifact-reader",
-        requires: [],
+        requires: [artifact],
         provides: [],
-        artifacts: { requires: [artifact] },
       }),
       {
         run: (_context, _config, _ops, deps) => deps.artifacts.missingArtifact.read(),
@@ -210,8 +204,7 @@ describe("artifact authoring", () => {
       defineStep({
         id: "runtime-artifact-provider",
         requires: [],
-        provides: [],
-        artifacts: { provides: [artifact] },
+        provides: [artifact],
       }),
       {
         run: (_context, _config, _ops, deps) => {
@@ -270,8 +263,7 @@ describe("artifact authoring", () => {
       defineStep({
         id: "reentrant-artifact-provider",
         requires: [],
-        provides: [],
-        artifacts: { provides: [artifact] },
+        provides: [artifact],
       }),
       {
         run: (_context, _config, _ops, deps) => {
@@ -391,9 +383,8 @@ describe("artifact authoring", () => {
     const reader = createStep(
       defineStep({
         id: "reader",
-        requires: [],
+        requires: [inputArtifact],
         provides: [],
-        artifacts: { requires: [inputArtifact] },
       }),
       { run: () => undefined }
     );
@@ -401,8 +392,7 @@ describe("artifact authoring", () => {
       defineStep({
         id: "provider",
         requires: [],
-        provides: [],
-        artifacts: { provides: [outputArtifact] },
+        provides: [outputArtifact],
       }),
       { run: () => undefined }
     );

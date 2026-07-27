@@ -13,18 +13,15 @@ import { STANDARD_INITIAL_SETUP } from "../../../../initial-setup.js";
 export const config = defineStep({
   id: "select-resource-sites",
   initialSetup: STANDARD_INITIAL_SETUP,
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [
-      resourceDemandArtifacts.resourceDemandPlan,
-      morphologyLandformsArtifacts.topography,
-      morphologyLandformsArtifacts.landmasses,
-      hydrographyArtifacts.lakePlan,
-      placementRegionArtifacts.landmassRegionSlotByTile,
-    ],
-    provides: [resourceSiteArtifacts.resourcePlan],
-  },
+  requires: [
+    resourceDemandArtifacts.resourceDemandPlan,
+    morphologyLandformsArtifacts.topography,
+    morphologyLandformsArtifacts.landmasses,
+    hydrographyArtifacts.lakePlan,
+    placementRegionArtifacts.landmassRegionSlotByTile,
+  ],
+  provides: [resourceSiteArtifacts.resourcePlan],
+
   ops: {
     selectSites: resources.sites.ops.selectResourceSites,
   },

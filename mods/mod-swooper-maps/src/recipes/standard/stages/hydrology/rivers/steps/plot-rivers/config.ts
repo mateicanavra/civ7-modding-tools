@@ -47,17 +47,18 @@ export const config = defineStep({
     "recalculateAreas",
     "readRiverProjection",
   ] as const,
-  requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
-  provides: [MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted],
-  artifacts: {
-    requires: [
-      hydrographyArtifacts.hydrography,
-      hydrographyArtifacts.lakePlan,
-      hydrographyArtifacts.riverNetwork,
-      morphologyShelfArtifacts.shelf,
-      morphologyLandformsArtifacts.topography,
-    ],
-    provides: [hydrographyArtifacts.projectedNavigableRivers],
-  },
+  requires: [
+    MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt,
+    hydrographyArtifacts.hydrography,
+    hydrographyArtifacts.lakePlan,
+    hydrographyArtifacts.riverNetwork,
+    morphologyShelfArtifacts.shelf,
+    morphologyLandformsArtifacts.topography,
+  ],
+  provides: [
+    MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
+    hydrographyArtifacts.projectedNavigableRivers,
+  ],
+
   schema: PlotRiversStepConfigSchema,
 });

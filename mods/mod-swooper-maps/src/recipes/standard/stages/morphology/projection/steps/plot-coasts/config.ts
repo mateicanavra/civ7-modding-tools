@@ -10,9 +10,6 @@ import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
 export const config = defineStep({
   id: "plot-coasts",
   engine: ["setTerrainType", "readCurrentMapWaterMask"] as const,
-  requires: [],
+  requires: [morphologyLandformsArtifacts.topography, morphologyShelfArtifacts.shelf],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.coastsPlotted],
-  artifacts: {
-    requires: [morphologyLandformsArtifacts.topography, morphologyShelfArtifacts.shelf],
-  },
 });

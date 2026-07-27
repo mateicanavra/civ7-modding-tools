@@ -124,10 +124,9 @@ behavior only:
 
 ```ts
 export const config = defineStep({
-  // ...id, tags, ops, and schema...
-  artifacts: {
-    provides: [artifacts.plateGraph],
-  },
+  // ...id, dependencies, ops, and schema...
+  requires: [],
+  provides: [artifacts.plateGraph],
 });
 
 createStep(config, {
@@ -138,14 +137,19 @@ createStep(config, {
 });
 ```
 
+`requires` and `provides` are the sole authored dependency lists. Put the exact
+`Artifact` authority directly in the appropriate list; effect/completion guarantees
+remain typed string constants in the same list. Raw `artifact:*` strings are invalid
+because they discard the schema, validator, and semantic owner that make the
+dependency exact.
+
 `defineStep` snapshots the selected artifacts, while `createStep` binds behavior only. At each
 step invocation, Core derives exact occurrence-bound `read()` and `publish(value)` capabilities
 directly from those contract authorities. There is no provider runtime registry, map, or cache.
-Each step keeps one ordered `requires` / `provides` id ledger for causal artifacts and effects. The
-registry resolves an `ArtifactDependencyTag` to its exact `Artifact` authority and an
-`EffectDependencyTag` to effect-specific policy. The registry and executor do not create a second
-runtime artifact graph; the current nested artifact declaration is authoring metadata used to retain
-the exact authorities from which `defineStep` derives that ledger.
+The compiled `MapGenStep` retains one ordered string-id ledger for each direction, while Core keeps
+the exact artifact authorities needed to type and bind `deps.artifacts`. The DAG projects artifact
+references as causal edges and string completion dependencies as metadata; it does not infer one
+kind from the other or build a second dependency graph.
 Each artifact's validator remains the sole admission authority at publication. Artifact dependency
 gates and terminal observers subsequently ask only whether that exact authority is present in the
 write-once store; they do not create a second admission transition or treat validation as mutation

@@ -59,12 +59,9 @@ const ClimateBaselineStepConfigSchema = Type.Object(
 export const config = defineStep({
   id: "climate-baseline",
   description: "Computes baseline wind, climate, and seasonality from final Morphology evidence.",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [morphologyLandformsArtifacts.topography, morphologyShelfArtifacts.shelf],
-    provides: [climateArtifacts.baselineClimateField, climateArtifacts.windField],
-  },
+  requires: [morphologyLandformsArtifacts.topography, morphologyShelfArtifacts.shelf],
+  provides: [climateArtifacts.baselineClimateField, climateArtifacts.windField],
+
   ops: {
     computeRadiativeForcing: hydrology.climate.ops.computeRadiativeForcing,
     computeThermalState: hydrology.climate.ops.computeThermalState,

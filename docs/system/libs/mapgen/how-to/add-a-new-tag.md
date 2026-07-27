@@ -42,17 +42,16 @@ Define the artifact in its owning module, then select that exact authority in th
 export const config = defineStep({
   id: "build-plate-graph",
   requires: [],
-  provides: [],
-  artifacts: {
-    provides: [artifacts.plateGraph],
-  },
+  provides: [artifacts.plateGraph],
 });
 ```
 
-`defineStep` derives the artifact id into the step's ordered `provides` ledger. Recipe composition
-then creates the corresponding `ArtifactDependencyTag` from the selected authority. Do not write an
-`artifact:*` id directly in `requires` or `provides`, and do not add an artifact authority to recipe
-`tagDefinitions` or a public registry method.
+The exact `Artifact` value is the authored dependency. `defineStep` derives its
+id into the compiled step's ordered `provides` ledger while retaining the
+authority needed to type `deps.artifacts`. Recipe composition then creates the
+corresponding `ArtifactDependencyTag`. Do not replace the authority with a raw
+`artifact:*` id, and do not add it to recipe `tagDefinitions` or a public
+registry method.
 
 Publish through the occurrence-bound `deps.artifacts.<name>.publish(value)` capability. Artifact
 satisfaction is the successful provision plus presence of that exact authority in the private
@@ -82,8 +81,10 @@ artifacts.
 
 ### 4) Use the effect id in step contracts
 
-Add the `effect:*` string to `requires` and/or `provides`. Keep both ordered lists minimal. Artifact
-ids join the same resolved ledgers only through `artifacts.requires` and `artifacts.provides`.
+Add the typed `effect:*` constant to `requires` and/or `provides`. Keep both
+ordered lists minimal. Exact artifact authorities may appear in those same
+lists; `defineStep` compiles both kinds to runtime ids without erasing artifact
+ownership at authoring time.
 
 ## Verification
 
@@ -93,8 +94,8 @@ ids join the same resolved ledgers only through `artifacts.requires` and `artifa
 
 ## Footguns
 
-- **Writing artifact ids into `requires` or `provides`**: select the exact authority through the
-  step's `artifacts` declaration instead.
+- **Writing artifact ids into `requires` or `provides`**: put the exact owning
+  `Artifact` value in the list instead.
 - **Explicitly registering an artifact**: artifact authorities are recipe-derived and public
   registration rejects them.
 - **Using an effect predicate to validate data**: artifact admission belongs to the artifact's
@@ -104,7 +105,7 @@ ids join the same resolved ledgers only through `artifacts.requires` and `artifa
 ## Ground truth anchors
 
 - Standard effect catalog: `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
-- Step artifact declarations and ledger derivation: `packages/mapgen-core/src/authoring/step/contract.ts`
+- Step dependency authoring and ledger derivation: `packages/mapgen-core/src/authoring/step/contract.ts`
 - Recipe authority resolution: `packages/mapgen-core/src/authoring/recipe/create.ts`
 - Registry and satisfaction: `packages/mapgen-core/src/engine/tags.ts`
 - Dependency errors: `packages/mapgen-core/src/engine/errors.ts`

@@ -15,10 +15,10 @@ export const config = defineStep({
     "readCurrentMapTerrainTypes",
     "readCurrentMapFeatureTypes",
   ] as const,
-  requires: [MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted],
+  requires: [
+    MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted,
+    morphologyLandformsArtifacts.topography,
+    morphologyLandformsArtifacts.volcanoes,
+  ],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.volcanoesPlotted],
-  artifacts: {
-    requires: [morphologyLandformsArtifacts.topography, morphologyLandformsArtifacts.volcanoes],
-    provides: [],
-  },
 });

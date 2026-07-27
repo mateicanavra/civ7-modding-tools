@@ -1,5 +1,6 @@
 import type { Artifact } from "../artifact/contract.js";
 import { assertStageIds } from "../stage/identity.js";
+import type { StepDependencyList } from "../step/contract.js";
 
 /** JSON-safe identity for one artifact participating in a recipe dependency graph. */
 export type RecipeDagArtifactRef = Readonly<{
@@ -9,7 +10,7 @@ export type RecipeDagArtifactRef = Readonly<{
 
 /**
  * Contract-only projection of one authored step in deterministic recipe order.
- * Artifact arrays define graph edges; dependency tags remain descriptive metadata.
+ * Exact artifact selections define graph edges; completion ids remain descriptive metadata.
  */
 export type RecipeDagStep = Readonly<{
   stageId: string;
@@ -88,16 +89,12 @@ export type RecipeDag = Readonly<{
 
 /**
  * Least contract metadata accepted for one DAG step projection.
- * Artifact declarations create edges; generic requires/provides tags are copied as metadata only.
+ * Artifact authorities create edges; string completion ids are copied as metadata only.
  */
 export type RecipeDagStepContractInput = Readonly<{
   id: string;
-  requires: readonly string[];
-  provides: readonly string[];
-  artifacts?: Readonly<{
-    requires?: readonly Artifact[];
-    provides?: readonly Artifact[];
-  }>;
+  requires: StepDependencyList;
+  provides: StepDependencyList;
 }>;
 
 /** Authored stage identity and ordered contract-only step inputs accepted by DAG projection. */
@@ -154,8 +151,8 @@ export function buildRecipeDag(input: BuildRecipeDagInput): RecipeDag {
         stageId: stage.id,
         stepId: step.contract.id,
       });
-      const artifactRequires = artifactRefs(step.contract.artifacts?.requires);
-      const artifactProvides = artifactRefs(step.contract.artifacts?.provides);
+      const artifactRequires = artifactRefs(step.contract.requires);
+      const artifactProvides = artifactRefs(step.contract.provides);
       const dagStep: RecipeDagStep = {
         stageId: stage.id,
         stepId: step.contract.id,
@@ -164,8 +161,8 @@ export function buildRecipeDag(input: BuildRecipeDagInput): RecipeDag {
         orderInStage: stepIndex,
         artifactRequires,
         artifactProvides,
-        tagRequires: [...step.contract.requires],
-        tagProvides: [...step.contract.provides],
+        tagRequires: completionIds(step.contract.requires),
+        tagProvides: completionIds(step.contract.provides),
       };
 
       steps.push(dagStep);
@@ -298,8 +295,14 @@ function computeFullStepId(input: {
   return `${base}.${input.stageId}.${input.stepId}`;
 }
 
-function artifactRefs(artifacts: readonly Artifact[] | undefined): RecipeDagArtifactRef[] {
-  return (artifacts ?? []).map((artifact) => ({ id: artifact.id, name: artifact.name }));
+function artifactRefs(dependencies: StepDependencyList): RecipeDagArtifactRef[] {
+  return dependencies
+    .filter((dependency): dependency is Artifact => typeof dependency !== "string")
+    .map((artifact) => ({ id: artifact.id, name: artifact.name }));
+}
+
+function completionIds(dependencies: StepDependencyList): string[] {
+  return dependencies.filter((dependency): dependency is string => typeof dependency === "string");
 }
 
 function uniqueArtifacts(artifacts: readonly RecipeDagArtifactRef[]): RecipeDagArtifactRef[] {

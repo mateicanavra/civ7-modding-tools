@@ -16,23 +16,20 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 export const config = defineStep({
   id: "score-layers",
   description: "Computes one shared per-tile suitability layer for every feature intent.",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [
-      biomeArtifacts.biomeClassification,
-      pedologyArtifacts.pedology,
-      climateArtifacts.climateIndices,
-      hydrographyArtifacts.hydrography,
-      hydrographyArtifacts.lakePlan,
-      hydrographyArtifacts.projectedNavigableRivers,
-      morphologyLandformsArtifacts.topography,
-      morphologyShelfArtifacts.shelf,
-      morphologyLandformsArtifacts.mountains,
-      morphologyLandformsArtifacts.volcanoes,
-    ],
-    provides: [featureArtifacts.featureSuitability],
-  },
+  requires: [
+    biomeArtifacts.biomeClassification,
+    pedologyArtifacts.pedology,
+    climateArtifacts.climateIndices,
+    hydrographyArtifacts.hydrography,
+    hydrographyArtifacts.lakePlan,
+    hydrographyArtifacts.projectedNavigableRivers,
+    morphologyLandformsArtifacts.topography,
+    morphologyShelfArtifacts.shelf,
+    morphologyLandformsArtifacts.mountains,
+    morphologyLandformsArtifacts.volcanoes,
+  ],
+  provides: [featureArtifacts.featureSuitability],
+
   ops: {
     vegetationSubstrate: ecology.features.ops.computeVegetationSubstrate,
     featureSubstrate: ecology.features.ops.computeFeatureSubstrate,

@@ -9,16 +9,13 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "geomorphology",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [
-      morphologyTerrainArtifacts.baseTopography,
-      morphologyRoutingArtifacts.routing,
-      morphologyTerrainArtifacts.baseSubstrate,
-    ],
-    provides: [morphologyErosionArtifacts.erodedTopography, morphologyErosionArtifacts.substrate],
-  },
+  requires: [
+    morphologyTerrainArtifacts.baseTopography,
+    morphologyRoutingArtifacts.routing,
+    morphologyTerrainArtifacts.baseSubstrate,
+  ],
+  provides: [morphologyErosionArtifacts.erodedTopography, morphologyErosionArtifacts.substrate],
+
   ops: {
     geomorphology: morphology.erosion.ops.computeGeomorphicCycle,
   },

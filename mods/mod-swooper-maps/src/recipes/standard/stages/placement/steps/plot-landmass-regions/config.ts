@@ -11,12 +11,13 @@ import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 export const config = defineStep({
   id: "plot-landmass-regions",
   engine: ["getLandmassId", "setLandmassRegionId"] as const,
-  requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.surfacePrepared],
-  provides: [],
-  artifacts: {
-    requires: [morphologyLandformsArtifacts.topography, morphologyLandformsArtifacts.landmasses],
-    provides: [placementRegionArtifacts.landmassRegionSlotByTile],
-  },
+  requires: [
+    PLACEMENT_PRODUCT_EFFECT_TAGS.placement.surfacePrepared,
+    morphologyLandformsArtifacts.topography,
+    morphologyLandformsArtifacts.landmasses,
+  ],
+  provides: [placementRegionArtifacts.landmassRegionSlotByTile],
+
   ops: {
     regions: placement.regions.ops.projectLandmassRegions,
   },

@@ -43,8 +43,8 @@ Think of MapGen as these layers:
    - own algorithmic “ops” (compute/plan modules) + shared semantics (e.g., knob enums).
 2) **Steps**
    - orchestration units that:
-     - declare dependencies (requires/provides),
-     - declare artifacts/op bindings (contract),
+     - select exact artifact authorities and typed completion ids in `requires`/`provides`,
+     - declare operation bindings,
      - and implement `run()` (plus optional `normalize()`).
 3) **Stages**
    - author-facing grouping and config surface:
@@ -57,7 +57,7 @@ Think of MapGen as these layers:
    - plan compilation (turn recipe into an execution plan of step nodes).
 6) **Execution**
    - executor runs step nodes with:
-     - tag gating (requires/provides),
+     - projected dependency gating (artifact evidence and completion ids),
      - artifact admission and write-once publication,
      - executor-owned trace sessions and revocable step-event leases,
      - optional post-step metrics/visualization facet sinks.
@@ -72,7 +72,7 @@ Think of MapGen as these layers:
 - The executor owns dependency validation, trace identity/selection/lifecycle, and optional facet
   dispatch; steps must not reimplement gating or observe an environment sink.
 - Occurrence-scoped authority covers declared artifact access, exact engine methods, deterministic
-  random helpers, step trace events, and effect-satisfaction evidence. The executor retains the raw
+  random helpers, step trace events, and completion evidence. The executor retains the raw
   adapter privately; each step receives only the engine methods named by its frozen contract.
 - Authoring factories detach caller-owned contract graphs and capture tuple/map declarations through
   data descriptors, so admission never invokes accessors or retains mutable container structure.

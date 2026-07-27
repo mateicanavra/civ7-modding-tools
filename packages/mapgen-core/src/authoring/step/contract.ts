@@ -201,29 +201,11 @@ function normalizeOpsDecl<const Ops extends StepOpsDeclInput>(input: {
   return Object.freeze(out) as StepOpsDeclNormalizedFromInput<Ops>;
 }
 
-/**
- * Artifact dependencies owned by a step contract.
- * Requirements and providers retain the same complete artifact authority, so dependency identity
- * and publication admission cannot diverge.
- */
-export type StepArtifactsDecl<
-  Requires extends readonly Artifact[] | undefined = undefined,
-  Provides extends readonly Artifact[] | undefined = undefined,
-> = Readonly<{
-  requires?: Requires;
-  provides?: Provides;
-}>;
+/** One completion id or exact artifact authority selected by a step dependency edge. */
+export type StepDependency = DependencyTagId | Artifact;
 
-/** Type-erased artifact declaration used by generic step-authoring helpers. */
-export type StepArtifactsDeclAny = StepArtifactsDecl<
-  readonly Artifact[] | undefined,
-  readonly Artifact[] | undefined
->;
-
-type StepArtifactsDeclInput = Readonly<{
-  requires?: readonly Artifact[];
-  provides?: readonly Artifact[];
-}>;
+/** Ordered dependency selection authored for one direction of a step contract. */
+export type StepDependencyList = readonly StepDependency[];
 
 function admitArtifact(stepId: string, value: unknown, location: string): Artifact {
   try {
@@ -258,30 +240,6 @@ function readDenseArrayEntry(value: readonly unknown[], index: number, location:
   return descriptor.value;
 }
 
-function snapshotArtifactList(
-  stepId: string,
-  property: "required" | "provided",
-  value: unknown
-): readonly Artifact[] {
-  if (!Array.isArray(value)) {
-    throw new Error(`step "${stepId}" ${property} artifacts must be an array`);
-  }
-
-  const location = `step "${stepId}" ${property} artifacts`;
-  const length = readDenseArrayLength(value, location);
-  const artifacts: Artifact[] = [];
-  for (let index = 0; index < length; index += 1) {
-    artifacts.push(
-      admitArtifact(
-        stepId,
-        readDenseArrayEntry(value, index, location),
-        `${property} artifact at index ${index}`
-      )
-    );
-  }
-  return Object.freeze(artifacts);
-}
-
 function readOptionalOwnDataProperty(
   value: object,
   key: PropertyKey,
@@ -295,94 +253,52 @@ function readOptionalOwnDataProperty(
   return { present: true, value: descriptor.value };
 }
 
-function snapshotArtifactsDecl(stepId: string, input: unknown): StepArtifactsDeclInput | undefined {
-  if (input === undefined) return undefined;
-  if (input === null || typeof input !== "object" || Array.isArray(input)) {
-    throw new TypeError(`step "${stepId}" artifacts must be an object`);
-  }
-
-  const snapshot: {
-    requires?: readonly Artifact[];
-    provides?: readonly Artifact[];
-  } = {};
-  const requires = readOptionalOwnDataProperty(
-    input,
-    "requires",
-    `step "${stepId}" artifacts.requires`
-  );
-  const provides = readOptionalOwnDataProperty(
-    input,
-    "provides",
-    `step "${stepId}" artifacts.provides`
-  );
-  if (requires.present) {
-    snapshot.requires =
-      requires.value === undefined
-        ? undefined
-        : snapshotArtifactList(stepId, "required", requires.value);
-  }
-  if (provides.present) {
-    snapshot.provides =
-      provides.value === undefined
-        ? undefined
-        : snapshotArtifactList(stepId, "provided", provides.value);
-  }
-  return Object.freeze(snapshot);
-}
-
-function snapshotDependencyTagList(
+function snapshotDependencyList(
   stepId: string,
   property: "requires" | "provides",
   value: unknown
-): readonly DependencyTagId[] {
+): StepDependencyList {
   if (!Array.isArray(value)) {
     throw new TypeError(`step "${stepId}" ${property} must be an array`);
   }
 
   const location = `step "${stepId}" ${property}`;
   const length = readDenseArrayLength(value, location);
-  const tags: DependencyTagId[] = [];
+  const dependencies: StepDependency[] = [];
   for (let index = 0; index < length; index += 1) {
-    const tag = readDenseArrayEntry(value, index, location);
-    if (typeof tag !== "string") {
-      throw new TypeError(`${location} at index ${index} must be a string`);
+    const dependency = readDenseArrayEntry(value, index, location);
+    if (typeof dependency === "string") {
+      if (dependency.startsWith("artifact:")) {
+        throw new TypeError(
+          `${location} at index ${index} must use the canonical artifact authority instead of raw id "${dependency}"`
+        );
+      }
+      dependencies.push(dependency);
+      continue;
     }
-    tags.push(tag as DependencyTagId);
+    dependencies.push(admitArtifact(stepId, dependency, `${property} at index ${index}`));
   }
-  return Object.freeze(tags);
+  return Object.freeze(dependencies);
 }
-
-type StepArtifactsRequires<T> = T extends { requires?: infer R } ? R : undefined;
-type StepArtifactsProvides<T> = T extends { provides?: infer P } ? P : undefined;
-
-type CoerceArtifactList<T> =
-  Extract<T, readonly Artifact[]> extends never ? undefined : Extract<T, readonly Artifact[]>;
-
-type StepArtifactsDeclFromInput<T extends StepArtifactsDeclInput | undefined> =
-  T extends StepArtifactsDeclInput
-    ? StepArtifactsDecl<
-        CoerceArtifactList<StepArtifactsRequires<T>>,
-        CoerceArtifactList<StepArtifactsProvides<T>>
-      >
-    : undefined;
 
 /**
  * Frozen authoring contract for one recipe step.
- * `defineStep` derives artifact dependency tags from this contract before any implementation runs.
+ * Each ordered dependency list retains completion ids and exact artifact authorities in one place;
+ * recipe compilation projects those selections into the runtime id ledger.
  */
 export type StepContract<
   Schema extends TObject,
   Id extends string,
   Ops extends StepOpsDecl | undefined = undefined,
-  Artifacts extends StepArtifactsDeclAny | undefined = StepArtifactsDeclAny | undefined,
+  Requires extends StepDependencyList = StepDependencyList,
+  Provides extends StepDependencyList = StepDependencyList,
   Engine extends StepEngineDecl | undefined = StepEngineDecl | undefined,
   InitialSetup extends InitialSetupDefinition | undefined = InitialSetupDefinition | undefined,
 > = Readonly<{
   id: Id;
   description?: string;
-  requires: readonly DependencyTagId[];
-  provides: readonly DependencyTagId[];
-  artifacts?: Artifacts;
+  requires: Requires;
+  provides: Provides;
   engine?: Engine;
   initialSetup?: InitialSetup;
   schema: Schema;
@@ -392,15 +308,15 @@ export type StepContract<
 type StepContractBaseInput<
   Id extends string,
   Ops extends StepOpsDeclInput | undefined,
-  Artifacts extends StepArtifactsDeclInput | undefined,
+  Requires extends StepDependencyList,
+  Provides extends StepDependencyList,
   Engine extends StepEngineDecl | undefined,
   InitialSetup extends InitialSetupDefinition | undefined,
 > = Readonly<{
   id: Id;
   description?: string;
-  requires: readonly DependencyTagId[];
-  provides: readonly DependencyTagId[];
-  artifacts?: Artifacts;
+  requires: Requires;
+  provides: Provides;
   engine?: Engine;
   initialSetup?: InitialSetup;
   ops?: Ops;
@@ -410,16 +326,35 @@ type StepContractInput<
   Schema extends TObject | undefined,
   Id extends string,
   Ops extends StepOpsDeclInput | undefined,
-  Artifacts extends StepArtifactsDeclInput | undefined,
+  Requires extends StepDependencyList,
+  Provides extends StepDependencyList,
   Engine extends StepEngineDecl | undefined,
   InitialSetup extends InitialSetupDefinition | undefined,
-> = StepContractBaseInput<Id, Ops, Artifacts, Engine, InitialSetup> &
+> = StepContractBaseInput<Id, Ops, Requires, Provides, Engine, InitialSetup> &
   Readonly<{
     schema?: Schema &
       (Schema extends TObject ? (keyof PropsOf<Schema> extends never ? never : unknown) : unknown);
   }>;
 
 const STEP_ID_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const STEP_DEFINITION_KEYS = new Set<PropertyKey>([
+  "id",
+  "description",
+  "requires",
+  "provides",
+  "engine",
+  "initialSetup",
+  "schema",
+  "ops",
+]);
+
+function assertStepDefinitionKeys(def: object): void {
+  for (const key of Reflect.ownKeys(def)) {
+    if (!STEP_DEFINITION_KEYS.has(key)) {
+      throw new TypeError(`step contract cannot own unsupported property "${String(key)}"`);
+    }
+  }
+}
 
 /** Exact callable engine methods admitted to one authored step contract. */
 export type StepEngineDecl = readonly AuthoredEngineAdapterKey[];
@@ -461,7 +396,6 @@ function snapshotStepDefinition(def: unknown): Readonly<{
   description: unknown;
   requires: unknown;
   provides: unknown;
-  artifacts: unknown;
   engine: unknown;
   initialSetup: unknown;
   schema: unknown;
@@ -471,6 +405,7 @@ function snapshotStepDefinition(def: unknown): Readonly<{
     throw new TypeError("step contract definition must be an object");
   }
   assertNoStepStageIdentityAliases(def, "step contract");
+  assertStepDefinitionKeys(def);
 
   const required = (key: "id" | "requires" | "provides"): unknown => {
     const property = readOptionalOwnDataProperty(def, key, `step contract ${key}`);
@@ -479,7 +414,6 @@ function snapshotStepDefinition(def: unknown): Readonly<{
     }
     return property.value;
   };
-  const artifacts = readOptionalOwnDataProperty(def, "artifacts", "step contract artifacts");
   const description = readOptionalOwnDataProperty(def, "description", "step contract description");
   const engine = readOptionalOwnDataProperty(def, "engine", "step contract engine");
   const initialSetup = readOptionalOwnDataProperty(
@@ -498,7 +432,6 @@ function snapshotStepDefinition(def: unknown): Readonly<{
     description: description.value,
     requires,
     provides,
-    artifacts: artifacts.value,
     engine: engine.value,
     initialSetup: initialSetup.value,
     schema: schema.value,
@@ -506,74 +439,37 @@ function snapshotStepDefinition(def: unknown): Readonly<{
   };
 }
 
-/**
- * Admits and freezes a step contract, deriving dependency tags from its artifact authorities.
- */
+/** Admits and freezes one step contract with exact completion and artifact dependencies. */
 export function defineStep<
   const Id extends string,
+  const Requires extends StepDependencyList,
+  const Provides extends StepDependencyList,
   const Schema extends TObject | undefined = undefined,
   const Engine extends StepEngineDecl | undefined = undefined,
   const InitialSetup extends InitialSetupDefinition | undefined = undefined,
 >(
-  def: StepContractInput<Schema, Id, undefined, undefined, Engine, InitialSetup> &
+  def: StepContractInput<Schema, Id, undefined, Requires, Provides, Engine, InitialSetup> &
     ValidatedStepEngineDeclInput<Engine>
-): StepContract<StepSchema<Schema>, Id, undefined, undefined, Engine, InitialSetup>;
-
-export function defineStep<
-  const Id extends string,
-  const Artifacts extends StepArtifactsDeclInput,
-  const Schema extends TObject | undefined = undefined,
-  const Engine extends StepEngineDecl | undefined = undefined,
-  const InitialSetup extends InitialSetupDefinition | undefined = undefined,
->(
-  def: StepContractInput<Schema, Id, undefined, Artifacts, Engine, InitialSetup> & {
-    artifacts: Artifacts;
-  } & ValidatedStepEngineDeclInput<Engine>
-): StepContract<
-  StepSchema<Schema>,
-  Id,
-  undefined,
-  StepArtifactsDeclFromInput<Artifacts>,
-  Engine,
-  InitialSetup
->;
+): StepContract<StepSchema<Schema>, Id, undefined, Requires, Provides, Engine, InitialSetup>;
 
 export function defineStep<
   const Id extends string,
   const Ops extends StepOpsDeclInput,
+  const Requires extends StepDependencyList,
+  const Provides extends StepDependencyList,
   const Schema extends TObject | undefined = undefined,
   const Engine extends StepEngineDecl | undefined = undefined,
   const InitialSetup extends InitialSetupDefinition | undefined = undefined,
 >(
-  def: StepContractInput<Schema, Id, Ops, undefined, Engine, InitialSetup> & {
+  def: StepContractInput<Schema, Id, Ops, Requires, Provides, Engine, InitialSetup> & {
     ops: Ops & ValidatedStepOpsDeclInput<Ops>;
   } & ValidatedStepEngineDeclInput<Engine>
 ): StepContract<
   SchemaWithOps<StepSchema<Schema>, StepOpsDeclNormalizedFromInput<Ops>>,
   Id,
   StepOpsDeclNormalizedFromInput<Ops>,
-  undefined,
-  Engine,
-  InitialSetup
->;
-
-export function defineStep<
-  const Id extends string,
-  const Ops extends StepOpsDeclInput,
-  const Artifacts extends StepArtifactsDeclInput,
-  const Schema extends TObject | undefined = undefined,
-  const Engine extends StepEngineDecl | undefined = undefined,
-  const InitialSetup extends InitialSetupDefinition | undefined = undefined,
->(
-  def: StepContractInput<Schema, Id, Ops, Artifacts, Engine, InitialSetup> & {
-    ops: Ops & ValidatedStepOpsDeclInput<Ops>;
-    artifacts: Artifacts;
-  } & ValidatedStepEngineDeclInput<Engine>
-): StepContract<
-  SchemaWithOps<StepSchema<Schema>, StepOpsDeclNormalizedFromInput<Ops>>,
-  Id,
-  StepOpsDeclNormalizedFromInput<Ops>,
-  StepArtifactsDeclFromInput<Artifacts>,
+  Requires,
+  Provides,
   Engine,
   InitialSetup
 >;
@@ -591,39 +487,21 @@ export function defineStep(def: any): any {
     throw new TypeError(`step "${stepId}" description must be a non-empty string`);
   }
   const description = admitted.description as string | undefined;
-  const declaredRequires = snapshotDependencyTagList(stepId, "requires", admitted.requires);
-  const declaredProvides = snapshotDependencyTagList(stepId, "provides", admitted.provides);
-
-  const artifacts = snapshotArtifactsDecl(stepId, admitted.artifacts);
+  const requires = snapshotDependencyList(stepId, "requires", admitted.requires);
+  const provides = snapshotDependencyList(stepId, "provides", admitted.provides);
   const engine = snapshotEngineDecl(stepId, admitted.engine);
   const initialSetup =
     admitted.initialSetup === undefined
       ? undefined
       : (assertInitialSetupDefinitionInternal(admitted.initialSetup), admitted.initialSetup);
-  const artifactRequires: string[] =
-    artifacts?.requires?.map((artifact: Artifact) => artifact.id) ?? [];
-  const artifactProvides: string[] =
-    artifacts?.provides?.map((artifact: Artifact) => artifact.id) ?? [];
-  const hasArtifacts = artifacts !== undefined;
-
-  const directArtifactTags = [...declaredRequires, ...declaredProvides].filter((tag: string) =>
-    tag.startsWith("artifact:")
-  );
-  if (directArtifactTags.length > 0) {
-    throw new Error(
-      `step "${stepId}" cannot declare artifact ids in requires/provides; use artifacts.requires/provides so the artifact remains authoritative`
-    );
-  }
-
   const requiredArtifactIds = new Set<string>();
   const providedArtifactIds = new Set<string>();
   const seenArtifactNames = new Set<string>();
-  for (const contract of artifacts?.requires ?? []) {
-    const { id, name } = contract;
+  for (const dependency of requires) {
+    if (typeof dependency === "string") continue;
+    const { id, name } = dependency;
     if (requiredArtifactIds.has(id)) {
-      throw new Error(
-        `step "${stepId}" declares artifact "${id}" multiple times in artifacts.requires`
-      );
+      throw new Error(`step "${stepId}" declares artifact "${id}" multiple times in requires`);
     }
     if (seenArtifactNames.has(name)) {
       throw new Error(`step "${stepId}" declares duplicate artifact name "${name}"`);
@@ -631,17 +509,14 @@ export function defineStep(def: any): any {
     requiredArtifactIds.add(id);
     seenArtifactNames.add(name);
   }
-  for (const artifact of artifacts?.provides ?? []) {
-    const { id, name } = artifact;
+  for (const dependency of provides) {
+    if (typeof dependency === "string") continue;
+    const { id, name } = dependency;
     if (requiredArtifactIds.has(id)) {
-      throw new Error(
-        `step "${stepId}" declares artifact "${id}" in both artifacts.requires and artifacts.provides`
-      );
+      throw new Error(`step "${stepId}" declares artifact "${id}" in both requires and provides`);
     }
     if (providedArtifactIds.has(id)) {
-      throw new Error(
-        `step "${stepId}" declares duplicate artifact id "${id}" in artifacts.provides`
-      );
+      throw new Error(`step "${stepId}" declares artifact "${id}" multiple times in provides`);
     }
     if (seenArtifactNames.has(name)) {
       throw new Error(`step "${stepId}" declares duplicate artifact name "${name}"`);
@@ -649,9 +524,6 @@ export function defineStep(def: any): any {
     providedArtifactIds.add(id);
     seenArtifactNames.add(name);
   }
-
-  const requires = Object.freeze([...declaredRequires, ...artifactRequires]);
-  const provides = Object.freeze([...declaredProvides, ...artifactProvides]);
 
   const detachedOps =
     admitted.ops === undefined
@@ -694,7 +566,6 @@ export function defineStep(def: any): any {
     ...(description === undefined ? {} : { description }),
     requires,
     provides,
-    ...(hasArtifacts ? { artifacts } : {}),
     ...(engine === undefined ? {} : { engine }),
     ...(initialSetup === undefined ? {} : { initialSetup }),
     schema,

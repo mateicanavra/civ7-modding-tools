@@ -13,17 +13,14 @@ export const config = defineStep({
   id: "lakes",
   description: "Projects admitted lake intent and records immutable projection evidence.",
   engine: ["stampLakes"] as const,
-  requires: [],
+  requires: [
+    hydrographyArtifacts.lakePlan,
+    morphologyLandformsArtifacts.mountains,
+    morphologyLandformsArtifacts.volcanoes,
+  ],
   provides: [
     MAP_PROJECTION_EFFECT_TAGS.map.lakesPlotted,
     MAP_PROJECTION_EFFECT_TAGS.map.hydrologyLakesParityCaptured,
+    hydrographyArtifacts.projectedLakes,
   ],
-  artifacts: {
-    requires: [
-      hydrographyArtifacts.lakePlan,
-      morphologyLandformsArtifacts.mountains,
-      morphologyLandformsArtifacts.volcanoes,
-    ],
-    provides: [hydrographyArtifacts.projectedLakes],
-  },
 });

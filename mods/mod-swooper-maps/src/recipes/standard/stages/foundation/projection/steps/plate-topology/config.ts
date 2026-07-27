@@ -9,12 +9,9 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "plate-topology",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [projectionArtifacts.plates],
-    provides: [projectionArtifacts.plateTopology],
-  },
+  requires: [projectionArtifacts.plates],
+  provides: [projectionArtifacts.plateTopology],
+
   ops: {
     computePlateTopology: foundation.projection.ops.computePlateTopology,
   },

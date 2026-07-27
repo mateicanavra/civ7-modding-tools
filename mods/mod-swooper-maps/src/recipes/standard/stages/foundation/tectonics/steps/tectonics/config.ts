@@ -12,23 +12,20 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "tectonics",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [
-      meshArtifacts.mesh,
-      mantleArtifacts.mantleForcing,
-      lithosphereArtifacts.initialCrust,
-      lithosphereArtifacts.plateGraph,
-    ],
-    provides: [
-      tectonicsArtifacts.plateMotion,
-      tectonicsArtifacts.tectonicSegments,
-      tectonicsArtifacts.tectonicHistory,
-      tectonicsArtifacts.tectonicProvenance,
-      tectonicsArtifacts.currentTectonics,
-    ],
-  },
+  requires: [
+    meshArtifacts.mesh,
+    mantleArtifacts.mantleForcing,
+    lithosphereArtifacts.initialCrust,
+    lithosphereArtifacts.plateGraph,
+  ],
+  provides: [
+    tectonicsArtifacts.plateMotion,
+    tectonicsArtifacts.tectonicSegments,
+    tectonicsArtifacts.tectonicHistory,
+    tectonicsArtifacts.tectonicProvenance,
+    tectonicsArtifacts.currentTectonics,
+  ],
+
   ops: {
     computePlateMotion: foundation.tectonics.ops.computePlateMotion,
     computeTectonicSegments: foundation.tectonics.ops.computeTectonicSegments,

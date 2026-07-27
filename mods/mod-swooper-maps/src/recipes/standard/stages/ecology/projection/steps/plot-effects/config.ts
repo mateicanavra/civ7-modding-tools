@@ -12,9 +12,6 @@ export const config = defineStep({
   id: "plot-effects",
   description: "Applies admitted Ecology plot-effect intent to the current Civ7 map.",
   engine: ["getPlotEffectTypeIndex", "addPlotEffect"] as const,
-  requires: [],
+  requires: [plotEffectArtifacts.plotEffectPlan],
   provides: [STANDARD_ENGINE_EFFECT_TAGS.engine.plotEffectsApplied],
-  artifacts: {
-    requires: [plotEffectArtifacts.plotEffectPlan],
-  },
 });

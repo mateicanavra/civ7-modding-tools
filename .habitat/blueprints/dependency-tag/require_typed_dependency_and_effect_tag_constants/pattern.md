@@ -3,16 +3,17 @@ level: error
 ---
 # Require Typed Dependency Tag Constants
 
-Recipe step definitions in `config.ts` must use typed
-dependency tag constants in top-level `requires` and `provides`; string literal
-dependency keys drift from the owning tag surfaces.
+Recipe step definitions in `config.ts` author their complete dependency contract
+through the top-level `requires` and `provides` arrays. Artifact dependencies use
+the exact owning `Artifact` authority; effect dependencies use typed string
+constants. Raw string literals, including `artifact:*` ids, discard their owning
+authority and drift from the typed dependency surfaces.
 
 ```grit
 language js(typescript)
 
 or {
   `defineStep({ $props })` where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)+steps/[^/]+/config\.ts$",
     $props <: some bubble {
       pair(key=`requires`, value=array($elements)) where {
         $elements <: some string()
@@ -20,7 +21,6 @@ or {
     }
   },
   `defineStep({ $props })` where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)+steps/[^/]+/config\.ts$",
     $props <: some bubble {
       pair(key=`provides`, value=array($elements)) where {
         $elements <: some string()
@@ -34,27 +34,25 @@ or {
 
 ```typescript
 // @filename: mods/example-mod/src/recipes/sample-recipe/stages/water/rivers/steps/project-rivers/config.ts
-import { defineStep, Type } from "@swooper/mapgen-core/authoring";
+import { defineStep } from "@swooper/mapgen-core/authoring";
 
 export const config = defineStep({
   id: "plot-rivers",
   requires: ["effect:map.elevationBuilt"],
   provides: [],
-  schema: Type.Object({}),
 });
 
 // @filename: mods/example-mod/src/recipes/sample-recipe/stages/water/rivers/steps/project-rivers/config.ts
-import { defineStep, Type } from "@swooper/mapgen-core/authoring";
+import { defineStep } from "@swooper/mapgen-core/authoring";
 
 export const config = defineStep({
   id: "plot-rivers",
   requires: [],
   provides: ['effect:map.riversPlotted'],
-  schema: Type.Object({}),
 });
 
 // @filename: mods/example-mod/src/recipes/sample-recipe/stages/water/rivers/steps/project-rivers/config.ts
-import { defineStep, Type } from "@swooper/mapgen-core/authoring";
+import { defineStep } from "@swooper/mapgen-core/authoring";
 
 export const config = defineStep({
   id: "plot-rivers",
@@ -63,7 +61,15 @@ export const config = defineStep({
     "effect:map.riversModeled",
   ],
   provides: [],
-  schema: Type.Object({}),
+});
+
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/water/rivers/steps/project-rivers/config.ts
+import { defineStep } from "@swooper/mapgen-core/authoring";
+
+export const config = defineStep({
+  id: "plot-rivers",
+  requires: ["artifact:hydrology.hydrography"],
+  provides: ["artifact:map.rivers"],
 });
 ```
 
@@ -71,43 +77,21 @@ export const config = defineStep({
 
 ```typescript
 // @filename: mods/example-mod/src/recipes/sample-recipe/stages/water/rivers/steps/project-rivers/config.ts
-import { defineStep, Type } from "@swooper/mapgen-core/authoring";
+import { defineStep } from "@swooper/mapgen-core/authoring";
+import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
+import { mapRiversArtifacts } from "../../map-rivers/artifacts.js";
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../tags.js";
 
 export const config = defineStep({
   id: "plot-rivers",
-  requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
-  provides: [MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted],
-  schema: Type.Object({}),
-});
-
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/water/rivers/steps/project-rivers/config.ts
-import { defineStep, Type } from "@swooper/mapgen-core/authoring";
-import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
-
-export const config = defineStep({
-  id: "plot-rivers",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [hydrologyHydrographyArtifacts.hydrography],
-    provides: [mapRiversArtifacts.projectedNavigableRivers],
-  },
-  schema: Type.Object({}),
-});
-
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/water/rivers/steps/project-rivers/config.ts
-import { defineStep, Type } from "@swooper/mapgen-core/authoring";
-
-export const config = defineStep({
-  id: "plot-rivers",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: ["artifact:hydrology.hydrography"],
-    provides: ["artifact:map.rivers"],
-  },
-  schema: Type.Object({}),
+  requires: [
+    MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt,
+    hydrologyHydrographyArtifacts.hydrography,
+  ],
+  provides: [
+    MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
+    mapRiversArtifacts.projectedNavigableRivers,
+  ],
 });
 
 // @filename: mods/example-mod/src/recipes/sample-recipe/stages/water/rivers/steps/project-rivers/step.ts

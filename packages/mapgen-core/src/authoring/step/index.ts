@@ -1,4 +1,9 @@
-export type { StepContract, StepEngineDecl } from "./contract.js";
+export type {
+  StepContract,
+  StepDependency,
+  StepDependencyList,
+  StepEngineDecl,
+} from "./contract.js";
 export { defineStep } from "./contract.js";
 export { createStep } from "./create.js";
 export type { OpContractAny, StepOpsDecl, StepRuntimeOps } from "./ops.js";

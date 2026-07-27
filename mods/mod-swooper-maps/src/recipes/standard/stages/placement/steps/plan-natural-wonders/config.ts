@@ -27,20 +27,16 @@ export const config = defineStep({
   requires: [
     MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
     STANDARD_ENGINE_EFFECT_TAGS.engine.featuresApplied,
+    morphologyLandformsArtifacts.topography,
+    climateArtifacts.climateIndices,
+    hydrographyArtifacts.hydrography,
+    hydrographyArtifacts.riverNetwork,
+    hydrographyArtifacts.lakePlan,
+    biomeArtifacts.biomeClassification,
+    pedologyArtifacts.pedology,
   ],
-  provides: [],
-  artifacts: {
-    requires: [
-      morphologyLandformsArtifacts.topography,
-      climateArtifacts.climateIndices,
-      hydrographyArtifacts.hydrography,
-      hydrographyArtifacts.riverNetwork,
-      hydrographyArtifacts.lakePlan,
-      biomeArtifacts.biomeClassification,
-      pedologyArtifacts.pedology,
-    ],
-    provides: [placementWonderArtifacts.naturalWonderPlan],
-  },
+  provides: [placementWonderArtifacts.naturalWonderPlan],
+
   ops: {
     naturalWonders: placement.wonders.ops.planNaturalWonders,
   },

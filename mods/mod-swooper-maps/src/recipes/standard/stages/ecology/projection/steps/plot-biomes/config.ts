@@ -12,13 +12,10 @@ export const config = defineStep({
   id: "plot-biomes",
   description: "Projects Swooper biome symbols into fixed official Civ7 biome identities.",
   engine: ["getBiomeGlobal", "setBiomeType", "readCurrentMapWaterMask"] as const,
-  requires: [],
+  requires: [
+    biomeArtifacts.biomeClassification,
+    climateArtifacts.climateIndices,
+    morphologyLandformsArtifacts.topography,
+  ],
   provides: [STANDARD_ENGINE_EFFECT_TAGS.engine.biomesApplied],
-  artifacts: {
-    requires: [
-      biomeArtifacts.biomeClassification,
-      climateArtifacts.climateIndices,
-      morphologyLandformsArtifacts.topography,
-    ],
-  },
 });

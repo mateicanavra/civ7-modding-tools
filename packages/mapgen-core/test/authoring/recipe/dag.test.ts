@@ -42,28 +42,10 @@ function step(input: {
 }) {
   const requires = input.requires ?? [];
   const provides = input.provides ?? [];
-  if (provides.length === 0) {
-    const contract = defineStep({
-      id: input.id,
-      requires: requires.length ? ["effect:test.externalReady"] : [],
-      provides: [],
-      artifacts: { requires },
-    });
-    return createStep(contract, { run: () => {} });
-  }
-
-  const providedArtifacts = provides as readonly [
-    ReturnType<typeof defineArtifact>,
-    ...ReturnType<typeof defineArtifact>[],
-  ];
   const contract = defineStep({
     id: input.id,
-    requires: requires.length ? ["effect:test.externalReady"] : [],
-    provides: [],
-    artifacts: {
-      requires,
-      provides: providedArtifacts,
-    },
+    requires: requires.length ? ["effect:test.externalReady", ...requires] : [],
+    provides,
   });
   return createStep(contract, { run: () => {} });
 }

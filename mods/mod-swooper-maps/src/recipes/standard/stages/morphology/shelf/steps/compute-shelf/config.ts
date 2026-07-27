@@ -13,12 +13,9 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "compute-shelf",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [morphologyLandformsArtifacts.topography, morphologyTerrainArtifacts.beltDrivers],
-    provides: [morphologyShelfArtifacts.shelf],
-  },
+  requires: [morphologyLandformsArtifacts.topography, morphologyTerrainArtifacts.beltDrivers],
+  provides: [morphologyShelfArtifacts.shelf],
+
   ops: {
     coastalAdjacency: morphology.coasts.ops.computeCoastalAdjacency,
     distanceToCoast: morphology.coasts.ops.computeDistanceToCoast,

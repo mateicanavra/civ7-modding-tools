@@ -38,10 +38,10 @@ Canonical MapGen vocabulary used across docs (policies, reference, tutorials).
 - **Step**: A single execution unit with a stable id, `requires/provides`, and an implementation.
 - **Stage (authoring)**: The recipe-owned grouping that assigns each composed step its exact `stageId`, organizes authoring, and compiles stage-specific config into step configs.
 - **Op**: A strategy envelope used *within* a step (declared via `contract.ops`) to make algorithms configurable without turning the step schema into an untyped bag of options.
-- **TagRegistry**: Registry that validates dependency tags and their kinds; used to enforce wiring correctness.
-- **StepRegistry**: Registry of step implementations and their dependency tags.
-- **Dependency tag**: A string id describing a required/provided dependency. The closed kinds are `artifact:*` data and `effect:*` execution guarantees.
-- **Artifact**: Write-once published values; consumers treat them as immutable.
+- **TagRegistry**: Runtime registry for the closed id projection compiled from exact artifact authorities and typed completion ids.
+- **StepRegistry**: Registry of step implementations and their compiled dependency ids.
+- **Dependency selection**: One exact `Artifact` authority or typed completion id in a step's `requires`/`provides` list.
+- **Artifact**: Canonical contract for one write-once published value; consumers treat admitted values as immutable.
 - **Overlay**: A visualization/UI layer (e.g. a deck.gl layer entry), not an engine primitive.
 - **Truth vs projection**: Canonical domain primitives vs derived engine-facing/debug surfaces.
 

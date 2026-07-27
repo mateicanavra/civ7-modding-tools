@@ -21,9 +21,7 @@ export const config = defineStep({
     MAP_PROJECTION_EFFECT_TAGS.map.mountainsPlotted,
     MAP_PROJECTION_EFFECT_TAGS.map.volcanoesPlotted,
     MAP_PROJECTION_EFFECT_TAGS.map.lakesPlotted,
+    morphologyLandformsArtifacts.topography,
   ],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
-  artifacts: {
-    requires: [morphologyLandformsArtifacts.topography],
-  },
 });

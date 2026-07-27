@@ -10,10 +10,10 @@ export const config = defineStep({
   id: "plot-mountains",
   description: "Projects admitted Morphology mountain intent onto the current Civ7 map.",
   engine: ["setTerrainType", "readCurrentMapWaterMask"] as const,
-  requires: [MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted],
+  requires: [
+    MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted,
+    morphologyLandformsArtifacts.mountains,
+    morphologyLandformsArtifacts.topography,
+  ],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.mountainsPlotted],
-  artifacts: {
-    requires: [morphologyLandformsArtifacts.mountains, morphologyLandformsArtifacts.topography],
-    provides: [],
-  },
 });

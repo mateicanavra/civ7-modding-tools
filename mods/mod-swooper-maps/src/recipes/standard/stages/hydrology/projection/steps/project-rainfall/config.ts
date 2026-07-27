@@ -10,10 +10,6 @@ export const config = defineStep({
   id: "project-rainfall",
   description: "Materializes the admitted final climate rainfall surface exactly once.",
   engine: ["setRainfall"] as const,
-  requires: [],
+  requires: [climateArtifacts.climateField],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.rainfallProjected],
-  artifacts: {
-    requires: [climateArtifacts.climateField],
-    provides: [],
-  },
 });

@@ -23,7 +23,7 @@ A pipeline run is:
 
 - **a recipe** (declared ordering + composition),
 - **executed as steps** (each step is an orchestration unit),
-- **with explicit dependency gating** (requires/provides tags validated by a registry),
+- **with explicit dependency gating** (exact artifacts and typed completion ids selected in one contract),
 - **producing artifacts** (internal products) and eventually **fields/effects** (engine outputs),
 - with **trace/viz** as the default debugging posture.
 
@@ -38,7 +38,8 @@ A pipeline run is:
 4. **Run**:
    - the recipe executes the exact compiled plan; convenience run methods compile once and delegate
    - executor iterates nodes in order
-   - requires/provides validated via tag registry
+   - authored artifact authorities and completion ids are projected to the runtime dependency ledger
+   - runtime ids are registry-validated; artifact requirements also require admitted store evidence
    - step executes and publishes its write-once artifact evidence
    - executor opens and revokes one narrow step-event lease per invocation
    - after successful execution and provider admission, optional metrics and visualization facets
@@ -46,13 +47,16 @@ A pipeline run is:
 
 ## Data model (tags, artifacts, fields)
 
-- **Tags** are the dependency contract language: steps declare `requires[]` and `provides[]`.
+- **Dependency selections** are the contract language: steps declare exact `Artifact` authorities and
+  typed completion ids together in `requires[]` and `provides[]`.
 - **Artifacts** are pipeline-internal products stored and read through their exact canonical
   artifact contract objects. Stable artifact ids remain the dependency and diagnostic vocabulary;
-  they are not storage keys.
+  they are not authored strings or storage keys.
+- **Completion tags** are payload-free execution guarantees represented by typed ids.
 - **Fields/effects** are adapter-level outputs (Civ7 engine-facing).
 
-The system uses tags to prevent “accidental ordering”: if a step’s prerequisites aren’t satisfied, the executor fails early.
+The system uses the compiled dependency ledger to prevent "accidental ordering": if an exact
+artifact or completion prerequisite is not satisfied, the executor fails early.
 
 ## Observability (trace + viz)
 

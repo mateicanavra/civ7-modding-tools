@@ -23,8 +23,9 @@ A step contract defines:
 
 - `id` (kebab-case, stable)
 - optional `description` (the sole semantic description authority for the step)
-- `requires` / `provides` tags (validated)
-- optional `artifacts` requires/provides (preferred over mixing artifact tags into requires/provides)
+- `requires` / `provides`, the sole ordered dependency lists. Exact `Artifact`
+  authorities and typed effect/completion id constants appear together; raw
+  `artifact:*` strings are invalid.
 - optional `engine` method keys (an exact occurrence-scoped adapter capability set)
 - optional recipe-owned `initialSetup` authority (grants immutable `deps.initialSetup` only to that
   step and must match the recipe's exact authority)
@@ -76,18 +77,18 @@ export const config = defineStep({
     "recalculateAreas",
     "readRiverProjection",
   ] as const,
-  requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
-  provides: [MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted],
-  artifacts: {
-    requires: [
-      hydrologyHydrographyArtifacts.hydrography,
-      hydrologyHydrographyArtifacts.lakePlan,
-      hydrologyHydrographyArtifacts.riverNetwork,
-      morphologyShelfArtifacts.shelf,
-      morphologyLandformsArtifacts.topography,
-    ],
-    provides: [hydrologyHydrographyArtifacts.projectedNavigableRivers],
-  },
+  requires: [
+    MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt,
+    hydrologyHydrographyArtifacts.hydrography,
+    hydrologyHydrographyArtifacts.lakePlan,
+    hydrologyHydrographyArtifacts.riverNetwork,
+    morphologyShelfArtifacts.shelf,
+    morphologyLandformsArtifacts.topography,
+  ],
+  provides: [
+    MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
+    hydrologyHydrographyArtifacts.projectedNavigableRivers,
+  ],
   schema: Type.Object({
     endpointDischargePercentileMin: Type.Number({ minimum: 0, maximum: 1 }),
     targetMajorTileFraction: Type.Number({ minimum: 0, maximum: 1 }),
@@ -111,8 +112,8 @@ A step module pairs a step contract with an implementation:
 - optional `normalize(config, ctx)` hook (must be shape-preserving)
 - `run(context, config, ops, deps)` implementation
 
-`createStep` binds behavior only. Requirements and provisions select the same canonical artifact
-objects, so implementations cannot declare a second provider or validator surface. At each
+`createStep` binds behavior only. `requires` and `provides` select the same canonical artifact
+objects used by their owning catalogs, so implementations cannot declare a second provider or validator surface. At each
 invocation, Core derives only the exact occurrence-bound `read()` and `publish(value)` capabilities
 declared by that step contract; there is no provider runtime registry, map, or cache.
 
@@ -178,10 +179,10 @@ returns a JSON-safe DTO for tools such as MapGen Studio.
 Projection rules:
 
 - Stages are graph nodes.
-- Explicit `step.contract.artifacts.requires/provides` entries create artifact
+- Exact `Artifact` references in step `requires` and `provides` create artifact
   edges.
-- Step `requires/provides` tags remain metadata; they are not converted into
-  artifact edges.
+- Typed string completion dependencies in those same lists remain metadata;
+  they are not converted into artifact edges.
 - Same-stage artifact dependencies are retained as internal edges.
 - Recipe order remains the source of truth for stage and step order.
 

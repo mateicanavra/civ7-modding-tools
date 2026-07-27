@@ -60,9 +60,7 @@ describe("artifact admission", () => {
       defineStep({
         id: "mutable-artifact-provider",
         requires: [],
-        provides: [],
-        schema: Type.Object({}, { additionalProperties: false }),
-        artifacts: { provides: [mutable] },
+        provides: [mutable],
       } as never)
     ).toThrow("must be a canonical artifact");
   });

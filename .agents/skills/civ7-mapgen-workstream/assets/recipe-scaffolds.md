@@ -286,27 +286,24 @@ import someDomain from "@mapgen/domain/<domain>";
 import { artifacts as myModuleArtifacts } from "@mapgen/domain/<domain>/modules/<module>/artifacts/index.js";
 import { artifacts as otherModuleArtifacts } from "@mapgen/domain/<other-domain>/modules/<other-module>/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
-import { Type } from "@swooper/mapgen-core/authoring/schema";
 
 /** Contract and compiled configuration boundary for the example recipe step. */
 export const config = defineStep({
   id: "my-step-name",
-  requires: [] as const,
-  provides: [] as const,
-  artifacts: {
-    requires: [otherModuleArtifacts.someInput],
-    provides: [myModuleArtifacts.surfaceMask],
-  },
+  requires: [otherModuleArtifacts.someInput],
+  provides: [myModuleArtifacts.surfaceMask],
   ops: {
     myOp: someDomain.<module>.ops.myOpName,
     // or: myOp: { contract: someDomain.<module>.ops.myOpName, defaultStrategy: "my-variant" }
   },
-  schema: Type.Object({ /* step-level knobs not covered by ops; omit/empty if none */ }),
 });
 ```
 
-Keep those effect arrays empty unless the step truly needs execution ordering.
-When it does, import an existing typed member of
+Add `schema: Type.Object({ ... })` only when the step owns genuine local
+configuration beyond its operation envelopes; omit the property otherwise.
+
+Add effect dependencies to those same arrays only when the step truly needs
+execution ordering. Import an existing typed member of
 `MAP_PROJECTION_EFFECT_TAGS`, `PLACEMENT_PRODUCT_EFFECT_TAGS`, or
 `STANDARD_ENGINE_EFFECT_TAGS` from `../../../../tag-contracts.js`; never author
 a raw `effect:*` string. Add a new effect to that registry first when no current
@@ -346,12 +343,12 @@ legacy direct `context.viz` calls live in
    (position = within-stage execution order).
 2. The stage's `index.ts` — add the runtime step to `orderStandardStageSteps(...)`.
 
-> Gotchas: `artifacts.requires` and `artifacts.provides` select the same canonical artifact
-> authorities, so identity, schema, and admission retain one owner. `createStep` binds behavior
+> Gotchas: `requires` and `provides` are the sole dependency lists. Exact artifact
+> authorities retain identity, schema, admission, and typed `deps.artifacts`
+> capabilities; typed effect constants express completion ordering. `createStep` binds behavior
 > only; Core derives exact occurrence-bound `read()` and `publish(value)` capabilities directly
-> from the step contract at invocation. Do
-> NOT add `artifact:` ids to the top-level `requires`/`provides` arrays — `defineStep`
-> merges them automatically and throws if you double-list. Op keys in `ops:` must NOT
+> from the step contract at invocation. Do not replace an artifact authority with
+> its raw `artifact:` id. Op keys in `ops:` must NOT
 > collide with any key in `schema:` — `defineStep` throws on collision.
 > `orderStandardStageSteps` throws if a runtime step id is absent from the manifest.
 
@@ -494,10 +491,10 @@ consumers):**
 ```ts
 import { artifacts as myModuleArtifacts } from "@mapgen/domain/<domain>/modules/<module>/artifacts/index.js";
 
-// producing step contract: artifacts: { provides: [myModuleArtifacts.surfaceMask] }
+// producing step contract: provides: [myModuleArtifacts.surfaceMask]
 deps.artifacts.surfaceMask.publish({ width, height, landMask });
 
-// consuming step contract: artifacts: { requires: [myModuleArtifacts.surfaceMask] }
+// consuming step contract: requires: [myModuleArtifacts.surfaceMask]
 const value = deps.artifacts.surfaceMask.read();
 ```
 
@@ -508,14 +505,16 @@ express; a schema-complete artifact omits it. Its inferred facilities expose adm
 `dimensions`, derived `cellCount`, and the Core-owned `issues` sink. Use
 `issues.add(...)` for semantic findings and `issues.addGridCoordinates(...)` for generic
 coordinate bounds/duplication checks; do not import validation framework types or allocate
-an issue array. `defineStep` snapshots the selected artifact authorities. At each invocation,
+an issue array. Put exact artifact authorities directly in the step's `requires`
+and `provides` arrays; `defineStep` snapshots them. At each invocation,
 Core derives frozen `read()` and `publish(value)` capabilities directly from that contract;
 there is no authored provider runtime, map, or cache.
 
 > Artifact ids use `artifact:<domain>.<name>` (for example,
-> `artifact:morphology.topography`). `effect:<name>` tags express execution guarantees in
-> `requires`/`provides`, distinct from `artifact:*` data. Those are the only two dependency
-> kinds. Publish is write-once: a second publish of the same artifact in one run is an error.
+> `artifact:morphology.topography`), but authored step dependencies use the exact
+> `Artifact` value rather than that raw string. Typed `effect:<name>` constants
+> express execution guarantees in the same `requires`/`provides` lists. Those are
+> the only two dependency kinds. Publish is write-once: a second publish of the same artifact in one run is an error.
 
 ---
 

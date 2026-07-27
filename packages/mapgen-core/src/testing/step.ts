@@ -1,7 +1,8 @@
+import type { Artifact } from "@mapgen/authoring/artifact/contract.js";
 import type { InitialSetupDefinition } from "@mapgen/authoring/initial-setup/definition.js";
 import type {
-  StepArtifactsDeclAny,
   StepContract,
+  StepDependencyList,
   StepEngineDecl,
 } from "@mapgen/authoring/step/contract.js";
 import { buildDeclaredStepDependencies } from "@mapgen/authoring/step/dependencies.js";
@@ -12,30 +13,36 @@ import { DIRECT_TEST_STEP_ID } from "./authority.js";
 type TestableStep = Readonly<{
   contract: Readonly<{
     id: string;
-    artifacts?: StepArtifactsDeclAny;
+    requires: StepDependencyList;
+    provides: StepDependencyList;
     engine?: StepEngineDecl;
     initialSetup?: InitialSetupDefinition;
   }>;
   run: (...args: never[]) => unknown;
 }>;
 
-type StepArtifactsOf<TStep extends TestableStep> =
-  TStep["contract"] extends StepContract<any, any, any, infer Artifacts, any, any>
-    ? Artifacts
-    : TStep["contract"]["artifacts"];
+type StepRequiresOf<TStep extends TestableStep> =
+  TStep["contract"] extends StepContract<any, any, any, infer Requires, any, any, any>
+    ? Requires
+    : TStep["contract"]["requires"];
+
+type StepProvidesOf<TStep extends TestableStep> =
+  TStep["contract"] extends StepContract<any, any, any, any, infer Provides, any, any>
+    ? Provides
+    : TStep["contract"]["provides"];
 
 type StepEngineOf<TStep extends TestableStep> =
-  TStep["contract"] extends StepContract<any, any, any, any, infer Engine, any>
+  TStep["contract"] extends StepContract<any, any, any, any, any, infer Engine, any>
     ? Engine
     : TStep["contract"]["engine"];
 
 type StepInitialSetupOf<TStep extends TestableStep> =
-  TStep["contract"] extends StepContract<any, any, any, any, any, infer InitialSetup>
+  TStep["contract"] extends StepContract<any, any, any, any, any, any, infer InitialSetup>
     ? InitialSetup
     : TStep["contract"]["initialSetup"];
 
 type TestContextArgs<TStep extends TestableStep> =
-  StepArtifactsOf<TStep> extends undefined
+  Extract<StepRequiresOf<TStep>[number] | StepProvidesOf<TStep>[number], Artifact> extends never
     ? StepEngineOf<TStep> extends readonly [] | undefined
       ? StepInitialSetupOf<TStep> extends undefined
         ? readonly [context?: MapContext]
@@ -47,10 +54,20 @@ type TestContextArgs<TStep extends TestableStep> =
 export function buildStepTestDependencies<TStep extends TestableStep>(
   step: TStep,
   ...context: TestContextArgs<TStep>
-): StepDeps<StepArtifactsOf<TStep>, StepEngineOf<TStep>, StepInitialSetupOf<TStep>> {
+): StepDeps<
+  StepRequiresOf<TStep>,
+  StepProvidesOf<TStep>,
+  StepEngineOf<TStep>,
+  StepInitialSetupOf<TStep>
+> {
   return buildDeclaredStepDependencies(step, {
     consumerStepId: DIRECT_TEST_STEP_ID,
     owner: "mapgen-core/testing",
     context: context[0],
-  }) as unknown as StepDeps<StepArtifactsOf<TStep>, StepEngineOf<TStep>, StepInitialSetupOf<TStep>>;
+  }) as unknown as StepDeps<
+    StepRequiresOf<TStep>,
+    StepProvidesOf<TStep>,
+    StepEngineOf<TStep>,
+    StepInitialSetupOf<TStep>
+  >;
 }

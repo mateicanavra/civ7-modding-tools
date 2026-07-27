@@ -43,8 +43,9 @@ This how-to is **recipe-level** (steps are authored/registered in a recipe). It 
   `viz.ts` only when the step attaches that visualization.
 - Export that leaf-owned step contract as `config`. Composition code may alias
   imported configs to avoid collisions; the leaf export itself is never renamed.
-- Use `defineStep({ id, description, requires, provides, artifacts, ops })`.
-- Wire **artifact requirements** (and any required ops) explicitly into the contract.
+- Use `defineStep({ id, description, requires, provides, ops })`.
+- Put exact artifact authorities and typed effect/completion constants directly
+  in the sole `requires` and `provides` lists. Raw `artifact:*` strings are invalid.
 - Put the step's causal, reader-facing purpose in the optional first-class
   `description`. Core projects that one authority onto the final composed
   TypeBox schema for Stage and Studio consumers.
@@ -68,16 +69,15 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 export const config = defineStep({
   id: "geomorphology",
   description: "Evolves admitted terrain through the configured geomorphic cycle.",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [
-      morphologyTerrainArtifacts.baseTopography,
-      morphologyRoutingArtifacts.routing,
-      morphologyTerrainArtifacts.baseSubstrate,
-    ],
-    provides: [morphologyErosionArtifacts.erodedTopography, morphologyErosionArtifacts.substrate],
-  },
+  requires: [
+    morphologyTerrainArtifacts.baseTopography,
+    morphologyRoutingArtifacts.routing,
+    morphologyTerrainArtifacts.baseSubstrate,
+  ],
+  provides: [
+    morphologyErosionArtifacts.erodedTopography,
+    morphologyErosionArtifacts.substrate,
+  ],
   ops: {
     geomorphology: morphology.erosion.ops.computeGeomorphicCycle,
   },
@@ -110,12 +110,14 @@ import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
 /** Contract and compiled configuration boundary for Civ7 river projection. */
 export const config = defineStep({
   id: "plot-rivers",
-  requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
-  provides: [MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted],
-  artifacts: {
-    requires: [hydrologyHydrographyArtifacts.hydrography],
-    provides: [hydrologyHydrographyArtifacts.projectedNavigableRivers],
-  },
+  requires: [
+    MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt,
+    hydrologyHydrographyArtifacts.hydrography,
+  ],
+  provides: [
+    MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
+    hydrologyHydrographyArtifacts.projectedNavigableRivers,
+  ],
   schema: Type.Object({
     endpointDischargePercentileMin: Type.Number({ minimum: 0, maximum: 1 }),
     targetMajorTileFraction: Type.Number({ minimum: 0, maximum: 1 }),
