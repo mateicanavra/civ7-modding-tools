@@ -4,7 +4,7 @@ import { NATURAL_WONDER_FALLBACK_LIMIT } from "@mapgen/domain/placement/modules/
 import placementDomain from "@mapgen/domain/placement/router";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 import type { NonEmptyTuple } from "type-fest";
-import { TEST_MAP_SIZE } from "../../../setup.js";
+import { TEST_MAP_SIZE } from "../../../../../setup.js";
 
 const { planNaturalWonders } = placementDomain.wonders.ops;
 

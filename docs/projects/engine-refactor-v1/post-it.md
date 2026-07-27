@@ -28,19 +28,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** retire Natural Wonder Placement's terminal artifact and
-its stale feature snapshot without weakening the causal wonder plan.
-`naturalWonderPlan` remains an immutable domain product consumed by
-materialization. `naturalWonderPlacement` instead stores command reconciliation,
-derived digests, and a point-in-time copy of mutable Civ7 feature state.
-Materialization owns adapter outcome admission and ordered fallback behavior;
-Standard metrics owns the immutable JSON-safe outcome measurement; parity owns
-the bounded live wire projection. Start planning and completed-product capture
-must read the current feature layer and classify official wonder identities
-through Civ7 policy rather than depend on an earlier recipe snapshot.
-Each fallback retains its own planned elevation. Terminal metrics retain the
-last adapter outcome, while the established V1 exact wire deliberately
-continues to project the first failed candidate when a chain fully rejects.
+**Current container:** finish Placement's operation-test ownership on the
+normalized domain plane. A suite that invokes exactly one domain operation
+belongs beneath that operation, even when its behavior spans many cases; module
+roots remain available only for behavior that genuinely composes multiple
+operations or module capabilities. Moving a suite does not change its oracle:
+controlled synthetic geometry remains valid where geometry itself is the
+subject, while ordinary product runs continue to use Civ7 preset dimensions.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -57,19 +51,11 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** define one Standard natural-wonder placement measurement from
-materializer-admitted placed/rejected outcome rows plus requested-count
-provenance. Derive counts, shortfall, bounded rejection examples, and exact
-coordinate digests once at that owner. Emit it through the step metrics facet
-and preserve the existing `NATURAL_WONDER_PLACEMENT_V1` bytes through the parity
-projector. Delete the terminal domain artifact, its duplicate reconstruction,
-publication contract, artifact-admission ceremony, and every terminal artifact
-read. Remove the materializer's full-grid observation pass; use the adapter's
-fresh feature-layer capability plus static Civ7 wonder classification at
-`assign-starts` and completed metric capture. Keep adapter identity drift
-fail-hard before evidence emission, preserve ordered primary/fallback attempts,
-carry each candidate's own elevation, and prove current engine occupancy rather
-than snapshot publication.
+**Gradient:** relocate start viability beneath
+`starts/ops/plan-starts` and natural-wonder planning beneath
+`wonders/ops/plan-natural-wonders`; preserve their behavior and imports, run the
+two exact suites plus domain-test topology, then seal the layer before opening
+the distinct initial-seat-authority design.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -104,6 +90,16 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Natural Wonder Terminal Evidence
+
+Natural-wonder materialization now admits ordered primary/fallback outcomes
+without publishing mutable engine state as a domain artifact. The causal plan
+retains per-candidate elevation; Standard metrics owns terminal placed/rejected
+evidence and final rejection identity; exact V1 parity preserves its explicit
+first-rejection compatibility projection. Start assignment and completed
+metrics read current feature occupancy through the adapter and classify static
+wonder identities through Civ7 policy.
 
 ### 2026-07-26 - Resource Placement Terminal Evidence
 
