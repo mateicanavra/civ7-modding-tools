@@ -113,30 +113,60 @@ export type NaturalWonderFootprintReadbackStatus =
   | "empty-expected-footprint"
   | "partial-expected-footprint";
 
+type NaturalWonderPlacementIdentity = {
+  plotIndex: number;
+  x: number;
+  y: number;
+  featureType: number;
+  direction: number;
+};
+
+type RejectedNaturalWonderPlacement<Reason extends NaturalWonderPlacementRejectionReason> =
+  NaturalWonderPlacementIdentity & {
+    status: "rejected";
+    elevation?: number;
+    reason: Reason;
+  };
+
+type ObservedNaturalWonderPlacementRejection = {
+  observedFeatureType: number;
+  observedPlotIndex: number;
+};
+
+type UnobservedNaturalWonderPlacementRejection = {
+  observedFeatureType?: never;
+  observedPlotIndex?: never;
+};
+
+type NaturalWonderFootprintReadbackEvidence = readonly [
+  NaturalWonderFootprintReadback,
+  ...NaturalWonderFootprintReadback[],
+];
+
+/**
+ * Adapter-owned result of one natural-wonder placement attempt.
+ *
+ * Each rejection state carries only the identity and readback evidence admitted for that reason,
+ * so recipe consumers can sequence outcomes without reconstructing the provider contract.
+ */
 export type NaturalWonderPlacementOutcome =
-  | {
+  | (NaturalWonderPlacementIdentity & {
       status: "placed";
-      plotIndex: number;
-      x: number;
-      y: number;
-      featureType: number;
-      direction: number;
       elevation: number;
-    }
-  | {
-      status: "rejected";
-      plotIndex: number;
-      x: number;
-      y: number;
-      featureType: number;
-      direction: number;
-      elevation?: number;
-      reason: NaturalWonderPlacementRejectionReason;
-      observedFeatureType?: number;
-      observedPlotIndex?: number;
-      expectedFootprintReadback?: NaturalWonderFootprintReadback[];
-      expectedFootprintReadbackStatus?: NaturalWonderFootprintReadbackStatus;
-    };
+    })
+  | RejectedNaturalWonderPlacement<"out-of-bounds">
+  | RejectedNaturalWonderPlacement<"unsupported-footprint">
+  | RejectedNaturalWonderPlacement<"set-feature-false">
+  | (RejectedNaturalWonderPlacement<"can-have-feature-param-false"> &
+      UnobservedNaturalWonderPlacementRejection)
+  | (RejectedNaturalWonderPlacement<"can-have-feature-param-false"> &
+      ObservedNaturalWonderPlacementRejection)
+  | (RejectedNaturalWonderPlacement<"readback-mismatch"> &
+      ObservedNaturalWonderPlacementRejection & {
+        elevation: number;
+        expectedFootprintReadback: NaturalWonderFootprintReadbackEvidence;
+        expectedFootprintReadbackStatus: NaturalWonderFootprintReadbackStatus;
+      });
 
 /**
  * Map dimensions

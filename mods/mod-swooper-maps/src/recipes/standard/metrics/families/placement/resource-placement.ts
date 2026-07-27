@@ -281,7 +281,7 @@ type MutableResourceSummary = {
 /**
  * Closes materializer-admitted placement rows into one deterministic product measurement.
  *
- * The materializer owns engine outcome identity and wrong-type admission. This projection owns
+ * The adapter owns engine outcome identity and wrong-type admission. This projection owns
  * only immutable evidence and summaries derived from those already-closed placed/rejected rows.
  */
 export function measureStandardResourcePlacement(

@@ -53,6 +53,11 @@ type FeaturePolicy = Readonly<{
   naturalWonderDirection?: number;
 }>;
 
+type NaturalWonderReadbackMismatch = Extract<
+  NaturalWonderPlacementOutcome,
+  { status: "rejected"; reason: "readback-mismatch" }
+>;
+
 const FEATURE_POLICIES = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
   string,
   FeaturePolicy | undefined
@@ -1016,14 +1021,19 @@ export class Civ7Adapter implements EngineAdapter {
         reason: "set-feature-false",
       };
     }
-    const expectedFootprintReadback = footprint.map((plotIndex) => {
+    const readFootprintCell = (plotIndex: number) => {
       const fy = Math.trunc(plotIndex / this.width);
       const fx = plotIndex - fy * this.width;
       return {
         plotIndex,
         observedFeatureType: GameplayMap.getFeatureType(fx, fy) | 0,
       };
-    });
+    };
+    const [firstFootprintPlotIndex, ...remainingFootprintPlotIndices] = footprint;
+    const expectedFootprintReadback: NaturalWonderReadbackMismatch["expectedFootprintReadback"] = [
+      readFootprintCell(firstFootprintPlotIndex),
+      ...remainingFootprintPlotIndices.map(readFootprintCell),
+    ];
     for (const readback of expectedFootprintReadback) {
       if (readback.observedFeatureType !== (featureType | 0)) {
         const matchingFootprintCells = expectedFootprintReadback.filter(

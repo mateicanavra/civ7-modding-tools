@@ -48,18 +48,26 @@ afterEach(() => {
   delete (globalThis as Record<string, unknown>).TerrainBuilder;
 });
 
-function installNaturalWonderRuntime(writeFootprint: readonly number[]): Int32Array {
+function installNaturalWonderRuntime(
+  writeFootprint: readonly number[],
+  options: Readonly<{
+    canHaveFeatureParam?: boolean;
+    setFeatureResult?: boolean;
+  }> = {}
+): Int32Array {
   const featureTypes = new Int32Array(WIDTH * HEIGHT).fill(NO_FEATURE);
   (globalThis as Record<string, unknown>).GameplayMap = {
     getElevation: () => 120,
     getFeatureType: (x: number, y: number) => featureTypes[y * WIDTH + x] ?? NO_FEATURE,
   };
   (globalThis as Record<string, unknown>).TerrainBuilder = {
-    canHaveFeatureParam: () => true,
+    canHaveFeatureParam: () => options.canHaveFeatureParam ?? true,
     setFeatureType: (_x: number, _y: number, featureData: Readonly<{ Feature: number }>) => {
+      if (options.setFeatureResult === false) return false;
       for (const plotIndex of writeFootprint) {
         featureTypes[plotIndex] = featureData.Feature;
       }
+      return options.setFeatureResult;
     },
   };
   return featureTypes;
@@ -111,6 +119,60 @@ describe("Civ7Adapter natural-wonder placement", () => {
         { plotIndex: 10, observedFeatureType: NO_FEATURE },
       ],
       expectedFootprintReadbackStatus: "partial-expected-footprint",
+    });
+  });
+
+  it("rejects a natural-wonder anchor whose footprint crosses the live adapter boundary", () => {
+    installNaturalWonderRuntime([]);
+    const adapter = new Civ7AdapterCtor(WIDTH, HEIGHT);
+
+    const outcome = adapter.placeNaturalWonder(1, HEIGHT - 1, REDWOOD_FEATURE_TYPE, 0, 120);
+
+    expect(outcome).toEqual({
+      status: "rejected",
+      plotIndex: 21,
+      x: 1,
+      y: 5,
+      featureType: REDWOOD_FEATURE_TYPE,
+      direction: 0,
+      elevation: 120,
+      reason: "unsupported-footprint",
+    });
+  });
+
+  it("reports live engine legality refusal without inventing failing-cell evidence", () => {
+    installNaturalWonderRuntime([], { canHaveFeatureParam: false });
+    const adapter = new Civ7AdapterCtor(WIDTH, HEIGHT);
+
+    const outcome = adapter.placeNaturalWonder(1, 2, REDWOOD_FEATURE_TYPE, 0, 120);
+
+    expect(outcome).toEqual({
+      status: "rejected",
+      plotIndex: 9,
+      x: 1,
+      y: 2,
+      featureType: REDWOOD_FEATURE_TYPE,
+      direction: 0,
+      elevation: 120,
+      reason: "can-have-feature-param-false",
+    });
+  });
+
+  it("reports a live engine mutation refusal without attempting readback", () => {
+    installNaturalWonderRuntime([], { setFeatureResult: false });
+    const adapter = new Civ7AdapterCtor(WIDTH, HEIGHT);
+
+    const outcome = adapter.placeNaturalWonder(1, 2, REDWOOD_FEATURE_TYPE, 0, 120);
+
+    expect(outcome).toEqual({
+      status: "rejected",
+      plotIndex: 9,
+      x: 1,
+      y: 2,
+      featureType: REDWOOD_FEATURE_TYPE,
+      direction: 0,
+      elevation: 120,
+      reason: "set-feature-false",
     });
   });
 });

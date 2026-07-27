@@ -1,6 +1,7 @@
 import { describe, expect, it, spyOn } from "bun:test";
 
-import { createMockAdapter, type ResourcePlacementOutcome } from "@civ7/adapter";
+import { createMockAdapter } from "@civ7/adapter";
+import { requireResourceRuntimeId } from "@civ7/map-policy";
 import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import type { ArtifactValueOf } from "@swooper/mapgen-core/authoring";
@@ -17,7 +18,9 @@ import { TEST_MAP_LATITUDE_BOUNDS, TEST_MAP_SEED, TEST_MAP_SIZE } from "../../..
 type ResourcePlanAdjusted = ArtifactValueOf<typeof resourceSupportArtifacts.resourcePlanAdjusted>;
 type PlanIntent = ResourcePlanAdjusted["intents"][number];
 type MockAdapterOptions = NonNullable<Parameters<typeof createMockAdapter>[0]>;
-type PlacedResourceOutcome = Extract<ResourcePlacementOutcome, { status: "placed" }>;
+
+const GOLD_RESOURCE = requireResourceRuntimeId("RESOURCE_GOLD");
+const JADE_RESOURCE = requireResourceRuntimeId("RESOURCE_JADE");
 
 function intent(
   plotIndex: number,
@@ -108,7 +111,9 @@ function executeResourceStep(
 
 describe("resource placement materialization", () => {
   it("stamps the adjusted plan verbatim and measures typed per-resource shortfalls", () => {
-    const { context } = createResourceContext((_x, _y, resourceType) => resourceType !== 9);
+    const { adapter, context } = createResourceContext(
+      (_x, _y, resourceType) => resourceType !== JADE_RESOURCE.resourceTypeId
+    );
     const evidence = executeResourceStep(
       context,
       plan([
@@ -124,15 +129,23 @@ describe("resource placement materialization", () => {
       placedCount: 2,
       rejectedCount: 2,
       byReason: [{ reason: "cannot-have-resource", count: 2 }],
-      shortfalls: [{ resourceType: 9, reason: "cannot-have-resource", count: 2 }],
+      shortfalls: [
+        {
+          resourceType: JADE_RESOURCE.resourceTypeId,
+          reason: "cannot-have-resource",
+          count: 2,
+        },
+      ],
       byPhase: { rotation: 2, rangeFloor: 0, regionMinimum: 0, support: 0 },
     });
     expect(evidence.outcomes.map((row) => [row.plotIndex, row.resourceType, row.status])).toEqual([
-      [0, 4, "placed"],
-      [1, 9, "rejected"],
-      [5, 9, "rejected"],
-      [6, 4, "placed"],
+      [0, GOLD_RESOURCE.resourceTypeId, "placed"],
+      [1, JADE_RESOURCE.resourceTypeId, "rejected"],
+      [5, JADE_RESOURCE.resourceTypeId, "rejected"],
+      [6, GOLD_RESOURCE.resourceTypeId, "placed"],
     ]);
+    expect(adapter.calls.emitRuntimeWarning).toHaveLength(1);
+    expect(adapter.calls.emitRuntimeWarning[0]).toContain("2/4 typed rejections");
   });
 
   it("never relocates an engine-rejected intent", () => {
@@ -149,7 +162,7 @@ describe("resource placement materialization", () => {
     expect(evidence.outcomes.map((outcome) => outcome.plotIndex)).toEqual([2, 3]);
   });
 
-  it("fails the placement product boundary on wrong-type engine readback", () => {
+  it("fails the placement product boundary on an explicit adapter readback mismatch", () => {
     const { adapter, context } = createResourceContext();
     adapter.placeResourceIntent = (placementIntent) => {
       const y = Math.floor(placementIntent.plotIndex / adapter.width);
@@ -167,64 +180,6 @@ describe("resource placement materialization", () => {
     try {
       expect(() => executeResourceStep(context, plan([intent(2, "RESOURCE_GOLD")]))).toThrow(
         /mismatch|wrong-type/
-      );
-      expect(adapter.calls.emitRuntimeWarning).toEqual([]);
-      expect(log).not.toHaveBeenCalled();
-    } finally {
-      log.mockRestore();
-    }
-  });
-
-  it("refuses adapter identity drift before terminal placement evidence escapes", () => {
-    const log = spyOn(console, "log").mockImplementation(() => {});
-    try {
-      const driftCases: readonly ((outcome: PlacedResourceOutcome) => PlacedResourceOutcome)[] = [
-        (outcome) => ({ ...outcome, plotIndex: outcome.plotIndex + 1 }),
-        (outcome) => ({ ...outcome, x: outcome.x + 1 }),
-        (outcome) => ({ ...outcome, y: outcome.y + 1 }),
-        (outcome) => ({ ...outcome, resourceType: outcome.resourceType + 1 }),
-      ];
-      for (const drift of driftCases) {
-        const { adapter, context } = createResourceContext();
-        adapter.placeResourceIntent = (placementIntent) => {
-          const y = Math.floor(placementIntent.plotIndex / adapter.width);
-          return drift({
-            status: "placed",
-            plotIndex: placementIntent.plotIndex,
-            x: placementIntent.plotIndex - y * adapter.width,
-            y,
-            resourceType: placementIntent.resourceType,
-            observedResourceType: placementIntent.resourceType,
-          });
-        };
-        expect(() => executeResourceStep(context, plan([intent(2, "RESOURCE_GOLD")]))).toThrow(
-          /identity/
-        );
-        expect(adapter.calls.emitRuntimeWarning).toEqual([]);
-      }
-      expect(log).not.toHaveBeenCalled();
-    } finally {
-      log.mockRestore();
-    }
-  });
-
-  it("fails when a contract-violating adapter labels wrong-type readback as placed", () => {
-    const { adapter, context } = createResourceContext();
-    adapter.placeResourceIntent = (placementIntent) => {
-      const y = Math.floor(placementIntent.plotIndex / adapter.width);
-      return {
-        status: "placed",
-        plotIndex: placementIntent.plotIndex,
-        x: placementIntent.plotIndex - y * adapter.width,
-        y,
-        resourceType: placementIntent.resourceType,
-        observedResourceType: placementIntent.resourceType + 1,
-      };
-    };
-    const log = spyOn(console, "log").mockImplementation(() => {});
-    try {
-      expect(() => executeResourceStep(context, plan([intent(2, "RESOURCE_GOLD")]))).toThrow(
-        /wrong-type readback/
       );
       expect(adapter.calls.emitRuntimeWarning).toEqual([]);
       expect(log).not.toHaveBeenCalled();

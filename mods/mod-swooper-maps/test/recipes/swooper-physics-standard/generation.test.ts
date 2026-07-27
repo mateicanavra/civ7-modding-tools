@@ -1,5 +1,7 @@
 import { describe, expect, it } from "bun:test";
+import { getCiv7StandardMapSizePreset } from "@civ7/map-policy";
 import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
+import { artifacts as resourceDemandArtifacts } from "@mapgen/domain/resources/modules/demand/artifacts/index.js";
 import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
 import { deriveStepSeed } from "@swooper/mapgen-core";
@@ -124,5 +126,23 @@ describe("Standard recipe generation", () => {
     expect(alternateAdjusted.seed).toBe(
       deriveStepSeed(alternateGameSeed, "resources:adjustResourceSupport")
     );
+  }, 30_000);
+
+  it("distinguishes an official map-size selection from custom maps with identical dimensions", () => {
+    const tinyPreset = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
+    const official = runStandardRecipeTestMap({ presetId: tinyPreset.id });
+    const custom = runStandardRecipeTestMap({ presetId: tinyPreset.id, mapInfo: {} });
+    const officialDemand = readValidatedArtifact(
+      official.context,
+      resourceDemandArtifacts.resourceDemandPlan
+    );
+    const customDemand = readValidatedArtifact(
+      custom.context,
+      resourceDemandArtifacts.resourceDemandPlan
+    );
+
+    expect(custom.context.setup.dimensions).toEqual(official.context.setup.dimensions);
+    expect(officialDemand.minimumAmountModifier).toBe(-4);
+    expect(customDemand.minimumAmountModifier).toBe(0);
   }, 30_000);
 });

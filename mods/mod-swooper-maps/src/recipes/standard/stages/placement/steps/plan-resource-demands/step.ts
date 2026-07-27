@@ -1,4 +1,3 @@
-import { getCiv7StandardMapSizePresetForDimensions } from "@civ7/adapter";
 import {
   resolveMapResourceMinimumAmountModifier,
   resolveResourceRuntimeIds,
@@ -9,6 +8,9 @@ import {
 } from "@mapgen/domain/resources";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { config } from "./config.js";
+
+const STANDARD_RESOURCE_MAP_TYPE = "DEFAULT";
+const CUSTOM_MAP_RESOURCE_MINIMUM_AMOUNT_MODIFIER = 0;
 
 /**
  * Derives resource habitat, resolves the canonical resource corpus against current Civ7 legality,
@@ -82,7 +84,11 @@ export const PlanResourceDemandsStep = createStep(config, {
       currentRiverSurface.navigableRiverMask,
       currentRiverSurface.minorRiverMask,
     ].filter((mask): mask is Uint8Array => mask !== undefined);
-    const mapSize = getCiv7StandardMapSizePresetForDimensions(width, height);
+    const mapSelection = deps.initialSetup.map.selection;
+    const minimumAmountModifier =
+      mapSelection.kind === "civ7-preset"
+        ? resolveMapResourceMinimumAmountModifier(STANDARD_RESOURCE_MAP_TYPE, mapSelection.id)
+        : CUSTOM_MAP_RESOURCE_MINIMUM_AMOUNT_MODIFIER;
     const demandPlan = ops.demands(
       {
         ...habitat,
@@ -96,9 +102,7 @@ export const PlanResourceDemandsStep = createStep(config, {
         },
         requiredForAge,
         riverMasks,
-        minimumAmountModifier: mapSize
-          ? resolveMapResourceMinimumAmountModifier("DEFAULT", mapSize.id)
-          : 0,
+        minimumAmountModifier,
       },
       stepConfig.demands
     );
