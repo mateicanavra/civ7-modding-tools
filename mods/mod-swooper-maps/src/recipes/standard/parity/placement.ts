@@ -580,7 +580,8 @@ function resourceRejectionContexts(
               outcome: {
                 status: outcome.status,
                 resourceType: outcome.resourceType,
-                ...(outcome.observedResourceType === undefined
+                ...(!("observedResourceType" in outcome) ||
+                outcome.observedResourceType === undefined
                   ? {}
                   : { observedResourceType: outcome.observedResourceType }),
                 ...(outcome.status === "placed" ? {} : { reason: outcome.reason }),

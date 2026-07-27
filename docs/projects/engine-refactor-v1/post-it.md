@@ -28,13 +28,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** give Standard Placement exact-log evidence one parity
-owner and delete the stage-root logging cabinet. Stable live markers are
-transport projections of already-typed product evidence; they are not stage
-algorithms, generic diagnostics, metrics, or visualization. Standard parity
-owns their bounded wire projection and correlation identity. Lossy ASCII maps
-and ad hoc terrain summaries have no consumer beyond evidence already owned by
-typed visualization and metrics, so they retire rather than move.
+**Current container:** remove Resource Placement's terminal artifact-shaped
+measurement. `resourcePlacementOutcomes` has no downstream generation consumer:
+it stores adapter reconciliation rows beside two aggregate projections, then
+artifact admission recomputes those same projections to prove they agree.
+Materialization owns the engine effect and fail-hard mismatch boundary; Standard
+metrics owns the immutable JSON-safe measurement; parity owns the bounded live
+wire projection. A terminal observation does not become a domain product merely
+because later evidence tooling needs to retain it.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -51,17 +52,17 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** create one focused Standard parity projection owner for resource
-placement, natural-wonder plan/input/placement, and terminal placement markers.
-Reuse its natural-wonder row and digest projection in deterministic replay
-instead of maintaining two wire-shaped reconstructions. Preserve every stable
-marker and payload exactly, move the resource byte-budget protocol test to
-parity, and retain only a falsifying producer test that proves an otherwise
-unowned wire contract. Delete serialization ceremony, ASCII/stat projections,
-their calls, duplicated normalizers and hashes, and finally
-`stages/placement/log.ts`. Keep discovery's operational metric marker at its
-step because it is not a parity input. Seal with mod and Studio parser/correlation
-proof before normalizing the over-denormalized placement products themselves.
+**Gradient:** define one Standard resource-placement measurement from the
+materializer's irreducible typed outcome rows plus non-derivable plan provenance.
+Derive counts, per-type and per-reason summaries, shortfalls, phase totals, and
+coordinate digests once at that owner. Emit it through the step metrics facet;
+capture it explicitly in benchmark and deterministic-replay sinks; preserve the
+existing `RESOURCE_PLACEMENT_V1` bytes through the parity projector. Delete the
+domain artifact, its duplicate validator reconstruction, publication contract,
+artifact-admission ceremony, and every terminal artifact read. Keep mismatch
+fail-hard before evidence emission. Seal this complete product cut before
+applying the same intent-versus-current-state test to natural-wonder placement
+and start assignment.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -96,6 +97,14 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Placement Exact-Log Authority
+
+Five stable Placement live markers now share one Standard parity projection
+owner. Deterministic replay reuses its natural-wonder plan identity, producer
+tests own the actual wire contract and Civ7 byte budget, and the stage-root
+logging cabinet, ASCII map, ad hoc terrain summaries, duplicate normalizers,
+and serialization-only tests retired.
 
 ### 2026-07-26 - Civ7 Runtime Warning Authority
 

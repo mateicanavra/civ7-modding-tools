@@ -1,10 +1,9 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it, spyOn } from "bun:test";
 
-import { createMockAdapter } from "@civ7/adapter";
-import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
+import { createMockAdapter, type ResourcePlacementOutcome } from "@civ7/adapter";
 import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
-import { type ArtifactValueOf, readValidatedArtifact } from "@swooper/mapgen-core/authoring";
+import type { ArtifactValueOf } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import {
   buildStepTestDependencies,
@@ -18,6 +17,7 @@ import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
 type ResourcePlanAdjusted = ArtifactValueOf<typeof resourceSupportArtifacts.resourcePlanAdjusted>;
 type PlanIntent = ResourcePlanAdjusted["intents"][number];
 type MockAdapterOptions = NonNullable<Parameters<typeof createMockAdapter>[0]>;
+type PlacedResourceOutcome = Extract<ResourcePlacementOutcome, { status: "placed" }>;
 
 function intent(
   plotIndex: number,
@@ -93,21 +93,24 @@ function createResourceContext(
 function executeResourceStep(
   context: ReturnType<typeof createMapContext>,
   adjustedPlan: ResourcePlanAdjusted
-) {
-  withMapContextExecutionForTest(context, (stepContext) => {
+): Exclude<ReturnType<typeof PlaceResourcesStep.run>, Promise<unknown>> {
+  return withMapContextExecutionForTest(context, (stepContext) => {
     publishTestArtifact(stepContext, resourceSupportArtifacts.resourcePlanAdjusted, adjustedPlan);
-    PlaceResourcesStep.run(
+    const result = PlaceResourcesStep.run(
       stepContext,
       {},
       {},
       buildStepTestDependencies(PlaceResourcesStep, stepContext)
     );
+    if (result instanceof Promise) {
+      throw new Error("Resource placement materialization must remain synchronous.");
+    }
+    return result;
   });
-  return readValidatedArtifact(context, resourceSiteArtifacts.resourcePlacementOutcomes);
 }
 
 describe("resource placement materialization", () => {
-  it("stamps the adjusted plan verbatim and publishes typed per-resource shortfalls", () => {
+  it("stamps the adjusted plan verbatim and measures typed per-resource shortfalls", () => {
     const { context } = createResourceContext((_x, _y, resourceType) => resourceType !== 9);
     const evidence = executeResourceStep(
       context,
@@ -123,8 +126,9 @@ describe("resource placement materialization", () => {
       plannedCount: 4,
       placedCount: 2,
       rejectedCount: 2,
-      mismatchCount: 0,
       byReason: [{ reason: "cannot-have-resource", count: 2 }],
+      shortfalls: [{ resourceType: 9, reason: "cannot-have-resource", count: 2 }],
+      byPhase: { rotation: 2, rangeFloor: 0, regionMinimum: 0, support: 0 },
     });
     expect(evidence.outcomes.map((row) => [row.plotIndex, row.resourceType, row.status])).toEqual([
       [0, 4, "placed"],
@@ -132,14 +136,6 @@ describe("resource placement materialization", () => {
       [5, 9, "rejected"],
       [6, 4, "placed"],
     ]);
-    expect(evidence.reconciliation).toEqual({
-      plannedCount: 4,
-      placedCount: 2,
-      rejectedCount: 2,
-      shortfalls: [{ resourceType: 9, reason: "cannot-have-resource", count: 2 }],
-      byPhase: { rotation: 2, rangeFloor: 0, regionMinimum: 0, support: 0 },
-      supportAdjustedPlacedCount: 0,
-    });
   });
 
   it("never relocates an engine-rejected intent", () => {
@@ -152,7 +148,6 @@ describe("resource placement materialization", () => {
     expect(evidence.summary).toMatchObject({
       placedCount: 0,
       rejectedCount: 2,
-      mismatchCount: 0,
     });
     expect(evidence.outcomes.map((outcome) => outcome.plotIndex)).toEqual([2, 3]);
   });
@@ -171,21 +166,73 @@ describe("resource placement materialization", () => {
         reason: "wrong-resource-type",
       };
     };
+    const log = spyOn(console, "log").mockImplementation(() => {});
+    try {
+      expect(() => executeResourceStep(context, plan([intent(2, "RESOURCE_GOLD")]))).toThrow(
+        /mismatch|wrong-type/
+      );
+      expect(adapter.calls.emitRuntimeWarning).toEqual([]);
+      expect(log).not.toHaveBeenCalled();
+    } finally {
+      log.mockRestore();
+    }
+  });
 
-    expect(() =>
-      withMapContextExecutionForTest(context, (stepContext) => {
-        publishTestArtifact(
-          stepContext,
-          resourceSupportArtifacts.resourcePlanAdjusted,
-          plan([intent(2, "RESOURCE_GOLD")])
+  it("refuses adapter identity drift before terminal placement evidence escapes", () => {
+    const log = spyOn(console, "log").mockImplementation(() => {});
+    try {
+      const driftCases: readonly ((outcome: PlacedResourceOutcome) => PlacedResourceOutcome)[] = [
+        (outcome) => ({ ...outcome, plotIndex: outcome.plotIndex + 1 }),
+        (outcome) => ({ ...outcome, x: outcome.x + 1 }),
+        (outcome) => ({ ...outcome, y: outcome.y + 1 }),
+        (outcome) => ({ ...outcome, resourceType: outcome.resourceType + 1 }),
+      ];
+      for (const drift of driftCases) {
+        const { adapter, context } = createResourceContext();
+        adapter.placeResourceIntent = (placementIntent) => {
+          const y = Math.floor(placementIntent.plotIndex / adapter.width);
+          return drift({
+            status: "placed",
+            plotIndex: placementIntent.plotIndex,
+            x: placementIntent.plotIndex - y * adapter.width,
+            y,
+            resourceType: placementIntent.resourceType,
+            observedResourceType: placementIntent.resourceType,
+          });
+        };
+        expect(() => executeResourceStep(context, plan([intent(2, "RESOURCE_GOLD")]))).toThrow(
+          /identity/
         );
-        PlaceResourcesStep.run(
-          stepContext,
-          {},
-          {},
-          buildStepTestDependencies(PlaceResourcesStep, stepContext)
-        );
-      })
-    ).toThrow(/wrong-type readback/);
+        expect(adapter.calls.emitRuntimeWarning).toEqual([]);
+      }
+      expect(log).not.toHaveBeenCalled();
+    } finally {
+      log.mockRestore();
+    }
+  });
+
+  it("fails when a contract-violating adapter labels wrong-type readback as placed", () => {
+    const { adapter, context } = createResourceContext();
+    adapter.placeResourceIntent = (placementIntent) => {
+      const y = Math.floor(placementIntent.plotIndex / adapter.width);
+      return {
+        status: "placed",
+        plotIndex: placementIntent.plotIndex,
+        x: placementIntent.plotIndex - y * adapter.width,
+        y,
+        resourceType: placementIntent.resourceType,
+        observedResourceType: placementIntent.resourceType + 1,
+      };
+    };
+    const log = spyOn(console, "log").mockImplementation(() => {});
+    try {
+      expect(() => executeResourceStep(context, plan([intent(2, "RESOURCE_GOLD")]))).toThrow(
+        /wrong-type readback/
+      );
+      expect(adapter.calls.emitRuntimeWarning).toEqual([]);
+      expect(log).not.toHaveBeenCalled();
+    } finally {
+      log.mockRestore();
+    }
   });
 });

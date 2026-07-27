@@ -47,7 +47,9 @@ One stage, `placement`, with 12 steps split at real product/effect contracts (en
 6. `select-resource-sites` — deterministic blue-noise selection over admitted demand and regional topology; publishes typed per-plot `resourcePlan` intent.
 7. `assign-starts` — op-owned start selection over PLANNED resource sites; publishes `startAssignment` (per-player `StartRecord[]` + `fairnessReport`).
 8. `adjust-resources` — bounded resource↔start support pass over the plan (floor + equity), count-preserving moves with typed provenance; publishes `resourcePlanAdjusted`.
-9. `place-resources` — thin stamp of the ADJUSTED intents + typed reconcile; publishes `resourcePlacementOutcomes`.
+9. `place-resources` — thin stamp of the ADJUSTED intents + typed reconcile;
+   emits one terminal resource-placement measurement and completes
+   `effect:placement.resourcesPlaced`.
 10. `place-discoveries` — delegates discovery placement to Civ7 and emits observed runtime evidence.
 11. `assign-advanced-starts` — engine advanced-start regions + fertility recalculation (engine effects only; no per-plot readback surface exists).
 12. `observe-placement-parity` — the single terminal Civ7
@@ -173,13 +175,14 @@ validated reads. Inventory:
 | `resourcePlan` | select-resource-sites | typed per-plot site intents (type, family, lane, phase, inHabitat) + per-type shortfalls + region minimums |
 | `startAssignment` | assign-starts | per-player `StartRecord[]` (components, tier, score, rung, status, imputedFlags, playerIdSource) + `fairnessReport` (worstPairGap, swaps, relaxations) + `inputCoverage` |
 | `resourcePlanAdjusted` | adjust-resources | adjusted intents with typed support provenance (action, reason, seatIndex) |
-| `resourcePlacementOutcomes` | place-resources | typed reconciliation (planned/placed/rejected/byPhase/shortfalls) |
 Discovery placement, advanced-start assignment, surface maintenance, and
-terminal parity are effects or observations rather than immutable domain
-products. The first three capabilities expose typed completion tags; terminal
-parity remains a terminal observation without a redundant effect tag.
-Discovery counts flow through its typed metric facet and live log; other
-observation evidence uses the capability appropriate to its consumer. No
+resource materialization are effects or observations rather than immutable
+domain products. Resource materialization emits one typed terminal measurement
+whose enriched outcome rows and derived summaries feed benchmarks, deterministic
+replay, and the exact log; no later recipe step consumes that evidence.
+Discovery and resource counts flow through typed metric facets and live logs.
+Terminal parity remains a terminal observation without a redundant effect tag.
+Other observation evidence uses the capability appropriate to its consumer. No
 ordering-only, current-engine-snapshot, or aggregate-output pseudo artifact is
 published.
 
@@ -199,9 +202,11 @@ published.
 `domain/resources` composes four modules with level-local model authority:
 `demand` owns the one canonical expectation-and-habitat demand resolver and its
 closed admitted/excluded ledger, `habitat` owns habitat fields, `sites` owns
-selected intents and placement outcomes, and `support` owns start-aware
-adjustment. Shared atoms and policy remain under the narrowest module or domain
-`model/` owner that has multiple consumers.
+selected intents, and `support` owns start-aware adjustment. The Standard recipe
+owns terminal resource-materialization evidence because it describes an
+engine-facing product observation rather than a reusable domain product. Shared
+atoms and policy remain under the narrowest module or domain `model/` owner that
+has multiple consumers.
 
 - `resolveResourceDemands` — binds every canonical Earthlike expectation to its single habitat family/lane, derives habitat capacity once, and applies official identity, initial-age, regional-minimum, river, and current Civ7 legality policy before publishing the admitted/excluded ledger consumed by site selection.
 - `deriveHabitatFields` — habitat-lane masks + per-family intensity fields from pipeline artifacts only (including marine/aquatic lanes).

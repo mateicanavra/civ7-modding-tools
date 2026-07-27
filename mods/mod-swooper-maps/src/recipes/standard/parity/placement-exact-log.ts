@@ -1,10 +1,10 @@
 import type { ResourceCatalogEntry } from "@civ7/adapter";
 import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
-import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import type { ArtifactValueOf, DeepReadonly } from "@swooper/mapgen-core/authoring";
 import { fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
 
 import type { StandardNaturalWonderPlanInputMeasurements } from "../metrics/families/placement/natural-wonder-plan-input.js";
+import type { StandardResourcePlacementMeasurements } from "../metrics/families/placement/resource-placement.js";
 import type { StandardPlacementParityMeasurements } from "../metrics/families/placement-parity.js";
 import type { StandardNaturalWonderPlanEvidence } from "./types.js";
 
@@ -13,9 +13,6 @@ type NaturalWonderPlacement = ArtifactValueOf<
   typeof placementWonderArtifacts.naturalWonderPlacement
 >;
 type NaturalWonderPlacementCoordinateRow = NaturalWonderPlacement["coordinateRows"][number];
-type ResourcePlacementOutcomes = ArtifactValueOf<
-  typeof resourceSiteArtifacts.resourcePlacementOutcomes
->;
 
 type NaturalWonderPlanExactLogRow = readonly [
   status: "p",
@@ -84,9 +81,9 @@ function emitPlacementExactLog(marker: PlacementExactLogMarker, payload: unknown
  */
 export function projectStandardResourcePlacementExactLog(
   runtimeCatalog: readonly ResourceCatalogEntry[],
-  placementOutcomes: DeepReadonly<ResourcePlacementOutcomes>
+  measurements: StandardResourcePlacementMeasurements
 ): Readonly<Record<string, unknown>> {
-  const { summary, reconciliation, outcomes } = placementOutcomes;
+  const { summary, outcomes } = measurements;
   const runtimeByIndex = new Map(runtimeCatalog.map((row) => [row.index, row]));
   const plannedResourceTypes = summary.byResource.filter((row) => row.plannedCount > 0);
   const placedResourceTypes = summary.byResource.filter((row) => row.placedCount > 0);
@@ -120,7 +117,7 @@ export function projectStandardResourcePlacementExactLog(
     plannedCount: summary.plannedCount,
     placedCount: summary.placedCount,
     rejectedCount: summary.rejectedCount,
-    mismatchCount: summary.mismatchCount,
+    mismatchCount: 0,
     uniquePlannedTypes: plannedResourceTypes.length,
     uniquePlacedTypes: placedResourceTypes.length,
     minPlacedCountByType: placedCounts.length > 0 ? Math.min(...placedCounts) : 0,
@@ -136,12 +133,6 @@ export function projectStandardResourcePlacementExactLog(
             rejectedHash32: summary.coordinateEvidence.rejected.hash32,
           }
         : {}),
-      ...(summary.coordinateEvidence.mismatch.count > 0
-        ? {
-            mismatchCount: summary.coordinateEvidence.mismatch.count,
-            mismatchHash32: summary.coordinateEvidence.mismatch.hash32,
-          }
-        : {}),
     },
     rejectedResourceTypes: rejectedResourceTypes.map((row) => row.resourceType),
     ...(rejectionRows.length === 0
@@ -151,11 +142,11 @@ export function projectStandardResourcePlacementExactLog(
       ? {}
       : { unmappedPlacedResourceTypes: unmappedResourceTypes.map((row) => row.resourceType) }),
     reconciliation: {
-      plannedCount: reconciliation.plannedCount,
-      placedCount: reconciliation.placedCount,
-      rejectedCount: reconciliation.rejectedCount,
-      byPhase: reconciliation.byPhase,
-      ...(reconciliation.shortfalls.length > 0 ? { shortfalls: reconciliation.shortfalls } : {}),
+      plannedCount: summary.plannedCount,
+      placedCount: summary.placedCount,
+      rejectedCount: summary.rejectedCount,
+      byPhase: summary.byPhase,
+      ...(summary.shortfalls.length > 0 ? { shortfalls: summary.shortfalls } : {}),
     },
     byReason: summary.byReason,
   };
@@ -169,12 +160,12 @@ export function projectStandardResourcePlacementExactLog(
  */
 export function emitStandardResourcePlacementExactLog(
   runtimeCatalog: readonly ResourceCatalogEntry[],
-  placementOutcomes: DeepReadonly<ResourcePlacementOutcomes>
+  measurements: StandardResourcePlacementMeasurements
 ): void {
   if (runtimeCatalog.length === 0) return;
   emitPlacementExactLog(
     "RESOURCE_PLACEMENT_V1",
-    projectStandardResourcePlacementExactLog(runtimeCatalog, placementOutcomes)
+    projectStandardResourcePlacementExactLog(runtimeCatalog, measurements)
   );
 }
 

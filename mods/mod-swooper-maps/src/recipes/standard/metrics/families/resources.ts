@@ -19,9 +19,10 @@ type StandardResourceCandidateSiteEvidence = Readonly<{
 }>;
 type StandardResourceCandidateAdmission =
   StandardMapCapture["resources"]["candidates"][number]["admission"];
-type StandardResourceOutcomeReason = NonNullable<
-  StandardMapCapture["resources"]["outcomes"][number]["reason"]
->;
+type StandardResourceOutcomeReason = Extract<
+  StandardMapCapture["resources"]["outcomes"][number],
+  { status: "rejected" }
+>["reason"];
 type StandardScenarioIneligibleReason = Extract<
   StandardResourceCandidateAdmission,
   { kind: "scenario-ineligible" }
@@ -108,7 +109,6 @@ export type StandardResourceMetrics = Readonly<{
   plannedCount: number;
   placedCount: number;
   rejectedCount: number;
-  mismatchCount: number;
   candidateCount: number;
   demandTypeCount: number;
   scenarioIneligibleCandidateCount: number;
@@ -444,19 +444,10 @@ export function measureStandardResources(capture: StandardMapCapture): StandardR
         const outcome = outcomeByPlot.get(intent.plotIndex)!;
         if (outcome.status === "placed") {
           placedCount += 1;
-        } else if (outcome.status === "rejected") {
+        } else {
           rejectedCount += 1;
           const reason = outcome.reason;
-          if (!reason) {
-            throw new Error(
-              `Rejected resource outcome ${outcome.plotIndex}:${outcome.resourceType} has no typed reason.`
-            );
-          }
           rejectionReasons.set(reason, (rejectionReasons.get(reason) ?? 0) + 1);
-        } else {
-          throw new Error(
-            `Resource outcome ${outcome.plotIndex}:${outcome.resourceType} has forbidden mismatch status.`
-          );
         }
       }
       return Object.freeze({
@@ -484,7 +475,6 @@ export function measureStandardResources(capture: StandardMapCapture): StandardR
     plannedCount: summary.plannedCount,
     placedCount: summary.placedCount,
     rejectedCount: summary.rejectedCount,
-    mismatchCount: summary.mismatchCount,
     candidateCount: candidates.length,
     demandTypeCount: candidates.filter((candidate) => candidate.disposition === "admitted").length,
     scenarioIneligibleCandidateCount: candidates.filter(

@@ -8,7 +8,6 @@ import {
 } from "@civ7/adapter";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
-import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
 import { createLabelRng, createMapContext } from "@swooper/mapgen-core";
 import {
@@ -16,6 +15,7 @@ import {
   type ArtifactReadValueOf,
   observeValidatedArtifact,
 } from "@swooper/mapgen-core/authoring";
+import { fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
 import { Value } from "typebox/value";
 import {
   canonicalRecipeConfig,
@@ -34,6 +34,11 @@ import {
   type StandardNaturalWonderPlanInputMeasurements,
   StandardNaturalWonderPlanInputMeasurementsSchema,
 } from "../metrics/families/placement/natural-wonder-plan-input.js";
+import {
+  STANDARD_RESOURCE_PLACEMENT_METRIC_KEY,
+  type StandardResourcePlacementMeasurements,
+  StandardResourcePlacementMeasurementsSchema,
+} from "../metrics/families/placement/resource-placement.js";
 import {
   type StandardPlacementParityMeasurements,
   StandardPlacementParityMeasurementsSchema,
@@ -66,6 +71,11 @@ type StandardParityReplayInput = Readonly<{
 }>;
 
 declare const STANDARD_PARITY_REPLAY_AUTHORITY: unique symbol;
+
+const EMPTY_RESOURCE_PLACEMENT_COORDINATE_DIGEST = Object.freeze({
+  count: 0,
+  hash32: fnv1a32StringHex(""),
+});
 
 /**
  * Opaque authority issued only after exact authorship and the generation
@@ -136,6 +146,7 @@ function runStandardParityReplay(input: StandardParityReplayInput): StandardLoca
   let lakeProjection: StandardLakeProjectionMeasurements | undefined;
   let naturalWonderPlanInput: StandardNaturalWonderPlanInputMeasurements | undefined;
   let placementParity: StandardPlacementParityMeasurements | undefined;
+  let resourcePlacement: StandardResourcePlacementMeasurements | undefined;
   let metricFailure: unknown;
 
   standardRecipe.execute(context, plan, {
@@ -168,6 +179,13 @@ function runStandardParityReplay(input: StandardParityReplayInput): StandardLoca
             placementCandidate
           );
         }
+        const resourcePlacementCandidate = projection[STANDARD_RESOURCE_PLACEMENT_METRIC_KEY];
+        if (resourcePlacementCandidate !== undefined) {
+          resourcePlacement = Value.Parse(
+            StandardResourcePlacementMeasurementsSchema,
+            resourcePlacementCandidate
+          );
+        }
       },
       onError: ({ facet, error }) => {
         if (facet === "metrics") metricFailure = error;
@@ -189,13 +207,12 @@ function runStandardParityReplay(input: StandardParityReplayInput): StandardLoca
   if (placementParity === undefined) {
     throw new Error("Standard parity replay requires terminal Placement parity measurements.");
   }
+  if (resourcePlacement === undefined) {
+    throw new Error("Standard parity replay requires terminal resource-placement measurements.");
+  }
 
   const naturalWonderPlan = observeArtifact(context, placementWonderArtifacts.naturalWonderPlan);
   const resourcePlan = observeArtifact(context, resourceSupportArtifacts.resourcePlanAdjusted);
-  const resourcePlacement = observeArtifact(
-    context,
-    resourceSiteArtifacts.resourcePlacementOutcomes
-  );
 
   return {
     source: "standard-replay",
@@ -219,7 +236,10 @@ function runStandardParityReplay(input: StandardParityReplayInput): StandardLoca
       naturalWonderPlanInput: { status: "present", value: naturalWonderPlanInput },
       resourcePlanIntents: resourcePlan.intents,
       resourcePlacement: {
-        coordinateEvidence: resourcePlacement.summary.coordinateEvidence,
+        coordinateEvidence: {
+          ...resourcePlacement.summary.coordinateEvidence,
+          mismatch: EMPTY_RESOURCE_PLACEMENT_COORDINATE_DIGEST,
+        },
         outcomes: resourcePlacement.outcomes,
       },
     },

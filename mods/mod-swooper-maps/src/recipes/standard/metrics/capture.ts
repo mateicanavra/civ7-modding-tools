@@ -46,6 +46,11 @@ import {
   StandardRiverNetworkMeasurementsSchema,
 } from "./families/hydrology/river-network.js";
 import {
+  STANDARD_RESOURCE_PLACEMENT_METRIC_KEY,
+  type StandardResourcePlacementMeasurements,
+  StandardResourcePlacementMeasurementsSchema,
+} from "./families/placement/resource-placement.js";
+import {
   type StandardPlacementParityMeasurements,
   StandardPlacementParityMeasurementsSchema,
 } from "./families/placement-parity.js";
@@ -61,9 +66,6 @@ type ResourceDemandPlan = ArtifactReadValueOf<typeof resourceDemandArtifacts.res
 type ResourcePlan = ArtifactReadValueOf<typeof resourceSiteArtifacts.resourcePlan>;
 type ResourcePlanAdjusted = ArtifactReadValueOf<
   typeof resourceSupportArtifacts.resourcePlanAdjusted
->;
-type ResourcePlacementOutcomes = ArtifactReadValueOf<
-  typeof resourceSiteArtifacts.resourcePlacementOutcomes
 >;
 type StartAssignment = ArtifactReadValueOf<typeof placementStartArtifacts.startAssignment>;
 
@@ -215,12 +217,9 @@ export type StandardMapCapture = Readonly<{
       | "shortfalls"
     >[];
     regionMinimums: readonly ResourcePlan["regionMinimums"][number][];
-    summary: ResourcePlacementOutcomes["summary"];
+    summary: StandardResourcePlacementMeasurements["summary"];
     outcomes: readonly Readonly<
-      Pick<
-        ResourcePlacementOutcomes["outcomes"][number],
-        "status" | "plotIndex" | "x" | "y" | "resourceType" | "observedResourceType" | "reason"
-      > & {
+      StandardResourcePlacementMeasurements["outcomes"][number] & {
         headlessPolicyLegal: boolean;
       }
     >[];
@@ -304,6 +303,7 @@ export function captureStandardMapScenario(
   let featureProjection: StandardFeatureProjectionMeasurements | undefined;
   let lakeProjection: StandardLakeProjectionMeasurements | undefined;
   let placementParity: StandardPlacementParityMeasurements | undefined;
+  let resourcePlacement: StandardResourcePlacementMeasurements | undefined;
   let metricFailure: unknown;
   standardRecipe.run(context, canonicalRecipeConfig(admittedScenario.config), {
     log: () => {},
@@ -338,6 +338,13 @@ export function captureStandardMapScenario(
             placementCandidate
           );
         }
+        const resourcePlacementCandidate = projection[STANDARD_RESOURCE_PLACEMENT_METRIC_KEY];
+        if (resourcePlacementCandidate !== undefined) {
+          resourcePlacement = Value.Parse(
+            StandardResourcePlacementMeasurementsSchema,
+            resourcePlacementCandidate
+          );
+        }
       },
       onError: ({ facet, error }) => {
         if (facet === "metrics") metricFailure = error;
@@ -360,6 +367,9 @@ export function captureStandardMapScenario(
   if (!placementParity) {
     throw new Error("Standard metric capture requires terminal Placement parity evidence.");
   }
+  if (!resourcePlacement) {
+    throw new Error("Standard metric capture requires terminal resource-placement evidence.");
+  }
 
   return copyCompletedRun(
     admittedScenario,
@@ -369,7 +379,8 @@ export function captureStandardMapScenario(
     discoveryGeneration,
     featureProjection,
     lakeProjection,
-    placementParity
+    placementParity,
+    resourcePlacement
   );
 }
 
@@ -381,7 +392,8 @@ function copyCompletedRun(
   discoveryGeneration: StandardDiscoveryPlacementMeasurements,
   featureProjection: StandardFeatureProjectionMeasurements,
   lakeProjection: StandardLakeProjectionMeasurements,
-  placementParity: StandardPlacementParityMeasurements
+  placementParity: StandardPlacementParityMeasurements,
+  resourcePlacement: StandardResourcePlacementMeasurements
 ): StandardMapCapture {
   const selection = resolveMapSelection(scenario);
   const { width, height } = selection.dimensions;
@@ -417,10 +429,6 @@ function copyCompletedRun(
   const adjustedResourcePlanValue = readValidatedArtifact(
     context,
     resourceSupportArtifacts.resourcePlanAdjusted
-  );
-  const resourceOutcomesValue = readValidatedArtifact(
-    context,
-    resourceSiteArtifacts.resourcePlacementOutcomes
   );
   const naturalWonderPlacementValue = readValidatedArtifact(
     context,
@@ -632,19 +640,16 @@ function copyCompletedRun(
         resourcePlanValue.regionMinimums.map((row) => Object.freeze({ ...row }))
       ),
       summary: Object.freeze({
-        ...resourceOutcomesValue.summary,
+        ...resourcePlacement.summary,
         coordinateEvidence: Object.freeze({
-          ...resourceOutcomesValue.summary.coordinateEvidence,
-          placed: Object.freeze({ ...resourceOutcomesValue.summary.coordinateEvidence.placed }),
+          ...resourcePlacement.summary.coordinateEvidence,
+          placed: Object.freeze({ ...resourcePlacement.summary.coordinateEvidence.placed }),
           rejected: Object.freeze({
-            ...resourceOutcomesValue.summary.coordinateEvidence.rejected,
-          }),
-          mismatch: Object.freeze({
-            ...resourceOutcomesValue.summary.coordinateEvidence.mismatch,
+            ...resourcePlacement.summary.coordinateEvidence.rejected,
           }),
         }),
         byResource: Object.freeze(
-          resourceOutcomesValue.summary.byResource.map((row) =>
+          resourcePlacement.summary.byResource.map((row) =>
             Object.freeze({
               ...row,
               reasons: Object.freeze(row.reasons.map((reason) => Object.freeze({ ...reason }))),
@@ -652,19 +657,17 @@ function copyCompletedRun(
           )
         ),
         byReason: Object.freeze(
-          resourceOutcomesValue.summary.byReason.map((row) => Object.freeze({ ...row }))
+          resourcePlacement.summary.byReason.map((row) => Object.freeze({ ...row }))
         ),
+        shortfalls: Object.freeze(
+          resourcePlacement.summary.shortfalls.map((row) => Object.freeze({ ...row }))
+        ),
+        byPhase: Object.freeze({ ...resourcePlacement.summary.byPhase }),
       }),
       outcomes: Object.freeze(
-        resourceOutcomesValue.outcomes.map((outcome) =>
+        resourcePlacement.outcomes.map((outcome) =>
           Object.freeze({
-            status: outcome.status,
-            plotIndex: outcome.plotIndex,
-            x: outcome.x,
-            y: outcome.y,
-            resourceType: outcome.resourceType,
-            observedResourceType: outcome.observedResourceType,
-            reason: outcome.reason,
+            ...outcome,
             headlessPolicyLegal:
               outcome.x >= 0 &&
               outcome.y >= 0 &&

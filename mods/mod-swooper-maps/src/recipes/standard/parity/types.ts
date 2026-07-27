@@ -1,11 +1,11 @@
 import type { Civ7StandardMapSizeId } from "@civ7/adapter";
 import type { DeepReadonly, RunInGameExactAuthorshipEvidence } from "@civ7/studio-contract";
-import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
 import type { ArtifactReadValueOf } from "@swooper/mapgen-core/authoring";
 import type { StandardFeatureProjectionMeasurements } from "../metrics/families/ecology-projection.js";
 import type { StandardLakeProjectionMeasurements } from "../metrics/families/hydrology/lake-projection.js";
 import type { StandardNaturalWonderPlanInputMeasurements } from "../metrics/families/placement/natural-wonder-plan-input.js";
+import type { StandardResourcePlacementMeasurements } from "../metrics/families/placement/resource-placement.js";
 import type { StandardPlacementParityMeasurements } from "../metrics/families/placement-parity.js";
 
 /** Final Civ7 map surfaces whose exact values define Standard product parity. */
@@ -52,9 +52,6 @@ type StandardLiveRiverCapture = Readonly<{
 
 type ResourcePlanAdjusted = ArtifactReadValueOf<
   typeof resourceSupportArtifacts.resourcePlanAdjusted
->;
-type ResourcePlacementOutcomes = ArtifactReadValueOf<
-  typeof resourceSiteArtifacts.resourcePlacementOutcomes
 >;
 
 /** Bounded, JSON-safe natural-wonder anchor evidence emitted by the shipped recipe. */
@@ -191,8 +188,11 @@ export type StandardLocalParityCapture = Readonly<{
     naturalWonderPlanInput: StandardExactProductEvidence<StandardNaturalWonderPlanInputEvidence>;
     resourcePlanIntents: DeepReadonly<ResourcePlanAdjusted["intents"]>;
     resourcePlacement: Readonly<{
-      coordinateEvidence: DeepReadonly<ResourcePlacementOutcomes["summary"]["coordinateEvidence"]>;
-      outcomes: DeepReadonly<ResourcePlacementOutcomes["outcomes"]>;
+      coordinateEvidence: DeepReadonly<
+        StandardResourcePlacementMeasurements["summary"]["coordinateEvidence"]
+      > &
+        Readonly<{ mismatch: StandardCoordinateDigest }>;
+      outcomes: DeepReadonly<StandardResourcePlacementMeasurements["outcomes"]>;
     }>;
   }>;
 }>;

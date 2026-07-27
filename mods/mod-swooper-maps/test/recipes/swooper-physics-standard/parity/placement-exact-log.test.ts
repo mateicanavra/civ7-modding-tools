@@ -1,5 +1,11 @@
 import { describe, expect, it, spyOn } from "bun:test";
+import {
+  type OfficialResourceType,
+  requireResourceRuntimeId,
+  resolveResourceRuntimeIds,
+} from "@civ7/map-policy";
 import { fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
+import { measureStandardResourcePlacement } from "../../../../src/recipes/standard/metrics/families/placement/resource-placement.js";
 import {
   emitStandardNaturalWonderPlacementExactLog,
   emitStandardNaturalWonderPlanExactLog,
@@ -17,10 +23,14 @@ type NaturalWonderPlanInput = Parameters<typeof emitStandardNaturalWonderPlanInp
 type PlacementParity = Parameters<typeof emitStandardPlacementParityExactLog>[0];
 type ResourceCatalog = Parameters<typeof emitStandardResourcePlacementExactLog>[0];
 type ResourcePlacementEvidence = Parameters<typeof emitStandardResourcePlacementExactLog>[1];
+type ResourcePlacementRow = Parameters<typeof measureStandardResourcePlacement>[0][number];
+type ResourcePlacementPhase = ResourcePlacementRow["phase"];
 
 const CIV7_LOG_TRUNCATION_BUDGET = 900;
 const RESOURCE_PLACEMENT_LOG_PREFIX = "[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 ";
 const EMPTY_HASH32 = fnv1a32StringHex("");
+const GOLD_RESOURCE = requireResourceRuntimeId("RESOURCE_GOLD");
+const JADE_RESOURCE = requireResourceRuntimeId("RESOURCE_JADE");
 
 const EMPTY_NATURAL_WONDER_PLAN = {
   ...TEST_MAP_SIZE.dimensions,
@@ -102,99 +112,77 @@ const EMPTY_PLACEMENT_PARITY = {
   finalLakeClassificationDriftCount: 0,
 } satisfies PlacementParity;
 
-function evidence(
-  byResource: ResourcePlacementEvidence["summary"]["byResource"],
-  counts: Readonly<{
-    planned: number;
-    placed: number;
-    rejected: number;
-  }>
+type ResourcePlacementFixtureRow = Readonly<{
+  resourceType: OfficialResourceType;
+  status: "placed" | "rejected";
+  plotIndex?: number;
+  phase?: ResourcePlacementPhase;
+}>;
+
+function resourcePlacementEvidence(
+  rows: readonly ResourcePlacementFixtureRow[]
 ): ResourcePlacementEvidence {
-  return {
-    summary: {
-      plannedCount: counts.planned,
-      placedCount: counts.placed,
-      rejectedCount: counts.rejected,
-      mismatchCount: 0,
-      coordinateEvidence: {
-        version: 1,
-        placed: { count: counts.placed, hash32: "12345678" },
-        rejected: { count: counts.rejected, hash32: "abcdef12" },
-        mismatch: { count: 0, hash32: "811c9dc5" },
-      },
-      byResource,
-      byReason:
-        counts.rejected === 0 ? [] : [{ reason: "cannot-have-resource", count: counts.rejected }],
-    },
-    reconciliation: {
-      plannedCount: counts.planned,
-      placedCount: counts.placed,
-      rejectedCount: counts.rejected,
-      shortfalls:
-        counts.rejected === 0
-          ? []
-          : [
-              {
-                resourceType: 44,
-                reason: "cannot-have-resource",
-                count: counts.rejected,
-              },
-            ],
-      byPhase: {
-        rotation: counts.placed,
-        rangeFloor: 0,
-        regionMinimum: 0,
-        support: 0,
-      },
-      supportAdjustedPlacedCount: 0,
-    },
-    outcomes:
-      counts.rejected === 0
-        ? []
-        : [
-            {
+  const { width } = TEST_MAP_SIZE.dimensions;
+  return measureStandardResourcePlacement(
+    rows.map((row, index): ResourcePlacementRow => {
+      const plotIndex = row.plotIndex ?? index;
+      const y = Math.floor(plotIndex / width);
+      const x = plotIndex - y * width;
+      const phase = row.phase ?? "rotation";
+      const resourceType = requireResourceRuntimeId(row.resourceType).resourceTypeId;
+      return Object.freeze(
+        row.status === "placed"
+          ? {
+              status: "placed",
+              plotIndex,
+              x,
+              y,
+              resourceType,
+              phase,
+            }
+          : {
               status: "rejected",
-              plotIndex: 67,
-              x: 12,
-              y: 3,
-              resourceType: 44,
+              plotIndex,
+              x,
+              y,
+              resourceType,
+              phase,
               reason: "cannot-have-resource",
-            },
-          ],
-  };
+            }
+      );
+    })
+  );
 }
 
 describe("resource placement exact-log projection", () => {
   it("projects the compact RESOURCE_PLACEMENT_V1 evidence envelope", () => {
+    const measurements = resourcePlacementEvidence([
+      { resourceType: "RESOURCE_GOLD", status: "placed", plotIndex: 10 },
+      { resourceType: "RESOURCE_GOLD", status: "placed", plotIndex: 11 },
+      { resourceType: "RESOURCE_JADE", status: "placed", plotIndex: 12 },
+      { resourceType: "RESOURCE_JADE", status: "rejected", plotIndex: 67 },
+    ]);
     const projection = projectStandardResourcePlacementExactLog(
       [
-        { index: 13, resourceType: "RESOURCE_GOLD", resourceClassType: null, name: null },
-        { index: 44, resourceType: "RESOURCE_RUBIES", resourceClassType: null, name: null },
+        {
+          index: GOLD_RESOURCE.resourceTypeId,
+          resourceType: GOLD_RESOURCE.resourceType,
+          resourceClassType: null,
+          name: null,
+        },
+        {
+          index: JADE_RESOURCE.resourceTypeId,
+          resourceType: JADE_RESOURCE.resourceType,
+          resourceClassType: null,
+          name: null,
+        },
       ],
-      evidence(
-        [
-          {
-            resourceType: 13,
-            plannedCount: 2,
-            placedCount: 2,
-            rejectedCount: 0,
-            mismatchCount: 0,
-            reasons: [],
-          },
-          {
-            resourceType: 44,
-            plannedCount: 2,
-            placedCount: 1,
-            rejectedCount: 1,
-            mismatchCount: 0,
-            reasons: [{ reason: "cannot-have-resource", count: 1 }],
-          },
-        ],
-        { planned: 4, placed: 3, rejected: 1 }
-      )
+      measurements
     );
+    const rejectedOutcome = measurements.outcomes.find((outcome) => outcome.status === "rejected");
+    if (!rejectedOutcome) throw new Error("Resource exact-log fixture requires one rejection.");
 
-    expect(projection).toMatchObject({
+    const expected = {
       version: 1,
       plannedCount: 4,
       placedCount: 3,
@@ -208,20 +196,20 @@ describe("resource placement exact-log projection", () => {
       coordinateEvidence: {
         version: 1,
         placedCount: 3,
-        placedHash32: "12345678",
+        placedHash32: measurements.summary.coordinateEvidence.placed.hash32,
         rejectedCount: 1,
-        rejectedHash32: "abcdef12",
+        rejectedHash32: measurements.summary.coordinateEvidence.rejected.hash32,
       },
-      rejectedResourceTypes: [44],
+      rejectedResourceTypes: [JADE_RESOURCE.resourceTypeId],
       rejectionExampleCount: 1,
       rejectionRows: [
         {
           status: "rejected",
-          resourceType: 44,
-          resource: "RESOURCE_RUBIES",
+          resourceType: JADE_RESOURCE.resourceTypeId,
+          resource: "RESOURCE_JADE",
           plotIndex: 67,
-          x: 12,
-          y: 3,
+          x: rejectedOutcome.x,
+          y: rejectedOutcome.y,
           reason: "cannot-have-resource",
         },
       ],
@@ -230,45 +218,56 @@ describe("resource placement exact-log projection", () => {
         placedCount: 3,
         rejectedCount: 1,
         byPhase: { rotation: 3, rangeFloor: 0, regionMinimum: 0, support: 0 },
-        shortfalls: [{ resourceType: 44, reason: "cannot-have-resource", count: 1 }],
+        shortfalls: [
+          {
+            resourceType: JADE_RESOURCE.resourceTypeId,
+            reason: "cannot-have-resource",
+            count: 1,
+          },
+        ],
       },
       byReason: [{ reason: "cannot-have-resource", count: 1 }],
-    });
+    };
+    expect(projection).toEqual(expected);
+    expect(JSON.stringify(projection)).toBe(JSON.stringify(expected));
     expect(JSON.stringify(projection).length).toBeLessThan(CIV7_LOG_TRUNCATION_BUDGET);
   });
 
   it("keeps a full runtime catalog below Civ7's log truncation budget", () => {
-    const byResource = Array.from({ length: 55 }, (_, resourceType) => ({
-      resourceType,
-      plannedCount: resourceType === 5 || resourceType === 15 ? 0 : 3,
-      placedCount: resourceType === 5 || resourceType === 15 ? 0 : 3,
-      rejectedCount: 0,
-      mismatchCount: 0,
-      reasons: [],
-    }));
+    const officialResources = Array.from(resolveResourceRuntimeIds().byId.values());
+    const measurements = resourcePlacementEvidence(
+      officialResources.flatMap(({ resourceType }) =>
+        Array.from({ length: 3 }, () => ({ resourceType, status: "placed" as const }))
+      )
+    );
     const projection = projectStandardResourcePlacementExactLog(
-      Array.from({ length: 55 }, (_, index) => ({
+      officialResources.map(({ resourceTypeId: index, resourceType }) => ({
         index,
-        resourceType: `RESOURCE_${index}`,
+        resourceType,
         resourceClassType: "RESOURCECLASS_BONUS",
-        name: `Resource ${index}`,
+        name: resourceType,
       })),
-      evidence(byResource, { planned: 159, placed: 159, rejected: 0 })
+      measurements
     );
     const line = `${RESOURCE_PLACEMENT_LOG_PREFIX}${JSON.stringify(projection)}`;
 
     expect(projection).toMatchObject({
       version: 1,
-      plannedCount: 159,
-      placedCount: 159,
+      plannedCount: measurements.summary.plannedCount,
+      placedCount: measurements.summary.placedCount,
       rejectedCount: 0,
-      runtimeCatalogCount: 55,
+      runtimeCatalogCount: officialResources.length,
       rejectedResourceTypes: [],
       reconciliation: {
-        plannedCount: 159,
-        placedCount: 159,
+        plannedCount: measurements.summary.plannedCount,
+        placedCount: measurements.summary.placedCount,
         rejectedCount: 0,
-        byPhase: { rotation: 159, rangeFloor: 0, regionMinimum: 0, support: 0 },
+        byPhase: {
+          rotation: measurements.summary.placedCount,
+          rangeFloor: 0,
+          regionMinimum: 0,
+          support: 0,
+        },
       },
     });
     expect(line.length).toBeLessThan(CIV7_LOG_TRUNCATION_BUDGET);
@@ -325,25 +324,15 @@ describe("placement exact-log producer protocol", () => {
   it("emits all five stable marker families and omits the empty rejected-coordinate channel", () => {
     const runtimeCatalog = [
       {
-        index: 13,
-        resourceType: "RESOURCE_GOLD",
+        index: GOLD_RESOURCE.resourceTypeId,
+        resourceType: GOLD_RESOURCE.resourceType,
         resourceClassType: null,
         name: null,
       },
     ] satisfies ResourceCatalog;
-    const resourceEvidence = evidence(
-      [
-        {
-          resourceType: 13,
-          plannedCount: 1,
-          placedCount: 1,
-          rejectedCount: 0,
-          mismatchCount: 0,
-          reasons: [],
-        },
-      ],
-      { planned: 1, placed: 1, rejected: 0 }
-    );
+    const resourceEvidence = resourcePlacementEvidence([
+      { resourceType: "RESOURCE_GOLD", status: "placed" },
+    ]);
     const resourcePayload = projectStandardResourcePlacementExactLog(
       runtimeCatalog,
       resourceEvidence
@@ -409,10 +398,7 @@ describe("placement exact-log producer protocol", () => {
   it("keeps resource exact logging silent without official Civ7 catalog identities", () => {
     const log = spyOn(console, "log").mockImplementation(() => {});
     try {
-      emitStandardResourcePlacementExactLog(
-        [],
-        evidence([], { planned: 0, placed: 0, rejected: 0 })
-      );
+      emitStandardResourcePlacementExactLog([], resourcePlacementEvidence([]));
       expect(log).not.toHaveBeenCalled();
     } finally {
       log.mockRestore();
