@@ -147,6 +147,19 @@ describe("recipe initial setup authority", () => {
     expect(plan.setup.latitudeBounds).toEqual({ topLatitude: 70, bottomLatitude: -70 });
     expect(Reflect.get(plan, "initialSetup")).toBeUndefined();
 
+    const evidence = recipe.inspectPlan(plan);
+    expect(evidence).toEqual({
+      recipeId: "test.initial-setup",
+      planFingerprint: computePlanFingerprint(plan),
+      initialSetup: {
+        definitionId: authority.id,
+        value: initialInput(),
+      },
+    });
+    expect(evidence.initialSetup.value).toBe(recipe.inspectPlan(plan).initialSetup.value);
+    expect(Object.isFrozen(evidence)).toBe(true);
+    expect(Object.isFrozen(evidence.initialSetup)).toBe(true);
+
     const context = createMapContext({
       setup: plan.setup,
       adapter: createMockAdapter({ width: 4, height: 3 }),
@@ -276,6 +289,17 @@ describe("recipe initial setup authority", () => {
 
     expect(temperate.setup).toEqual(arid.setup);
     expect(computePlanFingerprint(temperate)).not.toBe(computePlanFingerprint(arid));
+  });
+
+  it("refuses to inspect a plan compiled by a different recipe authority", () => {
+    const authority = createInitialSetupAuthority();
+    const recipe = createInitialSetupRecipe(authority, []);
+    const other = createInitialSetupRecipe(authority, []);
+    const plan = other.compile(initialInput(), { foundation: { knobs: {} } });
+
+    expect(() => recipe.inspectPlan(plan)).toThrow(
+      "Execution plan was compiled against a different step registry."
+    );
   });
 
   it("refuses recipe composition when a step declares a different exact authority", () => {

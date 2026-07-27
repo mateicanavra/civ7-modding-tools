@@ -2,6 +2,7 @@ import type { ResourceCatalogEntry } from "@civ7/adapter";
 import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
 import type { ArtifactValueOf, DeepReadonly } from "@swooper/mapgen-core/authoring";
 import { fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
+import { encodeBoundedJsonLogLines } from "@swooper/mapgen-core/lib/log";
 import {
   type StandardNaturalWonderPlacementOutcome,
   summarizeNaturalWonderPlacementOutcomes,
@@ -84,7 +85,9 @@ export type StandardNaturalWonderPlacementExactLogCompatibility = Readonly<{
 }>;
 
 function emitPlacementExactLog(marker: PlacementExactLogMarker, payload: unknown): void {
-  console.log(`[SWOOPER_MOD] ${marker} ${JSON.stringify(payload)}`);
+  for (const line of encodeBoundedJsonLogLines({ prefix: "[SWOOPER_MOD]", marker, payload })) {
+    console.log(line);
+  }
 }
 
 /**

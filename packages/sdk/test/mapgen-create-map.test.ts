@@ -26,10 +26,9 @@ vi.mock("@civ7/adapter/civ7", async () => {
           height: 2,
           mapSizeId: 4,
           mapInfo: {
+            MapSizeType: "MAPSIZE_TINY",
             GridWidth: 2,
             GridHeight: 2,
-            MinLatitude: -60,
-            MaxLatitude: 60,
             PlayersLandmass1: 1,
             PlayersLandmass2: 1,
           },
@@ -38,6 +37,11 @@ vi.mock("@civ7/adapter/civ7", async () => {
   };
 });
 
+import {
+  CIV7_GAME_OPTION_DESCRIPTORS,
+  CIV7_MAP_OPTION_DESCRIPTORS,
+  CIV7_PLAYER_OPTION_DESCRIPTORS,
+} from "@civ7/adapter";
 import { admitMapSetup } from "@swooper/mapgen-core";
 import {
   basePhysicalInitialSetupDefinition,
@@ -45,7 +49,15 @@ import {
   type RecipeModule,
   Type,
 } from "@swooper/mapgen-core/authoring";
+import {
+  BOUNDED_JSON_LOG_MAX_LINE_LENGTH,
+  decodeBoundedJsonLogSeries,
+} from "@swooper/mapgen-core/lib/log";
 import { createMap } from "../src/mapgen/createMap";
+
+const MAP_SEA_LEVEL_OPTION = descriptorById(CIV7_MAP_OPTION_DESCRIPTORS, "MapSeaLevel");
+const RULESET_OPTION = descriptorById(CIV7_GAME_OPTION_DESCRIPTORS, "Ruleset");
+const PLAYER_TEAM_OPTION = descriptorById(CIV7_PLAYER_OPTION_DESCRIPTORS, "PlayerTeam");
 
 describe("createMap", () => {
   afterEach(() => {
@@ -72,14 +84,6 @@ describe("createMap", () => {
       getMapSize: vi.fn(() => 4),
       getRandomSeed: vi.fn(() => 999),
     };
-    (globalThis as any).Configuration = {
-      getGameValue: vi.fn((key: string) => (key === "RandomSeed" ? 456 : undefined)),
-      getMapValue: vi.fn(() => undefined),
-    };
-    (globalThis as any).Players = {
-      getAliveMajorIds: vi.fn(() => [0, 1]),
-    };
-
     const logs: string[] = [];
     const lifecycle: string[] = [];
     const originalLog = console.log;
@@ -102,12 +106,24 @@ describe("createMap", () => {
         expect(plan.marker).toBe("exact-plan");
         logs.push("recipe-execute");
       });
+      const inspectPlan = vi.fn((plan: any) => {
+        lifecycle.push("inspect");
+        return {
+          recipeId: "test.base",
+          planFingerprint: "a".repeat(64),
+          initialSetup: {
+            definitionId: basePhysicalInitialSetupDefinition.id,
+            value: plan.setup,
+          },
+        };
+      });
       const run = vi.fn();
 
       const recipe = {
         id: "test.base",
         initialSetup: basePhysicalInitialSetupDefinition,
         compile,
+        inspectPlan,
         execute,
         run,
       } as unknown as RecipeModule<Readonly<Record<string, never>>>;
@@ -129,7 +145,13 @@ describe("createMap", () => {
       });
 
       mapContextProbe.onCreate = () => lifecycle.push("context");
-      handlers.get("RequestMapInitData")?.({ mapSize: 4, width: 2, height: 2 });
+      handlers.get("RequestMapInitData")?.({
+        mapSize: 4,
+        width: 2,
+        height: 2,
+        topLatitude: 60,
+        bottomLatitude: -60,
+      });
       handlers.get("GenerateMap")?.();
 
       expect(engineCalls).toContainEqual({
@@ -137,9 +159,10 @@ describe("createMap", () => {
         args: [{ width: 2, height: 2, topLatitude: 60, bottomLatitude: -60, mapSize: 4 }],
       });
       expect(compile).toHaveBeenCalledTimes(1);
+      expect(inspectPlan).toHaveBeenCalledTimes(1);
       expect(execute).toHaveBeenCalledTimes(1);
       expect(run).not.toHaveBeenCalled();
-      expect(lifecycle).toEqual(["compile", "context", "execute"]);
+      expect(lifecycle).toEqual(["compile", "inspect", "context", "execute"]);
       expect(compile.mock.calls[0]?.[0]).toEqual({
         mapSeed: 123,
         dimensions: { width: 2, height: 2 },
@@ -153,11 +176,12 @@ describe("createMap", () => {
       expect(recipeIndex).toBeGreaterThan(evidenceIndex);
       expect(completeIndex).toBeGreaterThan(recipeIndex);
 
-      const evidencePayload = payloadAfter(logs[evidenceIndex]!, "[mapgen-evidence]");
-      const completePayload = payloadAfter(logs[completeIndex]!, "[mapgen-complete]");
+      const evidencePayload = payloadAfter(logs, "[mapgen-evidence]");
+      const completePayload = payloadAfter(logs, "[mapgen-complete]");
       expect(completePayload).toEqual(evidencePayload);
-      expect(logs[evidenceIndex]!.length).toBeLessThan(1_000);
-      expect(logs[completeIndex]!.length).toBeLessThan(1_000);
+      expect(logs.some((line) => line.includes("studio-run-in-game-test"))).toBe(true);
+      expect(logs.some((line) => line.includes("canonical-config-digest"))).toBe(true);
+      expect(logs.some((line) => line.includes("envelope-hash"))).toBe(true);
       expect(evidencePayload).toMatchObject({
         mapId: "test-map",
         sourceConfigId: "studio-current",
@@ -169,6 +193,18 @@ describe("createMap", () => {
         seed: 123,
         mapSize: 4,
         dimensions: { width: 2, height: 2 },
+        recipePlan: {
+          recipeId: "test.base",
+          planFingerprint: "a".repeat(64),
+          initialSetup: {
+            definitionId: "mapgen/physical",
+            value: {
+              mapSeed: 123,
+              dimensions: { width: 2, height: 2 },
+              latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+            },
+          },
+        },
       });
       expect(evidencePayload).not.toHaveProperty("runCorrelation");
       expect(evidencePayload).not.toHaveProperty("configContentDigest");
@@ -181,6 +217,8 @@ describe("createMap", () => {
 
   test("captures requested Civ7 setup evidence once and projects it for a product recipe", () => {
     const handlers = new Map<string, (...args: unknown[]) => void>();
+    const logs: string[] = [];
+    vi.spyOn(console, "log").mockImplementation((...args: unknown[]) => logs.push(args.join(" ")));
     (globalThis as any).engine = {
       on: vi.fn((event: string, handler: (...args: unknown[]) => void) => {
         handlers.set(event, handler);
@@ -193,7 +231,7 @@ describe("createMap", () => {
     };
     const getGameValue = vi.fn((key: string) => {
       if (key === "RandomSeed") return 654;
-      if (key === "Ruleset") return "RULESET_STANDARD";
+      if (key === "RuleSet") return "RULESET_STANDARD";
       return undefined;
     });
     const getMapValue = vi.fn((key: string) => {
@@ -201,7 +239,13 @@ describe("createMap", () => {
       return undefined;
     });
     const getAliveMajorIds = vi.fn(() => [7, 3]);
-    (globalThis as any).Configuration = { getGameValue, getMapValue };
+    (globalThis as any).Configuration = {
+      getGameValue,
+      getMapValue,
+      getPlayer: vi.fn((playerId: number) => ({
+        getValue: vi.fn((key: string) => (playerId === 7 && key === "Team" ? 3 : undefined)),
+      })),
+    };
     (globalThis as any).Players = { getAliveMajorIds };
 
     const project = vi.fn((capture: any) => ({
@@ -218,6 +262,14 @@ describe("createMap", () => {
       setup: admitMapSetup(initialSetup.physical),
       marker: "product-plan",
     }));
+    const inspectPlan = vi.fn(() => ({
+      recipeId: "test.product",
+      planFingerprint: "b".repeat(64),
+      initialSetup: {
+        definitionId: "test/product",
+        value: project.mock.results[0]?.value,
+      },
+    }));
     const execute = vi.fn();
 
     createMap({
@@ -228,24 +280,33 @@ describe("createMap", () => {
         id: "test.product",
         initialSetup: { id: "test/product" },
         compile,
+        inspectPlan,
         execute,
       } as any,
       initialSetup: {
-        requestedMapOptionKeys: ["SeaLevel"],
-        requestedGameOptionKeys: ["Ruleset"],
+        requestedMapOptions: [MAP_SEA_LEVEL_OPTION],
+        requestedGameOptions: [RULESET_OPTION],
+        requestedPlayerOptions: [PLAYER_TEAM_OPTION],
         project,
       },
     });
 
-    handlers.get("RequestMapInitData")?.({ mapSize: 4, width: 2, height: 2 });
+    handlers.get("RequestMapInitData")?.({
+      mapSize: 4,
+      width: 2,
+      height: 2,
+      topLatitude: 60,
+      bottomLatitude: -60,
+    });
     handlers.get("GenerateMap")?.();
 
     expect(project).toHaveBeenCalledTimes(1);
     expect(compile).toHaveBeenCalledTimes(1);
+    expect(inspectPlan).toHaveBeenCalledTimes(1);
     expect(execute).toHaveBeenCalledTimes(1);
     expect(getAliveMajorIds).toHaveBeenCalledTimes(1);
     expect(getMapValue.mock.calls).toEqual([["SeaLevel"]]);
-    expect(getGameValue.mock.calls).toEqual([["RandomSeed"], ["Ruleset"]]);
+    expect(getGameValue.mock.calls).toEqual([["RandomSeed"], ["RuleSet"]]);
 
     const capture = project.mock.calls[0]?.[0];
     expect(capture).toMatchObject({
@@ -257,8 +318,18 @@ describe("createMap", () => {
       aliveMajorPlayerIds: [7, 3],
       startSlotCapacity: { west: 1, east: 1, total: 2 },
       options: {
-        map: [{ status: "available", key: "SeaLevel", value: "SEA_LEVEL_NORMAL" }],
+        map: [{ status: "available", key: "MapSeaLevel", value: "SEA_LEVEL_NORMAL" }],
         game: [{ status: "available", key: "Ruleset", value: "RULESET_STANDARD" }],
+        player: [
+          {
+            playerId: 7,
+            options: [{ status: "available", key: "PlayerTeam", value: 3 }],
+          },
+          {
+            playerId: 3,
+            options: [{ status: "unavailable", key: "PlayerTeam", reason: "value-unavailable" }],
+          },
+        ],
       },
     });
     expect(compile.mock.calls[0]?.[0]).toEqual(project.mock.results[0]?.value);
@@ -266,6 +337,73 @@ describe("createMap", () => {
       setup: expect.any(Object),
       marker: "product-plan",
     });
+    const evidenceLines = logs.filter((line) => line.includes("[mapgen-evidence]"));
+    const engineObservedLogs = logs.map((line) => line.slice(0, 1_022));
+    expect(evidenceLines.length).toBeGreaterThan(1);
+    expect(evidenceLines.every((line) => line.length <= BOUNDED_JSON_LOG_MAX_LINE_LENGTH)).toBe(
+      true
+    );
+    expect(engineObservedLogs).toEqual(logs);
+    expect(payloadAfter(engineObservedLogs, "[mapgen-evidence]")).toMatchObject({
+      recipePlan: {
+        recipeId: "test.product",
+        planFingerprint: "b".repeat(64),
+        initialSetup: {
+          definitionId: "test/product",
+          value: {
+            options: {
+              map: [{ status: "available", key: "MapSeaLevel", value: "SEA_LEVEL_NORMAL" }],
+              game: [{ status: "available", key: "Ruleset", value: "RULESET_STANDARD" }],
+            },
+          },
+        },
+      },
+    });
+  });
+
+  test("emits no run evidence when recipe compilation fails", () => {
+    const handlers = new Map<string, (...args: unknown[]) => void>();
+    (globalThis as any).engine = {
+      on: vi.fn((event: string, handler: (...args: unknown[]) => void) =>
+        handlers.set(event, handler)
+      ),
+      call: vi.fn(),
+    };
+    (globalThis as any).GameplayMap = {
+      getMapSize: vi.fn(() => 4),
+      getRandomSeed: vi.fn(() => 1),
+    };
+    (globalThis as any).Configuration = {
+      getGameValue: vi.fn((key: string) => (key === "RandomSeed" ? 2 : undefined)),
+      getMapValue: vi.fn(),
+    };
+    (globalThis as any).Players = { getAliveMajorIds: vi.fn(() => [0]) };
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const failure = new Error("compile refused");
+
+    createMap({
+      id: "failed-map",
+      name: "Failed Map",
+      seed: 1,
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+      config: {},
+      recipe: {
+        id: "test.failed",
+        initialSetup: basePhysicalInitialSetupDefinition,
+        compile: vi.fn(() => {
+          throw failure;
+        }),
+        inspectPlan: vi.fn(),
+        execute: vi.fn(),
+      } as unknown as RecipeModule<Readonly<Record<string, never>>>,
+    });
+
+    handlers.get("RequestMapInitData")?.({ mapSize: 4, width: 2, height: 2 });
+    expect(() => handlers.get("GenerateMap")?.()).toThrow(failure);
+    expect(log.mock.calls.flat().join(" ")).not.toContain("[mapgen-evidence]");
+    expect(log.mock.calls.flat().join(" ")).not.toContain("[mapgen-complete]");
+    expect(error).toHaveBeenCalled();
   });
 
   test("fails closed when an untyped non-base recipe omits its product projector", () => {
@@ -302,6 +440,52 @@ describe("createMap", () => {
       } as never)
     ).toThrow('Recipe "test.product" requires an initialSetup projector');
     expect(handlers.size).toBe(0);
+  });
+
+  test("requires explicit RequestMapInitData latitude evidence or an authored override", () => {
+    const handlers = new Map<string, (...args: unknown[]) => void>();
+    const setMapInitData = vi.fn();
+    (globalThis as any).engine = {
+      on: vi.fn((event: string, handler: (...args: unknown[]) => void) => {
+        handlers.set(event, handler);
+      }),
+      call: setMapInitData,
+    };
+
+    const recipe = {
+      id: "test.base",
+      initialSetup: basePhysicalInitialSetupDefinition,
+      compile: vi.fn(),
+      execute: vi.fn(),
+    } as unknown as RecipeModule<Readonly<Record<string, never>>>;
+
+    createMap({
+      id: "runtime-latitude-map",
+      name: "Runtime Latitude Map",
+      config: {},
+      recipe,
+    });
+    expect(() => handlers.get("RequestMapInitData")?.({ mapSize: 4, width: 2, height: 2 })).toThrow(
+      "RequestMapInitData did not provide finite top/bottom latitude"
+    );
+
+    createMap({
+      id: "authored-latitude-map",
+      name: "Authored Latitude Map",
+      latitudeBounds: { topLatitude: 70, bottomLatitude: -50 },
+      config: {},
+      recipe,
+    });
+    expect(() =>
+      handlers.get("RequestMapInitData")?.({ mapSize: 4, width: 2, height: 2 })
+    ).not.toThrow();
+    expect(setMapInitData).toHaveBeenLastCalledWith("SetMapInitData", {
+      width: 2,
+      height: 2,
+      topLatitude: 70,
+      bottomLatitude: -50,
+      mapSize: 4,
+    });
   });
 
   test("requires a projector when a custom setup reuses the base textual id", () => {
@@ -371,6 +555,24 @@ describe("createMap", () => {
   });
 });
 
-function payloadAfter(line: string, marker: string): unknown {
-  return JSON.parse(line.slice(line.indexOf(marker) + marker.length).trim());
+function descriptorById<
+  Descriptor extends Readonly<{ parameterId: string }>,
+  const ParameterId extends Descriptor["parameterId"],
+>(
+  descriptors: readonly Descriptor[],
+  parameterId: ParameterId
+): Extract<Descriptor, { parameterId: ParameterId }> {
+  const descriptor = descriptors.find(
+    (candidate): candidate is Extract<Descriptor, { parameterId: ParameterId }> =>
+      candidate.parameterId === parameterId
+  );
+  if (!descriptor) throw new Error(`Missing generated Civ7 setup descriptor: ${parameterId}`);
+  return descriptor;
+}
+
+function payloadAfter(lines: readonly string[], marker: string): unknown {
+  const decoded = decodeBoundedJsonLogSeries(lines, marker);
+  const payload = decoded.at(-1)?.payload;
+  if (payload === undefined) throw new Error(`Missing complete bounded JSON log series: ${marker}`);
+  return payload;
 }

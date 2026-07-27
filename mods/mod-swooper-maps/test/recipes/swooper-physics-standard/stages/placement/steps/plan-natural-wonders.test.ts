@@ -13,7 +13,7 @@ import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modu
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
 import placement from "@mapgen/domain/placement/router";
-import { admitMapSetup, createMapContext, type MapContext } from "@swooper/mapgen-core";
+import { createMapContext, type MapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact, type StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
@@ -23,8 +23,13 @@ import {
 } from "@swooper/mapgen-core/testing";
 
 import { STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY } from "../../../../../../src/recipes/standard/metrics/families/placement/natural-wonder-plan-input.js";
+import standardRecipe from "../../../../../../src/recipes/standard/recipe.js";
 import { PlanNaturalWondersStep } from "../../../../../../src/recipes/standard/stages/placement/steps/plan-natural-wonders/step.js";
-import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
+import { TEST_ALIVE_MAJOR_PLAYER_IDS, TEST_MAP_SIZE } from "../../../../../setup.js";
+import {
+  createStandardRecipeTestInitialSetup,
+  standardMapConfig,
+} from "../../../fixtures/standard-recipe.js";
 
 const { biomeGlobals, featureTypes, terrainTypeIndices } = CIV7_BROWSER_TABLES_V0;
 const PLANNER_SURFACE_SENTINELS = {
@@ -125,15 +130,15 @@ function createContext(
     mapInfo: { ...preset.mapInfo },
     ...overrides,
   });
-  const context = createMapContext({
-    setup: admitMapSetup({
-      mapSeed: TEST_MAP_SEED,
-      dimensions: preset.dimensions,
-      latitudeBounds: {
-        topLatitude: preset.mapInfo.MaxLatitude,
-        bottomLatitude: preset.mapInfo.MinLatitude,
-      },
+  const plan = standardRecipe.compile(
+    createStandardRecipeTestInitialSetup({
+      preset,
+      aliveMajorPlayerIds: TEST_ALIVE_MAJOR_PLAYER_IDS,
     }),
+    standardMapConfig.config
+  );
+  const context = createMapContext({
+    setup: plan.setup,
     adapter,
   });
   return { adapter, context };
@@ -169,14 +174,9 @@ function createCapturingOps(
 describe("plan natural wonders step", () => {
   it.each([
     ...CIV7_STANDARD_MAP_SIZE_PRESETS,
-  ])("maps $label map-size metadata to the focused planner request", (preset) => {
+  ])("maps admitted $label preset metadata to the focused planner request", (preset) => {
     const expectedWondersCount = preset.mapInfo.NumNaturalWonders;
-    const { adapter, context } = createContext(preset);
-    const requestedMapSizeIds: Array<Parameters<typeof adapter.lookupMapInfo>[0]> = [];
-    adapter.lookupMapInfo = (mapSizeId) => {
-      requestedMapSizeIds.push(mapSizeId);
-      return mapSizeId === preset.id ? preset.mapInfo : null;
-    };
+    const { context } = createContext(preset);
     const placements = Array.from({ length: expectedWondersCount }, (_, plotIndex) => ({
       plotIndex,
       featureType: featureTypes.FEATURE_KILIMANJARO,
@@ -207,7 +207,6 @@ describe("plan natural wonders step", () => {
     if (!result) throw new Error("The plan-natural-wonders step did not return evidence.");
     if (!plannerInput) throw new Error("The natural-wonder planner did not receive its input.");
 
-    expect(requestedMapSizeIds).toEqual([preset.id]);
     expect(plannerInput).toMatchObject({
       width: preset.dimensions.width,
       height: preset.dimensions.height,
@@ -302,55 +301,5 @@ describe("plan natural wonders step", () => {
       biomeType: biomeGlobals.BIOME_DESERT,
       featureType: featureTypes.FEATURE_FOREST,
     });
-  });
-
-  it("fails closed when Civ7 map metadata is unavailable", () => {
-    const { context } = createContext(TEST_MAP_SIZE, { mapInfo: null });
-    let plannerInvoked = false;
-    const ops = createCapturingOps(() => {
-      plannerInvoked = true;
-    });
-
-    expect(() =>
-      withMapContextExecutionForTest(context, (stepContext) => {
-        publishPlacementInputs(stepContext);
-        PlanNaturalWondersStep.run(
-          stepContext,
-          placementConfig(),
-          ops,
-          buildStepTestDependencies(PlanNaturalWondersStep, stepContext)
-        );
-      })
-    ).toThrow("[Placement] Civ7 map metadata is unavailable for the active map size.");
-    expect(plannerInvoked).toBe(false);
-  });
-
-  it.each([
-    Number.NaN,
-    -1,
-    1.5,
-  ])("fails closed when Civ7 map metadata supplies invalid natural-wonder count %p", (NumNaturalWonders) => {
-    const { context } = createContext(TEST_MAP_SIZE, {
-      mapInfo: { ...TEST_MAP_SIZE.mapInfo, NumNaturalWonders },
-    });
-    let plannerInvoked = false;
-    const ops = createCapturingOps(() => {
-      plannerInvoked = true;
-    });
-
-    expect(() =>
-      withMapContextExecutionForTest(context, (stepContext) => {
-        publishPlacementInputs(stepContext);
-        PlanNaturalWondersStep.run(
-          stepContext,
-          placementConfig(),
-          ops,
-          buildStepTestDependencies(PlanNaturalWondersStep, stepContext)
-        );
-      })
-    ).toThrow(
-      "[Placement] Civ7 map metadata has no valid natural-wonder count for the active map size."
-    );
-    expect(plannerInvoked).toBe(false);
   });
 });

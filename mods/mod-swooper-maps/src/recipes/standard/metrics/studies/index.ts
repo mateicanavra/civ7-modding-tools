@@ -4,4 +4,7 @@ export type {
   StandardMetricRunEvaluation,
   StandardMetricStudy,
 } from "./model.js";
-export { standardProductMetricScenario } from "./scenarios.js";
+export {
+  standardMetricScenarioIdentity,
+  standardProductMetricScenario,
+} from "./scenarios.js";

@@ -74,7 +74,18 @@ describe("useBrowserRun revision state", () => {
     act(() => result.current.triggerRun());
 
     expect(runnerActions.start).toHaveBeenCalledWith(
-      expect.objectContaining({ recipeId, pipelineConfig: config })
+      expect.objectContaining({
+        recipeId,
+        mapSeed: 123,
+        gameSeed: 789,
+        aliveMajorPlayerIds: [0, 1, 2, 3, 4, 5],
+        options: {
+          map: {},
+          game: {},
+          player: [0, 1, 2, 3, 4, 5].map((playerId) => ({ playerId, options: {} })),
+        },
+        pipelineConfig: config,
+      })
     );
     const snapshot = useRunStore.getState().lastRunSnapshot;
     expect(snapshot).toEqual({
@@ -104,6 +115,49 @@ describe("useBrowserRun revision state", () => {
       seed: "123",
       worldSettings: { mapSize: "MAPSIZE_STANDARD", playerCount: 6, resources: "balanced" },
     });
+  });
+
+  it("materializes the browser roster from player count rather than sparse overrides", () => {
+    useAuthoringStore.setState({
+      setupConfig: {
+        gameOptions: {},
+        mapOptions: {},
+        playerOptions: [
+          { playerId: 2, options: {} },
+          { playerId: 4, options: {} },
+        ],
+      },
+    });
+    const { result, runnerActions } = setup();
+
+    act(() => result.current.triggerRun());
+
+    expect(runnerActions.start).toHaveBeenCalledWith(
+      expect.objectContaining({ aliveMajorPlayerIds: [0, 1, 2, 3, 4, 5] })
+    );
+  });
+
+  it("fails closed when a player override targets outside the simulated roster", () => {
+    useAuthoringStore.setState({
+      setupConfig: {
+        gameOptions: {},
+        mapOptions: {},
+        playerOptions: [{ playerId: 7, options: {} }],
+      },
+    });
+    const { result, runnerActions, props } = setup();
+
+    act(() => result.current.triggerRun());
+
+    expect(runnerActions.start).not.toHaveBeenCalled();
+    expect(useRunStore.getState().lastRunSnapshot).toBeNull();
+    expect(props.setLocalError).toHaveBeenCalledWith(
+      "Browser run failed: player setup overrides must target the requested player slots."
+    );
+    expect(props.toast).toHaveBeenCalledWith(
+      "Browser run failed: player setup overrides must target the requested player slots.",
+      { variant: "error" }
+    );
   });
 
   it("marks authoring dirty after a store-owned authoring edit", () => {
@@ -160,7 +214,7 @@ describe("useBrowserRun revision state", () => {
       worldSettings: { mapSize: "MAPSIZE_STANDARD", playerCount: 6, resources: "balanced" },
     });
     expect(runnerActions.start).toHaveBeenCalledTimes(1);
-    expect(runnerActions.start).toHaveBeenCalledWith(expect.objectContaining({ seed: 456 }));
+    expect(runnerActions.start).toHaveBeenCalledWith(expect.objectContaining({ mapSeed: 456 }));
   });
 
   it("reconciles an Auto-run reroll through terminal state without starting again", () => {
@@ -199,7 +253,7 @@ describe("useBrowserRun revision state", () => {
     expect(runnerActions.start).not.toHaveBeenCalled();
     act(() => vi.advanceTimersByTime(1));
     expect(runnerActions.start).toHaveBeenCalledTimes(1);
-    expect(runnerActions.start).toHaveBeenCalledWith(expect.objectContaining({ seed: 789 }));
+    expect(runnerActions.start).toHaveBeenCalledWith(expect.objectContaining({ mapSeed: 789 }));
   });
 
   it("refuses reroll while another Studio operation is running", () => {

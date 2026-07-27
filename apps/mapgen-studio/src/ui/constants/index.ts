@@ -5,7 +5,7 @@
 // ============================================================================
 
 // Options for dropdowns and selectors
-export { MAP_SIZE_OPTIONS, PLAYER_COUNT_OPTIONS } from "./options";
+export { MAP_SIZE_OPTIONS } from "./options";
 
 // ============================================================================
 // Utility Lookups

@@ -113,6 +113,7 @@ export type {
   RecipeInitialSetupInputOf,
   RecipeInitialSetupValueOf,
   RecipeModule,
+  RecipePlanEvidence,
   RecipePublicConfigOf,
 } from "./recipe/index.js";
 export { buildRecipeDag, createRecipe, deriveRecipeConfigSchema } from "./recipe/index.js";

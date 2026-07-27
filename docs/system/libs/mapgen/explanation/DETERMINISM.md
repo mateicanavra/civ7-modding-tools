@@ -24,8 +24,14 @@ Key contributors:
 - one immutable `MapSetup` with `mapSeed`, dimensions, and latitude bounds,
 - one schema-admitted recipe initial value whose complete snapshot participates in plan identity,
 - a deterministic RNG state tracked in context and derived from `context.setup.mapSeed`,
+- a distinct admitted `gameSeed` for gameplay-facing choices such as player-seat assignment,
 - strict config compilation (no silent unknowns),
 - stable plan fingerprinting for trace/viz identity.
+
+For Standard generation, `mapSeed` and `gameSeed` are separate authorities. Physics and geographic
+generation use `mapSeed`; gameplay placement uses `gameSeed`. Exact map selection, ordered
+alive-major player identities, and setup-option evidence are also retained in the initial value, so
+reproducing a run does not depend on later ambient engine reads.
 
 `ctxRandom(...)`, `deriveStepSeed(...)`, and `createLabelRng(...)` are the
 pipeline-owned entropy surfaces. They must not delegate to
@@ -45,6 +51,7 @@ When determinism is in doubt:
 - Map context: `packages/mapgen-core/src/core/map-context.ts`
 - RNG helpers: `packages/mapgen-core/src/core/random.ts`
 - Stable plan identity: `packages/mapgen-core/src/engine/execution-plan.ts`
+- Standard initial setup: `mods/mod-swooper-maps/src/recipes/standard/initial-setup.ts`
 - Fresh execution-attempt identity: `packages/mapgen-core/src/core/map-context.ts`
 - Public trace contracts + stable stringify: `packages/mapgen-core/src/trace/index.ts`
 - Executor-owned trace session: `packages/mapgen-core/src/trace/session.ts`

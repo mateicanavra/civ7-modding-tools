@@ -12,50 +12,6 @@ import {
 } from "../../model/atoms/start-seat.schema.js";
 import viabilityFairnessDefinition from "./strategies/viability-fairness/config.js";
 
-const StartsBaseSchema = Type.Object(
-  {
-    playersLandmass1: Type.Integer({
-      minimum: 0,
-      maximum: 16,
-      description:
-        "West regional slot contribution to Civ7 map-size capacity; not a fixed final allocation.",
-    }),
-    playersLandmass2: Type.Integer({
-      minimum: 0,
-      maximum: 16,
-      description:
-        "East regional slot contribution to Civ7 map-size capacity; not a fixed final allocation.",
-    }),
-  },
-  {
-    description:
-      "Regional slot contributions supplied by Civ7 map-size metadata. Their sum bounds admitted player demand; planning may reapportion admitted players across generated regions.",
-  }
-);
-
-const SeatBiasSchema = Type.Object(
-  {
-    seatIndex: Type.Integer({ minimum: 0 }),
-    river: Type.Number({
-      minimum: 0,
-      description: "Official StartBiasRivers score for the seat's civ/leader (0 = none).",
-    }),
-    lake: Type.Number({
-      minimum: 0,
-      description: "Official StartBiasLakes score (0 = none).",
-    }),
-    adjacentToCoast: Type.Number({
-      minimum: 0,
-      description: "Official StartBiasAdjacentToCoasts score (0 = none).",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description:
-      "Per-seat start-bias rows resolved from CIV7_POLICY_TABLES_V1.startBias. River/lake/coast map onto pipeline artifacts offline; biome/terrain/feature/resource/wonder biases need live player→civ data and engine id projection (Milestone A).",
-  }
-);
-
 /**
  * Plans first-age start seats end to end: candidate scoring/tiering AND seat
  * selection (placement-realignment S4). Selection authority lives here — the
@@ -68,20 +24,20 @@ const PlanStartsContract = defineOp({
   kind: "plan",
   id: "placement/plan-starts",
   input: Type.Object({
-    baseStarts: StartsBaseSchema,
-    alivePlayerIds: Type.Optional(
-      Type.Array(Type.Integer({ minimum: 0 }), {
+    playerIds: Type.Immutable(
+      Type.Array(Type.Integer({ minimum: 0, maximum: 63 }), {
+        minItems: 1,
         uniqueItems: true,
         description:
-          "Ordered alive major player IDs from the adapter read surface. A nonempty list is authoritative player demand, capped by combined map-size seat capacity and never padded with synthesized IDs.",
+          "Exact ordered alive-major player IDs admitted for this game; start planning never synthesizes or pads player identity.",
       })
     ),
-    seatBiases: Type.Optional(
-      Type.Array(SeatBiasSchema, {
-        description:
-          "Optional per-seat official start biases. Absent = neutral default (no per-civ data offline).",
-      })
-    ),
+    gameSeed: Type.Integer({
+      minimum: -2_147_483_648,
+      maximum: 2_147_483_647,
+      description:
+        "Civ7 game seed used only to resolve otherwise-equal gameplay placement choices.",
+    }),
     width: Type.Integer({
       minimum: 1,
       description:

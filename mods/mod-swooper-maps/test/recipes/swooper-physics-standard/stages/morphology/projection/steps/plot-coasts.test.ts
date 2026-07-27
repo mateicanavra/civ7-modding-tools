@@ -13,7 +13,7 @@ import {
 } from "@swooper/mapgen-core/testing";
 import { PlotCoastsStep } from "../../../../../../../src/recipes/standard/stages/morphology/projection/steps/plot-coasts/step.js";
 import { PlotContinentsStep } from "../../../../../../../src/recipes/standard/stages/morphology/projection/steps/plot-continents/step.js";
-import { TEST_MAP_SIZE } from "../../../../../../setup.js";
+import { TEST_MAP_LATITUDE_BOUNDS, TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../setup.js";
 
 function shelfFixture(size: number, shelfMask: Uint8Array, coastalWater: Uint8Array) {
   return {
@@ -27,14 +27,10 @@ function shelfFixture(size: number, shelfMask: Uint8Array, coastalWater: Uint8Ar
 describe("map-morphology/plot-coasts", () => {
   it("stamps coast from the shelf + shoreline ring; ring promotes only land-adjacent ocean (no distance band)", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
-    const seed = 1234;
     const setup = admitMapSetup({
-      mapSeed: seed,
+      mapSeed: TEST_MAP_SEED,
       dimensions: TEST_MAP_SIZE.dimensions,
-      latitudeBounds: {
-        topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
-        bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
-      },
+      latitudeBounds: TEST_MAP_LATITUDE_BOUNDS,
     });
 
     const adapter = createMockAdapter({
@@ -42,7 +38,7 @@ describe("map-morphology/plot-coasts", () => {
       height,
       mapInfo: TEST_MAP_SIZE.mapInfo,
       mapSizeId: TEST_MAP_SIZE.id,
-      rng: createLabelRng(seed),
+      rng: createLabelRng(TEST_MAP_SEED),
     });
     const context = createMapContext({ setup, adapter });
     const {
@@ -98,14 +94,10 @@ describe("map-morphology/plot-coasts", () => {
 
   it("restores shelf coast terrain after downstream terrain maintenance rewrites it", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
-    const seed = 4321;
     const setup = admitMapSetup({
-      mapSeed: seed,
+      mapSeed: TEST_MAP_SEED,
       dimensions: TEST_MAP_SIZE.dimensions,
-      latitudeBounds: {
-        topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
-        bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
-      },
+      latitudeBounds: TEST_MAP_LATITUDE_BOUNDS,
     });
 
     const adapter = createMockAdapter({
@@ -113,7 +105,7 @@ describe("map-morphology/plot-coasts", () => {
       height,
       mapInfo: TEST_MAP_SIZE.mapInfo,
       mapSizeId: TEST_MAP_SIZE.id,
-      rng: createLabelRng(seed),
+      rng: createLabelRng(TEST_MAP_SEED),
     });
     const context = createMapContext({ setup, adapter });
     const { TERRAIN_COAST: coastTerrain, TERRAIN_OCEAN: oceanTerrain } =

@@ -76,7 +76,9 @@ const AdjustResourceSupportContract = defineOp({
   id: "resources/adjust-resource-support",
   input: Type.Object(
     {
-      seed: Type.Integer({ description: "Deterministic seed (from setup.mapSeed)." }),
+      seed: Type.Integer({
+        description: "Operation-local gameplay placement seed derived from the admitted game seed.",
+      }),
       plan: Type.Object(
         {
           width: Type.Integer({ minimum: 1 }),
@@ -124,7 +126,10 @@ const AdjustResourceSupportContract = defineOp({
     {
       width: Type.Integer({ minimum: 1 }),
       height: Type.Integer({ minimum: 1 }),
-      seed: Type.Integer(),
+      seed: Type.Integer({
+        description:
+          "Gameplay placement seed that deterministically produced this support-adjusted plan.",
+      }),
       plannedCount: Type.Integer({ minimum: 0 }),
       moveCount: Type.Integer({ minimum: 0 }),
       addCount: Type.Integer({ minimum: 0 }),

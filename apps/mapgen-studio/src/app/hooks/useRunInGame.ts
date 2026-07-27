@@ -1,7 +1,7 @@
 import type { MapConfigEnvelope, RunDiagnosticsLookupResult } from "@civ7/studio-contract";
 import type { WorldSettings } from "@swooper/mapgen-studio-ui/types";
 import { type MutableRefObject, useCallback, useMemo, useRef } from "react";
-import { getCiv7MapSizePreset } from "../../features/browserRunner/mapSizes";
+import { getCiv7MapSizePreset } from "../../features/civ7Setup/mapSizes";
 import {
   formatCiv7StudioSeedError,
   parseCiv7StudioSeed,
@@ -43,6 +43,7 @@ export type UseRunInGameArgs = {
   /** Current authoring setup config. */
   setupConfig: Civ7StudioSetupConfig;
   setSeed: AuthoringState["setSeed"];
+  setGameSeed: AuthoringState["setGameSeed"];
   setSetupConfig: AuthoringState["setSetupConfig"];
   /** Live runtime status (from `useLiveRuntime`) — sync-back gating + suggestions. */
   liveRuntime: UseLiveRuntimeResult["liveRuntime"];
@@ -76,7 +77,7 @@ export type UseRunInGameResult = {
   runInGameCurrentRelation: RunInGameCurrentRelation;
   /** Launch handler for the current admitted config. */
   handleRunInGame: () => Promise<void>;
-  /** Sync-back handler — applies only live seed/setup suggestions. */
+  /** Sync-back handler — applies only live map-seed, game-seed, and setup suggestions. */
   syncStudioFromLiveGame: () => void;
   /** Copies run-in-game diagnostics to the clipboard. */
   copyRunInGameDiagnostics: () => Promise<void>;
@@ -102,6 +103,7 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
     authoringRevision,
     setupConfig,
     setSeed,
+    setGameSeed,
     setSetupConfig,
     liveRuntime,
     liveRuntimeSuggestions,
@@ -243,7 +245,11 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
         record.sourceSnapshotId !== undefined &&
         record.sourceSnapshotId === liveRuntime.snapshotId
     );
-    const applySuggestedSeed = (value: unknown, source: string): boolean => {
+    const applySuggestedSeed = (
+      value: unknown,
+      source: string,
+      apply: AuthoringState["setSeed"]
+    ): boolean => {
       const parsedSeed = parseCiv7StudioSeed(value);
       if (!parsedSeed.ok) {
         toast(`${source} seed ignored: ${formatCiv7StudioSeedError(parsedSeed)}`, {
@@ -251,7 +257,7 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
         });
         return false;
       }
-      setSeed(String(parsedSeed.value));
+      apply(String(parsedSeed.value));
       return true;
     };
     const applySuggestedSetup = (value: unknown): boolean => {
@@ -263,27 +269,28 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
     const provedSeedSuggestion = currentSnapshotSuggestions.find(
       (record) => record.affectedConfigPath === "seed"
     );
+    const provedGameSeedSuggestion = currentSnapshotSuggestions.find(
+      (record) => record.affectedConfigPath === "gameSeed"
+    );
     const provedSetupSuggestion = currentSnapshotSuggestions.find(
       (record) => record.affectedConfigPath === "setupConfig"
     );
     const didApplySeed = provedSeedSuggestion
-      ? applySuggestedSeed(provedSeedSuggestion.value, "Live runtime suggestion")
+      ? applySuggestedSeed(provedSeedSuggestion.value, "Live runtime map", setSeed)
+      : false;
+    const didApplyGameSeed = provedGameSeedSuggestion
+      ? applySuggestedSeed(provedGameSeedSuggestion.value, "Live runtime game", setGameSeed)
       : false;
     const didApplySetup = provedSetupSuggestion
       ? applySuggestedSetup(provedSetupSuggestion.value)
       : false;
-    if (!didApplySeed && !didApplySetup) {
+    if (!didApplySeed && !didApplyGameSeed && !didApplySetup) {
       toast("Live game suggestions did not include an applicable Studio seed or setup change.", {
         variant: "error",
       });
       return;
     }
-    toast(
-      didApplySetup
-        ? "Live runtime suggestion applied to Studio setup."
-        : "Live runtime seed suggestion applied.",
-      { variant: "success" }
-    );
+    toast("Live runtime suggestions applied to Studio.", { variant: "success" });
   }, [
     browserRunning,
     liveRuntime.snapshotId,
@@ -293,6 +300,7 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
     saveDeployRunning,
     toast,
     setSeed,
+    setGameSeed,
     setSetupConfig,
   ]);
 

@@ -8,6 +8,7 @@
 import {
   NO_RESOURCE as ADAPTER_NO_RESOURCE,
   CIV7_BROWSER_TABLES_V0,
+  CIV7_STANDARD_ROW_LATITUDE_ENDPOINTS,
   getNaturalWonderFootprintIndices,
   hasUnsupportedNaturalWonderPolicyTags,
   isResourceAdjacentToLandRuntimeOptional,
@@ -278,6 +279,38 @@ function isWithinStandardCoastExpansionBand(x: number, width: number): boolean {
   );
 }
 
+function snapshotMockAliveMajorPlayerIds(value: readonly number[]): readonly number[] {
+  if (!Array.isArray(value)) {
+    throw new TypeError("MockAdapter aliveMajorPlayerIds must be an array.");
+  }
+  const ids: number[] = [];
+  for (let index = 0; index < value.length; index += 1) {
+    const element = Object.getOwnPropertyDescriptor(value, String(index));
+    if (!element) {
+      throw new TypeError("MockAdapter aliveMajorPlayerIds must not contain sparse entries.");
+    }
+    if (!("value" in element)) {
+      throw new TypeError(
+        "MockAdapter aliveMajorPlayerIds must contain own data elements, not accessors."
+      );
+    }
+    const playerId: unknown = element.value;
+    if (
+      typeof playerId !== "number" ||
+      !Number.isInteger(playerId) ||
+      playerId < 0 ||
+      playerId > 63
+    ) {
+      throw new TypeError("MockAdapter aliveMajorPlayerIds must contain Civ7 player ids 0..63.");
+    }
+    ids.push(playerId);
+  }
+  if (new Set(ids).size !== ids.length) {
+    throw new TypeError("MockAdapter aliveMajorPlayerIds must be unique.");
+  }
+  return Object.freeze(ids);
+}
+
 export interface MockAdapterConfig {
   width?: number;
   height?: number;
@@ -285,12 +318,11 @@ export interface MockAdapterConfig {
   mapSizeId?: MapSizeId;
   /** Map info row (Civ7: GameInfo.Maps.lookup(mapSizeId)) */
   mapInfo?: MapInfo | null;
+  /** Exact ordered alive-major identities exposed by the simulated engine. */
+  aliveMajorPlayerIds?: readonly number[];
   /**
-   * Alive major player count (Civ7: Players.getAliveMajorIds().length). The
-   * live engine seats the game's actual alive players, which can be fewer
-   * than PlayersLandmass1+PlayersLandmass2 (HUGE advertises 6/6 slots while
-   * a 10-player game has 10 alive — Milestone A5 evidence). Defaults to the
-   * map-info sum.
+   * Convenience count for tests whose behavior is independent of player identity.
+   * Do not use this when exact setup or player ordering is part of the behavior under test.
    */
   aliveMajorCount?: number;
   /** Default terrain type for all tiles */
@@ -351,7 +383,7 @@ export class MockAdapter implements EngineAdapter {
 
   private mapSizeId: MapSizeId;
   private mapInfo: MapInfo | null;
-  private aliveMajorCount: number | null;
+  private aliveMajorPlayerIds: readonly number[] | null;
 
   private terrainTypes: Int32Array;
   private elevations: Int16Array;
@@ -437,9 +469,26 @@ export class MockAdapter implements EngineAdapter {
     this.height = config.height ?? 80;
     this.mapSizeId = config.mapSizeId ?? 0;
     this.mapInfo = config.mapInfo ?? null;
-    this.aliveMajorCount = Number.isFinite(config.aliveMajorCount)
-      ? Math.max(0, (config.aliveMajorCount as number) | 0)
-      : null;
+    if (config.aliveMajorPlayerIds !== undefined && config.aliveMajorCount !== undefined) {
+      throw new TypeError("MockAdapter accepts aliveMajorPlayerIds or aliveMajorCount, not both.");
+    }
+    this.aliveMajorPlayerIds =
+      config.aliveMajorPlayerIds === undefined
+        ? null
+        : snapshotMockAliveMajorPlayerIds(config.aliveMajorPlayerIds);
+    if (this.aliveMajorPlayerIds === null && config.aliveMajorCount !== undefined) {
+      if (
+        !Number.isSafeInteger(config.aliveMajorCount) ||
+        config.aliveMajorCount < 0 ||
+        config.aliveMajorCount > 64
+      ) {
+        throw new TypeError("MockAdapter aliveMajorCount must be an integer between 0 and 64.");
+      }
+      const count = config.aliveMajorCount;
+      this.aliveMajorPlayerIds = Object.freeze(
+        Array.from({ length: count }, (_, playerId) => playerId)
+      );
+    }
     this.noResourceSentinel = Number.isFinite(config.noResourceSentinel)
       ? (config.noResourceSentinel as number) | 0
       : DEFAULT_NO_RESOURCE;
@@ -641,7 +690,7 @@ export class MockAdapter implements EngineAdapter {
   }
 
   getLatitude(_x: number, y: number): number {
-    return getCiv7RowLatitude(this.mapInfo, this.height, y);
+    return getCiv7RowLatitude(CIV7_STANDARD_ROW_LATITUDE_ENDPOINTS, this.height, y);
   }
 
   // === TERRAIN WRITES ===
@@ -1534,16 +1583,11 @@ export class MockAdapter implements EngineAdapter {
   }
 
   getAliveMajorIds(): number[] {
-    // Mock semantics: contiguous major ids 0..N-1 (Milestone A5 verified the
-    // live engine is also contiguous-from-zero, human first). Count comes
-    // from the explicit aliveMajorCount when configured (live games can have
-    // fewer alive players than the map-info landmass slots), else from the
-    // configured map info player counts.
-    const players =
-      this.aliveMajorCount ??
+    if (this.aliveMajorPlayerIds !== null) return [...this.aliveMajorPlayerIds];
+    const count =
       Math.max(0, (this.mapInfo?.PlayersLandmass1 ?? 0) | 0) +
-        Math.max(0, (this.mapInfo?.PlayersLandmass2 ?? 0) | 0);
-    return Array.from({ length: players }, (_, index) => index);
+      Math.max(0, (this.mapInfo?.PlayersLandmass2 ?? 0) | 0);
+    return Array.from({ length: count }, (_, playerId) => playerId);
   }
 
   assignAdvancedStartRegions(): void {

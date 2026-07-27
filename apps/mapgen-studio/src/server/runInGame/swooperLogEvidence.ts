@@ -1,5 +1,19 @@
+import { stableStringify } from "@swooper/mapgen-core";
+import {
+  BOUNDED_JSON_LOG_PROTOCOL,
+  BOUNDED_JSON_LOG_VERSION,
+  decodeBoundedJsonLogSeries,
+} from "@swooper/mapgen-core/lib/log";
 import type { RunInGameDetailedExactAuthorshipEvidence } from "./evidenceTypes";
 
+const BOUNDED_JSON_LOG_TOKEN = `[${BOUNDED_JSON_LOG_PROTOCOL}/v${BOUNDED_JSON_LOG_VERSION}]`;
+
+/**
+ * Reconstructs one correlated Swooper run from complete lifecycle and product log evidence.
+ *
+ * Bounded series must pass protocol, sequence, length, and digest admission before correlation;
+ * historical one-line markers remain readable so existing run records do not lose provenance.
+ */
 export function parseSwooperMapgenLogEvidence(args: {
   text: string;
   logPath?: string;
@@ -13,7 +27,8 @@ export function parseSwooperMapgenLogEvidence(args: {
   const completionLine = lastSwooperPayloadLine(lines, "[mapgen-complete]", args);
   const evidenceLine = completionLine
     ? lastSwooperPayloadLine(lines, "[mapgen-evidence]", args, {
-        beforeIndex: completionLine.index,
+        beforeIndex: completionLine.startIndex,
+        matchingPayload: completionLine.payload,
       })
     : lastSwooperPayloadLine(lines, "[mapgen-evidence]", args);
   if (!evidenceLine || !completionLine) return undefined;
@@ -31,33 +46,33 @@ export function parseSwooperMapgenLogEvidence(args: {
   }
   const resourcePlacement = parseResourcePlacementTelemetryBetween(
     lines,
-    evidenceLine.index,
-    completionLine.index
+    evidenceLine.endIndex,
+    completionLine.startIndex
   );
   const naturalWonderPlan = parseNaturalWonderPlanTelemetryBetween(
     lines,
-    evidenceLine.index,
-    completionLine.index
+    evidenceLine.endIndex,
+    completionLine.startIndex
   );
   const naturalWonderPlanInput = parseNaturalWonderPlanInputTelemetryBetween(
     lines,
-    evidenceLine.index,
-    completionLine.index
+    evidenceLine.endIndex,
+    completionLine.startIndex
   );
   const naturalWonderPlacement = parseNaturalWonderPlacementTelemetryBetween(
     lines,
-    evidenceLine.index,
-    completionLine.index
+    evidenceLine.endIndex,
+    completionLine.startIndex
   );
   const featureApply = parseFeatureApplyTelemetryBetween(
     lines,
-    evidenceLine.index,
-    completionLine.index
+    evidenceLine.endIndex,
+    completionLine.startIndex
   );
   const placementParity = parsePlacementParityTelemetryBetween(
     lines,
-    evidenceLine.index,
-    completionLine.index
+    evidenceLine.endIndex,
+    completionLine.startIndex
   );
   return {
     ...(args.logPath ? { logPath: args.logPath } : {}),
@@ -101,6 +116,48 @@ function stringValue(value: unknown): string | undefined {
   return typeof value === "string" && value.length > 0 ? value : undefined;
 }
 
+type PayloadOccurrence = Readonly<{
+  startIndex: number;
+  endIndex: number;
+  payload: Record<string, unknown>;
+}>;
+
+function payloadOccurrences(
+  lines: readonly string[],
+  marker: string
+): readonly PayloadOccurrence[] {
+  const bounded = decodeBoundedJsonLogSeries(lines, marker).flatMap((series) =>
+    isRecord(series.payload)
+      ? [
+          {
+            startIndex: series.startIndex,
+            endIndex: series.endIndex,
+            payload: series.payload,
+          },
+        ]
+      : []
+  );
+  const legacy = lines.flatMap((line, index) => {
+    if (!line.includes(marker) || line.includes(BOUNDED_JSON_LOG_TOKEN)) return [];
+    const payload = parsePayloadAfterMarker(line, marker);
+    return payload ? [{ startIndex: index, endIndex: index, payload }] : [];
+  });
+  return [...bounded, ...legacy].sort(
+    (left, right) => left.startIndex - right.startIndex || left.endIndex - right.endIndex
+  );
+}
+
+function payloadOccurrencesBetween(
+  lines: readonly string[],
+  marker: string,
+  afterIndex: number,
+  beforeIndex: number
+): readonly PayloadOccurrence[] {
+  return payloadOccurrences(lines, marker).filter(
+    (occurrence) => occurrence.startIndex > afterIndex && occurrence.endIndex < beforeIndex
+  );
+}
+
 function lastSwooperPayloadLine(
   lines: readonly string[],
   marker: "[mapgen-evidence]" | "[mapgen-complete]",
@@ -108,22 +165,25 @@ function lastSwooperPayloadLine(
     Parameters<typeof parseSwooperMapgenLogEvidence>[0],
     "requestId" | "canonicalConfigDigest" | "launchEnvelopeDigest" | "seed"
   >,
-  options: { beforeIndex?: number } = {}
-): { index: number; payload: Record<string, unknown> } | null {
-  const startIndex =
-    options.beforeIndex === undefined
-      ? lines.length - 1
-      : Math.min(options.beforeIndex - 1, lines.length - 1);
-  for (let index = startIndex; index >= 0; index -= 1) {
-    const line = lines[index] ?? "";
-    if (!line.includes(marker)) continue;
-    const payload = parsePayloadAfterMarker(line, marker);
-    if (!payload) continue;
+  options: { beforeIndex?: number; matchingPayload?: Record<string, unknown> } = {}
+): PayloadOccurrence | null {
+  const occurrences = payloadOccurrences(lines, marker);
+  for (let index = occurrences.length - 1; index >= 0; index -= 1) {
+    const occurrence = occurrences[index];
+    if (!occurrence) continue;
+    if (options.beforeIndex !== undefined && occurrence.endIndex >= options.beforeIndex) continue;
+    const { payload } = occurrence;
     if (payload.requestId !== expected.requestId) continue;
     if (payload.canonicalConfigDigest !== expected.canonicalConfigDigest) continue;
     if (payload.launchEnvelopeDigest !== expected.launchEnvelopeDigest) continue;
     if (payload.seed !== expected.seed) continue;
-    return { index, payload };
+    if (
+      options.matchingPayload !== undefined &&
+      stableStringify(payload) !== stableStringify(options.matchingPayload)
+    ) {
+      continue;
+    }
+    return occurrence;
   }
   return null;
 }
@@ -135,11 +195,14 @@ function parseResourcePlacementTelemetryBetween(
 ):
   | NonNullable<NonNullable<RunInGameDetailedExactAuthorshipEvidence["log"]>["resourcePlacement"]>
   | undefined {
-  for (let index = completionIndex - 1; index > evidenceIndex; index -= 1) {
-    const line = lines[index] ?? "";
-    if (!line.includes("RESOURCE_PLACEMENT_V1")) continue;
-    const payload = parsePayloadAfterMarker(line, "RESOURCE_PLACEMENT_V1");
-    if (!payload) continue;
+  for (const { payload } of payloadOccurrencesBetween(
+    lines,
+    "RESOURCE_PLACEMENT_V1",
+    evidenceIndex,
+    completionIndex
+  )
+    .slice()
+    .reverse()) {
     return {
       marker: "RESOURCE_PLACEMENT_V1",
       payload,
@@ -157,11 +220,14 @@ function parsePlacementParityTelemetryBetween(
 ):
   | NonNullable<NonNullable<RunInGameDetailedExactAuthorshipEvidence["log"]>["placementParity"]>
   | undefined {
-  for (let index = completionIndex - 1; index > evidenceIndex; index -= 1) {
-    const line = lines[index] ?? "";
-    if (!line.includes("PLACEMENT_PARITY_V1")) continue;
-    const payload = parsePayloadAfterMarker(line, "PLACEMENT_PARITY_V1");
-    if (!payload) continue;
+  for (const { payload } of payloadOccurrencesBetween(
+    lines,
+    "PLACEMENT_PARITY_V1",
+    evidenceIndex,
+    completionIndex
+  )
+    .slice()
+    .reverse()) {
     const version = numberValue(payload.version);
     const waterDriftCount = numberValue(payload.waterDriftCount);
     const acceptedLakeTileCount = numberValue(payload.acceptedLakeTileCount);
@@ -198,11 +264,14 @@ function parseFeatureApplyTelemetryBetween(
 ):
   | NonNullable<NonNullable<RunInGameDetailedExactAuthorshipEvidence["log"]>["featureApply"]>
   | undefined {
-  for (let index = completionIndex - 1; index > evidenceIndex; index -= 1) {
-    const line = lines[index] ?? "";
-    if (!line.includes("FEATURE_APPLY_V1")) continue;
-    const payload = parsePayloadAfterMarker(line, "FEATURE_APPLY_V1");
-    if (!payload) continue;
+  for (const { payload } of payloadOccurrencesBetween(
+    lines,
+    "FEATURE_APPLY_V1",
+    evidenceIndex,
+    completionIndex
+  )
+    .slice()
+    .reverse()) {
     return {
       marker: "FEATURE_APPLY_V1",
       payload,
@@ -221,11 +290,14 @@ function parseNaturalWonderPlacementTelemetryBetween(
       NonNullable<RunInGameDetailedExactAuthorshipEvidence["log"]>["naturalWonderPlacement"]
     >
   | undefined {
-  for (let index = completionIndex - 1; index > evidenceIndex; index -= 1) {
-    const line = lines[index] ?? "";
-    if (!line.includes("NATURAL_WONDER_PLACEMENT_V1")) continue;
-    const payload = parsePayloadAfterMarker(line, "NATURAL_WONDER_PLACEMENT_V1");
-    if (!payload) continue;
+  for (const { payload } of payloadOccurrencesBetween(
+    lines,
+    "NATURAL_WONDER_PLACEMENT_V1",
+    evidenceIndex,
+    completionIndex
+  )
+    .slice()
+    .reverse()) {
     return {
       marker: "NATURAL_WONDER_PLACEMENT_V1",
       payload,
@@ -244,11 +316,14 @@ function parseNaturalWonderPlanTelemetryBetween(
 ):
   | NonNullable<NonNullable<RunInGameDetailedExactAuthorshipEvidence["log"]>["naturalWonderPlan"]>
   | undefined {
-  for (let index = completionIndex - 1; index > evidenceIndex; index -= 1) {
-    const line = lines[index] ?? "";
-    if (!line.includes("NATURAL_WONDER_PLAN_V1")) continue;
-    const payload = parsePayloadAfterMarker(line, "NATURAL_WONDER_PLAN_V1");
-    if (!payload) continue;
+  for (const { payload } of payloadOccurrencesBetween(
+    lines,
+    "NATURAL_WONDER_PLAN_V1",
+    evidenceIndex,
+    completionIndex
+  )
+    .slice()
+    .reverse()) {
     return {
       marker: "NATURAL_WONDER_PLAN_V1",
       payload,
@@ -269,11 +344,14 @@ function parseNaturalWonderPlanInputTelemetryBetween(
       NonNullable<RunInGameDetailedExactAuthorshipEvidence["log"]>["naturalWonderPlanInput"]
     >
   | undefined {
-  for (let index = completionIndex - 1; index > evidenceIndex; index -= 1) {
-    const line = lines[index] ?? "";
-    if (!line.includes("NATURAL_WONDER_PLAN_INPUT_V2")) continue;
-    const payload = parsePayloadAfterMarker(line, "NATURAL_WONDER_PLAN_INPUT_V2");
-    if (!payload) continue;
+  for (const { payload } of payloadOccurrencesBetween(
+    lines,
+    "NATURAL_WONDER_PLAN_INPUT_V2",
+    evidenceIndex,
+    completionIndex
+  )
+    .slice()
+    .reverse()) {
     return {
       marker: "NATURAL_WONDER_PLAN_INPUT_V2",
       payload,

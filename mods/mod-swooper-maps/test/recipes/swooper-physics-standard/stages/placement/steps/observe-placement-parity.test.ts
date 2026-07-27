@@ -4,6 +4,7 @@ import { MockAdapter } from "@civ7/adapter";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
+import { decodeBoundedJsonLogSeries } from "@swooper/mapgen-core/lib/log";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import {
   buildStepTestDependencies,
@@ -12,7 +13,7 @@ import {
 } from "@swooper/mapgen-core/testing";
 
 import { ObservePlacementParityStep } from "../../../../../../src/recipes/standard/stages/placement/steps/observe-placement-parity/step.js";
-import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
+import { TEST_MAP_LATITUDE_BOUNDS, TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
 
 function createLandAdapter(): MockAdapter {
   const { width, height } = TEST_MAP_SIZE.dimensions;
@@ -39,10 +40,7 @@ function executeParity(adapter: MockAdapter, projectedLakeMask: Uint8Array) {
     setup: admitMapSetup({
       mapSeed: TEST_MAP_SEED,
       dimensions: TEST_MAP_SIZE.dimensions,
-      latitudeBounds: {
-        topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
-        bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
-      },
+      latitudeBounds: TEST_MAP_LATITUDE_BOUNDS,
     }),
     adapter,
   });
@@ -107,9 +105,9 @@ describe("placement/observe-placement-parity", () => {
     expect(result.waterDrift[unexpectedWater]).toBe(2);
     expect(result.waterDrift[acceptedLake]).toBe(0);
     expect(Array.from(result.waterDrift).filter((value) => value !== 0)).toEqual([2]);
-    expect(parityMessages).toEqual([
-      `[SWOOPER_MOD] PLACEMENT_PARITY_V1 ${JSON.stringify(result.placementParity)}`,
-    ]);
+    expect(decodeBoundedJsonLogSeries(parityMessages, "PLACEMENT_PARITY_V1")[0]?.payload).toEqual(
+      result.placementParity
+    );
   });
 
   it("reports dried and declassified accepted lakes from the same terminal surface", () => {

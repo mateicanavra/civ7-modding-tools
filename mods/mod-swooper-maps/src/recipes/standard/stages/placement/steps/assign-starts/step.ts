@@ -79,7 +79,6 @@ function cloneSeat(seat: DeepReadonly<StartSeatRecord>): StartSeatRecord {
   return {
     seatIndex: seat.seatIndex,
     playerId: seat.playerId,
-    playerIdSource: seat.playerIdSource,
     regionSlot: seat.regionSlot,
     realizedRegionSlot: seat.realizedRegionSlot,
     plotIndex: seat.plotIndex,
@@ -183,22 +182,12 @@ export const AssignStartsStep = createStep(config, {
     const climateIndices = deps.artifacts.climateIndices.read(context);
     const pedology = deps.artifacts.pedology.read(context);
     const currentFeatureTypes = deps.engine.readCurrentMapFeatureTypes(context);
-    const mapSizeId = deps.engine.getMapSizeId(context);
-    const mapInfo = deps.engine.lookupMapInfo(context, mapSizeId);
-    if (!mapInfo) {
-      throw new Error("[Placement] Civ7 map metadata is unavailable for the active map size.");
-    }
-    const baseStarts = {
-      playersLandmass1: mapInfo.PlayersLandmass1 ?? 4,
-      playersLandmass2: mapInfo.PlayersLandmass2 ?? 4,
-    };
     const slotByTile = landmassRegionSlotByTile.slotByTile as Uint8Array;
     const { width, height } = context.setup.dimensions;
     const plan = ops.starts(
       {
-        baseStarts,
-        // Alive-majors READ surface; the op owns the slot-to-player mapping.
-        alivePlayerIds: deps.engine.getAliveMajorIds(context),
+        playerIds: deps.initialSetup.aliveMajorPlayerIds,
+        gameSeed: deps.initialSetup.gameSeed,
         width,
         height,
         landMask: topography.landMask as Uint8Array,

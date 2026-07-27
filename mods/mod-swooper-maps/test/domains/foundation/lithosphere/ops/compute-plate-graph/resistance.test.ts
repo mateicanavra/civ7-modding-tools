@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import foundation from "@mapgen/domain/foundation/router";
-import { deriveStepSeed } from "@swooper/mapgen-core";
-import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
+import { deriveTestOperationSeed, TEST_MAP_SIZE } from "../../../../../setup.js";
 
 const { computeMesh } = foundation.mesh.ops;
 const { computePlateGraph } = foundation.lithosphere.ops;
@@ -55,7 +54,7 @@ describe("foundation/compute-plate-graph resistance", () => {
       {
         width,
         height,
-        rngSeed: deriveStepSeed(TEST_MAP_SEED, "test:foundation:plate-resistance-mesh"),
+        rngSeed: deriveTestOperationSeed("test:foundation:plate-resistance-mesh"),
       },
       computeMesh.normalize({
         strategy: "jittered-delaunay",
@@ -69,7 +68,7 @@ describe("foundation/compute-plate-graph resistance", () => {
         plateCount: 26,
       },
     };
-    const rngSeed = deriveStepSeed(TEST_MAP_SEED, "test:foundation:plate-resistance");
+    const rngSeed = deriveTestOperationSeed("test:foundation:plate-resistance");
 
     const uniform = computePlateGraph.run(
       {

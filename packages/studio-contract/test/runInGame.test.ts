@@ -1,6 +1,9 @@
 import { describe, expect, it } from "bun:test";
 
-import { snapshotLaunchEnvelope } from "../src/runInGame.js";
+import {
+  snapshotLaunchEnvelope,
+  snapshotRunInGameExactAuthorshipEvidence,
+} from "../src/runInGame.js";
 
 function launchInput() {
   return {
@@ -80,3 +83,45 @@ describe("Run in Game launch envelope seed admission", () => {
     );
   });
 });
+
+describe("Run in Game exact Civ7 setup seed evidence", () => {
+  it("admits and freezes both signed seed boundaries", () => {
+    const evidence = snapshotRunInGameExactAuthorshipEvidence(
+      unresolvedExactAuthorship({
+        mapSeed: -0x8000_0000,
+        gameSeed: 0x7fff_ffff,
+      })
+    );
+
+    expect(evidence?.civSetup).toEqual({
+      mapSeed: -0x8000_0000,
+      gameSeed: 0x7fff_ffff,
+    });
+    expect(Object.isFrozen(evidence)).toBe(true);
+    expect(Object.isFrozen(evidence?.civSetup)).toBe(true);
+  });
+
+  it.each([
+    ["map fractional", { mapSeed: 1.5, gameSeed: 47 }],
+    ["game fractional", { mapSeed: 43, gameSeed: -1.5 }],
+    ["map underflow", { mapSeed: -0x8000_0001, gameSeed: 47 }],
+    ["game overflow", { mapSeed: 43, gameSeed: 0x8000_0000 }],
+  ] as const)("rejects %s from exact Civ7 setup evidence", (_label, civSetup) => {
+    expect(snapshotRunInGameExactAuthorshipEvidence(unresolvedExactAuthorship(civSetup))).toBe(
+      undefined
+    );
+  });
+});
+
+function unresolvedExactAuthorship(civSetup: Readonly<Record<string, unknown>>) {
+  return {
+    status: "unresolved",
+    requestId: "run-exact-seeds",
+    createdAt: "2026-07-27T00:00:00.000Z",
+    request: {},
+    materialization: {},
+    civSetup,
+    runtime: {},
+    unresolvedLinks: ["runtime.map-surface"],
+  } as const;
+}

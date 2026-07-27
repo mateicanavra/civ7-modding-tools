@@ -4,6 +4,7 @@ import { defineStandardMetricSampleStudy, requireNonEmptyMetricStudyValues } fro
 import {
   SHIPPED_STANDARD_CONFIGURATIONS,
   STANDARD_METRIC_PRESETS,
+  standardMetricScenarioIdentity,
   standardProductMetricScenario,
 } from "../scenarios.js";
 
@@ -12,7 +13,11 @@ export const SHIPPED_IDENTITY_STUDIES = requireNonEmptyMetricStudyValues(
   SHIPPED_STANDARD_CONFIGURATIONS.map(({ id, config }) =>
     defineStandardMetricSampleStudy(
       `shipped/identity/${id}`,
-      standardProductMetricScenario(config, STANDARD_METRIC_PRESETS.huge, 1018),
+      standardProductMetricScenario(
+        config,
+        STANDARD_METRIC_PRESETS.huge,
+        standardMetricScenarioIdentity(STANDARD_METRIC_PRESETS.huge, 1018, 1018)
+      ),
       [STANDARD_INTEGRITY_TARGET, SHIPPED_IDENTITY_TARGETS[id]]
     )
   ),

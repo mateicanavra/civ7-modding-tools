@@ -14,6 +14,7 @@ export default defineConfig({
     "src/testing/index.ts",
     "src/lib/math/index.ts",
     "src/lib/hash/index.ts",
+    "src/lib/log/index.ts",
     "src/lib/grid/index.ts",
     "src/lib/plates/index.ts",
     "src/lib/rng/index.ts",

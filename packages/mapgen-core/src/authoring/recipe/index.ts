@@ -21,5 +21,6 @@ export type {
   RecipeInitialSetupInputOf,
   RecipeInitialSetupValueOf,
   RecipeModule,
+  RecipePlanEvidence,
   RecipePublicConfigOf,
 } from "./types.js";

@@ -115,8 +115,9 @@ type StageList = readonly StageObservation[];
 export type RecipeDefinition<
   TStages extends StageList = StageList,
   TInitialSetup extends InitialSetupDefinition = BasePhysicalInitialSetupDefinition,
+  TRecipeId extends string = string,
 > = Readonly<{
-  id: string;
+  id: TRecipeId;
   namespace?: string;
   tagDefinitions: readonly DependencyTagDefinition[];
   stages: TStages;
@@ -133,6 +134,19 @@ export type RecipeExecutionOptions = Readonly<{
   /** Execution-owned consumers for optional post-provides step projections. */
   facets?: StepFacetSinks;
   log?: (message: string) => void;
+}>;
+
+/** Exact admitted identity retained by one authentic compiled recipe plan. */
+export type RecipePlanEvidence<
+  TInitialSetup extends InitialSetupDefinition = InitialSetupDefinition,
+  TRecipeId extends string = string,
+> = Readonly<{
+  recipeId: TRecipeId;
+  planFingerprint: string;
+  initialSetup: Readonly<{
+    definitionId: TInitialSetup["id"];
+    value: InitialSetupValueOf<TInitialSetup>;
+  }>;
 }>;
 
 /** Synchronous recipe execution options plus cooperative async scheduling controls. */
@@ -154,9 +168,10 @@ export type RecipeModule<
   TPublicConfig = RecipeConfig,
   TConfigCompiled = RecipeConfig,
   TInitialSetup extends InitialSetupDefinition = BasePhysicalInitialSetupDefinition,
+  TRecipeId extends string = string,
 > = Readonly<{
   /** Stable recipe identity used in plans, traces, and generated runtime evidence. */
-  readonly id: string;
+  readonly id: TRecipeId;
   /** Exact schema and physical projection authority owned by this recipe. */
   readonly initialSetup: TInitialSetup;
   /** Deep-readonly registered step graph snapshotted when the recipe is authored. */
@@ -168,6 +183,8 @@ export type RecipeModule<
   ) => TConfigCompiled;
   /** Compiles an immutable execution plan that retains its admitted setup identity. */
   compile: (setup: InitialSetupInputOf<TInitialSetup>, config: TPublicConfig) => ExecutionPlan;
+  /** Observes the exact admitted setup and behavior fingerprint of this recipe's authentic plan. */
+  inspectPlan: (plan: ExecutionPlan) => RecipePlanEvidence<TInitialSetup, TRecipeId>;
   /** Executes the exact supplied plan synchronously and refuses a different context setup identity. */
   execute: (context: MapContext, plan: ExecutionPlan, options?: RecipeExecutionOptions) => void;
   /** Compiles exactly once from `context.setup`, then delegates to `execute`. */
@@ -188,7 +205,11 @@ export type RecipeModule<
 
 /** Exact initial-setup authority retained by a recipe module. */
 export type RecipeInitialSetupDefinitionOf<TRecipe> =
-  TRecipe extends RecipeModule<any, any, infer TInitialSetup> ? TInitialSetup : never;
+  TRecipe extends Readonly<{
+    initialSetup: infer TInitialSetup extends InitialSetupDefinition;
+  }>
+    ? TInitialSetup
+    : never;
 
 /** Full per-run setup input inferred from a recipe module's schema authority. */
 export type RecipeInitialSetupInputOf<TRecipe> =

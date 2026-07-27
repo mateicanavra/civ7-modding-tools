@@ -6,7 +6,17 @@ import {
   type StandardLocalParityCapture,
 } from "../../../../src/recipes/standard/parity/index.js";
 import type { CompleteExactAuthorshipEvidence } from "../../../../src/recipes/standard/parity/types.js";
-import { TEST_GAME_SEED, TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../setup.js";
+import standardRecipe from "../../../../src/recipes/standard/recipe.js";
+import {
+  TEST_ALIVE_MAJOR_PLAYER_IDS,
+  TEST_GAME_SEED,
+  TEST_MAP_SEED,
+  TEST_MAP_SIZE,
+} from "../../../setup.js";
+import {
+  createStandardRecipeTestInitialSetup,
+  standardMapConfig,
+} from "../fixtures/standard-recipe.js";
 
 const COMPARISON_DIMENSIONS = TEST_MAP_SIZE.dimensions;
 const COMPARISON_PLOT_COUNT = COMPARISON_DIMENSIONS.width * COMPARISON_DIMENSIONS.height;
@@ -56,6 +66,23 @@ const EMPTY_INPUT_EVIDENCE = {
   plannedCount: 0,
   rows: [],
 } as const;
+const INSPECTED_RECIPE_PLAN = standardRecipe.inspectPlan(
+  standardRecipe.compile(
+    createStandardRecipeTestInitialSetup({
+      aliveMajorPlayerIds: TEST_ALIVE_MAJOR_PLAYER_IDS,
+    }),
+    standardMapConfig.config
+  )
+);
+if (INSPECTED_RECIPE_PLAN.recipeId !== "standard") {
+  throw new Error(
+    `Expected Standard recipe-plan identity; received ${INSPECTED_RECIPE_PLAN.recipeId}.`
+  );
+}
+const RECIPE_PLAN = {
+  ...INSPECTED_RECIPE_PLAN,
+  recipeId: INSPECTED_RECIPE_PLAN.recipeId,
+} as const;
 
 describe("Standard parity report state", () => {
   test("keeps matching product evidence blocked on cross-window game-instance correlation", () => {
@@ -86,6 +113,74 @@ describe("Standard parity report state", () => {
     expect(report.state).toBe("blocked-unresolved");
     expect(report.failureLinks).toContain("surface.terrain.mismatch");
     expect(report.unresolvedLinks).toContain("identity.cross-window-game-instance");
+  });
+
+  test("fails when replay and exact authorship identify different compiled recipe plans", () => {
+    const base = captures();
+    const report = buildStandardParityReport({
+      ...base,
+      local: {
+        ...base.local,
+        identity: {
+          ...base.local.identity,
+          planFingerprint: "f".repeat(64),
+        },
+      },
+    });
+
+    expect(report.identity.planFingerprint.status).toBe("fail");
+    expect(report.failureLinks).toContain("identity.plan-fingerprint");
+  });
+
+  test.each([
+    ["map", "mapSeed", TEST_MAP_SEED + 1, "mapSeed", "identity.map-seed"],
+    ["game", "gameSeed", TEST_GAME_SEED + 1, "gameSeed", "identity.game-seed"],
+  ] as const)("fails %s-seed identity when applied Civ7 setup contradicts the admitted request", (_axis, setupField, contradictorySeed, reportField, failureLink) => {
+    const base = captures();
+    const report = buildStandardParityReport({
+      ...base,
+      exact: {
+        ...base.exact,
+        authorship: {
+          ...base.exact.authorship,
+          civSetup: {
+            ...base.exact.authorship.civSetup,
+            [setupField]: contradictorySeed,
+          },
+        },
+      },
+    });
+
+    expect(report.identity[reportField].status).toBe("fail");
+    expect(report.failureLinks).toContain(failureLink);
+  });
+
+  test("fails exact ordered roster identity for same-count reorder and substitution", () => {
+    const base = captures();
+    const [first, second, ...rest] = TEST_ALIVE_MAJOR_PLAYER_IDS;
+    if (first === undefined || second === undefined)
+      throw new Error("Expected multiple test players.");
+    const rosters = [
+      [second, first, ...rest],
+      [...TEST_ALIVE_MAJOR_PLAYER_IDS.slice(0, -1), 63],
+    ];
+
+    for (const aliveMajorPlayerIds of rosters) {
+      const report = buildStandardParityReport({
+        ...base,
+        local: {
+          ...base.local,
+          identity: {
+            ...base.local.identity,
+            aliveMajorPlayerIds,
+          },
+        },
+      });
+
+      expect(report.identity.playerCount.status).toBe("pass");
+      expect(report.identity.aliveMajorPlayerIds.status).toBe("fail");
+      expect(report.failureLinks).toContain("identity.alive-major-player-ids");
+    }
   });
 
   test("retains a surface contradiction when another live cell is missing", () => {
@@ -306,6 +401,10 @@ function captures(): Readonly<{
   return {
     exact: {
       authorship: exactAuthorship(),
+      recipePlan: {
+        evidence: { status: "present", value: RECIPE_PLAN },
+        completion: { status: "present", value: RECIPE_PLAN },
+      },
       placementParity: {
         status: "present",
         value: {
@@ -351,10 +450,11 @@ function captures(): Readonly<{
     local: {
       source: "standard-replay",
       identity: {
+        planFingerprint: RECIPE_PLAN.planFingerprint,
         mapSeed: TEST_MAP_SEED,
         gameSeed: TEST_GAME_SEED,
         mapSize: TEST_MAP_SIZE.id,
-        playerCount: 6,
+        aliveMajorPlayerIds: TEST_ALIVE_MAJOR_PLAYER_IDS,
         canonicalConfigDigest: "config-digest",
         launchEnvelopeDigest: "launch-digest",
       },
@@ -443,7 +543,7 @@ function exactAuthorship(): CompleteExactAuthorshipEvidence {
       seed: TEST_MAP_SEED,
       gameSeed: TEST_GAME_SEED,
       mapSize: TEST_MAP_SIZE.id,
-      playerCount: 6,
+      playerCount: TEST_ALIVE_MAJOR_PLAYER_IDS.length,
     },
     materialization: {
       mapScript: "{swooper-maps}/maps/studio-run.js",
@@ -462,10 +562,10 @@ function exactAuthorship(): CompleteExactAuthorshipEvidence {
     },
     civSetup: {
       mapScript: "{swooper-maps}/maps/studio-run.js",
-      mapSize: "MAPSIZE_TINY",
+      mapSize: TEST_MAP_SIZE.id,
       mapSeed: TEST_MAP_SEED,
       gameSeed: TEST_GAME_SEED,
-      playerCount: 6,
+      playerCount: TEST_ALIVE_MAJOR_PLAYER_IDS.length,
       rowCount: 1,
     },
     runtime: {

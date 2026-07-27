@@ -1,18 +1,31 @@
 import { describe, expect, test } from "bun:test";
 import { Value } from "typebox/value";
 import {
+  CIV7_GAME_OPTION_DESCRIPTORS,
   CIV7_GAME_OPTION_IDS,
+  CIV7_GAME_RANDOM_SEED_PARAMETER_DESCRIPTOR,
+  CIV7_MAP_OPTION_DESCRIPTORS,
   CIV7_MAP_OPTION_IDS,
+  CIV7_PLAYER_OPTION_DESCRIPTORS,
   CIV7_PLAYER_OPTION_IDS,
   CIV7_SETUP_DOMAIN_EVIDENCE,
+  CIV7_SETUP_LIFECYCLE_PARAMETER_IDS,
   CIV7_SETUP_PARAMETER_FACTS,
   CIV7_SETUP_PARAMETER_GROUPS,
   CIV7_SETUP_PARAMETER_SOURCE,
+  Civ7GameOptionEvidenceSchema,
   Civ7GameOptionsSchema,
+  Civ7MapOptionEvidenceSchema,
   Civ7MapOptionsSchema,
+  Civ7PlayerOptionEvidenceSchema,
   Civ7PlayerOptionsSchema,
   Civ7PlayerSetupsSchema,
 } from "../src/setup.js";
+import {
+  CIV7_GAME_SETUP_PARAMETER_DESCRIPTORS,
+  CIV7_MAP_SETUP_PARAMETER_DESCRIPTORS,
+  CIV7_PLAYER_SETUP_PARAMETER_DESCRIPTORS,
+} from "../src/setup-parameters.gen.js";
 
 const parameterId = (row: (typeof CIV7_SETUP_PARAMETER_FACTS)[number]) => row.columns.ParameterID;
 
@@ -146,6 +159,235 @@ describe("authored Civ7 setup option schemas", () => {
     expect(CIV7_GAME_OPTION_IDS).toContain("Crises");
     expect(CIV7_MAP_OPTION_IDS).toContain("StartPosition");
     expect(CIV7_PLAYER_OPTION_IDS).toContain("PlayerTeam");
+    expect(CIV7_GAME_OPTION_IDS as readonly string[]).toEqual(
+      CIV7_GAME_OPTION_DESCRIPTORS.map(({ parameterId }) => parameterId)
+    );
+    expect(CIV7_MAP_OPTION_IDS as readonly string[]).toEqual(
+      CIV7_MAP_OPTION_DESCRIPTORS.map(({ parameterId }) => parameterId)
+    );
+    expect(CIV7_PLAYER_OPTION_IDS as readonly string[]).toEqual(
+      CIV7_PLAYER_OPTION_DESCRIPTORS.map(({ parameterId }) => parameterId)
+    );
+  });
+
+  test("select authored-value reads from official physical projection facts", () => {
+    const gameDescriptor = (parameterId: string) =>
+      CIV7_GAME_SETUP_PARAMETER_DESCRIPTORS.find(
+        (descriptor) => descriptor.parameterId === parameterId
+      );
+    const mapDescriptor = (parameterId: string) =>
+      CIV7_MAP_SETUP_PARAMETER_DESCRIPTORS.find(
+        (descriptor) => descriptor.parameterId === parameterId
+      );
+    const playerDescriptor = (parameterId: string) =>
+      CIV7_PLAYER_SETUP_PARAMETER_DESCRIPTORS.find(
+        (descriptor) => descriptor.parameterId === parameterId
+      );
+
+    expect(gameDescriptor("Ruleset")).toMatchObject({
+      cardinality: "scalar",
+      valueKind: "string",
+      physicalProjections: {
+        configuration: { key: "RuleSet", encoding: "literal" },
+        authoredValue: null,
+      },
+      authoredValueRead: {
+        kind: "configuration",
+        key: "RuleSet",
+        source: "configuration-key",
+      },
+    });
+    expect(gameDescriptor("Age")).toMatchObject({
+      physicalProjections: {
+        configuration: { key: "StartAge", encoding: "hash" },
+        authoredValue: { key: "StartAgeTypeName" },
+      },
+      authoredValueRead: {
+        kind: "configuration",
+        key: "StartAgeTypeName",
+        source: "value-configuration-key",
+      },
+    });
+    expect(gameDescriptor("DifficultyIndependentsCombat")?.authoredValueRead).toEqual({
+      kind: "unsupported",
+      reason: "no-authored-value-key",
+    });
+    expect(gameDescriptor("GameStartCivSelectionMode")?.authoredValueRead).toEqual({
+      kind: "unsupported",
+      reason: "overlapping-projection-keys",
+    });
+    expect(gameDescriptor("Crises")).toMatchObject({
+      cardinality: "array",
+      valueKind: "string",
+      authoredValueRead: {
+        kind: "configuration",
+        key: "ExcludeCrises",
+        source: "configuration-key",
+      },
+    });
+    expect(mapDescriptor("StartPosition")?.authoredValueRead).toEqual({
+      kind: "unsupported",
+      reason: "no-authored-value-key",
+    });
+    expect(playerDescriptor("PlayerCivilization")).toMatchObject({
+      cardinality: "scalar",
+      valueKind: "string",
+      physicalProjections: {
+        configuration: { key: "CivilizationTypeID", encoding: "hash" },
+        authoredValue: { key: "CivilizationTypeName" },
+      },
+      authoredValueRead: {
+        kind: "configuration",
+        key: "CivilizationTypeName",
+        source: "value-configuration-key",
+      },
+    });
+    expect(playerDescriptor("PlayerMementoMajorSlot")?.authoredValueRead).toEqual({
+      kind: "configuration",
+      key: "MajorMemento",
+      source: "configuration-key",
+    });
+    expect(gameDescriptor("MaxTurns")?.valueKind).toBe("integer");
+    expect(gameDescriptor("NoCivUnlocks")?.valueKind).toBe("boolean");
+  });
+
+  test("exports one deeply immutable generated GameRandomSeed lifecycle identity", () => {
+    const generatedIndex = CIV7_GAME_SETUP_PARAMETER_DESCRIPTORS.findIndex(
+      ({ parameterId }) => parameterId === "GameRandomSeed"
+    );
+    expect(generatedIndex).toBe(
+      CIV7_GAME_SETUP_PARAMETER_DESCRIPTORS.indexOf(CIV7_GAME_RANDOM_SEED_PARAMETER_DESCRIPTOR)
+    );
+    expect(CIV7_GAME_RANDOM_SEED_PARAMETER_DESCRIPTOR).toMatchObject({
+      configurationGroup: "Game",
+      parameterId: "GameRandomSeed",
+      authoredValueRead: {
+        kind: "configuration",
+        key: "RandomSeed",
+        source: "configuration-key",
+      },
+    });
+
+    expect(Object.isFrozen(CIV7_GAME_SETUP_PARAMETER_DESCRIPTORS)).toBe(true);
+    expect(Object.isFrozen(CIV7_GAME_RANDOM_SEED_PARAMETER_DESCRIPTOR)).toBe(true);
+    expect(Object.isFrozen(CIV7_GAME_RANDOM_SEED_PARAMETER_DESCRIPTOR.physicalProjections)).toBe(
+      true
+    );
+    expect(
+      Object.isFrozen(CIV7_GAME_RANDOM_SEED_PARAMETER_DESCRIPTOR.physicalProjections.configuration)
+    ).toBe(true);
+    expect(Object.isFrozen(CIV7_GAME_RANDOM_SEED_PARAMETER_DESCRIPTOR.authoredValueRead)).toBe(
+      true
+    );
+    expect(
+      Reflect.set(CIV7_GAME_RANDOM_SEED_PARAMETER_DESCRIPTOR.authoredValueRead, "key", "Forged")
+    ).toBe(false);
+    expect(CIV7_GAME_RANDOM_SEED_PARAMETER_DESCRIPTOR.authoredValueRead.key).toBe("RandomSeed");
+
+    for (const descriptors of [
+      CIV7_GAME_SETUP_PARAMETER_DESCRIPTORS,
+      CIV7_MAP_SETUP_PARAMETER_DESCRIPTORS,
+      CIV7_PLAYER_SETUP_PARAMETER_DESCRIPTORS,
+    ]) {
+      expect(Object.isFrozen(descriptors)).toBe(true);
+      for (const descriptor of descriptors) {
+        expect(Object.isFrozen(descriptor)).toBe(true);
+        expect(Object.isFrozen(descriptor.physicalProjections)).toBe(true);
+        expect(Object.isFrozen(descriptor.physicalProjections.configuration)).toBe(true);
+        if (descriptor.physicalProjections.authoredValue) {
+          expect(Object.isFrozen(descriptor.physicalProjections.authoredValue)).toBe(true);
+        }
+        expect(Object.isFrozen(descriptor.authoredValueRead)).toBe(true);
+      }
+    }
+  });
+
+  test("derives exact option-evidence schemas from generated ParameterID value schemas", () => {
+    expect(
+      Value.Check(Civ7MapOptionEvidenceSchema, {
+        status: "available",
+        key: "MapSeaLevel",
+        value: "SEA_LEVEL_STANDARD",
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(Civ7MapOptionEvidenceSchema, {
+        status: "available",
+        key: "MapSeaLevel",
+        value: true,
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7GameOptionEvidenceSchema, {
+        status: "available",
+        key: "MaxTurns",
+        value: 300,
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(Civ7GameOptionEvidenceSchema, {
+        status: "available",
+        key: "Crises",
+        value: ["CRISIS_ONE", "CRISIS_TWO"],
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(Civ7GameOptionEvidenceSchema, {
+        status: "available",
+        key: "GameRandomSeed",
+        value: 123,
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7PlayerOptionEvidenceSchema, {
+        status: "available",
+        key: "PlayerTeam",
+        value: 2,
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(Civ7PlayerOptionEvidenceSchema, {
+        status: "unavailable",
+        key: "PlayerTeam",
+        reason: "read-failed",
+      })
+    ).toBe(true);
+  });
+
+  test("collapses contextual rows only into one stable projection descriptor", () => {
+    expect(
+      CIV7_MAP_SETUP_PARAMETER_DESCRIPTORS.filter(
+        ({ parameterId }) => parameterId === "MapSeaLevel"
+      )
+    ).toHaveLength(1);
+    expect(
+      CIV7_GAME_SETUP_PARAMETER_DESCRIPTORS.filter(
+        ({ parameterId }) => parameterId === "GameSpeeds"
+      )
+    ).toHaveLength(1);
+    for (const descriptors of [
+      CIV7_GAME_SETUP_PARAMETER_DESCRIPTORS,
+      CIV7_MAP_SETUP_PARAMETER_DESCRIPTORS,
+      CIV7_PLAYER_SETUP_PARAMETER_DESCRIPTORS,
+    ]) {
+      expect(new Set(descriptors.map(({ parameterId }) => parameterId)).size).toBe(
+        descriptors.length
+      );
+    }
+  });
+
+  test("exclude lifecycle fields while preserving exact option descriptor identity", () => {
+    const lifecycleIds = new Set<string>(CIV7_SETUP_LIFECYCLE_PARAMETER_IDS);
+    expect(CIV7_GAME_OPTION_IDS as readonly string[]).toEqual(
+      CIV7_GAME_SETUP_PARAMETER_DESCRIPTORS.filter(
+        ({ parameterId }) => !lifecycleIds.has(parameterId)
+      ).map(({ parameterId }) => parameterId)
+    );
+    expect(CIV7_MAP_OPTION_IDS as readonly string[]).toEqual(
+      CIV7_MAP_SETUP_PARAMETER_DESCRIPTORS.filter(
+        ({ parameterId }) => !lifecycleIds.has(parameterId)
+      ).map(({ parameterId }) => parameterId)
+    );
   });
 
   test("admit each initial player slot at most once", () => {

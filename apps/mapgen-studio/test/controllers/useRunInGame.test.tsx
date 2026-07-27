@@ -16,6 +16,7 @@ vi.mock("../../src/lib/orpc", () => ({
 import { type UseRunInGameArgs, useRunInGame } from "../../src/app/hooks/useRunInGame";
 import { useRunInGameTerminalToast } from "../../src/app/hooks/useRunInGameTerminalToast";
 import { getRecipeDefaultCanonicalConfig } from "../../src/features/configAuthoring/canonicalConfig";
+import { buildLiveRuntimeSuggestionRecords } from "../../src/features/liveRuntime/model";
 import { runCurrentConfigInGame } from "../../src/features/runInGame/api";
 import { DEFAULT_WORLD_SETTINGS } from "../../src/ui/constants/defaults";
 
@@ -54,6 +55,7 @@ function makeArgs(over: Partial<UseRunInGameArgs> = {}): UseRunInGameArgs {
     authoringRevision: 3,
     setupConfig,
     setSeed: vi.fn(),
+    setGameSeed: vi.fn(),
     setSetupConfig: vi.fn(),
     liveRuntime: { status: "idle" },
     liveRuntimeSuggestions: [],
@@ -144,6 +146,53 @@ describe("useRunInGame config handoff", () => {
     expect(runRpc).toHaveBeenCalledWith(
       expect.objectContaining({ seed: "-123", gameSeed: "-456" })
     );
+  });
+
+  it("syncs independently observed map and game seeds before the next launch", () => {
+    const setSeed = vi.fn();
+    const setGameSeed = vi.fn();
+    const nextSetup = {
+      gameOptions: { Difficulty: "DIFFICULTY_CUSTOM" },
+      mapOptions: {},
+      playerOptions: [{ playerId: 0, options: {} }],
+    } as const;
+    const sourceSnapshotId = "live-setup-1";
+    const { result } = setup({
+      setSeed,
+      setGameSeed,
+      liveRuntime: { status: "ok", snapshotId: sourceSnapshotId },
+      liveRuntimeSuggestions: buildLiveRuntimeSuggestionRecords({
+        sourceSnapshotId,
+        seed: 111,
+        gameSeed: -222,
+        setupConfig: nextSetup,
+      }),
+    });
+
+    act(() => result.current.syncStudioFromLiveGame());
+
+    expect(setSeed).toHaveBeenCalledWith("111");
+    expect(setGameSeed).toHaveBeenCalledWith("-222");
+  });
+
+  it("does not replace the game seed when live evidence has no admitted game-seed suggestion", () => {
+    const setSeed = vi.fn();
+    const setGameSeed = vi.fn();
+    const sourceSnapshotId = "live-setup-2";
+    const { result } = setup({
+      setSeed,
+      setGameSeed,
+      liveRuntime: { status: "ok", snapshotId: sourceSnapshotId },
+      liveRuntimeSuggestions: buildLiveRuntimeSuggestionRecords({
+        sourceSnapshotId,
+        seed: 333,
+      }),
+    });
+
+    act(() => result.current.syncStudioFromLiveGame());
+
+    expect(setSeed).toHaveBeenCalledWith("333");
+    expect(setGameSeed).not.toHaveBeenCalled();
   });
 
   it("does not fabricate an operation identity when admission fails", async () => {

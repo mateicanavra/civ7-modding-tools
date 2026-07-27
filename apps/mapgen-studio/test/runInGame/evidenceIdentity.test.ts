@@ -7,6 +7,7 @@ import type {
   RunInGameMaterializationStatus,
   RunInGameRequestStatus,
 } from "@civ7/studio-server";
+import { encodeBoundedJsonLogLines } from "@swooper/mapgen-core/lib/log";
 import { describe, expect, it } from "vitest";
 import {
   buildRunInGameExactAuthorshipEvidence,
@@ -265,7 +266,7 @@ describe("Run in Game exact authorship evidence identity", () => {
             ],
           ],
         })}`,
-        `[mapgen-complete] ${JSON.stringify({ requestId, canonicalConfigDigest: configHash, launchEnvelopeDigest, seed: 42, dimensions: { width: 84, height: 54 } })}`,
+        `[mapgen-complete] ${JSON.stringify({ requestId, canonicalConfigDigest: configHash, launchEnvelopeDigest, seed: 42, mapSize: "MAPSIZE_STANDARD", dimensions: { width: 84, height: 54 } })}`,
       ].join("\n"),
       logPath: "/tmp/Scripting.log",
       observedAt: "2026-06-06T00:00:00.000Z",
@@ -435,6 +436,183 @@ describe("Run in Game exact authorship evidence identity", () => {
           `[mapgen-evidence] ${JSON.stringify({ requestId, canonicalConfigDigest: configHash, launchEnvelopeDigest, seed: 42, dimensions: { width: 84, height: 54 } })}`,
           `[mapgen-complete] ${JSON.stringify({ requestId, canonicalConfigDigest: configHash, launchEnvelopeDigest, seed: 42, dimensions: { width: 84, height: 55 } })}`,
         ].join("\n"),
+        requestId,
+        canonicalConfigDigest: configHash,
+        launchEnvelopeDigest,
+        seed: 42,
+      })
+    ).toBeUndefined();
+    const lifecyclePayload = {
+      requestId,
+      canonicalConfigDigest: configHash,
+      launchEnvelopeDigest,
+      seed: 42,
+      mapSize: "MAPSIZE_STANDARD",
+      dimensions: { width: 84, height: 54 },
+      recipePlan: {
+        recipeId: "mod-swooper-maps/standard",
+        planFingerprint: "plan-a",
+        initialSetup: { definitionId: "mod-swooper-maps/standard", value: { gameSeed: 84 } },
+      },
+    };
+    expect(
+      parseSwooperMapgenLogEvidence({
+        text: [
+          `[mapgen-evidence] ${JSON.stringify(lifecyclePayload)}`,
+          `[mapgen-complete] ${JSON.stringify({
+            ...lifecyclePayload,
+            recipePlan: { ...lifecyclePayload.recipePlan, planFingerprint: "plan-b" },
+          })}`,
+        ].join("\n"),
+        requestId,
+        canonicalConfigDigest: configHash,
+        launchEnvelopeDigest,
+        seed: 42,
+      })
+    ).toBeUndefined();
+    expect(
+      parseSwooperMapgenLogEvidence({
+        text: [
+          `[mapgen-evidence] ${JSON.stringify(lifecyclePayload)}`,
+          `[mapgen-complete] ${JSON.stringify({
+            ...lifecyclePayload,
+            recipePlan: {
+              ...lifecyclePayload.recipePlan,
+              initialSetup: {
+                ...lifecyclePayload.recipePlan.initialSetup,
+                value: { gameSeed: 85 },
+              },
+            },
+          })}`,
+        ].join("\n"),
+        requestId,
+        canonicalConfigDigest: configHash,
+        launchEnvelopeDigest,
+        seed: 42,
+      })
+    ).toBeUndefined();
+  });
+
+  it("reassembles bounded lifecycle and product markers without crossing run boundaries", () => {
+    const lifecyclePayload = {
+      requestId,
+      canonicalConfigDigest: configHash,
+      launchEnvelopeDigest,
+      seed: 42,
+      mapSize: "MAPSIZE_STANDARD",
+      dimensions: { width: 84, height: 54 },
+      recipePlan: {
+        initialSetup: {
+          value: {
+            aliveMajorPlayerIds: [7, 2, 11],
+            options: {
+              player: [7, 2, 11].map((playerId) => ({
+                playerId,
+                options: Array.from({ length: 32 }, (_, index) => ({
+                  status: "unavailable",
+                  key: `PlayerOption${index}`,
+                  reason: "value-unavailable",
+                })),
+              })),
+            },
+          },
+        },
+      },
+    };
+    const featurePayload = {
+      attempted: 1434,
+      applied: 1430,
+      rejected: 4,
+      rejectedCanHaveFeature: 4,
+      attemptedByFeature: Object.fromEntries(
+        Array.from({ length: 64 }, (_, index) => [`FEATURE_TEST_${index}`, index + 1])
+      ),
+      appliedByFeature: { FEATURE_FOREST: 1430 },
+      rejectedCanHaveFeatureByFeature: { FEATURE_FOREST: 4 },
+    };
+    const placementPayload = {
+      version: 1,
+      waterDriftCount: 0,
+      acceptedLakeTileCount: 63,
+      finalLakeWaterDriftCount: 0,
+      finalLakeClassificationDriftCount: 0,
+    };
+    const resourcePlacementPayload = {
+      version: 1,
+      plannedCount: 96,
+      placedCount: 88,
+      rejectedCount: 8,
+      mismatchCount: 0,
+      rejectionRows: Array.from({ length: 8 }, (_, index) => ({
+        status: "rejected",
+        resourceType: index + 1,
+        resource: `RESOURCE_RUNTIME_IDENTITY_${index}_${"X".repeat(48)}`,
+        plotIndex: 1_000 + index,
+        x: 20 + index,
+        y: 12 + index,
+        reason: "can-have-resource-param-false",
+      })),
+    };
+    const evidenceLines = encodeBoundedJsonLogLines({
+      prefix: "[SWOOPER_MOD]",
+      marker: "[mapgen-evidence]",
+      payload: lifecyclePayload,
+    });
+    const completeLines = encodeBoundedJsonLogLines({
+      prefix: "[SWOOPER_MOD]",
+      marker: "[mapgen-complete]",
+      payload: lifecyclePayload,
+    });
+    const featureLines = encodeBoundedJsonLogLines({
+      prefix: "[SWOOPER_MOD]",
+      marker: "FEATURE_APPLY_V1",
+      payload: featurePayload,
+    });
+    const placementLines = encodeBoundedJsonLogLines({
+      prefix: "[SWOOPER_MOD]",
+      marker: "PLACEMENT_PARITY_V1",
+      payload: placementPayload,
+    });
+    const resourcePlacementLines = encodeBoundedJsonLogLines({
+      prefix: "[SWOOPER_MOD]",
+      marker: "RESOURCE_PLACEMENT_V1",
+      payload: resourcePlacementPayload,
+    });
+    const lines = [
+      ...evidenceLines,
+      ...featureLines,
+      ...placementLines,
+      ...resourcePlacementLines,
+      ...completeLines,
+    ];
+    const engineObservedLines = lines.map((line) => line.slice(0, 1_022));
+
+    const parsed = parseSwooperMapgenLogEvidence({
+      text: engineObservedLines.join("\n"),
+      requestId,
+      canonicalConfigDigest: configHash,
+      launchEnvelopeDigest,
+      seed: 42,
+    });
+
+    expect(evidenceLines.length).toBeGreaterThan(1);
+    expect(featureLines.length).toBeGreaterThan(1);
+    expect(resourcePlacementLines.length).toBeGreaterThan(1);
+    expect(engineObservedLines).toEqual(lines);
+    expect(parsed?.evidencePayload).toEqual(lifecyclePayload);
+    expect(parsed?.completionPayload).toEqual(lifecyclePayload);
+    expect(parsed?.featureApply?.payload).toEqual(featurePayload);
+    expect(parsed?.placementParity?.payload).toEqual(placementPayload);
+    expect(parsed?.resourcePlacement?.payload).toEqual(resourcePlacementPayload);
+
+    const withoutOneEvidencePart = [
+      evidenceLines[0]!,
+      ...evidenceLines.slice(2),
+      ...lines.slice(evidenceLines.length),
+    ];
+    expect(
+      parseSwooperMapgenLogEvidence({
+        text: withoutOneEvidencePart.join("\n"),
         requestId,
         canonicalConfigDigest: configHash,
         launchEnvelopeDigest,

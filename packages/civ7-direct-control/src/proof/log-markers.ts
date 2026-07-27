@@ -67,19 +67,42 @@ export function logTextFromSnapshot(args: {
   snapshot: FileSnapshot;
   current: FileSnapshot;
 }): { text: string; startOffset: number; rewritten: boolean } {
-  const { fullText, snapshot, current } = args;
+  return logBytesFromSnapshot({
+    fullBytes: Buffer.from(args.fullText, "utf8"),
+    snapshot: args.snapshot,
+    current: args.current,
+  });
+}
+
+function logBytesFromSnapshot(args: {
+  fullBytes: Buffer;
+  snapshot: FileSnapshot;
+  current: FileSnapshot;
+}): { text: string; startOffset: number; rewritten: boolean } {
+  const { fullBytes, snapshot, current } = args;
+  const fullText = fullBytes.toString("utf8");
   if (!snapshot.exists) return { text: fullText, startOffset: 0, rewritten: true };
 
   const rewritten = snapshot.prefixBytes > 0 && !fullText.startsWith(snapshot.prefix);
   if (rewritten) return { text: fullText, startOffset: 0, rewritten };
   if (current.size > snapshot.size) {
-    return { text: fullText.slice(snapshot.size), startOffset: snapshot.size, rewritten: false };
+    return {
+      text: fullBytes.subarray(snapshot.size).toString("utf8"),
+      startOffset: snapshot.size,
+      rewritten: false,
+    };
   }
   if (current.mtimeMs > snapshot.mtimeMs)
     return { text: fullText, startOffset: 0, rewritten: true };
   return { text: "", startOffset: snapshot.size, rewritten: false };
 }
 
+/**
+ * Polls the fresh portion of a Civ7 log until ordered markers and optional semantic admission hold.
+ *
+ * `acceptFreshText` lets protocol owners require complete evidence after marker discovery without
+ * moving filesystem polling or rewrite detection out of the direct-control boundary.
+ */
 export async function waitForFreshLogMarkers(options: {
   logPath: string;
   snapshot: FileSnapshot;
@@ -87,6 +110,7 @@ export async function waitForFreshLogMarkers(options: {
   timeoutMs?: number;
   pollIntervalMs?: number;
   rejectPattern?: RegExp;
+  acceptFreshText?: (freshText: string) => boolean;
 }): Promise<FreshLogMarkerProof> {
   const timeoutMs = options.timeoutMs ?? 90_000;
   const pollIntervalMs = options.pollIntervalMs ?? 1_000;
@@ -101,13 +125,17 @@ export async function waitForFreshLogMarkers(options: {
       current.exists &&
       (current.size > snapshotOffset || current.mtimeMs > options.snapshot.mtimeMs)
     ) {
-      const fullText = await readFile(options.logPath, "utf8");
-      const freshLog = logTextFromSnapshot({ fullText, snapshot: options.snapshot, current });
+      const fullBytes = await readFile(options.logPath);
+      const freshLog = logBytesFromSnapshot({
+        fullBytes,
+        snapshot: options.snapshot,
+        current,
+      });
       lastStartOffset = freshLog.startOffset;
       const proof = matchOrderedMarkers(freshLog.text, options.markers);
       const rejected = options.rejectPattern?.exec(freshLog.text);
       if (rejected) lastError = `Log contains ${rejected[0]}`;
-      if (proof.ok && !rejected) {
+      if (proof.ok && !rejected && (options.acceptFreshText?.(freshLog.text) ?? true)) {
         return {
           logPath: options.logPath,
           observedAt: new Date().toISOString(),

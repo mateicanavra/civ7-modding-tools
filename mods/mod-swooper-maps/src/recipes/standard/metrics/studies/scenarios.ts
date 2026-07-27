@@ -1,4 +1,8 @@
-import { type Civ7StandardMapSizePreset, getCiv7StandardMapSizePreset } from "@civ7/adapter";
+import {
+  type Civ7StandardMapSizeId,
+  type Civ7StandardMapSizePreset,
+  getCiv7StandardMapSizePreset,
+} from "@civ7/map-policy";
 import { stableStringify } from "@swooper/mapgen-core";
 
 import {
@@ -11,6 +15,13 @@ import sunderedArchipelagoRaw from "../../../../maps/configs/sundered-archipelag
 import swooperDesertMountainsRaw from "../../../../maps/configs/swooper-desert-mountains.config.json";
 import swooperEarthlikeRaw from "../../../../maps/configs/swooper-earthlike.config.json";
 import { defineStandardMapMetricScenario, type StandardPresetMetricScenario } from "../scenario.js";
+
+/** Explicit per-run identity axes retained by one headless Standard product scenario. */
+export type StandardMetricScenarioIdentity = Readonly<{
+  mapSeed: number;
+  gameSeed: number;
+  aliveMajorPlayerIds: readonly number[];
+}>;
 
 /** Stable identities admitted by the shipped Standard recipe study bank. */
 export type ShippedStandardConfigurationId =
@@ -37,21 +48,55 @@ export const STANDARD_METRIC_PRESETS = Object.freeze({
 });
 
 /**
- * Constructs one admitted product scenario from a config, Civ7 preset, and seed.
+ * Ordered player identities selected by the Standard study bank for each official Civ7 preset.
+ *
+ * These are study inputs, not values synthesized by the adapter during generation.
+ */
+const STANDARD_METRIC_PLAYER_IDS = Object.freeze({
+  MAPSIZE_TINY: Object.freeze([0, 1, 2, 3]),
+  MAPSIZE_SMALL: Object.freeze([0, 1, 2, 3, 4, 5]),
+  MAPSIZE_STANDARD: Object.freeze([0, 1, 2, 3, 4, 5, 6, 7]),
+  MAPSIZE_LARGE: Object.freeze([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]),
+  MAPSIZE_HUGE: Object.freeze([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]),
+}) satisfies Readonly<Record<Civ7StandardMapSizeId, readonly number[]>>;
+
+/**
+ * Selects explicit seed axes and the study bank's ordered player identities for one Civ7 preset.
+ *
+ * Map and game seeds remain separate parameters even when a study intentionally gives them the
+ * same numeric value.
+ */
+export function standardMetricScenarioIdentity(
+  preset: Civ7StandardMapSizePreset,
+  mapSeed: number,
+  gameSeed: number
+): StandardMetricScenarioIdentity {
+  return Object.freeze({
+    mapSeed,
+    gameSeed,
+    aliveMajorPlayerIds: STANDARD_METRIC_PLAYER_IDS[preset.id],
+  });
+}
+
+/**
+ * Constructs one admitted product scenario from a config, Civ7 preset, and complete run identity.
  * Construction is pure; run-local reconciliation owns identity conflicts and capture deduplication.
  */
 export function standardProductMetricScenario(
   config: StandardMapConfigEnvelope,
   preset: Civ7StandardMapSizePreset,
-  seed: number
+  identity: StandardMetricScenarioIdentity
 ): StandardPresetMetricScenario {
-  const id = `standard/${config.id}/${preset.id}/seed-${seed}`;
+  const playerIdentity = identity.aliveMajorPlayerIds.join("-");
+  const id =
+    `standard/${config.id}/${preset.id}` +
+    `/map-${identity.mapSeed}/game-${identity.gameSeed}/players-${playerIdentity}`;
   return defineStandardMapMetricScenario({
     kind: "civ7-preset",
     id,
     config,
     preset,
-    seed,
+    ...identity,
   }) as StandardPresetMetricScenario;
 }
 
@@ -65,7 +110,9 @@ export function standardMetricScenarioSignature(scenario: StandardPresetMetricSc
     kind: scenario.kind,
     configurationId: scenario.config.id,
     configurationDigest: canonicalMapConfigDigest(scenario.config),
-    seed: scenario.seed,
+    mapSeed: scenario.mapSeed,
+    gameSeed: scenario.gameSeed,
+    aliveMajorPlayerIds: scenario.aliveMajorPlayerIds,
     preset: scenario.preset,
   });
 }

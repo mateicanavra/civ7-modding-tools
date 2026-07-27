@@ -17,7 +17,7 @@ import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/m
 import { artifacts as resourceDemandArtifacts } from "@mapgen/domain/resources/modules/demand/artifacts/index.js";
 import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
-import { admitMapSetup, createMapContext, type MapContext } from "@swooper/mapgen-core";
+import { createMapContext, type MapContext } from "@swooper/mapgen-core";
 import {
   type ArtifactReadValueOf,
   assertFloat32Array,
@@ -28,6 +28,11 @@ import {
 } from "@swooper/mapgen-core/authoring";
 import { Value } from "typebox/value";
 import { canonicalRecipeConfig } from "../../../maps/configs/canonical.js";
+import {
+  createStandardInitialSetupInput,
+  createUnavailableStandardInitialOptionEvidence,
+  type StandardInitialSetup,
+} from "../initial-setup.js";
 import standardRecipe from "../recipe.js";
 import {
   type StandardDiscoveryPlacementMeasurements,
@@ -145,10 +150,11 @@ export type StandardMapCapture = Readonly<{
     configurationId: string;
     mapKind: StandardMapMetricScenario["kind"];
     mapSizeId: string | number;
-    seed: number;
+    mapSeed: number;
+    gameSeed: number;
+    aliveMajorPlayerIds: readonly number[];
     width: number;
     height: number;
-    playerCount: number;
     topLatitude: number;
     bottomLatitude: number;
   }>;
@@ -242,7 +248,6 @@ export type StandardMapCapture = Readonly<{
           StartAssignment["seats"][number],
           | "seatIndex"
           | "playerId"
-          | "playerIdSource"
           | "regionSlot"
           | "realizedRegionSlot"
           | "plotIndex"
@@ -287,24 +292,33 @@ export function captureStandardMapScenario(
   scenario: StandardMapMetricScenario
 ): StandardMapCapture {
   const admittedScenario = defineStandardMapMetricScenario(scenario);
-  const selection = resolveMapSelection(admittedScenario);
-  const { width, height } = selection.dimensions;
-  const setup = admitMapSetup({
-    mapSeed: admittedScenario.seed,
-    dimensions: selection.dimensions,
+  const setupInput = createStandardInitialSetupInput({
+    mapSeed: admittedScenario.mapSeed,
+    gameSeed: admittedScenario.gameSeed,
     latitudeBounds: admittedScenario.config.latitudeBounds,
+    selection: createMetricScenarioMapSelection(admittedScenario),
+    aliveMajorPlayerIds: admittedScenario.aliveMajorPlayerIds,
+    options: createUnavailableStandardInitialOptionEvidence(
+      "configuration-api-unavailable",
+      admittedScenario.aliveMajorPlayerIds
+    ),
   });
+  const plan = standardRecipe.compile(setupInput, canonicalRecipeConfig(admittedScenario.config));
+  const inspectedPlan = standardRecipe.inspectPlan(plan);
+  const initialSetup = inspectedPlan.initialSetup.value;
+  const { selection } = initialSetup.map;
+  const { width, height } = selection.dimensions;
 
   const adapter = createMockAdapter({
     width,
     height,
     mapInfo: selection.mapInfo,
-    mapSizeId: selection.mapSizeId,
-    aliveMajorCount: selection.playerCount,
-    rngSeed: admittedScenario.seed,
+    mapSizeId: selection.id,
+    aliveMajorPlayerIds: initialSetup.aliveMajorPlayerIds,
+    rngSeed: initialSetup.map.mapSeed,
   });
 
-  const context = createMapContext({ setup, adapter });
+  const context = createMapContext({ setup: plan.setup, adapter });
   let riverNetworkSummary: StandardRiverNetworkMeasurements | undefined;
   let discoveryGeneration: StandardDiscoveryPlacementMeasurements | undefined;
   let featureProjection: StandardFeatureProjectionMeasurements | undefined;
@@ -313,7 +327,7 @@ export function captureStandardMapScenario(
   let naturalWonderPlacement: StandardNaturalWonderPlacementMeasurements | undefined;
   let resourcePlacement: StandardResourcePlacementMeasurements | undefined;
   let metricFailure: unknown;
-  standardRecipe.run(context, canonicalRecipeConfig(admittedScenario.config), {
+  standardRecipe.execute(context, plan, {
     log: () => {},
     facets: {
       metrics: (projection) => {
@@ -392,6 +406,7 @@ export function captureStandardMapScenario(
 
   return copyCompletedRun(
     admittedScenario,
+    initialSetup,
     context,
     adapter,
     riverNetworkSummary,
@@ -405,7 +420,8 @@ export function captureStandardMapScenario(
 }
 
 function copyCompletedRun(
-  scenario: StandardMapMetricScenario,
+  scenario: Pick<StandardMapMetricScenario, "id" | "config">,
+  initialSetup: StandardInitialSetup,
   context: MapContext,
   adapter: ReturnType<typeof createMockAdapter>,
   riverNetworkSummary: StandardRiverNetworkMeasurements,
@@ -416,7 +432,7 @@ function copyCompletedRun(
   naturalWonderPlacement: StandardNaturalWonderPlacementMeasurements,
   resourcePlacement: StandardResourcePlacementMeasurements
 ): StandardMapCapture {
-  const selection = resolveMapSelection(scenario);
+  const { selection } = initialSetup.map;
   const { width, height } = selection.dimensions;
   const gridSize = width * height;
   const topographyValue = readValidatedArtifact(context, morphologyLandformsArtifacts.topography);
@@ -487,14 +503,15 @@ function copyCompletedRun(
     provenance: Object.freeze({
       scenarioId: scenario.id,
       configurationId: scenario.config.id,
-      mapKind: scenario.kind,
-      mapSizeId: selection.mapSizeId,
-      seed: scenario.seed,
+      mapKind: selection.kind,
+      mapSizeId: selection.id,
+      mapSeed: initialSetup.map.mapSeed,
+      gameSeed: initialSetup.gameSeed,
+      aliveMajorPlayerIds: Object.freeze([...initialSetup.aliveMajorPlayerIds]),
       width,
       height,
-      playerCount: selection.playerCount,
-      topLatitude: scenario.config.latitudeBounds.topLatitude,
-      bottomLatitude: scenario.config.latitudeBounds.bottomLatitude,
+      topLatitude: initialSetup.map.latitudeBounds.topLatitude,
+      bottomLatitude: initialSetup.map.latitudeBounds.bottomLatitude,
     }),
     model: Object.freeze({
       landMask,
@@ -702,13 +719,12 @@ function copyCompletedRun(
       }),
     }),
     placement: Object.freeze({
-      aliveMajorIds: copyAliveMajorIds(adapter),
+      aliveMajorIds: Object.freeze([...initialSetup.aliveMajorPlayerIds]),
       seats: Object.freeze(
         startValue.seats.map((seat) =>
           Object.freeze({
             seatIndex: seat.seatIndex,
             playerId: seat.playerId,
-            playerIdSource: seat.playerIdSource,
             regionSlot: seat.regionSlot,
             realizedRegionSlot: seat.realizedRegionSlot,
             plotIndex: seat.plotIndex,
@@ -807,16 +823,6 @@ function copyInt32Grid(name: string, value: unknown, size: number): Int32Array {
 
 function copyFloat32Grid(name: string, value: unknown, size: number): Float32Array {
   return assertFloat32Array(name, value, size).slice();
-}
-
-function copyAliveMajorIds(adapter: ReturnType<typeof createMockAdapter>): readonly number[] {
-  const ids = adapter
-    .getAliveMajorIds()
-    .map((id) => requireRuntimeTypeId("alive major player", id));
-  if (new Set(ids).size !== ids.length) {
-    throw new Error("Standard metric capture requires unique alive major player ids.");
-  }
-  return Object.freeze(ids);
 }
 
 function copyResourceCandidates(
@@ -941,18 +947,30 @@ function isWaterTerrain(terrain: string): boolean {
   return terrain === "TERRAIN_COAST" || terrain === "TERRAIN_OCEAN";
 }
 
-function resolveMapSelection(scenario: StandardMapMetricScenario) {
-  return scenario.kind === "civ7-preset"
-    ? {
-        dimensions: scenario.preset.dimensions,
-        mapInfo: scenario.preset.mapInfo,
-        mapSizeId: scenario.preset.id,
-        playerCount: scenario.preset.defaultPlayers,
-      }
-    : {
-        dimensions: scenario.dimensions,
-        mapInfo: scenario.mapInfo,
-        mapSizeId: scenario.mapSizeId,
-        playerCount: scenario.playerCount,
-      };
+function createMetricScenarioMapSelection(scenario: StandardMapMetricScenario) {
+  if (scenario.kind === "civ7-preset") {
+    const { preset } = scenario;
+    return Object.freeze({
+      kind: "civ7-preset" as const,
+      id: preset.id,
+      dimensions: preset.dimensions,
+      mapInfo: preset.mapInfo,
+      startSlotCapacity: Object.freeze({
+        west: preset.mapInfo.PlayersLandmass1,
+        east: preset.mapInfo.PlayersLandmass2,
+        total: preset.mapInfo.PlayersLandmass1 + preset.mapInfo.PlayersLandmass2,
+      }),
+    });
+  }
+  return Object.freeze({
+    kind: "custom" as const,
+    id: scenario.mapSizeId,
+    dimensions: scenario.dimensions,
+    mapInfo: scenario.mapInfo,
+    startSlotCapacity: Object.freeze({
+      west: scenario.mapInfo.PlayersLandmass1 ?? 0,
+      east: scenario.mapInfo.PlayersLandmass2 ?? 0,
+      total: (scenario.mapInfo.PlayersLandmass1 ?? 0) + (scenario.mapInfo.PlayersLandmass2 ?? 0),
+    }),
+  });
 }

@@ -5,7 +5,11 @@ import {
   requireNonEmptyMetricStudyValues,
   requireShippedStandardConfig,
 } from "../define.js";
-import { STANDARD_METRIC_PRESETS, standardProductMetricScenario } from "../scenarios.js";
+import {
+  STANDARD_METRIC_PRESETS,
+  standardMetricScenarioIdentity,
+  standardProductMetricScenario,
+} from "../scenarios.js";
 
 const EARTHLIKE = requireShippedStandardConfig("swooper-earthlike");
 
@@ -15,11 +19,25 @@ const deepOceanScenarios = [
   STANDARD_METRIC_PRESETS.standard,
   STANDARD_METRIC_PRESETS.large,
   STANDARD_METRIC_PRESETS.huge,
-].map((preset) => standardProductMetricScenario(EARTHLIKE, preset, 1337));
-for (const seed of [7, 42]) {
+].map((preset) =>
+  standardProductMetricScenario(
+    EARTHLIKE,
+    preset,
+    standardMetricScenarioIdentity(preset, 1337, 1337)
+  )
+);
+for (const mapSeed of [7, 42]) {
   deepOceanScenarios.push(
-    standardProductMetricScenario(EARTHLIKE, STANDARD_METRIC_PRESETS.standard, seed),
-    standardProductMetricScenario(EARTHLIKE, STANDARD_METRIC_PRESETS.huge, seed)
+    standardProductMetricScenario(
+      EARTHLIKE,
+      STANDARD_METRIC_PRESETS.standard,
+      standardMetricScenarioIdentity(STANDARD_METRIC_PRESETS.standard, mapSeed, mapSeed)
+    ),
+    standardProductMetricScenario(
+      EARTHLIKE,
+      STANDARD_METRIC_PRESETS.huge,
+      standardMetricScenarioIdentity(STANDARD_METRIC_PRESETS.huge, mapSeed, mapSeed)
+    )
   );
 }
 

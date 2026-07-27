@@ -47,11 +47,8 @@ export const StartSeatSchema = Type.Object(
     seatIndex: Type.Integer({ minimum: 0 }),
     playerId: Type.Integer({
       minimum: 0,
+      maximum: 63,
       description: "Engine player id stamped via setStartPosition.",
-    }),
-    playerIdSource: Type.Union([Type.Literal("alive-majors"), Type.Literal("slot-index")], {
-      description:
-        "Identity authority for this seat: an exact adapter-reported alive-major ID, or a slot-index fallback used only when the alive-major observation is empty.",
     }),
     regionSlot: Type.Integer({
       minimum: 1,

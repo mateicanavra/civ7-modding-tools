@@ -1,18 +1,18 @@
-import { createMockAdapter, getCiv7StandardMapSizePreset } from "@civ7/adapter";
-import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
+import { createMockAdapter } from "@civ7/adapter";
+import { createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import standardRecipe from "mod-swooper-maps/recipes/standard";
 import { standardMapConfigs } from "mod-swooper-maps/recipes/standard-map-configs";
 import { describe, expect, it } from "vitest";
 import type { BrowserRunEvent } from "../../src/browser-runner/protocol";
+import { getRuntimeRecipe } from "../../src/browser-runner/recipeRuntime";
 import { createWorkerTraceSink } from "../../src/browser-runner/worker-trace-sink";
 import { createWorkerVizFacetSink } from "../../src/browser-runner/worker-viz-facet-sink";
 import { buildStepDataTypeModel } from "../../src/features/viz/dataTypeModel";
 import type { VizLayerEntryV2 } from "../../src/features/viz/model";
+import { TEST_BROWSER_RUN_INITIAL_SETUP, TEST_MAP_SEED, TEST_MAP_SIZE } from "../setup";
 import { studioStandardRecipeConfig } from "./standardRecipeConfig";
 
-const tinyMapSize = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
-const { width: TINY_WIDTH, height: TINY_HEIGHT } = tinyMapSize.dimensions;
+const { width: TEST_WIDTH, height: TEST_HEIGHT } = TEST_MAP_SIZE.dimensions;
 
 describe("buildStepDataTypeModel", () => {
   it("groups layers by data type (dataTypeKey) and render mode (kind + role)", () => {
@@ -28,9 +28,9 @@ describe("buildStepDataTypeModel", () => {
         stageId: "ecology",
         stepIndex: 0,
         spaceId: "tile.hexOddR",
-        dims: tinyMapSize.dimensions,
+        dims: TEST_MAP_SIZE.dimensions,
         field: { format: "f32", data: { kind: "path", path: "height/f32" } },
-        bounds: [0, 0, TINY_WIDTH, TINY_HEIGHT],
+        bounds: [0, 0, TEST_WIDTH, TEST_HEIGHT],
         meta: { label: "Elevation" },
       },
       {
@@ -42,9 +42,9 @@ describe("buildStepDataTypeModel", () => {
         stageId: "ecology",
         stepIndex: 0,
         spaceId: "tile.hexOddR",
-        dims: tinyMapSize.dimensions,
+        dims: TEST_MAP_SIZE.dimensions,
         field: { format: "u8", data: { kind: "path", path: "height/u8" } },
-        bounds: [0, 0, TINY_WIDTH, TINY_HEIGHT],
+        bounds: [0, 0, TEST_WIDTH, TEST_HEIGHT],
         meta: { visibility: "debug" },
       },
       {
@@ -58,7 +58,7 @@ describe("buildStepDataTypeModel", () => {
         count: 2,
         positions: { kind: "path", path: "hotspots/positions" },
         values: { format: "f32", data: { kind: "path", path: "hotspots/gradient" } },
-        bounds: [0, 0, TINY_WIDTH, TINY_HEIGHT],
+        bounds: [0, 0, TEST_WIDTH, TEST_HEIGHT],
         meta: { role: "gradient", label: "Hotspots" },
       },
       {
@@ -72,7 +72,7 @@ describe("buildStepDataTypeModel", () => {
         count: 2,
         positions: { kind: "path", path: "hotspots/positions" },
         values: { format: "f32", data: { kind: "path", path: "hotspots/clamped" } },
-        bounds: [0, 0, TINY_WIDTH, TINY_HEIGHT],
+        bounds: [0, 0, TEST_WIDTH, TEST_HEIGHT],
         meta: { role: "clamped" },
       },
     ];
@@ -120,9 +120,9 @@ describe("buildStepDataTypeModel", () => {
       stageId: "map-rivers",
       stepIndex: 0,
       spaceId: "tile.hexOddQ",
-      dims: tinyMapSize.dimensions,
+      dims: TEST_MAP_SIZE.dimensions,
       field: { format: "u8", data: { kind: "path", path: `${dataTypeKey}.u8` } },
-      bounds: [0, 0, TINY_WIDTH, TINY_HEIGHT],
+      bounds: [0, 0, TEST_WIDTH, TEST_HEIGHT],
       meta: { visibility, ...(role === undefined ? {} : { role }) },
     });
 
@@ -179,27 +179,18 @@ describe("buildStepDataTypeModel", () => {
     expect(byId.get("map.rivers.engineMinorRiverMask")?.visibility).toBe("debug");
   });
 
-  it("builds the river step model from actual standard recipe Studio emissions", () => {
-    const { width, height } = tinyMapSize.dimensions;
-    const seed = 1337;
+  it("builds the river step model from actual standard recipe Studio emissions", async () => {
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const stepId = "mod-swooper-maps.standard.map-rivers.plot-rivers";
-    const mapInfo = tinyMapSize.mapInfo;
-    const { MaxLatitude: topLatitude, MinLatitude: bottomLatitude } = mapInfo;
-    if (typeof topLatitude !== "number" || typeof bottomLatitude !== "number") {
-      throw new Error("Civ7 Tiny map-size metadata must declare latitude bounds.");
-    }
-    const setup = admitMapSetup({
-      mapSeed: seed,
-      dimensions: { width, height },
-      latitudeBounds: { topLatitude, bottomLatitude },
-    });
+    const mapInfo = TEST_MAP_SIZE.mapInfo;
     const earthlikeArtifact = standardMapConfigs.find(
       ({ canonicalConfig }) => canonicalConfig.id === "swooper-earthlike"
     );
     if (!earthlikeArtifact)
       throw new Error("swooper-earthlike config missing from standard map config catalog");
     const standardConfig = studioStandardRecipeConfig(earthlikeArtifact.canonicalConfig);
-    const plan = standardRecipe.compile(setup, standardConfig);
+    const runtimeRecipe = getRuntimeRecipe("standard");
+    const plan = runtimeRecipe.recipe.compile(TEST_BROWSER_RUN_INITIAL_SETUP, standardConfig);
     const verboseSteps = Object.fromEntries(
       plan.nodes.map((node) => [node.stepId, "verbose"] as const)
     );
@@ -207,16 +198,17 @@ describe("buildStepDataTypeModel", () => {
       width,
       height,
       mapInfo,
-      mapSizeId: 1,
-      rng: createLabelRng(seed),
+      mapSizeId: TEST_MAP_SIZE.id,
+      aliveMajorPlayerIds: TEST_BROWSER_RUN_INITIAL_SETUP.aliveMajorPlayerIds,
+      rng: createLabelRng(TEST_MAP_SEED),
     });
-    const context = createMapContext({ setup, adapter });
+    const context = createMapContext({ setup: plan.setup, adapter });
     const events: BrowserRunEvent[] = [];
     const post = (event: BrowserRunEvent): void => {
       events.push(event);
     };
 
-    standardRecipe.run(context, standardConfig, {
+    await runtimeRecipe.recipe.executeAsync(context, plan, {
       trace: {
         config: { steps: verboseSteps },
         sink: createWorkerTraceSink({

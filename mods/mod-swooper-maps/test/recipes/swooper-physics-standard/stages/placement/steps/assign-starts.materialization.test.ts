@@ -11,7 +11,7 @@ import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/
 import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
 import placement from "@mapgen/domain/placement/router";
 import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
-import { admitMapSetup, createMapContext, type MapContext } from "@swooper/mapgen-core";
+import { createMapContext, type MapContext } from "@swooper/mapgen-core";
 import {
   readValidatedArtifact,
   type Static,
@@ -24,8 +24,13 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 
+import standardRecipe from "../../../../../../src/recipes/standard/recipe.js";
 import { AssignStartsStep } from "../../../../../../src/recipes/standard/stages/placement/steps/assign-starts/step.js";
-import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
+import { TEST_GAME_SEED, TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
+import {
+  createStandardRecipeTestInitialSetup,
+  standardMapConfig,
+} from "../../../fixtures/standard-recipe.js";
 
 type AssignStartsConfig = Static<(typeof AssignStartsStep.contract)["schema"]>;
 type AssignStartsOps = StepRuntimeOps<NonNullable<(typeof AssignStartsStep.contract)["ops"]>>;
@@ -65,18 +70,19 @@ function createAssignStartsContext(alivePlayerIds: readonly number[]) {
     ...TEST_MAP_SIZE.dimensions,
     mapInfo: TEST_MAP_SIZE.mapInfo,
     mapSizeId: TEST_MAP_SIZE.id,
-    aliveMajorCount: alivePlayerIds.length,
+    aliveMajorPlayerIds: alivePlayerIds,
   });
-  adapter.getAliveMajorIds = () => [...alivePlayerIds];
-  const context = createMapContext({
-    setup: admitMapSetup({
+  const plan = standardRecipe.compile(
+    createStandardRecipeTestInitialSetup({
+      preset: TEST_MAP_SIZE,
       mapSeed: TEST_MAP_SEED,
-      dimensions: TEST_MAP_SIZE.dimensions,
-      latitudeBounds: {
-        topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
-        bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
-      },
+      gameSeed: TEST_GAME_SEED,
+      aliveMajorPlayerIds: alivePlayerIds,
     }),
+    standardMapConfig.config
+  );
+  const context = createMapContext({
+    setup: plan.setup,
     adapter,
   });
   return { adapter, context };

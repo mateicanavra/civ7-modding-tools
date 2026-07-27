@@ -22,7 +22,7 @@ import {
   isClimateExtreme,
 } from "../../rules/climate-comfort.js";
 import { balanceFairness } from "../../rules/fairness.js";
-import { buildSeatIdentities, resolveSeatDemand } from "../../rules/seat-identity.js";
+import { buildSeatIdentities } from "../../rules/seat-identity.js";
 import {
   compareSelectableTiles,
   type RelaxationEntry,
@@ -31,7 +31,6 @@ import {
   type SelectableTile,
   type StartComponents,
 } from "../../rules/selection-ladder.js";
-import { indexSeatBiases, type SeatBiasContext } from "../../rules/start-bias.js";
 import ViabilityFairnessDefinition from "./config.js";
 
 type StartTier = "primary" | "islandCluster" | "marginal";
@@ -286,11 +285,7 @@ function percentileRanks(values: readonly number[]): number[] {
  */
 const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessDefinition, {
   run: (input, config) => {
-    const westSlotCapacity = Math.max(0, input.baseStarts.playersLandmass1 | 0);
-    const eastSlotCapacity = Math.max(0, input.baseStarts.playersLandmass2 | 0);
-    const seatDemand = resolveSeatDemand(westSlotCapacity + eastSlotCapacity, input.alivePlayerIds);
-    const totalPlayers =
-      seatDemand.kind === "alive-majors" ? seatDemand.playerIds.length : seatDemand.count;
+    const totalPlayers = input.playerIds.length;
     const spacingFloorTiles = Math.max(0, config.spacingFloorTiles | 0);
     const desiredSpacingTiles = Math.max(spacingFloorTiles, config.desiredSpacingTiles | 0);
 
@@ -523,15 +518,6 @@ const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessDe
       }
       return false;
     };
-    const isLakeAdjacent = (plotIndex: number): boolean => {
-      const y = (plotIndex / width) | 0;
-      const x = plotIndex - y * width;
-      for (const neighbor of getHexNeighborIndicesOddQ(x, y, width, height)) {
-        if ((lakeMask?.[neighbor] ?? 0) === 1) return true;
-      }
-      return false;
-    };
-
     const candidates: StartCandidate[] = [];
     const reserve: SelectableTile[] = [];
 
@@ -665,7 +651,7 @@ const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessDe
     const seatIdentities = buildSeatIdentities({
       playersWest,
       playersEast,
-      demand: seatDemand,
+      playerIds: input.playerIds,
     });
 
     // Region reassignment (recorded, never silent): a residual guard for any
@@ -689,13 +675,6 @@ const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessDe
         reassignedSeats.add(seat.seatIndex);
       }
     }
-    const seatBiases = indexSeatBiases(input.seatBiases);
-    const biasContextOf = (plotIndex: number): SeatBiasContext => ({
-      riverAdjacent: isRiverAdjacent(plotIndex),
-      lakeAdjacent: isLakeAdjacent(plotIndex),
-      coastalLand: (coastalLand?.[plotIndex] ?? 0) === 1,
-    });
-
     const ladder = runSelectionLadder({
       seats: seatIdentities,
       candidates,
@@ -704,9 +683,7 @@ const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessDe
       spacingFloorTiles,
       desiredSpacingTiles,
       rankingBlend: config.rankingBlend,
-      startBiasWeight: config.startBiasWeight,
-      seatBiasOf: (seatIndex) => seatBiases.get(seatIndex),
-      biasContextOf,
+      gameSeed: input.gameSeed,
       // D3: let dispersion reward fuller spread where a homeland has room.
       landByRegion: { 1: landBySlot1, 2: landBySlot2 },
     });
@@ -762,7 +739,6 @@ const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessDe
       return {
         seatIndex: entry.seat.seatIndex,
         playerId: entry.seat.playerId,
-        playerIdSource: entry.seat.playerIdSource,
         regionSlot: entry.seat.regionSlot as number,
         realizedRegionSlot: seated ? entry.tile!.regionSlot : 0,
         rung: entry.rung,

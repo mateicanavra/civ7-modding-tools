@@ -6,6 +6,7 @@ import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morpho
 import placement from "@mapgen/domain/placement";
 import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
+import { STANDARD_INITIAL_SETUP } from "../../../../initial-setup.js";
 import {
   MAP_PROJECTION_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
@@ -17,9 +18,8 @@ import {
  */
 export const config = defineStep({
   id: "plan-natural-wonders",
+  initialSetup: STANDARD_INITIAL_SETUP,
   engine: [
-    "getMapSizeId",
-    "lookupMapInfo",
     "readCurrentMapTerrainTypes",
     "readCurrentMapBiomeTypes",
     "readCurrentMapFeatureTypes",

@@ -7,6 +7,7 @@ import {
   buildLiveRuntimeSnapshotState,
   buildLiveRuntimeStatusState,
   buildLiveRuntimeSuggestionRecords,
+  selectLiveRuntimeGameSeed,
   shouldCommitLiveRuntimeSetup,
   shouldCommitLiveRuntimeSnapshot,
 } from "../../src/features/liveRuntime/model";
@@ -212,12 +213,44 @@ describe("live runtime model", () => {
     const records = buildLiveRuntimeSuggestionRecords({
       sourceSnapshotId: "snapshot:1:abc",
       seed: 123,
+      gameSeed: -456,
       setupConfig: { gameOptions: { Difficulty: "DIFFICULTY_PRINCE" } },
       now: () => new Date("2026-06-06T00:00:00.000Z"),
     });
 
-    expect(records).toHaveLength(2);
-    expect(records.map((record) => record.affectedConfigPath)).toEqual(["seed", "setupConfig"]);
+    expect(records).toHaveLength(3);
+    expect(records.map((record) => record.affectedConfigPath)).toEqual([
+      "seed",
+      "gameSeed",
+      "setupConfig",
+    ]);
+    expect(records.find((record) => record.affectedConfigPath === "seed")?.value).toBe("123");
+    expect(records.find((record) => record.affectedConfigPath === "gameSeed")?.value).toBe("-456");
     expect(records.every((record) => record.applyPath === "visible-studio-control")).toBe(true);
+  });
+
+  it.each([
+    ["observed integer", { id: "GameRandomSeed", exists: true, value: -456 }, -456],
+    [
+      "read-only observation",
+      { id: "GameRandomSeed", exists: true, readOnly: true, value: "456" },
+      456,
+    ],
+    ["missing parameter", undefined, undefined],
+    ["unavailable parameter", { id: "GameRandomSeed", exists: false, value: 456 }, undefined],
+    [
+      "destroyed parameter",
+      { id: "GameRandomSeed", exists: true, destroyed: true, value: 456 },
+      undefined,
+    ],
+    ["refused parameter", { id: "GameRandomSeed", exists: true, invalidReason: 4 }, undefined],
+    ["malformed value", { id: "GameRandomSeed", exists: true, value: "seed-456" }, undefined],
+  ] as const)("selects %s game-seed evidence", (_label, parameter, expected) => {
+    expect(
+      selectLiveRuntimeGameSeed({
+        parameters: parameter ? [parameter] : [],
+        players: [],
+      })
+    ).toBe(expected);
   });
 });

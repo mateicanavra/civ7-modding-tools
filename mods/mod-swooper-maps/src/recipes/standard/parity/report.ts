@@ -1,8 +1,11 @@
+import { Value } from "typebox/value";
 import { compareStandardHydrology, type StandardHydrologyParityComparison } from "./hydrology.js";
 import { compareStandardPlacement, type StandardPlacementParityComparison } from "./placement.js";
 import { compareStandardFinalSurfaces, type StandardSurfaceComparison } from "./surfaces.js";
 import {
   type StandardExactParityCapture,
+  type StandardExactRecipePlanEvidence,
+  type StandardExactRecipePlanPayloads,
   type StandardLiveParityCapture,
   type StandardLocalParityCapture,
   type StandardParityComparison,
@@ -14,10 +17,12 @@ export type StandardParityReportState = "complete-pass" | "complete-failed" | "b
 
 /** Correlation claims that bind exact authorship, replay, and live observation. */
 type StandardParityIdentityComparison = Readonly<{
+  planFingerprint: StandardParityComparison;
   mapSeed: StandardParityComparison;
   gameSeed: StandardParityComparison;
   mapSize: StandardParityComparison;
   playerCount: StandardParityComparison;
+  aliveMajorPlayerIds: StandardParityComparison;
   canonicalConfigDigest: StandardParityComparison;
   launchEnvelopeDigest: StandardParityComparison;
   dimensions: StandardParityComparison;
@@ -98,23 +103,42 @@ function compareStandardParityIdentity(
   const { authorship } = args.exact;
   const localDimensions = args.local.surface.dimensions;
   const liveDimensions = args.live.surface.dimensions;
+  const recipePlan = resolveExactRecipePlanPayloads(args.exact.recipePlan);
   return {
+    planFingerprint:
+      recipePlan.status === "missing"
+        ? unresolvedEvidence(
+            "Exact authorship does not contain both Standard recipe-plan lifecycle payloads.",
+            ...recipePlan.evidenceLinks
+          )
+        : recipePlan.status === "mismatch"
+          ? failedEvidence(
+              "The Standard evidence and completion markers identify different recipe plans.",
+              "identity.recipe-plan-payloads"
+            )
+          : equalEvidence(
+              [recipePlan.value.planFingerprint, args.local.identity.planFingerprint],
+              "Exact authorship and replay use the same admitted Standard recipe plan.",
+              "The replayed Standard recipe plan diverges from exact authorship.",
+              "identity.plan-fingerprint"
+            ),
     mapSeed: equalEvidence(
       [
         authorship.request.seed,
+        authorship.civSetup.mapSeed,
         authorship.runtime.seed,
         authorship.log.seed,
         args.local.identity.mapSeed,
         args.live.identity.mapSeed,
       ],
-      "The map seed agrees across exact authorship, replay, and live Civ7.",
-      "The map seed diverges across exact authorship, replay, or live Civ7.",
+      "The map seed agrees across requested setup, applied Civ7 setup, exact runtime, replay, and live Civ7.",
+      "The map seed diverges across requested setup, applied Civ7 setup, exact runtime, replay, or live Civ7.",
       "identity.map-seed"
     ),
     gameSeed: equalEvidence(
-      [authorship.request.gameSeed, args.local.identity.gameSeed],
-      "The frozen game seed agrees between exact authorship and replay correlation.",
-      "The frozen game seed diverges between exact authorship and replay correlation.",
+      [authorship.request.gameSeed, authorship.civSetup.gameSeed, args.local.identity.gameSeed],
+      "The game seed agrees across requested setup, applied Civ7 setup, and replay correlation.",
+      "The game seed diverges across requested setup, applied Civ7 setup, or replay correlation.",
       "identity.game-seed"
     ),
     mapSize: equalEvidence(
@@ -130,11 +154,37 @@ function compareStandardParityIdentity(
             "identity.player-count"
           )
         : equalEvidence(
-            [authorship.request.playerCount, args.local.identity.playerCount],
+            [
+              authorship.request.playerCount,
+              ...(recipePlan.status === "present"
+                ? [recipePlan.value.initialSetup.value.aliveMajorPlayerIds.length]
+                : []),
+              args.local.identity.aliveMajorPlayerIds.length,
+            ],
             "The frozen player count agrees between exact authorship and replay.",
             "The frozen player count diverges between exact authorship and replay.",
             "identity.player-count"
           ),
+    aliveMajorPlayerIds:
+      recipePlan.status === "missing"
+        ? unresolvedEvidence(
+            "Exact authorship does not contain both ordered alive-major player rosters.",
+            ...recipePlan.evidenceLinks
+          )
+        : recipePlan.status === "mismatch"
+          ? failedEvidence(
+              "The Standard evidence and completion markers identify different ordered alive-major player rosters.",
+              "identity.recipe-plan-payloads"
+            )
+          : equalEvidence(
+              [
+                recipePlan.value.initialSetup.value.aliveMajorPlayerIds,
+                args.local.identity.aliveMajorPlayerIds,
+              ],
+              "The exact ordered alive-major player roster agrees between authorship and replay.",
+              "The ordered alive-major player roster diverges between authorship and replay.",
+              "identity.alive-major-player-ids"
+            ),
     canonicalConfigDigest: equalEvidence(
       [
         authorship.canonicalConfigDigest,
@@ -197,7 +247,7 @@ function equalEvidence(
   evidenceLink: string
 ): StandardParityComparison {
   const [expected, ...observed] = values;
-  return observed.every((value) => value === expected)
+  return observed.every((value) => Value.Equal(value, expected))
     ? passedEvidence(passReason, evidenceLink)
     : {
         status: "fail",
@@ -206,12 +256,34 @@ function equalEvidence(
       };
 }
 
+function failedEvidence(reason: string, evidenceLink: string): StandardParityComparison {
+  return { status: "fail", reason, evidenceLinks: [evidenceLink] };
+}
+
 function passedEvidence(reason: string, evidenceLink: string): StandardParityComparison {
   return { status: "pass", reason, evidenceLinks: [evidenceLink] };
 }
 
-function unresolvedEvidence(reason: string, evidenceLink: string): StandardParityComparison {
-  return { status: "unresolved", reason, evidenceLinks: [evidenceLink] };
+function unresolvedEvidence(reason: string, ...evidenceLinks: string[]): StandardParityComparison {
+  return { status: "unresolved", reason, evidenceLinks };
+}
+
+function resolveExactRecipePlanPayloads(
+  payloads: StandardExactRecipePlanPayloads
+):
+  | Readonly<{ status: "present"; value: StandardExactRecipePlanEvidence }>
+  | Readonly<{ status: "missing"; evidenceLinks: readonly string[] }>
+  | Readonly<{ status: "mismatch" }> {
+  const evidenceLinks = [payloads.evidence, payloads.completion]
+    .filter((payload) => payload.status === "missing")
+    .map((payload) => payload.evidenceLink);
+  if (evidenceLinks.length > 0) return { status: "missing", evidenceLinks };
+  if (payloads.evidence.status !== "present" || payloads.completion.status !== "present") {
+    throw new Error("Standard exact recipe-plan payload resolution reached an impossible state.");
+  }
+  return Value.Equal(payloads.evidence.value, payloads.completion.value)
+    ? { status: "present", value: payloads.evidence.value }
+    : { status: "mismatch" };
 }
 
 function dimensionsKey(width: number, height: number): string {

@@ -2,6 +2,7 @@ import type { MapConfigEnvelope } from "@civ7/studio-contract";
 import type { WorldSettings } from "@swooper/mapgen-studio-ui/types";
 import { create } from "zustand";
 import { type PersistStorage, persist, type StorageValue } from "zustand/middleware";
+import { normalizeCiv7WorldSettings } from "../features/civ7Setup/mapSizes";
 import { parseCiv7StudioSeed } from "../features/civ7Setup/seedPolicy";
 import {
   type Civ7StudioSetupConfig,
@@ -81,7 +82,7 @@ export const useAuthoringStore = create<AuthoringState>()(
       authoringRevision: 0,
       setWorldSettings: (next) =>
         set((state) => ({
-          worldSettings: resolve(next, state.worldSettings),
+          worldSettings: normalizeCiv7WorldSettings(resolve(next, state.worldSettings)),
           authoringRevision: state.authoringRevision + 1,
         })),
       setSeed: (next) =>

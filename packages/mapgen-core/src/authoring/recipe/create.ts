@@ -1,6 +1,7 @@
 import type { MapContext } from "@mapgen/core/map-context.js";
 import {
   compileExecutionPlan,
+  computePlanFingerprint,
   type DependencyTagDefinition,
   type DependencyTagKind,
   DuplicateDependencyTagError,
@@ -28,6 +29,7 @@ import {
   type InitialSetupDefinition,
   type InitialSetupInputOf,
   isInitialSetupDefinitionInternal,
+  readInitialSetupValueInternal,
 } from "../initial-setup/definition.js";
 import { bindRuntimeOps, type DomainOpRuntimeAny, runtimeOp } from "../operation/bindings.js";
 import { isCanonicalDomainOp } from "../operation/create.js";
@@ -49,6 +51,7 @@ import type {
   RecipeDefinition,
   RecipeExecutionOptions,
   RecipeModule,
+  RecipePlanEvidence,
   RecipePublicConfigOf,
 } from "./types.js";
 
@@ -495,9 +498,15 @@ function toStructuralRecipeV2(
 export function createRecipe<
   const TStages extends readonly AnyStage[],
   const TInitialSetup extends InitialSetupDefinition = typeof basePhysicalInitialSetupDefinition,
+  const TRecipeId extends string = string,
 >(
-  input: RecipeDefinition<TStages, TInitialSetup>
-): RecipeModule<RecipePublicConfigOf<TStages>, CompiledRecipeConfigOf<TStages>, TInitialSetup> {
+  input: RecipeDefinition<TStages, TInitialSetup, TRecipeId>
+): RecipeModule<
+  RecipePublicConfigOf<TStages>,
+  CompiledRecipeConfigOf<TStages>,
+  TInitialSetup,
+  TRecipeId
+> {
   const authorship = snapshotAuthorship(input);
   const initialSetup = (authorship.initialSetup ??
     basePhysicalInitialSetupDefinition) as TInitialSetup;
@@ -595,6 +604,18 @@ export function createRecipe<
     return compileExecutionPlan(admittedRunRequest(admitted, compiled), registry);
   }
 
+  function inspectPlan(plan: ExecutionPlan): RecipePlanEvidence<TInitialSetup, TRecipeId> {
+    assertExecutionPlanRegistryInternal(plan, registry);
+    return Object.freeze({
+      recipeId: authorship.id,
+      planFingerprint: computePlanFingerprint(plan),
+      initialSetup: Object.freeze({
+        definitionId: initialSetup.id,
+        value: readInitialSetupValueInternal(plan.setup, initialSetup),
+      }),
+    });
+  }
+
   function execute(
     context: MapContext,
     plan: ExecutionPlan,
@@ -652,6 +673,7 @@ export function createRecipe<
     recipe,
     compileConfig,
     compile,
+    inspectPlan,
     execute,
     run,
     executeAsync,

@@ -7,9 +7,9 @@ import {
   useRef,
   useState,
 } from "react";
-import { getCiv7MapSizePreset } from "../../features/browserRunner/mapSizes";
 import { capturePinnedSelection } from "../../features/browserRunner/retention";
 import type { BrowserRunnerActions } from "../../features/browserRunner/useBrowserRunner";
+import { getCiv7MapSizePreset } from "../../features/civ7Setup/mapSizes";
 import {
   formatCiv7StudioSeedError,
   parseCiv7StudioSeed,
@@ -95,6 +95,8 @@ export function useBrowserRun({
 }: UseBrowserRunArgs): UseBrowserRun {
   const worldSettings = useAuthoringStore((s) => s.worldSettings);
   const seed = useAuthoringStore((s) => s.seed);
+  const gameSeed = useAuthoringStore((s) => s.gameSeed);
+  const setupConfig = useAuthoringStore((s) => s.setupConfig);
   const setSeed = useAuthoringStore((s) => s.setSeed);
   const canonicalConfig = useAuthoringStore((s) => s.canonicalConfig);
   const authoringRevision = useAuthoringStore((s) => s.authoringRevision);
@@ -127,6 +129,13 @@ export function useBrowserRun({
         return;
       }
       const admittedSeed = seedPolicy.value;
+      const gameSeedPolicy = parseCiv7StudioSeed(gameSeed);
+      if (!gameSeedPolicy.ok) {
+        const message = `Game ${formatCiv7StudioSeedError(gameSeedPolicy).toLowerCase()}`;
+        setLocalError(message);
+        toast(message, { variant: "error" });
+        return;
+      }
       const mapSize = getCiv7MapSizePreset(worldSettings.mapSize);
       if (admitCanonicalConfig(canonicalConfig) === undefined) {
         const message = "Browser run failed: config is invalid for this recipe.";
@@ -134,6 +143,18 @@ export function useBrowserRun({
         toast(message, { variant: "error" });
         return;
       }
+      const aliveMajorPlayerIds = materializeBrowserPlayerIds(worldSettings.playerCount);
+      const admittedPlayerIds = new Set(aliveMajorPlayerIds);
+      if (setupConfig.playerOptions.some(({ playerId }) => !admittedPlayerIds.has(playerId))) {
+        const message =
+          "Browser run failed: player setup overrides must target the requested player slots.";
+        setLocalError(message);
+        toast(message, { variant: "error" });
+        return;
+      }
+      const playerOptionsById = new Map(
+        setupConfig.playerOptions.map(({ playerId, options }) => [playerId, options] as const)
+      );
 
       const pinned = capturePinnedSelection({
         selectedStepId: viz.selectedStepId,
@@ -155,11 +176,20 @@ export function useBrowserRun({
 
       runnerActions.start({
         recipeId: canonicalConfig.recipe,
-        seed: admittedSeed,
+        mapSeed: admittedSeed,
+        gameSeed: gameSeedPolicy.value,
         mapSizeId: mapSize.id,
         dimensions: mapSize.dimensions,
         latitudeBounds: canonicalConfig.latitudeBounds,
-        playerCount: worldSettings.playerCount,
+        aliveMajorPlayerIds,
+        options: {
+          map: setupConfig.mapOptions,
+          game: setupConfig.gameOptions,
+          player: aliveMajorPlayerIds.map((playerId) => ({
+            playerId,
+            options: playerOptionsById.get(playerId) ?? {},
+          })),
+        },
         pipelineConfig: canonicalConfig.config,
       });
     },
@@ -167,9 +197,11 @@ export function useBrowserRun({
       runnerActions,
       authoringRevision,
       canonicalConfig,
+      gameSeed,
       seed,
       setLastRunSnapshot,
       setLocalError,
+      setupConfig,
       toast,
       worldSettings,
       viz,
@@ -266,4 +298,9 @@ export function useBrowserRun({
     autoRunEnabled,
     setAutoRunEnabled,
   };
+}
+
+/** Materializes the browser simulation's contiguous player universe from authored population. */
+function materializeBrowserPlayerIds(playerCount: number): readonly number[] {
+  return Array.from({ length: playerCount }, (_, playerId) => playerId);
 }

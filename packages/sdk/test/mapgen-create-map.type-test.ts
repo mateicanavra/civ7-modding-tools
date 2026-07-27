@@ -1,6 +1,36 @@
-import { defineInitialSetup, type RecipeModule, Type } from "@swooper/mapgen-core/authoring";
+import {
+  CIV7_GAME_OPTION_DESCRIPTORS,
+  CIV7_MAP_OPTION_DESCRIPTORS,
+  CIV7_PLAYER_OPTION_DESCRIPTORS,
+} from "@civ7/adapter";
+import {
+  createRecipe,
+  defineInitialSetup,
+  type RecipeModule,
+  Type,
+} from "@swooper/mapgen-core/authoring";
 
 import { createMap } from "../src/mapgen/createMap.js";
+
+const MAP_SEA_LEVEL_OPTION = descriptorById(CIV7_MAP_OPTION_DESCRIPTORS, "MapSeaLevel");
+const START_POSITION_OPTION = descriptorById(CIV7_MAP_OPTION_DESCRIPTORS, "StartPosition");
+const RULESET_OPTION = descriptorById(CIV7_GAME_OPTION_DESCRIPTORS, "Ruleset");
+const PLAYER_TEAM_OPTION = descriptorById(CIV7_PLAYER_OPTION_DESCRIPTORS, "PlayerTeam");
+const FORGED_MAP_OPTION = {
+  configurationGroup: "Map",
+  parameterId: "ForgedMapOption",
+  cardinality: "scalar",
+  valueKind: "string",
+  physicalProjections: {
+    configuration: { key: "ForgedMapOption", encoding: "literal" },
+    authoredValue: { key: "ForgedMapOption" },
+  },
+  authoredValueRead: {
+    kind: "configuration",
+    key: "ForgedMapOption",
+    source: "configuration-key",
+  },
+} as const;
 
 const ProductInitialSetup = defineInitialSetup({
   id: "test/product",
@@ -65,6 +95,14 @@ declare const collidingPhysicalRecipe: RecipeModule<
   typeof CollidingPhysicalInitialSetup
 >;
 
+const concreteProductRecipe = createRecipe({
+  id: "concrete-product",
+  initialSetup: ProductInitialSetup,
+  tagDefinitions: [],
+  stages: [],
+  compileOpsById: {},
+});
+
 function mapDefinitionTypeAssertions(): void {
   createMap({
     id: "base",
@@ -87,8 +125,9 @@ function mapDefinitionTypeAssertions(): void {
     recipe: collidingPhysicalRecipe,
     config: {},
     initialSetup: {
-      requestedMapOptionKeys: [],
-      requestedGameOptionKeys: [],
+      requestedMapOptions: [],
+      requestedGameOptions: [],
+      requestedPlayerOptions: [],
       project: (capture) => ({
         physical: {
           mapSeed: capture.mapSeed,
@@ -106,13 +145,26 @@ function mapDefinitionTypeAssertions(): void {
     recipe: productRecipe,
     config: {},
     initialSetup: {
-      requestedMapOptionKeys: ["SeaLevel", "StartPosition"],
-      requestedGameOptionKeys: ["Ruleset"],
+      requestedMapOptions: [START_POSITION_OPTION, MAP_SEA_LEVEL_OPTION],
+      requestedGameOptions: [RULESET_OPTION],
+      requestedPlayerOptions: [PLAYER_TEAM_OPTION],
       project: (capture) => {
-        const mapKey: "SeaLevel" | "StartPosition" = capture.options.map[0]!.key;
-        const gameKey: "Ruleset" = capture.options.game[0]!.key;
-        void mapKey;
+        const firstMapKey: "StartPosition" = capture.options.map[0].key;
+        const secondMapKey: "MapSeaLevel" = capture.options.map[1].key;
+        const gameKey: "Ruleset" = capture.options.game[0].key;
+        const playerKey: "PlayerTeam" = capture.options.player[0]!.options[0].key;
+        if (capture.options.map[1].status === "available") {
+          const seaLevel: string = capture.options.map[1].value;
+          void seaLevel;
+        }
+        if (capture.options.game[0].status === "available") {
+          const ruleset: string = capture.options.game[0].value;
+          void ruleset;
+        }
+        void firstMapKey;
+        void secondMapKey;
         void gameKey;
+        void playerKey;
         return {
           physical: {
             mapSeed: capture.mapSeed,
@@ -123,6 +175,49 @@ function mapDefinitionTypeAssertions(): void {
           seaLevel: "normal",
         };
       },
+    },
+  });
+
+  createMap({
+    id: "concrete-product",
+    name: "Concrete Product",
+    recipe: concreteProductRecipe,
+    config: {},
+    initialSetup: {
+      requestedMapOptions: [],
+      requestedGameOptions: [],
+      requestedPlayerOptions: [],
+      project: (capture) => ({
+        physical: {
+          mapSeed: capture.mapSeed,
+          dimensions: capture.dimensions,
+          latitudeBounds: capture.latitudeBounds,
+        },
+        gameSeed: capture.gameSeed,
+        seaLevel: "normal",
+      }),
+    },
+  });
+
+  createMap({
+    id: "forged-option",
+    name: "Forged Option",
+    recipe: productRecipe,
+    config: {},
+    initialSetup: {
+      // @ts-expect-error Map capture accepts only exact generated descriptor unions.
+      requestedMapOptions: [FORGED_MAP_OPTION],
+      requestedGameOptions: [],
+      requestedPlayerOptions: [],
+      project: (capture) => ({
+        physical: {
+          mapSeed: capture.mapSeed,
+          dimensions: capture.dimensions,
+          latitudeBounds: capture.latitudeBounds,
+        },
+        gameSeed: capture.gameSeed,
+        seaLevel: "normal",
+      }),
     },
   });
 
@@ -140,8 +235,9 @@ function mapDefinitionTypeAssertions(): void {
     recipe: productRecipe,
     config: {},
     initialSetup: {
-      requestedMapOptionKeys: [],
-      requestedGameOptionKeys: [],
+      requestedMapOptions: [],
+      requestedGameOptions: [],
+      requestedPlayerOptions: [],
       // @ts-expect-error The projector must return the recipe's complete exact initial input.
       project: (capture) => ({
         physical: {
@@ -155,3 +251,18 @@ function mapDefinitionTypeAssertions(): void {
 }
 
 void mapDefinitionTypeAssertions;
+
+function descriptorById<
+  Descriptor extends Readonly<{ parameterId: string }>,
+  const ParameterId extends Descriptor["parameterId"],
+>(
+  descriptors: readonly Descriptor[],
+  parameterId: ParameterId
+): Extract<Descriptor, { parameterId: ParameterId }> {
+  const descriptor = descriptors.find(
+    (candidate): candidate is Extract<Descriptor, { parameterId: ParameterId }> =>
+      candidate.parameterId === parameterId
+  );
+  if (!descriptor) throw new Error(`Missing generated Civ7 setup descriptor: ${parameterId}`);
+  return descriptor;
+}

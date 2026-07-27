@@ -7,7 +7,7 @@
 
 /// <reference types="@civ7/types" />
 
-import type { OfficialAgeType } from "@civ7/map-policy";
+import type { Civ7MapInfo, OfficialAgeType } from "@civ7/map-policy";
 import type { FeatureData } from "@civ7/types";
 
 /** Civ7's native feature-placement payload, re-exported for adapter API compatibility. */
@@ -171,24 +171,11 @@ export interface MapInitParams {
 /**
  * Map info row returned by Civ7's `GameInfo.Maps.lookup(mapSizeId)`.
  *
- * Note: Civ7 fields are PascalCase; values may be missing in tests and should be
- * treated as optional by consumers.
+ * The policy package derives the closed column set and field values from Civ7's
+ * official gameplay SQL schema. Runtime lookups and focused test doubles may
+ * expose only a subset, so the adapter boundary makes those generated fields optional.
  */
-export interface MapInfo {
-  // === Map Size Dimensions ===
-  GridWidth?: number;
-  GridHeight?: number;
-  MinLatitude?: number;
-  MaxLatitude?: number;
-  // === Game Setup Parameters ===
-  NumNaturalWonders?: number;
-  LakeGenerationFrequency?: number;
-  PlayersLandmass1?: number;
-  PlayersLandmass2?: number;
-  StartSectorRows?: number;
-  StartSectorCols?: number;
-  [key: string]: unknown;
-}
+export type MapInfo = Partial<Civ7MapInfo>;
 
 /**
  * Adapter readback for deterministic lake projection.

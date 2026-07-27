@@ -1,54 +1,119 @@
-export type Civ7StandardMapSizeId =
-  | "MAPSIZE_TINY"
-  | "MAPSIZE_SMALL"
-  | "MAPSIZE_STANDARD"
-  | "MAPSIZE_LARGE"
-  | "MAPSIZE_HUGE";
+import { type TSchema, type TSchemaOptions, Type } from "typebox";
+import { Value } from "typebox/value";
+import {
+  CIV7_MAP_INFO_COLUMN_DESCRIPTORS,
+  CIV7_STANDARD_MAP_INFO_ROWS,
+} from "./map-metadata.gen.js";
 
-export type Civ7LatitudeBounds = Readonly<{
-  topLatitude: number;
-  bottomLatitude: number;
+export {
+  CIV7_MAP_INFO_BOOLEAN_KEYS,
+  CIV7_MAP_INFO_COLUMN_DESCRIPTORS,
+  CIV7_MAP_INFO_KEYS,
+  CIV7_MAP_INFO_NULLABLE_KEYS,
+  CIV7_MAP_INFO_NUMBER_KEYS,
+  CIV7_MAP_INFO_STRING_KEYS,
+  CIV7_STANDARD_MAP_METADATA_SOURCE,
+} from "./map-metadata.gen.js";
+
+type Civ7MapInfoColumnDescriptor = (typeof CIV7_MAP_INFO_COLUMN_DESCRIPTORS)[number];
+type Civ7MapInfoColumnKey = Civ7MapInfoColumnDescriptor["name"];
+type Civ7MapInfoSqlValue<Descriptor extends Civ7MapInfoColumnDescriptor> =
+  Descriptor["sqlType"] extends "BOOLEAN"
+    ? boolean
+    : Descriptor["sqlType"] extends "INTEGER"
+      ? number
+      : string;
+type Civ7MapInfoColumnValue<Descriptor extends Civ7MapInfoColumnDescriptor> =
+  Descriptor["nullable"] extends true
+    ? Civ7MapInfoSqlValue<Descriptor> | null
+    : Civ7MapInfoSqlValue<Descriptor>;
+
+type Civ7MapInfoProperties = Readonly<{
+  [Descriptor in Civ7MapInfoColumnDescriptor as Descriptor["name"]]: Civ7MapInfoColumnValue<Descriptor>;
 }>;
 
-/**
- * The latitude fields from a live Civ7 map-info row.
- *
- * Map policy accepts this structural projection so static facts and pure
- * latitude helpers do not depend on the runtime adapter package.
- */
-export type Civ7MapInfoLatitudeSource = Readonly<{
-  MinLatitude?: unknown;
-  MaxLatitude?: unknown;
+const Civ7MapInfoSchemaProperties = Object.fromEntries(
+  CIV7_MAP_INFO_COLUMN_DESCRIPTORS.map((descriptor) => [
+    descriptor.name,
+    mapInfoColumnSchema(descriptor),
+  ])
+) as Record<Civ7MapInfoColumnKey, TSchema>;
+
+const Civ7MapInfoObjectSchema = Type.Object(Civ7MapInfoSchemaProperties, {
+  additionalProperties: false,
+  description:
+    "Complete detached Civ7 GameInfo.Maps row admitted as static map-generation policy evidence.",
+});
+
+/** Complete detached Civ7 `GameInfo.Maps` row admitted by map policy. */
+export type Civ7MapInfo = Civ7MapInfoProperties;
+
+/** Complete detached Civ7 `GameInfo.Maps` row admitted by map policy. */
+export const Civ7MapInfoSchema = Type.Unsafe<Civ7MapInfo>(Type.Immutable(Civ7MapInfoObjectSchema));
+
+/** Official Standard map-size identity derived from the current Civ7 resource catalog. */
+export type Civ7StandardMapSizeId = (typeof CIV7_STANDARD_MAP_INFO_ROWS)[number]["MapSizeType"];
+
+const CIV7_STANDARD_MAP_SIZE_IDS = Object.freeze(
+  CIV7_STANDARD_MAP_INFO_ROWS.map(({ MapSizeType }) => MapSizeType)
+);
+
+/** Official Standard map-size identities admitted by the generated policy catalog. */
+export const Civ7StandardMapSizeIdSchema = Type.Enum(CIV7_STANDARD_MAP_SIZE_IDS, {
+  description: "Official Civ7 Standard map-size identity.",
+});
+
+/** Complete official Standard `GameInfo.Maps` row. */
+export type Civ7StandardMapInfo = Readonly<
+  Omit<Civ7MapInfo, "MapSizeType"> & { MapSizeType: Civ7StandardMapSizeId }
+>;
+
+/** Complete official Standard `GameInfo.Maps` row. */
+export const Civ7StandardMapInfoSchema = Type.Unsafe<Civ7StandardMapInfo>(
+  Type.Immutable(
+    Type.Object(
+      {
+        ...Civ7MapInfoObjectSchema.properties,
+        MapSizeType: Civ7StandardMapSizeIdSchema,
+      },
+      {
+        additionalProperties: false,
+        description:
+          "Complete static map metadata for one selectable official Civ7 Standard map size.",
+      }
+    )
+  )
+);
+
+/** Admits and detaches one complete official-shape Standard `GameInfo.Maps` row. */
+export function admitCiv7StandardMapInfo(value: unknown): Civ7StandardMapInfo {
+  if (!Value.Check(Civ7StandardMapInfoSchema, value)) {
+    throw new TypeError("Civ7 Standard map info must match the complete generated column schema.");
+  }
+  return Object.freeze(Value.Clone(value)) as Civ7StandardMapInfo;
+}
+
+/** South-to-north interpolation endpoints used by Civ7's row-coordinate latitude API. */
+export type Civ7RowLatitudeEndpoints = Readonly<{
+  firstRowLatitude: number;
+  exclusiveEndLatitude: number;
 }>;
 
-/** Complete static map metadata generated for every selectable Civ7 standard map size. */
-export type Civ7StandardMapInfo = Readonly<{
-  GridWidth: number;
-  GridHeight: number;
-  MinLatitude: number;
-  MaxLatitude: number;
-  NumNaturalWonders: number;
-  LakeGenerationFrequency: number;
-  PlayersLandmass1: number;
-  PlayersLandmass2: number;
-  StartSectorRows: number;
-  StartSectorCols: number;
-  [key: string]: unknown;
-}>;
-
+/** Source-backed Standard map-size row plus convenient derived generation facts. */
 export type Civ7StandardMapSizePreset = Readonly<{
   id: Civ7StandardMapSizeId;
-  label: "Tiny" | "Small" | "Standard" | "Large" | "Huge";
+  label: string;
   dimensions: Readonly<{ width: number; height: number }>;
   defaultPlayers: number;
-  latitudeBounds: Civ7LatitudeBounds;
+  rowLatitudeEndpoints: Civ7RowLatitudeEndpoints;
   mapInfo: Civ7StandardMapInfo;
 }>;
 
-export const CIV7_STANDARD_ROW_LATITUDE_BOUNDS: Civ7LatitudeBounds = {
-  topLatitude: -90,
-  bottomLatitude: 90,
-} as const;
+/** Civ7's south-to-north row-latitude interpolation endpoints for Standard maps. */
+export const CIV7_STANDARD_ROW_LATITUDE_ENDPOINTS: Civ7RowLatitudeEndpoints = Object.freeze({
+  firstRowLatitude: -90,
+  exclusiveEndLatitude: 90,
+});
 
 const STANDARD_84X54_ROW_LATITUDES = Object.freeze([
   -90, -89, -85, -81, -78, -74, -71, -69, -65, -62, -58, -54, -51, -47, -45, -42, -38, -35, -31,
@@ -62,112 +127,35 @@ const HUGE_106X66_ROW_LATITUDES = Object.freeze([
   23, 27, 28, 32, 34, 37, 39, 43, 45, 48, 50, 54, 55, 59, 61, 64, 66, 70, 72, 75, 77, 81, 82, 86,
 ] as const);
 
-const CIV7_STANDARD_MAP_SIZE_PRESET_BY_ID = {
-  MAPSIZE_TINY: {
-    id: "MAPSIZE_TINY",
-    label: "Tiny",
-    dimensions: { width: 60, height: 38 },
-    defaultPlayers: 4,
-    latitudeBounds: CIV7_STANDARD_ROW_LATITUDE_BOUNDS,
-    mapInfo: {
-      GridWidth: 60,
-      GridHeight: 38,
-      MinLatitude: -90,
-      MaxLatitude: 90,
-      NumNaturalWonders: 3,
-      LakeGenerationFrequency: 25,
-      PlayersLandmass1: 3,
-      PlayersLandmass2: 1,
-      StartSectorRows: 3,
-      StartSectorCols: 2,
-    },
-  },
-  MAPSIZE_SMALL: {
-    id: "MAPSIZE_SMALL",
-    label: "Small",
-    dimensions: { width: 74, height: 46 },
-    defaultPlayers: 6,
-    latitudeBounds: CIV7_STANDARD_ROW_LATITUDE_BOUNDS,
-    mapInfo: {
-      GridWidth: 74,
-      GridHeight: 46,
-      MinLatitude: -90,
-      MaxLatitude: 90,
-      NumNaturalWonders: 4,
-      LakeGenerationFrequency: 25,
-      PlayersLandmass1: 4,
-      PlayersLandmass2: 2,
-      StartSectorRows: 3,
-      StartSectorCols: 3,
-    },
-  },
-  MAPSIZE_STANDARD: {
-    id: "MAPSIZE_STANDARD",
-    label: "Standard",
-    dimensions: { width: 84, height: 54 },
-    defaultPlayers: 8,
-    latitudeBounds: CIV7_STANDARD_ROW_LATITUDE_BOUNDS,
-    mapInfo: {
-      GridWidth: 84,
-      GridHeight: 54,
-      MinLatitude: -90,
-      MaxLatitude: 90,
-      NumNaturalWonders: 5,
-      LakeGenerationFrequency: 25,
-      PlayersLandmass1: 5,
-      PlayersLandmass2: 3,
-      StartSectorRows: 4,
-      StartSectorCols: 3,
-    },
-  },
-  MAPSIZE_LARGE: {
-    id: "MAPSIZE_LARGE",
-    label: "Large",
-    dimensions: { width: 96, height: 60 },
-    defaultPlayers: 10,
-    latitudeBounds: CIV7_STANDARD_ROW_LATITUDE_BOUNDS,
-    mapInfo: {
-      GridWidth: 96,
-      GridHeight: 60,
-      MinLatitude: -90,
-      MaxLatitude: 90,
-      NumNaturalWonders: 6,
-      LakeGenerationFrequency: 25,
-      PlayersLandmass1: 6,
-      PlayersLandmass2: 4,
-      StartSectorRows: 4,
-      StartSectorCols: 3,
-    },
-  },
-  MAPSIZE_HUGE: {
-    id: "MAPSIZE_HUGE",
-    label: "Huge",
-    dimensions: { width: 106, height: 66 },
-    defaultPlayers: 10,
-    latitudeBounds: CIV7_STANDARD_ROW_LATITUDE_BOUNDS,
-    mapInfo: {
-      GridWidth: 106,
-      GridHeight: 66,
-      MinLatitude: -90,
-      MaxLatitude: 90,
-      NumNaturalWonders: 7,
-      LakeGenerationFrequency: 25,
-      PlayersLandmass1: 6,
-      PlayersLandmass2: 6,
-      StartSectorRows: 4,
-      StartSectorCols: 3,
-    },
-  },
-} as const satisfies Record<Civ7StandardMapSizeId, Civ7StandardMapSizePreset>;
-
 /** Canonical Civ7 standard map-size presets in game selection order. */
-export const CIV7_STANDARD_MAP_SIZE_PRESETS: readonly Civ7StandardMapSizePreset[] = Object.values(
-  CIV7_STANDARD_MAP_SIZE_PRESET_BY_ID
+export const CIV7_STANDARD_MAP_SIZE_PRESETS: readonly Civ7StandardMapSizePreset[] = Object.freeze(
+  CIV7_STANDARD_MAP_INFO_ROWS.map((mapInfo) =>
+    Object.freeze({
+      id: mapInfo.MapSizeType,
+      label: formatStandardMapSizeLabel(mapInfo.MapSizeType),
+      dimensions: Object.freeze({ width: mapInfo.GridWidth, height: mapInfo.GridHeight }),
+      defaultPlayers: mapInfo.DefaultPlayers,
+      rowLatitudeEndpoints: CIV7_STANDARD_ROW_LATITUDE_ENDPOINTS,
+      mapInfo,
+    })
+  )
 );
+
+function formatStandardMapSizeLabel(id: Civ7StandardMapSizeId): string {
+  return id
+    .slice("MAPSIZE_".length)
+    .toLowerCase()
+    .replace(
+      /(^|_)([a-z])/g,
+      (_, prefix: string, letter: string) => `${prefix ? " " : ""}${letter.toUpperCase()}`
+    );
+}
 
 /** Resolves metadata for a validated Civ7 standard map-size id. */
 export function getCiv7StandardMapSizePreset(id: Civ7StandardMapSizeId): Civ7StandardMapSizePreset {
-  return CIV7_STANDARD_MAP_SIZE_PRESET_BY_ID[id];
+  const preset = CIV7_STANDARD_MAP_SIZE_PRESETS.find((candidate) => candidate.id === id);
+  if (!preset) throw new RangeError(`Unknown Civ7 Standard map-size id: ${id}`);
+  return preset;
 }
 
 /** Finds standard map metadata for a runtime id, or null when the id is not in the catalog. */
@@ -178,6 +166,16 @@ export function findCiv7StandardMapSizePreset(
   return CIV7_STANDARD_MAP_SIZE_PRESETS.find((preset) => preset.id === id) ?? null;
 }
 
+/** Resolves the official preset named by a detached `GameInfo.Maps` row. */
+export function findCiv7StandardMapSizePresetForMapInfo(
+  mapInfo: Readonly<{ MapSizeType?: unknown }> | null | undefined
+): Civ7StandardMapSizePreset | null {
+  return typeof mapInfo?.MapSizeType === "string"
+    ? findCiv7StandardMapSizePreset(mapInfo.MapSizeType)
+    : null;
+}
+
+/** Finds the official Standard preset with the exact admitted grid dimensions. */
 export function getCiv7StandardMapSizePresetForDimensions(
   width: number,
   height: number
@@ -189,48 +187,103 @@ export function getCiv7StandardMapSizePresetForDimensions(
   );
 }
 
-export function getCiv7MapInfoLatitudeBounds(
-  mapInfo: Civ7MapInfoLatitudeSource | null | undefined
-): Civ7LatitudeBounds {
-  const min = typeof mapInfo?.MinLatitude === "number" ? mapInfo.MinLatitude : undefined;
-  const max = typeof mapInfo?.MaxLatitude === "number" ? mapInfo.MaxLatitude : undefined;
-  if (Number.isFinite(min) && Number.isFinite(max) && min !== max) {
-    return { topLatitude: min as number, bottomLatitude: max as number };
-  }
-  return CIV7_STANDARD_ROW_LATITUDE_BOUNDS;
-}
-
+/** Interpolates one row latitude against Civ7's exclusive northward endpoint. */
 export function interpolateCiv7RowLatitude(
-  bounds: Civ7LatitudeBounds,
+  endpoints: Civ7RowLatitudeEndpoints,
   height: number,
   y: number
 ): number {
-  if (height <= 1) return (bounds.topLatitude + bounds.bottomLatitude) / 2;
+  if (height <= 0) return endpoints.firstRowLatitude;
   const row = Math.max(0, Math.min(height - 1, Math.trunc(y)));
-  const t = row / (height - 1);
-  return bounds.topLatitude + (bounds.bottomLatitude - bounds.topLatitude) * t;
+  const t = row / height;
+  return (
+    endpoints.firstRowLatitude + (endpoints.exclusiveEndLatitude - endpoints.firstRowLatitude) * t
+  );
 }
 
+/** Resolves a row latitude from live-observed Standard tables or bounded interpolation. */
 export function getCiv7RowLatitude(
-  mapInfo: Civ7MapInfoLatitudeSource | null | undefined,
+  endpoints: Civ7RowLatitudeEndpoints,
   height: number,
   y: number
 ): number {
-  const bounds = getCiv7MapInfoLatitudeBounds(mapInfo);
   const row = Math.max(0, Math.min(height - 1, Math.trunc(y)));
   if (
     height === STANDARD_84X54_ROW_LATITUDES.length &&
-    bounds.topLatitude === CIV7_STANDARD_ROW_LATITUDE_BOUNDS.topLatitude &&
-    bounds.bottomLatitude === CIV7_STANDARD_ROW_LATITUDE_BOUNDS.bottomLatitude
+    endpoints.firstRowLatitude === CIV7_STANDARD_ROW_LATITUDE_ENDPOINTS.firstRowLatitude &&
+    endpoints.exclusiveEndLatitude === CIV7_STANDARD_ROW_LATITUDE_ENDPOINTS.exclusiveEndLatitude
   ) {
     return STANDARD_84X54_ROW_LATITUDES[row] ?? 0;
   }
   if (
     height === HUGE_106X66_ROW_LATITUDES.length &&
-    bounds.topLatitude === CIV7_STANDARD_ROW_LATITUDE_BOUNDS.topLatitude &&
-    bounds.bottomLatitude === CIV7_STANDARD_ROW_LATITUDE_BOUNDS.bottomLatitude
+    endpoints.firstRowLatitude === CIV7_STANDARD_ROW_LATITUDE_ENDPOINTS.firstRowLatitude &&
+    endpoints.exclusiveEndLatitude === CIV7_STANDARD_ROW_LATITUDE_ENDPOINTS.exclusiveEndLatitude
   ) {
     return HUGE_106X66_ROW_LATITUDES[row] ?? 0;
   }
-  return interpolateCiv7RowLatitude(bounds, height, y);
+  return interpolateCiv7RowLatitude(endpoints, height, y);
+}
+
+function mapInfoColumnSchema(descriptor: Civ7MapInfoColumnDescriptor): TSchema {
+  const semanticOptions = mapInfoColumnSemanticOptions(descriptor.name);
+  const metadataOptions: TSchemaOptions = descriptor.hasDefault
+    ? { ...semanticOptions, default: descriptor.defaultValue }
+    : semanticOptions;
+  const scalarOptions = descriptor.nullable
+    ? mapInfoColumnRefinementOptions(descriptor.name)
+    : metadataOptions;
+  const scalar =
+    descriptor.sqlType === "BOOLEAN"
+      ? Type.Boolean(scalarOptions)
+      : descriptor.sqlType === "INTEGER"
+        ? Type.Integer(scalarOptions)
+        : Type.String(scalarOptions);
+  return descriptor.nullable ? Type.Union([scalar, Type.Null()], metadataOptions) : scalar;
+}
+
+function mapInfoColumnSemanticOptions(name: Civ7MapInfoColumnKey): TSchemaOptions {
+  const refinement = mapInfoColumnRefinementOptions(name);
+  switch (name) {
+    case "MapSizeType":
+      return {
+        ...refinement,
+        description: "Stable GameInfo.Maps row identity selected for this map generation.",
+      };
+    case "GridWidth":
+      return { ...refinement, description: "Playable map-grid width in hex columns." };
+    case "GridHeight":
+      return { ...refinement, description: "Playable map-grid height in hex rows." };
+    case "PlayersLandmass1":
+      return {
+        ...refinement,
+        description: "Player-start capacity assigned to Civ7's first homeland landmass.",
+      };
+    case "PlayersLandmass2":
+      return {
+        ...refinement,
+        description: "Player-start capacity assigned to Civ7's second homeland landmass.",
+      };
+    case "Description":
+      return {
+        ...refinement,
+        description: "Optional Civ7 localization key describing this map size.",
+      };
+    default:
+      return refinement;
+  }
+}
+
+function mapInfoColumnRefinementOptions(name: Civ7MapInfoColumnKey): TSchemaOptions {
+  switch (name) {
+    case "MapSizeType":
+    case "Name":
+    case "Description":
+      return { minLength: 1 };
+    case "GridWidth":
+    case "GridHeight":
+      return { minimum: 1 };
+    default:
+      return {};
+  }
 }

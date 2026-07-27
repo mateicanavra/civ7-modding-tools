@@ -25,6 +25,7 @@ import {
   waitForFreshLogMarkers,
 } from "@civ7/direct-control";
 import { assessCiv7SignedIntSeed } from "@civ7/map-policy/setup";
+import { decodeBoundedJsonLogSeries } from "@swooper/mapgen-core/lib/log";
 import { serializeVerifierError } from "./verifier-error";
 
 /** Parsed options for read-only evidence collection or an explicitly admitted live launch. */
@@ -102,6 +103,17 @@ export type MapScriptMarkerEvidence = Readonly<{
   marker: string;
   present: boolean;
 }>;
+
+/** Accepts only a complete digest-valid lifecycle completion carrying the requested map seed. */
+export function hasMapgenCompletionForSeed(text: string, mapSeed: number): boolean {
+  return decodeBoundedJsonLogSeries(text.split(/\r?\n/), "[mapgen-complete]").some(
+    ({ payload }) =>
+      payload !== null &&
+      typeof payload === "object" &&
+      !Array.isArray(payload) &&
+      (payload as Record<string, unknown>).seed === mapSeed
+  );
+}
 
 export type SwooperMapScriptDeploymentStage = Readonly<{
   name: "deployed-script-identity";
@@ -576,7 +588,8 @@ async function main(): Promise<number> {
     const logEvidence = await waitForFreshLogMarkers({
       logPath: scriptingLogPath,
       snapshot: scriptingSnapshot,
-      markers: ["[mapgen-complete]", `"seed":${mutationArgs.mapSeed}`],
+      markers: ["[mapgen-complete]"],
+      acceptFreshText: (text) => hasMapgenCompletionForSeed(text, mutationArgs.mapSeed),
       timeoutMs: args.waitTimeoutMs,
       pollIntervalMs: args.pollIntervalMs,
       rejectPattern:

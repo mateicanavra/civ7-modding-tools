@@ -1,5 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
+import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
+import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
+import { deriveStepSeed } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import { Value } from "typebox/value";
 
@@ -13,6 +16,7 @@ import {
   type StandardResourcePlacementMeasurements,
   StandardResourcePlacementMeasurementsSchema,
 } from "../../../src/recipes/standard/metrics/families/placement/resource-placement.js";
+import { TEST_GAME_SEED, TEST_MAP_SEED } from "../../setup.js";
 import { runStandardRecipeTestMap, standardMapConfig } from "./fixtures/standard-recipe.js";
 
 describe("Standard recipe generation", () => {
@@ -73,11 +77,52 @@ describe("Standard recipe generation", () => {
         expect(adapter.getResourceType(outcome.x, outcome.y)).toBe(outcome.resourceType);
       }
     }
-    expect(adapter.lookupMapInfo(preset.id)).toMatchObject({
-      GridWidth: preset.dimensions.width,
-      GridHeight: preset.dimensions.height,
-      MinLatitude: standardMapConfig.latitudeBounds.bottomLatitude,
-      MaxLatitude: standardMapConfig.latitudeBounds.topLatitude,
+    expect(adapter.lookupMapInfo(preset.id)).toEqual(preset.mapInfo);
+    expect(context.setup.latitudeBounds).toEqual(standardMapConfig.latitudeBounds);
+  }, 30_000);
+
+  it("keeps physical setup fixed while gameplay resource selection follows the game seed", () => {
+    const alternateGameSeed =
+      TEST_GAME_SEED === 2_147_483_647 ? TEST_GAME_SEED - 1 : TEST_GAME_SEED + 1;
+    const baseline = runStandardRecipeTestMap({
+      mapSeed: TEST_MAP_SEED,
+      gameSeed: TEST_GAME_SEED,
     });
+    const alternate = runStandardRecipeTestMap({
+      mapSeed: TEST_MAP_SEED,
+      gameSeed: alternateGameSeed,
+    });
+    const baselinePlan = readValidatedArtifact(
+      baseline.context,
+      resourceSiteArtifacts.resourcePlan
+    );
+    const alternatePlan = readValidatedArtifact(
+      alternate.context,
+      resourceSiteArtifacts.resourcePlan
+    );
+    const baselineAdjusted = readValidatedArtifact(
+      baseline.context,
+      resourceSupportArtifacts.resourcePlanAdjusted
+    );
+    const alternateAdjusted = readValidatedArtifact(
+      alternate.context,
+      resourceSupportArtifacts.resourcePlanAdjusted
+    );
+
+    expect(baseline.context.setup.mapSeed).toBe(TEST_MAP_SEED);
+    expect(alternate.context.setup.mapSeed).toBe(TEST_MAP_SEED);
+    expect(alternate.context.setup.dimensions).toEqual(baseline.context.setup.dimensions);
+    expect(alternate.context.setup.latitudeBounds).toEqual(baseline.context.setup.latitudeBounds);
+    expect(baselinePlan.seed).toBe(deriveStepSeed(TEST_GAME_SEED, "resources:selectResourceSites"));
+    expect(alternatePlan.seed).toBe(
+      deriveStepSeed(alternateGameSeed, "resources:selectResourceSites")
+    );
+    expect(alternatePlan.intents).not.toEqual(baselinePlan.intents);
+    expect(baselineAdjusted.seed).toBe(
+      deriveStepSeed(TEST_GAME_SEED, "resources:adjustResourceSupport")
+    );
+    expect(alternateAdjusted.seed).toBe(
+      deriveStepSeed(alternateGameSeed, "resources:adjustResourceSupport")
+    );
   }, 30_000);
 });

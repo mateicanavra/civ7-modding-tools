@@ -1,10 +1,8 @@
 /// <reference lib="webworker" />
 
-import { findCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { createMockAdapter } from "@civ7/adapter/mock";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import {
-  admitMapSetup,
   createLabelRng,
   createMapContext,
   type StepFacetFailure,
@@ -112,35 +110,8 @@ async function runRecipe(
   request: Extract<BrowserRunRequest, { type: "run.start" }>,
   abortSignal: { readonly aborted: boolean }
 ): Promise<void> {
-  const {
-    runToken,
-    generation,
-    recipeId,
-    seed,
-    mapSizeId,
-    dimensions,
-    latitudeBounds,
-    pipelineConfig,
-  } = request;
+  const { runToken, generation, recipeId, initialSetup, pipelineConfig } = request;
   const recipeEntry = getRuntimeRecipe(recipeId);
-  const mapSize = findCiv7StandardMapSizePreset(mapSizeId);
-  if (!mapSize) {
-    throw new Error(`Browser run requires a recognized Civ7 map-size id; received ${mapSizeId}.`);
-  }
-  if (
-    dimensions.width !== mapSize.dimensions.width ||
-    dimensions.height !== mapSize.dimensions.height
-  ) {
-    throw new Error(
-      `Browser run dimensions ${dimensions.width}x${dimensions.height} do not match ${mapSizeId} (${mapSize.dimensions.width}x${mapSize.dimensions.height}).`
-    );
-  }
-
-  const setup = admitMapSetup({
-    mapSeed: seed,
-    dimensions: mapSize.dimensions,
-    latitudeBounds,
-  });
 
   const configResult = admitPipelineConfig({
     schema: recipeEntry.configSchema,
@@ -151,25 +122,25 @@ async function runRecipe(
     throw new Error(`Invalid recipe config:\n${formatConfigErrors(configResult.errors)}`);
   }
 
-  const plan = recipeEntry.recipe.compile(setup, configResult.value);
+  const plan = recipeEntry.recipe.compile(initialSetup, configResult.value);
+  const adapterSetup = recipeEntry.recipe.projectAdapterSetup(plan);
   const verboseSteps: Record<string, "verbose"> = Object.fromEntries(
     plan.nodes.map((node) => [node.stepId, "verbose"] as const)
   );
 
-  const totalPlayers = request.playerCount ?? mapSize.defaultPlayers;
   const adapter = createMockAdapter({
-    width: mapSize.dimensions.width,
-    height: mapSize.dimensions.height,
-    mapSizeId,
-    mapInfo: mapSize.mapInfo,
-    aliveMajorCount: totalPlayers,
-    rng: createLabelRng(seed),
+    width: adapterSetup.dimensions.width,
+    height: adapterSetup.dimensions.height,
+    mapSizeId: adapterSetup.mapSizeId,
+    mapInfo: adapterSetup.mapInfo,
+    aliveMajorPlayerIds: adapterSetup.aliveMajorPlayerIds,
+    rng: createLabelRng(adapterSetup.mapSeed),
     terrainTypeIndices: { ...CIV7_BROWSER_TABLES_V0.terrainTypeIndices },
     biomeGlobals: { ...CIV7_BROWSER_TABLES_V0.biomeGlobals },
     featureTypes: { ...CIV7_BROWSER_TABLES_V0.featureTypes },
   });
 
-  const context = createMapContext({ setup, adapter });
+  const context = createMapContext({ setup: plan.setup, adapter });
 
   const workerTraceSink = createWorkerTraceSink({
     runToken,

@@ -53,6 +53,10 @@
       "types": "./dist/lib/hash/index.d.ts",
       "import": "./dist/lib/hash/index.js"
     },
+    "./lib/log": {
+      "types": "./dist/lib/log/index.d.ts",
+      "import": "./dist/lib/log/index.js"
+    },
     "./lib/grid": {
       "types": "./dist/lib/grid/index.d.ts",
       "import": "./dist/lib/grid/index.js"

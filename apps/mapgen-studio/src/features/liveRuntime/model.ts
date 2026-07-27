@@ -1,5 +1,8 @@
+import { CIV7_GAME_RANDOM_SEED_PARAMETER_DESCRIPTOR } from "@civ7/map-policy/setup";
 import {
   buildLiveGameState,
+  type Civ7SetupParameter,
+  type Civ7SetupSnapshot,
   hashLiveGameValue,
   type LiveGameBindingStatus,
   type LiveGameSnapshotStatus,
@@ -7,6 +10,7 @@ import {
   type LiveGameStatusBody,
   stableLiveGameStringify,
 } from "@civ7/studio-contract";
+import { parseCiv7StudioSeed } from "../civ7Setup/seedPolicy";
 
 type LiveRuntimeSnapshotStatus = LiveGameSnapshotStatus;
 
@@ -40,15 +44,25 @@ export type LiveRuntimeSnapshotState = Readonly<{
   error?: string;
 }>;
 
-export type LiveRuntimeSuggestionRecord = Readonly<{
+type LiveRuntimeSuggestionRecordBase = Readonly<{
   id: string;
   sourceSnapshotId?: string;
   createdAt: string;
   confidence: "observed-runtime" | "proved-studio-run";
-  affectedConfigPath: string;
-  value: unknown;
   applyPath: "visible-studio-control";
 }>;
+
+/** One typed Studio-authoring change supported by exact live-runtime evidence. */
+export type LiveRuntimeSuggestionRecord = Readonly<
+  | (LiveRuntimeSuggestionRecordBase & {
+      affectedConfigPath: "seed" | "gameSeed";
+      value: string;
+    })
+  | (LiveRuntimeSuggestionRecordBase & {
+      affectedConfigPath: "setupConfig";
+      value: unknown;
+    })
+>;
 
 type LiveStatusBody = LiveGameStatusBody;
 
@@ -181,6 +195,7 @@ export function buildLiveRuntimeSnapshotState(args: {
 export function buildLiveRuntimeSuggestionRecords(args: {
   sourceSnapshotId?: string;
   seed?: number;
+  gameSeed?: number;
   setupConfig?: unknown;
   provedStudioRun?: boolean;
   now?: () => Date;
@@ -189,7 +204,11 @@ export function buildLiveRuntimeSuggestionRecords(args: {
   const confidence = args.provedStudioRun ? "proved-studio-run" : "observed-runtime";
   const prefix =
     args.sourceSnapshotId ??
-    `runtime:${hashLiveRuntimeValue({ seed: args.seed, setupConfig: args.setupConfig })}`;
+    `runtime:${hashLiveRuntimeValue({
+      seed: args.seed,
+      gameSeed: args.gameSeed,
+      setupConfig: args.setupConfig,
+    })}`;
   const records: LiveRuntimeSuggestionRecord[] = [];
   if (args.seed !== undefined) {
     records.push({
@@ -199,6 +218,17 @@ export function buildLiveRuntimeSuggestionRecords(args: {
       confidence,
       affectedConfigPath: "seed",
       value: String(args.seed),
+      applyPath: "visible-studio-control",
+    });
+  }
+  if (args.gameSeed !== undefined) {
+    records.push({
+      id: `${prefix}:gameSeed`,
+      sourceSnapshotId: args.sourceSnapshotId,
+      createdAt,
+      confidence,
+      affectedConfigPath: "gameSeed",
+      value: String(args.gameSeed),
       applyPath: "visible-studio-control",
     });
   }
@@ -214,6 +244,32 @@ export function buildLiveRuntimeSuggestionRecords(args: {
     });
   }
   return records;
+}
+
+/**
+ * Selects an observed Civ7 lifecycle game seed without treating authorability as evidence quality.
+ * Hidden or read-only parameters remain valid observations; absent, destroyed, refused, and
+ * malformed values do not become Studio suggestions.
+ */
+export function selectLiveRuntimeGameSeed(snapshot: Civ7SetupSnapshot): number | undefined {
+  const parameter = snapshot.parameters.find(
+    ({ id }) => id === CIV7_GAME_RANDOM_SEED_PARAMETER_DESCRIPTOR.parameterId
+  );
+  if (!parameter || !isAvailableLiveObservation(parameter)) return undefined;
+  const parsed = parseCiv7StudioSeed(parameter.value);
+  return parsed.ok ? parsed.value : undefined;
+}
+
+function isAvailableLiveObservation(parameter: Civ7SetupParameter): boolean {
+  const { invalidReason } = parameter;
+  return (
+    parameter.exists === true &&
+    parameter.destroyed !== true &&
+    (invalidReason === undefined ||
+      invalidReason === null ||
+      invalidReason === 0 ||
+      invalidReason === "")
+  );
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

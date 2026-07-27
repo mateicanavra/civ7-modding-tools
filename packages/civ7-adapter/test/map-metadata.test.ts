@@ -6,8 +6,16 @@ import {
 import {
   CIV7_STANDARD_MAP_SIZE_PRESETS,
   findCiv7StandardMapSizePreset,
+  findCiv7StandardMapSizePresetForMapInfo,
   getCiv7StandardMapSizePreset,
 } from "../src/map-metadata.js";
+import type { MapInfo } from "../src/types.js";
+
+const closedMapInfoFixture: MapInfo = { Description: null, GridWidth: 60 };
+// @ts-expect-error `MapInfo` accepts only columns generated from Civ7's official Maps table.
+const mapInfoWithInventedColumn: MapInfo = { InventedColumn: true };
+void closedMapInfoFixture;
+void mapInfoWithInventedColumn;
 
 describe("Civ7 standard map-size metadata", () => {
   it("keeps the closed catalog total and in game selection order", () => {
@@ -29,6 +37,10 @@ describe("Civ7 standard map-size metadata", () => {
     );
     expect(findCiv7StandardMapSizePreset("MAPSIZE_CUSTOM")).toBeNull();
     expect(findCiv7StandardMapSizePreset(3)).toBeNull();
+    expect(findCiv7StandardMapSizePresetForMapInfo({ MapSizeType: "MAPSIZE_STANDARD" })).toBe(
+      getCiv7StandardMapSizePreset("MAPSIZE_STANDARD")
+    );
+    expect(findCiv7StandardMapSizePresetForMapInfo({})).toBeNull();
   });
 
   it("re-exports the policy-owned catalog without an adapter-owned copy", () => {

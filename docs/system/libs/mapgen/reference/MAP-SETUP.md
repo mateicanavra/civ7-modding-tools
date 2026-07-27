@@ -63,6 +63,32 @@ The recipe-owned initial value is part of execution-plan identity. Observation p
 separate: trace configuration, trace sinks, metrics sinks, and visualization sinks are
 execution-owned and do not affect the plan fingerprint.
 
+`recipe.inspectPlan(plan)` is the public evidence boundary for that identity. It refuses plans from
+another recipe runtime and returns the recipe's literal id, the plan fingerprint, the exact initial
+setup authority id, and the deeply immutable admitted initial value. Runtime integrations should
+derive downstream setup from this retained evidence rather than keeping an independent copy of the
+pre-compilation request.
+
+### Standard recipe authority
+
+The Standard Swooper recipe owns a complete Civ7 map-generation invocation, not an enlarged Core
+`MapSetup`. Its initial value includes:
+
+- distinct `mapSeed` and `gameSeed` values,
+- one exact official-preset or explicit-custom map selection, including dimensions, `GameInfo.Maps`
+  evidence, and start-slot capacity,
+- exact ordered alive-major player ids, and
+- complete ordered map, game, and per-player option evidence for the generated Civ7 descriptors.
+
+Map physics derives entropy from `mapSeed`. Gameplay-facing placement, including player-seat
+assignment, derives its entropy from `gameSeed`. Neither is an ambient adapter read inside a step or
+operation.
+
+Inside Civ7, the SDK captures the engine's launch surfaces once when `GenerateMap` begins, then the
+map declaration's projector creates the Standard initial value. In Studio, the portable browser
+setup is projected into the same authority before compilation. Both paths therefore execute plans
+that carry the same kind of admitted evidence instead of reconstructing setup during generation.
+
 ## Lifecycle
 
 1. Capture the exact launch facts once at the runtime boundary.
@@ -76,7 +102,7 @@ execution-owned and do not affect the plan fingerprint.
 ```ts
 const plan = physicalOnlyRecipe.compile({
   mapSeed: 12345,
-  dimensions: { width: 80, height: 52 },
+  dimensions: { width: 60, height: 38 },
   latitudeBounds: { topLatitude: 70, bottomLatitude: -70 },
 }, config);
 
@@ -89,6 +115,9 @@ physicalOnlyRecipe.execute(context, plan);
 - Setup schema: `packages/mapgen-core/src/core/map-setup.ts`
 - Recipe initial-setup authority: `packages/mapgen-core/src/authoring/initial-setup/definition.ts`
 - Recipe binding: `packages/mapgen-core/src/authoring/recipe/create.ts`
+- Standard initial-setup authority: `mods/mod-swooper-maps/src/recipes/standard/initial-setup.ts`
+- Civ7 one-shot setup capture: `packages/civ7-adapter/src/map-generation-setup.ts`
+- SDK map-loader integration: `packages/sdk/src/mapgen/createMap.ts`
 - Declared step access: `packages/mapgen-core/src/authoring/step/dependencies.ts`
 - Context construction: `packages/mapgen-core/src/core/map-context.ts`
 - Run request and execution plan: `packages/mapgen-core/src/engine/execution-plan.ts`

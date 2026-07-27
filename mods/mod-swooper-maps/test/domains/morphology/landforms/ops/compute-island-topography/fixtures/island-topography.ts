@@ -1,5 +1,5 @@
 import morphology from "@mapgen/domain/morphology/router";
-import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../setup.js";
+import { deriveTestOperationSeed, TEST_MAP_SIZE } from "../../../../../../setup.js";
 
 const { computeIslandTopography } = morphology.landforms.ops;
 
@@ -40,7 +40,7 @@ export function createIslandTopographyInput(): IslandTopographyInput {
     boundaryCloseness: new Uint8Array(cellCount),
     boundaryType: new Uint8Array(cellCount),
     volcanism: new Uint8Array(cellCount),
-    rngSeed: TEST_MAP_SEED,
+    rngSeed: deriveTestOperationSeed("test:morphology:island-topography"),
   };
 }
 

@@ -1,7 +1,7 @@
-import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { STANDARD_RECIPE_CONFIG } from "mod-swooper-maps/recipes/standard-artifacts";
 import { describe, expect, it, vi } from "vitest";
 import type { BrowserRunEvent, BrowserRunRequest } from "../../src/browser-runner/protocol";
+import { TEST_BROWSER_RUN_INITIAL_SETUP } from "../setup";
 
 type WorkerHarness = {
   events: BrowserRunEvent[];
@@ -12,11 +12,10 @@ type WorkerHarness = {
 type WorkerHarnessOptions = Readonly<{
   failVizDataTypeKey?: string;
   pipelineConfig?: unknown;
-  dimensions?: Readonly<{ width: number; height: number }>;
+  aliveMajorPlayerIds?: readonly number[];
 }>;
 
 const TEST_RUN_TOKEN = "standard-layer-visibility";
-const TEST_MAP_SIZE = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
 
 const workerModuleHarness = vi.hoisted(() => {
   const events: BrowserRunEvent[] = [];
@@ -79,14 +78,10 @@ async function runStandardRecipeInWorker(
       runToken: TEST_RUN_TOKEN,
       generation: 1,
       recipeId: "standard",
-      seed: 1780185340,
-      mapSizeId: TEST_MAP_SIZE.id,
-      dimensions: options?.dimensions ?? TEST_MAP_SIZE.dimensions,
-      latitudeBounds: {
-        topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude,
-        bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude,
+      initialSetup: {
+        ...TEST_BROWSER_RUN_INITIAL_SETUP,
+        aliveMajorPlayerIds: options?.aliveMajorPlayerIds ?? [0, 1],
       },
-      playerCount: TEST_MAP_SIZE.defaultPlayers,
       pipelineConfig: options?.pipelineConfig ?? STANDARD_RECIPE_CONFIG,
     },
   });
@@ -105,19 +100,15 @@ async function runStandardRecipeInWorker(
 }
 
 describe("standard browser runner layer visibility", () => {
-  it("refuses dimensions that contradict the selected Civ7 map size", async () => {
-    const events = await runStandardRecipeInWorker({
-      dimensions: {
-        width: TEST_MAP_SIZE.dimensions.width + 1,
-        height: TEST_MAP_SIZE.dimensions.height,
-      },
-    });
+  it("refuses an empty exact player roster instead of synthesizing identities", async () => {
+    const events = await runStandardRecipeInWorker({ aliveMajorPlayerIds: [] });
     expect(events).toContainEqual(
       expect.objectContaining({
         type: "run.error",
-        message: expect.stringContaining(`do not match ${TEST_MAP_SIZE.id}`),
+        message: expect.stringContaining('Initial setup at "/initialSetup" is invalid'),
       })
     );
+    expect(events).not.toContainEqual(expect.objectContaining({ type: "run.started" }));
   });
 
   it("reports execution rejection without publishing successful completion", async () => {

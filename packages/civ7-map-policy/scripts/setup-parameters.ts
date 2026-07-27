@@ -7,6 +7,12 @@ const EXPECTED_PARAMETER_SOURCES = [
   "Base/modules/base-standard/config/config.xml",
 ] as const;
 const PARAMETERS_SCHEMA = "Base/Assets/schema/frontend/schema-frontend-10-setup-parameters.sql";
+const GAME_LIFECYCLE_PARAMETER_IDS = ["GameRandomSeed"] as const;
+const MAP_LIFECYCLE_PARAMETER_IDS = ["Map", "MapSize", "MapRandomSeed"] as const;
+const SETUP_LIFECYCLE_PARAMETER_IDS = [
+  ...MAP_LIFECYCLE_PARAMETER_IDS,
+  ...GAME_LIFECYCLE_PARAMETER_IDS,
+] as const;
 
 type SqliteColumn = Readonly<{
   cid: number;
@@ -37,6 +43,30 @@ type DomainEvidence = Readonly<{
   valueKind: Exclude<ParameterValueKind, "array">;
   source: "primitive" | "resource-domain";
   declaredValues: readonly string[];
+}>;
+
+type SetupOptionDescriptor = Readonly<{
+  configurationGroup: string;
+  parameterId: string;
+  cardinality: "array" | "scalar";
+  valueKind: DomainEvidence["valueKind"];
+  physicalProjections: Readonly<{
+    configuration: Readonly<{
+      key: string;
+      encoding: "hash" | "literal";
+    }>;
+    authoredValue: Readonly<{ key: string }> | null;
+  }>;
+  authoredValueRead:
+    | Readonly<{
+        kind: "configuration";
+        key: string;
+        source: "configuration-key" | "value-configuration-key";
+      }>
+    | Readonly<{
+        kind: "unsupported";
+        reason: "no-authored-value-key" | "overlapping-projection-keys";
+      }>;
 }>;
 
 export type SetupParameterGeneration = Readonly<{
@@ -88,6 +118,7 @@ export function generateSetupParameterSource(input: {
   validateCorpus(parameters, groups);
 
   const domains = buildDomainEvidence(parameters, inlineDomainValues);
+  const optionDescriptors = buildSetupOptionDescriptors(parameters);
   const source = renderGeneratedSource({
     resourceCommit: input.resourceCommit,
     sourceFiles,
@@ -96,12 +127,80 @@ export function generateSetupParameterSource(input: {
     groups,
     parameters,
     domains,
+    optionDescriptors,
   });
   return {
     source,
     parameterCount: parameters.length,
     uniqueParameterCount: new Set(parameters.map(parameterId)).size,
     groupCount: groups.length,
+  };
+}
+
+function buildSetupOptionDescriptors(
+  parameters: readonly ParameterRow[]
+): readonly SetupOptionDescriptor[] {
+  const rowsByIdentity = new Map<string, ParameterRow[]>();
+  for (const row of parameters) {
+    const configurationGroup = requireColumnString(row, "ConfigurationGroup");
+    const identity = `${configurationGroup}\u0000${parameterId(row)}`;
+    const rows = rowsByIdentity.get(identity) ?? [];
+    rows.push(row);
+    rowsByIdentity.set(identity, rows);
+  }
+
+  return [...rowsByIdentity.values()].map((rows) => {
+    const [first] = rows;
+    if (!first) throw new Error("Setup option identity has no source rows.");
+    const descriptor = setupOptionDescriptor(first);
+    for (const row of rows.slice(1)) {
+      const contextualDescriptor = setupOptionDescriptor(row);
+      if (JSON.stringify(contextualDescriptor) !== JSON.stringify(descriptor)) {
+        throw new Error(
+          `Setup parameter ${descriptor.configurationGroup}.${descriptor.parameterId} changes its projection contract between contextual rows.`
+        );
+      }
+    }
+    return descriptor;
+  });
+}
+
+function setupOptionDescriptor(row: ParameterRow): SetupOptionDescriptor {
+  const configurationGroup = requireColumnString(row, "ConfigurationGroup");
+  const id = parameterId(row);
+  const configurationKey = requireColumnString(row, "ConfigurationKey");
+  const valueConfigurationKey = optionalColumnString(row, "ValueConfigurationKey");
+  const hashed = row.columns.Hash === true;
+  const authoredValueRead: SetupOptionDescriptor["authoredValueRead"] =
+    hashed && valueConfigurationKey === configurationKey
+      ? { kind: "unsupported", reason: "overlapping-projection-keys" }
+      : hashed && valueConfigurationKey !== null
+        ? {
+            kind: "configuration",
+            key: valueConfigurationKey,
+            source: "value-configuration-key",
+          }
+        : hashed
+          ? { kind: "unsupported", reason: "no-authored-value-key" }
+          : {
+              kind: "configuration",
+              key: configurationKey,
+              source: "configuration-key",
+            };
+
+  return {
+    configurationGroup,
+    parameterId: id,
+    cardinality: row.columns.Array === true ? "array" : "scalar",
+    valueKind: parameterDomainValueKind(row),
+    physicalProjections: {
+      configuration: {
+        key: configurationKey,
+        encoding: hashed ? "hash" : "literal",
+      },
+      authoredValue: valueConfigurationKey === null ? null : { key: valueConfigurationKey },
+    },
+    authoredValueRead,
   };
 }
 
@@ -333,7 +432,24 @@ function renderGeneratedSource(input: {
   groups: readonly SourceRow[];
   parameters: readonly ParameterRow[];
   domains: readonly DomainEvidence[];
+  optionDescriptors: readonly SetupOptionDescriptor[];
 }): string {
+  const gameOptionDescriptors = input.optionDescriptors.filter(
+    ({ configurationGroup }) => configurationGroup === "Game"
+  );
+  const mapOptionDescriptors = input.optionDescriptors.filter(
+    ({ configurationGroup }) => configurationGroup === "Map"
+  );
+  const playerOptionDescriptors = input.optionDescriptors.filter(
+    ({ configurationGroup }) => configurationGroup === "Player"
+  );
+  const gameRandomSeedDescriptorIndex = gameOptionDescriptors.findIndex(
+    ({ parameterId: id }) => id === "GameRandomSeed"
+  );
+  if (gameRandomSeedDescriptorIndex < 0) {
+    throw new Error("Official setup parameters have no Game.GameRandomSeed descriptor.");
+  }
+
   return `/* eslint-disable */
 /**
  * GENERATED FILE - DO NOT EDIT BY HAND.
@@ -347,6 +463,15 @@ function renderGeneratedSource(input: {
  */
 
 import { type Static, Type } from "typebox";
+import { defineCiv7SetupOptionEvidenceSchema } from "./setup-option-evidence.js";
+
+function deepFreeze<T>(value: T): T {
+  if (value !== null && typeof value === "object" && !Object.isFrozen(value)) {
+    for (const child of Object.values(value)) deepFreeze(child);
+    Object.freeze(value);
+  }
+  return value;
+}
 
 /** Pinned official resource provenance for the generated setup catalog. */
 export type Civ7SetupParameterSource = Readonly<{
@@ -393,6 +518,34 @@ export type Civ7SetupDomainEvidence = Readonly<{
   declaredValues: readonly string[];
 }>;
 
+/** Physical Civ7 configuration projections and the authored-value read selected for one setup option. */
+export type Civ7SetupOptionDescriptor<
+  ConfigurationGroup extends string = string,
+  ParameterId extends string = string,
+> = Readonly<{
+  configurationGroup: ConfigurationGroup;
+  parameterId: ParameterId;
+  cardinality: "array" | "scalar";
+  valueKind: "boolean" | "integer" | "string";
+  physicalProjections: Readonly<{
+    configuration: Readonly<{
+      key: string;
+      encoding: "hash" | "literal";
+    }>;
+    authoredValue: Readonly<{ key: string }> | null;
+  }>;
+  authoredValueRead:
+    | Readonly<{
+        kind: "configuration";
+        key: string;
+        source: "configuration-key" | "value-configuration-key";
+      }>
+    | Readonly<{
+        kind: "unsupported";
+        reason: "no-authored-value-key" | "overlapping-projection-keys";
+      }>;
+}>;
+
 /** Official resource evidence used to derive the setup-parameter catalog. */
 export const CIV7_SETUP_PARAMETER_SOURCE: Civ7SetupParameterSource = ${JSON.stringify(
     { files: input.sourceFiles, schema: input.schemaFile, commit: input.resourceCommit },
@@ -428,6 +581,46 @@ export const CIV7_SETUP_DOMAIN_EVIDENCE: readonly Civ7SetupDomainEvidence[] = ${
     2
   )};
 
+/** Game setup identities owned by first-class lifecycle fields rather than option maps. */
+export const CIV7_GAME_SETUP_LIFECYCLE_PARAMETER_IDS = ${JSON.stringify(
+    GAME_LIFECYCLE_PARAMETER_IDS
+  )} as const;
+
+/** Map setup identities owned by first-class lifecycle fields rather than option maps. */
+export const CIV7_MAP_SETUP_LIFECYCLE_PARAMETER_IDS = ${JSON.stringify(
+    MAP_LIFECYCLE_PARAMETER_IDS
+  )} as const;
+
+/** Setup identities owned by first-class lifecycle fields rather than option maps. */
+export const CIV7_SETUP_LIFECYCLE_PARAMETER_IDS = ${JSON.stringify(
+    SETUP_LIFECYCLE_PARAMETER_IDS
+  )} as const;
+
+/** Exact official Game setup projection descriptors in declared parameter order. */
+export const CIV7_GAME_SETUP_PARAMETER_DESCRIPTORS = deepFreeze(${JSON.stringify(
+    gameOptionDescriptors,
+    null,
+    2
+  )} as const satisfies readonly Civ7SetupOptionDescriptor<"Game">[]);
+
+/** Generated lifecycle descriptor for the game seed read performed at GenerateMap admission. */
+export const CIV7_GAME_RANDOM_SEED_PARAMETER_DESCRIPTOR =
+  CIV7_GAME_SETUP_PARAMETER_DESCRIPTORS[${gameRandomSeedDescriptorIndex}];
+
+/** Exact official Map setup projection descriptors in declared parameter order. */
+export const CIV7_MAP_SETUP_PARAMETER_DESCRIPTORS = deepFreeze(${JSON.stringify(
+    mapOptionDescriptors,
+    null,
+    2
+  )} as const satisfies readonly Civ7SetupOptionDescriptor<"Map">[]);
+
+/** Exact official Player setup projection descriptors in declared parameter order. */
+export const CIV7_PLAYER_SETUP_PARAMETER_DESCRIPTORS = deepFreeze(${JSON.stringify(
+    playerOptionDescriptors,
+    null,
+    2
+  )} as const satisfies readonly Civ7SetupOptionDescriptor<"Player">[]);
+
 ${renderBaseSchema(input.parameters, "Game", "Civ7GameSetupBaseSchema")}
 
 ${renderBaseSchema(input.parameters, "Map", "Civ7MapSetupBaseSchema")}
@@ -438,6 +631,30 @@ ${renderBaseSchema(
   input.parameters,
   "AgeTransitionPlayer",
   "Civ7AgeTransitionPlayerSetupBaseSchema"
+)}
+
+${renderEvidenceSchemaUnion(
+  input.parameters,
+  "Game",
+  "Civ7GameSetupBaseSchema",
+  "Civ7GameOptionEvidenceSchema",
+  GAME_LIFECYCLE_PARAMETER_IDS
+)}
+
+${renderEvidenceSchemaUnion(
+  input.parameters,
+  "Map",
+  "Civ7MapSetupBaseSchema",
+  "Civ7MapOptionEvidenceSchema",
+  MAP_LIFECYCLE_PARAMETER_IDS
+)}
+
+${renderEvidenceSchemaUnion(
+  input.parameters,
+  "Player",
+  "Civ7PlayerSetupBaseSchema",
+  "Civ7PlayerOptionEvidenceSchema",
+  []
 )}
 `;
 }
@@ -496,6 +713,44 @@ ${properties}
 export type ${typeName} = Static<typeof ${exportName}>;`;
 }
 
+function renderEvidenceSchemaUnion(
+  parameters: readonly ParameterRow[],
+  configurationGroup: string,
+  baseSchemaName: string,
+  exportName: string,
+  excludedParameterIds: readonly string[]
+): string {
+  const excluded = new Set(excludedParameterIds);
+  const parameterIds = [
+    ...new Set(
+      parameters
+        .filter(
+          (row) =>
+            requireColumnString(row, "ConfigurationGroup") === configurationGroup &&
+            !excluded.has(parameterId(row))
+        )
+        .map(parameterId)
+    ),
+  ];
+  if (parameterIds.length === 0) {
+    throw new Error(`${configurationGroup} has no authored setup option evidence schemas.`);
+  }
+  const variants = parameterIds
+    .map(
+      (id) =>
+        `  defineCiv7SetupOptionEvidenceSchema(${JSON.stringify(id)}, ${baseSchemaName}.properties[${JSON.stringify(id)}]),`
+    )
+    .join("\n");
+  const typeName = exportName.replace(/Schema$/, "");
+  return `/** Exact available-or-unavailable evidence for every authored ${configurationGroup} option. */
+export const ${exportName} = Type.Union([
+${variants}
+]);
+
+/** Available-or-unavailable evidence for one exact authored ${configurationGroup} option. */
+export type ${typeName} = Static<typeof ${exportName}>;`;
+}
+
 function schemaExpression(row: ParameterRow, description: string): string {
   const options = JSON.stringify({ description });
   const kind = parameterValueKind(row);
@@ -519,6 +774,15 @@ function requireColumnString(row: ParameterRow, name: string): string {
   const value = row.columns[name];
   if (typeof value !== "string" || value.length === 0) {
     throw new Error(`${row.source} Parameters row ${row.sourceIndex} has no ${name}.`);
+  }
+  return value;
+}
+
+function optionalColumnString(row: ParameterRow, name: string): string | null {
+  const value = row.columns[name];
+  if (value === null) return null;
+  if (typeof value !== "string" || value.length === 0) {
+    throw new Error(`${row.source} Parameters row ${row.sourceIndex} has invalid ${name}.`);
   }
   return value;
 }

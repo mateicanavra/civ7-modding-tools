@@ -15,7 +15,11 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { BiomesStep as biomesStep } from "../../../../../../../../src/recipes/standard/stages/ecology/biomes/steps/biomes/step.js";
-import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
+import {
+  TEST_MAP_LATITUDE_BOUNDS,
+  TEST_MAP_SEED,
+  TEST_MAP_SIZE,
+} from "../../../../../../../setup.js";
 
 describe("biomes step", () => {
   it("publishes classifier-owned biome and vegetation truth from Hydrology climate indices", () => {
@@ -24,10 +28,7 @@ describe("biomes step", () => {
     const setup = admitMapSetup({
       mapSeed: TEST_MAP_SEED,
       dimensions: TEST_MAP_SIZE.dimensions,
-      latitudeBounds: {
-        topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
-        bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
-      },
+      latitudeBounds: TEST_MAP_LATITUDE_BOUNDS,
     });
 
     const adapter = createMockAdapter({
@@ -113,10 +114,7 @@ describe("biomes step", () => {
     const setup = admitMapSetup({
       mapSeed: TEST_MAP_SEED,
       dimensions: TEST_MAP_SIZE.dimensions,
-      latitudeBounds: {
-        topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
-        bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
-      },
+      latitudeBounds: TEST_MAP_LATITUDE_BOUNDS,
     });
 
     const classifyConfig = normalizeOperationSelectionForTest(

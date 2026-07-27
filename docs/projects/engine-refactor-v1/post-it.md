@@ -28,13 +28,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** finish Placement's operation-test ownership on the
-normalized domain plane. A suite that invokes exactly one domain operation
-belongs beneath that operation, even when its behavior spans many cases; module
-roots remain available only for behavior that genuinely composes multiple
-operations or module capabilities. Moving a suite does not change its oracle:
-controlled synthetic geometry remains valid where geometry itself is the
-subject, while ordinary product runs continue to use Civ7 preset dimensions.
+**Current container:** seal Standard's exact initial-setup authority across
+authoring, Civ7 capture, Studio simulation, parity, metrics, and Placement. One
+admitted setup owns distinct map/game seeds, static preset-or-explicit custom
+map identity, exact ordered live player identity, start capacity, and complete
+option evidence. Authored setup `ParameterID`s and runtime `Configuration` keys
+are different identities: generated Civ7 policy must describe the projection,
+the adapter must capture only schema-shaped authored values it can prove, and
+unsupported projections must remain explicit unavailable evidence.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -51,11 +52,12 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** relocate start viability beneath
-`starts/ops/plan-starts` and natural-wonder planning beneath
-`wonders/ops/plan-natural-wonders`; preserve their behavior and imports, run the
-two exact suites plus domain-test topology, then seal the layer before opening
-the distinct initial-seat-authority design.
+**Gradient:** exact setup is frozen across generated Civ7 policy, adapter
+capture, Core/SDK admission, Standard compilation, Studio browser/live paths,
+parity, metrics, and bounded lifecycle evidence. The native dependency-owned
+graph, generated-currentness, OpenSpec, boundaries, dead-code, hygiene, and
+focused JSDoc owners are green. Land this semantic layer after fresh freeze
+reviews, then pivot the frame to Placement step untangling on a clean child.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -90,6 +92,13 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Placement Operation Test Ownership
+
+The two Placement suites that invoke one operation now live beneath their exact
+`plan-starts` and `plan-natural-wonders` owners. Their 28 behavior cases and
+controlled topology fixtures are unchanged; module roots remain reserved for
+behavior that composes multiple operation or module capabilities.
 
 ### 2026-07-26 - Natural Wonder Terminal Evidence
 

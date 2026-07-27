@@ -11,6 +11,7 @@ import {
   type RecipePublicConfigOf,
 } from "@swooper/mapgen-core/authoring";
 import { orderStandardStages } from "./contract-manifest.js";
+import { STANDARD_INITIAL_SETUP } from "./initial-setup.js";
 import ecologyBiomes from "./stages/ecology/biomes/index.js";
 import ecologyFeatures from "./stages/ecology/features/index.js";
 import ecologyPedology from "./stages/ecology/pedology/index.js";
@@ -86,9 +87,17 @@ const compileOpsById = collectCompileOps(
 const standardRecipe = createRecipe({
   id: "standard",
   namespace: NAMESPACE,
+  initialSetup: STANDARD_INITIAL_SETUP,
   tagDefinitions: STANDARD_TAG_DEFINITIONS,
   stages,
   compileOpsById,
 } as const);
+
+export {
+  projectStandardInitialSetup,
+  STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
+  STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
+  STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
+} from "./initial-setup.js";
 
 export default standardRecipe;

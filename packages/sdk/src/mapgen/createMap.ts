@@ -1,7 +1,10 @@
 /// <reference types="@civ7/types" />
 
 import {
+  type Civ7GameOptionDescriptor,
   type Civ7MapGenerationSetupCapture,
+  type Civ7MapOptionDescriptor,
+  type Civ7PlayerOptionDescriptor,
   captureCiv7MapGenerationSetup,
   type MapInfo,
   type MapInitParams,
@@ -12,15 +15,26 @@ import { createMapContext } from "@swooper/mapgen-core";
 import {
   type BasePhysicalInitialSetupDefinition,
   basePhysicalInitialSetupDefinition,
+  type InitialSetupDefinition,
   type RecipeInitialSetupDefinitionOf,
   type RecipeInitialSetupInputOf,
   type RecipeModule,
 } from "@swooper/mapgen-core/authoring";
+import { encodeBoundedJsonLogLines } from "@swooper/mapgen-core/lib/log";
 
-type AnyRecipe = RecipeModule<any, any, any>;
+type AnyRecipe = Readonly<{
+  id: string;
+  initialSetup: InitialSetupDefinition;
+  compile(setup: unknown, config: unknown): ReturnType<RecipeModule["compile"]>;
+  inspectPlan: RecipeModule<any, any, InitialSetupDefinition>["inspectPlan"];
+  execute: RecipeModule["execute"];
+}>;
 
-type RecipePublicConfigOfRecipe<TRecipe extends AnyRecipe> =
-  TRecipe extends RecipeModule<infer TPublicConfig, any, any> ? TPublicConfig : never;
+type RecipePublicConfigOfRecipe<TRecipe extends AnyRecipe> = Parameters<TRecipe["compile"]>[1];
+
+type MapSetupOptionDescriptor = Civ7MapOptionDescriptor;
+type GameSetupOptionDescriptor = Civ7GameOptionDescriptor;
+type PlayerSetupOptionDescriptor = Civ7PlayerOptionDescriptor;
 
 /** Geographic bounds a map declaration may use to override Civ7's initialization bounds. */
 export type MapLatitudeBounds = Readonly<{
@@ -52,33 +66,43 @@ type MapDefinitionCore<TRecipe extends AnyRecipe> = Readonly<{
 /**
  * Civ7 capture request and product projection for one recipe-owned initial setup authority.
  *
- * Option keys remain explicit because Civ7 offers keyed reads rather than a supported complete
- * option enumeration. The projector consumes detached capture evidence and must return the exact
- * full setup input inferred from the recipe's TypeBox authority.
+ * Generated option descriptors preserve authored ParameterID identity while declaring whether and
+ * how Civ7's physical configuration can reconstruct each authored value. The projector consumes
+ * detached capture evidence and must return the exact full setup input inferred from the recipe's
+ * TypeBox authority.
  */
 export type MapInitialSetupProjection<
   TRecipe extends AnyRecipe,
-  TMapOptionKeys extends readonly string[] = readonly string[],
-  TGameOptionKeys extends readonly string[] = readonly string[],
+  TMapOptions extends readonly MapSetupOptionDescriptor[] = readonly MapSetupOptionDescriptor[],
+  TGameOptions extends readonly GameSetupOptionDescriptor[] = readonly GameSetupOptionDescriptor[],
+  TPlayerOptions extends
+    readonly PlayerSetupOptionDescriptor[] = readonly PlayerSetupOptionDescriptor[],
 > = Readonly<{
-  requestedMapOptionKeys: TMapOptionKeys;
-  requestedGameOptionKeys: TGameOptionKeys;
+  requestedMapOptions: TMapOptions;
+  requestedGameOptions: TGameOptions;
+  requestedPlayerOptions: TPlayerOptions;
   project: (
-    capture: Civ7MapGenerationSetupCapture<TMapOptionKeys[number], TGameOptionKeys[number]>
+    capture: Civ7MapGenerationSetupCapture<TMapOptions, TGameOptions, TPlayerOptions>
   ) => RecipeInitialSetupInputOf<TRecipe>;
 }>;
 
 type MapDefinitionInitialSetup<
   TRecipe extends AnyRecipe,
-  TMapOptionKeys extends readonly string[],
-  TGameOptionKeys extends readonly string[],
+  TMapOptions extends readonly MapSetupOptionDescriptor[],
+  TGameOptions extends readonly GameSetupOptionDescriptor[],
+  TPlayerOptions extends readonly PlayerSetupOptionDescriptor[],
 > =
   RecipeInitialSetupDefinitionOf<TRecipe> extends BasePhysicalInitialSetupDefinition
     ? Readonly<{
-        initialSetup?: MapInitialSetupProjection<TRecipe, TMapOptionKeys, TGameOptionKeys>;
+        initialSetup?: MapInitialSetupProjection<
+          TRecipe,
+          TMapOptions,
+          TGameOptions,
+          TPlayerOptions
+        >;
       }>
     : Readonly<{
-        initialSetup: MapInitialSetupProjection<TRecipe, TMapOptionKeys, TGameOptionKeys>;
+        initialSetup: MapInitialSetupProjection<TRecipe, TMapOptions, TGameOptions, TPlayerOptions>;
       }>;
 
 type MapDefinitionCatalogEvidence = Readonly<{
@@ -111,17 +135,20 @@ type MapDefinitionRunSource = Readonly<{
  */
 export type MapDefinition<
   TRecipe extends AnyRecipe,
-  TMapOptionKeys extends readonly string[] = readonly string[],
-  TGameOptionKeys extends readonly string[] = readonly string[],
+  TMapOptions extends readonly MapSetupOptionDescriptor[] = readonly MapSetupOptionDescriptor[],
+  TGameOptions extends readonly GameSetupOptionDescriptor[] = readonly GameSetupOptionDescriptor[],
+  TPlayerOptions extends
+    readonly PlayerSetupOptionDescriptor[] = readonly PlayerSetupOptionDescriptor[],
 > = MapDefinitionCore<TRecipe> &
-  MapDefinitionInitialSetup<TRecipe, TMapOptionKeys, TGameOptionKeys> &
+  MapDefinitionInitialSetup<TRecipe, TMapOptions, TGameOptions, TPlayerOptions> &
   (MapDefinitionCatalogEvidence | MapDefinitionRunSource);
 
 type MapDefinitionInput<
   TRecipe extends AnyRecipe,
-  TMapOptionKeys extends readonly string[],
-  TGameOptionKeys extends readonly string[],
-> = MapDefinition<TRecipe, TMapOptionKeys, TGameOptionKeys>;
+  TMapOptions extends readonly MapSetupOptionDescriptor[],
+  TGameOptions extends readonly GameSetupOptionDescriptor[],
+  TPlayerOptions extends readonly PlayerSetupOptionDescriptor[],
+> = MapDefinition<TRecipe, TMapOptions, TGameOptions, TPlayerOptions>;
 
 type CivEngine = {
   on: (event: string, handler: (...args: any[]) => void) => void;
@@ -136,6 +163,14 @@ type InitCapture = {
     Pick<MapInitParams, "mapSize">;
 };
 
+type RecipeSetupCaptureInput = Readonly<{
+  mapSeed: number;
+  dimensions: Readonly<{ width: number; height: number }>;
+  latitudeBounds: MapLatitudeBounds;
+  mapSizeId: MapSizeId;
+  mapInfo: MapInfo;
+}>;
+
 type MapEvidencePayloadIdentity = Readonly<{
   requestId: string | null;
   runArtifactId: string | null;
@@ -149,9 +184,12 @@ type MapEvidencePayloadIdentity = Readonly<{
 
 function mapEvidencePayloadIdentityFor<
   TRecipe extends AnyRecipe,
-  TMapOptionKeys extends readonly string[],
-  TGameOptionKeys extends readonly string[],
->(def: MapDefinitionInput<TRecipe, TMapOptionKeys, TGameOptionKeys>): MapEvidencePayloadIdentity {
+  TMapOptions extends readonly MapSetupOptionDescriptor[],
+  TGameOptions extends readonly GameSetupOptionDescriptor[],
+  TPlayerOptions extends readonly PlayerSetupOptionDescriptor[],
+>(
+  def: MapDefinitionInput<TRecipe, TMapOptions, TGameOptions, TPlayerOptions>
+): MapEvidencePayloadIdentity {
   if (def.runCorrelation) {
     return {
       requestId: def.runCorrelation.requestId,
@@ -187,9 +225,10 @@ function isMapRunCorrelation(value: unknown): value is MapRunCorrelation {
 
 function assertCompleteRunCorrelation<
   TRecipe extends AnyRecipe,
-  TMapOptionKeys extends readonly string[],
-  TGameOptionKeys extends readonly string[],
->(def: MapDefinitionInput<TRecipe, TMapOptionKeys, TGameOptionKeys>): void {
+  TMapOptions extends readonly MapSetupOptionDescriptor[],
+  TGameOptions extends readonly GameSetupOptionDescriptor[],
+  TPlayerOptions extends readonly PlayerSetupOptionDescriptor[],
+>(def: MapDefinitionInput<TRecipe, TMapOptions, TGameOptions, TPlayerOptions>): void {
   const hasDirectRunIdentity =
     "requestId" in def ||
     "runArtifactId" in def ||
@@ -206,9 +245,10 @@ function assertCompleteRunCorrelation<
 
 function assertInitialSetupProjection<
   TRecipe extends AnyRecipe,
-  TMapOptionKeys extends readonly string[],
-  TGameOptionKeys extends readonly string[],
->(def: MapDefinitionInput<TRecipe, TMapOptionKeys, TGameOptionKeys>): void {
+  TMapOptions extends readonly MapSetupOptionDescriptor[],
+  TGameOptions extends readonly GameSetupOptionDescriptor[],
+  TPlayerOptions extends readonly PlayerSetupOptionDescriptor[],
+>(def: MapDefinitionInput<TRecipe, TMapOptions, TGameOptions, TPlayerOptions>): void {
   if (def.initialSetup === undefined) {
     if (def.recipe.initialSetup !== basePhysicalInitialSetupDefinition) {
       throw new Error(
@@ -224,9 +264,10 @@ function assertInitialSetupProjection<
 
 function resolveSeed<
   TRecipe extends AnyRecipe,
-  TMapOptionKeys extends readonly string[],
-  TGameOptionKeys extends readonly string[],
->(def: MapDefinitionInput<TRecipe, TMapOptionKeys, TGameOptionKeys>): number {
+  TMapOptions extends readonly MapSetupOptionDescriptor[],
+  TGameOptions extends readonly GameSetupOptionDescriptor[],
+  TPlayerOptions extends readonly PlayerSetupOptionDescriptor[],
+>(def: MapDefinitionInput<TRecipe, TMapOptions, TGameOptions, TPlayerOptions>): number {
   const seed = def.seed ?? GameplayMap.getRandomSeed();
   if (!Number.isFinite(seed)) {
     throw new Error(
@@ -238,21 +279,26 @@ function resolveSeed<
 
 function resolveLatitudeBounds(
   def: Readonly<{ latitudeBounds?: MapLatitudeBounds; logPrefix?: string }>,
-  base: { topLatitude: number; bottomLatitude: number }
+  initParams: Partial<MapInitParams> | null | undefined
 ): {
   topLatitude: number;
   bottomLatitude: number;
 } {
-  if (!def.latitudeBounds) return base;
-  const { topLatitude, bottomLatitude } = def.latitudeBounds;
-  if (!Number.isFinite(topLatitude) || !Number.isFinite(bottomLatitude)) {
+  const topLatitude = def.latitudeBounds?.topLatitude ?? initParams?.topLatitude;
+  const bottomLatitude = def.latitudeBounds?.bottomLatitude ?? initParams?.bottomLatitude;
+  if (
+    typeof topLatitude !== "number" ||
+    !Number.isFinite(topLatitude) ||
+    typeof bottomLatitude !== "number" ||
+    !Number.isFinite(bottomLatitude)
+  ) {
     throw new Error(
-      `${def.logPrefix ?? "[SWOOPER_MOD]"} Invalid latitudeBounds override (must be finite numbers).`
+      `${def.logPrefix ?? "[SWOOPER_MOD]"} Missing map latitude bounds (RequestMapInitData did not provide finite top/bottom latitude and no authored override was supplied).`
     );
   }
   if (topLatitude <= bottomLatitude) {
     throw new Error(
-      `${def.logPrefix ?? "[SWOOPER_MOD]"} Invalid latitudeBounds override (topLatitude must be greater than bottomLatitude).`
+      `${def.logPrefix ?? "[SWOOPER_MOD]"} Invalid map latitude bounds (topLatitude must be greater than bottomLatitude).`
     );
   }
   return { topLatitude, bottomLatitude };
@@ -278,8 +324,6 @@ function resolveInitCapture(
 
   const width = initParams?.width ?? mapInfo.GridWidth;
   const height = initParams?.height ?? mapInfo.GridHeight;
-  const baseTopLatitude = initParams?.topLatitude ?? mapInfo.MaxLatitude;
-  const baseBottomLatitude = initParams?.bottomLatitude ?? mapInfo.MinLatitude;
 
   if (
     typeof width !== "number" ||
@@ -291,21 +335,7 @@ function resolveInitCapture(
       `${def.logPrefix ?? "[SWOOPER_MOD]"} Missing map dimensions (width/height not provided by init params and not present in mapInfo).`
     );
   }
-  if (
-    typeof baseTopLatitude !== "number" ||
-    !Number.isFinite(baseTopLatitude) ||
-    typeof baseBottomLatitude !== "number" ||
-    !Number.isFinite(baseBottomLatitude)
-  ) {
-    throw new Error(
-      `${def.logPrefix ?? "[SWOOPER_MOD]"} Missing map latitude bounds (top/bottom not provided by init params and not present in mapInfo).`
-    );
-  }
-
-  const { topLatitude, bottomLatitude } = resolveLatitudeBounds(def, {
-    topLatitude: baseTopLatitude,
-    bottomLatitude: baseBottomLatitude,
-  });
+  const { topLatitude, bottomLatitude } = resolveLatitudeBounds(def, initParams);
 
   const params: InitCapture["params"] = {
     width,
@@ -318,25 +348,35 @@ function resolveInitCapture(
   return { mapSizeId, mapInfo, params };
 }
 
-function projectRecipeInitialSetup<
+function captureRecipeInitialSetup<
   TRecipe extends AnyRecipe,
-  TMapOptionKeys extends readonly string[],
-  TGameOptionKeys extends readonly string[],
+  TMapOptions extends readonly MapSetupOptionDescriptor[],
+  TGameOptions extends readonly GameSetupOptionDescriptor[],
+  TPlayerOptions extends readonly PlayerSetupOptionDescriptor[],
 >(
-  def: MapDefinitionInput<TRecipe, TMapOptionKeys, TGameOptionKeys>,
-  capture: Civ7MapGenerationSetupCapture<TMapOptionKeys[number], TGameOptionKeys[number]>
+  def: MapDefinitionInput<TRecipe, TMapOptions, TGameOptions, TPlayerOptions>,
+  input: RecipeSetupCaptureInput
 ): RecipeInitialSetupInputOf<TRecipe> {
   const projection = def.initialSetup;
-  if (projection !== undefined) return projection.project(capture);
+  if (projection !== undefined) {
+    return projection.project(
+      captureCiv7MapGenerationSetup({
+        ...input,
+        requestedMapOptions: projection.requestedMapOptions,
+        requestedGameOptions: projection.requestedGameOptions,
+        requestedPlayerOptions: projection.requestedPlayerOptions,
+      })
+    );
+  }
   if (def.recipe.initialSetup !== basePhysicalInitialSetupDefinition) {
     throw new Error(
       `${def.logPrefix ?? "[SWOOPER_MOD]"} Recipe "${def.recipe.id}" requires an initialSetup projector.`
     );
   }
   return {
-    mapSeed: capture.mapSeed,
-    dimensions: capture.dimensions,
-    latitudeBounds: capture.latitudeBounds,
+    mapSeed: input.mapSeed,
+    dimensions: input.dimensions,
+    latitudeBounds: input.latitudeBounds,
   } as RecipeInitialSetupInputOf<TRecipe>;
 }
 
@@ -350,11 +390,12 @@ function projectRecipeInitialSetup<
  */
 export function createMap<
   const TRecipe extends AnyRecipe,
-  const TMapOptionKeys extends readonly string[] = readonly [],
-  const TGameOptionKeys extends readonly string[] = readonly [],
+  const TMapOptions extends readonly MapSetupOptionDescriptor[] = readonly [],
+  const TGameOptions extends readonly GameSetupOptionDescriptor[] = readonly [],
+  const TPlayerOptions extends readonly PlayerSetupOptionDescriptor[] = readonly [],
 >(
-  def: MapDefinitionInput<TRecipe, TMapOptionKeys, TGameOptionKeys>
-): MapDefinition<TRecipe, TMapOptionKeys, TGameOptionKeys> {
+  def: MapDefinitionInput<TRecipe, TMapOptions, TGameOptions, TPlayerOptions>
+): MapDefinition<TRecipe, TMapOptions, TGameOptions, TPlayerOptions> {
   assertCompleteRunCorrelation(def);
   assertInitialSetupProjection(def);
   const engineApi = engine as unknown as CivEngine;
@@ -374,37 +415,34 @@ export function createMap<
 
     const { width, height, topLatitude, bottomLatitude } = captured.params;
     const seed = resolveSeed(def);
-    const initialSetupProjection = def.initialSetup;
-    const setupCapture = captureCiv7MapGenerationSetup({
+    const initialSetup = captureRecipeInitialSetup(def, {
       mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: { topLatitude, bottomLatitude },
       mapSizeId: captured.mapSizeId,
       mapInfo: captured.mapInfo,
-      requestedMapOptionKeys: initialSetupProjection?.requestedMapOptionKeys ?? [],
-      requestedGameOptionKeys: initialSetupProjection?.requestedGameOptionKeys ?? [],
     });
-    const initialSetup = projectRecipeInitialSetup(def, setupCapture);
 
     const prefix = def.logPrefix ?? "[SWOOPER_MOD]";
-    const evidenceIdentity = mapEvidencePayloadIdentityFor(def);
-    const evidencePayload = {
-      mapId: def.id,
-      sourceConfigId: def.sourceConfigId ?? def.id,
-      ...evidenceIdentity,
-      seed,
-      mapSize: captured.mapSizeId,
-      dimensions: { width, height },
-    };
-    console.log(`${prefix} [mapgen-evidence] ${JSON.stringify(evidencePayload)}`);
     try {
       const plan = def.recipe.compile(initialSetup, def.config);
+      const recipePlan = def.recipe.inspectPlan(plan);
+      const evidencePayload = {
+        mapId: def.id,
+        sourceConfigId: def.sourceConfigId ?? def.id,
+        ...mapEvidencePayloadIdentityFor(def),
+        seed,
+        mapSize: captured.mapSizeId,
+        dimensions: { width, height },
+        recipePlan,
+      };
+      emitBoundedJsonLog(prefix, "[mapgen-evidence]", evidencePayload);
       const adapter = createCiv7Adapter();
       const context = createMapContext({ setup: plan.setup, adapter });
       def.recipe.execute(context, plan, {
         log: (message) => console.log(prefix, message),
       });
-      console.log(`${prefix} [mapgen-complete] ${JSON.stringify(evidencePayload)}`);
+      emitBoundedJsonLog(prefix, "[mapgen-complete]", evidencePayload);
     } catch (err) {
       console.error(prefix, "Map generation failed:", err);
       throw err;
@@ -412,4 +450,8 @@ export function createMap<
   });
 
   return def;
+}
+
+function emitBoundedJsonLog(prefix: string, marker: string, payload: unknown): void {
+  for (const line of encodeBoundedJsonLogLines({ prefix, marker, payload })) console.log(line);
 }

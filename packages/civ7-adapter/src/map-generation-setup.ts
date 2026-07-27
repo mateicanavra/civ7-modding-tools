@@ -1,34 +1,60 @@
-import { assessCiv7SignedIntSeed } from "@civ7/map-policy/setup";
+import { CIV7_MAP_INFO_COLUMN_DESCRIPTORS, type Civ7MapInfo } from "@civ7/map-policy";
+import {
+  assessCiv7SignedIntSeed,
+  CIV7_GAME_OPTION_DESCRIPTORS,
+  CIV7_GAME_RANDOM_SEED_PARAMETER_DESCRIPTOR,
+  CIV7_MAP_OPTION_DESCRIPTORS,
+  CIV7_PLAYER_OPTION_DESCRIPTORS,
+  type Civ7GameOptionDescriptor,
+  type Civ7MapOptionDescriptor,
+  type Civ7PlayerOptionDescriptor,
+  type Civ7SetupOptionDescriptor,
+  type Civ7SetupOptionUnavailableReason,
+} from "@civ7/map-policy/setup";
 
 import type { MapDimensions, MapInfo, MapSizeId } from "./types.js";
-
-const CIV7_MAP_INFO_NUMBER_KEYS = [
-  "GridWidth",
-  "GridHeight",
-  "MinLatitude",
-  "MaxLatitude",
-  "NumNaturalWonders",
-  "LakeGenerationFrequency",
-  "PlayersLandmass1",
-  "PlayersLandmass2",
-  "StartSectorRows",
-  "StartSectorCols",
-] as const;
-
-type Civ7MapInfoNumberKey = (typeof CIV7_MAP_INFO_NUMBER_KEYS)[number];
 
 type Civ7ConfigurationRuntime = Readonly<{
   getGameValue?: (key: string) => unknown;
   getMapValue?: (key: string) => unknown;
+  getPlayer?: (playerId: number) => unknown;
+}>;
+
+type Civ7PlayerConfigurationRuntime = Readonly<{
+  getValue?: (key: string) => unknown;
 }>;
 
 type Civ7PlayersRuntime = Readonly<{
   getAliveMajorIds?: () => unknown;
 }>;
 
-type SnapshotValueResult =
-  | Readonly<{ ok: true; value: Civ7SetupOptionValue }>
-  | Readonly<{ ok: false }>;
+type SetupOptionDescriptor =
+  | Civ7GameOptionDescriptor
+  | Civ7MapOptionDescriptor
+  | Civ7PlayerOptionDescriptor;
+
+type AdmittedSetupOptionDescriptors<Descriptors extends readonly SetupOptionDescriptor[]> =
+  Readonly<{ [Index in keyof Descriptors]: Descriptors[Index] }>;
+
+type SetupOptionDescriptorForGroup<Group extends "Game" | "Map" | "Player"> = Group extends "Game"
+  ? Civ7GameOptionDescriptor
+  : Group extends "Map"
+    ? Civ7MapOptionDescriptor
+    : Civ7PlayerOptionDescriptor;
+
+type SetupOptionParameterId<Descriptor extends Civ7SetupOptionDescriptor> =
+  Descriptor["parameterId"] & string;
+
+type SetupOptionValueForDescriptor<Descriptor extends SetupOptionDescriptor> =
+  Descriptor extends unknown
+    ? Descriptor["cardinality"] extends "array"
+      ? readonly string[]
+      : Descriptor["valueKind"] extends "boolean"
+        ? boolean
+        : Descriptor["valueKind"] extends "integer"
+          ? number
+          : string
+    : never;
 
 /** Latitude bounds already resolved for the exact map-generation invocation. */
 export type Civ7MapGenerationLatitudeBounds = Readonly<{
@@ -37,47 +63,61 @@ export type Civ7MapGenerationLatitudeBounds = Readonly<{
 }>;
 
 /**
- * Detached projection of the map-info fields declared by the adapter contract.
+ * Detached projection of Civ7's complete gameplay `GameInfo.Maps` row.
  *
- * The capture does not retain the live `GameInfo.Maps` row or claim that
- * unmodeled row fields belong to this setup authority.
+ * Fields remain optional at this recipe-agnostic boundary because test doubles and unsupported
+ * map kinds may expose partial rows. A consuming recipe decides which facts its setup requires.
  */
-export type Civ7MapInfoSnapshot = Readonly<Partial<Record<Civ7MapInfoNumberKey, number>>>;
+export type Civ7MapInfoSnapshot = Readonly<Partial<Civ7MapInfo>>;
 
-/** Immutable object branch of one snapshotted Civ7 configuration value. */
-export interface Civ7SetupOptionObject {
-  readonly [key: string]: Civ7SetupOptionValue;
-}
+/** Portable authored option value exposed by Civ7's configuration getters. */
+export type Civ7SetupOptionValue = boolean | number | string | readonly string[];
 
-/** Portable configuration value that can be independently snapshotted and frozen. */
-export type Civ7SetupOptionValue =
-  | null
-  | boolean
-  | number
-  | string
-  | readonly Civ7SetupOptionValue[]
-  | Civ7SetupOptionObject;
+export type { Civ7SetupOptionUnavailableReason } from "@civ7/map-policy/setup";
 
-/** Why one explicitly requested configuration key could not produce detached evidence. */
-export type Civ7SetupOptionUnavailableReason =
-  | "configuration-api-unavailable"
-  | "read-failed"
-  | "value-unavailable"
-  | "value-not-snapshotable";
-
-/** Detached evidence for exactly one explicitly requested configuration key. */
-export type Civ7SetupOptionEvidence<Key extends string = string> = Readonly<
+/** Detached evidence whose key remains the authored Civ7 ParameterID. */
+export type Civ7SetupOptionEvidence<
+  Key extends string = string,
+  Value extends Civ7SetupOptionValue = Civ7SetupOptionValue,
+  UnavailableReason extends Civ7SetupOptionUnavailableReason = Civ7SetupOptionUnavailableReason,
+> = Readonly<
   | {
       status: "available";
       key: Key;
-      value: Civ7SetupOptionValue;
+      value: Value;
     }
   | {
       status: "unavailable";
       key: Key;
-      reason: Civ7SetupOptionUnavailableReason;
+      reason: UnavailableReason;
     }
 >;
+
+/** Exact detached evidence for one generated setup-option descriptor. */
+export type Civ7SetupOptionEvidenceForDescriptor<Descriptor extends SetupOptionDescriptor> =
+  Descriptor extends SetupOptionDescriptor
+    ? Civ7SetupOptionEvidence<
+        SetupOptionParameterId<Descriptor>,
+        SetupOptionValueForDescriptor<Descriptor>
+      >
+    : never;
+
+/** Descriptor-position-preserving evidence for one requested setup-option tuple. */
+export type Civ7SetupOptionEvidenceForDescriptors<
+  Descriptors extends readonly SetupOptionDescriptor[],
+> = Readonly<{
+  [Index in keyof Descriptors]: Descriptors[Index] extends SetupOptionDescriptor
+    ? Civ7SetupOptionEvidenceForDescriptor<Descriptors[Index]>
+    : never;
+}>;
+
+/** Exact ordered option evidence captured for one alive Civ7 player identity. */
+export type Civ7PlayerSetupOptionEvidence<
+  Descriptors extends readonly Civ7PlayerOptionDescriptor[],
+> = Readonly<{
+  playerId: number;
+  options: Civ7SetupOptionEvidenceForDescriptors<Descriptors>;
+}>;
 
 /** Static placement-slot capacity declared by the resolved Civ7 map-info row. */
 export type Civ7StartSlotCapacity = Readonly<{
@@ -89,26 +129,35 @@ export type Civ7StartSlotCapacity = Readonly<{
 /**
  * Inputs the SDK has already resolved before Civ7 enters `GenerateMap`.
  *
- * Requested option keys are explicit because Civ7 exposes keyed reads, not a
- * supported bulk-enumeration contract.
+ * Requested option descriptors retain authored ParameterID identity while declaring the
+ * physical configuration key, when any, that can reconstruct the authored value.
  */
 export type Civ7MapGenerationSetupCaptureInput<
-  MapOptionKey extends string = string,
-  GameOptionKey extends string = string,
+  MapOptions extends
+    readonly SetupOptionDescriptorForGroup<"Map">[] = readonly SetupOptionDescriptorForGroup<"Map">[],
+  GameOptions extends
+    readonly SetupOptionDescriptorForGroup<"Game">[] = readonly SetupOptionDescriptorForGroup<"Game">[],
+  PlayerOptions extends
+    readonly SetupOptionDescriptorForGroup<"Player">[] = readonly SetupOptionDescriptorForGroup<"Player">[],
 > = Readonly<{
   mapSeed: number;
   dimensions: Readonly<MapDimensions>;
   latitudeBounds: Civ7MapGenerationLatitudeBounds;
   mapSizeId: MapSizeId;
   mapInfo: MapInfo;
-  requestedMapOptionKeys: readonly MapOptionKey[];
-  requestedGameOptionKeys: readonly GameOptionKey[];
+  requestedMapOptions: MapOptions;
+  requestedGameOptions: GameOptions;
+  requestedPlayerOptions: PlayerOptions;
 }>;
 
 /** Immutable one-shot evidence captured at the Civ7 `GenerateMap` boundary. */
 export type Civ7MapGenerationSetupCapture<
-  MapOptionKey extends string = string,
-  GameOptionKey extends string = string,
+  MapOptions extends
+    readonly SetupOptionDescriptorForGroup<"Map">[] = readonly SetupOptionDescriptorForGroup<"Map">[],
+  GameOptions extends
+    readonly SetupOptionDescriptorForGroup<"Game">[] = readonly SetupOptionDescriptorForGroup<"Game">[],
+  PlayerOptions extends
+    readonly SetupOptionDescriptorForGroup<"Player">[] = readonly SetupOptionDescriptorForGroup<"Player">[],
 > = Readonly<{
   mapSeed: number;
   gameSeed: number;
@@ -121,8 +170,10 @@ export type Civ7MapGenerationSetupCapture<
   /** Static map-size placement capacity, which is not an observation of actual players. */
   startSlotCapacity: Civ7StartSlotCapacity;
   options: Readonly<{
-    map: readonly Civ7SetupOptionEvidence<MapOptionKey>[];
-    game: readonly Civ7SetupOptionEvidence<GameOptionKey>[];
+    map: Civ7SetupOptionEvidenceForDescriptors<MapOptions>;
+    game: Civ7SetupOptionEvidenceForDescriptors<GameOptions>;
+    /** Player rows preserve the exact order of `aliveMajorPlayerIds`. */
+    player: readonly Civ7PlayerSetupOptionEvidence<PlayerOptions>[];
   }>;
 }>;
 
@@ -133,35 +184,44 @@ export type Civ7MapGenerationSetupCapture<
  * remain explicit evidence instead of being defaulted, inferred, or omitted.
  */
 export function captureCiv7MapGenerationSetup<
-  const MapOptionKey extends string,
-  const GameOptionKey extends string,
+  const MapOptions extends readonly SetupOptionDescriptorForGroup<"Map">[],
+  const GameOptions extends readonly SetupOptionDescriptorForGroup<"Game">[],
+  const PlayerOptions extends readonly SetupOptionDescriptorForGroup<"Player">[],
 >(
-  input: Civ7MapGenerationSetupCaptureInput<MapOptionKey, GameOptionKey>
-): Civ7MapGenerationSetupCapture<MapOptionKey, GameOptionKey> {
+  input: Civ7MapGenerationSetupCaptureInput<MapOptions, GameOptions, PlayerOptions>
+): Civ7MapGenerationSetupCapture<MapOptions, GameOptions, PlayerOptions> {
   const mapSeed = requireSignedIntSeed(input.mapSeed, "Civ7 map seed");
   const dimensions = snapshotDimensions(input.dimensions);
   const latitudeBounds = snapshotLatitudeBounds(input.latitudeBounds);
   const mapSizeId = requireMapSizeId(input.mapSizeId);
   const mapInfo = snapshotMapInfo(input.mapInfo);
   const startSlotCapacity = deriveStartSlotCapacity(mapInfo);
-  const requestedMapOptionKeys = snapshotRequestedKeys(
-    input.requestedMapOptionKeys,
-    "Civ7 requested map option keys"
+  const requestedMapOptions = admitRequestedOptions(
+    input.requestedMapOptions,
+    CIV7_MAP_OPTION_DESCRIPTORS,
+    "Civ7 requested map options"
   );
-  const requestedGameOptionKeys = snapshotRequestedKeys(
-    input.requestedGameOptionKeys,
-    "Civ7 requested game option keys"
+  const requestedGameOptions = admitRequestedOptions(
+    input.requestedGameOptions,
+    CIV7_GAME_OPTION_DESCRIPTORS,
+    "Civ7 requested game options"
+  );
+  const requestedPlayerOptions = admitRequestedOptions(
+    input.requestedPlayerOptions,
+    CIV7_PLAYER_OPTION_DESCRIPTORS,
+    "Civ7 requested player options"
   );
 
   const configuration = readConfigurationRuntime();
   const gameSeed = captureRequiredGameSeed(configuration);
   const aliveMajorPlayerIds = captureAliveMajorPlayerIds();
   const options = Object.freeze({
-    map: captureRequestedOptions(configuration?.getMapValue, configuration, requestedMapOptionKeys),
-    game: captureRequestedOptions(
-      configuration?.getGameValue,
+    map: captureRequestedOptions(configuration?.getMapValue, configuration, requestedMapOptions),
+    game: captureRequestedOptions(configuration?.getGameValue, configuration, requestedGameOptions),
+    player: captureRequestedPlayerOptions(
       configuration,
-      requestedGameOptionKeys
+      aliveMajorPlayerIds,
+      requestedPlayerOptions
     ),
   });
 
@@ -244,16 +304,39 @@ function snapshotMapInfo(value: MapInfo): Civ7MapInfoSnapshot {
     throw new TypeError("Civ7 mapInfo must be an object.");
   }
 
-  const snapshot: Partial<Record<Civ7MapInfoNumberKey, number>> = {};
-  for (const key of CIV7_MAP_INFO_NUMBER_KEYS) {
-    const field = value[key];
+  const snapshot: Record<string, boolean | number | string | null> = {};
+  for (const descriptor of CIV7_MAP_INFO_COLUMN_DESCRIPTORS) {
+    const field = value[descriptor.name];
     if (field === undefined) continue;
-    if (typeof field !== "number" || !Number.isFinite(field)) {
-      throw new TypeError(`Civ7 mapInfo.${key} must be a finite number when present.`);
+    if (field === null) {
+      if (!descriptor.nullable) {
+        throw new TypeError(`Civ7 mapInfo.${descriptor.name} cannot be null.`);
+      }
+      snapshot[descriptor.name] = null;
+      continue;
     }
-    snapshot[key] = field;
+    if (descriptor.sqlType === "BOOLEAN") {
+      if (typeof field !== "boolean") {
+        throw new TypeError(`Civ7 mapInfo.${descriptor.name} must be a boolean when present.`);
+      }
+    } else if (descriptor.sqlType === "INTEGER") {
+      if (typeof field !== "number" || !Number.isSafeInteger(field)) {
+        throw new TypeError(`Civ7 mapInfo.${descriptor.name} must be a safe integer when present.`);
+      }
+    } else if (typeof field !== "string") {
+      throw new TypeError(`Civ7 mapInfo.${descriptor.name} must be a string when present.`);
+    }
+    if (
+      descriptor.name === "MapSizeType" &&
+      (typeof field !== "string" || field.length === 0 || field.trim() !== field)
+    ) {
+      throw new TypeError(
+        "Civ7 mapInfo.MapSizeType must be a non-empty unpadded string when present."
+      );
+    }
+    snapshot[descriptor.name] = field;
   }
-  return Object.freeze(snapshot);
+  return Object.freeze(snapshot) as Civ7MapInfoSnapshot;
 }
 
 function deriveStartSlotCapacity(mapInfo: Civ7MapInfoSnapshot): Civ7StartSlotCapacity {
@@ -273,26 +356,36 @@ function requireStartSlotCapacity(value: unknown, field: string): number {
   return value;
 }
 
-function snapshotRequestedKeys<Key extends string>(
-  value: readonly Key[],
+function admitRequestedOptions<const Descriptors extends readonly SetupOptionDescriptor[]>(
+  value: Descriptors,
+  catalog: readonly SetupOptionDescriptor[],
   label: string
-): readonly Key[] {
+): AdmittedSetupOptionDescriptors<Descriptors> {
   if (!Array.isArray(value)) throw new TypeError(`${label} must be an array.`);
-  const snapshot: Key[] = [];
   const seen = new Set<string>();
+  const snapshot: SetupOptionDescriptor[] = [];
   for (let index = 0; index < value.length; index += 1) {
-    if (!Object.hasOwn(value, index)) {
+    const element = Object.getOwnPropertyDescriptor(value, String(index));
+    if (!element) {
       throw new TypeError(`${label} must not contain sparse entries.`);
     }
-    const key = value[index];
-    if (typeof key !== "string" || key.length === 0 || key.trim() !== key) {
-      throw new TypeError(`${label} must contain non-empty unpadded strings.`);
+    if (!("value" in element)) {
+      throw new TypeError(`${label} must contain own data elements, not accessors.`);
     }
-    if (seen.has(key)) throw new TypeError(`${label} must contain unique keys.`);
-    seen.add(key);
-    snapshot.push(key as Key);
+    const descriptor: unknown = element.value;
+    const admittedDescriptor = catalog.find((candidate) => candidate === descriptor);
+    if (!admittedDescriptor) {
+      throw new TypeError(`${label} must contain exact generated descriptor identities.`);
+    }
+    const { parameterId } = admittedDescriptor;
+    if (seen.has(parameterId)) {
+      throw new TypeError(`${label} must contain unique parameterId values.`);
+    }
+    seen.add(parameterId);
+    snapshot.push(admittedDescriptor);
   }
-  return Object.freeze(snapshot);
+  // Admission proves an exact dense tuple; cloning prevents caller mutation during runtime reads.
+  return Object.freeze(snapshot) as AdmittedSetupOptionDescriptors<Descriptors>;
 }
 
 function readConfigurationRuntime(): Civ7ConfigurationRuntime | undefined {
@@ -312,7 +405,10 @@ function captureRequiredGameSeed(configuration: Civ7ConfigurationRuntime | undef
   }
   let value: unknown;
   try {
-    value = getter.call(configuration, "RandomSeed");
+    value = getter.call(
+      configuration,
+      CIV7_GAME_RANDOM_SEED_PARAMETER_DESCRIPTOR.authoredValueRead.key
+    );
   } catch {
     throw new Error("Civ7 game seed read failed during GenerateMap.");
   }
@@ -346,10 +442,16 @@ function captureAliveMajorPlayerIds(): readonly number[] {
   const snapshot: number[] = [];
   const seen = new Set<number>();
   for (let index = 0; index < observed.length; index += 1) {
-    if (!Object.hasOwn(observed, index)) {
+    const element = Object.getOwnPropertyDescriptor(observed, String(index));
+    if (!element) {
       throw new TypeError("Civ7 alive-major player ids must not contain sparse entries.");
     }
-    const playerId: unknown = observed[index];
+    if (!("value" in element)) {
+      throw new TypeError(
+        "Civ7 alive-major player ids must contain own data elements, not accessors."
+      );
+    }
+    const playerId: unknown = element.value;
     if (
       typeof playerId !== "number" ||
       !Number.isSafeInteger(playerId) ||
@@ -367,100 +469,117 @@ function captureAliveMajorPlayerIds(): readonly number[] {
   return Object.freeze(snapshot);
 }
 
-function captureRequestedOptions<Key extends string>(
-  getter: ((key: string) => unknown) | undefined,
-  receiver: Civ7ConfigurationRuntime | undefined,
-  keys: readonly Key[]
-): readonly Civ7SetupOptionEvidence<Key>[] {
-  if (typeof getter !== "function") {
-    return Object.freeze(
-      keys.map((key) =>
-        Object.freeze({
-          status: "unavailable" as const,
-          key,
-          reason: "configuration-api-unavailable" as const,
-        })
-      )
-    );
-  }
+function captureRequestedPlayerOptions<
+  const Descriptors extends readonly Civ7PlayerOptionDescriptor[],
+>(
+  configuration: Civ7ConfigurationRuntime | undefined,
+  playerIds: readonly number[],
+  descriptors: Descriptors
+): readonly Civ7PlayerSetupOptionEvidence<Descriptors>[] {
+  return Object.freeze(
+    playerIds.map((playerId): Civ7PlayerSetupOptionEvidence<Descriptors> => {
+      let playerConfiguration: Civ7PlayerConfigurationRuntime | undefined;
+      let getValue: ((key: string) => unknown) | undefined;
+      if (typeof configuration?.getPlayer === "function") {
+        try {
+          const observed = configuration.getPlayer.call(configuration, playerId);
+          if (observed !== null && typeof observed === "object") {
+            playerConfiguration = observed as Civ7PlayerConfigurationRuntime;
+            getValue = playerConfiguration.getValue;
+          }
+        } catch {
+          getValue = () => {
+            throw new Error("Civ7 player setup read failed.");
+          };
+        }
+      }
+      return Object.freeze({
+        playerId,
+        options: captureRequestedOptions(getValue, playerConfiguration, descriptors),
+      });
+    })
+  );
+}
 
-  const evidence = keys.map((key): Civ7SetupOptionEvidence<Key> => {
+function captureRequestedOptions<const Descriptors extends readonly SetupOptionDescriptor[]>(
+  getter: ((key: string) => unknown) | undefined,
+  receiver: object | undefined,
+  descriptors: Descriptors
+): Civ7SetupOptionEvidenceForDescriptors<Descriptors> {
+  const evidence = descriptors.map((descriptor): Civ7SetupOptionEvidence => {
+    const key = descriptor.parameterId;
+    if (descriptor.authoredValueRead.kind !== "configuration") {
+      return Object.freeze({
+        status: "unavailable",
+        key,
+        reason: descriptor.authoredValueRead.reason,
+      });
+    }
+    if (typeof getter !== "function") {
+      return Object.freeze({
+        status: "unavailable",
+        key,
+        reason: "configuration-api-unavailable",
+      });
+    }
+
     let observed: unknown;
     try {
-      observed = getter.call(receiver, key);
+      observed = getter.call(receiver, descriptor.authoredValueRead.key);
     } catch {
       return Object.freeze({ status: "unavailable", key, reason: "read-failed" });
     }
     if (observed === undefined) {
       return Object.freeze({ status: "unavailable", key, reason: "value-unavailable" });
     }
-    const snapshot = snapshotSetupOptionValue(observed, new Set<object>(), 0);
+    const snapshot = snapshotSetupOptionValue(observed, descriptor);
     return snapshot.ok
       ? Object.freeze({ status: "available", key, value: snapshot.value })
       : Object.freeze({ status: "unavailable", key, reason: "value-not-snapshotable" });
   });
-  return Object.freeze(evidence);
+  // Array.map preserves the admitted tuple's order and cardinality; freezing seals that evidence.
+  return Object.freeze(evidence) as Civ7SetupOptionEvidenceForDescriptors<Descriptors>;
 }
 
 function snapshotSetupOptionValue(
   value: unknown,
-  ancestors: Set<object>,
-  depth: number
-): SnapshotValueResult {
-  if (value === null || typeof value === "string" || typeof value === "boolean") {
-    return { ok: true, value };
-  }
-  if (typeof value === "number") {
-    return Number.isFinite(value) ? { ok: true, value } : { ok: false };
-  }
-  if (typeof value !== "object" || depth >= 64 || ancestors.has(value)) return { ok: false };
-
-  ancestors.add(value);
-  try {
-    if (Array.isArray(value)) {
-      if (Object.getPrototypeOf(value) !== Array.prototype) return { ok: false };
-      const snapshot: Civ7SetupOptionValue[] = [];
-      for (let index = 0; index < value.length; index += 1) {
-        if (!Object.hasOwn(value, index)) return { ok: false };
-        const item = snapshotSetupOptionValue(value[index], ancestors, depth + 1);
-        if (!item.ok) return item;
-        snapshot.push(item.value);
-      }
-      if (Reflect.ownKeys(value).some((key) => key !== "length" && !isArrayIndex(key))) {
-        return { ok: false };
-      }
-      return { ok: true, value: Object.freeze(snapshot) };
+  descriptor: SetupOptionDescriptor
+): Readonly<{ ok: true; value: Civ7SetupOptionValue }> | Readonly<{ ok: false }> {
+  if (descriptor.cardinality === "array") {
+    if (
+      descriptor.valueKind !== "string" ||
+      !Array.isArray(value) ||
+      Object.getPrototypeOf(value) !== Array.prototype
+    ) {
+      return { ok: false };
     }
-
-    if (Object.getPrototypeOf(value) !== Object.prototype) return { ok: false };
-    const snapshot: Record<string, Civ7SetupOptionValue> = {};
-    for (const key of Reflect.ownKeys(value)) {
-      if (typeof key !== "string" || isUnsafeObjectKey(key)) return { ok: false };
-      const descriptor = Object.getOwnPropertyDescriptor(value, key);
-      if (descriptor === undefined || !descriptor.enumerable || !("value" in descriptor)) {
+    const snapshot: string[] = [];
+    for (let index = 0; index < value.length; index += 1) {
+      const element = Object.getOwnPropertyDescriptor(value, String(index));
+      if (!element || !("value" in element) || typeof element.value !== "string") {
         return { ok: false };
       }
-      const property = snapshotSetupOptionValue(descriptor.value, ancestors, depth + 1);
-      if (!property.ok) return property;
-      Object.defineProperty(snapshot, key, {
-        configurable: false,
-        enumerable: true,
-        value: property.value,
-        writable: false,
-      });
+      snapshot.push(element.value);
+    }
+    if (Reflect.ownKeys(value).some((key) => key !== "length" && !isArrayIndex(key))) {
+      return { ok: false };
     }
     return { ok: true, value: Object.freeze(snapshot) };
-  } finally {
-    ancestors.delete(value);
   }
+
+  if (descriptor.valueKind === "boolean") {
+    return typeof value === "boolean" ? { ok: true, value } : { ok: false };
+  }
+  if (descriptor.valueKind === "integer") {
+    return typeof value === "number" && Number.isSafeInteger(value)
+      ? { ok: true, value }
+      : { ok: false };
+  }
+  return typeof value === "string" ? { ok: true, value } : { ok: false };
 }
 
 function isArrayIndex(key: PropertyKey): boolean {
   if (typeof key !== "string" || key === "") return false;
   const index = Number(key);
   return Number.isInteger(index) && index >= 0 && index < 0xffff_ffff && String(index) === key;
-}
-
-function isUnsafeObjectKey(key: string): boolean {
-  return key === "__proto__" || key === "prototype" || key === "constructor";
 }

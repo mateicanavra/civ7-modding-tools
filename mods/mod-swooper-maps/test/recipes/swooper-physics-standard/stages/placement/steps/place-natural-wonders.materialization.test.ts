@@ -9,6 +9,7 @@ import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { type ArtifactValueOf } from "@swooper/mapgen-core/authoring";
+import { decodeBoundedJsonLogSeries } from "@swooper/mapgen-core/lib/log";
 import {
   buildStepTestDependencies,
   publishTestArtifact,
@@ -484,10 +485,14 @@ describe("natural wonder placement materialization", () => {
       expect(String(log.mock.calls[0]?.[0])).toContain(
         `feature=${featureTypes.FEATURE_KILIMANJARO} plot=${primaryPlotIndex}`
       );
-      expect(String(log.mock.calls[0]?.[0])).toContain(`"rejectedRows":[["r",${primaryPlotIndex},`);
-      expect(String(log.mock.calls[0]?.[0])).not.toContain(
-        `"rejectedRows":[["r",${terminalFallbackPlotIndex},`
-      );
+      const placementPayload = decodeBoundedJsonLogSeries(
+        log.mock.calls.map((call) => String(call[0])),
+        "NATURAL_WONDER_PLACEMENT_V1"
+      ).at(-1)?.payload as { rejectedRows?: readonly (readonly unknown[])[] } | undefined;
+      expect(placementPayload?.rejectedRows?.[0]?.[1]).toBe(primaryPlotIndex);
+      expect(
+        placementPayload?.rejectedRows?.some((row) => row[1] === terminalFallbackPlotIndex)
+      ).toBe(false);
     } finally {
       log.mockRestore();
     }

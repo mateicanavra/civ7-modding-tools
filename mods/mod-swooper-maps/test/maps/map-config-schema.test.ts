@@ -10,7 +10,8 @@ import {
   validateCanonicalMapConfig,
 } from "../../src/maps/configs/canonical";
 import standardRecipe, { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
-import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../setup.js";
+import { createStandardRecipeTestInitialSetup } from "../recipes/swooper-physics-standard/fixtures/standard-recipe.js";
+import { TEST_MAP_SIZE } from "../setup.js";
 
 const repoRoot = resolve(import.meta.dirname, "../../../..");
 
@@ -137,11 +138,10 @@ describe("Shipped map configs", () => {
     for (const config of configs) {
       const canonicalConfig = config.canonicalConfig;
       const compiled = standardRecipe.compileConfig(
-        {
-          mapSeed: TEST_MAP_SEED,
-          dimensions: TEST_MAP_SIZE.dimensions,
-          latitudeBounds: canonicalConfig.latitudeBounds,
-        },
+        createStandardRecipeTestInitialSetup({
+          preset: TEST_MAP_SIZE,
+          mapConfig: canonicalConfig,
+        }),
         canonicalConfig.config
       );
 

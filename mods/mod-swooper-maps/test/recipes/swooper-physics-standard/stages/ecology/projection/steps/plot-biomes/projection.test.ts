@@ -12,7 +12,11 @@ import {
 } from "@swooper/mapgen-core/testing";
 import { resolveEngineBiomeIds } from "../../../../../../../../src/recipes/standard/stages/ecology/projection/model/policy/biome-projection.js";
 import { PlotBiomesStep as plotBiomesStep } from "../../../../../../../../src/recipes/standard/stages/ecology/projection/steps/plot-biomes/step.js";
-import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
+import {
+  TEST_MAP_LATITUDE_BOUNDS,
+  TEST_MAP_SEED,
+  TEST_MAP_SIZE,
+} from "../../../../../../../setup.js";
 
 describe("plot biomes step", () => {
   it("refuses projection when an official Civ7 biome global is unavailable", () => {
@@ -27,10 +31,7 @@ describe("plot biomes step", () => {
     const setup = admitMapSetup({
       mapSeed: TEST_MAP_SEED,
       dimensions: TEST_MAP_SIZE.dimensions,
-      latitudeBounds: {
-        topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
-        bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
-      },
+      latitudeBounds: TEST_MAP_LATITUDE_BOUNDS,
     });
 
     const adapter = createMockAdapter({ width, height, mapInfo: TEST_MAP_SIZE.mapInfo });

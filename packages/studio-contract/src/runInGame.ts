@@ -484,8 +484,8 @@ const exactAuthorshipCivSetupEvidence = Type.Object(
   {
     mapScript: Type.String(),
     mapSize: Type.Unknown(),
-    mapSeed: Type.Unknown(),
-    gameSeed: Type.Unknown(),
+    mapSeed: Civ7SignedIntSeedSchema,
+    gameSeed: Civ7SignedIntSeedSchema,
     playerCount: Type.Optional(Type.Unknown()),
     rowCount: Type.Number(),
   },

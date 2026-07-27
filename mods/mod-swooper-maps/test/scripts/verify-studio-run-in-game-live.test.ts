@@ -1,9 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import { ORPCError } from "@orpc/client";
+import { encodeBoundedJsonLogLines } from "@swooper/mapgen-core/lib/log";
 import { serializeVerifierError } from "../../scripts/live/verifier-error";
 import {
   admitStudioRunInGameLiveMutationArgs,
   buildSwooperMapScriptDeploymentStage,
+  hasMapgenCompletionForSeed,
   type MapScriptFileIdentity,
   parseStudioRunInGameLiveArgs,
   resolveSwooperMapScriptPaths,
@@ -18,6 +20,23 @@ const identity = (path: string, sha256: string): MapScriptFileIdentity => ({
 });
 
 describe("studio run-in-game live verifier deployment identity", () => {
+  test("admits only complete digest-valid completion evidence for the requested map seed", () => {
+    const lines = encodeBoundedJsonLogLines({
+      prefix: "[SWOOPER_MOD]",
+      marker: "[mapgen-complete]",
+      payload: { seed: 42, setup: "standard".repeat(600) },
+      maxLineLength: 320,
+    });
+    const corrupted = [...lines];
+    corrupted[1] = corrupted[1]?.replace("standard", "fractured") ?? "";
+
+    expect(lines.length).toBeGreaterThan(2);
+    expect(hasMapgenCompletionForSeed(lines.slice(0, -1).join("\n"), 42)).toBe(false);
+    expect(hasMapgenCompletionForSeed(corrupted.join("\n"), 42)).toBe(false);
+    expect(hasMapgenCompletionForSeed(lines.join("\n"), 41)).toBe(false);
+    expect(hasMapgenCompletionForSeed(lines.join("\n"), 42)).toBe(true);
+  });
+
   test("admits distinct signed map and game seed flags for a mutating launch", () => {
     const parsed = parseStudioRunInGameLiveArgs([
       "--mutate",

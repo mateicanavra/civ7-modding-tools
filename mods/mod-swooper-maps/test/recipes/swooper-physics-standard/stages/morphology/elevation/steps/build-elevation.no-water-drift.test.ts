@@ -11,6 +11,7 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { BuildElevationStep } from "../../../../../../../src/recipes/standard/stages/morphology/elevation/steps/build-elevation/step.js";
+import { TEST_MAP_SEED } from "../../../../../../setup.js";
 
 const SYNTHETIC_BOUNDED_DRIFT_DIMENSIONS = { width: 10, height: 10 } as const;
 const SYNTHETIC_EXCESSIVE_DRIFT_DIMENSIONS = { width: 4, height: 3 } as const;
@@ -94,10 +95,9 @@ class ReliefAfterBuildElevationAdapter extends MockAdapter {
 describe("map-elevation/build-elevation", () => {
   it("allows bounded buildElevation land/water drift and logs the policy report", () => {
     const { width, height } = SYNTHETIC_BOUNDED_DRIFT_DIMENSIONS;
-    const seed = 1234;
-    const mapInfo = { GridWidth: width, GridHeight: height, MinLatitude: -60, MaxLatitude: 60 };
+    const mapInfo = { GridWidth: width, GridHeight: height };
     const setup = admitMapSetup({
-      mapSeed: seed,
+      mapSeed: TEST_MAP_SEED,
       dimensions: SYNTHETIC_BOUNDED_DRIFT_DIMENSIONS,
       latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
     });
@@ -107,7 +107,7 @@ describe("map-elevation/build-elevation", () => {
       height,
       mapInfo,
       mapSizeId: 1,
-      rng: createLabelRng(seed),
+      rng: createLabelRng(TEST_MAP_SEED),
     });
     const context = createMapContext({ setup, adapter });
     const { TERRAIN_FLAT: flatTerrain, TERRAIN_OCEAN: oceanTerrain } =
@@ -146,10 +146,9 @@ describe("map-elevation/build-elevation", () => {
 
   it("fails when buildElevation drift exceeds the policy budget", () => {
     const { width, height } = SYNTHETIC_EXCESSIVE_DRIFT_DIMENSIONS;
-    const seed = 1234;
-    const mapInfo = { GridWidth: width, GridHeight: height, MinLatitude: -60, MaxLatitude: 60 };
+    const mapInfo = { GridWidth: width, GridHeight: height };
     const setup = admitMapSetup({
-      mapSeed: seed,
+      mapSeed: TEST_MAP_SEED,
       dimensions: SYNTHETIC_EXCESSIVE_DRIFT_DIMENSIONS,
       latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
     });
@@ -159,7 +158,7 @@ describe("map-elevation/build-elevation", () => {
       height,
       mapInfo,
       mapSizeId: 1,
-      rng: createLabelRng(seed),
+      rng: createLabelRng(TEST_MAP_SEED),
     });
     const context = createMapContext({ setup, adapter });
     const flatTerrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_FLAT;
@@ -186,10 +185,9 @@ describe("map-elevation/build-elevation", () => {
 
   it("keeps post-buildElevation terrain when no water drift is detected", () => {
     const { width, height } = SYNTHETIC_READBACK_DIMENSIONS;
-    const seed = 4321;
-    const mapInfo = { GridWidth: width, GridHeight: height, MinLatitude: -60, MaxLatitude: 60 };
+    const mapInfo = { GridWidth: width, GridHeight: height };
     const setup = admitMapSetup({
-      mapSeed: seed,
+      mapSeed: TEST_MAP_SEED,
       dimensions: SYNTHETIC_READBACK_DIMENSIONS,
       latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
     });
@@ -199,7 +197,7 @@ describe("map-elevation/build-elevation", () => {
       height,
       mapInfo,
       mapSizeId: 1,
-      rng: createLabelRng(seed),
+      rng: createLabelRng(TEST_MAP_SEED),
     });
     const context = createMapContext({ setup, adapter });
     const { TERRAIN_FLAT: flatTerrain, TERRAIN_HILL: hillTerrain } =
@@ -220,10 +218,9 @@ describe("map-elevation/build-elevation", () => {
 
   it("treats engine-accepted lakes as expected water during elevation readback", () => {
     const { width, height } = SYNTHETIC_READBACK_DIMENSIONS;
-    const seed = 5678;
-    const mapInfo = { GridWidth: width, GridHeight: height, MinLatitude: -60, MaxLatitude: 60 };
+    const mapInfo = { GridWidth: width, GridHeight: height };
     const setup = admitMapSetup({
-      mapSeed: seed,
+      mapSeed: TEST_MAP_SEED,
       dimensions: SYNTHETIC_READBACK_DIMENSIONS,
       latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
     });
@@ -233,7 +230,7 @@ describe("map-elevation/build-elevation", () => {
       height,
       mapInfo,
       mapSizeId: 1,
-      rng: createLabelRng(seed),
+      rng: createLabelRng(TEST_MAP_SEED),
     });
     const context = createMapContext({ setup, adapter });
     const { TERRAIN_COAST: coastTerrain, TERRAIN_FLAT: flatTerrain } =
@@ -256,10 +253,9 @@ describe("map-elevation/build-elevation", () => {
 
   it("does not turn rejected lake intent into expected engine water", () => {
     const { width, height } = SYNTHETIC_READBACK_DIMENSIONS;
-    const seed = 6789;
-    const mapInfo = { GridWidth: width, GridHeight: height, MinLatitude: -60, MaxLatitude: 60 };
+    const mapInfo = { GridWidth: width, GridHeight: height };
     const setup = admitMapSetup({
-      mapSeed: seed,
+      mapSeed: TEST_MAP_SEED,
       dimensions: SYNTHETIC_READBACK_DIMENSIONS,
       latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
     });
@@ -269,7 +265,7 @@ describe("map-elevation/build-elevation", () => {
       height,
       mapInfo,
       mapSizeId: 1,
-      rng: createLabelRng(seed),
+      rng: createLabelRng(TEST_MAP_SEED),
     });
     const context = createMapContext({ setup, adapter });
     const flatTerrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_FLAT;

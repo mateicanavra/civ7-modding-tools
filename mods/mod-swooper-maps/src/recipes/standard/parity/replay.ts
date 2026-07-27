@@ -1,11 +1,6 @@
 /// <reference types="@civ7/types" />
 
-import {
-  type Civ7StandardMapSizeId,
-  createMockAdapter,
-  type EngineAdapter,
-  getCiv7StandardMapSizePreset,
-} from "@civ7/adapter";
+import { createMockAdapter, type EngineAdapter } from "@civ7/adapter";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
 import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
@@ -17,10 +12,7 @@ import {
 } from "@swooper/mapgen-core/authoring";
 import { fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
 import { Value } from "typebox/value";
-import {
-  canonicalRecipeConfig,
-  type StandardMapConfigEnvelope,
-} from "../../../maps/configs/canonical.js";
+import type { StandardInitialSetup } from "../initial-setup.js";
 import {
   type StandardFeatureProjectionMeasurements,
   StandardFeatureProjectionMeasurementsSchema,
@@ -52,22 +44,11 @@ import type {
   StandardRiverProjectionCapture,
 } from "./types.js";
 
-/** Latitude bounds frozen into the launch envelope and reused by deterministic replay. */
-type StandardParityMapEnvelopeBounds = Readonly<{
-  topLatitude: number;
-  bottomLatitude: number;
-}>;
-
 /** Fully correlated immutable inputs required to replay one Standard generation. */
 type StandardParityReplayInput = Readonly<{
-  mapSize: Civ7StandardMapSizeId;
-  mapSeed: number;
-  gameSeed: number;
-  playerCount: number;
-  config: StandardMapConfigEnvelope;
+  plan: ReturnType<typeof standardRecipe.compile>;
   canonicalConfigDigest: string;
   launchEnvelopeDigest: string;
-  mapEnvelopeBounds: StandardParityMapEnvelopeBounds;
 }>;
 
 declare const STANDARD_PARITY_REPLAY_AUTHORITY: unique symbol;
@@ -99,24 +80,18 @@ function observeArtifact<A extends Artifact>(
 }
 
 /**
- * Resolves replay metadata only from a real Civ7 preset and the frozen launch envelope.
- * Runtime dimensions may confirm a preset; they can never synthesize one.
+ * Resolves replay metadata from the exact admitted setup captured by the executed recipe plan.
+ * Product parity is defined only for a real Civ7 preset; custom headless scenarios have no live row.
  */
-function createStandardParityReplayMetadata(
-  input: Pick<StandardParityReplayInput, "mapSize" | "mapEnvelopeBounds" | "playerCount">
-) {
-  const preset = getCiv7StandardMapSizePreset(input.mapSize);
-  if (!Number.isInteger(input.playerCount) || input.playerCount < 1) {
-    throw new Error(
-      `Standard parity replay requires a positive frozen player count, received ${String(input.playerCount)}.`
-    );
+function createStandardParityReplayMetadata(initialSetup: StandardInitialSetup) {
+  const { selection } = initialSetup.map;
+  if (selection.kind !== "civ7-preset") {
+    throw new Error("Standard parity replay requires an exact Civ7 preset selection.");
   }
   return {
-    latitudeBounds: input.mapEnvelopeBounds,
-    dimensions: preset.dimensions,
-    mapInfo: preset.mapInfo,
-    mapSizeId: preset.id,
-    playerCount: input.playerCount,
+    dimensions: selection.dimensions,
+    mapInfo: selection.mapInfo,
+    mapSizeId: selection.id,
   } as const;
 }
 
@@ -125,21 +100,17 @@ function createStandardParityReplayMetadata(
  * only evidence consumed by Standard parity product comparisons.
  */
 function runStandardParityReplay(input: StandardParityReplayInput): StandardLocalParityCapture {
-  const metadata = createStandardParityReplayMetadata(input);
+  const { plan } = input;
+  const inspectedPlan = standardRecipe.inspectPlan(plan);
+  const metadata = createStandardParityReplayMetadata(inspectedPlan.initialSetup.value);
   const { width, height } = metadata.dimensions;
-  const setupBase = {
-    mapSeed: input.mapSeed,
-    dimensions: metadata.dimensions,
-    latitudeBounds: metadata.latitudeBounds,
-  } as const;
-  const plan = standardRecipe.compile(setupBase, canonicalRecipeConfig(input.config));
   const adapter = createMockAdapter({
     width,
     height,
     mapInfo: metadata.mapInfo,
     mapSizeId: metadata.mapSizeId,
-    aliveMajorCount: metadata.playerCount,
-    rng: createLabelRng(input.mapSeed),
+    aliveMajorPlayerIds: inspectedPlan.initialSetup.value.aliveMajorPlayerIds,
+    rng: createLabelRng(inspectedPlan.initialSetup.value.map.mapSeed),
   });
   const context = createMapContext({ setup: plan.setup, adapter });
   let featureProjection: StandardFeatureProjectionMeasurements | undefined;
@@ -217,10 +188,11 @@ function runStandardParityReplay(input: StandardParityReplayInput): StandardLoca
   return {
     source: "standard-replay",
     identity: {
-      mapSeed: input.mapSeed,
-      gameSeed: input.gameSeed,
-      mapSize: input.mapSize,
-      playerCount: input.playerCount,
+      planFingerprint: inspectedPlan.planFingerprint,
+      mapSeed: inspectedPlan.initialSetup.value.map.mapSeed,
+      gameSeed: inspectedPlan.initialSetup.value.gameSeed,
+      mapSize: metadata.mapSizeId,
+      aliveMajorPlayerIds: Object.freeze([...inspectedPlan.initialSetup.value.aliveMajorPlayerIds]),
       canonicalConfigDigest: input.canonicalConfigDigest,
       launchEnvelopeDigest: input.launchEnvelopeDigest,
     },
@@ -255,8 +227,14 @@ function runStandardParityReplay(input: StandardParityReplayInput): StandardLoca
 export function issueStandardParityReplayAuthority(
   input: StandardParityReplayInput
 ): StandardParityReplayAuthority {
+  standardRecipe.inspectPlan(input.plan);
+  const retainedInput = Object.freeze({
+    plan: input.plan,
+    canonicalConfigDigest: input.canonicalConfigDigest,
+    launchEnvelopeDigest: input.launchEnvelopeDigest,
+  });
   const authority = Object.freeze({}) as StandardParityReplayAuthority;
-  replayInputs.set(authority, input);
+  replayInputs.set(authority, retainedInput);
   return authority;
 }
 

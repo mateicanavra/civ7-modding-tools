@@ -5,7 +5,7 @@ import morphology from "@mapgen/domain/morphology/router";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
-import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
+import { deriveTestOperationSeed, TEST_MAP_SIZE } from "../../../../../setup.js";
 
 const { planVolcanoes } = morphology.landforms.ops;
 
@@ -44,7 +44,7 @@ function createInput(candidates: readonly Candidate[]) {
     boundaryType,
     shieldStability,
     volcanism,
-    rngSeed: TEST_MAP_SEED,
+    rngSeed: deriveTestOperationSeed("test:morphology:plan-volcanoes"),
   };
 }
 

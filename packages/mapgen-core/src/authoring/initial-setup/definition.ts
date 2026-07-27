@@ -44,10 +44,9 @@ export type InitialSetupDefinition<
   }["bivarianceHack"];
 }>;
 
-/** Input inferred directly from an initial-setup authority's TypeBox schema. */
-export type InitialSetupInputOf<Definition extends InitialSetupDefinition> = Static<
-  Definition["schema"]
->;
+/** Immutable input inferred directly from an initial-setup authority's TypeBox schema. */
+export type InitialSetupInputOf<Definition extends InitialSetupDefinition> =
+  DeepReadonlyInitialSetup<Static<Definition["schema"]>>;
 
 /** Deeply immutable value admitted for a recipe run and exposed only to declaring steps. */
 export type InitialSetupValueOf<Definition extends InitialSetupDefinition> =

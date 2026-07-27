@@ -26,9 +26,9 @@ import blueNoiseRotationDefinition from "./strategies/blue-noise-rotation/config
 
 /**
  * Admits deterministic concrete site selection from typed per-resource demands, habitat/policy
- * masks, landmass regions, and one seed. Its output carries intent provenance, range/region
- * shortfalls, spacing floors, and pair settings: exclusion gates destinations while affinity is
- * a best-effort scoring bias.
+ * masks, landmass regions, and one game-derived placement seed. Its output carries intent
+ * provenance, range/region shortfalls, spacing floors, and pair settings: exclusion gates
+ * destinations while affinity is a best-effort scoring bias.
  */
 const SelectResourceSitesContract = defineOp({
   kind: "plan",
@@ -37,7 +37,9 @@ const SelectResourceSitesContract = defineOp({
     {
       width: Type.Integer({ minimum: 1 }),
       height: Type.Integer({ minimum: 1 }),
-      seed: Type.Integer({ description: "Deterministic seed (from setup.mapSeed)." }),
+      seed: Type.Integer({
+        description: "Operation-local gameplay placement seed derived from the admitted game seed.",
+      }),
       landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land)." }),
       lakeMask: TypedArraySchemas.u8({ description: "Lake mask per tile (1=lake)." }),
       landmassIdByTile: TypedArraySchemas.i32({
@@ -61,7 +63,9 @@ const SelectResourceSitesContract = defineOp({
     {
       width: Type.Integer({ minimum: 1 }),
       height: Type.Integer({ minimum: 1 }),
-      seed: Type.Integer(),
+      seed: Type.Integer({
+        description: "Gameplay placement seed that deterministically produced this site plan.",
+      }),
       plannedCount: Type.Integer({ minimum: 0 }),
       rotationCount: Type.Integer({ minimum: 0 }),
       rangeFloorCount: Type.Integer({ minimum: 0 }),

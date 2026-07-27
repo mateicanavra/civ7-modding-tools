@@ -1,5 +1,5 @@
 import { once } from "node:events";
-import { mkdtemp, rm, utimes, writeFile } from "node:fs/promises";
+import { appendFile, mkdtemp, readFile, rm, utimes, writeFile } from "node:fs/promises";
 import { type AddressInfo, createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -25,6 +25,7 @@ import {
   inspectCiv7Root,
   inspectCiv7RuntimeApi,
   loadCiv7OfficialResourceCapabilities,
+  logTextFromSnapshot,
   snapshotFile,
   waitForFreshLogMarkers,
 } from "../src/index";
@@ -548,6 +549,92 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
 
       expect(proof.startOffset).toBe(0);
       expect(proof.matched).toEqual(["fresh", "marker"]);
+    } finally {
+      await rm(dir, { force: true, recursive: true });
+    }
+  });
+
+  test("uses the snapshot byte offset when pre-snapshot log text contains non-ASCII", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "civ7-direct-control-log-"));
+    try {
+      const logPath = join(dir, "Scripting.log");
+      await writeFile(logPath, "old café 世界\n", "utf8");
+      const snapshot = await snapshotFile(logPath);
+      await appendFile(logPath, "fresh\nmarker\n", "utf8");
+      const current = await snapshotFile(logPath);
+      const fullText = await readFile(logPath, "utf8");
+
+      expect(logTextFromSnapshot({ fullText, snapshot, current })).toEqual({
+        text: "fresh\nmarker\n",
+        startOffset: snapshot.size,
+        rewritten: false,
+      });
+
+      const proof = await waitForFreshLogMarkers({
+        logPath,
+        snapshot,
+        markers: ["fresh", "marker"],
+        timeoutMs: 100,
+        pollIntervalMs: 10,
+      });
+
+      expect(proof).toMatchObject({
+        startOffset: snapshot.size,
+        matched: ["fresh", "marker"],
+      });
+    } finally {
+      await rm(dir, { force: true, recursive: true });
+    }
+  });
+
+  test("keeps marker proof pending until the fresh-text acceptance predicate succeeds", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "civ7-direct-control-log-"));
+    try {
+      const logPath = join(dir, "Scripting.log");
+      await writeFile(logPath, "old\n");
+      const snapshot = await snapshotFile(logPath);
+      await appendFile(logPath, "[mapgen-complete] part-0\n");
+      let resolved = false;
+      const pending = waitForFreshLogMarkers({
+        logPath,
+        snapshot,
+        markers: ["[mapgen-complete]"],
+        acceptFreshText: (text) => text.includes("part-1-digest-valid"),
+        timeoutMs: 500,
+        pollIntervalMs: 10,
+      }).then((proof) => {
+        resolved = true;
+        return proof;
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 30));
+      expect(resolved).toBe(false);
+      await appendFile(logPath, "[mapgen-complete] part-1-digest-valid\n");
+
+      await expect(pending).resolves.toMatchObject({ matched: ["[mapgen-complete]"] });
+    } finally {
+      await rm(dir, { force: true, recursive: true });
+    }
+  });
+
+  test("times out while fresh marker text remains inadmissible", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "civ7-direct-control-log-"));
+    try {
+      const logPath = join(dir, "Scripting.log");
+      await writeFile(logPath, "old\n");
+      const snapshot = await snapshotFile(logPath);
+      await appendFile(logPath, "[mapgen-complete] truncated-or-mismatched\n");
+
+      await expect(
+        waitForFreshLogMarkers({
+          logPath,
+          snapshot,
+          markers: ["[mapgen-complete]"],
+          acceptFreshText: () => false,
+          timeoutMs: 40,
+          pollIntervalMs: 5,
+        })
+      ).rejects.toThrow("Timed out waiting for fresh log markers");
     } finally {
       await rm(dir, { force: true, recursive: true });
     }

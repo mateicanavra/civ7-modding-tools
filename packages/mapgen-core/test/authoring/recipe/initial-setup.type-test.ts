@@ -2,6 +2,7 @@ import {
   createRecipe,
   createStage,
   createStep,
+  type DeepReadonlyInitialSetup,
   defineInitialSetup,
   defineStep,
   type RecipeInitialSetupInputOf,
@@ -110,7 +111,7 @@ export const ExactInitialSetupRecipe = createRecipe({
   compileOpsById: {},
 });
 
-type ExpectedInput = Static<(typeof ExactInitialSetup)["schema"]>;
+type ExpectedInput = DeepReadonlyInitialSetup<Static<(typeof ExactInitialSetup)["schema"]>>;
 export type RecipeInputComesFromSchema = Expect<
   IsEqual<RecipeInitialSetupInputOf<typeof ExactInitialSetupRecipe>, ExpectedInput>
 >;
@@ -127,7 +128,41 @@ const exactInput: RecipeInitialSetupInputOf<typeof ExactInitialSetupRecipe> = {
   options: { seaLevel: 2 },
 };
 
-ExactInitialSetupRecipe.compile(exactInput, { foundation: { knobs: {} } });
+const exactPlan = ExactInitialSetupRecipe.compile(exactInput, { foundation: { knobs: {} } });
+const exactEvidence = ExactInitialSetupRecipe.inspectPlan(exactPlan);
+type RecipeIdIsExact = Expect<
+  IsEqual<typeof ExactInitialSetupRecipe.id, "test.exact-initial-setup">
+>;
+type EvidenceRecipeIdIsExact = Expect<
+  IsEqual<typeof exactEvidence.recipeId, "test.exact-initial-setup">
+>;
+type EvidenceDefinitionIdIsExact = Expect<
+  IsEqual<typeof exactEvidence.initialSetup.definitionId, "test/exact-initial-setup">
+>;
+type EvidenceValueIsExact = Expect<
+  IsEqual<typeof exactEvidence.initialSetup.value.options.seaLevel, number>
+>;
+
+const acceptExactRecipeEvidence = (
+  evidence: ReturnType<typeof ExactInitialSetupRecipe.inspectPlan>
+) => evidence;
+acceptExactRecipeEvidence(exactEvidence);
+
+const OtherRecipe = createRecipe({
+  id: "test.other-initial-setup",
+  initialSetup: ExactInitialSetup,
+  tagDefinitions: [],
+  stages: [stage],
+  compileOpsById: {},
+});
+const otherEvidence = OtherRecipe.inspectPlan(
+  OtherRecipe.compile(exactInput, { foundation: { knobs: {} } })
+);
+type OtherEvidenceRecipeIdIsExact = Expect<
+  IsEqual<typeof otherEvidence.recipeId, "test.other-initial-setup">
+>;
+// @ts-expect-error Evidence from another recipe authority has an incompatible literal identity.
+acceptExactRecipeEvidence(otherEvidence);
 // @ts-expect-error The full schema input requires every declared property.
 ExactInitialSetupRecipe.compile({ physical: exactInput.physical }, { foundation: { knobs: {} } });
 ExactInitialSetupRecipe.compile(

@@ -9,7 +9,7 @@
  *   nx run civ7-map-policy:generate  # regenerate without requiring a prior package build
  */
 
-import { execSync } from "node:child_process";
+import { execFileSync, execSync } from "node:child_process";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -20,6 +20,7 @@ import {
   type GeneratedFilePlanIssue,
   inspectGeneratedFilePlan,
 } from "@civ7/plugin-files/generated-file-plan";
+import { generateMapMetadataSource } from "./map-metadata.js";
 import { generateSetupParameterSource } from "./setup-parameters.js";
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
@@ -30,10 +31,24 @@ const SETUP_PARAMETERS_OUT_PATH = resolve(
   REPO_ROOT,
   "packages/civ7-map-policy/src/setup-parameters.gen.ts"
 );
+const MAP_METADATA_OUT_PATH = resolve(
+  REPO_ROOT,
+  "packages/civ7-map-policy/src/map-metadata.gen.ts"
+);
 const RIVER_TYPES_OUT_PATH = resolve(
   REPO_ROOT,
   "packages/civ7-types/generated/river-types.gen.d.ts"
 );
+const BIOME_BIN = resolve(REPO_ROOT, "node_modules/.bin/biome");
+
+function formatGeneratedTypeScript(source: string, outputPath: string): string {
+  return execFileSync(BIOME_BIN, ["format", `--stdin-file-path=${outputPath}`], {
+    cwd: REPO_ROOT,
+    encoding: "utf8",
+    input: source,
+    maxBuffer: 32 * 1024 * 1024,
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Source files (paths relative to the submodule root)
@@ -535,6 +550,10 @@ const setupParameters = generateSetupParameterSource({
   resourceRoot: SUBMODULE_ROOT,
   resourceCommit: commit,
 });
+const mapMetadata = generateMapMetadataSource({
+  resourceRoot: SUBMODULE_ROOT,
+  resourceCommit: commit,
+});
 
 const file = `/* eslint-disable */
 /**
@@ -701,6 +720,10 @@ const generatedOutputPlan = {
       content: setupParameters.source,
     },
     {
+      relativePath: relative(REPO_ROOT, MAP_METADATA_OUT_PATH),
+      content: formatGeneratedTypeScript(mapMetadata.source, MAP_METADATA_OUT_PATH),
+    },
+    {
       relativePath: relative(REPO_ROOT, RIVER_TYPES_OUT_PATH),
       content: generateRiverTypesDeclaration(),
     },
@@ -757,5 +780,6 @@ console.log(
     `setupParameters=${setupParameters.parameterCount}`,
     `setupParameterIds=${setupParameters.uniqueParameterCount}`,
     `setupGroups=${setupParameters.groupCount}`,
+    `standardMapSizes=${mapMetadata.standardMapSizeCount}`,
   ].join(" ")
 );

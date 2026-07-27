@@ -1,4 +1,4 @@
-import { type Civ7StandardMapSizeId, findCiv7StandardMapSizePreset } from "@civ7/adapter";
+import { type Civ7StandardMapSizeId, findCiv7StandardMapSizePreset } from "@civ7/map-policy";
 import {
   CIV7_GAME_OPTION_IDS,
   CIV7_MAP_OPTION_IDS,
@@ -18,6 +18,7 @@ import {
   type RunInGameSetupOptionValue,
   validateRunInGameSetupConfig,
 } from "@civ7/studio-contract";
+import { CIV7_STUDIO_MIN_PLAYER_COUNT, getCiv7MapSizePlayerCapacity } from "./mapSizes";
 import { parseCiv7StudioSeed } from "./seedPolicy";
 
 type Civ7StudioSetupOptionValue = RunInGameSetupOptionValue;
@@ -195,8 +196,17 @@ export function studioSetupConfigFromLiveSnapshot(
   );
 }
 
-export function getLocalPlayerSetup(config: Civ7StudioSetupConfig): Civ7StudioPlayerSetupConfig {
-  return config.playerOptions[0] ?? createDefaultCiv7StudioSetupConfig().playerOptions[0]!;
+/** Resolves the authored override row for the observed local player without treating row order as identity. */
+export function getLocalPlayerSetup(
+  config: Civ7StudioSetupConfig,
+  localPlayerId = 0
+): Civ7StudioPlayerSetupConfig {
+  return (
+    config.playerOptions.find(({ playerId }) => playerId === localPlayerId) ?? {
+      playerId: localPlayerId,
+      options: {},
+    }
+  );
 }
 
 /**
@@ -367,12 +377,14 @@ export function studioSavedWorldSettingsFromConfigFile(
       ? (findCiv7StandardMapSizePreset(savedConfig.summary.mapSize)?.id ?? undefined)
       : undefined;
   const playerCount = savedConfig.summary.playerCount;
+  const playerCapacity = mapSize === undefined ? undefined : getCiv7MapSizePlayerCapacity(mapSize);
   return {
     ...(mapSize === undefined ? {} : { mapSize }),
     ...(Number.isInteger(playerCount) &&
     playerCount !== undefined &&
-    playerCount >= 1 &&
-    playerCount <= 64
+    playerCount >= CIV7_STUDIO_MIN_PLAYER_COUNT &&
+    playerCapacity !== undefined &&
+    playerCount <= playerCapacity
       ? { playerCount }
       : {}),
   };

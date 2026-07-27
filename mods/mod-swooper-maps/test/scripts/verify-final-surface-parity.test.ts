@@ -18,14 +18,17 @@ import {
   parseFinalSurfaceParityArgs,
   type StudioRunInGameClientFactory,
 } from "../../scripts/live/verify-final-surface-parity.js";
-import { admitStandardMapConfig } from "../../src/maps/configs/canonical.js";
+import { admitStandardMapConfig, canonicalRecipeConfig } from "../../src/maps/configs/canonical.js";
 import swooperEarthlikeRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 import type { StandardLiveObservation } from "../../src/recipes/standard/parity/index.js";
+import standardRecipe from "../../src/recipes/standard/recipe.js";
+import { createStandardRecipeTestInitialSetup } from "../recipes/swooper-physics-standard/fixtures/standard-recipe.js";
 import { TEST_GAME_SEED, TEST_MAP_SEED, TEST_MAP_SIZE } from "../setup.js";
 
 const REQUEST_ID = "run-final-surface-parity";
 const DIAGNOSTICS_ID = "diagnostics-final-surface-parity";
-const PLAYER_COUNT = 6;
+const ALIVE_MAJOR_PLAYER_IDS = [0, 1, 2, 3] as const;
+const PLAYER_COUNT = ALIVE_MAJOR_PLAYER_IDS.length;
 const CREATED_AT = "2026-07-25T00:00:00.000Z";
 const FILE_IDENTITY = {
   path: "/tmp/studio-run.js",
@@ -35,6 +38,18 @@ const FILE_IDENTITY = {
   mtimeIso: CREATED_AT,
 } as const;
 const CONFIG = admitStandardMapConfig(swooperEarthlikeRaw);
+const RECIPE_PLAN = standardRecipe.inspectPlan(
+  standardRecipe.compile(
+    createStandardRecipeTestInitialSetup({
+      preset: TEST_MAP_SIZE,
+      mapSeed: TEST_MAP_SEED,
+      gameSeed: TEST_GAME_SEED,
+      aliveMajorPlayerIds: ALIVE_MAJOR_PLAYER_IDS,
+      mapConfig: CONFIG,
+    }),
+    canonicalRecipeConfig(CONFIG)
+  )
+);
 
 let workspaceRoot: string;
 let manifestReference: StudioRunGenerationManifestReference;
@@ -56,7 +71,7 @@ beforeAll(async () => {
         setupConfig: {
           gameOptions: {},
           mapOptions: {},
-          playerOptions: [],
+          playerOptions: [{ playerId: 0, options: {} }],
         },
         canonicalConfig: CONFIG,
       },
@@ -436,8 +451,12 @@ function exactAuthorshipFixture(
       seed: TEST_MAP_SEED,
       mapSize: TEST_MAP_SIZE.id,
       dimensions: { width, height },
-      evidencePayload: {},
-      completionPayload: {},
+      evidencePayload: {
+        recipePlan: RECIPE_PLAN,
+      },
+      completionPayload: {
+        recipePlan: RECIPE_PLAN,
+      },
       matched: [],
     },
     ...overrides,

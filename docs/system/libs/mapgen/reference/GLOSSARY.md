@@ -25,13 +25,16 @@ Canonical MapGen vocabulary used across docs (policies, reference, tutorials).
   and latitude bounds.
 - **Recipe initial setup**: The complete schema-admitted launch value owned by one recipe. Core
   privately binds it to its projected `MapSetup`; only steps declaring the exact authority receive
-  it.
+  it. Standard's authority includes distinct map/game seeds, exact map selection, ordered
+  alive-major player ids, and complete setup-option evidence.
 - **Map context**: One run-scoped author surface exposing immutable setup and the active step's
   revocable event port. Core privately owns the engine adapter, artifact storage, deterministic
   random state, execution identity, and trace lifecycle. Declared artifact, engine, random, trace,
   and effect-evidence capabilities are occurrence-scoped; adapter identity never crosses the private
   invocation boundary.
-- **Execution plan**: A list/graph of execution nodes derived from the recipe, registry, and `MapSetup`.
+- **Execution plan**: A list/graph of execution nodes derived from the recipe, registry, and admitted
+  recipe initial setup. It retains the projected `MapSetup` and fingerprints the complete initial
+  value.
 - **Step**: A single execution unit with a stable id, `requires/provides`, and an implementation.
 - **Stage (authoring)**: The recipe-owned grouping that assigns each composed step its exact `stageId`, organizes authoring, and compiles stage-specific config into step configs.
 - **Op**: A strategy envelope used *within* a step (declared via `contract.ops`) to make algorithms configurable without turning the step schema into an untyped bag of options.

@@ -186,6 +186,11 @@ describe("Swooper map artifact file plan", () => {
     const generatedMapText = textContent(generatedMap);
     expect(generatedMapText).toContain(JSON.stringify(artifactEnvelope(fixtureConfig), null, 2));
     expect(generatedMapText).not.toContain("admitStandardMapConfig");
+    expect(generatedMapText).toContain("initialSetup: {");
+    expect(generatedMapText).toContain(
+      "requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS"
+    );
+    expect(generatedMapText).toContain("project: projectStandardInitialSetup");
 
     expect(
       textContent(plannedFile(plan, "mod/config/config.xml"))
@@ -313,6 +318,12 @@ describe("Swooper map artifact file plan", () => {
     expect(mapSource).toContain(JSON.stringify(artifactEnvelope(fixtureConfig), null, 2));
     expect(mapSource).not.toContain("admitStandardMapConfig");
     expect(mapSource).not.toContain("@civ7/studio-contract");
+    expect(mapSource).toContain("initialSetup: {");
+    expect(mapSource).toContain("requestedGameOptions: STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS");
+    expect(mapSource).toContain(
+      "requestedPlayerOptions: STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS"
+    );
+    expect(mapSource).toContain("project: projectStandardInitialSetup");
     expect(plan.metadata.configProjections).toEqual([
       { sourceKind: "generated-run", canonicalConfig: fixtureConfig.canonicalConfig },
     ]);
