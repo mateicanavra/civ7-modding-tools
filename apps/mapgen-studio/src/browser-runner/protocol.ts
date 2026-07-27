@@ -14,11 +14,10 @@ type BrowserRunStartRequest = {
   dimensions: { width: number; height: number };
   latitudeBounds: { topLatitude: number; bottomLatitude: number };
   /**
-   * Studio-only "world settings" used when running outside the Civ7 engine.
-   * These are translated into mock MapInfo values inside the worker.
+   * Studio-selected alive major-player count used when running outside Civ7.
+   * Static map metadata remains owned by the selected Civ7 map-size preset.
    */
   playerCount?: number;
-  resourcesMode?: "balanced" | "strategic";
   /**
    * Complete recipe config JSON for this browser run. The worker validates exact
    * identity against the bundled recipe artifacts before compilation.

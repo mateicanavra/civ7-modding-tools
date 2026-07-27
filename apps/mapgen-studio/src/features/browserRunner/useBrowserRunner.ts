@@ -14,7 +14,6 @@ type BrowserRunnerInputs = {
   dimensions: { width: number; height: number };
   latitudeBounds: { topLatitude: number; bottomLatitude: number };
   playerCount?: number;
-  resourcesMode?: "balanced" | "strategic";
   pipelineConfig: unknown;
 };
 
@@ -120,7 +119,6 @@ export function useBrowserRunner(args: UseBrowserRunnerArgs): UseBrowserRunnerRe
         dimensions: inputs.dimensions,
         latitudeBounds: inputs.latitudeBounds,
         playerCount: inputs.playerCount,
-        resourcesMode: inputs.resourcesMode,
         pipelineConfig: inputs.pipelineConfig,
       };
 

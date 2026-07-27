@@ -1,5 +1,6 @@
 /// <reference lib="webworker" />
 
+import { findCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { createMockAdapter } from "@civ7/adapter/mock";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import {
@@ -122,10 +123,22 @@ async function runRecipe(
     pipelineConfig,
   } = request;
   const recipeEntry = getRuntimeRecipe(recipeId);
+  const mapSize = findCiv7StandardMapSizePreset(mapSizeId);
+  if (!mapSize) {
+    throw new Error(`Browser run requires a recognized Civ7 map-size id; received ${mapSizeId}.`);
+  }
+  if (
+    dimensions.width !== mapSize.dimensions.width ||
+    dimensions.height !== mapSize.dimensions.height
+  ) {
+    throw new Error(
+      `Browser run dimensions ${dimensions.width}x${dimensions.height} do not match ${mapSizeId} (${mapSize.dimensions.width}x${mapSize.dimensions.height}).`
+    );
+  }
 
   const setup = admitMapSetup({
     mapSeed: seed,
-    dimensions,
+    dimensions: mapSize.dimensions,
     latitudeBounds,
   });
 
@@ -143,21 +156,13 @@ async function runRecipe(
     plan.nodes.map((node) => [node.stepId, "verbose"] as const)
   );
 
-  // PlayersLandmass1/2 are PER-HEMISPHERE counts (base-game mapInfo semantics);
-  // duplicating the total into both slots doubled seating (E1.2). Split the
-  // intended total across hemispheres like the base game does.
-  const totalPlayers = request.playerCount ?? 8;
+  const totalPlayers = request.playerCount ?? mapSize.defaultPlayers;
   const adapter = createMockAdapter({
-    width: dimensions.width,
-    height: dimensions.height,
+    width: mapSize.dimensions.width,
+    height: mapSize.dimensions.height,
     mapSizeId,
-    mapInfo: {
-      GridWidth: dimensions.width,
-      GridHeight: dimensions.height,
-      PlayersLandmass1: Math.ceil(totalPlayers / 2),
-      PlayersLandmass2: Math.floor(totalPlayers / 2),
-      StudioResourcesMode: request.resourcesMode ?? "balanced",
-    },
+    mapInfo: mapSize.mapInfo,
+    aliveMajorCount: totalPlayers,
     rng: createLabelRng(seed),
     terrainTypeIndices: { ...CIV7_BROWSER_TABLES_V0.terrainTypeIndices },
     biomeGlobals: { ...CIV7_BROWSER_TABLES_V0.biomeGlobals },

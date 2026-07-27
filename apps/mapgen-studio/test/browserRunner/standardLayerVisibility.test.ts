@@ -12,6 +12,7 @@ type WorkerHarness = {
 type WorkerHarnessOptions = Readonly<{
   failVizDataTypeKey?: string;
   pipelineConfig?: unknown;
+  dimensions?: Readonly<{ width: number; height: number }>;
 }>;
 
 const TEST_RUN_TOKEN = "standard-layer-visibility";
@@ -80,13 +81,12 @@ async function runStandardRecipeInWorker(
       recipeId: "standard",
       seed: 1780185340,
       mapSizeId: TEST_MAP_SIZE.id,
-      dimensions: TEST_MAP_SIZE.dimensions,
+      dimensions: options?.dimensions ?? TEST_MAP_SIZE.dimensions,
       latitudeBounds: {
         topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude,
         bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude,
       },
       playerCount: TEST_MAP_SIZE.defaultPlayers,
-      resourcesMode: "balanced",
       pipelineConfig: options?.pipelineConfig ?? STANDARD_RECIPE_CONFIG,
     },
   });
@@ -105,6 +105,21 @@ async function runStandardRecipeInWorker(
 }
 
 describe("standard browser runner layer visibility", () => {
+  it("refuses dimensions that contradict the selected Civ7 map size", async () => {
+    const events = await runStandardRecipeInWorker({
+      dimensions: {
+        width: TEST_MAP_SIZE.dimensions.width + 1,
+        height: TEST_MAP_SIZE.dimensions.height,
+      },
+    });
+    expect(events).toContainEqual(
+      expect.objectContaining({
+        type: "run.error",
+        message: expect.stringContaining(`do not match ${TEST_MAP_SIZE.id}`),
+      })
+    );
+  });
+
   it("reports execution rejection without publishing successful completion", async () => {
     const events = await runStandardRecipeInWorker({ pipelineConfig: {} });
     const terminalEvents = events.filter(
