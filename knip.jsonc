@@ -70,6 +70,9 @@
     "packages/mapgen-core": {
       "entry": ["test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"]
     },
+    "packages/sdk": {
+      "entry": ["test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"]
+    },
     "packages/mapgen-metrics": {
       "entry": ["test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"]
     },

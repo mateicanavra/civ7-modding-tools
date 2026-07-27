@@ -200,6 +200,34 @@ const builder = new UnitBuilder({
 });
 ```
 
+## Map Generation Runtime
+
+Map-loader entries opt into the Civ7 runtime through the ESM-only
+`@mateicanavra/civ7-sdk/mapgen` subpath. A recipe with product-owned initial
+state must declare the exact Civ7 option keys it needs and provide a projector
+from the detached one-shot capture into its inferred setup input:
+
+```typescript
+import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
+
+createMap({
+  id: "my-map",
+  name: "My Map",
+  recipe,
+  config,
+  initialSetup: {
+    requestedMapOptionKeys,
+    requestedGameOptionKeys,
+    project: projectInitialSetup,
+  },
+});
+```
+
+The SDK compiles the recipe before constructing its execution context, then
+executes the exact compiled plan. Recipes that use only Core's physical map
+setup may omit `initialSetup`; the SDK projects map seed, dimensions, and
+latitude bounds directly.
+
 ## API Reference
 
 For detailed API documentation, see:

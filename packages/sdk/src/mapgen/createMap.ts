@@ -1,12 +1,26 @@
 /// <reference types="@civ7/types" />
 
-import type { MapInfo, MapInitParams, MapSizeId } from "@civ7/adapter";
+import {
+  type Civ7MapGenerationSetupCapture,
+  captureCiv7MapGenerationSetup,
+  type MapInfo,
+  type MapInitParams,
+  type MapSizeId,
+} from "@civ7/adapter";
 import { createCiv7Adapter } from "@civ7/adapter/civ7";
-import { admitMapSetup, createMapContext, type MapContext } from "@swooper/mapgen-core";
-import type { RecipeModule } from "@swooper/mapgen-core/authoring";
+import { createMapContext } from "@swooper/mapgen-core";
+import {
+  type BasePhysicalInitialSetupDefinition,
+  basePhysicalInitialSetupDefinition,
+  type RecipeInitialSetupDefinitionOf,
+  type RecipeInitialSetupInputOf,
+  type RecipeModule,
+} from "@swooper/mapgen-core/authoring";
 
-type RecipePublicConfigOfRecipe<TRecipe extends RecipeModule<any, any>> =
-  TRecipe extends RecipeModule<infer TPublicConfig, any> ? TPublicConfig : never;
+type AnyRecipe = RecipeModule<any, any, any>;
+
+type RecipePublicConfigOfRecipe<TRecipe extends AnyRecipe> =
+  TRecipe extends RecipeModule<infer TPublicConfig, any, any> ? TPublicConfig : never;
 
 /** Geographic bounds a map declaration may use to override Civ7's initialization bounds. */
 export type MapLatitudeBounds = Readonly<{
@@ -23,7 +37,7 @@ type MapRunCorrelation = Readonly<{
   generationManifestDigest: string;
 }>;
 
-type MapDefinitionCore<TRecipe extends RecipeModule<any, any>> = Readonly<{
+type MapDefinitionCore<TRecipe extends AnyRecipe> = Readonly<{
   id: string;
   name: string;
   recipe: TRecipe;
@@ -34,6 +48,38 @@ type MapDefinitionCore<TRecipe extends RecipeModule<any, any>> = Readonly<{
   sourceConfigId?: string;
   seed?: number;
 }>;
+
+/**
+ * Civ7 capture request and product projection for one recipe-owned initial setup authority.
+ *
+ * Option keys remain explicit because Civ7 offers keyed reads rather than a supported complete
+ * option enumeration. The projector consumes detached capture evidence and must return the exact
+ * full setup input inferred from the recipe's TypeBox authority.
+ */
+export type MapInitialSetupProjection<
+  TRecipe extends AnyRecipe,
+  TMapOptionKeys extends readonly string[] = readonly string[],
+  TGameOptionKeys extends readonly string[] = readonly string[],
+> = Readonly<{
+  requestedMapOptionKeys: TMapOptionKeys;
+  requestedGameOptionKeys: TGameOptionKeys;
+  project: (
+    capture: Civ7MapGenerationSetupCapture<TMapOptionKeys[number], TGameOptionKeys[number]>
+  ) => RecipeInitialSetupInputOf<TRecipe>;
+}>;
+
+type MapDefinitionInitialSetup<
+  TRecipe extends AnyRecipe,
+  TMapOptionKeys extends readonly string[],
+  TGameOptionKeys extends readonly string[],
+> =
+  RecipeInitialSetupDefinitionOf<TRecipe> extends BasePhysicalInitialSetupDefinition
+    ? Readonly<{
+        initialSetup?: MapInitialSetupProjection<TRecipe, TMapOptionKeys, TGameOptionKeys>;
+      }>
+    : Readonly<{
+        initialSetup: MapInitialSetupProjection<TRecipe, TMapOptionKeys, TGameOptionKeys>;
+      }>;
 
 type MapDefinitionCatalogEvidence = Readonly<{
   requestId?: never;
@@ -63,10 +109,19 @@ type MapDefinitionRunSource = Readonly<{
  * Catalog maps carry static evidence, while request-generated maps require the full run
  * correlation tuple so deployment and in-game diagnostics cannot silently cross runs.
  */
-export type MapDefinition<TRecipe extends RecipeModule<any, any>> = MapDefinitionCore<TRecipe> &
+export type MapDefinition<
+  TRecipe extends AnyRecipe,
+  TMapOptionKeys extends readonly string[] = readonly string[],
+  TGameOptionKeys extends readonly string[] = readonly string[],
+> = MapDefinitionCore<TRecipe> &
+  MapDefinitionInitialSetup<TRecipe, TMapOptionKeys, TGameOptionKeys> &
   (MapDefinitionCatalogEvidence | MapDefinitionRunSource);
 
-type MapDefinitionInput<TRecipe extends RecipeModule<any, any>> = MapDefinition<TRecipe>;
+type MapDefinitionInput<
+  TRecipe extends AnyRecipe,
+  TMapOptionKeys extends readonly string[],
+  TGameOptionKeys extends readonly string[],
+> = MapDefinition<TRecipe, TMapOptionKeys, TGameOptionKeys>;
 
 type CivEngine = {
   on: (event: string, handler: (...args: any[]) => void) => void;
@@ -92,7 +147,11 @@ type MapEvidencePayloadIdentity = Readonly<{
     | Readonly<{ envelopeHash: string | null; launchEnvelopeDigest?: never }>
   );
 
-function mapEvidencePayloadIdentityFor(def: MapDefinition<any>): MapEvidencePayloadIdentity {
+function mapEvidencePayloadIdentityFor<
+  TRecipe extends AnyRecipe,
+  TMapOptionKeys extends readonly string[],
+  TGameOptionKeys extends readonly string[],
+>(def: MapDefinitionInput<TRecipe, TMapOptionKeys, TGameOptionKeys>): MapEvidencePayloadIdentity {
   if (def.runCorrelation) {
     return {
       requestId: def.runCorrelation.requestId,
@@ -126,7 +185,11 @@ function isMapRunCorrelation(value: unknown): value is MapRunCorrelation {
   );
 }
 
-function assertCompleteRunCorrelation(def: MapDefinition<any>): void {
+function assertCompleteRunCorrelation<
+  TRecipe extends AnyRecipe,
+  TMapOptionKeys extends readonly string[],
+  TGameOptionKeys extends readonly string[],
+>(def: MapDefinitionInput<TRecipe, TMapOptionKeys, TGameOptionKeys>): void {
   const hasDirectRunIdentity =
     "requestId" in def ||
     "runArtifactId" in def ||
@@ -141,7 +204,29 @@ function assertCompleteRunCorrelation(def: MapDefinition<any>): void {
   }
 }
 
-function resolveSeed(def: MapDefinition<any>): number {
+function assertInitialSetupProjection<
+  TRecipe extends AnyRecipe,
+  TMapOptionKeys extends readonly string[],
+  TGameOptionKeys extends readonly string[],
+>(def: MapDefinitionInput<TRecipe, TMapOptionKeys, TGameOptionKeys>): void {
+  if (def.initialSetup === undefined) {
+    if (def.recipe.initialSetup !== basePhysicalInitialSetupDefinition) {
+      throw new Error(
+        `${def.logPrefix ?? "[SWOOPER_MOD]"} Recipe "${def.recipe.id}" requires an initialSetup projector.`
+      );
+    }
+    return;
+  }
+  if (typeof def.initialSetup.project !== "function") {
+    throw new TypeError("Map initialSetup.project must be a function.");
+  }
+}
+
+function resolveSeed<
+  TRecipe extends AnyRecipe,
+  TMapOptionKeys extends readonly string[],
+  TGameOptionKeys extends readonly string[],
+>(def: MapDefinitionInput<TRecipe, TMapOptionKeys, TGameOptionKeys>): number {
   const seed = def.seed ?? GameplayMap.getRandomSeed();
   if (!Number.isFinite(seed)) {
     throw new Error(
@@ -152,7 +237,7 @@ function resolveSeed(def: MapDefinition<any>): number {
 }
 
 function resolveLatitudeBounds(
-  def: MapDefinition<any>,
+  def: Readonly<{ latitudeBounds?: MapLatitudeBounds; logPrefix?: string }>,
   base: { topLatitude: number; bottomLatitude: number }
 ): {
   topLatitude: number;
@@ -185,7 +270,7 @@ function resolveMapInfo(mapSizeId: MapSizeId): MapInfo {
 }
 
 function resolveInitCapture(
-  def: MapDefinition<any>,
+  def: Readonly<{ latitudeBounds?: MapLatitudeBounds; logPrefix?: string }>,
   initParams: Partial<MapInitParams> | null | undefined
 ): InitCapture {
   const mapSizeId: MapSizeId = initParams?.mapSize ?? GameplayMap.getMapSize();
@@ -233,17 +318,45 @@ function resolveInitCapture(
   return { mapSizeId, mapInfo, params };
 }
 
+function projectRecipeInitialSetup<
+  TRecipe extends AnyRecipe,
+  TMapOptionKeys extends readonly string[],
+  TGameOptionKeys extends readonly string[],
+>(
+  def: MapDefinitionInput<TRecipe, TMapOptionKeys, TGameOptionKeys>,
+  capture: Civ7MapGenerationSetupCapture<TMapOptionKeys[number], TGameOptionKeys[number]>
+): RecipeInitialSetupInputOf<TRecipe> {
+  const projection = def.initialSetup;
+  if (projection !== undefined) return projection.project(capture);
+  if (def.recipe.initialSetup !== basePhysicalInitialSetupDefinition) {
+    throw new Error(
+      `${def.logPrefix ?? "[SWOOPER_MOD]"} Recipe "${def.recipe.id}" requires an initialSetup projector.`
+    );
+  }
+  return {
+    mapSeed: capture.mapSeed,
+    dimensions: capture.dimensions,
+    latitudeBounds: capture.latitudeBounds,
+  } as RecipeInitialSetupInputOf<TRecipe>;
+}
+
 /**
  * Registers a Civ7 map entrypoint while keeping map authors on the recipe public config contract.
  *
- * Generation captures Civ7's initialization values, admits one physical setup, creates one context
- * from that setup, and compiles and runs the recipe against the same identity. This SDK authoring
- * API is runtime-bound and must only be imported by code that executes inside the Civ7 map loader.
+ * Generation captures Civ7's initial state once, projects the recipe's complete setup, compiles one
+ * immutable plan, creates the context from that plan's admitted physical setup, and executes the
+ * exact plan. This SDK API is runtime-bound and must only be imported by code that executes inside
+ * the Civ7 map loader.
  */
-export function createMap<const TRecipe extends RecipeModule<any, any>>(
-  def: MapDefinitionInput<TRecipe>
-): MapDefinition<TRecipe> {
+export function createMap<
+  const TRecipe extends AnyRecipe,
+  const TMapOptionKeys extends readonly string[] = readonly [],
+  const TGameOptionKeys extends readonly string[] = readonly [],
+>(
+  def: MapDefinitionInput<TRecipe, TMapOptionKeys, TGameOptionKeys>
+): MapDefinition<TRecipe, TMapOptionKeys, TGameOptionKeys> {
   assertCompleteRunCorrelation(def);
+  assertInitialSetupProjection(def);
   const engineApi = engine as unknown as CivEngine;
   let captured: InitCapture | null = null;
 
@@ -261,15 +374,17 @@ export function createMap<const TRecipe extends RecipeModule<any, any>>(
 
     const { width, height, topLatitude, bottomLatitude } = captured.params;
     const seed = resolveSeed(def);
-
-    const adapter = createCiv7Adapter();
-    const setup = admitMapSetup({
+    const initialSetupProjection = def.initialSetup;
+    const setupCapture = captureCiv7MapGenerationSetup({
       mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: { topLatitude, bottomLatitude },
+      mapSizeId: captured.mapSizeId,
+      mapInfo: captured.mapInfo,
+      requestedMapOptionKeys: initialSetupProjection?.requestedMapOptionKeys ?? [],
+      requestedGameOptionKeys: initialSetupProjection?.requestedGameOptionKeys ?? [],
     });
-
-    const context = createMapContext({ setup, adapter });
+    const initialSetup = projectRecipeInitialSetup(def, setupCapture);
 
     const prefix = def.logPrefix ?? "[SWOOPER_MOD]";
     const evidenceIdentity = mapEvidencePayloadIdentityFor(def);
@@ -283,7 +398,10 @@ export function createMap<const TRecipe extends RecipeModule<any, any>>(
     };
     console.log(`${prefix} [mapgen-evidence] ${JSON.stringify(evidencePayload)}`);
     try {
-      def.recipe.run(context, def.config, {
+      const plan = def.recipe.compile(initialSetup, def.config);
+      const adapter = createCiv7Adapter();
+      const context = createMapContext({ setup: plan.setup, adapter });
+      def.recipe.execute(context, plan, {
         log: (message) => console.log(prefix, message),
       });
       console.log(`${prefix} [mapgen-complete] ${JSON.stringify(evidencePayload)}`);

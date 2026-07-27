@@ -6,5 +6,9 @@
  * Civ7 adapter runtime that only resolves inside the game.
  */
 
-export type { MapDefinition, MapLatitudeBounds } from "./createMap.js";
+export type {
+  MapDefinition,
+  MapInitialSetupProjection,
+  MapLatitudeBounds,
+} from "./createMap.js";
 export { createMap } from "./createMap.js";
