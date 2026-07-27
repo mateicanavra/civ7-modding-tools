@@ -47,6 +47,18 @@ export {
   defineDomainSubdomain,
 } from "./domain/index.js";
 export type {
+  BasePhysicalInitialSetupDefinition,
+  DeepReadonlyInitialSetup,
+  InitialSetupDefinition,
+  InitialSetupInputOf,
+  InitialSetupRefinement,
+  InitialSetupValueOf,
+} from "./initial-setup/index.js";
+export {
+  basePhysicalInitialSetupDefinition,
+  defineInitialSetup,
+} from "./initial-setup/index.js";
+export type {
   DomainCompileRoot,
   DomainOpCompileAny,
   DomainOpRuntime,
@@ -97,6 +109,9 @@ export type {
   RecipeDagStep,
   RecipeDagStepContractInput,
   RecipeDefinition,
+  RecipeInitialSetupDefinitionOf,
+  RecipeInitialSetupInputOf,
+  RecipeInitialSetupValueOf,
   RecipeModule,
   RecipePublicConfigOf,
 } from "./recipe/index.js";

@@ -17,6 +17,9 @@ export type {
   CompiledRecipeConfigOf,
   RecipeConfig,
   RecipeDefinition,
+  RecipeInitialSetupDefinitionOf,
+  RecipeInitialSetupInputOf,
+  RecipeInitialSetupValueOf,
   RecipeModule,
   RecipePublicConfigOf,
 } from "./types.js";

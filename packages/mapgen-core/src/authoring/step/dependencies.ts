@@ -12,6 +12,10 @@ import {
   type ProvidedArtifactRuntime,
   type RequiredArtifactRuntime,
 } from "../artifact/runtime.js";
+import {
+  type InitialSetupDefinition,
+  readInitialSetupValueInternal,
+} from "../initial-setup/definition.js";
 import type { StepArtifactsDeclAny, StepEngineDecl } from "./contract.js";
 import { readStepProviderRuntimesInternal } from "./provider-runtimes.js";
 import type { StepDeps } from "./types.js";
@@ -19,8 +23,13 @@ import type { StepDeps } from "./types.js";
 type DeclaredStep<
   Artifacts extends StepArtifactsDeclAny | undefined,
   Engine extends StepEngineDecl | undefined,
+  InitialSetup extends InitialSetupDefinition | undefined = InitialSetupDefinition | undefined,
 > = Readonly<{
-  contract: Readonly<{ artifacts?: Artifacts; engine?: Engine }>;
+  contract: Readonly<{
+    artifacts?: Artifacts;
+    engine?: Engine;
+    initialSetup?: InitialSetup;
+  }>;
 }>;
 
 function assertArtifactCapabilityOwner(
@@ -140,18 +149,34 @@ function bindArtifactDependency(
 export function buildDeclaredStepDependencies<
   Artifacts extends StepArtifactsDeclAny | undefined,
   Engine extends StepEngineDecl | undefined,
+  InitialSetup extends InitialSetupDefinition | undefined,
 >(
-  authored: DeclaredStep<Artifacts, Engine>,
+  authored: DeclaredStep<Artifacts, Engine, InitialSetup>,
   input: Readonly<{ consumerStepId: string; owner: string; context?: MapContext }>
-): StepDeps<Artifacts, Engine> {
+): StepDeps<Artifacts, Engine, InitialSetup> {
   const artifacts = authored.contract.artifacts;
   const engine = bindEngineDependencies(
     authored.contract.engine,
     input.context,
     input.consumerStepId
   );
+  const initialSetup =
+    authored.contract.initialSetup === undefined
+      ? Object.freeze({})
+      : input.context === undefined
+        ? rejectMissingInitialSetupContext(input.consumerStepId)
+        : Object.freeze({
+            initialSetup: readInitialSetupValueInternal(
+              input.context.setup,
+              authored.contract.initialSetup
+            ),
+          });
   if (!artifacts) {
-    return Object.freeze({ artifacts: Object.freeze({}), engine }) as StepDeps<Artifacts, Engine>;
+    return Object.freeze({
+      artifacts: Object.freeze({}),
+      engine,
+      ...initialSetup,
+    }) as StepDeps<Artifacts, Engine, InitialSetup>;
   }
 
   const bound: Record<string, RequiredArtifactRuntime<any> | ProvidedArtifactRuntime<any>> = {};
@@ -181,5 +206,15 @@ export function buildDeclaredStepDependencies<
     );
   }
 
-  return Object.freeze({ artifacts: Object.freeze(bound), engine }) as StepDeps<Artifacts, Engine>;
+  return Object.freeze({
+    artifacts: Object.freeze(bound),
+    engine,
+    ...initialSetup,
+  }) as StepDeps<Artifacts, Engine, InitialSetup>;
+}
+
+function rejectMissingInitialSetupContext(stepId: string): never {
+  throw new Error(
+    `Initial setup dependency for step "${stepId}" requires an admitted map context.`
+  );
 }

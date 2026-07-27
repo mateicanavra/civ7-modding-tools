@@ -22,6 +22,7 @@ Explain how MapGen achieves deterministic runs (and where determinism can be acc
 
 Key contributors:
 - one immutable `MapSetup` with `mapSeed`, dimensions, and latitude bounds,
+- one schema-admitted recipe initial value whose complete snapshot participates in plan identity,
 - a deterministic RNG state tracked in context and derived from `context.setup.mapSeed`,
 - strict config compilation (no silent unknowns),
 - stable plan fingerprinting for trace/viz identity.

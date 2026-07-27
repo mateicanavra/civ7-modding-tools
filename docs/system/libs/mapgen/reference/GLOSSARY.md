@@ -21,7 +21,11 @@ Canonical MapGen vocabulary used across docs (policies, reference, tutorials).
 - **Compiled recipe config**: The shape-preserving, schema-valid config bundle produced by `compileRecipeConfig(...)`.
 - **RecipeV2 (runtime)**: A structural representation of steps (id + enabled + config) that is used to compile an execution plan.
 - **Run request / run boundary**: The input boundary that is compiled into an execution plan and then executed.
-- **Map setup**: Immutable physical initial conditions for one run: seed, dimensions, and latitude bounds.
+- **Map setup**: Immutable physical initial conditions shared by every recipe: map seed, dimensions,
+  and latitude bounds.
+- **Recipe initial setup**: The complete schema-admitted launch value owned by one recipe. Core
+  privately binds it to its projected `MapSetup`; only steps declaring the exact authority receive
+  it.
 - **Map context**: One run-scoped author surface exposing immutable setup and the active step's
   revocable event port. Core privately owns the engine adapter, artifact storage, deterministic
   random state, execution identity, and trace lifecycle. Declared artifact, engine, random, trace,

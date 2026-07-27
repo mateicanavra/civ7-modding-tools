@@ -1,12 +1,16 @@
 import type { MapContext } from "@mapgen/core/map-context.js";
-import type { MapSetup, MapSetupInput } from "@mapgen/core/map-setup.js";
 import type { ExecutionPlan, RecipeV2 } from "@mapgen/engine/execution-plan.js";
 import type { PlanTraceOptions } from "@mapgen/engine/observability.js";
 import type { StepFacetSinks } from "@mapgen/engine/step-facets.js";
 import type { DependencyTagDefinition } from "@mapgen/engine/tags.js";
 import type { ReadonlyDeep } from "type-fest";
 import type { Static, TObject, TSchema } from "typebox";
-
+import type {
+  BasePhysicalInitialSetupDefinition,
+  InitialSetupDefinition,
+  InitialSetupInputOf,
+  InitialSetupValueOf,
+} from "../initial-setup/definition.js";
 import type { CompileOpsById, DomainOpRuntimeAny, OpsById } from "../operation/bindings.js";
 import type { ReservedStageKey } from "../stage/reserved-key.js";
 import type { EmptyStageConfig, StageObservation, StageStepList } from "../stage/types.js";
@@ -108,14 +112,20 @@ export type CompiledRecipeConfigOf<TStages extends readonly unknown[]> = Readonl
 type StageList = readonly StageObservation[];
 
 /** Authorship input joining ordered stages with their compile and runtime operation registries. */
-export type RecipeDefinition<TStages extends StageList = StageList> = Readonly<{
+export type RecipeDefinition<
+  TStages extends StageList = StageList,
+  TInitialSetup extends InitialSetupDefinition = BasePhysicalInitialSetupDefinition,
+> = Readonly<{
   id: string;
   namespace?: string;
   tagDefinitions: readonly DependencyTagDefinition[];
   stages: TStages;
   compileOpsById: CompileOpsById;
   runtimeOpsById?: OpsById<DomainOpRuntimeAny>;
-}>;
+}> &
+  (TInitialSetup extends BasePhysicalInitialSetupDefinition
+    ? Readonly<{ initialSetup?: TInitialSetup }>
+    : Readonly<{ initialSetup: TInitialSetup }>);
 
 /** Execution-only observers and logging accepted by synchronous recipe execution. */
 export type RecipeExecutionOptions = Readonly<{
@@ -140,15 +150,24 @@ export type RecipeAsyncExecutionOptions = RecipeExecutionOptions &
  * recompilation. Convenience `run` methods compile once from `context.setup` and delegate to the
  * corresponding execution method. Trace and facet sinks are execution-only observers.
  */
-export type RecipeModule<TPublicConfig = RecipeConfig, TConfigCompiled = RecipeConfig> = Readonly<{
+export type RecipeModule<
+  TPublicConfig = RecipeConfig,
+  TConfigCompiled = RecipeConfig,
+  TInitialSetup extends InitialSetupDefinition = BasePhysicalInitialSetupDefinition,
+> = Readonly<{
   /** Stable recipe identity used in plans, traces, and generated runtime evidence. */
   readonly id: string;
+  /** Exact schema and physical projection authority owned by this recipe. */
+  readonly initialSetup: TInitialSetup;
   /** Deep-readonly registered step graph snapshotted when the recipe is authored. */
   readonly recipe: ReadonlyDeep<RecipeV2>;
   /** Compiles public authoring config for inspection under one admitted physical setup snapshot. */
-  compileConfig: (setup: MapSetup | MapSetupInput, config: TPublicConfig) => TConfigCompiled;
+  compileConfig: (
+    setup: InitialSetupInputOf<TInitialSetup>,
+    config: TPublicConfig
+  ) => TConfigCompiled;
   /** Compiles an immutable execution plan that retains its admitted setup identity. */
-  compile: (setup: MapSetup | MapSetupInput, config: TPublicConfig) => ExecutionPlan;
+  compile: (setup: InitialSetupInputOf<TInitialSetup>, config: TPublicConfig) => ExecutionPlan;
   /** Executes the exact supplied plan synchronously and refuses a different context setup identity. */
   execute: (context: MapContext, plan: ExecutionPlan, options?: RecipeExecutionOptions) => void;
   /** Compiles exactly once from `context.setup`, then delegates to `execute`. */
@@ -166,3 +185,19 @@ export type RecipeModule<TPublicConfig = RecipeConfig, TConfigCompiled = RecipeC
     options?: RecipeAsyncExecutionOptions
   ) => Promise<void>;
 }>;
+
+/** Exact initial-setup authority retained by a recipe module. */
+export type RecipeInitialSetupDefinitionOf<TRecipe> =
+  TRecipe extends RecipeModule<any, any, infer TInitialSetup> ? TInitialSetup : never;
+
+/** Full per-run setup input inferred from a recipe module's schema authority. */
+export type RecipeInitialSetupInputOf<TRecipe> =
+  RecipeInitialSetupDefinitionOf<TRecipe> extends infer TInitialSetup extends InitialSetupDefinition
+    ? InitialSetupInputOf<TInitialSetup>
+    : never;
+
+/** Deeply immutable setup value visible to steps that declare the recipe's exact authority. */
+export type RecipeInitialSetupValueOf<TRecipe> =
+  RecipeInitialSetupDefinitionOf<TRecipe> extends infer TInitialSetup extends InitialSetupDefinition
+    ? InitialSetupValueOf<TInitialSetup>
+    : never;

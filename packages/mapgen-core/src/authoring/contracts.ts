@@ -1,3 +1,4 @@
+export { MapSetupSchema } from "@mapgen/core/map-setup.js";
 export type { Static, TObject, TSchema } from "typebox";
 export { Type } from "typebox";
 export type { ArtifactCatalog } from "./artifact/catalog.js";
@@ -18,6 +19,18 @@ export type {
   DomainSubdomainContractAny,
 } from "./domain/contract.js";
 export { defineDomain, defineDomainSubdomain } from "./domain/contract.js";
+export type {
+  BasePhysicalInitialSetupDefinition,
+  DeepReadonlyInitialSetup,
+  InitialSetupDefinition,
+  InitialSetupInputOf,
+  InitialSetupRefinement,
+  InitialSetupValueOf,
+} from "./initial-setup/definition.js";
+export {
+  basePhysicalInitialSetupDefinition,
+  defineInitialSetup,
+} from "./initial-setup/definition.js";
 export { defineOp } from "./operation/contract.js";
 export type { StrategyDefinition } from "./operation/strategy-definition.js";
 export { defineStrategy } from "./operation/strategy-definition.js";

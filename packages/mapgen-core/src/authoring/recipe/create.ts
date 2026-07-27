@@ -1,5 +1,4 @@
 import type { MapContext } from "@mapgen/core/map-context.js";
-import { admitMapSetup } from "@mapgen/core/map-setup.js";
 import {
   compileExecutionPlan,
   type DependencyTagDefinition,
@@ -8,7 +7,6 @@ import {
   type ExecutionPlan,
   type MapGenStep,
   type MapSetup,
-  type MapSetupInput,
   PipelineExecutor,
   type RecipeV2,
   type RunRequest,
@@ -23,6 +21,14 @@ import {
   registerDependencyTagsInternal,
 } from "../../engine/tags.js";
 import { type Artifact, isArtifact } from "../artifact/contract.js";
+import {
+  admitInitialSetupInternal,
+  assertInitialSetupDefinitionInternal,
+  basePhysicalInitialSetupDefinition,
+  type InitialSetupDefinition,
+  type InitialSetupInputOf,
+  isInitialSetupDefinitionInternal,
+} from "../initial-setup/definition.js";
 import { bindRuntimeOps, type DomainOpRuntimeAny, runtimeOp } from "../operation/bindings.js";
 import { isCanonicalDomainOp } from "../operation/create.js";
 import { assertStageIds } from "../stage/identity.js";
@@ -60,6 +66,7 @@ function snapshotAuthorship<T>(value: T, seen = new WeakMap<object, unknown>()):
   if (isArtifact(value)) return value;
   if (isCanonicalDomainOp(value)) return value;
   if (isCanonicalStepContractInternal(value)) return value;
+  if (isInitialSetupDefinitionInternal(value)) return value;
 
   const existing = seen.get(value);
   if (existing !== undefined) return existing as T;
@@ -152,6 +159,23 @@ function assertCanonicalRecipeSteps(recipeId: string, stages: readonly AnyStage[
       if (!isCanonicalStepInternal(step)) {
         throw new Error(
           `[recipe:${recipeId}] stage "${stage.id}" contains noncanonical step "${step.contract.id}"; author steps through createStep`
+        );
+      }
+    }
+  }
+}
+
+function assertExactInitialSetupAuthorities(
+  recipeId: string,
+  stages: readonly AnyStage[],
+  initialSetup: InitialSetupDefinition
+): void {
+  for (const stage of stages) {
+    for (const step of stage.steps) {
+      const declared = step.contract.initialSetup;
+      if (declared !== undefined && declared !== initialSetup) {
+        throw new Error(
+          `[recipe:${recipeId}] step "${stage.id}.${step.contract.id}" declares initial setup authority "${declared.id}", not recipe authority "${initialSetup.id}".`
         );
       }
     }
@@ -468,13 +492,20 @@ function toStructuralRecipeV2(
  * A compiled plan retains one admitted setup identity. Direct execution consumes that exact plan;
  * convenience run methods compile once from `context.setup` and delegate without a second pass.
  */
-export function createRecipe<const TStages extends readonly AnyStage[]>(
-  input: RecipeDefinition<TStages>
-): RecipeModule<RecipePublicConfigOf<TStages>, CompiledRecipeConfigOf<TStages>> {
+export function createRecipe<
+  const TStages extends readonly AnyStage[],
+  const TInitialSetup extends InitialSetupDefinition = typeof basePhysicalInitialSetupDefinition,
+>(
+  input: RecipeDefinition<TStages, TInitialSetup>
+): RecipeModule<RecipePublicConfigOf<TStages>, CompiledRecipeConfigOf<TStages>, TInitialSetup> {
   const authorship = snapshotAuthorship(input);
+  const initialSetup = (authorship.initialSetup ??
+    basePhysicalInitialSetupDefinition) as TInitialSetup;
+  assertInitialSetupDefinitionInternal(initialSetup);
   assertTagDefinitions(authorship.tagDefinitions);
   assertStageIds(authorship.stages.map((stage) => stage.id));
   assertCanonicalRecipeSteps(authorship.id, authorship.stages);
+  assertExactInitialSetupAuthorities(authorship.id, authorship.stages, initialSetup);
 
   const runtimeOpsById =
     authorship.runtimeOpsById ??
@@ -540,19 +571,28 @@ export function createRecipe<const TStages extends readonly AnyStage[]>(
   }
 
   function compileConfig(
-    setupInput: MapSetup | MapSetupInput,
+    setupInput: InitialSetupInputOf<TInitialSetup>,
     config: RecipePublicConfigOf<TStages>
   ): CompiledRecipeConfigOf<TStages> {
-    return compileAdmittedConfig(admitMapSetup(setupInput), config);
+    return compileAdmittedConfig(admitInitialSetupInternal(initialSetup, setupInput).setup, config);
   }
 
   function compile(
-    setupInput: MapSetup | MapSetupInput,
+    setupInput: InitialSetupInputOf<TInitialSetup>,
     config: RecipePublicConfigOf<TStages>
   ): ExecutionPlan {
-    const setup = admitMapSetup(setupInput);
+    const setup = admitInitialSetupInternal(initialSetup, setupInput).setup;
     const compiled = compileAdmittedConfig(setup, config);
     return compileExecutionPlan(admittedRunRequest(setup, compiled), registry);
+  }
+
+  function compileBoundSetup(
+    setup: MapSetup,
+    config: RecipePublicConfigOf<TStages>
+  ): ExecutionPlan {
+    const admitted = admitInitialSetupInternal(initialSetup, setup).setup;
+    const compiled = compileAdmittedConfig(admitted, config);
+    return compileExecutionPlan(admittedRunRequest(admitted, compiled), registry);
   }
 
   function execute(
@@ -576,7 +616,7 @@ export function createRecipe<const TStages extends readonly AnyStage[]>(
     config: RecipePublicConfigOf<TStages>,
     options: RecipeExecutionOptions = {}
   ): void {
-    execute(context, compile(context.setup, config), options);
+    execute(context, compileBoundSetup(context.setup, config), options);
   }
 
   async function executeAsync(
@@ -603,11 +643,12 @@ export function createRecipe<const TStages extends readonly AnyStage[]>(
     config: RecipePublicConfigOf<TStages>,
     options: RecipeAsyncExecutionOptions = {}
   ): Promise<void> {
-    await executeAsync(context, compile(context.setup, config), options);
+    await executeAsync(context, compileBoundSetup(context.setup, config), options);
   }
 
   return Object.freeze({
     id: authorship.id,
+    initialSetup,
     recipe,
     compileConfig,
     compile,

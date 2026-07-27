@@ -37,9 +37,11 @@ Plan compilation must:
   - `requires`/`provides` are taken from the registered step
   - `config` is taken from the recipe step config
 
-The resulting plan retains the exact admitted `MapSetup` used for compilation. Execution accepts
-only a `MapContext` that owns that same setup identity. Physical setup is admitted once before
-compilation; step and operation normalizers cannot reinterpret it as operation configuration.
+The resulting plan retains the exact physical `MapSetup` projected from the recipe's admitted
+initial value. Execution accepts only a `MapContext` that owns that same setup identity. The plan
+fingerprint includes both the recipe's initial-setup authority id and its complete admitted value;
+observation sinks remain excluded. Physical setup is admitted once before context construction,
+and step or operation normalizers cannot reinterpret it as operation configuration.
 
 ## Ground truth anchors
 
