@@ -41,6 +41,23 @@ export {
   type PlotEffectKey,
 } from "./feature-placement.js";
 export type {
+  Civ7LatitudeBounds,
+  Civ7MapInfoLatitudeSource,
+  Civ7StandardMapInfo,
+  Civ7StandardMapSizeId,
+  Civ7StandardMapSizePreset,
+} from "./map-metadata.js";
+export {
+  CIV7_STANDARD_MAP_SIZE_PRESETS,
+  CIV7_STANDARD_ROW_LATITUDE_BOUNDS,
+  findCiv7StandardMapSizePreset,
+  getCiv7MapInfoLatitudeBounds,
+  getCiv7RowLatitude,
+  getCiv7StandardMapSizePreset,
+  getCiv7StandardMapSizePresetForDimensions,
+  interpolateCiv7RowLatitude,
+} from "./map-metadata.js";
+export type {
   NaturalWonderFootprintOffset,
   NaturalWonderFootprintOffsetsByParity,
   NaturalWonderPlacementPolicy,

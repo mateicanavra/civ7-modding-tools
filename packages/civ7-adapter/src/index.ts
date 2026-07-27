@@ -18,6 +18,18 @@
 export type { EngineEffectTagId } from "./effects.js";
 export { ENGINE_EFFECT_TAGS } from "./effects.js";
 export type {
+  Civ7MapGenerationLatitudeBounds,
+  Civ7MapGenerationSetupCapture,
+  Civ7MapGenerationSetupCaptureInput,
+  Civ7MapInfoSnapshot,
+  Civ7SetupOptionEvidence,
+  Civ7SetupOptionObject,
+  Civ7SetupOptionUnavailableReason,
+  Civ7SetupOptionValue,
+  Civ7StartSlotCapacity,
+} from "./map-generation-setup.js";
+export { captureCiv7MapGenerationSetup } from "./map-generation-setup.js";
+export type {
   Civ7LatitudeBounds,
   Civ7StandardMapInfo,
   Civ7StandardMapSizeId,
