@@ -16,7 +16,6 @@ import {
   type ArtifactReadValueOf,
   observeValidatedArtifact,
 } from "@swooper/mapgen-core/authoring";
-import { fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
 import { Value } from "typebox/value";
 import {
   canonicalRecipeConfig,
@@ -40,10 +39,10 @@ import {
   StandardPlacementParityMeasurementsSchema,
 } from "../metrics/families/placement-parity.js";
 import standardRecipe from "../recipe.js";
+import { projectStandardNaturalWonderPlanEvidence } from "./placement-exact-log.js";
 import type {
   StandardFinalSurfaceCapture,
   StandardLocalParityCapture,
-  StandardNaturalWonderPlanEvidence,
   StandardParityGrid,
   StandardRiverProjectionCapture,
 } from "./types.js";
@@ -216,7 +215,7 @@ function runStandardParityReplay(input: StandardParityReplayInput): StandardLoca
     },
     placement: {
       terminalParity: placementParity,
-      naturalWonderPlanEvidence: naturalWonderPlanEvidence(naturalWonderPlan),
+      naturalWonderPlanEvidence: projectStandardNaturalWonderPlanEvidence(naturalWonderPlan),
       naturalWonderPlanInput: { status: "present", value: naturalWonderPlanInput },
       resourcePlanIntents: resourcePlan.intents,
       resourcePlacement: {
@@ -328,59 +327,6 @@ function captureRiverProjection(
   };
 }
 
-function naturalWonderPlanEvidence(
-  plan: ArtifactReadValueOf<typeof placementWonderArtifacts.naturalWonderPlan>
-): StandardNaturalWonderPlanEvidence {
-  const rows = plan.placements.slice(0, 16).map((placement) => {
-    const plotIndex = placement.plotIndex | 0;
-    const y = (plotIndex / plan.width) | 0;
-    const x = plotIndex - y * plan.width;
-    return {
-      plotIndex,
-      x,
-      y,
-      featureType: placement.featureType | 0,
-      direction: placement.direction | 0,
-      elevation: normalizeInteger(placement.elevation),
-      priorityPpm: normalizeOptionalPpm(placement.priority),
-    };
-  });
-  return {
-    version: 1,
-    plannedCount: Math.max(0, plan.plannedCount | 0),
-    coordinateDigest: {
-      count: rows.length,
-      hash32: fnv1a32StringHex(
-        rows
-          .slice()
-          .sort((left, right) => {
-            if (left.plotIndex !== right.plotIndex) {
-              return left.plotIndex - right.plotIndex;
-            }
-            if (left.featureType !== right.featureType) {
-              return left.featureType - right.featureType;
-            }
-            return left.direction - right.direction;
-          })
-          .map((row) =>
-            [
-              "p",
-              row.plotIndex,
-              row.x,
-              row.y,
-              row.featureType,
-              row.direction,
-              row.elevation,
-              row.priorityPpm,
-            ].join(":")
-          )
-          .join("|")
-      ),
-    },
-    rows,
-  };
-}
-
 function requiredGrid(
   width: number,
   height: number,
@@ -404,13 +350,4 @@ function nonEmptyString(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
   const trimmed = value.trim();
   return trimmed.length === 0 ? undefined : trimmed;
-}
-
-function normalizeInteger(value: unknown): number | null {
-  return Number.isFinite(value) ? Math.trunc(value as number) : null;
-}
-
-function normalizeOptionalPpm(value: unknown): number | null {
-  if (!Number.isFinite(value)) return null;
-  return Math.max(0, Math.min(1_000_000, Math.round((value as number) * 1_000_000)));
 }

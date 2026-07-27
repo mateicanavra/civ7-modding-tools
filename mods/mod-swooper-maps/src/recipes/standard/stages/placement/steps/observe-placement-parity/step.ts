@@ -1,7 +1,7 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { measureStandardPlacementParity } from "../../../../metrics/families/placement-parity.js";
+import { emitStandardPlacementParityExactLog } from "../../../../parity/placement-exact-log.js";
 import { landMaskFromWaterMask } from "../../../../water-surface-parity.js";
-import { logAsciiMap, logTerrainStats } from "../../log.js";
 import { config } from "./config.js";
 import { projectPlacementParityViz } from "./viz.js";
 
@@ -22,9 +22,6 @@ export const ObservePlacementParityStep = createStep(config, {
       waterMask: deps.engine.readCurrentMapWaterMask(context),
       lakeMask: deps.engine.readCurrentMapLakeMask(context),
     };
-    logTerrainStats(context, "Final", terminalSnapshot);
-    logAsciiMap(context, terminalSnapshot);
-
     // Compare the final projected land classification with the engine surface
     // after all placement product work has completed. Accepted lakes are
     // intentionally water even though they began as Morphology land.
@@ -62,7 +59,7 @@ export const ObservePlacementParityStep = createStep(config, {
       type: "placement.parity",
       ...placementParity,
     }));
-    console.log(`[SWOOPER_MOD] PLACEMENT_PARITY_V1 ${JSON.stringify(placementParity)}`);
+    emitStandardPlacementParityExactLog(placementParity);
 
     return {
       engineObservation,

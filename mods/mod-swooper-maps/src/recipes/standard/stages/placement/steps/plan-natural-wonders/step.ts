@@ -10,9 +10,9 @@ import {
   STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY,
 } from "../../../../metrics/families/placement/natural-wonder-plan-input.js";
 import {
-  logNaturalWonderPlanInputRuntimeTelemetry,
-  logNaturalWonderPlanRuntimeTelemetry,
-} from "../../log.js";
+  emitStandardNaturalWonderPlanExactLog,
+  emitStandardNaturalWonderPlanInputExactLog,
+} from "../../../../parity/placement-exact-log.js";
 import {
   definePlacementVizMeta,
   PLACEMENT_TILE_SPACE_ID,
@@ -82,8 +82,8 @@ export const PlanNaturalWondersStep = createStep(config, {
       strategySelection,
       plan: naturalWonderPlan,
     });
-    logNaturalWonderPlanRuntimeTelemetry(naturalWonderPlan);
-    logNaturalWonderPlanInputRuntimeTelemetry(naturalWonderPlanInput);
+    emitStandardNaturalWonderPlanExactLog(naturalWonderPlan);
+    emitStandardNaturalWonderPlanInputExactLog(naturalWonderPlanInput);
 
     return {
       placements: naturalWonderPlan.placements,

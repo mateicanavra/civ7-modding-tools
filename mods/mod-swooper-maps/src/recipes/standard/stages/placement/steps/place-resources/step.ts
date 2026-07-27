@@ -15,7 +15,7 @@ import {
 } from "@swooper/mapgen-core/authoring";
 import { fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
 
-import { logResourcePlacementRuntimeTelemetry } from "../../log.js";
+import { emitStandardResourcePlacementExactLog } from "../../../../parity/placement-exact-log.js";
 import {
   buildPlacementPointBuffers,
   definePlacementVizCategoryMeta,
@@ -318,7 +318,7 @@ export const PlaceResourcesStep = createStep(config, {
         shortfalls: outcomes.reconciliation.shortfalls,
       }));
     }
-    logResourcePlacementRuntimeTelemetry(deps.engine.getResourceCatalog(context), outcomes);
+    emitStandardResourcePlacementExactLog(deps.engine.getResourceCatalog(context), outcomes);
     deps.artifacts.resourcePlacementOutcomes.publish(context, outcomes);
     return outcomes.outcomes;
   },

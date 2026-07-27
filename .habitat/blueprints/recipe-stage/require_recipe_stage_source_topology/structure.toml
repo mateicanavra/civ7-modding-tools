@@ -19,7 +19,6 @@ allowed = [
   "steps",
   "model",
   "viz.ts",
-  "log.ts",
 ]
 forbidden = ["artifacts"]
 

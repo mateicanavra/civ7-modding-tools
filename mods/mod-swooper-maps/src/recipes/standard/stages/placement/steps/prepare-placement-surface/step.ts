@@ -1,7 +1,6 @@
 import { deriveCiv7CoastProjection } from "@civ7/map-policy";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { restoreProjectedCoastTerrain } from "../../../../water-surface-parity.js";
-import { logTerrainStats } from "../../log.js";
 import { config } from "./config.js";
 import { projectPlacementSurfaceViz } from "./viz.js";
 
@@ -42,7 +41,6 @@ export const PreparePlacementSurfaceStep = createStep(config, {
     const beforeValidate = readTerrainValidationBoundary(
       "placement/prepare-surface/before-validate"
     );
-    logTerrainStats(context, "Initial", beforeValidate);
     deps.engine.validateAndFixTerrain(context);
     restoreProjectedCoastTerrain(
       dimensions,
@@ -57,7 +55,6 @@ export const PreparePlacementSurfaceStep = createStep(config, {
       "placement/prepare-surface/after-validate"
     );
     const afterValidate = readTerrainValidationBoundary("placement/prepare-surface/after-validate");
-    logTerrainStats(context, "After validateAndFixTerrain", afterValidate);
     deps.engine.recalculateAreas(context);
     deps.engine.storeWaterData(context);
     const afterMaintenance = readTerrainValidationBoundary(

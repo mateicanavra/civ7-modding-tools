@@ -66,11 +66,6 @@ export type ImportedOutput = SurfaceOutput;
 // @filename: mods/example-mod/src/recipes/sample-recipe/stages/world/assembly/index.ts
 import "../terrain/steps/shape-surface/step.js";
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/world/assembly/log.ts
-import { ShapeSurfaceStep } from "../terrain/steps/shape-surface/step.js";
-
-export const loggedStep = ShapeSurfaceStep;
-
 // @filename: mods/example-mod/src/recipes/sample-recipe/stages/world/assembly/index.ts
 export { ShapeSurfaceStep } from "../terrain/steps/shape-surface/step.js";
 

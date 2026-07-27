@@ -28,13 +28,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** move Civ7 runtime-warning compatibility out of Placement.
-Product steps own the condition and message they report, but they cannot own a
-host capability shim for choosing `console.warn` versus the engine-safe
-`console.log`. The Civ7 adapter owns that runtime fact and exposes one admitted
-warning capability through each step contract that needs it. Structured trace
-and artifact evidence remain the product authority; warnings remain human-facing
-operational convenience.
+**Current container:** give Standard Placement exact-log evidence one parity
+owner and delete the stage-root logging cabinet. Stable live markers are
+transport projections of already-typed product evidence; they are not stage
+algorithms, generic diagnostics, metrics, or visualization. Standard parity
+owns their bounded wire projection and correlation identity. Lossy ASCII maps
+and ad hoc terrain summaries have no consumer beyond evidence already owned by
+typed visualization and metrics, so they retire rather than move.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -51,14 +51,17 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** add one runtime-warning method to the adapter contract, implement
-the Civ7 console fallback at that owner, admit the method through Core's
-step-engine capability selector, and update only the three Placement consumers.
-Delete the recipe-local warning shim while preserving each product-specific
-message and structured evidence. Prove adapter, Core, and Placement compiler
-ownership plus focused warning behavior, then seal this layer before moving the
-three stable exact-log protocols into Standard parity and deleting the remaining
-unearned ASCII/stat projections and `placement/log.ts` cabinet.
+**Gradient:** create one focused Standard parity projection owner for resource
+placement, natural-wonder plan/input/placement, and terminal placement markers.
+Reuse its natural-wonder row and digest projection in deterministic replay
+instead of maintaining two wire-shaped reconstructions. Preserve every stable
+marker and payload exactly, move the resource byte-budget protocol test to
+parity, and retain only a falsifying producer test that proves an otherwise
+unowned wire contract. Delete serialization ceremony, ASCII/stat projections,
+their calls, duplicated normalizers and hashes, and finally
+`stages/placement/log.ts`. Keep discovery's operational metric marker at its
+step because it is not a parity input. Seal with mod and Studio parser/correlation
+proof before normalizing the over-denormalized placement products themselves.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -93,6 +96,14 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Civ7 Runtime Warning Authority
+
+The Civ7 adapter now owns the demonstrated host distinction between
+`console.warn` and engine-safe tagged `console.log`. Only the three Placement
+steps with human-facing degradation messages request that capability; their
+conditions, wording, structured trace, and artifact evidence remain
+product-owned.
 
 ### 2026-07-26 - Placement Lifecycle Authority
 

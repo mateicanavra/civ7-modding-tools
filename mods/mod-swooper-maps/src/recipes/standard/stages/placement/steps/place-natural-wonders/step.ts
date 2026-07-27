@@ -11,7 +11,7 @@ import {
   type DeepReadonly,
 } from "@swooper/mapgen-core/authoring";
 import { fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
-
+import { emitStandardNaturalWonderPlacementExactLog } from "../../../../parity/placement-exact-log.js";
 import {
   buildPlacementPointBuffers,
   definePlacementVizCategoryMeta,
@@ -43,72 +43,10 @@ type StampNaturalWondersFromPlanArgs = {
   requestedCount?: number;
 };
 
-type NaturalWonderPlacementCoordinateDigest = {
-  count: number;
-  hash32: string;
-};
-
-type NaturalWonderPlacementCoordinateEvidence = {
-  version: 1;
-  placed: NaturalWonderPlacementCoordinateDigest;
-  rejected: NaturalWonderPlacementCoordinateDigest;
-};
-
-type NaturalWonderPlacementCoordinateRow = {
-  status: "placed" | "rejected";
-  plotIndex: number;
-  x: number;
-  y: number;
-  featureType: number;
-  direction: number;
-  elevation?: number;
-  reason: string;
-  observedFeatureType?: number;
-  observedPlotIndex?: number;
-  expectedFootprintReadback?: NaturalWonderFootprintReadback[];
-  expectedFootprintReadbackStatus?: NaturalWonderFootprintReadbackStatus;
-};
-
-/**
- * Complete batch outcome published after natural-wonder commands and final feature observation.
- * Command rows explain one terminal outcome per planned placement;
- * `observedNaturalWonderPlotIndices` is the authoritative downstream exclusion surface,
- * including engine-oriented footprints and rejected residue from any attempted anchor.
- */
-type NaturalWonderPlacementRuntimeTelemetry = {
-  version: 1;
-  plannedCount: number;
-  targetCount: number;
-  placedCount: number;
-  terrainAdjustedCount: number;
-  skippedOutOfBoundsCount: number;
-  rejectedCount: number;
-  shortfallCount: number;
-  rejectionExampleCount: number;
-  rejectionExamples: string[];
-  rejectedRows: NaturalWonderPlacementRuntimeRejectedRow[];
-  coordinateEvidence: {
-    version: 1;
-    placedCount: number;
-    placedHash32: string;
-    rejectedCount?: number;
-    rejectedHash32?: string;
-  };
-};
-
-type NaturalWonderPlacementRuntimeRejectedRow = readonly [
-  status: "r",
-  plotIndex: number,
-  x: number,
-  y: number,
-  featureType: number,
-  direction: number,
-  elevation: number | null,
-  reason: string,
-  observedFeatureType: number | null,
-  observedPlotIndex: number | null,
-  expectedFootprintReadbackStatus: NaturalWonderFootprintReadbackStatus | null,
-];
+type NaturalWonderPlacementCoordinateDigest =
+  NaturalWonderStampingStats["coordinateEvidence"]["placed"];
+type NaturalWonderPlacementCoordinateEvidence = NaturalWonderStampingStats["coordinateEvidence"];
+type NaturalWonderPlacementCoordinateRow = NaturalWonderStampingStats["coordinateRows"][number];
 
 function naturalWonderCoordinateDigest(
   rows: readonly NaturalWonderPlacementCoordinateRow[],
@@ -432,84 +370,6 @@ function stampNaturalWondersFromPlan({
   };
 }
 
-function buildNaturalWonderRuntimeRejectedRows(
-  rows: DeepReadonly<NaturalWonderPlacementCoordinateRow[]>
-): NaturalWonderPlacementRuntimeRejectedRow[] {
-  return rows
-    .filter((row) => row.status === "rejected")
-    .map((row) => [
-      "r",
-      row.plotIndex,
-      row.x,
-      row.y,
-      row.featureType,
-      row.direction,
-      row.elevation ?? null,
-      row.reason,
-      row.observedFeatureType ?? null,
-      row.observedPlotIndex ?? null,
-      row.expectedFootprintReadbackStatus ?? null,
-    ]);
-}
-
-/**
- * Projects stamping stats into the emitted `NATURAL_WONDER_PLACEMENT_V1`
- * telemetry payload.
- *
- * PRECISION CAVEAT (load-bearing for evidence claims): the payload exposes
- * per-row coordinates ONLY for REJECTED rows (`rejectedRows`). Placed wonders are
- * summarized as an opaque `coordinateEvidence.placedHash32` (FNV-1a 32) plus a
- * count — no individual placed coordinate. So a wonder's placed status is derived
- * as `planned − rejected`, and a specific placed coordinate or its row parity is
- * NOT directly provable from telemetry. The rejected-digest fields are omitted
- * entirely when there are no rejected rows (keeps clean-run hashes stable).
- */
-function buildNaturalWonderPlacementRuntimeTelemetry(
-  stats: DeepReadonly<NaturalWonderStampingStats>
-): NaturalWonderPlacementRuntimeTelemetry {
-  return {
-    version: 1,
-    plannedCount: stats.plannedCount,
-    targetCount: stats.targetCount,
-    placedCount: stats.placedCount,
-    terrainAdjustedCount: stats.terrainAdjustedCount,
-    skippedOutOfBoundsCount: stats.skippedOutOfBoundsCount,
-    rejectedCount: stats.rejectedCount,
-    shortfallCount: stats.shortfallCount,
-    rejectionExampleCount: stats.rejectionExamples.length,
-    rejectionExamples: [...stats.rejectionExamples],
-    rejectedRows: buildNaturalWonderRuntimeRejectedRows(stats.coordinateRows),
-    coordinateEvidence: {
-      version: stats.coordinateEvidence.version,
-      placedCount: stats.coordinateEvidence.placed.count,
-      placedHash32: stats.coordinateEvidence.placed.hash32,
-      ...(stats.coordinateEvidence.rejected.count > 0
-        ? {
-            rejectedCount: stats.coordinateEvidence.rejected.count,
-            rejectedHash32: stats.coordinateEvidence.rejected.hash32,
-          }
-        : {}),
-    },
-  };
-}
-
-/**
- * Emits the `NATURAL_WONDER_PLACEMENT_V1` line to the engine log (the
- * `[SWOOPER_MOD]`-prefixed channel that live-evidence tooling scrapes). The single
- * runtime sink for placement evidence; see
- * {@link buildNaturalWonderPlacementRuntimeTelemetry} for the payload's
- * placed-vs-rejected precision caveat.
- */
-function logNaturalWonderPlacementRuntimeTelemetry(
-  stats: DeepReadonly<NaturalWonderStampingStats>
-): void {
-  console.log(
-    `[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 ${JSON.stringify(
-      buildNaturalWonderPlacementRuntimeTelemetry(stats)
-    )}`
-  );
-}
-
 const WONDER_OUTCOME_CATEGORIES = [
   { value: 1, label: "Placed", color: [34, 197, 94, 235] as [number, number, number, number] },
   { value: 3, label: "Rejected", color: [239, 68, 68, 235] as [number, number, number, number] },
@@ -543,7 +403,7 @@ export const PlaceNaturalWondersStep = createStep(config, {
     });
 
     deps.artifacts.naturalWonderPlacement.publish(context, stamping);
-    logNaturalWonderPlacementRuntimeTelemetry(stamping);
+    emitStandardNaturalWonderPlacementExactLog(stamping);
     return stamping.coordinateRows;
   },
   viz: ({ result: coordinateRows, dimensions }) => {
