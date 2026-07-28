@@ -1,9 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { resolve } from "node:path";
 import { STUDIO_RUN_MAP_SCRIPT_PATH } from "@civ7/studio-run-workspace";
-import { standardMapConfigs } from "@swooper/swooper-physics/catalog";
 import { SWOOPER_MAPS_MOD_DEFINITION } from "@swooper/swooper-physics/mod-definition";
 import {
   STANDARD_RECIPE_CONFIG,
@@ -17,9 +13,10 @@ import {
   type ValidatedMapConfig,
   validateCanonicalMapConfig,
 } from "@swooper/swooper-physics/standard/map-config";
+import { loadSwooperMapConfigCatalog } from "@swooper/swooper-physics/tooling/catalog-source";
 import {
-  loadSwooperMapConfigRegistry,
   loadSwooperStudioDeployConfigRegistry,
+  selectSwooperStudioDeployConfigIds,
 } from "../../scripts/generate-map-artifacts";
 import {
   buildSwooperCatalogModFilePlan,
@@ -30,10 +27,9 @@ import { TEST_MAP_SEED } from "../setup.js";
 
 const recipeSchema = STANDARD_RECIPE_CONFIG_SCHEMA;
 const fixtureRecipeConfig = STANDARD_RECIPE_CONFIG;
-const DEFINITION_CONFIG_DIRECTORY = "plugins/mod/map/swooper-physics/src/maps/configs";
 
 async function buildCurrentPlans() {
-  const configs = await loadSwooperMapConfigRegistry();
+  const configs = await loadSwooperMapConfigCatalog();
   return {
     configs,
     modPlan: buildSwooperCatalogModFilePlan({ configs }),
@@ -72,28 +68,6 @@ function buildFixtureConfig(): ValidatedMapConfig {
     },
     recipeSchema,
   });
-}
-
-async function writeDefinitionConfigFixture(args: {
-  root: string;
-  fileName: string;
-  config: unknown;
-}): Promise<void> {
-  const configDir = resolve(args.root, DEFINITION_CONFIG_DIRECTORY);
-  await mkdir(configDir, { recursive: true });
-  await writeFile(resolve(configDir, args.fileName), JSON.stringify(args.config, null, 2));
-}
-
-function savedConfigFixture(id: string): unknown {
-  const source = standardMapConfigs.find((config) => config.id === "swooper-earthlike");
-  if (!source) throw new Error("Expected the shipped Swooper Earthlike catalog config");
-  return {
-    ...source,
-    id,
-    name: "Saved Config",
-    description: "Saved operation config",
-    sortIndex: 9021,
-  };
 }
 
 describe("Swooper map artifact file plan", () => {
@@ -137,7 +111,7 @@ describe("Swooper map artifact file plan", () => {
   it("hashes every portable canonical-envelope field", async () => {
     const canonicalConfig = buildFixtureConfig().canonicalConfig;
     const baselineDigest = canonicalMapConfigDigest(canonicalConfig);
-    const configVariant = (await loadSwooperMapConfigRegistry()).find(
+    const configVariant = (await loadSwooperMapConfigCatalog()).find(
       (candidate) =>
         canonicalMapConfigContentDigest(candidate.canonicalConfig) !==
         canonicalMapConfigContentDigest(canonicalConfig)
@@ -358,48 +332,8 @@ describe("Swooper map artifact file plan", () => {
     }
   });
 
-  it("keeps a deploy-only selected config outside durable catalog membership", async () => {
-    const fakeRepoRoot = await mkdtemp(resolve(tmpdir(), "swooper-deploy-config-repo-"));
-    try {
-      await writeDefinitionConfigFixture({
-        root: fakeRepoRoot,
-        fileName: "saved-config.config.json",
-        config: savedConfigFixture("saved-config"),
-      });
-
-      const deployConfigs = await loadSwooperStudioDeployConfigRegistry({
-        catalogConfigIds: [],
-        deployConfigId: "saved-config",
-        repoRoot: fakeRepoRoot,
-      });
-
-      expect(deployConfigs.map((config) => config.canonicalConfig.id)).toEqual(["saved-config"]);
-    } finally {
-      await rm(fakeRepoRoot, { recursive: true, force: true });
-    }
-  });
-
-  it("rejects a deploy config whose canonical id does not match its filename", async () => {
-    const fakeRepoRoot = await mkdtemp(resolve(tmpdir(), "swooper-deploy-id-mismatch-repo-"));
-    try {
-      await writeDefinitionConfigFixture({
-        root: fakeRepoRoot,
-        fileName: "other-config.config.json",
-        config: savedConfigFixture("saved-config"),
-      });
-
-      await expect(
-        loadSwooperStudioDeployConfigRegistry({
-          catalogConfigIds: [],
-          deployConfigId: "other-config",
-          repoRoot: fakeRepoRoot,
-        })
-      ).rejects.toThrow(
-        'Canonical map config id must match file stem "other-config", got "saved-config"'
-      );
-    } finally {
-      await rm(fakeRepoRoot, { recursive: true, force: true });
-    }
+  it("keeps a deploy-only selected id outside durable catalog membership", () => {
+    expect(selectSwooperStudioDeployConfigIds([], "saved-config")).toEqual(["saved-config"]);
   });
 
   it("rejects every explicitly malformed deploy config id", async () => {

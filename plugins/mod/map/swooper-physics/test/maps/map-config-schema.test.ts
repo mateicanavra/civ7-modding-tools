@@ -1,8 +1,7 @@
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
 import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
 import { Type } from "typebox";
 import { describe, expect, it } from "vitest";
+import { loadSwooperMapConfigCatalog } from "../../scripts/catalog-source";
 import { admitMapConfigCatalogConfig } from "../../src/maps/catalog/admission";
 import { MAP_CONFIG_CATALOG_IDS } from "../../src/maps/catalog/membership";
 import {
@@ -13,25 +12,8 @@ import standardRecipe, { STANDARD_STAGES } from "../../src/recipes/standard/reci
 import { createStandardRecipeTestInitialSetup } from "../recipes/swooper-physics-standard/fixtures/standard-recipe.js";
 import { TEST_MAP_SIZE } from "../setup.js";
 
-const packageRoot = resolve(import.meta.dirname, "../..");
-
 async function loadSwooperMapConfigRegistry() {
-  const recipeSchema = deriveRecipeConfigSchema(STANDARD_STAGES);
-  return Promise.all(
-    MAP_CONFIG_CATALOG_IDS.map(async (configId) => ({
-      configId,
-      ...admitMapConfigCatalogConfig({
-        configId,
-        canonicalConfig: JSON.parse(
-          await readFile(
-            resolve(packageRoot, `src/maps/configs/${configId}.config.json`),
-            "utf8"
-          )
-        ) as unknown,
-        recipeSchema,
-      }),
-    }))
-  );
+  return loadSwooperMapConfigCatalog();
 }
 
 function authoredEnvelope(
@@ -102,7 +84,7 @@ describe("Shipped map configs", () => {
 
     expect(() => admitStandardMapConfig(raw)).toThrow("Unknown key");
     const admitted = admitMapConfigCatalogConfig({
-      configId: fixture.configId,
+      configId: fixture.canonicalConfig.id,
       canonicalConfig: raw,
       recipeSchema: freshSchema,
     });

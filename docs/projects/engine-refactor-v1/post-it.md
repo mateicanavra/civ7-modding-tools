@@ -2,18 +2,19 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Owner. Consumer. Edge. Evidence. Lock.
+**Attractor filter:** Definition. Realization. Source. Contract. Materialization.
 
-**Frame:** a boundary failure is either a real ownership defect or an omitted
-project-plane relationship. Decide from runtime responsibility and dependency
-direction before changing the graph. A top-level app may consume reusable
-development capability when that capability performs part of the app's owned
-verification workflow; the capability must remain product-neutral and must
-never import the app or its definition.
+**Frame:** a physical app/plugin split is incomplete while the realization app
+reconstructs definition membership, source paths, admission, or stable product
+identity. The reusable definition owns authored config discovery and the
+Standard recipe id behind finite package entrypoints. The Civ7 app selects a
+generation mode and materializes already-admitted definition values into files;
+it never reaches into the definition source tree.
 
-**Authority order:** workflow ownership -> public capability contract -> actual
-Nx edge -> kind taxonomy -> boundary implementation -> complete graph proof.
-Neither directory naming nor a prior allowlist decides the relationship.
+**Authority order:** authored product identity -> definition-owned source
+contract -> app-owned selection -> Civ7 file plan -> generated output proof.
+Filesystem placement is an implementation detail behind the definition
+contract, not public knowledge carried by consumers.
 
 **Enforcement gravity:** a correct scaffold plus an advisory rule is guidance,
 not a ratchet. Every newly admitted kind must finish with its generic blueprint
@@ -26,13 +27,12 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** certify the existing
-`swooper-physics-mod -> mapgen-diagnostics` dependency as the generic
-`kind:app -> kind:mapgen-tool` relationship. The app owns final-surface parity
-proof and JSON evidence publication; `@swooper/mapgen-diagnostics` owns the
-reusable evidence writer. Moving that writer into the app would duplicate a
-neutral capability, while moving the verifier into the tool would give a
-generic package product-specific Swooper behavior.
+**Current container:** finish the Swooper definition/application contract. One
+definition-owned catalog source API loads and admits authored configs in
+declared membership order. Studio metadata generation and Civ7 artifact
+generation consume that same API. The application retains transient deploy
+selection and file materialization only, and consumes the canonical Standard
+recipe id rather than re-authoring it.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -49,10 +49,11 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** record the one-way app-to-tool law in ADR-016 and the canonical
-taxonomy, mirror it in the Nx boundary configuration, prove the exact failing
-edge and full boundary graph, then seal the branch without changing runtime
-code or broadening any lower source kind.
+**Gradient:** collapse the duplicate source loaders into one finite definition
+entrypoint, remove every app knowledge of definition filesystem layout, replace
+the app's recipe-id literal with the definition export, move source-admission
+proof to the definition owner, then prove both project graphs, generated
+currentness, boundaries, Knip, and the staged authority before sealing.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -95,6 +96,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - App MapGen Tool Boundary Sealed
+
+The Swooper Civ7 application may consume product-neutral MapGen tooling for
+application-owned generation, diagnostics, and live proof. ADR-016, the kind
+taxonomy, and the executable boundary graph now encode the one-way
+`kind:app -> kind:mapgen-tool` relationship without granting tools access to
+apps or product definitions. Full graph proof, Habitat policy, the staged hook,
+and fresh architecture review sealed the law.
 
 ### 2026-07-28 - CLI Game Topic Kind Sealed
 

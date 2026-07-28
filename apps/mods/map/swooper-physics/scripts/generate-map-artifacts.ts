@@ -1,4 +1,3 @@
-import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -7,45 +6,18 @@ import {
   inspectGeneratedFilePlan,
 } from "@civ7/plugin-files/generated-file-plan";
 import type { MapConfigId } from "@civ7/studio-contract";
-import {
-  admitMapConfigCatalogConfig,
-  admitMapConfigCatalogIds,
-  MAP_CONFIG_CATALOG_IDS,
-} from "@swooper/swooper-physics/catalog";
+import { admitMapConfigCatalogIds, MAP_CONFIG_CATALOG_IDS } from "@swooper/swooper-physics/catalog";
 import type { ValidatedMapConfig } from "@swooper/swooper-physics/standard/map-config";
-import type { TSchema } from "typebox";
+import { loadSwooperMapConfigCatalog } from "@swooper/swooper-physics/tooling/catalog-source";
 import { buildSwooperCatalogModFilePlan } from "./map-artifacts/file-plan.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const pkgRoot = resolve(__dirname, "..");
-const repoRoot = resolve(pkgRoot, "../../../..");
 
-const catalogConfigDirectory = "plugins/mod/map/swooper-physics/src/maps/configs";
 const checkCurrentArg = "--check";
 const includeStudioDeployConfigArg = "--include-studio-deploy-config";
 const studioDeployConfigIdEnv = "SWOOPER_STUDIO_DEPLOY_CONFIG_ID";
-
-/**
- * Loads the authored Swooper map config registry for artifact generation. This
- * is the CLI's discovery boundary: it may read config files, while the renderer
- * receives already-validated configs and returns only file-plan data.
- */
-export async function loadSwooperMapConfigRegistry(
-  options: Readonly<{
-    catalogConfigIds?: unknown;
-    recipeSchema?: TSchema;
-    repoRoot?: string;
-  }> = {}
-): Promise<ValidatedMapConfig[]> {
-  const configIds = admitMapConfigCatalogIds(options.catalogConfigIds ?? MAP_CONFIG_CATALOG_IDS);
-  const root = options.repoRoot ?? repoRoot;
-  return loadValidatedCatalogEntries({
-    configIds,
-    recipeSchema: options.recipeSchema,
-    repoRoot: root,
-  });
-}
 
 /**
  * Builds the deploy-only registry used by catalog deployment. Run in Game does
@@ -56,75 +28,19 @@ export async function loadSwooperStudioDeployConfigRegistry(
   options: Readonly<{
     catalogConfigIds?: unknown;
     deployConfigId?: string;
-    recipeSchema?: TSchema;
-    repoRoot?: string;
   }> = {}
 ): Promise<ValidatedMapConfig[]> {
   const catalogConfigIds = admitMapConfigCatalogIds(
     options.catalogConfigIds ?? MAP_CONFIG_CATALOG_IDS
   );
-  const root = options.repoRoot ?? repoRoot;
   const deployConfigId = options.deployConfigId ?? readStudioDeployConfigId(process.env);
-  return loadValidatedCatalogEntries({
-    configIds: studioDeployConfigIds(catalogConfigIds, deployConfigId),
-    recipeSchema: options.recipeSchema,
-    repoRoot: root,
+  return loadSwooperMapConfigCatalog({
+    catalogConfigIds: selectSwooperStudioDeployConfigIds(catalogConfigIds, deployConfigId),
   });
 }
 
-async function loadValidatedCatalogEntries(args: {
-  configIds: readonly MapConfigId[];
-  recipeSchema?: TSchema;
-  repoRoot: string;
-}): Promise<ValidatedMapConfig[]> {
-  const configsById = new Map<string, ValidatedMapConfig>();
-  const readErrors: string[] = [];
-
-  for (const configId of args.configIds) {
-    const configPath = catalogConfigPath(configId);
-    try {
-      const raw = JSON.parse(
-        await readFile(resolve(args.repoRoot, configPath), "utf-8")
-      ) as unknown;
-      configsById.set(
-        configId,
-        admitMapConfigCatalogConfig({
-          configId,
-          canonicalConfig: raw,
-          recipeSchema: args.recipeSchema,
-        })
-      );
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      readErrors.push(`${configPath}: ${message}`);
-    }
-  }
-
-  if (readErrors.length > 0) {
-    throw new Error(
-      `Invalid Swooper map catalog config references:\n${readErrors
-        .map((error) => `- ${error}`)
-        .join("\n")}`
-    );
-  }
-
-  const configs = args.configIds.map((configId) => {
-    const config = configsById.get(configId);
-    if (!config) throw new Error(`Catalog config was not loaded: ${configId}`);
-    return config;
-  });
-  if (configs.length === 0) {
-    throw new Error(`No canonical map configs found in ${catalogConfigDirectory}`);
-  }
-
-  return configs;
-}
-
-function catalogConfigPath(configId: MapConfigId): string {
-  return `${catalogConfigDirectory}/${configId}.config.json`;
-}
-
-function studioDeployConfigIds(
+/** Adds one request-local Studio selection without changing durable catalog membership. */
+export function selectSwooperStudioDeployConfigIds(
   catalogConfigIds: readonly MapConfigId[],
   deployConfigId?: string
 ): readonly MapConfigId[] {
@@ -191,7 +107,7 @@ async function main(): Promise<void> {
     ? await loadSwooperStudioDeployConfigRegistry({
         deployConfigId: readStudioDeployConfigId(process.env),
       })
-    : await loadSwooperMapConfigRegistry();
+    : await loadSwooperMapConfigCatalog();
   const plan = buildSwooperCatalogModFilePlan({ configs });
   if (checkCurrent) {
     const inspection = await inspectGeneratedFilePlan(plan, { outputRoot: pkgRoot });
@@ -202,7 +118,7 @@ async function main(): Promise<void> {
 
   const verb = checkCurrent ? "Verified" : "Generated";
   console.log(
-    `${verb} ${configs.length} Swooper map configs from ${catalogConfigDirectory}: ${configs
+    `${verb} ${configs.length} Swooper map configs: ${configs
       .map((config) => config.canonicalConfig.id)
       .join(", ")}`
   );

@@ -36,6 +36,10 @@ import morphologyShelf from "./stages/morphology/shelf/index.js";
 import placement from "./stages/placement/index.js";
 
 const NAMESPACE = "mod-swooper-maps";
+
+/** Stable recipe identity carried by every Swooper Standard config and run manifest. */
+export const STANDARD_RECIPE_ID = "standard";
+
 const stages = orderStandardStages({
   "foundation-mantle": foundationMantle,
   "foundation-lithosphere": foundationPlates,
@@ -84,7 +88,7 @@ const operations = collectOperations(
  * Its stage order and operation registry are closed over the canonical manifests above.
  */
 const standardRecipe = createRecipe({
-  id: "standard",
+  id: STANDARD_RECIPE_ID,
   namespace: NAMESPACE,
   initialSetup: STANDARD_INITIAL_SETUP,
   stages,
