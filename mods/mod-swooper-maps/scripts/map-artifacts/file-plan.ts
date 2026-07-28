@@ -11,6 +11,7 @@ import {
   type StandardMapConfigEnvelope,
   type ValidatedMapConfig,
 } from "../../src/maps/configs/canonical.js";
+import { SWOOPER_MAPS_MOD_DEFINITION } from "../../src/mod-definition.js";
 
 /** Admitted config and correlation used to render one request-local Studio run mod. */
 export type SwooperRunGeneratedModPlanInput = Readonly<{
@@ -35,6 +36,11 @@ function xmlEscape(value: string): string {
 function mapLocalizationTag(id: string, field: "name" | "description"): string {
   const suffix = field === "name" ? "NAME" : "DESCRIPTION";
   return `LOC_MAP_${id.toUpperCase().replace(/[^A-Z0-9]+/g, "_")}_${suffix}`;
+}
+
+function moduleLocalizationTag(field: "name" | "description"): string {
+  const suffix = field === "name" ? "NAME" : "DESCRIPTION";
+  return `LOC_MODULE_${SWOOPER_MAPS_MOD_DEFINITION.id.toUpperCase().replace(/[^A-Z0-9]+/g, "_")}_${suffix}`;
 }
 
 function renderMapEntryArtifact(config: ValidatedMapConfig): string {
@@ -125,7 +131,7 @@ function renderConfigXml(
   configs: readonly StandardMapConfigEnvelope[],
   options: Readonly<{ moduleId?: string; outputFile?: string; mapRowId?: string }> = {}
 ): string {
-  const moduleId = options.moduleId ?? "swooper-maps";
+  const moduleId = options.moduleId ?? SWOOPER_MAPS_MOD_DEFINITION.id;
   const rows = configs
     .map(
       (config) => `\t\t<Row
@@ -194,6 +200,21 @@ ${rows}${biomeHazardRows ? `\n${biomeHazardRows}` : ""}
 `;
 }
 
+function renderModuleText(): string {
+  return `<?xml version="1.0" encoding="utf-8"?>
+<Database>
+	<EnglishText>
+		<Row Tag="${moduleLocalizationTag("name")}">
+			<Text>${xmlEscape(SWOOPER_MAPS_MOD_DEFINITION.name)}</Text>
+		</Row>
+		<Row Tag="${moduleLocalizationTag("description")}">
+			<Text>${xmlEscape(SWOOPER_MAPS_MOD_DEFINITION.description)}</Text>
+		</Row>
+	</EnglishText>
+</Database>
+`;
+}
+
 // Biome attrition hazards. Custom, permanent, damaging PlotEffects - the data-defined twin
 // of the engine-internal ocean damage. PROVEN LIVE (a stationary unit on a DESERT_HEAT tile
 // took exactly 11 HP across one turn): a PlotEffects row with Damage>0 and no TriggerOnEnter
@@ -241,13 +262,13 @@ function renderModInfo(
   configs: readonly StandardMapConfigEnvelope[],
   mode: SwooperModRenderMode = { kind: "catalog" }
 ): string {
-  const moduleId = mode.moduleId ?? "swooper-maps";
+  const moduleId = mode.moduleId ?? SWOOPER_MAPS_MOD_DEFINITION.id;
   const criteriaId = mode.kind === "studio-run" ? `always-${moduleId}` : "always";
-  const gameActionGroupId = mode.kind === "studio-run" ? `game-${moduleId}` : "game-swooper-maps";
-  const shellActionGroupId =
-    mode.kind === "studio-run" ? `shell-${moduleId}` : "shell-swooper-maps";
-  const dependencyModules = mode.kind === "studio-run" ? mode.dependencyModules : [];
-  const extraDependencies = dependencyModules
+  const gameActionGroupId = `game-${moduleId}`;
+  const shellActionGroupId = `shell-${moduleId}`;
+  const dependencyModules =
+    mode.kind === "studio-run" ? mode.dependencyModules : SWOOPER_MAPS_MOD_DEFINITION.dependencies;
+  const dependencies = dependencyModules
     .map(
       (dependency) =>
         `\t\t<Mod id="${xmlEscape(dependency.id)}" title="${xmlEscape(dependency.title)}"/>`
@@ -271,15 +292,15 @@ function renderModInfo(
     .map((config) => `\t\t\t\t\t<Item>${importPath ?? `maps/${config.id}.js`}</Item>`)
     .join("\n");
   return `<?xml version="1.0" encoding="utf-8"?>
-<Mod id="${xmlEscape(moduleId)}" version="1" xmlns="ModInfo">
+<Mod id="${xmlEscape(moduleId)}" version="${SWOOPER_MAPS_MOD_DEFINITION.version}" xmlns="ModInfo">
 \t<Properties>
-\t\t<Name>LOC_MODULE_SWOOPER_MAPS_NAME</Name>
-\t\t<Description>LOC_MODULE_SWOOPER_MAPS_DESCRIPTION</Description>
-\t\t<Authors>Matei Canavra</Authors>
-\t\t<Package>Mod</Package>
+\t\t<Name>${moduleLocalizationTag("name")}</Name>
+\t\t<Description>${moduleLocalizationTag("description")}</Description>
+\t\t<Authors>${xmlEscape(SWOOPER_MAPS_MOD_DEFINITION.authors.join(", "))}</Authors>
+\t\t<Package>${SWOOPER_MAPS_MOD_DEFINITION.packageKind}</Package>
 \t</Properties>
 \t<Dependencies>
-\t\t<Mod id="base-standard" title="LOC_MODULE_BASE_STANDARD_NAME"/>${extraDependencies ? `\n${extraDependencies}` : ""}
+${dependencies}
 \t</Dependencies>
 \t<ActionCriteria>
 \t\t<Criteria id="${xmlEscape(criteriaId)}">
@@ -367,7 +388,7 @@ export function buildSwooperCatalogModFilePlan(
         content: renderConfigXml(options.configs.map((config) => config.canonicalConfig)),
       },
       {
-        relativePath: "mod/swooper-maps.modinfo",
+        relativePath: `mod/${SWOOPER_MAPS_MOD_DEFINITION.id}.modinfo`,
         content: renderModInfo(options.configs.map((config) => config.canonicalConfig)),
       },
       {
@@ -377,6 +398,10 @@ export function buildSwooperCatalogModFilePlan(
       {
         relativePath: "mod/text/en_us/MapText.xml",
         content: renderMapText(options.configs.map((config) => config.canonicalConfig)),
+      },
+      {
+        relativePath: "mod/text/en_us/ModuleText.xml",
+        content: renderModuleText(),
       },
     ],
   };
@@ -431,7 +456,12 @@ export function buildSwooperRunGeneratedModFilePlan(
   const config = input.config;
   const renderMode = {
     kind: "studio-run",
-    dependencyModules: [{ id: "swooper-maps", title: "LOC_MODULE_SWOOPER_MAPS_NAME" }],
+    dependencyModules: [
+      {
+        id: SWOOPER_MAPS_MOD_DEFINITION.id,
+        title: moduleLocalizationTag("name"),
+      },
+    ],
     mapRowId: STUDIO_RUN_MAP_ROW_ID,
     moduleId: STUDIO_RUN_MOD_ID,
   } satisfies SwooperModRenderMode;

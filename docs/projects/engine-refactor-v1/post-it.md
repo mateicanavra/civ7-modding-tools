@@ -30,11 +30,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** the Studio recipe-type generator owns five related build
-outputs but mutates them through independent writes plus bespoke cleanup for a
-retired ignored output. Its source derivation and catalog admission are
-coherent; its materialization is not yet expressed as one complete product
-plan.
+**Current container:** Swooper map-artifact generation still fuses authored
+product metadata, Studio catalog projection, Civ7 XML and entrypoint lowering,
+generated-currentness, and deployable mod realization. The eventual definition
+and app split is a hard-cut ownership migration, not an earned folder move in
+this cleanup buffer. First make the present boundary honest: definition
+semantics are admitted once, while the deployable realization only lowers that
+admitted product into a complete generated-file plan.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -51,13 +53,14 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** derive every Studio recipe type/schema/default artifact in memory,
-validate the shipped catalog before mutation, and apply one canonical generated
-file plan. Replace the direct writes and bespoke retired-output deletion with a
-narrow plan-owned replacement set, and keep that mutation target uncached so
-ignored stale output cannot bypass cleanup. Freeze through the real Nx-owned
-generation/build path, output identity, dead-code proof, and focused
-architecture and quality review.
+**Gradient:** classify the current map-artifact generator by definition versus
+realization responsibility. Lift product names, descriptions, hazards, and
+catalog facts out of XML/string rendering when they are still hidden there;
+admit one immutable product definition; lower it into generated entrypoints,
+module metadata, localization, and data XML through one complete plan. Delete
+duplicate catalog projections and repository-path coupling rather than move
+them. Freeze through generated currentness, the real Civ7 bundle, Studio
+consumption, dead-code proof, and focused architecture and product review.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -100,6 +103,17 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Studio Recipe Output Plan Sealed
+
+The Standard recipe generator now derives its executable bundle metadata,
+schema, defaults, TypeScript declarations, and artifact catalog in memory,
+admits the complete shipped catalog before mutation, and applies one canonical
+five-file product plan. The retired ignored presets output is owned by a narrow
+replacement set, and the uncached Nx generation target prevents stale ignored
+output from surviving a cache hit. Direct idempotence, stale-output removal,
+the full Studio/Swooper graph, Knip, Habitat, and fresh architecture review
+sealed the cut.
 
 ### 2026-07-28 - Studio Exact Authorship Source Evidence Sealed
 

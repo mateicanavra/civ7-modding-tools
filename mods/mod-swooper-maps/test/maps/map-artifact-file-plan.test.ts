@@ -15,6 +15,7 @@ import {
   type ValidatedMapConfig,
   validateCanonicalMapConfig,
 } from "../../src/maps/configs/canonical";
+import { SWOOPER_MAPS_MOD_DEFINITION } from "../../src/mod-definition";
 import {
   buildStandardRecipeDefaultConfig,
   STANDARD_RECIPE_CONFIG_SCHEMA,
@@ -85,13 +86,14 @@ describe("Swooper map artifact file plan", () => {
       expect(paths.has(`src/maps/generated/${config.canonicalConfig.id}.ts`)).toBe(true);
     }
     expect(paths.has("mod/config/config.xml")).toBe(true);
-    expect(paths.has("mod/swooper-maps.modinfo")).toBe(true);
+    expect(paths.has(`mod/${SWOOPER_MAPS_MOD_DEFINITION.id}.modinfo`)).toBe(true);
     expect(paths.has("mod/data/biome-hazards.xml")).toBe(true);
     expect(paths.has("mod/text/en_us/MapText.xml")).toBe(true);
+    expect(paths.has("mod/text/en_us/ModuleText.xml")).toBe(true);
     expect(paths.has("dist/recipes/standard-map-config.schema.json")).toBe(true);
     expect(paths.has("dist/recipes/standard-map-configs.js")).toBe(true);
     expect(paths.has("dist/recipes/standard-map-configs.d.ts")).toBe(true);
-    expect(files).toHaveLength(configs.length + 7);
+    expect(files).toHaveLength(configs.length + 8);
     expect(files.every((file) => file.content.length > 0)).toBe(true);
   });
 
@@ -162,9 +164,10 @@ describe("Swooper map artifact file plan", () => {
     expect(plan.files.map((file) => file.relativePath)).toEqual([
       "src/maps/generated/fixture-map.ts",
       "mod/config/config.xml",
-      "mod/swooper-maps.modinfo",
+      `mod/${SWOOPER_MAPS_MOD_DEFINITION.id}.modinfo`,
       "mod/data/biome-hazards.xml",
       "mod/text/en_us/MapText.xml",
+      "mod/text/en_us/ModuleText.xml",
       "dist/recipes/standard-map-config.schema.json",
       "dist/recipes/standard-map-configs.js",
       "dist/recipes/standard-map-configs.d.ts",
@@ -192,7 +195,7 @@ describe("Swooper map artifact file plan", () => {
 <Database>
 \t<Maps>
 \t\t<Row
-\t\t\tFile="{swooper-maps}/maps/fixture-map.js"
+\t\t\tFile="{${SWOOPER_MAPS_MOD_DEFINITION.id}}/maps/fixture-map.js"
 \t\t\tName="LOC_MAP_FIXTURE_MAP_NAME"
 \t\t\tDescription="LOC_MAP_FIXTURE_MAP_DESCRIPTION"
 \t\t\tSortIndex="7"
@@ -206,12 +209,30 @@ describe("Swooper map artifact file plan", () => {
     expect(mapText).toContain("LOC_PLOTEFFECT_DESERT_HEAT_NAME");
     expect(mapText).toContain("LOC_PLOTEFFECT_FROSTBITE_NAME");
     expect(mapText).toContain("LOC_PLOTEFFECT_JUNGLE_FEVER_NAME");
-    expect(textContent(plannedFile(plan, "mod/swooper-maps.modinfo"))).toContain(
-      "\t\t\t\t\t<Item>maps/fixture-map.js</Item>"
+    const modInfo = textContent(plannedFile(plan, `mod/${SWOOPER_MAPS_MOD_DEFINITION.id}.modinfo`));
+    const moduleTag = SWOOPER_MAPS_MOD_DEFINITION.id.toUpperCase().replaceAll("-", "_");
+    expect(modInfo).toContain(
+      `<Mod id="${SWOOPER_MAPS_MOD_DEFINITION.id}" version="${SWOOPER_MAPS_MOD_DEFINITION.version}" xmlns="ModInfo">`
     );
+    expect(modInfo).toContain(`<Name>LOC_MODULE_${moduleTag}_NAME</Name>`);
+    expect(modInfo).toContain(`<Description>LOC_MODULE_${moduleTag}_DESCRIPTION</Description>`);
+    expect(modInfo).toContain(
+      `<Authors>${SWOOPER_MAPS_MOD_DEFINITION.authors.join(", ")}</Authors>`
+    );
+    expect(modInfo).toContain(`<Package>${SWOOPER_MAPS_MOD_DEFINITION.packageKind}</Package>`);
+    for (const dependency of SWOOPER_MAPS_MOD_DEFINITION.dependencies) {
+      expect(modInfo).toContain(`<Mod id="${dependency.id}" title="${dependency.title}"/>`);
+    }
+    expect(modInfo).toContain("<File>text/en_us/ModuleText.xml</File>");
+    expect(modInfo).toContain("\t\t\t\t\t<Item>maps/fixture-map.js</Item>");
     expect(textContent(plannedFile(plan, "mod/data/biome-hazards.xml"))).toContain(
       '<Row PlotEffectType="PLOTEFFECT_DESERT_HEAT" Name="LOC_PLOTEFFECT_DESERT_HEAT_NAME"'
     );
+    const moduleText = textContent(plannedFile(plan, "mod/text/en_us/ModuleText.xml"));
+    expect(moduleText).toContain(
+      `<Text>${SWOOPER_MAPS_MOD_DEFINITION.name.replaceAll("'", "&apos;")}</Text>`
+    );
+    expect(moduleText).toContain(`<Text>${SWOOPER_MAPS_MOD_DEFINITION.description}</Text>`);
     expect(
       JSON.parse(textContent(plannedFile(plan, "dist/recipes/standard-map-config.schema.json")))
     ).toEqual(JSON.parse(JSON.stringify(fixtureEnvelopeSchema)));
@@ -322,6 +343,10 @@ describe("Swooper map artifact file plan", () => {
     );
     expect(modInfo).not.toContain('id="game-swooper-maps"');
     expect(modInfo).not.toContain('id="shell-swooper-maps"');
+    expect(modInfo).toContain(
+      `<Mod id="${SWOOPER_MAPS_MOD_DEFINITION.id}" title="LOC_MODULE_SWOOPER_MAPS_NAME"/>`
+    );
+    expect(modInfo).not.toContain('id="base-standard"');
     expect(configXml).toContain('File="{mod-swooper-studio-run}/maps/studio-run.js"');
     expect(configXml).toContain('Name="LOC_MAP_MAP_STUDIO_RUN_NAME"');
     expect(mapSource).toContain(JSON.stringify(fixtureConfig.canonicalConfig, null, 2));

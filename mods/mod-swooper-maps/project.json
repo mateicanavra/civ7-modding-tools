@@ -129,16 +129,18 @@
         "^default",
         "!{projectRoot}/src/maps/generated/**",
         "!{projectRoot}/mod/config/config.xml",
-        "!{projectRoot}/mod/swooper-maps.modinfo",
+        "!{projectRoot}/mod/*.modinfo",
         "!{projectRoot}/mod/data/biome-hazards.xml",
-        "!{projectRoot}/mod/text/en_us/MapText.xml"
+        "!{projectRoot}/mod/text/en_us/MapText.xml",
+        "!{projectRoot}/mod/text/en_us/ModuleText.xml"
       ],
       "outputs": [
         "{projectRoot}/src/maps/generated/**",
         "{projectRoot}/mod/config/config.xml",
-        "{projectRoot}/mod/swooper-maps.modinfo",
+        "{projectRoot}/mod/*.modinfo",
         "{projectRoot}/mod/data/biome-hazards.xml",
-        "{projectRoot}/mod/text/en_us/MapText.xml"
+        "{projectRoot}/mod/text/en_us/MapText.xml",
+        "{projectRoot}/mod/text/en_us/ModuleText.xml"
       ],
       "options": {
         "cwd": "mods/mod-swooper-maps"
@@ -152,9 +154,10 @@
         "^default",
         "!{projectRoot}/src/maps/generated/**",
         "!{projectRoot}/mod/config/config.xml",
-        "!{projectRoot}/mod/swooper-maps.modinfo",
+        "!{projectRoot}/mod/*.modinfo",
         "!{projectRoot}/mod/data/biome-hazards.xml",
         "!{projectRoot}/mod/text/en_us/MapText.xml",
+        "!{projectRoot}/mod/text/en_us/ModuleText.xml",
         {
           "env": "SWOOPER_STUDIO_DEPLOY_CONFIG_ID"
         },
@@ -165,9 +168,10 @@
       "outputs": [
         "{projectRoot}/src/maps/generated/**",
         "{projectRoot}/mod/config/config.xml",
-        "{projectRoot}/mod/swooper-maps.modinfo",
+        "{projectRoot}/mod/*.modinfo",
         "{projectRoot}/mod/data/biome-hazards.xml",
-        "{projectRoot}/mod/text/en_us/MapText.xml"
+        "{projectRoot}/mod/text/en_us/MapText.xml",
+        "{projectRoot}/mod/text/en_us/ModuleText.xml"
       ],
       "options": {
         "cwd": "mods/mod-swooper-maps"
