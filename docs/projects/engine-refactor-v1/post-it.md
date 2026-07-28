@@ -2,7 +2,7 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Evidence. Product. Source. Observation. Deletion.
+**Attractor filter:** Plan. Output. Admission. Completeness. Simplicity.
 
 **Frame:** kind before instance, intent before ownership, authority before
 relocation. A closed file shape is the start of semantic review, not proof that
@@ -30,12 +30,11 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** Studio's exact-authorship contract still admits
-`sourceConfig` and `generatedSourceScript` file identities even though its only
-production workflow always builds one request-local mod and the generator no
-longer materializes compiler source. This leaves an unreachable alternate
-evidence model beside the real manifest, generated-tree, bundled-script,
-deployment, setup, runtime, and log chain.
+**Current container:** the Studio recipe-type generator owns five related build
+outputs but mutates them through independent writes plus bespoke cleanup for a
+retired ignored output. Its source derivation and catalog admission are
+coherent; its materialization is not yet expressed as one complete product
+plan.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -52,12 +51,13 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** delete the two source-file fields from the wire contract,
-authorship builder, engine probe, and tests. Require request-local generation
-manifest and final-tree evidence for every completed authorship chain; retain
-the bundled local/deployed script identities and content markers as the exact
-observable product. Freeze with focused Studio contract/runtime behavior, the
-affected Nx graph, dead-code proof, and fresh architecture and quality review.
+**Gradient:** derive every Studio recipe type/schema/default artifact in memory,
+validate the shipped catalog before mutation, and apply one canonical generated
+file plan. Replace the direct writes and bespoke retired-output deletion with a
+narrow plan-owned replacement set, and keep that mutation target uncached so
+ignored stale output cannot bypass cleanup. Freeze through the real Nx-owned
+generation/build path, output identity, dead-code proof, and focused
+architecture and quality review.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -100,6 +100,17 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Studio Exact Authorship Source Evidence Sealed
+
+Studio exact authorship now follows one request-generated mod evidence chain.
+The unreachable source-config identity, deleted compiler-source probe, alternate
+legacy predicate, and duplicate script-evidence override channel retired.
+Complete evidence positively requires the generation manifest, artifact/root,
+generated tree count and digest, map row, bundled local/deployed scripts,
+content markers, setup/runtime readback, and parsed log evidence. Focused
+behavior, the complete Studio Nx graph, Habitat, dead-code proof, and fresh
+architecture and quality review sealed the cut.
 
 ### 2026-07-28 - Run Compiler Source Sealed
 

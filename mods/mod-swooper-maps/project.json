@@ -213,7 +213,7 @@
     "gen:studio-recipes-types": {
       "command": "bun ./scripts/generate-studio-recipe-types.ts",
       "dependsOn": ["build:studio-recipes:bundle"],
-      "cache": true,
+      "cache": false,
       "outputs": [
         "{projectRoot}/dist/recipes/standard.schema.json",
         "{projectRoot}/dist/recipes/standard.defaults.json",
