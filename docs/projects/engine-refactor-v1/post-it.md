@@ -2,7 +2,7 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Source. Product. Plan. Memory. Deletion.
+**Attractor filter:** Evidence. Product. Source. Observation. Deletion.
 
 **Frame:** kind before instance, intent before ownership, authority before
 relocation. A closed file shape is the start of semantic review, not proof that
@@ -30,13 +30,12 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** the Studio run generator materializes a temporary
-TypeScript entrypoint as a generated-product file, applies one plan, reads that
-file back into esbuild, applies a second plan, and reports the deleted compiler
-input alongside repeated manifest and constant identities. Compiler input is
-invocation-local memory; one final file plan should describe and materialize
-the exact run mod tree, and the command result should retain only the generated
-artifact id and root its caller actually consumes.
+**Current container:** Studio's exact-authorship contract still admits
+`sourceConfig` and `generatedSourceScript` file identities even though its only
+production workflow always builds one request-local mod and the generator no
+longer materializes compiler source. This leaves an unreachable alternate
+evidence model beside the real manifest, generated-tree, bundled-script,
+deployment, setup, runtime, and log chain.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -53,12 +52,12 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** render the run entrypoint in memory, bundle it through esbuild
-`stdin`, place the bundled script directly in the final product plan, and apply
-that plan once. Retain only the final plan's replacement intent for stale
-predecessor source on a supported retry; delete the false generator summary
-fields. Freeze with exact owned-file and Civ7 bundle behavior, the Swooper
-graph, dead-code proof, and fresh SDK and product review.
+**Gradient:** delete the two source-file fields from the wire contract,
+authorship builder, engine probe, and tests. Require request-local generation
+manifest and final-tree evidence for every completed authorship chain; retain
+the bundled local/deployed script identities and content markers as the exact
+observable product. Freeze with focused Studio contract/runtime behavior, the
+affected Nx graph, dead-code proof, and fresh architecture and quality review.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -101,6 +100,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Run Compiler Source Sealed
+
+Studio run generation now renders its TypeScript entrypoint in memory, feeds it
+to esbuild through `stdin`, and applies one final four-file product plan. No
+compiler input is materialized or reported; the final plan alone retains narrow
+replacement intent for stale predecessor source on a supported retry. Focused
+generator behavior, the affected Nx graph, dead-code proof, the staged Habitat
+hook, and fresh architecture and quality review sealed the cut.
 
 ### 2026-07-28 - Validated Map Config Identity Sealed
 

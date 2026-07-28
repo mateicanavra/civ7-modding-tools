@@ -723,33 +723,33 @@ describe("Run in Game exact authorship evidence identity", () => {
     expect(Object.isFrozen(evidence.unresolvedLinks)).toBe(true);
   });
 
-  it("uses request-local generated mod evidence instead of legacy source-script links", () => {
+  it("requires the complete request-generated mod identity for exact authorship", () => {
     const args = completeEvidenceArgs();
     const evidence = buildRunInGameExactAuthorshipEvidence({
       ...args,
       materialization: {
-        ...args.materialization,
-        path: ".mapgen-studio/run-in-game/run-test/generated-mod",
-        generationManifestDigest: "generation-manifest-hash",
-        runArtifactId: "run-test",
-        generatedModRoot: "/tmp/studio-run/run-test/generated-mod",
-        generatedModFileCount: 4,
-        generatedModDigest: "generated-mod-tree-hash",
-        mapRowId: "MAP_STUDIO_RUN",
+        path: args.materialization.path,
+        mapScript: args.materialization.mapScript,
+        canonicalConfigDigest: args.materialization.canonicalConfigDigest,
+        launchEnvelopeDigest: args.materialization.launchEnvelopeDigest,
+        localModScript: args.materialization.localModScript,
+        deployedModScript: args.materialization.deployedModScript,
+        localModScriptContent: args.materialization.localModScriptContent,
+        deployedModScriptContent: args.materialization.deployedModScriptContent,
       },
-      sourceConfig: undefined,
-      generatedSourceScript: undefined,
     });
 
-    expect(evidence.status).toBe("complete");
-    expect(evidence.unresolvedLinks).not.toContain("materialization.source-config-file");
-    expect(evidence.unresolvedLinks).not.toContain("materialization.generated-source-script");
-    expect(evidence.materialization).toMatchObject({
-      generationManifestDigest: "generation-manifest-hash",
-      runArtifactId: "run-test",
-      generatedModDigest: "generated-mod-tree-hash",
-      mapRowId: "MAP_STUDIO_RUN",
-    });
+    expect(evidence.status).toBe("unresolved");
+    expect(evidence.unresolvedLinks).toEqual(
+      expect.arrayContaining([
+        "materialization.generation-manifest-digest",
+        "materialization.run-artifact-id",
+        "materialization.generated-mod-root",
+        "materialization.generated-mod-file-count",
+        "materialization.generated-mod-digest",
+        "materialization.map-row-id",
+      ])
+    );
   });
 
   it("keeps exact authorship unresolved when setup, runtime, log, or deployed content differs", () => {
@@ -763,7 +763,10 @@ describe("Run in Game exact authorship evidence identity", () => {
         seed: 43,
         dimensions: { width: 84, height: 55 },
       },
-      deployedModScript: fileEvidence("deployed.js", "different-deployed-hash"),
+      materialization: {
+        ...args.materialization,
+        deployedModScript: fileEvidence("deployed.js", "different-deployed-hash"),
+      },
     });
 
     expect(evidence.status).toBe("unresolved");
@@ -832,8 +835,6 @@ describe("Run in Game exact authorship evidence identity", () => {
           { "run-request-id": false }
         ),
       },
-      localModScript: args.localModScript,
-      deployedModScript: args.deployedModScript,
       requiredMarkers: runInGameRequiredMaterializationMarkers({
         requestId,
         canonicalConfigDigest: configHash,
@@ -896,10 +897,6 @@ function completeEvidenceArgs(): Parameters<typeof buildRunInGameExactAuthorship
       localModScriptContent: contentEvidence(localModScript.path),
       deployedModScriptContent: contentEvidence(deployedModScript.path),
     },
-    sourceConfig: fileEvidence("configs/studio-current.config.json", "source-config-hash"),
-    generatedSourceScript: fileEvidence("generated/studio-current.ts", "generated-source-hash"),
-    localModScript,
-    deployedModScript,
     lifecycleSetup: {
       mapScript,
       mapSize: "MAPSIZE_STANDARD",

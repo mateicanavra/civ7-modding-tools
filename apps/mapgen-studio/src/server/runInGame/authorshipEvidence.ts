@@ -2,7 +2,6 @@ import type { Civ7LifecycleSinglePlayerStartResult } from "@civ7/control-orpc";
 import { snapshotRunInGameExactAuthorshipEvidence } from "@civ7/studio-contract";
 import type {
   RunInGameContentMarkerEvidence,
-  RunInGameFileIdentity,
   RunInGameMaterializationStatus,
   RunInGameRequestStatus,
 } from "@civ7/studio-server";
@@ -16,10 +15,6 @@ export function buildRunInGameExactAuthorshipEvidence(args: {
   requestId: string;
   request?: RunInGameRequestStatus;
   materialization: RunInGameMaterializationStatus;
-  sourceConfig?: RunInGameFileIdentity;
-  generatedSourceScript?: RunInGameFileIdentity;
-  localModScript?: RunInGameFileIdentity;
-  deployedModScript?: RunInGameFileIdentity;
   lifecycleSetup: Civ7LifecycleSinglePlayerStartResult["evidence"]["setup"];
   lifecycleRuntime: Civ7LifecycleSinglePlayerStartResult["evidence"]["runtime"];
   logEvidence?: RunInGameDetailedExactAuthorshipEvidence["log"];
@@ -35,12 +30,8 @@ export function buildRunInGameExactAuthorshipEvidence(args: {
   const runtimeSummary = args.lifecycleRuntime;
   const runtimeTurn = runtimeSummary.turn ?? args.liveRuntimeSnapshot?.turn;
   const runtimeGameHash = runtimeSummary.gameHash ?? args.liveRuntimeSnapshot?.gameHash;
-  const sourceConfig = args.sourceConfig ?? args.materialization.sourceConfig;
-  const generatedSourceScript =
-    args.generatedSourceScript ?? args.materialization.generatedSourceScript;
-  const localModScript = args.localModScript ?? args.materialization.localModScript;
-  const deployedModScript = args.deployedModScript ?? args.materialization.deployedModScript;
-  const usesRequestGeneratedMod = isRequestGeneratedModMaterialization(args.materialization);
+  const localModScript = args.materialization.localModScript;
+  const deployedModScript = args.materialization.deployedModScript;
   const unresolvedLinks: string[] = [];
   const requiredMaterializationMarkers =
     args.materialization.canonicalConfigDigest && args.materialization.launchEnvelopeDigest
@@ -52,8 +43,6 @@ export function buildRunInGameExactAuthorshipEvidence(args: {
       : undefined;
   const materializationScriptLinks = runInGameMaterializationScriptUnresolvedLinks({
     materialization: args.materialization,
-    localModScript,
-    deployedModScript,
     requiredMarkers: requiredMaterializationMarkers,
   });
 
@@ -86,45 +75,32 @@ export function buildRunInGameExactAuthorshipEvidence(args: {
     Boolean(args.materialization.launchEnvelopeDigest),
     "materialization.launch-envelope-digest"
   );
-  if (usesRequestGeneratedMod) {
-    addMissing(
-      unresolvedLinks,
-      Boolean(args.materialization.generationManifestDigest),
-      "materialization.generation-manifest-digest"
-    );
-    addMissing(
-      unresolvedLinks,
-      Boolean(args.materialization.runArtifactId),
-      "materialization.run-artifact-id"
-    );
-    addMissing(
-      unresolvedLinks,
-      Boolean(args.materialization.generatedModRoot),
-      "materialization.generated-mod-root"
-    );
-    addMissing(
-      unresolvedLinks,
-      args.materialization.generatedModFileCount !== undefined,
-      "materialization.generated-mod-file-count"
-    );
-    addMissing(
-      unresolvedLinks,
-      Boolean(args.materialization.generatedModDigest),
-      "materialization.generated-mod-digest"
-    );
-    addMissing(
-      unresolvedLinks,
-      Boolean(args.materialization.mapRowId),
-      "materialization.map-row-id"
-    );
-  } else {
-    addMissing(unresolvedLinks, Boolean(sourceConfig), "materialization.source-config-file");
-    addMissing(
-      unresolvedLinks,
-      Boolean(generatedSourceScript),
-      "materialization.generated-source-script"
-    );
-  }
+  addMissing(
+    unresolvedLinks,
+    Boolean(args.materialization.generationManifestDigest),
+    "materialization.generation-manifest-digest"
+  );
+  addMissing(
+    unresolvedLinks,
+    Boolean(args.materialization.runArtifactId),
+    "materialization.run-artifact-id"
+  );
+  addMissing(
+    unresolvedLinks,
+    Boolean(args.materialization.generatedModRoot),
+    "materialization.generated-mod-root"
+  );
+  addMissing(
+    unresolvedLinks,
+    args.materialization.generatedModFileCount !== undefined,
+    "materialization.generated-mod-file-count"
+  );
+  addMissing(
+    unresolvedLinks,
+    Boolean(args.materialization.generatedModDigest),
+    "materialization.generated-mod-digest"
+  );
+  addMissing(unresolvedLinks, Boolean(args.materialization.mapRowId), "materialization.map-row-id");
   addMissing(unresolvedLinks, Boolean(localModScript), "materialization.local-mod-script");
   addMissing(unresolvedLinks, Boolean(deployedModScript), "materialization.deployed-mod-script");
   addMissing(unresolvedLinks, args.lifecycleSetup.mapRowFiles.length > 0, "civ-setup.map-row");
@@ -297,8 +273,6 @@ export function buildRunInGameExactAuthorshipEvidence(args: {
       ...(args.materialization.mapRowId === undefined
         ? {}
         : { mapRowId: args.materialization.mapRowId }),
-      ...(sourceConfig ? { sourceConfig } : {}),
-      ...(generatedSourceScript ? { generatedSourceScript } : {}),
       ...(localModScript ? { localModScript } : {}),
       ...(deployedModScript ? { deployedModScript } : {}),
       ...(args.materialization.localModScriptContent
@@ -350,12 +324,10 @@ function isDetailedExactAuthorshipEvidence(
 
 export function runInGameMaterializationScriptUnresolvedLinks(args: {
   materialization: RunInGameMaterializationStatus;
-  localModScript?: RunInGameFileIdentity;
-  deployedModScript?: RunInGameFileIdentity;
   requiredMarkers?: ReadonlyArray<RunInGameRequiredContentMarker>;
 }): string[] {
-  const localModScript = args.localModScript ?? args.materialization.localModScript;
-  const deployedModScript = args.deployedModScript ?? args.materialization.deployedModScript;
+  const localModScript = args.materialization.localModScript;
+  const deployedModScript = args.materialization.deployedModScript;
   const links: string[] = [];
   addStringMismatch(
     links,
@@ -398,19 +370,6 @@ export function runInGameMaterializationScriptUnresolvedLinks(args: {
     args.requiredMarkers
   );
   return links;
-}
-
-function isRequestGeneratedModMaterialization(
-  materialization: RunInGameMaterializationStatus
-): boolean {
-  return (
-    materialization.generationManifestDigest !== undefined ||
-    materialization.runArtifactId !== undefined ||
-    materialization.generatedModRoot !== undefined ||
-    materialization.generatedModFileCount !== undefined ||
-    materialization.generatedModDigest !== undefined ||
-    materialization.mapRowId !== undefined
-  );
 }
 
 function pushMissingContentMarkers(
