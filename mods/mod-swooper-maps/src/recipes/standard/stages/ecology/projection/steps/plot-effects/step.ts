@@ -2,23 +2,9 @@ import type { PlotEffectKey } from "@civ7/map-policy";
 import type { PlotEffectIntentKey } from "@mapgen/domain/ecology/modules/plot-effects/model/atoms/index.js";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { defineStandardVizCategoryMeta } from "../../../../../viz.js";
+import { PLOT_EFFECT_PROJECTION_POLICY } from "../../model/policy/plot-effect-projection.js";
 import { config } from "./config.js";
 import { PLOT_EFFECT_VIZ_CATEGORIES, plotEffectVizValue } from "./viz.js";
-
-/**
- * Exhaustive projection from Ecology plot-effect intent to Civ7 runtime keys. Keeping this map
- * explicit prevents the projection stage from reinterpreting semantic effect choices.
- */
-const PLOT_EFFECT_KEY_BY_INTENT: Readonly<Record<PlotEffectIntentKey, PlotEffectKey>> = {
-  "snow-light": "PLOTEFFECT_SNOW_LIGHT_PERMANENT",
-  "snow-medium": "PLOTEFFECT_SNOW_MEDIUM_PERMANENT",
-  "snow-heavy": "PLOTEFFECT_SNOW_HEAVY_PERMANENT",
-  sand: "PLOTEFFECT_SAND",
-  burned: "PLOTEFFECT_BURNED",
-  frostbite: "PLOTEFFECT_FROSTBITE",
-  "desert-heat": "PLOTEFFECT_DESERT_HEAT",
-  "jungle-fever": "PLOTEFFECT_JUNGLE_FEVER",
-};
 
 type PlotEffectPlacement = Readonly<{
   x: number;
@@ -53,7 +39,7 @@ function applyPlotEffectPlacements(
   const resolved = new Map<PlotEffectKey, number>();
 
   for (const placement of placements) {
-    const engineKey = PLOT_EFFECT_KEY_BY_INTENT[placement.plotEffect];
+    const engineKey = PLOT_EFFECT_PROJECTION_POLICY[placement.plotEffect].engineKey;
     let plotEffectType = resolved.get(engineKey);
     if (plotEffectType == null) {
       plotEffectType = resolvePlotEffectIndex(engine, engineKey);

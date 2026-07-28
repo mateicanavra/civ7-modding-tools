@@ -20,6 +20,7 @@ import {
   buildStandardRecipeDefaultConfig,
   STANDARD_RECIPE_CONFIG_SCHEMA,
 } from "../../src/recipes/standard/artifacts";
+import { CUSTOM_PLOT_EFFECT_HAZARD_PROJECTIONS } from "../../src/recipes/standard/stages/ecology/projection/model/policy/plot-effect-projection";
 import { TEST_MAP_SEED } from "../setup.js";
 
 const recipeSchema = STANDARD_RECIPE_CONFIG_SCHEMA;
@@ -241,6 +242,32 @@ describe("Swooper map artifact file plan", () => {
     expect(catalogModule).toContain(JSON.stringify([fixtureConfig.canonicalConfig], null, 2));
   });
 
+  it("projects every custom hazard definition into matching localization and gameplay rows", () => {
+    const plan = buildSwooperCatalogModFilePlan({ configs: [buildFixtureConfig()] });
+    const mapText = textContent(plannedFile(plan, "mod/text/en_us/MapText.xml"));
+    const hazardData = textContent(plannedFile(plan, "mod/data/biome-hazards.xml"));
+
+    for (const { customHazard } of CUSTOM_PLOT_EFFECT_HAZARD_PROJECTIONS) {
+      expect(mapText).toContain(`\t\t<Row Tag="${customHazard.localizationTag}">
+\t\t\t<Text>${customHazard.localizationText}</Text>
+\t\t</Row>`);
+    }
+    expect(hazardData).toBe(`<?xml version="1.0" encoding="utf-8"?>
+<Database>
+  <Types>
+    <Row Type="PLOTEFFECT_DESERT_HEAT" Kind="KIND_PLOTEFFECT"/>
+    <Row Type="PLOTEFFECT_FROSTBITE" Kind="KIND_PLOTEFFECT"/>
+    <Row Type="PLOTEFFECT_JUNGLE_FEVER" Kind="KIND_PLOTEFFECT"/>
+  </Types>
+  <PlotEffects>
+    <Row PlotEffectType="PLOTEFFECT_DESERT_HEAT" Name="LOC_PLOTEFFECT_DESERT_HEAT_NAME" TimeDecay="false" UnoccupiedDecay="false" TimeValue="1" Damage="11" Defense="0" AllowOnWater="false"/>
+    <Row PlotEffectType="PLOTEFFECT_FROSTBITE" Name="LOC_PLOTEFFECT_FROSTBITE_NAME" TimeDecay="false" UnoccupiedDecay="false" TimeValue="1" Damage="11" Defense="0" AllowOnWater="false"/>
+    <Row PlotEffectType="PLOTEFFECT_JUNGLE_FEVER" Name="LOC_PLOTEFFECT_JUNGLE_FEVER_NAME" TimeDecay="false" UnoccupiedDecay="false" TimeValue="1" Damage="11" Defense="0" AllowOnWater="false"/>
+  </PlotEffects>
+</Database>
+`);
+  });
+
   it("renders Studio catalog metadata without runtime mod artifacts", () => {
     const fixtureConfig = buildFixtureConfig();
     const plan = buildSwooperCatalogMetadataFilePlan({
@@ -311,6 +338,7 @@ describe("Swooper map artifact file plan", () => {
     const modInfo = textContent(plannedFile(plan, "mod-swooper-studio-run.modinfo"));
     const configXml = textContent(plannedFile(plan, "config/config.xml"));
     const mapScript = textContent(plannedFile(plan, STUDIO_RUN_MAP_SCRIPT_PATH));
+    const mapText = textContent(plannedFile(plan, "text/en_us/MapText.xml"));
     const mapSource = renderSwooperRunMapSource(input);
     expect(plan.files.map((file) => file.relativePath).sort()).toEqual([
       "config/config.xml",
@@ -345,5 +373,8 @@ describe("Swooper map artifact file plan", () => {
     );
     expect(mapSource).toContain("project: projectStandardInitialSetup");
     expect(mapSource).toContain(JSON.stringify(correlation, null, 2));
+    for (const { customHazard } of CUSTOM_PLOT_EFFECT_HAZARD_PROJECTIONS) {
+      expect(mapText).not.toContain(customHazard.localizationTag);
+    }
   });
 });

@@ -30,14 +30,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** Swooper's biome-hazard catalog is still re-derived in
-two realization paths: the Standard Ecology projection step binds abstract
-hazard intents to Civ7 runtime identifiers, while the generated XML renderer
-separately owns labels and gameplay rows. The eventual definition/plugin and
-deployable-app split remains a hard-cut ownership migration, not an earned
-folder move in this cleanup buffer. First establish one recipe-projection
-authority that both current realizations consume without moving Swooper domain
-meaning into Core, Civ7 policy, or the adapter.
+**Current container:** consumed-export documentation remains a universal
+engineering contract, but its acquisition still reflects selected historical
+MapGen roots rather than the generic source graph. The next cut makes the law
+truthful over every supported module/package surface, preserves semantic JSDoc
+and schema descriptions, and burns the newly visible corpus to zero after
+dead-code proof. The eventual definition/plugin and deployable-app split remains
+a coordinated hard-cut ownership migration, not an earned folder move inside
+this documentation ratchet.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -54,13 +54,13 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** name the complete biome-hazard projection catalog at the nearest
-truthful Standard Ecology stage owner; include intent identity, Civ7 binding,
-label, and gameplay-row policy once. Project runtime effect application and
-deployable XML from that admitted catalog. Preserve run-mod behavior, which
-depends on the durable Swooper module and must not duplicate hazard data. Then
-freeze through generated currentness, the real Civ7 bundle, focused behavior,
-dead-code proof, and architecture/product review.
+**Gradient:** inspect the existing JSDoc kind law and its acquisition boundary;
+separate supported source declarations from generated output and historical
+baselines; admit consumed exported values generically rather than enumerating
+today's domain or recipe roots; turn the complete honest corpus red; remove dead
+exports first; then write concise semantic documentation that states purpose,
+behavior, invariants, flow, and gotchas without comment theater. Seal at zero
+with focused fixtures, dead-code proof, and staged-hook execution.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -103,6 +103,17 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Biome Hazard Projection Policy Sealed
+
+One immutable Standard Ecology policy now owns every semantic plot-effect
+intent's Civ7 projection and the ordered custom hazard gameplay/localization
+catalog. Runtime application, durable XML, localization, and Standard mock
+registration derive from it; the generic Civ7 adapter no longer carries
+Swooper hazard identities. Studio run mods continue to depend on the durable
+module without duplicating its hazard data. Exact product output, all 521
+Swooper tests, adapter behavior, the affected type graph, generated currentness,
+boundaries, JSDoc, Knip, and fresh architecture/quality review sealed the cut.
 
 ### 2026-07-28 - Catalog Identity Membership Sealed
 

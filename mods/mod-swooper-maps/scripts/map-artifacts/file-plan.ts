@@ -12,6 +12,7 @@ import {
   type ValidatedMapConfig,
 } from "../../src/maps/configs/canonical.js";
 import { SWOOPER_MAPS_MOD_DEFINITION } from "../../src/mod-definition.js";
+import { CUSTOM_PLOT_EFFECT_HAZARD_PROJECTIONS } from "../../src/recipes/standard/stages/ecology/projection/model/policy/plot-effect-projection.js";
 
 /** Admitted config and correlation used to render one request-local Studio run mod. */
 export type SwooperRunGeneratedModPlanInput = Readonly<{
@@ -182,15 +183,11 @@ function renderMapText(
   const biomeHazardRows =
     mode.kind === "studio-run"
       ? ""
-      : `\t\t<Row Tag="LOC_PLOTEFFECT_DESERT_HEAT_NAME">
-\t\t\t<Text>Deep Desert Heat</Text>
-\t\t</Row>
-\t\t<Row Tag="LOC_PLOTEFFECT_FROSTBITE_NAME">
-\t\t\t<Text>Killing Frost</Text>
-\t\t</Row>
-\t\t<Row Tag="LOC_PLOTEFFECT_JUNGLE_FEVER_NAME">
-\t\t\t<Text>Jungle Fever</Text>
-\t\t</Row>`;
+      : CUSTOM_PLOT_EFFECT_HAZARD_PROJECTIONS.map(
+          ({ customHazard }) => `\t\t<Row Tag="${xmlEscape(customHazard.localizationTag)}">
+\t\t\t<Text>${xmlEscape(customHazard.localizationText)}</Text>
+\t\t</Row>`
+        ).join("\n");
   return `<?xml version="1.0" encoding="utf-8"?>
 <Database>
 \t<EnglishText>
@@ -242,17 +239,20 @@ function renderModuleText(): string {
 // <GameEffects xmlns="GameEffects"> <Modifier> form - a DIFFERENT root that rolls back if
 // nested in <Database>. No modifier needed here: PlotEffects.Damage is the whole mechanism.)
 function renderBiomeHazardData(): string {
+  const typeRows = CUSTOM_PLOT_EFFECT_HAZARD_PROJECTIONS.map(
+    ({ engineKey }) => `    <Row Type="${xmlEscape(engineKey)}" Kind="KIND_PLOTEFFECT"/>`
+  ).join("\n");
+  const plotEffectRows = CUSTOM_PLOT_EFFECT_HAZARD_PROJECTIONS.map(
+    ({ engineKey, customHazard }) =>
+      `    <Row PlotEffectType="${xmlEscape(engineKey)}" Name="${xmlEscape(customHazard.localizationTag)}" TimeDecay="${customHazard.timeDecay}" UnoccupiedDecay="${customHazard.unoccupiedDecay}" TimeValue="${customHazard.timeValue}" Damage="${customHazard.damage}" Defense="${customHazard.defense}" AllowOnWater="${customHazard.allowOnWater}"/>`
+  ).join("\n");
   return `<?xml version="1.0" encoding="utf-8"?>
 <Database>
   <Types>
-    <Row Type="PLOTEFFECT_DESERT_HEAT" Kind="KIND_PLOTEFFECT"/>
-    <Row Type="PLOTEFFECT_FROSTBITE" Kind="KIND_PLOTEFFECT"/>
-    <Row Type="PLOTEFFECT_JUNGLE_FEVER" Kind="KIND_PLOTEFFECT"/>
+${typeRows}
   </Types>
   <PlotEffects>
-    <Row PlotEffectType="PLOTEFFECT_DESERT_HEAT" Name="LOC_PLOTEFFECT_DESERT_HEAT_NAME" TimeDecay="false" UnoccupiedDecay="false" TimeValue="1" Damage="11" Defense="0" AllowOnWater="false"/>
-    <Row PlotEffectType="PLOTEFFECT_FROSTBITE" Name="LOC_PLOTEFFECT_FROSTBITE_NAME" TimeDecay="false" UnoccupiedDecay="false" TimeValue="1" Damage="11" Defense="0" AllowOnWater="false"/>
-    <Row PlotEffectType="PLOTEFFECT_JUNGLE_FEVER" Name="LOC_PLOTEFFECT_JUNGLE_FEVER_NAME" TimeDecay="false" UnoccupiedDecay="false" TimeValue="1" Damage="11" Defense="0" AllowOnWater="false"/>
+${plotEffectRows}
   </PlotEffects>
 </Database>
 `;

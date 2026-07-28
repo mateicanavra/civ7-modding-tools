@@ -1,4 +1,5 @@
 import { createMockAdapter, type MockAdapter } from "@civ7/adapter";
+import { DEFAULT_PLOT_EFFECT_TYPES, type MockPlotEffectType } from "@civ7/adapter/mock";
 import {
   type Civ7MapInfo,
   type Civ7StandardMapInfo,
@@ -22,6 +23,7 @@ import {
 import standardRecipe, {
   type StandardRecipeConfig,
 } from "../../../../src/recipes/standard/recipe.js";
+import { CUSTOM_PLOT_EFFECT_HAZARD_PROJECTIONS } from "../../../../src/recipes/standard/stages/ecology/projection/model/policy/plot-effect-projection.js";
 import {
   TEST_ALIVE_MAJOR_PLAYER_IDS,
   TEST_GAME_SEED,
@@ -45,6 +47,21 @@ type StandardRecipeTestMapInfoOverrides = Partial<
 /** Canonical admitted Earthlike configuration shared by Standard recipe product tests. */
 export const standardMapConfig = admitStandardMapConfig(swooperEarthlikeConfigRaw);
 
+const FIRST_STANDARD_CUSTOM_PLOT_EFFECT_TYPE_ID =
+  DEFAULT_PLOT_EFFECT_TYPES.reduce((maximum, effect) => Math.max(maximum, effect.id), -1) + 1;
+
+/** Civ7 base effects plus the Swooper hazards installed by the durable Standard mod. */
+export const STANDARD_RECIPE_TEST_PLOT_EFFECT_TYPES: readonly MockPlotEffectType[] = Object.freeze([
+  ...DEFAULT_PLOT_EFFECT_TYPES,
+  ...CUSTOM_PLOT_EFFECT_HAZARD_PROJECTIONS.map(({ engineKey }, offset) =>
+    Object.freeze({
+      id: FIRST_STANDARD_CUSTOM_PLOT_EFFECT_TYPE_ID + offset,
+      name: engineKey,
+      tags: Object.freeze([]),
+    })
+  ),
+]);
+
 /** Fresh mutable recipe configuration for tests that exercise one authored Standard knob. */
 export function createStandardRecipeTestConfig(): StandardRecipeConfig {
   return structuredClone(standardMapConfig.config) as StandardRecipeConfig;
@@ -57,6 +74,7 @@ export type StandardRecipeTestAdapterInput = Readonly<{
   mapSeed: number;
   gameSeed: number;
   aliveMajorPlayerIds: readonly number[];
+  plotEffectTypes: readonly MockPlotEffectType[];
 }>;
 
 /** Inputs exposed to narrowly scoped setup performed immediately before recipe execution. */
@@ -127,13 +145,14 @@ export function runStandardRecipeTestMap<TAdapter extends MockAdapter>(
   if (options.createAdapter) return runStandardRecipeTestMapWithAdapter(options);
   return runStandardRecipeTestMapWithAdapter({
     ...options,
-    createAdapter: ({ preset, mapInfo, mapSeed, aliveMajorPlayerIds }) =>
+    createAdapter: ({ preset, mapInfo, mapSeed, aliveMajorPlayerIds, plotEffectTypes }) =>
       createMockAdapter({
         ...preset.dimensions,
         mapInfo,
         mapSizeId: preset.id,
         aliveMajorPlayerIds,
         rng: createLabelRng(mapSeed),
+        plotEffectTypes,
       }),
   });
 }
@@ -158,6 +177,7 @@ function runStandardRecipeTestMapWithAdapter<TAdapter extends MockAdapter>(
     mapSeed: resolved.mapSeed,
     gameSeed: resolved.gameSeed,
     aliveMajorPlayerIds: resolved.aliveMajorPlayerIds,
+    plotEffectTypes: STANDARD_RECIPE_TEST_PLOT_EFFECT_TYPES,
   });
   const context = createMapContext({ setup: plan.setup, adapter });
   const preparation = { preset, context, adapter } as const;

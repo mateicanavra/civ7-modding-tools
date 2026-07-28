@@ -60,12 +60,13 @@ describe("discovery generation", () => {
   it("projects Civ7 discovery-generation counts without map-side discovery intents", () => {
     let discoveryGeneration: StandardDiscoveryPlacementMeasurements | undefined;
     const { adapter, context } = runStandardDiscoveryRecipe({
-      createAdapter: ({ preset, mapInfo, mapSeed }) =>
+      createAdapter: ({ preset, mapInfo, mapSeed, plotEffectTypes }) =>
         new PartiallyAcceptingDiscoveryAdapter({
           ...preset.dimensions,
           mapInfo,
           mapSizeId: preset.id,
           rng: createLabelRng(mapSeed),
+          plotEffectTypes,
         }),
       execution: {
         facets: {

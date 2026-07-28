@@ -7,11 +7,12 @@ import { runStandardRecipeTestMap } from "./fixtures/standard-recipe.js";
 describe("standard recipe RNG authority", () => {
   it("runs without consuming adapter RNG for authored generation", () => {
     const { context } = runStandardRecipeTestMap({
-      createAdapter: ({ preset }) =>
+      createAdapter: ({ preset, plotEffectTypes }) =>
         createMockAdapter({
           ...preset.dimensions,
           mapInfo: { ...preset.mapInfo },
           mapSizeId: preset.id,
+          plotEffectTypes,
           rng: () => {
             throw new Error("Standard recipe must not consume adapter RNG.");
           },

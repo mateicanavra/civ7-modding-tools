@@ -221,26 +221,36 @@ export const DEFAULT_LANDMASS_IDS: Record<LandmassIdName, number> = {
   ANY: -1,
 };
 
+/** One plot-effect registration exposed by the deterministic Civ7 engine test double. */
 export interface MockPlotEffectType {
-  id: number;
-  name: string;
-  tags: string[];
+  /** Mock runtime identifier returned to recipe projection code. */
+  readonly id: number;
+  /** Civ7 plot-effect key resolved by `getPlotEffectTypeIndex`. */
+  readonly name: string;
+  /** Search terms used by tag-based plot-effect queries in focused adapter tests. */
+  readonly tags: readonly string[];
 }
 
-export const DEFAULT_PLOT_EFFECT_TYPES: MockPlotEffectType[] = [
-  { id: 0, name: "PLOTEFFECT_SNOW_LIGHT_PERMANENT", tags: ["SNOW", "LIGHT", "PERMANENT"] },
-  { id: 1, name: "PLOTEFFECT_SNOW_MEDIUM_PERMANENT", tags: ["SNOW", "MEDIUM", "PERMANENT"] },
-  { id: 2, name: "PLOTEFFECT_SNOW_HEAVY_PERMANENT", tags: ["SNOW", "HEAVY", "PERMANENT"] },
-  { id: 3, name: "PLOTEFFECT_SAND", tags: ["SAND"] },
-  { id: 4, name: "PLOTEFFECT_BURNED", tags: ["BURNED"] },
-  // Authored by mod-swooper-maps (data/biome-hazards.xml): permanent, damaging biome
-  // attrition plot effects placed on the most climate-extreme tiles. Registered here so
-  // mock runs of the standard recipe can resolve them via getPlotEffectTypeIndex during
-  // the map-ecology apply step.
-  { id: 5, name: "PLOTEFFECT_DESERT_HEAT", tags: ["DESERT", "HEAT", "HAZARD"] },
-  { id: 6, name: "PLOTEFFECT_FROSTBITE", tags: ["COLD", "FROST", "HAZARD"] },
-  { id: 7, name: "PLOTEFFECT_JUNGLE_FEVER", tags: ["JUNGLE", "FEVER", "HAZARD"] },
-];
+/** Built-in Civ7 plot effects available without product-specific mock registration. */
+export const DEFAULT_PLOT_EFFECT_TYPES: readonly MockPlotEffectType[] = Object.freeze([
+  Object.freeze({
+    id: 0,
+    name: "PLOTEFFECT_SNOW_LIGHT_PERMANENT",
+    tags: Object.freeze(["SNOW", "LIGHT", "PERMANENT"]),
+  }),
+  Object.freeze({
+    id: 1,
+    name: "PLOTEFFECT_SNOW_MEDIUM_PERMANENT",
+    tags: Object.freeze(["SNOW", "MEDIUM", "PERMANENT"]),
+  }),
+  Object.freeze({
+    id: 2,
+    name: "PLOTEFFECT_SNOW_HEAVY_PERMANENT",
+    tags: Object.freeze(["SNOW", "HEAVY", "PERMANENT"]),
+  }),
+  Object.freeze({ id: 3, name: "PLOTEFFECT_SAND", tags: Object.freeze(["SAND"]) }),
+  Object.freeze({ id: 4, name: "PLOTEFFECT_BURNED", tags: Object.freeze(["BURNED"]) }),
+]);
 
 const DEFAULT_NO_RESOURCE = ADAPTER_NO_RESOURCE;
 const STANDARD_OCEAN_WATER_COLUMNS = 4;
@@ -365,7 +375,7 @@ export interface MockAdapterConfig {
   /** Sentinel used to represent "no resource". */
   noResourceSentinel?: number;
   /** Plot effect types and tag sets for getPlotEffectTypesContainingTags. */
-  plotEffectTypes?: MockPlotEffectType[];
+  plotEffectTypes?: readonly MockPlotEffectType[];
   /**
    * Simulated successful placements returned by generateOfficialDiscoveries().
    * Defaults to 0.
