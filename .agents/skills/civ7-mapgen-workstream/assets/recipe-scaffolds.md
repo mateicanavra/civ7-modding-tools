@@ -302,12 +302,11 @@ export const config = defineStep({
 Add `schema: Type.Object({ ... })` only when the step owns genuine local
 configuration beyond its operation envelopes; omit the property otherwise.
 
-Add effect dependencies to those same arrays only when the step truly needs
-execution ordering. Import an existing typed member of
-`MAP_PROJECTION_EFFECT_TAGS`, `PLACEMENT_PRODUCT_EFFECT_TAGS`, or
-`STANDARD_ENGINE_EFFECT_TAGS` from `../../../../tag-contracts.js`; never author
-a raw `effect:*` string. Add a new effect to that registry first when no current
-constant expresses the contract.
+Add a completion to those same arrays only when a downstream step must observe
+invisible mutable engine state produced by the completed transaction. Import an
+owned typed `CompletionId` constant; never author a raw `completion:*` string.
+Do not add a completion for ordinary ordering, trace events, or a provider that
+an exact artifact dependency already selects.
 
 **`step.ts`** — `createStep`. `run(context, config, ops, deps)`; `config.<opKey>` is the
 auto-typed op envelope; artifacts are read/published via `deps.artifacts.<name>`.
@@ -345,7 +344,7 @@ legacy direct `context.viz` calls live in
 
 > Gotchas: `requires` and `provides` are the sole dependency lists. Exact artifact
 > authorities retain identity, schema, admission, and typed `deps.artifacts`
-> capabilities; typed effect constants express completion ordering. `createStep` binds behavior
+> capabilities; typed completion constants express engine-transaction ordering. `createStep` binds behavior
 > only; Core derives exact occurrence-bound `read()` and `publish(value)` capabilities directly
 > from the step contract at invocation. Do not replace an artifact authority with
 > its raw `artifact:` id. Op keys in `ops:` must NOT
@@ -512,9 +511,10 @@ there is no authored provider runtime, map, or cache.
 
 > Artifact ids use `artifact:<domain>.<name>` (for example,
 > `artifact:morphology.topography`), but authored step dependencies use the exact
-> `Artifact` value rather than that raw string. Typed `effect:<name>` constants
-> express execution guarantees in the same `requires`/`provides` lists. Those are
-> the only two dependency kinds. Publish is write-once: a second publish of the same artifact in one run is an error.
+> `Artifact` value rather than that raw string. Typed `CompletionId` constants
+> express payload-free external-state transaction edges in the same `requires`/`provides`
+> lists. Those are the only two dependency kinds. Publish is write-once: a second publish
+> of the same artifact in one run is an error.
 
 ---
 

@@ -95,7 +95,7 @@ function cloneSeat(seat: DeepReadonly<StartSeatRecord>): StartSeatRecord {
 /**
  * Stamps the operation's typed seat intents and builds the immutable assignment
  * product. Unfillable maps remain degraded data so the provider can publish
- * exact failure evidence before refusing to complete the placement effect.
+ * exact failure evidence before refusing to publish the placement result.
  */
 function materializeStartAssignment(args: {
   context: MapContext;

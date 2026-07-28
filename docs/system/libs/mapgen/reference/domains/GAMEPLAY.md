@@ -30,7 +30,8 @@ Authoritative scope and absorption plan lives in:
 
 ## Contract (current + target posture)
 
-Current (standard recipe) provides an engine-facing “placement applied” effect tag and related debug artifacts (see legacy naming page):
+The Standard recipe uses exact placement artifacts plus the few payload-free
+completions earned by downstream consumers (see the Placement reference):
 - [`docs/system/libs/mapgen/reference/domains/PLACEMENT.md`](/system/libs/mapgen/reference/domains/PLACEMENT.md)
 
 Target posture:

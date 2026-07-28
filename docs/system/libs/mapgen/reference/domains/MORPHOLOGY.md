@@ -136,28 +136,28 @@ Morphology's module catalogs provide the following complete artifact set (all
 
 - `mods/mod-swooper-maps/src/domain/morphology/modules/*/artifacts/index.ts` (`artifacts`)
 
-#### Tags
+#### Completions
 
 Morphology's **simulation** steps exchange exact artifact authorities without
-providing completion tags. Morphology's **map projection** steps additionally
-provide gameplay completion tags as they materialize those artifacts into Civ7.
+providing completions. Morphology's **map projection** steps additionally
+provide engine-transaction completions as they materialize those artifacts into Civ7.
 
-**Map-morphology effect tags**
+**Map-morphology completions**
 
-- `effect:map.coastsPlotted`
-- `effect:map.continentsPlotted`
-- `effect:map.mountainsPlotted`
-- `effect:map.volcanoesPlotted`
-- `effect:map.elevationBuilt`
+- `completion:map.coasts-plotted`
+- `completion:map.continents-plotted`
+- `completion:map.mountains-plotted`
+- `completion:map.volcanoes-plotted`
+- `completion:map.elevation-built`
 
 ## Ground truth anchors
 
 This section is a navigation aid: concrete file paths that back the contract claims in this domain reference.
 
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts` (artifact dependencies; no completion tags)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/routing/steps/routing/config.ts` (artifact dependencies; no completion tags)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/config.ts` (artifact dependencies; no completion tags)
-- `mods/mod-swooper-maps/src/recipes/standard/tags.ts` (`MAP_PROJECTION_EFFECT_TAGS.map.*`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts` (artifact dependencies; no completions)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/routing/steps/routing/config.ts` (artifact dependencies; no completions)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/config.ts` (artifact dependencies; no completions)
+- `mods/mod-swooper-maps/src/recipes/standard/completions.ts` (`STANDARD_COMPLETIONS`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-coasts/config.ts` (`config` requires `artifact:morphology.shelf` and provides `coastsPlotted`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-continents/config.ts` (`config.requires/provides`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-mountains/config.ts` (`config.requires/provides`)
@@ -665,13 +665,13 @@ publishes both as one coherent shelf artifact.
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/step.ts` (post-island adjacency/distance recomputation and `shelf` publication)
 - `mods/mod-swooper-maps/src/domain/morphology/modules/shelf/artifacts/shelf.artifact.ts` (`artifact.schema`)
 
-### `map-morphology` (projections + effect tags)
+### `map-morphology` (projections + completions)
 
-Applies Morphology truth into the engine adapter (terrain/features), and emits effect tags for downstream recipe steps.
+Applies Morphology truth into the engine adapter and completes the transactions required by downstream recipe steps.
 
-**Effect tag flow**
+**Completion flow**
 
-- `plot-coasts` → provides `effect:map.coastsPlotted`
+- `plot-coasts` → provides `completion:map.coasts-plotted`
 - `plot-continents` → requires `coastsPlotted`; provides `continentsPlotted`
 - `plot-mountains` → requires `continentsPlotted`; provides `mountainsPlotted`
 - `plot-volcanoes` → requires `continentsPlotted`; provides `volcanoesPlotted`
@@ -736,7 +736,7 @@ This page contains many inline “Ground truth anchors” callouts. This section
   - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/index.ts`
 - Morphology artifact authority catalogs: `mods/mod-swooper-maps/src/domain/morphology/modules/*/artifacts/index.ts`; each module catalog names only its owned products, and each artifact owns its private schema and complete validator
 
-- Wiring + effect tags (current): `mods/mod-swooper-maps/src/recipes/standard/tags.ts` (`MAP_PROJECTION_EFFECT_TAGS.map.*`)
+- Projection completions: `mods/mod-swooper-maps/src/recipes/standard/completions.ts` (`STANDARD_COMPLETIONS`)
 
 - Example step contracts (truth stages):
   - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts` (`config`)

@@ -166,9 +166,9 @@ Each emitted entry in `manifest.layers[]` is still a **layer** (concrete emissio
 - **Point layers** (samples): craton seeds, hotspots, volcanoes.
 - **Polygon layers** (regions): landmasses, plates.
 
-**Sources:** completed step results and the admitted artifact/effect evidence used to produce those
-results. A projector may derive presentation-only geometry or scalar variants, but it cannot mutate
-generation state or synthesize missing product evidence.
+**Sources:** completed step results after every declared artifact provision has passed admission. A
+projector may derive presentation-only geometry or scalar variants, but it cannot mutate generation
+state or synthesize missing product evidence.
 
 ---
 

@@ -29,8 +29,8 @@ Canonical MapGen vocabulary used across docs (policies, reference, tutorials).
   alive-major player ids, and complete setup-option evidence.
 - **Map context**: One run-scoped author surface exposing immutable setup and the active step's
   revocable event port. Core privately owns the engine adapter, artifact storage, deterministic
-  random state, execution identity, and trace lifecycle. Declared artifact, engine, random, trace,
-  and effect-evidence capabilities are occurrence-scoped; adapter identity never crosses the private
+  random state, execution identity, and trace lifecycle. Declared artifact, engine, random, and trace
+  capabilities are occurrence-scoped; adapter identity never crosses the private
   invocation boundary.
 - **Execution plan**: A list/graph of execution nodes derived from the recipe, registry, and admitted
   recipe initial setup. It retains the projected `MapSetup` and fingerprints the complete initial
@@ -38,8 +38,8 @@ Canonical MapGen vocabulary used across docs (policies, reference, tutorials).
 - **Step**: A single execution unit with a stable id, `requires/provides`, and an implementation.
 - **Stage (authoring)**: The recipe-owned grouping that assigns each composed step its exact `stageId`, organizes authoring, and compiles stage-specific config into step configs.
 - **Op**: A strategy envelope used *within* a step (declared via `contract.ops`) to make algorithms configurable without turning the step schema into an untyped bag of options.
-- **TagRegistry**: Runtime registry for the closed id projection compiled from exact artifact authorities and typed completion ids.
-- **StepRegistry**: Registry of step implementations and their compiled dependency ids.
+- **Completion**: Typed plan edge requiring one earlier provider for a payload-free external-state transaction; sequential fail-fast execution supplies the success guarantee without a runtime ledger.
+- **StepRegistry**: Registry of step implementations and their exact dependencies.
 - **Dependency selection**: One exact `Artifact` authority or typed completion id in a step's `requires`/`provides` list.
 - **Artifact**: Canonical contract for one write-once published value; consumers treat admitted values as immutable.
 - **Overlay**: A visualization/UI layer (e.g. a deck.gl layer entry), not an engine primitive.
@@ -54,5 +54,5 @@ Legacy specs may call `MapSetup` either `RunSettings` or `Env`; current code and
 
 - RecipeV2 and RunRequest schemas: `packages/mapgen-core/src/engine/execution-plan.ts`
 - `createRecipe(...)` authoring surface: `packages/mapgen-core/src/authoring/recipe/create.ts`
-- TagRegistry and StepRegistry: `packages/mapgen-core/src/engine/tags.ts`, `packages/mapgen-core/src/engine/StepRegistry.ts`
+- Completion identity and StepRegistry: `packages/mapgen-core/src/engine/completion.ts`, `packages/mapgen-core/src/engine/StepRegistry.ts`
 - Policies: `docs/system/libs/mapgen/policies/POLICIES.md`

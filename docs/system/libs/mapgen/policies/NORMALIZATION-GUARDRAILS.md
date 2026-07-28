@@ -18,15 +18,16 @@ without a registered current check remain review obligations, not implied
 mechanical coverage.
 
 Supersedes the packet's "Guardrails To Add After Cleanup" table for implemented
-G1-G9 enforcement scope:
+G2-G11 enforcement scope. The former G1 rule protected retired milestone tag
+names after those names ceased to exist; current positive step dependency law
+supersedes that historical negative guard:
 `docs/projects/engine-refactor-v1/architecture-normalization-packet.md`.
 
 ## Guard map
 
 | Guard | Cleanup evidence | Current enforcement | What it proves |
 | --- | --- | --- | --- |
-| G1 milestone-prefixed tag ids | `normalize-authority-routing`, `normalize-placement-contracts` | Habitat `prohibit_milestone_prefixed_standard_recipe_tag_catalog_names` | Standard recipe source no longer depends on `M\d+_` tag/catalog identifiers. |
-| G2 domain artifact root catalogs | `normalize-morphology-catalog-owners` | Habitat `prohibit_domain_artifacts_modules` | Domain source does not reintroduce `artifacts.ts` modules. This bounded rule does not claim a general `tags.ts` catalog prohibition. |
+| G2 domain artifact root catalogs | `normalize-morphology-catalog-owners` | Habitat `prohibit_domain_artifacts_modules` | Domain source does not reintroduce `artifacts.ts` modules; module artifact catalogs remain the qualified owner. |
 | G3 core purity | `normalize-core-studio-dx-boundaries` | Habitat `preserve_mapgen_core_runtime_neutrality` | `packages/mapgen-core/src` stays free of Civ7 adapter value imports, `/base-standard` imports, runtime globals, adapter creation, and unsafe engine casts. |
 | G4 recipe deep imports | `normalize-import-boundaries` | Habitat `require_public_domain_surfaces_in_recipes_and_maps` | Recipes and maps consume the named public domain surfaces rather than private domain implementation modules. |
 | G5 sibling stage `steps/` imports | `normalize-ecology-topology` | Habitat `prohibit_sibling_stage_private_step_imports` | Standard stages do not import sibling stages' private `steps/` modules. |
@@ -50,7 +51,7 @@ completed implementation record.
 
 ## Commands
 
-- `bun habitat check --rule prohibit_milestone_prefixed_standard_recipe_tag_catalog_names --rule prohibit_domain_artifacts_modules --rule preserve_mapgen_core_runtime_neutrality --rule require_public_domain_surfaces_in_recipes_and_maps --rule prohibit_sibling_stage_private_step_imports --rule require_recipe_step_source_topology --rule prohibit_wrapper_only_advanced_config --rule require_shared_visualization_contracts_at_stage_surfaces --rule require_explicit_mapgen_sdk_opt_in`
+- `bun habitat check --rule require_typed_recipe_step_dependencies --rule prohibit_domain_artifacts_modules --rule preserve_mapgen_core_runtime_neutrality --rule require_public_domain_surfaces_in_recipes_and_maps --rule prohibit_sibling_stage_private_step_imports --rule require_recipe_step_source_topology --rule prohibit_wrapper_only_advanced_config --rule require_shared_visualization_contracts_at_stage_surfaces --rule require_explicit_mapgen_sdk_opt_in`
 - `bun habitat check --rule validate_mapgen_docs_anchors_and_references`
 
 `habitat check` selects bounded rules with repeatable `--rule`; it has no
@@ -63,7 +64,7 @@ registered Grit-backed rule, not this curated normalization set.
   `.habitat/index.json`
 - Habitat Grit execution contract: `.habitat/AUTHORITY-TOOL-SEPARATION.md`
 - Example bounded rule manifests:
-  `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names/rule.json` and
+  `.habitat/blueprints/recipe-step/require_typed_recipe_step_dependencies/rule.json` and
   `.habitat/blueprints/domain/prohibit_domain_artifacts_modules/rule.json`
 - Normalization packet source table:
   `docs/projects/engine-refactor-v1/architecture-normalization-packet.md`

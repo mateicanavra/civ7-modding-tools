@@ -11,7 +11,6 @@ import {
 } from "@mapgen/authoring/index.js";
 import { RecipeCompileError } from "@mapgen/compiler/recipe-compile.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
-import { type EffectDependencyTag, InvalidDependencyTagError } from "@mapgen/engine/index.js";
 import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
 import { Type } from "typebox";
 import { Value } from "typebox/value";
@@ -26,18 +25,6 @@ const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 const makeContract = (id: string) => defineStep({ id, requires: [], provides: [] });
 
 describe("recipe authoring", () => {
-  it("createRecipe rejects missing tagDefinitions", () => {
-    const step = createStep(makeContract("alpha"), { run: () => {} });
-    const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
-    const recipeWithoutTags = {
-      id: "core.base",
-      stages: [stage],
-      operations: {},
-    } as unknown as Parameters<typeof createRecipe>[0];
-
-    expect(() => createRecipe(recipeWithoutTags)).toThrow(/tagDefinitions/);
-  });
-
   it("createRecipe produces Recipe schema v2 (no instance ids)", () => {
     const stepA = createStep(makeContract("alpha"), { run: () => {} });
     const stepB = createStep(makeContract("beta"), { run: () => {} });
@@ -48,7 +35,6 @@ describe("recipe authoring", () => {
     });
     const recipe = createRecipe({
       id: "core.base",
-      tagDefinitions: [],
       stages: [stage],
       operations: {},
     });
@@ -63,7 +49,6 @@ describe("recipe authoring", () => {
     const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
     const recipe = createRecipe({
       id: "core.base",
-      tagDefinitions: [],
       stages: [stage],
       operations: {},
     });
@@ -102,7 +87,6 @@ describe("recipe authoring", () => {
     expect(() =>
       createRecipe({
         id: "core.base",
-        tagDefinitions: [],
         stages: [stage],
         operations: {},
       })
@@ -116,59 +100,20 @@ describe("recipe authoring", () => {
     expect(() =>
       createRecipe({
         id: "core.base",
-        tagDefinitions: [],
         stages: [stage, stage],
         operations: {},
       })
     ).toThrow('duplicate stage id "foundation"');
   });
 
-  it("createRecipe rejects invalid tag prefixes", () => {
-    const step = createStep(
+  it("rejects noncanonical completion identities at the step contract boundary", () => {
+    expect(() =>
       defineStep({
         id: "alpha",
         requires: ["bad:tag"],
         provides: [],
-      }),
-      { run: () => {} }
-    );
-    const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
-
-    expect(() =>
-      createRecipe({ id: "core.base", tagDefinitions: [], stages: [stage], operations: {} })
-    ).toThrow(/Invalid dependency tag/);
-  });
-
-  it("reserves generated artifact postconditions for their artifact authorities", () => {
-    const artifact = defineArtifact({
-      name: "recipeOutput",
-      id: "artifact:test.recipe-output",
-      schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
-    });
-    const step = createStep(
-      defineStep({
-        id: "alpha",
-        requires: [],
-        provides: [artifact],
-      }),
-      { run: () => {} }
-    );
-    const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
-
-    expect(() =>
-      createRecipe({
-        id: "core.base",
-        tagDefinitions: [
-          {
-            id: artifact.id,
-            kind: "artifact",
-            satisfies: () => true,
-          },
-        ] as never,
-        stages: [stage],
-        operations: {},
-      })
-    ).toThrow(`Dependency tag "${artifact.id}" is already registered.`);
+      } as never)
+    ).toThrow(/must match completion:/);
   });
 
   it("rejects same-id provider and consumer artifacts with different contract identities", () => {
@@ -207,7 +152,6 @@ describe("recipe authoring", () => {
     expect(() =>
       createRecipe({
         id: "core.base",
-        tagDefinitions: [],
         stages: [stage],
         operations: {},
       })
@@ -239,7 +183,6 @@ describe("recipe authoring", () => {
     expect(() =>
       createRecipe({
         id: "core.base",
-        tagDefinitions: [],
         stages: [stage],
         operations: {},
       })
@@ -267,59 +210,12 @@ describe("recipe authoring", () => {
     expect(() =>
       createRecipe({
         id: "core.base",
-        tagDefinitions: [],
         stages: [stage],
         operations: {},
       })
     ).toThrow(
       'stage "foundation" contains noncanonical step "forged-provider"; author steps through createStep'
     );
-  });
-
-  it("rejects duplicate explicit dependency-tag definitions", () => {
-    const step = createStep(makeContract("alpha"), { run: () => {} });
-    const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
-    const definition: EffectDependencyTag = {
-      id: "effect:test.ready",
-      kind: "effect",
-    };
-
-    expect(() =>
-      createRecipe({
-        id: "core.base",
-        tagDefinitions: [definition, { ...definition, satisfies: () => true }],
-        stages: [stage],
-        operations: {},
-      })
-    ).toThrow(`Dependency tag "${definition.id}" is already registered.`);
-  });
-
-  it("reserves all artifact dependency tags for canonical authorities", () => {
-    const step = createStep(makeContract("alpha"), { run: () => {} });
-    const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
-
-    expect(() =>
-      createRecipe({
-        id: "core.base",
-        tagDefinitions: [{ id: "artifact:test.unbound", kind: "artifact" }] as never,
-        stages: [stage],
-        operations: {},
-      })
-    ).toThrow(/Explicit artifact dependency tag.*not admitted/);
-  });
-
-  it("rejects forged dependency kinds instead of normalizing them into effects", () => {
-    const step = createStep(makeContract("alpha"), { run: () => {} });
-    const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
-
-    expect(() =>
-      createRecipe({
-        id: "core.closed-dependency-authority",
-        tagDefinitions: [{ id: "effect:test.forged-kind", kind: "field" }] as never,
-        stages: [stage],
-        operations: {},
-      })
-    ).toThrow(InvalidDependencyTagError);
   });
 
   it("compiles recipe-created complete config and rejects unknown keys", () => {
@@ -333,7 +229,6 @@ describe("recipe authoring", () => {
     const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
     const recipe = createRecipe({
       id: "core.base",
-      tagDefinitions: [],
       stages: [stage],
       operations: {},
     });
@@ -380,7 +275,6 @@ describe("recipe authoring", () => {
     const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
     const recipe = createRecipe({
       id: "core.base",
-      tagDefinitions: [],
       stages: [stage],
       operations: {},
     });
@@ -410,7 +304,6 @@ describe("recipe authoring", () => {
     const stages = [stage];
     const recipe = createRecipe({
       id: "core.base",
-      tagDefinitions: [],
       stages,
       operations: {},
     });
@@ -448,7 +341,6 @@ describe("recipe authoring", () => {
 
     const recipe = createRecipe({
       id: "core.descriptor-length",
-      tagDefinitions: [],
       stages,
       operations: {},
     });
@@ -471,7 +363,6 @@ describe("recipe authoring", () => {
     expect(() =>
       createRecipe({
         id: "core.opaque-length",
-        tagDefinitions: [],
         stages,
         operations: {},
       })

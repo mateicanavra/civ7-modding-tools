@@ -34,7 +34,6 @@ import mapMorphology from "./stages/morphology/projection/index.js";
 import morphologyRouting from "./stages/morphology/routing/index.js";
 import morphologyShelf from "./stages/morphology/shelf/index.js";
 import placement from "./stages/placement/index.js";
-import { STANDARD_TAG_DEFINITIONS } from "./tags.js";
 
 const NAMESPACE = "mod-swooper-maps";
 const stages = orderStandardStages({
@@ -88,7 +87,6 @@ const standardRecipe = createRecipe({
   id: "standard",
   namespace: NAMESPACE,
   initialSetup: STANDARD_INITIAL_SETUP,
-  tagDefinitions: STANDARD_TAG_DEFINITIONS,
   stages,
   operations,
 } as const);

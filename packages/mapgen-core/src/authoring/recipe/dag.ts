@@ -1,3 +1,4 @@
+import type { CompletionId } from "@mapgen/engine/completion.js";
 import type { Artifact } from "../artifact/contract.js";
 import { assertStageIds } from "../stage/identity.js";
 import type { StepDependencyList } from "../step/contract.js";
@@ -20,8 +21,8 @@ export type RecipeDagStep = Readonly<{
   orderInStage: number;
   artifactRequires: readonly RecipeDagArtifactRef[];
   artifactProvides: readonly RecipeDagArtifactRef[];
-  tagRequires: readonly string[];
-  tagProvides: readonly string[];
+  completionRequires: readonly CompletionId[];
+  completionProvides: readonly CompletionId[];
 }>;
 
 /** Ordered stage projection with its aggregate artifact edges and unresolved diagnostic count. */
@@ -161,8 +162,8 @@ export function buildRecipeDag(input: BuildRecipeDagInput): RecipeDag {
         orderInStage: stepIndex,
         artifactRequires,
         artifactProvides,
-        tagRequires: completionIds(step.contract.requires),
-        tagProvides: completionIds(step.contract.provides),
+        completionRequires: completionIds(step.contract.requires),
+        completionProvides: completionIds(step.contract.provides),
       };
 
       steps.push(dagStep);
@@ -301,8 +302,10 @@ function artifactRefs(dependencies: StepDependencyList): RecipeDagArtifactRef[] 
     .map((artifact) => ({ id: artifact.id, name: artifact.name }));
 }
 
-function completionIds(dependencies: StepDependencyList): string[] {
-  return dependencies.filter((dependency): dependency is string => typeof dependency === "string");
+function completionIds(dependencies: StepDependencyList): CompletionId[] {
+  return dependencies.filter(
+    (dependency): dependency is CompletionId => typeof dependency === "string"
+  );
 }
 
 function uniqueArtifacts(artifacts: readonly RecipeDagArtifactRef[]): RecipeDagArtifactRef[] {

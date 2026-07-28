@@ -138,7 +138,7 @@ createStep(config, {
 ```
 
 `requires` and `provides` are the sole authored dependency lists. Put the exact
-`Artifact` authority directly in the appropriate list; effect/completion guarantees
+`Artifact` authority directly in the appropriate list; engine-transaction completions
 remain typed string constants in the same list. Raw `artifact:*` strings are invalid
 because they discard the schema, validator, and semantic owner that make the
 dependency exact.
@@ -146,10 +146,11 @@ dependency exact.
 `defineStep` snapshots the selected artifacts, while `createStep` binds behavior only. At each
 step invocation, Core derives exact occurrence-bound `read()` and `publish(value)` capabilities
 directly from those contract authorities. There is no provider runtime registry, map, or cache.
-The compiled `MapGenStep` retains one ordered string-id ledger for each direction, while Core keeps
-the exact artifact authorities needed to type and bind `deps.artifacts`. The DAG projects artifact
-references as causal edges and string completion dependencies as metadata; it does not infer one
-kind from the other or build a second dependency graph.
+The compiled `MapGenStep` retains exact artifact authorities and typed completion ids in each
+ordered direction. Its JSON-safe plan projection uses ids, while Core retains the exact artifact
+authorities needed to type and bind `deps.artifacts`. The DAG projects artifact references as
+causal edges and completion ids as metadata; it does not infer one kind from the other or build a
+second dependency graph.
 Each artifact's validator remains the sole admission authority at publication. Artifact dependency
 gates and terminal observers subsequently ask only whether that exact authority is present in the
 write-once store; they do not create a second admission transition or treat validation as mutation

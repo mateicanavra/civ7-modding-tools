@@ -93,7 +93,7 @@
       "id": "executor-today",
       "order": 2,
       "concept": "current",
-      "explanation": "Ground truth first: today's `PipelineExecutor` is **order-preserving and dependency-validating, not order-computing**. It walks steps in recipe-authored order and throws if a required tag is not yet satisfied. \"Turn this into an actual DAG executor\" mostly means: make the executor consume the contract that already exists.",
+      "explanation": "Ground truth first: today's pipeline is **order-preserving and plan-validating, not order-computing**. Plan compilation proves one earlier selected provider, exact artifact authority, and unique ownership before the executor walks recipe-authored order. The executor then proves artifact publication and stops on the first failed provider.",
       "blocks": [
         {
           "kpiGrid": {
@@ -112,49 +112,49 @@
                 "subtitle": "the recipe's step sequence IS the schedule"
               },
               {
-                "label": "Dependency tags",
-                "value": "validate-only",
+                "label": "Dependency authority",
+                "value": "plan compilation",
                 "status": "neutral",
-                "subtitle": "checked, never used to reorder"
+                "subtitle": "provider and artifact identity checked before execution"
               }
             ]
           }
         },
         {
           "codeBlock": {
-            "file": "packages/mapgen-core/src/engine/PipelineExecutor.ts",
+            "file": "packages/mapgen-core/src/engine/execution-plan.ts",
             "language": "typescript",
-            "startLine": 107,
-            "endLine": 118,
-            "highlight": [113, 114, 115],
-            "code": "for (let index = 0; index < total; index++) {\n  const node = nodes[index];\n  const step = node.step;\n  validateDependencyTags(step.requires, tagRegistry);\n  validateDependencyTags(step.provides, tagRegistry);\n\n  const missing = step.requires.filter(\n    (tag) => !isDependencyTagSatisfied(tag, context, satisfactionState, tagRegistry)\n  );\n  if (missing.length > 0) {\n    throw new MissingDependencyError({\n      stepId: step.id,"
+            "startLine": 79,
+            "endLine": 115,
+            "highlight": [82, 92, 105],
+            "code": "for (const dependency of step.requires) {\n  const id = dependencyId(dependency);\n  const provider = providers.get(id);\n  if (!provider) {\n    errors.push({\n      code: \"runRequest.invalid\",\n      path: `/recipe/steps/${sourceIndex}/id`,\n      message: `Step \"${step.id}\" requires \"${id}\" from an earlier selected step`,\n      stepId: step.id,\n    });\n    continue;\n  }\n  if (isArtifact(dependency) && provider.dependency !== dependency) {\n    errors.push({\n      code: \"runRequest.invalid\",\n      path: `/recipe/steps/${sourceIndex}/id`,\n      message: `Step \"${step.id}\" requires a different artifact authority`,\n      stepId: step.id,\n    });\n  }\n}"
           }
         },
         {
-          "explanation": "The highlighted check is the entire \"DAG\" behavior at runtime: validate, never schedule."
+          "explanation": "The compiler admits the authored schedule only when its selected dependency graph is causally closed. It validates; it still does not reorder."
         }
       ]
     },
     {
-      "id": "decorative-dag",
+      "id": "validated-dag-metadata",
       "order": 3,
       "concept": "current",
-      "explanation": "The artifact contracts (`requires`/`provides`) are real and typed — but the graph they imply is only consumed by the studio's pipeline view via `buildRecipeDag()`. The executor never consults it. The studio renders a DAG the runtime ignores.",
+      "explanation": "One typed dependency contract now feeds both execution-plan admission and Studio projection. Exact artifacts form Studio data edges; payload-free completions remain step metadata because they express plan causality rather than a data product.",
       "blocks": [
         {
           "diagram": {
-            "content": "flowchart LR\n  contracts[\"Artifact contracts<br/>requires / provides\"] --> dag[\"buildRecipeDag()\"]\n  dag --> studio[\"Studio pipeline view\"]\n  contracts --> exec[\"PipelineExecutor\"]\n  exec --> order[\"Authored order,<br/>validate-only\"]",
-            "caption": "Two consumers of the same contracts: one draws a graph, the other ignores it"
+            "content": "flowchart LR\n  contracts[\"Step dependencies<br/>requires / provides\"] --> compile[\"Plan compilation\"]\n  compile --> exec[\"Fail-fast executor\"]\n  contracts --> dag[\"buildRecipeDag()\"]\n  dag --> studio[\"Studio pipeline view\"]",
+            "caption": "One contract admits execution and projects the authoring graph"
           }
         },
         {
           "table": {
             "rows": [
-              "Artifact, Competing writers, Today's behavior",
-              "artifact:map.elevation, map-morphology + map-elevation, first writer wins silently",
-              "artifact:map.rivers, map-hydrology + map-rivers, first writer wins silently"
+              "Dependency kind, Plan proof, Runtime proof",
+              "Exact artifact, Earlier unique provider + exact authority, Single admitted write-once publication",
+              "Completion, Earlier unique provider, Successful provider return in fail-fast order"
             ],
-            "caption": "Known mud: duplicate providers — flagged by DAG diagnostics, fatal to any real DAG executor"
+            "caption": "Two dependency kinds, each with one honest authority"
           }
         }
       ]

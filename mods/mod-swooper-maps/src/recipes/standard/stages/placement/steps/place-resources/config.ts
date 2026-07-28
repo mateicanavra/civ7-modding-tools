@@ -1,7 +1,7 @@
 import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
-import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
+import { STANDARD_COMPLETIONS } from "../../../../completions.js";
 
 /**
  * Materializes the final post-start resource plan without relocating or reselecting intent.
@@ -14,5 +14,5 @@ export const config = defineStep({
   id: "place-resources",
   engine: ["emitRuntimeWarning", "placeResourceIntent", "getResourceCatalog"] as const,
   requires: [resourceSupportArtifacts.resourcePlanAdjusted],
-  provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlaced],
+  provides: [STANDARD_COMPLETIONS.resourcesPlaced],
 });

@@ -1,7 +1,7 @@
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
-import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
+import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
 
 /**
  * Defines the coast projection boundary from Morphology topography and shelf truth.
@@ -11,5 +11,5 @@ export const config = defineStep({
   id: "plot-coasts",
   engine: ["setTerrainType", "readCurrentMapWaterMask"] as const,
   requires: [morphologyLandformsArtifacts.topography, morphologyShelfArtifacts.shelf],
-  provides: [MAP_PROJECTION_EFFECT_TAGS.map.coastsPlotted],
+  provides: [STANDARD_COMPLETIONS.coastsPlotted],
 });

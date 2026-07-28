@@ -158,6 +158,6 @@ export function buildDeclaredStepDependencies<
 
 function rejectMissingInitialSetupContext(stepId: string): never {
   throw new Error(
-    `Initial setup dependency for step "${stepId}" requires an admitted map context.`
+    `Initial setup access for step "${stepId}" requires an admitted invocation context.`
   );
 }

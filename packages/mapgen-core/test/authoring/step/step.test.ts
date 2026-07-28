@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createStep, defineOp, defineStep, defineStrategy, Type } from "@mapgen/authoring/index.js";
+import type { CompletionId } from "@mapgen/engine/index.js";
 import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
 import { Value } from "typebox/value";
 
@@ -572,6 +573,24 @@ describe("step authoring", () => {
     ).toThrow(/BadId/);
   });
 
+  it("rejects duplicate and self-dependent completion edges", () => {
+    const completion = "completion:test.ready" as const;
+    expect(() =>
+      defineStep({
+        id: "duplicate-requirement",
+        requires: [completion, completion],
+        provides: [],
+      })
+    ).toThrow(`declares dependency "${completion}" multiple times in requires`);
+    expect(() =>
+      defineStep({
+        id: "self-dependent",
+        requires: [completion],
+        provides: [completion],
+      })
+    ).toThrow(`declares dependency "${completion}" in both requires and provides`);
+  });
+
   it("snapshots step authority once from own data properties without evaluating accessors", () => {
     expect(() =>
       defineStep({
@@ -597,8 +616,8 @@ describe("step authoring", () => {
     );
     expect(accessorReads).toBe(0);
 
-    const requires = ["effect:test.initial"] as string[];
-    const provides = ["effect:test.complete"] as string[];
+    const requires: CompletionId[] = ["completion:test.initial"];
+    const provides: CompletionId[] = ["completion:test.complete"];
     const descriptorReads = new Map<PropertyKey, number>();
     const values = {
       id: "single-read-step",
@@ -620,7 +639,7 @@ describe("step authoring", () => {
               descriptorReads.get(key) === 1
                 ? values[key as keyof typeof values]
                 : key === "requires" || key === "provides"
-                  ? ["effect:test.changed"]
+                  ? ["completion:test.changed"]
                   : "changed-between-reads",
           };
         },
@@ -628,12 +647,12 @@ describe("step authoring", () => {
     ) as typeof values;
 
     const contract = defineStep(definition);
-    requires[0] = "effect:test.mutated";
+    requires[0] = "completion:test.mutated";
     provides.length = 0;
 
     expect(contract.id).toBe("single-read-step");
-    expect(contract.requires).toEqual(["effect:test.initial"]);
-    expect(contract.provides).toEqual(["effect:test.complete"]);
+    expect(contract.requires).toEqual(["completion:test.initial"]);
+    expect(contract.provides).toEqual(["completion:test.complete"]);
     expect(descriptorReads).toEqual(
       new Map<PropertyKey, number>([
         ["ops", 1],
@@ -645,21 +664,23 @@ describe("step authoring", () => {
   });
 
   it("refuses sparse, symbol-extended, and accessor-backed dependency arrays", () => {
-    const sparse = new Array<string>(1);
-    const symbolExtended: string[] = [];
-    Object.defineProperty(symbolExtended, Symbol("hidden"), { value: "effect:test.hidden" });
+    const sparse = new Array<CompletionId>(1);
+    const symbolExtended: CompletionId[] = [];
+    Object.defineProperty(symbolExtended, Symbol("hidden"), {
+      value: "completion:test.hidden",
+    });
     let entryReads = 0;
-    const accessorBacked = ["effect:test.initial"];
+    const accessorBacked: CompletionId[] = ["completion:test.initial"];
     Object.defineProperty(accessorBacked, "0", {
       configurable: true,
       enumerable: true,
       get: () => {
         entryReads += 1;
-        return "effect:test.accessor";
+        return "completion:test.accessor";
       },
     });
 
-    const definition = (requires: readonly string[]) => ({
+    const definition = (requires: readonly CompletionId[]) => ({
       id: "hostile-dependencies",
       requires,
       provides: [],

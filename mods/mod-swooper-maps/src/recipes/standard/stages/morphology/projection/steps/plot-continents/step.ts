@@ -13,7 +13,8 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 /**
  * Validates continent terrain only after coast projection, preserving that
- * ordering through effect tags and checking the resulting engine surface.
+ * transaction boundary through completion dependencies and checking the
+ * resulting engine surface.
  */
 export const PlotContinentsStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {

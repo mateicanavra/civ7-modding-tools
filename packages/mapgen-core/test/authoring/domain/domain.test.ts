@@ -320,7 +320,6 @@ describe("domain composition", () => {
     const recipe = createRecipe({
       id: "aggregate-authority",
       namespace: "test",
-      tagDefinitions: [],
       stages: [stage],
       operations: collectOperations(router),
     });

@@ -555,7 +555,6 @@ describe("pipeline tracing", () => {
     const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
     const recipe = createRecipe({
       id: "trace",
-      tagDefinitions: [],
       stages: [stage],
       operations: {},
     });

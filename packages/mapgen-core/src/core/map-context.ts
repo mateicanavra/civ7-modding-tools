@@ -83,11 +83,10 @@ function contextRootForRead(context: MapContext): MapContext {
  * `createMapContext` returns the executor-owned root. The executor supplies each authored step a
  * distinct facade with a fixed trace port; artifact, engine, and randomness capabilities accept only the
  * currently active facade. Retaining one step's context therefore cannot borrow a later step's
- * artifact, random, or trace authority; dependency evidence is separately scoped to one effect
- * satisfaction call. The adapter remains private executor state; authored code can invoke only the
- * methods named by its frozen step contract through occurrence-scoped dependency wrappers. Artifacts
- * remain behind artifact-bound readers and publishers, while the root remains available to the executor
- * and post-run terminal observers.
+ * artifact, random, or trace authority. The adapter remains private executor state; authored code can
+ * invoke only the methods named by its frozen step contract through occurrence-scoped dependency
+ * wrappers. Artifacts remain behind artifact-bound readers and publishers, while the root remains
+ * available to the executor and post-run terminal observers.
  */
 export interface MapContext {
   readonly [mapContextBrand]: true;
@@ -313,16 +312,6 @@ export function invokeMapContextAdapterMethodInternal(
     throw new TypeError(`Engine adapter method "${key}" is unavailable or not callable.`);
   }
   return Reflect.apply(method, adapter, args);
-}
-
-/** @internal Verifies one executor-owned effect without exposing adapter authority to authored code. */
-export function verifyMapContextEffectInternal(context: MapContext, effectId: string): boolean {
-  assertRootMapContextInternal(context);
-  const adapter = mapContextAdapters.get(context);
-  if (!adapter) {
-    throw new Error("MapGen effect verification requires a context returned by createMapContext.");
-  }
-  return Reflect.apply(adapter.verifyEffect, adapter, [effectId]);
 }
 
 /**

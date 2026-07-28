@@ -54,11 +54,10 @@ Think of MapGen as these layers:
    - composes stages/steps into a canonical pipeline for a given output posture (e.g. “standard”).
 5) **Compilation**
    - config compilation (strict schema validation + normalization),
-   - plan compilation (turn recipe into an execution plan of step nodes).
+   - plan compilation (turn recipe into step nodes and validate exact dependency providers).
 6) **Execution**
    - executor runs step nodes with:
-     - projected dependency gating (artifact evidence and completion ids),
-     - artifact admission and write-once publication,
+     - exact artifact admission and write-once publication proof,
      - executor-owned trace sessions and revocable step-event leases,
      - optional post-step metrics/visualization facet sinks.
 7) **Consumers**
@@ -69,10 +68,12 @@ Think of MapGen as these layers:
 
 - Domains own ops and shared semantics; steps own orchestration, not algorithms.
 - Stages own author surface shape; recipes own pipeline composition and ordering.
-- The executor owns dependency validation, trace identity/selection/lifecycle, and optional facet
-  dispatch; steps must not reimplement gating or observe an environment sink.
+- Plan compilation owns selected-provider validation, including exact artifact identity and one
+  earlier provider. The executor owns artifact-publication proof, trace
+  identity/selection/lifecycle, and optional facet dispatch; steps must not reimplement gating or
+  observe an environment sink.
 - Occurrence-scoped authority covers declared artifact access, exact engine methods, deterministic
-  random helpers, step trace events, and completion evidence. The executor retains the raw
+  random helpers, and step trace events. The executor retains the raw
   adapter privately; each step receives only the engine methods named by its frozen contract.
 - Authoring factories detach caller-owned contract graphs and capture tuple/map declarations through
   data descriptors, so admission never invokes accessors or retains mutable container structure.
@@ -81,7 +82,7 @@ Think of MapGen as these layers:
 ## Anti-goals
 
 - Implicit cross-step coupling (“it works because we happen to run step X before Y”).
-- “Magic” dependencies not expressed as tags/artifacts.
+- “Magic” dependencies not expressed as exact artifacts or typed completions.
 - Tutorials that teach internal alias imports or fragile module paths.
 
 ## Ground truth anchors
@@ -90,5 +91,5 @@ Think of MapGen as these layers:
 - Authoring caller-data and contract-graph snapshotting: `packages/mapgen-core/src/authoring/snapshot/`
 - Config compilation: `packages/mapgen-core/src/compiler/recipe-compile.ts`
 - Execution plan schema + compilation hooks: `packages/mapgen-core/src/engine/execution-plan.ts`
-- Pipeline executor (tag gating + trace scoping): `packages/mapgen-core/src/engine/PipelineExecutor.ts`
+- Pipeline executor (artifact publication + trace scoping): `packages/mapgen-core/src/engine/PipelineExecutor.ts`
 - Standard recipe (canonical consumer-facing pipeline): `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`

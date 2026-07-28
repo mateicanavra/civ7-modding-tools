@@ -8,7 +8,7 @@ This file defines the generic component owners admitted under
   corresponding authoring components and laws; `authoring/snapshot` owns
   descriptor-safe caller-data capture and contract-graph detachment.
 - `compiler` owns normalization and compilation behavior.
-- `engine/*.test.ts` owns generic planning, dependency gating, execution, tag,
+- `engine/*.test.ts` owns generic planning, dependency gating, execution, completion,
   and tracing behavior.
 - `core` owns foundational context and deterministic engine primitives.
 - `trace` owns generic trace contracts and utilities.

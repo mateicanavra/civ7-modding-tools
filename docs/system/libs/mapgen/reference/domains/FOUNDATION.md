@@ -81,7 +81,7 @@ Foundation keeps vocabulary at its lowest common semantic owner:
 - `mods/mod-swooper-maps/src/domain/foundation/model/policy/crust-buoyancy.ts`
 - `mods/mod-swooper-maps/src/domain/foundation/modules/tectonics/model/atoms/tectonic-event.schema.ts`
 
-### Provides (artifacts + completions)
+### Provides (artifacts)
 
 Foundation steps provide the following exact artifact authorities. Their stable
 runtime and diagnostic ids use the `artifact:*` namespace.

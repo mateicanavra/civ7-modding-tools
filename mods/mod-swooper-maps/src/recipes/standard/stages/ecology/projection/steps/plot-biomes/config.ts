@@ -2,7 +2,7 @@ import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biom
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
-import { STANDARD_ENGINE_EFFECT_TAGS } from "../../../../../tag-contracts.js";
+import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
 
 /**
  * Defines the translation from Ecology biome symbols to fixed official Civ7 biome identities.
@@ -17,5 +17,5 @@ export const config = defineStep({
     climateArtifacts.climateIndices,
     morphologyLandformsArtifacts.topography,
   ],
-  provides: [STANDARD_ENGINE_EFFECT_TAGS.engine.biomesApplied],
+  provides: [STANDARD_COMPLETIONS.biomesApplied],
 });

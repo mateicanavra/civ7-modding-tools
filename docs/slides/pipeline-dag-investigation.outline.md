@@ -19,10 +19,10 @@ Slides (blocks stacked top→bottom):
    carries 3 segments (carried artifacts / cap / predicate); kpiGrid uniform
    (cycles admitted: 0 · loop exit: cap · engine changes for evolution: 0).
 2. **Executor today** (current) — kpiGrid hero (topological sorts: 0 ·
-   schedule source: authored order · dependency tags: validate-only);
-   codeBlock PipelineExecutor.ts:107–118; explanation.
-3. **Decorative DAG** (current) — diagram (two consumers of contracts); table
-   of duplicate providers; explanation (first-writer-wins).
+   schedule source: authored order · dependency authority: plan compilation);
+   codeBlock execution-plan.ts:79–115; explanation.
+3. **Validated DAG metadata** (current) — diagram (compiler and Studio consume
+   one contract); table of artifact/completion proof; explanation.
 4. **Five feedback pressures** (evidence) — kpiGrid spotlight (4 physics / 1
    invalidation / 0 expressible); table of five couplings; explanation
    separating invalidation from physics.

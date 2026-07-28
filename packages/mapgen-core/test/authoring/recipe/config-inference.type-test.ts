@@ -48,7 +48,6 @@ const TypeTestStage = createStage({
 
 const TypeTestRecipe = createRecipe({
   id: "test.type-recipe",
-  tagDefinitions: [],
   stages: [TypeTestStage] as const,
   operations: {},
 });
@@ -164,7 +163,6 @@ void genericEmptyInternal;
 
 const EmptyInternalRecipe = createRecipe({
   id: "test.empty-internal-recipe",
-  tagDefinitions: [],
   stages: [EmptyInternalStage] as const,
   operations: {},
 });
@@ -185,7 +183,6 @@ void invalidEmptyInternalConfig;
 
 const EmptyCompiledRecipe = createRecipe({
   id: "test.empty-compiled-recipe",
-  tagDefinitions: [],
   stages: [EmptyCompiledStage] as const,
   operations: {},
 });
@@ -221,7 +218,6 @@ void invalidEmptyCompiledRawSteps;
 
 const ConfigurationlessRecipe = createRecipe({
   id: "test.configurationless-recipe",
-  tagDefinitions: [],
   stages: [ConfigurationlessStage] as const,
   operations: {},
 });

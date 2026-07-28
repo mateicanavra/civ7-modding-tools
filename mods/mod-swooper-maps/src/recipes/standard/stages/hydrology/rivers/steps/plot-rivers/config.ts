@@ -2,7 +2,7 @@ import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modu
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
+import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
 import { NAVIGABLE_RIVER_PROJECTION_POLICY } from "../../model/policy/navigable-river-projection.js";
 
 const PlotRiversStepConfigSchema = Type.Object(
@@ -48,17 +48,15 @@ export const config = defineStep({
     "readRiverProjection",
   ] as const,
   requires: [
-    MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt,
+    STANDARD_COMPLETIONS.elevationBuilt,
+    STANDARD_COMPLETIONS.rainfallProjected,
     hydrographyArtifacts.hydrography,
     hydrographyArtifacts.lakePlan,
     hydrographyArtifacts.riverNetwork,
     morphologyShelfArtifacts.shelf,
     morphologyLandformsArtifacts.topography,
   ],
-  provides: [
-    MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
-    hydrographyArtifacts.projectedNavigableRivers,
-  ],
+  provides: [STANDARD_COMPLETIONS.riversPlotted, hydrographyArtifacts.projectedNavigableRivers],
 
   schema: PlotRiversStepConfigSchema,
 });

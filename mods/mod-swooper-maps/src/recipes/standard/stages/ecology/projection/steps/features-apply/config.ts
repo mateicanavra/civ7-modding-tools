@@ -2,7 +2,7 @@ import ecology from "@mapgen/domain/ecology";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
-import { STANDARD_ENGINE_EFFECT_TAGS } from "../../../../../tag-contracts.js";
+import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
 
 /**
  * Defines the sole map-ecology boundary that applies all planned feature-family intents to
@@ -23,6 +23,7 @@ export const config = defineStep({
     "recalculateAreas",
   ] as const,
   requires: [
+    STANDARD_COMPLETIONS.biomesApplied,
     featureArtifacts.vegetationIntents,
     featureArtifacts.wetlandIntents,
     featureArtifacts.floodplainIntents,
@@ -30,7 +31,7 @@ export const config = defineStep({
     featureArtifacts.iceIntents,
     morphologyLandformsArtifacts.topography,
   ],
-  provides: [STANDARD_ENGINE_EFFECT_TAGS.engine.featuresApplied],
+  provides: [STANDARD_COMPLETIONS.featuresApplied],
 
   ops: {
     apply: ecology.features.ops.applyFeatures,

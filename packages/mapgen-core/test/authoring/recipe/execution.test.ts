@@ -47,7 +47,6 @@ describe("authoring: hello recipe compile/execute", () => {
     const recipe = createRecipe({
       id: "hello",
       namespace: "test",
-      tagDefinitions: [],
       stages: [helloStage],
       operations: {},
     });
@@ -89,7 +88,6 @@ describe("authoring: hello recipe compile/execute", () => {
     const recipe = createRecipe({
       id: "setup-authority",
       namespace: "test",
-      tagDefinitions: [],
       stages: [stage],
       operations: {},
     });
@@ -192,7 +190,6 @@ describe("authoring: hello recipe compile/execute", () => {
     const recipe = createRecipe({
       id: "ops",
       namespace: "test",
-      tagDefinitions: [],
       stages: [stage],
       operations: { [treePlan.id]: treePlan },
     });
@@ -249,7 +246,6 @@ describe("authoring: hello recipe compile/execute", () => {
     const recipe = createRecipe({
       id: "facets",
       namespace: "test",
-      tagDefinitions: [],
       stages: [stage],
       operations: {},
     });

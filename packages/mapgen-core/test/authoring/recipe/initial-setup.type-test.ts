@@ -106,7 +106,6 @@ const stage = createStage({
 export const ExactInitialSetupRecipe = createRecipe({
   id: "test.exact-initial-setup",
   initialSetup: ExactInitialSetup,
-  tagDefinitions: [],
   stages: [stage],
   operations: {},
 });
@@ -151,7 +150,6 @@ acceptExactRecipeEvidence(exactEvidence);
 const OtherRecipe = createRecipe({
   id: "test.other-initial-setup",
   initialSetup: ExactInitialSetup,
-  tagDefinitions: [],
   stages: [stage],
   operations: {},
 });

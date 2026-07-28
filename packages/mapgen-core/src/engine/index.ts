@@ -1,15 +1,11 @@
 export type { MapSetup, MapSetupInput } from "@mapgen/core/map-setup.js";
 export { MapSetupSchema } from "@mapgen/core/map-setup.js";
+export type { CompletionId } from "@mapgen/engine/completion.js";
 export {
-  DuplicateDependencyTagError,
   DuplicateStepError,
-  InvalidDependencyTagDemoError,
-  InvalidDependencyTagError,
-  MissingDependencyError,
+  MissingArtifactPublicationError,
   StepExecutionError,
-  UnknownDependencyTagError,
   UnknownStepError,
-  UnsatisfiedProvidesError,
 } from "@mapgen/engine/errors.js";
 export type {
   ExecutionPlan,
@@ -39,16 +35,8 @@ export type {
   StepFacets,
 } from "@mapgen/engine/step-facets.js";
 export type {
-  ArtifactDependencyTag,
-  DependencyEvidence,
-  DependencyTag,
-  DependencyTagKind,
-  EffectDependencyTag,
-} from "@mapgen/engine/tags.js";
-export { TagRegistry } from "@mapgen/engine/tags.js";
-export type {
-  DependencyTagId,
   MapGenStep,
   NormalizeContext,
+  PipelineDependency,
   PipelineStepResult,
 } from "@mapgen/engine/types.js";

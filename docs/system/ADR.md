@@ -360,7 +360,7 @@ exact stage identity, and path-backed readers reject non-v2 or identity-incomple
 manifests. No v1 adapter or inferred stage fallback is admitted.
 **Consequences:**
 - Recipe order and stage membership have one authority: recipe composition.
-- Steps and dependency-tag definitions do not repeat phase or stage ownership.
+- Steps and recipe completion ids do not repeat phase or stage ownership.
 - Studio consumes exact stage identity from live worker evidence; it does not
   parse step ids to recreate it.
 - Viz owns serialized v2 admission; mod diagnostics own filesystem orchestration and comparison.
@@ -400,3 +400,36 @@ qualify.
   must remain semantic and contextual at their owning operation.
 - The recipe-stage blueprint excludes external public-config files and rejects
   detached public overrides plus obvious empty or passthrough compiler wrappers.
+
+## ADR-015: Step causality is exact artifacts plus plan-only completions
+
+**Status:** Accepted
+**Date:** 2026-07-27
+**Context:** MapGen represented step causality through a tag registry, runtime
+satisfaction ledger, effect evidence, adapter call accounting, and optional
+postcondition predicates. Most tags duplicated admitted write-once artifacts;
+the remainder represented successful external Civ7 transactions but accumulated
+no payload. The machinery created multiple descriptions of the same execution
+state without proving runtime isolation or improving selected-plan scheduling.
+**Decision:** A step has one ordered `requires` list and one ordered `provides`
+list. Each entry is either an exact `Artifact` authority or a typed, payload-free
+`CompletionId`. Selected-plan compilation requires exactly one earlier provider,
+rejects competing providers, and preserves exact artifact identity. Artifact
+publication remains the sole runtime admission and postcondition transition. A
+completion is only a causal plan edge for successful external-state mutation
+that a downstream consumer genuinely needs and no exact admitted artifact
+expresses; sequential fail-fast execution proves provider reachability without
+emitting or storing completion state.
+**Consequences:**
+- Tag registries, effect definitions, adapter ledgers, postcondition callbacks,
+  runtime completion emission, and satisfaction reports are deleted.
+- Engine-method declarations remain capability whitelists. They neither derive
+  nor satisfy completions because a method call is not the same authority as a
+  successful step transaction.
+- Exact artifacts are preferred whenever their admitted payload semantically
+  represents the downstream outcome. Planning or pre-materialization artifacts
+  cannot serve as sentinels for later Civ7 mutations.
+- Authored order alone does not earn a completion. Every completion must name a
+  concrete downstream dependency on otherwise invisible mutable state.
+- Initial setup remains immutable invocation context, while trace events remain
+  observation; neither is a dependency kind.

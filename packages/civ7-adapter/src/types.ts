@@ -618,14 +618,6 @@ export interface EngineAdapter {
    */
   hasPlotEffect(x: number, y: number, plotEffectType: number): boolean;
 
-  // === EFFECT VERIFICATION ===
-
-  /**
-   * Verify that an engine-surface effect has been applied.
-   * Used for effect:* postcondition checks (best-effort, adapter-owned).
-   */
-  verifyEffect(effectId: string): boolean;
-
   // === RANDOM NUMBER GENERATION ===
 
   /**

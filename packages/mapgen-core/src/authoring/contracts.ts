@@ -1,4 +1,5 @@
 export { MapSetupSchema } from "@mapgen/core/map-setup.js";
+export type { CompletionId } from "@mapgen/engine/completion.js";
 export type { Static, TObject, TSchema } from "typebox";
 export { Type } from "typebox";
 export type { ArtifactCatalog } from "./artifact/catalog.js";

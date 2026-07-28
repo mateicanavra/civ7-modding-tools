@@ -1,7 +1,7 @@
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
-import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
+import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
 
 /**
  * Defines continent projection after `coastsPlotted`, preventing the implementation from
@@ -19,9 +19,9 @@ export const config = defineStep({
     "storeWaterData",
   ] as const,
   requires: [
-    MAP_PROJECTION_EFFECT_TAGS.map.coastsPlotted,
+    STANDARD_COMPLETIONS.coastsPlotted,
     morphologyLandformsArtifacts.topography,
     morphologyShelfArtifacts.shelf,
   ],
-  provides: [MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted],
+  provides: [STANDARD_COMPLETIONS.continentsPlotted],
 });

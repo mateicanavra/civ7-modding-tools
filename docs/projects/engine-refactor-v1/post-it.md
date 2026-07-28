@@ -2,7 +2,7 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Gravity. Observation. Admission. Ownership. Contract.
+**Attractor filter:** Gravity. Completion. Admission. Ownership. Contract.
 Deletion. Density. Candor. Restraint.
 
 **Frame:** kind before instance, intent before ownership, authority before
@@ -31,15 +31,15 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** make each step's ordered `requires` and `provides` list
-the sole authored dependency graph. Completion guarantees remain ids; artifacts
-remain exact `Artifact` authorities rather than lossy strings. `defineStep`
-retains those exact selections for authoring and projects them to the runtime id
-ledger once. Typed occurrence capabilities derive directly from the selected
-artifact authorities; there is no private witness, registry, or second edge
-model. The nested `artifacts.requires` / `artifacts.provides` graph, append
-logic, and drift checks retire. `deps.artifacts` remains a typed capability
-projection, not another declaration.
+**Current container:** collapse effect-tag machinery into the two dependencies
+that actually exist: exact artifact authority and a payload-free plan edge for
+causality that no artifact expresses. Both remain selected once in the step's
+ordered `requires` and `provides` lists. Artifact publication is the only
+runtime postcondition. Completion requires one earlier selected provider, and
+linear fail-fast execution makes successful reachability its proof without
+emitting or storing another state. It does not prove an individual adapter
+call. Method authorization, method invocation, trace events, adapter evidence,
+tag definitions, and demo predicates are not alternate completion authorities.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -56,14 +56,17 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** replace every nested artifact selector with its exact authority in
-the corresponding top-level list; collapse contract generics and snapshotting;
-derive typed artifact capabilities from the same lists; delete reconciliation
-and duplicate-direction checks; prove order, identity, DAG behavior, and exact
-per-step access. Then evaluate completion authority on the normalized plane:
-keep a builder only if it represents a real transition and closes provider
-behavior more cheaply; do not rename completion guarantees to events or derive
-them from engine call authorization merely because both concern execution.
+**Gradient:** prefer an exact artifact when it semantically represents the
+completed outcome required downstream; do not misuse a planning artifact as a
+sentinel for a later engine transaction. The accepted post-stamp lake artifact
+and exact start assignment delete their parallel completions. Rainfall before
+native river modeling and discoveries before fertility recalculation earn
+payload-free completions because their consumed outcomes exist only in Civ7.
+Landmass-region projection drops its unconsumed surface-order edge. Freeze the
+thirteen irreducible edges, then prove a selected consumer cannot omit or
+precede its provider, failed providers stop before consumers, missing artifacts
+still fail publication, and completion topology remains closed without an
+event stream or builder.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -98,6 +101,17 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-27 - Unified Step Dependency Authority
+
+Each step now owns one ordered dependency list per direction. Exact `Artifact`
+authorities and typed completion ids share that list; recipe compilation
+projects their runtime ids once, while typed artifact capabilities derive from
+the exact same selected values. The nested artifact selector, concatenation,
+reconciliation checks, private witness temptation, and compatibility surface
+retired across all 53 Standard steps. Generic exact-path Habitat law, current
+docs, Core/Swooper tests, boundaries, and independent type/architecture reviews
+seal the cut.
 
 ### 2026-07-27 - Artifact Admission And Observation Sealed
 

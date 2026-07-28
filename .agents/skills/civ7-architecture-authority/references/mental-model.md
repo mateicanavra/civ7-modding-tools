@@ -43,7 +43,7 @@ stage or file move:
   the pipeline.
 - **Projection surface:** engine-facing writes, adapter materialization,
   parity diagnostics, or map artifacts derived from truth.
-- **Product/effect surface:** gameplay placement products such as wonders,
+- **Gameplay product surface:** placement products such as wonders,
   resources, starts, discoveries, or advanced starts.
 - **Presentation surface:** Studio grouping, debug navigation, visualization,
   or trace display.

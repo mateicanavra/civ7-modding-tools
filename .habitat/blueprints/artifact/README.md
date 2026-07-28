@@ -14,9 +14,9 @@ producer/consumer contracts, value-store semantics, and the narrow buffer
 exception.
 
 This is not Habitat support-file vocabulary, not generated build output, not
-dependency-tag authority, and not a sibling `artifact-contract` blueprint.
-`artifact:*` remains dependency-tag vocabulary when a rule governs dependency
-edge IDs rather than artifact values.
+recipe-step dependency authority, and not a sibling `artifact-contract`
+blueprint. Step contracts select the exact `Artifact` value; raw `artifact:*`
+strings are not artifact authorities.
 
 ## Constructibility Evidence
 

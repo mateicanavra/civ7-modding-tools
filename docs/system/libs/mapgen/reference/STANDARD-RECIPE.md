@@ -3,6 +3,7 @@
   <item id="scope" title="Scope + ownership"/>
   <item id="contract" title="Contract (what is guaranteed)"/>
   <item id="stage-order" title="Stage order (current)"/>
+  <item id="completion-topology" title="Completion topology"/>
   <item id="config" title="Config surface (schema + posture)"/>
   <item id="domains" title="Domains + ops registry"/>
   <item id="anchors" title="Ground truth anchors"/>
@@ -47,9 +48,10 @@ The standard recipe is **content-owned** (not SDK-owned):
 ## Contract (what is guaranteed)
 
 - The standard recipe is authored via the MapGen authoring SDK (`createRecipe`, `createStage`, `createStep`).
-- Stage order is explicit in the recipe module (recipe is the ordering source of truth).
+- Stage order is explicit in `contract-manifest.ts`; recipe composition is checked against it.
 - Config surface is strict and stage-scoped.
-- The recipe uses a tag registry (dependency validation) and an ops registry (by op id).
+- Selected plans validate exact artifact authorities and typed engine-transaction completions.
+- Domain routers contribute one canonical executable operation surface to recipe composition.
 
 ## Stage order (current)
 
@@ -91,6 +93,33 @@ Note:
 
 - “foundation-\*/morphology-\*/hydrology/ecology-\*” stages are primarily **truth** producers.
 - “map-\*” and “placement” stages are primarily **projection** / engine-facing surfaces.
+
+## Completion topology
+
+The Standard catalog contains only transactions whose successful mutation of
+invisible Civ7 state is consumed by a later selected step and cannot be replaced
+by an admitted outcome artifact.
+
+| Provider | Completion | Consumer | External state consumed |
+|---|---|---|---|
+| `plot-coasts` | `map.coasts-plotted` | `plot-continents` | materialized coast terrain |
+| `plot-continents` | `map.continents-plotted` | `plot-mountains`, `plot-volcanoes` | validated continent terrain |
+| `plot-mountains` | `map.mountains-plotted` | `build-elevation` | projected mountain terrain |
+| `plot-volcanoes` | `map.volcanoes-plotted` | `build-elevation` | projected volcano terrain |
+| `project-rainfall` | `map.rainfall-projected` | `plot-rivers` | Civ7 rainfall field read by native river modeling |
+| `build-elevation` | `map.elevation-built` | `plot-rivers` | current Civ7 elevation |
+| `plot-rivers` | `map.rivers-plotted` | `plan-natural-wonders` | final native river surface |
+| `plot-biomes` | `engine.biomes-applied` | `features-apply` | current engine biome classification |
+| `features-apply` | `engine.features-applied` | `plan-natural-wonders` | admitted current feature surface |
+| `place-natural-wonders` | `placement.natural-wonders-placed` | `prepare-placement-surface` | wonder-driven terrain mutations |
+| `prepare-placement-surface` | `placement.surface-prepared` | `plan-resource-demands`, `observe-placement-parity` | maintained water, terrain, and area state |
+| `place-resources` | `placement.resources-placed` | `place-discoveries` | current resource occupancy |
+| `place-discoveries` | `placement.discoveries-placed` | `assign-advanced-starts` | discovery state consumed by fertility recalculation |
+
+This table documents product causality; the typed step configs and selected-plan
+compiler remain the executable authorities. Accepted lake projection and start
+assignment use exact post-action artifacts instead. Advanced starts have no
+completion because no selected consumer reads their resulting engine state.
 
 ## Config surface (schema + posture)
 
@@ -147,6 +176,7 @@ Domain contract references:
 ## Ground truth anchors
 
 - Standard recipe composition: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
+- Standard completion catalog: `mods/mod-swooper-maps/src/recipes/standard/completions.ts`
 - Example stage schema/knobs posture: `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/mantle/index.ts`
 - Stage authoring contract: `packages/mapgen-core/src/authoring/stage/create.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`

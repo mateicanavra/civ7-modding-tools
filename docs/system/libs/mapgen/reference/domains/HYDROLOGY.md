@@ -64,6 +64,18 @@ Hydrology provides:
 - `artifact:hydrology.climateIndices` (advisory indices for downstream consumption)
 - `artifact:hydrology.cryosphere` (cryosphere products; neutralized when knob disables it)
 
+Hydrology projection also provides two payload-free external-state completions:
+
+- `completion:map.rainfall-projected` gates native river modeling on the final
+  rainfall surface having been written into Civ7.
+- `completion:map.rivers-plotted` gates consumers of final native river state.
+  `artifact:map.rivers.projectedNavigableRivers` remains pre-materialization
+  selection intent and therefore cannot substitute for this completion.
+
+Accepted lake projection has no parallel completion:
+`artifact:hydrology.projectedLakes` is exact post-stamp readback and carries the
+outcome required by elevation and terminal parity consumers.
+
 ## Key artifacts
 
 Hydrology's semantic products are cataloged by their owning module:
@@ -234,7 +246,7 @@ different writer surface is discovered and proven.
 - Step contracts (projection stage):
   - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/projection/steps/lakes/config.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/rivers/steps/plot-rivers/config.ts`
-- Effect tag registry: `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
+- Completion catalog: `mods/mod-swooper-maps/src/recipes/standard/completions.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
 
 ## Open questions

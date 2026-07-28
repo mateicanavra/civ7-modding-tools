@@ -17,7 +17,7 @@ authority for identity, schema, and complete admission.
 Routes to:
 - Artifact reference: [`docs/system/libs/mapgen/reference/ARTIFACTS.md`](/system/libs/mapgen/reference/ARTIFACTS.md)
 - Artifact mutation policy: [`docs/system/libs/mapgen/policies/ARTIFACT-MUTATION.md`](/system/libs/mapgen/policies/ARTIFACT-MUTATION.md)
-- Dependency id policy: [`docs/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md`](/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md)
+- Dependency policy: [`docs/system/libs/mapgen/policies/DEPENDENCIES.md`](/system/libs/mapgen/policies/DEPENDENCIES.md)
 
 ## Prereqs
 
@@ -121,7 +121,7 @@ export const config = defineStep({
 ```
 
 Downstream steps put the same value directly in `requires`. Artifact authorities
-already participate in dependency satisfaction; do not replace them with raw
+already participate in selected-plan validation and runtime publication proof; do not replace them with raw
 `artifact:*` ids.
 
 ### 4) Publish through the occurrence capability

@@ -139,7 +139,7 @@ live-proof runbook in `MILESTONE-PROOFS.md`).
 **Deferred:** 2026-07-11
 **Trigger:** Any placement product step adds or changes a dependency edge, or Habitat gains a recipe-step dependency-graph validator that can express edge direction from registered contracts.
 **Context:** Product steps must depend on upstream products and declared inputs; they must not depend backward on the terminal placement/apply step or its private inputs. The previous package test enforced this by scanning source paths, which is too brittle to preserve as structural authority. Owner: Habitat recipe-step dependency authority, projected through standard recipe contract metadata.
-**Scope:** Define a positive dependency-direction invariant over registered placement step contracts and their artifact/effect edges; validate the graph without exact paths, source tokens, or property-key inventories.
+**Scope:** Define a positive dependency-direction invariant over registered placement step contracts and their artifact/completion edges; validate the graph without exact paths, source tokens, or property-key inventories.
 **Impact:** After the package source scan is removed, the invariant remains documented and review-owned but is not yet an independently executable Habitat rule.
 
 ## DEF-019: Placement start-selection ownership authority

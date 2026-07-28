@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import {
   buildRecipeDag,
+  type CompletionId,
   createStage,
   createStep,
   defineArtifact,
@@ -10,6 +11,7 @@ import {
 import { Type } from "typebox";
 
 const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false, default: {} });
+const EXTERNAL_READY = "completion:test.external-ready" as const satisfies CompletionId;
 
 const sourceArtifact = defineArtifact({
   name: "sourceArtifact",
@@ -39,13 +41,15 @@ function step(input: {
   id: string;
   requires?: readonly ReturnType<typeof defineArtifact>[];
   provides?: readonly ReturnType<typeof defineArtifact>[];
+  completionRequires?: readonly CompletionId[];
+  completionProvides?: readonly CompletionId[];
 }) {
   const requires = input.requires ?? [];
   const provides = input.provides ?? [];
   const contract = defineStep({
     id: input.id,
-    requires: requires.length ? ["effect:test.externalReady", ...requires] : [],
-    provides,
+    requires: [...(input.completionRequires ?? []), ...requires],
+    provides: [...(input.completionProvides ?? []), ...provides],
   });
   return createStep(contract, { run: () => {} });
 }
@@ -73,10 +77,12 @@ describe("recipe DAG authoring model", () => {
         step({
           id: "produce-source",
           provides: [sourceArtifact],
+          completionProvides: [EXTERNAL_READY],
         }),
         step({
           id: "consume-internal",
           requires: [internalArtifact],
+          completionRequires: [EXTERNAL_READY],
         }),
       ]),
       stage("target-stage", [
@@ -100,6 +106,26 @@ describe("recipe DAG authoring model", () => {
 
     expect(dag.recipeKey).toBe("test-mod/standard");
     expect(dag.stages.map((node) => node.stageId)).toEqual(["source-stage", "target-stage"]);
+    const completionMetadata = dag.stages
+      .flatMap((stage) => stage.steps)
+      .filter((step) => step.completionRequires.length > 0 || step.completionProvides.length > 0)
+      .map((step) => ({
+        stepId: step.stepId,
+        completionRequires: step.completionRequires,
+        completionProvides: step.completionProvides,
+      }));
+    expect(completionMetadata).toEqual([
+      {
+        stepId: "produce-source",
+        completionRequires: [],
+        completionProvides: [EXTERNAL_READY],
+      },
+      {
+        stepId: "consume-internal",
+        completionRequires: [EXTERNAL_READY],
+        completionProvides: [],
+      },
+    ]);
     expect(
       dag.edges.map((edge) => ({
         artifact: edge.artifact.id,

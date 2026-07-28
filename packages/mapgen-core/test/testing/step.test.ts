@@ -83,7 +83,6 @@ describe("step testing surface", () => {
     withMapContextExecutionForTest(firstRoot, (stepContext) => {
       const dependencies = buildStepTestDependencies(engineStep, stepContext);
       expect(Object.keys(dependencies.engine)).toEqual(["readCurrentMapWaterMask"]);
-      expect(Reflect.get(dependencies.engine, "verifyEffect")).toBeUndefined();
       expect(Reflect.get(dependencies.engine, "getRandomNumber")).toBeUndefined();
       expect(Reflect.get(stepContext, "adapter")).toBeUndefined();
       expect(Array.from(dependencies.engine.readCurrentMapWaterMask(stepContext))).toEqual([
@@ -114,9 +113,6 @@ describe("step testing surface", () => {
         engine: ["readCurrentMapWaterMask", "readCurrentMapWaterMask"] as const,
       })
     ).toThrow("multiple times");
-    expect(() => defineUncheckedStep({ ...base, engine: ["verifyEffect"] })).toThrow(
-      "unavailable authored engine method"
-    );
     expect(() => defineUncheckedStep({ ...base, engine: ["getRandomNumber"] })).toThrow(
       "unavailable authored engine method"
     );

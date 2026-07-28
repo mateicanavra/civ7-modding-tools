@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_domain_ops_recipe_dependencies",
+  "title": "Prohibit Domain Operation Recipe Dependencies",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-operation",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "domain operations naming recipe projection artifacts or completion ids",
+  "why": "Domain operations consume admitted domain data; projection artifacts and completions belong to recipe orchestration.",
+  "remediate": null,
+  "message": "Remove the recipe dependency and pass required domain data through the operation contract.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/*/src/domain/*/modules/*/ops/**/*.ts"]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-operation/prohibit_domain_ops_recipe_dependencies/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/domain-operation/prohibit_domain_ops_recipe_dependencies/pattern.md"
+    },
+    "patternName": "prohibit_domain_ops_recipe_dependencies",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["mods"]
+    }
+  }
+}

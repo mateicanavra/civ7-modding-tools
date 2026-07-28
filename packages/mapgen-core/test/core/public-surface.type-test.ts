@@ -10,7 +10,6 @@ void MapGenCore.admitMapSetup;
 void MapGenCore.MapSetupSchema;
 void MapGenAuthoring.readArtifact;
 void MapGenAuthoring.observeArtifact;
-void MapGenEngine.TagRegistry;
 void MapGenTesting.createTraceSessionForTest;
 void MapGenTrace.TraceEventSchema;
 void MapGenPublic.VERSION;
@@ -18,11 +17,7 @@ void MapGenPublic.VERSION;
 type PublicStepFacetSinks = MapGenPublic.StepFacetSinks;
 type PublicStepFacetFailure = MapGenPublic.StepFacetFailure;
 type PublicArtifactObservation = MapGenAuthoring.ArtifactObservation<MapGenAuthoring.Artifact>;
-
-// @ts-expect-error Artifact dependency authorities are derived by recipe composition, not authored.
-type PublicArtifactDependencyTag = MapGenAuthoring.ArtifactDependencyTag;
-// @ts-expect-error The resolved dependency union is internal to recipe and executor composition.
-type PublicDependencyTag = MapGenAuthoring.DependencyTag;
+type EngineCompletionId = MapGenEngine.CompletionId;
 
 // @ts-expect-error Internal setup-authenticity assertions are not part of the public Core surface.
 MapGenCore.assertMapSetupInternal;
@@ -46,10 +41,6 @@ MapGenAuthoring.appendArtifactGridCoordinateIssues;
 MapGenAuthoring.artifactCellCount;
 // @ts-expect-error Contract-only authoring has no legacy artifact validation helpers.
 MapGenContracts.appendArtifactTypedArrayIssues;
-// @ts-expect-error Tag satisfaction is executor-owned rather than a public engine command.
-MapGenEngine.isDependencyTagSatisfied;
-// @ts-expect-error Satisfaction-state construction is executor-owned.
-MapGenEngine.computeInitialSatisfiedTags;
 // @ts-expect-error Production trace-session construction is not a public trace capability.
 MapGenTrace.createTraceSession;
 // @ts-expect-error Plan compilation is private to the recipe execution boundary.
@@ -58,8 +49,6 @@ MapGenPublic.compileExecutionPlan;
 MapGenPublic.PipelineExecutor;
 // @ts-expect-error Mutable step registration is private to recipe composition.
 MapGenPublic.StepRegistry;
-// @ts-expect-error Mutable dependency-tag registration is private to recipe composition.
-MapGenPublic.TagRegistry;
 // @ts-expect-error Steps bind operation contracts directly; the retired op-reference wrapper is absent.
 MapGenAuthoring.opRef;
 
@@ -85,8 +74,7 @@ void (undefined as unknown as PublicArtifactValidationIssue);
 void (undefined as unknown as PublicArtifactRefinement);
 void (undefined as unknown as PublicArtifactValidator);
 void (undefined as unknown as PublicArtifactValidationContext);
-void (undefined as unknown as PublicArtifactDependencyTag);
-void (undefined as unknown as PublicDependencyTag);
 void (undefined as unknown as PublicStepFacetSinks);
 void (undefined as unknown as PublicStepFacetFailure);
 void (undefined as unknown as PublicArtifactObservation);
+void (undefined as unknown as EngineCompletionId);

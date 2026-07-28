@@ -6,11 +6,8 @@ import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morpho
 import placement from "@mapgen/domain/placement";
 import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
+import { STANDARD_COMPLETIONS } from "../../../../completions.js";
 import { STANDARD_INITIAL_SETUP } from "../../../../initial-setup.js";
-import {
-  MAP_PROJECTION_EFFECT_TAGS,
-  STANDARD_ENGINE_EFFECT_TAGS,
-} from "../../../../tag-contracts.js";
 
 /**
  * Defines natural-wonder planning from final domain products, current adapter
@@ -25,8 +22,8 @@ export const config = defineStep({
     "readCurrentMapFeatureTypes",
   ] as const,
   requires: [
-    MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
-    STANDARD_ENGINE_EFFECT_TAGS.engine.featuresApplied,
+    STANDARD_COMPLETIONS.featuresApplied,
+    STANDARD_COMPLETIONS.riversPlotted,
     morphologyLandformsArtifacts.topography,
     climateArtifacts.climateIndices,
     hydrographyArtifacts.hydrography,

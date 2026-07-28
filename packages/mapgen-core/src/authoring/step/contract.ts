@@ -1,4 +1,4 @@
-import type { DependencyTagId } from "@mapgen/engine/index.js";
+import { assertCompletionId, type CompletionId } from "@mapgen/engine/completion.js";
 import { type TObject, type TSchema, Type } from "typebox";
 import { type Artifact, assertArtifact } from "../artifact/contract.js";
 import {
@@ -202,7 +202,7 @@ function normalizeOpsDecl<const Ops extends StepOpsDeclInput>(input: {
 }
 
 /** One completion id or exact artifact authority selected by a step dependency edge. */
-export type StepDependency = DependencyTagId | Artifact;
+export type StepDependency = CompletionId | Artifact;
 
 /** Ordered dependency selection authored for one direction of a step contract. */
 export type StepDependencyList = readonly StepDependency[];
@@ -273,6 +273,7 @@ function snapshotDependencyList(
           `${location} at index ${index} must use the canonical artifact authority instead of raw id "${dependency}"`
         );
       }
+      assertCompletionId(dependency);
       dependencies.push(dependency);
       continue;
     }
@@ -284,7 +285,7 @@ function snapshotDependencyList(
 /**
  * Frozen authoring contract for one recipe step.
  * Each ordered dependency list retains completion ids and exact artifact authorities in one place;
- * recipe compilation projects those selections into the runtime id ledger.
+ * recipe compilation validates their causal providers and projects their ids for diagnostics.
  */
 export type StepContract<
   Schema extends TObject,
@@ -494,34 +495,36 @@ export function defineStep(def: any): any {
     admitted.initialSetup === undefined
       ? undefined
       : (assertInitialSetupDefinitionInternal(admitted.initialSetup), admitted.initialSetup);
-  const requiredArtifactIds = new Set<string>();
-  const providedArtifactIds = new Set<string>();
+  const requiredDependencyIds = new Set<string>();
+  const providedDependencyIds = new Set<string>();
   const seenArtifactNames = new Set<string>();
   for (const dependency of requires) {
-    if (typeof dependency === "string") continue;
-    const { id, name } = dependency;
-    if (requiredArtifactIds.has(id)) {
-      throw new Error(`step "${stepId}" declares artifact "${id}" multiple times in requires`);
+    const id = typeof dependency === "string" ? dependency : dependency.id;
+    if (requiredDependencyIds.has(id)) {
+      throw new Error(`step "${stepId}" declares dependency "${id}" multiple times in requires`);
     }
+    requiredDependencyIds.add(id);
+    if (typeof dependency === "string") continue;
+    const { name } = dependency;
     if (seenArtifactNames.has(name)) {
       throw new Error(`step "${stepId}" declares duplicate artifact name "${name}"`);
     }
-    requiredArtifactIds.add(id);
     seenArtifactNames.add(name);
   }
   for (const dependency of provides) {
+    const id = typeof dependency === "string" ? dependency : dependency.id;
+    if (requiredDependencyIds.has(id)) {
+      throw new Error(`step "${stepId}" declares dependency "${id}" in both requires and provides`);
+    }
+    if (providedDependencyIds.has(id)) {
+      throw new Error(`step "${stepId}" declares dependency "${id}" multiple times in provides`);
+    }
+    providedDependencyIds.add(id);
     if (typeof dependency === "string") continue;
-    const { id, name } = dependency;
-    if (requiredArtifactIds.has(id)) {
-      throw new Error(`step "${stepId}" declares artifact "${id}" in both requires and provides`);
-    }
-    if (providedArtifactIds.has(id)) {
-      throw new Error(`step "${stepId}" declares artifact "${id}" multiple times in provides`);
-    }
+    const { name } = dependency;
     if (seenArtifactNames.has(name)) {
       throw new Error(`step "${stepId}" declares duplicate artifact name "${name}"`);
     }
-    providedArtifactIds.add(id);
     seenArtifactNames.add(name);
   }
 

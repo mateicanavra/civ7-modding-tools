@@ -26,8 +26,8 @@ const StepSchema = Type.Object(
     orderInStage: Type.Integer({ minimum: 0 }),
     artifactRequires: Type.Array(ArtifactRefSchema),
     artifactProvides: Type.Array(ArtifactRefSchema),
-    tagRequires: Type.Array(Type.String()),
-    tagProvides: Type.Array(Type.String()),
+    completionRequires: Type.Array(Type.String()),
+    completionProvides: Type.Array(Type.String()),
   },
   { additionalProperties: false }
 );

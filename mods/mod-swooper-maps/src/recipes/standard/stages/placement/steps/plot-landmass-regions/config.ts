@@ -2,20 +2,15 @@ import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morpho
 import placement from "@mapgen/domain/placement";
 import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/modules/regions/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
-import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 
 /**
- * Defines the single landmass-region projection after engine-surface
- * maintenance, publishing the per-tile slot evidence consumed by placement.
+ * Defines the single landmass-region projection from admitted topology,
+ * publishing the per-tile slot evidence consumed by placement.
  */
 export const config = defineStep({
   id: "plot-landmass-regions",
   engine: ["getLandmassId", "setLandmassRegionId"] as const,
-  requires: [
-    PLACEMENT_PRODUCT_EFFECT_TAGS.placement.surfacePrepared,
-    morphologyLandformsArtifacts.topography,
-    morphologyLandformsArtifacts.landmasses,
-  ],
+  requires: [morphologyLandformsArtifacts.topography, morphologyLandformsArtifacts.landmasses],
   provides: [placementRegionArtifacts.landmassRegionSlotByTile],
 
   ops: {

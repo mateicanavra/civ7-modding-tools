@@ -1,8 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
+import { defineArtifact } from "@mapgen/authoring/index.js";
 import { createMapContext } from "@mapgen/core/map-context.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
 import {
+  type CompletionId,
   compileExecutionPlan,
   computePlanFingerprint,
   type ExecutionPlan,
@@ -15,11 +17,8 @@ import {
 import type { TraceEvent } from "@mapgen/trace/index.js";
 import { Type } from "typebox";
 
-const TEST_TAGS = {
-  effect: {
-    foundationEstablished: "effect:test.foundation-established",
-  },
-} as const;
+const FOUNDATION_ESTABLISHED =
+  "completion:test.foundation-established" as const satisfies CompletionId;
 
 const baseSetup = {
   mapSeed: 123,
@@ -30,12 +29,11 @@ const baseSetup = {
 describe("compileExecutionPlan", () => {
   it("compiles a linear recipe into ordered plan nodes", () => {
     const registry = new StepRegistry();
-    registry.registerTags([{ id: TEST_TAGS.effect.foundationEstablished, kind: "effect" }]);
     registry.register({
       id: "alpha",
       stageId: "foundation",
       requires: [],
-      provides: [TEST_TAGS.effect.foundationEstablished],
+      provides: [FOUNDATION_ESTABLISHED],
       configSchema: Type.Object(
         {
           value: Type.Number({ default: 3 }),
@@ -66,7 +64,141 @@ describe("compileExecutionPlan", () => {
     expect(plan.nodes[0].stageId).toBe("foundation");
     expect(plan.nodes[0].config).toEqual({ value: 3 });
     expect(plan.nodes[0].requires).toEqual([]);
-    expect(plan.nodes[0].provides).toEqual([TEST_TAGS.effect.foundationEstablished]);
+    expect(plan.nodes[0].provides).toEqual([FOUNDATION_ESTABLISHED]);
+  });
+
+  it("requires each completion consumer to select one earlier provider", () => {
+    const registry = new StepRegistry();
+    registry.register({
+      id: "consumer",
+      stageId: "foundation",
+      requires: [FOUNDATION_ESTABLISHED],
+      provides: [],
+      run: () => undefined,
+    });
+    registry.register({
+      id: "provider",
+      stageId: "foundation",
+      requires: [],
+      provides: [FOUNDATION_ESTABLISHED],
+      run: () => undefined,
+    });
+
+    for (const steps of [
+      [{ id: "consumer" }],
+      [{ id: "consumer" }, { id: "provider" }],
+      [{ id: "provider", enabled: false }, { id: "consumer" }],
+    ]) {
+      expect(() =>
+        compileExecutionPlan({ recipe: { schemaVersion: 2, steps }, setup: baseSetup }, registry)
+      ).toThrow(`requires "${FOUNDATION_ESTABLISHED}" from an earlier selected step`);
+    }
+  });
+
+  it("rejects duplicate providers in the selected plan", () => {
+    const registry = new StepRegistry();
+    for (const id of ["first-provider", "second-provider"]) {
+      registry.register({
+        id,
+        stageId: "foundation",
+        requires: [],
+        provides: [FOUNDATION_ESTABLISHED],
+        run: () => undefined,
+      });
+    }
+
+    expect(() =>
+      compileExecutionPlan(
+        {
+          recipe: {
+            schemaVersion: 2,
+            steps: [{ id: "first-provider" }, { id: "second-provider" }],
+          },
+          setup: baseSetup,
+        },
+        registry
+      )
+    ).toThrow(
+      `Dependency "${FOUNDATION_ESTABLISHED}" is provided by both "first-provider" and "second-provider"`
+    );
+  });
+
+  it("reports selected dependency violations at their original recipe positions", () => {
+    const registry = new StepRegistry();
+    registry.register({
+      id: "disabled-provider",
+      stageId: "foundation",
+      requires: [],
+      provides: [FOUNDATION_ESTABLISHED],
+      run: () => undefined,
+    });
+    registry.register({
+      id: "consumer",
+      stageId: "foundation",
+      requires: [FOUNDATION_ESTABLISHED],
+      provides: [],
+      run: () => undefined,
+    });
+
+    try {
+      compileExecutionPlan(
+        {
+          recipe: {
+            schemaVersion: 2,
+            steps: [{ id: "disabled-provider", enabled: false }, { id: "consumer" }],
+          },
+          setup: baseSetup,
+        },
+        registry
+      );
+      throw new Error("Expected dependency admission to fail.");
+    } catch (error) {
+      expect(error).toBeInstanceOf(ExecutionPlanCompileError);
+      expect((error as ExecutionPlanCompileError).errors).toContainEqual(
+        expect.objectContaining({
+          path: "/recipe/steps/1/id",
+          stepId: "consumer",
+        })
+      );
+    }
+  });
+
+  it("requires consumers to select the provider's exact artifact authority", () => {
+    const providedArtifact = defineArtifact({
+      name: "providedPlanAuthority",
+      id: "artifact:test.plan-authority",
+      schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
+    });
+    const requiredArtifact = defineArtifact({
+      name: "requiredPlanAuthority",
+      id: providedArtifact.id,
+      schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
+    });
+    const registry = new StepRegistry();
+    registry.register({
+      id: "provider",
+      stageId: "foundation",
+      requires: [],
+      provides: [providedArtifact],
+      run: () => undefined,
+    });
+    registry.register({
+      id: "consumer",
+      stageId: "foundation",
+      requires: [requiredArtifact],
+      provides: [],
+      run: () => undefined,
+    });
+
+    expect(() =>
+      compileExecutionPlan(
+        {
+          recipe: { schemaVersion: 2, steps: [{ id: "provider" }, { id: "consumer" }] },
+          setup: baseSetup,
+        },
+        registry
+      )
+    ).toThrow(`requires a different authority for artifact "${providedArtifact.id}"`);
   });
 
   it("snapshots mutable setup before retaining it on the plan", () => {
@@ -142,35 +274,6 @@ describe("compileExecutionPlan", () => {
     expect(plan.nodes[0]?.stageId).toBe("foundation");
     expect(observed).toEqual(["registered"]);
     expect(Object.isFrozen(registry.get("alpha"))).toBe(true);
-  });
-
-  it("executes from the dependency-tag authority captured during plan compilation", () => {
-    const effectTag = "effect:test.compiled-authority";
-    const registry = new StepRegistry();
-    registry.registerTag({ id: effectTag, kind: "effect" });
-    registry.register({
-      id: "alpha",
-      stageId: "foundation",
-      requires: [],
-      provides: [effectTag],
-      run: () => {},
-    });
-    const plan = compileExecutionPlan(
-      { recipe: { schemaVersion: 2, steps: [{ id: "alpha" }] }, setup: baseSetup },
-      registry
-    );
-    Object.defineProperty(registry, "getTagRegistry", {
-      value: () => {
-        throw new Error("execution reread the live tag registry");
-      },
-    });
-
-    const context = createMapContext({
-      setup: plan.setup,
-      adapter: createMockAdapter({ width: 10, height: 10, rng: () => 0 }),
-    });
-
-    expect(() => new PipelineExecutor(registry).executePlan(context, plan)).not.toThrow();
   });
 
   it("rejects accessor-bearing recipe topology before it can diverge from execution", () => {
@@ -276,12 +379,11 @@ describe("compileExecutionPlan", () => {
 
   it("includes exact dependency topology in the plan fingerprint", () => {
     const first = new StepRegistry();
-    first.registerTags([{ id: "effect:test.first", kind: "effect" }]);
     first.register({
       id: "alpha",
       stageId: "foundation",
       requires: [],
-      provides: ["effect:test.first"],
+      provides: ["completion:test.first"],
       run: () => {},
     });
     const second = new StepRegistry();

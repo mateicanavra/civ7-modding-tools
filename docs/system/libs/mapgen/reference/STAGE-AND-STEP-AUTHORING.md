@@ -24,7 +24,7 @@ A step contract defines:
 - `id` (kebab-case, stable)
 - optional `description` (the sole semantic description authority for the step)
 - `requires` / `provides`, the sole ordered dependency lists. Exact `Artifact`
-  authorities and typed effect/completion id constants appear together; raw
+  authorities and typed completion id constants appear together; raw
   `artifact:*` strings are invalid.
 - optional `engine` method keys (an exact occurrence-scoped adapter capability set)
 - optional recipe-owned `initialSetup` authority (grants immutable `deps.initialSetup` only to that
@@ -47,7 +47,7 @@ restate bound operation config. Root-schema `description` is refused: author
 the step's purpose once through `description`, which Core projects onto the
 final composed schema consumed by Stage and Studio.
 
-Representative example (dependency tags + artifact requirements; excerpt; see full file in anchors):
+Representative example (completion + artifact requirements; excerpt; see full file in anchors):
 
 The `@mapgen/domain/*` alias is the current mod-local domain surface. Contract
 authors consume the pure root contract and the exact producing module's
@@ -61,7 +61,7 @@ import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morpho
 import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
+import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
 
 /** Contract and compiled configuration boundary for Civ7 river projection. */
 export const config = defineStep({
@@ -78,7 +78,8 @@ export const config = defineStep({
     "readRiverProjection",
   ] as const,
   requires: [
-    MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt,
+    STANDARD_COMPLETIONS.elevationBuilt,
+    STANDARD_COMPLETIONS.rainfallProjected,
     hydrologyHydrographyArtifacts.hydrography,
     hydrologyHydrographyArtifacts.lakePlan,
     hydrologyHydrographyArtifacts.riverNetwork,
@@ -86,7 +87,7 @@ export const config = defineStep({
     morphologyLandformsArtifacts.topography,
   ],
   provides: [
-    MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
+    STANDARD_COMPLETIONS.riversPlotted,
     hydrologyHydrographyArtifacts.projectedNavigableRivers,
   ],
   schema: Type.Object({

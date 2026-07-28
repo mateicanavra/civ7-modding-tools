@@ -79,7 +79,6 @@ function createInitialSetupRecipe(
   return createRecipe({
     id: "test.initial-setup",
     initialSetup,
-    tagDefinitions: [],
     stages: [stage],
     operations: {},
   });
@@ -324,7 +323,6 @@ describe("recipe initial setup authority", () => {
       createRecipe({
         id: "test.mismatch",
         initialSetup: recipeAuthority,
-        tagDefinitions: [],
         stages: [stage],
         operations: {},
       })
@@ -357,7 +355,6 @@ describe("recipe initial setup authority", () => {
     });
     const recipe = createRecipe({
       id: "test.physical-only",
-      tagDefinitions: [],
       stages: [stage],
       operations: {},
     });

@@ -3,55 +3,35 @@ import { createMockAdapter } from "@civ7/adapter";
 import { defineArtifact, readArtifact } from "@mapgen/authoring/index.js";
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
 import {
+  type CompletionId,
   compileExecutionPlan,
   type MapSetup,
-  MissingDependencyError,
+  MissingArtifactPublicationError,
   PipelineExecutor,
   StepExecutionError,
   StepRegistry,
 } from "@mapgen/engine/index.js";
-import { registerDependencyTagsInternal } from "@mapgen/engine/tags.js";
 import { publishTestArtifact } from "@mapgen/testing/index.js";
 import { Type } from "typebox";
 
-const ARTIFACT_IDS = {
-  requiredInput: "artifact:test.requiredInput",
-  output: "artifact:test.output",
-} as const;
-
-const TEST_TAGS = {
-  effect: {
-    prerequisiteApplied: "effect:test.prerequisite-applied",
-    operationApplied: "effect:test.operationApplied",
-    returnSnapshot: "effect:test.return-snapshot",
-  },
-} as const;
+const COMPLETIONS = {
+  prerequisite: "completion:test.prerequisite",
+  operation: "completion:test.operation",
+} as const satisfies Readonly<Record<string, CompletionId>>;
 
 const EvidenceSchema = Type.Object({ valid: Type.Boolean() }, { additionalProperties: false });
 const requiredInputArtifact = defineArtifact({
   name: "requiredInput",
-  id: ARTIFACT_IDS.requiredInput,
+  id: "artifact:test.required-input",
   schema: EvidenceSchema,
 });
 const outputArtifact = defineArtifact({
   name: "output",
-  id: ARTIFACT_IDS.output,
+  id: "artifact:test.output",
   schema: EvidenceSchema,
 });
 
-const TEST_TAG_DEFINITIONS = [
-  {
-    id: TEST_TAGS.effect.prerequisiteApplied,
-    kind: "effect",
-  },
-  {
-    id: TEST_TAGS.effect.operationApplied,
-    kind: "effect",
-    satisfies: () => false,
-  },
-] as const;
-
-const TEST_ENV = {
+const TEST_SETUP = {
   mapSeed: 0,
   dimensions: { width: 1, height: 1 },
   latitudeBounds: { topLatitude: 1, bottomLatitude: -1 },
@@ -71,7 +51,7 @@ function compilePlan(registry: StepRegistry, steps: readonly string[]) {
         schemaVersion: 2,
         steps: steps.map((id) => ({ id, config: {} })),
       },
-      setup: TEST_ENV,
+      setup: TEST_SETUP,
     },
     registry
   );
@@ -87,6 +67,28 @@ function captureThrown(run: () => void): unknown {
 }
 
 describe("dependency gating", () => {
+  it("admits only canonical completion dependency identities", () => {
+    const registry = new StepRegistry();
+    expect(() =>
+      registry.register({
+        id: "invalid-completion",
+        stageId: "placement",
+        requires: [],
+        provides: ["invalid:test.legacy" as never],
+        run: () => undefined,
+      })
+    ).toThrow("must match completion:");
+    expect(() =>
+      registry.register({
+        id: "canonical-completion",
+        stageId: "placement",
+        requires: [],
+        provides: [COMPLETIONS.operation],
+        run: () => undefined,
+      })
+    ).not.toThrow();
+  });
+
   it("binds authored mutation to the exact active step facade", () => {
     const registry = new StepRegistry();
     let retainedFirstContext: MapContext | undefined;
@@ -129,84 +131,118 @@ describe("dependency gating", () => {
     ).toThrow("context returned by createMapContext");
   });
 
-  it("returns an immutable satisfaction snapshot rather than the executor ledger", () => {
-    const tag = TEST_TAGS.effect.returnSnapshot;
+  it("executes a selected completion provider before its consumer", () => {
     const registry = new StepRegistry();
-    registry.registerTag({ id: tag, kind: "effect" });
+    const order: string[] = [];
     registry.register({
-      id: "provide-snapshot-tag",
+      id: "complete-prerequisite",
       stageId: "placement",
       requires: [],
-      provides: [tag],
-      run: () => {},
-    });
-    const plan = compilePlan(registry, ["provide-snapshot-tag"]);
-    const context = createTestContext(plan.setup);
-
-    const { satisfied } = new PipelineExecutor(registry).executePlan(context, plan);
-
-    expect(Array.from(satisfied)).toEqual([tag]);
-    expect(satisfied.has(tag)).toBe(true);
-    expect(Object.isFrozen(satisfied)).toBe(true);
-    expect(Reflect.get(satisfied, "add")).toBeUndefined();
-    expect(() => Reflect.apply(Set.prototype.add, satisfied, ["effect:test.forged"])).toThrow(
-      TypeError
-    );
-    expect(Array.from(satisfied)).toEqual([tag]);
-  });
-
-  it("fails fast when a dependent step runs without its required input", () => {
-    const registry = new StepRegistry();
-    registry.registerTags(TEST_TAG_DEFINITIONS);
-    registry.register({
-      id: "dependent-step",
-      stageId: "placement",
-      requires: [TEST_TAGS.effect.prerequisiteApplied],
-      provides: [],
-      run: () => {},
-    });
-
-    const executor = new PipelineExecutor(registry, { log: () => {} });
-    const plan = compilePlan(registry, ["dependent-step"]);
-    const context = createTestContext(plan.setup);
-
-    const error = captureThrown(() => executor.executePlan(context, plan));
-    expect(error).toBeInstanceOf(MissingDependencyError);
-    expect(error instanceof MissingDependencyError && error.message).toMatch(
-      /dependent-step.*effect:test\.prerequisite-applied/
-    );
-  });
-
-  it("fails before an artifact consumer runs when no provider has published its authority", () => {
-    const registry = new StepRegistry();
-    registerDependencyTagsInternal(registry.getTagRegistry(), [
-      {
-        id: requiredInputArtifact.id,
-        kind: "artifact",
-        artifact: requiredInputArtifact,
+      provides: [COMPLETIONS.prerequisite],
+      run: () => {
+        order.push("provider");
       },
-    ]);
-    let ran = false;
+    });
     registry.register({
-      id: "artifact-consumer",
+      id: "consume-prerequisite",
       stageId: "placement",
-      requires: [requiredInputArtifact.id],
+      requires: [COMPLETIONS.prerequisite],
       provides: [],
       run: () => {
-        ran = true;
+        order.push("consumer");
       },
     });
-    const plan = compilePlan(registry, ["artifact-consumer"]);
+    const plan = compilePlan(registry, ["complete-prerequisite", "consume-prerequisite"]);
 
-    const error = captureThrown(() =>
-      new PipelineExecutor(registry).executePlan(createTestContext(plan.setup), plan)
+    const { stepResults } = new PipelineExecutor(registry).executePlan(
+      createTestContext(plan.setup),
+      plan
     );
 
-    expect(error).toBeInstanceOf(MissingDependencyError);
-    expect(ran).toBe(false);
+    expect(order).toEqual(["provider", "consumer"]);
+    expect(stepResults.map(({ stepId, success }) => ({ stepId, success }))).toEqual([
+      { stepId: "complete-prerequisite", success: true },
+      { stepId: "consume-prerequisite", success: true },
+    ]);
   });
 
-  it("admits publication once while provider commit, consumer gating, and terminal reads observe it", () => {
+  it("never executes a completion consumer after its provider fails", async () => {
+    const registry = new StepRegistry();
+    let providerRuns = 0;
+    let consumerRuns = 0;
+    registry.register({
+      id: "failed-provider",
+      stageId: "placement",
+      requires: [],
+      provides: [COMPLETIONS.operation],
+      run: () => {
+        providerRuns += 1;
+        throw new Error("provider failed");
+      },
+    });
+    registry.register({
+      id: "unreachable-consumer",
+      stageId: "placement",
+      requires: [COMPLETIONS.operation],
+      provides: [],
+      run: () => {
+        consumerRuns += 1;
+      },
+    });
+    const plan = compilePlan(registry, ["failed-provider", "unreachable-consumer"]);
+    const executor = new PipelineExecutor(registry, { log: () => undefined });
+
+    const syncResult = executor.executePlanReport(createTestContext(plan.setup), plan);
+    const asyncResult = await executor.executePlanReportAsync(createTestContext(plan.setup), plan);
+
+    expect(syncResult.stepResults).toHaveLength(1);
+    expect(asyncResult.stepResults).toHaveLength(1);
+    expect(syncResult.stepResults[0]).toMatchObject({ stepId: "failed-provider", success: false });
+    expect(asyncResult.stepResults[0]).toMatchObject({ stepId: "failed-provider", success: false });
+    expect(providerRuns).toBe(2);
+    expect(consumerRuns).toBe(0);
+  });
+
+  it("never executes a completion consumer after its provider rejects asynchronously", async () => {
+    const registry = new StepRegistry();
+    let providerRuns = 0;
+    let consumerRuns = 0;
+    registry.register({
+      id: "rejected-provider",
+      stageId: "placement",
+      requires: [],
+      provides: [COMPLETIONS.operation],
+      run: () => {
+        providerRuns += 1;
+        return Promise.reject(new Error("async provider failed"));
+      },
+    });
+    registry.register({
+      id: "unreachable-async-consumer",
+      stageId: "placement",
+      requires: [COMPLETIONS.operation],
+      provides: [],
+      run: () => {
+        consumerRuns += 1;
+      },
+    });
+    const plan = compilePlan(registry, ["rejected-provider", "unreachable-async-consumer"]);
+
+    const report = await new PipelineExecutor(registry, {
+      log: () => undefined,
+    }).executePlanReportAsync(createTestContext(plan.setup), plan);
+
+    expect(report.stepResults).toHaveLength(1);
+    expect(report.stepResults[0]).toMatchObject({
+      stepId: "rejected-provider",
+      success: false,
+      error: "async provider failed",
+    });
+    expect(providerRuns).toBe(1);
+    expect(consumerRuns).toBe(0);
+  });
+
+  it("admits an artifact once while its ordered consumer and terminal reads observe it", () => {
     let admissions = 0;
     const admittedArtifact = defineArtifact({
       name: "admittedOnce",
@@ -217,19 +253,12 @@ describe("dependency gating", () => {
       },
     });
     const registry = new StepRegistry();
-    registerDependencyTagsInternal(registry.getTagRegistry(), [
-      {
-        id: admittedArtifact.id,
-        kind: "artifact",
-        artifact: admittedArtifact,
-      },
-    ]);
     const order: string[] = [];
     registry.register({
       id: "publish-input",
       stageId: "placement",
       requires: [],
-      provides: [admittedArtifact.id],
+      provides: [admittedArtifact],
       run: (current) => {
         order.push("provider");
         publishTestArtifact(current, admittedArtifact, { valid: true });
@@ -238,92 +267,76 @@ describe("dependency gating", () => {
     registry.register({
       id: "consume-input",
       stageId: "placement",
-      requires: [admittedArtifact.id],
+      requires: [admittedArtifact],
       provides: [],
       run: () => {
         order.push("consumer");
       },
     });
     const plan = compilePlan(registry, ["publish-input", "consume-input"]);
-
     const context = createTestContext(plan.setup);
-    const result = new PipelineExecutor(registry).executePlan(context, plan);
+
+    const { stepResults } = new PipelineExecutor(registry).executePlan(context, plan);
 
     expect(order).toEqual(["provider", "consumer"]);
-    expect(Array.from(result.satisfied)).toEqual([admittedArtifact.id]);
-    expect(result.stepResults.every(({ success }) => success)).toBe(true);
+    expect(stepResults.every(({ success }) => success)).toBe(true);
     expect(readArtifact(context, admittedArtifact)).toEqual({ valid: true });
     expect(admissions).toBe(1);
   });
 
-  it("fails fast when declared output effects are missing", () => {
+  it("refuses a declared artifact that the provider did not publish", () => {
     const registry = new StepRegistry();
-    registry.registerTags(TEST_TAG_DEFINITIONS);
     registry.register({
-      id: "apply-operation",
+      id: "omit-publication",
       stageId: "placement",
       requires: [],
-      provides: [TEST_TAGS.effect.operationApplied],
-      run: () => {},
+      provides: [outputArtifact],
+      run: () => undefined,
     });
+    const plan = compilePlan(registry, ["omit-publication"]);
+    const executor = new PipelineExecutor(registry, { log: () => undefined });
 
-    const executor = new PipelineExecutor(registry, { log: () => {} });
-    const plan = compilePlan(registry, ["apply-operation"]);
-    const context = createTestContext(plan.setup);
-    const { stepResults } = executor.executePlanReport(context, plan);
+    const report = executor.executePlanReport(createTestContext(plan.setup), plan);
 
-    expect(stepResults).toHaveLength(1);
-    expect(stepResults[0]?.success).toBe(false);
-    expect(stepResults[0]?.error).toContain("did not satisfy declared provides");
-    expect(stepResults[0]?.error).toContain(TEST_TAGS.effect.operationApplied);
-  });
+    expect(report.stepResults[0]?.success).toBe(false);
+    expect(report.stepResults[0]?.error).toContain(outputArtifact.id);
 
-  it("throws StepExecutionError on unsatisfied provides", () => {
-    const registry = new StepRegistry();
-    registry.registerTags(TEST_TAG_DEFINITIONS);
-    registry.register({
-      id: "apply-operation",
-      stageId: "placement",
-      requires: [],
-      provides: [TEST_TAGS.effect.operationApplied],
-      run: () => {},
-    });
-
-    const executor = new PipelineExecutor(registry, { log: () => {} });
-    const plan = compilePlan(registry, ["apply-operation"]);
-    const context = createTestContext(plan.setup);
-
-    const error = captureThrown(() => executor.executePlan(context, plan));
-    expect(error).toBeInstanceOf(StepExecutionError);
-    expect(error instanceof StepExecutionError && error.message).toMatch(
-      /apply-operation.*did not satisfy declared provides/
+    const thrown = captureThrown(() => executor.executePlan(createTestContext(plan.setup), plan));
+    expect(thrown).toBeInstanceOf(StepExecutionError);
+    expect(thrown instanceof StepExecutionError && thrown.cause).toBeInstanceOf(
+      MissingArtifactPublicationError
     );
   });
 
-  it("never commits a failed postcondition to sync or async report evidence", async () => {
-    const rejectedTag = "effect:test.rejected-postcondition";
-    const registry = new StepRegistry();
-    registry.registerTag({
-      id: rejectedTag,
-      kind: "effect",
-      satisfies: () => false,
+  it("does not satisfy a declared artifact through another authority with the same id", () => {
+    const publishedAuthority = defineArtifact({
+      name: "publishedAuthority",
+      id: "artifact:test.exact-authority",
+      schema: EvidenceSchema,
     });
+    const declaredAuthority = defineArtifact({
+      name: "declaredAuthority",
+      id: publishedAuthority.id,
+      schema: EvidenceSchema,
+    });
+    const registry = new StepRegistry();
     registry.register({
-      id: "reject-postcondition",
+      id: "publish-different-authority",
       stageId: "placement",
       requires: [],
-      provides: [rejectedTag],
-      run: () => {},
+      provides: [declaredAuthority],
+      run: (context) => {
+        publishTestArtifact(context, publishedAuthority, { valid: true });
+      },
     });
-    const plan = compilePlan(registry, ["reject-postcondition"]);
-    const executor = new PipelineExecutor(registry, { log: () => {} });
+    const plan = compilePlan(registry, ["publish-different-authority"]);
 
-    const syncResult = executor.executePlanReport(createTestContext(plan.setup), plan);
-    const asyncResult = await executor.executePlanReportAsync(createTestContext(plan.setup), plan);
+    const report = new PipelineExecutor(registry).executePlanReport(
+      createTestContext(plan.setup),
+      plan
+    );
 
-    expect(syncResult.stepResults[0]?.success).toBe(false);
-    expect(asyncResult.stepResults[0]?.success).toBe(false);
-    expect(Array.from(syncResult.satisfied)).toEqual([]);
-    expect(Array.from(asyncResult.satisfied)).toEqual([]);
+    expect(report.stepResults[0]?.success).toBe(false);
+    expect(report.stepResults[0]?.error).toContain(declaredAuthority.id);
   });
 });

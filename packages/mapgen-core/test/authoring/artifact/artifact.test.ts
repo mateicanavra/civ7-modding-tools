@@ -13,6 +13,7 @@ import {
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
 import {
+  type CompletionId,
   compileExecutionPlan,
   PipelineExecutor,
   StepExecutionError,
@@ -63,7 +64,7 @@ describe("artifact authoring", () => {
       id: "artifact:test.step.provided",
       schema: Type.Object({}, { additionalProperties: false }),
     });
-    const requires = ["effect:test.ready", required];
+    const requires: Array<CompletionId | typeof required> = ["completion:test.ready", required];
     const provides = [provided];
     const contract = defineStep({
       id: "artifact-authority",
@@ -73,7 +74,7 @@ describe("artifact authoring", () => {
 
     requires.length = 0;
     provides.length = 0;
-    expect(contract.requires).toEqual(["effect:test.ready", required]);
+    expect(contract.requires).toEqual(["completion:test.ready", required]);
     expect(contract.requires[1]).toBe(required);
     expect(contract.provides).toEqual([provided]);
     expect(contract.provides[0]).toBe(provided);
@@ -109,7 +110,7 @@ describe("artifact authoring", () => {
         id: "raw-artifact",
         requires: [first.id],
         provides: [],
-      })
+      } as never)
     ).toThrow(
       'must use the canonical artifact authority instead of raw id "artifact:test.step.first"'
     );
@@ -119,7 +120,7 @@ describe("artifact authoring", () => {
         requires: [first],
         provides: [first],
       })
-    ).toThrow(`declares artifact "${first.id}" in both requires and provides`);
+    ).toThrow(`declares dependency "${first.id}" in both requires and provides`);
     expect(() =>
       defineStep({
         id: "duplicate-name",
@@ -133,7 +134,7 @@ describe("artifact authoring", () => {
         requires: [first],
         provides: [duplicateId],
       })
-    ).toThrow(`declares artifact "${first.id}" in both requires and provides`);
+    ).toThrow(`declares dependency "${first.id}" in both requires and provides`);
     expect(() =>
       defineStep({
         id: "forged-artifact",

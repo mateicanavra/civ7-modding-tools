@@ -1,7 +1,6 @@
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
-import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
 
 /**
  * Defines the engine-facing lake projection boundary over Hydrology intent and
@@ -18,9 +17,5 @@ export const config = defineStep({
     morphologyLandformsArtifacts.mountains,
     morphologyLandformsArtifacts.volcanoes,
   ],
-  provides: [
-    MAP_PROJECTION_EFFECT_TAGS.map.lakesPlotted,
-    MAP_PROJECTION_EFFECT_TAGS.map.hydrologyLakesParityCaptured,
-    hydrographyArtifacts.projectedLakes,
-  ],
+  provides: [hydrographyArtifacts.projectedLakes],
 });

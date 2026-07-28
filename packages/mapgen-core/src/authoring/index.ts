@@ -1,3 +1,4 @@
+export type { CompletionId } from "@mapgen/engine/completion.js";
 export type {
   StepFacetFailure,
   StepFacetInput,
@@ -5,10 +6,6 @@ export type {
   StepFacetSinks,
   StepFacets,
 } from "@mapgen/engine/step-facets.js";
-export type {
-  DependencyEvidence,
-  EffectDependencyTag,
-} from "@mapgen/engine/tags.js";
 export type { Static, TSchema } from "typebox";
 export { Type } from "typebox";
 export type {
@@ -143,6 +140,8 @@ export {
 export type {
   OpContractAny,
   StepContract,
+  StepDependency,
+  StepDependencyList,
   StepEngineDecl,
   StepOpsDecl,
   StepRuntimeOps,

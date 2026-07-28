@@ -1,10 +1,12 @@
+import type { Artifact } from "@mapgen/authoring/artifact/contract.js";
 import type { MapContext } from "@mapgen/core/map-context.js";
 import type { MapSetup } from "@mapgen/core/map-setup.js";
+import type { CompletionId } from "@mapgen/engine/completion.js";
 import type { TSchema } from "typebox";
 import type { StepFacets } from "./step-projectors.js";
 
-/** Causal edge id resolved to either an artifact or effect dependency authority. */
-export type DependencyTagId = string;
+/** Exact artifact authority or payload-free completion selected by one step edge. */
+export type PipelineDependency = Artifact | CompletionId;
 
 /** Setup and stage knobs available while compiling one step's internal configuration. */
 export type NormalizeContext<TKnobs = unknown> = Readonly<{
@@ -17,8 +19,8 @@ export interface MapGenStep<TConfig = unknown, TResult = unknown> {
   readonly id: string;
   /** Recipe-composition stage that owns this executable occurrence. */
   readonly stageId: string;
-  readonly requires: readonly DependencyTagId[];
-  readonly provides: readonly DependencyTagId[];
+  readonly requires: readonly PipelineDependency[];
+  readonly provides: readonly PipelineDependency[];
   readonly configSchema?: TSchema;
   readonly normalize?: (config: TConfig, ctx: NormalizeContext) => TConfig;
   readonly run: (context: MapContext, config: TConfig) => TResult | Promise<TResult>;

@@ -21,87 +21,16 @@ export class UnknownStepError extends StepRegistryError {
   }
 }
 
-class DependencyTagError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "DependencyTagError";
-  }
-}
-
-/**
- * Rejects a dependency tag whose identifier or declared kind violates the registry namespace.
- * Artifact tags are recipe-derived authorities; authored registrations are limited to effect tags.
- */
-export class InvalidDependencyTagError extends DependencyTagError {
-  constructor(tag: string) {
-    super(`Invalid dependency tag "${tag}".`);
-    this.name = "InvalidDependencyTagError";
-  }
-}
-
-/** Reports a dependency edge or lookup whose tag has no definition in the active registry. */
-export class UnknownDependencyTagError extends DependencyTagError {
-  constructor(tag: string) {
-    super(`Unknown dependency tag "${tag}".`);
-    this.name = "UnknownDependencyTagError";
-  }
-}
-
-/** Refuses a second authority for an already registered dependency-tag identity. */
-export class DuplicateDependencyTagError extends DependencyTagError {
-  constructor(tag: string) {
-    super(`Dependency tag "${tag}" is already registered.`);
-    this.name = "DuplicateDependencyTagError";
-  }
-}
-
-/**
- * Rejects a dependency-tag example that fails its definition's synchronous admission check.
- * This keeps invalid or asynchronous demo evidence out of the registry snapshot.
- */
-export class InvalidDependencyTagDemoError extends DependencyTagError {
-  constructor(tag: string) {
-    super(`Invalid demo payload for dependency tag "${tag}".`);
-    this.name = "InvalidDependencyTagDemoError";
-  }
-}
-
-/**
- * Stops a step before execution when one or more declared prerequisites are not satisfied.
- * The captured satisfied set makes dependency-order defects diagnosable without replaying the run.
- */
-export class MissingDependencyError extends Error {
+/** Reports the exact artifacts a completed provider declared but did not publish. */
+export class MissingArtifactPublicationError extends Error {
   readonly stepId: string;
-  readonly missing: readonly string[];
-  readonly satisfied: readonly string[];
+  readonly missingArtifacts: readonly string[];
 
-  constructor(options: {
-    stepId: string;
-    missing: readonly string[];
-    satisfied: readonly string[];
-  }) {
-    const missingList = options.missing.join(", ");
-    super(`Missing dependency for "${options.stepId}": ${missingList}`);
-    this.name = "MissingDependencyError";
-    this.stepId = options.stepId;
-    this.missing = options.missing;
-    this.satisfied = options.satisfied;
-  }
-}
-
-/**
- * Reports that a completed step did not establish the postcondition for every declared provision.
- * The executor leaves those tags unsatisfied so downstream steps cannot observe false evidence.
- */
-export class UnsatisfiedProvidesError extends Error {
-  readonly stepId: string;
-  readonly missingProvides: readonly string[];
-
-  constructor(stepId: string, missingProvides: readonly string[]) {
-    super(`Step "${stepId}" did not satisfy declared provides: ${missingProvides.join(", ")}`);
-    this.name = "UnsatisfiedProvidesError";
+  constructor(stepId: string, missingArtifacts: readonly string[]) {
+    super(`Step "${stepId}" did not publish declared artifacts: ${missingArtifacts.join(", ")}`);
+    this.name = "MissingArtifactPublicationError";
     this.stepId = stepId;
-    this.missingProvides = missingProvides;
+    this.missingArtifacts = missingArtifacts;
   }
 }
 

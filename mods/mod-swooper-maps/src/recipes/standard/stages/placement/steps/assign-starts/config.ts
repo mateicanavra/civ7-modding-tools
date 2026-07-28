@@ -9,7 +9,6 @@ import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/m
 import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import { STANDARD_INITIAL_SETUP } from "../../../../initial-setup.js";
-import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 
 /**
  * S5 (D3 contract change): starts assign against the resource PLAN, not the
@@ -33,10 +32,7 @@ export const config = defineStep({
     hydrographyArtifacts.lakePlan,
     pedologyArtifacts.pedology,
   ],
-  provides: [
-    PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned,
-    placementStartArtifacts.startAssignment,
-  ],
+  provides: [placementStartArtifacts.startAssignment],
 
   ops: {
     starts: placement.starts.ops.planStarts,

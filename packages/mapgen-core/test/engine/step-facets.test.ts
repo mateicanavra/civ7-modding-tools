@@ -14,7 +14,6 @@ import {
   type StepFacetSinks,
   StepRegistry,
 } from "@mapgen/engine/index.js";
-import { registerDependencyTagsInternal } from "@mapgen/engine/tags.js";
 import { publishTestArtifact } from "@mapgen/testing/index.js";
 import type { TraceEvent } from "@mapgen/trace/index.js";
 import { Type } from "typebox";
@@ -57,15 +56,6 @@ function createPlan(registry: StepRegistry, stepId: string) {
 
 function captureFacetRegistry(step: MapGenStep<TestConfig, TestResult>): StepRegistry {
   const registry = new StepRegistry();
-  if (step.provides.includes(PROVIDED_TAG)) {
-    registerDependencyTagsInternal(registry.getTagRegistry(), [
-      {
-        id: PROVIDED_TAG,
-        kind: "artifact",
-        artifact: facetedStepArtifact,
-      },
-    ]);
-  }
   registry.register(step);
   return registry;
 }
@@ -78,7 +68,7 @@ describe("step facets", () => {
       id: "faceted-step",
       stageId: "foundation",
       requires: [],
-      provides: [PROVIDED_TAG],
+      provides: [facetedStepArtifact],
       run: (context, config) => {
         order.push("run");
         publishTestArtifact(context, facetedStepArtifact, true);
@@ -208,7 +198,7 @@ describe("step facets", () => {
       id: "missing-provide",
       stageId: "foundation",
       requires: [],
-      provides: [PROVIDED_TAG],
+      provides: [facetedStepArtifact],
       run: () => ({ score: 1 }),
       facets: {
         metrics: () => {
@@ -421,7 +411,7 @@ describe("step facets", () => {
       id: "post-run-abort",
       stageId: "foundation",
       requires: [],
-      provides: [PROVIDED_TAG],
+      provides: [facetedStepArtifact],
       run: async (context) => {
         order.push("run");
         publishTestArtifact(context, facetedStepArtifact, true);

@@ -36,8 +36,8 @@ Domains should not own:
   - pure compute/plan whose leaf `contract.ts` owns the admitted input and
     output envelopes.
 - **Steps** are orchestration:
-  - they bind ops, read/write admitted artifacts/effects, emit trace events, and may project
-    completed results through optional metrics/visualization facets.
+  - they bind ops, read and publish admitted artifacts, invoke declared engine capabilities, emit
+    trace events, and may project completed results through optional metrics/visualization facets.
 
 This separation keeps algorithmic code reusable and keeps orchestration visible and debuggable.
 
@@ -120,10 +120,9 @@ contract are transitional, not model atoms and not the destination. The exact
 typed registration API is being ratcheted in the dedicated strategy-topology
 slice; until then, do not create new detached strategy schema authorities.
 
-Identifiers (op ids, artifact ids, tag ids) should be:
-- stable,
-- namespaced,
-- and registered centrally for validation (where applicable).
+Operation and artifact ids are stable, namespaced identities owned by their respective contracts.
+Completion ids are typed constants owned by the recipe whose external-state transactions they
+connect. None requires a parallel generic tag registry.
 
 ## Boundaries + dependency direction
 
