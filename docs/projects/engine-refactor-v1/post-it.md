@@ -2,22 +2,21 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Identity. Ownership. Realization. Direction. Closure.
+**Attractor filter:** Surface. Topic. Capability. Registration. Closure.
 
 **Frame:** kind before instance, intent before ownership, authority before
-relocation. A closed file shape is the start of semantic review, not proof that
-the responsibilities retained inside its allowed files are earned. Recipe
-steps orchestrate admitted dependencies, operation calls, publication, and
-first-class evidence; they do not become owners of domain algorithms, setup
-normalization, or synthetic coordination models merely because that logic can
-fit inside `step.ts` or `config.ts`. Prefer safe deletion and state collapse
-over preserving an obsolete boundary more elegantly.
+relocation. A CLI shell owns startup, global hooks, and topic registration; a
+topic plugin owns one cohesive command surface and the command-local adapters
+needed to expose it. Framework-free capabilities remain libraries even when a
+CLI is their only current consumer. Package placement follows responsibility,
+not a `plugin-*` name or consumer count. Prefer one discovered command owner
+over forwarding modules, duplicate manifests, or shell-local compatibility.
 
-**Authority order:** stage/domain meaning -> generic recipe-stage blueprint ->
-red corpus -> mechanical relocation or deletion -> consumer regeneration ->
-behavior proof. Positive structure defines the legal stage and config kinds;
-niche rules may protect actual Standard behavior but cannot compensate for a
-missing generic destination.
+**Authority order:** command/topic meaning -> installed oclif plugin contract ->
+generic CLI-topic kind -> red corpus -> complete relocation -> manifest and
+consumer regeneration -> behavior proof. The shell may register a topic but
+must not retain a second implementation. A topic package may depend on reusable
+capabilities; capabilities never depend back on the shell or topic.
 
 **Enforcement gravity:** a correct scaffold plus an advisory rule is guidance,
 not a ratchet. Every newly admitted kind must finish with its generic blueprint
@@ -30,22 +29,20 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** the mixed Swooper project is now two causal owners. The
-reusable authored product moves as one `kind:mod` project to
-`plugins/mod/map/swooper-physics`: domains, Standard recipe, shipped map
-configs/catalog, metrics, visualization authorship, and product diagnostics.
-The deployable realization moves as one `kind:app` project to
-`apps/mods/map/swooper-physics`: generated map entrypoints, Civ7 metadata and
-files, bundling, deployment, Studio run-mod materialization, and live proof.
-The app consumes the definition's finite public surface; the definition never
-imports the app. Observable Civ7 mod and recipe identities remain stable.
+**Current container:** extract the cohesive `data` oclif topic from the CLI
+shell into `plugins/cli/topics/data` as the first real CLI-topic plugin. Move
+all six data commands, their command-local resolver, and their behavior tests
+as one unit. The root CLI registers the plugin and retains no data command
+files or forwarding surface. The topic consumes `@civ7/plugin-graph`,
+`@civ7/plugin-files`, and config; those framework-free capabilities remain in
+`packages/plugins` because their ownership is broader than CLI discovery.
 
-This is a coordinated hard cut with no forwarding package, proxy Nx target,
-second generated-output root, or app-source import. Existing `kind:app ->
-kind:mod` project law carries the one-way dependency; new workspace roots,
-Habitat acquisition, owner projects, and closed project shapes must become
-truthful before the old `mods/mod-swooper-maps` owner disappears. CLI plugin
-topics normalize under `plugins/cli/topics` only in a later complete cut.
+This cut establishes the generic CLI-topic project shape and exact one-way
+graph before relocating files. Docs, Git/mod, and game topics remain outside
+this container: docs can follow independently; Git and mod share subtree and
+prompt-hook ownership that must move together; game requires an explicit
+taxonomy decision because it depends on control capabilities not currently
+admitted to `kind:plugin`.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -62,14 +59,12 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** establish both Nx/package identities and generic acquisition law;
-move the reusable definition intact; expose only Standard runtime, generated
-authoring artifacts, DAG, map-config admission/catalog, product metadata, and
-projection policy required by real consumers; move file materialization and
-live execution to the app; regenerate every tracked product at its new owner;
-rewire Studio by public package entrypoint and app target; reassign Habitat
-rules by behavior; then delete the old owner and prove an exact one-way graph,
-generated currentness, product behavior, dead-code absence, and closed policy.
+**Gradient:** verify the native oclif plugin contract; define the closed generic
+CLI-topic package kind; create the data topic project and its single command
+discovery surface; move command implementation, local resolver, and tests;
+register it once in the shell; regenerate manifests; delete the old command
+owner; then prove exact command membership, help/representative execution,
+types, tests, boundaries, dead-code absence, and staged policy.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -112,6 +107,19 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Swooper Definition And Civ7 App Split Sealed
+
+The mixed Swooper project became two causal owners. Reusable domains, Standard
+recipe, authored configs/catalog, metrics, viz authorship, and product
+diagnostics now live in `plugins/mod/map/swooper-physics`; the deployable Civ7
+realization, generated entrypoints, materialization, deployment, and live proof
+live in `apps/mods/map/swooper-physics`. Studio consumes finite package exports
+and the app target through an exact one-way `kind:app -> kind:mod` graph. The old
+project, package alias, duplicate generated roots, and forwarding targets are
+gone. Full definition/app/Studio build, type, and test proof; local policy;
+boundaries; JSDoc; Knip; generated CLI currentness; the staged hook; and fresh
+integration review sealed the cut.
 
 ### 2026-07-28 - Export Documentation Authority Sealed
 

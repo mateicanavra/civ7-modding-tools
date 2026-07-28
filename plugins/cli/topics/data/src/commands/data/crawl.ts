@@ -4,7 +4,7 @@ import * as path from "node:path";
 import { findProjectRoot, loadConfig, resolveGraphOutDir } from "@civ7/config";
 import { crawlGraph, graphToDot, graphToJson } from "@civ7/plugin-graph";
 import { Args, Command, Flags } from "@oclif/core";
-import { resolveRootFromConfigOrFlag } from "../../utils";
+import { resolveRootFromConfigOrFlag } from "../../utils/resolver";
 
 export default class Crawl extends Command {
   static id = "crawl";
@@ -17,9 +17,9 @@ to discover related rows. It writes a graph (JSON + DOT) and a manifest of XML f
 `;
 
   static examples = [
-    "<%= config.bin %> crawl LEADER_AMANITORE",
-    "<%= config.bin %> crawl Traits:TRAIT_SOME_TRAIT --profile default",
-    "<%= config.bin %> crawl LEADER_AMANITORE ./out/genghis",
+    "<%= config.bin %> data crawl LEADER_AMANITORE",
+    "<%= config.bin %> data crawl Traits:TRAIT_SOME_TRAIT --profile default",
+    "<%= config.bin %> data crawl LEADER_AMANITORE ./out/genghis",
   ];
 
   static flags = {

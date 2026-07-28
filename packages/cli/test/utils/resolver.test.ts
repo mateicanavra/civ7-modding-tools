@@ -25,7 +25,6 @@ import {
   resolveUnzipDir,
   resolveZipPath,
 } from "@civ7/config";
-import { resolveRootFromConfigOrFlag } from "../../src/utils/resolver";
 
 vi.mock("node:fs", async () => {
   const originalFs = await vi.importActual("node:fs");

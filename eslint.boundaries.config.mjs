@@ -40,6 +40,10 @@ const depConstraints = [
   },
   { sourceTag: "kind:plugin", onlyDependOnLibsWithTags: ["kind:plugin", "kind:library"] },
   {
+    sourceTag: "kind:cli-topic-plugin",
+    onlyDependOnLibsWithTags: ["kind:plugin", "kind:library"],
+  },
+  {
     sourceTag: "kind:package-tool",
     onlyDependOnLibsWithTags: ["kind:library", "kind:plugin"],
   },
@@ -71,6 +75,7 @@ const depConstraints = [
       "kind:adapter",
       "kind:library",
       "kind:plugin",
+      "kind:cli-topic-plugin",
       "kind:control",
       "kind:mod",
       "kind:tooling",

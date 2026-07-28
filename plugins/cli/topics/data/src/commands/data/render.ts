@@ -12,7 +12,7 @@ export default class Render extends Command {
 Renders a Graphviz DOT file to SVG using a WebAssembly Graphviz engine.
 `;
 
-  static examples = ["<%= config.bin %> render ./out/graph.dot ./out/graph.svg"];
+  static examples = ["<%= config.bin %> data render ./out/graph.dot ./out/graph.svg"];
 
   static flags = {
     config: Flags.string({ description: "Path to config file", required: false }),

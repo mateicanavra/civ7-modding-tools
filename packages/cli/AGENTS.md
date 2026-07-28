@@ -19,7 +19,8 @@ This document orients AI agents and contributors to the `@civ7-modding/cli` pack
 - **Graph rendering**: `@hpcc-js/wasm` (Graphviz compiled to WebAssembly)
 - **Graph logic & XML parsing**: `@civ7/plugin-graph` (uses `fast-xml-parser` internally)
 - **Configuration**: `@civ7/config` (JSONC via `jsonc-parser`)
- - **Bundled plugins**: `@oclif/plugin-help`
+ - **Bundled plugins**: `@oclif/plugin-help` plus the independently built
+   `@civ7/cli-data` topic plugin.
 
 ### Commands (high level)
 
@@ -123,7 +124,13 @@ Status-style commands (e.g., `git status`, `mod status`) also accept `--json` fo
 ### Code structure (key paths)
 
  - `src/base/` & `src/base/subtree/` — abstract oclif commands for git subtree flows (configure, import, push, pull, setup). Domain commands extend these to supply prefixes and defaults.
- - `src/commands/` — oclif commands grouped by topic: `data/` (crawl, explore, render, slice, zip, unzip), `docs/`, `game/` (running-session helpers that call `@civ7/direct-control` for direct Civ7 control), `git/subtree/` for git subtree helpers, and `mod/` (`git/` hosts subtree operations like `clear`, `list`, `remove`, `update`, `setup`, `import`, `pull`, `push`, `status` with aliases `link:*`, and `manage/` for local utilities)
+ - `src/commands/` — shell-owned oclif commands grouped by topic: `docs/`,
+   `game/` (running-session helpers that call `@civ7/direct-control` for direct
+   Civ7 control), `git/subtree/` for git subtree helpers, and `mod/` (`git/`
+   hosts subtree operations like `clear`, `list`, `remove`, `update`, `setup`,
+   `import`, `pull`, `push`, `status` with aliases `link:*`, and `manage/` for
+   local utilities). The `data` commands live in
+   `plugins/cli/topics/data` and are registered as `@civ7/cli-data`.
  - `scripts/resources-submodule/` — package-local operational helpers for the `.civ7/outputs/resources` submodule workflow that supports `data zip/unzip` refreshes.
  - `src/utils/` — config/path resolution helpers; generic git helpers (configureRemote, importSubtree, pushSubtree, pullSubtree, logRemotePushConfig, findRemoteNameForSlug/requireRemoteNameForSlug, resolveBranch/requireBranch, isNonEmptyDir) live in `utils/git.ts` and centralize logging, argument defaults, and remote/branch inference for git operations
  - Subtree command classes expose only the flags they consume; `repoUrl` is required only for `update`, `import`, and `setup` flows, while `push`/`pull` rely on saved config.
@@ -190,7 +197,8 @@ Status-style commands (e.g., `git status`, `mod status`) also accept `--json` fo
 
 ### Adding a new command
 
-1. Create `src/commands/<name>.ts` and extend `@oclif/core` `Command`.
+1. Add a command to the owning topic plugin, or keep it under
+   `src/commands/<topic>` only when the shell still owns that topic.
 2. Define `static id`, `summary`, `description`, `flags`, `args`, and `examples`.
 3. Import shared helpers from `src/utils/cli-helpers.ts` if you need workspace/config resolution.
 4. Build to generate `dist` and refresh `oclif.manifest.json`.

@@ -1,0 +1,36 @@
+{
+  "name": "@civ7/cli-data",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Civilization VII data resource commands for the Civ7 CLI.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "oclif.manifest.json"
+  ],
+  "scripts": {
+    "check:test": "tsc -p test/tsconfig.json --noEmit",
+    "clean:dist": "rimraf dist tsconfig.tsbuildinfo",
+    "test": "vitest run --project cli-data",
+    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
+  },
+  "oclif": {
+    "commands": "./dist/commands",
+    "topics": {
+      "data": {
+        "description": "Work with Civilization VII data: crawl XML resources, explore relationships, and manage archives."
+      }
+    }
+  },
+  "dependencies": {
+    "@civ7/config": "workspace:*",
+    "@civ7/plugin-files": "workspace:*",
+    "@civ7/plugin-graph": "workspace:*",
+    "@oclif/core": "^4.11.4",
+    "tslib": "^2.8.1"
+  },
+  "engines": {
+    "node": "22.22.0"
+  }
+}

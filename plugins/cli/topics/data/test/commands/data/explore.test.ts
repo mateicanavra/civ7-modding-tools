@@ -16,7 +16,7 @@ vi.mock("@civ7/config", () => ({
   findProjectRoot: vi.fn(() => "/project"),
 }));
 
-vi.mock("../../src/utils", () => ({
+vi.mock("../../../src/utils/resolver", () => ({
   resolveRootFromConfigOrFlag: vi.fn(async () => "/root"),
 }));
 
@@ -30,7 +30,7 @@ vi.mock("node:fs", () => ({
 }));
 
 import { exploreGraph } from "@civ7/plugin-graph";
-import Explore from "../../src/commands/data/explore";
+import Explore from "../../../src/commands/data/explore";
 
 describe("explore command", () => {
   beforeEach(() => {

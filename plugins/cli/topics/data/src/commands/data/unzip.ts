@@ -12,10 +12,10 @@ The source zip file and extraction path are determined by the profile, but can b
 `;
 
   static examples = [
-    "<%= config.bin %> unzip",
-    "<%= config.bin %> unzip full",
-    "<%= config.bin %> unzip --config ./my-config.jsonc default",
-    "<%= config.bin %> unzip default ./my-custom-archive.zip ./my-custom-output-dir",
+    "<%= config.bin %> data unzip",
+    "<%= config.bin %> data unzip full",
+    "<%= config.bin %> data unzip --config ./my-config.jsonc default",
+    "<%= config.bin %> data unzip default ./my-custom-archive.zip ./my-custom-output-dir",
   ];
 
   static flags = {

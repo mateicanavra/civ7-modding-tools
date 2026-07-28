@@ -35,13 +35,11 @@
       "prerun": "./dist/hooks/prerun/promptMissingArgs.js"
     },
     "plugins": [
-      "@oclif/plugin-help"
+      "@oclif/plugin-help",
+      "@civ7/cli-data"
     ],
     "topicSeparator": " ",
     "topics": {
-      "data": {
-        "description": "Work with Civilization VII data: crawl XML resources, explore relationships, zip outputs."
-      },
       "docs": {
         "description": "Serve the project documentation site (Mintlify or Docsify) with optional syncing."
       },
@@ -78,12 +76,12 @@
     }
   },
   "dependencies": {
+    "@civ7/cli-data": "workspace:*",
     "@civ7/config": "workspace:*",
     "@civ7/control-orpc": "workspace:*",
     "@civ7/direct-control": "workspace:*",
     "@civ7/plugin-files": "workspace:*",
     "@civ7/plugin-git": "workspace:*",
-    "@civ7/plugin-graph": "workspace:*",
     "@civ7/plugin-mods": "workspace:*",
     "@oclif/core": "^4.11.4",
     "@oclif/plugin-help": "^6.2.50",

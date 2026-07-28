@@ -18,7 +18,7 @@ vi.mock("node:fs", () => ({
 }));
 
 import { renderSvg } from "@civ7/plugin-graph";
-import Render from "../../src/commands/data/render";
+import Render from "../../../src/commands/data/render";
 
 describe("render command", () => {
   beforeEach(() => {

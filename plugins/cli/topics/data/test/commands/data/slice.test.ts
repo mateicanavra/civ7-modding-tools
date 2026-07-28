@@ -5,7 +5,7 @@ vi.mock("@civ7/config", () => ({
   findProjectRoot: vi.fn(() => "/project"),
 }));
 
-vi.mock("../../src/utils", () => ({
+vi.mock("../../../src/utils/resolver", () => ({
   resolveRootFromConfigOrFlag: vi.fn(async () => "/root"),
 }));
 
@@ -19,7 +19,7 @@ vi.mock("node:fs", () => ({
 }));
 
 import * as fs from "node:fs";
-import Slice from "../../src/commands/data/slice";
+import Slice from "../../../src/commands/data/slice";
 
 const copyFile = (fs.promises as any).copyFile as any;
 

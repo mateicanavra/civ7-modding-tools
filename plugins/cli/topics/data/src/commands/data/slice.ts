@@ -3,7 +3,7 @@ import { promises as fs } from "node:fs";
 import * as path from "node:path";
 import { expandPath, findProjectRoot } from "@civ7/config";
 import { Args, Command, Flags } from "@oclif/core";
-import { resolveRootFromConfigOrFlag } from "../../utils";
+import { resolveRootFromConfigOrFlag } from "../../utils/resolver";
 
 export default class Slice extends Command {
   static id = "slice";
@@ -14,8 +14,8 @@ preserving relative directory structure.
 `;
 
   static examples = [
-    "<%= config.bin %> slice ./out/<seed>/manifest.txt",
-    "<%= config.bin %> slice --profile default ./out/<seed>/manifest.txt ./out/<seed>-slice",
+    "<%= config.bin %> data slice ./out/<seed>/manifest.txt",
+    "<%= config.bin %> data slice --profile default ./out/<seed>/manifest.txt ./out/<seed>-slice",
   ];
 
   static flags = {

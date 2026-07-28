@@ -150,6 +150,14 @@ live-proof runbook in `MILESTONE-PROOFS.md`).
 **Scope:** Add kind-level validation that a start-selection operation remains domain-owned and that recipe steps consume its public result only for materialization/publication; avoid naming internal helpers or freezing current property keys.
 **Impact:** After the package source scan is removed, current contracts and behavior tests retain runtime coverage, but Habitat does not yet enforce the ownership split as a positive structural rule.
 
+## DEF-020: Publishable Civ7 CLI dependency closure
+
+**Deferred:** 2026-07-28
+**Trigger:** Before the first external npm or GitHub package publication of `@civ7/cli`, or before treating `civ7-cli:publish:npm` as a supported distribution path.
+**Context:** The CLI shell already consumes multiple private workspace packages for configuration, control, mod operations, and reusable file/Git capabilities. Extracting the `data` topic into a private oclif plugin preserves that existing repo-local dependency model but makes the unresolved publication boundary easier to see. Publishing only the topic plugin would not close the shell's other private runtime dependencies.
+**Scope:** Choose one complete distribution model: publish every runtime workspace dependency as a compatible package set, or bundle/vendor the private runtime graph into the CLI artifact. Prove the selected model by installing and executing the packed CLI outside this workspace, including plugin discovery and representative commands.
+**Impact:** Workspace and linked-development execution are supported and verified; a standalone externally published CLI package is not yet a supported product artifact.
+
 ## Project-scoped deferrals
 
 Some deferrals are intentionally scoped to a specific project/milestone (e.g., Engine Refactor v1) rather than the whole system. Keep those in the project’s deferrals doc:

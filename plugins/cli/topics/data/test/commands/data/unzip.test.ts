@@ -16,7 +16,7 @@ vi.mock("@civ7/config", () => ({
 }));
 
 import { unzipResources } from "@civ7/plugin-files";
-import Unzip from "../../src/commands/data/unzip";
+import Unzip from "../../../src/commands/data/unzip";
 
 describe("unzip command", () => {
   beforeEach(() => {

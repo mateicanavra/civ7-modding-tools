@@ -19,6 +19,10 @@
         },
         {
           "type": "string",
+          "const": "cli-topic-plugin"
+        },
+        {
+          "type": "string",
           "const": "app"
         },
         {
@@ -35,7 +39,7 @@
         },
         {
           "type": "string",
-          "const": "foundation"
+          "const": "library"
         },
         {
           "type": "string",
@@ -67,7 +71,7 @@
         },
         {
           "type": "string",
-          "const": "kind:foundation"
+          "const": "kind:library"
         },
         {
           "type": "string",
@@ -76,6 +80,10 @@
         {
           "type": "string",
           "const": "kind:plugin"
+        },
+        {
+          "type": "string",
+          "const": "kind:cli-topic-plugin"
         },
         {
           "type": "string",

@@ -24,7 +24,7 @@ vi.mock("node:fs", async () => {
 });
 
 import { zipResources } from "@civ7/plugin-files";
-import Zip from "../../src/commands/data/zip";
+import Zip from "../../../src/commands/data/zip";
 
 describe("zip command", () => {
   beforeEach(() => {

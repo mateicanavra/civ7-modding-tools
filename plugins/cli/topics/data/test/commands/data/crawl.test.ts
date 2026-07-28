@@ -11,7 +11,7 @@ vi.mock("@civ7/config", () => ({
   resolveGraphOutDir: vi.fn(() => "/out"),
   findProjectRoot: vi.fn(() => "/project"),
 }));
-vi.mock("../../src/utils/resolver", () => ({
+vi.mock("../../../src/utils/resolver", () => ({
   resolveRootFromConfigOrFlag: vi.fn(async () => "/root"),
 }));
 
@@ -24,7 +24,7 @@ vi.mock("node:fs", () => ({
 }));
 
 import { crawlGraph } from "@civ7/plugin-graph";
-import Crawl from "../../src/commands/data/crawl";
+import Crawl from "../../../src/commands/data/crawl";
 
 describe("crawl command", () => {
   beforeEach(() => {

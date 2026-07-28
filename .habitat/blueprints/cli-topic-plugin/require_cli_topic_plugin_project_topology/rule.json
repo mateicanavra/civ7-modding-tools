@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "require_cli_topic_plugin_project_topology",
+  "title": "Require CLI Topic Plugin Project Topology",
+  "placement": {
+    "niche": "global/workspace",
+    "blueprint": "cli-topic-plugin",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "oclif topic plugins without one package, Nx project, source entrypoint, topic-prefixed command tree, and mirrored behavior-test spine or with loose children outside that finite project topology",
+  "why": "A CLI topic plugin is one independently buildable oclif command owner registered by the shell. Closing its project, source, command, and test spines prevents shell forwarding modules, duplicate command owners, global hooks, and reusable capability code from accumulating inside a topic surface.",
+  "remediate": "Keep package.json, project.json, tsconfig.json, src/index.ts, one topic-prefixed src/commands tree, and the mirrored test/commands tree. Put command-local helpers under src/utils, keep startup and global hooks in the CLI shell, and keep reusable capabilities in their library owners.",
+  "message": "CLI topic plugins must match the closed topic-project topology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["plugins/cli/topics/*", "plugins/cli/topics/*/**"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/cli-topic-plugin/require_cli_topic_plugin_project_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/cli-topic-plugin/require_cli_topic_plugin_project_topology/structure.toml"
+    }
+  }
+}

@@ -11,11 +11,11 @@ Reads profiles from the CLI config to create a zip archive of the game's resourc
 Automatically detects OS defaults but can be overridden. Supports include/exclude patterns and prints a summary.
 `;
   static examples = [
-    "<%= config.bin %> zip",
-    "<%= config.bin %> zip full",
-    "<%= config.bin %> zip --verbose assets",
-    "<%= config.bin %> zip --config ./my-config.jsonc default",
-    "<%= config.bin %> zip default ./my-custom-archive.zip",
+    "<%= config.bin %> data zip",
+    "<%= config.bin %> data zip full",
+    "<%= config.bin %> data zip --verbose assets",
+    "<%= config.bin %> data zip --config ./my-config.jsonc default",
+    "<%= config.bin %> data zip default ./my-custom-archive.zip",
   ];
 
   static flags = {

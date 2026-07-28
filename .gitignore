@@ -24,6 +24,7 @@ out/**
 !.civ7/outputs/
 !.civ7/outputs/resources/
 packages/cli/oclif.manifest.json
+plugins/cli/topics/*/oclif.manifest.json
 tools/habitat/oclif.manifest.json
 
 # Docs build output (declared as Nx outputs)
