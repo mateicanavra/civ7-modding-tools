@@ -29,22 +29,21 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** extract the coupled Git/mod command-adapter family into
-one `plugins/cli/topics/git-mod` owner. The package owns the complete
-`git:subtree`, `mod:git`, and `mod:manage` surfaces because they share one
-subtree command model, one configuration namespace adapter, and one public
-`mod` topic authority. Reusable Git and mod behavior remains in
-`@civ7/plugin-git` and `@civ7/plugin-mods`; the topic package owns only oclif
-adaptation and command-local orchestration.
+**Current container:** extract the complete `game:*` command surface into one
+`plugins/cli/topics/game` owner. The topic owns oclif adaptation, command-local
+game projections, and behavior proof; `@civ7/control-orpc` and
+`@civ7/direct-control` remain the reusable control capabilities. The dependency
+is real rather than incidental, so the generic `kind:cli-topic-plugin` graph
+must explicitly admit `kind:control` before relocation can be considered
+complete.
 
-The shell's topic-specific prerun prompt table retires rather than following
-the commands. Required repository input becomes explicit in the command
-contract, while status/remove retain their declared optional input semantics.
-The CLI shell registers one plugin and retains no command IDs, topic metadata,
-prompt policy, forwarding modules, or direct Git/mod capability imports. Game
-remains outside this container until its control dependencies receive an
-explicit topic-kind edge decision; a convenient destination does not authorize
-that graph.
+The CLI shell registers one game plugin and retains no game command IDs, topic
+metadata, forwarding modules, direct control capability imports, or topic-only
+test targets. Test-only projections and duplicate configuration-package tests
+retire instead of gaining a new owner. Test support remains non-production code
+under one closed generic topic-test spine. The destination does not license
+game-specific transport or control behavior: commands adapt the established
+control owners and do not recreate them.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -61,13 +60,13 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** admit hierarchical command-local helpers as one narrow generic
-CLI-topic law correction; relocate all twenty Git/mod commands, their shared
-subtree adapters, and behavior tests; delete empty/dead base mechanics and the
-topic-specific global hook; register one native oclif owner; remove stale shell
-metadata and dependencies; then prove exact manifest membership, aliases,
-required-input behavior, help, types, tests, boundaries, dead-code absence,
-hygiene, and staged policy before cutting the branch.
+**Gradient:** admit the real topic-to-control edge; add one closed generic
+test-support spine; relocate all sixty-five game commands, command-local
+helpers, and behavior tests; delete test-only runtime projections and duplicate
+configuration tests; register one native oclif owner; remove stale shell
+metadata, targets, and dependencies; then prove exact manifest membership,
+representative help, types, tests, boundaries, dead-code absence, hygiene, and
+staged policy before cutting the branch.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -110,6 +109,16 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - CLI Git And Mod Topic Kind Sealed
+
+The CLI shell now registers `@civ7/cli-git-mod` as the sole owner of the twenty
+`git:subtree`, `mod:git`, and `mod:manage` commands. Reusable subtree workflows
+moved to `@civ7/plugin-git`; the topic retains only command adaptation, while
+the prompt-dependent target, hidden prompt policy, empty bases, and dead flags
+retired. Exact command and alias discovery, explicit required-input behavior,
+the complete shell/topic/capability graph, closed topology, Knip, hygiene, the
+staged hook, and fresh review sealed the cut.
 
 ### 2026-07-28 - CLI Docs Topic Kind Sealed
 

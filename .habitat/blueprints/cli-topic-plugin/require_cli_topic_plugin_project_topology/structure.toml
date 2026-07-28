@@ -82,7 +82,10 @@ required = [
   "commands",
   "tsconfig.json",
 ]
-allowed = ["utils"]
+allowed = [
+  "support",
+  "utils",
+]
 
 [[scopes]]
 name = "cli-topic-plugin-command-tests"
@@ -110,3 +113,25 @@ kind = "directory"
 mode = "closed"
 allowEmpty = true
 allowed = ["*.test.ts"]
+
+[[scopes]]
+name = "cli-topic-plugin-test-support"
+root = "plugins/cli/topics/*/test/support"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+allowed = [
+  "*.ts",
+  "+([a-z0-9])*(-+([a-z0-9]))",
+]
+
+[[scopes]]
+name = "cli-topic-plugin-nested-test-support"
+root = "plugins/cli/topics/*/test/support/**/!(*.*)"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+allowed = [
+  "*.ts",
+  "+([a-z0-9])*(-+([a-z0-9]))",
+]

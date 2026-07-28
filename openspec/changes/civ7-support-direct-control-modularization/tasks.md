@@ -126,7 +126,8 @@
         coverage plus rehydrate continuity, notification-HUD, and
         notification-queue coverage plus technology-, culture-, celebration-,
         and government-option coverage, now sharing the
-        `game/play/normal-output-boundary.ts` test helper, prove sixteen normal
+        `plugins/cli/topics/game/test/support/normal-output-boundary.ts` test helper,
+        prove sixteen normal
         player-agent projection families omit raw
         transport/session/probe/correlation command internals, but broader
         debug-command boundary, AI-ingestion, telemetry, and
@@ -143,11 +144,12 @@
         network/UI/player/map probes, Tuner health globals, catalog
         owner/provenance/confidence,
         own/prototype/enumerable keys, and method owner/length/signature
-        diagnostics. The debug projection source/proof owner seed is now
-        recorded in
-        `packages/cli/src/game-debug/debug-service-projection.ts`,
-        `packages/cli/test/commands/game/debug-service-projection.test.ts`,
-        and `packages/cli/test/commands/game.control.test.ts`, but the row
+        diagnostics. Debug projection behavior is owned directly by the
+        debug-oriented commands under `plugins/cli/topics/game/src/commands/game`
+        and proven by
+        `plugins/cli/topics/game/test/commands/game/control.test.ts`; the
+        retired test-only projection seed is intentionally not a production
+        authority. The row
         remains pending until final debug hierarchy/schema/test owners,
         command/flag boundary coverage, normal/debug/AI/procedure separation
         tests, and stop-condition coverage are assigned and passing.
@@ -157,10 +159,10 @@
         called out, but its `acceptanceStatus` remains
         `pending-cli-semantic-envelope`. The planning contract is now recorded
         in `workstream/semantic-cli-envelope-contract.md`. The semantic
-        envelope source/proof owner seed is now recorded in
-        `packages/cli/src/game-play/semantic-envelope.ts` and
-        `packages/cli/test/commands/game/play/semantic-envelope.test.ts`, and
-        the shared normal-output helper now consumes that owner for forbidden
+        envelope source/proof owner is now recorded in
+        `plugins/cli/topics/game/src/utils/game-play/semantic-envelope.ts` and
+        `plugins/cli/topics/game/test/commands/game/play/semantic-envelope.test.ts`, and
+        the test-only normal-output helper independently owns forbidden
         debug/internal marker detection. Focused `game play priorities
         --compact --json` proof now carries the first command-integrated
         `semanticEnvelope` through that owner. The row remains pending until

@@ -487,18 +487,21 @@ global hooks, plugin registration, and shell-wide operational targets. A
 cohesive command topic may live at `plugins/cli/topics/<topic>` as one
 `kind:cli-topic-plugin` project with its own source, behavior tests, build, and
 oclif manifest. The shell registers that package exactly once and retains no
-forwarding commands. Topic plugins adapt `kind:plugin` and `kind:library`
-capabilities; reusable capabilities never move into a topic solely because its
-commands are their current consumer.
+forwarding commands. Topic plugins adapt `kind:plugin`, `kind:library`, and
+`kind:control` capabilities; reusable capabilities never move into a topic
+solely because its commands are their current consumer. The control allowance
+exists so the `game` topic can adapt the canonical live-control contracts and
+runtimes into CLI UX; it does not permit topic-owned transports or control
+services.
 **Consequences:**
 - `kind:app -> kind:cli-topic-plugin` and
-  `kind:cli-topic-plugin -> {kind:plugin, kind:library}` are the complete new
-  project-plane edges.
+  `kind:cli-topic-plugin -> {kind:plugin, kind:library, kind:control}` are the
+  complete new project-plane edges.
 - Each topic keeps its topic-prefixed directory under `src/commands`, because
   oclif derives canonical command ids from paths rather than package names.
 - The generic CLI-topic blueprint closes project, source, command, and test
   spines. oclif owns native command discovery and manifests; Nx and TypeScript
   own package edges and imports.
-- The `data` and `docs` topics are the first instances. Graph, archive,
-  configuration, and file mechanics remain in their existing reusable package
-  owners.
+- The `data`, `docs`, `git-mod`, and `game` topics are independent instances.
+  Graph, archive, configuration, file, Git, mod, and live-control mechanics
+  remain in their existing reusable package owners.

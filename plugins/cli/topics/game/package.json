@@ -1,0 +1,47 @@
+{
+  "name": "@civ7/cli-game",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Live Civilization VII control and inspection commands for the Civ7 CLI.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "oclif.manifest.json"
+  ],
+  "scripts": {
+    "check:test": "tsc -p test/tsconfig.json --noEmit",
+    "clean:dist": "rimraf dist tsconfig.tsbuildinfo",
+    "test": "vitest run --project cli-game",
+    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
+  },
+  "oclif": {
+    "commands": "./dist/commands",
+    "topics": {
+      "game": {
+        "description": "Operate a running Civilization VII session through local tooling"
+      },
+      "game:local-data": {
+        "description": "Inspect local Civ7 SQLite, save, and log evidence"
+      },
+      "game:map": {
+        "description": "Read current world, plot, grid, start, and visibility map state"
+      },
+      "game:play": {
+        "description": "Turn-by-turn live-play shortcuts over direct-control"
+      },
+      "game:play:screen": {
+        "description": "Inspect and dismiss App UI display-queue screens (cinematic moments)"
+      }
+    }
+  },
+  "dependencies": {
+    "@civ7/control-orpc": "workspace:*",
+    "@civ7/direct-control": "workspace:*",
+    "@oclif/core": "^4.11.4",
+    "tslib": "^2.8.1"
+  },
+  "engines": {
+    "node": "22.22.0"
+  }
+}

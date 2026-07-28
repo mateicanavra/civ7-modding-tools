@@ -92,14 +92,16 @@ dependencies before running package tests:
 ```bash
 nx run civ7-cli:build
 nx run civ7-cli:test
-nx run civ7-cli:test:play
 nx run civ7-cli:check
+nx run cli-game:test
+nx run cli-game:check
+nx run cli-game:build
 ```
 
-Avoid package-local CLI tests such as `bun run --cwd packages/cli test` unless
-the dependency graph has already been built. The CLI imports compiled workspace
-packages like `@civ7/direct-control`, so package-local tests can otherwise read
-stale `dist/` output.
+Avoid package-local CLI tests such as `bun run --cwd packages/cli test` or
+`bun run --cwd plugins/cli/topics/game test` unless the dependency graph has
+already been built. The game topic imports compiled workspace control packages,
+so package-local tests can otherwise read stale `dist/` output.
 
 `nx run civ7-cli:link:global` follows the same rule: it builds the CLI package through Nx first,
 including the oclif manifest generation in the package build, then registers the package binary as

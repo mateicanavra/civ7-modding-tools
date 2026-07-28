@@ -86,13 +86,13 @@ product safety.
 
 ## Current Owner And Integration Seed
 
-`packages/cli/src/game-play/semantic-envelope.ts` is the current
+`plugins/cli/topics/game/src/utils/game-play/semantic-envelope.ts` is the current
 source owner seed for semantic envelope slot names, the TypeScript structural
-constructor, and normal-output debug/internal exclusion marker classes. Its
+constructor, and version. Its
 focused proof owner is
-`packages/cli/test/commands/game/play/semantic-envelope.test.ts`, and the
-shared normal-output helper consumes that source owner for forbidden-marker
-detection.
+`plugins/cli/topics/game/test/commands/game/play/semantic-envelope.test.ts`.
+The test-only normal-output helper independently owns forbidden-marker
+calibration; it does not make test policy part of the production envelope.
 
 `game play priorities --compact --json` now carries the first
 command-integrated `semanticEnvelope` using that owner. Its proof keeps

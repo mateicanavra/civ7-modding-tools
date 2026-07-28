@@ -84,6 +84,7 @@ treatment without adding a concrete tag or constraint row.
 | civ7-cli | `packages/cli` | `kind:app` |
 | cli-data | `plugins/cli/topics/data` | `kind:cli-topic-plugin` |
 | cli-docs | `plugins/cli/topics/docs` | `kind:cli-topic-plugin` |
+| cli-game | `plugins/cli/topics/game` | `kind:cli-topic-plugin` |
 | cli-git-mod | `plugins/cli/topics/git-mod` | `kind:cli-topic-plugin` |
 | civ7-docs | `apps/docs` | `kind:app` |
 | civ7-playground | `apps/playground` | `kind:app` |
@@ -148,7 +149,7 @@ owned by their Grit/file-layer rules.
 | `kind:engine` | `kind:adapter`, `kind:library` | core purity: mapgen-core sees adapter *types* only, never runtime values (`mapgen-core-runtime-civ7`, G3) |
 | `kind:mapgen-tool` | `kind:engine`, `kind:library`, `kind:control` | reusable MapGen tooling may compose neutral execution, projection, and future live-control capabilities without importing product or harness owners |
 | `kind:plugin` | `kind:plugin`, `kind:library` | plugins stay leaf-local (`cli/AGENTS.md`) |
-| `kind:cli-topic-plugin` | `kind:plugin`, `kind:library` | topic packages adapt reusable capabilities into one oclif command surface without depending on the shell or another topic |
+| `kind:cli-topic-plugin` | `kind:plugin`, `kind:library`, `kind:control` | topic packages adapt reusable capabilities into one oclif command surface without depending on the shell or another topic; the control edge lets the `game` topic expose canonical live-control contracts while transport and service ownership remain in `kind:control` |
 | `kind:package-tool` | `kind:library`, `kind:plugin` | package build/generation programs consume only leaf contracts and reusable CLI/file helpers; no source kind may import package tools |
 | `kind:sdk` | `kind:engine`, `kind:adapter`, `kind:library`, `kind:plugin` | SDK composes engine+adapter; mapgen subpath isolation (G11) stays grit-owned |
 | `kind:control` | `kind:control`, `kind:library`, `kind:adapter`, `kind:engine` | control service layering (`control-orpc` over `direct-control`); lifecycle ownership remains governed by the control note above, and contract-ownership rules stay grit-owned. Architecture review 2026-06-12: no control→mod edge exists, and main `331534895` (studio-server) explicitly forbids that direction in code comments — the previously drafted `kind:mod` allowance was dropped pre-lock as falsely provenanced |

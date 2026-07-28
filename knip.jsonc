@@ -66,9 +66,7 @@
       "ignore": ["src/setup-parameters.gen.ts"]
     },
     "packages/cli": {
-      "entry": ["bin/dev.ts"],
-      // Civ7 data discovery invokes the host's POSIX `which` command to locate sqlite3.
-      "ignoreBinaries": ["which"]
+      "entry": ["bin/dev.ts"]
     },
     "plugins/cli/topics/data": {
       "entry": ["src/commands/**/*.ts"]
@@ -78,6 +76,11 @@
     },
     "plugins/cli/topics/git-mod": {
       "entry": ["src/commands/**/*.ts"]
+    },
+    "plugins/cli/topics/game": {
+      "entry": ["src/commands/**/*.ts"],
+      // Local-data inspection invokes the host's POSIX `which` command to locate sqlite3.
+      "ignoreBinaries": ["which"]
     },
     "packages/mapgen-core": {
       "entry": ["test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"]

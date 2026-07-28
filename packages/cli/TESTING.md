@@ -1,6 +1,8 @@
 # Testing
 
-This package uses [Vitest](https://vitest.dev/) with the Node environment. Tests live in `test/commands` and `test/utils`.
+This package uses [Vitest](https://vitest.dev/) with the Node environment. It
+keeps only shell-wide tests; topic behavior tests live with their owners under
+`plugins/cli/topics/*/test`.
 
 ## Running tests
 
@@ -8,23 +10,21 @@ This package uses [Vitest](https://vitest.dev/) with the Node environment. Tests
 nx run civ7-cli:test
 ```
 
-For the Civ7 live-play command suite:
+For the `game` topic, including the live-play command suite:
 
 ```bash
-nx run civ7-cli:test:play
+nx run cli-game:test
 ```
 
 Run these from the repo root. They go through Nx so compiled workspace
-dependencies, especially `@civ7/direct-control`, are built before the CLI tests
-import them. Package-local Vitest commands are only safe after the dependency
-graph has already been built.
+dependencies are built before the owning tests import them. Package-local
+Vitest commands are only safe after the dependency graph has already been
+built.
 
 ## Current smoke tests
 
-- `expandPath` expands `~` to the user's home directory.
-- `crawl` and `explore` commands delegate to `@civ7/plugin-graph` workflows.
+- The resource-submodule bootstrap script refuses unsafe or incomplete states.
 
 ## Suggested future tests
 
-- `findProjectRoot` locates the workspace root.
-- CLI commands produce expected output files.
+- CLI startup and global hooks exercise their shell-owned behavior directly.

@@ -217,13 +217,13 @@ Intake rejection conditions:
 - `dependencyDirection`: hotseat/autoplay foundation -> AI-intelligence model
 - `surface`: semantic CLI player-agent view
 - `primaryConsumer`: normal local player-agent CLI user/API
-- `sourceOwner`: `packages/cli/src/game-play/semantic-envelope.ts`
+- `sourceOwner`: `plugins/cli/topics/game/src/utils/game-play/semantic-envelope.ts`
   owner seed and structural constructor; command-specific projections remain
   under their existing `game play` command owners, with `game play priorities`
   now carrying the first compact semantic-envelope integration
-- `proofOwner`: `packages/cli/test/commands/game/play/semantic-envelope.test.ts`
+- `proofOwner`: `plugins/cli/topics/game/test/commands/game/play/semantic-envelope.test.ts`
   owner-seed proof plus existing focused play suites using the shared
-  normal-output helper; `packages/cli/test/commands/game/play/priorities.test.ts`
+  normal-output helper; `plugins/cli/topics/game/test/commands/game/play/priorities.test.ts`
   proves the first compact priorities envelope integration; final row
   proof/gate owner remains pending
 - `playerScope`: current local player and agent-slot scoped; human-turn
@@ -252,17 +252,18 @@ Intake rejection conditions:
 #### Acceptance Intake: Semantic CLI Player-Agent View
 
 - `ownerAssignment`: current source owners are the 45 `game play` command
-  modules under `packages/cli/src/commands/game/play/**/*.ts`, with command
+  modules under `plugins/cli/topics/game/src/commands/game/play/**/*.ts`, with command
   ownership inventoried in `workstream/cli-play-corpus.md`. Current proof
-  owners are the 28 canonical play suites covered by root `test:cli:play`,
+  owners are the canonical play suites owned by `cli-game:test`,
   including the focused notification, priorities, ready, tactical, progression,
   production, operation, and mutation-facing command suites listed in that
   corpus. The source/proof owner seed for shared envelope vocabulary and
   forbidden normal-output internals is now
-  `packages/cli/src/game-play/semantic-envelope.ts` with proof in
-  `packages/cli/test/commands/game/play/semantic-envelope.test.ts`; compact
-  priorities integration is owned by `packages/cli/src/commands/game/play/priorities.ts`
-  and proven in `packages/cli/test/commands/game/play/priorities.test.ts`.
+  `plugins/cli/topics/game/src/utils/game-play/semantic-envelope.ts` with proof in
+  `plugins/cli/topics/game/test/commands/game/play/semantic-envelope.test.ts`; compact
+  priorities integration is owned by
+  `plugins/cli/topics/game/src/commands/game/play/priorities.ts`
+  and proven in `plugins/cli/topics/game/test/commands/game/play/priorities.test.ts`.
   Missing before acceptance: full command-surface envelope ownership, final
   schema/test owner, and reviewer/gate owner for normal/debug/AI projection
   separation.
@@ -284,11 +285,11 @@ Intake rejection conditions:
   Missing before acceptance: full command-surface envelope implementation,
   final schema/test owner, and integration fixtures over the remaining normal
   play surfaces.
-- `proofPlan`: existing local proof is canonical `test:cli:play` plus the
+- `proofPlan`: existing local proof is canonical `cli-game:test` plus the
   focused command owner tests recorded in `workstream/cli-play-corpus.md`.
-  The semantic owner-seed proof now verifies the planned envelope slot
-  vocabulary and raw debug/internal marker classes used by the shared
-  normal-output helper. Compact priorities proof now verifies that normal play
+  The semantic owner proof verifies the planned envelope slot vocabulary; the
+  test-only normal-output helper independently calibrates raw debug/internal
+  marker classes. Compact priorities proof now verifies that normal play
   output carries a `semanticEnvelope` using the planned slots from
   `workstream/semantic-cli-envelope-contract.md`, limits `blockers` to actual
   blocking state/items instead of battlefield or clean-read recommendations,
@@ -425,14 +426,12 @@ Intake rejection conditions:
   diagnostics for it
 - `surface`: debug/internal service output
 - `primaryConsumer`: direct-control service/debug hierarchy
-- `sourceOwner`: `packages/cli/src/game-debug/debug-service-projection.ts`
-  owner seed for debug/internal field classes and payload path expectations;
-  command-specific debug outputs remain under their existing CLI command and
-  direct-control atom owners
-- `proofOwner`: `packages/cli/test/commands/game/debug-service-projection.test.ts`
-  owner-seed proof plus `packages/cli/test/commands/game.control.test.ts`
-  command-integrated debug payload proof; final row proof/gate owner remains
-  pending
+- `sourceOwner`: debug-oriented commands under
+  `plugins/cli/topics/game/src/commands/game` and their direct-control result
+  contracts; no separate production projection seed exists
+- `proofOwner`: `plugins/cli/topics/game/test/commands/game/control.test.ts`
+  and focused command suites under the same topic plugin; final row proof/gate
+  owner remains pending
 - `playerScope`: debug/observer scoped unless a row-specific action surface
   assigns local-player or agent-slot scope
 - `consumerClass`: debug/internal service output; support diagnostics; future
@@ -447,7 +446,7 @@ Intake rejection conditions:
   state, raw probes, route selection, closeout traces, correlation, and
   diagnostics
 - `proofLabel`: `planning-evidence-only`
-- `acceptanceStatus`: `pending-debug-service-boundary`; source/proof owner seed
+- `acceptanceStatus`: `pending-debug-service-boundary`; direct command owners
   and command-integrated debug payload proof exist, but final debug hierarchy
   owner, schema/test owner, command/flag boundary coverage, and separation
   tests are not assigned
@@ -459,17 +458,17 @@ Intake rejection conditions:
 #### Acceptance Intake: Debug/Internal Service Output
 
 - `ownerAssignment`: source owners are the existing debug/direct-control CLI
-  commands under `packages/cli/src/commands/game/{exec,health,inspect,status,catalog,visibility}.ts`
+  commands under
+  `plugins/cli/topics/game/src/commands/game/{exec,health,inspect,status,catalog}.ts`
+  plus `plugins/cli/topics/game/src/commands/game/map/visibility.ts`
   plus their package atom owners in `packages/civ7-direct-control/src/session`,
   `src/runtime`, `src/catalog`, and `src/play/map/visibility.ts`. Proof owners
-  are `packages/cli/test/commands/game.control.test.ts`,
+  are `plugins/cli/topics/game/test/commands/game/control.test.ts`,
   `packages/civ7-direct-control/test/runtime-and-catalog.test.ts`,
   `packages/civ7-direct-control/test/session.test.ts`, and future
-  normal/debug separation tests. The shared debug projection source/proof owner
-  seed is now `packages/cli/src/game-debug/debug-service-projection.ts` with
-  focused proof in
-  `packages/cli/test/commands/game/debug-service-projection.test.ts` and
-  command-integrated proof in `packages/cli/test/commands/game.control.test.ts`.
+  normal/debug separation tests. Debug field ownership remains with those
+  commands and the direct-control result contracts; command-integrated proof
+  lives in `plugins/cli/topics/game/test/commands/game/control.test.ts`.
   Missing before acceptance: a final debug/service hierarchy owner,
   schema/test owner, and reviewer/gate owner.
 - `writeSet`: this intake authorizes only compatibility-matrix/task/record
@@ -501,7 +500,7 @@ Intake rejection conditions:
   proof plus rehydrate continuity, notification-HUD, and notification-queue
   proof plus technology-, culture-, celebration-, and government-option proof
   now assert through the shared
-  `packages/cli/test/commands/game/play/normal-output-boundary.ts` helper that
+  `plugins/cli/topics/game/test/support/normal-output-boundary.ts` helper that
   sixteen normal player-agent projection families omit raw
   transport/session/probe/correlation command internals. Focused `game health
   --json`, `game inspect --json`, `game inspect --app-ui-snapshot --json`,
@@ -515,10 +514,9 @@ Intake rejection conditions:
   selected state, network/UI/player/map probes, Tuner health globals, catalog
   owner/provenance/confidence, visibility revealed/visible counts, grid states,
   own/prototype/enumerable keys, and method owner/length/signature diagnostics.
-  Owner-seed proof now verifies the debug/internal field-class vocabulary and
-  asserts current `game.control.test.ts` payloads expose transport/session
+  The command tests assert current debug payloads expose transport/session
   state, route selection, runtime/App UI/map probes, correlation diagnostics,
-  and catalog provenance through the seeded debug projection helper.
+  and catalog provenance without introducing a second projection authority.
   Missing proof before acceptance: broader tests proving the raw field classes in
   `workstream/debug-service-projection-contract.md` are reachable only through
   debug-owned commands, flags, or future debug procedures and are not emitted
@@ -530,8 +528,8 @@ Intake rejection conditions:
   out-of-scope until a separate ingestion contract accepts source/freshness and
   evidence labels; telemetry and procedure-core projections remain pending
   separate rows.
-- `stopConditionCoverage`: partial owner-seed coverage exists for debug-owned
-  command payload field classes. Required coverage before acceptance must still
+- `stopConditionCoverage`: partial command-level coverage exists for debug-owned
+  payload field classes. Required coverage before acceptance must still
   fail if debug/internal output becomes normal CLI player-agent output, AI
   ingestion input, product action authority, or a substitute for live runtime
   proof.
