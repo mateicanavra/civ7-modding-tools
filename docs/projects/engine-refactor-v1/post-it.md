@@ -2,8 +2,8 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Contract. Identity. Snapshot. Directness. Restraint.
-Density. Closure.
+**Attractor filter:** Artifact. Authority. Analysis. Projection. Exactness.
+Directness. Closure.
 
 **Frame:** kind before instance, intent before ownership, authority before
 relocation. A closed file shape is the start of semantic review, not proof that
@@ -31,13 +31,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** recipe admission should snapshot caller-owned
-containers without cloning values that already crossed a canonical authoring
-boundary. `createStep` returns one frozen executable step authority; recreating
-its object shape inside `createRecipe` and copying its `WeakSet` authority adds
-a false second identity without protecting any mutable state. Preserve exact
-canonical steps while continuing to detach the recipe, stage, and ordered-step
-containers that authors still own.
+**Current container:** authored artifact dependency analysis has two owners.
+Recipe admission retains exact `Artifact` identity and fails malformed graphs;
+the Studio DAG rebuilds providers after reducing artifacts to `{ id, name }`.
+The two already disagree on same-id/different-authority edges and unconsumed
+duplicate providers. One pure exact-authority analysis must own providers,
+edges, and issues; admission and JSON-safe visualization become projections of
+that result rather than parallel interpretations.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -54,12 +54,13 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** teach the recipe snapshot to preserve canonical step identity;
-delete authority transfer and its only reverse mapping; retain hostile
-descriptor and caller-alias protection for every surrounding container; prove
-that forged steps still fail closed and that post-admission stage/list mutation
-cannot alter compilation or execution. Freeze with focused Core behavior,
-typecheck, the authoring topology laws, and fresh TypeScript/state review.
+**Gradient:** extract one internal exact artifact-dependency analyzer; delete
+the recipe validator and DAG provider-map reconstruction; retain missing,
+duplicate, unused, resolved, internal, and forward-reference behavior; add an
+explicit authority-mismatch diagnostic and forbid false edges. Keep execution-
+plan ordering admission separate. Freeze with Core DAG/recipe behavior, Studio
+contract and service proof, typecheck, authoring boundaries, and fresh
+TypeScript/architecture review.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -102,6 +103,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Canonical Step Identity Sealed
+
+Recipe admission now snapshots caller-owned recipe, stage, and ordered-step
+containers while preserving the exact frozen executable authority created by
+`createStep`. The cloned step shape and `WeakSet` authority transfer retired;
+forged steps still fail closed, and later mutation of stage identities or step
+lists cannot change compilation. Focused Core behavior, typecheck, authoring
+topology, JSDoc authority, and fresh TypeScript/state review sealed the cut.
 
 ### 2026-07-28 - Precipitation Operation Authority Sealed
 

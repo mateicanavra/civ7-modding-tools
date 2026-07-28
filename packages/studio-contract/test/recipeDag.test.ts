@@ -62,4 +62,95 @@ describe("RecipeDagResultSchema", () => {
       })
     ).toBe(false);
   });
+
+  it("admits duplicate providers without inventing a consumer", () => {
+    const canonical = canonicalRecipeDag();
+    const artifact = { id: "artifact:foundation.mesh", name: "foundationMesh" };
+    const providers = [
+      { stageId: "foundation", stepId: "mesh-a", fullStepId: "foundation.mesh-a" },
+      { stageId: "foundation", stepId: "mesh-b", fullStepId: "foundation.mesh-b" },
+    ];
+
+    expect(
+      Value.Check(RecipeDagResultSchema, {
+        ...canonical,
+        diagnostics: [
+          {
+            kind: "artifact-provider-duplicate",
+            artifact,
+            providers,
+            consumers: [],
+          },
+        ],
+      })
+    ).toBe(true);
+  });
+
+  it("admits exact artifact-authority mismatch evidence", () => {
+    const canonical = canonicalRecipeDag();
+
+    expect(
+      Value.Check(RecipeDagResultSchema, {
+        ...canonical,
+        diagnostics: [
+          {
+            kind: "artifact-authority-mismatch",
+            artifact: { id: "artifact:foundation.mesh", name: "requiredMesh" },
+            providedArtifact: { id: "artifact:foundation.mesh", name: "providedMesh" },
+            provider: {
+              stageId: "foundation",
+              stepId: "publish-mesh",
+              fullStepId: "foundation.publish-mesh",
+            },
+            consumer: {
+              stageId: "morphology",
+              stepId: "consume-mesh",
+              fullStepId: "morphology.consume-mesh",
+            },
+          },
+        ],
+      })
+    ).toBe(true);
+  });
+
+  it("rejects the retired singular duplicate-provider consumer", () => {
+    const canonical = canonicalRecipeDag();
+    const endpoint = {
+      stageId: "foundation",
+      stepId: "mesh",
+      fullStepId: "foundation.mesh",
+    };
+
+    expect(
+      Value.Check(RecipeDagResultSchema, {
+        ...canonical,
+        diagnostics: [
+          {
+            kind: "artifact-provider-duplicate",
+            artifact: { id: "artifact:foundation.mesh", name: "foundationMesh" },
+            providers: [endpoint, endpoint],
+            consumer: endpoint,
+          },
+        ],
+      })
+    ).toBe(false);
+  });
+
+  it("rejects a duplicate-provider diagnostic without two providers", () => {
+    const canonical = canonicalRecipeDag();
+
+    expect(
+      Value.Check(RecipeDagResultSchema, {
+        ...canonical,
+        diagnostics: [
+          {
+            kind: "artifact-provider-duplicate",
+            artifact: { id: "artifact:foundation.mesh", name: "foundationMesh" },
+            providers: [],
+            consumers: [],
+          },
+        ],
+      })
+    ).toBe(false);
+  });
 });

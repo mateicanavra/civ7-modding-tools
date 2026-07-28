@@ -2,6 +2,7 @@ import type { CompletionId } from "@mapgen/engine/completion.js";
 import type { Artifact } from "../artifact/contract.js";
 import { assertStageIds } from "../stage/identity.js";
 import type { StepDependencyList } from "../step/contract.js";
+import { analyzeRecipeArtifactDependencies } from "./artifact-analysis.js";
 
 /** JSON-safe identity for one artifact participating in a recipe dependency graph. */
 export type RecipeDagArtifactRef = Readonly<{
@@ -56,7 +57,7 @@ export type RecipeDagEdge = Readonly<{
 
 /**
  * Unresolved artifact relationship retained for tooling instead of being repaired or hidden.
- * Diagnostics identify missing providers, duplicate providers, and unused provisions.
+ * Diagnostics identify missing, duplicate, mismatched-authority, and unused provisions.
  */
 export type RecipeDagDiagnostic = Readonly<
   | {
@@ -67,8 +68,15 @@ export type RecipeDagDiagnostic = Readonly<
   | {
       kind: "artifact-provider-duplicate";
       artifact: RecipeDagArtifactRef;
-      providers: readonly RecipeDagEndpoint[];
-      consumer?: RecipeDagEndpoint;
+      providers: readonly [RecipeDagEndpoint, RecipeDagEndpoint, ...RecipeDagEndpoint[]];
+      consumers: readonly RecipeDagEndpoint[];
+    }
+  | {
+      kind: "artifact-authority-mismatch";
+      artifact: RecipeDagArtifactRef;
+      providedArtifact: RecipeDagArtifactRef;
+      provider: RecipeDagEndpoint;
+      consumer: RecipeDagEndpoint;
     }
   | {
       kind: "artifact-consumer-missing";
@@ -116,11 +124,6 @@ export type BuildRecipeDagInput = Readonly<{
   stages: readonly RecipeDagStageInput[];
 }>;
 
-type ArtifactProvider = Readonly<{
-  artifact: RecipeDagArtifactRef;
-  endpoint: RecipeDagEndpoint;
-}>;
-
 type StageAccumulator = {
   stage: RecipeDagStage;
   inbound: number;
@@ -138,51 +141,30 @@ export function buildRecipeDag(input: BuildRecipeDagInput): RecipeDag {
   assertStageIds(input.stages.map((stage) => stage.id));
   const recipeKey =
     input.recipeKey ?? (input.namespace ? `${input.namespace}/${input.recipeId}` : input.recipeId);
-  const providers = new Map<string, ArtifactProvider[]>();
-  const consumerArtifactIds = new Set<string>();
-  const steps: RecipeDagStep[] = [];
+  const analysis = analyzeRecipeArtifactDependencies(input);
+  const steps = analysis.steps.map(
+    (step): RecipeDagStep => ({
+      stageId: step.endpoint.stageId,
+      stepId: step.endpoint.stepId,
+      fullStepId: step.endpoint.fullStepId,
+      order: step.order,
+      orderInStage: step.orderInStage,
+      artifactRequires: artifactRefs(step.artifactRequires),
+      artifactProvides: artifactRefs(step.artifactProvides),
+      completionRequires: completionIds(step.requires),
+      completionProvides: completionIds(step.provides),
+    })
+  );
+  const stepsByStage = new Map<string, RecipeDagStep[]>();
+  for (const step of steps) {
+    const stageSteps = stepsByStage.get(step.stageId) ?? [];
+    stageSteps.push(step);
+    stepsByStage.set(step.stageId, stageSteps);
+  }
+
   const stageAccumulators = new Map<string, StageAccumulator>();
-  let stepOrder = 0;
   input.stages.forEach((stage, stageIndex) => {
-    const stageSteps: RecipeDagStep[] = [];
-    stage.steps.forEach((step, stepIndex: number) => {
-      const fullStepId = computeFullStepId({
-        namespace: input.namespace,
-        recipeId: input.recipeId,
-        stageId: stage.id,
-        stepId: step.contract.id,
-      });
-      const artifactRequires = artifactRefs(step.contract.requires);
-      const artifactProvides = artifactRefs(step.contract.provides);
-      const dagStep: RecipeDagStep = {
-        stageId: stage.id,
-        stepId: step.contract.id,
-        fullStepId,
-        order: stepOrder++,
-        orderInStage: stepIndex,
-        artifactRequires,
-        artifactProvides,
-        completionRequires: completionIds(step.contract.requires),
-        completionProvides: completionIds(step.contract.provides),
-      };
-
-      steps.push(dagStep);
-      stageSteps.push(dagStep);
-
-      for (const artifact of artifactProvides) {
-        const list = providers.get(artifact.id) ?? [];
-        list.push({
-          artifact,
-          endpoint: {
-            stageId: stage.id,
-            stepId: step.contract.id,
-            fullStepId,
-          },
-        });
-        providers.set(artifact.id, list);
-      }
-    });
-
+    const stageSteps = stepsByStage.get(stage.id) ?? [];
     stageAccumulators.set(stage.id, {
       stage: {
         stageId: stage.id,
@@ -202,71 +184,75 @@ export function buildRecipeDag(input: BuildRecipeDagInput): RecipeDag {
     });
   });
 
-  const edges: RecipeDagEdge[] = [];
-  const diagnostics: RecipeDagDiagnostic[] = [];
-  const duplicateProviderDiagnostics = new Set<string>();
-
-  for (const step of steps) {
-    for (const artifact of step.artifactRequires) {
-      consumerArtifactIds.add(artifact.id);
-      const artifactProviders = providers.get(artifact.id) ?? [];
-      const consumer: RecipeDagEndpoint = {
-        stageId: step.stageId,
-        stepId: step.stepId,
-        fullStepId: step.fullStepId,
-      };
-
-      if (artifactProviders.length === 0) {
-        diagnostics.push({ kind: "artifact-provider-missing", artifact, consumer });
-        incrementDiagnostic(stageAccumulators, step.stageId);
-        continue;
-      }
-
-      if (artifactProviders.length > 1) {
-        const key = `duplicate:${artifact.id}`;
-        if (!duplicateProviderDiagnostics.has(key)) {
-          diagnostics.push({
-            kind: "artifact-provider-duplicate",
-            artifact,
-            providers: artifactProviders.map((provider) => provider.endpoint),
-            consumer,
-          });
-          duplicateProviderDiagnostics.add(key);
-          for (const provider of artifactProviders)
-            incrementDiagnostic(stageAccumulators, provider.endpoint.stageId);
-        }
-        incrementDiagnostic(stageAccumulators, step.stageId);
-        continue;
-      }
-
-      const provider = artifactProviders[0]!;
-      const internal = provider.endpoint.stageId === step.stageId;
-      edges.push({
-        id: `${provider.endpoint.fullStepId}->${step.fullStepId}:${artifact.id}`,
-        artifact,
-        from: provider.endpoint,
-        to: consumer,
-        internal,
-      });
-      if (internal) {
-        incrementInternal(stageAccumulators, step.stageId);
-      } else {
-        incrementOutbound(stageAccumulators, provider.endpoint.stageId);
-        incrementInbound(stageAccumulators, step.stageId);
-      }
+  const edges = analysis.edges.map((edge): RecipeDagEdge => {
+    const internal = edge.provider.stageId === edge.consumer.stageId;
+    if (internal) {
+      incrementInternal(stageAccumulators, edge.consumer.stageId);
+    } else {
+      incrementOutbound(stageAccumulators, edge.provider.stageId);
+      incrementInbound(stageAccumulators, edge.consumer.stageId);
     }
-  }
+    return {
+      id: `${edge.provider.fullStepId}->${edge.consumer.fullStepId}:${edge.artifact.id}`,
+      artifact: artifactRef(edge.artifact),
+      from: edge.provider,
+      to: edge.consumer,
+      internal,
+    };
+  });
 
-  for (const artifactProviders of providers.values()) {
-    if (artifactProviders.length !== 1) continue;
-    const provider = artifactProviders[0]!;
-    if (consumerArtifactIds.has(provider.artifact.id)) continue;
-    diagnostics.push({
-      kind: "artifact-consumer-missing",
-      artifact: provider.artifact,
-      provider: provider.endpoint,
-    });
-    incrementDiagnostic(stageAccumulators, provider.endpoint.stageId);
+  const diagnostics: RecipeDagDiagnostic[] = [];
+  for (const issue of analysis.issues) {
+    switch (issue.kind) {
+      case "artifact-provider-missing":
+        diagnostics.push({
+          kind: issue.kind,
+          artifact: artifactRef(issue.consumer.artifact),
+          consumer: issue.consumer.endpoint,
+        });
+        incrementDiagnostic(stageAccumulators, issue.consumer.endpoint.stageId);
+        break;
+      case "artifact-provider-duplicate": {
+        const artifact = issue.consumers[0]?.artifact ?? issue.providers[0].artifact;
+        const [firstProvider, secondProvider, ...additionalProviders] = issue.providers;
+        diagnostics.push({
+          kind: issue.kind,
+          artifact: artifactRef(artifact),
+          providers: [
+            firstProvider.endpoint,
+            secondProvider.endpoint,
+            ...additionalProviders.map((provider) => provider.endpoint),
+          ],
+          consumers: issue.consumers.map((consumer) => consumer.endpoint),
+        });
+        for (const provider of issue.providers) {
+          incrementDiagnostic(stageAccumulators, provider.endpoint.stageId);
+        }
+        for (const consumer of issue.consumers) {
+          incrementDiagnostic(stageAccumulators, consumer.endpoint.stageId);
+        }
+        break;
+      }
+      case "artifact-authority-mismatch":
+        diagnostics.push({
+          kind: issue.kind,
+          artifact: artifactRef(issue.consumer.artifact),
+          providedArtifact: artifactRef(issue.provider.artifact),
+          provider: issue.provider.endpoint,
+          consumer: issue.consumer.endpoint,
+        });
+        incrementDiagnostic(stageAccumulators, issue.provider.endpoint.stageId);
+        incrementDiagnostic(stageAccumulators, issue.consumer.endpoint.stageId);
+        break;
+      case "artifact-consumer-missing":
+        diagnostics.push({
+          kind: issue.kind,
+          artifact: artifactRef(issue.provider.artifact),
+          provider: issue.provider.endpoint,
+        });
+        incrementDiagnostic(stageAccumulators, issue.provider.endpoint.stageId);
+        break;
+    }
   }
 
   return {
@@ -286,20 +272,12 @@ export function buildRecipeDag(input: BuildRecipeDagInput): RecipeDag {
   };
 }
 
-function computeFullStepId(input: {
-  namespace?: string;
-  recipeId: string;
-  stageId: string;
-  stepId: string;
-}): string {
-  const base = input.namespace ? `${input.namespace}.${input.recipeId}` : input.recipeId;
-  return `${base}.${input.stageId}.${input.stepId}`;
+function artifactRef(artifact: Artifact): RecipeDagArtifactRef {
+  return { id: artifact.id, name: artifact.name };
 }
 
-function artifactRefs(dependencies: StepDependencyList): RecipeDagArtifactRef[] {
-  return dependencies
-    .filter((dependency): dependency is Artifact => typeof dependency !== "string")
-    .map((artifact) => ({ id: artifact.id, name: artifact.name }));
+function artifactRefs(artifacts: readonly Artifact[]): RecipeDagArtifactRef[] {
+  return artifacts.map(artifactRef);
 }
 
 function completionIds(dependencies: StepDependencyList): CompletionId[] {

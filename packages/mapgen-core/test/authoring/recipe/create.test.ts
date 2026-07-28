@@ -191,6 +191,37 @@ describe("recipe authoring", () => {
     );
   });
 
+  it("rejects duplicate artifact providers even when the artifact is not consumed", () => {
+    const duplicateArtifact = defineArtifact({
+      name: "duplicateArtifact",
+      id: "artifact:test.recipe-duplicate",
+      schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
+    });
+    const first = createStep(
+      defineStep({ id: "first-provider", requires: [], provides: [duplicateArtifact] }),
+      { run: () => undefined }
+    );
+    const second = createStep(
+      defineStep({ id: "second-provider", requires: [], provides: [duplicateArtifact] }),
+      { run: () => undefined }
+    );
+    const stage = createStage({
+      id: "foundation",
+      knobsSchema: EmptyKnobsSchema,
+      steps: [first, second],
+    });
+
+    expect(() =>
+      createRecipe({
+        id: "core.base",
+        stages: [stage],
+        operations: {},
+      })
+    ).toThrow(
+      'artifact "artifact:test.recipe-duplicate" provided by multiple steps: core.base.foundation.first-provider, core.base.foundation.second-provider'
+    );
+  });
+
   it("rejects structurally forged steps before raw artifact tags can enter the recipe graph", () => {
     const forged = Object.freeze({
       contract: Object.freeze({

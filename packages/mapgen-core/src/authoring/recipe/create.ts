@@ -13,7 +13,7 @@ import {
 import type { ReadonlyDeep } from "type-fest";
 import { compileRecipeConfig } from "../../compiler/recipe-compile.js";
 import { assertExecutionPlanRegistryInternal } from "../../engine/execution-plan.js";
-import { type Artifact, isArtifact } from "../artifact/contract.js";
+import { isArtifact } from "../artifact/contract.js";
 import {
   admitInitialSetupInternal,
   assertInitialSetupDefinitionInternal,
@@ -29,8 +29,8 @@ import { assertStageIds } from "../stage/identity.js";
 import type { StageObservation } from "../stage/types.js";
 import { isCanonicalStepContractInternal, isCanonicalStepInternal } from "../step/authority.js";
 import { assertStepInitialSetupContextInternal } from "../step/context.js";
-import type { StepDependencyList } from "../step/contract.js";
 import { buildDeclaredStepDependencies } from "../step/dependencies.js";
+import { analyzeRecipeArtifactDependencies, formatRecipeStepId } from "./artifact-analysis.js";
 import type {
   CompiledRecipeConfigOf,
   RecipeAsyncExecutionOptions,
@@ -42,6 +42,7 @@ import type {
 } from "./types.js";
 
 type AnyStage = StageObservation;
+type RecipeArtifactAnalysis = ReturnType<typeof analyzeRecipeArtifactDependencies>;
 
 type StepOccurrence = {
   stageId: string;
@@ -115,18 +116,6 @@ function snapshotAuthorship<T>(value: T, seen = new WeakMap<object, unknown>()):
   return Object.freeze(snapshot) as T;
 }
 
-function computeFullStepId(input: {
-  namespace?: string;
-  recipeId: string;
-  stageId: string;
-  stepId: string;
-}): string {
-  const base = [input.namespace, input.recipeId]
-    .filter((segment): segment is string => Boolean(segment))
-    .join(".");
-  return `${base}.${input.stageId}.${input.stepId}`;
-}
-
 function assertCanonicalRecipeSteps(recipeId: string, stages: readonly AnyStage[]): void {
   for (const stage of stages) {
     for (const step of stage.steps) {
@@ -154,12 +143,6 @@ function assertExactInitialSetupAuthorities(
       }
     }
   }
-}
-
-function artifactDependencies(dependencies: StepDependencyList): readonly Artifact[] {
-  return dependencies.filter(
-    (dependency): dependency is Artifact => typeof dependency !== "string"
-  );
 }
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
@@ -200,96 +183,27 @@ function requireCompiledConfigRecord(
   return (isRecord(value) && value) || rejectInvalidCompiledConfig(recipeId, detail);
 }
 
-function validateArtifactDependencies(input: {
-  namespace?: string;
-  recipeId: string;
-  stages: readonly AnyStage[];
-}): void {
-  const providers = new Map<string, Readonly<{ artifact: Artifact; stepId: string }>>();
-
-  for (const stage of input.stages) {
-    for (const authored of stage.steps) {
-      const stepId = authored.contract.id;
-      const fullId = computeFullStepId({
-        namespace: input.namespace,
-        recipeId: input.recipeId,
-        stageId: stage.id,
-        stepId,
-      });
-      const provides = artifactDependencies(authored.contract.provides);
-      for (const artifact of provides) {
-        const existing = providers.get(artifact.id);
-        existing === undefined ||
-          rejectDuplicateArtifactProvider(input.recipeId, artifact.id, existing.stepId, fullId);
-        providers.set(artifact.id, { artifact, stepId: fullId });
-      }
-    }
+function assertArtifactDependencies(recipeId: string, analysis: RecipeArtifactAnalysis): void {
+  const duplicate = analysis.issues.find((issue) => issue.kind === "artifact-provider-duplicate");
+  if (duplicate) {
+    const [existing, repeated] = duplicate.providers;
+    throw new Error(
+      `[recipe:${recipeId}] artifact "${duplicate.artifactId}" provided by multiple steps: ${existing.endpoint.fullStepId}, ${repeated.endpoint.fullStepId}`
+    );
   }
 
-  for (const stage of input.stages) {
-    for (const authored of stage.steps) {
-      const required = artifactDependencies(authored.contract.requires);
-      for (const artifact of required) {
-        const provider = providers.get(artifact.id);
-        if (!provider) {
-          rejectMissingArtifactProvider(
-            input.recipeId,
-            artifact.id,
-            computeFullStepId({
-              namespace: input.namespace,
-              recipeId: input.recipeId,
-              stageId: stage.id,
-              stepId: authored.contract.id,
-            })
-          );
-        }
-        if (provider.artifact !== artifact) {
-          rejectMismatchedArtifactAuthority(
-            input.recipeId,
-            artifact.id,
-            provider.stepId,
-            computeFullStepId({
-              namespace: input.namespace,
-              recipeId: input.recipeId,
-              stageId: stage.id,
-              stepId: authored.contract.id,
-            })
-          );
-        }
-      }
-    }
+  const invalid = analysis.issues.find(
+    (issue) =>
+      issue.kind === "artifact-provider-missing" || issue.kind === "artifact-authority-mismatch"
+  );
+  if (!invalid) return;
+  if (invalid.kind === "artifact-provider-missing") {
+    throw new Error(
+      `[recipe:${recipeId}] artifact "${invalid.consumer.artifact.id}" required by ${invalid.consumer.endpoint.fullStepId} has no recipe provider`
+    );
   }
-}
-
-function rejectMissingArtifactProvider(
-  recipeId: string,
-  artifactId: string,
-  consumerStepId: string
-): never {
   throw new Error(
-    `[recipe:${recipeId}] artifact "${artifactId}" required by ${consumerStepId} has no recipe provider`
-  );
-}
-
-function rejectMismatchedArtifactAuthority(
-  recipeId: string,
-  artifactId: string,
-  providerStepId: string,
-  consumerStepId: string
-): never {
-  throw new Error(
-    `[recipe:${recipeId}] artifact "${artifactId}" must use one exact authority identity; provider ${providerStepId}, consumer ${consumerStepId}`
-  );
-}
-
-function rejectDuplicateArtifactProvider(
-  recipeId: string,
-  artifactId: string,
-  existingStepId: string,
-  duplicateStepId: string
-): never {
-  throw new Error(
-    `[recipe:${recipeId}] artifact "${artifactId}" provided by multiple steps: ${existingStepId}, ${duplicateStepId}`
+    `[recipe:${recipeId}] artifact "${invalid.consumer.artifact.id}" must use one exact authority identity; provider ${invalid.provider.endpoint.fullStepId}, consumer ${invalid.consumer.endpoint.fullStepId}`
   );
 }
 
@@ -304,7 +218,7 @@ function finalizeOccurrences(input: {
   for (const stage of input.stages) {
     for (const authored of stage.steps) {
       const stepId = authored.contract.id;
-      const fullId = computeFullStepId({
+      const fullId = formatRecipeStepId({
         namespace: input.namespace,
         recipeId: input.recipeId,
         stageId: stage.id,
@@ -402,11 +316,14 @@ export function createRecipe<
     stages: authorship.stages,
     operations: authorship.operations,
   });
-  validateArtifactDependencies({
-    namespace: authorship.namespace,
-    recipeId: authorship.id,
-    stages: authorship.stages,
-  });
+  assertArtifactDependencies(
+    authorship.id,
+    analyzeRecipeArtifactDependencies({
+      namespace: authorship.namespace,
+      recipeId: authorship.id,
+      stages: authorship.stages,
+    })
+  );
   const registry = buildRegistry(occurrences);
   const recipe = toStructuralRecipeV2(authorship.id, occurrences);
 

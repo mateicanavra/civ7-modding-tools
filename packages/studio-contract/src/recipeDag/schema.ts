@@ -71,8 +71,18 @@ const DiagnosticSchema = Type.Union([
     {
       kind: Type.Literal("artifact-provider-duplicate"),
       artifact: ArtifactRefSchema,
-      providers: Type.Array(EndpointSchema),
-      consumer: Type.Optional(EndpointSchema),
+      providers: Type.Array(EndpointSchema, { minItems: 2 }),
+      consumers: Type.Array(EndpointSchema),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      kind: Type.Literal("artifact-authority-mismatch"),
+      artifact: ArtifactRefSchema,
+      providedArtifact: ArtifactRefSchema,
+      provider: EndpointSchema,
+      consumer: EndpointSchema,
     },
     { additionalProperties: false }
   ),

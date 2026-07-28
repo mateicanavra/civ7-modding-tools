@@ -234,4 +234,75 @@ describe("recipe DAG authoring model", () => {
       ["beta", 3],
     ]);
   });
+
+  it("reports duplicate providers even when no step consumes the artifact", () => {
+    const stages = [
+      stage("alpha", [step({ id: "produce-a", provides: [sourceArtifact] })]),
+      stage("beta", [step({ id: "produce-b", provides: [sourceArtifact] })]),
+    ];
+
+    const dag = buildRecipeDag({ recipeId: "unconsumed-duplicate", stages });
+
+    expect(dag.edges).toEqual([]);
+    expect(dag.diagnostics).toEqual([
+      {
+        kind: "artifact-provider-duplicate",
+        artifact: { id: sourceArtifact.id, name: sourceArtifact.name },
+        providers: [
+          {
+            stageId: "alpha",
+            stepId: "produce-a",
+            fullStepId: "unconsumed-duplicate.alpha.produce-a",
+          },
+          {
+            stageId: "beta",
+            stepId: "produce-b",
+            fullStepId: "unconsumed-duplicate.beta.produce-b",
+          },
+        ],
+        consumers: [],
+      },
+    ]);
+    expect(dag.stages.map((node) => [node.stageId, node.diagnosticCount])).toEqual([
+      ["alpha", 1],
+      ["beta", 1],
+    ]);
+  });
+
+  it("reports same-id artifact authority mismatches instead of drawing false edges", () => {
+    const requiredArtifact = defineArtifact({
+      name: "requiredSourceArtifact",
+      id: sourceArtifact.id,
+      schema: Type.Object({}, { additionalProperties: false }),
+    });
+    const stages = [
+      stage("alpha", [step({ id: "produce", provides: [sourceArtifact] })]),
+      stage("beta", [step({ id: "consume", requires: [requiredArtifact] })]),
+    ];
+
+    const dag = buildRecipeDag({ recipeId: "authority-mismatch", stages });
+
+    expect(dag.edges).toEqual([]);
+    expect(dag.diagnostics).toEqual([
+      {
+        kind: "artifact-authority-mismatch",
+        artifact: { id: requiredArtifact.id, name: requiredArtifact.name },
+        providedArtifact: { id: sourceArtifact.id, name: sourceArtifact.name },
+        provider: {
+          stageId: "alpha",
+          stepId: "produce",
+          fullStepId: "authority-mismatch.alpha.produce",
+        },
+        consumer: {
+          stageId: "beta",
+          stepId: "consume",
+          fullStepId: "authority-mismatch.beta.consume",
+        },
+      },
+    ]);
+    expect(dag.stages.map((node) => [node.stageId, node.diagnosticCount])).toEqual([
+      ["alpha", 1],
+      ["beta", 1],
+    ]);
+  });
 });
