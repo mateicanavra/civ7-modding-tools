@@ -105,8 +105,16 @@
         "cwd": "mods/mod-swooper-maps"
       }
     },
-    "verify:operational": {
-      "command": "bun ./scripts/verify.ts",
+    "verify:studio-run-in-game-live": {
+      "command": "bun ./scripts/live/verify-studio-run-in-game-live.ts",
+      "dependsOn": ["build"],
+      "cache": false,
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "verify:final-surface-parity": {
+      "command": "bun ./scripts/live/verify-final-surface-parity.ts",
       "dependsOn": ["build"],
       "cache": false,
       "options": {

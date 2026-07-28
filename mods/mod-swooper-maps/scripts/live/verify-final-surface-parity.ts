@@ -48,9 +48,9 @@ export type FinalSurfaceParityArgs = Readonly<{
 }>;
 
 const usage = `Usage:
-  nx run mod-swooper-maps:verify:operational -- --mode final-surface-parity --request-id <id>
-  nx run mod-swooper-maps:verify:operational -- --mode final-surface-parity --diagnostics-id <id>
-  nx run mod-swooper-maps:verify:operational -- --mode final-surface-parity --evidence-file <diagnostics.json>
+  nx run mod-swooper-maps:verify:final-surface-parity -- --request-id <id>
+  nx run mod-swooper-maps:verify:final-surface-parity -- --diagnostics-id <id>
+  nx run mod-swooper-maps:verify:final-surface-parity -- --evidence-file <diagnostics.json>
 
 Options:
   --request-id <id>           Bridge a fresh public completion to its private diagnostics record

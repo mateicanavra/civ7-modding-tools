@@ -116,16 +116,16 @@ Map-gen has two independent diagnostic surfaces; conflating them produces mislab
 
 A MockAdapter-clean map can still **SIGSEGV** the live engine — so internal diagnostics are necessary but never sufficient for a map-gen change. The closure test is the in-game gate.
 
-### The verify dispatcher — headless vs live (what this overlay turns on)
+### Verification targets — headless vs live (what this overlay turns on)
 
-`nx run mod-swooper-maps:verify:operational -- --mode <mode>` (or `bun ./scripts/verify.ts --mode <mode>`; dispatcher: `mods/mod-swooper-maps/scripts/verify.ts`). For *this* overlay, the only distinction that matters is the closure boundary:
+Nx owns the live command surface directly through `verify:studio-run-in-game-live` and `verify:final-surface-parity`. For *this* overlay, the only distinction that matters is the closure boundary:
 
-| Class | Example mode | Closure ceiling |
+| Class | Example target | Closure ceiling |
 |---|---|---|
 | **headless** (no tuner) | Standard product-metrics test | `generated` at most — MockAdapter, never `in-game observed` |
-| **live** (running tuner required) | `studio-run-in-game-live` (the in-game gate) | the only path to `logged` / `in-game observed` |
+| **live** (running tuner required) | `verify:studio-run-in-game-live` (the in-game gate) | the only path to `logged` / `in-game observed` |
 
-Full operational mode table + aliases + invocations: `assets/live-verification-runbook.md` §5.
+Full operational target table and invocations: `assets/live-verification-runbook.md` §5.
 
 Build before any live verify: `nx run mod-swooper-maps:build` → `mods/mod-swooper-maps/mod/`. Deploy with `nx run mod-swooper-maps:deploy`.
 
@@ -139,7 +139,7 @@ The runnable, ordered checklist with the exact failure-recovery branch is **`ass
 - **rejectPattern:** `/\[mapgen-failure\]|Map generation failed|\[recipe:[^\]]+\].*fail|StepExecutionError|\b(?:TextEncoder|Uncaught|Exception|Error)\b/i`.
 - **Deploy gate:** the verifier SHA-256-compares local `mods/mod-swooper-maps/mod/maps/<name>.js` vs the deployed copy and requires both river-materialization markers (`map.rivers.authoredTerrainMaterialization`, `POST-AUTHORED-RIVERS`) in both. Mismatch ⇒ exit 2, `recoveryHint: "nx run mod-swooper-maps:deploy"`. **Always deploy immediately before a mutating verify** (nx cache can serve stale output).
 - **Tuner:** `127.0.0.1:4318`; the `Tuner` scripting state (not `App UI`) is command-ready only after Begin Game. The live verifier calls `@civ7/control-orpc` `lifecycle.singlePlayer.start`, which requires post-start tuner evidence. Standard write/prep ownership remains in the deployed map recipe.
-- **Parity follow-up:** for a map launched through Studio Run in Game, `verify --mode final-surface-parity --request-id <id> --studio-url http://127.0.0.1:5174` uses public status only to reach private diagnostics and the immutable generation manifest. The Standard recipe owner admits the raw exact-authorship evidence, performs one correlated deterministic replay, and compares it with exactly one coherent Direct Control map observation. `complete-pass` alone exits 0; product failures, correlation blockers, and `blocked-unresolved` exit 2. The latter currently retains `identity.cross-window-game-instance` because no supported token spans the Studio launch and later observation windows; seed, turn, dimensions, endpoint, and map content are not substitute identity.
+- **Parity follow-up:** for a map launched through Studio Run in Game, `nx run mod-swooper-maps:verify:final-surface-parity -- --request-id <id> --studio-url http://127.0.0.1:5174` uses public status only to reach private diagnostics and the immutable generation manifest. The Standard recipe owner admits the raw exact-authorship evidence, performs one correlated deterministic replay, and compares it with exactly one coherent Direct Control map observation. `complete-pass` alone exits 0; product failures, correlation blockers, and `blocked-unresolved` exit 2. The latter currently retains `identity.cross-window-game-instance` because no supported token spans the Studio launch and later observation windows; seed, turn, dimensions, endpoint, and map content are not substitute identity.
 - **Exit codes:** `0` ok · `1` exception · `2` stage-failure · `3` run-not-verified.
 
 ### Live constraints — set expectations honestly (these are normal, not exceptional)

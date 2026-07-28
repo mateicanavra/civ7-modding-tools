@@ -2,8 +2,7 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Command. Option. Native. Ownership. Explicitness.
-Deletion.
+**Attractor filter:** Target. Command. Native. Ownership. Deletion.
 
 **Frame:** kind before instance, intent before ownership, authority before
 relocation. A closed file shape is the start of semantic review, not proof that
@@ -31,13 +30,12 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** the four Swooper diagnostic commands share a mixed
-`command-input.ts` cabinet that reimplements native argument parsing and stores
-Standard config-overlay behavior used by only one command. Each executable
-command owns its exact CLI grammar; `node:util.parseArgs` owns generic parsing;
-the Standard dump command alone owns its diagnostic config overlay. Keep the
-commands as thin Swooper workflow owners over MapGen diagnostics and delete the
-false shared boundary rather than relocating it.
+**Current container:** `scripts/verify.ts` is a second command graph over two
+live verifier entrypoints. It adds a mode registry, alias, argument parser, and
+child-process hop without owning product semantics. Nx already owns target
+selection, upstream build ordering, and argument forwarding. Make each live
+proof one direct Nx target and delete the dispatcher rather than preserving a
+parallel command vocabulary.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -54,12 +52,11 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** declare exact native options beside each command; fail unknown and
-missing inputs at the command boundary; keep required Standard map seed, game
-seed, and ordered player demand explicit; move recursive JSON config overlay
-beside its sole consumer; delete the shared parser cabinet and prove no second
-diagnostic argv abstraction survives. Freeze with focused argument behavior,
-the Swooper tools graph, exact dependency proof, and fresh ownership review.
+**Gradient:** register the two verifier entrypoints directly in the mod's Nx
+project; update their usage and current runbook surfaces; remove the generic
+mode, alias, parser, and spawn path; prove the removed target and script have no
+live consumers. Freeze with project metadata inspection, both help paths, the
+focused verifier behavior, the Swooper tools graph, and fresh ownership review.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -102,6 +99,17 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Diagnostic Command Input Authority Sealed
+
+Each Swooper diagnostic command now owns one closed native `parseArgs` grammar.
+The mixed `command-input.ts` cabinet, camel-case compatibility flags, and
+one-consumer Standard overlay helpers retired. The dump command requires an
+official map size plus independent map seed, game seed, and ordered players;
+current docs name its real full-recipe output path and native negative-seed
+syntax. Focused command behavior, a real Tiny dump, the full Swooper graph,
+Habitat boundaries and JSDoc authority, Knip, and fresh architecture/testing
+reviews sealed the cut.
 
 ### 2026-07-28 - Live Diagnostic Command Ownership Sealed
 

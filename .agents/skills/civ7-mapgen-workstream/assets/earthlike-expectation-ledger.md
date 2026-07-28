@@ -127,6 +127,6 @@ Mirror the placement-realignment ladder — match each expectation to the cheape
 
 - **Per-change (cheap, every iteration):** focused unit/contract tests plus the relevant named Standard metric study over its stable Civ7-preset seed cohort → the §2 rows.
 - **Per-milestone (Studio):** browser-runner dump inspected in Mapjet Studio → display/parity expectations; use `diff-layers.ts` to separate a generation bug from a viz bug.
-- **Milestone boundaries (live game, expensive — not per-change):** deployed mod run + `verify --mode final-surface-parity` → live-engine expectations. Record branch / commit / runId / config / timestamp / payloads.
+- **Milestone boundaries (live game, expensive — not per-change):** deployed mod run + `nx run mod-swooper-maps:verify:final-surface-parity` → live-engine expectations. Record branch / commit / runId / config / timestamp / payloads.
 
 Do not promote a change past a tier until its tier passes. Expect attempt-1 live failures and hotfix slices — they are normal here, not exceptional (MockAdapter-valid maps can still SIGSEGV the live engine).
