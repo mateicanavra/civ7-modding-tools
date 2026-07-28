@@ -2,19 +2,18 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Definition. Realization. Source. Contract. Materialization.
+**Attractor filter:** Shell. Workspace. Resource. Ownership. Smoke.
 
-**Frame:** a physical app/plugin split is incomplete while the realization app
-reconstructs definition membership, source paths, admission, or stable product
-identity. The reusable definition owns authored config discovery and the
-Standard recipe id behind finite package entrypoints. The Civ7 app selects a
-generation mode and materializes already-admitted definition values into files;
-it never reaches into the definition source tree.
+**Frame:** the CLI shell is an application router, not a workspace-operations
+cabinet. Topic plugins own command adaptation; reusable packages own durable
+capabilities; repository lifecycle scripts belong to the workspace. The shell
+retains only startup, plugin registration, packaging, global hooks, and direct
+proof of that assembled executable surface.
 
-**Authority order:** authored product identity -> definition-owned source
-contract -> app-owned selection -> Civ7 file plan -> generated output proof.
-Filesystem placement is an implementation detail behind the definition
-contract, not public knowledge carried by consumers.
+**Authority order:** workspace lifecycle -> reusable capability -> topic
+adapter -> shell registration -> executable smoke proof. Physical script
+placement follows the owner that invokes and maintains it; it does not inherit
+CLI ownership merely because an earlier command happened to host it.
 
 **Enforcement gravity:** a correct scaffold plus an advisory rule is guidance,
 not a ratchet. Every newly admitted kind must finish with its generic blueprint
@@ -27,14 +26,12 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** finish the Swooper definition/application contract. One
-definition-owned source store loads admitted configs in declared membership
-order and prepares opaque authored-config writes with exact rollback. Studio
-metadata generation and Civ7 artifact generation consume that same boundary;
-Studio may commit or roll back a prepared write but never receives definition
-paths or prior source contents. The application retains transient deploy
-selection and Civ7 materialization only, and consumes the canonical Standard
-recipe id rather than re-authoring it.
+**Current container:** finish the CLI shell residue cut. Move Civ7 official
+resource-submodule lifecycle scripts and their safety proof to a focused
+workspace owner, retarget the root operational commands, and replace the
+misplaced CLI test with one exact shell/plugin smoke test. Keep the shell's
+integrated data targets because they execute the assembled CLI rather than own
+the data topic.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -51,11 +48,10 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** finish the pathless definition source transaction, delete the
-obsolete Studio artifact-preflight inventory, prove pathless rollback by actual
-preparation state rather than a display path, then close the definition,
-Studio, and Studio-server graphs with boundaries, Knip, staged authority, and
-fresh review before sealing this container.
+**Gradient:** relocate the workspace-owned scripts and test without changing
+their behavior, register one truthful workspace resource proof, reduce the CLI
+test surface to executable assembly, then close the workspace/shell graph with
+exact help, test, build, boundaries, Knip, staged authority, and fresh review.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -98,6 +94,17 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Swooper Definition Write Contract Sealed
+
+The Swooper definition now owns one authored-config source store for catalog
+reads and opaque prepared writes with exact rollback. Studio retains only the
+transaction handle and config identity; definition paths and prior contents no
+longer cross into the app. The duplicate Studio artifact-preflight scanner and
+its stale physical-path policy retired in favor of Nx dependency authority.
+The complete definition/Studio/server graph, boundaries, Knip, JSDoc, staged
+policy, generated execution-surface currentness, and fresh architecture review
+sealed the source contract.
 
 ### 2026-07-28 - App MapGen Tool Boundary Sealed
 

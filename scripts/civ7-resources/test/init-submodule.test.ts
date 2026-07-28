@@ -15,9 +15,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, test } from "vitest";
 
-const initScript = fileURLToPath(
-  new URL("../../scripts/resources-submodule/init-submodule.sh", import.meta.url)
-);
+const initScript = fileURLToPath(new URL("../init-submodule.sh", import.meta.url));
 const resourceAlias = "fixture-resource://official-resources";
 const submodulePath = ".civ7/outputs/resources";
 const tempRoots: string[] = [];
