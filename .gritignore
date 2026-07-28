@@ -19,6 +19,6 @@ apps/docs/public/civ7-official/resources/
 **/*.d.ts
 **/tsup.config.ts
 **/vitest.config.ts
-mods/mod-swooper-maps/src/maps/generated/
+apps/mods/map/swooper-physics/src/maps/generated/
 packages/civ7-types/generated/
 packages/civ7-map-policy/src/civ7-tables.gen.ts

@@ -127,45 +127,28 @@ function unavailableEngineDependency(
   });
 }
 
-// Deploy = the Nx build graph + the @civ7/plugin-mods deploy API (the
-// rivers-era canonical shape; the old parsed-stdout deploy command is gone).
-// Run evidence builds thread the selected launch envelope into the generated map
-// script so post-deploy evidence can be tied back to one resolved source.
+// Save & Deploy delegates the complete build/deploy transaction to the Civ7
+// realization target. Run-in-game remains request-local because Studio owns the
+// generated workspace and exact deployment evidence for that ephemeral mod.
 async function deploySwooperMaps(
   repoRoot: string,
   launchConfigId: string
 ): Promise<{
-  build: {
-    task: string;
-    stdout: string;
-    stderr: string;
-  };
-  targetDir: string;
-  modsDir: string;
-  filesCopied: number;
+  task: string;
+  stdout: string;
+  stderr: string;
 }> {
   const plan = buildSwooperMapsStudioDeployPlan({ launchConfigId });
-  const { stdout, stderr } = await execFileAsync("bun", [...plan.buildArgs], {
+  const { stdout, stderr } = await execFileAsync("bun", [...plan.args], {
     cwd: repoRoot,
     timeout: DEPLOY_TIMEOUT_MS,
     maxBuffer: 16 * 1024 * 1024,
     env: plan.env,
   });
-  const modsDir = resolveModsDir().modsDir;
-  const deployed = deployMod({
-    inputDir: resolve(repoRoot, "apps/mods/map/swooper-physics/mod"),
-    modId: "mod-swooper-maps",
-    modsDir,
-  });
   return {
-    build: {
-      task: plan.buildTask,
-      stdout: tail(stdout),
-      stderr: tail(stderr),
-    },
-    targetDir: deployed.targetDir,
-    modsDir: deployed.modsDir,
-    filesCopied: deployed.filesCopied,
+    task: plan.task,
+    stdout: tail(stdout),
+    stderr: tail(stderr),
   };
 }
 

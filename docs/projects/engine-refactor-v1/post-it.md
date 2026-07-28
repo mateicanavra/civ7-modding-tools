@@ -2,18 +2,19 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Shell. Workspace. Resource. Ownership. Smoke.
+**Attractor filter:** Realization. Delegation. Opacity. Target. Exit.
 
-**Frame:** the CLI shell is an application router, not a workspace-operations
-cabinet. Topic plugins own command adaptation; reusable packages own durable
-capabilities; repository lifecycle scripts belong to the workspace. The shell
-retains only startup, plugin registration, packaging, global hooks, and direct
-proof of that assembled executable surface.
+**Frame:** the Swooper definition and its Civ7 realization are separate owners
+all the way through execution. Studio may select authored product identity and
+invoke an application capability, but it does not know the realization's
+physical output path, deployed mod id, or file-copy procedure. The app target
+owns the complete build/deploy transaction; its exit is the orchestration
+contract and its bounded output is diagnostic evidence, not a parsed protocol.
 
-**Authority order:** workspace lifecycle -> reusable capability -> topic
-adapter -> shell registration -> executable smoke proof. Physical script
-placement follows the owner that invokes and maintains it; it does not inherit
-CLI ownership merely because an earlier command happened to host it.
+**Authority order:** product identity -> Civ7 realization -> application target
+-> Studio invocation -> bounded diagnostics. Filesystem and deployment facts
+remain below the realization boundary; Studio coordinates without reconstructing
+the app's implementation.
 
 **Enforcement gravity:** a correct scaffold plus an advisory rule is guidance,
 not a ratchet. Every newly admitted kind must finish with its generic blueprint
@@ -26,12 +27,11 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** finish the CLI shell residue cut. Move Civ7 official
-resource-submodule lifecycle scripts and their safety proof to a focused
-workspace owner, retarget the root operational commands, and replace the
-misplaced CLI test with one exact shell/plugin smoke test. Keep the shell's
-integrated data targets because they execute the assembled CLI rather than own
-the data topic.
+**Current container:** seal the realization deployment boundary. Add one
+Studio-specific deployment target to the Swooper Civ7 app, make its existing
+Studio build target the target-owned dependency, and reduce Studio to invoking
+that one capability with the selected config identity. Remove the last stale
+generated-path ignore while this physical owner is in view.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -48,10 +48,9 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** relocate the workspace-owned scripts and test without changing
-their behavior, register one truthful workspace resource proof, reduce the CLI
-test surface to executable assembly, then close the workspace/shell graph with
-exact help, test, build, boundaries, Knip, staged authority, and fresh review.
+**Gradient:** remove Studio's app path and mod-id knowledge, prove the exact
+target plan and environment isolation, verify the app/Studio graph and boundary
+law, then land the cut before returning to SDK and Habitat residuals.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -94,6 +93,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - CLI Shell Ownership Sealed
+
+The CLI shell now owns only application startup, topic registration, packaging,
+global hooks, and direct executable proof. Civ7 official-resource submodule
+lifecycle scripts and their safety suite moved to the workspace root, while the
+shell retained only integrated data targets that intentionally execute the
+assembled CLI. Exact resource tests, shell help, the complete CLI graph,
+boundaries, Knip, staged policy, and fresh ownership review sealed the cut.
 
 ### 2026-07-28 - Swooper Definition Write Contract Sealed
 

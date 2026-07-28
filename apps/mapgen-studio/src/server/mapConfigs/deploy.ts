@@ -1,6 +1,6 @@
 export type SwooperMapsStudioDeployPlan = Readonly<{
-  buildTask: "swooper-physics-mod:build:studio-deploy";
-  buildArgs: readonly string[];
+  task: "swooper-physics-mod:deploy:studio";
+  args: readonly string[];
   env: NodeJS.ProcessEnv;
 }>;
 
@@ -21,7 +21,7 @@ function withoutStudioDeployEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   return cleanEnv;
 }
 
-/** Builds the Nx deployment invocation while isolating Studio-only environment overrides. */
+/** Builds the realization-owned deployment invocation while isolating Studio-only overrides. */
 export function buildSwooperMapsStudioDeployPlan(
   options: SwooperMapsStudioDeployOptions = {}
 ): SwooperMapsStudioDeployPlan {
@@ -34,14 +34,8 @@ export function buildSwooperMapsStudioDeployPlan(
           SWOOPER_STUDIO_DEPLOY_CONFIG_ID: options.launchConfigId,
         };
   return {
-    buildTask: "swooper-physics-mod:build:studio-deploy",
-    buildArgs: [
-      "run",
-      "nx",
-      "run",
-      "swooper-physics-mod:build:studio-deploy",
-      "--outputStyle=static",
-    ],
+    task: "swooper-physics-mod:deploy:studio",
+    args: ["run", "nx", "run", "swooper-physics-mod:deploy:studio", "--outputStyle=static"],
     env,
   };
 }

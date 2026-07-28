@@ -15,12 +15,12 @@ describe("Swooper Maps Studio deploy plan", () => {
       },
     });
 
-    expect(plan.buildTask).toBe("swooper-physics-mod:build:studio-deploy");
-    expect(plan.buildArgs).toEqual([
+    expect(plan.task).toBe("swooper-physics-mod:deploy:studio");
+    expect(plan.args).toEqual([
       "run",
       "nx",
       "run",
-      "swooper-physics-mod:build:studio-deploy",
+      "swooper-physics-mod:deploy:studio",
       "--outputStyle=static",
     ]);
     expect(plan.env).not.toHaveProperty("SWOOPER_STUDIO_RUN_ID");
