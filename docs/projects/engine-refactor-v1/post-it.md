@@ -2,21 +2,18 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Surface. Topic. Capability. Registration. Closure.
+**Attractor filter:** Owner. Consumer. Edge. Evidence. Lock.
 
-**Frame:** kind before instance, intent before ownership, authority before
-relocation. A CLI shell owns startup, global hooks, and topic registration; a
-topic plugin owns one cohesive command surface and the command-local adapters
-needed to expose it. Framework-free capabilities remain libraries even when a
-CLI is their only current consumer. Package placement follows responsibility,
-not a `plugin-*` name or consumer count. Prefer one discovered command owner
-over forwarding modules, duplicate manifests, or shell-local compatibility.
+**Frame:** a boundary failure is either a real ownership defect or an omitted
+project-plane relationship. Decide from runtime responsibility and dependency
+direction before changing the graph. A top-level app may consume reusable
+development capability when that capability performs part of the app's owned
+verification workflow; the capability must remain product-neutral and must
+never import the app or its definition.
 
-**Authority order:** command/topic meaning -> installed oclif plugin contract ->
-generic CLI-topic kind -> red corpus -> complete relocation -> manifest and
-consumer regeneration -> behavior proof. The shell may register a topic but
-must not retain a second implementation. A topic package may depend on reusable
-capabilities; capabilities never depend back on the shell or topic.
+**Authority order:** workflow ownership -> public capability contract -> actual
+Nx edge -> kind taxonomy -> boundary implementation -> complete graph proof.
+Neither directory naming nor a prior allowlist decides the relationship.
 
 **Enforcement gravity:** a correct scaffold plus an advisory rule is guidance,
 not a ratchet. Every newly admitted kind must finish with its generic blueprint
@@ -29,21 +26,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** extract the complete `game:*` command surface into one
-`plugins/cli/topics/game` owner. The topic owns oclif adaptation, command-local
-game projections, and behavior proof; `@civ7/control-orpc` and
-`@civ7/direct-control` remain the reusable control capabilities. The dependency
-is real rather than incidental, so the generic `kind:cli-topic-plugin` graph
-must explicitly admit `kind:control` before relocation can be considered
-complete.
-
-The CLI shell registers one game plugin and retains no game command IDs, topic
-metadata, forwarding modules, direct control capability imports, or topic-only
-test targets. Test-only projections and duplicate configuration-package tests
-retire instead of gaining a new owner. Test support remains non-production code
-under one closed generic topic-test spine. The destination does not license
-game-specific transport or control behavior: commands adapt the established
-control owners and do not recreate them.
+**Current container:** certify the existing
+`swooper-physics-mod -> mapgen-diagnostics` dependency as the generic
+`kind:app -> kind:mapgen-tool` relationship. The app owns final-surface parity
+proof and JSON evidence publication; `@swooper/mapgen-diagnostics` owns the
+reusable evidence writer. Moving that writer into the app would duplicate a
+neutral capability, while moving the verifier into the tool would give a
+generic package product-specific Swooper behavior.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -60,13 +49,10 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** admit the real topic-to-control edge; add one closed generic
-test-support spine; relocate all sixty-five game commands, command-local
-helpers, and behavior tests; delete test-only runtime projections and duplicate
-configuration tests; register one native oclif owner; remove stale shell
-metadata, targets, and dependencies; then prove exact manifest membership,
-representative help, types, tests, boundaries, dead-code absence, hygiene, and
-staged policy before cutting the branch.
+**Gradient:** record the one-way app-to-tool law in ADR-016 and the canonical
+taxonomy, mirror it in the Nx boundary configuration, prove the exact failing
+edge and full boundary graph, then seal the branch without changing runtime
+code or broadening any lower source kind.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -109,6 +95,17 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - CLI Game Topic Kind Sealed
+
+The CLI shell now registers `@civ7/cli-game` as the sole owner of all sixty-five
+`game:*` commands. Game command adapters and thirty-nine behavior suites moved
+to the closed topic kind; direct-control and control-oRPC remain reusable
+capabilities. Test-only projection scaffolding retired, unique config resolver
+proof moved to the config owner, and the active direct-control workstream now
+points at the real command and test owners. Exact manifests, the complete
+build/check/test graph, boundaries, Knip, hygiene, OpenSpec, staged policy, and
+fresh architecture and testing review sealed the cut.
 
 ### 2026-07-28 - CLI Git And Mod Topic Kind Sealed
 
