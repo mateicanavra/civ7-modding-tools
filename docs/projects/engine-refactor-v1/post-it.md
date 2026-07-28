@@ -2,8 +2,8 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Artifact. Authority. Analysis. Projection. Exactness.
-Directness. Closure.
+**Attractor filter:** Diagnostic. Ownership. Command. Projection. Evidence.
+Thinness. Closure.
 
 **Frame:** kind before instance, intent before ownership, authority before
 relocation. A closed file shape is the start of semantic review, not proof that
@@ -31,13 +31,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** authored artifact dependency analysis has two owners.
-Recipe admission retains exact `Artifact` identity and fails malformed graphs;
-the Studio DAG rebuilds providers after reducing artifacts to `{ id, name }`.
-The two already disagree on same-id/different-authority edges and unconsumed
-duplicate providers. One pure exact-authority analysis must own providers,
-edges, and issues; admission and JSON-safe visualization become projections of
-that result rather than parallel interpretations.
+**Current container:** the surviving live verifier still reimplements the
+platform Mods-directory lookup and keeps a one-consumer generic error helper,
+while its legitimate responsibilities are Swooper map-script identity,
+deployment markers, live product completion acceptance, and report/command
+composition. Consume the existing Civ7 filesystem authority, collapse the
+duplicate JSON/error projection inside the command boundary, and repair the
+diagnostics guide so it describes the runner's actual preset and independent
+seed inputs.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -54,13 +55,13 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** extract one internal exact artifact-dependency analyzer; delete
-the recipe validator and DAG provider-map reconstruction; retain missing,
-duplicate, unused, resolved, internal, and forward-reference behavior; add an
-explicit authority-mismatch diagnostic and forbid false edges. Keep execution-
-plan ordering admission separate. Freeze with Core DAG/recipe behavior, Studio
-contract and service proof, typecheck, authoring boundaries, and fresh
-TypeScript/architecture review.
+**Gradient:** replace the local OS path branch with the canonical Civ7
+filesystem resolver; delete the standalone verifier-error cabinet and keep one
+command-local JSON-safe report projection; preserve declared oRPC error evidence
+without stacks, causes, or provider payloads; correct the dump-runner examples
+to use one Civ7 preset plus explicit map seed, game seed, and player demand.
+Freeze with focused command behavior, tools typecheck, exact dependency proof,
+and fresh ownership review.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -103,6 +104,17 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Exact Artifact Dependency Analysis Sealed
+
+One internal exact-authority analysis now owns authored artifact provider and
+consumer discovery, causal edges, and malformed relationships. Recipe
+admission and the Studio DAG are projections of that evidence: unconsumed
+duplicates fail, same-id foreign authorities produce a mismatch without a
+false edge, and duplicate diagnostics require at least two providers from Core
+through the Studio wire contract. Execution-plan ordering remains a distinct
+runtime authority. Core, Studio contract/UI, Nx, Habitat boundaries, and fresh
+architecture/product reviews sealed the cut.
 
 ### 2026-07-28 - Canonical Step Identity Sealed
 

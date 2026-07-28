@@ -2,7 +2,7 @@
 
 import { createHash } from "node:crypto";
 import { readFile, stat } from "node:fs/promises";
-import { join, resolve } from "node:path";
+import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
@@ -25,8 +25,9 @@ import {
   waitForFreshLogMarkers,
 } from "@civ7/direct-control";
 import { assessCiv7SignedIntSeed } from "@civ7/map-policy/setup";
+import { resolveModsDir } from "@civ7/plugin-files";
+import { ORPCError } from "@orpc/client";
 import { decodeBoundedJsonLogSeries } from "@swooper/mapgen-core/lib/log";
-import { serializeVerifierError } from "./verifier-error";
 
 /** Parsed options for read-only evidence collection or an explicitly admitted live launch. */
 export type LiveVerificationArgs = {
@@ -45,20 +46,6 @@ export type LiveVerificationArgs = {
   options: Record<string, Civ7SetupOptionValue>;
   help: boolean;
 };
-
-function resolveLocalModsDir(): string {
-  const platform = process.platform;
-  if (platform === "darwin") {
-    const home = process.env.HOME || process.env.USERPROFILE || "";
-    return join(home, "Library", "Application Support", "Civilization VII", "Mods");
-  }
-  if (platform === "win32") {
-    const userProfile = process.env.USERPROFILE || "";
-    return join(userProfile, "Documents", "My Games", "Sid Meier's Civilization VII", "Mods");
-  }
-  const home = process.env.HOME || process.env.USERPROFILE || "";
-  return join(home, ".local", "share", "civ7", "Mods");
-}
 
 const usage = `Usage:
   nx run mod-swooper-maps:verify:operational -- --mode studio-run-in-game-live [flags]
@@ -91,6 +78,7 @@ Notes:
   bundles by comparing the local generated map script with the deployed Civ Mods
   script before launching.`;
 
+/** Stable filesystem identity used to compare a built map script with its deployed copy. */
 export type MapScriptFileIdentity = Readonly<{
   path: string;
   sha256: string;
@@ -99,6 +87,7 @@ export type MapScriptFileIdentity = Readonly<{
   mtimeIso: string;
 }>;
 
+/** Presence evidence for one product-specific marker in a Swooper map script. */
 export type MapScriptMarkerEvidence = Readonly<{
   marker: string;
   present: boolean;
@@ -115,6 +104,7 @@ export function hasMapgenCompletionForSeed(text: string, mapSeed: number): boole
   );
 }
 
+/** Report stage proving the selected Swooper map script is current in Civ7's Mods directory. */
 export type SwooperMapScriptDeploymentStage = Readonly<{
   name: "deployed-script-identity";
   ok: boolean;
@@ -138,7 +128,7 @@ const REQUIRED_SWOOPER_RIVER_MATERIALIZATION_MARKERS = [
 ] as const;
 
 /** Parses the live verifier CLI without coupling the independently authored seed authorities. */
-export function parseStudioRunInGameLiveArgs(argv: string[]): LiveVerificationArgs {
+export function parseStudioRunInGameLiveArgs(argv: readonly string[]): LiveVerificationArgs {
   const args: LiveVerificationArgs = {
     mutate: false,
     options: {},
@@ -290,6 +280,7 @@ function matchSavedGameConfigurations(
   return [...byPath.values()];
 }
 
+/** Resolve source and deployed paths only for Swooper-owned map script identifiers. */
 export function resolveSwooperMapScriptPaths(args: {
   mapScript: string;
   repoRoot: string;
@@ -309,6 +300,7 @@ export function resolveSwooperMapScriptPaths(args: {
   };
 }
 
+/** Compose deployment identity and marker evidence into the verifier's report stage. */
 export function buildSwooperMapScriptDeploymentStage(args: {
   mapScript: string;
   localPath?: string;
@@ -372,7 +364,7 @@ async function checkSwooperMapScriptDeployment(args: {
   const paths = resolveSwooperMapScriptPaths({
     mapScript: args.mapScript,
     repoRoot: args.repoRoot,
-    modsDir: resolveLocalModsDir(),
+    modsDir: resolveModsDir().modsDir,
   });
   if (!paths) {
     return buildSwooperMapScriptDeploymentStage({ mapScript: args.mapScript });
@@ -424,18 +416,36 @@ function markerId(marker: string): string {
     .toLowerCase();
 }
 
-function safeJson(value: unknown): string {
+/** Preserve declared oRPC evidence while excluding stacks, causes, and provider payloads. */
+export function serializeVerifierError(error: unknown): Record<string, unknown> {
+  if (error instanceof ORPCError && error.defined) {
+    return {
+      name: error.name,
+      code: error.code,
+      status: error.status,
+      message: error.message,
+      data: error.data === undefined ? undefined : JSON.parse(stringifyVerifierReport(error.data)),
+    };
+  }
+  if (error instanceof Error) return { name: error.name, message: error.message };
+  return { message: String(error) };
+}
+
+function stringifyVerifierReport(value: unknown): string {
   const seen = new WeakSet<object>();
-  return JSON.stringify(
-    value,
-    (_key, item) => {
-      if (typeof item === "bigint") return item.toString();
-      if (typeof item !== "object" || item === null) return item;
-      if (seen.has(item)) return "[circular]";
-      seen.add(item);
-      return item;
-    },
-    2
+  return (
+    JSON.stringify(
+      value,
+      (_key, item) => {
+        if (typeof item === "bigint") return item.toString();
+        if (typeof item !== "object" || item === null) return item;
+        if (seen.has(item)) return "[circular]";
+        seen.add(item);
+
+        return item;
+      },
+      2
+    ) ?? "null"
   );
 }
 
@@ -474,7 +484,7 @@ async function main(): Promise<number> {
     if (!health.ok) {
       report.failureStage = "health";
       report.error = serializeVerifierError(health.error);
-      console.log(safeJson(report));
+      console.log(stringifyVerifierReport(report));
       return 2;
     }
 
@@ -509,7 +519,7 @@ async function main(): Promise<number> {
           unresolvedLinks: deploymentStage.unresolvedLinks,
         };
         report.finishedAt = new Date().toISOString();
-        console.log(safeJson(report));
+        console.log(stringifyVerifierReport(report));
         return 2;
       }
     }
@@ -517,7 +527,7 @@ async function main(): Promise<number> {
     if (!args.mutate) {
       report.ok = true;
       report.finishedAt = new Date().toISOString();
-      console.log(safeJson(report));
+      console.log(stringifyVerifierReport(report));
       return 0;
     }
 
@@ -604,13 +614,13 @@ async function main(): Promise<number> {
     });
     report.ok = run.status === "started";
     report.finishedAt = new Date().toISOString();
-    console.log(safeJson(report));
+    console.log(stringifyVerifierReport(report));
     return run.status === "started" ? 0 : 3;
   } catch (error) {
     report.failureStage ??= "exception";
     report.error = serializeVerifierError(error);
     report.finishedAt = new Date().toISOString();
-    console.log(safeJson(report));
+    console.log(stringifyVerifierReport(report));
     return 1;
   }
 }
@@ -629,7 +639,7 @@ if (import.meta.main) {
       process.exitCode = code;
     })
     .catch((error) => {
-      console.error(safeJson({ ok: false, error: serializeVerifierError(error) }));
+      console.error(stringifyVerifierReport({ ok: false, error: serializeVerifierError(error) }));
       process.exitCode = 1;
     });
 }

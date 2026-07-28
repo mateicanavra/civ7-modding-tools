@@ -20,17 +20,18 @@ The goal is to make it easy to answer questions like:
 
 ## Recommended deterministic probe
 
-Use one official Civ7 map-size preset and a fixed seed so diffs are meaningful. The runner defaults
-to `MAPSIZE_STANDARD` and seed `1337`; custom dimensions are intentionally not part of this command.
+Use one official Civ7 map-size preset and fixed map/game seeds so diffs are meaningful. The runner
+defaults only the map size to `MAPSIZE_STANDARD`; map seed, game seed, and the ordered alive-player
+ids are required evidence inputs. Custom dimensions are intentionally not part of this command.
 
 Example:
 
 ```bash
 # baseline
-nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --seed 1337 --label probe-baseline
+nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7 --label probe-baseline
 
 # variant
-nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --seed 1337 --label probe-platecount6 --override '{\"foundation\":{\"knobs\":{\"plateCount\":6}}}'
+nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7 --label probe-platecount6 --override '{"foundation":{"knobs":{"plateCount":6}}}'
 
 # inspect / diff
 nx run mod-swooper-maps:diag:list -- dist/visualization/probe-baseline/<runId>
@@ -41,7 +42,8 @@ nx run mod-swooper-maps:diag:diff -- dist/visualization/probe-baseline/<runId> d
 
 - These scripts are intended to be **observability tooling**; they should not modify recipe behavior.
 - Dumps are written under `dist/`, which is ignored by git.
-- The selected Civ7 preset owns dimensions, engine map info, and player count; the admitted map
-  configuration owns the recipe's north-to-south latitude bounds.
+- The selected Civ7 preset owns dimensions, engine map info, and start-slot capacity;
+  `--players` supplies the exact ordered alive-major player ids. The admitted map configuration
+  owns the recipe's north-to-south latitude bounds.
 - Product thresholds and cohort expectations belong to the Standard recipe metric study bank and
   run through `nx run mod-swooper-maps:metrics:report`, not through a second dump analyzer.

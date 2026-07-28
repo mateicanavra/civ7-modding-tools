@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { ORPCError } from "@orpc/client";
 import { encodeBoundedJsonLogLines } from "@swooper/mapgen-core/lib/log";
-import { serializeVerifierError } from "../../scripts/live/verifier-error";
 import {
   admitStudioRunInGameLiveMutationArgs,
   buildSwooperMapScriptDeploymentStage,
@@ -9,6 +8,7 @@ import {
   type MapScriptFileIdentity,
   parseStudioRunInGameLiveArgs,
   resolveSwooperMapScriptPaths,
+  serializeVerifierError,
 } from "../../scripts/live/verify-studio-run-in-game-live";
 
 const identity = (path: string, sha256: string): MapScriptFileIdentity => ({
@@ -19,7 +19,7 @@ const identity = (path: string, sha256: string): MapScriptFileIdentity => ({
   mtimeIso: "2026-06-10T00:00:00.000Z",
 });
 
-describe("studio run-in-game live verifier deployment identity", () => {
+describe("studio run-in-game live verifier", () => {
   test("admits only complete digest-valid completion evidence for the requested map seed", () => {
     const lines = encodeBoundedJsonLogLines({
       prefix: "[SWOOPER_MOD]",
@@ -75,7 +75,7 @@ describe("studio run-in-game live verifier deployment identity", () => {
     );
   });
 
-  test("preserves bounded defined-error uncertainty evidence", () => {
+  test("projects bounded defined-error evidence without provider internals", () => {
     const error = new ORPCError("LIFECYCLE_MUTATION_UNCERTAIN", {
       defined: true,
       status: 502,
@@ -90,8 +90,9 @@ describe("studio run-in-game live verifier deployment identity", () => {
       },
       cause: new Error("raw provider payload"),
     });
+    const projected = serializeVerifierError(error);
 
-    expect(serializeVerifierError(error)).toEqual({
+    expect(projected).toEqual({
       name: "Error",
       code: "LIFECYCLE_MUTATION_UNCERTAIN",
       status: 502,
@@ -105,7 +106,10 @@ describe("studio run-in-game live verifier deployment identity", () => {
         noRepeat: true,
       },
     });
-    expect(JSON.stringify(serializeVerifierError(error))).not.toContain("raw provider payload");
+    const serialized = JSON.stringify(projected);
+    expect(serialized).not.toContain("raw provider payload");
+    expect(serialized).not.toContain("cause");
+    expect(serialized).not.toContain("stack");
   });
 
   test("resolves Swooper map script paths into local and deployed bundles", () => {
