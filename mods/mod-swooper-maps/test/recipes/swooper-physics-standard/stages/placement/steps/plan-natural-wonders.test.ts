@@ -178,7 +178,7 @@ describe("plan natural wonders step", () => {
       plannerInput = input;
     }, placements);
     const stepConfig = placementConfig();
-    let result: Awaited<ReturnType<typeof PlanNaturalWondersStep.run>> | undefined;
+    let observation: Awaited<ReturnType<typeof PlanNaturalWondersStep.run>> | undefined;
 
     withStepExecutionForTest(context, PlanNaturalWondersStep, (stepContext) => {
       publishPlacementInputs(stepContext);
@@ -191,9 +191,9 @@ describe("plan natural wonders step", () => {
       if (candidate instanceof Promise) {
         throw new Error("The plan-natural-wonders step must remain synchronous.");
       }
-      result = candidate;
+      observation = candidate;
     });
-    if (!result) throw new Error("The plan-natural-wonders step did not return evidence.");
+    if (!observation) throw new Error("The plan-natural-wonders step did not return evidence.");
     if (!plannerInput) throw new Error("The natural-wonder planner did not receive its input.");
 
     expect(plannerInput).toMatchObject({
@@ -201,8 +201,8 @@ describe("plan natural wonders step", () => {
       height: preset.dimensions.height,
       wondersCount: expectedWondersCount,
     });
-    expect(result.placements).toHaveLength(expectedWondersCount);
-    expect(result.naturalWonderPlanInput).toMatchObject({
+    expect(observation.placements).toHaveLength(expectedWondersCount);
+    expect(observation.naturalWonderPlanInput).toMatchObject({
       plannerInput: {
         dimensions: preset.dimensions,
         wondersCount: expectedWondersCount,
@@ -217,12 +217,12 @@ describe("plan natural wonders step", () => {
       plannedCount: expectedWondersCount,
     });
     const metrics = PlanNaturalWondersStep.metrics?.({
-      result,
+      observation,
       config: stepConfig,
       dimensions: preset.dimensions,
     });
     expect(metrics?.[STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY]).toBe(
-      result.naturalWonderPlanInput
+      observation.naturalWonderPlanInput
     );
   });
 

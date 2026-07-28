@@ -372,5 +372,5 @@ export const PlotRiversStep = createStep(config, {
       engineEvidence,
     } satisfies PlotRiversVizEvidence;
   },
-  viz: ({ result, dimensions }) => buildPlotRiversVizProjections(result, dimensions),
+  viz: ({ observation, dimensions }) => buildPlotRiversVizProjections(observation, dimensions),
 });

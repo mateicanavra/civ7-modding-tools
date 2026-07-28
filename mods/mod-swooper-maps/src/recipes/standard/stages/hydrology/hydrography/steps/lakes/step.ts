@@ -105,10 +105,10 @@ export const LakesStep = createStep(config, {
       },
     };
   },
-  metrics: ({ result }) => ({
-    "hydrology.riverNetwork": measureStandardRiverNetwork(result.riverNetworkMeasurementInput),
+  metrics: ({ observation }) => ({
+    "hydrology.riverNetwork": measureStandardRiverNetwork(observation.riverNetworkMeasurementInput),
   }),
-  viz: ({ result: { lakePlan, riverNetwork }, dimensions }) => [
+  viz: ({ observation: { lakePlan, riverNetwork }, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "hydrology.lakes.lakePlan",

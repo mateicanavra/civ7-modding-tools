@@ -2,8 +2,8 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Context. Invocation. Identity. Projection. Authority.
-Restraint. Density. Candor.
+**Attractor filter:** Observation. Evidence. Ephemerality. Projection.
+Restraint. Precision. Closure.
 
 **Frame:** kind before instance, intent before ownership, authority before
 relocation. A closed file shape is the start of semantic review, not proof that
@@ -31,15 +31,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** initial setup is immutable invocation context, not a
-dependency edge or occurrence-scoped capability. Core's physical
-`MapContext.setup` remains the universal admitted map surface used for plan
-identity, dimensions, latitude, RNG, and artifact cardinality. A step that
-declares an exact recipe setup authority receives that already-admitted full
-value as `context.initialSetup`; its declaration selects a context type and
-preserves recipe compatibility, but creates no provider, registry, read
-capability, or second admission transition. `StepDeps` returns to artifacts and
-engine methods only.
+**Current container:** a step's return value is invocation-local observation,
+not product state, artifact authority, or a second publication channel. The
+executor retains it only long enough to run optional post-publication metrics
+and visualization projectors, then discards it. Artifact publication remains
+the sole admission transition and completion remains a plan-only causal edge.
+Rename the generic `result` vocabulary to `observation` across the authored
+facet surface, executor dispatch, tests, and current docs so the API makes that
+boundary difficult to misread without inventing another runtime state.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -56,14 +55,13 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** project the private exact setup binding onto the authentic step
-facade without reparsing or fallback state; infer the run context from the
-step's declared setup authority; delete the initial-setup branch from
-dependency construction; migrate the five Placement consumers; give focused
-step tests one truthful typed invocation helper; preserve root-context opacity,
-exact recipe/step authority matching, plan identity, and low-level physical-only
-execution. Freeze with Core type/runtime proof, Standard product behavior, the
-native Nx graph, and fresh type/architecture/product review.
+**Gradient:** rename the observation carrier without changing its lifetime,
+ordering, failure isolation, or data identity; migrate every metrics/viz
+projector and sink-facing test; state explicitly that transient projection and
+engine-readback evidence need not become artifacts; preserve post-publication
+dispatch and synchronous non-fatal facets. Freeze with Core type/runtime proof,
+the Standard recipe graph, documentation anchors, and fresh
+type/architecture/product review.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -80,6 +78,14 @@ unrelated worktrees stay outside semantic cuts; ownership is verified rather
 than inferred indefinitely from an inherited dirty-state ledger. Temporary
 NOTE packets have been classified into this frame or their canonical owner and
 should not survive as ambient repository state.
+
+Automatic Civ7 layer observation is a subsequent execution/diagnostics
+container, not a reason to publish engine snapshots as domain artifacts or to
+change completion authority. The adapter already owns direct live-layer reads;
+the open design question is whether execution-owned diagnostics should capture
+selected layers after each step, once at termination, or both. Engine plotting
+steps remain when they perform real mutations or parity checks; visualization
+alone never earns a step.
 
 **Generic primitive boundary:** Core may own only mechanically generic
 primitives such as clamps, hashes, interpolation/mixes, vectors, and grid/index
@@ -98,6 +104,16 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-27 - Initial Setup Invocation Context Sealed
+
+Initial setup is immutable invocation context rather than a dependency edge or
+occurrence-scoped read capability. Core's physical `MapContext.setup` remains
+universal, while only a step declaring the exact recipe authority receives the
+already-admitted full value as `context.initialSetup`. No provider, registry,
+fallback, reparsing, or second admission transition survives; Placement's five
+consumers, direct-step fixtures, Core/Swooper behavior, the native Nx graph,
+and fresh type/architecture/product reviews sealed the cut.
 
 ### 2026-07-27 - Plan-Only Completion Authority Sealed
 

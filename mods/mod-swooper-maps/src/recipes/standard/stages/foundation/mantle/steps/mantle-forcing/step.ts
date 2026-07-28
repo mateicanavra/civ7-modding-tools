@@ -38,7 +38,7 @@ export const MantleForcingStep = createStep(config, {
     deps.artifacts.mantleForcing.publish(mantleResult.mantleForcing);
     return { mesh, mantleForcing: mantleResult.mantleForcing };
   },
-  viz: ({ result: { mesh, mantleForcing } }) => {
+  viz: ({ observation: { mesh, mantleForcing } }) => {
     const positions = interleaveXY(mesh.siteX, mesh.siteY);
     const { segments, values } = buildSampledVectorSegments({
       x: mesh.siteX,

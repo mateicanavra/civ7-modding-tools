@@ -158,7 +158,7 @@ export const ComputeShelfStep = createStep(config, {
     deps.artifacts.shelf.publish(shelf);
     return { bathymetry, landMask, shelf, evidence };
   },
-  viz: ({ result: { bathymetry, landMask, shelf, evidence }, dimensions }) => [
+  viz: ({ observation: { bathymetry, landMask, shelf, evidence }, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "morphology.shelf.bathymetryInput",

@@ -59,7 +59,7 @@ export const CoastlineEvidenceStep = createStep(config, {
     deps.artifacts.baseCoastline.publish(baseCoastline);
     return baseCoastline;
   },
-  viz: ({ result: baseCoastline, dimensions }) => [
+  viz: ({ observation: baseCoastline, dimensions }) => [
     ...(
       [
         ["morphology.baseCoastline.coastalLand", "Coastal Land", baseCoastline.coastalLand],

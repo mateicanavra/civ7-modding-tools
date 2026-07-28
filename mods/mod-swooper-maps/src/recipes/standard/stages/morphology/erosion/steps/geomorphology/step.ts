@@ -112,13 +112,13 @@ export const GeomorphologyStep = createStep(config, {
     deps.artifacts.substrate.publish(result.substrate);
     return result;
   },
-  viz: ({ result, dimensions }) => [
+  viz: ({ observation, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "morphology.geomorphology.elevationDelta",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "f32", values: result.deltas.elevationDelta },
+      field: { format: "f32", values: observation.deltas.elevationDelta },
       meta: defineStandardVizMeta("morphology.geomorphology.elevationDelta", "field.signed", {
         label: "Elevation Delta",
         group: GROUP_GEOMORPHOLOGY,
@@ -130,7 +130,7 @@ export const GeomorphologyStep = createStep(config, {
       dataTypeKey: "morphology.geomorphology.sedimentDelta",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "f32", values: result.deltas.sedimentDelta },
+      field: { format: "f32", values: observation.deltas.sedimentDelta },
       meta: defineStandardVizMeta("morphology.geomorphology.sedimentDelta", "field.signed", {
         label: "Sediment Delta",
         group: GROUP_GEOMORPHOLOGY,
@@ -141,7 +141,7 @@ export const GeomorphologyStep = createStep(config, {
       dataTypeKey: "morphology.topography.elevation",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "i16", values: result.topography.elevation },
+      field: { format: "i16", values: observation.topography.elevation },
       meta: defineStandardVizMeta("morphology.topography.elevation", "terrain.elevation", {
         label: "Elevation (After Geomorphology)",
         group: GROUP_GEOMORPHOLOGY,
@@ -153,7 +153,7 @@ export const GeomorphologyStep = createStep(config, {
       dataTypeKey: "morphology.topography.landMask",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.topography.landMask },
+      field: { format: "u8", values: observation.topography.landMask },
       meta: defineStandardVizMeta("morphology.topography.landMask", "category.distinct", {
         label: "Land Mask (After Geomorphology)",
         group: GROUP_GEOMORPHOLOGY,
@@ -164,7 +164,7 @@ export const GeomorphologyStep = createStep(config, {
       dataTypeKey: "morphology.topography.bathymetry",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "i16", values: result.topography.bathymetry },
+      field: { format: "i16", values: observation.topography.bathymetry },
       meta: defineStandardVizMeta("morphology.topography.bathymetry", "water.depth", {
         label: "Bathymetry (After Geomorphology)",
         group: GROUP_GEOMORPHOLOGY,

@@ -56,13 +56,13 @@ export const PlotContinentsStep = createStep(config, {
     );
     return { physicsLandMask: topography.landMask, engineLandMask };
   },
-  viz: ({ result, dimensions }) => [
+  viz: ({ observation, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "map.morphology.continents.landMask",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.physicsLandMask },
+      field: { format: "u8", values: observation.physicsLandMask },
       meta: defineStandardVizMeta("map.morphology.continents.landMask", "category.distinct", {
         label: "Land Mask (Physics Truth)",
         group: GROUP_MAP_MORPHOLOGY,
@@ -74,7 +74,7 @@ export const PlotContinentsStep = createStep(config, {
       dataTypeKey: "map.morphology.continents.landMask",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.engineLandMask },
+      field: { format: "u8", values: observation.engineLandMask },
       meta: defineStandardVizMeta("map.morphology.continents.landMask", "category.distinct", {
         label: "Land Mask (Engine After Stamp Continents)",
         group: GROUP_MAP_MORPHOLOGY,

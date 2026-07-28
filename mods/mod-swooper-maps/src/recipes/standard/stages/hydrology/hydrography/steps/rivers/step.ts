@@ -94,7 +94,7 @@ export const RiversStep = createStep(config, {
       terminalType: routing.terminalType,
     });
   },
-  viz: ({ result: hydrography, dimensions }) => [
+  viz: ({ observation: hydrography, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "hydrology.hydrography.runoff",

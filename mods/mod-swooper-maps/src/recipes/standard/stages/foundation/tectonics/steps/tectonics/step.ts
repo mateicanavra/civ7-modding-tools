@@ -350,7 +350,7 @@ export const TectonicsStep = createStep(config, {
       history: historyResult.tectonicHistory,
     };
   },
-  viz: ({ result: { mesh, plateGraph, plateMotion, segments, tectonics, history } }) => {
+  viz: ({ observation: { mesh, plateGraph, plateMotion, segments, tectonics, history } }) => {
     const projections: VizProjection[] = [];
     const positions = interleaveXY(mesh.siteX, mesh.siteY);
     const motionVectors = buildVectorSegments({

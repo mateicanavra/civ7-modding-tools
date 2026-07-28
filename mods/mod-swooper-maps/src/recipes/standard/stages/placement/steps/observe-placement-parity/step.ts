@@ -67,8 +67,8 @@ export const ObservePlacementParityStep = createStep(config, {
       placementParity,
     };
   },
-  metrics: ({ result }) => ({
-    "placement.parity": result.placementParity,
+  metrics: ({ observation }) => ({
+    "placement.parity": observation.placementParity,
   }),
-  viz: ({ result, dimensions }) => projectPlacementParityViz(result, dimensions),
+  viz: ({ observation, dimensions }) => projectPlacementParityViz(observation, dimensions),
 });

@@ -239,11 +239,11 @@ describe("map-hydrology/lakes", () => {
     const context = createContext(adapter, TEST_DIMENSIONS, seed);
     const lakeMask = new Uint8Array(width * height);
     lakeMask[1 + width] = 1;
-    const result = executeLakesStep(context, lakeMask);
+    const observation = executeLakesStep(context, lakeMask);
 
-    expect(result.projection.rejectedLakeTileCount).toBe(1);
-    expect(result.projection.nonLakeTileCount).toBe(1);
-    expect(result.projection.terrainMismatchTileCount).toBe(0);
+    expect(observation.projection.rejectedLakeTileCount).toBe(1);
+    expect(observation.projection.nonLakeTileCount).toBe(1);
+    expect(observation.projection.terrainMismatchTileCount).toBe(0);
     const projectedLakes = readArtifact(context, hydrographyArtifacts.projectedLakes);
     expect(projectedLakes.lakeMask[1 + width]).toBe(0);
     expect(projectedLakes.lakeMask.reduce((count, value) => count + value, 0)).toBe(0);
@@ -251,7 +251,7 @@ describe("map-hydrology/lakes", () => {
     const projectViz = LakesStep.viz;
     if (!projectViz) throw new Error("Expected the lakes step to expose its evidence projector");
     const dataTypeKeys = projectViz({
-      result,
+      observation,
       config: {},
       dimensions: TEST_DIMENSIONS,
     }).map(({ dataTypeKey }) => dataTypeKey);
@@ -303,32 +303,32 @@ describe("map-hydrology/lakes", () => {
     const volcanoMask = new Uint8Array(width * height);
     volcanoMask[volcanoTile] = 1;
 
-    const result = executeLakesStep(context, lakeMask, mountainMask, volcanoMask);
+    const observation = executeLakesStep(context, lakeMask, mountainMask, volcanoMask);
 
     const projectedCandidates = adapter.calls.stampLakes.at(-1)?.lakeMask;
     expect(projectedCandidates).toBeInstanceOf(Uint8Array);
-    expect(result.plannedLakeMask[mountainTile]).toBe(1);
+    expect(observation.plannedLakeMask[mountainTile]).toBe(1);
     expect(projectedCandidates?.[mountainTile]).toBe(0);
-    expect(result.plannedLakeMask[volcanoTile]).toBe(1);
+    expect(observation.plannedLakeMask[volcanoTile]).toBe(1);
     expect(projectedCandidates?.[volcanoTile]).toBe(0);
     expect(projectedCandidates?.[plainLakeTile]).toBe(1);
     const projectedLakes = readArtifact(context, hydrographyArtifacts.projectedLakes);
     expect(projectedLakes.lakeMask[mountainTile]).toBe(0);
     expect(projectedLakes.lakeMask[volcanoTile]).toBe(0);
     expect(projectedLakes.lakeMask[plainLakeTile]).toBe(1);
-    expect(result.projection.plannedLakeTileCount).toBe(1);
-    expect(result.morphologyProtectedLakeTileCount).toBe(2);
-    expect(result.projection.plannedLakeTileCount + result.morphologyProtectedLakeTileCount).toBe(
-      3
-    );
-    expect(result.projection.stampedLakeTileCount + result.projection.rejectedLakeTileCount).toBe(
-      result.projection.plannedLakeTileCount
-    );
+    expect(observation.projection.plannedLakeTileCount).toBe(1);
+    expect(observation.morphologyProtectedLakeTileCount).toBe(2);
+    expect(
+      observation.projection.plannedLakeTileCount + observation.morphologyProtectedLakeTileCount
+    ).toBe(3);
+    expect(
+      observation.projection.stampedLakeTileCount + observation.projection.rejectedLakeTileCount
+    ).toBe(observation.projection.plannedLakeTileCount);
 
     const projectMetrics = LakesStep.metrics;
     if (!projectMetrics) throw new Error("Expected the lakes step to measure projection evidence");
     const metrics = projectMetrics({
-      result,
+      observation,
       config: {},
       dimensions: TEST_DIMENSIONS,
     });

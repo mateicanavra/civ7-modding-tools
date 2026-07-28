@@ -49,7 +49,7 @@ export const IslandsStep = createStep(config, {
     deps.artifacts.topography.publish(result.topography);
     return result.islandClass;
   },
-  viz: ({ result: islandClass, dimensions }) => [
+  viz: ({ observation: islandClass, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "morphology.islands.formationClass",

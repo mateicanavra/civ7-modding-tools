@@ -37,7 +37,8 @@ Domains should not own:
     output envelopes.
 - **Steps** are orchestration:
   - they bind ops, read and publish admitted artifacts, invoke declared engine capabilities, emit
-    trace events, and may project completed results through optional metrics/visualization facets.
+  trace events, and may project invocation-local observations through optional
+  metrics/visualization facets.
 
 This separation keeps algorithmic code reusable and keeps orchestration visible and debuggable.
 

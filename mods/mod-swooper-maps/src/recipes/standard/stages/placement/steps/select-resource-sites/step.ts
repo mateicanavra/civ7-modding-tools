@@ -63,5 +63,6 @@ export const SelectResourceSitesStep = createStep(config, {
 
     return { intents: plan.intents, demands };
   },
-  viz: ({ result, dimensions }) => projectResourceSiteSelectionViz({ ...result, dimensions }),
+  viz: ({ observation, dimensions }) =>
+    projectResourceSiteSelectionViz({ ...observation, dimensions }),
 });

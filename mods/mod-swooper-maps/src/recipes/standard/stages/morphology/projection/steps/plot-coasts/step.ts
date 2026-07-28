@@ -72,13 +72,13 @@ export const PlotCoastsStep = createStep(config, {
       shelfMask: shelf.shelfMask,
     };
   },
-  viz: ({ result, dimensions }) => [
+  viz: ({ observation, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "map.morphology.coasts.waterClass",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.coastProjection.waterClass },
+      field: { format: "u8", values: observation.coastProjection.waterClass },
       meta: defineStandardVizCategoryMeta(
         "map.morphology.coasts.waterClass",
         [
@@ -100,7 +100,7 @@ export const PlotCoastsStep = createStep(config, {
       dataTypeKey: "map.morphology.coasts.sourceCoastMask",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.coastProjection.sourceCoastMask },
+      field: { format: "u8", values: observation.coastProjection.sourceCoastMask },
       meta: defineStandardVizCategoryMeta(
         "map.morphology.coasts.sourceCoastMask",
         [
@@ -122,7 +122,7 @@ export const PlotCoastsStep = createStep(config, {
       dataTypeKey: "map.morphology.coasts.coastRingMask",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.coastProjection.coastRingMask },
+      field: { format: "u8", values: observation.coastProjection.coastRingMask },
       meta: defineStandardVizCategoryMeta(
         "map.morphology.coasts.coastRingMask",
         [
@@ -144,7 +144,7 @@ export const PlotCoastsStep = createStep(config, {
       dataTypeKey: "map.morphology.coasts.coastalLand",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.coastalLand },
+      field: { format: "u8", values: observation.coastalLand },
       meta: defineStandardVizMeta("map.morphology.coasts.coastalLand", "category.distinct", {
         label: "Coastal Land (Post-island Shelf)",
         group: GROUP_MAP_MORPHOLOGY,
@@ -156,7 +156,7 @@ export const PlotCoastsStep = createStep(config, {
       dataTypeKey: "map.morphology.coasts.coastalWater",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.coastalWater },
+      field: { format: "u8", values: observation.coastalWater },
       meta: defineStandardVizMeta("map.morphology.coasts.coastalWater", "category.distinct", {
         label: "Coastal Water (Post-island Shelf)",
         group: GROUP_MAP_MORPHOLOGY,
@@ -168,7 +168,7 @@ export const PlotCoastsStep = createStep(config, {
       dataTypeKey: "map.morphology.coasts.shelfMask",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.shelfMask },
+      field: { format: "u8", values: observation.shelfMask },
       meta: defineStandardVizMeta("map.morphology.coasts.shelfMask", "category.distinct", {
         label: "Shelf Mask (Post-island Shelf)",
         group: GROUP_MAP_MORPHOLOGY,

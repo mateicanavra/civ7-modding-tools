@@ -51,7 +51,7 @@ export const CrustEvolutionStep = createStep(config, {
     deps.artifacts.crust.publish(crustResult.crust);
     return { mesh, crust: crustResult.crust };
   },
-  viz: ({ result: { mesh, crust } }) => {
+  viz: ({ observation: { mesh, crust } }) => {
     const positions = interleaveXY(mesh.siteX, mesh.siteY);
     return [
       {

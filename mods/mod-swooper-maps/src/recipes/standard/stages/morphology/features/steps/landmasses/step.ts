@@ -25,7 +25,7 @@ export const LandmassesStep = createStep(config, {
     deps.artifacts.landmasses.publish(snapshot);
     return snapshot.landmassIdByTile;
   },
-  viz: ({ result: landmassIdByTile, dimensions }) => [
+  viz: ({ observation: landmassIdByTile, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "morphology.landmasses.landmassIdByTile",

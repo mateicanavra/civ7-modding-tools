@@ -38,7 +38,7 @@ export const PedologyStep = createStep(config, {
     deps.artifacts.pedology.publish(pedology);
     return pedology;
   },
-  viz: ({ result: pedology, dimensions }) => [
+  viz: ({ observation: pedology, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "ecology.pedology.soilType",

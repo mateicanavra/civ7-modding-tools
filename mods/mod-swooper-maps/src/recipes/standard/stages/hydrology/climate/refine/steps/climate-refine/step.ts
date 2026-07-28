@@ -241,5 +241,5 @@ export const ClimateRefineStep = createStep(config, {
       diagnostics,
     };
   },
-  viz: ({ result, dimensions }) => buildClimateRefineVizProjections(result, dimensions),
+  viz: ({ observation, dimensions }) => buildClimateRefineVizProjections(observation, dimensions),
 });

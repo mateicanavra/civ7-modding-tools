@@ -66,7 +66,7 @@ export const RoutingStep = createStep(config, {
     deps.artifacts.routing.publish(routing);
     return routing;
   },
-  viz: ({ result: routing, dimensions }) => {
+  viz: ({ observation: routing, dimensions }) => {
     const size = dimensions.width * dimensions.height;
     const u = new Int8Array(size);
     const v = new Int8Array(size);

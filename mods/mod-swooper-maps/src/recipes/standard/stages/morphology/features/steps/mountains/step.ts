@@ -260,7 +260,7 @@ export const MountainsStep = createStep(config, {
     deps.artifacts.mountains.publish(plan);
     return plan;
   },
-  viz: ({ result: plan, dimensions }) => [
+  viz: ({ observation: plan, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "morphology.mountains.mountainMask",

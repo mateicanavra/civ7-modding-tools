@@ -263,10 +263,10 @@ export const FeaturesApplyStep = createStep(config, {
       engine,
     };
   },
-  metrics: ({ result }) => ({
+  metrics: ({ observation }) => ({
     "ecology.featureProjection": measureStandardFeatureProjection(
-      result.projectionMeasurementInput
+      observation.projectionMeasurementInput
     ),
   }),
-  viz: ({ result, dimensions }) => buildFeaturesApplyVizProjections(result, dimensions),
+  viz: ({ observation, dimensions }) => buildFeaturesApplyVizProjections(observation, dimensions),
 });

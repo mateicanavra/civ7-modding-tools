@@ -41,7 +41,7 @@ export const PlateGraphStep = createStep(config, {
     deps.artifacts.plateGraph.publish(plateGraphResult.plateGraph);
     return { mesh, plateGraph: plateGraphResult.plateGraph };
   },
-  viz: ({ result: { mesh, plateGraph } }) => {
+  viz: ({ observation: { mesh, plateGraph } }) => {
     const seeds = pointsFromPlateSeeds(plateGraph.plates);
     return [
       {

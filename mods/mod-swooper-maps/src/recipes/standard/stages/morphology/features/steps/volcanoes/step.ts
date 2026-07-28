@@ -78,7 +78,7 @@ export const VolcanoesStep = createStep(config, {
     deps.artifacts.volcanoes.publish(volcanoEvidence);
     return volcanoEvidence;
   },
-  viz: ({ result: { volcanoMask, volcanoes }, dimensions }) => {
+  viz: ({ observation: { volcanoMask, volcanoes }, dimensions }) => {
     const positions = new Float32Array(volcanoes.length * 2);
     const strengths = new Float32Array(volcanoes.length);
     for (let i = 0; i < volcanoes.length; i++) {

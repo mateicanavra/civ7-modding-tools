@@ -737,5 +737,5 @@ export const ClimateBaselineStep = createStep(config, {
       oceanThermal,
     };
   },
-  viz: ({ result, dimensions }) => buildClimateBaselineVizProjections(result, dimensions),
+  viz: ({ observation, dimensions }) => buildClimateBaselineVizProjections(observation, dimensions),
 });

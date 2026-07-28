@@ -85,7 +85,7 @@ export const PlotEffectsStep = createStep(config, {
     }
     return placements;
   },
-  viz: ({ result: placements }) => {
+  viz: ({ observation: placements }) => {
     if (placements.length === 0) return [];
 
     const positions = new Float32Array(placements.length * 2);

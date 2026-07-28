@@ -258,7 +258,7 @@ export const LandmassPlatesStep = createStep(config, {
     deps.artifacts.beltDrivers.publish(beltDriverFields);
     return { topography, substrate, beltDrivers: beltDriverFields };
   },
-  viz: ({ result: { topography, substrate, beltDrivers }, dimensions }) => [
+  viz: ({ observation: { topography, substrate, beltDrivers }, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "morphology.topography.elevation",

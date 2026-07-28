@@ -85,14 +85,14 @@ export const BuildElevationStep = createStep(config, {
       driftMask,
     };
   },
-  viz: ({ result, dimensions }) => {
+  viz: ({ observation, dimensions }) => {
     const projections: VizProjection[] = [
       {
         kind: "grid",
         dataTypeKey: "map.elevation.elevation",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "i16", values: result.physicsElevation },
+        field: { format: "i16", values: observation.physicsElevation },
         meta: defineStandardVizMeta("map.elevation.elevation", "terrain.elevation", {
           label: "Elevation (Physics Truth)",
           group: GROUP_MAP_ELEVATION,
@@ -105,7 +105,7 @@ export const BuildElevationStep = createStep(config, {
         dataTypeKey: "map.elevation.landMask",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "u8", values: result.expectedLandMask },
+        field: { format: "u8", values: observation.expectedLandMask },
         meta: defineStandardVizMeta("map.elevation.landMask", "category.distinct", {
           label: "Land Mask (Projected Surface)",
           group: GROUP_MAP_ELEVATION,
@@ -120,7 +120,7 @@ export const BuildElevationStep = createStep(config, {
         dataTypeKey: "map.elevation.elevation",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "i16", values: result.engine.elevation },
+        field: { format: "i16", values: observation.engine.elevation },
         meta: defineStandardVizMeta("map.elevation.elevation", "terrain.elevation", {
           label: "Elevation (Engine)",
           group: GROUP_MAP_ELEVATION,
@@ -132,7 +132,7 @@ export const BuildElevationStep = createStep(config, {
         dataTypeKey: "map.elevation.landMask",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "u8", values: result.engine.landMask },
+        field: { format: "u8", values: observation.engine.landMask },
         meta: defineStandardVizMeta("map.elevation.landMask", "category.distinct", {
           label: "Land Mask (Engine)",
           group: GROUP_MAP_ELEVATION,
@@ -145,7 +145,7 @@ export const BuildElevationStep = createStep(config, {
         dataTypeKey: "map.elevation.driftMask",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "u8", values: result.driftMask },
+        field: { format: "u8", values: observation.driftMask },
         meta: defineStandardVizMeta("map.elevation.driftMask", "category.distinct", {
           label: "Land/Water Drift Mask",
           group: GROUP_MAP_ELEVATION,

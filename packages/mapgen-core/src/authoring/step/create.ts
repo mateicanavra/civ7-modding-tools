@@ -29,19 +29,24 @@ type InitialSetupOf<C extends StepContract<any, any, any, any, any, any, any>> =
       : undefined
     : undefined;
 
-type StepImplBase<TContext, TConfig, TOps, TDeps, TResult> = Readonly<{
+type StepImplBase<TContext, TConfig, TOps, TDeps, TObservation> = Readonly<{
   normalize?: (config: TConfig, ctx: NormalizeContext) => TConfig;
-  run: (context: TContext, config: TConfig, ops: TOps, deps: TDeps) => TResult | Promise<TResult>;
+  run: (
+    context: TContext,
+    config: TConfig,
+    ops: TOps,
+    deps: TDeps
+  ) => TObservation | Promise<TObservation>;
 }> &
-  StepFacets<TConfig, TResult>;
+  StepFacets<TConfig, TObservation>;
 
 type StepImpl<
   C extends StepContract<any, any, any, any, any, any, any>,
   TConfig,
   TOps,
   TDeps,
-  TResult,
-> = StepImplBase<StepContext<InitialSetupOf<C>>, TConfig, TOps, TDeps, TResult>;
+  TObservation,
+> = StepImplBase<StepContext<InitialSetupOf<C>>, TConfig, TOps, TDeps, TObservation>;
 
 type CapturedImplementationFunction = (...args: never[]) => unknown;
 
@@ -94,11 +99,12 @@ function captureStepImplementation(stepId: string, impl: unknown): CapturedStepI
 /**
  * Binds executable step behavior to its admitted contract. Artifact capabilities derive directly
  * from the contract during each occurrence, so implementations cannot install another authority.
- * The run result is inferred once and becomes the typed input to optional post-provides projectors.
+ * The invocation-local observation is inferred once and becomes the typed input to optional
+ * post-provides projectors; it is discarded after projection and never becomes pipeline state.
  */
 export function createStep<
   const C extends StepContract<any, any, any, any, any, any, any>,
-  TResult = void,
+  TObservation = void,
 >(
   contract: C,
   impl: StepImpl<
@@ -106,9 +112,9 @@ export function createStep<
     StepConfigOf<C>,
     StepOpsOf<C>,
     StepDeps<RequiresOf<C>, ProvidesOf<C>, EngineOf<C>>,
-    TResult
+    TObservation
   >
-): StepModule<C, TResult> {
+): StepModule<C, TObservation> {
   if ((typeof contract !== "object" && typeof contract !== "function") || contract === null) {
     throw new TypeError("createStep requires a contract created by defineStep");
   }
@@ -121,7 +127,7 @@ export function createStep<
     ...(captured.normalize === undefined ? {} : { normalize: captured.normalize }),
     ...(captured.metrics === undefined ? {} : { metrics: captured.metrics }),
     ...(captured.viz === undefined ? {} : { viz: captured.viz }),
-  }) as unknown as StepModule<C, TResult>;
+  }) as unknown as StepModule<C, TObservation>;
   registerCanonicalStepInternal(step);
   return step;
 }

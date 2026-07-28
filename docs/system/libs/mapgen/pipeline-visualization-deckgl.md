@@ -78,7 +78,7 @@ Key goals:
 
 Visualization is optional evidence projected after a step succeeds:
 
-- A step authors `viz: ({ result, config, dimensions }) => VizProjection[]` beside its `run`.
+- A step authors `viz: ({ observation, config, dimensions }) => VizProjection[]` beside its `run`.
 - Core invokes the projector only after declared providers are admitted and only when the execution
   environment supplies a visualization sink.
 - Projectors are synchronous and pure. They may observe completed typed arrays but cannot access a
@@ -166,9 +166,10 @@ Each emitted entry in `manifest.layers[]` is still a **layer** (concrete emissio
 - **Point layers** (samples): craton seeds, hotspots, volcanoes.
 - **Polygon layers** (regions): landmasses, plates.
 
-**Sources:** completed step results after every declared artifact provision has passed admission. A
-projector may derive presentation-only geometry or scalar variants, but it cannot mutate generation
-state or synthesize missing product evidence.
+**Sources:** invocation-local step observations after every declared artifact provision has passed
+admission. A projector may derive presentation-only geometry or scalar variants, but the observation
+is discarded after projection and cannot mutate generation state or synthesize missing product
+evidence.
 
 ---
 

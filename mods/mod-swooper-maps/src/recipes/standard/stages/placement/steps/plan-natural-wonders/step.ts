@@ -87,11 +87,11 @@ export const PlanNaturalWondersStep = createStep(config, {
       naturalWonderPlanInput,
     };
   },
-  metrics: ({ result }) => ({
-    [STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY]: result.naturalWonderPlanInput,
+  metrics: ({ observation }) => ({
+    [STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY]: observation.naturalWonderPlanInput,
   }),
-  viz: ({ result, dimensions }) => {
-    const { placements } = result;
+  viz: ({ observation, dimensions }) => {
+    const { placements } = observation;
     const positions = new Float32Array(placements.length * 2);
     const values = new Float32Array(placements.length);
     for (let i = 0; i < placements.length; i++) {

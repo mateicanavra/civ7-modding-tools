@@ -48,7 +48,7 @@ export const PlotLandmassRegionsStep = createStep(config, {
     deps.artifacts.landmassRegionSlotByTile.publish({ slotByTile });
     return slotByTile;
   },
-  viz: ({ result: slotByTile, dimensions }) => [
+  viz: ({ observation: slotByTile, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "placement.landmassRegions.regionSlot",

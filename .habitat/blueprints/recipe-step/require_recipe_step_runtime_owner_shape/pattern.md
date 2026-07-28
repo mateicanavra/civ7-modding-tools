@@ -159,6 +159,6 @@ import { projectWeather } from "./viz.js";
 /** Simulates weather and exposes its authored visualization projection. */
 export const VisualizeWeatherStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => undefined,
-  viz: ({ result, dimensions }) => projectWeather(result, dimensions),
+  viz: ({ observation, dimensions }) => projectWeather(observation, dimensions),
 });
 ```

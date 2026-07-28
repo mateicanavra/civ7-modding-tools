@@ -38,10 +38,10 @@ export type StepFacetSinks = Readonly<{
   onError?: SynchronousStepFacetConsumer<[failure: StepFacetFailure]>;
 }>;
 
-type StepFacetDispatchInput<TConfig, TResult> = Readonly<{
-  facets: StepFacets<TConfig, TResult> | undefined;
+type StepFacetDispatchInput<TConfig, TObservation> = Readonly<{
+  facets: StepFacets<TConfig, TObservation> | undefined;
   sinks: StepFacetSinks | undefined;
-  result: TResult;
+  observation: TObservation;
   config: TConfig;
   dimensions: Readonly<{ width: number; height: number }>;
   context: StepFacetSinkContext;
@@ -56,9 +56,9 @@ function reportFacetFailure(sinks: StepFacetSinks, failure: StepFacetFailure): v
   }
 }
 
-function emitMetrics<TConfig, TResult>(
-  input: StepFacetDispatchInput<TConfig, TResult>,
-  facetInput: StepFacetInput<TResult, TConfig>,
+function emitMetrics<TConfig, TObservation>(
+  input: StepFacetDispatchInput<TConfig, TObservation>,
+  facetInput: StepFacetInput<TObservation, TConfig>,
   sinks: StepFacetSinks
 ): void {
   const project = input.facets?.metrics;
@@ -100,9 +100,9 @@ function emitMetrics<TConfig, TResult>(
   }
 }
 
-function emitViz<TConfig, TResult>(
-  input: StepFacetDispatchInput<TConfig, TResult>,
-  facetInput: StepFacetInput<TResult, TConfig>,
+function emitViz<TConfig, TObservation>(
+  input: StepFacetDispatchInput<TConfig, TObservation>,
+  facetInput: StepFacetInput<TObservation, TConfig>,
   sinks: StepFacetSinks
 ): void {
   const project = input.facets?.viz;
@@ -152,15 +152,15 @@ function emitViz<TConfig, TResult>(
  * Dispatches optional post-step evidence in the single admitted order: metrics, then viz.
  * Missing sinks skip their projectors; every projector and sink is invoked at most once.
  */
-export function dispatchStepFacets<TConfig, TResult>(
-  input: StepFacetDispatchInput<TConfig, TResult>
+export function dispatchStepFacets<TConfig, TObservation>(
+  input: StepFacetDispatchInput<TConfig, TObservation>
 ): void {
   if (!input.facets || !input.sinks) return;
-  const facetInput: StepFacetInput<TResult, TConfig> = Object.freeze({
-    result: input.result,
+  const facetInput: StepFacetInput<TObservation, TConfig> = Object.freeze({
+    observation: input.observation,
     config: input.config,
     dimensions: Object.freeze({ ...input.dimensions }),
-  }) as StepFacetInput<TResult, TConfig>;
+  }) as StepFacetInput<TObservation, TConfig>;
   emitMetrics(input, facetInput, input.sinks);
   emitViz(input, facetInput, input.sinks);
 }

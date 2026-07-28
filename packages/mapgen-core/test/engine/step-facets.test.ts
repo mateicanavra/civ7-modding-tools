@@ -31,7 +31,7 @@ const TEST_ENV = {
 };
 
 type TestConfig = Readonly<{ scale: number }>;
-type TestResult = Readonly<{ score: number }>;
+type TestObservation = Readonly<{ score: number }>;
 
 function createTestContext(setup: MapSetup): MapContext {
   return createMapContext({
@@ -54,7 +54,7 @@ function createPlan(registry: StepRegistry, stepId: string) {
   );
 }
 
-function captureFacetRegistry(step: MapGenStep<TestConfig, TestResult>): StepRegistry {
+function captureFacetRegistry(step: MapGenStep<TestConfig, TestObservation>): StepRegistry {
   const registry = new StepRegistry();
   registry.register(step);
   return registry;
@@ -63,8 +63,8 @@ function captureFacetRegistry(step: MapGenStep<TestConfig, TestResult>): StepReg
 describe("step facets", () => {
   it("projects after provides validation and emits metrics before visualization", () => {
     const order: string[] = [];
-    let borrowedResult: TestResult | undefined;
-    const step: MapGenStep<TestConfig, TestResult> = {
+    let observation: TestObservation | undefined;
+    const step: MapGenStep<TestConfig, TestObservation> = {
       id: "faceted-step",
       stageId: "foundation",
       requires: [],
@@ -72,22 +72,23 @@ describe("step facets", () => {
       run: (context, config) => {
         order.push("run");
         publishTestArtifact(context, facetedStepArtifact, true);
-        borrowedResult = { score: config.scale * 2 };
-        return borrowedResult;
+        observation = { score: config.scale * 2 };
+        return observation;
       },
       facets: {
         metrics: (input) => {
           order.push("metrics.project");
-          if (!borrowedResult) throw new Error("Expected the step result before facet projection.");
-          expect(input.result).toBe(borrowedResult);
+          if (!observation)
+            throw new Error("Expected the step observation before facet projection.");
+          expect(input.observation).toBe(observation);
           expect(input).toEqual({
-            result: { score: 6 },
+            observation: { score: 6 },
             config: { scale: 3 },
             dimensions: { width: 8, height: 6 },
           });
           expect(Object.isFrozen(input)).toBe(true);
           expect(Object.isFrozen(input.dimensions)).toBe(true);
-          return { score: input.result.score };
+          return { score: input.observation.score };
         },
         viz: () => {
           order.push("viz.project");
@@ -131,13 +132,13 @@ describe("step facets", () => {
   });
 
   it("shares each execution-owned identity between trace and facet evidence", async () => {
-    const step: MapGenStep<TestConfig, TestResult> = {
+    const step: MapGenStep<TestConfig, TestObservation> = {
       id: "trace-identity",
       stageId: "foundation",
       requires: [],
       provides: [],
       run: () => ({ score: 1 }),
-      facets: { metrics: ({ result }) => ({ score: result.score }) },
+      facets: { metrics: ({ observation }) => ({ score: observation.score }) },
     };
     const registry = captureFacetRegistry(step);
     const plan = createPlan(registry, step.id);
@@ -194,7 +195,7 @@ describe("step facets", () => {
 
   it("does not project facets when a declared artifact was not published", () => {
     let projected = false;
-    const step: MapGenStep<TestConfig, TestResult> = {
+    const step: MapGenStep<TestConfig, TestObservation> = {
       id: "missing-provide",
       stageId: "foundation",
       requires: [],
@@ -221,13 +222,13 @@ describe("step facets", () => {
   });
 
   it("allocates a fresh identity for each untraced facet execution", () => {
-    const step: MapGenStep<TestConfig, TestResult> = {
+    const step: MapGenStep<TestConfig, TestObservation> = {
       id: "untraced-identity",
       stageId: "foundation",
       requires: [],
       provides: [],
       run: () => ({ score: 1 }),
-      facets: { metrics: ({ result }) => ({ score: result.score }) },
+      facets: { metrics: ({ observation }) => ({ score: observation.score }) },
     };
     const registry = captureFacetRegistry(step);
     const plan = createPlan(registry, step.id);
@@ -253,7 +254,7 @@ describe("step facets", () => {
   it("skips each projector when its matching sink is absent", () => {
     let metricProjects = 0;
     let vizProjects = 0;
-    const step: MapGenStep<TestConfig, TestResult> = {
+    const step: MapGenStep<TestConfig, TestObservation> = {
       id: "optional-facets",
       stageId: "foundation",
       requires: [],
@@ -288,7 +289,7 @@ describe("step facets", () => {
     const metricError = new Error("metric projector failed");
     const vizError = new Error("viz sink failed");
     const failures: StepFacetFailure[] = [];
-    const step: MapGenStep<TestConfig, TestResult> = {
+    const step: MapGenStep<TestConfig, TestObservation> = {
       id: "failing-facets",
       stageId: "foundation",
       requires: [],
@@ -357,7 +358,7 @@ describe("step facets", () => {
         vizProjects += 1;
         return [];
       },
-    } as unknown as NonNullable<MapGenStep<TestConfig, TestResult>["facets"]>;
+    } as unknown as NonNullable<MapGenStep<TestConfig, TestObservation>["facets"]>;
     const unsafeSinks = {
       metrics: () => undefined,
       viz: () => {
@@ -368,7 +369,7 @@ describe("step facets", () => {
         failures.push(failure);
       },
     } as unknown as StepFacetSinks;
-    const step: MapGenStep<TestConfig, TestResult> = {
+    const step: MapGenStep<TestConfig, TestObservation> = {
       id: "rejected-facet-thenables",
       stageId: "foundation",
       requires: [],
@@ -407,7 +408,7 @@ describe("step facets", () => {
   it("checks abort after provides and before projecting async facets", async () => {
     const order: string[] = [];
     const abortSignal = { aborted: false };
-    const step: MapGenStep<TestConfig, TestResult> = {
+    const step: MapGenStep<TestConfig, TestObservation> = {
       id: "post-run-abort",
       stageId: "foundation",
       requires: [],

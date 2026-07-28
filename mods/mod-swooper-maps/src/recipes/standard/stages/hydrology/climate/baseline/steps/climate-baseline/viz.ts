@@ -66,19 +66,19 @@ function toFloat32(values: ArrayLike<number>): Float32Array {
  * store. Producer arrays remain authoritative; only sampled and diagnostic views allocate.
  */
 export function buildClimateBaselineVizProjections(
-  result: ClimateBaselineVizEvidence,
+  observation: ClimateBaselineVizEvidence,
   dimensions: VizDims
 ): readonly VizProjection[] {
   const projections: VizProjection[] = [];
-  const { baselineClimateField, seasonalAmplitudes, windField, currentField } = result;
+  const { baselineClimateField, seasonalAmplitudes, windField, currentField } = observation;
 
-  if (result.oceanGeometry) {
+  if (observation.oceanGeometry) {
     projections.push(
       ...buildScalarFieldProjections({
         dataTypeKey: "hydrology.ocean.basinId",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "i32", values: result.oceanGeometry.basinId },
+        field: { format: "i32", values: observation.oceanGeometry.basinId },
         meta: defineStandardVizMeta("hydrology.ocean.basinId", "category.distinct", {
           label: "Ocean Basin Id",
           group: GROUP_OCEAN,
@@ -90,7 +90,7 @@ export function buildClimateBaselineVizProjections(
         dataTypeKey: "hydrology.ocean.coastDistance",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "u16", values: result.oceanGeometry.coastDistance },
+        field: { format: "u16", values: observation.oceanGeometry.coastDistance },
         meta: defineStandardVizMeta("hydrology.ocean.coastDistance", "water.depth", {
           label: "Ocean Coast Distance (Water)",
           group: GROUP_OCEAN,
@@ -102,8 +102,8 @@ export function buildClimateBaselineVizProjections(
         dataTypeKey: "hydrology.ocean.coastFrame",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        u: { format: "i8", values: result.oceanGeometry.coastTangentU },
-        v: { format: "i8", values: result.oceanGeometry.coastTangentV },
+        u: { format: "i8", values: observation.oceanGeometry.coastTangentU },
+        v: { format: "i8", values: observation.oceanGeometry.coastTangentV },
         meta: defineStandardVizMeta("hydrology.ocean.coastFrame", "field.intensity", {
           label: "Coast Tangent (Advisory)",
           group: GROUP_OCEAN,
@@ -115,13 +115,13 @@ export function buildClimateBaselineVizProjections(
     );
   }
 
-  if (result.oceanThermal) {
+  if (observation.oceanThermal) {
     projections.push(
       ...buildScalarFieldProjections({
         dataTypeKey: "hydrology.ocean.sstC",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "f32", values: result.oceanThermal.sstC },
+        field: { format: "f32", values: observation.oceanThermal.sstC },
         meta: defineStandardVizMeta("hydrology.ocean.sstC", "climate.temperature", {
           label: "Ocean SST (C)",
           group: GROUP_OCEAN,
@@ -133,7 +133,7 @@ export function buildClimateBaselineVizProjections(
         dataTypeKey: "hydrology.ocean.seaIceMask",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "u8", values: result.oceanThermal.seaIceMask },
+        field: { format: "u8", values: observation.oceanThermal.seaIceMask },
         meta: defineStandardVizMeta("hydrology.ocean.seaIceMask", "category.distinct", {
           label: "Ocean Sea Ice Mask",
           group: GROUP_OCEAN,
@@ -257,9 +257,9 @@ export function buildClimateBaselineVizProjections(
     }
   );
 
-  for (let season = 0; season < result.seasonalRainfall.length; season += 1) {
-    const rainfall = result.seasonalRainfall[season];
-    const humidity = result.seasonalHumidity[season];
+  for (let season = 0; season < observation.seasonalRainfall.length; season += 1) {
+    const rainfall = observation.seasonalRainfall[season];
+    const humidity = observation.seasonalHumidity[season];
     if (!rainfall || !humidity) continue;
     projections.push(
       ...buildScalarFieldProjections({
@@ -368,11 +368,11 @@ export function buildClimateBaselineVizProjections(
     })
   );
 
-  for (let season = 0; season < result.seasonalWindU.length; season += 1) {
-    const windSeasonU = result.seasonalWindU[season];
-    const windSeasonV = result.seasonalWindV[season];
-    const currentSeasonU = result.seasonalCurrentU[season];
-    const currentSeasonV = result.seasonalCurrentV[season];
+  for (let season = 0; season < observation.seasonalWindU.length; season += 1) {
+    const windSeasonU = observation.seasonalWindU[season];
+    const windSeasonV = observation.seasonalWindV[season];
+    const currentSeasonU = observation.seasonalCurrentU[season];
+    const currentSeasonV = observation.seasonalCurrentV[season];
     if (!windSeasonU || !windSeasonV || !currentSeasonU || !currentSeasonV) continue;
     projections.push(
       ...buildVectorFieldProjections({

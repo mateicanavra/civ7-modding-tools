@@ -40,7 +40,7 @@ export const PlaceDiscoveriesStep = createStep(config, {
 
     return outcomes;
   },
-  metrics: ({ result }) => ({
-    "placement.discoveryGeneration": measureStandardDiscoveryPlacement(result.summary),
+  metrics: ({ observation }) => ({
+    "placement.discoveryGeneration": measureStandardDiscoveryPlacement(observation.summary),
   }),
 });

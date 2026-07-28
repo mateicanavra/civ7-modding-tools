@@ -185,7 +185,7 @@ Studio surfaces two observability channels from the worker:
 Key posture:
 - A step's optional `viz` projector runs after successful execution and provider admission, and only
   when the worker supplies a visualization facet sink.
-- The projector sees only `{ result, config, dimensions }`; it cannot observe browser state, trace,
+- The projector sees only `{ observation, config, dimensions }`; it cannot observe browser state, trace,
   or the sink.
 - Visualization is independent of trace verbosity. Trace owns progress; the visualization facet
   owns portable layer projections.

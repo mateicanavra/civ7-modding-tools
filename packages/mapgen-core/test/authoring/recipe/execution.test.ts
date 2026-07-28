@@ -235,7 +235,7 @@ describe("authoring: hello recipe compile/execute", () => {
     });
     const facetStep = createStep(facetContract, {
       run: (_context, config) => ({ score: config.score }),
-      metrics: ({ result }) => ({ score: result.score }),
+      metrics: ({ observation }) => ({ score: observation.score }),
       viz: () => [],
     });
     const stage = createStage({

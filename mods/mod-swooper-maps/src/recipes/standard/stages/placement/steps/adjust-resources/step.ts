@@ -70,5 +70,5 @@ export const AdjustResourcesStep = createStep(config, {
       supportRadiusTiles: adjusted.settings.supportRadiusTiles,
     };
   },
-  viz: ({ result, dimensions }) => projectResourceSupportViz({ ...result, dimensions }),
+  viz: ({ observation, dimensions }) => projectResourceSupportViz({ ...observation, dimensions }),
 });

@@ -67,5 +67,5 @@ export const PreparePlacementSurfaceStep = createStep(config, {
       afterMaintenance,
     };
   },
-  viz: ({ result, dimensions }) => projectPlacementSurfaceViz({ ...result, dimensions }),
+  viz: ({ observation, dimensions }) => projectPlacementSurfaceViz({ ...observation, dimensions }),
 });

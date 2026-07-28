@@ -15,7 +15,7 @@ export type NormalizeContext<TKnobs = unknown> = Readonly<{
 }>;
 
 /** One registered execution node over the single authentic MapGen context for a run. */
-export interface MapGenStep<TConfig = unknown, TResult = unknown> {
+export interface MapGenStep<TConfig = unknown, TObservation = unknown> {
   readonly id: string;
   /** Recipe-composition stage that owns this executable occurrence. */
   readonly stageId: string;
@@ -25,9 +25,9 @@ export interface MapGenStep<TConfig = unknown, TResult = unknown> {
   readonly projectsInitialSetup?: true;
   readonly configSchema?: TSchema;
   readonly normalize?: (config: TConfig, ctx: NormalizeContext) => TConfig;
-  readonly run: (context: MapContext, config: TConfig) => TResult | Promise<TResult>;
+  readonly run: (context: MapContext, config: TConfig) => TObservation | Promise<TObservation>;
   /** Optional synchronous projectors dispatched by the executor after provides validation. */
-  readonly facets?: StepFacets<TConfig, TResult>;
+  readonly facets?: StepFacets<TConfig, TObservation>;
 }
 
 export interface PipelineStepResult {

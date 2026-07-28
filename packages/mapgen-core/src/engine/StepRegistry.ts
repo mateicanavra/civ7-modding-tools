@@ -26,7 +26,7 @@ export class StepRegistry {
   private readonly steps = new Map<string, MapGenStep<unknown, unknown>>();
 
   /** Snapshots and registers one uniquely identified step after admitting its dependencies. */
-  register<TConfig, TResult>(step: MapGenStep<TConfig, TResult>): void {
+  register<TConfig, TObservation>(step: MapGenStep<TConfig, TObservation>): void {
     const {
       id,
       stageId,
@@ -62,10 +62,12 @@ export class StepRegistry {
   }
 
   /** Resolves a registered immutable step, rejecting unknown identifiers. */
-  get<TConfig = unknown, TResult = unknown>(stepId: string): MapGenStep<TConfig, TResult> {
+  get<TConfig = unknown, TObservation = unknown>(
+    stepId: string
+  ): MapGenStep<TConfig, TObservation> {
     const step = this.steps.get(stepId);
     if (!step) throw new UnknownStepError(stepId);
-    return step as MapGenStep<TConfig, TResult>;
+    return step as MapGenStep<TConfig, TObservation>;
   }
 
   /** Reports whether a step identifier is already registered. */

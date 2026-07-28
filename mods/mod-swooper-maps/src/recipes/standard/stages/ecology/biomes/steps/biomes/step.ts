@@ -64,7 +64,7 @@ export const BiomesStep = createStep(config, {
     });
     return classification;
   },
-  viz: ({ result: classification, dimensions }) => {
+  viz: ({ observation: classification, dimensions }) => {
     assertBiomeIndexVizCategoriesCoverSymbols();
     return [
       ...buildScalarFieldProjections({

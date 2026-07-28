@@ -70,7 +70,9 @@ Trace provides:
 - optional verbose step events (structured debug).
 
 Visualization is an optional `createStep({ viz })` facet. It projects pure portable evidence from
-`{ result, config, dimensions }` only after the step succeeds. The execution environment supplies
+`{ observation, config, dimensions }` only after the step succeeds. The observation is
+invocation-local and discarded after projection; artifacts remain the only pipeline data products.
+The execution environment supplies
 the sink that materializes those projections for Studio streaming or filesystem replay; recipe
 algorithms never observe that sink. Visualization failures are diagnostic and cannot change
 generation success.

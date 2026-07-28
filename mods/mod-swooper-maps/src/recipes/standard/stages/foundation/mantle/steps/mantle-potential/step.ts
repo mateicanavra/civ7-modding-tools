@@ -38,7 +38,7 @@ export const MantlePotentialStep = createStep(config, {
     deps.artifacts.mantlePotential.publish(mantleResult.mantlePotential);
     return { mesh, mantlePotential: mantleResult.mantlePotential };
   },
-  viz: ({ result: { mesh, mantlePotential } }) => [
+  viz: ({ observation: { mesh, mantlePotential } }) => [
     {
       kind: "points",
       dataTypeKey: "foundation.mantle.potential",

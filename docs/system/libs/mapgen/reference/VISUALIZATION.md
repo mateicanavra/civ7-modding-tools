@@ -59,12 +59,14 @@ typed VizProjection
   the projection it receives. Explicitly selected projection helpers may derive visualization-only
   evidence such as vector magnitude from completed semantic sources before materialization.
 - Steps author optional `viz` and `metrics` projectors inline on the same
-  `createStep(config, { run, viz, metrics })` implementation that owns their result. Here
+  `createStep(config, { run, viz, metrics })` implementation that owns their invocation-local
+  observation. Here
   `config` is the owner-local binding for the step contract, not a different
   kind of value. After `run`
   completes and declared artifact providers are admitted, the executor invokes each matching
   projector/sink pair at most once. Without both halves, no projection or execution identity is
-  computed. These facets observe completed evidence; they never change generation behavior.
+  computed. The observation is discarded after projection and never becomes artifact or pipeline
+  state. These facets observe completed evidence; they never change generation behavior.
 - Recipe algorithms cannot access a visualization sink. Imperative `context.viz` calls and trace
   event envelopes are not visualization authoring surfaces.
 

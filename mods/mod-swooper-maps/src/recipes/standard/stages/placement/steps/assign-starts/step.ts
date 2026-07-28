@@ -228,5 +228,5 @@ export const AssignStartsStep = createStep(config, {
     requireCompleteStartAssignment(assignment);
     return { plan, assignment };
   },
-  viz: ({ result, dimensions }) => projectStartAssignmentViz({ ...result, dimensions }),
+  viz: ({ observation, dimensions }) => projectStartAssignmentViz({ ...observation, dimensions }),
 });

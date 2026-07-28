@@ -41,7 +41,7 @@ export const PlanFloodplainsStep = createStep(config, {
     const admittedIntents = deps.artifacts.floodplainIntents.publish(placements);
     return deriveFeatureOccupancy(context.setup.dimensions, admittedIntents);
   },
-  viz: ({ result: floodplainIntentMask, dimensions }) => [
+  viz: ({ observation: floodplainIntentMask, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "ecology.features.floodplainIntentMask",

@@ -188,13 +188,13 @@ export const GeomorphologyStep = createStep(config, {
     context.trace.event(() => ({ kind: "morphology.geomorphology.summary" }));
     return result;
   },
-  viz: ({ result, dimensions }) => [
+  viz: ({ observation, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "morphology.geomorphology.elevationDelta",
       spaceId: "tile.hexOddQ",
       dims: dimensions,
-      field: { format: "f32", values: result.deltas.elevationDelta },
+      field: { format: "f32", values: observation.deltas.elevationDelta },
       meta: defineStandardVizMeta(
         "morphology.geomorphology.elevationDelta",
         "field.signed",

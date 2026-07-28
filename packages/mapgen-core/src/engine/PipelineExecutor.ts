@@ -248,8 +248,8 @@ export class PipelineExecutor {
         try {
           this.log(`${this.logPrefix} [${index + 1}/${total}] start ${step.id}`);
           trace.emitStepStart(stepMeta);
-          const result = step.run(stepContext, node.config);
-          const completion = classifyThenable(result);
+          const observation = step.run(stepContext, node.config);
+          const completion = classifyThenable(observation);
           if (completion.kind !== "none") {
             containThenable(completion);
             throw new Error(
@@ -262,7 +262,7 @@ export class PipelineExecutor {
             dispatchStepFacets({
               facets: step.facets,
               sinks: options.facets,
-              result,
+              observation,
               config: node.config,
               dimensions: facetIdentity.dimensions,
               context: stepFacetContext(facetIdentity, step, index),
@@ -433,14 +433,14 @@ export class PipelineExecutor {
         try {
           this.log(`${this.logPrefix} [${index + 1}/${total}] start ${step.id}`);
           trace.emitStepStart(stepMeta);
-          const result = await step.run(stepContext, node.config);
+          const observation = await step.run(stepContext, node.config);
           assertDeclaredArtifactsPublished(step.id, step.provides, context);
           if (abortSignal?.aborted) throw new PipelineAbortError();
           if (facetIdentity) {
             dispatchStepFacets({
               facets: step.facets,
               sinks: options.facets,
-              result,
+              observation,
               config: node.config,
               dimensions: facetIdentity.dimensions,
               context: stepFacetContext(facetIdentity, step, index),

@@ -280,7 +280,7 @@ export const ScoreLayersStep = createStep(config, {
 
     return { layers };
   },
-  viz: ({ result: { layers }, dimensions }) => [
+  viz: ({ observation: { layers }, dimensions }) => [
     ...Object.entries(layers).map(([featureKey, values]) => ({
       kind: "grid" as const,
       dataTypeKey: `ecology.featureSuitability.${featureKey}`,

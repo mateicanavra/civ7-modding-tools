@@ -94,7 +94,10 @@ type StepInitialSetupOfContract<C extends StepContractAny> =
     : undefined;
 
 /** Authored step behavior bound to one contract and the canonical map execution context. */
-export type StepModule<C extends StepContractAny = StepContractAny, TResult = unknown> = Readonly<{
+export type StepModule<
+  C extends StepContractAny = StepContractAny,
+  TObservation = unknown,
+> = Readonly<{
   contract: C;
   normalize?: (config: unknown, ctx: NormalizeContext) => unknown;
   run: (
@@ -106,12 +109,12 @@ export type StepModule<C extends StepContractAny = StepContractAny, TResult = un
       StepProvidesOfContract<C>,
       StepEngineDeclOfContract<C>
     >
-  ) => TResult | Promise<TResult>;
+  ) => TObservation | Promise<TObservation>;
 }> &
-  StepFacets<StepConfigOfContract<C>, TResult>;
+  StepFacets<StepConfigOfContract<C>, TObservation>;
 
 /** Canonical authored step module accepted by stage composition. */
-export type Step<C extends StepContractAny = StepContractAny, TResult = unknown> = StepModule<
+export type Step<C extends StepContractAny = StepContractAny, TObservation = unknown> = StepModule<
   C,
-  TResult
+  TObservation
 >;

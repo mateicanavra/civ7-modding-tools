@@ -129,11 +129,11 @@ export const PlaceResourcesStep = createStep(config, {
     emitStandardResourcePlacementExactLog(deps.engine.getResourceCatalog(context), measurements);
     return measurements;
   },
-  metrics: ({ result }) => ({
-    [STANDARD_RESOURCE_PLACEMENT_METRIC_KEY]: result,
+  metrics: ({ observation }) => ({
+    [STANDARD_RESOURCE_PLACEMENT_METRIC_KEY]: observation,
   }),
-  viz: ({ result, dimensions }) => {
-    const rows = result.outcomes.map((outcome) => ({
+  viz: ({ observation, dimensions }) => {
+    const rows = observation.outcomes.map((outcome) => ({
       plotIndex: outcome.plotIndex,
       value: resourceOutcomeCategoryValue(outcome),
     }));

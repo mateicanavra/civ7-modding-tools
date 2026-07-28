@@ -6,7 +6,7 @@ import {
   transparentNoneCategory,
 } from "../../viz.js";
 
-type PlacementParityVizResult = Readonly<{
+type PlacementParityVizObservation = Readonly<{
   engineObservation: Readonly<{
     terrain: Int32Array;
     elevation: Int16Array;
@@ -20,17 +20,17 @@ type PlacementParityVizResult = Readonly<{
  * The adapter observation is reused exactly as read; only the drift array is derived.
  */
 export function projectPlacementParityViz(
-  result: PlacementParityVizResult,
+  observation: PlacementParityVizObservation,
   dimensions: Readonly<{ width: number; height: number }>
 ): readonly VizProjection[] {
   const projections: VizProjection[] = [];
-  if (result.waterDrift.length === dimensions.width * dimensions.height) {
+  if (observation.waterDrift.length === dimensions.width * dimensions.height) {
     projections.push({
       kind: "grid",
       dataTypeKey: "map.placement.engine.waterDrift",
       spaceId: PLACEMENT_TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.waterDrift },
+      field: { format: "u8", values: observation.waterDrift },
       meta: definePlacementVizCategoryMeta(
         "map.placement.engine.waterDrift",
         [
@@ -52,7 +52,7 @@ export function projectPlacementParityViz(
     dataTypeKey: "map.placement.engine.landMask",
     spaceId: PLACEMENT_TILE_SPACE_ID,
     dims: dimensions,
-    field: { format: "u8", values: result.engineObservation.landMask },
+    field: { format: "u8", values: observation.engineObservation.landMask },
     meta: definePlacementVizCategoryMeta(
       "map.placement.engine.landMask",
       [

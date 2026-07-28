@@ -27,7 +27,7 @@ export const PlateTopologyStep = createStep(config, {
     deps.artifacts.plateTopology.publish(plateTopology);
     return topologyPlates;
   },
-  viz: ({ result: topologyPlates }) => {
+  viz: ({ observation: topologyPlates }) => {
     const centroidPoints = pointsFromTileCentroids(topologyPlates);
     return [
       {
