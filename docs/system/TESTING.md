@@ -10,7 +10,7 @@ one graph whenever they materialize or consume build output in the same
 worktree:
 
 ```bash
-nx run-many -t check,test --projects=mod-swooper-maps
+nx run-many -t check,test --projects=swooper-physics,swooper-physics-mod
 ```
 
 Do not run independent output-producing Nx graphs concurrently in one
@@ -64,10 +64,16 @@ To run only the mapgen-core Bun tests:
 nx run mapgen-core:test
 ```
 
-To run only the mod tests:
+To run only the reusable Swooper definition tests:
 
 ```bash
-nx run mod-swooper-maps:test
+nx run swooper-physics:test
+```
+
+To run only the Civ7 realization tests:
+
+```bash
+nx run swooper-physics-mod:test
 ```
 
 To run only the Civ7 adapter tests:
@@ -76,9 +82,9 @@ To run only the Civ7 adapter tests:
 nx run civ7-adapter:test
 ```
 
-See the [Swooper Maps test corpus guide](../../mods/mod-swooper-maps/test/README.md)
-for its current ownership and classification rules and the reusable MapGen Core
-testing mechanics available to focused mod tests.
+See the [Swooper Physics definition router](../../plugins/mod/map/swooper-physics/AGENTS.md)
+and [Civ7 realization router](../../apps/mods/map/swooper-physics/AGENTS.md)
+for the current ownership split and focused project verification targets.
 
 See the [MapGen Core test corpus guide](../../packages/mapgen-core/test/README.md)
 for the generic component ownership tree.
@@ -106,7 +112,7 @@ set includes that suite.
 
 ## Physics Guardrails (Swooper Maps)
 
-For `mods/mod-swooper-maps`, CI/local validation should include:
+For `plugins/mod/map/swooper-physics`, CI/local validation should include:
 
 - Placement domain suites (`test/domains/placement/**`, `test/domains/resources/**`) validating direct planning behavior, plus the concrete placement stage suite (`test/recipes/swooper-physics-standard/stages/placement/**`) validating projections and composition.
 - Hydrology domain suite (`test/domains/hydrology/**`) validating direct hydrology behavior, plus concrete recipe and stage cases under `test/recipes/swooper-physics-standard/**` validating runtime fill and projection behavior.
@@ -115,7 +121,7 @@ For `mods/mod-swooper-maps`, CI/local validation should include:
   package tests that scan source text.
 - RNG authority guards (`packages/mapgen-core/test/core/rng.test.ts`,
   `.habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/check.mjs`, and
-  `mods/mod-swooper-maps/test/recipes/swooper-physics-standard/rng-authority.test.ts`)
+  `plugins/mod/map/swooper-physics/test/recipes/swooper-physics-standard/rng-authority.test.ts`)
   ensuring authored MapGen entropy comes from `env.seed`, not Civ7 adapter RNG
   or official generators.
 

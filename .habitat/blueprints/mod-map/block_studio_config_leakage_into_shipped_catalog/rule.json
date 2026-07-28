@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics-mod",
   "lane": "enforced",
   "forbids": "transient Studio map config identifiers in shipped map catalog artifacts",
   "why": "Studio's transient current map config must not leak into shipped Civ7 mod catalog metadata.",
@@ -20,9 +20,9 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/mod-swooper-maps/mod/config/config.xml",
-        "mods/mod-swooper-maps/mod/swooper-maps.modinfo",
-        "mods/mod-swooper-maps/mod/text/en_us/MapText.xml"
+        "apps/mods/map/swooper-physics/mod/config/config.xml",
+        "apps/mods/map/swooper-physics/mod/swooper-maps.modinfo",
+        "apps/mods/map/swooper-physics/mod/text/en_us/MapText.xml"
       ]
     },
     {
@@ -31,7 +31,7 @@
   ],
   "graphDependencies": [
     {
-      "project": "mod-swooper-maps",
+      "project": "swooper-physics-mod",
       "target": "generated:check"
     }
   ],

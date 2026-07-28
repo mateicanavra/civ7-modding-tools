@@ -120,7 +120,7 @@ Forbidden shapes:
   `packages/mapgen-core/src/engine/step-facets.ts`
 - Path-backed diagnostic capture/read/diff capability: `packages/mapgen-diagnostics/src/index.ts`
 - Studio worker facet sink: `apps/mapgen-studio/src/browser-runner/worker-viz-facet-sink.ts`
-- Standard recipe style vocabulary: `mods/mod-swooper-maps/src/recipes/standard/viz.ts`
+- Standard recipe style vocabulary: `plugins/mod/map/swooper-physics/src/recipes/standard/viz.ts`
 - Recipe-step source topology:
   `.habitat/blueprints/recipe-step/require_recipe_step_source_topology/structure.toml`
 - Runtime capability boundary: `MapContext` omits a visualization sink and

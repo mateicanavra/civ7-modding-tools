@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "domain op runtime entrypoints calling ops.bind or runValidated",
   "why": "Domain ops are atomic runtime units; orchestration belongs in step/stage composition, not inside op entrypoints.",
@@ -19,7 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/domain/*/modules/*/ops/*/index.ts"]
+      "patterns": ["plugins/mod/map/*/src/domain/*/modules/*/ops/*/index.ts"]
     }
   ],
   "hookCheck": true,
@@ -34,7 +34,7 @@
     "patternName": "prohibit_runtime_orchestration_helpers_in_domain_ops",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

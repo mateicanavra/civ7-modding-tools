@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "domain operation strategy authorities outside a closed aggregate-and-leaf topology",
   "why": "Each operation's strategies directory aggregates implementations only, while each semantic strategy is a complete leaf with its own authored config definition and implementation entrypoint. The operation contract composes leaf definitions directly, avoiding a definition barrel cycle while preserving selectable behavior identity. The hierarchy prevents generic default identities and helper cabinets, and leaves definition binding, default inference, and implementation completeness to TypeScript and the operation SDK.",
@@ -20,9 +20,9 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/domain/*/modules/*/ops/*",
-        "mods/*/src/domain/*/modules/*/ops/*/strategies",
-        "mods/*/src/domain/*/modules/*/ops/*/strategies/**"
+        "plugins/mod/map/*/src/domain/*/modules/*/ops/*",
+        "plugins/mod/map/*/src/domain/*/modules/*/ops/*/strategies",
+        "plugins/mod/map/*/src/domain/*/modules/*/ops/*/strategies/**"
       ]
     }
   ],

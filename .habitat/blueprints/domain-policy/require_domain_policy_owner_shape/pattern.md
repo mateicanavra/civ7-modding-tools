@@ -23,11 +23,11 @@ predicate disallowed_module_policy_dependency($source) {
 
 or {
   import_statement(source=$source) where {
-    $filename <: r".*mods/[^/]+/src/domain/[^/]+/model/policy/[^/]+\.ts$",
+    $filename <: r".*plugins/mod/map/[^/]+/src/domain/[^/]+/model/policy/[^/]+\.ts$",
     disallowed_root_policy_dependency($source)
   },
   import_statement(source=$source) where {
-    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/model/policy/[^/]+\.ts$",
+    $filename <: r".*plugins/mod/map/[^/]+/src/domain/[^/]+/modules/[^/]+/model/policy/[^/]+\.ts$",
     disallowed_module_policy_dependency($source)
   },
   or {
@@ -77,22 +77,22 @@ import { Type } from "@swooper/mapgen-core/authoring/schema";
 
 export const PlateActivitySchema = Type.Object({});
 
-// @filename: mods/example-mod/src/domain/geology/model/policy/aliased-object.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/model/policy/aliased-object.ts
 import { Type as SchemaBuilder } from "@swooper/mapgen-core/authoring/schema";
 
 export const PlateActivitySchema = SchemaBuilder.Object({});
 
-// @filename: mods/example-mod/src/domain/geology/model/policy/aliased-typed-arrays.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/model/policy/aliased-typed-arrays.ts
 import { TypedArraySchemas as Buffers } from "@swooper/mapgen-core/authoring/schema";
 
 export const PlateActivityGridSchema = Buffers.Float32Array({ cardinality: ["grid"] });
 
-// @filename: mods/example-mod/src/domain/geology/model/policy/schema-value.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/model/policy/schema-value.ts
 import { ResourceFamilySchema } from "../atoms/resource-family.schema.js";
 
 export const DEFAULT_RESOURCE_FAMILY = ResourceFamilySchema;
 
-// @filename: mods/example-mod/src/domain/geology/model/policy/private-domain.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/model/policy/private-domain.ts
 import domain from "@mapgen/domain/resources";
 
 export const RESOURCE_DOMAIN = domain;

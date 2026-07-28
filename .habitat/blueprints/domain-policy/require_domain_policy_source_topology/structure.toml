@@ -2,7 +2,7 @@ schemaVersion = 1
 
 [[scopes]]
 name = "mapgen-domain-root-policy"
-root = "mods/*/src/domain/!(*.*)/model/policy"
+root = "plugins/mod/map/*/src/domain/!(*.*)/model/policy"
 kind = "directory"
 mode = "closed"
 allowEmpty = true
@@ -15,7 +15,7 @@ forbidden = [
 
 [[scopes]]
 name = "mapgen-domain-module-policy"
-root = "mods/*/src/domain/!(*.*)/modules/!(*.*)/model/policy"
+root = "plugins/mod/map/*/src/domain/!(*.*)/modules/!(*.*)/model/policy"
 kind = "directory"
 mode = "closed"
 allowEmpty = true

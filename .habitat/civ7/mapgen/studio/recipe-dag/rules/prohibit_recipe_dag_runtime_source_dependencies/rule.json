@@ -21,7 +21,7 @@
       "kind": "exact-path",
       "patterns": [
         "apps/mapgen-studio/src/server/recipeDag/service.ts",
-        "mods/mod-swooper-maps/src/recipes/studio-contracts/**/*.ts"
+        "plugins/mod/map/swooper-physics/src/recipes/studio-contracts/**/*.ts"
       ]
     },
     {
@@ -42,7 +42,7 @@
       "kind": "check",
       "roots": [
         "apps/mapgen-studio/src/server/recipeDag",
-        "mods/mod-swooper-maps/src/recipes/studio-contracts"
+        "plugins/mod/map/swooper-physics/src/recipes/studio-contracts"
       ]
     }
   }

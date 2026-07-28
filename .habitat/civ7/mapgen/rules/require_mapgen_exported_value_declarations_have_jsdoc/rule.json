@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "habitat",
   "lane": "enforced",
   "forbids": "authored MapGen SDK, product, or diagnostic capability value exports without adjacent nonempty declaration-site JSDoc or with an obvious placeholder JSDoc block",
   "why": "Exported values are cross-module contracts; declaration-site documentation keeps their owner and intended semantics visible through reuse and relocation, while review owns the document's semantic quality.",
@@ -22,11 +22,10 @@
       "patterns": [
         "apps/mapgen-studio/scripts/**/*.{js,mjs,cjs,ts,tsx}",
         "apps/mapgen-studio/src/**/*.{ts,tsx}",
-        "mods/mod-swooper-maps/scripts/**/*.{ts,tsx}",
-        "mods/mod-swooper-maps/src/*.{ts,tsx}",
-        "mods/mod-swooper-maps/src/domain/**/*.{ts,tsx}",
-        "mods/mod-swooper-maps/src/maps/{catalog,configs}/**/*.{ts,tsx}",
-        "mods/mod-swooper-maps/src/recipes/**/*.{ts,tsx}",
+        "apps/mods/map/*/scripts/**/*.{ts,tsx}",
+        "apps/mods/map/*/src/**/*.{ts,tsx}",
+        "plugins/mod/map/*/scripts/**/*.{ts,tsx}",
+        "plugins/mod/map/*/src/**/*.{ts,tsx}",
         "packages/civ7-adapter/src/**/*.{ts,tsx}",
         "packages/civ7-map-policy/scripts/**/*.{js,mjs,cjs,ts,tsx}",
         "packages/civ7-map-policy/src/!(*.gen).{ts,tsx}",
@@ -60,8 +59,8 @@
       "roots": [
         "apps/mapgen-studio/scripts",
         "apps/mapgen-studio/src",
-        "mods/mod-swooper-maps/scripts",
-        "mods/mod-swooper-maps/src",
+        "apps/mods/map",
+        "plugins/mod/map",
         "packages/civ7-adapter/src",
         "packages/civ7-map-policy/scripts",
         "packages/civ7-map-policy/src",

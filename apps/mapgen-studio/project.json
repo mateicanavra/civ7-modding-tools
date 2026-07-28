@@ -17,8 +17,8 @@
       "dependsOn": [
         "^build",
         {
-          "projects": ["mod-swooper-maps"],
-          "target": "build:studio-recipes"
+          "projects": ["swooper-physics"],
+          "target": "build"
         }
       ],
       "cache": false,
@@ -43,8 +43,8 @@
         "check:tools",
         "^build",
         {
-          "projects": ["mod-swooper-maps"],
-          "target": "build:studio-recipes"
+          "projects": ["swooper-physics"],
+          "target": "build"
         }
       ],
       "options": {
@@ -56,8 +56,8 @@
       "dependsOn": [
         "^build",
         {
-          "projects": ["mod-swooper-maps"],
-          "target": "build:studio-recipes"
+          "projects": ["swooper-physics"],
+          "target": "build"
         }
       ],
       "options": {
@@ -72,6 +72,7 @@
     },
     "check": {
       "executor": "nx:noop",
+      "dependsOn": ["typecheck"],
       "cache": false,
       "outputs": []
     },
@@ -80,8 +81,8 @@
       "dependsOn": [
         "^build",
         {
-          "projects": ["mod-swooper-maps"],
-          "target": "build:studio-recipes"
+          "projects": ["swooper-physics"],
+          "target": "build"
         }
       ],
       "options": {
@@ -95,8 +96,8 @@
         "typecheck",
         "^build",
         {
-          "projects": ["mod-swooper-maps"],
-          "target": "build:studio-recipes"
+          "projects": ["swooper-physics"],
+          "target": "build"
         }
       ],
       "outputs": ["{projectRoot}/dist/**"],

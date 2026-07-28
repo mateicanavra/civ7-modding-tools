@@ -12,10 +12,10 @@ language js(typescript)
 
 or {
   `"artifact:map.$suffix"` where {
-    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.*\.ts$"
+    $filename <: r".*plugins/mod/map/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.*\.ts$"
   },
   `"completion:$suffix"` where {
-    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.*\.ts$"
+    $filename <: r".*plugins/mod/map/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.*\.ts$"
   }
 }
 ```
@@ -23,31 +23,31 @@ or {
 ## Matches fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 export const key = "artifact:map.foo";
 
-// @filename: mods/example-mod/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 export const singleQuotedKey = 'artifact:map.foo';
 
-// @filename: mods/example-mod/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 export const dependencies = ["artifact:map.foo"];
 
-// @filename: mods/example-mod/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 import projectedArtifact from "artifact:map.foo";
 
-// @filename: mods/example-mod/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 export const completion = "completion:map.foo";
 ```
 
 ## Ignores fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/biosphere/ops/estimate-habitat/index.ts
 export const ownedArtifact = "artifact:ecology.foo";
 
-// @filename: mods/example-mod/src/recipes/sample/stages/ecology/steps/project/step.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample/stages/ecology/steps/project/step.ts
 export const recipeProjection = "artifact:map.foo";
 
-// @filename: mods/example-mod/src/recipes/sample/stages/ecology/steps/project/step.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample/stages/ecology/steps/project/step.ts
 export const recipeCompletion = "completion:map.foo";
 ```

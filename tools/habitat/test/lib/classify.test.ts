@@ -36,7 +36,12 @@ const fixtureProjects = [
     "build",
     "test",
   ]),
-  project("mod-swooper-maps", "mods/mod-swooper-maps", "kind:mod", [
+  project("swooper-physics", "plugins/mod/map/swooper-physics", "kind:mod", [
+    "check",
+    "check:policy",
+    "test",
+  ]),
+  project("swooper-physics-mod", "apps/mods/map/swooper-physics", "kind:app", [
     "check",
     "check:policy",
     "test",
@@ -108,7 +113,7 @@ describe("Habitat classify D4 result model", () => {
 
   test("keeps exact routing metadata visible without prose scope inference", async () => {
     const result = await classifyPathResult(
-      "mods/mod-swooper-maps/src/domain/hydrology/modules/hydrography/ops/plan-lakes/strategies/sink-discharge-budget/index.ts",
+      "plugins/mod/map/swooper-physics/src/domain/hydrology/modules/hydrography/ops/plan-lakes/strategies/sink-discharge-budget/index.ts",
       defaultClassifyOptions
     );
 

@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "recipe step source outside one closed kebab-case directory containing config.ts, step.ts, and at most the optional viz.ts support module",
   "why": "A recipe step has one closed filesystem container: config.ts declares its authored contract, step.ts owns execution and visibly attaches optional authoring capabilities, and viz.ts may hold substantial pure visualization projections behind that attachment. Loose helpers, nested implementation cabinets, barrels, and artifact authorities obscure ownership and let implementation concerns escape the executable owner.",
@@ -20,8 +20,8 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/recipes/*/stages/**/steps",
-        "mods/*/src/recipes/*/stages/**/steps/**"
+        "plugins/mod/map/*/src/recipes/*/stages/**/steps",
+        "plugins/mod/map/*/src/recipes/*/stages/**/steps/**"
       ]
     }
   ],

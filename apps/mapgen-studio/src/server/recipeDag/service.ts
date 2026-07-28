@@ -3,7 +3,7 @@ import { buildRecipeDag } from "@swooper/mapgen-core/authoring/recipe-dag";
 import {
   type StudioRecipeDagSource,
   swooperStudioRecipeDagSources,
-} from "mod-swooper-maps/recipes/studio-contracts";
+} from "@swooper/swooper-physics/standard/dag";
 
 type RecipeDagSource = StudioRecipeDagSource;
 

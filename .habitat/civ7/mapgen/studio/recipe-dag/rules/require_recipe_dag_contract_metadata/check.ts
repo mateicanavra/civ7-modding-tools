@@ -10,7 +10,7 @@ const repoRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], {
 const servicePath = resolve(repoRoot, "apps/mapgen-studio/src/server/recipeDag/service.ts");
 const studioContractsPath = resolve(
   repoRoot,
-  "mods/mod-swooper-maps/src/recipes/studio-contracts/index.ts"
+  "plugins/mod/map/swooper-physics/src/recipes/studio-contracts/index.ts"
 );
 const failures: string[] = [];
 
@@ -27,12 +27,15 @@ function resolveLocalImport(fromFile: string, specifier: string): string | null 
   if (specifier === "@swooper/mapgen-core/authoring") {
     return resolve(repoRoot, "packages/mapgen-core/src/authoring/index.ts");
   }
-  if (specifier === "mod-swooper-maps/recipes/studio-contracts") {
-    return resolve(repoRoot, "mods/mod-swooper-maps/src/recipes/studio-contracts/index.ts");
+  if (specifier === "@swooper/swooper-physics/standard/dag") {
+    return resolve(
+      repoRoot,
+      "plugins/mod/map/swooper-physics/src/recipes/studio-contracts/index.ts"
+    );
   }
   if (specifier.startsWith("@mapgen/domain/")) {
     const suffix = specifier.slice("@mapgen/domain/".length).replace(/\.(m?js)$/, "");
-    const base = resolve(repoRoot, "mods/mod-swooper-maps/src/domain", suffix);
+    const base = resolve(repoRoot, "plugins/mod/map/swooper-physics/src/domain", suffix);
     for (const candidate of [`${base}.ts`, `${base}/index.ts`]) {
       if (existsSync(candidate)) return candidate;
     }
@@ -88,17 +91,13 @@ const studioContractsSource = await readFile(studioContractsPath, "utf8");
 const graph = await collectLocalImportGraph(servicePath);
 const graphPaths = [...graph.keys()].map(rel).sort();
 
-requireIncludes(
-  serviceSource,
-  'from "mod-swooper-maps/recipes/studio-contracts"',
-  "service source"
-);
+requireIncludes(serviceSource, 'from "@swooper/swooper-physics/standard/dag"', "service source");
 requireIncludes(serviceSource, "@swooper/mapgen-core/authoring/recipe-dag", "service source");
 requireIncludes(studioContractsSource, "../standard/contract-manifest.js", "studio contracts");
 
 for (const expectedPath of [
-  "mods/mod-swooper-maps/src/recipes/studio-contracts/index.ts",
-  "mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts",
+  "plugins/mod/map/swooper-physics/src/recipes/studio-contracts/index.ts",
+  "plugins/mod/map/swooper-physics/src/recipes/standard/contract-manifest.ts",
   "packages/mapgen-core/src/authoring/recipe/dag.ts",
   "packages/mapgen-core/src/authoring/contracts.ts",
 ]) {
@@ -110,18 +109,18 @@ if (graphPaths.includes("packages/mapgen-core/src/authoring/index.ts")) {
 
 for (const graphPath of graphPaths) {
   for (const forbidden of [
-    /^mods\/mod-swooper-maps\/src\/recipes\/browser-test\//,
-    /^mods\/mod-swooper-maps\/src\/recipes\/standard\/stages\/[^/]+\/index\.ts$/,
-    /^mods\/mod-swooper-maps\/src\/recipes\/standard\/stages\/[^/]+\/steps\/(?:index|.*\/index)\.ts$/,
-    /^mods\/mod-swooper-maps\/(?:dist|mod)\//,
-    /^mods\/mod-swooper-maps\/src\/maps\/generated\//,
+    /^plugins\/mod\/map\/swooper-physics\/src\/recipes\/standard\/stages\/[^/]+\/index\.ts$/,
+    /^plugins\/mod\/map\/swooper-physics\/src\/recipes\/standard\/stages\/[^/]+\/steps\/(?:index|.*\/index)\.ts$/,
+    /^plugins\/mod\/map\/swooper-physics\/dist\//,
+    /^apps\/mods\/map\/swooper-physics\/(?:dist|mod)\//,
+    /^apps\/mods\/map\/swooper-physics\/src\/maps\/generated\//,
   ]) {
     if (forbidden.test(graphPath))
       failures.push(`import graph includes forbidden path ${graphPath}`);
   }
   if (
-    graphPath === "mods/mod-swooper-maps/src/recipes/standard/recipe.ts" ||
-    graphPath === "mods/mod-swooper-maps/src/recipes/standard/runtime.ts"
+    graphPath === "plugins/mod/map/swooper-physics/src/recipes/standard/recipe.ts" ||
+    graphPath === "plugins/mod/map/swooper-physics/src/recipes/standard/runtime.ts"
   ) {
     failures.push(`import graph includes forbidden path ${graphPath}`);
   }
@@ -132,10 +131,10 @@ for (const [file, source] of graph) {
   requireNotMatches(source, /from\s+["']@swooper\/mapgen-core(?:\/authoring)?["']/, graphPath);
   requireNotMatches(
     source,
-    /from\s+["'](?:mod-swooper-maps\/recipes\/(?:standard|standard-artifacts|standard-map-configs|browser-test)|@mapgen\/domain\/[^"']+\/(?:contract|ops)["'])/,
+    /from\s+["'](?:@swooper\/swooper-physics\/(?:standard|standard\/artifacts|standard\/map-config|catalog)|@mapgen\/domain\/[^"']+\/(?:contract|ops))["']/,
     graphPath
   );
-  if (graphPath.startsWith("mods/mod-swooper-maps/src/recipes/")) {
+  if (graphPath.startsWith("plugins/mod/map/swooper-physics/src/recipes/")) {
     requireNotMatches(
       source,
       /createRecipe|createStage|createStep\s*\(|collectOperations|implementArtifactModules/,

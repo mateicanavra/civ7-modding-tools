@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "domain root entrypoints that compose contracts or routers, execute runtime code, or expose owners outside the domain model and module tree",
   "why": "A domain root index is one declaration-only public barrel. Contract identity and subdomain composition belong in contract.ts, runtime composition belongs in router.ts, and public vocabulary remains owned by model or semantic modules.",
@@ -19,7 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/domain/*/index.ts"]
+      "patterns": ["plugins/mod/map/*/src/domain/*/index.ts"]
     }
   ],
   "hookCheck": true,
@@ -34,7 +34,7 @@
     "patternName": "require_domain_entrypoint_shape",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

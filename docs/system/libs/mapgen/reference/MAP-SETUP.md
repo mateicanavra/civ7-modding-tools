@@ -120,7 +120,7 @@ physicalOnlyRecipe.execute(context, plan);
 - Setup schema: `packages/mapgen-core/src/core/map-setup.ts`
 - Recipe initial-setup authority: `packages/mapgen-core/src/authoring/initial-setup/definition.ts`
 - Recipe binding: `packages/mapgen-core/src/authoring/recipe/create.ts`
-- Standard initial-setup authority: `mods/mod-swooper-maps/src/recipes/standard/initial-setup.ts`
+- Standard initial-setup authority: `plugins/mod/map/swooper-physics/src/recipes/standard/initial-setup.ts`
 - Civ7 one-shot setup capture: `packages/civ7-adapter/src/map-generation-setup.ts`
 - SDK map-loader integration: `packages/sdk/src/mapgen/createMap.ts`
 - Declared step context type: `packages/mapgen-core/src/authoring/step/types.ts`

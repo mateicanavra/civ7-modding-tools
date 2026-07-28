@@ -13,7 +13,7 @@
       }
     },
     "format": {
-      "command": "sort-package-json package.json apps/*/package.json mods/*/package.json packages/*/package.json packages/civ7-map-policy/scripts/package.json packages/plugins/*/package.json tools/*/package.json && biome check --write .",
+      "command": "sort-package-json package.json apps/*/package.json apps/mods/*/*/package.json mods/*/package.json packages/*/package.json packages/civ7-map-policy/scripts/package.json packages/plugins/*/package.json plugins/mod/map/*/package.json 'plugins/cli/topics/*/package.json' tools/*/package.json && biome check --write .",
       "cache": false,
       "options": {
         "cwd": "{workspaceRoot}"
@@ -37,7 +37,7 @@
       }
     },
     "check:hygiene": {
-      "command": "sort-package-json --check --quiet package.json apps/*/package.json mods/*/package.json packages/*/package.json packages/civ7-map-policy/scripts/package.json packages/plugins/*/package.json tools/*/package.json && biome ci --diagnostic-level=error .",
+      "command": "sort-package-json --check --quiet package.json apps/*/package.json apps/mods/*/*/package.json mods/*/package.json packages/*/package.json packages/civ7-map-policy/scripts/package.json packages/plugins/*/package.json plugins/mod/map/*/package.json 'plugins/cli/topics/*/package.json' tools/*/package.json && biome ci --diagnostic-level=error .",
       "cache": true,
       "inputs": ["{workspaceRoot}/**/*"],
       "outputs": [],

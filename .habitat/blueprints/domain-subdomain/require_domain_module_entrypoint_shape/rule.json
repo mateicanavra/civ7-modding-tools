@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "semantic module entrypoints that compose runtime code or expose operations, rules, strategies, routers, or owners outside their artifact and model surfaces",
   "why": "A semantic module index is one declaration-only public gateway. The contract names the module, the router binds executable implementations, and only immutable products or shared model vocabulary may cross the module boundary as named exports.",
@@ -19,7 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/domain/*/modules/*/index.ts"]
+      "patterns": ["plugins/mod/map/*/src/domain/*/modules/*/index.ts"]
     }
   ],
   "hookCheck": true,
@@ -34,7 +34,7 @@
     "patternName": "require_domain_module_entrypoint_shape",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

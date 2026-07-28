@@ -65,5 +65,5 @@ causality. Authored recipe order alone is not a reason to add one.
 - Step dependency authoring: `packages/mapgen-core/src/authoring/step/contract.ts`
 - Selected-plan validation: `packages/mapgen-core/src/engine/execution-plan.ts`
 - Artifact publication proof: `packages/mapgen-core/src/engine/PipelineExecutor.ts`
-- Standard completion catalog: `mods/mod-swooper-maps/src/recipes/standard/completions.ts`
+- Standard completion catalog: `plugins/mod/map/swooper-physics/src/recipes/standard/completions.ts`
 - Artifact contract: `docs/system/libs/mapgen/reference/ARTIFACTS.md`

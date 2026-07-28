@@ -1,5 +1,5 @@
 import { type MapConfigEnvelope, snapshotMapConfigEnvelope } from "@civ7/studio-contract";
-import { validateStandardMapConfigSnapshotForSchema } from "mod-swooper-maps/maps/configs/standard-admission";
+import { validateStandardMapConfigSnapshotForSchema } from "@swooper/swooper-physics/standard/map-config";
 import type { XSchema } from "typebox/schema";
 
 export type StudioRecipeId = string;
@@ -40,12 +40,12 @@ export type RecipeArtifacts = Readonly<{
 
 export type RecipeOption = Readonly<{ id: StudioRecipeId; label: string }>;
 
+import { standardMapConfigs as swooperStandardMapConfigs } from "@swooper/swooper-physics/catalog";
 import {
   STANDARD_RECIPE_CONFIG_SCHEMA as swooperStandardConfigSchema,
   STANDARD_RECIPE_CONFIG as swooperStandardDefaultConfig,
   studioRecipeUiMeta as swooperStandardUiMeta,
-} from "mod-swooper-maps/recipes/standard-artifacts";
-import { standardMapConfigs as swooperStandardMapConfigs } from "mod-swooper-maps/recipes/standard-map-configs";
+} from "@swooper/swooper-physics/standard/artifacts";
 
 function requireCanonicalConfig(value: unknown, label: string): MapConfigEnvelope {
   const snapshot = snapshotMapConfigEnvelope(value);

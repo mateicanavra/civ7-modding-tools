@@ -27,9 +27,11 @@
   "type": "module",
   "workspaces": [
     "apps/*",
+    "apps/mods/map/*",
     "packages/*",
     "packages/civ7-map-policy/scripts",
     "packages/plugins/*",
+    "plugins/mod/map/*",
     "mods/*",
     "tools/*"
   ],

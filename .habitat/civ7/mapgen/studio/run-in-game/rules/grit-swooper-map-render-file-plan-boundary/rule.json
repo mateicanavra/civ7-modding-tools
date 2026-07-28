@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics-mod",
   "lane": "enforced",
   "forbids": "Swooper map artifact renderers or catalog commands acquiring reusable filesystem mutation authority",
   "why": "Swooper owns product-specific rendering while @civ7/plugin-files/generated-file-plan owns reusable path admission, currentness inspection, cleanup, and writes.",
@@ -20,9 +20,8 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/mod-swooper-maps/scripts/generate-map-artifacts.ts",
-        "mods/mod-swooper-maps/scripts/generate-studio-map-catalog.ts",
-        "mods/mod-swooper-maps/scripts/map-artifacts"
+        "apps/mods/map/swooper-physics/scripts/generate-map-artifacts.ts",
+        "apps/mods/map/swooper-physics/scripts/map-artifacts"
       ]
     }
   ],
@@ -38,9 +37,8 @@
     "acquisition": {
       "kind": "check",
       "roots": [
-        "mods/mod-swooper-maps/scripts/generate-map-artifacts.ts",
-        "mods/mod-swooper-maps/scripts/generate-studio-map-catalog.ts",
-        "mods/mod-swooper-maps/scripts/map-artifacts"
+        "apps/mods/map/swooper-physics/scripts/generate-map-artifacts.ts",
+        "apps/mods/map/swooper-physics/scripts/map-artifacts"
       ]
     }
   }

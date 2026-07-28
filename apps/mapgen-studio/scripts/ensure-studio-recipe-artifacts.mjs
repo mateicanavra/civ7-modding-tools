@@ -23,36 +23,36 @@ const staleLockMs = 5 * 60_000;
 
 const requiredArtifacts = [
   // Bundled recipe modules (tsup output).
-  "mods/mod-swooper-maps/dist/recipes/standard.js",
+  "plugins/mod/map/swooper-physics/dist/recipes/standard.js",
 
   // Recipe module declarations (written by generate-studio-recipe-types).
-  "mods/mod-swooper-maps/dist/recipes/standard.d.ts",
+  "plugins/mod/map/swooper-physics/dist/recipes/standard.d.ts",
 
   // Generated Studio config artifacts (schema/defaults).
-  "mods/mod-swooper-maps/dist/recipes/standard.schema.json",
-  "mods/mod-swooper-maps/dist/recipes/standard.defaults.json",
+  "plugins/mod/map/swooper-physics/dist/recipes/standard.schema.json",
+  "plugins/mod/map/swooper-physics/dist/recipes/standard.defaults.json",
 
   // Artifacts modules consumed by Studio for schema + defaults + UI metadata.
-  "mods/mod-swooper-maps/dist/recipes/standard-artifacts.js",
-  "mods/mod-swooper-maps/dist/recipes/standard-artifacts.d.ts",
+  "plugins/mod/map/swooper-physics/dist/recipes/standard-artifacts.js",
+  "plugins/mod/map/swooper-physics/dist/recipes/standard-artifacts.d.ts",
 
   // Catalog metadata consumed by Studio to list built-in map configs.
-  "mods/mod-swooper-maps/dist/recipes/standard-map-config.schema.json",
-  "mods/mod-swooper-maps/dist/recipes/standard-map-configs.js",
-  "mods/mod-swooper-maps/dist/recipes/standard-map-configs.d.ts",
+  "plugins/mod/map/swooper-physics/dist/recipes/standard-map-config.schema.json",
+  "plugins/mod/map/swooper-physics/dist/recipes/standard-map-configs.js",
+  "plugins/mod/map/swooper-physics/dist/recipes/standard-map-configs.d.ts",
 ];
-const retiredArtifacts = ["mods/mod-swooper-maps/dist/recipes/standard.presets.json"];
+const retiredArtifacts = ["plugins/mod/map/swooper-physics/dist/recipes/standard.presets.json"];
 
 const artifactSources = [
-  "mods/mod-swooper-maps/src/domain",
-  "mods/mod-swooper-maps/src/maps/configs",
-  "mods/mod-swooper-maps/src/maps/catalog",
-  "mods/mod-swooper-maps/src/recipes",
-  "mods/mod-swooper-maps/scripts/generate-studio-map-catalog.ts",
-  "mods/mod-swooper-maps/scripts/generate-studio-recipe-types.ts",
-  "mods/mod-swooper-maps/package.json",
-  "mods/mod-swooper-maps/project.json",
-  "mods/mod-swooper-maps/scripts/tsup.studio-recipes.config.ts",
+  "plugins/mod/map/swooper-physics/src/domain",
+  "plugins/mod/map/swooper-physics/src/maps/configs",
+  "plugins/mod/map/swooper-physics/src/maps/catalog",
+  "plugins/mod/map/swooper-physics/src/recipes",
+  "plugins/mod/map/swooper-physics/scripts/generate-studio-map-catalog.ts",
+  "plugins/mod/map/swooper-physics/scripts/generate-studio-recipe-types.ts",
+  "plugins/mod/map/swooper-physics/package.json",
+  "plugins/mod/map/swooper-physics/project.json",
+  "plugins/mod/map/swooper-physics/scripts/tsup.studio-recipes.config.ts",
   "packages/mapgen-core/dist",
 ];
 
@@ -177,12 +177,12 @@ if (isCurrent(getArtifactState())) {
 
 const tsupCandidates = [
   join(repoRoot, "node_modules", ".bin", "tsup"),
-  join(repoRoot, "mods", "mod-swooper-maps", "node_modules", ".bin", "tsup"),
+  join(repoRoot, "plugins", "mod", "map", "swooper-physics", "node_modules", ".bin", "tsup"),
 ];
 const hasTsup = tsupCandidates.some((p) => existsSync(p));
 if (!hasTsup) {
   console.error(
-    "[preflight] missing dev deps (tsup) for studio recipe artifacts. Run `bun install` at repo root (and/or in mods/mod-swooper-maps if using isolated linking), then retry."
+    "[preflight] missing dev deps (tsup) for studio recipe artifacts. Run `bun install` at repo root (and/or in plugins/mod/map/swooper-physics if using isolated linking), then retry."
   );
   process.exit(1);
 }
@@ -197,15 +197,11 @@ try {
     }
 
     const nxBin = join(repoRoot, "node_modules", ".bin", "nx");
-    const result = spawnSync(
-      nxBin,
-      ["run", "mod-swooper-maps:build:studio-recipes", "--outputStyle=static"],
-      {
-        cwd: repoRoot,
-        stdio: "inherit",
-        env: process.env,
-      }
-    );
+    const result = spawnSync(nxBin, ["run", "swooper-physics:build", "--outputStyle=static"], {
+      cwd: repoRoot,
+      stdio: "inherit",
+      env: process.env,
+    });
     if (result.error) {
       console.error(
         `[preflight] failed to start Studio recipe artifact rebuild: ${result.error.message}`

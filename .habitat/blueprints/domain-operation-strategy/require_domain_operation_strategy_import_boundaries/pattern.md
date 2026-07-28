@@ -36,7 +36,7 @@ predicate disallowed_strategy_config_dependency($source) {
 }
 
 predicate disallowed_strategy_implementation_dependency($source) {
-  ! $source <: r"^[\"']?(?:@civ7/map-policy|@mapgen/domain/[a-z0-9]+(?:-[a-z0-9]+)*/(?:model|modules/[a-z0-9]+(?:-[a-z0-9]+)*/model)/(?:[a-z0-9]+(?:-[a-z0-9]+)*/)*(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*)\.js|@swooper/mapgen-core(?:/authoring(?:/contracts)?|/lib(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*)?|\./config\.js|\.\./\.\./contract\.js|\.\./\.\./rules/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){4,}model/(?:[a-z0-9]+(?:-[a-z0-9]+)*/)*(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*)\.js)[\"']?$"
+  ! $source <: r"^[\"']?(?:@civ7/map-policy|@mapgen/domain/[a-z0-9]+(?:-[a-z0-9]+)*/(?:model|modules/[a-z0-9]+(?:-[a-z0-9]+)*/model)/(?:[a-z0-9]+(?:-[a-z0-9]+)*/)*(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*)\.js|@swooper/mapgen-core(?:/authoring(?:/contracts)?|/lib(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*)?|\./config\.js|\.\./\.\./contract\.js|\.\./\.\./rules/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){4,}(?:(?:[a-z0-9]+(?:-[a-z0-9]+)*/)?(?:model|modules/[a-z0-9]+(?:-[a-z0-9]+)*/model))/(?:[a-z0-9]+(?:-[a-z0-9]+)*/)*(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*)\.js)[\"']?$"
 }
 
 or {
@@ -55,11 +55,11 @@ or {
     ! $import <: `import $binding from $source`
   },
   import_statement(source=$source) where {
-    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/strategies/[a-z0-9]+(?:-[a-z0-9]+)*/config\.ts$",
+    $filename <: r".*plugins/mod/map/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/strategies/[a-z0-9]+(?:-[a-z0-9]+)*/config\.ts$",
     disallowed_strategy_config_dependency($source)
   },
   import_statement(source=$source) where {
-    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/strategies/[a-z0-9]+(?:-[a-z0-9]+)*/index\.ts$",
+    $filename <: r".*plugins/mod/map/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/strategies/[a-z0-9]+(?:-[a-z0-9]+)*/index\.ts$",
     disallowed_strategy_implementation_dependency($source)
   },
   import_statement(source=$source) as $import where {
@@ -74,7 +74,7 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { recipe } from "../../../../../../recipes/standard/recipe.js";
 import OperationContract from "../../contract.js";
@@ -82,80 +82,80 @@ import strategyDefinition from "./config.js";
 
 export default createStrategy(OperationContract, strategyDefinition, { run: () => recipe });
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
 import { adapter } from "@civ7/adapter";
 
 export default adapter;
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
 import { executePlan } from "@swooper/mapgen-core/compiler/normalize";
 
 export default executePlan;
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
 import otherContract from "../../../classify-surface/contract.js";
 
 export default otherContract;
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
 import { privateRule } from "../../../classify-surface/rules/private-rule.js";
 
 export default privateRule;
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
 import { privateHelper } from "../../../../private/helper.js";
 
 export default privateHelper;
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
 import { otherStrategy } from "../other-strategy/index.js";
 
 export default otherStrategy;
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/config.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/config.ts
 import OperationContract from "../../contract.js";
 
 export default OperationContract;
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/index.ts
 import { plateDriven } from "./plate-driven/index.js";
 
 export default [plateDriven] as const;
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/config.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/config.ts
 export const StrategySchema = Type.Object({});
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
 const strategy = createStrategy(OperationContract, strategyDefinition, { run: (input) => input });
 export const plateDriven = strategy;
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
 export { localRule } from "../../rules/local-rule.js";
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
 export async function loadRecipe() {
   return import("../../../../../../recipes/standard/recipe.js");
 }
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
 type ReliefArtifact = Static<
   typeof import("../../../../artifacts/index.js").artifacts.relief.schema
 >;
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
 import { ShapeReliefInput } from "../../contract.js";
 
 const leakedEnvelope: ShapeReliefInput = {};
 export default leakedEnvelope;
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/index.ts
 export { recipeStrategy } from "../../../../../../recipes/standard/strategy.js";
 ```
 
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
 import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
@@ -169,6 +169,7 @@ import { normalizeRelief } from "../../rules/index.js";
 import { TileClassSchema } from "../../../../model/atoms/tile-class.schema.js";
 import { MOUNTAIN_POLICY } from "../../../../model/policy/mountain-policy.js";
 import { WORLD_POLICY } from "../../../../../../model/policy/world-policy.js";
+import { RIVER_CLASS as RELATIVE_RIVER_CLASS } from "../../../../../../../hydrology/modules/hydrography/model/policy/river-class.js";
 
 export default createStrategy(OperationContract, strategyDefinition, {
   normalize: (config) => ({ ...config, strength: normalizeRelief(config.strength) }),
@@ -180,6 +181,7 @@ export default createStrategy(OperationContract, strategyDefinition, {
         MOUNTAIN_POLICY +
         WORLD_POLICY +
         RIVER_CLASS +
+        RELATIVE_RIVER_CLASS +
         LAKE_POLICY,
       TileClassSchema,
       clamp01,
@@ -187,7 +189,7 @@ export default createStrategy(OperationContract, strategyDefinition, {
     ),
 });
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/config.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/config.ts
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { TileClassSchema } from "../../../../model/atoms/tile-class.schema.js";
 import { MOUNTAIN_POLICY } from "../../../../model/policy/mountain-policy.js";
@@ -200,7 +202,7 @@ export default defineStrategy({
   }),
 });
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/index.ts
 import plateDriven from "./plate-driven/index.js";
 
 export default [plateDriven] as const;

@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "semantic module roots outside their positive contract, router, operation, model, and artifact spine",
   "why": "A semantic module is one non-empty operation contract and router boundary. Its local vocabulary lives under model/, immutable data products live under artifacts/, and each nested kind retains its own authority.",
@@ -19,7 +19,10 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/domain/*/modules/*", "mods/*/src/domain/*/modules/*/**"]
+      "patterns": [
+        "plugins/mod/map/*/src/domain/*/modules/*",
+        "plugins/mod/map/*/src/domain/*/modules/*/**"
+      ]
     }
   ],
   "supportFiles": {

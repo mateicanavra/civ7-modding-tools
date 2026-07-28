@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "runtime handlers hiding config normalization behind local empty-object merge/default syntax",
   "why": "Config normalization belongs to recipe compilation and policy helpers; runtime handlers consume canonical config.",
@@ -20,8 +20,8 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/recipes/*/stages/**/steps/*/**/!(*.test|*.spec|config).ts",
-        "mods/*/src/domain/**/ops/**/*.ts"
+        "plugins/mod/map/*/src/recipes/*/stages/**/steps/*/**/!(*.test|*.spec|config).ts",
+        "plugins/mod/map/*/src/domain/**/ops/**/*.ts"
       ]
     }
   ],
@@ -37,7 +37,7 @@
     "patternName": "prohibit_runtime_local_config_default_merging",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

@@ -10,20 +10,20 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "recipe or map source importing domain code outside the aggregate contract, runtime router, model atoms or policy, and module-owned artifact catalogs",
   "why": "Recipes compose a domain through its aggregate contract and router, consume immutable products from their semantic module, and read named vocabulary from the nearest model owner. They do not reach through a module into operations, rules, or private implementations.",
-  "remediate": "Import the aggregate contract from @mapgen/domain/<domain>, runtime composition from its /router surface, shared vocabulary from the nearest model/atoms or model/policy owner, and immutable products from the exact modules/<module>/artifacts catalog. Move any needed private operation behavior behind one of those public owners instead of deep-importing it.",
+  "remediate": "Import the aggregate contract from the domain index, runtime composition from its router surface, shared vocabulary from the nearest model/atoms or model/policy owner, and immutable products from the exact modules/<module>/artifacts catalog. Use the package's public domain entrypoint when one exists; otherwise use a direct relative path to the same finite owner. Move any needed private operation behavior behind one of those public owners instead of deep-importing it.",
   "message": "Recipe and map source may import domain code only through the root contract/router, nearest model atoms or policy, and module artifact catalogs.",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/recipes/**/*.ts",
-        "mods/*/src/recipes/**/*.tsx",
-        "mods/*/src/maps/**/*.ts",
-        "mods/*/src/maps/**/*.tsx"
+        "plugins/mod/map/*/src/recipes/**/*.ts",
+        "plugins/mod/map/*/src/recipes/**/*.tsx",
+        "plugins/mod/map/*/src/maps/**/*.ts",
+        "plugins/mod/map/*/src/maps/**/*.tsx"
       ]
     }
   ],
@@ -39,7 +39,7 @@
     "patternName": "require_public_domain_surfaces_in_recipes_and_maps",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

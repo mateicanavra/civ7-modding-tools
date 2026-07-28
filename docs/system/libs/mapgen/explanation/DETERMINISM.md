@@ -51,7 +51,7 @@ When determinism is in doubt:
 - Map context: `packages/mapgen-core/src/core/map-context.ts`
 - RNG helpers: `packages/mapgen-core/src/core/random.ts`
 - Stable plan identity: `packages/mapgen-core/src/engine/execution-plan.ts`
-- Standard initial setup: `mods/mod-swooper-maps/src/recipes/standard/initial-setup.ts`
+- Standard initial setup: `plugins/mod/map/swooper-physics/src/recipes/standard/initial-setup.ts`
 - Fresh execution-attempt identity: `packages/mapgen-core/src/core/map-context.ts`
 - Public trace contracts + stable stringify: `packages/mapgen-core/src/trace/index.ts`
 - Executor-owned trace session: `packages/mapgen-core/src/trace/session.ts`

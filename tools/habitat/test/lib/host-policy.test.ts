@@ -23,7 +23,7 @@ function declaredHostPolicyRow(declarationId: string) {
 describe("host policy boundary", () => {
   test("projects declared generated surfaces from host declarations", () => {
     expect(
-      hostSurfaceDecisionForPath("mods/mod-swooper-maps/src/maps/generated/demo.ts")
+      hostSurfaceDecisionForPath("apps/mods/map/swooper-physics/src/maps/generated/demo.ts")
     ).toMatchObject({
       declarationState: "declared",
       surfaceKind: "generated",
@@ -86,7 +86,7 @@ describe("host policy boundary", () => {
 
   test("matches generated acquisition roots through host declarations", () => {
     expect(
-      hostSurfaceDecisionForAcquisitionRoot("mods/mod-swooper-maps/src/maps/generated")
+      hostSurfaceDecisionForAcquisitionRoot("apps/mods/map/swooper-physics/src/maps/generated")
     ).toMatchObject({
       declarationState: "declared",
       surfaceKind: "generated",
@@ -112,7 +112,7 @@ describe("host policy boundary", () => {
   test("does not collapse unavailable host policy into not-applicable", () => {
     expect(
       hostSurfaceDecisionForPath(
-        "mods/mod-swooper-maps/src/maps/generated/demo.ts",
+        "apps/mods/map/swooper-physics/src/maps/generated/demo.ts",
         unavailableHostPolicyState("civ7-repo-host-policy", "host policy source unavailable")
       )
     ).toMatchObject({
@@ -166,7 +166,7 @@ describe("host policy boundary", () => {
           generatedZoneId: "swooper-map-generated",
           matcher: {
             kind: "prefix",
-            value: "mods/mod-swooper-maps/src/maps/generated/demo/",
+            value: "apps/mods/map/swooper-physics/src/maps/generated/demo/",
           },
           recovery: {
             ...declaredHostPolicyRow("swooper-map-generated").recovery,
@@ -200,7 +200,7 @@ describe("host policy boundary", () => {
     expect(hostApplyGateDecision("mapgen-public-ops")).toMatchObject({
       declarationState: "declared",
       triggerClass: "import-pattern",
-      gateContract: "@mapgen/domain public ops validation",
+      gateContract: "Swooper definition domain contract validation",
     });
   });
 

@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics-mod",
   "lane": "enforced",
   "forbids": "Swooper Run in Game generation drifting from one manifest input and request-local generated-mod output",
   "why": "Packet 8 makes request generation manifest-only: the command accepts one manifest path, the port reads the shared private manifest contract, derives generated-mod from that manifest, and delegates file-plan application to @civ7/plugin-files.",
@@ -20,9 +20,9 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/mod-swooper-maps/scripts/generate-run-manifest.ts",
-        "mods/mod-swooper-maps/scripts/run-manifest-generator.ts",
-        "mods/mod-swooper-maps/project.json"
+        "apps/mods/map/swooper-physics/scripts/generate-run-manifest.ts",
+        "apps/mods/map/swooper-physics/scripts/run-manifest-generator.ts",
+        "apps/mods/map/swooper-physics/project.json"
       ]
     }
   ],
@@ -38,9 +38,9 @@
     "acquisition": {
       "kind": "check",
       "roots": [
-        "mods/mod-swooper-maps/scripts/generate-run-manifest.ts",
-        "mods/mod-swooper-maps/scripts/run-manifest-generator.ts",
-        "mods/mod-swooper-maps/project.json"
+        "apps/mods/map/swooper-physics/scripts/generate-run-manifest.ts",
+        "apps/mods/map/swooper-physics/scripts/run-manifest-generator.ts",
+        "apps/mods/map/swooper-physics/project.json"
       ]
     }
   }

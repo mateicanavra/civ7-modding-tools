@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "domain aggregate contract files exposing constituent module contracts or any authority besides their singular default defineDomain result",
   "why": "A domain contract is one aggregate identity over direct semantic modules. Keeping constituent contracts private prevents callers from selecting partial or alternate contract authorities through the aggregate owner.",
@@ -19,7 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/domain/*/contract.ts"]
+      "patterns": ["plugins/mod/map/*/src/domain/*/contract.ts"]
     }
   ],
   "hookCheck": true,
@@ -34,7 +34,7 @@
     "patternName": "require_domain_contract_aggregate_shape",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

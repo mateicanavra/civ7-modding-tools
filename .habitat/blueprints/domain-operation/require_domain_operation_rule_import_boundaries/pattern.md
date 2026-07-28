@@ -32,22 +32,22 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/rules/project.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/rules/project.ts
 import Contract from "../contract.js";
 
 export const contract = Contract;
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/rules/project.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/rules/project.ts
 import { artifacts } from "../../../artifacts/index.js";
 
 export const schema = artifacts.relief.schema;
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/rules/project.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/rules/project.ts
 import { recipe } from "../../../../../../recipes/standard/recipe.js";
 
 export const hiddenOrchestration = recipe;
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/rules/project.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/rules/project.ts
 import type { ReliefWorkQueue } from "../types.js";
 
 export const queue = {} as ReliefWorkQueue;
@@ -56,7 +56,7 @@ export const queue = {} as ReliefWorkQueue;
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/rules/project.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/rules/project.ts
 import { clamp01 } from "@swooper/mapgen-core/lib/math";
 import { classifyRelief } from "./classify-relief.js";
 import type { ReliefField } from "../../../model/atoms/relief-field.schema.js";

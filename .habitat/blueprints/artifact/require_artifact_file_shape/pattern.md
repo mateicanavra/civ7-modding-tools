@@ -94,7 +94,7 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/geology/modules/strata/artifacts/missing-schema.artifact.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/strata/artifacts/missing-schema.artifact.ts
 import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 const LocalSchema = Type.Object({});
@@ -103,7 +103,7 @@ export const artifact = defineArtifact({
   id: "artifact:geology.missingSchema",
 });
 
-// @filename: mods/example-mod/src/domain/geology/modules/strata/artifacts/alternate-runtime-export.artifact.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/strata/artifacts/alternate-runtime-export.artifact.ts
 import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 export const artifact = defineArtifact({
@@ -113,7 +113,7 @@ export const artifact = defineArtifact({
 });
 export const runMutation = () => undefined;
 
-// @filename: mods/example-mod/src/domain/geology/modules/strata/artifacts/detached-refinement.artifact.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/strata/artifacts/detached-refinement.artifact.ts
 import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 const validateStrata = (value: { layerCount: number }) => value.layerCount > 0;
@@ -124,7 +124,7 @@ export const artifact = defineArtifact({
   refine: validateStrata,
 });
 
-// @filename: mods/example-mod/src/domain/geology/modules/strata/artifacts/imported-payload.artifact.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/strata/artifacts/imported-payload.artifact.ts
 import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { StrataSchema } from "../model/atoms/strata.schema.js";
 
@@ -134,7 +134,7 @@ export const artifact = defineArtifact({
   schema: StrataSchema,
 });
 
-// @filename: mods/example-mod/src/domain/geology/modules/strata/artifacts/forbidden-framework.artifact.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/strata/artifacts/forbidden-framework.artifact.ts
 import { createArtifactRuntime } from "@swooper/mapgen-core/authoring";
 import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
 
@@ -147,7 +147,7 @@ export const artifact = defineArtifact({
   },
 });
 
-// @filename: mods/example-mod/src/domain/geology/modules/strata/artifacts/private-operation-contract.artifact.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/strata/artifacts/private-operation-contract.artifact.ts
 import Contract from "../ops/classify-surface/contract.js";
 import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
 
@@ -161,7 +161,7 @@ export const artifact = defineArtifact({
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/geology/modules/strata/artifacts/strata.artifact.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/strata/artifacts/strata.artifact.ts
 import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Publishes admitted geological strata for downstream domain operations. */
@@ -179,7 +179,7 @@ export const artifact = defineArtifact({
   },
 });
 
-// @filename: mods/example-mod/src/domain/geology/modules/strata/artifacts/plate-network.artifact.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/strata/artifacts/plate-network.artifact.ts
 import {
   defineArtifact,
   type Static,

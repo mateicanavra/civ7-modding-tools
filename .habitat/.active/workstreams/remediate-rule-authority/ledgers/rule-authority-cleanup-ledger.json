@@ -133,11 +133,11 @@
     {
       "ruleId": "enforce_workspace_import_boundaries",
       "lane": "non-Civ docs/global/toolkit",
-      "actionDecision": "no action",
+      "actionDecision": "relocate to niche self-authority",
       "packetNeeded": false,
-      "expectedRemediation": "Stay as workspace boundary graph rule.",
-      "evidenceNote": "Native Nx `habitat:boundaries` already enforces taxonomy through boundary config.",
-      "currentPath": ".habitat/global/workspace/_blueprints/project-boundary-model/enforce_workspace_import_boundaries/rule.json"
+      "expectedRemediation": "Retain as a workspace boundary graph rule without presenting it as a constructible blueprint.",
+      "evidenceNote": "Native Nx `habitat:check:boundaries` enforces taxonomy through boundary config; the rule is workspace self-authority, not a project generator model.",
+      "currentPath": ".habitat/global/workspace/rules/enforce_workspace_import_boundaries/rule.json"
     },
     {
       "ruleId": "ensure_docs_checkout_paths_are_portable",
@@ -1291,11 +1291,11 @@
     {
       "ruleId": "validate_boundary_taxonomy_against_workspace_graph",
       "lane": "non-Civ docs/global/toolkit",
-      "actionDecision": "no action",
+      "actionDecision": "relocate to niche self-authority",
       "packetNeeded": false,
       "expectedRemediation": "Retain Habitat boundary taxonomy script; it cross-checks package manifests, Nx graph tags, boundary config, and taxonomy docs as a workspace metadata consistency rail.",
-      "evidenceNote": "Focused Habitat proof passes. Nx enforces boundary edges, but Habitat owns cross-surface taxonomy consistency over Nx/package/docs metadata.",
-      "currentPath": ".habitat/global/workspace/_blueprints/project-boundary-model/validate_boundary_taxonomy_against_workspace_graph/rule.json"
+      "evidenceNote": "Focused Habitat proof passes. Nx enforces boundary edges, while Habitat owns cross-surface taxonomy consistency as workspace self-authority rather than a constructible project blueprint.",
+      "currentPath": ".habitat/global/workspace/rules/validate_boundary_taxonomy_against_workspace_graph/rule.json"
     },
     {
       "ruleId": "validate_docs_site_config_inputs",

@@ -57,7 +57,7 @@ describe("protected zone file-layer execution", () => {
         staged: true,
         stagedPaths: [
           {
-            path: "mods/mod-swooper-maps/src/maps/generated/example.ts",
+            path: "apps/mods/map/swooper-physics/src/maps/generated/example.ts",
             action: "modified",
           },
         ],
@@ -67,11 +67,11 @@ describe("protected zone file-layer execution", () => {
     expect(result.exitCode).toBe(1);
     expect(result.diagnostics[0]).toMatchObject({
       ruleId: "file-layer-generated-zone",
-      path: "mods/mod-swooper-maps/src/maps/generated/example.ts",
+      path: "apps/mods/map/swooper-physics/src/maps/generated/example.ts",
       severity: "error",
       baselined: false,
     });
-    expect(result.diagnostics[0]?.message).toContain("nx run mod-swooper-maps:gen:maps");
+    expect(result.diagnostics[0]?.message).toContain("nx run swooper-physics-mod:gen:maps");
   });
 
   test("refuses forbidden files separately from generated surfaces", () => {
@@ -116,7 +116,7 @@ describe("protected zone file-layer execution", () => {
         staged: true,
         stagedPaths: [
           {
-            path: "mods/mod-swooper-maps/src/maps/generated/example.ts",
+            path: "apps/mods/map/swooper-physics/src/maps/generated/example.ts",
             action: "modified",
           },
         ],
@@ -261,7 +261,9 @@ describe("protected zone file-layer execution", () => {
   });
 
   test("acquisition-root refusals carry owner and recovery", () => {
-    const generated = decideAcquisitionRootProtection("mods/mod-swooper-maps/src/maps/generated");
+    const generated = decideAcquisitionRootProtection(
+      "apps/mods/map/swooper-physics/src/maps/generated"
+    );
     expect(generated).toMatchObject({
       kind: "refused-generated-output",
       reason: "generated-output",

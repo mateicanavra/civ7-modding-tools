@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "string literal entries in recipe-step requires or provides lists",
   "why": "Recipe steps select exact Artifact authorities or owned typed CompletionId constants so dependency identity cannot drift from its owner.",
@@ -19,7 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/recipes/*/stages/**/steps/*/config.ts"]
+      "patterns": ["plugins/mod/map/*/src/recipes/*/stages/**/steps/*/config.ts"]
     }
   ],
   "hookCheck": true,
@@ -34,7 +34,7 @@
     "patternName": "require_typed_recipe_step_dependencies",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

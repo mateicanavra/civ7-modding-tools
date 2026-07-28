@@ -2305,7 +2305,7 @@ describe("StudioOperationRuntime", () => {
               requestId: "run-live-shaped",
               materialization: JSON.stringify({
                 mode: "disposable",
-                path: "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
+                path: "plugins/mod/map/swooper-physics/src/maps/configs/studio-current.config.json",
                 mapScript: "{swooper-maps}/maps/studio-current.js",
               }),
               mapSize: prepared.request.mapSize ?? "",
@@ -2925,7 +2925,7 @@ describe("StudioOperationRuntime", () => {
       eventSink: events,
       ports: {
         prepareSaveDeployStart: async () => ({
-          path: "mods/mod-swooper-maps/src/maps/configs/test.config.json",
+          path: "plugins/mod/map/swooper-physics/src/maps/configs/test.config.json",
           cleanup: async () => {
             cleanupCalls += 1;
           },
@@ -2936,7 +2936,7 @@ describe("StudioOperationRuntime", () => {
         rollbackSaveDeploy: async () => {
           rollbackCalls += 1;
           return {
-            path: "mods/mod-swooper-maps/src/maps/configs/test.config.json",
+            path: "plugins/mod/map/swooper-physics/src/maps/configs/test.config.json",
             restored: true,
           };
         },
@@ -2990,7 +2990,7 @@ describe("StudioOperationRuntime", () => {
       eventSink: events,
       ports: {
         prepareSaveDeployStart: async () => ({
-          path: "mods/mod-swooper-maps/src/maps/configs/test.config.json",
+          path: "plugins/mod/map/swooper-physics/src/maps/configs/test.config.json",
           cleanup: async () => {
             cleanupCalls += 1;
           },
@@ -3050,7 +3050,7 @@ describe("StudioOperationRuntime", () => {
       eventSink: events,
       ports: {
         prepareSaveDeployStart: async () => ({
-          path: "mods/mod-swooper-maps/src/maps/configs/test.config.json",
+          path: "plugins/mod/map/swooper-physics/src/maps/configs/test.config.json",
           cleanup: async () => {
             cleanupCalls += 1;
             throw new Error("cleanup failed");
@@ -3062,7 +3062,7 @@ describe("StudioOperationRuntime", () => {
         rollbackSaveDeploy: async () => {
           rollbackCalls += 1;
           return {
-            path: "mods/mod-swooper-maps/src/maps/configs/test.config.json",
+            path: "plugins/mod/map/swooper-physics/src/maps/configs/test.config.json",
             restored: true,
           };
         },
@@ -4526,12 +4526,12 @@ function makePorts(
     buildRunInGameEvidence: async () => ({ result: { ok: true } }),
     prepareSaveDeployStart: async () => ({}),
     saveMapConfig: async () => ({
-      path: "mods/mod-swooper-maps/src/maps/configs/test.config.json",
+      path: "plugins/mod/map/swooper-physics/src/maps/configs/test.config.json",
       saved: true,
     }),
     deploySavedMapConfig: async () => ({ deployed: true }),
     rollbackSaveDeploy: async () => ({
-      path: "mods/mod-swooper-maps/src/maps/configs/test.config.json",
+      path: "plugins/mod/map/swooper-physics/src/maps/configs/test.config.json",
       restored: true,
     }),
     ...overrides,

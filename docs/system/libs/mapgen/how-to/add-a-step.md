@@ -59,10 +59,10 @@ This how-to is **recipe-level** (steps are authored/registered in a recipe). It 
 Representative example (artifact + ops wiring; excerpt; see full file in anchors):
 
 ```ts
-import morphology from "@mapgen/domain/morphology";
-import { artifacts as morphologyErosionArtifacts } from "@mapgen/domain/morphology/modules/erosion/artifacts/index.js";
-import { artifacts as morphologyRoutingArtifacts } from "@mapgen/domain/morphology/modules/routing/artifacts/index.js";
-import { artifacts as morphologyTerrainArtifacts } from "@mapgen/domain/morphology/modules/terrain/artifacts/index.js";
+import morphology from "../../../../../../../domain/morphology/index.js";
+import { artifacts as morphologyErosionArtifacts } from "../../../../../../../domain/morphology/modules/erosion/artifacts/index.js";
+import { artifacts as morphologyRoutingArtifacts } from "../../../../../../../domain/morphology/modules/routing/artifacts/index.js";
+import { artifacts as morphologyTerrainArtifacts } from "../../../../../../../domain/morphology/modules/terrain/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Contract and compiled configuration boundary for geomorphic evolution. */
@@ -86,12 +86,12 @@ export const config = defineStep({
 
 Notes:
 
-- Import operation contracts from the owning domain root, such as
-  `import hydrology from "@mapgen/domain/hydrology"`.
+- Import operation contracts from the owning domain root using the direct
+  relative path within the definition package.
 - Import artifacts from the exact module catalog that owns them, such as
-  `@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js`; domain and
+  `domain/hydrology/modules/hydrography/artifacts/index.js`; domain and
   module contract indexes do not re-export artifact catalogs.
-- Import `@mapgen/domain/<domain>/router` only at the recipe runtime root. Step
+- Import a domain `router.ts` only at the recipe runtime root. Step
   contracts consume declaration contracts and never executable routers.
 - A step contract selects only the operation contracts and artifact definitions
   that the step can actually execute, read, or publish.
@@ -103,7 +103,7 @@ Representative example (artifact and completion dependencies; excerpt; see full 
 
 ```ts
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
-import { artifacts as hydrologyHydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../../../../../../../domain/hydrology/modules/hydrography/artifacts/index.js";
 
 import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
 
@@ -254,7 +254,7 @@ If a later step consumes a payload-free external-state transaction:
 
 - Run the package tests:
   - `nx run mapgen-core:test`
-  - `nx run mod-swooper-maps:test`
+  - `nx run swooper-physics:test`
 - Enable verbose tracing for your step id and confirm the trace shows:
   - `step.start` and `step.finish` for your step id
   - expected `step.event` payloads (if you emit them)
@@ -278,8 +278,8 @@ If a later step consumes a payload-free external-state transaction:
 
 - Step contract API: `packages/mapgen-core/src/authoring/step/contract.ts`
 - Step implementation wrapper: `packages/mapgen-core/src/authoring/step/create.ts`
-- Example step config: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/config.ts`
-- Example step implementation: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/step.ts`
-- Example step config (completion): `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/rivers/steps/plot-rivers/config.ts`
-- Example stage wiring: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/index.ts`
+- Example step config: `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/config.ts`
+- Example step implementation: `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/step.ts`
+- Example step config (completion): `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/rivers/steps/plot-rivers/config.ts`
+- Example stage wiring: `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/erosion/index.ts`
 - Pipeline executor dependency gating: `packages/mapgen-core/src/engine/PipelineExecutor.ts`

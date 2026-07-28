@@ -1,7 +1,7 @@
 import { createMockAdapter } from "@civ7/adapter";
 import { createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import { standardMapConfigs } from "mod-swooper-maps/recipes/standard-map-configs";
+import { standardMapConfigs } from "@swooper/swooper-physics/catalog";
 import { describe, expect, it } from "vitest";
 import type { BrowserRunEvent } from "../../src/browser-runner/protocol";
 import { getRuntimeRecipe } from "../../src/browser-runner/recipeRuntime";

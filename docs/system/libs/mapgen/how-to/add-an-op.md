@@ -191,7 +191,7 @@ export default createDomainSubdomainRouter(contract, {
 - Run every reported target, then run the standard project graph:
 
 ```bash
-nx run-many -t check test build -p mapgen-core mod-swooper-maps
+nx run-many -t check test build -p mapgen-core swooper-physics
 ```
 
 - Confirm contract keys and router keys match and bind the same canonical leaf
@@ -221,8 +221,8 @@ nx run-many -t check test build -p mapgen-core mod-swooper-maps
 - Op contract API: `packages/mapgen-core/src/authoring/operation/contract.ts`
 - Op implementation wrapper: `packages/mapgen-core/src/authoring/operation/create.ts`
 - Domain/module contract authoring: `packages/mapgen-core/src/authoring/domain/contract.ts`
-- Example op contract: `mods/mod-swooper-maps/src/domain/foundation/modules/tectonics/ops/compute-era-tectonic-fields/contract.ts`
-- Example op implementation: `mods/mod-swooper-maps/src/domain/foundation/modules/tectonics/ops/compute-era-tectonic-fields/index.ts`
-- Example model atoms: `mods/mod-swooper-maps/src/domain/foundation/modules/tectonics/model/atoms/`
-- Module contract: `mods/mod-swooper-maps/src/domain/foundation/modules/tectonics/contract.ts`
-- Module router: `mods/mod-swooper-maps/src/domain/foundation/modules/tectonics/router.ts`
+- Example op contract: `plugins/mod/map/swooper-physics/src/domain/foundation/modules/tectonics/ops/compute-era-tectonic-fields/contract.ts`
+- Example op implementation: `plugins/mod/map/swooper-physics/src/domain/foundation/modules/tectonics/ops/compute-era-tectonic-fields/index.ts`
+- Example model atoms: `plugins/mod/map/swooper-physics/src/domain/foundation/modules/tectonics/model/atoms/`
+- Module contract: `plugins/mod/map/swooper-physics/src/domain/foundation/modules/tectonics/contract.ts`
+- Module router: `plugins/mod/map/swooper-physics/src/domain/foundation/modules/tectonics/router.ts`

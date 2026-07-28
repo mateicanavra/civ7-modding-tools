@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "map config catalogs with repository-path membership, alternate export authorities, or admission that bypasses canonical id-derived filename validation",
   "why": "A map product catalog owns ordered identities, not storage paths. One closed membership and admission shape keeps config identity stable while generators remain free to derive local storage paths.",
@@ -20,9 +20,9 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/maps/catalog/membership.ts",
-        "mods/*/src/maps/catalog/admission.ts",
-        "mods/*/src/maps/catalog/index.ts"
+        "plugins/mod/map/*/src/maps/catalog/membership.ts",
+        "plugins/mod/map/*/src/maps/catalog/admission.ts",
+        "plugins/mod/map/*/src/maps/catalog/index.ts"
       ]
     }
   ],
@@ -38,7 +38,7 @@
     "patternName": "require_map_config_catalog_file_shape",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

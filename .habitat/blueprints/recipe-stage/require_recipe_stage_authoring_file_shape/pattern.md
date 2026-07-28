@@ -99,18 +99,18 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/weather/index.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/atmosphere/weather/index.ts
 import { createStage } from "@swooper/mapgen-core/authoring";
 
 export const WeatherStage = createStage({ id: "atmosphere-weather", steps: {} });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/surface/index.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/terrain/surface/index.ts
 import { createStage } from "@swooper/mapgen-core/authoring";
 
 const shadow = createStage({ id: "shadow", steps: {} });
 export default createStage({ id: "terrain-surface", steps: { shadow } });
 
-// @filename: mods/alternate-mod/src/recipes/alternate-recipe/stages/output/render/index.ts
+// @filename: plugins/mod/map/alternate-mod/src/recipes/alternate-recipe/stages/output/render/index.ts
 import { createStage } from "@swooper/mapgen-core/authoring";
 import { OutputPublicConfig } from "./public.config.js";
 
@@ -120,18 +120,18 @@ export default createStage({
   steps: {},
 });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/nonliteral/index.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/terrain/nonliteral/index.ts
 import { createStage } from "@swooper/mapgen-core/authoring";
 
 const STAGE_ID = "terrain-nonliteral";
 export default createStage({ id: STAGE_ID, steps: {} });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/aliased-constructor/index.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/terrain/aliased-constructor/index.ts
 import { createStage as declareStage } from "@swooper/mapgen-core/authoring";
 
 export default declareStage({ id: "terrain-aliased-constructor", steps: {} });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/local-public/index.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/terrain/local-public/index.ts
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 
 const TerrainPublicConfig = Type.Object({});
@@ -142,7 +142,7 @@ export default createStage({
   steps: {},
 });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/empty-public-compiler/index.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/terrain/empty-public-compiler/index.ts
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 
 export default createStage({
@@ -152,7 +152,7 @@ export default createStage({
   steps: {},
 });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/identity-public-compiler/index.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/terrain/identity-public-compiler/index.ts
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 
 export default createStage({
@@ -162,7 +162,7 @@ export default createStage({
   steps: {},
 });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/aliased-identity-public-compiler/index.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/terrain/aliased-identity-public-compiler/index.ts
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 
 export default createStage({
@@ -172,7 +172,7 @@ export default createStage({
   steps: {},
 });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/spread-public-compiler/index.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/terrain/spread-public-compiler/index.ts
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 
 export default createStage({
@@ -182,7 +182,7 @@ export default createStage({
   steps: {},
 });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/compiler-without-boundary/index.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/terrain/compiler-without-boundary/index.ts
 import { createStage } from "@swooper/mapgen-core/authoring";
 
 export default createStage({
@@ -191,7 +191,7 @@ export default createStage({
   steps: {},
 });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/geology/tectonics/index.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/geology/tectonics/index.ts
 import { createStage } from "@swooper/mapgen-core/authoring";
 
 declare const geology: {
@@ -204,7 +204,7 @@ export default createStage({
   steps: {},
 });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/geology/runtime-authority/index.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/geology/runtime-authority/index.ts
 import { createStage } from "@swooper/mapgen-core/authoring";
 
 export async function loadStageState() {}
@@ -212,7 +212,7 @@ export function* iterateStageState() {}
 export class StageRuntimeAuthority {}
 export default createStage({ id: "geology-runtime-authority", steps: {} });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/geology/reexported-type/index.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/geology/reexported-type/index.ts
 import { createStage } from "@swooper/mapgen-core/authoring";
 
 export type { ExternalStageEvidence } from "./evidence.js";
@@ -222,7 +222,7 @@ export default createStage({ id: "geology-reexported-type", steps: {} });
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/weather/index.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/atmosphere/weather/index.ts
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { SimulateWeatherStep } from "./steps/simulate-weather/step.js";
 

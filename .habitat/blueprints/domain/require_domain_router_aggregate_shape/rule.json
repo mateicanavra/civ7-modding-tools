@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "domain router files exposing helpers, implementations, constituent module routers, or any authority besides their singular default createDomainRouter result",
   "why": "A domain router is the executable aggregate over its declared module contracts. Keeping runtime composition to one local contract plus direct module routers preserves the contract/runtime phase boundary and prevents alternate execution surfaces.",
@@ -19,7 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/domain/*/router.ts"]
+      "patterns": ["plugins/mod/map/*/src/domain/*/router.ts"]
     }
   ],
   "hookCheck": true,
@@ -34,7 +34,7 @@
     "patternName": "require_domain_router_aggregate_shape",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

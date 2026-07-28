@@ -4,7 +4,7 @@ A domain is one public composition boundary over semantic modules.
 Its source root has one closed spine:
 
 ```text
-mods/<mod>/src/domain/<domain>/
+plugins/mod/map/<mod>/src/domain/<domain>/
   index.ts
   contract.ts
   router.ts

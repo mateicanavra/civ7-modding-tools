@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "domain or module model atoms outside their canonical schema-authoring dependency, re-export, and non-authority shape",
   "why": "Model atoms are small reusable schema primitives, cohesive subentities, derived types, and stable identities, not complete artifact payloads, operation envelopes, artifact validators, policy resolvers, or stage authoring surfaces. Exact acquisition selects only root-domain and direct-module atoms, while source authority prevents runtime contracts or validation from being smuggled into the kind.",
@@ -20,10 +20,10 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/domain/*/model/atoms/index.ts",
-        "mods/*/src/domain/*/model/atoms/*.schema.ts",
-        "mods/*/src/domain/*/modules/*/model/atoms/index.ts",
-        "mods/*/src/domain/*/modules/*/model/atoms/*.schema.ts"
+        "plugins/mod/map/*/src/domain/*/model/atoms/index.ts",
+        "plugins/mod/map/*/src/domain/*/model/atoms/*.schema.ts",
+        "plugins/mod/map/*/src/domain/*/modules/*/model/atoms/index.ts",
+        "plugins/mod/map/*/src/domain/*/modules/*/model/atoms/*.schema.ts"
       ]
     }
   ],
@@ -39,7 +39,7 @@
     "patternName": "require_domain_atom_owner_shape",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

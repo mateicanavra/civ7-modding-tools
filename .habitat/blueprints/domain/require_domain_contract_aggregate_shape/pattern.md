@@ -42,7 +42,7 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/geology/contract.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/contract.ts
 import { defineDomain } from "@swooper/mapgen-core/authoring/contracts";
 import tectonics from "./modules/tectonics/contract.js";
 
@@ -50,7 +50,7 @@ const geology = defineDomain("geology", { tectonics });
 export default geology;
 export { tectonics };
 
-// @filename: mods/example-mod/src/domain/climate/contract.ts
+// @filename: plugins/mod/map/example-mod/src/domain/climate/contract.ts
 import thermal from "./modules/thermal/contract.js";
 
 export default thermal;
@@ -59,7 +59,7 @@ export default thermal;
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/geology/contract.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/contract.ts
 import { defineDomain } from "@swooper/mapgen-core/authoring/contracts";
 import tectonics from "./modules/tectonics/contract.js";
 

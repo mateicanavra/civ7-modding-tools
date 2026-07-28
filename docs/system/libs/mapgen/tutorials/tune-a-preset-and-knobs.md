@@ -87,9 +87,9 @@ defaults or overlays after selection.
 
 ## Ground truth anchors
 
-- Canonical map configs: `mods/mod-swooper-maps/src/maps/configs/`
-- Recipe-owned schema and complete default artifact: `mods/mod-swooper-maps/src/recipes/standard/artifacts.ts`
-- Standard recipe definition: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
+- Canonical map configs: `plugins/mod/map/swooper-physics/src/maps/configs/`
+- Recipe-owned schema and complete default artifact: `plugins/mod/map/swooper-physics/src/recipes/standard/artifacts.ts`
+- Standard recipe definition: `plugins/mod/map/swooper-physics/src/recipes/standard/recipe.ts`
 - Studio catalog: `apps/mapgen-studio/src/recipes/catalog.ts`
 - Studio config editor: `packages/mapgen-studio-ui/src/components/panels/RecipePanel.tsx`
 - Exact Studio admission: `apps/mapgen-studio/src/features/configAuthoring/canonicalConfig.ts`

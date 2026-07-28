@@ -11,7 +11,7 @@ for agents entering the toolkit.
 Use:
 
 ```bash
-bun habitat classify mods/mod-swooper-maps/src/recipes/standard/recipe.ts
+bun habitat classify plugins/mod/map/swooper-physics/src/recipes/standard/recipe.ts
 ```
 
 Supported outcome:

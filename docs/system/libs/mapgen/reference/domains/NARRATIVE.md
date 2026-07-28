@@ -18,5 +18,5 @@ Canonical doc:
 ## Ground truth anchors
 
 - Target absorption posture (Gameplay owns Narrative): `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/gameplay/APPENDIX-SCOPE-AND-ABSORPTION.md`
-- Standard recipe stage list (Narrative absent today): `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
+- Standard recipe stage list (Narrative absent today): `plugins/mod/map/swooper-physics/src/recipes/standard/recipe.ts`
 - Current tree has no Narrative domain source directory; use Gameplay as the live owner.

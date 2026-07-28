@@ -6,7 +6,7 @@ import { pathToFileURL } from "node:url";
 const repoRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], {
   encoding: "utf8",
 }).trim();
-const modRoot = join(repoRoot, "mods/mod-swooper-maps");
+const modRoot = join(repoRoot, "plugins/mod/map/swooper-physics");
 const failures: string[] = [];
 
 const { STANDARD_STAGES } = await import(

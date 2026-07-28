@@ -393,7 +393,7 @@ describe("Habitat hook service", () => {
     const affectedRequests: NxAffectedRequest[] = [];
     const runManyRequests: NxRunManyRequest[] = [];
     const changedPaths = [
-      ".habitat/global/workspace/_blueprints/project-boundary-model/enforce_workspace_import_boundaries/rule.json",
+      ".habitat/global/workspace/rules/enforce_workspace_import_boundaries/rule.json",
     ] as const;
 
     const result = await runPrePushHookServiceInTest(
@@ -422,7 +422,7 @@ describe("Habitat hook service", () => {
     const runManyRequests: NxRunManyRequest[] = [];
     const changedPaths = [
       ".habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/rule.json",
-      ".habitat/global/workspace/_blueprints/project-boundary-model/enforce_workspace_import_boundaries/rule.json",
+      ".habitat/global/workspace/rules/enforce_workspace_import_boundaries/rule.json",
     ];
 
     const result = await runPrePushHookServiceInTest(

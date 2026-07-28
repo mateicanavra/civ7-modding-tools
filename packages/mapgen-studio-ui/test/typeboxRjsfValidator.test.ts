@@ -1,7 +1,7 @@
 // Differential parity suite: the TypeBox-backed validator MUST agree with the
 // previous ajv validator (`@rjsf/validator-ajv8`, the oracle) on the config
 // form's behavior. The feature matrix is derived from the real recipe config
-// schema (`mods/mod-swooper-maps/dist/recipes/standard.schema.json`) feature
+// schema (`plugins/mod/map/swooper-physics/dist/recipes/standard.schema.json`) feature
 // inventory: object + `additionalProperties:false`, integer/number bounds +
 // defaults, `pattern`/`minLength`, bounded arrays (`minItems`/`maxItems`/
 // `uniqueItems`), tuple `items: [...]` + `additionalItems:false`, `enum` (via

@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "bare value export * in domain contract files or recipe step config modules; export type * is allowed",
   "why": "Domain contracts and recipe StepContract config modules should publish named values; type-star exports remain safe type-only API aggregation.",
@@ -20,12 +20,12 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/recipes/*/stages/**/steps/*/config.ts",
-        "mods/*/src/domain/**/ops/**/contract.ts",
-        "mods/*/src/domain/**/ops/**/types.ts",
-        "mods/*/src/domain/**/ops/**/index.ts",
-        "mods/*/src/domain/**/ops/**/rules/**/*.ts",
-        "mods/*/src/domain/**/ops/**/strategies/**/*.ts"
+        "plugins/mod/map/*/src/recipes/*/stages/**/steps/*/config.ts",
+        "plugins/mod/map/*/src/domain/**/ops/**/contract.ts",
+        "plugins/mod/map/*/src/domain/**/ops/**/types.ts",
+        "plugins/mod/map/*/src/domain/**/ops/**/index.ts",
+        "plugins/mod/map/*/src/domain/**/ops/**/rules/**/*.ts",
+        "plugins/mod/map/*/src/domain/**/ops/**/strategies/**/*.ts"
       ]
     }
   ],
@@ -41,7 +41,7 @@
     "patternName": "prohibit_bare_value_export_all_from_contract_surfaces",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

@@ -17,7 +17,7 @@ language js(typescript)
     $text <: includes "packages",
     $text <: includes "apps/",
     $text <: includes "mods/",
-    $text <: includes "mods/mod-swooper-maps",
+    $text <: includes "plugins/mod/map/swooper-physics",
     $text <: includes "apps/mapgen-studio",
     $text <: includes ".civ7"
   }
@@ -28,7 +28,7 @@ language js(typescript)
 
 ```typescript
 // @filename: tools/habitat/src/resources/rule-diagnostics/providers/grit/constants.ts
-export const roots = ["mods/mod-swooper-maps/src/domain"];
+export const roots = ["plugins/mod/map/swooper-physics/src/domain"];
 
 // @filename: tools/habitat/src/resources/rule-diagnostics/providers/grit/constants.ts
 export const studio = "apps/mapgen-studio/src";
@@ -50,5 +50,5 @@ export const resources = ".civ7/outputs/resources";
 export const injectedProbeRoot = "tools/habitat/injected-probe-roots";
 
 // @filename: .habitat/habitat/toolkit/_blueprints/service-module/example-rule/rule.json
-const registryMetadataCanNameProductRoots = "mods/mod-swooper-maps/src/domain";
+const registryMetadataCanNameProductRoots = "plugins/mod/map/swooper-physics/src/domain";
 ```

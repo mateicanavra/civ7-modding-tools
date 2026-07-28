@@ -1,4 +1,4 @@
-import type { StandardRecipeConfig } from "mod-swooper-maps/recipes/standard";
+import type { StandardRecipeConfig } from "@swooper/swooper-physics/standard";
 
 const fixedProjectionConfig: StandardRecipeConfig["map-morphology"] = {};
 

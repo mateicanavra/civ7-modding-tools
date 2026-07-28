@@ -2,14 +2,14 @@ schemaVersion = 1
 
 [[scopes]]
 name = "recipe-step-roots"
-root = "mods/*/src/recipes/*/stages/**/steps"
+root = "plugins/mod/map/*/src/recipes/*/stages/**/steps"
 kind = "directory"
 mode = "closed"
 allowed = ["+([a-z0-9])*(-+([a-z0-9]))"]
 
 [[scopes]]
 name = "recipe-step-containers"
-root = "mods/*/src/recipes/*/stages/**/steps/+([a-z0-9])*(-+([a-z0-9]))"
+root = "plugins/mod/map/*/src/recipes/*/stages/**/steps/+([a-z0-9])*(-+([a-z0-9]))"
 kind = "directory"
 mode = "closed"
 required = ["config.ts", "step.ts"]
@@ -17,12 +17,12 @@ allowed = ["viz.ts"]
 
 [[scopes]]
 name = "recipe-step-config-modules"
-root = "mods/*/src/recipes/*/stages/**/steps/+([a-z0-9])*(-+([a-z0-9]))/config.ts"
+root = "plugins/mod/map/*/src/recipes/*/stages/**/steps/+([a-z0-9])*(-+([a-z0-9]))/config.ts"
 kind = "file"
 mode = "closed"
 
 [[scopes]]
 name = "recipe-step-runtime-modules"
-root = "mods/*/src/recipes/*/stages/**/steps/+([a-z0-9])*(-+([a-z0-9]))/step.ts"
+root = "plugins/mod/map/*/src/recipes/*/stages/**/steps/+([a-z0-9])*(-+([a-z0-9]))/step.ts"
 kind = "file"
 mode = "closed"

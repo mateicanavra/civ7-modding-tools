@@ -2,7 +2,7 @@ schemaVersion = 1
 
 [[scopes]]
 name = "mapgen-domain-subdomain-roots"
-root = "mods/*/src/domain/!(*.*)/modules/!(*.*)"
+root = "plugins/mod/map/*/src/domain/!(*.*)/modules/!(*.*)"
 kind = "directory"
 mode = "closed"
 required = [

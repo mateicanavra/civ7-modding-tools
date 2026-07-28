@@ -32,8 +32,8 @@ import {
   materializationFailed,
   verificationFailed,
 } from "@civ7/studio-server";
-import { validateStandardMapConfigSnapshotForSchema } from "mod-swooper-maps/maps/configs/standard-admission";
-import { STANDARD_RECIPE_CONFIG_SCHEMA as swooperStandardConfigSchema } from "mod-swooper-maps/recipes/standard-artifacts";
+import { STANDARD_RECIPE_CONFIG_SCHEMA as swooperStandardConfigSchema } from "@swooper/swooper-physics/standard/artifacts";
+import { validateStandardMapConfigSnapshotForSchema } from "@swooper/swooper-physics/standard/map-config";
 import { buildSwooperMapsStudioDeployPlan } from "../mapConfigs/deploy";
 import { parseMapConfigSaveRequest } from "../mapConfigs/requestValidation";
 import {
@@ -152,7 +152,7 @@ async function deploySwooperMaps(
   });
   const modsDir = resolveModsDir().modsDir;
   const deployed = deployMod({
-    inputDir: resolve(repoRoot, "mods/mod-swooper-maps/mod"),
+    inputDir: resolve(repoRoot, "apps/mods/map/swooper-physics/mod"),
     modId: "mod-swooper-maps",
     modsDir,
   });
@@ -184,7 +184,7 @@ async function generateSwooperRunMod(
 }> {
   await execFileAsync(
     "bun",
-    ["nx", "run", "mod-swooper-maps:gen:run-manifest", "--", options.manifestPath],
+    ["nx", "run", "swooper-physics-mod:gen:run-manifest", "--", options.manifestPath],
     {
       cwd: options.repoRoot,
       timeout: RUN_MANIFEST_GENERATION_TIMEOUT_MS,
@@ -795,11 +795,11 @@ export function createStudioOperationRuntimePorts(
         ...request,
         canonicalConfig: validateRepoMapConfigSnapshot(request.canonicalConfig),
       };
-      const configRoot = resolve(repoRoot, "mods/mod-swooper-maps/src/maps/configs");
+      const configRoot = resolve(repoRoot, "plugins/mod/map/swooper-physics/src/maps/configs");
       const target = resolve(configRoot, `${parsedRequest.canonicalConfig.id}.config.json`);
       if (!target.startsWith(`${configRoot}/`) || !target.endsWith(".config.json")) {
         throw invalidEngineRequest(
-          "Map config writes must stay in mods/mod-swooper-maps/src/maps/configs",
+          "Map config writes must stay in plugins/mod/map/swooper-physics/src/maps/configs",
           "map-config-path-outside-config-root",
           { path: target }
         );

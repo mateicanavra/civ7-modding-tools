@@ -29,7 +29,12 @@ const workspaceGraph = graphReady([
     "build",
     "test",
   ]),
-  project("mod-swooper-maps", "mods/mod-swooper-maps", "kind:mod", [
+  project("swooper-physics", "plugins/mod/map/swooper-physics", "kind:mod", [
+    "check",
+    "check:policy",
+    "test",
+  ]),
+  project("swooper-physics-mod", "apps/mods/map/swooper-physics", "kind:app", [
     "check",
     "check:policy",
     "test",

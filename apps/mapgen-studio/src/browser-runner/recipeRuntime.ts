@@ -15,11 +15,11 @@ import standardRecipe, {
   STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
   STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
   STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
-} from "mod-swooper-maps/recipes/standard";
+} from "@swooper/swooper-physics/standard";
 import {
   STANDARD_RECIPE_CONFIG_SCHEMA as swooperStandardConfigSchema,
   STANDARD_RECIPE_CONFIG as swooperStandardDefaultConfig,
-} from "mod-swooper-maps/recipes/standard-artifacts";
+} from "@swooper/swooper-physics/standard/artifacts";
 import type { XSchema } from "typebox/schema";
 import type { BrowserRunInitialSetup, BrowserRunSetupOptionValue } from "./protocol";
 

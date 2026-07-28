@@ -18,11 +18,11 @@ predicate lacks_module_contract_entrypoint($body) {
 
 or {
   program(statements=$body) where {
-    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/index\.ts$",
+    $filename <: r".*plugins/mod/map/[^/]+/src/domain/[^/]+/modules/[^/]+/index\.ts$",
     lacks_module_contract_entrypoint($body)
   },
   program(statements=$body) where {
-    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/index\.ts$",
+    $filename <: r".*plugins/mod/map/[^/]+/src/domain/[^/]+/modules/[^/]+/index\.ts$",
     $body <: some $statement where {
       ! $statement <: or {
         `export { default } from "./contract.js"`,
@@ -41,14 +41,14 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/geology/modules/tectonics/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/tectonics/index.ts
 export { default } from "./contract.js";
 export { computePlateMotion } from "./ops/compute-plate-motion/index.js";
 
-// @filename: mods/example-mod/src/domain/geology/modules/lithosphere/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/lithosphere/index.ts
 export { default as router } from "./router.js";
 
-// @filename: mods/example-mod/src/domain/geology/modules/projection/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/projection/index.ts
 export { default } from "./contract.js";
 export * from "./artifacts/index.js";
 ```
@@ -56,7 +56,7 @@ export * from "./artifacts/index.js";
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/geology/modules/tectonics/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/tectonics/index.ts
 export { default } from "./contract.js";
 export { artifacts } from "./artifacts/index.js";
 export { EVENT_TYPE, type TectonicEvent } from "./model/atoms/index.js";

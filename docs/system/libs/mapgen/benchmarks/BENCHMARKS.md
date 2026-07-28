@@ -91,7 +91,7 @@ explain a failure, but they must not become a second benchmark authority.
 
 ## Recipe study banks
 
-- Standard Swooper Maps recipe: [Standard metric studies](../../../../../mods/mod-swooper-maps/src/recipes/standard/metrics/studies/STUDIES.md)
+- Standard Swooper Maps recipe: [Standard metric studies](../../../../../plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/STUDIES.md)
 
 Each additional recipe that claims product benchmarks should expose one stable
 `metrics/studies/index.ts` module and colocate each logical executable study with

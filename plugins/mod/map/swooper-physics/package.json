@@ -1,0 +1,66 @@
+{
+  "name": "@swooper/swooper-physics",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reusable Swooper Physics domains, Standard recipe, and authored map product",
+  "type": "module",
+  "exports": {
+    "./standard": {
+      "types": "./src/recipes/standard/recipe.ts",
+      "import": "./dist/recipes/standard.js"
+    },
+    "./standard/artifacts": {
+      "types": "./dist/recipes/standard-artifacts.d.ts",
+      "import": "./dist/recipes/standard-artifacts.js"
+    },
+    "./standard/dag": {
+      "types": "./src/recipes/studio-contracts/index.ts",
+      "import": "./src/recipes/studio-contracts/index.ts"
+    },
+    "./standard/map-config": {
+      "types": "./src/maps/configs/index.ts",
+      "import": "./src/maps/configs/index.ts"
+    },
+    "./catalog": {
+      "types": "./src/maps/catalog/public.ts",
+      "import": "./src/maps/catalog/public.ts"
+    },
+    "./mod-definition": {
+      "types": "./src/mod-definition.ts",
+      "import": "./src/mod-definition.ts"
+    },
+    "./standard/parity": {
+      "types": "./src/recipes/standard/parity/index.ts",
+      "import": "./src/recipes/standard/parity/index.ts"
+    },
+    "./standard/civ7-plot-effects": {
+      "types": "./src/recipes/standard/stages/ecology/projection/model/policy/plot-effect-projection.ts",
+      "import": "./src/recipes/standard/stages/ecology/projection/model/policy/plot-effect-projection.ts"
+    }
+  },
+  "scripts": {
+    "diag:diff": "bun ./scripts/diagnostics/diff-layers.ts",
+    "diag:list": "bun ./scripts/diagnostics/list-layers.ts",
+    "diag:trace": "bun ./scripts/diagnostics/extract-trace.ts",
+    "metrics:report": "bun ./scripts/metrics/report.ts"
+  },
+  "dependencies": {
+    "@civ7/adapter": "workspace:*",
+    "@civ7/map-policy": "workspace:*",
+    "@civ7/studio-contract": "workspace:*",
+    "@civ7/studio-run-workspace": "workspace:*",
+    "@mateicanavra/civ7-sdk": "workspace:*",
+    "@swooper/mapgen-core": "workspace:*",
+    "@swooper/mapgen-metrics": "workspace:*",
+    "@swooper/mapgen-viz": "workspace:*",
+    "typebox": "catalog:"
+  },
+  "devDependencies": {
+    "@civ7/direct-control": "workspace:*",
+    "@civ7/plugin-files": "workspace:*",
+    "@civ7/types": "workspace:*",
+    "@swooper/mapgen-diagnostics": "workspace:*",
+    "json-schema-to-typescript": "^15.0.4",
+    "type-fest": "^5.7.0"
+  }
+}

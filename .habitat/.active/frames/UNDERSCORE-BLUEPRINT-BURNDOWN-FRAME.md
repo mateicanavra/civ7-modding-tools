@@ -478,9 +478,9 @@ Do not create:
 
 ### Deferred Domino D: `global/workspace`
 
-Not part of the next active Civ7 implementation slice unless source inspection
-proves a row is hidden Civ7 blueprint authority rather than workspace-boundary
-authority.
+Resolved as workspace self-authority rather than a constructible blueprint.
+The two stable rules now live under `global/workspace/rules`; their executable
+Nx and Habitat owners, empty baselines, and rule ids remain unchanged.
 
 Scope:
 
@@ -493,12 +493,13 @@ Starting read:
   facts.
 - It also may simply be global workspace structure authority.
 
-Likely outcomes:
+Disposition:
 
-- If constructibility passes, admit `project-boundary-model` or a better name
-  under top-level `blueprints/`.
-- If not, move to `global/workspace/rules` with exact pending action for what
-  would be needed to make the model constructible.
+- constructibility did not pass because these checks govern repository graph
+  facts rather than scaffold a repeatable project kind;
+- `enforce_workspace_import_boundaries` remains the Nx-owned edge law;
+- `validate_boundary_taxonomy_against_workspace_graph` remains the Habitat
+  cross-surface consistency law.
 
 Do not create:
 

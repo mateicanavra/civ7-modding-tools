@@ -1,0 +1,53 @@
+import ecology from "../../../../../../../domain/ecology/index.js";
+import { artifacts as biomeArtifacts } from "../../../../../../../domain/ecology/modules/biomes/artifacts/index.js";
+import { artifacts as featureArtifacts } from "../../../../../../../domain/ecology/modules/features/artifacts/index.js";
+import { artifacts as pedologyArtifacts } from "../../../../../../../domain/ecology/modules/pedology/artifacts/index.js";
+import { artifacts as climateArtifacts } from "../../../../../../../domain/hydrology/modules/climate/artifacts/index.js";
+import { artifacts as hydrographyArtifacts } from "../../../../../../../domain/hydrology/modules/hydrography/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyShelfArtifacts } from "../../../../../../../domain/morphology/modules/shelf/artifacts/index.js";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
+
+/**
+ * Defines the shared Ecology scoring boundary over final morphology, hydrology, biome, and
+ * pedology truth. It computes every feature-family suitability layer once before ordered
+ * planning begins.
+ */
+export const config = defineStep({
+  id: "score-layers",
+  description: "Computes one shared per-tile suitability layer for every feature intent.",
+  requires: [
+    biomeArtifacts.biomeClassification,
+    pedologyArtifacts.pedology,
+    climateArtifacts.climateIndices,
+    hydrographyArtifacts.hydrography,
+    hydrographyArtifacts.lakePlan,
+    hydrographyArtifacts.projectedNavigableRivers,
+    morphologyLandformsArtifacts.topography,
+    morphologyShelfArtifacts.shelf,
+    morphologyLandformsArtifacts.mountains,
+    morphologyLandformsArtifacts.volcanoes,
+  ],
+  provides: [featureArtifacts.featureSuitability],
+
+  ops: {
+    vegetationSubstrate: ecology.features.ops.computeVegetationSubstrate,
+    featureSubstrate: ecology.features.ops.computeFeatureSubstrate,
+    scoreForest: ecology.features.ops.scoreVegetationForest,
+    scoreRainforest: ecology.features.ops.scoreVegetationRainforest,
+    scoreTaiga: ecology.features.ops.scoreVegetationTaiga,
+    scoreSavannaWoodland: ecology.features.ops.scoreVegetationSavannaWoodland,
+    scoreSagebrushSteppe: ecology.features.ops.scoreVegetationSagebrushSteppe,
+    scoreWetMarsh: ecology.features.ops.scoreWetMarsh,
+    scoreWetTundraBog: ecology.features.ops.scoreWetTundraBog,
+    scoreWetMangrove: ecology.features.ops.scoreWetMangrove,
+    scoreWetOasis: ecology.features.ops.scoreWetOasis,
+    scoreWetWateringHole: ecology.features.ops.scoreWetWateringHole,
+    scoreReef: ecology.features.ops.scoreReef,
+    scoreColdReef: ecology.features.ops.scoreColdReef,
+    scoreReefAtoll: ecology.features.ops.scoreReefAtoll,
+    scoreReefLotus: ecology.features.ops.scoreReefLotus,
+    scoreIce: ecology.features.ops.scoreIce,
+    scoreFloodplains: ecology.features.ops.scoreFloodplains,
+  },
+});

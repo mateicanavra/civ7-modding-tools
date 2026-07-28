@@ -52,7 +52,7 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/geology/modules/tectonics/router.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/tectonics/router.ts
 import { createDomainSubdomainRouter } from "@swooper/mapgen-core/authoring";
 import contract from "./contract.js";
 import computeMotion from "./ops/compute-motion/index.js";
@@ -65,7 +65,7 @@ export { computeMotion };
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/geology/modules/tectonics/router.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/tectonics/router.ts
 import { createDomainSubdomainRouter } from "@swooper/mapgen-core/authoring";
 import contract from "./contract.js";
 import computeMotion from "./ops/compute-motion/index.js";

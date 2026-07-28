@@ -1,7 +1,7 @@
 import {
   STANDARD_RECIPE_CONFIG,
   STANDARD_RECIPE_CONFIG_SCHEMA,
-} from "mod-swooper-maps/recipes/standard-artifacts";
+} from "@swooper/swooper-physics/standard/artifacts";
 import { Guard } from "typebox/guard";
 import {
   Check,

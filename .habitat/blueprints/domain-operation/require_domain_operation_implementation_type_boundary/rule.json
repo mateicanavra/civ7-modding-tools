@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "operation entrypoints, strategy leaves, and rules deriving shared working types from an operation contract input/output envelope or re-exporting contract authority",
   "why": "The contract file is the sole composition owner for complete operation input and output envelopes. Implementation code, including semantic strategy leaves, consumes admitted values through private working shapes; only smaller reusable primitives and cohesive subentities come from nearest-owner model atoms. Moving the whole envelope or an artifact payload into atoms would preserve the same hidden coupling under a different path.",
@@ -20,9 +20,9 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/domain/*/modules/*/ops/*/index.ts",
-        "mods/*/src/domain/*/modules/*/ops/*/rules/**/*.ts",
-        "mods/*/src/domain/*/modules/*/ops/*/strategies/*/index.ts"
+        "plugins/mod/map/*/src/domain/*/modules/*/ops/*/index.ts",
+        "plugins/mod/map/*/src/domain/*/modules/*/ops/*/rules/**/*.ts",
+        "plugins/mod/map/*/src/domain/*/modules/*/ops/*/strategies/*/index.ts"
       ]
     }
   ],
@@ -38,7 +38,7 @@
     "patternName": "require_domain_operation_implementation_type_boundary",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

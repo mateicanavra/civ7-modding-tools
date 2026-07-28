@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "domain model policy files outside their exact pure-policy dependency, import-source, re-export, and non-authority shape",
   "why": "Domain model policy owns reusable semantic laws and pure resolution, not atom construction, structural validation, artifact admission, operation envelopes, or stage authoring. Source-level authority rejects schema and validation packages regardless of local aliases while permitting dependencies on the nearest atom vocabulary.",
@@ -20,8 +20,8 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/domain/*/model/policy/*.ts",
-        "mods/*/src/domain/*/modules/*/model/policy/*.ts"
+        "plugins/mod/map/*/src/domain/*/model/policy/*.ts",
+        "plugins/mod/map/*/src/domain/*/modules/*/model/policy/*.ts"
       ]
     }
   ],
@@ -37,7 +37,7 @@
     "patternName": "require_domain_policy_owner_shape",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

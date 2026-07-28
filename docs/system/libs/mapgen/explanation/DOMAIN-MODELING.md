@@ -145,6 +145,6 @@ Preferred dependency direction:
 - Domain contract authoring: `packages/mapgen-core/src/authoring/domain/contract.ts`
 - Domain router authoring: `packages/mapgen-core/src/authoring/domain/router.ts`
 - Op authoring helpers: `packages/mapgen-core/src/authoring/operation/contract.ts`
-- Example aggregate contract/router: `mods/mod-swooper-maps/src/domain/foundation/contract.ts`, `mods/mod-swooper-maps/src/domain/foundation/router.ts`
-- Example direct module: `mods/mod-swooper-maps/src/domain/foundation/modules/tectonics/`
+- Example aggregate contract/router: `plugins/mod/map/swooper-physics/src/domain/foundation/contract.ts`, `plugins/mod/map/swooper-physics/src/domain/foundation/router.ts`
+- Example direct module: `plugins/mod/map/swooper-physics/src/domain/foundation/modules/tectonics/`
 - Domain contract index: `docs/system/libs/mapgen/reference/domains/DOMAINS.md`

@@ -26,10 +26,10 @@ work.
 Before implementing authoring generators, inspect current MapGen conventions:
 
 - `docs/system/libs/mapgen/`
-- `mods/mod-swooper-maps/src/domain/`
-- `mods/mod-swooper-maps/src/recipes/standard/`
+- `plugins/mod/map/swooper-physics/src/domain/`
+- `plugins/mod/map/swooper-physics/src/recipes/standard/`
 - `packages/mapgen-core/src/`
-- relevant tests under `mods/mod-swooper-maps/test/`
+- relevant definition tests under `plugins/mod/map/swooper-physics/test/`
 
 The investigation should extract actual current topology, not desired topology.
 Generator design must follow code that builds today.

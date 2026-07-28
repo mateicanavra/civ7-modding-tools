@@ -40,12 +40,12 @@
       // Each checked-in SDK example is an independently executable authoring entrypoint.
       "entry": ["src/examples/*.ts"]
     },
-    "mods/mod-swooper-maps": {
+    "plugins/mod/map/swooper-physics": {
       // Closed Habitat kinds make these declaration-only gateways intentional public
       // entrypoints even when the current recipe graph does not import every owner.
       "entry": [
-        "src/mod.ts",
-        "src/maps/generated/*.ts",
+        "scripts/tsup.studio-recipes.config.ts",
+        "src/maps/catalog/index.ts",
         "src/domain/*/index.ts",
         "src/domain/*/modules/*/index.ts",
         "src/domain/*/model/atoms/index.ts",
@@ -53,6 +53,10 @@
         "src/domain/*/modules/*/artifacts/index.ts",
         "test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"
       ]
+    },
+    "apps/mods/map/swooper-physics": {
+      // Generated Civ7 map scripts are the deployable realization's executable entrypoints.
+      "entry": ["src/maps/generated/*.ts"]
     },
     "packages/civ7-adapter": {
       "ignoreUnresolved": ["^/base-standard/"]

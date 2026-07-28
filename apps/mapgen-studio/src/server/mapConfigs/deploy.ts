@@ -1,5 +1,5 @@
 export type SwooperMapsStudioDeployPlan = Readonly<{
-  buildTask: "mod-swooper-maps:build:studio-deploy";
+  buildTask: "swooper-physics-mod:build:studio-deploy";
   buildArgs: readonly string[];
   env: NodeJS.ProcessEnv;
 }>;
@@ -34,8 +34,14 @@ export function buildSwooperMapsStudioDeployPlan(
           SWOOPER_STUDIO_DEPLOY_CONFIG_ID: options.launchConfigId,
         };
   return {
-    buildTask: "mod-swooper-maps:build:studio-deploy",
-    buildArgs: ["run", "nx", "run", "mod-swooper-maps:build:studio-deploy", "--outputStyle=static"],
+    buildTask: "swooper-physics-mod:build:studio-deploy",
+    buildArgs: [
+      "run",
+      "nx",
+      "run",
+      "swooper-physics-mod:build:studio-deploy",
+      "--outputStyle=static",
+    ],
     env,
   };
 }

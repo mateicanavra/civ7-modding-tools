@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "advisory",
   "forbids": "MapGen behavior tests silently presenting literal custom grid dimensions as representative Civ7 map sizes",
   "why": "Product and domain behavior should run at a real Civ7 map size so the evidence reflects supported geometry. Literal custom dimensions are appropriate only when bounds, wrapping, local topology, exact cardinality, or dimension behavior is itself the controlled subject.",
@@ -19,7 +19,10 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/test/**/*.ts", "mods/mod-swooper-maps/test/**/*.tsx"]
+      "patterns": [
+        "plugins/mod/map/swooper-physics/test/**/*.ts",
+        "plugins/mod/map/swooper-physics/test/**/*.tsx"
+      ]
     }
   ],
   "supportFiles": {
@@ -33,7 +36,7 @@
     "patternName": "prefer_civ7_preset_dimensions_in_mapgen_behavior_tests",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods/mod-swooper-maps/test"]
+      "roots": ["plugins/mod/map/swooper-physics/test"]
     }
   }
 }

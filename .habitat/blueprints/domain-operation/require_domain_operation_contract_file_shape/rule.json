@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "domain operation contract files outside the positive contract-owner shape: defineOp must be the singular default export, and imports must come only from contract authoring, direct semantic strategy definitions, nearest model atoms and policy, and sanctioned external policy packages",
   "why": "Operation contracts are the sole owners of complete operation input/output envelopes. Those roots are authored directly in defineOp and may compose smaller nearest-owner atoms, but they never borrow an artifact payload or become reusable model vocabulary. Each strategy configuration has its own semantic leaf definition, which the operation contract imports directly without a definition barrel or contract cycle.",
@@ -19,7 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/domain/*/modules/*/ops/*/contract.ts"]
+      "patterns": ["plugins/mod/map/*/src/domain/*/modules/*/ops/*/contract.ts"]
     }
   ],
   "hookCheck": true,
@@ -34,7 +34,7 @@
     "patternName": "require_domain_operation_contract_file_shape",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

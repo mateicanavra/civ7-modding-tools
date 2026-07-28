@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "recipe step config.ts modules without one canonical config = defineStep(...) contract, with additional runtime exports or re-exports, with a literal step id different from the immediate directory, or with a default export",
   "why": "A recipe step has one local filesystem and public runtime identity expressed by its literal config contract. Local helpers and erased type/interface exports remain available without creating competing exported runtime surfaces. Exact config.ts acquisition selects the kind; the filename capture exists only to prove directory/id equality. Core's defineStep contract owns constructor admission, while Knip owns unused private construction.",
@@ -19,7 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/recipes/*/stages/**/steps/*/config.ts"]
+      "patterns": ["plugins/mod/map/*/src/recipes/*/stages/**/steps/*/config.ts"]
     }
   ],
   "hookCheck": true,
@@ -34,7 +34,7 @@
     "patternName": "require_recipe_step_config_owner_shape",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

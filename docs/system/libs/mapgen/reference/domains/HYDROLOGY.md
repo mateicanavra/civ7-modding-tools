@@ -150,7 +150,7 @@ The generic measurement, target, study, and proof contract is owned by
 [`docs/system/libs/mapgen/benchmarks/BENCHMARKS.md`](/system/libs/mapgen/benchmarks/BENCHMARKS.md).
 The Standard recipe's current river measurements, scale constraints, regime
 interpretation, and Earth anchors live with the executable product in its
-[Hydrology metric-family sheet](../../../../../../mods/mod-swooper-maps/src/recipes/standard/metrics/studies/families/hydrology.md).
+[Hydrology metric-family sheet](../../../../../../plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/families/hydrology.md).
 
 This domain reference owns Hydrology model and projection semantics only; it does
 not duplicate recipe benchmark policy.
@@ -235,19 +235,19 @@ different writer surface is discovered and proven.
 ## Ground truth anchors
 
 - Stage definitions (knobs + step list):
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/climate/baseline/index.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/hydrography/index.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/climate/refine/index.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/projection/index.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/rivers/index.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/baseline/index.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/hydrography/index.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/refine/index.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/projection/index.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/rivers/index.ts`
 - Step contracts (truth stages):
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/hydrography/steps/rivers/config.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/climate/refine/steps/climate-refine/config.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/hydrography/steps/rivers/config.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/refine/steps/climate-refine/config.ts`
 - Step contracts (projection stage):
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/projection/steps/lakes/config.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/rivers/steps/plot-rivers/config.ts`
-- Completion catalog: `mods/mod-swooper-maps/src/recipes/standard/completions.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/projection/steps/lakes/config.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/rivers/steps/plot-rivers/config.ts`
+- Completion catalog: `plugins/mod/map/swooper-physics/src/recipes/standard/completions.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
 
 ## Open questions

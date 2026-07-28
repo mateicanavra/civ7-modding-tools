@@ -2,7 +2,7 @@ schemaVersion = 1
 
 [[scopes]]
 name = "recipe-metrics-capability-roots"
-root = "mods/*/src/recipes/*/metrics"
+root = "plugins/mod/map/*/src/recipes/*/metrics"
 kind = "directory"
 mode = "closed"
 required = [
@@ -18,7 +18,7 @@ allowed = ["policy"]
 
 [[scopes]]
 name = "recipe-metrics-study-bank-roots"
-root = "mods/*/src/recipes/*/metrics/studies"
+root = "plugins/mod/map/*/src/recipes/*/metrics/studies"
 kind = "directory"
 mode = "closed"
 required = [
@@ -35,7 +35,7 @@ required = [
 
 [[scopes]]
 name = "recipe-metrics-family-modules"
-root = "mods/*/src/recipes/*/metrics/families"
+root = "plugins/mod/map/*/src/recipes/*/metrics/families"
 kind = "directory"
 mode = "closed"
 required = [
@@ -45,14 +45,14 @@ allowed = ["+([a-z0-9])*(-+([a-z0-9]))"]
 
 [[scopes]]
 name = "recipe-metrics-nested-family-modules"
-root = "mods/*/src/recipes/*/metrics/families/+([a-z0-9])*(-+([a-z0-9]))"
+root = "plugins/mod/map/*/src/recipes/*/metrics/families/+([a-z0-9])*(-+([a-z0-9]))"
 kind = "directory"
 mode = "closed"
 required = ["*.ts"]
 
 [[scopes]]
 name = "recipe-metrics-target-modules"
-root = "mods/*/src/recipes/*/metrics/targets"
+root = "plugins/mod/map/*/src/recipes/*/metrics/targets"
 kind = "directory"
 mode = "closed"
 required = [
@@ -61,14 +61,14 @@ required = [
 
 [[scopes]]
 name = "recipe-metrics-policy-modules"
-root = "mods/*/src/recipes/*/metrics/policy"
+root = "plugins/mod/map/*/src/recipes/*/metrics/policy"
 kind = "directory"
 mode = "closed"
 required = ["*.ts"]
 
 [[scopes]]
 name = "recipe-metrics-study-family-docs"
-root = "mods/*/src/recipes/*/metrics/studies/families"
+root = "plugins/mod/map/*/src/recipes/*/metrics/studies/families"
 kind = "directory"
 mode = "closed"
 required = [
@@ -77,7 +77,7 @@ required = [
 
 [[scopes]]
 name = "recipe-metrics-study-benchmarks"
-root = "mods/*/src/recipes/*/metrics/studies/benchmarks"
+root = "plugins/mod/map/*/src/recipes/*/metrics/studies/benchmarks"
 kind = "directory"
 mode = "closed"
 required = [

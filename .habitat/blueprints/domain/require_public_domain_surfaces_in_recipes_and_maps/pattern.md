@@ -33,7 +33,8 @@ or {
     `export * from $source`,
     `import($source)`
   } where {
-    $source <: r"^[\"']?(?:\.\./)+domain/[^\"']+[\"']?$"
+    $source <: r"^[\"']?(?:\.\./)+domain/[a-z0-9]+(?:-[a-z0-9]+)*/.+[\"']?$",
+    ! $source <: r"^[\"']?(?:\.\./)+domain/[a-z0-9]+(?:-[a-z0-9]+)*/(?:(?:index|router)(?:\.js)?|model/(?:atoms(?:/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)\.js)?|policy/[a-z0-9]+(?:-[a-z0-9]+)*\.js)|modules/[a-z0-9]+(?:-[a-z0-9]+)*/(?:artifacts(?:/index\.js)?|model/(?:atoms(?:/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)\.js)?|policy/[a-z0-9]+(?:-[a-z0-9]+)*\.js)))[\"']?$"
   }
 }
 ```
@@ -41,55 +42,55 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/recipes/example/stages/demo.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/example/stages/demo.ts
 import moduleRouter from "@mapgen/domain/geology/modules/tectonics/router";
 
 export const value = moduleRouter;
 
-// @filename: mods/example-mod/src/recipes/example/stages/demo.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/example/stages/demo.ts
 import privateOps from "@mapgen/domain/geology/modules/tectonics/ops/private";
 
 export const opsValue = privateOps;
 
-// @filename: mods/another-mod/src/maps/alternate/stages/demo.ts
+// @filename: plugins/mod/map/another-mod/src/maps/alternate/stages/demo.ts
 import { byId } from "@mapgen/domain/geology/modules/tectonics/ops/index.js";
 
 export const lookup = byId;
 
-// @filename: mods/example-mod/src/recipes/example/stages/demo.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/example/stages/demo.ts
 import privateRule from "@mapgen/domain/geology/modules/tectonics/model/rules/is-active.js";
 
 export const privateRuleValue = privateRule;
 
-// @filename: mods/another-mod/src/maps/alternate/stages/demo.ts
+// @filename: plugins/mod/map/another-mod/src/maps/alternate/stages/demo.ts
 export { privateRule } from "@mapgen/domain/biosphere/rules/private";
 
-// @filename: mods/example-mod/src/recipes/example/stages/biosphere/demo.ts
-import { artifacts } from "../../../../domain/geology/modules/tectonics/artifacts/index.js";
+// @filename: plugins/mod/map/example-mod/src/recipes/example/stages/biosphere/demo.ts
+import privateArtifact from "../../../../domain/geology/modules/tectonics/artifacts/plate-network.artifact.js";
 
-export const relativeValue = artifacts;
+export const relativeValue = privateArtifact;
 
-// @filename: mods/another-mod/src/maps/alternate/stages/biosphere/steps/climate-refine/step.ts
-import domainRouter from "../../../../../domain/geology/router.js";
+// @filename: plugins/mod/map/another-mod/src/maps/alternate/stages/biosphere/steps/climate-refine/step.ts
+import privateRule from "../../../../../domain/geology/modules/tectonics/ops/compute-plates/rules/private.js";
 
-export const relativeRouter = domainRouter;
+export const relativeRule = privateRule;
 
-// @filename: mods/example-mod/src/recipes/example/stages/demo.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/example/stages/demo.ts
 import ops from "@mapgen/domain/geology/modules/tectonics/ops";
 
 export const opsValue = ops;
 
-// @filename: mods/another-mod/src/maps/alternate/stages/demo.ts
+// @filename: plugins/mod/map/another-mod/src/maps/alternate/stages/demo.ts
 import privateArtifact from "@mapgen/domain/geology/modules/tectonics/artifacts/plate-network.artifact.js";
 
 export const artifactValue = privateArtifact;
 
-// @filename: mods/example-mod/src/recipes/example/stages/demo.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/example/stages/demo.ts
 import branchPolicy from "@mapgen/domain/geology/modules/tectonics/policy/plate-activity.js";
 
 export const branchPolicyValue = branchPolicy;
 
-// @filename: mods/another-mod/src/maps/alternate/stages/demo.ts
+// @filename: plugins/mod/map/another-mod/src/maps/alternate/stages/demo.ts
 import schemas from "@mapgen/domain/biosphere/model/schemas";
 
 export const schemaValue = schemas;
@@ -98,28 +99,32 @@ export const schemaValue = schemas;
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/recipes/example/stages/demo.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/example/stages/demo.ts
 import geology from "@mapgen/domain/geology";
 
 export const rootValue = geology;
 
-// @filename: mods/example-mod/src/recipes/example/stages/demo.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/example/stages/demo.ts
 import policy from "@mapgen/domain/geology/model/policy/plate-activity.js";
 
 export const policyValue = policy;
 
-// @filename: mods/example-mod/src/recipes/example/stages/biosphere/demo.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/example/stages/biosphere/demo.ts
 const source = "../../../../domain/rivers/index.js";
 
 export const sourceOnly = source;
 
-// @filename: mods/example-mod/src/recipes/example/stages/demo.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/example/stages/demo.ts
 import geology from "@mapgen/domain/geology";
 import geologyRouter from "@mapgen/domain/geology/router";
 import { CrustSchema } from "@mapgen/domain/geology/model/atoms/crust.schema.js";
 import { CRUST_POLICY } from "@mapgen/domain/geology/model/policy/crust.js";
 import { artifacts } from "@mapgen/domain/geology/modules/tectonics/artifacts";
 import { PLATE_POLICY } from "@mapgen/domain/geology/modules/tectonics/model/policy/plates.js";
+import relativeGeology from "../../../../domain/geology/index.js";
+import relativeRouter from "../../../../domain/geology/router.js";
+import { artifacts as relativeArtifacts } from "../../../../domain/geology/modules/tectonics/artifacts/index.js";
+import { CRUST_POLICY as RELATIVE_CRUST_POLICY } from "../../../../domain/geology/model/policy/crust.js";
 
 export const publicValues = [
   geology,
@@ -128,5 +133,9 @@ export const publicValues = [
   CRUST_POLICY,
   artifacts,
   PLATE_POLICY,
+  relativeGeology,
+  relativeRouter,
+  relativeArtifacts,
+  RELATIVE_CRUST_POLICY,
 ];
 ```

@@ -208,8 +208,8 @@ export default createOp(ComputePlateTopologyContract, {
 - Collecting and binding canonical executable ops: `packages/mapgen-core/src/authoring/operation/bindings.ts`
 - Current operation-authoring guide: `docs/system/libs/mapgen/how-to/add-an-op.md`
 - Example module contract and router:
-  `mods/mod-swooper-maps/src/domain/foundation/modules/mesh/contract.ts`,
-  `mods/mod-swooper-maps/src/domain/foundation/modules/mesh/router.ts`
-- Example op contract: `mods/mod-swooper-maps/src/domain/foundation/modules/mesh/ops/compute-mesh/contract.ts`
-- Example op implementation: `mods/mod-swooper-maps/src/domain/foundation/modules/mesh/ops/compute-mesh/index.ts`
-- Example extracted strategy binding: `mods/mod-swooper-maps/src/domain/foundation/modules/projection/ops/compute-plate-topology/index.ts`
+  `plugins/mod/map/swooper-physics/src/domain/foundation/modules/mesh/contract.ts`,
+  `plugins/mod/map/swooper-physics/src/domain/foundation/modules/mesh/router.ts`
+- Example op contract: `plugins/mod/map/swooper-physics/src/domain/foundation/modules/mesh/ops/compute-mesh/contract.ts`
+- Example op implementation: `plugins/mod/map/swooper-physics/src/domain/foundation/modules/mesh/ops/compute-mesh/index.ts`
+- Example extracted strategy binding: `plugins/mod/map/swooper-physics/src/domain/foundation/modules/projection/ops/compute-plate-topology/index.ts`

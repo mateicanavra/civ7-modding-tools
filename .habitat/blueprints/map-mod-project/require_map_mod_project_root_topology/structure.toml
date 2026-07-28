@@ -1,0 +1,53 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "map-mod-definition-project-roots"
+root = "plugins/mod/map/*"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+required = [
+  "package.json",
+  "project.json",
+  "src",
+]
+allowed = [
+  "AGENTS.md",
+  "README.md",
+  "dist",
+  "mod",
+  "node_modules",
+  "scripts",
+  "test",
+  "tsconfig.json",
+  "tsconfig.test.json",
+  "tsconfig.tools.json",
+  "tsup.config.ts",
+  "vitest.config.ts",
+]
+
+[[scopes]]
+name = "map-mod-realization-project-roots"
+root = "apps/mods/map/*"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+required = [
+  "package.json",
+  "project.json",
+  "src",
+]
+allowed = [
+  "AGENTS.md",
+  "README.md",
+  "dist",
+  "mod",
+  "node_modules",
+  "scripts",
+  "test",
+  "tsconfig.json",
+  "tsconfig.test.json",
+  "tsconfig.tools.json",
+  "tsup.config.ts",
+  "vitest.config.ts",
+]

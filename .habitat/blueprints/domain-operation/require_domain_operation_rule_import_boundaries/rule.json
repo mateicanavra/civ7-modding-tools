@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "operation rules importing outside shared MapGen primitives, sibling rules, and exact ancestor model atoms and policy; direct-module rules may additionally consume named sibling-module atoms",
   "why": "Rules are private algorithm mechanics inside one operation. A positive dependency boundary keeps contracts and artifacts as composition owners, excludes operation-local type bags, and preserves transparent access to the semantic vocabulary actually owned by the rule's module and domain.",
@@ -19,7 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/domain/*/modules/*/ops/*/rules/*.ts"]
+      "patterns": ["plugins/mod/map/*/src/domain/*/modules/*/ops/*/rules/*.ts"]
     }
   ],
   "hookCheck": true,
@@ -34,7 +34,7 @@
     "patternName": "require_domain_operation_rule_import_boundaries",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

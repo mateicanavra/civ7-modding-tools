@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "runtime layers calling runValidated",
   "why": "Validation belongs to authoring/compile time, not runtime op execution.",
@@ -20,8 +20,8 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/recipes/*/stages/**/steps/*/**/!(*.test|*.spec|config).ts",
-        "mods/*/src/domain/**/ops/**/strategies/**/*.ts"
+        "plugins/mod/map/*/src/recipes/*/stages/**/steps/*/**/!(*.test|*.spec|config).ts",
+        "plugins/mod/map/*/src/domain/**/ops/**/strategies/**/*.ts"
       ]
     }
   ],
@@ -37,7 +37,7 @@
     "patternName": "prohibit_runtime_calls_to_runvalidated",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

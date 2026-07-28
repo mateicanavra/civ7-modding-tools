@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "domain test trees containing non-test source outside an explicit fixture owner or directories outside the recursive semantic hierarchy",
   "why": "Domain tests mirror behavioral ownership: domain-wide claims may remain at the domain root, while module and operation behavior descends through semantic directories. The structure law closes the physical test kind without guessing which production module a directory represents; that membership remains a semantic review decision until Habitat owns first-class blueprint membership.",
@@ -19,7 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/test/domains", "mods/*/test/domains/**"]
+      "patterns": ["plugins/mod/map/*/test/domains", "plugins/mod/map/*/test/domains/**"]
     }
   ],
   "supportFiles": {

@@ -85,49 +85,51 @@ or {
       }
     }
   }
+} where {
+  not { $filename <: r".*apps/mods/map/[^/]+/src/maps/generated/.*\.tsx?$" }
 }
 ```
 
 ## Matches fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/domain/ecology/model/policy/climate.ts
+// @filename: plugins/mod/map/example-mod/src/domain/ecology/model/policy/climate.ts
 export function resolveClimateBand(latitude: number): number {
   return Math.floor(latitude / 10);
 }
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/model/policy/options.ts
+// @filename: plugins/mod/map/example-mod/src/domain/ecology/model/policy/options.ts
 /** TODO */
 export const DEFAULT_CLIMATE_OPTIONS = {};
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/runtime.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/standard/runtime.ts
 /** Documentation pending. */
 export class StandardRuntimeState {}
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/completions.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/standard/completions.ts
 /** */
 export const STANDARD_COMPLETIONS = {};
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/model/policy/climate-band.ts
+// @filename: plugins/mod/map/example-mod/src/domain/ecology/model/policy/climate-band.ts
 export enum ClimateBand {
   Polar,
   Temperate,
   Tropical,
 }
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/classify-biomes/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/ecology/ops/classify-biomes/index.ts
 const classifyBiomes = createOp(BiomeClassificationContract, {
   strategies: { "biophysical-gaussian": biophysicalGaussianStrategy },
 });
 export default classifyBiomes;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/artifacts.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/standard/artifacts.ts
 function collectArtifacts() {
   return [];
 }
 export { collectArtifacts };
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/index.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/standard/stages/ecology/index.ts
 export default createStage({
   id: "ecology",
   steps: [],
@@ -149,20 +151,20 @@ export function defineFixtureStep(
 ## Ignores fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/domain/ecology/model/policy/climate.ts
+// @filename: plugins/mod/map/example-mod/src/domain/ecology/model/policy/climate.ts
 /** Maps absolute latitude to the closed climate-band index consumed by biome selection. */
 export function resolveClimateBand(latitude: number): number {
   return Math.floor(latitude / 10);
 }
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/ecology/index.ts
 export { resolveClimateBand } from "./model/policy/climate.js";
 export type { ClimateBand } from "./model/types.js";
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/model/types.ts
+// @filename: plugins/mod/map/example-mod/src/domain/ecology/model/types.ts
 export interface ClimateBand {}
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/model/policy/documented-climate-band.ts
+// @filename: plugins/mod/map/example-mod/src/domain/ecology/model/policy/documented-climate-band.ts
 /** Stable climate bands serialized by the authored biome policy. */
 export enum DocumentedClimateBand {
   Polar,
@@ -170,21 +172,21 @@ export enum DocumentedClimateBand {
   Tropical,
 }
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/classify-biomes/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/ecology/ops/classify-biomes/index.ts
 /** Executable biome classifier assembled from the stable contract and semantic strategy. */
 const classifyBiomes = createOp(BiomeClassificationContract, {
   strategies: { "biophysical-gaussian": biophysicalGaussianStrategy },
 });
 export default classifyBiomes;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/artifacts.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/standard/artifacts.ts
 /** Collects the closed artifact set used to compile the standard recipe manifest. */
 function collectArtifacts() {
   return [];
 }
 export { collectArtifacts as collectStandardArtifacts };
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/index.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/standard/stages/ecology/index.ts
 /** Runs the authored ecology steps in their declared dependency order. */
 export default createStage({
   id: "ecology",

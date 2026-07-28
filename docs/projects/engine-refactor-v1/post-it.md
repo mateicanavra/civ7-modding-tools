@@ -2,7 +2,7 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Plan. Output. Admission. Completeness. Simplicity.
+**Attractor filter:** Identity. Ownership. Realization. Direction. Closure.
 
 **Frame:** kind before instance, intent before ownership, authority before
 relocation. A closed file shape is the start of semantic review, not proof that
@@ -30,17 +30,22 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** consumed-export documentation remains a universal
-engineering contract, but its acquisition still reflects selected historical
-MapGen roots rather than the generic source graph. The next cut makes the law
-truthful over every supported module/package surface, preserves semantic JSDoc
-and schema descriptions, and burns the newly visible corpus to zero after
-dead-code proof. The eventual definition/plugin and deployable-app split remains
-a coordinated hard-cut ownership migration, not an earned folder move inside
-this documentation ratchet. Its current qualified destinations are
-`plugins/mod/map/swooper-physics` for the reusable Swooper definition and
-`apps/mods/map/swooper-physics` for its Civ7-deployable realization; CLI plugin
-topics normalize under `plugins/cli/topics` in their own complete cut.
+**Current container:** the mixed Swooper project is now two causal owners. The
+reusable authored product moves as one `kind:mod` project to
+`plugins/mod/map/swooper-physics`: domains, Standard recipe, shipped map
+configs/catalog, metrics, visualization authorship, and product diagnostics.
+The deployable realization moves as one `kind:app` project to
+`apps/mods/map/swooper-physics`: generated map entrypoints, Civ7 metadata and
+files, bundling, deployment, Studio run-mod materialization, and live proof.
+The app consumes the definition's finite public surface; the definition never
+imports the app. Observable Civ7 mod and recipe identities remain stable.
+
+This is a coordinated hard cut with no forwarding package, proxy Nx target,
+second generated-output root, or app-source import. Existing `kind:app ->
+kind:mod` project law carries the one-way dependency; new workspace roots,
+Habitat acquisition, owner projects, and closed project shapes must become
+truthful before the old `mods/mod-swooper-maps` owner disappears. CLI plugin
+topics normalize under `plugins/cli/topics` only in a later complete cut.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -57,13 +62,14 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** inspect the existing JSDoc kind law and its acquisition boundary;
-separate supported source declarations from generated output and historical
-baselines; admit consumed exported values generically rather than enumerating
-today's domain or recipe roots; turn the complete honest corpus red; remove dead
-exports first; then write concise semantic documentation that states purpose,
-behavior, invariants, flow, and gotchas without comment theater. Seal at zero
-with focused fixtures, dead-code proof, and staged-hook execution.
+**Gradient:** establish both Nx/package identities and generic acquisition law;
+move the reusable definition intact; expose only Standard runtime, generated
+authoring artifacts, DAG, map-config admission/catalog, product metadata, and
+projection policy required by real consumers; move file materialization and
+live execution to the app; regenerate every tracked product at its new owner;
+rewire Studio by public package entrypoint and app target; reassign Habitat
+rules by behavior; then delete the old owner and prove an exact one-way graph,
+generated currentness, product behavior, dead-code absence, and closed policy.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -106,6 +112,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Export Documentation Authority Sealed
+
+Consumed exported values across supported MapGen and Studio source surfaces now
+require adjacent semantic JSDoc under one niche-wide relationship law. Dead
+exports retired before documentation, weak Hydrology schema descriptions were
+rewritten around behavior and invariants, and the rule closed with an empty
+baseline. The complete affected type/test graph, Knip, changed-file formatting,
+the staged hook, and fresh Habitat and semantic quality review sealed the cut.
 
 ### 2026-07-28 - Biome Hazard Projection Policy Sealed
 

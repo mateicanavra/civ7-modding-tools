@@ -40,17 +40,17 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/geology/modules/tectonics/ops/measure-drift/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/tectonics/ops/measure-drift/index.ts
 import { artifacts } from "../../../artifacts/index.js";
 
 export const schema = artifacts.drift.schema;
 
-// @filename: mods/example-mod/src/domain/geology/modules/tectonics/ops/measure-drift/rules/project.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/tectonics/ops/measure-drift/rules/project.ts
 type Drift = Static<
   typeof import("../../../artifacts/index.js").artifacts.drift.schema
 >;
 
-// @filename: mods/example-mod/src/domain/climate/modules/thermal/ops/measure-rain/strategies/water-budget/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/climate/modules/thermal/ops/measure-rain/strategies/water-budget/index.ts
 type Rain = Static<typeof import("../../../../artifacts/rain.artifact.js").artifact.schema>;
 
 export default Rain;
@@ -59,13 +59,13 @@ export default Rain;
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/geology/modules/tectonics/ops/measure-drift/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/tectonics/ops/measure-drift/index.ts
 import Contract from "./contract.js";
 import { plateDrivenStrategy } from "./strategies/index.js";
 
 export default createOp(Contract, { "plate-driven": plateDrivenStrategy });
 
-// @filename: mods/example-mod/src/domain/geology/modules/tectonics/ops/measure-drift/rules/project.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/tectonics/ops/measure-drift/rules/project.ts
 import type { PlateEvent } from "../../../model/atoms/plate-event.schema.js";
 
 type ProjectDriftParams = Readonly<{ events: readonly PlateEvent[]; scale: number }>;

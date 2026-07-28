@@ -14,7 +14,7 @@
   "lane": "enforced",
   "forbids": "Studio UI importing runtime recipe modules instead of artifact exports",
   "why": "The browser UI consumes schema/default/meta artifacts; runtime recipes stay worker-side.",
-  "remediate": "Use mod-swooper-maps/recipes/*-artifacts.",
+  "remediate": "Use @swooper/swooper-physics/standard/artifacts, /standard/map-config, or /catalog.",
   "message": "MapGen Studio UI must import recipe artifacts, not runtime recipe modules.",
   "pathCoverage": [
     {

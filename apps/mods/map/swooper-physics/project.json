@@ -1,0 +1,194 @@
+{
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "name": "swooper-physics-mod",
+  "tags": ["kind:app"],
+  "targets": {
+    "build": {
+      "command": "tsup --config scripts/tsup.config.ts",
+      "dependsOn": ["^build", "generated:check"],
+      "inputs": ["default", "^default"],
+      "outputs": ["{projectRoot}/mod/maps/**"],
+      "options": {
+        "cwd": "apps/mods/map/swooper-physics"
+      }
+    },
+    "build:studio-deploy": {
+      "command": "tsup --config scripts/tsup.config.ts",
+      "inputs": [
+        "default",
+        {
+          "env": "SWOOPER_STUDIO_DEPLOY_CONFIG_ID"
+        }
+      ],
+      "outputs": ["{projectRoot}/mod/maps/**"],
+      "dependsOn": ["^build", "gen:studio-deploy-map-artifacts"],
+      "options": {
+        "cwd": "apps/mods/map/swooper-physics"
+      }
+    },
+    "typecheck": {
+      "command": "tsc --noEmit",
+      "dependsOn": ["check:test", "check:tools", "build"],
+      "options": {
+        "cwd": "apps/mods/map/swooper-physics"
+      }
+    },
+    "check:test": {
+      "command": "tsc -p test/tsconfig.json --noEmit",
+      "dependsOn": ["^build"],
+      "options": {
+        "cwd": "apps/mods/map/swooper-physics"
+      }
+    },
+    "check:tools": {
+      "command": "tsc -p scripts/tsconfig.json --noEmit",
+      "dependsOn": ["^build"],
+      "options": {
+        "cwd": "apps/mods/map/swooper-physics"
+      }
+    },
+    "check": {
+      "executor": "nx:noop",
+      "dependsOn": ["typecheck"],
+      "cache": false,
+      "outputs": []
+    },
+    "test": {
+      "command": "bun test",
+      "dependsOn": ["build"],
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/vitest.config.ts",
+        {
+          "env": "SWOOPER_TEST_MAP_SIZE"
+        },
+        {
+          "env": "SWOOPER_TEST_MAP_SEED"
+        },
+        {
+          "env": "SWOOPER_TEST_GAME_SEED"
+        }
+      ],
+      "options": {
+        "cwd": "apps/mods/map/swooper-physics"
+      }
+    },
+    "test:studio-run-in-game": {
+      "command": "bun test test/build/map-bundle-runtime-compatibility.test.ts test/maps/run-manifest-generation.test.ts",
+      "dependsOn": ["build"],
+      "cache": true,
+      "options": {
+        "cwd": "apps/mods/map/swooper-physics"
+      }
+    },
+    "verify:studio-run-in-game-live": {
+      "command": "bun ./scripts/live/verify-studio-run-in-game-live.ts",
+      "dependsOn": ["build"],
+      "cache": false,
+      "options": {
+        "cwd": "apps/mods/map/swooper-physics"
+      }
+    },
+    "verify:final-surface-parity": {
+      "command": "bun ./scripts/live/verify-final-surface-parity.ts",
+      "dependsOn": ["build"],
+      "cache": false,
+      "options": {
+        "cwd": "apps/mods/map/swooper-physics"
+      }
+    },
+    "gen:map-artifacts": {
+      "command": "bun ./scripts/generate-map-artifacts.ts",
+      "dependsOn": ["^build"],
+      "inputs": [
+        "default",
+        "^default",
+        "!{projectRoot}/src/maps/generated/**",
+        "!{projectRoot}/mod/config/config.xml",
+        "!{projectRoot}/mod/*.modinfo",
+        "!{projectRoot}/mod/data/biome-hazards.xml",
+        "!{projectRoot}/mod/text/en_us/MapText.xml",
+        "!{projectRoot}/mod/text/en_us/ModuleText.xml"
+      ],
+      "outputs": [
+        "{projectRoot}/src/maps/generated/**",
+        "{projectRoot}/mod/config/config.xml",
+        "{projectRoot}/mod/*.modinfo",
+        "{projectRoot}/mod/data/biome-hazards.xml",
+        "{projectRoot}/mod/text/en_us/MapText.xml",
+        "{projectRoot}/mod/text/en_us/ModuleText.xml"
+      ],
+      "options": {
+        "cwd": "apps/mods/map/swooper-physics"
+      }
+    },
+    "gen:studio-deploy-map-artifacts": {
+      "command": "bun ./scripts/generate-map-artifacts.ts --include-studio-deploy-config",
+      "dependsOn": ["^build"],
+      "inputs": [
+        "default",
+        "^default",
+        "!{projectRoot}/src/maps/generated/**",
+        "!{projectRoot}/mod/config/config.xml",
+        "!{projectRoot}/mod/*.modinfo",
+        "!{projectRoot}/mod/data/biome-hazards.xml",
+        "!{projectRoot}/mod/text/en_us/MapText.xml",
+        "!{projectRoot}/mod/text/en_us/ModuleText.xml",
+        {
+          "env": "SWOOPER_STUDIO_DEPLOY_CONFIG_ID"
+        }
+      ],
+      "outputs": [
+        "{projectRoot}/src/maps/generated/**",
+        "{projectRoot}/mod/config/config.xml",
+        "{projectRoot}/mod/*.modinfo",
+        "{projectRoot}/mod/data/biome-hazards.xml",
+        "{projectRoot}/mod/text/en_us/MapText.xml",
+        "{projectRoot}/mod/text/en_us/ModuleText.xml"
+      ],
+      "options": {
+        "cwd": "apps/mods/map/swooper-physics"
+      }
+    },
+    "gen:maps": {
+      "executor": "nx:noop",
+      "dependsOn": ["gen:map-artifacts"],
+      "cache": false,
+      "outputs": []
+    },
+    "generated:check": {
+      "command": "bun ./scripts/generate-map-artifacts.ts --check",
+      "dependsOn": ["^build"],
+      "inputs": ["default", "^default"],
+      "cache": true,
+      "outputs": [],
+      "options": {
+        "cwd": "apps/mods/map/swooper-physics"
+      }
+    },
+    "gen:run-manifest": {
+      "command": "bun ./scripts/generate-run-manifest.ts",
+      "dependsOn": ["^build"],
+      "inputs": ["default", "^default", "{workspaceRoot}/packages/studio-run-workspace/src/**"],
+      "cache": false,
+      "options": {
+        "cwd": "apps/mods/map/swooper-physics"
+      }
+    },
+    "deploy": {
+      "command": "node ../../../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps",
+      "dependsOn": [
+        "build",
+        {
+          "projects": ["civ7-cli"],
+          "target": "build"
+        }
+      ],
+      "cache": false,
+      "options": {
+        "cwd": "apps/mods/map/swooper-physics"
+      }
+    }
+  }
+}

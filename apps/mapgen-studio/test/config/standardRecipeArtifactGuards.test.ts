@@ -1,10 +1,10 @@
 import { getCiv7StandardMapSizePreset } from "@civ7/map-policy";
+import { standardMapConfigs } from "@swooper/swooper-physics/catalog";
 import {
   STANDARD_RECIPE_CONFIG,
   STANDARD_RECIPE_CONFIG_SCHEMA,
   studioRecipeUiMeta as STANDARD_RECIPE_UI_META,
-} from "mod-swooper-maps/recipes/standard-artifacts";
-import { standardMapConfigs } from "mod-swooper-maps/recipes/standard-map-configs";
+} from "@swooper/swooper-physics/standard/artifacts";
 import { describe, expect, it } from "vitest";
 import { getRuntimeRecipe } from "../../src/browser-runner/recipeRuntime";
 import {

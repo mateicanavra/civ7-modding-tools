@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "semantic-module contract files delegating through an operation registry, exposing leaf contracts, or owning any authority besides one direct defineDomainSubdomain aggregate",
   "why": "The semantic module contract is already the rightful declarative aggregate. It composes canonical leaf operation contracts directly, eliminating a second registry authority while leaving executable binding to the router.",
@@ -19,7 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/domain/*/modules/*/contract.ts"]
+      "patterns": ["plugins/mod/map/*/src/domain/*/modules/*/contract.ts"]
     }
   ],
   "hookCheck": true,
@@ -34,7 +34,7 @@
     "patternName": "require_domain_module_contract_aggregate_shape",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

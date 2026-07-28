@@ -10,16 +10,16 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
-  "forbids": "map configuration catalog directories outside the closed membership, admission, and facade topology",
-  "why": "A map product catalog has exactly three source owners. Closing that topology prevents support files and alternate readers from becoming parallel catalog authorities; the companion file-shape law owns their semantics.",
-  "remediate": "Keep only membership.ts, admission.ts, and index.ts in a map config catalog. Membership owns ordered config ids, admission binds each id to its canonical envelope, and generators derive storage paths locally.",
+  "forbids": "map configuration catalog directories outside the closed membership, admission, internal facade, and optional package-facing facade topology",
+  "why": "A map product catalog has exactly three source authorities and may project them through one package-facing public facade. Closing that topology prevents support files and alternate readers from becoming parallel catalog authorities; the companion file-shape law owns the authority files' semantics.",
+  "remediate": "Keep membership.ts, admission.ts, and index.ts as the catalog authorities, with only an optional public.ts package facade. Membership owns ordered config ids, admission binds each id to its canonical envelope, and generators derive storage paths locally.",
   "message": "Map config catalogs must match the positive identity-membership topology.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/maps/catalog", "mods/*/src/maps/catalog/**"]
+      "patterns": ["plugins/mod/map/*/src/maps/catalog", "plugins/mod/map/*/src/maps/catalog/**"]
     }
   ],
   "supportFiles": {

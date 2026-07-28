@@ -93,10 +93,10 @@ export default defineConfig(({ command }) => ({
     },
     watch: {
       ignored: [
-        "**/mods/mod-swooper-maps/dist/**",
-        "**/mods/mod-swooper-maps/mod/**",
-        "**/mods/mod-swooper-maps/src/maps/generated/**",
-        "**/mods/mod-swooper-maps/src/maps/configs/*.config.json",
+        "**/plugins/mod/map/swooper-physics/dist/**",
+        "**/plugins/mod/map/swooper-physics/src/maps/configs/*.config.json",
+        "**/apps/mods/map/swooper-physics/mod/**",
+        "**/apps/mods/map/swooper-physics/src/maps/generated/**",
         "**/packages/*/dist/**",
         "**/packages/*/types/**",
       ],

@@ -52,22 +52,22 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/missing-config/config.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/missing-config/config.ts
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 const config = defineStep({ id: "missing-config" });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/wrong-id/config.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/wrong-id/config.ts
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 export const config = defineStep({ id: "different-id" });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/named-contract/config.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/named-contract/config.ts
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 export const NamedContract = defineStep({ id: "named-contract" });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/reexported-type/config.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/reexported-type/config.ts
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 export const config = defineStep({ id: "reexported-type" });
@@ -77,7 +77,7 @@ export type { ExternalInput } from "./input.js";
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/simulate-weather/config.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/simulate-weather/config.ts
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 export interface WeatherStepInput {

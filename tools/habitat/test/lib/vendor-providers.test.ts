@@ -267,7 +267,7 @@ describe("vendor providers", () => {
 
   test("NxProvider batches graph-owned targets through run-many", async () => {
     const request = {
-      projects: ["mod-swooper-maps", "mapgen-core"],
+      projects: ["swooper-physics", "mapgen-core"],
       targets: ["check:policy", "test"],
     };
 
@@ -277,7 +277,7 @@ describe("vendor providers", () => {
       "--targets",
       "check:policy,test",
       "--projects",
-      "mod-swooper-maps,mapgen-core",
+      "swooper-physics,mapgen-core",
       "--outputStyle=static",
     ]);
 

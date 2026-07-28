@@ -29,7 +29,7 @@ Two enforcement planes — do not conflate them:
 | `kind:library` | Pure leaf libraries: types, config, policy facts, metrics/viz contracts and evaluators; no domain orchestration, broadly importable | `packages/civ7-types`, `config`, `civ7-map-policy`, `mapgen-metrics`, `mapgen-viz` package docs |
 | `kind:plugin` | Reusable CLI/SDK helper libraries, leaf-local | `packages/plugins/*`; `packages/cli/AGENTS.md` |
 | `kind:package-tool` | Package-owned, non-runtime build, generation, and currentness programs; callable through Nx targets but not imported by product source | package-local `scripts/project.json`; root `AGENTS.md` task ownership |
-| `kind:mod` | Game-facing mod packages (recipes, domains, map configs, game runtime wrappers) | `mods/*`; `docs/system/ARCHITECTURE.md` |
+| `kind:mod` | Reusable authored mod definitions: domains, recipes, product config, and public mod contracts; deployable realization belongs to an app | `plugins/mod/**`; `docs/system/ARCHITECTURE.md` |
 | `kind:tooling` | Repo-local dev tooling (the habitat harness itself) | new with this workstream |
 
 ### Control lifecycle note
@@ -104,7 +104,8 @@ treatment without adding a concrete tag or constraint row.
 | plugin-git | `packages/plugins/plugin-git` | `kind:plugin` |
 | plugin-graph | `packages/plugins/plugin-graph` | `kind:plugin` |
 | plugin-mods | `packages/plugins/plugin-mods` | `kind:plugin` |
-| mod-swooper-maps | `mods/mod-swooper-maps` | `kind:mod` |
+| swooper-physics | `plugins/mod/map/swooper-physics` | `kind:mod` |
+| swooper-physics-mod | `apps/mods/map/swooper-physics` | `kind:app` |
 | mod-intelligence-bridge | `mods/mod-civ7-intelligence-bridge` | `kind:mod`, `kind:control` |
 | mod-dacia | `mods/mod-swooper-civ-dacia` | `kind:mod` |
 | habitat-authority | `.habitat` | `kind:tooling` |

@@ -1,0 +1,39 @@
+import ecology from "../../../../../../../domain/ecology/index.js";
+import { artifacts as featureArtifacts } from "../../../../../../../domain/ecology/modules/features/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../domain/morphology/modules/landforms/artifacts/index.js";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
+import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
+
+/**
+ * Defines the sole map-ecology boundary that applies all planned feature-family intents to
+ * Civ7. Current engine observation and rejection measurements leave through step facets rather
+ * than becoming stale write-once pipeline state.
+ */
+export const config = defineStep({
+  id: "features-apply",
+  description: "Applies admitted feature-placement intent to the current Civ7 map.",
+  engine: [
+    "getFeatureTypeIndex",
+    "canHaveFeature",
+    "setFeatureType",
+    "validateAndFixTerrain",
+    "readCurrentMapFeatureTypes",
+    "readCurrentMapTerrainTypes",
+    "readCurrentMapWaterMask",
+    "recalculateAreas",
+  ] as const,
+  requires: [
+    STANDARD_COMPLETIONS.biomesApplied,
+    featureArtifacts.vegetationIntents,
+    featureArtifacts.wetlandIntents,
+    featureArtifacts.floodplainIntents,
+    featureArtifacts.reefIntents,
+    featureArtifacts.iceIntents,
+    morphologyLandformsArtifacts.topography,
+  ],
+  provides: [STANDARD_COMPLETIONS.featuresApplied],
+
+  ops: {
+    apply: ecology.features.ops.applyFeatures,
+  },
+});

@@ -41,7 +41,7 @@ defaults a config during admission.
 ### 1) Start from an existing complete config
 
 Select one canonical config under
-`mods/mod-swooper-maps/src/maps/configs/` and use its complete JSON value as
+`plugins/mod/map/swooper-physics/src/maps/configs/` and use its complete JSON value as
 the baseline.
 
 ### 2) Edit stage knob values (not step config)
@@ -90,7 +90,7 @@ Then:
 
 ## Ground truth anchors
 
-- Complete map configs: `mods/mod-swooper-maps/src/maps/configs/`
-- Standard recipe schema and default artifact: `mods/mod-swooper-maps/src/recipes/standard/artifacts.ts`
-- Standard recipe stage translation: `mods/mod-swooper-maps/src/recipes/standard/stages/`
+- Complete map configs: `plugins/mod/map/swooper-physics/src/maps/configs/`
+- Standard recipe schema and default artifact: `plugins/mod/map/swooper-physics/src/recipes/standard/artifacts.ts`
+- Standard recipe stage translation: `plugins/mod/map/swooper-physics/src/recipes/standard/stages/`
 - Studio complete config editor: `packages/mapgen-studio-ui/src/components/panels/RecipePanel.tsx`
