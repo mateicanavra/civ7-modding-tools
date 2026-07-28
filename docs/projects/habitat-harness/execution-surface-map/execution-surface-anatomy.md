@@ -13,9 +13,9 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | --- | --- |
 | policy-predicate | 90 |
 | adapter | 108 |
-| transient-dependency | 145 |
+| transient-dependency | 142 |
 | fixture-support | 3 |
-| entrypoint | 341 |
+| entrypoint | 335 |
 | runner-runtime | 119 |
 
 ## Surface Families
@@ -30,8 +30,8 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | generate-script | 2 | .habitat/docs/_blueprints/docs-site/generate_docs_sidebar_from_docs_tree/generate.sh: Operation executable surface; mutation/build behavior is expected and should not be confused with policy definition.<br>.habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/generate.ts: Operation executable surface; mutation/build behavior is expected and should not be confused with policy definition. |
 | operation-note | 3 | .habitat/docs/_blueprints/docs-site/generate_docs_sidebar_from_docs_tree/operation.md: Classified execution surface.<br>.habitat/docs/rules/repair_docs_issue_links_and_dependency_metadata/operation.md: Classified execution surface.<br>.habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/operation.md: Classified execution surface. |
 | fix-script | 1 | .habitat/docs/rules/repair_docs_issue_links_and_dependency_metadata/fix.mjs: Operation executable surface; mutation/build behavior is expected and should not be confused with policy definition. |
-| package-script | 197 | apps/docs/package.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/docs/package.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/docs/package.json: Workspace entrypoint that may invoke Habitat or package-local work. |
-| nx-target | 129 | apps/docs/project.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/docs/project.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/docs/project.json: Workspace entrypoint that may invoke Habitat or package-local work. |
+| package-script | 193 | apps/cli/package.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/cli/package.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/cli/package.json: Workspace entrypoint that may invoke Habitat or package-local work. |
+| nx-target | 127 | apps/cli/project.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/cli/project.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/cli/project.json: Workspace entrypoint that may invoke Habitat or package-local work. |
 | nx-plugin | 2 | nx.json: Classified execution surface.<br>nx.json: Classified execution surface. |
 | nx-target-default | 11 | nx.json: Classified execution surface.<br>nx.json: Classified execution surface.<br>nx.json: Classified execution surface. |
 | habitat-cli-source | 119 | tools/habitat/src/cli/base/command-lifecycle.ts: Toolkit runner/provider code that executes or routes rule surfaces.<br>tools/habitat/src/cli/base/HabitatCommand.ts: Toolkit runner/provider code that executes or routes rule surfaces.<br>tools/habitat/src/cli/commands/check.ts: Toolkit runner/provider code that executes or routes rule surfaces. |
@@ -55,6 +55,14 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | .habitat/civ7/mod-sdk/rules/require_explicit_mapgen_sdk_opt_in/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/platform/control-orpc/rules/preserve_transport_pure_orpc_contracts/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/docs/_blueprints/docs-site/generate_docs_sidebar_from_docs_tree/generate.sh | generate-script | build/currentness or ordering tie |
+| apps/cli/project.json | nx-target | build/currentness or ordering tie |
+| apps/cli/project.json | nx-target | build/currentness or ordering tie |
+| apps/cli/project.json | nx-target | build/currentness or ordering tie |
+| apps/cli/project.json | nx-target | build/currentness or ordering tie |
+| apps/cli/project.json | nx-target | build/currentness or ordering tie |
+| apps/cli/project.json | nx-target | build/currentness or ordering tie |
+| apps/cli/project.json | nx-target | build/currentness or ordering tie |
+| apps/cli/project.json | nx-target | build/currentness or ordering tie |
 | apps/docs/project.json | nx-target | build/currentness or ordering tie |
 | apps/docs/project.json | nx-target | build/currentness or ordering tie |
 | apps/mapgen-studio/project.json | nx-target | build/currentness or ordering tie |
@@ -82,14 +90,6 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | apps/mods/map/swooper-physics/project.json | nx-target | build/currentness or ordering tie |
 | apps/mods/map/swooper-physics/project.json | nx-target | build/currentness or ordering tie |
 | apps/mods/map/swooper-physics/project.json | nx-target | build/currentness or ordering tie |
-| apps/playground/package.json | package-script | build/currentness or ordering tie |
-| mods/mod-civ7-intelligence-bridge/package.json | package-script | build/currentness or ordering tie |
-| mods/mod-civ7-intelligence-bridge/project.json | nx-target | build/currentness or ordering tie |
-| mods/mod-civ7-intelligence-bridge/project.json | nx-target | build/currentness or ordering tie |
-| mods/mod-civ7-intelligence-bridge/project.json | nx-target | build/currentness or ordering tie |
-| mods/mod-civ7-intelligence-bridge/project.json | nx-target | build/currentness or ordering tie |
-| mods/mod-swooper-civ-dacia/package.json | package-script | build/currentness or ordering tie |
-| mods/mod-swooper-civ-dacia/project.json | nx-target | build/currentness or ordering tie |
 
 ## Fixture/Support Files
 
