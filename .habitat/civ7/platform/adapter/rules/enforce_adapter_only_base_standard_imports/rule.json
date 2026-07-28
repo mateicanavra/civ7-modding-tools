@@ -19,7 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["packages/**/*.ts"]
+      "patterns": ["packages/**/*.ts", "plugins/cli/topics/*/src/**/*.ts"]
     }
   ],
   "hookCheck": true,
@@ -34,7 +34,7 @@
     "patternName": "enforce_adapter_only_base_standard_imports",
     "acquisition": {
       "kind": "check",
-      "roots": ["packages"]
+      "roots": ["packages", "plugins/cli/topics"]
     }
   }
 }

@@ -29,7 +29,6 @@
   },
   "oclif": {
     "bin": "civ7",
-    "commands": "./dist/commands",
     "dirname": "cli",
     "plugins": [
       "@oclif/plugin-help",

@@ -1,0 +1,57 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "cli-shell-project-root"
+root = "packages/cli"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "bin",
+  "package.json",
+  "project.json",
+  "src",
+  "test",
+  "tsconfig.json",
+]
+allowed = [
+  "AGENTS.md",
+  "CHANGELOG.md",
+  "README.md",
+  "TESTING.md",
+  "dist",
+  "node_modules",
+  "oclif.manifest.json",
+  "tsconfig.tsbuildinfo",
+]
+
+[[scopes]]
+name = "cli-shell-binary-root"
+root = "packages/cli/bin"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "dev.ts",
+  "run.js",
+  "tsconfig.json",
+]
+
+[[scopes]]
+name = "cli-shell-source-root"
+root = "packages/cli/src"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["index.ts"]
+
+[[scopes]]
+name = "cli-shell-test-root"
+root = "packages/cli/test"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "shell.test.ts",
+  "tsconfig.json",
+]

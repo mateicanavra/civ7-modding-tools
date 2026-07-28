@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "require_cli_shell_project_topology",
+  "title": "Require CLI Shell Project Topology",
+  "placement": {
+    "niche": "global/workspace",
+    "blueprint": "cli-shell",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "the Civ7 CLI shell without its package, Nx project, binary, source entrypoint, and shell behavior-test spine or with loose children outside that finite topology",
+  "why": "The CLI shell is the singleton owner of application startup, topic registration, packaging, and direct executable proof. Closing its root, binary, source, and test spines prevents topic commands, reusable capabilities, and duplicate shell registries from accumulating in the application container.",
+  "remediate": "Keep the package and Nx metadata at packages/cli, executable entrypoints under bin, the application entrypoint under src, and shell-wide behavior proof under test. Move cohesive command topics to plugins/cli/topics and reusable capabilities to their library owners; define another closed kind before admitting any new shell-owned file category.",
+  "message": "The Civ7 CLI shell must match the closed shell-project topology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["packages/cli", "packages/cli/**"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/cli-shell/require_cli_shell_project_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/cli-shell/require_cli_shell_project_topology/structure.toml"
+    }
+  }
+}

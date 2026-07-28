@@ -2,19 +2,18 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Realization. Delegation. Opacity. Target. Exit.
+**Attractor filter:** Kind. Registration. Closure. Coverage. Assembly.
 
-**Frame:** the Swooper definition and its Civ7 realization are separate owners
-all the way through execution. Studio may select authored product identity and
-invoke an application capability, but it does not know the realization's
-physical output path, deployed mod id, or file-copy procedure. The app target
-owns the complete build/deploy transaction; its exit is the orchestration
-contract and its bounded output is diagnostic evidence, not a parsed protocol.
+**Frame:** the CLI is one assembled shell over independently owned topic
+plugins. Positive structure closes each kind's interior; the shell's one
+behavior proof closes the registration relationship by deriving the topic
+corpus rather than pinning today's names. Platform laws follow the product kind
+into `plugins/**`; physical relocation never creates an enforcement blind spot.
 
-**Authority order:** product identity -> Civ7 realization -> application target
--> Studio invocation -> bounded diagnostics. Filesystem and deployment facts
-remain below the realization boundary; Studio coordinates without reconstructing
-the app's implementation.
+**Authority order:** kind definition -> closed structure -> package relation ->
+platform boundary -> assembled executable. Structure owns containment, the
+shell test owns dynamic registration equality, Nx owns graph ordering, and
+Knip owns dependency liveness; no substitute scanner duplicates those owners.
 
 **Enforcement gravity:** a correct scaffold plus an advisory rule is guidance,
 not a ratchet. Every newly admitted kind must finish with its generic blueprint
@@ -27,11 +26,12 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** seal the realization deployment boundary. Add one
-Studio-specific deployment target to the Swooper Civ7 app, make its existing
-Studio build target the target-owned dependency, and reduce Studio to invoking
-that one capability with the selected config identity. Remove the last stale
-generated-path ignore while this physical owner is in view.
+**Current container:** ratchet the CLI shell kind and repair migrated platform
+coverage. Add the closed shell blueprint, make its existing behavior test derive
+topic membership and require one registration plus one workspace dependency per
+topic, and extend the
+direct-control and adapter laws to the generic CLI-topic root without topic
+allowlists or broad repository scans.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -48,9 +48,10 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** remove Studio's app path and mod-id knowledge, prove the exact
-target plan and environment isolation, verify the app/Studio graph and boundary
-law, then land the cut before returning to SDK and Habitat residuals.
+**Gradient:** establish the positive shell law, prove injected-red and clean
+fixtures, burn the current corpus to zero, run the shell graph, boundaries, and
+Knip, then regenerate execution-surface currentness once the CLI plane is
+fully sealed.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -93,6 +94,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Swooper Realization Deployment Sealed
+
+Studio now invokes one complete `swooper-physics-mod:deploy:studio` capability
+with the selected config identity. The Civ7 app owns its build dependency,
+physical mod output, runtime mod id, and copy procedure; Studio retains only
+opaque bounded diagnostics and relies on target exit for orchestration truth.
+The full app/Studio graph, resolved Nx target, boundaries, Knip, staged policy,
+and fresh architecture review sealed the last definition/realization leak.
 
 ### 2026-07-28 - CLI Shell Ownership Sealed
 

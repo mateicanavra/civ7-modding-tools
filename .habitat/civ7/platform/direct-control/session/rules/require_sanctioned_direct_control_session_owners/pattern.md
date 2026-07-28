@@ -10,7 +10,7 @@ sessions outside the sanctioned session owner files.
 language js(typescript)
 
 `new Civ7DirectControlSession($args)` where {
-  $filename <: r".*(?:apps|packages)/.*\.tsx?$",
+  $filename <: r".*(?:(?:apps|packages)/.*\.tsx?|plugins/cli/topics/[^/]+/src/.*\.ts)$",
   ! $filename <: includes "packages/studio-server/src/services/Civ7TunerSession.ts",
   ! $filename <: includes "packages/civ7-direct-control/src/session/session.ts",
   ! $filename <: includes "/test/",
@@ -38,6 +38,9 @@ const session = new Civ7DirectControlSession(options);
 // @filename: packages/civ7-control-orpc/src/modules/demo/procedure.ts
 const session = new Civ7DirectControlSession(options);
 
+// @filename: plugins/cli/topics/example/src/commands/example/session.ts
+const session = new Civ7DirectControlSession(options);
+
 // @filename: apps/mapgen-studio/src/features/liveRuntime/session.tsx
 const session = new Civ7DirectControlSession({ host: "127.0.0.1" });
 ```
@@ -58,6 +61,12 @@ const session = new Civ7DirectControlSession({ host: "127.0.0.1" });
 const session = new Civ7DirectControlSession({ host: "127.0.0.1" });
 
 // @filename: tools/habitat/src/session.ts
+const session = new Civ7DirectControlSession(options);
+
+// @filename: plugins/cli/topics/example/test/commands/example/session.test.ts
+const session = new Civ7DirectControlSession(options);
+
+// @filename: plugins/cli/topics/example/src/commands/example/session.tsx
 const session = new Civ7DirectControlSession(options);
 
 // @filename: apps/mapgen-studio/src/features/liveRuntime/session.ts
