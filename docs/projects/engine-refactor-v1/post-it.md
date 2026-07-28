@@ -2,7 +2,7 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Target. Command. Native. Ownership. Deletion.
+**Attractor filter:** Plan. Shape. Authority. Output. Deletion.
 
 **Frame:** kind before instance, intent before ownership, authority before
 relocation. A closed file shape is the start of semantic review, not proof that
@@ -30,12 +30,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** `scripts/verify.ts` is a second command graph over two
-live verifier entrypoints. It adds a mode registry, alias, argument parser, and
-child-process hop without owning product semantics. Nx already owns target
-selection, upstream build ordering, and argument forwarding. Make each live
-proof one direct Nx target and delete the dispatcher rather than preserving a
-parallel command vocabulary.
+**Current container:** Swooper's map-artifact renderer currently wraps the
+canonical `GeneratedFilePlan` in a second plan schema whose taxonomy and
+metadata are ignored by the output runtime. Preserve Swooper's product-specific
+rendering, but delete the phantom file kinds, marker records, exclusive-set
+identity, and config-projection ledger. One generated-file plan should flow
+directly from product rendering into generic path admission, inspection,
+cleanup, and writes.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -52,11 +53,11 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** register the two verifier entrypoints directly in the mod's Nx
-project; update their usage and current runbook surfaces; remove the generic
-mode, alias, parser, and spawn path; prove the removed target and script have no
-live consumers. Freeze with project metadata inspection, both help paths, the
-focused verifier behavior, the Swooper tools graph, and fresh ownership review.
+**Gradient:** make all three Swooper renderers return the canonical
+`GeneratedFilePlan`; derive orchestration summaries from the admitted inputs;
+delete ignored shadow fields and the custom plan type; retain tests only for
+emitted paths and product bytes. Freeze with focused renderer/catalog behavior,
+the Swooper tools graph, dead-code proof, and fresh SDK and product review.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -99,6 +100,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Live Verifier Targets Sealed
+
+The false `scripts/verify.ts` command graph retired. Each live proof now has one
+direct uncached Nx target with build ordering and native argument forwarding;
+the duplicate mode registry, alias, parser, spawn hop, and old command
+vocabulary are gone. Both real Nx help paths, focused verifier behavior, the
+Swooper tools graph, boundaries, dead-code proof, deterministic execution-surface
+inventory, and fresh architecture/testing reviews sealed the cut.
 
 ### 2026-07-28 - Diagnostic Command Input Authority Sealed
 
