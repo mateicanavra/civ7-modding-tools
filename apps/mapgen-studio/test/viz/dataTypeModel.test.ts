@@ -184,11 +184,11 @@ describe("buildStepDataTypeModel", () => {
     const stepId = "mod-swooper-maps.standard.map-rivers.plot-rivers";
     const mapInfo = TEST_MAP_SIZE.mapInfo;
     const earthlikeArtifact = standardMapConfigs.find(
-      ({ canonicalConfig }) => canonicalConfig.id === "swooper-earthlike"
+      (canonicalConfig) => canonicalConfig.id === "swooper-earthlike"
     );
     if (!earthlikeArtifact)
       throw new Error("swooper-earthlike config missing from standard map config catalog");
-    const standardConfig = studioStandardRecipeConfig(earthlikeArtifact.canonicalConfig);
+    const standardConfig = studioStandardRecipeConfig(earthlikeArtifact);
     const runtimeRecipe = getRuntimeRecipe("standard");
     const plan = runtimeRecipe.recipe.compile(TEST_BROWSER_RUN_INITIAL_SETUP, standardConfig);
     const verboseSteps = Object.fromEntries(

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 2,
+  "id": "require_map_config_catalog_file_shape",
+  "title": "Require Map Config Catalog File Shape",
+  "placement": {
+    "niche": "civ7/mapgen",
+    "blueprint": "map-config-catalog",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "map config catalogs with repository-path membership, alternate export authorities, or admission that bypasses canonical id-derived filename validation",
+  "why": "A map product catalog owns ordered identities, not storage paths. One closed membership and admission shape keeps config identity stable while generators remain free to derive local storage paths.",
+  "remediate": "Export MAP_CONFIG_CATALOG_IDS plus admitMapConfigCatalogIds from membership.ts, derive the canonical filename from configId in admission.ts, delegate envelope validation to the canonical config owner, and re-export only those authorities from index.ts.",
+  "message": "Map config catalog files must preserve the positive identity-membership and canonical-admission shape.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/maps/catalog/membership.ts",
+        "mods/*/src/maps/catalog/admission.ts",
+        "mods/*/src/maps/catalog/index.ts"
+      ]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/map-config-catalog/require_map_config_catalog_file_shape/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/map-config-catalog/require_map_config_catalog_file_shape/pattern.md"
+    },
+    "patternName": "require_map_config_catalog_file_shape",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["mods"]
+    }
+  }
+}

@@ -30,13 +30,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** Swooper map-artifact generation still fuses authored
-product metadata, Studio catalog projection, Civ7 XML and entrypoint lowering,
-generated-currentness, and deployable mod realization. The eventual definition
-and app split is a hard-cut ownership migration, not an earned folder move in
-this cleanup buffer. First make the present boundary honest: definition
-semantics are admitted once, while the deployable realization only lowers that
-admitted product into a complete generated-file plan.
+**Current container:** Swooper's biome-hazard catalog is still re-derived in
+two realization paths: the Standard Ecology projection step binds abstract
+hazard intents to Civ7 runtime identifiers, while the generated XML renderer
+separately owns labels and gameplay rows. The eventual definition/plugin and
+deployable-app split remains a hard-cut ownership migration, not an earned
+folder move in this cleanup buffer. First establish one recipe-projection
+authority that both current realizations consume without moving Swooper domain
+meaning into Core, Civ7 policy, or the adapter.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -53,14 +54,13 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** classify the current map-artifact generator by definition versus
-realization responsibility. Lift product names, descriptions, hazards, and
-catalog facts out of XML/string rendering when they are still hidden there;
-admit one immutable product definition; lower it into generated entrypoints,
-module metadata, localization, and data XML through one complete plan. Delete
-duplicate catalog projections and repository-path coupling rather than move
-them. Freeze through generated currentness, the real Civ7 bundle, Studio
-consumption, dead-code proof, and focused architecture and product review.
+**Gradient:** name the complete biome-hazard projection catalog at the nearest
+truthful Standard Ecology stage owner; include intent identity, Civ7 binding,
+label, and gameplay-row policy once. Project runtime effect application and
+deployable XML from that admitted catalog. Preserve run-mod behavior, which
+depends on the durable Swooper module and must not duplicate hazard data. Then
+freeze through generated currentness, the real Civ7 bundle, focused behavior,
+dead-code proof, and architecture/product review.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -103,6 +103,17 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Catalog Identity Membership Sealed
+
+Shipped Swooper catalog membership now owns an ordered list of canonical map
+config ids rather than repository paths. Generators alone derive local config
+paths, Studio consumes direct canonical envelopes, and Save/Deploy selects a
+transient config by id without a second path authority. The path-index parser,
+wrapper projection, deploy-path environment variable, and three brittle niche
+rules retired in favor of one closed generic catalog blueprint. Focused
+behavior, the Studio/Swooper type graph, generated currentness, dead-code proof,
+and fresh architecture and quality review sealed the cut.
 
 ### 2026-07-28 - Studio Recipe Output Plan Sealed
 

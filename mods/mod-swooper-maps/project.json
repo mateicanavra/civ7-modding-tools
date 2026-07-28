@@ -27,9 +27,6 @@
         "default",
         {
           "env": "SWOOPER_STUDIO_DEPLOY_CONFIG_ID"
-        },
-        {
-          "env": "SWOOPER_STUDIO_DEPLOY_CONFIG_PATH"
         }
       ],
       "outputs": ["{projectRoot}/mod/maps/**"],
@@ -160,9 +157,6 @@
         "!{projectRoot}/mod/text/en_us/ModuleText.xml",
         {
           "env": "SWOOPER_STUDIO_DEPLOY_CONFIG_ID"
-        },
-        {
-          "env": "SWOOPER_STUDIO_DEPLOY_CONFIG_PATH"
         }
       ],
       "outputs": [
@@ -232,13 +226,7 @@
     "gen:studio-map-catalog": {
       "command": "bun ./scripts/generate-studio-map-catalog.ts",
       "dependsOn": ["^build"],
-      "inputs": [
-        "default",
-        "^default",
-        "{projectRoot}/src/maps/catalog/index.ts",
-        "{projectRoot}/src/maps/catalog/sourceIndex.ts",
-        "{projectRoot}/src/maps/catalog/sources.ts"
-      ],
+      "inputs": ["default", "^default"],
       "cache": true,
       "outputs": [
         "{projectRoot}/dist/recipes/standard-map-config.schema.json",

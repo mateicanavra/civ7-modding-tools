@@ -3,8 +3,8 @@ import { resolve } from "node:path";
 import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
 import { Type } from "typebox";
 import { describe, expect, it } from "vitest";
-import { admitSwooperCatalogConfig } from "../../src/maps/catalog/admission";
-import { CatalogSourceIndex } from "../../src/maps/catalog/sourceIndex";
+import { admitMapConfigCatalogConfig } from "../../src/maps/catalog/admission";
+import { MAP_CONFIG_CATALOG_IDS } from "../../src/maps/catalog/membership";
 import {
   admitStandardMapConfig,
   validateCanonicalMapConfig,
@@ -18,12 +18,15 @@ const repoRoot = resolve(import.meta.dirname, "../../../..");
 async function loadSwooperMapConfigRegistry() {
   const recipeSchema = deriveRecipeConfigSchema(STANDARD_STAGES);
   return Promise.all(
-    CatalogSourceIndex.map(async (sourcePath) => ({
-      sourcePath,
-      ...admitSwooperCatalogConfig({
-        sourcePath,
+    MAP_CONFIG_CATALOG_IDS.map(async (configId) => ({
+      configId,
+      ...admitMapConfigCatalogConfig({
+        configId,
         canonicalConfig: JSON.parse(
-          await readFile(resolve(repoRoot, sourcePath), "utf8")
+          await readFile(
+            resolve(repoRoot, `mods/mod-swooper-maps/src/maps/configs/${configId}.config.json`),
+            "utf8"
+          )
         ) as unknown,
         recipeSchema,
       }),
@@ -38,13 +41,13 @@ function authoredEnvelope(
 }
 
 describe("Shipped map configs", () => {
-  it("stay canonical, complete, and catalog-index backed", async () => {
+  it("stay canonical, complete, and catalog-id backed", async () => {
     const configs = await loadSwooperMapConfigRegistry();
 
-    expect(configs).toHaveLength(CatalogSourceIndex.length);
+    expect(configs).toHaveLength(MAP_CONFIG_CATALOG_IDS.length);
 
     for (const [index, config] of configs.entries()) {
-      expect(config.sourcePath).toBe(CatalogSourceIndex[index]);
+      expect(config.canonicalConfig.id).toBe(MAP_CONFIG_CATALOG_IDS[index]);
     }
   });
 
@@ -98,8 +101,8 @@ describe("Shipped map configs", () => {
     const submittedJson = JSON.stringify(raw);
 
     expect(() => admitStandardMapConfig(raw)).toThrow("Unknown key");
-    const admitted = admitSwooperCatalogConfig({
-      sourcePath: fixture.sourcePath,
+    const admitted = admitMapConfigCatalogConfig({
+      configId: fixture.configId,
       canonicalConfig: raw,
       recipeSchema: freshSchema,
     });
@@ -113,23 +116,15 @@ describe("Shipped map configs", () => {
     expect(admitted.canonicalConfig.name).not.toBe(raw.name);
   });
 
-  it("rejects catalog files whose path identity disagrees with the admitted id", async () => {
+  it("rejects a canonical envelope whose id disagrees with its id-derived filename", async () => {
     const [fixture] = await loadSwooperMapConfigRegistry();
     if (!fixture) throw new Error("Expected a shipped Swooper map config");
-    const sourcePath = fixture.sourcePath.replace(
-      `${fixture.canonicalConfig.id}.config.json`,
-      `not-${fixture.canonicalConfig.id}.config.json`
-    );
-
     expect(() =>
-      admitSwooperCatalogConfig({ sourcePath, canonicalConfig: fixture.canonicalConfig })
-    ).toThrow("must match file stem");
-    expect(() =>
-      admitSwooperCatalogConfig({
-        sourcePath: `../${fixture.canonicalConfig.id}.config.json`,
+      admitMapConfigCatalogConfig({
+        configId: `not-${fixture.canonicalConfig.id}`,
         canonicalConfig: fixture.canonicalConfig,
       })
-    ).toThrow("must point at");
+    ).toThrow("must match file stem");
   });
 
   it("compiles every shipped config into an executable stage plan", async () => {

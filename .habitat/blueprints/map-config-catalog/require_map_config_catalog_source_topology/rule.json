@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "require_map_config_catalog_source_topology",
+  "title": "Require Map Config Catalog Source Topology",
+  "placement": {
+    "niche": "civ7/mapgen",
+    "blueprint": "map-config-catalog",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "map configuration catalog directories outside the closed membership, admission, and facade topology",
+  "why": "A map product catalog has exactly three source owners. Closing that topology prevents support files and alternate readers from becoming parallel catalog authorities; the companion file-shape law owns their semantics.",
+  "remediate": "Keep only membership.ts, admission.ts, and index.ts in a map config catalog. Membership owns ordered config ids, admission binds each id to its canonical envelope, and generators derive storage paths locally.",
+  "message": "Map config catalogs must match the positive identity-membership topology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/*/src/maps/catalog", "mods/*/src/maps/catalog/**"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/map-config-catalog/require_map_config_catalog_source_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/map-config-catalog/require_map_config_catalog_source_topology/structure.toml"
+    }
+  }
+}

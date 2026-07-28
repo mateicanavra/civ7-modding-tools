@@ -53,7 +53,7 @@ function requireCanonicalConfig(value: unknown, label: string): MapConfigEnvelop
   return snapshot;
 }
 
-const standardCatalogConfigs = swooperStandardMapConfigs.map(({ canonicalConfig }) =>
+const standardCatalogConfigs = swooperStandardMapConfigs.map((canonicalConfig) =>
   requireCanonicalConfig(canonicalConfig, canonicalConfig.id)
 );
 

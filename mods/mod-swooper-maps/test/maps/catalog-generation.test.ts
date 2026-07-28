@@ -5,11 +5,12 @@ import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { loadSwooperStudioDeployConfigRegistry } from "../../scripts/generate-map-artifacts";
 import { generateSwooperStudioCatalogMetadata } from "../../scripts/generate-studio-map-catalog";
-import { CatalogSourceIndex } from "../../src/maps/catalog/sourceIndex";
-import { CATALOG_CONFIG_PATH_PREFIX } from "../../src/maps/catalog/sources";
+import { MAP_CONFIG_CATALOG_IDS } from "../../src/maps/catalog/membership";
 
-function indexedSource(index: number): string {
-  return CatalogSourceIndex[index] as string;
+const CATALOG_CONFIG_DIRECTORY = "mods/mod-swooper-maps/src/maps/configs";
+
+function catalogConfigId(index: number): string {
+  return MAP_CONFIG_CATALOG_IDS[index] as string;
 }
 
 async function outputPaths(root: string): Promise<string[]> {
@@ -25,10 +26,7 @@ async function importCatalogEntries(root: string) {
   const module = (await import(
     pathToFileURL(resolve(root, "dist/recipes/standard-map-configs.js")).href
   )) as Readonly<{
-    standardMapConfigs: readonly Readonly<{
-      sourcePath: string;
-      canonicalConfig: Readonly<{ id: string }>;
-    }>[];
+    standardMapConfigs: readonly Readonly<{ id: string }>[];
   }>;
   return module.standardMapConfigs;
 }
@@ -38,10 +36,10 @@ async function fakeRepoWithConfig(args: {
   fileName: string;
   config: unknown;
 }): Promise<string> {
-  const configDir = resolve(args.root, CATALOG_CONFIG_PATH_PREFIX);
+  const configDir = resolve(args.root, CATALOG_CONFIG_DIRECTORY);
   await mkdir(configDir, { recursive: true });
   await writeFile(resolve(configDir, args.fileName), JSON.stringify(args.config, null, 2));
-  return `${CATALOG_CONFIG_PATH_PREFIX}${args.fileName}`;
+  return args.fileName.replace(/\.config\.json$/, "");
 }
 
 async function savedConfigFixture(id: string): Promise<unknown> {
@@ -60,14 +58,14 @@ async function savedConfigFixture(id: string): Promise<unknown> {
   };
 }
 
-describe("Swooper catalog generation index cutover", () => {
-  it("emits Studio catalog metadata from the supplied index order only", async () => {
+describe("Swooper catalog generation identity cutover", () => {
+  it("emits Studio catalog metadata from the supplied id order only", async () => {
     const outputRoot = await mkdtemp(resolve(tmpdir(), "swooper-catalog-index-cutover-"));
     try {
-      const selected = [indexedSource(1), indexedSource(0)];
+      const selected = [catalogConfigId(1), catalogConfigId(0)];
 
       const result = await generateSwooperStudioCatalogMetadata({
-        catalogSourceIndex: selected,
+        catalogConfigIds: selected,
         outputRoot,
       });
 
@@ -79,24 +77,20 @@ describe("Swooper catalog generation index cutover", () => {
       ]);
 
       const entries = await importCatalogEntries(outputRoot);
-      expect(entries.map((entry) => entry.canonicalConfig.id)).toEqual([
-        "swooper-earthlike",
-        "swooper-desert-mountains",
-      ]);
-      expect(entries.map((entry) => entry.sourcePath)).toEqual([selected[0], selected[1]]);
+      expect(entries.map((entry) => entry.id)).toEqual(selected);
     } finally {
       await rm(outputRoot, { recursive: true, force: true });
     }
   });
 
-  it("fails before emitting metadata when an indexed source is missing", async () => {
+  it("derives the config filename from an id and fails before metadata emits when it is missing", async () => {
     const outputRoot = await mkdtemp(resolve(tmpdir(), "swooper-catalog-index-missing-"));
     try {
-      const missing = `${CATALOG_CONFIG_PATH_PREFIX}missing-indexed-source.config.json`;
+      const missing = "missing-indexed-source";
 
       await expect(
-        generateSwooperStudioCatalogMetadata({ catalogSourceIndex: [missing], outputRoot })
-      ).rejects.toThrow("does not resolve in the repository");
+        generateSwooperStudioCatalogMetadata({ catalogConfigIds: [missing], outputRoot })
+      ).rejects.toThrow(`${CATALOG_CONFIG_DIRECTORY}/${missing}.config.json`);
       expect(await outputPaths(outputRoot)).toEqual([]);
     } finally {
       await rm(outputRoot, { recursive: true, force: true });
@@ -107,7 +101,7 @@ describe("Swooper catalog generation index cutover", () => {
     const fakeRepoRoot = await mkdtemp(resolve(tmpdir(), "swooper-catalog-index-invalid-repo-"));
     const outputRoot = await mkdtemp(resolve(tmpdir(), "swooper-catalog-index-invalid-output-"));
     try {
-      const configPath = await fakeRepoWithConfig({
+      const configId = await fakeRepoWithConfig({
         root: fakeRepoRoot,
         fileName: "indexed-invalid.config.json",
         config: {
@@ -119,15 +113,15 @@ describe("Swooper catalog generation index cutover", () => {
           config: "not-an-object",
         },
       });
-      const invalid = configPath;
+      const invalid = configId;
 
       await expect(
         generateSwooperStudioCatalogMetadata({
-          catalogSourceIndex: [invalid],
+          catalogConfigIds: [invalid],
           outputRoot,
           repoRoot: fakeRepoRoot,
         })
-      ).rejects.toThrow("Invalid Swooper catalog source index config references");
+      ).rejects.toThrow("Invalid Swooper map catalog config references");
       expect(await outputPaths(outputRoot)).toEqual([]);
     } finally {
       await rm(fakeRepoRoot, { recursive: true, force: true });
@@ -139,7 +133,7 @@ describe("Swooper catalog generation index cutover", () => {
     const fakeRepoRoot = await mkdtemp(resolve(tmpdir(), "swooper-deploy-config-repo-"));
     const outputRoot = await mkdtemp(resolve(tmpdir(), "swooper-empty-catalog-output-"));
     try {
-      const configPath = await fakeRepoWithConfig({
+      await fakeRepoWithConfig({
         root: fakeRepoRoot,
         fileName: "saved-config.config.json",
         config: await savedConfigFixture("saved-config"),
@@ -147,7 +141,7 @@ describe("Swooper catalog generation index cutover", () => {
 
       await expect(
         generateSwooperStudioCatalogMetadata({
-          catalogSourceIndex: [],
+          catalogConfigIds: [],
           outputRoot,
           repoRoot: fakeRepoRoot,
         })
@@ -155,8 +149,8 @@ describe("Swooper catalog generation index cutover", () => {
       expect(await outputPaths(outputRoot)).toEqual([]);
 
       const deployConfigs = await loadSwooperStudioDeployConfigRegistry({
-        catalogSourceIndex: [],
-        deployConfig: { id: "saved-config", path: configPath },
+        catalogConfigIds: [],
+        deployConfigId: "saved-config",
         repoRoot: fakeRepoRoot,
       });
 
@@ -167,26 +161,37 @@ describe("Swooper catalog generation index cutover", () => {
     }
   });
 
-  it("rejects a deploy config id that does not match the selected config file", async () => {
+  it("rejects a deploy config whose canonical id does not match the id-derived filename", async () => {
     const fakeRepoRoot = await mkdtemp(resolve(tmpdir(), "swooper-deploy-id-mismatch-repo-"));
     try {
-      const configPath = await fakeRepoWithConfig({
+      await fakeRepoWithConfig({
         root: fakeRepoRoot,
-        fileName: "saved-config.config.json",
+        fileName: "other-config.config.json",
         config: await savedConfigFixture("saved-config"),
       });
 
       await expect(
         loadSwooperStudioDeployConfigRegistry({
-          catalogSourceIndex: [],
-          deployConfig: { id: "other-config", path: configPath },
+          catalogConfigIds: [],
+          deployConfigId: "other-config",
           repoRoot: fakeRepoRoot,
         })
       ).rejects.toThrow(
-        'Studio deploy config id "other-config" must match loaded config id "saved-config"'
+        'Canonical map config id must match file stem "other-config", got "saved-config"'
       );
     } finally {
       await rm(fakeRepoRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects every explicitly malformed deploy config id", async () => {
+    for (const deployConfigId of ["", "not a config id"]) {
+      await expect(
+        loadSwooperStudioDeployConfigRegistry({
+          catalogConfigIds: [],
+          deployConfigId,
+        })
+      ).rejects.toThrow("Invalid Swooper map catalog membership");
     }
   });
 });

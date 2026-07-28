@@ -12,9 +12,11 @@ import {
 } from "@swooper/mapgen-core/authoring";
 import { compile } from "json-schema-to-typescript";
 import type { TObject, TSchema } from "typebox";
-import { admitSwooperCatalogConfig } from "../src/maps/catalog/admission.js";
-import { CatalogSourceIndex } from "../src/maps/catalog/sourceIndex.js";
-import { parseCatalogSourceIndex } from "../src/maps/catalog/sources.js";
+import { admitMapConfigCatalogConfig } from "../src/maps/catalog/admission.js";
+import {
+  admitMapConfigCatalogIds,
+  MAP_CONFIG_CATALOG_IDS,
+} from "../src/maps/catalog/membership.js";
 import { deriveStandardRecipeArtifacts } from "../src/recipes/standard/artifacts.js";
 import { STANDARD_STAGES } from "../src/recipes/standard/recipe.js";
 
@@ -304,13 +306,12 @@ const standardArtifactModuleFiles = buildArtifactsModuleFiles({
 
 async function validateStandardMapConfigs(): Promise<void> {
   const errors: Array<{ path: string; message: string }> = [];
-  for (const configPath of parseCatalogSourceIndex(CatalogSourceIndex).entries) {
+  for (const configId of admitMapConfigCatalogIds(MAP_CONFIG_CATALOG_IDS)) {
+    const configPath = `src/maps/configs/${configId}.config.json`;
     try {
-      const raw = JSON.parse(
-        await readFile(resolve(pkgRoot, "..", "..", configPath), "utf-8")
-      ) as unknown;
-      admitSwooperCatalogConfig({
-        sourcePath: configPath,
+      const raw = JSON.parse(await readFile(resolve(pkgRoot, configPath), "utf-8")) as unknown;
+      admitMapConfigCatalogConfig({
+        configId,
         canonicalConfig: raw,
         recipeSchema: standardSchema,
       });

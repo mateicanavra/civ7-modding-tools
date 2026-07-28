@@ -5,10 +5,7 @@ import { buildSwooperMapsStudioDeployPlan } from "../../src/server/mapConfigs/de
 describe("daemon deploy isolation", () => {
   it("does not replay dependency build outputs during Save & Deploy", () => {
     const plan = buildSwooperMapsStudioDeployPlan({
-      launchConfig: {
-        id: "studio-current",
-        path: "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
-      },
+      launchConfigId: "studio-current",
       env: {
         PATH: "/bin",
         SWOOPER_INCLUDE_STUDIO_CURRENT: "1",
@@ -28,8 +25,6 @@ describe("daemon deploy isolation", () => {
     ]);
     expect(plan.env).toMatchObject({
       SWOOPER_STUDIO_DEPLOY_CONFIG_ID: "studio-current",
-      SWOOPER_STUDIO_DEPLOY_CONFIG_PATH:
-        "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
     });
     expect(plan.env).not.toHaveProperty("SWOOPER_INCLUDE_STUDIO_CURRENT");
     expect(plan.env).not.toHaveProperty("SWOOPER_STUDIO_RUN_ID");

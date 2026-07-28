@@ -6,14 +6,13 @@ import {
   type GeneratedFilePlanIssue,
   inspectGeneratedFilePlan,
 } from "@civ7/plugin-files/generated-file-plan";
+import type { MapConfigId } from "@civ7/studio-contract";
 import type { TSchema } from "typebox";
-import { admitSwooperCatalogConfig } from "../src/maps/catalog/admission.js";
-import { CatalogSourceIndex } from "../src/maps/catalog/sourceIndex.js";
+import { admitMapConfigCatalogConfig } from "../src/maps/catalog/admission.js";
 import {
-  catalogConfigFileNameFromPath,
-  parseCatalogSourceIndex,
-  validateCatalogSourceIndex,
-} from "../src/maps/catalog/sources.js";
+  admitMapConfigCatalogIds,
+  MAP_CONFIG_CATALOG_IDS,
+} from "../src/maps/catalog/membership.js";
 import type { ValidatedMapConfig } from "../src/maps/configs/canonical.js";
 import { deriveStandardRecipeArtifacts } from "../src/recipes/standard/artifacts.js";
 import { buildSwooperCatalogModFilePlan } from "./map-artifacts/file-plan.js";
@@ -23,11 +22,10 @@ const __dirname = dirname(__filename);
 const pkgRoot = resolve(__dirname, "..");
 const repoRoot = resolve(pkgRoot, "../..");
 
-const configsDir = resolve(pkgRoot, "src/maps/configs");
+const catalogConfigDirectory = "mods/mod-swooper-maps/src/maps/configs";
 const checkCurrentArg = "--check";
 const includeStudioDeployConfigArg = "--include-studio-deploy-config";
 const studioDeployConfigIdEnv = "SWOOPER_STUDIO_DEPLOY_CONFIG_ID";
-const studioDeployConfigPathEnv = "SWOOPER_STUDIO_DEPLOY_CONFIG_PATH";
 
 /**
  * Loads the authored Swooper map config registry for artifact generation. This
@@ -36,17 +34,15 @@ const studioDeployConfigPathEnv = "SWOOPER_STUDIO_DEPLOY_CONFIG_PATH";
  */
 export async function loadSwooperMapConfigRegistry(
   options: Readonly<{
-    catalogSourceIndex?: unknown;
+    catalogConfigIds?: unknown;
     recipeSchema?: TSchema;
     repoRoot?: string;
   }> = {}
 ): Promise<ValidatedMapConfig[]> {
-  const indexValue = options.catalogSourceIndex ?? CatalogSourceIndex;
+  const configIds = admitMapConfigCatalogIds(options.catalogConfigIds ?? MAP_CONFIG_CATALOG_IDS);
   const root = options.repoRoot ?? repoRoot;
-  const configPaths = [...parseCatalogSourceIndex(indexValue).entries];
   return loadValidatedCatalogEntries({
-    configPaths,
-    indexValue,
+    configIds,
     recipeSchema: options.recipeSchema,
     repoRoot: root,
   });
@@ -59,49 +55,42 @@ export async function loadSwooperMapConfigRegistry(
  */
 export async function loadSwooperStudioDeployConfigRegistry(
   options: Readonly<{
-    catalogSourceIndex?: unknown;
-    deployConfig?: StudioDeployConfigReference;
+    catalogConfigIds?: unknown;
+    deployConfigId?: string;
     recipeSchema?: TSchema;
     repoRoot?: string;
   }> = {}
 ): Promise<ValidatedMapConfig[]> {
-  const indexValue = options.catalogSourceIndex ?? CatalogSourceIndex;
+  const catalogConfigIds = admitMapConfigCatalogIds(
+    options.catalogConfigIds ?? MAP_CONFIG_CATALOG_IDS
+  );
   const root = options.repoRoot ?? repoRoot;
-  const configPaths = [...parseCatalogSourceIndex(indexValue).entries];
-  const deployConfig = options.deployConfig ?? readStudioDeployConfigReference(process.env);
-  const configs = await loadValidatedCatalogEntries({
-    configPaths: studioDeployConfigPaths(configPaths, deployConfig),
-    indexValue,
+  const deployConfigId = options.deployConfigId ?? readStudioDeployConfigId(process.env);
+  return loadValidatedCatalogEntries({
+    configIds: studioDeployConfigIds(catalogConfigIds, deployConfigId),
     recipeSchema: options.recipeSchema,
     repoRoot: root,
   });
-  assertDeployConfigMatchesLoadedConfig(configs, deployConfig);
-  return configs;
 }
 
-type StudioDeployConfigReference = Readonly<{
-  id: string;
-  path: string;
-}>;
-
 async function loadValidatedCatalogEntries(args: {
-  configPaths: readonly string[];
-  indexValue: unknown;
+  configIds: readonly MapConfigId[];
   recipeSchema?: TSchema;
   repoRoot: string;
 }): Promise<ValidatedMapConfig[]> {
-  const configsByPath = new Map<string, ValidatedMapConfig>();
+  const configsById = new Map<string, ValidatedMapConfig>();
   const readErrors: string[] = [];
 
-  for (const configPath of args.configPaths) {
+  for (const configId of args.configIds) {
+    const configPath = catalogConfigPath(configId);
     try {
       const raw = JSON.parse(
         await readFile(resolve(args.repoRoot, configPath), "utf-8")
       ) as unknown;
-      configsByPath.set(
-        configPath,
-        admitSwooperCatalogConfig({
-          sourcePath: configPath,
+      configsById.set(
+        configId,
+        admitMapConfigCatalogConfig({
+          configId,
           canonicalConfig: raw,
           recipeSchema: args.recipeSchema,
         })
@@ -112,76 +101,42 @@ async function loadValidatedCatalogEntries(args: {
     }
   }
 
-  const indexErrors = validateCatalogSourceIndex(args.indexValue, {
-    knownConfigPaths: new Set(configsByPath.keys()),
-  });
-  if (indexErrors.length > 0 || readErrors.length > 0) {
+  if (readErrors.length > 0) {
     throw new Error(
-      `Invalid Swooper catalog source index config references:\n${[...indexErrors, ...readErrors]
+      `Invalid Swooper map catalog config references:\n${readErrors
         .map((error) => `- ${error}`)
         .join("\n")}`
     );
   }
 
-  const configs = args.configPaths.map((configPath) => {
-    const config = configsByPath.get(configPath);
-    if (!config) throw new Error(`Catalog source config was not loaded: ${configPath}`);
+  const configs = args.configIds.map((configId) => {
+    const config = configsById.get(configId);
+    if (!config) throw new Error(`Catalog config was not loaded: ${configId}`);
     return config;
   });
-  assertUniqueConfigIds(configs);
-  if (configs.length === 0) throw new Error(`No canonical map configs found in ${configsDir}`);
+  if (configs.length === 0) {
+    throw new Error(`No canonical map configs found in ${catalogConfigDirectory}`);
+  }
 
   return configs;
 }
 
-function assertUniqueConfigIds(configs: readonly ValidatedMapConfig[]): void {
-  const seen = new Set<string>();
-  for (const config of configs) {
-    if (seen.has(config.canonicalConfig.id)) {
-      throw new Error(`Duplicate map config id "${config.canonicalConfig.id}"`);
-    }
-    seen.add(config.canonicalConfig.id);
-  }
+function catalogConfigPath(configId: MapConfigId): string {
+  return `${catalogConfigDirectory}/${configId}.config.json`;
 }
 
-function assertDeployConfigMatchesLoadedConfig(
-  configs: readonly ValidatedMapConfig[],
-  deployConfig?: StudioDeployConfigReference
-): void {
-  if (!deployConfig) return;
-  const fileName = catalogConfigFileNameFromPath(deployConfig.path);
-  const config = configs.find((candidate) => candidate.fileName === fileName);
-  if (!config) throw new Error(`Studio deploy config was not loaded: ${deployConfig.path}`);
-  if (config.canonicalConfig.id !== deployConfig.id) {
-    throw new Error(
-      `Studio deploy config id "${deployConfig.id}" must match loaded config id "${config.canonicalConfig.id}" at ${deployConfig.path}`
-    );
+function studioDeployConfigIds(
+  catalogConfigIds: readonly MapConfigId[],
+  deployConfigId?: string
+): readonly MapConfigId[] {
+  if (deployConfigId === undefined || catalogConfigIds.includes(deployConfigId)) {
+    return catalogConfigIds;
   }
+  return admitMapConfigCatalogIds([...catalogConfigIds, deployConfigId]);
 }
 
-function studioDeployConfigPaths(
-  configPaths: readonly string[],
-  deployConfig?: StudioDeployConfigReference
-): readonly string[] {
-  if (!deployConfig) return configPaths;
-  const configPath = deployConfig.path;
-  catalogConfigFileNameFromPath(configPath);
-  if (configPaths.includes(configPath)) return configPaths;
-  return [...configPaths, configPath];
-}
-
-function readStudioDeployConfigReference(
-  env: NodeJS.ProcessEnv
-): StudioDeployConfigReference | undefined {
-  const id = env[studioDeployConfigIdEnv];
-  const path = env[studioDeployConfigPathEnv];
-  if (id === undefined && path === undefined) return undefined;
-  if (id === undefined || path === undefined) {
-    throw new Error(
-      `${studioDeployConfigIdEnv} and ${studioDeployConfigPathEnv} must be set together`
-    );
-  }
-  return { id, path };
+function readStudioDeployConfigId(env: NodeJS.ProcessEnv): string | undefined {
+  return env[studioDeployConfigIdEnv];
 }
 
 type GenerationMode = "apply-catalog" | "check-catalog" | "apply-studio-deploy";
@@ -236,7 +191,7 @@ async function main(): Promise<void> {
   const { schema: recipeSchema } = deriveStandardRecipeArtifacts();
   const configs = includeStudioDeployConfig
     ? await loadSwooperStudioDeployConfigRegistry({
-        deployConfig: readStudioDeployConfigReference(process.env),
+        deployConfigId: readStudioDeployConfigId(process.env),
         recipeSchema,
       })
     : await loadSwooperMapConfigRegistry({ recipeSchema });
@@ -248,10 +203,9 @@ async function main(): Promise<void> {
     await applyGeneratedFilePlan(plan, { outputRoot: pkgRoot });
   }
 
-  const rel = (path: string) => path.replace(`${repoRoot}/`, "");
   const verb = checkCurrent ? "Verified" : "Generated";
   console.log(
-    `${verb} ${configs.length} Swooper map configs from ${rel(configsDir)}: ${configs
+    `${verb} ${configs.length} Swooper map configs from ${catalogConfigDirectory}: ${configs
       .map((config) => config.canonicalConfig.id)
       .join(", ")}`
   );

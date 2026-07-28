@@ -14,14 +14,14 @@ const pkgRoot = resolve(__dirname, "..");
 /** Applies the admitted Studio catalog metadata plan below its selected package root. */
 export async function generateSwooperStudioCatalogMetadata(
   options: Readonly<{
-    catalogSourceIndex?: unknown;
+    catalogConfigIds?: unknown;
     outputRoot?: string;
     repoRoot?: string;
   }> = {}
 ): Promise<{ configCount: number }> {
   const { schema: recipeSchema } = deriveStandardRecipeArtifacts();
   const configs = await loadSwooperMapConfigRegistry({
-    catalogSourceIndex: options.catalogSourceIndex,
+    catalogConfigIds: options.catalogConfigIds,
     recipeSchema,
     repoRoot: options.repoRoot,
   });
@@ -36,7 +36,7 @@ export async function generateSwooperStudioCatalogMetadata(
 async function main(): Promise<void> {
   const result = await generateSwooperStudioCatalogMetadata();
   console.log(
-    `Generated ${result.configCount} Studio catalog map configs from CatalogSourceIndex.`
+    `Generated ${result.configCount} Studio catalog map configs from catalog membership.`
   );
 }
 

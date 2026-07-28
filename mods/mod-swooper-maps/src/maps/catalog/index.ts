@@ -1,6 +1,5 @@
-export { admitSwooperCatalogConfig } from "./admission.js";
+export { admitMapConfigCatalogConfig } from "./admission.js";
 export {
-  type CatalogSourceEntry,
-  type CatalogSourceIndexReadOptions,
-  readCatalogSourceIndex,
-} from "./sources.js";
+  admitMapConfigCatalogIds,
+  MAP_CONFIG_CATALOG_IDS,
+} from "./membership.js";

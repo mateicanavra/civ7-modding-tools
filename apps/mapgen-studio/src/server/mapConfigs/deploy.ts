@@ -4,20 +4,14 @@ export type SwooperMapsStudioDeployPlan = Readonly<{
   env: NodeJS.ProcessEnv;
 }>;
 
-type SwooperMapsStudioDeployConfig = Readonly<{
-  id: string;
-  path: string;
-}>;
-
 export type SwooperMapsStudioDeployOptions = Readonly<{
-  launchConfig?: SwooperMapsStudioDeployConfig;
+  launchConfigId?: string;
   env?: NodeJS.ProcessEnv;
 }>;
 
 function withoutStudioDeployEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   const {
     SWOOPER_STUDIO_DEPLOY_CONFIG_ID: _deployConfigId,
-    SWOOPER_STUDIO_DEPLOY_CONFIG_PATH: _deployConfigPath,
     SWOOPER_INCLUDE_STUDIO_CURRENT: _includeStudioCurrent,
     SWOOPER_STUDIO_LAUNCH_CONFIG_ID: _launchConfigId,
     SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST: _launchEnvelopeDigest,
@@ -32,12 +26,11 @@ export function buildSwooperMapsStudioDeployPlan(
 ): SwooperMapsStudioDeployPlan {
   const cleanEnv = withoutStudioDeployEnv(options.env ?? process.env);
   const env =
-    options.launchConfig === undefined
+    options.launchConfigId === undefined
       ? cleanEnv
       : {
           ...cleanEnv,
-          SWOOPER_STUDIO_DEPLOY_CONFIG_ID: options.launchConfig.id,
-          SWOOPER_STUDIO_DEPLOY_CONFIG_PATH: options.launchConfig.path,
+          SWOOPER_STUDIO_DEPLOY_CONFIG_ID: options.launchConfigId,
         };
   return {
     buildTask: "mod-swooper-maps:build:studio-deploy",

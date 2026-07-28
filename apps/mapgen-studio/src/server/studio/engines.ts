@@ -132,7 +132,7 @@ function unavailableEngineDependency(
 // script so post-deploy evidence can be tied back to one resolved source.
 async function deploySwooperMaps(
   repoRoot: string,
-  launchConfig: Readonly<{ id: string; path: string }>
+  launchConfigId: string
 ): Promise<{
   build: {
     task: string;
@@ -143,7 +143,7 @@ async function deploySwooperMaps(
   modsDir: string;
   filesCopied: number;
 }> {
-  const plan = buildSwooperMapsStudioDeployPlan({ launchConfig });
+  const plan = buildSwooperMapsStudioDeployPlan({ launchConfigId });
   const { stdout, stderr } = await execFileAsync("bun", [...plan.buildArgs], {
     cwd: repoRoot,
     timeout: DEPLOY_TIMEOUT_MS,
@@ -834,11 +834,8 @@ export function createStudioOperationRuntimePorts(
     deploySavedMapConfig: async ({ requestId }) => {
       const context = requireSaveContext(saveContexts, requestId);
       const path = requireContextValue(context.path, "Save/Deploy config path", requestId);
-      const deploy = await deploySwooperMaps(repoRoot, {
-        id: context.parsedRequest.canonicalConfig.id,
-        path,
-      });
-      return { path: context.path, saved: true, deployed: true, deploy };
+      const deploy = await deploySwooperMaps(repoRoot, context.parsedRequest.canonicalConfig.id);
+      return { path, saved: true, deployed: true, deploy };
     },
     rollbackSaveDeploy: async ({ requestId }) => {
       const context = requireSaveContext(saveContexts, requestId);

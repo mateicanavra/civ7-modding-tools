@@ -1,18 +1,22 @@
+import type { MapConfigId } from "@civ7/studio-contract";
 import type { TSchema } from "typebox";
 import { type ValidatedMapConfig, validateCanonicalMapConfig } from "../configs/canonical.js";
-import { catalogConfigFileNameFromPath } from "./sources.js";
+
+function fileNameForConfigId(configId: MapConfigId): string {
+  return `${configId}.config.json`;
+}
 
 /**
- * Catalog generation and runtime resolution share this path-aware boundary so
- * a source cannot be accepted under a different filename identity at runtime.
+ * Admits one catalog envelope under its declared map identity. The generator derives the
+ * corresponding filename, while canonical admission proves that the envelope id agrees.
  */
-export function admitSwooperCatalogConfig(args: {
-  sourcePath: string;
+export function admitMapConfigCatalogConfig(args: {
+  configId: MapConfigId;
   canonicalConfig: unknown;
   recipeSchema?: TSchema;
 }): ValidatedMapConfig {
   return validateCanonicalMapConfig({
-    fileName: catalogConfigFileNameFromPath(args.sourcePath),
+    fileName: fileNameForConfigId(args.configId),
     raw: args.canonicalConfig,
     recipeSchema: args.recipeSchema,
   });

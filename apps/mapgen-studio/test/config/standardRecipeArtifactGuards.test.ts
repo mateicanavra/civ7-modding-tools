@@ -101,10 +101,10 @@ describe("standard recipe generated artifact guardrails", () => {
 
     expect(catalogConfigs.length).toBeGreaterThan(0);
     expect(catalogConfigs.map((canonicalConfig) => canonicalConfig.id)).toEqual(
-      standardMapConfigs.map((config) => config.canonicalConfig.id)
+      standardMapConfigs.map((config) => config.id)
     );
     expect(catalogConfigs.map((canonicalConfig) => canonicalConfig.config)).toEqual(
-      standardMapConfigs.map((config) => config.canonicalConfig.config)
+      standardMapConfigs.map((config) => config.config)
     );
 
     for (const { id, config } of configs) {
