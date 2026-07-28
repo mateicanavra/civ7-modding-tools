@@ -31,13 +31,11 @@
     "bin": "civ7",
     "commands": "./dist/commands",
     "dirname": "cli",
-    "hooks": {
-      "prerun": "./dist/hooks/prerun/promptMissingArgs.js"
-    },
     "plugins": [
       "@oclif/plugin-help",
       "@civ7/cli-data",
-      "@civ7/cli-docs"
+      "@civ7/cli-docs",
+      "@civ7/cli-git-mod"
     ],
     "topicSeparator": " ",
     "topics": {
@@ -55,32 +53,16 @@
       },
       "game:play:screen": {
         "description": "Inspect and dismiss App UI display-queue screens (cinematic moments)"
-      },
-      "git": {
-        "description": "Git utilities"
-      },
-      "git:subtree": {
-        "description": "Configure remotes, import repos, pull, push, setup and view status via git subtree"
-      },
-      "mod": {
-        "description": "Manage Civilization VII mods"
-      },
-      "mod:git": {
-        "description": "Configure and sync mod repositories via git subtree (setup, import, pull, push, status, list, clear, remove, update)"
-      },
-      "mod:manage": {
-        "description": "Manage local mod folders (list, deploy)"
       }
     }
   },
   "dependencies": {
     "@civ7/cli-data": "workspace:*",
     "@civ7/cli-docs": "workspace:*",
+    "@civ7/cli-git-mod": "workspace:*",
     "@civ7/config": "workspace:*",
     "@civ7/control-orpc": "workspace:*",
     "@civ7/direct-control": "workspace:*",
-    "@civ7/plugin-git": "workspace:*",
-    "@civ7/plugin-mods": "workspace:*",
     "@oclif/core": "^4.11.4",
     "@oclif/plugin-help": "^6.2.50",
     "tslib": "^2.8.1"

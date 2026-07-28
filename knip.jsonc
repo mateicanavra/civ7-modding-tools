@@ -66,7 +66,7 @@
       "ignore": ["src/setup-parameters.gen.ts"]
     },
     "packages/cli": {
-      "entry": ["bin/dev.ts", "src/hooks/prerun/promptMissingArgs.ts"],
+      "entry": ["bin/dev.ts"],
       // Civ7 data discovery invokes the host's POSIX `which` command to locate sqlite3.
       "ignoreBinaries": ["which"]
     },
@@ -74,6 +74,9 @@
       "entry": ["src/commands/**/*.ts"]
     },
     "plugins/cli/topics/docs": {
+      "entry": ["src/commands/**/*.ts"]
+    },
+    "plugins/cli/topics/git-mod": {
       "entry": ["src/commands/**/*.ts"]
     },
     "packages/mapgen-core": {

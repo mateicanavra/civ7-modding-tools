@@ -29,19 +29,22 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** use the sealed CLI-topic kind for the cohesive `docs`
-surface. Move `docs serve` and its behavior proof into
-`plugins/cli/topics/docs`, register that plugin once in the shell, and delete
-the shell's command and topic metadata. Configuration discovery and archive
-extraction remain reusable capabilities; serving and resource synchronization
-remain one command-local docs workflow rather than becoming a new generic
-library without another consumer.
+**Current container:** extract the coupled Git/mod command-adapter family into
+one `plugins/cli/topics/git-mod` owner. The package owns the complete
+`git:subtree`, `mod:git`, and `mod:manage` surfaces because they share one
+subtree command model, one configuration namespace adapter, and one public
+`mod` topic authority. Reusable Git and mod behavior remains in
+`@civ7/plugin-git` and `@civ7/plugin-mods`; the topic package owns only oclif
+adaptation and command-local orchestration.
 
-This is the second-instance proof that the generic closed CLI-topic law scales
-without instance-specific Habitat changes. Git/mod remain one later container
-because they share subtree and prompt-hook ownership. Game remains outside this
-container until its control dependencies receive an explicit topic-kind edge
-decision; a convenient destination does not authorize that graph.
+The shell's topic-specific prerun prompt table retires rather than following
+the commands. Required repository input becomes explicit in the command
+contract, while status/remove retain their declared optional input semantics.
+The CLI shell registers one plugin and retains no command IDs, topic metadata,
+prompt policy, forwarding modules, or direct Git/mod capability imports. Game
+remains outside this container until its control dependencies receive an
+explicit topic-kind edge decision; a convenient destination does not authorize
+that graph.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -58,12 +61,13 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** enumerate the docs topic's exact command, behavior, dependency,
-and registration rows; instantiate the existing closed topic shape without
-changing its law; relocate the command and test together; register one native
-oclif owner; remove stale shell metadata and dependencies; then prove exact
-manifest membership, help, behavior, types, tests, boundaries, dead-code
-absence, hygiene, and staged policy before cutting the branch.
+**Gradient:** admit hierarchical command-local helpers as one narrow generic
+CLI-topic law correction; relocate all twenty Git/mod commands, their shared
+subtree adapters, and behavior tests; delete empty/dead base mechanics and the
+topic-specific global hook; register one native oclif owner; remove stale shell
+metadata and dependencies; then prove exact manifest membership, aliases,
+required-input behavior, help, types, tests, boundaries, dead-code absence,
+hygiene, and staged policy before cutting the branch.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -106,6 +110,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - CLI Docs Topic Kind Sealed
+
+The CLI shell now registers `@civ7/cli-docs` as the sole owner of `docs:serve`.
+The topic owns the serving/resource-sync workflow and behavior proof while
+configuration and archive extraction remain reusable capabilities. Exact
+manifest membership and lookup, the complete shell/topic build and test graph,
+boundaries, Knip, hygiene, the staged hook, and fresh review sealed the second
+generic CLI-topic instance without changing its law.
 
 ### 2026-07-28 - CLI Data Topic Kind Sealed
 

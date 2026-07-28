@@ -115,15 +115,6 @@
         "cwd": "packages/cli"
       }
     },
-    "mod:git:import": {
-      "command": "node bin/run.js mod git import",
-      "dependsOn": ["build"],
-      "cache": false,
-      "outputs": [],
-      "options": {
-        "cwd": "packages/cli"
-      }
-    },
     "publish:npm": {
       "command": "bun publish --access public",
       "dependsOn": [

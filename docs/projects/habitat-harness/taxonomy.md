@@ -84,6 +84,7 @@ treatment without adding a concrete tag or constraint row.
 | civ7-cli | `packages/cli` | `kind:app` |
 | cli-data | `plugins/cli/topics/data` | `kind:cli-topic-plugin` |
 | cli-docs | `plugins/cli/topics/docs` | `kind:cli-topic-plugin` |
+| cli-git-mod | `plugins/cli/topics/git-mod` | `kind:cli-topic-plugin` |
 | civ7-docs | `apps/docs` | `kind:app` |
 | civ7-playground | `apps/playground` | `kind:app` |
 | mapgen-studio | `apps/mapgen-studio` | `kind:app` |

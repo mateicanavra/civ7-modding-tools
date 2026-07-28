@@ -59,6 +59,17 @@ root = "plugins/cli/topics/*/src/utils"
 kind = "directory"
 mode = "closed"
 allowEmpty = true
+allowed = [
+  "*.ts",
+  "+([a-z0-9])*(-+([a-z0-9]))",
+]
+
+[[scopes]]
+name = "cli-topic-plugin-nested-utility-directories"
+root = "plugins/cli/topics/*/src/utils/+([a-z0-9])*(-+([a-z0-9]))"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
 allowed = ["*.ts"]
 
 [[scopes]]

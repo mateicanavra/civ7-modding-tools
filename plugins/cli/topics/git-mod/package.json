@@ -1,0 +1,47 @@
+{
+  "name": "@civ7/cli-git-mod",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Git subtree and Civilization VII mod management commands for the Civ7 CLI.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "oclif.manifest.json"
+  ],
+  "scripts": {
+    "check:test": "tsc -p test/tsconfig.json --noEmit",
+    "clean:dist": "rimraf dist tsconfig.tsbuildinfo",
+    "test": "vitest run --project cli-git-mod",
+    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
+  },
+  "oclif": {
+    "commands": "./dist/commands",
+    "topics": {
+      "git": {
+        "description": "Git utilities"
+      },
+      "git:subtree": {
+        "description": "Configure remotes, import repos, pull, push, setup and view status via git subtree"
+      },
+      "mod": {
+        "description": "Manage Civilization VII mods"
+      },
+      "mod:git": {
+        "description": "Configure and sync mod repositories via git subtree (setup, import, pull, push, status, list, clear, remove, update)"
+      },
+      "mod:manage": {
+        "description": "Manage local mod folders (list, deploy)"
+      }
+    }
+  },
+  "dependencies": {
+    "@civ7/plugin-git": "workspace:*",
+    "@civ7/plugin-mods": "workspace:*",
+    "@oclif/core": "^4.11.4",
+    "tslib": "^2.8.1"
+  },
+  "engines": {
+    "node": "22.22.0"
+  }
+}
