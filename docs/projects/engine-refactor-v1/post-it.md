@@ -29,20 +29,19 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** extract the cohesive `data` oclif topic from the CLI
-shell into `plugins/cli/topics/data` as the first real CLI-topic plugin. Move
-all six data commands, their command-local resolver, and their behavior tests
-as one unit. The root CLI registers the plugin and retains no data command
-files or forwarding surface. The topic consumes `@civ7/plugin-graph`,
-`@civ7/plugin-files`, and config; those framework-free capabilities remain in
-`packages/plugins` because their ownership is broader than CLI discovery.
+**Current container:** use the sealed CLI-topic kind for the cohesive `docs`
+surface. Move `docs serve` and its behavior proof into
+`plugins/cli/topics/docs`, register that plugin once in the shell, and delete
+the shell's command and topic metadata. Configuration discovery and archive
+extraction remain reusable capabilities; serving and resource synchronization
+remain one command-local docs workflow rather than becoming a new generic
+library without another consumer.
 
-This cut establishes the generic CLI-topic project shape and exact one-way
-graph before relocating files. Docs, Git/mod, and game topics remain outside
-this container: docs can follow independently; Git and mod share subtree and
-prompt-hook ownership that must move together; game requires an explicit
-taxonomy decision because it depends on control capabilities not currently
-admitted to `kind:plugin`.
+This is the second-instance proof that the generic closed CLI-topic law scales
+without instance-specific Habitat changes. Git/mod remain one later container
+because they share subtree and prompt-hook ownership. Game remains outside this
+container until its control dependencies receive an explicit topic-kind edge
+decision; a convenient destination does not authorize that graph.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -59,12 +58,12 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** verify the native oclif plugin contract; define the closed generic
-CLI-topic package kind; create the data topic project and its single command
-discovery surface; move command implementation, local resolver, and tests;
-register it once in the shell; regenerate manifests; delete the old command
-owner; then prove exact command membership, help/representative execution,
-types, tests, boundaries, dead-code absence, and staged policy.
+**Gradient:** enumerate the docs topic's exact command, behavior, dependency,
+and registration rows; instantiate the existing closed topic shape without
+changing its law; relocate the command and test together; register one native
+oclif owner; remove stale shell metadata and dependencies; then prove exact
+manifest membership, help, behavior, types, tests, boundaries, dead-code
+absence, hygiene, and staged policy before cutting the branch.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -107,6 +106,17 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - CLI Data Topic Kind Sealed
+
+The CLI shell now registers `@civ7/cli-data` as the sole owner of the six
+`data:*` commands. The topic owns its command-local resolver and behavior tests;
+graph, archive, and config mechanics remain reusable capabilities. ADR-017, the
+new `kind:cli-topic-plugin` graph, and a closed generic Habitat blueprint define
+the constructible kind. Exact manifest membership, root help and negative
+top-level lookup, both project graphs, boundaries, Knip, hygiene, and the staged
+hook sealed the first instance. External CLI publication remains one explicit
+whole-graph deferral rather than a partial topic-only workaround.
 
 ### 2026-07-28 - Swooper Definition And Civ7 App Split Sealed
 

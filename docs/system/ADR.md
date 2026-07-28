@@ -499,5 +499,6 @@ commands are their current consumer.
 - The generic CLI-topic blueprint closes project, source, command, and test
   spines. oclif owns native command discovery and manifests; Nx and TypeScript
   own package edges and imports.
-- The `data` topic is the first instance. Graph, archive, and configuration
-  mechanics remain in their existing reusable package owners.
+- The `data` and `docs` topics are the first instances. Graph, archive,
+  configuration, and file mechanics remain in their existing reusable package
+  owners.

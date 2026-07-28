@@ -202,10 +202,10 @@
       },
       "dependencies": {
         "@civ7/cli-data": "workspace:*",
+        "@civ7/cli-docs": "workspace:*",
         "@civ7/config": "workspace:*",
         "@civ7/control-orpc": "workspace:*",
         "@civ7/direct-control": "workspace:*",
-        "@civ7/plugin-files": "workspace:*",
         "@civ7/plugin-git": "workspace:*",
         "@civ7/plugin-mods": "workspace:*",
         "@oclif/core": "^4.11.4",
@@ -399,6 +399,16 @@
         "@civ7/config": "workspace:*",
         "@civ7/plugin-files": "workspace:*",
         "@civ7/plugin-graph": "workspace:*",
+        "@oclif/core": "^4.11.4",
+        "tslib": "^2.8.1",
+      },
+    },
+    "plugins/cli/topics/docs": {
+      "name": "@civ7/cli-docs",
+      "version": "0.1.0",
+      "dependencies": {
+        "@civ7/config": "workspace:*",
+        "@civ7/plugin-files": "workspace:*",
         "@oclif/core": "^4.11.4",
         "tslib": "^2.8.1",
       },
@@ -814,6 +824,8 @@
     "@civ7/adapter": ["@civ7/adapter@workspace:packages/civ7-adapter"],
 
     "@civ7/cli-data": ["@civ7/cli-data@workspace:plugins/cli/topics/data"],
+
+    "@civ7/cli-docs": ["@civ7/cli-docs@workspace:plugins/cli/topics/docs"],
 
     "@civ7/config": ["@civ7/config@workspace:packages/config"],
 

@@ -33,6 +33,16 @@ export default defineConfig({
       },
       {
         extends: true,
+        root: r("plugins/cli/topics/docs"),
+        test: {
+          name: "cli-docs",
+          env: {
+            NODE_ENV: "production",
+          },
+        },
+      },
+      {
+        extends: true,
         root: r("packages/config"),
         test: { name: "config" },
       },

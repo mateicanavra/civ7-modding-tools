@@ -32,7 +32,7 @@ vi.mock("node:fs", () => ({
 
 import * as fs from "node:fs";
 import { unzipResources } from "@civ7/plugin-files";
-import DocsServe from "../../src/commands/docs/serve";
+import DocsServe from "../../../src/commands/docs/serve";
 
 describe("docs serve command", () => {
   const OLD_ENV = process.env;

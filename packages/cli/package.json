@@ -36,13 +36,11 @@
     },
     "plugins": [
       "@oclif/plugin-help",
-      "@civ7/cli-data"
+      "@civ7/cli-data",
+      "@civ7/cli-docs"
     ],
     "topicSeparator": " ",
     "topics": {
-      "docs": {
-        "description": "Serve the project documentation site (Mintlify or Docsify) with optional syncing."
-      },
       "game": {
         "description": "Operate a running Civilization VII session through local tooling"
       },
@@ -77,10 +75,10 @@
   },
   "dependencies": {
     "@civ7/cli-data": "workspace:*",
+    "@civ7/cli-docs": "workspace:*",
     "@civ7/config": "workspace:*",
     "@civ7/control-orpc": "workspace:*",
     "@civ7/direct-control": "workspace:*",
-    "@civ7/plugin-files": "workspace:*",
     "@civ7/plugin-git": "workspace:*",
     "@civ7/plugin-mods": "workspace:*",
     "@oclif/core": "^4.11.4",
