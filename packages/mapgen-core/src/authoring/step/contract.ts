@@ -5,22 +5,14 @@ import {
   assertInitialSetupDefinitionInternal,
   type InitialSetupDefinition,
 } from "../initial-setup/definition.js";
-import { isCanonicalOpContract } from "../operation/contract.js";
-import { buildOpEnvelopeSchema } from "../operation/envelope.js";
-import type { OpTypeBagOf } from "../operation/types.js";
+import { isCanonicalOpContract, type OpContractAny } from "../operation/contract.js";
 import { applySchemaConventions } from "../schema/conventions.js";
-import { freezeContractGraph, snapshotContractGraph } from "../snapshot/contract-graph.js";
+import { snapshotContractGraph } from "../snapshot/contract-graph.js";
+import { captureOwnDataRecord, materializeOwnDataRecord } from "../snapshot/own-data.js";
 import { registerCanonicalStepContractInternal } from "./authority.js";
 import { type AuthoredEngineAdapterKey, isAuthoredEngineAdapterKey } from "./engine-authority.js";
 import { assertNoStepStageIdentityAliases } from "./identity.js";
-import type {
-  OpContractAny,
-  StepOpsDecl,
-  StepOpsDeclInput,
-  StepOpUse,
-  ValidatedStepOpsDeclInput,
-} from "./ops.js";
-import { registerScopedStepOpDeclarationInternal } from "./ops.js";
+import type { StepOpsDecl } from "./ops.js";
 
 type PropsOf<T extends TObject> = T extends TObject<infer P> ? P : never;
 
@@ -134,71 +126,14 @@ function buildSchemaWithOps<const Schema extends TObject, const Ops extends Step
   return schema as SchemaWithOps<Schema, Ops>;
 }
 
-type StepOpsDeclNormalizedFromInput<Ops extends StepOpsDeclInput> = Readonly<{
-  [K in keyof Ops & string]: NormalizeOpDecl<Ops[K]>;
-}>;
-
-type NormalizeOpDecl<T> =
-  T extends Readonly<{
-    contract: infer C;
-    defaultStrategy: infer DefaultStrategy;
-  }>
-    ? C extends OpContractAny
-      ? DefaultStrategy extends keyof C["strategies"] & string
-        ? Omit<C, "defaultStrategy" | "defaultConfig"> &
-            Readonly<{
-              defaultStrategy: DefaultStrategy;
-              defaultConfig: Extract<
-                OpTypeBagOf<C>["envelope"],
-                Readonly<{ strategy: DefaultStrategy }>
-              >;
-            }>
-        : never
-      : never
-    : T extends StepOpUse<infer C>
-      ? C
-      : T;
-
-function isOpUse(value: unknown): value is StepOpUse {
-  return Boolean(value) && typeof value === "object" && "contract" in (value as any);
-}
-
-function normalizeOpsDecl<const Ops extends StepOpsDeclInput>(input: {
-  stepId: string;
-  ops: Ops;
-}): StepOpsDeclNormalizedFromInput<Ops> {
-  const out: Record<string, any> = {};
-
-  for (const opKey of Object.keys(input.ops) as Array<keyof Ops & string>) {
-    const entry = input.ops[opKey];
-
-    if (!isOpUse(entry)) {
-      out[opKey] = entry;
-      continue;
+function admitOpsDecl(stepId: string, input: unknown): StepOpsDecl {
+  const entries = captureOwnDataRecord<OpContractAny>(input, `step "${stepId}" ops`);
+  for (const { key: opKey, value: entry } of entries) {
+    if (!isCanonicalOpContract(entry)) {
+      throw new Error(`step "${stepId}" op "${opKey}" requires a canonical contract`);
     }
-
-    const contract = entry.contract;
-    const defaultStrategy = entry.defaultStrategy;
-    const { schema: config, defaultConfig } = buildOpEnvelopeSchema(
-      contract.id,
-      contract.strategies,
-      defaultStrategy
-    );
-    applySchemaConventions(config);
-
-    const declaration = {
-      ...contract,
-      config,
-      defaultStrategy,
-      defaultConfig,
-    };
-    freezeContractGraph(defaultConfig);
-    Object.freeze(declaration);
-    registerScopedStepOpDeclarationInternal(declaration, contract);
-    out[opKey] = declaration;
   }
-
-  return Object.freeze(out) as StepOpsDeclNormalizedFromInput<Ops>;
+  return materializeOwnDataRecord(entries);
 }
 
 /** One completion id or exact artifact authority selected by a step dependency edge. */
@@ -308,7 +243,7 @@ export type StepContract<
 
 type StepContractBaseInput<
   Id extends string,
-  Ops extends StepOpsDeclInput | undefined,
+  Ops extends StepOpsDecl | undefined,
   Requires extends StepDependencyList,
   Provides extends StepDependencyList,
   Engine extends StepEngineDecl | undefined,
@@ -326,7 +261,7 @@ type StepContractBaseInput<
 type StepContractInput<
   Schema extends TObject | undefined,
   Id extends string,
-  Ops extends StepOpsDeclInput | undefined,
+  Ops extends StepOpsDecl | undefined,
   Requires extends StepDependencyList,
   Provides extends StepDependencyList,
   Engine extends StepEngineDecl | undefined,
@@ -455,7 +390,7 @@ export function defineStep<
 
 export function defineStep<
   const Id extends string,
-  const Ops extends StepOpsDeclInput,
+  const Ops extends StepOpsDecl,
   const Requires extends StepDependencyList,
   const Provides extends StepDependencyList,
   const Schema extends TObject | undefined = undefined,
@@ -463,12 +398,12 @@ export function defineStep<
   const InitialSetup extends InitialSetupDefinition | undefined = undefined,
 >(
   def: StepContractInput<Schema, Id, Ops, Requires, Provides, Engine, InitialSetup> & {
-    ops: Ops & ValidatedStepOpsDeclInput<Ops>;
+    ops: Ops;
   } & ValidatedStepEngineDeclInput<Engine>
 ): StepContract<
-  SchemaWithOps<StepSchema<Schema>, StepOpsDeclNormalizedFromInput<Ops>>,
+  SchemaWithOps<StepSchema<Schema>, Ops>,
   Id,
-  StepOpsDeclNormalizedFromInput<Ops>,
+  Ops,
   Requires,
   Provides,
   Engine,
@@ -528,13 +463,7 @@ export function defineStep(def: any): any {
     seenArtifactNames.add(name);
   }
 
-  const detachedOps =
-    admitted.ops === undefined
-      ? undefined
-      : (snapshotContractGraph(admitted.ops, `step "${stepId}" ops`, {
-          preserve: isCanonicalOpContract,
-        }) as StepOpsDeclInput);
-  const ops = detachedOps ? normalizeOpsDecl({ stepId, ops: detachedOps }) : undefined;
+  const ops = admitted.ops === undefined ? undefined : admitOpsDecl(stepId, admitted.ops);
 
   const declaredSchema =
     admitted.schema === undefined

@@ -3,8 +3,7 @@ import {
   materializeOwnDataRecord,
   type OwnDataRecord,
 } from "../snapshot/own-data.js";
-import { readStepOpBindingContractInternal } from "../step/ops.js";
-import type { OpContractAny } from "./contract.js";
+import { isCanonicalOpContract, type OpContractAny } from "./contract.js";
 import { readCanonicalDomainOpContract } from "./create.js";
 import type { DomainOpKind, OperationRun } from "./types.js";
 
@@ -79,12 +78,12 @@ const authorityByDomainRoot = new WeakMap<object, DomainRootAuthority>();
 function captureCanonicalContracts(input: unknown, label: string): OwnDataRecord<OpContractAny> {
   const contracts = captureOwnDataRecord<OpContractAny>(input, label);
   return Object.freeze(
-    contracts.map(({ key, value }) =>
-      Object.freeze({
-        key,
-        value: readStepOpBindingContractInternal(value),
-      })
-    )
+    contracts.map(({ key, value }) => {
+      if (!isCanonicalOpContract(value)) {
+        throw new Error("operation binding requires a canonical operation contract");
+      }
+      return Object.freeze({ key, value });
+    })
   );
 }
 

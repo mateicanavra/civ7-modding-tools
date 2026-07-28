@@ -2,9 +2,12 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 
 import { computeDistanceToWater } from "../../../../model/rules/coastal-distance.js";
+import {
+  clampRainfall,
+  rainfallToHumidityU8,
+} from "../../../../model/rules/precipitation-scale.js";
 import { upwindBarrierDistance } from "../../../../model/rules/wind-sampling.js";
 import ComputePrecipitationContract from "../../contract.js";
-import { clampRainfall, rainfallToHumidityU8 } from "../../rules/index.js";
 import BaselineDefinition from "./config.js";
 
 /**
@@ -76,7 +79,7 @@ const baselineStrategy = createStrategy(ComputePrecipitationContract, BaselineDe
         rf += noise * noiseAmplitude;
 
         const clamped = clampRainfall(rf);
-        rainfall[i] = (clamped | 0) & 0xff;
+        rainfall[i] = clamped;
         humidity[i] = rainfallToHumidityU8(clamped);
       }
     }

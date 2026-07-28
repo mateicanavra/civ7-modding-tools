@@ -2,8 +2,8 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Observation. Evidence. Ephemerality. Projection.
-Restraint. Precision. Closure.
+**Attractor filter:** Contract. Operation. Identity. Directness. Restraint.
+Density. Closure.
 
 **Frame:** kind before instance, intent before ownership, authority before
 relocation. A closed file shape is the start of semantic review, not proof that
@@ -31,14 +31,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** a step's return value is invocation-local observation,
-not product state, artifact authority, or a second publication channel. The
-executor retains it only long enough to run optional post-publication metrics
-and visualization projectors, then discards it. Artifact publication remains
-the sole admission transition and completion remains a plan-only causal edge.
-Rename the generic `result` vocabulary to `observation` across the authored
-facet surface, executor dispatch, tests, and current docs so the API makes that
-boundary difficult to misread without inventing another runtime state.
+**Current container:** step-scoped strategy defaults are compensating machinery,
+not an earned authoring capability. Their sole product consumer makes a
+precipitation refinement pass masquerade as an alternative precipitation
+synthesis strategy even though it observes a narrower prior-vintage input and
+performs a different transition. Split that behavior into its own exact
+operation, then delete the scoped default type, contract-shaped clone, hidden
+source `WeakMap`, and reverse binding projection. Steps bind canonical
+operation contracts directly.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -55,12 +55,12 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** rename the observation carrier without changing its lifetime,
-ordering, failure isolation, or data identity; migrate every metrics/viz
-projector and sink-facing test; state explicitly that transient projection and
-engine-readback evidence need not become artifacts; preserve post-publication
-dispatch and synchronous non-fatal facets. Freeze with Core type/runtime proof,
-the Standard recipe graph, documentation anchors, and fresh
+**Gradient:** extract the river-corridor/basin refinement into a sole-strategy
+operation with only the input it observes; migrate Standard authorship and
+shipped configs without changing generated behavior; reduce Core step ops to
+canonical contracts only; remove override-specific types, tests, registry, and
+binding logic. Freeze with exact contract/type inference, focused refinement
+behavior, generated-currentness, the Core/Standard graph, and fresh
 type/architecture/product review.
 
 **Release cadence:** cut each directionally reviewed law or completed
@@ -104,6 +104,16 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Invocation Observation Vocabulary Sealed
+
+A step's return is now named as invocation-local observation throughout Core,
+Standard metrics/visualization facets, direct tests, canonical docs, and the
+generic recipe-step blueprint. The executor retains the exact value only
+through synchronous non-fatal projection and then discards it; artifact
+publication remains the sole durable admission transition and completion
+remains plan-only causal authority. The full Core/Swooper graph and fresh
+type/architecture/product review sealed the vocabulary without adding state.
 
 ### 2026-07-27 - Initial Setup Invocation Context Sealed
 

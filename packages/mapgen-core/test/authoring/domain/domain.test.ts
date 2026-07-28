@@ -305,10 +305,7 @@ describe("domain composition", () => {
       requires: [],
       provides: [],
       ops: {
-        scale: {
-          contract: hydrology.ocean.ops.scale,
-          defaultStrategy: "accelerated",
-        },
+        scale: hydrology.ocean.ops.scale,
       },
     });
     const step = createStep(stepContract, {
@@ -344,7 +341,7 @@ describe("domain composition", () => {
     );
 
     expect(contract.defaultStrategy).toBe("measured");
-    expect(stepContract.ops?.scale.defaultStrategy).toBe("accelerated");
+    expect(stepContract.ops?.scale).toBe(contract);
     expect(observed).toEqual([12]);
   });
 

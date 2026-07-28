@@ -175,7 +175,7 @@ describe("step authoring", () => {
     ).toThrow("recipe composition owns stage identity");
   });
 
-  it("composes operation config over an omitted step schema without mutating the operation", () => {
+  it("composes canonical operation config over an omitted step schema", () => {
     const operation = defineOp({
       kind: "compute",
       id: "test/step-default-authority",
@@ -200,19 +200,20 @@ describe("step authoring", () => {
       ],
     });
     const step = defineStep({
-      id: "fast-step",
+      id: "balanced-step",
       requires: [],
       provides: [],
-      ops: { calculation: { contract: operation, defaultStrategy: "fast" } },
+      ops: { calculation: operation },
     });
 
-    expect(step.ops?.calculation.defaultStrategy).toBe("fast");
+    expect(step.ops?.calculation).toBe(operation);
+    expect(step.ops?.calculation.defaultStrategy).toBe("balanced");
     expect(step.ops?.calculation.defaultConfig).toEqual({
-      strategy: "fast",
-      config: { turbo: true },
+      strategy: "balanced",
+      config: { plateauCount: 3 },
     });
     expect(Value.Create(step.schema)).toEqual({
-      calculation: { strategy: "fast", config: { turbo: true } },
+      calculation: { strategy: "balanced", config: { plateauCount: 3 } },
     });
     expect(operation.defaultStrategy).toBe("balanced");
     expect(operation.defaultConfig).toEqual({
@@ -222,28 +223,17 @@ describe("step authoring", () => {
 
     expect(() =>
       defineStep({
-        id: "invalid-empty-default-step",
+        id: "invalid-scoped-default-step",
         requires: [],
         provides: [],
         ops: {
           calculation: {
             contract: operation,
-            defaultStrategy: "" as "fast",
+            defaultStrategy: "fast",
           },
-        },
+        } as never,
       })
-    ).toThrow("requires an explicit default strategy");
-
-    expect(() =>
-      defineStep({
-        id: "missing-default-override-step",
-        requires: [],
-        provides: [],
-        ops: {
-          calculation: { contract: operation } as never,
-        },
-      })
-    ).toThrow("requires an explicit default strategy");
+    ).toThrow("requires a canonical contract");
   });
 
   it("detaches schema authority while preserving native TypeBox composition", () => {

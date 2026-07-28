@@ -172,8 +172,14 @@ domain router collected into the recipe's `operations` registry (section 4).
 
 The op contract already composes at least one semantic leaf definition. A strategy is a
 behavioral variant selected at config/compile time — see the multi-strategy op ids
-`hydrology/compute-precipitation` (`vector` default, `baseline`, `refine`) and
+`hydrology/compute-precipitation` (`vector` default, `baseline`) and
 `ecology/pedology/classify` for live examples.
+
+Every strategy must satisfy the operation's exact shared input/output transition. If the
+candidate needs materially different inputs, produces a different output vintage, or represents
+a later semantic transition, define another operation instead. For example,
+`hydrology/refine-precipitation` consumes admitted baseline rainfall plus river evidence; it is
+not another `compute-precipitation` strategy.
 
 **Step A — define the leaf** in `strategies/my-variant/config.ts`.
 ```ts
@@ -227,24 +233,14 @@ sealed descriptor supplies its semantic identity.
 
 **Step E — ACTIVATE (the strategy is inert until selected).** The op envelope is
 `{ strategy: "<id>", config: {...} }` (a TypeBox discriminated union on `strategy`).
-There are exactly three selection paths:
+There are exactly two authoring paths:
 
 1. **Authored operation envelope** (ordinary stages) - select the strategy
    directly in the step config:
    ```ts
    { myOp: { strategy: "my-variant", config: { /* variant-specific props */ } } }
    ```
-2. **`defaultStrategy` on the step contract `StepOpUse`** — changes the *schema default*
-   so an omitted envelope starts on the named strategy (the author can still override):
-   ```ts
-   ops: {
-     myOp: {
-       contract: someDomain.<module>.ops.myOpName,
-       defaultStrategy: "my-variant",
-     },
-   },
-   ```
-3. **Rare inline semantic public override** - only when a concrete stage
+2. **Rare inline semantic public override** - only when a concrete stage
    intentionally hides and meaningfully translates the complete internal
    surface:
    ```ts
@@ -261,12 +257,12 @@ There are exactly three selection paths:
 Runtime dispatch (`createOp.run`) reads `cfg.strategy`, looks up
 `runtimeStrategies[cfg.strategy]`, and throws on an unknown id.
 
-> Gotchas: `contract.defaultStrategy` is the resolved runtime authority; no strategy is
-> renamed to `default`. A full `public` override is not a convenience alias for
-> operation config. It stays inline in the stage definition; external
-> `public.config.ts` files are forbidden. Shipped map configs and stage knobs
-> provide ordinary product-level convenience without hiding operation
-> envelopes.
+> Gotchas: the operation contract owns its inferred or explicit default; a step selects that
+> canonical contract directly and cannot redefine its default. An authored envelope selects an
+> alternate strategy. No strategy is renamed to `default`. A full `public` override is not a
+> convenience alias for operation config. It stays inline in the stage definition; external
+> `public.config.ts` files are forbidden. Shipped map configs and stage knobs provide ordinary
+> product-level convenience without hiding operation envelopes.
 
 ---
 
@@ -294,7 +290,6 @@ export const config = defineStep({
   provides: [myModuleArtifacts.surfaceMask],
   ops: {
     myOp: someDomain.<module>.ops.myOpName,
-    // or: myOp: { contract: someDomain.<module>.ops.myOpName, defaultStrategy: "my-variant" }
   },
 });
 ```

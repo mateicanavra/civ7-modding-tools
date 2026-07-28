@@ -7,7 +7,6 @@ import {
   Type,
 } from "@mapgen/authoring/index.js";
 import type { IsAny, IsEqual, IsNever, IsUnknown, Or } from "type-fest";
-import type { StepOpUse } from "../../../src/authoring/step/ops.js";
 
 type Expect<T extends true> = T;
 
@@ -118,55 +117,22 @@ if (false) {
   output.rows.push(3);
 }
 
-const FastDefaultStepContract = defineStep({
-  id: "fast-default-step",
-  requires: [],
-  provides: [],
-  ops: { multi: { contract: MultiStrategyOp, defaultStrategy: "fast" } },
-});
-
-const reusableFastDefault: StepOpUse<typeof MultiStrategyOp, "fast"> = {
-  contract: MultiStrategyOp,
-  defaultStrategy: "fast",
-};
-
-const ReusableFastDefaultStepContract = defineStep({
-  id: "reusable-fast-default-step",
-  requires: [],
-  provides: [],
-  ops: { multi: reusableFastDefault },
-});
-
 defineStep({
-  id: "invalid-inline-default-step",
+  id: "invalid-scoped-default-step",
   requires: [],
   provides: [],
   ops: {
-    // @ts-expect-error A step override must name a strategy from its own contract.
     multi: {
+      // @ts-expect-error Steps select canonical contracts, not step-local default wrappers.
       contract: MultiStrategyOp,
-      defaultStrategy: "missing",
+      defaultStrategy: "fast",
     },
   },
 });
 
-type FastDefaultMultiOp = Required<typeof FastDefaultStepContract>["ops"]["multi"];
-
-export type StepOverrideDefaultStrategyIsExact = Expect<
-  IsEqual<FastDefaultMultiOp["defaultStrategy"], "fast">
->;
-export type StepOverrideDefaultConfigIsExact = Expect<
-  IsEqual<
-    FastDefaultMultiOp["defaultConfig"],
-    Extract<Static<(typeof MultiStrategyOp)["config"]>, { strategy: "fast" }>
-  >
+export type StepSelectionRetainsExactContract = Expect<
+  IsEqual<Required<typeof MultiOpStepContract>["ops"]["multi"], typeof MultiStrategyOp>
 >;
 export type BaseDefaultRemainsBalanced = Expect<
   IsEqual<(typeof MultiStrategyOp)["defaultStrategy"], "balanced">
->;
-export type ReusableStepOverrideRemainsFast = Expect<
-  IsEqual<
-    Required<typeof ReusableFastDefaultStepContract>["ops"]["multi"]["defaultStrategy"],
-    "fast"
-  >
 >;

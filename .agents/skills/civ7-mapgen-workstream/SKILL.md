@@ -140,8 +140,8 @@ physics/truth despite its name; `morphology-shelf` is the final Morphology truth
 stage before Hydrology.
 
 Full glossary + current call shapes: `references/pipeline-map.md`. Strategy
-selection (the three control points) is owned there and in
-`references/facet-physics.md`.
+selection (operation-owned defaults, authored envelopes, and rare inline public
+stage compilation) is owned there and in `references/facet-physics.md`.
 
 ## Reference Map
 

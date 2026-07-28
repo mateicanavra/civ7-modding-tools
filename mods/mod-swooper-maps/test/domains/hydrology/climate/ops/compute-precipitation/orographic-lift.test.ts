@@ -47,9 +47,6 @@ describe("hydrology/compute-precipitation (vector)", () => {
         windU,
         windV,
         humidityF32,
-        rainfallIn: new Uint8Array(size),
-        humidityIn: new Uint8Array(size),
-        riverClass: new Uint8Array(size),
       },
       {
         strategy: "vector",

@@ -754,8 +754,8 @@ const mapConfig = {
         "cryosphere": "on"
       },
       "climate-refine": {
-        "computePrecipitation": {
-          "strategy": "refine",
+        "refinePrecipitation": {
+          "strategy": "riparian-basin-wetness",
           "config": {
             "riverCorridor": {
               "adjacencyRadius": 2,
@@ -1349,8 +1349,8 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountain-rivers-patch",
-  configHash: "d73a892d91cd5aa5a9dc1bf58852adb4f87c250cd7eee1f48a753bbf6b7d61b3",
-  envelopeHash: "9edbfbd718f8e32289fa53abe42004911279436060f368bc84231e27aab9b58e",
+  configHash: "6fb250e6828d5aa00690692e3463eb111f5d1d87d3e66cc280254a1b758f16fe",
+  envelopeHash: "fa559d5698cffda3abb415db824f8f4da7a1a36e41f4547a98f1a9063cd40a73",
   config: mapConfig.config,
   initialSetup: {
     requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,

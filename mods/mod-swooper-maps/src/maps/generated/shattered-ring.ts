@@ -754,8 +754,8 @@ const mapConfig = {
         "cryosphere": "on"
       },
       "climate-refine": {
-        "computePrecipitation": {
-          "strategy": "refine",
+        "refinePrecipitation": {
+          "strategy": "riparian-basin-wetness",
           "config": {
             "riverCorridor": {
               "adjacencyRadius": 1,
@@ -1350,8 +1350,8 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "shattered-ring",
-  configHash: "29586e56906dca2e38d71341300a1c8053b006989404fcaf8575b25f07778f2e",
-  envelopeHash: "d9d243a3a483db3ff13399ab3260018c9025b4222cb39178e731fa3b5579c462",
+  configHash: "281cfc215fc69a9bd788cc1413b41b2010b5119ddae5aacf00ae5c8e4ef4b68a",
+  envelopeHash: "a2bed1249d8d6fa61a4e75c472f25c7732cf58b561baead9beac59e558f164e4",
   config: mapConfig.config,
   initialSetup: {
     requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,

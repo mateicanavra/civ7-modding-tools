@@ -98,7 +98,7 @@ or reads a retained seasonality product.
 
 ## Ops surface
 
-Hydrology composes four capability modules and 18 operations. Step contracts bind only the
+Hydrology composes four capability modules and 19 operations. Step contracts bind only the
 operations they execute:
 
 - `ocean`: ocean geometry, surface currents, and thermal state,
@@ -115,7 +115,8 @@ The Standard recipe uses operation contracts such as:
 - `computeOceanSurfaceCurrents`
 - `computeEvaporationSources`
 - `transportMoisture`
-- `computePrecipitation` (`vector`, `baseline`, and `refine` strategies)
+- `computePrecipitation` (`vector` and `baseline` synthesis strategies)
+- `refinePrecipitation` (post-hydrography riparian and closed-basin wetness)
 - `computeDrainageRouting`
 - `accumulateDischarge`
 - `projectRiverNetwork`

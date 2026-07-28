@@ -121,7 +121,7 @@ implementations. Counts below are verified from those module authorities:
 |---|---|---|
 | `foundation` | 17 | mesh, mantle potential/forcing, crust + evolution, plate graph/motion, tectonic segments, era membership, segment/hotspot events, era tectonic fields, history rollups, tectonics current, tracer advection, provenance, plate tensors |
 | `morphology` | 17 | belt drivers, base topography, continental margins, sea level, landmask, base coastline adjacency/distance evidence, flow routing, geomorphic cycle, substrate, complete island topography with formation classes, foothills, ridges, rough lands, volcanoes, landmasses, and the final shelf mask |
-| `hydrology` | 18 | Baseline climate composes radiative/thermal forcing, circulation, ocean coupling, evaporation, moisture transport, and precipitation; hydrography then solves drainage, discharge, river projection, lake intent, and causal classification; climate refinement closes with cryosphere/albedo, land-water budget, and advisory diagnostics. Navigable-river selection is a map-rivers rule. |
+| `hydrology` | 19 | Baseline climate composes radiative/thermal forcing, circulation, ocean coupling, evaporation, moisture transport, and precipitation; hydrography then solves drainage, discharge, river projection, lake intent, and causal classification; climate refinement closes with precipitation refinement, cryosphere/albedo, land-water budget, and advisory diagnostics. Navigable-river selection is a map-rivers rule. |
 | `ecology` | 32 | biome classify, pedology classify/aggregate, edge refine, feature/vegetation substrate, 5 vegetation + 5 wetland + 4 reef score ops, ice score, 4 plot-effects score ops, plan plot-effects, plan floodplains/wetlands/reefs/ice/vegetation, features apply. The most granular domain. |
 | `placement` | 3 | `wonders.planNaturalWonders`, `regions.projectLandmassRegions`, `starts.planStarts` |
 | `resources` | 8 | adjust resource support, derive habitat fields, plan aquatic/cultivated/geological/terrestrial resources, plan resource groups, select resource sites |
@@ -194,27 +194,29 @@ would promote to `stages/morphology/shelf/viz.ts`, not the residual
 
 ## Strategy selection
 
-The op envelope `{ strategy, config }` selects the algorithm. There are three control points; runtime dispatch is `runtimeStrategies[cfg.strategy].run(input, cfg.config)` in `packages/mapgen-core/src/authoring/operation/create.ts`:
+The op envelope `{ strategy, config }` selects the algorithm. There are two authoring control points; runtime dispatch is `runtimeStrategies[cfg.strategy].run(input, cfg.config)` in `packages/mapgen-core/src/authoring/operation/create.ts`:
 
 1. **Direct step config (ordinary stages)** - the op envelope is authored
    directly as a step-config key:
    `{ "computeAtmosphericCirculation": { "strategy": "latitude", "config": {...} } }`.
-2. **`defaultStrategy` on a `StepOpUse`** - a step contract can declare
-   `myOp: { contract, defaultStrategy: "refine" }`; this changes the schema
-   default when the author omits the envelope. It does not forbid an explicit
-   override.
-3. **Rare inline stage compiler** - a concrete stage may define an inline
+2. **Rare inline stage compiler** - a concrete stage may define an inline
    `public: Type.Object(...)` and compile it only when the external shape
    intentionally hides and semantically translates the complete internal
    surface. External `public.config.ts` assemblies and wrapper-only compilers
    are forbidden.
 
-Multi-strategy ops in live source (every other op has one inferred semantic default):
+The operation contract owns its sole inferred or multi-strategy explicit default. Steps select
+canonical operation contracts directly and cannot replace that authority. Authors select an
+alternate through the envelope. A candidate with different inputs, outputs, or transition timing
+becomes a separate operation rather than a step-local default or incompatible strategy.
+
+Selected strategy-bearing ops in live source (every other op has one inferred semantic default):
 
 | Op | Strategy keys (default → impl) |
 |---|---|
 | `hydrology/compute-atmospheric-circulation` | `geostrophic-proxy` (default), `latitude` |
-| `hydrology/compute-precipitation` | `vector` (default), `baseline`, `refine` |
+| `hydrology/compute-precipitation` | `vector` (default), `baseline` |
+| `hydrology/refine-precipitation` | `riparian-basin-wetness` (sole inferred default) |
 | `hydrology/transport-moisture` | `vector-advection` (default), `cardinal` |
 | `hydrology/compute-ocean-surface-currents` | `wind-gyre-projection` (default), `latitude` |
 | `ecology/pedology/classify` | `balanced` (default), `coastal-shelf`, `orogeny-boosted` |

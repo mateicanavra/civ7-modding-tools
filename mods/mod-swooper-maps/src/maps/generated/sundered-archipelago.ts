@@ -754,8 +754,8 @@ const mapConfig = {
         "cryosphere": "on"
       },
       "climate-refine": {
-        "computePrecipitation": {
-          "strategy": "refine",
+        "refinePrecipitation": {
+          "strategy": "riparian-basin-wetness",
           "config": {
             "riverCorridor": {
               "adjacencyRadius": 1,
@@ -1349,8 +1349,8 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "sundered-archipelago",
-  configHash: "fe212e8ba4f59a06517eef03e046468de2001076e9fd173fadaa4b8b8efb8d98",
-  envelopeHash: "7aacd4ed313353656c706ce2e50d11f61306b6196a02d5d590f7f5075cd4f8dc",
+  configHash: "44d03df4fa8e29fa1f2ca36d37f5da3325add1a9f2bc712e0461ef24d7247338",
+  envelopeHash: "9d5592f73722922c302d0d42ed00706895396ba58c3ff46366c5b9cb0aff7078",
   config: mapConfig.config,
   initialSetup: {
     requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,

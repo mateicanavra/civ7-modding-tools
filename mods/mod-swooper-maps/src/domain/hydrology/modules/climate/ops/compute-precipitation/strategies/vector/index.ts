@@ -8,8 +8,11 @@ import {
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 
 import { computeDistanceToWater } from "../../../../model/rules/coastal-distance.js";
+import {
+  clampRainfall,
+  rainfallToHumidityU8,
+} from "../../../../model/rules/precipitation-scale.js";
 import ComputePrecipitationContract from "../../contract.js";
-import { clampRainfall, rainfallToHumidityU8 } from "../../rules/index.js";
 import VectorDefinition from "./config.js";
 
 type Vec2 = Readonly<{ x: number; y: number }>;
@@ -124,7 +127,7 @@ const vectorStrategy = createStrategy(ComputePrecipitationContract, VectorDefini
         rf += noise * noiseAmplitude;
 
         const clamped = clampRainfall(rf);
-        rainfall[i] = (clamped | 0) & 0xff;
+        rainfall[i] = clamped;
         humidity[i] = rainfallToHumidityU8(clamped);
       }
     }

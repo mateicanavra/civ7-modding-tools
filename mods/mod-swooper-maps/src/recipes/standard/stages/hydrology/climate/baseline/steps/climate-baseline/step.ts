@@ -390,7 +390,6 @@ export const ClimateBaselineStep = createStep(config, {
     );
 
     const size = width * height;
-    const zeros = new Uint8Array(size);
 
     const modeCount = stepConfig.seasonality.modeCount;
     const axialTiltDeg = stepConfig.seasonality.axialTiltDeg;
@@ -594,9 +593,6 @@ export const ClimateBaselineStep = createStep(config, {
             windU,
             windV,
             humidityF32: moisture.humidity,
-            rainfallIn: zeros,
-            humidityIn: zeros,
-            riverClass: zeros,
             perlinSeed,
           },
           stepConfig.computePrecipitation
@@ -667,9 +663,6 @@ export const ClimateBaselineStep = createStep(config, {
             windU,
             windV,
             humidityF32: moisture.humidity,
-            rainfallIn: zeros,
-            humidityIn: zeros,
-            riverClass: zeros,
             perlinSeed,
           },
           stepConfig.computePrecipitation

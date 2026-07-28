@@ -15,7 +15,7 @@ type StrategyConfigSchemaOf<T> = T extends { config: infer C extends TSchema } ?
  */
 export type OperationInput<InputSchema extends TSchema> = ReadonlyData<Static<InputSchema>>;
 
-/** Canonical callable signature shared by executable operations and step-scoped bindings. */
+/** Canonical callable signature shared by executable operations and exact step capabilities. */
 export type OperationRun<
   InputSchema extends TSchema,
   OutputSchema extends TSchema,

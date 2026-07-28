@@ -36,7 +36,7 @@ multi-strategy operation names its default explicitly. The runtime envelope is
 change behavior three ways, in increasing depth:
 
 1. **Re-tune** — keep the strategy, change `config` values in the map config or stage `compile()`. Cheapest; most behavioral asks start here.
-2. **Swap strategy** — select a different existing key (e.g. precipitation `refine` instead of `vector`; atmospheric circulation `latitude` instead of `geostrophic-proxy`). Selection happens in exactly one of three places — see below.
+2. **Swap strategy** — select a different existing key (e.g. precipitation `baseline` instead of `vector`; atmospheric circulation `latitude` instead of `geostrophic-proxy`). Selection happens through one of the two authoring paths below.
 3. **Add a strategy** — author a new physical model as a semantic leaf under
    `strategies/<id>/{config.ts,index.ts}`, leaving the incumbent intact. The
    operation contract imports the leaf definition, `strategies/index.ts`
@@ -45,12 +45,13 @@ change behavior three ways, in increasing depth:
    preferred shape for a genuinely new physical model because it remains
    reversible and A/B-testable.
 
-**Where a strategy is selected** (the three control points — verified in `packages/mapgen-core/src/authoring/operation/create.ts` runtime dispatch `runtimeStrategies[cfg.strategy].run(...)`):
-- **(a)** a public stage's `compile()` hard-codes the literal, e.g. hydrology-climate-refine sets `computePrecipitation: { strategy: "refine", config: ... }`;
-- **(b)** a step contract's `StepOpUse.defaultStrategy` changes the schema default (what you get when the envelope is omitted), e.g. `climate-refine/config.ts` declares `defaultStrategy: "refine"`;
-- **(c)** the op envelope authored directly in an internal (non-public) stage's step config in the map `.config.json`.
+**Where a strategy is selected** (verified in `packages/mapgen-core/src/authoring/operation/create.ts` runtime dispatch `runtimeStrategies[cfg.strategy].run(...)`):
+- **(a)** the operation envelope authored directly in an ordinary stage's step config; or
+- **(b)** a rare inline public stage `compile()` that meaningfully translates an intentionally different external surface into internal operation envelopes.
 
-For a public stage with `compile()`, the config JSON never carries a `strategy` field — `compile()` injects it. Only internal stages let an author set `strategy` directly. **Always confirm which control point governs the op you intend to change before editing** — editing config that `compile()` overwrites is a classic dead-edit.
+The operation contract alone owns the inferred or explicit default materialized when an envelope is omitted. A step selects the canonical operation contract directly; it cannot replace that default. For a public stage with `compile()`, the config JSON does not carry the internal strategy envelope because `compile()` creates it. **Always confirm which control point governs the op you intend to change before editing** — editing config that `compile()` overwrites is a classic dead-edit.
+
+If a proposed variant does not satisfy the exact same input/output transition, it is not a strategy. Give the semantic transition its own operation. `hydrology/refine-precipitation`, for example, consumes an admitted precipitation vintage plus river evidence after hydrography rather than pretending to be a step-local default of `compute-precipitation`.
 
 ---
 
@@ -90,7 +91,7 @@ The physical chain: **belt drivers** (`compute-belt-drivers`: maps `FoundationTe
 
 ## HYDROLOGY — the coupled climate–water–ocean system (deepest domain)
 
-`src/domain/hydrology/modules/*/ops/*` — 18 ops. The longest physical chain and the most multi-strategy ops — most behavioral climate/river asks land here. The recipe runs it as **hydrology-climate-baseline → hydrology-hydrography → hydrology-climate-refine** (climate is computed, drainage/rivers solved, then climate refined). Publishes routing/refinement vintage `artifact:hydrology.baselineClimateField`, final consumer vintage `artifact:hydrology.climateField`, and `artifact:hydrology.{climateIndices,cryosphere,hydrography,lakePlan,riverNetwork}`. Seasonal amplitudes and climate-diagnostic fields remain invocation-local visualization evidence; river benchmark summaries go to the metrics sink.
+`src/domain/hydrology/modules/*/ops/*` — 19 ops. The longest physical chain and the most multi-strategy ops — most behavioral climate/river asks land here. The recipe runs it as **hydrology-climate-baseline → hydrology-hydrography → hydrology-climate-refine** (climate is computed, drainage/rivers solved, then climate refined). Publishes routing/refinement vintage `artifact:hydrology.baselineClimateField`, final consumer vintage `artifact:hydrology.climateField`, and `artifact:hydrology.{climateIndices,cryosphere,hydrography,lakePlan,riverNetwork}`. Seasonal amplitudes and climate-diagnostic fields remain invocation-local visualization evidence; river benchmark summaries go to the metrics sink.
 
 The physical chain (op by op):
 
@@ -101,19 +102,19 @@ The physical chain (op by op):
 5. **Evaporation sources** (`compute-evaporation-sources`): where moisture enters the atmosphere.
 6. **Atmospheric circulation** (`compute-atmospheric-circulation`): `computeWindsEarthlike` builds a **3-cell Hadley / Ferrel / Polar** zonal scaffold + a **geostrophic-proxy** wind from `∇pressure` (verified: `wind = (zonalBase, meridionalBase) + geo·geostrophicStrength`) + optional seasonal modulation. Strategies: **`geostrophic-proxy`** (default) and **`latitude`** (legacy latitude-band model).
 7. **Moisture transport** (`transport-moisture`): advects humidity along the wind field. Strategies: **`vector-advection`** (default; follows the full U/V wind vector) and **`cardinal`** (legacy cardinal-only walk).
-8. **Precipitation** (`compute-precipitation`): `humidity^exp · scale + coastal gradient − orographic rain shadow` (rain shadow via a **cardinal upwind-barrier walk**). Strategies: **`vector`** (default; consumes full wind U/V for uplift + convergence proxies), **`baseline`**, and **`refine`** (adds river-corridor + low-basin bonuses; the production climate-refine pass uses `refine`).
+8. **Baseline precipitation** (`compute-precipitation`): `humidity^exp · scale + coastal gradient − orographic rain shadow` (rain shadow via a **cardinal upwind-barrier walk**). Strategies: **`vector`** (default; consumes full wind U/V for uplift + convergence proxies) and **`baseline`**.
 9. **Cryosphere** (`compute-cryosphere-state`): outputs `freezeIndex` (ramped between `freezeIndexStartC`/`freezeIndexFullC`) and permafrost thresholds from `surfaceTemperatureC`.
 10. **Albedo feedback** (`apply-albedo-feedback`): iterative ice/temperature feedback (fixed-iteration, not to convergence).
 11. **Hydrography** (`compute-drainage-routing` → `accumulate-discharge` → `project-river-network` → `plan-lakes` → `classify-river-network`): drainage is solved on the terrain, discharge is accumulated, accepted lakes are planned, and the causal river hierarchy is classified against that terminal evidence. **`riverClass` (u8: 0=none, 1=minor, ≥2=major/projectable)** is the gate consumed later by the recipe-owned Civ projection selector.
-12. **Refined land water budget and observation** (`compute-land-water-budget` → `compute-climate-diagnostics`): the post-hydrography climate pass combines rainfall, humidity, and hex-local river hierarchy into `effectiveMoisture`, derives the simplified **PET** proxy and `aridityIndex` = PET/(PET + precip + 1)-style ratio, then produces invocation-local rain-shadow, continentality, and convergence evidence for optional visualization.
+12. **Precipitation refinement, land water budget, and observation** (`refine-precipitation` → `compute-land-water-budget` → `compute-climate-diagnostics`): the post-hydrography refinement operation adds river-corridor and enclosed-basin wetness to the admitted baseline vintage. The remaining pass combines rainfall, humidity, and hex-local river hierarchy into `effectiveMoisture`, derives the simplified **PET** proxy and `aridityIndex` = PET/(PET + precip + 1)-style ratio, then produces invocation-local rain-shadow, continentality, and convergence evidence for optional visualization.
 
 **The climate index outputs you reason against** (where each lives — do not re-derive locally): `surfaceTemperatureC` ← thermal-state; `effectiveMoisture` + `pet` + `aridityIndex` ← land-water-budget; `freezeIndex` ← cryosphere; `rainShadowIndex` / `continentalityIndex` / `convergenceIndex` ← the climate module's `compute-climate-diagnostics` observation operation. Ecology `classify-biomes` consumes `effectiveMoisture` + `aridityIndex` as advisory indices and does not recompute them.
 
-- **MODELED:** Latitudinal insolation; lapse-rate + land-cooling temperature; 3-cell circulation scaffold; geostrophic wind from pressure gradient; wind-driven ocean gyres with Ekman transport and a divergence-free current field; SST advection + sea-ice; vector moisture advection; humidity-driven precipitation with a coastal gradient; orographic rain shadow; cryosphere/permafrost; PET-based aridity; river-corridor/low-basin precip bonuses (`refine`).
+- **MODELED:** Latitudinal insolation; lapse-rate + land-cooling temperature; 3-cell circulation scaffold; geostrophic wind from pressure gradient; wind-driven ocean gyres with Ekman transport and a divergence-free current field; SST advection + sea-ice; vector moisture advection; humidity-driven precipitation with a coastal gradient; orographic rain shadow; cryosphere/permafrost; PET-based aridity; river-corridor/low-basin precipitation refinement (`refine-precipitation`).
 - **APPROXIMATED:** Winds are a geostrophic *proxy* (no momentum equation); rain shadow is a **cardinal upwind barrier walk** (blocky, direction-quantized); albedo feedback is a **fixed-iteration** pass, not iterated to convergence; PET is a temperature-driven proxy, not Penman-Monteith; "seasonality" is a modulation, not a true seasonal cycle.
 - **ABSENT:** Navier–Stokes atmosphere/ocean; ITCZ seasonal migration; monsoon mechanism; thermohaline / deep-overturning circulation; ENSO; greenhouse forcing beyond a fixed bias; **moisture depletion en route** (humidity is advected but not drawn down by the precipitation it produces); SST→atmosphere back-coupling.
 
-**Behavioral levers:** this is where most river/climate asks resolve. "Rivers too sparse/dense" → discharge accumulation + `riverClass` thresholds in hydrography + `refine` river-corridor bonuses. "Rain shadows blocky/wrong direction" → the cardinal upwind-barrier walk in `compute-precipitation` (this is the flagged orographic gap, below — the right shape is *add a vector-orographic strategy*, not re-tune the cardinal one). "Deserts in the wrong place" → atmospheric-circulation + moisture-transport strategy choice + aridity. "Continental interiors not dry/cold enough" → transport, precipitation, and thermal-state land cooling; the visualization-only continentality index is evidence, not an authoring lever.
+**Behavioral levers:** this is where most river/climate asks resolve. "Rivers too sparse/dense" → discharge accumulation + `riverClass` thresholds in hydrography + `refine-precipitation` river-corridor bonuses. "Rain shadows blocky/wrong direction" → the cardinal upwind-barrier walk in `compute-precipitation` (this is the flagged orographic gap, below — the right shape is *add a vector-orographic strategy*, not re-tune the cardinal one). "Deserts in the wrong place" → atmospheric-circulation + moisture-transport strategy choice + aridity. "Continental interiors not dry/cold enough" → transport, precipitation, and thermal-state land cooling; the visualization-only continentality index is evidence, not an authoring lever.
 
 ---
 
@@ -163,11 +164,11 @@ A behavioral change almost always has a structural locus the technical arm must 
 - **Coasts-by-erosion / coast projection** (behavioral) chose a margin-aware shelf model grounded in **passive-vs-active-margin physics** — but the load-bearing fix was *structural*: adapter terrain maintenance in `map-morphology`/`map-rivers`/`placement` was silently demoting coast→ocean. Each boundary now re-derives the same Civ7 projection from authoritative `artifact:morphology.{topography,shelf}` truth and the shared map-policy function instead of persisting a mutable projection artifact. Good physics, defeated downstream until the structural locus was found.
 - **Orographic precipitation** is simultaneously a behavioral deficiency (blocky, directionally wrong rain shadows) and a structural change (it touches the `compute-precipitation` contract + strategies). You cannot reason about the fix from physics alone.
 
-Always: ground the model in a real process → locate the op (and whether `compile()`/`defaultStrategy`/config governs it) → decide re-tune / swap / add-strategy → pre-declare regime-family expectations → hand the structural shape to the technical arm → prove behaviorally **and** in-game (`references/facet-verification.md`; in-game is the closure test).
+Always: ground the model in a real process → locate the op (and whether its canonical default, authored envelope, or rare inline stage compiler governs it) → decide re-tune / swap / add-strategy / separate-operation → pre-declare regime-family expectations → hand the structural shape to the technical arm → prove behaviorally **and** in-game (`references/facet-verification.md`; in-game is the closure test).
 
 ---
 
-## Quick reference — multi-strategy physics ops (verified keys)
+## Quick reference — selected physics operation strategies (verified keys)
 
 > Structural detail (selection control points, runtime dispatch) lives in `references/pipeline-map.md`; this table adds the physics gloss.
 
@@ -176,8 +177,9 @@ Always: ground the model in a real process → locate the op (and whether `compi
 | `hydrology/compute-atmospheric-circulation` | `geostrophic-proxy` (default), `latitude` | `latitude` = legacy latitude-band winds (no ∇pressure geostrophic term) |
 | `hydrology/compute-ocean-surface-currents` | `wind-gyre-projection` (default), `latitude` | `latitude` = legacy zonal current model |
 | `hydrology/transport-moisture` | `vector-advection` (default), `cardinal` | `cardinal` = legacy cardinal-only humidity walk |
-| `hydrology/compute-precipitation` | `vector` (default), `baseline`, `refine` | `refine` = baseline + river-corridor + low-basin bonuses (production climate-refine) |
+| `hydrology/compute-precipitation` | `vector` (default), `baseline` | `baseline` = scalar-wind baseline rainfall model |
+| `hydrology/refine-precipitation` | `riparian-basin-wetness` (sole inferred default) | separate post-hydrography transition adding river-corridor and enclosed-basin wetness |
 | `ecology/pedology/classify` | `balanced` (default), `coastal-shelf`, `orogeny-boosted` | weight shelf proximity / tectonic relief into soil fertility |
 | `ecology/features/plan-reefs` | `habitat` (default), `diagonal-stride` | `diagonal-stride` = deterministic geometric fallback placement |
 
-All **foundation** ops and **most morphology** ops have one inferred semantic strategy: a new physical model there is an *add-a-strategy* (`assets/recipe-scaffolds.md`) or new config, never a rename to `default`. Every key above is the runtime dispatch key and matches its strategy module identity.
+All **foundation** ops and **most morphology** ops have one inferred semantic strategy: a new physical model there is an *add-a-strategy* (`assets/recipe-scaffolds.md`) or new config, never a rename to `default`. Every key above is the runtime dispatch key and matches its strategy module identity. `refine-precipitation` appears because it is the semantic operation split that replaced the former cross-contract `refine` variant.
