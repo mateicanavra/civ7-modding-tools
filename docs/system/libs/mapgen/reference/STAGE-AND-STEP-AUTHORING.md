@@ -27,8 +27,9 @@ A step contract defines:
   authorities and typed completion id constants appear together; raw
   `artifact:*` strings are invalid.
 - optional `engine` method keys (an exact occurrence-scoped adapter capability set)
-- optional recipe-owned `initialSetup` authority (grants immutable `deps.initialSetup` only to that
-  step and must match the recipe's exact authority)
+- optional recipe-owned `initialSetup` authority (types immutable
+  `context.initialSetup` for that step and must match the recipe's exact
+  authority; it is invocation context, not a dependency edge)
 - optional `ops` decl (op contracts used by the step, with schema-enveloped strategies)
 - optional additive `schema` for genuine step-local authored fields
 
@@ -117,6 +118,12 @@ A step module pairs a step contract with an implementation:
 objects used by their owning catalogs, so implementations cannot declare a second provider or validator surface. At each
 invocation, Core derives only the exact occurrence-bound `read()` and `publish(value)` capabilities
 declared by that step contract; there is no provider runtime registry, map, or cache.
+
+`context.setup` always exposes Core's physical `MapSetup`. A step declaring a
+recipe-owned `initialSetup` authority also receives the exact already-admitted
+recipe value as `context.initialSetup`. That declaration selects the invocation
+context type and preserves exact recipe compatibility; it does not add a
+provider, reader, or second admission transition to `deps`.
 
 The same contract binds `deps.engine` to only the declared adapter methods. Calls are
 context-first (`deps.engine.method(context, ...)`) and valid only during that exact step

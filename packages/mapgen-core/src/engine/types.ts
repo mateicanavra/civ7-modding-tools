@@ -21,6 +21,8 @@ export interface MapGenStep<TConfig = unknown, TResult = unknown> {
   readonly stageId: string;
   readonly requires: readonly PipelineDependency[];
   readonly provides: readonly PipelineDependency[];
+  /** Internal occurrence flag selecting projection of its recipe's admitted initial setup. */
+  readonly projectsInitialSetup?: true;
   readonly configSchema?: TSchema;
   readonly normalize?: (config: TConfig, ctx: NormalizeContext) => TConfig;
   readonly run: (context: MapContext, config: TConfig) => TResult | Promise<TResult>;

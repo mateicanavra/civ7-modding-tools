@@ -9,6 +9,8 @@ import {
   type RecipeInitialSetupValueOf,
   Type,
 } from "@mapgen/authoring/index.js";
+import type { MapContext } from "@mapgen/core/map-context.js";
+import { withStepExecutionForTest } from "@mapgen/testing/index.js";
 import type { IsEqual } from "type-fest";
 import type { Static } from "typebox";
 
@@ -73,29 +75,52 @@ const DeclaredStep = createStep(
     initialSetup: ExactInitialSetup,
   }),
   {
-    run: (_context, _config, _ops, deps) => {
-      type ExactOptionAccess = Expect<IsEqual<typeof deps.initialSetup.options.seaLevel, number>>;
+    run: (context, _config, _ops, deps) => {
+      type ExactOptionAccess = Expect<
+        IsEqual<typeof context.initialSetup.options.seaLevel, number>
+      >;
       // @ts-expect-error An admitted initial value is deeply readonly.
-      deps.initialSetup.options.seaLevel = 2;
+      context.initialSetup.options.seaLevel = 2;
       // @ts-expect-error Undeclared extension state does not exist.
-      deps.initialSetup.unknown;
+      context.initialSetup.unknown;
+      // @ts-expect-error Initial setup is invocation context, not a dependency capability.
+      deps.initialSetup;
     },
   }
 );
 
-createStep(
+declare const directTestContext: MapContext;
+// @ts-expect-error The executor-owned root exposes physical setup only.
+directTestContext.initialSetup;
+withStepExecutionForTest(directTestContext, DeclaredStep, (context) => {
+  type ExactDirectOptionAccess = Expect<
+    IsEqual<typeof context.initialSetup.options.seaLevel, number>
+  >;
+  // @ts-expect-error Direct step test context retains the admitted readonly setup value.
+  context.initialSetup.options.seaLevel = 2;
+  void (undefined as unknown as ExactDirectOptionAccess);
+});
+
+const UndeclaredStep = createStep(
   defineStep({
     id: "undeclared-initial-setup",
     requires: [],
     provides: [],
   }),
   {
-    run: (_context, _config, _ops, deps) => {
-      // @ts-expect-error A step gets no initialSetup dependency without an exact declaration.
+    run: (context, _config, _ops, deps) => {
+      // @ts-expect-error A step gets no initialSetup context without an exact declaration.
+      context.initialSetup;
+      // @ts-expect-error Initial setup is never exposed as a dependency capability.
       deps.initialSetup;
     },
   }
 );
+
+withStepExecutionForTest(directTestContext, UndeclaredStep, (context) => {
+  // @ts-expect-error Undeclared direct step tests do not gain initial setup context.
+  context.initialSetup;
+});
 
 const stage = createStage({
   id: "foundation",

@@ -32,6 +32,7 @@ import {
   isCanonicalStepContractInternal,
   isCanonicalStepInternal,
 } from "../step/authority.js";
+import { assertStepInitialSetupContextInternal } from "../step/context.js";
 import type { StepDependencyList } from "../step/contract.js";
 import { buildDeclaredStepDependencies } from "../step/dependencies.js";
 import type {
@@ -329,9 +330,13 @@ function finalizeOccurrences(input: {
           stageId: stage.id,
           requires: authored.contract.requires,
           provides: authored.contract.provides,
+          ...(authored.contract.initialSetup === undefined ? {} : { projectsInitialSetup: true }),
           configSchema: authored.contract.schema,
           normalize: authored.normalize as MapGenStep<unknown>["normalize"] | undefined,
           run: ((context: MapContext, config: unknown) => {
+            if (authored.contract.initialSetup !== undefined) {
+              assertStepInitialSetupContextInternal(context, authored.contract.initialSetup);
+            }
             const dependencies = buildDeclaredStepDependencies(authored, {
               consumerStepId: fullId,
               owner: `recipe:${input.recipeId}`,

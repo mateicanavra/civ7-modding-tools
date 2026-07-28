@@ -16,7 +16,7 @@ export const AdjustResourcesStep = createStep(config, {
     const landmasses = deps.artifacts.landmasses.read();
 
     const supportInput: Parameters<typeof ops.support>[0] = {
-      seed: deriveStepSeed(deps.initialSetup.gameSeed, "resources:adjustResourceSupport"),
+      seed: deriveStepSeed(context.initialSetup.gameSeed, "resources:adjustResourceSupport"),
       plan,
       eligibility: demandPlan.candidates.admitted.map((candidate) => ({
         resourceType: candidate.source.resourceType,

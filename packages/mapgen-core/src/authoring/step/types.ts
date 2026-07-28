@@ -54,12 +54,15 @@ type StepInitialSetupSurface<InitialSetup extends InitialSetupDefinition | undef
     ? Readonly<{ initialSetup: InitialSetupValueOf<InitialSetup> }>
     : Readonly<Record<never, never>>;
 
-/** Exact initial-state, artifact, and engine capabilities admitted for one step occurrence. */
+/** Invocation context visible to one step, including only its declared initial-setup authority. */
+export type StepContext<InitialSetup extends InitialSetupDefinition | undefined = undefined> =
+  MapContext & StepInitialSetupSurface<InitialSetup>;
+
+/** Exact artifact and engine capabilities admitted for one step occurrence. */
 export type StepDeps<
   TRequires extends StepDependencyList,
   TProvides extends StepDependencyList,
   TEngine extends StepEngineDecl | undefined = undefined,
-  TInitialSetup extends InitialSetupDefinition | undefined = undefined,
 > = Readonly<{
   /**
    * Canonical dependency surface for artifacts.
@@ -70,8 +73,7 @@ export type StepDeps<
   artifacts: Readonly<StepArtifactsSurface<TRequires, TProvides>>;
   /** Exact occurrence-scoped engine methods declared by the step contract. */
   engine: StepEngineSurface<TEngine>;
-}> &
-  StepInitialSetupSurface<TInitialSetup>;
+}>;
 
 type StepContractAny = StepContract<any, any, any, any, any, any, any>;
 
@@ -96,14 +98,13 @@ export type StepModule<C extends StepContractAny = StepContractAny, TResult = un
   contract: C;
   normalize?: (config: unknown, ctx: NormalizeContext) => unknown;
   run: (
-    context: MapContext,
+    context: StepContext<StepInitialSetupOfContract<C>>,
     config: unknown,
     ops: unknown,
     deps: StepDeps<
       StepRequiresOfContract<C>,
       StepProvidesOfContract<C>,
-      StepEngineDeclOfContract<C>,
-      StepInitialSetupOfContract<C>
+      StepEngineDeclOfContract<C>
     >
   ) => TResult | Promise<TResult>;
 }> &

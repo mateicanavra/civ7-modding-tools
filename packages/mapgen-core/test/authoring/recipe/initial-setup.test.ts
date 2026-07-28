@@ -9,6 +9,7 @@ import {
 } from "@mapgen/authoring/index.js";
 import { createMapContext } from "@mapgen/core/map-context.js";
 import { computePlanFingerprint } from "@mapgen/engine/index.js";
+import { withMapContextExecutionForTest, withStepExecutionForTest } from "@mapgen/testing/index.js";
 import { Type } from "typebox";
 
 const PhysicalSchema = Type.Object(
@@ -66,8 +67,8 @@ function createInitialSetupRecipe(
       initialSetup,
     }),
     {
-      run: (_context, _config, _ops, deps) => {
-        observed.push(deps.initialSetup);
+      run: (context) => {
+        observed.push(context.initialSetup);
       },
     }
   );
@@ -172,6 +173,7 @@ describe("recipe initial setup authority", () => {
 
     expect(observed).toHaveLength(2);
     expect(observed[1]).toBe(observed[0]);
+    expect(observed[0]).toBe(evidence.initialSetup.value);
     expect(observed[0]).toEqual(initialInput());
     expect(Object.isFrozen(observed[0])).toBe(true);
     expect(Object.isFrozen((observed[0] as ReturnType<typeof initialInput>).physical)).toBe(true);
@@ -179,6 +181,40 @@ describe("recipe initial setup authority", () => {
     expect(Object.isFrozen((observed[0] as ReturnType<typeof initialInput>).world.weights)).toBe(
       true
     );
+    expect(Reflect.get(context, "initialSetup")).toBeUndefined();
+  });
+
+  it("gives direct step tests the exact admitted setup while the root stays opaque", () => {
+    const authority = createInitialSetupAuthority();
+    const recipe = createInitialSetupRecipe(authority, []);
+    const directStep = createStep(
+      defineStep({
+        id: "direct-initial-observer",
+        requires: [],
+        provides: [],
+        initialSetup: authority,
+      }),
+      { run: () => undefined }
+    );
+    const plan = recipe.compile(initialInput(), { foundation: { knobs: {} } });
+    const evidence = recipe.inspectPlan(plan);
+    const context = createMapContext({
+      setup: plan.setup,
+      adapter: createMockAdapter({ width: 4, height: 3 }),
+    });
+    const opaqueContext = createMapContext({
+      setup: plan.setup,
+      adapter: createMockAdapter({ width: 4, height: 3 }),
+    });
+
+    expect(Reflect.get(context, "initialSetup")).toBeUndefined();
+    withMapContextExecutionForTest(opaqueContext, (stepContext) => {
+      expect(Reflect.get(stepContext, "initialSetup")).toBeUndefined();
+    });
+    withStepExecutionForTest(context, directStep, (stepContext) => {
+      expect(stepContext.initialSetup).toBe(evidence.initialSetup.value);
+      expect(Object.isFrozen(stepContext)).toBe(true);
+    });
     expect(Reflect.get(context, "initialSetup")).toBeUndefined();
   });
 
@@ -343,7 +379,8 @@ describe("recipe initial setup authority", () => {
         run: (context, _config, _ops, deps) => {
           observed.push({
             setup: context.setup,
-            hasInitialSetup: Object.hasOwn(deps, "initialSetup"),
+            hasInitialSetupContext: Object.hasOwn(context, "initialSetup"),
+            hasInitialSetupDependency: Object.hasOwn(deps, "initialSetup"),
           });
         },
       }
@@ -365,6 +402,12 @@ describe("recipe initial setup authority", () => {
     });
 
     recipe.execute(context, plan);
-    expect(observed).toEqual([{ setup: plan.setup, hasInitialSetup: false }]);
+    expect(observed).toEqual([
+      {
+        setup: plan.setup,
+        hasInitialSetupContext: false,
+        hasInitialSetupDependency: false,
+      },
+    ]);
   });
 });

@@ -39,8 +39,10 @@ type MapSetup = Admitted<MapSetupInput>;
 - `schema` admits and deeply freezes the complete portable launch value,
 - optional `refine(value, { issues })` owns cross-field semantic laws,
 - `physical(value)` projects the sole `MapSetup`, and
-- a step receives the value as `deps.initialSetup` only when its `defineStep` contract declares
-  that exact authority.
+- a step receives the already-admitted value as immutable
+  `context.initialSetup` only when its `defineStep` contract declares that exact
+  authority. The declaration selects an invocation-context type; it is not a
+  dependency edge or runtime reader capability.
 
 One `MapContext` owns one physical setup for its entire lifetime. `admitMapSetup` refuses
 unknown state, map seeds outside the signed 32-bit RNG domain, non-positive or fractional tile
@@ -49,9 +51,12 @@ edge is not above their south edge. It freezes one exact snapshot;
 recipe compilation projects and retains that same value as `plan.setup`.
 `createMapContext({ setup: plan.setup, adapter })` refuses adapter dimensions that describe a
 different grid, and execution refuses a plan and context that do not share the exact admitted setup.
-The complete recipe-owned value and its authority identity are held privately rather than exposed
-on `MapContext`; raw setup-shaped values cannot recreate that binding. Recipe `run` methods are
-therefore conveniences for an already-bound context, while recipe `execute` methods consume an
+The complete recipe-owned value and its authority identity remain privately
+bound to the physical setup. The executor-owned root `MapContext` exposes only
+that physical setup; an authentic active-step facade projects the exact bound
+value only for a step declaring the matching authority. Raw setup-shaped values
+cannot recreate that binding. Recipe `run` methods are therefore conveniences
+for an already-bound context, while recipe `execute` methods consume an
 already-compiled plan without recompiling or retargeting its setup.
 
 This is the sole physical setup-validation boundary. Stage and step compilation may read the
@@ -118,7 +123,8 @@ physicalOnlyRecipe.execute(context, plan);
 - Standard initial-setup authority: `mods/mod-swooper-maps/src/recipes/standard/initial-setup.ts`
 - Civ7 one-shot setup capture: `packages/civ7-adapter/src/map-generation-setup.ts`
 - SDK map-loader integration: `packages/sdk/src/mapgen/createMap.ts`
-- Declared step access: `packages/mapgen-core/src/authoring/step/dependencies.ts`
-- Context construction: `packages/mapgen-core/src/core/map-context.ts`
+- Declared step context type: `packages/mapgen-core/src/authoring/step/types.ts`
+- Exact step-context binding assertion: `packages/mapgen-core/src/authoring/step/context.ts`
+- Context construction and projection: `packages/mapgen-core/src/core/map-context.ts`
 - Run request and execution plan: `packages/mapgen-core/src/engine/execution-plan.ts`
 - Plan fingerprinting: `packages/mapgen-core/src/engine/observability.ts`

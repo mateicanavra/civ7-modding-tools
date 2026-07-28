@@ -190,8 +190,8 @@ export const AssignStartsStep = createStep(config, {
     const { width, height } = context.setup.dimensions;
     const plan = ops.starts(
       {
-        playerIds: deps.initialSetup.aliveMajorPlayerIds,
-        gameSeed: deps.initialSetup.gameSeed,
+        playerIds: context.initialSetup.aliveMajorPlayerIds,
+        gameSeed: context.initialSetup.gameSeed,
         width,
         height,
         landMask: topography.landMask as Uint8Array,

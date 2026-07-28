@@ -17,7 +17,7 @@ import {
   buildStepTestDependencies,
   normalizeOperationSelectionForTest,
   publishTestArtifact,
-  withMapContextExecutionForTest,
+  withStepExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 
 import standardRecipe from "../../../../../../src/recipes/standard/recipe.js";
@@ -206,7 +206,7 @@ function runAssignStartsStep(
   config: AssignStartsConfig = assignStartsConfig(),
   ops: AssignStartsOps = ASSIGN_STARTS_OPS
 ): void {
-  withMapContextExecutionForTest(context, (stepContext) => {
+  withStepExecutionForTest(context, AssignStartsStep, (stepContext) => {
     publishAssignStartsInputs(stepContext, landTiles);
     AssignStartsStep.run(
       stepContext,

@@ -32,7 +32,7 @@ export const SelectResourceSitesStep = createStep(config, {
       {
         width,
         height,
-        seed: deriveStepSeed(deps.initialSetup.gameSeed, "resources:selectResourceSites"),
+        seed: deriveStepSeed(context.initialSetup.gameSeed, "resources:selectResourceSites"),
         landMask: topography.landMask,
         lakeMask: lakePlan.lakeMask,
         landmassIdByTile: landmasses.landmassIdByTile,

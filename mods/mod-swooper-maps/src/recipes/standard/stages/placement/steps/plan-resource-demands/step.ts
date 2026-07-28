@@ -84,7 +84,7 @@ export const PlanResourceDemandsStep = createStep(config, {
       currentRiverSurface.navigableRiverMask,
       currentRiverSurface.minorRiverMask,
     ].filter((mask): mask is Uint8Array => mask !== undefined);
-    const mapSelection = deps.initialSetup.map.selection;
+    const mapSelection = context.initialSetup.map.selection;
     const minimumAmountModifier =
       mapSelection.kind === "civ7-preset"
         ? resolveMapResourceMinimumAmountModifier(STANDARD_RESOURCE_MAP_TYPE, mapSelection.id)

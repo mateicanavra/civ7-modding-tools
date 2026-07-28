@@ -25,13 +25,15 @@ Canonical MapGen vocabulary used across docs (policies, reference, tutorials).
   and latitude bounds.
 - **Recipe initial setup**: The complete schema-admitted launch value owned by one recipe. Core
   privately binds it to its projected `MapSetup`; only steps declaring the exact authority receive
-  it. Standard's authority includes distinct map/game seeds, exact map selection, ordered
-  alive-major player ids, and complete setup-option evidence.
+  it as immutable `context.initialSetup`. This is invocation context, not a dependency edge.
+  Standard's authority includes distinct map/game seeds, exact map selection, ordered alive-major
+  player ids, and complete setup-option evidence.
 - **Map context**: One run-scoped author surface exposing immutable setup and the active step's
-  revocable event port. Core privately owns the engine adapter, artifact storage, deterministic
-  random state, execution identity, and trace lifecycle. Declared artifact, engine, random, and trace
-  capabilities are occurrence-scoped; adapter identity never crosses the private
-  invocation boundary.
+  revocable trace port. `context.setup` is always Core's physical `MapSetup`; a step declaring an
+  exact recipe setup authority also receives the already-admitted full value as
+  `context.initialSetup`. Core privately owns the engine adapter, artifact storage, deterministic
+  random state, execution identity, and trace lifecycle. Declared artifact and engine capabilities
+  are occurrence-scoped; adapter identity never crosses the private invocation boundary.
 - **Execution plan**: A list/graph of execution nodes derived from the recipe, registry, and admitted
   recipe initial setup. It retains the projected `MapSetup` and fingerprints the complete initial
   value.

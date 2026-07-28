@@ -3,10 +3,6 @@ import { invokeMapContextAdapterMethodInternal } from "@mapgen/core/map-context.
 
 import type { Artifact } from "../artifact/contract.js";
 import { publishArtifactValueInternal, readArtifactValueInternal } from "../artifact/runtime.js";
-import {
-  type InitialSetupDefinition,
-  readInitialSetupValueInternal,
-} from "../initial-setup/definition.js";
 import type { StepDependencyList, StepEngineDecl } from "./contract.js";
 import type { ArtifactPublisher, ArtifactReader, StepDeps } from "./types.js";
 
@@ -14,13 +10,11 @@ type DeclaredStep<
   Requires extends StepDependencyList,
   Provides extends StepDependencyList,
   Engine extends StepEngineDecl | undefined,
-  InitialSetup extends InitialSetupDefinition | undefined = InitialSetupDefinition | undefined,
 > = Readonly<{
   contract: Readonly<{
     requires: Requires;
     provides: Provides;
     engine?: Engine;
-    initialSetup?: InitialSetup;
   }>;
 }>;
 
@@ -95,27 +89,15 @@ export function buildDeclaredStepDependencies<
   Requires extends StepDependencyList,
   Provides extends StepDependencyList,
   Engine extends StepEngineDecl | undefined,
-  InitialSetup extends InitialSetupDefinition | undefined,
 >(
-  authored: DeclaredStep<Requires, Provides, Engine, InitialSetup>,
+  authored: DeclaredStep<Requires, Provides, Engine>,
   input: Readonly<{ consumerStepId: string; owner: string; context?: MapContext }>
-): StepDeps<Requires, Provides, Engine, InitialSetup> {
+): StepDeps<Requires, Provides, Engine> {
   const engine = bindEngineDependencies(
     authored.contract.engine,
     input.context,
     input.consumerStepId
   );
-  const initialSetup =
-    authored.contract.initialSetup === undefined
-      ? Object.freeze({})
-      : input.context === undefined
-        ? rejectMissingInitialSetupContext(input.consumerStepId)
-        : Object.freeze({
-            initialSetup: readInitialSetupValueInternal(
-              input.context.setup,
-              authored.contract.initialSetup
-            ),
-          });
   const requires = authored.contract.requires.filter(
     (dependency): dependency is Artifact => typeof dependency !== "string"
   );
@@ -126,8 +108,7 @@ export function buildDeclaredStepDependencies<
     return Object.freeze({
       artifacts: Object.freeze({}),
       engine,
-      ...initialSetup,
-    }) as StepDeps<Requires, Provides, Engine, InitialSetup>;
+    }) as StepDeps<Requires, Provides, Engine>;
   }
 
   const context = requireArtifactContext(input.context, input.consumerStepId);
@@ -152,12 +133,5 @@ export function buildDeclaredStepDependencies<
   return Object.freeze({
     artifacts: Object.freeze(bound),
     engine,
-    ...initialSetup,
-  }) as StepDeps<Requires, Provides, Engine, InitialSetup>;
-}
-
-function rejectMissingInitialSetupContext(stepId: string): never {
-  throw new Error(
-    `Initial setup access for step "${stepId}" requires an admitted invocation context.`
-  );
+  }) as StepDeps<Requires, Provides, Engine>;
 }

@@ -10,7 +10,8 @@ import type { StepDeps } from "@mapgen/authoring/step/types.js";
 import type { MapContext } from "@mapgen/core/map-context.js";
 import { DIRECT_TEST_STEP_ID } from "./authority.js";
 
-type TestableStep = Readonly<{
+/** Minimal authored-step authority accepted by Core's production-faithful direct test helpers. */
+export type TestableStep = Readonly<{
   contract: Readonly<{
     id: string;
     requires: StepDependencyList;
@@ -36,7 +37,8 @@ type StepEngineOf<TStep extends TestableStep> =
     ? Engine
     : TStep["contract"]["engine"];
 
-type StepInitialSetupOf<TStep extends TestableStep> =
+/** Exact initial-setup authority declared by a directly tested step. */
+export type StepInitialSetupOf<TStep extends TestableStep> =
   TStep["contract"] extends StepContract<any, any, any, any, any, any, infer InitialSetup>
     ? InitialSetup
     : TStep["contract"]["initialSetup"];
@@ -44,9 +46,7 @@ type StepInitialSetupOf<TStep extends TestableStep> =
 type TestContextArgs<TStep extends TestableStep> =
   Extract<StepRequiresOf<TStep>[number] | StepProvidesOf<TStep>[number], Artifact> extends never
     ? StepEngineOf<TStep> extends readonly [] | undefined
-      ? StepInitialSetupOf<TStep> extends undefined
-        ? readonly [context?: MapContext]
-        : readonly [context: MapContext]
+      ? readonly [context?: MapContext]
       : readonly [context: MapContext]
     : readonly [context: MapContext];
 
@@ -54,20 +54,10 @@ type TestContextArgs<TStep extends TestableStep> =
 export function buildStepTestDependencies<TStep extends TestableStep>(
   step: TStep,
   ...context: TestContextArgs<TStep>
-): StepDeps<
-  StepRequiresOf<TStep>,
-  StepProvidesOf<TStep>,
-  StepEngineOf<TStep>,
-  StepInitialSetupOf<TStep>
-> {
+): StepDeps<StepRequiresOf<TStep>, StepProvidesOf<TStep>, StepEngineOf<TStep>> {
   return buildDeclaredStepDependencies(step, {
     consumerStepId: DIRECT_TEST_STEP_ID,
     owner: "mapgen-core/testing",
     context: context[0],
-  }) as unknown as StepDeps<
-    StepRequiresOf<TStep>,
-    StepProvidesOf<TStep>,
-    StepEngineOf<TStep>,
-    StepInitialSetupOf<TStep>
-  >;
+  }) as unknown as StepDeps<StepRequiresOf<TStep>, StepProvidesOf<TStep>, StepEngineOf<TStep>>;
 }

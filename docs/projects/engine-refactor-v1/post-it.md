@@ -2,8 +2,8 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Gravity. Completion. Admission. Ownership. Contract.
-Deletion. Density. Candor. Restraint.
+**Attractor filter:** Context. Invocation. Identity. Projection. Authority.
+Restraint. Density. Candor.
 
 **Frame:** kind before instance, intent before ownership, authority before
 relocation. A closed file shape is the start of semantic review, not proof that
@@ -31,15 +31,15 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** collapse effect-tag machinery into the two dependencies
-that actually exist: exact artifact authority and a payload-free plan edge for
-causality that no artifact expresses. Both remain selected once in the step's
-ordered `requires` and `provides` lists. Artifact publication is the only
-runtime postcondition. Completion requires one earlier selected provider, and
-linear fail-fast execution makes successful reachability its proof without
-emitting or storing another state. It does not prove an individual adapter
-call. Method authorization, method invocation, trace events, adapter evidence,
-tag definitions, and demo predicates are not alternate completion authorities.
+**Current container:** initial setup is immutable invocation context, not a
+dependency edge or occurrence-scoped capability. Core's physical
+`MapContext.setup` remains the universal admitted map surface used for plan
+identity, dimensions, latitude, RNG, and artifact cardinality. A step that
+declares an exact recipe setup authority receives that already-admitted full
+value as `context.initialSetup`; its declaration selects a context type and
+preserves recipe compatibility, but creates no provider, registry, read
+capability, or second admission transition. `StepDeps` returns to artifacts and
+engine methods only.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -56,17 +56,14 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** prefer an exact artifact when it semantically represents the
-completed outcome required downstream; do not misuse a planning artifact as a
-sentinel for a later engine transaction. The accepted post-stamp lake artifact
-and exact start assignment delete their parallel completions. Rainfall before
-native river modeling and discoveries before fertility recalculation earn
-payload-free completions because their consumed outcomes exist only in Civ7.
-Landmass-region projection drops its unconsumed surface-order edge. Freeze the
-thirteen irreducible edges, then prove a selected consumer cannot omit or
-precede its provider, failed providers stop before consumers, missing artifacts
-still fail publication, and completion topology remains closed without an
-event stream or builder.
+**Gradient:** project the private exact setup binding onto the authentic step
+facade without reparsing or fallback state; infer the run context from the
+step's declared setup authority; delete the initial-setup branch from
+dependency construction; migrate the five Placement consumers; give focused
+step tests one truthful typed invocation helper; preserve root-context opacity,
+exact recipe/step authority matching, plan identity, and low-level physical-only
+execution. Freeze with Core type/runtime proof, Standard product behavior, the
+native Nx graph, and fresh type/architecture/product review.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -101,6 +98,16 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-27 - Plan-Only Completion Authority Sealed
+
+Completion is now a payload-free compile-time plan edge used only when no
+artifact can express the required causal predecessor. Effects, event tags,
+runtime completion registries, ledgers, emission, and postcondition theater are
+gone. Thirteen irreducible Standard edges remain; lake materialization and
+start assignment use exact artifacts instead. Generic Habitat law, current
+docs, Core/Swooper behavior, the native Nx graph, and independent
+type/architecture/product reviews seal the cut.
 
 ### 2026-07-27 - Unified Step Dependency Authority
 

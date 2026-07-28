@@ -1,5 +1,6 @@
 import type { EngineAdapter } from "@civ7/adapter";
 import type { AuthoredEngineAdapterKey } from "@mapgen/authoring/step/engine-authority.js";
+import { findInitialSetupBindingInternal } from "@mapgen/core/initial-setup-binding.js";
 import { assertMapSetupInternal, type MapSetup } from "@mapgen/core/map-setup.js";
 import { createLabelRng, type LabelRng } from "@mapgen/lib/rng/label.js";
 import type { StepTrace } from "@mapgen/trace/index.js";
@@ -213,7 +214,8 @@ export function assertTerminalMapContextObservationInternal(context: MapContext)
 export function enterMapContextStepInternal(
   context: MapContext,
   stepId: string,
-  trace: StepTrace
+  trace: StepTrace,
+  projectsInitialSetup = false
 ): MapContext {
   assertRootMapContextInternal(context);
   const state = mapContextExecutionStates.get(context);
@@ -226,6 +228,9 @@ export function enterMapContextStepInternal(
     );
   }
   const stepContext = {} as MapContext;
+  const initialSetup = projectsInitialSetup
+    ? findInitialSetupBindingInternal(context.setup)?.value
+    : undefined;
   Object.defineProperties(stepContext, {
     [mapContextBrand]: {
       value: true,
@@ -245,6 +250,16 @@ export function enterMapContextStepInternal(
       writable: false,
       configurable: false,
     },
+    ...(initialSetup === undefined
+      ? {}
+      : {
+          initialSetup: {
+            value: initialSetup,
+            enumerable: true,
+            writable: false,
+            configurable: false,
+          },
+        }),
   });
   Object.freeze(stepContext);
   mapContextAuthorities.set(stepContext, Object.freeze({ kind: "step", root: context, stepId }));

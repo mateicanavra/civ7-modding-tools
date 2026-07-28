@@ -27,7 +27,17 @@ export class StepRegistry {
 
   /** Snapshots and registers one uniquely identified step after admitting its dependencies. */
   register<TConfig, TResult>(step: MapGenStep<TConfig, TResult>): void {
-    const { id, stageId, requires, provides, configSchema, normalize, run, facets } = step;
+    const {
+      id,
+      stageId,
+      requires,
+      provides,
+      projectsInitialSetup,
+      configSchema,
+      normalize,
+      run,
+      facets,
+    } = step;
     assertStageId(stageId);
     if (this.steps.has(id)) {
       throw new DuplicateStepError(id);
@@ -39,6 +49,7 @@ export class StepRegistry {
       stageId,
       requires: registeredRequires,
       provides: registeredProvides,
+      ...(projectsInitialSetup === true ? { projectsInitialSetup: true } : {}),
       configSchema,
       normalize,
       run,

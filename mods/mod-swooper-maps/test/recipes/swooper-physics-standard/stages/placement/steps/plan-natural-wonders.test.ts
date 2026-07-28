@@ -19,7 +19,7 @@ import {
   buildStepTestDependencies,
   normalizeOperationSelectionForTest,
   publishTestArtifact,
-  withMapContextExecutionForTest,
+  withStepExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 
 import { STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY } from "../../../../../../src/recipes/standard/metrics/families/placement/natural-wonder-plan-input.js";
@@ -180,7 +180,7 @@ describe("plan natural wonders step", () => {
     const stepConfig = placementConfig();
     let result: Awaited<ReturnType<typeof PlanNaturalWondersStep.run>> | undefined;
 
-    withMapContextExecutionForTest(context, (stepContext) => {
+    withStepExecutionForTest(context, PlanNaturalWondersStep, (stepContext) => {
       publishPlacementInputs(stepContext);
       const candidate = PlanNaturalWondersStep.run(
         stepContext,
@@ -256,7 +256,7 @@ describe("plan natural wonders step", () => {
       ]
     );
 
-    withMapContextExecutionForTest(context, (stepContext) => {
+    withStepExecutionForTest(context, PlanNaturalWondersStep, (stepContext) => {
       publishPlacementInputs(stepContext);
       PlanNaturalWondersStep.run(
         stepContext,

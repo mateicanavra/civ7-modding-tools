@@ -38,3 +38,4 @@ export { defineStrategy } from "./operation/strategy-definition.js";
 export type { OperationInput, OpTypeBagOf } from "./operation/types.js";
 export { TypedArraySchemas } from "./schema/typed-array.js";
 export { defineStep } from "./step/contract.js";
+export type { StepContext } from "./step/types.js";

@@ -233,7 +233,12 @@ export class PipelineExecutor {
         const traceLease = trace.openStepTrace(stepMeta);
         let stepContext: MapContext;
         try {
-          stepContext = enterMapContextStepInternal(context, step.id, traceLease.trace);
+          stepContext = enterMapContextStepInternal(
+            context,
+            step.id,
+            traceLease.trace,
+            step.projectsInitialSetup === true
+          );
         } catch (error) {
           traceLease.close();
           throw error;
@@ -413,7 +418,12 @@ export class PipelineExecutor {
         const traceLease = trace.openStepTrace(stepMeta);
         let stepContext: MapContext;
         try {
-          stepContext = enterMapContextStepInternal(context, step.id, traceLease.trace);
+          stepContext = enterMapContextStepInternal(
+            context,
+            step.id,
+            traceLease.trace,
+            step.projectsInitialSetup === true
+          );
         } catch (error) {
           traceLease.close();
           throw error;

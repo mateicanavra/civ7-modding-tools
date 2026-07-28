@@ -139,6 +139,7 @@ export {
 } from "./stage/index.js";
 export type {
   OpContractAny,
+  StepContext,
   StepContract,
   StepDependency,
   StepDependencyList,

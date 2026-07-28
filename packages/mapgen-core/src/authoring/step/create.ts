@@ -1,5 +1,3 @@
-import type { MapContext } from "@mapgen/core/map-context.js";
-
 import type { NormalizeContext } from "@mapgen/engine/index.js";
 import type { StepFacets } from "@mapgen/engine/step-facets.js";
 import type { Static } from "typebox";
@@ -8,7 +6,7 @@ import { assertCanonicalStepContractInternal, registerCanonicalStepInternal } fr
 import type { StepContract } from "./contract.js";
 import { assertNoStepStageIdentityAliases } from "./identity.js";
 import type { StepRuntimeOps } from "./ops.js";
-import type { StepDeps, StepModule } from "./types.js";
+import type { StepContext, StepDeps, StepModule } from "./types.js";
 
 type StepConfigOf<C extends StepContract<any, any, any, any, any, any, any>> = Static<C["schema"]>;
 type StepOpsOf<C extends StepContract<any, any, any, any, any, any, any>> = StepRuntimeOps<
@@ -43,7 +41,7 @@ type StepImpl<
   TOps,
   TDeps,
   TResult,
-> = StepImplBase<MapContext, TConfig, TOps, TDeps, TResult>;
+> = StepImplBase<StepContext<InitialSetupOf<C>>, TConfig, TOps, TDeps, TResult>;
 
 type CapturedImplementationFunction = (...args: never[]) => unknown;
 
@@ -107,7 +105,7 @@ export function createStep<
     C,
     StepConfigOf<C>,
     StepOpsOf<C>,
-    StepDeps<RequiresOf<C>, ProvidesOf<C>, EngineOf<C>, InitialSetupOf<C>>,
+    StepDeps<RequiresOf<C>, ProvidesOf<C>, EngineOf<C>>,
     TResult
   >
 ): StepModule<C, TResult> {

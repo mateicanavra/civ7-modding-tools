@@ -1,5 +1,5 @@
 export { publishTestArtifact } from "./artifact.js";
-export { withMapContextExecutionForTest } from "./execution.js";
+export { withMapContextExecutionForTest, withStepExecutionForTest } from "./execution.js";
 export {
   normalizeOperationSelectionForTest,
   runAdmittedOperationForTest,
