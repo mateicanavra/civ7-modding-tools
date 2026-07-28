@@ -8,7 +8,6 @@ import {
 import {
   canonicalMapConfigContentDigest,
   canonicalMapConfigDigest,
-  mapLocalizationTag,
   type StandardMapConfigEnvelope,
   type ValidatedMapConfig,
 } from "../../src/maps/configs/canonical.js";
@@ -31,6 +30,11 @@ function xmlEscape(value: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&apos;");
+}
+
+function mapLocalizationTag(id: string, field: "name" | "description"): string {
+  const suffix = field === "name" ? "NAME" : "DESCRIPTION";
+  return `LOC_MAP_${id.toUpperCase().replace(/[^A-Z0-9]+/g, "_")}_${suffix}`;
 }
 
 function renderMapEntryArtifact(config: ValidatedMapConfig): string {

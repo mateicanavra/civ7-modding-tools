@@ -2,7 +2,7 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Plan. Shape. Authority. Output. Deletion.
+**Attractor filter:** Identity. Admission. Derivation. Canonical. Deletion.
 
 **Frame:** kind before instance, intent before ownership, authority before
 relocation. A closed file shape is the start of semantic review, not proof that
@@ -30,13 +30,11 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** Swooper's map-artifact renderer currently wraps the
-canonical `GeneratedFilePlan` in a second plan schema whose taxonomy and
-metadata are ignored by the output runtime. Preserve Swooper's product-specific
-rendering, but delete the phantom file kinds, marker records, exclusive-set
-identity, and config-projection ledger. One generated-file plan should flow
-directly from product rendering into generic path admission, inspection,
-cleanup, and writes.
+**Current container:** canonical map-config admission still caches four derived
+output and localization names that have no consumer. Admission owns only the
+immutable Standard envelope, its source filename, and the proof that filename
+stem and canonical map id agree. Product renderers derive all output identity
+from the admitted canonical id.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -53,11 +51,10 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** make all three Swooper renderers return the canonical
-`GeneratedFilePlan`; derive orchestration summaries from the admitted inputs;
-delete ignored shadow fields and the custom plan type; retain tests only for
-emitted paths and product bytes. Freeze with focused renderer/catalog behavior,
-the Swooper tools graph, dead-code proof, and fresh SDK and product review.
+**Gradient:** narrow `ValidatedMapConfig` to the two facts its consumers use;
+delete the cached name fields and one-use stem helper; preserve filename/id
+admission behavior. Freeze with focused config and renderer behavior, the
+Swooper graph, dead-code proof, and fresh SDK and product review.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -100,6 +97,16 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Generated File Plan State Sealed
+
+All three Swooper renderers now return the canonical `GeneratedFilePlan`
+directly. The second plan schema, phantom file kinds, marker metadata,
+exclusive-set identity, config-projection ledger, unused plan-builder API, and
+meaningless file count retired. Catalog identity and full run correlation
+remain in emitted product bytes. Focused rendering and real generated-module
+behavior, one Nx-owned Swooper graph, dead-code and boundary proof, and fresh
+architecture/testing review sealed the cut.
 
 ### 2026-07-28 - Live Verifier Targets Sealed
 

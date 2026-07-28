@@ -12,18 +12,17 @@ import { validateStandardMapConfigSnapshotForSchema } from "./standard-admission
 
 type JsonObject = MapConfigEnvelope["config"];
 
+const CANONICAL_MAP_CONFIG_FILE_SUFFIX = ".config.json";
+
 export type CanonicalMapConfigEnvelope = MapConfigEnvelope;
 
 export type StandardMapConfigEnvelope = CanonicalMapConfigEnvelope &
   Readonly<{ recipe: "standard"; config: JsonObject & StandardRecipeConfig }>;
 
+/** An admitted Standard map configuration paired with its canonical source filename. */
 export type ValidatedMapConfig = Readonly<{
   canonicalConfig: StandardMapConfigEnvelope;
   fileName: string;
-  fileStem: string;
-  outputFile: string;
-  localizationNameTag: string;
-  localizationDescriptionTag: string;
 }>;
 
 /**
@@ -121,25 +120,9 @@ export function buildCanonicalMapConfigSchema(
 }
 
 /**
- * Derives the map identity candidate from a canonical config filename.
- * The caller remains responsible for suffix admission before using the stem as an id.
- */
-export function mapConfigFileStem(fileName: string): string {
-  return fileName.replace(/\.config\.json$/i, "");
-}
-
-/**
- * Derives the stable Civ7 localization key shared by generated catalog, XML, and text artifacts.
- */
-export function mapLocalizationTag(id: string, field: "name" | "description"): string {
-  const suffix = field === "name" ? "NAME" : "DESCRIPTION";
-  return `LOC_MAP_${id.toUpperCase().replace(/[^A-Z0-9]+/g, "_")}_${suffix}`;
-}
-
-/**
  * Admits a raw map envelope and binds it to its source filename identity.
- * Catalog generation consumes the returned names so script, localization, and config outputs
- * cannot drift from the canonical map id.
+ * The filename stem must equal the admitted map id; renderers derive every other output identity
+ * from that canonical id rather than carrying parallel cached names.
  */
 export function validateCanonicalMapConfig(args: {
   fileName: string;
@@ -147,36 +130,22 @@ export function validateCanonicalMapConfig(args: {
   recipeSchema?: TSchema;
 }): ValidatedMapConfig {
   assertCanonicalMapConfigFileName(args.fileName);
-  return validatedMapConfig(
-    args.fileName,
-    admitStandardMapConfigWithSchema(args.raw, args.recipeSchema)
-  );
-}
-
-function assertCanonicalMapConfigFileName(fileName: string): void {
-  if (!fileName.endsWith(".config.json")) {
-    throw new Error(`Canonical map config must use the .config.json suffix: ${fileName}`);
-  }
-}
-
-function validatedMapConfig(
-  fileName: string,
-  canonicalConfig: StandardMapConfigEnvelope
-): ValidatedMapConfig {
-  const fileStem = mapConfigFileStem(fileName);
+  const canonicalConfig = admitStandardMapConfigWithSchema(args.raw, args.recipeSchema);
+  const fileStem = args.fileName.slice(0, -CANONICAL_MAP_CONFIG_FILE_SUFFIX.length);
   if (canonicalConfig.id !== fileStem) {
     throw new Error(
       `Canonical map config id must match file stem "${fileStem}", got "${canonicalConfig.id}".`
     );
   }
-  return {
-    canonicalConfig,
-    fileName,
-    fileStem,
-    outputFile: `${canonicalConfig.id}.js`,
-    localizationNameTag: mapLocalizationTag(canonicalConfig.id, "name"),
-    localizationDescriptionTag: mapLocalizationTag(canonicalConfig.id, "description"),
-  };
+  return { canonicalConfig, fileName: args.fileName };
+}
+
+function assertCanonicalMapConfigFileName(fileName: string): void {
+  if (!fileName.endsWith(CANONICAL_MAP_CONFIG_FILE_SUFFIX)) {
+    throw new Error(
+      `Canonical map config must use the ${CANONICAL_MAP_CONFIG_FILE_SUFFIX} suffix: ${fileName}`
+    );
+  }
 }
 
 function admitStandardMapConfigWithSchema(
