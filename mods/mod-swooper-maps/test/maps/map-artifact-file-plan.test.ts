@@ -1,9 +1,11 @@
 import { describe, expect, it } from "bun:test";
+import { STUDIO_RUN_MAP_SCRIPT_PATH } from "@civ7/studio-run-workspace";
 import { loadSwooperMapConfigRegistry } from "../../scripts/generate-map-artifacts";
 import {
   buildSwooperCatalogMetadataFilePlan,
   buildSwooperCatalogModFilePlan,
   buildSwooperRunGeneratedModFilePlan,
+  renderSwooperRunMapSource,
 } from "../../scripts/map-artifacts/file-plan";
 import {
   buildCanonicalMapConfigSchema,
@@ -291,15 +293,26 @@ describe("Swooper map artifact file plan", () => {
       launchEnvelopeDigest: "launch-envelope-digest",
       generationManifestDigest: "generation-manifest-digest",
     } as const;
-    const plan = buildSwooperRunGeneratedModFilePlan({
+    const input = {
       config: fixtureConfig.canonicalConfig,
       seed: TEST_MAP_SEED,
       correlation,
-    });
+    } as const;
+    const bundledMapScript = "// bundled Studio run map\n";
+    const plan = buildSwooperRunGeneratedModFilePlan(input, bundledMapScript);
 
     const modInfo = textContent(plannedFile(plan, "mod-swooper-studio-run.modinfo"));
     const configXml = textContent(plannedFile(plan, "config/config.xml"));
-    const mapSource = textContent(plannedFile(plan, ".source/maps/run-action-groups.ts"));
+    const mapScript = textContent(plannedFile(plan, STUDIO_RUN_MAP_SCRIPT_PATH));
+    const mapSource = renderSwooperRunMapSource(input);
+    expect(plan.files.map((file) => file.relativePath).sort()).toEqual([
+      "config/config.xml",
+      STUDIO_RUN_MAP_SCRIPT_PATH,
+      "mod-swooper-studio-run.modinfo",
+      "text/en_us/MapText.xml",
+    ]);
+    expect(plan.exclusiveSets).toEqual([{ relativeDir: ".source/maps", fileExtension: ".ts" }]);
+    expect(mapScript).toBe(bundledMapScript);
     expect(modInfo).toContain('<Criteria id="always-mod-swooper-studio-run">');
     expect(modInfo).toContain(
       '<ActionGroup id="game-mod-swooper-studio-run" scope="game" criteria="always-mod-swooper-studio-run">'

@@ -78,7 +78,11 @@ export default createMap({
 `;
 }
 
-function renderRunMapEntryArtifact(input: SwooperRunGeneratedModPlanInput): string {
+/**
+ * Renders the virtual TypeScript entrypoint compiled into one request-local Studio run mod.
+ * The generator bundles this source in memory; it is not part of the generated mod tree.
+ */
+export function renderSwooperRunMapSource(input: SwooperRunGeneratedModPlanInput): string {
   const config = input.config;
   return `/**
  * Generated from a Studio Run in Game generation manifest.
@@ -413,10 +417,13 @@ export function buildSwooperCatalogMetadataFilePlan(
  * Builds the request-local generated mod tree from a Studio generation
  * manifest. The run mod owns only the generated map row, map script, and
  * request correlation; shared gameplay data stays owned by the durable
- * Swooper mod that this run depends on.
+ * Swooper mod that this run depends on. The caller supplies the already-bundled
+ * map script so compiler input never enters the product files; the replacement
+ * set removes any interrupted predecessor source from a retried request root.
  */
 export function buildSwooperRunGeneratedModFilePlan(
-  input: SwooperRunGeneratedModPlanInput
+  input: SwooperRunGeneratedModPlanInput,
+  bundledMapScript: string
 ): GeneratedFilePlan {
   if (canonicalMapConfigDigest(input.config) !== input.correlation.canonicalConfigDigest) {
     throw new Error("Studio run canonical config digest does not match the launch config.");
@@ -437,8 +444,8 @@ export function buildSwooperRunGeneratedModFilePlan(
     ],
     files: [
       {
-        relativePath: `.source/maps/${input.correlation.runArtifactId}.ts`,
-        content: renderRunMapEntryArtifact(input),
+        relativePath: STUDIO_RUN_MAP_SCRIPT_PATH,
+        content: bundledMapScript,
       },
       {
         relativePath: "config/config.xml",

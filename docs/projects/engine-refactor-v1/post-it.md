@@ -2,7 +2,7 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Identity. Admission. Derivation. Canonical. Deletion.
+**Attractor filter:** Source. Product. Plan. Memory. Deletion.
 
 **Frame:** kind before instance, intent before ownership, authority before
 relocation. A closed file shape is the start of semantic review, not proof that
@@ -30,11 +30,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** canonical map-config admission still caches four derived
-output and localization names that have no consumer. Admission owns only the
-immutable Standard envelope, its source filename, and the proof that filename
-stem and canonical map id agree. Product renderers derive all output identity
-from the admitted canonical id.
+**Current container:** the Studio run generator materializes a temporary
+TypeScript entrypoint as a generated-product file, applies one plan, reads that
+file back into esbuild, applies a second plan, and reports the deleted compiler
+input alongside repeated manifest and constant identities. Compiler input is
+invocation-local memory; one final file plan should describe and materialize
+the exact run mod tree, and the command result should retain only the generated
+artifact id and root its caller actually consumes.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -51,10 +53,12 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** narrow `ValidatedMapConfig` to the two facts its consumers use;
-delete the cached name fields and one-use stem helper; preserve filename/id
-admission behavior. Freeze with focused config and renderer behavior, the
-Swooper graph, dead-code proof, and fresh SDK and product review.
+**Gradient:** render the run entrypoint in memory, bundle it through esbuild
+`stdin`, place the bundled script directly in the final product plan, and apply
+that plan once. Retain only the final plan's replacement intent for stale
+predecessor source on a supported retry; delete the false generator summary
+fields. Freeze with exact owned-file and Civ7 bundle behavior, the Swooper
+graph, dead-code proof, and fresh SDK and product review.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -97,6 +101,16 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Validated Map Config Identity Sealed
+
+Canonical map-config admission now retains only the immutable Standard
+envelope and its source filename after proving the filename stem equals the
+canonical map id. Four unused cached output/localization names and the one-use
+stem helper retired; localization-key rendering moved to its truthful Swooper
+file-plan owner. Focused config and renderer behavior, the Nx-owned Swooper
+graph, generated currentness, dead-code proof, the staged Habitat hook, and
+fresh architecture/testing review sealed the cut.
 
 ### 2026-07-28 - Generated File Plan State Sealed
 
