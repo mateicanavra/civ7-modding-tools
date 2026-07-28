@@ -1,5 +1,5 @@
 import { Command, Flags } from "@oclif/core";
-import { readCiv7World } from "../../../utils/game-map-shared";
+import { readCiv7World } from "../../../adapters/map/world-read";
 
 // Thin delegation over the same world.current service call as the
 // `game map` topic index (`game map --summary`); D2 in

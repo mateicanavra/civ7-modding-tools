@@ -1,5 +1,5 @@
 import { Args } from '@oclif/core';
-import SubtreePullBase from '../../../utils/subtree/SubtreePullBase.js';
+import SubtreePullBase from '../../../adapters/subtree/subtree-pull-base.js';
 
 export default class ModGitPull extends SubtreePullBase {
   static summary = 'Pull remote changes into mods/<slug>';

@@ -6,7 +6,7 @@ import {
   emitPlayResult,
   executePlayOperationSequence,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const BUY_ATTRIBUTE_TREE_NODE = "BUY_ATTRIBUTE_TREE_NODE";
 const CONSIDER_ASSIGN_ATTRIBUTE = "CONSIDER_ASSIGN_ATTRIBUTE";

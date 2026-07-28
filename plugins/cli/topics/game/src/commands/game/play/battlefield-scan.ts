@@ -1,7 +1,10 @@
 import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
 import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
-import { buildDirectControlOptions, resolveCoordinateFlags } from "../../../utils/game-play-shared";
+import {
+  buildDirectControlOptions,
+  resolveCoordinateFlags,
+} from "../../../adapters/play/direct-control";
 
 export default class GamePlayBattlefieldScan extends Command {
   static id = "game play battlefield-scan";

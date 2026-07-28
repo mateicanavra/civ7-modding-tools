@@ -6,7 +6,7 @@ import {
   emitPlayResult,
   parseComponentId,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const UPGRADE = "UNITCOMMAND_UPGRADE";
 

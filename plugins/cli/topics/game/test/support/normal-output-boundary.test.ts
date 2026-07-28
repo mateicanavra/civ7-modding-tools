@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { expectNormalPlayPayloadToOmitDebugInternals } from "../support/normal-output-boundary.js";
+import { expectNormalPlayPayloadToOmitDebugInternals } from "./normal-output-boundary.js";
 
 const FORBIDDEN_MARKERS = [
   "CMD:",

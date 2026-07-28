@@ -1,17 +1,12 @@
-import { configureRemote, importSubtree } from "@civ7/plugin-git";
+import { pullSubtree } from "@civ7/plugin-git";
 import { Args, Flags } from "@oclif/core";
-import SubtreeCommand from "./SubtreeCommand.js";
+import SubtreeCommand from "./subtree-command.js";
 
-export default abstract class SubtreeImportBase extends SubtreeCommand {
+export default abstract class SubtreePullBase extends SubtreeCommand {
   static flags = {
     ...SubtreeCommand.baseFlags,
-    repoUrl: Flags.string({
-      description: "Git repository URL",
-      char: "u",
-      required: true,
-    }),
     squash: Flags.boolean({
-      description: "Squash history when importing",
+      description: "Squash history when pulling",
       default: false,
       char: "S",
     }),
@@ -38,23 +33,16 @@ export default abstract class SubtreeImportBase extends SubtreeCommand {
   async run() {
     const ctor: any = this.constructor;
     const { args, flags } = await this.parse({
-      flags: ctor.flags ?? (this as any).flags ?? SubtreeImportBase.flags,
-      args: ctor.args ?? (this as any).args ?? SubtreeImportBase.args,
+      flags: ctor.flags ?? (this as any).flags ?? SubtreePullBase.flags,
+      args: ctor.args ?? (this as any).args ?? SubtreePullBase.args,
     });
     const slug = args.slug as string;
     const prefix = this.getPrefix(slug);
-    await configureRemote({
-      domain: this.domain,
-      slug,
-      repoUrl: flags.repoUrl,
-      branch: flags.branch,
-      verbose: flags.verbose,
-      logger: this,
-    });
-    await importSubtree({
+    await pullSubtree({
       domain: this.domain,
       slug,
       prefix,
+      branch: flags.branch,
       squash: flags.squash,
       allowDirty: flags.yes,
       autoUnshallow: flags.autoUnshallow,

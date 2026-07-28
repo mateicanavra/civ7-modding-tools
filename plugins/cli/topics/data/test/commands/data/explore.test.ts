@@ -16,7 +16,7 @@ vi.mock("@civ7/config", () => ({
   findProjectRoot: vi.fn(() => "/project"),
 }));
 
-vi.mock("../../../src/utils/resolver", () => ({
+vi.mock("../../../src/adapters/resource-root", () => ({
   resolveRootFromConfigOrFlag: vi.fn(async () => "/root"),
 }));
 

@@ -7,7 +7,7 @@ import {
   executePlayOperationSequence,
   parseComponentId,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const CHANGE_GROWTH_MODE = "CHANGE_GROWTH_MODE";
 const CONSIDER_TOWN_PROJECT = "CONSIDER_TOWN_PROJECT";

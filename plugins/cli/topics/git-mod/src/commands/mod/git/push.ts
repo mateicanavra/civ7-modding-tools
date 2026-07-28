@@ -1,5 +1,5 @@
 import { Args } from '@oclif/core';
-import SubtreePushBase from '../../../utils/subtree/SubtreePushBase.js';
+import SubtreePushBase from '../../../adapters/subtree/subtree-push-base.js';
 
 export default class ModGitPush extends SubtreePushBase {
   static summary = 'Push mods/<slug> to its configured remote';

@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, test } from "vitest";
-import { inspectCiv7LocalData } from "../../src/utils/civ7LocalData";
+import { inspectCiv7LocalData } from "../../../src/adapters/local-data/inspect";
 
 describe("inspectCiv7LocalData", () => {
   test("labels local disk surfaces as enrichment rather than live authority", () => {

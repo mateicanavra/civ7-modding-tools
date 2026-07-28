@@ -7,7 +7,7 @@ import {
   emitPlayResult,
   parseComponentId,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const CHOOSE_NARRATIVE_STORY_DIRECTION = "CHOOSE_NARRATIVE_STORY_DIRECTION";
 

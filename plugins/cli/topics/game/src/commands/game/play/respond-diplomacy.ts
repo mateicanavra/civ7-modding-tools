@@ -6,7 +6,7 @@ import {
   emitPlayResult,
   parseComponentId,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const RESPOND_DIPLOMATIC_ACTION = "RESPOND_DIPLOMATIC_ACTION";
 

@@ -1,6 +1,6 @@
 import { getCiv7ReadyCityView } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
-import { buildDirectControlOptions, parseComponentId } from "../../../utils/game-play-shared";
+import { buildDirectControlOptions, parseComponentId } from "../../../adapters/play/direct-control";
 
 type Probe<T = unknown> = { ok: true; value: T } | { ok: false; error: string };
 type ReadyCityView = Awaited<ReturnType<typeof getCiv7ReadyCityView>>;

@@ -1,7 +1,7 @@
 import * as path from "node:path";
 import * as Config from "@civ7/config";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { resolveRootFromConfigOrFlag } from "../../src/utils/resolver";
+import { resolveRootFromConfigOrFlag } from "../../src/adapters/resource-root";
 
 vi.mock("@civ7/config", () => ({
   expandPath: vi.fn((value: string) => value),

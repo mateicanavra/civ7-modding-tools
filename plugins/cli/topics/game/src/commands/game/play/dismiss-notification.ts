@@ -6,7 +6,7 @@ import {
   buildDirectControlOptions,
   emitPlayResult,
   parseComponentId,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 export default class GamePlayDismissNotification extends Command {
   static id = "game play dismiss-notification";

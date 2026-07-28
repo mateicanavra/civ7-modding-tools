@@ -6,7 +6,7 @@ import {
   buildDirectControlOptions,
   emitPlayResult,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const CHOOSE_GOLDEN_AGE = "CHOOSE_GOLDEN_AGE";
 

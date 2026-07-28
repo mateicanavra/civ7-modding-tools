@@ -6,7 +6,7 @@ import {
   emitPlayResult,
   parseComponentId,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const ADVISOR_WARNING_OPERATION = "VIEWED_ADVISOR_WARNING";
 

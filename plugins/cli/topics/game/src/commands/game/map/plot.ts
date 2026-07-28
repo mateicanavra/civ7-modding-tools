@@ -3,7 +3,7 @@ import {
   parseWorldLocation,
   parseWorldPlotFields,
   readCiv7World,
-} from "../../../utils/game-map-shared";
+} from "../../../adapters/map/world-read";
 
 // Thin delegation over the same world.plot service call as the
 // `game map` topic index (`game map --plot x,y`); D2 in

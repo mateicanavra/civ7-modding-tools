@@ -4,7 +4,7 @@ import {
   inspectCiv7LocalData,
   type LocalDatabaseEntry,
   type LocalFileEntry,
-} from "../../../utils/civ7LocalData";
+} from "../../../adapters/local-data/inspect";
 
 export default class GameLocalDataInspect extends Command {
   static id = "game local-data inspect";

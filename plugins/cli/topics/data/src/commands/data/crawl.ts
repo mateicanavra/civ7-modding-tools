@@ -4,7 +4,7 @@ import * as path from "node:path";
 import { findProjectRoot, loadConfig, resolveGraphOutDir } from "@civ7/config";
 import { crawlGraph, graphToDot, graphToJson } from "@civ7/plugin-graph";
 import { Args, Command, Flags } from "@oclif/core";
-import { resolveRootFromConfigOrFlag } from "../../utils/resolver";
+import { resolveRootFromConfigOrFlag } from "../../adapters/resource-root";
 
 export default class Crawl extends Command {
   static id = "crawl";

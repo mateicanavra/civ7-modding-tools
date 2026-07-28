@@ -1,4 +1,4 @@
-import SubtreeImportBase from "../../../utils/subtree/SubtreeImportBase.js";
+import SubtreeImportBase from "../../../adapters/subtree/subtree-import-base.js";
 
 export default class GitSetup extends SubtreeImportBase {
   static summary = "Configure and import a repository into a subtree";

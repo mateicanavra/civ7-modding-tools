@@ -5,7 +5,7 @@ import {
   buildDirectControlOptions,
   emitPlayResult,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const CONSIDER_ASSIGN_TRADITIONS = "CONSIDER_ASSIGN_TRADITIONS";
 

@@ -3,7 +3,7 @@ import { promises as fs } from "node:fs";
 import * as path from "node:path";
 import { expandPath, findProjectRoot } from "@civ7/config";
 import { Args, Command, Flags } from "@oclif/core";
-import { resolveRootFromConfigOrFlag } from "../../utils/resolver";
+import { resolveRootFromConfigOrFlag } from "../../adapters/resource-root";
 
 export default class Slice extends Command {
   static id = "slice";

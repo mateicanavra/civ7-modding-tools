@@ -3,7 +3,7 @@ import {
   createSemanticCliEnvelope,
   SEMANTIC_CLI_ENVELOPE_SLOTS,
   SEMANTIC_CLI_ENVELOPE_VERSION,
-} from "../../../../src/utils/game-play/semantic-envelope";
+} from "../../../../src/adapters/play/semantic-envelope";
 
 describe("semantic CLI envelope owner", () => {
   test("keeps the planned player-agent slot vocabulary explicit", () => {

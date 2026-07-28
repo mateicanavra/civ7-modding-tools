@@ -4,7 +4,7 @@ import {
   parseWorldLocation,
   parseWorldPlotFields,
   readCiv7World,
-} from "../../../utils/game-map-shared";
+} from "../../../adapters/map/world-read";
 
 // Topic index for the `game map` noun (D2 in
 // docs/projects/cli-command-taxonomy/workstream-record.md): the original

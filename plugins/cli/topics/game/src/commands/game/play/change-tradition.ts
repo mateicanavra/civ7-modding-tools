@@ -6,7 +6,7 @@ import {
   emitPlayResult,
   executePlayOperationSequence,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const CHANGE_TRADITION = "CHANGE_TRADITION";
 const CONSIDER_ASSIGN_TRADITIONS = "CONSIDER_ASSIGN_TRADITIONS";

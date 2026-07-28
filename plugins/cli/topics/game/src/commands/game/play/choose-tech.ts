@@ -6,7 +6,7 @@ import {
   buildDirectControlOptions,
   emitPlayResult,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const SET_TECH_TREE_NODE = "SET_TECH_TREE_NODE";
 

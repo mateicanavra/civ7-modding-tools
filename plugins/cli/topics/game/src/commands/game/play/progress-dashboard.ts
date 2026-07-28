@@ -1,7 +1,7 @@
 import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
 import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
-import { buildDirectControlOptions } from "../../../utils/game-play-shared";
+import { buildDirectControlOptions } from "../../../adapters/play/direct-control";
 
 type Probe<T = unknown> = { ok: true; value: T } | { ok: false; error: string };
 type ProgressDashboardServiceResult = Awaited<

@@ -1,6 +1,6 @@
 import { pushSubtree } from "@civ7/plugin-git";
 import { Args, Flags } from "@oclif/core";
-import SubtreeCommand from "./SubtreeCommand.js";
+import SubtreeCommand from "./subtree-command.js";
 
 export default abstract class SubtreePushBase extends SubtreeCommand {
   static flags = {

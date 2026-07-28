@@ -4,7 +4,7 @@ import {
   buildDirectControlOptions,
   parseComponentId,
   resolveCoordinateFlags,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 type Probe<T = unknown> = { ok: true; value: T } | { ok: false; error: string };
 type UnitMovePreviewView = Awaited<ReturnType<typeof getCiv7UnitMovePreview>>;

@@ -2,18 +2,19 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Application. Realization. Composition. Oclif. Bun. Closure.
+**Attractor filter:** Command. Topic. Identity. Adapter. Grammar. Closure.
 
-**Frame:** the CLI shell is an application realization, not a reusable package.
-It composes independently owned topic plugins into the `civ7` executable while
-Bun owns the process and oclif owns dispatch. Application composition and
-runtime entrypoints live under `apps`; reusable command capabilities remain in
-their plugin owners.
+**Frame:** an oclif topic plugin owns a public command language. Command paths
+are executable identity, topic directories express the language hierarchy, and
+command modules adapt that language to reusable capabilities. CLI-only
+translation belongs to a qualified adapter surface; reusable capability logic
+does not belong to the topic, and `utils` names no owner at all.
 
-**Authority order:** application role -> executable composition -> plugin
-contract -> runtime launcher -> observable command proof. Nx owns orchestration
-and dependency ordering. Generated execution-surface reports follow authored
-targets after the application move seals.
+**Authority order:** public command intent -> oclif path identity -> topic
+grammar -> command adapter -> reusable capability -> observable manifest and
+behavior proof. Habitat owns the generic closed project kind, oclif owns command
+discovery, TypeScript owns imports, and Nx owns orchestration and dependency
+ordering.
 
 **Enforcement gravity:** a correct scaffold plus an advisory rule is guidance,
 not a ratchet. Every newly admitted kind must finish with its generic blueprint
@@ -26,11 +27,12 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** relocate the private oclif shell from `packages/cli` to
-the closed `apps/cli` application owner. Replace the copied source/library
-entrypoint split with the official oclif development composition at `civ7.ts`,
-retain one Bun production launcher, preserve the `civ7-cli` project identity
-and command behavior, then regenerate execution-surface currentness once.
+**Current container:** correct the generic CLI-topic blueprint from permissive
+`utils` buckets to optional closed adapter interiors, turn the existing corpus
+red, and burn every violation down without changing any of the sixty-five
+`game` command identities or their behavior. Once the mechanical kind plane is
+sealed, normalize the `game` command grammar as separate product migrations
+whose topic boundaries follow real nouns rather than historical one-off files.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -47,11 +49,10 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** turn the closed CLI-app law red, move the shell into its qualified
-owner, update every living caller and authority, prove the complete app/topic
-graph with boundaries and Knip, land the realization cut, then regenerate and
-land execution-surface currentness before returning to the aggregate-only
-Domain SDK.
+**Gradient:** correct the generic kind law -> expose the bounded adapter corpus
+-> qualify or delete each residue -> prove exact manifest identity and behavior
+-> land the adapter cut -> migrate one earned `game` noun family at a time ->
+return to the aggregate-only Domain SDK.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -94,6 +95,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - CLI Application Realization Sealed
+
+The private oclif shell moved from a reusable package to the closed `apps/cli`
+application owner. One Bun development composition and one Bun production
+launcher now assemble independently owned topic plugins without changing the
+`civ7-cli` project identity or command behavior. The full app/topic graph,
+boundaries, dead-code proof, fresh reviews, and regenerated Habitat execution
+surface sealed the application and currentness cuts.
 
 ### 2026-07-28 - CLI Bun Runtime And Currentness Sealed
 

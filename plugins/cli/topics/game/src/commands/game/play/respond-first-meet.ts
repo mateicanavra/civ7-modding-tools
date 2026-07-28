@@ -6,7 +6,7 @@ import {
   buildDirectControlOptions,
   emitPlayResult,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const RESPOND_DIPLOMATIC_FIRST_MEET = "RESPOND_DIPLOMATIC_FIRST_MEET";
 const FIRST_MEET_RESPONSE_KEYS = {

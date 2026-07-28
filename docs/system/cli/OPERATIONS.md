@@ -49,6 +49,21 @@ dependency. The shell owns startup and assembly, not topic commands. The shell
 behavior test derives the topic corpus from the filesystem and proves the
 production launcher exposes it.
 
+## Topic Plugin Interior
+
+Under oclif's pattern discovery, a command module's path below `src/commands`
+is its canonical colon-delimited command id; an `index.ts` module represents
+the command at its containing topic path. Command trees therefore contain only
+executable command modules and nested topic directories. A helper placed there
+would become another command candidate.
+
+CLI-specific flag, output, and capability translation belongs under the
+topic's optional `src/adapters` surface. Reusable behavior remains in its named
+package owner. Topic projects keep both interiors closed and lower-kebab, then
+regenerate their manifest after any command move. Product-owned surface tests
+pin exact public ids, compatibility aliases, and explicit topic metadata where
+an accidental path move would be a breaking change.
+
 ## Distribution Boundary
 
 Workspace and linked execution are supported. The CLI package is private;

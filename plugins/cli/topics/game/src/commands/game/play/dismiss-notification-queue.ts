@@ -1,7 +1,7 @@
 import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
 import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
-import { buildDirectControlOptions } from "../../../utils/game-play-shared";
+import { buildDirectControlOptions } from "../../../adapters/play/direct-control";
 
 export default class GamePlayDismissNotificationQueue extends Command {
   static id = "game play dismiss-notification-queue";

@@ -1,6 +1,6 @@
 import { getCiv7SettlementRecommendations } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
-import { buildDirectControlOptions } from "../../../utils/game-play-shared";
+import { buildDirectControlOptions } from "../../../adapters/play/direct-control";
 
 export default class GamePlaySettlementRecommendations extends Command {
   static id = "game play settlement-recommendations";

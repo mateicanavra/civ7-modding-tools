@@ -6,7 +6,7 @@ import {
   buildDirectControlOptions,
   emitPlayResult,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const CHANGE_GOVERNMENT = "CHANGE_GOVERNMENT";
 
