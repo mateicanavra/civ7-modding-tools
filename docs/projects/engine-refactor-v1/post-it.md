@@ -2,18 +2,17 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Kind. Registration. Closure. Coverage. Assembly.
+**Attractor filter:** Runtime. Bun. Launcher. Proof. Currentness.
 
-**Frame:** the CLI is one assembled shell over independently owned topic
-plugins. Positive structure closes each kind's interior; the shell's one
-behavior proof closes the registration relationship by deriving the topic
-corpus rather than pinning today's names. Platform laws follow the product kind
-into `plugins/**`; physical relocation never creates an enforcement blind spot.
+**Frame:** the CLI shell has one runtime contract throughout repository
+execution. Bun owns development, Nx invocation, direct executable launch, and
+application deployment; a Node shebang or explicit Node subprocess would
+silently reopen a second execution path even when oclif itself supports Bun.
 
-**Authority order:** kind definition -> closed structure -> package relation ->
-platform boundary -> assembled executable. Structure owns containment, the
-shell test owns dynamic registration equality, Nx owns graph ordering, and
-Knip owns dependency liveness; no substitute scanner duplicates those owners.
+**Authority order:** repository runtime -> production launcher -> Nx target ->
+application caller -> observable command proof. oclif owns command discovery
+and dispatch; Bun owns process execution; Nx owns orchestration and dependency
+ordering. Generated execution-surface reports follow the authored targets.
 
 **Enforcement gravity:** a correct scaffold plus an advisory rule is guidance,
 not a ratchet. Every newly admitted kind must finish with its generic blueprint
@@ -26,12 +25,11 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** ratchet the CLI shell kind and repair migrated platform
-coverage. Add the closed shell blueprint, make its existing behavior test derive
-topic membership and require one registration plus one workspace dependency per
-topic, and extend the
-direct-control and adapter laws to the generic CLI-topic root without topic
-allowlists or broad repository scans.
+**Current container:** collapse the remaining Node/Bun split in the active CLI
+plane. Make the production launcher Bun-native, invoke it with Bun from CLI and
+Swooper Nx targets, prove assembled topic discovery through that runtime, record
+the normative oclif operating sheet, then regenerate execution-surface
+currentness once.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -48,10 +46,10 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** establish the positive shell law, prove injected-red and clean
-fixtures, burn the current corpus to zero, run the shell graph, boundaries, and
-Knip, then regenerate execution-surface currentness once the CLI plane is
-fully sealed.
+**Gradient:** verify the Bun launcher directly and through the owning Nx graph,
+seal the runtime guidance, run boundaries and Knip, land the runtime cut, then
+regenerate and land execution-surface currentness before returning to the
+aggregate-only Domain SDK.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -94,6 +92,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - CLI Shell Kind Sealed
+
+The singleton CLI shell now has one closed positive topology and derives its
+topic plugin membership dynamically. Every admitted topic must be registered
+exactly once and backed by its workspace dependency; unrelated shell plugins
+and capabilities remain possible. Adapter and direct-control laws cover the
+generic topic source root, and the full CLI graph, boundaries, Knip, staged
+policy, injected-red proof, and fresh design review sealed the kind.
 
 ### 2026-07-28 - Swooper Realization Deployment Sealed
 

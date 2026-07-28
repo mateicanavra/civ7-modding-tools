@@ -3,20 +3,9 @@ name: Publish to GitHub Packages
 on:
   push:
     tags:
-      - "v*.*.*"      # publish both packages
+      - "v*.*.*"      # publish SDK
       - "sdk-v*.*.*"  # publish SDK only
-      - "cli-v*.*.*"  # publish CLI only
-  workflow_dispatch:
-    inputs:
-      target:
-        description: "Which package(s) to publish (cli, sdk, all)"
-        required: false
-        default: all
-        type: choice
-        options:
-          - all
-          - cli
-          - sdk
+  workflow_dispatch: {}
 
 permissions:
   contents: read
@@ -66,20 +55,6 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Determine publish target
-        id: target
-        shell: bash
-        run: |
-          TARGET_INPUT="${{ github.event.inputs.target }}"
-          if [ -n "$TARGET_INPUT" ]; then
-            echo "target=$TARGET_INPUT" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          TAG=${GITHUB_REF_NAME}
-          if [[ $TAG == sdk-v* ]]; then echo "target=sdk" >> $GITHUB_OUTPUT; exit 0; fi
-          if [[ $TAG == cli-v* ]]; then echo "target=cli" >> $GITHUB_OUTPUT; exit 0; fi
-          echo "target=all" >> $GITHUB_OUTPUT
-
       - name: Validate package versions match tag
         if: startsWith(github.ref, 'refs/tags/')
         shell: bash
@@ -87,31 +62,16 @@ jobs:
           TAG=${GITHUB_REF_NAME#v}
           if [[ $GITHUB_REF_NAME == sdk-v* ]]; then
             TAG=${GITHUB_REF_NAME#sdk-v}
-            PKG=$(node -p "require('./packages/sdk/package.json').version")
+            PKG=$(bun -e "console.log(require('./packages/sdk/package.json').version)")
             if [[ "$PKG" != "$TAG" ]]; then echo "SDK version mismatch: tag=$TAG package.json=$PKG"; exit 1; fi
-          elif [[ $GITHUB_REF_NAME == cli-v* ]]; then
-            TAG=${GITHUB_REF_NAME#cli-v}
-            PKG=$(node -p "require('./packages/cli/package.json').version")
-            if [[ "$PKG" != "$TAG" ]]; then echo "CLI version mismatch: tag=$TAG package.json=$PKG"; exit 1; fi
           elif [[ $GITHUB_REF_NAME == v* ]]; then
-            SDK=$(node -p "require('./packages/sdk/package.json').version")
-            CLI=$(node -p "require('./packages/cli/package.json').version")
+            SDK=$(bun -e "console.log(require('./packages/sdk/package.json').version)")
             if [[ "$SDK" != "$TAG" ]]; then echo "SDK version mismatch: tag=$TAG package.json=$SDK"; exit 1; fi
-            if [[ "$CLI" != "$TAG" ]]; then echo "CLI version mismatch: tag=$TAG package.json=$CLI"; exit 1; fi
           fi
 
       - name: Publish SDK
-        if: steps.target.outputs.target == 'sdk' || steps.target.outputs.target == 'all'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_SDK }}
           NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN_SDK }}
           NPM_CONFIG_REGISTRY: https://npm.pkg.github.com
         run: nx run civ7-sdk:publish:npm
-
-      - name: Publish CLI
-        if: steps.target.outputs.target == 'cli' || steps.target.outputs.target == 'all'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_CLI }}
-          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN_CLI }}
-          NPM_CONFIG_REGISTRY: https://npm.pkg.github.com
-        run: nx run civ7-cli:publish:npm

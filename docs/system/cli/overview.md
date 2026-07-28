@@ -1,5 +1,8 @@
 ## Mini-roadmap and Feature Tracker
 
+Runtime, plugin assembly, manifest, and distribution procedures are governed by
+[the Civ7 CLI operating contract](./OPERATIONS.md).
+
 This document tracks completed work and upcoming enhancements for the CLI and XML-first crawler.
 
 ### Completed

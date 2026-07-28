@@ -18,7 +18,7 @@ discipline; they should not duplicate the packet as a parallel spec.
 | `civ7-open-spec-workstream` | Running a bounded spec/workstream phase from authority grounding through implementation, verification, downstream realignment, and handoff. |
 | `civ7-operational-debugging` | Debugging build/deploy/log/in-game evidence across generated mod output, deployed Civ7 Mods folders, official resources, and proof boundaries. |
 | `civ7-orpc-control-architecture` | Designing or reviewing oRPC/Effect procedure, router, middleware, and context surfaces for Civ7 direct-control, CLI game/play commands, Studio endpoints, and live-play support refactors (`@civ7/control-orpc`). |
-| `civ7-play-game` | Playing a live, already-running Civ7 game turn-by-turn via the `civ7` CLI (`node packages/cli/bin/run.js game …`) and FireTuner: reading priorities/notifications/ready entities and issuing unit, city, research, civic, diplomacy, and end-turn actions. Self-describing read→action loop for a small agent. Not for designing the control surface (`civ7-orpc-control-architecture`) or launching/log debugging (`civ7-operational-debugging`). |
+| `civ7-play-game` | Playing a live, already-running Civ7 game turn-by-turn via the `civ7` CLI (`bun packages/cli/bin/run.js game …`) and FireTuner: reading priorities/notifications/ready entities and issuing unit, city, research, civic, diplomacy, and end-turn actions. Self-describing read→action loop for a small agent. Not for designing the control surface (`civ7-orpc-control-architecture`) or launching/log debugging (`civ7-operational-debugging`). |
 
 ## Globalized Skills
 

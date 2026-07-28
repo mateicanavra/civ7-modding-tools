@@ -1,7 +1,7 @@
 ---
 name: civ7-play-game
 description: |
-  Use in the Civ7 Modding Tools repo to PLAY a live Civilization VII game turn-by-turn through the `civ7` CLI (`node packages/cli/bin/run.js game ...`) and the FireTuner control surface — reading game state and issuing unit, city, research, civic, diplomacy, and end-turn actions. Trigger phrases include "play Civ", "play the game", "take a turn", "play through to turn N", "end the turn", "move this unit", "found a city", "set city production", "choose research", "respond to the notification", "what should I do this turn", and "drive a live Civ7 game". Do NOT use for designing/refactoring the control surfaces themselves (use civ7-orpc-control-architecture), for map generation (use civ7-mapgen-workstream), or for build/deploy/log debugging (use civ7-operational-debugging).
+  Use in the Civ7 Modding Tools repo to PLAY a live Civilization VII game turn-by-turn through the `civ7` CLI (`bun packages/cli/bin/run.js game ...`) and the FireTuner control surface — reading game state and issuing unit, city, research, civic, diplomacy, and end-turn actions. Trigger phrases include "play Civ", "play the game", "take a turn", "play through to turn N", "end the turn", "move this unit", "found a city", "set city production", "choose research", "respond to the notification", "what should I do this turn", and "drive a live Civ7 game". Do NOT use for designing/refactoring the control surfaces themselves (use civ7-orpc-control-architecture), for map generation (use civ7-mapgen-workstream), or for build/deploy/log debugging (use civ7-operational-debugging).
 ---
 
 # Civ7 Play Game
@@ -35,9 +35,9 @@ hashes, or coordinates — you echo what the reads surface.
 
 ## How It Works (read this once)
 
-- **One CLI, one prefix.** Every command is `node packages/cli/bin/run.js game …`
-  run from the repo root. The global `civ7` alias is stale — always use the node
-  bin path. Connection defaults to the tuner at `127.0.0.1:4318`; **no host/port
+- **One CLI, one prefix.** Every command is `bun packages/cli/bin/run.js game …`
+  run from the repo root. Use the linked `civ7` command only after the owning Nx
+  build/link target has refreshed it. Connection defaults to the tuner at `127.0.0.1:4318`; **no host/port
   flags are needed.**
 - **Always pass `--json`** so you parse structured output, not prose.
 - **Reads → Actions.** Read commands (`priorities`, `ready-unit`,
@@ -97,7 +97,7 @@ to be consulted on, or an action keeps failing (see Invariants).
 
 <invariants>
 <invariant name="playable-before-acting">Confirm `game status --json` shows `playable:true` and a mutation-capable readiness before any action. If it shows shell/loading/unreachable, STOP and report — the human owns launching and advancing past non-playable states.</invariant>
-<invariant name="cli-is-source-of-truth">The live CLI output is authoritative over anything written here. Trust each read's `nextAction`, `legalOperations`, and candidate IDs. When unsure of a command's shape, run `node packages/cli/bin/run.js game play <cmd> --help`.</invariant>
+<invariant name="cli-is-source-of-truth">The live CLI output is authoritative over anything written here. Trust each read's `nextAction`, `legalOperations`, and candidate IDs. When unsure of a command's shape, run `bun packages/cli/bin/run.js game play <cmd> --help`.</invariant>
 <invariant name="never-invent-ids">Never hand-compute or guess a type id, component id, hash, node, or coordinate. Echo IDs and parameters straight from the read that surfaced them. Resolve a name to an id only via `game gameinfo <Table> --lookup <TYPE> --json`.</invariant>
 <invariant name="read-coords-never-guess">Movement and placement coordinates come from candidate reads (`unit-move-preview`, `target-candidates`, `settlement-recommendations`, `ready-city` placement/expansion candidates) — never from a guess about the map.</invariant>
 <invariant name="validate-then-send">Issue mutations by validating first (no `--send`, or read the validation block), then `--send` only when validation/`legalOperations` confirm legality. After sending, read `postcondition`/`verified` to confirm; do not assume success.</invariant>
@@ -120,7 +120,7 @@ to be consulted on, or an action keeps failing (see Invariants).
 
 ```bash
 cd <repo-root>            # contains packages/cli
-CLI="node packages/cli/bin/run.js"
+CLI="bun packages/cli/bin/run.js"
 
 $CLI game status --json                          # 1. playable?
 $CLI game play priorities --compact --json       # 2. what needs deciding?

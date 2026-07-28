@@ -1,7 +1,7 @@
 # Command Reference
 
 Exact CLI surface for playing a live Civ7 game. Source of truth is the code in
-`packages/cli/src/commands/game/**` and `packages/civ7-control-orpc`; if a flag
+`plugins/cli/topics/game/src/commands/game/**` and `packages/civ7-control-orpc`; if a flag
 here ever disagrees with `… --help`, trust `--help`.
 
 **Contents:** [Invocation](#invocation) · [Result envelope](#result-envelope) ·
@@ -10,8 +10,9 @@ here ever disagrees with `… --help`, trust `--help`.
 
 ## Invocation
 
-- Prefix every command with `node packages/cli/bin/run.js` from the repo root
-  (the dir containing `packages/cli`). The global `civ7` alias is **stale**.
+- Prefix every command with `bun packages/cli/bin/run.js` from the repo root
+  (the dir containing `packages/cli`). Use the global `civ7` command only after
+  `nx run civ7-cli:link:global` has refreshed it.
 - Connection defaults to tuner `127.0.0.1:4318` (`DEFAULT_CIV7_TUNER_HOST/PORT`).
   **Omit `--host`/`--port`** unless told otherwise.
 - Append **`--json`** to everything you parse.
@@ -117,7 +118,7 @@ passed as separate `--x N --y N` integer flags (there is no `--pair` flag).
 SKIP_TURN, HEAL, …) goes through the generic validator:
 
 ```bash
-node packages/cli/bin/run.js game operation \
+bun packages/cli/bin/run.js game operation \
   --family <unit-operation|unit-command|city-operation|city-command|player-operation> \
   --operation-type <ENUM_KEY> \
   --unit-id '{"owner":0,"id":65536,"type":26}'   # or --city-id / --player-id per family
@@ -131,7 +132,7 @@ right now. Validate first; `--send` only on a legal op; confirm `verified:true`.
 **Resolve a name → id** (e.g. you know you want a Settler but need its UnitType):
 
 ```bash
-node packages/cli/bin/run.js game gameinfo Units --lookup UNIT_SETTLER --json
+bun packages/cli/bin/run.js game gameinfo Units --lookup UNIT_SETTLER --json
 ```
 
 Tables include `Units`, `Constructibles`, `Resources`, etc. Prefer echoing ids

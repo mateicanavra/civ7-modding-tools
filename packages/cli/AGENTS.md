@@ -19,6 +19,8 @@ Scope: `packages/cli/**`
 Architecture authority:
 
 - [`docs/system/ADR.md`](../../docs/system/ADR.md), especially ADR-017
+- [`docs/system/cli/OPERATIONS.md`](../../docs/system/cli/OPERATIONS.md) for the
+  Bun/oclif execution, plugin assembly, and distribution contract
 - [`docs/projects/habitat-harness/taxonomy.md`](../../docs/projects/habitat-harness/taxonomy.md)
 - [Root agent router](../../AGENTS.md)
 

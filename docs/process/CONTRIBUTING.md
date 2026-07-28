@@ -33,7 +33,7 @@ bun run test
 - CLI:
   ```bash
   nx run civ7-cli:build
-  node packages/cli/bin/run.js --help
+  bun packages/cli/bin/run.js --help
   ```
 - SDK:
   ```bash
@@ -118,30 +118,29 @@ Explicit diagnostics may perform domain-specific setup when that setup is part
 of the named diagnostic path, but not by hiding dependency freshness inside
 normal app entrypoints.
 
-### Publishing via tags (CI)
-Prerequisite: In GitHub → Settings → Secrets and variables → Actions, add secrets `NPM_TOKEN_SDK` and `NPM_TOKEN_CLI` (publish tokens for GitHub Packages).
+### Publishing the SDK via tags (CI)
+Prerequisite: In GitHub → Settings → Secrets and variables → Actions, add the
+`NPM_TOKEN_SDK` publish token for GitHub Packages.
 
 From the repo root, create and push one of the following tags:
 
 ```bash
-# Publish both SDK and CLI
+# Publish the SDK
 git tag vX.Y.Z && git push origin vX.Y.Z
 
-# Publish only SDK
+# Equivalent SDK-only tag
 git tag sdk-vX.Y.Z && git push origin sdk-vX.Y.Z
-
-# Publish only CLI
-git tag cli-vX.Y.Z && git push origin cli-vX.Y.Z
 ```
 
-The publish workflow will build, lint, test, typecheck, then publish the targeted package(s).
+The publish workflow builds, checks, and publishes the SDK. The CLI is private
+and workspace-only until the dependency-closure proof in
+[`docs/system/DEFERRALS.md`](../system/DEFERRALS.md#def-020-publishable-civ7-cli-dependency-closure)
+is resolved.
 
 ### Local publish (optional)
 From repo root:
 ```bash
 nx run civ7-sdk:publish:npm   # publish SDK
-nx run civ7-cli:publish:npm   # publish CLI
-# publish both by running the SDK command first, then the CLI command
 ```
 
 ## Coding style

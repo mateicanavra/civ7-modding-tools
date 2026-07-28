@@ -18,7 +18,7 @@
       }
     },
     "build:manifest": {
-      "command": "oclif manifest",
+      "command": "bun run --bun oclif manifest",
       "dependsOn": ["build:tsc"],
       "cache": true,
       "outputs": ["{projectRoot}/oclif.manifest.json"],
@@ -36,7 +36,7 @@
       }
     },
     "build": {
-      "command": "node -e \"\"",
+      "command": "bun -e \"void 0\"",
       "cache": false,
       "outputs": [],
       "dependsOn": ["build:bin-mode"],
@@ -62,7 +62,7 @@
       }
     },
     "readme": {
-      "command": "oclif readme",
+      "command": "bun run --bun oclif readme",
       "dependsOn": ["build"],
       "cache": false,
       "outputs": ["{projectRoot}/README.md"],
@@ -71,7 +71,7 @@
       }
     },
     "pack:prepare": {
-      "command": "node -e \"\"",
+      "command": "bun -e \"void 0\"",
       "cache": false,
       "outputs": [],
       "dependsOn": ["build", "readme"],
@@ -89,7 +89,7 @@
       }
     },
     "data:zip:default": {
-      "command": "node bin/run.js data zip default",
+      "command": "bun bin/run.js data zip default",
       "dependsOn": ["build"],
       "cache": false,
       "outputs": [],
@@ -98,25 +98,8 @@
       }
     },
     "data:unzip:default": {
-      "command": "node bin/run.js data unzip default",
+      "command": "bun bin/run.js data unzip default",
       "dependsOn": ["build"],
-      "cache": false,
-      "outputs": [],
-      "options": {
-        "cwd": "packages/cli"
-      }
-    },
-    "publish:npm": {
-      "command": "bun publish --access public",
-      "dependsOn": [
-        "build",
-        "test",
-        "check",
-        {
-          "projects": ["habitat"],
-          "target": "check:hygiene"
-        }
-      ],
       "cache": false,
       "outputs": [],
       "options": {

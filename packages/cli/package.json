@@ -1,6 +1,7 @@
 {
   "name": "@mateicanavra/civ7-cli",
   "version": "0.1.0",
+  "private": true,
   "description": "CLI for managing Civilization VII modding resources.",
   "license": "MIT",
   "author": "Your Name",
@@ -17,15 +18,12 @@
     "check:test": "tsc -p test/tsconfig.json --noEmit",
     "check:tools": "tsc -p bin/tsconfig.json --noEmit",
     "clean:dist": "rimraf dist tsconfig.tsbuildinfo",
-    "prepack": "node -e \"\"",
+    "prepack": "bun -e \"void 0\"",
     "pack": "bun pm pack",
     "postpack": "rimraf oclif.manifest.json",
-    "prepublishOnly": "node -e \"\"",
-    "publish": "bun publish",
     "run": "bun run bin/dev.ts",
     "test": "vitest run --project cli",
-    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
-    "version": "node -e \"\""
+    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
   },
   "oclif": {
     "bin": "civ7",
@@ -47,12 +45,5 @@
     "@oclif/core": "^4.11.4",
     "@oclif/plugin-help": "^6.2.50",
     "tslib": "^2.8.1"
-  },
-  "engines": {
-    "node": "22.22.0"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://npm.pkg.github.com/"
   }
 }

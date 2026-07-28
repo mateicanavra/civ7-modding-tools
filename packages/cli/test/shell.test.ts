@@ -49,7 +49,7 @@ describe("civ7 CLI shell", () => {
       expect(topicManifest.oclif).not.toHaveProperty("hooks");
     }
 
-    const result = spawnSync("node", [join(packageRoot, "bin/run.js"), "--help"], {
+    const result = spawnSync(join(packageRoot, "bin/run.js"), ["--help"], {
       cwd: packageRoot,
       encoding: "utf8",
     });
