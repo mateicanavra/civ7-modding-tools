@@ -1,3 +1,4 @@
+/** Map feature identifiers accepted by placement rules and start biases. */
 export const FEATURE = {
   SAGEBRUSH_STEPPE: "FEATURE_SAGEBRUSH_STEPPE",
   OASIS: "FEATURE_OASIS",

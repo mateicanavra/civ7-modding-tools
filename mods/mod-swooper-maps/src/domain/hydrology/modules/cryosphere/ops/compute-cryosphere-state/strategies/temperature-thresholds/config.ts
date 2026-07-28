@@ -117,7 +117,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Cryosphere state parameters (temperature-thresholds strategy).",
+      description:
+        "Keeps snow, sea ice, freeze persistence, permafrost, ground ice, melt, and albedo on one coherent temperature-and-precipitation threshold family.",
     }
   ),
 });

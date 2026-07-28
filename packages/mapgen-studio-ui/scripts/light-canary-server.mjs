@@ -13,6 +13,14 @@ const MIME = {
   ".woff2": "font/woff2",
 };
 
+/**
+ * Serves one immutable generated canary tree, using a loopback endpoint by default.
+ * Real-path containment and no-follow file opens keep fixture acquisition inside the admitted root.
+ *
+ * @param {string} root Generated fixture directory to expose.
+ * @param {{ host?: string, port?: number }} options Explicit HTTP binding options.
+ * @returns {Promise<{ server: import("node:http").Server, port: number }>} Listening server and selected port.
+ */
 export function serveLightCanaryDirectory(root, { host = "127.0.0.1", port = 0 } = {}) {
   const rootAbsolute = realpathSync(root) + sep;
   const server = createServer((request, response) => {
@@ -79,6 +87,13 @@ function closeServer(server) {
   });
 }
 
+/**
+ * Closes every acquired canary browser and server without abandoning later resources after one failure.
+ * Cleanup failures are retained together so callers receive the complete teardown result.
+ *
+ * @param {{ browser?: { close(): Promise<void> }, servers: readonly import("node:http").Server[] }} runtime Acquired resources.
+ * @returns {Promise<void>} Completion after every close attempt settles.
+ */
 export async function cleanupLightCanaryRuntime({ browser, servers }) {
   const cleanup = [];
   if (browser) cleanup.push(browser.close());

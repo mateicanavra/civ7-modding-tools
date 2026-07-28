@@ -50,8 +50,10 @@ function Stage({ children }: { children: ReactNode }) {
   );
 }
 
-// The ready graph: domain lanes crossed with dependency ranks, the `relief` stage
-// expanded to its steps (the fixture invariant), the console strip top-right.
+/**
+ * Renders the ready graph with domain lanes, dependency ranks, and the fixture's `relief` stage
+ * expanded, keeping the story's expanded-stage identifier coupled to the shared DAG fixture.
+ */
 export const PipelineGraph: Story = {
   args: props,
   render: (args) => (

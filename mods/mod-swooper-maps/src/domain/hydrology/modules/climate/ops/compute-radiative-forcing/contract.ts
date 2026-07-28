@@ -25,7 +25,8 @@ const ComputeRadiativeForcingContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Inputs for radiative forcing computation (deterministic, data-only).",
+      description:
+        "Map dimensions and per-row latitude used to expand the authored insolation curve across the tile grid.",
     }
   ),
   /**
@@ -38,7 +39,8 @@ const ComputeRadiativeForcingContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Radiative forcing output (insolation proxy) per tile.",
+      description:
+        "Bounded per-tile insolation forcing consumed by surface-temperature estimation.",
     }
   ),
   strategies: [latitudeInsolationDefinition],

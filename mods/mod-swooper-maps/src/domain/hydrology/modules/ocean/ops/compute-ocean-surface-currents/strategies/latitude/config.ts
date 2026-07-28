@@ -24,7 +24,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Ocean surface current parameters for the latitude strategy.",
+      description:
+        "Scales deterministic latitude-band currents while deliberately ignoring wind, basin, and coastline evidence as a stable fallback.",
     }
   ),
 });

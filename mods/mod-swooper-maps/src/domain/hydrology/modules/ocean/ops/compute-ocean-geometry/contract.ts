@@ -46,7 +46,8 @@ const ComputeOceanGeometryContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Inputs for ocean geometry computation (deterministic, data-only).",
+      description:
+        "Morphology water, coast, and shelf evidence admitted once so basin identity and coast frames share one topology.",
     }
   ),
   output: Type.Object(
@@ -77,7 +78,8 @@ const ComputeOceanGeometryContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Ocean geometry helpers (basins + coast fields).",
+      description:
+        "Shared basin and coastline evidence consumed by current projection, with map-grid sentinels retained on land.",
     }
   ),
   strategies: [connectedBasinsDefinition],

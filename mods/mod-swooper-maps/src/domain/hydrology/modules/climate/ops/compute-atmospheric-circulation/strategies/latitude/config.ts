@@ -32,7 +32,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Atmospheric circulation parameters (latitude strategy).",
+      description:
+        "Shapes the inexpensive latitude-band wind fallback through jet count, overall strength, and directional variance.",
     }
   ),
 });

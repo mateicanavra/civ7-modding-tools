@@ -39,6 +39,7 @@ export type StudioContract = Omit<StudioEffectContract, "civ7"> & {
   civ7: StudioEffectContract["civ7"] & typeof Civ7ControlOrpcContract;
 };
 
+/** Merges Studio procedures with native direct-control under the single public Civ7 router. */
 export const contract: StudioContract = oc.router({
   ...studioEffectContract,
   civ7: {

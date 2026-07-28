@@ -110,6 +110,7 @@ export interface StudioOperationRuntimeApi {
   readonly operationsCurrent: Effect.Effect<StudioOperationsCurrent, never>;
 }
 
+/** Process-lifetime service owning admission, orchestration, retention, and public projection. */
 export class StudioOperationRuntime extends Context.Tag(
   "@civ7/studio-server/StudioOperationRuntime"
 )<StudioOperationRuntime, StudioOperationRuntimeApi>() {}
@@ -133,6 +134,7 @@ type StudioOperationRuntimeLayerBaseArgs = Readonly<{
   diagnosticsWriter?: typeof writeRunDiagnostics;
 }>;
 
+/** Builds the runtime layer with either an injected or production Civ7 workflow control service. */
 export function makeStudioOperationRuntimeLayer(
   args: StudioOperationRuntimeLayerBaseArgs &
     Readonly<{

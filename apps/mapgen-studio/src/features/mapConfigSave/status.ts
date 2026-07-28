@@ -6,6 +6,7 @@ import type {
   StudioRecoveryAction,
 } from "@civ7/studio-contract";
 
+/** Collapses detailed save/deploy phases into the presentation operation kind. */
 export function kindForMapConfigSaveDeployPhase(
   phase: MapConfigSaveDeployPhase
 ): MapConfigSaveDeployKind {
@@ -52,6 +53,7 @@ type CreateMapConfigSaveDeployStatusArgs =
   | CompleteStatusArgs
   | FailedStatusArgs;
 
+/** Constructs a phase-consistent status, forcing complete and failed terminal invariants. */
 export function createMapConfigSaveDeployStatus(args: NonTerminalStatusArgs): NonTerminalStatus;
 export function createMapConfigSaveDeployStatus(args: CompleteStatusArgs): CompleteStatus;
 export function createMapConfigSaveDeployStatus(args: FailedStatusArgs): FailedStatus;
@@ -112,6 +114,7 @@ type UpdateMapConfigSaveDeployStatusPatch =
       recoveryActions?: ReadonlyArray<StudioRecoveryAction>;
     }>;
 
+/** Advances status while carrying forward progress and recovery actions omitted by the patch. */
 export function updateMapConfigSaveDeployStatus(
   current: MapConfigSaveDeployStatus,
   patch: UpdateMapConfigSaveDeployStatusPatch
@@ -147,18 +150,21 @@ type SaveDeployTerminalStatus = Extract<
   { status: "complete" | "failed" }
 >;
 
+/** Narrows a save/deploy status once no later operation event should replace it. */
 export function isSaveDeployTerminal(
   status: MapConfigSaveDeployStatus
 ): status is SaveDeployTerminalStatus {
   return status.status === "complete" || status.status === "failed";
 }
 
+/** Detaches recovery actions when exposing a terminal operation result to a caller. */
 export function saveDeployResultFromTerminalStatus(
   status: MapConfigSaveDeployStatus
 ): MapConfigSaveDeployStatus {
   return { ...status, recoveryActions: [...status.recoveryActions] };
 }
 
+/** Maps internal safe-failure categories to bounded user-facing operation messages. */
 export function saveDeployFailureMessage(category: SaveDeploySafeFailureCategory): string {
   switch (category) {
     case "request-validation":

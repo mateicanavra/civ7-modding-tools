@@ -40,7 +40,7 @@ const ComputePrecipitationContract = defineOp({
     {
       additionalProperties: false,
       description:
-        "Inputs for precipitation/humidity mapping from humidity transport + local modifiers.",
+        "Transported humidity, winds, terrain, and deterministic texture seed observed together to derive rainfall without rerunning upstream climate.",
     }
   ),
   /**
@@ -55,7 +55,8 @@ const ComputePrecipitationContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Precipitation outputs (rainfall and humidity fields).",
+      description:
+        "Civ7-scale rainfall and quantized humidity projected from one precipitation result for water-budget and cryosphere consumers.",
     }
   ),
   defaultStrategy: "vector",

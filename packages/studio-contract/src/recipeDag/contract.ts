@@ -23,6 +23,7 @@ export type RecipeDagGetContract = ContractProcedure<
   RecipeDagProcedureMeta
 >;
 
+/** Reads one recipe DAG and declares missing, invalid, or internal recipe failures. */
 export const RecipeDagGetContract: RecipeDagGetContract = recipeDagContractBase
   .input(RecipeDagGetInputStandardSchema)
   .output(RecipeDagResultStandardSchema)

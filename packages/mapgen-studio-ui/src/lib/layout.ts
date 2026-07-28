@@ -6,6 +6,11 @@
 // geometry change is a one-line edit here — no arbitrary-value width classes.
 // ============================================================================
 
+/**
+ * Central geometry tokens shared by Studio chrome and its viewport-layout calculations.
+ * Components consume these values directly so measured header state, dock offsets, and fixed panel
+ * dimensions cannot drift between the UI package and its application host.
+ */
 export const LAYOUT = {
   /**
    * Initial estimate of the measured header height (single-row bar). The

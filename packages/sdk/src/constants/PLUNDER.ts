@@ -1,3 +1,4 @@
+/** Plunder-effect identifiers assignable to constructible database records. */
 export const PLUNDER = {
   SCIENCE: "PLUNDER_SCIENCE",
   GOLD: "PLUNDER_GOLD",

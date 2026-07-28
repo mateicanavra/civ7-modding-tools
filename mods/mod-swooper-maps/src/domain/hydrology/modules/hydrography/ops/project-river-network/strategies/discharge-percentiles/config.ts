@@ -40,7 +40,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "River network projection parameters (discharge-percentiles strategy).",
+      description:
+        "Selects nested minor and major river networks from map-relative discharge percentiles plus absolute safety floors; major threshold never falls below minor.",
     }
   ),
 });

@@ -8,6 +8,7 @@ export type TStartBiasTerrainNode = Pick<
   "civilizationType" | "leaderType" | "terrainType" | "score"
 >;
 
+/** Assigns a weighted civilization start preference for a terrain type. */
 export class StartBiasTerrainNode extends BaseNode<TStartBiasTerrainNode> {
   civilizationType: string | null = null;
   leaderType: `LEADER_${string}` | null = null;

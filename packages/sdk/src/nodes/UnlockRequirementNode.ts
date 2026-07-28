@@ -5,6 +5,7 @@ export type TUnlockRequirementNode = Pick<
   "unlockType" | "requirementSetId" | "description" | "narrativeText" | "tooltip"
 >;
 
+/** Connects an unlock to its requirement set and player-facing explanatory text. */
 export class UnlockRequirementNode extends BaseNode<TUnlockRequirementNode> {
   unlockType: string | null = "UNLOCK_";
   requirementSetId: string | null = null;

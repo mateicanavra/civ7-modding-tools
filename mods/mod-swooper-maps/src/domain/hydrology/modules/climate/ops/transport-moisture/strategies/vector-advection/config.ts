@@ -40,7 +40,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Moisture transport parameters for the vector-advection strategy.",
+      description:
+        "Bounds fixed-pass mixing of local evaporation with one or two wind-aligned donors on the map's hex grid.",
     }
   ),
 });

@@ -9,6 +9,7 @@ import { defineConfig } from "tsup";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
+/** Bundles each generated map entry into a self-contained Civ7 MapGeneration script. */
 export default defineConfig({
   banner: {
     js: civ7MapScriptTextEncoderBanner,

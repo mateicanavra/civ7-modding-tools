@@ -37,7 +37,10 @@ truthful over every supported module/package surface, preserves semantic JSDoc
 and schema descriptions, and burns the newly visible corpus to zero after
 dead-code proof. The eventual definition/plugin and deployable-app split remains
 a coordinated hard-cut ownership migration, not an earned folder move inside
-this documentation ratchet.
+this documentation ratchet. Its current qualified destinations are
+`plugins/mod/map/swooper-physics` for the reusable Swooper definition and
+`apps/mods/map/swooper-physics` for its Civ7-deployable realization; CLI plugin
+topics normalize under `plugins/cli/topics` in their own complete cut.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7

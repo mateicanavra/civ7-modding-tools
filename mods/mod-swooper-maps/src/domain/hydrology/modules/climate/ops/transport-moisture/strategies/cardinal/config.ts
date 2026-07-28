@@ -32,7 +32,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Moisture transport parameters for the cardinal strategy.",
+      description:
+        "Bounds fixed-pass mixing of local evaporation with one coarse upwind donor to produce stable, inexpensive humidity transport.",
     }
   ),
 });

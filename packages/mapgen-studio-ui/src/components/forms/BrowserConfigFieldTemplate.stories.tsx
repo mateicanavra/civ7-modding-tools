@@ -19,6 +19,7 @@ import type { ReactNode } from "react";
 // inference treats every (otherwise-required) rjsf prop as optional — letting
 // these render-only stories omit an `args` block. The value is never read: each
 // story drives the component entirely through its own `render` body.
+/** Registers render-driven field-template stories while keeping synthetic rjsf props out of args. */
 const meta = {
   title: "forms/BrowserConfigFieldTemplate",
   component: BrowserConfigFieldTemplate,

@@ -94,7 +94,8 @@ export default defineStrategy({
         },
         {
           additionalProperties: false,
-          description: "Coastal moisture gradient parameters (continentality proxy).",
+          description:
+            "Adds near-coast rainfall that decays by inland ring, with a separate bonus for low coastal terrain.",
         }
       ),
       /** Orographic rain shadow simulation (leeward drying effect). */
@@ -138,7 +139,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Precipitation parameters for the baseline strategy.",
+      description:
+        "Maps humidity to scalar rainfall, then adds seeded texture, coastal moisture, and bounded orographic drying.",
     }
   ),
 });

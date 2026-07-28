@@ -19,6 +19,7 @@ import { alwaysExpandedCollapse, mockFieldContent, noop } from "../../storybook/
 // inference treats every (otherwise-required) rjsf prop as optional — letting
 // these render-only stories omit an `args` block. The value is never read: each
 // story drives the component entirely through its own `render` body.
+/** Registers render-driven array-template stories without manufacturing the full rjsf prop set. */
 const meta = {
   title: "forms/BrowserConfigArrayFieldTemplate",
   component: BrowserConfigArrayFieldTemplate,
@@ -52,6 +53,7 @@ function Demo({ children }: { children: ReactNode }) {
   );
 }
 
+/** Exercises item separators and the trailing add action with two rendered array entries. */
 export const WithItems: Story = {
   render: () => (
     <Demo>
@@ -68,6 +70,7 @@ export const WithItems: Story = {
   ),
 };
 
+/** Pins the add affordance and disclosure shell when the authored array has no entries. */
 export const Empty: Story = {
   render: () => (
     <Demo>

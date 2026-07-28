@@ -40,6 +40,7 @@ export type TConstructibleNode = Pick<
   | "victoryItem"
 >;
 
+/** Represents the shared database definition for a building, improvement, wonder, or quarter. */
 export class ConstructibleNode extends BaseNode<TConstructibleNode> {
   constructibleClass: TObjectValues<typeof CONSTRUCTIBLE_CLASS> = CONSTRUCTIBLE_CLASS.BUILDING;
   constructibleType: string | null = "BUILDING_";

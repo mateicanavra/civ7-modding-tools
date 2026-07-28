@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Declares authored configuration for the `mountain-proximity` implementation of `morphology/plan-foothills`. */
+/**
+ * Controls how tectonic support and distance from planned mountain regions become foothill intent.
+ * Thresholds gate eligible land before land-relative hill budgets are applied; a zero
+ * `foothillMaxFraction` deliberately falls back to `hillMaxFraction` rather than disabling hills.
+ */
 export default defineStrategy({
   id: "mountain-proximity",
   config: Type.Object(

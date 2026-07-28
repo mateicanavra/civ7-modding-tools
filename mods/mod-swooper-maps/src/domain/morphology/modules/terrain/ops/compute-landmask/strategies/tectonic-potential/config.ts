@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Declares authored configuration for the `tectonic-potential` implementation of `morphology/compute-landmask`. */
+/**
+ * Controls the spatial scale, craton memory, and component pruning used to turn crust and tectonic
+ * provenance into coherent continents. The sea-level-implied land count remains the primary
+ * invariant: smoothing and pruning reshape the mask, then the strategy refills it to that demand.
+ */
 export default defineStrategy({
   id: "tectonic-potential",
   config: Type.Object(

@@ -14,6 +14,7 @@ interface MapSizeOption extends SelectOption<MapSize> {
   height: number;
 }
 
+/** Selector rows projected directly from the canonical Civ7 map-size policy presets. */
 export const MAP_SIZE_OPTIONS: readonly MapSizeOption[] = CIV7_STUDIO_MAP_SIZE_PRESETS.map(
   ({ id, label, dimensions }) => ({
     value: id,

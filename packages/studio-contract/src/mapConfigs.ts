@@ -125,6 +125,7 @@ function ownDataProperty(value: unknown, key: string): unknown {
 // Query: requestId (REQUIRED). Success 200: MapConfigSaveDeployStatus.
 // Errors: 400 (missing); 404 with only request identity, a safe failure
 // category, and recovery actions.
+/** Reads the current or retained save/deploy operation by request identity. */
 export const status = oc
   .errors(mapConfigsErrors)
   .input(
@@ -156,6 +157,7 @@ export const status = oc
 // rollback land in MapConfigStore (A2) / handler (A3). `restart`/`verifyRestart`
 // are typed as optional booleans here; the falsy-only enforcement lives in
 // `parseMapConfigSaveRequest`.
+/** Admits a complete portable config and begins the asynchronous save/deploy workflow. */
 export const saveDeploy = oc
   .errors(mapConfigsErrors)
   .input(

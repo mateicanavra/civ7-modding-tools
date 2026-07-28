@@ -3,6 +3,7 @@ import { ActionGroupNode } from "../nodes";
 import { TObjectValues } from "../types";
 import { fill } from "../utils";
 
+/** Common file metadata used to derive mod-info paths and attach files to action-group actions. */
 export class BaseFile<T = any> {
   path: string = "/";
   name: string = "file.txt";

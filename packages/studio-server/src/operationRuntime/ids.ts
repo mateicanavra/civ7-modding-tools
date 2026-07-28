@@ -1,3 +1,4 @@
+/** Creates a collision-resistant request identity scoped by operation namespace. */
 export function createStudioOperationId(
   args: Readonly<{
     prefix: string;

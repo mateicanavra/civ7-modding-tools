@@ -54,6 +54,7 @@ export function mergeSaveDeployFailureResponse(
   return isSaveDeployTerminal(current) ? current : incoming;
 }
 
+/** Replaces client operation state from one daemon snapshot without replaying handled run toasts. */
 export function adoptStudioOperationsCurrent(
   current: StudioOperationsCurrent,
   targets: StudioOperationAdoptionTargets,
@@ -80,6 +81,7 @@ export function adoptStudioOperationsCurrent(
   targets.setSaveDeployOperation(saveDeploy);
 }
 
+/** Applies one ordered operation event while preventing terminal state from regressing. */
 export function applyStudioOperationEvent(
   event: StudioOperationEvent,
   targets: Pick<StudioOperationAdoptionTargets, "setRunInGameOperation" | "setSaveDeployOperation">
@@ -100,6 +102,7 @@ function unhandledStudioOperationEvent(event: never): never {
   throw new Error(`Unhandled Studio operation event: ${String(event)}`);
 }
 
+/** Forwards the daemon-owned live-game state through the client adoption boundary. */
 export function applyStudioLiveGameEvent(
   event: StudioLiveGameEvent,
   targets: { applyLiveGameState(state: LiveRuntimeStatusState): void }
@@ -107,6 +110,7 @@ export function applyStudioLiveGameEvent(
   targets.applyLiveGameState(event.state as LiveRuntimeStatusState);
 }
 
+/** Reads and conditionally adopts current operations, suppressing results after cancellation. */
 export async function readAndAdoptStudioOperationsCurrent(
   args: Readonly<{
     readCurrent(): Promise<StudioOperationsCurrent>;

@@ -50,6 +50,7 @@ export type StudioDaemonArgs = Readonly<{
   assetsRoot?: string;
 }>;
 
+/** Default loopback port for the Studio daemon when no CLI override is supplied. */
 export const STUDIO_DAEMON_DEFAULT_PORT = 5174;
 
 const mimeTypes: Record<string, string> = {
@@ -62,6 +63,7 @@ const mimeTypes: Record<string, string> = {
   ".woff2": "font/woff2",
 };
 
+/** Admits daemon CLI arguments and rejects unknown flags or malformed port values. */
 export function parseStudioDaemonArgs(
   argv: readonly string[],
   defaults: Readonly<{ repoRoot: string; env?: Readonly<Record<string, string | undefined>> }>
@@ -170,6 +172,7 @@ export function createStudioDaemonFetch(
   };
 }
 
+/** Composes the Studio HTTP, oRPC, operation, and live-runtime services under one owner. */
 export async function createStudioDaemon(args: StudioDaemonArgs) {
   let liveRuntimeReader: StudioLiveRuntimeReader | undefined;
   const operationRuntime = createStudioOperationRuntimePorts({

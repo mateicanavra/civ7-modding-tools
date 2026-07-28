@@ -1,3 +1,4 @@
+/** Standard trait tag identifiers used to classify civilizations and gameplay entities. */
 export const TAG_TRAIT = {
   CULTURAL: "TAG_TRAIT_CULTURAL",
   ECONOMIC: "TAG_TRAIT_ECONOMIC",

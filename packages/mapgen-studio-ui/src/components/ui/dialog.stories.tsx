@@ -23,6 +23,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Keeps the modal open on first paint to capture the save-confirmation hierarchy and scrim. */
 export const SaveConfig: Story = {
   render: () => (
     <Dialog defaultOpen>

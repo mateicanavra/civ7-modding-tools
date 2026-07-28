@@ -11,6 +11,7 @@ export type TShellCivilizationNodeSlice = Pick<
   | "civilizationIcon"
 >;
 
+/** Carries the presentation-only civilization fields emitted into the shell database. */
 export class ShellCivilizationNodeSlice extends BaseNode<TShellCivilizationNodeSlice> {
   domain: string | null = null;
   civilizationType: string | null = null;

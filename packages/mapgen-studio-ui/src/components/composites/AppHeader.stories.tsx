@@ -61,6 +61,7 @@ function Bar({ children }: { children: ReactNode }) {
   );
 }
 
+/** Shows the normal header projection for a setup that still matches its selected config file. */
 export const Default: Story = {
   args: {
     themePreference: "dark",
@@ -83,6 +84,7 @@ export const Default: Story = {
   ),
 };
 
+/** Pins the warning and re-apply affordances shown after authored setup drifts from its file. */
 export const ModifiedConfig: Story = {
   args: {
     themePreference: "dark",

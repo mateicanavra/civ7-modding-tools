@@ -8,6 +8,7 @@ export type TConstructibleValidTerrainNode = Pick<
   "constructibleType" | "terrainType"
 >;
 
+/** Allows a constructible to be placed on a specific terrain type. */
 export class ConstructibleValidTerrainNode extends BaseNode<TConstructibleValidTerrainNode> {
   constructibleType: string | null = "BUILDING_";
   terrainType: TObjectValues<typeof TERRAIN> | null = TERRAIN.FLAT;

@@ -8,6 +8,7 @@ export type TStartBiasResourceNode = Pick<
   "civilizationType" | "resourceType" | "leaderType" | "score"
 >;
 
+/** Assigns a weighted civilization start preference for a nearby resource. */
 export class StartBiasResourceNode extends BaseNode<TStartBiasResourceNode> {
   civilizationType: string | null = null;
   leaderType: `LEADER_${string}` | null = null;

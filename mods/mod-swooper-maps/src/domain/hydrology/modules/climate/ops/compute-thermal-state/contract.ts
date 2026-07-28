@@ -37,7 +37,8 @@ const ComputeThermalStateContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Inputs for surface temperature proxy computation (deterministic, data-only).",
+      description:
+        "Insolation, elevation, and land identity used for atmospheric temperature, with optional SST authoritative on water tiles.",
     }
   ),
   /**
@@ -52,7 +53,8 @@ const ComputeThermalStateContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Surface temperature proxy output per tile (Celsius).",
+      description:
+        "Bounded per-tile surface temperature consumed by evaporation and cryosphere passes.",
     }
   ),
   strategies: [insolationLapseRateDefinition],

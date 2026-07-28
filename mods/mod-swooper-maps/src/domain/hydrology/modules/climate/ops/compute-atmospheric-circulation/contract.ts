@@ -54,7 +54,8 @@ const ComputeAtmosphericCirculationContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Inputs for wind-field computation (deterministic, data-only).",
+      description:
+        "Latitude and deterministic seed, with optional season, land, and elevation evidence that shape the selected wind model.",
     }
   ),
   /**
@@ -69,7 +70,8 @@ const ComputeAtmosphericCirculationContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Wind field output per tile (U/V components).",
+      description:
+        "Quantized zonal and meridional winds consumed by moisture transport, precipitation, climate diagnostics, and ocean currents.",
     }
   ),
   defaultStrategy: "geostrophic-proxy",

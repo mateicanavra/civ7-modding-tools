@@ -47,7 +47,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Land water budget parameters (pet-aridity strategy).",
+      description:
+        "Maps temperature and humidity to potential evapotranspiration demand used with rainfall to derive terrestrial aridity.",
     }
   ),
 });

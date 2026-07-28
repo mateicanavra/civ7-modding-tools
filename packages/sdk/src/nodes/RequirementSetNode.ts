@@ -8,6 +8,7 @@ export type TRequirementSetNode = Pick<
   "requirementSetId" | "requirementSetType"
 >;
 
+/** Defines how a group of requirements is evaluated before an effect or unlock may apply. */
 export class RequirementSetNode extends BaseNode<TRequirementSetNode> {
   requirementSetId: string | null = "REQSET_" + randomUUID().replace(/-/g, "_").toLocaleUpperCase();
   requirementSetType: TObjectValues<typeof REQUIREMENT_SET> | null = REQUIREMENT_SET.TEST_ALL;

@@ -1,3 +1,4 @@
+/** Removes an optional leading SDK type prefix while normalizing absent values to an empty string. */
 export const trim = (string: string | null | undefined, prefix?: string): string => {
   if (!string) {
     return "";

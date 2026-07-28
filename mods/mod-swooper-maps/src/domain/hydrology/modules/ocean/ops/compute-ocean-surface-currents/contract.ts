@@ -57,7 +57,8 @@ const ComputeOceanSurfaceCurrentsContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Inputs for ocean surface current computation (deterministic, data-only).",
+      description:
+        "Water and latitude plus winds and optional basin/coast evidence; the latitude fallback intentionally ignores optional geometry.",
     }
   ),
   /**
@@ -72,7 +73,8 @@ const ComputeOceanSurfaceCurrentsContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Surface current output per tile (U/V components).",
+      description:
+        "Quantized water-only currents consumed by ocean thermal state and downstream climate coupling.",
     }
   ),
   defaultStrategy: "wind-gyre-projection",

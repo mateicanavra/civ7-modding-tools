@@ -53,6 +53,7 @@ const statusOutputSchema = Type.Object(
 );
 export type Civ7LiveStatusOutput = Static<typeof statusOutputSchema>;
 
+/** Returns one coherent live-status observation with probe failures represented in-band. */
 export const status = oc.input(emptyInputSchema).output(contractSchema(statusOutputSchema));
 
 // ---------------------------------------------------------------------------
@@ -78,6 +79,7 @@ const snapshotOutputSchema = Type.Object(
 );
 export type Civ7LiveSnapshotOutput = Static<typeof snapshotOutputSchema>;
 
+/** Reads a bounded rectangular map snapshot using server-side defaults and clamping. */
 export const snapshot = oc
   .errors(liveSnapshotErrors)
   .input(
@@ -105,6 +107,7 @@ export const snapshot = oc
 // Success 200: { ok:true, observedAt, players, units, cities }.
 // Error 400: { ok:false, error }. Reads FireTuner (3x Promise.all - any failure
 // -> whole 400, NOT allSettled).
+/** Reads bounded player, unit, and city collections as one all-or-nothing observation. */
 export const entities = oc
   .errors(liveEntitiesErrors)
   .input(
@@ -146,6 +149,7 @@ export const entities = oc
 // getCiv7GameInfoRows(...)]`), not a bare row array - same mismatch as
 // `civ7.gameInfo` (#3). Refined from `array(gameInfoRow)` to the opaque result
 // record to preserve retired REST parity.
+/** Reads up to eight live GameInfo tables while retaining each provider result envelope. */
 export const gameInfo = oc
   .errors(liveGameInfoErrors)
   .input(

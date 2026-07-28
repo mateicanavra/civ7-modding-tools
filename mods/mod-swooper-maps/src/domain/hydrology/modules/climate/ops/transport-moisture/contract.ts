@@ -35,12 +35,14 @@ const TransportMoistureContract = defineOp({
       windV: TypedArraySchemas.i8({ description: "Wind V component per tile (-127..127)." }),
       /** Evaporation sources proxy (0..1) per tile. */
       evaporation: TypedArraySchemas.f32({
-        description: "Evaporation sources proxy (0..1) per tile.",
+        description:
+          "Evaporation supply per tile; strategies normalize it to 0..1 before the first transport pass.",
       }),
     },
     {
       additionalProperties: false,
-      description: "Inputs for humidity advection/transport (deterministic, data-only).",
+      description:
+        "Evaporation supply, quantized winds, and latitude fallback evidence used to advect moisture across the map.",
     }
   ),
   /**
@@ -53,7 +55,8 @@ const TransportMoistureContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Humidity field output (0..1 proxy) per tile.",
+      description:
+        "Normalized humidity field consumed by precipitation generation without engine-state readback.",
     }
   ),
   defaultStrategy: "vector-advection",

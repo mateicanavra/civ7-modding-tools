@@ -21,6 +21,7 @@ const RUN_IDENTITY_FIELDS = [
   "generationManifestDigest",
 ] as const;
 
+/** Admits Save & Deploy input while excluding lifecycle and Run in Game identity concerns. */
 export function parseMapConfigSaveRequest(
   body: MapConfigSaveRequestInput
 ): ParsedMapConfigSaveRequest {

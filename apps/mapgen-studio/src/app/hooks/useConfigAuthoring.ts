@@ -39,6 +39,7 @@ export type UseConfigAuthoringResult = Readonly<{
   exportConfig: () => void;
 }>;
 
+/** Coordinates recipe selection plus canonical config import, export, and replacement actions. */
 export function useConfigAuthoring(args: UseConfigAuthoringArgs): UseConfigAuthoringResult {
   const { canonicalConfig, setCanonicalConfig, toast } = args;
   const importInputRef = useRef<HTMLInputElement | null>(null);

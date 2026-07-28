@@ -18,7 +18,8 @@ const ComputeDrainageRoutingContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Inputs for Hydrology drainage routing over Morphology terrain.",
+      description:
+        "Morphology elevation and land truth admitted to derive Hydrology-owned routing without mutating the source terrain.",
     }
   ),
   output: Type.Object(

@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Declares authored configuration for the `relief-substrate-clusters` implementation of `morphology/plan-rough-lands`. */
+/**
+ * Controls how local relief, resistant substrate, tectonic history, and fractal texture become
+ * clustered non-foothill hill intent. Coverage caps are fractions of admitted land; a zero
+ * `roughLandMaxFraction` uses the available hill budget rather than suppressing rough lands.
+ */
 export default defineStrategy({
   id: "relief-substrate-clusters",
   config: Type.Object(

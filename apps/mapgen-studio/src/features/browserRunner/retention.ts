@@ -9,6 +9,7 @@ function shouldRetainLayer(pinnedStepId: string | null, pinnedLayerKey: string |
   return Boolean(pinnedStepId && pinnedLayerKey && pinnedLayerKey.startsWith(`${pinnedStepId}::`));
 }
 
+/** Snapshots whether the current step and its namespaced layer survive the next run reset. */
 export function capturePinnedSelection(args: {
   selectedStepId: string | null;
   selectedLayerKey: string | null;

@@ -155,6 +155,14 @@ function normalizeSingleVariantUnion(
   return null;
 }
 
+/**
+ * Recursively rewrites TypeBox-emitted scalar unions and constants into shapes rjsf can present.
+ * Multi-branch non-scalar unions are preserved, while single branches lose their redundant
+ * selector and constants become read-only one-value enums.
+ *
+ * @param schema - Schema tree or nested schema value to normalize.
+ * @returns A recursively cloned, presentation-compatible value.
+ */
 export function normalizeSchemaForRjsf(schema: unknown): unknown {
   if (Array.isArray(schema)) return schema.map(normalizeSchemaForRjsf);
   if (!isPlainObject(schema)) return schema;
@@ -176,11 +184,25 @@ export function normalizeSchemaForRjsf(schema: unknown): unknown {
   return out;
 }
 
+/**
+ * Narrows a normalized value to the object-root schema required by the Studio form.
+ *
+ * @param schema - Candidate root schema after presentation normalization.
+ * @returns The same schema value, narrowed to `RJSFSchema`.
+ * @throws When the root is not a plain object with `type: "object"`.
+ */
 export function toRjsfSchema(schema: unknown): RJSFSchema {
   assertIsRjsfSchema(schema);
   return schema;
 }
 
+/**
+ * Resolves a property path through object schemas, including the first union branch that owns it.
+ *
+ * @param schema - Schema root to inspect.
+ * @param path - Ordered property names beneath successive `properties` objects.
+ * @returns The addressed schema node, or `null` when no traversable branch contains the path.
+ */
 export function tryGetSchemaAtPath(schema: unknown, path: readonly string[]): unknown | null {
   let current: unknown = schema;
   for (const segment of path) {
@@ -222,6 +244,12 @@ export function tryGetSchemaAtPath(schema: unknown, path: readonly string[]): un
   return current;
 }
 
+/**
+ * Encodes an rjsf field path as an RFC 6901 JSON pointer used by collapse-state keys.
+ *
+ * @param path - String or numeric field segments; an empty path denotes the document root.
+ * @returns An escaped pointer, with `~` and `/` encoded per RFC 6901.
+ */
 export function pathToPointer(path: Array<string | number>): string {
   if (!path.length) return "";
   const parts = path.map((p) => String(p).replace(/~/g, "~0").replace(/\//g, "~1"));
@@ -251,6 +279,14 @@ function isConfigWrapper(node: BrowserConfigSchemaDef | undefined): boolean {
   return keys.includes("strategy") && keys.includes("config");
 }
 
+/**
+ * Finds schema wrapper objects whose disclosure headers would duplicate their visible parent.
+ * The resulting pointer set lets rjsf templates flatten generated single-child, same-label, and
+ * `{ strategy, config }` wrappers without changing the authored data shape.
+ *
+ * @param schema - Normalized root schema rendered by `SchemaConfigForm`.
+ * @returns JSON pointers for object headers that should be visually transparent.
+ */
 export function collectTransparentPaths(schema: RJSFSchema): ReadonlySet<string> {
   const out = new Set<string>();
 

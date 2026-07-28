@@ -28,6 +28,7 @@ export type TAbilityBuilderOptions = {
   };
 };
 
+/** Builds the database, localization, and modifier records for a unit ability as one action-group bundle. */
 export class AbilityBuilder extends BaseBuilder<TAbilityBuilderOptions> {
   actionGroupBundle: ActionGroupBundle = new ActionGroupBundle();
   abilityType: string = "";

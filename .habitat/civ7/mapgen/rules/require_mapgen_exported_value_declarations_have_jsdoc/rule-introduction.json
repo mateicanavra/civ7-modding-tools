@@ -3,7 +3,7 @@
   "ruleId": "require_mapgen_exported_value_declarations_have_jsdoc",
   "ownerProject": "mod-swooper-maps",
   "runner": "grit",
-  "baselinePath": ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/baseline.json",
+  "baselinePath": ".habitat/civ7/mapgen/rules/require_mapgen_exported_value_declarations_have_jsdoc/baseline.json",
   "initialBaselineKeys": [
     "mods/mod-swooper-maps/src/domain/ecology/index.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
     "mods/mod-swooper-maps/src/domain/ecology/model/policy/feature-score-selection.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",

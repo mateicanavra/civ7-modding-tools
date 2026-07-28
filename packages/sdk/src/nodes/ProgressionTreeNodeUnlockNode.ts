@@ -13,6 +13,7 @@ export type TProgressionTreeNodeUnlockNode = Pick<
   | "hidden"
 >;
 
+/** Attaches an unlockable gameplay item and localized message to a progression-tree node. */
 export class ProgressionTreeNodeUnlockNode extends BaseNode<TProgressionTreeNodeUnlockNode> {
   progressionTreeNodeType: `NODE_${string}` | null = "NODE_";
   targetKind: TObjectValues<typeof KIND> = KIND.MODIFIER;

@@ -7,6 +7,7 @@ export type TCivilizationItemNode = Pick<
   "civilizationDomain" | "civilizationType" | "type" | "kind" | "name" | "description" | "icon"
 >;
 
+/** Associates a civilization with one of its unique gameplay items for shell presentation. */
 export class CivilizationItemNode extends BaseNode<TCivilizationItemNode> {
   civilizationDomain: string | null = null;
   civilizationType: string | null = "CIVILIZATION_";

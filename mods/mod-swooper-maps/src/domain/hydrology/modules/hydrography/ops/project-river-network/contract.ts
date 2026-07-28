@@ -35,7 +35,8 @@ const ProjectRiverNetworkContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Inputs for river network projection from discharge (deterministic, data-only).",
+      description:
+        "Land discharge and the Hydrology receiver graph used to select coherent minor and major river trunks.",
     }
   ),
   /**
@@ -58,7 +59,8 @@ const ProjectRiverNetworkContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "River projection outputs (class map + computed discharge thresholds).",
+      description:
+        "Nested river classes and resolved discharge thresholds consumed by hydrographic classification and map projection.",
     }
   ),
   strategies: [dischargePercentilesDefinition],

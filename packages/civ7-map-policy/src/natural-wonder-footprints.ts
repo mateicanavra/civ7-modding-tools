@@ -103,6 +103,7 @@ function wrapX(x: number, width: number): number {
   return ((x % width) + width) % width;
 }
 
+/** Reports whether a wonder policy contains a placement tag the offline model cannot prove. */
 export function hasUnsupportedNaturalWonderPolicyTags(
   tags: readonly string[] | undefined
 ): boolean {
@@ -126,6 +127,10 @@ export function resolveNaturalWonderPlacementDirection(
   return -1;
 }
 
+/**
+ * Selects the direction sent to Civ7, preserving the engine self-orient sentinel for
+ * four-tile placement classes that reject a forced orientation.
+ */
 export function resolveNaturalWonderMaterializationDirection(
   policy: OptionalNaturalWonderPlacementPolicy,
   direction = resolveNaturalWonderPlacementDirection(policy)

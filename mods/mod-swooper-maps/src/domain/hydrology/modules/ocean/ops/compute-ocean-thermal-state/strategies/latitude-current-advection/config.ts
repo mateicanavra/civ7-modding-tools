@@ -55,7 +55,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Ocean thermal parameters (latitude-current-advection strategy).",
+      description:
+        "Sets the latitude SST baseline and bounded current advection and diffusion, then classifies sea ice from the resulting temperature field.",
     }
   ),
 });

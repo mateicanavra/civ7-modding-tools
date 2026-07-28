@@ -27,6 +27,7 @@ import { BaseBuilder } from "./BaseBuilder";
 
 type TUnlockRewardBuilder = TClassProperties<UnlockBuilder>;
 
+/** Produces an unlock graph from configuration values, requirements, rewards, and localized messaging. */
 export class UnlockBuilder extends BaseBuilder<TUnlockRewardBuilder> {
   _database: DatabaseNode = new DatabaseNode();
   _localizations: DatabaseNode = new DatabaseNode();

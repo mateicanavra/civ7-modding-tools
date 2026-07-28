@@ -26,7 +26,8 @@ const ComputeCryosphereStateContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Inputs for cryosphere state computation (deterministic, data-only).",
+      description:
+        "Adjusted surface temperature, precipitation, and land identity observed together so frozen-water products share one causal sample.",
     }
   ),
   /**
@@ -61,7 +62,8 @@ const ComputeCryosphereStateContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Cryosphere outputs (snow/sea-ice/albedo proxies + freeze persistence index).",
+      description:
+        "Mutually exclusive land-snow and sea-ice fields plus derived albedo, freeze, ground-ice, permafrost, and melt evidence.",
     }
   ),
   strategies: [temperatureThresholdsDefinition],

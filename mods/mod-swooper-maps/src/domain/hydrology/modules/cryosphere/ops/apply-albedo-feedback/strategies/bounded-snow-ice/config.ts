@@ -81,7 +81,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Albedo feedback parameters (bounded-snow-ice strategy).",
+      description:
+        "Bounds fixed-pass snow and sea-ice cooling with shared phase thresholds and hard temperature limits, avoiding convergence-dependent output.",
     }
   ),
 });

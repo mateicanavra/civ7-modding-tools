@@ -1,6 +1,7 @@
 import { TObjectValues } from "../types";
 import { AGE } from "./AGE";
 
+/** Civilization domain identifiers used by shell database records. */
 export const CIVILIZATION_DOMAIN = {
   AntiquityAgeCivilizations: "AntiquityAgeCivilizations",
   ExplorationAgeCivilizations: "ExplorationAgeCivilizations",

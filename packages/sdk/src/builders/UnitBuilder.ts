@@ -31,6 +31,7 @@ import { BaseBuilder } from "./BaseBuilder";
 
 type TUnitBuilder = TClassProperties<UnitBuilder>;
 
+/** Assembles a unit's identity, stats, costs, advisories, replacements, art remap, and localization. */
 export class UnitBuilder extends BaseBuilder<TUnitBuilder> {
   _current: DatabaseNode = new DatabaseNode();
   _localizations: DatabaseNode = new DatabaseNode();

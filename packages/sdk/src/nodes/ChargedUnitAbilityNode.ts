@@ -5,6 +5,7 @@ export type TChargedUnitAbilityNode = {
   rechargeTurns: number;
 };
 
+/** Associates a unit ability with its charge count and recharge cadence. */
 export class ChargedUnitAbilityNode extends BaseNode<TChargedUnitAbilityNode> {
   unitAbilityType: string;
   rechargeTurns: number;

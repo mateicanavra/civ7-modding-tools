@@ -76,6 +76,13 @@ export interface AppHeaderProps {
    */
   className?: string;
 }
+
+/**
+ * Presents the Studio's top-level game setup and view controls without owning authored state.
+ *
+ * The host supplies the setup projection and intent callbacks; this component owns only the
+ * setup disclosure and reports its measured height so the surrounding map chrome can avoid it.
+ */
 export const AppHeader: React.FC<AppHeaderProps> = ({
   themePreference,
   onThemeCycle,

@@ -10,6 +10,7 @@ export type StudioBrowserErrorProjection<TDetails = StudioBrowserErrorDetails> =
   details?: TDetails;
 }>;
 
+/** Projects an unknown browser transport error into a stable message and structured details. */
 export function projectStudioBrowserError<TDetails = StudioBrowserErrorDetails>(
   error: unknown,
   fallbackMessage: string
@@ -28,6 +29,7 @@ export function projectStudioBrowserError<TDetails = StudioBrowserErrorDetails>(
   };
 }
 
+/** Preserves defined error metadata while supplying a bounded fallback for missing fields. */
 export function projectStudioBrowserDefinedError<TDetails = StudioBrowserErrorDetails>(args: {
   code: string;
   message?: string;

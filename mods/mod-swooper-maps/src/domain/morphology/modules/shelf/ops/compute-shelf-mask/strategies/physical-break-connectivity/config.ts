@@ -1,6 +1,11 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Declares authored configuration for the `physical-break-connectivity` implementation of `morphology/compute-shelf-mask`. */
+/**
+ * Controls the seabed-gradient threshold that separates the gentle apron from the continental
+ * slope and the tectonic threshold used to diagnose active margins. Shelf membership is
+ * shore-connected pre-break water, not a depth band or tile-distance cap; the two gradient knobs
+ * multiply and the implementation floors their effective threshold above zero.
+ */
 export default defineStrategy({
   id: "physical-break-connectivity",
   config: Type.Object(

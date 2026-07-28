@@ -11,6 +11,7 @@ export type TLeaderCivilizationBiasNode = Pick<
   | "choiceType"
 >;
 
+/** Assigns a weighted civilization preference to a leader. */
 export class LeaderCivilizationBiasNode extends BaseNode<TLeaderCivilizationBiasNode> {
   civilizationDomain: string | null = null;
   civilizationType: string | null = null;

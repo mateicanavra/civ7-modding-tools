@@ -55,11 +55,13 @@ type StartSinglePlayerArgs = Readonly<{
 
 export type Civ7WorkflowControlApi = ReturnType<typeof makeCiv7WorkflowControlApi>;
 
+/** Effect port for the Civ7 control operations used by Studio workflows. */
 export class Civ7WorkflowControl extends Context.Tag("@civ7/studio-server/Civ7WorkflowControl")<
   Civ7WorkflowControl,
   Civ7WorkflowControlApi
 >() {}
 
+/** Production adapter delegating Studio workflow commands to control-oRPC services. */
 export const Civ7WorkflowControlLive = Layer.effect(
   Civ7WorkflowControl,
   Effect.gen(function* () {

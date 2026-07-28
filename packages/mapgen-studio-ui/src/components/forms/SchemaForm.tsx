@@ -25,6 +25,15 @@ export type SchemaFormProps<TConfig> = {
   disabled: boolean;
 };
 
+/**
+ * Mounts rjsf with the Studio templates, widgets, and CSP-safe TypeBox validator.
+ *
+ * This is the internal rendering core beneath `SchemaConfigForm`; callers must resolve schema
+ * presentation and focus semantics before reaching it.
+ *
+ * @param props - A resolved rjsf schema, UI schema, form context, value, and edit callback.
+ * @returns The unframed form body consumed by the recipe panel.
+ */
 export function SchemaForm<TConfig>(props: SchemaFormProps<TConfig>) {
   const { schema, uiSchema, formContext, value, onChange, disabled } = props;
   // TypeBox-backed validator: CSP-safe (no `new Function`), unlike ajv. See

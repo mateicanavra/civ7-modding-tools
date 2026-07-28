@@ -1,3 +1,4 @@
+/** Built-in requirement identifiers used to define modifier and unlock predicates. */
 export const REQUIREMENT = {
   AGE_CRISIS_STAGE_IS_X: "REQUIREMENT_AGE_CRISIS_STAGE_IS_X",
   AGE_PROGRESSION_TOTAL_IS_X: "REQUIREMENT_AGE_PROGRESSION_TOTAL_IS_X",

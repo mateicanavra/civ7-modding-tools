@@ -39,7 +39,8 @@ const ComputeEvaporationSourcesContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Inputs for evaporation source computation (deterministic, data-only).",
+      description:
+        "Surface temperature and land identity, with optional ocean evidence that substitutes SST, suppresses sea-ice evaporation, and couples wind.",
     }
   ),
   /**
@@ -49,12 +50,14 @@ const ComputeEvaporationSourcesContract = defineOp({
     {
       /** Evaporation sources proxy (0..1) per tile. */
       evaporation: TypedArraySchemas.f32({
-        description: "Evaporation sources proxy (0..1) per tile.",
+        description:
+          "Nonnegative evaporation strength per tile; moisture transport clamps authored strengths above 1 to its normalized source range.",
       }),
     },
     {
       additionalProperties: false,
-      description: "Evaporation source strength output per tile (0..1 proxy).",
+      description:
+        "Per-tile atmospheric moisture supply consumed as the source field for bounded humidity transport.",
     }
   ),
   strategies: [thermalSurfaceDefinition],

@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 2,
+  "id": "require_mapgen_exported_value_declarations_have_jsdoc",
+  "title": "Require MapGen Exported Value Declarations To Have JSDoc",
+  "placement": {
+    "niche": "civ7/mapgen",
+    "blueprint": "_self",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "authored MapGen SDK, product, or diagnostic capability value exports without adjacent nonempty declaration-site JSDoc or with an obvious placeholder JSDoc block",
+  "why": "Exported values are cross-module contracts; declaration-site documentation keeps their owner and intended semantics visible through reuse and relocation, while review owns the document's semantic quality.",
+  "remediate": "Delete an unused export or add adjacent nonempty, non-placeholder JSDoc before its defining declaration. Document purpose, behavior, or invariants when they are not already obvious. A direct anonymous default value is documented at the export statement; re-export barrels inherit the owner's documentation.",
+  "message": "Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "apps/mapgen-studio/scripts/**/*.{js,mjs,cjs,ts,tsx}",
+        "apps/mapgen-studio/src/**/*.{ts,tsx}",
+        "mods/mod-swooper-maps/scripts/**/*.{ts,tsx}",
+        "mods/mod-swooper-maps/src/*.{ts,tsx}",
+        "mods/mod-swooper-maps/src/domain/**/*.{ts,tsx}",
+        "mods/mod-swooper-maps/src/maps/{catalog,configs}/**/*.{ts,tsx}",
+        "mods/mod-swooper-maps/src/recipes/**/*.{ts,tsx}",
+        "packages/civ7-adapter/src/**/*.{ts,tsx}",
+        "packages/civ7-map-policy/scripts/**/*.{js,mjs,cjs,ts,tsx}",
+        "packages/civ7-map-policy/src/!(*.gen).{ts,tsx}",
+        "packages/civ7-map-policy/src/*/**/*.{ts,tsx}",
+        "packages/mapgen-core/src/**/*.{ts,tsx}",
+        "packages/mapgen-diagnostics/src/**/*.{ts,tsx}",
+        "packages/mapgen-metrics/src/**/*.{ts,tsx}",
+        "packages/mapgen-studio-ui/scripts/**/*.{js,mjs,cjs,ts,tsx}",
+        "packages/mapgen-studio-ui/src/**/*.{ts,tsx}",
+        "packages/mapgen-viz/src/**/*.{ts,tsx}",
+        "packages/sdk/src/**/*.{ts,tsx}",
+        "packages/studio-contract/src/**/*.{ts,tsx}",
+        "packages/studio-run-workspace/src/**/*.{ts,tsx}",
+        "packages/studio-server/src/**/*.{ts,tsx}"
+      ]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/rules/require_mapgen_exported_value_declarations_have_jsdoc/baseline.json",
+    "ruleIntroductionManifest": ".habitat/civ7/mapgen/rules/require_mapgen_exported_value_declarations_have_jsdoc/rule-introduction.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md"
+    },
+    "patternName": "require_mapgen_exported_value_declarations_have_jsdoc",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "apps/mapgen-studio/scripts",
+        "apps/mapgen-studio/src",
+        "mods/mod-swooper-maps/scripts",
+        "mods/mod-swooper-maps/src",
+        "packages/civ7-adapter/src",
+        "packages/civ7-map-policy/scripts",
+        "packages/civ7-map-policy/src",
+        "packages/mapgen-core/src",
+        "packages/mapgen-diagnostics/src",
+        "packages/mapgen-metrics/src",
+        "packages/mapgen-studio-ui/scripts",
+        "packages/mapgen-studio-ui/src",
+        "packages/mapgen-viz/src",
+        "packages/sdk/src",
+        "packages/studio-contract/src",
+        "packages/studio-run-workspace/src",
+        "packages/studio-server/src"
+      ]
+    }
+  }
+}

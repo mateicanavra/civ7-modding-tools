@@ -16,7 +16,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Drainage routing parameters (priority-flood strategy).",
+      description:
+        "Selects whether north and south map edges may terminate drainage; closed edges force land paths toward admitted water or internal sinks.",
     }
   ),
 });

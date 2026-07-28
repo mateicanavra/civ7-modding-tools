@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Declares authored configuration for the `crust-boundary-material` implementation of `morphology/compute-substrate`. */
+/**
+ * Controls the crust-type baselines and tectonic modifiers that produce erodibility and sediment
+ * evidence for the downstream geomorphic cycle. Age reduces erodibility but increases sediment;
+ * uplift, rifting, and boundary effects are additive, and outputs are nonnegative but not capped at 1.
+ */
 export default defineStrategy({
   id: "crust-boundary-material",
   config: Type.Object(

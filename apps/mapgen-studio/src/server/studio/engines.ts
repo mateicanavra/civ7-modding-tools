@@ -448,6 +448,7 @@ type SaveDeployLeafContext = SaveDeployPrepared &
     previous: string | null;
   }>;
 
+/** Creates request-scoped runtime ports while keeping Run in Game and Save & Deploy contexts isolated. */
 export function createStudioOperationRuntimePorts(
   options: Readonly<{
     repoRoot: string;

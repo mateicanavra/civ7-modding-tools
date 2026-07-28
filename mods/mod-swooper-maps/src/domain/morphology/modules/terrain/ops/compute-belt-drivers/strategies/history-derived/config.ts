@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Declares authored configuration for the `history-derived` implementation of `morphology/compute-belt-drivers`. */
+/**
+ * Keeps active belt extraction derived entirely from tectonic history and provenance evidence.
+ * The empty authoring surface is intentional: boundary proximity, regime, age, and driver
+ * intensities are correlated physics outputs, not independent tuning knobs for later landforms.
+ */
 export default defineStrategy({
   id: "history-derived",
   config: Type.Object(
@@ -8,7 +12,7 @@ export default defineStrategy({
     {
       additionalProperties: false,
       description:
-        "Belt-driver derivation configuration. This op is intentionally config-light; derived fields are physics outputs.",
+        "Active boundary belts and their proximity, regime, age, uplift, rift, and stress fields are derived from tectonic history; no independent author overrides are admitted.",
     }
   ),
 });

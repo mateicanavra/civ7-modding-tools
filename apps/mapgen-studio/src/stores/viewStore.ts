@@ -81,6 +81,7 @@ export type ViewState = {
   setPipelineExpandedStageIds: (next: Updater<ReadonlySet<string>>) => void;
 };
 
+/** Owns ephemeral Studio presentation and selection state outside persisted authoring data. */
 export const useViewStore = create<ViewState>((set) => ({
   showGrid: true,
   showEdges: true,

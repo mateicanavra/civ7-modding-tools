@@ -11,6 +11,7 @@ import type { WorldSettings } from "@swooper/mapgen-studio-ui/types";
 // Default World Settings
 // ============================================================================
 
+/** Baseline world settings shown before persisted or saved-config evidence is applied. */
 export const DEFAULT_WORLD_SETTINGS: WorldSettings = {
   mapSize: "MAPSIZE_STANDARD",
   playerCount: 6,

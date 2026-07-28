@@ -5,6 +5,7 @@ export type TUnlockRewardNode = Pick<
   "unlockType" | "name" | "description" | "icon" | "civUnlock"
 >;
 
+/** Defines the display metadata and reward category shown when an unlock becomes available. */
 export class UnlockRewardNode extends BaseNode<TUnlockRewardNode> {
   unlockType: string | null = "UNLOCK_";
   name: string | null = null;

@@ -14,6 +14,7 @@ import type {
 } from "./model.js";
 import { publicRunInGamePhase, publicSaveDeployPhase } from "./model.js";
 
+/** Redacts internal Run in Game state into the sealed client lifecycle projection. */
 export function projectRunInGame(operation: RunInGameInternalOperation): RunInGameOperationStatus {
   const phase = publicRunInGamePhase(operation.phase);
   const diagnosticsId =
@@ -67,6 +68,7 @@ export function projectRunInGame(operation: RunInGameInternalOperation): RunInGa
   };
 }
 
+/** Redacts internal save/deploy state into the sealed client lifecycle projection. */
 export function projectSaveDeploy(
   operation: SaveDeployInternalOperation
 ): MapConfigSaveDeployStatus {
@@ -133,6 +135,7 @@ function publicRunningSaveDeployPhase(
   }
 }
 
+/** Projects daemon identity plus active and retained operations for reconnect recovery. */
 export function projectCurrent(state: RegistryState, observedAt: string): StudioOperationsCurrent {
   const runInGame = Object.values(state.runInGame).sort(byUpdatedAtDesc).map(projectRunInGame);
   const saveDeploy = Object.values(state.saveDeploy).sort(byUpdatedAtDesc).map(projectSaveDeploy);
@@ -154,6 +157,7 @@ export function projectCurrent(state: RegistryState, observedAt: string): Studio
   };
 }
 
+/** Converts an internal operation mutation into its corresponding public stream event. */
 export function operationEvent(
   operation: RunInGameInternalOperation | SaveDeployInternalOperation
 ): StudioOperationEvent {

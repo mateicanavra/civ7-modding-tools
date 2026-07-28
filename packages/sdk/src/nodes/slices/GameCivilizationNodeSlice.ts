@@ -12,6 +12,7 @@ export type TGameCivilizationNodeSlice = Pick<
   | "capitalName"
 >;
 
+/** Carries the gameplay-only civilization fields emitted into the current-age database. */
 export class GameCivilizationNodeSlice extends BaseNode<TGameCivilizationNodeSlice> {
   civilizationType: string | null = "CIVILIZATION_";
   capitalName: string | null = "capitalName";

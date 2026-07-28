@@ -178,6 +178,7 @@ function createVizStore(): VizStore {
 }
 
 let singleton: VizStore | null = null;
+/** Returns the process-wide visualization store shared by React and imperative event producers. */
 export function getVizStore(): VizStore {
   if (!singleton) singleton = createVizStore();
   return singleton;

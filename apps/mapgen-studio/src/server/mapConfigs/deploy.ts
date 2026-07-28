@@ -21,6 +21,7 @@ function withoutStudioDeployEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   return cleanEnv;
 }
 
+/** Builds the Nx deployment invocation while isolating Studio-only environment overrides. */
 export function buildSwooperMapsStudioDeployPlan(
   options: SwooperMapsStudioDeployOptions = {}
 ): SwooperMapsStudioDeployPlan {

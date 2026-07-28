@@ -3,6 +3,7 @@ import { ModifierNode } from "./ModifierNode";
 
 export type TGameEffectNode = Pick<GameEffectNode, "modifiers">;
 
+/** Groups modifier definitions and bindings beneath the game-effects XML root. */
 export class GameEffectNode extends BaseNode<TGameEffectNode> {
   _name = "GameEffects";
   modifiers: ModifierNode[] = [];

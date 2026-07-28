@@ -1163,8 +1163,10 @@ function toEntry(row: OfficialResourceRow): OfficialResourceCorpusEntry {
   };
 }
 
+/** Immutable Base Standard resource entries in official module load order. */
 export const OFFICIAL_RESOURCE_CORPUS = deepFreeze(OFFICIAL_RESOURCE_ROWS.map(toEntry));
 
+/** Resource corpus plus the official files and load-order authority from which it was derived. */
 export const OFFICIAL_RESOURCE_CORPUS_ARTIFACT = {
   source: {
     authority: "civ7-official-resources",
@@ -1175,10 +1177,12 @@ export const OFFICIAL_RESOURCE_CORPUS_ARTIFACT = {
   resources: OFFICIAL_RESOURCE_CORPUS,
 } as const satisfies OfficialResourceCorpusArtifact;
 
+/** Stable official resource-type order used by indexed policy and expectation catalogs. */
 export const OFFICIAL_RESOURCE_TYPE_ORDER = deepFreeze(
   OFFICIAL_RESOURCE_CORPUS.map((entry) => entry.resourceType) as OfficialResourceType[]
 );
 
+/** Official resource policy entries keyed by Civ7 resource type. */
 export const OFFICIAL_RESOURCE_BY_TYPE = deepFreeze(
   Object.fromEntries(OFFICIAL_RESOURCE_CORPUS.map((entry) => [entry.resourceType, entry]))
 ) as Readonly<Record<OfficialResourceType, OfficialResourceCorpusEntry>>;

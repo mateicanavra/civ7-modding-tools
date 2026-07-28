@@ -26,7 +26,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Ocean geometry parameters (connected-basins strategy).",
+      description:
+        "Bounds the shared water-topology traversal that derives basin identity, coast distance, and coast normal and tangent evidence.",
     }
   ),
 });

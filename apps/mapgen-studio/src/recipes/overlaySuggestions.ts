@@ -84,6 +84,7 @@ const SUGGESTIONS_BY_RECIPE: Readonly<Record<string, readonly OverlaySuggestion[
   ],
 };
 
+/** Returns only overlay pairings explicitly curated by the owning recipe. */
 export function getOverlaySuggestions(recipeId: StudioRecipeId): readonly OverlaySuggestion[] {
   return SUGGESTIONS_BY_RECIPE[recipeId] ?? [];
 }

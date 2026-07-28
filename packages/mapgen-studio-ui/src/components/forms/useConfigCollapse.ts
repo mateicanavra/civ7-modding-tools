@@ -69,6 +69,16 @@ export type UseConfigCollapseArgs = Readonly<{
   focusRootPointer: string | null;
 }>;
 
+/**
+ * Owns config disclosure state and the optional scroll-driven active expansion chain.
+ *
+ * Manual choices survive focus and sticky-mode changes. In sticky mode the hook derives the
+ * visible ancestor chain from template data attributes and restores the scroll anchor after
+ * collapsing content above it, preventing the reader's position from jumping.
+ *
+ * @param args - Scroll container, sticky-mode flag, and optional focused stage pointer.
+ * @returns Resolved expanded pointers plus the toggle callback consumed by rjsf templates.
+ */
 export function useConfigCollapse(args: UseConfigCollapseArgs): ConfigCollapseContext {
   const { scrollRootRef, sticky, focusRootPointer } = args;
 

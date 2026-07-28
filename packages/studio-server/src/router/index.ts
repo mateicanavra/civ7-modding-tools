@@ -66,6 +66,7 @@ import { StudioEventHub, studioEventSubscriptionIterator } from "../services/Stu
 // `ManagedRuntime` (so `Record<never, never>`). Annotating it portably (instead of
 // inferring `EnhancedRouter<...>`, which would reference effect-orpc internals and
 // trip TS2742 in the emitted `.d.ts`) keeps `StudioRouter` contract-typed.
+/** Implements the Studio contract by wiring procedures to their owning Effect services. */
 export function createStudioRouter(
   runtime: StudioRouterRuntime
 ): Router<StudioEffectContract, Record<never, never>> {

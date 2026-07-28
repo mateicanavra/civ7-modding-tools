@@ -7,6 +7,7 @@ export type BrowserRunSnapshot = Readonly<{
   worldSettings: Readonly<WorldSettings>;
 }>;
 
+/** Captures the browser-run artifact identity used to prove which authored state was generated. */
 export function buildBrowserRunSnapshot(args: {
   authoringRevision: number;
   seed: string;

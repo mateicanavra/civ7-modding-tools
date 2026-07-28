@@ -24,6 +24,7 @@ import { contractSchema, emptyInputSchema, isoTimestampSchema } from "./shared.j
 // PARITY NOTE (audit/05 #9, target-arch section 1): `serverInstanceId`/`startedAt` are
 // process-lifetime singletons; clients reconcile run-in-game state against them
 // (restart detection). `runInGameApiVersion` is the fixed literal 2.
+/** Reports daemon identity and protocol version for client restart reconciliation. */
 export const serverInfo = oc.input(emptyInputSchema).output(
   contractSchema(
     Type.Object(
@@ -79,6 +80,7 @@ const studioHelloEventSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/** Event variants carrying public lifecycle projections for both operation families. */
 export const studioOperationEventSchema = Type.Union([
   Type.Object(
     {
@@ -109,6 +111,7 @@ const studioLiveGameEventSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/** Closed stream protocol spanning handshake, operation, and live-game updates. */
 export const studioEventSchema = Type.Union([
   studioHelloEventSchema,
   studioOperationEventSchema,
@@ -127,6 +130,7 @@ export type StudioEvent = Static<typeof studioEventSchema>;
 // Request: none. Success 200: daemon identity + active/recent Run in Game and
 // Save&Deploy operation snapshots. Fresh daemon truthfully returns empty
 // registries; operation durability across restart is out of scope by design.
+/** Recovers the daemon's active and recent public operation projections. */
 export const operationsCurrent = oc
   .input(emptyInputSchema)
   .output(operationsCurrentOutputStandardSchema);
@@ -136,4 +140,5 @@ export const operationsCurrent = oc
 // ---------------------------------------------------------------------------
 // Request: none. Output: event iterator over the sealed TypeBox event category.
 // The router emits an immediate `hello`, then yields the daemon-owned EventHub.
+/** Opens the daemon-owned event stream after an immediate identity handshake. */
 export const eventsWatch = oc.input(emptyInputSchema).output(studioEventIteratorSchema);

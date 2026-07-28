@@ -1,6 +1,11 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Declares authored configuration for the `crust-break-profile` implementation of `morphology/compute-sculpt-continental-margin`. */
+/**
+ * Shapes the continental apron, shelf break, and oceanic slope from the admitted relief datums.
+ * Authors tune physical fractions, blend strength, and active/rift/passive apron length postures,
+ * not absolute depths or shelf membership. `apronTopCrustFraction` must remain greater than
+ * `breakCrustFraction`; the schema bounds each value but cannot enforce that relationship.
+ */
 export default defineStrategy({
   id: "crust-break-profile",
   config: Type.Object(

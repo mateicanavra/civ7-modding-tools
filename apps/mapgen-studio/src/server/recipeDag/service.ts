@@ -13,6 +13,7 @@ async function getDefaultRecipeDagSources(): Promise<readonly RecipeDagSource[]>
   return swooperStudioRecipeDagSources;
 }
 
+/** Identifies a recipe lookup failure without conflating it with DAG construction defects. */
 export class RecipeDagNotFound extends Error {
   constructor(readonly recipeId: string) {
     super(`Unknown recipeId: ${recipeId}`);
@@ -20,6 +21,7 @@ export class RecipeDagNotFound extends Error {
   }
 }
 
+/** Creates a recipe DAG reader over either static sources or a deferred source provider. */
 export function createRecipeDagService(
   sources: readonly RecipeDagSource[] | RecipeDagSourcesProvider = getDefaultRecipeDagSources
 ): RecipeDagService {
@@ -40,4 +42,5 @@ export function createRecipeDagService(
   };
 }
 
+/** Process-wide DAG service backed by the checked-in Studio recipe sources. */
 export const defaultRecipeDagService = createRecipeDagService();

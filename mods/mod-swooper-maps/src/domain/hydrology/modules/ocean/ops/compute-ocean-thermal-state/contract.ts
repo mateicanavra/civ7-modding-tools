@@ -36,7 +36,8 @@ const ComputeOceanThermalStateContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Inputs for ocean thermal state computation (deterministic, data-only).",
+      description:
+        "Latitude baseline, shelf identity, and quantized currents admitted for bounded water-only thermal transport.",
     }
   ),
   output: Type.Object(
@@ -48,7 +49,8 @@ const ComputeOceanThermalStateContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Ocean thermal outputs (SST + sea ice mask).",
+      description:
+        "Sea-surface temperature and derived sea-ice state consumed by atmospheric temperature and evaporation coupling.",
     }
   ),
   strategies: [latitudeCurrentAdvectionDefinition],

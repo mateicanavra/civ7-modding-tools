@@ -7,6 +7,7 @@ import type { Civ7SetupParameter } from "@civ7/studio-contract";
 import type { Civ7SetupCatalogOption } from "./api";
 import { isAuthorableCiv7SetupParameter, labelForCiv7SetupValue } from "./setupConfig";
 
+/** Resolves an authorable parameter by exact identity from an optional catalog. */
 export function findSetupParameterLike(
   parameters: ReadonlyArray<Civ7SetupParameter> | undefined,
   id: string
@@ -16,6 +17,7 @@ export function findSetupParameterLike(
   );
 }
 
+/** Keeps a selected value representable even when the current catalog no longer contains it. */
 export function ensureSelectOption(
   options: ReadonlyArray<{ value: string; label: string }>,
   value: unknown
@@ -29,6 +31,7 @@ export function ensureSelectOption(
   return [{ value, label: labelForCiv7SetupValue(value) }, ...options];
 }
 
+/** Merges option sources by value while preserving the first source's label and order. */
 export function mergeSelectOptions(
   ...groups: ReadonlyArray<ReadonlyArray<{ value: string; label: string }>>
 ): ReadonlyArray<{ value: string; label: string }> {
@@ -45,6 +48,7 @@ export function mergeSelectOptions(
   return out;
 }
 
+/** Projects a setup catalog group into normalized selector options. */
 export function setupCatalogOptions(
   options: ReadonlyArray<Civ7SetupCatalogOption> | undefined
 ): ReadonlyArray<{ value: string; label: string }> {

@@ -151,6 +151,7 @@ const savedSetupSingleLine = Type.String({
   pattern: "^(?=.*\\S)[^\\r\\n\\0]+$",
 });
 
+/** Stable reference to a provider-owned saved setup selected for launch. */
 export const savedSetupConfigRef = Type.Object(
   {
     id: savedSetupSingleLine,
@@ -182,6 +183,7 @@ export const setupConfig = Type.Object(
 );
 export type RunInGameSetupConfig = DeepReadonly<Static<typeof setupConfig>>;
 
+/** Runtime world settings needed in addition to the authored setup configuration. */
 export const runInGameWorldSettings = Type.Object(
   {
     mapSize: Type.String({ minLength: 1 }),
@@ -196,8 +198,10 @@ export type RunInGameWorldSettings = Readonly<{
   resources?: string;
 }>;
 
+/** Wire seed form accepted before admission normalizes Civ7 signed integers. */
 export const runInGameSeed = Type.Union([Type.Number(), Type.String()]);
 
+/** Complete immutable launch input retained after Studio admission. */
 export const launchEnvelope = Type.Object(
   {
     seed: Civ7SignedIntSeedSchema,
@@ -667,6 +671,7 @@ const requestIdInputSchema = contractSchema(
   { cleanUnknownProperties: false }
 );
 
+/** Private diagnostics document addressed by the opaque id exposed in public status. */
 export const runDiagnosticsRecordSchema = Type.Object(
   {
     diagnosticsId: Type.String(),
@@ -681,6 +686,7 @@ export const runDiagnosticsRecordSchema = Type.Object(
 );
 export type RunDiagnosticsRecord = Static<typeof runDiagnosticsRecordSchema>;
 
+/** Explicit diagnostics lookup result that distinguishes absence from storage failure. */
 export const diagnosticsLookupResultSchema = Type.Union([
   Type.Object(
     {
@@ -708,6 +714,7 @@ export type RunDiagnosticsLookupResult = Static<typeof diagnosticsLookupResultSc
 // durable non-terminal record from a prior daemon terminalizes as a public
 // ownership failure instead of making the client infer ownership loss from an
 // empty in-memory registry or public daemon identity.
+/** Reads a keyed Run in Game lifecycle projection across live and durable state. */
 export const status = oc
   .errors(runInGameErrors)
   .input(requestIdInputSchema)
@@ -721,6 +728,7 @@ export const status = oc
 // terminalize as `cancelled`; once setup/start owns mutation, cancellation returns
 // the existing running status and observation settles it. Terminal operations
 // return their existing public status; unknown ids map to the safe not-found error.
+/** Requests cancellation without treating transport disconnect as operation authority. */
 export const cancel = oc
   .errors(runInGameErrors)
   .input(requestIdInputSchema)
@@ -762,6 +770,7 @@ export const diagnostics = oc
 // setup values for raw-control vocabulary before any workflow port runs. The
 // package operation runtime owns structural request admission; host ports own
 // Standard semantic admission.
+/** Admits a complete launch envelope and starts one asynchronously tracked operation. */
 export const start = oc
   .errors(runInGameErrors)
   .input(

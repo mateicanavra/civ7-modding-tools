@@ -23,6 +23,7 @@ import {
 
 const SHA256_HEX = /^[a-f0-9]{64}$/;
 
+/** Hashed generation evidence tying a request to its launch input and artifact identity. */
 export const studioRunGenerationManifestPayloadSchema = Type.Object(
   {
     schemaVersion: Type.Literal(3),
@@ -43,6 +44,7 @@ export const studioRunGenerationManifestPayloadSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/** Persisted generation evidence with a digest covering the complete payload. */
 export const studioRunGenerationManifestSchema = Type.Object(
   {
     payload: studioRunGenerationManifestPayloadSchema,
@@ -108,6 +110,7 @@ export function buildStudioRunGenerationManifestPayload(
   });
 }
 
+/** Wraps an admitted payload with the digest used for later integrity checks. */
 export function buildStudioRunGenerationManifest(
   payload: StudioRunGenerationManifestPayload
 ): StudioRunGenerationManifest {
@@ -117,6 +120,7 @@ export function buildStudioRunGenerationManifest(
   });
 }
 
+/** Computes the payload digest without including the manifest's own digest field. */
 export function generationManifestDigest(payload: StudioRunGenerationManifestPayload): string {
   return canonicalValueDigest(payload);
 }
@@ -126,10 +130,12 @@ export function canonicalValueDigest(value: unknown): string {
   return sha256Hex(canonicalSortedJson(value));
 }
 
+/** Serializes values with recursively sorted keys for stable evidence hashing. */
 export function canonicalSortedJson(value: unknown): string {
   return JSON.stringify(canonicalize(value)) ?? "undefined";
 }
 
+/** Admits persisted evidence only after validating its topology and every derived digest. */
 export function parseStudioRunGenerationManifest(value: unknown): StudioRunGenerationManifest {
   if (!isPortableJsonValue(value) || !Value.Check(studioRunGenerationManifestSchema, value)) {
     throw new Error("Invalid StudioRunGenerationManifest.");
@@ -164,12 +170,14 @@ export function parseStudioRunGenerationManifest(value: unknown): StudioRunGener
   return manifest;
 }
 
+/** Reads and fully verifies generation evidence before returning an owned snapshot. */
 export async function readStudioRunGenerationManifest(
   path: string
 ): Promise<StudioRunGenerationManifest> {
   return parseStudioRunGenerationManifest(JSON.parse(await readFile(path, "utf8")));
 }
 
+/** Exclusively creates generation evidence without overwriting an existing request manifest. */
 export async function writeStudioRunGenerationManifest(
   args: Readonly<{
     manifestInput: StudioRunGenerationManifestInput;

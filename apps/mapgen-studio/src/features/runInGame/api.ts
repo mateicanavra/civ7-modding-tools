@@ -27,6 +27,7 @@ export type RunCurrentConfigInGameArgs = {
 
 export type RunInGameStartRequest = Parameters<typeof orpcClient.runInGame.start>[0];
 
+/** Admits authored launch state and snapshots it into the Run in Game request contract. */
 export function buildRunInGameStartRequest(
   args: RunCurrentConfigInGameArgs
 ): RunInGameStartRequest {
@@ -41,6 +42,7 @@ export function buildRunInGameStartRequest(
   };
 }
 
+/** Starts a daemon-owned Run in Game operation and returns its initial operation status. */
 export async function runCurrentConfigInGame(args: RunCurrentConfigInGameArgs): Promise<
   | RunInGameOperationStatus
   | {

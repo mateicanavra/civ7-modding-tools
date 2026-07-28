@@ -51,6 +51,12 @@ export interface StageViewTabsProps {
   className?: string;
 }
 
+/**
+ * Switches the central stage between map and recipe-pipeline projections.
+ *
+ * The selected view remains host-owned; `top` aligns this self-positioned control below the
+ * measured header alongside the docks and error banner.
+ */
 export const StageViewTabs: React.FC<StageViewTabsProps> = ({
   value,
   onValueChange,

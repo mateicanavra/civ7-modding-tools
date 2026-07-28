@@ -32,7 +32,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Radiative forcing parameters (latitude-insolation strategy).",
+      description:
+        "Defines the equator-to-pole insolation curve consumed by downstream surface-temperature estimation.",
     }
   ),
 });

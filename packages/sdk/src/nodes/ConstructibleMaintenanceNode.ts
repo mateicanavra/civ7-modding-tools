@@ -7,6 +7,7 @@ export type TConstructibleMaintenanceNode = Pick<
   "constructibleType" | "yieldType" | "amount"
 >;
 
+/** Assigns a recurring yield cost to a constructible. */
 export class ConstructibleMaintenanceNode extends BaseNode<TConstructibleMaintenanceNode> {
   constructibleType = "BUILDING_";
   yieldType: TObjectValues<typeof YIELD> = YIELD.GOLD;

@@ -47,6 +47,7 @@ import { BaseBuilder } from "./BaseBuilder";
 
 type TConstructibleBuilder = TClassProperties<ConstructibleBuilder>;
 
+/** Collects placement, yield, maintenance, localization, and icon records for a constructible. */
 export class ConstructibleBuilder extends BaseBuilder<TConstructibleBuilder> {
   _always: DatabaseNode = new DatabaseNode();
   _localizations: DatabaseNode = new DatabaseNode();

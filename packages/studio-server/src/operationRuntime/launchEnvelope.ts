@@ -18,6 +18,7 @@ export type RunInGameLaunchResolution = Readonly<{
   launchEnvelopeDigest: LaunchEnvelopeDigest;
 }>;
 
+/** Validates and snapshots the complete launch input before runtime ownership begins. */
 export function admitRunInGameLaunchEnvelope(
   args: Readonly<{
     input: {

@@ -75,6 +75,7 @@ const authoringPersistStorage: PersistStorage<AuthoringData> = {
   removeItem: (): void => retireStudioAuthoringState(),
 };
 
+/** Owns persistent authored launch state and increments revision on every user-visible mutation. */
 export const useAuthoringStore = create<AuthoringState>()(
   persist(
     (set) => ({

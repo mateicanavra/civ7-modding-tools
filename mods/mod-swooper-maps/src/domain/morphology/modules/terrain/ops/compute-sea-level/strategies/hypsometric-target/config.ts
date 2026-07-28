@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Declares authored configuration for the `hypsometric-target` implementation of `morphology/compute-sea-level`. */
+/**
+ * Controls the hypsometric water target and soft requirements for tectonically meaningful emerged
+ * land. Scalar and deterministic variance modify the requested water percentage first; the solver
+ * may then move within its bounded search window to improve boundary and continental land shares.
+ */
 export default defineStrategy({
   id: "hypsometric-target",
   config: Type.Object(
@@ -26,7 +30,8 @@ export default defineStrategy({
       }),
       /** Optional variance (0-100) applied to the target water percent per map. */
       variance: Type.Number({
-        description: "Optional variance (0-100) applied to the target water percent per map.",
+        description:
+          "Maximum deterministic jitter, in percentage points, added to or subtracted from the scaled water target for each map seed.",
         default: 0,
         minimum: 0,
         maximum: 100,
@@ -37,7 +42,7 @@ export default defineStrategy({
        */
       boundaryShareTarget: Type.Number({
         description:
-          "Controls the minimum share of land allowed inside the boundary closeness band (0..1).",
+          "Soft minimum share of emerged land required inside the high-closeness boundary band (0..1); the solver may adjust water coverage to reduce a shortfall.",
         default: 0.15,
         minimum: 0,
         maximum: 1,
@@ -46,7 +51,7 @@ export default defineStrategy({
       continentalFraction: Type.Number({
         default: 0.39,
         description:
-          "Desired share of continental crust when balancing land vs. ocean plates (0..1).",
+          "Soft minimum share of emerged land required on continental crust (0..1), not a target for global crust composition.",
         minimum: 0,
         maximum: 1,
       }),

@@ -39,7 +39,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Evaporation source parameters (thermal-surface strategy).",
+      description:
+        "Maps surface temperature to separate ocean and land evaporation strengths that seed atmospheric moisture transport.",
     }
   ),
 });

@@ -1,6 +1,11 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Declares authored configuration for the `orogenic-range-growth` implementation of `morphology/plan-ridges`. */
+/**
+ * Controls tectonic candidate scoring, range-system geometry, spine expansion, and mountain budget.
+ * Spacing and length describe systems rather than direct tile counts; setting
+ * `mountainRangeSpacingTiles` to zero restores fraction-based spine selection, and the mountain
+ * coverage floor can select only candidates that still pass the strategy's physics gates.
+ */
 export default defineStrategy({
   id: "orogenic-range-growth",
   config: Type.Object(

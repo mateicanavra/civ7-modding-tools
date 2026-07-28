@@ -8,6 +8,7 @@ export type TStartBiasFeatureClassNode = Pick<
   "civilizationType" | "leaderType" | "featureClassType" | "score"
 >;
 
+/** Assigns a weighted civilization start preference for a feature category. */
 export class StartBiasFeatureClassNode extends BaseNode<TStartBiasFeatureClassNode> {
   civilizationType: string | null = null;
   leaderType: `LEADER_${string}` | null = null;

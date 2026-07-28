@@ -45,6 +45,7 @@ const reasonCodeSchema = Type.Union([
   Type.Literal("unsupported-operation-type"),
   Type.Literal("verification-failed"),
 ]);
+/** Closed recovery commands that a client may offer without learning private failure detail. */
 export const studioRecoveryActionSchema = Type.Union([
   Type.Literal("check-dev-server"),
   Type.Literal("copy-diagnostics"),
@@ -56,6 +57,7 @@ export const studioRecoveryActionSchema = Type.Union([
   Type.Literal("retry-save-deploy"),
   Type.Literal("retry-status"),
 ]);
+/** Coarse save/deploy categories safe to expose on the public status surface. */
 export const saveDeploySafeFailureCategorySchema = Type.Union([
   Type.Literal("request-validation"),
   Type.Literal("ownership"),
@@ -98,6 +100,7 @@ const baseFailureFields = {
   ...commonFailureFields,
 } as const;
 
+/** Complete internal failure evidence passed between the runtime and error mapper. */
 export const studioFailureDataSchema = Type.Object(baseFailureFields, {
   additionalProperties: false,
 });
@@ -210,6 +213,7 @@ const operationNotFoundStatusDataSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/** Save/deploy lookup failures that retain the daemon identity used for reconciliation. */
 export const statusNotFoundDataSchema = Type.Union([
   operationNotFoundStatusDataSchema,
   Type.Object(
@@ -238,6 +242,7 @@ export const statusNotFoundDataSchema = Type.Union([
   ),
 ]);
 
+/** Dependency and disposed-runtime failures eligible for unavailable projections. */
 export const dependencyUnavailableDataSchema = Type.Union([
   Type.Object(
     {
@@ -267,6 +272,7 @@ export const dependencyUnavailableDataSchema = Type.Union([
   ),
 ]);
 
+/** Bounded defect evidence used when an unknown exception reaches the router boundary. */
 export const unexpectedDefectDataSchema = Type.Object(
   {
     tag: Type.Literal("UnexpectedDefect"),
@@ -279,18 +285,22 @@ export const unexpectedDefectDataSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/** Expected admission and ownership failures that preserve structured recovery guidance. */
 export const expectedFailureDataSchema = expectedOperationDataSchema;
 
+/** Optional oRPC data payload for expected operation failures. */
 export const expectedFailureErrorDataSchema = Type.Union([
   expectedFailureDataSchema,
   Type.Undefined(),
 ]);
 
+/** Optional oRPC data payload for dependency and runtime availability failures. */
 export const unavailableFailureErrorDataSchema = Type.Union([
   dependencyUnavailableDataSchema,
   Type.Undefined(),
 ]);
 
+/** Optional oRPC data payload spanning terminal failures, unavailability, and defects. */
 export const failedErrorDataSchema = Type.Union([
   failedOperationDataSchema,
   dependencyUnavailableDataSchema,
@@ -298,11 +308,13 @@ export const failedErrorDataSchema = Type.Union([
   Type.Undefined(),
 ]);
 
+/** Optional oRPC data payload for save/deploy lifecycle lookup failures. */
 export const statusNotFoundErrorDataSchema = Type.Union([
   statusNotFoundDataSchema,
   Type.Undefined(),
 ]);
 
+/** Redacted Run in Game error data limited to safe category and recovery guidance. */
 export const runInGamePublicErrorDataSchema = Type.Union([
   Type.Object(
     {
@@ -316,6 +328,7 @@ export const runInGamePublicErrorDataSchema = Type.Union([
   Type.Undefined(),
 ]);
 
+/** Required lookup identity returned when a Run in Game request cannot be found. */
 export const runInGameStatusNotFoundErrorDataSchema = Type.Object(
   {
     namespace: Type.Literal("runInGame"),
@@ -326,6 +339,7 @@ export const runInGameStatusNotFoundErrorDataSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/** Redacted save/deploy error data limited to safe category and recovery guidance. */
 export const saveDeployPublicErrorDataSchema = Type.Union([
   Type.Object(
     {
@@ -339,6 +353,7 @@ export const saveDeployPublicErrorDataSchema = Type.Union([
   Type.Undefined(),
 ]);
 
+/** Required lookup identity returned when a save/deploy request cannot be found. */
 export const saveDeployStatusNotFoundErrorDataSchema = Type.Object(
   {
     namespace: Type.Literal("saveDeploy"),

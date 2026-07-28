@@ -54,7 +54,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Thermal-state parameters (insolation-lapse-rate strategy).",
+      description:
+        "Combines insolation, elevation lapse, and land cooling into a bounded surface-temperature field while admitted SST remains authoritative over water.",
     }
   ),
 });

@@ -63,7 +63,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Ocean surface current parameters for the wind-gyre-projection strategy.",
+      description:
+        "Weights wind, Ekman, basin-gyre, and coastal evidence, then bounds smoothing, divergence reduction, and i8 current quantization.",
     }
   ),
 });

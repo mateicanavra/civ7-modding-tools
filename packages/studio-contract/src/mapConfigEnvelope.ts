@@ -15,6 +15,7 @@ export type DeepReadonly<Value> = Value extends (...args: never[]) => unknown
       ? { readonly [Key in keyof Value]: DeepReadonly<Value[Key]> }
       : Value;
 
+/** Recursive schema for values that survive an exact JSON transport round trip. */
 export const jsonWireValueSchema = Type.Cyclic(
   {
     JsonWireValue: Type.Union([
@@ -29,6 +30,7 @@ export const jsonWireValueSchema = Type.Cyclic(
   "JsonWireValue"
 );
 
+/** String-keyed portable JSON object accepted at the config boundary. */
 export const jsonWireObjectSchema = Type.Record(Type.String(), jsonWireValueSchema);
 
 /** Mutable JSON values at a TypeBox transport boundary. */
@@ -41,7 +43,9 @@ export type JsonWireObject = Static<typeof jsonWireObjectSchema>;
  * localization keys without normalization or platform-specific separators.
  */
 export const MAP_CONFIG_ID_PATTERN = "^[a-z0-9]+(?:-[a-z0-9]+)*$" as const;
+/** Bounds ids so derived filenames and localization keys remain manageable. */
 export const MAP_CONFIG_ID_MAX_LENGTH = 96;
+/** Enforces the canonical lowercase identity shared by files and localization keys. */
 export const mapConfigIdSchema = Type.String({
   minLength: 1,
   maxLength: MAP_CONFIG_ID_MAX_LENGTH,
@@ -49,10 +53,12 @@ export const mapConfigIdSchema = Type.String({
 });
 export type MapConfigId = Static<typeof mapConfigIdSchema>;
 
+/** Admits only canonical config identities, never paths or display names. */
 export function isMapConfigId(value: unknown): value is MapConfigId {
   return Value.Check(mapConfigIdSchema, value);
 }
 
+/** Closed transport envelope for one complete authored MapGen configuration. */
 export const mapConfigEnvelopeSchema = Type.Object(
   {
     id: mapConfigIdSchema,

@@ -4,6 +4,7 @@ import { BaseNode } from "./BaseNode";
 
 export type TVisualRemapNode = Pick<VisualRemapNode, "id" | "displayName" | "kind" | "from" | "to">;
 
+/** Maps a gameplay type to another type's visual asset through a stable remap identifier. */
 export class VisualRemapNode extends BaseNode<TVisualRemapNode> {
   id: string | null = randomUUID();
   displayName: string | null = "LOC_";

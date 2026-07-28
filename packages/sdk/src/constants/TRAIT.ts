@@ -1,3 +1,4 @@
+/** Built-in trait identifiers reusable in civilization and entity definitions. */
 export const TRAIT = {
   ANTIQUITY_CIV: "TRAIT_ANTIQUITY_CIV",
   EXPLORATION_CIV: "TRAIT_EXPLORATION_CIV",

@@ -1,5 +1,6 @@
 import type { SaveDeploySafeFailureCategory, StudioRuntimeFailure } from "@civ7/studio-contract";
 
+/** Redacts an internal runtime failure to the stable category exposed in save/deploy status. */
 export function publicSaveDeployFailureCategory(
   failure: StudioRuntimeFailure
 ): SaveDeploySafeFailureCategory {
@@ -28,6 +29,7 @@ export function publicSaveDeployFailureCategory(
   }
 }
 
+/** Returns the fixed client-safe message for a redacted save/deploy failure category. */
 export function publicSaveDeployFailureMessage(category: SaveDeploySafeFailureCategory): string {
   switch (category) {
     case "request-validation":

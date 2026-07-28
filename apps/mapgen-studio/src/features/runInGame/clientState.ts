@@ -48,6 +48,7 @@ export function buildRunInGameClientSnapshot(args: {
   });
 }
 
+/** Classifies an incoming operation against the client's active request and authoring revision. */
 export function relationForRunInGameOperation(args: {
   status?: RunInGameOperationStatus | null;
   snapshot?: RunInGameClientSnapshot | null;

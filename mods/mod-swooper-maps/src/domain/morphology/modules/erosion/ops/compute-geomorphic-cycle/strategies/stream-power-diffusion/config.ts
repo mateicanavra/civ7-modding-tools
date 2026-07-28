@@ -75,7 +75,11 @@ const WorldAgeSchema = Type.Union(
   }
 );
 
-/** Declares authored configuration for the `stream-power-diffusion` implementation of `morphology/compute-geomorphic-cycle`. */
+/**
+ * Controls the coupled incision, hillslope diffusion, and sediment transport applied per era.
+ * World age scales every process rate and additional eras compound their effects, while the
+ * implementation preserves the admitted land/water identity across the evolved surface.
+ */
 export default defineStrategy({
   id: "stream-power-diffusion",
   config: Type.Object(
@@ -85,7 +89,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Geomorphic cycle controls for terrain relaxation by world age.",
+      description:
+        "Per-era stream-power incision, hillslope diffusion, and sediment transport rates. World age scales all three processes, and the cycle preserves the admitted land/water mask.",
     }
   ),
 });

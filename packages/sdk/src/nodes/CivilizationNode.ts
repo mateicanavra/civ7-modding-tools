@@ -15,6 +15,7 @@ export type TCivilizationNode = Pick<
   | "uniqueCultureProgressionTree"
 >;
 
+/** Represents the primary gameplay database row for a civilization. */
 export class CivilizationNode extends BaseNode<TCivilizationNode> {
   civilizationType: string | null = "CIVILIZATION_CUSTOM";
   adjective: string | null = null;

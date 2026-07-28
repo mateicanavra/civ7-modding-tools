@@ -23,6 +23,7 @@ export type TModifierNode = Pick<
   | "requirements"
 >;
 
+/** Defines a gameplay modifier and serializes its arguments and requirement sets as nested XML. */
 export class ModifierNode extends BaseNode<TModifierNode> {
   _name = "Modifier";
 

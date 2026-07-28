@@ -2,6 +2,7 @@ function wrapX(x: number, width: number): number {
   return ((x % width) + width) % width;
 }
 
+/** Visits each in-bounds odd-row neighbor once while wrapping the map's X axis. */
 export function forEachHexNeighborOddQ(
   x: number,
   y: number,

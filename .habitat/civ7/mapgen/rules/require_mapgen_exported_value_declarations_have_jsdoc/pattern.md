@@ -3,14 +3,15 @@ level: error
 ---
 # Require MapGen Exported Value Declarations To Have JSDoc
 
-Authored MapGen SDK, domain, recipe, and reusable diagnostic capability value
-exports are cross-module contracts. Their defining declarations require adjacent
-nonempty JSDoc. This rule rejects only missing, empty, and obvious placeholder
-blocks; review owns whether accepted documentation explains the value's
-behavior, purpose, or invariants. A direct anonymous default value is documented
-at its export statement; re-export barrels inherit documentation from the
-owner. A TypeScript overload family has one documentation owner: its first
-signature.
+Authored MapGen application, SDK, product, policy, Studio, and reusable
+capability value exports are cross-module contracts or framework-discovered
+authoring contracts. Their defining declarations require adjacent nonempty
+JSDoc. This rule rejects only missing, empty, and
+obvious placeholder blocks; review owns whether accepted documentation explains
+the value's behavior, purpose, invariants, or material gotchas. A direct
+anonymous default value is documented at its export statement; re-export barrels
+inherit documentation from the owner. A TypeScript overload family has one
+documentation owner: its first signature.
 
 This structural rule deliberately checks the authored value-export superset.
 Knip and review own whether an export has a real consumer, while review owns the

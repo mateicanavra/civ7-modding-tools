@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Declares authored configuration for the `plate-hotspot-ranking` implementation of `morphology/plan-volcanoes`. */
+/**
+ * Controls volcano demand, wrapped-hex spacing, and the balance between boundary and intraplate
+ * evidence used to rank land candidates. `maxVolcanoes` is normalized up to `minVolcanoes` when
+ * necessary, but sparse candidates or spacing conflicts may still leave the plan below its target.
+ */
 export default defineStrategy({
   id: "plate-hotspot-ranking",
   config: Type.Object(

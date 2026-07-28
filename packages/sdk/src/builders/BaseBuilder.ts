@@ -1,6 +1,7 @@
 import { ActionGroupBundle } from "../core";
 import { BaseFile } from "../files";
 
+/** Shared builder lifecycle for applying partial configuration and emitting files under one action-group bundle. */
 export class BaseBuilder<T extends Object = object> {
   actionGroupBundle: ActionGroupBundle = new ActionGroupBundle();
 

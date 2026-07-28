@@ -20,6 +20,7 @@ import { ModifierBuilder } from "./ModifierBuilder";
 
 type TUniqueQuarterBuilder = TClassProperties<UniqueQuarterBuilder>;
 
+/** Models a two-building unique quarter and emits its database, modifier, icon, and text records. */
 export class UniqueQuarterBuilder extends BaseBuilder<TUniqueQuarterBuilder> {
   _always: DatabaseNode = new DatabaseNode();
   _localizations: DatabaseNode = new DatabaseNode();

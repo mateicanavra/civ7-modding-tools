@@ -37,6 +37,7 @@ function Demo({ children }: { children: ReactNode }) {
   );
 }
 
+/** Compares every semantic button variant on the Studio's real background tier. */
 export const Variants: Story = {
   render: () => (
     <Demo>
@@ -52,6 +53,7 @@ export const Variants: Story = {
   ),
 };
 
+/** Pins the dense text and icon dimensions used across Studio command surfaces. */
 export const Sizes: Story = {
   render: () => (
     <Demo>
@@ -65,6 +67,7 @@ export const Sizes: Story = {
   ),
 };
 
+/** Contrasts actionable and disabled treatments for filled and outlined commands. */
 export const States: Story = {
   render: () => (
     <Demo>

@@ -10,6 +10,7 @@ export type RunCorrelation = Readonly<{
   generationManifestDigest: string;
 }>;
 
+/** Extracts the immutable identities used to correlate generation, deployment, and runtime evidence. */
 export function runCorrelationForManifest(manifest: StudioRunGenerationManifest): RunCorrelation {
   return {
     requestId: manifest.payload.requestId,

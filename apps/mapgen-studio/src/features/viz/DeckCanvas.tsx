@@ -54,6 +54,7 @@ function cursorForInteractivity(interactive: boolean) {
     : () => "default";
 }
 
+/** Owns the imperative deck.gl canvas and keeps camera interaction outside React render state. */
 export function DeckCanvas(props: DeckCanvasProps) {
   const {
     layers,

@@ -32,6 +32,7 @@ export type TAdjacencyYieldChangeNode = Pick<
   | "tilesRequired"
 >;
 
+/** Encodes one conditional yield contribution within an adjacency definition. */
 export class AdjacencyYieldChangeNode extends BaseNode<TAdjacencyYieldChangeNode> {
   id: string = randomUUID();
   age: TObjectValues<typeof AGE> | null = null;

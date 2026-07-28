@@ -8,6 +8,7 @@ export type TConstructibleValidDistrictNode = Pick<
   "constructibleType" | "districtType"
 >;
 
+/** Allows a constructible to be placed in a specific district. */
 export class ConstructibleValidDistrictNode extends BaseNode<TConstructibleValidDistrictNode> {
   constructibleType: string | null = "BUILDING_";
   districtType: TObjectValues<typeof DISTRICT> | null = DISTRICT.RURAL;

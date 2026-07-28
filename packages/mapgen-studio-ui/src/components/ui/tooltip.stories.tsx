@@ -23,6 +23,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Forces the re-roll tooltip open to prove the portalled hint and icon trigger render together. */
 export const ReRoll: Story = {
   render: () => (
     <TooltipProvider>

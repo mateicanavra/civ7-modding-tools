@@ -21,6 +21,7 @@ const RecipeDagUnavailableDataSchema = Type.Object(
 );
 export type RecipeDagUnavailableData = Static<typeof RecipeDagUnavailableDataSchema>;
 
+/** Closed error protocol for recipe discovery, parsing, and DAG construction. */
 export const recipeDagErrorMap = {
   RECIPE_DAG_RECIPE_NOT_FOUND: {
     status: 404,

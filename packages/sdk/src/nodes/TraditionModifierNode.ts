@@ -2,6 +2,7 @@ import { BaseNode } from "./BaseNode";
 
 export type TTraditionModifierNode = Pick<TraditionModifierNode, "traditionType" | "modifierId">;
 
+/** Binds a gameplay modifier to the tradition that activates it. */
 export class TraditionModifierNode extends BaseNode<TTraditionModifierNode> {
   traditionType: `TRADITION_${string}` | null = "TRADITION_";
   modifierId: string | null = "Name";

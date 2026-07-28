@@ -19,6 +19,7 @@ export type RunState = {
   setLastRunSnapshot: (next: Updater<BrowserRunSnapshot | null>) => void;
 };
 
+/** Holds the current daemon run snapshot separately from the last browser generation snapshot. */
 export const useRunStore = create<RunState>()((set) => ({
   runInGameSnapshot: null,
   lastRunSnapshot: null,

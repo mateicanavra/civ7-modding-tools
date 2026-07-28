@@ -5,6 +5,7 @@ import { BaseNode } from "./BaseNode";
 
 export type TUnitCostNode = Pick<UnitCostNode, "unitType" | "yieldType" | "cost">;
 
+/** Assigns a yield-denominated production or purchase cost to a unit. */
 export class UnitCostNode extends BaseNode<TUnitCostNode> {
   unitType: string | null = "UNIT_TYPE";
   yieldType: TObjectValues<typeof YIELD> | null = YIELD.PRODUCTION;

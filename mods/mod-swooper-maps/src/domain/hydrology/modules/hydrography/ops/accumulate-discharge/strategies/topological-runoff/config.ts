@@ -40,7 +40,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Discharge accumulation parameters (topological-runoff strategy).",
+      description:
+        "Converts rainfall and humidity into local runoff before receiver-topology accumulation; it scales sources without changing drainage routing.",
     }
   ),
 });

@@ -5,6 +5,7 @@ import { BaseNode } from "./BaseNode";
 
 export type TModifierRequirementNode = Pick<ModifierRequirementNode, "type" | "arguments">;
 
+/** Binds a named requirement to the modifier definition that must satisfy it. */
 export class ModifierRequirementNode extends BaseNode<TModifierRequirementNode> {
   _name = "Requirement";
 

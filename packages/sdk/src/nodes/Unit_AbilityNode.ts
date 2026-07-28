@@ -5,6 +5,7 @@ export type TUnit_AbilityNode = {
   unitAbilityType: string;
 };
 
+/** Associates a unit with an ability through Civ7's `Unit_Abilities` join table. */
 export class Unit_AbilityNode extends BaseNode<TUnit_AbilityNode> {
   unitType: string;
   unitAbilityType: string;

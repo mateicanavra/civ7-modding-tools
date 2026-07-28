@@ -16,11 +16,13 @@ export interface StudioEventHubApi {
   readonly activeSubscriberCount: Effect.Effect<number, never>;
 }
 
+/** Daemon-local publication service for the sealed Studio event protocol. */
 export class StudioEventHub extends Context.Tag("@civ7/studio-server/StudioEventHub")<
   StudioEventHub,
   StudioEventHubApi
 >() {}
 
+/** Scoped event hub layer that closes subscriptions with the daemon runtime. */
 export const StudioEventHubLive = Layer.scoped(StudioEventHub, makeStudioEventHub());
 
 class StudioEventHubClosedError extends Data.TaggedError("StudioEventHubClosedError") {
@@ -124,6 +126,7 @@ function closedSubscription(): StudioEventSubscription {
   };
 }
 
+/** Bridges a scoped hub subscription into the async iterator required by oRPC streaming. */
 export function studioEventSubscriptionIterator(
   subscription: StudioEventSubscription
 ): AsyncIteratorObject<StudioEvent, unknown, void> {

@@ -6,6 +6,7 @@ import { BaseFile } from "./BaseFile";
 
 type TXmlFile = TClassProperties<ImportFile>;
 
+/** Copies a source asset into the mod's imports directory when the mod is built. */
 export class ImportFile extends BaseFile<ImportFile> implements TXmlFile {
   path = "/imports/";
   content = "";

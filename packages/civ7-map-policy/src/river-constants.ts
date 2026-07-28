@@ -14,8 +14,11 @@ import { CIV7_BROWSER_TABLES_V0 } from "./civ7-tables.gen.js";
  */
 export const CIV7_RIVER_TYPES_V0 = CIV7_BROWSER_TABLES_V0.riverTypes;
 
+/** Civ7 readback sentinel for a plot with no native river. */
 export const NO_RIVER_TYPE = CIV7_RIVER_TYPES_V0.values.NO_RIVER;
+/** Civ7 readback value for an ordinary minor river. */
 export const RIVER_TYPE_MINOR = CIV7_RIVER_TYPES_V0.values.RIVER_MINOR;
+/** Civ7 readback value for a navigable river. */
 export const RIVER_TYPE_NAVIGABLE = CIV7_RIVER_TYPES_V0.values.RIVER_NAVIGABLE;
 
 /**
@@ -87,5 +90,6 @@ export const CIV7_RIVER_MODELING_POLICY_V0 = {
   defaultProfile: "standardContinental",
 } as const;
 
+/** Continental river-modeling arguments used when a map does not select a wider island profile. */
 export const CIV7_DEFAULT_RIVER_MODELING_ARGS =
   CIV7_RIVER_MODELING_POLICY_V0.profiles[CIV7_RIVER_MODELING_POLICY_V0.defaultProfile];

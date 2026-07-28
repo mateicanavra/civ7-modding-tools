@@ -2,6 +2,7 @@ import { BaseNode } from "./BaseNode";
 
 export type TArgumentNode = Pick<ArgumentNode, "name" | "value">;
 
+/** Serializes a named modifier argument as an XML child element rather than a database row. */
 export class ArgumentNode extends BaseNode<TArgumentNode> {
   _name = "Argument";
 

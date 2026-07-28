@@ -22,6 +22,7 @@ import { UnitBuilder } from "./UnitBuilder";
 
 type TProgressionTreeNodeBuilder = TClassProperties<ProgressionTreeNodeBuilder>;
 
+/** Builds one progression-tree node with prerequisites, unlocks, advisories, effects, and localization. */
 export class ProgressionTreeNodeBuilder extends BaseBuilder<TProgressionTreeNodeBuilder> {
   _current: DatabaseNode = new DatabaseNode();
   _localizations: DatabaseNode = new DatabaseNode();

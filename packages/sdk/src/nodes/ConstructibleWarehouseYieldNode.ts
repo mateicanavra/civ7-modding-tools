@@ -5,6 +5,7 @@ export type TConstructibleWarehouseYieldNode = Pick<
   "constructibleType" | "requiresActivation" | "yieldChangeId"
 >;
 
+/** Associates a constructible with a warehouse-style conditional yield definition. */
 export class ConstructibleWarehouseYieldNode extends BaseNode<TConstructibleWarehouseYieldNode> {
   constructibleType: string | null = "BUILDING_";
   requiresActivation: boolean | null = null;

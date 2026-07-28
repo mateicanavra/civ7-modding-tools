@@ -3,6 +3,7 @@ import { BaseLocalization } from "./BaseLocalization";
 
 export type TConstructibleLocalization = TClassProperties<ConstructibleLocalization>;
 
+/** Supplies the name, description, and tooltip text associated with a constructible. */
 export class ConstructibleLocalization extends BaseLocalization<TConstructibleLocalization> {
   name = "test";
   description = "text";

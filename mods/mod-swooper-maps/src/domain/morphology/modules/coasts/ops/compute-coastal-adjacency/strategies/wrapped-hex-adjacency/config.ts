@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Declares authored configuration for the `wrapped-hex-adjacency` implementation of `morphology/compute-coastal-adjacency`. */
+/**
+ * Fixes shoreline classification to the map's wrapped odd-Q hex topology.
+ * The strategy is deliberately parameter-free: a tile is coastal exactly when any neighbor has
+ * the opposite land/water identity, keeping the paired coastal masks mutually consistent.
+ */
 export default defineStrategy({
   id: "wrapped-hex-adjacency",
   config: Type.Object(

@@ -21,6 +21,7 @@ const AUTHORED_RIVER_MATERIALIZATION_CONTENT_MARKERS: readonly RunInGameRequired
   },
 ] as const;
 
+/** Reads a stable file snapshot and returns its content hash plus filesystem identity. */
 export async function fileIdentity(args: {
   repoRoot: string;
   path: string;
@@ -37,6 +38,7 @@ export async function fileIdentity(args: {
   };
 }
 
+/** Records which required authorship markers occur in one stable file snapshot. */
 export async function fileContentMarkerEvidence(args: {
   repoRoot: string;
   path: string;
@@ -56,6 +58,7 @@ export async function fileContentMarkerEvidence(args: {
   };
 }
 
+/** Defines the request and config identities that generated materialization must embed. */
 export function runInGameRequiredMaterializationMarkers(args: {
   requestId: string;
   canonicalConfigDigest: string;

@@ -13,6 +13,7 @@ import type {
   StudioDaemonIdentity,
 } from "./ports.js";
 
+/** Retention window for terminal operations before lookup reports them as expired. */
 export const OPERATION_TTL_MS = 30 * 60_000;
 
 type RuntimeOperationKind = "run-in-game" | "save-deploy" | "autoplay";
@@ -117,6 +118,7 @@ export type RegistryState = Readonly<{
   tombstones: Readonly<Record<string, RuntimeTombstone>>;
 }>;
 
+/** Creates an admission-open registry owned by one immutable daemon identity. */
 export function emptyRegistry(identity: StudioDaemonIdentity): RegistryState {
   return {
     identity,
@@ -128,6 +130,7 @@ export function emptyRegistry(identity: StudioDaemonIdentity): RegistryState {
   };
 }
 
+/** Maps an internal Run in Game phase to its coarse public lifecycle status. */
 export function statusForRunInGamePhase(
   phase: RunInGameInternalOperation["phase"]
 ): RunInGameInternalStatus {
@@ -164,6 +167,7 @@ export function runInGameLifecycleOwnsMutation(
   return phase === "starting-game" || phase === "collecting-evidence";
 }
 
+/** Selects the terminal phase that accurately describes the failed workflow stage. */
 export function failurePhaseForRunInGame(
   phase: RunInGameInternalOperation["phase"]
 ): RunInGameFailurePhase {
@@ -185,6 +189,7 @@ export function failurePhaseForRunInGame(
   }
 }
 
+/** Maps an internal save/deploy phase to its coarse public lifecycle status. */
 export function statusForSaveDeployPhase(
   phase: SaveDeployInternalOperation["phase"]
 ): MapConfigSaveDeployStatus["status"] {
@@ -203,6 +208,7 @@ export function statusForSaveDeployPhase(
   return unhandledPhase(phase);
 }
 
+/** Removes internal-only Run in Game phases from the client-visible state machine. */
 export function publicRunInGamePhase(phase: RunInGameInternalOperation["phase"]): RunInGamePhase {
   switch (phase) {
     case "accepted":
@@ -227,6 +233,7 @@ export function publicRunInGamePhase(phase: RunInGameInternalOperation["phase"])
   }
 }
 
+/** Removes internal-only save/deploy phases from the client-visible state machine. */
 export function publicSaveDeployPhase(
   phase: SaveDeployInternalOperation["phase"]
 ): MapConfigSaveDeployStatus["phase"] {

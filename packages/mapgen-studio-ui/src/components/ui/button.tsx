@@ -47,6 +47,11 @@ export interface ButtonProps
   asChild?: boolean;
 }
 
+/**
+ * Applies the Studio button variants to a native button or a Radix slotted child.
+ * `asChild` preserves the child's element semantics while centralizing command sizing, focus, and
+ * disabled-state styling.
+ */
 function Button({ className, variant, size, asChild = false, ...props }: ButtonProps) {
   const Comp = asChild ? Slot : "button";
   return <Comp className={cn(buttonVariants({ variant, size, className }))} {...props} />;

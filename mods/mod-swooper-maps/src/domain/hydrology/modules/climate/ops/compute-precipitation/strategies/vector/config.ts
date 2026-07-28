@@ -71,7 +71,8 @@ export default defineStrategy({
         },
         {
           additionalProperties: false,
-          description: "Coastal moisture gradient parameters (continentality proxy).",
+          description:
+            "Adds near-coast rainfall that decays by inland ring, with a separate bonus for low coastal terrain.",
         }
       ),
       /** Strength of windward uplift rainfall boost derived from ∇elevation · wind. */
@@ -92,7 +93,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Precipitation parameters (vector strategy).",
+      description:
+        "Maps humidity to rainfall, then combines seeded and coastal texture with wind-aware uplift and convergence effects.",
     }
   ),
 });

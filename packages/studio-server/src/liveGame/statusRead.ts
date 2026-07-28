@@ -14,6 +14,7 @@ type LiveGameStatusOutput = LiveGameStatusBody &
     autoplay: Record<string, unknown> | { error: string };
   }>;
 
+/** Reads and validates the coherent tuner status body consumed by the live-game watcher. */
 export const readLiveGameStatusBody = Civ7TunerClient.playableStatus().pipe(
   Effect.match({ onFailure: failedStatus, onSuccess: observedStatus })
 );

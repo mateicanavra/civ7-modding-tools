@@ -31,7 +31,8 @@ const AccumulateDischargeContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Inputs for discharge accumulation (routing + rainfall/humidity proxies).",
+      description:
+        "Hydrology receiver graph and climate supply used to derive and accumulate runoff without recomputing drainage routing.",
     }
   ),
   /**
@@ -55,7 +56,8 @@ const AccumulateDischargeContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Discharge accumulation outputs (runoff/discharge + sink/outlet masks).",
+      description:
+        "Local runoff and accumulated discharge with terminal sink and outlet masks consumed by lake and river planning.",
     }
   ),
   strategies: [topologicalRunoffDefinition],

@@ -202,6 +202,7 @@ export function acquireRuntimeOwnershipLease(
   });
 }
 
+/** Best-effort releases the durable writer token only when lease and request still match. */
 export function releaseRuntimeOwnershipLease(
   args: Readonly<{
     workspaceRoot?: string;
@@ -265,6 +266,7 @@ export function attachRuntimeOwnershipLeaseDeployment(
   });
 }
 
+/** Releases ownership recovered from a verified abandoned record, never untrusted evidence. */
 export function releaseRuntimeOwnershipLeaseForRecord(
   args: Readonly<{
     workspaceRoot?: string;
@@ -279,6 +281,7 @@ export function releaseRuntimeOwnershipLeaseForRecord(
   });
 }
 
+/** Persists the latest restart-recovery projection for a Run in Game operation. */
 export function writeRunOperationRecord(
   operation: RunInGameInternalOperation,
   identity: StudioDaemonIdentity,
@@ -296,6 +299,7 @@ export function writeRunOperationRecord(
   }).pipe(Effect.mapError((failure) => failure.error));
 }
 
+/** Finds running records whose daemon and lease can no longer own their mutation. */
 export function readAbandonedRunOperationRecords(
   args: Readonly<{
     workspaceRoot?: string;
@@ -343,6 +347,7 @@ export function readAbandonedRunOperationRecords(
   );
 }
 
+/** Quarantines corrupt leases and removes verified leases whose owner process is dead. */
 export function releaseStaleRuntimeOwnershipLease(
   args: Readonly<{
     workspaceRoot?: string;
@@ -477,6 +482,7 @@ export function acquireRuntimeDaemonHeartbeat(
   );
 }
 
+/** Terminalizes abandoned durable state without granting replay authority after restart. */
 export function operationFromAbandonedRecord(
   abandoned: AbandonedRunOperationRecord,
   nowIso: string
@@ -536,6 +542,7 @@ export function operationFromAbandonedRecord(
   };
 }
 
+/** Reports whether an operation has left the only nonterminal public status. */
 export function isRuntimeOperationTerminal(
   operation: RunInGameInternalOperation | SaveDeployInternalOperation
 ): boolean {

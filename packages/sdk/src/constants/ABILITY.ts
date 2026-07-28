@@ -1,3 +1,4 @@
+/** Canonical game identifiers for narrative and technology abilities referenced by unit definitions. */
 export const ABILITY = {
   // Narrative abilities
   NARRATIVE_STRENGTH: "ABILITY_NARRATIVE_STRENGTH",

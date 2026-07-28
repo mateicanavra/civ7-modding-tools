@@ -33,7 +33,8 @@ const ApplyAlbedoFeedbackContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Inputs for bounded albedo feedback (deterministic, data-only).",
+      description:
+        "Base temperature, precipitation signal, and land identity reclassified together on each fixed feedback pass.",
     }
   ),
   /**
@@ -48,7 +49,8 @@ const ApplyAlbedoFeedbackContract = defineOp({
     },
     {
       additionalProperties: false,
-      description: "Albedo-feedback-adjusted surface temperature proxy (C).",
+      description:
+        "Surface-temperature vintage after bounded snow and sea-ice cooling, consumed by final cryosphere classification.",
     }
   ),
   strategies: [boundedSnowIceDefinition],

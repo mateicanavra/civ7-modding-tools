@@ -84,7 +84,8 @@ export default defineStrategy({
     },
     {
       additionalProperties: false,
-      description: "Atmospheric circulation parameters for the geostrophic-proxy strategy.",
+      description:
+        "Weights zonal, meridional, pressure-gradient, land, and terrain influences, then bounds wind-field smoothing and i8 quantization.",
     }
   ),
 });

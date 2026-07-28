@@ -103,6 +103,7 @@ function formatVariantLabel(variantKey: string | null): string {
   return `${dim} · ${value}`;
 }
 
+/** Groups one step's visible layers by data type, space, render mode, and variant. */
 export function buildStepDataTypeModel(
   manifest: { layers: readonly VizLayerEntryV2[] },
   stepId: string,

@@ -13,6 +13,7 @@ import { useEffect, useMemo, useState } from "react";
 // into a `<canvas>` with literal RGBA and cannot read a CSS class — it is a
 // render input for `DeckCanvas`, not a theming prop for the chrome.
 
+/** Resolves persisted or system theme preference and synchronizes the document color mode. */
 export function useThemePreference() {
   const [preference, setPreference] = useState<ThemePreference>(() => {
     if (typeof window !== "undefined") {

@@ -21,6 +21,7 @@ import { BaseBuilder } from "./BaseBuilder";
 
 type TCivilizationUnlockBuilder = TClassProperties<CivilizationUnlockBuilder>;
 
+/** Defines an age-gated civilization transition together with its requirements and player-facing text. */
 export class CivilizationUnlockBuilder extends BaseBuilder<TCivilizationUnlockBuilder> {
   _current: DatabaseNode = new DatabaseNode();
 

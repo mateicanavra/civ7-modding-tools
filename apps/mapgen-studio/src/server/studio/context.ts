@@ -37,6 +37,7 @@ function directControlDependencyFailure(err: unknown): StudioRuntimeFailure | un
   return undefined;
 }
 
+/** Adds procedure and daemon identity context before exposing a defined oRPC failure. */
 export function toStudioRuntimeOrpcError(
   args: Readonly<{
     err: unknown;

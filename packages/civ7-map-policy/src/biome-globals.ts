@@ -1,3 +1,4 @@
+/** Stable Civ7 engine-global names that recipe projection policy may resolve. */
 export const CIV7_BIOME_GLOBAL = {
   DESERT: "BIOME_DESERT",
   GRASSLAND: "BIOME_GRASSLAND",
@@ -7,7 +8,7 @@ export const CIV7_BIOME_GLOBAL = {
   TUNDRA: "BIOME_TUNDRA",
 } as const;
 
-export const CIV7_BIOME_GLOBALS = [
+const CIV7_BIOME_GLOBALS = [
   CIV7_BIOME_GLOBAL.DESERT,
   CIV7_BIOME_GLOBAL.GRASSLAND,
   CIV7_BIOME_GLOBAL.MARINE,
@@ -18,4 +19,5 @@ export const CIV7_BIOME_GLOBALS = [
 
 export type Civ7BiomeGlobal = (typeof CIV7_BIOME_GLOBALS)[number];
 
+/** Engine-global name used when a projected tile belongs to the marine biome. */
 export const CIV7_MARINE_BIOME_GLOBAL = CIV7_BIOME_GLOBAL.MARINE;

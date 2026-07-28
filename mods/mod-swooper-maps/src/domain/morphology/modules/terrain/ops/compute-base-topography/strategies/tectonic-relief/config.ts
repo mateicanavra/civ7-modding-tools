@@ -1,6 +1,10 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Declares authored configuration for the `tectonic-relief` implementation of `morphology/compute-base-topography`. */
+/**
+ * Controls how Foundation crust height, uplift, rifting, and boundary proximity become quantized
+ * base elevation. Noise grain and boundary smoothing shape spatial coherence, while continental
+ * and oceanic heights establish the relief datums consumed by later margin and sea-level stages.
+ */
 export default defineStrategy({
   id: "tectonic-relief",
   config: Type.Object(

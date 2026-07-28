@@ -92,6 +92,7 @@ function Dock({ children }: { children: ReactNode }) {
   );
 }
 
+/** Shows the full authoring dock with both recipe selection and schema config controls expanded. */
 export const RecipeAndConfig: Story = {
   args: { ...base, recipeCollapsed: false, configCollapsed: false },
   render: (args) => (
@@ -101,6 +102,7 @@ export const RecipeAndConfig: Story = {
   ),
 };
 
+/** Isolates recipe selection while the config disclosure is collapsed. */
 export const RecipeSelection: Story = {
   args: { ...base, recipeCollapsed: false, configCollapsed: true },
   render: (args) => (

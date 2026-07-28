@@ -4,6 +4,7 @@ import { EnglishTextNode } from "../nodes";
 import { TObjectValues } from "../types";
 import { locale } from "../utils";
 
+/** Converts populated localization fields into English text rows using stable generated locale keys. */
 export class BaseLocalization<T> {
   locale?: TObjectValues<typeof LANGUAGE> | null = LANGUAGE.en_US;
   prefix?: string | null = null;

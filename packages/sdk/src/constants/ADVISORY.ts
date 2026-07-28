@@ -1,3 +1,4 @@
+/** Advisory class identifiers used to categorize progression and unit recommendations in the UI. */
 export const ADVISORY = {
   CLASS_MILITARY: "ADVISORY_CLASS_MILITARY",
   CLASS_CULTURE: "ADVISORY_CLASS_CULTURE",

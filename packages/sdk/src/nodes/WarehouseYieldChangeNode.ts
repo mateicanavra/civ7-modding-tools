@@ -26,6 +26,7 @@ export type TWarehouseYieldChangeNode = Pick<
   | "terrainTagInCity"
 >;
 
+/** Defines a warehouse yield bonus conditioned on matching content present in a city. */
 export class WarehouseYieldChangeNode extends BaseNode<TWarehouseYieldChangeNode> {
   id: string = randomUUID();
   age: TObjectValues<typeof AGE> | null = AGE.ANTIQUITY;

@@ -66,6 +66,7 @@ import { UnitBuilder } from "./UnitBuilder";
 
 type TCivilizationBuilder = TClassProperties<CivilizationBuilder>;
 
+/** Assembles a civilization's shell, gameplay, legacy, localization, icon, and effect records. */
 export class CivilizationBuilder extends BaseBuilder<TCivilizationBuilder> {
   _current: DatabaseNode = new DatabaseNode();
   _shell: DatabaseNode = new DatabaseNode();

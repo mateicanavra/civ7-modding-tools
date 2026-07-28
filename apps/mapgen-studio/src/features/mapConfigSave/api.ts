@@ -9,6 +9,7 @@ import { safe } from "@orpc/client";
 import { orpcClient } from "../../lib/orpc";
 import { createMapConfigSaveDeployStatus } from "./status";
 
+/** Converts a display label to the stable lowercase identifier accepted by save requests. */
 export function toConfigId(label: string): string {
   const id = label
     .trim()
@@ -18,6 +19,7 @@ export function toConfigId(label: string): string {
   return id || `map-config-${Date.now()}`;
 }
 
+/** Submits canonical config persistence and deploy intent through the Studio operation API. */
 export async function saveRepoBackedConfig(args: {
   requestId: string;
   canonicalConfig: MapConfigEnvelope;

@@ -19,6 +19,7 @@ function safeStringify(value: unknown): string | null {
   }
 }
 
+/** Preserves useful browser error detail in a printable fallback for diagnostic surfaces. */
 export function formatErrorForUi(e: unknown): string {
   if (e instanceof Error) {
     const parts: string[] = [];
