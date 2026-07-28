@@ -871,7 +871,7 @@ function completeEvidenceArgs(): Parameters<typeof buildRunInGameExactAuthorship
     launchEnvelopeDigest: launchEnvelopeDigest,
   };
   const materialization: RunInGameMaterializationStatus = {
-    path: "plugins/mod/map/swooper-physics/src/maps/configs/studio-current.config.json",
+    path: "maps/studio-current.config.json",
     mapScript,
     canonicalConfigDigest: configHash,
     launchEnvelopeDigest,

@@ -2305,7 +2305,7 @@ describe("StudioOperationRuntime", () => {
               requestId: "run-live-shaped",
               materialization: JSON.stringify({
                 mode: "disposable",
-                path: "plugins/mod/map/swooper-physics/src/maps/configs/studio-current.config.json",
+                path: "configs/studio-current.config.json",
                 mapScript: "{swooper-maps}/maps/studio-current.js",
               }),
               mapSize: prepared.request.mapSize ?? "",
@@ -2925,7 +2925,6 @@ describe("StudioOperationRuntime", () => {
       eventSink: events,
       ports: {
         prepareSaveDeployStart: async () => ({
-          path: "plugins/mod/map/swooper-physics/src/maps/configs/test.config.json",
           cleanup: async () => {
             cleanupCalls += 1;
           },
@@ -2935,10 +2934,7 @@ describe("StudioOperationRuntime", () => {
         },
         rollbackSaveDeploy: async () => {
           rollbackCalls += 1;
-          return {
-            path: "plugins/mod/map/swooper-physics/src/maps/configs/test.config.json",
-            restored: true,
-          };
+          return { restored: true };
         },
       },
     });
@@ -2982,6 +2978,36 @@ describe("StudioOperationRuntime", () => {
     });
   });
 
+  test("Save/Deploy does not roll back when source preparation never completed", async () => {
+    let rollbackCalls = 0;
+    const { runtime } = makeRuntime({
+      ports: {
+        prepareSaveDeployStart: async () => {
+          throw new Error("prepare failed");
+        },
+        rollbackSaveDeploy: async () => {
+          rollbackCalls += 1;
+          return {};
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(
+      service.saveDeployStart(saveDeployInput("save-prepare-fail"))
+    );
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.saveDeployStatus({ requestId: accepted.requestId })
+        );
+        return status.status;
+      })
+      .toBe("failed");
+
+    expect(rollbackCalls).toBe(0);
+  });
+
   test("Save/Deploy rollback failure projects one rollback terminal state", async () => {
     const events: StudioEvent[] = [];
     let rollbackCalls = 0;
@@ -2990,7 +3016,7 @@ describe("StudioOperationRuntime", () => {
       eventSink: events,
       ports: {
         prepareSaveDeployStart: async () => ({
-          path: "plugins/mod/map/swooper-physics/src/maps/configs/test.config.json",
+          path: "configs/test.config.json",
           cleanup: async () => {
             cleanupCalls += 1;
           },
@@ -3050,7 +3076,7 @@ describe("StudioOperationRuntime", () => {
       eventSink: events,
       ports: {
         prepareSaveDeployStart: async () => ({
-          path: "plugins/mod/map/swooper-physics/src/maps/configs/test.config.json",
+          path: "configs/test.config.json",
           cleanup: async () => {
             cleanupCalls += 1;
             throw new Error("cleanup failed");
@@ -3062,7 +3088,7 @@ describe("StudioOperationRuntime", () => {
         rollbackSaveDeploy: async () => {
           rollbackCalls += 1;
           return {
-            path: "plugins/mod/map/swooper-physics/src/maps/configs/test.config.json",
+            path: "configs/test.config.json",
             restored: true,
           };
         },
@@ -4526,12 +4552,12 @@ function makePorts(
     buildRunInGameEvidence: async () => ({ result: { ok: true } }),
     prepareSaveDeployStart: async () => ({}),
     saveMapConfig: async () => ({
-      path: "plugins/mod/map/swooper-physics/src/maps/configs/test.config.json",
+      path: "configs/test.config.json",
       saved: true,
     }),
     deploySavedMapConfig: async () => ({ deployed: true }),
     rollbackSaveDeploy: async () => ({
-      path: "plugins/mod/map/swooper-physics/src/maps/configs/test.config.json",
+      path: "configs/test.config.json",
       restored: true,
     }),
     ...overrides,

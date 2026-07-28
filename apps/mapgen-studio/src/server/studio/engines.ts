@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { readdir, readFile, stat } from "node:fs/promises";
 import { dirname, relative, resolve } from "node:path";
 import { promisify } from "node:util";
 import {
@@ -34,6 +34,7 @@ import {
 } from "@civ7/studio-server";
 import { STANDARD_RECIPE_CONFIG_SCHEMA as swooperStandardConfigSchema } from "@swooper/swooper-physics/standard/artifacts";
 import { validateStandardMapConfigSnapshotForSchema } from "@swooper/swooper-physics/standard/map-config";
+import { prepareSwooperMapConfigSourceWrite } from "@swooper/swooper-physics/tooling/catalog-source";
 import { buildSwooperMapsStudioDeployPlan } from "../mapConfigs/deploy";
 import { parseMapConfigSaveRequest } from "../mapConfigs/requestValidation";
 import {
@@ -328,15 +329,6 @@ function deployedModScriptPath(targetDir: string): string {
   return resolve(targetDir, STUDIO_RUN_MAP_SCRIPT_PATH);
 }
 
-function isNodeNotFound(err: unknown): boolean {
-  return (
-    err !== null &&
-    typeof err === "object" &&
-    "code" in err &&
-    (err as { code?: unknown }).code === "ENOENT"
-  );
-}
-
 /** Swooper owns Standard semantic admission and preserves Studio's frozen snapshot. */
 function createSwooperRunInGameCanonicalConfigAdmission(): NonNullable<
   StudioOperationRuntimePorts["runInGameCanonicalConfigAdmission"]
@@ -354,6 +346,26 @@ function validateRepoMapConfigSnapshot(
   } catch (err) {
     throw invalidEngineRequest(
       err instanceof Error ? err.message : "Map config could not be admitted",
+      "map-config-envelope-invalid"
+    );
+  }
+}
+
+async function prepareRepoMapConfigSourceWrite(
+  canonicalConfig: Parameters<typeof prepareSwooperMapConfigSourceWrite>[0]
+) {
+  try {
+    return await prepareSwooperMapConfigSourceWrite(canonicalConfig);
+  } catch (err) {
+    if (err !== null && typeof err === "object" && "code" in err) {
+      throw unavailableEngineDependency(
+        "Unable to prepare the authored map config source",
+        "save-deploy-existing-config-unavailable",
+        err
+      );
+    }
+    throw invalidEngineRequest(
+      err instanceof Error ? err.message : "Map config source could not be admitted",
       "map-config-envelope-invalid"
     );
   }
@@ -408,14 +420,6 @@ function failureDiagnostics(err: unknown): StudioBoundedDiagnostics | undefined 
   return isStudioRuntimeFailure(err) ? err.diagnostics : undefined;
 }
 
-async function restoreRepoConfig(target: string, previous: string | null): Promise<void> {
-  if (previous === null) {
-    await rm(target, { force: true });
-    return;
-  }
-  await writeFile(target, previous);
-}
-
 type RunInGameGeneratedMod = Awaited<
   ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>
 >;
@@ -426,6 +430,7 @@ type RunInGameStarted = Parameters<
 type SaveDeployPrepared = Awaited<
   ReturnType<StudioOperationRuntimePorts["prepareSaveDeployStart"]>
 >;
+type SwooperMapConfigSourceWrite = Awaited<ReturnType<typeof prepareSwooperMapConfigSourceWrite>>;
 
 type RunInGameLeafContext = Readonly<{
   seed: number;
@@ -443,9 +448,7 @@ type RunInGameLeafContext = Readonly<{
 
 type SaveDeployLeafContext = SaveDeployPrepared &
   Readonly<{
-    parsedRequest: ReturnType<typeof parseMapConfigSaveRequest>;
-    target: string;
-    previous: string | null;
+    sourceWrite: SwooperMapConfigSourceWrite;
   }>;
 
 /** Creates request-scoped runtime ports while keeping Run in Game and Save & Deploy contexts isolated. */
@@ -791,60 +794,28 @@ export function createStudioOperationRuntimePorts(
     },
     prepareSaveDeployStart: async ({ requestId, input }) => {
       const request = parseSaveDeployInput(input);
-      const parsedRequest = {
-        ...request,
-        canonicalConfig: validateRepoMapConfigSnapshot(request.canonicalConfig),
-      };
-      const configRoot = resolve(repoRoot, "plugins/mod/map/swooper-physics/src/maps/configs");
-      const target = resolve(configRoot, `${parsedRequest.canonicalConfig.id}.config.json`);
-      if (!target.startsWith(`${configRoot}/`) || !target.endsWith(".config.json")) {
-        throw invalidEngineRequest(
-          "Map config writes must stay in plugins/mod/map/swooper-physics/src/maps/configs",
-          "map-config-path-outside-config-root",
-          { path: target }
-        );
-      }
-      const path = relative(repoRoot, target);
-      const previous = await readFile(target, "utf8").catch((err: unknown) => {
-        if (isNodeNotFound(err)) return null;
-        throw unavailableEngineDependency(
-          "Unable to read existing map config before Save/Deploy",
-          "save-deploy-existing-config-unavailable",
-          err,
-          { path }
-        );
-      });
+      const sourceWrite = await prepareRepoMapConfigSourceWrite(request.canonicalConfig);
       const prepared = {
-        path,
         cleanup: async () => {
           saveContexts.delete(requestId);
         },
       };
-      saveContexts.set(requestId, { ...prepared, parsedRequest, target, previous });
+      saveContexts.set(requestId, { ...prepared, sourceWrite });
       return prepared;
     },
     saveMapConfig: async ({ requestId }) => {
       const context = requireSaveContext(saveContexts, requestId);
-      await mkdir(dirname(context.target), { recursive: true });
-      await writeFile(
-        context.target,
-        `${JSON.stringify(context.parsedRequest.canonicalConfig, null, 2)}\n`
-      );
-      return { path: context.path, saved: true };
+      await context.sourceWrite.write();
+      return { saved: true };
     },
     deploySavedMapConfig: async ({ requestId }) => {
       const context = requireSaveContext(saveContexts, requestId);
-      const path = requireContextValue(context.path, "Save/Deploy config path", requestId);
-      const deploy = await deploySwooperMaps(repoRoot, context.parsedRequest.canonicalConfig.id);
-      return { path, saved: true, deployed: true, deploy };
+      const deploy = await deploySwooperMaps(repoRoot, context.sourceWrite.configId);
+      return { saved: true, deployed: true, deploy };
     },
     rollbackSaveDeploy: async ({ requestId }) => {
       const context = requireSaveContext(saveContexts, requestId);
-      await restoreRepoConfig(context.target, context.previous);
-      return {
-        path: context.path,
-        ...(context.previous === null ? { deleted: true } : { restored: true }),
-      };
+      return context.sourceWrite.rollback();
     },
     failureDiagnostics,
   };

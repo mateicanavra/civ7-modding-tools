@@ -52,6 +52,7 @@ function makeSaveDeployWorkflow(
       Effect.gen(function* () {
         let phase: "saving" | "deploying" = "saving";
         let prepared: SaveDeployPreparedRequest = {};
+        let prepareCompleted = false;
         let saved: Awaited<ReturnType<StudioWorkflowPorts["saveMapConfig"]>> | undefined;
         let cleanupAttempted = false;
         const cleanupPrepared = (failure?: unknown) => {
@@ -72,7 +73,7 @@ function makeSaveDeployWorkflow(
           );
         };
         const rollback = (cause: unknown) => {
-          if (prepared.path === undefined) return Effect.succeed<SaveDeployRollback>({});
+          if (!prepareCompleted) return Effect.succeed<SaveDeployRollback>({});
           return tryPromise(() =>
             args.ports.rollbackSaveDeploy({
               requestId: workflow.requestId,
@@ -93,6 +94,7 @@ function makeSaveDeployWorkflow(
               })
             )
           );
+          prepareCompleted = true;
           yield* workflow.transitions.transition({
             phase,
             ...(prepared.path === undefined ? {} : { path: prepared.path }),

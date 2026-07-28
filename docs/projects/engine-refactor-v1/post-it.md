@@ -28,10 +28,12 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 part of the nested module kind.
 
 **Current container:** finish the Swooper definition/application contract. One
-definition-owned catalog source API loads and admits authored configs in
-declared membership order. Studio metadata generation and Civ7 artifact
-generation consume that same API. The application retains transient deploy
-selection and file materialization only, and consumes the canonical Standard
+definition-owned source store loads admitted configs in declared membership
+order and prepares opaque authored-config writes with exact rollback. Studio
+metadata generation and Civ7 artifact generation consume that same boundary;
+Studio may commit or roll back a prepared write but never receives definition
+paths or prior source contents. The application retains transient deploy
+selection and Civ7 materialization only, and consumes the canonical Standard
 recipe id rather than re-authoring it.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
@@ -49,11 +51,11 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** collapse the duplicate source loaders into one finite definition
-entrypoint, remove every app knowledge of definition filesystem layout, replace
-the app's recipe-id literal with the definition export, move source-admission
-proof to the definition owner, then prove both project graphs, generated
-currentness, boundaries, Knip, and the staged authority before sealing.
+**Gradient:** finish the pathless definition source transaction, delete the
+obsolete Studio artifact-preflight inventory, prove pathless rollback by actual
+preparation state rather than a display path, then close the definition,
+Studio, and Studio-server graphs with boundaries, Knip, staged authority, and
+fresh review before sealing this container.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
