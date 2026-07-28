@@ -2,8 +2,8 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Diagnostic. Ownership. Command. Projection. Evidence.
-Thinness. Closure.
+**Attractor filter:** Command. Option. Native. Ownership. Explicitness.
+Deletion.
 
 **Frame:** kind before instance, intent before ownership, authority before
 relocation. A closed file shape is the start of semantic review, not proof that
@@ -31,14 +31,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** the surviving live verifier still reimplements the
-platform Mods-directory lookup and keeps a one-consumer generic error helper,
-while its legitimate responsibilities are Swooper map-script identity,
-deployment markers, live product completion acceptance, and report/command
-composition. Consume the existing Civ7 filesystem authority, collapse the
-duplicate JSON/error projection inside the command boundary, and repair the
-diagnostics guide so it describes the runner's actual preset and independent
-seed inputs.
+**Current container:** the four Swooper diagnostic commands share a mixed
+`command-input.ts` cabinet that reimplements native argument parsing and stores
+Standard config-overlay behavior used by only one command. Each executable
+command owns its exact CLI grammar; `node:util.parseArgs` owns generic parsing;
+the Standard dump command alone owns its diagnostic config overlay. Keep the
+commands as thin Swooper workflow owners over MapGen diagnostics and delete the
+false shared boundary rather than relocating it.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -55,13 +54,12 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** replace the local OS path branch with the canonical Civ7
-filesystem resolver; delete the standalone verifier-error cabinet and keep one
-command-local JSON-safe report projection; preserve declared oRPC error evidence
-without stacks, causes, or provider payloads; correct the dump-runner examples
-to use one Civ7 preset plus explicit map seed, game seed, and player demand.
-Freeze with focused command behavior, tools typecheck, exact dependency proof,
-and fresh ownership review.
+**Gradient:** declare exact native options beside each command; fail unknown and
+missing inputs at the command boundary; keep required Standard map seed, game
+seed, and ordered player demand explicit; move recursive JSON config overlay
+beside its sole consumer; delete the shared parser cabinet and prove no second
+diagnostic argv abstraction survives. Freeze with focused argument behavior,
+the Swooper tools graph, exact dependency proof, and fresh ownership review.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -104,6 +102,18 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Live Diagnostic Command Ownership Sealed
+
+The live Studio verifier now consumes the canonical Civ7 plugin-files Mods
+resolver and retains only Swooper map-script identity, deployment markers,
+product completion acceptance, and command/report composition. Its one-consumer
+error cabinet collapsed into one JSON-safe command-local projection that
+preserves admitted oRPC evidence without stacks, causes, or provider payloads.
+The diagnostic guide now names the real Civ7 preset plus independent map seed,
+game seed, and player inputs. Focused command behavior, the full Swooper/Core
+graph, Habitat boundaries and JSDoc authority, and fresh architecture/testing
+reviews sealed the cut.
 
 ### 2026-07-28 - Exact Artifact Dependency Analysis Sealed
 

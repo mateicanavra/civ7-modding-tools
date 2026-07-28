@@ -61,6 +61,7 @@ nx run mod-swooper-maps:verify:operational -- --mode studio-run-in-game-live \
   --map-script "{swooper-maps}/maps/swooper-earthlike.js" \
   --map-size MAPSIZE_HUGE \
   --seed 1337 \
+  --game-seed 7331 \
   --player-count 10 \
   --wait-timeout-ms 120000
 ```

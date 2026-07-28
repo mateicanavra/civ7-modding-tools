@@ -76,7 +76,7 @@ bun run --cwd mods/mod-swooper-maps metrics:report
 nx run mod-swooper-maps:test
 
 # For a generation-vs-display question, compare already-captured viz layers.
-bun run --cwd mods/mod-swooper-maps diag:diff -- --prefix <layer> --dataTypeKey <key>
+bun run --cwd mods/mod-swooper-maps diag:diff -- <runDirA> <runDirB> --prefix <layer> --data-type-key <key>
 ```
 
 Record for each measurement: study id, scenario id, seed, named Civ7 map-size

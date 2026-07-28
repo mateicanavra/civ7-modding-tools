@@ -33,19 +33,25 @@ This tutorial uses the Standard recipe visualization harness, which emits the cu
 
 ### 1) Run the existing trace+viz dump harness
 
-This harness runs a minimal recipe and writes a dump under `dist/visualization/<runId>/`.
+This harness runs the complete Standard recipe and writes a dump under
+`dist/visualization/<label>/<runId>/`.
 
 Preferred (package script):
 
 ```bash
-nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --seed 1337
+nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7
 ```
 
-Optional inputs:
-- `--map-size` selects an official Civ7 map-size id.
-- `--seed` selects the deterministic map seed.
+Inputs:
+- `--map-size` optionally selects an official Civ7 map-size id and defaults to
+  `MAPSIZE_STANDARD`.
+- `--map-seed` and `--game-seed` are required independent Civ7 signed seeds.
+- `--players` is the required ordered list of alive major-player ids.
 
-The script prints the final dump directory.
+For a negative seed, use the unambiguous native-parser form such as
+`--game-seed=-7331`.
+
+The script prints `{"runId":"...","outputDir":"..."}` with the final dump directory.
 
 ### 2) Inspect the outputs on disk
 

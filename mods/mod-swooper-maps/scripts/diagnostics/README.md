@@ -31,7 +31,7 @@ Example:
 nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7 --label probe-baseline
 
 # variant
-nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7 --label probe-platecount6 --override '{"foundation":{"knobs":{"plateCount":6}}}'
+nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7 --label probe-platecount6 --override '{"foundation-lithosphere":{"plate-graph":{"computePlateGraph":{"config":{"plateCount":6}}}}}'
 
 # inspect / diff
 nx run mod-swooper-maps:diag:list -- dist/visualization/probe-baseline/<runId>
@@ -45,5 +45,8 @@ nx run mod-swooper-maps:diag:diff -- dist/visualization/probe-baseline/<runId> d
 - The selected Civ7 preset owns dimensions, engine map info, and start-slot capacity;
   `--players` supplies the exact ordered alive-major player ids. The admitted map configuration
   owns the recipe's north-to-south latitude bounds.
+- Negative seeds use Node's unambiguous inline form, such as `--game-seed=-1337`. An alternate
+  base configuration uses `--config-file`; inline `--override` remains the only override input.
+- Layer and trace filters are `--data-type-key`, `--event-kind`, and `--event-prefix`.
 - Product thresholds and cohort expectations belong to the Standard recipe metric study bank and
   run through `nx run mod-swooper-maps:metrics:report`, not through a second dump analyzer.

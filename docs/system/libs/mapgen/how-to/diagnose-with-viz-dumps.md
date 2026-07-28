@@ -35,17 +35,18 @@ In this repo, dumps are written under `mods/mod-swooper-maps/dist/visualization/
 
 ## Quickstart (deterministic probes)
 
-Use one official Civ7 map-size preset and a fixed seed so diffs are meaningful. The runner defaults
-to `MAPSIZE_STANDARD` and seed `1337`.
+Use one official Civ7 map-size preset, independent fixed map/game seeds, and a
+fixed ordered player set so diffs are meaningful. The runner defaults only the
+map size to `MAPSIZE_STANDARD`; all other setup evidence is explicit.
 
 From repo root:
 
 ```bash
 # baseline
-nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --seed 1337 --label probe-baseline
+nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7 --label probe-baseline
 
 # variant (example: change plateCount)
-nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --seed 1337 --label probe-platecount6 --override '{"foundation":{"knobs":{"plateCount":6}}}'
+nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7 --label probe-platecount6 --override '{"foundation-lithosphere":{"plate-graph":{"computePlateGraph":{"config":{"plateCount":6}}}}}'
 ```
 
 Each run prints:
@@ -75,13 +76,13 @@ nx run mod-swooper-maps:diag:diff -- <runDirA> <runDirB> --prefix foundation.
 
 2) Confirm Morphology fields changed (elevation, landmask)
 ```bash
-nx run mod-swooper-maps:diag:diff -- <runDirA> <runDirB> --dataTypeKey morphology.topography.elevation
-nx run mod-swooper-maps:diag:diff -- <runDirA> <runDirB> --dataTypeKey morphology.topography.landMask
+nx run mod-swooper-maps:diag:diff -- <runDirA> <runDirB> --data-type-key morphology.topography.elevation
+nx run mod-swooper-maps:diag:diff -- <runDirA> <runDirB> --data-type-key morphology.topography.landMask
 ```
 
 3) Extract step summaries from trace (landmask, sea level, etc.)
 ```bash
-nx run mod-swooper-maps:diag:trace -- <runDirA> --eventPrefix morphology.
+nx run mod-swooper-maps:diag:trace -- <runDirA> --event-prefix morphology.
 ```
 
 If Foundation layers change but landmask doesn’t, the problem is usually one of:
@@ -99,8 +100,6 @@ If Foundation layers change but landmask doesn’t, the problem is usually one o
   - `mods/mod-swooper-maps/scripts/diagnostics/extract-trace.ts`
 - Reusable evidence admission, exact binary reads, inventory, and neutral diffing:
   - `packages/mapgen-diagnostics/src/index.ts`
-- Diagnostic command input:
-  - `mods/mod-swooper-maps/scripts/diagnostics/command-input.ts`
 - Swooper product metric studies:
   - `mods/mod-swooper-maps/src/recipes/standard/metrics/studies/index.ts`
 - Trace + visualization sink wiring:
@@ -117,6 +116,7 @@ If Foundation layers change but landmask doesn’t, the problem is usually one o
 nx run mod-swooper-maps:diag:list -- <runDirA> --prefix foundation.
 ```
 
-- Keep comparisons deterministic: select one canonical Civ7 map-size preset, fix the seed, and
-  change one input at a time. Use custom dimensions only when the investigation explicitly targets
+- Keep comparisons deterministic: select one canonical Civ7 map-size preset,
+  fix the map seed, game seed, and ordered players, and change one input at a
+  time. Use custom dimensions only when the investigation explicitly targets
   out-of-preset behavior.

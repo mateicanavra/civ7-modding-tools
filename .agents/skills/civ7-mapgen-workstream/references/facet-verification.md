@@ -32,7 +32,7 @@ Two authoritative discriminators answer this; never argue the branch from a scre
 
 | Discriminator | What it compares | Reading |
 |---|---|---|
-| `diff-layers.ts` (`diag:diff`) | two **local** run manifests (`manifest.json` + `.bin`), per-layer Hamming / maxAbsDiff, filterable by `--prefix` / `--dataTypeKey` | non-zero diff in the data ⇒ **generation** bug, in `domain/*` or `recipes/*` |
+| `diff-layers.ts` (`diag:diff`) | two **local** run manifests (`manifest.json` + `.bin`), per-layer Hamming / maxAbsDiff, filterable by `--prefix` / `--data-type-key` | non-zero diff in the data ⇒ **generation** bug, in `domain/*` or `recipes/*` |
 | Standard parity report | correlated Standard replay vs one coherent **live** Civ7 map observation | `complete-pass` ⇒ the admitted product surfaces match; `complete-failed` names generation/product mismatches; `blocked-unresolved` preserves known comparisons but does not close the branch |
 
 If local-vs-local and a `complete-pass` local-vs-live report both agree while
@@ -45,9 +45,9 @@ classification implementation.
 
 ### Producing the binaries to diff
 
-`nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --seed 1337`
+`nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7`
 writes a preset-shaped Swooper Earthlike dump under
-`mods/mod-swooper-maps/dist/visualization/<runId>/{manifest.json,data/*.bin}`.
+`mods/mod-swooper-maps/dist/visualization/<label>/<runId>/{manifest.json,data/*.bin}`.
 Inspect with `nx run mod-swooper-maps:diag:diff -- <args>`. (Full diagnostics
 inventory: `references/pipeline-map.md`.)
 
