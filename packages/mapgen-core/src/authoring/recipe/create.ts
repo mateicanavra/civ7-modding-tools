@@ -27,11 +27,7 @@ import { bindOperationRuns, type OperationRegistry } from "../operation/bindings
 import { isCanonicalDomainOp } from "../operation/create.js";
 import { assertStageIds } from "../stage/identity.js";
 import type { StageObservation } from "../stage/types.js";
-import {
-  copyCanonicalStepAuthorityInternal,
-  isCanonicalStepContractInternal,
-  isCanonicalStepInternal,
-} from "../step/authority.js";
+import { isCanonicalStepContractInternal, isCanonicalStepInternal } from "../step/authority.js";
 import { assertStepInitialSetupContextInternal } from "../step/context.js";
 import type { StepDependencyList } from "../step/contract.js";
 import { buildDeclaredStepDependencies } from "../step/dependencies.js";
@@ -59,6 +55,7 @@ function snapshotAuthorship<T>(value: T, seen = new WeakMap<object, unknown>()):
   if (isArtifact(value)) return value;
   if (isCanonicalDomainOp(value)) return value;
   if (isCanonicalStepContractInternal(value)) return value;
+  if (isCanonicalStepInternal(value)) return value;
   if (isInitialSetupDefinitionInternal(value)) return value;
 
   const existing = seen.get(value);
@@ -115,7 +112,6 @@ function snapshotAuthorship<T>(value: T, seen = new WeakMap<object, unknown>()):
       value: snapshotAuthorship(descriptor.value, seen),
     });
   }
-  copyCanonicalStepAuthorityInternal(value, snapshot);
   return Object.freeze(snapshot) as T;
 }
 
@@ -373,8 +369,9 @@ function toStructuralRecipeV2(
 /**
  * Compiles one authored recipe definition into its config, frozen plan, and execution surface.
  *
- * Authorship is deeply snapshotted once, so later mutation of caller aliases or the public
- * structural recipe cannot change future compilation or execution.
+ * Caller-owned authorship containers are deeply snapshotted once, so later alias or public
+ * structural mutation cannot change future compilation or execution. Values already admitted by
+ * canonical authoring constructors retain their exact identity inside that detached structure.
  *
  * A compiled plan retains one admitted setup identity. Direct execution consumes that exact plan;
  * convenience run methods compile once from `context.setup` and delegate without a second pass.

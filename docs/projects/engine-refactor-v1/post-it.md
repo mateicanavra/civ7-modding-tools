@@ -2,7 +2,7 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Contract. Operation. Identity. Directness. Restraint.
+**Attractor filter:** Contract. Identity. Snapshot. Directness. Restraint.
 Density. Closure.
 
 **Frame:** kind before instance, intent before ownership, authority before
@@ -31,14 +31,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** step-scoped strategy defaults are compensating machinery,
-not an earned authoring capability. Their sole product consumer makes a
-precipitation refinement pass masquerade as an alternative precipitation
-synthesis strategy even though it observes a narrower prior-vintage input and
-performs a different transition. Split that behavior into its own exact
-operation, then delete the scoped default type, contract-shaped clone, hidden
-source `WeakMap`, and reverse binding projection. Steps bind canonical
-operation contracts directly.
+**Current container:** recipe admission should snapshot caller-owned
+containers without cloning values that already crossed a canonical authoring
+boundary. `createStep` returns one frozen executable step authority; recreating
+its object shape inside `createRecipe` and copying its `WeakSet` authority adds
+a false second identity without protecting any mutable state. Preserve exact
+canonical steps while continuing to detach the recipe, stage, and ordered-step
+containers that authors still own.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -55,13 +54,12 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** extract the river-corridor/basin refinement into a sole-strategy
-operation with only the input it observes; migrate Standard authorship and
-shipped configs without changing generated behavior; reduce Core step ops to
-canonical contracts only; remove override-specific types, tests, registry, and
-binding logic. Freeze with exact contract/type inference, focused refinement
-behavior, generated-currentness, the Core/Standard graph, and fresh
-type/architecture/product review.
+**Gradient:** teach the recipe snapshot to preserve canonical step identity;
+delete authority transfer and its only reverse mapping; retain hostile
+descriptor and caller-alias protection for every surrounding container; prove
+that forged steps still fail closed and that post-admission stage/list mutation
+cannot alter compilation or execution. Freeze with focused Core behavior,
+typecheck, the authoring topology laws, and fresh TypeScript/state review.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -104,6 +102,17 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Precipitation Operation Authority Sealed
+
+River-corridor and closed-basin wetness now form the exact
+`hydrology/refine-precipitation` transition rather than a narrower-input
+strategy smuggled into precipitation synthesis. Core steps bind canonical
+operation contracts directly; the scoped-default wrapper, cloned contract,
+hidden source map, and reverse binding projection retired. Nine shipped
+configs, generated artifacts, the canonical Hydrology authority, focused
+product behavior, the full Core/Swooper graph, Habitat kind laws, and fresh
+architecture/product review sealed the cut.
 
 ### 2026-07-28 - Invocation Observation Vocabulary Sealed
 

@@ -300,7 +300,12 @@ describe("recipe authoring", () => {
     const step = createStep(defineStep({ id: "alpha", requires: [], provides: [], schema }), {
       run: () => {},
     });
-    const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
+    const stageSteps = [step];
+    const stage = createStage({
+      id: "foundation",
+      knobsSchema: EmptyKnobsSchema,
+      steps: stageSteps,
+    });
     const stages = [stage];
     const recipe = createRecipe({
       id: "core.base",
@@ -310,6 +315,9 @@ describe("recipe authoring", () => {
 
     Reflect.set(schema.properties.count, "minimum", 100);
     stages.length = 0;
+    stageSteps.length = 0;
+    Reflect.set(stage, "id", "mutated-stage");
+    Reflect.set(stage, "steps", []);
 
     expect(Reflect.set(recipe.recipe.steps[0]!, "id", "forged")).toBe(false);
     expect(() => (recipe.recipe.steps as unknown[]).push({ id: "forged" })).toThrow();
