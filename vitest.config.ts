@@ -18,7 +18,7 @@ export default defineConfig({
       },
       {
         extends: true,
-        root: r("packages/cli"),
+        root: r("apps/cli"),
         test: {
           name: "cli",
           testTimeout: 30_000,

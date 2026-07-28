@@ -29,7 +29,7 @@ const session = new Civ7DirectControlSession({ host: "127.0.0.1" });
 // @filename: apps/mapgen-studio/src/server/runInGame/session.ts
 const session = new Civ7DirectControlSession();
 
-// @filename: packages/cli/src/commands/game/session.ts
+// @filename: apps/cli/civ7.ts
 const session = new Civ7DirectControlSession({ port: 4318 });
 
 // @filename: packages/studio-server/src/routes/session.ts

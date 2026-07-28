@@ -2,17 +2,18 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Runtime. Bun. Launcher. Proof. Currentness.
+**Attractor filter:** Application. Realization. Composition. Oclif. Bun. Closure.
 
-**Frame:** the CLI shell has one runtime contract throughout repository
-execution. Bun owns development, Nx invocation, direct executable launch, and
-application deployment; a Node shebang or explicit Node subprocess would
-silently reopen a second execution path even when oclif itself supports Bun.
+**Frame:** the CLI shell is an application realization, not a reusable package.
+It composes independently owned topic plugins into the `civ7` executable while
+Bun owns the process and oclif owns dispatch. Application composition and
+runtime entrypoints live under `apps`; reusable command capabilities remain in
+their plugin owners.
 
-**Authority order:** repository runtime -> production launcher -> Nx target ->
-application caller -> observable command proof. oclif owns command discovery
-and dispatch; Bun owns process execution; Nx owns orchestration and dependency
-ordering. Generated execution-surface reports follow the authored targets.
+**Authority order:** application role -> executable composition -> plugin
+contract -> runtime launcher -> observable command proof. Nx owns orchestration
+and dependency ordering. Generated execution-surface reports follow authored
+targets after the application move seals.
 
 **Enforcement gravity:** a correct scaffold plus an advisory rule is guidance,
 not a ratchet. Every newly admitted kind must finish with its generic blueprint
@@ -25,11 +26,11 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** collapse the remaining Node/Bun split in the active CLI
-plane. Make the production launcher Bun-native, invoke it with Bun from CLI and
-Swooper Nx targets, prove assembled topic discovery through that runtime, record
-the normative oclif operating sheet, then regenerate execution-surface
-currentness once.
+**Current container:** relocate the private oclif shell from `packages/cli` to
+the closed `apps/cli` application owner. Replace the copied source/library
+entrypoint split with the official oclif development composition at `civ7.ts`,
+retain one Bun production launcher, preserve the `civ7-cli` project identity
+and command behavior, then regenerate execution-surface currentness once.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -46,10 +47,11 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** verify the Bun launcher directly and through the owning Nx graph,
-seal the runtime guidance, run boundaries and Knip, land the runtime cut, then
-regenerate and land execution-surface currentness before returning to the
-aggregate-only Domain SDK.
+**Gradient:** turn the closed CLI-app law red, move the shell into its qualified
+owner, update every living caller and authority, prove the complete app/topic
+graph with boundaries and Knip, land the realization cut, then regenerate and
+land execution-surface currentness before returning to the aggregate-only
+Domain SDK.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -92,6 +94,16 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - CLI Bun Runtime And Currentness Sealed
+
+The private CLI shell now executes under one Bun contract from source
+development through its production launcher, linked binary, Nx-owned callers,
+and application deployment. oclif remains command-dispatch authority; external
+publication remains explicitly deferred. The complete CLI/app graph,
+boundaries, dead-code proof, fresh reviews, and regenerated execution-surface
+currentness sealed the runtime cut and exposed the remaining physical owner
+error: the executable shell was still stored as a package.
 
 ### 2026-07-28 - CLI Shell Kind Sealed
 

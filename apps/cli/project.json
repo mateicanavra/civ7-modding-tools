@@ -8,22 +8,13 @@
       "cache": false,
       "outputs": []
     },
-    "build:tsc": {
-      "command": "tsc -b --force",
-      "dependsOn": ["clean:dist", "^build"],
-      "cache": true,
-      "outputs": ["{projectRoot}/dist/**", "{projectRoot}/tsconfig.tsbuildinfo"],
-      "options": {
-        "cwd": "packages/cli"
-      }
-    },
     "build:manifest": {
       "command": "bun run --bun oclif manifest",
-      "dependsOn": ["build:tsc"],
+      "dependsOn": ["^build"],
       "cache": true,
       "outputs": ["{projectRoot}/oclif.manifest.json"],
       "options": {
-        "cwd": "packages/cli"
+        "cwd": "apps/cli"
       }
     },
     "build:bin-mode": {
@@ -32,7 +23,7 @@
       "cache": false,
       "outputs": [],
       "options": {
-        "cwd": "packages/cli"
+        "cwd": "apps/cli"
       }
     },
     "build": {
@@ -41,7 +32,7 @@
       "outputs": [],
       "dependsOn": ["build:bin-mode"],
       "options": {
-        "cwd": "packages/cli"
+        "cwd": "apps/cli"
       }
     },
     "link:global": {
@@ -50,7 +41,7 @@
       "cache": false,
       "outputs": [],
       "options": {
-        "cwd": "packages/cli"
+        "cwd": "apps/cli"
       }
     },
     "unlink:global": {
@@ -58,34 +49,25 @@
       "cache": false,
       "outputs": [],
       "options": {
-        "cwd": "packages/cli"
+        "cwd": "apps/cli"
       }
     },
-    "readme": {
-      "command": "bun run --bun oclif readme",
+    "pack": {
+      "command": "bun pm pack",
       "dependsOn": ["build"],
       "cache": false,
-      "outputs": ["{projectRoot}/README.md"],
-      "options": {
-        "cwd": "packages/cli"
-      }
-    },
-    "pack:prepare": {
-      "command": "bun -e \"void 0\"",
-      "cache": false,
       "outputs": [],
-      "dependsOn": ["build", "readme"],
       "options": {
-        "cwd": "packages/cli"
+        "cwd": "apps/cli"
       }
     },
-    "version:readme": {
-      "command": "git add README.md",
-      "dependsOn": ["readme"],
+    "run": {
+      "command": "bun run civ7.ts",
+      "dependsOn": ["^build"],
       "cache": false,
       "outputs": [],
       "options": {
-        "cwd": "packages/cli"
+        "cwd": "apps/cli"
       }
     },
     "data:zip:default": {
@@ -94,7 +76,7 @@
       "cache": false,
       "outputs": [],
       "options": {
-        "cwd": "packages/cli"
+        "cwd": "apps/cli"
       }
     },
     "data:unzip:default": {
@@ -103,7 +85,7 @@
       "cache": false,
       "outputs": [],
       "options": {
-        "cwd": "packages/cli"
+        "cwd": "apps/cli"
       }
     }
   }

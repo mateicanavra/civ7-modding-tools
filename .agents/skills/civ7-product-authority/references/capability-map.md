@@ -9,7 +9,7 @@ This map names durable product/domain owners for Civ7 Modding Tools. It is a sta
 | Official resource ingestion | CLI/config/resource workflow owners | locating, extracting, indexing, and referencing official game resources | SDK public API policy, MapGen domain topology, hand-edited resource outputs |
 | Generated Civ7 types/constants | `packages/civ7-types`, SDK constants where applicable | type-level representation of Civ7 runtime/game identifiers | runtime adapter implementation, generated artifact hand-edits |
 | SDK mod authoring | `packages/sdk` | builders, nodes, XML file generation contracts, authoring ergonomics | CLI UX, MapGen algorithms, Civ7 runtime adapter calls |
-| CLI workflows | `packages/cli` | command UX, flags, command orchestration, command errors | reusable plugin internals, SDK semantics |
+| CLI workflows | `apps/cli` | command UX, flags, command orchestration, command errors | reusable plugin internals, SDK semantics |
 | Plugin libraries | `packages/plugins/*` | reusable pure mechanics for graph/file/git/mod workflows | CLI-specific behavior, product-specific generated output claims |
 | MapGen core | `packages/mapgen-core` | authoring/compiler/executor/artifact/trace contracts and generic generation primitives | Swooper domain implementations, Civ7 runtime globals, generated mod files, MapGen Studio UI |
 | Civ7 adapter | `packages/civ7-adapter` | engine/runtime API boundary and stable adapter methods | MapGen algorithms, mod tuning, pure SDK XML generation |

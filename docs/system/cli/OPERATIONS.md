@@ -15,17 +15,17 @@ deliberately rather than maintaining parallel Node and Bun entrypoints.
 
 | Use | Supported command | Entrypoint |
 | --- | --- | --- |
-| Source development | `nx run civ7-cli:run -- <args>` | `packages/cli/bin/dev.ts` |
-| Built workspace CLI | `bun packages/cli/bin/run.js <args>` | compiled shell and topic plugins |
+| Development composition | `nx run civ7-cli:run -- <args>` | `apps/cli/civ7.ts` with freshly built topic plugins |
+| Built workspace CLI | `bun apps/cli/bin/run.js <args>` | production shell and compiled topic plugins |
 | Linked CLI | `nx run civ7-cli:link:global`, then `civ7 <args>` | Bun shebang in `bin/run.js` |
 | Topic manifest | `bun run --bun oclif manifest` through its Nx target | compiled topic package |
 | Shell manifest | `bun run --bun oclif manifest` through `civ7-cli:build` | assembled CLI shell |
 | npm-style archive | `bun pm pack` | validation only; not a standalone executable |
 | Standalone executable | unsupported | deferred distribution design |
 
-Do not invoke `node packages/cli/bin/run.js`. Do not use `bin/dev.ts` for a
-deployment or other production-shaped execution. Do not hand-edit `dist` or an
-`oclif.manifest.json` file.
+Do not invoke `node apps/cli/bin/run.js`. Do not use `civ7.ts` for a deployment
+or other production-shaped execution. Do not hand-edit topic `dist` output or
+an `oclif.manifest.json` file.
 
 ## Build Order
 
@@ -35,13 +35,14 @@ Nx builds workspace dependencies before the CLI. Each topic plugin then:
 2. generates its oclif manifest from that compiled command tree;
 3. exposes no independent binary or global hook.
 
-The shell builds after its topic plugins, generates the aggregate manifest, and
-makes `bin/run.js` executable. Application deploy targets depend on that shell
-build and call the built launcher with Bun.
+The shell builds after its topic plugins, generates its root-plugin manifest,
+and makes `bin/run.js` executable. Topic manifests own their commands; the root
+manifest does not aggregate those command rows. Application deploy targets
+depend on the shell build and call the production launcher with Bun.
 
 ## Plugin Assembly
 
-The shell lives at `packages/cli`; cohesive command topics live at
+The application shell lives at `apps/cli`; cohesive command topics live at
 `plugins/cli/topics/<topic>`. Every topic package must appear exactly once in
 the shell's `oclif.plugins` list and must be backed by a `workspace:*`
 dependency. The shell owns startup and assembly, not topic commands. The shell

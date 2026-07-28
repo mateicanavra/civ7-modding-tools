@@ -507,3 +507,9 @@ services.
 - The `data`, `docs`, `git-mod`, and `game` topics are independent instances.
   Graph, archive, configuration, file, Git, mod, and live-control mechanics
   remain in their existing reusable package owners.
+
+**Amendment (2026-07-28):** The shell's physical owner is `apps/cli`, not
+`packages/cli`, because it realizes an executable application rather than a
+reusable package. `apps/cli/civ7.ts` owns development composition,
+`apps/cli/bin/run.js` owns production launch, and command topics remain
+independent plugins.

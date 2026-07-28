@@ -27,7 +27,7 @@ Two enforcement planes — do not conflate them:
 | `kind:adapter` | Sole owner of Civ7 engine globals and `/base-standard/` imports | `lint-adapter-boundary.sh`; `packages/civ7-adapter/AGENTS.md` |
 | `kind:control` | Runtime control of a live Civ7 instance: socket protocol (`direct-control`) and oRPC service surface (`control-orpc`, `studio-server`) | `packages/civ7-direct-control/AGENTS.md`; Habitat `grit-control-orpc-contract-ownership`; root `AGENTS.md` ("runtime Civ7 control belongs in @civ7/direct-control") |
 | `kind:library` | Pure leaf libraries: types, config, policy facts, metrics/viz contracts and evaluators; no domain orchestration, broadly importable | `packages/civ7-types`, `config`, `civ7-map-policy`, `mapgen-metrics`, `mapgen-viz` package docs |
-| `kind:plugin` | Reusable CLI/SDK helper libraries, leaf-local | `packages/plugins/*`; `packages/cli/AGENTS.md` |
+| `kind:plugin` | Reusable CLI/SDK helper libraries, leaf-local | `packages/plugins/*`; `apps/cli/AGENTS.md` |
 | `kind:cli-topic-plugin` | Independently buildable oclif topic surfaces registered by the CLI shell; own command adapters and behavior tests but no binary, startup hooks, or reusable capabilities | `plugins/cli/topics/*`; ADR-017; Habitat `cli-topic-plugin` blueprint |
 | `kind:package-tool` | Package-owned, non-runtime build, generation, and currentness programs; callable through Nx targets but not imported by product source | package-local `scripts/project.json`; root `AGENTS.md` task ownership |
 | `kind:mod` | Reusable authored mod definitions: domains, recipes, product config, and public mod contracts; deployable realization belongs to an app | `plugins/mod/**`; `docs/system/ARCHITECTURE.md` |
@@ -81,7 +81,7 @@ treatment without adding a concrete tag or constraint row.
 | Project | Path | Tags |
 |---|---|---|
 | civ7-modding-tools | `.` | `kind:workspace` |
-| civ7-cli | `packages/cli` | `kind:app` |
+| civ7-cli | `apps/cli` | `kind:app` |
 | cli-data | `plugins/cli/topics/data` | `kind:cli-topic-plugin` |
 | cli-docs | `plugins/cli/topics/docs` | `kind:cli-topic-plugin` |
 | cli-game | `plugins/cli/topics/game` | `kind:cli-topic-plugin` |

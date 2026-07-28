@@ -1,5 +1,6 @@
 import { spawnSync } from "node:child_process";
-import { readdirSync, readFileSync } from "node:fs";
+import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
@@ -23,8 +24,22 @@ function readManifest(path: string): PackageManifest {
   return JSON.parse(readFileSync(path, "utf8")) as PackageManifest;
 }
 
+function runShell(executable: string, args: readonly string[], home: string) {
+  return spawnSync(executable, args, {
+    cwd: packageRoot,
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      HOME: home,
+      XDG_CACHE_HOME: join(home, ".cache"),
+      XDG_CONFIG_HOME: join(home, ".config"),
+      XDG_DATA_HOME: join(home, ".local/share"),
+    },
+  });
+}
+
 describe("civ7 CLI shell", () => {
-  test("registers the admitted plugins and exposes every topic from the production binary", () => {
+  test("registers each topic once and preserves development-production command parity", () => {
     const manifest = readManifest(join(packageRoot, "package.json"));
     const topicManifests = readdirSync(topicRoot, { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
@@ -38,9 +53,10 @@ describe("civ7 CLI shell", () => {
 
     expect(manifest.oclif).not.toHaveProperty("commands");
     const registeredPlugins = manifest.oclif?.plugins ?? [];
-    expect(registeredPlugins).toContain("@oclif/plugin-help");
+    expect([...registeredPlugins].sort()).toEqual(
+      ["@oclif/plugin-help", ...topicPackageNames].sort()
+    );
     for (const topicPackageName of topicPackageNames) {
-      expect(registeredPlugins.filter((plugin) => plugin === topicPackageName)).toHaveLength(1);
       expect(manifest.dependencies?.[topicPackageName]).toBe("workspace:*");
     }
 
@@ -49,18 +65,22 @@ describe("civ7 CLI shell", () => {
       expect(topicManifest.oclif).not.toHaveProperty("hooks");
     }
 
-    const result = spawnSync(join(packageRoot, "bin/run.js"), ["--help"], {
-      cwd: packageRoot,
-      encoding: "utf8",
-    });
-    expect(result.status, result.stderr).toBe(0);
+    const home = mkdtempSync(join(tmpdir(), "civ7-cli-shell-"));
+    const production = runShell(join(packageRoot, "bin/run.js"), ["--help"], home);
+    const development = runShell("bun", [join(packageRoot, "civ7.ts"), "--help"], home);
+    rmSync(home, { force: true, recursive: true });
+
+    expect(production.status, production.stderr).toBe(0);
+    expect(development.status, development.stderr).toBe(0);
+    expect(development.stdout).toBe(production.stdout);
     const topLevelTopics = new Set(
       topicManifests.flatMap((topicManifest) =>
         Object.keys(topicManifest.oclif?.topics ?? {}).map((topic) => topic.split(":", 1)[0])
       )
     );
     for (const topic of topLevelTopics) {
-      expect(result.stdout).toMatch(new RegExp(`^  ${topic}\\s`, "m"));
+      const topicRows = production.stdout.match(new RegExp(`^  ${topic}\\s`, "gm")) ?? [];
+      expect(topicRows, `expected one ${topic} topic row`).toHaveLength(1);
     }
   });
 });

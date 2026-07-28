@@ -33,7 +33,7 @@ bun run test
 - CLI:
   ```bash
   nx run civ7-cli:build
-  bun packages/cli/bin/run.js --help
+  bun apps/cli/bin/run.js --help
   ```
 - SDK:
   ```bash
@@ -98,7 +98,7 @@ nx run cli-game:check
 nx run cli-game:build
 ```
 
-Avoid package-local CLI tests such as `bun run --cwd packages/cli test` or
+Avoid app-local CLI tests such as `bun run --cwd apps/cli test` or
 `bun run --cwd plugins/cli/topics/game test` unless the dependency graph has
 already been built. The game topic imports compiled workspace control packages,
 so package-local tests can otherwise read stale `dist/` output.

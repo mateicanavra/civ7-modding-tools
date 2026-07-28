@@ -5,7 +5,7 @@ Scope: `plugins/cli/topics/data/**`
 - This `kind:cli-topic-plugin` project owns the `data` oclif command surface,
   command-local adapters, and its behavior tests.
 - Keep the Civ7 CLI binary, startup, global hooks, and plugin registration in
-  `packages/cli`.
+  `apps/cli`.
 - Keep graph, file/archive, and configuration capabilities in their reusable
   package owners; commands adapt those capabilities rather than reimplementing
   them here.

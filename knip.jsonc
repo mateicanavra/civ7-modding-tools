@@ -65,9 +65,6 @@
       // target; dead-code analysis must not rewrite or narrow protected output.
       "ignore": ["src/setup-parameters.gen.ts"]
     },
-    "packages/cli": {
-      "entry": ["bin/dev.ts"]
-    },
     "plugins/cli/topics/data": {
       "entry": ["src/commands/**/*.ts"]
     },

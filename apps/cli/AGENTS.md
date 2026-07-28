@@ -1,9 +1,10 @@
 # Civ7 CLI Shell Agent Router
 
-Scope: `packages/cli/**`
+Scope: `apps/cli/**`
 
-- This `kind:app` project owns the `civ7` binary, startup, global hooks, oclif
-  plugin registration, and shell-wide build, link, pack, and publish targets.
+- This `kind:app` project owns the `civ7` application composition, binary,
+  startup, global hooks, oclif plugin registration, and shell-wide operational
+  targets.
 - Cohesive command topics belong under `plugins/cli/topics/<topic>` as
   `kind:cli-topic-plugin` projects. Register each plugin once; do not retain
   forwarding commands or duplicate topic metadata in the shell.

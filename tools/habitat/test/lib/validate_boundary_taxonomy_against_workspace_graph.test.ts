@@ -276,7 +276,7 @@ function packageNameForRoot(root: string): string | null {
         "packages/civ7-direct-control": "@civ7/direct-control",
         "packages/civ7-map-policy": "@civ7/map-policy",
         "packages/civ7-types": "@civ7/types",
-        "packages/cli": "@mateicanavra/civ7-cli",
+        "apps/cli": "@mateicanavra/civ7-cli",
         "packages/config": "@civ7/config",
         "packages/mapgen-core": "@swooper/mapgen-core",
         "packages/mapgen-viz": "@swooper/mapgen-viz",

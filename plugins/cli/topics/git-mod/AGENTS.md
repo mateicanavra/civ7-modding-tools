@@ -6,7 +6,7 @@ Scope: `plugins/cli/topics/git-mod/**`
   `mod manage` oclif command surfaces, command-local adapters, and behavior
   tests.
 - Keep the Civ7 CLI binary, startup, global hooks, and plugin registration in
-  `packages/cli`.
+  `apps/cli`.
 - Keep reusable Git and mod capabilities in `@civ7/plugin-git` and
   `@civ7/plugin-mods`; commands adapt those packages rather than reimplementing
   them here.

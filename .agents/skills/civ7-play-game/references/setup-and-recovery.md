@@ -30,7 +30,7 @@ means you can read.
 - **`Error: Cannot find module '@oclif/core'`** (or similar) = the CLI's
   dependencies are not installed in this checkout/worktree. Run from a checkout
   where deps are installed, or install them first (`bun install`). The bin is a
-  Bun launcher; invoke `bun packages/cli/bin/run.js` from the repo root, or
+  Bun launcher; invoke `bun apps/cli/bin/run.js` from the repo root, or
   refresh the global link with `nx run civ7-cli:link:global` before using `civ7`.
 - The CLI talks to the FireTuner socket at `127.0.0.1:4318` by default. Civ7 must
   be **running** for the socket to be open.

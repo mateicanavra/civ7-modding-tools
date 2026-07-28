@@ -1,10 +1,7 @@
 {
   "compilerOptions": {
-    "declaration": true,
-    "importHelpers": true,
     "module": "NodeNext",
-    "outDir": "dist",
-    "rootDir": "src",
+    "noEmit": true,
     "strict": true,
     "target": "ESNext",
     "lib": ["ESNext"],
@@ -13,8 +10,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "composite": true,
     "types": ["bun-types"]
   },
-  "include": ["src/**/*"]
+  "include": ["civ7.ts"]
 }

@@ -4,7 +4,7 @@ A comprehensive monorepo workspace for Civilization VII modding, providing tools
 
 This repository began from [izica/civ7-modding-tools](https://github.com/izica/civ7-modding-tools) and has since diverged; it is maintained independently and extended with:
 - 📦 **[@civ7/sdk](packages/sdk)** - TypeScript SDK for programmatic mod generation
-- 🛠️ **[@civ7/cli](packages/cli)** - Command-line tools for managing game resources
+- 🛠️ **[@civ7/cli](apps/cli)** - Command-line tools for managing game resources
 - 📚 **[Documentation](apps/docs)** - Comprehensive modding guides and references
 - 🎮 **[Playground](apps/playground)** - Examples and experimentation space
 - 🔌 **[Plugin libraries](packages/plugins)** - Reusable file and graph logic consumed by the CLI
@@ -34,12 +34,12 @@ civ7-modding-tools/
 ├── docs/                 # Project documentation (see docs/DOCS.md for architecture)
 ├── packages/
 │   ├── sdk/              # TypeScript SDK for mod generation
-│   ├── cli/              # Command-line tools (oclif)
 │   ├── config/           # Shared config/path resolution (lib + JSON schema)
 │   └── plugins/
 │       ├── plugin-files/ # Programmatic zip/unzip library (consumed by CLI/docs)
 │       └── plugin-graph/ # Graph crawl/render library (consumed by CLI)
 ├── apps/
+│   ├── cli/              # Civ7 CLI application shell (oclif)
 │   ├── docs/             # Documentation site (Mintlify)
 │   └── playground/       # Example mods and experiments
 ├── mods/
