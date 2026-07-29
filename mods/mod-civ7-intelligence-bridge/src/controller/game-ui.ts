@@ -40,7 +40,10 @@ import {
 } from "./game-ui/narrative";
 import {
   type Civ7GameUiNotificationDismissalTarget,
-  requestCiv7GameUiNotificationDismissal,
+  checkCiv7GameUiNotificationDismissal,
+  civ7GameUiNotificationDismissalCheckAvailable,
+  civ7GameUiNotificationDismissalSendAvailable,
+  sendCiv7GameUiNotificationDismissal,
 } from "./game-ui/notification-dismissal";
 import {
   type Civ7GameUiPopulationTarget,
@@ -134,8 +137,6 @@ type RuntimeProbe<T> = Readonly<{ ok: true; value: T } | { ok: false; error: str
 
 export type Civ7GameUiRuntimeTarget = Civ7GameUiTurnCompletionTarget & {
   Civ7IntelligenceBridge?: Civ7IntelligenceBridge;
-  EndTurnBlockingTypes?: Civ7GameUiNotificationDismissalTarget["EndTurnBlockingTypes"];
-  NotificationModel?: Civ7GameUiNotificationDismissalTarget["NotificationModel"];
   Input?: {
     getActiveContext?: () => number;
   };
@@ -365,8 +366,10 @@ function createCiv7GameUiDirectControlFacade(
     checkCiv7ProductionChoice: async (input) =>
       await checkCiv7GameUiProductionChoice(input, target),
     sendCiv7ProductionChoice: async (input) => await sendCiv7GameUiProductionChoice(input, target),
-    requestCiv7NotificationDismissal: async (input) =>
-      await requestCiv7GameUiNotificationDismissal(input, target),
+    checkCiv7NotificationDismissal: async (input) =>
+      await checkCiv7GameUiNotificationDismissal(input, target),
+    sendCiv7NotificationDismissal: async (input) =>
+      await sendCiv7GameUiNotificationDismissal(input, target),
     requestCiv7AdvisorWarningViewed: async () => {
       throw new Error("game-ui advisor warning viewed request is not supported");
     },
@@ -512,7 +515,7 @@ function gameUiPlayableStatus(
 function gameUiSupportedMutationProcedures(target: Civ7GameUiRuntimeTarget): readonly string[] {
   if (gameUiControllerMutationProof(target) == null) return [];
   const supported: string[] = [];
-  if (gameUiNotificationDismissalAvailable(target)) {
+  if (civ7GameUiNotificationDismissalSendAvailable(target)) {
     supported.push("notifications.dismiss.request");
   }
   if (civ7GameUiProductionChoiceSendAvailable(target)) {
@@ -569,6 +572,9 @@ function gameUiSupportedMutationProcedures(target: Civ7GameUiRuntimeTarget): rea
 
 function gameUiSupportedReadProcedures(target: Civ7GameUiRuntimeTarget): readonly string[] {
   const supported: string[] = [];
+  if (civ7GameUiNotificationDismissalCheckAvailable(target)) {
+    supported.push("notifications.dismiss.check");
+  }
   if (civ7GameUiProductionChoiceCheckAvailable(target)) {
     supported.push("city.production.choice.check");
   }
@@ -612,17 +618,6 @@ function gameUiSupportedReadProcedures(target: Civ7GameUiRuntimeTarget): readonl
     supported.push("world.plot.read", "world.grid.read");
   }
   return supported;
-}
-
-function gameUiNotificationDismissalAvailable(target: Civ7GameUiRuntimeTarget): boolean {
-  const notifications = target.Game?.Notifications;
-  const manager = target.NotificationModel?.manager;
-  return (
-    typeof notifications?.find === "function" &&
-    (typeof notifications.dismiss === "function" ||
-      typeof manager?.dismiss === "function" ||
-      typeof manager?.onDismiss === "function")
-  );
 }
 
 function gameUiAttentionReadAvailable(target: Civ7GameUiRuntimeTarget): boolean {

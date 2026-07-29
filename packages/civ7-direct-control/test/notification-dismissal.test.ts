@@ -1,240 +1,464 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
+import { runInNewContext } from "node:vm";
+import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
-import { getCiv7NotificationDismissal, requestCiv7NotificationDismissal } from "../src/index";
+import * as directControl from "../src/index";
+import {
+  type Civ7NotificationDismissalSnapshot,
+  checkCiv7NotificationDismissal,
+  sendCiv7NotificationDismissal,
+} from "../src/index";
+import { liveCiv7DirectControl } from "../src/live-control";
 
-type FakeTunerServer = {
-  received: string[];
+const notificationId = { owner: 0, id: 113, type: 20 };
+
+type NotificationDismissalServerOptions = Readonly<{
+  notificationId?: Readonly<{ owner: number; id: number; type?: number }>;
+  localPlayerId?: unknown;
+  exists?: boolean;
+  activeQueue?: boolean;
+  canUserDismiss?: unknown;
+  dismissed?: unknown;
+  typeName?: unknown;
+  postLocalPlayerId?: unknown;
+  postExists?: boolean;
+  postActiveQueue?: boolean;
+  postCanUserDismiss?: unknown;
+  postDismissed?: unknown;
+  missingGetIdsForPlayer?: boolean;
+  missingCanUserDismiss?: boolean;
+  missingDismissed?: boolean;
+  missingDismiss?: boolean;
+  dismissError?: Error;
+  dismissResult?: unknown;
+}>;
+
+type FakeNotificationDismissalServer = Readonly<{
+  commandExecutions: string[];
+  findArgs: unknown[];
+  getTypeArgs: unknown[];
+  getTypeNameArgs: unknown[];
+  getIdsForPlayerArgs: unknown[];
+  canUserDismissArgs: unknown[];
+  dismissArgs: unknown[];
+  receiverMatches: boolean[];
+  dismissInvocations(): number;
   address(): AddressInfo;
   close(): Promise<void>;
-};
+}>;
 
-type NotificationDismissalMode =
-  | "verified"
-  | "engine-front-train-absent"
-  | "engine-front-dismissed"
-  | "engine-front-none-blocker"
-  | "expired-engine-front-none-blocker";
+describe("exact native notification-dismissal atoms", () => {
+  test("publishes only bounded check/send atoms and raw schemas", () => {
+    expect(directControl).toMatchObject({
+      checkCiv7NotificationDismissal: expect.any(Function),
+      sendCiv7NotificationDismissal: expect.any(Function),
+      Civ7NotificationDismissInputSchema: expect.any(Object),
+      Civ7NotificationDismissalSnapshotSchema: expect.any(Object),
+      Civ7NotificationDismissalCheckResultSchema: expect.any(Object),
+      Civ7NotificationDismissalSendInputSchema: expect.any(Object),
+      Civ7NotificationDismissalSendResultSchema: expect.any(Object),
+    });
+    expect(liveCiv7DirectControl).toMatchObject({
+      checkCiv7NotificationDismissal,
+      sendCiv7NotificationDismissal,
+    });
+    for (const retiredExport of [
+      "getCiv7NotificationDismissal",
+      "requestCiv7NotificationDismissal",
+      "Civ7NotificationDismissRequestInputSchema",
+      "Civ7NotificationDismissalResultSchema",
+      "Civ7NotificationDismissalSummarySchema",
+      "notificationDismissalProofOutcome",
+      "notificationDismissalProofPostcondition",
+    ]) {
+      expect(retiredExport in directControl).toBe(false);
+    }
 
-describe("notification dismissal", () => {
-  test("rejects malformed notification ids before building App UI commands", async () => {
-    await expect(
-      getCiv7NotificationDismissal({ notificationId: { owner: 0, type: 20 } } as never, {
-        host: "127.0.0.1",
-        port: 1,
+    const snapshot = expectedSnapshot();
+    expect(Value.Check(directControl.Civ7NotificationDismissInputSchema, { notificationId })).toBe(
+      true
+    );
+    expect(
+      Value.Check(directControl.Civ7NotificationDismissInputSchema, {
+        notificationId,
+        send: true,
       })
-    ).rejects.toMatchObject({
-      code: "command-failed",
-    });
-    await expect(
-      requestCiv7NotificationDismissal({ notificationId: { owner: 0, type: 20 } } as never, {
-        host: "127.0.0.1",
-        port: 1,
+    ).toBe(false);
+    expect(Value.Check(directControl.Civ7NotificationDismissalSnapshotSchema, snapshot)).toBe(true);
+    expect(
+      Value.Check(directControl.Civ7NotificationDismissalSendInputSchema, {
+        expected: snapshot,
       })
-    ).rejects.toMatchObject({
-      code: "command-failed",
-    });
+    ).toBe(true);
+    expect(
+      Value.Check(directControl.Civ7NotificationDismissalSendInputSchema, {
+        expected: snapshot,
+        force: true,
+      })
+    ).toBe(false);
   });
 
-  test("plans and sends guarded notification dismissal", async () => {
-    const server = await startNotificationDismissalTunerServer();
+  test("checks one native snapshot through the official notification APIs", async () => {
+    const server = await startNotificationDismissalServer();
     try {
-      const { port } = server.address();
-      const notificationId = { owner: 0, id: 113, type: 20 };
-      const plan = await getCiv7NotificationDismissal(
-        { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 }
+      const result = await checkCiv7NotificationDismissal({ notificationId }, tunerOptions(server));
+
+      expect(result).toEqual({ snapshot: expectedSnapshot() });
+      expect(server.findArgs).toEqual([notificationId]);
+      expect(server.getTypeArgs).toEqual([notificationId]);
+      expect(server.getTypeNameArgs).toEqual([2091697919]);
+      expect(server.getIdsForPlayerArgs).toEqual([0]);
+      expect(server.canUserDismissArgs).toEqual([notificationId]);
+      expect(server.commandExecutions).toHaveLength(1);
+      expect(server.commandExecutions[0]).toContain(
+        "notifications.canUserDismissNotification.call"
       );
-      const request = await requestCiv7NotificationDismissal(
-        { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 }
+      expect(server.commandExecutions[0]).not.toMatch(
+        /NotificationModel|expired|notificationTrain|verified|notes|setTimeout|Date\.now/
+      );
+    } finally {
+      await server.close();
+    }
+  });
+
+  test.each([
+    {
+      label: "active queue",
+      options: { missingGetIdsForPlayer: true },
+      field: "activeQueue" as const,
+      error: "getIdsForPlayer is unavailable",
+    },
+    {
+      label: "native dismissal permission",
+      options: { missingCanUserDismiss: true },
+      field: "canUserDismiss" as const,
+      error: "canUserDismissNotification is unavailable",
+    },
+    {
+      label: "dismissed state",
+      options: { missingDismissed: true },
+      field: "dismissed" as const,
+      error: "Notification.Dismissed is unavailable",
+    },
+  ])("keeps unreadable $label evidence unavailable", async ({ options, field, error }) => {
+    const server = await startNotificationDismissalServer(options);
+    try {
+      const result = await checkCiv7NotificationDismissal({ notificationId }, tunerOptions(server));
+
+      expect(result.snapshot[field]).toEqual({
+        ok: false,
+        error: expect.stringContaining(error),
+      });
+      expect(result.snapshot[field]).not.toEqual({ ok: true, value: false });
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("preserves native false admission evidence", async () => {
+    const server = await startNotificationDismissalServer({
+      activeQueue: false,
+      canUserDismiss: false,
+    });
+    try {
+      const result = await checkCiv7NotificationDismissal({ notificationId }, tunerOptions(server));
+
+      expect(result.snapshot.activeQueue).toEqual({ ok: true, value: false });
+      expect(result.snapshot.canUserDismiss).toEqual({ ok: true, value: false });
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("dismisses exactly once and returns immediate raw before/after evidence", async () => {
+    const server = await startNotificationDismissalServer();
+    try {
+      const result = await sendCiv7NotificationDismissal(
+        { expected: expectedSnapshot() },
+        tunerOptions(server)
       );
 
-      expect(plan).toMatchObject({
-        notificationId,
-        canDismiss: true,
-        sent: false,
-        postcondition: {
-          classification: "not-sent",
-        },
-        before: {
-          typeName: "NOTIFICATION_WONDER_COMPLETED",
-          canUserDismiss: true,
-          isEndTurnBlocking: { ok: true, value: true },
-        },
-      });
-      expect(request).toMatchObject({
-        notificationId,
+      expect(result).toEqual({
         sent: true,
-        verified: true,
-        postcondition: {
-          classification: "notification-disappeared",
-        },
-        after: {
-          isEndTurnBlocking: { ok: true, value: false },
-        },
+        before: expectedSnapshot(),
+        after: expectedSnapshot({
+          activeQueue: { ok: true, value: false },
+          canUserDismiss: { ok: true, value: false },
+          dismissed: { ok: true, value: true },
+        }),
       });
-      expect(request.verificationAttempts?.length).toBeGreaterThan(1);
-      const dismissalReads = server.received.filter((message) =>
-        message.includes("readNotificationDismissal")
+      expect(server.dismissInvocations()).toBe(1);
+      expect(server.dismissArgs).toEqual([notificationId]);
+      expect(server.canUserDismissArgs).toEqual([notificationId, notificationId]);
+      expect(server.receiverMatches.every(Boolean)).toBe(true);
+      expect(server.commandExecutions).toHaveLength(1);
+      expect(server.commandExecutions[0]).toContain(
+        "notifications.dismiss.call(notifications, before.notificationId)"
       );
-      expect(dismissalReads.length).toBeGreaterThan(2);
-      expect(dismissalReads.filter((message) => message.includes('"send":true'))).toHaveLength(1);
-      expect(
-        dismissalReads.filter((message) => message.includes('"send":false')).length
-      ).toBeGreaterThan(1);
     } finally {
       await server.close();
     }
   });
 
-  test("does not verify dismissal from train absence while engine queue still fronts the target", async () => {
-    const server = await startNotificationDismissalTunerServer({
-      mode: "engine-front-train-absent",
+  test("does not make dismissed readability an admission prerequisite", async () => {
+    const server = await startNotificationDismissalServer({ missingDismissed: true });
+    try {
+      const { snapshot } = await checkCiv7NotificationDismissal(
+        { notificationId },
+        tunerOptions(server)
+      );
+      const result = await sendCiv7NotificationDismissal(
+        { expected: snapshot },
+        tunerOptions(server)
+      );
+
+      expect(snapshot.dismissed.ok).toBe(false);
+      expect(result.sent).toBe(true);
+      expect(server.dismissInvocations()).toBe(1);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test.each([
+    {
+      label: "notification identity drift",
+      expected: expectedSnapshot({
+        notificationId: { owner: 0, id: 114, type: 20 },
+      }),
+    },
+    {
+      label: "local player drift",
+      expected: expectedSnapshot({ localPlayerId: 1 }),
+    },
+    {
+      label: "existence drift",
+      expected: expectedSnapshot({ exists: false }),
+    },
+    {
+      label: "type-name drift",
+      expected: expectedSnapshot({ typeName: "NOTIFICATION_OTHER" }),
+    },
+    {
+      label: "active-queue drift",
+      expected: expectedSnapshot({ activeQueue: { ok: true, value: false } }),
+    },
+    {
+      label: "can-dismiss drift",
+      expected: expectedSnapshot({ canUserDismiss: { ok: true, value: false } }),
+    },
+    {
+      label: "unreadable expected active queue",
+      expected: expectedSnapshot({ activeQueue: { ok: false, error: "unavailable" } }),
+    },
+  ])("refuses $label before native invocation", async ({ expected }) => {
+    const server = await startNotificationDismissalServer();
+    try {
+      await expect(
+        sendCiv7NotificationDismissal({ expected }, tunerOptions(server))
+      ).rejects.toMatchObject({
+        name: "Civ7DirectControlError",
+        dispatchStatus: "not-dispatched",
+      });
+      expect(server.dismissInvocations()).toBe(0);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test.each([
+    {
+      label: "non-local owner",
+      options: {
+        notificationId: { owner: 1, id: 113, type: 20 },
+        localPlayerId: 0,
+      },
+    },
+    {
+      label: "inactive notification",
+      options: { activeQueue: false },
+    },
+    {
+      label: "native canUserDismiss false",
+      options: { canUserDismiss: false },
+    },
+  ])("fails closed for $label after matching check evidence", async ({ options }) => {
+    const server = await startNotificationDismissalServer(options);
+    try {
+      const requestedId = options.notificationId ?? notificationId;
+      const { snapshot } = await checkCiv7NotificationDismissal(
+        { notificationId: requestedId },
+        tunerOptions(server)
+      );
+
+      await expect(
+        sendCiv7NotificationDismissal({ expected: snapshot }, tunerOptions(server))
+      ).rejects.toMatchObject({
+        name: "Civ7DirectControlError",
+        dispatchStatus: "not-dispatched",
+        message: expect.stringContaining("Native notification dismissal admission"),
+      });
+      expect(server.dismissInvocations()).toBe(0);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("classifies a missing native dismiss method before dispatch", async () => {
+    const server = await startNotificationDismissalServer({ missingDismiss: true });
+    try {
+      await expect(
+        sendCiv7NotificationDismissal({ expected: expectedSnapshot() }, tunerOptions(server))
+      ).rejects.toMatchObject({
+        name: "Civ7DirectControlError",
+        dispatchStatus: "not-dispatched",
+      });
+      expect(server.dismissInvocations()).toBe(0);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("classifies native dismissal exceptions as dispatched", async () => {
+    const server = await startNotificationDismissalServer({
+      dismissError: new Error("native dismiss failed"),
     });
     try {
-      const { port } = server.address();
-      const notificationId = { owner: 0, id: 113, type: 20 };
-      const request = await requestCiv7NotificationDismissal(
-        { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 }
-      );
-
-      expect(request.sent).toBe(true);
-      expect(request.verified).toBe(false);
-      expect(request.postcondition).toMatchObject({
-        classification: "engine-front-still-live",
+      await expect(
+        sendCiv7NotificationDismissal({ expected: expectedSnapshot() }, tunerOptions(server))
+      ).rejects.toMatchObject({
+        name: "Civ7DirectControlError",
+        dispatchStatus: "dispatched",
+        message: "native dismiss failed",
       });
-      expect(request.after).toMatchObject({
-        engineQueueContains: { ok: true, value: true },
-        isEngineQueueFront: { ok: true, value: true },
-        notificationTrainContains: { ok: true, value: false },
-        isNotificationTrainFront: { ok: true, value: false },
-      });
-      expect(request.verificationAttempts?.length).toBeGreaterThan(1);
+      expect(server.dismissInvocations()).toBe(1);
     } finally {
       await server.close();
     }
   });
 
-  test("does not verify dismissal from dismissed flag while engine queue still fronts the target", async () => {
-    const server = await startNotificationDismissalTunerServer({ mode: "engine-front-dismissed" });
+  test("classifies after-read failures as dispatched", async () => {
+    const server = await startNotificationDismissalServer({ postLocalPlayerId: null });
     try {
-      const { port } = server.address();
-      const notificationId = { owner: 0, id: 113, type: 20 };
-      const request = await requestCiv7NotificationDismissal(
-        { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 }
-      );
-
-      expect(request.sent).toBe(true);
-      expect(request.verified).toBe(false);
-      expect(request.postcondition).toMatchObject({
-        classification: "engine-front-still-live",
+      await expect(
+        sendCiv7NotificationDismissal({ expected: expectedSnapshot() }, tunerOptions(server))
+      ).rejects.toMatchObject({
+        name: "Civ7DirectControlError",
+        dispatchStatus: "dispatched",
+        message: expect.stringContaining("GameContext.localPlayerID is unavailable"),
       });
-      expect(request.after).toMatchObject({
-        dismissed: true,
-        engineQueueContains: { ok: true, value: true },
-        isEngineQueueFront: { ok: true, value: true },
-      });
-      expect(request.verificationAttempts?.length).toBeGreaterThan(1);
+      expect(server.dismissInvocations()).toBe(1);
     } finally {
       await server.close();
     }
   });
 
-  test("uses panel dismiss when blocker enum is none despite stale engine-front identity", async () => {
-    const server = await startNotificationDismissalTunerServer({
-      mode: "engine-front-none-blocker",
+  test("classifies invalid host inputs before opening a Tuner session", async () => {
+    await expect(
+      checkCiv7NotificationDismissal(
+        { notificationId: { owner: 0, type: 20 } } as never,
+        unreachableTunerOptions
+      )
+    ).rejects.toMatchObject({
+      name: "Civ7DirectControlError",
+      dispatchStatus: "not-dispatched",
     });
-    try {
-      const { port } = server.address();
-      const notificationId = { owner: 0, id: 113, type: 20 };
-      const request = await requestCiv7NotificationDismissal(
-        { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 }
-      );
-
-      expect(request.sent).toBe(true);
-      expect(request.verified).toBe(true);
-      expect(request.postcondition).toMatchObject({
-        classification: "notification-disappeared",
-      });
-      const requestResult = request.result as { panelCloseControl?: unknown } | null;
-      expect(requestResult?.panelCloseControl).toMatchObject({
-        ok: true,
-        attempted: true,
-        available: true,
-        path: "Game.Notifications.dismiss",
-      });
-      expect(request.before).toMatchObject({
-        endTurnBlockingType: { ok: true, value: 0 },
-        isEngineQueueFront: { ok: true, value: true },
-      });
-      expect(request.after).toMatchObject({
-        exists: false,
-        engineQueueContains: { ok: true, value: false },
-        isEngineQueueFront: { ok: true, value: false },
-      });
-    } finally {
-      await server.close();
-    }
-  });
-
-  test("uses panel dismiss for expired non-user-dismissible stale front notifications when blocker enum is none", async () => {
-    const server = await startNotificationDismissalTunerServer({
-      mode: "expired-engine-front-none-blocker",
+    await expect(
+      sendCiv7NotificationDismissal(
+        { expected: { ...expectedSnapshot(), notes: [] } } as never,
+        unreachableTunerOptions
+      )
+    ).rejects.toMatchObject({
+      name: "Civ7DirectControlError",
+      dispatchStatus: "not-dispatched",
     });
-    try {
-      const { port } = server.address();
-      const notificationId = { owner: 0, id: 113, type: 20 };
-      const plan = await getCiv7NotificationDismissal(
-        { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 }
-      );
-      const request = await requestCiv7NotificationDismissal(
-        { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 }
-      );
-
-      expect(plan).toMatchObject({
-        canDismiss: true,
-        before: {
-          canUserDismiss: false,
-          expired: true,
-          endTurnBlockingType: { ok: true, value: 0 },
-          isEngineQueueFront: { ok: true, value: true },
-        },
-      });
-      expect(request.sent).toBe(true);
-      expect(request.verified).toBe(true);
-      expect(request.postcondition).toMatchObject({
-        classification: "notification-disappeared",
-      });
-      const requestResult = request.result as { panelCloseControl?: unknown } | null;
-      expect(requestResult?.panelCloseControl).toMatchObject({
-        ok: true,
-        attempted: true,
-        available: true,
-        path: "Game.Notifications.dismiss",
-      });
-      expect(request.after).toMatchObject({
-        exists: false,
-        engineQueueContains: { ok: true, value: false },
-        isEngineQueueFront: { ok: true, value: false },
-      });
-    } finally {
-      await server.close();
-    }
   });
 });
 
-async function startNotificationDismissalTunerServer(
-  options: { mode?: NotificationDismissalMode } = {}
-): Promise<FakeTunerServer> {
-  const received: string[] = [];
-  let notificationDismissalSent = false;
+async function startNotificationDismissalServer(
+  options: NotificationDismissalServerOptions = {}
+): Promise<FakeNotificationDismissalServer> {
+  const id = options.notificationId ?? notificationId;
+  const commandExecutions: string[] = [];
+  const findArgs: unknown[] = [];
+  const getTypeArgs: unknown[] = [];
+  const getTypeNameArgs: unknown[] = [];
+  const getIdsForPlayerArgs: unknown[] = [];
+  const canUserDismissArgs: unknown[] = [];
+  const dismissArgs: unknown[] = [];
+  const receiverMatches: boolean[] = [];
+  let dismissInvocations = 0;
+  const runtime = {
+    localPlayerId: hasOwn(options, "localPlayerId") ? options.localPlayerId : 0,
+    exists: options.exists ?? true,
+    activeQueue: options.activeQueue ?? true,
+    canUserDismiss: hasOwn(options, "canUserDismiss") ? options.canUserDismiss : true,
+    dismissed: hasOwn(options, "dismissed") ? options.dismissed : false,
+  };
+  const notifications: Record<string, unknown> = {
+    find(this: unknown, candidate: unknown) {
+      receiverMatches.push(this === notifications);
+      findArgs.push(candidate);
+      return runtime.exists && idsMatch(candidate, id)
+        ? {
+            Type: 2091697919,
+            ...(options.missingDismissed ? {} : { Dismissed: runtime.dismissed }),
+          }
+        : null;
+    },
+    getType(this: unknown, candidate: unknown) {
+      receiverMatches.push(this === notifications);
+      getTypeArgs.push(candidate);
+      return 2091697919;
+    },
+    getTypeName(this: unknown, type: unknown) {
+      receiverMatches.push(this === notifications);
+      getTypeNameArgs.push(type);
+      return hasOwn(options, "typeName") ? options.typeName : "NOTIFICATION_WONDER_COMPLETED";
+    },
+  };
+  if (!options.missingGetIdsForPlayer) {
+    notifications.getIdsForPlayer = function (this: unknown, playerId: unknown) {
+      receiverMatches.push(this === notifications);
+      getIdsForPlayerArgs.push(playerId);
+      return runtime.activeQueue ? [{ ...id }] : [];
+    };
+  }
+  if (!options.missingCanUserDismiss) {
+    notifications.canUserDismissNotification = function (this: unknown, candidate: unknown) {
+      receiverMatches.push(this === notifications);
+      canUserDismissArgs.push(candidate);
+      return runtime.canUserDismiss;
+    };
+  }
+  if (!options.missingDismiss) {
+    notifications.dismiss = function (this: unknown, candidate: unknown) {
+      dismissInvocations += 1;
+      receiverMatches.push(this === notifications);
+      dismissArgs.push(candidate);
+      if (options.dismissError) throw options.dismissError;
+      runtime.localPlayerId = hasOwn(options, "postLocalPlayerId")
+        ? options.postLocalPlayerId
+        : runtime.localPlayerId;
+      runtime.exists = options.postExists ?? true;
+      runtime.activeQueue = options.postActiveQueue ?? false;
+      runtime.canUserDismiss = hasOwn(options, "postCanUserDismiss")
+        ? options.postCanUserDismiss
+        : false;
+      runtime.dismissed = hasOwn(options, "postDismissed") ? options.postDismissed : true;
+      return options.dismissResult;
+    };
+  }
+  const globals = {
+    Game: { Notifications: notifications },
+    GameContext: {
+      get localPlayerID() {
+        return runtime.localPlayerId;
+      },
+    },
+  };
   const server = createServer((socket) => {
     let buffer = Buffer.alloc(0);
     socket.on("data", (chunk) => {
@@ -243,32 +467,35 @@ async function startNotificationDismissalTunerServer(
         const frame = parseRequest(buffer);
         if (!frame) return;
         buffer = buffer.subarray(frame.bytesRead);
-        received.push(frame.message);
         if (frame.message === "LSQ:") {
           socket.write(encodeResponse(frame.listenerId, ["65535", "App UI", "1", "Tuner"]));
-        } else if (frame.message.includes("readNotificationDismissal")) {
-          const send = frame.message.includes('"send":true');
-          if (send) notificationDismissalSent = true;
-          socket.write(
-            encodeResponse(frame.listenerId, [
-              JSON.stringify(
-                notificationDismissal(
-                  send,
-                  notificationDismissalSent && !send,
-                  options.mode ?? "verified"
-                )
-              ),
-            ])
-          );
-        } else {
-          socket.write(encodeResponse(frame.listenerId, ["2"]));
+          continue;
+        }
+        const commandMatch = frame.message.match(/^CMD:([^:]+):(.*)$/s);
+        if (!commandMatch) continue;
+        const command = commandMatch[2] ?? "";
+        commandExecutions.push(command);
+        try {
+          const output = runInNewContext(command, globals);
+          socket.write(encodeResponse(frame.listenerId, [String(output)]));
+        } catch (error) {
+          socket.write(encodeResponse(frame.listenerId, [String(error)]));
         }
       }
     });
   });
   await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+
   return {
-    received,
+    commandExecutions,
+    findArgs,
+    getTypeArgs,
+    getTypeNameArgs,
+    getIdsForPlayerArgs,
+    canUserDismissArgs,
+    dismissArgs,
+    receiverMatches,
+    dismissInvocations: () => dismissInvocations,
     address: () => server.address() as AddressInfo,
     close: async () => {
       server.close();
@@ -277,103 +504,47 @@ async function startNotificationDismissalTunerServer(
   };
 }
 
-function notificationDismissal(
-  send: boolean,
-  settled = false,
-  mode: NotificationDismissalMode = "verified"
-) {
-  const notificationId = { owner: 0, id: 113, type: 20 };
-  const trainAbsent = mode === "engine-front-train-absent";
-  const noneBlocker =
-    mode === "engine-front-none-blocker" || mode === "expired-engine-front-none-blocker";
-  const expiredNonDismissible = mode === "expired-engine-front-none-blocker";
-  const present = {
-    id: notificationId,
-    exists: true,
-    type: 2091697919,
-    typeName: "NOTIFICATION_WONDER_COMPLETED",
-    summary: "An unmet player has finished constructing the World Wonder Great Stele.",
-    message: "Wonder Completed",
-    target: { owner: -1, id: -1, type: 0 },
-    location: { x: -9999, y: -9999 },
-    canUserDismiss: !expiredNonDismissible,
-    expired: expiredNonDismissible,
-    dismissed: false,
-    blocksTurnAdvancement: { ok: true, value: true },
-    endTurnBlockingType: { ok: true, value: noneBlocker ? 0 : 2091697919 },
-    isEndTurnBlocking: { ok: true, value: true },
-    engineQueueCount: { ok: true, value: 1 },
-    engineQueueContains: { ok: true, value: true },
-    engineQueueFirstId: { ok: true, value: notificationId },
-    isEngineQueueFront: { ok: true, value: true },
-    notificationTrainCount: { ok: true, value: trainAbsent ? 0 : 1 },
-    notificationTrainContains: { ok: true, value: !trainAbsent },
-    notificationTrainFirstId: { ok: true, value: trainAbsent ? null : notificationId },
-    isNotificationTrainFront: { ok: true, value: !trainAbsent },
-  };
-  const cleared = {
-    ...present,
-    exists: false,
-    dismissed: true,
-    blocksTurnAdvancement: { ok: true, value: false },
-    endTurnBlockingType: { ok: true, value: 0 },
-    isEndTurnBlocking: { ok: true, value: false },
-    engineQueueCount: { ok: true, value: 0 },
-    engineQueueContains: { ok: true, value: false },
-    engineQueueFirstId: { ok: true, value: null },
-    isEngineQueueFront: { ok: true, value: false },
-    notificationTrainCount: { ok: true, value: 0 },
-    notificationTrainContains: { ok: true, value: false },
-    notificationTrainFirstId: { ok: true, value: null },
-    isNotificationTrainFront: { ok: true, value: false },
-  };
-  const engineFrontDismissed = {
-    ...present,
-    dismissed: true,
-  };
-  const current =
-    mode === "engine-front-train-absent"
-      ? present
-      : mode === "engine-front-dismissed"
-        ? engineFrontDismissed
-        : settled
-          ? cleared
-          : present;
+function expectedSnapshot(
+  overrides: Partial<Civ7NotificationDismissalSnapshot> = {}
+): Civ7NotificationDismissalSnapshot {
   return {
     notificationId,
-    before: current,
-    after: send ? present : null,
-    canDismiss: true,
-    sent: send,
-    result: send
-      ? {
-          notificationTrainManager: {
-            ok: true,
-            attempted: true,
-            available: true,
-            path: "NotificationModel.manager.dismiss",
-          },
-          panelCloseControl: noneBlocker
-            ? {
-                ok: true,
-                attempted: true,
-                available: true,
-                path: "Game.Notifications.dismiss",
-                value: true,
-              }
-            : {
-                ok: false,
-                attempted: false,
-                available: false,
-                path: "Game.Notifications.dismiss",
-                reason: "official panel close control does not dismiss the active end-turn blocker",
-              },
-        }
-      : null,
-    verificationAttempts: send ? [present] : [],
-    verified: false,
-    notes: ["This is an App UI notification action, not a gameplay operation family."],
+    localPlayerId: 0,
+    exists: true,
+    typeName: "NOTIFICATION_WONDER_COMPLETED",
+    activeQueue: { ok: true, value: true },
+    canUserDismiss: { ok: true, value: true },
+    dismissed: { ok: true, value: false },
+    ...overrides,
   };
+}
+
+function tunerOptions(server: FakeNotificationDismissalServer) {
+  const { port } = server.address();
+  return { host: "127.0.0.1", port, timeoutMs: 1_000 };
+}
+
+const unreachableTunerOptions = {
+  host: "127.0.0.1",
+  port: 1,
+  timeoutMs: 10,
+};
+
+function idsMatch(
+  left: unknown,
+  right: Readonly<{ owner: number; id: number; type?: number }>
+): boolean {
+  if (!left || typeof left !== "object") return false;
+  const candidate = left as { owner?: unknown; id?: unknown; type?: unknown };
+  return (
+    candidate.owner === right.owner &&
+    candidate.id === right.id &&
+    (candidate.type ?? null) === (right.type ?? null)
+  );
+}
+
+function hasOwn(value: object, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(value, key);
 }
 
 function parseRequest(buffer: Buffer): {

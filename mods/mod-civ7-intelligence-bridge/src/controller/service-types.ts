@@ -48,8 +48,11 @@ export type Civ7ControlOrpcNarrativeChoiceCheckResult = Awaited<
 export type Civ7ControlOrpcNarrativeChoiceSendResult = Awaited<
   ReturnType<DirectControl["sendCiv7NarrativeChoice"]>
 >;
-export type Civ7ControlOrpcNotificationDismissalResult = Awaited<
-  ReturnType<DirectControl["requestCiv7NotificationDismissal"]>
+export type Civ7ControlOrpcNotificationDismissalCheckResult = Awaited<
+  ReturnType<DirectControl["checkCiv7NotificationDismissal"]>
+>;
+export type Civ7ControlOrpcNotificationDismissalSendResult = Awaited<
+  ReturnType<DirectControl["sendCiv7NotificationDismissal"]>
 >;
 export type Civ7ControlOrpcPlayableStatusResult = Awaited<
   ReturnType<DirectControl["getCiv7PlayableStatus"]>

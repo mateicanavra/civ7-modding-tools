@@ -49,7 +49,10 @@ import type {
   Civ7NarrativeChoiceSendResult,
   Civ7NarrativeChoiceSnapshot,
   Civ7NarrativeChoiceValidationResult,
-  Civ7NotificationDismissalResult,
+  Civ7NotificationDismissalCheckResult,
+  Civ7NotificationDismissalSendInput,
+  Civ7NotificationDismissalSendResult,
+  Civ7NotificationDismissalSnapshot,
   Civ7NotificationDismissInput,
   Civ7PlayableStatusResultSchema,
   Civ7PlayNotificationViewResult,
@@ -112,7 +115,9 @@ import type {
 import type { Civ7CommandDispatchStatus } from "@civ7/direct-control/error";
 import type { Static } from "typebox";
 
-export type Civ7ControlOrpcNotificationDismissalResult = Civ7NotificationDismissalResult;
+export type Civ7ControlOrpcNotificationDismissalSnapshot = Civ7NotificationDismissalSnapshot;
+export type Civ7ControlOrpcNotificationDismissalCheckResult = Civ7NotificationDismissalCheckResult;
+export type Civ7ControlOrpcNotificationDismissalSendResult = Civ7NotificationDismissalSendResult;
 export type Civ7ControlOrpcAdvisorWarningViewedResult = Civ7AdvisorWarningViewedResult;
 export type Civ7ControlOrpcDiplomacyResponseResult = Civ7DiplomacyResponseResult;
 export type Civ7ControlOrpcFirstMeetResponseResult = Civ7FirstMeetResponseResult;
@@ -192,10 +197,14 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Civ7ProductionChoiceInput,
     options: Civ7DirectControlOptions | undefined
   ): Promise<Civ7ControlOrpcProductionChoiceSendResult>;
-  requestCiv7NotificationDismissal(
+  checkCiv7NotificationDismissal(
     input: Civ7NotificationDismissInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcNotificationDismissalResult>;
+  ): Promise<Civ7ControlOrpcNotificationDismissalCheckResult>;
+  sendCiv7NotificationDismissal(
+    input: Civ7NotificationDismissalSendInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7ControlOrpcNotificationDismissalSendResult>;
   requestCiv7AdvisorWarningViewed(
     input: Civ7AdvisorWarningViewedInput,
     options: Civ7DirectControlOptions | undefined

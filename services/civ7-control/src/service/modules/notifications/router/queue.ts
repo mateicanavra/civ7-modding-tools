@@ -1,21 +1,24 @@
-import { Effect } from "effect";
+import { Cause, Effect, Either } from "effect";
 import { civ7ControlOrpcMutationProcedure } from "#civ7-control-service/middleware/mutation-procedure";
 import {
   civ7ControlOrpcErrorCorrelationData,
   civ7ControlOrpcFailureDetail,
 } from "#civ7-control-service/model/dto/correlation";
+import type { Civ7ControlOrpcPlayNotificationViewResult } from "#civ7-control-service/model/ports/direct-control";
 import type {
-  Civ7ControlOrpcNotificationDismissalResult,
-  Civ7ControlOrpcPlayNotificationViewResult,
-} from "#civ7-control-service/model/ports/direct-control";
-import type { Civ7NotificationQueueDismissResult, Civ7NotificationQueueResult } from "../contract";
-import { notificationDismissalResult } from "../model/policy/dismissal-result";
+  Civ7NotificationDismissalResult,
+  Civ7NotificationQueueDismissResult,
+  Civ7NotificationQueueResult,
+} from "../contract";
+import { dismissCiv7Notification } from "../model/policy/dismissal-execution";
+import { isAdvisorWarningNotificationType } from "../model/policy/dismissal-result";
 import { module } from "../module";
 
 type QueueItem = Civ7ControlOrpcPlayNotificationViewResult["hud"]["decisionQueue"][number];
 type QueueStep = Civ7NotificationQueueResult["schedule"][number];
 type QueueNextStep = NonNullable<QueueStep["nextStep"]>;
 type ExcludedNotification = Civ7NotificationQueueDismissResult["excluded"][number];
+type QueueStopReason = Civ7NotificationQueueDismissResult["stopReason"];
 type Probe<T = unknown> =
   | {
       ok: true;
@@ -25,6 +28,7 @@ type Probe<T = unknown> =
       ok: false;
       error: string;
     };
+
 export const queue = {
   notificationsQueueCurrentProcedure: module.queue.current.effect(function* ({
     context,
@@ -53,39 +57,55 @@ export const queue = {
   notificationsQueueDismissRequestProcedure: civ7ControlOrpcMutationProcedure(
     module.queue.dismiss.request
   ).effect(function* ({ context, errors, input }) {
-    return yield* Effect.tryPromise({
-      try: async () => {
-        const view = await context.directControl.getCiv7PlayNotificationView({
-          ...context.endpointDefaults,
-          maxNotifications: input.maxNotifications ?? 50,
-        });
-        const { candidates, excluded } = classifyQueue(view.hud.decisionQueue);
-        const maxDismissals = input.maxDismissals ?? 10;
-        const selected = candidates.slice(0, maxDismissals);
-        const results: Civ7ControlOrpcNotificationDismissalResult[] = [];
-        const send = input.send === true;
-        if (send) {
-          for (const candidate of selected) {
-            if (candidate.notificationId == null) continue;
-            results.push(
-              await context.directControl.requestCiv7NotificationDismissal(
-                { notificationId: candidate.notificationId },
-                context.endpointDefaults
-              )
-            );
+    return yield* Effect.gen(function* () {
+      const view = yield* Effect.tryPromise({
+        try: () =>
+          context.directControl.getCiv7PlayNotificationView({
+            ...context.endpointDefaults,
+            maxNotifications: input.maxNotifications ?? 50,
+          }),
+        catch: (cause) => new Cause.UnknownException(cause),
+      });
+      const { candidates, excluded } = classifyQueue(view.hud.decisionQueue);
+      const maxDismissals = input.maxDismissals ?? 10;
+      const selected = candidates.slice(0, maxDismissals);
+      const results: Civ7NotificationDismissalResult[] = [];
+      const send = input.send === true;
+      let stopReason: QueueStopReason = null;
+      if (send) {
+        for (const candidate of selected) {
+          if (candidate.notificationId == null) continue;
+          const attempt = yield* dismissCiv7Notification(
+            { notificationId: candidate.notificationId },
+            context
+          ).pipe(Effect.either);
+          if (Either.isLeft(attempt)) {
+            if (!results.some(notificationDismissalPossiblyDispatched)) {
+              return yield* Effect.fail(attempt.left);
+            }
+            stopReason = "source-unavailable";
+            break;
+          }
+          const result = attempt.right;
+          results.push(result);
+          if (result.status === "dispatch-unknown" || result.status === "sent-unverified") {
+            stopReason = "uncertain-result";
+            break;
           }
         }
-        return notificationQueueDismissResult({
-          view,
-          candidates,
-          excluded,
-          selected,
-          results,
-          send,
-          maxDismissals,
-        });
-      },
-      catch: (cause) =>
+      }
+      return notificationQueueDismissResult({
+        view,
+        candidates,
+        excluded,
+        selected,
+        results,
+        send,
+        maxDismissals,
+        stopReason,
+      });
+    }).pipe(
+      Effect.mapError((cause) =>
         errors.NOTIFICATION_QUEUE_UNAVAILABLE({
           data: {
             detail: civ7ControlOrpcFailureDetail(cause),
@@ -93,8 +113,9 @@ export const queue = {
             source: "direct-control-facade",
             ...civ7ControlOrpcErrorCorrelationData(context),
           },
-        }),
-    });
+        })
+      )
+    );
   }),
 };
 function notificationQueueResult(
@@ -127,45 +148,65 @@ function notificationQueueDismissResult(
     candidates: QueueStep[];
     excluded: ExcludedNotification[];
     selected: QueueStep[];
-    results: Civ7ControlOrpcNotificationDismissalResult[];
+    results: Civ7NotificationDismissalResult[];
     send: boolean;
     maxDismissals: number;
+    stopReason: QueueStopReason;
   }>
 ): Civ7NotificationQueueDismissResult {
-  const projectedResults = input.results.map(notificationDismissalResult);
   const allConfirmed =
     input.send &&
     input.selected.length > 0 &&
-    projectedResults.length === input.selected.length &&
-    projectedResults.every((result) => result.status === "sent-confirmed");
-  const status = !input.send ? "not-sent" : allConfirmed ? "sent-confirmed" : "sent-guarded";
-  const postcondition = !input.send
-    ? {
-        classification: "not-sent" as const,
-        reason: "Dry run only; no notification dismissal was sent.",
-        outcome: "not-sent" as const,
-        confidence: "unverified" as const,
-        confirmed: false,
-        noRepeatAfterUnverified: true,
-      }
-    : allConfirmed
+    input.results.length === input.selected.length &&
+    input.results.every((result) => result.status === "sent-confirmed");
+  const partiallyConfirmed =
+    input.send &&
+    input.results.length === input.selected.length &&
+    input.results.some((result) => result.status === "sent-confirmed") &&
+    input.results.some((result) => result.status === "not-sent") &&
+    input.results.every(
+      (result) => result.status === "sent-confirmed" || result.status === "not-sent"
+    );
+  const status = notificationQueueDismissStatus(input, allConfirmed, partiallyConfirmed);
+  const postcondition =
+    status === "not-sent"
       ? {
-          classification: "all-selected-confirmed" as const,
-          reason: "Every selected notification dismissal had confirmed postcondition evidence.",
-          outcome: "cleared" as const,
-          confidence: "confirmed" as const,
-          confirmed: true,
-          noRepeatAfterUnverified: false,
-        }
-      : {
-          classification: "selection-unverified" as const,
-          reason:
-            "At least one selected notification dismissal lacked confirmed postcondition evidence.",
-          outcome: "unknown" as const,
+          classification: "not-sent" as const,
+          reason: input.send
+            ? "No selected notification produced a possible or confirmed runtime dispatch."
+            : "Dry run only; no notification dismissal was sent.",
+          outcome: "not-sent" as const,
           confidence: "unverified" as const,
           confirmed: false,
           noRepeatAfterUnverified: true,
-        };
+        }
+      : status === "sent-confirmed"
+        ? {
+            classification: "all-selected-confirmed" as const,
+            reason: "Every selected notification dismissal had confirmed postcondition evidence.",
+            outcome: "cleared" as const,
+            confidence: "confirmed" as const,
+            confirmed: true,
+            noRepeatAfterUnverified: false,
+          }
+        : status === "partially-confirmed"
+          ? {
+              classification: "selection-partially-confirmed" as const,
+              reason:
+                "Every planned notification was processed; some dismissals were confirmed and the remainder were definitively not dispatched.",
+              outcome: "partially-cleared" as const,
+              confidence: "confirmed" as const,
+              confirmed: true,
+              noRepeatAfterUnverified: false,
+            }
+          : {
+              classification: "selection-unverified" as const,
+              reason: notificationQueueUnverifiedReason(input.stopReason),
+              outcome: "unknown" as const,
+              confidence: "unverified" as const,
+              confirmed: false,
+              noRepeatAfterUnverified: true,
+            };
   return {
     localPlayerId: input.view.localPlayerId,
     turn: input.view.turn,
@@ -174,19 +215,21 @@ function notificationQueueDismissResult(
     blockingNotificationId: probeValue(input.view.blockingNotificationId),
     canEndTurn: input.view.canEndTurn,
     queueLength: input.view.hud.decisionQueue.length,
-    sent: input.send,
     status,
     postcondition,
     maxDismissals: input.maxDismissals,
     eligibleCount: input.candidates.length,
-    selectedCount: input.selected.length,
+    plannedCount: input.selected.length,
+    processedCount: input.results.length,
+    remainingCount: Math.max(0, input.selected.length - input.results.length),
+    stopReason: input.stopReason,
     omittedEligibleCount: Math.max(0, input.candidates.length - input.selected.length),
     candidates: input.selected,
     excluded: input.excluded,
-    results: projectedResults,
+    results: input.results,
     noRepeatAfterUnverified: postcondition.noRepeatAfterUnverified,
     nextSteps:
-      status === "sent-confirmed"
+      status === "sent-confirmed" || status === "partially-confirmed"
         ? [
             {
               kind: "refresh-attention",
@@ -195,30 +238,105 @@ function notificationQueueDismissResult(
                 "Re-read notification queue and attention state before making further decisions.",
             },
           ]
-        : [
-            {
-              kind: "do-not-repeat",
-              source: "notifications.queue.dismiss.request",
-              label: input.send
-                ? "Do not repeat bulk dismissal until fresh notification evidence is read."
-                : "Dry run only; no dismissal was sent.",
-            },
-            {
-              kind: "inspect-notification",
-              source: "notifications.queue.dismiss.request",
-              label: "Inspect selected notification evidence before any repeat attempt.",
-            },
-          ],
+        : status === "not-sent"
+          ? [
+              {
+                kind: "inspect-notification",
+                source: "notifications.queue.dismiss.request",
+                label: input.send
+                  ? "Inspect fresh notification evidence before another reviewed queue request."
+                  : "Dry run only; inspect the selected notification evidence before sending.",
+              },
+            ]
+          : [
+              {
+                kind: "do-not-repeat",
+                source: "notifications.queue.dismiss.request",
+                label: "Do not repeat bulk dismissal until fresh notification evidence is read.",
+              },
+              {
+                kind: "inspect-notification",
+                source: "notifications.queue.dismiss.request",
+                label: "Inspect selected notification evidence before any repeat attempt.",
+              },
+            ],
     notes: [
-      input.send
-        ? "Bulk dismissal sent only for eligible informational closeout candidates selected from a fresh HUD queue read."
-        : "Dry run only. Set send=true to dismiss eligible informational closeout candidates.",
+      notificationQueueDismissDispatchNote(input.send, status, input.stopReason),
       "Operation-bearing, unit-command, production, diplomacy, narrative, progression, population, and unclassified notifications are excluded.",
-      "A completed App UI call is not aggregate confirmed unless every selected item has confirmed postcondition evidence.",
+      "The aggregate distinguishes complete confirmation, fully known partial completion, and uncertain processing.",
       "Re-read the queue after this procedure before making further decisions.",
     ],
   };
 }
+
+function notificationQueueDismissStatus(
+  input: Readonly<{
+    results: Civ7NotificationDismissalResult[];
+    send: boolean;
+    selected: QueueStep[];
+    stopReason: QueueStopReason;
+  }>,
+  allConfirmed: boolean,
+  partiallyConfirmed: boolean
+): Civ7NotificationQueueDismissResult["status"] {
+  if (!input.send || input.results.length === 0) return "not-sent";
+  if (input.results.some((result) => result.status === "dispatch-unknown")) {
+    return "dispatch-unknown";
+  }
+  if (allConfirmed) return "sent-confirmed";
+  if (partiallyConfirmed) return "partially-confirmed";
+  if (
+    input.stopReason !== null ||
+    input.results.length < input.selected.length ||
+    input.results.some(
+      (result) => result.status === "sent-confirmed" || result.status === "sent-unverified"
+    )
+  ) {
+    return "sent-unverified";
+  }
+  return "not-sent";
+}
+
+function notificationQueueDismissDispatchNote(
+  send: boolean,
+  status: Civ7NotificationQueueDismissResult["status"],
+  stopReason: QueueStopReason
+): string {
+  if (!send) {
+    return "Dry run only. Set send=true to dismiss eligible informational closeout candidates.";
+  }
+  if (status === "not-sent") {
+    return "No selected notification dismissal was dispatched.";
+  }
+  if (status === "dispatch-unknown") {
+    return "At least one selected notification dismissal has an unknown dispatch outcome.";
+  }
+  if (stopReason === "source-unavailable") {
+    return "Processing stopped when native notification evidence became unavailable; completed item results are preserved.";
+  }
+  if (stopReason === "uncertain-result") {
+    return "Processing stopped after the first uncertain item result; completed item results are preserved.";
+  }
+  if (status === "partially-confirmed") {
+    return "Some planned dismissals were confirmed while the remaining processed items were definitively not dispatched.";
+  }
+  return "Dismissal was dispatched only for eligible informational closeout candidates selected from a fresh HUD queue read.";
+}
+
+function notificationQueueUnverifiedReason(stopReason: QueueStopReason): string {
+  if (stopReason === "source-unavailable") {
+    return "Native notification evidence became unavailable before every planned item was processed.";
+  }
+  if (stopReason === "uncertain-result") {
+    return "Processing stopped after an item lacked confirmed postcondition evidence.";
+  }
+  return "At least one planned notification dismissal lacked confirmed postcondition evidence.";
+}
+
+function notificationDismissalPossiblyDispatched(result: Civ7NotificationDismissalResult): boolean {
+  return result.status !== "not-sent";
+}
+
 function buildNotificationSchedule(queue: ReadonlyArray<QueueItem>): QueueStep[] {
   return queue
     .map((item, index) => buildQueueStep(item, index + 1))
@@ -282,6 +400,7 @@ function buildQueueStep(item: QueueItem, originalStep: number): QueueStep {
   };
 }
 function dispositionFor(item: QueueItem): QueueStep["disposition"] {
+  if (isAdvisorWarningNotificationType(item.typeName)) return "inspect-handler";
   if (item.category === "informational-notification" && item.operationFamily === "app-ui-action") {
     return "reviewed-dismissal-candidate";
   }
@@ -295,6 +414,7 @@ function dispositionFor(item: QueueItem): QueueStep["disposition"] {
 function isBatchSafeDismissalCandidate(item: QueueItem): boolean {
   if (item.notificationId == null) return false;
   if (item.operationType !== "Game.Notifications.dismiss") return false;
+  if (isAdvisorWarningNotificationType(item.typeName)) return false;
   if (!item.isEndTurnBlocking) return true;
   return item.typeName !== "NOTIFICATION_UNIT_LOST";
 }
@@ -326,6 +446,9 @@ function reasonFor(item: QueueItem, disposition: QueueStep["disposition"]): stri
 }
 function exclusionReason(item: QueueStep): string {
   if (item.notificationId == null) return "missing notification id";
+  if (isAdvisorWarningNotificationType(item.typeName)) {
+    return "advisor warnings require the dedicated viewed acknowledgement, not generic dismissal";
+  }
   if (item.isEndTurnBlocking && item.typeName === "NOTIFICATION_UNIT_LOST") {
     return "front unit-loss reports require exact reviewed dismissal proof, not bulk dismissal";
   }

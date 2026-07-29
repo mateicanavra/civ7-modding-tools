@@ -37,9 +37,16 @@ describe("game play notifications schedule command", () => {
         true
       );
       expect(server.received.some((message) => message.includes("sendOperation("))).toBe(false);
-      expect(server.received.some((message) => message.includes("readNotificationDismissal"))).toBe(
-        false
-      );
+      expect(
+        server.received.some((message) =>
+          message.includes("return JSON.stringify(checkNotificationDismissal(")
+        )
+      ).toBe(false);
+      expect(
+        server.received.some((message) =>
+          message.includes("return JSON.stringify(sendNotificationDismissalEnvelope(")
+        )
+      ).toBe(false);
       expect(payload.view.notes.join("\n")).toContain("summary and context review");
       expect(payload.view.notes.join("\n")).not.toMatch(/\breason\b/i);
       expect(JSON.stringify(payload.view)).not.toMatch(

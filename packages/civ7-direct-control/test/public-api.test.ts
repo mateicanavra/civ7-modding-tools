@@ -30,8 +30,11 @@ import {
   Civ7MapSummaryResultSchema,
   Civ7NativeRiverObjectsInputSchema,
   Civ7NativeRiverObjectsResultSchema,
-  Civ7NotificationDismissalResultSchema,
-  Civ7NotificationDismissRequestInputSchema,
+  Civ7NotificationDismissalCheckResultSchema,
+  Civ7NotificationDismissalSendInputSchema,
+  Civ7NotificationDismissalSendResultSchema,
+  Civ7NotificationDismissalSnapshotSchema,
+  Civ7NotificationDismissInputSchema,
   Civ7PlayableStatusInputSchema,
   Civ7PlayableStatusResultSchema,
   Civ7PlayerSummaryInputSchema,
@@ -938,37 +941,56 @@ describe("Civ7 direct control public API", () => {
     ).toBe(false);
   });
 
-  test("exports notification dismissal request schemas from the public facade", () => {
+  test("exports exact notification-dismissal atom schemas from the public facade", () => {
+    const snapshot = {
+      notificationId: { owner: 0, id: 113, type: 20 },
+      localPlayerId: 0,
+      exists: true,
+      typeName: "NOTIFICATION_WONDER_COMPLETED",
+      activeQueue: { ok: true, value: true },
+      canUserDismiss: { ok: true, value: true },
+      dismissed: { ok: true, value: false },
+    };
+
     expect(
-      Value.Check(Civ7NotificationDismissRequestInputSchema, {
+      Value.Check(Civ7NotificationDismissInputSchema, {
         notificationId: { owner: 0, id: 113, type: 20 },
       })
     ).toBe(true);
     expect(
-      Value.Check(Civ7NotificationDismissRequestInputSchema, {
+      Value.Check(Civ7NotificationDismissInputSchema, {
         notificationId: { owner: 0, type: 20 },
       })
     ).toBe(false);
     expect(
-      Value.Check(Civ7NotificationDismissRequestInputSchema, {
+      Value.Check(Civ7NotificationDismissInputSchema, {
         notificationId: { owner: 0, id: 113, type: 20 },
         rawCommand: "Game.Notifications.dismiss(...)",
       })
     ).toBe(false);
-    expect(Civ7NotificationDismissalResultSchema).toMatchObject({
+    expect(Value.Check(Civ7NotificationDismissalSnapshotSchema, snapshot)).toBe(true);
+    expect(Value.Check(Civ7NotificationDismissalCheckResultSchema, { snapshot })).toBe(true);
+    expect(Value.Check(Civ7NotificationDismissalSendInputSchema, { expected: snapshot })).toBe(
+      true
+    );
+    expect(
+      Value.Check(Civ7NotificationDismissalSendResultSchema, {
+        sent: true,
+        before: snapshot,
+        after: snapshot,
+      })
+    ).toBe(true);
+    expect(Civ7NotificationDismissalSnapshotSchema).toMatchObject({
       type: "object",
       additionalProperties: false,
       required: expect.arrayContaining([
-        "host",
-        "port",
-        "state",
         "notificationId",
-        "before",
-        "after",
-        "sent",
-        "verified",
-        "postcondition",
-        "notes",
+        "localPlayerId",
+        "exists",
+        "typeName",
+        "activeQueue",
+        "canUserDismiss",
+        "dismissed",
       ]),
     });
   });

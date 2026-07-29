@@ -29,18 +29,16 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** converge notification dismissal around one exact native
-read/send boundary. The official notification model and UI sources determine
-which dismissal route is authoritative for each notification kind; existing
-panel, train-manager, and raw `Game.Notifications.dismiss` paths are evidence
-to classify, not alternate public procedures to preserve. Direct-control may
-retain only exact notification observation and guarded send atoms. The
-notification service owns admission, bounded observation, postcondition
-classification, dispatch uncertainty, bulk-selection policy, and no-repeat
-guidance. Both CLI modes and queue dismissal must consume that service plane.
-Retire the thick direct request envelope, embedded `verifiedDismissed`,
-direct-owned postcondition/proof policy, and caller-side read/request split
-only after the official sources establish one honest mutation model.
+**Current container:** converge advisor-warning acknowledgement around the
+official `PlayerOperations.VIEWED_ADVISOR_WARNING` check/send path used by the
+specialized notification handler. Direct-control may retain only exact native
+availability, guarded dispatch, and raw notification observations; the
+notification service owns the four admitted advisor-warning identities,
+local-player admission, bounded clearance observation, semantic
+postconditions, dispatch uncertainty, and no-repeat policy. The controller and
+CLI consume that one service owner. Retire the generic player-operation
+wrapper, thick direct request result, direct proof policy, and caller-side
+local-player derivation after the native sources establish the exact wire.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -57,11 +55,10 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** classify official notification dismissal routes and observations
--> separate exact runtime atoms from semantic notification policy -> compose
-service-owned check/request procedures and bulk dismissal over that same owner
--> route both CLI modes and the controller through the service -> retire
-duplicate direct orchestration, verification, postcondition, and proof planes
+**Gradient:** establish the exact advisor-warning native check/send and
+clearance evidence -> move admission, polling, classification, uncertainty, and
+no-repeat policy into the notification service -> route controller and CLI
+through that owner -> retire generic player-operation and direct proof planes
 -> prove the full control graph -> repeat by domain until direct-control
 exposes only wire atoms and explicit diagnostics -> resume app/plugin and noun
 normalization.
@@ -107,6 +104,25 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-29 - Native Notification Dismissal Authority Converged
+
+Generic reviewed dismissal now uses the exact native
+`Game.Notifications.canUserDismissNotification(id)` and
+`Game.Notifications.dismiss(id)` path through one notification service owner.
+Direct-control owns only exact check/send atoms and immutable notification
+observations; the service owns advisor-warning exclusion, admission, bounded
+polling, postcondition classification, dispatch uncertainty, sequential queue
+policy, and no-repeat guidance; the controller and both CLI modes are thin
+adapters. `NotificationModel` handler bookkeeping, train movement,
+expired-notification fallback, the thick direct request wrapper, duplicate
+postcondition/proof policy, and telemetry retired. Queue results preserve
+completed mutations, distinguish planned from processed work, stop after
+uncertainty or later source loss, and represent fully known partial completion
+without inventing uncertainty. The complete direct/service/controller/CLI
+graph, strict OpenSpec validation, native-authority review, and adversarial
+service/product reviews passed; deployed Civ7 behavior remains a separate live
+proof boundary.
 
 ### 2026-07-29 - Native Turn Completion Authority Converged
 

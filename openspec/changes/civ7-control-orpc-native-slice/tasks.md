@@ -2413,3 +2413,9 @@ adding more read-only facade shells.
   validation, stale wrapper/proof/UI-choreography scans, staged Habitat policy,
   and diff hygiene. These are local package proofs and do not claim deployed
   Civ7 runtime proof.
+- [x] 8.31 Run focused exact notification-dismissal atom tests, control-oRPC
+  check/request and reviewed-queue behavior tests, controller and CLI
+  notification tests, the combined direct/service/controller/CLI
+  check/test/build graph, strict OpenSpec validation, stale wrapper/proof/
+  dual-route scans, staged Habitat policy, and diff hygiene. These are local
+  package proofs and do not claim deployed Civ7 runtime proof.

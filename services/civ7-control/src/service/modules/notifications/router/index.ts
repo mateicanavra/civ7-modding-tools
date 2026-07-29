@@ -1,5 +1,5 @@
 import { advisorWarningRequest } from "./advisor-warning-request";
-import { dismissRequest } from "./dismiss-request";
+import { dismiss } from "./dismiss";
 import { queue } from "./queue";
 export const router = {
   advisorWarning: {
@@ -7,9 +7,7 @@ export const router = {
       request: advisorWarningRequest,
     },
   },
-  dismiss: {
-    request: dismissRequest,
-  },
+  dismiss,
   queue: {
     current: queue.notificationsQueueCurrentProcedure,
     dismiss: {

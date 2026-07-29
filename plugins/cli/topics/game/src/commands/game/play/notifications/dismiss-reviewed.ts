@@ -65,8 +65,9 @@ export default class GamePlayNotificationsDismissReviewed extends Command {
 
     this.log(`Turn ${formatProbe(view.turn)} (${formatProbe(view.turnDate)})`);
     this.log(
-      `Eligible: ${view.eligibleCount}; selected: ${view.selectedCount}; send: ${view.sent}; status: ${view.status}`
+      `Eligible: ${view.eligibleCount}; planned: ${view.plannedCount}; processed: ${view.processedCount}; remaining: ${view.remainingCount}; send: ${flags.send}; status: ${view.status}`
     );
+    if (view.stopReason !== null) this.log(`Stopped: ${view.stopReason}`);
     for (const candidate of view.candidates) {
       this.log(
         `- ${formatId(candidate.notificationId)} ${candidate.typeName ?? candidate.category}: ${candidate.summary ?? candidate.message ?? ""}`

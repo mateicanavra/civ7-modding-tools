@@ -381,7 +381,10 @@ export class Civ7CameraFocusUnverifiedError extends ORPCTaggedError(
 
 export const Civ7NotificationDismissalUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("notifications.dismiss.request"),
+    procedureKey: Type.Union([
+      Type.Literal("notifications.dismiss.check"),
+      Type.Literal("notifications.dismiss.request"),
+    ]),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
@@ -396,7 +399,7 @@ export class Civ7NotificationDismissalUnavailableError extends ORPCTaggedError(
   "Civ7NotificationDismissalUnavailableError",
   {
     code: "NOTIFICATION_DISMISSAL_UNAVAILABLE",
-    message: "Direct-control notification dismissal request failed.",
+    message: "Direct-control notification dismissal evidence is unavailable.",
     schema: toStandardSchema(Civ7NotificationDismissalUnavailableErrorDataSchema),
     status: 503,
   }

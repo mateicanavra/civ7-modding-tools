@@ -282,6 +282,10 @@ describe("Civ7 game UI controller bootstrap", () => {
       controller: {
         supportedProcedures: [
           {
+            procedureKey: "notifications.dismiss.check",
+            risk: "read-only",
+          },
+          {
             procedureKey: "attention.current",
             risk: "read-only",
           },
@@ -309,6 +313,16 @@ describe("Civ7 game UI controller bootstrap", () => {
     const target = gameUiNotificationTarget(notificationId);
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
+    await expect(
+      bridge.notifications.dismiss.check(
+        { notificationId },
+        { context: { correlationId: "game-ui-notification-dismiss-check-1" } }
+      )
+    ).resolves.toEqual({
+      notificationId,
+      available: true,
+    });
+
     const response = await bridge.notifications.dismiss.request(
       { notificationId },
       { context: { correlationId: "game-ui-notification-dismiss-1" } }
@@ -316,13 +330,7 @@ describe("Civ7 game UI controller bootstrap", () => {
 
     expect(response).toMatchObject({
       notificationId,
-      sent: true,
       status: "sent-confirmed",
-      validation: {
-        beforeExists: true,
-        canDismiss: true,
-        afterExists: false,
-      },
       postcondition: {
         classification: "notification-disappeared",
         confirmed: true,
@@ -2900,7 +2908,11 @@ describe("Civ7 game UI controller bootstrap", () => {
     const context = await createContext();
 
     expect(context.controller).toEqual({
-      supportedReadProcedures: ["attention.current", "world.current"],
+      supportedReadProcedures: [
+        "notifications.dismiss.check",
+        "attention.current",
+        "world.current",
+      ],
       supportedMutationProcedures: ["notifications.dismiss.request"],
     });
     expect(await context.directControl.getCiv7PlayableStatus()).toMatchObject({
@@ -3763,6 +3775,7 @@ function gameUiNotificationTarget(
         find: () => (exists ? notification : null),
         getType: () => notificationId.type,
         getTypeName: () => options.notificationTypeName ?? "NOTIFICATION_WONDER_COMPLETED",
+        canUserDismissNotification: () => true,
         getSummary: () => "Wonder Completed",
         getMessage: () => "Wonder Completed",
         getBlocksTurnAdvancement: () => blocksTurnAdvancement,
@@ -3778,6 +3791,11 @@ function gameUiNotificationTarget(
         },
         findEndTurnBlocking: () => (exists && blocksTurnAdvancement ? notificationId : null),
         getIdsForPlayer: () => (exists ? [notificationId, ...(options.extraIds ?? [])] : []),
+        dismiss: () => {
+          notification.Dismissed = true;
+          exists = false;
+          return true;
+        },
       },
       Diplomacy:
         options.diplomacyResponse == null
@@ -3839,18 +3857,6 @@ function gameUiNotificationTarget(
                 },
               }
             : null,
-    },
-    NotificationModel: {
-      QueryBy: { Priority: 2 },
-      manager: {
-        dismiss: () => {
-          exists = false;
-          return true;
-        },
-        findPlayer: () => ({
-          getTypesBy: () => (exists ? [{ notifications: [notificationId] }] : []),
-        }),
-      },
     },
   };
 }

@@ -74,16 +74,20 @@ errors, and server-side callers.
   helpers may remain direct-control-owned until a later accepted service
   contract slice separates them deliberately
 
-#### Scenario: Notification dismissal service contract is offered
-- **WHEN** `notifications.dismiss.request` exposes its caller-facing contract
-- **THEN** control-oRPC owns the input schema and normal postcondition
-  classification schema for that service procedure
+#### Scenario: Notification dismissal service contracts are offered
+- **WHEN** `notifications.dismiss.check` and
+  `notifications.dismiss.request` expose their caller-facing contracts
+- **THEN** control-oRPC owns the input schema, native availability projection,
+  and normal postcondition classification schema for those procedures
 - **AND** the input admits only the semantic notification ID request shape
 - **AND** raw command/session/tuner endpoint fields remain excluded from
   procedure input
-- **AND** direct-control remains the runtime/proof owner for notification
-  dismissal sends, validators, postcondition classification, and no-repeat
-  proof semantics consumed by the procedure
+- **AND** the notification service owns reviewed admission, specialized
+  notification exclusion, guarded mutation orchestration, bounded post-send
+  observation, postcondition classification, dispatch uncertainty, and
+  no-repeat policy
+- **AND** direct-control owns only exact native check/send atoms and immutable
+  engine notification evidence
 
 #### Scenario: Production choice service contracts are offered
 - **WHEN** `city.production.choice.check` and
@@ -690,20 +694,18 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   `verified`
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI notification dismissal send uses native notification procedure
-- **WHEN** `game play dismiss-notification --send` requests a notification dismissal
+#### Scenario: CLI notification dismissal uses native notification procedures
+- **WHEN** `game play dismiss-notification` checks or requests a notification
+  dismissal
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send path calls the in-process `notifications.dismiss.request`
-  server-side client
-- **AND** the procedure's readiness, direct-control validator,
-  postcondition projection, and no-repeat policy remain authoritative for the
-  send
+- **AND** read-only mode calls `notifications.dismiss.check`, while `--send`
+  calls `notifications.dismiss.request` through the in-process server-side
+  client
+- **AND** the procedures' native availability, guarded send, postcondition
+  projection, dispatch uncertainty, and no-repeat policy remain authoritative
 - **AND** the normal JSON result is the semantic notification dismissal
   procedure projection without raw command/session/state/Tuner details, route
   diagnostics, closeout path, verification attempts, or legacy `verified`
-- **AND** the read-only `game play dismiss-notification` inspection path
-  remains a direct-control notification dismissal read until a separate
-  accepted service read exists
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI unit target send uses native unit procedure
@@ -1255,12 +1257,16 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **WHEN** the game-scoped controller context exposes notification dismissal
   game UI APIs
 - **THEN** the context may execute the service-owned
-  `notifications.dismiss.request` procedure through the existing in-process
-  router and native readiness and proof procedure middleware
+  `notifications.dismiss.check` and `notifications.dismiss.request`
+  procedures through the existing in-process router
 - **AND** the service-owned game UI notification-dismissal access path executes against
-  ambient `Game.Notifications`, `NotificationModel`, `GameContext`, and
-  notification queue evidence without tuner socket/session command
-  serialization
+  ambient `Game.Notifications`, `GameContext`, and notification queue evidence
+  without tuner socket/session command serialization
+- **AND** the controller calls
+  `Game.Notifications.canUserDismissNotification(id)` for native admission and
+  `Game.Notifications.dismiss(id)` exactly once for mutation
+- **AND** it does not call `NotificationModel.manager.dismiss/onDismiss` as an
+  alternate mutation or verification path
 - **AND** broad `readiness.current` mutation capability remains conservative
   until game UI mutation surfaces are actually implemented
 - **AND** native mutation readiness admits only the explicitly context-listed
@@ -1646,9 +1652,33 @@ their accepted owners.
 - **AND** direct-control does not own production postcondition/proof policy or a
   production-choice telemetry adapter
 
+#### Scenario: Notification dismissal policy is service-owned
+- **WHEN** `notifications.dismiss.check` or
+  `notifications.dismiss.request` handles a reviewed notification
+- **THEN** the notification service orchestrates exact direct-control
+  check/send atoms and owns native admission, specialized advisor-warning
+  exclusion, postcondition classification, dispatch uncertainty, bounded
+  post-send checking, and no-repeat policy
+- **AND** direct-control calls
+  `Game.Notifications.canUserDismissNotification(id)` for admission and
+  `Game.Notifications.dismiss(id)` exactly once for mutation
+- **AND** direct-control returns raw native snapshots without owning polling,
+  semantic postconditions, proof policy, telemetry, or a thick request wrapper
+- **AND** `NotificationModel.manager.dismiss/onDismiss`, expired-notification
+  fallback, train-only removal, and queue-front movement are not alternate
+  engine mutation or confirmation authority
+- **AND** reviewed queue dismissal reuses the same service operation, preserves
+  completed item results, refreshes native evidence before each send, and stops
+  after the first uncertain result
+- **AND** the aggregate response distinguishes the initial plan from processed
+  and remaining items, preserves a source-unavailable stop reason after any
+  completed mutation, and reports fully known partial completion without
+  inventing dispatch uncertainty
+- **AND** local procedure tests do not claim deployed Civ7 runtime proof
+
 #### Scenario: Closeout-style mutation projection is shared
-- **WHEN** notification dismissal, narrative choice, diplomacy response, or
-  progression choice procedures receive source-owned direct-control
+- **WHEN** narrative choice, diplomacy response, or progression choice
+  procedures receive source-owned direct-control
   postcondition evidence or an explicit local pending-proof boundary
 - **THEN** the shared control-oRPC mutation projection policy derives the
   caller-facing postcondition confirmation, request status, and no-repeat next

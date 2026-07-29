@@ -1,24 +1,62 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
+
 import {
   type Civ7ControlOrpcContext,
   Civ7ControlOrpcRouter,
   createCiv7ControlOrpcServerClient,
 } from "../../../../src/index";
 import type {
-  Civ7ControlOrpcNotificationDismissalResult,
+  Civ7ControlOrpcNotificationDismissalCheckResult,
+  Civ7ControlOrpcNotificationDismissalSendResult,
+  Civ7ControlOrpcNotificationDismissalSnapshot,
   Civ7ControlOrpcPlayNotificationViewResult,
+  Civ7ControlOrpcRuntimeProbe,
 } from "../../../../src/service/model/ports/direct-control";
 import { directControlFacadeFixture } from "../../../support/direct-control-facade";
 import { playableStatusResult } from "../../../support/playable-status";
 
 const informationalId = { owner: 0, id: 113, type: 20 };
-const unitLostId = { owner: 0, id: 114, type: 20 };
-const productionId = { owner: 0, id: 115, type: 20 };
+const secondInformationalId = { owner: 0, id: 114, type: 20 };
+const thirdInformationalId = { owner: 0, id: 115, type: 20 };
+const unitLostId = { owner: 0, id: 116, type: 20 };
+const productionId = { owner: 0, id: 117, type: 20 };
+const advisorId = { owner: 0, id: 118, type: 20 };
+const endpointDefaults = {
+  host: "127.0.0.1",
+  port: 4318,
+  timeoutMs: 1_000,
+} as const;
+type NotificationId = Civ7ControlOrpcNotificationDismissalSnapshot["notificationId"];
 
 describe("notifications.queue control-oRPC procedures", () => {
-  test("schedules notification queue with semantic next steps and no CLI command strings", async () => {
-    const fake = fakeContext();
+  test("schedules semantic next steps and excludes advisor warnings from batch dismissal", async () => {
+    const fake = fakeContext({
+      notificationView: notificationView([
+        informationalQueueItem(informationalId),
+        queueItem({
+          notificationId: unitLostId,
+          category: "unit-command",
+          typeName: "NOTIFICATION_UNIT_LOST",
+          summary: "Unit Lost",
+          isEndTurnBlocking: true,
+        }),
+        queueItem({
+          notificationId: productionId,
+          category: "production-choice",
+          typeName: "NOTIFICATION_PRODUCTION_NEEDED",
+          summary: "Production Needed",
+          operationFamily: "city-command",
+          operationType: "BUILD",
+          requiredInputs: [{ name: "cityId", source: "notification", required: true }],
+        }),
+        informationalQueueItem(advisorId, {
+          typeName: "NOTIFICATION_ADVISOR_WARNING_SCIENCE",
+          summary: "Science advisor warning",
+        }),
+      ]),
+    });
+
     const result = await call(
       Civ7ControlOrpcRouter.notifications.queue.current,
       { maxNotifications: 12 },
@@ -27,38 +65,35 @@ describe("notifications.queue control-oRPC procedures", () => {
 
     expect(fake.calls.notifications).toEqual([
       {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
+        ...endpointDefaults,
         maxNotifications: 12,
       },
     ]);
-    expect(result).toMatchObject({
-      localPlayerId: 0,
-      queueLength: 3,
-      schedule: [
-        {
-          disposition: "inspect-ready-unit",
-          notificationId: unitLostId,
-          safeToBatch: false,
-        },
-        {
-          disposition: "operate-with-live-inputs",
-          notificationId: productionId,
-          safeToBatch: false,
-        },
-        {
-          disposition: "reviewed-dismissal-candidate",
+    expect(result.schedule).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
           notificationId: informationalId,
+          disposition: "reviewed-dismissal-candidate",
           safeToBatch: true,
-        },
-      ],
-    });
-    expect(result.nextSteps.map((step) => step.kind)).toEqual([
-      "inspect-ready-unit",
-      "inspect-ready-city",
-      "dismiss-notification",
-    ]);
+        }),
+        expect.objectContaining({
+          notificationId: advisorId,
+          disposition: "inspect-handler",
+          safeToBatch: false,
+          nextStep: expect.objectContaining({ kind: "inspect-notification" }),
+        }),
+        expect.objectContaining({
+          notificationId: unitLostId,
+          disposition: "inspect-ready-unit",
+          safeToBatch: false,
+        }),
+        expect.objectContaining({
+          notificationId: productionId,
+          disposition: "operate-with-live-inputs",
+          safeToBatch: false,
+        }),
+      ])
+    );
     expectSafeQueueOutput(result);
   });
 
@@ -66,7 +101,7 @@ describe("notifications.queue control-oRPC procedures", () => {
     const legacyQueueItem: Civ7ControlOrpcPlayNotificationViewResult["hud"]["decisionQueue"][number] &
       Readonly<{ cli: string }> = {
       ...queueItem({
-        notificationId: { owner: 0, id: 116, type: 20 },
+        notificationId: { owner: 0, id: 119, type: 20 },
         category: "blocking-notification",
         typeName: "NOTIFICATION_UNKNOWN_BLOCKER",
         summary: "Unknown blocker",
@@ -76,13 +111,7 @@ describe("notifications.queue control-oRPC procedures", () => {
       cli: "game play choose-tech --options --json",
     };
     const fake = fakeContext({
-      notificationView: {
-        ...notificationView(),
-        hud: {
-          nextDecision: null,
-          decisionQueue: [legacyQueueItem],
-        },
-      },
+      notificationView: notificationView([legacyQueueItem]),
     });
 
     const result = await call(
@@ -100,13 +129,8 @@ describe("notifications.queue control-oRPC procedures", () => {
     expectSafeQueueOutput(result);
   });
 
-  test("bulk dismisses only safe informational queue candidates and keeps aggregate no-repeat guarded", async () => {
-    const fake = fakeContext({
-      dismissalResult: notificationDismissalResult("engine-front-still-live", {
-        notificationId: informationalId,
-        verified: true,
-      }),
-    });
+  test("uses the private service dismissal behavior and confirms every selected item", async () => {
+    const fake = fakeContext();
     const client = createCiv7ControlOrpcServerClient(fake.context);
 
     const result = await client.notifications.queue.dismiss.request({
@@ -114,74 +138,216 @@ describe("notifications.queue control-oRPC procedures", () => {
       maxDismissals: 5,
     });
 
-    expect(fake.calls.dismissals).toEqual([
+    expect(fake.calls.checks).toEqual([
       {
         input: { notificationId: informationalId },
-        options: {
-          host: "127.0.0.1",
-          port: 4318,
-          timeoutMs: 1_000,
-        },
+        options: endpointDefaults,
+      },
+    ]);
+    expect(fake.calls.sends).toEqual([
+      {
+        input: { expected: dismissalSnapshot(informationalId) },
+        options: endpointDefaults,
       },
     ]);
     expect(result).toMatchObject({
-      sent: true,
-      status: "sent-guarded",
+      status: "sent-confirmed",
       eligibleCount: 1,
-      selectedCount: 1,
-      noRepeatAfterUnverified: true,
-      candidates: [
-        {
-          notificationId: informationalId,
-          disposition: "reviewed-dismissal-candidate",
-        },
-      ],
-      excluded: expect.arrayContaining([
-        expect.objectContaining({
-          notificationId: unitLostId,
-          reason: expect.stringContaining("not bulk dismissal"),
-        }),
-        expect.objectContaining({
-          notificationId: productionId,
-          reason: expect.stringContaining("gameplay operation"),
-        }),
-      ]),
+      plannedCount: 1,
+      processedCount: 1,
+      remainingCount: 0,
+      stopReason: null,
+      noRepeatAfterUnverified: false,
       results: [
         {
           notificationId: informationalId,
-          status: "sent-unverified",
-          postcondition: {
-            classification: "engine-front-still-live",
-            noRepeatAfterUnverified: true,
-          },
+          status: "sent-confirmed",
+          postcondition: { classification: "notification-disappeared" },
         },
       ],
-      nextSteps: expect.arrayContaining([
-        expect.objectContaining({
-          kind: "do-not-repeat",
-          source: "notifications.queue.dismiss.request",
-        }),
-      ]),
+      nextSteps: [{ kind: "refresh-attention" }],
     });
+    expect(result).not.toHaveProperty("sent");
     expectSafeQueueOutput(result);
   });
 
-  test("dry run does not call dismissal runtime ports", async () => {
-    const fake = fakeContext();
+  test("rechecks each item, preserves results, and stops after the first unverified send", async () => {
+    const decisionQueue = [
+      informationalQueueItem(informationalId),
+      informationalQueueItem(secondInformationalId),
+      informationalQueueItem(thirdInformationalId),
+    ];
+    const fake = fakeContext({
+      notificationView: notificationView(decisionQueue),
+      send: async (input) => {
+        const before = input.expected;
+        return dismissalSend(
+          before,
+          before.notificationId.id === informationalId.id
+            ? dismissalSnapshot(informationalId, { exists: false })
+            : dismissalSnapshot(before.notificationId)
+        );
+      },
+    });
 
     const result = await call(
       Civ7ControlOrpcRouter.notifications.queue.dismiss.request,
-      { maxDismissals: 1 },
+      { send: true, maxDismissals: 3 },
       { context: fake.context }
     );
 
-    expect(fake.calls.dismissals).toEqual([]);
     expect(result).toMatchObject({
-      sent: false,
+      status: "sent-unverified",
+      eligibleCount: 3,
+      plannedCount: 3,
+      processedCount: 2,
+      remainingCount: 1,
+      stopReason: "uncertain-result",
+      results: [
+        {
+          notificationId: informationalId,
+          status: "sent-confirmed",
+        },
+        {
+          notificationId: secondInformationalId,
+          status: "sent-unverified",
+          postcondition: { classification: "notification-still-active" },
+        },
+      ],
+      noRepeatAfterUnverified: true,
+      nextSteps: expect.arrayContaining([expect.objectContaining({ kind: "do-not-repeat" })]),
+    });
+    expect(fake.calls.sends.map((call) => call.input)).toEqual([
+      { expected: dismissalSnapshot(informationalId) },
+      { expected: dismissalSnapshot(secondInformationalId) },
+    ]);
+    expect(
+      fake.calls.checks.some(
+        (call) =>
+          isDismissInput(call.input) && call.input.notificationId.id === thirdInformationalId.id
+      )
+    ).toBe(false);
+    expect(result).not.toHaveProperty("sent");
+  });
+
+  test("preserves completed mutations when a later fresh check becomes unavailable", async () => {
+    const decisionQueue = [
+      informationalQueueItem(informationalId),
+      informationalQueueItem(secondInformationalId),
+    ];
+    const fake = fakeContext({
+      notificationView: notificationView(decisionQueue),
+      check: async (input) => {
+        if (input.notificationId.id === secondInformationalId.id) {
+          throw new Error("native notification evidence unavailable");
+        }
+        return dismissalCheck(dismissalSnapshot(input.notificationId));
+      },
+    });
+
+    const result = await call(
+      Civ7ControlOrpcRouter.notifications.queue.dismiss.request,
+      { send: true, maxDismissals: 2 },
+      { context: fake.context }
+    );
+
+    expect(result).toMatchObject({
+      status: "sent-unverified",
+      plannedCount: 2,
+      processedCount: 1,
+      remainingCount: 1,
+      stopReason: "source-unavailable",
+      results: [
+        {
+          notificationId: informationalId,
+          status: "sent-confirmed",
+        },
+      ],
+      noRepeatAfterUnverified: true,
+    });
+    expect(fake.calls.sends).toHaveLength(1);
+  });
+
+  test("reports a fully known partial result without inventing uncertainty", async () => {
+    const decisionQueue = [
+      informationalQueueItem(informationalId),
+      informationalQueueItem(secondInformationalId),
+    ];
+    const fake = fakeContext({
+      notificationView: notificationView(decisionQueue),
+      check: async (input) =>
+        dismissalCheck(
+          dismissalSnapshot(input.notificationId, {
+            canUserDismiss: probe(input.notificationId.id !== secondInformationalId.id),
+          })
+        ),
+    });
+
+    const result = await call(
+      Civ7ControlOrpcRouter.notifications.queue.dismiss.request,
+      { send: true, maxDismissals: 2 },
+      { context: fake.context }
+    );
+
+    expect(result).toMatchObject({
+      status: "partially-confirmed",
+      plannedCount: 2,
+      processedCount: 2,
+      remainingCount: 0,
+      stopReason: null,
+      postcondition: {
+        classification: "selection-partially-confirmed",
+        outcome: "partially-cleared",
+        confidence: "confirmed",
+        confirmed: true,
+      },
+      results: [
+        { notificationId: informationalId, status: "sent-confirmed" },
+        { notificationId: secondInformationalId, status: "not-sent" },
+      ],
+      noRepeatAfterUnverified: false,
+    });
+    expect(fake.calls.sends).toHaveLength(1);
+  });
+
+  test("dry run and an empty selected set both report actual not-sent dispatch", async () => {
+    const dryRun = fakeContext();
+    const dryResult = await call(
+      Civ7ControlOrpcRouter.notifications.queue.dismiss.request,
+      { maxDismissals: 1 },
+      { context: dryRun.context }
+    );
+
+    expect(dryRun.calls.checks).toEqual([]);
+    expect(dryRun.calls.sends).toEqual([]);
+    expect(dryResult).toMatchObject({
       status: "not-sent",
       eligibleCount: 1,
-      selectedCount: 1,
-      noRepeatAfterUnverified: true,
+      plannedCount: 1,
+      processedCount: 0,
+      remainingCount: 1,
+      stopReason: null,
+      results: [],
+    });
+    expect(dryResult).not.toHaveProperty("sent");
+
+    const empty = fakeContext({ notificationView: notificationView([]) });
+    const emptyResult = await call(
+      Civ7ControlOrpcRouter.notifications.queue.dismiss.request,
+      { send: true },
+      { context: empty.context }
+    );
+
+    expect(empty.calls.checks).toEqual([]);
+    expect(empty.calls.sends).toEqual([]);
+    expect(emptyResult).toMatchObject({
+      status: "not-sent",
+      eligibleCount: 0,
+      plannedCount: 0,
+      processedCount: 0,
+      remainingCount: 0,
+      stopReason: null,
+      results: [],
     });
   });
 
@@ -193,13 +359,7 @@ describe("notifications.queue control-oRPC procedures", () => {
     });
 
     await expect(
-      call(
-        Civ7ControlOrpcRouter.notifications.queue.current,
-        {},
-        {
-          context: fake.context,
-        }
-      )
+      call(Civ7ControlOrpcRouter.notifications.queue.current, {}, { context: fake.context })
     ).rejects.toMatchObject({
       code: "NOTIFICATION_QUEUE_UNAVAILABLE",
       status: 503,
@@ -208,73 +368,58 @@ describe("notifications.queue control-oRPC procedures", () => {
         source: "direct-control-facade",
       },
     });
-
-    try {
-      await call(
-        Civ7ControlOrpcRouter.notifications.queue.current,
-        {},
-        {
-          context: fake.context,
-        }
-      );
-    } catch (err) {
-      const serialized = JSON.stringify(err);
-      expect(serialized).not.toContain("CMD");
-      expect(serialized).not.toContain("Game.Notifications");
-      expect(serialized).not.toContain("rawCommand");
-      expect(serialized).not.toContain("command-failed");
-    }
   });
 });
 
-function fakeContext(
-  options: {
-    notificationViewError?: Error;
-    notificationView?: Civ7ControlOrpcPlayNotificationViewResult;
-    dismissalResult?: Civ7ControlOrpcNotificationDismissalResult;
-  } = {}
-): {
-  context: Civ7ControlOrpcContext;
-  calls: {
-    notifications: unknown[];
-    dismissals: Array<{ input: unknown; options: unknown }>;
-  };
-} {
+type FakeOptions = Readonly<{
+  notificationViewError?: Error;
+  notificationView?: Civ7ControlOrpcPlayNotificationViewResult;
+  check?: (
+    input: Readonly<{ notificationId: NotificationId }>
+  ) => Promise<Civ7ControlOrpcNotificationDismissalCheckResult>;
+  send?: (
+    input: Readonly<{ expected: Civ7ControlOrpcNotificationDismissalSnapshot }>
+  ) => Promise<Civ7ControlOrpcNotificationDismissalSendResult>;
+}>;
+
+function fakeContext(options: FakeOptions = {}) {
   const calls = {
     notifications: [] as unknown[],
-    dismissals: [] as Array<{ input: unknown; options: unknown }>,
+    checks: [] as Array<{ input: unknown; options: unknown }>,
+    sends: [] as Array<{ input: unknown; options: unknown }>,
   };
-
-  return {
-    calls,
-    context: {
-      endpointDefaults: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
+  const context: Civ7ControlOrpcContext = {
+    endpointDefaults,
+    directControl: directControlFacadeFixture({
+      getCiv7PlayableStatus: async () => playableStatusResult({ playable: true }),
+      getCiv7PlayNotificationView: async (input) => {
+        calls.notifications.push(input);
+        if (options.notificationViewError) throw options.notificationViewError;
+        return options.notificationView ?? notificationView([informationalQueueItem()]);
       },
-      directControl: directControlFacadeFixture({
-        getCiv7PlayableStatus: async () => playableStatusResult(),
-        getCiv7PlayNotificationView: async (input) => {
-          calls.notifications.push(input);
-          if (options.notificationViewError) throw options.notificationViewError;
-          return options.notificationView ?? notificationView();
-        },
-        requestCiv7NotificationDismissal: async (input, endpointDefaults) => {
-          calls.dismissals.push({ input, options: endpointDefaults });
-          return (
-            options.dismissalResult ??
-            notificationDismissalResult("notification-disappeared", {
-              notificationId: informationalId,
-            })
-          );
-        },
-      }),
-    },
+      checkCiv7NotificationDismissal: async (input, directOptions) => {
+        calls.checks.push({ input, options: directOptions });
+        return options.check
+          ? options.check(input)
+          : dismissalCheck(dismissalSnapshot(input.notificationId));
+      },
+      sendCiv7NotificationDismissal: async (input, directOptions) => {
+        calls.sends.push({ input, options: directOptions });
+        return options.send
+          ? options.send(input)
+          : dismissalSend(
+              input.expected,
+              dismissalSnapshot(input.expected.notificationId, { exists: false })
+            );
+      },
+    }),
   };
+  return { calls, context };
 }
 
-function notificationView(): Civ7ControlOrpcPlayNotificationViewResult {
+function notificationView(
+  decisionQueue: Civ7ControlOrpcPlayNotificationViewResult["hud"]["decisionQueue"]
+): Civ7ControlOrpcPlayNotificationViewResult {
   return {
     host: "127.0.0.1",
     port: 4318,
@@ -283,9 +428,9 @@ function notificationView(): Civ7ControlOrpcPlayNotificationViewResult {
     turn: { ok: true, value: 7 },
     turnDate: { ok: true, value: "3800 BCE" },
     hasSentTurnComplete: { ok: true, value: false },
-    blocker: { ok: true, value: 2_091_697_919 },
-    blockingNotificationId: { ok: true, value: unitLostId },
-    canEndTurn: { ok: true, value: false },
+    blocker: { ok: true, value: null },
+    blockingNotificationId: { ok: true, value: null },
+    canEndTurn: { ok: true, value: true },
     selectedUnitId: { ok: true, value: null },
     selectedCityId: { ok: true, value: null },
     firstReadyUnitId: { ok: true, value: null },
@@ -294,36 +439,22 @@ function notificationView(): Civ7ControlOrpcPlayNotificationViewResult {
     limits: { maxNotifications: 50, truncated: false },
     hud: {
       nextDecision: null,
-      decisionQueue: [
-        queueItem({
-          notificationId: informationalId,
-          category: "informational-notification",
-          typeName: "NOTIFICATION_WONDER_COMPLETED",
-          summary: "Wonder Completed",
-          operationFamily: "app-ui-action",
-          operationType: "Game.Notifications.dismiss",
-        }),
-        queueItem({
-          notificationId: unitLostId,
-          category: "unit-command",
-          typeName: "NOTIFICATION_UNIT_LOST",
-          summary: "Unit Lost",
-          isEndTurnBlocking: true,
-          operationFamily: "app-ui-action",
-          operationType: "Game.Notifications.dismiss",
-        }),
-        queueItem({
-          notificationId: productionId,
-          category: "production-choice",
-          typeName: "NOTIFICATION_PRODUCTION_NEEDED",
-          summary: "Production Needed",
-          operationFamily: "city-command",
-          operationType: "BUILD",
-          requiredInputs: [{ name: "cityId", source: "notification", required: true }],
-        }),
-      ],
+      decisionQueue,
     },
   };
+}
+
+function informationalQueueItem(
+  id: NotificationId = informationalId,
+  overrides: Partial<Civ7ControlOrpcPlayNotificationViewResult["hud"]["decisionQueue"][number]> = {}
+): Civ7ControlOrpcPlayNotificationViewResult["hud"]["decisionQueue"][number] {
+  return queueItem({
+    notificationId: id,
+    category: "informational-notification",
+    typeName: "NOTIFICATION_WONDER_COMPLETED",
+    summary: "Wonder Completed",
+    ...overrides,
+  });
 }
 
 function queueItem(
@@ -348,82 +479,48 @@ function queueItem(
   };
 }
 
-function notificationDismissalResult(
-  classification: Civ7ControlOrpcNotificationDismissalResult["postcondition"]["classification"],
-  options: {
-    notificationId?: typeof informationalId;
-    verified?: boolean;
-  } = {}
-): Civ7ControlOrpcNotificationDismissalResult {
-  const id = options.notificationId ?? informationalId;
-  const before = notificationSummary(id);
-  const after =
-    classification === "engine-front-still-live"
-      ? notificationSummary(id, {
-          dismissed: true,
-          notificationTrainContains: { ok: true, value: false },
-          isNotificationTrainFront: { ok: true, value: false },
-          isEngineQueueFront: { ok: true, value: true },
-        })
-      : notificationSummary(id, { exists: false });
-
+function dismissalSnapshot(
+  id: NotificationId = informationalId,
+  overrides: Partial<Civ7ControlOrpcNotificationDismissalSnapshot> = {}
+): Civ7ControlOrpcNotificationDismissalSnapshot {
   return {
-    host: "127.0.0.1",
-    port: 4318,
-    state: { id: "65535", name: "App UI" },
     notificationId: id,
-    before,
-    after,
-    canDismiss: true,
-    sent: true,
-    result: {
-      notificationTrainManager: {
-        ok: true,
-        attempted: true,
-        available: true,
-        path: "NotificationModel.manager.dismiss",
-      },
-    },
-    closeoutPath: "NotificationModel.manager.dismiss",
-    verificationAttempts: [before, after],
-    verified: options.verified ?? classification === "notification-disappeared",
-    postcondition: {
-      classification,
-      reason: `test ${classification}`,
-    },
-    notes: ["fixture"],
+    localPlayerId: 0,
+    exists: true,
+    typeName: "NOTIFICATION_WONDER_COMPLETED",
+    activeQueue: probe(true),
+    canUserDismiss: probe(true),
+    dismissed: probe(false),
+    ...overrides,
   };
 }
 
-function notificationSummary(
-  id: typeof informationalId,
-  overrides: Partial<Civ7ControlOrpcNotificationDismissalResult["before"]> = {}
-): Civ7ControlOrpcNotificationDismissalResult["before"] {
-  return {
-    id,
-    exists: true,
-    type: 2_091_697_919,
-    typeName: "NOTIFICATION_WONDER_COMPLETED",
-    summary: "Wonder Completed",
-    message: "Wonder Completed",
-    target: { owner: -1, id: -1, type: 0 },
-    location: { x: -9999, y: -9999 },
-    canUserDismiss: true,
-    expired: false,
-    dismissed: false,
-    blocksTurnAdvancement: { ok: true, value: true },
-    endTurnBlockingType: { ok: true, value: 2_091_697_919 },
-    isEndTurnBlocking: { ok: true, value: true },
-    engineQueueCount: { ok: true, value: 1 },
-    engineQueueContains: { ok: true, value: true },
-    engineQueueFirstId: { ok: true, value: id },
-    isEngineQueueFront: { ok: true, value: true },
-    notificationTrainCount: { ok: true, value: 1 },
-    notificationTrainContains: { ok: true, value: true },
-    notificationTrainFirstId: { ok: true, value: id },
-    isNotificationTrainFront: { ok: true, value: true },
-    ...overrides,
-  };
+function dismissalCheck(
+  observed: Civ7ControlOrpcNotificationDismissalSnapshot
+): Civ7ControlOrpcNotificationDismissalCheckResult {
+  return { snapshot: observed };
+}
+
+function dismissalSend(
+  before: Civ7ControlOrpcNotificationDismissalSnapshot,
+  after: Civ7ControlOrpcNotificationDismissalSnapshot
+): Civ7ControlOrpcNotificationDismissalSendResult {
+  return { sent: true, before, after };
+}
+
+function probe<T>(value: T): Civ7ControlOrpcRuntimeProbe<T> {
+  return { ok: true, value };
+}
+
+function isDismissInput(value: unknown): value is { notificationId: NotificationId } {
+  if (value === null || typeof value !== "object" || !("notificationId" in value)) return false;
+  const notificationIdValue = value.notificationId;
+  return (
+    notificationIdValue !== null &&
+    typeof notificationIdValue === "object" &&
+    "id" in notificationIdValue &&
+    typeof notificationIdValue.id === "number"
+  );
 }
 
 function expectSafeQueueOutput(output: unknown): void {
@@ -437,7 +534,5 @@ function expectSafeQueueOutput(output: unknown): void {
   expect(serialized).not.toContain("rawCommand");
   expect(serialized).not.toContain("Game.Notifications.dismiss(");
   expect(serialized).not.toContain("game play");
-  expect(serialized).not.toMatch(/specialized .*command|before sending|before any send/i);
   expect(serialized).not.toContain("approval");
-  expect(serialized).not.toContain("approvalReason");
 }

@@ -289,27 +289,21 @@ export type {
 } from "./play/notifications/advisor-warning-request.js";
 export { requestCiv7AdvisorWarningViewed } from "./play/notifications/advisor-warning-request.js";
 export type {
-  Civ7NotificationDismissalResult,
-  Civ7NotificationDismissalSummary,
+  Civ7NotificationDismissalCheckResult,
+  Civ7NotificationDismissalSendInput,
+  Civ7NotificationDismissalSendResult,
+  Civ7NotificationDismissalSnapshot,
   Civ7NotificationDismissInput,
-  Civ7NotificationDismissRequestInput,
-} from "./play/notifications/dismissal-request.js";
+} from "./play/notifications/dismissal.js";
 export {
-  Civ7NotificationDismissalResultSchema,
+  Civ7NotificationDismissalCheckResultSchema,
+  Civ7NotificationDismissalSendInputSchema,
+  Civ7NotificationDismissalSendResultSchema,
+  Civ7NotificationDismissalSnapshotSchema,
   Civ7NotificationDismissInputSchema,
-  Civ7NotificationDismissRequestInputSchema,
-  getCiv7NotificationDismissal,
-  requestCiv7NotificationDismissal,
-} from "./play/notifications/dismissal-request.js";
-export type {
-  Civ7NotificationDismissalPostcondition,
-  Civ7NotificationDismissalPostconditionClassification,
-} from "./play/notifications/postconditions.js";
-export {
-  Civ7NotificationDismissalPostconditionClassificationSchema,
-  Civ7NotificationDismissalPostconditionSchema,
-  Civ7NotificationDismissalSummarySchema,
-} from "./play/notifications/postconditions.js";
+  checkCiv7NotificationDismissal,
+  sendCiv7NotificationDismissal,
+} from "./play/notifications/dismissal.js";
 export type {
   Civ7PlayDecisionAction,
   Civ7PlayDecisionActionContract,
@@ -740,10 +734,6 @@ export {
   snapshotFile,
   waitForFreshLogMarkers,
 } from "./proof/log-markers.js";
-export {
-  notificationDismissalProofOutcome,
-  notificationDismissalProofPostcondition,
-} from "./proof/notification-dismissal-proof-policy.js";
 export {
   progressionPlayerChoiceProofOutcome,
   progressionPlayerChoiceProofPostcondition,
