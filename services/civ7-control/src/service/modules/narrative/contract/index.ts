@@ -6,7 +6,6 @@ export const contract = {
   choice,
 };
 
-export type Civ7NarrativeContract = typeof contract;
 export type Civ7NarrativeChoiceInput = InferContractRouterInputs<
   typeof contract
 >["choice"]["check"];

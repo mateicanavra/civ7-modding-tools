@@ -109,8 +109,9 @@ Bad uses:
   city fronts; it does not enumerate immediate action plots.
 - `game play unit ready`: identifies the current unit and its legal operation
   surface.
-- `game play unit target` and `game operation`: validate or send concrete
-  target operations after the planning lens has narrowed the next action.
+- `game play unit target`: validates or sends the concrete plot action after
+  the planning lens has narrowed the next action. Generic operation execution
+  is not a unit-target route.
 
 The practical sequence for movement-heavy turns is:
 
@@ -118,7 +119,8 @@ The practical sequence for movement-heavy turns is:
 2. `game play unit ready --json` to identify the active unit.
 3. `game play destination-analysis --from-x <unit-x> --from-y <unit-y> --to-x <x> --to-y <y> --json`.
 4. Inspect any POI returned by the destination lens.
-5. Use a validator-backed action only after the live state is still fresh.
+5. Validate `game play unit target` against fresh live state, then use its named
+   send path when admitted.
 
 ## Remaining Gaps
 

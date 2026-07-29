@@ -66,8 +66,9 @@ or "where does pressure appear to be concentrated?" It cannot authorize:
 - terrain-safe routes.
 
 Before any mutation, re-read the ready unit/city view and use the relevant
-validator-backed shortcut such as `game play unit target`, `game operation`,
-or production/city commands.
+named service action such as `game play unit target` or the appropriate
+production/city command. Generic operation execution is not mutation authority
+for a target plot.
 
 Relationship labels are deliberately not classified by this lens. The response
 now includes `relationshipLabelPolicy.relationshipSource: "not-classified"` and

@@ -4,11 +4,11 @@ Status: `live-command-surface`.
 
 Sources:
 
-- `packages/cli/src/utils/game-play-shared.ts`
-- `packages/cli/src/commands/game/play/change-tradition.ts`
-- `packages/cli/src/commands/game/play/buy-attribute.ts`
-- `packages/cli/src/commands/game/play/set-town-focus.ts`
-- `packages/civ7-direct-control/src/index.ts`
+- `plugins/cli/topics/game/src/commands/game/play/`
+- `services/civ7-control/src/service/modules/progression/router/`
+- `services/civ7-control/src/service/modules/city/router/town-focus.ts`
+- `services/civ7-control/src/service/modules/government/router/choice.ts`
+- `packages/civ7-direct-control/src/play/progression/`
 - Live play support threads where progression and town-focus choices required
   a primary operation followed by a review closeout.
 
@@ -31,42 +31,55 @@ attributes, government, town focus, and production:
 
 ## Current Bundled Workflows
 
-Use these when the selected action should be handled as one native workflow:
+The CLI is a thin client for the control service. Progression choice discovery
+calls a service `options` procedure, dry runs call a service `check` procedure,
+and explicit `--send` modes call a service `request` procedure. The CLI does
+not sequence native primitives or derive a postcondition locally.
 
-- `game play traditions --player-id <id> --json`
-  reads the current live active/unlocked/recent tradition packet, slot counts,
-  activate/deactivate enum values, and per-tradition action hints before any
-  mutation.
-- `game play change-tradition --player-id <id> --tradition-type <type> --action <action> --send --closeout`
-  sends `CHANGE_TRADITION` then `CONSIDER_ASSIGN_TRADITIONS`.
-- `game play buy-attribute --player-id <id> --node <node> --send --closeout`
-  sends `BUY_ATTRIBUTE_TREE_NODE` then `CONSIDER_ASSIGN_ATTRIBUTE`.
+Use these when the selected action should be handled as one service-owned
+native workflow:
+
+- `game play traditions [--player-id <id>] --json`
+  reads the selected player's live active/unlocked/recent tradition packet,
+  defaulting to the ambient local player, before any mutation.
+- `game play change-tradition --tradition-type <type> --action <activate|deactivate> [--send [--closeout]]`
+  checks or requests the semantic tradition change. On a request only,
+  `--closeout` asks the service to compose and observe the optional tradition
+  review closeout.
+- `game play buy-attribute --node <node> [--send [--closeout]]`
+  checks or requests the attribute purchase. On a request only, `--closeout`
+  asks the service to compose and observe the optional attribute review
+  closeout.
 - `game play choose-tech --node <node> --send`
-  runs the App UI tech chooser owner route: activate the current
-  `NOTIFICATION_CHOOSE_TECH` when present, send `SET_TECH_TREE_NODE`, clear
-  with `SET_TECH_TREE_TARGET_NODE`, then re-read the live technology-choice
-  notification postcondition.
+  requests the complete technology chooser workflow. The service owns the
+  native choice, the unconditional
+  `SET_TECH_TREE_TARGET_NODE { ProgressionTreeNodeType: NO_NODE }` clear, and
+  bounded progression/blocker observation.
 - `game play choose-culture --node <node> --send`
-  runs the App UI culture chooser owner route: activate the current
-  `NOTIFICATION_CHOOSE_CULTURE_NODE` when present, send
-  `SET_CULTURE_TREE_NODE`, clear with `SET_CULTURE_TREE_TARGET_NODE`, then
-  re-read the live culture-choice notification postcondition.
-- `game play choose-government --government-type <government-type> --action <activate> --send`
-  sends `CHANGE_GOVERNMENT` with the exact government/action pair returned by
-  `choose-government --options`.
-- `game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send --closeout`
-  sends `CHANGE_GROWTH_MODE` then `CONSIDER_TOWN_PROJECT`.
+  requests the same service-owned workflow for culture: native choice,
+  unconditional `SET_CULTURE_TREE_TARGET_NODE {
+  ProgressionTreeNodeType: NO_NODE }` clear, and bounded
+  progression/blocker observation.
+- `game play set-tech-target --node <node> --send` and
+  `game play set-culture-target --node <node> --send`
+  request deliberate full-tree targets. The service checks the target first,
+  optionally performs the same-node choice, rechecks the target, then sends
+  the target and observes the result.
+- `game play choose-government --government-type <government-type> --send`
+  requests the exact government choice through the government control service.
+- `game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send`
+  requests the selected town focus through the city control service.
 
 The standalone closeout commands still matter when no primary change is needed
-or the primary change has already been applied. Treat them as diagnostics,
-compatibility surfaces, or debt to fold into one forward command when the native
-workflow is known:
+or the primary change has already been applied. They are explicit service
+checks without `--send` and service requests with `--send`:
 
 - `game play consider-traditions`
 - `game play consider-attributes`
 - `game play consider-town-project`
-- `game play set-tech-target`
-- `game play set-culture-target`
+
+`game play set-tech-target` and `game play set-culture-target` are full-tree
+planning commands, not standalone chooser closeouts.
 
 ## Norms
 
@@ -76,18 +89,21 @@ workflow is known:
   resources, GameInfo/runtime APIs, and relevant community mods before adding
   repo-owned orchestration.
 - Keep `--send` mandatory for mutation. The command result and postcondition
-  cover the selected workflow, not just the first runtime step.
-- Validate and send native primitives in the same order the official UI uses
-  for that player decision.
-- Verification is command-internal proof of the repo-owned composition. It
-  should surface a command-level failure when our composition did not advance
-  the native state machine; it should not become a caller checklist.
-- Progression chooser commands must not treat successful runtime sends as
-  success if the same end-turn-blocking chooser notification remains live.
-  For tech and culture, the direct-control App UI route only proves
-  operation-send evidence; the CLI's caller-level notification re-read owns
-  final `verified:true`. Report sticky or state-changed-live postconditions so
-  agents stop and diagnose instead of repeating blind sends.
+  cover the selected workflow, not just the first runtime dispatch. A `sent`
+  value is dispatch evidence, not confirmation.
+- Within progression commands, `--closeout` is optional only for
+  `buy-attribute` and `change-tradition` requests. It requires `--send`, is
+  never part of a check input, and asks the service to compose the review step.
+- For tech and culture chooser requests, the service sequences the native
+  choice followed by an unconditional runtime `NO_NODE` target clear. For a
+  full-tree target request, it checks the target first, optionally performs the
+  same-node choice, rechecks the target, and only then sends the target.
+- The control service owns bounded state and blocker observation, semantic
+  postcondition classification, and no-repeat guidance. The CLI renders that
+  result; it does not perform its own postcondition verification.
+- Do not treat successful native dispatch as workflow success while a matching
+  chooser or review blocker remains live. Follow the service's semantic
+  classification and `do-not-repeat` next step after any unverified outcome.
 - Keep category guidance advisory. The command gives the caller a safe
   workflow shape; it does not choose which tradition, attribute, or town focus
   is strategically correct.
@@ -98,8 +114,11 @@ workflow is known:
 
 ## Proof Boundary
 
-Local tests prove the CLI emits the intended sequential operation families and
-command-level postconditions. They do not prove every live Civ7 blocker state.
-Live validation still depends on the current game state, runtime enum values,
-and whether the native UI/game primitive sequence for that decision has been
+CLI tests prove command modes route to the intended service
+`options`/`check`/`request` procedures and keep request-only inputs off checks.
+Service behavior tests prove sequencing, bounded observation, semantic result
+contracts, and no-repeat policy; direct-control tests prove the focused native
+atoms. These local tests do not prove every live Civ7 blocker state. Live
+validation still depends on the current game state, runtime enum values, and
+whether the native game primitive sequence for that decision has been
 correctly identified.

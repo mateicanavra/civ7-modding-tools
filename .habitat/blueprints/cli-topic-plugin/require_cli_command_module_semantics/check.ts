@@ -345,9 +345,16 @@ function checkTopic(topicRoot: string): void {
   });
   const checker = program.getTypeChecker();
 
-  const filesByCommandId = Map.groupBy(commandFiles, (commandFile) =>
-    commandId(commandsRoot, commandFile)
-  );
+  const filesByCommandId = new Map<string, string[]>();
+  for (const commandFile of commandFiles) {
+    const id = commandId(commandsRoot, commandFile);
+    const files = filesByCommandId.get(id);
+    if (files) {
+      files.push(commandFile);
+    } else {
+      filesByCommandId.set(id, [commandFile]);
+    }
+  }
   for (const [id, files] of filesByCommandId) {
     if (files.length < 2) continue;
     for (const file of files) {

@@ -47,7 +47,9 @@ through the same `MOVE_TO` operation, while reading queued path state through
 `Units.getQueuedOperationDestination`; live direct-control smoke is still needed
 before treating that as a proved mutating shortcut.
 
-The proposed mutation should therefore stay provisional:
+The proposed named mutation should therefore stay provisional. Until it has a
+dedicated service contract, use `unit target --send`; do not bypass its native
+ordering through generic `unit-operation MOVE_TO`.
 
 ```bash
 civ7 game play set-unit-destination \

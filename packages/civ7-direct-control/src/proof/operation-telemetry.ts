@@ -41,7 +41,7 @@ const CIV7_OPERATION_LIVE_PROOF_CLASSES = new Set<Civ7OperationProofClass>([
 
 type Civ7OperationProofTelemetrySlot = (typeof CIV7_OPERATION_PROOF_TELEMETRY_SLOTS)[number];
 
-export type Civ7OperationProofClass =
+type Civ7OperationProofClass =
   | "local-package-test"
   | "local-cli-test"
   | "target-thread-evidence"
@@ -54,13 +54,13 @@ export type Civ7OperationProofClass =
   | "in-game-observation"
   | "pending-runtime-proof";
 
-export type Civ7OperationProofBoundary =
+type Civ7OperationProofBoundary =
   | "planning-evidence-only"
   | "local-test-proof"
   | "pending-runtime-proof"
   | "live-runtime-proof";
 
-export type Civ7OperationTelemetryPlayerScope =
+type Civ7OperationTelemetryPlayerScope =
   | "unknown"
   | "local-player"
   | "player"
@@ -68,7 +68,7 @@ export type Civ7OperationTelemetryPlayerScope =
   | "human-turn-visible"
   | "observer-debug";
 
-export type Civ7OperationTelemetryEvidence<T = unknown> = Readonly<{
+type Civ7OperationTelemetryEvidence<T = unknown> = Readonly<{
   evidenceClass: Civ7OperationProofClass;
   source: string;
   freshness?:
@@ -94,7 +94,7 @@ type Civ7OperationTelemetrySendReceipt = Readonly<{
   reason?: string;
 }>;
 
-export type Civ7OperationTelemetryPostconditionOutcome =
+type Civ7OperationTelemetryPostconditionOutcome =
   | "cleared"
   | "state-changed"
   | "still-blocked"
@@ -111,14 +111,14 @@ export type Civ7OperationTelemetryPostcondition = Readonly<{
   confidence: "confirmed" | "unverified" | "pending-runtime-proof";
 }>;
 
-export type Civ7OperationTelemetryEvidencePolicy = Readonly<{
+type Civ7OperationTelemetryEvidencePolicy = Readonly<{
   proofBoundary: Civ7OperationProofBoundary;
   allowedProofClasses: readonly Civ7OperationProofClass[];
   pendingProofClasses?: readonly Civ7OperationProofClass[];
   nonProofClaims?: readonly string[];
 }>;
 
-export type Civ7OperationTelemetryObservationLink = Readonly<{
+type Civ7OperationTelemetryObservationLink = Readonly<{
   label: string;
   evidenceClass: Civ7OperationProofClass;
   ref: string;

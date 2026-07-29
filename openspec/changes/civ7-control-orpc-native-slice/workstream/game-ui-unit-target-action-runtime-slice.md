@@ -3,6 +3,10 @@
 Status: implemented local package/bundle proof.
 Date: 2026-06-05.
 
+> Historical record. Superseded by Task 8.35. Current behavior and ownership
+> live in the active OpenSpec and
+> [unit-target-actions.md](../../../../docs/projects/civ7-live-play-support/topics/unit-target-actions.md).
+
 ## Purpose
 
 Add a game-resident unit-target runtime dependency behind the

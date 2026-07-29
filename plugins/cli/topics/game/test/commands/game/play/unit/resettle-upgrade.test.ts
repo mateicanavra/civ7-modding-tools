@@ -1,11 +1,11 @@
 import { describe, expect, test, vi } from "vitest";
 import GamePlayUnitResettle from "../../../../../src/commands/game/play/unit/resettle";
 import GamePlayUnitUpgrade from "../../../../../src/commands/game/play/unit/upgrade";
-import { startPlayOperationTunerServer } from "../../../../support/play-operation-tuner-server";
+import { startUnitCommandTunerServer } from "../../../../support/unit-command-tuner-server";
 
 describe("game play unit upgrade and resettle commands", () => {
   test("checks population resettle through the exact unit resettle procedure", async () => {
-    const server = await startPlayOperationTunerServer();
+    const server = await startUnitCommandTunerServer();
     const writes: string[] = [];
     const log = vi
       .spyOn(GamePlayUnitResettle.prototype, "log")
@@ -55,7 +55,7 @@ describe("game play unit upgrade and resettle commands", () => {
   });
 
   test("requests unit upgrade through the exact unit upgrade procedure", async () => {
-    const server = await startPlayOperationTunerServer();
+    const server = await startUnitCommandTunerServer();
     const writes: string[] = [];
     const log = vi
       .spyOn(GamePlayUnitUpgrade.prototype, "log")
@@ -110,7 +110,7 @@ describe("game play unit upgrade and resettle commands", () => {
   });
 
   test("routes population resettle sends through the native unit resettle procedure", async () => {
-    const server = await startPlayOperationTunerServer();
+    const server = await startUnitCommandTunerServer();
     const writes: string[] = [];
     const log = vi
       .spyOn(GamePlayUnitResettle.prototype, "log")

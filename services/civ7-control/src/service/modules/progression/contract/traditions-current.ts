@@ -44,29 +44,33 @@ const Civ7ProgressionTraditionsProbeSchema = Type.Union([
   ),
 ]);
 
+const Civ7ProgressionTraditionChangeActionSchema = Type.Union([
+  Type.Literal("activate"),
+  Type.Literal("deactivate"),
+]);
+
 const Civ7ProgressionTraditionActionDescriptorSchema = Type.Object(
   {
     kind: Type.Union([Type.Literal("activate"), Type.Literal("deactivate")], {
       description: "Semantic tradition change offered by the runtime.",
     }),
-    action: Type.Union([Type.Number(), Type.Null()], {
-      description: "Runtime action identifier, or null when unavailable.",
+    runtimeAction: Type.Union([Type.Number(), Type.Null()], {
+      description:
+        "Raw PlayerOperationParameters action identifier retained as runtime evidence, or null when unavailable.",
     }),
     validationSuccess: Type.Union([Type.Boolean(), Type.Null()], {
       description: "Whether runtime validation succeeded, or null when unreadable.",
     }),
     parameters: Type.Object(
       {
-        traditionType: Type.Number({
+        traditionType: Type.Integer({
           description: "Runtime tradition identifier for the action.",
         }),
-        action: Type.Union([Type.Number(), Type.Null()], {
-          description: "Runtime action identifier, or null when unavailable.",
-        }),
+        action: Civ7ProgressionTraditionChangeActionSchema,
       },
       {
         additionalProperties: false,
-        description: "Structured inputs required to request the tradition change.",
+        description: "Semantic inputs accepted by progression.tradition.change check and request.",
       }
     ),
     nextSteps: Type.Array(
@@ -86,16 +90,15 @@ const Civ7ProgressionTraditionActionDescriptorSchema = Type.Object(
           }),
           parameters: Type.Object(
             {
-              traditionType: Type.Number({
+              traditionType: Type.Integer({
                 description: "Runtime tradition identifier for the follow-up.",
               }),
-              action: Type.Union([Type.Number(), Type.Null()], {
-                description: "Runtime action identifier, or null when unavailable.",
-              }),
+              action: Civ7ProgressionTraditionChangeActionSchema,
             },
             {
               additionalProperties: false,
-              description: "Structured inputs for the recommended follow-up.",
+              description:
+                "Semantic inputs accepted by progression.tradition.change check and request.",
             }
           ),
         },

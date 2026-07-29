@@ -8,9 +8,7 @@ import * as directControl from "../src/index";
 import {
   type Civ7FirstMeetResponseInput,
   type Civ7FirstMeetResponseSnapshot,
-  canStartCiv7PlayerOperation,
   checkCiv7FirstMeetResponse,
-  requestCiv7PlayerOperation,
   sendCiv7FirstMeetResponse,
 } from "../src/index";
 import { liveCiv7DirectControl } from "../src/live-control";
@@ -367,34 +365,6 @@ describe("exact native first-meet response atoms", () => {
       expect(server.responseTypeReads).toEqual([responseKeys.neutral, responseKeys.neutral]);
     } finally {
       await server.close();
-    }
-  });
-
-  test("rejects the exact operation through generic player-operation paths", async () => {
-    for (const operationType of [
-      "RESPOND_DIPLOMATIC_FIRST_MEET",
-      "PLAYEROPERATION_RESPOND_DIPLOMATIC_FIRST_MEET",
-    ]) {
-      for (const run of [canStartCiv7PlayerOperation, requestCiv7PlayerOperation]) {
-        await expect(
-          run(
-            {
-              playerId: localPlayerId,
-              operationType,
-              args: {
-                Player1: localPlayerId,
-                Player2: metPlayerId,
-                Type: responseTypes.neutral,
-              },
-            },
-            { host: "127.0.0.1", port: 1, timeoutMs: 10 }
-          )
-        ).rejects.toMatchObject({
-          name: "Civ7DirectControlError",
-          dispatchStatus: "not-dispatched",
-          message: expect.stringContaining("exact first-meet response"),
-        });
-      }
     }
   });
 });

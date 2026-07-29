@@ -1,24 +1,18 @@
 import { Command, Flags } from "@oclif/core";
 import { createCiv7GameControlClient } from "../../../adapters/control/service-client";
-import {
-  buildDirectControlOptions,
-  emitPlayResult,
-  executePlayOperationSequence,
-  validatePlayOperation,
-} from "../../../adapters/play/direct-control";
+import { buildDirectControlOptions, emitPlayResult } from "../../../adapters/play/direct-control";
 
-const CHANGE_TRADITION = "CHANGE_TRADITION";
-const CONSIDER_ASSIGN_TRADITIONS = "CONSIDER_ASSIGN_TRADITIONS";
+const TRADITION_ACTIONS = ["activate", "deactivate"] as const;
 
 export default class GamePlayChangeTradition extends Command {
-  static summary = "Validate or change an active tradition";
+  static summary = "Check or change an active tradition";
   static description =
-    "Wraps player-operation CHANGE_TRADITION with a live TraditionType and action enum value.";
+    "Checks or requests a semantic tradition change through the Civ7 control service.";
 
   static examples = [
-    "<%= config.bin %> game play change-tradition --player-id 0 --tradition-type 2057145683 --action 1318334332 --json",
-    "<%= config.bin %> game play change-tradition --tradition-type -331546976 --action -1326475004 --send --json",
-    "<%= config.bin %> game play change-tradition --tradition-type -331546976 --action -1326475004 --send --closeout --json",
+    "<%= config.bin %> game play change-tradition --tradition-type 2057145683 --action activate --json",
+    "<%= config.bin %> game play change-tradition --tradition-type -331546976 --action deactivate --send --json",
+    "<%= config.bin %> game play change-tradition --tradition-type -331546976 --action deactivate --send --closeout --json",
   ];
 
   static flags = {
@@ -28,23 +22,21 @@ export default class GamePlayChangeTradition extends Command {
     port: Flags.integer({
       description: "Civ7 tuner socket port",
     }),
-    "player-id": Flags.integer({
-      description: "Player id for read-only validation; send mode uses live local-player evidence",
-    }),
     "tradition-type": Flags.integer({
-      description: "TraditionType id from live traditions UI/GameInfo",
+      description: "TraditionType id from live tradition options",
       required: true,
     }),
-    action: Flags.integer({
-      description: "Tradition action enum value from the live traditions UI",
+    action: Flags.string({
+      description: "Whether to activate or deactivate the tradition",
+      options: [...TRADITION_ACTIONS],
       required: true,
     }),
     send: Flags.boolean({
-      description: "Send CHANGE_TRADITION after validator success",
+      description: "Request the tradition change after a fresh native check",
       default: false,
     }),
     closeout: Flags.boolean({
-      description: "Also run CONSIDER_ASSIGN_TRADITIONS as part of the same caller-level workflow",
+      description: "Close tradition review in the same service-owned request",
       default: false,
     }),
     "timeout-ms": Flags.integer({
@@ -59,98 +51,28 @@ export default class GamePlayChangeTradition extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayChangeTradition);
-    const options = buildDirectControlOptions(flags);
-    if (flags.send) {
-      const client = createCiv7GameControlClient({
-        endpointDefaults: options,
-      });
-      const change = await client.progression.tradition.change.request({
-        traditionType: flags["tradition-type"],
-        action: flags.action,
-      });
-      if (flags.closeout) {
-        const review =
-          change.status === "not-sent"
-            ? null
-            : await client.progression.tradition.review.request({});
-        emitPlayResult(
-          this.log.bind(this),
-          flags.json,
-          progressionPlayerChoiceWorkflow([
-            { label: "change tradition", result: change },
-            ...(review === null ? [] : [{ label: "close tradition review", result: review }]),
-          ])
-        );
-        return;
-      }
-
-      emitPlayResult(this.log.bind(this), flags.json, change);
-      return;
+    const action = flags.action;
+    if (action !== "activate" && action !== "deactivate") {
+      throw new Error("game play change-tradition requires --action activate|deactivate");
+    }
+    if (flags.closeout && !flags.send) {
+      throw new Error("game play change-tradition --closeout requires --send");
     }
 
-    if (typeof flags["player-id"] !== "number") {
-      throw new Error("game play change-tradition requires --player-id unless --send is used");
-    }
-    const input = {
-      operationType: CHANGE_TRADITION,
-      playerId: flags["player-id"],
-      args: {
-        TraditionType: flags["tradition-type"],
-        Action: flags.action,
-      },
-    };
-    if (flags.closeout) {
-      const result = await executePlayOperationSequence(
-        [
-          {
-            label: "change tradition",
-            family: "player-operation",
-            input,
-          },
-          {
-            label: "close tradition review",
-            family: "player-operation",
-            input: {
-              operationType: CONSIDER_ASSIGN_TRADITIONS,
-              playerId: flags["player-id"],
-              args: {},
-            },
-          },
-        ],
-        options,
-        { send: flags.send }
-      );
-
-      emitPlayResult(this.log.bind(this), flags.json, result);
-      return;
-    }
-
-    const result = await validatePlayOperation("player-operation", input, options);
+    const client = createCiv7GameControlClient({
+      endpointDefaults: buildDirectControlOptions(flags),
+    });
+    const result = flags.send
+      ? await client.progression.tradition.change.request({
+          traditionType: flags["tradition-type"],
+          action,
+          closeReview: flags.closeout,
+        })
+      : await client.progression.tradition.change.check({
+          traditionType: flags["tradition-type"],
+          action,
+        });
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }
-}
-
-function progressionPlayerChoiceWorkflow(steps: Array<{ label: string; result: unknown }>) {
-  return {
-    mode: "send",
-    stepCount: steps.length,
-    status: steps.some(
-      (step) =>
-        typeof step.result === "object" &&
-        step.result !== null &&
-        "status" in step.result &&
-        step.result.status === "sent-unverified"
-    )
-      ? "sent-unverified"
-      : "not-sent",
-    steps,
-    nextSteps: [
-      {
-        kind: "do-not-repeat",
-        source: "progression.tradition.change.request",
-        label: "Do not repeat this tradition workflow until fresh attention evidence is read.",
-      },
-    ],
-  };
 }

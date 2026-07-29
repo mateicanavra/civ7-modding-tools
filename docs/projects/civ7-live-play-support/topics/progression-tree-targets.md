@@ -19,36 +19,40 @@ There are two related operation families:
 
 Use `game play choose-tech` and `game play choose-culture` first when the live
 chooser is asking for the next current node. `game play choose-tech --send`
-is one complete technology selection workflow: it starts the selected research
-node and clears the temporary chooser target behind the scenes. Use
-`game play set-tech-target` directly only when the full tree UI should
-deliberately target a later node or when diagnostics prove the primary chooser
-operation already applied. Culture still accepts hidden `--closeout` as a
-compatibility no-op, but callers should treat `--send` as the complete
-two-operation chooser workflow.
+asks the control service for one complete technology selection workflow: start
+the selected research node, clear the temporary chooser target with the runtime
+`NO_NODE`, and observe the resulting progression and blocker state. Culture
+uses the same service-owned workflow. Tree commands do not expose
+`--closeout`; use `game play set-tech-target` or
+`game play set-culture-target` only to deliberately plan a full-tree target,
+not as a manual chooser closeout.
 
 For technology blockers, read `game play choose-tech --options --json` before
 sending if the node id is not already proven. For culture blockers, read
 `game play choose-culture --options --json` first for the same reason. The tech
-surface is populated from `GameInfo.ProgressionTrees`,
-`Game.ProgressionTrees`, and official `PlayerOperations.canStart` checks; the
-culture surface is populated from the official
-`Players.Culture.getAllAvailableNodeTypes()` chooser list plus the same
-validator checks. Enabled technology options identify valid choice candidates;
-disabled options are evidence, not mutation candidates.
+and culture option surfaces are read-only service projections of the ambient
+local player's live chooser evidence. With `--node` and no `--send`, each
+command calls the corresponding service `check`; with `--send`, it calls the
+service `request`, whose fresh admission is authoritative for mutation.
 
-For chooser notifications, the complete workflow mirrors the official chooser
-screens: send the chosen `SET_*_TREE_NODE`, then clear the temporary chooser
-target with `SET_*_TREE_TARGET_NODE { ProgressionTreeNodeType: NO_NODE }`.
-Technology and culture closeout run this through the App UI owner route:
-activate the current chooser notification when present, send the node choice,
-then clear the temporary chooser target. That sequence is necessary but not
-proof by itself. The caller command must re-read the live notification state and
-report whether the blocker cleared, changed, unblocked the turn, or remained
-live after state changed. Use `game play set-tech-target` or
-`game play set-culture-target` only when the full tree should deliberately
-target a later node or when diagnostics already prove the primary chooser state
-was applied.
+For a new chooser selection, the service sends the chosen
+`SET_*_TREE_NODE`, obtains fresh state, then unconditionally dispatches
+`SET_*_TREE_TARGET_NODE { ProgressionTreeNodeType: NO_NODE }`. If the current
+node is already selected but its temporary target is still pending, the service
+resumes at the clear without repeating the choice. It then performs bounded
+progression and blocker observation and returns a semantic postcondition.
+
+A full-tree target request has a different sequence. The service checks the
+requested `SET_*_TREE_TARGET_NODE` first, optionally performs the same-node
+`SET_*_TREE_NODE` choice, rechecks the target against fresh state, and only
+then sends the target. The service also owns bounded target observation,
+semantic classification, and no-repeat behavior.
+
+At every layer, raw `sent` evidence means dispatch, not confirmation. Callers
+must use the service result's `postcondition.classification`,
+`postcondition.confidence`, and `postcondition.confirmed`; an unverified result
+with a `do-not-repeat` next step must not be retried blindly. The CLI owns
+neither chooser-notification activation nor postcondition verification.
 
 ## Official UI Evidence
 
@@ -67,10 +71,10 @@ Local anchors:
   uses `SET_TECH_TREE_NODE` and `SET_TECH_TREE_TARGET_NODE`.
 - `.civ7/outputs/resources/Base/modules/base-standard/ui/culture-tree/screen-culture-tree.js`
   uses `SET_CULTURE_TREE_NODE` and `SET_CULTURE_TREE_TARGET_NODE`.
-- `.civ7/outputs/resources/Base/modules/base-standard/ui/tech-tree-chooser/screen-tech-tree-chooser.js`
+- `.civ7/outputs/resources/Base/modules/base-standard/ui-next/screens/choosers/tech-chooser/tech-chooser.js`
   clears the target with `SET_TECH_TREE_TARGET_NODE { ProgressionTreeNodeType:
   NO_NODE }` after chooser selection; live enum probe: `NO_NODE = -1`.
-- `.civ7/outputs/resources/Base/modules/base-standard/ui/culture-tree-chooser/screen-culture-tree-chooser.js`
+- `.civ7/outputs/resources/Base/modules/base-standard/ui-next/screens/choosers/culture-chooser/culture-chooser.js`
   clears the target with `SET_CULTURE_TREE_TARGET_NODE { ProgressionTreeNodeType:
   NO_NODE }` after chooser selection.
 
@@ -89,18 +93,17 @@ that value, and the turn advanced afterward. A later turn-23 culture blocker
 proved the complementary boundary: the two-step culture sequence can return
 from the runtime while `NOTIFICATION_CHOOSE_CULTURE_NODE` remains
 end-turn-blocking. A generic expired-notification dismissal also failed to clear
-that blocker, so the active closeout route now follows the official App UI
-culture chooser owner instead of treating a raw operation send as enough. The
-durable lesson is not that every culture choice needs repeated sends; it is that
-target-node closeout is an official path, and the CLI must still verify the
-blocker postcondition before calling the workflow successful.
+that blocker. The durable lesson is not that every culture choice needs UI
+activation or repeated sends; target-node clear is the native chooser path,
+while fresh blocker observation is separate evidence the service must retain
+before calling the workflow successful.
 
 The same owner boundary appeared immediately afterward for technology on turn
 23: `SET_TECH_TREE_NODE` changed current research to Writing while
-`NOTIFICATION_CHOOSE_TECH` stayed end-turn-blocking. `choose-tech --send` now
-uses the official App UI tech chooser owner route for the send/clear sequence,
-and still treats `technology-state-changed-blocker-still-live` as an unverified
-stop-and-diagnose result.
+`NOTIFICATION_CHOOSE_TECH` stayed end-turn-blocking. The current service uses
+the exact native choice and target-clear atoms, then treats
+`technology-state-changed-blocker-still-live` as an unverified
+stop-and-diagnose result rather than activating or dismissing the UI surface.
 
 ## CLI Use
 
@@ -108,20 +111,28 @@ Start current culture research and close the matching chooser surface as
 one caller-level workflow:
 
 ```bash
+civ7 game play choose-culture --options --json
+
+civ7 game play choose-culture \
+  --node -1677668973 \
+  --json
+
 civ7 game play choose-culture \
   --node -1677668973 \
   --send \
   --json
 ```
 
-The JSON result includes semantic send status and a `postcondition`.
-`sent:true` means the App UI route returned successful operation-send evidence;
-it is not proof that the culture blocker cleared.
-Treat `culture-choice-sticky-blocker` and
-`culture-state-changed-blocker-still-live` as stop-and-diagnose outcomes, not as
-reasons to repeat `choose-culture` or `set-culture-target` blindly.
+These modes call the service's `options`, `check`, and `request` procedures,
+respectively. The JSON result includes service-owned semantic status,
+postcondition, and next steps. A sent status records dispatch; only a confirmed
+postcondition proves the culture choice and target clear. Treat
+`culture-state-changed-blocker-still-live`,
+`choice-selected-target-clear-unverified`, `no-state-change`, and
+`missing-postcondition` as stop-and-diagnose outcomes, not as reasons to repeat
+the request blindly.
 
-Set only the culture target when the primary choice was already applied:
+Request a deliberate culture full-tree target:
 
 ```bash
 civ7 game play set-culture-target \
@@ -130,8 +141,10 @@ civ7 game play set-culture-target \
   --json
 ```
 
-The same distinction applies to technology with `game play choose-tech --send`
-for the complete App UI-owner chooser workflow and `game play set-tech-target`
-for deliberate full-tree target planning. Send mode reads the live local player
-before invoking the guarded target request; dry-run validation remains the
-player-scoped path.
+Omit `--send` to call the service target `check`. With `--send`, the service
+validates the target first, optionally performs the same-node choice,
+revalidates the target, sends it, and observes the target postcondition. The
+same distinction applies to technology with `game play choose-tech` for the
+chooser workflow and `game play set-tech-target` for deliberate full-tree
+planning. All paths use the ambient local player; there is no caller-owned
+player id.

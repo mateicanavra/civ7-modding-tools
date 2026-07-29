@@ -1,5 +1,6 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
+import { runInNewContext } from "node:vm";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
@@ -11,6 +12,7 @@ import {
   getCiv7ProgressDashboard,
   getCiv7TraditionsView,
 } from "../src/index";
+import { traditionsViewSource } from "../src/play/progression/traditions";
 
 type FakeTunerServer = {
   received: string[];
@@ -174,10 +176,79 @@ describe("progression read surfaces", () => {
       expect(server.received).toEqual(["LSQ:", expect.stringContaining("CMD:65535:(() =>")]);
       expect(server.received[1]).toContain("readTraditionsView");
       expect(server.received[1]).toContain("GameInfo.Traditions.lookup");
+      expect(server.received[1]).toContain("cultureSlotTypes?.POLICY_CULTURE_SLOT");
+      expect(server.received[1]).toContain("cultureSlotTypes?.TRADITION_CULTURE_SLOT");
+      expect(server.received[1]).toContain("cultureSlotTypes?.CRISIS_CULTURE_SLOT");
+      expect(server.received[1]).not.toContain("culture.getActiveTraditions()");
       expect(server.received[1]).not.toContain(".sendRequest(");
     } finally {
       await server.close();
     }
+  });
+
+  test("executes the generated traditions source across every slot and normalizes active ids", () => {
+    const slotReads: unknown[] = [];
+    const view = executeTraditionsViewSource({
+      cultureSlotTypes: completeCultureSlotTypes,
+      getActiveTraditions: (slotType) => {
+        slotReads.push(slotType);
+        if (slotType === completeCultureSlotTypes.POLICY_CULTURE_SLOT) return new Set([7, 3]);
+        if (slotType === completeCultureSlotTypes.TRADITION_CULTURE_SLOT) return [3, -9];
+        return [7, 12];
+      },
+    });
+
+    expect(slotReads).toEqual([801, 802, 803]);
+    expect(view).toMatchObject({
+      slots: {
+        active: 4,
+      },
+      active: [{ id: -9 }, { id: 3 }, { id: 7 }, { id: 12 }],
+    });
+  });
+
+  test.each([
+    {
+      name: "a required slot constant is missing",
+      cultureSlotTypes: {
+        POLICY_CULTURE_SLOT: 801,
+        TRADITION_CULTURE_SLOT: 802,
+      },
+      getActiveTraditions: () => [],
+      expectedError: /slot constants are required/,
+    },
+    {
+      name: "a slot read throws",
+      cultureSlotTypes: completeCultureSlotTypes,
+      getActiveTraditions: (slotType: unknown) => {
+        if (slotType === completeCultureSlotTypes.TRADITION_CULTURE_SLOT) {
+          throw new Error("slot read exploded");
+        }
+        return [];
+      },
+      expectedError: /slot read exploded/,
+    },
+    {
+      name: "a slot read is non-iterable",
+      cultureSlotTypes: completeCultureSlotTypes,
+      getActiveTraditions: (slotType: unknown) =>
+        slotType === completeCultureSlotTypes.CRISIS_CULTURE_SLOT ? 17 : [],
+      expectedError: /non-iterable value for CRISIS_CULTURE_SLOT/,
+    },
+    {
+      name: "a slot read contains a malformed tradition id",
+      cultureSlotTypes: completeCultureSlotTypes,
+      getActiveTraditions: (slotType: unknown) =>
+        slotType === completeCultureSlotTypes.POLICY_CULTURE_SLOT ? ["not-an-id"] : [],
+      expectedError: /non-integer value for POLICY_CULTURE_SLOT/,
+    },
+  ])("fails closed when $name", ({ cultureSlotTypes, getActiveTraditions, expectedError }) => {
+    expect(() =>
+      executeTraditionsViewSource({
+        cultureSlotTypes,
+        getActiveTraditions,
+      })
+    ).toThrow(expectedError);
   });
 
   test("reads progress dashboard with routed read sources and no chooser sends", async () => {
@@ -262,6 +333,75 @@ describe("progression read surfaces", () => {
     }
   });
 });
+
+const completeCultureSlotTypes = {
+  POLICY_CULTURE_SLOT: 801,
+  TRADITION_CULTURE_SLOT: 802,
+  CRISIS_CULTURE_SLOT: 803,
+} as const;
+
+function executeTraditionsViewSource(options: {
+  cultureSlotTypes: Readonly<{
+    POLICY_CULTURE_SLOT?: number;
+    TRADITION_CULTURE_SLOT?: number;
+    CRISIS_CULTURE_SLOT?: number;
+  }>;
+  getActiveTraditions: (slotType: unknown) => unknown;
+}): unknown {
+  const culture = {
+    getActiveTraditions: options.getActiveTraditions,
+    getUnlockedTraditions: () => [12, 7, -9, 3],
+    getAllUnlockedTraditions: () => [12, 7, -9, 3],
+    getRecentUnlockedTraditions: () => [],
+    getAllRecentUnlockedTraditions: () => [],
+    isTraditionActive: () => false,
+    isTraditionUnlocked: () => false,
+    getNumAllCultureSlots: () => 4,
+    getNumCultureSlots: () => 3,
+    numNormalTraditionSlots: 3,
+    numCrisisTraditionSlots: 1,
+    getGovernmentType: () => 71,
+  };
+  return runInNewContext(
+    `(() => {
+      ${traditionsViewSource()}
+      return readTraditionsView({ playerId: 0 });
+    })()`,
+    {
+      CultureSlotTypes: options.cultureSlotTypes,
+      GameContext: { localPlayerID: 0 },
+      Players: {
+        get: (playerId: unknown) => (playerId === 0 ? { Culture: culture } : null),
+      },
+      PlayerOperationParameters: { Activate: 1, Deactivate: 2 },
+      PlayerOperationTypes: { CHANGE_TRADITION: "CHANGE_TRADITION" },
+      Game: {
+        turn: 42,
+        getTurnDate: () => "1200 BCE",
+        PlayerOperations: {
+          canStart: () => ({ Success: true }),
+        },
+      },
+      GameInfo: {
+        Traditions: {
+          lookup: (id: unknown) => ({
+            TraditionType: `TRADITION_${String(id)}`,
+            Name: `Tradition ${String(id)}`,
+          }),
+        },
+        Governments: {
+          lookup: () => ({
+            GovernmentType: "GOVERNMENT_CHIEFDOM",
+            Name: "Chiefdom",
+          }),
+        },
+      },
+      Locale: {
+        compose: (value: unknown) => String(value),
+      },
+    }
+  );
+}
 
 async function startProgressionReadTunerServer(): Promise<FakeTunerServer> {
   const received: string[] = [];

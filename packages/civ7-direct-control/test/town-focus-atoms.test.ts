@@ -6,12 +6,8 @@ import { describe, expect, test } from "vitest";
 
 import * as directControl from "../src/index";
 import {
-  canStartCiv7CityCommand,
-  canStartCiv7CityOperation,
   checkCiv7TownFocusChange,
   checkCiv7TownFocusReview,
-  requestCiv7CityCommand,
-  requestCiv7CityOperation,
   sendCiv7TownFocusChange,
   sendCiv7TownFocusReview,
 } from "../src/index";
@@ -111,46 +107,6 @@ describe("exact town-focus wire atoms", () => {
     ).toBe(false);
     expect(Value.Check(directControl.Civ7TownFocusReviewInputSchema, { cityId })).toBe(true);
     expect(Value.Check(directControl.Civ7TownFocusSnapshotSchema, expectedSnapshot())).toBe(true);
-  });
-
-  test("refuses both exact operations through generic validation and send paths", async () => {
-    const changeInput = {
-      cityId,
-      operationType: "CHANGE_GROWTH_MODE",
-      args: {
-        Type: nextGrowthType,
-        ProjectType: nextProjectType,
-        City: cityId.id,
-      },
-    };
-    for (const run of [canStartCiv7CityCommand, requestCiv7CityCommand]) {
-      const failure = await captureFailure(() =>
-        run(changeInput, { host: "127.0.0.1", port: 1, timeoutMs: 10 })
-      );
-      expect(failure).toMatchObject({
-        name: "Civ7DirectControlError",
-        code: "command-failed",
-        dispatchStatus: "not-dispatched",
-      });
-      expect((failure as Error).message).toContain("exact town focus change");
-    }
-
-    const reviewInput = {
-      cityId,
-      operationType: "CONSIDER_TOWN_PROJECT",
-      args: {},
-    };
-    for (const run of [canStartCiv7CityOperation, requestCiv7CityOperation]) {
-      const failure = await captureFailure(() =>
-        run(reviewInput, { host: "127.0.0.1", port: 1, timeoutMs: 10 })
-      );
-      expect(failure).toMatchObject({
-        name: "Civ7DirectControlError",
-        code: "command-failed",
-        dispatchStatus: "not-dispatched",
-      });
-      expect((failure as Error).message).toContain("exact town focus review");
-    }
   });
 
   test("checks CHANGE_GROWTH_MODE once with official args and shared evidence", async () => {

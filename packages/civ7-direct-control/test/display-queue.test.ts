@@ -12,7 +12,7 @@ import {
   readCiv7DisplayQueue,
   resumeCiv7DisplayQueue,
   suspendCiv7DisplayQueue,
-} from "../src/play/operations/display-queue";
+} from "../src/play/display/queue";
 import { jsLiteral } from "../src/runtime/command-serialization";
 import type { Civ7CommandResult } from "../src/session/types";
 

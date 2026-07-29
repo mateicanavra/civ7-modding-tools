@@ -42,10 +42,10 @@ the board shifts toward economy, culture, diplomacy, or science payoff, pivot.
    authority.
 5. For city actions, use `ready-city`, production/focus/population commands,
    and settlement recommendation/civilian-route lenses before committing.
-6. Send only validator-backed actions. Treat
-   `verification.status:"no-state-change"` as unresolved, re-read, and do not
-   repeat the same target unless fresh evidence proves the first send was only
-   delayed.
+6. Send only validator-backed actions. For unit targeting, treat
+   `sent-unverified` and `dispatch-unknown` as unresolved: re-read and do not
+   repeat the same target. Follow the returned `postcondition` and `nextSteps`
+   rather than looking for a legacy verification envelope.
 7. After every mutation, re-read the HUD/ready entity before the next action.
 8. When the HUD is clean, restart unbounded autoplay and poll for the next real
    blocker.

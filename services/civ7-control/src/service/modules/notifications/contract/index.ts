@@ -12,7 +12,6 @@ export const contract = {
   queue,
 };
 
-export type Civ7NotificationsContract = typeof contract;
 type Inputs = InferContractRouterInputs<typeof contract>;
 type Outputs = InferContractRouterOutputs<typeof contract>;
 export type Civ7NotificationAdvisorWarningViewedInput = InferContractRouterInputs<

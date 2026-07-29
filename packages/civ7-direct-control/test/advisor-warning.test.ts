@@ -8,7 +8,6 @@ import * as directControl from "../src/index";
 import {
   type Civ7AdvisorWarningViewedSnapshot,
   checkCiv7AdvisorWarningViewed,
-  requestCiv7PlayerOperation,
   sendCiv7AdvisorWarningViewed,
 } from "../src/index";
 import { liveCiv7DirectControl } from "../src/live-control";
@@ -237,32 +236,6 @@ describe("exact native advisor-warning viewed atoms", () => {
     } finally {
       await server.close();
     }
-  });
-
-  test("rejects advisor acknowledgement through the generic player-operation path", async () => {
-    await expect(
-      requestCiv7PlayerOperation(
-        {
-          playerId: 0,
-          operationType: "VIEWED_ADVISOR_WARNING",
-          args: { Target: target },
-        },
-        {},
-        {
-          executeTunerCommand: async () => {
-            throw new Error("generic operation must not execute");
-          },
-          jsonPayloadFromCommandResult: () => {
-            throw new Error("generic operation must not decode");
-          },
-          jsLiteral: JSON.stringify,
-        }
-      )
-    ).rejects.toMatchObject({
-      name: "Civ7DirectControlError",
-      dispatchStatus: "not-dispatched",
-      message: expect.stringContaining("exact advisor-warning viewed"),
-    });
   });
 });
 

@@ -1,9 +1,10 @@
 import type { InferContractRouterInputs, InferContractRouterOutputs } from "@orpc/contract";
 
-import { choiceRequest } from "./choice-request";
+import { attribute } from "./attribute";
+import { choice } from "./choice";
 import { dashboardCurrent } from "./dashboard-current";
-import { playerChoiceRequest } from "./player-choice-request";
-import { targetRequest } from "./target-request";
+import { target } from "./target";
+import { tradition } from "./tradition";
 import { traditionsCurrent } from "./traditions-current";
 
 export const contract = {
@@ -14,52 +15,38 @@ export const contract = {
     current: traditionsCurrent,
   },
   technology: {
-    choice: {
-      request: choiceRequest.technology,
-    },
-    target: {
-      request: targetRequest.technology,
-    },
+    choice: choice.technology,
+    target: target.technology,
   },
   culture: {
-    choice: {
-      request: choiceRequest.culture,
-    },
-    target: {
-      request: targetRequest.culture,
-    },
+    choice: choice.culture,
+    target: target.culture,
   },
-  attribute: {
-    purchase: {
-      request: playerChoiceRequest.attribute.purchase,
-    },
-    review: {
-      request: playerChoiceRequest.attribute.review,
-    },
-  },
-  tradition: {
-    change: {
-      request: playerChoiceRequest.tradition.change,
-    },
-    review: {
-      request: playerChoiceRequest.tradition.review,
-    },
-  },
+  attribute,
+  tradition,
 };
-
-export type Civ7ProgressionContract = typeof contract;
 
 type ContractInputs = InferContractRouterInputs<typeof contract>;
 type ContractOutputs = InferContractRouterOutputs<typeof contract>;
 
 export type Civ7ProgressionChoiceInput = ContractInputs["technology"]["choice"]["request"];
+export type Civ7ProgressionChoiceOptionsResult = ContractOutputs["technology"]["choice"]["options"];
+export type Civ7ProgressionChoiceCheckResult = ContractOutputs["technology"]["choice"]["check"];
 export type Civ7ProgressionTargetInput = ContractInputs["technology"]["target"]["request"];
+export type Civ7ProgressionTargetCheckResult = ContractOutputs["technology"]["target"]["check"];
 export type Civ7ProgressionAttributePurchaseInput =
   ContractInputs["attribute"]["purchase"]["request"];
-export type Civ7ProgressionPlayerReviewInput = ContractInputs["attribute"]["review"]["request"];
+export type Civ7ProgressionAttributePurchaseCheckResult =
+  ContractOutputs["attribute"]["purchase"]["check"];
+export type Civ7ProgressionAttributeReviewCheckResult =
+  ContractOutputs["attribute"]["review"]["check"];
 export type Civ7ProgressionDashboardInput = ContractInputs["dashboard"]["current"];
 export type Civ7ProgressionTraditionsInput = ContractInputs["traditions"]["current"];
 export type Civ7ProgressionTraditionChangeInput = ContractInputs["tradition"]["change"]["request"];
+export type Civ7ProgressionTraditionChangeCheckResult =
+  ContractOutputs["tradition"]["change"]["check"];
+export type Civ7ProgressionTraditionReviewCheckResult =
+  ContractOutputs["tradition"]["review"]["check"];
 export type Civ7ProgressionTechnologyChoiceResult =
   ContractOutputs["technology"]["choice"]["request"];
 export type Civ7ProgressionCultureChoiceResult = ContractOutputs["culture"]["choice"]["request"];

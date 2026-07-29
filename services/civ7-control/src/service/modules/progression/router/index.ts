@@ -1,7 +1,8 @@
-import { choiceRequest } from "./choice-request";
+import { attribute } from "./attribute";
+import { choice } from "./choice";
 import { dashboardCurrent } from "./dashboard-current";
-import { playerChoiceRequest } from "./player-choice-request";
-import { targetRequest } from "./target-request";
+import { target } from "./target";
+import { tradition } from "./tradition";
 import { traditionsCurrent } from "./traditions-current";
 export const router = {
   dashboard: {
@@ -11,35 +12,13 @@ export const router = {
     current: traditionsCurrent,
   },
   technology: {
-    choice: {
-      request: choiceRequest.progressionTechnologyChoiceRequestProcedure,
-    },
-    target: {
-      request: targetRequest.progressionTechnologyTargetRequestProcedure,
-    },
+    choice: choice.technology,
+    target: target.technology,
   },
   culture: {
-    choice: {
-      request: choiceRequest.progressionCultureChoiceRequestProcedure,
-    },
-    target: {
-      request: targetRequest.progressionCultureTargetRequestProcedure,
-    },
+    choice: choice.culture,
+    target: target.culture,
   },
-  attribute: {
-    purchase: {
-      request: playerChoiceRequest.progressionAttributePurchaseRequestProcedure,
-    },
-    review: {
-      request: playerChoiceRequest.progressionAttributeReviewRequestProcedure,
-    },
-  },
-  tradition: {
-    change: {
-      request: playerChoiceRequest.progressionTraditionChangeRequestProcedure,
-    },
-    review: {
-      request: playerChoiceRequest.progressionTraditionReviewRequestProcedure,
-    },
-  },
+  attribute,
+  tradition,
 };

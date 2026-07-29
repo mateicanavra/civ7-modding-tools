@@ -13,10 +13,10 @@ the watcher support surface:
 - `UNITCOMMAND_UPGRADE`: an eligible unit upgrade command that spends the
   required cost and changes the unit tier/type.
 
-The important operational distinction is family selection. The generic
-operation command accepts only explicit runtime families: ordinary unit
-operations use `--family unit-operation`, while these commands require
-`--family unit-command` or a named wrapper that hard-codes the family.
+The important operational distinction is semantic action ownership. These are
+unit commands rather than ordinary moves or attacks, and the public surface
+therefore exposes dedicated resettle and upgrade actions instead of a generic
+runtime-family selector.
 
 ## CLI Surface
 
@@ -42,17 +42,6 @@ civ7 game play unit upgrade \
 
 Both commands validate by default. Add `--send` only after the
 `unit ready`/acquire-tile evidence still matches.
-
-The generic fallback remains:
-
-```bash
-civ7 game operation \
-  --family unit-command \
-  --operation-type UNITCOMMAND_UPGRADE \
-  --unit-id '{"owner":0,"id":1769488,"type":26}' \
-  --args '{}' \
-  --json
-```
 
 ## Official Evidence
 

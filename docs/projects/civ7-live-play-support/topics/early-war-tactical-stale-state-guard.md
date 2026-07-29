@@ -53,12 +53,14 @@ civ7 game play unit target \
   --json
 ```
 
-Only send if the resolver's before-state still matches the intended unit and
-target. After sending, require proof from location, movement, attacks remaining,
-target plot occupancy, or target damage. When `game play unit target --send`
-returns `verification.status == "no-state-change"`, treat the action as
-unresolved: re-read the board and do not repeat the same target unless a fresh
-read proves the first send was merely delayed.
+Only send after a fresh service check identifies the intended action. The
+guarded provider revalidates the exact admitted snapshot before invoking the
+native method. After dispatch, require `target-reached`, `units-swapped`,
+`attack-state-changed`, or an explicitly guarded `path-shortfall`. Treat
+`sent-unverified` and `dispatch-unknown` as unresolved: re-read the board and
+do not repeat the same target. A
+`dedicated-war-workflow-required` result must use Civ7's separate
+war-confirmation path and then start again from a fresh target check.
 
 ## Evidence
 

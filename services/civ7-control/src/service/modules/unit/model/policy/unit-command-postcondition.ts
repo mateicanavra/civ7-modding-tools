@@ -5,7 +5,7 @@ import type {
   Civ7ControlOrpcUnitCommandSnapshot,
 } from "#civ7-control-service/model/ports/direct-control";
 
-export type Civ7UnitCommandPostconditionClassification =
+type Civ7UnitCommandPostconditionClassification =
   | "not-sent"
   | "queue-advanced"
   | "selected-unit-changed"

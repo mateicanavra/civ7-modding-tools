@@ -3,6 +3,10 @@
 Status: implemented source modularization.
 Date: 2026-06-04.
 
+> Historical record. Superseded by Task 8.35. Current behavior and ownership
+> live in the active OpenSpec and
+> [unit-target-actions.md](../../../../docs/projects/civ7-live-play-support/topics/unit-target-actions.md).
+
 ## Scope
 
 This slice continues Task 5.2 with unit target actions, a write-capable

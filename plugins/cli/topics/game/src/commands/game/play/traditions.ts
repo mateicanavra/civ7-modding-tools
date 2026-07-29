@@ -5,10 +5,14 @@ import { buildDirectControlOptions } from "../../../adapters/play/direct-control
 type TraditionsServiceResult = Awaited<
   ReturnType<ReturnType<typeof createCiv7GameControlClient>["progression"]["traditions"]["current"]>
 >;
+type TraditionActionKind = "activate" | "deactivate";
 type CompactTraditionAction = {
-  kind: string;
+  kind: TraditionActionKind | "validate-tradition-change";
   label: string;
-  parameters: Record<string, unknown>;
+  parameters: {
+    traditionType: number;
+    action: TraditionActionKind;
+  };
   validationSuccess: boolean | null;
   readOnly: boolean;
   sendsMutation: boolean;
@@ -19,12 +23,12 @@ type CompactTraditionRow = Record<string, unknown> & {
   nextAction: CompactTraditionAction | null;
 };
 type TraditionAction = Readonly<{
-  kind: string;
-  action: number | null;
+  kind: TraditionActionKind;
+  runtimeAction: number | null;
   validationSuccess: boolean | null;
   parameters: Readonly<{
-    traditionType: unknown;
-    action: unknown;
+    traditionType: number;
+    action: TraditionActionKind;
   }>;
 }>;
 type TraditionRow = Readonly<{
@@ -99,7 +103,9 @@ export default class GamePlayTraditions extends Command {
     this.log(
       `Slots: ${view.slots.active}/${formatProbe(view.slots.total)} active; available=${view.slots.available}; open=${view.slots.open}`
     );
-    this.log(`Actions: activate=${view.actions.activate}; deactivate=${view.actions.deactivate}`);
+    this.log(
+      `Runtime action evidence: activate=${view.actions.activate}; deactivate=${view.actions.deactivate}`
+    );
     if (view.recentUnlocks.length > 0) {
       this.log("Recent unlocks:");
       for (const tradition of view.recentUnlocks) this.log(`- ${formatTradition(tradition)}`);
@@ -207,7 +213,7 @@ function compactTraditionRow(
     unlocked: tradition.unlocked,
     recentUnlock: tradition.recentUnlock,
     actionKind: action?.kind ?? null,
-    action: action?.action ?? null,
+    runtimeAction: action?.runtimeAction ?? null,
     validationSuccess: action?.validationSuccess ?? null,
     nextAction,
   };
@@ -242,14 +248,14 @@ function formatTradition(tradition: {
   name: string | null;
   description: string | null;
   actions: ReadonlyArray<{
-    kind: string;
-    action: number | null;
+    kind: TraditionActionKind;
+    runtimeAction: number | null;
     validationSuccess: boolean | null;
   }>;
 }): string {
   const action = tradition.actions[0];
   const validation = action ? String(action.validationSuccess) : "no action";
-  return `${tradition.name ?? tradition.type ?? tradition.id} (${tradition.id}) ${action?.kind ?? ""}=${action?.action ?? "<none>"}; validation=${validation}${tradition.description ? `; ${tradition.description}` : ""}`;
+  return `${tradition.name ?? tradition.type ?? tradition.id} (${tradition.id}) ${action?.kind ?? ""}; runtimeAction=${action?.runtimeAction ?? "<none>"}; validation=${validation}${tradition.description ? `; ${tradition.description}` : ""}`;
 }
 
 function formatProbe<T>(probe: { ok: true; value: T } | { ok: false; error: string }): string {

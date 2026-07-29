@@ -3,7 +3,7 @@ import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import { ClientRetryPlugin } from "@orpc/client/plugins";
 import type { ContractRouterClient } from "@orpc/contract";
-import { createTanstackQueryUtils } from "@orpc/tanstack-query";
+import { createTanstackQueryUtils, type RouterUtils } from "@orpc/tanstack-query";
 
 /**
  * Studio oRPC client — the ONE typed seam to the daemon's `/rpc` mount
@@ -36,7 +36,7 @@ export const orpcClient: ContractRouterClient<StudioContract> = createORPCClient
  * hand-written query-key factory or wrapper-hook lib. Query keys and I/O
  * types are contract-derived.
  */
-export const orpc = createTanstackQueryUtils(orpcClient);
+export const orpc: RouterUtils<typeof orpcClient> = createTanstackQueryUtils(orpcClient);
 
 // NOTE: error payloads are CONTRACT-TYPED. Every procedure declares its error
 // codes (packages/studio-server + @civ7/control-orpc contracts), so call

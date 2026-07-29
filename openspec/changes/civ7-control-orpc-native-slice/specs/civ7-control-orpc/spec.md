@@ -110,15 +110,22 @@ errors, and server-side callers.
   `BUILD`, so production cannot bypass the exact atoms or service policy
 
 #### Scenario: Unit target action service contract is offered
-- **WHEN** `unit.target.action.request` exposes its caller-facing contract
-- **THEN** control-oRPC owns the input schema for that service procedure
+- **WHEN** `unit.target.action.check` and `unit.target.action.request` expose
+  their caller-facing contracts
+- **THEN** control-oRPC owns their semantic input, availability, mutation,
+  postcondition, and next-step schemas
 - **AND** the input admits only the semantic unit target request shape: unit ID
   plus bounded integer map coordinates
 - **AND** endpoint, session, state, and raw command fields remain
   excluded from procedure input
-- **AND** direct-control remains the runtime/proof owner for unit target action
-  sends, validators, source verification classification, and no-repeat proof
-  semantics consumed by the procedure
+- **AND** the unit service owns local-player admission, Civ7's conditional
+  naval/air/ranged/overrun/swap/move order, dedicated war-workflow refusal,
+  guarded dispatch, bounded observation, semantic postconditions, dispatch
+  uncertainty, and no-repeat policy
+- **AND** direct-control owns only focused unit-target observation, one exact
+  native action check, and one guarded native action send
+- **AND** generic unit-operation validation/request rejects the target-action
+  identities owned by those exact atoms
 
 #### Scenario: Unit upgrade and resettle service contracts are offered
 - **WHEN** `unit.upgrade.request` and `unit.resettle.request` expose their
@@ -709,20 +716,17 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI unit target send uses native unit procedure
-- **WHEN** `game play unit-target --send` requests a unit target action
+- **WHEN** `game play unit target` checks or sends a unit target action
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send path calls the in-process `unit.target.action.request`
-  server-side client under the `unit` router
-- **AND** the procedure's readiness, direct-control validator,
-  unit-target postcondition projection, and no-repeat policy remain
-  authoritative for the send
+- **AND** read-only mode calls `unit.target.action.check`, while `--send` calls
+  `unit.target.action.request` through the in-process server-side client
+- **AND** the service's native-order resolution, war refusal, guarded dispatch,
+  postcondition projection, uncertainty, and no-repeat policy remain
+  authoritative
 - **AND** the normal JSON result is the semantic unit target action procedure
   projection without raw command/session/state/Tuner details, send results,
   before/after runtime probes, direct-control verification envelopes, or
   legacy `verified`
-- **AND** the read-only `game play unit-target` planning path remains a
-  direct-control unit target action read until a separate accepted service read
-  exists
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI unit upgrade and resettle sends use native unit procedures
@@ -1545,26 +1549,20 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   for `Game.UnitOperations.canStart/sendRequest`,
   `Game.UnitCommands.canStart/sendRequest`, `Units.get`, `MapUnits.getUnits`,
   `GameplayMap` target-index APIs, `UnitOperationTypes`,
-  `UnitCommandTypes`, `UnitOperationMoveModifiers`, and controller-owned
-  local-player proof
-- **THEN** the context may execute the service-owned
-  `unit.target.action.request` procedure through the existing in-process
-  router and native readiness/proof middleware
-- **AND** `unit.target.action.request` is listed as a supported game-UI
-  mutation only when controller proof and the required ambient validation,
-  send, unit, map-unit, and target-index APIs are present
-- **AND** the adapter uses the fixed official right-click candidate ordering:
-  naval attack, air attack, ranged attack, army overrun, swap units, then
-  `MOVE_TO`
-- **AND** the game-UI controller rejects sends unless the requested
-  `unitId.owner` matches controller-owned `GameContext.localPlayerID`
-- **AND** validator-blocked unit target actions project semantic `not-sent`
-  output and do not call the send API
-- **AND** sent unit target actions preserve source-owned unit proof semantics:
-  target reached and target/unit state changes can confirm the request, while
-  path shortfalls, no-state-change, failed validation, missing postcondition,
-  and pending-runtime-proof paths remain no-repeat guarded as required by the
-  unit proof policy
+  `UnitOperationMoveModifiers`, and controller-owned local-player proof
+- **THEN** the controller provides focused observe, one-action check, and
+  guarded one-action send capabilities to the existing in-process unit service
+- **AND** check and send capabilities are advertised independently from the
+  ambient APIs they actually require
+- **AND** the controller does not select among actions, poll, classify
+  postconditions, derive no-repeat guidance, or expose a second unit-target
+  result contract
+- **AND** native checks require literal `Success === true`, preserve the exact
+  check/send modifier split, apply ranged and off-current-tile prerequisites,
+  and observe action-specific war-start evidence
+- **AND** guarded send compares the exact admitted evidence, refuses war-start
+  candidates, invokes at most one native method, and reports whether failure
+  occurred before or after invocation
 - **AND** normal bridge success output remains the semantic unit target result
   and omits host, port, state, command, rawCommand, session, tuner payloads,
   raw game-UI function names, direct-control socket details, send results, and

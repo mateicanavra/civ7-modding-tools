@@ -7,9 +7,7 @@ import { describe, expect, test } from "vitest";
 import * as directControl from "../src/index";
 import {
   type Civ7DiplomacyResponseSnapshot,
-  canStartCiv7PlayerOperation,
   checkCiv7DiplomacyResponse,
-  requestCiv7PlayerOperation,
   sendCiv7DiplomacyResponse,
 } from "../src/index";
 import { liveCiv7DirectControl } from "../src/live-control";
@@ -281,30 +279,6 @@ describe("exact native ordinary diplomacy response atoms", () => {
       expect(server.calls.filter((call) => call.kind === "sendRequest")).toHaveLength(1);
     } finally {
       await server.close();
-    }
-  });
-
-  test("rejects the exact operation through generic player-operation paths", async () => {
-    for (const operationType of [
-      "RESPOND_DIPLOMATIC_ACTION",
-      "PLAYEROPERATION_RESPOND_DIPLOMATIC_ACTION",
-    ]) {
-      for (const run of [canStartCiv7PlayerOperation, requestCiv7PlayerOperation]) {
-        await expect(
-          run(
-            {
-              playerId: localPlayerId,
-              operationType,
-              args: { ID: actionId, Type: responseType },
-            },
-            { host: "127.0.0.1", port: 1, timeoutMs: 10 }
-          )
-        ).rejects.toMatchObject({
-          name: "Civ7DirectControlError",
-          dispatchStatus: "not-dispatched",
-          message: expect.stringContaining("exact diplomacy response"),
-        });
-      }
     }
   });
 });

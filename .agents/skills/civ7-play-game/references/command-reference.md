@@ -32,17 +32,18 @@ agent views (`--compact`) and validators carry a semantic envelope
 | `blockers` | Things stopping turn-end or the chosen action. |
 | `decisions` | Pending choices, each with a `nextAction`. |
 | `actions` / `nextSteps` | Suggested next action descriptors: `{ kind, label, parameters, readOnly, sendsMutation }`. |
-| `result` | `{ status, sent, classification, verified? }`. |
+| `result` | Procedure-specific status and evidence. Read the command's `status`, `postcondition`, and `nextSteps`; older procedures may instead expose `sent`/`verified`. |
 | `evidence` / `notes` | Provenance + caveats. |
 
-**After a `--send`, read these:** `result.sent === true`, `result.verified === true`,
-and the `postcondition`/`classification`. Known classifications: `turn-advanced`,
-`turn-complete-sent`, `already-complete`, `turn-completion-blocked` (turn);
-`target-reached`, `path-shortfall`, `unit-state-changed`, `no-state-change`
-(unit move); `not-sent`, `sent-unverified`, `read-only` (generic). `nextStep.kind`
-seen: `send-turn-complete`, `end-turn`, `choose-technology`, `target-technology`,
-`choose-culture`, `choose-production`, `assign-worker`, `expand-city`,
-`choose-narrative`, `do-not-repeat`.
+**After a `--send`, follow that procedure's evidence envelope rather than assuming
+one universal boolean.** For `unit target`, read `status`, `postcondition`, and
+the single `nextSteps` entry. `sent-confirmed` is confirmed; `sent-guarded`,
+`sent-unverified`, and `dispatch-unknown` forbid blind repetition and require
+the reported next step. `not-sent` means no dispatch occurred. Unit-target
+postconditions include `target-reached`, `units-swapped`, `attack-state-changed`,
+`path-shortfall`, `runtime-state-changed`, `no-state-change`, and
+`missing-postcondition`. Other procedures may still expose `sent`/`verified`;
+interpret those only according to their own contract.
 
 ## The ID-flow (reads → actions)
 
@@ -96,7 +97,7 @@ passed as separate `--x N --y N` integer flags (there is no `--pair` flag).
 
 | Command | Required flags | Notes |
 |---|---|---|
-| `game play unit target` | `--unit-id '…'`, `--x N`, `--y N` | Validate or send the resolved plot action. Postcondition `target-reached` vs `path-shortfall`. |
+| `game play unit target` | `--unit-id '…'`, `--x N`, `--y N` | Validate or send the resolved plot action. Read its procedure-specific `status`, `postcondition`, and `nextSteps`; never retry an unverified dispatch blindly. |
 | `game play unit resettle` | `--unit-id '…'`, `--x N`, `--y N` | Validate or send resettlement for an eligible population unit. |
 | `game play unit upgrade` | `--unit-id '…'` | Validate or send a unit upgrade. |
 | `game play build-production` | `--city-id '…'`, exactly one of `--unit-type` / `--constructible-type` / `--project-type` | Add `--x --y` for placed constructibles (from `placementPlots`). |

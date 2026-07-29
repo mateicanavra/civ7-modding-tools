@@ -4,7 +4,7 @@ import {
   studioCiv7Contract,
   studioEffectContract,
 } from "@civ7/studio-contract";
-import { oc } from "@orpc/contract";
+import { eoc } from "effect-orpc";
 
 /**
  * `@civ7/studio-server/contract` — the server's published mount surface.
@@ -39,8 +39,13 @@ export type StudioContract = Omit<StudioEffectContract, "civ7"> & {
   civ7: StudioEffectContract["civ7"] & typeof Civ7ControlOrpcContract;
 };
 
-/** Merges Studio procedures with native direct-control under the single public Civ7 router. */
-export const contract: StudioContract = oc.router({
+/**
+ * Merges Studio procedures with native direct-control under the single public Civ7 router.
+ *
+ * E2's `eoc.router` preserves the control leaves' Effect error metadata while
+ * applying the native oRPC router options; `oc.router` would discard it.
+ */
+export const contract: StudioContract = eoc.router({
   ...studioEffectContract,
   civ7: {
     ...studioCiv7Contract,

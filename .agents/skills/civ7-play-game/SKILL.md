@@ -46,7 +46,9 @@ hashes, or coordinates — you echo what the reads surface.
   `choose-tech`, `end-turn`, …) take those same parameters back.
 - **Validate, then `--send`.** Action commands run as a dry-run validation by
   default; add `--send` to actually issue. After sending, read the result
-  envelope's `postcondition`/`verified` to confirm it landed.
+  envelope according to that procedure's contract. Prefer its `status`,
+  `postcondition`, and `nextSteps`; use `verified` only when that procedure
+  still exposes it.
 - **Named actions are the public boundary.** `unit ready`/`ready-city` may list
   legal `{family, operationType}` pairs for which no named action command exists.
   Stop and report those gaps; do not route around the public service through a
@@ -102,7 +104,7 @@ to be consulted on, or an action keeps failing (see Invariants).
 <invariant name="cli-is-source-of-truth">The live CLI output is authoritative over anything written here. Trust each read's `nextAction`, `legalOperations`, and candidate IDs. When unsure of a command's shape, run `bun apps/cli/bin/run.js game play <cmd> --help`.</invariant>
 <invariant name="never-invent-ids">Never hand-compute or guess a type id, component id, hash, node, or coordinate. Echo IDs and parameters straight from the read that surfaced them. Resolve a name to an id only via `game gameinfo <Table> --lookup <TYPE> --json`.</invariant>
 <invariant name="read-coords-never-guess">Immediate movement coordinates come from `unit move-preview`; placement and expansion coordinates come from the corresponding `ready-city` candidates. `front target-candidates` and `settlement-recommendations` identify strategic destinations only: inspect a reachable move and validate it before sending. Never guess a coordinate.</invariant>
-<invariant name="validate-then-send">Issue mutations by validating first (no `--send`, or read the validation block), then `--send` only when validation/`legalOperations` confirm legality. After sending, read `postcondition`/`verified` to confirm; do not assume success.</invariant>
+<invariant name="validate-then-send">Issue mutations by validating first (no `--send`, or read the validation block), then `--send` only when validation/`legalOperations` confirm legality. After sending, follow the procedure-specific `status`, `postcondition`, and `nextSteps`; use `verified` only where that contract exposes it. Never assume success or blindly repeat an uncertain dispatch.</invariant>
 <invariant name="drain-then-end">Resolve all choice decisions, give every ready unit an order, and set production for every city before `end-turn --send`. Use `end-turn` (validate) to enumerate remaining blockers; clear them, then send.</invariant>
 <invariant name="stop-on-repeated-rejection">If the same action is rejected twice, or the game state is ambiguous/irrecoverable, STOP and report with the envelope output. Do not spam `--send` against a blocked engine.</invariant>
 </invariants>

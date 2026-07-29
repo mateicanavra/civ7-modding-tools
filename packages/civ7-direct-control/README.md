@@ -36,7 +36,7 @@ State APIs are not interchangeable.
 
 ```ts
 import {
-  canStartCiv7UnitOperation,
+  checkCiv7TurnCompletion,
   executeCiv7AppUiCommand,
   generateCiv7CapabilityCatalog,
   getCiv7AppUiSnapshot,
@@ -47,7 +47,6 @@ import {
   getCiv7PlotSnapshot,
   getCiv7VisibilitySummary,
   inspectCiv7RuntimeApi,
-  requestCiv7UnitOperation,
   restartCiv7GameAndBegin,
   restartCiv7Game,
   waitForCiv7TunerReady,
@@ -80,15 +79,7 @@ const surface = await getCiv7MapSurfaceObservation({
   nativeRiverObjects: { maxSamples: 16 },
 });
 const catalog = await generateCiv7CapabilityCatalog();
-
-const unitId = { owner: 0, id: 65536, type: 26 };
-const canSkip = await canStartCiv7UnitOperation({ unitId, operationType: "SKIP_TURN" });
-if (canSkip.valid) {
-  await requestCiv7UnitOperation(
-    { unitId, operationType: "SKIP_TURN" },
-    {},
-  );
-}
+const turnCompletion = await checkCiv7TurnCompletion({});
 ```
 
 `getCiv7AppUiSnapshot()` is read-only and covers the stable developer status
@@ -114,13 +105,14 @@ First-class wrappers now cover:
 - map reads: summary, one-plot snapshots, bounded grids, visibility summaries,
   player/unit/city summaries, and targeted `GameInfo` rows;
 - mutating actions: Autoplay configure/start/stop, disposable reveal, and
-  validator-backed Unit/City/Player operation/command requests;
+  named runtime atoms consumed by the Civ7 control service;
 - catalog/type support: TypeBox schema exports, static catalog generation,
   runtime catalog generation, and official-resource capability scanning.
 
-Mutating wrappers run validator-first and report postcondition/no-repeat
-evidence. Replay is not automatic after a failed or unverified mutation, and
-reveal remains constrained to disposable-session callers.
+The Civ7 control service owns mutation admission, postconditions, and no-repeat
+policy. Direct-control exposes named runtime atoms rather than a caller-authored
+generic operation tunnel. Replay is not automatic after a failed or unverified
+mutation, and reveal remains constrained to disposable-session callers.
 
 Autoplay start may omit `--turns`; the package sets native return/observe
 players when it can infer them and clears a prior pause before starting. Stop

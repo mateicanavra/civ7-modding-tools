@@ -7,12 +7,8 @@ import { describe, expect, test } from "vitest";
 import {
   Civ7CityExpansionInputSchema,
   Civ7WorkerAssignmentInputSchema,
-  canStartCiv7CityCommand,
-  canStartCiv7PlayerOperation,
   checkCiv7CityExpansion,
   checkCiv7WorkerAssignment,
-  requestCiv7CityCommand,
-  requestCiv7PlayerOperation,
   sendCiv7CityExpansion,
   sendCiv7WorkerAssignment,
 } from "../src/index";
@@ -66,51 +62,6 @@ describe("exact population-placement wire atoms", () => {
         operationType: "EXPAND",
       })
     ).toBe(false);
-  });
-
-  test.each([
-    "ASSIGN_WORKER",
-    "PLAYEROPERATION_ASSIGN_WORKER",
-  ])("refuses %s through generic player-operation paths before routing", async (operationType) => {
-    for (const run of [canStartCiv7PlayerOperation, requestCiv7PlayerOperation]) {
-      await expect(
-        run(
-          {
-            playerId: 0,
-            operationType,
-            args: { Location: location, Amount: 1 },
-          },
-          { host: "127.0.0.1", port: 1, timeoutMs: 10 }
-        )
-      ).rejects.toMatchObject({
-        name: "Civ7DirectControlError",
-        message:
-          "player-operation ASSIGN_WORKER must use the exact worker assignment check/send atoms",
-        dispatchStatus: "not-dispatched",
-      });
-    }
-  });
-
-  test.each([
-    "EXPAND",
-    "CITYCOMMAND_EXPAND",
-  ])("refuses %s through generic city-command paths before routing", async (operationType) => {
-    for (const run of [canStartCiv7CityCommand, requestCiv7CityCommand]) {
-      await expect(
-        run(
-          {
-            cityId,
-            operationType,
-            args: { X: destination.x, Y: destination.y },
-          },
-          { host: "127.0.0.1", port: 1, timeoutMs: 10 }
-        )
-      ).rejects.toMatchObject({
-        name: "Civ7DirectControlError",
-        message: "city-command EXPAND must use the exact city expansion check/send atoms",
-        dispatchStatus: "not-dispatched",
-      });
-    }
   });
 
   test("distinguishes unavailable expansion ownership from explicit native null", async () => {

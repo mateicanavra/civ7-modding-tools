@@ -1,4 +1,3 @@
-import { getCiv7UnitTargetAction } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
 import { createCiv7GameControlClient } from "../../../../adapters/control/service-client";
 import {
@@ -10,7 +9,7 @@ import {
 export default class GamePlayUnitTarget extends Command {
   static summary = "Resolve a unit plot target through the official right-click action order";
   static description =
-    "Plans a unit target action through direct-control, or sends it through the native control-oRPC unit procedure when --send is explicit.";
+    "Checks or sends a unit target action through the native control-oRPC unit service.";
   static hiddenAliases = ["game:play:unit-target"];
 
   static examples = [
@@ -59,11 +58,12 @@ export default class GamePlayUnitTarget extends Command {
       y: flags.y,
     };
     const options = buildDirectControlOptions(flags);
+    const client = createCiv7GameControlClient({
+      endpointDefaults: options,
+    });
     const result = flags.send
-      ? await createCiv7GameControlClient({
-          endpointDefaults: options,
-        }).unit.target.action.request(input)
-      : await getCiv7UnitTargetAction(input, options);
+      ? await client.unit.target.action.request(input)
+      : await client.unit.target.action.check(input);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }

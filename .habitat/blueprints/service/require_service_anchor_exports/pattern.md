@@ -8,7 +8,9 @@ exports the shared `eoc` contract-authoring base, `context.ts` exports the
 `Context` type, contract and router aggregates export `contract` and `router`,
 `impl.ts` exports only the configured `service`, and `module.ts` exports only
 the configured module branch. Implementation anchors carry the native portable
-types required for declaration emit. The sole `impl` binding remains private.
+types required for declaration emit. A contract anchor may carry an explicit
+type annotation; this rule treats it as transparent and leaves initializer
+lineage to contract authority. The sole `impl` binding remains private.
 
 ```grit
 language js(typescript)
@@ -57,6 +59,13 @@ predicate require_service_anchor_exports_is_runtime_export($export) {
   }
 }
 
+predicate require_service_anchor_exports_is_contract_export($export) {
+  or {
+    $export <: `export const contract = $value`,
+    $export <: `export const contract: $annotation = $value`
+  }
+}
+
 or {
   program(statements=$body) where {
     require_service_anchor_exports_is_service_base(),
@@ -68,7 +77,9 @@ or {
   },
   program(statements=$body) where {
     require_service_anchor_exports_is_service_contract_anchor(),
-    ! $body <: contains `export const contract = $value`
+    ! $body <: contains $export where {
+      require_service_anchor_exports_is_contract_export(export=$export)
+    }
   },
   program(statements=$body) where {
     require_service_anchor_exports_is_service_impl(),
@@ -101,7 +112,7 @@ or {
   export_statement() as $export where {
     require_service_anchor_exports_is_service_contract_anchor(),
     require_service_anchor_exports_is_runtime_export(export=$export),
-    ! $export <: `export const contract = $value`
+    ! require_service_anchor_exports_is_contract_export(export=$export)
   },
   export_statement() as $export where {
     require_service_anchor_exports_is_service_impl(),

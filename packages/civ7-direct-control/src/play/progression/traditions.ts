@@ -11,6 +11,45 @@ export function traditionsViewSource(): string {
       }
     };
     const uniqueNumbers = (values) => Array.from(new Set((Array.isArray(values) ? values : []).filter((value) => Number.isFinite(value))));
+    const readActiveTraditionIds = (culture) => {
+      if (typeof culture.getActiveTraditions !== "function") {
+        throw new Error("Culture.getActiveTraditions is unavailable.");
+      }
+      const cultureSlotTypes =
+        typeof CultureSlotTypes !== "undefined" ? CultureSlotTypes : null;
+      const slots = [
+        ["POLICY_CULTURE_SLOT", cultureSlotTypes?.POLICY_CULTURE_SLOT],
+        ["TRADITION_CULTURE_SLOT", cultureSlotTypes?.TRADITION_CULTURE_SLOT],
+        ["CRISIS_CULTURE_SLOT", cultureSlotTypes?.CRISIS_CULTURE_SLOT],
+      ];
+      if (slots.some(([, slotType]) => slotType === undefined || slotType === null)) {
+        throw new Error(
+          "CultureSlotTypes policy, tradition, and crisis slot constants are required."
+        );
+      }
+      const activeTraditions = new Set();
+      for (const [slotName, slotType] of slots) {
+        const values = culture.getActiveTraditions(slotType);
+        if (
+          values === null ||
+          values === undefined ||
+          typeof values[Symbol.iterator] !== "function"
+        ) {
+          throw new Error(
+            "Culture.getActiveTraditions returned a non-iterable value for " + slotName + "."
+          );
+        }
+        for (const traditionId of values) {
+          if (!Number.isInteger(traditionId)) {
+            throw new Error(
+              "Culture.getActiveTraditions returned a non-integer value for " + slotName + "."
+            );
+          }
+          activeTraditions.add(traditionId);
+        }
+      }
+      return Array.from(activeTraditions).sort((left, right) => left - right);
+    };
     const readTraditionsView = (input) => {
       const playerId = input.playerId ?? GameContext.localPlayerID;
       const player = Players.get(playerId);
@@ -18,7 +57,7 @@ export function traditionsViewSource(): string {
         throw new Error("Player culture is unavailable for player " + playerId);
       }
       const culture = player.Culture;
-      const activeIds = uniqueNumbers(probe(() => culture.getActiveTraditions()).value ?? []);
+      const activeIds = readActiveTraditionIds(culture);
       const unlockedIds = uniqueNumbers(probe(() => culture.getUnlockedTraditions()).value ?? []);
       const allUnlockedIds = uniqueNumbers(probe(() => culture.getAllUnlockedTraditions()).value ?? unlockedIds);
       const recentIds = uniqueNumbers(probe(() => culture.getRecentUnlockedTraditions()).value ?? probe(() => culture.getAllRecentUnlockedTraditions()).value ?? []);
@@ -40,7 +79,7 @@ export function traditionsViewSource(): string {
       };
       const summarize = (id) => {
         const definition = probe(() => GameInfo.Traditions.lookup(id)).value ?? null;
-        const active = activeIds.includes(id) || probe(() => culture.isTraditionActive(id)).value === true;
+        const active = activeIds.includes(id);
         const unlocked = allUnlockedIds.includes(id) || unlockedIds.includes(id) || probe(() => culture.isTraditionUnlocked(id)).value === true;
         const recentUnlock = recentIds.includes(id);
         const actionHints = active
@@ -62,7 +101,9 @@ export function traditionsViewSource(): string {
         };
       };
       const traditions = ids.map(summarize);
-      const active = traditions.filter((tradition) => tradition.active);
+      const active = traditions
+        .filter((tradition) => tradition.active)
+        .sort((left, right) => left.id - right.id);
       const available = traditions.filter((tradition) => tradition.unlocked && !tradition.active);
       const recentUnlocks = traditions.filter((tradition) => tradition.recentUnlock);
       const totalSlots = probe(() => culture.getNumAllCultureSlots ? culture.getNumAllCultureSlots() : culture.numTraditionSlots ?? culture.getNumCultureSlots());

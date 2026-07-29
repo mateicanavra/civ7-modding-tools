@@ -6,10 +6,8 @@ import { describe, expect, test } from "vitest";
 
 import * as directControl from "../src/index";
 import {
-  canStartCiv7PlayerOperation,
   checkCiv7CelebrationChoice,
   checkCiv7GovernmentChoice,
-  requestCiv7PlayerOperation,
   sendCiv7CelebrationChoice,
   sendCiv7GovernmentChoice,
 } from "../src/index";
@@ -93,31 +91,6 @@ describe("exact native government-domain choice atoms", () => {
         goldenAgeType,
       })
     ).toBe(false);
-  });
-
-  test.each([
-    "CHANGE_GOVERNMENT",
-    "PLAYEROPERATION_CHANGE_GOVERNMENT",
-    "CHOOSE_GOLDEN_AGE",
-    "PLAYEROPERATION_CHOOSE_GOLDEN_AGE",
-  ])("refuses %s through generic player-operation paths before dispatch", async (operationType) => {
-    for (const run of [canStartCiv7PlayerOperation, requestCiv7PlayerOperation]) {
-      await expect(
-        run(
-          {
-            playerId: 0,
-            operationType,
-            args: operationType.includes("GOLDEN_AGE")
-              ? { GoldenAgeType: goldenAgeType }
-              : { GovernmentType: governmentType, Action: activateAction },
-          },
-          { host: "127.0.0.1", port: 1, timeoutMs: 10 }
-        )
-      ).rejects.toMatchObject({
-        name: "Civ7DirectControlError",
-        dispatchStatus: "not-dispatched",
-      });
-    }
   });
 
   test("checks government choice with official picker facts and fixed ambient Activate", async () => {

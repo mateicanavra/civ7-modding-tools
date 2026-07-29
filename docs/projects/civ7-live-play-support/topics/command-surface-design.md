@@ -1,6 +1,12 @@
 # Command Surface Design
 
-Status: `design-reference`.
+Status: `superseded-reference`.
+
+> This document preserves a superseded design exploration and is not current
+> implementation guidance. Generic operation dispatch described below was
+> replaced by named Civ7 control-service procedures. Unsupported operation
+> identities stop and report rather than passing through a generic mutation
+> escape hatch.
 
 ## Frame
 
