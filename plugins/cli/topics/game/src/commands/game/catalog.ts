@@ -5,7 +5,6 @@ import {
 import { Command, Flags } from "@oclif/core";
 
 export default class GameCatalog extends Command {
-  static id = "game catalog";
   static summary = "Generate the Civ7 direct-control capability catalog";
   static description =
     "Prints the provenance-aware direct-control capability catalog from static wrappers and, by default, the live runtime.";

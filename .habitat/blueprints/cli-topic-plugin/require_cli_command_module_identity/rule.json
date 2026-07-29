@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_cli_command_module_identity",
+  "title": "Require CLI Command Module Identity",
+  "placement": {
+    "niche": "global/workspace",
+    "blueprint": "cli-topic-plugin",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "CLI topic command modules without a named concrete default command class",
+  "why": "oclif discovers every TypeScript module in a topic plugin command tree and derives its canonical command id from its relative path. Each discovered module must therefore own exactly one syntactic runtime command authority whose class name remains visible in stack traces and diagnostics.",
+  "remediate": "Keep one inline or detached named concrete default command class in each command module. Preserve index.ts commands because oclif maps them to the containing topic path.",
+  "message": "CLI topic command modules must have one path-identified default command authority.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["plugins/cli/topics/*/src/commands/**/*.ts"]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/cli-topic-plugin/require_cli_command_module_identity/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/cli-topic-plugin/require_cli_command_module_identity/pattern.md"
+    },
+    "patternName": "require_cli_command_module_identity",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["plugins/cli/topics"]
+    }
+  }
+}

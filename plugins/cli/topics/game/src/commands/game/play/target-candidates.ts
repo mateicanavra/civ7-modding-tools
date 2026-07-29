@@ -7,7 +7,6 @@ import {
 } from "../../../adapters/play/direct-control";
 
 export default class GamePlayTargetCandidates extends Command {
-  static id = "game play target-candidates";
   static summary = "Read strategic target candidates from live city and unit summaries";
   static description =
     "Returns a read-only shortlist of other-owner contacts ranked from a supplied siege/formation origin. It is planning support, not relationship, movement, diplomacy, or action authority.";

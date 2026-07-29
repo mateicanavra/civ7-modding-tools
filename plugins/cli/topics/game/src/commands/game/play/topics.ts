@@ -1,7 +1,6 @@
 import { Command, Flags } from "@oclif/core";
 
 export default class GamePlayTopics extends Command {
-  static id = "game play topics";
   static summary = "List live-play topic families and reference shortcuts";
   static description =
     "Prints a read-only index of Civ7 live-play support topics, relevant CLI shortcuts, and proof boundaries for blocker, tactical, city, strategy, and AI-reference work.";

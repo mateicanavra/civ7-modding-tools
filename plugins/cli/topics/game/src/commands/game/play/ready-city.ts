@@ -13,7 +13,6 @@ type ReadyCityActionDescriptor = {
 };
 
 export default class GamePlayReadyCity extends Command {
-  static id = "game play ready-city";
   static summary = "Read the selected or blocking city with legal closeout operations";
   static description =
     "Returns a read-only live-play view of the selected, requested, or blocker-target city, plus valid no-argument city operations and commands.";

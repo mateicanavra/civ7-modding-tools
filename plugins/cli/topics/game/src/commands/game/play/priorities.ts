@@ -39,7 +39,6 @@ type PriorityActionDescriptor = {
 };
 
 export default class GamePlayPriorities extends Command {
-  static id = "game play priorities";
   static summary = "Read a turn-priority dashboard without sending operations";
   static description =
     "Composes the live HUD, ready unit/city views, and an optional bounded battlefield scan into a read-only priority list for deciding what to inspect next.";

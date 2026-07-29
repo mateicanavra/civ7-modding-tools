@@ -3,7 +3,6 @@ import { Command, Flags } from "@oclif/core";
 import { buildDirectControlOptions } from "../../../adapters/play/direct-control";
 
 export default class GamePlaySettlementRecommendations extends Command {
-  static id = "game play settlement-recommendations";
   static summary = "Read official settlement recommendation hints";
   static description =
     "Returns a read-only view of the local player AI settlement recommendations from the official settlement lens API.";

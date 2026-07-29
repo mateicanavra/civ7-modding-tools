@@ -25,7 +25,6 @@ type BuildProductionFlags = Readonly<{
 }>;
 
 export default class GamePlayBuildProduction extends Command {
-  static id = "game play build-production";
   static summary = "Validate or choose city production";
   static description =
     "Validates city-operation BUILD choices, or sends production through the native control-oRPC city procedure when --send is explicit.";

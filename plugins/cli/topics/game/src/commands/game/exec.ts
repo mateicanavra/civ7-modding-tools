@@ -2,7 +2,6 @@ import { executeCiv7Command, resolveCiv7DirectControlConfig } from "@civ7/direct
 import { Args, Command, Flags } from "@oclif/core";
 
 export default class GameExec extends Command {
-  static id = "game exec";
   static summary = "Run JavaScript against a running Civ7 tuner socket";
   static description =
     "Sends a JavaScript expression or statement to the selected Civ7 tuner scripting state through @civ7/direct-control.";

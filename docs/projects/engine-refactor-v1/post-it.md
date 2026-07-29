@@ -27,12 +27,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** correct the generic CLI-topic blueprint from permissive
-`utils` buckets to optional closed adapter interiors, turn the existing corpus
-red, and burn every violation down without changing any of the sixty-five
-`game` command identities or their behavior. Once the mechanical kind plane is
-sealed, normalize the `game` command grammar as separate product migrations
-whose topic boundaries follow real nouns rather than historical one-off files.
+**Current container:** make command path the sole canonical identity inside the
+closed CLI-topic kind. Every admitted command module owns one default runtime
+command, exports no reusable behavior, declares no redundant static id, and
+depends on capabilities through the qualified adapter interior rather than
+another command module. Prove the source-path ID multiset is collision-free and
+exactly matches each generated oclif manifest without changing command
+behavior, aliases, or public paths.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -49,10 +50,10 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** correct the generic kind law -> expose the bounded adapter corpus
--> qualify or delete each residue -> prove exact manifest identity and behavior
--> land the adapter cut -> migrate one earned `game` noun family at a time ->
-return to the aggregate-only Domain SDK.
+**Gradient:** encode the generic command-module law -> expose the exact red
+corpus -> delete redundant identity and relocate shared helpers -> prove source
+path/manifest bijection and behavior -> land the identity cut -> migrate one
+earned `game` noun family at a time -> return to the aggregate-only Domain SDK.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -95,6 +96,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - CLI Topic Adapter Kind Sealed
+
+Every CLI topic plugin now has one closed optional adapter interior instead of
+an ownerless `utils` bucket. Command paths and behavior remained unchanged,
+game topic help metadata and all sixty-five public IDs gained exact manifest
+proof, and the full topic/application graph, boundaries, dead-code proof, and
+staged Habitat law sealed the mechanical plane for command identity and grammar
+normalization.
 
 ### 2026-07-28 - CLI Application Realization Sealed
 

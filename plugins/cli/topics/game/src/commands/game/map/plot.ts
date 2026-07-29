@@ -10,7 +10,6 @@ import {
 // docs/projects/cli-command-taxonomy/workstream-record.md.
 
 export default class GameMapPlot extends Command {
-  static id = "game map plot";
   static summary = "Read one Civ7 plot";
   static description =
     "Reads a service-owned single-plot view through control-oRPC. " +

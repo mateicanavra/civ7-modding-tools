@@ -15,7 +15,6 @@ type FormationSnapshotCliView = Omit<FormationSnapshotServiceResult, "formation"
 };
 
 export default class GamePlayFormationSnapshot extends Command {
-  static id = "game play formation-snapshot";
   static summary = "Read ready-unit formation, escort, and civilian-screen context";
   static description =
     "Composes the current ready unit and a bounded battlefield scan into a read-only formation snapshot for escort, screen, and tactical movement decisions.";

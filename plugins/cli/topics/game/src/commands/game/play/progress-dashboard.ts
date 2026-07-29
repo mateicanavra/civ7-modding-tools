@@ -11,7 +11,6 @@ type ProgressDashboardServiceResult = Awaited<
 >;
 
 export default class GamePlayProgressDashboard extends Command {
-  static id = "game play progress-dashboard";
   static summary = "Read local victory, legacy, age, and reward progress";
   static description =
     "Returns a read-only progress dashboard using official runtime legacy path, milestone, victory, triumph, and age-progress APIs exposed to App UI.";

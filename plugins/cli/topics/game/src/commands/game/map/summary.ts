@@ -6,7 +6,6 @@ import { readCiv7World } from "../../../adapters/map/world-read";
 // docs/projects/cli-command-taxonomy/workstream-record.md.
 
 export default class GameMapSummary extends Command {
-  static id = "game map summary";
   static summary = "Read the Civ7 current world summary";
   static description =
     "Reads the service-owned current world summary through control-oRPC. " +

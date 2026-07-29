@@ -43,7 +43,6 @@ type RehydrateSnapshot = Readonly<{
 type RehydrateCommonAction = RehydrateSnapshot["commonActions"][number];
 
 export default class GamePlayRehydrate extends Command {
-  static id = "game play rehydrate";
   static summary = "Read the live session after restart or reconnect";
   static description =
     "Composes the live notification HUD with the current ready-unit view and optional continuity checks so agents can discard stale pre-restart assumptions.";

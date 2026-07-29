@@ -12,7 +12,6 @@ const BUY_ATTRIBUTE_TREE_NODE = "BUY_ATTRIBUTE_TREE_NODE";
 const CONSIDER_ASSIGN_ATTRIBUTE = "CONSIDER_ASSIGN_ATTRIBUTE";
 
 export default class GamePlayBuyAttribute extends Command {
-  static id = "game play buy-attribute";
   static summary = "Validate or buy an attribute tree node";
   static description =
     "Wraps player-operation BUY_ATTRIBUTE_TREE_NODE with the official ProgressionTreeNodeType argument.";

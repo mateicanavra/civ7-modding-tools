@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_cli_command_module_semantics",
+  "title": "Require CLI Command Module Semantics",
+  "placement": {
+    "niche": "global/workspace",
+    "blueprint": "cli-topic-plugin",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "CLI topic command modules without exactly one oclif Command default, with another value export, an authored static command id or duplicate path-derived id, or whose local dependencies resolve outside the topic's src/adapters interior",
+  "why": "A discovered command module must be an executable oclif command, while reusable topic-local behavior has one qualified owner outside the command discovery tree. Lexical import spelling cannot prove either relation.",
+  "remediate": "Default-export exactly one concrete oclif Command subclass, delete authored static id members, choose one collision-free command path, move reusable behavior below the same topic's src/adapters tree, and replace command-to-command or unresolved relative dependencies with an adapter-owned capability.",
+  "message": "CLI topic command modules must have one path-derived oclif identity and depend locally only on their topic adapter interior.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "plugins/cli/topics/*/src/**/*.ts",
+        "plugins/cli/topics/*/tsconfig*.json",
+        "plugins/cli/topics/*/package.json"
+      ]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/cli-topic-plugin/require_cli_command_module_semantics/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bun",
+    "files": {
+      "script": ".habitat/blueprints/cli-topic-plugin/require_cli_command_module_semantics/check.ts"
+    }
+  }
+}

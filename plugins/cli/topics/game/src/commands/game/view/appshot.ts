@@ -1,8 +1,7 @@
 import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
 import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
-
-import { parsePlotFlag, parseZoomFlag } from "./camera";
+import { parsePlotFlag, parseZoomFlag } from "../../../adapters/view/camera-flags.js";
 
 // Window-scoped, clean-frame capture of the live Civ7 session. The
 // control-oRPC procedure suspends the display queue, purges popups, hides the
@@ -13,7 +12,6 @@ import { parsePlotFlag, parseZoomFlag } from "./camera";
 // hosting this process; the failure message carries the exact System
 // Settings path when the grant is missing.
 export default class GameViewAppshot extends Command {
-  static id = "game view appshot";
   static summary = "Capture a clean, window-scoped screenshot of the live Civ7 session";
   static description =
     "Captures the Civ7 game window — and only that window — as a PNG with the HUD, world overlays, " +

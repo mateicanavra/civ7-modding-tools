@@ -5,7 +5,6 @@ import { Command, Flags } from "@oclif/core";
 import { buildDirectControlOptions, emitPlayResult } from "../../../adapters/play/direct-control";
 
 export default class GamePlayEndTurn extends Command {
-  static id = "game play end-turn";
   static summary = "Check or send Civ7 end turn";
   static description =
     "Reads the direct-control turn completion guard first, then optionally sends turn complete through the native control-oRPC turn procedure when --send is explicit.";

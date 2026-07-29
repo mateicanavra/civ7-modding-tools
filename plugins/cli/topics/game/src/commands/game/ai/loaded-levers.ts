@@ -2,7 +2,6 @@ import { getCiv7GameInfoRows } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
 
 export default class GameAiLoadedLevers extends Command {
-  static id = "game ai loaded-levers";
   static summary = "Read loaded Civ7 AI policy levers from runtime GameInfo";
   static description =
     "Samples loaded AI GameInfo rows relevant to RHQ-style static AI/resource comparisons. This is read-only evidence of loaded policy rows, not proof of AI behavior.";

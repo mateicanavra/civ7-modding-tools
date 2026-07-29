@@ -7,7 +7,6 @@ import { Args, Command, Flags } from "@oclif/core";
 import { resolveRootFromConfigOrFlag } from "../../adapters/resource-root";
 
 export default class Crawl extends Command {
-  static id = "crawl";
   static summary = "Crawl Civ XML resources and output a dependency graph + manifest";
 
   static description = `

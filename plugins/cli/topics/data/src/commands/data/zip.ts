@@ -4,7 +4,6 @@ import { zipResources } from "@civ7/plugin-files";
 import { Args, Command, Flags } from "@oclif/core";
 
 export default class Zip extends Command {
-  static id = "zip";
   static summary = "Zips Civilization VII resources based on a profile.";
   static description = `
 Reads profiles from the CLI config to create a zip archive of the game's resources.

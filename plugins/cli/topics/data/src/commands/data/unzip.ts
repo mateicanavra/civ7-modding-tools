@@ -3,7 +3,6 @@ import { unzipResources } from "@civ7/plugin-files";
 import { Args, Command, Flags } from "@oclif/core";
 
 export default class Unzip extends Command {
-  static id = "unzip";
   static summary = "Unzips Civilization VII resources based on a profile.";
 
   static description = `

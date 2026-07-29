@@ -29,7 +29,6 @@ type NarrativeDismissalAction = {
 };
 
 export default class GamePlayChooseNarrative extends Command {
-  static id = "game play choose-narrative";
   static summary = "Validate or choose a narrative story direction";
   static description =
     "Validates narrative story direction choices as player operations, or sends them through the native control-oRPC narrative procedure when --send is explicit.";

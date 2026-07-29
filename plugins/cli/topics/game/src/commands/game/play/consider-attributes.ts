@@ -10,7 +10,6 @@ import {
 const CONSIDER_ASSIGN_ATTRIBUTE = "CONSIDER_ASSIGN_ATTRIBUTE";
 
 export default class GamePlayConsiderAttributes extends Command {
-  static id = "game play consider-attributes";
   static summary = "Validate or close out attribute assignment review";
   static description =
     "Wraps player-operation CONSIDER_ASSIGN_ATTRIBUTE for the post-attribute assignment closeout path.";

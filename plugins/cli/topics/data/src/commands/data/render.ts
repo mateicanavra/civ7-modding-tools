@@ -6,7 +6,6 @@ import { renderSvg } from "@civ7/plugin-graph";
 import { Args, Command, Flags } from "@oclif/core";
 
 export default class Render extends Command {
-  static id = "render";
   static summary = "Render a Graphviz DOT file to an SVG (no external deps).";
   static description = `
 Renders a Graphviz DOT file to SVG using a WebAssembly Graphviz engine.

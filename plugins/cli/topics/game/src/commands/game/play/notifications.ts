@@ -6,7 +6,6 @@ import {
 import { Command, Flags } from "@oclif/core";
 
 export default class GamePlayNotifications extends Command {
-  static id = "game play notifications";
   static summary = "Read live play blockers with operation hints";
   static description =
     "Returns a read-only play-facing view of current notifications, blocker state, selected entities, and likely operation families.";

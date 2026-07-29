@@ -3,7 +3,6 @@ import { Command, Flags } from "@oclif/core";
 import { buildDirectControlOptions, parseComponentId } from "../../../adapters/play/direct-control";
 
 export default class GamePlayReadyUnit extends Command {
-  static id = "game play ready-unit";
   static summary = "Read the selected or first ready unit with legal operations";
   static description =
     "Returns a read-only live-play view of the selected or first ready unit, valid no-target operations, and nearby occupied plots.";

@@ -10,7 +10,6 @@ import {
 const CONSIDER_ASSIGN_TRADITIONS = "CONSIDER_ASSIGN_TRADITIONS";
 
 export default class GamePlayConsiderTraditions extends Command {
-  static id = "game play consider-traditions";
   static summary = "Validate or close out tradition assignment review";
   static description =
     "Wraps player-operation CONSIDER_ASSIGN_TRADITIONS for the post-tradition assignment closeout path.";

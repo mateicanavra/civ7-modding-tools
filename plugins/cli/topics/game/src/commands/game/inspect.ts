@@ -2,7 +2,6 @@ import { getCiv7AppUiSnapshot, inspectCiv7RuntimeApi } from "@civ7/direct-contro
 import { Command, Flags } from "@oclif/core";
 
 export default class GameInspect extends Command {
-  static id = "game inspect";
   static summary = "Inspect available APIs in a Civ7 tuner scripting state";
   static description =
     "Enumerates selected global roots in App UI or Tuner through @civ7/direct-control.";

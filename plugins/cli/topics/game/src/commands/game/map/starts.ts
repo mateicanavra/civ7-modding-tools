@@ -2,7 +2,6 @@ import { readCiv7StartPositions } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
 
 export default class GameMapStarts extends Command {
-  static id = "game map starts";
   static summary = "Read founder-unit-derived start positions for alive major players";
   static description =
     "Reads per-player start positions through @civ7/direct-control in one tuner exec. " +

@@ -9,7 +9,6 @@ import {
 import { Command, Flags } from "@oclif/core";
 
 export default class GameWatch extends Command {
-  static id = "game watch";
   static summary = "Passively watch live Civ7 play with timing and stale-read markers";
   static description =
     "Polls the read-only play notification HUD, optionally composes the current ready-unit view, and emits observer records for human-aware live support.";

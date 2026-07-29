@@ -57,6 +57,14 @@ the command at its containing topic path. Command trees therefore contain only
 executable command modules and nested topic directories. A helper placed there
 would become another command candidate.
 
+Each command module default-exports one concrete command class, declares no
+`static id`, exposes no second runtime value, and imports no other command
+module. The generic topic law rejects path-derived collisions and local edges
+outside the topic adapter interior. The assembled shell separately requires an
+exact source-to-manifest bijection, rejects canonical and alias collisions
+across registered topics, and proves every identity resolves to its owning
+plugin.
+
 CLI-specific flag, output, and capability translation belongs under the
 topic's optional `src/adapters` surface. Reusable behavior remains in its named
 package owner. Topic projects keep both interiors closed and lower-kebab, then

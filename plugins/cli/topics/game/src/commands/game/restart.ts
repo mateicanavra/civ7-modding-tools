@@ -9,7 +9,6 @@ import {
 import { Command, Flags } from "@oclif/core";
 
 export default class GameRestart extends Command {
-  static id = "game restart";
   static summary = "Request a Civ7 restart through the direct tuner socket";
   static description =
     "Runs Network.restartGame() against the Civ7 tuner socket through @civ7/direct-control.";

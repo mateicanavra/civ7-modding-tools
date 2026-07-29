@@ -19,7 +19,6 @@ type ProgressionOptionAction = {
 };
 
 export default class GamePlayChooseCulture extends Command {
-  static id = "game play choose-culture";
   static summary = "Validate or choose a culture tree node";
   static description =
     "Validates culture choices as player operations, or sends them through the native control-oRPC progression procedure when --send is explicit.";

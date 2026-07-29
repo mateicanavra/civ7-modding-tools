@@ -7,7 +7,6 @@ import {
 } from "../../../adapters/local-data/inspect";
 
 export default class GameLocalDataInspect extends Command {
-  static id = "game local-data inspect";
   static summary = "Inspect local Civ7 disk evidence";
   static description =
     "Inventories local Civ7 SQLite, save, and log files for read-only enrichment and forensic use. This does not replace live direct-control reads.";

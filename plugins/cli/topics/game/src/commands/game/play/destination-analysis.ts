@@ -7,7 +7,6 @@ import {
 } from "../../../adapters/play/direct-control";
 
 export default class GamePlayDestinationAnalysis extends Command {
-  static id = "game play destination-analysis";
   static summary = "Read tactical pressure around an intended destination";
   static description =
     "Returns a read-only destination and corridor lens for movement planning. It reports nearby units, cities, plot samples, and points of interest, but it is not pathfinding, movement authority, or attack authority.";

@@ -9,7 +9,6 @@ import {
 } from "../../../adapters/play/direct-control";
 
 export default class GamePlayUnitTarget extends Command {
-  static id = "game play unit-target";
   static summary = "Resolve a unit plot target through the official right-click action order";
   static description =
     "Plans a unit target action through direct-control, or sends it through the native control-oRPC unit procedure when --send is explicit.";

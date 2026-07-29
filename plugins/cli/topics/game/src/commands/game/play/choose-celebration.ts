@@ -19,7 +19,6 @@ type CelebrationOptionAction = {
 };
 
 export default class GamePlayChooseCelebration extends Command {
-  static id = "game play choose-celebration";
   static summary = "Validate or choose a celebration bonus";
   static description =
     "Wraps player-operation CHOOSE_GOLDEN_AGE with the GoldenAgeType hash from the live celebration chooser.";

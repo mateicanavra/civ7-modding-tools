@@ -13,7 +13,6 @@ type FrontSummaryServiceResult = Awaited<
 type FrontInspectionStep = Readonly<{ label: string }>;
 
 export default class GamePlayFrontSummary extends Command {
-  static id = "game play front-summary";
   static summary = "Read a composed front and formation summary without sending operations";
   static description =
     "Composes live target candidates, battlefield pressure, and optional destination/corridor analysis into a read-only front summary for military planning.";

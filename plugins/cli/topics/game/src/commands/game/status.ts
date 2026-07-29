@@ -4,7 +4,6 @@ import type { Civ7DirectControlOptions } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
 
 export default class GameStatus extends Command {
-  static id = "game status";
   static summary = "Report Civ7 App UI and Tuner readiness";
   static description =
     "Reports service-owned Civ7 readiness through the in-process control-oRPC router.";

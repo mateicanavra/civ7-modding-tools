@@ -11,7 +11,6 @@ import {
 const RESPOND_DIPLOMATIC_ACTION = "RESPOND_DIPLOMATIC_ACTION";
 
 export default class GamePlayRespondDiplomacy extends Command {
-  static id = "game play respond-diplomacy";
   static summary = "Validate or send a diplomacy response";
   static description =
     "Validates diplomacy responses as player operations, or sends them through the native control-oRPC diplomacy procedure when --send is explicit.";

@@ -19,7 +19,6 @@ type ProgressionOptionAction = {
 };
 
 export default class GamePlayChooseTech extends Command {
-  static id = "game play choose-tech";
   static summary = "Validate or choose a technology node";
   static description =
     "Validates technology choices as player operations, or sends them through the native control-oRPC progression procedure when --send is explicit.";

@@ -9,7 +9,6 @@ import {
 } from "../../../adapters/play/direct-control";
 
 export default class GamePlayDismissNotification extends Command {
-  static id = "game play dismiss-notification";
   static summary = "Inspect or dismiss a reviewed notification";
   static description =
     "Reads a notification through App UI state and optionally dismisses it through the native control-oRPC notification procedure when --send is explicit.";

@@ -18,7 +18,6 @@ const FIRST_MEET_RESPONSE_KEYS = {
 type FirstMeetResponse = keyof typeof FIRST_MEET_RESPONSE_KEYS;
 
 export default class GamePlayRespondFirstMeet extends Command {
-  static id = "game play respond-first-meet";
   static summary = "Validate or send a first-meet diplomacy greeting";
   static description =
     "Wraps player-operation RESPOND_DIPLOMATIC_FIRST_MEET with the two player ids and first-meet greeting Type from the live first-meet UI.";

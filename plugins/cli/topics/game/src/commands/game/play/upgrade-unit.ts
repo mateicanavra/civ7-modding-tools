@@ -11,7 +11,6 @@ import {
 const UPGRADE = "UNITCOMMAND_UPGRADE";
 
 export default class GamePlayUpgradeUnit extends Command {
-  static id = "game play upgrade-unit";
   static summary = "Validate or send a unit upgrade command";
   static description =
     "Validates unit-command UNITCOMMAND_UPGRADE, or sends unit upgrade through the native unit upgrade procedure when --send is explicit.";

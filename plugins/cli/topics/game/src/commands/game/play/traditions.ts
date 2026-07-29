@@ -46,7 +46,6 @@ type TraditionRow = Readonly<{
 }>;
 
 export default class GamePlayTraditions extends Command {
-  static id = "game play traditions";
   static summary = "Read current tradition slots and available policy actions";
   static description =
     "Builds a read-only policy decision packet from the live player Culture API and GameInfo catalog.";

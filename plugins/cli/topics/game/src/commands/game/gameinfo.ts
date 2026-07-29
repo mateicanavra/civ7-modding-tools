@@ -2,7 +2,6 @@ import { getCiv7GameInfoRows } from "@civ7/direct-control";
 import { Args, Command, Flags } from "@oclif/core";
 
 export default class GameGameInfo extends Command {
-  static id = "game gameinfo";
   static summary = "Read bounded Civ7 GameInfo rows";
   static description =
     "Reads a targeted GameInfo table through @civ7/direct-control without exposing arbitrary SQL.";

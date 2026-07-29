@@ -10,7 +10,6 @@ import {
 // docs/projects/cli-command-taxonomy/workstream-record.md.
 
 export default class GameMapGrid extends Command {
-  static id = "game map grid";
   static summary = "Read a bounded Civ7 plot grid";
   static description =
     "Reads a service-owned bounded grid view through control-oRPC. " +

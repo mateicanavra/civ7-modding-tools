@@ -145,8 +145,11 @@ bun habitat check --rule <registered-rule-id>
 ```
 
 The registered corpus has no separate native `grit patterns test` fixture
-surface today. A future fixture corpus is a distinct validation layer; it must
-not become another rule-authority tree.
+surface today. Registration therefore requires explicit injected positive,
+negative, parser-edge, and false-positive probes against the native runner;
+embedded Markdown examples document that strategy but do not execute it. A
+future persistent fixture corpus is a distinct validation layer and must not
+become another rule-authority tree.
 
 ## Git Hooks
 
