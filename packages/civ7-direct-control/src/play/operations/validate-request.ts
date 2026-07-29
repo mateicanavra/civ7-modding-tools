@@ -248,6 +248,13 @@ function validateOperationInput(
       { dispatchStatus: "not-dispatched" }
     );
   }
+  if (family === "player-operation" && operationType === "VIEWED_ADVISOR_WARNING") {
+    throw new Civ7DirectControlError(
+      "command-failed",
+      "player-operation VIEWED_ADVISOR_WARNING must use the exact advisor-warning viewed check/send atoms",
+      { dispatchStatus: "not-dispatched" }
+    );
+  }
   if (family === "city-operation" && operationType === "CONSIDER_TOWN_PROJECT") {
     throw new Civ7DirectControlError(
       "command-failed",

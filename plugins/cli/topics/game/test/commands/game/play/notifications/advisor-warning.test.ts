@@ -1,122 +1,146 @@
-import { describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+
+const target = { owner: 0, id: 12_345, type: 99 };
+const { checkAdvisorWarning, createControlClient, requestAdvisorWarning } = vi.hoisted(() => ({
+  checkAdvisorWarning: vi.fn(),
+  createControlClient: vi.fn(),
+  requestAdvisorWarning: vi.fn(),
+}));
+
+vi.mock("../../../../../src/adapters/control/service-client", () => ({
+  createCiv7GameControlClient: createControlClient,
+}));
+
 import GamePlayNotificationsAdvisorWarning from "../../../../../src/commands/game/play/notifications/advisor-warning";
-import { startPlayOperationTunerServer } from "../../../../support/play-operation-tuner-server";
 
 describe("game play notifications advisor-warning command", () => {
-  test("validates the advisor warning without sending an operation", async () => {
-    const server = await startPlayOperationTunerServer();
-    const log = vi
-      .spyOn(GamePlayNotificationsAdvisorWarning.prototype, "log")
-      .mockImplementation(() => {});
-    try {
-      const { port } = server.address();
-      await GamePlayNotificationsAdvisorWarning.run([
-        "--host",
-        "127.0.0.1",
-        "--port",
-        String(port),
-        "--player-id",
-        "0",
-        "--target",
-        '{"owner":0,"id":12345,"type":99}',
-        "--json",
-      ]);
-
-      expect(
-        server.received.some((message) => message.includes('validateOperation("player-operation"'))
-      ).toBe(true);
-      expect(server.received.some((message) => message.includes("VIEWED_ADVISOR_WARNING"))).toBe(
-        true
-      );
-      expect(
-        server.received.some((message) =>
-          message.includes('"Target":{"owner":0,"id":12345,"type":99}')
-        )
-      ).toBe(true);
-      expect(server.received.some((message) => message.includes("sendOperation("))).toBe(false);
-    } finally {
-      log.mockRestore();
-      await server.close();
-    }
-  });
-
-  test("requires a player id for validation mode", async () => {
-    await expect(
-      GamePlayNotificationsAdvisorWarning.run([
-        "--target",
-        '{"owner":0,"id":12345,"type":99}',
-        "--json",
-      ])
-    ).rejects.toThrow("--player-id is required when validating advisor-warning without --send");
-  });
-
-  test("routes acknowledgement through the notifications service", async () => {
-    const server = await startPlayOperationTunerServer();
-    const writes: string[] = [];
-    const log = vi
-      .spyOn(GamePlayNotificationsAdvisorWarning.prototype, "log")
-      .mockImplementation((message?: string) => {
-        if (message) writes.push(message);
-      });
-    try {
-      const { port } = server.address();
-      await GamePlayNotificationsAdvisorWarning.run([
-        "--host",
-        "127.0.0.1",
-        "--port",
-        String(port),
-        "--target",
-        '{"owner":0,"id":12345,"type":99}',
-        "--send",
-        "--json",
-      ]);
-
-      const payload = JSON.parse(writes.join("")) as {
-        ok: true;
-        result: {
-          playerId: number;
-          target: { owner: number; id: number; type: number };
-          sent: boolean;
-          status: string;
-          postcondition: {
-            classification: string;
-            noRepeatAfterUnverified: boolean;
-          };
-        };
-      };
-      expect(payload.result).toMatchObject({
-        playerId: 0,
-        target: { owner: 0, id: 12345, type: 99 },
-        sent: true,
-        status: "sent-unverified",
-        postcondition: {
-          classification: "pending-runtime-proof",
-          noRepeatAfterUnverified: true,
+  beforeEach(() => {
+    checkAdvisorWarning.mockReset();
+    requestAdvisorWarning.mockReset();
+    createControlClient.mockReset();
+    createControlClient.mockReturnValue({
+      notifications: {
+        advisorWarning: {
+          viewed: {
+            check: checkAdvisorWarning,
+            request: requestAdvisorWarning,
+          },
         },
-      });
-      expectSemanticAdvisorWarningOmitsRawRuntimeDetails(payload.result);
-      expect(server.received.some((message) => message.includes("VIEWED_ADVISOR_WARNING"))).toBe(
-        true
-      );
-      expect(
-        server.received.some((message) =>
-          message.includes('"Target":{"owner":0,"id":12345,"type":99}')
-        )
-      ).toBe(true);
-      expect(
-        server.received.some((message) => message.includes('sendOperation("player-operation"'))
-      ).toBe(true);
-    } finally {
-      log.mockRestore();
-      await server.close();
-    }
+      },
+    });
+  });
+
+  test("routes validation through the advisor-warning service check", async () => {
+    checkAdvisorWarning.mockResolvedValue({
+      target,
+      available: true,
+    });
+
+    const payload = await runCommand([]);
+
+    expect(createControlClient).toHaveBeenCalledWith({
+      endpointDefaults: {
+        host: "127.0.0.1",
+        port: 4318,
+        timeoutMs: 1_234,
+      },
+    });
+    expect(checkAdvisorWarning).toHaveBeenCalledOnce();
+    expect(checkAdvisorWarning).toHaveBeenCalledWith({ target });
+    expect(requestAdvisorWarning).not.toHaveBeenCalled();
+    expect(payload.result).toEqual({
+      target,
+      available: true,
+    });
+    expectSemanticAdvisorWarningOmitsRawRuntimeDetails(payload.result);
+  });
+
+  test("routes explicit sends through the advisor-warning service request", async () => {
+    requestAdvisorWarning.mockResolvedValue({
+      target,
+      status: "sent-confirmed",
+      postcondition: {
+        classification: "advisor-warning-disappeared",
+        reason: "The exact advisor warning disappeared after the request.",
+        outcome: "cleared",
+        confidence: "confirmed",
+        confirmed: true,
+        noRepeatAfterUnverified: false,
+      },
+      nextSteps: [
+        {
+          kind: "refresh-attention",
+          source: "notifications.advisorWarning.viewed.request",
+          label: "Refresh attention before the next action.",
+        },
+      ],
+    });
+
+    const payload = await runCommand(["--send"]);
+
+    expect(requestAdvisorWarning).toHaveBeenCalledOnce();
+    expect(requestAdvisorWarning).toHaveBeenCalledWith({ target });
+    expect(checkAdvisorWarning).not.toHaveBeenCalled();
+    expect(payload.result).toMatchObject({
+      target,
+      status: "sent-confirmed",
+      postcondition: {
+        classification: "advisor-warning-disappeared",
+        outcome: "cleared",
+        confidence: "confirmed",
+        confirmed: true,
+        noRepeatAfterUnverified: false,
+      },
+      nextSteps: [
+        {
+          kind: "refresh-attention",
+          source: "notifications.advisorWarning.viewed.request",
+        },
+      ],
+    });
+    expectSemanticAdvisorWarningOmitsRawRuntimeDetails(payload.result);
+  });
+
+  test("has no caller-supplied player identity", () => {
+    expect(GamePlayNotificationsAdvisorWarning.flags).not.toHaveProperty("player-id");
   });
 });
+
+async function runCommand(extraArgs: readonly string[]) {
+  const writes: string[] = [];
+  const log = vi
+    .spyOn(GamePlayNotificationsAdvisorWarning.prototype, "log")
+    .mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+  try {
+    await GamePlayNotificationsAdvisorWarning.run([
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "4318",
+      "--timeout-ms",
+      "1234",
+      "--target",
+      JSON.stringify(target),
+      ...extraArgs,
+      "--json",
+    ]);
+  } finally {
+    log.mockRestore();
+  }
+  return JSON.parse(writes.join("")) as {
+    ok: true;
+    result: Record<string, unknown>;
+  };
+}
 
 function expectSemanticAdvisorWarningOmitsRawRuntimeDetails(result: unknown) {
   const serialized = JSON.stringify(result);
   expect(serialized).not.toContain("CMD");
+  expect(serialized).not.toContain("validateOperation");
   expect(serialized).not.toContain("sendOperation");
+  expect(serialized).not.toContain('"playerId"');
   expect(serialized).not.toContain('"host"');
   expect(serialized).not.toContain('"port"');
   expect(serialized).not.toContain('"state"');

@@ -1,14 +1,12 @@
 import type { InferContractRouterInputs, InferContractRouterOutputs } from "@orpc/contract";
 
-import { advisorWarningRequest } from "./advisor-warning-request";
+import { advisorWarningViewed } from "./advisor-warning-viewed";
 import { dismiss } from "./dismiss";
 import { queue } from "./queue";
 
 export const contract = {
   advisorWarning: {
-    viewed: {
-      request: advisorWarningRequest,
-    },
+    viewed: advisorWarningViewed,
   },
   dismiss,
   queue,
@@ -20,6 +18,9 @@ type Outputs = InferContractRouterOutputs<typeof contract>;
 export type Civ7NotificationAdvisorWarningViewedInput = InferContractRouterInputs<
   typeof contract
 >["advisorWarning"]["viewed"]["request"];
+export type Civ7NotificationAdvisorWarningViewedCheckResult = InferContractRouterOutputs<
+  typeof contract
+>["advisorWarning"]["viewed"]["check"];
 export type Civ7NotificationAdvisorWarningViewedResult = InferContractRouterOutputs<
   typeof contract
 >["advisorWarning"]["viewed"]["request"];

@@ -65,12 +65,6 @@
       "import": "./dist/proof/first-meet-response-proof-policy.js",
       "require": "./dist/proof/first-meet-response-proof-policy.cjs"
     },
-    "./proof/advisor-warning-proof-policy": {
-      "types": "./dist/proof/advisor-warning-proof-policy.d.ts",
-      "bun-source": "./src/proof/advisor-warning-proof-policy.ts",
-      "import": "./dist/proof/advisor-warning-proof-policy.js",
-      "require": "./dist/proof/advisor-warning-proof-policy.cjs"
-    },
     "./proof/progression-player-choice-proof-policy": {
       "types": "./dist/proof/progression-player-choice-proof-policy.d.ts",
       "bun-source": "./src/proof/progression-player-choice-proof-policy.ts",

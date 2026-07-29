@@ -1,11 +1,9 @@
-import { advisorWarningRequest } from "./advisor-warning-request";
+import { advisorWarningViewed } from "./advisor-warning-request";
 import { dismiss } from "./dismiss";
 import { queue } from "./queue";
 export const router = {
   advisorWarning: {
-    viewed: {
-      request: advisorWarningRequest,
-    },
+    viewed: advisorWarningViewed,
   },
   dismiss,
   queue: {

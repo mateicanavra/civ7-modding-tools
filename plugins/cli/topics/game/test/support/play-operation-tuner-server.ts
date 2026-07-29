@@ -164,7 +164,6 @@ function operationValidation(message: string) {
     operationType,
     enumValue: operationType,
     target: operationTarget(family),
-    args: operationArgs(operationType),
     valid: true,
     result: { Success: true },
   };
@@ -191,12 +190,6 @@ function operationTypeFromMessage(message: string) {
 function operationTarget(family: string) {
   if (family === "player-operation") return { playerId: 0 };
   return { unitId: { owner: 0, id: 65536, type: 26 } };
-}
-
-function operationArgs(operationType: string) {
-  if (operationType === "VIEWED_ADVISOR_WARNING")
-    return { Target: { owner: 0, id: 12345, type: 99 } };
-  return undefined;
 }
 
 function unitCommandCheck() {

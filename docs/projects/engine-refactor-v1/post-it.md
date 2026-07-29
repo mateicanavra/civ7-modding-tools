@@ -36,9 +36,10 @@ availability, guarded dispatch, and raw notification observations; the
 notification service owns the four admitted advisor-warning identities,
 local-player admission, bounded clearance observation, semantic
 postconditions, dispatch uncertainty, and no-repeat policy. The controller and
-CLI consume that one service owner. Retire the generic player-operation
-wrapper, thick direct request result, direct proof policy, and caller-side
-local-player derivation after the native sources establish the exact wire.
+CLI consume that one service owner. Retire advisor-warning access through the
+generic player-operation wrapper, the thick direct request result, the direct
+proof policy, and caller-side local-player derivation after the native sources
+establish the exact wire.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -58,10 +59,10 @@ without broad source scans.
 **Gradient:** establish the exact advisor-warning native check/send and
 clearance evidence -> move admission, polling, classification, uncertainty, and
 no-repeat policy into the notification service -> route controller and CLI
-through that owner -> retire generic player-operation and direct proof planes
--> prove the full control graph -> repeat by domain until direct-control
-exposes only wire atoms and explicit diagnostics -> resume app/plugin and noun
-normalization.
+through that owner -> retire the advisor-warning generic-operation and direct
+proof planes -> prove the full control graph -> repeat by domain until
+direct-control exposes only wire atoms and explicit diagnostics -> resume
+app/plugin and noun normalization.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty

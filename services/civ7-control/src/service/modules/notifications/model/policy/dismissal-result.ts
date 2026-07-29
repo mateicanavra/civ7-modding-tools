@@ -4,15 +4,8 @@ import type {
   Civ7ControlOrpcNotificationDismissalSnapshot,
 } from "#civ7-control-service/model/ports/direct-control";
 import type { Civ7NotificationDismissalResult } from "../../contract";
+import { isAdvisorWarningNotificationType } from "./advisor-warning-type";
 
-const advisorWarningTypeNames = [
-  "NOTIFICATION_ADVISOR_WARNING_SCIENCE",
-  "NOTIFICATION_ADVISOR_WARNING_CULTURE",
-  "NOTIFICATION_ADVISOR_WARNING_ECONOMIC",
-  "NOTIFICATION_ADVISOR_WARNING_MILITARY",
-] as const;
-
-type AdvisorWarningTypeName = (typeof advisorWarningTypeNames)[number];
 type NotificationDismissalPostcondition = Civ7NotificationDismissalResult["postcondition"];
 
 export type Civ7NotificationDismissalPostconditionEvidence =
@@ -47,12 +40,6 @@ export function notificationDismissalAvailable(
     snapshot.typeName.length > 0 &&
     !isAdvisorWarningNotificationType(snapshot.typeName)
   );
-}
-
-export function isAdvisorWarningNotificationType(
-  typeName: string | null
-): typeName is AdvisorWarningTypeName {
-  return advisorWarningTypeNames.some((excluded) => excluded === typeName);
 }
 
 export function civ7NotificationDismissalPostcondition(

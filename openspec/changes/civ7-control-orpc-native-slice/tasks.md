@@ -431,15 +431,15 @@ adding more read-only facade shells.
     legacy `verified`, and keep runtime proof, controller bridge, transport
     expansion, broad operation catalog support, approval/reason mechanics, and
     parent Task 5.x/6.x/7.x acceptance pending.
-  - [x] 5.5.21 Seed `notifications.advisorWarning.viewed.request` as a native
-    service-owned notification mutation that composes readiness middleware,
-    fresh notification local-player evidence, and the direct-control
-    `VIEWED_ADVISOR_WARNING` runtime/proof port into semantic output. Keep the
-    caller input schema contract-local and target-only, omit raw
-    player-operation envelopes and legacy `verified`, keep sent outcomes
-    pending-runtime-proof/no-repeat guarded, and keep runtime proof,
-    controller bridge, transport expansion, approval/reason mechanics, broad
-    operation catalog support, and parent Task 5.x/6.x/7.x acceptance pending.
+  - [x] 5.5.21 Converge
+    `notifications.advisorWarning.viewed.check/request` as the native
+    service-owned advisor-warning boundary over exact direct-control check/send
+    atoms. Keep input target-only; move four-type admission, ambient
+    local-player authority, guarded mutation, bounded observation, semantic
+    completion, dispatch uncertainty, and no-repeat policy into the service;
+    reject `VIEWED_ADVISOR_WARNING` through generic player-operation dispatch;
+    omit raw operation/proof details from public output; and keep deployed
+    runtime proof pending.
   - [x] 5.5.22 Seed `progression.dashboard.current` as a native service-owned
     progression read that composes the direct-control progress dashboard
     runtime port into caller-neutral semantic output. Keep input/output schemas
@@ -794,15 +794,12 @@ adding more read-only facade shells.
     `verified`, and raw App UI dismissal internals from normal JSON, and avoid
     controller bridge, transport, broad operation catalogs, approval/reason
     mechanics, or runtime-proof claims.
-  - [x] 7.1.9.12 Route `civ7 game play advisor-warning --send` through the
-    in-process `notifications.advisorWarning.viewed.request` server-side
-    client under the `notifications` router. Move acted-player selection to
-    fresh notification local-player evidence in the service procedure, keep
-    dry-run validation on the legacy direct-control validator path, omit raw
-    host/port/state/session/Tuner payloads, raw player-operation envelopes,
-    raw `VIEWED_ADVISOR_WARNING` operation details, legacy `verified`, and
-    approval/reason mechanics from normal send JSON, and avoid controller
-    bridge, transport, broad operation catalogs, or runtime-proof claims.
+  - [x] 7.1.9.12 Route both modes of
+    `civ7 game play notifications advisor-warning` through the in-process
+    `notifications.advisorWarning.viewed.check/request` service clients.
+    Accept only the target ComponentID, remove caller `--player-id` and legacy
+    direct validation, keep exact operation and native evidence private, and
+    avoid deployed runtime-proof claims.
   - [x] 7.1.9.13 Route `civ7 game play progress-dashboard` through the
     in-process `progression.dashboard.current` server-side client under the
     `progression` router. Move the summary-first progress projection out of
@@ -2419,3 +2416,9 @@ adding more read-only facade shells.
   check/test/build graph, strict OpenSpec validation, stale wrapper/proof/
   dual-route scans, staged Habitat policy, and diff hygiene. These are local
   package proofs and do not claim deployed Civ7 runtime proof.
+- [x] 8.32 Run focused exact advisor-warning atom tests, control-oRPC
+  check/request behavior tests, controller and CLI advisor-warning tests, the
+  combined direct/service/controller/CLI check/test graph, strict OpenSpec
+  validation, stale wrapper/proof/generic-route scans, staged Habitat policy,
+  and diff hygiene. These are local package proofs and do not claim deployed
+  Civ7 runtime proof.

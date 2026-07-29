@@ -407,7 +407,10 @@ export class Civ7NotificationDismissalUnavailableError extends ORPCTaggedError(
 
 export const Civ7NotificationAdvisorWarningUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("notifications.advisorWarning.viewed.request"),
+    procedureKey: Type.Union([
+      Type.Literal("notifications.advisorWarning.viewed.check"),
+      Type.Literal("notifications.advisorWarning.viewed.request"),
+    ]),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
@@ -422,7 +425,7 @@ export class Civ7NotificationAdvisorWarningUnavailableError extends ORPCTaggedEr
   "Civ7NotificationAdvisorWarningUnavailableError",
   {
     code: "NOTIFICATION_ADVISOR_WARNING_UNAVAILABLE",
-    message: "Advisor warning viewed request failed.",
+    message: "Advisor warning viewed evidence is unavailable.",
     schema: toStandardSchema(Civ7NotificationAdvisorWarningUnavailableErrorDataSchema),
     status: 503,
   }

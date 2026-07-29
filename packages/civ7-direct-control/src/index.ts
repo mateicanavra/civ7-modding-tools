@@ -282,12 +282,23 @@ export {
   sendCiv7NarrativeChoice,
 } from "./play/narrative/choice.js";
 export type {
+  Civ7AdvisorWarningViewedCheckResult,
   Civ7AdvisorWarningViewedInput,
-  Civ7AdvisorWarningViewedPostcondition,
-  Civ7AdvisorWarningViewedPostconditionClassification,
-  Civ7AdvisorWarningViewedResult,
-} from "./play/notifications/advisor-warning-request.js";
-export { requestCiv7AdvisorWarningViewed } from "./play/notifications/advisor-warning-request.js";
+  Civ7AdvisorWarningViewedSendInput,
+  Civ7AdvisorWarningViewedSendResult,
+  Civ7AdvisorWarningViewedSnapshot,
+  Civ7AdvisorWarningViewedValidationResult,
+} from "./play/notifications/advisor-warning.js";
+export {
+  Civ7AdvisorWarningViewedCheckResultSchema,
+  Civ7AdvisorWarningViewedInputSchema,
+  Civ7AdvisorWarningViewedSendInputSchema,
+  Civ7AdvisorWarningViewedSendResultSchema,
+  Civ7AdvisorWarningViewedSnapshotSchema,
+  Civ7AdvisorWarningViewedValidationResultSchema,
+  checkCiv7AdvisorWarningViewed,
+  sendCiv7AdvisorWarningViewed,
+} from "./play/notifications/advisor-warning.js";
 export type {
   Civ7NotificationDismissalCheckResult,
   Civ7NotificationDismissalSendInput,
@@ -711,11 +722,6 @@ export {
   DEFAULT_CIV7_WINDOW_MATCH,
   ensureCiv7WindowShotHelper,
 } from "./play/view/window-shot.js";
-export type {
-  Civ7AdvisorWarningProofOutcome,
-  Civ7AdvisorWarningProofPostcondition,
-} from "./proof/advisor-warning-proof-policy.js";
-export { advisorWarningProofPostcondition } from "./proof/advisor-warning-proof-policy.js";
 export {
   diplomacyResponseProofOutcome,
   diplomacyResponseProofPostcondition,

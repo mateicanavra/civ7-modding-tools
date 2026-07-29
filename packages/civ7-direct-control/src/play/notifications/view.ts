@@ -1603,15 +1603,29 @@ function playNotificationViewSource(): string {
       if (stringIncludes(haystack, "ADVISOR") || stringIncludes(haystack, "WARNING")) {
         return hint(
           "advisor-warning",
-          "player-operation",
-          "VIEWED_ADVISOR_WARNING",
-          "{ Target: notificationComponentId }",
+          undefined,
+          undefined,
+          "{ target: notificationComponentId }",
           "live-proof",
-          [requiredInput("Target", "notification ComponentID", "Use the notification id itself as Target.")],
           [
-            action("mark advisor warning viewed", "player-operation", "VIEWED_ADVISOR_WARNING", "{ Target: notificationComponentId }", "when the warning has been inspected"),
+            requiredInput(
+              "target",
+              "notification ComponentID",
+              "Use the notification id itself as the dedicated acknowledgement target."
+            ),
           ],
-          ["Do not use raw notification dismissal for advisor blockers."],
+          [
+            action(
+              "acknowledge advisor warning",
+              undefined,
+              undefined,
+              "{ target: notificationComponentId }",
+              "when the warning has been inspected"
+            ),
+          ],
+          [
+            "Use the dedicated advisor-warning acknowledgement; generic player-operation dispatch and notification dismissal are not valid substitutes.",
+          ],
         );
       }
       if (stringIncludes(haystack, "COMMAND_UNITS") || stringIncludes(haystack, "UNITS")) {

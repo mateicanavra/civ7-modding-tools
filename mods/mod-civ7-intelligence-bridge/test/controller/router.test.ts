@@ -32,6 +32,7 @@ const canonicalProcedureKeys = [
   "lifecycle.singlePlayer.start",
   "narrative.choice.check",
   "narrative.choice.request",
+  "notifications.advisorWarning.viewed.check",
   "notifications.advisorWarning.viewed.request",
   "notifications.dismiss.check",
   "notifications.dismiss.request",

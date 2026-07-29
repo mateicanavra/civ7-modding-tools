@@ -427,31 +427,33 @@ errors, and server-side callers.
   allowlisting, transport expansion, broad operation catalog support, and
   parent Task 5.x/6.x/7.x acceptance remain pending
 
-#### Scenario: Advisor warning acknowledgement service is added
-- **WHEN** `notifications.advisorWarning.viewed.request` exposes a
-  caller-facing advisor-warning acknowledgement under the `notifications`
-  router
+#### Scenario: Advisor warning acknowledgement is service-owned
+- **WHEN** `notifications.advisorWarning.viewed.check` or
+  `notifications.advisorWarning.viewed.request` handles an advisor warning
+  under the `notifications` router
 - **THEN** control-oRPC owns the contract-local target-only input schema,
-  native service procedure, fresh local-player evidence read, semantic
-  validation and postcondition projection, no-repeat next steps, and normal
-  output wording
+  exact four-type admission, ambient local-player derivation, guarded
+  mutation, bounded post-send observation, semantic postconditions, dispatch
+  uncertainty, no-repeat policy, and normal output wording
 - **AND** the input is closed and admits only the target notification
   ComponentID; it does not accept caller player id, endpoint, session, state,
   host, port, command, rawCommand, transport, approval, reason, raw operation,
   or caller-supplied proof fields
-- **AND** the procedure passes native mutation readiness middleware, reads the
-  current notification view for local-player evidence, invokes only the
-  source-owned direct-control advisor-warning runtime/proof port, and keeps
-  sent outcomes pending-runtime-proof and do-not-repeat guarded until live
-  runtime proof is collected
+- **AND** the service invokes only the exact direct-control advisor-warning
+  check/send atoms, which use native `VIEWED_ADVISOR_WARNING` admission and
+  dispatch with the ambient local player and raw target snapshots
+- **AND** generic player-operation dispatch rejects
+  `VIEWED_ADVISOR_WARNING`, so it cannot form a second acknowledgement path
+- **AND** confirmed clearance requires exact target absence from the native
+  registry or readable removal from the active notification queue; sticky,
+  unreadable, incoherent, and transport-indeterminate outcomes remain
+  no-repeat guarded
 - **AND** normal output omits host, port, state, session, command, rawCommand,
   Tuner payloads, direct-control runtime envelopes, raw player-operation
   details such as `VIEWED_ADVISOR_WARNING` / `Target`, legacy `verified`,
   approval/reason mechanics, and raw transport details
-- **AND** local package tests prove only native service composition and fake
-  runtime behavior; deployed Civ7 runtime proof, controller bridge
-  allowlisting, transport expansion, broad operation catalog support, and
-  parent Task 5.x/6.x/7.x acceptance remain pending
+- **AND** local package and controller tests prove service composition and fake
+  game-runtime behavior only; deployed Civ7 runtime proof remains pending
 
 #### Scenario: Current world service view is added
 - **WHEN** `world.current` exposes a caller-facing current-world read
@@ -558,21 +560,19 @@ errors, and server-side callers.
   transport details
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI advisor warning sends use notifications service projection
-- **WHEN** `game play advisor-warning --send` acknowledges a reviewed advisor
-  warning notification
+#### Scenario: CLI advisor warning checks and sends use notifications service projection
+- **WHEN** `game play notifications advisor-warning` checks or acknowledges an
+  advisor warning notification
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send path calls the in-process
-  `notifications.advisorWarning.viewed.request` server-side client under the
-  `notifications` router
-- **AND** local-player selection, advisor-warning operation mapping,
-  validator result projection, pending-runtime-proof postcondition, and
-  no-repeat guidance come from the service procedure and source-owned
-  direct-control runtime/proof port
-- **AND** the CLI send input provides the target notification ComponentID only;
-  dry-run validation may still require a player id on the legacy validator
-  path, but send mode does not treat a caller `--player-id` as action
-  authority
+- **AND** read-only mode calls
+  `notifications.advisorWarning.viewed.check`, while `--send` calls
+  `notifications.advisorWarning.viewed.request`, through the in-process
+  server-side client under the `notifications` router
+- **AND** exact type admission, local-player selection, operation mapping,
+  postcondition classification, dispatch uncertainty, and no-repeat guidance
+  come from the service procedure and exact direct-control wire atoms
+- **AND** both modes provide only the target notification ComponentID and do
+  not accept caller `--player-id` or raw operation fields
 - **AND** the normal send JSON result omits raw host, port, state, session,
   command, rawCommand, Tuner payloads, direct-control runtime envelopes, raw
   player-operation details such as `VIEWED_ADVISOR_WARNING` / `Target`,
@@ -1284,6 +1284,23 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   runtime behavior only; deployed Civ7 runtime proof, other mutation runtime
   ports, and play-thread action remain pending
 
+#### Scenario: Game UI controller supports advisor-warning acknowledgement
+- **WHEN** the game-scoped controller context exposes exact advisor-warning
+  notification and player-operation APIs
+- **THEN** the context may execute
+  `notifications.advisorWarning.viewed.check` and
+  `notifications.advisorWarning.viewed.request` through the existing
+  in-process router
+- **AND** the controller checks native admission with the ambient local player,
+  `VIEWED_ADVISOR_WARNING`, `{ Target }`, and `false`, then invokes
+  `sendRequest` exactly once only after the admitted target snapshot still
+  matches
+- **AND** the controller exposes raw before/after evidence to the service but
+  does not own four-type admission, polling, semantic completion, uncertainty,
+  no-repeat policy, UI activation, or handler closeout
+- **AND** local package and bundle tests prove source shape and local fake game
+  runtime behavior only; deployed Civ7 runtime proof remains pending
+
 #### Scenario: Game UI controller supports current attention reads
 - **WHEN** the game-scoped controller context exposes notification, turn, and
   official first-ready-unit attention read APIs
@@ -1674,6 +1691,20 @@ their accepted owners.
   and remaining items, preserves a source-unavailable stop reason after any
   completed mutation, and reports fully known partial completion without
   inventing dispatch uncertainty
+- **AND** local procedure tests do not claim deployed Civ7 runtime proof
+
+#### Scenario: Advisor-warning acknowledgement policy is service-owned
+- **WHEN** `notifications.advisorWarning.viewed.check` or
+  `notifications.advisorWarning.viewed.request` handles an advisor warning
+- **THEN** the notification service owns exact four-type admission, ambient
+  local-player authority, guarded mutation, bounded observation, semantic
+  completion, dispatch uncertainty, and no-repeat policy
+- **AND** direct-control owns only exact native check/send atoms and raw target
+  snapshots; it does not own polling, semantic postconditions, proof policy,
+  telemetry, or a thick request wrapper
+- **AND** generic player-operation dispatch rejects
+  `VIEWED_ADVISOR_WARNING`, and specialized notification-handler UI
+  bookkeeping is not an alternate mutation or confirmation path
 - **AND** local procedure tests do not claim deployed Civ7 runtime proof
 
 #### Scenario: Closeout-style mutation projection is shared

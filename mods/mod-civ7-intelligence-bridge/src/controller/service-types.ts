@@ -11,8 +11,11 @@ export type Civ7ControlOrpcComponentId = Parameters<
 export type Civ7ControlOrpcMapLocation = Parameters<
   DirectControl["checkCiv7CityExpansion"]
 >[0]["destination"];
-export type Civ7ControlOrpcAdvisorWarningViewedResult = Awaited<
-  ReturnType<DirectControl["requestCiv7AdvisorWarningViewed"]>
+export type Civ7ControlOrpcAdvisorWarningViewedCheckResult = Awaited<
+  ReturnType<DirectControl["checkCiv7AdvisorWarningViewed"]>
+>;
+export type Civ7ControlOrpcAdvisorWarningViewedSendResult = Awaited<
+  ReturnType<DirectControl["sendCiv7AdvisorWarningViewed"]>
 >;
 export type Civ7ControlOrpcBattlefieldScanResult = Awaited<
   ReturnType<DirectControl["getCiv7BattlefieldScan"]>

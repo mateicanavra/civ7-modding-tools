@@ -10,8 +10,8 @@ import type {
   Civ7NotificationQueueDismissResult,
   Civ7NotificationQueueResult,
 } from "../contract";
+import { isAdvisorWarningNotificationType } from "../model/policy/advisor-warning-type";
 import { dismissCiv7Notification } from "../model/policy/dismissal-execution";
-import { isAdvisorWarningNotificationType } from "../model/policy/dismissal-result";
 import { module } from "../module";
 
 type QueueItem = Civ7ControlOrpcPlayNotificationViewResult["hud"]["decisionQueue"][number];
@@ -367,14 +367,17 @@ function classifyQueue(queue: ReadonlyArray<QueueItem>): {
 }
 function buildQueueStep(item: QueueItem, originalStep: number): QueueStep {
   const disposition = dispositionFor(item);
+  const isAdvisorWarning = isAdvisorWarningNotificationType(item.typeName);
   const requiredInputs = item.requiredInputs
     .filter((input) => input.required)
     .map((input) => input.name);
   const isDismissalCandidate = disposition === "reviewed-dismissal-candidate";
   const safeToBatch = isDismissalCandidate && isBatchSafeDismissalCandidate(item);
   const guardrails = guardrailsFor(item, disposition, requiredInputs);
-  const operationFamily = stringValueOrUndefined(item.operationFamily);
-  const operationType = stringValueOrUndefined(item.operationType);
+  const operationFamily = isAdvisorWarning
+    ? undefined
+    : stringValueOrUndefined(item.operationFamily);
+  const operationType = isAdvisorWarning ? undefined : stringValueOrUndefined(item.operationType);
   return {
     step: originalStep,
     priority: priorityFor(item, disposition),
@@ -427,6 +430,9 @@ function priorityFor(item: QueueItem, disposition: QueueStep["disposition"]): nu
   return 20;
 }
 function reasonFor(item: QueueItem, disposition: QueueStep["disposition"]): string {
+  if (isAdvisorWarningNotificationType(item.typeName)) {
+    return "Advisor warning; use its dedicated viewed acknowledgement instead of generic dismissal or operation dispatch.";
+  }
   if (item.isEndTurnBlocking) {
     return "End-turn blocker; resolve or consciously defer before broad tactical planning.";
   }
@@ -470,6 +476,11 @@ function guardrailsFor(
   requiredInputs: ReadonlyArray<string>
 ): string[] {
   const guardrails: string[] = [];
+  if (isAdvisorWarningNotificationType(item.typeName)) {
+    guardrails.push(
+      "Use the dedicated advisor-warning acknowledgement; generic dismissal and operation dispatch are not valid substitutes."
+    );
+  }
   if (requiredInputs.length > 0 && disposition !== "reviewed-dismissal-candidate") {
     guardrails.push(`Read required live inputs first: ${requiredInputs.join(", ")}.`);
   }
@@ -500,6 +511,14 @@ function nextStepFor(
     ...(operationFamily == null ? {} : { operationFamily }),
     ...(operationType == null ? {} : { operationType }),
   };
+  if (isAdvisorWarningNotificationType(item.typeName)) {
+    return {
+      kind: "inspect-notification",
+      source: "notifications.queue.current",
+      label: "Check the exact advisor warning, then use its dedicated acknowledgement.",
+      parameters: baseParameters,
+    };
+  }
   if (disposition === "reviewed-dismissal-candidate") {
     return {
       kind: "dismiss-notification",

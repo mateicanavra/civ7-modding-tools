@@ -94,6 +94,17 @@ describe("notifications.queue control-oRPC procedures", () => {
         }),
       ])
     );
+    const advisorStep = result.schedule.find((item) => item.notificationId?.id === advisorId.id);
+    expect(advisorStep).toMatchObject({
+      reason:
+        "Advisor warning; use its dedicated viewed acknowledgement instead of generic dismissal or operation dispatch.",
+      nextStep: {
+        kind: "inspect-notification",
+        label: "Check the exact advisor warning, then use its dedicated acknowledgement.",
+      },
+    });
+    expect(advisorStep).not.toHaveProperty("operationFamily");
+    expect(advisorStep).not.toHaveProperty("operationType");
     expectSafeQueueOutput(result);
   });
 

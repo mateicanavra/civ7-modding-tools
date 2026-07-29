@@ -1,6 +1,9 @@
 import type {
+  Civ7AdvisorWarningViewedCheckResult,
   Civ7AdvisorWarningViewedInput,
-  Civ7AdvisorWarningViewedResult,
+  Civ7AdvisorWarningViewedSendInput,
+  Civ7AdvisorWarningViewedSendResult,
+  Civ7AdvisorWarningViewedSnapshot,
   Civ7AttributePurchaseInput,
   Civ7AttributeReviewInput,
   Civ7BattlefieldScanInput,
@@ -118,7 +121,9 @@ import type { Static } from "typebox";
 export type Civ7ControlOrpcNotificationDismissalSnapshot = Civ7NotificationDismissalSnapshot;
 export type Civ7ControlOrpcNotificationDismissalCheckResult = Civ7NotificationDismissalCheckResult;
 export type Civ7ControlOrpcNotificationDismissalSendResult = Civ7NotificationDismissalSendResult;
-export type Civ7ControlOrpcAdvisorWarningViewedResult = Civ7AdvisorWarningViewedResult;
+export type Civ7ControlOrpcAdvisorWarningViewedSnapshot = Civ7AdvisorWarningViewedSnapshot;
+export type Civ7ControlOrpcAdvisorWarningViewedCheckResult = Civ7AdvisorWarningViewedCheckResult;
+export type Civ7ControlOrpcAdvisorWarningViewedSendResult = Civ7AdvisorWarningViewedSendResult;
 export type Civ7ControlOrpcDiplomacyResponseResult = Civ7DiplomacyResponseResult;
 export type Civ7ControlOrpcFirstMeetResponseResult = Civ7FirstMeetResponseResult;
 export type Civ7ControlOrpcGovernmentChoiceSnapshot = Civ7GovernmentChoiceSnapshot;
@@ -205,10 +210,14 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Civ7NotificationDismissalSendInput,
     options: Civ7DirectControlOptions | undefined
   ): Promise<Civ7ControlOrpcNotificationDismissalSendResult>;
-  requestCiv7AdvisorWarningViewed(
+  checkCiv7AdvisorWarningViewed(
     input: Civ7AdvisorWarningViewedInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcAdvisorWarningViewedResult>;
+  ): Promise<Civ7ControlOrpcAdvisorWarningViewedCheckResult>;
+  sendCiv7AdvisorWarningViewed(
+    input: Civ7AdvisorWarningViewedSendInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7ControlOrpcAdvisorWarningViewedSendResult>;
   checkCiv7NarrativeChoice(
     input: Civ7NarrativeChoiceInput,
     options: Civ7DirectControlOptions | undefined

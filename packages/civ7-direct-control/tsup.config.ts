@@ -10,7 +10,6 @@ export default defineConfig({
     "src/play/government/choice.ts",
     "src/play/narrative/choice.ts",
     "src/play/progression/choice-postconditions.ts",
-    "src/proof/advisor-warning-proof-policy.ts",
     "src/proof/diplomacy-response-proof-policy.ts",
     "src/proof/first-meet-response-proof-policy.ts",
     "src/proof/progression-player-choice-proof-policy.ts",

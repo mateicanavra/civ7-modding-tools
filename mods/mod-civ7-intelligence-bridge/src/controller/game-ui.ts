@@ -1,4 +1,11 @@
 import {
+  type Civ7GameUiAdvisorWarningTarget,
+  checkCiv7GameUiAdvisorWarningViewed,
+  civ7GameUiAdvisorWarningViewedCheckAvailable,
+  civ7GameUiAdvisorWarningViewedSendAvailable,
+  sendCiv7GameUiAdvisorWarningViewed,
+} from "./game-ui/advisor-warning";
+import {
   type Civ7GameUiAttentionTarget,
   getCiv7GameUiPlayNotificationView,
   getCiv7GameUiReadyCityView,
@@ -128,7 +135,8 @@ type Civ7GameUiNotifications = NonNullable<
   NonNullable<Civ7GameUiNotificationDismissalTarget["Game"]>["Notifications"]
 > &
   NonNullable<NonNullable<Civ7GameUiAttentionTarget["Game"]>["Notifications"]> &
-  NonNullable<NonNullable<Civ7GameUiProgressionTarget["Game"]>["Notifications"]>;
+  NonNullable<NonNullable<Civ7GameUiProgressionTarget["Game"]>["Notifications"]> &
+  NonNullable<NonNullable<Civ7GameUiAdvisorWarningTarget["Game"]>["Notifications"]>;
 
 type Civ7GameUiPlayer = NonNullable<NonNullable<Civ7GameUiAttentionTarget["UI"]>["Player"]> &
   NonNullable<NonNullable<Civ7GameUiUnitCommandTarget["UI"]>["Player"]>;
@@ -160,7 +168,8 @@ export type Civ7GameUiRuntimeTarget = Civ7GameUiTurnCompletionTarget & {
   GameInfo?: Civ7GameUiStrategyFrontTarget["GameInfo"] & Civ7GameUiGovernmentTarget["GameInfo"];
   Game?: Civ7GameUiProductionTarget["Game"] &
     Civ7GameUiTownFocusTarget["Game"] &
-    Civ7GameUiGovernmentTarget["Game"] & {
+    Civ7GameUiGovernmentTarget["Game"] &
+    Civ7GameUiAdvisorWarningTarget["Game"] & {
       Diplomacy?: Civ7GameUiDiplomacyTarget["Game"] extends infer Game
         ? Game extends { Diplomacy?: infer Diplomacy }
           ? Diplomacy
@@ -233,7 +242,8 @@ export type Civ7GameUiRuntimeTarget = Civ7GameUiTurnCompletionTarget & {
     Civ7GameUiNarrativeTarget["PlayerOperationTypes"] &
     Civ7GameUiDiplomacyTarget["PlayerOperationTypes"] &
     Civ7GameUiFirstMeetTarget["PlayerOperationTypes"] &
-    Civ7GameUiGovernmentTarget["PlayerOperationTypes"];
+    Civ7GameUiGovernmentTarget["PlayerOperationTypes"] &
+    Civ7GameUiAdvisorWarningTarget["PlayerOperationTypes"];
   PlayerOperationParameters?: Civ7GameUiGovernmentTarget["PlayerOperationParameters"] &
     Civ7GameUiNarrativeTarget["PlayerOperationParameters"];
   ProgressionTreeNodeTypes?: Civ7GameUiProgressionTarget["ProgressionTreeNodeTypes"];
@@ -370,9 +380,10 @@ function createCiv7GameUiDirectControlFacade(
       await checkCiv7GameUiNotificationDismissal(input, target),
     sendCiv7NotificationDismissal: async (input) =>
       await sendCiv7GameUiNotificationDismissal(input, target),
-    requestCiv7AdvisorWarningViewed: async () => {
-      throw new Error("game-ui advisor warning viewed request is not supported");
-    },
+    checkCiv7AdvisorWarningViewed: async (input) =>
+      await checkCiv7GameUiAdvisorWarningViewed(input, target),
+    sendCiv7AdvisorWarningViewed: async (input) =>
+      await sendCiv7GameUiAdvisorWarningViewed(input, target),
     checkCiv7NarrativeChoice: async (input) => await checkCiv7GameUiNarrativeChoice(input, target),
     sendCiv7NarrativeChoice: async (input) => await sendCiv7GameUiNarrativeChoice(input, target),
     requestCiv7DiplomacyResponse: async (input) =>
@@ -518,6 +529,9 @@ function gameUiSupportedMutationProcedures(target: Civ7GameUiRuntimeTarget): rea
   if (civ7GameUiNotificationDismissalSendAvailable(target)) {
     supported.push("notifications.dismiss.request");
   }
+  if (civ7GameUiAdvisorWarningViewedSendAvailable(target)) {
+    supported.push("notifications.advisorWarning.viewed.request");
+  }
   if (civ7GameUiProductionChoiceSendAvailable(target)) {
     supported.push("city.production.choice.request");
   }
@@ -574,6 +588,9 @@ function gameUiSupportedReadProcedures(target: Civ7GameUiRuntimeTarget): readonl
   const supported: string[] = [];
   if (civ7GameUiNotificationDismissalCheckAvailable(target)) {
     supported.push("notifications.dismiss.check");
+  }
+  if (civ7GameUiAdvisorWarningViewedCheckAvailable(target)) {
+    supported.push("notifications.advisorWarning.viewed.check");
   }
   if (civ7GameUiProductionChoiceCheckAvailable(target)) {
     supported.push("city.production.choice.check");
