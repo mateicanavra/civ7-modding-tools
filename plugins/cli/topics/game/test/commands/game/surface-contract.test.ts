@@ -22,7 +22,6 @@ const PUBLIC_COMMAND_IDS = [
   "game:map:summary",
   "game:map:visibility",
   "game:operation",
-  "game:play:advisor-warning",
   "game:play:assign-worker",
   "game:play:battlefield-scan",
   "game:play:build-production",
@@ -44,6 +43,7 @@ const PUBLIC_COMMAND_IDS = [
   "game:play:expand-city",
   "game:play:formation-snapshot",
   "game:play:front-summary",
+  "game:play:notifications:advisor-warning",
   "game:play:notifications:dismiss",
   "game:play:notifications:dismiss-reviewed",
   "game:play:notifications:list",
@@ -79,6 +79,7 @@ const PUBLIC_HIDDEN_ALIASES: Partial<
 > = {
   "game:play:diplomacy:respond": ["game:play:respond-diplomacy"],
   "game:play:diplomacy:respond-first-meet": ["game:play:respond-first-meet"],
+  "game:play:notifications:advisor-warning": ["game:play:advisor-warning"],
   "game:play:notifications:dismiss": ["game:play:dismiss-notification"],
   "game:play:notifications:dismiss-reviewed": ["game:play:dismiss-notification-queue"],
   "game:play:notifications:list": ["game:play:notifications"],
@@ -105,7 +106,8 @@ const PUBLIC_TOPICS = {
     description: "Validate and send diplomatic action responses and first-meet greetings",
   },
   "game:play:notifications": {
-    description: "Read, schedule, and dismiss live Civ7 notifications",
+    description:
+      "Read and schedule live Civ7 notifications; dismiss reviewed items and acknowledge advisor warnings",
   },
   "game:play:screen": {
     description: "Inspect and dismiss App UI display-queue screens (cinematic moments)",

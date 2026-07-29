@@ -27,12 +27,11 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** normalize the next mechanically closed `game` noun
-family without changing its capabilities. Ordinary diplomatic responses and
-first-meet greetings become explicit commands under `game:play:diplomacy`;
-each former flat path remains a hidden compatibility alias. Source paths own
-the new canonical grammar, while tests prove every canonical and legacy
-invocation resolves to the same implementation owner.
+**Current container:** close the one notification-owned command that remains
+outside the notification family. Advisor-warning acknowledgement already
+executes through the notification control service; its command and behavior
+test now move under `game:play:notifications:advisor-warning`, while the former
+flat path remains a hidden compatibility alias. No runtime capability changes.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -49,12 +48,12 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** relocate the two diplomacy commands without changing their
-implementation -> preserve old invocations as hidden aliases -> update the
-active command surface and exact topic contract -> prove canonical and legacy
-resolution plus unchanged behavior -> land the family -> reclaim the
-notification-owned advisor warning -> gather the read-only tactical lenses
-only if their shared planning noun remains behaviorally honest.
+**Gradient:** relocate the advisor-warning command and its behavior proof
+without changing implementation -> preserve the flat invocation as a hidden
+alias -> update exact surface, notification topic copy, and active operator
+guidance -> prove canonical and legacy resolution plus unchanged behavior ->
+land the orphan repair -> gather the read-only tactical lenses only if their
+shared planning noun remains behaviorally honest.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -97,6 +96,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - CLI Diplomacy Topic Sealed
+
+Ordinary diplomatic responses and first-meet greetings now share one
+`game:play:diplomacy` noun. Both former flat paths remain hidden aliases, source
+and manifest identities are exact, and canonical plus legacy invocations
+resolve to the same unchanged runtime owners. The complete CLI graph, generic
+topic laws, boundaries, dead-code proof, staged hook, and fresh architecture
+and product reviews sealed the second capability-shaped grammar migration.
 
 ### 2026-07-28 - CLI Notification Topic Sealed
 

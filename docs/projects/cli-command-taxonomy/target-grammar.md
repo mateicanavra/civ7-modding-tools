@@ -43,6 +43,7 @@ game                                  # the mount itself is the session noun (D1
 │   ├── notifications                 # live notification decision surface
 │   │   ├── list                      # composite blocker, HUD, and notification read
 │   │   ├── schedule                  # read-only prioritized decision schedule
+│   │   ├── advisor-warning           # validate or acknowledge one advisor warning
 │   │   ├── dismiss                   # inspect or explicitly dismiss one reviewed item
 │   │   └── dismiss-reviewed          # guarded bulk closeout for eligible information
 │   ├── <remaining flat commands>     # migration owned by command-surface-design.md
@@ -68,9 +69,10 @@ game                                  # the mount itself is the session noun (D1
 - **`game play` (D4/D7).** The play-agent grammar. `screen` owns display-queue
   inspection and close handling. `diplomacy` owns ordinary diplomatic responses
   and first-meet greetings. `notifications` owns notification inventory,
-  scheduling, single-item dismissal, and guarded reviewed closeout. Hidden
-  aliases preserve all former flat paths. Further noun gathering follows the
-  design doc's Priority Refactors.
+  scheduling, specialized advisor-warning acknowledgement, single-item
+  dismissal, and guarded reviewed closeout. Hidden aliases preserve all former
+  flat paths. Further noun gathering follows the design doc's Priority
+  Refactors.
 - **`game view` (D6).** Reserved for presentation/capture commands arriving
   from the rivers branch (`camera`, `screenshot`, `appshot`). Nothing may
   squat on `view` in the meantime.

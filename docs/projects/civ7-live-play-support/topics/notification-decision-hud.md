@@ -75,7 +75,7 @@ after any mutation or human input.
 | Celebration choice | live `GoldenAgeType` hash from `game play choose-celebration --options --json` | `game play choose-celebration` |
 | Tradition review | active/unlocked tradition ids from `game play traditions --compact --json`; chosen `TraditionType` and activate/deactivate `Action` | tradition slot evidence, then the selected change or review closeout |
 | Attribute review | attribute `ProgressionTreeNodeType` | `game play buy-attribute`; then `game play consider-attributes` |
-| Advisor warning | notification ComponentID as `Target` | `game play advisor-warning` |
+| Advisor warning | notification ComponentID as `Target` | `game play notifications advisor-warning` |
 | Unit command | selected or first ready unit; sometimes target plot | `game play ready-unit`, then `game play unit-target` for plot actions or generic unit operation validation |
 
 For queue management, use `game play notifications schedule --json` before manually

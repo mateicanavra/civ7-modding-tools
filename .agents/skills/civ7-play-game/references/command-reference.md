@@ -60,6 +60,7 @@ action.** You never compute ids.
 | Found / fortify / skip / any op | `ready-unit --json` | `legalOperations[].{family,operationType}` + `unitId` | `operation --family <family> --operation-type <opType> --unit-id '…' --send` |
 | Settle a Settler | `settlement-recommendations --json` (rank) → move → found | suggestion `location{x,y}`; then the found op from `legalOperations` | `unit-target` to the plot, then `operation` with the found op `{family,operationType}` |
 | Diplomacy reply | `notifications list --json` | `notification.decision` inputs (`action-id`, `response-type`) | `diplomacy respond --action-id … --response-type … --send` |
+| Advisor warning | `notifications list --json` | notification ComponentID | `notifications advisor-warning --target '…' --send` |
 
 Component ids (`unitId`, `cityId`) are JSON objects `{"owner":N,"id":N,"type":N}`
 — pass them quoted exactly as the read returned them. `ready-unit`/`ready-city`
@@ -109,6 +110,7 @@ passed as separate `--x N --y N` integer flags (there is no `--pair` flag).
 | `game play choose-celebration` | `--node` | Celebration bonus choice. |
 | `game play diplomacy respond` | `--action-id`, `--response-type` | Reply to a diplomatic action; `--notification-id` if present. |
 | `game play diplomacy respond-first-meet` | `--met-player-id`, one of `--response-type N` / `--response <str>` | First-contact response (`--player-id` is the local validating player). |
+| `game play notifications advisor-warning` | `--target '…'`; `--player-id` for validation mode | Validate or acknowledge one advisor warning; echo its notification ComponentID and never substitute generic dismissal. |
 | `game play notifications dismiss` | `--target '…'` | Inspect one reviewed notification; add `--send` to dismiss it. |
 | `game play notifications dismiss-reviewed` | `--max 50 --max-dismissals 10` | Bulk-dismiss reviewed informational notifications. Fire-and-forget. |
 | `game play end-turn` | (none) | Validate lists blockers; `--send` issues `sendTurnComplete()`. |

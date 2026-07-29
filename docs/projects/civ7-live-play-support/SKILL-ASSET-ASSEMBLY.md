@@ -118,7 +118,7 @@ CLI shortcuts:
 - `game play topics`
 - `game play end-turn`
 - `game play notifications dismiss`
-- `game play advisor-warning`
+- `game play notifications advisor-warning`
 
 Norms:
 

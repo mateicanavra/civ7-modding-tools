@@ -30,7 +30,7 @@ game play todo
 game play unit <show|targets|preview|check|send|operation>
 game play city <show|production|growth|workers|check|send>
 game play diplomacy <respond|respond-first-meet>
-game play notifications <list|show|schedule|dismiss|dismiss-reviewed>
+game play notifications <list|show|schedule|advisor-warning|dismiss|dismiss-reviewed>
 game play progress <show|tech|culture|tradition|attribute|narrative>
 game play trade <routes|preview|check|send>
 game play objective <show|next|ledger>
@@ -79,6 +79,7 @@ compact play-agent output is introduced.
 | `game play respond-first-meet` | `game play diplomacy respond-first-meet` | Preserve named or numeric first-meet responses and postcondition proof. |
 | `game play notifications` | `game play notifications list` | Preserve the existing composite blocker, decision-HUD, and notification view. |
 | `game play notification-queue` | `game play notifications schedule` | Make scheduling a notifications subcommand. |
+| `game play advisor-warning` | `game play notifications advisor-warning` | Keep the specialized acknowledgement distinct from generic notification dismissal. |
 | `game play dismiss-notification` | `game play notifications dismiss` | Keep explicit single-item review and `--send` mutation. |
 | `game play dismiss-notification-queue` | `game play notifications dismiss-reviewed` | Keep item-level review context and conservative categories. |
 | `game play ready-city` | `game play city show city:ready` | City-specific grammar should own production/growth/worker decisions. |
@@ -109,8 +110,9 @@ compact play-agent output is introduced.
    loop. Risk: high until queued destination and movement postconditions are
    live-smoked.
 2. **Notification namespace (landed 2026-07-28).** `list`, `schedule`,
-   `dismiss`, and `dismiss-reviewed` now share one noun; prior flat paths remain
-   hidden aliases. Bulk dismissal stays conservative and item-review gated.
+   `advisor-warning`, `dismiss`, and `dismiss-reviewed` now share one noun;
+   prior flat paths remain hidden aliases. Advisor acknowledgement remains
+   specialized, while bulk dismissal stays conservative and item-review gated.
 3. **Diplomacy namespace (landed 2026-07-28).** `respond` and
    `respond-first-meet` now share the diplomacy noun; their prior flat paths
    remain hidden aliases. Notification inventory remains a separate input

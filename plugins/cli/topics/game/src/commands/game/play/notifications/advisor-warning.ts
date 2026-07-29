@@ -6,18 +6,19 @@ import {
   emitPlayResult,
   parseComponentId,
   validatePlayOperation,
-} from "../../../adapters/play/direct-control";
+} from "../../../../adapters/play/direct-control";
 
 const ADVISOR_WARNING_OPERATION = "VIEWED_ADVISOR_WARNING";
 
-export default class GamePlayAdvisorWarning extends Command {
+export default class GamePlayNotificationsAdvisorWarning extends Command {
+  static hiddenAliases = ["game:play:advisor-warning"];
   static summary = "Validate or acknowledge an advisor warning blocker";
   static description =
     "Validates or sends a semantic advisor-warning acknowledgement for a target notification ComponentID.";
 
   static examples = [
-    '<%= config.bin %> game play advisor-warning --player-id 0 --target \'{"owner":0,"id":65536,"type":26}\' --json',
-    '<%= config.bin %> game play advisor-warning --target \'{"owner":0,"id":65536,"type":26}\' --send --json',
+    '<%= config.bin %> game play notifications advisor-warning --player-id 0 --target \'{"owner":0,"id":65536,"type":26}\' --json',
+    '<%= config.bin %> game play notifications advisor-warning --target \'{"owner":0,"id":65536,"type":26}\' --send --json',
   ];
 
   static flags = {
@@ -49,7 +50,7 @@ export default class GamePlayAdvisorWarning extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayAdvisorWarning);
+    const { flags } = await this.parse(GamePlayNotificationsAdvisorWarning);
     const target = parseComponentId(flags.target, "target");
     const options = buildDirectControlOptions(flags);
 

@@ -44,6 +44,7 @@ is waiting. Work `priorities[]` top-down. Map each `kind` to the handler:
 | narrative / era event | Step 3 → `choose-narrative` |
 | celebration available | Step 3 → `choose-celebration` |
 | diplomacy / first-meet request | Step 3 → `diplomacy respond` / `diplomacy respond-first-meet` |
+| advisor warning | Read `notifications list`, then `notifications advisor-warning --target '<notification-id>' --send` |
 | ready unit needs orders | Step 4 |
 | city needs production / population to place | Step 5 |
 | informational notifications piling up | `notifications dismiss-reviewed --send` (after reading) |

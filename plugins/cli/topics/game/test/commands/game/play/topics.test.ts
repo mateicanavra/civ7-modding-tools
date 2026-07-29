@@ -36,8 +36,10 @@ describe("game play topics command", () => {
           "game play notifications schedule",
           "game play notifications dismiss",
           "game play notifications dismiss-reviewed",
+          "game play notifications advisor-warning",
         ])
       );
+      expect(blockersPayload.topics[0].commands).not.toContain("game play advisor-warning");
       expect(surfacePayload.topics[0].commands).toContain("game play notifications schedule");
       expect(surfacePayload.topics[0].commands).not.toContain(
         "future: game play notifications schedule"

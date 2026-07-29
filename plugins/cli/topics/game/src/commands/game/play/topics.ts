@@ -82,7 +82,7 @@ const TOPICS: ReadonlyArray<Topic> = [
       "game play notifications dismiss-reviewed",
       "game play end-turn",
       "game play notifications dismiss",
-      "game play advisor-warning",
+      "game play notifications advisor-warning",
     ],
     loadWhen:
       "before any blocker closeout, end-turn, report dismissal, advisor warning, or stale notification decision",

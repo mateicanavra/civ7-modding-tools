@@ -162,6 +162,9 @@ describe("getCiv7PlayNotificationView", () => {
         "game play build-production --city-id '<city-id>' --project-type <project-type> --send"
       );
       expect(notificationRead).not.toContain(
+        "game play notifications advisor-warning --target '<notification-id>' --send"
+      );
+      expect(notificationRead).not.toContain(
         "game play advisor-warning --target '<notification-id>' --send"
       );
       expect(notificationRead).not.toContain(
@@ -169,6 +172,9 @@ describe("getCiv7PlayNotificationView", () => {
       );
       expect(notificationRead).not.toContain(
         "game play buy-attribute --player-id <id> --node <node> --send"
+      );
+      expect(notificationRead).not.toContain(
+        "game play notifications advisor-warning --player-id <id> --target '<notification-id>'"
       );
       expect(notificationRead).not.toContain(
         "game play advisor-warning --player-id <id> --target '<notification-id>'"

@@ -184,7 +184,7 @@ The first CLI shortcut family lives under `civ7 game play`:
 - `game play end-turn`
 - `game play notifications list`
 - `game play operation`
-- `game play advisor-warning`
+- `game play notifications advisor-warning`
 - `game play choose-tech`
 - `game play set-tech-target`
 - `game play choose-culture`
