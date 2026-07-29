@@ -29,17 +29,18 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** converge narrative choice through one exact narrative
-service owner. Official Civ7 source establishes native
-`PlayerOperations.canStart/sendRequest(CHOOSE_NARRATIVE_STORY_DIRECTION)` as
-the gameplay authority; direct-control may retain only bounded check, send,
-and source-state observation atoms. The service owns semantic admission,
-polling, postcondition classification, and no-repeat policy; the controller
-adapts ambient runtime calls; the CLI uses the named service procedures for
-both read-only checks and explicit mutation. Retire the thick direct-owned
-choice wrapper, DOM panel scanning and closeout choreography, duplicate bridge
-orchestration, generic operation alias, and direct proof policy only after
-narrative choice has one exact service path.
+**Current container:** converge turn completion through the official action
+panel authority. Civ7 source establishes `PanelAction.canEndTurn()` as native
+admission and `PanelAction.sendEndTurn()` as the gameplay mutation; the
+invented ambient `canEndTurn`, raw `GameContext.sendTurnComplete()`, and
+notification-derived fallback admission are not equivalent. Direct-control
+may retain only exact action-panel check, guarded send, and immutable
+source-state observation atoms. The service owns semantic availability,
+polling, postcondition classification, dispatch uncertainty, and no-repeat
+policy; the controller adapts the same action-panel component; both CLI modes
+use named service procedures. Retire the thick request wrapper, fallback
+whitelist, immediate `verified` result, direct proof policy, and the unrelated
+unready mutation only after turn completion has one exact service path.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -56,13 +57,13 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** model the official narrative option, check, send, and
-source-state observation path -> separate exact runtime atoms from semantic
-choice policy -> compose guarded service check/request procedures -> route both
-CLI modes and the controller through that service -> retire UI choreography,
-duplicate orchestration, the generic alias, and proof policy -> prove the full
-control graph -> repeat by domain until direct-control exposes only wire atoms
-and explicit diagnostics -> resume noun normalization.
+**Gradient:** model the official action-panel check, send, and source-state
+observation path -> separate exact runtime atoms from semantic turn policy ->
+compose guarded service check/request procedures -> route both CLI modes,
+attention advice, and the controller through that service -> retire fallback
+admission, duplicate orchestration, the unready mutation, and proof policy ->
+prove the full control graph -> repeat by domain until direct-control exposes
+only wire atoms and explicit diagnostics -> resume noun normalization.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -105,6 +106,22 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-29 - Narrative Choice Authority Converged
+
+Narrative direction choices now use exact native check and send atoms through
+one narrative service owner. Direct-control owns only native validation,
+guarded dispatch, and immutable blocker observations; the service owns
+semantic admission, bounded polling, exact blocker-transition classification,
+dispatch uncertainty, and no-repeat policy; the controller and CLI are thin
+adapters. Caller-controlled player/action inputs, generic operation dispatch,
+the thick direct wrapper, UI activation and closeout choreography, duplicate
+bridge orchestration, telemetry, and the direct proof policy retired. Malformed
+blocker identities fail closed, and clearance requires both native blocker
+type zero and an empty paired blocker lookup. The complete
+direct/service/controller/CLI graph, strict OpenSpec validation, and fresh
+native-authority review passed; deployed Civ7 behavior remains a separate
+live-proof boundary.
 
 ### 2026-07-29 - Government Choice Authority Converged
 

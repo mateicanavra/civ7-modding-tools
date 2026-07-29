@@ -235,6 +235,32 @@ errors, and server-side callers.
   args, direct-control operation envelopes, and legacy `verified` remain
   excluded from procedure input and normal output
 
+#### Scenario: Narrative choice uses exact service procedures
+- **WHEN** `narrative.choice.check` and `narrative.choice.request` expose their
+  caller-facing contracts
+- **THEN** control-oRPC owns the input, output, postcondition, and next-step
+  schemas for those service procedures under the `narrative` router
+- **AND** input admits only narrative target type and target component
+  identity; ambient local-player identity and `PlayerOperationParameters.Activate`
+  remain native runtime facts rather than caller authority
+- **AND** direct-control owns only exact native check/send adaptation and a
+  focused immutable narrative-blocker observation
+- **AND** the service owns semantic availability, guarded mutation, bounded
+  post-send polling, blocker-transition classification, dispatch uncertainty,
+  and no-repeat policy
+- **AND** mutation carries the service-admitted snapshot into a native
+  compare-and-send guard so changed player, action, or blocker evidence aborts
+  before dispatch without moving semantic policy into direct-control
+- **AND** native `canStart(...).Success` remains admission authority while
+  narrative option rows remain observational evidence
+- **AND** popup/panel traversal, notification activation, audio, and UI
+  closeout are presentation behavior rather than gameplay mutation authority
+- **AND** generic player-operation paths reject
+  `CHOOSE_NARRATIVE_STORY_DIRECTION`, including its supported prefixed alias
+- **AND** endpoint, session, state, raw command, generic operation type, raw
+  args, direct-control operation envelopes, UI payloads, and legacy `verified`
+  remain excluded from procedure input and normal output
+
 #### Scenario: Progression player-choice service contracts are offered
 - **WHEN** `progression.attribute.purchase.request`,
   `progression.attribute.review.request`,
@@ -816,27 +842,23 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   read exists
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI narrative choice send uses native narrative procedure
-- **WHEN** `game play choose-narrative --send` requests a narrative story direction choice
+#### Scenario: CLI narrative choice uses native narrative procedures
+- **WHEN** `game play choose-narrative` checks or requests a narrative story
+  direction choice
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send path calls the in-process
-  `narrative.choice.request` server-side client under the
-  `narrative` router
-- **AND** the procedure's readiness, direct-control narrative choice
-  port, narrative postcondition projection, and no-repeat policy remain
-  authoritative for the send
-- **AND** the send result uses direct-control source evidence for the acted
-  local player rather than treating the caller validation `--player-id` as send
-  authority
+- **AND** read-only mode calls `narrative.choice.check`, while `--send` calls
+  `narrative.choice.request` through the in-process server-side client
+- **AND** exact runtime atoms and service-owned narrative choice policy remain
+  authoritative for both paths
+- **AND** caller player ID and action are omitted because ambient local-player
+  identity and the Activate action belong to the native runtime
 - **AND** the normal JSON result is the semantic narrative choice procedure
   projection without raw command/session/state/Tuner details, App UI closeout
   payloads, panel/popup internals, direct-control runtime payloads, or legacy
   `verified`
 - **AND** the read-only `game play choose-narrative --options` path remains a
-  direct-control notification/option read until a separate accepted service
-  read exists
-- **AND** the read-only validation path remains direct-control
-  player-operation validation until a separate accepted service read exists
+  separate direct-control notification/option observation until a service-owned
+  option read is accepted; it does not become mutation admission authority
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI progression choice sends use native progression procedures

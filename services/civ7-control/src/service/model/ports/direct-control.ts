@@ -43,8 +43,12 @@ import type {
   Civ7GovernmentChoiceSnapshot,
   Civ7MapGridInput,
   Civ7MapGridResult,
+  Civ7NarrativeChoiceCheckResult,
   Civ7NarrativeChoiceInput,
-  Civ7NarrativeChoiceResult,
+  Civ7NarrativeChoiceSendInput,
+  Civ7NarrativeChoiceSendResult,
+  Civ7NarrativeChoiceSnapshot,
+  Civ7NarrativeChoiceValidationResult,
   Civ7NotificationDismissalResult,
   Civ7NotificationDismissInput,
   Civ7PlayableStatusResultSchema,
@@ -116,7 +120,10 @@ export type Civ7ControlOrpcCelebrationChoiceSnapshot = Civ7CelebrationChoiceSnap
 export type Civ7ControlOrpcCelebrationChoiceCheckResult = Civ7CelebrationChoiceCheckResult;
 export type Civ7ControlOrpcCelebrationChoiceSendResult = Civ7CelebrationChoiceSendResult;
 export type Civ7ControlOrpcCultureChoiceCloseoutResult = Civ7CultureChoiceCloseoutResult;
-export type Civ7ControlOrpcNarrativeChoiceResult = Civ7NarrativeChoiceResult;
+export type Civ7ControlOrpcNarrativeChoiceSnapshot = Civ7NarrativeChoiceSnapshot;
+export type Civ7ControlOrpcNarrativeChoiceValidationResult = Civ7NarrativeChoiceValidationResult;
+export type Civ7ControlOrpcNarrativeChoiceCheckResult = Civ7NarrativeChoiceCheckResult;
+export type Civ7ControlOrpcNarrativeChoiceSendResult = Civ7NarrativeChoiceSendResult;
 export type Civ7ControlOrpcTechnologyChoiceCloseoutResult = Civ7TechnologyChoiceCloseoutResult;
 export type Civ7ControlOrpcProgressionTargetResult = Civ7ProgressionTargetResult;
 export type Civ7ControlOrpcProgressionPlayerChoiceResult = Civ7ProgressionPlayerChoiceResult;
@@ -191,10 +198,14 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Civ7AdvisorWarningViewedInput,
     options: Civ7DirectControlOptions | undefined
   ): Promise<Civ7ControlOrpcAdvisorWarningViewedResult>;
-  requestCiv7NarrativeChoice(
+  checkCiv7NarrativeChoice(
     input: Civ7NarrativeChoiceInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcNarrativeChoiceResult>;
+  ): Promise<Civ7ControlOrpcNarrativeChoiceCheckResult>;
+  sendCiv7NarrativeChoice(
+    input: Civ7NarrativeChoiceSendInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7ControlOrpcNarrativeChoiceSendResult>;
   requestCiv7DiplomacyResponse(
     input: Civ7DiplomacyResponseInput,
     options: Civ7DirectControlOptions | undefined

@@ -318,11 +318,14 @@ adding more read-only facade shells.
     adding same-shaped read wrappers, CLI syntax in service output, operation
     sends, strategy catalogs, relationship labels beyond official evidence, or
     runtime/live proof claims.
-  - [x] 5.5.10 Seed `narrative.choice.request` as a native
-    service-owned narrative procedure that composes playable
-    readiness, direct-control narrative request authority, and source-owned
-    narrative proof classification into semantic output without exposing raw
-    command/session/payload details or claiming runtime/live proof.
+  - [x] 5.5.10 Converge `narrative.choice.check/request` as exact
+    service-owned narrative procedures. Omit caller player/action authority,
+    use direct-control only for exact native check/send and focused blocker
+    observation, keep semantic admission/polling/classification/no-repeat
+    policy in the service, carry admitted evidence through a pre-dispatch
+    compare-and-send guard, keep native validation authoritative over option
+    rows, retire UI closeout choreography and direct proof policy, and reject
+    the narrative operation through generic player-operation paths.
   - [x] 5.5.11 Seed `diplomacy.response.request` as a native
     service-owned diplomacy procedure that composes playable
     readiness, direct-control diplomacy response authority, and source-owned
@@ -642,14 +645,12 @@ adding more read-only facade shells.
     existing direct-control player-operation validation path for read-only
     mode, keep first-meet `{ Player1, Player2, Type }` proof distinct from
     ordinary diplomacy-response closeout, and keep live runtime proof pending.
-  - [x] 7.1.7 Route `civ7 game play choose-narrative --send` through the
-    in-process `narrative.choice.request` server-side client under
-    the `narrative` router. Keep endpoint flags as context
-    construction, emit the semantic narrative choice projection for send output
-    with direct-control acted/local-player evidence rather than treating
-    `--player-id` as send authority, preserve the existing direct-control
-    `--options` and player-operation validation paths for read-only mode, and
-    keep live runtime proof pending.
+  - [x] 7.1.7 Route ordinary read-only and send modes of
+    `civ7 game play choose-narrative` through the in-process
+    `narrative.choice.check/request` service clients. Keep endpoint flags as
+    context construction, omit caller player/action authority, emit semantic
+    narrative output, and retain `--options` only as a separate direct-control
+    observation that does not decide mutation admission.
   - [x] 7.1.8 Route `civ7 game play assign-worker --send` and
     `civ7 game play expand-city --send` through the in-process
     `city.population.place.request` server-side client under the `city` router.
@@ -1309,18 +1310,15 @@ adding more read-only facade shells.
     game-UI function names, command/session/state details, deployed Civ7 proof,
     play-thread action, narrative/diplomacy/unit runtime ports, and full `7.3`
     acceptance pending.
-  - [x] 7.3.22 Add a game-resident narrative-choice runtime dependency for
-    `narrative.choice.request`: expose ambient
-    `Game.PlayerOperations.canStart/sendRequest`,
-    `PlayerOperationTypes.CHOOSE_NARRATIVE_STORY_DIRECTION`, notification
-    activation/read APIs, optional narrative panel/popup evidence, and
-    controller-owned local-player proof through the existing service-owned
-    narrative procedure; advertise the mutation only when those exact game UI
-    APIs and controller proof exist; derive send player from
-    `GameContext.localPlayerID` rather than caller `playerId`; preserve
-    validator-blocked not-sent and no-repeat proof output for sticky blockers,
-    validation-only changes, failed/missing panel evidence, and missing
-    postcondition paths; keep raw game-UI function names,
+  - [x] 7.3.22 Replace game-resident narrative orchestration with exact
+    check/send runtime atoms for `CHOOSE_NARRATIVE_STORY_DIRECTION`. Resolve
+    `GameContext.localPlayerID` and `PlayerOperationParameters.Activate` inside
+    the adapter, expose focused immutable blocker observations, compare
+    service-admitted evidence before dispatch, let the service own polling and
+    blocker-transition classification, and remove notification activation,
+    popup/panel traversal, audio, and UI closeout from gameplay control;
+    advertise check and request capabilities independently and keep raw game-UI
+    function names,
     command/session/state details, deployed Civ7 proof, play-thread action,
     diplomacy/unit runtime ports, and full `7.3` acceptance pending.
   - [x] 7.3.23 Add a game-resident diplomacy-response runtime dependency for
@@ -2412,7 +2410,9 @@ adding more read-only facade shells.
   `check:cli`, `test:cli:play`, relevant OpenSpec strict validates, package
   checks/builds, and diff hygiene for the CLI first-meet response send
   migration slice.
-- [x] 8.30 Run focused direct-control narrative request, control-oRPC
-  narrative, CLI narrative tests, `check:cli`, `test:cli:play`,
-  relevant OpenSpec strict validates, and diff hygiene for the CLI narrative
-  choice send migration slice.
+- [x] 8.30 Run focused exact narrative atom tests, control-oRPC check/request
+  behavior tests, controller and CLI narrative tests, the combined
+  direct/service/controller/CLI check/test/build graph, strict OpenSpec
+  validation, stale wrapper/proof/UI-choreography scans, staged Habitat policy,
+  and diff hygiene. These are local package proofs and do not claim deployed
+  Civ7 runtime proof.

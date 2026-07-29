@@ -30,6 +30,7 @@ const canonicalProcedureKeys = [
   "government.choice.check",
   "government.choice.request",
   "lifecycle.singlePlayer.start",
+  "narrative.choice.check",
   "narrative.choice.request",
   "notifications.advisorWarning.viewed.request",
   "notifications.dismiss.request",

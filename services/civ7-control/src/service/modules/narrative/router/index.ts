@@ -1,6 +1,5 @@
-import { choiceRequest } from "./choice-request";
+import { choice } from "./choice";
+
 export const router = {
-  choice: {
-    request: choiceRequest,
-  },
+  choice,
 };

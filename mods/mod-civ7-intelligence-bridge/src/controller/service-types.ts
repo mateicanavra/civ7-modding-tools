@@ -42,8 +42,11 @@ export type Civ7ControlOrpcCelebrationChoiceSendResult = Awaited<
   ReturnType<DirectControl["sendCiv7CelebrationChoice"]>
 >;
 export type Civ7ControlOrpcMapGridResult = Awaited<ReturnType<DirectControl["getCiv7MapGrid"]>>;
-export type Civ7ControlOrpcNarrativeChoiceResult = Awaited<
-  ReturnType<DirectControl["requestCiv7NarrativeChoice"]>
+export type Civ7ControlOrpcNarrativeChoiceCheckResult = Awaited<
+  ReturnType<DirectControl["checkCiv7NarrativeChoice"]>
+>;
+export type Civ7ControlOrpcNarrativeChoiceSendResult = Awaited<
+  ReturnType<DirectControl["sendCiv7NarrativeChoice"]>
 >;
 export type Civ7ControlOrpcNotificationDismissalResult = Awaited<
   ReturnType<DirectControl["requestCiv7NotificationDismissal"]>

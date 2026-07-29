@@ -264,6 +264,24 @@ export {
   revealCiv7MapForPlayer,
 } from "./play/map/visibility.js";
 export type {
+  Civ7NarrativeChoiceCheckResult,
+  Civ7NarrativeChoiceInput,
+  Civ7NarrativeChoiceSendInput,
+  Civ7NarrativeChoiceSendResult,
+  Civ7NarrativeChoiceSnapshot,
+  Civ7NarrativeChoiceValidationResult,
+} from "./play/narrative/choice.js";
+export {
+  Civ7NarrativeChoiceCheckResultSchema,
+  Civ7NarrativeChoiceInputSchema,
+  Civ7NarrativeChoiceSendInputSchema,
+  Civ7NarrativeChoiceSendResultSchema,
+  Civ7NarrativeChoiceSnapshotSchema,
+  Civ7NarrativeChoiceValidationResultSchema,
+  checkCiv7NarrativeChoice,
+  sendCiv7NarrativeChoice,
+} from "./play/narrative/choice.js";
+export type {
   Civ7AdvisorWarningViewedInput,
   Civ7AdvisorWarningViewedPostcondition,
   Civ7AdvisorWarningViewedPostconditionClassification,
@@ -360,16 +378,6 @@ export type {
   Civ7FirstMeetResponseResult,
 } from "./play/operations/first-meet-request";
 export { requestCiv7FirstMeetResponse } from "./play/operations/first-meet-request";
-export type {
-  Civ7NarrativeChoicePostcondition,
-  Civ7NarrativeChoicePostconditionClassification,
-} from "./play/operations/narrative-postconditions.js";
-export type {
-  Civ7NarrativeChoiceCommandPayload,
-  Civ7NarrativeChoiceInput,
-  Civ7NarrativeChoiceResult,
-} from "./play/operations/narrative-request.js";
-export { requestCiv7NarrativeChoice } from "./play/operations/narrative-request.js";
 export type {
   Civ7OperationFamily,
   Civ7OperationInput,
@@ -732,10 +740,6 @@ export {
   snapshotFile,
   waitForFreshLogMarkers,
 } from "./proof/log-markers.js";
-export {
-  narrativeChoiceProofOutcome,
-  narrativeChoiceProofPostcondition,
-} from "./proof/narrative-choice-proof-policy.js";
 export {
   notificationDismissalProofOutcome,
   notificationDismissalProofPostcondition,

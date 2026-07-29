@@ -41,6 +41,12 @@
       "import": "./dist/play/government/choice.js",
       "require": "./dist/play/government/choice.cjs"
     },
+    "./play/narrative/choice": {
+      "types": "./dist/play/narrative/choice.d.ts",
+      "bun-source": "./src/play/narrative/choice.ts",
+      "import": "./dist/play/narrative/choice.js",
+      "require": "./dist/play/narrative/choice.cjs"
+    },
     "./play/progression/choice-postconditions": {
       "types": "./dist/play/progression/choice-postconditions.d.ts",
       "bun-source": "./src/play/progression/choice-postconditions.ts",
@@ -64,12 +70,6 @@
       "bun-source": "./src/proof/first-meet-response-proof-policy.ts",
       "import": "./dist/proof/first-meet-response-proof-policy.js",
       "require": "./dist/proof/first-meet-response-proof-policy.cjs"
-    },
-    "./proof/narrative-choice-proof-policy": {
-      "types": "./dist/proof/narrative-choice-proof-policy.d.ts",
-      "bun-source": "./src/proof/narrative-choice-proof-policy.ts",
-      "import": "./dist/proof/narrative-choice-proof-policy.js",
-      "require": "./dist/proof/narrative-choice-proof-policy.cjs"
     },
     "./proof/notification-dismissal-proof-policy": {
       "types": "./dist/proof/notification-dismissal-proof-policy.d.ts",

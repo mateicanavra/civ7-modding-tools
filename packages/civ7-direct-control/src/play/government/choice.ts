@@ -10,6 +10,7 @@ import { Civ7RuntimeProbeSchema, probeHelperSource } from "../../runtime/probe.j
 import { schemaBodyFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
+import { blockingNotificationObservationSource } from "../notifications/blocking-observation.js";
 
 const Civ7GovernmentJsonValueSchema = Type.Cyclic(
   {
@@ -429,47 +430,11 @@ function governmentChoiceWireInput(
 
 function governmentChoiceWireSource(): string {
   return `${probeHelperSource()}
+    ${blockingNotificationObservationSource()}
     const immutableJson = (value, label) => {
       const serialized = JSON.stringify(value);
       if (serialized === undefined) throw new Error(label + " returned non-JSON evidence.");
       return JSON.parse(serialized);
-    };
-    const readNumericField = (value, lowerKey, upperKey) => {
-      if (!value || typeof value !== "object") return null;
-      const lower = value[lowerKey];
-      if (typeof lower === "number" && Number.isFinite(lower)) return lower;
-      const upper = value[upperKey];
-      return typeof upper === "number" && Number.isFinite(upper) ? upper : null;
-    };
-    const toComponentId = (value) => {
-      if (!value || typeof value !== "object") return null;
-      const owner = readNumericField(value, "owner", "Owner");
-      const id = readNumericField(value, "id", "ID");
-      if (owner == null || id == null) return null;
-      const out = { owner, id };
-      const type = readNumericField(value, "type", "Type");
-      if (type != null) out.type = type;
-      return out;
-    };
-    const notificationType = (value) =>
-      typeof value === "string" || Number.isInteger(value) ? value : null;
-    const nullableString = (value) => typeof value === "string" ? value : null;
-    const notificationValue = (notification, names) => {
-      for (const name of names) {
-        try {
-          if (
-            notification &&
-            (typeof notification === "object" || typeof notification === "function") &&
-            name in notification
-          ) {
-            const value = notification[name];
-            return typeof value === "function" ? value.call(notification) : value;
-          }
-          const getter = "get" + name;
-          if (typeof notification?.[getter] === "function") return notification[getter]();
-        } catch {}
-      }
-      return null;
     };
     const requireLocalPlayer = () => {
       const localPlayerId = globalThis.GameContext?.localPlayerID;
@@ -487,57 +452,6 @@ function governmentChoiceWireSource(): string {
         throw new Error("The local player's Culture.getGovernmentType is unavailable.");
       }
       return { localPlayerId, player };
-    };
-    const readBlockingNotificationEvidence = (localPlayerId) => {
-      const blocker = probe(() => {
-        const notifications = globalThis.Game?.Notifications;
-        if (typeof notifications?.getEndTurnBlockingType !== "function") {
-          throw new Error("Game.Notifications.getEndTurnBlockingType is unavailable.");
-        }
-        return notificationType(notifications.getEndTurnBlockingType(localPlayerId));
-      });
-      if (!blocker.ok) {
-        return {
-          blocker,
-          blockingNotification: {
-            ok: false,
-            error: "Blocking notification is unavailable because the blocker read failed.",
-          },
-        };
-      }
-      return {
-        blocker,
-        blockingNotification: probe(() => {
-        const notifications = globalThis.Game?.Notifications;
-        if (typeof notifications.findEndTurnBlocking !== "function") {
-          throw new Error("Game.Notifications.findEndTurnBlocking is unavailable.");
-        }
-        const blockerId = notifications.findEndTurnBlocking(localPlayerId, blocker.value);
-        if (blockerId == null) return null;
-        const id = toComponentId(blockerId);
-        if (!id) {
-          throw new Error("Game.Notifications.findEndTurnBlocking returned an invalid ComponentID.");
-        }
-        const notification =
-          typeof notifications.find === "function" ? notifications.find(blockerId) : null;
-        const type = notificationType(
-          typeof notifications.getType === "function"
-            ? notifications.getType(blockerId)
-            : notificationValue(notification, ["Type", "type"])
-        );
-        const typeName = nullableString(
-          typeof notifications.getTypeName === "function"
-            ? notifications.getTypeName(type)
-            : notificationValue(notification, ["TypeName", "typeName"])
-        );
-        return {
-          id,
-          type,
-          typeName,
-          target: toComponentId(notificationValue(notification, ["Target", "target"])),
-        };
-        }),
-      };
     };
     const availableGovernments = () => {
       const rows = globalThis.GameInfo?.StartingGovernments;

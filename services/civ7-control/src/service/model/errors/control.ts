@@ -504,7 +504,10 @@ export class Civ7UnitRequestUnavailableError extends ORPCTaggedError(
 
 export const Civ7NarrativeChoiceUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("narrative.choice.request"),
+    procedureKey: Type.Union([
+      Type.Literal("narrative.choice.check"),
+      Type.Literal("narrative.choice.request"),
+    ]),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
@@ -519,7 +522,7 @@ export class Civ7NarrativeChoiceUnavailableError extends ORPCTaggedError(
   "Civ7NarrativeChoiceUnavailableError",
   {
     code: "NARRATIVE_CHOICE_UNAVAILABLE",
-    message: "Direct-control narrative choice request failed.",
+    message: "Direct-control narrative choice operation failed.",
     schema: toStandardSchema(Civ7NarrativeChoiceUnavailableErrorDataSchema),
     status: 503,
   }

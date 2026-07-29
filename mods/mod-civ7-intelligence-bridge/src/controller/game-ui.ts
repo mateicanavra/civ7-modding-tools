@@ -35,8 +35,10 @@ import {
 } from "./game-ui/map";
 import {
   type Civ7GameUiNarrativeTarget,
-  civ7GameUiNarrativeChoiceAvailable,
-  requestCiv7GameUiNarrativeChoice,
+  checkCiv7GameUiNarrativeChoice,
+  civ7GameUiNarrativeChoiceCheckAvailable,
+  civ7GameUiNarrativeChoiceSendAvailable,
+  sendCiv7GameUiNarrativeChoice,
 } from "./game-ui/narrative";
 import {
   type Civ7GameUiNotificationDismissalTarget,
@@ -227,16 +229,15 @@ export type Civ7GameUiRuntimeTarget = {
     Civ7GameUiDiplomacyTarget["PlayerOperationTypes"] &
     Civ7GameUiFirstMeetTarget["PlayerOperationTypes"] &
     Civ7GameUiGovernmentTarget["PlayerOperationTypes"];
-  PlayerOperationParameters?: Civ7GameUiGovernmentTarget["PlayerOperationParameters"];
+  PlayerOperationParameters?: Civ7GameUiGovernmentTarget["PlayerOperationParameters"] &
+    Civ7GameUiNarrativeTarget["PlayerOperationParameters"];
   ProgressionTreeNodeTypes?: Civ7GameUiProgressionTarget["ProgressionTreeNodeTypes"];
   UnitCommandTypes?: Civ7GameUiUnitTargetActionTarget["UnitCommandTypes"] &
     Civ7GameUiUnitCommandTarget["UnitCommandTypes"];
   UnitOperationMoveModifiers?: Civ7GameUiUnitTargetActionTarget["UnitOperationMoveModifiers"];
   UnitOperationTypes?: Civ7GameUiUnitTargetActionTarget["UnitOperationTypes"];
-  NarrativePopupManager?: Civ7GameUiNarrativeTarget["NarrativePopupManager"];
   DiplomacyManager?: Civ7GameUiDiplomacyTarget["DiplomacyManager"];
   LeaderModelManager?: Civ7GameUiDiplomacyTarget["LeaderModelManager"];
-  document?: Civ7GameUiNarrativeTarget["document"];
   Autoplay?: {
     isActive?: boolean;
     turns?: number;
@@ -366,8 +367,8 @@ function createCiv7GameUiDirectControlFacade(
     requestCiv7AdvisorWarningViewed: async () => {
       throw new Error("game-ui advisor warning viewed request is not supported");
     },
-    requestCiv7NarrativeChoice: async (input) =>
-      await requestCiv7GameUiNarrativeChoice(input, target),
+    checkCiv7NarrativeChoice: async (input) => await checkCiv7GameUiNarrativeChoice(input, target),
+    sendCiv7NarrativeChoice: async (input) => await sendCiv7GameUiNarrativeChoice(input, target),
     requestCiv7DiplomacyResponse: async (input) =>
       await requestCiv7GameUiDiplomacyResponse(input, target),
     requestCiv7FirstMeetResponse: async (input) =>
@@ -539,7 +540,7 @@ function gameUiSupportedMutationProcedures(target: Civ7GameUiRuntimeTarget): rea
       "progression.tradition.review.request"
     );
   }
-  if (civ7GameUiNarrativeChoiceAvailable(target)) {
+  if (civ7GameUiNarrativeChoiceSendAvailable(target)) {
     supported.push("narrative.choice.request");
   }
   if (civ7GameUiDiplomacyResponseAvailable(target)) {
@@ -582,6 +583,9 @@ function gameUiSupportedReadProcedures(target: Civ7GameUiRuntimeTarget): readonl
   }
   if (civ7GameUiCelebrationChoiceCheckAvailable(target)) {
     supported.push("government.celebration.choice.check");
+  }
+  if (civ7GameUiNarrativeChoiceCheckAvailable(target)) {
+    supported.push("narrative.choice.check");
   }
   if (gameUiControllerMutationProof(target) == null) {
     return supported;

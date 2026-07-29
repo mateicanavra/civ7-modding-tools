@@ -241,6 +241,13 @@ function validateOperationInput(
       { dispatchStatus: "not-dispatched" }
     );
   }
+  if (family === "player-operation" && operationType === "CHOOSE_NARRATIVE_STORY_DIRECTION") {
+    throw new Civ7DirectControlError(
+      "command-failed",
+      "player-operation CHOOSE_NARRATIVE_STORY_DIRECTION must use the exact narrative choice check/send atoms",
+      { dispatchStatus: "not-dispatched" }
+    );
+  }
   if (family === "city-operation" && operationType === "CONSIDER_TOWN_PROJECT") {
     throw new Civ7DirectControlError(
       "command-failed",
