@@ -48,8 +48,11 @@ export type Civ7ControlOrpcPlayNotificationViewResult = Awaited<
 export type Civ7ControlOrpcPlotSnapshotResult = Awaited<
   ReturnType<DirectControl["getCiv7PlotSnapshot"]>
 >;
-export type Civ7ControlOrpcProductionChoiceResult = Awaited<
-  ReturnType<DirectControl["requestCiv7ProductionChoice"]>
+export type Civ7ControlOrpcProductionChoiceCheckResult = Awaited<
+  ReturnType<DirectControl["checkCiv7ProductionChoice"]>
+>;
+export type Civ7ControlOrpcProductionChoiceSendResult = Awaited<
+  ReturnType<DirectControl["sendCiv7ProductionChoice"]>
 >;
 export type Civ7ControlOrpcProgressDashboardResult = Awaited<
   ReturnType<DirectControl["getCiv7ProgressDashboard"]>

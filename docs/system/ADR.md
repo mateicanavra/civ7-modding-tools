@@ -156,9 +156,20 @@ through generated static AI profiles. A game-scoped App UI controller loaded
 through native `scope="game"` `UIScripts` is the baseline implementation
 candidate for replacing raw per-wrapper direct-control JavaScript with a stable
 in-game API. `@civ7/control-orpc` owns the public service contract, router,
-admission, and composed behavior. The game-scoped controller is a provider
-adapter for that service. Direct-control retains the currently mixed low-level
-tuner and Civ7-side JavaScript responsibilities until those nodes are extracted.
+admission, and composed behavior. For production choices, that service
+authority includes semantic check/request orchestration, dispatch uncertainty,
+bounded post-send checking, postcondition classification, and
+no-repeat-after-unverified policy. `@civ7/direct-control` owns the exact
+production check/send wire atoms: command serialization, runtime
+validator/send adaptation, and raw evidence snapshots. Those atoms invoke
+`CityOperations.BUILD` directly without selecting a city, moving a cursor, or
+closing UI, and treat a non-throwing `sendRequest` invocation as dispatch rather
+than synchronous engine acknowledgement. The generic city-operation surface
+rejects `BUILD`; it cannot form a second production path around the exact atoms
+or service policy. The game-scoped controller is a provider adapter for those
+service ports, not a second semantic policy owner. Direct-control retains the
+currently mixed low-level tuner and Civ7-side JavaScript responsibilities until
+those nodes are extracted.
 **Consequences:**
 - Raw `CMD:<stateId>:<javascript>` / `game exec` stays a diagnostic and probe
   transport, not the agent-facing product API.
@@ -171,10 +182,9 @@ tuner and Civ7-side JavaScript responsibilities until those nodes are extracted.
 - The controller can reduce repeated raw-wrapper verification, but it does not
   remove lifecycle, approval, action legality, hotseat, age-transition, or
   semantic outcome proof.
-- Controller-owned independent gameplay sends remain eliminated unless
-  direct-control has
-  created an exact approved action record and rereads the resulting
-  postcondition.
+- Controller-owned independent gameplay sends remain eliminated. Exact
+  direct-control wire results are raw evidence; the control service owns
+  semantic production completion and postcondition decisions.
 
 ## ADR-008: domain/resources owns resource planning
 

@@ -1,5 +1,5 @@
 import { populationPlaceRequest } from "./population-place-request";
-import { productionChoiceRequest } from "./production-choice-request";
+import { productionChoice } from "./production-choice";
 import { townFocusRequest } from "./town-focus-request";
 export const router = {
   population: {
@@ -9,7 +9,8 @@ export const router = {
   },
   production: {
     choice: {
-      request: productionChoiceRequest,
+      check: productionChoice.check,
+      request: productionChoice.request,
     },
   },
   townFocus: {

@@ -109,6 +109,24 @@ debug/internal and raw telemetry consumers may receive the raw record, and
 AI/service consumers stay blocked until their accepted contract or middleware
 owner exists.
 
+### Production-Choice Disposition
+
+The former production-choice telemetry adapter seed is superseded as of
+2026-07-29. `packages/civ7-direct-control/src/proof/production-choice-telemetry.ts`
+and its focused
+`packages/civ7-direct-control/test/production-choice-telemetry.test.ts` proof
+are retired, and direct-control has no replacement production telemetry owner.
+Direct-control now owns exact production-choice check/send wire atoms only.
+`services/civ7-control` owns `city.production.choice.check` and
+`city.production.choice.request` orchestration, production postcondition
+classification, dispatch uncertainty, bounded post-send checking, and
+no-repeat-after-unverified policy. A future production telemetry contract would
+require a separately accepted owner and must consume those service-owned
+classifications rather than recreating them in direct-control.
+
+The production-choice paragraph below records the accepted historical seed; it
+is not a current owner or test-path claim.
+
 `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts` is the first
 operation-atom adapter owner seed. Its focused proof owner is
 `packages/civ7-direct-control/test/unit-target-telemetry.test.ts`. It adapts
@@ -117,15 +135,15 @@ one unit-target action result shape into separated telemetry validation,
 postcondition, and `outcome_delta` slots while treating the legacy top-level
 `verified` boolean as source evidence only.
 
-`packages/civ7-direct-control/src/proof/production-choice-telemetry.ts` is the
-second operation-atom adapter owner seed. Its focused proof owner is
+`packages/civ7-direct-control/src/proof/production-choice-telemetry.ts` was the
+second operation-atom adapter owner seed. Its focused proof owner was
 `packages/civ7-direct-control/test/production-choice-telemetry.test.ts`. It
-adapts one production-choice result shape into separated telemetry validation,
+adapted one production-choice result shape into separated telemetry validation,
 `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
 postcondition, `outcome_delta`, `blocker_delta`, and evidence-policy slots
 while using `productionPostcondition` as the proof/classification owner. It
-treats the legacy top-level `verified` boolean as source evidence only and
-keeps missing postcondition, validator-blocked no-send, no-state-change,
+treated the legacy top-level `verified` boolean as source evidence only and
+kept missing postcondition, validator-blocked no-send, no-state-change,
 production-state-changed-blocker-still-live, `validation-changed`, and pending
 runtime proof paths no-repeat guarded.
 
@@ -166,10 +184,11 @@ as source evidence only and keeps missing postcondition, validator-blocked
 no-send, `not-sent`, `missing-after`, `engine-front-still-live`,
 `no-state-change`, and pending runtime proof paths no-repeat guarded.
 
-These are TypeScript structural owner seeds only. They do not choose TypeBox or
-Effect Schema, attach broad telemetry adapters to every operation atom,
-implement telemetry persistence, implement AI-ingestion, add procedure
-middleware, prove runtime/live-game behavior, or accept the matrix row.
+The retained adapters are TypeScript structural owner seeds only. They do not
+choose TypeBox or Effect Schema, attach broad telemetry adapters to every
+operation atom, implement telemetry persistence, implement AI-ingestion, add
+procedure middleware, prove runtime/live-game behavior, or accept the matrix
+row.
 
 ## Acceptance Gaps
 
@@ -183,8 +202,8 @@ it does not accept the row. Acceptance still needs:
   cases;
 - broader operation-atom adapters that produce records from existing
   direct-control validation, send, post-read, and postcondition owners
-  beyond the seeded unit-target, production-choice, diplomacy-response,
-  narrative-choice, and notification-dismissal result adapters;
+  beyond the retained unit-target, diplomacy-response, narrative-choice, and
+  notification-dismissal result adapters;
 - final projection implementation tests at the normal CLI, debug/internal
   service, AI-ingestion, and control-service owners, beyond the local telemetry
   projection-separation owner seed;

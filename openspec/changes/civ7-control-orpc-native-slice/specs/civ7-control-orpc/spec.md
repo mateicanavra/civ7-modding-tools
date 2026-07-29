@@ -78,17 +78,25 @@ errors, and server-side callers.
   dismissal sends, validators, postcondition classification, and no-repeat
   proof semantics consumed by the procedure
 
-#### Scenario: Production choice service contract is offered
-- **WHEN** `city.production.choice.request` exposes its caller-facing contract
-- **THEN** control-oRPC owns the input schema and normal postcondition
-  classification schema for that service procedure
+#### Scenario: Production choice service contracts are offered
+- **WHEN** `city.production.choice.check` and
+  `city.production.choice.request` expose their caller-facing contracts
+- **THEN** control-oRPC owns their semantic input schema, the read-only
+  availability result, and the mutation result including its normal
+  postcondition classification schema
 - **AND** the input admits only the semantic city production choice request
   shape: city ID plus exactly one valid production args variant
 - **AND** endpoint, session, state, and raw command fields remain
   excluded from procedure input
-- **AND** direct-control remains the runtime/proof owner for production-choice
-  sends, validators, source postcondition classification, and no-repeat proof
-  semantics consumed by the procedure
+- **AND** the city service owns check/request orchestration, postcondition
+  classification, dispatch uncertainty, bounded post-send checking, and
+  no-repeat-after-unverified policy
+- **AND** direct-control owns the exact production-choice check/send wire atoms,
+  including command serialization, runtime validator/send adaptation, and raw
+  evidence snapshots; it does not own the service request orchestration,
+  production postcondition policy, or production telemetry
+- **AND** the generic city-operation validation/request surface rejects
+  `BUILD`, so production cannot bypass the exact atoms or service policy
 
 #### Scenario: Unit target action service contract is offered
 - **WHEN** `unit.target.action.request` exposes its caller-facing contract
@@ -680,22 +688,19 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   `unit-command` validation until separate accepted service reads exist
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI production sends use native city procedure
-- **WHEN** `game play build-production --send` requests a city production
-  choice
+#### Scenario: CLI production checks and sends use native city procedures
+- **WHEN** `game play build-production` checks or sends a city production choice
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send path calls the in-process `city.production.choice.request`
-  server-side client under the `city` router
-- **AND** the procedure's readiness, direct-control production
-  validator, production postcondition projection, and no-repeat policy remain
-  authoritative for the send
-- **AND** the normal JSON result is the semantic city production choice
-  procedure projection without raw command/session/state/Tuner details,
+- **AND** the read-only path calls `city.production.choice.check` and the send
+  path calls `city.production.choice.request` through the in-process server-side
+  client under the `city` router
+- **AND** direct-control supplies the exact production check/send wire atoms,
+  while the city service owns request orchestration, production postcondition
+  classification, and no-repeat policy
+- **AND** the normal JSON result is the semantic city production check or
+  request projection without raw command/session/state/Tuner details,
   UI-closeout payloads, send results, before/after runtime probes, or legacy
   `verified`
-- **AND** the read-only `game play build-production` validation path remains
-  direct-control operation validation until a separate accepted service read
-  exists
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI population placement sends use native city procedure
@@ -1293,11 +1298,23 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   APIs for `Game.CityOperations.canStart`, `Game.CityOperations.sendRequest`,
   `CityOperationTypes.BUILD`, city state, and notification blocker evidence
 - **THEN** the context may execute the service-owned
-  `city.production.choice.request` procedure through the existing in-process
-  router and native readiness/proof middleware
+  `city.production.choice.check` read and `city.production.choice.request`
+  mutation through the existing in-process router, with native
+  mutation-readiness middleware on the request leaf
+- **AND** `city.production.choice.check` is listed as a supported game-UI read
+  when the required ambient validation APIs are present
 - **AND** `city.production.choice.request` is listed as a supported game-UI
-  mutation only when controller proof and the required ambient validation,
-  send, and blocker-read APIs are present
+  mutation only when controller proof and the required ambient validation and
+  send APIs are present
+- **AND** the game UI adapter implements only the exact check/send runtime atoms
+  and raw evidence reads; the city service owns check/request orchestration,
+  postcondition classification, and no-repeat-after-unverified policy
+- **AND** production check/send atoms invoke `CityOperations.BUILD` directly
+  without selecting a city, moving a plot cursor, or closing interface state
+- **AND** a non-throwing `sendRequest` call proves dispatch invocation rather
+  than synchronous engine acknowledgement
+- **AND** missing observation APIs surface as failed raw probes and cannot
+  confirm the production postcondition or release no-repeat policy
 - **AND** validator-blocked production choices project semantic `not-sent`
   output and do not call the send API
 - **AND** `production-choice-cleared` requires a matching production blocker
@@ -1554,19 +1571,32 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   catalogs, play-thread action, transport expansion, and full `7.3`
   implementation remain pending
 
-### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
+### Requirement: Mutation Procedures Preserve Mutation Proof Semantics
 
-Mutation-capable control procedures SHALL preserve direct-control
-validator-first, postcondition, no-repeat-after-unverified, and runtime-proof
-boundaries.
+Mutation-capable control procedures SHALL preserve validator-first,
+postcondition, no-repeat-after-unverified, and runtime-proof boundaries at
+their accepted owners.
 
 #### Scenario: Mutation request procedure is implemented
 - **WHEN** a mutation-capable procedure sends or requests a Civ7 operation
 - **AND** validators run before command construction/send where the atom has a
   validator
-- **AND** postcondition and proof telemetry classify sent, unverified, stale,
-  unknown, missing-postcondition, and pending-runtime-proof outcomes honestly
+- **AND** postcondition policy classifies sent, unverified, stale, unknown,
+  missing-postcondition, and pending-runtime-proof outcomes honestly
+- **AND** separately accepted telemetry preserves those classifications rather
+  than defining or weakening them
 - **AND** unverified or pending proof paths remain no-repeat guarded
+
+#### Scenario: Production choice policy is service-owned
+- **WHEN** `city.production.choice.check` or
+  `city.production.choice.request` handles a production choice
+- **THEN** the city service orchestrates exact direct-control check/send atoms
+  and owns production postcondition classification, dispatch uncertainty,
+  bounded post-send checking, and no-repeat-after-unverified policy
+- **AND** direct-control returns raw validator, send, and snapshot evidence
+  without exposing a `requestCiv7ProductionChoice` orchestration wrapper
+- **AND** direct-control does not own production postcondition/proof policy or a
+  production-choice telemetry adapter
 
 #### Scenario: Closeout-style mutation projection is shared
 - **WHEN** notification dismissal, narrative choice, diplomacy response, or

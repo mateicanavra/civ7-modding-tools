@@ -3,6 +3,47 @@ import GamePlayBuildProduction from "../../../../src/commands/game/play/build-pr
 import { type FakeTunerServer, startFakeTunerServer } from "../../../support/tuner-socket-server";
 
 describe("game play production commands", () => {
+  test("routes production dry runs through the service check procedure", async () => {
+    const server = await startProductionTunerServer();
+    const writes: string[] = [];
+    const log = vi
+      .spyOn(GamePlayBuildProduction.prototype, "log")
+      .mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
+    try {
+      const { port } = server.address();
+      await GamePlayBuildProduction.run([
+        "--host",
+        "127.0.0.1",
+        "--port",
+        String(port),
+        "--city-id",
+        '{"owner":0,"id":65536,"type":25}',
+        "--unit-type",
+        "1558890441",
+        "--json",
+      ]);
+
+      const payload = JSON.parse(writes.join("")) as {
+        ok: true;
+        result: ProductionChoiceCheckResult;
+      };
+      expect(payload.result).toEqual({
+        cityId: { owner: 0, id: 65536, type: 25 },
+        args: { UnitType: 1558890441 },
+        available: true,
+      });
+      expect(productionChoiceCalls(server.received, "checkProductionChoice")).toHaveLength(1);
+      expect(productionChoiceCalls(server.received, "sendProductionChoice")).toHaveLength(0);
+      expect(server.received.some((message) => message.includes("validateOperation"))).toBe(false);
+      expectNoProductionUiMutationWire(server.received);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test("routes city unit production sends through the native city production procedure", async () => {
     const server = await startProductionTunerServer();
     const writes: string[] = [];
@@ -30,19 +71,15 @@ describe("game play production commands", () => {
         ok: true;
         result: ProductionChoiceSendResult;
       };
-      expect(payload.result.sent).toBe(true);
       expect(payload.result.status).toBe("sent-confirmed");
       expect(payload.result.cityId).toEqual({ owner: 0, id: 65536, type: 25 });
       expect(payload.result.args).toEqual({ UnitType: 1558890441 });
-      expect(payload.result.validation).toEqual({ beforeValid: true, afterValid: true });
       expect(payload.result.postcondition).toMatchObject({
         classification: "production-choice-cleared",
         outcome: "cleared",
         confidence: "confirmed",
         confirmed: true,
         noRepeatAfterUnverified: false,
-        productionStateChanged: true,
-        blockerStillLive: false,
       });
       expect(payload.result.nextSteps[0]).toMatchObject({
         kind: "refresh-attention",
@@ -53,12 +90,12 @@ describe("game play production commands", () => {
       expect(server.received.some((message) => message.includes('"UnitType":1558890441'))).toBe(
         true
       );
-      expect(server.received.some((message) => message.includes("readProductionChoice"))).toBe(
-        true
-      );
+      expect(productionChoiceCalls(server.received, "checkProductionChoice")).toHaveLength(1);
+      expect(productionChoiceCalls(server.received, "sendProductionChoice")).toHaveLength(1);
       expect(
         server.received.some((message) => message.includes('sendOperation("city-operation"'))
       ).toBe(false);
+      expectNoProductionUiMutationWire(server.received);
     } finally {
       log.mockRestore();
       await server.close();
@@ -96,19 +133,15 @@ describe("game play production commands", () => {
         ok: true;
         result: ProductionChoiceSendResult;
       };
-      expect(payload.result.sent).toBe(true);
       expect(payload.result.status).toBe("sent-confirmed");
       expect(payload.result.cityId).toEqual({ owner: 0, id: 65536, type: 1 });
       expect(payload.result.args).toEqual({ ConstructibleType: 713967338, X: 22, Y: 31 });
-      expect(payload.result.validation).toEqual({ beforeValid: true, afterValid: true });
       expect(payload.result.postcondition).toMatchObject({
         classification: "production-choice-cleared",
         outcome: "cleared",
         confidence: "confirmed",
         confirmed: true,
         noRepeatAfterUnverified: false,
-        productionStateChanged: true,
-        blockerStillLive: false,
       });
       expect(payload.result.nextSteps[0]).toMatchObject({
         kind: "refresh-attention",
@@ -121,18 +154,12 @@ describe("game play production commands", () => {
       ).toBe(true);
       expect(server.received.some((message) => message.includes('"X":22'))).toBe(true);
       expect(server.received.some((message) => message.includes('"Y":31'))).toBe(true);
-      expect(server.received.some((message) => message.includes("readProductionChoice"))).toBe(
-        true
-      );
-      expect(server.received.some((message) => message.includes("UI?.Player?.selectCity"))).toBe(
-        true
-      );
-      expect(
-        server.received.some((message) => message.includes("InterfaceMode?.switchToDefault"))
-      ).toBe(true);
+      expect(productionChoiceCalls(server.received, "checkProductionChoice")).toHaveLength(1);
+      expect(productionChoiceCalls(server.received, "sendProductionChoice")).toHaveLength(1);
       expect(
         server.received.some((message) => message.includes('sendOperation("city-operation"'))
       ).toBe(false);
+      expectNoProductionUiMutationWire(server.received);
     } finally {
       log.mockRestore();
       await server.close();
@@ -168,7 +195,6 @@ describe("game play production commands", () => {
         ok: true;
         result: ProductionChoiceSendResult;
       };
-      expect(payload.result.sent).toBe(true);
       expect(payload.result.status).toBe("sent-unverified");
       expect(payload.result.postcondition).toMatchObject({
         classification: "production-state-changed-blocker-still-live",
@@ -176,11 +202,9 @@ describe("game play production commands", () => {
         confidence: "unverified",
         confirmed: false,
         noRepeatAfterUnverified: true,
-        productionStateChanged: true,
-        blockerStillLive: true,
       });
       expect(payload.result.postcondition.reason).toContain(
-        "production-choice notification still blocks"
+        "production-choice blocker remains live"
       );
       expect(payload.result.nextSteps[0]).toMatchObject({
         kind: "do-not-repeat",
@@ -203,9 +227,7 @@ describe("game play production commands", () => {
 type ProductionChoiceSendResult = {
   cityId: { owner: number; id: number; type: number };
   args: Record<string, number>;
-  sent: boolean;
   status: string;
-  validation: { beforeValid: boolean; afterValid: boolean };
   postcondition: {
     classification: string;
     reason: string;
@@ -213,10 +235,14 @@ type ProductionChoiceSendResult = {
     confidence: string;
     confirmed: boolean;
     noRepeatAfterUnverified: boolean;
-    productionStateChanged: boolean | null;
-    blockerStillLive: boolean | null;
   };
   nextSteps: Array<{ kind: string; source: string; label: string }>;
+};
+
+type ProductionChoiceCheckResult = {
+  cityId: { owner: number; id: number; type: number };
+  args: Record<string, number>;
+  available: boolean;
 };
 
 function expectSemanticProductionChoiceOmitsRawRuntimeDetails(result: unknown) {
@@ -253,36 +279,42 @@ async function startProductionTunerServer(
       if (message.includes("evalOk") && message.includes("GameplayMap.getGridWidth")) {
         return [JSON.stringify(tunerHealthSnapshot())];
       }
-      if (message.includes("readProductionChoice")) {
-        const send = message.includes('"send":true');
-        if (send) productionChoiceSent = true;
+      if (message.includes("return JSON.stringify(checkProductionChoice")) {
         return [
           JSON.stringify(
-            productionChoicePayload(
-              send,
-              options.productionPostconditionMode ?? "cleared",
-              productionChoiceSent && !send
+            productionChoiceCheck(
+              productionCityId(message),
+              productionChoiceSent ? "after" : "before",
+              options.productionPostconditionMode ?? "cleared"
             )
           ),
         ];
       }
-      if (message.includes("return JSON.stringify(sendOperation")) {
+      if (message.includes("return JSON.stringify(sendProductionChoice")) {
+        const cityId = productionCityId(message);
+        productionChoiceSent = true;
         return [
           JSON.stringify({
-            sent: true,
-            beforeProductionPostcondition: productionPostconditionSnapshot(
-              "before",
-              options.productionPostconditionMode ?? "cleared"
-            ),
-            afterProductionPostcondition: productionPostconditionSnapshot(
-              "after",
-              options.productionPostconditionMode ?? "cleared"
-            ),
+            ok: true,
+            value: {
+              sent: true,
+              validation: {
+                valid: true,
+                result: { Success: true },
+              },
+              before: productionChoiceSnapshot(
+                "before",
+                options.productionPostconditionMode ?? "cleared",
+                cityId
+              ),
+              after: productionChoiceSnapshot(
+                "after",
+                options.productionPostconditionMode ?? "cleared",
+                cityId
+              ),
+            },
           }),
         ];
-      }
-      if (message.includes("return JSON.stringify(validateOperation")) {
-        return [JSON.stringify(operationValidation(message))];
       }
       return undefined;
     },
@@ -367,43 +399,16 @@ function tunerHealthSnapshot() {
   };
 }
 
-function operationValidation(message: string) {
-  return {
-    host: "127.0.0.1",
-    port: 0,
-    state: { id: "1", name: "Tuner", role: "tuner" },
-    family: "city-operation",
-    operationType: "BUILD",
-    enumValue: "BUILD",
-    target: { cityId: { owner: 0, id: 65536, type: 25 } },
-    args: operationArgs(message),
-    valid: true,
-    result: { Success: true },
-  };
-}
-
-function operationArgs(message = "") {
-  if (message.includes("ConstructibleType")) {
-    return { ConstructibleType: 713967338, X: 22, Y: 31 };
-  }
-  if (message.includes("ProjectType")) return { ProjectType: 12345 };
-  return { UnitType: 1558890441 };
-}
-
-function productionPostconditionSnapshot(
+function productionChoiceSnapshot(
   phase: "before" | "after",
-  mode: "cleared" | "blocker-still-live"
+  mode: "cleared" | "blocker-still-live",
+  cityId = { owner: 0, id: 65536, type: 25 }
 ) {
-  const cityId = { owner: 0, id: 65536, type: 25 };
   const notification = {
     id: { owner: 0, id: 6, type: 20 },
     type: 1090224621,
     typeName: "NOTIFICATION_CHOOSE_CITY_PRODUCTION",
     target: cityId,
-    matchesCity: true,
-    canUserDismiss: false,
-    expired: true,
-    dismissed: false,
   };
   return {
     cityId,
@@ -411,9 +416,7 @@ function productionPostconditionSnapshot(
       ok: true,
       value: {
         id: cityId,
-        population: 3,
-        isTown: false,
-        location: { x: 26, y: 36 },
+        observedCityId: cityId,
       },
     },
     buildQueue: {
@@ -426,9 +429,7 @@ function productionPostconditionSnapshot(
         queueLength: 1,
       },
     },
-    selectedCityId: { ok: true, value: phase === "before" ? cityId : null },
     blocker: { ok: true, value: mode === "cleared" && phase === "after" ? 0 : 1090224621 },
-    canEndTurn: { ok: true, value: mode === "cleared" && phase === "after" },
     blockingProductionNotification: {
       ok: true,
       value: mode === "blocker-still-live" || phase === "before" ? notification : null,
@@ -436,33 +437,41 @@ function productionPostconditionSnapshot(
   };
 }
 
-function productionChoicePayload(
-  send: boolean,
-  mode: "cleared" | "blocker-still-live",
-  settled = false
+function productionChoiceCheck(
+  cityId: { owner: number; id: number; type: number },
+  phase: "before" | "after",
+  mode: "cleared" | "blocker-still-live"
 ) {
-  const cityId = { owner: 0, id: 65536, type: 25 };
-  const before = productionPostconditionSnapshot("before", mode);
-  const after = productionPostconditionSnapshot(settled || send ? "after" : "before", mode);
   return {
-    cityId,
-    args: { UnitType: 1558890441 },
-    beforeValidation: { ok: true, value: { Success: true } },
-    afterValidation: { ok: true, value: { Success: true } },
-    sent: send,
-    sendResult: send
-      ? { ok: true, value: true }
-      : { ok: false, skipped: true, reason: "send not requested" },
-    beforeProductionPostcondition: before,
-    afterProductionPostcondition: after,
-    ui: {
-      cityActivation: send
-        ? { ok: true, value: { selectedCityId: cityId } }
-        : { ok: false, skipped: true, reason: "read-only production choice status" },
-      interfaceClose: send
-        ? { ok: true, value: { selectedCityId: null, interfaceMode: "INTERFACEMODE_DEFAULT" } }
-        : { ok: false, skipped: true, reason: "send not requested" },
-    },
-    notes: ["This mirrors the official production chooser path."],
+    valid: true,
+    result: { Success: true },
+    snapshot: productionChoiceSnapshot(phase, mode, cityId),
+  };
+}
+
+function productionChoiceCalls(messages: ReadonlyArray<string>, helper: string): string[] {
+  return messages.filter((message) => message.includes(`return JSON.stringify(${helper}`));
+}
+
+function expectNoProductionUiMutationWire(messages: ReadonlyArray<string>): void {
+  for (const uiMutation of [
+    "lookAtID",
+    "selectCity",
+    "PlotCursor",
+    "deselectAllCities",
+    "switchToDefault",
+  ]) {
+    expect(
+      messages.some((message) => message.includes(uiMutation)),
+      uiMutation
+    ).toBe(false);
+  }
+}
+
+function productionCityId(message: string): { owner: number; id: number; type: number } {
+  return {
+    owner: 0,
+    id: 65_536,
+    type: message.includes('"ConstructibleType":713967338') ? 1 : 25,
   };
 }

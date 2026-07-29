@@ -570,6 +570,27 @@ describe("unit upgrade/resettle control-oRPC procedures", () => {
     expectSemanticUnitCommandOmitsRawRuntimeDetails(result);
   });
 
+  test("does not trust dispatchStatus on a foreign thrown object", async () => {
+    const fake = fakeContext({
+      upgradeChecks: [validation(true)],
+      upgradeSends: [
+        Object.assign(new Error("foreign failure"), { dispatchStatus: "not-dispatched" }),
+      ],
+    });
+
+    const result = await call(
+      Civ7ControlOrpcRouter.unit.upgrade.request,
+      { unitId },
+      { context: fake.context }
+    );
+
+    expect(result).toMatchObject({
+      status: "dispatch-unknown",
+      postcondition: { classification: "missing-postcondition" },
+      nextSteps: [{ kind: "do-not-repeat" }],
+    });
+  });
+
   test("keeps a sent request no-repeat guarded when its separate postcheck fails", async () => {
     const fake = fakeContext({
       resettleChecks: [
@@ -767,7 +788,12 @@ function dispatchError(
   dispatchStatus: Civ7ControlOrpcCommandDispatchStatus,
   message: string
 ): Error & { dispatchStatus: Civ7ControlOrpcCommandDispatchStatus } {
-  return Object.assign(new Error(message), { dispatchStatus });
+  const error = Object.assign(new Error(message), {
+    code: "command-failed" as const,
+    dispatchStatus,
+  });
+  error.name = "Civ7DirectControlError";
+  return error;
 }
 
 function snapshot(

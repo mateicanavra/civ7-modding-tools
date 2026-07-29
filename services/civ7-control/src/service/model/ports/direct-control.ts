@@ -41,8 +41,11 @@ import type {
   Civ7PlotSnapshotInput,
   Civ7PlotSnapshotResult,
   Civ7PopulationPlacementProofSource,
+  Civ7ProductionChoiceCheckResult,
   Civ7ProductionChoiceInput,
-  Civ7ProductionChoiceResultSchema,
+  Civ7ProductionChoiceSendResult,
+  Civ7ProductionChoiceSnapshot,
+  Civ7ProductionChoiceValidationResult,
   Civ7ProgressDashboardInput,
   Civ7ProgressDashboardResult,
   Civ7ProgressionPlayerChoiceResult,
@@ -113,7 +116,10 @@ type Civ7ControlOrpcExpandCityPlacementInput = Readonly<{
   destination: Civ7ControlOrpcMapLocation;
 }>;
 export type Civ7ControlOrpcPlayableStatusResult = Static<typeof Civ7PlayableStatusResultSchema>;
-export type Civ7ControlOrpcProductionChoiceResult = Static<typeof Civ7ProductionChoiceResultSchema>;
+export type Civ7ControlOrpcProductionChoiceValidationResult = Civ7ProductionChoiceValidationResult;
+export type Civ7ControlOrpcProductionChoiceSnapshot = Civ7ProductionChoiceSnapshot;
+export type Civ7ControlOrpcProductionChoiceCheckResult = Civ7ProductionChoiceCheckResult;
+export type Civ7ControlOrpcProductionChoiceSendResult = Civ7ProductionChoiceSendResult;
 export type Civ7ControlOrpcPlayNotificationViewResult = Civ7PlayNotificationViewResult;
 export type Civ7ControlOrpcBattlefieldScanResult = Static<typeof Civ7BattlefieldScanResultSchema>;
 export type Civ7ControlOrpcDestinationAnalysisResult = Static<
@@ -150,10 +156,14 @@ type Civ7ControlOrpcUnitUpgradeInput = Civ7UnitUpgradeInput;
 type Civ7ControlOrpcUnitResettleInput = Civ7UnitResettleInput;
 
 export type Civ7ControlOrpcDirectControlFacade = Readonly<{
-  requestCiv7ProductionChoice(
+  checkCiv7ProductionChoice(
     input: Civ7ProductionChoiceInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcProductionChoiceResult>;
+  ): Promise<Civ7ControlOrpcProductionChoiceCheckResult>;
+  sendCiv7ProductionChoice(
+    input: Civ7ProductionChoiceInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7ControlOrpcProductionChoiceSendResult>;
   requestCiv7NotificationDismissal(
     input: Civ7NotificationDismissInput,
     options: Civ7DirectControlOptions | undefined

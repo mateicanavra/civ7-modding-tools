@@ -10,11 +10,6 @@ import {
   type Civ7PopulationPlacementPostconditionSnapshot,
   populationPlacementPostcondition,
 } from "./population-postconditions.js";
-import {
-  type Civ7ProductionPostcondition,
-  type Civ7ProductionPostconditionSnapshot,
-  productionPostconditionFor,
-} from "./production-postconditions.js";
 import { operationRouterSource } from "./router.js";
 import type {
   Civ7OperationFamily,
@@ -35,7 +30,6 @@ export type Civ7OperationRequestResult = Readonly<{
   verified: boolean;
   postcondition?: Civ7UnitOperationPostcondition;
   populationPostcondition?: Civ7PopulationPlacementPostcondition;
-  productionPostcondition?: Civ7ProductionPostcondition;
 }>;
 
 type OperationRequestDependencies = Readonly<{
@@ -186,8 +180,6 @@ async function requestCiv7Operation(
     afterPostcondition?: Civ7UnitOperationPostconditionSnapshot;
     beforePopulationPostcondition?: Civ7PopulationPlacementPostconditionSnapshot;
     afterPopulationPostcondition?: Civ7PopulationPlacementPostconditionSnapshot;
-    beforeProductionPostcondition?: Civ7ProductionPostconditionSnapshot;
-    afterProductionPostcondition?: Civ7ProductionPostconditionSnapshot;
   }>(command, "Civ7 operation request");
   const after = await validateCiv7Operation(family, input, options, dependencies);
   const sent = sentPayload.sent === true;
@@ -209,25 +201,12 @@ async function requestCiv7Operation(
     sentPayload.beforePopulationPostcondition,
     sentPayload.afterPopulationPostcondition
   );
-  const productionPostcondition = productionPostconditionFor(
-    family,
-    input,
-    sent,
-    before,
-    after,
-    sentPayload.beforeProductionPostcondition,
-    sentPayload.afterProductionPostcondition
-  );
   const operationVerified = postcondition
     ? postcondition.classification !== "not-sent" &&
       postcondition.classification !== "no-state-change"
     : populationPostcondition
       ? populationPlacementRequestVerified(populationPostcondition.classification)
-      : productionPostcondition
-        ? productionPostcondition.classification !== "not-sent" &&
-          productionPostcondition.classification !== "no-state-change" &&
-          productionPostcondition.classification !== "production-state-changed-blocker-still-live"
-        : command.output.length > 0 && sent;
+      : command.output.length > 0 && sent;
   return {
     before,
     command,
@@ -236,7 +215,6 @@ async function requestCiv7Operation(
     verified: operationVerified,
     postcondition,
     populationPostcondition,
-    productionPostcondition,
   };
 }
 
@@ -245,6 +223,13 @@ function validateOperationInput(
   input: Civ7OperationInput
 ): void {
   validateIdentifier(input.operationType, "operationType");
+  if (family === "city-operation" && input.operationType === "BUILD") {
+    throw new Civ7DirectControlError(
+      "command-failed",
+      "city-operation BUILD must use the exact production choice check/send atoms",
+      { dispatchStatus: "not-dispatched" }
+    );
+  }
   if (family === "unit-operation" && !("unitId" in input)) {
     throw new Civ7DirectControlError("command-failed", `${family} requires unitId`);
   }

@@ -1,7 +1,7 @@
 import type { InferContractRouterInputs, InferContractRouterOutputs } from "@orpc/contract";
 
 import { populationPlaceRequest } from "./population-place-request";
-import { productionChoiceRequest } from "./production-choice-request";
+import { productionChoice } from "./production-choice";
 import { townFocusRequest } from "./town-focus-request";
 
 export const contract = {
@@ -12,7 +12,8 @@ export const contract = {
   },
   production: {
     choice: {
-      request: productionChoiceRequest,
+      check: productionChoice.check,
+      request: productionChoice.request,
     },
   },
   townFocus: {
@@ -28,6 +29,9 @@ export const contract = {
 export type Civ7CityPopulationPlacementInput = InferContractRouterInputs<
   typeof contract
 >["population"]["place"]["request"];
+export type Civ7CityProductionChoiceInput = InferContractRouterInputs<
+  typeof contract
+>["production"]["choice"]["check"];
 export type Civ7CityTownFocusChangeInput = InferContractRouterInputs<
   typeof contract
 >["townFocus"]["change"]["request"];
@@ -37,6 +41,9 @@ export type Civ7CityTownFocusReviewInput = InferContractRouterInputs<
 export type Civ7CityPopulationPlacementResult = InferContractRouterOutputs<
   typeof contract
 >["population"]["place"]["request"];
+export type Civ7CityProductionChoiceCheckResult = InferContractRouterOutputs<
+  typeof contract
+>["production"]["choice"]["check"];
 export type Civ7CityProductionChoiceResult = InferContractRouterOutputs<
   typeof contract
 >["production"]["choice"]["request"];

@@ -857,7 +857,10 @@ export class Civ7MutationProofBoundaryInvalidError extends ORPCTaggedError(
 
 export const Civ7ProductionChoiceUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("city.production.choice.request"),
+    procedureKey: Type.Union([
+      Type.Literal("city.production.choice.check"),
+      Type.Literal("city.production.choice.request"),
+    ]),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
@@ -872,7 +875,7 @@ export class Civ7ProductionChoiceUnavailableError extends ORPCTaggedError(
   "Civ7ProductionChoiceUnavailableError",
   {
     code: "PRODUCTION_CHOICE_UNAVAILABLE",
-    message: "Direct-control production choice request failed.",
+    message: "Production choice validation failed.",
     schema: toStandardSchema(Civ7ProductionChoiceUnavailableErrorDataSchema),
     status: 503,
   }

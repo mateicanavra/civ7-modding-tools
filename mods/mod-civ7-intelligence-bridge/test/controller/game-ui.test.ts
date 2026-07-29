@@ -427,10 +427,11 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(serialized).not.toContain('"command"');
   });
 
-  test("executes production choice through game UI service dependency", async () => {
+  test("checks and requests production choice through game UI service procedures", async () => {
     const sendCalls: unknown[] = [];
     const target = gameUiNotificationTarget(notificationId, {
       notificationTarget: cityId,
+      notificationTypeName: "NOTIFICATION_CHOOSE_CITY_PRODUCTION",
       productionChoice: {
         cityId,
         canStart: true,
@@ -454,12 +455,27 @@ describe("Civ7 game UI controller bootstrap", () => {
       controller: {
         supportedProcedures: expect.arrayContaining([
           {
+            procedureKey: "city.production.choice.check",
+            risk: "read-only",
+          },
+          {
             procedureKey: "city.production.choice.request",
             risk: "mutation",
           },
         ]),
       },
     });
+
+    const check = await bridge.city.production.choice.check(
+      { cityId, args: productionArgs },
+      { context: { correlationId: "game-ui-production-check-1" } }
+    );
+    expect(check).toEqual({
+      cityId,
+      args: productionArgs,
+      available: true,
+    });
+    expect(sendCalls).toEqual([]);
 
     const response = await bridge.city.production.choice.request(
       { cityId, args: productionArgs },
@@ -469,17 +485,11 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(response).toMatchObject({
       cityId,
       args: productionArgs,
-      sent: true,
       status: "sent-confirmed",
-      validation: {
-        beforeValid: true,
-        afterValid: true,
-      },
       postcondition: {
         classification: "production-choice-cleared",
         confirmed: true,
         noRepeatAfterUnverified: false,
-        blockerStillLive: false,
       },
       nextSteps: [
         {
@@ -489,6 +499,9 @@ describe("Civ7 game UI controller bootstrap", () => {
       ],
     });
     expect(sendCalls).toEqual([productionArgs]);
+    expect(target.UI?.Player).not.toHaveProperty("lookAtID");
+    expect(target.UI?.Player).not.toHaveProperty("selectCity");
+    expect(target.UI?.Player).not.toHaveProperty("deselectAllCities");
     const serialized = JSON.stringify(response);
     expect(serialized).not.toContain("Game.CityOperations");
     expect(serialized).not.toContain("sendRequest");
@@ -503,6 +516,7 @@ describe("Civ7 game UI controller bootstrap", () => {
     const sendCalls: unknown[] = [];
     const target = gameUiNotificationTarget(notificationId, {
       notificationTarget: cityId,
+      notificationTypeName: "NOTIFICATION_CHOOSE_CITY_PRODUCTION",
       productionChoice: {
         cityId,
         canStart: false,
@@ -517,12 +531,7 @@ describe("Civ7 game UI controller bootstrap", () => {
     );
 
     expect(response).toMatchObject({
-      sent: false,
       status: "not-sent",
-      validation: {
-        beforeValid: false,
-        afterValid: false,
-      },
       postcondition: {
         classification: "not-sent",
         confirmed: false,
@@ -552,13 +561,11 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.city.production.choice.request({ cityId, args: productionArgs });
 
     expect(response).toMatchObject({
-      sent: true,
       status: "sent-unverified",
       postcondition: {
-        classification: "production-state-changed-blocker-still-live",
+        classification: "missing-postcondition",
         confirmed: false,
         noRepeatAfterUnverified: true,
-        blockerStillLive: true,
       },
       nextSteps: [
         {
@@ -569,7 +576,7 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
   });
 
-  test("keeps unrelated game UI production blocker evidence guarded", async () => {
+  test("confirms changed production state independently of an unrelated blocker", async () => {
     const otherCityId = { owner: 0, id: 65_537, type: 1 };
     const target = gameUiNotificationTarget(notificationId, {
       notificationTarget: otherCityId,
@@ -584,13 +591,11 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.city.production.choice.request({ cityId, args: productionArgs });
 
     expect(response).toMatchObject({
-      sent: true,
-      status: "sent-unverified",
+      status: "sent-confirmed",
       postcondition: {
-        classification: "production-state-changed-blocker-still-live",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
-        blockerStillLive: true,
+        classification: "production-state-changed",
+        confirmed: true,
+        noRepeatAfterUnverified: false,
       },
     });
   });
@@ -598,6 +603,7 @@ describe("Civ7 game UI controller bootstrap", () => {
   test("keeps live matching game UI production blockers guarded", async () => {
     const target = gameUiNotificationTarget(notificationId, {
       notificationTarget: cityId,
+      notificationTypeName: "NOTIFICATION_CHOOSE_CITY_PRODUCTION",
       productionChoice: {
         cityId,
         canStart: true,
@@ -609,43 +615,38 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.city.production.choice.request({ cityId, args: productionArgs });
 
     expect(response).toMatchObject({
-      sent: true,
       status: "sent-unverified",
       postcondition: {
         classification: "production-state-changed-blocker-still-live",
         confirmed: false,
         noRepeatAfterUnverified: true,
-        blockerStillLive: true,
       },
     });
   });
 
-  test("does not confirm game UI production from selected-city changes alone", async () => {
+  test("rejects malformed production validator evidence without sending", async () => {
+    const sendCalls: unknown[] = [];
     const target = gameUiNotificationTarget(notificationId, {
-      notificationTarget: cityId,
-      selectedCityId: cityId,
       productionChoice: {
         cityId,
-        canStart: true,
-        changeProductionStateOnSend: false,
-        clearSelectedCityOnSend: true,
+        onSend: (args) => sendCalls.push(args),
       },
     });
+    if (target.Game?.CityOperations != null) {
+      target.Game.CityOperations.canStart = () => ({ Success: "yes" });
+    }
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.city.production.choice.request({ cityId, args: productionArgs });
-
-    expect(response).toMatchObject({
-      sent: true,
-      status: "sent-unverified",
-      postcondition: {
-        classification: "no-state-change",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
-        productionStateChanged: false,
-        blockerStillLive: true,
+    await expect(
+      bridge.city.production.choice.request({ cityId, args: productionArgs })
+    ).rejects.toMatchObject({
+      code: "PRODUCTION_CHOICE_UNAVAILABLE",
+      data: {
+        procedureKey: "city.production.choice.request",
+        source: "direct-control-facade",
       },
     });
+    expect(sendCalls).toEqual([]);
   });
 
   test("executes assign-worker population placement through game UI service dependency", async () => {
@@ -3577,7 +3578,6 @@ function gameUiNotificationTarget(
       clearBlockerOnSend?: boolean;
       blockerReadFailsAfterSend?: boolean;
       changeProductionStateOnSend?: boolean;
-      clearSelectedCityOnSend?: boolean;
       onSend?: (args: Readonly<Record<string, number>>) => void;
     };
     populationPlacement?: {
@@ -3694,7 +3694,6 @@ function gameUiNotificationTarget(
   let unitTargetSent = false;
   let unitCommandSent = false;
   let lastUnitCommandOperationType: string | null = null;
-  let selectedCityCleared = false;
   const readyCity = options.readyCity;
   const blocksTurnAdvancement = options.blocksTurnAdvancement ?? true;
   const notification = {
@@ -3810,7 +3809,9 @@ function gameUiNotificationTarget(
             get: (id) =>
               componentIdEqual(id, options.productionChoice?.cityId)
                 ? {
+                    id,
                     isTown: false,
+                    location: { x: 26, y: 36 },
                     BuildQueue: {
                       currentProductionTypeHash:
                         productionSent &&
@@ -3963,12 +3964,7 @@ function gameUiNotificationTarget(
           options.unitCommand.advanceQueueOnSend !== false
             ? (options.unitCommand.nextReadyUnitId ?? null)
             : (options.firstReadyUnitId ?? null),
-        getHeadSelectedCity: () => (selectedCityCleared ? null : (options.selectedCityId ?? null)),
-        deselectAllCities: () => {
-          if (options.productionChoice?.clearSelectedCityOnSend === true) {
-            selectedCityCleared = true;
-          }
-        },
+        getHeadSelectedCity: () => options.selectedCityId ?? null,
         deselectAllUnits: () => options.turnCompletion?.onDeselect?.(),
       },
     },

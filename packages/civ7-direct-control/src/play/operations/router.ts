@@ -83,119 +83,6 @@ export function operationRouterSource(): string {
         expansionPlotIndexes: probe(() => Array.isArray(expansion?.Plots) ? expansion.Plots : []),
       };
     };
-    const componentKey = (value) => {
-      const id = toComponentId(value);
-      return id ? id.owner + ":" + id.id + ":" + (id.type ?? "") : "";
-    };
-    const notificationValue = (notification, names) => {
-      for (const name of names) {
-        if (notification && Object.prototype.hasOwnProperty.call(notification, name)) return notification[name];
-        const getter = "get" + name;
-        if (typeof notification?.[getter] === "function") {
-          try {
-            return notification[getter]();
-          } catch {}
-        }
-      }
-      return null;
-    };
-    const summarizeBuildQueue = (city, args) => {
-      const buildQueue = city?.BuildQueue;
-      if (!buildQueue) return null;
-      return {
-        currentProductionTypeHash: (() => {
-          try {
-            return typeof buildQueue.getCurrentProductionTypeHash === "function"
-              ? buildQueue.getCurrentProductionTypeHash()
-              : buildQueue.currentProductionTypeHash ?? buildQueue.productionTypeHash ?? null;
-          } catch {
-            return buildQueue.currentProductionTypeHash ?? buildQueue.productionTypeHash ?? null;
-          }
-        })(),
-        previousProductionTypeHash: (() => {
-          try {
-            return typeof buildQueue.getPreviousProductionTypeHash === "function"
-              ? buildQueue.getPreviousProductionTypeHash()
-              : buildQueue.previousProductionTypeHash ?? null;
-          } catch {
-            return buildQueue.previousProductionTypeHash ?? null;
-          }
-        })(),
-        productionProgress: (() => {
-          try {
-            return typeof buildQueue.getProductionProgress === "function"
-              ? buildQueue.getProductionProgress()
-              : buildQueue.productionProgress ?? buildQueue.progress ?? null;
-          } catch {
-            return buildQueue.productionProgress ?? buildQueue.progress ?? null;
-          }
-        })(),
-        turnsLeftForRequestedItem: (() => {
-          try {
-            const requestedType = args?.UnitType ?? args?.ConstructibleType ?? args?.ProjectType ?? null;
-            return requestedType == null || typeof buildQueue.getTurnsLeft !== "function"
-              ? null
-              : buildQueue.getTurnsLeft(requestedType);
-          } catch {
-            return null;
-          }
-        })(),
-        queueLength: (() => {
-          try {
-            return typeof buildQueue.getQueue === "function" ? buildQueue.getQueue()?.length ?? null : null;
-          } catch {
-            return null;
-          }
-        })(),
-      };
-    };
-    const productionPostconditionEligible = (family, input) => family === "city-operation" && input.operationType === "BUILD";
-    const readProductionPostconditionSnapshot = (input) => {
-      const cityId = toComponentId(input.cityId);
-      const city = cityId ? globalThis.Cities?.get?.(cityId) : null;
-      return {
-        cityId,
-        city: probe(() => city ? {
-          id: toComponentId(cityId),
-          observedCityId: toComponentId(city.id),
-          population: city.population ?? null,
-          isTown: city.isTown ?? null,
-          location: city.location ?? null,
-        } : null),
-        buildQueue: probe(() => summarizeBuildQueue(city, input.args ?? null)),
-        selectedCityId: probe(() => toComponentId(globalThis.UI?.Player?.getHeadSelectedCity?.())),
-        blocker: probe(() => globalThis.Game?.Notifications?.getEndTurnBlockingType?.(globalThis.GameContext?.localPlayerID)),
-        canEndTurn: probe(() => globalThis.Game?.TurnManager?.canEndTurn?.() ?? null),
-        blockingProductionNotification: probe(() => {
-          const notifications = globalThis.Game?.Notifications;
-          const localPlayerId = globalThis.GameContext?.localPlayerID;
-          if (!notifications || localPlayerId == null) return null;
-          const blockerType = typeof notifications.getEndTurnBlockingType === "function"
-            ? notifications.getEndTurnBlockingType(localPlayerId)
-            : null;
-          const blockerId = typeof notifications.findEndTurnBlocking === "function"
-            ? notifications.findEndTurnBlocking(localPlayerId, blockerType)
-            : null;
-          const id = toComponentId(blockerId);
-          if (!id) return null;
-          const notification = typeof notifications.find === "function" ? notifications.find(id) : null;
-          const type = typeof notifications.getType === "function" ? notifications.getType(id) : notificationValue(notification, ["Type", "type"]);
-          const typeName = typeof notifications.getTypeName === "function" ? notifications.getTypeName(type) : null;
-          const target = notificationValue(notification, ["Target", "target"]);
-          if (!String(typeName ?? "").includes("CHOOSE_CITY_PRODUCTION")) return null;
-          return {
-            id,
-            type,
-            typeName,
-            target,
-            matchesCity: cityId ? componentKey(target) === componentKey(cityId) : null,
-            canUserDismiss: notificationValue(notification, ["CanUserDismiss", "canUserDismiss"]),
-            expired: notificationValue(notification, ["Expired", "expired"]),
-            dismissed: notificationValue(notification, ["Dismissed", "dismissed"]),
-          };
-        }),
-      };
-    };
     const routerFor = (family) => {
       if (family === "unit-operation") return { router: Game.UnitOperations, enums: UnitOperationTypes, targetKey: "unitId" };
       if (family === "unit-command") return { router: Game.UnitCommands, enums: UnitCommandTypes, targetKey: "unitId" };
@@ -310,7 +197,6 @@ export function operationRouterSource(): string {
       const beforePostcondition = unitPostconditionEligible(family) ? readUnitSnapshot(input) : undefined;
       const populationCityId = populationPostconditionCityId(family, input);
       const beforePopulationPostcondition = populationCityId ? readPopulationPlacementPostconditionSnapshot(populationCityId) : undefined;
-      const beforeProductionPostcondition = productionPostconditionEligible(family, input) ? readProductionPostconditionSnapshot(input) : undefined;
       const before = validateOperation(family, input);
       if (!before.valid) return {
         sent: false,
@@ -320,15 +206,12 @@ export function operationRouterSource(): string {
         afterPostcondition: beforePostcondition,
         beforePopulationPostcondition,
         afterPopulationPostcondition: beforePopulationPostcondition,
-        beforeProductionPostcondition,
-        afterProductionPostcondition: beforeProductionPostcondition,
       };
       const meta = routerFor(family);
       const target = input[meta.targetKey];
       const result = meta.router.sendRequest(target, before.enumValue, input.args ?? {});
       const afterPostcondition = unitPostconditionEligible(family) ? readUnitSnapshot(input) : undefined;
       const afterPopulationPostcondition = populationCityId ? readPopulationPlacementPostconditionSnapshot(populationCityId) : undefined;
-      const afterProductionPostcondition = productionPostconditionEligible(family, input) ? readProductionPostconditionSnapshot(input) : undefined;
-      return { sent: true, before, result, beforePostcondition, afterPostcondition, beforePopulationPostcondition, afterPopulationPostcondition, beforeProductionPostcondition, afterProductionPostcondition };
+      return { sent: true, before, result, beforePostcondition, afterPostcondition, beforePopulationPostcondition, afterPopulationPostcondition };
     };`;
 }

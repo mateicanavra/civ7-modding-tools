@@ -13,6 +13,7 @@ const canonicalProcedureKeys = [
   "attention.current",
   "attention.priorities",
   "city.population.place.request",
+  "city.production.choice.check",
   "city.production.choice.request",
   "city.townFocus.change.request",
   "city.townFocus.review.request",

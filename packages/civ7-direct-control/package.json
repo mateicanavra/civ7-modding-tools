@@ -29,12 +29,6 @@
       "import": "./dist/live-control.js",
       "require": "./dist/live-control.cjs"
     },
-    "./play/operations/production-choice-proof": {
-      "types": "./dist/play/operations/production-choice-proof.d.ts",
-      "bun-source": "./src/play/operations/production-choice-proof.ts",
-      "import": "./dist/play/operations/production-choice-proof.js",
-      "require": "./dist/play/operations/production-choice-proof.cjs"
-    },
     "./play/progression/choice-postconditions": {
       "types": "./dist/play/progression/choice-postconditions.d.ts",
       "bun-source": "./src/play/progression/choice-postconditions.ts",

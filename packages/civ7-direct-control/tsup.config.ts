@@ -7,7 +7,6 @@ export default defineConfig({
     "src/direct-control-error-boundary.ts",
     "src/game-ui/loading-states.ts",
     "src/play/notifications/postconditions.ts",
-    "src/play/operations/production-choice-proof.ts",
     "src/play/progression/choice-postconditions.ts",
     "src/proof/advisor-warning-proof-policy.ts",
     "src/proof/diplomacy-response-proof-policy.ts",

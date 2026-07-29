@@ -65,6 +65,22 @@ export {
   stopCiv7Autoplay,
 } from "./play/autoplay.js";
 export type {
+  Civ7ProductionChoiceCheckResult,
+  Civ7ProductionChoiceInput,
+  Civ7ProductionChoiceSendResult,
+  Civ7ProductionChoiceSnapshot,
+  Civ7ProductionChoiceValidationResult,
+} from "./play/city/production.js";
+export {
+  Civ7ProductionChoiceCheckResultSchema,
+  Civ7ProductionChoiceInputSchema,
+  Civ7ProductionChoiceSendResultSchema,
+  Civ7ProductionChoiceSnapshotSchema,
+  Civ7ProductionChoiceValidationResultSchema,
+  checkCiv7ProductionChoice,
+  sendCiv7ProductionChoice,
+} from "./play/city/production.js";
+export type {
   Civ7TownFocusChangeInput,
   Civ7TownFocusPostcondition,
   Civ7TownFocusPostconditionClassification,
@@ -296,35 +312,6 @@ export type {
   Civ7PopulationPlacementPostconditionClassification,
   Civ7PopulationPlacementPostconditionSnapshot,
 } from "./play/operations/population-postconditions.js";
-export type {
-  Civ7ProductionChoiceCommandPayload,
-  Civ7ProductionChoiceInput,
-  Civ7ProductionChoiceRequestInput,
-  Civ7ProductionChoiceResult,
-} from "./play/operations/production-choice.js";
-export {
-  Civ7ProductionChoiceCommandPayloadSchema,
-  Civ7ProductionChoiceInputSchema,
-  Civ7ProductionChoiceRequestInputSchema,
-  Civ7ProductionChoiceResultSchema,
-  requestCiv7ProductionChoice,
-} from "./play/operations/production-choice.js";
-export type { Civ7ProductionChoicePostconditionOutcome } from "./play/operations/production-choice-proof";
-export {
-  productionChoicePostconditionConfirmed,
-  productionChoicePostconditionOutcome,
-  productionChoiceRequestVerified,
-} from "./play/operations/production-choice-proof";
-export type {
-  Civ7ProductionPostcondition,
-  Civ7ProductionPostconditionClassification,
-  Civ7ProductionPostconditionSnapshot,
-} from "./play/operations/production-postconditions.js";
-export {
-  Civ7ProductionPostconditionClassificationSchema,
-  Civ7ProductionPostconditionSchema,
-  Civ7ProductionPostconditionSnapshotSchema,
-} from "./play/operations/production-postconditions.js";
 export type {
   Civ7OperationFamily,
   Civ7OperationInput,

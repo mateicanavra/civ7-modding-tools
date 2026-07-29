@@ -29,14 +29,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** take production choice through the same exact service
-path proven by unit commands. Split the remaining direct-control production
-wrapper into one-execution check/send wire atoms; let the service own precheck,
-guarded send, postcheck, classification, and no-repeat semantics; route both
-CLI modes through named service procedures; then delete direct-owned
-orchestration and proof policy once telemetry consumers have a qualified
-owner. This is the first city capability to cash in the repeatable convergence
-shape before CLI noun relocation.
+**Current container:** converge town-focus change and project-review behavior
+through the same exact service path now proven by unit commands and production
+choice. Direct-control retains only bounded validator/send/read atoms; the city
+service owns semantic precheck, guarded mutation, postcheck, classification,
+and no-repeat policy; the controller adapts ambient Civ7 runtime calls; the CLI
+projects the named city procedures. Retire the direct-owned town-focus wrapper
+and proof policy only after both change and review semantics have one exact
+service owner.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -53,10 +53,10 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** separate production check from mutation -> expose exact
+**Gradient:** inventory town-focus change/review behavior -> expose exact
 direct-control runtime atoms -> compose semantic check and guarded request
-procedures -> route both CLI modes through the service -> relocate telemetry
-and delete direct-owned production policy -> prove the full control graph ->
+procedures -> route CLI and controller through the service -> delete
+direct-owned orchestration and proof policy -> prove the full control graph ->
 repeat by domain until direct-control exposes only wire atoms and explicit
 diagnostics -> resume noun normalization.
 
@@ -101,6 +101,20 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-29 - Native Production Choice Authority Converged
+
+Production now uses Civ7's exact `CityOperations.canStart(BUILD)` and
+fire-and-forget `sendRequest` path without city selection, cursor mutation, or
+UI closeout. Direct-control owns only strict check/send atoms and raw immutable
+snapshots; the city service owns polling, postcondition classification,
+dispatch uncertainty, and no-repeat policy; the controller and CLI are thin
+adapters. The generic city-operation surface rejects `BUILD`, so no second
+production path survives. Official resources, the full
+direct/service/controller/CLI graph, strict OpenSpec validation, and fresh
+native, architecture, and TypeScript reviews passed. Controller-only event
+wakeups remain explicitly deferred until they can replace one-shot polling
+rather than create a hybrid completion model.
 
 ### 2026-07-29 - Exact Unit Command Authority Converged
 

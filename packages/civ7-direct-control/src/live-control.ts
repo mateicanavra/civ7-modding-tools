@@ -10,6 +10,7 @@ import {
   type Civ7PopulationPlacementProofSource,
   type Civ7SavedGameConfigurationRef,
   captureCiv7WindowShot,
+  checkCiv7ProductionChoice,
   checkCiv7TunerHealth,
   checkCiv7UnitResettle,
   checkCiv7UnitUpgrade,
@@ -53,7 +54,6 @@ import {
   requestCiv7NarrativeChoice,
   requestCiv7NotificationDismissal,
   requestCiv7PlayerOperation,
-  requestCiv7ProductionChoice,
   requestCiv7SavedGameConfigurationLoad,
   requestCiv7TechnologyChoiceCloseout,
   requestCiv7TechnologyTarget,
@@ -64,6 +64,7 @@ import {
   requestCiv7TurnComplete,
   requestCiv7UnitTargetAction,
   resumeCiv7DisplayQueue,
+  sendCiv7ProductionChoice,
   sendCiv7UnitResettle,
   sendCiv7UnitUpgrade,
   suspendCiv7DisplayQueue,
@@ -87,7 +88,8 @@ type Civ7PopulationPlacementResult = Civ7PopulationPlacementProofSource &
 
 /** Provider-neutral live direct-control atoms for qualified host composition. */
 export const liveCiv7DirectControl = {
-  requestCiv7ProductionChoice,
+  checkCiv7ProductionChoice,
+  sendCiv7ProductionChoice,
   requestCiv7NotificationDismissal,
   requestCiv7AdvisorWarningViewed,
   requestCiv7NarrativeChoice,

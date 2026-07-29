@@ -30,7 +30,7 @@ already accepted and is therefore not part of this backlog.
 | Semantic CLI player-agent view  | Full envelope implementation owner, final schema/test owner, debug-separation reviewer/gate owner beyond the recorded CLI owner seed                                      | Local CLI semantic envelope tests plus fixtures proving normal output contains player-agent state/actions and excludes raw service/debug payloads                                                 | Tasks 5.1-5.7, normal CLI runtime-status projection, AI-facing semantic summaries                      |
 | Strategy/intelligence ingestion | AI-ingestion contract owner, schema owner, proof owner, source/freshness label owner                                                                                      | Machine-contract fixtures proving source labels, freshness/evidence labels, action/proof vocabulary, and no dependency on CLI strings/raw probes                                                  | AI corpus artifacts, strategy/playbook records, static profile recipes, model-training telemetry feeds |
 | Debug/internal service output   | Final debug/service hierarchy owner, schema/test owner, command/flag boundary owner                                                                                       | Tests proving raw transport/session/probe/closeout/correlation detail is available only through debug-owned service surfaces and not normal play output or AI ingestion                           | Debug service hierarchy, runtime diagnostics, internal procedure diagnostics                           |
-| Operation/proof telemetry       | Final schema owner, broader operation-atom adapter owners beyond the unit-target and production-choice adapter seeds, projection gate owner, runtime-proof boundary owner | Contract fixtures proving validation, send, post-read, outcome delta, blocker delta, correlation id, evidence policy, stale/unknown classification, and explicit separation from `verified: true` | Telemetry persistence, AI action audit, procedure middleware, semantic CLI proof summaries             |
+| Operation/proof telemetry       | Final schema owner, broader operation-atom adapter owners beyond the retained unit-target, diplomacy-response, narrative-choice, and notification-dismissal seeds, projection gate owner, runtime-proof boundary owner | Contract fixtures proving validation, send, post-read, outcome delta, blocker delta, correlation id, evidence policy, stale/unknown classification, and explicit separation from `verified: true` | Telemetry persistence, AI action audit, procedure middleware, semantic CLI proof summaries             |
 
 Contract-artifact status:
 
@@ -548,6 +548,21 @@ Intake rejection conditions:
 
 ### Operation/Proof Telemetry
 
+#### Current Production-Choice Disposition (2026-07-29)
+
+The former direct-control production-choice telemetry and proof-policy adapter
+paths are deleted and are not current source or proof owners. Direct-control
+now owns exact production check/send wire atoms only, while
+`services/civ7-control` owns production-choice orchestration, dispatch
+uncertainty, bounded post-send checking, postcondition classification, and
+no-repeat-after-unverified policy. Production telemetry has no current owner;
+adding it would require a separately accepted telemetry contract that consumes
+the service-owned classifications.
+
+The production-choice adapter paths and focused proof described as historical
+seeds later in this intake remain provenance for the earlier planning state,
+not current acceptance seeds.
+
 - `foundationThread`: `019e86b7-b08b-72f3-8341-6c78a1285c93`
 - `modelThread`: `019e8b5a-f2ee-7ea2-96bc-8c07dc5ab6cc`
 - `dependencyDirection`: hotseat/autoplay foundation -> AI-intelligence model
@@ -556,20 +571,20 @@ Intake rejection conditions:
   procedure middleware
 - `sourceOwner`: `packages/civ7-direct-control/src/proof/operation-telemetry.ts`
   owner seed for record slot vocabulary, structural constructor, and normal
-  summary boundary; `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts`
-  `packages/civ7-direct-control/src/proof/production-choice-telemetry.ts`,
-  `packages/civ7-direct-control/src/proof/diplomacy-response-telemetry.ts`, and
-  `packages/civ7-direct-control/src/proof/narrative-choice-telemetry.ts` seed
-  the first four operation-result adapters while broader
+  summary boundary; `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts`,
+  `packages/civ7-direct-control/src/proof/diplomacy-response-telemetry.ts`,
+  `packages/civ7-direct-control/src/proof/narrative-choice-telemetry.ts`, and
+  `packages/civ7-direct-control/src/proof/notification-dismissal-telemetry.ts`
+  seed the retained operation-result adapters while broader
   operation-specific adapters remain under their existing operation/proof atom
   owners
 - `proofOwner`: `packages/civ7-direct-control/test/operation-telemetry.test.ts`
   owner-seed proof plus
   `packages/civ7-direct-control/test/unit-target-telemetry.test.ts`,
-  `packages/civ7-direct-control/test/production-choice-telemetry.test.ts`,
-  `packages/civ7-direct-control/test/diplomacy-response-telemetry.test.ts`, and
-  `packages/civ7-direct-control/test/narrative-choice-telemetry.test.ts`
-  for the current adapter seeds; final row proof/gate owner remains pending
+  `packages/civ7-direct-control/test/diplomacy-response-telemetry.test.ts`,
+  `packages/civ7-direct-control/test/narrative-choice-telemetry.test.ts`, and
+  `packages/civ7-direct-control/test/notification-dismissal-telemetry.test.ts`
+  for the retained adapter seeds; final row proof/gate owner remains pending
 - `playerScope`: operation-local, player-scoped, and agent-slot-scoped for
   mutation-facing records; observer/debug scoped for diagnostics
 - `consumerClass`: proof telemetry; AI-intelligence ingestion; debug/internal
@@ -587,10 +602,11 @@ Intake rejection conditions:
   deltas, runtime observation links, and stale/unknown classification
 - `proofLabel`: `pending-telemetry-contract`
 - `acceptanceStatus`: `pending-telemetry-contract`; source/proof owner seed plus
-  unit-target, production-choice, diplomacy-response, and narrative-choice
-  operation-result adapter seeds exist, but telemetry schema owner, broader
-  operation-atom adapters, normal/debug/AI/procedure projection separation
-  tests, and final runtime proof boundary gates are not assigned
+  retained unit-target, diplomacy-response, narrative-choice, and
+  notification-dismissal operation-result adapter seeds exist, but telemetry
+  schema owner, broader operation-atom adapters, normal/debug/AI/procedure
+  projection separation tests, and final runtime proof boundary gates are not
+  assigned; production telemetry has no current owner or adapter seed
 - `blockingDependents`: telemetry persistence, AI ingestion, procedure
   middleware, action audit vocabulary, semantic CLI proof summaries
 - `stopCondition`: stop if telemetry trains or acts on vague `verified: true`,
@@ -601,16 +617,21 @@ Intake rejection conditions:
 
 - `ownerAssignment`: current source evidence is distributed across
   deleted `packages/civ7-direct-control/src/action-approval.ts` approval primitive,
-  `src/play/operations/{validate-request,router,unit-postconditions,population-postconditions,production-postconditions,production-choice,unit-target-action,diplomacy-request,diplomacy-postconditions,narrative-request,narrative-postconditions}.ts`,
+  `src/play/operations/{validate-request,router,unit-postconditions,population-postconditions,unit-target-action,diplomacy-request,diplomacy-postconditions,narrative-request,narrative-postconditions}.ts`,
+  the exact production wire atoms in `src/play/city/production.ts`,
+  the service-owned production policy in
+  `services/civ7-control/src/service/modules/city`, and
   `src/play/notifications/{dismissal-request,verification}.ts`,
   `src/play/turn-completion.ts`, `src/setup/*`, and their public facade
   call-throughs. Current proof owners are focused package suites such as
   `unit-operation.test.ts`, `population-placement.test.ts`,
-  `production-choice.test.ts`, `unit-target-action.test.ts`,
+  `production-choice-atoms.test.ts`, `unit-target-action.test.ts`,
   `diplomacy-response.test.ts`, `narrative-choice.test.ts`,
   `notification-dismissal.test.ts`, `autoplay-and-turn.test.ts`, and
-  setup/lifecycle tests, plus focused CLI command suites where they consume
-  postcondition results. The shared telemetry source/proof owner seed is now
+  setup/lifecycle tests, plus
+  `services/civ7-control/test/behavior/modules/city/city-production-choice-procedure.test.ts`
+  and focused CLI command suites where they consume postcondition results.
+  The shared telemetry source/proof owner seed is now
   `packages/civ7-direct-control/src/proof/operation-telemetry.ts` with focused
   proof in `packages/civ7-direct-control/test/operation-telemetry.test.ts`,
   including no-repeat-guarded summaries for sent-unverified, stale/unknown, and
@@ -620,19 +641,25 @@ Intake rejection conditions:
   `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts`
   with focused proof in
   `packages/civ7-direct-control/test/unit-target-telemetry.test.ts`, adapting
-  one unit-target action result shape into separated telemetry slots, and
+  one unit-target action result shape into separated telemetry slots;
   `packages/civ7-direct-control/src/proof/production-choice-telemetry.ts` with
   focused proof in
   `packages/civ7-direct-control/test/production-choice-telemetry.test.ts`,
-  adapting one production-choice result shape into separated telemetry slots,
-  and `packages/civ7-direct-control/src/proof/diplomacy-response-telemetry.ts`
+  formerly adapted one production-choice result shape, but both paths are now
+  deleted and historical only;
+  `packages/civ7-direct-control/src/proof/diplomacy-response-telemetry.ts`
   with focused proof in
   `packages/civ7-direct-control/test/diplomacy-response-telemetry.test.ts`,
   adapting one diplomacy-response result shape into separated telemetry slots,
   and `packages/civ7-direct-control/src/proof/narrative-choice-telemetry.ts`
   with focused proof in
   `packages/civ7-direct-control/test/narrative-choice-telemetry.test.ts`,
-  adapting one narrative-choice result shape into separated telemetry slots.
+  adapting one narrative-choice result shape into separated telemetry slots,
+  and `packages/civ7-direct-control/src/proof/notification-dismissal-telemetry.ts`
+  with focused proof in
+  `packages/civ7-direct-control/test/notification-dismissal-telemetry.test.ts`,
+  adapting one notification-dismissal result shape into separated telemetry
+  slots.
   Missing before acceptance: a final schema/test owner, broader operation-atom
   adapter owners, and reviewer/gate owner.
 - `writeSet`: this intake authorizes only compatibility-matrix/task/record
@@ -651,10 +678,11 @@ Intake rejection conditions:
   correlation id, source/freshness label, stale/unknown classification, proof
   classes, projection boundaries, acceptance gaps, and stop conditions. The
   current source artifact adds the internal record slot vocabulary,
-  constructor, postcondition sanitizer, normal summary/projection boundary, and first
-  unit-target, production-choice, diplomacy-response, narrative-choice, and
-  notification-dismissal operation-result adapters. Missing before acceptance:
-  a schema/test owner, broader operation-atom adapters, and
+  constructor, postcondition sanitizer, normal summary/projection boundary, and
+  the retained unit-target, diplomacy-response, narrative-choice, and
+  notification-dismissal operation-result adapters. The former
+  production-choice adapter remains historical provenance only. Missing before
+  acceptance: a schema/test owner, broader operation-atom adapters, and
   final consumer-owned projection implementation tests over that record
   contract.
 - `proofPlan`: existing local proof covers validator-first behavior,
@@ -671,14 +699,18 @@ Intake rejection conditions:
   postcondition, and `outcome_delta` into separate telemetry slots while
   refusing to treat a legacy top-level `verified` boolean as confirmed
   postcondition proof; missing postcondition, no-state-change, and
-  pending-runtime-proof summaries remain no-repeat guarded. Production-choice
-  adapter proof verifies that a production result shape maps validation,
+  pending-runtime-proof summaries remain no-repeat guarded. Historical
+  production-choice adapter proof verified that a production result shape
+  mapped validation,
   `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
   postcondition, `outcome_delta`, and `blocker_delta` into separate telemetry
   slots while using `productionPostcondition` as the classification owner;
   missing postcondition, validator-blocked no-send, no-state-change,
   blocker-still-live, `validation-changed`, and pending-runtime-proof paths
-  remain no-repeat guarded. Diplomacy-response
+  remained no-repeat guarded. That deleted adapter and its
+  `productionPostcondition` input are not current owners; current production
+  classification is service-owned and does not establish a telemetry producer.
+  Diplomacy-response
   adapter proof verifies that a diplomacy result shape maps validation,
   `validation_pre`, `send_receipt`, `post_read`, `validation_post`,
   postcondition, `outcome_delta`, and `blocker_delta` into separate telemetry

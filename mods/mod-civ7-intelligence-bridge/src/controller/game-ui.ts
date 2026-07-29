@@ -45,8 +45,10 @@ import {
 } from "./game-ui/population";
 import {
   type Civ7GameUiProductionTarget,
-  civ7GameUiProductionChoiceAvailable,
-  requestCiv7GameUiProductionChoice,
+  checkCiv7GameUiProductionChoice,
+  civ7GameUiProductionChoiceCheckAvailable,
+  civ7GameUiProductionChoiceSendAvailable,
+  sendCiv7GameUiProductionChoice,
 } from "./game-ui/production";
 import {
   type Civ7GameUiProgressionTarget,
@@ -106,7 +108,6 @@ type Civ7GameUiNotifications = NonNullable<
   NonNullable<NonNullable<Civ7GameUiProgressionTarget["Game"]>["Notifications"]>;
 
 type Civ7GameUiPlayer = NonNullable<NonNullable<Civ7GameUiAttentionTarget["UI"]>["Player"]> &
-  NonNullable<NonNullable<Civ7GameUiProductionTarget["UI"]>["Player"]> &
   NonNullable<NonNullable<Civ7GameUiUnitCommandTarget["UI"]>["Player"]>;
 
 type RuntimeProbe<T> = Readonly<{ ok: true; value: T } | { ok: false; error: string }>;
@@ -289,9 +290,7 @@ export type Civ7GameUiRuntimeTarget = {
   MapUnits?: Civ7GameUiUnitTargetActionTarget["MapUnits"];
   Units?: Civ7GameUiUnitTargetActionTarget["Units"] & Civ7GameUiStrategyFrontTarget["Units"];
   Cities?: Civ7GameUiProductionTarget["Cities"] & Civ7GameUiStrategyFrontTarget["Cities"];
-  InterfaceMode?: Civ7GameUiProductionTarget["InterfaceMode"] &
-    Civ7GameUiDiplomacyTarget["InterfaceMode"];
-  PlotCursor?: Civ7GameUiProductionTarget["PlotCursor"];
+  InterfaceMode?: Civ7GameUiDiplomacyTarget["InterfaceMode"];
   Configuration?: {
     getGame?: () => { skipStartButton?: boolean };
   };
@@ -340,8 +339,9 @@ function createCiv7GameUiDirectControlFacade(
   target: Civ7GameUiRuntimeTarget
 ): Civ7ControlOrpcDirectControlFacade {
   return {
-    requestCiv7ProductionChoice: async (input) =>
-      await requestCiv7GameUiProductionChoice(input, target),
+    checkCiv7ProductionChoice: async (input) =>
+      await checkCiv7GameUiProductionChoice(input, target),
+    sendCiv7ProductionChoice: async (input) => await sendCiv7GameUiProductionChoice(input, target),
     requestCiv7NotificationDismissal: async (input) =>
       await requestCiv7GameUiNotificationDismissal(input, target),
     requestCiv7AdvisorWarningViewed: async () => {
@@ -488,7 +488,7 @@ function gameUiSupportedMutationProcedures(target: Civ7GameUiRuntimeTarget): rea
   if (gameUiNotificationDismissalAvailable(target)) {
     supported.push("notifications.dismiss.request");
   }
-  if (civ7GameUiProductionChoiceAvailable(target)) {
+  if (civ7GameUiProductionChoiceSendAvailable(target)) {
     supported.push("city.production.choice.request");
   }
   if (civ7GameUiPopulationPlacementAvailable(target)) {
@@ -535,10 +535,13 @@ function gameUiSupportedMutationProcedures(target: Civ7GameUiRuntimeTarget): rea
 }
 
 function gameUiSupportedReadProcedures(target: Civ7GameUiRuntimeTarget): readonly string[] {
-  if (gameUiControllerMutationProof(target) == null) {
-    return [];
-  }
   const supported: string[] = [];
+  if (civ7GameUiProductionChoiceCheckAvailable(target)) {
+    supported.push("city.production.choice.check");
+  }
+  if (gameUiControllerMutationProof(target) == null) {
+    return supported;
+  }
   if (gameUiAttentionReadAvailable(target)) {
     supported.push("attention.current");
   }

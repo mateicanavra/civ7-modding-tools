@@ -4,6 +4,7 @@ import {
   civ7ControlOrpcErrorCorrelationData,
   civ7ControlOrpcFailureDetail,
 } from "#civ7-control-service/model/dto/correlation";
+import { civ7DirectControlDispatchStatus } from "#civ7-control-service/model/policy/direct-control-failure";
 import {
   civ7MutationNextSteps,
   civ7MutationRequestStatusWithoutGuarded,
@@ -257,20 +258,10 @@ function attemptUnitCommandSend(
     } catch (cause) {
       return {
         ok: false,
-        dispatchStatus: directControlDispatchStatus(cause),
+        dispatchStatus: civ7DirectControlDispatchStatus(cause),
       };
     }
   });
-}
-
-function directControlDispatchStatus(cause: unknown): Civ7ControlOrpcCommandDispatchStatus {
-  if (typeof cause !== "object" || cause === null || !("dispatchStatus" in cause)) {
-    return "indeterminate";
-  }
-  const status = cause.dispatchStatus;
-  return status === "not-dispatched" || status === "dispatched" || status === "indeterminate"
-    ? status
-    : "indeterminate";
 }
 
 type UnitCommandDispatchState = "not-sent" | "sent" | "unknown";

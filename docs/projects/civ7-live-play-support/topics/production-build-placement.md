@@ -13,12 +13,14 @@ City production uses one operation family, but not one argument shape:
 - Town focus projects are not ordinary production; they use
   `city-command CHANGE_GROWTH_MODE { Type, ProjectType, City }`.
 
-Use `game play build-production` for ordinary production choices. Keep
-`game play build-unit` as a stable unit-specific shortcut, but prefer the
-broader command when building new guidance because it keeps the item-kind
-decision explicit. After a mutation request, read `productionPostcondition`
-before treating the choice as closed; a successful `BUILD` request is not by
-itself proof that the production-choice notification stopped blocking turn flow.
+Use `game play build-production` for ordinary production choices. Keep the item
+kind explicit with exactly one of `--unit-type`, `--constructible-type`, or
+`--project-type`. Without `--send`, the command calls the service-owned
+`city.production.choice.check` procedure and reports `result.available`. With
+`--send`, it calls `city.production.choice.request`; read `result.status` and
+`result.postcondition` before treating the choice as closed. A successful
+low-level `BUILD` send is not by itself proof that the production-choice
+notification stopped blocking turn flow.
 
 For the read-only choice surface, prefer:
 
@@ -36,9 +38,10 @@ come from `city.Production` helpers. Turns come from
 when `productionBasis.showTurns` is true; the official chooser also hides `-1`
 turn values.
 
-## Official UI Evidence
+## Official Runtime Evidence
 
-The production chooser maps item kinds into the operation args:
+The official production chooser exposes the native gameplay path. It maps item
+kinds into the operation args:
 
 - `KIND_UNIT` -> `{ UnitType }`
 - `KIND_CONSTRUCTIBLE` -> `{ ConstructibleType }`
@@ -63,11 +66,26 @@ Game.CityOperations.canStart(cityID, CityOperationTypes.BUILD, operationArgs, fa
 Game.CityOperations.sendRequest(cityID, CityOperationTypes.BUILD, operationArgs);
 ```
 
+City selection, camera movement, plot-cursor changes, and chooser closeout are
+presentation behavior around this path; they are not prerequisites of
+`CityOperations.BUILD`. Production control therefore validates and sends the
+native operation without mutating UI state.
+
+The official callers do not consume a return value from `sendRequest`. A
+successful call proves only that dispatch was invoked without throwing, not
+that the engine accepted or completed the choice. The shared control service
+therefore retains bounded authoritative queue/blocker readback for both current
+providers. Native
+`CityProductionChanged` and `CityProductionQueueChanged` events may later
+replace polling when production runs exclusively through the persistent
+controller, but those events are wakeups for a fresh read rather than
+standalone acceptance receipts.
+
 Local anchors:
 
 - `.civ7/outputs/resources/Base/modules/base-standard/ui/production-chooser/panel-production-chooser.js`
   probes production items.
-- `.civ7/outputs/resources/Base/modules/base-standard/ui/production-chooser/production-chooser-helpers.chunk.js`
+- `.civ7/outputs/resources/Base/modules/base-standard/ui/production-chooser/production-chooser-helpers.js`
   maps unit/constructible/project item kinds, handles immediate plot-backed
   sends, and enters placement mode when a chosen item requires it.
 - `.civ7/outputs/resources/Base/modules/base-standard/ui/interface-modes/interface-mode-place-building.js`
@@ -119,25 +137,34 @@ civ7 game play build-production \
   --json
 ```
 
-Project production still needs live proof for common IDs and postconditions.
-The operation shape has official UI support, but the tactical choice should
-come from the live production chooser.
+Project production still needs live proof for common IDs and semantic
+postconditions. The operation shape has official UI support, but the tactical
+choice should come from the live production chooser.
 
 ## Postcondition Contract
 
-`game play build-production --send --json` reports a production-specific
-postcondition for `city-operation BUILD`:
+`game play build-production --send --json` returns the service result under
+`result`. Its `result.status` is `not-sent`, `dispatch-unknown`,
+`sent-confirmed`, or `sent-unverified`; `result.postcondition` carries the
+production-specific proof decision for `city-operation BUILD`:
 
-- `production-choice-cleared`: no matching end-turn-blocking
-  production-choice notification remains for the city.
-- `production-state-changed`: observed city production state changed.
+- `not-sent`: validation or dispatch evidence proves no mutation was sent.
+- `production-choice-cleared`: a matching production blocker existed before
+  the request and the readable post-send blocker state proves it clear.
+- `production-state-changed`: immutable build-queue evidence changed.
 - `production-state-changed-blocker-still-live`: the city production state
   changed, but the same production-choice blocker is still live. Do not repeat
-  the same `BUILD` blindly; inspect notification/chooser closeout state.
+  the same `BUILD` blindly; refresh queue and blocker evidence.
 - `validation-changed`: the subsequent `BUILD` validator changed.
 - `no-state-change`: the request returned, but observed city production state
   and blocker state did not change.
+- `missing-postcondition`: dispatch or required post-send evidence is
+  unavailable or unreadable. Treat the result as unverified and do not repeat
+  until fresh production and blocker evidence is available.
 
-This is a proof boundary, not strategy. A sticky production notification after
-state change is a closeout/notification problem; a clean production choice
-should clear the blocker or reveal a different blocker in the HUD.
+Each postcondition also reports `outcome`, `confidence`, `confirmed`, and
+`noRepeatAfterUnverified`; service-owned `result.nextSteps` carries the
+evidence-based follow-up. This is a proof boundary, not strategy. A sticky
+production notification after state change is a closeout/notification problem;
+a clean production choice should clear the blocker or reveal a different
+blocker in the HUD.

@@ -63,7 +63,6 @@ describe("population placement requests", () => {
         placementStateChanged: true,
       });
       expect(request.postcondition).toBeUndefined();
-      expect(request.productionPostcondition).toBeUndefined();
       expect(server.operationCalls).toEqual([
         {
           kind: "validate",
@@ -144,7 +143,6 @@ describe("population placement requests", () => {
         placementStateChanged: true,
       });
       expect(request.postcondition).toBeUndefined();
-      expect(request.productionPostcondition).toBeUndefined();
       expect(server.operationCalls).toEqual([
         {
           kind: "validate",
