@@ -112,21 +112,21 @@ Source artifacts:
 CLI shortcuts:
 
 - `game play priorities`
-- `game play notifications`
-- `game play notification-queue`
-- `game play dismiss-notification-queue`
+- `game play notifications list`
+- `game play notifications schedule`
+- `game play notifications dismiss-reviewed`
 - `game play topics`
 - `game play end-turn`
-- `game play dismiss-notification`
+- `game play notifications dismiss`
 - `game play advisor-warning`
 
 Norms:
 
 - Always read the HUD before resolving a blocker.
-- Use `game play notification-queue` when multiple notifications need ordered
-  review, especially when informational reports may matter tactically but
-  should not monopolize the play loop.
-- Use `game play dismiss-notification-queue` to bulk-clear eligible
+- Use `game play notifications schedule` when multiple notifications need
+  ordered review, especially when informational reports may matter tactically
+  but should not monopolize the play loop.
+- Use `game play notifications dismiss-reviewed` to bulk-clear eligible
   informational closeout candidates after review; it excludes operation-bearing
   and unclassified notifications.
 - Prefer the specialized operation family over notification dismissal.
@@ -431,7 +431,7 @@ CLI shortcuts:
 
 - `game play topics`
 - `game play rehydrate`
-- `game play notifications`
+- `game play notifications list`
 - `game watch`
 - `game play ready-unit`
 - `game play promotion-readiness`

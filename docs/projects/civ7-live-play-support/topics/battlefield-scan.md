@@ -103,7 +103,7 @@ before choosing between tactical inspections.
 
 The practical sequence for a campaign turn is:
 
-1. `game play notifications --json` to know the current blocker.
+1. `game play notifications list --json` to know the current blocker.
 2. `game play battlefield-scan --x <front-x> --y <front-y> --json` to orient.
 3. `game play target-candidates --x <front-x> --y <front-y> --json` if choosing
    a target owner/city.

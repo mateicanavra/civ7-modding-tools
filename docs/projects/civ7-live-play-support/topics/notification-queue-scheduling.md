@@ -10,7 +10,7 @@ disasters, attacks, great works, and other informational notifications can
 matter for strategy and tactics even when they do not expose a player
 operation, so the bulk surface must classify before it acts.
 
-`game play notification-queue` is the read-only scheduler:
+`game play notifications schedule` is the read-only scheduler:
 
 - it reads the live notification HUD queue;
 - it orders blockers before lower-priority queue items;
@@ -19,7 +19,7 @@ operation, so the bulk surface must classify before it acts.
 - it emits command templates and guardrails;
 - it does not send operations or dismiss notifications.
 
-`game play dismiss-notification-queue` is the bulk closeout command:
+`game play notifications dismiss-reviewed` is the bulk closeout command:
 
 - it reads the same fresh HUD queue;
 - it selects only items classified as informational App UI dismissal
@@ -33,9 +33,9 @@ operation, so the bulk surface must classify before it acts.
 ## Command
 
 ```bash
-civ7 game play notification-queue --json
-civ7 game play dismiss-notification-queue --json
-civ7 game play dismiss-notification-queue \
+civ7 game play notifications schedule --json
+civ7 game play notifications dismiss-reviewed --json
+civ7 game play notifications dismiss-reviewed \
   --send \
   --json
 ```
@@ -82,11 +82,11 @@ agent is at risk of spending too much time on low-risk informational items.
 
 The desired loop is:
 
-1. Read `game play notification-queue --json`.
+1. Read `game play notifications schedule --json`.
 2. Resolve the first end-turn blocker or consciously defer it.
 3. Review informational notifications for tactical implications at the level
    the queue summary/location requires.
-4. Run `game play dismiss-notification-queue --send` to bulk clear eligible
+4. Run `game play notifications dismiss-reviewed --send` to bulk clear eligible
    informational closeouts.
 5. Re-read the queue after any send, dismissal, human input, or slow read.
 

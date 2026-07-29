@@ -113,7 +113,7 @@ Bad uses:
 
 The practical sequence for movement-heavy turns is:
 
-1. `game play notifications --json` to identify the blocker.
+1. `game play notifications list --json` to identify the blocker.
 2. `game play ready-unit --json` to identify the active unit.
 3. `game play destination-analysis --from-x <unit-x> --from-y <unit-y> --to-x <x> --to-y <y> --json`.
 4. Inspect any POI returned by the destination lens.

@@ -5,14 +5,15 @@ import {
 } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
 
-export default class GamePlayNotifications extends Command {
+export default class GamePlayNotificationsList extends Command {
   static summary = "Read live play blockers with operation hints";
   static description =
     "Returns a read-only play-facing view of current notifications, blocker state, selected entities, and likely operation families.";
+  static hiddenAliases = ["game:play:notifications"];
 
   static examples = [
-    "<%= config.bin %> game play notifications --json",
-    "<%= config.bin %> game play notifications --max 10",
+    "<%= config.bin %> game play notifications list --json",
+    "<%= config.bin %> game play notifications list --max 10",
   ];
 
   static flags = {
@@ -37,7 +38,7 @@ export default class GamePlayNotifications extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayNotifications);
+    const { flags } = await this.parse(GamePlayNotificationsList);
     const view = await getCiv7PlayNotificationView({
       host: flags.host,
       port: flags.port,

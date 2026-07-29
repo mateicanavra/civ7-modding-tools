@@ -1,6 +1,6 @@
 import type { Civ7PlayNotificationViewResult } from "@civ7/direct-control";
 import { describe, expect, test, vi } from "vitest";
-import GamePlayNotifications from "../../../../../src/commands/game/play/notifications";
+import GamePlayNotificationsList from "../../../../../src/commands/game/play/notifications/list";
 import { expectNormalPlayPayloadToOmitDebugInternals } from "../../../../support/normal-output-boundary";
 import {
   type FakeTunerServer,
@@ -24,7 +24,7 @@ type NotificationHudCommandPayload = Readonly<{
   view: Civ7PlayNotificationViewResult;
 }>;
 
-describe("game play notifications command", () => {
+describe("game play notifications list command", () => {
   test("materializes diplomacy response options from the notification HUD", async () => {
     const { payload, server } = await runNotificationHud("stale-diplomacy");
     try {
@@ -304,13 +304,13 @@ async function runNotificationHud(mode: NotificationHudMode = "default") {
   const server = await startNotificationHudTunerServer(mode);
   const writes: string[] = [];
   const log = vi
-    .spyOn(GamePlayNotifications.prototype, "log")
+    .spyOn(GamePlayNotificationsList.prototype, "log")
     .mockImplementation((message?: string) => {
       if (message) writes.push(message);
     });
   try {
     const { port } = server.address();
-    await GamePlayNotifications.run(["--host", "127.0.0.1", "--port", String(port), "--json"]);
+    await GamePlayNotificationsList.run(["--host", "127.0.0.1", "--port", String(port), "--json"]);
   } finally {
     log.mockRestore();
   }
@@ -330,13 +330,13 @@ async function runNotificationHudText(mode: NotificationHudMode = "default") {
   const server = await startNotificationHudTunerServer(mode);
   const writes: string[] = [];
   const log = vi
-    .spyOn(GamePlayNotifications.prototype, "log")
+    .spyOn(GamePlayNotificationsList.prototype, "log")
     .mockImplementation((message?: string) => {
       if (message) writes.push(message);
     });
   try {
     const { port } = server.address();
-    await GamePlayNotifications.run(["--host", "127.0.0.1", "--port", String(port)]);
+    await GamePlayNotificationsList.run(["--host", "127.0.0.1", "--port", String(port)]);
   } finally {
     log.mockRestore();
   }

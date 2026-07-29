@@ -60,7 +60,7 @@ production, town-focus, and validation payloads for debugging.
 
 ## Norms
 
-- Use this after `game play notifications --json` identifies a production,
+- Use this after `game play notifications list --json` identifies a production,
   town focus, or population blocker.
 - Use production candidates only as validated live args. Do not rank or choose
   production from this view alone.

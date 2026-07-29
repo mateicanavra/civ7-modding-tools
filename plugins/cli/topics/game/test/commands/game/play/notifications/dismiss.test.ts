@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from "vitest";
-import GamePlayDismissNotification from "../../../../../src/commands/game/play/dismiss-notification";
+import GamePlayNotificationsDismiss from "../../../../../src/commands/game/play/notifications/dismiss";
 import {
   type FakeTunerServer,
   startFakeTunerServer,
@@ -11,7 +11,7 @@ type DismissNotificationMode =
   | "engine-front-train-absent"
   | "engine-front-dismissed";
 
-describe("game play dismiss-notification command", () => {
+describe("game play notifications dismiss command", () => {
   test("dismisses reviewed notifications only with send enabled", async () => {
     const { payload, server } = await runDismissNotification("verified", [
       "--target",
@@ -151,13 +151,13 @@ async function runDismissNotification(mode: DismissNotificationMode, extraArgs: 
   const server = await startDismissNotificationTunerServer(mode);
   const writes: string[] = [];
   const log = vi
-    .spyOn(GamePlayDismissNotification.prototype, "log")
+    .spyOn(GamePlayNotificationsDismiss.prototype, "log")
     .mockImplementation((message?: string) => {
       if (message) writes.push(message);
     });
   try {
     const { port } = server.address();
-    await GamePlayDismissNotification.run([
+    await GamePlayNotificationsDismiss.run([
       "--host",
       "127.0.0.1",
       "--port",

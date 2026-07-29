@@ -30,7 +30,7 @@ the current tuner state.
 
 | Candidate | Official anchor | Helps | Proposed surface | Confidence | Risk |
 |---|---|---|---|---|---|
-| Notification inventory and blocker identity | `.civ7/outputs/resources/Base/modules/base-standard/ui/notification-train/model-notification-train.js:40`; `:45` | replace raw HUD guessing | extend `game play notifications`; add `notification-details` | high | ids expire after actions |
+| Notification inventory and blocker identity | `.civ7/outputs/resources/Base/modules/base-standard/ui/notification-train/model-notification-train.js:40`; `:45` | replace raw HUD guessing | extend `game play notifications list`; add `notification-details` | high | ids expire after actions |
 | Display queue manager | `.civ7/outputs/resources/Base/modules/base-standard/ui/display-queue/display-queue-manager.js:154`; `:174`; `:276`; `:293`; `:336` | UI queue/popup ordering | `game play ui-queue` lens over active, pending, suspended displays | high | module singleton may not be globally reachable |
 | Notification handler map | `.civ7/outputs/resources/Base/modules/base-standard/ui/notification-train/notification-handlers.js:188`; `:222`; `:279`; `:369`; `:407`; `:438`; `:539`; `:565` | replace text matching with official handler categories | static `notification-handler-map` catalog feeding HUD hints | high | registration table still needs a mapping audit |
 | Advisor warning closeout | `.civ7/outputs/resources/Base/modules/base-standard/ui/notification-train/notification-handlers.js:585`; `.civ7/outputs/resources/Base/modules/base-standard/data/advisory.xml:13` | avoid raw dismissal for advisor blockers | keep `advisor-warning`; add `advisor-warnings` read lens | high | WatchOut manager can auto-dismiss in some paths |

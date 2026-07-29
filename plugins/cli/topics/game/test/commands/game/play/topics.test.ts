@@ -10,8 +10,10 @@ describe("game play topics command", () => {
     try {
       await GamePlayTopics.run(["--family", "rhq-ai", "--json"]);
       await GamePlayTopics.run(["--family", "pubsub", "--json"]);
+      await GamePlayTopics.run(["--family", "blockers", "--json"]);
+      await GamePlayTopics.run(["--family", "surface-design", "--json"]);
 
-      const [rhqPayload, eventPayload] = writes.map(
+      const [rhqPayload, eventPayload, blockersPayload, surfacePayload] = writes.map(
         (write) =>
           JSON.parse(write) as {
             ok: true;
@@ -26,6 +28,18 @@ describe("game play topics command", () => {
       expect(eventPayload.topics[0].family).toBe("evented-stream");
       expect(eventPayload.topics[0].commands).toContain("future: game play stream");
       expect(eventPayload.topics[0].boundary).toMatch(/direct-control snapshots/);
+      expect(blockersPayload.topics[0].commands).toEqual(
+        expect.arrayContaining([
+          "game play notifications list",
+          "game play notifications schedule",
+          "game play notifications dismiss",
+          "game play notifications dismiss-reviewed",
+        ])
+      );
+      expect(surfacePayload.topics[0].commands).toContain("game play notifications schedule");
+      expect(surfacePayload.topics[0].commands).not.toContain(
+        "future: game play notifications schedule"
+      );
     } finally {
       log.mockRestore();
     }

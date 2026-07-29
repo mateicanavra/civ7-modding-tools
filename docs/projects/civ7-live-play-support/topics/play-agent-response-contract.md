@@ -121,7 +121,7 @@ should default to a compact result:
 }
 ```
 
-`game play notifications` should default to the queue and next blocker, not all
+`game play notifications list` should default to the queue and next blocker, not all
 raw notification fields. Use `--detail` for required inputs and common actions,
 or the new `--expand hud,operation` vocabulary when implemented. Use `--raw` for
 the underlying notification records.

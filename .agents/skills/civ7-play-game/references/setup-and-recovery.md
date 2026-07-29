@@ -61,7 +61,7 @@ $CLI game play priorities --compact --json   # poll; look at decisionHud.turn + 
 blockers):
 
 1. Read the blockers from the `end-turn --json` validation or
-   `game play notifications --json`.
+   `game play notifications list --json`.
 2. Each blocker maps to a handler in `turn-loop.md` (unit to order, city to set,
    choice pending). Clear them.
 3. Re-validate `end-turn --json`; send only when clear.

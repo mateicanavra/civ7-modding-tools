@@ -46,10 +46,10 @@ is waiting. Work `priorities[]` top-down. Map each `kind` to the handler:
 | diplomacy / first-meet request | Step 3 → `respond-diplomacy` / `respond-first-meet` |
 | ready unit needs orders | Step 4 |
 | city needs production / population to place | Step 5 |
-| informational notifications piling up | `dismiss-notification-queue --send` (after reading) |
+| informational notifications piling up | `notifications dismiss-reviewed --send` (after reading) |
 | `canEndTurn:true`, nothing pending | Step 6 |
 
-If `priorities` is sparse, cross-check with `game play notifications --json`
+If `priorities` is sparse, cross-check with `game play notifications list --json`
 (its `hud.decisionQueue[]` enumerates pending decisions with `requiredInputs`).
 
 ## Step 3 — Choice decisions
@@ -70,11 +70,11 @@ $CLI game play choose-tech --node <nodeType> --send --json   # confirm result.ve
   path; avoid options with a `cost` you cannot afford.
 - **Government / tradition / attribute / celebration:** read options, choose per
   strategy, send. Spend attribute points into the tree matching your path.
-- **Diplomacy / first-meet:** read `notifications`; the decision item carries the
-  ids to echo into `respond-diplomacy` (`--action-id`, `--response-type`) or
-  `respond-first-meet` (`--met-player-id`, `--response-type`/`--response`) — see
-  `command-reference.md`. Default: accept friendly/neutral first-meets; do not
-  declare war unless told to.
+- **Diplomacy / first-meet:** read `notifications list`; the decision item
+  carries the ids to echo into `respond-diplomacy` (`--action-id`,
+  `--response-type`) or `respond-first-meet` (`--met-player-id`,
+  `--response-type`/`--response`) — see `command-reference.md`. Default: accept
+  friendly/neutral first-meets; do not declare war unless told to.
 
 Re-run `priorities` after clearing choices to see what surfaced next.
 

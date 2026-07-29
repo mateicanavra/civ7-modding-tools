@@ -19,7 +19,7 @@ The snapshot should answer four questions:
   falsify that lane over the next few turns?
 
 It should not tell the agent to send operations directly. Every mutation still
-flows through `game play notifications`, ready views, validators, and
+flows through `game play notifications list`, ready views, validators, and
 postconditions.
 
 ## Contract
@@ -57,7 +57,7 @@ The CLI already exposes most building blocks:
 
 ```bash
 civ7 game play rehydrate --json
-civ7 game play notifications --json
+civ7 game play notifications list --json
 civ7 game play ready-unit --json
 civ7 game play ready-city --json
 civ7 game status --json

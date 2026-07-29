@@ -99,7 +99,7 @@ postcondition polling in the CLI result itself.
 
 ## Norms
 
-- Start with `game play notifications --json` and `game play ready-unit --json`.
+- Start with `game play notifications list --json` and `game play ready-unit --json`.
 - Use `resettle-unit` only for a population/Migrant unit whose live command list
   exposes resettle and whose target plot is a current owned district/acquire-tile
   candidate.

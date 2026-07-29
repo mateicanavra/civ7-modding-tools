@@ -1,16 +1,17 @@
 import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
 import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
-import { buildDirectControlOptions } from "../../../adapters/play/direct-control";
+import { buildDirectControlOptions } from "../../../../adapters/play/direct-control";
 
-export default class GamePlayNotificationQueue extends Command {
+export default class GamePlayNotificationsSchedule extends Command {
   static summary = "Read and schedule the current notification decision queue";
   static description =
     "Builds a read-only queue plan for current Civ7 notifications, including guarded informational-dismissal candidates and operation/inspection steps.";
+  static hiddenAliases = ["game:play:notification-queue"];
 
   static examples = [
-    "<%= config.bin %> game play notification-queue --json",
-    "<%= config.bin %> game play notification-queue --max 50",
+    "<%= config.bin %> game play notifications schedule --json",
+    "<%= config.bin %> game play notifications schedule --max 50",
   ];
 
   static flags = {
@@ -37,7 +38,7 @@ export default class GamePlayNotificationQueue extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayNotificationQueue);
+    const { flags } = await this.parse(GamePlayNotificationsSchedule);
     const client = createCiv7ControlOrpcServerClient({
       directControl: liveCiv7ControlOrpcDirectControlFacade,
       endpointDefaults: buildDirectControlOptions(flags),

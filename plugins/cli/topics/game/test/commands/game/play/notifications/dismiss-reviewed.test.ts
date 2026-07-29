@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from "vitest";
-import GamePlayDismissNotificationQueue from "../../../../../src/commands/game/play/dismiss-notification-queue";
+import GamePlayNotificationsDismissReviewed from "../../../../../src/commands/game/play/notifications/dismiss-reviewed";
 import {
   type FakeTunerServer,
   startFakeTunerServer,
@@ -7,7 +7,7 @@ import {
 
 type DismissQueueMode = "mixed-queue" | "unit-lost-report";
 
-describe("game play dismiss-notification-queue command", () => {
+describe("game play notifications dismiss-reviewed command", () => {
   test("bulk dismisses only eligible informational queue items with send enabled", async () => {
     const dryRun = await runDismissNotificationQueue("mixed-queue");
     try {
@@ -72,13 +72,13 @@ async function runDismissNotificationQueue(
   const server = await startDismissNotificationQueueTunerServer(mode);
   const writes: string[] = [];
   const log = vi
-    .spyOn(GamePlayDismissNotificationQueue.prototype, "log")
+    .spyOn(GamePlayNotificationsDismissReviewed.prototype, "log")
     .mockImplementation((message?: string) => {
       if (message) writes.push(message);
     });
   try {
     const { port } = server.address();
-    await GamePlayDismissNotificationQueue.run([
+    await GamePlayNotificationsDismissReviewed.run([
       "--host",
       "127.0.0.1",
       "--port",

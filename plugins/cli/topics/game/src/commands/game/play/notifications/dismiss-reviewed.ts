@@ -1,17 +1,18 @@
 import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
 import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
-import { buildDirectControlOptions } from "../../../adapters/play/direct-control";
+import { buildDirectControlOptions } from "../../../../adapters/play/direct-control";
 
-export default class GamePlayDismissNotificationQueue extends Command {
+export default class GamePlayNotificationsDismissReviewed extends Command {
   static summary = "Bulk dismiss reviewed informational notifications from the live queue";
   static description =
-    "Dry-runs or sends App UI dismissals for notification-queue items classified as reviewed informational closeout candidates. It excludes operation-bearing and unclassified notifications.";
+    "Dry-runs or sends App UI dismissals for scheduled items classified as reviewed informational closeout candidates. It excludes operation-bearing and unclassified notifications.";
+  static hiddenAliases = ["game:play:dismiss-notification-queue"];
 
   static examples = [
-    "<%= config.bin %> game play dismiss-notification-queue --json",
-    "<%= config.bin %> game play dismiss-notification-queue --send --json",
-    "<%= config.bin %> game play dismiss-notification-queue --send --max-dismissals 3",
+    "<%= config.bin %> game play notifications dismiss-reviewed --json",
+    "<%= config.bin %> game play notifications dismiss-reviewed --send --json",
+    "<%= config.bin %> game play notifications dismiss-reviewed --send --max-dismissals 3",
   ];
 
   static flags = {
@@ -48,7 +49,7 @@ export default class GamePlayDismissNotificationQueue extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayDismissNotificationQueue);
+    const { flags } = await this.parse(GamePlayNotificationsDismissReviewed);
     const client = createCiv7ControlOrpcServerClient({
       directControl: liveCiv7ControlOrpcDirectControlFacade,
       endpointDefaults: buildDirectControlOptions(flags),

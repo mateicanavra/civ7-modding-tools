@@ -38,14 +38,14 @@ const PUBLIC_COMMAND_IDS = [
   "game:play:consider-town-project",
   "game:play:consider-traditions",
   "game:play:destination-analysis",
-  "game:play:dismiss-notification",
-  "game:play:dismiss-notification-queue",
   "game:play:end-turn",
   "game:play:expand-city",
   "game:play:formation-snapshot",
   "game:play:front-summary",
-  "game:play:notification-queue",
-  "game:play:notifications",
+  "game:play:notifications:dismiss",
+  "game:play:notifications:dismiss-reviewed",
+  "game:play:notifications:list",
+  "game:play:notifications:schedule",
   "game:play:priorities",
   "game:play:progress-dashboard",
   "game:play:promotion-readiness",
@@ -74,6 +74,15 @@ const PUBLIC_COMMAND_IDS = [
   "game:watch",
 ] as const;
 
+const PUBLIC_HIDDEN_ALIASES: Partial<
+  Record<(typeof PUBLIC_COMMAND_IDS)[number], readonly string[]>
+> = {
+  "game:play:notifications:dismiss": ["game:play:dismiss-notification"],
+  "game:play:notifications:dismiss-reviewed": ["game:play:dismiss-notification-queue"],
+  "game:play:notifications:list": ["game:play:notifications"],
+  "game:play:notifications:schedule": ["game:play:notification-queue"],
+};
+
 const PUBLIC_TOPICS = {
   game: {
     description: "Operate a running Civilization VII session through local tooling",
@@ -90,6 +99,9 @@ const PUBLIC_TOPICS = {
   "game:play": {
     description: "Turn-by-turn live-play shortcuts over direct-control",
   },
+  "game:play:notifications": {
+    description: "Read, schedule, and dismiss live Civ7 notifications",
+  },
   "game:play:screen": {
     description: "Inspect and dismiss App UI display-queue screens (cinematic moments)",
   },
@@ -105,7 +117,7 @@ type PackageManifest = Readonly<{
 }>;
 
 type OclifManifest = Readonly<{
-  commands?: Record<string, { aliases?: unknown; id?: unknown }>;
+  commands?: Record<string, { aliases?: unknown; hiddenAliases?: unknown; id?: unknown }>;
 }>;
 
 describe("game command surface", () => {
@@ -119,6 +131,7 @@ describe("game command surface", () => {
     for (const id of PUBLIC_COMMAND_IDS) {
       expect(commands[id]?.id).toBe(id);
       expect(commands[id]?.aliases).toEqual([]);
+      expect(commands[id]?.hiddenAliases).toEqual(PUBLIC_HIDDEN_ALIASES[id] ?? []);
     }
 
     const packageManifest = readJson<PackageManifest>(join(packageRoot, "package.json"));

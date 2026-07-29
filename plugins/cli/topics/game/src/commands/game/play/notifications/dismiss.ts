@@ -6,16 +6,17 @@ import {
   buildDirectControlOptions,
   emitPlayResult,
   parseComponentId,
-} from "../../../adapters/play/direct-control";
+} from "../../../../adapters/play/direct-control";
 
-export default class GamePlayDismissNotification extends Command {
+export default class GamePlayNotificationsDismiss extends Command {
   static summary = "Inspect or dismiss a reviewed notification";
   static description =
     "Reads a notification through App UI state and optionally dismisses it through the native control-oRPC notification procedure when --send is explicit.";
+  static hiddenAliases = ["game:play:dismiss-notification"];
 
   static examples = [
-    '<%= config.bin %> game play dismiss-notification --target \'{"owner":0,"id":113,"type":20}\' --json',
-    '<%= config.bin %> game play dismiss-notification --target \'{"owner":0,"id":113,"type":20}\' --send --json',
+    '<%= config.bin %> game play notifications dismiss --target \'{"owner":0,"id":113,"type":20}\' --json',
+    '<%= config.bin %> game play notifications dismiss --target \'{"owner":0,"id":113,"type":20}\' --send --json',
   ];
 
   static flags = {
@@ -44,7 +45,7 @@ export default class GamePlayDismissNotification extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayDismissNotification);
+    const { flags } = await this.parse(GamePlayNotificationsDismiss);
     const input = { notificationId: parseComponentId(flags.target, "target") };
     const options = buildDirectControlOptions(flags);
     const result = flags.send

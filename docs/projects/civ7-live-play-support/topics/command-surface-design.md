@@ -29,7 +29,7 @@ game play status
 game play todo
 game play unit <show|targets|preview|check|send|operation>
 game play city <show|production|growth|workers|check|send>
-game play notifications <list|show|schedule|dismiss-reviewed>
+game play notifications <list|show|schedule|dismiss|dismiss-reviewed>
 game play progress <show|tech|culture|tradition|attribute|narrative>
 game play trade <routes|preview|check|send>
 game play objective <show|next|ledger>
@@ -74,8 +74,9 @@ compact play-agent output is introduced.
 | `game play ready-unit` | `game play unit show unit:next` | Also support structured IDs for exact units. |
 | `game play unit-target` | `game play unit targets` and `game play unit send target` | Split read-only target enumeration from mutation. |
 | `game play operation` | `game play unit operation`, `city operation`, `player operation` | Keep generic command as the escape hatch. |
-| `game play notifications` | `game play notifications list` | Preserve raw notification read with `--raw`. |
+| `game play notifications` | `game play notifications list` | Preserve the existing composite blocker, decision-HUD, and notification view. |
 | `game play notification-queue` | `game play notifications schedule` | Make scheduling a notifications subcommand. |
+| `game play dismiss-notification` | `game play notifications dismiss` | Keep explicit single-item review and `--send` mutation. |
 | `game play dismiss-notification-queue` | `game play notifications dismiss-reviewed` | Keep item-level review context and conservative categories. |
 | `game play ready-city` | `game play city show city:ready` | City-specific grammar should own production/growth/worker decisions. |
 | `game play build-production` | `game play city production send` | Add `preview` and `check` before mutation. |
@@ -86,8 +87,8 @@ compact play-agent output is introduced.
 
 - Add aliases only when they are part of a domain-command migration, then teach
   `game play topics` to prefer the new grammar.
-- Keep old commands for live-play continuity until the active play thread and
-  tests use the new names.
+- Keep old paths as hidden aliases for live-play continuity until active callers
+  and references use the canonical names.
 - Soft-deprecate only overloaded forms, not proven command behavior.
 - Every new wrapper should call the existing direct-control package; do not add
   caller-local runtime control.
@@ -104,9 +105,9 @@ compact play-agent output is introduced.
    `ready-unit`, `unit-target`, and generic `operation` from the main tactical
    loop. Risk: high until queued destination and movement postconditions are
    live-smoked.
-2. **Notification namespace.** Move `notifications`, `notification-queue`, and
-   dismiss queue behavior under one noun. Risk: medium because bulk dismissal
-   must stay conservative and item-review gated.
+2. **Notification namespace (landed 2026-07-28).** `list`, `schedule`,
+   `dismiss`, and `dismiss-reviewed` now share one noun; prior flat paths remain
+   hidden aliases. Bulk dismissal stays conservative and item-review gated.
 3. **City namespace.** Group `ready-city`, `build-production`, `build-unit`,
    `assign-worker`, `expand-city`, and town focus workflows. Risk: medium; city
    operations have different arg shapes and placement requirements.

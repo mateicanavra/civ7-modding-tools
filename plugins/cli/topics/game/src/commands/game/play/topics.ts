@@ -77,11 +77,11 @@ const TOPICS: ReadonlyArray<Topic> = [
     ],
     commands: [
       "game play priorities",
-      "game play notifications",
-      "game play notification-queue",
-      "game play dismiss-notification-queue",
+      "game play notifications list",
+      "game play notifications schedule",
+      "game play notifications dismiss-reviewed",
       "game play end-turn",
-      "game play dismiss-notification",
+      "game play notifications dismiss",
       "game play advisor-warning",
     ],
     loadWhen:
@@ -218,9 +218,9 @@ const TOPICS: ReadonlyArray<Topic> = [
     commands: [
       "game play respond-diplomacy",
       "game play respond-first-meet",
-      "game play notifications",
-      "game play notification-queue",
-      "game play dismiss-notification-queue",
+      "game play notifications list",
+      "game play notifications schedule",
+      "game play notifications dismiss-reviewed",
     ],
     loadWhen:
       "when the HUD reports diplomatic action, diplomatic response, first meet, grievance, or relationship pressure",
@@ -238,7 +238,7 @@ const TOPICS: ReadonlyArray<Topic> = [
       "docs/projects/civ7-live-play-support/topics/local-catalog-enrichment.md",
       "docs/projects/civ7-live-play-support/evidence-packs/local-on-disk-read-surfaces.md",
     ],
-    commands: ["game local-data inspect", "game play notifications", "game watch"],
+    commands: ["game local-data inspect", "game play notifications list", "game watch"],
     loadWhen: "when deciding whether to poll the game UI/runtime or read local SQLite/resources",
     boundary:
       "SQLite/resource rows enrich decisions; they are not current legality, validator, or postcondition proof",
@@ -277,7 +277,7 @@ const TOPICS: ReadonlyArray<Topic> = [
       "future: game play todo",
       "future: game play unit targets",
       "future: game play unit preview move",
-      "future: game play notifications schedule",
+      "game play notifications schedule",
       "future: game play city production preview",
       "future: game play progress tech send",
     ],

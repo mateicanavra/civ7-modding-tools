@@ -47,7 +47,7 @@ civ7 game play choose-celebration --options --json
 
 The compact options output lists enabled `GoldenAgeType` hashes, names,
 descriptions, durations, validation status, and ready validate/send templates.
-Use `game play notifications --json` when raw option and validator evidence is
+Use `game play notifications list --json` when raw option and validator evidence is
 needed.
 
 Validate a live celebration choice:

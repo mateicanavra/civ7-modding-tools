@@ -39,7 +39,7 @@ between the read and the send. The tactical frame is therefore:
 Before a unit mutation:
 
 ```bash
-civ7 game play notifications --json
+civ7 game play notifications list --json
 civ7 game play ready-unit --json
 ```
 

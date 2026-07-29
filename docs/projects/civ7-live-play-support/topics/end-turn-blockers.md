@@ -17,7 +17,7 @@ choice surface.
 The useful control pattern is:
 
 1. Read current turn status through `@civ7/direct-control`.
-2. Read `game play notifications` to materialize the active notification,
+2. Read `game play notifications list` to materialize the active notification,
    selected entity ids, and likely operation families.
 3. Prefer the official operation path over raw notification dismissal.
 4. Validate with `canStart` before any mutating request.
@@ -130,7 +130,7 @@ fallback to culture, production, town focus, diplomacy, narrative, advisor, or
 population blockers: the turn-58 culture bug showed that an expired
 notification can still mean the wrong enum or missing target operation was sent.
 
-Before relying on that fallback, read `game play notifications --json`. For
+Before relying on that fallback, read `game play notifications list --json`. For
 `COMMAND_UNITS`, the HUD may include
 `details.kind: "unit-command-reconciliation"` with
 `enabledCloseoutCandidates`. Those candidates scan local-player units for a
@@ -173,7 +173,7 @@ remaining gameplay choice once blocker enum and readiness are clean.
 
 `NOTIFICATION_UNIT_LOST` is also a reviewed default-handler report, but it is
 not raw end-turn fallback eligible while the exact notification remains
-engine-queue front. Dismiss it through `game play dismiss-notification` and
+engine-queue front. Dismiss it through `game play notifications dismiss` and
 trust only identity-based proof that the target disappeared, was dismissed, or
 moved off the engine queue front.
 
@@ -182,7 +182,7 @@ moved off the engine queue front.
 The first CLI shortcut family lives under `civ7 game play`:
 
 - `game play end-turn`
-- `game play notifications`
+- `game play notifications list`
 - `game play operation`
 - `game play advisor-warning`
 - `game play choose-tech`
@@ -213,7 +213,7 @@ Every mutating shortcut requires `--send`. Without `--send`, the shortcut
 validates or reads only. After any send, re-read before further action and do
 not repeat uncertain results.
 
-`game play notifications` is read-only. It is the materialized view for live
+`game play notifications list` is read-only. It is the materialized view for live
 play: blocker state, selected unit/city, first ready unit, active notification
 summaries, and decision hints such as operation family, operation type, args
 shape, confidence, and matching shortcut when one is known.

@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from "vitest";
-import GamePlayNotificationQueue from "../../../../../src/commands/game/play/notification-queue";
+import GamePlayNotificationsSchedule from "../../../../../src/commands/game/play/notifications/schedule";
 import { expectNormalPlayPayloadToOmitDebugInternals } from "../../../../support/normal-output-boundary";
 import {
   type FakeTunerServer,
@@ -17,7 +17,7 @@ type QueueMode =
   | "legacy-completed"
   | "unit-lost-report";
 
-describe("game play notification queue command", () => {
+describe("game play notifications schedule command", () => {
   test("schedules notification queue without sending bulk dismissals", async () => {
     const { payload, server } = await runNotificationQueue("mixed-queue");
     try {
@@ -117,13 +117,19 @@ async function runNotificationQueue(mode: QueueMode) {
   const server = await startNotificationQueueTunerServer(mode);
   const writes: string[] = [];
   const log = vi
-    .spyOn(GamePlayNotificationQueue.prototype, "log")
+    .spyOn(GamePlayNotificationsSchedule.prototype, "log")
     .mockImplementation((message?: string) => {
       if (message) writes.push(message);
     });
   try {
     const { port } = server.address();
-    await GamePlayNotificationQueue.run(["--host", "127.0.0.1", "--port", String(port), "--json"]);
+    await GamePlayNotificationsSchedule.run([
+      "--host",
+      "127.0.0.1",
+      "--port",
+      String(port),
+      "--json",
+    ]);
   } finally {
     log.mockRestore();
   }

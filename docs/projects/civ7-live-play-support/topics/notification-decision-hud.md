@@ -26,7 +26,7 @@ The HUD has two layers:
 
 The full `notifications` array remains available for debugging raw facts such
 as notification id, type name, target, location, dismissal state, and message.
-`game play notification-queue` builds on the same HUD queue when the agent needs
+`game play notifications schedule` builds on the same HUD queue when the agent needs
 an ordered bulk read and guarded action schedule rather than a raw notification
 dump.
 
@@ -78,11 +78,11 @@ after any mutation or human input.
 | Advisor warning | notification ComponentID as `Target` | `game play advisor-warning` |
 | Unit command | selected or first ready unit; sometimes target plot | `game play ready-unit`, then `game play unit-target` for plot actions or generic unit operation validation |
 
-For queue management, use `game play notification-queue --json` before manually
+For queue management, use `game play notifications schedule --json` before manually
 walking several notifications. It can schedule reviewed informational closeout
 candidates, known operation-family items, and ready-unit inspections, but it
 does not bulk-dismiss or send operations. Use
-`game play dismiss-notification-queue --send` when the queue
+`game play notifications dismiss-reviewed --send` when the queue
 contains eligible informational App UI closeout candidates that have been
 reviewed at the needed tactical/strategic level.
 
@@ -161,7 +161,7 @@ Notable handler evidence:
   `Game.Diplomacy.getDiplomaticEventData(actionId)` and
   `Game.Diplomacy.getResponseDataForUI(actionId)` proof. If the response list
   is empty or no response option validates, compact priorities should route to
-  reviewed `game play dismiss-notification --target ... --send ...` closeout,
+  reviewed `game play notifications dismiss --target ... --send ...` closeout,
   not `respond-diplomacy`.
 - `NOTIFICATION_WONDER_COMPLETED`, `NOTIFICATION_WONDER_FAILED`,
   `NOTIFICATION_LEGACY_COMPLETED`,
@@ -241,7 +241,7 @@ Lafayette as an end-turn blocker. The official handler evidence above makes the
 correct closeout path narrow:
 
 ```bash
-civ7 game play dismiss-notification \
+civ7 game play notifications dismiss \
   --target '{"owner":0,"id":522,"type":20}' \
   --send
 ```

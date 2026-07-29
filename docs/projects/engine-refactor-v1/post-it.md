@@ -2,7 +2,7 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Command. Topic. Identity. Adapter. Grammar. Closure.
+**Attractor filter:** Topic. Noun. Verb. Compatibility. Grammar. Closure.
 
 **Frame:** an oclif topic plugin owns a public command language. Command paths
 are executable identity, topic directories express the language hierarchy, and
@@ -27,13 +27,12 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** make command path the sole canonical identity inside the
-closed CLI-topic kind. Every admitted command module owns one default runtime
-command, exports no reusable behavior, declares no redundant static id, and
-depends on capabilities through the qualified adapter interior rather than
-another command module. Prove the source-path ID multiset is collision-free and
-exactly matches each generated oclif manifest without changing command
-behavior, aliases, or public paths.
+**Current container:** normalize the first earned `game` noun family without
+changing its capabilities. The notification inventory, queue schedule,
+single-item dismissal, and reviewed bulk dismissal become explicit verbs under
+`game:play:notifications`; each former flat path remains a hidden compatibility
+alias. Source paths own the new canonical grammar, while tests prove every
+canonical and legacy invocation resolves to the same implementation owner.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -50,10 +49,11 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** encode the generic command-module law -> expose the exact red
-corpus -> delete redundant identity and relocate shared helpers -> prove source
-path/manifest bijection and behavior -> land the identity cut -> migrate one
-earned `game` noun family at a time -> return to the aggregate-only Domain SDK.
+**Gradient:** relocate the four notification commands without changing their
+implementation -> preserve old invocations as hidden aliases -> update the
+active command surface and exact topic contract -> prove canonical and legacy
+resolution plus unchanged behavior -> land the family -> audit the remaining
+game grammar from actual capabilities before admitting the next family.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -96,6 +96,16 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - CLI Command Identity Sealed
+
+Every CLI command module now derives its canonical identity exclusively from
+its source path, owns one concrete default oclif command, exports no reusable
+runtime behavior, and reaches local capabilities only through its topic's
+qualified adapter interior. Source paths and generated manifests are bijective,
+the assembled shell rejects canonical and alias collisions, and the full
+application/topic graph plus generic Habitat law sealed the plane on which
+product command grammar can now move safely.
 
 ### 2026-07-28 - CLI Topic Adapter Kind Sealed
 
