@@ -62,9 +62,13 @@ import type {
   Civ7TargetCandidatesResultSchema,
   Civ7TechnologyChoiceCloseoutInput,
   Civ7TechnologyChoiceCloseoutResult,
+  Civ7TownFocusChangeCheckResult,
   Civ7TownFocusChangeInput,
-  Civ7TownFocusRequestResult,
+  Civ7TownFocusChangeSendResult,
+  Civ7TownFocusReviewCheckResult,
   Civ7TownFocusReviewInput,
+  Civ7TownFocusReviewSendResult,
+  Civ7TownFocusSnapshot,
   Civ7TraditionChangeInput,
   Civ7TraditionReviewInput,
   Civ7TraditionsViewInput,
@@ -120,6 +124,11 @@ export type Civ7ControlOrpcProductionChoiceValidationResult = Civ7ProductionChoi
 export type Civ7ControlOrpcProductionChoiceSnapshot = Civ7ProductionChoiceSnapshot;
 export type Civ7ControlOrpcProductionChoiceCheckResult = Civ7ProductionChoiceCheckResult;
 export type Civ7ControlOrpcProductionChoiceSendResult = Civ7ProductionChoiceSendResult;
+export type Civ7ControlOrpcTownFocusSnapshot = Civ7TownFocusSnapshot;
+export type Civ7ControlOrpcTownFocusChangeCheckResult = Civ7TownFocusChangeCheckResult;
+export type Civ7ControlOrpcTownFocusChangeSendResult = Civ7TownFocusChangeSendResult;
+export type Civ7ControlOrpcTownFocusReviewCheckResult = Civ7TownFocusReviewCheckResult;
+export type Civ7ControlOrpcTownFocusReviewSendResult = Civ7TownFocusReviewSendResult;
 export type Civ7ControlOrpcPlayNotificationViewResult = Civ7PlayNotificationViewResult;
 export type Civ7ControlOrpcBattlefieldScanResult = Static<typeof Civ7BattlefieldScanResultSchema>;
 export type Civ7ControlOrpcDestinationAnalysisResult = Static<
@@ -224,14 +233,22 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Omit<Civ7TraditionReviewInput, "kind">,
     options: Civ7DirectControlOptions | undefined
   ): Promise<Civ7ControlOrpcProgressionPlayerChoiceResult>;
-  requestCiv7TownFocusChange(
-    input: Omit<Civ7TownFocusChangeInput, "kind">,
+  checkCiv7TownFocusChange(
+    input: Civ7TownFocusChangeInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7TownFocusRequestResult>;
-  requestCiv7TownFocusReviewCloseout(
-    input: Omit<Civ7TownFocusReviewInput, "kind">,
+  ): Promise<Civ7ControlOrpcTownFocusChangeCheckResult>;
+  sendCiv7TownFocusChange(
+    input: Civ7TownFocusChangeInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7TownFocusRequestResult>;
+  ): Promise<Civ7ControlOrpcTownFocusChangeSendResult>;
+  checkCiv7TownFocusReview(
+    input: Civ7TownFocusReviewInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7ControlOrpcTownFocusReviewCheckResult>;
+  sendCiv7TownFocusReview(
+    input: Civ7TownFocusReviewInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7ControlOrpcTownFocusReviewSendResult>;
   requestCiv7AssignWorkerPlacement(
     input: Civ7ControlOrpcAssignWorkerPlacementInput,
     options: Civ7DirectControlOptions | undefined

@@ -884,7 +884,9 @@ export class Civ7ProductionChoiceUnavailableError extends ORPCTaggedError(
 export const Civ7TownFocusUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Union([
+      Type.Literal("city.townFocus.change.check"),
       Type.Literal("city.townFocus.change.request"),
+      Type.Literal("city.townFocus.review.check"),
       Type.Literal("city.townFocus.review.request"),
     ]),
     source: Type.Literal("direct-control-facade"),
@@ -901,7 +903,7 @@ export class Civ7TownFocusUnavailableError extends ORPCTaggedError(
   "Civ7TownFocusUnavailableError",
   {
     code: "TOWN_FOCUS_UNAVAILABLE",
-    message: "Direct-control town focus request failed.",
+    message: "Town focus control is unavailable.",
     schema: toStandardSchema(Civ7TownFocusUnavailableErrorDataSchema),
     status: 503,
   }

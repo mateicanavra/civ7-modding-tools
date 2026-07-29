@@ -3,178 +3,132 @@ import GamePlayConsiderTownProject from "../../../../src/commands/game/play/cons
 import GamePlaySetTownFocus from "../../../../src/commands/game/play/set-town-focus";
 import { type FakeTunerServer, startFakeTunerServer } from "../../../support/tuner-socket-server";
 
+const cityId = { owner: 0, id: 131_073, type: 1 };
+const growthType = -284_569_333;
+const projectType = -548_685_232;
+
 describe("game play town focus commands", () => {
-  test("wraps town focus as city-command CHANGE_GROWTH_MODE", async () => {
+  test("routes town-focus dry runs through the exact service check", async () => {
     const server = await startTownFocusTunerServer();
+    const output = await captureCommandOutput(GamePlaySetTownFocus, [
+      ...townFocusChangeArgs(server),
+      "--json",
+    ]);
     try {
-      const { port } = server.address();
-      await GamePlaySetTownFocus.run([
-        "--host",
-        "127.0.0.1",
-        "--port",
-        String(port),
-        "--city-id",
-        '{"owner":0,"id":131073,"type":1}',
-        "--growth-type",
-        "-284569333",
-        "--project-type",
-        "-548685232",
-        "--json",
-      ]);
-
-      expect(
-        server.received.some((message) => message.includes('validateOperation("city-command"'))
-      ).toBe(true);
-      expect(server.received.some((message) => message.includes("CHANGE_GROWTH_MODE"))).toBe(true);
-      expect(server.received.some((message) => message.includes('"Type":-284569333'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"ProjectType":-548685232'))).toBe(
-        true
-      );
-      expect(server.received.some((message) => message.includes('"City":131073'))).toBe(true);
-      expect(server.received.some((message) => message.includes("sendOperation("))).toBe(false);
+      expect(output.result).toEqual({
+        cityId,
+        growthType,
+        projectType,
+        status: "available",
+      });
+      expect(townFocusCalls(server.received, "checkTownFocusChange")).toHaveLength(1);
+      expect(townFocusCalls(server.received, "sendTownFocusChangeEnvelope")).toHaveLength(0);
+      expectNoGenericTownFocusWire(server.received);
     } finally {
       await server.close();
     }
   });
 
-  test("sets town focus and closes town project review as one caller workflow", async () => {
+  test("routes focus changes through the exact city service request", async () => {
     const server = await startTownFocusTunerServer();
+    const output = await captureCommandOutput(GamePlaySetTownFocus, [
+      ...townFocusChangeArgs(server),
+      "--send",
+      "--json",
+    ]);
     try {
-      const { port } = server.address();
-      const writes: string[] = [];
-      const log = vi
-        .spyOn(GamePlaySetTownFocus.prototype, "log")
-        .mockImplementation((message?: string) => {
-          if (message) writes.push(message);
-        });
-      try {
-        await GamePlaySetTownFocus.run([
-          "--host",
-          "127.0.0.1",
-          "--port",
-          String(port),
-          "--city-id",
-          '{"owner":0,"id":131073,"type":1}',
-          "--growth-type",
-          "-284569333",
-          "--project-type",
-          "-548685232",
-          "--send",
-          "--closeout",
-          "--json",
-        ]);
-      } finally {
-        log.mockRestore();
-      }
-
-      const payload = JSON.parse(writes.join("")) as {
-        ok: true;
-        result: {
-          mode: string;
-          stepCount: number;
-          status: string;
-          steps: Array<{ result: Record<string, unknown> }>;
-        };
-      };
-      expect(payload.result.mode).toBe("send");
-      expect(payload.result.stepCount).toBe(2);
-      expect(payload.result.status).toBe("sent-unverified");
-      expect(payload.result.steps).toHaveLength(2);
-      expect(payload.result.steps[0].result.status).toBe("sent-unverified");
-      expect(payload.result.steps[0].result.cityId).toEqual({ owner: 0, id: 131073, type: 1 });
-      expect(payload.result.steps[0].result.growthType).toBe(-284569333);
-      expect(payload.result.steps[0].result.projectType).toBe(-548685232);
-      expect(payload.result.steps[1].result.status).toBe("sent-unverified");
-      expectSemanticTownFocusOmitsRawRuntimeDetails(payload.result);
-      expect(server.received.filter((message) => message.includes("sendOperation(")).length).toBe(
-        2
-      );
-      expect(
-        server.received.some((message) => message.includes('sendOperation("city-command"'))
-      ).toBe(true);
-      expect(
-        server.received.some((message) => message.includes('sendOperation("city-operation"'))
-      ).toBe(true);
-      expect(server.received.some((message) => message.includes("CHANGE_GROWTH_MODE"))).toBe(true);
-      expect(server.received.some((message) => message.includes("CONSIDER_TOWN_PROJECT"))).toBe(
-        true
-      );
-      expect(server.received.some((message) => message.includes("Network.isInSession"))).toBe(true);
+      expect(output.result).toMatchObject({
+        cityId,
+        growthType,
+        projectType,
+        status: "sent-confirmed",
+        postcondition: {
+          classification: "town-focus-selected",
+          outcome: "selected",
+          confidence: "confirmed",
+          confirmed: true,
+        },
+        nextSteps: [{ kind: "refresh-attention" }],
+      });
+      expect(townFocusCalls(server.received, "checkTownFocusChange")).toHaveLength(1);
+      expect(townFocusCalls(server.received, "sendTownFocusChangeEnvelope")).toHaveLength(1);
+      expectNoGenericTownFocusWire(server.received);
+      expectSemanticTownFocusOmitsRawRuntimeDetails(output.result);
     } finally {
       await server.close();
     }
   });
 
-  test("wraps town project review closeout as CONSIDER_TOWN_PROJECT", async () => {
+  test("derives town-project review availability from native state", async () => {
     const server = await startTownFocusTunerServer();
+    const output = await captureCommandOutput(GamePlayConsiderTownProject, [
+      ...townFocusReviewArgs(server),
+      "--json",
+    ]);
     try {
-      const { port } = server.address();
-      await GamePlayConsiderTownProject.run([
-        "--host",
-        "127.0.0.1",
-        "--port",
-        String(port),
-        "--city-id",
-        '{"owner":0,"id":131073,"type":1}',
-        "--json",
-      ]);
-
-      expect(
-        server.received.some((message) => message.includes('validateOperation("city-operation"'))
-      ).toBe(true);
-      expect(server.received.some((message) => message.includes("CONSIDER_TOWN_PROJECT"))).toBe(
-        true
+      expect(output.result).toEqual({
+        cityId,
+        status: "available",
+      });
+      expect(townFocusCalls(server.received, "checkTownFocusReview")).toHaveLength(1);
+      expect(townFocusCalls(server.received, "sendTownFocusReviewEnvelope")).toHaveLength(0);
+      expectNoGenericTownFocusWire(server.received);
+      expect(server.received.some((message) => message.includes("CityOperations.canStart"))).toBe(
+        false
       );
-      expect(server.received.some((message) => message.includes("sendOperation("))).toBe(false);
     } finally {
       await server.close();
     }
   });
 
-  test("sends town project review through city town-focus oRPC", async () => {
+  test("confirms review completion through exact blocker readback", async () => {
     const server = await startTownFocusTunerServer();
+    const output = await captureCommandOutput(GamePlayConsiderTownProject, [
+      ...townFocusReviewArgs(server),
+      "--send",
+      "--json",
+    ]);
     try {
-      const { port } = server.address();
-      const writes: string[] = [];
-      const log = vi
-        .spyOn(GamePlayConsiderTownProject.prototype, "log")
-        .mockImplementation((message?: string) => {
-          if (message) writes.push(message);
-        });
-      try {
-        await GamePlayConsiderTownProject.run([
-          "--host",
-          "127.0.0.1",
-          "--port",
-          String(port),
-          "--city-id",
-          '{"owner":0,"id":131073,"type":1}',
-          "--send",
-          "--json",
-        ]);
-      } finally {
-        log.mockRestore();
-      }
-
-      const payload = JSON.parse(writes.join("")) as { ok: true; result: Record<string, unknown> };
-      expect(payload.result.cityId).toEqual({ owner: 0, id: 131073, type: 1 });
-      expect(payload.result.sent).toBe(true);
-      expect(payload.result.status).toBe("sent-unverified");
-      expectSemanticTownFocusOmitsRawRuntimeDetails(payload.result);
-      expect(server.received.some((message) => message.includes("Network.isInSession"))).toBe(true);
-      expect(server.received.some((message) => message.includes("CONSIDER_TOWN_PROJECT"))).toBe(
-        true
-      );
-      expect(
-        server.received.some((message) => message.includes('sendOperation("city-operation"'))
-      ).toBe(true);
+      expect(output.result).toMatchObject({
+        cityId,
+        status: "sent-confirmed",
+        postcondition: {
+          classification: "town-focus-review-cleared",
+          outcome: "review-cleared",
+          confidence: "confirmed",
+          confirmed: true,
+        },
+        nextSteps: [{ kind: "refresh-attention" }],
+      });
+      expect(townFocusCalls(server.received, "checkTownFocusReview")).toHaveLength(1);
+      expect(townFocusCalls(server.received, "sendTownFocusReviewEnvelope")).toHaveLength(1);
+      expectNoGenericTownFocusWire(server.received);
+      expectSemanticTownFocusOmitsRawRuntimeDetails(output.result);
     } finally {
       await server.close();
     }
   });
 });
 
+async function captureCommandOutput(
+  command: typeof GamePlaySetTownFocus | typeof GamePlayConsiderTownProject,
+  args: string[]
+): Promise<{ ok: true; result: Record<string, unknown> }> {
+  const writes: string[] = [];
+  const log = vi.spyOn(command.prototype, "log").mockImplementation((message?: string) => {
+    if (message) writes.push(message);
+  });
+  try {
+    await command.run(args);
+  } finally {
+    log.mockRestore();
+  }
+  return JSON.parse(writes.join("")) as { ok: true; result: Record<string, unknown> };
+}
+
 async function startTownFocusTunerServer(): Promise<FakeTunerServer> {
+  let focusChanged = false;
+  let reviewCleared = false;
   return startFakeTunerServer({
     handle({ message }) {
       if (message.includes("Network.isInSession")) {
@@ -183,60 +137,130 @@ async function startTownFocusTunerServer(): Promise<FakeTunerServer> {
       if (message.includes("evalOk") && message.includes("GameplayMap.getGridWidth")) {
         return [JSON.stringify(tunerHealthSnapshot())];
       }
-      if (message.includes("return JSON.stringify(validateOperation")) {
-        return [JSON.stringify(operationValidation(message))];
+      if (message.includes("return JSON.stringify(checkTownFocusChange")) {
+        return [
+          JSON.stringify({
+            valid: true,
+            result: { Success: true },
+            snapshot: townFocusSnapshot({
+              selected: focusChanged,
+              reviewCleared,
+            }),
+          }),
+        ];
       }
-      if (message.includes("return JSON.stringify(sendOperation")) {
-        return [JSON.stringify({ sent: true })];
+      if (message.includes("return JSON.stringify(sendTownFocusChangeEnvelope")) {
+        const before = townFocusSnapshot({ selected: focusChanged, reviewCleared });
+        focusChanged = true;
+        return [
+          JSON.stringify({
+            ok: true,
+            value: {
+              sent: true,
+              validation: { valid: true, result: { Success: true } },
+              before,
+              after: townFocusSnapshot({ selected: focusChanged, reviewCleared }),
+            },
+          }),
+        ];
+      }
+      if (message.includes("return JSON.stringify(checkTownFocusReview")) {
+        return [
+          JSON.stringify({
+            snapshot: townFocusSnapshot({ selected: focusChanged, reviewCleared }),
+          }),
+        ];
+      }
+      if (message.includes("return JSON.stringify(sendTownFocusReviewEnvelope")) {
+        const before = townFocusSnapshot({ selected: focusChanged, reviewCleared });
+        reviewCleared = true;
+        return [
+          JSON.stringify({
+            ok: true,
+            value: {
+              sent: true,
+              before,
+              after: townFocusSnapshot({ selected: focusChanged, reviewCleared }),
+            },
+          }),
+        ];
       }
       return undefined;
     },
   });
 }
 
-function expectSemanticTownFocusOmitsRawRuntimeDetails(result: unknown) {
-  const json = JSON.stringify(result);
-  expect(json).not.toContain('"operation"');
-  expect(json).not.toContain('"command"');
-  expect(json).not.toContain('"payload"');
-  expect(json).not.toContain('"before"');
-  expect(json).not.toContain('"after"');
-  expect(json).not.toContain('"state"');
-  expect(json).not.toContain('"host"');
-  expect(json).not.toContain('"port"');
-  expect(json).not.toContain('"verified"');
-}
-
-function operationValidation(message: string) {
-  const operationType = operationTypeFromMessage(message);
-  const family = operationType === "CHANGE_GROWTH_MODE" ? "city-command" : "city-operation";
+function townFocusSnapshot(options: { selected: boolean; reviewCleared: boolean }) {
   return {
-    host: "127.0.0.1",
-    port: 0,
-    state: { id: "1", name: "Tuner", role: "tuner" },
-    family,
-    operationType,
-    enumValue: operationType,
-    target: { cityId: { owner: 0, id: 65536, type: 25 } },
-    args: operationArgs(operationType),
-    valid: true,
-    result: { Success: true },
+    cityId,
+    city: {
+      ok: true,
+      value: {
+        observedCityId: cityId,
+        owner: cityId.owner,
+        isTown: true,
+        growthType: options.selected ? growthType : 10,
+        projectType: options.selected ? projectType : 20,
+      },
+    },
+    blocker: { ok: true, value: options.reviewCleared ? 0 : 1_234 },
+    blockingTownFocusNotification: {
+      ok: true,
+      value: options.reviewCleared
+        ? null
+        : {
+            id: { owner: 0, id: 42, type: 20 },
+            type: 1_234,
+            typeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
+            target: cityId,
+          },
+    },
   };
 }
 
-function operationTypeFromMessage(message: string) {
-  const validateIndex = message.lastIndexOf('validateOperation("');
-  const sendIndex = message.lastIndexOf('sendOperation("');
-  const callIndex = Math.max(validateIndex, sendIndex);
-  const callSource = callIndex >= 0 ? message.slice(callIndex) : message;
-  return callSource.match(/"operationType":"([^"]+)"/)?.[1] ?? "CHANGE_GROWTH_MODE";
+function townFocusChangeArgs(server: FakeTunerServer): string[] {
+  return [
+    "--host",
+    "127.0.0.1",
+    "--port",
+    String(server.address().port),
+    "--city-id",
+    JSON.stringify(cityId),
+    "--growth-type",
+    String(growthType),
+    "--project-type",
+    String(projectType),
+  ];
 }
 
-function operationArgs(operationType: string) {
-  if (operationType === "CHANGE_GROWTH_MODE")
-    return { Type: -284569333, ProjectType: -548685232, City: 131073 };
-  if (operationType === "CONSIDER_TOWN_PROJECT") return {};
-  return undefined;
+function townFocusReviewArgs(server: FakeTunerServer): string[] {
+  return [
+    "--host",
+    "127.0.0.1",
+    "--port",
+    String(server.address().port),
+    "--city-id",
+    JSON.stringify(cityId),
+  ];
+}
+
+function townFocusCalls(messages: ReadonlyArray<string>, helper: string): string[] {
+  return messages.filter((message) => message.includes(`return JSON.stringify(${helper}`));
+}
+
+function expectNoGenericTownFocusWire(messages: ReadonlyArray<string>): void {
+  expect(messages.some((message) => message.includes("validateOperation("))).toBe(false);
+  expect(messages.some((message) => message.includes("sendOperation("))).toBe(false);
+}
+
+function expectSemanticTownFocusOmitsRawRuntimeDetails(result: unknown) {
+  const json = JSON.stringify(result);
+  expect(json).not.toContain('"operation"');
+  expect(json).not.toContain('"before"');
+  expect(json).not.toContain('"after"');
+  expect(json).not.toContain('"snapshot"');
+  expect(json).not.toContain("Game.CityCommands");
+  expect(json).not.toContain("Game.CityOperations");
 }
 
 function appUiSnapshot() {

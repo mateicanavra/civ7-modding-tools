@@ -124,28 +124,41 @@ errors, and server-side callers.
   the procedures
 
 #### Scenario: City town-focus service contracts are offered
-- **WHEN** `city.townFocus.change.request` and
+- **WHEN** `city.townFocus.change.check`,
+  `city.townFocus.change.request`, `city.townFocus.review.check`, and
   `city.townFocus.review.request` expose their caller-facing contracts
 - **THEN** control-oRPC owns the contract-local input, output,
   postcondition, and next-step schemas for those service procedures under the
   `city` router
-- **AND** change input admits only city ID, growth type, project type, and an
-  optional numeric city arg override, while review input admits only city ID
+- **AND** change input admits only city ID, growth type, and project type, while
+  review input admits only city ID
+- **AND** the low-level change atom derives the native `City` argument from the
+  requested city ID and does not admit a caller-controlled override
 - **AND** town-focus change versus review is expressed by the city-domain
   procedure path rather than a generic operation root, operation type, or raw
   args input
 - **AND** endpoint, session, state, raw command, generic operation type, raw
   args, direct-control operation envelopes, and legacy `verified` remain
   excluded from procedure input and normal output
-- **AND** sent town-focus results remain pending-runtime-proof and
-  no-repeat guarded until a future source-owned city read/postcondition proves
-  the live town project review state changed
+- **AND** change checks project native `CityCommands.canStart` plus observed
+  town state, while review checks derive availability from matching
+  `NOTIFICATION_CHOOSE_TOWN_PROJECT` evidence without inventing a
+  `CityOperations.canStart` authority
+- **AND** requests precheck once, avoid repeated already-satisfied mutations,
+  and guard one exact send
+- **AND** control-oRPC owns semantic admission, bounded post-send polling,
+  postcondition classification, dispatch uncertainty, and no-repeat policy
+- **AND** a sent result is classified as confirmed or unverified rather than
+  being universally pending, and uncertain dispatch or incomplete evidence
+  remains no-repeat guarded
 - **AND** these new per-leaf input/result schemas and Standard Schema adapters
   stay private to the contract module and are not exported as caller utilities;
   callers use the aggregate contract/router/server client
-- **AND** direct-control remains the low-level runtime/proof owner for
-  city-command/city-operation town-focus sends, command serialization,
-  validator output, and no-repeat proof facts consumed by the procedures
+- **AND** direct-control owns only the bounded native change-check, change-send,
+  review-read, and review-send atoms, command serialization, native validator
+  adaptation for focus change, and raw immutable state snapshots
+- **AND** generic operation validation and send surfaces reject
+  `CHANGE_GROWTH_MODE` and `CONSIDER_TOWN_PROJECT`
 
 #### Scenario: Progression choice service contract is offered
 - **WHEN** `progression.technology.choice.request` and
@@ -726,26 +739,26 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   low-level direct-control assign-worker runtime port
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI town-focus sends use native city procedures
-- **WHEN** `game play set-town-focus --send` or
-  `game play consider-town-project --send` requests a town-focus mutation
+#### Scenario: CLI town-focus commands use native city procedures
+- **WHEN** `game play set-town-focus` or
+  `game play consider-town-project` checks or requests a town-focus action
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send paths call the in-process `city.townFocus.change.request`
-  or `city.townFocus.review.request` server-side clients under the `city`
-  router
-- **AND** the procedures' readiness, direct-control city-command/city-operation
-  runtime ports, town-focus proof projection, and no-repeat policy remain
-  authoritative for the sends
+- **AND** read-only mode calls the corresponding
+  `city.townFocus.change.check` or `city.townFocus.review.check` procedure
+- **AND** send mode calls the corresponding
+  `city.townFocus.change.request` or `city.townFocus.review.request` procedure
+- **AND** direct-control remains limited to bounded native change-check,
+  change-send, review-read, and review-send atoms plus raw state snapshots
+- **AND** the city procedures own readiness, semantic admission, bounded
+  polling, postcondition classification, dispatch uncertainty, and no-repeat
+  policy
 - **AND** the normal JSON result is the semantic city town-focus procedure
   projection without raw command/session/state/Tuner details, generic
   operation type or args fields, direct-control operation envelopes, or legacy
   `verified`
-- **AND** `set-town-focus --closeout --send` composes the native change leaf
-  with the native review leaf instead of falling back to raw direct-control
-  send branches
-- **AND** read-only validation paths remain direct-control
-  city-command/city-operation validation until separate accepted service reads
-  exist
+- **AND** caller-owned `--closeout` composition is retired; focus change and
+  project review remain explicit city service actions
+- **AND** no generic operation validation or send fallback remains
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI diplomacy response send uses native diplomacy procedure

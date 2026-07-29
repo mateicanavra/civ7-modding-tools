@@ -170,6 +170,17 @@ or service policy. The game-scoped controller is a provider adapter for those
 service ports, not a second semantic policy owner. Direct-control retains the
 currently mixed low-level tuner and Civ7-side JavaScript responsibilities until
 those nodes are extracted.
+
+Town focus follows the same ownership. The city service owns semantic
+change/review checks, already-satisfied guards, bounded post-send observation,
+classification, and no-repeat policy. Direct-control owns exact
+`CHANGE_GROWTH_MODE` check/send atoms, an exact
+`CONSIDER_TOWN_PROJECT` send atom, and raw town/blocker snapshots. Official
+Civ7 code does not validate project review with `CityOperations.canStart`, so
+review availability is derived from native town and
+`NOTIFICATION_CHOOSE_TOWN_PROJECT` state instead. Generic operation surfaces
+reject both identities, and the CLI does not compose a second `--closeout`
+workflow.
 **Consequences:**
 - Raw `CMD:<stateId>:<javascript>` / `game exec` stays a diagnostic and probe
   transport, not the agent-facing product API.

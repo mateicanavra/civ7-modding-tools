@@ -1,12 +1,37 @@
+import type { Civ7DirectControlErrorShape } from "@civ7/direct-control/error";
+
 import type {
   Civ7ControlOrpcComponentId,
   Civ7ControlOrpcDirectControlFacade,
 } from "../service-types";
 
-type TownFocusResult = Awaited<
-  ReturnType<Civ7ControlOrpcDirectControlFacade["requestCiv7TownFocusChange"]>
+type TownFocusChangeCheckInput = Parameters<
+  Civ7ControlOrpcDirectControlFacade["checkCiv7TownFocusChange"]
+>[0];
+type TownFocusChangeSendInput = Parameters<
+  Civ7ControlOrpcDirectControlFacade["sendCiv7TownFocusChange"]
+>[0];
+type TownFocusReviewCheckInput = Parameters<
+  Civ7ControlOrpcDirectControlFacade["checkCiv7TownFocusReview"]
+>[0];
+type TownFocusReviewSendInput = Parameters<
+  Civ7ControlOrpcDirectControlFacade["sendCiv7TownFocusReview"]
+>[0];
+type TownFocusChangeCheckResult = Awaited<
+  ReturnType<Civ7ControlOrpcDirectControlFacade["checkCiv7TownFocusChange"]>
 >;
-type TownFocusValidation = TownFocusResult["beforeValidation"];
+type TownFocusChangeSendResult = Awaited<
+  ReturnType<Civ7ControlOrpcDirectControlFacade["sendCiv7TownFocusChange"]>
+>;
+type TownFocusReviewCheckResult = Awaited<
+  ReturnType<Civ7ControlOrpcDirectControlFacade["checkCiv7TownFocusReview"]>
+>;
+type TownFocusReviewSendResult = Awaited<
+  ReturnType<Civ7ControlOrpcDirectControlFacade["sendCiv7TownFocusReview"]>
+>;
+type TownFocusSnapshot = TownFocusChangeCheckResult["snapshot"];
+type TownFocusValidationResult = TownFocusChangeSendResult["validation"]["result"];
+type RuntimeProbe<T> = Readonly<{ ok: true; value: T } | { ok: false; error: string }>;
 
 export type Civ7GameUiTownFocusTarget = Readonly<{
   CityCommandTypes?: {
@@ -14,6 +39,9 @@ export type Civ7GameUiTownFocusTarget = Readonly<{
   };
   CityOperationTypes?: {
     CONSIDER_TOWN_PROJECT?: unknown;
+  };
+  Cities?: {
+    get?: (id: Civ7ControlOrpcComponentId) => unknown;
   };
   Game?: {
     CityCommands?: {
@@ -30,17 +58,21 @@ export type Civ7GameUiTownFocusTarget = Readonly<{
       ) => unknown;
     };
     CityOperations?: {
-      canStart?: (
-        cityId: Civ7ControlOrpcComponentId,
-        operationType: unknown,
-        args: Readonly<Record<string, number>>,
-        queue?: boolean
-      ) => unknown;
       sendRequest?: (
         cityId: Civ7ControlOrpcComponentId,
         operationType: unknown,
         args: Readonly<Record<string, number>>
       ) => unknown;
+    };
+    Notifications?: {
+      getEndTurnBlockingType?: (playerId: number) => unknown;
+      findEndTurnBlocking?: (
+        playerId: number,
+        blockerType: unknown
+      ) => Civ7ControlOrpcComponentId | null;
+      find?: (id: Civ7ControlOrpcComponentId) => unknown;
+      getType?: (id: Civ7ControlOrpcComponentId | null) => unknown;
+      getTypeName?: (type: unknown) => string | null;
     };
   };
   GameContext?: {
@@ -48,331 +80,380 @@ export type Civ7GameUiTownFocusTarget = Readonly<{
   };
 }>;
 
-export function civ7GameUiTownFocusAvailable(target: Civ7GameUiTownFocusTarget): boolean {
+/** Reports whether the in-game controller can check town-focus changes. */
+export function civ7GameUiTownFocusChangeCheckAvailable(
+  target: Civ7GameUiTownFocusTarget
+): boolean {
   return (
     typeof target.Game?.CityCommands?.canStart === "function" &&
-    typeof target.Game.CityCommands.sendRequest === "function" &&
-    target.CityCommandTypes?.CHANGE_GROWTH_MODE !== undefined &&
-    typeof target.Game?.CityOperations?.canStart === "function" &&
-    typeof target.Game.CityOperations.sendRequest === "function" &&
+    target.CityCommandTypes?.CHANGE_GROWTH_MODE !== undefined
+  );
+}
+
+/** Reports whether the in-game controller can send town-focus changes. */
+export function civ7GameUiTownFocusChangeSendAvailable(target: Civ7GameUiTownFocusTarget): boolean {
+  return (
+    civ7GameUiTownFocusChangeCheckAvailable(target) &&
+    typeof target.Game?.CityCommands?.sendRequest === "function"
+  );
+}
+
+/** Reports whether the in-game controller can read town-focus review state. */
+export function civ7GameUiTownFocusReviewCheckAvailable(
+  target: Civ7GameUiTownFocusTarget
+): boolean {
+  return (
+    typeof target.Cities?.get === "function" &&
+    typeof target.Game?.Notifications?.getEndTurnBlockingType === "function" &&
+    typeof target.Game.Notifications.findEndTurnBlocking === "function" &&
+    typeof target.Game.Notifications.find === "function"
+  );
+}
+
+/** Reports whether the in-game controller can send town-focus review requests. */
+export function civ7GameUiTownFocusReviewSendAvailable(target: Civ7GameUiTownFocusTarget): boolean {
+  return (
+    civ7GameUiTownFocusReviewCheckAvailable(target) &&
+    typeof target.Game?.CityOperations?.sendRequest === "function" &&
     target.CityOperationTypes?.CONSIDER_TOWN_PROJECT !== undefined
   );
 }
 
-export async function requestCiv7GameUiTownFocusChange(
-  input: Readonly<{
-    cityId: Civ7ControlOrpcComponentId;
-    growthType: number;
-    projectType: number;
-    city?: number;
-  }>,
+/** Checks native town-focus change admission and captures current runtime evidence. */
+export async function checkCiv7GameUiTownFocusChange(
+  input: TownFocusChangeCheckInput,
   target: Civ7GameUiTownFocusTarget = globalThis as Civ7GameUiTownFocusTarget
-): Promise<TownFocusResult> {
-  const cityId = toComponentId(input.cityId);
-  if (cityId == null) {
-    throw new Error("Town focus cityId must be a ComponentID.");
-  }
-  const city = input.city ?? cityId.id;
-  const args = {
-    Type: input.growthType,
-    ProjectType: input.projectType,
-    City: city,
+): Promise<TownFocusChangeCheckResult> {
+  const normalized = normalizeChangeInput(input);
+  const validation = checkTownFocusChange(normalized, target);
+  return {
+    valid: validation.valid,
+    result: validation.result,
+    snapshot: readTownFocusSnapshot(normalized.cityId, target),
   };
-  const localPlayerId = target.GameContext?.localPlayerID;
-  const before =
-    cityId.owner === localPlayerId
-      ? gameUiTownFocusCityCommandValidation(cityId, args, target)
-      : gameUiTownFocusLocalCityMismatch(cityId, localPlayerId, args, "city-command");
-
-  if (!before.valid) {
-    return townFocusResult({
-      kind: "town-focus-change",
-      cityId,
-      growthType: input.growthType,
-      projectType: input.projectType,
-      city,
-      operationType: "CHANGE_GROWTH_MODE",
-      before,
-      after: before,
-      sent: false,
-    });
-  }
-
-  const sendRequest = target.Game?.CityCommands?.sendRequest;
-  const sendResult =
-    typeof sendRequest === "function"
-      ? safeValue(
-          () => sendRequest(cityId, target.CityCommandTypes?.CHANGE_GROWTH_MODE, args),
-          false
-        )
-      : false;
-  const sent = sendResult !== false;
-  const after = gameUiTownFocusCityCommandValidation(cityId, args, target);
-
-  return townFocusResult({
-    kind: "town-focus-change",
-    cityId,
-    growthType: input.growthType,
-    projectType: input.projectType,
-    city,
-    operationType: "CHANGE_GROWTH_MODE",
-    before,
-    after,
-    sent,
-  });
 }
 
-export async function requestCiv7GameUiTownFocusReviewCloseout(
-  input: Readonly<{
-    cityId: Civ7ControlOrpcComponentId;
-  }>,
+/** Sends a town-focus change after a fresh native admission check. */
+export async function sendCiv7GameUiTownFocusChange(
+  input: TownFocusChangeSendInput,
   target: Civ7GameUiTownFocusTarget = globalThis as Civ7GameUiTownFocusTarget
-): Promise<TownFocusResult> {
-  const cityId = toComponentId(input.cityId);
-  if (cityId == null) {
-    throw new Error("Town focus cityId must be a ComponentID.");
-  }
-  const args: Readonly<Record<string, number>> = {};
-  const localPlayerId = target.GameContext?.localPlayerID;
-  const before =
-    cityId.owner === localPlayerId
-      ? gameUiTownFocusCityOperationValidation(cityId, args, target)
-      : gameUiTownFocusLocalCityMismatch(cityId, localPlayerId, args, "city-operation");
+): Promise<TownFocusChangeSendResult> {
+  let sendInvoked = false;
+  try {
+    const normalized = normalizeChangeInput(input);
+    const before = readTownFocusSnapshot(normalized.cityId, target);
+    const validation = checkTownFocusChange(normalized, target);
+    if (!validation.valid) {
+      return {
+        sent: false,
+        validation: {
+          valid: false,
+          result: validation.result,
+        },
+        before,
+        after: readTownFocusSnapshot(normalized.cityId, target),
+      };
+    }
 
-  if (!before.valid) {
-    return townFocusResult({
-      kind: "town-focus-review",
-      cityId,
-      operationType: "CONSIDER_TOWN_PROJECT",
+    const commands = target.Game?.CityCommands;
+    if (typeof commands?.sendRequest !== "function") {
+      throw new Error("Game.CityCommands.sendRequest is unavailable.");
+    }
+    const commandType = target.CityCommandTypes?.CHANGE_GROWTH_MODE;
+    if (commandType === undefined) {
+      throw new Error("CityCommandTypes.CHANGE_GROWTH_MODE is unavailable.");
+    }
+
+    sendInvoked = true;
+    commands.sendRequest(normalized.cityId, commandType, normalized.args);
+    return {
+      sent: true,
+      validation: {
+        valid: true,
+        result: validation.result,
+      },
       before,
-      after: before,
-      sent: false,
-    });
-  }
-
-  const sendRequest = target.Game?.CityOperations?.sendRequest;
-  const sendResult =
-    typeof sendRequest === "function"
-      ? safeValue(
-          () => sendRequest(cityId, target.CityOperationTypes?.CONSIDER_TOWN_PROJECT, args),
-          false
-        )
-      : false;
-  const sent = sendResult !== false;
-  const after = gameUiTownFocusCityOperationValidation(cityId, args, target);
-
-  return townFocusResult({
-    kind: "town-focus-review",
-    cityId,
-    operationType: "CONSIDER_TOWN_PROJECT",
-    before,
-    after,
-    sent,
-  });
-}
-
-function gameUiTownFocusCityCommandValidation(
-  cityId: Civ7ControlOrpcComponentId,
-  args: Readonly<Record<string, number>>,
-  target: Civ7GameUiTownFocusTarget
-): TownFocusValidation {
-  const result = safeValue(
-    () =>
-      target.Game?.CityCommands?.canStart?.(
-        cityId,
-        target.CityCommandTypes?.CHANGE_GROWTH_MODE,
-        args,
-        false
-      ),
-    null
-  );
-  return townFocusValidation({
-    family: "city-command",
-    operationType: "CHANGE_GROWTH_MODE",
-    enumValue: target.CityCommandTypes?.CHANGE_GROWTH_MODE,
-    cityId,
-    args,
-    valid: successFromCanStart(result),
-    result,
-  });
-}
-
-function gameUiTownFocusCityOperationValidation(
-  cityId: Civ7ControlOrpcComponentId,
-  args: Readonly<Record<string, number>>,
-  target: Civ7GameUiTownFocusTarget
-): TownFocusValidation {
-  const result = safeValue(
-    () =>
-      target.Game?.CityOperations?.canStart?.(
-        cityId,
-        target.CityOperationTypes?.CONSIDER_TOWN_PROJECT,
-        args,
-        false
-      ),
-    null
-  );
-  return townFocusValidation({
-    family: "city-operation",
-    operationType: "CONSIDER_TOWN_PROJECT",
-    enumValue: target.CityOperationTypes?.CONSIDER_TOWN_PROJECT,
-    cityId,
-    args,
-    valid: successFromCanStart(result),
-    result,
-  });
-}
-
-function gameUiTownFocusLocalCityMismatch(
-  cityId: Civ7ControlOrpcComponentId,
-  localPlayerId: number | undefined,
-  args: Readonly<Record<string, number>>,
-  family: "city-command" | "city-operation"
-): TownFocusValidation {
-  return townFocusValidation({
-    family,
-    operationType: family === "city-command" ? "CHANGE_GROWTH_MODE" : "CONSIDER_TOWN_PROJECT",
-    enumValue: family === "city-command" ? "CHANGE_GROWTH_MODE" : "CONSIDER_TOWN_PROJECT",
-    cityId,
-    args,
-    valid: false,
-    result: {
-      ok: false,
-      reason: "city-owner-mismatch",
-      cityOwner: cityId.owner,
-      localPlayerId: localPlayerId ?? null,
-    },
-  });
-}
-
-function townFocusValidation(
-  input: Readonly<{
-    family: "city-command" | "city-operation";
-    operationType: "CHANGE_GROWTH_MODE" | "CONSIDER_TOWN_PROJECT";
-    enumValue: unknown;
-    cityId: Civ7ControlOrpcComponentId;
-    args: Readonly<Record<string, number>>;
-    valid: boolean;
-    result: unknown;
-  }>
-): TownFocusValidation {
-  return {
-    host: "game-ui",
-    port: 0,
-    state: { id: "game-ui", name: "Game UI" },
-    family: input.family,
-    operationType: input.operationType,
-    enumValue: input.enumValue,
-    target: { cityId: input.cityId },
-    args: input.args,
-    valid: input.valid,
-    result: input.result,
-  };
-}
-
-function townFocusResult(
-  input: Readonly<
-    | {
-        kind: "town-focus-change";
-        cityId: Civ7ControlOrpcComponentId;
-        growthType: number;
-        projectType: number;
-        city: number;
-        operationType: "CHANGE_GROWTH_MODE";
-        before: TownFocusValidation;
-        after: TownFocusValidation;
-        sent: boolean;
-      }
-    | {
-        kind: "town-focus-review";
-        cityId: Civ7ControlOrpcComponentId;
-        operationType: "CONSIDER_TOWN_PROJECT";
-        before: TownFocusValidation;
-        after: TownFocusValidation;
-        sent: boolean;
-      }
-  >
-): TownFocusResult {
-  const common = {
-    cityId: input.cityId,
-    operation: {
-      before: input.before,
-      after: input.after,
-      sent: input.sent,
-    },
-    beforeValidation: input.before,
-    afterValidation: input.after,
-    sent: input.sent,
-    verified: false,
-    postcondition: townFocusPostcondition(input.sent, input.kind),
-  };
-
-  if (input.kind === "town-focus-change") {
-    return {
-      ...common,
-      kind: "town-focus-change",
-      growthType: input.growthType,
-      projectType: input.projectType,
-      city: input.city,
-    } as TownFocusResult;
-  }
-
-  return {
-    ...common,
-    kind: "town-focus-review",
-  } as TownFocusResult;
-}
-
-function townFocusPostcondition(
-  sent: boolean,
-  kind: "town-focus-change" | "town-focus-review"
-): TownFocusResult["postcondition"] {
-  if (!sent) {
-    return {
-      classification: "not-sent",
-      reason: `The ${kind} request did not validate, so no town focus operation was sent.`,
+      after: readTownFocusSnapshot(normalized.cityId, target),
     };
+  } catch (cause) {
+    throw townFocusDispatchError(cause, sendInvoked ? "dispatched" : "not-dispatched");
+  }
+}
+
+/** Reads the native state from which the service derives town-focus review eligibility. */
+export async function checkCiv7GameUiTownFocusReview(
+  input: TownFocusReviewCheckInput,
+  target: Civ7GameUiTownFocusTarget = globalThis as Civ7GameUiTownFocusTarget
+): Promise<TownFocusReviewCheckResult> {
+  const cityId = requireComponentId(input.cityId);
+  return {
+    snapshot: readTownFocusSnapshot(cityId, target),
+  };
+}
+
+/** Sends the native town-focus review request exactly once and snapshots surrounding state. */
+export async function sendCiv7GameUiTownFocusReview(
+  input: TownFocusReviewSendInput,
+  target: Civ7GameUiTownFocusTarget = globalThis as Civ7GameUiTownFocusTarget
+): Promise<TownFocusReviewSendResult> {
+  let sendInvoked = false;
+  try {
+    const cityId = requireComponentId(input.cityId);
+    const before = readTownFocusSnapshot(cityId, target);
+    const operations = target.Game?.CityOperations;
+    if (typeof operations?.sendRequest !== "function") {
+      throw new Error("Game.CityOperations.sendRequest is unavailable.");
+    }
+    const operationType = target.CityOperationTypes?.CONSIDER_TOWN_PROJECT;
+    if (operationType === undefined) {
+      throw new Error("CityOperationTypes.CONSIDER_TOWN_PROJECT is unavailable.");
+    }
+
+    sendInvoked = true;
+    operations.sendRequest(cityId, operationType, {});
+    return {
+      sent: true,
+      before,
+      after: readTownFocusSnapshot(cityId, target),
+    };
+  } catch (cause) {
+    throw townFocusDispatchError(cause, sendInvoked ? "dispatched" : "not-dispatched");
+  }
+}
+
+function checkTownFocusChange(
+  input: Readonly<{
+    cityId: Civ7ControlOrpcComponentId;
+    args: Readonly<{ Type: number; ProjectType: number; City: number }>;
+  }>,
+  target: Civ7GameUiTownFocusTarget
+): Readonly<{ valid: boolean; result: TownFocusValidationResult }> {
+  const commands = target.Game?.CityCommands;
+  if (typeof commands?.canStart !== "function") {
+    throw new Error("Game.CityCommands.canStart is unavailable.");
+  }
+  const commandType = target.CityCommandTypes?.CHANGE_GROWTH_MODE;
+  if (commandType === undefined) {
+    throw new Error("CityCommandTypes.CHANGE_GROWTH_MODE is unavailable.");
   }
 
+  const rawResult = commands.canStart(input.cityId, commandType, input.args, false);
   return {
-    classification: "pending-runtime-proof",
-    reason: `The ${kind} request was sent through the game UI controller, but local package tests do not prove live town focus state changed; read fresh city readiness before another request.`,
+    valid: successFromCanStart(rawResult),
+    result: snapshotJsonResult(rawResult),
+  };
+}
+
+function normalizeChangeInput(input: TownFocusChangeCheckInput): Readonly<{
+  cityId: Civ7ControlOrpcComponentId;
+  args: Readonly<{ Type: number; ProjectType: number; City: number }>;
+}> {
+  const cityId = requireComponentId(input.cityId);
+  if (!Number.isInteger(input.growthType)) {
+    throw new Error("Town focus growthType must be an integer.");
+  }
+  if (!Number.isInteger(input.projectType)) {
+    throw new Error("Town focus projectType must be an integer.");
+  }
+  return {
+    cityId,
+    args: {
+      Type: input.growthType,
+      ProjectType: input.projectType,
+      City: cityId.id,
+    },
+  };
+}
+
+function readTownFocusSnapshot(
+  cityId: Civ7ControlOrpcComponentId,
+  target: Civ7GameUiTownFocusTarget
+): TownFocusSnapshot {
+  const localPlayerId = target.GameContext?.localPlayerID;
+  const blocker = probe(() => {
+    if (!isInteger(localPlayerId)) {
+      throw new Error("GameContext.localPlayerID is unavailable.");
+    }
+    const readBlocker = target.Game?.Notifications?.getEndTurnBlockingType;
+    if (typeof readBlocker !== "function") {
+      throw new Error("Game.Notifications.getEndTurnBlockingType is unavailable.");
+    }
+    return toNotificationType(readBlocker(localPlayerId));
+  });
+
+  return {
+    cityId,
+    city: probe(() => summarizeCity(cityId, target)),
+    blocker,
+    blockingTownFocusNotification: probe(() =>
+      readBlockingTownFocusNotification(localPlayerId, blocker, target)
+    ),
+  };
+}
+
+function summarizeCity(
+  cityId: Civ7ControlOrpcComponentId,
+  target: Civ7GameUiTownFocusTarget
+): TownFocusSnapshot["city"] extends RuntimeProbe<infer City> ? City : never {
+  const readCity = target.Cities?.get;
+  if (typeof readCity !== "function") throw new Error("Cities.get is unavailable.");
+  const city = readCity(cityId);
+  if (city == null) return null;
+  if (!isObjectLike(city)) throw new Error("Cities.get returned an invalid city.");
+  const observedCityId = toComponentId(valueFrom(city, ["id", "ID"]));
+  const growth = valueFrom(city, ["Growth", "growth"]);
+  return {
+    observedCityId,
+    owner: finiteNumber(valueFrom(city, ["owner", "Owner"]) ?? observedCityId?.owner),
+    isTown: nullableBoolean(valueFrom(city, ["isTown", "IsTown"])),
+    growthType: finiteNumber(valueFrom(growth, ["growthType", "GrowthType"])),
+    projectType: finiteNumber(valueFrom(growth, ["projectType", "ProjectType"])),
+  };
+}
+
+function readBlockingTownFocusNotification(
+  localPlayerId: number | undefined,
+  blocker: RuntimeProbe<number | string | null>,
+  target: Civ7GameUiTownFocusTarget
+): TownFocusSnapshot["blockingTownFocusNotification"] extends RuntimeProbe<infer Notification>
+  ? Notification
+  : never {
+  if (!blocker.ok) throw new Error(blocker.error);
+  if (!isInteger(localPlayerId)) {
+    throw new Error("GameContext.localPlayerID is unavailable.");
+  }
+  const notifications = target.Game?.Notifications;
+  if (typeof notifications?.findEndTurnBlocking !== "function") {
+    throw new Error("Game.Notifications.findEndTurnBlocking is unavailable.");
+  }
+  const rawNotificationId = notifications.findEndTurnBlocking(localPlayerId, blocker.value);
+  if (rawNotificationId == null) return null;
+  const id = toComponentId(rawNotificationId);
+  if (id == null) {
+    throw new Error("Game.Notifications.findEndTurnBlocking returned an invalid ComponentID.");
+  }
+  const notification =
+    typeof notifications.find === "function" ? (notifications.find(id) ?? null) : null;
+  const type = toNotificationType(
+    typeof notifications.getType === "function"
+      ? notifications.getType(id)
+      : valueFrom(notification, ["Type", "type"])
+  );
+  const typeName = toNullableString(
+    typeof notifications.getTypeName === "function"
+      ? notifications.getTypeName(type)
+      : valueFrom(notification, ["TypeName", "typeName"])
+  );
+  return {
+    id,
+    type,
+    typeName,
+    target: toComponentId(valueFrom(notification, ["Target", "target"])),
   };
 }
 
 function successFromCanStart(result: unknown): boolean {
-  if (result === true) return true;
-  if (result === false || result == null) return false;
-  if (typeof result === "object") {
-    const record = result as Record<string, unknown>;
-    if (record.Success !== undefined) return record.Success === true;
-    if (record.success !== undefined) return record.success === true;
-    if (record.canStart !== undefined) return record.canStart === true;
+  if (typeof result === "boolean") return result;
+  if (result !== null && typeof result === "object" && !Array.isArray(result)) {
+    if ("Success" in result) return booleanAdmission(result.Success, "Success");
+    if ("success" in result) return booleanAdmission(result.success, "success");
+    if ("canStart" in result) return booleanAdmission(result.canStart, "canStart");
   }
-  return Boolean(result);
+  throw new Error("Game.CityCommands.canStart returned an unrecognized result.");
 }
 
-function toComponentId(input: unknown): Civ7ControlOrpcComponentId | null {
-  if (input == null || typeof input !== "object") return null;
-  const record = input as Record<string, unknown>;
-  if (
-    Number.isInteger(record.owner) &&
-    Number.isInteger(record.id) &&
-    Number.isInteger(record.type)
-  ) {
-    return {
-      owner: record.owner as number,
-      id: record.id as number,
-      type: record.type as number,
-    };
+function booleanAdmission(value: unknown, key: string): boolean {
+  if (typeof value === "boolean") return value;
+  throw new Error(`Game.CityCommands.canStart returned a non-boolean ${key} field.`);
+}
+
+function requireComponentId(value: unknown): Civ7ControlOrpcComponentId {
+  const cityId = toComponentId(value);
+  if (cityId == null) throw new Error("Town focus cityId must be a ComponentID.");
+  return cityId;
+}
+
+function toComponentId(value: unknown): Civ7ControlOrpcComponentId | null {
+  if (value == null || typeof value !== "object") return null;
+  const owner = "owner" in value ? value.owner : "Owner" in value ? value.Owner : null;
+  const id = "id" in value ? value.id : "ID" in value ? value.ID : null;
+  if (!isFiniteNumber(owner) || !isFiniteNumber(id)) return null;
+  const type = "type" in value ? value.type : "Type" in value ? value.Type : null;
+  return isFiniteNumber(type) ? { owner, id, type } : { owner, id };
+}
+
+function valueFrom(value: unknown, names: readonly string[]): unknown {
+  if (!isObjectLike(value)) return null;
+  for (const name of names) {
+    if (name in value) {
+      const field = Reflect.get(value, name);
+      return typeof field === "function" ? Reflect.apply(field, value, []) : field;
+    }
+    const getter = Reflect.get(value, `get${name}`);
+    if (typeof getter === "function") return Reflect.apply(getter, value, []);
   }
   return null;
 }
 
-function safeValue<T>(fn: () => T, fallback: T): T {
+function isObjectLike(value: unknown): value is object {
+  return (typeof value === "object" && value !== null) || typeof value === "function";
+}
+
+function isInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value);
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+function finiteNumber(value: unknown): number | null {
+  return isFiniteNumber(value) ? value : null;
+}
+
+function nullableBoolean(value: unknown): boolean | null {
+  return typeof value === "boolean" ? value : null;
+}
+
+function toNotificationType(value: unknown): number | string | null {
+  return typeof value === "string" || isInteger(value) ? value : null;
+}
+
+function toNullableString(value: unknown): string | null {
+  return typeof value === "string" ? value : null;
+}
+
+function snapshotJsonResult(value: unknown): TownFocusValidationResult {
+  const serialized = JSON.stringify(value);
+  if (serialized === undefined) {
+    throw new Error("Game.CityCommands.canStart returned non-JSON evidence.");
+  }
+  return JSON.parse(serialized);
+}
+
+function townFocusDispatchError(
+  cause: unknown,
+  dispatchStatus: "not-dispatched" | "dispatched"
+): Civ7DirectControlErrorShape {
+  const message = cause instanceof Error ? cause.message : String(cause);
+  const name: Civ7DirectControlErrorShape["name"] = "Civ7DirectControlError";
+  const code: Civ7DirectControlErrorShape["code"] = "command-failed";
+  const error = new Error(message, { cause });
+  error.name = name;
+  return Object.assign(error, {
+    name,
+    code,
+    dispatchStatus,
+  });
+}
+
+function probe<T>(read: () => T): RuntimeProbe<T> {
   try {
-    return fn();
-  } catch {
-    return fallback;
+    return { ok: true, value: read() };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
   }
 }

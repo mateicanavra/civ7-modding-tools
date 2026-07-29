@@ -46,6 +46,10 @@ describe("getCiv7ReadyCityView", () => {
             name: "Dur-Sharrukin",
             isTown: true,
             population: 4,
+            growth: {
+              growthType: -284569333,
+              projectType: -548685232,
+            },
           },
         },
         legalOperations: [
@@ -68,6 +72,11 @@ describe("getCiv7ReadyCityView", () => {
           message.includes("toComponentId(city.id ?? cityId) ?? cityId")
         )
       ).toBe(false);
+      expect(
+        server.received.some((message) =>
+          message.includes("projectType: growth.projectType ?? null")
+        )
+      ).toBe(true);
       expect(server.received.some((message) => message.includes("sendRequest"))).toBe(false);
       expect(
         Value.Check(Civ7ReadyCityViewInputSchema, {
@@ -175,7 +184,11 @@ function readyCityView() {
         location: { x: 22, y: 31 },
         population: 4,
         isTown: true,
-        growth: { growthType: -284569333, turnsUntilGrowth: 3 },
+        growth: {
+          growthType: -284569333,
+          projectType: -548685232,
+          turnsUntilGrowth: 3,
+        },
         buildQueue: { currentProductionTypeHash: null, turnsLeft: null },
       },
     },

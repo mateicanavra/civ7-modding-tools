@@ -3,23 +3,16 @@ import { createCiv7GameControlClient } from "../../../adapters/control/service-c
 import {
   buildDirectControlOptions,
   emitPlayResult,
-  executePlayOperationSequence,
   parseComponentId,
-  validatePlayOperation,
 } from "../../../adapters/play/direct-control";
 
-const CHANGE_GROWTH_MODE = "CHANGE_GROWTH_MODE";
-const CONSIDER_TOWN_PROJECT = "CONSIDER_TOWN_PROJECT";
-
 export default class GamePlaySetTownFocus extends Command {
-  static summary = "Validate or change a town focus project";
-  static description =
-    "Wraps city-command CHANGE_GROWTH_MODE for town focus choices, which are growth-mode commands rather than production BUILD requests.";
+  static summary = "Check or change a town focus";
+  static description = "Checks or applies a town focus through the Civ7 city control service.";
 
   static examples = [
     '<%= config.bin %> game play set-town-focus --city-id \'{"owner":0,"id":131073,"type":1}\' --growth-type -284569333 --project-type -548685232 --json',
     '<%= config.bin %> game play set-town-focus --city-id \'{"owner":0,"id":131073,"type":1}\' --growth-type -284569333 --project-type -548685232 --send --json',
-    '<%= config.bin %> game play set-town-focus --city-id \'{"owner":0,"id":131073,"type":1}\' --growth-type -284569333 --project-type -548685232 --send --closeout --json',
   ];
 
   static flags = {
@@ -41,15 +34,8 @@ export default class GamePlaySetTownFocus extends Command {
       description: "ProjectTypes enum value from the live town focus UI",
       required: true,
     }),
-    city: Flags.integer({
-      description: "Numeric city id for the CHANGE_GROWTH_MODE args; defaults to city-id.id",
-    }),
     send: Flags.boolean({
-      description: "Send CHANGE_GROWTH_MODE after validator success",
-      default: false,
-    }),
-    closeout: Flags.boolean({
-      description: "Also run CONSIDER_TOWN_PROJECT as part of the same caller-level workflow",
+      description: "Apply the selected town focus after the service precheck",
       default: false,
     }),
     "timeout-ms": Flags.integer({
@@ -66,98 +52,16 @@ export default class GamePlaySetTownFocus extends Command {
     const { flags } = await this.parse(GamePlaySetTownFocus);
     const cityId = parseComponentId(flags["city-id"], "city-id");
     const options = buildDirectControlOptions(flags);
-    if (flags.send) {
-      const client = createCiv7GameControlClient({
-        endpointDefaults: options,
-      });
-      const change = await client.city.townFocus.change.request({
-        cityId,
-        growthType: flags["growth-type"],
-        projectType: flags["project-type"],
-        ...(flags.city === undefined ? {} : { city: flags.city }),
-      });
-      if (flags.closeout) {
-        const review =
-          change.status === "not-sent"
-            ? null
-            : await client.city.townFocus.review.request({ cityId });
-        emitPlayResult(
-          this.log.bind(this),
-          flags.json,
-          townFocusWorkflow([
-            { label: "set town focus", result: change },
-            ...(review === null ? [] : [{ label: "close town project review", result: review }]),
-          ])
-        );
-        return;
-      }
-
-      emitPlayResult(this.log.bind(this), flags.json, change);
-      return;
-    }
-
     const input = {
-      operationType: CHANGE_GROWTH_MODE,
       cityId,
-      args: {
-        Type: flags["growth-type"],
-        ProjectType: flags["project-type"],
-        City: flags.city ?? cityId.id,
-      },
+      growthType: flags["growth-type"],
+      projectType: flags["project-type"],
     };
-    if (flags.closeout) {
-      const result = await executePlayOperationSequence(
-        [
-          {
-            label: "set town focus",
-            family: "city-command",
-            input,
-          },
-          {
-            label: "close town project review",
-            family: "city-operation",
-            input: {
-              operationType: CONSIDER_TOWN_PROJECT,
-              cityId,
-              args: {},
-            },
-          },
-        ],
-        options,
-        { send: flags.send }
-      );
-
-      emitPlayResult(this.log.bind(this), flags.json, result);
-      return;
-    }
-
-    const result = await validatePlayOperation("city-command", input, options);
+    const client = createCiv7GameControlClient({ endpointDefaults: options });
+    const result = flags.send
+      ? await client.city.townFocus.change.request(input)
+      : await client.city.townFocus.change.check(input);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }
-}
-
-function townFocusWorkflow(steps: Array<{ label: string; result: unknown }>) {
-  return {
-    mode: "send",
-    stepCount: steps.length,
-    status: steps.some(
-      (step) =>
-        typeof step.result === "object" &&
-        step.result !== null &&
-        "status" in step.result &&
-        step.result.status === "sent-unverified"
-    )
-      ? "sent-unverified"
-      : "not-sent",
-    steps,
-    nextSteps: [
-      {
-        kind: "do-not-repeat",
-        source: "city.townFocus.change.request",
-        label:
-          "Do not repeat this town focus workflow until fresh city readiness evidence is read.",
-      },
-    ],
-  };
 }

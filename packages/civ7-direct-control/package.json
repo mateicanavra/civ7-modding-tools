@@ -29,6 +29,12 @@
       "import": "./dist/live-control.js",
       "require": "./dist/live-control.cjs"
     },
+    "./play/city/town-focus": {
+      "types": "./dist/play/city/town-focus.d.ts",
+      "bun-source": "./src/play/city/town-focus.ts",
+      "import": "./dist/play/city/town-focus.js",
+      "require": "./dist/play/city/town-focus.cjs"
+    },
     "./play/progression/choice-postconditions": {
       "types": "./dist/play/progression/choice-postconditions.d.ts",
       "bun-source": "./src/play/progression/choice-postconditions.ts",
@@ -100,12 +106,6 @@
       "bun-source": "./src/proof/turn-completion-proof-policy.ts",
       "import": "./dist/proof/turn-completion-proof-policy.js",
       "require": "./dist/proof/turn-completion-proof-policy.cjs"
-    },
-    "./proof/town-focus-proof-policy": {
-      "types": "./dist/proof/town-focus-proof-policy.d.ts",
-      "bun-source": "./src/proof/town-focus-proof-policy.ts",
-      "import": "./dist/proof/town-focus-proof-policy.js",
-      "require": "./dist/proof/town-focus-proof-policy.cjs"
     },
     "./proof/unit-target-proof-policy": {
       "types": "./dist/proof/unit-target-proof-policy.d.ts",

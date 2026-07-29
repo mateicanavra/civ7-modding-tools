@@ -291,14 +291,16 @@ adding more read-only facade shells.
     semantic native unit procedure leaves over the low-level direct-control
     unit-command runtime port; do not add `operations` or `unit.command`
     public roots.
-  - [x] 5.5.6.2 Seed `city.townFocus.change.request` and
-    `city.townFocus.review.request` as semantic native city procedure leaves
-    over the low-level direct-control city-command/city-operation runtime
-    ports. Keep town focus under the `city` domain router, omit raw operation
-    type/args and legacy `verified` from normal output, keep sent town-focus
-    results pending-runtime-proof/no-repeat guarded, and keep per-leaf
-    input/result schemas plus Standard Schema adapters contract-local rather
-    than exported caller utilities.
+  - [x] 5.5.6.2 Seed `city.townFocus.change.check/request` and
+    `city.townFocus.review.check/request` as semantic native city procedure
+    leaves over bounded direct-control change-check, change-send, review-read,
+    and review-send atoms. Keep town focus under the `city` domain router,
+    derive the native `City` argument from `cityId` without a caller override,
+    omit raw operation type/args and legacy `verified` from normal output, keep
+    semantic admission, polling/postconditions, dispatch uncertainty, and
+    no-repeat policy service-owned, classify sent results as confirmed or
+    unverified, and keep per-leaf input/result schemas plus Standard Schema
+    adapters contract-local rather than exported caller utilities.
   - [x] 5.5.7 Seed `readiness.current` as a native service-owned procedure
     that projects direct-control playable status into safe readiness,
     capability, source-summary, and next-step output without exposing raw
@@ -718,15 +720,15 @@ adding more read-only facade shells.
     CLI interface, but it is not repeated as a notification action. Prove the
     generated notification-view source omits `--player-id` from send
     templates and live runtime proof pending.
-  - [x] 7.1.9.4 Route `civ7 game play set-town-focus --send` and
-    `civ7 game play consider-town-project --send` through the in-process
-    city town-focus server-side clients under the `city` router. Keep endpoint
-    flags as context construction, emit semantic city town-focus output,
-    preserve direct-control city-command/city-operation validation for
-    read-only mode, remove raw `sendPlayOperation` fallback branches from the
-    migrated commands, and keep sent town-focus results
-    pending-runtime-proof/no-repeat guarded until a real city-read owner proves
-    town project review state changed.
+  - [x] 7.1.9.4 Route `civ7 game play set-town-focus` and
+    `civ7 game play consider-town-project` through the in-process city
+    town-focus server-side clients under the `city` router in both check and
+    send modes. Keep endpoint flags as context construction, emit semantic city
+    town-focus output, use the service check leaves for read-only mode and the
+    guarded service request leaves for send mode, remove raw
+    `sendPlayOperation` fallback branches, retire caller-owned `--closeout`
+    composition, and project sent results as confirmed or unverified while
+    keeping uncertain dispatch and incomplete evidence no-repeat guarded.
   - [x] 7.1.9.5 Route `civ7 game map --summary` through the in-process
     `world.current` server-side client under the `world` router. Keep endpoint
     flags as context construction, emit the semantic current-world projection,
@@ -1387,20 +1389,21 @@ adding more read-only facade shells.
     command/session output, deployed Civ7 proof, play-thread action, and full
     `7.3` acceptance unchanged.
   - [x] 7.3.29 Add game-resident town-focus runtime dependencies for
-    `city.townFocus.change.request` and `city.townFocus.review.request`:
-    expose ambient `Game.CityCommands.canStart/sendRequest` for
-    `CHANGE_GROWTH_MODE`, ambient
-    `Game.CityOperations.canStart/sendRequest` for
-    `CONSIDER_TOWN_PROJECT`, `CityCommandTypes`, `CityOperationTypes`, and
-    controller-owned local-player proof through the existing service-owned
-    city town-focus procedures; advertise the mutations only when those exact
-    game UI APIs and controller proof exist; reject sends when the requested
-    city owner does not match `GameContext.localPlayerID`; preserve
-    validator-blocked not-sent output and pending-runtime-proof/no-repeat
-    guarded sent output; keep raw game-UI function names, command/session/state
-    details, deployed Civ7 proof, play-thread action, transport expansion,
-    public package-root procedure schema exports, and full `7.3` acceptance
-    pending.
+    `city.townFocus.change.check/request` and
+    `city.townFocus.review.check/request`: expose exact ambient
+    `Game.CityCommands.canStart/sendRequest` atoms for `CHANGE_GROWTH_MODE`,
+    exact ambient `Game.CityOperations.sendRequest` for
+    `CONSIDER_TOWN_PROJECT`, and town growth/project plus matching notification
+    snapshots through the service-owned city procedures; derive the native
+    `City` change argument from `cityId` without a caller-controlled override;
+    do not invent a review `canStart` authority; keep semantic admission,
+    polling/postconditions, dispatch uncertainty, and no-repeat policy in the
+    service; classify sent outcomes as confirmed or unverified; advertise reads
+    and mutations independently; reject generic operation fallback for both
+    native operation identities; keep raw game-UI function names,
+    command/session/state details, deployed Civ7 proof, play-thread action,
+    transport expansion, public package-root procedure schema exports, and full
+    `7.3` acceptance pending.
   - [x] 7.3.30 Add game-resident progression request runtime dependencies for
     `progression.technology.target.request`,
     `progression.culture.target.request`,
@@ -1756,22 +1759,22 @@ adding more read-only facade shells.
   proofs only and do not claim deployed Civ7 runtime proof, play-thread
   action, transport expansion, a progression read service, controller ingress,
   public package-root schema exports, or parent Task 5.x/6.x/7.x acceptance.
-- [x] 8.60.4 Run focused direct-control town-focus request tests, focused
-  control-oRPC city town-focus procedure tests, focused CLI town-focus send
-  tests, direct-control and control-oRPC check/build/package gates,
+- [x] 8.60.4 Run focused direct-control town-focus atom tests, focused
+  control-oRPC city town-focus check/request tests, focused CLI town-focus
+  check/send tests, direct-control and control-oRPC check/build/package gates,
   `check:cli`, `test:cli:play`, relevant OpenSpec strict validates, and diff
-  hygiene for the CLI town-focus send migration slice. These are local CLI and
-  package proofs only and do not claim deployed Civ7 runtime proof,
-  play-thread action, transport expansion, a city read service, controller or
-  game-UI town-focus runtime, public package-root schema exports, or parent
-  Task 5.x/6.x/7.x acceptance.
+  hygiene for the CLI town-focus service migration slice. These are local CLI
+  and package proofs only and do not claim deployed Civ7 runtime proof,
+  play-thread action, transport expansion, a broader city read service,
+  controller or game-UI town-focus runtime, public package-root schema exports,
+  or parent Task 5.x/6.x/7.x acceptance.
 - [x] 8.60.5 Run focused game-ui controller and controller-ingress tests plus
   control-oRPC package test/check/build, strict OpenSpec validates, and diff
-  hygiene for the game-resident town-focus runtime dependency and controller
-  bridge allowlist slice. These are local package proofs only and do not claim
-  deployed Civ7 runtime proof, play-thread action, transport expansion, a city
-  read service, public package-root procedure schema exports, or parent Task
-  5.x/6.x/7.x acceptance.
+  hygiene for the game-resident town-focus atom dependencies and independent
+  check/request controller bridge allowlists. These are local package proofs
+  only and do not claim deployed Civ7 runtime proof, play-thread action,
+  transport expansion, a broader city read service, public package-root
+  procedure schema exports, or parent Task 5.x/6.x/7.x acceptance.
 - [x] 8.60.6 Run focused game-ui controller and controller-ingress tests plus
   control-oRPC package test/check/build, controller mod package
   test/check/build with bundle scan, strict OpenSpec validates, and diff

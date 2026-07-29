@@ -72,9 +72,14 @@ import {
 } from "./game-ui/strategy-front";
 import {
   type Civ7GameUiTownFocusTarget,
-  civ7GameUiTownFocusAvailable,
-  requestCiv7GameUiTownFocusChange,
-  requestCiv7GameUiTownFocusReviewCloseout,
+  checkCiv7GameUiTownFocusChange,
+  checkCiv7GameUiTownFocusReview,
+  civ7GameUiTownFocusChangeCheckAvailable,
+  civ7GameUiTownFocusChangeSendAvailable,
+  civ7GameUiTownFocusReviewCheckAvailable,
+  civ7GameUiTownFocusReviewSendAvailable,
+  sendCiv7GameUiTownFocusChange,
+  sendCiv7GameUiTownFocusReview,
 } from "./game-ui/town-focus";
 import {
   type Civ7GameUiUnitCommandTarget,
@@ -289,7 +294,9 @@ export type Civ7GameUiRuntimeTarget = {
   MapCities?: Civ7GameUiMapReadTarget["MapCities"];
   MapUnits?: Civ7GameUiUnitTargetActionTarget["MapUnits"];
   Units?: Civ7GameUiUnitTargetActionTarget["Units"] & Civ7GameUiStrategyFrontTarget["Units"];
-  Cities?: Civ7GameUiProductionTarget["Cities"] & Civ7GameUiStrategyFrontTarget["Cities"];
+  Cities?: Civ7GameUiProductionTarget["Cities"] &
+    Civ7GameUiTownFocusTarget["Cities"] &
+    Civ7GameUiStrategyFrontTarget["Cities"];
   InterfaceMode?: Civ7GameUiDiplomacyTarget["InterfaceMode"];
   Configuration?: {
     getGame?: () => { skipStartButton?: boolean };
@@ -372,10 +379,10 @@ function createCiv7GameUiDirectControlFacade(
       await requestCiv7GameUiTraditionChange(input, target),
     requestCiv7TraditionReviewCloseout: async (input) =>
       await requestCiv7GameUiTraditionReviewCloseout(input, target),
-    requestCiv7TownFocusChange: async (input) =>
-      await requestCiv7GameUiTownFocusChange(input, target),
-    requestCiv7TownFocusReviewCloseout: async (input) =>
-      await requestCiv7GameUiTownFocusReviewCloseout(input, target),
+    checkCiv7TownFocusChange: async (input) => await checkCiv7GameUiTownFocusChange(input, target),
+    sendCiv7TownFocusChange: async (input) => await sendCiv7GameUiTownFocusChange(input, target),
+    checkCiv7TownFocusReview: async (input) => await checkCiv7GameUiTownFocusReview(input, target),
+    sendCiv7TownFocusReview: async (input) => await sendCiv7GameUiTownFocusReview(input, target),
     requestCiv7AssignWorkerPlacement: async (input) =>
       await requestCiv7GameUiAssignWorkerPlacement(input, target),
     requestCiv7ExpandCityPlacement: async (input) =>
@@ -494,8 +501,11 @@ function gameUiSupportedMutationProcedures(target: Civ7GameUiRuntimeTarget): rea
   if (civ7GameUiPopulationPlacementAvailable(target)) {
     supported.push("city.population.place.request");
   }
-  if (civ7GameUiTownFocusAvailable(target)) {
-    supported.push("city.townFocus.change.request", "city.townFocus.review.request");
+  if (civ7GameUiTownFocusChangeSendAvailable(target)) {
+    supported.push("city.townFocus.change.request");
+  }
+  if (civ7GameUiTownFocusReviewSendAvailable(target)) {
+    supported.push("city.townFocus.review.request");
   }
   if (gameUiTurnCompletionAvailable(target)) {
     supported.push("turn.complete.request");
@@ -538,6 +548,12 @@ function gameUiSupportedReadProcedures(target: Civ7GameUiRuntimeTarget): readonl
   const supported: string[] = [];
   if (civ7GameUiProductionChoiceCheckAvailable(target)) {
     supported.push("city.production.choice.check");
+  }
+  if (civ7GameUiTownFocusChangeCheckAvailable(target)) {
+    supported.push("city.townFocus.change.check");
+  }
+  if (civ7GameUiTownFocusReviewCheckAvailable(target)) {
+    supported.push("city.townFocus.review.check");
   }
   if (gameUiControllerMutationProof(target) == null) {
     return supported;

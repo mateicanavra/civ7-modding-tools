@@ -230,6 +230,20 @@ function validateOperationInput(
       { dispatchStatus: "not-dispatched" }
     );
   }
+  if (family === "city-command" && input.operationType === "CHANGE_GROWTH_MODE") {
+    throw new Civ7DirectControlError(
+      "command-failed",
+      "city-command CHANGE_GROWTH_MODE must use the exact town focus change check/send atoms",
+      { dispatchStatus: "not-dispatched" }
+    );
+  }
+  if (family === "city-operation" && input.operationType === "CONSIDER_TOWN_PROJECT") {
+    throw new Civ7DirectControlError(
+      "command-failed",
+      "city-operation CONSIDER_TOWN_PROJECT must use the exact town focus review check/send atoms",
+      { dispatchStatus: "not-dispatched" }
+    );
+  }
   if (family === "unit-operation" && !("unitId" in input)) {
     throw new Civ7DirectControlError("command-failed", `${family} requires unitId`);
   }

@@ -9,15 +9,19 @@ proof.
 
 `@civ7/direct-control` remains runtime authority for Civ7 access: tuner socket
 framing, state selection, reconnect behavior, App UI/Tuner command source,
-validators, postcondition classifiers, no-repeat guards,
-relationship evidence policy, and runtime proof labels.
+command serialization, bounded native check/send/read atoms, low-level
+validator adaptation, immutable runtime snapshots, relationship evidence
+policy, and runtime proof labels. Supplying native facts does not make
+direct-control the owner of every semantic policy derived from those facts.
 
 `services/civ7-control` is the typed service/procedure composition owner,
 published as `@civ7/control-orpc`. It uses official oRPC and `effect-orpc`
 primitives for contracts, procedures, routers, context, middleware, typed
 errors, in-process clients, and edge-facing bindings. It does not replace
 direct-control runtime authority and does not expose raw command/session
-controls as product procedures.
+controls as product procedures. For the converged town-focus leaves, the
+service owns semantic admission, bounded polling, postcondition classification,
+dispatch uncertainty, and no-repeat policy over direct-control facts.
 
 Thin native oRPC leaves that only call a same-shaped direct-control facade
 method are transitional proof debt. They prove initial router/context/error
@@ -27,8 +31,8 @@ oRPC package, or deliberately keep only low-level runtime authority in
 direct-control and consume it as a port.
 
 Current direct-control descriptor seeds are useful boundary evidence. They are
-not the final framework. They should shrink toward atom metadata, schemas,
-policy facts, and proof vocabulary that the oRPC package consumes.
+not the final framework. They should shrink toward atom metadata, schemas, raw
+facts, and proof vocabulary that the oRPC package consumes.
 
 Older branch evidence at `d3d49b48f:packages/civ7-direct-control/src/orpc/**`
 shows a real Effect/oRPC direction: contract tree, Effect service tag, router
@@ -53,8 +57,10 @@ outcome. The workstream is rebaselined around this order:
    the service logic lives.
 
 1. Inventory atoms and policies.
-   - Direct-control files name capability owners, schemas, validators,
-     postcondition classifiers, command-source ownership, and proof labels.
+   - Direct-control files name capability owners, atom schemas, low-level
+     validator adaptation, command-source ownership, raw evidence, and proof
+     labels. Service files name any promoted semantic admission,
+     postcondition, dispatch-uncertainty, and no-repeat policy.
    - Output: atom map, policy map, dependency map, and stop conditions.
 
 2. Define oRPC contracts and context dependencies.
@@ -91,7 +97,7 @@ outcome. The workstream is rebaselined around this order:
    - No further facade-only leaves should be added.
    - The next implementation work should move real service behavior and
      composition into native oRPC procedure modules while direct-control keeps
-     low-level runtime ports and proof authority.
+     low-level runtime ports and raw evidence authority.
    - Do not add brittle tests for transient wrapper violations; if categorical
      enforcement becomes necessary, put it in the repo lint/guardrail system.
 
@@ -109,8 +115,9 @@ outcome. The workstream is rebaselined around this order:
 5. Separate runtime resources from service behavior before world/read
    composition.
    - `@civ7/direct-control` may own tuner socket/session lifecycle, state
-     selection, command serialization, raw probe execution, validators,
-     postcondition/proof owners, and resource acquisition/release.
+     selection, command serialization, raw probe execution, low-level native
+     validators, immutable evidence snapshots, and resource
+     acquisition/release.
    - `services/civ7-control` owns native service contracts, routers,
      typed context, tagged errors, middleware, semantic composition, and normal
      caller-facing projection.
@@ -127,14 +134,17 @@ outcome. The workstream is rebaselined around this order:
      validator-first, postcondition/proof recording, relationship authority,
      safe error projection, correlation, and telemetry hooks.
    - A candidate becomes middleware only when at least two procedure modules
-     need the same guard and the policy has direct-control-owned proof.
+     need the same guard and the active slice makes both its semantic policy
+     owner and source evidence explicit.
    - Use oRPC/effect-orpc middleware primitives; do not build a parallel
      `beforeHandler`/event/correlation pipeline.
 
 7. Add mutation procedures after middleware proof.
-   - Mutation procedures must preserve validator-first,
-     separated send receipt, post-read, postcondition classification,
-     no-repeat-after-unverified, and honest pending-runtime-proof semantics.
+   - Mutation procedures must preserve validator-first, separated send
+     receipt, post-read, postcondition classification,
+     no-repeat-after-unverified, and honest confirmed-versus-unverified
+     semantics. Pending-runtime-proof remains valid only where no accepted
+     live postcondition exists.
    - Legacy `verified` booleans are source evidence, not proof authority.
 
 8. Add edge adapters last.
@@ -190,7 +200,7 @@ runtime hosts.
 Acceptable direct-control prework:
 
 - adjacent TypeBox/Effect Schema owner exports for atom inputs/outputs;
-- source-owned validators and postcondition classifiers;
+- source-owned low-level validators and immutable evidence snapshots;
 - operation/proof telemetry record vocabulary;
 - command-source serialization ownership and no-raw-tunnel guards;
 - semantic normal-output vs debug/internal/proof projection boundaries;
@@ -212,7 +222,7 @@ Unacceptable direct-control prework:
 | endpoint defaults | direct-control runtime context policy | multiple procedures need host/port/timeout normalization without input fields |
 | readiness | direct-control health/status atoms | procedures share App UI/Tuner state preconditions |
 | validator-first | direct-control operation validators | send-capable procedures share pre-send validation semantics |
-| postcondition/proof | direct-control postcondition classifiers and telemetry | mutations share before/after evidence and no-repeat behavior |
+| postcondition/proof | owning procedure policy over bounded source evidence; town focus is service-owned | mutations share before/after evidence and no-repeat behavior |
 | relationship authority | current tactical `relationshipLabelPolicy` schemas plus the OpenSpec neutral-relationship invariant | read procedures need neutral label enforcement/projection |
 | error projection | direct-control error codes plus oRPC typed errors | multiple procedures need safe, non-raw failure projection |
 | telemetry hook | operation/proof telemetry contract | procedure-level proof/debug consumers are accepted |

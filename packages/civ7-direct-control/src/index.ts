@@ -81,19 +81,29 @@ export {
   sendCiv7ProductionChoice,
 } from "./play/city/production.js";
 export type {
+  Civ7TownFocusChangeCheckResult,
   Civ7TownFocusChangeInput,
-  Civ7TownFocusPostcondition,
-  Civ7TownFocusPostconditionClassification,
-  Civ7TownFocusRequestInput,
-  Civ7TownFocusRequestKind,
-  Civ7TownFocusRequestResult,
+  Civ7TownFocusChangeSendResult,
+  Civ7TownFocusChangeValidationResult,
+  Civ7TownFocusReviewCheckResult,
   Civ7TownFocusReviewInput,
-} from "./play/city/town-focus-request.js";
+  Civ7TownFocusReviewSendResult,
+  Civ7TownFocusSnapshot,
+} from "./play/city/town-focus.js";
 export {
-  requestCiv7TownFocus,
-  requestCiv7TownFocusChange,
-  requestCiv7TownFocusReviewCloseout,
-} from "./play/city/town-focus-request.js";
+  Civ7TownFocusChangeCheckResultSchema,
+  Civ7TownFocusChangeInputSchema,
+  Civ7TownFocusChangeSendResultSchema,
+  Civ7TownFocusChangeValidationResultSchema,
+  Civ7TownFocusReviewCheckResultSchema,
+  Civ7TownFocusReviewInputSchema,
+  Civ7TownFocusReviewSendResultSchema,
+  Civ7TownFocusSnapshotSchema,
+  checkCiv7TownFocusChange,
+  checkCiv7TownFocusReview,
+  sendCiv7TownFocusChange,
+  sendCiv7TownFocusReview,
+} from "./play/city/town-focus.js";
 export type {
   Civ7CelebrationChoiceInput,
   Civ7GovernmentChoiceInput,
@@ -699,14 +709,6 @@ export {
   progressionTargetProofOutcome,
   progressionTargetProofPostcondition,
 } from "./proof/progression-target-proof-policy.js";
-export type {
-  Civ7TownFocusProofOutcome,
-  Civ7TownFocusProofPostcondition,
-} from "./proof/town-focus-proof-policy.js";
-export {
-  townFocusProofOutcome,
-  townFocusProofPostcondition,
-} from "./proof/town-focus-proof-policy.js";
 export type { Civ7TurnCompletionPostconditionClassification } from "./proof/turn-completion-proof-policy";
 export {
   turnCompletionPostconditionConfirmed,
