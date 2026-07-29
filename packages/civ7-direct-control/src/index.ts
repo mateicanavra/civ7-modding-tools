@@ -137,20 +137,41 @@ export {
   sendCiv7TownFocusReview,
 } from "./play/city/town-focus.js";
 export type {
+  Civ7CelebrationChoiceCheckResult,
   Civ7CelebrationChoiceInput,
+  Civ7CelebrationChoiceOption,
+  Civ7CelebrationChoiceSendInput,
+  Civ7CelebrationChoiceSendResult,
+  Civ7CelebrationChoiceSnapshot,
+  Civ7CelebrationChoiceValidationResult,
+  Civ7GovernmentChoiceCheckResult,
   Civ7GovernmentChoiceInput,
-  Civ7GovernmentChoiceKind,
-  Civ7GovernmentChoicePostcondition,
-  Civ7GovernmentChoicePostconditionClassification,
-  Civ7GovernmentDomainChoiceInput,
-  Civ7GovernmentDomainChoiceResult,
-} from "./play/government/choice-request";
+  Civ7GovernmentChoiceOption,
+  Civ7GovernmentChoiceSendInput,
+  Civ7GovernmentChoiceSendResult,
+  Civ7GovernmentChoiceSnapshot,
+  Civ7GovernmentChoiceValidationResult,
+} from "./play/government/choice.js";
 export {
-  CIV7_GOVERNMENT_ACTIVATE_ACTION,
-  requestCiv7CelebrationChoice,
-  requestCiv7GovernmentChoice,
-  requestCiv7GovernmentDomainChoice,
-} from "./play/government/choice-request";
+  Civ7CelebrationChoiceCheckResultSchema,
+  Civ7CelebrationChoiceInputSchema,
+  Civ7CelebrationChoiceOptionSchema,
+  Civ7CelebrationChoiceSendInputSchema,
+  Civ7CelebrationChoiceSendResultSchema,
+  Civ7CelebrationChoiceSnapshotSchema,
+  Civ7CelebrationChoiceValidationResultSchema,
+  Civ7GovernmentChoiceCheckResultSchema,
+  Civ7GovernmentChoiceInputSchema,
+  Civ7GovernmentChoiceOptionSchema,
+  Civ7GovernmentChoiceSendInputSchema,
+  Civ7GovernmentChoiceSendResultSchema,
+  Civ7GovernmentChoiceSnapshotSchema,
+  Civ7GovernmentChoiceValidationResultSchema,
+  checkCiv7CelebrationChoice,
+  checkCiv7GovernmentChoice,
+  sendCiv7CelebrationChoice,
+  sendCiv7GovernmentChoice,
+} from "./play/government/choice.js";
 export {
   DEFAULT_CIV7_GAMEINFO_LIMIT,
   DEFAULT_CIV7_GAMEINFO_TABLES,
@@ -701,10 +722,6 @@ export {
   firstMeetResponseProofOutcome,
   firstMeetResponseProofPostcondition,
 } from "./proof/first-meet-response-proof-policy";
-export {
-  governmentChoiceProofOutcome,
-  governmentChoiceProofPostcondition,
-} from "./proof/government-choice-proof-policy";
 export type {
   FileSnapshot,
   FreshLogMarkerProof,

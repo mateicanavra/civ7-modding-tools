@@ -574,7 +574,9 @@ export class Civ7FirstMeetResponseUnavailableError extends ORPCTaggedError(
 export const Civ7GovernmentChoiceUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Union([
+      Type.Literal("government.choice.check"),
       Type.Literal("government.choice.request"),
+      Type.Literal("government.celebration.choice.check"),
       Type.Literal("government.celebration.choice.request"),
     ]),
     source: Type.Literal("direct-control-facade"),
@@ -591,7 +593,7 @@ export class Civ7GovernmentChoiceUnavailableError extends ORPCTaggedError(
   "Civ7GovernmentChoiceUnavailableError",
   {
     code: "GOVERNMENT_CHOICE_UNAVAILABLE",
-    message: "Direct-control government-domain choice request failed.",
+    message: "Direct-control government-domain choice operation failed.",
     schema: toStandardSchema(Civ7GovernmentChoiceUnavailableErrorDataSchema),
     status: 503,
   }

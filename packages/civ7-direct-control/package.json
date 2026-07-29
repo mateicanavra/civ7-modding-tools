@@ -35,6 +35,12 @@
       "import": "./dist/play/city/town-focus.js",
       "require": "./dist/play/city/town-focus.cjs"
     },
+    "./play/government/choice": {
+      "types": "./dist/play/government/choice.d.ts",
+      "bun-source": "./src/play/government/choice.ts",
+      "import": "./dist/play/government/choice.js",
+      "require": "./dist/play/government/choice.cjs"
+    },
     "./play/progression/choice-postconditions": {
       "types": "./dist/play/progression/choice-postconditions.d.ts",
       "bun-source": "./src/play/progression/choice-postconditions.ts",
@@ -58,12 +64,6 @@
       "bun-source": "./src/proof/first-meet-response-proof-policy.ts",
       "import": "./dist/proof/first-meet-response-proof-policy.js",
       "require": "./dist/proof/first-meet-response-proof-policy.cjs"
-    },
-    "./proof/government-choice-proof-policy": {
-      "types": "./dist/proof/government-choice-proof-policy.d.ts",
-      "bun-source": "./src/proof/government-choice-proof-policy.ts",
-      "import": "./dist/proof/government-choice-proof-policy.js",
-      "require": "./dist/proof/government-choice-proof-policy.cjs"
     },
     "./proof/narrative-choice-proof-policy": {
       "types": "./dist/proof/narrative-choice-proof-policy.d.ts",

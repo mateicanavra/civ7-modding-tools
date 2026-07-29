@@ -18,9 +18,14 @@ import {
 } from "./game-ui/first-meet";
 import {
   type Civ7GameUiGovernmentTarget,
-  civ7GameUiGovernmentAvailable,
-  requestCiv7GameUiCelebrationChoice,
-  requestCiv7GameUiGovernmentChoice,
+  checkCiv7GameUiCelebrationChoice,
+  checkCiv7GameUiGovernmentChoice,
+  civ7GameUiCelebrationChoiceCheckAvailable,
+  civ7GameUiCelebrationChoiceSendAvailable,
+  civ7GameUiGovernmentChoiceCheckAvailable,
+  civ7GameUiGovernmentChoiceSendAvailable,
+  sendCiv7GameUiCelebrationChoice,
+  sendCiv7GameUiGovernmentChoice,
 } from "./game-ui/government";
 import {
   type Civ7GameUiMapReadTarget,
@@ -144,9 +149,11 @@ export type Civ7GameUiRuntimeTarget = {
     hasSentTurnComplete?: () => boolean;
     sendTurnComplete?: () => unknown;
   };
-  GameInfo?: Civ7GameUiStrategyFrontTarget["GameInfo"];
+  Database?: Civ7GameUiGovernmentTarget["Database"];
+  GameInfo?: Civ7GameUiStrategyFrontTarget["GameInfo"] & Civ7GameUiGovernmentTarget["GameInfo"];
   Game?: Civ7GameUiProductionTarget["Game"] &
-    Civ7GameUiTownFocusTarget["Game"] & {
+    Civ7GameUiTownFocusTarget["Game"] &
+    Civ7GameUiGovernmentTarget["Game"] & {
       Diplomacy?: Civ7GameUiDiplomacyTarget["Game"] extends infer Game
         ? Game extends { Diplomacy?: infer Diplomacy }
           ? Diplomacy
@@ -220,6 +227,7 @@ export type Civ7GameUiRuntimeTarget = {
     Civ7GameUiDiplomacyTarget["PlayerOperationTypes"] &
     Civ7GameUiFirstMeetTarget["PlayerOperationTypes"] &
     Civ7GameUiGovernmentTarget["PlayerOperationTypes"];
+  PlayerOperationParameters?: Civ7GameUiGovernmentTarget["PlayerOperationParameters"];
   ProgressionTreeNodeTypes?: Civ7GameUiProgressionTarget["ProgressionTreeNodeTypes"];
   UnitCommandTypes?: Civ7GameUiUnitTargetActionTarget["UnitCommandTypes"] &
     Civ7GameUiUnitCommandTarget["UnitCommandTypes"];
@@ -364,10 +372,13 @@ function createCiv7GameUiDirectControlFacade(
       await requestCiv7GameUiDiplomacyResponse(input, target),
     requestCiv7FirstMeetResponse: async (input) =>
       await requestCiv7GameUiFirstMeetResponse(input, target),
-    requestCiv7GovernmentChoice: async (input) =>
-      await requestCiv7GameUiGovernmentChoice(input, target),
-    requestCiv7CelebrationChoice: async (input) =>
-      await requestCiv7GameUiCelebrationChoice(input, target),
+    checkCiv7GovernmentChoice: async (input) =>
+      await checkCiv7GameUiGovernmentChoice(input, target),
+    sendCiv7GovernmentChoice: async (input) => await sendCiv7GameUiGovernmentChoice(input, target),
+    checkCiv7CelebrationChoice: async (input) =>
+      await checkCiv7GameUiCelebrationChoice(input, target),
+    sendCiv7CelebrationChoice: async (input) =>
+      await sendCiv7GameUiCelebrationChoice(input, target),
     requestCiv7TechnologyChoiceCloseout: async (input) =>
       await requestCiv7GameUiTechnologyChoiceCloseout(input, target),
     requestCiv7CultureChoiceCloseout: async (input) =>
@@ -537,8 +548,11 @@ function gameUiSupportedMutationProcedures(target: Civ7GameUiRuntimeTarget): rea
   if (civ7GameUiFirstMeetResponseAvailable(target)) {
     supported.push("diplomacy.firstMeet.response.request");
   }
-  if (civ7GameUiGovernmentAvailable(target)) {
-    supported.push("government.choice.request", "government.celebration.choice.request");
+  if (civ7GameUiGovernmentChoiceSendAvailable(target)) {
+    supported.push("government.choice.request");
+  }
+  if (civ7GameUiCelebrationChoiceSendAvailable(target)) {
+    supported.push("government.celebration.choice.request");
   }
   if (civ7GameUiUnitTargetActionAvailable(target)) {
     supported.push("unit.target.action.request");
@@ -562,6 +576,12 @@ function gameUiSupportedReadProcedures(target: Civ7GameUiRuntimeTarget): readonl
   }
   if (civ7GameUiTownFocusReviewCheckAvailable(target)) {
     supported.push("city.townFocus.review.check");
+  }
+  if (civ7GameUiGovernmentChoiceCheckAvailable(target)) {
+    supported.push("government.choice.check");
+  }
+  if (civ7GameUiCelebrationChoiceCheckAvailable(target)) {
+    supported.push("government.celebration.choice.check");
   }
   if (gameUiControllerMutationProof(target) == null) {
     return supported;

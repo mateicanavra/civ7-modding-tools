@@ -7,7 +7,11 @@ import type {
   Civ7BattlefieldScanResultSchema,
   Civ7CameraFocusInput,
   Civ7CameraFocusResult,
+  Civ7CelebrationChoiceCheckResult,
   Civ7CelebrationChoiceInput,
+  Civ7CelebrationChoiceSendInput,
+  Civ7CelebrationChoiceSendResult,
+  Civ7CelebrationChoiceSnapshot,
   Civ7CityExpansionCheckResult,
   Civ7CityExpansionInput,
   Civ7CityExpansionSendResult,
@@ -32,8 +36,11 @@ import type {
   Civ7ExploreReleaseResult,
   Civ7FirstMeetResponseInput,
   Civ7FirstMeetResponseResult,
+  Civ7GovernmentChoiceCheckResult,
   Civ7GovernmentChoiceInput,
-  Civ7GovernmentDomainChoiceResult,
+  Civ7GovernmentChoiceSendInput,
+  Civ7GovernmentChoiceSendResult,
+  Civ7GovernmentChoiceSnapshot,
   Civ7MapGridInput,
   Civ7MapGridResult,
   Civ7NarrativeChoiceInput,
@@ -102,7 +109,12 @@ export type Civ7ControlOrpcNotificationDismissalResult = Civ7NotificationDismiss
 export type Civ7ControlOrpcAdvisorWarningViewedResult = Civ7AdvisorWarningViewedResult;
 export type Civ7ControlOrpcDiplomacyResponseResult = Civ7DiplomacyResponseResult;
 export type Civ7ControlOrpcFirstMeetResponseResult = Civ7FirstMeetResponseResult;
-export type Civ7ControlOrpcGovernmentChoiceResult = Civ7GovernmentDomainChoiceResult;
+export type Civ7ControlOrpcGovernmentChoiceSnapshot = Civ7GovernmentChoiceSnapshot;
+export type Civ7ControlOrpcGovernmentChoiceCheckResult = Civ7GovernmentChoiceCheckResult;
+export type Civ7ControlOrpcGovernmentChoiceSendResult = Civ7GovernmentChoiceSendResult;
+export type Civ7ControlOrpcCelebrationChoiceSnapshot = Civ7CelebrationChoiceSnapshot;
+export type Civ7ControlOrpcCelebrationChoiceCheckResult = Civ7CelebrationChoiceCheckResult;
+export type Civ7ControlOrpcCelebrationChoiceSendResult = Civ7CelebrationChoiceSendResult;
 export type Civ7ControlOrpcCultureChoiceCloseoutResult = Civ7CultureChoiceCloseoutResult;
 export type Civ7ControlOrpcNarrativeChoiceResult = Civ7NarrativeChoiceResult;
 export type Civ7ControlOrpcTechnologyChoiceCloseoutResult = Civ7TechnologyChoiceCloseoutResult;
@@ -191,14 +203,22 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Civ7FirstMeetResponseInput,
     options: Civ7DirectControlOptions | undefined
   ): Promise<Civ7ControlOrpcFirstMeetResponseResult>;
-  requestCiv7GovernmentChoice(
-    input: Omit<Civ7GovernmentChoiceInput, "kind">,
+  checkCiv7GovernmentChoice(
+    input: Civ7GovernmentChoiceInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcGovernmentChoiceResult>;
-  requestCiv7CelebrationChoice(
-    input: Omit<Civ7CelebrationChoiceInput, "kind">,
+  ): Promise<Civ7ControlOrpcGovernmentChoiceCheckResult>;
+  sendCiv7GovernmentChoice(
+    input: Civ7GovernmentChoiceSendInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcGovernmentChoiceResult>;
+  ): Promise<Civ7ControlOrpcGovernmentChoiceSendResult>;
+  checkCiv7CelebrationChoice(
+    input: Civ7CelebrationChoiceInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7ControlOrpcCelebrationChoiceCheckResult>;
+  sendCiv7CelebrationChoice(
+    input: Civ7CelebrationChoiceSendInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7ControlOrpcCelebrationChoiceSendResult>;
   requestCiv7TechnologyChoiceCloseout(
     input: Civ7TechnologyChoiceCloseoutInput,
     options: Civ7DirectControlOptions | undefined

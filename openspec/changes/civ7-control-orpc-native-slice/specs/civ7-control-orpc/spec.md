@@ -206,26 +206,34 @@ errors, and server-side callers.
   player-operation target sends, command serialization, validator output, and
   no-repeat proof facts consumed by the procedures
 
-#### Scenario: Government-domain choice service contract is offered
-- **WHEN** `government.choice.request` and
+#### Scenario: Government-domain choices use exact service procedures
+- **WHEN** `government.choice.check`, `government.choice.request`,
+  `government.celebration.choice.check`, and
   `government.celebration.choice.request` expose their caller-facing contracts
 - **THEN** control-oRPC owns the input, output, postcondition, and next-step
   schemas for those service procedures under the `government` router
-- **AND** the input omits caller player ID and admits only government
-  type/action or golden-age type, with government versus celebration expressed
-  by the domain procedure path rather than a generic operation root or
-  operation enum input
-- **AND** the procedure reads current local-player evidence before send and
-  does not treat caller-provided player ID as mutation authority
+- **AND** the input admits only government type or golden-age type; ambient
+  local-player identity and the fixed government Activate action remain native
+  runtime facts rather than caller authority
+- **AND** direct-control owns only exact native check/send adaptation and raw
+  immutable government or celebration state observations
+- **AND** the service owns semantic availability, guarded mutation, bounded
+  post-send polling, target-specific confirmation, dispatch uncertainty, and
+  no-repeat policy
+- **AND** mutation carries the service-admitted snapshot into a native
+  compare-and-send guard so a changed player, target state, action, or blocker
+  aborts before dispatch without moving semantic policy into direct-control
+- **AND** native `canStart(...).Success` remains admission authority while
+  chooser option rows remain observational evidence
+- **AND** government confirmation requires the current government to match the
+  selected government, while celebration confirmation requires the active
+  golden age normalized through `GoldenAges.lookup` and `Database.makeHash` to
+  match the selected celebration operation identity
+- **AND** generic player-operation paths reject `CHANGE_GOVERNMENT` and
+  `CHOOSE_GOLDEN_AGE`, including their supported prefixed aliases
 - **AND** endpoint, session, state, raw command, generic operation type, raw
   args, direct-control operation envelopes, and legacy `verified` remain
   excluded from procedure input and normal output
-- **AND** sent government-domain choices remain pending-runtime-proof and
-  no-repeat guarded until a future source-owned read/postcondition proves the
-  live government or celebration blocker cleared
-- **AND** direct-control remains the low-level runtime/proof owner for
-  player-operation government-domain sends, command serialization, validator
-  output, and no-repeat proof facts consumed by the procedures
 
 #### Scenario: Progression player-choice service contracts are offered
 - **WHEN** `progression.attribute.purchase.request`,
@@ -881,27 +889,26 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   player-operation validation until separate accepted service reads exist
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI government-domain sends use native government procedures
-- **WHEN** `game play choose-government --send` or
-  `game play choose-celebration --send` requests a government-domain mutation
+#### Scenario: CLI government-domain choices use native government procedures
+- **WHEN** `game play choose-government` or
+  `game play choose-celebration` checks or requests a government-domain choice
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send path calls the in-process `government.choice.request` or
-  `government.celebration.choice.request` server-side client under the
-  `government` router
-- **AND** the procedure's readiness, fresh local-player read,
-  direct-control government-domain runtime port, proof projection, and
-  no-repeat policy remain authoritative for the send
-- **AND** the send result uses live local-player evidence rather than treating
-  caller validation `--player-id` as send authority
+- **AND** read-only mode calls `government.choice.check` or
+  `government.celebration.choice.check`, while `--send` calls the corresponding
+  request procedure
+- **AND** exact runtime atoms and service-owned choice policy remain
+  authoritative for both paths
+- **AND** caller player ID and government action are omitted because ambient
+  local-player identity and the Activate action belong to the native runtime
 - **AND** the normal JSON result is the semantic government-domain procedure
   projection without raw command/session/state/Tuner details, generic
   operation type or args fields, direct-control operation envelopes, or legacy
   `verified`
-- **AND** sent government-domain choices remain `sent-unverified` with
-  do-not-repeat next steps because local tests do not prove the live government
-  or celebration blocker cleared
-- **AND** the read-only validation and option-read paths remain direct-control
-  owned until separate accepted service reads exist
+- **AND** target-specific state readback may confirm a sent choice; unchanged,
+  unavailable, or mismatched state remains unverified and no-repeat guarded
+- **AND** the commands do not embed a direct-control chooser-option reader;
+  option discovery remains on the separate notification and attention
+  observation surfaces until an accepted service-owned read exists
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI attribute/tradition player-choice sends use native progression procedures

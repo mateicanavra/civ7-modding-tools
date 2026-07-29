@@ -1294,7 +1294,7 @@ function playNotificationViewSource(): string {
           "CHANGE_GOVERNMENT",
           "{ GovernmentType, Action: Activate }",
           "official-ui",
-          [requiredInput("GovernmentType", "live government picker option", "Use the government index from choose-government --options, not the visible row position.")],
+          [requiredInput("GovernmentType", "live government picker option", "Use the government index surfaced by this notification's live picker option evidence, not the visible row position.")],
           [
             action("read government options", undefined, undefined, "enabled starting governments", "before choosing a government"),
             action("choose government", "player-operation", "CHANGE_GOVERNMENT", "{ GovernmentType, Action: Activate }", "after reading the live government option"),
@@ -1309,7 +1309,7 @@ function playNotificationViewSource(): string {
           "CHOOSE_GOLDEN_AGE",
           "{ GoldenAgeType }",
           "official-ui",
-          [requiredInput("GoldenAgeType", "live celebration chooser option", "Use the GoldenAgeType hash from choose-celebration --options, not old examples or visible row position.")],
+          [requiredInput("GoldenAgeType", "live celebration chooser option", "Use the GoldenAgeType hash surfaced by this notification's live chooser option evidence, not old examples or the visible row position.")],
           [
             action("read celebration options", undefined, undefined, "enabled celebration choices", "before choosing a celebration"),
             action("choose celebration", "player-operation", "CHOOSE_GOLDEN_AGE", "{ GoldenAgeType }", "after reading the live celebration option"),

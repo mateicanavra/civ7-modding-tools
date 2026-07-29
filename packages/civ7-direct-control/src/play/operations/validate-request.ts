@@ -231,6 +231,16 @@ function validateOperationInput(
       { dispatchStatus: "not-dispatched" }
     );
   }
+  if (
+    family === "player-operation" &&
+    (operationType === "CHANGE_GOVERNMENT" || operationType === "CHOOSE_GOLDEN_AGE")
+  ) {
+    throw new Civ7DirectControlError(
+      "command-failed",
+      `player-operation ${operationType} must use the exact government-domain choice check/send atoms`,
+      { dispatchStatus: "not-dispatched" }
+    );
+  }
   if (family === "city-operation" && operationType === "CONSIDER_TOWN_PROJECT") {
     throw new Civ7DirectControlError(
       "command-failed",

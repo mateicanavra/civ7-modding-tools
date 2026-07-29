@@ -353,16 +353,17 @@ adding more read-only facade shells.
     omit raw operation envelopes and legacy `verified` from normal output, and
     keep sent target results pending-runtime-proof/no-repeat guarded until a
     future source-owned progression read proves target state changed.
-  - [x] 5.5.13.3 Seed `government.choice.request` and
-    `government.celebration.choice.request` as native service-owned
-    government-domain mutation leaves. Keep government versus celebration in
-    the domain procedure path, omit caller `playerId` from public send inputs,
-    read current local-player evidence before send, use direct-control only as
-    the low-level player-operation runtime/proof port, omit raw operation
-    envelopes and legacy `verified` from normal output, and keep sent
-    government-domain choices
-    pending-runtime-proof/no-repeat guarded until a future source-owned read
-    proves the live government or celebration blocker cleared.
+  - [x] 5.5.13.3 Converge `government.choice.check/request` and
+    `government.celebration.choice.check/request` as exact service-owned
+    government-domain leaves. Keep government versus celebration in the domain
+    path, omit caller player/action authority, use direct-control only for
+    exact native check/send and immutable state observation, keep semantic
+    admission/polling/confirmation/no-repeat policy in the service, carry the
+    admitted snapshot through a pre-dispatch compare-and-send guard, normalize
+    current golden-age state into the dispatched hash identity, keep native
+    validation authoritative over observational option rows, retire the thick
+    direct wrapper and proof policy, and reject both identities through generic
+    player-operation paths.
   - [x] 5.5.13.4 Seed `progression.attribute.purchase.request`,
     `progression.attribute.review.request`,
     `progression.tradition.change.request`, and
@@ -691,17 +692,16 @@ adding more read-only facade shells.
     validation player-scoped through direct-control, keep generated option
     send templates playerless, prove caller `playerId` rejection at the
     procedure and bridge boundary, and keep live runtime proof pending.
-  - [x] 7.1.9.2 Route `civ7 game play choose-government --send` and
-    `civ7 game play choose-celebration --send` through the in-process
-    `government.choice.request` and
-    `government.celebration.choice.request` server-side clients under the
-    `government` router. Keep endpoint flags as context construction, emit
-    semantic government-domain output, use fresh local-player evidence rather
-    than treating `--player-id` as send authority, omit caller `--player-id`
-    from send mode, preserve direct-control option reads and player-operation
-    validation for read-only mode, and keep sent government-domain results
-    pending-runtime-proof/no-repeat guarded until a real post-read owner proves
-    the live blocker cleared.
+  - [x] 7.1.9.2 Route both read-only and send modes of
+    `civ7 game play choose-government` and
+    `civ7 game play choose-celebration` through the in-process
+    `government.choice.check/request` and
+    `government.celebration.choice.check/request` service clients. Keep
+    endpoint flags as context construction, omit caller player/action
+    authority, emit semantic government-domain output, remove the command-local
+    direct-control chooser-option reader, leave option discovery on separate
+    notification/attention observation surfaces until an accepted service read
+    exists, and keep unconfirmed sends no-repeat guarded.
   - [x] 7.1.9.3 Route `civ7 game play buy-attribute --send`,
     `civ7 game play consider-attributes --send`,
     `civ7 game play change-tradition --send`, and
@@ -1425,20 +1425,15 @@ adding more read-only facade shells.
     command/session/state details, deployed Civ7 proof, play-thread action,
     transport expansion, public package-root procedure schema exports, and
     full `7.3` acceptance pending.
-  - [x] 7.3.31 Add game-resident government-domain runtime dependencies for
-    `government.choice.request` and
-    `government.celebration.choice.request`: expose ambient
-    `Game.PlayerOperations.canStart/sendRequest`, exact
-    `PlayerOperationTypes.CHANGE_GOVERNMENT` and
-    `PlayerOperationTypes.CHOOSE_GOLDEN_AGE` enum facts, and
-    controller-owned local-player proof through the existing service-owned
-    government procedures; allowlist those leaves through closed controller
-    bridge envelopes that derive concrete schemas from the aggregated
-    `Civ7ControlOrpcContract`; advertise the mutations only when those exact
-    game UI APIs and controller proof exist; omit caller `playerId` and route
-    sends through fresh `GameContext.localPlayerID` evidence before send; preserve
-    validator-blocked not-sent output and pending-runtime-proof/no-repeat
-    guarded sent output; keep raw game-UI function names,
+  - [x] 7.3.31 Replace game-resident government-domain orchestration with four
+    exact check/send runtime atoms for `CHANGE_GOVERNMENT` and
+    `CHOOSE_GOLDEN_AGE`. Resolve `GameContext.localPlayerID` and the government
+    Activate action inside the adapter, expose raw immutable current-choice,
+    available-option, blocker, and normalized golden-age observations, preserve
+    native ComponentID identity inside runtime calls, compare service-admitted
+    evidence before dispatch, let the service own polling and target-specific
+    confirmation, advertise check and request capabilities independently, and
+    keep raw game-UI function names,
     command/session/state details, deployed Civ7 proof, play-thread action,
     transport expansion, public package-root procedure schema exports, and
     full `7.3` acceptance pending.
@@ -1742,15 +1737,13 @@ adding more read-only facade shells.
   deployed Civ7 runtime proof, play-thread action, transport expansion, a
   progression read service, controller ingress, or parent Task 5.x/6.x/7.x
   acceptance.
-- [x] 8.60.2 Run focused direct-control government-domain request tests,
-  focused control-oRPC government procedure tests, focused CLI
-  celebration/government send tests, direct-control and control-oRPC
-  check/build/package gates, `check:cli`, `test:cli:play`, relevant OpenSpec
-  strict validates, and diff hygiene for the CLI government-domain send
-  migration slice. These are local CLI and package proofs only and do not claim
-  deployed Civ7 runtime proof, play-thread action, transport expansion, a
-  government read service, controller ingress, or parent Task 5.x/6.x/7.x
-  acceptance.
+- [x] 8.60.2 Run focused exact government/celebration atom tests, focused
+  control-oRPC check/request behavior tests, focused controller and CLI choice
+  tests, the combined direct/service/controller/CLI check/test/build graph,
+  strict OpenSpec validation, stale wrapper/proof/generic-path scans, staged
+  Habitat policy, and diff hygiene. These are local package proofs only and do
+  not claim deployed Civ7 runtime proof, play-thread action, transport
+  expansion, or parent Task 5.x/6.x/7.x acceptance.
 - [x] 8.60.3 Run focused direct-control progression player-choice request
   tests, focused control-oRPC progression player-choice procedure tests,
   focused CLI attribute/tradition send tests, direct-control and

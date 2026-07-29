@@ -1,11 +1,14 @@
-import { choiceRequest } from "./choice-request";
+import { celebrationChoice } from "./celebration-choice";
+import { choice } from "./choice";
 export const router = {
   choice: {
-    request: choiceRequest.governmentChoiceRequestProcedure,
+    check: choice.check,
+    request: choice.request,
   },
   celebration: {
     choice: {
-      request: choiceRequest.governmentCelebrationChoiceRequestProcedure,
+      check: celebrationChoice.check,
+      request: celebrationChoice.request,
     },
   },
 };

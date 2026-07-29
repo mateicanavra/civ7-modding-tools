@@ -29,14 +29,17 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** converge government and celebration choices through one
-exact government service owner. Direct-control may retain only bounded native
-check, send, and observation atoms; the service owns semantic admission,
+**Current container:** converge narrative choice through one exact narrative
+service owner. Official Civ7 source establishes native
+`PlayerOperations.canStart/sendRequest(CHOOSE_NARRATIVE_STORY_DIRECTION)` as
+the gameplay authority; direct-control may retain only bounded check, send,
+and source-state observation atoms. The service owns semantic admission,
 polling, postcondition classification, and no-repeat policy; the controller
-adapts ambient Civ7 runtime calls; the CLI uses the named procedures for both
-read-only checks and explicit mutation. Retire the thick direct-owned choice
-wrapper, duplicate bridge orchestration, generic operation aliases, and direct
-proof policy only after both choice modes have one exact service path.
+adapts ambient runtime calls; the CLI uses the named service procedures for
+both read-only checks and explicit mutation. Retire the thick direct-owned
+choice wrapper, DOM panel scanning and closeout choreography, duplicate bridge
+orchestration, generic operation alias, and direct proof policy only after
+narrative choice has one exact service path.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -53,13 +56,13 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** model the official government and celebration option, check,
-send, and state-observation paths -> separate exact runtime atoms from semantic
+**Gradient:** model the official narrative option, check, send, and
+source-state observation path -> separate exact runtime atoms from semantic
 choice policy -> compose guarded service check/request procedures -> route both
-CLI modes and the controller through that service -> retire duplicate
-orchestration, generic aliases, and proof policy -> prove the full control graph
--> repeat by domain until direct-control exposes only wire atoms and explicit
-diagnostics -> resume noun normalization.
+CLI modes and the controller through that service -> retire UI choreography,
+duplicate orchestration, the generic alias, and proof policy -> prove the full
+control graph -> repeat by domain until direct-control exposes only wire atoms
+and explicit diagnostics -> resume noun normalization.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -102,6 +105,22 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-29 - Government Choice Authority Converged
+
+Government and celebration choices now use exact native check and send atoms
+through one government service owner. Direct-control owns only native
+validation, dispatch, and immutable observations; the service owns semantic
+admission, guarded mutation, bounded polling, target confirmation, dispatch
+uncertainty, and no-repeat policy; the controller and CLI are thin adapters.
+Caller-controlled player/action inputs, chooser-option validation authority,
+generic aliases, the thick direct wrapper, duplicate bridge orchestration, and
+the direct proof policy retired. Golden-age source identity is normalized to
+the dispatched hash, blocker observations are paired, and service-admitted
+state is compared immediately before native dispatch. The complete
+direct/service/controller/CLI graph, strict OpenSpec validation, and fresh
+native-authority and service-state reviews passed; deployed Civ7 behavior
+remains a separate live-proof boundary.
 
 ### 2026-07-29 - Population Placement Authority Converged
 
