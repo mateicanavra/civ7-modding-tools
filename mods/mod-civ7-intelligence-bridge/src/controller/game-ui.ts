@@ -3,8 +3,6 @@ import {
   getCiv7GameUiPlayNotificationView,
   getCiv7GameUiReadyCityView,
   getCiv7GameUiReadyUnitView,
-  getCiv7GameUiTurnCompletionStatus,
-  requestCiv7GameUiTurnComplete,
 } from "./game-ui/attention";
 import {
   type Civ7GameUiDiplomacyTarget,
@@ -92,6 +90,13 @@ import {
   sendCiv7GameUiTownFocusReview,
 } from "./game-ui/town-focus";
 import {
+  type Civ7GameUiTurnCompletionTarget,
+  checkCiv7GameUiTurnCompletion,
+  civ7GameUiTurnCompletionCheckAvailable,
+  civ7GameUiTurnCompletionSendAvailable,
+  sendCiv7GameUiTurnCompletion,
+} from "./game-ui/turn-completion";
+import {
   type Civ7GameUiUnitCommandTarget,
   checkCiv7GameUiUnitResettle,
   checkCiv7GameUiUnitUpgrade,
@@ -127,7 +132,7 @@ type Civ7GameUiPlayer = NonNullable<NonNullable<Civ7GameUiAttentionTarget["UI"]>
 
 type RuntimeProbe<T> = Readonly<{ ok: true; value: T } | { ok: false; error: string }>;
 
-export type Civ7GameUiRuntimeTarget = {
+export type Civ7GameUiRuntimeTarget = Civ7GameUiTurnCompletionTarget & {
   Civ7IntelligenceBridge?: Civ7IntelligenceBridge;
   EndTurnBlockingTypes?: Civ7GameUiNotificationDismissalTarget["EndTurnBlockingTypes"];
   NotificationModel?: Civ7GameUiNotificationDismissalTarget["NotificationModel"];
@@ -149,7 +154,6 @@ export type Civ7GameUiRuntimeTarget = {
     localObserverID?: number;
     hasRequestedPause?: () => boolean;
     hasSentTurnComplete?: () => boolean;
-    sendTurnComplete?: () => unknown;
   };
   Database?: Civ7GameUiGovernmentTarget["Database"];
   GameInfo?: Civ7GameUiStrategyFrontTarget["GameInfo"] & Civ7GameUiGovernmentTarget["GameInfo"];
@@ -314,7 +318,6 @@ export type Civ7GameUiRuntimeTarget = {
   Configuration?: {
     getGame?: () => { skipStartButton?: boolean };
   };
-  canEndTurn?: () => boolean;
 };
 
 export type Civ7GameUiControllerOptions = Readonly<{
@@ -410,7 +413,8 @@ function createCiv7GameUiDirectControlFacade(
     sendCiv7UnitUpgrade: async (input) => await sendCiv7GameUiUnitUpgrade(input, target),
     checkCiv7UnitResettle: async (input) => await checkCiv7GameUiUnitResettle(input, target),
     sendCiv7UnitResettle: async (input) => await sendCiv7GameUiUnitResettle(input, target),
-    requestCiv7TurnComplete: async () => await requestCiv7GameUiTurnComplete(target),
+    checkCiv7TurnCompletion: async (input) => await checkCiv7GameUiTurnCompletion(input, target),
+    sendCiv7TurnCompletion: async (input) => await sendCiv7GameUiTurnCompletion(input, target),
     getCiv7PlayableStatus: async () => gameUiPlayableStatus(target),
     getCiv7PlayNotificationView: async (options) =>
       await getCiv7GameUiPlayNotificationView(
@@ -436,7 +440,6 @@ function createCiv7GameUiDirectControlFacade(
       throw new Error("game-ui settlement recommendations are not supported");
     },
     getCiv7TargetCandidates: async (input) => await getCiv7GameUiTargetCandidates(input, target),
-    getCiv7TurnCompletionStatus: async () => await getCiv7GameUiTurnCompletionStatus(target),
     getCiv7VisibilitySummary: async () => {
       throw new Error("game-ui visibility summary is not supported");
     },
@@ -524,7 +527,7 @@ function gameUiSupportedMutationProcedures(target: Civ7GameUiRuntimeTarget): rea
   if (civ7GameUiTownFocusReviewSendAvailable(target)) {
     supported.push("city.townFocus.review.request");
   }
-  if (gameUiTurnCompletionAvailable(target)) {
+  if (civ7GameUiTurnCompletionSendAvailable(target)) {
     supported.push("turn.complete.request");
   }
   if (civ7GameUiProgressionChoiceAvailable(target)) {
@@ -587,6 +590,9 @@ function gameUiSupportedReadProcedures(target: Civ7GameUiRuntimeTarget): readonl
   if (civ7GameUiNarrativeChoiceCheckAvailable(target)) {
     supported.push("narrative.choice.check");
   }
+  if (civ7GameUiTurnCompletionCheckAvailable(target)) {
+    supported.push("turn.complete.check");
+  }
   if (gameUiControllerMutationProof(target) == null) {
     return supported;
   }
@@ -638,17 +644,6 @@ function gameUiWorldCurrentAvailable(target: Civ7GameUiRuntimeTarget): boolean {
     typeof target.Players?.getAliveHumanIds === "function" &&
     typeof target.Players?.getNumAliveHumans === "function" &&
     isControllerPlayerId(target.GameContext?.localPlayerID)
-  );
-}
-
-function gameUiTurnCompletionAvailable(target: Civ7GameUiRuntimeTarget): boolean {
-  return (
-    gameUiAttentionReadAvailable(target) &&
-    typeof target.GameContext?.hasSentTurnComplete === "function" &&
-    typeof target.GameContext?.sendTurnComplete === "function" &&
-    typeof target.canEndTurn === "function" &&
-    typeof target.Game?.getTurnDate === "function" &&
-    typeof target.Game?.Notifications?.getEndTurnBlockingType === "function"
   );
 }
 

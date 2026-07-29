@@ -370,37 +370,23 @@ describe("Civ7 game UI controller bootstrap", () => {
 
   test("executes turn completion through game UI service dependency", async () => {
     const sendCalls: string[] = [];
-    const deselectCalls: string[] = [];
     const target = gameUiNotificationTarget(notificationId, {
       blocksTurnAdvancement: false,
       canEndTurn: true,
       turnCompletion: {
         onSend: () => sendCalls.push("send"),
-        onDeselect: () => deselectCalls.push("deselect"),
       },
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
+    await expect(bridge.turn.complete.check({})).resolves.toEqual({ available: true });
     const response = await bridge.turn.complete.request(
       {},
       { context: { correlationId: "game-ui-turn-complete-1" } }
     );
 
     expect(response).toMatchObject({
-      sent: true,
       status: "sent-guarded",
-      before: {
-        turn: 42,
-        hasSentTurnComplete: false,
-        canEndTurn: true,
-        blocker: 0,
-      },
-      after: {
-        turn: 42,
-        hasSentTurnComplete: true,
-        canEndTurn: true,
-        blocker: 0,
-      },
       postcondition: {
         classification: "turn-complete-sent",
         confirmed: true,
@@ -414,10 +400,10 @@ describe("Civ7 game UI controller bootstrap", () => {
       ],
     });
     expect(sendCalls).toEqual(["send"]);
-    expect(deselectCalls).toEqual(["deselect"]);
     const serialized = JSON.stringify(response);
 
-    expect(serialized).not.toContain("GameContext.sendTurnComplete");
+    expect(serialized).not.toContain("GameContext");
+    expect(serialized).not.toContain("sendEndTurn");
     expect(serialized).not.toContain("game-ui-turn-completion-requested");
     expect(serialized).not.toContain('"host"');
     expect(serialized).not.toContain('"port"');
@@ -2484,23 +2470,15 @@ describe("Civ7 game UI controller bootstrap", () => {
     );
 
     expect(response).toMatchObject({
-      sent: false,
       status: "not-sent",
-      before: {
-        turn: 42,
-        hasSentTurnComplete: false,
-        canEndTurn: false,
-        blocker: notificationId.type,
-      },
-      after: null,
       postcondition: {
-        classification: "turn-completion-blocked",
+        classification: "not-sent",
         outcome: "not-sent",
         confidence: "unverified",
         confirmed: false,
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [{ kind: "inspect-turn-completion" }, { kind: "do-not-repeat" }],
+      nextSteps: [{ kind: "inspect-turn-completion" }],
     });
     expect(sendCalls).toEqual([]);
 
@@ -2525,17 +2503,12 @@ describe("Civ7 game UI controller bootstrap", () => {
     );
 
     expect(response).toMatchObject({
-      sent: false,
       status: "not-sent",
-      before: {
-        hasSentTurnComplete: true,
-        canEndTurn: true,
-      },
       postcondition: {
-        classification: "turn-completion-blocked",
+        classification: "not-sent",
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [{ kind: "inspect-turn-completion" }, { kind: "do-not-repeat" }],
+      nextSteps: [{ kind: "inspect-turn-completion" }],
     });
     expect(sendCalls).toEqual([]);
   });
@@ -3148,7 +3121,6 @@ function gameUiNotificationTarget(
     turnCompletion?: {
       initiallySent?: boolean;
       onSend?: () => void;
-      onDeselect?: () => void;
     };
     productionChoice?: {
       cityId: { owner: number; id: number; type: number };
@@ -3289,6 +3261,24 @@ function gameUiNotificationTarget(
 
   return {
     ...target,
+    document: {
+      querySelector: (selector) =>
+        selector === ".action-panel"
+          ? {
+              maybeComponent: {
+                canEndTurn: () => options.canEndTurn ?? false,
+                ...(options.turnCompletion == null
+                  ? {}
+                  : {
+                      sendEndTurn: () => {
+                        options.turnCompletion?.onSend?.();
+                        turnCompletionSent = true;
+                      },
+                    }),
+              },
+            }
+          : null,
+    },
     CityOperationTypes:
       options.productionChoice == null && options.townFocus == null
         ? undefined
@@ -3546,7 +3536,6 @@ function gameUiNotificationTarget(
             ? (options.unitCommand.nextReadyUnitId ?? null)
             : (options.firstReadyUnitId ?? null),
         getHeadSelectedCity: () => options.selectedCityId ?? null,
-        deselectAllUnits: () => options.turnCompletion?.onDeselect?.(),
       },
     },
     GameContext: {
@@ -3555,15 +3544,7 @@ function gameUiNotificationTarget(
         options.turnCompletion == null
           ? target.GameContext?.hasSentTurnComplete
           : () => turnCompletionSent,
-      sendTurnComplete:
-        options.turnCompletion == null
-          ? undefined
-          : () => {
-              options.turnCompletion?.onSend?.();
-              turnCompletionSent = true;
-            },
     },
-    canEndTurn: () => options.canEndTurn ?? false,
     Game: {
       ...target.Game,
       ProgressionTrees:

@@ -23,6 +23,8 @@ type NarrativeCall = Readonly<{
 
 type NarrativeServerOptions = Readonly<{
   canStartResult?: unknown;
+  missingActionPanelComponent?: boolean;
+  missingNativeCanEndTurn?: boolean;
   postSendBlocker?: unknown;
   preserveStateAfterSend?: boolean;
   sendError?: Error;
@@ -34,6 +36,8 @@ type FakeNarrativeServer = Readonly<{
   calls: NarrativeCall[];
   blockerReads: unknown[];
   blockerQueries: Array<Readonly<{ playerId: unknown; blockerType: unknown }>>;
+  actionPanelSelectors: string[];
+  canEndTurnReceiverMatches: boolean[];
   commandExecutions: string[];
   address(): AddressInfo;
   close(): Promise<void>;
@@ -149,10 +153,41 @@ describe("exact native narrative-choice atoms", () => {
       ]);
       expect(server.blockerReads).toEqual([narrativeBlocker]);
       expect(server.blockerQueries).toEqual([{ playerId: 0, blockerType: narrativeBlocker }]);
+      expect(server.actionPanelSelectors).toEqual([".action-panel"]);
+      expect(server.canEndTurnReceiverMatches).toEqual([true]);
       expect(server.commandExecutions).toHaveLength(1);
+      expect(server.commandExecutions[0]).toContain('document.querySelector(".action-panel")');
+      expect(server.commandExecutions[0]).toContain("component.canEndTurn()");
+      expect(server.commandExecutions[0]).not.toContain('typeof canEndTurn !== "function"');
       expect(server.commandExecutions[0]).not.toMatch(
-        /document|NarrativePopupManager|closePopup|Notifications\.activate/
+        /NarrativePopupManager|closePopup|Notifications\.activate/
       );
+    } finally {
+      await server.close();
+    }
+  });
+
+  test.each([
+    {
+      label: "missing action-panel component",
+      options: { missingActionPanelComponent: true },
+      error: ".action-panel component is unavailable",
+    },
+    {
+      label: "missing native canEndTurn method",
+      options: { missingNativeCanEndTurn: true },
+      error: "canEndTurn method is unavailable",
+    },
+  ])("keeps $label unavailable instead of inventing false", async ({ options, error }) => {
+    const server = await startNarrativeServer(options);
+    try {
+      const result = await checkCiv7NarrativeChoice({ targetType, target }, tunerOptions(server));
+
+      expect(result.snapshot.canEndTurn).toEqual({
+        ok: false,
+        error: expect.stringContaining(error),
+      });
+      expect(result.snapshot.canEndTurn).not.toEqual({ ok: true, value: false });
     } finally {
       await server.close();
     }
@@ -415,18 +450,34 @@ async function startNarrativeServer(
   const calls: NarrativeCall[] = [];
   const blockerReads: unknown[] = [];
   const blockerQueries: Array<Readonly<{ playerId: unknown; blockerType: unknown }>> = [];
+  const actionPanelSelectors: string[] = [];
+  const canEndTurnReceiverMatches: boolean[] = [];
   const commandExecutions: string[] = [];
   const runtime = {
     blocker: narrativeBlocker as unknown,
     canEndTurn: false,
   };
+  const actionPanelComponent: Record<string, unknown> = {};
+  if (!options.missingNativeCanEndTurn) {
+    actionPanelComponent.canEndTurn = function (this: unknown) {
+      canEndTurnReceiverMatches.push(this === actionPanelComponent);
+      return runtime.canEndTurn;
+    };
+  }
   const globals = {
     GameContext: { localPlayerID: 0 },
     PlayerOperationParameters: { Activate: activateAction },
     PlayerOperationTypes: {
       CHOOSE_NARRATIVE_STORY_DIRECTION: "CHOOSE_NARRATIVE_STORY_DIRECTION",
     },
-    canEndTurn: () => runtime.canEndTurn,
+    document: {
+      querySelector: (selector: string) => {
+        actionPanelSelectors.push(selector);
+        return options.missingActionPanelComponent
+          ? null
+          : { maybeComponent: actionPanelComponent };
+      },
+    },
     Game: {
       Notifications: {
         getEndTurnBlockingType: () => {
@@ -506,6 +557,8 @@ async function startNarrativeServer(
     calls,
     blockerReads,
     blockerQueries,
+    actionPanelSelectors,
+    canEndTurnReceiverMatches,
     commandExecutions,
     address: () => server.address() as AddressInfo,
     close: async () => {

@@ -53,6 +53,7 @@ const canonicalProcedureKeys = [
   "strategy.formationSnapshot",
   "strategy.frontSummary",
   "strategy.targetCandidates",
+  "turn.complete.check",
   "turn.complete.request",
   "unit.resettle.check",
   "unit.resettle.request",

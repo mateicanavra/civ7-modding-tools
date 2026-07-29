@@ -16,8 +16,9 @@ import type {
   Civ7ControlOrpcPlayNotificationViewResult,
   Civ7ControlOrpcReadyCityViewResult,
   Civ7ControlOrpcReadyUnitViewResult,
-  Civ7ControlOrpcTurnCompletionStatusResult,
+  Civ7ControlOrpcTurnCompletionCheckResult,
 } from "#civ7-control-service/model/ports/direct-control";
+import { turnCompletionAvailable } from "../../turn/model/policy/completion-postcondition";
 import type { Civ7AttentionPrioritiesInput, Civ7AttentionPrioritiesResult } from "../contract";
 import { module } from "../module";
 
@@ -46,11 +47,11 @@ export const priorities = module.priorities.effect(function* ({ context, errors,
           ...endpointDefaults,
           maxNotifications: input.maxNotifications,
         }),
-        context.directControl.getCiv7TurnCompletionStatus(endpointDefaults),
+        context.directControl.checkCiv7TurnCompletion({}, endpointDefaults),
       ]);
       const [readyUnit, readyCity] = await Promise.all([
         context.directControl.getCiv7ReadyUnitView(
-          readyUnitInputFromSources(input, notifications, turnCompletion),
+          readyUnitInputFromSources(input, notifications),
           endpointDefaults
         ),
         context.directControl.getCiv7ReadyCityView(
@@ -108,7 +109,7 @@ type BuildInput = Readonly<{
   input: Civ7AttentionPrioritiesInput;
   playableStatus: Civ7ControlOrpcPlayableStatusResult;
   notifications: Civ7ControlOrpcPlayNotificationViewResult | null;
-  turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult | null;
+  turnCompletion: Civ7ControlOrpcTurnCompletionCheckResult | null;
   readyUnit: Civ7ControlOrpcReadyUnitViewResult | null;
   readyCity: Civ7ControlOrpcReadyCityViewResult | null;
   battlefield: Civ7ControlOrpcBattlefieldScanResult | null;
@@ -138,19 +139,20 @@ function buildPrioritiesResult({
     playable: playableStatus.playable,
     readiness: playableStatus.readiness,
     localPlayerId:
+      numericValue(turnCompletion?.snapshot.localPlayerId) ??
       numericValue(notifications?.localPlayerId) ??
       numericValue(readyUnit?.localPlayerId) ??
       numericValue(readyCity?.localPlayerId) ??
       numericValue(battlefield?.localPlayerId),
-    turn: probeValue<number>(turnCompletion?.turn) ?? probeValue<number>(notifications?.turn),
-    turnDate:
-      probeValue<string>(turnCompletion?.turnDate) ?? probeValue<string>(notifications?.turnDate),
+    turn:
+      probeValue<number>(turnCompletion?.snapshot.turn) ?? probeValue<number>(notifications?.turn),
+    turnDate: probeValue<string>(notifications?.turnDate),
     canEndTurn:
       turnCompletion == null
         ? probeValue<boolean>(notifications?.canEndTurn)
-        : probeValue<boolean>(turnCompletion.canEndTurn),
+        : probeValue<boolean>(turnCompletion.snapshot.canEndTurn),
     sourceStatus,
-    turnCompletion: turnCompletionSummary(turnCompletion),
+    turnCompletion: turnCompletionSummary(turnCompletion, notifications),
     readyUnit: readyUnitSummary(readyUnit),
     readyCity: readyCitySummary(readyCity),
     battlefield: battlefieldSummary(battlefield),
@@ -173,13 +175,16 @@ function priorityItems(
   input: Readonly<{
     playableStatus: Civ7ControlOrpcPlayableStatusResult;
     notifications: Civ7ControlOrpcPlayNotificationViewResult | null;
-    turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult | null;
+    turnCompletion: Civ7ControlOrpcTurnCompletionCheckResult | null;
     readyUnit: Civ7ControlOrpcReadyUnitViewResult | null;
     readyCity: Civ7ControlOrpcReadyCityViewResult | null;
     battlefield: Civ7ControlOrpcBattlefieldScanResult | null;
   }>
 ): PriorityItem[] {
   const items: PriorityItem[] = [];
+  const notificationCoverageComplete = input.notifications?.limits.truncated !== true;
+  const turnCompletionIsAvailable =
+    input.turnCompletion != null && turnCompletionAvailable(input.turnCompletion);
   if (!input.playableStatus.playable && input.notifications == null) {
     items.push({
       priority: 100,
@@ -217,7 +222,11 @@ function priorityItems(
   }
   const nextDecision = input.notifications?.hud.nextDecision;
   if (nextDecision != null) {
-    const stale = staleUnitCommandPriority(nextDecision);
+    const stale = staleUnitCommandPriority(
+      nextDecision,
+      turnCompletionIsAvailable,
+      notificationCoverageComplete
+    );
     items.push({
       priority: nextDecision.isEndTurnBlocking === true ? 100 : 70,
       kind: stale?.kind ?? `hud:${String(nextDecision.category)}`,
@@ -299,20 +308,47 @@ function priorityItems(
     });
   }
   if (items.length === 0) {
+    if (!notificationCoverageComplete) {
+      items.push({
+        priority: 10,
+        kind: "notification-coverage-truncated",
+        summary: "notification coverage is truncated",
+        reason:
+          "The notification read reached its configured limit, so unseen blockers may remain even when native turn completion is available.",
+        blocking: true,
+        nextStep: {
+          kind: "observe",
+          source: "attention.priorities",
+          label: "Inspect complete notification coverage before considering turn completion.",
+          parameters: {},
+        },
+        evidenceLabels: ["notification-coverage-truncated"],
+      });
+      return items;
+    }
     items.push({
       priority: 10,
-      kind: "clean-read",
-      summary: "no HUD, ready-unit, ready-city, or battlefield priority surfaced",
-      reason:
-        "Fresh clean reads can use the guarded end-turn path; it rechecks blockers before mutation.",
+      kind: turnCompletionIsAvailable ? "clean-read" : "turn-completion-unavailable",
+      summary: turnCompletionIsAvailable
+        ? "native turn completion is available and no higher-priority item surfaced"
+        : "native turn completion is not currently available",
+      reason: turnCompletionIsAvailable
+        ? "Fresh native canEndTurn and hasSentTurnComplete evidence admits the guarded turn-completion service."
+        : "Empty HUD and ready-actor item sets do not authorize turn completion without an exact available native check.",
       blocking: false,
       nextStep: {
-        kind: "end-turn",
+        kind: turnCompletionIsAvailable ? "end-turn" : "observe",
         source: "attention.priorities",
-        label: "No blockers found; guarded end-turn is available.",
+        label: turnCompletionIsAvailable
+          ? "Native turn completion is available."
+          : "Refresh native turn-completion availability.",
         parameters: {},
       },
-      evidenceLabels: ["clean-attention-read"],
+      evidenceLabels: [
+        turnCompletionIsAvailable
+          ? "native-turn-completion-available"
+          : "native-turn-completion-unavailable",
+      ],
     });
   }
   return items;
@@ -451,9 +487,13 @@ function narrativeChoiceOptionsEmpty(nextDecision: Record<string, unknown>): boo
     details.enabledOptions.length === 0
   );
 }
-function staleUnitCommandPriority(nextDecision: {
-  details?: unknown;
-}): Pick<PriorityItem, "kind" | "summary" | "reason" | "nextStep"> | null {
+function staleUnitCommandPriority(
+  nextDecision: {
+    details?: unknown;
+  },
+  turnCompletionIsAvailable: boolean,
+  notificationCoverageComplete: boolean
+): Pick<PriorityItem, "kind" | "summary" | "reason" | "nextStep"> | null {
   const details = asRecord(nextDecision.details);
   if (details?.kind !== "unit-command-reconciliation") return null;
   if (
@@ -484,41 +524,42 @@ function staleUnitCommandPriority(nextDecision: {
       },
     };
   }
-  const hasSent = probeValue<boolean>(details.hasSentTurnComplete) === true;
+  const turnCompletionAdviceAvailable = turnCompletionIsAvailable && notificationCoverageComplete;
   return {
     kind: "hud:unit-command-stale-expired",
-    summary: hasSent
-      ? "expired COMMAND_UNITS has no ready unit or enabled closeout after turn-complete was sent"
-      : "expired COMMAND_UNITS has no ready unit or enabled unit closeout",
-    reason: hasSent
-      ? "Official command-units activation has no selected/first-ready unit and every scanned unit closeout is disabled; turn-complete is already sent, so wait/watch for turn advance or a new blocker instead of repeating unit operations."
-      : "Official command-units activation has no selected/first-ready unit and every scanned unit closeout is disabled; use the normal end-turn path once, then verify the turn advances or a new blocker appears.",
+    summary: "expired COMMAND_UNITS has no ready unit or enabled unit closeout candidate",
+    reason: turnCompletionAdviceAvailable
+      ? "The stale notification is observational only; a separate fresh native turn-completion check currently admits the guarded service."
+      : !notificationCoverageComplete
+        ? "Stale notification details and incomplete notification coverage do not authorize turn completion, even when the native check is available."
+        : "Stale notification details and empty closeout candidates do not authorize turn completion without a separate fresh native check.",
     nextStep: {
-      kind: hasSent ? "observe-turn-advance" : "send-turn-complete",
+      kind: turnCompletionAdviceAvailable ? "send-turn-complete" : "observe",
       source: "attention.priorities",
-      label: hasSent
-        ? "Watch for turn advance or a new blocker."
-        : "Use guarded turn completion once.",
-      parameters: {
-        hasSentTurnComplete: hasSent,
-      },
+      label: turnCompletionAdviceAvailable
+        ? "Use the available guarded turn-completion service once."
+        : !notificationCoverageComplete
+          ? "Inspect complete notification coverage before considering turn completion."
+          : "Refresh native turn-completion availability.",
+      parameters: {},
     },
   };
 }
 function turnCompletionSummary(
-  turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult | null
+  turnCompletion: Civ7ControlOrpcTurnCompletionCheckResult | null,
+  notifications: Civ7ControlOrpcPlayNotificationViewResult | null
 ): Civ7AttentionPrioritiesResult["turnCompletion"] {
   return {
-    hasSentTurnComplete: probeValue<boolean>(turnCompletion?.hasSentTurnComplete),
-    canEndTurn: probeValue<boolean>(turnCompletion?.canEndTurn),
-    firstReadyUnitId: probeValue<Civ7ComponentId>(turnCompletion?.firstReadyUnitId),
-    blockerStatus: turnCompletionBlockerStatus(turnCompletion),
+    hasSentTurnComplete: probeValue<boolean>(turnCompletion?.snapshot.hasSentTurnComplete),
+    canEndTurn: probeValue<boolean>(turnCompletion?.snapshot.canEndTurn),
+    firstReadyUnitId: probeValue<Civ7ComponentId>(notifications?.firstReadyUnitId),
+    blockerStatus: turnCompletionBlockerStatus(notifications),
   };
 }
 function turnCompletionBlockerStatus(
-  turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult | null
+  notifications: Civ7ControlOrpcPlayNotificationViewResult | null
 ): Civ7AttentionPrioritiesResult["turnCompletion"]["blockerStatus"] {
-  const blocker = turnCompletion?.blocker;
+  const blocker = notifications?.blocker;
   if (blocker == null || typeof blocker !== "object") return "unknown";
   if (!("ok" in blocker) || blocker.ok !== true) return "unknown";
   if (!("value" in blocker)) return "unknown";
@@ -576,13 +617,11 @@ function battlefieldSummary(
 }
 function readyUnitInputFromSources(
   input: Civ7AttentionPrioritiesInput,
-  notifications: Civ7ControlOrpcPlayNotificationViewResult,
-  turnCompletion: Civ7ControlOrpcTurnCompletionStatusResult
+  notifications: Civ7ControlOrpcPlayNotificationViewResult
 ): Civ7ReadyUnitViewInput {
   const unitId =
     probeValue<Civ7ComponentId>(notifications.selectedUnitId) ??
-    probeValue<Civ7ComponentId>(notifications.firstReadyUnitId) ??
-    probeValue<Civ7ComponentId>(turnCompletion.firstReadyUnitId);
+    probeValue<Civ7ComponentId>(notifications.firstReadyUnitId);
   return {
     ...(unitId == null ? {} : { unitId }),
     ...(input.readyUnitRadius == null ? {} : { radius: input.readyUnitRadius }),

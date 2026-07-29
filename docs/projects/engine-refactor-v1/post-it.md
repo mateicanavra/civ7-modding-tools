@@ -29,18 +29,18 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** converge turn completion through the official action
-panel authority. Civ7 source establishes `PanelAction.canEndTurn()` as native
-admission and `PanelAction.sendEndTurn()` as the gameplay mutation; the
-invented ambient `canEndTurn`, raw `GameContext.sendTurnComplete()`, and
-notification-derived fallback admission are not equivalent. Direct-control
-may retain only exact action-panel check, guarded send, and immutable
-source-state observation atoms. The service owns semantic availability,
-polling, postcondition classification, dispatch uncertainty, and no-repeat
-policy; the controller adapts the same action-panel component; both CLI modes
-use named service procedures. Retire the thick request wrapper, fallback
-whitelist, immediate `verified` result, direct proof policy, and the unrelated
-unready mutation only after turn completion has one exact service path.
+**Current container:** converge notification dismissal around one exact native
+read/send boundary. The official notification model and UI sources determine
+which dismissal route is authoritative for each notification kind; existing
+panel, train-manager, and raw `Game.Notifications.dismiss` paths are evidence
+to classify, not alternate public procedures to preserve. Direct-control may
+retain only exact notification observation and guarded send atoms. The
+notification service owns admission, bounded observation, postcondition
+classification, dispatch uncertainty, bulk-selection policy, and no-repeat
+guidance. Both CLI modes and queue dismissal must consume that service plane.
+Retire the thick direct request envelope, embedded `verifiedDismissed`,
+direct-owned postcondition/proof policy, and caller-side read/request split
+only after the official sources establish one honest mutation model.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -57,13 +57,14 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** model the official action-panel check, send, and source-state
-observation path -> separate exact runtime atoms from semantic turn policy ->
-compose guarded service check/request procedures -> route both CLI modes,
-attention advice, and the controller through that service -> retire fallback
-admission, duplicate orchestration, the unready mutation, and proof policy ->
-prove the full control graph -> repeat by domain until direct-control exposes
-only wire atoms and explicit diagnostics -> resume noun normalization.
+**Gradient:** classify official notification dismissal routes and observations
+-> separate exact runtime atoms from semantic notification policy -> compose
+service-owned check/request procedures and bulk dismissal over that same owner
+-> route both CLI modes and the controller through the service -> retire
+duplicate direct orchestration, verification, postcondition, and proof planes
+-> prove the full control graph -> repeat by domain until direct-control
+exposes only wire atoms and explicit diagnostics -> resume app/plugin and noun
+normalization.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -106,6 +107,21 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-29 - Native Turn Completion Authority Converged
+
+Turn completion now uses the official action-panel `canEndTurn()` and
+`sendEndTurn()` authority through one turn service owner. Direct-control owns
+only exact check/send atoms and immutable source observations; the service owns
+coherent availability, mutation admission, bounded acknowledgement polling,
+postcondition classification, dispatch uncertainty, and no-repeat policy; the
+controller and both CLI modes are thin adapters. Raw
+`GameContext.sendTurnComplete()`, invented ambient admission, notification
+fallbacks, the unready mutation, the thick request wrapper, immediate
+`verified`, and the direct proof policy retired. Truncated notification reads
+cannot authorize end-turn advice. The complete direct/service/controller/CLI
+graph, strict OpenSpec validation, and fresh native-authority and service-state
+reviews passed; deployed Civ7 behavior remains a separate live-proof boundary.
 
 ### 2026-07-29 - Narrative Choice Authority Converged
 

@@ -640,20 +640,20 @@ export {
   getCiv7TargetCandidates,
 } from "./play/tactical/target-candidates.js";
 export type {
-  Civ7TurnCompletionActionResult,
-  Civ7TurnCompletionBlockedResult,
-  Civ7TurnCompletionRequestResult,
-  Civ7TurnCompletionStatusDependencies,
-  Civ7TurnCompletionStatusInput,
-  Civ7TurnCompletionStatusResult,
+  Civ7TurnCompletionCheckResult,
+  Civ7TurnCompletionInput,
+  Civ7TurnCompletionSendInput,
+  Civ7TurnCompletionSendResult,
+  Civ7TurnCompletionSnapshot,
 } from "./play/turn-completion.js";
 export {
-  Civ7TurnCompletionStatusInputSchema,
-  Civ7TurnCompletionStatusResultSchema,
-  getCiv7TurnCompletionStatus,
-  requestCiv7TurnComplete,
-  sendCiv7TurnComplete,
-  sendCiv7TurnUnready,
+  Civ7TurnCompletionCheckResultSchema,
+  Civ7TurnCompletionInputSchema,
+  Civ7TurnCompletionSendInputSchema,
+  Civ7TurnCompletionSendResultSchema,
+  Civ7TurnCompletionSnapshotSchema,
+  checkCiv7TurnCompletion,
+  sendCiv7TurnCompletion,
 } from "./play/turn-completion.js";
 export type {
   Civ7UnitCommandCheckResult,
@@ -752,12 +752,6 @@ export {
   progressionTargetProofOutcome,
   progressionTargetProofPostcondition,
 } from "./proof/progression-target-proof-policy.js";
-export type { Civ7TurnCompletionPostconditionClassification } from "./proof/turn-completion-proof-policy";
-export {
-  turnCompletionPostconditionConfirmed,
-  turnCompletionProofOutcome,
-  turnCompletionProofPostcondition,
-} from "./proof/turn-completion-proof-policy";
 export type { Civ7UnitTargetActionVerification } from "./proof/unit-target-proof-policy";
 export {
   unitTargetProofOutcome,

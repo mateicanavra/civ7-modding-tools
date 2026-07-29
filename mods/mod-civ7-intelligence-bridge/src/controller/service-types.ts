@@ -90,11 +90,11 @@ export type Civ7ControlOrpcTechnologyChoiceCloseoutResult = Awaited<
 export type Civ7ControlOrpcTraditionsViewResult = Awaited<
   ReturnType<DirectControl["getCiv7TraditionsView"]>
 >;
-export type Civ7ControlOrpcTurnCompletionRequestResult = Awaited<
-  ReturnType<DirectControl["requestCiv7TurnComplete"]>
+export type Civ7ControlOrpcTurnCompletionCheckResult = Awaited<
+  ReturnType<DirectControl["checkCiv7TurnCompletion"]>
 >;
-export type Civ7ControlOrpcTurnCompletionStatusResult = Awaited<
-  ReturnType<DirectControl["getCiv7TurnCompletionStatus"]>
+export type Civ7ControlOrpcTurnCompletionSendResult = Awaited<
+  ReturnType<DirectControl["sendCiv7TurnCompletion"]>
 >;
 export type Civ7ControlOrpcUnitTargetActionResult = Awaited<
   ReturnType<DirectControl["requestCiv7UnitTargetAction"]>

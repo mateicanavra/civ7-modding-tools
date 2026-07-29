@@ -95,12 +95,6 @@
       "import": "./dist/proof/progression-target-proof-policy.js",
       "require": "./dist/proof/progression-target-proof-policy.cjs"
     },
-    "./proof/turn-completion-proof-policy": {
-      "types": "./dist/proof/turn-completion-proof-policy.d.ts",
-      "bun-source": "./src/proof/turn-completion-proof-policy.ts",
-      "import": "./dist/proof/turn-completion-proof-policy.js",
-      "require": "./dist/proof/turn-completion-proof-policy.cjs"
-    },
     "./proof/unit-target-proof-policy": {
       "types": "./dist/proof/unit-target-proof-policy.d.ts",
       "bun-source": "./src/proof/unit-target-proof-policy.ts",

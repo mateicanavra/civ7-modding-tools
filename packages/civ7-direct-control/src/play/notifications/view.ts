@@ -11,6 +11,7 @@ import type {
   Civ7DirectControlOptions,
   Civ7TunerState,
 } from "../../session/types.js";
+import { actionPanelTurnAuthoritySource } from "../action-panel-turn.js";
 import type { Civ7OperationFamily } from "../operations/types.js";
 
 const nullableComponentIdSchema = Type.Union([Civ7ComponentIdSchema, Type.Null()]);
@@ -287,6 +288,7 @@ function buildPlayNotificationViewCommand(options: { maxNotifications?: number }
 
 function playNotificationViewSource(): string {
   return `${probeHelperSource()}
+    ${actionPanelTurnAuthoritySource()}
     const readNumericField = (value, lowerKey, upperKey) => {
       if (!value || typeof value !== "object") return null;
       if (typeof value[lowerKey] === "number") return value[lowerKey];
@@ -1753,7 +1755,7 @@ function playNotificationViewSource(): string {
         turn: probe(() => Game.turn),
         turnDate: probe(() => Game.getTurnDate()),
         hasSentTurnComplete: probe(() => GameContext.hasSentTurnComplete()),
-        canEndTurn: probe(() => typeof canEndTurn === "function" ? canEndTurn() : false),
+        canEndTurn: readActionPanelCanEndTurn(),
         blocker,
         blockingNotificationId,
         selectedUnitId: probe(() => toComponentId(UI?.Player?.getHeadSelectedUnit?.())),

@@ -4,6 +4,7 @@ import type {
   Civ7ControlOrpcComponentId,
   Civ7ControlOrpcDirectControlFacade,
 } from "../service-types";
+import { readCiv7GameUiActionPanelCanEndTurn } from "./turn-completion";
 
 type NarrativeChoiceInput = Parameters<
   Civ7ControlOrpcDirectControlFacade["checkCiv7NarrativeChoice"]
@@ -27,7 +28,6 @@ type BlockingNotification =
     : never;
 
 export type Civ7GameUiNarrativeTarget = Readonly<{
-  canEndTurn?: () => unknown;
   Game?: {
     Notifications?: {
       getEndTurnBlockingType?: (playerId: number) => unknown;
@@ -69,6 +69,9 @@ export type Civ7GameUiNarrativeTarget = Readonly<{
   };
   PlayerOperationTypes?: {
     CHOOSE_NARRATIVE_STORY_DIRECTION?: unknown;
+  };
+  document?: {
+    querySelector?: (selector: string) => Readonly<{ maybeComponent?: unknown }> | null;
   };
 }>;
 
@@ -222,14 +225,7 @@ function readNarrativeChoiceSnapshot(target: Civ7GameUiNarrativeTarget): Narrati
     "PlayerOperationParameters.Activate"
   );
   const canEndTurn = probe(() => {
-    if (typeof target.canEndTurn !== "function") {
-      throw new Error("canEndTurn is unavailable.");
-    }
-    const value = target.canEndTurn.call(target);
-    if (typeof value !== "boolean") {
-      throw new Error("canEndTurn returned a non-boolean value.");
-    }
-    return value;
+    return readCiv7GameUiActionPanelCanEndTurn(target);
   });
   const blocker = probe(() => {
     const notifications = target.Game?.Notifications;

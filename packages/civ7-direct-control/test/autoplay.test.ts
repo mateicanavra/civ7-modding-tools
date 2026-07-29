@@ -1,17 +1,10 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
-import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
 import {
-  Civ7TurnCompletionStatusInputSchema,
-  Civ7TurnCompletionStatusResultSchema,
   configureCiv7Autoplay,
   getCiv7AutoplayStatus,
-  getCiv7TurnCompletionStatus,
-  requestCiv7TurnComplete,
-  sendCiv7TurnComplete,
-  sendCiv7TurnUnready,
   startCiv7Autoplay,
   stopCiv7Autoplay,
 } from "../src/index";
@@ -22,106 +15,9 @@ type FakeTunerServer = {
   close(): Promise<void>;
 };
 
-describe("Civ7 autoplay and turn completion", () => {
-  test("exports turn-completion status schemas with context-owned input", () => {
-    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, {})).toBe(true);
-    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { host: "127.0.0.1" })).toBe(false);
-    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { port: 4318 })).toBe(false);
-    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { state: { role: "app-ui" } })).toBe(
-      false
-    );
-    expect(
-      Value.Check(Civ7TurnCompletionStatusInputSchema, {
-        rawCommand: "GameContext.sendTurnComplete()",
-      })
-    ).toBe(false);
-
-    const status = turnCompletionStatusResult();
-    expect(Value.Check(Civ7TurnCompletionStatusResultSchema, status)).toBe(true);
-    expect(
-      Value.Check(Civ7TurnCompletionStatusResultSchema, {
-        ...status,
-        command: "GameContext.sendTurnComplete()",
-      })
-    ).toBe(false);
-  });
-
-  test("returns guard-blocked turn completion requests without sending", async () => {
-    const calls: string[] = [];
-    const blockedStatus = turnCompletionStatusResult({
-      canEndTurn: { ok: true, value: false },
-    });
-    const dependencies = {
-      executeAppUiCommand: async (options: { command: string }) => {
-        calls.push(options.command);
-        return commandResult();
-      },
-      getPlayNotificationView: async () => ({
-        notifications: [
-          {
-            isEndTurnBlocking: true,
-            typeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
-            canUserDismiss: false,
-            decision: { category: "town-focus" },
-          },
-        ],
-      }),
-      parseTurnCompletionStatus: () => blockedStatus,
-    };
-
-    const request = await requestCiv7TurnComplete({}, dependencies as never);
-
-    expect(request).toMatchObject({
-      sent: false,
-      reason: "turn-completion-blocked",
-      before: {
-        canEndTurn: { ok: true, value: false },
-      },
-    });
-    expect(calls).toHaveLength(1);
-    expect(calls[0]).toContain("GameContext.hasSentTurnComplete");
-    expect(calls).not.toContain("GameContext.sendTurnComplete()");
-    await expect(sendCiv7TurnComplete({}, dependencies as never)).rejects.toMatchObject({
-      code: "command-failed",
-    });
-  });
-
-  test("returns sent turn completion request results after command execution", async () => {
-    const calls: string[] = [];
-    const statuses = [
-      turnCompletionStatusResult(),
-      turnCompletionStatusResult({
-        turn: { ok: true, value: 13 },
-        hasSentTurnComplete: { ok: true, value: true },
-      }),
-    ];
-    const dependencies = {
-      executeAppUiCommand: async (options: { command: string }) => {
-        calls.push(options.command);
-        return commandResult();
-      },
-      getPlayNotificationView: async () => ({ notifications: [] }),
-      parseTurnCompletionStatus: () => statuses.shift() ?? turnCompletionStatusResult(),
-    };
-
-    const request = await requestCiv7TurnComplete({}, dependencies as never);
-
-    expect(request).toMatchObject({
-      sent: true,
-      verified: true,
-      before: {
-        turn: { ok: true, value: 12 },
-      },
-      after: {
-        turn: { ok: true, value: 13 },
-      },
-    });
-    expect(calls.some((command) => command.includes("GameContext.hasSentTurnComplete"))).toBe(true);
-    expect(calls).toContain("GameContext.sendTurnComplete()");
-  });
-
+describe("Civ7 autoplay", () => {
   test("routes autoplay configure and explicit unbounded start through App UI commands", async () => {
-    const server = await startAutoplayTurnTunerServer();
+    const server = await startAutoplayTunerServer();
     try {
       const { port } = server.address();
       const endpoint = { host: "127.0.0.1", port, timeoutMs: 1_000, pollIntervalMs: 5 };
@@ -197,7 +93,7 @@ describe("Civ7 autoplay and turn completion", () => {
   });
 
   test("keeps native pause enabled while waiting for autoplay stop to settle", async () => {
-    const server = await startAutoplayTurnTunerServer({ activeAutoplay: true });
+    const server = await startAutoplayTunerServer({ activeAutoplay: true });
     try {
       const { port } = server.address();
       const result = await stopCiv7Autoplay({
@@ -242,91 +138,9 @@ describe("Civ7 autoplay and turn completion", () => {
       await server.close();
     }
   });
-
-  test("returns turn-completion status and action result shapes from App UI", async () => {
-    const server = await startAutoplayTurnTunerServer();
-    try {
-      const { port } = server.address();
-      const endpoint = { host: "127.0.0.1", port, timeoutMs: 1_000 };
-
-      const status = await getCiv7TurnCompletionStatus(endpoint);
-      const complete = await sendCiv7TurnComplete(endpoint);
-      const unready = await sendCiv7TurnUnready(endpoint);
-
-      expect(status).toMatchObject({
-        host: "127.0.0.1",
-        port,
-        state: { id: "65535", name: "App UI" },
-        localPlayerId: 0,
-        turn: { ok: true, value: 12 },
-        turnDate: { ok: true, value: "3990 BCE" },
-        hasSentTurnComplete: { ok: true, value: false },
-        canEndTurn: { ok: true, value: true },
-        blocker: { ok: true, value: 0 },
-        firstReadyUnitId: { ok: true, value: null },
-      });
-      expect(complete).toMatchObject({
-        verified: true,
-        before: {
-          hasSentTurnComplete: { ok: true, value: false },
-          canEndTurn: { ok: true, value: true },
-        },
-        after: {
-          hasSentTurnComplete: { ok: true, value: true },
-        },
-        command: {
-          state: { id: "65535", name: "App UI" },
-          output: ["null"],
-        },
-      });
-      expect(unready).toMatchObject({
-        verified: true,
-        before: {
-          hasSentTurnComplete: { ok: true, value: true },
-        },
-        after: {
-          hasSentTurnComplete: { ok: true, value: false },
-        },
-        command: {
-          state: { id: "65535", name: "App UI" },
-          output: ["null"],
-        },
-      });
-      expect(server.received).toContain("CMD:65535:GameContext.sendTurnComplete()");
-      expect(server.received).toContain("CMD:65535:GameContext.sendUnreadyTurn()");
-      expect(server.received.some((message) => message.startsWith("CMD:1:"))).toBe(false);
-    } finally {
-      await server.close();
-    }
-  });
 });
 
-function commandResult() {
-  return {
-    host: "127.0.0.1",
-    port: 4318,
-    state: { id: "65535", name: "App UI" },
-    output: ["null"],
-  };
-}
-
-function turnCompletionStatusResult(overrides: Record<string, unknown> = {}) {
-  return {
-    host: "127.0.0.1",
-    port: 4318,
-    state: { id: "65535", name: "App UI" },
-    localPlayerId: 0,
-    turn: { ok: true as const, value: 12 },
-    turnDate: { ok: true as const, value: "3990 BCE" },
-    hasSentTurnComplete: { ok: true as const, value: false },
-    canEndTurn: { ok: true as const, value: true },
-    blocker: { ok: true as const, value: 0 },
-    firstReadyUnitId: { ok: true as const, value: null },
-    ...overrides,
-  };
-}
-
-async function startAutoplayTurnTunerServer(
+async function startAutoplayTunerServer(
   options: { activeAutoplay?: boolean } = {}
 ): Promise<FakeTunerServer> {
   const received: string[] = [];
@@ -336,7 +150,6 @@ async function startAutoplayTurnTunerServer(
   let observeAsPlayer = -1;
   let returnAsPlayer = -1;
   let stopPendingSnapshots = 0;
-  let hasSentTurnComplete = false;
   let turn = 12;
 
   const server = createServer((socket) => {
@@ -366,15 +179,6 @@ async function startAutoplayTurnTunerServer(
               }),
             ])
           );
-        } else if (frame.message.includes("GameContext.hasSentTurnComplete")) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(turnCompletionStatus())]));
-        } else if (frame.message === "CMD:65535:GameContext.sendTurnComplete()") {
-          hasSentTurnComplete = true;
-          turn += 1;
-          socket.write(encodeResponse(frame.listenerId, ["null"]));
-        } else if (frame.message === "CMD:65535:GameContext.sendUnreadyTurn()") {
-          hasSentTurnComplete = false;
-          socket.write(encodeResponse(frame.listenerId, ["null"]));
         } else {
           socket.write(encodeResponse(frame.listenerId, ["null"]));
         }
@@ -473,18 +277,6 @@ async function startAutoplayTurnTunerServer(
         mapSize: { ok: true, value: 0 },
         randomSeed: { ok: true, value: 111 },
       },
-    };
-  }
-
-  function turnCompletionStatus() {
-    return {
-      localPlayerId: 0,
-      turn: { ok: true, value: turn },
-      turnDate: { ok: true, value: "3990 BCE" },
-      hasSentTurnComplete: { ok: true, value: hasSentTurnComplete },
-      canEndTurn: { ok: true, value: true },
-      blocker: { ok: true, value: 0 },
-      firstReadyUnitId: { ok: true, value: null },
     };
   }
 }

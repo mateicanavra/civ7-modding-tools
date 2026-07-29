@@ -1,23 +1,77 @@
 import { call } from "@orpc/server";
+import { Effect, Fiber, TestClock, TestContext } from "effect";
 import { describe, expect, test } from "vitest";
+
 import {
   type Civ7ControlOrpcContext,
   Civ7ControlOrpcRouter,
   createCiv7ControlOrpcServerClient,
 } from "../../../../src/index";
-import type { Civ7ControlOrpcTurnCompletionRequestResult } from "../../../../src/service/model/ports/direct-control";
+import type {
+  Civ7ControlOrpcCommandDispatchStatus,
+  Civ7ControlOrpcRuntimeProbe,
+  Civ7ControlOrpcTurnCompletionCheckResult,
+  Civ7ControlOrpcTurnCompletionSendResult,
+  Civ7ControlOrpcTurnCompletionSnapshot,
+} from "../../../../src/service/model/ports/direct-control";
+import { pollTurnCompletionPostcondition } from "../../../../src/service/modules/turn/model/policy/completion-polling";
+import { civ7TurnCompletionPostcondition } from "../../../../src/service/modules/turn/model/policy/completion-postcondition";
+import { directControlFacadeFixture } from "../../../support/direct-control-facade";
+import { playableStatusResult } from "../../../support/playable-status";
 
-type TurnCompletionServiceResult = Awaited<
-  ReturnType<ReturnType<typeof createCiv7ControlOrpcServerClient>["turn"]["complete"]["request"]>
->;
+const endpointDefaults = {
+  host: "127.0.0.1",
+  port: 4318,
+  timeoutMs: 1_000,
+} as const;
 
-describe("turn.complete.request control-oRPC procedure", () => {
-  test("calls the turn completion mutation through native Effect/oRPC with readiness guards", async () => {
-    const fake = fakeContext(
-      turnCompletionActionResult({
-        after: turnCompletionStatus({ turn: 13, hasSentTurnComplete: false }),
-      })
-    );
+describe("turn completion control-oRPC procedures", () => {
+  test.each([
+    ["canEndTurn false", snapshot({ canEndTurn: probe(false) })],
+    ["hasSentTurnComplete true", snapshot({ hasSentTurnComplete: probe(true) })],
+    ["canEndTurn unreadable", snapshot({ canEndTurn: failedProbe("canEnd unavailable") })],
+    [
+      "hasSentTurnComplete unreadable",
+      snapshot({ hasSentTurnComplete: failedProbe("sent state unavailable") }),
+    ],
+    ["turn unreadable", snapshot({ turn: failedProbe("turn unavailable") })],
+    ["turn non-finite", snapshot({ turn: probe(Number.NaN) })],
+    ["local player invalid", snapshot({ localPlayerId: -1 })],
+  ] as const)("checks exact native availability and rejects %s", async (_description, observed) => {
+    const fake = fakeContext({
+      checks: [turnCheck(observed)],
+    });
+    const client = createCiv7ControlOrpcServerClient(fake.context);
+
+    await expect(client.turn.complete.check({})).resolves.toEqual({
+      available: false,
+    });
+    expect(fake.calls.checks).toEqual([
+      {
+        input: {},
+        options: endpointDefaults,
+      },
+    ]);
+  });
+
+  test("reports available only for a coherent dispatchable native snapshot", async () => {
+    const fake = fakeContext({
+      checks: [turnCheck(snapshot())],
+    });
+
+    await expect(
+      call(Civ7ControlOrpcRouter.turn.complete.check, {}, { context: fake.context })
+    ).resolves.toEqual({ available: true });
+  });
+
+  test.each([
+    ["canEndTurn false", snapshot({ canEndTurn: probe(false) })],
+    ["turn unreadable", snapshot({ turn: failedProbe("turn unavailable") })],
+    ["local player invalid", snapshot({ localPlayerId: -1 })],
+  ] as const)("projects %s as not-sent without dispatch", async (_description, observed) => {
+    const fake = fakeContext({
+      checks: [turnCheck(observed)],
+    });
 
     const result = await call(
       Civ7ControlOrpcRouter.turn.complete.request,
@@ -25,38 +79,46 @@ describe("turn.complete.request control-oRPC procedure", () => {
       { context: fake.context }
     );
 
-    expect(fake.calls.readiness).toHaveLength(1);
-    expect(fake.calls.turnCompletion).toEqual([
+    expect(fake.calls.sends).toEqual([]);
+    expect(result).toMatchObject({
+      status: "not-sent",
+      postcondition: {
+        classification: "not-sent",
+        outcome: "not-sent",
+        confidence: "unverified",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [{ kind: "inspect-turn-completion" }],
+    });
+    expectSemanticTurnCompletionOmitsRuntimeDetails(result);
+  });
+
+  test("confirms turn advance as refresh-safe", async () => {
+    const before = snapshot();
+    const after = snapshot({ turn: probe(13) });
+    const fake = fakeContext({
+      checks: [turnCheck(before)],
+      sends: [turnSend({ before, after })],
+    });
+
+    const result = await call(
+      Civ7ControlOrpcRouter.turn.complete.request,
+      {},
+      { context: fake.context }
+    );
+
+    expect(fake.calls.sends).toEqual([
       {
-        options: {
-          host: "127.0.0.1",
-          port: 4318,
-          timeoutMs: 1_000,
-        },
+        input: { expected: before },
+        options: endpointDefaults,
       },
     ]);
     expect(result).toEqual({
-      sent: true,
       status: "sent-confirmed",
-      before: {
-        turn: 12,
-        turnDate: "3990 BCE",
-        hasSentTurnComplete: false,
-        canEndTurn: true,
-        blocker: 0,
-        firstReadyUnitId: null,
-      },
-      after: {
-        turn: 13,
-        turnDate: "3980 BCE",
-        hasSentTurnComplete: false,
-        canEndTurn: true,
-        blocker: 0,
-        firstReadyUnitId: null,
-      },
       postcondition: {
         classification: "turn-advanced",
-        reason: "The turn advanced after the turn completion send.",
+        reason: "The observed game turn advanced after the turn-completion send.",
         outcome: "cleared",
         confidence: "confirmed",
         confirmed: true,
@@ -70,15 +132,16 @@ describe("turn.complete.request control-oRPC procedure", () => {
         },
       ],
     });
-    expectPublicResultOmitsRawRuntimeDetails(result);
+    expectSemanticTurnCompletionOmitsRuntimeDetails(result);
   });
 
-  test("keeps sent turn-complete state no-repeat guarded", async () => {
-    const fake = fakeContext(
-      turnCompletionActionResult({
-        after: turnCompletionStatus({ turn: 12, hasSentTurnComplete: true }),
-      })
-    );
+  test("treats hasSent true as confirmed acknowledgement with no-repeat", async () => {
+    const before = snapshot();
+    const after = snapshot({ hasSentTurnComplete: probe(true) });
+    const fake = fakeContext({
+      checks: [turnCheck(before)],
+      sends: [turnSend({ before, after })],
+    });
 
     const result = await call(
       Civ7ControlOrpcRouter.turn.complete.request,
@@ -87,7 +150,6 @@ describe("turn.complete.request control-oRPC procedure", () => {
     );
 
     expect(result).toMatchObject({
-      sent: true,
       status: "sent-guarded",
       postcondition: {
         classification: "turn-complete-sent",
@@ -96,21 +158,17 @@ describe("turn.complete.request control-oRPC procedure", () => {
         confirmed: true,
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [
-        {
-          kind: "do-not-repeat",
-          source: "turn.complete.request",
-        },
-      ],
+      nextSteps: [{ kind: "do-not-repeat" }],
     });
   });
 
-  test("keeps no-state-change results no-repeat guarded", async () => {
-    const fake = fakeContext(
-      turnCompletionActionResult({
-        after: turnCompletionStatus({ turn: 12, hasSentTurnComplete: false }),
-      })
-    );
+  test("keeps unchanged observations sent-unverified and no-repeat guarded", async () => {
+    const before = snapshot();
+    const fake = fakeContext({
+      checks: [turnCheck(before)],
+      sends: [turnSend({ before, after: before })],
+      repeatedCheck: turnCheck(before),
+    });
 
     const result = await call(
       Civ7ControlOrpcRouter.turn.complete.request,
@@ -119,7 +177,6 @@ describe("turn.complete.request control-oRPC procedure", () => {
     );
 
     expect(result).toMatchObject({
-      sent: true,
       status: "sent-unverified",
       postcondition: {
         classification: "no-state-change",
@@ -128,47 +185,42 @@ describe("turn.complete.request control-oRPC procedure", () => {
         confirmed: false,
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [
-        {
-          kind: "do-not-repeat",
-          source: "turn.complete.request",
-        },
-      ],
+      nextSteps: [{ kind: "do-not-repeat" }],
     });
   });
 
-  test("keeps missing postconditions no-repeat guarded", async () => {
-    const fake = fakeContext(
-      turnCompletionActionResult({
-        after: turnCompletionStatus({
-          turn: 12,
-          hasSentTurnComplete: false,
-          hasSentTurnCompleteOk: false,
-        }),
-      })
-    );
+  test("keeps missing and incoherent observations unknown and no-repeat guarded", () => {
+    const before = snapshot();
+    const missing = civ7TurnCompletionPostcondition({
+      kind: "observed",
+      before,
+      after: snapshot({ turn: failedProbe("turn unavailable") }),
+    });
+    const backwards = civ7TurnCompletionPostcondition({
+      kind: "observed",
+      before,
+      after: snapshot({ turn: probe(11) }),
+    });
 
-    const result = await call(
-      Civ7ControlOrpcRouter.turn.complete.request,
-      {},
-      { context: fake.context }
-    );
-
-    expect(result).toMatchObject({
-      sent: true,
-      status: "sent-unverified",
-      postcondition: {
+    for (const postcondition of [missing, backwards]) {
+      expect(postcondition).toMatchObject({
         classification: "missing-postcondition",
         outcome: "unknown",
         confidence: "unverified",
         confirmed: false,
         noRepeatAfterUnverified: true,
-      },
-    });
+      });
+    }
   });
 
-  test("projects expected guard-blocked turn completion as semantic not-sent output", async () => {
-    const fake = fakeContext(turnCompletionBlockedResult());
+  test.each([
+    ["dispatched", "dispatch-unknown"],
+    ["indeterminate", "dispatch-unknown"],
+    ["not-dispatched", "not-sent"],
+  ] as const)("classifies %s send failure without unsafe retry advice", async (dispatchStatus, status) => {
+    const fake = fakeContext({
+      sendError: dispatchError(dispatchStatus, "turn completion send failed"),
+    });
 
     const result = await call(
       Civ7ControlOrpcRouter.turn.complete.request,
@@ -176,197 +228,231 @@ describe("turn.complete.request control-oRPC procedure", () => {
       { context: fake.context }
     );
 
-    expect(result).toMatchObject({
-      sent: false,
-      status: "not-sent",
-      before: {
-        turn: 12,
-        hasSentTurnComplete: false,
-        canEndTurn: false,
-        blocker: 0,
-        firstReadyUnitId: null,
-      },
-      after: null,
-      postcondition: {
-        classification: "turn-completion-blocked",
-        outcome: "not-sent",
-        confidence: "unverified",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
-      },
-      nextSteps: [
-        {
-          kind: "inspect-turn-completion",
-          source: "turn.complete.request",
-        },
-        {
-          kind: "do-not-repeat",
-          source: "turn.complete.request",
-        },
-      ],
-    });
-    expectPublicResultOmitsRawRuntimeDetails(result);
+    expect(result.status).toBe(status);
+    expect(result.postcondition.classification).toBe(
+      status === "not-sent" ? "not-sent" : "missing-postcondition"
+    );
+    expect(result.nextSteps[0]?.kind).toBe(
+      status === "not-sent" ? "inspect-turn-completion" : "do-not-repeat"
+    );
   });
 
-  test("maps source failures to bounded tagged errors without raw cause details", async () => {
-    const fake = fakeContext(
-      new Error(
-        "Timed out waiting for Civ7 tuner response to CMD:65535:GameContext.sendTurnComplete()"
-      )
-    );
+  test("maps check and request precheck failures to exact tagged procedure keys", async () => {
+    const failing = fakeContext({
+      checkError: new Error("turn completion state unavailable"),
+    });
 
-    let caught: unknown;
-    try {
-      await call(
-        Civ7ControlOrpcRouter.turn.complete.request,
-        {},
-        {
-          context: fake.context,
-        }
-      );
-    } catch (err) {
-      caught = err;
-    }
-
-    expect(caught).toMatchObject({
+    await expect(
+      call(Civ7ControlOrpcRouter.turn.complete.check, {}, { context: failing.context })
+    ).rejects.toMatchObject({
       code: "TURN_COMPLETION_UNAVAILABLE",
       status: 503,
-      data: {
-        procedureKey: "turn.complete.request",
-        source: "direct-control-facade",
-      },
+      data: { procedureKey: "turn.complete.check" },
     });
-    const serialized = JSON.stringify(caught);
-    expect(serialized).not.toContain("CMD");
-    expect(serialized).not.toContain("GameContext.sendTurnComplete");
-    expect(serialized).not.toContain("rawCommand");
-    expect(serialized).not.toContain("command-failed");
+    await expect(
+      call(Civ7ControlOrpcRouter.turn.complete.request, {}, { context: failing.context })
+    ).rejects.toMatchObject({
+      code: "TURN_COMPLETION_UNAVAILABLE",
+      status: 503,
+      data: { procedureKey: "turn.complete.request" },
+    });
   });
 
-  test("supports the in-process server-side router client", async () => {
-    const fake = fakeContext(
-      turnCompletionActionResult({
-        after: turnCompletionStatus({ turn: 13, hasSentTurnComplete: false }),
-      })
+  test("bounds an unfinished postcheck by the remaining Effect deadline", async () => {
+    const timeoutMs: number[] = [];
+    const never = new Promise<Civ7ControlOrpcTurnCompletionCheckResult>(() => undefined);
+    const effect = pollTurnCompletionPostcondition({
+      send: turnSend({ before: snapshot(), after: snapshot() }),
+      check: (remainingMs) => {
+        timeoutMs.push(remainingMs);
+        return never;
+      },
+      waitMs: 1_000,
+    });
+    const program = Effect.gen(function* () {
+      const fiber = yield* Effect.fork(effect);
+      yield* Effect.yieldNow();
+      yield* TestClock.adjust(1_000);
+      return yield* Fiber.join(fiber);
+    }).pipe(Effect.provide(TestContext.TestContext));
+
+    const evidence = await Effect.runPromise(program);
+
+    expect(evidence).toEqual({ kind: "postcheck-unavailable" });
+    expect(timeoutMs).toEqual([1_000]);
+  });
+
+  test("retains latest completed evidence when a later read hangs", async () => {
+    const before = snapshot();
+    const unreadableAcknowledgement = snapshot({
+      hasSentTurnComplete: failedProbe("sent state unavailable"),
+    });
+    const never = new Promise<Civ7ControlOrpcTurnCompletionCheckResult>(() => undefined);
+    let checks = 0;
+    const effect = pollTurnCompletionPostcondition({
+      send: turnSend({ before, after: before }),
+      check: () => {
+        checks += 1;
+        return checks === 1 ? Promise.resolve(turnCheck(unreadableAcknowledgement)) : never;
+      },
+      waitMs: 1_000,
+    });
+
+    const evidence = await Effect.runPromise(
+      Effect.gen(function* () {
+        const fiber = yield* Effect.fork(effect);
+        yield* Effect.yieldNow();
+        yield* TestClock.adjust(1_000);
+        return yield* Fiber.join(fiber);
+      }).pipe(Effect.provide(TestContext.TestContext))
     );
+
+    expect(civ7TurnCompletionPostcondition(evidence).classification).toBe("missing-postcondition");
+    expect(checks).toBe(2);
+  });
+
+  test("recovers from a transient postcheck failure and confirms turn advance", async () => {
+    let checks = 0;
+    const effect = pollTurnCompletionPostcondition({
+      send: turnSend({ before: snapshot(), after: snapshot() }),
+      check: () => {
+        checks += 1;
+        return checks === 1
+          ? Promise.reject(new Error("transient postcheck failure"))
+          : Promise.resolve(turnCheck(snapshot({ turn: probe(13) })));
+      },
+      waitMs: 1_000,
+    });
+
+    const evidence = await Effect.runPromise(
+      Effect.gen(function* () {
+        const fiber = yield* Effect.fork(effect);
+        yield* Effect.yieldNow();
+        yield* TestClock.adjust(250);
+        return yield* Fiber.join(fiber);
+      }).pipe(Effect.provide(TestContext.TestContext))
+    );
+
+    expect(civ7TurnCompletionPostcondition(evidence).classification).toBe("turn-advanced");
+    expect(checks).toBe(2);
+  });
+
+  test("supports both exact procedures through the in-process client", async () => {
+    const before = snapshot();
+    const fake = fakeContext({
+      checks: [turnCheck(before), turnCheck(before)],
+      sends: [turnSend({ before, after: snapshot({ turn: probe(13) }) })],
+    });
     const client = createCiv7ControlOrpcServerClient(fake.context);
 
-    const result = await client.turn.complete.request({});
-
-    expect(result.status).toBe("sent-confirmed");
-    expect(fake.calls.turnCompletion).toHaveLength(1);
+    await expect(client.turn.complete.check({})).resolves.toEqual({ available: true });
+    await expect(client.turn.complete.request({})).resolves.toMatchObject({
+      status: "sent-confirmed",
+      postcondition: { classification: "turn-advanced" },
+    });
   });
 });
 
-function expectPublicResultOmitsRawRuntimeDetails(result: TurnCompletionServiceResult): void {
+type FakeOptions = Readonly<{
+  checks?: Civ7ControlOrpcTurnCompletionCheckResult[];
+  repeatedCheck?: Civ7ControlOrpcTurnCompletionCheckResult;
+  sends?: Civ7ControlOrpcTurnCompletionSendResult[];
+  checkError?: Error;
+  sendError?: Error;
+}>;
+
+function fakeContext(options: FakeOptions = {}) {
+  const checks = [...(options.checks ?? [turnCheck(snapshot())])];
+  const sends = [...(options.sends ?? [])];
+  const calls = {
+    checks: [] as Array<{ input: unknown; options: unknown }>,
+    sends: [] as Array<{ input: unknown; options: unknown }>,
+  };
+  const context: Civ7ControlOrpcContext = {
+    endpointDefaults,
+    directControl: directControlFacadeFixture({
+      getCiv7PlayableStatus: async () => playableStatusResult({ playable: true }),
+      checkCiv7TurnCompletion: async (input, directOptions) => {
+        calls.checks.push({ input, options: directOptions });
+        if (options.checkError) throw options.checkError;
+        return checks.shift() ?? options.repeatedCheck ?? turnCheck(snapshot());
+      },
+      sendCiv7TurnCompletion: async (input, directOptions) => {
+        calls.sends.push({ input, options: directOptions });
+        if (options.sendError) throw options.sendError;
+        return (
+          sends.shift() ??
+          turnSend({
+            before: snapshot(),
+            after: snapshot({ hasSentTurnComplete: probe(true) }),
+          })
+        );
+      },
+    }),
+  };
+  return { calls, context };
+}
+
+function turnCheck(
+  observed: Civ7ControlOrpcTurnCompletionSnapshot
+): Civ7ControlOrpcTurnCompletionCheckResult {
+  return { snapshot: observed };
+}
+
+function turnSend(
+  observed: Readonly<{
+    before: Civ7ControlOrpcTurnCompletionSnapshot;
+    after: Civ7ControlOrpcTurnCompletionSnapshot;
+  }>
+): Extract<Civ7ControlOrpcTurnCompletionSendResult, { sent: true }> {
+  return {
+    sent: true,
+    before: observed.before,
+    after: observed.after,
+  };
+}
+
+function snapshot(
+  overrides: Partial<Civ7ControlOrpcTurnCompletionSnapshot> = {}
+): Civ7ControlOrpcTurnCompletionSnapshot {
+  return {
+    localPlayerId: 0,
+    turn: probe(12),
+    hasSentTurnComplete: probe(false),
+    canEndTurn: probe(true),
+    ...overrides,
+  };
+}
+
+function probe<T>(value: T): Civ7ControlOrpcRuntimeProbe<T> {
+  return { ok: true, value };
+}
+
+function failedProbe(error: string): Civ7ControlOrpcRuntimeProbe<never> {
+  return { ok: false, error };
+}
+
+function dispatchError(
+  dispatchStatus: Civ7ControlOrpcCommandDispatchStatus,
+  message: string
+): Error & { dispatchStatus: Civ7ControlOrpcCommandDispatchStatus } {
+  const error = Object.assign(new Error(message), {
+    code: "command-failed" as const,
+    dispatchStatus,
+  });
+  error.name = "Civ7DirectControlError";
+  return error;
+}
+
+function expectSemanticTurnCompletionOmitsRuntimeDetails(result: unknown) {
   const serialized = JSON.stringify(result);
   expect(serialized).not.toContain('"host"');
   expect(serialized).not.toContain('"port"');
-  expect(serialized).not.toContain('"state"');
+  expect(serialized).not.toContain('"localPlayerId"');
+  expect(serialized).not.toContain('"turn"');
+  expect(serialized).not.toContain('"hasSentTurnComplete"');
+  expect(serialized).not.toContain('"canEndTurn"');
+  expect(serialized).not.toContain('"expected"');
   expect(serialized).not.toContain('"command"');
-  expect(serialized).not.toContain("CMD");
-  expect(serialized).not.toContain("GameContext.sendTurnComplete");
   expect(serialized).not.toContain('"verified"');
-}
-
-function fakeContext(resultOrError: Civ7ControlOrpcTurnCompletionRequestResult | Error): {
-  context: Civ7ControlOrpcContext;
-  calls: {
-    readiness: unknown[];
-    turnCompletion: unknown[];
-  };
-} {
-  const calls: {
-    readiness: unknown[];
-    turnCompletion: unknown[];
-  } = {
-    readiness: [],
-    turnCompletion: [],
-  };
-  const context: Civ7ControlOrpcContext = {
-    endpointDefaults: {
-      host: "127.0.0.1",
-      port: 4318,
-      timeoutMs: 1_000,
-    },
-    directControl: {
-      getCiv7PlayableStatus: async (endpointDefaults) => {
-        calls.readiness.push(endpointDefaults);
-        return { playable: true, readiness: "tuner-ready" } as Awaited<
-          ReturnType<Civ7ControlOrpcContext["directControl"]["getCiv7PlayableStatus"]>
-        >;
-      },
-      requestCiv7TurnComplete: async (endpointDefaults) => {
-        calls.turnCompletion.push({
-          options: endpointDefaults,
-        });
-        if (resultOrError instanceof Error) throw resultOrError;
-        return resultOrError;
-      },
-    } as Civ7ControlOrpcContext["directControl"],
-  };
-
-  return { context, calls };
-}
-
-function turnCompletionActionResult(
-  overrides: Partial<Extract<Civ7ControlOrpcTurnCompletionRequestResult, { sent: true }>>
-): Extract<Civ7ControlOrpcTurnCompletionRequestResult, { sent: true }> {
-  return {
-    sent: true,
-    before: turnCompletionStatus({ turn: 12, hasSentTurnComplete: false }),
-    after: turnCompletionStatus({ turn: 12, hasSentTurnComplete: true }),
-    command: {
-      host: "127.0.0.1",
-      port: 4318,
-      state: { id: "65535", name: "App UI" },
-      output: ["CMD:65535:GameContext.sendTurnComplete()"],
-    },
-    verified: true,
-    ...overrides,
-  } as Extract<Civ7ControlOrpcTurnCompletionRequestResult, { sent: true }>;
-}
-
-function turnCompletionBlockedResult(): Extract<
-  Civ7ControlOrpcTurnCompletionRequestResult,
-  { sent: false }
-> {
-  return {
-    sent: false,
-    reason: "turn-completion-blocked",
-    before: turnCompletionStatus({
-      turn: 12,
-      hasSentTurnComplete: false,
-      canEndTurn: false,
-    }),
-  };
-}
-
-function turnCompletionStatus(
-  options: Readonly<{
-    turn: number;
-    hasSentTurnComplete: boolean;
-    canEndTurn?: boolean;
-    turnOk?: boolean;
-    hasSentTurnCompleteOk?: boolean;
-  }>
-): Civ7ControlOrpcTurnCompletionRequestResult["before"] {
-  return {
-    host: "127.0.0.1",
-    port: 4318,
-    state: { id: "65535", name: "App UI" },
-    localPlayerId: 0,
-    turn:
-      options.turnOk === false
-        ? { ok: false, error: "missing turn" }
-        : { ok: true, value: options.turn },
-    turnDate: { ok: true, value: options.turn === 12 ? "3990 BCE" : "3980 BCE" },
-    hasSentTurnComplete:
-      options.hasSentTurnCompleteOk === false
-        ? { ok: false, error: "missing sent state" }
-        : { ok: true, value: options.hasSentTurnComplete },
-    canEndTurn: { ok: true, value: options.canEndTurn ?? true },
-    blocker: { ok: true, value: 0 },
-    firstReadyUnitId: { ok: true, value: null },
-  };
 }

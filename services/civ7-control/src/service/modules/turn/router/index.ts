@@ -1,6 +1,5 @@
-import { completeRequest } from "./complete-request";
+import { complete } from "./complete";
+
 export const router = {
-  complete: {
-    request: completeRequest,
-  },
+  complete,
 };

@@ -102,12 +102,11 @@ adding more read-only facade shells.
     policy out of CLI commands into direct-control progression proof ownership.
     Keep native domain-owned progression procedures, shared postcondition
     middleware, runtime proof, and parent Task 5.x/6.x acceptance pending.
-  - [x] 5.2.7 Extract turn-completion send proof/no-repeat policy into a
-    direct-control-owned helper. Preserve the existing turn-completion runtime
-    send path while classifying turn-advanced, turn-complete-sent,
-    already-complete, no-state-change, missing-postcondition, and
-    pending-runtime-proof paths before any native turn mutation procedure is
-    accepted.
+  - [x] 5.2.7 Converge direct-control turn completion on exact action-panel
+    check/send atoms and immutable source-state observations. Remove raw
+    `GameContext.sendTurnComplete`, invented ambient `canEndTurn`, notification
+    fallback admission, unready mutation, legacy `verified`, and
+    direct-control-owned semantic proof policy.
 - [ ] 5.3 Reorganize the capability hierarchy semantically for Sieve/future
   consumers before adding more procedure leaves.
   - [x] 5.3.1 Define the target semantic capability families and transitional
@@ -189,12 +188,12 @@ adding more read-only facade shells.
     input, semantic evidence/proof projection, raw-output exclusion, and
     no-repeat next steps; broad choice/action catalogs, runtime proof, and
     parent Task 5.x/6.x acceptance remain out of scope.
-  - [x] 5.4.15 Record `turn.complete.request` as a service-owned turn
-    mutation boundary over the direct-control turn completion runtime port and
-    turn-completion proof helper. The service owns the empty caller-facing
-    input, semantic before/after proof projection, raw-output exclusion, and
-    no-repeat next steps; CLI end-turn migration, runtime proof, and parent
-    Task 5.x/6.x acceptance remain out of scope.
+  - [x] 5.4.15 Record `turn.complete.check` and `turn.complete.request` as
+    service-owned turn boundaries over exact direct-control action-panel
+    check/send atoms. The service owns native availability, guarded dispatch,
+    bounded observation, semantic postcondition projection, dispatch
+    uncertainty, raw snapshot exclusion, and no-repeat next steps; deployed
+    runtime proof and parent Task 5.x/6.x acceptance remain out of scope.
   - [x] 5.4.16 Converge `city.population.place.check` and
     `city.population.place.request` on exact worker-assignment and
     city-expansion check/send ports. Keep only native validation, dispatch, and
@@ -381,11 +380,11 @@ adding more read-only facade shells.
     progression read proves the live review state changed. Keep per-leaf
     input/result schemas and Standard Schema adapters contract-local rather
     than exporting them from the package root.
-  - [x] 5.5.14 Seed `turn.complete.request` as a native service-owned turn
-    mutation procedure that composes playable readiness,
-    direct-control turn-completion send authority, and source-owned
-    turn-completion proof classification into semantic output without exposing
-    raw command/session/Tuner details or claiming runtime/live proof.
+  - [x] 5.5.14 Seed `turn.complete.check` and `turn.complete.request` as
+    native service-owned turn procedures that compose playable readiness,
+    exact direct-control action-panel atoms, and service-owned bounded
+    observation and no-repeat policy into semantic output without exposing raw
+    command/session/Tuner details or claiming runtime/live proof.
   - [x] 5.5.15 Seed `world.current` as a native service-owned world procedure
     that projects bounded turn, local-player, map, and player-count facts from
     the playable/App UI snapshot without calling direct-control summary
@@ -540,10 +539,10 @@ adding more read-only facade shells.
     postconditions and explicit pending-proof boundaries derive normal
     postcondition summaries, request status, and no-repeat next steps without
     accepting shared validator/postcondition middleware.
-  - [x] 6.3.11 Compose `turn.complete.request` through direct-control
-    turn-completion runtime authority and source-owned turn-completion
-    proof/no-repeat semantics; keep live runtime proof and shared
-    validator/postcondition middleware pending.
+  - [x] 6.3.11 Compose `turn.complete.check` and `turn.complete.request`
+    through exact direct-control action-panel runtime atoms and service-owned
+    availability, bounded observation, dispatch uncertainty, and no-repeat
+    semantics; keep live runtime proof pending.
   - [x] 6.3.12 Promote a shared native oRPC/effect-oRPC mutation proof
     boundary middleware that inspects procedure outputs after handlers run,
     rejects missing postcondition/no-repeat envelopes, and refuses
@@ -598,12 +597,11 @@ adding more read-only facade shells.
     `readiness.current` server-side client. Keep CLI endpoint flags as context
     construction, emit the semantic readiness projection, and keep raw
     direct-control playable-status internals out of normal status output.
-  - [x] 7.1.2 Route `civ7 game play end-turn --send` through the in-process
-    `turn.complete.request` server-side client. Keep endpoint flags and
-    endpoint defaults as context construction, emit the semantic
-    turn-completion projection for send and expected guard-blocked `not-sent`
-    output, preserve the existing direct-control status read for check-only
-    mode, and keep live runtime proof pending.
+  - [x] 7.1.2 Route `civ7 game play end-turn` check and send modes through
+    the in-process `turn.complete.check` and `turn.complete.request`
+    server-side clients. Keep endpoint flags and defaults as context
+    construction, emit semantic turn-completion projections and expected
+    guard-blocked `not-sent` output, and keep live runtime proof pending.
   - [x] 7.1.3 Route `civ7 game play dismiss-notification --send` through the
     in-process `notifications.dismiss.request` server-side client. Keep
     endpoint flags and endpoint defaults as context construction, emit the
@@ -1266,14 +1264,13 @@ adding more read-only facade shells.
     so partial reads do not imply no blockers. Keep other game-UI read/mutation
     ports, deployed Civ7 proof, play-thread action, and full `7.3`
     implementation pending.
-  - [x] 7.3.18 Add a game-resident turn-completion runtime port for
-    `turn.complete.request`: expose ambient `GameContext.sendTurnComplete`,
-    `hasSentTurnComplete`, `canEndTurn`, turn, blocker, and first-ready-unit
-    evidence through the existing service-owned turn procedure; require an
-    actual send function before reporting `sent: true`; preserve semantic
-    not-sent/no-repeat output for blocked and already-sent paths; keep raw
-    game-UI function names, command/session/state details, deployed Civ7
-    proof, play-thread action, and full `7.3` acceptance pending.
+  - [x] 7.3.18 Converge the game-resident turn-completion runtime port on the
+    official `.action-panel` component's `canEndTurn()` and `sendEndTurn()`
+    methods plus immutable turn and sent-state observations. Advertise
+    `turn.complete.check` and `turn.complete.request` independently, fail
+    closed on missing native authority, and remove raw
+    `GameContext.sendTurnComplete`, invented ambient `canEndTurn`, notification
+    fallback admission, and unrelated unready-turn behavior.
   - [x] 7.3.19 Add a game-resident production-choice runtime dependency for
     `city.production.choice.request`: expose ambient
     `Game.CityOperations.canStart/sendRequest`, `CityOperationTypes.BUILD`,
@@ -2376,16 +2373,16 @@ adding more read-only facade shells.
   notification/narrative/diplomacy/progression procedure tests, package
   test/check/build, relevant OpenSpec strict validates, and diff hygiene for
   the progression closeout projection helper extension.
-- [x] 8.23 Run focused turn-completion proof-policy tests, direct-control
-  package test/check/build, relevant OpenSpec strict validates, and diff
-  hygiene for the turn-completion proof/no-repeat ownership slice.
-- [x] 8.24 Run focused control-oRPC turn-completion procedure tests,
-  control-oRPC package test/check/build, relevant OpenSpec strict validates,
-  and diff hygiene for the native turn completion procedure slice.
-- [x] 8.25 Run focused direct-control request-result, control-oRPC turn
-  completion, and CLI end-turn tests, `check:cli`, `test:cli:play`, relevant
-  OpenSpec strict validates, and diff hygiene for the CLI turn-completion send
-  migration slice.
+- [x] 8.23 Run focused exact action-panel turn-completion atom tests,
+  direct-control package test/check/build, relevant OpenSpec strict validates,
+  and diff hygiene for the turn-completion runtime-authority slice.
+- [x] 8.24 Run focused control-oRPC turn-completion check/request,
+  observation, uncertainty, and no-repeat tests; control-oRPC package
+  test/check/build; relevant OpenSpec strict validates; and diff hygiene.
+- [x] 8.25 Run focused direct-control atom, control-oRPC turn-completion,
+  game-UI controller, and CLI check/send tests, relevant package
+  check/test/build targets, OpenSpec strict validates, and diff hygiene for the
+  end-to-end turn-completion convergence slice.
 - [x] 8.26 Run focused CLI notification dismissal tests, `check:cli`,
   `test:cli:play`, relevant OpenSpec strict validates, and diff hygiene for
   the CLI notification dismissal send migration slice.

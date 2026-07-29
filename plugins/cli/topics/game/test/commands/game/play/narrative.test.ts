@@ -77,14 +77,13 @@ describe("game play narrative commands", () => {
         message.includes("return JSON.stringify(sendNarrativeChoiceEnvelope(")
       );
       expect(sendMessage).toContain('"expected":');
+      expect(sendMessage).toContain('querySelector(".action-panel")');
       expect(server.received.some((message) => message.includes('"playerId":'))).toBe(false);
       expect(server.received.some((message) => message.includes('"action":'))).toBe(false);
       expect(
         server.received.some(
           (message) =>
-            message.includes("NarrativePopupManager") ||
-            message.includes("querySelector") ||
-            message.includes("Notifications.activate")
+            message.includes("NarrativePopupManager") || message.includes("Notifications.activate")
         )
       ).toBe(false);
     } finally {

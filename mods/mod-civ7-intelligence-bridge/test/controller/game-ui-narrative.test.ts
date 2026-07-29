@@ -374,7 +374,16 @@ function narrativeRuntime(
       PlayerOperationTypes: {
         CHOOSE_NARRATIVE_STORY_DIRECTION: "CHOOSE_NARRATIVE_STORY_DIRECTION",
       },
-      canEndTurn: () => !blockerLive,
+      document: {
+        querySelector: (selector) =>
+          selector === ".action-panel"
+            ? {
+                maybeComponent: {
+                  canEndTurn: () => !blockerLive,
+                },
+              }
+            : null,
+      },
       Game: {
         Notifications: {
           getEndTurnBlockingType: () => blocker,

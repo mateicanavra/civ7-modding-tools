@@ -1,4 +1,3 @@
-import { getCiv7TurnCompletionStatus } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
 import { createCiv7GameControlClient } from "../../../adapters/control/service-client";
 import { buildDirectControlOptions, emitPlayResult } from "../../../adapters/play/direct-control";
@@ -6,7 +5,7 @@ import { buildDirectControlOptions, emitPlayResult } from "../../../adapters/pla
 export default class GamePlayEndTurn extends Command {
   static summary = "Check or send Civ7 end turn";
   static description =
-    "Reads the direct-control turn completion guard first, then optionally sends turn complete through the native control-oRPC turn procedure when --send is explicit.";
+    "Checks native turn-completion availability through the control service, or requests it when --send is explicit.";
 
   static examples = [
     "<%= config.bin %> game play end-turn --json",
@@ -21,7 +20,7 @@ export default class GamePlayEndTurn extends Command {
       description: "Civ7 tuner socket port",
     }),
     send: Flags.boolean({
-      description: "Send GameContext.sendTurnComplete() after direct-control guards pass",
+      description: "Request turn completion after the service-owned native availability check",
       default: false,
     }),
     "timeout-ms": Flags.integer({
@@ -37,11 +36,12 @@ export default class GamePlayEndTurn extends Command {
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayEndTurn);
     const options = buildDirectControlOptions(flags);
+    const client = createCiv7GameControlClient({
+      endpointDefaults: options,
+    });
     const result = flags.send
-      ? await createCiv7GameControlClient({
-          endpointDefaults: options,
-        }).turn.complete.request({})
-      : await getCiv7TurnCompletionStatus(options);
+      ? await client.turn.complete.request({})
+      : await client.turn.complete.check({});
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }

@@ -87,8 +87,11 @@ import type {
   Civ7TraditionReviewInput,
   Civ7TraditionsViewInput,
   Civ7TraditionsViewResult,
-  Civ7TurnCompletionRequestResult,
-  Civ7TurnCompletionStatusResultSchema,
+  Civ7TurnCompletionCheckResult,
+  Civ7TurnCompletionInput,
+  Civ7TurnCompletionSendInput,
+  Civ7TurnCompletionSendResult,
+  Civ7TurnCompletionSnapshot,
   Civ7UnitCommandCheckResult,
   Civ7UnitCommandSendResult,
   Civ7UnitCommandSnapshot,
@@ -129,7 +132,9 @@ export type Civ7ControlOrpcProgressionTargetResult = Civ7ProgressionTargetResult
 export type Civ7ControlOrpcProgressionPlayerChoiceResult = Civ7ProgressionPlayerChoiceResult;
 export type Civ7ControlOrpcProgressDashboardResult = Civ7ProgressDashboardResult;
 export type Civ7ControlOrpcTraditionsViewResult = Civ7TraditionsViewResult;
-export type Civ7ControlOrpcTurnCompletionRequestResult = Civ7TurnCompletionRequestResult;
+export type Civ7ControlOrpcTurnCompletionSnapshot = Civ7TurnCompletionSnapshot;
+export type Civ7ControlOrpcTurnCompletionCheckResult = Civ7TurnCompletionCheckResult;
+export type Civ7ControlOrpcTurnCompletionSendResult = Civ7TurnCompletionSendResult;
 export type Civ7ControlOrpcPlayableStatusResult = Static<typeof Civ7PlayableStatusResultSchema>;
 export type Civ7ControlOrpcProductionChoiceValidationResult = Civ7ProductionChoiceValidationResult;
 export type Civ7ControlOrpcProductionChoiceSnapshot = Civ7ProductionChoiceSnapshot;
@@ -169,9 +174,6 @@ export type Civ7ControlOrpcSettlementRecommendationsResult = Static<
   typeof Civ7SettlementRecommendationResultSchema
 >;
 export type Civ7ControlOrpcTargetCandidatesResult = Static<typeof Civ7TargetCandidatesResultSchema>;
-export type Civ7ControlOrpcTurnCompletionStatusResult = Static<
-  typeof Civ7TurnCompletionStatusResultSchema
->;
 export type Civ7ControlOrpcUnitTargetActionResult = Static<typeof Civ7UnitTargetActionResultSchema>;
 export type Civ7ControlOrpcCommandDispatchStatus = Civ7CommandDispatchStatus;
 export type Civ7ControlOrpcRuntimeProbe<T> = Civ7RuntimeProbe<T>;
@@ -314,9 +316,14 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Civ7ControlOrpcUnitResettleInput,
     options?: Civ7DirectControlOptions
   ): Promise<Civ7ControlOrpcUnitCommandSendResult>;
-  requestCiv7TurnComplete(
+  checkCiv7TurnCompletion(
+    input: Civ7TurnCompletionInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcTurnCompletionRequestResult>;
+  ): Promise<Civ7ControlOrpcTurnCompletionCheckResult>;
+  sendCiv7TurnCompletion(
+    input: Civ7TurnCompletionSendInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7ControlOrpcTurnCompletionSendResult>;
   getCiv7PlayableStatus(
     options?: Civ7DirectControlOptions
   ): Promise<Civ7ControlOrpcPlayableStatusResult>;
@@ -363,9 +370,6 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input?: Civ7TargetCandidatesInput,
     options?: Civ7DirectControlOptions
   ): Promise<Civ7ControlOrpcTargetCandidatesResult>;
-  getCiv7TurnCompletionStatus(
-    options?: Civ7DirectControlOptions
-  ): Promise<Civ7ControlOrpcTurnCompletionStatusResult>;
   getCiv7VisibilitySummary(
     input: Civ7VisibilitySummaryInput,
     options?: Civ7DirectControlOptions

@@ -730,7 +730,10 @@ export class Civ7ProgressionTargetUnavailableError extends ORPCTaggedError(
 
 export const Civ7TurnCompletionUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("turn.complete.request"),
+    procedureKey: Type.Union([
+      Type.Literal("turn.complete.check"),
+      Type.Literal("turn.complete.request"),
+    ]),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
@@ -745,7 +748,7 @@ export class Civ7TurnCompletionUnavailableError extends ORPCTaggedError(
   "Civ7TurnCompletionUnavailableError",
   {
     code: "TURN_COMPLETION_UNAVAILABLE",
-    message: "Direct-control turn completion request failed.",
+    message: "Turn completion service failed.",
     schema: toStandardSchema(Civ7TurnCompletionUnavailableErrorDataSchema),
     status: 503,
   }

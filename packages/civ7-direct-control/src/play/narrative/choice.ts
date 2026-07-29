@@ -10,6 +10,7 @@ import { Civ7RuntimeProbeSchema, probeHelperSource } from "../../runtime/probe.j
 import { schemaBodyFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
+import { actionPanelTurnAuthoritySource } from "../action-panel-turn.js";
 import { blockingNotificationObservationSource } from "../notifications/blocking-observation.js";
 
 const Civ7NarrativeJsonValueSchema = Type.Cyclic(
@@ -242,6 +243,7 @@ function narrativeChoiceWireInput(
 
 function narrativeChoiceWireSource(): string {
   return `${probeHelperSource()}
+    ${actionPanelTurnAuthoritySource()}
     ${blockingNotificationObservationSource()}
     const immutableJson = (value, label) => {
       const serialized = JSON.stringify(value);
@@ -270,22 +272,12 @@ function narrativeChoiceWireSource(): string {
       }
       return { localPlayerId, activateAction, operations, operationType };
     };
-    const readCanEndTurn = () => probe(() => {
-      if (typeof canEndTurn !== "function") {
-        throw new Error("canEndTurn is unavailable.");
-      }
-      const value = canEndTurn();
-      if (typeof value !== "boolean") {
-        throw new Error("canEndTurn returned a non-boolean value.");
-      }
-      return value;
-    });
     const readNarrativeChoiceSnapshot = () => {
       const runtime = requireNarrativeRuntime();
       return {
         localPlayerId: runtime.localPlayerId,
         activateAction: runtime.activateAction,
-        canEndTurn: readCanEndTurn(),
+        canEndTurn: readActionPanelCanEndTurn(),
         ...readBlockingNotificationEvidence(runtime.localPlayerId),
       };
     };

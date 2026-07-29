@@ -674,22 +674,20 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** the adapter does not become an alternate product API or raw command
   tunnel
 
-#### Scenario: CLI end-turn send uses native turn procedure
-- **WHEN** `game play end-turn --send` requests a turn completion
+#### Scenario: CLI end-turn uses native turn procedures
+- **WHEN** `game play end-turn` checks or requests turn completion
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send path calls the in-process `turn.complete.request`
-  server-side client
-- **AND** the procedure's readiness, direct-control guard, and
-  postcondition projection remain authoritative for the send
+- **AND** the check and send paths call the in-process `turn.complete.check`
+  and `turn.complete.request` server-side clients respectively
+- **AND** the procedures' native availability, direct-control guarded send,
+  bounded observation, postcondition projection, dispatch uncertainty, and
+  no-repeat policy remain authoritative
 - **AND** expected pre-send guard blocks project as semantic `not-sent`
   turn-completion output with inspect/do-not-repeat next steps rather than
   `TURN_COMPLETION_UNAVAILABLE`
 - **AND** the normal JSON result is the semantic turn-completion procedure
   projection without raw command/session/state/Tuner details or legacy
   `verified`
-- **AND** the read-only `game play end-turn` status path remains a
-  direct-control turn-completion status read until a separate accepted read
-  procedure exists
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI notification dismissal send uses native notification procedure
@@ -1318,19 +1316,22 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   ports, and play-thread action remain pending
 
 #### Scenario: Game UI controller supports turn completion
-- **WHEN** the game-scoped controller context exposes ambient turn-completion
-  APIs for `GameContext.hasSentTurnComplete`,
-  `GameContext.sendTurnComplete`, `canEndTurn`, turn, blocker, and
-  first-ready-unit evidence
-- **THEN** the context may execute the service-owned
-  `turn.complete.request` procedure through the existing in-process router and
-  native readiness/proof middleware
-- **AND** `turn.complete.request` is listed as a supported game-UI mutation only
-  when controller proof and the required ambient send/read APIs are present
-- **AND** the game UI adapter requires an actual `sendTurnComplete` function
-  before any result can report `sent: true`
-- **AND** blocked, already-sent, or missing-send-capability paths project
-  semantic `not-sent` output with inspect and `do-not-repeat` next steps
+- **WHEN** the game-scoped controller can resolve the official
+  `.action-panel` component and its `canEndTurn()` and `sendEndTurn()` methods
+- **THEN** the context may execute the service-owned `turn.complete.check` and
+  `turn.complete.request` procedures through the existing in-process router
+  and native readiness middleware
+- **AND** the check and request leaves are advertised independently according
+  to the exact native methods each requires
+- **AND** immutable `GameContext.hasSentTurnComplete()` and `Game.turn`
+  observations supply acknowledgement and turn-advance evidence without
+  replacing the action panel's native admission authority
+- **AND** missing components, missing methods, failed observations, blocked
+  native admission, already-sent state, and indeterminate dispatch project
+  conservative unavailable, `not-sent`, or no-repeat-guarded results
+- **AND** the adapter does not call raw `GameContext.sendTurnComplete()`, an
+  invented ambient `canEndTurn`, notification-derived fallback admission, or
+  unrelated unready-turn behavior
 - **AND** normal bridge success output remains the semantic turn-completion
   result and omits host, port, state, command, rawCommand, session, tuner
   payloads, raw game-UI function names, and direct-control socket details
@@ -1884,34 +1885,36 @@ modules before broad implementation.
   behavior are explicitly accepted
 - **AND** local postcondition tests do not claim live Civ7 runtime proof
 
-#### Scenario: Turn completion proof policy is owned before native turn mutation
-- **WHEN** turn completion sends are prepared for future native procedure
-  exposure
-- **THEN** turn-advanced, turn-complete-sent, already-complete,
-  no-state-change, missing-postcondition, and pending-runtime-proof
-  classification belongs to a direct-control proof owner rather than native
-  service code inferring from legacy `verified`
-- **AND** turn-complete-sent and already-complete paths remain no-repeat
-  guarded until fresh turn/attention evidence is read
+#### Scenario: Turn completion policy is owned by the service
+- **WHEN** turn completion is checked or requested
+- **THEN** direct-control exposes only exact action-panel check/send atoms and
+  immutable source-state observations
+- **AND** turn-advanced, turn-complete-sent, not-sent, no-state-change, and
+  missing-postcondition classification belongs to the turn service
+- **AND** turn-complete-sent, unchanged, missing, and dispatch-uncertain paths
+  remain no-repeat guarded until fresh turn/attention evidence is read
 - **AND** local postcondition tests do not claim live Civ7 runtime proof
 
-#### Scenario: Turn completion request procedure is implemented
-- **WHEN** `turn.complete.request` requests a turn-completion send
-- **THEN** it is offered under the semantic `turn` router
-- **AND** it checks playable readiness
-  before invoking direct-control runtime authority
-- **AND** the procedure consumes the direct-control turn-completion runtime
-  port and turn-completion proof helper rather than inferring from legacy
-  `verified`
+#### Scenario: Turn completion procedures are implemented
+- **WHEN** a caller checks or requests turn completion
+- **THEN** `turn.complete.check` and `turn.complete.request` are offered under
+  the semantic `turn` router
+- **AND** the read-only check invokes exact runtime authority directly, while
+  the request checks playable readiness before mutation
+- **AND** the check projects coherent native action-panel availability,
+  including local-player and readable-turn guard evidence
+- **AND** the request performs one guarded native `sendEndTurn()` dispatch,
+  then uses bounded Effect-owned observation to classify acknowledgement,
+  turn advance, unchanged state, missing evidence, and dispatch uncertainty
 - **AND** expected direct-control guard-blocked requests are projected as
   semantic `not-sent` output, not runtime unavailability
-- **AND** normal input is empty and endpoint, session, state, raw command, and
-  endpoint and runtime fields remain context-owned
-- **AND** normal output projects before/after turn facts, postcondition
-  summary, request status, and next steps without raw command/session/tuner
-  details
-- **AND** turn-complete-sent, already-complete, no-state-change, missing, and
-  pending-runtime-proof paths remain no-repeat guarded
+- **AND** normal inputs are empty and endpoint, session, state, raw command,
+  and runtime fields remain context-owned
+- **AND** normal output projects only native availability or semantic request
+  status, postcondition summary, and next steps without raw before/after
+  snapshots or command/session/tuner details
+- **AND** turn-complete-sent, no-state-change, missing-postcondition, and
+  dispatch-uncertain paths remain no-repeat guarded
 - **AND** local procedure tests do not claim live Civ7 runtime proof
 
 #### Scenario: Data or runtime access is needed

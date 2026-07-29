@@ -59,8 +59,11 @@ import {
   Civ7TraditionsViewResultSchema,
   Civ7TunerHealthInputSchema,
   Civ7TunerHealthResultSchema,
-  Civ7TurnCompletionStatusInputSchema,
-  Civ7TurnCompletionStatusResultSchema,
+  Civ7TurnCompletionCheckResultSchema,
+  Civ7TurnCompletionInputSchema,
+  Civ7TurnCompletionSendInputSchema,
+  Civ7TurnCompletionSendResultSchema,
+  Civ7TurnCompletionSnapshotSchema,
   Civ7UnitMovePreviewInputSchema,
   Civ7UnitMovePreviewResultSchema,
   Civ7UnitSummaryInputSchema,
@@ -541,31 +544,34 @@ describe("Civ7 direct control public API", () => {
     });
   });
 
-  test("exports turn-completion status schemas from the public facade", () => {
-    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, {})).toBe(true);
-    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { host: "127.0.0.1" })).toBe(false);
-    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { port: 4318 })).toBe(false);
-    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { state: { role: "app-ui" } })).toBe(
-      false
-    );
+  test("exports exact turn-completion atom schemas from the public facade", () => {
+    const snapshot = {
+      localPlayerId: 0,
+      turn: { ok: true, value: 12 },
+      hasSentTurnComplete: { ok: true, value: false },
+      canEndTurn: { ok: true, value: true },
+    };
+
+    expect(Value.Check(Civ7TurnCompletionInputSchema, {})).toBe(true);
+    expect(Value.Check(Civ7TurnCompletionInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7TurnCompletionSnapshotSchema, snapshot)).toBe(true);
+    expect(Value.Check(Civ7TurnCompletionCheckResultSchema, { snapshot })).toBe(true);
+    expect(Value.Check(Civ7TurnCompletionSendInputSchema, { expected: snapshot })).toBe(true);
     expect(
-      Value.Check(Civ7TurnCompletionStatusInputSchema, {
-        rawCommand: "GameContext.sendTurnComplete()",
+      Value.Check(Civ7TurnCompletionSendResultSchema, {
+        sent: true,
+        before: snapshot,
+        after: snapshot,
       })
-    ).toBe(false);
-    expect(Civ7TurnCompletionStatusResultSchema).toMatchObject({
+    ).toBe(true);
+    expect(Civ7TurnCompletionSnapshotSchema).toMatchObject({
       type: "object",
       additionalProperties: false,
       required: expect.arrayContaining([
-        "host",
-        "port",
-        "state",
         "localPlayerId",
         "turn",
         "hasSentTurnComplete",
         "canEndTurn",
-        "blocker",
-        "firstReadyUnitId",
       ]),
     });
   });
