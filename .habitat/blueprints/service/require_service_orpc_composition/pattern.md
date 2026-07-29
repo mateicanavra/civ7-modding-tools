@@ -58,6 +58,19 @@ predicate require_service_orpc_composition_has_single_root_router($body) {
   $count <: 1
 }
 
+predicate require_service_orpc_composition_has_root_module_input($body) {
+  or {
+    {
+      $body <: contains `const modules = { $properties }`,
+      $body <: contains `type Modules = typeof modules`
+    },
+    {
+      $body <: contains `type Modules = { $module_properties }`,
+      $body <: contains `const modules: Modules = { $properties }`
+    }
+  }
+}
+
 predicate require_service_orpc_composition_has_native_implementation_lineage($body) {
   require_service_orpc_composition_has_single_implementation(body=$body),
   $body <: contains `const impl = implementEffect(contract, $runtime).$context<Context>()`,
@@ -109,8 +122,7 @@ or {
   program(statements=$body) where {
     require_service_orpc_composition_is_root_router(),
     ! {
-      $body <: contains `const modules = { $properties }`,
-      $body <: contains `type Modules = typeof modules`,
+      require_service_orpc_composition_has_root_module_input(body=$body),
       $body <: contains `export const router: EnhancedEffectRouter<Modules, Context, Context, Record<never, never>> = service.router(modules)`,
       require_service_orpc_composition_has_single_root_router(body=$body)
     }
@@ -182,6 +194,24 @@ import { service } from "./impl";
 import { router as unit } from "./modules/unit/router";
 const modules = { unit };
 type Modules = typeof modules;
+export const router: EnhancedEffectRouter<
+  Modules,
+  Context,
+  Context,
+  Record<never, never>
+> = service.router(modules);
+```
+
+## Ignores an explicit serialization boundary
+
+```typescript
+// @filename: services/control/src/service/router.ts
+import { service } from "./impl";
+import { router as unit } from "./modules/unit/router";
+type Modules = {
+  unit: typeof unit;
+};
+const modules: Modules = { unit };
 export const router: EnhancedEffectRouter<
   Modules,
   Context,

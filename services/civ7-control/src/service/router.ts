@@ -18,7 +18,25 @@ import { router as unit } from "./modules/unit/router";
 import { router as view } from "./modules/view/router";
 import { router as world } from "./modules/world/router";
 
-const modules = {
+type Modules = {
+  attention: typeof attention;
+  city: typeof city;
+  diplomacy: typeof diplomacy;
+  display: typeof display;
+  government: typeof government;
+  lifecycle: typeof lifecycle;
+  narrative: typeof narrative;
+  notifications: typeof notifications;
+  progression: typeof progression;
+  readiness: typeof readiness;
+  strategy: typeof strategy;
+  turn: typeof turn;
+  unit: typeof unit;
+  view: typeof view;
+  world: typeof world;
+};
+
+const modules: Modules = {
   attention,
   city,
   diplomacy,
@@ -35,7 +53,6 @@ const modules = {
   view,
   world,
 };
-type Modules = typeof modules;
 
 export const router: EnhancedEffectRouter<
   Modules,
