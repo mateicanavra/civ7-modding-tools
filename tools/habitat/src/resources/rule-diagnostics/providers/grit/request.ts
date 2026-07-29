@@ -104,7 +104,7 @@ export const captureGritCommandEffect = Effect.fn("grit.command.capture")(functi
         Effect.succeed({
           kind: "command-failed" as const,
           failure: "DiagnosticCommandFailed" as const,
-          detail: `Grit command ${error.commandId} exited ${error.exitCode}.`,
+          detail: commandFailedDetail(error.commandId, error.exitCode, error.stderr),
           command: diagnosticFailedCommandObservation({
             ...commandErrorMetadata(error, request),
             exitCode: error.exitCode,
@@ -189,7 +189,7 @@ function commandResultCapture(result: HabitatCommandResult): GritCommandCapture 
     Match.when({ kind: "failed" }, (failed) => ({
       kind: "command-failed" as const,
       failure: "DiagnosticCommandFailed" as const,
-      detail: `Grit command ${result.commandId} exited ${result.exit.code}.`,
+      detail: commandFailedDetail(result.commandId, result.exit.code, result.stderr.text),
       command: failed,
     })),
     Match.when({ kind: "completed" }, (completed) => ({
@@ -199,6 +199,18 @@ function commandResultCapture(result: HabitatCommandResult): GritCommandCapture 
     })),
     Match.exhaustive
   );
+}
+
+const MAX_FAILURE_STDERR_EXCERPT_CHARACTERS = 300;
+const ANSI_ESCAPE_SEQUENCE = new RegExp(`${String.fromCharCode(27)}\\[[0-?]*[ -/]*[@-~]`, "g");
+
+function commandFailedDetail(commandId: string, exitCode: number, stderr: string): string {
+  const normalized = stderr.replace(ANSI_ESCAPE_SEQUENCE, "").replace(/\s+/g, " ").trim();
+  const excerpt =
+    normalized.length <= MAX_FAILURE_STDERR_EXCERPT_CHARACTERS
+      ? normalized
+      : `${normalized.slice(0, MAX_FAILURE_STDERR_EXCERPT_CHARACTERS - 3)}...`;
+  return `Grit command ${commandId} exited ${exitCode}.${excerpt ? ` Stderr excerpt: ${excerpt}` : ""}`;
 }
 
 function commandErrorMetadata(

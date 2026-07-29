@@ -14,6 +14,7 @@ import { FileSystem } from "@effect/platform";
 import * as PlatformError from "@effect/platform/Error";
 import { NodeContext } from "@effect/platform-node";
 import {
+  CommandFailed,
   CommandInterrupted,
   CommandRunner,
   type CommandRunnerService,
@@ -558,6 +559,53 @@ describe("Grit closed wire decoders", () => {
 
     expect(matchingCapture).toMatchObject({ command: { scanRoots: request.scanRoots } });
     expect(mismatchedCapture).toMatchObject({ command: { scanRoots: [] } });
+  });
+
+  test("preserves a bounded normalized stderr excerpt for command failures", async () => {
+    const request = baseRequest();
+    const ansiRed = `${String.fromCharCode(27)}[31m`;
+    const ansiReset = `${String.fromCharCode(27)}[0m`;
+    const returned = await Effect.runPromise(
+      captureGritCommandEffect(
+        request,
+        Effect.succeed(
+          makeHabitatCommandResult(request, {
+            exit: { code: 2, signal: null, interrupted: false },
+            stderr: captureOutput(
+              `${ansiRed}duplicate predicate declaration${ansiReset}\n  shared_helper\n`
+            ),
+          })
+        )
+      )
+    );
+    expect(returned).toMatchObject({
+      kind: "command-failed",
+      failure: "DiagnosticCommandFailed",
+      detail:
+        "Grit command grit-test exited 2. Stderr excerpt: duplicate predicate declaration shared_helper",
+    });
+
+    const typed = await Effect.runPromise(
+      captureGritCommandEffect(
+        request,
+        Effect.fail(
+          new CommandFailed({
+            commandId: request.commandId,
+            executable: request.executable,
+            argv: request.argv,
+            cwd: request.cwd,
+            exitCode: 3,
+            stderr: `compiler failure ${"x".repeat(400)}`,
+          })
+        )
+      )
+    );
+    if (typed.kind !== "command-failed") throw new Error("Expected typed command failure.");
+    expect(
+      typed.detail.startsWith("Grit command grit-test exited 3. Stderr excerpt: compiler failure ")
+    ).toBe(true);
+    expect(typed.detail.endsWith("...")).toBe(true);
+    expect(typed.detail.length).toBeLessThan(360);
   });
 
   test("decodes the closed compact event union and rejects DoneFile", () => {

@@ -120,15 +120,26 @@ describe("generic Grit current-tree execution", () => {
     );
   });
 
-  test("executes a pinned multi-pattern catalog once and projects matching plus clean peers", async () => {
-    const fixture = checkFixture("const value = forbidden_fixture_marker;\n");
+  test("batches distinct pattern-qualified predicate helpers in one native catalog", async () => {
+    const fixture = checkFixture(
+      "const value = forbidden_fixture_marker;\n",
+      false,
+      true,
+      qualifiedCheckPattern
+    );
     const cleanPatternPath = path.join(fixture.repoRoot, ".habitat/patterns/clean.md");
     writeFileSync(
       cleanPatternPath,
       `\`\`\`grit
 language js
 
-\`absent_fixture_marker\`
+predicate clean_fixture_marker_is_scanned_source() {
+  $filename <: r".*"
+}
+
+\`absent_fixture_marker\` where {
+  clean_fixture_marker_is_scanned_source()
+}
 \`\`\`
 `
     );
@@ -158,6 +169,64 @@ language js
       "clean_fixture_marker",
       "fixture_marker",
     ]);
+    expect(treeDigest(fixture.repoRoot)).toBe(before);
+  });
+
+  test("reports a native duplicate-predicate catalog failure with compiler detail", async () => {
+    const fixture = checkFixture(
+      "const value = forbidden_fixture_marker;\n",
+      false,
+      true,
+      duplicatePredicateCheckPattern
+    );
+    const peerPatternPath = path.join(fixture.repoRoot, ".habitat/patterns/peer.md");
+    writeFileSync(
+      peerPatternPath,
+      `\`\`\`grit
+language js
+
+predicate shared_catalog_helper() {
+  $filename <: r".*"
+}
+
+\`absent_fixture_marker\` where {
+  shared_catalog_helper()
+}
+\`\`\`
+`
+    );
+    const peerRule = sourceRule(
+      "fixture-peer-check",
+      "peer_fixture_marker",
+      ".habitat/patterns/peer.md",
+      ["scan"],
+      "check"
+    );
+    const before = treeDigest(fixture.repoRoot);
+    const observation: BoundaryObservation = {};
+    const outcomes = await Effect.runPromise(
+      Effect.gen(function* () {
+        const liveGrit = yield* makeGritCommandService(workspaceRepoRoot);
+        return yield* runGritDiagnosticOutcomesEffect([peerRule, fixture.rule], {
+          repoRoot: fixture.repoRoot,
+          grit: observingGrit(liveGrit, observation),
+        });
+      }).pipe(Effect.provide(LiveGritPrerequisites))
+    );
+
+    for (const selected of [peerRule, fixture.rule]) {
+      expect(outcomes.get(selected.id)).toMatchObject({
+        kind: "provider-failed",
+        failure: "DiagnosticCommandFailed",
+        detail: expect.stringMatching(/Stderr excerpt:.*shared_catalog_helper/),
+      });
+    }
+    expect(observation.checkCallCount).toBe(1);
+    expect(observation.checkRequest?.patternNames).toEqual([
+      "peer_fixture_marker",
+      "fixture_marker",
+    ]);
+    expect(observation.checkCommand?.exit.code).not.toBe(0);
     expect(treeDigest(fixture.repoRoot)).toBe(before);
   });
 
@@ -638,6 +707,32 @@ const checkPattern = `\`\`\`grit
 language js
 
 \`forbidden_fixture_marker\`
+\`\`\`
+`;
+
+const qualifiedCheckPattern = `\`\`\`grit
+language js
+
+predicate fixture_marker_is_scanned_source() {
+  $filename <: r".*"
+}
+
+\`forbidden_fixture_marker\` where {
+  fixture_marker_is_scanned_source()
+}
+\`\`\`
+`;
+
+const duplicatePredicateCheckPattern = `\`\`\`grit
+language js
+
+predicate shared_catalog_helper() {
+  $filename <: r".*"
+}
+
+\`forbidden_fixture_marker\` where {
+  shared_catalog_helper()
+}
 \`\`\`
 `;
 

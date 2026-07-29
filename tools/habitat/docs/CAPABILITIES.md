@@ -233,6 +233,11 @@ Current active Grit state:
   ceilings do not cause unrelated or protected repository trees to be walked.
 - Patterns are diagnostic/enforcing checks, not automatic transforms.
 - Habitat reports Grit diagnostics back to Habitat rule IDs.
+- Named predicates must be unique within each selected multi-pattern catalog. Native
+  Grit owns grammar and namespace admission; Habitat preserves a short normalized
+  compiler stderr excerpt on `DiagnosticCommandFailed` so collisions are actionable.
+  Pattern authors should prefix helpers with `<patternName>_` so assets remain
+  composable as batching changes.
 
 The active pattern checks cover families such as:
 
