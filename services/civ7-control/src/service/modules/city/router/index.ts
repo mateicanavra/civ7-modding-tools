@@ -1,10 +1,11 @@
-import { populationPlaceRequest } from "./population-place-request";
+import { populationPlace } from "./population-placement";
 import { productionChoice } from "./production-choice";
 import { townFocus } from "./town-focus";
 export const router = {
   population: {
     place: {
-      request: populationPlaceRequest,
+      check: populationPlace.check,
+      request: populationPlace.request,
     },
   },
   production: {

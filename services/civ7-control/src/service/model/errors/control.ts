@@ -911,7 +911,10 @@ export class Civ7TownFocusUnavailableError extends ORPCTaggedError(
 
 export const Civ7PopulationPlacementUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("city.population.place.request"),
+    procedureKey: Type.Union([
+      Type.Literal("city.population.place.check"),
+      Type.Literal("city.population.place.request"),
+    ]),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,

@@ -39,9 +39,12 @@ import {
 } from "./game-ui/notification-dismissal";
 import {
   type Civ7GameUiPopulationTarget,
-  civ7GameUiPopulationPlacementAvailable,
-  requestCiv7GameUiAssignWorkerPlacement,
-  requestCiv7GameUiExpandCityPlacement,
+  checkCiv7GameUiCityExpansion,
+  checkCiv7GameUiWorkerAssignment,
+  civ7GameUiPopulationPlacementCheckAvailable,
+  civ7GameUiPopulationPlacementSendAvailable,
+  sendCiv7GameUiCityExpansion,
+  sendCiv7GameUiWorkerAssignment,
 } from "./game-ui/population";
 import {
   type Civ7GameUiProductionTarget,
@@ -289,7 +292,8 @@ export type Civ7GameUiRuntimeTarget = {
         ? Fn
         : never
       : never;
-  } & Civ7GameUiMapReadTarget["GameplayMap"];
+  } & Civ7GameUiMapReadTarget["GameplayMap"] &
+    Civ7GameUiPopulationTarget["GameplayMap"];
   Visibility?: Civ7GameUiMapReadTarget["Visibility"];
   MapCities?: Civ7GameUiMapReadTarget["MapCities"];
   MapUnits?: Civ7GameUiUnitTargetActionTarget["MapUnits"];
@@ -383,10 +387,11 @@ function createCiv7GameUiDirectControlFacade(
     sendCiv7TownFocusChange: async (input) => await sendCiv7GameUiTownFocusChange(input, target),
     checkCiv7TownFocusReview: async (input) => await checkCiv7GameUiTownFocusReview(input, target),
     sendCiv7TownFocusReview: async (input) => await sendCiv7GameUiTownFocusReview(input, target),
-    requestCiv7AssignWorkerPlacement: async (input) =>
-      await requestCiv7GameUiAssignWorkerPlacement(input, target),
-    requestCiv7ExpandCityPlacement: async (input) =>
-      await requestCiv7GameUiExpandCityPlacement(input, target),
+    checkCiv7WorkerAssignment: async (input) =>
+      await checkCiv7GameUiWorkerAssignment(input, target),
+    sendCiv7WorkerAssignment: async (input) => await sendCiv7GameUiWorkerAssignment(input, target),
+    checkCiv7CityExpansion: async (input) => await checkCiv7GameUiCityExpansion(input, target),
+    sendCiv7CityExpansion: async (input) => await sendCiv7GameUiCityExpansion(input, target),
     requestCiv7UnitTargetAction: async (input) =>
       await requestCiv7GameUiUnitTargetAction(input, target),
     checkCiv7UnitUpgrade: async (input) => await checkCiv7GameUiUnitUpgrade(input, target),
@@ -498,7 +503,7 @@ function gameUiSupportedMutationProcedures(target: Civ7GameUiRuntimeTarget): rea
   if (civ7GameUiProductionChoiceSendAvailable(target)) {
     supported.push("city.production.choice.request");
   }
-  if (civ7GameUiPopulationPlacementAvailable(target)) {
+  if (civ7GameUiPopulationPlacementSendAvailable(target)) {
     supported.push("city.population.place.request");
   }
   if (civ7GameUiTownFocusChangeSendAvailable(target)) {
@@ -548,6 +553,9 @@ function gameUiSupportedReadProcedures(target: Civ7GameUiRuntimeTarget): readonl
   const supported: string[] = [];
   if (civ7GameUiProductionChoiceCheckAvailable(target)) {
     supported.push("city.production.choice.check");
+  }
+  if (civ7GameUiPopulationPlacementCheckAvailable(target)) {
+    supported.push("city.population.place.check");
   }
   if (civ7GameUiTownFocusChangeCheckAvailable(target)) {
     supported.push("city.townFocus.change.check");

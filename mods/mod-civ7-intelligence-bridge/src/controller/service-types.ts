@@ -9,7 +9,7 @@ export type Civ7ControlOrpcComponentId = Parameters<
   DirectControl["checkCiv7UnitUpgrade"]
 >[0]["unitId"];
 export type Civ7ControlOrpcMapLocation = Parameters<
-  DirectControl["requestCiv7ExpandCityPlacement"]
+  DirectControl["checkCiv7CityExpansion"]
 >[0]["destination"];
 export type Civ7ControlOrpcAdvisorWarningViewedResult = Awaited<
   ReturnType<DirectControl["requestCiv7AdvisorWarningViewed"]>

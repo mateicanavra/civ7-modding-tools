@@ -1,11 +1,18 @@
 import { describe, expect, test, vi } from "vitest";
+import type { createCiv7GameControlClient } from "../../../../src/adapters/control/service-client";
 import GamePlayAssignWorker from "../../../../src/commands/game/play/assign-worker";
 import GamePlayExpandCity from "../../../../src/commands/game/play/expand-city";
 import { type FakeTunerServer, startFakeTunerServer } from "../../../support/tuner-socket-server";
 
 describe("game play population placement commands", () => {
-  test("wraps growth worker assignment as ASSIGN_WORKER", async () => {
+  test("checks growth worker assignment through the exact city population procedure", async () => {
     const server = await startPopulationPlacementTunerServer();
+    const writes: string[] = [];
+    const log = vi
+      .spyOn(GamePlayAssignWorker.prototype, "log")
+      .mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
     try {
       const { port } = server.address();
       await GamePlayAssignWorker.run([
@@ -13,20 +20,26 @@ describe("game play population placement commands", () => {
         "127.0.0.1",
         "--port",
         String(port),
-        "--player-id",
-        "0",
         "--location",
         "2543",
-        "--amount",
-        "1",
         "--json",
       ]);
 
-      expect(server.received.some((message) => message.includes("ASSIGN_WORKER"))).toBe(true);
-      expect(server.received.some((message) => message.includes('"Location":2543'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"Amount":1'))).toBe(true);
-      expect(server.received.some((message) => message.includes("sendOperation("))).toBe(false);
+      const payload = JSON.parse(writes.join("")) as {
+        ok: true;
+        result: PopulationPlacementCheckResult;
+      };
+      expect(payload.result).toEqual({
+        placement: {
+          mode: "assign-worker",
+          playerId: 0,
+          cityId: { owner: 0, id: 196610, type: 1 },
+          location: 2543,
+        },
+        available: true,
+      });
     } finally {
+      log.mockRestore();
       await server.close();
     }
   });
@@ -56,26 +69,20 @@ describe("game play population placement commands", () => {
         ok: true;
         result: PopulationPlacementSendResult;
       };
-      expect(payload.result.sent).toBe(true);
       expect(payload.result.status).toBe("sent-confirmed");
       expect(payload.result.placement).toEqual({
         mode: "assign-worker",
         playerId: 0,
+        cityId: { owner: 0, id: 196610, type: 1 },
         location: 2543,
       });
-      expect(payload.result.validation).toEqual({ beforeValid: true, afterValid: true });
       expect(payload.result.postcondition).toMatchObject({
-        classification: "population-ready-cleared",
-        outcome: "cleared",
+        classification: "worker-assignment-confirmed",
+        outcome: "worker-assigned",
         confidence: "confirmed",
         confirmed: true,
         noRepeatAfterUnverified: false,
-        readyCleared: true,
-        placementStateChanged: true,
       });
-      expect(payload.result.postcondition.reason).toMatch(
-        /Growth\.isReadyToPlacePopulation cleared/
-      );
       expect(payload.result.nextSteps[0]).toMatchObject({
         kind: "refresh-attention",
         source: "city.population.place.request",
@@ -87,8 +94,14 @@ describe("game play population placement commands", () => {
     }
   });
 
-  test("wraps city expansion placement as city-command EXPAND", async () => {
+  test("checks city expansion through the exact city population procedure", async () => {
     const server = await startPopulationPlacementTunerServer();
+    const writes: string[] = [];
+    const log = vi
+      .spyOn(GamePlayExpandCity.prototype, "log")
+      .mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
     try {
       const { port } = server.address();
       await GamePlayExpandCity.run([
@@ -105,14 +118,20 @@ describe("game play population placement commands", () => {
         "--json",
       ]);
 
-      expect(
-        server.received.some((message) => message.includes('validateOperation("city-command"'))
-      ).toBe(true);
-      expect(server.received.some((message) => message.includes("EXPAND"))).toBe(true);
-      expect(server.received.some((message) => message.includes('"X":16'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"Y":19'))).toBe(true);
-      expect(server.received.some((message) => message.includes("sendOperation("))).toBe(false);
+      const payload = JSON.parse(writes.join("")) as {
+        ok: true;
+        result: PopulationPlacementCheckResult;
+      };
+      expect(payload.result).toEqual({
+        placement: {
+          mode: "expand-city",
+          cityId: { owner: 0, id: 196610, type: 1 },
+          destination: { x: 16, y: 19 },
+        },
+        available: true,
+      });
     } finally {
+      log.mockRestore();
       await server.close();
     }
   });
@@ -146,26 +165,19 @@ describe("game play population placement commands", () => {
         ok: true;
         result: PopulationPlacementSendResult;
       };
-      expect(payload.result.sent).toBe(true);
       expect(payload.result.status).toBe("sent-confirmed");
       expect(payload.result.placement).toEqual({
         mode: "expand-city",
         cityId: { owner: 0, id: 196610, type: 1 },
         destination: { x: 16, y: 19 },
       });
-      expect(payload.result.validation).toEqual({ beforeValid: true, afterValid: true });
       expect(payload.result.postcondition).toMatchObject({
-        classification: "population-ready-cleared",
-        outcome: "cleared",
+        classification: "city-expansion-confirmed",
+        outcome: "city-expanded",
         confidence: "confirmed",
         confirmed: true,
         noRepeatAfterUnverified: false,
-        readyCleared: true,
-        placementStateChanged: true,
       });
-      expect(payload.result.postcondition.reason).toMatch(
-        /Growth\.isReadyToPlacePopulation cleared/
-      );
       expect(payload.result.nextSteps[0]).toMatchObject({
         kind: "refresh-attention",
         source: "city.population.place.request",
@@ -176,46 +188,15 @@ describe("game play population placement commands", () => {
       await server.close();
     }
   });
-
-  test("rejects non-default worker amount for the semantic assign-worker send atom", async () => {
-    await expect(
-      GamePlayAssignWorker.run([
-        "--player-id",
-        "0",
-        "--location",
-        "2543",
-        "--amount",
-        "2",
-        "--send",
-        "--json",
-      ])
-    ).rejects.toThrow(/one-worker placement atom/);
-  });
 });
 
-type PopulationPlacementSendResult = {
-  placement:
-    | { mode: "assign-worker"; playerId: number; location: number }
-    | {
-        mode: "expand-city";
-        cityId: { owner: number; id: number; type: number };
-        destination: { x: number; y: number };
-      };
-  sent: boolean;
-  status: string;
-  validation: { beforeValid: boolean; afterValid: boolean };
-  postcondition: {
-    classification: string;
-    reason: string;
-    outcome: string;
-    confidence: string;
-    confirmed: boolean;
-    noRepeatAfterUnverified: boolean;
-    readyCleared: boolean | null;
-    placementStateChanged: boolean | null;
-  };
-  nextSteps: Array<{ kind: string; source: string; label: string }>;
-};
+type GameControlClient = ReturnType<typeof createCiv7GameControlClient>;
+type PopulationPlacementCheckResult = Awaited<
+  ReturnType<GameControlClient["city"]["population"]["place"]["check"]>
+>;
+type PopulationPlacementSendResult = Awaited<
+  ReturnType<GameControlClient["city"]["population"]["place"]["request"]>
+>;
 
 function expectSemanticPopulationPlacementOmitsRawRuntimeDetails(result: unknown) {
   const serialized = JSON.stringify(result);
@@ -236,6 +217,8 @@ function expectSemanticPopulationPlacementOmitsRawRuntimeDetails(result: unknown
 }
 
 async function startPopulationPlacementTunerServer(): Promise<FakeTunerServer> {
+  let workerSent = false;
+  let expansionSent = false;
   return startFakeTunerServer({
     handle({ message }) {
       if (message.includes("Network.isInSession")) {
@@ -247,17 +230,21 @@ async function startPopulationPlacementTunerServer(): Promise<FakeTunerServer> {
       if (message.includes("GameContext.localPlayerID") && message.includes("decisionQueue")) {
         return [JSON.stringify(playNotificationView())];
       }
-      if (message.includes("return JSON.stringify(validateOperation")) {
-        return [JSON.stringify(operationValidation(message))];
+      if (message.includes("return JSON.stringify(checkWorkerAssignment(")) {
+        return [JSON.stringify(workerAssignmentCheck(workerSent))];
       }
-      if (message.includes("return JSON.stringify(sendOperation")) {
-        return [
-          JSON.stringify({
-            sent: true,
-            beforePopulationPostcondition: populationPlacementPostconditionSnapshot(true),
-            afterPopulationPostcondition: populationPlacementPostconditionSnapshot(false),
-          }),
-        ];
+      if (message.includes("return JSON.stringify(sendWorkerAssignmentEnvelope(")) {
+        const before = workerAssignmentSnapshot(false);
+        workerSent = true;
+        return [JSON.stringify(workerAssignmentSend(before, workerAssignmentSnapshot(true)))];
+      }
+      if (message.includes("return JSON.stringify(checkCityExpansion(")) {
+        return [JSON.stringify(cityExpansionCheck(expansionSent))];
+      }
+      if (message.includes("return JSON.stringify(sendCityExpansionEnvelope(")) {
+        const before = cityExpansionSnapshot(false);
+        expansionSent = true;
+        return [JSON.stringify(cityExpansionSend(before, cityExpansionSnapshot(true)))];
       }
       return undefined;
     },
@@ -376,51 +363,87 @@ function tunerHealthSnapshot() {
   };
 }
 
-function operationValidation(message: string) {
-  const operationType = operationTypeFromMessage(message);
-  const family = operationType === "EXPAND" ? "city-command" : "player-operation";
+function workerAssignmentSnapshot(sent: boolean) {
   return {
-    host: "127.0.0.1",
-    port: 0,
-    state: { id: "1", name: "Tuner", role: "tuner" },
-    family,
-    operationType,
-    enumValue: operationType,
-    target:
-      family === "city-command" ? { cityId: { owner: 0, id: 65536, type: 25 } } : { playerId: 0 },
-    args: operationType === "EXPAND" ? { X: 16, Y: 19 } : { Location: 2543, Amount: 1 },
-    valid: true,
-    result: { Success: true },
+    localPlayerId: 0,
+    location: 2543,
+    readyCityIds: sent ? [] : [{ owner: 0, id: 196610, type: 1 }],
+    candidateCityId: { owner: 0, id: 196610, type: 1 },
+    isReadyToPlacePopulation: !sent,
+    placementInfo: {
+      PlotIndex: 2543,
+      IsBlocked: false,
+      NumWorkers: sent ? 1 : 0,
+    },
+    numWorkers: sent ? 1 : 0,
   };
 }
 
-function operationTypeFromMessage(message: string) {
-  const validateIndex = message.lastIndexOf('validateOperation("');
-  const sendIndex = message.lastIndexOf('sendOperation("');
-  const callIndex = Math.max(validateIndex, sendIndex);
-  const callSource = callIndex >= 0 ? message.slice(callIndex) : message;
-  return callSource.match(/"operationType":"([^"]+)"/)?.[1] ?? "ASSIGN_WORKER";
+function workerAssignmentCheck(sent: boolean) {
+  return {
+    valid: !sent,
+    result: { Success: !sent },
+    snapshot: workerAssignmentSnapshot(sent),
+  };
 }
 
-function populationPlacementPostconditionSnapshot(isReadyToPlacePopulation: boolean) {
+function workerAssignmentSend(
+  before: ReturnType<typeof workerAssignmentSnapshot>,
+  after: ReturnType<typeof workerAssignmentSnapshot>
+) {
   return {
+    ok: true,
+    value: {
+      sent: true,
+      validation: { valid: true, result: { Success: true } },
+      before,
+      after,
+    },
+  };
+}
+
+function cityExpansionSnapshot(sent: boolean) {
+  return {
+    localPlayerId: 0,
     cityId: { owner: 0, id: 196610, type: 1 },
-    city: {
-      ok: true,
-      value: {
-        id: { owner: 0, id: 196610, type: 1 },
-        population: isReadyToPlacePopulation ? 4 : 5,
-        isTown: true,
-        location: { x: 20, y: 20 },
+    destination: { x: 16, y: 19 },
+    plotIndex: 1660,
+    isReadyToPlacePopulation: !sent,
+    candidate: sent ? null : { plotIndex: 1660, constructibleType: 7 },
+    ownership: sent
+      ? {
+          status: "owned",
+          cityId: { owner: 0, id: 196610, type: 1 },
+        }
+      : { status: "unowned" },
+  };
+}
+
+function cityExpansionCheck(sent: boolean) {
+  return {
+    valid: !sent,
+    result: {
+      Plots: sent ? [] : [1660],
+      ConstructibleTypes: sent ? [] : [7],
+    },
+    snapshot: cityExpansionSnapshot(sent),
+  };
+}
+
+function cityExpansionSend(
+  before: ReturnType<typeof cityExpansionSnapshot>,
+  after: ReturnType<typeof cityExpansionSnapshot>
+) {
+  return {
+    ok: true,
+    value: {
+      sent: true,
+      validation: {
+        valid: true,
+        result: { Plots: [1660], ConstructibleTypes: [7] },
       },
+      before,
+      after,
     },
-    isReadyToPlacePopulation: { ok: true, value: isReadyToPlacePopulation },
-    cityWorkerCap: { ok: true, value: isReadyToPlacePopulation ? 4 : 5 },
-    workablePlotIndexes: {
-      ok: true,
-      value: isReadyToPlacePopulation ? [2543, 2544] : [2543, 2544, 2545],
-    },
-    blockedPlotIndexes: { ok: true, value: isReadyToPlacePopulation ? [2545] : [] },
-    expansionPlotIndexes: { ok: true, value: isReadyToPlacePopulation ? [1660] : [1661] },
   };
 }

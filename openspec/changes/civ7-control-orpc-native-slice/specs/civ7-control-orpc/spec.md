@@ -41,18 +41,25 @@ errors, and server-side callers.
 - **AND** `@civ7/control-orpc` does not publish a runtime-provider entrypoint or
   make direct-control result envelopes normal service output
 
-#### Scenario: Injected runtime port narrows population placement
-- **WHEN** `city.population.place.request` needs low-level player-operation or
-  city-command runtime authority for population placement
-- **THEN** the service context exposes semantic assign-worker-placement and
-  expand-city-placement ports to the procedure
-- **AND** those ports accept only the service-owned placement shapes rather
-  than generic `operationType` and raw `args`
-- **AND** the caller-provided direct-control adapter may map those ports to
-  direct-control-owned player-operation and city-command runtime functions
-  internally
-- **AND** raw generic operation inputs remain excluded from normal procedure
-  input and from the exported control-oRPC context-construction surface
+#### Scenario: Population placement uses exact runtime atoms
+- **WHEN** `city.population.place.check` or
+  `city.population.place.request` evaluates worker assignment or city expansion
+- **THEN** the service context exposes exact worker-assignment and
+  city-expansion check/send ports rather than generic operation dispatch
+- **AND** direct-control owns only native validator/send adaptation, ambient
+  local-player resolution, command serialization, and immutable target-state
+  evidence
+- **AND** the city service owns semantic availability, guarded mutation,
+  bounded post-send polling, target-specific confirmation, dispatch
+  uncertainty, and no-repeat policy
+- **AND** worker confirmation requires an increase in `NumWorkers` on the
+  requested plot rather than readiness clearing alone
+- **AND** city expansion confirmation requires the requested plot to become
+  owned by the requested city rather than an unrelated state change
+- **AND** generic player-operation and city-command paths reject
+  `ASSIGN_WORKER` and `EXPAND`
+- **AND** raw operation types, args, command/session details, and runtime
+  evidence envelopes remain excluded from normal service input and output
 
 #### Scenario: Shared service primitives are needed by procedure contracts
 - **WHEN** service-owned procedure contracts need common Civ7 primitives such
@@ -716,27 +723,23 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   `verified`
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI population placement sends use native city procedure
-- **WHEN** `game play assign-worker --send` or `game play expand-city --send`
+#### Scenario: CLI population placement uses native city procedures
+- **WHEN** `game play assign-worker` or `game play expand-city` checks or
   requests city population placement
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send path calls the in-process `city.population.place.request`
-  server-side client under the `city` router
-- **AND** the procedure's readiness, direct-control population placement
-  runtime ports, population postcondition projection, and no-repeat policy
-  remain authoritative for the send
+- **AND** read-only mode calls `city.population.place.check` while `--send`
+  calls `city.population.place.request`
+- **AND** exact runtime atoms and service-owned placement policy remain
+  authoritative for both paths
 - **AND** the normal JSON result is the semantic city population placement
-  procedure projection without raw command/session/state/Tuner details, send
-  results, before/after population postcondition envelopes, direct-control
-  operation envelopes, or legacy `verified`
-- **AND** the read-only validation paths remain direct-control operation
-  validation until a separate accepted service read exists
-- **AND** `assign-worker --send` is bounded to the source-owned one-worker
-  placement atom rather than silently treating `--amount` as repeated send
-  authority
-- **AND** `assign-worker --send` omits caller `--player-id`; the procedure
-  reads live local-player notification evidence and passes that value to the
-  low-level direct-control assign-worker runtime port
+  procedure projection without raw command/session/state/Tuner details,
+  before/after runtime snapshots, direct-control operation envelopes, or
+  legacy `verified`
+- **AND** assign-worker admits neither caller player ID nor amount; the exact
+  runtime atom derives the ambient local player and one-worker amount
+- **AND** `assign-worker --send` omits caller `--player-id`; the service passes
+  only the target location, and the exact direct-control runtime atom resolves
+  the ambient local player at dispatch
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI town-focus commands use native city procedures
@@ -1352,11 +1355,12 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   `CityCommandTypes.EXPAND`, player city lists, city readiness, worker
   placement, and expansion evidence
 - **THEN** the context may execute the service-owned
-  `city.population.place.request` procedure through the existing in-process
-  router and native readiness/proof middleware
-- **AND** `city.population.place.request` is listed as a supported game-UI
-  mutation only when controller proof and the required ambient validation,
-  send, player, city, and postcondition-read APIs are present
+  `city.population.place.check` and `city.population.place.request`
+  procedures through the existing in-process router and readiness middleware
+- **AND** the check procedure is advertised only when both exact validation
+  and observation surfaces are available
+- **AND** the request procedure is advertised only when the corresponding
+  exact send surfaces are also available
 - **AND** assign-worker input remains semantic `{ location }` while expand-city
   input remains semantic `{ cityId, destination }`; caller `playerId`, raw
   operation types, and raw command/session fields are not accepted as bridge
@@ -1366,11 +1370,12 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   call
 - **AND** validator-blocked population placements project semantic `not-sent`
   output and do not call the send API
-- **AND** `population-ready-cleared` requires pre-send city readiness evidence
-  and post-send evidence that readiness cleared
-- **AND** no-state-change, validation-only changes, missing ready-city evidence,
-  failed population state reads, missing postcondition snapshots, and unchanged
-  placement snapshots remain unconfirmed or no-repeat guarded
+- **AND** worker assignment is confirmed only by an increased worker count on
+  the requested plot, while city expansion is confirmed only by requested-city
+  ownership of the requested plot
+- **AND** readiness clearing, validation-only changes, unrelated state changes,
+  failed target reads, missing target evidence, and unchanged target state
+  remain unconfirmed and no-repeat guarded
 - **AND** normal bridge success output remains the semantic population-placement
   result and omits host, port, state, command, rawCommand, session, tuner
   payloads, raw game-UI function names, and direct-control socket details

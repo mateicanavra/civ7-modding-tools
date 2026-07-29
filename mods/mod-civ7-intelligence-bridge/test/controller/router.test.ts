@@ -12,6 +12,7 @@ import { playableStatusResult } from "./support/playable-status";
 const canonicalProcedureKeys = [
   "attention.current",
   "attention.priorities",
+  "city.population.place.check",
   "city.population.place.request",
   "city.production.choice.check",
   "city.production.choice.request",

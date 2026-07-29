@@ -29,13 +29,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** converge worker assignment and city expansion through
-one exact population-placement service path. Direct-control may retain only
-bounded native check, send, and observation atoms; the city service owns
-semantic admission, guarded mutation, polling, postcondition classification,
-and no-repeat policy; the controller adapts ambient Civ7 runtime calls; the CLI
-projects the named city procedures. Retire the direct-owned population wrapper
-and proof policy only after both placement modes have one exact service owner.
+**Current container:** converge government and celebration choices through one
+exact government service owner. Direct-control may retain only bounded native
+check, send, and observation atoms; the service owns semantic admission,
+polling, postcondition classification, and no-repeat policy; the controller
+adapts ambient Civ7 runtime calls; the CLI uses the named procedures for both
+read-only checks and explicit mutation. Retire the thick direct-owned choice
+wrapper, duplicate bridge orchestration, generic operation aliases, and direct
+proof policy only after both choice modes have one exact service path.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -52,13 +53,13 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** verify the official worker-assignment and expansion commands ->
-separate exact runtime atoms from semantic placement policy -> compose guarded
-service procedures and native-state observation -> route both CLI commands and
-the controller through the service -> delete direct-owned orchestration and
-proof policy -> prove the full control graph -> repeat by domain until
-direct-control exposes only wire atoms and explicit diagnostics -> resume noun
-normalization.
+**Gradient:** model the official government and celebration option, check,
+send, and state-observation paths -> separate exact runtime atoms from semantic
+choice policy -> compose guarded service check/request procedures -> route both
+CLI modes and the controller through that service -> retire duplicate
+orchestration, generic aliases, and proof policy -> prove the full control graph
+-> repeat by domain until direct-control exposes only wire atoms and explicit
+diagnostics -> resume noun normalization.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -101,6 +102,20 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-29 - Population Placement Authority Converged
+
+Worker assignment and city expansion now use Civ7's exact native check and
+request paths through one city service owner. Direct-control owns only bounded
+check, send, and ownership-observation atoms; the service owns semantic
+admission, guarded mutation, polling, confirmation, dispatch uncertainty, and
+no-repeat policy; the controller and CLI are thin adapters. Caller-controlled
+player identity and worker amount, generic aliases, direct-owned orchestration,
+duplicate proof policy, and ambiguous ownership evidence retired. Fresh send
+gates recheck unowned plots before expansion, and failed worker dispatch reports
+the latest native candidate identity. The complete direct/service/controller/CLI
+graph, strict OpenSpec validation, and fresh native, service, and product
+reviews passed; deployed Civ7 behavior remains a separate live-proof boundary.
 
 ### 2026-07-29 - Town Focus Authority Converged
 

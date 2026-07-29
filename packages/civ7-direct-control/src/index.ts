@@ -65,6 +65,38 @@ export {
   stopCiv7Autoplay,
 } from "./play/autoplay.js";
 export type {
+  Civ7CityExpansionCandidate,
+  Civ7CityExpansionCheckResult,
+  Civ7CityExpansionInput,
+  Civ7CityExpansionOwnership,
+  Civ7CityExpansionSendResult,
+  Civ7CityExpansionSnapshot,
+  Civ7CityExpansionValidationResult,
+  Civ7WorkerAssignmentCheckResult,
+  Civ7WorkerAssignmentInput,
+  Civ7WorkerAssignmentSendResult,
+  Civ7WorkerAssignmentSnapshot,
+  Civ7WorkerAssignmentValidationResult,
+} from "./play/city/population-placement.js";
+export {
+  Civ7CityExpansionCandidateSchema,
+  Civ7CityExpansionCheckResultSchema,
+  Civ7CityExpansionInputSchema,
+  Civ7CityExpansionOwnershipSchema,
+  Civ7CityExpansionSendResultSchema,
+  Civ7CityExpansionSnapshotSchema,
+  Civ7CityExpansionValidationResultSchema,
+  Civ7WorkerAssignmentCheckResultSchema,
+  Civ7WorkerAssignmentInputSchema,
+  Civ7WorkerAssignmentSendResultSchema,
+  Civ7WorkerAssignmentSnapshotSchema,
+  Civ7WorkerAssignmentValidationResultSchema,
+  checkCiv7CityExpansion,
+  checkCiv7WorkerAssignment,
+  sendCiv7CityExpansion,
+  sendCiv7WorkerAssignment,
+} from "./play/city/population-placement.js";
+export type {
   Civ7ProductionChoiceCheckResult,
   Civ7ProductionChoiceInput,
   Civ7ProductionChoiceSendResult,
@@ -317,11 +349,6 @@ export type {
   Civ7NarrativeChoiceResult,
 } from "./play/operations/narrative-request.js";
 export { requestCiv7NarrativeChoice } from "./play/operations/narrative-request.js";
-export type {
-  Civ7PopulationPlacementPostcondition,
-  Civ7PopulationPlacementPostconditionClassification,
-  Civ7PopulationPlacementPostconditionSnapshot,
-} from "./play/operations/population-postconditions.js";
 export type {
   Civ7OperationFamily,
   Civ7OperationInput,
@@ -696,11 +723,6 @@ export {
   notificationDismissalProofOutcome,
   notificationDismissalProofPostcondition,
 } from "./proof/notification-dismissal-proof-policy.js";
-export type { Civ7PopulationPlacementProofSource } from "./proof/population-placement-proof-policy.js";
-export {
-  populationPlacementProofOutcome,
-  populationPlacementProofPostcondition,
-} from "./proof/population-placement-proof-policy.js";
 export {
   progressionPlayerChoiceProofOutcome,
   progressionPlayerChoiceProofPostcondition,

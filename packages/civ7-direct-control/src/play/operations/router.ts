@@ -41,48 +41,6 @@ export function operationRouterSource(): string {
       blocker: probe(() => globalThis.Game?.Notifications?.getEndTurnBlockingType?.(globalThis.GameContext?.localPlayerID)),
     });
     const unitPostconditionEligible = (family) => family === "unit-operation";
-    const readyPopulationCityId = () => {
-      const player = globalThis.Players?.get?.(globalThis.GameContext?.localPlayerID);
-      const cityIds = player?.Cities?.getCityIds?.() ?? [];
-      for (const cityId of cityIds) {
-        const city = globalThis.Cities?.get?.(cityId);
-        if (city?.Growth?.isReadyToPlacePopulation) return toComponentId(cityId);
-      }
-      return null;
-    };
-    const populationPostconditionCityId = (family, input) => {
-      if (family === "city-command" && input.operationType === "EXPAND") return toComponentId(input.cityId);
-      if (family === "player-operation" && input.operationType === "ASSIGN_WORKER") return readyPopulationCityId();
-      return null;
-    };
-    const populationPostconditionEligible = (family, input) => !!populationPostconditionCityId(family, input);
-    const readPopulationPlacementPostconditionSnapshot = (cityId) => {
-      const city = globalThis.Cities?.get?.(cityId);
-      const placementInfo = city?.Workers?.GetAllPlacementInfo?.() ?? [];
-      const expansion = (() => {
-        try {
-          if (typeof globalThis.CityCommandTypes === "undefined") return null;
-          return globalThis.Game?.CityCommands?.canStart?.(cityId, globalThis.CityCommandTypes.EXPAND, {}, false);
-        } catch {
-          return null;
-        }
-      })();
-      return {
-        cityId,
-        city: probe(() => city ? {
-          id: toComponentId(cityId),
-          observedCityId: toComponentId(city.id),
-          population: city.population ?? null,
-          isTown: city.isTown ?? null,
-          location: city.location ?? null,
-        } : null),
-        isReadyToPlacePopulation: probe(() => city?.Growth?.isReadyToPlacePopulation ?? null),
-        cityWorkerCap: probe(() => city?.Workers?.getCityWorkerCap?.() ?? null),
-        workablePlotIndexes: probe(() => Array.isArray(placementInfo) ? placementInfo.filter((info) => !info?.IsBlocked).map((info) => info?.PlotIndex) : []),
-        blockedPlotIndexes: probe(() => Array.isArray(placementInfo) ? placementInfo.filter((info) => info?.IsBlocked).map((info) => info?.PlotIndex) : []),
-        expansionPlotIndexes: probe(() => Array.isArray(expansion?.Plots) ? expansion.Plots : []),
-      };
-    };
     const routerFor = (family) => {
       if (family === "unit-operation") return { router: Game.UnitOperations, enums: UnitOperationTypes, targetKey: "unitId" };
       if (family === "unit-command") return { router: Game.UnitCommands, enums: UnitCommandTypes, targetKey: "unitId" };
@@ -195,8 +153,6 @@ export function operationRouterSource(): string {
     };
     const sendOperation = (family, input) => {
       const beforePostcondition = unitPostconditionEligible(family) ? readUnitSnapshot(input) : undefined;
-      const populationCityId = populationPostconditionCityId(family, input);
-      const beforePopulationPostcondition = populationCityId ? readPopulationPlacementPostconditionSnapshot(populationCityId) : undefined;
       const before = validateOperation(family, input);
       if (!before.valid) return {
         sent: false,
@@ -204,14 +160,11 @@ export function operationRouterSource(): string {
         result: null,
         beforePostcondition,
         afterPostcondition: beforePostcondition,
-        beforePopulationPostcondition,
-        afterPopulationPostcondition: beforePopulationPostcondition,
       };
       const meta = routerFor(family);
       const target = input[meta.targetKey];
       const result = meta.router.sendRequest(target, before.enumValue, input.args ?? {});
       const afterPostcondition = unitPostconditionEligible(family) ? readUnitSnapshot(input) : undefined;
-      const afterPopulationPostcondition = populationCityId ? readPopulationPlacementPostconditionSnapshot(populationCityId) : undefined;
-      return { sent: true, before, result, beforePostcondition, afterPostcondition, beforePopulationPostcondition, afterPopulationPostcondition };
+      return { sent: true, before, result, beforePostcondition, afterPostcondition };
     };`;
 }

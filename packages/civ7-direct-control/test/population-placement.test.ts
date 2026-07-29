@@ -1,104 +1,195 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
+import { runInNewContext } from "node:vm";
+import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
 import {
+  Civ7CityExpansionInputSchema,
+  Civ7WorkerAssignmentInputSchema,
   canStartCiv7CityCommand,
   canStartCiv7PlayerOperation,
+  checkCiv7CityExpansion,
+  checkCiv7WorkerAssignment,
   requestCiv7CityCommand,
   requestCiv7PlayerOperation,
+  sendCiv7CityExpansion,
+  sendCiv7WorkerAssignment,
 } from "../src/index";
 
-type FakeTunerServer = {
-  operationCalls: OperationCall[];
+type PlacementCall = Readonly<{
+  kind: "worker-can-start" | "worker-send" | "expand-can-start" | "expand-send";
+  target: unknown;
+  operationType: unknown;
+  args: unknown;
+  queue?: unknown;
+}>;
+
+type PlacementServerOptions = Readonly<{
+  expandCanStartResult?: unknown;
+  expansionOwnershipBefore?: unknown;
+  expandSendError?: Error;
+  expandSendResult?: unknown;
+  includeUnreadableNonReadyCity?: boolean;
+  workerCanStartResult?: unknown;
+  workerSendError?: Error;
+}>;
+
+type FakePlacementServer = Readonly<{
+  calls: PlacementCall[];
+  commandExecutions: string[];
   address(): AddressInfo;
   close(): Promise<void>;
-};
+}>;
 
-type OperationCall = {
-  kind: "validate" | "send";
-  family: string;
-  input: {
-    playerId?: number;
-    cityId?: { owner: number; id: number; type: number };
-    operationType?: string;
-    args?: Record<string, number>;
-  };
-};
+const cityId = { owner: 0, id: 196_610, type: 1 };
+const unreadableCityId = { owner: 0, id: 196_611, type: 1 };
+const location = 2_543;
+const destination = { x: 16, y: 19 };
+const expansionPlotIndex = 1_660;
+const constructibleType = 713_967_338;
 
-describe("population placement requests", () => {
-  test("reports population postconditions for ASSIGN_WORKER player operations", async () => {
-    const server = await startPopulationPlacementTunerServer();
+describe("exact population-placement wire atoms", () => {
+  test("admits semantic placement inputs without caller-owned player or operation fields", () => {
+    expect(Value.Check(Civ7WorkerAssignmentInputSchema, { location })).toBe(true);
+    expect(
+      Value.Check(Civ7WorkerAssignmentInputSchema, {
+        location,
+        playerId: 0,
+      })
+    ).toBe(false);
+    expect(Value.Check(Civ7CityExpansionInputSchema, { cityId, destination })).toBe(true);
+    expect(
+      Value.Check(Civ7CityExpansionInputSchema, {
+        cityId,
+        destination,
+        operationType: "EXPAND",
+      })
+    ).toBe(false);
+  });
+
+  test.each([
+    "ASSIGN_WORKER",
+    "PLAYEROPERATION_ASSIGN_WORKER",
+  ])("refuses %s through generic player-operation paths before routing", async (operationType) => {
+    for (const run of [canStartCiv7PlayerOperation, requestCiv7PlayerOperation]) {
+      await expect(
+        run(
+          {
+            playerId: 0,
+            operationType,
+            args: { Location: location, Amount: 1 },
+          },
+          { host: "127.0.0.1", port: 1, timeoutMs: 10 }
+        )
+      ).rejects.toMatchObject({
+        name: "Civ7DirectControlError",
+        message:
+          "player-operation ASSIGN_WORKER must use the exact worker assignment check/send atoms",
+        dispatchStatus: "not-dispatched",
+      });
+    }
+  });
+
+  test.each([
+    "EXPAND",
+    "CITYCOMMAND_EXPAND",
+  ])("refuses %s through generic city-command paths before routing", async (operationType) => {
+    for (const run of [canStartCiv7CityCommand, requestCiv7CityCommand]) {
+      await expect(
+        run(
+          {
+            cityId,
+            operationType,
+            args: { X: destination.x, Y: destination.y },
+          },
+          { host: "127.0.0.1", port: 1, timeoutMs: 10 }
+        )
+      ).rejects.toMatchObject({
+        name: "Civ7DirectControlError",
+        message: "city-command EXPAND must use the exact city expansion check/send atoms",
+        dispatchStatus: "not-dispatched",
+      });
+    }
+  });
+
+  test("distinguishes unavailable expansion ownership from explicit native null", async () => {
+    for (const expansionOwnershipBefore of [undefined, {}, { owner: 0 }, "malformed"]) {
+      const server = await startPlacementServer({ expansionOwnershipBefore });
+      try {
+        const result = await checkCiv7CityExpansion({ cityId, destination }, tunerOptions(server));
+        expect(result.valid).toBe(false);
+        expect(result.snapshot.ownership).toEqual({ status: "unavailable" });
+      } finally {
+        await server.close();
+      }
+    }
+  });
+
+  test.each([
+    undefined,
+    { owner: 0, id: 999_001, type: 1 },
+  ])("refuses EXPAND send without fresh unowned evidence: %j", async (expansionOwnershipBefore) => {
+    const server = await startPlacementServer({ expansionOwnershipBefore });
     try {
-      const { port } = server.address();
-      const validation = await canStartCiv7PlayerOperation(
-        {
-          playerId: 0,
-          operationType: "ASSIGN_WORKER",
-          args: { Location: 2543, Amount: 1 },
-        },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 }
-      );
-      const request = await requestCiv7PlayerOperation(
-        {
-          playerId: 0,
-          operationType: "ASSIGN_WORKER",
-          args: { Location: 2543, Amount: 1 },
-        },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 }
-      );
+      const result = await sendCiv7CityExpansion({ cityId, destination }, tunerOptions(server));
 
-      expect(validation).toMatchObject({
-        family: "player-operation",
-        operationType: "ASSIGN_WORKER",
+      expect(result.sent).toBe(false);
+      expect(server.calls.filter((call) => call.kind === "expand-send")).toEqual([]);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("checks ASSIGN_WORKER for the ambient local player and exact ready candidate", async () => {
+    const server = await startPlacementServer();
+    try {
+      const result = await checkCiv7WorkerAssignment({ location }, tunerOptions(server));
+
+      expect(result).toEqual({
         valid: true,
+        result: { Success: true },
+        snapshot: workerSnapshot({ ready: true, numWorkers: 0 }),
       });
-      expect(request.sent).toBe(true);
-      expect(request.verified).toBe(true);
-      expect(request.populationPostcondition).toMatchObject({
-        family: "player-operation",
-        operationType: "ASSIGN_WORKER",
-        classification: "population-ready-cleared",
-        readyCleared: true,
-        placementStateChanged: true,
+      expect(server.calls).toEqual([
+        {
+          kind: "worker-can-start",
+          target: 0,
+          operationType: "ASSIGN_WORKER",
+          args: { Location: location, Amount: 1 },
+          queue: false,
+        },
+      ]);
+      expect(server.commandExecutions).toHaveLength(1);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("freshly validates and sends ASSIGN_WORKER once with target-specific snapshots", async () => {
+    const server = await startPlacementServer();
+    try {
+      const result = await sendCiv7WorkerAssignment({ location }, tunerOptions(server));
+
+      expect(result).toEqual({
+        sent: true,
+        validation: { valid: true, result: { Success: true } },
+        before: workerSnapshot({ ready: true, numWorkers: 0 }),
+        after: workerSnapshot({ ready: false, numWorkers: 1 }),
       });
-      expect(request.postcondition).toBeUndefined();
-      expect(server.operationCalls).toEqual([
+      expect(server.calls).toEqual([
         {
-          kind: "validate",
-          family: "player-operation",
-          input: {
-            playerId: 0,
-            operationType: "ASSIGN_WORKER",
-            args: { Location: 2543, Amount: 1 },
-          },
+          kind: "worker-can-start",
+          target: 0,
+          operationType: "ASSIGN_WORKER",
+          args: { Location: location, Amount: 1 },
+          queue: false,
         },
         {
-          kind: "validate",
-          family: "player-operation",
-          input: {
-            playerId: 0,
-            operationType: "ASSIGN_WORKER",
-            args: { Location: 2543, Amount: 1 },
-          },
-        },
-        {
-          kind: "send",
-          family: "player-operation",
-          input: {
-            playerId: 0,
-            operationType: "ASSIGN_WORKER",
-            args: { Location: 2543, Amount: 1 },
-          },
-        },
-        {
-          kind: "validate",
-          family: "player-operation",
-          input: {
-            playerId: 0,
-            operationType: "ASSIGN_WORKER",
-            args: { Location: 2543, Amount: 1 },
-          },
+          kind: "worker-send",
+          target: 0,
+          operationType: "ASSIGN_WORKER",
+          args: { Location: location, Amount: 1 },
         },
       ]);
     } finally {
@@ -106,89 +197,291 @@ describe("population placement requests", () => {
     }
   });
 
-  test("reports population postconditions for EXPAND city commands", async () => {
-    const server = await startPopulationPlacementTunerServer();
+  test("ignores an unrelated non-ready city without worker placement APIs", async () => {
+    const server = await startPlacementServer({ includeUnreadableNonReadyCity: true });
     try {
-      const { port } = server.address();
-      const cityId = { owner: 0, id: 196610, type: 1 };
-      const validation = await canStartCiv7CityCommand(
-        {
-          cityId,
-          operationType: "EXPAND",
-          args: { X: 16, Y: 19 },
-        },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 }
-      );
-      const request = await requestCiv7CityCommand(
-        {
-          cityId,
-          operationType: "EXPAND",
-          args: { X: 16, Y: 19 },
-        },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 }
-      );
-
-      expect(validation).toMatchObject({
-        family: "city-command",
-        operationType: "EXPAND",
+      const result = await checkCiv7WorkerAssignment({ location }, tunerOptions(server));
+      expect(result).toEqual({
         valid: true,
+        result: { Success: true },
+        snapshot: workerSnapshot({ ready: true, numWorkers: 0 }),
       });
-      expect(request.sent).toBe(true);
-      expect(request.verified).toBe(true);
-      expect(request.populationPostcondition).toMatchObject({
-        family: "city-command",
-        operationType: "EXPAND",
-        classification: "population-ready-cleared",
-        readyCleared: true,
-        placementStateChanged: true,
+    } finally {
+      await server.close();
+    }
+  });
+
+  test.each([
+    { Success: false },
+    { success: true },
+    true,
+  ])("requires exact Success true from ASSIGN_WORKER canStart: %j", async (workerCanStartResult) => {
+    const server = await startPlacementServer({ workerCanStartResult });
+    try {
+      const result = await sendCiv7WorkerAssignment({ location }, tunerOptions(server));
+      expect(result.sent).toBe(false);
+      expect(server.calls.filter((call) => call.kind === "worker-send")).toEqual([]);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("checks EXPAND membership by aligned Plots and ConstructibleTypes", async () => {
+    const server = await startPlacementServer({
+      expandCanStartResult: {
+        Success: false,
+        Plots: [1_659, expansionPlotIndex],
+        ConstructibleTypes: [42, constructibleType],
+      },
+    });
+    try {
+      const result = await checkCiv7CityExpansion({ cityId, destination }, tunerOptions(server));
+
+      expect(result).toEqual({
+        valid: true,
+        result: {
+          Success: false,
+          Plots: [1_659, expansionPlotIndex],
+          ConstructibleTypes: [42, constructibleType],
+        },
+        snapshot: expansionSnapshot({
+          ready: true,
+          candidate: { plotIndex: expansionPlotIndex, constructibleType },
+          ownership: { status: "unowned" },
+        }),
       });
-      expect(request.postcondition).toBeUndefined();
-      expect(server.operationCalls).toEqual([
+      expect(server.calls).toEqual([
         {
-          kind: "validate",
-          family: "city-command",
-          input: {
-            cityId,
-            operationType: "EXPAND",
-            args: { X: 16, Y: 19 },
-          },
-        },
-        {
-          kind: "validate",
-          family: "city-command",
-          input: {
-            cityId,
-            operationType: "EXPAND",
-            args: { X: 16, Y: 19 },
-          },
-        },
-        {
-          kind: "send",
-          family: "city-command",
-          input: {
-            cityId,
-            operationType: "EXPAND",
-            args: { X: 16, Y: 19 },
-          },
-        },
-        {
-          kind: "validate",
-          family: "city-command",
-          input: {
-            cityId,
-            operationType: "EXPAND",
-            args: { X: 16, Y: 19 },
-          },
+          kind: "expand-can-start",
+          target: cityId,
+          operationType: "EXPAND",
+          args: {},
+          queue: false,
         },
       ]);
     } finally {
       await server.close();
+    }
+  });
+
+  test.each([
+    false,
+    undefined,
+  ])("treats an invoked EXPAND send returning %j as dispatched", async (expandSendResult) => {
+    const server = await startPlacementServer({ expandSendResult });
+    try {
+      const result = await sendCiv7CityExpansion({ cityId, destination }, tunerOptions(server));
+
+      expect(result).toEqual({
+        sent: true,
+        validation: {
+          valid: true,
+          result: {
+            Success: true,
+            Plots: [expansionPlotIndex],
+            ConstructibleTypes: [constructibleType],
+          },
+        },
+        before: expansionSnapshot({
+          ready: true,
+          candidate: { plotIndex: expansionPlotIndex, constructibleType },
+          ownership: { status: "unowned" },
+        }),
+        after: expansionSnapshot({
+          ready: false,
+          candidate: null,
+          ownership: { status: "owned", cityId },
+        }),
+      });
+      expect(server.calls.filter((call) => call.kind === "expand-send")).toEqual([
+        {
+          kind: "expand-send",
+          target: cityId,
+          operationType: "EXPAND",
+          args: { X: destination.x, Y: destination.y },
+        },
+      ]);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("rejects a target without aligned constructible evidence without sending", async () => {
+    const server = await startPlacementServer({
+      expandCanStartResult: {
+        Plots: [expansionPlotIndex],
+        ConstructibleTypes: [],
+      },
+    });
+    try {
+      const result = await sendCiv7CityExpansion({ cityId, destination }, tunerOptions(server));
+      expect(result.sent).toBe(false);
+      expect(result.before.candidate).toBeNull();
+      expect(server.calls.filter((call) => call.kind === "expand-send")).toEqual([]);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("preserves not-dispatched versus dispatched send failures", async () => {
+    const beforeServer = await startPlacementServer({
+      workerCanStartResult: undefined,
+    });
+    try {
+      await expect(
+        sendCiv7WorkerAssignment({ location }, tunerOptions(beforeServer))
+      ).rejects.toMatchObject({
+        name: "Civ7DirectControlError",
+        dispatchStatus: "not-dispatched",
+      });
+    } finally {
+      await beforeServer.close();
+    }
+
+    const afterServer = await startPlacementServer({
+      expandSendError: new Error("EXPAND send failed"),
+    });
+    try {
+      await expect(
+        sendCiv7CityExpansion({ cityId, destination }, tunerOptions(afterServer))
+      ).rejects.toMatchObject({
+        name: "Civ7DirectControlError",
+        dispatchStatus: "dispatched",
+      });
+    } finally {
+      await afterServer.close();
     }
   });
 });
 
-async function startPopulationPlacementTunerServer(): Promise<FakeTunerServer> {
-  const operationCalls: OperationCall[] = [];
+async function startPlacementServer(
+  options: PlacementServerOptions = {}
+): Promise<FakePlacementServer> {
+  const calls: PlacementCall[] = [];
+  const commandExecutions: string[] = [];
+  const runtime = {
+    ready: true,
+    numWorkers: 0,
+    expanded: false,
+  };
+  const city = {
+    id: cityId,
+    Growth: {
+      get isReadyToPlacePopulation() {
+        return runtime.ready;
+      },
+    },
+    Workers: {
+      GetAllPlacementInfo: () => [
+        {
+          PlotIndex: location,
+          IsBlocked: false,
+          NumWorkers: runtime.numWorkers,
+          MaxWorkers: 2,
+        },
+      ],
+    },
+  };
+  const globals = {
+    Cities: {
+      get: (requestedCityId: unknown) => {
+        if (componentIdEqual(requestedCityId, cityId)) return city;
+        if (componentIdEqual(requestedCityId, unreadableCityId)) {
+          return { Growth: { isReadyToPlacePopulation: false } };
+        }
+        return null;
+      },
+    },
+    CityCommandTypes: { EXPAND: "EXPAND" },
+    GameContext: { localPlayerID: 0 },
+    GameplayMap: {
+      getIndexFromLocation: (requested: unknown) =>
+        JSON.stringify(requested) === JSON.stringify(destination) ? expansionPlotIndex : -1,
+      getOwningCityFromXY: () =>
+        runtime.expanded
+          ? cityId
+          : Object.prototype.hasOwnProperty.call(options, "expansionOwnershipBefore")
+            ? options.expansionOwnershipBefore
+            : null,
+    },
+    PlayerOperationTypes: { ASSIGN_WORKER: "ASSIGN_WORKER" },
+    Players: {
+      get: (playerId: unknown) =>
+        playerId === 0
+          ? {
+              Cities: {
+                getCityIds: () =>
+                  options.includeUnreadableNonReadyCity ? [cityId, unreadableCityId] : [cityId],
+              },
+            }
+          : null,
+    },
+    Game: {
+      PlayerOperations: {
+        canStart: (playerId: unknown, operationType: unknown, args: unknown, queue: unknown) => {
+          calls.push({
+            kind: "worker-can-start",
+            target: jsonClone(playerId),
+            operationType,
+            args: jsonClone(args),
+            queue,
+          });
+          return Object.prototype.hasOwnProperty.call(options, "workerCanStartResult")
+            ? options.workerCanStartResult
+            : { Success: true };
+        },
+        sendRequest: (playerId: unknown, operationType: unknown, args: unknown) => {
+          calls.push({
+            kind: "worker-send",
+            target: jsonClone(playerId),
+            operationType,
+            args: jsonClone(args),
+          });
+          if (options.workerSendError) throw options.workerSendError;
+          runtime.ready = false;
+          runtime.numWorkers += 1;
+        },
+      },
+      CityCommands: {
+        canStart: (
+          requestedCityId: unknown,
+          operationType: unknown,
+          args: unknown,
+          queue: unknown
+        ) => {
+          calls.push({
+            kind: "expand-can-start",
+            target: jsonClone(requestedCityId),
+            operationType,
+            args: jsonClone(args),
+            queue,
+          });
+          if (runtime.expanded) {
+            return { Success: false, Plots: [], ConstructibleTypes: [] };
+          }
+          return Object.prototype.hasOwnProperty.call(options, "expandCanStartResult")
+            ? options.expandCanStartResult
+            : {
+                Success: true,
+                Plots: [expansionPlotIndex],
+                ConstructibleTypes: [constructibleType],
+              };
+        },
+        sendRequest: (requestedCityId: unknown, operationType: unknown, args: unknown) => {
+          calls.push({
+            kind: "expand-send",
+            target: jsonClone(requestedCityId),
+            operationType,
+            args: jsonClone(args),
+          });
+          if (options.expandSendError) throw options.expandSendError;
+          runtime.expanded = true;
+          runtime.ready = false;
+          return options.expandSendResult;
+        },
+      },
+    },
+  };
   const server = createServer((socket) => {
     let buffer = Buffer.alloc(0);
     socket.on("data", (chunk) => {
@@ -199,41 +492,25 @@ async function startPopulationPlacementTunerServer(): Promise<FakeTunerServer> {
         buffer = buffer.subarray(frame.bytesRead);
         if (frame.message === "LSQ:") {
           socket.write(encodeResponse(frame.listenerId, ["65535", "App UI", "1", "Tuner"]));
-        } else {
-          const operationCall = parseOperationCall(frame.message);
-          if (operationCall) operationCalls.push(operationCall);
-          if (operationCall?.kind === "validate") {
-            socket.write(
-              encodeResponse(frame.listenerId, [JSON.stringify(operationValidation(operationCall))])
-            );
-          } else if (operationCall?.kind === "send") {
-            socket.write(
-              encodeResponse(frame.listenerId, [
-                JSON.stringify({
-                  sent: true,
-                  beforePopulationPostcondition: populationPlacementPostconditionSnapshot(
-                    operationCall.family,
-                    operationCall.input,
-                    true
-                  ),
-                  afterPopulationPostcondition: populationPlacementPostconditionSnapshot(
-                    operationCall.family,
-                    operationCall.input,
-                    false
-                  ),
-                }),
-              ])
-            );
-          } else {
-            socket.write(encodeResponse(frame.listenerId, ["2"]));
-          }
+          continue;
+        }
+        const commandMatch = frame.message.match(/^CMD:([^:]+):(.*)$/s);
+        if (!commandMatch) continue;
+        const command = commandMatch[2] ?? "";
+        commandExecutions.push(command);
+        try {
+          const output = runInNewContext(command, globals);
+          socket.write(encodeResponse(frame.listenerId, [String(output)]));
+        } catch (error) {
+          socket.write(encodeResponse(frame.listenerId, [String(error)]));
         }
       }
     });
   });
   await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
   return {
-    operationCalls,
+    calls,
+    commandExecutions,
     address: () => server.address() as AddressInfo,
     close: async () => {
       server.close();
@@ -242,63 +519,53 @@ async function startPopulationPlacementTunerServer(): Promise<FakeTunerServer> {
   };
 }
 
-function parseOperationCall(message: string): OperationCall | undefined {
-  const match = message.match(
-    /return JSON\.stringify\((validateOperation|sendOperation)\(("(?:\\.|[^"\\])*"), (\{.*\})\)\);/s
-  );
-  if (!match) return undefined;
+function workerSnapshot(input: { ready: boolean; numWorkers: number }) {
   return {
-    kind: match[1] === "sendOperation" ? "send" : "validate",
-    family: JSON.parse(match[2]),
-    input: JSON.parse(match[3]),
+    localPlayerId: 0,
+    location,
+    readyCityIds: input.ready ? [cityId] : [],
+    candidateCityId: cityId,
+    isReadyToPlacePopulation: input.ready,
+    placementInfo: {
+      PlotIndex: location,
+      IsBlocked: false,
+      NumWorkers: input.numWorkers,
+      MaxWorkers: 2,
+    },
+    numWorkers: input.numWorkers,
   };
 }
 
-function operationValidation(operationCall: OperationCall) {
-  const { family, input } = operationCall;
+function expansionSnapshot(input: {
+  ready: boolean;
+  candidate: { plotIndex: number; constructibleType: number } | null;
+  ownership:
+    | { status: "unowned" }
+    | { status: "owned"; cityId: typeof cityId }
+    | { status: "unavailable" };
+}) {
   return {
-    family,
-    operationType: input.operationType,
-    enumValue: input.operationType,
-    target: family === "city-command" ? { cityId: input.cityId } : { playerId: input.playerId },
-    args: input.args,
-    valid: true,
-    result: { Success: true },
-  };
-}
-
-function populationPlacementPostconditionSnapshot(
-  family: string,
-  input: OperationCall["input"],
-  isReadyToPlacePopulation: boolean
-) {
-  const cityId =
-    family === "city-command"
-      ? (input.cityId ?? { owner: 0, id: 196610, type: 1 })
-      : { owner: 0, id: 196610, type: 1 };
-  return {
+    localPlayerId: 0,
     cityId,
-    city: {
-      ok: true,
-      value: {
-        id: cityId,
-        population: isReadyToPlacePopulation ? 4 : 5,
-        isTown: true,
-        location: { x: 20, y: 20 },
-      },
-    },
-    isReadyToPlacePopulation: { ok: true, value: isReadyToPlacePopulation },
-    cityWorkerCap: { ok: true, value: isReadyToPlacePopulation ? 4 : 5 },
-    workablePlotIndexes: {
-      ok: true,
-      value: isReadyToPlacePopulation ? [2543, 2544] : [2543, 2544, 2545],
-    },
-    blockedPlotIndexes: { ok: true, value: isReadyToPlacePopulation ? [2545] : [] },
-    expansionPlotIndexes: {
-      ok: true,
-      value: family === "city-command" ? (isReadyToPlacePopulation ? [1660] : [1661]) : [],
-    },
+    destination,
+    plotIndex: expansionPlotIndex,
+    isReadyToPlacePopulation: input.ready,
+    candidate: input.candidate,
+    ownership: input.ownership,
   };
+}
+
+function tunerOptions(server: FakePlacementServer) {
+  const { port } = server.address();
+  return { host: "127.0.0.1", port, timeoutMs: 1_000 };
+}
+
+function componentIdEqual(left: unknown, right: unknown): boolean {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function jsonClone<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
 }
 
 function parseRequest(buffer: Buffer): {
@@ -317,7 +584,7 @@ function parseRequest(buffer: Buffer): {
   };
 }
 
-function encodeResponse(listenerId: number, parts: string[]): Buffer {
+function encodeResponse(listenerId: number, parts: readonly string[]): Buffer {
   const messageBytes = Buffer.from(`${parts.join("\0")}\0`, "utf8");
   const frame = Buffer.alloc(8 + messageBytes.length);
   frame.writeUInt32LE(messageBytes.length, 0);

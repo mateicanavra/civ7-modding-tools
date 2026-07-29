@@ -83,12 +83,6 @@
       "import": "./dist/proof/advisor-warning-proof-policy.js",
       "require": "./dist/proof/advisor-warning-proof-policy.cjs"
     },
-    "./proof/population-placement-proof-policy": {
-      "types": "./dist/proof/population-placement-proof-policy.d.ts",
-      "bun-source": "./src/proof/population-placement-proof-policy.ts",
-      "import": "./dist/proof/population-placement-proof-policy.js",
-      "require": "./dist/proof/population-placement-proof-policy.cjs"
-    },
     "./proof/progression-player-choice-proof-policy": {
       "types": "./dist/proof/progression-player-choice-proof-policy.d.ts",
       "bun-source": "./src/proof/progression-player-choice-proof-policy.ts",

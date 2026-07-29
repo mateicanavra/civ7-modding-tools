@@ -195,12 +195,14 @@ adding more read-only facade shells.
     input, semantic before/after proof projection, raw-output exclusion, and
     no-repeat next steps; CLI end-turn migration, runtime proof, and parent
     Task 5.x/6.x acceptance remain out of scope.
-  - [x] 5.4.16 Narrow the control-oRPC runtime facade for
-    `city.population.place.request` from generic player/city operation ports
-    to semantic assign-worker and expand-city placement ports. Keep
-    direct-control's low-level player-operation/city-command authority inside
-    the live facade adapter and keep raw operation inputs out of the exported
-    context-construction surface.
+  - [x] 5.4.16 Converge `city.population.place.check` and
+    `city.population.place.request` on exact worker-assignment and
+    city-expansion check/send ports. Keep only native validation, dispatch, and
+    immutable target-state evidence in direct-control; keep semantic admission,
+    bounded polling, target-specific confirmation, dispatch uncertainty, and
+    no-repeat policy in the city service. Reject `ASSIGN_WORKER` and `EXPAND`
+    from generic operation paths and keep raw operation inputs out of the
+    exported context-construction surface.
   - [x] 5.4.17 Record `world.current` as a service-owned current-world
     boundary over playable/App UI snapshot facts. The service owns the
     contract-local schema, normal projection, next-step wording, raw-output
@@ -650,11 +652,10 @@ adding more read-only facade shells.
   - [x] 7.1.8 Route `civ7 game play assign-worker --send` and
     `civ7 game play expand-city --send` through the in-process
     `city.population.place.request` server-side client under the `city` router.
-    Keep endpoint flags as context construction, emit the semantic city
-    population placement projection for send output, preserve the existing
-    direct-control validation paths for read-only mode, bound assign-worker send
-    mode to the source-owned one-worker placement atom, and keep live runtime
-    proof pending.
+    Route read-only mode through `city.population.place.check`, keep endpoint
+    flags as context construction, emit only semantic service projections, and
+    keep the exact one-worker amount and ambient local-player authority inside
+    the runtime atom. Keep live runtime proof pending.
   - [x] 7.1.9 Route `civ7 game play upgrade-unit --send` and
     `civ7 game play resettle-unit --send` through the in-process
     `unit.upgrade.request` and `unit.resettle.request` server-side clients

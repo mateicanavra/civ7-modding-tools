@@ -15,7 +15,6 @@ export default defineConfig({
     "src/proof/government-choice-proof-policy.ts",
     "src/proof/narrative-choice-proof-policy.ts",
     "src/proof/notification-dismissal-proof-policy.ts",
-    "src/proof/population-placement-proof-policy.ts",
     "src/proof/progression-player-choice-proof-policy.ts",
     "src/proof/progression-target-proof-policy.ts",
     "src/proof/turn-completion-proof-policy.ts",
