@@ -1,5 +1,4 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
+import { createCiv7GameControlClient } from "../control/service-client";
 
 // Shared service-call helper for the `game map` noun topic. The topic index
 // (`game map` flag multiplex) and the focused subcommands (`game map
@@ -7,7 +6,7 @@ import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runti
 // world.* service calls stay identical regardless of which surface invoked
 // them (D2 in docs/projects/cli-command-taxonomy/workstream-record.md).
 
-type Civ7WorldClient = ReturnType<typeof createCiv7ControlOrpcServerClient>;
+type Civ7WorldClient = ReturnType<typeof createCiv7GameControlClient>;
 
 type Civ7WorldGridInput = Parameters<Civ7WorldClient["world"]["grid"]>[0];
 
@@ -54,8 +53,7 @@ export async function readCiv7World(
   request: Civ7WorldReadRequest,
   endpointOptions: Civ7WorldReadEndpointOptions
 ): Promise<unknown> {
-  const client = createCiv7ControlOrpcServerClient({
-    directControl: liveCiv7ControlOrpcDirectControlFacade,
+  const client = createCiv7GameControlClient({
     endpointDefaults: endpointOptions,
   });
   if (request.mode === "grid") {

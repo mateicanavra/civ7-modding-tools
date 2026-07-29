@@ -1,8 +1,5 @@
-import {
-  liveCiv7ControlOrpcDirectControlFacade,
-  liveCiv7ControlOrpcDirectLifecycleFacade,
-} from "@civ7/control-orpc/runtime";
 import { Civ7DirectControlError, DEFAULT_CIV7_TUNER_TIMEOUT_MS } from "@civ7/direct-control";
+import { liveCiv7DirectControl, liveCiv7LifecycleControl } from "@civ7/direct-control/live";
 import {
   dependencyUnavailable,
   type StudioOperationProcedure,
@@ -83,8 +80,9 @@ export function createStudioServerContext(
     // control procedures' per-request context from these plus the runtime's
     // shared tuner session (structural session sharing — no daemon patch).
     civ7Control: {
-      directControl: liveCiv7ControlOrpcDirectControlFacade,
-      directLifecycle: liveCiv7ControlOrpcDirectLifecycleFacade,
+      directControl: liveCiv7DirectControl as StudioServerContext["civ7Control"]["directControl"],
+      directLifecycle:
+        liveCiv7LifecycleControl as StudioServerContext["civ7Control"]["directLifecycle"],
       timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS,
     },
     loadSetupCatalog: async () => {

@@ -1,6 +1,5 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
+import { createCiv7GameControlClient } from "../../../../adapters/control/service-client";
 import {
   buildDirectControlOptions,
   resolveCoordinateFlags,
@@ -8,7 +7,7 @@ import {
 
 type Location = Readonly<{ x: number; y: number }>;
 type FrontSummaryServiceResult = Awaited<
-  ReturnType<ReturnType<typeof createCiv7ControlOrpcServerClient>["strategy"]["frontSummary"]>
+  ReturnType<ReturnType<typeof createCiv7GameControlClient>["strategy"]["frontSummary"]>
 >;
 type FrontInspectionStep = Readonly<{ label: string }>;
 
@@ -129,8 +128,7 @@ export default class GamePlayFrontSummary extends Command {
         pairFlag: "origin",
       }) ?? null;
     const requestedTarget = resolveFrontTarget(flags);
-    const client = createCiv7ControlOrpcServerClient({
-      directControl: liveCiv7ControlOrpcDirectControlFacade,
+    const client = createCiv7GameControlClient({
       endpointDefaults: options,
     });
     const result = await client.strategy.frontSummary({

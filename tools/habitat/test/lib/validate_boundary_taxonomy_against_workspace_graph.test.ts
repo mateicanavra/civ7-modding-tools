@@ -272,7 +272,7 @@ function packageNameForRoot(root: string): string | null {
         "mods/mod-civ7-intelligence-bridge": "mod-civ7-intelligence-bridge",
         "mods/mod-swooper-civ-dacia": "civ-mod-dacia",
         "packages/civ7-adapter": "@civ7/adapter",
-        "packages/civ7-control-orpc": "@civ7/control-orpc",
+        "services/civ7-control": "@civ7/control-orpc",
         "packages/civ7-direct-control": "@civ7/direct-control",
         "packages/civ7-map-policy": "@civ7/map-policy",
         "packages/civ7-types": "@civ7/types",

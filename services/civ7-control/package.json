@@ -1,0 +1,61 @@
+{
+  "name": "@civ7/control-orpc",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Native oRPC/Effect procedure composition over Civ7 direct-control atoms.",
+  "type": "module",
+  "imports": {
+    "#civ7-control-service/*": "./src/service/*.ts"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "bun-source": "./src/index.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./contract": {
+      "types": "./dist/contract.d.ts",
+      "bun-source": "./src/contract.ts",
+      "import": "./dist/contract.js",
+      "require": "./dist/contract.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "contract": [
+        "./dist/contract.d.ts"
+      ],
+      "*": [
+        "./dist/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "check:test": "tsc -p tsconfig.test.json --noEmit",
+    "check:tools": "tsc -p tsconfig.tools.json --noEmit",
+    "clean": "rimraf dist tsconfig.tsbuildinfo",
+    "test": "vitest run --config vitest.config.ts"
+  },
+  "dependencies": {
+    "@civ7/direct-control": "workspace:*",
+    "@civ7/map-policy": "workspace:*",
+    "@orpc/client": "1.14.6",
+    "@orpc/contract": "1.14.6",
+    "@orpc/server": "1.14.6",
+    "@orpc/shared": "^1.14.4",
+    "@standard-schema/spec": "^1.1.0",
+    "effect": "3.21.3",
+    "effect-orpc": "catalog:",
+    "typebox": "catalog:"
+  },
+  "engines": {
+    "node": "22.22.0"
+  }
+}

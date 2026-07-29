@@ -1,11 +1,4 @@
-import type {
-  Civ7ControlOrpcDirectControlFacade,
-  Civ7ControlOrpcDirectLifecycleFacade,
-} from "@civ7/control-orpc/runtime";
-import {
-  liveCiv7ControlOrpcDirectControlFacade,
-  liveCiv7ControlOrpcDirectLifecycleFacade,
-} from "@civ7/control-orpc/runtime";
+import type { Civ7ControlOrpcContext } from "@civ7/control-orpc";
 import type {
   Civ7AppUiSnapshotResult,
   Civ7CommandResult,
@@ -20,9 +13,13 @@ import {
   Civ7DirectControlSession,
   Civ7PlayableStatusResultSchema,
 } from "@civ7/direct-control";
+import { liveCiv7DirectControl, liveCiv7LifecycleControl } from "@civ7/direct-control/live";
 import { Effect, Fiber, Layer, Match } from "effect";
 import { Value } from "typebox/value";
 import { describe, expect, test, vi } from "vitest";
+
+type Civ7ControlOrpcDirectControlFacade = Civ7ControlOrpcContext["directControl"];
+type Civ7ControlOrpcDirectLifecycleFacade = NonNullable<Civ7ControlOrpcContext["directLifecycle"]>;
 
 import type { StudioServerContext } from "../src/context.js";
 import { Civ7WorkflowControl, Civ7WorkflowControlLive } from "../src/ports/Civ7WorkflowControl.js";
@@ -54,7 +51,7 @@ describe("Civ7WorkflowControlLive", () => {
     let leaseActive = false;
     let gameStartedReports = 0;
     const directLifecycle: Civ7ControlOrpcDirectLifecycleFacade = {
-      ...liveCiv7ControlOrpcDirectLifecycleFacade,
+      ...(liveCiv7LifecycleControl as Civ7ControlOrpcDirectLifecycleFacade),
       getSetupSnapshot: record("getSetupSnapshot", async () =>
         setupSnapshot("shell", ++setupReads)
       ),
@@ -198,7 +195,7 @@ describe("Civ7WorkflowControlLive", () => {
   test("keeps typed pre-mutation state refusal retryable rather than uncertain", async () => {
     const session = Civ7DirectControlSession.prototype;
     const directLifecycle: Civ7ControlOrpcDirectLifecycleFacade = {
-      ...liveCiv7ControlOrpcDirectLifecycleFacade,
+      ...liveCiv7LifecycleControl,
       getSetupSnapshot: async () => setupSnapshot("shell"),
       admitSetupShell: async () => {
         throw new Civ7DirectControlError("setup-phase-refused", "setup is loading", {
@@ -230,7 +227,7 @@ describe("Civ7WorkflowControlLive", () => {
     let readinessCalls = 0;
     const getSetupSnapshot = vi.fn(async () => setupSnapshot("shell"));
     const directLifecycle: Civ7ControlOrpcDirectLifecycleFacade = {
-      ...liveCiv7ControlOrpcDirectLifecycleFacade,
+      ...liveCiv7LifecycleControl,
       getSetupSnapshot,
     };
     const service = await makeService({
@@ -280,7 +277,7 @@ describe("Civ7WorkflowControlLive", () => {
     let followingReads = 0;
     let leaseReleased = false;
     const directLifecycle: Civ7ControlOrpcDirectLifecycleFacade = {
-      ...liveCiv7ControlOrpcDirectLifecycleFacade,
+      ...liveCiv7LifecycleControl,
       getSetupSnapshot: async () => setupSnapshot("shell"),
       admitSetupShell: async () => ({
         initial: setupSnapshot("shell"),
@@ -341,7 +338,7 @@ async function makeService(args: {
   lease?: Civ7TunerSessionApi["lease"];
 }) {
   const directControl: Civ7ControlOrpcDirectControlFacade = {
-    ...liveCiv7ControlOrpcDirectControlFacade,
+    ...(liveCiv7DirectControl as Civ7ControlOrpcDirectControlFacade),
     getCiv7PlayableStatus: async () => {
       args.onPlayableStatus?.();
       const appUi = appUiSnapshot("started");

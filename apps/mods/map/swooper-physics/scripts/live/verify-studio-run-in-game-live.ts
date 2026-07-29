@@ -5,11 +5,7 @@ import { readFile, stat } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import {
-  liveCiv7ControlOrpcDirectControlFacade,
-  liveCiv7ControlOrpcDirectLifecycleFacade,
-} from "@civ7/control-orpc/runtime";
+import { type Civ7ControlOrpcContext, createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
 import {
   type Civ7DirectControlOptions,
   type Civ7SavedGameConfiguration,
@@ -24,6 +20,7 @@ import {
   snapshotFile,
   waitForFreshLogMarkers,
 } from "@civ7/direct-control";
+import { liveCiv7DirectControl, liveCiv7LifecycleControl } from "@civ7/direct-control/live";
 import { assessCiv7SignedIntSeed } from "@civ7/map-policy/setup";
 import { resolveModsDir } from "@civ7/plugin-files";
 import { ORPCError } from "@orpc/client";
@@ -572,8 +569,10 @@ async function main(): Promise<number> {
     const scriptingSnapshot = await snapshotFile(scriptingLogPath);
     const correlationId = createCiv7ControlRequestId("studio-live");
     const run = await createCiv7ControlOrpcServerClient({
-      directControl: liveCiv7ControlOrpcDirectControlFacade,
-      directLifecycle: liveCiv7ControlOrpcDirectLifecycleFacade,
+      directControl: liveCiv7DirectControl as Civ7ControlOrpcContext["directControl"],
+      directLifecycle: liveCiv7LifecycleControl as NonNullable<
+        Civ7ControlOrpcContext["directLifecycle"]
+      >,
       endpointDefaults: options,
       correlation: { correlationId },
     }).lifecycle.singlePlayer.start({

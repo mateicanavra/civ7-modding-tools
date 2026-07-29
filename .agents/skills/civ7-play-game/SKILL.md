@@ -43,13 +43,14 @@ hashes, or coordinates — you echo what the reads surface.
 - **Reads → Actions.** Read commands (`priorities`, `unit ready`,
   `ready-city`, `choose-tech --options`, …) return candidate actions with their
   exact parameters and IDs. Action commands (`unit target`, `build-production`,
-  `choose-tech`, `end-turn`, `operation`, …) take those same parameters back.
+  `choose-tech`, `end-turn`, …) take those same parameters back.
 - **Validate, then `--send`.** Action commands run as a dry-run validation by
   default; add `--send` to actually issue. After sending, read the result
   envelope's `postcondition`/`verified` to confirm it landed.
-- **`legalOperations` is the key.** `unit ready`/`ready-city` list legal
-  `{family, operationType}` pairs. Anything without a dedicated command (founding
-  a city, fortify, skip) is issued by echoing that pair into `game operation`.
+- **Named actions are the public boundary.** `unit ready`/`ready-city` may list
+  legal `{family, operationType}` pairs for which no named action command exists.
+  Stop and report those gaps; do not route around the public service through a
+  generic operation command or raw execution.
 
 ## The Turn Loop (core procedure)
 
@@ -69,8 +70,9 @@ founding/movement/production procedures live in the references — open them.
    `references/strategy.md`, then send the matching `choose-*`/`respond-*`
    command. Confirm the postcondition.
 4. **Order every ready unit.** Drain `game play unit ready --json` one unit at a
-   time until none remain idle: move, found, fortify, or skip. See
-   `references/turn-loop.md` → "Units".
+   time using named unit actions. If the only legal action has no named command,
+   stop and report the unsupported operation. See `references/turn-loop.md` →
+   "Units".
 5. **Set production for every city/town.** Drain `game play ready-city --compact
    --json`: pick from `productionCandidates`, send `build-production`; set
    `set-town-focus` once per town. See `references/turn-loop.md` → "Cities".
@@ -88,8 +90,8 @@ to be consulted on, or an action keeps failing (see Invariants).
 
 | Reference | Path | Open When |
 |---|---|---|
-| Turn playbook | `references/turn-loop.md` | Running the loop: per-`kind` decision tables, founding a city, moving units, production, draining ready entities, success signals |
-| Command reference | `references/command-reference.md` | Exact flags for any command, the result envelope, the read→action ID-flow, `game operation`/`gameinfo` escape hatches, name↔id lookup |
+| Turn playbook | `references/turn-loop.md` | Running the loop: per-`kind` decision tables, moving units, production, draining ready entities, unsupported-action boundaries, success signals |
+| Command reference | `references/command-reference.md` | Exact flags for public commands, the result envelope, the read→action ID-flow, unsupported-operation handling, `gameinfo` name↔id lookup |
 | Strategy | `references/strategy.md` | Deciding *what* to choose: ages, Legacy Paths, settlements, yields, units, early-game build/research order, default policy, pitfalls |
 | Setup & recovery | `references/setup-and-recovery.md` | Game not playable, tuner unreachable, blocked end-turn, rejected action, readiness states, waiting through AI turns |
 

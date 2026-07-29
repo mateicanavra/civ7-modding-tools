@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 2,
+  "id": "require_orpc_error_authority",
+  "title": "Require Pinned E2 oRPC Error Authority",
+  "placement": {
+    "niche": "global/services",
+    "blueprint": "service",
+    "category": "boundary"
+  },
+  "operation": { "kind": "check" },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "direct ORPCError construction, toORPCError acquisition, middleware-owned .errors maps, runtime error imports in executable interiors, ORPCTaggedError declarations outside contract leaves or model/errors, or custom translation portals",
+  "why": "Pinned effect-orpc 0.5.0 maps contract-declared ORPCTaggedError failures. A catch-all ORPCError bridge would duplicate provider authority and erase declared failure semantics.",
+  "remediate": "Declare leaf-local public ORPCTaggedError values in the owning contract, or place genuinely shared error vocabulary under model/errors; attach the map at that contract and use injected errors.* constructors or yield declared tagged failures.",
+  "message": "Public service errors must flow through pinned effect-orpc contract authority.",
+  "pathCoverage": [{ "kind": "exact-path", "patterns": ["services/*/src/service/**/*.ts"] }],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/service/require_orpc_error_authority/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/service/require_orpc_error_authority/pattern.md"
+    },
+    "patternName": "require_orpc_error_authority",
+    "acquisition": { "kind": "check", "roots": ["services"] }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 2,
+  "id": "require_service_router_authorship",
+  "title": "Require Service Router Authorship",
+  "placement": {
+    "niche": "global/services",
+    "blueprint": "service",
+    "category": "execution"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "a router leaf without one Effect or native handler authored from its configured module branch, a router leaf with multiple runtime exports, handler authorship in a module or root router aggregate, or a module router index without a direct registered semantic leaf",
+  "why": "Handler authorship belongs in direct semantic router leaves. Module router indexes expose plain operation trees and the root router performs only aggregate service implementation, keeping behavior ownership visible and preventing hidden procedure registries.",
+  "remediate": "Author one exported handler or semantic handler group per direct router leaf from module.<operation>.effect(...) or .handler(...), import and register direct leaves in router/index.ts, and remove handler calls from aggregate routers.",
+  "message": "Service router leaves author handlers; router indexes only compose them.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "services/*/src/service/router.ts",
+        "services/*/src/service/modules/*/router/*.ts"
+      ]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/service/require_service_router_authorship/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/service/require_service_router_authorship/pattern.md"
+    },
+    "patternName": "require_service_router_authorship",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["services"]
+    }
+  }
+}

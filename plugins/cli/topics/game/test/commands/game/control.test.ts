@@ -9,7 +9,6 @@ import GameHealth from "../../../src/commands/game/health";
 import GameInspect from "../../../src/commands/game/inspect";
 import GameMap from "../../../src/commands/game/map";
 import GameMapVisibility from "../../../src/commands/game/map/visibility";
-import GameOperation from "../../../src/commands/game/operation";
 import GameStatus from "../../../src/commands/game/status";
 
 describe("game direct-control commands", () => {
@@ -800,37 +799,6 @@ describe("game direct-control commands", () => {
       await server.close();
     }
   });
-
-  test("validates operation commands through the canonical package boundary", async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GameOperation.run([
-        "--host",
-        "127.0.0.1",
-        "--port",
-        String(port),
-        "--family",
-        "unit-operation",
-        "--operation-type",
-        "SKIP_TURN",
-        "--unit-id",
-        '{"owner":0,"id":65536,"type":26}',
-        "--json",
-      ]);
-
-      expect(
-        server.received.some((message) =>
-          message.includes("return JSON.stringify(validateOperation")
-        )
-      ).toBe(true);
-      expect(
-        server.received.some((message) => message.includes("return JSON.stringify(sendOperation"))
-      ).toBe(false);
-    } finally {
-      await server.close();
-    }
-  });
 });
 
 async function findUnusedPort(): Promise<number> {
@@ -1021,19 +989,6 @@ async function startTunerServer() {
                 offset: 0,
                 total: { ok: true, value: 1 },
                 omittedUnknown: false,
-              }),
-            ])
-          );
-        } else if (frame.message.includes("return JSON.stringify(validateOperation")) {
-          socket.write(
-            encodeResponse(frame.listenerId, [
-              JSON.stringify({
-                family: "unit-operation",
-                operationType: "SKIP_TURN",
-                enumValue: "SKIP_TURN",
-                target: { unitId: { owner: 0, id: 65536, type: 26 } },
-                valid: true,
-                result: { Success: true },
               }),
             ])
           );

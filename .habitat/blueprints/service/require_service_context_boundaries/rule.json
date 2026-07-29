@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 2,
+  "id": "require_service_context_boundaries",
+  "title": "Require Service Context Boundaries",
+  "placement": {
+    "niche": "global/services",
+    "blueprint": "service",
+    "category": "boundary"
+  },
+  "operation": { "kind": "check" },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "a missing or duplicate exported Context owner, runtime imports or exports in context.ts, context aggregation from outside owned model/ports leaves, or a module implementation reopening the root Context owner",
+  "why": "The pinned E2 service has one private context and port aggregation owner. Configured module branches carry that vocabulary to handlers without public deep imports or a second context cabinet.",
+  "remediate": "Export the sole Context type from service/context.ts, aggregate only type imports from root or module model/ports leaves, and let configured service module branches infer handler context.",
+  "message": "Service context and ports must have one private aggregation owner.",
+  "pathCoverage": [{ "kind": "exact-path", "patterns": ["services/*/src/service/**/*.ts"] }],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/service/require_service_context_boundaries/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/service/require_service_context_boundaries/pattern.md"
+    },
+    "patternName": "require_service_context_boundaries",
+    "acquisition": { "kind": "check", "roots": ["services"] }
+  }
+}

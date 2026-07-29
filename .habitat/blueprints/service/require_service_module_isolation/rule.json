@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_service_module_isolation",
+  "title": "Require Service Module Isolation",
+  "placement": {
+    "niche": "global/services",
+    "blueprint": "service",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "service-root acquisition of module internals outside contract, router, and type-only context ports; module acquisition of a sibling module; module.ts acquisition outside root impl; contract leaves outside root base, schema, and their own module; or router leaves outside their module boundary",
+  "why": "A module is one isolated contract-to-handler capability. Root files compose only its public contract and router faces or declare type-only ports; module implementation descends through the configured service branch and does not reach sideways into sibling implementations.",
+  "remediate": "Use only module contract indexes from root contract.ts, module router indexes from root router.ts, and type-only module ports from context.ts. Keep module.ts on ../../impl, contract leaves on ../../../base and ../../../schema plus local module owners, router leaves on ../module plus local owners, and remove sibling-module edges.",
+  "message": "Service modules may communicate only through their declared root composition faces.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["services/*/src/service/**/*.ts"]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/service/require_service_module_isolation/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/service/require_service_module_isolation/pattern.md"
+    },
+    "patternName": "require_service_module_isolation",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["services"]
+    }
+  }
+}

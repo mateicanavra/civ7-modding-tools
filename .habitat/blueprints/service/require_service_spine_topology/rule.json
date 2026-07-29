@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "require_service_spine_topology",
+  "title": "Require Closed Service Spine Topology",
+  "placement": {
+    "niche": "global/services",
+    "blueprint": "service",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "a service package, public source root, service spine, module, capability directory, model kind, or proof category outside the closed generic service topology",
+  "why": "Every service is one constructible package with a required contract-first spine and finite optional interiors. Closing each container prevents host adapters, provider construction, runtime surfaces, product controllers, loose helpers, and source-owned proof from becoming accidental service authority.",
+  "remediate": "Keep package metadata and finite build or proof files at services/<service>; expose only client.ts, contract.ts, index.ts, and service under src; keep the base, context, contract, implementation, router, schema, and modules spine under src/service; use closed contract, router, middleware, model, and test-category interiors; relocate host and product concerns to their qualified owners.",
+  "message": "Service packages must match the closed generic service spine and proof topology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["services/*", "services/*/**"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/service/require_service_spine_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/service/require_service_spine_topology/structure.toml"
+    }
+  }
+}

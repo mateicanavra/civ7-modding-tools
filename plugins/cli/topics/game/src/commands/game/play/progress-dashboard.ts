@@ -1,13 +1,10 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
+import { createCiv7GameControlClient } from "../../../adapters/control/service-client";
 import { buildDirectControlOptions } from "../../../adapters/play/direct-control";
 
 type Probe<T = unknown> = { ok: true; value: T } | { ok: false; error: string };
 type ProgressDashboardServiceResult = Awaited<
-  ReturnType<
-    ReturnType<typeof createCiv7ControlOrpcServerClient>["progression"]["dashboard"]["current"]
-  >
+  ReturnType<ReturnType<typeof createCiv7GameControlClient>["progression"]["dashboard"]["current"]>
 >;
 
 export default class GamePlayProgressDashboard extends Command {
@@ -48,8 +45,7 @@ export default class GamePlayProgressDashboard extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayProgressDashboard);
-    const view = await createCiv7ControlOrpcServerClient({
-      directControl: liveCiv7ControlOrpcDirectControlFacade,
+    const view = await createCiv7GameControlClient({
       endpointDefaults: buildDirectControlOptions(flags),
     }).progression.dashboard.current({
       playerId: flags["player-id"],

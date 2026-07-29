@@ -1,11 +1,11 @@
-import type {
-  Civ7ControlOrpcDirectControlFacade,
-  Civ7ControlOrpcDirectLifecycleFacade,
-} from "@civ7/control-orpc/runtime";
+import type { Civ7ControlOrpcContext } from "@civ7/control-orpc";
 import type { studioEffectContract as contract } from "@civ7/studio-contract";
 import type { InferContractRouterInputs, InferContractRouterOutputs } from "@orpc/contract";
 import type { StudioOperationRuntimePorts } from "./operationRuntime/index.js";
 import type { RecipeDagService } from "./recipeDag/service.js";
+
+type Civ7ControlOrpcDirectControlFacade = Civ7ControlOrpcContext["directControl"];
+type Civ7ControlOrpcDirectLifecycleFacade = NonNullable<Civ7ControlOrpcContext["directLifecycle"]>;
 
 /**
  * Typed I/O for every studio-server procedure, derived from the oRPC contract so

@@ -1,10 +1,9 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
+import { createCiv7GameControlClient } from "../../../adapters/control/service-client";
 import { buildDirectControlOptions } from "../../../adapters/play/direct-control";
 
 type FormationSnapshotServiceResult = Awaited<
-  ReturnType<ReturnType<typeof createCiv7ControlOrpcServerClient>["strategy"]["formationSnapshot"]>
+  ReturnType<ReturnType<typeof createCiv7GameControlClient>["strategy"]["formationSnapshot"]>
 >;
 type FormationNextStep = FormationSnapshotServiceResult["nextSteps"][number];
 type FormationSnapshotCliView = Omit<FormationSnapshotServiceResult, "formation"> & {
@@ -83,8 +82,7 @@ export default class GamePlayFormationSnapshot extends Command {
     const endpointDefaults = buildDirectControlOptions(flags);
     const origin =
       flags.x === undefined || flags.y === undefined ? undefined : { x: flags.x, y: flags.y };
-    const client = createCiv7ControlOrpcServerClient({
-      directControl: liveCiv7ControlOrpcDirectControlFacade,
+    const client = createCiv7GameControlClient({
       endpointDefaults,
     });
     const result = await client.strategy.formationSnapshot({

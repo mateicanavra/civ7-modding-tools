@@ -1,6 +1,5 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
+import { createCiv7GameControlClient } from "../../../../adapters/control/service-client";
 import { buildDirectControlOptions } from "../../../../adapters/play/direct-control";
 
 export default class GamePlayNotificationsDismissReviewed extends Command {
@@ -50,8 +49,7 @@ export default class GamePlayNotificationsDismissReviewed extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayNotificationsDismissReviewed);
-    const client = createCiv7ControlOrpcServerClient({
-      directControl: liveCiv7ControlOrpcDirectControlFacade,
+    const client = createCiv7GameControlClient({
       endpointDefaults: buildDirectControlOptions(flags),
     });
     const view = await client.notifications.queue.dismiss.request({

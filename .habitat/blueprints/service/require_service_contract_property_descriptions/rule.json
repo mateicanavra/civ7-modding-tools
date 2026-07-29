@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "require_service_contract_property_descriptions",
+  "title": "Require Service Contract Property Descriptions",
+  "placement": {
+    "niche": "global/services",
+    "blueprint": "service",
+    "category": "contract"
+  },
+  "operation": { "kind": "check" },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "a directly authored TypeBox object property in a service module contract without a nonblank static description",
+  "why": "Contract properties are public protocol vocabulary. Their semantic meaning must travel with the owned schema and remain available to generated protocol documentation.",
+  "remediate": "Use the canonical Type import and add a truthful static description, delegate to a named *Schema authority, or spread a named *Schema.properties authority.",
+  "message": "Directly authored service contract properties must declare their meaning.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["services/*/src/service/modules/*/contract/*.ts"]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/service/require_service_contract_property_descriptions/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/service/require_service_contract_property_descriptions/pattern.md"
+    },
+    "patternName": "require_service_contract_property_descriptions",
+    "acquisition": { "kind": "check", "roots": ["services"] }
+  }
+}

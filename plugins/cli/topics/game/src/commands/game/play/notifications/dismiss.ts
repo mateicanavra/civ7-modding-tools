@@ -1,7 +1,6 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { getCiv7NotificationDismissal } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
+import { createCiv7GameControlClient } from "../../../../adapters/control/service-client";
 import {
   buildDirectControlOptions,
   emitPlayResult,
@@ -49,8 +48,7 @@ export default class GamePlayNotificationsDismiss extends Command {
     const input = { notificationId: parseComponentId(flags.target, "target") };
     const options = buildDirectControlOptions(flags);
     const result = flags.send
-      ? await createCiv7ControlOrpcServerClient({
-          directControl: liveCiv7ControlOrpcDirectControlFacade,
+      ? await createCiv7GameControlClient({
           endpointDefaults: options,
         }).notifications.dismiss.request(input)
       : await getCiv7NotificationDismissal(input, options);

@@ -145,7 +145,6 @@ civ7 game gameinfo Resources --limit 50 --json
 civ7 game autoplay --action start --json
 civ7 game autoplay --action start --turns 1 --json
 civ7 game autoplay --action stop --json
-civ7 game operation --family unit-operation --operation-type SKIP_TURN --unit-id '{"owner":0,"id":65536,"type":26}' --json
 civ7 game catalog --json
 ```
 

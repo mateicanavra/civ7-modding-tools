@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "id": "require_service_boundary_platform_independence",
+  "title": "Require Platform-Independent Service Boundaries",
+  "placement": {
+    "niche": "global/services",
+    "blueprint": "service",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "a Node or Bun module-loading edge from a service context, contract, schema, DTO, error, policy, or port declaration",
+  "why": "Service boundary declarations must remain portable across in-process, host, and transport compositions. Concrete platform acquisition belongs at a qualified host composition root, not in service vocabulary.",
+  "remediate": "Move Node and Bun acquisition to the host or edge adapter that constructs the service context. Keep service contracts, context, schemas, DTOs, errors, policy, and ports platform-neutral.",
+  "message": "Service boundary declarations must not import concrete Node or Bun modules.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "services/*/src/service/context.ts",
+        "services/*/src/service/contract.ts",
+        "services/*/src/service/modules/*/contract/*.ts",
+        "services/*/src/service/schema/*.ts",
+        "services/*/src/service/model/{dto,errors,policy,ports}/*.ts",
+        "services/*/src/service/modules/*/model/{dto,errors,policy,ports}/*.ts"
+      ]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/service/require_service_boundary_platform_independence/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/service/require_service_boundary_platform_independence/pattern.md"
+    },
+    "patternName": "require_service_boundary_platform_independence",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["services"]
+    }
+  }
+}

@@ -23,6 +23,12 @@
       "import": "./dist/game-ui/loading-states.js",
       "require": "./dist/game-ui/loading-states.cjs"
     },
+    "./live": {
+      "types": "./dist/live-control.d.ts",
+      "bun-source": "./src/live-control.ts",
+      "import": "./dist/live-control.js",
+      "require": "./dist/live-control.cjs"
+    },
     "./play/operations/production-choice-proof": {
       "types": "./dist/play/operations/production-choice-proof.d.ts",
       "bun-source": "./src/play/operations/production-choice-proof.ts",

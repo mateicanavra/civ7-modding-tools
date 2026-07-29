@@ -1,7 +1,6 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import type { Civ7DirectControlOptions } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
+import { createCiv7GameControlClient } from "../../adapters/control/service-client";
 
 export default class GameStatus extends Command {
   static summary = "Report Civ7 App UI and Tuner readiness";
@@ -37,8 +36,7 @@ export default class GameStatus extends Command {
       port: flags.port,
       timeoutMs: flags["timeout-ms"],
     };
-    const client = createCiv7ControlOrpcServerClient({
-      directControl: liveCiv7ControlOrpcDirectControlFacade,
+    const client = createCiv7GameControlClient({
       endpointDefaults,
     });
     const status = await client.readiness.current({});

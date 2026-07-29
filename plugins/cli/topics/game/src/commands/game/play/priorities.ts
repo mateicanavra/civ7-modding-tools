@@ -1,6 +1,5 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
+import { createCiv7GameControlClient } from "../../../adapters/control/service-client";
 import { buildDirectControlOptions } from "../../../adapters/play/direct-control";
 import {
   createSemanticCliEnvelope,
@@ -8,7 +7,7 @@ import {
 } from "../../../adapters/play/semantic-envelope";
 
 type PrioritiesServiceResult = Awaited<
-  ReturnType<ReturnType<typeof createCiv7ControlOrpcServerClient>["attention"]["priorities"]>
+  ReturnType<ReturnType<typeof createCiv7GameControlClient>["attention"]["priorities"]>
 >;
 type PriorityNextStep = {
   kind: string;
@@ -96,8 +95,7 @@ export default class GamePlayPriorities extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayPriorities);
-    const client = createCiv7ControlOrpcServerClient({
-      directControl: liveCiv7ControlOrpcDirectControlFacade,
+    const client = createCiv7GameControlClient({
       endpointDefaults: buildDirectControlOptions(flags),
     });
     const result = await client.attention.priorities({

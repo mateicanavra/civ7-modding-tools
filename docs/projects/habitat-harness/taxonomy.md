@@ -50,7 +50,7 @@ accepted control architecture keeps these responsibilities separate:
   state, but must not add raw transports or caller-local session ownership.
 
 Provenance: `packages/civ7-direct-control/AGENTS.md`,
-`packages/civ7-control-orpc/AGENTS.md`,
+`services/civ7-control/AGENTS.md`,
 `docs/projects/mapgen-studio-redesign/research/04-effect-native-substrate-spike.md`,
 `docs/projects/studio-runtime-simplification/PLAN.md`, and
 `packages/studio-server/src/services/Civ7TunerSession.ts`.
@@ -95,7 +95,7 @@ treatment without adding a concrete tag or constraint row.
 | mapgen-metrics | `packages/mapgen-metrics` | `kind:library` |
 | civ7-adapter | `packages/civ7-adapter` | `kind:adapter` |
 | control-direct | `packages/civ7-direct-control` | `kind:control` |
-| control-orpc | `packages/civ7-control-orpc` | `kind:control` |
+| control-orpc | `services/civ7-control` | `kind:control` |
 | control-studio-server | `packages/studio-server` | `kind:control` |
 | studio-contract | `packages/studio-contract` | `kind:library` |
 | studio-run-workspace | `packages/studio-run-workspace` | `kind:library` |

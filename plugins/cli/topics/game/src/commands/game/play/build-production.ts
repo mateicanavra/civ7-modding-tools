@@ -1,6 +1,5 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
+import { createCiv7GameControlClient } from "../../../adapters/control/service-client";
 import {
   buildDirectControlOptions,
   emitPlayResult,
@@ -90,8 +89,7 @@ export default class GamePlayBuildProduction extends Command {
     };
     const options = buildDirectControlOptions(typedFlags);
     const result = typedFlags.send
-      ? await createCiv7ControlOrpcServerClient({
-          directControl: liveCiv7ControlOrpcDirectControlFacade,
+      ? await createCiv7GameControlClient({
           endpointDefaults: options,
         }).city.production.choice.request({ cityId: input.cityId, args: input.args })
       : await validatePlayOperation("city-operation", input, options);

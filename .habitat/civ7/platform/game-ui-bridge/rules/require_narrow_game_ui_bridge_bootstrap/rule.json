@@ -12,9 +12,9 @@
   },
   "ownerProject": "mod-intelligence-bridge",
   "lane": "enforced",
-  "forbids": "UI bootstrap importing the root control-oRPC package or client/server RPC primitives instead of the narrow game-ui entrypoint",
-  "why": "The bridge mod is a thin game-runtime adapter; its UI bootstrap must use the narrow game UI install surface.",
-  "remediate": "Import and install through @civ7/control-orpc/game-ui only.",
+  "forbids": "UI bootstrap importing the control service or client/server RPC primitives instead of the mod-owned controller entrypoint",
+  "why": "The bridge mod owns Civ7 controller realization; its UI bootstrap must install that realization without reaching through the service boundary.",
+  "remediate": "Import and install through the mod-owned controller/game-ui entrypoint only.",
   "message": "Civ7 intelligence bridge UI bootstrap crossed the game-ui boundary.",
   "pathCoverage": [
     {

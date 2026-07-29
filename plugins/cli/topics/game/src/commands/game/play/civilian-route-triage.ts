@@ -1,12 +1,9 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
+import { createCiv7GameControlClient } from "../../../adapters/control/service-client";
 import { buildDirectControlOptions } from "../../../adapters/play/direct-control";
 
 type CivilianRouteTriageServiceResult = Awaited<
-  ReturnType<
-    ReturnType<typeof createCiv7ControlOrpcServerClient>["strategy"]["civilianRouteTriage"]
-  >
+  ReturnType<ReturnType<typeof createCiv7GameControlClient>["strategy"]["civilianRouteTriage"]>
 >;
 type TriageNextStep = Readonly<{ kind: string; label: string }>;
 type CivilianRouteTriageCliView = Omit<CivilianRouteTriageServiceResult, "triage"> & {
@@ -106,8 +103,7 @@ export default class GamePlayCivilianRouteTriage extends Command {
       flags["to-x"] === undefined || flags["to-y"] === undefined
         ? undefined
         : { x: flags["to-x"], y: flags["to-y"] };
-    const client = createCiv7ControlOrpcServerClient({
-      directControl: liveCiv7ControlOrpcDirectControlFacade,
+    const client = createCiv7GameControlClient({
       endpointDefaults: buildDirectControlOptions(flags),
     });
     const result = await client.strategy.civilianRouteTriage({

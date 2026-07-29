@@ -98,8 +98,13 @@ describe("game play topics command", () => {
       }
       expect(tacticsPayload.topics).toHaveLength(1);
       expect(tacticsPayload.topics[0].family).toBe("tactics");
-      expect(tacticsPayload.topics[0].commands).toContain("game operation");
-      expect(tacticsPayload.topics[0].commands).not.toContain("game play operation");
+      expect(tacticsPayload.topics[0].commands).toEqual([
+        "game play priorities",
+        "game play formation-snapshot",
+        "game play civilian-route-triage",
+        "future: game play unit-analysis",
+        "game play destination-analysis",
+      ]);
       const indexedCommands = allTopicsPayload.topics.flatMap((topic) => topic.commands);
       for (const legacyCommand of [
         "game play battlefield-scan",
