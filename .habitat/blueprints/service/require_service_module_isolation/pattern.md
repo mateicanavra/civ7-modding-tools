@@ -18,7 +18,23 @@ predicate require_service_module_isolation_is_module_source() {
 
 predicate require_service_module_isolation_is_root_service_source() {
   $filename <: r".*/services/[^/]+/src/service/.*\.ts$",
-  ! require_service_module_isolation_is_module_source()
+  not { require_service_module_isolation_is_module_source() }
+}
+
+predicate require_service_module_isolation_is_whole_type_import($import) {
+  $import <: import_statement(type=type())
+}
+
+predicate require_service_module_isolation_is_named_type_import($import) {
+  $import <: `import { $... } from $source`,
+  $import <: contains import_specifier() as $type_specifier where {
+    $type_specifier <: contains type()
+  },
+  not {
+    $import <: contains import_specifier() as $specifier where {
+      $specifier <: not contains type()
+    }
+  }
 }
 
 predicate require_service_module_isolation_is_allowed_root_module_import($import, $source) {
@@ -34,7 +50,10 @@ predicate require_service_module_isolation_is_allowed_root_module_import($import
     and {
       $filename <: r".*/src/service/context\.ts$",
       $source <: r"^[\"']\./modules/[^/]+/model/ports/[^\"']+[\"']$",
-      $import <: contains type()
+      or {
+        require_service_module_isolation_is_whole_type_import(import=$import),
+        require_service_module_isolation_is_named_type_import(import=$import)
+      }
     }
   }
 }
@@ -69,9 +88,24 @@ predicate require_service_module_isolation_is_sibling_module_alias($source) {
 
 or {
   import_statement(source=$source) as $import where {
+    $filename <: r".*/services/[^/]+/src/service/context\.ts$",
+    $source <: r"^[\"']\./modules/[^/]+/model/ports/[^\"']+[\"']$",
+    not {
+      require_service_module_isolation_is_whole_type_import(import=$import)
+    },
+    $import <: contains import_specifier() as $specifier where {
+      $specifier <: not contains type()
+    }
+  },
+  import_statement(source=$source) as $import where {
     require_service_module_isolation_is_root_service_source(),
     $source <: r"^[\"']\./modules/",
-    ! require_service_module_isolation_is_allowed_root_module_import(import=$import, source=$source)
+    not {
+      require_service_module_isolation_is_allowed_root_module_import(
+        import=$import,
+        source=$source
+      )
+    }
   },
   export_statement(source=$source) where {
     require_service_module_isolation_is_root_service_source(),
@@ -118,6 +152,16 @@ import { world } from "#control-service/modules/world/router";
 import { service } from "../../../impl";
 ```
 
+## Matches a mixed context import from a module port
+
+```typescript
+// @filename: services/control/src/service/context.ts
+import {
+  type UnitPort,
+  createUnitPort,
+} from "./modules/unit/model/ports/unit";
+```
+
 ## Ignores declared composition faces
 
 ```typescript
@@ -128,7 +172,10 @@ import { contract as unit } from "./modules/unit/contract";
 import { router as unit } from "./modules/unit/router";
 
 // @filename: services/control/src/service/context.ts
-import type { UnitPort } from "./modules/unit/model/ports/unit";
+import {
+  type UnitPort,
+  type UnitPortResult,
+} from "./modules/unit/model/ports/unit";
 
 // @filename: services/control/src/service/modules/unit/module.ts
 import { service } from "../../impl";

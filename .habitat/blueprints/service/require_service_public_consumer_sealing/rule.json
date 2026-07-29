@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "id": "require_service_public_consumer_sealing",
+  "title": "Require Service Public Consumer Sealing",
+  "placement": {
+    "niche": "global/services",
+    "blueprint": "service",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "a literal module-loading edge from packages, plugins, apps, or mods to a standalone service private alias or a syntactically visible services/<owner>/src/service path",
+  "why": "A standalone service crosses a foreign consumer boundary through its deliberate public package exports. Private aliases and physical implementation paths remain owned by the service package.",
+  "remediate": "Import the service public package face instead of a #<owner>-service alias or a literal path that visibly enters services/<owner>/src/service.",
+  "message": "Standalone service implementation trees are private to their owning package.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "packages/**/*.{ts,tsx,mts,cts}",
+        "packages/**/{src,test,scripts,bin}/**/*.{js,jsx,mjs,cjs}",
+        "plugins/**/*.{ts,tsx,mts,cts}",
+        "plugins/**/{src,test,scripts,bin}/**/*.{js,jsx,mjs,cjs}",
+        "apps/**/*.{ts,tsx,mts,cts}",
+        "apps/**/{src,test,scripts,bin,mod}/**/*.{js,jsx,mjs,cjs}",
+        "mods/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}"
+      ]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/service/require_service_public_consumer_sealing/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/service/require_service_public_consumer_sealing/pattern.md"
+    },
+    "patternName": "require_service_public_consumer_sealing",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["packages", "plugins", "apps", "mods"]
+    }
+  }
+}
