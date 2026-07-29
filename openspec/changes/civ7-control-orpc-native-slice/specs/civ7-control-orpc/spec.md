@@ -19,8 +19,7 @@ errors, and server-side callers.
 #### Scenario: Package root exposes service-owned surface
 - **WHEN** `@civ7/control-orpc` publishes its root entrypoint
 - **THEN** root exports include service contracts, routers, server-side clients,
-  bridge ingress/bindings, typed errors, and the context type needed by
-  native callers
+  typed errors, and the context type needed by native callers
 - **AND** procedure input/output schemas and their Standard Schema adapters
   live as contract-owned implementation details consumed through the aggregate
   `Civ7ControlOrpcContract`, not as caller utility exports
@@ -31,26 +30,25 @@ errors, and server-side callers.
   dependency/test details or are imported from `@civ7/direct-control` when a
   low-level runtime fixture needs the owning type
 
-#### Scenario: Runtime facade entrypoint is needed by edge adapters
+#### Scenario: Edge adapters inject the live runtime port
 - **WHEN** CLI, Studio, or controller edge adapters need to construct a native
   control-oRPC context with the live direct-control runtime facade
-- **THEN** they import the live facade and facade type from an explicit
-  `@civ7/control-orpc/runtime` entrypoint
+- **THEN** Node-side callers import `liveCiv7DirectControl` from
+  `@civ7/direct-control/live` and inject it through the service context
 - **AND** the root `@civ7/control-orpc` entrypoint remains focused on
-  caller-facing service contracts, routers, clients, bridge ingress/bindings,
-  typed errors, and aggregate contract access
-- **AND** the runtime entrypoint does not expose raw command/session/tuner
-  payloads or make direct-control result envelopes normal service output
+  caller-facing service contracts, routers, clients, typed errors, context, and
+  aggregate contract access
+- **AND** `@civ7/control-orpc` does not publish a runtime-provider entrypoint or
+  make direct-control result envelopes normal service output
 
-#### Scenario: Runtime facade narrows population placement ports
+#### Scenario: Injected runtime port narrows population placement
 - **WHEN** `city.population.place.request` needs low-level player-operation or
   city-command runtime authority for population placement
-- **THEN** the control-oRPC runtime facade exposes semantic
-  assign-worker-placement and expand-city-placement ports to context
-  constructors and procedures
+- **THEN** the service context exposes semantic assign-worker-placement and
+  expand-city-placement ports to the procedure
 - **AND** those ports accept only the service-owned placement shapes rather
   than generic `operationType` and raw `args`
-- **AND** the live facade adapter may map those semantic ports to
+- **AND** the caller-provided direct-control adapter may map those ports to
   direct-control-owned player-operation and city-command runtime functions
   internally
 - **AND** raw generic operation inputs remain excluded from normal procedure
@@ -59,7 +57,7 @@ errors, and server-side callers.
 #### Scenario: Shared service primitives are needed by procedure contracts
 - **WHEN** service-owned procedure contracts need common Civ7 primitives such
   as component IDs or map locations in caller-facing input or output
-- **THEN** `packages/civ7-control-orpc` owns equivalent primitive TypeBox
+- **THEN** `services/civ7-control` owns equivalent primitive TypeBox
   schemas under its service model
 - **AND** focused proof keeps those primitive schemas equivalent to the current
   direct-control runtime-owner primitives
@@ -582,6 +580,8 @@ normal procedure input.
   facade access
 - **THEN** those values are supplied through oRPC context or caller/runtime
   adapter construction
+- **AND** Node-side callers provision the live direct-control dependency from
+  `@civ7/direct-control/live`, not from a control-oRPC provider entrypoint
 - **AND** normal procedure input omits host, port, session, state, stateName,
   rawCommand, command text, and command-source builder fields
 
@@ -908,9 +908,8 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   service reads exist
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: In-game controller bridge preflight is recorded
-- **WHEN** the in-game controller bridge is planned before source
-  implementation
+#### Scenario: In-game controller bridge ownership is recorded
+- **WHEN** the in-game controller bridge is implemented
 - **THEN** the bridge contract treats `Civ7IntelligenceBridge.invoke(...)` as
   serialized ingress only
 - **AND** the game-scoped UIScript owns loading an in-process oRPC/Effect
@@ -919,12 +918,13 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   procedure input, not raw command/session/tuner payloads
 - **AND** controller runtime context owns local-player/hotseat identity,
   lifecycle certification, and proof/evidence sinks
-- **AND** implementation remains pending until source owners, schemas/tests,
-  mutation proof policy, and runtime proof boundaries are explicitly accepted
+- **AND** `mods/mod-civ7-intelligence-bridge` owns the game-scoped source and
+  generated mod artifacts
+- **AND** deployed loading and live behavior remain unproven until their
+  runtime proof gates pass
 
-#### Scenario: Read-only controller ingress core is seeded
-- **WHEN** a package-local controller ingress core is implemented before the
-  global UIScript bridge is installed
+#### Scenario: Read-only controller ingress core is installed
+- **WHEN** the controller ingress receives a read-only request
 - **THEN** it validates a closed serialized request envelope with a stable
   allowlisted procedure key and procedure input
 - **AND** the first allowlisted procedure is read-only `readiness.current`
@@ -936,13 +936,12 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   rejected from the read-only ingress envelope
 - **AND** failures project bounded bridge error data without raw direct-control
   command details
-- **AND** Civ7 UIScript/game-scope bridge installation, mutation allowlists,
-  runtime proof, and full `7.3` implementation remain pending
+- **AND** local proof does not claim deployed Civ7 loading or live runtime
+  behavior
 
 #### Scenario: Global intelligence bridge binding delegates to ingress
-- **WHEN** a package-local `Civ7IntelligenceBridge` binding is installed on a
-  caller-provided target before the Civ7 UIScript/modinfo package is
-  implemented
+- **WHEN** the game-scoped `Civ7IntelligenceBridge` binding is installed on
+  `globalThis`
 - **THEN** the binding exposes only `invoke(request)` on a caller-provided
   target
 - **AND** `invoke(request)` delegates to the existing controller ingress over
@@ -951,9 +950,8 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   replacement is explicit
 - **AND** raw command/session/tuner endpoint fields remain rejected by the
   ingress envelope after global installation
-- **AND** ambient `globalThis` selection by the Civ7 UIScript adapter, mutation
-  allowlists, local-player/hotseat proof, runtime proof, and full `7.3`
-  implementation remain pending
+- **AND** local source and bundle proof does not substitute for deployed Civ7
+  loading or live runtime proof
 
 #### Scenario: Controller ingress allows current attention reads
 - **WHEN** the package-local controller ingress expands beyond readiness proof
@@ -965,8 +963,8 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   router/client rather than adding a bridge-local dispatcher or read wrapper
 - **AND** raw command/session/tuner endpoint fields
   remain rejected from the ingress envelope
-- **AND** mutation allowlists, local-player/hotseat proof, runtime proof, Civ7
-  UIScript/modinfo packaging, and full `7.3` implementation remain pending
+- **AND** local-player/hotseat and runtime claims remain bounded by their
+  capability-specific proof
 
 #### Scenario: Controller ingress allowlists notification dismissal mutation
 - **WHEN** the package-local controller ingress allowlists the first mutation
@@ -985,8 +983,8 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   direct-control dismissal internals remain excluded from bridge request and
   response shapes
 - **AND** local tests prove only the serialized ingress gate and in-process
-  service dispatch; Civ7 UIScript/modinfo packaging, additional mutation
-  allowlists, runtime/live proof, and full `7.3` implementation remain pending
+  service dispatch; additional mutation allowlists and deployed runtime proof
+  remain independently gated
 
 #### Scenario: Controller ingress allowlists turn completion mutation
 - **WHEN** the package-local controller ingress allowlists turn completion
@@ -1005,8 +1003,8 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   direct-control turn-completion internals remain excluded from bridge request
   and response shapes
 - **AND** local tests prove only the serialized ingress gate and in-process
-  service dispatch; Civ7 UIScript/modinfo packaging, further mutation
-  allowlists, runtime/live proof, and full `7.3` implementation remain pending
+  service dispatch; further mutation allowlists and deployed runtime proof
+  remain independently gated
 
 #### Scenario: Controller ingress allowlists unit target action mutation
 - **WHEN** the package-local controller ingress allowlists unit target action
@@ -1025,8 +1023,8 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   direct-control unit-operation internals remain excluded from bridge request
   and response shapes
 - **AND** local tests prove only the serialized ingress gate and in-process
-  service dispatch; Civ7 UIScript/modinfo packaging, further mutation
-  allowlists, runtime/live proof, and full `7.3` implementation remain pending
+  service dispatch; further mutation allowlists and deployed runtime proof
+  remain independently gated
 
 #### Scenario: Controller ingress allowlists city production choice mutation
 - **WHEN** the package-local controller ingress allowlists city production
@@ -1045,8 +1043,8 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   direct-control city-operation internals remain excluded from bridge request
   and response shapes
 - **AND** local tests prove only the serialized ingress gate and in-process
-  service dispatch; Civ7 UIScript/modinfo packaging, further mutation
-  allowlists, runtime/live proof, and full `7.3` implementation remain pending
+  service dispatch; further mutation allowlists and deployed runtime proof
+  remain independently gated
 
 #### Scenario: Controller ingress allowlists population placement mutation
 - **WHEN** the package-local controller ingress allowlists city population
@@ -1066,8 +1064,8 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   player-operation/city-command internals remain excluded from bridge request
   and response shapes
 - **AND** local tests prove only the serialized ingress gate and in-process
-  service dispatch; Civ7 UIScript/modinfo packaging, further mutation
-  allowlists, runtime/live proof, and full `7.3` implementation remain pending
+  service dispatch; further mutation allowlists and deployed runtime proof
+  remain independently gated
 
 #### Scenario: Controller ingress allowlists narrative choice mutation
 - **WHEN** the package-local controller ingress allowlists narrative choice
@@ -1086,8 +1084,8 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   payloads, panel/popup internals, direct-control runtime payloads, and legacy
   `verified` remain excluded from bridge request and response shapes
 - **AND** local tests prove only the serialized ingress gate and in-process
-  service dispatch; Civ7 UIScript/modinfo packaging, further mutation
-  allowlists, runtime/live proof, and full `7.3` implementation remain pending
+  service dispatch; further mutation allowlists and deployed runtime proof
+  remain independently gated
 
 #### Scenario: Controller ingress allowlists diplomacy response mutation
 - **WHEN** the package-local controller ingress allowlists diplomacy response
@@ -1106,8 +1104,8 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   payloads, notification internals, direct-control runtime payloads, and legacy
   `verified` remain excluded from bridge request and response shapes
 - **AND** local tests prove only the serialized ingress gate and in-process
-  service dispatch; Civ7 UIScript/modinfo packaging, further mutation
-  allowlists, runtime/live proof, and full `7.3` implementation remain pending
+  service dispatch; further mutation allowlists and deployed runtime proof
+  remain independently gated
 
 #### Scenario: Controller ingress allowlists progression choice mutations
 - **WHEN** the package-local controller ingress allowlists progression choices
@@ -1128,19 +1126,19 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   player-operation/App UI closeout internals, and legacy `verified` remain
   excluded from bridge request and response shapes
 - **AND** local tests prove only the serialized ingress gate and in-process
-  service dispatch; Civ7 UIScript/modinfo packaging, further mutation
-  allowlists, runtime/live proof, and full `7.3` implementation remain pending
+  service dispatch; further mutation allowlists and deployed runtime proof
+  remain independently gated
 
 #### Scenario: Game-scoped controller bootstrap package is seeded
-- **WHEN** the repository adds the first Civ7 controller bootstrap artifact
-- **THEN** the artifact is a `mods/*` package with a generated `.modinfo` that
+- **WHEN** the repository builds the Civ7 controller bootstrap artifact
+- **THEN** `mods/mod-civ7-intelligence-bridge` generates a `.modinfo` that
   declares a `scope="game"` action group and a `<UIScripts>` entry for the
   controller UI script
-- **AND** the UI script imports the narrow `@civ7/control-orpc/game-ui`
-  entrypoint rather than the broad package root or a transport edge
-- **AND** the game-UI entry installs the existing `Civ7IntelligenceBridge`
-  global binding over the native controller ingress and server-side router
-  client rather than creating a second dispatcher
+- **AND** the controller imports the public `@civ7/control-orpc` service
+  contract and client surface rather than a transport or provider entrypoint
+- **AND** the game-UI adapter installs the `Civ7IntelligenceBridge` global
+  binding over the native service client rather than creating a second
+  dispatcher
 - **AND** the local game-UI context can answer `readiness.current` from ambient
   game UI globals without accepting host, port, session, state, raw command, or
   transport input
@@ -1153,7 +1151,7 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   command strings, or RPC transport symbols
 - **AND** local package and bundle tests prove only source shape and build
   integrity; deployed Civ7 UIScript loading, broader mutation runtime support,
-  live runtime proof, and full `7.3` implementation remain pending
+  and live runtime proof remain pending
 
 #### Scenario: Controller mutation proof is context-owned
 - **WHEN** the controller bridge receives an allowlisted mutation request
@@ -1176,7 +1174,7 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   payload leakage
 - **AND** local package tests prove only context-owned proof sourcing and
   serialized envelope closure; deployed Civ7 runtime proof, mutation runtime
-  support, play-thread action, and full `7.3` implementation remain pending
+  support, and play-thread action remain pending
 
 #### Scenario: Controller bridge dispatch respects supported procedure facts
 - **WHEN** the controller bridge receives a globally allowlisted request
@@ -1230,7 +1228,7 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   state, command, rawCommand, session, and tuner payloads
 - **AND** local package and bundle tests prove source shape and local fake game
   runtime behavior only; deployed Civ7 runtime proof, other mutation runtime
-  ports, play-thread action, and full `7.3` implementation remain pending
+  ports, and play-thread action remain pending
 
 #### Scenario: Game UI controller supports current attention reads
 - **WHEN** the game-scoped controller context exposes notification, turn, and
@@ -1267,7 +1265,7 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   bridge/service output
 - **AND** local package and bundle tests prove source shape and local fake game
   runtime behavior only; deployed Civ7 runtime proof, broader read/mutation
-  ports, play-thread action, and full `7.3` implementation remain pending
+  ports, and play-thread action remain pending
 
 #### Scenario: Game UI controller supports turn completion
 - **WHEN** the game-scoped controller context exposes ambient turn-completion
@@ -1288,7 +1286,7 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   payloads, raw game-UI function names, and direct-control socket details
 - **AND** local package and bundle tests prove source shape and local fake game
   runtime behavior only; deployed Civ7 runtime proof, other game UI mutation
-  ports, play-thread action, and full `7.3` implementation remain pending
+  ports, and play-thread action remain pending
 
 #### Scenario: Game UI controller supports production choice
 - **WHEN** the game-scoped controller context exposes ambient production-choice
@@ -1315,7 +1313,7 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   payloads, raw game-UI function names, and direct-control socket details
 - **AND** local package and bundle tests prove source shape and local fake game
   runtime behavior only; deployed Civ7 runtime proof, other city mutation
-  ports, play-thread action, and full `7.3` implementation remain pending
+  ports, and play-thread action remain pending
 
 #### Scenario: Game UI controller supports population placement
 - **WHEN** the game-scoped controller context exposes ambient population
@@ -1348,7 +1346,7 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   payloads, raw game-UI function names, and direct-control socket details
 - **AND** local package and bundle tests prove source shape and local fake game
   runtime behavior only; deployed Civ7 runtime proof, other mutation ports,
-  play-thread action, and full `7.3` implementation remain pending
+  and play-thread action remain pending
 
 #### Scenario: Game UI controller supports progression choices
 - **WHEN** the game-scoped controller context exposes ambient progression
@@ -1439,7 +1437,7 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   operation names
 - **AND** local package and bundle tests prove source shape and local fake game
   runtime behavior only; deployed Civ7 runtime proof, unit runtime ports,
-  play-thread action, and full `7.3` implementation remain pending
+  and play-thread action remain pending
 
 #### Scenario: Game UI controller supports unit target action
 - **WHEN** the game-scoped controller context exposes ambient unit target APIs
@@ -1473,7 +1471,7 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** local package and bundle tests prove source shape and local fake game
   runtime behavior only; deployed Civ7 runtime proof, broad unit-operation
   catalog support, target-candidate relationship semantics, play-thread action,
-  and full `7.3` implementation remain pending
+  and capability-specific live proof remain pending
 
 #### Scenario: Game UI controller supports strategy front summary
 - **WHEN** the game-scoped controller context exposes ambient tactical read APIs
@@ -1530,7 +1528,7 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   status envelopes, actor catalogs, and relationship labels
 - **AND** local package and bundle tests prove source shape and local fake game
   runtime behavior only; deployed Civ7 runtime proof, broad world/actor
-  catalogs, play-thread action, and full `7.3` implementation remain pending
+  catalogs, and play-thread action remain pending
 
 #### Scenario: Game UI controller supports world plot and grid reads
 - **WHEN** the game-scoped controller context exposes ambient `GameplayMap`

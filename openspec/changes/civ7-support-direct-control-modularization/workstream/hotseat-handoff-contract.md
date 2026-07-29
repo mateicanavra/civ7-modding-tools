@@ -4,7 +4,7 @@ This is a planning contract and runtime-proof checklist for future one-client
 hotseat player-agent control. It is not a source implementation, runtime
 certification, live-game proof record, CLI semantic envelope, telemetry
 contract, AI-ingestion contract, debug/internal service contract, or
-Effect/oRPC procedure-core contract.
+control-service capability contract.
 
 Hotseat handoff is the preferred product foundation for live external
 player-agent control when activation and rotation proof pass. Autoplay and
@@ -20,24 +20,24 @@ turns remain UI-owned and mutation-refused.
 
 This contract does not authorize play-thread action, source mutation, hotseat
 runtime proof, CLI projection work, telemetry persistence, AI ingestion, or
-procedure-core implementation by itself.
+control-service implementation by itself.
 
 ## Future State Slots
 
 Future implementation should converge on a stable handoff state shape with
 these slots or direct equivalents:
 
-| Slot | Purpose |
-|---|---|
-| `sessionHealth` | Current Tuner/App UI/session readiness and reconnect boundary, without claiming live proof from local fake tests. |
-| `currentLocalPlayer` | Current `GameContext.localPlayerID` or equivalent official current-local-player evidence. |
-| `slotOwnership` | Human/agent ownership registry for hotseat slots, including unknown/unassigned states. |
-| `turnState` | Current turn, active player, handoff phase, blocker state, and safe next-step summary. |
-| `blockerState` | Blocking notification, ready unit, ready city, progression, diplomacy, narrative, turn-completion, or none. |
-| `curtainState` | Human-visible waiting/curtain/interface state during agent turns. |
-| `actionEligibility` | Whether direct-control mutation is allowed, refused, or pending proof for the current local player. |
-| `mutationGateState` | Validator/postcondition/no-repeat safety state for lifecycle and local-player proof before mutation-facing sends. |
-| `postActionState` | Postcondition, turn completion, and human restoration status after an agent action or turn end. |
+| Slot                 | Purpose                                                                                                           |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `sessionHealth`      | Current Tuner/App UI/session readiness and reconnect boundary, without claiming live proof from local fake tests. |
+| `currentLocalPlayer` | Current `GameContext.localPlayerID` or equivalent official current-local-player evidence.                         |
+| `slotOwnership`      | Human/agent ownership registry for hotseat slots, including unknown/unassigned states.                            |
+| `turnState`          | Current turn, active player, handoff phase, blocker state, and safe next-step summary.                            |
+| `blockerState`       | Blocking notification, ready unit, ready city, progression, diplomacy, narrative, turn-completion, or none.       |
+| `curtainState`       | Human-visible waiting/curtain/interface state during agent turns.                                                 |
+| `actionEligibility`  | Whether direct-control mutation is allowed, refused, or pending proof for the current local player.               |
+| `mutationGateState`  | Validator/postcondition/no-repeat safety state for lifecycle and local-player proof before mutation-facing sends. |
+| `postActionState`    | Postcondition, turn completion, and human restoration status after an agent action or turn end.                   |
 
 ## Runtime Proof Gates
 
@@ -75,8 +75,8 @@ Normal CLI may later summarize handoff status as player-agent state:
 Debug/internal service output may expose raw handoff diagnostics only under the
 debug row. Telemetry may record proof details only after the telemetry row is
 accepted. AI ingestion may consume source-labeled handoff records only after the
-ingestion row is accepted. Procedure cores remain blocked until this row and
-procedure schema ownership are accepted.
+ingestion row is accepted. Hotseat control-service capability remains blocked
+until this row and its service contract ownership are accepted.
 
 ## Acceptance Gaps
 
@@ -105,4 +105,4 @@ Stop and reframe if future hotseat work:
 - uses local fake-runtime tests, target-thread evidence, peer reports, docs,
   logs, or resources as live runtime proof;
 - collapses hotseat handoff state, normal CLI output, debug output, telemetry,
-  AI ingestion, and procedure-core contracts into one raw service shape.
+  AI ingestion, and control-service contracts into one raw service shape.

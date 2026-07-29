@@ -40,9 +40,8 @@ procedure modules before adding transport edges.
 
 ## What Changes
 
-- Define a target `packages/civ7-control-orpc` shape that uses oRPC/effect-orpc
-  for contracts, routers, context, middleware, typed errors, and server-side
-  clients.
+- Maintain `services/civ7-control` as the closed Effect-oRPC service owner for
+  contracts, routers, context, middleware, typed errors, and in-process clients.
 - Classify direct-control prework as atom/policy/dependency/repository/proof
   separation only, not framework wiring.
 - Rebaseline the staged implementation gates: modularize real behavior and
@@ -73,18 +72,18 @@ procedure modules before adding transport edges.
 - Layering policies, dependencies, repositories/read ports, and middleware
   candidates only where that clarifies native oRPC/effect-orpc composition.
 - Composing service-owned contracts, routers, context, middleware, and
-  handlers in `packages/civ7-control-orpc` over low-level direct-control
-  runtime ports.
+  handlers in `services/civ7-control` over low-level direct-control runtime
+  ports.
 - Controller bridge and later RPC/OpenAPI edge adapters.
 
 ## Affected Owners
 
-- Future `packages/civ7-control-orpc/**`
+- `services/civ7-control/**` (published as `@civ7/control-orpc`)
 - `packages/civ7-direct-control/**` only for runtime-port, policy, schema,
   and proof owners
-- `packages/cli/**` only when a caller is deliberately routed through the
+- `plugins/cli/topics/game/**` only when a caller is deliberately routed through the
   shared procedure client
-- Future in-game controller UIScript bridge and Studio server RPC edges
+- `mods/mod-civ7-intelligence-bridge/**` and Studio server RPC edges
 - OpenSpec workstream records
 
 ## Forbidden Owners

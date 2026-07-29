@@ -12,11 +12,12 @@ framing, state selection, reconnect behavior, App UI/Tuner command source,
 validators, postcondition classifiers, no-repeat guards,
 relationship evidence policy, and runtime proof labels.
 
-`packages/civ7-control-orpc` will be the typed service/procedure composition
-owner. It uses official oRPC and `effect-orpc` primitives for contracts,
-procedures, routers, context, middleware, typed errors, server-side clients,
-and later edge handlers. It does not replace direct-control runtime authority
-and does not expose raw command/session controls as product procedures.
+`services/civ7-control` is the typed service/procedure composition owner,
+published as `@civ7/control-orpc`. It uses official oRPC and `effect-orpc`
+primitives for contracts, procedures, routers, context, middleware, typed
+errors, in-process clients, and edge-facing bindings. It does not replace
+direct-control runtime authority and does not expose raw command/session
+controls as product procedures.
 
 Thin native oRPC leaves that only call a same-shaped direct-control facade
 method are transitional proof debt. They prove initial router/context/error
@@ -57,7 +58,7 @@ outcome. The workstream is rebaselined around this order:
    - Output: atom map, policy map, dependency map, and stop conditions.
 
 2. Define oRPC contracts and context dependencies.
-   - `packages/civ7-control-orpc` owns contracts and procedure context types.
+   - `services/civ7-control` owns contracts and procedure context types.
    - Context carries ready dependencies and policy evidence: direct-control
      facade, endpoint defaults, state selection strategy, logger,
      evidence sink, clock, correlation provider, risk policy, and optional
@@ -110,9 +111,12 @@ outcome. The workstream is rebaselined around this order:
    - `@civ7/direct-control` may own tuner socket/session lifecycle, state
      selection, command serialization, raw probe execution, validators,
      postcondition/proof owners, and resource acquisition/release.
-   - `packages/civ7-control-orpc` owns native service contracts, routers,
+   - `services/civ7-control` owns native service contracts, routers,
      typed context, tagged errors, middleware, semantic composition, and normal
      caller-facing projection.
+   - Node-side callers import `liveCiv7DirectControl` from
+     `@civ7/direct-control/live` and inject it through the service context.
+     `@civ7/control-orpc` has no runtime-provider entrypoint.
    - Do not classify a direct-control function as a runtime port merely
      because it already exists. If it builds semantic summary envelopes, a
      native service slice must move or consolidate that behavior instead of
@@ -143,107 +147,43 @@ outcome. The workstream is rebaselined around this order:
 
 ## Target File Shape
 
-The live `packages/civ7-control-orpc/src/contract.ts` and `src/router.ts`
-module roots are the current implementation authority. This target shape is a
-directional layout, not a request to recreate old runtime/read wrappers.
+The closed service blueprint and the live source tree are the implementation
+authority. Public source is limited to `client.ts`, `contract.ts`, `index.ts`,
+and the private `service/` implementation tree.
 
 ```text
-packages/civ7-control-orpc
-  src/client.ts
-  src/contract.ts
-  src/router.ts
-  src/context.ts
-  src/errors.ts
-  src/procedure.ts
-  src/model/
-    envelope.ts
-    evidence.ts
-    correlation.ts
-    projection.ts
-  src/policy/
-    relationship-authority.ts
-    risk.ts
-    proof-boundary.ts
-  src/dependencies/
-    direct-control.ts
-    controller.ts
-    logger.ts
-    clock.ts
-    evidence-sink.ts
-  src/middleware/
-    endpoint-defaults.ts
-    readiness.ts
-    validator-first.ts
-    postcondition.ts
-    relationship-authority.ts
-    error-projection.ts
-    telemetry.ts
-  src/modules/
-    readiness/
-      contract.ts
-      router.ts
-      procedures/
-        current.ts
-    attention/
-      contract.ts
-      router.ts
-      procedures/
-        current.ts
-    notifications/
-      contract.ts
-      router.ts
-      procedures/
-        dismiss-request.ts
-    unit/
-      contract.ts
-      router.ts
-      procedures/
-        target-action-request.ts
-    city/
-      contract.ts
-      router.ts
-      procedures/
-        population-place-request.ts
-        production-choice-request.ts
-    narrative/
-      contract.ts
-      router.ts
-      procedures/
-        choice-request.ts
-    diplomacy/
-      contract.ts
-      router.ts
-      procedures/
-        response-request.ts
-    progression/
-      contract.ts
-      router.ts
-      procedures/
-        choice-request.ts
-    turn/
-      contract.ts
-      router.ts
-      procedures/
-        complete-request.ts
-    strategy/
-      contract.ts
-      router.ts
-      procedures/
-        settlement-recommendations.ts
-        target-candidates.ts
-        battlefield-scan.ts
-  test/
-    in-process-router.test.ts
-    mutation-guards.test.ts
-    relationship-authority.test.ts
-    server-side-client.test.ts
+services/civ7-control/src/
+  client.ts
+  contract.ts
+  index.ts
+  service/
+    base.ts
+    context.ts
+    contract.ts
+    impl.ts
+    router.ts
+    schema/
+    middleware/
+    model/
+      dto/
+      errors/
+      policy/
+      ports/
+    modules/<domain>/
+      module.ts
+      contract/
+        index.ts
+        <capability>.ts
+      router/
+        index.ts
+        <capability>.ts
 ```
 
-The exact module list may change as atom owners settle. The structure rule is
-stable: domain contracts/procedures live in modules, shared policies live in
-policy files, repeated execution guards use oRPC/effect-orpc middleware, and
-runtime/caller dependency construction stays outside direct-control runtime
-capability code.
+The exact module list may change as capability owners settle. The structure law
+is stable and closed: domain contracts and handlers live in matching modules;
+shared policy and ports live in qualified model destinations; repeated guards
+use oRPC/effect-orpc middleware; provider construction stays in callers and
+runtime hosts.
 
 ## Direct-Control Prework Boundary
 
