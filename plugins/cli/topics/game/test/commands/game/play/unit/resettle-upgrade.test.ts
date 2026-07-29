@@ -3,12 +3,18 @@ import GamePlayUnitResettle from "../../../../../src/commands/game/play/unit/res
 import GamePlayUnitUpgrade from "../../../../../src/commands/game/play/unit/upgrade";
 import { startPlayOperationTunerServer } from "../../../../support/play-operation-tuner-server";
 
-describe("game play unit operation wrapper commands", () => {
-  test("wraps population resettle as a unit command with target coordinates", async () => {
+describe("game play unit upgrade and resettle commands", () => {
+  test("checks population resettle through the exact unit resettle procedure", async () => {
     const server = await startPlayOperationTunerServer();
+    const writes: string[] = [];
+    const log = vi
+      .spyOn(GamePlayUnitResettle.prototype, "log")
+      .mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
     try {
       const { port } = server.address();
-      await runCommand(GamePlayUnitResettle, [
+      await GamePlayUnitResettle.run([
         "--host",
         "127.0.0.1",
         "--port",
@@ -22,21 +28,33 @@ describe("game play unit operation wrapper commands", () => {
         "--json",
       ]);
 
-      expect(
-        server.received.some((message) => message.includes('validateOperation("unit-command"'))
-      ).toBe(true);
+      const payload = JSON.parse(writes.join("")) as {
+        ok: true;
+        result: UnitCheckResult;
+      };
+      expect(payload.result).toEqual({
+        action: {
+          kind: "resettle",
+          unitId: { owner: 0, id: 1703951, type: 26 },
+          destination: { x: 17, y: 25 },
+        },
+        available: true,
+      });
       expect(server.received.some((message) => message.includes("UNITCOMMAND_RESETTLE"))).toBe(
         true
       );
       expect(server.received.some((message) => message.includes('"X":17'))).toBe(true);
       expect(server.received.some((message) => message.includes('"Y":25'))).toBe(true);
-      expect(server.received.some((message) => message.includes("sendOperation("))).toBe(false);
+      expect(unitCommandCalls(server.received, "checkUnitCommand")).toHaveLength(1);
+      expect(unitCommandCalls(server.received, "sendUnitCommand")).toHaveLength(0);
+      expect(genericUnitCommandCalls(server.received)).toHaveLength(0);
     } finally {
+      log.mockRestore();
       await server.close();
     }
   });
 
-  test("wraps unit upgrade as an unit command", async () => {
+  test("requests unit upgrade through the exact unit upgrade procedure", async () => {
     const server = await startPlayOperationTunerServer();
     const writes: string[] = [];
     const log = vi
@@ -66,12 +84,7 @@ describe("game play unit operation wrapper commands", () => {
           kind: "upgrade",
           unitId: { owner: 0, id: 1769488, type: 26 },
         },
-        sent: true,
         status: "sent-confirmed",
-        validation: {
-          beforeValid: true,
-          afterValid: true,
-        },
         postcondition: {
           classification: "queue-advanced",
           outcome: "cleared",
@@ -87,9 +100,9 @@ describe("game play unit operation wrapper commands", () => {
       });
       expectSemanticUnitRequestOmitsRawRuntimeDetails(payload.result);
       expect(server.received.some((message) => message.includes("UNITCOMMAND_UPGRADE"))).toBe(true);
-      expect(
-        server.received.some((message) => message.includes('sendOperation("unit-command"'))
-      ).toBe(true);
+      expect(unitCommandCalls(server.received, "checkUnitCommand")).toHaveLength(2);
+      expect(unitCommandCalls(server.received, "sendUnitCommand")).toHaveLength(1);
+      expect(genericUnitCommandCalls(server.received)).toHaveLength(0);
     } finally {
       log.mockRestore();
       await server.close();
@@ -131,7 +144,6 @@ describe("game play unit operation wrapper commands", () => {
           unitId: { owner: 0, id: 1703951, type: 26 },
           destination: { x: 17, y: 25 },
         },
-        sent: true,
         status: "sent-confirmed",
         postcondition: {
           classification: "queue-advanced",
@@ -151,6 +163,9 @@ describe("game play unit operation wrapper commands", () => {
       );
       expect(server.received.some((message) => message.includes('"X":17'))).toBe(true);
       expect(server.received.some((message) => message.includes('"Y":25'))).toBe(true);
+      expect(unitCommandCalls(server.received, "checkUnitCommand")).toHaveLength(2);
+      expect(unitCommandCalls(server.received, "sendUnitCommand")).toHaveLength(1);
+      expect(genericUnitCommandCalls(server.received)).toHaveLength(0);
     } finally {
       log.mockRestore();
       await server.close();
@@ -158,15 +173,22 @@ describe("game play unit operation wrapper commands", () => {
   });
 });
 
+type UnitCheckResult = {
+  action: {
+    kind: string;
+    unitId: { owner: number; id: number; type: number };
+    destination?: { x: number; y: number };
+  };
+  available: boolean;
+};
+
 type UnitRequestResult = {
   action: {
     kind: string;
     unitId: { owner: number; id: number; type: number };
     destination?: { x: number; y: number };
   };
-  sent: boolean;
   status: string;
-  validation: { beforeValid: boolean; afterValid: boolean };
   postcondition: {
     classification: string;
     reason: string;
@@ -178,18 +200,19 @@ type UnitRequestResult = {
   nextSteps: Array<{ kind: string; source: string; label: string }>;
 };
 
-type CommandClass = {
-  run(args: string[]): Promise<unknown>;
-  prototype: { log(message?: string): void };
-};
+function unitCommandCalls(
+  messages: readonly string[],
+  atom: "checkUnitCommand" | "sendUnitCommand"
+) {
+  return messages.filter((message) => message.includes(`return JSON.stringify(${atom}(`));
+}
 
-async function runCommand(command: CommandClass, args: string[]) {
-  const log = vi.spyOn(command.prototype, "log").mockImplementation(() => {});
-  try {
-    await command.run(args);
-  } finally {
-    log.mockRestore();
-  }
+function genericUnitCommandCalls(messages: readonly string[]) {
+  return messages.filter(
+    (message) =>
+      message.includes('return JSON.stringify(validateOperation("unit-command"') ||
+      message.includes('return JSON.stringify(sendOperation("unit-command"')
+  );
 }
 
 function expectSemanticUnitRequestOmitsRawRuntimeDetails(result: unknown) {

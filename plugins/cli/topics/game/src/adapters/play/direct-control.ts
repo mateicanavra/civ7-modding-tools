@@ -7,13 +7,9 @@ import {
   canStartCiv7CityCommand,
   canStartCiv7CityOperation,
   canStartCiv7PlayerOperation,
-  canStartCiv7UnitCommand,
-  canStartCiv7UnitOperation,
   requestCiv7CityCommand,
   requestCiv7CityOperation,
   requestCiv7PlayerOperation,
-  requestCiv7UnitCommand,
-  requestCiv7UnitOperation,
 } from "@civ7/direct-control";
 
 /** CLI endpoint flags accepted by helpers that call the direct-control runtime. */
@@ -26,9 +22,11 @@ export type DirectControlFlagOptions = Readonly<{
 /** One labeled direct-control operation in a caller-owned, strictly ordered play workflow. */
 export type PlayOperationStep = Readonly<{
   label: string;
-  family: Civ7OperationFamily;
+  family: PlayOperationFamily;
   input: Civ7OperationInput;
 }>;
+
+type PlayOperationFamily = Exclude<Civ7OperationFamily, "unit-command" | "unit-operation">;
 
 /** Normalized integer map coordinate produced from the CLI's pair or split-axis flags. */
 export type MapLocationFlag = Readonly<{ x: number; y: number }>;
@@ -103,20 +101,16 @@ export function parseComponentId(value: string | undefined, flag: string): Civ7C
 }
 
 /**
- * Dispatches a dry-run operation to the validator for its unit, city, or player family.
+ * Dispatches a dry-run operation to the validator for its city or player family.
  * Family-specific entity IDs are asserted before any direct-control request is made.
  *
  * @returns The validator response from direct control without reshaping it for CLI output.
  */
 export async function validatePlayOperation(
-  family: Civ7OperationFamily,
+  family: PlayOperationFamily,
   input: Civ7OperationInput,
   options: Civ7DirectControlOptions
 ) {
-  if (family === "unit-operation")
-    return await canStartCiv7UnitOperation(assertUnitInput(input), options);
-  if (family === "unit-command")
-    return await canStartCiv7UnitCommand(assertUnitInput(input), options);
   if (family === "city-operation")
     return await canStartCiv7CityOperation(assertCityInput(input), options);
   if (family === "city-command")
@@ -125,14 +119,10 @@ export async function validatePlayOperation(
 }
 
 async function sendPlayOperation(
-  family: Civ7OperationFamily,
+  family: PlayOperationFamily,
   input: Civ7OperationInput,
   options: Civ7DirectControlOptions
 ) {
-  if (family === "unit-operation")
-    return await requestCiv7UnitOperation(assertUnitInput(input), options);
-  if (family === "unit-command")
-    return await requestCiv7UnitCommand(assertUnitInput(input), options);
   if (family === "city-operation")
     return await requestCiv7CityOperation(assertCityInput(input), options);
   if (family === "city-command")
@@ -192,13 +182,6 @@ export function emitPlayResult(
     return;
   }
   log(JSON.stringify(result, null, 2));
-}
-
-function assertUnitInput(
-  input: Civ7OperationInput
-): Civ7OperationInput & { unitId: Civ7ComponentId } {
-  if (!("unitId" in input)) throw new Error("unit operation requires --unit-id");
-  return input;
 }
 
 function assertCityInput(

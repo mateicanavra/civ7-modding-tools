@@ -36,7 +36,6 @@ import type {
   Civ7NarrativeChoiceResult,
   Civ7NotificationDismissalResult,
   Civ7NotificationDismissInput,
-  Civ7OperationRequestResult,
   Civ7PlayableStatusResultSchema,
   Civ7PlayNotificationViewResult,
   Civ7PlotSnapshotInput,
@@ -53,6 +52,7 @@ import type {
   Civ7ReadyCityViewResultSchema,
   Civ7ReadyUnitViewInput,
   Civ7ReadyUnitViewResultSchema,
+  Civ7RuntimeProbe,
   Civ7SettlementRecommendationInput,
   Civ7SettlementRecommendationResultSchema,
   Civ7TargetCandidatesInput,
@@ -68,14 +68,20 @@ import type {
   Civ7TraditionsViewResult,
   Civ7TurnCompletionRequestResult,
   Civ7TurnCompletionStatusResultSchema,
+  Civ7UnitCommandCheckResult,
+  Civ7UnitCommandSendResult,
+  Civ7UnitCommandSnapshot,
+  Civ7UnitResettleInput,
   Civ7UnitTargetActionInput,
   Civ7UnitTargetActionResultSchema,
+  Civ7UnitUpgradeInput,
   Civ7VisibilitySummaryInput,
   Civ7VisibilitySummaryResult,
   Civ7WindowShotCaptureInput,
   Civ7WindowShotCaptureResult,
   PlayNotificationViewOptions,
 } from "@civ7/direct-control";
+import type { Civ7CommandDispatchStatus } from "@civ7/direct-control/error";
 import type { Static } from "typebox";
 
 import type { Civ7ControlOrpcComponentId, Civ7ControlOrpcMapLocation } from "../dto/primitives";
@@ -135,7 +141,13 @@ export type Civ7ControlOrpcTurnCompletionStatusResult = Static<
   typeof Civ7TurnCompletionStatusResultSchema
 >;
 export type Civ7ControlOrpcUnitTargetActionResult = Static<typeof Civ7UnitTargetActionResultSchema>;
-type Civ7ControlOrpcUnitCommandRuntimeResult = Civ7OperationRequestResult;
+export type Civ7ControlOrpcCommandDispatchStatus = Civ7CommandDispatchStatus;
+export type Civ7ControlOrpcRuntimeProbe<T> = Civ7RuntimeProbe<T>;
+export type Civ7ControlOrpcUnitCommandCheckResult = Civ7UnitCommandCheckResult;
+export type Civ7ControlOrpcUnitCommandSnapshot = Civ7UnitCommandSnapshot;
+export type Civ7ControlOrpcUnitCommandSendResult = Civ7UnitCommandSendResult;
+type Civ7ControlOrpcUnitUpgradeInput = Civ7UnitUpgradeInput;
+type Civ7ControlOrpcUnitResettleInput = Civ7UnitResettleInput;
 
 export type Civ7ControlOrpcDirectControlFacade = Readonly<{
   requestCiv7ProductionChoice(
@@ -222,14 +234,22 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Civ7UnitTargetActionInput,
     options: Civ7DirectControlOptions | undefined
   ): Promise<Civ7ControlOrpcUnitTargetActionResult>;
-  requestCiv7UnitCommand(
-    input: Readonly<{
-      unitId: Civ7ControlOrpcComponentId;
-      operationType: string;
-      args?: Readonly<Record<string, number>>;
-    }>,
-    options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcUnitCommandRuntimeResult>;
+  checkCiv7UnitUpgrade(
+    input: Civ7ControlOrpcUnitUpgradeInput,
+    options?: Civ7DirectControlOptions
+  ): Promise<Civ7ControlOrpcUnitCommandCheckResult>;
+  sendCiv7UnitUpgrade(
+    input: Civ7ControlOrpcUnitUpgradeInput,
+    options?: Civ7DirectControlOptions
+  ): Promise<Civ7ControlOrpcUnitCommandSendResult>;
+  checkCiv7UnitResettle(
+    input: Civ7ControlOrpcUnitResettleInput,
+    options?: Civ7DirectControlOptions
+  ): Promise<Civ7ControlOrpcUnitCommandCheckResult>;
+  sendCiv7UnitResettle(
+    input: Civ7ControlOrpcUnitResettleInput,
+    options?: Civ7DirectControlOptions
+  ): Promise<Civ7ControlOrpcUnitCommandSendResult>;
   requestCiv7TurnComplete(
     options: Civ7DirectControlOptions | undefined
   ): Promise<Civ7ControlOrpcTurnCompletionRequestResult>;

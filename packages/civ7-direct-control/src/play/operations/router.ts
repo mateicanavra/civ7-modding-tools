@@ -18,7 +18,7 @@ export function operationRouterSource(): string {
       if (type != null) out.type = type;
       return out;
     };
-    const summarizeUnitForPostcondition = (unit) => {
+    const summarizeUnit = (unit) => {
       if (!unit) return null;
       const location = unit.location ?? unit.Location ?? null;
       const movement = unit.Movement ?? unit.movement ?? unit.movementMovesRemaining ?? null;
@@ -34,13 +34,13 @@ export function operationRouterSource(): string {
         attacks,
       };
     };
-    const readUnitPostconditionSnapshot = (input) => ({
-      unit: probe(() => summarizeUnitForPostcondition(globalThis.Units?.get?.(input.unitId))),
+    const readUnitSnapshot = (input) => ({
+      unit: probe(() => summarizeUnit(globalThis.Units?.get?.(input.unitId))),
       selectedUnitId: probe(() => toComponentId(globalThis.UI?.Player?.getHeadSelectedUnit?.())),
       firstReadyUnitId: probe(() => toComponentId(globalThis.UI?.Player?.getFirstReadyUnit?.())),
       blocker: probe(() => globalThis.Game?.Notifications?.getEndTurnBlockingType?.(globalThis.GameContext?.localPlayerID)),
     });
-    const unitPostconditionEligible = (family) => family === "unit-operation" || family === "unit-command";
+    const unitPostconditionEligible = (family) => family === "unit-operation";
     const readyPopulationCityId = () => {
       const player = globalThis.Players?.get?.(globalThis.GameContext?.localPlayerID);
       const cityIds = player?.Cities?.getCityIds?.() ?? [];
@@ -237,6 +237,18 @@ export function operationRouterSource(): string {
       throw last;
     };
     const successFromCanStart = (result) => {
+      if (typeof result === "boolean") return result;
+      if (result !== null && typeof result === "object" && !Array.isArray(result)) {
+        for (const key of ["Success", "success", "canStart"]) {
+          if (key in result) {
+            if (typeof result[key] === "boolean") return result[key];
+            throw new Error("Game operation canStart returned a non-boolean " + key + " field.");
+          }
+        }
+      }
+      throw new Error("Game operation canStart returned an unrecognized result.");
+    };
+    const successFromNonUnitCommandCanStart = (result) => {
       if (result === true) return true;
       if (result === false || result == null) return false;
       if (typeof result === "object") {
@@ -257,12 +269,45 @@ export function operationRouterSource(): string {
         enumValue,
         target: { [meta.targetKey]: target },
         args: input.args,
-        valid: successFromCanStart(result),
+        valid: family === "unit-command"
+          ? successFromCanStart(result)
+          : successFromNonUnitCommandCanStart(result),
         result,
       };
     };
+    const checkUnitCommand = (input) => {
+      const checked = validateOperation("unit-command", input);
+      return {
+        valid: checked.valid,
+        result: checked.result,
+      };
+    };
+    const sendUnitCommand = (input) => {
+      const before = readUnitSnapshot(input);
+      const checked = validateOperation("unit-command", input);
+      const validation = {
+        valid: checked.valid,
+        result: checked.result,
+      };
+      if (!checked.valid) {
+        return {
+          sent: false,
+          validation,
+          before,
+          after: before,
+        };
+      }
+      const meta = routerFor("unit-command");
+      meta.router.sendRequest(input.unitId, checked.enumValue, input.args ?? {});
+      return {
+        sent: true,
+        validation,
+        before,
+        after: readUnitSnapshot(input),
+      };
+    };
     const sendOperation = (family, input) => {
-      const beforePostcondition = unitPostconditionEligible(family) ? readUnitPostconditionSnapshot(input) : undefined;
+      const beforePostcondition = unitPostconditionEligible(family) ? readUnitSnapshot(input) : undefined;
       const populationCityId = populationPostconditionCityId(family, input);
       const beforePopulationPostcondition = populationCityId ? readPopulationPlacementPostconditionSnapshot(populationCityId) : undefined;
       const beforeProductionPostcondition = productionPostconditionEligible(family, input) ? readProductionPostconditionSnapshot(input) : undefined;
@@ -281,7 +326,7 @@ export function operationRouterSource(): string {
       const meta = routerFor(family);
       const target = input[meta.targetKey];
       const result = meta.router.sendRequest(target, before.enumValue, input.args ?? {});
-      const afterPostcondition = unitPostconditionEligible(family) ? readUnitPostconditionSnapshot(input) : undefined;
+      const afterPostcondition = unitPostconditionEligible(family) ? readUnitSnapshot(input) : undefined;
       const afterPopulationPostcondition = populationCityId ? readPopulationPlacementPostconditionSnapshot(populationCityId) : undefined;
       const afterProductionPostcondition = productionPostconditionEligible(family, input) ? readProductionPostconditionSnapshot(input) : undefined;
       return { sent: true, before, result, beforePostcondition, afterPostcondition, beforePopulationPostcondition, afterPopulationPostcondition, beforeProductionPostcondition, afterProductionPostcondition };

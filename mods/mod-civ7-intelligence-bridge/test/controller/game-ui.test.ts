@@ -2598,6 +2598,7 @@ describe("Civ7 game UI controller bootstrap", () => {
   });
 
   test("executes unit upgrade through game UI service dependency", async () => {
+    const checkCalls: unknown[] = [];
     const sendCalls: unknown[] = [];
     const nextReadyUnitId = { owner: 0, id: 500_001, type: 26 };
     const target = gameUiNotificationTarget(notificationId, {
@@ -2605,6 +2606,7 @@ describe("Civ7 game UI controller bootstrap", () => {
       unitCommand: {
         unitId,
         nextReadyUnitId,
+        onCheck: (operationType, args) => checkCalls.push({ operationType, args }),
         onSend: (operationType, args) => sendCalls.push({ operationType, args }),
       },
     });
@@ -2618,6 +2620,14 @@ describe("Civ7 game UI controller bootstrap", () => {
       controller: {
         supportedProcedures: expect.arrayContaining([
           {
+            procedureKey: "unit.upgrade.check",
+            risk: "read-only",
+          },
+          {
+            procedureKey: "unit.resettle.check",
+            risk: "read-only",
+          },
+          {
             procedureKey: "unit.upgrade.request",
             risk: "mutation",
           },
@@ -2629,6 +2639,19 @@ describe("Civ7 game UI controller bootstrap", () => {
       },
     });
 
+    const check = await bridge.unit.upgrade.check(
+      { unitId },
+      { context: { correlationId: "game-ui-unit-upgrade-check-1" } }
+    );
+    expect(check).toEqual({
+      action: {
+        kind: "upgrade",
+        unitId,
+      },
+      available: true,
+    });
+    expect(sendCalls).toEqual([]);
+
     const response = await bridge.unit.upgrade.request(
       { unitId },
       { context: { correlationId: "game-ui-unit-upgrade-1" } }
@@ -2639,12 +2662,7 @@ describe("Civ7 game UI controller bootstrap", () => {
         kind: "upgrade",
         unitId,
       },
-      sent: true,
       status: "sent-confirmed",
-      validation: {
-        beforeValid: true,
-        afterValid: true,
-      },
       postcondition: {
         classification: "queue-advanced",
         confidence: "confirmed",
@@ -2664,19 +2682,44 @@ describe("Civ7 game UI controller bootstrap", () => {
         args: {},
       },
     ]);
+    expect(checkCalls).toEqual(
+      Array.from({ length: 4 }, () => ({
+        operationType: "UNITCOMMAND_UPGRADE",
+        args: {},
+      }))
+    );
     expectSemanticOutputOmitsRawUnitCommand(response);
   });
 
   test("executes unit resettle through game UI service dependency", async () => {
+    const checkCalls: unknown[] = [];
     const sendCalls: unknown[] = [];
     const target = gameUiNotificationTarget(notificationId, {
       unitCommand: {
         unitId,
         destination: resettleTarget,
+        onCheck: (operationType, args) => checkCalls.push({ operationType, args }),
         onSend: (operationType, args) => sendCalls.push({ operationType, args }),
       },
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const check = await bridge.unit.resettle.check(
+      {
+        unitId,
+        destination: resettleTarget,
+      },
+      { context: { correlationId: "game-ui-unit-resettle-check-1" } }
+    );
+    expect(check).toEqual({
+      action: {
+        kind: "resettle",
+        unitId,
+        destination: resettleTarget,
+      },
+      available: true,
+    });
+    expect(sendCalls).toEqual([]);
 
     const response = await bridge.unit.resettle.request(
       {
@@ -2692,7 +2735,6 @@ describe("Civ7 game UI controller bootstrap", () => {
         unitId,
         destination: resettleTarget,
       },
-      sent: true,
       status: "sent-confirmed",
       postcondition: {
         classification: "unit-state-changed",
@@ -2707,7 +2749,36 @@ describe("Civ7 game UI controller bootstrap", () => {
         args: { X: 22, Y: 31 },
       },
     ]);
+    expect(checkCalls).toEqual(
+      Array.from({ length: 4 }, () => ({
+        operationType: "UNITCOMMAND_RESETTLE",
+        args: { X: 22, Y: 31 },
+      }))
+    );
     expectSemanticOutputOmitsRawUnitCommand(response);
+  });
+
+  test("surfaces game UI unit validator failures instead of treating them as rejection", async () => {
+    const target = gameUiNotificationTarget(notificationId, {
+      unitCommand: {
+        unitId,
+      },
+    });
+    if (target.Game?.UnitCommands != null) {
+      target.Game.UnitCommands.canStart = () => {
+        throw new Error("private Game.UnitCommands.canStart failure");
+      };
+    }
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    await expect(bridge.unit.upgrade.check({ unitId })).rejects.toMatchObject({
+      code: "UNIT_REQUEST_UNAVAILABLE",
+      data: {
+        procedureKey: "unit.upgrade.check",
+        source: "direct-control-facade",
+      },
+    });
+    await expect(bridge.unit.upgrade.check({ unitId })).rejects.not.toThrow(/private|canStart/);
   });
 
   test("blocks game UI unit command sends for non-local unit owners", async () => {
@@ -2731,7 +2802,6 @@ describe("Civ7 game UI controller bootstrap", () => {
         kind: "upgrade",
         unitId: foreignUnitId,
       },
-      sent: false,
       status: "not-sent",
       postcondition: {
         classification: "not-sent",
@@ -2759,7 +2829,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     );
 
     expect(response).toMatchObject({
-      sent: true,
       status: "sent-unverified",
       postcondition: {
         classification: "no-state-change",
@@ -2774,6 +2843,48 @@ describe("Civ7 game UI controller bootstrap", () => {
         },
       ],
     });
+    expectSemanticOutputOmitsRawUnitCommand(response);
+  });
+
+  test("keeps an uncertain game UI unit command send no-repeat guarded", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      firstReadyUnitId: unitId,
+      unitCommand: {
+        unitId,
+        sendThrows: true,
+        onSend: (operationType, args) => sendCalls.push({ operationType, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.unit.upgrade.request(
+      { unitId },
+      { context: { correlationId: "game-ui-unit-upgrade-uncertain-send-1" } }
+    );
+
+    expect(response).toMatchObject({
+      status: "dispatch-unknown",
+      postcondition: {
+        classification: "missing-postcondition",
+        outcome: "unknown",
+        confidence: "unverified",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "unit.upgrade.request",
+        },
+      ],
+    });
+    expect(sendCalls).toEqual([
+      {
+        operationType: "UNITCOMMAND_UPGRADE",
+        args: {},
+      },
+    ]);
     expectSemanticOutputOmitsRawUnitCommand(response);
   });
 
@@ -3568,6 +3679,8 @@ function gameUiNotificationTarget(
       nextReadyUnitId?: { owner: number; id: number; type: number } | null;
       advanceQueueOnSend?: boolean;
       changeUnitStateOnSend?: boolean;
+      sendThrows?: boolean;
+      onCheck?: (operationType: string, args: Readonly<Record<string, number>>) => void;
       onSend?: (operationType: string, args: Readonly<Record<string, number>>) => void;
     };
   }> = {}
@@ -3937,8 +4050,9 @@ function gameUiNotificationTarget(
         options.unitTargetAction == null && options.unitCommand == null
           ? undefined
           : {
-              canStart: (_unitId, commandType) => {
+              canStart: (_unitId, commandType, args) => {
                 const operationType = String(commandType);
+                options.unitCommand?.onCheck?.(operationType, args);
                 return {
                   Success:
                     operationType === "UNITCOMMAND_UPGRADE"
@@ -3958,6 +4072,9 @@ function gameUiNotificationTarget(
                   options.unitCommand?.onSend?.(operationType, args);
                   unitCommandSent = true;
                   lastUnitCommandOperationType = operationType;
+                  if (options.unitCommand?.sendThrows === true) {
+                    throw new Error("Game.UnitCommands.sendRequest outcome is unknown.");
+                  }
                 } else {
                   options.unitTargetAction?.onSend?.("unit-command", operationType, args);
                   unitTargetSent = true;

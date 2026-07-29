@@ -6,7 +6,7 @@ export type Civ7ControllerMutationProof = NonNullable<Civ7ControlOrpcContext["co
 type DirectControl = Civ7ControlOrpcDirectControlFacade;
 
 export type Civ7ControlOrpcComponentId = Parameters<
-  DirectControl["requestCiv7UnitCommand"]
+  DirectControl["checkCiv7UnitUpgrade"]
 >[0]["unitId"];
 export type Civ7ControlOrpcMapLocation = Parameters<
   DirectControl["requestCiv7ExpandCityPlacement"]

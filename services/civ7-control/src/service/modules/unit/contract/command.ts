@@ -39,38 +39,47 @@ const Civ7UnitCommandProofOutcomeSchema = Type.Union([
 ]);
 const Civ7UnitCommandRequestStatusSchema = Type.Union([
   Type.Literal("not-sent"),
+  Type.Literal("dispatch-unknown"),
   Type.Literal("sent-confirmed"),
-  Type.Literal("sent-guarded"),
   Type.Literal("sent-unverified"),
 ]);
-const Civ7UnitCommandSummarySchema = Type.Union([
-  Type.Object(
-    {
-      kind: Type.Literal("upgrade", {
-        description: "Semantic kind of this value.",
-      }),
-      unitId: Civ7ControlOrpcComponentIdSchema,
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      kind: Type.Literal("resettle", {
-        description: "Semantic kind of this value.",
-      }),
-      unitId: Civ7ControlOrpcComponentIdSchema,
-      destination: Civ7ControlOrpcMapLocationSchema,
-    },
-    { additionalProperties: false }
-  ),
-]);
-const Civ7UnitCommandValidationSummarySchema = Type.Object(
+const Civ7UnitUpgradeSummarySchema = Type.Object(
   {
-    beforeValid: Type.Boolean({
-      description: "Whether before valid.",
+    kind: Type.Literal("upgrade", {
+      description: "Semantic kind of this value.",
     }),
-    afterValid: Type.Boolean({
-      description: "Whether after valid.",
+    unitId: Civ7ControlOrpcComponentIdSchema,
+  },
+  { additionalProperties: false }
+);
+const Civ7UnitResettleSummarySchema = Type.Object(
+  {
+    kind: Type.Literal("resettle", {
+      description: "Semantic kind of this value.",
+    }),
+    unitId: Civ7ControlOrpcComponentIdSchema,
+    destination: Civ7ControlOrpcMapLocationSchema,
+  },
+  { additionalProperties: false }
+);
+const Civ7UnitCommandSummarySchema = Type.Union([
+  Civ7UnitUpgradeSummarySchema,
+  Civ7UnitResettleSummarySchema,
+]);
+const Civ7UnitUpgradeCheckResultSchema = Type.Object(
+  {
+    action: Civ7UnitUpgradeSummarySchema,
+    available: Type.Boolean({
+      description: "Whether the unit upgrade is currently accepted by the runtime validator.",
+    }),
+  },
+  { additionalProperties: false }
+);
+const Civ7UnitResettleCheckResultSchema = Type.Object(
+  {
+    action: Civ7UnitResettleSummarySchema,
+    available: Type.Boolean({
+      description: "Whether the unit resettlement is currently accepted by the runtime validator.",
     }),
   },
   { additionalProperties: false }
@@ -121,11 +130,7 @@ const Civ7UnitCommandNextStepSchema = Type.Object(
 const Civ7UnitCommandResultSchema = Type.Object(
   {
     action: Civ7UnitCommandSummarySchema,
-    sent: Type.Boolean({
-      description: "Whether sent.",
-    }),
     status: Civ7UnitCommandRequestStatusSchema,
-    validation: Civ7UnitCommandValidationSummarySchema,
     postcondition: Civ7UnitCommandPostconditionSummarySchema,
     nextSteps: Type.Array(Civ7UnitCommandNextStepSchema, {
       description: "Next steps values.",
@@ -133,7 +138,16 @@ const Civ7UnitCommandResultSchema = Type.Object(
   },
   { additionalProperties: false }
 );
-const Civ7UnitUpgradeContract = base
+const Civ7UnitUpgradeCheckContract = base
+  .input(standard(Civ7UnitUpgradeInputSchema))
+  .output(standard(Civ7UnitUpgradeCheckResultSchema))
+  .meta({
+    family: "unit",
+    procedureKey: "unit.upgrade.check",
+    proofBoundary: "local-package-test",
+    risk: "read-only",
+  });
+const Civ7UnitUpgradeRequestContract = base
   .input(standard(Civ7UnitUpgradeInputSchema))
   .output(standard(Civ7UnitCommandResultSchema))
   .meta({
@@ -142,7 +156,16 @@ const Civ7UnitUpgradeContract = base
     proofBoundary: "local-package-test",
     risk: "mutation",
   });
-const Civ7UnitResettleContract = base
+const Civ7UnitResettleCheckContract = base
+  .input(standard(Civ7UnitResettleInputSchema))
+  .output(standard(Civ7UnitResettleCheckResultSchema))
+  .meta({
+    family: "unit",
+    procedureKey: "unit.resettle.check",
+    proofBoundary: "local-package-test",
+    risk: "read-only",
+  });
+const Civ7UnitResettleRequestContract = base
   .input(standard(Civ7UnitResettleInputSchema))
   .output(standard(Civ7UnitCommandResultSchema))
   .meta({
@@ -151,11 +174,13 @@ const Civ7UnitResettleContract = base
     proofBoundary: "local-package-test",
     risk: "mutation",
   });
-export const commandRequest = {
+export const command = {
   resettle: {
-    request: Civ7UnitResettleContract,
+    check: Civ7UnitResettleCheckContract,
+    request: Civ7UnitResettleRequestContract,
   },
   upgrade: {
-    request: Civ7UnitUpgradeContract,
+    check: Civ7UnitUpgradeCheckContract,
+    request: Civ7UnitUpgradeRequestContract,
   },
 };

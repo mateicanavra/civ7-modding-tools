@@ -477,7 +477,9 @@ export class Civ7UnitTargetActionUnavailableError extends ORPCTaggedError(
 export const Civ7UnitRequestUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Union([
+      Type.Literal("unit.upgrade.check"),
       Type.Literal("unit.upgrade.request"),
+      Type.Literal("unit.resettle.check"),
       Type.Literal("unit.resettle.request"),
     ]),
     source: Type.Literal("direct-control-facade"),

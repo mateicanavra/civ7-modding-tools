@@ -36,11 +36,15 @@ const civ7DirectControlErrorCodes = new Set<string>(CIV7_DIRECT_CONTROL_ERROR_CO
 /** Stable failure classifications emitted by the low-level Civ7 control boundary. */
 export type Civ7DirectControlErrorCode = (typeof CIV7_DIRECT_CONTROL_ERROR_CODES)[number];
 
+/** What the low-level tuner wire can prove about a command write when execution fails. */
+export type Civ7CommandDispatchStatus = "not-dispatched" | "dispatched" | "indeterminate";
+
 /** The bounded direct-control failure data that higher layers may safely classify. */
 export type Civ7DirectControlErrorShape = Error &
   Readonly<{
     name: "Civ7DirectControlError";
     code: Civ7DirectControlErrorCode;
+    dispatchStatus?: Civ7CommandDispatchStatus;
   }>;
 
 /**
@@ -55,5 +59,11 @@ export function isCiv7DirectControlError(cause: unknown): cause is Civ7DirectCon
     return false;
   }
   const code = cause.code;
-  return typeof code === "string" && civ7DirectControlErrorCodes.has(code);
+  if (typeof code !== "string" || !civ7DirectControlErrorCodes.has(code)) return false;
+  if (!("dispatchStatus" in cause) || cause.dispatchStatus === undefined) return true;
+  return (
+    cause.dispatchStatus === "not-dispatched" ||
+    cause.dispatchStatus === "dispatched" ||
+    cause.dispatchStatus === "indeterminate"
+  );
 }

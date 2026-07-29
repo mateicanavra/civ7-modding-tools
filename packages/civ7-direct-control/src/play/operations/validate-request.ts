@@ -46,6 +46,8 @@ type OperationRequestDependencies = Readonly<{
   jsLiteral: (value: unknown) => string;
 }>;
 
+type Civ7OperationRequestFamily = Exclude<Civ7OperationFamily, "unit-command">;
+
 export async function canStartCiv7UnitOperation(
   input: Civ7OperationInput & Readonly<{ unitId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
@@ -60,22 +62,6 @@ export async function requestCiv7UnitOperation(
   dependencies: OperationRequestDependencies = defaultOperationRequestDependencies
 ): Promise<Civ7OperationRequestResult> {
   return await requestCiv7Operation("unit-operation", input, options, dependencies);
-}
-
-export async function canStartCiv7UnitCommand(
-  input: Civ7OperationInput & Readonly<{ unitId: Civ7ComponentId }>,
-  options: Civ7DirectControlOptions = {},
-  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies
-): Promise<Civ7OperationValidationResult> {
-  return await validateCiv7Operation("unit-command", input, options, dependencies);
-}
-
-export async function requestCiv7UnitCommand(
-  input: Civ7OperationInput & Readonly<{ unitId: Civ7ComponentId }>,
-  options: Civ7DirectControlOptions = {},
-  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies
-): Promise<Civ7OperationRequestResult> {
-  return await requestCiv7Operation("unit-command", input, options, dependencies);
 }
 
 export async function canStartCiv7CityOperation(
@@ -127,7 +113,7 @@ export async function requestCiv7PlayerOperation(
 }
 
 function buildOperationValidationCommand(
-  family: Civ7OperationFamily,
+  family: Civ7OperationRequestFamily,
   input: Civ7OperationInput,
   dependencies: Pick<OperationRequestDependencies, "jsLiteral">
 ): string {
@@ -138,7 +124,7 @@ function buildOperationValidationCommand(
 }
 
 function buildOperationRequestCommand(
-  family: Civ7OperationFamily,
+  family: Civ7OperationRequestFamily,
   input: Civ7OperationInput,
   dependencies: Pick<OperationRequestDependencies, "jsLiteral">
 ): string {
@@ -149,7 +135,7 @@ function buildOperationRequestCommand(
 }
 
 async function validateCiv7Operation(
-  family: Civ7OperationFamily,
+  family: Civ7OperationRequestFamily,
   input: Civ7OperationInput,
   options: Civ7DirectControlOptions,
   dependencies: OperationRequestDependencies
@@ -166,7 +152,7 @@ async function validateCiv7Operation(
 }
 
 async function requestCiv7Operation(
-  family: Civ7OperationFamily,
+  family: Civ7OperationRequestFamily,
   input: Civ7OperationInput,
   options: Civ7DirectControlOptions,
   dependencies: OperationRequestDependencies
@@ -254,9 +240,12 @@ async function requestCiv7Operation(
   };
 }
 
-function validateOperationInput(family: Civ7OperationFamily, input: Civ7OperationInput): void {
+function validateOperationInput(
+  family: Civ7OperationRequestFamily,
+  input: Civ7OperationInput
+): void {
   validateIdentifier(input.operationType, "operationType");
-  if ((family === "unit-operation" || family === "unit-command") && !("unitId" in input)) {
+  if (family === "unit-operation" && !("unitId" in input)) {
     throw new Civ7DirectControlError("command-failed", `${family} requires unitId`);
   }
   if ((family === "city-operation" || family === "city-command") && !("cityId" in input)) {

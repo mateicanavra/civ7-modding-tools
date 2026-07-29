@@ -331,6 +331,21 @@ describe("Civ7 direct control session framing", () => {
     }
   });
 
+  test("rejects an empty command as not dispatched without opening a socket", async () => {
+    await expect(
+      executeCiv7Command({
+        host: "127.0.0.1",
+        port: 1,
+        command: "   ",
+        timeoutMs: 10,
+      })
+    ).rejects.toMatchObject({
+      name: "Civ7DirectControlError",
+      code: "command-failed",
+      dispatchStatus: "not-dispatched",
+    });
+  });
+
   test("returns a typed command state error when requested state is unavailable", async () => {
     const server = await startTunerServer();
     try {
@@ -347,6 +362,7 @@ describe("Civ7 direct control session framing", () => {
       ).rejects.toMatchObject({
         name: "Civ7DirectControlError",
         code: "state-not-found",
+        dispatchStatus: "not-dispatched",
       });
     } finally {
       await server.close();

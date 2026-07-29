@@ -7,11 +7,12 @@ import {
   type Civ7ComponentId,
   type Civ7DirectControlOptions,
   type Civ7MapLocation,
-  type Civ7OperationRequestResult,
   type Civ7PopulationPlacementProofSource,
   type Civ7SavedGameConfigurationRef,
   captureCiv7WindowShot,
   checkCiv7TunerHealth,
+  checkCiv7UnitResettle,
+  checkCiv7UnitUpgrade,
   closeCiv7Displays,
   enterCiv7CleanFrame,
   exitCiv7CleanFrame,
@@ -61,9 +62,10 @@ import {
   requestCiv7TraditionChange,
   requestCiv7TraditionReviewCloseout,
   requestCiv7TurnComplete,
-  requestCiv7UnitCommand,
   requestCiv7UnitTargetAction,
   resumeCiv7DisplayQueue,
+  sendCiv7UnitResettle,
+  sendCiv7UnitUpgrade,
   suspendCiv7DisplayQueue,
 } from "./index.js";
 
@@ -82,12 +84,6 @@ type Civ7PopulationPlacementResult = Civ7PopulationPlacementProofSource &
     before: Readonly<{ valid: boolean }>;
     after: Readonly<{ valid: boolean }>;
   }>;
-
-type Civ7UnitCommandInput = Readonly<{
-  unitId: Civ7ComponentId;
-  operationType: string;
-  args?: Readonly<Record<string, number>>;
-}>;
 
 /** Provider-neutral live direct-control atoms for qualified host composition. */
 export const liveCiv7DirectControl = {
@@ -140,10 +136,10 @@ export const liveCiv7DirectControl = {
       options
     ) as Promise<Civ7PopulationPlacementResult>,
   requestCiv7UnitTargetAction,
-  requestCiv7UnitCommand: (
-    input: Civ7UnitCommandInput,
-    options: Civ7DirectControlOptions | undefined
-  ) => requestCiv7UnitCommand(input, options) as Promise<Civ7OperationRequestResult>,
+  checkCiv7UnitUpgrade,
+  sendCiv7UnitUpgrade,
+  checkCiv7UnitResettle,
+  sendCiv7UnitResettle,
   requestCiv7TurnComplete,
   getCiv7PlayableStatus,
   getCiv7PlayNotificationView,

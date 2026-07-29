@@ -29,14 +29,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** take unit upgrade and resettlement through the complete
-service path. Replace the remaining generic `unit-command` request with exact
-upgrade and resettlement check/send runtime atoms; let the service own
-precheck, guarded send, postcheck, classification, and no-repeat semantics;
-route both CLI no-send and send modes through named service procedures; and
-remove the corresponding generic facade/cast and duplicate controller
-classification. This is the first repeatable proof that the smaller
-direct-control package is a wire substrate rather than a second service.
+**Current container:** take production choice through the same exact service
+path proven by unit commands. Split the remaining direct-control production
+wrapper into one-execution check/send wire atoms; let the service own precheck,
+guarded send, postcheck, classification, and no-repeat semantics; route both
+CLI modes through named service procedures; then delete direct-owned
+orchestration and proof policy once telemetry consumers have a qualified
+owner. This is the first city capability to cash in the repeatable convergence
+shape before CLI noun relocation.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -53,12 +53,12 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** separate unit check from mutation -> expose four exact
-direct-control runtime atoms -> compose two semantic check procedures and two
-guarded request procedures -> route both CLI modes through the service ->
-remove generic `unit-command` dispatch and duplicate bridge policy -> prove the
-full control graph -> repeat by domain until direct-control exposes only wire
-atoms and explicit diagnostics -> resume noun normalization.
+**Gradient:** separate production check from mutation -> expose exact
+direct-control runtime atoms -> compose semantic check and guarded request
+procedures -> route both CLI modes through the service -> relocate telemetry
+and delete direct-owned production policy -> prove the full control graph ->
+repeat by domain until direct-control exposes only wire atoms and explicit
+diagnostics -> resume noun normalization.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -101,6 +101,18 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-29 - Exact Unit Command Authority Converged
+
+Unit upgrade and resettlement now enter through exact service check/request
+procedures backed by four bounded direct-control wire atoms. The service alone
+owns precheck, guarded send, postcheck classification, ambiguous-dispatch
+handling, and no-repeat policy; the game UI bridge adapts only exact runtime
+calls, and both CLI modes use the service. Generic unit-command dispatch,
+duplicate controller classification, and the dead CLI unit-operation branch
+retired. The public request result collapsed to one honest status, malformed
+validator shapes fail closed, and the full direct/service/bridge graph plus
+CLI product proof and fresh authority review passed.
 
 ### 2026-07-29 - Direct-Control Shadow Procedure Plane Retired
 

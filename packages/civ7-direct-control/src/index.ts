@@ -42,7 +42,10 @@ export {
   Civ7ComponentIdSchema,
   isCiv7ComponentId,
 } from "./civ7-component-id.js";
-export type { Civ7DirectControlErrorCode } from "./direct-control-error.js";
+export type {
+  Civ7CommandDispatchStatus,
+  Civ7DirectControlErrorCode,
+} from "./direct-control-error.js";
 export { Civ7DirectControlError } from "./direct-control-error.js";
 export type {
   Civ7AutoplayActionResult,
@@ -355,12 +358,10 @@ export {
   canStartCiv7CityCommand,
   canStartCiv7CityOperation,
   canStartCiv7PlayerOperation,
-  canStartCiv7UnitCommand,
   canStartCiv7UnitOperation,
   requestCiv7CityCommand,
   requestCiv7CityOperation,
   requestCiv7PlayerOperation,
-  requestCiv7UnitCommand,
   requestCiv7UnitOperation,
 } from "./play/operations/validate-request.js";
 export type {
@@ -601,6 +602,22 @@ export {
   sendCiv7TurnComplete,
   sendCiv7TurnUnready,
 } from "./play/turn-completion.js";
+export type {
+  Civ7UnitCommandCheckResult,
+  Civ7UnitCommandSendResult,
+  Civ7UnitCommandSnapshot,
+  Civ7UnitResettleInput,
+  Civ7UnitUpgradeInput,
+} from "./play/unit/commands.js";
+export {
+  Civ7UnitCommandCheckResultSchema,
+  Civ7UnitCommandSendResultSchema,
+  Civ7UnitCommandSnapshotSchema,
+  checkCiv7UnitResettle,
+  checkCiv7UnitUpgrade,
+  sendCiv7UnitResettle,
+  sendCiv7UnitUpgrade,
+} from "./play/unit/commands.js";
 export type {
   CameraFocusDependencies,
   Civ7CameraFocusInput,

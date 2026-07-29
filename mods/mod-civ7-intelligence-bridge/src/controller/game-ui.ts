@@ -76,8 +76,11 @@ import {
 } from "./game-ui/town-focus";
 import {
   type Civ7GameUiUnitCommandTarget,
+  checkCiv7GameUiUnitResettle,
+  checkCiv7GameUiUnitUpgrade,
   civ7GameUiUnitCommandAvailable,
-  requestCiv7GameUiUnitCommand,
+  sendCiv7GameUiUnitResettle,
+  sendCiv7GameUiUnitUpgrade,
 } from "./game-ui/unit-command";
 import {
   type Civ7GameUiUnitTargetActionTarget,
@@ -379,7 +382,10 @@ function createCiv7GameUiDirectControlFacade(
       await requestCiv7GameUiExpandCityPlacement(input, target),
     requestCiv7UnitTargetAction: async (input) =>
       await requestCiv7GameUiUnitTargetAction(input, target),
-    requestCiv7UnitCommand: async (input) => await requestCiv7GameUiUnitCommand(input, target),
+    checkCiv7UnitUpgrade: async (input) => await checkCiv7GameUiUnitUpgrade(input, target),
+    sendCiv7UnitUpgrade: async (input) => await sendCiv7GameUiUnitUpgrade(input, target),
+    checkCiv7UnitResettle: async (input) => await checkCiv7GameUiUnitResettle(input, target),
+    sendCiv7UnitResettle: async (input) => await sendCiv7GameUiUnitResettle(input, target),
     requestCiv7TurnComplete: async () => await requestCiv7GameUiTurnComplete(target),
     getCiv7PlayableStatus: async () => gameUiPlayableStatus(target),
     getCiv7PlayNotificationView: async (options) =>
@@ -541,6 +547,9 @@ function gameUiSupportedReadProcedures(target: Civ7GameUiRuntimeTarget): readonl
   }
   if (gameUiWorldCurrentAvailable(target)) {
     supported.push("world.current");
+  }
+  if (civ7GameUiUnitCommandAvailable(target)) {
+    supported.push("unit.upgrade.check", "unit.resettle.check");
   }
   if (civ7GameUiWorldMapReadsAvailable(target)) {
     supported.push("world.plot.read", "world.grid.read");

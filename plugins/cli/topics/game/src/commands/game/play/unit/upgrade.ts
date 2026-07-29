@@ -4,15 +4,12 @@ import {
   buildDirectControlOptions,
   emitPlayResult,
   parseComponentId,
-  validatePlayOperation,
 } from "../../../../adapters/play/direct-control";
-
-const UPGRADE = "UNITCOMMAND_UPGRADE";
 
 export default class GamePlayUnitUpgrade extends Command {
   static summary = "Validate or send a unit upgrade command";
   static description =
-    "Validates unit-command UNITCOMMAND_UPGRADE, or sends unit upgrade through the native unit upgrade procedure when --send is explicit.";
+    "Checks whether the selected unit can upgrade, or requests the upgrade when --send is explicit.";
   static hiddenAliases = ["game:play:upgrade-unit"];
 
   static examples = [
@@ -48,18 +45,14 @@ export default class GamePlayUnitUpgrade extends Command {
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayUnitUpgrade);
     const input = {
-      operationType: UPGRADE,
       unitId: parseComponentId(flags["unit-id"], "unit-id"),
-      args: {},
     };
-    const options = buildDirectControlOptions(flags);
+    const client = createCiv7GameControlClient({
+      endpointDefaults: buildDirectControlOptions(flags),
+    });
     const result = flags.send
-      ? await createCiv7GameControlClient({
-          endpointDefaults: options,
-        }).unit.upgrade.request({
-          unitId: input.unitId,
-        })
-      : await validatePlayOperation("unit-command", input, options);
+      ? await client.unit.upgrade.request(input)
+      : await client.unit.upgrade.check(input);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }
