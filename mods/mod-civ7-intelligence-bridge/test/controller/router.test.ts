@@ -20,6 +20,7 @@ const canonicalProcedureKeys = [
   "city.townFocus.change.request",
   "city.townFocus.review.check",
   "city.townFocus.review.request",
+  "diplomacy.firstMeet.response.check",
   "diplomacy.firstMeet.response.request",
   "diplomacy.response.request",
   "display.explore.request",

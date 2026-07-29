@@ -137,6 +137,24 @@ export {
   sendCiv7TownFocusReview,
 } from "./play/city/town-focus.js";
 export type {
+  Civ7FirstMeetResponseCheckResult,
+  Civ7FirstMeetResponseInput,
+  Civ7FirstMeetResponseSendInput,
+  Civ7FirstMeetResponseSendResult,
+  Civ7FirstMeetResponseSnapshot,
+  Civ7FirstMeetResponseValidationResult,
+} from "./play/diplomacy/first-meet-response.js";
+export {
+  Civ7FirstMeetResponseCheckResultSchema,
+  Civ7FirstMeetResponseInputSchema,
+  Civ7FirstMeetResponseSendInputSchema,
+  Civ7FirstMeetResponseSendResultSchema,
+  Civ7FirstMeetResponseSnapshotSchema,
+  Civ7FirstMeetResponseValidationResultSchema,
+  checkCiv7FirstMeetResponse,
+  sendCiv7FirstMeetResponse,
+} from "./play/diplomacy/first-meet-response.js";
+export type {
   Civ7CelebrationChoiceCheckResult,
   Civ7CelebrationChoiceInput,
   Civ7CelebrationChoiceOption,
@@ -374,15 +392,6 @@ export {
   resumeCiv7DisplayQueue,
   suspendCiv7DisplayQueue,
 } from "./play/operations/display-queue.js";
-export type {
-  Civ7FirstMeetResponsePostcondition,
-  Civ7FirstMeetResponsePostconditionClassification,
-} from "./play/operations/first-meet-postconditions";
-export type {
-  Civ7FirstMeetResponseInput,
-  Civ7FirstMeetResponseResult,
-} from "./play/operations/first-meet-request";
-export { requestCiv7FirstMeetResponse } from "./play/operations/first-meet-request";
 export type {
   Civ7OperationFamily,
   Civ7OperationInput,
@@ -726,10 +735,6 @@ export {
   diplomacyResponseProofOutcome,
   diplomacyResponseProofPostcondition,
 } from "./proof/diplomacy-response-proof-policy.js";
-export {
-  firstMeetResponseProofOutcome,
-  firstMeetResponseProofPostcondition,
-} from "./proof/first-meet-response-proof-policy";
 export type {
   FileSnapshot,
   FreshLogMarkerProof,

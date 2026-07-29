@@ -816,30 +816,41 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** the read-only `game play respond-diplomacy` validation path remains
   direct-control player-operation validation until a separate accepted service
   read exists
-- **AND** `game play respond-first-meet` remains outside this slice until a
-  separate first-meet service procedure exists
+- **AND** first-meet greetings use their separate exact
+  `diplomacy.firstMeet.response` service owner rather than this ordinary
+  diplomacy-response path
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI first-meet response send uses native diplomacy first-meet procedure
-- **WHEN** `game play respond-first-meet --send` requests a first-meet diplomacy greeting
+#### Scenario: First-meet greetings use exact native service procedures
+- **WHEN** `game play diplomacy respond-first-meet` checks or requests a
+  first-meet diplomacy greeting
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send path calls the in-process
-  `diplomacy.firstMeet.response.request` server-side client under the
-  `diplomacy` router
-- **AND** the procedure's readiness, direct-control first-meet response proof
-  port, first-meet notification postcondition projection, and no-repeat policy
-  remain authoritative for the send
-- **AND** the procedure keeps first-meet `{ Player1, Player2, Type }` behavior
-  distinct from ordinary `diplomacy.response.request` closeout semantics
+- **AND** read-only mode calls `diplomacy.firstMeet.response.check`, while
+  `--send` calls `diplomacy.firstMeet.response.request` through the in-process
+  server-side client
+- **AND** caller input admits only the encountered player and one named
+  `friendly`, `neutral`, or `unfriendly` greeting
+- **AND** ambient local-player identity and the native response type are
+  resolved inside the runtime atom rather than supplied by callers
+- **AND** direct-control owns only exact
+  `RESPOND_DIPLOMATIC_FIRST_MEET` check/send adaptation, guarded dispatch, and
+  paired immutable blocker observations
+- **AND** the diplomacy service owns availability, bounded post-send polling,
+  exact blocker-clearance classification, dispatch uncertainty, and no-repeat
+  policy
+- **AND** exact pre-send `NOTIFICATION_PLAYER_MET` evidence for the encountered
+  player must clear before completion is confirmed
+- **AND** popup activation, generic player-operation validation, raw response
+  hashes, and direct-control-owned polling or proof policy do not provide
+  alternate paths
 - **AND** the normal JSON result is the semantic first-meet response procedure
   projection without raw command/session/state/Tuner details,
   direct-control operation envelopes, before/after notification snapshots, or
   legacy `verified`
-- **AND** sticky or unmatched first-meet blocker evidence remains
-  sent-unverified and no-repeat guarded
-- **AND** the read-only `game play respond-first-meet` validation path remains
-  direct-control player-operation validation until a separate accepted service
-  read exists
+- **AND** sticky, malformed, unmatched, or otherwise non-target-specific
+  evidence remains unverified and no-repeat guarded
+- **AND** the generic player-operation surface rejects
+  `RESPOND_DIPLOMATIC_FIRST_MEET`
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI narrative choice uses native narrative procedures

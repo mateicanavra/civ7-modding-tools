@@ -64,8 +64,8 @@ describe("game play notifications schedule command", () => {
       expect(step.category).toBe("first-meet-diplomacy");
       expect(step.disposition).toBe("operate-with-live-inputs");
       expect(step.nextStep).toMatchObject({
-        kind: "validate-operation",
-        label: "Read current domain evidence and validation before mutating.",
+        kind: "inspect-decision",
+        label: "Check the exact first-meet response service before choosing a greeting.",
       });
       expect(server.received.some((message) => message.includes("sendOperation("))).toBe(false);
     } finally {
@@ -235,18 +235,21 @@ function decisionQueueFor(mode: QueueMode) {
 
   if (mode === "first-meet") {
     return [
-      operationDecision({
+      {
         notificationId: { owner: 0, id: 44, type: 20 },
         typeName: "NOTIFICATION_PLAYER_MET",
         summary: "You have met Ashoka, World Renouncer of Mauryan Empire.",
+        message: "You have met Ashoka, World Renouncer of Mauryan Empire.",
+        target: { owner: -1, id: -1, type: 0 },
+        location: null,
         category: "first-meet-diplomacy",
-        operationType: "RESPOND_DIPLOMATIC_FIRST_MEET",
         isEndTurnBlocking: true,
+        requiredInputs: [],
         details: {
           kind: "first-meet-diplomacy",
           recommendedResponse: "neutral",
         },
-      }),
+      },
     ];
   }
 

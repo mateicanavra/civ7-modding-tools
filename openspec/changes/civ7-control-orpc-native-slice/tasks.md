@@ -2422,3 +2422,13 @@ adding more read-only facade shells.
   validation, stale wrapper/proof/generic-route scans, staged Habitat policy,
   and diff hygiene. These are local package proofs and do not claim deployed
   Civ7 runtime proof.
+- [x] 8.33 Converge first-meet greetings on exact native check/send atoms and
+  one `diplomacy.firstMeet.response` service owner: derive ambient local-player
+  identity and named response types at runtime, guard dispatch with the full
+  admitted snapshot, move bounded polling/classification/uncertainty/no-repeat
+  policy into the service, route controller and both CLI modes through that
+  owner, and retire generic player-operation validation, UI activation, thick
+  direct request/postcondition wrappers, and duplicate proof policy. Run the
+  combined direct/service/controller/CLI check/test graph, strict OpenSpec
+  validation, stale-route scans, staged Habitat policy, and diff hygiene.
+  These are local package proofs and do not claim deployed Civ7 runtime proof.

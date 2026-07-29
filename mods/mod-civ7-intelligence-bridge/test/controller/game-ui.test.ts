@@ -9,6 +9,7 @@ import { requestCiv7GameUiTechnologyTarget } from "../../src/controller/game-ui/
 import { sendCiv7GameUiTownFocusChange } from "../../src/controller/game-ui/town-focus";
 
 const populationDestination = { x: 22, y: 31 };
+const firstMeetResponseType = 673_478_009;
 
 describe("Civ7 game UI controller bootstrap", () => {
   const notificationId = { owner: 0, id: 113, type: 20 };
@@ -21,7 +22,6 @@ describe("Civ7 game UI controller bootstrap", () => {
   const traditionAction = -1_326_475_004;
   const diplomacyActionId = 8_821;
   const diplomacyResponseType = -1_713_616_684;
-  const firstMeetResponseType = 673_478_009;
   const resettleTarget = { x: 22, y: 31 };
   const unitId = { owner: 0, id: 42, type: 1 };
   const unitTarget = { x: 22, y: 31 };
@@ -1812,6 +1812,10 @@ describe("Civ7 game UI controller bootstrap", () => {
       controller: {
         supportedProcedures: expect.arrayContaining([
           {
+            procedureKey: "diplomacy.firstMeet.response.check",
+            risk: "read-only",
+          },
+          {
             procedureKey: "diplomacy.firstMeet.response.request",
             risk: "mutation",
           },
@@ -1822,21 +1826,15 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.diplomacy.firstMeet.response.request(
       {
         metPlayerId: 2,
-        responseType: firstMeetResponseType,
+        response: "friendly",
       },
       { context: { correlationId: "game-ui-first-meet-1" } }
     );
 
     expect(response).toMatchObject({
-      playerId: 0,
       metPlayerId: 2,
-      responseType: firstMeetResponseType,
-      sent: true,
+      response: "friendly",
       status: "sent-confirmed",
-      validation: {
-        beforeValid: true,
-        afterValid: true,
-      },
       postcondition: {
         classification: "first-meet-cleared",
         confidence: "confirmed",
@@ -1870,87 +1868,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(serialized).not.toContain('"payload"');
     expect(serialized).not.toContain('"operation"');
     expect(serialized).not.toContain('"verified"');
-  });
-
-  test("keeps game UI first-meet validator blocks semantic and not sent", async () => {
-    const sendCalls: unknown[] = [];
-    const target = gameUiNotificationTarget(notificationId, {
-      notificationTypeName: "NOTIFICATION_PLAYER_MET",
-      notificationTarget: { owner: 2, id: 2, type: 0 },
-      firstMeetResponse: {
-        canRespond: false,
-        onSend: (playerId, args) => sendCalls.push({ playerId, args }),
-      },
-    });
-    const bridge = installCiv7GameUiIntelligenceBridge({ target });
-
-    const response = await bridge.diplomacy.firstMeet.response.request(
-      {
-        metPlayerId: 2,
-        responseType: firstMeetResponseType,
-      },
-      { context: { correlationId: "game-ui-first-meet-blocked-1" } }
-    );
-
-    expect(response).toMatchObject({
-      playerId: 0,
-      sent: false,
-      status: "not-sent",
-      validation: {
-        beforeValid: false,
-        afterValid: false,
-      },
-      postcondition: {
-        classification: "not-sent",
-        confidence: "unverified",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
-      },
-      nextSteps: [
-        {
-          kind: "inspect-first-meet-response",
-          source: "diplomacy.firstMeet.response.request",
-        },
-      ],
-    });
-    expect(sendCalls).toEqual([]);
-  });
-
-  test("keeps unmatched game UI first-meet blockers no-repeat guarded", async () => {
-    const target = gameUiNotificationTarget(notificationId, {
-      notificationTypeName: "NOTIFICATION_PLAYER_MET",
-      notificationTarget: { owner: 5, id: 5, type: 0 },
-      firstMeetResponse: {
-        canRespond: true,
-        clearBlockerOnSend: false,
-      },
-    });
-    const bridge = installCiv7GameUiIntelligenceBridge({ target });
-
-    const response = await bridge.diplomacy.firstMeet.response.request(
-      {
-        metPlayerId: 2,
-        responseType: firstMeetResponseType,
-      },
-      { context: { correlationId: "game-ui-first-meet-unmatched-1" } }
-    );
-
-    expect(response).toMatchObject({
-      sent: true,
-      status: "sent-unverified",
-      postcondition: {
-        classification: "first-meet-blocker-unmatched",
-        confidence: "unverified",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
-      },
-      nextSteps: [
-        {
-          kind: "do-not-repeat",
-          source: "diplomacy.firstMeet.response.request",
-        },
-      ],
-    });
   });
 
   test("executes unit target action through game UI service dependency", async () => {
@@ -3269,6 +3186,9 @@ function gameUiNotificationTarget(
     Expired: false,
     Dismissed: false,
     BlocksTurnAdvancement: blocksTurnAdvancement,
+    ...(options.firstMeetResponse == null
+      ? {}
+      : { Player: options.notificationTarget?.owner ?? -1 }),
   };
 
   return {
@@ -3379,6 +3299,17 @@ function gameUiNotificationTarget(
             CHANGE_GOVERNMENT: "CHANGE_GOVERNMENT",
             CHOOSE_GOLDEN_AGE: "CHOOSE_GOLDEN_AGE",
           }),
+    },
+    DiplomacyPlayerFirstMeets:
+      options.firstMeetResponse == null
+        ? undefined
+        : {
+            PLAYER_REALATIONSHIP_FIRSTMEET_FRIENDLY: firstMeetResponseType,
+            PLAYER_REALATIONSHIP_FIRSTMEET_NEUTRAL: firstMeetResponseType + 1,
+            PLAYER_REALATIONSHIP_FIRSTMEET_UNFRIENDLY: firstMeetResponseType + 2,
+          },
+    EndTurnBlockingTypes: {
+      NONE: 0,
     },
     ProgressionTreeNodeTypes: options.progressionChoice == null ? undefined : { NO_NODE: -1 },
     Cities:
@@ -3787,7 +3718,7 @@ function gameUiNotificationTarget(
           if (options.diplomacyResponse?.blockerReadFailsAfterSend === true) {
             throw new Error("diplomacy blocker read failed");
           }
-          return blocksTurnAdvancement ? notificationId.type : 0;
+          return exists && blocksTurnAdvancement ? notificationId.type : 0;
         },
         findEndTurnBlocking: () => (exists && blocksTurnAdvancement ? notificationId : null),
         getIdsForPlayer: () => (exists ? [notificationId, ...(options.extraIds ?? [])] : []),

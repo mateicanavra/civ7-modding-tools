@@ -255,6 +255,13 @@ function validateOperationInput(
       { dispatchStatus: "not-dispatched" }
     );
   }
+  if (family === "player-operation" && operationType === "RESPOND_DIPLOMATIC_FIRST_MEET") {
+    throw new Civ7DirectControlError(
+      "command-failed",
+      "player-operation RESPOND_DIPLOMATIC_FIRST_MEET must use the exact first-meet response check/send atoms",
+      { dispatchStatus: "not-dispatched" }
+    );
+  }
   if (family === "city-operation" && operationType === "CONSIDER_TOWN_PROJECT") {
     throw new Civ7DirectControlError(
       "command-failed",

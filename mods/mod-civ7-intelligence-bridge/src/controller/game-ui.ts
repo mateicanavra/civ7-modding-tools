@@ -18,8 +18,10 @@ import {
 } from "./game-ui/diplomacy";
 import {
   type Civ7GameUiFirstMeetTarget,
-  civ7GameUiFirstMeetResponseAvailable,
-  requestCiv7GameUiFirstMeetResponse,
+  checkCiv7GameUiFirstMeetResponse,
+  civ7GameUiFirstMeetResponseCheckAvailable,
+  civ7GameUiFirstMeetResponseSendAvailable,
+  sendCiv7GameUiFirstMeetResponse,
 } from "./game-ui/first-meet";
 import {
   type Civ7GameUiGovernmentTarget,
@@ -157,6 +159,8 @@ export type Civ7GameUiRuntimeTarget = Civ7GameUiTurnCompletionTarget & {
     notifyUIReady?: () => void;
     Player?: Civ7GameUiPlayer;
   };
+  DiplomacyPlayerFirstMeets?: Civ7GameUiFirstMeetTarget["DiplomacyPlayerFirstMeets"];
+  EndTurnBlockingTypes?: Civ7GameUiFirstMeetTarget["EndTurnBlockingTypes"];
   UIGameLoadingState?: Record<string, number>;
   GameContext?: {
     localPlayerID?: number;
@@ -388,8 +392,10 @@ function createCiv7GameUiDirectControlFacade(
     sendCiv7NarrativeChoice: async (input) => await sendCiv7GameUiNarrativeChoice(input, target),
     requestCiv7DiplomacyResponse: async (input) =>
       await requestCiv7GameUiDiplomacyResponse(input, target),
-    requestCiv7FirstMeetResponse: async (input) =>
-      await requestCiv7GameUiFirstMeetResponse(input, target),
+    checkCiv7FirstMeetResponse: async (input) =>
+      await checkCiv7GameUiFirstMeetResponse(input, target),
+    sendCiv7FirstMeetResponse: async (input) =>
+      await sendCiv7GameUiFirstMeetResponse(input, target),
     checkCiv7GovernmentChoice: async (input) =>
       await checkCiv7GameUiGovernmentChoice(input, target),
     sendCiv7GovernmentChoice: async (input) => await sendCiv7GameUiGovernmentChoice(input, target),
@@ -566,7 +572,7 @@ function gameUiSupportedMutationProcedures(target: Civ7GameUiRuntimeTarget): rea
   if (civ7GameUiDiplomacyResponseAvailable(target)) {
     supported.push("diplomacy.response.request");
   }
-  if (civ7GameUiFirstMeetResponseAvailable(target)) {
+  if (civ7GameUiFirstMeetResponseSendAvailable(target)) {
     supported.push("diplomacy.firstMeet.response.request");
   }
   if (civ7GameUiGovernmentChoiceSendAvailable(target)) {
@@ -612,6 +618,9 @@ function gameUiSupportedReadProcedures(target: Civ7GameUiRuntimeTarget): readonl
   }
   if (civ7GameUiNarrativeChoiceCheckAvailable(target)) {
     supported.push("narrative.choice.check");
+  }
+  if (civ7GameUiFirstMeetResponseCheckAvailable(target)) {
+    supported.push("diplomacy.firstMeet.response.check");
   }
   if (civ7GameUiTurnCompletionCheckAvailable(target)) {
     supported.push("turn.complete.check");

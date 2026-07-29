@@ -29,6 +29,12 @@
       "import": "./dist/live-control.js",
       "require": "./dist/live-control.cjs"
     },
+    "./play/diplomacy/first-meet-response": {
+      "types": "./dist/play/diplomacy/first-meet-response.d.ts",
+      "bun-source": "./src/play/diplomacy/first-meet-response.ts",
+      "import": "./dist/play/diplomacy/first-meet-response.js",
+      "require": "./dist/play/diplomacy/first-meet-response.cjs"
+    },
     "./play/city/town-focus": {
       "types": "./dist/play/city/town-focus.d.ts",
       "bun-source": "./src/play/city/town-focus.ts",
@@ -58,12 +64,6 @@
       "bun-source": "./src/proof/diplomacy-response-proof-policy.ts",
       "import": "./dist/proof/diplomacy-response-proof-policy.js",
       "require": "./dist/proof/diplomacy-response-proof-policy.cjs"
-    },
-    "./proof/first-meet-response-proof-policy": {
-      "types": "./dist/proof/first-meet-response-proof-policy.d.ts",
-      "bun-source": "./src/proof/first-meet-response-proof-policy.ts",
-      "import": "./dist/proof/first-meet-response-proof-policy.js",
-      "require": "./dist/proof/first-meet-response-proof-policy.cjs"
     },
     "./proof/progression-player-choice-proof-policy": {
       "types": "./dist/proof/progression-player-choice-proof-policy.d.ts",

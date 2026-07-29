@@ -364,6 +364,9 @@ function decisionReason(nextDecision: Record<string, unknown>): string {
   if (category === "informational-notification") {
     return "HUD details include a live ComponentID; inspect notification postcondition evidence before any closeout send.";
   }
+  if (category === "first-meet-diplomacy") {
+    return "A first-meet blocker exists; use the exact diplomacy response check before choosing a greeting.";
+  }
   const family = stringValue(nextDecision.operationFamily, null);
   const operation = stringValue(nextDecision.operationType, null);
   if (family != null || operation != null) {

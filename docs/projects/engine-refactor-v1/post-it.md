@@ -29,17 +29,15 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** converge advisor-warning acknowledgement around the
-official `PlayerOperations.VIEWED_ADVISOR_WARNING` check/send path used by the
-specialized notification handler. Direct-control may retain only exact native
-availability, guarded dispatch, and raw notification observations; the
-notification service owns the four admitted advisor-warning identities,
-local-player admission, bounded clearance observation, semantic
-postconditions, dispatch uncertainty, and no-repeat policy. The controller and
-CLI consume that one service owner. Retire advisor-warning access through the
-generic player-operation wrapper, the thick direct request result, the direct
-proof policy, and caller-side local-player derivation after the native sources
-establish the exact wire.
+**Current container:** converge first-meet greetings around the official
+`PlayerOperations.RESPOND_DIPLOMATIC_FIRST_MEET` check/send path. Direct-control
+and the controller may retain only exact runtime response-key resolution,
+guarded dispatch, and paired blocker observations; the diplomacy service owns
+ambient local-player admission, named greeting intent, bounded observation,
+semantic postconditions, dispatch uncertainty, and no-repeat policy. The CLI
+consumes that one service owner in read and mutation modes. Retire notification
+activation, generic player-operation validation, caller-owned local-player
+identity, direct-owned polling/classification, and the duplicate proof plane.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -56,13 +54,14 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** establish the exact advisor-warning native check/send and
-clearance evidence -> move admission, polling, classification, uncertainty, and
-no-repeat policy into the notification service -> route controller and CLI
-through that owner -> retire the advisor-warning generic-operation and direct
-proof planes -> prove the full control graph -> repeat by domain until
-direct-control exposes only wire atoms and explicit diagnostics -> resume
-app/plugin and noun normalization.
+**Gradient:** establish exact first-meet check/send atoms with named greeting
+resolution and paired blocker evidence -> move admission, polling,
+classification, uncertainty, and no-repeat policy into the diplomacy service
+-> route controller and both CLI modes through that owner -> retire the thick
+request, generic-operation, UI-choreography, and direct-proof planes -> prove
+the full control graph -> converge ordinary diplomacy responses -> repeat by
+domain until direct-control exposes only wire atoms and explicit diagnostics
+-> normalize the remaining mod application containers.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -105,6 +104,22 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-29 - Advisor-Warning Acknowledgement Authority Converged
+
+Advisor-warning acknowledgement now uses the exact native
+`PlayerOperations.VIEWED_ADVISOR_WARNING` check/send path through one
+notification service owner. Direct-control owns only exact availability,
+guarded dispatch, and immutable notification observations; the service owns
+ambient-player admission, bounded clearance polling, semantic classification,
+dispatch uncertainty, and no-repeat policy; the controller and both CLI modes
+are thin adapters. Generic player-operation access, caller-owned player
+identity, the thick direct request, duplicate proof policy, and raw operation
+guidance retired. Contradictory notification snapshots remain unverified, and
+malformed post-dispatch envelopes remain indeterminate. The complete
+direct/service/controller/CLI graph, strict OpenSpec validation, staged Habitat
+law, and fresh native, product, and state reviews passed; deployed Civ7
+behavior remains a separate live-proof boundary.
 
 ### 2026-07-29 - Native Notification Dismissal Authority Converged
 

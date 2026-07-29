@@ -404,6 +404,7 @@ function buildQueueStep(item: QueueItem, originalStep: number): QueueStep {
 }
 function dispositionFor(item: QueueItem): QueueStep["disposition"] {
   if (isAdvisorWarningNotificationType(item.typeName)) return "inspect-handler";
+  if (item.category === "first-meet-diplomacy") return "operate-with-live-inputs";
   if (item.category === "informational-notification" && item.operationFamily === "app-ui-action") {
     return "reviewed-dismissal-candidate";
   }
@@ -434,6 +435,9 @@ function reasonFor(item: QueueItem, disposition: QueueStep["disposition"]): stri
     return "Advisor warning; use its dedicated viewed acknowledgement instead of generic dismissal or operation dispatch.";
   }
   if (item.isEndTurnBlocking) {
+    if (item.category === "first-meet-diplomacy") {
+      return "First-meet blocker; use the exact diplomacy first-meet response check before choosing a greeting.";
+    }
     return "End-turn blocker; resolve or consciously defer before broad tactical planning.";
   }
   if (disposition === "reviewed-dismissal-candidate") {
@@ -454,6 +458,9 @@ function exclusionReason(item: QueueStep): string {
   if (item.notificationId == null) return "missing notification id";
   if (isAdvisorWarningNotificationType(item.typeName)) {
     return "advisor warnings require the dedicated viewed acknowledgement, not generic dismissal";
+  }
+  if (item.category === "first-meet-diplomacy") {
+    return "first-meet greetings require the dedicated diplomacy service, not generic dismissal or operation dispatch";
   }
   if (item.isEndTurnBlocking && item.typeName === "NOTIFICATION_UNIT_LOST") {
     return "front unit-loss reports require exact reviewed dismissal proof, not bulk dismissal";
@@ -483,6 +490,11 @@ function guardrailsFor(
   }
   if (requiredInputs.length > 0 && disposition !== "reviewed-dismissal-candidate") {
     guardrails.push(`Read required live inputs first: ${requiredInputs.join(", ")}.`);
+  }
+  if (item.category === "first-meet-diplomacy") {
+    guardrails.push(
+      "Use diplomacy.firstMeet.response.check/request; do not reconstruct native player-operation arguments."
+    );
   }
   if (item.location && typeof item.location === "object") {
     guardrails.push(
@@ -516,6 +528,14 @@ function nextStepFor(
       kind: "inspect-notification",
       source: "notifications.queue.current",
       label: "Check the exact advisor warning, then use its dedicated acknowledgement.",
+      parameters: baseParameters,
+    };
+  }
+  if (item.category === "first-meet-diplomacy") {
+    return {
+      kind: "inspect-decision",
+      source: "notifications.queue.current",
+      label: "Check the exact first-meet response service before choosing a greeting.",
       parameters: baseParameters,
     };
   }

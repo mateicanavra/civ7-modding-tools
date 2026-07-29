@@ -83,7 +83,7 @@ compact play-agent output is introduced.
 | `game play upgrade-unit` | `game play unit upgrade` | Preserve validation by default and the existing explicit `--send` mutation. |
 | `game operation` | `game play unit operation`, `city operation`, `player operation` | Keep the current generic command as the escape hatch. |
 | `game play respond-diplomacy` | `game play diplomacy respond` | Preserve the ordinary diplomatic-response operation and its guarded send path. |
-| `game play respond-first-meet` | `game play diplomacy respond-first-meet` | Preserve named or numeric first-meet responses and postcondition proof. |
+| `game play respond-first-meet` | `game play diplomacy respond-first-meet` | Accept named greetings only; keep runtime enums and blocker proof behind the service boundary. |
 | `game play notifications` | `game play notifications list` | Preserve the existing composite blocker, decision-HUD, and notification view. |
 | `game play notification-queue` | `game play notifications schedule` | Make scheduling a notifications subcommand. |
 | `game play advisor-warning` | `game play notifications advisor-warning` | Keep the specialized acknowledgement distinct from generic notification dismissal. |

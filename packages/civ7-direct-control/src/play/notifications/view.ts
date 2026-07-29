@@ -437,7 +437,6 @@ function playNotificationViewSource(): string {
     };
     const firstMeetDetailsFor = (notification, typeName) => {
       if (!stringIncludes(typeName, "PLAYER_MET") && !stringIncludes(typeName, "FIRST_MEET")) return undefined;
-      const player1 = GameContext.localPlayerID;
       const rawPlayer2 = safeNotificationValue(notification, "Player");
       const player2 = Number.isFinite(Number(rawPlayer2)) ? Number(rawPlayer2) : null;
       const otherPlayer = player2 == null ? null : probe(() => {
@@ -462,37 +461,20 @@ function playNotificationViewSource(): string {
       const responses = responseRows.map(([response, key]) => {
         const type = probe(() => (
           (typeof DiplomacyPlayerFirstMeets !== "undefined" ? DiplomacyPlayerFirstMeets?.[key] : undefined)
-          ?? GameInfo?.Types?.lookup?.(key)?.Hash
           ?? null
         ));
         const typeValue = type.ok ? type.value : null;
         const costAndRelationship = Number.isFinite(Number(typeValue))
           ? probe(() => Game.Diplomacy.getFirstMeetResponseCostAndRelDelta(typeValue))
           : { ok: false, error: "first-meet response type unavailable" };
-        const args = Number.isFinite(Number(typeValue)) && player2 != null
-          ? { Player1: player1, Player2: player2, Type: typeValue }
-          : null;
-        const validation = args
-          ? probe(() => Game.PlayerOperations.canStart(
-            player1,
-            PlayerOperationTypes.RESPOND_DIPLOMATIC_FIRST_MEET,
-            args,
-            false,
-          ))
-          : { ok: false, error: "missing Player2 or Type" };
         return {
           response,
-          key,
-          type,
           influenceCost: costAndRelationship.ok ? costAndRelationship.value?.[0] ?? null : null,
           relationshipDelta: costAndRelationship.ok ? costAndRelationship.value?.[1] ?? null : null,
-          args,
-          validation,
         };
       });
       return {
         kind: "first-meet-diplomacy",
-        player1,
         player2,
         otherPlayer,
         responses,
@@ -1398,19 +1380,18 @@ function playNotificationViewSource(): string {
       if (stringIncludes(haystack, "PLAYER_MET") || stringIncludes(haystack, "FIRST_MEET")) {
         return hint(
           "first-meet-diplomacy",
-          "player-operation",
-          "RESPOND_DIPLOMATIC_FIRST_MEET",
-          "{ Player1, Player2, Type }",
+          undefined,
+          undefined,
+          "{ metPlayerId, response }",
           "live-proof",
           [
-            requiredInput("Player1", "local player evidence", "Send mode derives this from the current local-player context."),
-            requiredInput("Player2", "met player id", "Read this from the live first-meet notification or diplomacy panel."),
-            requiredInput("Type", "chosen first-meet greeting", "Use the first-meet response enum from the live UI, not ordinary Support/Accept/Reject diplomacy response enums."),
+            requiredInput("metPlayerId", "first-meet notification", "Use the encountered player exposed by the exact NOTIFICATION_PLAYER_MET evidence."),
+            requiredInput("response", "caller choice", "Choose friendly, neutral, or unfriendly; the native response type and local player are runtime-owned."),
           ],
           [
-            action("send neutral first-meet greeting", "player-operation", "RESPOND_DIPLOMATIC_FIRST_MEET", "{ Player1, Player2, Type }", "after validating the greeting options from the live first-meet UI"),
+            action("request neutral first-meet greeting through the diplomacy service", undefined, undefined, "{ metPlayerId, response: \"neutral\" }", "after the exact service check admits the greeting"),
           ],
-          ["First-meet greetings are real player operations, not notification dismissals. Neutral is the conservative default when Influence cost or strategic payoff is not proven."],
+          ["Use diplomacy.firstMeet.response.check/request rather than generic player-operation dispatch or notification dismissal. Neutral is the conservative default when Influence cost or strategic payoff is not proven."],
         );
       }
       if ((stringIncludes(haystack, "RESPOND") || stringIncludes(haystack, "RESPONSE")) && stringIncludes(haystack, "DIPLO")) {

@@ -559,7 +559,10 @@ export class Civ7DiplomacyResponseUnavailableError extends ORPCTaggedError(
 
 export const Civ7FirstMeetResponseUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("diplomacy.firstMeet.response.request"),
+    procedureKey: Type.Union([
+      Type.Literal("diplomacy.firstMeet.response.check"),
+      Type.Literal("diplomacy.firstMeet.response.request"),
+    ]),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
@@ -574,7 +577,7 @@ export class Civ7FirstMeetResponseUnavailableError extends ORPCTaggedError(
   "Civ7FirstMeetResponseUnavailableError",
   {
     code: "FIRST_MEET_RESPONSE_UNAVAILABLE",
-    message: "Direct-control first-meet response request failed.",
+    message: "Direct-control first-meet response operation failed.",
     schema: toStandardSchema(Civ7FirstMeetResponseUnavailableErrorDataSchema),
     status: 503,
   }

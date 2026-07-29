@@ -37,8 +37,12 @@ import type {
   Civ7ExploreGrantResult,
   Civ7ExploreReleaseInput,
   Civ7ExploreReleaseResult,
+  Civ7FirstMeetResponseCheckResult,
   Civ7FirstMeetResponseInput,
-  Civ7FirstMeetResponseResult,
+  Civ7FirstMeetResponseSendInput,
+  Civ7FirstMeetResponseSendResult,
+  Civ7FirstMeetResponseSnapshot,
+  Civ7FirstMeetResponseValidationResult,
   Civ7GovernmentChoiceCheckResult,
   Civ7GovernmentChoiceInput,
   Civ7GovernmentChoiceSendInput,
@@ -125,7 +129,11 @@ export type Civ7ControlOrpcAdvisorWarningViewedSnapshot = Civ7AdvisorWarningView
 export type Civ7ControlOrpcAdvisorWarningViewedCheckResult = Civ7AdvisorWarningViewedCheckResult;
 export type Civ7ControlOrpcAdvisorWarningViewedSendResult = Civ7AdvisorWarningViewedSendResult;
 export type Civ7ControlOrpcDiplomacyResponseResult = Civ7DiplomacyResponseResult;
-export type Civ7ControlOrpcFirstMeetResponseResult = Civ7FirstMeetResponseResult;
+export type Civ7ControlOrpcFirstMeetResponseSnapshot = Civ7FirstMeetResponseSnapshot;
+export type Civ7ControlOrpcFirstMeetResponseValidationResult =
+  Civ7FirstMeetResponseValidationResult;
+export type Civ7ControlOrpcFirstMeetResponseCheckResult = Civ7FirstMeetResponseCheckResult;
+export type Civ7ControlOrpcFirstMeetResponseSendResult = Civ7FirstMeetResponseSendResult;
 export type Civ7ControlOrpcGovernmentChoiceSnapshot = Civ7GovernmentChoiceSnapshot;
 export type Civ7ControlOrpcGovernmentChoiceCheckResult = Civ7GovernmentChoiceCheckResult;
 export type Civ7ControlOrpcGovernmentChoiceSendResult = Civ7GovernmentChoiceSendResult;
@@ -230,10 +238,14 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Civ7DiplomacyResponseInput,
     options: Civ7DirectControlOptions | undefined
   ): Promise<Civ7ControlOrpcDiplomacyResponseResult>;
-  requestCiv7FirstMeetResponse(
+  checkCiv7FirstMeetResponse(
     input: Civ7FirstMeetResponseInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcFirstMeetResponseResult>;
+  ): Promise<Civ7ControlOrpcFirstMeetResponseCheckResult>;
+  sendCiv7FirstMeetResponse(
+    input: Civ7FirstMeetResponseSendInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7ControlOrpcFirstMeetResponseSendResult>;
   checkCiv7GovernmentChoice(
     input: Civ7GovernmentChoiceInput,
     options: Civ7DirectControlOptions | undefined
