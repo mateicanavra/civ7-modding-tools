@@ -66,7 +66,7 @@ or "where does pressure appear to be concentrated?" It cannot authorize:
 - terrain-safe routes.
 
 Before any mutation, re-read the ready unit/city view and use the relevant
-validator-backed shortcut such as `game play unit-target`, `game play operation`,
+validator-backed shortcut such as `game play unit target`, `game operation`,
 or production/city commands.
 
 Relationship labels are deliberately not classified by this lens. The response
@@ -92,8 +92,8 @@ before choosing between tactical inspections.
 
 ## Relationship To Other Shortcuts
 
-- `game play ready-unit`: tells what the current unit can legally do.
-- `game play unit-target`: resolves and validates a specific plot action.
+- `game play unit ready`: tells what the current unit can legally do.
+- `game play unit target`: resolves and validates a specific plot action.
 - `game play front target-candidates`: ranks other-owner city/contact
   candidates from an origin.
 - `game play front scan`: explains the local battlefield around an
@@ -109,7 +109,7 @@ The practical sequence for a campaign turn is:
    choosing a target owner/city.
 4. `game play destination-analysis --from-x <unit-x> --from-y <unit-y> --to-x <x> --to-y <y> --json`
    when the next question is endpoint or route pressure.
-5. `game play ready-unit --json` and `game play unit-target ... --json` for the
+5. `game play unit ready --json` and `game play unit target ... --json` for the
    actual unit action.
 
 ## Current Live Use

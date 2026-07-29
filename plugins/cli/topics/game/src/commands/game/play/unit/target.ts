@@ -6,16 +6,17 @@ import {
   buildDirectControlOptions,
   emitPlayResult,
   parseComponentId,
-} from "../../../adapters/play/direct-control";
+} from "../../../../adapters/play/direct-control";
 
 export default class GamePlayUnitTarget extends Command {
   static summary = "Resolve a unit plot target through the official right-click action order";
   static description =
     "Plans a unit target action through direct-control, or sends it through the native control-oRPC unit procedure when --send is explicit.";
+  static hiddenAliases = ["game:play:unit-target"];
 
   static examples = [
-    '<%= config.bin %> game play unit-target --unit-id \'{"owner":0,"id":65536,"type":26}\' --x 23 --y 33 --json',
-    '<%= config.bin %> game play unit-target --unit-id \'{"owner":0,"id":65536,"type":26}\' --x 23 --y 33 --send --json',
+    '<%= config.bin %> game play unit target --unit-id \'{"owner":0,"id":65536,"type":26}\' --x 23 --y 33 --json',
+    '<%= config.bin %> game play unit target --unit-id \'{"owner":0,"id":65536,"type":26}\' --x 23 --y 33 --send --json',
   ];
 
   static flags = {

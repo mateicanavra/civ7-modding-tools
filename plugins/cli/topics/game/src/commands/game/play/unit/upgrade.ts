@@ -6,18 +6,19 @@ import {
   emitPlayResult,
   parseComponentId,
   validatePlayOperation,
-} from "../../../adapters/play/direct-control";
+} from "../../../../adapters/play/direct-control";
 
 const UPGRADE = "UNITCOMMAND_UPGRADE";
 
-export default class GamePlayUpgradeUnit extends Command {
+export default class GamePlayUnitUpgrade extends Command {
   static summary = "Validate or send a unit upgrade command";
   static description =
     "Validates unit-command UNITCOMMAND_UPGRADE, or sends unit upgrade through the native unit upgrade procedure when --send is explicit.";
+  static hiddenAliases = ["game:play:upgrade-unit"];
 
   static examples = [
-    '<%= config.bin %> game play upgrade-unit --unit-id \'{"owner":0,"id":1769488,"type":26}\' --json',
-    '<%= config.bin %> game play upgrade-unit --unit-id \'{"owner":0,"id":1769488,"type":26}\' --send --json',
+    '<%= config.bin %> game play unit upgrade --unit-id \'{"owner":0,"id":1769488,"type":26}\' --json',
+    '<%= config.bin %> game play unit upgrade --unit-id \'{"owner":0,"id":1769488,"type":26}\' --send --json',
   ];
 
   static flags = {
@@ -46,7 +47,7 @@ export default class GamePlayUpgradeUnit extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayUpgradeUnit);
+    const { flags } = await this.parse(GamePlayUnitUpgrade);
     const input = {
       operationType: UPGRADE,
       unitId: parseComponentId(flags["unit-id"], "unit-id"),

@@ -72,9 +72,9 @@ civ7 game play choose-celebration \
 The generic fallback is:
 
 ```bash
-civ7 game play operation \
-  --family player \
-  --type CHOOSE_GOLDEN_AGE \
+civ7 game operation \
+  --family player-operation \
+  --operation-type CHOOSE_GOLDEN_AGE \
   --player-id 0 \
   --args '{"GoldenAgeType":-340825966}' \
   --json

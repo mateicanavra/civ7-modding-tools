@@ -280,7 +280,7 @@ Norms:
   and should inform where to move Settlers, not replace live movement/founding
   validation.
 - `game play civilian-route-triage --x <civilian-x> --y <civilian-y> --json`
-  composes `ready-unit`, settlement recommendations, battlefield scan, and
+  composes `unit ready`, settlement recommendations, battlefield scan, and
   destination analysis so a legal Settler move is not mistaken for a supported
   Settler move.
 
@@ -307,16 +307,16 @@ Source artifacts:
 
 CLI shortcuts:
 
-- `game play ready-unit`
+- `game play unit ready`
 - `game play front summary`
 - `game play civilian-route-triage`
 - `game play front scan`
 - `game play destination-analysis`
-- `game play promotion-readiness`
-- `game play unit-target`
-- `game play resettle-unit`
-- `game play upgrade-unit`
-- `game play operation`
+- `game play unit promotion-readiness`
+- `game play unit target`
+- `game play unit resettle`
+- `game play unit upgrade`
+- `game operation`
 
 Norms:
 
@@ -345,18 +345,18 @@ Norms:
   not successful; re-read before trying the same target again.
 - Commanders are support and coordination units first. Do not treat them as
   default attackers without live evidence.
-- Treat visible `PROMOTE` as a prompt to check `promotion-readiness`, not as
+- Treat visible `PROMOTE` as a prompt to check `unit promotion-readiness`, not as
   proof that a spend is available. Buy only when stored promotion or
   commendation points are positive and an available promotion has
   validator-backed args.
 - `RESETTLE` and `UPGRADE` are `unit-command` actions, not `unit-operation`
-  actions. Use the named wrappers or `game play operation --family unit-command`.
+  actions. Use the named wrappers or `game operation --family unit-command`.
 - Unit-command sends still need board-state postconditions: resettle should
   change unit/settlement population state; upgrade should change unit tier/type
   and cost state.
 
 Promotion readiness: ready as a tactical guard asset. The read-only
-`game play promotion-readiness` shortcut is promotable; a future mutating
+`game play unit promotion-readiness` shortcut is promotable; a future mutating
 `game play promote-unit` wrapper still needs explicit send and postcondition
 proof. A richer combat-dry-run or tactical-snapshot shortcut should be added
 before this becomes a full combat skill.
@@ -433,8 +433,8 @@ CLI shortcuts:
 - `game play rehydrate`
 - `game play notifications list`
 - `game watch`
-- `game play ready-unit`
-- `game play promotion-readiness`
+- `game play unit ready`
+- `game play unit promotion-readiness`
 - `game play ready-city`
 - `game play settlement-recommendations`
 - `game play front target-candidates`
@@ -443,7 +443,7 @@ CLI shortcuts:
 - `game play formation-snapshot`
 - `game play destination-analysis`
 - `game ai loaded-levers`
-- `game play unit-target`
+- `game play unit target`
 - `game autoplay`
 
 Norms:
@@ -638,9 +638,9 @@ and postcondition are proven:
 - `game play promote-unit`: send a specific promotion only with live
   `promotion-readiness.availablePromotions` args and postcondition proof.
 - `game play upgrade-preview`: read upgrade target, cost, resource/territory
-  failures, and projected combat delta before `game play upgrade-unit`.
+  failures, and projected combat delta before `game play unit upgrade`.
 - `game play resettle-candidates`: read owned-district target candidates and
-  settlement/population consequences before `game play resettle-unit`.
+  settlement/population consequences before `game play unit resettle`.
 - `game play strategic-snapshot`: compact objective/state read that includes
   live blockers, ready entities, visible threats, production/diplomacy context,
   met-civ comparison, victory/legacy progress, current objective ledger, and
@@ -671,7 +671,7 @@ Keep these out of normative skill steps until stronger proof exists:
 - Ordinary city-project production postconditions beyond the official item-kind
   args shape.
 - Commander promotion spend operations. Readiness proof is available through
-  `ready-unit` and `promotion-readiness`; mutation still needs a guarded
+  `unit ready` and `unit promotion-readiness`; mutation still needs a guarded
   `promote-unit` wrapper and postcondition evidence.
 - Latency root-cause claims. Current evidence supports runtime-busy and
   stale-state risk, not a proven focus or OS-level cause.

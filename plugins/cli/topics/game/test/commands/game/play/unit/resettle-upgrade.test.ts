@@ -1,14 +1,14 @@
 import { describe, expect, test, vi } from "vitest";
-import GamePlayResettleUnit from "../../../../src/commands/game/play/resettle-unit";
-import GamePlayUpgradeUnit from "../../../../src/commands/game/play/upgrade-unit";
-import { startPlayOperationTunerServer } from "../../../support/play-operation-tuner-server";
+import GamePlayUnitResettle from "../../../../../src/commands/game/play/unit/resettle";
+import GamePlayUnitUpgrade from "../../../../../src/commands/game/play/unit/upgrade";
+import { startPlayOperationTunerServer } from "../../../../support/play-operation-tuner-server";
 
-describe("game play operation wrapper commands", () => {
+describe("game play unit operation wrapper commands", () => {
   test("wraps population resettle as a unit command with target coordinates", async () => {
     const server = await startPlayOperationTunerServer();
     try {
       const { port } = server.address();
-      await runCommand(GamePlayResettleUnit, [
+      await runCommand(GamePlayUnitResettle, [
         "--host",
         "127.0.0.1",
         "--port",
@@ -40,13 +40,13 @@ describe("game play operation wrapper commands", () => {
     const server = await startPlayOperationTunerServer();
     const writes: string[] = [];
     const log = vi
-      .spyOn(GamePlayUpgradeUnit.prototype, "log")
+      .spyOn(GamePlayUnitUpgrade.prototype, "log")
       .mockImplementation((message?: string) => {
         if (message) writes.push(message);
       });
     try {
       const { port } = server.address();
-      await GamePlayUpgradeUnit.run([
+      await GamePlayUnitUpgrade.run([
         "--host",
         "127.0.0.1",
         "--port",
@@ -100,13 +100,13 @@ describe("game play operation wrapper commands", () => {
     const server = await startPlayOperationTunerServer();
     const writes: string[] = [];
     const log = vi
-      .spyOn(GamePlayResettleUnit.prototype, "log")
+      .spyOn(GamePlayUnitResettle.prototype, "log")
       .mockImplementation((message?: string) => {
         if (message) writes.push(message);
       });
     try {
       const { port } = server.address();
-      await GamePlayResettleUnit.run([
+      await GamePlayUnitResettle.run([
         "--host",
         "127.0.0.1",
         "--port",

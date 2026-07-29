@@ -9,20 +9,20 @@ validator or send envelope proves that the runtime accepted an operation shape;
 it does not prove that the tactical board changed, that a ready-unit blocker
 advanced, or that a naval movement was visible through the current unit summary.
 
-`game play unit-target` classifies direct plot-target sends. Generic unit
+`game play unit target` classifies direct plot-target sends. Generic unit
 operations now also carry a direct-control postcondition baseline for
 `unit-operation` and `unit-command` sends: before/after unit snapshot, selected
 unit, first ready unit, blocker, and a classification.
 
 ## Failure Modes
 
-- Latent postcondition: a `unit-target` send can return before animation,
+- Latent postcondition: a `unit target` send can return before animation,
   queued movement, or unit/path state becomes visible to the summary probe. The
   command now absorbs that latency with bounded polling before reporting a miss.
 - Naval movement ambiguity: the UI can track desired destination or path state
   separately from the unit summary, so a Galley may validate and send while
   current probes still report no state change.
-- Generic operation overclaim: generic `game play operation --send` must not
+- Generic operation overclaim: generic `game operation --send` must not
   treat the transport envelope as proof. For unit families, `verified` now
   depends on the postcondition classification.
 - Queue advancement gap: no-target operations should prove whether
@@ -45,12 +45,12 @@ A robust caller-level unit operation reports:
   `validation-changed`, `not-sent`, or `no-state-change`.
 
 The play agent should treat `no-state-change` as unresolved, not as permission
-to repeat the same send. For `game play unit-target --send`,
+to repeat the same send. For `game play unit target --send`,
 `no-state-change` now means the immediate response and the bounded poll window
 both failed to observe unit or target-plot change. Re-read the HUD and ready
 unit before trying another movement, alert, wait, or skip.
 
-`unit-target --send` includes:
+`unit target --send` includes:
 
 - `verification.source`: `immediate` or `bounded-poll`;
 - `verification.attempts`: number of follow-up reads used by bounded polling;

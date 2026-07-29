@@ -95,14 +95,14 @@ omitted }` summaries. Structured IDs stay structured: component ids remain
 
 ## Examples
 
-`game play operation --family unit-operation --operation-type SKIP_TURN --send`
+`game operation --family unit-operation --operation-type SKIP_TURN --send`
 should default to a compact result:
 
 ```json
 {
   "ok": true,
   "contractVersion": "play-agent-v0",
-  "command": "game play operation",
+  "command": "game operation",
   "requestId": "req-...",
   "sent": true,
   "verified": true,
@@ -132,7 +132,7 @@ returns `contractVersion`, `summary`, `decisionHud`, top `priorities`, `next`,
 `warnings`, `omitted`, and `hiddenInfoPolicy` so play agents can decide what to
 inspect without scanning the full composed read.
 
-`game play unit-move-preview --compact --json` is the additive compact movement
+`game play unit move-preview --compact --json` is the additive compact movement
 contract. Plain `--json` remains the compatibility payload; compact mode returns
 selected unit summary, requested and queued destinations, reachable counts,
 requested/queued path summaries, `next`, `warnings`, `omitted`,
@@ -146,7 +146,7 @@ full scan inventory.
 pressure. Use `--expand lens` for corridor samples and `--raw` for complete
 plot/unit/city evidence.
 
-`game play unit-target --send` should default to the selected action and
+`game play unit target --send` should default to the selected action and
 postcondition classification. Use `--expand operation,audit` to inspect
 validator details, before/after location, target unit changes, and the exact
 reason why a move is `target-reached`, `path-shortfall`, or `no-state-change`.

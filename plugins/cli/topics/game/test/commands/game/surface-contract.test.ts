@@ -51,11 +51,8 @@ const PUBLIC_COMMAND_IDS = [
   "game:play:notifications:schedule",
   "game:play:priorities",
   "game:play:progress-dashboard",
-  "game:play:promotion-readiness",
   "game:play:ready-city",
-  "game:play:ready-unit",
   "game:play:rehydrate",
-  "game:play:resettle-unit",
   "game:play:screen:dismiss",
   "game:play:screen:show",
   "game:play:set-culture-target",
@@ -64,9 +61,12 @@ const PUBLIC_COMMAND_IDS = [
   "game:play:settlement-recommendations",
   "game:play:topics",
   "game:play:traditions",
-  "game:play:unit-move-preview",
-  "game:play:unit-target",
-  "game:play:upgrade-unit",
+  "game:play:unit:move-preview",
+  "game:play:unit:promotion-readiness",
+  "game:play:unit:ready",
+  "game:play:unit:resettle",
+  "game:play:unit:target",
+  "game:play:unit:upgrade",
   "game:restart",
   "game:status",
   "game:view:appshot",
@@ -87,6 +87,12 @@ const PUBLIC_HIDDEN_ALIASES: Partial<
   "game:play:notifications:dismiss-reviewed": ["game:play:dismiss-notification-queue"],
   "game:play:notifications:list": ["game:play:notifications"],
   "game:play:notifications:schedule": ["game:play:notification-queue"],
+  "game:play:unit:move-preview": ["game:play:unit-move-preview"],
+  "game:play:unit:promotion-readiness": ["game:play:promotion-readiness"],
+  "game:play:unit:ready": ["game:play:ready-unit"],
+  "game:play:unit:resettle": ["game:play:resettle-unit"],
+  "game:play:unit:target": ["game:play:unit-target"],
+  "game:play:unit:upgrade": ["game:play:upgrade-unit"],
 };
 
 const PUBLIC_TOPICS = {
@@ -108,6 +114,10 @@ const PUBLIC_TOPICS = {
   "game:play:front": {
     description:
       "Read battlefield pressure, target candidates, and composed military front summaries",
+  },
+  "game:play:unit": {
+    description:
+      "Read unit readiness, movement, and promotion state; validate or send target, resettle, and upgrade actions",
   },
   "game:play:diplomacy": {
     description: "Validate and send diplomatic action responses and first-meet greetings",

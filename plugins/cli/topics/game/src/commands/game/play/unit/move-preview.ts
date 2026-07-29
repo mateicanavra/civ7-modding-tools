@@ -4,7 +4,7 @@ import {
   buildDirectControlOptions,
   parseComponentId,
   resolveCoordinateFlags,
-} from "../../../adapters/play/direct-control";
+} from "../../../../adapters/play/direct-control";
 
 type Probe<T = unknown> = { ok: true; value: T } | { ok: false; error: string };
 type UnitMovePreviewView = Awaited<ReturnType<typeof getCiv7UnitMovePreview>>;
@@ -13,12 +13,13 @@ export default class GamePlayUnitMovePreview extends Command {
   static summary = "Read official unit movement, target, path, and queued-destination preview";
   static description =
     "Returns a read-only movement preview using the same Units movement/path APIs the Civ7 UI uses for reachable movement, targets, queued destinations, and hover paths.";
+  static hiddenAliases = ["game:play:unit-move-preview"];
 
   static examples = [
-    "<%= config.bin %> game play unit-move-preview --json",
-    "<%= config.bin %> game play unit-move-preview --compact --json",
-    '<%= config.bin %> game play unit-move-preview --unit-id \'{"owner":0,"id":65536,"type":26}\' --json',
-    '<%= config.bin %> game play unit-move-preview --unit-id \'{"owner":0,"id":65536,"type":26}\' --destination 25,35 --json',
+    "<%= config.bin %> game play unit move-preview --json",
+    "<%= config.bin %> game play unit move-preview --compact --json",
+    '<%= config.bin %> game play unit move-preview --unit-id \'{"owner":0,"id":65536,"type":26}\' --json',
+    '<%= config.bin %> game play unit move-preview --unit-id \'{"owner":0,"id":65536,"type":26}\' --destination 25,35 --json',
   ];
 
   static flags = {

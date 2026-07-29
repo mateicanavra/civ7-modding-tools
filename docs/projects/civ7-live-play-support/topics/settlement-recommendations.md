@@ -15,7 +15,7 @@ turn, and it does not account for every live escort or war-risk choice the
 agent may make.
 
 For exposed civilians, run `game play civilian-route-triage` before moving. It
-combines `ready-unit`, this recommendation surface, `game play front scan`, and
+combines `unit ready`, this recommendation surface, `game play front scan`, and
 `destination-analysis` so the agent can distinguish good settlement sites from
 safe near-term movement.
 
@@ -59,8 +59,8 @@ without re-reading every origin.
 
 - Use recommendation output as planning evidence, not movement proof.
 - Prefer sites that are both recommended and reachable behind an escort line.
-- Re-read `game play ready-unit` before moving the Settler, then use
-  `game play unit-target` or a relevant unit operation validator for the actual
+- Re-read `game play unit ready` before moving the Settler, then use
+  `game play unit target` or a relevant unit operation validator for the actual
   move.
 - If two Settlers share the same top site, split them by safety and distance:
   one moves toward the highest-ranked reachable site, the other waits or angles

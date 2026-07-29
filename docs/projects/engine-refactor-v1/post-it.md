@@ -27,13 +27,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** gather the smallest remaining play-language family with
-one real operator noun. `front-summary`, `battlefield-scan`, and
-`target-candidates` answer one front-orientation question at three depths, so
-they become `game:play:front:{summary,scan,target-candidates}` while their flat
-paths remain hidden compatibility aliases. Formation, destination/route,
-unit-movement, civilian-route, and settlement reads remain outside; sharing a
-lower router does not make them one public command concept.
+**Current container:** gather the six direct unit commands beneath one real
+operator noun. Ready-state, movement preview, target resolution, promotion
+readiness, resettlement, and upgrade all center on one selected or explicit
+unit, so they become `game:play:unit:*` while their flat paths remain hidden
+compatibility aliases. Their distinct read, preview, validation, and send
+behavior remains unchanged; the namespace does not pretend that the deferred
+preview/check/send grammar redesign has landed. Formation, route, settlement,
+and generic operation commands remain outside.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -50,13 +51,13 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** relocate the three front commands without changing their runtime
-capabilities -> preserve each flat invocation as a hidden alias -> correct
-active guidance that wrongly treats strategic target candidates as immediate
-unit-action coordinates -> make front the primary topic owner without widening
-the generic tactics or strategy buckets -> prove exact manifest identity,
-canonical and legacy resolution, and unchanged read-only behavior -> land the
-front family -> reassess the next smallest truthful noun.
+**Gradient:** relocate all six unit commands without changing runtime behavior
+-> preserve every flat invocation as a hidden alias -> make `unit` their single
+primary topic owner -> normalize command and behavior-test hierarchy together
+-> update active operator guidance without rewriting historical evidence ->
+prove exact manifest identity, canonical and legacy resolution, unchanged
+read/preview/validate/send behavior, and exclusive family ownership -> land the
+unit family -> reassess the next smallest truthful noun.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -99,6 +100,16 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - CLI Front Topic Sealed
+
+Front summary, battlefield scan, and strategic target candidates now share one
+`game:play:front` noun. Every former flat path remains a hidden alias, front is
+the commands' sole primary family, and active guidance no longer mistakes
+strategic target candidates for immediate action coordinates. Exact manifest
+identity, canonical and legacy shell resolution, the full CLI graph, generic
+topic laws, boundaries, dead-code proof, staged hook, and fresh architecture
+and product reviews sealed the family.
 
 ### 2026-07-28 - CLI Advisor Notification Sealed
 

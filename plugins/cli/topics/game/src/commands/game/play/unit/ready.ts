@@ -1,15 +1,19 @@
 import { getCiv7ReadyUnitView } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
-import { buildDirectControlOptions, parseComponentId } from "../../../adapters/play/direct-control";
+import {
+  buildDirectControlOptions,
+  parseComponentId,
+} from "../../../../adapters/play/direct-control";
 
-export default class GamePlayReadyUnit extends Command {
+export default class GamePlayUnitReady extends Command {
   static summary = "Read the selected or first ready unit with legal operations";
   static description =
     "Returns a read-only live-play view of the selected or first ready unit, valid no-target operations, and nearby occupied plots.";
+  static hiddenAliases = ["game:play:ready-unit"];
 
   static examples = [
-    "<%= config.bin %> game play ready-unit --json",
-    '<%= config.bin %> game play ready-unit --unit-id \'{"owner":0,"id":458752,"type":26}\' --radius 2 --json',
+    "<%= config.bin %> game play unit ready --json",
+    '<%= config.bin %> game play unit ready --unit-id \'{"owner":0,"id":458752,"type":26}\' --radius 2 --json',
   ];
 
   static flags = {
@@ -42,7 +46,7 @@ export default class GamePlayReadyUnit extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayReadyUnit);
+    const { flags } = await this.parse(GamePlayUnitReady);
     const view = await getCiv7ReadyUnitView(
       {
         unitId: flags["unit-id"] ? parseComponentId(flags["unit-id"], "unit-id") : undefined,

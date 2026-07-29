@@ -137,8 +137,8 @@ Before relying on that fallback, read `game play notifications list --json`. For
 validator-backed no-target `SKIP_TURN` closeout, which is safer and more
 specific than ending the turn through a stale ready-unit pointer. Use those
 templates only as unit-command reconciliation; movement, attack, promotion,
-fortify, and automation still require their own ready-unit/unit-target or
-movement-preview evidence.
+fortify, and automation still require their own `unit ready`, `unit target`, or
+`unit move-preview` evidence.
 
 If `COMMAND_UNITS` is expired, `selectedUnitId` and `firstReadyUnitId` are null,
 the blocker enum is `0`, and every scanned `SKIP_TURN` validator is disabled,
@@ -183,7 +183,7 @@ The first CLI shortcut family lives under `civ7 game play`:
 
 - `game play end-turn`
 - `game play notifications list`
-- `game play operation`
+- `game operation`
 - `game play notifications advisor-warning`
 - `game play choose-tech`
 - `game play set-tech-target`
@@ -206,8 +206,8 @@ The first CLI shortcut family lives under `civ7 game play`:
 - `game play expand-city`
 - `game play build-production`
 - `game play build-unit`
-- `game play ready-unit`
-- `game play unit-target`
+- `game play unit ready`
+- `game play unit target`
 
 Every mutating shortcut requires `--send`. Without `--send`, the shortcut
 validates or reads only. After any send, re-read before further action and do
@@ -218,12 +218,12 @@ play: blocker state, selected unit/city, first ready unit, active notification
 summaries, and decision hints such as operation family, operation type, args
 shape, confidence, and matching shortcut when one is known.
 
-`game play ready-unit` is read-only. Use it when `COMMAND_UNITS` is the blocker
+`game play unit ready` is read-only. Use it when `COMMAND_UNITS` is the blocker
 to resolve the selected/first-ready unit, materialize legal no-target unit
 operations/commands, and inspect nearby occupied plots before deciding whether
 to hold, move, pack, unpack, promote, or target an attack.
 
-`game play unit-target` is the tactical plot-target resolver. It follows the
+`game play unit target` is the tactical plot-target resolver. It follows the
 official right-click unit action order and returns candidate operations plus
 before/after probes when sent. Use it when the play question is "what does this
 unit do to that plot?" rather than "send this known operation type."

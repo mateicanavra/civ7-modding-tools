@@ -7,8 +7,8 @@ Sources:
 - Live play support commands in this branch: `game play front scan`,
   `game play formation-snapshot`, `game play front summary`,
   `game play destination-analysis`,
-  `game play front target-candidates`, `game play ready-unit`,
-  `game play ready-city`, `game watch`, and `game play unit-target`.
+  `game play front target-candidates`, `game play unit ready`,
+  `game play ready-city`, `game watch`, and `game play unit target`.
 - `@civ7/direct-control` runtime reads for map, player, city, unit,
   visibility, GameInfo, and operation validation.
 - Official resources under `.civ7/outputs/resources`, especially AI schema,
@@ -70,7 +70,7 @@ Use these now during live play:
 8. `game play civilian-route-triage --x <x> --y <y> --json` composes
    ready-unit, settlement recommendation, battlefield, and destination reads
    into a proof-labeled civilian movement triage.
-9. `game play unit-target --unit-id '<id>' --x <x> --y <y> --json` remains the
+9. `game play unit target --unit-id '<id>' --x <x> --y <y> --json` remains the
    plot-action validator before any movement, ranged attack, naval attack,
    overrun, or swap send.
 
@@ -78,7 +78,7 @@ Use these now during live play:
 
 A fresh watcher read on June 1, 2026 showed turn 117 / 1280 BCE with a Warrior
 at `(16,22)`. `game watch` reported `legalNoTargetOperationCount: 0`, but
-`game play unit-target --unit-id '{"owner":0,"id":589830,"type":26}' --x 13 --y 17 --json`
+`game play unit target --unit-id '{"owner":0,"id":589830,"type":26}' --x 13 --y 17 --json`
 validated `MOVE_TO`.
 
 The wider lenses changed the interpretation:

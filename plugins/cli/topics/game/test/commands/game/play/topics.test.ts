@@ -14,6 +14,8 @@ describe("game play topics command", () => {
       await GamePlayTopics.run(["--family", "surface-design", "--json"]);
       await GamePlayTopics.run(["--family", "diplomacy", "--json"]);
       await GamePlayTopics.run(["--family", "front", "--json"]);
+      await GamePlayTopics.run(["--family", "unit", "--json"]);
+      await GamePlayTopics.run(["--family", "tactics", "--json"]);
       await GamePlayTopics.run(["--json"]);
 
       const [
@@ -23,6 +25,8 @@ describe("game play topics command", () => {
         surfacePayload,
         diplomacyPayload,
         frontPayload,
+        unitPayload,
+        tacticsPayload,
         allTopicsPayload,
       ] = writes.map(
         (write) =>
@@ -75,11 +79,38 @@ describe("game play topics command", () => {
             .map((topic) => topic.family)
         ).toEqual(["front"]);
       }
+      expect(unitPayload.topics).toHaveLength(1);
+      expect(unitPayload.topics[0].family).toBe("unit");
+      expect(unitPayload.topics[0].commands).toEqual([
+        "game play unit ready",
+        "game play unit move-preview",
+        "game play unit target",
+        "game play unit promotion-readiness",
+        "game play unit resettle",
+        "game play unit upgrade",
+      ]);
+      for (const command of unitPayload.topics[0].commands) {
+        expect(
+          allTopicsPayload.topics
+            .filter((topic) => topic.commands.includes(command))
+            .map((topic) => topic.family)
+        ).toEqual(["unit"]);
+      }
+      expect(tacticsPayload.topics).toHaveLength(1);
+      expect(tacticsPayload.topics[0].family).toBe("tactics");
+      expect(tacticsPayload.topics[0].commands).toContain("game operation");
+      expect(tacticsPayload.topics[0].commands).not.toContain("game play operation");
       const indexedCommands = allTopicsPayload.topics.flatMap((topic) => topic.commands);
       for (const legacyCommand of [
         "game play battlefield-scan",
         "game play front-summary",
         "game play target-candidates",
+        "game play ready-unit",
+        "game play unit-move-preview",
+        "game play unit-target",
+        "game play promotion-readiness",
+        "game play resettle-unit",
+        "game play upgrade-unit",
       ]) {
         expect(indexedCommands).not.toContain(legacyCommand);
       }

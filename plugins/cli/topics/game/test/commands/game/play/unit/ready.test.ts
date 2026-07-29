@@ -1,20 +1,23 @@
 import { describe, expect, test, vi } from "vitest";
-import GamePlayReadyUnit from "../../../../src/commands/game/play/ready-unit";
-import { expectNormalPlayPayloadToOmitDebugInternals } from "../../../support/normal-output-boundary";
-import { type FakeTunerServer, startFakeTunerServer } from "../../../support/tuner-socket-server";
+import GamePlayUnitReady from "../../../../../src/commands/game/play/unit/ready";
+import { expectNormalPlayPayloadToOmitDebugInternals } from "../../../../support/normal-output-boundary";
+import {
+  type FakeTunerServer,
+  startFakeTunerServer,
+} from "../../../../support/tuner-socket-server";
 
-describe("game play ready-unit command", () => {
+describe("game play unit ready command", () => {
   test("reads ready-unit tactical view without sending operations", async () => {
     const server = await startReadyUnitTunerServer();
     const writes: string[] = [];
     const log = vi
-      .spyOn(GamePlayReadyUnit.prototype, "log")
+      .spyOn(GamePlayUnitReady.prototype, "log")
       .mockImplementation((message?: string) => {
         if (message) writes.push(message);
       });
     try {
       const { port } = server.address();
-      await GamePlayReadyUnit.run(["--host", "127.0.0.1", "--port", String(port), "--json"]);
+      await GamePlayUnitReady.run(["--host", "127.0.0.1", "--port", String(port), "--json"]);
 
       const payload = JSON.parse(writes.join(""));
       expectNormalPlayPayloadToOmitDebugInternals(payload);

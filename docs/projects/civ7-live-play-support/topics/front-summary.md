@@ -94,7 +94,7 @@ The front around `(15,21)` was not merely a one-unit question:
 
 The practical support frame was: screen or settle the exposed civilian, stabilize
 the contact line around the Ballista, then validate any concrete plot target
-with `unit-target` before moving or firing.
+with `unit target` before moving or firing.
 
 ## Proof Boundary
 
@@ -111,8 +111,8 @@ It is weaker than an action validator:
 - it may include debug-visible unit/city facts until paired with visibility
   reads.
 
-Use it to decide the next inspection. Do not use it to skip `ready-unit`,
-`unit-target`, generic operation validation, or postcondition re-reads.
+Use it to decide the next inspection. Do not use it to skip `unit ready`,
+`unit target`, generic operation validation, or postcondition re-reads.
 
 ## Relationship To Other Lenses
 
@@ -129,8 +129,8 @@ The practical turn loop is:
 2. `game play front summary --x <front-x> --y <front-y> --json`
 3. `game play front scan` or `destination-analysis` for the top pressure
    point
-4. `game play ready-unit --json`
-5. `game play unit-target --unit-id '<unit-id>' --x <x> --y <y> --json`
+4. `game play unit ready --json`
+5. `game play unit target --unit-id '<unit-id>' --x <x> --y <y> --json`
 
 ## Remaining Gaps
 

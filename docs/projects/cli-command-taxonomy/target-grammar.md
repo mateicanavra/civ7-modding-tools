@@ -3,8 +3,8 @@
 The full target tree for the `game` mount after this workstream's slices.
 Decisions D1–D7 in `workstream-record.md`; grammar authority is
 `docs/projects/civ7-live-play-support/topics/command-surface-design.md`
-(noun-first, phase verbs `show|targets|preview|check|send`; native control
-first; no casual breaking renames).
+(noun-first, with phase verbs `show|targets|preview|check|send` only where that
+split is proven; native control first; no casual breaking renames).
 
 ## Tree
 
@@ -50,9 +50,16 @@ game                                  # the mount itself is the session noun (D1
 │   │   ├── summary                   # composed target, pressure, and endpoint context
 │   │   ├── scan                      # bounded local battlefield pressure and POIs
 │   │   └── target-candidates         # strategic other-owner/city shortlist
+│   ├── unit                          # unit decision and action surface
+│   │   ├── ready                     # selected/first-ready unit and legal operations
+│   │   ├── move-preview              # read-only movement and path preview
+│   │   ├── target                    # validate by default; send only with --send
+│   │   ├── promotion-readiness       # read-only promotion evidence
+│   │   ├── resettle                  # validate by default; send only with --send
+│   │   └── upgrade                   # validate by default; send only with --send
 │   ├── <remaining flat commands>     # migration owned by command-surface-design.md
-│   └── (designed nouns, future)      # unit, city, progress, trade, objective,
-│                                     #   map, turn — see design doc
+│   └── (designed nouns, future)      # city, progress, trade, objective, map,
+│                                     #   turn — see design doc
 └── view                              # RESERVED presentation/capture noun (D6)
     ├── camera                        # rivers-branch arrival (not on main)
     ├── screenshot                    # rivers-branch arrival (not on main)
@@ -77,8 +84,13 @@ game                                  # the mount itself is the session noun (D1
   dismissal, and guarded reviewed closeout. `front` owns the read-only composed
   summary, bounded battlefield scan, and strategic target-candidate shortlist.
   Its candidate view does not enumerate immediate action plots or authorize a
-  unit mutation. Hidden aliases preserve all former flat paths. Further noun
-  gathering follows the design doc's Priority Refactors.
+  unit mutation. `unit` gathers ready unit inspection, move preview, target
+  resolution, promotion readiness, resettling, and upgrading without changing
+  their flags or behavior. In particular, `unit target`, `unit resettle`, and
+  `unit upgrade` still validate by default and mutate only with `--send`; no
+  preview/check/send phase split landed with this noun move. Hidden aliases
+  preserve all former flat paths. Further noun gathering follows the design
+  doc's Priority Refactors.
 - **`game view` (D6).** Reserved for presentation/capture commands arriving
   from the rivers branch (`camera`, `screenshot`, `appshot`). Nothing may
   squat on `view` in the meantime.

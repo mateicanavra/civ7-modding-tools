@@ -40,13 +40,13 @@ Before a unit mutation:
 
 ```bash
 civ7 game play notifications list --json
-civ7 game play ready-unit --json
+civ7 game play unit ready --json
 ```
 
 For a concrete plot target:
 
 ```bash
-civ7 game play unit-target \
+civ7 game play unit target \
   --unit-id '<current ready unit ComponentID>' \
   --x <current target x> \
   --y <current target y> \
@@ -55,7 +55,7 @@ civ7 game play unit-target \
 
 Only send if the resolver's before-state still matches the intended unit and
 target. After sending, require proof from location, movement, attacks remaining,
-target plot occupancy, or target damage. When `game play unit-target --send`
+target plot occupancy, or target damage. When `game play unit target --send`
 returns `verification.status == "no-state-change"`, treat the action as
 unresolved: re-read the board and do not repeat the same target unless a fresh
 read proves the first send was merely delayed.

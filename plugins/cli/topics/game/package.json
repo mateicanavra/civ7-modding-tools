@@ -36,6 +36,9 @@
       "game:play:front": {
         "description": "Read battlefield pressure, target candidates, and composed military front summaries"
       },
+      "game:play:unit": {
+        "description": "Read unit readiness, movement, and promotion state; validate or send target, resettle, and upgrade actions"
+      },
       "game:play:diplomacy": {
         "description": "Validate and send diplomatic action responses and first-meet greetings"
       },

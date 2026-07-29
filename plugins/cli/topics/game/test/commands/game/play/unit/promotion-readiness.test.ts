@@ -1,20 +1,23 @@
 import { describe, expect, test, vi } from "vitest";
-import GamePlayPromotionReadiness from "../../../../src/commands/game/play/promotion-readiness";
-import { expectNormalPlayPayloadToOmitDebugInternals } from "../../../support/normal-output-boundary";
-import { type FakeTunerServer, startFakeTunerServer } from "../../../support/tuner-socket-server";
+import GamePlayUnitPromotionReadiness from "../../../../../src/commands/game/play/unit/promotion-readiness";
+import { expectNormalPlayPayloadToOmitDebugInternals } from "../../../../support/normal-output-boundary";
+import {
+  type FakeTunerServer,
+  startFakeTunerServer,
+} from "../../../../support/tuner-socket-server";
 
-describe("game play promotion readiness command", () => {
+describe("game play unit promotion readiness command", () => {
   test("reads promotion readiness without sending promotion commands", async () => {
     const server = await startPromotionReadinessTunerServer();
     const writes: string[] = [];
     const log = vi
-      .spyOn(GamePlayPromotionReadiness.prototype, "log")
+      .spyOn(GamePlayUnitPromotionReadiness.prototype, "log")
       .mockImplementation((message?: string) => {
         if (message) writes.push(message);
       });
     try {
       const { port } = server.address();
-      await GamePlayPromotionReadiness.run([
+      await GamePlayUnitPromotionReadiness.run([
         "--host",
         "127.0.0.1",
         "--port",

@@ -1,6 +1,9 @@
 import { describe, expect, test, vi } from "vitest";
-import GamePlayUnitTarget from "../../../../src/commands/game/play/unit-target";
-import { type FakeTunerServer, startFakeTunerServer } from "../../../support/tuner-socket-server";
+import GamePlayUnitTarget from "../../../../../src/commands/game/play/unit/target";
+import {
+  type FakeTunerServer,
+  startFakeTunerServer,
+} from "../../../../support/tuner-socket-server";
 
 describe("game play unit target command", () => {
   test("resolves unit target actions without sending by default", async () => {

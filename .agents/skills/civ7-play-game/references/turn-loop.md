@@ -85,14 +85,14 @@ Repeat until no unit is "ready" (idle). Each pass handles the
 selected/first-ready unit:
 
 ```bash
-$CLI game play ready-unit --json     # -> unitId, unit (type/pos/moves), legalOperations[]
+$CLI game play unit ready --json     # -> unitId, unit (type/pos/moves), legalOperations[]
 ```
 
 Decide from `legalOperations` + unit role:
 
 | Unit situation | Do |
 |---|---|
-| Scout / military with moves, map to explore | Move toward unexplored/objective: get a plot from `unit-move-preview --unit-id '…'`, then `unit-target --unit-id '…' --x <x> --y <y> --send`. |
+| Scout / military with moves, map to explore | Move toward unexplored/objective: get a plot from `unit move-preview --unit-id '…'`, then `unit target --unit-id '…' --x <x> --y <y> --send`. |
 | Settler / founder on/near a good site | [Found a city](#founding-a-city). |
 | Military on a border, nothing to do | Fortify: echo the FORTIFY/`SKIP_TURN`-adjacent op from `legalOperations` into `game operation … --send`. |
 | Unit genuinely has nothing useful | Skip: `game operation --family unit-operation --operation-type SKIP_TURN --unit-id '…' --send` (only if it appears in `legalOperations`). |
@@ -107,12 +107,12 @@ longer appear ready on the next pass — that is how you avoid infinite loops.
 1. Find a site: `game play settlement-recommendations --json` → take a top
    suggestion's `location{x,y}` (or use the settler's current plot if it is
    already a recommended spot).
-2. Move the settler there: `game play unit-target --unit-id '<settlerId>' --x
+2. Move the settler there: `game play unit target --unit-id '<settlerId>' --x
    <x> --y <y> --send --json`. If `path-shortfall`, the move continues next turn
    — end the turn and resume.
 3. When the settler is **on** the target plot, found it:
    ```bash
-   $CLI game play ready-unit --unit-id '<settlerId>' --json   # FOUND_CITY now in legalOperations
+   $CLI game play unit ready --unit-id '<settlerId>' --json   # FOUND_CITY now in legalOperations
    $CLI game operation --family <family-from-legalOps> \
         --operation-type <FOUND_CITY-from-legalOps> \
         --unit-id '<settlerId>' --send --json
@@ -174,7 +174,7 @@ Poll every few seconds; if nothing changes for a long time, check `game status`
 | After | Good signal | Bad signal → do |
 |---|---|---|
 | any `--send` | `result.sent:true` + `verified:true` | `verified:false`/error → read validation, fix inputs, retry once |
-| `unit-target --send` | `target-reached` or `path-shortfall` | `no-state-change` → unit blocked; pick another plot or skip |
+| `unit target --send` | `target-reached` or `path-shortfall` | `no-state-change` → unit blocked; pick another plot or skip |
 | `build-production --send` | `verified:true` | invalid candidate → re-read `ready-city`, pick a `valid:true` candidate |
 | `choose-tech/culture --send` | `verified:true` | re-read `--options`; node may be disabled now |
 | `end-turn --send` | `turn-advanced` | `turn-completion-blocked` → handle blockers, re-validate |

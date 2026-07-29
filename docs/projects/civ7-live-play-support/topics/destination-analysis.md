@@ -64,7 +64,7 @@ but it is not Civ7 engine pathfinding. It does not model:
 - fog-of-war visibility guarantees;
 - whether a specific unit can reach the destination this turn.
 
-Before mutation, re-read `game play ready-unit`, inspect the relevant map or
+Before mutation, re-read `game play unit ready`, inspect the relevant map or
 plot surface when visibility matters, and use validator-backed movement or
 target shortcuts where available.
 
@@ -95,7 +95,7 @@ escort reads, and fresh unit validation.
 Bad uses:
 
 1. Declaring a route safe.
-2. Sending a move without a fresh ready-unit read.
+2. Sending a move without a fresh `unit ready` read.
 3. Treating debug-visible units as player-visible information.
 4. Replacing pathfinding, movement validation, or postcondition checks.
 
@@ -107,15 +107,15 @@ Bad uses:
   endpoint and the straight-line corridor toward it.
 - `game play front target-candidates`: ranks strategic other-owner contacts and
   city fronts; it does not enumerate immediate action plots.
-- `game play ready-unit`: identifies the current unit and its legal operation
+- `game play unit ready`: identifies the current unit and its legal operation
   surface.
-- `game play unit-target` and `game play operation`: validate or send concrete
+- `game play unit target` and `game operation`: validate or send concrete
   target operations after the planning lens has narrowed the next action.
 
 The practical sequence for movement-heavy turns is:
 
 1. `game play notifications list --json` to identify the blocker.
-2. `game play ready-unit --json` to identify the active unit.
+2. `game play unit ready --json` to identify the active unit.
 3. `game play destination-analysis --from-x <unit-x> --from-y <unit-y> --to-x <x> --to-y <y> --json`.
 4. Inspect any POI returned by the destination lens.
 5. Use a validator-backed action only after the live state is still fresh.

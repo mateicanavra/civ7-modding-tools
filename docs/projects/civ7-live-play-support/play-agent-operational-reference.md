@@ -35,9 +35,9 @@ the board shifts toward economy, culture, diplomacy, or science payoff, pivot.
    lenses.
 3. Resolve the current blocker first: city, unit, notification, tech/culture,
    diplomacy, narrative, tradition, attribute, or end-turn.
-4. For unit actions, use `ready-unit`, `front summary`, `front scan`,
-   `formation-snapshot`, `destination-analysis`, `unit-move-preview`, and
-   `unit-target` before mutation. Use `front target-candidates` only to choose
+4. For unit actions, use `unit ready`, `front summary`, `front scan`,
+   `formation-snapshot`, `destination-analysis`, `unit move-preview`, and
+   `unit target` before mutation. Use `front target-candidates` only to choose
    a strategic front or next inspection, never as immediate action-plot
    authority.
 5. For city actions, use `ready-city`, production/focus/population commands,

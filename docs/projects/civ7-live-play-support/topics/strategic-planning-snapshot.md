@@ -58,7 +58,7 @@ The CLI already exposes most building blocks:
 ```bash
 civ7 game play rehydrate --json
 civ7 game play notifications list --json
-civ7 game play ready-unit --json
+civ7 game play unit ready --json
 civ7 game play ready-city --json
 civ7 game status --json
 civ7 game map --summary --json

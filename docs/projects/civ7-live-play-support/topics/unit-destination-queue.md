@@ -78,7 +78,7 @@ game play set-unit-destination \
 
 Likely implementation: validate and send `unit-operation MOVE_TO` with
 `{ X, Y, Modifiers }`, using the same official right-click order as
-`unit-target` when the destination plot might be attack, swap, or overrun.
+`unit target` when the destination plot might be attack, swap, or overrun.
 
 Mutation postcondition should accept:
 
@@ -94,7 +94,7 @@ Mutation postcondition should accept:
 
 Use a low-risk local unit with a destination beyond current movement range:
 
-1. Read `unit-destination` and `unit-move-preview`.
+1. Read `unit-destination` and `unit move-preview`.
 2. Validate `MOVE_TO` for a far reachable/pathable destination.
 3. Send once after fresh validation.
 4. Poll unit state, ready queue, `Units.getQueuedOperationDestination`, and

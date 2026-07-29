@@ -71,7 +71,7 @@ blockers):
 
 A `--send` returned `verified:false` or an error:
 
-1. Re-read the source view (`ready-unit`, `ready-city`, `choose-* --options`) —
+1. Re-read the source view (`unit ready`, `ready-city`, `choose-* --options`) —
    the candidate may have changed, be disabled, or need different inputs.
 2. Confirm you echoed the ids/coords **exactly** as the read returned them
    (component-id JSON shape, integer types).

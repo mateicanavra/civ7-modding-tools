@@ -1,15 +1,19 @@
 import { getCiv7ReadyUnitView } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
-import { buildDirectControlOptions, parseComponentId } from "../../../adapters/play/direct-control";
+import {
+  buildDirectControlOptions,
+  parseComponentId,
+} from "../../../../adapters/play/direct-control";
 
-export default class GamePlayPromotionReadiness extends Command {
+export default class GamePlayUnitPromotionReadiness extends Command {
   static summary = "Read promotion spend readiness for the selected or first ready unit";
   static description =
     "Returns the read-only promotion readiness slice from the live ready-unit view, including spendable points and validator-backed promotion args when present.";
+  static hiddenAliases = ["game:play:promotion-readiness"];
 
   static examples = [
-    "<%= config.bin %> game play promotion-readiness --json",
-    '<%= config.bin %> game play promotion-readiness --unit-id \'{"owner":0,"id":917508,"type":26}\' --json',
+    "<%= config.bin %> game play unit promotion-readiness --json",
+    '<%= config.bin %> game play unit promotion-readiness --unit-id \'{"owner":0,"id":917508,"type":26}\' --json',
   ];
 
   static flags = {
@@ -38,7 +42,7 @@ export default class GamePlayPromotionReadiness extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayPromotionReadiness);
+    const { flags } = await this.parse(GamePlayUnitPromotionReadiness);
     const view = await getCiv7ReadyUnitView(
       {
         unitId: flags["unit-id"] ? parseComponentId(flags["unit-id"], "unit-id") : undefined,

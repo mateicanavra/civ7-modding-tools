@@ -177,7 +177,7 @@ proof, source snapshot keys, and required postcondition.
 
 Examples:
 
-- `unit-target` says a Ballista attack or move target is valid;
+- `unit target` says a Ballista attack or move target is valid;
 - `diplomacy respond` validates a specific `{ ID, Type }`;
 - `build-production` validates a city production choice and placement plot.
 

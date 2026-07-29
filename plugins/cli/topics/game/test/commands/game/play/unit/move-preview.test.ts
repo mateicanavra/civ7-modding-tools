@@ -1,7 +1,10 @@
 import { describe, expect, test, vi } from "vitest";
-import GamePlayUnitMovePreview from "../../../../src/commands/game/play/unit-move-preview";
-import { expectNormalPlayPayloadToOmitDebugInternals } from "../../../support/normal-output-boundary";
-import { type FakeTunerServer, startFakeTunerServer } from "../../../support/tuner-socket-server";
+import GamePlayUnitMovePreview from "../../../../../src/commands/game/play/unit/move-preview";
+import { expectNormalPlayPayloadToOmitDebugInternals } from "../../../../support/normal-output-boundary";
+import {
+  type FakeTunerServer,
+  startFakeTunerServer,
+} from "../../../../support/tuner-socket-server";
 
 type CompactNextAction = {
   kind: string;
@@ -10,7 +13,7 @@ type CompactNextAction = {
   sendReady: boolean;
 };
 
-describe("game play unit-move-preview command", () => {
+describe("game play unit move-preview command", () => {
   test("reads official unit move preview with neutral relationship policy", async () => {
     const server = await startUnitMovePreviewTunerServer();
     const writes: string[] = [];

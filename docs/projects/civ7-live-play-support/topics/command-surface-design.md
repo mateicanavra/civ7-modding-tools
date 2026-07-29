@@ -22,12 +22,14 @@ fresh in that worktree.
 
 ## Domain Grammar
 
-Use domain nouns first, then phase verbs:
+Use domain nouns first. Where a command family has a proven phase split, follow
+the noun with a phase verb. The landed unit family only gathers existing
+behavior under one noun; it does not introduce a phase split:
 
 ```text
 game play status
 game play todo
-game play unit <show|targets|preview|check|send|operation>
+game play unit <ready|move-preview|target|promotion-readiness|resettle|upgrade>
 game play city <show|production|growth|workers|check|send>
 game play diplomacy <respond|respond-first-meet>
 game play notifications <list|show|schedule|advisor-warning|dismiss|dismiss-reviewed>
@@ -39,7 +41,7 @@ game play map <summary|plot|grid|overlay>
 game play turn <status|end>
 ```
 
-The stable phase vocabulary is:
+The phase vocabulary for phase-oriented surfaces is:
 
 - `show`: compact current state;
 - `targets` or `preview`: read-only choices and projected effects;
@@ -48,10 +50,10 @@ The stable phase vocabulary is:
 - `operation`: generic escape hatch for raw Civ7 operation families;
 - `debug`/`raw`: expansion modes, not default play surfaces.
 
-This keeps `unit target`, `unit move`, `city production`, `progress tech`, and
-`notifications schedule` in the agent's vocabulary while still allowing the
-underlying direct-control layer to preserve `unit-operation`, `city-command`,
-and `player-operation` contracts.
+This keeps `unit target`, `unit move-preview`, `city production`, `progress
+tech`, and `notifications schedule` in the agent's vocabulary while still
+allowing the underlying direct-control layer to preserve `unit-operation`,
+`city-command`, and `player-operation` contracts.
 
 ## Compatibility Path
 
@@ -73,9 +75,13 @@ compact play-agent output is introduced.
 | Existing command | New play-agent path | Notes |
 | --- | --- | --- |
 | `game play priorities` | `game play todo` | Keep `priorities` as alias; `todo` should emphasize next actionable decision. |
-| `game play ready-unit` | `game play unit show unit:next` | Also support structured IDs for exact units. |
-| `game play unit-target` | `game play unit targets` and `game play unit send target` | Split read-only target enumeration from mutation. |
-| `game play operation` | `game play unit operation`, `city operation`, `player operation` | Keep generic command as the escape hatch. |
+| `game play ready-unit` | `game play unit ready` | Noun gathering only; structured IDs for exact units remain supported. |
+| `game play unit-move-preview` | `game play unit move-preview` | Preserve the read-only preview flags and payload. |
+| `game play unit-target` | `game play unit target` | Preserve validation by default and the existing explicit `--send` mutation. |
+| `game play promotion-readiness` | `game play unit promotion-readiness` | Preserve the read-only promotion evidence. |
+| `game play resettle-unit` | `game play unit resettle` | Preserve validation by default and the existing explicit `--send` mutation. |
+| `game play upgrade-unit` | `game play unit upgrade` | Preserve validation by default and the existing explicit `--send` mutation. |
+| `game operation` | `game play unit operation`, `city operation`, `player operation` | Keep the current generic command as the escape hatch. |
 | `game play respond-diplomacy` | `game play diplomacy respond` | Preserve the ordinary diplomatic-response operation and its guarded send path. |
 | `game play respond-first-meet` | `game play diplomacy respond-first-meet` | Preserve named or numeric first-meet responses and postcondition proof. |
 | `game play notifications` | `game play notifications list` | Preserve the existing composite blocker, decision-HUD, and notification view. |
@@ -108,10 +114,12 @@ compact play-agent output is introduced.
 
 ## Priority Refactors
 
-1. **Unit namespace.** Add `game play unit targets`, `unit preview move`,
-   `unit check move`, and `unit send move`. This removes the current mix of
-   `ready-unit`, `unit-target`, and generic `operation` from the main tactical
-   loop. Risk: high until queued destination and movement postconditions are
+1. **Unit namespace (landed 2026-07-28).** `ready`, `move-preview`, `target`,
+   `promotion-readiness`, `resettle`, and `upgrade` now share one noun; prior
+   flat paths remain hidden aliases. This is noun gathering only. The existing
+   validation-by-default and explicit `--send` behavior of `target`, `resettle`,
+   and `upgrade` is unchanged. A future preview/check/send phase split remains
+   deferred until queued destination and movement postconditions are
    live-smoked.
 2. **Notification namespace (landed 2026-07-28).** `list`, `schedule`,
    `advisor-warning`, `dismiss`, and `dismiss-reviewed` now share one noun;

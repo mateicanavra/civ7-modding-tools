@@ -6,18 +6,19 @@ import {
   emitPlayResult,
   parseComponentId,
   validatePlayOperation,
-} from "../../../adapters/play/direct-control";
+} from "../../../../adapters/play/direct-control";
 
 const RESETTLE = "UNITCOMMAND_RESETTLE";
 
-export default class GamePlayResettleUnit extends Command {
+export default class GamePlayUnitResettle extends Command {
   static summary = "Validate or send a population resettle command";
   static description =
     "Validates unit-command UNITCOMMAND_RESETTLE, or sends population resettlement through the native unit resettle procedure when --send is explicit.";
+  static hiddenAliases = ["game:play:resettle-unit"];
 
   static examples = [
-    '<%= config.bin %> game play resettle-unit --unit-id \'{"owner":0,"id":1703951,"type":26}\' --x 17 --y 25 --json',
-    '<%= config.bin %> game play resettle-unit --unit-id \'{"owner":0,"id":1703951,"type":26}\' --x 17 --y 25 --send --json',
+    '<%= config.bin %> game play unit resettle --unit-id \'{"owner":0,"id":1703951,"type":26}\' --x 17 --y 25 --json',
+    '<%= config.bin %> game play unit resettle --unit-id \'{"owner":0,"id":1703951,"type":26}\' --x 17 --y 25 --send --json',
   ];
 
   static flags = {
@@ -54,7 +55,7 @@ export default class GamePlayResettleUnit extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayResettleUnit);
+    const { flags } = await this.parse(GamePlayUnitResettle);
     const input = {
       operationType: RESETTLE,
       unitId: parseComponentId(flags["unit-id"], "unit-id"),
