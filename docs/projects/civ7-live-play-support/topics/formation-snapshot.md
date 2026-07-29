@@ -79,8 +79,8 @@ not answer "which exact attack or movement path will succeed?"
 
 This command proves only a bounded runtime scan and derived local geometry.
 Distances are cheap grid heuristics. Hidden-info policy follows
-`battlefield-scan`. Operation legality and effect still require `unit-target`,
-operation validation, and postcondition reads.
+`game play front scan`. Operation legality and effect still require
+`unit-target`, operation validation, and postcondition reads.
 
 Other-owner contact is not relationship proof. The command exposes
 `relationshipLabelPolicy.relationshipSource: "not-classified"`,

@@ -157,6 +157,29 @@ const TOPICS: ReadonlyArray<Topic> = [
       "settlement recommendations inform movement/founding; they do not replace live movement and operation validators",
   },
   {
+    family: "front",
+    aliases: ["battlefield", "siege"],
+    purpose:
+      "Orient one military front through local battlefield pressure, strategic target candidates, and a composed posture summary.",
+    proof: "read-only heuristic planning views; concrete actions still require live validators",
+    references: [
+      "docs/projects/civ7-live-play-support/topics/front-summary.md",
+      "docs/projects/civ7-live-play-support/topics/battlefield-scan.md",
+      "docs/projects/civ7-live-play-support/topics/target-candidates.md",
+      "docs/projects/civ7-live-play-support/topics/assyria-siege-posture.md",
+      "docs/projects/civ7-live-play-support/topics/tactical-lens-api-roadmap.md",
+    ],
+    commands: [
+      "game play front summary",
+      "game play front scan",
+      "game play front target-candidates",
+    ],
+    loadWhen:
+      "when orienting a military front, comparing nearby pressure, or choosing the next strategic target inspection",
+    boundary:
+      "front reads rank posture and inspections; they do not prove relationships or authorize movement, attacks, diplomacy, or other mutations",
+  },
+  {
     family: "tactics",
     aliases: ["units", "combat", "commanders", "promotion", "upgrade", "resettle"],
     purpose:
@@ -186,12 +209,10 @@ const TOPICS: ReadonlyArray<Topic> = [
     commands: [
       "game play priorities",
       "game play formation-snapshot",
-      "game play front-summary",
       "game play civilian-route-triage",
       "game play ready-unit",
       "game play unit-move-preview",
       "future: game play unit-analysis",
-      "game play battlefield-scan",
       "game play destination-analysis",
       "game play promotion-readiness",
       "game play unit-target",
@@ -333,13 +354,10 @@ const TOPICS: ReadonlyArray<Topic> = [
     commands: [
       "game play priorities",
       "game play progress-dashboard",
-      "game play front-summary",
       "game play rehydrate",
       "game watch",
       "game autoplay",
       "game play settlement-recommendations",
-      "game play target-candidates",
-      "game play battlefield-scan",
       "game play destination-analysis",
     ],
     loadWhen:

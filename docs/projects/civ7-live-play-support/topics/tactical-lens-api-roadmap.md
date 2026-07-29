@@ -4,10 +4,10 @@ Status: `reference-with-gap`.
 
 Sources:
 
-- Live play support commands in this branch: `game play battlefield-scan`,
-  `game play formation-snapshot`, `game play front-summary`,
+- Live play support commands in this branch: `game play front scan`,
+  `game play formation-snapshot`, `game play front summary`,
   `game play destination-analysis`,
-  `game play target-candidates`, `game play ready-unit`,
+  `game play front target-candidates`, `game play ready-unit`,
   `game play ready-city`, `game watch`, and `game play unit-target`.
 - `@civ7/direct-control` runtime reads for map, player, city, unit,
   visibility, GameInfo, and operation validation.
@@ -52,7 +52,7 @@ Use these now during live play:
    freshness markers. `readyUnit.legalOperationScope` is `no-target`; zero
    no-target operations does not prove that plot movement or attack is
    impossible.
-3. `game play battlefield-scan --origin <x,y> --radius <n> --json` describes
+3. `game play front scan --origin <x,y> --radius <n> --json` describes
    local friendly and other-owner units, cities, owner pressure, wounded
    friendlies, civilian exposure, and nearby fronts around an origin. The
    `--x <x> --y <y>` form remains available.
@@ -60,9 +60,9 @@ Use these now during live play:
    origin with local civilians, friendly screens, other-owner contacts, and
    next inspections. Use it when the tactical question is whether a unit should
    screen, hold, or validate a concrete move around a civilian cluster.
-5. `game play target-candidates --x <x> --y <y> --json` ranks other-owner
+5. `game play front target-candidates --x <x> --y <y> --json` ranks other-owner
    contacts and known city targets from a formation origin.
-6. `game play front-summary --origin <x,y> --destination <x,y> --json` composes
+6. `game play front summary --origin <x,y> --destination <x,y> --json` composes
    target candidates, local pressure, and inferred or supplied endpoint pressure
    into a front posture and next-inspection list.
 7. `game play destination-analysis --origin <x,y> --destination <x,y> --json`
@@ -83,11 +83,12 @@ validated `MOVE_TO`.
 
 The wider lenses changed the interpretation:
 
-- `battlefield-scan --x 16 --y 22 --radius 6` showed a strong friendly siege
+- `front scan --x 16 --y 22 --radius 6` showed a strong friendly siege
   cluster, nearby Napoleon and independent units, and the independent city at
   `(13,17)`.
-- `target-candidates --x 16 --y 22` showed owner `11` units as closer pressure,
-  while owner `9` at `(13,17)` remained the nearest concrete city objective.
+- `front target-candidates --x 16 --y 22` showed owner `11` units as closer
+  pressure, while owner `9` at `(13,17)` remained the nearest concrete city
+  objective.
 - `destination-analysis --from-x 16 --from-y 22 --to-x 13 --to-y 17` reported
   high endpoint pressure and high corridor contact.
 

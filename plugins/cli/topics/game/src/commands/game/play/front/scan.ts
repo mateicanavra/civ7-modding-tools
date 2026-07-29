@@ -4,17 +4,18 @@ import { Command, Flags } from "@oclif/core";
 import {
   buildDirectControlOptions,
   resolveCoordinateFlags,
-} from "../../../adapters/play/direct-control";
+} from "../../../../adapters/play/direct-control";
 
-export default class GamePlayBattlefieldScan extends Command {
+export default class GamePlayFrontScan extends Command {
   static summary = "Read a tactical battlefield lens around one or more origins";
   static description =
     "Returns a read-only scan of owner contact, apparent strength, and tactical points of interest. It is a heads-up planning lens, not movement, pathfinding, attack, or action authority.";
+  static hiddenAliases = ["game:play:battlefield-scan"];
 
   static examples = [
-    "<%= config.bin %> game play battlefield-scan --json",
-    "<%= config.bin %> game play battlefield-scan --x 17 --y 20 --radius 8 --json",
-    "<%= config.bin %> game play battlefield-scan --origin 17,20 --radius 8 --json",
+    "<%= config.bin %> game play front scan --json",
+    "<%= config.bin %> game play front scan --x 17 --y 20 --radius 8 --json",
+    "<%= config.bin %> game play front scan --origin 17,20 --radius 8 --json",
   ];
 
   static flags = {
@@ -67,7 +68,7 @@ export default class GamePlayBattlefieldScan extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayBattlefieldScan);
+    const { flags } = await this.parse(GamePlayFrontScan);
     const origin = resolveCoordinateFlags({
       x: flags.x,
       y: flags.y,

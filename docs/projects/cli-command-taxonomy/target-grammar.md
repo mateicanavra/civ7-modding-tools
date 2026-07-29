@@ -46,6 +46,10 @@ game                                  # the mount itself is the session noun (D1
 │   │   ├── advisor-warning           # validate or acknowledge one advisor warning
 │   │   ├── dismiss                   # inspect or explicitly dismiss one reviewed item
 │   │   └── dismiss-reviewed          # guarded bulk closeout for eligible information
+│   ├── front                         # read-only military-front orientation
+│   │   ├── summary                   # composed target, pressure, and endpoint context
+│   │   ├── scan                      # bounded local battlefield pressure and POIs
+│   │   └── target-candidates         # strategic other-owner/city shortlist
 │   ├── <remaining flat commands>     # migration owned by command-surface-design.md
 │   └── (designed nouns, future)      # unit, city, progress, trade, objective,
 │                                     #   map, turn — see design doc
@@ -70,9 +74,11 @@ game                                  # the mount itself is the session noun (D1
   inspection and close handling. `diplomacy` owns ordinary diplomatic responses
   and first-meet greetings. `notifications` owns notification inventory,
   scheduling, specialized advisor-warning acknowledgement, single-item
-  dismissal, and guarded reviewed closeout. Hidden aliases preserve all former
-  flat paths. Further noun gathering follows the design doc's Priority
-  Refactors.
+  dismissal, and guarded reviewed closeout. `front` owns the read-only composed
+  summary, bounded battlefield scan, and strategic target-candidate shortlist.
+  Its candidate view does not enumerate immediate action plots or authorize a
+  unit mutation. Hidden aliases preserve all former flat paths. Further noun
+  gathering follows the design doc's Priority Refactors.
 - **`game view` (D6).** Reserved for presentation/capture commands arriving
   from the rivers branch (`camera`, `screenshot`, `appshot`). Nothing may
   squat on `view` in the meantime.

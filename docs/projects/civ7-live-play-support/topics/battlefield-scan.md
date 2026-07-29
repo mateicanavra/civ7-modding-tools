@@ -4,7 +4,7 @@ Status: `reference-with-gap`.
 
 ## Frame
 
-`game play battlefield-scan` is a read-only tactical lens for the space around a
+`game play front scan` is a read-only tactical lens for the space around a
 front, formation, city, or candidate destination. It exists because individual
 unit legal operations are too local for campaign thinking: they say what one
 unit can do now, but not what pressure, risk, or point of interest surrounds
@@ -24,7 +24,7 @@ strategy and tactics:
 ## CLI
 
 ```bash
-civ7 game play battlefield-scan \
+civ7 game play front scan \
   --x 17 \
   --y 20 \
   --radius 8 \
@@ -34,7 +34,7 @@ civ7 game play battlefield-scan \
 The equivalent compact coordinate form is:
 
 ```bash
-civ7 game play battlefield-scan \
+civ7 game play front scan \
   --origin 17,20 \
   --radius 8 \
   --json
@@ -94,9 +94,9 @@ before choosing between tactical inspections.
 
 - `game play ready-unit`: tells what the current unit can legally do.
 - `game play unit-target`: resolves and validates a specific plot action.
-- `game play target-candidates`: ranks other-owner city/contact targets from an
-  origin.
-- `game play battlefield-scan`: explains the local battlefield around an
+- `game play front target-candidates`: ranks other-owner city/contact
+  candidates from an origin.
+- `game play front scan`: explains the local battlefield around an
   origin before committing to a target or a sequence of unit moves.
 - `game play destination-analysis`: narrows the question to one intended
   endpoint and a cheap straight-line corridor before a movement sequence.
@@ -104,9 +104,9 @@ before choosing between tactical inspections.
 The practical sequence for a campaign turn is:
 
 1. `game play notifications list --json` to know the current blocker.
-2. `game play battlefield-scan --x <front-x> --y <front-y> --json` to orient.
-3. `game play target-candidates --x <front-x> --y <front-y> --json` if choosing
-   a target owner/city.
+2. `game play front scan --x <front-x> --y <front-y> --json` to orient.
+3. `game play front target-candidates --x <front-x> --y <front-y> --json` if
+   choosing a target owner/city.
 4. `game play destination-analysis --from-x <unit-x> --from-y <unit-y> --to-x <x> --to-y <y> --json`
    when the next question is endpoint or route pressure.
 5. `game play ready-unit --json` and `game play unit-target ... --json` for the
@@ -118,7 +118,7 @@ Turn 115 has a ready damaged Slinger near `(17,20)` after a diplomatic-completio
 blocker. A useful support read is:
 
 ```bash
-civ7 game play battlefield-scan \
+civ7 game play front scan \
   --x 17 \
   --y 20 \
   --radius 8 \

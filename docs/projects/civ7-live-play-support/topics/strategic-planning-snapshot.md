@@ -63,8 +63,8 @@ civ7 game play ready-city --json
 civ7 game status --json
 civ7 game map --summary --json
 civ7 game map visibility --player-id 0 --bounds x,y,w,h --json
-civ7 game play target-candidates --x <front-x> --y <front-y> --json
-civ7 game play battlefield-scan --x <front-x> --y <front-y> --radius 8 --json
+civ7 game play front target-candidates --x <front-x> --y <front-y> --json
+civ7 game play front scan --x <front-x> --y <front-y> --radius 8 --json
 civ7 game play destination-analysis --from-x <unit-x> --from-y <unit-y> --to-x <x> --to-y <y> --json
 civ7 game gameinfo --table LegacyPaths --json
 ```

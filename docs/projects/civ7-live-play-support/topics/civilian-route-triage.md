@@ -44,7 +44,7 @@ civ7 game play settlement-recommendations \
   --y <civilian-y> \
   --json
 
-civ7 game play battlefield-scan \
+civ7 game play front scan \
   --x <civilian-x> \
   --y <civilian-y> \
   --radius 5 \
@@ -64,7 +64,7 @@ Each read has a different job:
 - `settlement-recommendations` ranks candidate sites from the official
   settlement lens, but does not prove movement, escort quality, or founding
   legality.
-- `battlefield-scan` identifies local civilian exposure and nearby pressure.
+- `front scan` identifies local civilian exposure and nearby pressure.
 - `destination-analysis` checks endpoint and corridor pressure for one
   candidate route, but still does not prove reachability.
 - `civilian-route-triage` ranks those facts into one proof label:

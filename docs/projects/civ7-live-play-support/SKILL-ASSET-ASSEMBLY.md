@@ -308,9 +308,9 @@ Source artifacts:
 CLI shortcuts:
 
 - `game play ready-unit`
-- `game play front-summary`
+- `game play front summary`
 - `game play civilian-route-triage`
-- `game play battlefield-scan`
+- `game play front scan`
 - `game play destination-analysis`
 - `game play promotion-readiness`
 - `game play unit-target`
@@ -322,11 +322,11 @@ Norms:
 
 - Re-read before every tactical mutation when human input, latency, or combat
   animation may have changed the board.
-- Use `game play battlefield-scan --x <front-x> --y <front-y> --json` as a
+- Use `game play front scan --x <front-x> --y <front-y> --json` as a
   background tactical lens before sequencing multiple unit moves. It summarizes
   local pressure and points of interest; it does not path, move, attack, or
   validate operations.
-- Use `game play front-summary --x <front-x> --y <front-y> --json` when the
+- Use `game play front summary --x <front-x> --y <front-y> --json` when the
   agent needs a composed view of a siege line, defensive screen, or hot contact
   area. It combines target candidates, local pressure, and endpoint/corridor
   context into a posture plus next inspections; it does not choose or send
@@ -437,9 +437,9 @@ CLI shortcuts:
 - `game play promotion-readiness`
 - `game play ready-city`
 - `game play settlement-recommendations`
-- `game play target-candidates`
-- `game play front-summary`
-- `game play battlefield-scan`
+- `game play front target-candidates`
+- `game play front summary`
+- `game play front scan`
 - `game play formation-snapshot`
 - `game play destination-analysis`
 - `game ai loaded-levers`
@@ -479,11 +479,11 @@ Norms:
   allowed operations, AI favored items, unit priorities, pseudo-yields,
   behavior-tree rows, and strategy rows. This proves loaded rows, not native AI
   behavior.
-- Use `game play target-candidates --x <front-x> --y <front-y> --json` before
-  choosing a siege direction. It ranks opponent owners from the current
-  formation origin; it does not declare war, path units, or prove tactical
-  attack legality.
-- Use `game play battlefield-scan --x <front-x> --y <front-y> --json` when the
+- Use `game play front target-candidates --x <front-x> --y <front-y> --json`
+  before choosing a siege direction. It ranks other-owner contacts and city
+  fronts from the current formation origin; it does not enumerate immediate
+  action plots, declare war, path units, or prove tactical attack legality.
+- Use `game play front scan --x <front-x> --y <front-y> --json` when the
   agent needs a wider tactical view of a front, city, stack, or destination.
   Treat its POIs as inspection priorities, not as strategy or movement orders.
 - Use `game play destination-analysis --from-x <unit-x> --from-y <unit-y> --to-x <x> --to-y <y> --json`

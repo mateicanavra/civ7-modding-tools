@@ -13,15 +13,24 @@ describe("game play topics command", () => {
       await GamePlayTopics.run(["--family", "blockers", "--json"]);
       await GamePlayTopics.run(["--family", "surface-design", "--json"]);
       await GamePlayTopics.run(["--family", "diplomacy", "--json"]);
+      await GamePlayTopics.run(["--family", "front", "--json"]);
+      await GamePlayTopics.run(["--json"]);
 
-      const [rhqPayload, eventPayload, blockersPayload, surfacePayload, diplomacyPayload] =
-        writes.map(
-          (write) =>
-            JSON.parse(write) as {
-              ok: true;
-              topics: Array<{ family: string; commands: string[]; boundary: string }>;
-            }
-        );
+      const [
+        rhqPayload,
+        eventPayload,
+        blockersPayload,
+        surfacePayload,
+        diplomacyPayload,
+        frontPayload,
+        allTopicsPayload,
+      ] = writes.map(
+        (write) =>
+          JSON.parse(write) as {
+            ok: true;
+            topics: Array<{ family: string; commands: string[]; boundary: string }>;
+          }
+      );
       expect(rhqPayload.topics).toHaveLength(1);
       expect(rhqPayload.topics[0].family).toBe("rhq-ai");
       expect(rhqPayload.topics[0].commands).toContain("game ai loaded-levers");
@@ -52,6 +61,28 @@ describe("game play topics command", () => {
       );
       expect(diplomacyPayload.topics[0].commands).not.toContain("game play respond-diplomacy");
       expect(diplomacyPayload.topics[0].commands).not.toContain("game play respond-first-meet");
+      expect(frontPayload.topics).toHaveLength(1);
+      expect(frontPayload.topics[0].family).toBe("front");
+      expect(frontPayload.topics[0].commands).toEqual([
+        "game play front summary",
+        "game play front scan",
+        "game play front target-candidates",
+      ]);
+      for (const command of frontPayload.topics[0].commands) {
+        expect(
+          allTopicsPayload.topics
+            .filter((topic) => topic.commands.includes(command))
+            .map((topic) => topic.family)
+        ).toEqual(["front"]);
+      }
+      const indexedCommands = allTopicsPayload.topics.flatMap((topic) => topic.commands);
+      for (const legacyCommand of [
+        "game play battlefield-scan",
+        "game play front-summary",
+        "game play target-candidates",
+      ]) {
+        expect(indexedCommands).not.toContain(legacyCommand);
+      }
     } finally {
       log.mockRestore();
     }

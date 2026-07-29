@@ -31,6 +31,7 @@ game play unit <show|targets|preview|check|send|operation>
 game play city <show|production|growth|workers|check|send>
 game play diplomacy <respond|respond-first-meet>
 game play notifications <list|show|schedule|advisor-warning|dismiss|dismiss-reviewed>
+game play front <summary|scan|target-candidates>
 game play progress <show|tech|culture|tradition|attribute|narrative>
 game play trade <routes|preview|check|send>
 game play objective <show|next|ledger>
@@ -82,6 +83,9 @@ compact play-agent output is introduced.
 | `game play advisor-warning` | `game play notifications advisor-warning` | Keep the specialized acknowledgement distinct from generic notification dismissal. |
 | `game play dismiss-notification` | `game play notifications dismiss` | Keep explicit single-item review and `--send` mutation. |
 | `game play dismiss-notification-queue` | `game play notifications dismiss-reviewed` | Keep item-level review context and conservative categories. |
+| `game play front-summary` | `game play front summary` | Compose strategic target candidates, local pressure, and optional endpoint context without sending operations. |
+| `game play battlefield-scan` | `game play front scan` | Keep the bounded local-pressure lens distinct from movement and action authority. |
+| `game play target-candidates` | `game play front target-candidates` | Rank strategic other-owner contacts and city fronts from an origin; this is not immediate action-plot enumeration. |
 | `game play ready-city` | `game play city show city:ready` | City-specific grammar should own production/growth/worker decisions. |
 | `game play build-production` | `game play city production send` | Add `preview` and `check` before mutation. |
 | `game play choose-tech` / `choose-culture` | `game play progress tech send` / `progress culture send` | Technology already owns the complete chooser workflow; culture still needs the same default mutation contract. |
@@ -117,13 +121,18 @@ compact play-agent output is introduced.
    `respond-first-meet` now share the diplomacy noun; their prior flat paths
    remain hidden aliases. Notification inventory remains a separate input
    surface rather than becoming diplomacy-owned.
-4. **City namespace.** Group `ready-city`, `build-production`, `build-unit`,
+4. **Front namespace (landed 2026-07-28).** `summary`, `scan`, and
+   `target-candidates` now share the front noun; prior flat paths remain hidden
+   aliases. These are read-only orientation lenses. `target-candidates` ranks
+   strategic other-owner/city candidates and does not enumerate validator-backed
+   unit action plots.
+5. **City namespace.** Group `ready-city`, `build-production`, `build-unit`,
    `assign-worker`, `expand-city`, and town focus workflows. Risk: medium; city
    operations have different arg shapes and placement requirements.
-5. **Progress namespace.** Group tech, culture, traditions, attributes,
+6. **Progress namespace.** Group tech, culture, traditions, attributes,
    narrative, and celebration. Risk: medium; node hashes and closeout behavior
    must stay visible.
-6. **Summary-first output.** Apply the play-agent response contract to one read
+7. **Summary-first output.** Apply the play-agent response contract to one read
    command and one mutation before flipping any defaults. Risk: medium because
    hidden raw fields can remove tactical evidence if expansion flags are weak.
 

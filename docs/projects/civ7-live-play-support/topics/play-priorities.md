@@ -89,7 +89,7 @@ Use it to decide the next inspection:
   ComponentID;
 - `game play ready-unit` and `game play unit-target` for unit actions;
 - `game play ready-city` for city blockers;
-- `game play battlefield-scan` or `game play destination-analysis` for tactical
+- `game play front scan` or `game play destination-analysis` for tactical
   context.
 
 Do not use it to skip validators, postcondition checks, or fresh re-reads after

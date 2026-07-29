@@ -138,7 +138,7 @@ selected unit summary, requested and queued destinations, reachable counts,
 requested/queued path summaries, `next`, `warnings`, `omitted`,
 `hiddenInfoPolicy`, and `relationshipProof`.
 
-`game play battlefield-scan` should default to points of interest and owner
+`game play front scan` should default to points of interest and owner
 pressure summaries. Use `--expand lens` for units/cities and `--raw` for the
 full scan inventory.
 

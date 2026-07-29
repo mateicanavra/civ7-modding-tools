@@ -4,7 +4,7 @@ import { Command, Flags } from "@oclif/core";
 import {
   buildDirectControlOptions,
   resolveCoordinateFlags,
-} from "../../../adapters/play/direct-control";
+} from "../../../../adapters/play/direct-control";
 
 type Location = Readonly<{ x: number; y: number }>;
 type FrontSummaryServiceResult = Awaited<
@@ -16,12 +16,13 @@ export default class GamePlayFrontSummary extends Command {
   static summary = "Read a composed front and formation summary without sending operations";
   static description =
     "Composes live target candidates, battlefield pressure, and optional destination/corridor analysis into a read-only front summary for military planning.";
+  static hiddenAliases = ["game:play:front-summary"];
 
   static examples = [
-    "<%= config.bin %> game play front-summary --json",
-    "<%= config.bin %> game play front-summary --x 15 --y 21 --json",
-    "<%= config.bin %> game play front-summary --x 15 --y 21 --to-x 13 --to-y 17 --json",
-    "<%= config.bin %> game play front-summary --origin 15,21 --destination 13,17 --json",
+    "<%= config.bin %> game play front summary --json",
+    "<%= config.bin %> game play front summary --x 15 --y 21 --json",
+    "<%= config.bin %> game play front summary --x 15 --y 21 --to-x 13 --to-y 17 --json",
+    "<%= config.bin %> game play front summary --origin 15,21 --destination 13,17 --json",
   ];
 
   static flags = {

@@ -23,7 +23,6 @@ const PUBLIC_COMMAND_IDS = [
   "game:map:visibility",
   "game:operation",
   "game:play:assign-worker",
-  "game:play:battlefield-scan",
   "game:play:build-production",
   "game:play:buy-attribute",
   "game:play:change-tradition",
@@ -42,7 +41,9 @@ const PUBLIC_COMMAND_IDS = [
   "game:play:end-turn",
   "game:play:expand-city",
   "game:play:formation-snapshot",
-  "game:play:front-summary",
+  "game:play:front:scan",
+  "game:play:front:summary",
+  "game:play:front:target-candidates",
   "game:play:notifications:advisor-warning",
   "game:play:notifications:dismiss",
   "game:play:notifications:dismiss-reviewed",
@@ -61,7 +62,6 @@ const PUBLIC_COMMAND_IDS = [
   "game:play:set-tech-target",
   "game:play:set-town-focus",
   "game:play:settlement-recommendations",
-  "game:play:target-candidates",
   "game:play:topics",
   "game:play:traditions",
   "game:play:unit-move-preview",
@@ -79,6 +79,9 @@ const PUBLIC_HIDDEN_ALIASES: Partial<
 > = {
   "game:play:diplomacy:respond": ["game:play:respond-diplomacy"],
   "game:play:diplomacy:respond-first-meet": ["game:play:respond-first-meet"],
+  "game:play:front:scan": ["game:play:battlefield-scan"],
+  "game:play:front:summary": ["game:play:front-summary"],
+  "game:play:front:target-candidates": ["game:play:target-candidates"],
   "game:play:notifications:advisor-warning": ["game:play:advisor-warning"],
   "game:play:notifications:dismiss": ["game:play:dismiss-notification"],
   "game:play:notifications:dismiss-reviewed": ["game:play:dismiss-notification-queue"],
@@ -101,6 +104,10 @@ const PUBLIC_TOPICS = {
   },
   "game:play": {
     description: "Turn-by-turn live-play shortcuts over direct-control",
+  },
+  "game:play:front": {
+    description:
+      "Read battlefield pressure, target candidates, and composed military front summaries",
   },
   "game:play:diplomacy": {
     description: "Validate and send diplomatic action responses and first-meet greetings",

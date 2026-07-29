@@ -15,7 +15,7 @@ turn, and it does not account for every live escort or war-risk choice the
 agent may make.
 
 For exposed civilians, run `game play civilian-route-triage` before moving. It
-combines `ready-unit`, this recommendation surface, `battlefield-scan`, and
+combines `ready-unit`, this recommendation surface, `game play front scan`, and
 `destination-analysis` so the agent can distinguish good settlement sites from
 safe near-term movement.
 

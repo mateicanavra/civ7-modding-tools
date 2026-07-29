@@ -56,9 +56,9 @@ action.** You never compute ids.
 | Narrative/era event | `choose-narrative --options --json` | `enabledOptions[].{targetType,target,action}` | `choose-narrative --target-type … --target '…' --action … --send` |
 | City production | `ready-city --compact --json` | `productionCandidates[].{kind,type}` (+ `placementPlots` for constructibles) | `build-production --city-id '…' --<unit\|constructible\|project>-type <type> [--x --y] --send` |
 | Border/expand | `ready-city --json` | `expansionCandidates[].{x,y}` | `expand-city --city-id '…' --x <x> --y <y> --send` |
-| Move a unit | `unit-move-preview` / `target-candidates` / `settlement-recommendations` | candidate plot `{x,y}` | `unit-target --unit-id '…' --x <x> --y <y> --send` |
+| Move a unit | `unit-move-preview --unit-id '…' --json` | reachable movement candidate `{x,y}` | Validate `unit-target --unit-id '…' --x <x> --y <y>`, then repeat with `--send` |
 | Found / fortify / skip / any op | `ready-unit --json` | `legalOperations[].{family,operationType}` + `unitId` | `operation --family <family> --operation-type <opType> --unit-id '…' --send` |
-| Settle a Settler | `settlement-recommendations --json` (rank) → move → found | suggestion `location{x,y}`; then the found op from `legalOperations` | `unit-target` to the plot, then `operation` with the found op `{family,operationType}` |
+| Settle a Settler | `settlement-recommendations --json` (strategic site) → `unit-move-preview` (reachable step) → found | suggestion `location{x,y}`; reachable movement candidate; then the found op from `legalOperations` | Validate and send each reachable move; send the found op only when the live unit exposes it |
 | Diplomacy reply | `notifications list --json` | `notification.decision` inputs (`action-id`, `response-type`) | `diplomacy respond --action-id … --response-type … --send` |
 | Advisor warning | `notifications list --json` | notification ComponentID | `notifications advisor-warning --target '…' --send` |
 
@@ -80,8 +80,9 @@ so draining works without enumerating ids yourself.
 | `game play progress-dashboard` | `--player-id N`, `--compact --json` | Tech/culture progress, Legacy Path status, attribute points. |
 | `game play settlement-recommendations` | `--x --y` (focus one settler), `--count 5`, `--json` | AI-ranked settle plots per settler/city origin, each with `location{x,y}` + `factors`. Read-only advice. |
 | `game play unit-move-preview` | `--unit-id '…' --json` | Reachable/target plots for a unit. |
-| `game play target-candidates` | `--unit-id '…' --json` | Attack/interaction target plots. |
-| `game play battlefield-scan` | `--x --y --radius --json` | Nearby units/threats (planning heuristic). |
+| `game play front summary` | optional `--x --y` or `--origin x,y`; optional destination; `--json` | Composed front posture, strategic target shortlist, local pressure, and next inspections. Read-only. |
+| `game play front target-candidates` | optional `--x --y` or `--origin x,y`; `--max-candidates N`; `--json` | Strategic other-owner contacts and nearest city fronts ranked from an origin. Not immediate action plots or mutation authority. |
+| `game play front scan` | optional `--x --y` or `--origin x,y`; `--radius N`; `--json` | Nearby owner contacts and tactical POIs (planning heuristic). |
 | `game play traditions` / `consider-traditions` | `--player-id N --json` | Active/available traditions + recommendations. |
 | `game gameinfo <Table>` | `--lookup <TYPE>`, `--json` | Static GameInfo rows; resolves a TYPE name to its row/id. |
 | `game catalog` | `--json` | Capability catalog (what the control layer can do), not enum lookup. |

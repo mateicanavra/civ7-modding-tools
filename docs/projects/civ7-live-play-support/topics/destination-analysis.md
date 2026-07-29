@@ -101,11 +101,12 @@ Bad uses:
 
 ## Relationship To Other Shortcuts
 
-- `game play battlefield-scan`: gives a radius picture around one or more
+- `game play front scan`: gives a radius picture around one or more
   fronts, cities, or formations.
 - `game play destination-analysis`: focuses that picture on one intended
   endpoint and the straight-line corridor toward it.
-- `game play target-candidates`: ranks other-owner contacts and city fronts.
+- `game play front target-candidates`: ranks strategic other-owner contacts and
+  city fronts; it does not enumerate immediate action plots.
 - `game play ready-unit`: identifies the current unit and its legal operation
   surface.
 - `game play unit-target` and `game play operation`: validate or send concrete

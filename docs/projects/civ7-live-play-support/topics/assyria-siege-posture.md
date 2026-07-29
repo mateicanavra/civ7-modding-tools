@@ -13,7 +13,7 @@ pressure Napoleon.
 
 This topic is normative tactical guidance. It does not authorize a declaration,
 move, attack, or capture by itself. Every concrete action still needs fresh
-`ready-unit`, `front-summary`, `destination-analysis`, and `unit-target`
+`ready-unit`, `front summary`, `destination-analysis`, and `unit-target`
 evidence.
 
 ## Tactical Norm
@@ -41,9 +41,9 @@ units into `(13,17)` just because a single `MOVE_TO` validates.
 
 The useful read-only lenses for this posture are:
 
-- `front-summary --origin <front> --destination 13,17`: compose target, pressure,
+- `front summary --origin <front> --destination 13,17`: compose target, pressure,
   and next inspections before moving individual units.
-- `battlefield-scan --origin <front> --radius 6`: identify nearby owner pressure,
+- `front scan --origin <front> --radius 6`: identify nearby owner pressure,
   exposed civilians, and friendly formation shape.
 - `destination-analysis --origin <unit-or-front> --destination 13,17`: check
   corridor and endpoint pressure before committing a move sequence.

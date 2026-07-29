@@ -3,12 +3,12 @@ import type {
   Civ7DestinationAnalysisResult,
 } from "@civ7/direct-control";
 import { describe, expect, test, vi } from "vitest";
-import GamePlayBattlefieldScan from "../../../../src/commands/game/play/battlefield-scan";
 import GamePlayCivilianRouteTriage from "../../../../src/commands/game/play/civilian-route-triage";
 import GamePlayDestinationAnalysis from "../../../../src/commands/game/play/destination-analysis";
 import GamePlayFormationSnapshot from "../../../../src/commands/game/play/formation-snapshot";
-import GamePlayFrontSummary from "../../../../src/commands/game/play/front-summary";
-import GamePlayTargetCandidates from "../../../../src/commands/game/play/target-candidates";
+import GamePlayFrontScan from "../../../../src/commands/game/play/front/scan";
+import GamePlayFrontSummary from "../../../../src/commands/game/play/front/summary";
+import GamePlayFrontTargetCandidates from "../../../../src/commands/game/play/front/target-candidates";
 import { expectNormalPlayPayloadToOmitDebugInternals } from "../../../support/normal-output-boundary";
 import { type FakeTunerServer, startFakeTunerServer } from "../../../support/tuner-socket-server";
 
@@ -64,7 +64,7 @@ describe("game play tactical read commands", () => {
   test("reads target candidates without sending operations", async () => {
     const server = await startTacticalReadTunerServer();
     try {
-      const payload = (await runJsonCommand(GamePlayTargetCandidates, server, [
+      const payload = (await runJsonCommand(GamePlayFrontTargetCandidates, server, [
         "--origin",
         "18,20",
       ])) as {
@@ -158,7 +158,7 @@ describe("game play tactical read commands", () => {
   test("reads battlefield scan without sending operations", async () => {
     const server = await startTacticalReadTunerServer();
     try {
-      const payload = (await runJsonCommand(GamePlayBattlefieldScan, server, [
+      const payload = (await runJsonCommand(GamePlayFrontScan, server, [
         "--origin",
         "17,20",
         "--radius",

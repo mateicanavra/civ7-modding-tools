@@ -27,11 +27,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** close the one notification-owned command that remains
-outside the notification family. Advisor-warning acknowledgement already
-executes through the notification control service; its command and behavior
-test now move under `game:play:notifications:advisor-warning`, while the former
-flat path remains a hidden compatibility alias. No runtime capability changes.
+**Current container:** gather the smallest remaining play-language family with
+one real operator noun. `front-summary`, `battlefield-scan`, and
+`target-candidates` answer one front-orientation question at three depths, so
+they become `game:play:front:{summary,scan,target-candidates}` while their flat
+paths remain hidden compatibility aliases. Formation, destination/route,
+unit-movement, civilian-route, and settlement reads remain outside; sharing a
+lower router does not make them one public command concept.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -48,12 +50,13 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** relocate the advisor-warning command and its behavior proof
-without changing implementation -> preserve the flat invocation as a hidden
-alias -> update exact surface, notification topic copy, and active operator
-guidance -> prove canonical and legacy resolution plus unchanged behavior ->
-land the orphan repair -> gather the read-only tactical lenses only if their
-shared planning noun remains behaviorally honest.
+**Gradient:** relocate the three front commands without changing their runtime
+capabilities -> preserve each flat invocation as a hidden alias -> correct
+active guidance that wrongly treats strategic target candidates as immediate
+unit-action coordinates -> make front the primary topic owner without widening
+the generic tactics or strategy buckets -> prove exact manifest identity,
+canonical and legacy resolution, and unchanged read-only behavior -> land the
+front family -> reassess the next smallest truthful noun.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -96,6 +99,16 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - CLI Advisor Notification Sealed
+
+Advisor-warning acknowledgement now lives with the notification service it
+uses at `game:play:notifications:advisor-warning`. The former flat path remains
+a hidden alias, validation and send behavior are unchanged, and focused proof
+now covers both no-send validation and specialized acknowledgement. The
+complete CLI/control graph, generic topic laws, boundaries, dead-code proof,
+staged hook, shell resolution, and fresh architecture and product reviews
+sealed the notification family in full.
 
 ### 2026-07-28 - CLI Diplomacy Topic Sealed
 

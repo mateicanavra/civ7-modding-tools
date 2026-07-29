@@ -4,17 +4,18 @@ import { Command, Flags } from "@oclif/core";
 import {
   buildDirectControlOptions,
   resolveCoordinateFlags,
-} from "../../../adapters/play/direct-control";
+} from "../../../../adapters/play/direct-control";
 
-export default class GamePlayTargetCandidates extends Command {
+export default class GamePlayFrontTargetCandidates extends Command {
   static summary = "Read strategic target candidates from live city and unit summaries";
   static description =
     "Returns a read-only shortlist of other-owner contacts ranked from a supplied siege/formation origin. It is planning support, not relationship, movement, diplomacy, or action authority.";
+  static hiddenAliases = ["game:play:target-candidates"];
 
   static examples = [
-    "<%= config.bin %> game play target-candidates --json",
-    "<%= config.bin %> game play target-candidates --x 18 --y 20 --max-candidates 5 --json",
-    "<%= config.bin %> game play target-candidates --origin 18,20 --json",
+    "<%= config.bin %> game play front target-candidates --json",
+    "<%= config.bin %> game play front target-candidates --x 18 --y 20 --max-candidates 5 --json",
+    "<%= config.bin %> game play front target-candidates --origin 18,20 --json",
   ];
 
   static flags = {
@@ -61,7 +62,7 @@ export default class GamePlayTargetCandidates extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayTargetCandidates);
+    const { flags } = await this.parse(GamePlayFrontTargetCandidates);
     const origin = resolveCoordinateFlags({
       x: flags.x,
       y: flags.y,
