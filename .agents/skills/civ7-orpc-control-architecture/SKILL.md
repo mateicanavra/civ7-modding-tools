@@ -21,12 +21,13 @@ ownership, control topology, caller boundaries, live-play safety, and proof
 classification. Do not duplicate generic vendor guidance here.
 
 This layer is IMPLEMENTED: `@civ7/control-orpc`
-(`packages/civ7-control-orpc`) is the native oRPC+Effect procedure
-composition over direct-control atoms — contract-first TypeBox schemas
-(`toStandardSchema`), `effect-orpc`'s `implementEffect` with a shared
-`ManagedRuntime`, procedures written as Effect generators, a typed error map,
-and correlation/safe-error middleware. New control surfaces extend that
-package; do not start a parallel oRPC layer or hand-roll orchestration in
+(`services/civ7-control`) is the closed native oRPC+Effect service over
+direct-control atoms. Its public source root is only `client.ts`,
+`contract.ts`, `index.ts`, and the private `service/` tree. The service owns
+contract-first TypeBox schemas (`toStandardSchema`), the sole
+`effect-orpc` implementer/runtime lineage, Effect router leaves, typed errors,
+admission, and shared mutation policy. New control surfaces extend this
+service; do not start a parallel oRPC layer or hand-roll orchestration in
 plain async.
 
 ## When To Use
@@ -35,8 +36,9 @@ plain async.
   for Civ7 runtime control.
 - Refactoring CLI game/play commands or Studio Civ7 endpoints toward shared
   procedures with the right caller boundary.
-- Moving verification, approval, relationship-label policy, readiness, or proof
-  boundaries into typed middleware/context.
+- Moving verification, admission, controller capability/proof,
+  relationship-label policy, readiness, or proof boundaries into typed
+  middleware/context.
 - Reviewing whether a proposed ORPC slice preserves direct-control package
   ownership and active live-play safety.
 
@@ -61,29 +63,36 @@ plain async.
    orchestration.
 3. **Choose the procedure atom.** Procedures should be the smallest complete
    behavior with a stable input, output, risk level, and proof boundary.
-4. **Place context.** Put dependencies in context: direct-control facade,
-   endpoint defaults, timeout, logger/proof sink, clock, approval policy, live
-   session policy, and test doubles.
-5. **Place middleware.** Use middleware for reusable policy: readiness,
-   approval, validator-first mutation gates, proof recording, relationship-label
-   authority, error normalization, bounded polling, and live-mutation guards.
+4. **Place context.** Provision the direct-control port and, when required, the
+   setup lifecycle port through `Civ7ControlOrpcContext`. Keep endpoint
+   defaults, whole-procedure admission, lifecycle progress, correlation,
+   controller capabilities/proof, and test doubles in their existing context
+   fields rather than globals.
+5. **Place middleware.** Reuse the installed root correlation, controller
+   admission, and host procedure-admission stages. Mutating router leaves use
+   the shared readiness and proof-boundary composition when their output
+   carries that contract. Add new shared policy only after more than one
+   procedure has earned it.
 6. **Compose routers by operational surface.** Extend the existing
-   `src/modules/*` families (`attention`, `city`, `diplomacy`, `display`,
-   `government`, `narrative`, `notifications`, `progression`, `readiness`,
-   `strategy`, `turn`, `unit`, `world`, ...) over broad `control.call`
-   routers; a new family mirrors the module template
-   (`contract.ts` + `router.ts` + `procedures/`).
+   `src/service/modules/*` families (`attention`, `city`, `diplomacy`,
+   `display`, `government`, `lifecycle`, `narrative`, `notifications`,
+   `progression`, `readiness`, `strategy`, `turn`, `unit`, `view`, `world`)
+   over broad `control.call` routers. A family is
+   `contract/` + `router/` + `module.ts`: contract leaves author protocol,
+   router leaves author Effect behavior, and `module.ts` selects the configured
+   service branch.
 7. **Choose the caller boundary deliberately.** CLI/tests use the in-process
-   typed client: `createCiv7ControlOrpcServerClient({ directControl:
-   liveCiv7ControlOrpcDirectControlFacade, endpointDefaults })` (live facade
-   from `@civ7/control-orpc/runtime`). Studio browser clients should call
-   the same router over HTTP through `RPCHandler`/`RPCLink`; Studio server
-   code may call in-process when no browser boundary is crossed. OpenAPI
+   typed client, provisioning the `directControl` port with
+   `liveCiv7DirectControl` from `@civ7/direct-control/live`. Setup lifecycles
+   also provision `directLifecycle` with `liveCiv7LifecycleControl`. There is
+   no `@civ7/control-orpc/runtime` provider surface. Studio browser clients
+   should call the same router over HTTP through `RPCHandler`/`RPCLink`; Studio
+   server code may call in-process when no browser boundary is crossed. OpenAPI
    remains for external/documented consumers, not the Civ7 Studio control
    loop.
-8. **Verify in layers.** Run no-network procedure tests, CLI/Studio integration
-   tests for changed callers, direct-control checks/builds, and live read-only
-   smoke when a claim depends on the running game.
+8. **Verify in layers.** Run no-network service behavior tests, CLI/Studio
+   integration tests for changed callers, direct-control checks/builds, and
+   live read-only smoke when a claim depends on the running game.
 
 ## Reference Map
 
@@ -105,12 +114,13 @@ plain async.
 ## Core Invariants
 
 <invariants>
-<invariant name="direct-control-owns-runtime">`@civ7/direct-control` owns tuner socket framing, state discovery, reconnect polling, runtime wrappers, approval enforcement, and capability catalog evidence. Its functions stay plain-async WIRE ATOMS (ideally one exec each).</invariant>
+<invariant name="direct-control-owns-runtime">`@civ7/direct-control` owns low-level tuner/socket framing, state discovery, reconnect behavior, command serialization, runtime reads, and live provider bundles. Its functions stay plain-async WIRE ATOMS (ideally one exec each).</invariant>
+<invariant name="control-service-owns-public-behavior">`@civ7/control-orpc` owns the public control contract, router, context ports, admission, mutation policy, and multi-step service behavior. A service procedure must offer behavior or composition, not merely rename one direct-control call.</invariant>
 <invariant name="orchestration-lives-in-effect-layer">Multi-step async flows over the atoms (state machines, drain/poll loops, suspend/resume lifecycles, retries, schedules) are Effect procedures in `@civ7/control-orpc` — use `Effect.acquireUseRelease`/`Effect.ensuring` for guaranteed cleanup and `Effect.iterate`/`Schedule` for loops, never hand-rolled try/finally orchestrators inside direct-control (live lesson: D10, cli-command-taxonomy workstream).</invariant>
 <invariant name="orpc-is-procedure-composition">oRPC organizes typed procedures, routers, context, middleware, and optional edge handlers. It does not redefine Civ7 runtime truth.</invariant>
 <invariant name="shared-core-caller-boundary">Design the shared procedure/router core first. CLI and tests can call it in-process; Studio browser clients cross the web boundary with RPC over HTTP (`RPCHandler`/`RPCLink`).</invariant>
-<invariant name="middleware-guards-mutations">Mutating procedures require explicit approval, validator evidence where available, and postcondition/proof classification through shared middleware or shared procedure helpers.</invariant>
-<invariant name="context-not-globals">Provision runtime dependencies through typed context. Do not smuggle host/port/session/approval/logger state through globals or ad hoc command flags inside handlers.</invariant>
+<invariant name="middleware-guards-mutations">Mutation policy stays explicit: honor host admission where configured and require controller capability/proof for controller-backed calls; compose shared runtime-readiness and proof-boundary policy when the output contract supports it, otherwise the specialized service behavior owns equivalent guards and proof.</invariant>
+<invariant name="context-not-globals">Provision runtime dependencies through typed context. Do not smuggle endpoint/session/admission/correlation/controller state through globals or ad hoc command flags inside handlers.</invariant>
 <invariant name="relationship-authority-is-structural">Owner mismatch, contact, proximity, or attack legality is not hostile/enemy/opponent/threat/non-friendly proof without official relationship, team, war, suzerain, or equivalent validator evidence.</invariant>
 <invariant name="proof-boundaries-stay-labeled">Unit tests, oRPC procedure calls, handler tests, CLI tests, package builds, and live game smoke prove different things. Close claims with the strongest evidence actually collected.</invariant>
 </invariants>

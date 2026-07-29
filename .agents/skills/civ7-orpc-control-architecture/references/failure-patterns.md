@@ -18,8 +18,21 @@ App UI/Tuner scripts outside `@civ7/direct-control`.
 **Why It Fails:** callers become runtime transport owners and the repo loses the
 central package boundary.
 
-**Fix:** keep handlers thin over direct-control facades or extracted package
-modules.
+**Fix:** use the typed `context.directControl` port for low-level access while
+keeping the service router leaf responsible for the offered behavior,
+composition, and proof boundary.
+
+## Pass-Through Service Leaf
+
+**Symptom:** a new public procedure only renames one direct-control method and
+passes its input and output through unchanged.
+
+**Why It Fails:** the service adds no contract, policy, composition, or proof
+value while expanding a second public surface over the same runtime atom.
+
+**Fix:** keep the operation on the direct-control port until the service owns a
+complete behavior around it. A service leaf should earn its place through
+composition, stable service semantics, or shared policy.
 
 ## Orchestration In The Atom Layer
 
@@ -39,14 +52,29 @@ workstream record).
 guaranteed cleanup, `Effect.iterate`/`Schedule` for loops) and route the CLI
 through the typed server client.
 
-## Middleware As Approval Laundering
+## Deleted Runtime Provider Surface
 
-**Symptom:** middleware auto-adds approval or turns missing approval into a
-default reason.
+**Symptom:** a caller imports a live facade from
+`@civ7/control-orpc/runtime`, or asks the control service to construct its own
+direct-control provider.
+
+**Why It Fails:** provider construction belongs to the qualified host. The
+runtime subpath was deleted when the service became a closed service plane.
+
+**Fix:** create the in-process server client with `liveCiv7DirectControl` from
+`@civ7/direct-control/live`; add `liveCiv7LifecycleControl` only for setup
+lifecycle calls.
+
+## Middleware As Admission Laundering
+
+**Symptom:** middleware invents controller support/proof or turns a host
+admission refusal into a default success.
 
 **Why It Fails:** mutation risk becomes invisible at the call site.
 
-**Fix:** middleware may validate and record approval; it must not invent it.
+**Fix:** middleware validates controller capabilities/proof and honors the
+optional admission function supplied by the qualified host; it must not
+manufacture proof or swallow a refusal.
 
 ## Transport-First Drift
 
