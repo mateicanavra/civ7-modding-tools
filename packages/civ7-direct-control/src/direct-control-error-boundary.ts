@@ -24,8 +24,6 @@ const CIV7_DIRECT_CONTROL_ERROR_CODES = [
   "setup-map-size-mismatch",
   "setup-config-load-failed",
   "setup-config-evidence-missing",
-  "procedure-descriptor-invalid",
-  "procedure-call-failed",
   "clean-frame-unverified",
   "window-shot-helper-unavailable",
   "window-shot-permission-required",

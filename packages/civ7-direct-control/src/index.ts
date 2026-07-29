@@ -1,67 +1,4 @@
 import { Civ7DirectControlError } from "./direct-control-error.js";
-import { jsLiteral } from "./runtime/command-serialization.js";
-import { jsonPayloadFromCommandResult } from "./session/command-result.js";
-import { executeCiv7TunerCommand } from "./session/execute.js";
-import type { Civ7DirectControlOptions, Civ7TunerState } from "./session/types.js";
-import { boundedInteger } from "./validation.js";
-
-export type {
-  Civ7ProcedureConsumerClass,
-  Civ7ProcedureContextRequirement,
-  Civ7ProcedureCoreCallContext,
-  Civ7ProcedureCoreCallDiagnostics,
-  Civ7ProcedureCoreCallEnvelope,
-  Civ7ProcedureCoreCallOptions,
-  Civ7ProcedureCoreCallResult,
-  Civ7ProcedureCoreDescriptor,
-  Civ7ProcedureCoreDescriptorErrorReason,
-  Civ7ProcedureCoreErrorSummary,
-  Civ7ProcedureCoreHandler,
-  Civ7ProcedureCoreSummary,
-  Civ7ProcedureCorrelationPolicy,
-  Civ7ProcedureFamily,
-  Civ7ProcedurePlayerScope,
-  Civ7ProcedureProjection,
-  Civ7ProcedureProofBoundary,
-  Civ7ProcedureRisk,
-  Civ7ProcedureSchemaArtifactMap,
-  Civ7ProcedureSchemaReference,
-  Civ7ProcedureSchemaResolution,
-  Civ7ProcedureSchemaTechnology,
-} from "./procedure-core.js";
-export {
-  assertCiv7ProcedureCoreDescriptor,
-  Civ7ProcedureConsumerClassSchema,
-  Civ7ProcedureContextRequirementSchema,
-  Civ7ProcedureCoreCallContextSchema,
-  Civ7ProcedureCoreCallDiagnosticsSchema,
-  Civ7ProcedureCoreCallEnvelopeSchema,
-  Civ7ProcedureCoreCallErrorEnvelopeSchema,
-  Civ7ProcedureCoreCallResultSchema,
-  Civ7ProcedureCoreCallSuccessEnvelopeSchema,
-  Civ7ProcedureCoreDescriptorSchema,
-  Civ7ProcedureCoreErrorReasonSchema,
-  Civ7ProcedureCoreErrorSummarySchema,
-  Civ7ProcedureCorrelationPolicySchema,
-  Civ7ProcedureFamilySchema,
-  Civ7ProcedurePlayerScopeSchema,
-  Civ7ProcedureProjectionSchema,
-  Civ7ProcedureProofBoundarySchema,
-  Civ7ProcedureRiskSchema,
-  Civ7ProcedureSchemaReferenceSchema,
-  Civ7ProcedureSchemaTechnologySchema,
-  callCiv7ProcedureCore,
-  civ7ProcedureSchemaReferenceKey,
-  createCiv7ProcedureCoreDescriptor,
-  isCiv7ProcedureCoreDescriptor,
-  resolveCiv7ProcedureCoreSchemas,
-  settleCiv7ProcedureCoreCall,
-  summarizeCiv7ProcedureCoreDescriptor,
-  summarizeCiv7ProcedureCoreError,
-  validateCiv7ProcedureCoreInput,
-  validateCiv7ProcedureCoreOutput,
-} from "./procedure-core.js";
-
 import { getCiv7GameInfoRows } from "./play/map/gameinfo.js";
 import {
   getCiv7MapGrid,
@@ -72,13 +9,18 @@ import {
 import type { Civ7MapLocation } from "./play/map/types.js";
 import { validateMapLocation } from "./play/map/validation.js";
 import { getCiv7CitySummary, getCiv7PlayerSummary, getCiv7UnitSummary } from "./play/summaries.js";
+import { jsLiteral } from "./runtime/command-serialization.js";
 import { type Civ7RuntimeProbe, probeHelperSource } from "./runtime/probe.js";
+import { jsonPayloadFromCommandResult } from "./session/command-result.js";
+import { executeCiv7TunerCommand } from "./session/execute.js";
+import type { Civ7DirectControlOptions, Civ7TunerState } from "./session/types.js";
 import {
   type Civ7SavedGameConfigurationListInput,
   type Civ7SavedGameConfigurationListResult,
   listCiv7SavedGameConfigurations as listCiv7SavedGameConfigurationsFromModule,
 } from "./setup/prepare.js";
 import { getCiv7SetupMapRows, getCiv7SetupSnapshot } from "./setup/reads.js";
+import { boundedInteger } from "./validation.js";
 
 export type {
   Civ7CapabilityCatalog,
@@ -133,12 +75,6 @@ export {
   requestCiv7TownFocusChange,
   requestCiv7TownFocusReviewCloseout,
 } from "./play/city/town-focus-request.js";
-export type { Civ7CitySummaryProcedureCallOptions } from "./play/city-summary-procedure";
-export {
-  Civ7CitySummaryProcedureDescriptor,
-  Civ7CitySummaryProcedureSchemaArtifacts,
-  callCiv7CitySummaryProcedure,
-} from "./play/city-summary-procedure";
 export type {
   Civ7CelebrationChoiceInput,
   Civ7GovernmentChoiceInput,
@@ -174,35 +110,11 @@ export {
   Civ7GameInfoRowsInputSchema,
   Civ7GameInfoRowsResultSchema,
 } from "./play/map/gameinfo.js";
-export type { Civ7GameInfoRowsProcedureCallOptions } from "./play/map/gameinfo-procedure.js";
-export {
-  Civ7GameInfoRowsProcedureDescriptor,
-  Civ7GameInfoRowsProcedureSchemaArtifacts,
-  callCiv7GameInfoRowsProcedure,
-} from "./play/map/gameinfo-procedure.js";
-export type { Civ7MapGridProcedureCallOptions } from "./play/map/grid-procedure.js";
-export {
-  Civ7MapGridProcedureDescriptor,
-  Civ7MapGridProcedureSchemaArtifacts,
-  callCiv7MapGridProcedure,
-} from "./play/map/grid-procedure.js";
-export type { Civ7PlotSnapshotProcedureCallOptions } from "./play/map/plot-snapshot-procedure.js";
-export {
-  Civ7PlotSnapshotProcedureDescriptor,
-  Civ7PlotSnapshotProcedureSchemaArtifacts,
-  callCiv7PlotSnapshotProcedure,
-} from "./play/map/plot-snapshot-procedure.js";
 export type {
   MapGridReadDependencies,
   MapSummaryReadDependencies,
   PlotSnapshotReadDependencies,
 } from "./play/map/reads.js";
-export type { Civ7MapSummaryProcedureCallOptions } from "./play/map/summary-procedure.js";
-export {
-  Civ7MapSummaryProcedureDescriptor,
-  Civ7MapSummaryProcedureSchemaArtifacts,
-  callCiv7MapSummaryProcedure,
-} from "./play/map/summary-procedure.js";
 export type {
   Civ7MapSurfaceObservationIdentity,
   Civ7MapSurfaceObservationIdentityField,
@@ -269,12 +181,6 @@ export {
   releaseCiv7ExploreGrant,
   revealCiv7MapForPlayer,
 } from "./play/map/visibility.js";
-export type { Civ7VisibilitySummaryProcedureCallOptions } from "./play/map/visibility-procedure.js";
-export {
-  Civ7VisibilitySummaryProcedureDescriptor,
-  Civ7VisibilitySummaryProcedureSchemaArtifacts,
-  callCiv7VisibilitySummaryProcedure,
-} from "./play/map/visibility-procedure.js";
 export type {
   Civ7AdvisorWarningViewedInput,
   Civ7AdvisorWarningViewedPostcondition,
@@ -282,12 +188,6 @@ export type {
   Civ7AdvisorWarningViewedResult,
 } from "./play/notifications/advisor-warning-request.js";
 export { requestCiv7AdvisorWarningViewed } from "./play/notifications/advisor-warning-request.js";
-export type { Civ7NotificationDismissRequestProcedureCallOptions } from "./play/notifications/dismissal-procedure.js";
-export {
-  Civ7NotificationDismissRequestProcedureDescriptor,
-  Civ7NotificationDismissRequestProcedureSchemaArtifacts,
-  callCiv7NotificationDismissRequestProcedure,
-} from "./play/notifications/dismissal-procedure.js";
 export type {
   Civ7NotificationDismissalResult,
   Civ7NotificationDismissalSummary,
@@ -337,12 +237,6 @@ export {
   Civ7PlayNotificationViewResultSchema,
   getCiv7PlayNotificationView,
 } from "./play/notifications/view.js";
-export type { Civ7PlayNotificationViewProcedureCallOptions } from "./play/notifications/view-procedure.js";
-export {
-  Civ7PlayNotificationViewProcedureDescriptor,
-  Civ7PlayNotificationViewProcedureSchemaArtifacts,
-  callCiv7PlayNotificationViewProcedure,
-} from "./play/notifications/view-procedure.js";
 export type {
   Civ7DiplomacyResponsePostcondition,
   Civ7DiplomacyResponsePostconditionClassification,
@@ -412,12 +306,6 @@ export {
   Civ7ProductionChoiceResultSchema,
   requestCiv7ProductionChoice,
 } from "./play/operations/production-choice.js";
-export type { Civ7ProductionChoiceRequestProcedureCallOptions } from "./play/operations/production-choice-procedure.js";
-export {
-  Civ7ProductionChoiceRequestProcedureDescriptor,
-  Civ7ProductionChoiceRequestProcedureSchemaArtifacts,
-  callCiv7ProductionChoiceRequestProcedure,
-} from "./play/operations/production-choice-procedure.js";
 export type { Civ7ProductionChoicePostconditionOutcome } from "./play/operations/production-choice-proof";
 export {
   productionChoicePostconditionConfirmed,
@@ -462,12 +350,6 @@ export {
   getCiv7UnitTargetAction,
   requestCiv7UnitTargetAction,
 } from "./play/operations/unit-target-action.js";
-export type { Civ7UnitTargetActionRequestProcedureCallOptions } from "./play/operations/unit-target-action-procedure.js";
-export {
-  Civ7UnitTargetActionRequestProcedureDescriptor,
-  Civ7UnitTargetActionRequestProcedureSchemaArtifacts,
-  callCiv7UnitTargetActionRequestProcedure,
-} from "./play/operations/unit-target-action-procedure.js";
 export type { Civ7OperationRequestResult } from "./play/operations/validate-request.js";
 export {
   canStartCiv7CityCommand,
@@ -481,12 +363,6 @@ export {
   requestCiv7UnitCommand,
   requestCiv7UnitOperation,
 } from "./play/operations/validate-request.js";
-export type { Civ7PlayerSummaryProcedureCallOptions } from "./play/player-summary-procedure";
-export {
-  Civ7PlayerSummaryProcedureDescriptor,
-  Civ7PlayerSummaryProcedureSchemaArtifacts,
-  callCiv7PlayerSummaryProcedure,
-} from "./play/player-summary-procedure";
 export type {
   Civ7CultureChoicePostconditionClassification,
   Civ7ProgressionChoiceNotification,
@@ -523,12 +399,6 @@ export {
   requestCiv7TraditionChange,
   requestCiv7TraditionReviewCloseout,
 } from "./play/progression/player-choice-request";
-export type { Civ7ProgressDashboardProcedureCallOptions } from "./play/progression/progress-dashboard-procedure.js";
-export {
-  Civ7ProgressDashboardProcedureDescriptor,
-  Civ7ProgressDashboardProcedureSchemaArtifacts,
-  callCiv7ProgressDashboardProcedure,
-} from "./play/progression/progress-dashboard-procedure.js";
 export type {
   Civ7ProgressDashboardInput,
   Civ7ProgressDashboardLegacyPath,
@@ -571,12 +441,6 @@ export type {
   Civ7TechnologyChoiceCloseoutResult,
 } from "./play/progression/technology.js";
 export { requestCiv7TechnologyChoiceCloseout } from "./play/progression/technology.js";
-export type { Civ7TraditionsViewProcedureCallOptions } from "./play/progression/traditions-procedure.js";
-export {
-  Civ7TraditionsViewProcedureDescriptor,
-  Civ7TraditionsViewProcedureSchemaArtifacts,
-  callCiv7TraditionsViewProcedure,
-} from "./play/progression/traditions-procedure.js";
 export type {
   Civ7ReadyCityOperationCandidate,
   Civ7ReadyCityPopulationPlacement,
@@ -595,12 +459,6 @@ export {
   Civ7ReadyCityViewResultSchema,
   getCiv7ReadyCityView,
 } from "./play/ready/city.js";
-export type { Civ7ReadyCityViewProcedureCallOptions } from "./play/ready/city-procedure.js";
-export {
-  Civ7ReadyCityViewProcedureDescriptor,
-  Civ7ReadyCityViewProcedureSchemaArtifacts,
-  callCiv7ReadyCityViewProcedure,
-} from "./play/ready/city-procedure.js";
 export type {
   Civ7UnitMovePreviewInput,
   Civ7UnitMovePreviewRelationshipPolicy,
@@ -613,12 +471,6 @@ export {
   Civ7UnitMovePreviewResultSchema,
   getCiv7UnitMovePreview,
 } from "./play/ready/move-preview.js";
-export type { Civ7UnitMovePreviewProcedureCallOptions } from "./play/ready/move-preview-procedure.js";
-export {
-  Civ7UnitMovePreviewProcedureDescriptor,
-  Civ7UnitMovePreviewProcedureSchemaArtifacts,
-  callCiv7UnitMovePreviewProcedure,
-} from "./play/ready/move-preview-procedure.js";
 export type {
   Civ7ReadyUnitNearbyPlot,
   Civ7ReadyUnitOperationCandidate,
@@ -635,12 +487,6 @@ export {
   Civ7ReadyUnitViewResultSchema,
   getCiv7ReadyUnitView,
 } from "./play/ready/unit.js";
-export type { Civ7ReadyUnitViewProcedureCallOptions } from "./play/ready/unit-procedure.js";
-export {
-  Civ7ReadyUnitViewProcedureDescriptor,
-  Civ7ReadyUnitViewProcedureSchemaArtifacts,
-  callCiv7ReadyUnitViewProcedure,
-} from "./play/ready/unit-procedure.js";
 export type {
   Civ7StartPositionPlayer,
   Civ7StartPositionsResult,
@@ -691,12 +537,6 @@ export {
   Civ7BattlefieldScanUnitSchema,
   getCiv7BattlefieldScan,
 } from "./play/tactical/battlefield.js";
-export type { Civ7BattlefieldScanProcedureCallOptions } from "./play/tactical/battlefield-procedure.js";
-export {
-  Civ7BattlefieldScanProcedureDescriptor,
-  Civ7BattlefieldScanProcedureSchemaArtifacts,
-  callCiv7BattlefieldScanProcedure,
-} from "./play/tactical/battlefield-procedure.js";
 export type {
   Civ7DestinationAnalysisInput,
   Civ7DestinationAnalysisResult,
@@ -714,12 +554,6 @@ export {
   Civ7DestinationAnalysisResultSchema,
   getCiv7DestinationAnalysis,
 } from "./play/tactical/destination.js";
-export type { Civ7DestinationAnalysisProcedureCallOptions } from "./play/tactical/destination-procedure.js";
-export {
-  Civ7DestinationAnalysisProcedureDescriptor,
-  Civ7DestinationAnalysisProcedureSchemaArtifacts,
-  callCiv7DestinationAnalysisProcedure,
-} from "./play/tactical/destination-procedure.js";
 export type {
   Civ7SettlementRecommendation,
   Civ7SettlementRecommendationFactor,
@@ -737,12 +571,6 @@ export {
   Civ7SettlementSuggestionSchema,
   getCiv7SettlementRecommendations,
 } from "./play/tactical/settlement.js";
-export type { Civ7SettlementRecommendationsProcedureCallOptions } from "./play/tactical/settlement-procedure.js";
-export {
-  Civ7SettlementRecommendationsProcedureDescriptor,
-  Civ7SettlementRecommendationsProcedureSchemaArtifacts,
-  callCiv7SettlementRecommendationsProcedure,
-} from "./play/tactical/settlement-procedure.js";
 export type {
   Civ7TargetCandidate,
   Civ7TargetCandidatesInput,
@@ -757,12 +585,6 @@ export {
   Civ7TargetCandidatesResultSchema,
   getCiv7TargetCandidates,
 } from "./play/tactical/target-candidates.js";
-export type { Civ7TargetCandidatesProcedureCallOptions } from "./play/tactical/target-candidates-procedure.js";
-export {
-  Civ7TargetCandidatesProcedureDescriptor,
-  Civ7TargetCandidatesProcedureSchemaArtifacts,
-  callCiv7TargetCandidatesProcedure,
-} from "./play/tactical/target-candidates-procedure.js";
 export type {
   Civ7TurnCompletionActionResult,
   Civ7TurnCompletionBlockedResult,
@@ -779,18 +601,6 @@ export {
   sendCiv7TurnComplete,
   sendCiv7TurnUnready,
 } from "./play/turn-completion.js";
-export type { Civ7TurnCompletionStatusProcedureCallOptions } from "./play/turn-completion-procedure.js";
-export {
-  Civ7TurnCompletionStatusProcedureDescriptor,
-  Civ7TurnCompletionStatusProcedureSchemaArtifacts,
-  callCiv7TurnCompletionStatusProcedure,
-} from "./play/turn-completion-procedure.js";
-export type { Civ7UnitSummaryProcedureCallOptions } from "./play/unit-summary-procedure.js";
-export {
-  Civ7UnitSummaryProcedureDescriptor,
-  Civ7UnitSummaryProcedureSchemaArtifacts,
-  callCiv7UnitSummaryProcedure,
-} from "./play/unit-summary-procedure.js";
 export type {
   CameraFocusDependencies,
   Civ7CameraFocusInput,
@@ -916,12 +726,6 @@ export {
   Civ7AppUiSnapshotSchema,
   getCiv7AppUiSnapshot,
 } from "./runtime/app-ui-snapshot.js";
-export type { Civ7AppUiSnapshotProcedureCallOptions } from "./runtime/app-ui-snapshot-procedure.js";
-export {
-  Civ7AppUiSnapshotProcedureDescriptor,
-  Civ7AppUiSnapshotProcedureSchemaArtifacts,
-  callCiv7AppUiSnapshotProcedure,
-} from "./runtime/app-ui-snapshot-procedure.js";
 export type {
   Civ7RuntimeApiInspection,
   Civ7RuntimeApiMethod,
@@ -945,12 +749,6 @@ export {
   Civ7PlayableStatusResultSchema,
   getCiv7PlayableStatus,
 } from "./runtime/playable-status.js";
-export type { Civ7PlayableStatusProcedureCallOptions } from "./runtime/playable-status-procedure.js";
-export {
-  Civ7PlayableStatusProcedureDescriptor,
-  Civ7PlayableStatusProcedureSchemaArtifacts,
-  callCiv7PlayableStatusProcedure,
-} from "./runtime/playable-status-procedure.js";
 export type { Civ7RuntimeProbe } from "./runtime/probe.js";
 export type {
   Civ7RootInspectionInput,
@@ -971,12 +769,6 @@ export {
   checkCiv7TunerHealth,
   waitForCiv7TunerReady,
 } from "./runtime/tuner-health.js";
-export type { Civ7TunerHealthProcedureCallOptions } from "./runtime/tuner-health-procedure.js";
-export {
-  Civ7TunerHealthProcedureDescriptor,
-  Civ7TunerHealthProcedureSchemaArtifacts,
-  callCiv7TunerHealthProcedure,
-} from "./runtime/tuner-health-procedure.js";
 export { resolveCiv7DirectControlConfig } from "./session/config.js";
 export {
   CIV7_TUNER_APP_UI_STATE_NAME,

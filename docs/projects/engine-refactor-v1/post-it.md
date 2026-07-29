@@ -29,17 +29,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** admit the generic closed service kind and reshape
-`control-orpc` into `services/civ7-control` before organizing another CLI noun.
-The service keeps the exact installed oRPC 1.14.6, patched `effect-orpc` 0.5.0,
-Effect 3.21.3, and TypeBox lane; topology is not permission to smuggle an oRPC
-or Effect major migration into this cut. Then reconcile every surviving
-`play/operations` capability and every mixed CLI caller, move semantic
-validation and multi-call proof into domain procedures, and delete the generic
-`game operation` escape hatch rather than renaming it. The first convergence
-cut must leave one public path for each admitted behavior and no alternate
-operation router. Low-level tuner execution and bounded runtime probes remain
-direct-control atoms; raw execution remains explicitly diagnostic.
+**Current container:** take unit upgrade and resettlement through the complete
+service path. Replace the remaining generic `unit-command` request with exact
+upgrade and resettlement check/send runtime atoms; let the service own
+precheck, guarded send, postcheck, classification, and no-repeat semantics;
+route both CLI no-send and send modes through named service procedures; and
+remove the corresponding generic facade/cast and duplicate controller
+classification. This is the first repeatable proof that the smaller
+direct-control package is a wire substrate rather than a second service.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -56,16 +53,12 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** define the generic service law from the accepted service funnel
-while adapting vendor-specific syntax to the pinned lane -> turn the current
-control service red -> relocate and simplify until the service kind is closed
-and enforced -> identify the smallest complete domain procedure cut -> move
-orchestration and proof upward without moving wire mechanics -> route every
-public caller through the service -> replace genuine generic-operation uses
-with named domain behaviors -> delete the operation command, adapter dispatch,
-duplicate topic catalog entries, and stale current guidance -> repeat by
-domain until direct-control exposes only wire atoms -> prove the one service
-plane -> resume noun normalization.
+**Gradient:** separate unit check from mutation -> expose four exact
+direct-control runtime atoms -> compose two semantic check procedures and two
+guarded request procedures -> route both CLI modes through the service ->
+remove generic `unit-command` dispatch and duplicate bridge policy -> prove the
+full control graph -> repeat by domain until direct-control exposes only wire
+atoms and explicit diagnostics -> resume noun normalization.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -108,6 +101,27 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-29 - Direct-Control Shadow Procedure Plane Retired
+
+The unused direct-control procedure core, twenty-five descriptor wrappers,
+wrapper-only tests, procedure-only error codes, and orphan telemetry state were
+deleted rather than migrated. Their useful service policy now has one owner in
+`services/civ7-control`; exact command, probe, validation, and proof atoms
+remain in direct-control. The full direct-control test/check/build graph,
+OpenSpec disposition, and fresh consumer review proved that no production
+behavior or caller was lost.
+
+### 2026-07-29 - Civ7 Control Service Kind Sealed
+
+The mixed control package became one closed `services/civ7-control` service
+with contract leaves, Effect-authored handlers, one configured router lineage,
+and behavior-owned proof. Civ7 controller realization moved to the
+intelligence-bridge mod, every CLI command now enters through one service
+client, and the generic `game operation` escape hatch retired. Twelve generic
+service blueprint laws, the pinned Effect-oRPC declaration surface, the full
+service build/type/test graph, workspace boundaries, staged policy, and
+batched-Grit predicate isolation sealed the service plane.
 
 ### 2026-07-28 - CLI Unit Topic Sealed
 
