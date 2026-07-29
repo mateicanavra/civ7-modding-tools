@@ -29,15 +29,17 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** converge first-meet greetings around the official
-`PlayerOperations.RESPOND_DIPLOMATIC_FIRST_MEET` check/send path. Direct-control
-and the controller may retain only exact runtime response-key resolution,
-guarded dispatch, and paired blocker observations; the diplomacy service owns
-ambient local-player admission, named greeting intent, bounded observation,
-semantic postconditions, dispatch uncertainty, and no-repeat policy. The CLI
-consumes that one service owner in read and mutation modes. Retire notification
-activation, generic player-operation validation, caller-owned local-player
-identity, direct-owned polling/classification, and the duplicate proof plane.
+**Current container:** converge ordinary diplomacy responses around the
+official `PlayerOperations.RESPOND_DIPLOMATIC_ACTION` check/send path.
+Direct-control and the controller may retain only exact runtime validation,
+guarded dispatch, and focused response/blocker observations; the diplomacy
+service owns ambient local-player admission, offered-response membership,
+bounded observation, semantic postconditions, dispatch uncertainty, no-repeat
+policy, and refusal of the military-presence rejection that requires Civ7's
+separate war-confirmation workflow. The CLI consumes that one service owner in
+read and mutation modes. Retire notification activation, caller-owned
+local-player identity, direct-owned polling/classification, UI closeout,
+generic-operation dry runs, and the duplicate proof plane.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -54,14 +56,14 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** establish exact first-meet check/send atoms with named greeting
-resolution and paired blocker evidence -> move admission, polling,
-classification, uncertainty, and no-repeat policy into the diplomacy service
--> route controller and both CLI modes through that owner -> retire the thick
-request, generic-operation, UI-choreography, and direct-proof planes -> prove
-the full control graph -> converge ordinary diplomacy responses -> repeat by
-domain until direct-control exposes only wire atoms and explicit diagnostics
--> normalize the remaining mod application containers.
+**Gradient:** establish exact ordinary diplomacy check/send atoms with current
+response-list and paired blocker evidence -> move admission, special-war
+refusal, polling, classification, uncertainty, and no-repeat policy into the
+diplomacy service -> route controller and both CLI modes through that owner ->
+retire the thick request, generic-operation dry run, UI choreography, and
+direct-proof planes -> prove the full control graph -> converge unit-target
+actions -> repeat by domain until direct-control exposes only wire atoms and
+explicit diagnostics -> normalize the remaining mod application containers.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -104,6 +106,22 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-29 - First-Meet Response Authority Converged
+
+First-meet greetings now use the exact native
+`PlayerOperations.RESPOND_DIPLOMATIC_FIRST_MEET` check/send path through one
+diplomacy service owner. Direct-control owns only exact named-response
+resolution, guarded dispatch, and immutable blocker observations; the service
+owns ambient-player admission, bounded clearance polling, semantic
+classification, dispatch uncertainty, and no-repeat policy; the controller and
+both CLI modes are thin adapters. Caller-controlled player identity, generic
+player-operation validation, notification activation, the thick direct
+request/postcondition wrapper, and duplicate proof policy retired. Failed
+native probes remain unknown, and confirmed blocker clearance does not erase an
+indeterminate dispatch result. The complete direct/service/controller/CLI
+graph, strict OpenSpec validation, staged Habitat law, and fresh native review
+passed; deployed Civ7 behavior remains a separate live-proof boundary.
 
 ### 2026-07-29 - Advisor-Warning Acknowledgement Authority Converged
 

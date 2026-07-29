@@ -26,9 +26,6 @@ export type Civ7ControlOrpcCultureChoiceCloseoutResult = Awaited<
 export type Civ7ControlOrpcDestinationAnalysisResult = Awaited<
   ReturnType<DirectControl["getCiv7DestinationAnalysis"]>
 >;
-export type Civ7ControlOrpcDiplomacyResponseResult = Awaited<
-  ReturnType<DirectControl["requestCiv7DiplomacyResponse"]>
->;
 export type Civ7ControlOrpcGovernmentChoiceCheckResult = Awaited<
   ReturnType<DirectControl["checkCiv7GovernmentChoice"]>
 >;

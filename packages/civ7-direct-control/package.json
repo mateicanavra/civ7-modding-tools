@@ -35,6 +35,12 @@
       "import": "./dist/play/diplomacy/first-meet-response.js",
       "require": "./dist/play/diplomacy/first-meet-response.cjs"
     },
+    "./play/diplomacy/response": {
+      "types": "./dist/play/diplomacy/response.d.ts",
+      "bun-source": "./src/play/diplomacy/response.ts",
+      "import": "./dist/play/diplomacy/response.js",
+      "require": "./dist/play/diplomacy/response.cjs"
+    },
     "./play/city/town-focus": {
       "types": "./dist/play/city/town-focus.d.ts",
       "bun-source": "./src/play/city/town-focus.ts",
@@ -58,12 +64,6 @@
       "bun-source": "./src/play/progression/choice-postconditions.ts",
       "import": "./dist/play/progression/choice-postconditions.js",
       "require": "./dist/play/progression/choice-postconditions.cjs"
-    },
-    "./proof/diplomacy-response-proof-policy": {
-      "types": "./dist/proof/diplomacy-response-proof-policy.d.ts",
-      "bun-source": "./src/proof/diplomacy-response-proof-policy.ts",
-      "import": "./dist/proof/diplomacy-response-proof-policy.js",
-      "require": "./dist/proof/diplomacy-response-proof-policy.cjs"
     },
     "./proof/progression-player-choice-proof-policy": {
       "types": "./dist/proof/progression-player-choice-proof-policy.d.ts",

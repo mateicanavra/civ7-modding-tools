@@ -13,8 +13,10 @@ import {
 } from "./game-ui/attention";
 import {
   type Civ7GameUiDiplomacyTarget,
-  civ7GameUiDiplomacyResponseAvailable,
-  requestCiv7GameUiDiplomacyResponse,
+  checkCiv7GameUiDiplomacyResponse,
+  civ7GameUiDiplomacyResponseCheckAvailable,
+  civ7GameUiDiplomacyResponseSendAvailable,
+  sendCiv7GameUiDiplomacyResponse,
 } from "./game-ui/diplomacy";
 import {
   type Civ7GameUiFirstMeetTarget,
@@ -160,7 +162,10 @@ export type Civ7GameUiRuntimeTarget = Civ7GameUiTurnCompletionTarget & {
     Player?: Civ7GameUiPlayer;
   };
   DiplomacyPlayerFirstMeets?: Civ7GameUiFirstMeetTarget["DiplomacyPlayerFirstMeets"];
-  EndTurnBlockingTypes?: Civ7GameUiFirstMeetTarget["EndTurnBlockingTypes"];
+  DiplomacyActionTypes?: Civ7GameUiDiplomacyTarget["DiplomacyActionTypes"];
+  DiplomaticResponseTypes?: Civ7GameUiDiplomacyTarget["DiplomaticResponseTypes"];
+  EndTurnBlockingTypes?: Civ7GameUiFirstMeetTarget["EndTurnBlockingTypes"] &
+    Civ7GameUiDiplomacyTarget["EndTurnBlockingTypes"];
   UIGameLoadingState?: Record<string, number>;
   GameContext?: {
     localPlayerID?: number;
@@ -255,8 +260,6 @@ export type Civ7GameUiRuntimeTarget = Civ7GameUiTurnCompletionTarget & {
     Civ7GameUiUnitCommandTarget["UnitCommandTypes"];
   UnitOperationMoveModifiers?: Civ7GameUiUnitTargetActionTarget["UnitOperationMoveModifiers"];
   UnitOperationTypes?: Civ7GameUiUnitTargetActionTarget["UnitOperationTypes"];
-  DiplomacyManager?: Civ7GameUiDiplomacyTarget["DiplomacyManager"];
-  LeaderModelManager?: Civ7GameUiDiplomacyTarget["LeaderModelManager"];
   Autoplay?: {
     isActive?: boolean;
     turns?: number;
@@ -329,7 +332,6 @@ export type Civ7GameUiRuntimeTarget = Civ7GameUiTurnCompletionTarget & {
   Cities?: Civ7GameUiProductionTarget["Cities"] &
     Civ7GameUiTownFocusTarget["Cities"] &
     Civ7GameUiStrategyFrontTarget["Cities"];
-  InterfaceMode?: Civ7GameUiDiplomacyTarget["InterfaceMode"];
   Configuration?: {
     getGame?: () => { skipStartButton?: boolean };
   };
@@ -390,8 +392,10 @@ function createCiv7GameUiDirectControlFacade(
       await sendCiv7GameUiAdvisorWarningViewed(input, target),
     checkCiv7NarrativeChoice: async (input) => await checkCiv7GameUiNarrativeChoice(input, target),
     sendCiv7NarrativeChoice: async (input) => await sendCiv7GameUiNarrativeChoice(input, target),
-    requestCiv7DiplomacyResponse: async (input) =>
-      await requestCiv7GameUiDiplomacyResponse(input, target),
+    checkCiv7DiplomacyResponse: async (input) =>
+      await checkCiv7GameUiDiplomacyResponse(input, target),
+    sendCiv7DiplomacyResponse: async (input) =>
+      await sendCiv7GameUiDiplomacyResponse(input, target),
     checkCiv7FirstMeetResponse: async (input) =>
       await checkCiv7GameUiFirstMeetResponse(input, target),
     sendCiv7FirstMeetResponse: async (input) =>
@@ -569,7 +573,7 @@ function gameUiSupportedMutationProcedures(target: Civ7GameUiRuntimeTarget): rea
   if (civ7GameUiNarrativeChoiceSendAvailable(target)) {
     supported.push("narrative.choice.request");
   }
-  if (civ7GameUiDiplomacyResponseAvailable(target)) {
+  if (civ7GameUiDiplomacyResponseSendAvailable(target)) {
     supported.push("diplomacy.response.request");
   }
   if (civ7GameUiFirstMeetResponseSendAvailable(target)) {
@@ -618,6 +622,9 @@ function gameUiSupportedReadProcedures(target: Civ7GameUiRuntimeTarget): readonl
   }
   if (civ7GameUiNarrativeChoiceCheckAvailable(target)) {
     supported.push("narrative.choice.check");
+  }
+  if (civ7GameUiDiplomacyResponseCheckAvailable(target)) {
+    supported.push("diplomacy.response.check");
   }
   if (civ7GameUiFirstMeetResponseCheckAvailable(target)) {
     supported.push("diplomacy.firstMeet.response.check");

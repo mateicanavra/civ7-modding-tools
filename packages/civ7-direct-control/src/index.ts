@@ -155,6 +155,24 @@ export {
   sendCiv7FirstMeetResponse,
 } from "./play/diplomacy/first-meet-response.js";
 export type {
+  Civ7DiplomacyResponseCheckResult,
+  Civ7DiplomacyResponseInput,
+  Civ7DiplomacyResponseSendInput,
+  Civ7DiplomacyResponseSendResult,
+  Civ7DiplomacyResponseSnapshot,
+  Civ7DiplomacyResponseValidationResult,
+} from "./play/diplomacy/response.js";
+export {
+  Civ7DiplomacyResponseCheckResultSchema,
+  Civ7DiplomacyResponseInputSchema,
+  Civ7DiplomacyResponseSendInputSchema,
+  Civ7DiplomacyResponseSendResultSchema,
+  Civ7DiplomacyResponseSnapshotSchema,
+  Civ7DiplomacyResponseValidationResultSchema,
+  checkCiv7DiplomacyResponse,
+  sendCiv7DiplomacyResponse,
+} from "./play/diplomacy/response.js";
+export type {
   Civ7CelebrationChoiceCheckResult,
   Civ7CelebrationChoiceInput,
   Civ7CelebrationChoiceOption,
@@ -360,16 +378,6 @@ export {
   Civ7PlayNotificationViewResultSchema,
   getCiv7PlayNotificationView,
 } from "./play/notifications/view.js";
-export type {
-  Civ7DiplomacyResponsePostcondition,
-  Civ7DiplomacyResponsePostconditionClassification,
-} from "./play/operations/diplomacy-postconditions.js";
-export type {
-  Civ7DiplomacyResponseCommandPayload,
-  Civ7DiplomacyResponseInput,
-  Civ7DiplomacyResponseResult,
-} from "./play/operations/diplomacy-request.js";
-export { requestCiv7DiplomacyResponse } from "./play/operations/diplomacy-request.js";
 export type {
   Civ7CloseDisplaysInput,
   Civ7CloseDisplaysResult,
@@ -731,10 +739,6 @@ export {
   DEFAULT_CIV7_WINDOW_MATCH,
   ensureCiv7WindowShotHelper,
 } from "./play/view/window-shot.js";
-export {
-  diplomacyResponseProofOutcome,
-  diplomacyResponseProofPostcondition,
-} from "./proof/diplomacy-response-proof-policy.js";
 export type {
   FileSnapshot,
   FreshLogMarkerProof,

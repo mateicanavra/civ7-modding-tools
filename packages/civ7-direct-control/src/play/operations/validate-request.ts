@@ -262,6 +262,13 @@ function validateOperationInput(
       { dispatchStatus: "not-dispatched" }
     );
   }
+  if (family === "player-operation" && operationType === "RESPOND_DIPLOMATIC_ACTION") {
+    throw new Civ7DirectControlError(
+      "command-failed",
+      "player-operation RESPOND_DIPLOMATIC_ACTION must use the exact diplomacy response check/send atoms",
+      { dispatchStatus: "not-dispatched" }
+    );
+  }
   if (family === "city-operation" && operationType === "CONSIDER_TOWN_PROJECT") {
     throw new Civ7DirectControlError(
       "command-failed",

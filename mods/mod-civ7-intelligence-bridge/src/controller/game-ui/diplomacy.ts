@@ -1,32 +1,44 @@
+import type { Civ7DirectControlErrorShape } from "@civ7/direct-control/error";
 import type {
-  Civ7ControlOrpcComponentId,
-  Civ7ControlOrpcDiplomacyResponseResult,
-  Civ7ControlOrpcPlayNotificationViewResult,
-} from "../service-types";
-import { type Civ7GameUiAttentionTarget, getCiv7GameUiPlayNotificationView } from "./attention";
+  Civ7DiplomacyResponseCheckResult,
+  Civ7DiplomacyResponseInput,
+  Civ7DiplomacyResponseSendInput,
+  Civ7DiplomacyResponseSendResult,
+  Civ7DiplomacyResponseSnapshot,
+} from "@civ7/direct-control/play/diplomacy/response";
+
+import type { Civ7ControlOrpcComponentId } from "../service-types";
+import type { Civ7GameUiAttentionTarget } from "./attention";
+import { readCiv7GameUiActionPanelCanEndTurn } from "./turn-completion";
 
 type RuntimeProbe<T> = Readonly<{ ok: true; value: T } | { ok: false; error: string }>;
-type DiplomacyValidation = Civ7ControlOrpcDiplomacyResponseResult["beforeValidation"];
-type DiplomacyPayload = NonNullable<Civ7ControlOrpcDiplomacyResponseResult["payload"]>;
+type DiplomacyResponseValidation =
+  | Extract<Civ7DiplomacyResponseSendResult, { sent: true }>["validation"]
+  | Extract<Civ7DiplomacyResponseSendResult, { sent: false }>["validation"];
+type DiplomacyResponseData = Extract<
+  Civ7DiplomacyResponseSnapshot["responseData"],
+  { ok: true }
+>["value"];
+type DiplomacyBlockingNotification = Exclude<
+  Extract<Civ7DiplomacyResponseSnapshot["blockingNotification"], { ok: true }>["value"],
+  null
+>;
 
 export type Civ7GameUiDiplomacyTarget = Civ7GameUiAttentionTarget &
   Readonly<{
-    DiplomacyManager?: {
-      currentProjectReactionData?: { actionID?: unknown } | null;
-      currentProjectReactionRequest?: { actionID?: unknown } | null;
-      selectedActionID?: unknown;
-      isShowing?: () => unknown;
-      addCurrentDiplomacyProject?: (project: unknown) => unknown;
-      closeCurrentDiplomacyProject?: (force?: boolean) => unknown;
-      hide?: (force?: boolean) => unknown;
+    DiplomacyActionTypes?: {
+      DIPLOMACY_ACTION_DENOUNCE_MILITARY_PRESENCE?: unknown;
+    };
+    DiplomaticResponseTypes?: {
+      DIPLOMACY_RESPONSE_REJECT?: unknown;
+    };
+    EndTurnBlockingTypes?: {
+      NONE?: unknown;
     };
     Game?: Civ7GameUiAttentionTarget["Game"] & {
       Diplomacy?: {
         getResponseDataForUI?: (actionId: number) => unknown;
         getDiplomaticEventData?: (actionId: number) => unknown;
-      };
-      Notifications?: NonNullable<Civ7GameUiAttentionTarget["Game"]>["Notifications"] & {
-        activate?: (id: Civ7ControlOrpcComponentId) => unknown;
       };
       PlayerOperations?: {
         canStart?: (
@@ -38,480 +50,446 @@ export type Civ7GameUiDiplomacyTarget = Civ7GameUiAttentionTarget &
         sendRequest?: (playerId: number, operationType: unknown, args: unknown) => unknown;
       };
     };
-    InterfaceMode?: {
-      getCurrent?: () => unknown;
-    };
-    LeaderModelManager?: {
-      beginAcknowledgePlayerSequence?: () => unknown;
-    };
     PlayerOperationTypes?: {
       RESPOND_DIPLOMATIC_ACTION?: unknown;
     };
   }>;
 
-export function civ7GameUiDiplomacyResponseAvailable(target: Civ7GameUiDiplomacyTarget): boolean {
+type DiplomacyNotifications = NonNullable<
+  NonNullable<Civ7GameUiDiplomacyTarget["Game"]>["Notifications"]
+>;
+type DiplomacyOperations = NonNullable<
+  NonNullable<Civ7GameUiDiplomacyTarget["Game"]>["PlayerOperations"]
+>;
+
+/** Reports whether the controller can check an exact native diplomacy response. */
+export function civ7GameUiDiplomacyResponseCheckAvailable(
+  target: Civ7GameUiDiplomacyTarget
+): boolean {
   return (
+    Number.isInteger(target.GameContext?.localPlayerID) &&
+    Number.isInteger(target.DiplomacyActionTypes?.DIPLOMACY_ACTION_DENOUNCE_MILITARY_PRESENCE) &&
+    Number.isInteger(target.DiplomaticResponseTypes?.DIPLOMACY_RESPONSE_REJECT) &&
+    validDiplomacyBlockerType(target.EndTurnBlockingTypes?.NONE) &&
     typeof target.Game?.PlayerOperations?.canStart === "function" &&
-    typeof target.Game.PlayerOperations.sendRequest === "function" &&
-    target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_ACTION !== undefined &&
-    typeof target.Game?.Notifications?.activate === "function" &&
-    typeof target.Game.Notifications.getIdsForPlayer === "function" &&
-    typeof target.Game.Notifications.getType === "function" &&
-    typeof target.Game.Notifications.getTypeName === "function" &&
-    typeof target.Game.Notifications.find === "function" &&
-    typeof target.Game.Notifications.getEndTurnBlockingType === "function" &&
-    typeof target.Game.Notifications.findEndTurnBlocking === "function"
+    target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_ACTION !== undefined
   );
 }
 
-export async function requestCiv7GameUiDiplomacyResponse(
-  input: Readonly<{
-    playerId: number;
-    actionId: number;
-    responseType: number;
-    notificationId?: Civ7ControlOrpcComponentId;
-  }>,
+/** Reports whether the controller can send an exact native diplomacy response. */
+export function civ7GameUiDiplomacyResponseSendAvailable(
+  target: Civ7GameUiDiplomacyTarget
+): boolean {
+  return (
+    civ7GameUiDiplomacyResponseCheckAvailable(target) &&
+    typeof target.Game?.PlayerOperations?.sendRequest === "function"
+  );
+}
+
+/** Checks exact native diplomacy-response admission without mutating game or UI state. */
+export async function checkCiv7GameUiDiplomacyResponse(
+  input: Civ7DiplomacyResponseInput,
   target: Civ7GameUiDiplomacyTarget = globalThis as Civ7GameUiDiplomacyTarget
-): Promise<Civ7ControlOrpcDiplomacyResponseResult> {
-  const playerId =
-    typeof target.GameContext?.localPlayerID === "number"
-      ? target.GameContext.localPlayerID
-      : input.playerId;
-  const args = { ID: input.actionId, Type: input.responseType };
-  const before = await getCiv7GameUiPlayNotificationView({}, target);
-  const beforeDiplomacyState = readDiplomacyState(input.actionId, target);
-  const beforeValidation =
-    typeof target.GameContext?.localPlayerID === "number"
-      ? gameUiDiplomacyValidation(playerId, args, target)
-      : gameUiDiplomacyValidationBlocked(
-          playerId,
-          args,
-          "GameContext.localPlayerID is unavailable."
-        );
-
-  if (!beforeValidation.valid) {
-    return diplomacyResponseResult({
-      input,
-      playerId,
-      before,
-      beforeValidation,
-      after: before,
-      afterValidation: beforeValidation,
-      sent: false,
-      payload: undefined,
-    });
-  }
-
-  const discoveredNotification = currentDiplomacyNotification(input, playerId, target);
-  const notificationId =
-    toComponentId(input.notificationId) ??
-    (discoveredNotification.ok ? discoveredNotification.value : null);
-  const activationResult = activateDiplomacyNotification(notificationId, input.actionId, target);
-  const sendResult = probe(() =>
-    target.Game?.PlayerOperations?.sendRequest?.(
-      playerId,
-      target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_ACTION,
-      args
-    )
-  );
-  const sent = sendResult.ok && sendResult.value !== false;
-  const uiCloseout = sent
-    ? closeDiplomacyUi(target)
-    : {
-        requested: true,
-        acknowledgeStarted: skippedProbe("operation was not sent"),
-        closeCurrentDiplomacyProject: skippedProbe("operation was not sent"),
-        hide: skippedProbe("operation was not sent"),
-      };
-  const after = await getCiv7GameUiPlayNotificationView({}, target);
-  const afterValidation = gameUiDiplomacyValidation(playerId, args, target);
-
-  return diplomacyResponseResult({
-    input,
-    playerId,
-    before,
-    beforeValidation,
-    after,
-    afterValidation,
-    sent,
-    payload: {
-      localPlayerId: target.GameContext?.localPlayerID ?? playerId,
-      playerId,
-      actionId: input.actionId,
-      responseType: input.responseType,
-      args,
-      notificationId,
-      discoveredNotification,
-      activated:
-        activationResult.ok === true &&
-        (activationResult.value as { activated?: unknown } | null)?.activated === true,
-      activationResult,
-      canStart: beforeValidation.result,
-      sent,
-      sendResult,
-      uiCloseout,
-      diplomacyState: {
-        before: beforeDiplomacyState,
-        after: readDiplomacyState(input.actionId, target),
-      },
-      notes: [
-        "Game UI diplomacy response uses ambient PlayerOperations validation/send evidence inside the controller context.",
-        "Caller playerId is validation input only; sends use GameContext.localPlayerID.",
-      ],
-    },
-  });
-}
-
-function diplomacyResponseResult(
-  input: Readonly<{
-    input: Readonly<{
-      actionId: number;
-      responseType: number;
-      notificationId?: Civ7ControlOrpcComponentId;
-    }>;
-    playerId: number;
-    before: Civ7ControlOrpcPlayNotificationViewResult;
-    beforeValidation: DiplomacyValidation;
-    after: Civ7ControlOrpcPlayNotificationViewResult;
-    afterValidation: DiplomacyValidation;
-    sent: boolean;
-    payload: DiplomacyPayload | undefined;
-  }>
-): Civ7ControlOrpcDiplomacyResponseResult {
-  const postcondition = diplomacyPostcondition(
-    input.input,
-    input.sent,
-    input.before,
-    input.after,
-    input.beforeValidation,
-    input.afterValidation
-  );
-  return {
-    playerId: input.playerId,
-    before: input.before,
-    beforeValidation: input.beforeValidation,
-    command: input.sent
-      ? {
-          host: "game-ui",
-          port: 0,
-          state: { id: "game-ui", name: "Game UI" },
-          output: ["game-ui-diplomacy-response-requested"],
-        }
-      : undefined,
-    payload: input.payload,
-    after: input.after,
-    afterValidation: input.afterValidation,
-    sent: input.sent,
-    verified:
-      postcondition.classification !== "not-sent" &&
-      postcondition.classification !== "no-state-change",
-    postcondition,
-  };
-}
-
-function gameUiDiplomacyValidation(
-  playerId: number,
-  args: Readonly<{ ID: number; Type: number }>,
-  target: Civ7GameUiDiplomacyTarget
-): DiplomacyValidation {
-  const result = probe(() =>
-    target.Game?.PlayerOperations?.canStart?.(
-      playerId,
-      target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_ACTION,
-      args,
-      false
-    )
-  );
-  return {
-    host: "game-ui",
-    port: 0,
-    state: { id: "game-ui", name: "Game UI" },
-    family: "player-operation",
-    operationType: "RESPOND_DIPLOMATIC_ACTION",
-    enumValue: target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_ACTION,
-    target: { playerId },
-    args,
-    valid: result.ok && successFromCanStart(result.value),
-    result,
-  };
-}
-
-function gameUiDiplomacyValidationBlocked(
-  playerId: number,
-  args: Readonly<{ ID: number; Type: number }>,
-  reason: string
-): DiplomacyValidation {
-  return {
-    host: "game-ui",
-    port: 0,
-    state: { id: "game-ui", name: "Game UI" },
-    family: "player-operation",
-    operationType: "RESPOND_DIPLOMATIC_ACTION",
-    enumValue: "RESPOND_DIPLOMATIC_ACTION",
-    target: { playerId },
-    args,
-    valid: false,
-    result: {
-      ok: false,
-      reason,
-      playerId,
-    },
-  };
-}
-
-function diplomacyPostcondition(
-  input: Readonly<{
-    actionId: number;
-  }>,
-  sent: boolean,
-  before: Civ7ControlOrpcPlayNotificationViewResult,
-  after: Civ7ControlOrpcPlayNotificationViewResult,
-  beforeValidation: DiplomacyValidation,
-  afterValidation: DiplomacyValidation
-): Civ7ControlOrpcDiplomacyResponseResult["postcondition"] {
-  const classification = classifyDiplomacyPostcondition(
-    input,
-    sent,
-    before,
-    after,
-    beforeValidation,
-    afterValidation
-  );
-  return {
-    classification,
-    reason: diplomacyPostconditionReason(classification),
-  };
-}
-
-function classifyDiplomacyPostcondition(
-  input: Readonly<{ actionId: number }>,
-  sent: boolean,
-  before: Civ7ControlOrpcPlayNotificationViewResult,
-  after: Civ7ControlOrpcPlayNotificationViewResult,
-  beforeValidation: DiplomacyValidation,
-  afterValidation: DiplomacyValidation
-): Civ7ControlOrpcDiplomacyResponseResult["postcondition"]["classification"] {
-  if (!sent) return "not-sent";
-  if (probeValue(after.canEndTurn) === true) return "turn-unblocked";
-  const beforeMatch = findDiplomacyResponseNotification(before, input.actionId);
-  const afterMatch = findDiplomacyResponseNotification(after, input.actionId);
-  if (beforeMatch && !afterMatch) return "diplomacy-blocker-cleared";
-  const beforeBlocking = before.blockingNotificationId;
-  const afterBlocking = after.blockingNotificationId;
-  if (
-    beforeBlocking.ok &&
-    afterBlocking.ok &&
-    beforeBlocking.value != null &&
-    afterBlocking.value != null &&
-    !componentIdEqual(beforeBlocking.value, afterBlocking.value)
-  ) {
-    return "blocking-notification-changed";
-  }
-  if (
-    beforeValidation.valid !== afterValidation.valid ||
-    stableJson(beforeValidation.result) !== stableJson(afterValidation.result)
-  ) {
-    return "validation-changed";
-  }
-  return "no-state-change";
-}
-
-function diplomacyPostconditionReason(
-  classification: Civ7ControlOrpcDiplomacyResponseResult["postcondition"]["classification"]
-): string {
-  switch (classification) {
-    case "not-sent":
-      return "The diplomatic response was not sent, so no postcondition can be verified.";
-    case "turn-unblocked":
-      return "The response and UI closeout left the turn unblocked.";
-    case "diplomacy-blocker-cleared":
-      return "The matching diplomatic-response notification is no longer present as a blocking decision.";
-    case "blocking-notification-changed":
-      return "The end-turn blocking notification changed after the response closeout.";
-    case "validation-changed":
-      return "The response validator changed after the send, but the notification/turn state did not clearly clear.";
-    case "no-state-change":
-      return "The response was sent, but notification, turn-blocking, and validator state did not change; use stale-blocker diagnostics instead of repeating blindly.";
-  }
-}
-
-function currentDiplomacyNotification(
-  input: Readonly<{ actionId: number }>,
-  playerId: number,
-  target: Civ7GameUiDiplomacyTarget
-): RuntimeProbe<Civ7ControlOrpcComponentId | null> {
-  return probe(() => {
-    const blockerType = target.Game?.Notifications?.getEndTurnBlockingType?.(playerId);
-    const id = target.Game?.Notifications?.findEndTurnBlocking?.(playerId, blockerType);
-    const notificationId = toComponentId(id);
-    if (notificationId == null) return null;
-    const notification = target.Game?.Notifications?.find?.(notificationId);
-    const type =
-      target.Game?.Notifications?.getType?.(notificationId) ?? recordValue(notification, "Type");
-    const typeName = target.Game?.Notifications?.getTypeName?.(type);
-    const notificationTarget = recordValue(notification, "Target");
-    const actionMatches = recordValue(notificationTarget, "id") === input.actionId;
-    return typeName === "NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED" && actionMatches
-      ? notificationId
-      : null;
-  });
-}
-
-function activateDiplomacyNotification(
-  notificationId: Civ7ControlOrpcComponentId | null,
-  actionId: number,
-  target: Civ7GameUiDiplomacyTarget
-): RuntimeProbe<unknown> {
-  if (notificationId == null) {
-    return skippedProbe("diplomacy notificationId not found");
-  }
-  return probe(() => {
-    const notification = target.Game?.Notifications?.find?.(notificationId);
-    if (notification == null) return { found: false };
-    const notificationTarget = recordValue(notification, "Target");
-    if (recordValue(notificationTarget, "id") == null) {
-      return { found: true, target: notificationTarget, activated: false };
-    }
-    const manager = target.DiplomacyManager;
-    if (manager == null) {
-      return {
-        found: true,
-        target: notificationTarget,
-        activated: false,
-        reason: "DiplomacyManager unavailable",
-      };
-    }
-    if (
-      actionId !== manager.currentProjectReactionData?.actionID &&
-      actionId !== manager.currentProjectReactionRequest?.actionID
-    ) {
-      const project = target.Game?.Diplomacy?.getResponseDataForUI?.(actionId);
-      manager.currentProjectReactionData = project as { actionID?: unknown } | null | undefined;
-      manager.addCurrentDiplomacyProject?.(project);
-    }
+): Promise<Civ7DiplomacyResponseCheckResult> {
+  try {
+    const actionId = requireDiplomacyInteger(input.actionId, "actionId");
+    const responseType = requireDiplomacyInteger(input.responseType, "responseType");
+    const snapshot = readDiplomacyResponseSnapshot(actionId, responseType, target);
+    const runtime = requireDiplomacyOperation(target);
+    const validation = checkDiplomacyResponseWith(runtime, snapshot);
     return {
-      found: true,
-      target: notificationTarget,
-      activated: true,
-      currentProjectReactionDataActionID: manager.currentProjectReactionData?.actionID ?? null,
-      currentProjectReactionRequestActionID:
-        manager.currentProjectReactionRequest?.actionID ?? null,
-      notificationActivation: target.Game?.Notifications?.activate?.(notificationId),
+      valid: validation.valid,
+      result: validation.result,
+      snapshot,
     };
-  });
+  } catch (cause) {
+    throw diplomacyResponseDispatchError(cause, "not-dispatched");
+  }
 }
 
-function closeDiplomacyUi(target: Civ7GameUiDiplomacyTarget): DiplomacyPayload["uiCloseout"] {
+/** Sends the exact native diplomacy operation once after its complete snapshot still matches. */
+export async function sendCiv7GameUiDiplomacyResponse(
+  input: Civ7DiplomacyResponseSendInput,
+  target: Civ7GameUiDiplomacyTarget = globalThis as Civ7GameUiDiplomacyTarget
+): Promise<Civ7DiplomacyResponseSendResult> {
+  let sendInvoked = false;
+  try {
+    const actionId = requireDiplomacyInteger(input.actionId, "actionId");
+    const responseType = requireDiplomacyInteger(input.responseType, "responseType");
+    const expected = input.expected;
+    const before = readDiplomacyResponseSnapshot(actionId, responseType, target);
+    if (!diplomacyResponseSnapshotMatches(expected, before)) {
+      throw new Error("Diplomacy response admission evidence changed before dispatch.");
+    }
+
+    const runtime = requireDiplomacyOperation(target);
+    const localPlayerId = before.localPlayerId;
+    const operationType = runtime.operationType;
+    const validation = checkDiplomacyResponseWith(runtime, before);
+    if (!validation.valid) {
+      return {
+        sent: false,
+        validation,
+        before,
+        after: before,
+      };
+    }
+
+    const sendRequest = runtime.operations.sendRequest;
+    if (typeof sendRequest !== "function") {
+      throw new Error("Game.PlayerOperations.sendRequest is unavailable.");
+    }
+    const args = diplomacyResponseArgs(before);
+    sendInvoked = true;
+    Reflect.apply(sendRequest, runtime.operations, [localPlayerId, operationType, args]);
+    return {
+      sent: true,
+      validation,
+      before,
+      after: readDiplomacyResponseSnapshot(actionId, responseType, target),
+    };
+  } catch (cause) {
+    throw diplomacyResponseDispatchError(cause, sendInvoked ? "dispatched" : "not-dispatched");
+  }
+}
+
+function readDiplomacyResponseSnapshot(
+  actionId: number,
+  responseType: number,
+  target: Civ7GameUiDiplomacyTarget
+): Civ7DiplomacyResponseSnapshot {
+  const localPlayerId = requireDiplomacyInteger(
+    target.GameContext?.localPlayerID,
+    "GameContext.localPlayerID"
+  );
+  const denounceMilitaryPresenceActionType = requireDiplomacyInteger(
+    target.DiplomacyActionTypes?.DIPLOMACY_ACTION_DENOUNCE_MILITARY_PRESENCE,
+    "DiplomacyActionTypes.DIPLOMACY_ACTION_DENOUNCE_MILITARY_PRESENCE"
+  );
+  const rejectionResponseType = requireDiplomacyInteger(
+    target.DiplomaticResponseTypes?.DIPLOMACY_RESPONSE_REJECT,
+    "DiplomaticResponseTypes.DIPLOMACY_RESPONSE_REJECT"
+  );
+  const noneBlockerType = requireDiplomacyBlockerType(target.EndTurnBlockingTypes?.NONE);
+  const responseData = diplomacyProbe(() => readDiplomacyResponseData(actionId, target));
+  const eventActionType = diplomacyProbe(() => readDiplomacyEventActionType(actionId, target));
+  const canEndTurn = diplomacyProbe(() => readCiv7GameUiActionPanelCanEndTurn(target));
+  const blockingEvidence = readDiplomacyBlockingEvidence(localPlayerId, noneBlockerType, target);
+
   return {
-    requested: true,
-    acknowledgeStarted: probe(
-      () => target.LeaderModelManager?.beginAcknowledgePlayerSequence?.() ?? null
-    ),
-    closeCurrentDiplomacyProject: probe(
-      () => target.DiplomacyManager?.closeCurrentDiplomacyProject?.(false) ?? null
-    ),
-    hide: probe(() => target.DiplomacyManager?.hide?.(false) ?? null),
+    localPlayerId,
+    actionId,
+    responseType,
+    denounceMilitaryPresenceActionType,
+    rejectionResponseType,
+    noneBlockerType,
+    responseData,
+    eventActionType,
+    canEndTurn,
+    ...blockingEvidence,
   };
 }
 
-function readDiplomacyState(
+function readDiplomacyResponseData(
   actionId: number,
   target: Civ7GameUiDiplomacyTarget
-): DiplomacyPayload["diplomacyState"]["before"] {
+): DiplomacyResponseData {
+  const diplomacy = target.Game?.Diplomacy;
+  const read = diplomacy?.getResponseDataForUI;
+  if (typeof read !== "function") {
+    throw new Error("Game.Diplomacy.getResponseDataForUI is unavailable.");
+  }
+  const data = Reflect.apply(read, diplomacy, [actionId]);
+  if (data == null || typeof data !== "object") {
+    throw new Error("Game.Diplomacy.getResponseDataForUI returned no response data.");
+  }
+  const responseList = Reflect.get(data, "responseList");
+  if (!Array.isArray(responseList)) {
+    throw new Error("Diplomacy responseList is unavailable.");
+  }
+  const observedActionId = Reflect.get(data, "actionID");
   return {
-    currentProjectReactionDataActionID:
-      target.DiplomacyManager?.currentProjectReactionData?.actionID ?? null,
-    currentProjectReactionRequestActionID:
-      target.DiplomacyManager?.currentProjectReactionRequest?.actionID ?? null,
-    selectedActionID: target.DiplomacyManager?.selectedActionID ?? null,
-    isShowing: probe(() => target.DiplomacyManager?.isShowing?.() ?? null),
-    interfaceMode: probe(() => target.InterfaceMode?.getCurrent?.() ?? null),
-    responseData: probe(() => target.Game?.Diplomacy?.getResponseDataForUI?.(actionId) ?? null),
-    eventData: probe(() => target.Game?.Diplomacy?.getDiplomaticEventData?.(actionId) ?? null),
+    actionId: Number.isInteger(observedActionId) ? (observedActionId as number) : null,
+    offeredResponseTypes: responseList.map((response, index) =>
+      requireDiplomacyInteger(
+        response == null || typeof response !== "object"
+          ? undefined
+          : Reflect.get(response, "responseType"),
+        `Diplomacy responseList[${index}]`
+      )
+    ),
   };
 }
 
-function findDiplomacyResponseNotification(
-  view: Civ7ControlOrpcPlayNotificationViewResult,
-  actionId: number
-): Civ7ControlOrpcPlayNotificationViewResult["notifications"][number] | undefined {
-  return view.notifications.find((notification) => {
-    const typeName = String(notification.typeName ?? "").toUpperCase();
-    if (typeName !== "NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED") return false;
-    return recordValue(notification.target, "id") === actionId;
-  });
-}
-
-function successFromCanStart(result: unknown): boolean {
-  if (result === true) return true;
-  if (result === false || result == null) return false;
-  if (typeof result === "object") {
-    const record = result as Record<string, unknown>;
-    if (record.Success !== undefined) return record.Success === true;
-    if (record.success !== undefined) return record.success === true;
-    if (record.canStart !== undefined) return record.canStart === true;
+function readDiplomacyEventActionType(actionId: number, target: Civ7GameUiDiplomacyTarget): number {
+  const diplomacy = target.Game?.Diplomacy;
+  const read = diplomacy?.getDiplomaticEventData;
+  if (typeof read !== "function") {
+    throw new Error("Game.Diplomacy.getDiplomaticEventData is unavailable.");
   }
-  return Boolean(result);
+  const data = Reflect.apply(read, diplomacy, [actionId]);
+  return requireDiplomacyInteger(
+    data == null || typeof data !== "object" ? undefined : Reflect.get(data, "actionType"),
+    "Diplomatic event actionType"
+  );
 }
 
-function stableJson(value: unknown): string {
-  return JSON.stringify(value, (_key, candidate) => {
-    if (candidate == null || typeof candidate !== "object" || Array.isArray(candidate)) {
-      return candidate;
+function readDiplomacyBlockingEvidence(
+  localPlayerId: number,
+  noneBlockerType: number | string,
+  target: Civ7GameUiDiplomacyTarget
+): Pick<Civ7DiplomacyResponseSnapshot, "blocker" | "blockingNotification"> {
+  let pairedNotifications: DiplomacyNotifications | undefined;
+  const blocker = diplomacyProbe(() => {
+    const notifications = target.Game?.Notifications;
+    pairedNotifications = notifications;
+    const read = notifications?.getEndTurnBlockingType;
+    if (typeof read !== "function") {
+      throw new Error("Game.Notifications.getEndTurnBlockingType is unavailable.");
     }
-    return Object.fromEntries(
-      Object.entries(candidate as Record<string, unknown>).sort(([left], [right]) =>
-        left.localeCompare(right)
-      )
-    );
+    return requireDiplomacyBlockerType(Reflect.apply(read, notifications, [localPlayerId]));
   });
+  const blockingNotification: Civ7DiplomacyResponseSnapshot["blockingNotification"] = blocker.ok
+    ? diplomacyProbe(() =>
+        Object.is(blocker.value, noneBlockerType)
+          ? null
+          : readDiplomacyBlockingNotification(localPlayerId, blocker.value, pairedNotifications)
+      )
+    : {
+        ok: false,
+        error: "Blocking notification is unavailable because the blocker read failed.",
+      };
+  return { blocker, blockingNotification };
 }
 
-function toComponentId(value: unknown): Civ7ControlOrpcComponentId | null {
-  if (value == null || typeof value !== "object") return null;
-  const record = value as Record<string, unknown>;
-  if (typeof record.owner !== "number" || typeof record.id !== "number") {
-    return null;
+function readDiplomacyBlockingNotification(
+  localPlayerId: number,
+  blockerType: number | string,
+  notifications: DiplomacyNotifications | undefined
+): DiplomacyBlockingNotification | null {
+  if (notifications == null) {
+    throw new Error("Game.Notifications is unavailable.");
   }
-  return typeof record.type === "number"
-    ? { owner: record.owner, id: record.id, type: record.type }
-    : { owner: record.owner, id: record.id };
+  const findBlocking = notifications.findEndTurnBlocking;
+  if (typeof findBlocking !== "function") {
+    throw new Error("Game.Notifications.findEndTurnBlocking is unavailable.");
+  }
+  const rawId = Reflect.apply(findBlocking, notifications, [localPlayerId, blockerType]);
+  if (rawId == null) return null;
+  const id = diplomacyComponentId(rawId);
+  if (id == null) {
+    throw new Error("Game.Notifications.findEndTurnBlocking returned an invalid ComponentID.");
+  }
+  const find = notifications.find;
+  if (typeof find !== "function") {
+    throw new Error("Game.Notifications.find is unavailable.");
+  }
+  const notification = Reflect.apply(find, notifications, [rawId]);
+  if (notification == null || typeof notification !== "object") {
+    throw new Error("Game.Notifications.find returned no blocking notification.");
+  }
+  const type = requireDiplomacyBlockerType(Reflect.get(notification, "Type"));
+  const getTypeName = notifications.getTypeName;
+  if (typeof getTypeName !== "function") {
+    throw new Error("Game.Notifications.getTypeName is unavailable.");
+  }
+  const typeNameValue = Reflect.apply(getTypeName, notifications, [type]);
+  const notificationTarget = Reflect.get(notification, "Target");
+  const observedActionId =
+    notificationTarget == null || typeof notificationTarget !== "object"
+      ? undefined
+      : Reflect.get(notificationTarget, "id");
+  return {
+    id,
+    type,
+    typeName: typeof typeNameValue === "string" ? typeNameValue : null,
+    actionId: Number.isInteger(observedActionId) ? (observedActionId as number) : null,
+  };
 }
 
-function componentIdEqual(
+function requireDiplomacyOperation(target: Civ7GameUiDiplomacyTarget): Readonly<{
+  operations: DiplomacyOperations;
+  canStart: (playerId: number, operationType: unknown, args: unknown, queue?: boolean) => unknown;
+  operationType: unknown;
+}> {
+  const operations = target.Game?.PlayerOperations;
+  const canStart = operations?.canStart;
+  if (operations == null || typeof canStart !== "function") {
+    throw new Error("Game.PlayerOperations.canStart is unavailable.");
+  }
+  const operationType = target.PlayerOperationTypes?.RESPOND_DIPLOMATIC_ACTION;
+  if (operationType === undefined) {
+    throw new Error("PlayerOperationTypes.RESPOND_DIPLOMATIC_ACTION is unavailable.");
+  }
+  return {
+    operations,
+    canStart,
+    operationType,
+  };
+}
+
+function checkDiplomacyResponseWith(
+  runtime: ReturnType<typeof requireDiplomacyOperation>,
+  snapshot: Civ7DiplomacyResponseSnapshot
+): DiplomacyResponseValidation {
+  const args = diplomacyResponseArgs(snapshot);
+  const rawResult = Reflect.apply(runtime.canStart, runtime.operations, [
+    snapshot.localPlayerId,
+    runtime.operationType,
+    args,
+    false,
+  ]);
+  const valid = exactDiplomacyCanStartSuccess(rawResult);
+  const result = snapshotDiplomacyJsonResult(rawResult, "Game.PlayerOperations.canStart");
+  return valid ? { valid: true, result } : { valid: false, result };
+}
+
+function diplomacyResponseArgs(
+  snapshot: Civ7DiplomacyResponseSnapshot
+): Readonly<{ ID: number; Type: number }> {
+  return {
+    ID: snapshot.actionId,
+    Type: snapshot.responseType,
+  };
+}
+
+function exactDiplomacyCanStartSuccess(result: unknown): boolean {
+  if (result == null || typeof result !== "object" || Array.isArray(result)) {
+    throw new Error("Game.PlayerOperations.canStart returned an unrecognized result.");
+  }
+  const success = Reflect.get(result, "Success");
+  if (typeof success !== "boolean") {
+    throw new Error("Game.PlayerOperations.canStart returned a non-boolean Success field.");
+  }
+  return success;
+}
+
+function requireDiplomacyInteger(value: unknown, label: string): number {
+  if (!Number.isInteger(value)) throw new Error(`${label} is unavailable.`);
+  return value as number;
+}
+
+function requireDiplomacyBlockerType(value: unknown): number | string {
+  if (Number.isInteger(value)) return value as number;
+  if (typeof value === "string" && value.trim().length > 0) return value;
+  throw new Error(
+    "Game.Notifications.getEndTurnBlockingType returned an unsupported blocker identity."
+  );
+}
+
+function validDiplomacyBlockerType(value: unknown): boolean {
+  return Number.isInteger(value) || (typeof value === "string" && value.trim().length > 0);
+}
+
+function diplomacyComponentId(value: unknown): Civ7ControlOrpcComponentId | null {
+  if (value == null || (typeof value !== "object" && typeof value !== "function")) return null;
+  const owner = diplomacyComponentIdField(value, "owner");
+  const id = diplomacyComponentIdField(value, "id");
+  if (owner == null || id == null) return null;
+  const type = diplomacyComponentIdField(value, "type");
+  return type == null ? { owner, id } : { owner, id, type };
+}
+
+function diplomacyComponentIdField(value: object, field: "owner" | "id" | "type"): number | null {
+  const candidate = Reflect.get(value, field);
+  return Number.isInteger(candidate) ? (candidate as number) : null;
+}
+
+function snapshotDiplomacyJsonResult(
+  value: unknown,
+  label: string
+): DiplomacyResponseValidation["result"] {
+  const serialized = JSON.stringify(value);
+  if (serialized === undefined) throw new Error(`${label} returned non-JSON evidence.`);
+  return JSON.parse(serialized) as DiplomacyResponseValidation["result"];
+}
+
+function diplomacyResponseSnapshotMatches(
+  expected: Civ7DiplomacyResponseSnapshot | null | undefined,
+  observed: Civ7DiplomacyResponseSnapshot
+): boolean {
+  return (
+    expected != null &&
+    expected.localPlayerId === observed.localPlayerId &&
+    expected.actionId === observed.actionId &&
+    expected.responseType === observed.responseType &&
+    expected.denounceMilitaryPresenceActionType === observed.denounceMilitaryPresenceActionType &&
+    expected.rejectionResponseType === observed.rejectionResponseType &&
+    Object.is(expected.noneBlockerType, observed.noneBlockerType) &&
+    diplomacyProbesMatch(expected.responseData, observed.responseData, diplomacyJsonValuesMatch) &&
+    diplomacyProbesMatch(expected.eventActionType, observed.eventActionType, Object.is) &&
+    diplomacyProbesMatch(expected.canEndTurn, observed.canEndTurn, Object.is) &&
+    diplomacyProbesMatch(expected.blocker, observed.blocker, Object.is) &&
+    diplomacyProbesMatch(
+      expected.blockingNotification,
+      observed.blockingNotification,
+      diplomacyBlockingNotificationsMatch
+    )
+  );
+}
+
+function diplomacyProbesMatch<T>(
+  expected: RuntimeProbe<T> | null | undefined,
+  observed: RuntimeProbe<T>,
+  valuesMatch: (left: T, right: T) => boolean
+): boolean {
+  if (expected == null || expected.ok !== observed.ok) return false;
+  if (!expected.ok) return !observed.ok && expected.error === observed.error;
+  return observed.ok && valuesMatch(expected.value, observed.value);
+}
+
+function diplomacyBlockingNotificationsMatch(
+  left: DiplomacyBlockingNotification | null,
+  right: DiplomacyBlockingNotification | null
+): boolean {
+  if (left == null || right == null) return left == null && right == null;
+  return (
+    diplomacyComponentIdsMatch(left.id, right.id) &&
+    left.type === right.type &&
+    left.typeName === right.typeName &&
+    left.actionId === right.actionId
+  );
+}
+
+function diplomacyComponentIdsMatch(
   left: Civ7ControlOrpcComponentId | null | undefined,
   right: Civ7ControlOrpcComponentId | null | undefined
 ): boolean {
   return (
-    left?.owner === right?.owner &&
-    left?.id === right?.id &&
-    (left?.type ?? null) === (right?.type ?? null)
+    left != null &&
+    right != null &&
+    left.owner === right.owner &&
+    left.id === right.id &&
+    (left.type ?? null) === (right.type ?? null)
   );
 }
 
-function recordValue(value: unknown, key: string): unknown {
-  return value != null && typeof value === "object"
-    ? (value as Record<string, unknown>)[key]
-    : null;
+function diplomacyJsonValuesMatch(left: unknown, right: unknown): boolean {
+  return JSON.stringify(left) === JSON.stringify(right);
 }
 
-function skippedProbe(reason: string): RuntimeProbe<
-  Readonly<{
-    skipped: true;
-    reason: string;
-  }>
-> {
-  return { ok: false, error: reason };
+function diplomacyResponseDispatchError(
+  cause: unknown,
+  dispatchStatus: "not-dispatched" | "dispatched"
+): Civ7DirectControlErrorShape {
+  const message = cause instanceof Error ? cause.message : String(cause);
+  const error = new Error(message, { cause }) as Error & {
+    name: "Civ7DirectControlError";
+  };
+  error.name = "Civ7DirectControlError";
+  return Object.assign(error, {
+    code: "command-failed" as const,
+    dispatchStatus,
+  });
 }
 
-function probe<T>(fn: () => T): RuntimeProbe<T> {
+function diplomacyProbe<T>(read: () => T): RuntimeProbe<T> {
   try {
-    return { ok: true, value: fn() };
-  } catch (err) {
-    return { ok: false, error: String(err) };
+    return { ok: true, value: read() };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
   }
-}
-
-function probeValue<T>(input: RuntimeProbe<T>): T | undefined {
-  return input.ok ? input.value : undefined;
 }

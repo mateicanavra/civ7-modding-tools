@@ -536,7 +536,10 @@ export class Civ7NarrativeChoiceUnavailableError extends ORPCTaggedError(
 
 export const Civ7DiplomacyResponseUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("diplomacy.response.request"),
+    procedureKey: Type.Union([
+      Type.Literal("diplomacy.response.check"),
+      Type.Literal("diplomacy.response.request"),
+    ]),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
@@ -551,7 +554,7 @@ export class Civ7DiplomacyResponseUnavailableError extends ORPCTaggedError(
   "Civ7DiplomacyResponseUnavailableError",
   {
     code: "DIPLOMACY_RESPONSE_UNAVAILABLE",
-    message: "Direct-control diplomacy response request failed.",
+    message: "Direct-control diplomacy response operation failed.",
     schema: toStandardSchema(Civ7DiplomacyResponseUnavailableErrorDataSchema),
     status: 503,
   }

@@ -798,24 +798,27 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** no generic operation validation or send fallback remains
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI diplomacy response send uses native diplomacy procedure
-- **WHEN** `game play respond-diplomacy --send` requests a diplomacy response
+#### Scenario: CLI diplomacy response uses native service procedures
+- **WHEN** `game play diplomacy respond` checks or requests an ordinary
+  diplomacy response
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send path calls the in-process
-  `diplomacy.response.request` server-side client under the
-  `diplomacy` router
-- **AND** the procedure's readiness, direct-control diplomacy
-  response port, diplomacy postcondition projection, and no-repeat policy
-  remain authoritative for the send
-- **AND** send input omits caller `playerId`; the procedure reads live
-  local-player evidence before invoking the direct-control runtime port
+- **AND** read-only mode calls `diplomacy.response.check`, while `--send` calls
+  `diplomacy.response.request` through the in-process server-side client
+- **AND** caller input admits only action and response identifiers; ambient
+  local-player and blocking-notification identity come from current runtime
+  evidence
+- **AND** direct-control owns only exact native check/send adaptation, guarded
+  dispatch, and focused response/event/blocker observations
+- **AND** the diplomacy service owns offered-response admission, dedicated-war
+  refusal, bounded blocker observation, semantic postconditions, dispatch
+  uncertainty, and no-repeat policy
+- **AND** rejecting a military-presence denunciation is refused by this
+  ordinary procedure because Civ7 routes it through a separate war-confirmation
+  workflow
 - **AND** the normal JSON result is the semantic diplomacy response procedure
-  projection without raw command/session/state/Tuner details, UI closeout
-  payloads, diplomacy state internals, direct-control runtime payloads, or
-  legacy `verified`
-- **AND** the read-only `game play respond-diplomacy` validation path remains
-  direct-control player-operation validation until a separate accepted service
-  read exists
+  projection without raw command/session/state/Tuner details, player or
+  notification identity, validation summaries, diplomacy state internals,
+  direct-control runtime payloads, or legacy `verified`
 - **AND** first-meet greetings use their separate exact
   `diplomacy.firstMeet.response` service owner rather than this ordinary
   diplomacy-response path
@@ -1511,27 +1514,26 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 #### Scenario: Game UI controller supports diplomacy response
 - **WHEN** the game-scoped controller context exposes ambient diplomacy
   response APIs for `Game.PlayerOperations.canStart/sendRequest`,
-  `PlayerOperationTypes.RESPOND_DIPLOMATIC_ACTION`, diplomacy notification
-  activation/blocking/read APIs, optional `DiplomacyManager`/leader UI
-  closeout evidence, and controller-owned local-player proof
-- **THEN** the context may execute the service-owned
-  `diplomacy.response.request` procedure through the existing in-process
-  router and native readiness/proof middleware
-- **AND** `diplomacy.response.request` is listed as a supported game-UI
-  mutation only when controller proof and the required ambient validation,
-  send, notification, and blocker-read APIs are present
-- **AND** caller input omits `playerId`; the runtime send player is derived
-  from controller-owned `GameContext.localPlayerID`
+  `PlayerOperationTypes.RESPOND_DIPLOMATIC_ACTION`, current response/event
+  reads, paired blocking-notification reads, native discriminator constants,
+  and controller-owned local-player proof
+- **THEN** the context may execute service-owned
+  `diplomacy.response.check/request` procedures through the existing
+  in-process router and native readiness/proof middleware
+- **AND** check and request capabilities are advertised independently, with
+  request requiring native `sendRequest`
+- **AND** caller input omits player and notification identity; the runtime send
+  player and exact blocker come from current controller-owned evidence
 - **AND** validator-blocked diplomacy responses project semantic `not-sent`
   output and do not call the send API
-- **AND** sent responses preserve source-owned diplomacy proof semantics:
-  blocker-cleared, turn-unblocked, or confirmed blocking-notification change
-  evidence can confirm the request, while sticky blockers, validation-only
-  changes, failed/missing blocker evidence, no-state-change, and missing
-  postcondition paths remain no-repeat guarded
+- **AND** only disappearance or replacement of the exact pre-send diplomacy
+  blocker confirms clearance; sticky, malformed, or failed observations remain
+  no-repeat guarded
+- **AND** notification activation, diplomacy-panel traversal, acknowledgement
+  animation, and UI closeout are absent from gameplay control
 - **AND** normal bridge success output remains the semantic diplomacy-response
   result and omits host, port, state, command, rawCommand, session, tuner
-  payloads, UI closeout internals, raw game-UI function names,
+  payloads, raw game-UI function names,
   direct-control socket details, and raw `RESPOND_DIPLOMATIC_ACTION`
   operation names
 - **AND** local package and bundle tests prove source shape and local fake game
@@ -1779,20 +1781,18 @@ their accepted owners.
   rather than preserved as a compatibility path
 - **AND** it checks playable readiness before invoking
   direct-control runtime authority
-- **AND** it consumes direct-control diplomacy validators and proof helpers as
-  runtime/proof ports rather than inferring proof from legacy `verified`
-- **AND** its normal input exposes action, response, and optional notification
-  identity rather than caller player identity or direct-control UI toggles
-- **AND** its normal output projects semantic status, validation summary,
-  postcondition summary, and next steps
-- **AND** its normal output uses direct-control source evidence for the acted
-  player rather than echoing caller validation identity when runtime sends use
-  the local player
+- **AND** it consumes exact direct-control check/send and focused observation
+  ports rather than a thick request or direct-owned proof policy
+- **AND** its normal input exposes only action and response identifiers
+- **AND** it admits only responses currently offered for the action and routes
+  the military-presence rejection to a dedicated war-confirmation workflow
+- **AND** its normal output projects semantic status, postcondition, and one
+  evidence-based next step
 - **AND** it excludes endpoint, session, state, raw command, payload,
-  notification internals, UI closeout internals, and legacy `verified` details
-  from caller-facing input and output
-- **AND** unverified, missing-postcondition, no-state-change, validation-changed,
-  and not-sent paths remain no-repeat guarded
+  player/notification identity, validation summaries, UI closeout internals,
+  and legacy `verified` details from caller-facing input and output
+- **AND** sticky, malformed, failed, or missing postcondition observations
+  remain no-repeat guarded
 
 #### Scenario: Progression choice request procedure is implemented
 - **WHEN** a technology or culture progression choice procedure requests a
