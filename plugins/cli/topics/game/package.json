@@ -33,6 +33,9 @@
       "game:play": {
         "description": "Turn-by-turn live-play shortcuts over direct-control"
       },
+      "game:play:diplomacy": {
+        "description": "Validate and send diplomatic action responses and first-meet greetings"
+      },
       "game:play:notifications": {
         "description": "Read, schedule, and dismiss live Civ7 notifications"
       },

@@ -29,6 +29,7 @@ game play status
 game play todo
 game play unit <show|targets|preview|check|send|operation>
 game play city <show|production|growth|workers|check|send>
+game play diplomacy <respond|respond-first-meet>
 game play notifications <list|show|schedule|dismiss|dismiss-reviewed>
 game play progress <show|tech|culture|tradition|attribute|narrative>
 game play trade <routes|preview|check|send>
@@ -74,6 +75,8 @@ compact play-agent output is introduced.
 | `game play ready-unit` | `game play unit show unit:next` | Also support structured IDs for exact units. |
 | `game play unit-target` | `game play unit targets` and `game play unit send target` | Split read-only target enumeration from mutation. |
 | `game play operation` | `game play unit operation`, `city operation`, `player operation` | Keep generic command as the escape hatch. |
+| `game play respond-diplomacy` | `game play diplomacy respond` | Preserve the ordinary diplomatic-response operation and its guarded send path. |
+| `game play respond-first-meet` | `game play diplomacy respond-first-meet` | Preserve named or numeric first-meet responses and postcondition proof. |
 | `game play notifications` | `game play notifications list` | Preserve the existing composite blocker, decision-HUD, and notification view. |
 | `game play notification-queue` | `game play notifications schedule` | Make scheduling a notifications subcommand. |
 | `game play dismiss-notification` | `game play notifications dismiss` | Keep explicit single-item review and `--send` mutation. |
@@ -108,13 +111,17 @@ compact play-agent output is introduced.
 2. **Notification namespace (landed 2026-07-28).** `list`, `schedule`,
    `dismiss`, and `dismiss-reviewed` now share one noun; prior flat paths remain
    hidden aliases. Bulk dismissal stays conservative and item-review gated.
-3. **City namespace.** Group `ready-city`, `build-production`, `build-unit`,
+3. **Diplomacy namespace (landed 2026-07-28).** `respond` and
+   `respond-first-meet` now share the diplomacy noun; their prior flat paths
+   remain hidden aliases. Notification inventory remains a separate input
+   surface rather than becoming diplomacy-owned.
+4. **City namespace.** Group `ready-city`, `build-production`, `build-unit`,
    `assign-worker`, `expand-city`, and town focus workflows. Risk: medium; city
    operations have different arg shapes and placement requirements.
-4. **Progress namespace.** Group tech, culture, traditions, attributes,
+5. **Progress namespace.** Group tech, culture, traditions, attributes,
    narrative, and celebration. Risk: medium; node hashes and closeout behavior
    must stay visible.
-5. **Summary-first output.** Apply the play-agent response contract to one read
+6. **Summary-first output.** Apply the play-agent response contract to one read
    command and one mutation before flipping any defaults. Risk: medium because
    hidden raw fields can remove tactical evidence if expansion flags are weak.
 

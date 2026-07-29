@@ -6,19 +6,20 @@ import {
   emitPlayResult,
   parseComponentId,
   validatePlayOperation,
-} from "../../../adapters/play/direct-control";
+} from "../../../../adapters/play/direct-control";
 
 const RESPOND_DIPLOMATIC_ACTION = "RESPOND_DIPLOMATIC_ACTION";
 
-export default class GamePlayRespondDiplomacy extends Command {
+export default class GamePlayDiplomacyRespond extends Command {
   static summary = "Validate or send a diplomacy response";
   static description =
     "Validates diplomacy responses as player operations, or sends them through the native control-oRPC diplomacy procedure when --send is explicit.";
+  static hiddenAliases = ["game:play:respond-diplomacy"];
 
   static examples = [
-    "<%= config.bin %> game play respond-diplomacy --player-id 0 --action-id 56 --response-type -1907089594 --json",
-    "<%= config.bin %> game play respond-diplomacy --action-id 56 --response-type -1907089594 --send --json",
-    '<%= config.bin %> game play respond-diplomacy --action-id 56 --response-type 926305338 --notification-id \'{"owner":0,"id":19,"type":20}\' --send --json',
+    "<%= config.bin %> game play diplomacy respond --player-id 0 --action-id 56 --response-type -1907089594 --json",
+    "<%= config.bin %> game play diplomacy respond --action-id 56 --response-type -1907089594 --send --json",
+    '<%= config.bin %> game play diplomacy respond --action-id 56 --response-type 926305338 --notification-id \'{"owner":0,"id":19,"type":20}\' --send --json',
   ];
 
   static flags = {
@@ -60,7 +61,7 @@ export default class GamePlayRespondDiplomacy extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayRespondDiplomacy);
+    const { flags } = await this.parse(GamePlayDiplomacyRespond);
     const options = buildDirectControlOptions(flags);
     if (flags.send) {
       const result = await createCiv7ControlOrpcServerClient({

@@ -38,6 +38,8 @@ const PUBLIC_COMMAND_IDS = [
   "game:play:consider-town-project",
   "game:play:consider-traditions",
   "game:play:destination-analysis",
+  "game:play:diplomacy:respond",
+  "game:play:diplomacy:respond-first-meet",
   "game:play:end-turn",
   "game:play:expand-city",
   "game:play:formation-snapshot",
@@ -53,8 +55,6 @@ const PUBLIC_COMMAND_IDS = [
   "game:play:ready-unit",
   "game:play:rehydrate",
   "game:play:resettle-unit",
-  "game:play:respond-diplomacy",
-  "game:play:respond-first-meet",
   "game:play:screen:dismiss",
   "game:play:screen:show",
   "game:play:set-culture-target",
@@ -77,6 +77,8 @@ const PUBLIC_COMMAND_IDS = [
 const PUBLIC_HIDDEN_ALIASES: Partial<
   Record<(typeof PUBLIC_COMMAND_IDS)[number], readonly string[]>
 > = {
+  "game:play:diplomacy:respond": ["game:play:respond-diplomacy"],
+  "game:play:diplomacy:respond-first-meet": ["game:play:respond-first-meet"],
   "game:play:notifications:dismiss": ["game:play:dismiss-notification"],
   "game:play:notifications:dismiss-reviewed": ["game:play:dismiss-notification-queue"],
   "game:play:notifications:list": ["game:play:notifications"],
@@ -98,6 +100,9 @@ const PUBLIC_TOPICS = {
   },
   "game:play": {
     description: "Turn-by-turn live-play shortcuts over direct-control",
+  },
+  "game:play:diplomacy": {
+    description: "Validate and send diplomatic action responses and first-meet greetings",
   },
   "game:play:notifications": {
     description: "Read, schedule, and dismiss live Civ7 notifications",

@@ -216,8 +216,8 @@ const TOPICS: ReadonlyArray<Topic> = [
       "docs/projects/civ7-live-play-support/topics/early-war-tactical-stale-state-guard.md",
     ],
     commands: [
-      "game play respond-diplomacy",
-      "game play respond-first-meet",
+      "game play diplomacy respond",
+      "game play diplomacy respond-first-meet",
       "game play notifications list",
       "game play notifications schedule",
       "game play notifications dismiss-reviewed",

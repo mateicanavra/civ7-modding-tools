@@ -371,8 +371,8 @@ Source artifacts:
 
 CLI shortcuts:
 
-- `game play respond-diplomacy`
-- `game play respond-first-meet`
+- `game play diplomacy respond`
+- `game play diplomacy respond-first-meet`
 
 Norms:
 

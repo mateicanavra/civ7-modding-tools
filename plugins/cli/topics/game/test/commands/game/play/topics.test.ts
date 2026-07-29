@@ -12,14 +12,16 @@ describe("game play topics command", () => {
       await GamePlayTopics.run(["--family", "pubsub", "--json"]);
       await GamePlayTopics.run(["--family", "blockers", "--json"]);
       await GamePlayTopics.run(["--family", "surface-design", "--json"]);
+      await GamePlayTopics.run(["--family", "diplomacy", "--json"]);
 
-      const [rhqPayload, eventPayload, blockersPayload, surfacePayload] = writes.map(
-        (write) =>
-          JSON.parse(write) as {
-            ok: true;
-            topics: Array<{ family: string; commands: string[]; boundary: string }>;
-          }
-      );
+      const [rhqPayload, eventPayload, blockersPayload, surfacePayload, diplomacyPayload] =
+        writes.map(
+          (write) =>
+            JSON.parse(write) as {
+              ok: true;
+              topics: Array<{ family: string; commands: string[]; boundary: string }>;
+            }
+        );
       expect(rhqPayload.topics).toHaveLength(1);
       expect(rhqPayload.topics[0].family).toBe("rhq-ai");
       expect(rhqPayload.topics[0].commands).toContain("game ai loaded-levers");
@@ -40,6 +42,14 @@ describe("game play topics command", () => {
       expect(surfacePayload.topics[0].commands).not.toContain(
         "future: game play notifications schedule"
       );
+      expect(diplomacyPayload.topics[0].commands).toEqual(
+        expect.arrayContaining([
+          "game play diplomacy respond",
+          "game play diplomacy respond-first-meet",
+        ])
+      );
+      expect(diplomacyPayload.topics[0].commands).not.toContain("game play respond-diplomacy");
+      expect(diplomacyPayload.topics[0].commands).not.toContain("game play respond-first-meet");
     } finally {
       log.mockRestore();
     }

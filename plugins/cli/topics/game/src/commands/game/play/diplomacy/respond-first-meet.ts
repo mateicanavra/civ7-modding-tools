@@ -6,7 +6,7 @@ import {
   buildDirectControlOptions,
   emitPlayResult,
   validatePlayOperation,
-} from "../../../adapters/play/direct-control";
+} from "../../../../adapters/play/direct-control";
 
 const RESPOND_DIPLOMATIC_FIRST_MEET = "RESPOND_DIPLOMATIC_FIRST_MEET";
 const FIRST_MEET_RESPONSE_KEYS = {
@@ -17,14 +17,15 @@ const FIRST_MEET_RESPONSE_KEYS = {
 
 type FirstMeetResponse = keyof typeof FIRST_MEET_RESPONSE_KEYS;
 
-export default class GamePlayRespondFirstMeet extends Command {
+export default class GamePlayDiplomacyRespondFirstMeet extends Command {
   static summary = "Validate or send a first-meet diplomacy greeting";
   static description =
     "Wraps player-operation RESPOND_DIPLOMATIC_FIRST_MEET with the two player ids and first-meet greeting Type from the live first-meet UI.";
+  static hiddenAliases = ["game:play:respond-first-meet"];
 
   static examples = [
-    "<%= config.bin %> game play respond-first-meet --player-id 0 --met-player-id 2 --response neutral --json",
-    "<%= config.bin %> game play respond-first-meet --met-player-id 2 --response neutral --send --json",
+    "<%= config.bin %> game play diplomacy respond-first-meet --player-id 0 --met-player-id 2 --response neutral --json",
+    "<%= config.bin %> game play diplomacy respond-first-meet --met-player-id 2 --response neutral --send --json",
   ];
 
   static flags = {
@@ -66,7 +67,7 @@ export default class GamePlayRespondFirstMeet extends Command {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(GamePlayRespondFirstMeet);
+    const { flags } = await this.parse(GamePlayDiplomacyRespondFirstMeet);
     const options = buildDirectControlOptions(flags);
     const responseType =
       flags["response-type"] ??
@@ -86,7 +87,9 @@ export default class GamePlayRespondFirstMeet extends Command {
       return;
     }
     if (typeof flags["player-id"] !== "number") {
-      throw new Error("game play respond-first-meet requires --player-id for dry-run validation");
+      throw new Error(
+        "game play diplomacy respond-first-meet requires --player-id for dry-run validation"
+      );
     }
 
     const input = {
@@ -109,7 +112,9 @@ async function resolveFirstMeetResponseType(
   options: Civ7DirectControlOptions
 ): Promise<number> {
   if (!response) {
-    throw new Error("game play respond-first-meet requires either --response-type or --response");
+    throw new Error(
+      "game play diplomacy respond-first-meet requires either --response-type or --response"
+    );
   }
   const key = FIRST_MEET_RESPONSE_KEYS[response];
   const result = await executeCiv7AppUiCommand({

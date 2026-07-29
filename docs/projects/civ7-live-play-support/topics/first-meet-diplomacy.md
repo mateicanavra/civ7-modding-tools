@@ -30,7 +30,7 @@ Use this sequence:
 4. Validate with:
 
 ```bash
-game play respond-first-meet \
+game play diplomacy respond-first-meet \
   --player-id <local-player-id> \
   --met-player-id <other-player-id> \
   --response neutral \
@@ -40,7 +40,7 @@ game play respond-first-meet \
 5. Send only after validation:
 
 ```bash
-game play respond-first-meet \
+game play diplomacy respond-first-meet \
   --player-id <local-player-id> \
   --met-player-id <other-player-id> \
   --response neutral \
@@ -63,7 +63,7 @@ operation.
 
 The materialized notification HUD now reads `notification.Player` for
 `NOTIFICATION_PLAYER_MET`. When the runtime exposes it, `details.player2` is the
-exact `--met-player-id` for `game play respond-first-meet`.
+exact `--met-player-id` for `game play diplomacy respond-first-meet`.
 
 Live turn 80 proof for Napoleon:
 

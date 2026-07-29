@@ -37,6 +37,9 @@ game                                  # the mount itself is the session noun (D1
 │   ├── screen                        # NEW play noun (D4)
 │   │   ├── show                      # read-only: mounted display-queue screens
 │   │   └── dismiss                   # drain cinematic moments (DisplayQueueManager)
+│   ├── diplomacy                     # diplomatic response operations
+│   │   ├── respond                   # validate or send an ordinary response
+│   │   └── respond-first-meet        # validate or send a first-meet greeting
 │   ├── notifications                 # live notification decision surface
 │   │   ├── list                      # composite blocker, HUD, and notification read
 │   │   ├── schedule                  # read-only prioritized decision schedule
@@ -63,9 +66,10 @@ game                                  # the mount itself is the session noun (D1
   focused flags. The only mutation under `map` is `visibility --reveal`,
   which keeps its `--disposable` gate verbatim.
 - **`game play` (D4/D7).** The play-agent grammar. `screen` owns display-queue
-  inspection and close handling. `notifications` owns notification inventory,
-  scheduling, single-item dismissal, and guarded reviewed closeout while hidden
-  aliases preserve the former flat paths. Further noun gathering follows the
+  inspection and close handling. `diplomacy` owns ordinary diplomatic responses
+  and first-meet greetings. `notifications` owns notification inventory,
+  scheduling, single-item dismissal, and guarded reviewed closeout. Hidden
+  aliases preserve all former flat paths. Further noun gathering follows the
   design doc's Priority Refactors.
 - **`game view` (D6).** Reserved for presentation/capture commands arriving
   from the rivers branch (`camera`, `screenshot`, `appshot`). Nothing may

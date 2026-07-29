@@ -1,13 +1,16 @@
 import { describe, expect, test, vi } from "vitest";
-import GamePlayRespondDiplomacy from "../../../../src/commands/game/play/respond-diplomacy";
-import { type FakeTunerServer, startFakeTunerServer } from "../../../support/tuner-socket-server";
+import GamePlayDiplomacyRespond from "../../../../../src/commands/game/play/diplomacy/respond";
+import {
+  type FakeTunerServer,
+  startFakeTunerServer,
+} from "../../../../support/tuner-socket-server";
 
 describe("game play diplomacy response commands", () => {
   test("wraps diplomacy response as RESPOND_DIPLOMATIC_ACTION", async () => {
     const server = await startDiplomacyResponseTunerServer();
     try {
       const { port } = server.address();
-      await runCommand(GamePlayRespondDiplomacy, [
+      await runCommand(GamePlayDiplomacyRespond, [
         "--host",
         "127.0.0.1",
         "--port",
@@ -36,7 +39,7 @@ describe("game play diplomacy response commands", () => {
     const server = await startDiplomacyResponseTunerServer();
     try {
       const { port } = server.address();
-      await runCommand(GamePlayRespondDiplomacy, [
+      await runCommand(GamePlayDiplomacyRespond, [
         "--host",
         "127.0.0.1",
         "--port",
@@ -70,13 +73,13 @@ describe("game play diplomacy response commands", () => {
     });
     const writes: string[] = [];
     const log = vi
-      .spyOn(GamePlayRespondDiplomacy.prototype, "log")
+      .spyOn(GamePlayDiplomacyRespond.prototype, "log")
       .mockImplementation((message?: string) => {
         if (message) writes.push(message);
       });
     try {
       const { port } = server.address();
-      await GamePlayRespondDiplomacy.run([
+      await GamePlayDiplomacyRespond.run([
         "--host",
         "127.0.0.1",
         "--port",
@@ -366,7 +369,7 @@ function playNotificationView(mode: "stale-diplomacy", diplomacyCloseoutObserved
     operationFamily: "player-operation",
     operationType: "RESPOND_DIPLOMATIC_ACTION",
     argsShape: "{ ID, Type }",
-    cli: "game play respond-diplomacy",
+    cli: "game play diplomacy respond",
     requiredInputs: [
       { name: "ID", source: "live diplomatic action", required: true },
       { name: "Type", source: "chosen diplomatic response", required: true },
@@ -402,7 +405,7 @@ function playNotificationView(mode: "stale-diplomacy", diplomacyCloseoutObserved
           enabled: true,
           disabled: false,
           validation: { ok: true, value: { Success: true } },
-          cli: 'game play respond-diplomacy --action-id 8 --response-type 926305338 --notification-id \'{"owner":0,"id":19,"type":20}\' --send',
+          cli: 'game play diplomacy respond --action-id 8 --response-type 926305338 --notification-id \'{"owner":0,"id":19,"type":20}\' --send',
         },
       ],
       disabledOptions: [],

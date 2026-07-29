@@ -43,7 +43,7 @@ is waiting. Work `priorities[]` top-down. Map each `kind` to the handler:
 | government / tradition / attribute available | Step 3 → `choose-government` / `change-tradition` / `buy-attribute` |
 | narrative / era event | Step 3 → `choose-narrative` |
 | celebration available | Step 3 → `choose-celebration` |
-| diplomacy / first-meet request | Step 3 → `respond-diplomacy` / `respond-first-meet` |
+| diplomacy / first-meet request | Step 3 → `diplomacy respond` / `diplomacy respond-first-meet` |
 | ready unit needs orders | Step 4 |
 | city needs production / population to place | Step 5 |
 | informational notifications piling up | `notifications dismiss-reviewed --send` (after reading) |
@@ -71,8 +71,8 @@ $CLI game play choose-tech --node <nodeType> --send --json   # confirm result.ve
 - **Government / tradition / attribute / celebration:** read options, choose per
   strategy, send. Spend attribute points into the tree matching your path.
 - **Diplomacy / first-meet:** read `notifications list`; the decision item
-  carries the ids to echo into `respond-diplomacy` (`--action-id`,
-  `--response-type`) or `respond-first-meet` (`--met-player-id`,
+  carries the ids to echo into `diplomacy respond` (`--action-id`,
+  `--response-type`) or `diplomacy respond-first-meet` (`--met-player-id`,
   `--response-type`/`--response`) — see `command-reference.md`. Default: accept
   friendly/neutral first-meets; do not declare war unless told to.
 

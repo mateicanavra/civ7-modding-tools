@@ -178,7 +178,7 @@ proof, source snapshot keys, and required postcondition.
 Examples:
 
 - `unit-target` says a Ballista attack or move target is valid;
-- `respond-diplomacy` validates a specific `{ ID, Type }`;
+- `diplomacy respond` validates a specific `{ ID, Type }`;
 - `build-production` validates a city production choice and placement plot.
 
 A command intent expires whenever any source snapshot lease expires or any

@@ -189,8 +189,8 @@ The first CLI shortcut family lives under `civ7 game play`:
 - `game play set-tech-target`
 - `game play choose-culture`
 - `game play set-culture-target`
-- `game play respond-diplomacy`
-- `game play respond-first-meet`
+- `game play diplomacy respond`
+- `game play diplomacy respond-first-meet`
 - `game play choose-narrative` (`--options --json` reads the official
   story-model option surface before selecting a branch or `CLOSE` closeout; if
   no pending story id exists, inspect the surfaced dismissal diagnostic instead

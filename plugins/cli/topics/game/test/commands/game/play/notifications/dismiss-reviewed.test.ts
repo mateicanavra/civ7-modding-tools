@@ -254,7 +254,7 @@ function decisionQueueFor(mode: DismissQueueMode) {
       summary: "Lafayette has started a Diplomatic Action with you.",
       category: "diplomacy-response",
       operationType: "RESPOND_DIPLOMATIC_ACTION",
-      cli: "game play respond-diplomacy",
+      cli: "game play diplomacy respond",
       requiredInputs: [{ name: "ID", source: "live diplomatic action", required: true }],
       isEndTurnBlocking: true,
     }),

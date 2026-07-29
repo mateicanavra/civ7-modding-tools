@@ -27,12 +27,12 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** normalize the first earned `game` noun family without
-changing its capabilities. The notification inventory, queue schedule,
-single-item dismissal, and reviewed bulk dismissal become explicit verbs under
-`game:play:notifications`; each former flat path remains a hidden compatibility
-alias. Source paths own the new canonical grammar, while tests prove every
-canonical and legacy invocation resolves to the same implementation owner.
+**Current container:** normalize the next mechanically closed `game` noun
+family without changing its capabilities. Ordinary diplomatic responses and
+first-meet greetings become explicit commands under `game:play:diplomacy`;
+each former flat path remains a hidden compatibility alias. Source paths own
+the new canonical grammar, while tests prove every canonical and legacy
+invocation resolves to the same implementation owner.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -49,11 +49,12 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** relocate the four notification commands without changing their
+**Gradient:** relocate the two diplomacy commands without changing their
 implementation -> preserve old invocations as hidden aliases -> update the
 active command surface and exact topic contract -> prove canonical and legacy
-resolution plus unchanged behavior -> land the family -> audit the remaining
-game grammar from actual capabilities before admitting the next family.
+resolution plus unchanged behavior -> land the family -> reclaim the
+notification-owned advisor warning -> gather the read-only tactical lenses
+only if their shared planning noun remains behaviorally honest.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -96,6 +97,16 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - CLI Notification Topic Sealed
+
+Notification inventory, scheduling, single-item dismissal, and reviewed bulk
+dismissal now share one `game:play:notifications` noun. Every prior flat path
+remains a hidden alias, source and manifest identities are exact, and canonical
+plus legacy invocations resolve to the same implementation owner. The complete
+CLI graph, generic topic laws, boundaries, dead-code proof, staged hook, and
+fresh architecture and product reviews sealed the first capability-shaped
+grammar migration.
 
 ### 2026-07-28 - CLI Command Identity Sealed
 

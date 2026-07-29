@@ -1,13 +1,16 @@
 import { describe, expect, test, vi } from "vitest";
-import GamePlayRespondFirstMeet from "../../../../src/commands/game/play/respond-first-meet";
-import { type FakeTunerServer, startFakeTunerServer } from "../../../support/tuner-socket-server";
+import GamePlayDiplomacyRespondFirstMeet from "../../../../../src/commands/game/play/diplomacy/respond-first-meet";
+import {
+  type FakeTunerServer,
+  startFakeTunerServer,
+} from "../../../../support/tuner-socket-server";
 
 describe("game play first-meet diplomacy command", () => {
   test("wraps first-meet diplomacy as RESPOND_DIPLOMATIC_FIRST_MEET", async () => {
     const server = await startFirstMeetTunerServer();
     try {
       const { port } = server.address();
-      await runCommand(GamePlayRespondFirstMeet, [
+      await runCommand(GamePlayDiplomacyRespondFirstMeet, [
         "--host",
         "127.0.0.1",
         "--port",
@@ -37,13 +40,13 @@ describe("game play first-meet diplomacy command", () => {
     const server = await startFirstMeetTunerServer();
     const writes: string[] = [];
     const log = vi
-      .spyOn(GamePlayRespondFirstMeet.prototype, "log")
+      .spyOn(GamePlayDiplomacyRespondFirstMeet.prototype, "log")
       .mockImplementation((message?: string) => {
         if (message) writes.push(message);
       });
     try {
       const { port } = server.address();
-      await GamePlayRespondFirstMeet.run([
+      await GamePlayDiplomacyRespondFirstMeet.run([
         "--host",
         "127.0.0.1",
         "--port",
@@ -97,13 +100,13 @@ describe("game play first-meet diplomacy command", () => {
     const server = await startFirstMeetTunerServer({ firstMeetMode: "sticky" });
     const writes: string[] = [];
     const log = vi
-      .spyOn(GamePlayRespondFirstMeet.prototype, "log")
+      .spyOn(GamePlayDiplomacyRespondFirstMeet.prototype, "log")
       .mockImplementation((message?: string) => {
         if (message) writes.push(message);
       });
     try {
       const { port } = server.address();
-      await GamePlayRespondFirstMeet.run([
+      await GamePlayDiplomacyRespondFirstMeet.run([
         "--host",
         "127.0.0.1",
         "--port",
@@ -351,7 +354,7 @@ function firstMeetNotificationView(mode: "first-meet" | "ready-unit") {
     operationFamily: "player-operation",
     operationType: "RESPOND_DIPLOMATIC_FIRST_MEET",
     argsShape: "{ Player1, Player2, Type }",
-    cli: "game play respond-first-meet",
+    cli: "game play diplomacy respond-first-meet",
     requiredInputs: [
       { name: "Player1", source: "local player id", required: true },
       { name: "Player2", source: "met player id", required: true },
@@ -360,7 +363,7 @@ function firstMeetNotificationView(mode: "first-meet" | "ready-unit") {
     commonActions: [
       {
         label: "send neutral first-meet greeting",
-        cli: "game play respond-first-meet --met-player-id 2 --response neutral --send",
+        cli: "game play diplomacy respond-first-meet --met-player-id 2 --response neutral --send",
         operationFamily: "player-operation",
         operationType: "RESPOND_DIPLOMATIC_FIRST_MEET",
         argsShape: "{ Player1, Player2, Type }",
