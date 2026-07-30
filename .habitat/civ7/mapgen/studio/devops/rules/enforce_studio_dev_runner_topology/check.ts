@@ -222,10 +222,9 @@ if (buildContractAliases.length > 0) {
 
 const ignored = field(field(serveServer, "watch"), "ignored");
 const requiredIgnores = [
-  "**/plugins/mod/map/swooper-physics/dist/**",
+  "**/plugins/**/dist/**",
   "**/apps/mods/map/swooper-physics/mod/**",
   "**/apps/mods/map/swooper-physics/src/maps/generated/**",
-  "**/plugins/mod/map/swooper-physics/src/maps/configs/*.config.json",
 ];
 if (!Array.isArray(ignored)) {
   failures.push("vite server.watch.ignored must be an array");

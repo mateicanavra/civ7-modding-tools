@@ -10,6 +10,14 @@ export default defineConfig({
     projects: [
       {
         extends: true,
+        root: r("scripts/civ7-resources"),
+        test: {
+          name: "workspace-resources",
+          testTimeout: 30_000,
+        },
+      },
+      {
+        extends: true,
         root: r("packages/cli"),
         test: {
           name: "cli",

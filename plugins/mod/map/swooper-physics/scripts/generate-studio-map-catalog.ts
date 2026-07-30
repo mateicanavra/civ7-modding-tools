@@ -1,84 +1,19 @@
-import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   applyGeneratedFilePlan,
   type GeneratedFilePlan,
 } from "@civ7/plugin-files/generated-file-plan";
-import type { MapConfigId } from "@civ7/studio-contract";
-import type { TSchema } from "typebox";
-
-import { admitMapConfigCatalogConfig } from "../src/maps/catalog/admission.js";
-import {
-  admitMapConfigCatalogIds,
-  MAP_CONFIG_CATALOG_IDS,
-} from "../src/maps/catalog/membership.js";
 import {
   buildCanonicalMapConfigSchema,
   type ValidatedMapConfig,
 } from "../src/maps/configs/canonical.js";
 import { deriveStandardRecipeArtifacts } from "../src/recipes/standard/artifacts.js";
+import { loadSwooperMapConfigCatalog } from "./catalog-source.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const pkgRoot = resolve(__dirname, "..");
-const repoRoot = resolve(pkgRoot, "../../../..");
-const catalogConfigDirectory = "plugins/mod/map/swooper-physics/src/maps/configs";
-
-/** Loads the authored catalog in its explicit product-owned membership order. */
-export async function loadSwooperMapConfigRegistry(
-  options: Readonly<{
-    catalogConfigIds?: unknown;
-    recipeSchema?: TSchema;
-    repoRoot?: string;
-  }> = {}
-): Promise<ValidatedMapConfig[]> {
-  const configIds = admitMapConfigCatalogIds(options.catalogConfigIds ?? MAP_CONFIG_CATALOG_IDS);
-  const root = options.repoRoot ?? repoRoot;
-  const configsById = new Map<string, ValidatedMapConfig>();
-  const readErrors: string[] = [];
-
-  for (const configId of configIds) {
-    const configPath = catalogConfigPath(configId);
-    try {
-      const raw = JSON.parse(await readFile(resolve(root, configPath), "utf-8")) as unknown;
-      configsById.set(
-        configId,
-        admitMapConfigCatalogConfig({
-          configId,
-          canonicalConfig: raw,
-          recipeSchema: options.recipeSchema,
-        })
-      );
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      readErrors.push(`${configPath}: ${message}`);
-    }
-  }
-
-  if (readErrors.length > 0) {
-    throw new Error(
-      `Invalid Swooper map catalog config references:\n${readErrors
-        .map((error) => `- ${error}`)
-        .join("\n")}`
-    );
-  }
-
-  const configs = configIds.map((configId) => {
-    const config = configsById.get(configId);
-    if (!config) throw new Error(`Catalog config was not loaded: ${configId}`);
-    return config;
-  });
-  if (configs.length === 0) {
-    throw new Error(`No canonical map configs found in ${catalogConfigDirectory}`);
-  }
-  return configs;
-}
-
-function catalogConfigPath(configId: MapConfigId): string {
-  return `${catalogConfigDirectory}/${configId}.config.json`;
-}
-
 function stableJson(value: unknown): string {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
@@ -131,14 +66,11 @@ export async function generateSwooperStudioCatalogMetadata(
   options: Readonly<{
     catalogConfigIds?: unknown;
     outputRoot?: string;
-    repoRoot?: string;
   }> = {}
 ): Promise<{ configCount: number }> {
   const { schema: recipeSchema } = deriveStandardRecipeArtifacts();
-  const configs = await loadSwooperMapConfigRegistry({
+  const configs = await loadSwooperMapConfigCatalog({
     catalogConfigIds: options.catalogConfigIds,
-    recipeSchema,
-    repoRoot: options.repoRoot,
   });
   const envelopeSchema = buildCanonicalMapConfigSchema(recipeSchema);
   const plan = buildSwooperCatalogMetadataFilePlan({ configs, envelopeSchema });

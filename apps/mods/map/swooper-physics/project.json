@@ -189,6 +189,20 @@
       "options": {
         "cwd": "apps/mods/map/swooper-physics"
       }
+    },
+    "deploy:studio": {
+      "command": "node ../../../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps",
+      "dependsOn": [
+        "build:studio-deploy",
+        {
+          "projects": ["civ7-cli"],
+          "target": "build"
+        }
+      ],
+      "cache": false,
+      "options": {
+        "cwd": "apps/mods/map/swooper-physics"
+      }
     }
   }
 }

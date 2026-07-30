@@ -23,8 +23,11 @@ built.
 
 ## Current smoke tests
 
-- The resource-submodule bootstrap script refuses unsafe or incomplete states.
+- The shell registers exactly the five admitted CLI plugins.
+- The production binary starts successfully and exposes the five topic roots.
 
-## Suggested future tests
+The workspace-owned Civ7 resource acquisition proof runs separately:
 
-- CLI startup and global hooks exercise their shell-owned behavior directly.
+```bash
+bun run resources:test
+```

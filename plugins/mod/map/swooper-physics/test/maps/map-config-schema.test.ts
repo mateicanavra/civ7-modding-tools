@@ -1,8 +1,11 @@
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
 import { Type } from "typebox";
 import { describe, expect, it } from "vitest";
+import { loadSwooperMapConfigCatalog } from "../../scripts/catalog-source";
+import { createSwooperMapConfigSourceStore } from "../../scripts/config-source-store";
 import { admitMapConfigCatalogConfig } from "../../src/maps/catalog/admission";
 import { MAP_CONFIG_CATALOG_IDS } from "../../src/maps/catalog/membership";
 import {
@@ -13,25 +16,8 @@ import standardRecipe, { STANDARD_STAGES } from "../../src/recipes/standard/reci
 import { createStandardRecipeTestInitialSetup } from "../recipes/swooper-physics-standard/fixtures/standard-recipe.js";
 import { TEST_MAP_SIZE } from "../setup.js";
 
-const packageRoot = resolve(import.meta.dirname, "../..");
-
 async function loadSwooperMapConfigRegistry() {
-  const recipeSchema = deriveRecipeConfigSchema(STANDARD_STAGES);
-  return Promise.all(
-    MAP_CONFIG_CATALOG_IDS.map(async (configId) => ({
-      configId,
-      ...admitMapConfigCatalogConfig({
-        configId,
-        canonicalConfig: JSON.parse(
-          await readFile(
-            resolve(packageRoot, `src/maps/configs/${configId}.config.json`),
-            "utf8"
-          )
-        ) as unknown,
-        recipeSchema,
-      }),
-    }))
-  );
+  return loadSwooperMapConfigCatalog();
 }
 
 function authoredEnvelope(
@@ -48,6 +34,37 @@ describe("Shipped map configs", () => {
 
     for (const [index, config] of configs.entries()) {
       expect(config.canonicalConfig.id).toBe(MAP_CONFIG_CATALOG_IDS[index]);
+    }
+  });
+
+  it("owns authored source writes and exact rollback behind one opaque transaction", async () => {
+    const [fixture] = await loadSwooperMapConfigRegistry();
+    if (!fixture) throw new Error("Expected a shipped Swooper map config");
+    const root = await mkdtemp(join(tmpdir(), "swooper-config-source-"));
+    const source = createSwooperMapConfigSourceStore(root);
+    const target = join(root, `${fixture.canonicalConfig.id}.config.json`);
+    const previous = "{\"preserved\":true}\n";
+
+    try {
+      await writeFile(target, previous);
+      const write = await source.prepareWrite(fixture.canonicalConfig);
+      await write.write();
+      expect(JSON.parse(await readFile(target, "utf8"))).toEqual(fixture.canonicalConfig);
+      await expect(write.rollback()).resolves.toEqual({ restored: true });
+      expect(await readFile(target, "utf8")).toBe(previous);
+
+      const transient = {
+        ...structuredClone(fixture.canonicalConfig),
+        id: "transient-studio-config",
+      };
+      const transientWrite = await source.prepareWrite(transient);
+      await transientWrite.write();
+      const [loadedTransient] = await source.loadCatalog([transient.id]);
+      expect(loadedTransient?.canonicalConfig).toEqual(transient);
+      await expect(transientWrite.rollback()).resolves.toEqual({ deleted: true });
+      await expect(readFile(join(root, "transient-studio-config.config.json"))).rejects.toThrow();
+    } finally {
+      await rm(root, { recursive: true, force: true });
     }
   });
 
@@ -102,7 +119,7 @@ describe("Shipped map configs", () => {
 
     expect(() => admitStandardMapConfig(raw)).toThrow("Unknown key");
     const admitted = admitMapConfigCatalogConfig({
-      configId: fixture.configId,
+      configId: fixture.canonicalConfig.id,
       canonicalConfig: raw,
       recipeSchema: freshSchema,
     });

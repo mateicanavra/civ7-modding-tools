@@ -10,6 +10,7 @@ import {
   readStudioRunGenerationManifest,
   runCorrelationForManifest,
 } from "@civ7/studio-run-workspace";
+import { STANDARD_RECIPE_ID } from "@swooper/swooper-physics/standard";
 import { admitStandardMapConfig } from "@swooper/swooper-physics/standard/map-config";
 import { build } from "esbuild";
 import {
@@ -19,7 +20,6 @@ import {
 } from "./map-artifacts/file-plan.js";
 
 const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const SWOOPER_STANDARD_RECIPE_ID = "standard";
 
 type SwooperRunGeneratedMod = Readonly<{
   runArtifactId: string;
@@ -80,9 +80,9 @@ function resolveSwooperRunGeneratedModRoot(
 export function verifySwooperStandardRunManifest(
   manifest: StudioRunGenerationManifest
 ): VerifiedSwooperStandardRun {
-  if (manifest.payload.launchEnvelope.canonicalConfig.recipe !== SWOOPER_STANDARD_RECIPE_ID) {
+  if (manifest.payload.launchEnvelope.canonicalConfig.recipe !== STANDARD_RECIPE_ID) {
     throw new Error(
-      `Swooper run manifest recipe envelope must be ${SWOOPER_STANDARD_RECIPE_ID}; got ${manifest.payload.launchEnvelope.canonicalConfig.recipe}.`
+      `Swooper run manifest recipe envelope must be ${STANDARD_RECIPE_ID}; got ${manifest.payload.launchEnvelope.canonicalConfig.recipe}.`
     );
   }
   const config = admitStandardMapConfig(manifest.payload.launchEnvelope.canonicalConfig);

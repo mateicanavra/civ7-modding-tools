@@ -25,6 +25,10 @@
       "types": "./src/maps/catalog/public.ts",
       "import": "./src/maps/catalog/public.ts"
     },
+    "./tooling/catalog-source": {
+      "types": "./scripts/catalog-source.ts",
+      "import": "./scripts/catalog-source.ts"
+    },
     "./mod-definition": {
       "types": "./src/mod-definition.ts",
       "import": "./src/mod-definition.ts"
