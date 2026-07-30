@@ -1,30 +1,14 @@
-import { getCiv7PlayNotificationView } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
 import { createCiv7GameControlClient } from "../../../adapters/control/service-client";
-import {
-  buildDirectControlOptions,
-  emitPlayResult,
-  validatePlayOperation,
-} from "../../../adapters/play/direct-control";
-
-const CHOOSE_GOLDEN_AGE = "CHOOSE_GOLDEN_AGE";
-
-type CelebrationOptionAction = {
-  kind: "choose-celebration" | "validate-celebration-choice";
-  label: string;
-  parameters: Record<string, unknown>;
-  readOnly: boolean;
-  sendsMutation: boolean;
-};
+import { buildDirectControlOptions, emitPlayResult } from "../../../adapters/play/direct-control";
 
 export default class GamePlayChooseCelebration extends Command {
-  static summary = "Validate or choose a celebration bonus";
+  static summary = "Check or choose a celebration bonus";
   static description =
-    "Wraps player-operation CHOOSE_GOLDEN_AGE with the GoldenAgeType hash from the live celebration chooser.";
+    "Checks the exact live celebration choice through the control service, or requests it when --send is explicit.";
 
   static examples = [
-    "<%= config.bin %> game play choose-celebration --options --json",
-    "<%= config.bin %> game play choose-celebration --player-id 0 --golden-age-type -340825966 --json",
+    "<%= config.bin %> game play choose-celebration --golden-age-type -340825966 --json",
     "<%= config.bin %> game play choose-celebration --golden-age-type -340825966 --send --json",
   ];
 
@@ -35,18 +19,12 @@ export default class GamePlayChooseCelebration extends Command {
     port: Flags.integer({
       description: "Civ7 tuner socket port",
     }),
-    "player-id": Flags.integer({
-      description: "Player id",
-    }),
     "golden-age-type": Flags.integer({
       description: "GoldenAgeType hash from the live celebration chooser",
-    }),
-    options: Flags.boolean({
-      description: "Read celebration choice options from the live notification HUD without sending",
-      default: false,
+      required: true,
     }),
     send: Flags.boolean({
-      description: "Send CHOOSE_GOLDEN_AGE after validator success",
+      description: "Request the celebration choice after the service-owned availability check",
       default: false,
     }),
     "timeout-ms": Flags.integer({
@@ -61,154 +39,16 @@ export default class GamePlayChooseCelebration extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayChooseCelebration);
-    const options = buildDirectControlOptions(flags);
-    if (flags.options) {
-      if (flags.send)
-        throw new Error("game play choose-celebration --options is read-only; omit --send");
-      const view = await getCiv7PlayNotificationView(options);
-      const details = celebrationChoiceDetails(view);
-      const surfaces = details.map(compactCelebrationChoiceSurface);
-      emitPlayResult(this.log.bind(this), flags.json, {
-        surface: "celebration-choice-options",
-        surfaces,
-        enabledOptionCount: surfaces.reduce(
-          (count, surface) => count + surface.enabledOptions.length,
-          0
-        ),
-        disabledOptionCount: surfaces.reduce(
-          (count, surface) => count + surface.disabledOptionCount,
-          0
-        ),
-        omitted: [
-          {
-            path: "details[].options",
-            reason: "enabled rows carry semantic celebration fields and validation descriptors",
-          },
-          {
-            path: "details[].disabledOptions",
-            reason: "disabled choices are counted but kept out of mutation action recommendations",
-          },
-          {
-            path: "details[].choices",
-            reason: "official chooser choices are summarized on enabled rows",
-          },
-        ],
-        notes: ["Rows come from live HUD choices with official celebration validation evidence."],
-      });
-      return;
-    }
-    if (typeof flags["golden-age-type"] !== "number") {
-      throw new Error(
-        "game play choose-celebration requires --golden-age-type unless --options is used"
-      );
-    }
-    if (flags.send) {
-      const result = await createCiv7GameControlClient({
-        endpointDefaults: options,
-      }).government.celebration.choice.request({
-        goldenAgeType: flags["golden-age-type"],
-      });
-      emitPlayResult(this.log.bind(this), flags.json, result);
-      return;
-    }
-    if (typeof flags["player-id"] !== "number") {
-      throw new Error("game play choose-celebration requires --player-id unless --options is used");
-    }
     const input = {
-      operationType: CHOOSE_GOLDEN_AGE,
-      playerId: flags["player-id"],
-      args: {
-        GoldenAgeType: flags["golden-age-type"],
-      },
+      goldenAgeType: flags["golden-age-type"],
     };
-    const result = await validatePlayOperation("player-operation", input, options);
+    const client = createCiv7GameControlClient({
+      endpointDefaults: buildDirectControlOptions(flags),
+    });
+    const result = flags.send
+      ? await client.government.celebration.choice.request(input)
+      : await client.government.celebration.choice.check(input);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }
-}
-
-function celebrationChoiceDetails(
-  view: Awaited<ReturnType<typeof getCiv7PlayNotificationView>>
-): Record<string, unknown>[] {
-  const details = [
-    ...view.notifications.map((notification) => notification.details),
-    view.hud?.nextDecision?.details,
-    ...(view.hud?.decisionQueue ?? []).map((decision) => decision.details),
-  ];
-  const seen = new Set<string>();
-  return details.filter((detail): detail is Record<string, unknown> => {
-    if (!detail || typeof detail !== "object") return false;
-    const record = detail as Record<string, unknown>;
-    if (record.kind !== "celebration-choice-options") return false;
-    const key = JSON.stringify(
-      record.notificationId ?? record.currentGovernmentType ?? record.localPlayerId
-    );
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
-function compactCelebrationChoiceSurface(details: Record<string, unknown>): {
-  kind: "celebration-choice-options";
-  notificationId: unknown;
-  localPlayerId: unknown;
-  currentGovernmentType: unknown;
-  goldenAgeDuration: unknown;
-  enabledOptions: Array<Record<string, unknown>>;
-  enabledOptionCount: number;
-  disabledOptionCount: number;
-} {
-  const enabledOptions = asArray(details.enabledOptions)
-    .filter((option): option is Record<string, unknown> =>
-      Boolean(option && typeof option === "object")
-    )
-    .map((option) => ({
-      goldenAgeType: option.goldenAgeType,
-      goldenAgeTypeName: option.goldenAgeTypeName,
-      name: option.name,
-      description: option.description,
-      duration: option.duration,
-      nextAction: celebrationOptionAction("choose-celebration", option),
-      validationAction: celebrationOptionAction("validate-celebration-choice", option),
-    }));
-  return {
-    kind: "celebration-choice-options",
-    notificationId: details.notificationId ?? null,
-    localPlayerId: details.localPlayerId ?? null,
-    currentGovernmentType: probeValue(details.currentGovernmentType),
-    goldenAgeDuration: probeValue(details.goldenAgeDuration),
-    enabledOptions,
-    enabledOptionCount: enabledOptions.length,
-    disabledOptionCount: asArray(details.disabledOptions).length,
-  };
-}
-
-function celebrationOptionAction(
-  kind: CelebrationOptionAction["kind"],
-  option: Record<string, unknown>
-): CelebrationOptionAction {
-  const readOnly = kind === "validate-celebration-choice";
-  return {
-    kind,
-    label: readOnly ? "Validate celebration choice." : "Choose celebration.",
-    parameters: {
-      goldenAgeType: option.goldenAgeType,
-      goldenAgeTypeName: option.goldenAgeTypeName,
-    },
-    readOnly,
-    sendsMutation: !readOnly,
-  };
-}
-
-function asArray(value: unknown): unknown[] {
-  return Array.isArray(value) ? value : [];
-}
-
-function probeValue(value: unknown): unknown {
-  if (value && typeof value === "object" && "ok" in value) {
-    const probe = value as { ok?: unknown; value?: unknown };
-    return probe.ok === true ? (probe.value ?? null) : null;
-  }
-  return value ?? null;
 }

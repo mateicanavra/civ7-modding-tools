@@ -1,7 +1,28 @@
 # Production Choice Native Procedure Slice
 
-Status: implemented local package slice.
+Status: implemented historical local package slice; current ownership
+superseded 2026-07-29.
 Date: 2026-06-04.
+
+## Current Disposition
+
+This record preserves the accepted 2026-06-04 slice and its then-current proof;
+the write set, behavior boundary, and proof commands below are historical rather
+than current path or ownership claims.
+
+The current production-choice boundary supersedes that slice as follows:
+
+- `@civ7/direct-control` owns exact `checkCiv7ProductionChoice` and
+  `sendCiv7ProductionChoice` wire atoms, including command serialization,
+  validator/send adaptation, and raw evidence snapshots;
+- `services/civ7-control` owns the `city.production.choice.check` and
+  `city.production.choice.request` contracts and orchestration, including
+  mutation readiness, dispatch uncertainty, bounded post-send checking,
+  production postcondition classification, and no-repeat-after-unverified
+  policy;
+- the former direct-control `requestCiv7ProductionChoice` orchestration,
+  production postcondition/proof helpers, production-choice telemetry adapter,
+  and their focused tests are retired rather than current authorities.
 
 ## Purpose
 

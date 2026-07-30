@@ -4,15 +4,12 @@ import {
   buildDirectControlOptions,
   emitPlayResult,
   parseComponentId,
-  validatePlayOperation,
 } from "../../../adapters/play/direct-control";
-
-const EXPAND = "EXPAND";
 
 export default class GamePlayExpandCity extends Command {
   static summary = "Validate or send a city expansion placement";
   static description =
-    "Validates city-command EXPAND choices, or sends city expansion through the native control-oRPC city population procedure when --send is explicit.";
+    "Checks whether the selected plot can expand the city, or requests expansion when --send is explicit.";
 
   static examples = [
     '<%= config.bin %> game play expand-city --city-id \'{"owner":0,"id":196610,"type":1}\' --x 16 --y 19 --json',
@@ -39,7 +36,7 @@ export default class GamePlayExpandCity extends Command {
       required: true,
     }),
     send: Flags.boolean({
-      description: "Send EXPAND after validator success",
+      description: "Request city expansion after the native availability check",
       default: false,
     }),
     "timeout-ms": Flags.integer({
@@ -55,26 +52,19 @@ export default class GamePlayExpandCity extends Command {
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayExpandCity);
     const input = {
-      operationType: EXPAND,
+      mode: "expand-city" as const,
       cityId: parseComponentId(flags["city-id"], "city-id"),
-      args: {
-        X: flags.x,
-        Y: flags.y,
+      destination: {
+        x: flags.x,
+        y: flags.y,
       },
     };
-    const options = buildDirectControlOptions(flags);
+    const client = createCiv7GameControlClient({
+      endpointDefaults: buildDirectControlOptions(flags),
+    });
     const result = flags.send
-      ? await createCiv7GameControlClient({
-          endpointDefaults: options,
-        }).city.population.place.request({
-          mode: "expand-city",
-          cityId: input.cityId,
-          destination: {
-            x: flags.x,
-            y: flags.y,
-          },
-        })
-      : await validatePlayOperation("city-command", input, options);
+      ? await client.city.population.place.request(input)
+      : await client.city.population.place.check(input);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }

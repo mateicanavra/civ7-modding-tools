@@ -23,6 +23,7 @@ type SharedSessionServer = Readonly<{
 }>;
 
 type SharedSessionServerOptions = Readonly<{
+  closeAfterFirstCommandWithoutResponse?: boolean;
   endAfterFirstCommand?: boolean;
   endAfterFirstStateQuery?: boolean;
   holdFirstFinOpen?: boolean;
@@ -156,6 +157,7 @@ describe("caller-owned shared tuner session", () => {
         })
       ).rejects.toMatchObject({
         code: "socket-closed",
+        dispatchStatus: "indeterminate",
       });
 
       await expect(
@@ -178,6 +180,31 @@ describe("caller-owned shared tuner session", () => {
           .filter(({ connection }) => connection === 2)
           .map(({ message }) => message)
       ).toEqual(["LSQ:", "CMD:2:second"]);
+    } finally {
+      await session.close();
+    }
+  });
+
+  test("classifies an epoch guard failure before CMD write as not dispatched", async () => {
+    const server = await startSharedSessionServer();
+    const session = new Civ7DirectControlSession({ host: "127.0.0.1", port: server.port });
+    Object.defineProperty(session, "connectionEpoch", {
+      configurable: true,
+      get: () => 0,
+    });
+    try {
+      await expect(
+        executeCiv7Command({
+          port: server.port,
+          session,
+          command: "blocked-by-epoch-guard",
+          timeoutMs: 1_000,
+        })
+      ).rejects.toMatchObject({
+        code: "socket-closed",
+        dispatchStatus: "not-dispatched",
+      });
+      expect(server.received().map(({ message }) => message)).toEqual(["LSQ:"]);
     } finally {
       await session.close();
     }
@@ -228,6 +255,81 @@ describe("caller-owned shared tuner session", () => {
     expect(server.finReceived()).toBe(true);
   });
 
+  test("classifies a state-query timeout before CMD write as not dispatched", async () => {
+    const server = await startSharedSessionServer({ silent: true });
+    const session = new Civ7DirectControlSession({ host: "127.0.0.1", port: server.port });
+    try {
+      await expect(
+        executeCiv7Command({
+          port: server.port,
+          session,
+          command: "never-written",
+          timeoutMs: 50,
+        })
+      ).rejects.toMatchObject({
+        code: "response-timeout",
+        dispatchStatus: "not-dispatched",
+      });
+      expect(server.received().map(({ message }) => message)).toEqual(["LSQ:"]);
+    } finally {
+      await session.close();
+    }
+  });
+
+  test("classifies a socket close after CMD write as indeterminate", async () => {
+    const server = await startSharedSessionServer({
+      closeAfterFirstCommandWithoutResponse: true,
+    });
+    const session = new Civ7DirectControlSession({ host: "127.0.0.1", port: server.port });
+    try {
+      await expect(
+        executeCiv7Command({
+          port: server.port,
+          session,
+          command: "written-before-close",
+          timeoutMs: 1_000,
+        })
+      ).rejects.toMatchObject({
+        code: "socket-closed",
+        dispatchStatus: "indeterminate",
+      });
+      expect(server.received().map(({ message }) => message)).toEqual([
+        "LSQ:",
+        "CMD:65535:written-before-close",
+      ]);
+    } finally {
+      await session.close();
+    }
+  });
+
+  test("classifies a local failure after the CMD response as dispatched", async () => {
+    const server = await startSharedSessionServer();
+    const session = new Civ7DirectControlSession({ host: "127.0.0.1", port: server.port });
+    Object.defineProperty(session, "endpoint", {
+      configurable: true,
+      get: () => undefined,
+    });
+    try {
+      await expect(
+        executeCiv7Command({
+          port: server.port,
+          session,
+          command: "response-observed",
+          timeoutMs: 1_000,
+        })
+      ).rejects.toMatchObject({
+        code: "socket-closed",
+        dispatchStatus: "dispatched",
+      });
+      expect(server.received().map(({ message }) => message)).toEqual([
+        "LSQ:",
+        "CMD:65535:response-observed",
+      ]);
+    } finally {
+      await session.close();
+    }
+  });
+
   test("stats: consecutive response-timeouts accumulate and reset on success", async () => {
     const server = await startSharedSessionServer({ silentCommands: ["slow"] });
     const session = new Civ7DirectControlSession({ host: "127.0.0.1", port: server.port });
@@ -237,10 +339,16 @@ describe("caller-owned shared tuner session", () => {
 
       await expect(
         executeCiv7Command({ port: server.port, session, command: "slow", timeoutMs: 50 })
-      ).rejects.toMatchObject({ code: "response-timeout" });
+      ).rejects.toMatchObject({
+        code: "response-timeout",
+        dispatchStatus: "indeterminate",
+      });
       await expect(
         executeCiv7Command({ port: server.port, session, command: "slow", timeoutMs: 50 })
-      ).rejects.toMatchObject({ code: "response-timeout" });
+      ).rejects.toMatchObject({
+        code: "response-timeout",
+        dispatchStatus: "indeterminate",
+      });
 
       // Each failed call performs LSQ (succeeds → reset) then CMD (times out),
       // so the counter reflects the trailing run of timeouts on this socket.
@@ -324,6 +432,10 @@ async function startSharedSessionServer(
           else socket.write(response);
         } else {
           commands += 1;
+          if (options.closeAfterFirstCommandWithoutResponse && commands === 1) {
+            socket.end();
+            continue;
+          }
           const response = encodeResponse(listenerId, ["null"]);
           if (options.endAfterFirstCommand && commands === 1) socket.end(response);
           else socket.write(response);

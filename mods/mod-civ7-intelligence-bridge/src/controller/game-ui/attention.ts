@@ -3,9 +3,8 @@ import type {
   Civ7ControlOrpcPlayNotificationViewResult,
   Civ7ControlOrpcReadyCityViewResult,
   Civ7ControlOrpcReadyUnitViewResult,
-  Civ7ControlOrpcTurnCompletionRequestResult,
-  Civ7ControlOrpcTurnCompletionStatusResult,
 } from "../service-types";
+import { readCiv7GameUiActionPanelCanEndTurn } from "./turn-completion";
 
 type RuntimeProbe<T> = Readonly<{ ok: true; value: T } | { ok: false; error: string }>;
 
@@ -13,10 +12,12 @@ type PlayNotificationSummary = Civ7ControlOrpcPlayNotificationViewResult["notifi
 type PlayDecisionHint = PlayNotificationSummary["decision"];
 
 export type Civ7GameUiAttentionTarget = Readonly<{
+  document?: {
+    querySelector?: (selector: string) => Readonly<{ maybeComponent?: unknown }> | null;
+  };
   GameContext?: {
     localPlayerID?: number;
     hasSentTurnComplete?: () => boolean;
-    sendTurnComplete?: () => unknown;
   };
   Game?: {
     turn?: number;
@@ -55,7 +56,6 @@ export type Civ7GameUiAttentionTarget = Readonly<{
   Cities?: {
     get?: (id: Civ7ControlOrpcComponentId) => unknown;
   };
-  canEndTurn?: () => boolean;
 }>;
 
 export type Civ7GameUiAttentionOptions = Readonly<{
@@ -87,7 +87,7 @@ export async function getCiv7GameUiPlayNotificationView(
     turn: probe(() => target.Game?.turn ?? -1),
     turnDate: probe(() => target.Game?.getTurnDate?.() ?? ""),
     hasSentTurnComplete: probe(() => target.GameContext?.hasSentTurnComplete?.() ?? false),
-    canEndTurn: probe(() => target.canEndTurn?.() ?? false),
+    canEndTurn: probe(() => readCiv7GameUiActionPanelCanEndTurn(target)),
     blocker,
     blockingNotificationId: probe(
       () =>
@@ -111,24 +111,6 @@ export async function getCiv7GameUiPlayNotificationView(
       maxNotifications,
       truncated: notificationRead.truncated,
     },
-  };
-}
-
-export async function getCiv7GameUiTurnCompletionStatus(
-  target: Civ7GameUiAttentionTarget = globalThis as Civ7GameUiAttentionTarget
-): Promise<Civ7ControlOrpcTurnCompletionStatusResult> {
-  const localPlayerId = target.GameContext?.localPlayerID ?? -1;
-  return {
-    host: "game-ui",
-    port: 0,
-    state: { id: "game-ui", name: "Game UI" },
-    localPlayerId,
-    turn: probe(() => target.Game?.turn ?? -1),
-    turnDate: probe(() => target.Game?.getTurnDate?.() ?? ""),
-    hasSentTurnComplete: probe(() => target.GameContext?.hasSentTurnComplete?.() ?? false),
-    canEndTurn: probe(() => target.canEndTurn?.() ?? false),
-    blocker: gameUiEndTurnBlocker(target, localPlayerId),
-    firstReadyUnitId: probe(() => toComponentId(target.UI?.Player?.getFirstReadyUnit?.())),
   };
 }
 
@@ -197,49 +179,6 @@ export async function getCiv7GameUiReadyCityView(
       "Requested, selected, and unrelated notification-target city ids are hints only; they are not ready-city proof.",
       "Production and city-operation candidates remain empty in game UI scope; validator-backed mutation procedures own action execution.",
     ],
-  };
-}
-
-export async function requestCiv7GameUiTurnComplete(
-  target: Civ7GameUiAttentionTarget = globalThis as Civ7GameUiAttentionTarget
-): Promise<Civ7ControlOrpcTurnCompletionRequestResult> {
-  const before = await getCiv7GameUiTurnCompletionStatus(target);
-  if (!gameUiTurnCompletionAllowed(before)) {
-    return {
-      sent: false,
-      before,
-      fallbackPreflight: await getCiv7GameUiPlayNotificationView({}, target),
-      reason: "turn-completion-blocked",
-    };
-  }
-
-  const sendTurnComplete = target.GameContext?.sendTurnComplete;
-  if (typeof sendTurnComplete !== "function") {
-    return {
-      sent: false,
-      before,
-      fallbackPreflight: await getCiv7GameUiPlayNotificationView({}, target),
-      reason: "turn-completion-blocked",
-    };
-  }
-
-  target.UI?.Player?.deselectAllUnits?.();
-  sendTurnComplete();
-
-  const after = await getCiv7GameUiTurnCompletionStatus(target);
-  return {
-    sent: true,
-    before,
-    after,
-    command: {
-      host: "game-ui",
-      port: 0,
-      state: { id: "game-ui", name: "Game UI" },
-      output: ["game-ui-turn-completion-requested"],
-    },
-    verified:
-      probeValue(after.hasSentTurnComplete) === true ||
-      probeValue(after.turn) !== probeValue(before.turn),
   };
 }
 
@@ -482,14 +421,6 @@ function probe<T>(fn: () => T): RuntimeProbe<T> {
 
 function ok<T>(value: T): RuntimeProbe<T> {
   return { ok: true, value };
-}
-
-function gameUiTurnCompletionAllowed(status: Civ7ControlOrpcTurnCompletionStatusResult): boolean {
-  return probeValue(status.canEndTurn) === true && probeValue(status.hasSentTurnComplete) !== true;
-}
-
-function probeValue<T>(probe: RuntimeProbe<T>): T | undefined {
-  return probe.ok ? probe.value : undefined;
 }
 
 function isPresent<T>(value: T | null | undefined): value is T {

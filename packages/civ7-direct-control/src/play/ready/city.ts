@@ -282,6 +282,7 @@ function readyCityViewSource(): string {
         growth: growth
           ? {
               growthType: growth.growthType ?? null,
+              projectType: growth.projectType ?? null,
               turnsUntilGrowth: growth.turnsUntilGrowth ?? null,
               nextGrowthFoodThreshold: typeof growth.getNextGrowthFoodThreshold === "function" ? growth.getNextGrowthFoodThreshold() : null,
             }

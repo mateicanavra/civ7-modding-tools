@@ -41,18 +41,25 @@ errors, and server-side callers.
 - **AND** `@civ7/control-orpc` does not publish a runtime-provider entrypoint or
   make direct-control result envelopes normal service output
 
-#### Scenario: Injected runtime port narrows population placement
-- **WHEN** `city.population.place.request` needs low-level player-operation or
-  city-command runtime authority for population placement
-- **THEN** the service context exposes semantic assign-worker-placement and
-  expand-city-placement ports to the procedure
-- **AND** those ports accept only the service-owned placement shapes rather
-  than generic `operationType` and raw `args`
-- **AND** the caller-provided direct-control adapter may map those ports to
-  direct-control-owned player-operation and city-command runtime functions
-  internally
-- **AND** raw generic operation inputs remain excluded from normal procedure
-  input and from the exported control-oRPC context-construction surface
+#### Scenario: Population placement uses exact runtime atoms
+- **WHEN** `city.population.place.check` or
+  `city.population.place.request` evaluates worker assignment or city expansion
+- **THEN** the service context exposes exact worker-assignment and
+  city-expansion check/send ports rather than generic operation dispatch
+- **AND** direct-control owns only native validator/send adaptation, ambient
+  local-player resolution, command serialization, and immutable target-state
+  evidence
+- **AND** the city service owns semantic availability, guarded mutation,
+  bounded post-send polling, target-specific confirmation, dispatch
+  uncertainty, and no-repeat policy
+- **AND** worker confirmation requires an increase in `NumWorkers` on the
+  requested plot rather than readiness clearing alone
+- **AND** city expansion confirmation requires the requested plot to become
+  owned by the requested city rather than an unrelated state change
+- **AND** generic player-operation and city-command paths reject
+  `ASSIGN_WORKER` and `EXPAND`
+- **AND** raw operation types, args, command/session details, and runtime
+  evidence envelopes remain excluded from normal service input and output
 
 #### Scenario: Shared service primitives are needed by procedure contracts
 - **WHEN** service-owned procedure contracts need common Civ7 primitives such
@@ -78,17 +85,25 @@ errors, and server-side callers.
   dismissal sends, validators, postcondition classification, and no-repeat
   proof semantics consumed by the procedure
 
-#### Scenario: Production choice service contract is offered
-- **WHEN** `city.production.choice.request` exposes its caller-facing contract
-- **THEN** control-oRPC owns the input schema and normal postcondition
-  classification schema for that service procedure
+#### Scenario: Production choice service contracts are offered
+- **WHEN** `city.production.choice.check` and
+  `city.production.choice.request` expose their caller-facing contracts
+- **THEN** control-oRPC owns their semantic input schema, the read-only
+  availability result, and the mutation result including its normal
+  postcondition classification schema
 - **AND** the input admits only the semantic city production choice request
   shape: city ID plus exactly one valid production args variant
 - **AND** endpoint, session, state, and raw command fields remain
   excluded from procedure input
-- **AND** direct-control remains the runtime/proof owner for production-choice
-  sends, validators, source postcondition classification, and no-repeat proof
-  semantics consumed by the procedure
+- **AND** the city service owns check/request orchestration, postcondition
+  classification, dispatch uncertainty, bounded post-send checking, and
+  no-repeat-after-unverified policy
+- **AND** direct-control owns the exact production-choice check/send wire atoms,
+  including command serialization, runtime validator/send adaptation, and raw
+  evidence snapshots; it does not own the service request orchestration,
+  production postcondition policy, or production telemetry
+- **AND** the generic city-operation validation/request surface rejects
+  `BUILD`, so production cannot bypass the exact atoms or service policy
 
 #### Scenario: Unit target action service contract is offered
 - **WHEN** `unit.target.action.request` exposes its caller-facing contract
@@ -116,28 +131,41 @@ errors, and server-side callers.
   the procedures
 
 #### Scenario: City town-focus service contracts are offered
-- **WHEN** `city.townFocus.change.request` and
+- **WHEN** `city.townFocus.change.check`,
+  `city.townFocus.change.request`, `city.townFocus.review.check`, and
   `city.townFocus.review.request` expose their caller-facing contracts
 - **THEN** control-oRPC owns the contract-local input, output,
   postcondition, and next-step schemas for those service procedures under the
   `city` router
-- **AND** change input admits only city ID, growth type, project type, and an
-  optional numeric city arg override, while review input admits only city ID
+- **AND** change input admits only city ID, growth type, and project type, while
+  review input admits only city ID
+- **AND** the low-level change atom derives the native `City` argument from the
+  requested city ID and does not admit a caller-controlled override
 - **AND** town-focus change versus review is expressed by the city-domain
   procedure path rather than a generic operation root, operation type, or raw
   args input
 - **AND** endpoint, session, state, raw command, generic operation type, raw
   args, direct-control operation envelopes, and legacy `verified` remain
   excluded from procedure input and normal output
-- **AND** sent town-focus results remain pending-runtime-proof and
-  no-repeat guarded until a future source-owned city read/postcondition proves
-  the live town project review state changed
+- **AND** change checks project native `CityCommands.canStart` plus observed
+  town state, while review checks derive availability from matching
+  `NOTIFICATION_CHOOSE_TOWN_PROJECT` evidence without inventing a
+  `CityOperations.canStart` authority
+- **AND** requests precheck once, avoid repeated already-satisfied mutations,
+  and guard one exact send
+- **AND** control-oRPC owns semantic admission, bounded post-send polling,
+  postcondition classification, dispatch uncertainty, and no-repeat policy
+- **AND** a sent result is classified as confirmed or unverified rather than
+  being universally pending, and uncertain dispatch or incomplete evidence
+  remains no-repeat guarded
 - **AND** these new per-leaf input/result schemas and Standard Schema adapters
   stay private to the contract module and are not exported as caller utilities;
   callers use the aggregate contract/router/server client
-- **AND** direct-control remains the low-level runtime/proof owner for
-  city-command/city-operation town-focus sends, command serialization,
-  validator output, and no-repeat proof facts consumed by the procedures
+- **AND** direct-control owns only the bounded native change-check, change-send,
+  review-read, and review-send atoms, command serialization, native validator
+  adaptation for focus change, and raw immutable state snapshots
+- **AND** generic operation validation and send surfaces reject
+  `CHANGE_GROWTH_MODE` and `CONSIDER_TOWN_PROJECT`
 
 #### Scenario: Progression choice service contract is offered
 - **WHEN** `progression.technology.choice.request` and
@@ -178,26 +206,60 @@ errors, and server-side callers.
   player-operation target sends, command serialization, validator output, and
   no-repeat proof facts consumed by the procedures
 
-#### Scenario: Government-domain choice service contract is offered
-- **WHEN** `government.choice.request` and
+#### Scenario: Government-domain choices use exact service procedures
+- **WHEN** `government.choice.check`, `government.choice.request`,
+  `government.celebration.choice.check`, and
   `government.celebration.choice.request` expose their caller-facing contracts
 - **THEN** control-oRPC owns the input, output, postcondition, and next-step
   schemas for those service procedures under the `government` router
-- **AND** the input omits caller player ID and admits only government
-  type/action or golden-age type, with government versus celebration expressed
-  by the domain procedure path rather than a generic operation root or
-  operation enum input
-- **AND** the procedure reads current local-player evidence before send and
-  does not treat caller-provided player ID as mutation authority
+- **AND** the input admits only government type or golden-age type; ambient
+  local-player identity and the fixed government Activate action remain native
+  runtime facts rather than caller authority
+- **AND** direct-control owns only exact native check/send adaptation and raw
+  immutable government or celebration state observations
+- **AND** the service owns semantic availability, guarded mutation, bounded
+  post-send polling, target-specific confirmation, dispatch uncertainty, and
+  no-repeat policy
+- **AND** mutation carries the service-admitted snapshot into a native
+  compare-and-send guard so a changed player, target state, action, or blocker
+  aborts before dispatch without moving semantic policy into direct-control
+- **AND** native `canStart(...).Success` remains admission authority while
+  chooser option rows remain observational evidence
+- **AND** government confirmation requires the current government to match the
+  selected government, while celebration confirmation requires the active
+  golden age normalized through `GoldenAges.lookup` and `Database.makeHash` to
+  match the selected celebration operation identity
+- **AND** generic player-operation paths reject `CHANGE_GOVERNMENT` and
+  `CHOOSE_GOLDEN_AGE`, including their supported prefixed aliases
 - **AND** endpoint, session, state, raw command, generic operation type, raw
   args, direct-control operation envelopes, and legacy `verified` remain
   excluded from procedure input and normal output
-- **AND** sent government-domain choices remain pending-runtime-proof and
-  no-repeat guarded until a future source-owned read/postcondition proves the
-  live government or celebration blocker cleared
-- **AND** direct-control remains the low-level runtime/proof owner for
-  player-operation government-domain sends, command serialization, validator
-  output, and no-repeat proof facts consumed by the procedures
+
+#### Scenario: Narrative choice uses exact service procedures
+- **WHEN** `narrative.choice.check` and `narrative.choice.request` expose their
+  caller-facing contracts
+- **THEN** control-oRPC owns the input, output, postcondition, and next-step
+  schemas for those service procedures under the `narrative` router
+- **AND** input admits only narrative target type and target component
+  identity; ambient local-player identity and `PlayerOperationParameters.Activate`
+  remain native runtime facts rather than caller authority
+- **AND** direct-control owns only exact native check/send adaptation and a
+  focused immutable narrative-blocker observation
+- **AND** the service owns semantic availability, guarded mutation, bounded
+  post-send polling, blocker-transition classification, dispatch uncertainty,
+  and no-repeat policy
+- **AND** mutation carries the service-admitted snapshot into a native
+  compare-and-send guard so changed player, action, or blocker evidence aborts
+  before dispatch without moving semantic policy into direct-control
+- **AND** native `canStart(...).Success` remains admission authority while
+  narrative option rows remain observational evidence
+- **AND** popup/panel traversal, notification activation, audio, and UI
+  closeout are presentation behavior rather than gameplay mutation authority
+- **AND** generic player-operation paths reject
+  `CHOOSE_NARRATIVE_STORY_DIRECTION`, including its supported prefixed alias
+- **AND** endpoint, session, state, raw command, generic operation type, raw
+  args, direct-control operation envelopes, UI payloads, and legacy `verified`
+  remain excluded from procedure input and normal output
 
 #### Scenario: Progression player-choice service contracts are offered
 - **WHEN** `progression.attribute.purchase.request`,
@@ -612,22 +674,20 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** the adapter does not become an alternate product API or raw command
   tunnel
 
-#### Scenario: CLI end-turn send uses native turn procedure
-- **WHEN** `game play end-turn --send` requests a turn completion
+#### Scenario: CLI end-turn uses native turn procedures
+- **WHEN** `game play end-turn` checks or requests turn completion
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send path calls the in-process `turn.complete.request`
-  server-side client
-- **AND** the procedure's readiness, direct-control guard, and
-  postcondition projection remain authoritative for the send
+- **AND** the check and send paths call the in-process `turn.complete.check`
+  and `turn.complete.request` server-side clients respectively
+- **AND** the procedures' native availability, direct-control guarded send,
+  bounded observation, postcondition projection, dispatch uncertainty, and
+  no-repeat policy remain authoritative
 - **AND** expected pre-send guard blocks project as semantic `not-sent`
   turn-completion output with inspect/do-not-repeat next steps rather than
   `TURN_COMPLETION_UNAVAILABLE`
 - **AND** the normal JSON result is the semantic turn-completion procedure
   projection without raw command/session/state/Tuner details or legacy
   `verified`
-- **AND** the read-only `game play end-turn` status path remains a
-  direct-control turn-completion status read until a separate accepted read
-  procedure exists
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI notification dismissal send uses native notification procedure
@@ -680,67 +740,60 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   `unit-command` validation until separate accepted service reads exist
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI production sends use native city procedure
-- **WHEN** `game play build-production --send` requests a city production
-  choice
+#### Scenario: CLI production checks and sends use native city procedures
+- **WHEN** `game play build-production` checks or sends a city production choice
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send path calls the in-process `city.production.choice.request`
-  server-side client under the `city` router
-- **AND** the procedure's readiness, direct-control production
-  validator, production postcondition projection, and no-repeat policy remain
-  authoritative for the send
-- **AND** the normal JSON result is the semantic city production choice
-  procedure projection without raw command/session/state/Tuner details,
+- **AND** the read-only path calls `city.production.choice.check` and the send
+  path calls `city.production.choice.request` through the in-process server-side
+  client under the `city` router
+- **AND** direct-control supplies the exact production check/send wire atoms,
+  while the city service owns request orchestration, production postcondition
+  classification, and no-repeat policy
+- **AND** the normal JSON result is the semantic city production check or
+  request projection without raw command/session/state/Tuner details,
   UI-closeout payloads, send results, before/after runtime probes, or legacy
   `verified`
-- **AND** the read-only `game play build-production` validation path remains
-  direct-control operation validation until a separate accepted service read
-  exists
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI population placement sends use native city procedure
-- **WHEN** `game play assign-worker --send` or `game play expand-city --send`
+#### Scenario: CLI population placement uses native city procedures
+- **WHEN** `game play assign-worker` or `game play expand-city` checks or
   requests city population placement
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send path calls the in-process `city.population.place.request`
-  server-side client under the `city` router
-- **AND** the procedure's readiness, direct-control population placement
-  runtime ports, population postcondition projection, and no-repeat policy
-  remain authoritative for the send
+- **AND** read-only mode calls `city.population.place.check` while `--send`
+  calls `city.population.place.request`
+- **AND** exact runtime atoms and service-owned placement policy remain
+  authoritative for both paths
 - **AND** the normal JSON result is the semantic city population placement
-  procedure projection without raw command/session/state/Tuner details, send
-  results, before/after population postcondition envelopes, direct-control
-  operation envelopes, or legacy `verified`
-- **AND** the read-only validation paths remain direct-control operation
-  validation until a separate accepted service read exists
-- **AND** `assign-worker --send` is bounded to the source-owned one-worker
-  placement atom rather than silently treating `--amount` as repeated send
-  authority
-- **AND** `assign-worker --send` omits caller `--player-id`; the procedure
-  reads live local-player notification evidence and passes that value to the
-  low-level direct-control assign-worker runtime port
+  procedure projection without raw command/session/state/Tuner details,
+  before/after runtime snapshots, direct-control operation envelopes, or
+  legacy `verified`
+- **AND** assign-worker admits neither caller player ID nor amount; the exact
+  runtime atom derives the ambient local player and one-worker amount
+- **AND** `assign-worker --send` omits caller `--player-id`; the service passes
+  only the target location, and the exact direct-control runtime atom resolves
+  the ambient local player at dispatch
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI town-focus sends use native city procedures
-- **WHEN** `game play set-town-focus --send` or
-  `game play consider-town-project --send` requests a town-focus mutation
+#### Scenario: CLI town-focus commands use native city procedures
+- **WHEN** `game play set-town-focus` or
+  `game play consider-town-project` checks or requests a town-focus action
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send paths call the in-process `city.townFocus.change.request`
-  or `city.townFocus.review.request` server-side clients under the `city`
-  router
-- **AND** the procedures' readiness, direct-control city-command/city-operation
-  runtime ports, town-focus proof projection, and no-repeat policy remain
-  authoritative for the sends
+- **AND** read-only mode calls the corresponding
+  `city.townFocus.change.check` or `city.townFocus.review.check` procedure
+- **AND** send mode calls the corresponding
+  `city.townFocus.change.request` or `city.townFocus.review.request` procedure
+- **AND** direct-control remains limited to bounded native change-check,
+  change-send, review-read, and review-send atoms plus raw state snapshots
+- **AND** the city procedures own readiness, semantic admission, bounded
+  polling, postcondition classification, dispatch uncertainty, and no-repeat
+  policy
 - **AND** the normal JSON result is the semantic city town-focus procedure
   projection without raw command/session/state/Tuner details, generic
   operation type or args fields, direct-control operation envelopes, or legacy
   `verified`
-- **AND** `set-town-focus --closeout --send` composes the native change leaf
-  with the native review leaf instead of falling back to raw direct-control
-  send branches
-- **AND** read-only validation paths remain direct-control
-  city-command/city-operation validation until separate accepted service reads
-  exist
+- **AND** caller-owned `--closeout` composition is retired; focus change and
+  project review remain explicit city service actions
+- **AND** no generic operation validation or send fallback remains
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI diplomacy response send uses native diplomacy procedure
@@ -787,27 +840,23 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   read exists
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI narrative choice send uses native narrative procedure
-- **WHEN** `game play choose-narrative --send` requests a narrative story direction choice
+#### Scenario: CLI narrative choice uses native narrative procedures
+- **WHEN** `game play choose-narrative` checks or requests a narrative story
+  direction choice
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send path calls the in-process
-  `narrative.choice.request` server-side client under the
-  `narrative` router
-- **AND** the procedure's readiness, direct-control narrative choice
-  port, narrative postcondition projection, and no-repeat policy remain
-  authoritative for the send
-- **AND** the send result uses direct-control source evidence for the acted
-  local player rather than treating the caller validation `--player-id` as send
-  authority
+- **AND** read-only mode calls `narrative.choice.check`, while `--send` calls
+  `narrative.choice.request` through the in-process server-side client
+- **AND** exact runtime atoms and service-owned narrative choice policy remain
+  authoritative for both paths
+- **AND** caller player ID and action are omitted because ambient local-player
+  identity and the Activate action belong to the native runtime
 - **AND** the normal JSON result is the semantic narrative choice procedure
   projection without raw command/session/state/Tuner details, App UI closeout
   payloads, panel/popup internals, direct-control runtime payloads, or legacy
   `verified`
 - **AND** the read-only `game play choose-narrative --options` path remains a
-  direct-control notification/option read until a separate accepted service
-  read exists
-- **AND** the read-only validation path remains direct-control
-  player-operation validation until a separate accepted service read exists
+  separate direct-control notification/option observation until a service-owned
+  option read is accepted; it does not become mutation admission authority
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI progression choice sends use native progression procedures
@@ -860,27 +909,26 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   player-operation validation until separate accepted service reads exist
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI government-domain sends use native government procedures
-- **WHEN** `game play choose-government --send` or
-  `game play choose-celebration --send` requests a government-domain mutation
+#### Scenario: CLI government-domain choices use native government procedures
+- **WHEN** `game play choose-government` or
+  `game play choose-celebration` checks or requests a government-domain choice
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send path calls the in-process `government.choice.request` or
-  `government.celebration.choice.request` server-side client under the
-  `government` router
-- **AND** the procedure's readiness, fresh local-player read,
-  direct-control government-domain runtime port, proof projection, and
-  no-repeat policy remain authoritative for the send
-- **AND** the send result uses live local-player evidence rather than treating
-  caller validation `--player-id` as send authority
+- **AND** read-only mode calls `government.choice.check` or
+  `government.celebration.choice.check`, while `--send` calls the corresponding
+  request procedure
+- **AND** exact runtime atoms and service-owned choice policy remain
+  authoritative for both paths
+- **AND** caller player ID and government action are omitted because ambient
+  local-player identity and the Activate action belong to the native runtime
 - **AND** the normal JSON result is the semantic government-domain procedure
   projection without raw command/session/state/Tuner details, generic
   operation type or args fields, direct-control operation envelopes, or legacy
   `verified`
-- **AND** sent government-domain choices remain `sent-unverified` with
-  do-not-repeat next steps because local tests do not prove the live government
-  or celebration blocker cleared
-- **AND** the read-only validation and option-read paths remain direct-control
-  owned until separate accepted service reads exist
+- **AND** target-specific state readback may confirm a sent choice; unchanged,
+  unavailable, or mismatched state remains unverified and no-repeat guarded
+- **AND** the commands do not embed a direct-control chooser-option reader;
+  option discovery remains on the separate notification and attention
+  observation surfaces until an accepted service-owned read exists
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI attribute/tradition player-choice sends use native progression procedures
@@ -1268,19 +1316,22 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   ports, and play-thread action remain pending
 
 #### Scenario: Game UI controller supports turn completion
-- **WHEN** the game-scoped controller context exposes ambient turn-completion
-  APIs for `GameContext.hasSentTurnComplete`,
-  `GameContext.sendTurnComplete`, `canEndTurn`, turn, blocker, and
-  first-ready-unit evidence
-- **THEN** the context may execute the service-owned
-  `turn.complete.request` procedure through the existing in-process router and
-  native readiness/proof middleware
-- **AND** `turn.complete.request` is listed as a supported game-UI mutation only
-  when controller proof and the required ambient send/read APIs are present
-- **AND** the game UI adapter requires an actual `sendTurnComplete` function
-  before any result can report `sent: true`
-- **AND** blocked, already-sent, or missing-send-capability paths project
-  semantic `not-sent` output with inspect and `do-not-repeat` next steps
+- **WHEN** the game-scoped controller can resolve the official
+  `.action-panel` component and its `canEndTurn()` and `sendEndTurn()` methods
+- **THEN** the context may execute the service-owned `turn.complete.check` and
+  `turn.complete.request` procedures through the existing in-process router
+  and native readiness middleware
+- **AND** the check and request leaves are advertised independently according
+  to the exact native methods each requires
+- **AND** immutable `GameContext.hasSentTurnComplete()` and `Game.turn`
+  observations supply acknowledgement and turn-advance evidence without
+  replacing the action panel's native admission authority
+- **AND** missing components, missing methods, failed observations, blocked
+  native admission, already-sent state, and indeterminate dispatch project
+  conservative unavailable, `not-sent`, or no-repeat-guarded results
+- **AND** the adapter does not call raw `GameContext.sendTurnComplete()`, an
+  invented ambient `canEndTurn`, notification-derived fallback admission, or
+  unrelated unready-turn behavior
 - **AND** normal bridge success output remains the semantic turn-completion
   result and omits host, port, state, command, rawCommand, session, tuner
   payloads, raw game-UI function names, and direct-control socket details
@@ -1293,11 +1344,23 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   APIs for `Game.CityOperations.canStart`, `Game.CityOperations.sendRequest`,
   `CityOperationTypes.BUILD`, city state, and notification blocker evidence
 - **THEN** the context may execute the service-owned
-  `city.production.choice.request` procedure through the existing in-process
-  router and native readiness/proof middleware
+  `city.production.choice.check` read and `city.production.choice.request`
+  mutation through the existing in-process router, with native
+  mutation-readiness middleware on the request leaf
+- **AND** `city.production.choice.check` is listed as a supported game-UI read
+  when the required ambient validation APIs are present
 - **AND** `city.production.choice.request` is listed as a supported game-UI
-  mutation only when controller proof and the required ambient validation,
-  send, and blocker-read APIs are present
+  mutation only when controller proof and the required ambient validation and
+  send APIs are present
+- **AND** the game UI adapter implements only the exact check/send runtime atoms
+  and raw evidence reads; the city service owns check/request orchestration,
+  postcondition classification, and no-repeat-after-unverified policy
+- **AND** production check/send atoms invoke `CityOperations.BUILD` directly
+  without selecting a city, moving a plot cursor, or closing interface state
+- **AND** a non-throwing `sendRequest` call proves dispatch invocation rather
+  than synchronous engine acknowledgement
+- **AND** missing observation APIs surface as failed raw probes and cannot
+  confirm the production postcondition or release no-repeat policy
 - **AND** validator-blocked production choices project semantic `not-sent`
   output and do not call the send API
 - **AND** `production-choice-cleared` requires a matching production blocker
@@ -1322,11 +1385,12 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   `CityCommandTypes.EXPAND`, player city lists, city readiness, worker
   placement, and expansion evidence
 - **THEN** the context may execute the service-owned
-  `city.population.place.request` procedure through the existing in-process
-  router and native readiness/proof middleware
-- **AND** `city.population.place.request` is listed as a supported game-UI
-  mutation only when controller proof and the required ambient validation,
-  send, player, city, and postcondition-read APIs are present
+  `city.population.place.check` and `city.population.place.request`
+  procedures through the existing in-process router and readiness middleware
+- **AND** the check procedure is advertised only when both exact validation
+  and observation surfaces are available
+- **AND** the request procedure is advertised only when the corresponding
+  exact send surfaces are also available
 - **AND** assign-worker input remains semantic `{ location }` while expand-city
   input remains semantic `{ cityId, destination }`; caller `playerId`, raw
   operation types, and raw command/session fields are not accepted as bridge
@@ -1336,11 +1400,12 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   call
 - **AND** validator-blocked population placements project semantic `not-sent`
   output and do not call the send API
-- **AND** `population-ready-cleared` requires pre-send city readiness evidence
-  and post-send evidence that readiness cleared
-- **AND** no-state-change, validation-only changes, missing ready-city evidence,
-  failed population state reads, missing postcondition snapshots, and unchanged
-  placement snapshots remain unconfirmed or no-repeat guarded
+- **AND** worker assignment is confirmed only by an increased worker count on
+  the requested plot, while city expansion is confirmed only by requested-city
+  ownership of the requested plot
+- **AND** readiness clearing, validation-only changes, unrelated state changes,
+  failed target reads, missing target evidence, and unchanged target state
+  remain unconfirmed and no-repeat guarded
 - **AND** normal bridge success output remains the semantic population-placement
   result and omits host, port, state, command, rawCommand, session, tuner
   payloads, raw game-UI function names, and direct-control socket details
@@ -1554,19 +1619,32 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   catalogs, play-thread action, transport expansion, and full `7.3`
   implementation remain pending
 
-### Requirement: Mutation Procedures Preserve Direct-Control Proof Semantics
+### Requirement: Mutation Procedures Preserve Mutation Proof Semantics
 
-Mutation-capable control procedures SHALL preserve direct-control
-validator-first, postcondition, no-repeat-after-unverified, and runtime-proof
-boundaries.
+Mutation-capable control procedures SHALL preserve validator-first,
+postcondition, no-repeat-after-unverified, and runtime-proof boundaries at
+their accepted owners.
 
 #### Scenario: Mutation request procedure is implemented
 - **WHEN** a mutation-capable procedure sends or requests a Civ7 operation
 - **AND** validators run before command construction/send where the atom has a
   validator
-- **AND** postcondition and proof telemetry classify sent, unverified, stale,
-  unknown, missing-postcondition, and pending-runtime-proof outcomes honestly
+- **AND** postcondition policy classifies sent, unverified, stale, unknown,
+  missing-postcondition, and pending-runtime-proof outcomes honestly
+- **AND** separately accepted telemetry preserves those classifications rather
+  than defining or weakening them
 - **AND** unverified or pending proof paths remain no-repeat guarded
+
+#### Scenario: Production choice policy is service-owned
+- **WHEN** `city.production.choice.check` or
+  `city.production.choice.request` handles a production choice
+- **THEN** the city service orchestrates exact direct-control check/send atoms
+  and owns production postcondition classification, dispatch uncertainty,
+  bounded post-send checking, and no-repeat-after-unverified policy
+- **AND** direct-control returns raw validator, send, and snapshot evidence
+  without exposing a `requestCiv7ProductionChoice` orchestration wrapper
+- **AND** direct-control does not own production postcondition/proof policy or a
+  production-choice telemetry adapter
 
 #### Scenario: Closeout-style mutation projection is shared
 - **WHEN** notification dismissal, narrative choice, diplomacy response, or
@@ -1807,34 +1885,36 @@ modules before broad implementation.
   behavior are explicitly accepted
 - **AND** local postcondition tests do not claim live Civ7 runtime proof
 
-#### Scenario: Turn completion proof policy is owned before native turn mutation
-- **WHEN** turn completion sends are prepared for future native procedure
-  exposure
-- **THEN** turn-advanced, turn-complete-sent, already-complete,
-  no-state-change, missing-postcondition, and pending-runtime-proof
-  classification belongs to a direct-control proof owner rather than native
-  service code inferring from legacy `verified`
-- **AND** turn-complete-sent and already-complete paths remain no-repeat
-  guarded until fresh turn/attention evidence is read
+#### Scenario: Turn completion policy is owned by the service
+- **WHEN** turn completion is checked or requested
+- **THEN** direct-control exposes only exact action-panel check/send atoms and
+  immutable source-state observations
+- **AND** turn-advanced, turn-complete-sent, not-sent, no-state-change, and
+  missing-postcondition classification belongs to the turn service
+- **AND** turn-complete-sent, unchanged, missing, and dispatch-uncertain paths
+  remain no-repeat guarded until fresh turn/attention evidence is read
 - **AND** local postcondition tests do not claim live Civ7 runtime proof
 
-#### Scenario: Turn completion request procedure is implemented
-- **WHEN** `turn.complete.request` requests a turn-completion send
-- **THEN** it is offered under the semantic `turn` router
-- **AND** it checks playable readiness
-  before invoking direct-control runtime authority
-- **AND** the procedure consumes the direct-control turn-completion runtime
-  port and turn-completion proof helper rather than inferring from legacy
-  `verified`
+#### Scenario: Turn completion procedures are implemented
+- **WHEN** a caller checks or requests turn completion
+- **THEN** `turn.complete.check` and `turn.complete.request` are offered under
+  the semantic `turn` router
+- **AND** the read-only check invokes exact runtime authority directly, while
+  the request checks playable readiness before mutation
+- **AND** the check projects coherent native action-panel availability,
+  including local-player and readable-turn guard evidence
+- **AND** the request performs one guarded native `sendEndTurn()` dispatch,
+  then uses bounded Effect-owned observation to classify acknowledgement,
+  turn advance, unchanged state, missing evidence, and dispatch uncertainty
 - **AND** expected direct-control guard-blocked requests are projected as
   semantic `not-sent` output, not runtime unavailability
-- **AND** normal input is empty and endpoint, session, state, raw command, and
-  endpoint and runtime fields remain context-owned
-- **AND** normal output projects before/after turn facts, postcondition
-  summary, request status, and next steps without raw command/session/tuner
-  details
-- **AND** turn-complete-sent, already-complete, no-state-change, missing, and
-  pending-runtime-proof paths remain no-repeat guarded
+- **AND** normal inputs are empty and endpoint, session, state, raw command,
+  and runtime fields remain context-owned
+- **AND** normal output projects only native availability or semantic request
+  status, postcondition summary, and next steps without raw before/after
+  snapshots or command/session/tuner details
+- **AND** turn-complete-sent, no-state-change, missing-postcondition, and
+  dispatch-uncertain paths remain no-repeat guarded
 - **AND** local procedure tests do not claim live Civ7 runtime proof
 
 #### Scenario: Data or runtime access is needed

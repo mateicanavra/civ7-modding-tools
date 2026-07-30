@@ -3,8 +3,6 @@ import {
   getCiv7GameUiPlayNotificationView,
   getCiv7GameUiReadyCityView,
   getCiv7GameUiReadyUnitView,
-  getCiv7GameUiTurnCompletionStatus,
-  requestCiv7GameUiTurnComplete,
 } from "./game-ui/attention";
 import {
   type Civ7GameUiDiplomacyTarget,
@@ -18,9 +16,14 @@ import {
 } from "./game-ui/first-meet";
 import {
   type Civ7GameUiGovernmentTarget,
-  civ7GameUiGovernmentAvailable,
-  requestCiv7GameUiCelebrationChoice,
-  requestCiv7GameUiGovernmentChoice,
+  checkCiv7GameUiCelebrationChoice,
+  checkCiv7GameUiGovernmentChoice,
+  civ7GameUiCelebrationChoiceCheckAvailable,
+  civ7GameUiCelebrationChoiceSendAvailable,
+  civ7GameUiGovernmentChoiceCheckAvailable,
+  civ7GameUiGovernmentChoiceSendAvailable,
+  sendCiv7GameUiCelebrationChoice,
+  sendCiv7GameUiGovernmentChoice,
 } from "./game-ui/government";
 import {
   type Civ7GameUiMapReadTarget,
@@ -30,8 +33,10 @@ import {
 } from "./game-ui/map";
 import {
   type Civ7GameUiNarrativeTarget,
-  civ7GameUiNarrativeChoiceAvailable,
-  requestCiv7GameUiNarrativeChoice,
+  checkCiv7GameUiNarrativeChoice,
+  civ7GameUiNarrativeChoiceCheckAvailable,
+  civ7GameUiNarrativeChoiceSendAvailable,
+  sendCiv7GameUiNarrativeChoice,
 } from "./game-ui/narrative";
 import {
   type Civ7GameUiNotificationDismissalTarget,
@@ -39,14 +44,19 @@ import {
 } from "./game-ui/notification-dismissal";
 import {
   type Civ7GameUiPopulationTarget,
-  civ7GameUiPopulationPlacementAvailable,
-  requestCiv7GameUiAssignWorkerPlacement,
-  requestCiv7GameUiExpandCityPlacement,
+  checkCiv7GameUiCityExpansion,
+  checkCiv7GameUiWorkerAssignment,
+  civ7GameUiPopulationPlacementCheckAvailable,
+  civ7GameUiPopulationPlacementSendAvailable,
+  sendCiv7GameUiCityExpansion,
+  sendCiv7GameUiWorkerAssignment,
 } from "./game-ui/population";
 import {
   type Civ7GameUiProductionTarget,
-  civ7GameUiProductionChoiceAvailable,
-  requestCiv7GameUiProductionChoice,
+  checkCiv7GameUiProductionChoice,
+  civ7GameUiProductionChoiceCheckAvailable,
+  civ7GameUiProductionChoiceSendAvailable,
+  sendCiv7GameUiProductionChoice,
 } from "./game-ui/production";
 import {
   type Civ7GameUiProgressionTarget,
@@ -70,14 +80,29 @@ import {
 } from "./game-ui/strategy-front";
 import {
   type Civ7GameUiTownFocusTarget,
-  civ7GameUiTownFocusAvailable,
-  requestCiv7GameUiTownFocusChange,
-  requestCiv7GameUiTownFocusReviewCloseout,
+  checkCiv7GameUiTownFocusChange,
+  checkCiv7GameUiTownFocusReview,
+  civ7GameUiTownFocusChangeCheckAvailable,
+  civ7GameUiTownFocusChangeSendAvailable,
+  civ7GameUiTownFocusReviewCheckAvailable,
+  civ7GameUiTownFocusReviewSendAvailable,
+  sendCiv7GameUiTownFocusChange,
+  sendCiv7GameUiTownFocusReview,
 } from "./game-ui/town-focus";
 import {
+  type Civ7GameUiTurnCompletionTarget,
+  checkCiv7GameUiTurnCompletion,
+  civ7GameUiTurnCompletionCheckAvailable,
+  civ7GameUiTurnCompletionSendAvailable,
+  sendCiv7GameUiTurnCompletion,
+} from "./game-ui/turn-completion";
+import {
   type Civ7GameUiUnitCommandTarget,
+  checkCiv7GameUiUnitResettle,
+  checkCiv7GameUiUnitUpgrade,
   civ7GameUiUnitCommandAvailable,
-  requestCiv7GameUiUnitCommand,
+  sendCiv7GameUiUnitResettle,
+  sendCiv7GameUiUnitUpgrade,
 } from "./game-ui/unit-command";
 import {
   type Civ7GameUiUnitTargetActionTarget,
@@ -103,12 +128,11 @@ type Civ7GameUiNotifications = NonNullable<
   NonNullable<NonNullable<Civ7GameUiProgressionTarget["Game"]>["Notifications"]>;
 
 type Civ7GameUiPlayer = NonNullable<NonNullable<Civ7GameUiAttentionTarget["UI"]>["Player"]> &
-  NonNullable<NonNullable<Civ7GameUiProductionTarget["UI"]>["Player"]> &
   NonNullable<NonNullable<Civ7GameUiUnitCommandTarget["UI"]>["Player"]>;
 
 type RuntimeProbe<T> = Readonly<{ ok: true; value: T } | { ok: false; error: string }>;
 
-export type Civ7GameUiRuntimeTarget = {
+export type Civ7GameUiRuntimeTarget = Civ7GameUiTurnCompletionTarget & {
   Civ7IntelligenceBridge?: Civ7IntelligenceBridge;
   EndTurnBlockingTypes?: Civ7GameUiNotificationDismissalTarget["EndTurnBlockingTypes"];
   NotificationModel?: Civ7GameUiNotificationDismissalTarget["NotificationModel"];
@@ -130,11 +154,12 @@ export type Civ7GameUiRuntimeTarget = {
     localObserverID?: number;
     hasRequestedPause?: () => boolean;
     hasSentTurnComplete?: () => boolean;
-    sendTurnComplete?: () => unknown;
   };
-  GameInfo?: Civ7GameUiStrategyFrontTarget["GameInfo"];
+  Database?: Civ7GameUiGovernmentTarget["Database"];
+  GameInfo?: Civ7GameUiStrategyFrontTarget["GameInfo"] & Civ7GameUiGovernmentTarget["GameInfo"];
   Game?: Civ7GameUiProductionTarget["Game"] &
-    Civ7GameUiTownFocusTarget["Game"] & {
+    Civ7GameUiTownFocusTarget["Game"] &
+    Civ7GameUiGovernmentTarget["Game"] & {
       Diplomacy?: Civ7GameUiDiplomacyTarget["Game"] extends infer Game
         ? Game extends { Diplomacy?: infer Diplomacy }
           ? Diplomacy
@@ -208,15 +233,15 @@ export type Civ7GameUiRuntimeTarget = {
     Civ7GameUiDiplomacyTarget["PlayerOperationTypes"] &
     Civ7GameUiFirstMeetTarget["PlayerOperationTypes"] &
     Civ7GameUiGovernmentTarget["PlayerOperationTypes"];
+  PlayerOperationParameters?: Civ7GameUiGovernmentTarget["PlayerOperationParameters"] &
+    Civ7GameUiNarrativeTarget["PlayerOperationParameters"];
   ProgressionTreeNodeTypes?: Civ7GameUiProgressionTarget["ProgressionTreeNodeTypes"];
   UnitCommandTypes?: Civ7GameUiUnitTargetActionTarget["UnitCommandTypes"] &
     Civ7GameUiUnitCommandTarget["UnitCommandTypes"];
   UnitOperationMoveModifiers?: Civ7GameUiUnitTargetActionTarget["UnitOperationMoveModifiers"];
   UnitOperationTypes?: Civ7GameUiUnitTargetActionTarget["UnitOperationTypes"];
-  NarrativePopupManager?: Civ7GameUiNarrativeTarget["NarrativePopupManager"];
   DiplomacyManager?: Civ7GameUiDiplomacyTarget["DiplomacyManager"];
   LeaderModelManager?: Civ7GameUiDiplomacyTarget["LeaderModelManager"];
-  document?: Civ7GameUiNarrativeTarget["document"];
   Autoplay?: {
     isActive?: boolean;
     turns?: number;
@@ -280,19 +305,19 @@ export type Civ7GameUiRuntimeTarget = {
         ? Fn
         : never
       : never;
-  } & Civ7GameUiMapReadTarget["GameplayMap"];
+  } & Civ7GameUiMapReadTarget["GameplayMap"] &
+    Civ7GameUiPopulationTarget["GameplayMap"];
   Visibility?: Civ7GameUiMapReadTarget["Visibility"];
   MapCities?: Civ7GameUiMapReadTarget["MapCities"];
   MapUnits?: Civ7GameUiUnitTargetActionTarget["MapUnits"];
   Units?: Civ7GameUiUnitTargetActionTarget["Units"] & Civ7GameUiStrategyFrontTarget["Units"];
-  Cities?: Civ7GameUiProductionTarget["Cities"] & Civ7GameUiStrategyFrontTarget["Cities"];
-  InterfaceMode?: Civ7GameUiProductionTarget["InterfaceMode"] &
-    Civ7GameUiDiplomacyTarget["InterfaceMode"];
-  PlotCursor?: Civ7GameUiProductionTarget["PlotCursor"];
+  Cities?: Civ7GameUiProductionTarget["Cities"] &
+    Civ7GameUiTownFocusTarget["Cities"] &
+    Civ7GameUiStrategyFrontTarget["Cities"];
+  InterfaceMode?: Civ7GameUiDiplomacyTarget["InterfaceMode"];
   Configuration?: {
     getGame?: () => { skipStartButton?: boolean };
   };
-  canEndTurn?: () => boolean;
 };
 
 export type Civ7GameUiControllerOptions = Readonly<{
@@ -337,23 +362,27 @@ function createCiv7GameUiDirectControlFacade(
   target: Civ7GameUiRuntimeTarget
 ): Civ7ControlOrpcDirectControlFacade {
   return {
-    requestCiv7ProductionChoice: async (input) =>
-      await requestCiv7GameUiProductionChoice(input, target),
+    checkCiv7ProductionChoice: async (input) =>
+      await checkCiv7GameUiProductionChoice(input, target),
+    sendCiv7ProductionChoice: async (input) => await sendCiv7GameUiProductionChoice(input, target),
     requestCiv7NotificationDismissal: async (input) =>
       await requestCiv7GameUiNotificationDismissal(input, target),
     requestCiv7AdvisorWarningViewed: async () => {
       throw new Error("game-ui advisor warning viewed request is not supported");
     },
-    requestCiv7NarrativeChoice: async (input) =>
-      await requestCiv7GameUiNarrativeChoice(input, target),
+    checkCiv7NarrativeChoice: async (input) => await checkCiv7GameUiNarrativeChoice(input, target),
+    sendCiv7NarrativeChoice: async (input) => await sendCiv7GameUiNarrativeChoice(input, target),
     requestCiv7DiplomacyResponse: async (input) =>
       await requestCiv7GameUiDiplomacyResponse(input, target),
     requestCiv7FirstMeetResponse: async (input) =>
       await requestCiv7GameUiFirstMeetResponse(input, target),
-    requestCiv7GovernmentChoice: async (input) =>
-      await requestCiv7GameUiGovernmentChoice(input, target),
-    requestCiv7CelebrationChoice: async (input) =>
-      await requestCiv7GameUiCelebrationChoice(input, target),
+    checkCiv7GovernmentChoice: async (input) =>
+      await checkCiv7GameUiGovernmentChoice(input, target),
+    sendCiv7GovernmentChoice: async (input) => await sendCiv7GameUiGovernmentChoice(input, target),
+    checkCiv7CelebrationChoice: async (input) =>
+      await checkCiv7GameUiCelebrationChoice(input, target),
+    sendCiv7CelebrationChoice: async (input) =>
+      await sendCiv7GameUiCelebrationChoice(input, target),
     requestCiv7TechnologyChoiceCloseout: async (input) =>
       await requestCiv7GameUiTechnologyChoiceCloseout(input, target),
     requestCiv7CultureChoiceCloseout: async (input) =>
@@ -369,18 +398,23 @@ function createCiv7GameUiDirectControlFacade(
       await requestCiv7GameUiTraditionChange(input, target),
     requestCiv7TraditionReviewCloseout: async (input) =>
       await requestCiv7GameUiTraditionReviewCloseout(input, target),
-    requestCiv7TownFocusChange: async (input) =>
-      await requestCiv7GameUiTownFocusChange(input, target),
-    requestCiv7TownFocusReviewCloseout: async (input) =>
-      await requestCiv7GameUiTownFocusReviewCloseout(input, target),
-    requestCiv7AssignWorkerPlacement: async (input) =>
-      await requestCiv7GameUiAssignWorkerPlacement(input, target),
-    requestCiv7ExpandCityPlacement: async (input) =>
-      await requestCiv7GameUiExpandCityPlacement(input, target),
+    checkCiv7TownFocusChange: async (input) => await checkCiv7GameUiTownFocusChange(input, target),
+    sendCiv7TownFocusChange: async (input) => await sendCiv7GameUiTownFocusChange(input, target),
+    checkCiv7TownFocusReview: async (input) => await checkCiv7GameUiTownFocusReview(input, target),
+    sendCiv7TownFocusReview: async (input) => await sendCiv7GameUiTownFocusReview(input, target),
+    checkCiv7WorkerAssignment: async (input) =>
+      await checkCiv7GameUiWorkerAssignment(input, target),
+    sendCiv7WorkerAssignment: async (input) => await sendCiv7GameUiWorkerAssignment(input, target),
+    checkCiv7CityExpansion: async (input) => await checkCiv7GameUiCityExpansion(input, target),
+    sendCiv7CityExpansion: async (input) => await sendCiv7GameUiCityExpansion(input, target),
     requestCiv7UnitTargetAction: async (input) =>
       await requestCiv7GameUiUnitTargetAction(input, target),
-    requestCiv7UnitCommand: async (input) => await requestCiv7GameUiUnitCommand(input, target),
-    requestCiv7TurnComplete: async () => await requestCiv7GameUiTurnComplete(target),
+    checkCiv7UnitUpgrade: async (input) => await checkCiv7GameUiUnitUpgrade(input, target),
+    sendCiv7UnitUpgrade: async (input) => await sendCiv7GameUiUnitUpgrade(input, target),
+    checkCiv7UnitResettle: async (input) => await checkCiv7GameUiUnitResettle(input, target),
+    sendCiv7UnitResettle: async (input) => await sendCiv7GameUiUnitResettle(input, target),
+    checkCiv7TurnCompletion: async (input) => await checkCiv7GameUiTurnCompletion(input, target),
+    sendCiv7TurnCompletion: async (input) => await sendCiv7GameUiTurnCompletion(input, target),
     getCiv7PlayableStatus: async () => gameUiPlayableStatus(target),
     getCiv7PlayNotificationView: async (options) =>
       await getCiv7GameUiPlayNotificationView(
@@ -406,7 +440,6 @@ function createCiv7GameUiDirectControlFacade(
       throw new Error("game-ui settlement recommendations are not supported");
     },
     getCiv7TargetCandidates: async (input) => await getCiv7GameUiTargetCandidates(input, target),
-    getCiv7TurnCompletionStatus: async () => await getCiv7GameUiTurnCompletionStatus(target),
     getCiv7VisibilitySummary: async () => {
       throw new Error("game-ui visibility summary is not supported");
     },
@@ -482,16 +515,19 @@ function gameUiSupportedMutationProcedures(target: Civ7GameUiRuntimeTarget): rea
   if (gameUiNotificationDismissalAvailable(target)) {
     supported.push("notifications.dismiss.request");
   }
-  if (civ7GameUiProductionChoiceAvailable(target)) {
+  if (civ7GameUiProductionChoiceSendAvailable(target)) {
     supported.push("city.production.choice.request");
   }
-  if (civ7GameUiPopulationPlacementAvailable(target)) {
+  if (civ7GameUiPopulationPlacementSendAvailable(target)) {
     supported.push("city.population.place.request");
   }
-  if (civ7GameUiTownFocusAvailable(target)) {
-    supported.push("city.townFocus.change.request", "city.townFocus.review.request");
+  if (civ7GameUiTownFocusChangeSendAvailable(target)) {
+    supported.push("city.townFocus.change.request");
   }
-  if (gameUiTurnCompletionAvailable(target)) {
+  if (civ7GameUiTownFocusReviewSendAvailable(target)) {
+    supported.push("city.townFocus.review.request");
+  }
+  if (civ7GameUiTurnCompletionSendAvailable(target)) {
     supported.push("turn.complete.request");
   }
   if (civ7GameUiProgressionChoiceAvailable(target)) {
@@ -507,7 +543,7 @@ function gameUiSupportedMutationProcedures(target: Civ7GameUiRuntimeTarget): rea
       "progression.tradition.review.request"
     );
   }
-  if (civ7GameUiNarrativeChoiceAvailable(target)) {
+  if (civ7GameUiNarrativeChoiceSendAvailable(target)) {
     supported.push("narrative.choice.request");
   }
   if (civ7GameUiDiplomacyResponseAvailable(target)) {
@@ -516,8 +552,11 @@ function gameUiSupportedMutationProcedures(target: Civ7GameUiRuntimeTarget): rea
   if (civ7GameUiFirstMeetResponseAvailable(target)) {
     supported.push("diplomacy.firstMeet.response.request");
   }
-  if (civ7GameUiGovernmentAvailable(target)) {
-    supported.push("government.choice.request", "government.celebration.choice.request");
+  if (civ7GameUiGovernmentChoiceSendAvailable(target)) {
+    supported.push("government.choice.request");
+  }
+  if (civ7GameUiCelebrationChoiceSendAvailable(target)) {
+    supported.push("government.celebration.choice.request");
   }
   if (civ7GameUiUnitTargetActionAvailable(target)) {
     supported.push("unit.target.action.request");
@@ -529,10 +568,34 @@ function gameUiSupportedMutationProcedures(target: Civ7GameUiRuntimeTarget): rea
 }
 
 function gameUiSupportedReadProcedures(target: Civ7GameUiRuntimeTarget): readonly string[] {
-  if (gameUiControllerMutationProof(target) == null) {
-    return [];
-  }
   const supported: string[] = [];
+  if (civ7GameUiProductionChoiceCheckAvailable(target)) {
+    supported.push("city.production.choice.check");
+  }
+  if (civ7GameUiPopulationPlacementCheckAvailable(target)) {
+    supported.push("city.population.place.check");
+  }
+  if (civ7GameUiTownFocusChangeCheckAvailable(target)) {
+    supported.push("city.townFocus.change.check");
+  }
+  if (civ7GameUiTownFocusReviewCheckAvailable(target)) {
+    supported.push("city.townFocus.review.check");
+  }
+  if (civ7GameUiGovernmentChoiceCheckAvailable(target)) {
+    supported.push("government.choice.check");
+  }
+  if (civ7GameUiCelebrationChoiceCheckAvailable(target)) {
+    supported.push("government.celebration.choice.check");
+  }
+  if (civ7GameUiNarrativeChoiceCheckAvailable(target)) {
+    supported.push("narrative.choice.check");
+  }
+  if (civ7GameUiTurnCompletionCheckAvailable(target)) {
+    supported.push("turn.complete.check");
+  }
+  if (gameUiControllerMutationProof(target) == null) {
+    return supported;
+  }
   if (gameUiAttentionReadAvailable(target)) {
     supported.push("attention.current");
   }
@@ -541,6 +604,9 @@ function gameUiSupportedReadProcedures(target: Civ7GameUiRuntimeTarget): readonl
   }
   if (gameUiWorldCurrentAvailable(target)) {
     supported.push("world.current");
+  }
+  if (civ7GameUiUnitCommandAvailable(target)) {
+    supported.push("unit.upgrade.check", "unit.resettle.check");
   }
   if (civ7GameUiWorldMapReadsAvailable(target)) {
     supported.push("world.plot.read", "world.grid.read");
@@ -578,17 +644,6 @@ function gameUiWorldCurrentAvailable(target: Civ7GameUiRuntimeTarget): boolean {
     typeof target.Players?.getAliveHumanIds === "function" &&
     typeof target.Players?.getNumAliveHumans === "function" &&
     isControllerPlayerId(target.GameContext?.localPlayerID)
-  );
-}
-
-function gameUiTurnCompletionAvailable(target: Civ7GameUiRuntimeTarget): boolean {
-  return (
-    gameUiAttentionReadAvailable(target) &&
-    typeof target.GameContext?.hasSentTurnComplete === "function" &&
-    typeof target.GameContext?.sendTurnComplete === "function" &&
-    typeof target.canEndTurn === "function" &&
-    typeof target.Game?.getTurnDate === "function" &&
-    typeof target.Game?.Notifications?.getEndTurnBlockingType === "function"
   );
 }
 

@@ -1,12 +1,30 @@
-import type { Civ7ControlOrpcContext } from "@civ7/control-orpc";
-import type { Civ7ControlOrpcComponentId } from "../service-types";
+import type {
+  Civ7ControlOrpcComponentId,
+  Civ7ControlOrpcDirectControlFacade,
+} from "../service-types";
 
-type Civ7GameUiUnitCommandRuntimeResult = Awaited<
-  ReturnType<Civ7ControlOrpcContext["directControl"]["requestCiv7UnitCommand"]>
+const UNIT_UPGRADE = "UNITCOMMAND_UPGRADE";
+const UNIT_RESETTLE = "UNITCOMMAND_RESETTLE";
+
+type UnitUpgradeCheckInput = Parameters<
+  Civ7ControlOrpcDirectControlFacade["checkCiv7UnitUpgrade"]
+>[0];
+type UnitUpgradeSendInput = Parameters<
+  Civ7ControlOrpcDirectControlFacade["sendCiv7UnitUpgrade"]
+>[0];
+type UnitResettleCheckInput = Parameters<
+  Civ7ControlOrpcDirectControlFacade["checkCiv7UnitResettle"]
+>[0];
+type UnitResettleSendInput = Parameters<
+  Civ7ControlOrpcDirectControlFacade["sendCiv7UnitResettle"]
+>[0];
+type UnitCheckResult = Awaited<
+  ReturnType<Civ7ControlOrpcDirectControlFacade["checkCiv7UnitUpgrade"]>
 >;
-type UnitCommandValidation = Civ7GameUiUnitCommandRuntimeResult["before"];
-type UnitCommandPostcondition = NonNullable<Civ7GameUiUnitCommandRuntimeResult["postcondition"]>;
-type UnitCommandPostconditionSnapshot = NonNullable<UnitCommandPostcondition["before"]>;
+type UnitSendResult = Awaited<
+  ReturnType<Civ7ControlOrpcDirectControlFacade["sendCiv7UnitUpgrade"]>
+>;
+type UnitSnapshot = UnitSendResult["before"];
 type RuntimeProbe<T> = Readonly<{ ok: true; value: T } | { ok: false; error: string }>;
 
 export type Civ7GameUiUnitCommandTarget = Readonly<{
@@ -43,6 +61,7 @@ export type Civ7GameUiUnitCommandTarget = Readonly<{
   };
 }>;
 
+/** Reports whether the in-game controller can check and send both supported unit commands. */
 export function civ7GameUiUnitCommandAvailable(target: Civ7GameUiUnitCommandTarget): boolean {
   return (
     typeof target.Game?.UnitCommands?.canStart === "function" &&
@@ -60,207 +79,112 @@ export function civ7GameUiUnitCommandAvailable(target: Civ7GameUiUnitCommandTarg
   );
 }
 
-export async function requestCiv7GameUiUnitCommand(
-  input: Readonly<{
-    unitId: Civ7ControlOrpcComponentId;
-    operationType: string;
-    args?: Readonly<Record<string, number>>;
-  }>,
+/** Checks upgrade admission against the current in-game unit-command router. */
+export async function checkCiv7GameUiUnitUpgrade(
+  input: UnitUpgradeCheckInput,
   target: Civ7GameUiUnitCommandTarget = globalThis as Civ7GameUiUnitCommandTarget
-): Promise<Civ7GameUiUnitCommandRuntimeResult> {
-  const args = argsRecord(input.args);
-  const localPlayerId = target.GameContext?.localPlayerID;
-  const beforeSnapshot = readUnitPostconditionSnapshot(input.unitId, target);
-  const before =
-    input.unitId.owner === localPlayerId
-      ? gameUiUnitCommandValidation(input.unitId, input.operationType, args, target)
-      : gameUiUnitCommandValidationBlocked(
-          input.unitId,
-          input.operationType,
-          args,
-          "The requested unit is not owned by GameContext.localPlayerID; game UI controller did not send."
-        );
-
-  if (!before.valid) {
-    const postcondition = gameUiUnitCommandPostcondition(
-      input.operationType,
-      false,
-      before,
-      before,
-      beforeSnapshot,
-      beforeSnapshot
-    );
-    return {
-      before,
-      after: before,
-      sent: false,
-      verified: false,
-      postcondition,
-    };
-  }
-
-  const commandType = enumValueFor(target.UnitCommandTypes, input.operationType);
-  const sendResult = probe(() =>
-    target.Game?.UnitCommands?.sendRequest?.(input.unitId, commandType, args)
-  );
-  const sent = sendResult.ok && sendResult.value !== false;
-  const afterSnapshot = readUnitPostconditionSnapshot(input.unitId, target);
-  const after = gameUiUnitCommandValidation(input.unitId, input.operationType, args, target);
-  const postcondition = gameUiUnitCommandPostcondition(
-    input.operationType,
-    sent,
-    before,
-    after,
-    beforeSnapshot,
-    afterSnapshot
-  );
-
-  return {
-    before,
-    ...(sent
-      ? {
-          command: {
-            host: "game-ui",
-            port: 0,
-            state: { id: "game-ui", name: "Game UI" },
-            output: ["game-ui-unit-command-requested"],
-          },
-        }
-      : {}),
-    after,
-    sent,
-    verified: sent && postcondition.classification !== "no-state-change",
-    postcondition,
-  };
+): Promise<UnitCheckResult> {
+  return checkUnitCommand(input.unitId, UNIT_UPGRADE, {}, target);
 }
 
-function gameUiUnitCommandValidation(
+/** Sends an upgrade only after a fresh in-game admission check and captures surrounding state. */
+export async function sendCiv7GameUiUnitUpgrade(
+  input: UnitUpgradeSendInput,
+  target: Civ7GameUiUnitCommandTarget = globalThis as Civ7GameUiUnitCommandTarget
+): Promise<UnitSendResult> {
+  return sendUnitCommand(input.unitId, UNIT_UPGRADE, {}, target);
+}
+
+/** Checks resettlement admission against the current in-game unit-command router. */
+export async function checkCiv7GameUiUnitResettle(
+  input: UnitResettleCheckInput,
+  target: Civ7GameUiUnitCommandTarget = globalThis as Civ7GameUiUnitCommandTarget
+): Promise<UnitCheckResult> {
+  return checkUnitCommand(
+    input.unitId,
+    UNIT_RESETTLE,
+    { X: input.destination.x, Y: input.destination.y },
+    target
+  );
+}
+
+/** Sends resettlement only after a fresh in-game admission check and captures surrounding state. */
+export async function sendCiv7GameUiUnitResettle(
+  input: UnitResettleSendInput,
+  target: Civ7GameUiUnitCommandTarget = globalThis as Civ7GameUiUnitCommandTarget
+): Promise<UnitSendResult> {
+  return sendUnitCommand(
+    input.unitId,
+    UNIT_RESETTLE,
+    { X: input.destination.x, Y: input.destination.y },
+    target
+  );
+}
+
+function checkUnitCommand(
   unitId: Civ7ControlOrpcComponentId,
   operationType: string,
   args: Readonly<Record<string, number>>,
   target: Civ7GameUiUnitCommandTarget
-): UnitCommandValidation {
-  const enumValue = enumValueFor(target.UnitCommandTypes, operationType);
-  const result = probe(() => target.Game?.UnitCommands?.canStart?.(unitId, enumValue, args, false));
+): UnitCheckResult {
+  if (unitId.owner !== target.GameContext?.localPlayerID) {
+    return {
+      valid: false,
+      result: {
+        ok: false,
+        reason:
+          "The requested unit is not owned by GameContext.localPlayerID; the game UI controller refused the command.",
+        unitId,
+      },
+    };
+  }
+  const commands = target.Game?.UnitCommands;
+  if (typeof commands?.canStart !== "function") {
+    throw new Error("Game.UnitCommands.canStart is unavailable.");
+  }
+  const commandType = enumValueFor(target.UnitCommandTypes, operationType);
+  const result = commands.canStart(unitId, commandType, args, false);
   return {
-    host: "game-ui",
-    port: 0,
-    state: { id: "game-ui", name: "Game UI" },
-    family: "unit-command",
-    operationType,
-    enumValue,
-    target: { unitId },
-    args,
-    valid: result.ok && successFromCanStart(result.value),
+    valid: successFromCanStart(result),
     result,
   };
 }
 
-function gameUiUnitCommandValidationBlocked(
+function sendUnitCommand(
   unitId: Civ7ControlOrpcComponentId,
   operationType: string,
   args: Readonly<Record<string, number>>,
-  reason: string
-): UnitCommandValidation {
-  return {
-    host: "game-ui",
-    port: 0,
-    state: { id: "game-ui", name: "Game UI" },
-    family: "unit-command",
-    operationType,
-    enumValue: operationType,
-    target: { unitId },
-    args,
-    valid: false,
-    result: {
-      ok: false,
-      reason,
-      unitId,
-    },
-  };
-}
+  target: Civ7GameUiUnitCommandTarget
+): UnitSendResult {
+  const before = readUnitSnapshot(unitId, target);
+  const validation = checkUnitCommand(unitId, operationType, args, target);
+  if (!validation.valid) {
+    return {
+      sent: false,
+      validation,
+      before,
+      after: before,
+    };
+  }
 
-function gameUiUnitCommandPostcondition(
-  operationType: string,
-  sent: boolean,
-  before: UnitCommandValidation,
-  after: UnitCommandValidation,
-  beforeSnapshot: UnitCommandPostconditionSnapshot,
-  afterSnapshot: UnitCommandPostconditionSnapshot
-): UnitCommandPostcondition {
-  const classification = classifyGameUiUnitCommandPostcondition(
-    sent,
+  const commands = target.Game?.UnitCommands;
+  if (typeof commands?.sendRequest !== "function") {
+    throw new Error("Game.UnitCommands.sendRequest is unavailable.");
+  }
+  const commandType = enumValueFor(target.UnitCommandTypes, operationType);
+  const result = commands.sendRequest(unitId, commandType, args);
+  return {
+    sent: result !== false,
+    validation,
     before,
-    after,
-    beforeSnapshot,
-    afterSnapshot
-  );
-  return {
-    family: "unit-command",
-    operationType,
-    classification,
-    before: beforeSnapshot,
-    after: afterSnapshot,
-    reason: unitCommandPostconditionReason(classification),
+    after: readUnitSnapshot(unitId, target),
   };
 }
 
-function classifyGameUiUnitCommandPostcondition(
-  sent: boolean,
-  before: UnitCommandValidation,
-  after: UnitCommandValidation,
-  beforeSnapshot: UnitCommandPostconditionSnapshot,
-  afterSnapshot: UnitCommandPostconditionSnapshot
-): UnitCommandPostcondition["classification"] {
-  if (!sent) return "not-sent";
-  if (probeValueChanged(beforeSnapshot.firstReadyUnitId, afterSnapshot.firstReadyUnitId)) {
-    return "queue-advanced";
-  }
-  if (probeValueChanged(beforeSnapshot.selectedUnitId, afterSnapshot.selectedUnitId)) {
-    return "selected-unit-changed";
-  }
-  if (probeFieldChanged(beforeSnapshot.unit, afterSnapshot.unit, "activity")) {
-    return "activity-changed";
-  }
-  if (probeValueChanged(beforeSnapshot.unit, afterSnapshot.unit)) {
-    return "unit-state-changed";
-  }
-  if (probeValueChanged(beforeSnapshot.blocker, afterSnapshot.blocker)) {
-    return "blocker-changed";
-  }
-  if (before.valid !== after.valid || stableJson(before.result) !== stableJson(after.result)) {
-    return "validation-changed";
-  }
-  return "no-state-change";
-}
-
-function unitCommandPostconditionReason(
-  classification: UnitCommandPostcondition["classification"]
-): string {
-  switch (classification) {
-    case "not-sent":
-      return "The operation was not sent, so no unit-side postcondition can be verified.";
-    case "queue-advanced":
-      return "The first ready unit changed after the request, which shows the unit queue advanced.";
-    case "selected-unit-changed":
-      return "The selected unit changed after the request, which shows the game consumed the unit action.";
-    case "activity-changed":
-      return "The unit activity changed after the request.";
-    case "unit-state-changed":
-      return "The unit summary changed after the request.";
-    case "blocker-changed":
-      return "The end-turn blocker changed after the request.";
-    case "validation-changed":
-      return "The operation validation result changed after the request.";
-    case "no-state-change":
-      return "The request was sent, but no observed unit, queue, blocker, or validation state changed.";
-  }
-}
-
-function readUnitPostconditionSnapshot(
+function readUnitSnapshot(
   unitId: Civ7ControlOrpcComponentId,
   target: Civ7GameUiUnitCommandTarget
-): UnitCommandPostconditionSnapshot {
+): UnitSnapshot {
   const localPlayerId = target.GameContext?.localPlayerID;
   return {
     unit: probe(() => summarizeUnit(target.Units?.get?.(unitId))),
@@ -313,75 +237,34 @@ function enumValueFor(
   operationType: string
 ): unknown {
   if (enums == null) return operationType;
-  if (Object.prototype.hasOwnProperty.call(enums, operationType)) {
-    return enums[operationType];
-  }
+  if (Object.prototype.hasOwnProperty.call(enums, operationType)) return enums[operationType];
   const normalized = operationType.replace(/^UNITCOMMAND_/, "");
-  if (Object.prototype.hasOwnProperty.call(enums, normalized)) {
-    return enums[normalized];
-  }
-  return operationType;
-}
-
-function argsRecord(
-  args: Readonly<Record<string, number>> | undefined
-): Readonly<Record<string, number>> {
-  return args == null ? {} : { ...args };
+  return Object.prototype.hasOwnProperty.call(enums, normalized)
+    ? enums[normalized]
+    : operationType;
 }
 
 function successFromCanStart(result: unknown): boolean {
-  if (result === true) return true;
-  if (result === false || result == null) return false;
-  if (typeof result === "object") {
+  if (typeof result === "boolean") return result;
+  if (result !== null && typeof result === "object" && !Array.isArray(result)) {
     const record = result as Record<string, unknown>;
-    if (record.Success !== undefined) return record.Success === true;
-    if (record.success !== undefined) return record.success === true;
-    if (record.canStart !== undefined) return record.canStart === true;
+    for (const key of ["Success", "success", "canStart"] as const) {
+      if (key in record) {
+        if (typeof record[key] === "boolean") return record[key];
+        throw new Error(`Game.UnitCommands.canStart returned a non-boolean ${key} field.`);
+      }
+    }
   }
-  return Boolean(result);
+  throw new Error("Game.UnitCommands.canStart returned an unrecognized result.");
 }
 
 function probe<T>(read: () => T): RuntimeProbe<T> {
   try {
     return { ok: true, value: read() };
-  } catch (err) {
+  } catch (error) {
     return {
       ok: false,
-      error: err instanceof Error ? err.message : String(err),
+      error: error instanceof Error ? error.message : String(error),
     };
   }
-}
-
-function probeValueChanged(
-  left: RuntimeProbe<unknown> | undefined,
-  right: RuntimeProbe<unknown> | undefined
-): boolean {
-  if (!left?.ok || !right?.ok) return false;
-  return stableJson(left.value) !== stableJson(right.value);
-}
-
-function probeFieldChanged(
-  left: RuntimeProbe<unknown> | undefined,
-  right: RuntimeProbe<unknown> | undefined,
-  field: string
-): boolean {
-  if (!left?.ok || !right?.ok) return false;
-  if (left.value == null || right.value == null) return false;
-  if (typeof left.value !== "object" || typeof right.value !== "object") {
-    return false;
-  }
-  return (
-    stableJson((left.value as Record<string, unknown>)[field]) !==
-    stableJson((right.value as Record<string, unknown>)[field])
-  );
-}
-
-function stableJson(value: unknown): string {
-  if (value === null || typeof value !== "object") return JSON.stringify(value);
-  if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`;
-  const record = value as Record<string, unknown>;
-  return `{${Object.keys(record)
-    .sort()
-    .map((key) => `${JSON.stringify(key)}:${stableJson(record[key])}`)
-    .join(",")}}`;
 }

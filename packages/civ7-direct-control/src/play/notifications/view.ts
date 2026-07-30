@@ -11,6 +11,7 @@ import type {
   Civ7DirectControlOptions,
   Civ7TunerState,
 } from "../../session/types.js";
+import { actionPanelTurnAuthoritySource } from "../action-panel-turn.js";
 import type { Civ7OperationFamily } from "../operations/types.js";
 
 const nullableComponentIdSchema = Type.Union([Civ7ComponentIdSchema, Type.Null()]);
@@ -287,6 +288,7 @@ function buildPlayNotificationViewCommand(options: { maxNotifications?: number }
 
 function playNotificationViewSource(): string {
   return `${probeHelperSource()}
+    ${actionPanelTurnAuthoritySource()}
     const readNumericField = (value, lowerKey, upperKey) => {
       if (!value || typeof value !== "object") return null;
       if (typeof value[lowerKey] === "number") return value[lowerKey];
@@ -1294,7 +1296,7 @@ function playNotificationViewSource(): string {
           "CHANGE_GOVERNMENT",
           "{ GovernmentType, Action: Activate }",
           "official-ui",
-          [requiredInput("GovernmentType", "live government picker option", "Use the government index from choose-government --options, not the visible row position.")],
+          [requiredInput("GovernmentType", "live government picker option", "Use the government index surfaced by this notification's live picker option evidence, not the visible row position.")],
           [
             action("read government options", undefined, undefined, "enabled starting governments", "before choosing a government"),
             action("choose government", "player-operation", "CHANGE_GOVERNMENT", "{ GovernmentType, Action: Activate }", "after reading the live government option"),
@@ -1309,7 +1311,7 @@ function playNotificationViewSource(): string {
           "CHOOSE_GOLDEN_AGE",
           "{ GoldenAgeType }",
           "official-ui",
-          [requiredInput("GoldenAgeType", "live celebration chooser option", "Use the GoldenAgeType hash from choose-celebration --options, not old examples or visible row position.")],
+          [requiredInput("GoldenAgeType", "live celebration chooser option", "Use the GoldenAgeType hash surfaced by this notification's live chooser option evidence, not old examples or the visible row position.")],
           [
             action("read celebration options", undefined, undefined, "enabled celebration choices", "before choosing a celebration"),
             action("choose celebration", "player-operation", "CHOOSE_GOLDEN_AGE", "{ GoldenAgeType }", "after reading the live celebration option"),
@@ -1753,7 +1755,7 @@ function playNotificationViewSource(): string {
         turn: probe(() => Game.turn),
         turnDate: probe(() => Game.getTurnDate()),
         hasSentTurnComplete: probe(() => GameContext.hasSentTurnComplete()),
-        canEndTurn: probe(() => typeof canEndTurn === "function" ? canEndTurn() : false),
+        canEndTurn: readActionPanelCanEndTurn(),
         blocker,
         blockingNotificationId,
         selectedUnitId: probe(() => toComponentId(UI?.Player?.getHeadSelectedUnit?.())),

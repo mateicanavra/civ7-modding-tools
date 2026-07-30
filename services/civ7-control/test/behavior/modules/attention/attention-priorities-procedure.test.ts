@@ -11,7 +11,8 @@ import type {
   Civ7ControlOrpcPlayNotificationViewResult,
   Civ7ControlOrpcReadyCityViewResult,
   Civ7ControlOrpcReadyUnitViewResult,
-  Civ7ControlOrpcTurnCompletionStatusResult,
+  Civ7ControlOrpcTurnCompletionCheckResult,
+  Civ7ControlOrpcTurnCompletionSnapshot,
 } from "../../../../src/service/model/ports/direct-control";
 import { directControlFacadeFixture } from "../../../support/direct-control-facade";
 
@@ -22,10 +23,8 @@ describe("attention.priorities control-oRPC procedure", () => {
     const fake = fakeContext({
       playableStatus: playableStatusResult(),
       notifications: notificationViewResult({ unitId, cityId }),
-      turnCompletion: turnCompletionStatusResult({
+      turnCompletion: turnCompletionCheckResult({
         canEndTurn: { ok: true, value: false },
-        blocker: { ok: true, value: -2026570723 },
-        firstReadyUnitId: { ok: true, value: unitId },
       }),
       readyUnit: readyUnitViewResult(unitId),
       readyCity: readyCityViewResult(cityId),
@@ -114,7 +113,7 @@ describe("attention.priorities control-oRPC procedure", () => {
         blocker: gameError,
         blockingNotificationId: gameError,
       },
-      turnCompletion: turnCompletionStatusResult(),
+      turnCompletion: turnCompletionCheckResult(),
       readyUnit: emptyReadyUnitViewResult(),
       readyCity: emptyReadyCityViewResult(),
     });
@@ -142,7 +141,7 @@ describe("attention.priorities control-oRPC procedure", () => {
     const fake = fakeContext({
       playableStatus: playableStatusResult(),
       notifications: cleanNotificationViewResult(),
-      turnCompletion: turnCompletionStatusResult(),
+      turnCompletion: turnCompletionCheckResult(),
       readyUnit: emptyReadyUnitViewResult(),
       readyCity: emptyReadyCityViewResult(),
     });
@@ -154,28 +153,190 @@ describe("attention.priorities control-oRPC procedure", () => {
       {
         priority: 10,
         kind: "clean-read",
-        summary: "no HUD, ready-unit, ready-city, or battlefield priority surfaced",
+        summary: "native turn completion is available and no higher-priority item surfaced",
         reason:
-          "Fresh clean reads can use the guarded end-turn path; it rechecks blockers before mutation.",
+          "Fresh native canEndTurn and hasSentTurnComplete evidence admits the guarded turn-completion service.",
         blocking: false,
         nextStep: {
           kind: "end-turn",
           source: "attention.priorities",
-          label: "No blockers found; guarded end-turn is available.",
+          label: "Native turn completion is available.",
           parameters: {},
         },
-        evidenceLabels: ["clean-attention-read"],
+        evidenceLabels: ["native-turn-completion-available"],
       },
     ]);
     expect(JSON.stringify(result)).not.toMatch(/before sending|before any send|send-ready/i);
     expect(fake.calls.battlefield).toEqual([]);
+  });
+
+  test("does not advise end turn when native availability is true but notification coverage is truncated", async () => {
+    const fake = fakeContext({
+      playableStatus: playableStatusResult(),
+      notifications: {
+        ...cleanNotificationViewResult(),
+        limits: {
+          maxNotifications: 1,
+          truncated: true,
+        },
+      },
+      turnCompletion: turnCompletionCheckResult({
+        canEndTurn: { ok: true, value: true },
+      }),
+      readyUnit: emptyReadyUnitViewResult(),
+      readyCity: emptyReadyCityViewResult(),
+    });
+
+    const result = await call(
+      Civ7ControlOrpcRouter.attention.priorities,
+      {
+        maxNotifications: 1,
+      },
+      { context: fake.context }
+    );
+
+    expect(result.canEndTurn).toBe(true);
+    expect(result.summary).toMatchObject({
+      priorityCount: 1,
+      blockingPriorityCount: 1,
+      decisionCount: 0,
+      nextStepCount: 1,
+    });
+    expect(result.priorities).toEqual([
+      {
+        priority: 10,
+        kind: "notification-coverage-truncated",
+        summary: "notification coverage is truncated",
+        reason:
+          "The notification read reached its configured limit, so unseen blockers may remain even when native turn completion is available.",
+        blocking: true,
+        nextStep: {
+          kind: "observe",
+          source: "attention.priorities",
+          label: "Inspect complete notification coverage before considering turn completion.",
+          parameters: {},
+        },
+        evidenceLabels: ["notification-coverage-truncated"],
+      },
+    ]);
+    expect(result.nextSteps).toEqual([
+      {
+        kind: "observe",
+        source: "attention.priorities",
+        label: "Inspect complete notification coverage before considering turn completion.",
+        parameters: {},
+      },
+    ]);
+  });
+
+  test("does not infer end-turn advice from empty item sets without exact native availability", async () => {
+    const fake = fakeContext({
+      playableStatus: playableStatusResult(),
+      notifications: cleanNotificationViewResult(),
+      turnCompletion: turnCompletionCheckResult({
+        canEndTurn: { ok: true, value: false },
+      }),
+      readyUnit: emptyReadyUnitViewResult(),
+      readyCity: emptyReadyCityViewResult(),
+    });
+
+    const result = await call(
+      Civ7ControlOrpcRouter.attention.priorities,
+      {},
+      { context: fake.context }
+    );
+
+    expect(result.priorities).toMatchObject([
+      {
+        kind: "turn-completion-unavailable",
+        nextStep: { kind: "observe" },
+        evidenceLabels: ["native-turn-completion-unavailable"],
+      },
+    ]);
+    expect(result.nextSteps.map((step) => step.kind)).not.toContain("end-turn");
+    expect(result.nextSteps.map((step) => step.kind)).not.toContain("send-turn-complete");
+  });
+
+  test("does not use stale notification details as turn-completion authority", async () => {
+    const fake = fakeContext({
+      playableStatus: playableStatusResult(),
+      notifications: staleUnitCommandNotificationViewResult(),
+      turnCompletion: turnCompletionCheckResult({
+        canEndTurn: { ok: true, value: false },
+      }),
+      readyUnit: emptyReadyUnitViewResult(),
+      readyCity: emptyReadyCityViewResult(),
+    });
+
+    const result = await call(
+      Civ7ControlOrpcRouter.attention.priorities,
+      {},
+      { context: fake.context }
+    );
+
+    expect(result.priorities[0]).toMatchObject({
+      kind: "hud:unit-command-stale-expired",
+      nextStep: {
+        kind: "observe",
+        label: "Refresh native turn-completion availability.",
+      },
+    });
+    expect(result.nextSteps.map((step) => step.kind)).not.toContain("send-turn-complete");
+    expect(result.nextSteps.map((step) => step.kind)).not.toContain("end-turn");
+  });
+
+  test("does not infer stale-unit turn completion through truncated notification coverage", async () => {
+    const fake = fakeContext({
+      playableStatus: playableStatusResult(),
+      notifications: {
+        ...staleUnitCommandNotificationViewResult(),
+        limits: {
+          maxNotifications: 1,
+          truncated: true,
+        },
+      },
+      turnCompletion: turnCompletionCheckResult({
+        canEndTurn: { ok: true, value: true },
+      }),
+      readyUnit: emptyReadyUnitViewResult(),
+      readyCity: emptyReadyCityViewResult(),
+    });
+
+    const result = await call(
+      Civ7ControlOrpcRouter.attention.priorities,
+      {
+        maxNotifications: 1,
+      },
+      { context: fake.context }
+    );
+
+    expect(result.canEndTurn).toBe(true);
+    expect(result.priorities).toEqual([
+      {
+        priority: 100,
+        kind: "hud:unit-command-stale-expired",
+        summary: "expired COMMAND_UNITS has no ready unit or enabled unit closeout candidate",
+        reason:
+          "Stale notification details and incomplete notification coverage do not authorize turn completion, even when the native check is available.",
+        blocking: true,
+        nextStep: {
+          kind: "observe",
+          source: "attention.priorities",
+          label: "Inspect complete notification coverage before considering turn completion.",
+          parameters: {},
+        },
+        evidenceLabels: ["hud-next-decision"],
+      },
+    ]);
+    expect(result.nextSteps.map((step) => step.kind)).not.toContain("send-turn-complete");
+    expect(result.nextSteps.map((step) => step.kind)).not.toContain("end-turn");
   });
 });
 
 type FakeContextOptions = Readonly<{
   playableStatus: Civ7ControlOrpcPlayableStatusResult;
   notifications?: Civ7ControlOrpcPlayNotificationViewResult;
-  turnCompletion?: Civ7ControlOrpcTurnCompletionStatusResult;
+  turnCompletion?: Civ7ControlOrpcTurnCompletionCheckResult;
   readyUnit?: Civ7ControlOrpcReadyUnitViewResult;
   readyCity?: Civ7ControlOrpcReadyCityViewResult;
   battlefield?: Civ7ControlOrpcBattlefieldScanResult;
@@ -232,9 +393,9 @@ function fakeContext(options: FakeContextOptions): {
         }
         return options.readyUnit;
       },
-      getCiv7TurnCompletionStatus: async (endpointDefaults) => {
+      checkCiv7TurnCompletion: async (_input, endpointDefaults) => {
         calls.turnCompletion.push(endpointDefaults);
-        return options.turnCompletion ?? turnCompletionStatusResult();
+        return options.turnCompletion ?? turnCompletionCheckResult();
       },
       getCiv7BattlefieldScan: async (input, endpointDefaults) => {
         calls.battlefield.push({ input, options: endpointDefaults });
@@ -342,21 +503,43 @@ function cleanNotificationViewResult(): Civ7ControlOrpcPlayNotificationViewResul
   };
 }
 
-function turnCompletionStatusResult(
-  overrides: Partial<Civ7ControlOrpcTurnCompletionStatusResult> = {}
-): Civ7ControlOrpcTurnCompletionStatusResult {
+function staleUnitCommandNotificationViewResult(): Civ7ControlOrpcPlayNotificationViewResult {
+  const view = cleanNotificationViewResult();
+  const template = notificationViewResult().hud.decisionQueue[0];
+  if (template === undefined) throw new Error("missing notification template");
+  const stale = {
+    ...template,
+    category: "unit-command",
+    operationFamily: "unit-operation" as const,
+    operationType: "SKIP_TURN",
+    details: {
+      kind: "unit-command-reconciliation",
+      classification: "unit-command-stale-expired",
+      staleExpiredWithoutEnabledCloseout: true,
+      enabledCloseoutCandidates: [],
+      hasSentTurnComplete: { ok: true, value: false },
+    },
+  };
   return {
-    host: "127.0.0.1",
-    port: 4318,
-    state: { id: "65535", name: "App UI" },
-    localPlayerId: 0,
-    turn: { ok: true, value: 12 },
-    turnDate: { ok: true, value: "3400 BCE" },
-    hasSentTurnComplete: { ok: true, value: false },
-    canEndTurn: { ok: true, value: true },
-    blocker: { ok: true, value: 0 },
-    firstReadyUnitId: { ok: true, value: null },
-    ...overrides,
+    ...view,
+    hud: {
+      nextDecision: stale,
+      decisionQueue: [stale],
+    },
+  };
+}
+
+function turnCompletionCheckResult(
+  overrides: Partial<Civ7ControlOrpcTurnCompletionSnapshot> = {}
+): Civ7ControlOrpcTurnCompletionCheckResult {
+  return {
+    snapshot: {
+      localPlayerId: 0,
+      turn: { ok: true, value: 12 },
+      hasSentTurnComplete: { ok: true, value: false },
+      canEndTurn: { ok: true, value: true },
+      ...overrides,
+    },
   };
 }
 

@@ -1,24 +1,33 @@
 import type { InferContractRouterInputs, InferContractRouterOutputs } from "@orpc/contract";
 
-import { choiceRequest } from "./choice-request";
+import { celebrationChoice } from "./celebration-choice";
+import { choice } from "./choice";
 
 export const contract = {
   choice: {
-    request: choiceRequest.government,
+    check: choice.check,
+    request: choice.request,
   },
   celebration: {
     choice: {
-      request: choiceRequest.celebration,
+      check: celebrationChoice.check,
+      request: celebrationChoice.request,
     },
   },
 };
 
 export type Civ7GovernmentChoiceInput = InferContractRouterInputs<
   typeof contract
->["choice"]["request"];
+>["choice"]["check"];
 export type Civ7GovernmentCelebrationChoiceInput = InferContractRouterInputs<
   typeof contract
->["celebration"]["choice"]["request"];
+>["celebration"]["choice"]["check"];
+export type Civ7GovernmentChoiceCheckResult = InferContractRouterOutputs<
+  typeof contract
+>["choice"]["check"];
+export type Civ7GovernmentCelebrationChoiceCheckResult = InferContractRouterOutputs<
+  typeof contract
+>["celebration"]["choice"]["check"];
 export type Civ7GovernmentChoiceResult = InferContractRouterOutputs<
   typeof contract
 >["choice"]["request"];

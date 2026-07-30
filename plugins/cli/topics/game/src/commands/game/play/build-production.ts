@@ -4,10 +4,7 @@ import {
   buildDirectControlOptions,
   emitPlayResult,
   parseComponentId,
-  validatePlayOperation,
 } from "../../../adapters/play/direct-control";
-
-const BUILD = "BUILD";
 
 type BuildProductionFlags = Readonly<{
   host?: string;
@@ -22,6 +19,12 @@ type BuildProductionFlags = Readonly<{
   "timeout-ms": number;
   json: boolean;
 }>;
+
+type ProductionChoiceArgs =
+  | Readonly<{ UnitType: number }>
+  | Readonly<{ ProjectType: number }>
+  | Readonly<{ ConstructibleType: number }>
+  | Readonly<{ ConstructibleType: number; X: number; Y: number }>;
 
 export default class GamePlayBuildProduction extends Command {
   static summary = "Validate or choose city production";
@@ -83,49 +86,54 @@ export default class GamePlayBuildProduction extends Command {
     const { flags } = await this.parse(GamePlayBuildProduction);
     const typedFlags = flags as BuildProductionFlags;
     const input = {
-      operationType: BUILD,
       cityId: parseComponentId(typedFlags["city-id"], "city-id"),
       args: buildProductionArgs(typedFlags),
     };
-    const options = buildDirectControlOptions(typedFlags);
+    const client = createCiv7GameControlClient({
+      endpointDefaults: buildDirectControlOptions(typedFlags),
+    });
     const result = typedFlags.send
-      ? await createCiv7GameControlClient({
-          endpointDefaults: options,
-        }).city.production.choice.request({ cityId: input.cityId, args: input.args })
-      : await validatePlayOperation("city-operation", input, options);
+      ? await client.city.production.choice.request(input)
+      : await client.city.production.choice.check(input);
 
     emitPlayResult(this.log.bind(this), typedFlags.json, result);
   }
 }
 
-function buildProductionArgs(flags: BuildProductionFlags): Record<string, number> {
-  const itemKinds = [
-    ["UnitType", flags["unit-type"]],
-    ["ConstructibleType", flags["constructible-type"]],
-    ["ProjectType", flags["project-type"]],
-  ] as const;
-  const selected = itemKinds.filter(([, value]) => value !== undefined);
-  if (selected.length !== 1) {
+function buildProductionArgs(flags: BuildProductionFlags): ProductionChoiceArgs {
+  const unitType = flags["unit-type"];
+  const constructibleType = flags["constructible-type"];
+  const projectType = flags["project-type"];
+  const selectedCount = [unitType, constructibleType, projectType].filter(
+    (value) => value !== undefined
+  ).length;
+  if (selectedCount !== 1) {
     throw new Error(
       "game play build-production requires exactly one of --unit-type, --constructible-type, or --project-type"
     );
   }
 
-  const [key, value] = selected[0];
-  if (value === undefined) {
-    throw new Error("game play build-production requires a production item id");
-  }
-  const args: Record<string, number> = {};
-  args[key] = value;
-  if (flags.x !== undefined || flags.y !== undefined) {
-    if (key !== "ConstructibleType") {
+  if (unitType !== undefined) {
+    if (flags.x !== undefined || flags.y !== undefined) {
       throw new Error("--x/--y placement coordinates are only supported with --constructible-type");
     }
+    return { UnitType: unitType };
+  }
+  if (projectType !== undefined) {
+    if (flags.x !== undefined || flags.y !== undefined) {
+      throw new Error("--x/--y placement coordinates are only supported with --constructible-type");
+    }
+    return { ProjectType: projectType };
+  }
+  if (constructibleType === undefined) {
+    throw new Error("game play build-production requires a production item id");
+  }
+
+  if (flags.x !== undefined || flags.y !== undefined) {
     if (flags.x === undefined || flags.y === undefined) {
       throw new Error("--x and --y must be provided together");
     }
-    args.X = flags.x;
-    args.Y = flags.y;
+    return { ConstructibleType: constructibleType, X: flags.x, Y: flags.y };
   }
-  return args;
+  return { ConstructibleType: constructibleType };
 }

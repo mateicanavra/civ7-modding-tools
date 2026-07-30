@@ -1,7 +1,23 @@
 # Production Choice Service Contract Slice
 
-Status: implemented local package/contract ownership slice.
+Status: implemented historical package/contract ownership slice; current
+ownership superseded 2026-07-29.
 Date: 2026-06-05.
+
+## Current Disposition (2026-07-29)
+
+This record preserves the accepted 2026-06-05 slice and its then-current proof.
+The purpose, write set, behavior boundary, and proof commands below are
+historical rather than current package-path or ownership claims.
+
+The current `services/civ7-control` city module owns both
+`city.production.choice.check` and `city.production.choice.request`, including
+their semantic contracts, orchestration, dispatch uncertainty, bounded
+post-send checking, postcondition classification, and
+no-repeat-after-unverified policy. `@civ7/direct-control` owns only the exact
+production check/send wire atoms, command serialization, validator/send
+adaptation, and raw evidence snapshots. The former direct-control production
+proof/postcondition helpers consumed by this historical slice are retired.
 
 ## Purpose
 

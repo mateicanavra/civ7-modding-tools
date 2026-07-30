@@ -135,7 +135,7 @@ describe("game play priorities command", () => {
       expect(top.kind).toBe("clean-read");
       expect(top.nextAction).toMatchObject({ kind: "end-turn", sendsMutation: true });
       expect(payload.nextAction).toEqual(top.nextAction);
-      expect(top.reason).toContain("rechecks blockers before mutation");
+      expect(top.reason).toContain("Fresh native canEndTurn");
       expect(payload.semanticEnvelope.blockers).toEqual([]);
       expect(payload.semanticEnvelope.actions[0]).toMatchObject({
         kind: top.nextAction?.kind,
@@ -436,7 +436,7 @@ describe("game play priorities command", () => {
       expect(top.summary).toContain("no ready unit");
       expect(top.nextAction).toMatchObject({ kind: "send-turn-complete", sendsMutation: true });
       expect(payload.nextAction).toEqual(top.nextAction);
-      expect(top.reason).toContain("normal end-turn path once");
+      expect(top.reason).toContain("fresh native turn-completion check");
       expect(JSON.stringify(payload.decisionHud.hasSentTurnComplete)).toContain("false");
       expect(server.received.some((message) => message.includes("sendOperation("))).toBe(false);
     } finally {
@@ -449,10 +449,10 @@ describe("game play priorities command", () => {
     try {
       const top = payload.priorities[0];
       expect(top.kind).toBe("hud:unit-command-stale-expired");
-      expect(top.summary).toContain("turn-complete was sent");
-      expect(top.nextAction).toMatchObject({ kind: "observe-turn-advance", readOnly: true });
+      expect(top.summary).toContain("no ready unit");
+      expect(top.nextAction).toMatchObject({ kind: "observe", readOnly: true });
       expect(payload.nextAction).toEqual(top.nextAction);
-      expect(top.reason).toContain("turn-complete is already sent");
+      expect(top.reason).toContain("without a separate fresh native check");
       expect(JSON.stringify(payload.decisionHud.hasSentTurnComplete)).toContain("true");
       expect(server.received.some((message) => message.includes("sendOperation("))).toBe(false);
     } finally {
@@ -524,8 +524,9 @@ async function startPrioritiesTunerServer(mode: PriorityHudMode): Promise<FakeTu
       if (message.includes("evalOk") && message.includes("GameplayMap.getGridWidth")) {
         return [JSON.stringify(tunerHealthSnapshot())];
       }
-      if (message.includes("hasSentTurnComplete"))
-        return [JSON.stringify(turnCompletionStatus(mode))];
+      if (message.includes("return JSON.stringify(checkTurnCompletion())")) {
+        return [JSON.stringify(turnCompletionCheck(mode))];
+      }
       if (message.includes("readReadyUnitView")) {
         return [JSON.stringify(mode === "clean-read" ? noReadyUnitView() : readyUnitView())];
       }
@@ -1053,22 +1054,15 @@ function tunerHealthSnapshot() {
   };
 }
 
-function turnCompletionStatus(mode: PriorityHudMode) {
+function turnCompletionCheck(mode: PriorityHudMode) {
   const clean = mode === "clean-read";
   const pending = mode === "stale-unit-command-pending";
   return {
-    host: "127.0.0.1",
-    port: 0,
-    state: { id: "65535", name: "App UI", role: "app-ui" },
-    localPlayerId: 0,
-    turn: { ok: true, value: 80 },
-    turnDate: { ok: true, value: "2025 BCE" },
-    hasSentTurnComplete: { ok: true, value: pending },
-    canEndTurn: { ok: true, value: clean || mode === "stale-unit-command-disabled" },
-    blocker: { ok: true, value: clean ? 0 : 1 },
-    firstReadyUnitId: {
-      ok: true,
-      value: mode === "ready-unit" ? { owner: 0, id: 458752, type: 26 } : null,
+    snapshot: {
+      localPlayerId: 0,
+      turn: { ok: true, value: 80 },
+      hasSentTurnComplete: { ok: true, value: pending },
+      canEndTurn: { ok: true, value: clean || mode === "stale-unit-command-disabled" },
     },
   };
 }

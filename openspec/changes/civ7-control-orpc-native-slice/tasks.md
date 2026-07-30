@@ -102,12 +102,11 @@ adding more read-only facade shells.
     policy out of CLI commands into direct-control progression proof ownership.
     Keep native domain-owned progression procedures, shared postcondition
     middleware, runtime proof, and parent Task 5.x/6.x acceptance pending.
-  - [x] 5.2.7 Extract turn-completion send proof/no-repeat policy into a
-    direct-control-owned helper. Preserve the existing turn-completion runtime
-    send path while classifying turn-advanced, turn-complete-sent,
-    already-complete, no-state-change, missing-postcondition, and
-    pending-runtime-proof paths before any native turn mutation procedure is
-    accepted.
+  - [x] 5.2.7 Converge direct-control turn completion on exact action-panel
+    check/send atoms and immutable source-state observations. Remove raw
+    `GameContext.sendTurnComplete`, invented ambient `canEndTurn`, notification
+    fallback admission, unready mutation, legacy `verified`, and
+    direct-control-owned semantic proof policy.
 - [ ] 5.3 Reorganize the capability hierarchy semantically for Sieve/future
   consumers before adding more procedure leaves.
   - [x] 5.3.1 Define the target semantic capability families and transitional
@@ -189,18 +188,20 @@ adding more read-only facade shells.
     input, semantic evidence/proof projection, raw-output exclusion, and
     no-repeat next steps; broad choice/action catalogs, runtime proof, and
     parent Task 5.x/6.x acceptance remain out of scope.
-  - [x] 5.4.15 Record `turn.complete.request` as a service-owned turn
-    mutation boundary over the direct-control turn completion runtime port and
-    turn-completion proof helper. The service owns the empty caller-facing
-    input, semantic before/after proof projection, raw-output exclusion, and
-    no-repeat next steps; CLI end-turn migration, runtime proof, and parent
-    Task 5.x/6.x acceptance remain out of scope.
-  - [x] 5.4.16 Narrow the control-oRPC runtime facade for
-    `city.population.place.request` from generic player/city operation ports
-    to semantic assign-worker and expand-city placement ports. Keep
-    direct-control's low-level player-operation/city-command authority inside
-    the live facade adapter and keep raw operation inputs out of the exported
-    context-construction surface.
+  - [x] 5.4.15 Record `turn.complete.check` and `turn.complete.request` as
+    service-owned turn boundaries over exact direct-control action-panel
+    check/send atoms. The service owns native availability, guarded dispatch,
+    bounded observation, semantic postcondition projection, dispatch
+    uncertainty, raw snapshot exclusion, and no-repeat next steps; deployed
+    runtime proof and parent Task 5.x/6.x acceptance remain out of scope.
+  - [x] 5.4.16 Converge `city.population.place.check` and
+    `city.population.place.request` on exact worker-assignment and
+    city-expansion check/send ports. Keep only native validation, dispatch, and
+    immutable target-state evidence in direct-control; keep semantic admission,
+    bounded polling, target-specific confirmation, dispatch uncertainty, and
+    no-repeat policy in the city service. Reject `ASSIGN_WORKER` and `EXPAND`
+    from generic operation paths and keep raw operation inputs out of the
+    exported context-construction surface.
   - [x] 5.4.17 Record `world.current` as a service-owned current-world
     boundary over playable/App UI snapshot facts. The service owns the
     contract-local schema, normal projection, next-step wording, raw-output
@@ -291,14 +292,16 @@ adding more read-only facade shells.
     semantic native unit procedure leaves over the low-level direct-control
     unit-command runtime port; do not add `operations` or `unit.command`
     public roots.
-  - [x] 5.5.6.2 Seed `city.townFocus.change.request` and
-    `city.townFocus.review.request` as semantic native city procedure leaves
-    over the low-level direct-control city-command/city-operation runtime
-    ports. Keep town focus under the `city` domain router, omit raw operation
-    type/args and legacy `verified` from normal output, keep sent town-focus
-    results pending-runtime-proof/no-repeat guarded, and keep per-leaf
-    input/result schemas plus Standard Schema adapters contract-local rather
-    than exported caller utilities.
+  - [x] 5.5.6.2 Seed `city.townFocus.change.check/request` and
+    `city.townFocus.review.check/request` as semantic native city procedure
+    leaves over bounded direct-control change-check, change-send, review-read,
+    and review-send atoms. Keep town focus under the `city` domain router,
+    derive the native `City` argument from `cityId` without a caller override,
+    omit raw operation type/args and legacy `verified` from normal output, keep
+    semantic admission, polling/postconditions, dispatch uncertainty, and
+    no-repeat policy service-owned, classify sent results as confirmed or
+    unverified, and keep per-leaf input/result schemas plus Standard Schema
+    adapters contract-local rather than exported caller utilities.
   - [x] 5.5.7 Seed `readiness.current` as a native service-owned procedure
     that projects direct-control playable status into safe readiness,
     capability, source-summary, and next-step output without exposing raw
@@ -314,11 +317,14 @@ adding more read-only facade shells.
     adding same-shaped read wrappers, CLI syntax in service output, operation
     sends, strategy catalogs, relationship labels beyond official evidence, or
     runtime/live proof claims.
-  - [x] 5.5.10 Seed `narrative.choice.request` as a native
-    service-owned narrative procedure that composes playable
-    readiness, direct-control narrative request authority, and source-owned
-    narrative proof classification into semantic output without exposing raw
-    command/session/payload details or claiming runtime/live proof.
+  - [x] 5.5.10 Converge `narrative.choice.check/request` as exact
+    service-owned narrative procedures. Omit caller player/action authority,
+    use direct-control only for exact native check/send and focused blocker
+    observation, keep semantic admission/polling/classification/no-repeat
+    policy in the service, carry admitted evidence through a pre-dispatch
+    compare-and-send guard, keep native validation authoritative over option
+    rows, retire UI closeout choreography and direct proof policy, and reject
+    the narrative operation through generic player-operation paths.
   - [x] 5.5.11 Seed `diplomacy.response.request` as a native
     service-owned diplomacy procedure that composes playable
     readiness, direct-control diplomacy response authority, and source-owned
@@ -349,16 +355,17 @@ adding more read-only facade shells.
     omit raw operation envelopes and legacy `verified` from normal output, and
     keep sent target results pending-runtime-proof/no-repeat guarded until a
     future source-owned progression read proves target state changed.
-  - [x] 5.5.13.3 Seed `government.choice.request` and
-    `government.celebration.choice.request` as native service-owned
-    government-domain mutation leaves. Keep government versus celebration in
-    the domain procedure path, omit caller `playerId` from public send inputs,
-    read current local-player evidence before send, use direct-control only as
-    the low-level player-operation runtime/proof port, omit raw operation
-    envelopes and legacy `verified` from normal output, and keep sent
-    government-domain choices
-    pending-runtime-proof/no-repeat guarded until a future source-owned read
-    proves the live government or celebration blocker cleared.
+  - [x] 5.5.13.3 Converge `government.choice.check/request` and
+    `government.celebration.choice.check/request` as exact service-owned
+    government-domain leaves. Keep government versus celebration in the domain
+    path, omit caller player/action authority, use direct-control only for
+    exact native check/send and immutable state observation, keep semantic
+    admission/polling/confirmation/no-repeat policy in the service, carry the
+    admitted snapshot through a pre-dispatch compare-and-send guard, normalize
+    current golden-age state into the dispatched hash identity, keep native
+    validation authoritative over observational option rows, retire the thick
+    direct wrapper and proof policy, and reject both identities through generic
+    player-operation paths.
   - [x] 5.5.13.4 Seed `progression.attribute.purchase.request`,
     `progression.attribute.review.request`,
     `progression.tradition.change.request`, and
@@ -373,11 +380,11 @@ adding more read-only facade shells.
     progression read proves the live review state changed. Keep per-leaf
     input/result schemas and Standard Schema adapters contract-local rather
     than exporting them from the package root.
-  - [x] 5.5.14 Seed `turn.complete.request` as a native service-owned turn
-    mutation procedure that composes playable readiness,
-    direct-control turn-completion send authority, and source-owned
-    turn-completion proof classification into semantic output without exposing
-    raw command/session/Tuner details or claiming runtime/live proof.
+  - [x] 5.5.14 Seed `turn.complete.check` and `turn.complete.request` as
+    native service-owned turn procedures that compose playable readiness,
+    exact direct-control action-panel atoms, and service-owned bounded
+    observation and no-repeat policy into semantic output without exposing raw
+    command/session/Tuner details or claiming runtime/live proof.
   - [x] 5.5.15 Seed `world.current` as a native service-owned world procedure
     that projects bounded turn, local-player, map, and player-count facts from
     the playable/App UI snapshot without calling direct-control summary
@@ -532,10 +539,10 @@ adding more read-only facade shells.
     postconditions and explicit pending-proof boundaries derive normal
     postcondition summaries, request status, and no-repeat next steps without
     accepting shared validator/postcondition middleware.
-  - [x] 6.3.11 Compose `turn.complete.request` through direct-control
-    turn-completion runtime authority and source-owned turn-completion
-    proof/no-repeat semantics; keep live runtime proof and shared
-    validator/postcondition middleware pending.
+  - [x] 6.3.11 Compose `turn.complete.check` and `turn.complete.request`
+    through exact direct-control action-panel runtime atoms and service-owned
+    availability, bounded observation, dispatch uncertainty, and no-repeat
+    semantics; keep live runtime proof pending.
   - [x] 6.3.12 Promote a shared native oRPC/effect-oRPC mutation proof
     boundary middleware that inspects procedure outputs after handlers run,
     rejects missing postcondition/no-repeat envelopes, and refuses
@@ -590,12 +597,11 @@ adding more read-only facade shells.
     `readiness.current` server-side client. Keep CLI endpoint flags as context
     construction, emit the semantic readiness projection, and keep raw
     direct-control playable-status internals out of normal status output.
-  - [x] 7.1.2 Route `civ7 game play end-turn --send` through the in-process
-    `turn.complete.request` server-side client. Keep endpoint flags and
-    endpoint defaults as context construction, emit the semantic
-    turn-completion projection for send and expected guard-blocked `not-sent`
-    output, preserve the existing direct-control status read for check-only
-    mode, and keep live runtime proof pending.
+  - [x] 7.1.2 Route `civ7 game play end-turn` check and send modes through
+    the in-process `turn.complete.check` and `turn.complete.request`
+    server-side clients. Keep endpoint flags and defaults as context
+    construction, emit semantic turn-completion projections and expected
+    guard-blocked `not-sent` output, and keep live runtime proof pending.
   - [x] 7.1.3 Route `civ7 game play dismiss-notification --send` through the
     in-process `notifications.dismiss.request` server-side client. Keep
     endpoint flags and endpoint defaults as context construction, emit the
@@ -637,22 +643,19 @@ adding more read-only facade shells.
     existing direct-control player-operation validation path for read-only
     mode, keep first-meet `{ Player1, Player2, Type }` proof distinct from
     ordinary diplomacy-response closeout, and keep live runtime proof pending.
-  - [x] 7.1.7 Route `civ7 game play choose-narrative --send` through the
-    in-process `narrative.choice.request` server-side client under
-    the `narrative` router. Keep endpoint flags as context
-    construction, emit the semantic narrative choice projection for send output
-    with direct-control acted/local-player evidence rather than treating
-    `--player-id` as send authority, preserve the existing direct-control
-    `--options` and player-operation validation paths for read-only mode, and
-    keep live runtime proof pending.
+  - [x] 7.1.7 Route ordinary read-only and send modes of
+    `civ7 game play choose-narrative` through the in-process
+    `narrative.choice.check/request` service clients. Keep endpoint flags as
+    context construction, omit caller player/action authority, emit semantic
+    narrative output, and retain `--options` only as a separate direct-control
+    observation that does not decide mutation admission.
   - [x] 7.1.8 Route `civ7 game play assign-worker --send` and
     `civ7 game play expand-city --send` through the in-process
     `city.population.place.request` server-side client under the `city` router.
-    Keep endpoint flags as context construction, emit the semantic city
-    population placement projection for send output, preserve the existing
-    direct-control validation paths for read-only mode, bound assign-worker send
-    mode to the source-owned one-worker placement atom, and keep live runtime
-    proof pending.
+    Route read-only mode through `city.population.place.check`, keep endpoint
+    flags as context construction, emit only semantic service projections, and
+    keep the exact one-worker amount and ambient local-player authority inside
+    the runtime atom. Keep live runtime proof pending.
   - [x] 7.1.9 Route `civ7 game play upgrade-unit --send` and
     `civ7 game play resettle-unit --send` through the in-process
     `unit.upgrade.request` and `unit.resettle.request` server-side clients
@@ -688,17 +691,16 @@ adding more read-only facade shells.
     validation player-scoped through direct-control, keep generated option
     send templates playerless, prove caller `playerId` rejection at the
     procedure and bridge boundary, and keep live runtime proof pending.
-  - [x] 7.1.9.2 Route `civ7 game play choose-government --send` and
-    `civ7 game play choose-celebration --send` through the in-process
-    `government.choice.request` and
-    `government.celebration.choice.request` server-side clients under the
-    `government` router. Keep endpoint flags as context construction, emit
-    semantic government-domain output, use fresh local-player evidence rather
-    than treating `--player-id` as send authority, omit caller `--player-id`
-    from send mode, preserve direct-control option reads and player-operation
-    validation for read-only mode, and keep sent government-domain results
-    pending-runtime-proof/no-repeat guarded until a real post-read owner proves
-    the live blocker cleared.
+  - [x] 7.1.9.2 Route both read-only and send modes of
+    `civ7 game play choose-government` and
+    `civ7 game play choose-celebration` through the in-process
+    `government.choice.check/request` and
+    `government.celebration.choice.check/request` service clients. Keep
+    endpoint flags as context construction, omit caller player/action
+    authority, emit semantic government-domain output, remove the command-local
+    direct-control chooser-option reader, leave option discovery on separate
+    notification/attention observation surfaces until an accepted service read
+    exists, and keep unconfirmed sends no-repeat guarded.
   - [x] 7.1.9.3 Route `civ7 game play buy-attribute --send`,
     `civ7 game play consider-attributes --send`,
     `civ7 game play change-tradition --send`, and
@@ -718,15 +720,15 @@ adding more read-only facade shells.
     CLI interface, but it is not repeated as a notification action. Prove the
     generated notification-view source omits `--player-id` from send
     templates and live runtime proof pending.
-  - [x] 7.1.9.4 Route `civ7 game play set-town-focus --send` and
-    `civ7 game play consider-town-project --send` through the in-process
-    city town-focus server-side clients under the `city` router. Keep endpoint
-    flags as context construction, emit semantic city town-focus output,
-    preserve direct-control city-command/city-operation validation for
-    read-only mode, remove raw `sendPlayOperation` fallback branches from the
-    migrated commands, and keep sent town-focus results
-    pending-runtime-proof/no-repeat guarded until a real city-read owner proves
-    town project review state changed.
+  - [x] 7.1.9.4 Route `civ7 game play set-town-focus` and
+    `civ7 game play consider-town-project` through the in-process city
+    town-focus server-side clients under the `city` router in both check and
+    send modes. Keep endpoint flags as context construction, emit semantic city
+    town-focus output, use the service check leaves for read-only mode and the
+    guarded service request leaves for send mode, remove raw
+    `sendPlayOperation` fallback branches, retire caller-owned `--closeout`
+    composition, and project sent results as confirmed or unverified while
+    keeping uncertain dispatch and incomplete evidence no-repeat guarded.
   - [x] 7.1.9.5 Route `civ7 game map --summary` through the in-process
     `world.current` server-side client under the `world` router. Keep endpoint
     flags as context construction, emit the semantic current-world projection,
@@ -1262,14 +1264,13 @@ adding more read-only facade shells.
     so partial reads do not imply no blockers. Keep other game-UI read/mutation
     ports, deployed Civ7 proof, play-thread action, and full `7.3`
     implementation pending.
-  - [x] 7.3.18 Add a game-resident turn-completion runtime port for
-    `turn.complete.request`: expose ambient `GameContext.sendTurnComplete`,
-    `hasSentTurnComplete`, `canEndTurn`, turn, blocker, and first-ready-unit
-    evidence through the existing service-owned turn procedure; require an
-    actual send function before reporting `sent: true`; preserve semantic
-    not-sent/no-repeat output for blocked and already-sent paths; keep raw
-    game-UI function names, command/session/state details, deployed Civ7
-    proof, play-thread action, and full `7.3` acceptance pending.
+  - [x] 7.3.18 Converge the game-resident turn-completion runtime port on the
+    official `.action-panel` component's `canEndTurn()` and `sendEndTurn()`
+    methods plus immutable turn and sent-state observations. Advertise
+    `turn.complete.check` and `turn.complete.request` independently, fail
+    closed on missing native authority, and remove raw
+    `GameContext.sendTurnComplete`, invented ambient `canEndTurn`, notification
+    fallback admission, and unrelated unready-turn behavior.
   - [x] 7.3.19 Add a game-resident production-choice runtime dependency for
     `city.production.choice.request`: expose ambient
     `Game.CityOperations.canStart/sendRequest`, `CityOperationTypes.BUILD`,
@@ -1306,18 +1307,15 @@ adding more read-only facade shells.
     game-UI function names, command/session/state details, deployed Civ7 proof,
     play-thread action, narrative/diplomacy/unit runtime ports, and full `7.3`
     acceptance pending.
-  - [x] 7.3.22 Add a game-resident narrative-choice runtime dependency for
-    `narrative.choice.request`: expose ambient
-    `Game.PlayerOperations.canStart/sendRequest`,
-    `PlayerOperationTypes.CHOOSE_NARRATIVE_STORY_DIRECTION`, notification
-    activation/read APIs, optional narrative panel/popup evidence, and
-    controller-owned local-player proof through the existing service-owned
-    narrative procedure; advertise the mutation only when those exact game UI
-    APIs and controller proof exist; derive send player from
-    `GameContext.localPlayerID` rather than caller `playerId`; preserve
-    validator-blocked not-sent and no-repeat proof output for sticky blockers,
-    validation-only changes, failed/missing panel evidence, and missing
-    postcondition paths; keep raw game-UI function names,
+  - [x] 7.3.22 Replace game-resident narrative orchestration with exact
+    check/send runtime atoms for `CHOOSE_NARRATIVE_STORY_DIRECTION`. Resolve
+    `GameContext.localPlayerID` and `PlayerOperationParameters.Activate` inside
+    the adapter, expose focused immutable blocker observations, compare
+    service-admitted evidence before dispatch, let the service own polling and
+    blocker-transition classification, and remove notification activation,
+    popup/panel traversal, audio, and UI closeout from gameplay control;
+    advertise check and request capabilities independently and keep raw game-UI
+    function names,
     command/session/state details, deployed Civ7 proof, play-thread action,
     diplomacy/unit runtime ports, and full `7.3` acceptance pending.
   - [x] 7.3.23 Add a game-resident diplomacy-response runtime dependency for
@@ -1387,20 +1385,21 @@ adding more read-only facade shells.
     command/session output, deployed Civ7 proof, play-thread action, and full
     `7.3` acceptance unchanged.
   - [x] 7.3.29 Add game-resident town-focus runtime dependencies for
-    `city.townFocus.change.request` and `city.townFocus.review.request`:
-    expose ambient `Game.CityCommands.canStart/sendRequest` for
-    `CHANGE_GROWTH_MODE`, ambient
-    `Game.CityOperations.canStart/sendRequest` for
-    `CONSIDER_TOWN_PROJECT`, `CityCommandTypes`, `CityOperationTypes`, and
-    controller-owned local-player proof through the existing service-owned
-    city town-focus procedures; advertise the mutations only when those exact
-    game UI APIs and controller proof exist; reject sends when the requested
-    city owner does not match `GameContext.localPlayerID`; preserve
-    validator-blocked not-sent output and pending-runtime-proof/no-repeat
-    guarded sent output; keep raw game-UI function names, command/session/state
-    details, deployed Civ7 proof, play-thread action, transport expansion,
-    public package-root procedure schema exports, and full `7.3` acceptance
-    pending.
+    `city.townFocus.change.check/request` and
+    `city.townFocus.review.check/request`: expose exact ambient
+    `Game.CityCommands.canStart/sendRequest` atoms for `CHANGE_GROWTH_MODE`,
+    exact ambient `Game.CityOperations.sendRequest` for
+    `CONSIDER_TOWN_PROJECT`, and town growth/project plus matching notification
+    snapshots through the service-owned city procedures; derive the native
+    `City` change argument from `cityId` without a caller-controlled override;
+    do not invent a review `canStart` authority; keep semantic admission,
+    polling/postconditions, dispatch uncertainty, and no-repeat policy in the
+    service; classify sent outcomes as confirmed or unverified; advertise reads
+    and mutations independently; reject generic operation fallback for both
+    native operation identities; keep raw game-UI function names,
+    command/session/state details, deployed Civ7 proof, play-thread action,
+    transport expansion, public package-root procedure schema exports, and full
+    `7.3` acceptance pending.
   - [x] 7.3.30 Add game-resident progression request runtime dependencies for
     `progression.technology.target.request`,
     `progression.culture.target.request`,
@@ -1421,20 +1420,15 @@ adding more read-only facade shells.
     command/session/state details, deployed Civ7 proof, play-thread action,
     transport expansion, public package-root procedure schema exports, and
     full `7.3` acceptance pending.
-  - [x] 7.3.31 Add game-resident government-domain runtime dependencies for
-    `government.choice.request` and
-    `government.celebration.choice.request`: expose ambient
-    `Game.PlayerOperations.canStart/sendRequest`, exact
-    `PlayerOperationTypes.CHANGE_GOVERNMENT` and
-    `PlayerOperationTypes.CHOOSE_GOLDEN_AGE` enum facts, and
-    controller-owned local-player proof through the existing service-owned
-    government procedures; allowlist those leaves through closed controller
-    bridge envelopes that derive concrete schemas from the aggregated
-    `Civ7ControlOrpcContract`; advertise the mutations only when those exact
-    game UI APIs and controller proof exist; omit caller `playerId` and route
-    sends through fresh `GameContext.localPlayerID` evidence before send; preserve
-    validator-blocked not-sent output and pending-runtime-proof/no-repeat
-    guarded sent output; keep raw game-UI function names,
+  - [x] 7.3.31 Replace game-resident government-domain orchestration with four
+    exact check/send runtime atoms for `CHANGE_GOVERNMENT` and
+    `CHOOSE_GOLDEN_AGE`. Resolve `GameContext.localPlayerID` and the government
+    Activate action inside the adapter, expose raw immutable current-choice,
+    available-option, blocker, and normalized golden-age observations, preserve
+    native ComponentID identity inside runtime calls, compare service-admitted
+    evidence before dispatch, let the service own polling and target-specific
+    confirmation, advertise check and request capabilities independently, and
+    keep raw game-UI function names,
     command/session/state details, deployed Civ7 proof, play-thread action,
     transport expansion, public package-root procedure schema exports, and
     full `7.3` acceptance pending.
@@ -1738,15 +1732,13 @@ adding more read-only facade shells.
   deployed Civ7 runtime proof, play-thread action, transport expansion, a
   progression read service, controller ingress, or parent Task 5.x/6.x/7.x
   acceptance.
-- [x] 8.60.2 Run focused direct-control government-domain request tests,
-  focused control-oRPC government procedure tests, focused CLI
-  celebration/government send tests, direct-control and control-oRPC
-  check/build/package gates, `check:cli`, `test:cli:play`, relevant OpenSpec
-  strict validates, and diff hygiene for the CLI government-domain send
-  migration slice. These are local CLI and package proofs only and do not claim
-  deployed Civ7 runtime proof, play-thread action, transport expansion, a
-  government read service, controller ingress, or parent Task 5.x/6.x/7.x
-  acceptance.
+- [x] 8.60.2 Run focused exact government/celebration atom tests, focused
+  control-oRPC check/request behavior tests, focused controller and CLI choice
+  tests, the combined direct/service/controller/CLI check/test/build graph,
+  strict OpenSpec validation, stale wrapper/proof/generic-path scans, staged
+  Habitat policy, and diff hygiene. These are local package proofs only and do
+  not claim deployed Civ7 runtime proof, play-thread action, transport
+  expansion, or parent Task 5.x/6.x/7.x acceptance.
 - [x] 8.60.3 Run focused direct-control progression player-choice request
   tests, focused control-oRPC progression player-choice procedure tests,
   focused CLI attribute/tradition send tests, direct-control and
@@ -1756,22 +1748,22 @@ adding more read-only facade shells.
   proofs only and do not claim deployed Civ7 runtime proof, play-thread
   action, transport expansion, a progression read service, controller ingress,
   public package-root schema exports, or parent Task 5.x/6.x/7.x acceptance.
-- [x] 8.60.4 Run focused direct-control town-focus request tests, focused
-  control-oRPC city town-focus procedure tests, focused CLI town-focus send
-  tests, direct-control and control-oRPC check/build/package gates,
+- [x] 8.60.4 Run focused direct-control town-focus atom tests, focused
+  control-oRPC city town-focus check/request tests, focused CLI town-focus
+  check/send tests, direct-control and control-oRPC check/build/package gates,
   `check:cli`, `test:cli:play`, relevant OpenSpec strict validates, and diff
-  hygiene for the CLI town-focus send migration slice. These are local CLI and
-  package proofs only and do not claim deployed Civ7 runtime proof,
-  play-thread action, transport expansion, a city read service, controller or
-  game-UI town-focus runtime, public package-root schema exports, or parent
-  Task 5.x/6.x/7.x acceptance.
+  hygiene for the CLI town-focus service migration slice. These are local CLI
+  and package proofs only and do not claim deployed Civ7 runtime proof,
+  play-thread action, transport expansion, a broader city read service,
+  controller or game-UI town-focus runtime, public package-root schema exports,
+  or parent Task 5.x/6.x/7.x acceptance.
 - [x] 8.60.5 Run focused game-ui controller and controller-ingress tests plus
   control-oRPC package test/check/build, strict OpenSpec validates, and diff
-  hygiene for the game-resident town-focus runtime dependency and controller
-  bridge allowlist slice. These are local package proofs only and do not claim
-  deployed Civ7 runtime proof, play-thread action, transport expansion, a city
-  read service, public package-root procedure schema exports, or parent Task
-  5.x/6.x/7.x acceptance.
+  hygiene for the game-resident town-focus atom dependencies and independent
+  check/request controller bridge allowlists. These are local package proofs
+  only and do not claim deployed Civ7 runtime proof, play-thread action,
+  transport expansion, a broader city read service, public package-root
+  procedure schema exports, or parent Task 5.x/6.x/7.x acceptance.
 - [x] 8.60.6 Run focused game-ui controller and controller-ingress tests plus
   control-oRPC package test/check/build, controller mod package
   test/check/build with bundle scan, strict OpenSpec validates, and diff
@@ -2381,16 +2373,16 @@ adding more read-only facade shells.
   notification/narrative/diplomacy/progression procedure tests, package
   test/check/build, relevant OpenSpec strict validates, and diff hygiene for
   the progression closeout projection helper extension.
-- [x] 8.23 Run focused turn-completion proof-policy tests, direct-control
-  package test/check/build, relevant OpenSpec strict validates, and diff
-  hygiene for the turn-completion proof/no-repeat ownership slice.
-- [x] 8.24 Run focused control-oRPC turn-completion procedure tests,
-  control-oRPC package test/check/build, relevant OpenSpec strict validates,
-  and diff hygiene for the native turn completion procedure slice.
-- [x] 8.25 Run focused direct-control request-result, control-oRPC turn
-  completion, and CLI end-turn tests, `check:cli`, `test:cli:play`, relevant
-  OpenSpec strict validates, and diff hygiene for the CLI turn-completion send
-  migration slice.
+- [x] 8.23 Run focused exact action-panel turn-completion atom tests,
+  direct-control package test/check/build, relevant OpenSpec strict validates,
+  and diff hygiene for the turn-completion runtime-authority slice.
+- [x] 8.24 Run focused control-oRPC turn-completion check/request,
+  observation, uncertainty, and no-repeat tests; control-oRPC package
+  test/check/build; relevant OpenSpec strict validates; and diff hygiene.
+- [x] 8.25 Run focused direct-control atom, control-oRPC turn-completion,
+  game-UI controller, and CLI check/send tests, relevant package
+  check/test/build targets, OpenSpec strict validates, and diff hygiene for the
+  end-to-end turn-completion convergence slice.
 - [x] 8.26 Run focused CLI notification dismissal tests, `check:cli`,
   `test:cli:play`, relevant OpenSpec strict validates, and diff hygiene for
   the CLI notification dismissal send migration slice.
@@ -2415,7 +2407,9 @@ adding more read-only facade shells.
   `check:cli`, `test:cli:play`, relevant OpenSpec strict validates, package
   checks/builds, and diff hygiene for the CLI first-meet response send
   migration slice.
-- [x] 8.30 Run focused direct-control narrative request, control-oRPC
-  narrative, CLI narrative tests, `check:cli`, `test:cli:play`,
-  relevant OpenSpec strict validates, and diff hygiene for the CLI narrative
-  choice send migration slice.
+- [x] 8.30 Run focused exact narrative atom tests, control-oRPC check/request
+  behavior tests, controller and CLI narrative tests, the combined
+  direct/service/controller/CLI check/test/build graph, strict OpenSpec
+  validation, stale wrapper/proof/UI-choreography scans, staged Habitat policy,
+  and diff hygiene. These are local package proofs and do not claim deployed
+  Civ7 runtime proof.

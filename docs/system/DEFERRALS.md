@@ -158,6 +158,14 @@ live-proof runbook in `MILESTONE-PROOFS.md`).
 **Scope:** Choose one complete distribution model: publish every runtime workspace dependency as a compatible package set, or bundle/vendor the private runtime graph into the CLI artifact. Prove the selected model by installing and executing the packed CLI outside this workspace, including plugin discovery and representative commands.
 **Impact:** Workspace and linked-development execution are supported and verified; the package is private and no CLI publication target or workflow is admitted until this deferral is resolved.
 
+## DEF-021: Controller-only production event wakeups
+
+**Deferred:** 2026-07-29
+**Trigger:** Every production mutation routes exclusively through the persistent in-game controller, and that controller has accepted listener lifecycle, request correlation, timeout, and live unit/project/constructible proof.
+**Context:** Official Civ7 production sends are fire-and-forget. `CityProductionChanged` and `CityProductionQueueChanged` are authoritative wakeups for a fresh queue/blocker read, not standalone acceptance receipts. The current control service uses one bounded readback model for both the persistent controller and the one-shot Tuner provider; adding event waiting only to the controller would create two completion models, while adding listener state to a one-shot Tuner command would recreate a second controller.
+**Scope:** Subscribe before dispatch, correlate native production events to the requested city and choice, perform one authoritative post-event queue/blocker read, preserve timeout and no-repeat behavior, prove live parity across production item kinds, then retire the one-shot production atom and polling together.
+**Impact:** Production confirmation currently performs bounded 250 ms polling rather than event-triggered readback. The result remains honest and fail-closed, with a small avoidable observation delay.
+
 ## Project-scoped deferrals
 
 Some deferrals are intentionally scoped to a specific project/milestone (e.g., Engine Refactor v1) rather than the whole system. Keep those in the project’s deferrals doc:

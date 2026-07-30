@@ -1,265 +1,254 @@
 import { type Static, Type } from "typebox";
-import { Civ7ComponentIdSchema } from "../civ7-component-id.js";
-import { Civ7DirectControlError } from "../direct-control-error.js";
+import { Value } from "typebox/value";
+
 import {
-  type Civ7RuntimeProbe,
-  Civ7RuntimeProbeSchema,
-  probeHelperSource,
-} from "../runtime/probe.js";
-import { jsonPayloadFromCommandResult } from "../session/command-result.js";
+  Civ7DirectControlError,
+  directControlErrorWithDispatchStatus,
+} from "../direct-control-error.js";
+import { jsLiteral } from "../runtime/command-serialization.js";
+import { Civ7RuntimeProbeSchema, probeHelperSource } from "../runtime/probe.js";
+import { schemaBodyFromCommandResult } from "../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../session/execute.js";
-import type { Civ7CommandResult, Civ7DirectControlOptions } from "../session/types.js";
-import {
-  type Civ7PlayNotificationSummary,
-  type Civ7PlayNotificationViewResult,
-  getCiv7PlayNotificationView,
-} from "./notifications/view.js";
+import type { Civ7DirectControlOptions } from "../session/types.js";
+import { actionPanelTurnAuthoritySource } from "./action-panel-turn.js";
 
-const civ7TunerStateSchema = Type.Object(
+export const Civ7TurnCompletionInputSchema = Type.Object({}, { additionalProperties: false });
+export type Civ7TurnCompletionInput = Readonly<Static<typeof Civ7TurnCompletionInputSchema>>;
+
+export const Civ7TurnCompletionSnapshotSchema = Type.Object(
   {
-    id: Type.String(),
-    name: Type.String(),
-  },
-  { additionalProperties: false }
-);
-
-const nullableComponentIdSchema = Type.Union([Civ7ComponentIdSchema, Type.Null()]);
-
-export const Civ7TurnCompletionStatusInputSchema = Type.Object({}, { additionalProperties: false });
-export type Civ7TurnCompletionStatusInput = Static<typeof Civ7TurnCompletionStatusInputSchema>;
-
-export const Civ7TurnCompletionStatusResultSchema = Type.Object(
-  {
-    host: Type.String(),
-    port: Type.Number(),
-    state: civ7TunerStateSchema,
-    localPlayerId: Type.Number(),
+    localPlayerId: Type.Integer(),
     turn: Civ7RuntimeProbeSchema(Type.Number()),
-    turnDate: Civ7RuntimeProbeSchema(Type.String()),
     hasSentTurnComplete: Civ7RuntimeProbeSchema(Type.Boolean()),
     canEndTurn: Civ7RuntimeProbeSchema(Type.Boolean()),
-    blocker: Civ7RuntimeProbeSchema(Type.Unknown()),
-    firstReadyUnitId: Civ7RuntimeProbeSchema(nullableComponentIdSchema),
   },
   { additionalProperties: false }
 );
-export type Civ7TurnCompletionStatusResult = Readonly<
-  Static<typeof Civ7TurnCompletionStatusResultSchema>
+export type Civ7TurnCompletionSnapshot = Readonly<Static<typeof Civ7TurnCompletionSnapshotSchema>>;
+
+export const Civ7TurnCompletionCheckResultSchema = Type.Object(
+  {
+    snapshot: Civ7TurnCompletionSnapshotSchema,
+  },
+  { additionalProperties: false }
+);
+export type Civ7TurnCompletionCheckResult = Readonly<
+  Static<typeof Civ7TurnCompletionCheckResultSchema>
 >;
 
-export type Civ7TurnCompletionStatusDependencies = Readonly<{
-  executeAppUiCommand: (
-    options: Civ7DirectControlOptions & Readonly<{ command: string }>
-  ) => Promise<Civ7CommandResult>;
-  parseTurnCompletionStatus: (
-    result: Civ7CommandResult,
-    label: string
-  ) => Civ7TurnCompletionStatusResult;
-}>;
+export const Civ7TurnCompletionSendInputSchema = Type.Object(
+  {
+    expected: Civ7TurnCompletionSnapshotSchema,
+  },
+  { additionalProperties: false }
+);
+export type Civ7TurnCompletionSendInput = Readonly<
+  Static<typeof Civ7TurnCompletionSendInputSchema>
+>;
 
-type TurnCompletionDependencies = Civ7TurnCompletionStatusDependencies &
-  Readonly<{
-    getPlayNotificationView: (
-      options: Civ7DirectControlOptions
-    ) => Promise<Civ7PlayNotificationViewResult>;
-  }>;
+export const Civ7TurnCompletionSendResultSchema = Type.Object(
+  {
+    sent: Type.Literal(true),
+    before: Civ7TurnCompletionSnapshotSchema,
+    after: Civ7TurnCompletionSnapshotSchema,
+  },
+  { additionalProperties: false }
+);
+export type Civ7TurnCompletionSendResult = Readonly<
+  Static<typeof Civ7TurnCompletionSendResultSchema>
+>;
 
-export type Civ7TurnCompletionActionResult = Readonly<{
-  before: Civ7TurnCompletionStatusResult;
-  after: Civ7TurnCompletionStatusResult;
-  command: Civ7CommandResult;
-  verified: boolean;
-}>;
+const Civ7TurnCompletionSendEnvelopeSchema = Type.Union([
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      value: Civ7TurnCompletionSendResultSchema,
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      ok: Type.Literal(false),
+      gameplayDispatchStatus: Type.Union([
+        Type.Literal("not-dispatched"),
+        Type.Literal("dispatched"),
+      ]),
+      error: Type.String({ maxLength: 512 }),
+    },
+    { additionalProperties: false }
+  ),
+]);
 
-export type Civ7TurnCompletionBlockedResult = Readonly<{
-  sent: false;
-  before: Civ7TurnCompletionStatusResult;
-  fallbackPreflight?: Civ7PlayNotificationViewResult;
-  reason: "turn-completion-blocked";
-}>;
-
-export type Civ7TurnCompletionRequestResult =
-  | (Civ7TurnCompletionActionResult & Readonly<{ sent: true }>)
-  | Civ7TurnCompletionBlockedResult;
-
-export async function getCiv7TurnCompletionStatus(
-  options: Civ7DirectControlOptions = {},
-  dependencies: Civ7TurnCompletionStatusDependencies = defaultTurnCompletionDependencies
-): Promise<Civ7TurnCompletionStatusResult> {
-  const result = await dependencies.executeAppUiCommand({
+/** Reads the exact native action-panel turn-completion evidence. */
+export async function checkCiv7TurnCompletion(
+  input: Civ7TurnCompletionInput,
+  options: Civ7DirectControlOptions = {}
+): Promise<Civ7TurnCompletionCheckResult> {
+  const command = await executeCiv7AppUiCommand({
     ...options,
-    command: buildTurnCompletionStatusCommand(),
+    command: buildTurnCompletionWireCommand("checkTurnCompletion", input),
   });
-  return dependencies.parseTurnCompletionStatus(result, "Civ7 turn completion status");
+  return schemaBodyFromCommandResult(
+    command,
+    "Civ7 turn completion check",
+    Civ7TurnCompletionCheckResultSchema
+  );
 }
 
-export async function sendCiv7TurnComplete(
-  options: Civ7DirectControlOptions = {},
-  dependencies: TurnCompletionDependencies = defaultTurnCompletionDependencies
-): Promise<Civ7TurnCompletionActionResult> {
-  const result = await requestCiv7TurnComplete(options, dependencies);
-  if (!result.sent) {
-    throw new Civ7DirectControlError(
-      "command-failed",
-      "Civ7 turn complete is blocked by current game state",
-      {
-        details: { before: result.before, fallbackPreflight: result.fallbackPreflight },
+/** Invokes the native action-panel send once after exact admitted evidence still matches. */
+export async function sendCiv7TurnCompletion(
+  input: Civ7TurnCompletionSendInput,
+  options: Civ7DirectControlOptions = {}
+): Promise<Civ7TurnCompletionSendResult> {
+  const command = await executeCiv7AppUiCommand({
+    ...options,
+    command: buildTurnCompletionWireCommand("sendTurnCompletion", input),
+  });
+  const envelope = schemaBodyFromCommandResult(
+    command,
+    "Civ7 turn completion send",
+    Civ7TurnCompletionSendEnvelopeSchema
+  );
+  if (envelope.ok) return envelope.value;
+  throw new Civ7DirectControlError("command-failed", envelope.error, {
+    details: command,
+    dispatchStatus: envelope.gameplayDispatchStatus,
+  });
+}
+
+type TurnCompletionAtom = "checkTurnCompletion" | "sendTurnCompletion";
+
+function buildTurnCompletionWireCommand(
+  atom: "checkTurnCompletion",
+  input: Civ7TurnCompletionInput
+): string;
+function buildTurnCompletionWireCommand(
+  atom: "sendTurnCompletion",
+  input: Civ7TurnCompletionSendInput
+): string;
+function buildTurnCompletionWireCommand(
+  atom: TurnCompletionAtom,
+  input: Civ7TurnCompletionInput | Civ7TurnCompletionSendInput
+): string {
+  try {
+    if (atom === "checkTurnCompletion") {
+      if (!Value.Check(Civ7TurnCompletionInputSchema, input)) {
+        throw new TypeError("Turn completion check input must be an empty object.");
       }
-    );
-  }
-  const { sent: _sent, ...action } = result;
-  return action;
-}
-
-export async function requestCiv7TurnComplete(
-  options: Civ7DirectControlOptions = {},
-  dependencies: TurnCompletionDependencies = defaultTurnCompletionDependencies
-): Promise<Civ7TurnCompletionRequestResult> {
-  const before = await getCiv7TurnCompletionStatus(options, dependencies);
-  const fallbackPreflight =
-    probeValue(before.canEndTurn) === true
-      ? undefined
-      : await dependencies.getPlayNotificationView(options);
-  if (!isTurnCompletionAllowed(before, fallbackPreflight)) {
-    return fallbackPreflight === undefined
-      ? { sent: false, before, reason: "turn-completion-blocked" }
-      : {
-          sent: false,
-          before,
-          fallbackPreflight,
-          reason: "turn-completion-blocked",
-        };
-  }
-  const command = await dependencies.executeAppUiCommand({
-    ...options,
-    command: "GameContext.sendTurnComplete()",
-  });
-  const after = await getCiv7TurnCompletionStatus(options, dependencies);
-  const verified =
-    probeValue(after.hasSentTurnComplete) === true ||
-    probeValue(after.turn) !== probeValue(before.turn);
-  return { sent: true, before, after, command, verified };
-}
-
-export async function sendCiv7TurnUnready(
-  options: Civ7DirectControlOptions = {},
-  dependencies: TurnCompletionDependencies = defaultTurnCompletionDependencies
-): Promise<Civ7TurnCompletionActionResult> {
-  const before = await getCiv7TurnCompletionStatus(options, dependencies);
-  const command = await dependencies.executeAppUiCommand({
-    ...options,
-    command: "GameContext.sendUnreadyTurn()",
-  });
-  const after = await getCiv7TurnCompletionStatus(options, dependencies);
-  return { before, after, command, verified: probeValue(after.hasSentTurnComplete) === false };
-}
-
-function buildTurnCompletionStatusCommand(): string {
-  return `(() => {
-    ${probeHelperSource()}
-    return JSON.stringify({
-      localPlayerId: GameContext.localPlayerID,
-      turn: probe(() => Game.turn),
-      turnDate: probe(() => Game.getTurnDate()),
-      hasSentTurnComplete: probe(() => GameContext.hasSentTurnComplete()),
-      canEndTurn: probe(() => typeof canEndTurn === "function" ? canEndTurn() : false),
-      blocker: probe(() => typeof Game !== "undefined" && Game.Notifications && typeof Game.Notifications.getEndTurnBlockingType === "function"
-        ? Game.Notifications.getEndTurnBlockingType(GameContext.localPlayerID)
-        : "unknown"),
-      firstReadyUnitId: probe(() => {
-        const id = UI?.Player?.getFirstReadyUnit?.();
-        if (!id || typeof id.owner !== "number" || typeof id.id !== "number") return null;
-        const out = { owner: id.owner, id: id.id };
-        if (typeof id.type === "number") out.type = id.type;
-        return out;
-      }),
-    });
+      return `(() => {
+    ${turnCompletionWireSource()}
+    return JSON.stringify(checkTurnCompletion());
   })()`;
-}
-
-function isTurnCompletionAllowed(
-  status: Civ7TurnCompletionStatusResult,
-  fallbackPreflight?: Civ7PlayNotificationViewResult
-): boolean {
-  if (probeValue(status.canEndTurn) === true) return true;
-  const cleanFallbackState =
-    probeValue(status.hasSentTurnComplete) === false &&
-    probeValue(status.blocker) === 0 &&
-    probeValue(status.firstReadyUnitId) === null;
-  if (!cleanFallbackState) return false;
-  if (fallbackPreflight === undefined) return false;
-  const blockingNotifications = fallbackPreflight.notifications.filter(
-    (notification) => notification.isEndTurnBlocking
-  );
-  return blockingNotifications.every((notification) =>
-    isTurnCompletionFallbackNotification(notification, status)
-  );
-}
-
-function isTurnCompletionFallbackNotification(
-  notification: Civ7PlayNotificationSummary,
-  status: Civ7TurnCompletionStatusResult
-): boolean {
-  const typeName = String(notification.typeName ?? "").toUpperCase();
-  if (notification.decision.category === "unit-command" && typeName.includes("COMMAND_UNITS")) {
-    return (
-      probeValue(status.blocker) === 0 &&
-      probeValue(status.firstReadyUnitId) === null &&
-      notificationDetailsProveStaleCommandUnits(notification.details)
-    );
+    }
+    if (!Value.Check(Civ7TurnCompletionSendInputSchema, input)) {
+      throw new TypeError("Turn completion send input must contain one valid expected snapshot.");
+    }
+    return `(() => {
+    ${turnCompletionWireSource()}
+    return JSON.stringify(sendTurnCompletionEnvelope(${jsLiteral(input)}));
+  })()`;
+  } catch (cause) {
+    throw directControlErrorWithDispatchStatus(cause, "not-dispatched");
   }
-  if (notification.decision.category === "informational-notification") {
-    return (
-      notification.canUserDismiss === true && isTurnCompletionFallbackInformationalType(typeName)
-    );
-  }
-  return false;
 }
 
-function notificationDetailsProveStaleCommandUnits(details: unknown): boolean {
-  if (!isRecord(details)) return false;
-  const enabledCloseoutCandidates = details.enabledCloseoutCandidates;
-  return (
-    details.kind === "unit-command-reconciliation" &&
-    details.classification === "unit-command-stale-expired" &&
-    details.staleExpiredWithoutEnabledCloseout === true &&
-    Array.isArray(enabledCloseoutCandidates) &&
-    enabledCloseoutCandidates.length === 0
-  );
+function turnCompletionWireSource(): string {
+  return `${probeHelperSource()}
+    ${actionPanelTurnAuthoritySource()}
+    const requireLocalPlayerId = () => {
+      const localPlayerId = globalThis.GameContext?.localPlayerID;
+      if (!Number.isInteger(localPlayerId)) {
+        throw new Error("GameContext.localPlayerID is unavailable.");
+      }
+      return localPlayerId;
+    };
+    const readTurn = () => probe(() => {
+      const turn = globalThis.Game?.turn;
+      if (typeof turn !== "number" || !Number.isFinite(turn)) {
+        throw new Error("Game.turn is unavailable.");
+      }
+      return turn;
+    });
+    const readHasSentTurnComplete = () => probe(() => {
+      const hasSentTurnComplete = globalThis.GameContext?.hasSentTurnComplete;
+      if (typeof hasSentTurnComplete !== "function") {
+        throw new Error("GameContext.hasSentTurnComplete is unavailable.");
+      }
+      const value = hasSentTurnComplete.call(globalThis.GameContext);
+      if (typeof value !== "boolean") {
+        throw new Error("GameContext.hasSentTurnComplete returned a non-boolean value.");
+      }
+      return value;
+    });
+    const readTurnCompletionSnapshot = () => ({
+      localPlayerId: requireLocalPlayerId(),
+      turn: readTurn(),
+      hasSentTurnComplete: readHasSentTurnComplete(),
+      canEndTurn: readActionPanelCanEndTurn(),
+    });
+    const checkTurnCompletion = () => ({
+      snapshot: readTurnCompletionSnapshot(),
+    });
+    const matchingReadableProbe = (expected, observed) =>
+      expected?.ok === true &&
+      observed?.ok === true &&
+      Object.is(expected.value, observed.value);
+    const turnCompletionGuardMatches = (expected, observed) =>
+      expected &&
+      expected.localPlayerId === observed.localPlayerId &&
+      matchingReadableProbe(expected.turn, observed.turn) &&
+      matchingReadableProbe(expected.hasSentTurnComplete, observed.hasSentTurnComplete) &&
+      matchingReadableProbe(expected.canEndTurn, observed.canEndTurn);
+    const nativeTurnCompletionAdmissionHolds = (snapshot) =>
+      snapshot.hasSentTurnComplete.ok === true &&
+      snapshot.hasSentTurnComplete.value === false &&
+      snapshot.canEndTurn.ok === true &&
+      snapshot.canEndTurn.value === true;
+    const sendTurnCompletion = (input, markSendInvoked) => {
+      const before = readTurnCompletionSnapshot();
+      if (!turnCompletionGuardMatches(input.expected, before)) {
+        throw new Error("Turn completion admission evidence changed or is unavailable.");
+      }
+      if (!nativeTurnCompletionAdmissionHolds(before)) {
+        throw new Error("Native turn completion admission is not currently satisfied.");
+      }
+      const component = requireActionPanelComponent();
+      const sendEndTurn = component.sendEndTurn;
+      if (typeof sendEndTurn !== "function") {
+        throw new Error("The .action-panel component sendEndTurn method is unavailable.");
+      }
+      markSendInvoked();
+      sendEndTurn.call(component);
+      return {
+        sent: true,
+        before,
+        after: readTurnCompletionSnapshot(),
+      };
+    };
+    const boundedTurnCompletionError = (error) => {
+      let message;
+      try {
+        message = typeof error?.message === "string" ? error.message : String(error);
+      } catch {
+        message = "Civ7 turn completion send failed.";
+      }
+      return message.slice(0, 512);
+    };
+    const sendTurnCompletionEnvelope = (input) => {
+      let sendInvoked = false;
+      try {
+        return {
+          ok: true,
+          value: sendTurnCompletion(input, () => {
+            sendInvoked = true;
+          }),
+        };
+      } catch (error) {
+        return {
+          ok: false,
+          gameplayDispatchStatus: sendInvoked ? "dispatched" : "not-dispatched",
+          error: boundedTurnCompletionError(error),
+        };
+      }
+    };`;
 }
-
-function isTurnCompletionFallbackInformationalType(typeName: string): boolean {
-  return (
-    typeName === "NOTIFICATION_UNIT_ATTACKED" ||
-    typeName === "NOTIFICATION_DISTRICT_ATTACKED" ||
-    typeName === "NOTIFICATION_RIVER_FLOODS_SEV0" ||
-    typeName === "NOTIFICATION_RIVER_FLOODS_SEV1" ||
-    typeName === "NOTIFICATION_RIVER_FLOODS_SEV2" ||
-    typeName === "NOTIFICATION_STORM_ARRIVED" ||
-    typeName === "NOTIFICATION_STORM_MOVED" ||
-    typeName === "NOTIFICATION_STORM_DISSIPATED" ||
-    typeName === "NOTIFICATION_VOLCANO_ACTIVE" ||
-    typeName === "NOTIFICATION_VOLCANO_INACTIVE" ||
-    typeName === "NOTIFICATION_VOLCANO_ERUPTS_SEV0" ||
-    typeName === "NOTIFICATION_VOLCANO_ERUPTS_SEV1" ||
-    typeName === "NOTIFICATION_VOLCANO_ERUPTS_SEV2" ||
-    typeName === "NOTIFICATION_WONDER_COMPLETED" ||
-    typeName === "NOTIFICATION_WONDER_FAILED" ||
-    typeName === "NOTIFICATION_LEGACY_COMPLETED"
-  );
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | undefined {
-  return probe.ok ? probe.value : undefined;
-}
-
-const defaultTurnCompletionDependencies: TurnCompletionDependencies = {
-  executeAppUiCommand: executeCiv7AppUiCommand,
-  getPlayNotificationView: getCiv7PlayNotificationView,
-  parseTurnCompletionStatus: (result, label) =>
-    jsonPayloadFromCommandResult<Civ7TurnCompletionStatusResult>(result, label),
-};

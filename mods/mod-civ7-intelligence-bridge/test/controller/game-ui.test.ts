@@ -6,13 +6,14 @@ import {
   installCiv7GameUiIntelligenceBridge,
 } from "../../src/controller/game-ui";
 import { requestCiv7GameUiTechnologyTarget } from "../../src/controller/game-ui/progression";
-import { requestCiv7GameUiTownFocusChange } from "../../src/controller/game-ui/town-focus";
+import { sendCiv7GameUiTownFocusChange } from "../../src/controller/game-ui/town-focus";
+
+const populationDestination = { x: 22, y: 31 };
 
 describe("Civ7 game UI controller bootstrap", () => {
   const notificationId = { owner: 0, id: 113, type: 20 };
   const cityId = { owner: 0, id: 65_536, type: 1 };
   const productionArgs = { ConstructibleType: 713_967_338, X: 22, Y: 31 };
-  const populationDestination = { x: 22, y: 31 };
   const townFocusGrowthType = -284_569_333;
   const townFocusProjectType = -548_685_232;
   const attributeNode = 20;
@@ -21,9 +22,6 @@ describe("Civ7 game UI controller bootstrap", () => {
   const diplomacyActionId = 8_821;
   const diplomacyResponseType = -1_713_616_684;
   const firstMeetResponseType = 673_478_009;
-  const governmentType = 0;
-  const governmentAction = -1_326_475_004;
-  const goldenAgeType = -340_825_966;
   const resettleTarget = { x: 22, y: 31 };
   const unitId = { owner: 0, id: 42, type: 1 };
   const unitTarget = { x: 22, y: 31 };
@@ -372,37 +370,23 @@ describe("Civ7 game UI controller bootstrap", () => {
 
   test("executes turn completion through game UI service dependency", async () => {
     const sendCalls: string[] = [];
-    const deselectCalls: string[] = [];
     const target = gameUiNotificationTarget(notificationId, {
       blocksTurnAdvancement: false,
       canEndTurn: true,
       turnCompletion: {
         onSend: () => sendCalls.push("send"),
-        onDeselect: () => deselectCalls.push("deselect"),
       },
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
+    await expect(bridge.turn.complete.check({})).resolves.toEqual({ available: true });
     const response = await bridge.turn.complete.request(
       {},
       { context: { correlationId: "game-ui-turn-complete-1" } }
     );
 
     expect(response).toMatchObject({
-      sent: true,
       status: "sent-guarded",
-      before: {
-        turn: 42,
-        hasSentTurnComplete: false,
-        canEndTurn: true,
-        blocker: 0,
-      },
-      after: {
-        turn: 42,
-        hasSentTurnComplete: true,
-        canEndTurn: true,
-        blocker: 0,
-      },
       postcondition: {
         classification: "turn-complete-sent",
         confirmed: true,
@@ -416,10 +400,10 @@ describe("Civ7 game UI controller bootstrap", () => {
       ],
     });
     expect(sendCalls).toEqual(["send"]);
-    expect(deselectCalls).toEqual(["deselect"]);
     const serialized = JSON.stringify(response);
 
-    expect(serialized).not.toContain("GameContext.sendTurnComplete");
+    expect(serialized).not.toContain("GameContext");
+    expect(serialized).not.toContain("sendEndTurn");
     expect(serialized).not.toContain("game-ui-turn-completion-requested");
     expect(serialized).not.toContain('"host"');
     expect(serialized).not.toContain('"port"');
@@ -427,10 +411,11 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(serialized).not.toContain('"command"');
   });
 
-  test("executes production choice through game UI service dependency", async () => {
+  test("checks and requests production choice through game UI service procedures", async () => {
     const sendCalls: unknown[] = [];
     const target = gameUiNotificationTarget(notificationId, {
       notificationTarget: cityId,
+      notificationTypeName: "NOTIFICATION_CHOOSE_CITY_PRODUCTION",
       productionChoice: {
         cityId,
         canStart: true,
@@ -454,12 +439,27 @@ describe("Civ7 game UI controller bootstrap", () => {
       controller: {
         supportedProcedures: expect.arrayContaining([
           {
+            procedureKey: "city.production.choice.check",
+            risk: "read-only",
+          },
+          {
             procedureKey: "city.production.choice.request",
             risk: "mutation",
           },
         ]),
       },
     });
+
+    const check = await bridge.city.production.choice.check(
+      { cityId, args: productionArgs },
+      { context: { correlationId: "game-ui-production-check-1" } }
+    );
+    expect(check).toEqual({
+      cityId,
+      args: productionArgs,
+      available: true,
+    });
+    expect(sendCalls).toEqual([]);
 
     const response = await bridge.city.production.choice.request(
       { cityId, args: productionArgs },
@@ -469,17 +469,11 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(response).toMatchObject({
       cityId,
       args: productionArgs,
-      sent: true,
       status: "sent-confirmed",
-      validation: {
-        beforeValid: true,
-        afterValid: true,
-      },
       postcondition: {
         classification: "production-choice-cleared",
         confirmed: true,
         noRepeatAfterUnverified: false,
-        blockerStillLive: false,
       },
       nextSteps: [
         {
@@ -489,6 +483,9 @@ describe("Civ7 game UI controller bootstrap", () => {
       ],
     });
     expect(sendCalls).toEqual([productionArgs]);
+    expect(target.UI?.Player).not.toHaveProperty("lookAtID");
+    expect(target.UI?.Player).not.toHaveProperty("selectCity");
+    expect(target.UI?.Player).not.toHaveProperty("deselectAllCities");
     const serialized = JSON.stringify(response);
     expect(serialized).not.toContain("Game.CityOperations");
     expect(serialized).not.toContain("sendRequest");
@@ -503,6 +500,7 @@ describe("Civ7 game UI controller bootstrap", () => {
     const sendCalls: unknown[] = [];
     const target = gameUiNotificationTarget(notificationId, {
       notificationTarget: cityId,
+      notificationTypeName: "NOTIFICATION_CHOOSE_CITY_PRODUCTION",
       productionChoice: {
         cityId,
         canStart: false,
@@ -517,12 +515,7 @@ describe("Civ7 game UI controller bootstrap", () => {
     );
 
     expect(response).toMatchObject({
-      sent: false,
       status: "not-sent",
-      validation: {
-        beforeValid: false,
-        afterValid: false,
-      },
       postcondition: {
         classification: "not-sent",
         confirmed: false,
@@ -552,13 +545,11 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.city.production.choice.request({ cityId, args: productionArgs });
 
     expect(response).toMatchObject({
-      sent: true,
       status: "sent-unverified",
       postcondition: {
-        classification: "production-state-changed-blocker-still-live",
+        classification: "missing-postcondition",
         confirmed: false,
         noRepeatAfterUnverified: true,
-        blockerStillLive: true,
       },
       nextSteps: [
         {
@@ -569,7 +560,7 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
   });
 
-  test("keeps unrelated game UI production blocker evidence guarded", async () => {
+  test("confirms changed production state independently of an unrelated blocker", async () => {
     const otherCityId = { owner: 0, id: 65_537, type: 1 };
     const target = gameUiNotificationTarget(notificationId, {
       notificationTarget: otherCityId,
@@ -584,13 +575,11 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.city.production.choice.request({ cityId, args: productionArgs });
 
     expect(response).toMatchObject({
-      sent: true,
-      status: "sent-unverified",
+      status: "sent-confirmed",
       postcondition: {
-        classification: "production-state-changed-blocker-still-live",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
-        blockerStillLive: true,
+        classification: "production-state-changed",
+        confirmed: true,
+        noRepeatAfterUnverified: false,
       },
     });
   });
@@ -598,6 +587,7 @@ describe("Civ7 game UI controller bootstrap", () => {
   test("keeps live matching game UI production blockers guarded", async () => {
     const target = gameUiNotificationTarget(notificationId, {
       notificationTarget: cityId,
+      notificationTypeName: "NOTIFICATION_CHOOSE_CITY_PRODUCTION",
       productionChoice: {
         cityId,
         canStart: true,
@@ -609,43 +599,38 @@ describe("Civ7 game UI controller bootstrap", () => {
     const response = await bridge.city.production.choice.request({ cityId, args: productionArgs });
 
     expect(response).toMatchObject({
-      sent: true,
       status: "sent-unverified",
       postcondition: {
         classification: "production-state-changed-blocker-still-live",
         confirmed: false,
         noRepeatAfterUnverified: true,
-        blockerStillLive: true,
       },
     });
   });
 
-  test("does not confirm game UI production from selected-city changes alone", async () => {
+  test("rejects malformed production validator evidence without sending", async () => {
+    const sendCalls: unknown[] = [];
     const target = gameUiNotificationTarget(notificationId, {
-      notificationTarget: cityId,
-      selectedCityId: cityId,
       productionChoice: {
         cityId,
-        canStart: true,
-        changeProductionStateOnSend: false,
-        clearSelectedCityOnSend: true,
+        onSend: (args) => sendCalls.push(args),
       },
     });
+    if (target.Game?.CityOperations != null) {
+      target.Game.CityOperations.canStart = () => ({ Success: "yes" });
+    }
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.city.production.choice.request({ cityId, args: productionArgs });
-
-    expect(response).toMatchObject({
-      sent: true,
-      status: "sent-unverified",
-      postcondition: {
-        classification: "no-state-change",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
-        productionStateChanged: false,
-        blockerStillLive: true,
+    await expect(
+      bridge.city.production.choice.request({ cityId, args: productionArgs })
+    ).rejects.toMatchObject({
+      code: "PRODUCTION_CHOICE_UNAVAILABLE",
+      data: {
+        procedureKey: "city.production.choice.request",
+        source: "direct-control-facade",
       },
     });
+    expect(sendCalls).toEqual([]);
   });
 
   test("executes assign-worker population placement through game UI service dependency", async () => {
@@ -674,6 +659,10 @@ describe("Civ7 game UI controller bootstrap", () => {
       controller: {
         supportedProcedures: expect.arrayContaining([
           {
+            procedureKey: "city.population.place.check",
+            risk: "read-only",
+          },
+          {
             procedureKey: "city.population.place.request",
             risk: "mutation",
           },
@@ -690,20 +679,16 @@ describe("Civ7 game UI controller bootstrap", () => {
       placement: {
         mode: "assign-worker",
         playerId: 0,
+        cityId,
         location: 2543,
       },
-      sent: true,
       status: "sent-confirmed",
-      validation: {
-        beforeValid: true,
-        afterValid: true,
-      },
       postcondition: {
-        classification: "population-ready-cleared",
+        classification: "worker-assignment-confirmed",
+        outcome: "worker-assigned",
         confidence: "confirmed",
         confirmed: true,
         noRepeatAfterUnverified: false,
-        readyCleared: true,
       },
       nextSteps: [
         {
@@ -747,13 +732,13 @@ describe("Civ7 game UI controller bootstrap", () => {
         cityId,
         destination: populationDestination,
       },
-      sent: true,
       status: "sent-confirmed",
       postcondition: {
-        classification: "population-ready-cleared",
+        classification: "city-expansion-confirmed",
+        outcome: "city-expanded",
+        confidence: "confirmed",
         confirmed: true,
         noRepeatAfterUnverified: false,
-        readyCleared: true,
       },
     });
     expect(sendCalls).toEqual([{ X: populationDestination.x, Y: populationDestination.y }]);
@@ -777,14 +762,11 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
 
     expect(response).toMatchObject({
-      sent: false,
       status: "not-sent",
-      validation: {
-        beforeValid: false,
-        afterValid: false,
-      },
       postcondition: {
         classification: "not-sent",
+        outcome: "not-sent",
+        confidence: "unverified",
         confirmed: false,
         noRepeatAfterUnverified: true,
       },
@@ -820,112 +802,13 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(sendCalls).toEqual([]);
   });
 
-  test("keeps unchanged game UI population placements no-repeat guarded", async () => {
-    const target = gameUiNotificationTarget(notificationId, {
-      populationPlacement: {
-        cityId,
-        readyBefore: true,
-        clearReadyOnSend: false,
-        changePlacementStateOnSend: false,
-      },
-    });
-    const bridge = installCiv7GameUiIntelligenceBridge({ target });
-
-    const response = await bridge.city.population.place.request({
-      mode: "assign-worker",
-      location: 2543,
-    });
-
-    expect(response).toMatchObject({
-      sent: true,
-      status: "sent-unverified",
-      postcondition: {
-        classification: "no-state-change",
-        confidence: "unverified",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
-        readyCleared: false,
-        placementStateChanged: false,
-      },
-      nextSteps: [
-        {
-          kind: "do-not-repeat",
-          source: "city.population.place.request",
-        },
-      ],
-    });
-  });
-
-  test("keeps failed game UI population snapshot reads no-repeat guarded", async () => {
-    const target = gameUiNotificationTarget(notificationId, {
-      populationPlacement: {
-        cityId,
-        readyBefore: true,
-        clearReadyOnSend: true,
-        cityReadFailsAfterSend: true,
-      },
-    });
-    const bridge = installCiv7GameUiIntelligenceBridge({ target });
-
-    const response = await bridge.city.population.place.request({
-      mode: "assign-worker",
-      location: 2543,
-    });
-
-    expect(response).toMatchObject({
-      sent: true,
-      status: "sent-guarded",
-      postcondition: {
-        classification: "placement-state-changed",
-        confidence: "confirmed",
-        noRepeatAfterUnverified: true,
-      },
-      nextSteps: [
-        {
-          kind: "do-not-repeat",
-          source: "city.population.place.request",
-        },
-      ],
-    });
-  });
-
-  test("keeps missing game UI population ready-city evidence no-repeat guarded", async () => {
-    const target = gameUiNotificationTarget(notificationId, {
-      populationPlacement: {
-        cityId,
-        readyBefore: false,
-        clearReadyOnSend: true,
-      },
-    });
-    const bridge = installCiv7GameUiIntelligenceBridge({ target });
-
-    const response = await bridge.city.population.place.request({
-      mode: "assign-worker",
-      location: 2543,
-    });
-
-    expect(response).toMatchObject({
-      sent: true,
-      status: "sent-unverified",
-      postcondition: {
-        classification: "missing-postcondition",
-        confidence: "unverified",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
-      },
-      nextSteps: [
-        {
-          kind: "do-not-repeat",
-          source: "city.population.place.request",
-        },
-      ],
-    });
-  });
-
   test("executes town focus change through game UI service dependency", async () => {
     const sendCalls: unknown[] = [];
     const target = gameUiNotificationTarget(notificationId, {
+      notificationTarget: cityId,
+      notificationTypeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
       townFocus: {
+        cityId,
         canChange: true,
         onChangeSend: (args) => sendCalls.push(args),
       },
@@ -940,8 +823,16 @@ describe("Civ7 game UI controller bootstrap", () => {
       controller: {
         supportedProcedures: expect.arrayContaining([
           {
+            procedureKey: "city.townFocus.change.check",
+            risk: "read-only",
+          },
+          {
             procedureKey: "city.townFocus.change.request",
             risk: "mutation",
+          },
+          {
+            procedureKey: "city.townFocus.review.check",
+            risk: "read-only",
           },
           {
             procedureKey: "city.townFocus.review.request",
@@ -950,6 +841,19 @@ describe("Civ7 game UI controller bootstrap", () => {
         ]),
       },
     });
+
+    const check = await bridge.city.townFocus.change.check({
+      cityId,
+      growthType: townFocusGrowthType,
+      projectType: townFocusProjectType,
+    });
+    expect(check).toEqual({
+      cityId,
+      growthType: townFocusGrowthType,
+      projectType: townFocusProjectType,
+      status: "available",
+    });
+    expect(sendCalls).toEqual([]);
 
     const response = await bridge.city.townFocus.change.request(
       {
@@ -964,22 +868,17 @@ describe("Civ7 game UI controller bootstrap", () => {
       cityId,
       growthType: townFocusGrowthType,
       projectType: townFocusProjectType,
-      city: cityId.id,
-      sent: true,
-      status: "sent-unverified",
-      validation: {
-        beforeValid: true,
-        afterValid: true,
-      },
+      status: "sent-confirmed",
       postcondition: {
-        classification: "pending-runtime-proof",
-        confidence: "pending-runtime-proof",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
+        classification: "town-focus-selected",
+        outcome: "selected",
+        confidence: "confirmed",
+        confirmed: true,
+        noRepeatAfterUnverified: false,
       },
       nextSteps: [
         {
-          kind: "do-not-repeat",
+          kind: "refresh-attention",
           source: "city.townFocus.change.request",
         },
       ],
@@ -1005,12 +904,22 @@ describe("Civ7 game UI controller bootstrap", () => {
   test("executes town project review through game UI service dependency", async () => {
     const sendCalls: unknown[] = [];
     const target = gameUiNotificationTarget(notificationId, {
+      notificationTarget: cityId,
+      notificationTypeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
       townFocus: {
-        canReview: true,
+        cityId,
+        clearBlockerOnReviewSend: true,
         onReviewSend: (args) => sendCalls.push(args),
       },
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const check = await bridge.city.townFocus.review.check({ cityId });
+    expect(check).toEqual({
+      cityId,
+      status: "available",
+    });
+    expect(sendCalls).toEqual([]);
 
     const response = await bridge.city.townFocus.review.request(
       { cityId },
@@ -1019,12 +928,12 @@ describe("Civ7 game UI controller bootstrap", () => {
 
     expect(response).toMatchObject({
       cityId,
-      sent: true,
-      status: "sent-unverified",
+      status: "sent-confirmed",
       postcondition: {
-        classification: "pending-runtime-proof",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
+        classification: "town-focus-review-cleared",
+        outcome: "review-cleared",
+        confirmed: true,
+        noRepeatAfterUnverified: false,
       },
     });
     expect(sendCalls).toEqual([{}]);
@@ -1038,7 +947,10 @@ describe("Civ7 game UI controller bootstrap", () => {
   test("keeps game UI town focus validator blocks semantic and not sent", async () => {
     const sendCalls: unknown[] = [];
     const target = gameUiNotificationTarget(notificationId, {
+      notificationTarget: cityId,
+      notificationTypeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
       townFocus: {
+        cityId,
         canChange: false,
         onChangeSend: (args) => sendCalls.push(args),
       },
@@ -1052,14 +964,10 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
 
     expect(response).toMatchObject({
-      sent: false,
       status: "not-sent",
-      validation: {
-        beforeValid: false,
-        afterValid: false,
-      },
       postcondition: {
         classification: "not-sent",
+        outcome: "not-sent",
         confirmed: false,
         noRepeatAfterUnverified: true,
       },
@@ -1067,12 +975,15 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(sendCalls).toEqual([]);
   });
 
-  test("blocks game UI town focus sends for non-local city owners", async () => {
+  test("keeps native town focus rejection for a non-local city not sent", async () => {
     const sendCalls: unknown[] = [];
     const otherCityId = { owner: 2, id: cityId.id, type: cityId.type };
     const target = gameUiNotificationTarget(notificationId, {
+      notificationTarget: otherCityId,
+      notificationTypeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
       townFocus: {
-        canChange: true,
+        cityId: otherCityId,
+        canChange: false,
         onChangeSend: (args) => sendCalls.push(args),
       },
     });
@@ -1086,14 +997,10 @@ describe("Civ7 game UI controller bootstrap", () => {
 
     expect(response).toMatchObject({
       cityId: otherCityId,
-      sent: false,
       status: "not-sent",
-      validation: {
-        beforeValid: false,
-        afterValid: false,
-      },
       postcondition: {
         classification: "not-sent",
+        outcome: "not-sent",
         confirmed: false,
         noRepeatAfterUnverified: true,
       },
@@ -1101,31 +1008,27 @@ describe("Civ7 game UI controller bootstrap", () => {
     expect(sendCalls).toEqual([]);
   });
 
-  test("keeps partial game UI town focus targets from reporting sent", async () => {
-    const result = await requestCiv7GameUiTownFocusChange(
-      {
-        cityId,
-        growthType: townFocusGrowthType,
-        projectType: townFocusProjectType,
-      },
-      {
-        GameContext: { localPlayerID: 0 },
-        CityCommandTypes: { CHANGE_GROWTH_MODE: "CHANGE_GROWTH_MODE" },
-        Game: {
-          CityCommands: {
-            canStart: () => ({ Success: true }),
-          },
+  test("surfaces partial game UI town focus targets before dispatch", async () => {
+    await expect(
+      sendCiv7GameUiTownFocusChange(
+        {
+          cityId,
+          growthType: townFocusGrowthType,
+          projectType: townFocusProjectType,
         },
-      }
-    );
-
-    expect(result).toMatchObject({
-      sent: false,
-      beforeValidation: { valid: true },
-      afterValidation: { valid: true },
-      postcondition: {
-        classification: "not-sent",
-      },
+        {
+          GameContext: { localPlayerID: 0 },
+          CityCommandTypes: { CHANGE_GROWTH_MODE: "CHANGE_GROWTH_MODE" },
+          Game: {
+            CityCommands: {
+              canStart: () => ({ Success: true }),
+            },
+          },
+        }
+      )
+    ).rejects.toMatchObject({
+      message: "Game.CityCommands.sendRequest is unavailable.",
+      dispatchStatus: "not-dispatched",
     });
   });
 
@@ -1553,172 +1456,6 @@ describe("Civ7 game UI controller bootstrap", () => {
       afterValidation: { valid: true },
       postcondition: { classification: "not-sent" },
     });
-  });
-
-  test("executes narrative choice through game UI service dependency", async () => {
-    const sendCalls: unknown[] = [];
-    const target = gameUiNotificationTarget(notificationId, {
-      notificationTypeName: "NOTIFICATION_CHOOSE_NARRATIVE_STORY_DIRECTION",
-      narrativeChoice: {
-        clearBlockerOnSend: true,
-        onSend: (playerId, args) => sendCalls.push({ playerId, args }),
-      },
-    });
-    const bridge = installCiv7GameUiIntelligenceBridge({ target });
-
-    const readiness = await bridge.readiness.current(
-      {},
-      { context: { correlationId: "game-ui-narrative-readiness-1" } }
-    );
-    expect(readiness).toMatchObject({
-      controller: {
-        supportedProcedures: expect.arrayContaining([
-          {
-            procedureKey: "narrative.choice.request",
-            risk: "mutation",
-          },
-        ]),
-      },
-    });
-
-    const response = await bridge.narrative.choice.request(
-      {
-        targetType: "DISCOVERY_STORY",
-        target: notificationId,
-        action: 1,
-      },
-      { context: { correlationId: "game-ui-narrative-1" } }
-    );
-
-    expect(response).toMatchObject({
-      playerId: 0,
-      targetType: "DISCOVERY_STORY",
-      target: notificationId,
-      action: 1,
-      sent: true,
-      status: "sent-confirmed",
-      validation: {
-        beforeValid: true,
-        afterValid: true,
-      },
-      postcondition: {
-        classification: "narrative-blocker-cleared",
-        confidence: "confirmed",
-        confirmed: true,
-        noRepeatAfterUnverified: false,
-      },
-      nextSteps: [
-        {
-          kind: "refresh-attention",
-          source: "narrative.choice.request",
-        },
-      ],
-    });
-    expect(sendCalls).toEqual([
-      {
-        playerId: 0,
-        args: {
-          TargetType: "DISCOVERY_STORY",
-          Target: notificationId,
-          Action: 1,
-        },
-      },
-    ]);
-    const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("CHOOSE_NARRATIVE_STORY_DIRECTION");
-    expect(serialized).not.toContain("sendRequest");
-    expect(serialized).not.toContain('"host"');
-    expect(serialized).not.toContain('"port"');
-    expect(serialized).not.toContain('"state"');
-    expect(serialized).not.toContain('"command"');
-    expect(serialized).not.toContain('"payload"');
-    expect(serialized).not.toContain('"rawCommand"');
-  });
-
-  test("keeps sticky game UI narrative choices no-repeat guarded", async () => {
-    const target = {
-      ...gameUiNotificationTarget(notificationId, {
-        notificationTypeName: "NOTIFICATION_CHOOSE_NARRATIVE_STORY_DIRECTION",
-        narrativeChoice: {
-          clearBlockerOnSend: false,
-        },
-      }),
-      document: {
-        querySelectorAll: () => {
-          throw new Error("narrative panel read failed");
-        },
-      },
-    };
-    const bridge = installCiv7GameUiIntelligenceBridge({ target });
-
-    const response = await bridge.narrative.choice.request(
-      {
-        targetType: "DISCOVERY_STORY",
-        target: notificationId,
-        action: 1,
-      },
-      { context: { correlationId: "game-ui-narrative-sticky-1" } }
-    );
-
-    expect(response).toMatchObject({
-      playerId: 0,
-      sent: true,
-      status: "sent-unverified",
-      postcondition: {
-        classification: "no-state-change",
-        confidence: "unverified",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
-      },
-      nextSteps: [
-        {
-          kind: "do-not-repeat",
-          source: "narrative.choice.request",
-        },
-      ],
-    });
-  });
-
-  test("keeps game UI narrative validator blocks semantic and not sent", async () => {
-    const sendCalls: unknown[] = [];
-    const target = gameUiNotificationTarget(notificationId, {
-      notificationTypeName: "NOTIFICATION_CHOOSE_NARRATIVE_STORY_DIRECTION",
-      narrativeChoice: {
-        canChoose: false,
-        onSend: (playerId, args) => sendCalls.push({ playerId, args }),
-      },
-    });
-    const bridge = installCiv7GameUiIntelligenceBridge({ target });
-
-    const response = await bridge.narrative.choice.request(
-      {
-        targetType: "DISCOVERY_STORY",
-        target: notificationId,
-        action: 1,
-      },
-      { context: { correlationId: "game-ui-narrative-blocked-1" } }
-    );
-
-    expect(response).toMatchObject({
-      sent: false,
-      status: "not-sent",
-      validation: {
-        beforeValid: false,
-        afterValid: false,
-      },
-      postcondition: {
-        classification: "not-sent",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
-      },
-      nextSteps: [
-        {
-          kind: "inspect-narrative-choice",
-          source: "narrative.choice.request",
-        },
-      ],
-    });
-    expect(sendCalls).toEqual([]);
   });
 
   test("executes diplomacy response through game UI service dependency", async () => {
@@ -2208,178 +1945,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
   });
 
-  test("executes government choice through game UI service dependency", async () => {
-    const sendCalls: unknown[] = [];
-    const target = gameUiNotificationTarget(notificationId, {
-      governmentChoice: {
-        canChange: true,
-        onSend: (playerId, operationType, args) =>
-          sendCalls.push({ playerId, operationType, args }),
-      },
-    });
-    const bridge = installCiv7GameUiIntelligenceBridge({ target });
-
-    const readiness = await bridge.readiness.current(
-      {},
-      { context: { correlationId: "game-ui-government-readiness-1" } }
-    );
-    expect(readiness).toMatchObject({
-      controller: {
-        supportedProcedures: expect.arrayContaining([
-          {
-            procedureKey: "government.choice.request",
-            risk: "mutation",
-          },
-          {
-            procedureKey: "government.celebration.choice.request",
-            risk: "mutation",
-          },
-        ]),
-      },
-    });
-
-    const response = await bridge.government.choice.request(
-      {
-        governmentType,
-        action: governmentAction,
-      },
-      { context: { correlationId: "game-ui-government-choice-1" } }
-    );
-
-    expect(response).toMatchObject({
-      playerId: 0,
-      governmentType,
-      action: governmentAction,
-      sent: true,
-      status: "sent-unverified",
-      validation: {
-        beforeValid: true,
-        afterValid: true,
-      },
-      postcondition: {
-        classification: "pending-runtime-proof",
-        confidence: "pending-runtime-proof",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
-      },
-      nextSteps: [
-        {
-          kind: "do-not-repeat",
-          source: "government.choice.request",
-        },
-      ],
-    });
-    expect(sendCalls).toEqual([
-      {
-        playerId: 0,
-        operationType: "CHANGE_GOVERNMENT",
-        args: { GovernmentType: governmentType, Action: governmentAction },
-      },
-    ]);
-    const serialized = JSON.stringify(response);
-    expect(serialized).not.toContain("Game.PlayerOperations");
-    expect(serialized).not.toContain("sendRequest");
-    expect(serialized).not.toContain('"host"');
-    expect(serialized).not.toContain('"port"');
-    expect(serialized).not.toContain('"state"');
-    expect(serialized).not.toContain('"command"');
-    expect(serialized).not.toContain('"payload"');
-    expect(serialized).not.toContain('"verified"');
-    expect(serialized).not.toContain('"result"');
-  });
-
-  test("keeps game UI government validator blocks semantic and not sent", async () => {
-    const sendCalls: unknown[] = [];
-    const target = gameUiNotificationTarget(notificationId, {
-      governmentChoice: {
-        canChange: false,
-        onSend: (playerId, operationType, args) =>
-          sendCalls.push({ playerId, operationType, args }),
-      },
-    });
-    const bridge = installCiv7GameUiIntelligenceBridge({ target });
-
-    const response = await bridge.government.choice.request(
-      {
-        governmentType,
-        action: governmentAction,
-      },
-      { context: { correlationId: "game-ui-government-blocked-1" } }
-    );
-
-    expect(response).toMatchObject({
-      playerId: 0,
-      sent: false,
-      status: "not-sent",
-      validation: {
-        beforeValid: false,
-        afterValid: false,
-      },
-      postcondition: {
-        classification: "not-sent",
-        confidence: "unverified",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
-      },
-      nextSteps: [
-        {
-          kind: "inspect-government-choice",
-          source: "government.choice.request",
-        },
-      ],
-    });
-    expect(sendCalls).toEqual([]);
-  });
-
-  test("executes celebration choice through game UI service dependency", async () => {
-    const sendCalls: unknown[] = [];
-    const target = gameUiNotificationTarget(notificationId, {
-      governmentChoice: {
-        canCelebrate: true,
-        onSend: (playerId, operationType, args) =>
-          sendCalls.push({ playerId, operationType, args }),
-      },
-    });
-    const bridge = installCiv7GameUiIntelligenceBridge({ target });
-
-    const response = await bridge.government.celebration.choice.request(
-      {
-        goldenAgeType,
-      },
-      { context: { correlationId: "game-ui-celebration-choice-1" } }
-    );
-
-    expect(response).toMatchObject({
-      playerId: 0,
-      goldenAgeType,
-      sent: true,
-      status: "sent-unverified",
-      validation: {
-        beforeValid: true,
-        afterValid: true,
-      },
-      postcondition: {
-        classification: "pending-runtime-proof",
-        confidence: "pending-runtime-proof",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
-      },
-      nextSteps: [
-        {
-          kind: "do-not-repeat",
-          source: "government.celebration.choice.request",
-        },
-      ],
-    });
-    expect(sendCalls).toEqual([
-      {
-        playerId: 0,
-        operationType: "CHOOSE_GOLDEN_AGE",
-        args: { GoldenAgeType: goldenAgeType },
-      },
-    ]);
-  });
-
   test("executes unit target action through game UI service dependency", async () => {
     const sendCalls: unknown[] = [];
     const target = gameUiNotificationTarget(notificationId, {
@@ -2598,6 +2163,7 @@ describe("Civ7 game UI controller bootstrap", () => {
   });
 
   test("executes unit upgrade through game UI service dependency", async () => {
+    const checkCalls: unknown[] = [];
     const sendCalls: unknown[] = [];
     const nextReadyUnitId = { owner: 0, id: 500_001, type: 26 };
     const target = gameUiNotificationTarget(notificationId, {
@@ -2605,6 +2171,7 @@ describe("Civ7 game UI controller bootstrap", () => {
       unitCommand: {
         unitId,
         nextReadyUnitId,
+        onCheck: (operationType, args) => checkCalls.push({ operationType, args }),
         onSend: (operationType, args) => sendCalls.push({ operationType, args }),
       },
     });
@@ -2618,6 +2185,14 @@ describe("Civ7 game UI controller bootstrap", () => {
       controller: {
         supportedProcedures: expect.arrayContaining([
           {
+            procedureKey: "unit.upgrade.check",
+            risk: "read-only",
+          },
+          {
+            procedureKey: "unit.resettle.check",
+            risk: "read-only",
+          },
+          {
             procedureKey: "unit.upgrade.request",
             risk: "mutation",
           },
@@ -2629,6 +2204,19 @@ describe("Civ7 game UI controller bootstrap", () => {
       },
     });
 
+    const check = await bridge.unit.upgrade.check(
+      { unitId },
+      { context: { correlationId: "game-ui-unit-upgrade-check-1" } }
+    );
+    expect(check).toEqual({
+      action: {
+        kind: "upgrade",
+        unitId,
+      },
+      available: true,
+    });
+    expect(sendCalls).toEqual([]);
+
     const response = await bridge.unit.upgrade.request(
       { unitId },
       { context: { correlationId: "game-ui-unit-upgrade-1" } }
@@ -2639,12 +2227,7 @@ describe("Civ7 game UI controller bootstrap", () => {
         kind: "upgrade",
         unitId,
       },
-      sent: true,
       status: "sent-confirmed",
-      validation: {
-        beforeValid: true,
-        afterValid: true,
-      },
       postcondition: {
         classification: "queue-advanced",
         confidence: "confirmed",
@@ -2664,19 +2247,44 @@ describe("Civ7 game UI controller bootstrap", () => {
         args: {},
       },
     ]);
+    expect(checkCalls).toEqual(
+      Array.from({ length: 4 }, () => ({
+        operationType: "UNITCOMMAND_UPGRADE",
+        args: {},
+      }))
+    );
     expectSemanticOutputOmitsRawUnitCommand(response);
   });
 
   test("executes unit resettle through game UI service dependency", async () => {
+    const checkCalls: unknown[] = [];
     const sendCalls: unknown[] = [];
     const target = gameUiNotificationTarget(notificationId, {
       unitCommand: {
         unitId,
         destination: resettleTarget,
+        onCheck: (operationType, args) => checkCalls.push({ operationType, args }),
         onSend: (operationType, args) => sendCalls.push({ operationType, args }),
       },
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const check = await bridge.unit.resettle.check(
+      {
+        unitId,
+        destination: resettleTarget,
+      },
+      { context: { correlationId: "game-ui-unit-resettle-check-1" } }
+    );
+    expect(check).toEqual({
+      action: {
+        kind: "resettle",
+        unitId,
+        destination: resettleTarget,
+      },
+      available: true,
+    });
+    expect(sendCalls).toEqual([]);
 
     const response = await bridge.unit.resettle.request(
       {
@@ -2692,7 +2300,6 @@ describe("Civ7 game UI controller bootstrap", () => {
         unitId,
         destination: resettleTarget,
       },
-      sent: true,
       status: "sent-confirmed",
       postcondition: {
         classification: "unit-state-changed",
@@ -2707,7 +2314,36 @@ describe("Civ7 game UI controller bootstrap", () => {
         args: { X: 22, Y: 31 },
       },
     ]);
+    expect(checkCalls).toEqual(
+      Array.from({ length: 4 }, () => ({
+        operationType: "UNITCOMMAND_RESETTLE",
+        args: { X: 22, Y: 31 },
+      }))
+    );
     expectSemanticOutputOmitsRawUnitCommand(response);
+  });
+
+  test("surfaces game UI unit validator failures instead of treating them as rejection", async () => {
+    const target = gameUiNotificationTarget(notificationId, {
+      unitCommand: {
+        unitId,
+      },
+    });
+    if (target.Game?.UnitCommands != null) {
+      target.Game.UnitCommands.canStart = () => {
+        throw new Error("private Game.UnitCommands.canStart failure");
+      };
+    }
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    await expect(bridge.unit.upgrade.check({ unitId })).rejects.toMatchObject({
+      code: "UNIT_REQUEST_UNAVAILABLE",
+      data: {
+        procedureKey: "unit.upgrade.check",
+        source: "direct-control-facade",
+      },
+    });
+    await expect(bridge.unit.upgrade.check({ unitId })).rejects.not.toThrow(/private|canStart/);
   });
 
   test("blocks game UI unit command sends for non-local unit owners", async () => {
@@ -2731,7 +2367,6 @@ describe("Civ7 game UI controller bootstrap", () => {
         kind: "upgrade",
         unitId: foreignUnitId,
       },
-      sent: false,
       status: "not-sent",
       postcondition: {
         classification: "not-sent",
@@ -2759,7 +2394,6 @@ describe("Civ7 game UI controller bootstrap", () => {
     );
 
     expect(response).toMatchObject({
-      sent: true,
       status: "sent-unverified",
       postcondition: {
         classification: "no-state-change",
@@ -2774,6 +2408,48 @@ describe("Civ7 game UI controller bootstrap", () => {
         },
       ],
     });
+    expectSemanticOutputOmitsRawUnitCommand(response);
+  });
+
+  test("keeps an uncertain game UI unit command send no-repeat guarded", async () => {
+    const sendCalls: unknown[] = [];
+    const target = gameUiNotificationTarget(notificationId, {
+      firstReadyUnitId: unitId,
+      unitCommand: {
+        unitId,
+        sendThrows: true,
+        onSend: (operationType, args) => sendCalls.push({ operationType, args }),
+      },
+    });
+    const bridge = installCiv7GameUiIntelligenceBridge({ target });
+
+    const response = await bridge.unit.upgrade.request(
+      { unitId },
+      { context: { correlationId: "game-ui-unit-upgrade-uncertain-send-1" } }
+    );
+
+    expect(response).toMatchObject({
+      status: "dispatch-unknown",
+      postcondition: {
+        classification: "missing-postcondition",
+        outcome: "unknown",
+        confidence: "unverified",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "unit.upgrade.request",
+        },
+      ],
+    });
+    expect(sendCalls).toEqual([
+      {
+        operationType: "UNITCOMMAND_UPGRADE",
+        args: {},
+      },
+    ]);
     expectSemanticOutputOmitsRawUnitCommand(response);
   });
 
@@ -2794,23 +2470,15 @@ describe("Civ7 game UI controller bootstrap", () => {
     );
 
     expect(response).toMatchObject({
-      sent: false,
       status: "not-sent",
-      before: {
-        turn: 42,
-        hasSentTurnComplete: false,
-        canEndTurn: false,
-        blocker: notificationId.type,
-      },
-      after: null,
       postcondition: {
-        classification: "turn-completion-blocked",
+        classification: "not-sent",
         outcome: "not-sent",
         confidence: "unverified",
         confirmed: false,
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [{ kind: "inspect-turn-completion" }, { kind: "do-not-repeat" }],
+      nextSteps: [{ kind: "inspect-turn-completion" }],
     });
     expect(sendCalls).toEqual([]);
 
@@ -2835,17 +2503,12 @@ describe("Civ7 game UI controller bootstrap", () => {
     );
 
     expect(response).toMatchObject({
-      sent: false,
       status: "not-sent",
-      before: {
-        hasSentTurnComplete: true,
-        canEndTurn: true,
-      },
       postcondition: {
-        classification: "turn-completion-blocked",
+        classification: "not-sent",
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [{ kind: "inspect-turn-completion" }, { kind: "do-not-repeat" }],
+      nextSteps: [{ kind: "inspect-turn-completion" }],
     });
     expect(sendCalls).toEqual([]);
   });
@@ -3458,7 +3121,6 @@ function gameUiNotificationTarget(
     turnCompletion?: {
       initiallySent?: boolean;
       onSend?: () => void;
-      onDeselect?: () => void;
     };
     productionChoice?: {
       cityId: { owner: number; id: number; type: number };
@@ -3466,7 +3128,6 @@ function gameUiNotificationTarget(
       clearBlockerOnSend?: boolean;
       blockerReadFailsAfterSend?: boolean;
       changeProductionStateOnSend?: boolean;
-      clearSelectedCityOnSend?: boolean;
       onSend?: (args: Readonly<Record<string, number>>) => void;
     };
     populationPlacement?: {
@@ -3475,14 +3136,13 @@ function gameUiNotificationTarget(
       canExpandCity?: boolean;
       readyBefore?: boolean;
       clearReadyOnSend?: boolean;
-      changePlacementStateOnSend?: boolean;
-      cityReadFailsAfterSend?: boolean;
       onAssignWorkerSend?: (args: Readonly<Record<string, number>>) => void;
       onExpandCitySend?: (args: Readonly<Record<string, number>>) => void;
     };
     townFocus?: {
+      cityId?: { owner: number; id: number; type: number };
       canChange?: boolean;
-      canReview?: boolean;
+      clearBlockerOnReviewSend?: boolean;
       onChangeSend?: (args: Readonly<Record<string, number>>) => void;
       onReviewSend?: (args: Readonly<Record<string, number>>) => void;
     };
@@ -3568,6 +3228,8 @@ function gameUiNotificationTarget(
       nextReadyUnitId?: { owner: number; id: number; type: number } | null;
       advanceQueueOnSend?: boolean;
       changeUnitStateOnSend?: boolean;
+      sendThrows?: boolean;
+      onCheck?: (operationType: string, args: Readonly<Record<string, number>>) => void;
       onSend?: (operationType: string, args: Readonly<Record<string, number>>) => void;
     };
   }> = {}
@@ -3577,11 +3239,12 @@ function gameUiNotificationTarget(
   let turnCompletionSent = options.turnCompletion?.initiallySent ?? false;
   let productionSent = false;
   let populationSent = false;
+  let townFocusGrowthType = 101;
+  let townFocusProjectType = 202;
   let progressionSent = false;
   let unitTargetSent = false;
   let unitCommandSent = false;
   let lastUnitCommandOperationType: string | null = null;
-  let selectedCityCleared = false;
   const readyCity = options.readyCity;
   const blocksTurnAdvancement = options.blocksTurnAdvancement ?? true;
   const notification = {
@@ -3598,6 +3261,24 @@ function gameUiNotificationTarget(
 
   return {
     ...target,
+    document: {
+      querySelector: (selector) =>
+        selector === ".action-panel"
+          ? {
+              maybeComponent: {
+                canEndTurn: () => options.canEndTurn ?? false,
+                ...(options.turnCompletion == null
+                  ? {}
+                  : {
+                      sendEndTurn: () => {
+                        options.turnCompletion?.onSend?.();
+                        turnCompletionSent = true;
+                      },
+                    }),
+              },
+            }
+          : null,
+    },
     CityOperationTypes:
       options.productionChoice == null && options.townFocus == null
         ? undefined
@@ -3691,13 +3372,16 @@ function gameUiNotificationTarget(
     Cities:
       options.productionChoice == null &&
       options.populationPlacement == null &&
-      options.readyCity == null
+      options.readyCity == null &&
+      options.townFocus?.cityId == null
         ? undefined
         : {
             get: (id) =>
               componentIdEqual(id, options.productionChoice?.cityId)
                 ? {
+                    id,
                     isTown: false,
+                    location: { x: 26, y: 36 },
                     BuildQueue: {
                       currentProductionTypeHash:
                         productionSent &&
@@ -3708,20 +3392,10 @@ function gameUiNotificationTarget(
                   }
                 : componentIdEqual(id, options.populationPlacement?.cityId)
                   ? (() => {
-                      if (
-                        populationSent &&
-                        options.populationPlacement?.cityReadFailsAfterSend === true
-                      ) {
-                        throw new Error("population city read failed");
-                      }
                       return {
                         id: options.populationPlacement?.cityId,
                         isTown: false,
-                        population:
-                          populationSent &&
-                          options.populationPlacement?.changePlacementStateOnSend !== false
-                            ? 4
-                            : 3,
+                        population: populationSent ? 4 : 3,
                         Growth: {
                           isReadyToPlacePopulation:
                             options.populationPlacement?.readyBefore === true &&
@@ -3731,15 +3405,12 @@ function gameUiNotificationTarget(
                             ),
                         },
                         Workers: {
-                          getCityWorkerCap: () =>
-                            populationSent &&
-                            options.populationPlacement?.changePlacementStateOnSend !== false
-                              ? 5
-                              : 4,
+                          getCityWorkerCap: () => (populationSent ? 5 : 4),
                           GetAllPlacementInfo: () => [
                             {
                               PlotIndex: 2543,
                               IsBlocked: false,
+                              NumWorkers: populationSent ? 1 : 0,
                             },
                           ],
                         },
@@ -3754,12 +3425,26 @@ function gameUiNotificationTarget(
                           isReadyToPlacePopulation: options.readyCity?.populationReady === true,
                         },
                       }
-                    : null,
+                    : componentIdEqual(id, options.townFocus?.cityId)
+                      ? {
+                          id: options.townFocus?.cityId,
+                          owner: options.townFocus?.cityId?.owner,
+                          isTown: true,
+                          Growth: {
+                            growthType: townFocusGrowthType,
+                            projectType: townFocusProjectType,
+                          },
+                        }
+                      : null,
           },
     GameplayMap: {
       ...target.GameplayMap,
       getIndexFromLocation: (location) => location.x * 1_000 + location.y,
       getIndexFromXY: (x, y) => x * 1_000 + y,
+      getOwningCityFromXY: (x, y) =>
+        populationSent && x === populationDestination.x && y === populationDestination.y
+          ? options.populationPlacement?.cityId
+          : null,
     },
     MapUnits:
       options.unitTargetAction == null
@@ -3850,13 +3535,7 @@ function gameUiNotificationTarget(
           options.unitCommand.advanceQueueOnSend !== false
             ? (options.unitCommand.nextReadyUnitId ?? null)
             : (options.firstReadyUnitId ?? null),
-        getHeadSelectedCity: () => (selectedCityCleared ? null : (options.selectedCityId ?? null)),
-        deselectAllCities: () => {
-          if (options.productionChoice?.clearSelectedCityOnSend === true) {
-            selectedCityCleared = true;
-          }
-        },
-        deselectAllUnits: () => options.turnCompletion?.onDeselect?.(),
+        getHeadSelectedCity: () => options.selectedCityId ?? null,
       },
     },
     GameContext: {
@@ -3865,15 +3544,7 @@ function gameUiNotificationTarget(
         options.turnCompletion == null
           ? target.GameContext?.hasSentTurnComplete
           : () => turnCompletionSent,
-      sendTurnComplete:
-        options.turnCompletion == null
-          ? undefined
-          : () => {
-              options.turnCompletion?.onSend?.();
-              turnCompletionSent = true;
-            },
     },
-    canEndTurn: () => options.canEndTurn ?? false,
     Game: {
       ...target.Game,
       ProgressionTrees:
@@ -3893,16 +3564,25 @@ function gameUiNotificationTarget(
         options.populationPlacement == null && options.townFocus == null
           ? undefined
           : {
-              canStart: (_cityId, commandType) => ({
-                Success:
-                  String(commandType) === "CHANGE_GROWTH_MODE"
-                    ? (options.townFocus?.canChange ?? true)
-                    : (options.populationPlacement?.canExpandCity ?? true),
-                Plots: [2543],
-              }),
+              canStart: (_cityId, commandType) =>
+                String(commandType) === "CHANGE_GROWTH_MODE"
+                  ? {
+                      Success: options.townFocus?.canChange ?? true,
+                      Plots: [],
+                      ConstructibleTypes: [],
+                    }
+                  : {
+                      Success: options.populationPlacement?.canExpandCity ?? true,
+                      Plots: populationSent
+                        ? []
+                        : [populationDestination.x * 1_000 + populationDestination.y],
+                      ConstructibleTypes: populationSent ? [] : [713_967_338],
+                    },
               sendRequest: (_cityId, commandType, args) => {
                 if (String(commandType) === "CHANGE_GROWTH_MODE") {
                   options.townFocus?.onChangeSend?.(args);
+                  townFocusGrowthType = args.Type ?? townFocusGrowthType;
+                  townFocusProjectType = args.ProjectType ?? townFocusProjectType;
                 } else {
                   options.populationPlacement?.onExpandCitySend?.(args);
                   populationSent = true;
@@ -3914,15 +3594,18 @@ function gameUiNotificationTarget(
         options.productionChoice == null && options.townFocus == null
           ? undefined
           : {
-              canStart: (_cityId, operationType) => ({
-                Success:
-                  String(operationType) === "CONSIDER_TOWN_PROJECT"
-                    ? (options.townFocus?.canReview ?? true)
-                    : (options.productionChoice?.canStart ?? true),
-              }),
+              canStart:
+                options.productionChoice == null
+                  ? undefined
+                  : () => ({
+                      Success: options.productionChoice?.canStart ?? true,
+                    }),
               sendRequest: (_cityId, operationType, args) => {
                 if (String(operationType) === "CONSIDER_TOWN_PROJECT") {
                   options.townFocus?.onReviewSend?.(args);
+                  if (options.townFocus?.clearBlockerOnReviewSend === true) {
+                    exists = false;
+                  }
                 } else {
                   options.productionChoice?.onSend?.(args);
                   productionSent = true;
@@ -3937,8 +3620,9 @@ function gameUiNotificationTarget(
         options.unitTargetAction == null && options.unitCommand == null
           ? undefined
           : {
-              canStart: (_unitId, commandType) => {
+              canStart: (_unitId, commandType, args) => {
                 const operationType = String(commandType);
+                options.unitCommand?.onCheck?.(operationType, args);
                 return {
                   Success:
                     operationType === "UNITCOMMAND_UPGRADE"
@@ -3958,6 +3642,9 @@ function gameUiNotificationTarget(
                   options.unitCommand?.onSend?.(operationType, args);
                   unitCommandSent = true;
                   lastUnitCommandOperationType = operationType;
+                  if (options.unitCommand?.sendThrows === true) {
+                    throw new Error("Game.UnitCommands.sendRequest outcome is unknown.");
+                  }
                 } else {
                   options.unitTargetAction?.onSend?.("unit-command", operationType, args);
                   unitTargetSent = true;

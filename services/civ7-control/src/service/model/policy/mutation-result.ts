@@ -4,6 +4,8 @@ export type Civ7MutationRequestStatus =
   | "sent-guarded"
   | "sent-unverified";
 
+type Civ7MutationNextStepStatus = Civ7MutationRequestStatus | "dispatch-unknown";
+
 type Civ7MutationProofConfidence = "confirmed" | "pending-runtime-proof" | "unverified";
 
 export type Civ7MutationPostconditionState = Readonly<{
@@ -111,7 +113,7 @@ export function civ7MutationPostconditionSummary<
 
 export function civ7MutationNextSteps<Source extends string, InspectKind extends string>(
   input: Readonly<{
-    status: Civ7MutationRequestStatus;
+    status: Civ7MutationNextStepStatus;
     postcondition: Pick<Civ7MutationPostconditionState, "noRepeatAfterUnverified">;
     source: Source;
     inspectKind: InspectKind;

@@ -3,216 +3,98 @@ import GamePlayChooseNarrative from "../../../../src/commands/game/play/choose-n
 import { type FakeTunerServer, startFakeTunerServer } from "../../../support/tuner-socket-server";
 
 describe("game play narrative commands", () => {
-  test("wraps narrative story direction choice", async () => {
+  test("checks exact native narrative availability through narrative.choice.check", async () => {
     const server = await startNarrativeTunerServer();
     try {
-      const { port } = server.address();
-      await runCommand(GamePlayChooseNarrative, [
-        "--host",
-        "127.0.0.1",
-        "--port",
-        String(port),
-        "--player-id",
-        "2",
+      const payload = await runJsonCommand(GamePlayChooseNarrative, [
+        ...endpointArgs(server),
         "--target-type",
         "TOT_30001B",
         "--target",
         '{"owner":0,"id":45,"type":35}',
-        "--action",
-        "-1326475004",
         "--json",
       ]);
 
-      expect(
-        server.received.some((message) => message.includes("CHOOSE_NARRATIVE_STORY_DIRECTION"))
-      ).toBe(true);
-      expect(server.received.some((message) => message.includes('"TargetType":"TOT_30001B"'))).toBe(
-        true
-      );
+      expect(payload.result).toEqual({
+        targetType: "TOT_30001B",
+        target: { owner: 0, id: 45, type: 35 },
+        available: true,
+      });
       expect(
         server.received.some((message) =>
-          message.includes('"Target":{"owner":0,"id":45,"type":35}')
+          message.includes("return JSON.stringify(checkNarrativeChoice(")
         )
       ).toBe(true);
-      expect(server.received.some((message) => message.includes('"Action":-1326475004'))).toBe(
-        true
-      );
-      expect(server.received.some((message) => message.includes("sendOperation("))).toBe(false);
+      expect(
+        server.received.some((message) =>
+          message.includes("return JSON.stringify(sendNarrativeChoiceEnvelope(")
+        )
+      ).toBe(false);
+      expect(server.received.some((message) => message.includes("validateOperation("))).toBe(false);
     } finally {
       await server.close();
     }
   });
 
-  test("chooses narrative direction as one native send plus UI close operation", async () => {
-    const server = await startNarrativeTunerServer({
-      playNotificationMode: "narrative-choice-visible-panel",
-    });
-    const writes: string[] = [];
-    const log = vi
-      .spyOn(GamePlayChooseNarrative.prototype, "log")
-      .mockImplementation((message?: string) => {
-        if (message) writes.push(message);
-      });
+  test("requests narrative choice through narrative.choice.request without UI choreography", async () => {
+    const server = await startNarrativeTunerServer();
     try {
-      const { port } = server.address();
-      await GamePlayChooseNarrative.run([
-        "--host",
-        "127.0.0.1",
-        "--port",
-        String(port),
+      const payload = await runJsonCommand(GamePlayChooseNarrative, [
+        ...endpointArgs(server),
         "--target-type",
         "DISCOVERY_14001B",
         "--target",
         '{"owner":0,"id":25,"type":35}',
-        "--action",
-        "-1326475004",
         "--send",
         "--json",
       ]);
 
-      const payload = JSON.parse(writes.join("")) as {
-        ok: true;
-        result: NarrativeChoiceSendResult;
-      };
-      expect(payload.result.sent).toBe(true);
-      expect(payload.result.status).toBe("sent-confirmed");
-      expect(payload.result.playerId).toBe(0);
-      expect(payload.result.targetType).toBe("DISCOVERY_14001B");
-      expect(payload.result.target).toEqual({ owner: 0, id: 25, type: 35 });
-      expect(payload.result.action).toBe(-1326475004);
-      expect(payload.result.validation).toEqual({ beforeValid: true, afterValid: true });
-      expect(payload.result.postcondition.classification).toBe("narrative-blocker-cleared");
-      expect(payload.result.postcondition).toMatchObject({
-        outcome: "cleared",
-        confidence: "confirmed",
-        confirmed: true,
-        noRepeatAfterUnverified: false,
-      });
-      expect(payload.result.nextSteps[0]).toMatchObject({
-        kind: "refresh-attention",
-        source: "narrative.choice.request",
+      expect(payload.result).toMatchObject({
+        targetType: "DISCOVERY_14001B",
+        target: { owner: 0, id: 25, type: 35 },
+        status: "sent-confirmed",
+        postcondition: {
+          classification: "narrative-blocker-cleared",
+          outcome: "cleared",
+          confidence: "confirmed",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
+        },
+        nextSteps: [
+          {
+            kind: "refresh-attention",
+            source: "narrative.choice.request",
+          },
+        ],
       });
       expectSemanticNarrativeChoiceOmitsRawRuntimeDetails(payload.result);
-      expect(server.received.some((message) => message.includes("sendNarrativeChoice"))).toBe(true);
       expect(
-        server.received.some((message) => message.includes("NarrativePopupManager.closePopup"))
+        server.received.some((message) =>
+          message.includes("return JSON.stringify(sendNarrativeChoiceEnvelope(")
+        )
       ).toBe(true);
+      const sendMessage = server.received.find((message) =>
+        message.includes("return JSON.stringify(sendNarrativeChoiceEnvelope(")
+      );
+      expect(sendMessage).toContain('"expected":');
+      expect(sendMessage).toContain('querySelector(".action-panel")');
+      expect(server.received.some((message) => message.includes('"playerId":'))).toBe(false);
+      expect(server.received.some((message) => message.includes('"action":'))).toBe(false);
       expect(
-        server.received.some((message) => message.includes('sendOperation("player-operation"'))
+        server.received.some(
+          (message) =>
+            message.includes("NarrativePopupManager") || message.includes("Notifications.activate")
+        )
       ).toBe(false);
     } finally {
-      log.mockRestore();
       await server.close();
     }
   });
 
-  test("does not verify narrative sends when blocker and panel remain live", async () => {
-    const server = await startNarrativeTunerServer({
-      playNotificationMode: "narrative-choice-visible-panel",
-      narrativeChoiceMode: "stale",
-    });
-    const writes: string[] = [];
-    const log = vi
-      .spyOn(GamePlayChooseNarrative.prototype, "log")
-      .mockImplementation((message?: string) => {
-        if (message) writes.push(message);
-      });
-    try {
-      const { port } = server.address();
-      await GamePlayChooseNarrative.run([
-        "--host",
-        "127.0.0.1",
-        "--port",
-        String(port),
-        "--target-type",
-        "DISCOVERY_14001C",
-        "--target",
-        '{"owner":0,"id":25,"type":35}',
-        "--action",
-        "-1326475004",
-        "--timeout-ms",
-        "1000",
-        "--send",
-        "--json",
-      ]);
-
-      const payload = JSON.parse(writes.join("")) as {
-        ok: true;
-        result: NarrativeChoiceSendResult;
-      };
-      expect(payload.result.sent).toBe(true);
-      expect(payload.result.status).toBe("sent-unverified");
-      expect(payload.result.postcondition.classification).toBe("no-state-change");
-      expect(payload.result.postcondition.reason).toContain("same narrative blocker remained live");
-      expect(payload.result.postcondition).toMatchObject({
-        outcome: "no-state-change",
-        confidence: "unverified",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
-      });
-      expect(payload.result.nextSteps[0]).toMatchObject({
-        kind: "do-not-repeat",
-        source: "narrative.choice.request",
-      });
-      expectSemanticNarrativeChoiceOmitsRawRuntimeDetails(payload.result);
-      expect(server.received.some((message) => message.includes("sendNarrativeChoice"))).toBe(true);
-      expect(
-        server.received.some((message) => message.includes('sendOperation("player-operation"'))
-      ).toBe(false);
-    } finally {
-      log.mockRestore();
-      await server.close();
-    }
-  });
-
-  test("does not verify narrative sends when panel closes but same blocker remains live", async () => {
-    const server = await startNarrativeTunerServer({
-      playNotificationMode: "narrative-choice-visible-panel",
-      narrativeChoiceMode: "panel-cleared-blocker-live",
-    });
-    const writes: string[] = [];
-    const log = vi
-      .spyOn(GamePlayChooseNarrative.prototype, "log")
-      .mockImplementation((message?: string) => {
-        if (message) writes.push(message);
-      });
-    try {
-      const { port } = server.address();
-      await GamePlayChooseNarrative.run([
-        "--host",
-        "127.0.0.1",
-        "--port",
-        String(port),
-        "--target-type",
-        "DISCOVERY_14001C",
-        "--target",
-        '{"owner":0,"id":25,"type":35}',
-        "--action",
-        "-1326475004",
-        "--timeout-ms",
-        "1000",
-        "--send",
-        "--json",
-      ]);
-
-      const payload = JSON.parse(writes.join("")) as {
-        ok: true;
-        result: NarrativeChoiceSendResult;
-      };
-      expect(payload.result.sent).toBe(true);
-      expect(payload.result.status).toBe("sent-unverified");
-      expect(payload.result.postcondition.classification).toBe("no-state-change");
-      expect(payload.result.postcondition.reason).toContain("same narrative blocker remained live");
-      expect(payload.result.postcondition.noRepeatAfterUnverified).toBe(true);
-      expectSemanticNarrativeChoiceOmitsRawRuntimeDetails(payload.result);
-      expect(server.received.some((message) => message.includes("sendNarrativeChoice"))).toBe(true);
-      expect(
-        server.received.some((message) => message.includes('sendOperation("player-operation"'))
-      ).toBe(false);
-    } finally {
-      log.mockRestore();
-      await server.close();
-    }
+  test("does not expose caller-owned player or action flags", () => {
+    expect(GamePlayChooseNarrative.flags).not.toHaveProperty("player-id");
+    expect(GamePlayChooseNarrative.flags).not.toHaveProperty("action");
+    expect(GamePlayChooseNarrative.flags).toHaveProperty("options");
   });
 
   test("reads narrative choice options without requiring target inputs", async () => {
@@ -250,13 +132,19 @@ describe("game play narrative commands", () => {
               nextAction: {
                 kind: string;
                 label: string;
-                parameters: { targetType: string; action: number };
+                parameters: {
+                  targetType: string;
+                  target: { owner: number; id: number; type: number };
+                };
                 sendsMutation: boolean;
               };
               validationAction: {
                 kind: string;
                 label: string;
-                parameters: { targetType: string; action: number };
+                parameters: {
+                  targetType: string;
+                  target: { owner: number; id: number; type: number };
+                };
                 readOnly: boolean;
               };
             }>;
@@ -278,13 +166,22 @@ describe("game play narrative commands", () => {
       expect(payload.result.surfaces[0].enabledOptions[0].nextAction).toMatchObject({
         kind: "choose-narrative",
         label: "Choose narrative option.",
-        parameters: { targetType: "CLOSE", action: -1326475004 },
+        parameters: {
+          targetType: "CLOSE",
+          target: { owner: 0, id: 45, type: 35 },
+        },
         sendsMutation: true,
+      });
+      expect(payload.result.surfaces[0].enabledOptions[0]).toMatchObject({
+        action: -1326475004,
       });
       expect(payload.result.surfaces[0].enabledOptions[0].validationAction).toMatchObject({
         kind: "validate-narrative-choice",
         label: "Validate narrative choice.",
-        parameters: { targetType: "CLOSE", action: -1326475004 },
+        parameters: {
+          targetType: "CLOSE",
+          target: { owner: 0, id: 45, type: 35 },
+        },
         readOnly: true,
       });
       expect(JSON.stringify(payload)).not.toContain("game play ");
@@ -446,25 +343,6 @@ type CommandClass = {
   prototype: { log(message?: string): void };
 };
 
-type NarrativeChoiceSendResult = {
-  playerId: number;
-  targetType: string;
-  target: { owner: number; id: number; type?: number };
-  action: number;
-  sent: boolean;
-  status: string;
-  validation: { beforeValid: boolean; afterValid: boolean };
-  postcondition: {
-    classification: string;
-    reason: string;
-    outcome: string;
-    confidence: string;
-    confirmed: boolean;
-    noRepeatAfterUnverified: boolean;
-  };
-  nextSteps: Array<{ kind: string; source: string; label: string }>;
-};
-
 function expectSemanticNarrativeChoiceOmitsRawRuntimeDetails(result: unknown) {
   const serialized = JSON.stringify(result);
   expect(serialized).not.toContain('"host"');
@@ -486,26 +364,32 @@ function expectSemanticNarrativeChoiceOmitsRawRuntimeDetails(result: unknown) {
 type PlayNotificationMode =
   | "narrative-choice"
   | "narrative-choice-empty"
-  | "narrative-choice-visible-panel"
-  | "ready-unit";
-type NarrativeChoiceMode = "panel-cleared" | "panel-cleared-blocker-live" | "stale";
+  | "narrative-choice-visible-panel";
 
-async function runCommand(command: CommandClass, args: string[]) {
-  const log = vi.spyOn(command.prototype, "log").mockImplementation(() => {});
+async function runJsonCommand(
+  command: CommandClass,
+  args: string[]
+): Promise<{ ok: true; result: Record<string, unknown> }> {
+  const writes: string[] = [];
+  const log = vi.spyOn(command.prototype, "log").mockImplementation((message?: string) => {
+    if (message) writes.push(message);
+  });
   try {
     await command.run(args);
+    return JSON.parse(writes.join("")) as { ok: true; result: Record<string, unknown> };
   } finally {
     log.mockRestore();
   }
 }
 
+function endpointArgs(server: FakeTunerServer): string[] {
+  return ["--host", "127.0.0.1", "--port", String(server.address().port)];
+}
+
 async function startNarrativeTunerServer(
-  options: {
-    playNotificationMode?: PlayNotificationMode;
-    narrativeChoiceMode?: NarrativeChoiceMode;
-  } = {}
+  options: { playNotificationMode?: PlayNotificationMode } = {}
 ): Promise<NarrativeTunerServer> {
-  let narrativeChoiceSent = false;
+  let blockerLive = true;
   return startFakeTunerServer({
     handle({ message }) {
       if (message.includes("Network.isInSession")) {
@@ -515,22 +399,33 @@ async function startNarrativeTunerServer(
         return [JSON.stringify(tunerHealthSnapshot())];
       }
       if (message.includes("readPlayNotifications")) {
-        const playMode =
-          options.playNotificationMode === "narrative-choice-visible-panel" &&
-          narrativeChoiceSent &&
-          (options.narrativeChoiceMode ?? "panel-cleared") === "panel-cleared"
-            ? "ready-unit"
-            : (options.playNotificationMode ?? "narrative-choice");
-        return [JSON.stringify(playNotificationView(playMode))];
-      }
-      if (message.includes("sendNarrativeChoice")) {
-        narrativeChoiceSent = true;
         return [
-          JSON.stringify(narrativeChoicePayload(options.narrativeChoiceMode ?? "panel-cleared")),
+          JSON.stringify(playNotificationView(options.playNotificationMode ?? "narrative-choice")),
         ];
       }
-      if (message.includes("return JSON.stringify(validateOperation")) {
-        return [JSON.stringify(operationValidation())];
+      if (message.includes("return JSON.stringify(sendNarrativeChoiceEnvelope(")) {
+        const before = narrativeAtomSnapshot(true);
+        blockerLive = false;
+        return [
+          JSON.stringify({
+            ok: true,
+            value: {
+              sent: true,
+              validation: { valid: true, result: { Success: true } },
+              before,
+              after: narrativeAtomSnapshot(false),
+            },
+          }),
+        ];
+      }
+      if (message.includes("return JSON.stringify(checkNarrativeChoice(")) {
+        return [
+          JSON.stringify({
+            valid: true,
+            result: { Success: true },
+            snapshot: narrativeAtomSnapshot(blockerLive),
+          }),
+        ];
       }
       return undefined;
     },
@@ -616,26 +511,6 @@ function tunerHealthSnapshot() {
 }
 
 function playNotificationView(mode: PlayNotificationMode = "narrative-choice") {
-  if (mode === "ready-unit") {
-    const unitId = { owner: 0, id: 458752, type: 26 };
-    return {
-      localPlayerId: 0,
-      turn: { ok: true, value: 80 },
-      turnDate: { ok: true, value: "2025 BCE" },
-      hasSentTurnComplete: { ok: true, value: false },
-      canEndTurn: { ok: true, value: false },
-      blocker: { ok: true, value: 0 },
-      blockingNotificationId: { ok: true, value: null },
-      selectedUnitId: { ok: true, value: null },
-      selectedCityId: { ok: true, value: null },
-      firstReadyUnitId: { ok: true, value: unitId },
-      notifications: [],
-      decisions: [],
-      hud: { nextDecision: null, decisionQueue: [] },
-      limits: { maxNotifications: 25, truncated: false },
-    };
-  }
-
   const narrativeDecision = {
     category: "narrative-choice",
     operationFamily: "player-operation",
@@ -697,9 +572,9 @@ function playNotificationView(mode: PlayNotificationMode = "narrative-choice") {
       enabled: true,
       disabled: false,
       validation: { ok: true, value: { Success: true } },
-      cli: 'game play choose-narrative --target-type CLOSE --target \'{"owner":0,"id":45,"type":35}\' --action -1326475004 --send',
+      cli: 'game play choose-narrative --target-type CLOSE --target \'{"owner":0,"id":45,"type":35}\' --send',
       validateCli:
-        'game play choose-narrative --player-id 0 --target-type CLOSE --target \'{"owner":0,"id":45,"type":35}\' --action -1326475004 --json',
+        'game play choose-narrative --target-type CLOSE --target \'{"owner":0,"id":45,"type":35}\' --json',
     },
   ];
   const hasPendingStory = mode === "narrative-choice";
@@ -721,9 +596,9 @@ function playNotificationView(mode: PlayNotificationMode = "narrative-choice") {
       enabled: true,
       disabled: false,
       validation: { ok: true, value: { Success: true } },
-      cli: 'game play choose-narrative --target-type DISCOVERY_14001B --target \'{"owner":0,"id":25,"type":35}\' --action -1326475004 --send',
+      cli: 'game play choose-narrative --target-type DISCOVERY_14001B --target \'{"owner":0,"id":25,"type":35}\' --send',
       validateCli:
-        'game play choose-narrative --player-id 0 --target-type DISCOVERY_14001B --target \'{"owner":0,"id":25,"type":35}\' --action -1326475004 --json',
+        'game play choose-narrative --target-type DISCOVERY_14001B --target \'{"owner":0,"id":25,"type":35}\' --json',
     },
     {
       source: "visible-small-narrative-event",
@@ -740,9 +615,9 @@ function playNotificationView(mode: PlayNotificationMode = "narrative-choice") {
       enabled: true,
       disabled: false,
       validation: { ok: true, value: { Success: true } },
-      cli: 'game play choose-narrative --target-type DISCOVERY_14001C --target \'{"owner":0,"id":25,"type":35}\' --action -1326475004 --send',
+      cli: 'game play choose-narrative --target-type DISCOVERY_14001C --target \'{"owner":0,"id":25,"type":35}\' --send',
       validateCli:
-        'game play choose-narrative --player-id 0 --target-type DISCOVERY_14001C --target \'{"owner":0,"id":25,"type":35}\' --action -1326475004 --json',
+        'game play choose-narrative --target-type DISCOVERY_14001C --target \'{"owner":0,"id":25,"type":35}\' --json',
     },
   ];
   const surfacedOptions = hasPendingStory ? options : hasVisiblePanel ? visibleOptions : [];
@@ -887,81 +762,24 @@ function playNotificationView(mode: PlayNotificationMode = "narrative-choice") {
   };
 }
 
-function narrativeChoicePayload(mode: NarrativeChoiceMode = "panel-cleared") {
+function narrativeAtomSnapshot(blockerLive: boolean) {
   const target = { owner: 0, id: 25, type: 35 };
-  const beforePanel = {
-    matchingPanelCount: 1,
-    panels: [
-      {
-        index: 0,
-        panelType: "SMALL-NARRATIVE-EVENT",
-        targetStoryId: target,
-        isActive: true,
-        isVisible: true,
-      },
-    ],
-  };
-  const afterPanel =
-    mode === "stale"
-      ? beforePanel
-      : {
-          matchingPanelCount: 0,
-          panels: [],
-        };
+  const blocker = blockerLive ? -504_330_292 : 0;
   return {
     localPlayerId: 0,
-    playerId: 0,
-    operationType: "CHOOSE_NARRATIVE_STORY_DIRECTION",
-    args: {
-      TargetType: "DISCOVERY_14001B",
-      Target: target,
-      Action: -1326475004,
+    activateAction: -1_326_475_004,
+    canEndTurn: { ok: true, value: !blockerLive },
+    blocker: { ok: true, value: blocker },
+    blockingNotification: {
+      ok: true,
+      value: blockerLive
+        ? {
+            id: { owner: 0, id: 5, type: 20 },
+            type: blocker,
+            typeName: "NOTIFICATION_CHOOSE_DISCOVERY_STORY_DIRECTION",
+            target,
+          }
+        : null,
     },
-    canStart: { ok: true, value: { Success: true } },
-    sent: true,
-    sendResult: { ok: true, value: true },
-    ui: {
-      before: beforePanel,
-      panelClose:
-        mode === "stale"
-          ? {
-              ok: true,
-              value: {
-                attempted: 1,
-                results: [{ panelType: "SMALL-NARRATIVE-EVENT", closed: false }],
-              },
-            }
-          : {
-              ok: true,
-              value: {
-                attempted: 1,
-                results: [{ panelType: "SMALL-NARRATIVE-EVENT", closed: true }],
-              },
-            },
-      popupClose: { ok: true, value: { available: true } },
-      after: afterPanel,
-    },
-    notes: [
-      "This mirrors the official narrative button handler: CHOOSE_NARRATIVE_STORY_DIRECTION, NarrativePopupManager.closePopup, and visible narrative panel close.",
-    ],
-  };
-}
-
-function operationValidation() {
-  return {
-    host: "127.0.0.1",
-    port: 0,
-    state: { id: "1", name: "Tuner", role: "tuner" },
-    family: "player-operation",
-    operationType: "CHOOSE_NARRATIVE_STORY_DIRECTION",
-    enumValue: "CHOOSE_NARRATIVE_STORY_DIRECTION",
-    target: { playerId: 0 },
-    args: {
-      TargetType: "TOT_30001B",
-      Target: { owner: 0, id: 45, type: 35 },
-      Action: -1326475004,
-    },
-    valid: true,
-    result: { Success: true },
   };
 }

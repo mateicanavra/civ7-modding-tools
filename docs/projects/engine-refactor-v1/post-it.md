@@ -29,14 +29,18 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** take unit upgrade and resettlement through the complete
-service path. Replace the remaining generic `unit-command` request with exact
-upgrade and resettlement check/send runtime atoms; let the service own
-precheck, guarded send, postcheck, classification, and no-repeat semantics;
-route both CLI no-send and send modes through named service procedures; and
-remove the corresponding generic facade/cast and duplicate controller
-classification. This is the first repeatable proof that the smaller
-direct-control package is a wire substrate rather than a second service.
+**Current container:** converge notification dismissal around one exact native
+read/send boundary. The official notification model and UI sources determine
+which dismissal route is authoritative for each notification kind; existing
+panel, train-manager, and raw `Game.Notifications.dismiss` paths are evidence
+to classify, not alternate public procedures to preserve. Direct-control may
+retain only exact notification observation and guarded send atoms. The
+notification service owns admission, bounded observation, postcondition
+classification, dispatch uncertainty, bulk-selection policy, and no-repeat
+guidance. Both CLI modes and queue dismissal must consume that service plane.
+Retire the thick direct request envelope, embedded `verifiedDismissed`,
+direct-owned postcondition/proof policy, and caller-side read/request split
+only after the official sources establish one honest mutation model.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -53,12 +57,14 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** separate unit check from mutation -> expose four exact
-direct-control runtime atoms -> compose two semantic check procedures and two
-guarded request procedures -> route both CLI modes through the service ->
-remove generic `unit-command` dispatch and duplicate bridge policy -> prove the
-full control graph -> repeat by domain until direct-control exposes only wire
-atoms and explicit diagnostics -> resume noun normalization.
+**Gradient:** classify official notification dismissal routes and observations
+-> separate exact runtime atoms from semantic notification policy -> compose
+service-owned check/request procedures and bulk dismissal over that same owner
+-> route both CLI modes and the controller through the service -> retire
+duplicate direct orchestration, verification, postcondition, and proof planes
+-> prove the full control graph -> repeat by domain until direct-control
+exposes only wire atoms and explicit diagnostics -> resume app/plugin and noun
+normalization.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -101,6 +107,107 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-29 - Native Turn Completion Authority Converged
+
+Turn completion now uses the official action-panel `canEndTurn()` and
+`sendEndTurn()` authority through one turn service owner. Direct-control owns
+only exact check/send atoms and immutable source observations; the service owns
+coherent availability, mutation admission, bounded acknowledgement polling,
+postcondition classification, dispatch uncertainty, and no-repeat policy; the
+controller and both CLI modes are thin adapters. Raw
+`GameContext.sendTurnComplete()`, invented ambient admission, notification
+fallbacks, the unready mutation, the thick request wrapper, immediate
+`verified`, and the direct proof policy retired. Truncated notification reads
+cannot authorize end-turn advice. The complete direct/service/controller/CLI
+graph, strict OpenSpec validation, and fresh native-authority and service-state
+reviews passed; deployed Civ7 behavior remains a separate live-proof boundary.
+
+### 2026-07-29 - Narrative Choice Authority Converged
+
+Narrative direction choices now use exact native check and send atoms through
+one narrative service owner. Direct-control owns only native validation,
+guarded dispatch, and immutable blocker observations; the service owns
+semantic admission, bounded polling, exact blocker-transition classification,
+dispatch uncertainty, and no-repeat policy; the controller and CLI are thin
+adapters. Caller-controlled player/action inputs, generic operation dispatch,
+the thick direct wrapper, UI activation and closeout choreography, duplicate
+bridge orchestration, telemetry, and the direct proof policy retired. Malformed
+blocker identities fail closed, and clearance requires both native blocker
+type zero and an empty paired blocker lookup. The complete
+direct/service/controller/CLI graph, strict OpenSpec validation, and fresh
+native-authority review passed; deployed Civ7 behavior remains a separate
+live-proof boundary.
+
+### 2026-07-29 - Government Choice Authority Converged
+
+Government and celebration choices now use exact native check and send atoms
+through one government service owner. Direct-control owns only native
+validation, dispatch, and immutable observations; the service owns semantic
+admission, guarded mutation, bounded polling, target confirmation, dispatch
+uncertainty, and no-repeat policy; the controller and CLI are thin adapters.
+Caller-controlled player/action inputs, chooser-option validation authority,
+generic aliases, the thick direct wrapper, duplicate bridge orchestration, and
+the direct proof policy retired. Golden-age source identity is normalized to
+the dispatched hash, blocker observations are paired, and service-admitted
+state is compared immediately before native dispatch. The complete
+direct/service/controller/CLI graph, strict OpenSpec validation, and fresh
+native-authority and service-state reviews passed; deployed Civ7 behavior
+remains a separate live-proof boundary.
+
+### 2026-07-29 - Population Placement Authority Converged
+
+Worker assignment and city expansion now use Civ7's exact native check and
+request paths through one city service owner. Direct-control owns only bounded
+check, send, and ownership-observation atoms; the service owns semantic
+admission, guarded mutation, polling, confirmation, dispatch uncertainty, and
+no-repeat policy; the controller and CLI are thin adapters. Caller-controlled
+player identity and worker amount, generic aliases, direct-owned orchestration,
+duplicate proof policy, and ambiguous ownership evidence retired. Fresh send
+gates recheck unowned plots before expansion, and failed worker dispatch reports
+the latest native candidate identity. The complete direct/service/controller/CLI
+graph, strict OpenSpec validation, and fresh native, service, and product
+reviews passed; deployed Civ7 behavior remains a separate live-proof boundary.
+
+### 2026-07-29 - Town Focus Authority Converged
+
+Town growth changes and town-project review now use the exact native
+`CityCommands` and `CityOperations` paths through one city service owner.
+Direct-control owns only check, send, and immutable snapshot atoms; the service
+owns admission, polling, classification, dispatch uncertainty, and no-repeat
+policy; the controller and CLI are thin adapters. Caller-controlled native
+`City` arguments, generic operation dispatch for both identities, the
+direct-owned town-focus wrapper, and its duplicate proof policy retired.
+Malformed blocker evidence and missing native enums fail closed before
+dispatch. The full direct/service/controller/CLI graph, strict OpenSpec
+validation, and fresh native-authority, product, and TypeScript reviews passed;
+deployed Civ7 behavior remains a separate live-proof boundary.
+
+### 2026-07-29 - Native Production Choice Authority Converged
+
+Production now uses Civ7's exact `CityOperations.canStart(BUILD)` and
+fire-and-forget `sendRequest` path without city selection, cursor mutation, or
+UI closeout. Direct-control owns only strict check/send atoms and raw immutable
+snapshots; the city service owns polling, postcondition classification,
+dispatch uncertainty, and no-repeat policy; the controller and CLI are thin
+adapters. The generic city-operation surface rejects `BUILD`, so no second
+production path survives. Official resources, the full
+direct/service/controller/CLI graph, strict OpenSpec validation, and fresh
+native, architecture, and TypeScript reviews passed. Controller-only event
+wakeups remain explicitly deferred until they can replace one-shot polling
+rather than create a hybrid completion model.
+
+### 2026-07-29 - Exact Unit Command Authority Converged
+
+Unit upgrade and resettlement now enter through exact service check/request
+procedures backed by four bounded direct-control wire atoms. The service alone
+owns precheck, guarded send, postcheck classification, ambiguous-dispatch
+handling, and no-repeat policy; the game UI bridge adapts only exact runtime
+calls, and both CLI modes use the service. Generic unit-command dispatch,
+duplicate controller classification, and the dead CLI unit-operation branch
+retired. The public request result collapsed to one honest status, malformed
+validator shapes fail closed, and the full direct/service/bridge graph plus
+CLI product proof and fresh authority review passed.
 
 ### 2026-07-29 - Direct-Control Shadow Procedure Plane Retired
 

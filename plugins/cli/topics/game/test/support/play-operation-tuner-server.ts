@@ -13,6 +13,12 @@ export async function startPlayOperationTunerServer() {
       if (message.includes("GameContext.localPlayerID") && message.includes("decisionQueue")) {
         return [JSON.stringify(playNotificationView())];
       }
+      if (message.includes("return JSON.stringify(checkUnitCommand")) {
+        return [JSON.stringify(unitCommandCheck())];
+      }
+      if (message.includes("return JSON.stringify(sendUnitCommand")) {
+        return [JSON.stringify(unitCommandSend())];
+      }
       if (message.includes("return JSON.stringify(validateOperation")) {
         return [JSON.stringify(operationValidation(message))];
       }
@@ -138,7 +144,7 @@ function tunerHealthSnapshot() {
 
 function operationSend(message: string) {
   const family = operationFamily(message);
-  return family === "unit-operation" || family === "unit-command"
+  return family === "unit-operation"
     ? {
         sent: true,
         beforePostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 65536, type: 26 }),
@@ -166,12 +172,6 @@ function operationValidation(message: string) {
 
 function operationFamily(message: string) {
   if (
-    message.includes('validateOperation("unit-command"') ||
-    message.includes('sendOperation("unit-command"')
-  ) {
-    return "unit-command";
-  }
-  if (
     message.includes('validateOperation("player-operation"') ||
     message.includes('sendOperation("player-operation"')
   ) {
@@ -196,9 +196,23 @@ function operationTarget(family: string) {
 function operationArgs(operationType: string) {
   if (operationType === "VIEWED_ADVISOR_WARNING")
     return { Target: { owner: 0, id: 12345, type: 99 } };
-  if (operationType === "UNITCOMMAND_RESETTLE") return { X: 17, Y: 25 };
-  if (operationType === "UNITCOMMAND_UPGRADE") return {};
   return undefined;
+}
+
+function unitCommandCheck() {
+  return {
+    valid: true,
+    result: { Success: true },
+  };
+}
+
+function unitCommandSend() {
+  return {
+    sent: true,
+    validation: unitCommandCheck(),
+    before: unitOperationPostconditionSnapshot({ owner: 0, id: 65536, type: 26 }),
+    after: unitOperationPostconditionSnapshot({ owner: 0, id: 131072, type: 26 }),
+  };
 }
 
 function unitOperationPostconditionSnapshot(firstReadyUnitId: {

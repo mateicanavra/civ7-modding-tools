@@ -18,7 +18,7 @@ export function operationRouterSource(): string {
       if (type != null) out.type = type;
       return out;
     };
-    const summarizeUnitForPostcondition = (unit) => {
+    const summarizeUnit = (unit) => {
       if (!unit) return null;
       const location = unit.location ?? unit.Location ?? null;
       const movement = unit.Movement ?? unit.movement ?? unit.movementMovesRemaining ?? null;
@@ -34,168 +34,13 @@ export function operationRouterSource(): string {
         attacks,
       };
     };
-    const readUnitPostconditionSnapshot = (input) => ({
-      unit: probe(() => summarizeUnitForPostcondition(globalThis.Units?.get?.(input.unitId))),
+    const readUnitSnapshot = (input) => ({
+      unit: probe(() => summarizeUnit(globalThis.Units?.get?.(input.unitId))),
       selectedUnitId: probe(() => toComponentId(globalThis.UI?.Player?.getHeadSelectedUnit?.())),
       firstReadyUnitId: probe(() => toComponentId(globalThis.UI?.Player?.getFirstReadyUnit?.())),
       blocker: probe(() => globalThis.Game?.Notifications?.getEndTurnBlockingType?.(globalThis.GameContext?.localPlayerID)),
     });
-    const unitPostconditionEligible = (family) => family === "unit-operation" || family === "unit-command";
-    const readyPopulationCityId = () => {
-      const player = globalThis.Players?.get?.(globalThis.GameContext?.localPlayerID);
-      const cityIds = player?.Cities?.getCityIds?.() ?? [];
-      for (const cityId of cityIds) {
-        const city = globalThis.Cities?.get?.(cityId);
-        if (city?.Growth?.isReadyToPlacePopulation) return toComponentId(cityId);
-      }
-      return null;
-    };
-    const populationPostconditionCityId = (family, input) => {
-      if (family === "city-command" && input.operationType === "EXPAND") return toComponentId(input.cityId);
-      if (family === "player-operation" && input.operationType === "ASSIGN_WORKER") return readyPopulationCityId();
-      return null;
-    };
-    const populationPostconditionEligible = (family, input) => !!populationPostconditionCityId(family, input);
-    const readPopulationPlacementPostconditionSnapshot = (cityId) => {
-      const city = globalThis.Cities?.get?.(cityId);
-      const placementInfo = city?.Workers?.GetAllPlacementInfo?.() ?? [];
-      const expansion = (() => {
-        try {
-          if (typeof globalThis.CityCommandTypes === "undefined") return null;
-          return globalThis.Game?.CityCommands?.canStart?.(cityId, globalThis.CityCommandTypes.EXPAND, {}, false);
-        } catch {
-          return null;
-        }
-      })();
-      return {
-        cityId,
-        city: probe(() => city ? {
-          id: toComponentId(cityId),
-          observedCityId: toComponentId(city.id),
-          population: city.population ?? null,
-          isTown: city.isTown ?? null,
-          location: city.location ?? null,
-        } : null),
-        isReadyToPlacePopulation: probe(() => city?.Growth?.isReadyToPlacePopulation ?? null),
-        cityWorkerCap: probe(() => city?.Workers?.getCityWorkerCap?.() ?? null),
-        workablePlotIndexes: probe(() => Array.isArray(placementInfo) ? placementInfo.filter((info) => !info?.IsBlocked).map((info) => info?.PlotIndex) : []),
-        blockedPlotIndexes: probe(() => Array.isArray(placementInfo) ? placementInfo.filter((info) => info?.IsBlocked).map((info) => info?.PlotIndex) : []),
-        expansionPlotIndexes: probe(() => Array.isArray(expansion?.Plots) ? expansion.Plots : []),
-      };
-    };
-    const componentKey = (value) => {
-      const id = toComponentId(value);
-      return id ? id.owner + ":" + id.id + ":" + (id.type ?? "") : "";
-    };
-    const notificationValue = (notification, names) => {
-      for (const name of names) {
-        if (notification && Object.prototype.hasOwnProperty.call(notification, name)) return notification[name];
-        const getter = "get" + name;
-        if (typeof notification?.[getter] === "function") {
-          try {
-            return notification[getter]();
-          } catch {}
-        }
-      }
-      return null;
-    };
-    const summarizeBuildQueue = (city, args) => {
-      const buildQueue = city?.BuildQueue;
-      if (!buildQueue) return null;
-      return {
-        currentProductionTypeHash: (() => {
-          try {
-            return typeof buildQueue.getCurrentProductionTypeHash === "function"
-              ? buildQueue.getCurrentProductionTypeHash()
-              : buildQueue.currentProductionTypeHash ?? buildQueue.productionTypeHash ?? null;
-          } catch {
-            return buildQueue.currentProductionTypeHash ?? buildQueue.productionTypeHash ?? null;
-          }
-        })(),
-        previousProductionTypeHash: (() => {
-          try {
-            return typeof buildQueue.getPreviousProductionTypeHash === "function"
-              ? buildQueue.getPreviousProductionTypeHash()
-              : buildQueue.previousProductionTypeHash ?? null;
-          } catch {
-            return buildQueue.previousProductionTypeHash ?? null;
-          }
-        })(),
-        productionProgress: (() => {
-          try {
-            return typeof buildQueue.getProductionProgress === "function"
-              ? buildQueue.getProductionProgress()
-              : buildQueue.productionProgress ?? buildQueue.progress ?? null;
-          } catch {
-            return buildQueue.productionProgress ?? buildQueue.progress ?? null;
-          }
-        })(),
-        turnsLeftForRequestedItem: (() => {
-          try {
-            const requestedType = args?.UnitType ?? args?.ConstructibleType ?? args?.ProjectType ?? null;
-            return requestedType == null || typeof buildQueue.getTurnsLeft !== "function"
-              ? null
-              : buildQueue.getTurnsLeft(requestedType);
-          } catch {
-            return null;
-          }
-        })(),
-        queueLength: (() => {
-          try {
-            return typeof buildQueue.getQueue === "function" ? buildQueue.getQueue()?.length ?? null : null;
-          } catch {
-            return null;
-          }
-        })(),
-      };
-    };
-    const productionPostconditionEligible = (family, input) => family === "city-operation" && input.operationType === "BUILD";
-    const readProductionPostconditionSnapshot = (input) => {
-      const cityId = toComponentId(input.cityId);
-      const city = cityId ? globalThis.Cities?.get?.(cityId) : null;
-      return {
-        cityId,
-        city: probe(() => city ? {
-          id: toComponentId(cityId),
-          observedCityId: toComponentId(city.id),
-          population: city.population ?? null,
-          isTown: city.isTown ?? null,
-          location: city.location ?? null,
-        } : null),
-        buildQueue: probe(() => summarizeBuildQueue(city, input.args ?? null)),
-        selectedCityId: probe(() => toComponentId(globalThis.UI?.Player?.getHeadSelectedCity?.())),
-        blocker: probe(() => globalThis.Game?.Notifications?.getEndTurnBlockingType?.(globalThis.GameContext?.localPlayerID)),
-        canEndTurn: probe(() => globalThis.Game?.TurnManager?.canEndTurn?.() ?? null),
-        blockingProductionNotification: probe(() => {
-          const notifications = globalThis.Game?.Notifications;
-          const localPlayerId = globalThis.GameContext?.localPlayerID;
-          if (!notifications || localPlayerId == null) return null;
-          const blockerType = typeof notifications.getEndTurnBlockingType === "function"
-            ? notifications.getEndTurnBlockingType(localPlayerId)
-            : null;
-          const blockerId = typeof notifications.findEndTurnBlocking === "function"
-            ? notifications.findEndTurnBlocking(localPlayerId, blockerType)
-            : null;
-          const id = toComponentId(blockerId);
-          if (!id) return null;
-          const notification = typeof notifications.find === "function" ? notifications.find(id) : null;
-          const type = typeof notifications.getType === "function" ? notifications.getType(id) : notificationValue(notification, ["Type", "type"]);
-          const typeName = typeof notifications.getTypeName === "function" ? notifications.getTypeName(type) : null;
-          const target = notificationValue(notification, ["Target", "target"]);
-          if (!String(typeName ?? "").includes("CHOOSE_CITY_PRODUCTION")) return null;
-          return {
-            id,
-            type,
-            typeName,
-            target,
-            matchesCity: cityId ? componentKey(target) === componentKey(cityId) : null,
-            canUserDismiss: notificationValue(notification, ["CanUserDismiss", "canUserDismiss"]),
-            expired: notificationValue(notification, ["Expired", "expired"]),
-            dismissed: notificationValue(notification, ["Dismissed", "dismissed"]),
-          };
-        }),
-      };
-    };
+    const unitPostconditionEligible = (family) => family === "unit-operation";
     const routerFor = (family) => {
       if (family === "unit-operation") return { router: Game.UnitOperations, enums: UnitOperationTypes, targetKey: "unitId" };
       if (family === "unit-command") return { router: Game.UnitCommands, enums: UnitCommandTypes, targetKey: "unitId" };
@@ -237,6 +82,18 @@ export function operationRouterSource(): string {
       throw last;
     };
     const successFromCanStart = (result) => {
+      if (typeof result === "boolean") return result;
+      if (result !== null && typeof result === "object" && !Array.isArray(result)) {
+        for (const key of ["Success", "success", "canStart"]) {
+          if (key in result) {
+            if (typeof result[key] === "boolean") return result[key];
+            throw new Error("Game operation canStart returned a non-boolean " + key + " field.");
+          }
+        }
+      }
+      throw new Error("Game operation canStart returned an unrecognized result.");
+    };
+    const successFromNonUnitCommandCanStart = (result) => {
       if (result === true) return true;
       if (result === false || result == null) return false;
       if (typeof result === "object") {
@@ -257,15 +114,45 @@ export function operationRouterSource(): string {
         enumValue,
         target: { [meta.targetKey]: target },
         args: input.args,
-        valid: successFromCanStart(result),
+        valid: family === "unit-command"
+          ? successFromCanStart(result)
+          : successFromNonUnitCommandCanStart(result),
         result,
       };
     };
+    const checkUnitCommand = (input) => {
+      const checked = validateOperation("unit-command", input);
+      return {
+        valid: checked.valid,
+        result: checked.result,
+      };
+    };
+    const sendUnitCommand = (input) => {
+      const before = readUnitSnapshot(input);
+      const checked = validateOperation("unit-command", input);
+      const validation = {
+        valid: checked.valid,
+        result: checked.result,
+      };
+      if (!checked.valid) {
+        return {
+          sent: false,
+          validation,
+          before,
+          after: before,
+        };
+      }
+      const meta = routerFor("unit-command");
+      meta.router.sendRequest(input.unitId, checked.enumValue, input.args ?? {});
+      return {
+        sent: true,
+        validation,
+        before,
+        after: readUnitSnapshot(input),
+      };
+    };
     const sendOperation = (family, input) => {
-      const beforePostcondition = unitPostconditionEligible(family) ? readUnitPostconditionSnapshot(input) : undefined;
-      const populationCityId = populationPostconditionCityId(family, input);
-      const beforePopulationPostcondition = populationCityId ? readPopulationPlacementPostconditionSnapshot(populationCityId) : undefined;
-      const beforeProductionPostcondition = productionPostconditionEligible(family, input) ? readProductionPostconditionSnapshot(input) : undefined;
+      const beforePostcondition = unitPostconditionEligible(family) ? readUnitSnapshot(input) : undefined;
       const before = validateOperation(family, input);
       if (!before.valid) return {
         sent: false,
@@ -273,17 +160,11 @@ export function operationRouterSource(): string {
         result: null,
         beforePostcondition,
         afterPostcondition: beforePostcondition,
-        beforePopulationPostcondition,
-        afterPopulationPostcondition: beforePopulationPostcondition,
-        beforeProductionPostcondition,
-        afterProductionPostcondition: beforeProductionPostcondition,
       };
       const meta = routerFor(family);
       const target = input[meta.targetKey];
       const result = meta.router.sendRequest(target, before.enumValue, input.args ?? {});
-      const afterPostcondition = unitPostconditionEligible(family) ? readUnitPostconditionSnapshot(input) : undefined;
-      const afterPopulationPostcondition = populationCityId ? readPopulationPlacementPostconditionSnapshot(populationCityId) : undefined;
-      const afterProductionPostcondition = productionPostconditionEligible(family, input) ? readProductionPostconditionSnapshot(input) : undefined;
-      return { sent: true, before, result, beforePostcondition, afterPostcondition, beforePopulationPostcondition, afterPopulationPostcondition, beforeProductionPostcondition, afterProductionPostcondition };
+      const afterPostcondition = unitPostconditionEligible(family) ? readUnitSnapshot(input) : undefined;
+      return { sent: true, before, result, beforePostcondition, afterPostcondition };
     };`;
 }

@@ -1,26 +1,38 @@
+import type { Civ7DirectControlErrorShape } from "@civ7/direct-control/error";
+
 import type {
   Civ7ControlOrpcComponentId,
   Civ7ControlOrpcDirectControlFacade,
   Civ7ControlOrpcMapLocation,
 } from "../service-types";
 
-type RuntimeProbe<T> = Readonly<{ ok: true; value: T } | { ok: false; error: string }>;
-type PopulationPlacementResult = Awaited<
-  ReturnType<Civ7ControlOrpcDirectControlFacade["requestCiv7AssignWorkerPlacement"]>
+type WorkerAssignmentInput = Parameters<
+  Civ7ControlOrpcDirectControlFacade["checkCiv7WorkerAssignment"]
+>[0];
+type WorkerAssignmentCheckResult = Awaited<
+  ReturnType<Civ7ControlOrpcDirectControlFacade["checkCiv7WorkerAssignment"]>
 >;
-type PopulationPostcondition = NonNullable<PopulationPlacementResult["populationPostcondition"]>;
-type PopulationSnapshot = NonNullable<PopulationPostcondition["before"]>;
-type PopulationValidation = Readonly<{
-  host: "game-ui";
-  port: 0;
-  state: Readonly<{ id: "game-ui"; name: "Game UI" }>;
-  family: "player-operation" | "city-command";
-  operationType: "ASSIGN_WORKER" | "EXPAND";
-  enumValue: unknown;
-  target: Readonly<{ playerId: number } | { cityId: Civ7ControlOrpcComponentId }>;
-  args: Readonly<Record<string, number>>;
+type WorkerAssignmentSendResult = Awaited<
+  ReturnType<Civ7ControlOrpcDirectControlFacade["sendCiv7WorkerAssignment"]>
+>;
+type WorkerAssignmentSnapshot = WorkerAssignmentCheckResult["snapshot"];
+type WorkerAssignmentValidationResult = WorkerAssignmentCheckResult["result"];
+
+type CityExpansionInput = Parameters<
+  Civ7ControlOrpcDirectControlFacade["checkCiv7CityExpansion"]
+>[0];
+type CityExpansionCheckResult = Awaited<
+  ReturnType<Civ7ControlOrpcDirectControlFacade["checkCiv7CityExpansion"]>
+>;
+type CityExpansionSendResult = Awaited<
+  ReturnType<Civ7ControlOrpcDirectControlFacade["sendCiv7CityExpansion"]>
+>;
+type CityExpansionSnapshot = CityExpansionCheckResult["snapshot"];
+type CityExpansionValidationResult = CityExpansionCheckResult["result"];
+
+type PopulationValidation<T> = Readonly<{
   valid: boolean;
-  result: unknown;
+  result: T;
 }>;
 
 export type Civ7GameUiPopulationTarget = Readonly<{
@@ -48,18 +60,18 @@ export type Civ7GameUiPopulationTarget = Readonly<{
       canStart?: (
         playerId: number,
         operationType: unknown,
-        args: Readonly<Record<string, number>>,
+        args: unknown,
         queue?: boolean
       ) => unknown;
-      sendRequest?: (
-        playerId: number,
-        operationType: unknown,
-        args: Readonly<Record<string, number>>
-      ) => unknown;
+      sendRequest?: (playerId: number, operationType: unknown, args: unknown) => unknown;
     };
   };
   GameContext?: {
     localPlayerID?: number;
+  };
+  GameplayMap?: {
+    getIndexFromLocation?: (location: Civ7ControlOrpcMapLocation) => number;
+    getOwningCityFromXY?: (x: number, y: number) => unknown;
   };
   PlayerOperationTypes?: {
     ASSIGN_WORKER?: unknown;
@@ -69,392 +81,376 @@ export type Civ7GameUiPopulationTarget = Readonly<{
   };
 }>;
 
-export function civ7GameUiPopulationPlacementAvailable(
+/** Reports whether the game UI can check both exact population-placement branches. */
+export function civ7GameUiPopulationPlacementCheckAvailable(
   target: Civ7GameUiPopulationTarget
 ): boolean {
   return (
+    Number.isInteger(target.GameContext?.localPlayerID) &&
     typeof target.Game?.PlayerOperations?.canStart === "function" &&
-    typeof target.Game.PlayerOperations.sendRequest === "function" &&
     target.PlayerOperationTypes?.ASSIGN_WORKER !== undefined &&
     typeof target.Game?.CityCommands?.canStart === "function" &&
-    typeof target.Game.CityCommands.sendRequest === "function" &&
     target.CityCommandTypes?.EXPAND !== undefined &&
     typeof target.Players?.get === "function" &&
-    typeof target.Cities?.get === "function"
+    typeof target.Cities?.get === "function" &&
+    typeof target.GameplayMap?.getIndexFromLocation === "function" &&
+    typeof target.GameplayMap.getOwningCityFromXY === "function"
   );
 }
 
-export async function requestCiv7GameUiAssignWorkerPlacement(
-  input: Readonly<{
-    playerId: number;
-    location: number;
-  }>,
+/** Reports whether the game UI can send both exact population-placement branches. */
+export function civ7GameUiPopulationPlacementSendAvailable(
+  target: Civ7GameUiPopulationTarget
+): boolean {
+  return (
+    civ7GameUiPopulationPlacementCheckAvailable(target) &&
+    typeof target.Game?.PlayerOperations?.sendRequest === "function" &&
+    typeof target.Game.CityCommands?.sendRequest === "function"
+  );
+}
+
+/** Checks exact ASSIGN_WORKER admission for the ambient local player and target plot. */
+export async function checkCiv7GameUiWorkerAssignment(
+  input: WorkerAssignmentInput,
   target: Civ7GameUiPopulationTarget = globalThis as Civ7GameUiPopulationTarget
-): Promise<PopulationPlacementResult> {
-  const args = {
-    Location: input.location,
-    Amount: 1,
-  };
-  const beforeCityId = readyPopulationCityId(target);
-  const beforeSnapshot =
-    beforeCityId == null ? undefined : gameUiPopulationSnapshot(beforeCityId, target);
-  const localPlayerId = target.GameContext?.localPlayerID;
-  const before =
-    input.playerId === localPlayerId
-      ? gameUiPlayerOperationValidation(
-          input.playerId,
-          "ASSIGN_WORKER",
-          target.PlayerOperationTypes?.ASSIGN_WORKER,
-          args,
-          target
-        )
-      : gameUiPlayerOperationLocalPlayerMismatch(input.playerId, localPlayerId, args);
-
-  if (!before.valid) {
-    return populationPlacementResult({
-      family: "player-operation",
-      operationType: "ASSIGN_WORKER",
-      enumValue: target.PlayerOperationTypes?.ASSIGN_WORKER,
-      target: { playerId: input.playerId },
-      args,
-      before,
-      after: before,
-      sent: false,
-      beforeSnapshot,
-      afterSnapshot: beforeSnapshot,
-      sendResult: undefined,
-    });
-  }
-
-  const sendResult = probe(() =>
-    target.Game?.PlayerOperations?.sendRequest?.(
-      input.playerId,
-      target.PlayerOperationTypes?.ASSIGN_WORKER,
-      args
-    )
-  );
-  const sent = sendResult.ok && sendResult.value !== false;
-  const after = gameUiPlayerOperationValidation(
-    input.playerId,
-    "ASSIGN_WORKER",
-    target.PlayerOperationTypes?.ASSIGN_WORKER,
-    args,
-    target
-  );
-  const afterCityId = beforeCityId ?? readyPopulationCityId(target);
-  const afterSnapshot =
-    afterCityId == null ? undefined : gameUiPopulationSnapshot(afterCityId, target);
-
-  return populationPlacementResult({
-    family: "player-operation",
-    operationType: "ASSIGN_WORKER",
-    enumValue: target.PlayerOperationTypes?.ASSIGN_WORKER,
-    target: { playerId: input.playerId },
-    args,
-    before,
-    after,
-    sent,
-    beforeSnapshot,
-    afterSnapshot,
-    sendResult,
-  });
-}
-
-function gameUiPlayerOperationLocalPlayerMismatch(
-  playerId: number,
-  localPlayerId: number | undefined,
-  args: Readonly<Record<string, number>>
-): PopulationValidation {
+): Promise<WorkerAssignmentCheckResult> {
+  requirePlotIndex(input.location, "location");
+  const snapshot = readWorkerAssignmentSnapshot(input, target);
+  const validation = checkWorkerAssignmentValidation(input, snapshot, target);
   return {
-    host: "game-ui",
-    port: 0,
-    state: { id: "game-ui", name: "Game UI" },
-    family: "player-operation",
-    operationType: "ASSIGN_WORKER",
-    enumValue: "ASSIGN_WORKER",
-    target: { playerId },
-    args,
-    valid: false,
-    result: {
-      ok: false,
-      reason: "player-id-mismatch",
-      playerId,
-      localPlayerId: localPlayerId ?? null,
-    },
+    valid: validation.valid,
+    result: validation.result,
+    snapshot,
   };
 }
 
-export async function requestCiv7GameUiExpandCityPlacement(
-  input: Readonly<{
-    cityId: Civ7ControlOrpcComponentId;
-    destination: Civ7ControlOrpcMapLocation;
-  }>,
+/** Sends exact ASSIGN_WORKER only after a fresh strict native check. */
+export async function sendCiv7GameUiWorkerAssignment(
+  input: WorkerAssignmentInput,
   target: Civ7GameUiPopulationTarget = globalThis as Civ7GameUiPopulationTarget
-): Promise<PopulationPlacementResult> {
-  const cityId = toComponentId(input.cityId);
-  if (cityId == null) {
-    throw new Error("Population placement cityId must be a ComponentID.");
-  }
-  const args = {
-    X: input.destination.x,
-    Y: input.destination.y,
-  };
-  const beforeSnapshot = gameUiPopulationSnapshot(cityId, target);
-  const before = gameUiCityCommandValidation(
-    cityId,
-    "EXPAND",
-    target.CityCommandTypes?.EXPAND,
-    args,
-    target
-  );
+): Promise<WorkerAssignmentSendResult> {
+  let sendInvoked = false;
+  try {
+    requirePlotIndex(input.location, "location");
+    const before = readWorkerAssignmentSnapshot(input, target);
+    const checked = checkWorkerAssignmentValidation(input, before, target);
+    const validation = {
+      valid: checked.valid,
+      result: checked.result,
+    };
+    if (!checked.valid) {
+      return {
+        sent: false,
+        validation: {
+          valid: false,
+          result: checked.result,
+        },
+        before,
+        after: readWorkerAssignmentSnapshot(input, target),
+      };
+    }
 
-  if (!before.valid) {
-    return populationPlacementResult({
-      family: "city-command",
-      operationType: "EXPAND",
-      enumValue: target.CityCommandTypes?.EXPAND,
-      target: { cityId },
-      args,
-      before,
-      after: before,
-      sent: false,
-      beforeSnapshot,
-      afterSnapshot: beforeSnapshot,
-      sendResult: undefined,
+    const operations = target.Game?.PlayerOperations;
+    if (typeof operations?.sendRequest !== "function") {
+      throw new Error("Game.PlayerOperations.sendRequest is unavailable.");
+    }
+    if (target.PlayerOperationTypes?.ASSIGN_WORKER === undefined) {
+      throw new Error("PlayerOperationTypes.ASSIGN_WORKER is unavailable.");
+    }
+    sendInvoked = true;
+    operations.sendRequest(before.localPlayerId, target.PlayerOperationTypes.ASSIGN_WORKER, {
+      Location: input.location,
+      Amount: 1,
     });
+    return {
+      sent: true,
+      validation: {
+        valid: true,
+        result: validation.result,
+      },
+      before,
+      after: readWorkerAssignmentSnapshot(input, target),
+    };
+  } catch (cause) {
+    throw populationDispatchError(cause, sendInvoked ? "dispatched" : "not-dispatched");
+  }
+}
+
+/** Checks exact EXPAND membership for the requested city and destination. */
+export async function checkCiv7GameUiCityExpansion(
+  input: CityExpansionInput,
+  target: Civ7GameUiPopulationTarget = globalThis as Civ7GameUiPopulationTarget
+): Promise<CityExpansionCheckResult> {
+  const normalized = normalizeCityExpansionInput(input);
+  const checked = checkCityExpansionValidation(normalized, target);
+  return {
+    valid: checked.valid,
+    result: checked.result,
+    snapshot: checked.snapshot,
+  };
+}
+
+/** Sends exact EXPAND coordinates only after a fresh target-membership check. */
+export async function sendCiv7GameUiCityExpansion(
+  input: CityExpansionInput,
+  target: Civ7GameUiPopulationTarget = globalThis as Civ7GameUiPopulationTarget
+): Promise<CityExpansionSendResult> {
+  let sendInvoked = false;
+  try {
+    const normalized = normalizeCityExpansionInput(input);
+    const checked = checkCityExpansionValidation(normalized, target);
+    if (!checked.valid) {
+      return {
+        sent: false,
+        validation: {
+          valid: false,
+          result: checked.result,
+        },
+        before: checked.snapshot,
+        after: checked.snapshot,
+      };
+    }
+
+    const commands = target.Game?.CityCommands;
+    if (typeof commands?.sendRequest !== "function") {
+      throw new Error("Game.CityCommands.sendRequest is unavailable.");
+    }
+    if (target.CityCommandTypes?.EXPAND === undefined) {
+      throw new Error("CityCommandTypes.EXPAND is unavailable.");
+    }
+    sendInvoked = true;
+    commands.sendRequest(normalized.cityId, target.CityCommandTypes.EXPAND, {
+      X: normalized.destination.x,
+      Y: normalized.destination.y,
+    });
+    return {
+      sent: true,
+      validation: {
+        valid: true,
+        result: checked.result,
+      },
+      before: checked.snapshot,
+      after: checkCityExpansionValidation(normalized, target).snapshot,
+    };
+  } catch (cause) {
+    throw populationDispatchError(cause, sendInvoked ? "dispatched" : "not-dispatched");
+  }
+}
+
+function checkWorkerAssignmentValidation(
+  input: WorkerAssignmentInput,
+  snapshot: WorkerAssignmentSnapshot,
+  target: Civ7GameUiPopulationTarget
+): PopulationValidation<WorkerAssignmentValidationResult> {
+  const operations = target.Game?.PlayerOperations;
+  if (typeof operations?.canStart !== "function") {
+    throw new Error("Game.PlayerOperations.canStart is unavailable.");
+  }
+  if (target.PlayerOperationTypes?.ASSIGN_WORKER === undefined) {
+    throw new Error("PlayerOperationTypes.ASSIGN_WORKER is unavailable.");
+  }
+  const rawResult = operations.canStart(
+    snapshot.localPlayerId,
+    target.PlayerOperationTypes.ASSIGN_WORKER,
+    { Location: input.location, Amount: 1 },
+    false
+  );
+  return {
+    valid:
+      rawResult !== null &&
+      typeof rawResult === "object" &&
+      (rawResult as Record<string, unknown>).Success === true &&
+      snapshot.candidateCityId !== null &&
+      snapshot.isReadyToPlacePopulation === true,
+    result: snapshotJsonResult(rawResult, "Game.PlayerOperations.canStart"),
+  };
+}
+
+function readWorkerAssignmentSnapshot(
+  input: WorkerAssignmentInput,
+  target: Civ7GameUiPopulationTarget
+): WorkerAssignmentSnapshot {
+  const localPlayerId = requireLocalPlayerId(target);
+  const player = target.Players?.get?.(localPlayerId);
+  if (player == null || typeof player !== "object") {
+    throw new Error("The local player is unavailable.");
+  }
+  const cities = (player as Record<string, unknown>).Cities;
+  if (cities == null || typeof cities !== "object") {
+    throw new Error("The local player's city list is unavailable.");
+  }
+  const getCityIds = (cities as Record<string, unknown>).getCityIds;
+  if (typeof getCityIds !== "function") {
+    throw new Error("The local player's city list is unavailable.");
+  }
+  const cityIds = getCityIds.call(cities);
+  if (!Array.isArray(cityIds)) {
+    throw new Error("The local player's city list is not an array.");
   }
 
-  const sendResult = probe(() =>
-    target.Game?.CityCommands?.sendRequest?.(cityId, target.CityCommandTypes?.EXPAND, args)
-  );
-  const sent = sendResult.ok && sendResult.value !== false;
-  const after = gameUiCityCommandValidation(
-    cityId,
-    "EXPAND",
-    target.CityCommandTypes?.EXPAND,
-    args,
-    target
-  );
-  const afterSnapshot = gameUiPopulationSnapshot(cityId, target);
-
-  return populationPlacementResult({
-    family: "city-command",
-    operationType: "EXPAND",
-    enumValue: target.CityCommandTypes?.EXPAND,
-    target: { cityId },
-    args,
-    before,
-    after,
-    sent,
-    beforeSnapshot,
-    afterSnapshot,
-    sendResult,
-  });
-}
-
-function populationPlacementResult(
-  input: Readonly<{
-    family: "player-operation" | "city-command";
-    operationType: "ASSIGN_WORKER" | "EXPAND";
-    enumValue: unknown;
-    target: Readonly<{ playerId: number } | { cityId: Civ7ControlOrpcComponentId }>;
-    args: Readonly<Record<string, number>>;
-    before: PopulationValidation;
-    after: PopulationValidation;
-    sent: boolean;
-    beforeSnapshot: PopulationSnapshot | undefined;
-    afterSnapshot: PopulationSnapshot | undefined;
-    sendResult: RuntimeProbe<unknown> | undefined;
-  }>
-): PopulationPlacementResult {
-  const populationPostcondition = gameUiPopulationPostcondition({
-    family: input.family,
-    operationType: input.operationType,
-    sent: input.sent,
-    before: input.before,
-    after: input.after,
-    beforeSnapshot: input.beforeSnapshot,
-    afterSnapshot: input.afterSnapshot,
-  });
-  return {
-    before: input.before,
-    after: input.after,
-    sent: input.sent,
-    verified:
-      populationPostcondition?.classification === "population-ready-cleared" ||
-      populationPostcondition?.classification === "placement-state-changed",
-    populationPostcondition,
-    payload: {
-      family: input.family,
-      operationType: input.operationType,
-      enumValue: input.enumValue,
-      target: input.target,
-      args: input.args,
-      sent: input.sent,
-      sendResult: input.sendResult,
-      beforePopulationPostcondition: input.beforeSnapshot,
-      afterPopulationPostcondition: input.afterSnapshot,
-      notes: [
-        "Game UI population placement used ambient PlayerOperations/CityCommands validation and send evidence inside the controller context.",
-      ],
-    },
-  } as PopulationPlacementResult;
-}
-
-function gameUiPopulationPostcondition(
-  input: Readonly<{
-    family: "player-operation" | "city-command";
-    operationType: "ASSIGN_WORKER" | "EXPAND";
-    sent: boolean;
-    before: PopulationValidation;
-    after: PopulationValidation;
-    beforeSnapshot: PopulationSnapshot | undefined;
-    afterSnapshot: PopulationSnapshot | undefined;
-  }>
-): PopulationPostcondition | undefined {
-  if (input.beforeSnapshot == null || input.afterSnapshot == null) {
-    return undefined;
-  }
-  const readyCleared = populationReadyCleared(input.beforeSnapshot, input.afterSnapshot);
-  const placementStateChanged = populationSnapshotChanged(
-    input.beforeSnapshot,
-    input.afterSnapshot
-  );
-  const classification = classifyPopulationPostcondition({
-    sent: input.sent,
-    before: input.before,
-    after: input.after,
-    readyCleared,
-    placementStateChanged,
-  });
-  return {
-    family: input.family,
-    operationType: input.operationType,
-    classification,
-    before: input.beforeSnapshot,
-    after: input.afterSnapshot,
-    readyCleared,
-    placementStateChanged,
-    reason: populationPostconditionReason(classification),
-  };
-}
-
-function gameUiPlayerOperationValidation(
-  playerId: number,
-  operationType: "ASSIGN_WORKER",
-  enumValue: unknown,
-  args: Readonly<Record<string, number>>,
-  target: Civ7GameUiPopulationTarget
-): PopulationValidation {
-  const result = safeValue(
-    () => target.Game?.PlayerOperations?.canStart?.(playerId, enumValue, args, false),
-    null
-  );
-  return {
-    host: "game-ui",
-    port: 0,
-    state: { id: "game-ui", name: "Game UI" },
-    family: "player-operation",
-    operationType,
-    enumValue,
-    target: { playerId },
-    args,
-    valid: successFromCanStart(result),
-    result,
-  };
-}
-
-function gameUiCityCommandValidation(
-  cityId: Civ7ControlOrpcComponentId,
-  operationType: "EXPAND",
-  enumValue: unknown,
-  args: Readonly<Record<string, number>>,
-  target: Civ7GameUiPopulationTarget
-): PopulationValidation {
-  const result = safeValue(
-    () => target.Game?.CityCommands?.canStart?.(cityId, enumValue, args, false),
-    null
-  );
-  return {
-    host: "game-ui",
-    port: 0,
-    state: { id: "game-ui", name: "Game UI" },
-    family: "city-command",
-    operationType,
-    enumValue,
-    target: { cityId },
-    args,
-    valid: successFromCanStart(result),
-    result,
-  };
-}
-
-function gameUiPopulationSnapshot(
-  cityId: Civ7ControlOrpcComponentId,
-  target: Civ7GameUiPopulationTarget
-): PopulationSnapshot {
-  const city = safeValue(() => target.Cities?.get?.(cityId), null);
-  const placementInfo = cityPlacementInfo(city);
-  const expansion = probe(
-    () =>
-      target.Game?.CityCommands?.canStart?.(cityId, target.CityCommandTypes?.EXPAND, {}, false) ??
-      null
-  );
-  return {
-    cityId,
-    city: probe(() => citySummary(cityId, city)),
-    isReadyToPlacePopulation: probe(() => cityReadyToPlacePopulation(city)),
-    cityWorkerCap: probe(() => cityWorkerCap(city)),
-    workablePlotIndexes: probe(() =>
-      placementInfo.filter((info) => !info.isBlocked).map((info) => info.plotIndex)
-    ),
-    blockedPlotIndexes: probe(() =>
-      placementInfo.filter((info) => info.isBlocked).map((info) => info.plotIndex)
-    ),
-    expansionPlotIndexes: probe(() =>
-      expansion.ok &&
-      expansion.value != null &&
-      typeof expansion.value === "object" &&
-      Array.isArray((expansion.value as Record<string, unknown>).Plots)
-        ? ((expansion.value as Record<string, unknown>).Plots as unknown[])
-        : []
-    ),
-  };
-}
-
-function readyPopulationCityId(
-  target: Civ7GameUiPopulationTarget
-): Civ7ControlOrpcComponentId | null {
-  const localPlayerId = target.GameContext?.localPlayerID;
-  if (typeof localPlayerId !== "number") return null;
-  const player = safeValue(() => target.Players?.get?.(localPlayerId), null);
-  if (player == null || typeof player !== "object") return null;
-  const cityIds = safeValue(() => {
-    const cities = (player as Record<string, unknown>).Cities;
-    if (cities == null || typeof cities !== "object") return [];
-    const getCityIds = (cities as Record<string, unknown>).getCityIds;
-    return typeof getCityIds === "function" ? getCityIds.call(cities) : [];
-  }, []);
-  if (!Array.isArray(cityIds)) return null;
+  const readyCityIds: Civ7ControlOrpcComponentId[] = [];
+  let candidateCityId: Civ7ControlOrpcComponentId | null = null;
+  let isReadyToPlacePopulation: boolean | null = null;
+  let placementInfo: WorkerAssignmentSnapshot["placementInfo"] = null;
+  let numWorkers: number | null = null;
   for (const rawCityId of cityIds) {
     const cityId = toComponentId(rawCityId);
-    if (cityId == null) continue;
-    const city = safeValue(() => target.Cities?.get?.(cityId), null);
-    if (cityReadyToPlacePopulation(city) === true) return cityId;
+    if (cityId == null) {
+      throw new Error("The local player's city list contains an invalid ComponentID.");
+    }
+    const city = target.Cities?.get?.(cityId);
+    const readiness = cityReadyToPlacePopulation(city);
+    const ready = readiness === true;
+    if (ready) readyCityIds.push(cityId);
+    const candidates = cityWorkerPlacementInfo(city);
+    if (candidates == null) {
+      if (ready) throw new Error("A ready city's worker placement candidates are unavailable.");
+      continue;
+    }
+    const candidate = candidates.find(
+      (entry) =>
+        entry != null &&
+        typeof entry === "object" &&
+        (entry as Record<string, unknown>).PlotIndex === input.location &&
+        (entry as Record<string, unknown>).IsBlocked !== true
+    );
+    if (candidate === undefined) continue;
+    if (candidateCityId !== null) {
+      throw new Error("The worker target belongs to more than one local city.");
+    }
+    candidateCityId = cityId;
+    isReadyToPlacePopulation = typeof readiness === "boolean" ? readiness : null;
+    placementInfo = snapshotJsonResult(candidate, "Worker placement candidate");
+    const rawNumWorkers = (candidate as Record<string, unknown>).NumWorkers;
+    numWorkers = Number.isInteger(rawNumWorkers) ? (rawNumWorkers as number) : null;
   }
-  return null;
+  return {
+    localPlayerId,
+    location: input.location,
+    readyCityIds,
+    candidateCityId,
+    isReadyToPlacePopulation,
+    placementInfo,
+    numWorkers,
+  };
 }
 
-function citySummary(cityId: Civ7ControlOrpcComponentId, city: unknown): unknown {
-  if (city == null || typeof city !== "object") return null;
-  const record = city as Record<string, unknown>;
+function checkCityExpansionValidation(
+  input: CityExpansionInput,
+  target: Civ7GameUiPopulationTarget
+): PopulationValidation<CityExpansionValidationResult> & { snapshot: CityExpansionSnapshot } {
+  const localPlayerId = requireLocalPlayerId(target);
+  const map = target.GameplayMap;
+  if (typeof map?.getIndexFromLocation !== "function") {
+    throw new Error("GameplayMap.getIndexFromLocation is unavailable.");
+  }
+  const plotIndex = map.getIndexFromLocation(input.destination);
+  if (!Number.isInteger(plotIndex)) {
+    throw new Error("GameplayMap.getIndexFromLocation returned an invalid plot index.");
+  }
+  const commands = target.Game?.CityCommands;
+  if (typeof commands?.canStart !== "function") {
+    throw new Error("Game.CityCommands.canStart is unavailable.");
+  }
+  if (target.CityCommandTypes?.EXPAND === undefined) {
+    throw new Error("CityCommandTypes.EXPAND is unavailable.");
+  }
+  const rawResult = commands.canStart(input.cityId, target.CityCommandTypes.EXPAND, {}, false);
+  const snapshot = readCityExpansionSnapshot(
+    input,
+    localPlayerId,
+    plotIndex as number,
+    rawResult,
+    target
+  );
   return {
-    id: cityId,
-    observedCityId: toComponentId(record.id ?? record.ID ?? record.CityId),
-    population: record.population ?? record.Population ?? null,
-    isTown: record.isTown ?? null,
-    location: record.location ?? record.Location ?? null,
+    valid:
+      input.cityId.owner === localPlayerId &&
+      snapshot.isReadyToPlacePopulation === true &&
+      snapshot.candidate !== null &&
+      snapshot.ownership.status === "unowned",
+    result: snapshotJsonResult(rawResult, "Game.CityCommands.canStart"),
+    snapshot,
   };
+}
+
+function readCityExpansionSnapshot(
+  input: CityExpansionInput,
+  localPlayerId: number,
+  plotIndex: number,
+  rawResult: unknown,
+  target: Civ7GameUiPopulationTarget
+): CityExpansionSnapshot {
+  const readOwner = target.GameplayMap?.getOwningCityFromXY;
+  if (typeof readOwner !== "function") {
+    throw new Error("GameplayMap.getOwningCityFromXY is unavailable.");
+  }
+  const city = target.Cities?.get?.(input.cityId);
+  const readiness = cityReadyToPlacePopulation(city);
+  return {
+    localPlayerId,
+    cityId: input.cityId,
+    destination: input.destination,
+    plotIndex,
+    isReadyToPlacePopulation: typeof readiness === "boolean" ? readiness : null,
+    candidate: expansionCandidate(rawResult, plotIndex),
+    ownership: cityExpansionOwnership(readOwner(input.destination.x, input.destination.y)),
+  };
+}
+
+function cityExpansionOwnership(value: unknown): CityExpansionSnapshot["ownership"] {
+  if (value === null) return { status: "unowned" };
+  const cityId = toComponentId(value);
+  return cityId === null ? { status: "unavailable" } : { status: "owned", cityId };
+}
+
+function expansionCandidate(
+  result: unknown,
+  plotIndex: number
+): CityExpansionSnapshot["candidate"] {
+  if (result == null || typeof result !== "object") return null;
+  const record = result as Record<string, unknown>;
+  if (!Array.isArray(record.Plots) || !Array.isArray(record.ConstructibleTypes)) return null;
+  const index = record.Plots.findIndex((candidatePlotIndex) => candidatePlotIndex === plotIndex);
+  if (index < 0 || index >= record.ConstructibleTypes.length) return null;
+  const constructibleType = record.ConstructibleTypes[index];
+  if (constructibleType === undefined) return null;
+  return {
+    plotIndex,
+    constructibleType: snapshotJsonResult(constructibleType, "EXPAND ConstructibleTypes entry"),
+  };
+}
+
+function normalizeCityExpansionInput(input: CityExpansionInput): CityExpansionInput {
+  const cityId = toComponentId(input.cityId);
+  if (cityId == null) throw new Error("Population placement cityId must be a ComponentID.");
+  requirePlotCoordinate(input.destination.x, "destination.x");
+  requirePlotCoordinate(input.destination.y, "destination.y");
+  return {
+    cityId,
+    destination: {
+      x: input.destination.x,
+      y: input.destination.y,
+    },
+  };
+}
+
+function requireLocalPlayerId(target: Civ7GameUiPopulationTarget): number {
+  const localPlayerId = target.GameContext?.localPlayerID;
+  if (!Number.isInteger(localPlayerId)) {
+    throw new Error("GameContext.localPlayerID is unavailable.");
+  }
+  return localPlayerId as number;
+}
+
+function requirePlotIndex(value: number, label: string): void {
+  if (!Number.isInteger(value) || value < 0 || value > 1_000_000) {
+    throw new Error(`${label} must be an integer between 0 and 1000000.`);
+  }
+}
+
+function requirePlotCoordinate(value: number, label: string): void {
+  requirePlotIndex(value, label);
 }
 
 function cityReadyToPlacePopulation(city: unknown): unknown {
@@ -465,105 +461,14 @@ function cityReadyToPlacePopulation(city: unknown): unknown {
     : null;
 }
 
-function cityWorkerCap(city: unknown): unknown {
+function cityWorkerPlacementInfo(city: unknown): unknown[] | null {
   if (city == null || typeof city !== "object") return null;
   const workers = (city as Record<string, unknown>).Workers;
   if (workers == null || typeof workers !== "object") return null;
-  const value = (workers as Record<string, unknown>).getCityWorkerCap;
-  return typeof value === "function" ? value.call(workers) : null;
-}
-
-function cityPlacementInfo(
-  city: unknown
-): Array<Readonly<{ plotIndex: unknown; isBlocked: boolean }>> {
-  if (city == null || typeof city !== "object") return [];
-  const workers = (city as Record<string, unknown>).Workers;
-  if (workers == null || typeof workers !== "object") return [];
-  const value = (workers as Record<string, unknown>).GetAllPlacementInfo;
-  const placementInfo = typeof value === "function" ? value.call(workers) : [];
-  if (!Array.isArray(placementInfo)) return [];
-  return placementInfo.map((info) => {
-    const record =
-      info != null && typeof info === "object" ? (info as Record<string, unknown>) : {};
-    return {
-      plotIndex: record.PlotIndex ?? record.plotIndex ?? null,
-      isBlocked: record.IsBlocked === true || record.isBlocked === true,
-    };
-  });
-}
-
-function classifyPopulationPostcondition(
-  input: Readonly<{
-    sent: boolean;
-    before: PopulationValidation;
-    after: PopulationValidation;
-    readyCleared: boolean;
-    placementStateChanged: boolean;
-  }>
-): PopulationPostcondition["classification"] {
-  if (!input.sent) return "not-sent";
-  if (input.readyCleared) return "population-ready-cleared";
-  if (input.placementStateChanged) return "placement-state-changed";
-  if (
-    input.before.valid !== input.after.valid ||
-    stableJson(input.before.result) !== stableJson(input.after.result)
-  ) {
-    return "validation-changed";
-  }
-  return "no-state-change";
-}
-
-function populationPostconditionReason(
-  classification: PopulationPostcondition["classification"]
-): string {
-  switch (classification) {
-    case "not-sent":
-      return "The placement request was not sent, so no population-placement postcondition can be verified.";
-    case "population-ready-cleared":
-      return "Growth.isReadyToPlacePopulation cleared after the placement request.";
-    case "placement-state-changed":
-      return "The city population placement snapshot changed after the request, but readiness did not clearly clear.";
-    case "validation-changed":
-      return "The placement validation result changed after the request.";
-    case "no-state-change":
-      return "The placement request was sent, but no observed population-placement, city, or validation state changed.";
-  }
-}
-
-function populationReadyCleared(before: PopulationSnapshot, after: PopulationSnapshot): boolean {
-  return (
-    before.isReadyToPlacePopulation.ok &&
-    before.isReadyToPlacePopulation.value === true &&
-    after.isReadyToPlacePopulation.ok &&
-    after.isReadyToPlacePopulation.value === false
-  );
-}
-
-function populationSnapshotChanged(before: PopulationSnapshot, after: PopulationSnapshot): boolean {
-  return (
-    stableJson(probeValue(before.city)) !== stableJson(probeValue(after.city)) ||
-    stableJson(probeValue(before.isReadyToPlacePopulation)) !==
-      stableJson(probeValue(after.isReadyToPlacePopulation)) ||
-    stableJson(probeValue(before.cityWorkerCap)) !== stableJson(probeValue(after.cityWorkerCap)) ||
-    stableJson(probeValue(before.workablePlotIndexes)) !==
-      stableJson(probeValue(after.workablePlotIndexes)) ||
-    stableJson(probeValue(before.blockedPlotIndexes)) !==
-      stableJson(probeValue(after.blockedPlotIndexes)) ||
-    stableJson(probeValue(before.expansionPlotIndexes)) !==
-      stableJson(probeValue(after.expansionPlotIndexes))
-  );
-}
-
-function successFromCanStart(result: unknown): boolean {
-  if (result === true) return true;
-  if (result === false || result == null) return false;
-  if (typeof result === "object") {
-    const record = result as Record<string, unknown>;
-    if (record.Success !== undefined) return record.Success === true;
-    if (record.success !== undefined) return record.success === true;
-    if (record.canStart !== undefined) return record.canStart === true;
-  }
-  return Boolean(result);
+  const read = (workers as Record<string, unknown>).GetAllPlacementInfo;
+  if (typeof read !== "function") return null;
+  const result = read.call(workers);
+  return Array.isArray(result) ? result : null;
 }
 
 function toComponentId(value: unknown): Civ7ControlOrpcComponentId | null {
@@ -577,41 +482,33 @@ function toComponentId(value: unknown): Civ7ControlOrpcComponentId | null {
 }
 
 function numericField(
-  record: Record<string, unknown>,
+  record: Readonly<Record<string, unknown>>,
   lower: string,
   upper: string
 ): number | null {
-  if (typeof record[lower] === "number") return record[lower] as number;
-  if (typeof record[upper] === "number") return record[upper] as number;
-  return null;
+  const lowerValue = record[lower];
+  if (typeof lowerValue === "number" && Number.isFinite(lowerValue)) return lowerValue;
+  const upperValue = record[upper];
+  return typeof upperValue === "number" && Number.isFinite(upperValue) ? upperValue : null;
 }
 
-function safeValue<T>(fn: () => T | undefined, fallback: T): T {
-  try {
-    return fn() ?? fallback;
-  } catch {
-    return fallback;
-  }
+function snapshotJsonResult<T>(value: unknown, label: string): T {
+  const serialized = JSON.stringify(value);
+  if (serialized === undefined) throw new Error(`${label} returned non-JSON evidence.`);
+  return JSON.parse(serialized) as T;
 }
 
-function probe<T>(fn: () => T): RuntimeProbe<T> {
-  try {
-    return { ok: true, value: fn() };
-  } catch (err) {
-    return { ok: false, error: String(err) };
-  }
-}
-
-function probeValue<T>(probe: RuntimeProbe<T> | undefined): T | undefined {
-  return probe?.ok ? probe.value : undefined;
-}
-
-function stableJson(value: unknown): string {
-  if (value == null || typeof value !== "object") return JSON.stringify(value);
-  if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`;
-  const record = value as Record<string, unknown>;
-  return `{${Object.keys(record)
-    .sort()
-    .map((key) => `${JSON.stringify(key)}:${stableJson(record[key])}`)
-    .join(",")}}`;
+function populationDispatchError(
+  cause: unknown,
+  dispatchStatus: "not-dispatched" | "dispatched"
+): Civ7DirectControlErrorShape {
+  const message = cause instanceof Error ? cause.message : String(cause);
+  const error = new Error(message, { cause }) as Error & {
+    name: "Civ7DirectControlError";
+  };
+  error.name = "Civ7DirectControlError";
+  return Object.assign(error, {
+    code: "command-failed" as const,
+    dispatchStatus,
+  });
 }

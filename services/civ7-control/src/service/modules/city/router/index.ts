@@ -1,23 +1,27 @@
-import { populationPlaceRequest } from "./population-place-request";
-import { productionChoiceRequest } from "./production-choice-request";
-import { townFocusRequest } from "./town-focus-request";
+import { populationPlace } from "./population-placement";
+import { productionChoice } from "./production-choice";
+import { townFocus } from "./town-focus";
 export const router = {
   population: {
     place: {
-      request: populationPlaceRequest,
+      check: populationPlace.check,
+      request: populationPlace.request,
     },
   },
   production: {
     choice: {
-      request: productionChoiceRequest,
+      check: productionChoice.check,
+      request: productionChoice.request,
     },
   },
   townFocus: {
     change: {
-      request: townFocusRequest.cityTownFocusChangeRequestProcedure,
+      check: townFocus.change.check,
+      request: townFocus.change.request,
     },
     review: {
-      request: townFocusRequest.cityTownFocusReviewRequestProcedure,
+      check: townFocus.review.check,
+      request: townFocus.review.request,
     },
   },
 };

@@ -1,6 +1,10 @@
 import type { Socket } from "node:net";
 
-import { Civ7DirectControlError } from "../direct-control-error.js";
+import {
+  type Civ7CommandDispatchStatus,
+  Civ7DirectControlError,
+  directControlErrorWithDispatchStatus,
+} from "../direct-control-error.js";
 import { resolveCiv7DirectControlConfig } from "./config.js";
 import { type Civ7TunerFrame, encodeCiv7TunerRequest, parseCiv7TunerFrame } from "./framing.js";
 import { allocateListenerId } from "./listener-id.js";
@@ -184,31 +188,40 @@ export class Civ7DirectControlSession {
     state?: Civ7TunerStateSelection;
     timeoutMs?: number;
   }): Promise<Civ7CommandResult> {
-    const command = options.command.trim();
-    if (!command) {
-      throw new Civ7DirectControlError("command-failed", "Civ7 command must not be empty");
-    }
-    const states = await this.queryStates({ timeoutMs: options.timeoutMs });
-    const stateConnectionEpoch = this.connectionEpoch;
-    const state = selectCiv7TunerState(states, options.state);
-    const response = await this.requestOnConnectionEpoch(
-      `CMD:${state.id}:${command}`,
-      stateConnectionEpoch,
-      options.timeoutMs
-    );
-    const endpoint = this.endpoint;
-    if (!endpoint) {
-      throw new Civ7DirectControlError(
-        "socket-closed",
-        "Civ7 tuner socket closed after command completed"
+    let dispatchStatus: Civ7CommandDispatchStatus = "not-dispatched";
+    try {
+      const command = options.command.trim();
+      if (!command) {
+        throw new Civ7DirectControlError("command-failed", "Civ7 command must not be empty");
+      }
+      const states = await this.queryStates({ timeoutMs: options.timeoutMs });
+      const stateConnectionEpoch = this.connectionEpoch;
+      const state = selectCiv7TunerState(states, options.state);
+      const response = await this.requestOnConnectionEpoch(
+        `CMD:${state.id}:${command}`,
+        stateConnectionEpoch,
+        options.timeoutMs,
+        () => {
+          dispatchStatus = "indeterminate";
+        }
       );
+      dispatchStatus = "dispatched";
+      const endpoint = this.endpoint;
+      if (!endpoint) {
+        throw new Civ7DirectControlError(
+          "socket-closed",
+          "Civ7 tuner socket closed after command completed"
+        );
+      }
+      return {
+        host: endpoint.host,
+        port: endpoint.port,
+        state,
+        output: response.parts,
+      };
+    } catch (cause) {
+      throw directControlErrorWithDispatchStatus(cause, dispatchStatus);
     }
-    return {
-      host: endpoint.host,
-      port: endpoint.port,
-      state,
-      output: response.parts,
-    };
   }
 
   async request(message: string, timeoutMs = this.config.timeoutMs): Promise<Civ7TunerFrame> {
@@ -226,7 +239,8 @@ export class Civ7DirectControlSession {
   private requestOnConnectionEpoch(
     message: string,
     expectedConnectionEpoch: number,
-    timeoutMs = this.config.timeoutMs
+    timeoutMs = this.config.timeoutMs,
+    onWrite?: () => void
   ): Promise<Civ7TunerFrame> {
     const socket = this.socket;
     if (
@@ -245,13 +259,14 @@ export class Civ7DirectControlSession {
         }
       );
     }
-    return this.sendRequest(socket, message, timeoutMs);
+    return this.sendRequest(socket, message, timeoutMs, onWrite);
   }
 
   private async sendRequest(
     socket: Socket,
     message: string,
-    timeoutMs: number
+    timeoutMs: number,
+    onWrite?: () => void
   ): Promise<Civ7TunerFrame> {
     const listenerId = allocateListenerId();
     const response = new Promise<Civ7TunerFrame>((resolve, reject) => {
@@ -268,7 +283,17 @@ export class Civ7DirectControlSession {
       }, timeoutMs);
       this.pending.set(listenerId, { resolve, reject, timer, message });
     });
-    socket.write(encodeCiv7TunerRequest(listenerId, message));
+    try {
+      socket.write(encodeCiv7TunerRequest(listenerId, message));
+      onWrite?.();
+    } catch (cause) {
+      const pending = this.pending.get(listenerId);
+      if (pending) {
+        clearTimeout(pending.timer);
+        this.pending.delete(listenerId);
+      }
+      throw cause;
+    }
     return await response;
   }
 

@@ -4,15 +4,12 @@ import {
   buildDirectControlOptions,
   emitPlayResult,
   parseComponentId,
-  validatePlayOperation,
 } from "../../../adapters/play/direct-control";
 
-const CONSIDER_TOWN_PROJECT = "CONSIDER_TOWN_PROJECT";
-
 export default class GamePlayConsiderTownProject extends Command {
-  static summary = "Validate or close out town project review";
+  static summary = "Check or complete town project review";
   static description =
-    "Wraps city-operation CONSIDER_TOWN_PROJECT, the production panel closeout used after town focus project review.";
+    "Checks or completes a town project review through the Civ7 city control service.";
 
   static examples = [
     '<%= config.bin %> game play consider-town-project --city-id \'{"owner":0,"id":131073,"type":1}\' --json',
@@ -31,7 +28,7 @@ export default class GamePlayConsiderTownProject extends Command {
       required: true,
     }),
     send: Flags.boolean({
-      description: "Send CONSIDER_TOWN_PROJECT after validator success",
+      description: "Complete the town project review after the service precheck",
       default: false,
     }),
     "timeout-ms": Flags.integer({
@@ -48,22 +45,11 @@ export default class GamePlayConsiderTownProject extends Command {
     const { flags } = await this.parse(GamePlayConsiderTownProject);
     const cityId = parseComponentId(flags["city-id"], "city-id");
     const options = buildDirectControlOptions(flags);
-    if (flags.send) {
-      const client = createCiv7GameControlClient({
-        endpointDefaults: options,
-      });
-      const result = await client.city.townFocus.review.request({ cityId });
-
-      emitPlayResult(this.log.bind(this), flags.json, result);
-      return;
-    }
-
-    const input = {
-      operationType: CONSIDER_TOWN_PROJECT,
-      cityId,
-      args: {},
-    };
-    const result = await validatePlayOperation("city-operation", input, options);
+    const client = createCiv7GameControlClient({ endpointDefaults: options });
+    const input = { cityId };
+    const result = flags.send
+      ? await client.city.townFocus.review.request(input)
+      : await client.city.townFocus.review.check(input);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }

@@ -1,8 +1,9 @@
-import { commandRequest } from "./command-request";
+import { command } from "./command";
 import { targetActionRequest } from "./target-action-request";
 export const router = {
   resettle: {
-    request: commandRequest.unitResettleRequestProcedure,
+    check: command.unitResettleCheckProcedure,
+    request: command.unitResettleRequestProcedure,
   },
   target: {
     action: {
@@ -10,6 +11,7 @@ export const router = {
     },
   },
   upgrade: {
-    request: commandRequest.unitUpgradeRequestProcedure,
+    check: command.unitUpgradeCheckProcedure,
+    request: command.unitUpgradeRequestProcedure,
   },
 };

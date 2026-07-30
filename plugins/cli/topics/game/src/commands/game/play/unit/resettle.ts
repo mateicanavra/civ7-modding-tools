@@ -4,15 +4,12 @@ import {
   buildDirectControlOptions,
   emitPlayResult,
   parseComponentId,
-  validatePlayOperation,
 } from "../../../../adapters/play/direct-control";
-
-const RESETTLE = "UNITCOMMAND_RESETTLE";
 
 export default class GamePlayUnitResettle extends Command {
   static summary = "Validate or send a population resettle command";
   static description =
-    "Validates unit-command UNITCOMMAND_RESETTLE, or sends population resettlement through the native unit resettle procedure when --send is explicit.";
+    "Checks whether the selected population unit can resettle, or requests resettlement when --send is explicit.";
   static hiddenAliases = ["game:play:resettle-unit"];
 
   static examples = [
@@ -56,25 +53,18 @@ export default class GamePlayUnitResettle extends Command {
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayUnitResettle);
     const input = {
-      operationType: RESETTLE,
       unitId: parseComponentId(flags["unit-id"], "unit-id"),
-      args: {
-        X: flags.x,
-        Y: flags.y,
+      destination: {
+        x: flags.x,
+        y: flags.y,
       },
     };
-    const options = buildDirectControlOptions(flags);
+    const client = createCiv7GameControlClient({
+      endpointDefaults: buildDirectControlOptions(flags),
+    });
     const result = flags.send
-      ? await createCiv7GameControlClient({
-          endpointDefaults: options,
-        }).unit.resettle.request({
-          unitId: input.unitId,
-          destination: {
-            x: flags.x,
-            y: flags.y,
-          },
-        })
-      : await validatePlayOperation("unit-command", input, options);
+      ? await client.unit.resettle.request(input)
+      : await client.unit.resettle.check(input);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }

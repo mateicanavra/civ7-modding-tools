@@ -1,7 +1,27 @@
 # Production Choice Proof Policy Source Slice
 
-Status: implemented source modularization.
+Status: implemented historical source modularization; current ownership
+superseded 2026-07-29.
 Date: 2026-06-04.
+
+## Current Disposition (2026-07-29)
+
+This record preserves the accepted 2026-06-04 slice and its then-current proof.
+The scope, boundary, file paths, and proof commands below are historical rather
+than current path or ownership claims.
+
+The current boundary supersedes that slice:
+
+- `@civ7/direct-control` owns the exact `checkCiv7ProductionChoice` and
+  `sendCiv7ProductionChoice` wire atoms, including command serialization,
+  validator/send adaptation, and raw evidence snapshots;
+- `services/civ7-control` owns `city.production.choice.check` and
+  `city.production.choice.request` orchestration, dispatch uncertainty,
+  bounded post-send checking, production postcondition classification, and
+  no-repeat-after-unverified policy;
+- the former direct-control production request/proof policy,
+  postcondition-policy, and production telemetry paths and their focused tests
+  are retired and are not current authorities.
 
 ## Scope
 

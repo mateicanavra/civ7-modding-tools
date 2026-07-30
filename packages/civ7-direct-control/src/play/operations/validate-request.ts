@@ -4,17 +4,6 @@ import { jsLiteral } from "../../runtime/command-serialization.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7TunerCommand } from "../../session/execute.js";
 import type { Civ7CommandResult, Civ7DirectControlOptions } from "../../session/types.js";
-import { populationPlacementRequestVerified } from "./population-placement-proof.js";
-import {
-  type Civ7PopulationPlacementPostcondition,
-  type Civ7PopulationPlacementPostconditionSnapshot,
-  populationPlacementPostcondition,
-} from "./population-postconditions.js";
-import {
-  type Civ7ProductionPostcondition,
-  type Civ7ProductionPostconditionSnapshot,
-  productionPostconditionFor,
-} from "./production-postconditions.js";
 import { operationRouterSource } from "./router.js";
 import type {
   Civ7OperationFamily,
@@ -34,8 +23,6 @@ export type Civ7OperationRequestResult = Readonly<{
   sent: boolean;
   verified: boolean;
   postcondition?: Civ7UnitOperationPostcondition;
-  populationPostcondition?: Civ7PopulationPlacementPostcondition;
-  productionPostcondition?: Civ7ProductionPostcondition;
 }>;
 
 type OperationRequestDependencies = Readonly<{
@@ -45,6 +32,8 @@ type OperationRequestDependencies = Readonly<{
   jsonPayloadFromCommandResult: <T extends object>(result: Civ7CommandResult, label: string) => T;
   jsLiteral: (value: unknown) => string;
 }>;
+
+type Civ7OperationRequestFamily = Exclude<Civ7OperationFamily, "unit-command">;
 
 export async function canStartCiv7UnitOperation(
   input: Civ7OperationInput & Readonly<{ unitId: Civ7ComponentId }>,
@@ -60,22 +49,6 @@ export async function requestCiv7UnitOperation(
   dependencies: OperationRequestDependencies = defaultOperationRequestDependencies
 ): Promise<Civ7OperationRequestResult> {
   return await requestCiv7Operation("unit-operation", input, options, dependencies);
-}
-
-export async function canStartCiv7UnitCommand(
-  input: Civ7OperationInput & Readonly<{ unitId: Civ7ComponentId }>,
-  options: Civ7DirectControlOptions = {},
-  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies
-): Promise<Civ7OperationValidationResult> {
-  return await validateCiv7Operation("unit-command", input, options, dependencies);
-}
-
-export async function requestCiv7UnitCommand(
-  input: Civ7OperationInput & Readonly<{ unitId: Civ7ComponentId }>,
-  options: Civ7DirectControlOptions = {},
-  dependencies: OperationRequestDependencies = defaultOperationRequestDependencies
-): Promise<Civ7OperationRequestResult> {
-  return await requestCiv7Operation("unit-command", input, options, dependencies);
 }
 
 export async function canStartCiv7CityOperation(
@@ -127,7 +100,7 @@ export async function requestCiv7PlayerOperation(
 }
 
 function buildOperationValidationCommand(
-  family: Civ7OperationFamily,
+  family: Civ7OperationRequestFamily,
   input: Civ7OperationInput,
   dependencies: Pick<OperationRequestDependencies, "jsLiteral">
 ): string {
@@ -138,7 +111,7 @@ function buildOperationValidationCommand(
 }
 
 function buildOperationRequestCommand(
-  family: Civ7OperationFamily,
+  family: Civ7OperationRequestFamily,
   input: Civ7OperationInput,
   dependencies: Pick<OperationRequestDependencies, "jsLiteral">
 ): string {
@@ -149,7 +122,7 @@ function buildOperationRequestCommand(
 }
 
 async function validateCiv7Operation(
-  family: Civ7OperationFamily,
+  family: Civ7OperationRequestFamily,
   input: Civ7OperationInput,
   options: Civ7DirectControlOptions,
   dependencies: OperationRequestDependencies
@@ -166,7 +139,7 @@ async function validateCiv7Operation(
 }
 
 async function requestCiv7Operation(
-  family: Civ7OperationFamily,
+  family: Civ7OperationRequestFamily,
   input: Civ7OperationInput,
   options: Civ7DirectControlOptions,
   dependencies: OperationRequestDependencies
@@ -198,10 +171,6 @@ async function requestCiv7Operation(
     sent: boolean;
     beforePostcondition?: Civ7UnitOperationPostconditionSnapshot;
     afterPostcondition?: Civ7UnitOperationPostconditionSnapshot;
-    beforePopulationPostcondition?: Civ7PopulationPlacementPostconditionSnapshot;
-    afterPopulationPostcondition?: Civ7PopulationPlacementPostconditionSnapshot;
-    beforeProductionPostcondition?: Civ7ProductionPostconditionSnapshot;
-    afterProductionPostcondition?: Civ7ProductionPostconditionSnapshot;
   }>(command, "Civ7 operation request");
   const after = await validateCiv7Operation(family, input, options, dependencies);
   const sent = sentPayload.sent === true;
@@ -214,34 +183,10 @@ async function requestCiv7Operation(
     sentPayload.beforePostcondition,
     sentPayload.afterPostcondition
   );
-  const populationPostcondition = populationPlacementPostcondition(
-    family,
-    input,
-    sent,
-    before,
-    after,
-    sentPayload.beforePopulationPostcondition,
-    sentPayload.afterPopulationPostcondition
-  );
-  const productionPostcondition = productionPostconditionFor(
-    family,
-    input,
-    sent,
-    before,
-    after,
-    sentPayload.beforeProductionPostcondition,
-    sentPayload.afterProductionPostcondition
-  );
   const operationVerified = postcondition
     ? postcondition.classification !== "not-sent" &&
       postcondition.classification !== "no-state-change"
-    : populationPostcondition
-      ? populationPlacementRequestVerified(populationPostcondition.classification)
-      : productionPostcondition
-        ? productionPostcondition.classification !== "not-sent" &&
-          productionPostcondition.classification !== "no-state-change" &&
-          productionPostcondition.classification !== "production-state-changed-blocker-still-live"
-        : command.output.length > 0 && sent;
+    : command.output.length > 0 && sent;
   return {
     before,
     command,
@@ -249,14 +194,68 @@ async function requestCiv7Operation(
     sent,
     verified: operationVerified,
     postcondition,
-    populationPostcondition,
-    productionPostcondition,
   };
 }
 
-function validateOperationInput(family: Civ7OperationFamily, input: Civ7OperationInput): void {
+function validateOperationInput(
+  family: Civ7OperationRequestFamily,
+  input: Civ7OperationInput
+): void {
   validateIdentifier(input.operationType, "operationType");
-  if ((family === "unit-operation" || family === "unit-command") && !("unitId" in input)) {
+  const operationType = canonicalOperationType(input.operationType);
+  if (family === "city-operation" && operationType === "BUILD") {
+    throw new Civ7DirectControlError(
+      "command-failed",
+      "city-operation BUILD must use the exact production choice check/send atoms",
+      { dispatchStatus: "not-dispatched" }
+    );
+  }
+  if (family === "city-command" && operationType === "CHANGE_GROWTH_MODE") {
+    throw new Civ7DirectControlError(
+      "command-failed",
+      "city-command CHANGE_GROWTH_MODE must use the exact town focus change check/send atoms",
+      { dispatchStatus: "not-dispatched" }
+    );
+  }
+  if (family === "city-command" && operationType === "EXPAND") {
+    throw new Civ7DirectControlError(
+      "command-failed",
+      "city-command EXPAND must use the exact city expansion check/send atoms",
+      { dispatchStatus: "not-dispatched" }
+    );
+  }
+  if (family === "player-operation" && operationType === "ASSIGN_WORKER") {
+    throw new Civ7DirectControlError(
+      "command-failed",
+      "player-operation ASSIGN_WORKER must use the exact worker assignment check/send atoms",
+      { dispatchStatus: "not-dispatched" }
+    );
+  }
+  if (
+    family === "player-operation" &&
+    (operationType === "CHANGE_GOVERNMENT" || operationType === "CHOOSE_GOLDEN_AGE")
+  ) {
+    throw new Civ7DirectControlError(
+      "command-failed",
+      `player-operation ${operationType} must use the exact government-domain choice check/send atoms`,
+      { dispatchStatus: "not-dispatched" }
+    );
+  }
+  if (family === "player-operation" && operationType === "CHOOSE_NARRATIVE_STORY_DIRECTION") {
+    throw new Civ7DirectControlError(
+      "command-failed",
+      "player-operation CHOOSE_NARRATIVE_STORY_DIRECTION must use the exact narrative choice check/send atoms",
+      { dispatchStatus: "not-dispatched" }
+    );
+  }
+  if (family === "city-operation" && operationType === "CONSIDER_TOWN_PROJECT") {
+    throw new Civ7DirectControlError(
+      "command-failed",
+      "city-operation CONSIDER_TOWN_PROJECT must use the exact town focus review check/send atoms",
+      { dispatchStatus: "not-dispatched" }
+    );
+  }
+  if (family === "unit-operation" && !("unitId" in input)) {
     throw new Civ7DirectControlError("command-failed", `${family} requires unitId`);
   }
   if ((family === "city-operation" || family === "city-command") && !("cityId" in input)) {
@@ -265,6 +264,13 @@ function validateOperationInput(family: Civ7OperationFamily, input: Civ7Operatio
   if (family === "player-operation" && !("playerId" in input)) {
     throw new Civ7DirectControlError("command-failed", "player-operation requires playerId");
   }
+}
+
+function canonicalOperationType(operationType: string): string {
+  return operationType.replace(
+    /^(?:UNITOPERATION_|UNITCOMMAND_|CITYOPERATION_|CITYCOMMAND_|PLAYEROPERATION_)/,
+    ""
+  );
 }
 
 function validateIdentifier(value: string, label: string): string {

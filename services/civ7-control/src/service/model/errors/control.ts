@@ -477,7 +477,9 @@ export class Civ7UnitTargetActionUnavailableError extends ORPCTaggedError(
 export const Civ7UnitRequestUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Union([
+      Type.Literal("unit.upgrade.check"),
       Type.Literal("unit.upgrade.request"),
+      Type.Literal("unit.resettle.check"),
       Type.Literal("unit.resettle.request"),
     ]),
     source: Type.Literal("direct-control-facade"),
@@ -502,7 +504,10 @@ export class Civ7UnitRequestUnavailableError extends ORPCTaggedError(
 
 export const Civ7NarrativeChoiceUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("narrative.choice.request"),
+    procedureKey: Type.Union([
+      Type.Literal("narrative.choice.check"),
+      Type.Literal("narrative.choice.request"),
+    ]),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
@@ -517,7 +522,7 @@ export class Civ7NarrativeChoiceUnavailableError extends ORPCTaggedError(
   "Civ7NarrativeChoiceUnavailableError",
   {
     code: "NARRATIVE_CHOICE_UNAVAILABLE",
-    message: "Direct-control narrative choice request failed.",
+    message: "Direct-control narrative choice operation failed.",
     schema: toStandardSchema(Civ7NarrativeChoiceUnavailableErrorDataSchema),
     status: 503,
   }
@@ -572,7 +577,9 @@ export class Civ7FirstMeetResponseUnavailableError extends ORPCTaggedError(
 export const Civ7GovernmentChoiceUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Union([
+      Type.Literal("government.choice.check"),
       Type.Literal("government.choice.request"),
+      Type.Literal("government.celebration.choice.check"),
       Type.Literal("government.celebration.choice.request"),
     ]),
     source: Type.Literal("direct-control-facade"),
@@ -589,7 +596,7 @@ export class Civ7GovernmentChoiceUnavailableError extends ORPCTaggedError(
   "Civ7GovernmentChoiceUnavailableError",
   {
     code: "GOVERNMENT_CHOICE_UNAVAILABLE",
-    message: "Direct-control government-domain choice request failed.",
+    message: "Direct-control government-domain choice operation failed.",
     schema: toStandardSchema(Civ7GovernmentChoiceUnavailableErrorDataSchema),
     status: 503,
   }
@@ -723,7 +730,10 @@ export class Civ7ProgressionTargetUnavailableError extends ORPCTaggedError(
 
 export const Civ7TurnCompletionUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("turn.complete.request"),
+    procedureKey: Type.Union([
+      Type.Literal("turn.complete.check"),
+      Type.Literal("turn.complete.request"),
+    ]),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
@@ -738,7 +748,7 @@ export class Civ7TurnCompletionUnavailableError extends ORPCTaggedError(
   "Civ7TurnCompletionUnavailableError",
   {
     code: "TURN_COMPLETION_UNAVAILABLE",
-    message: "Direct-control turn completion request failed.",
+    message: "Turn completion service failed.",
     schema: toStandardSchema(Civ7TurnCompletionUnavailableErrorDataSchema),
     status: 503,
   }
@@ -855,7 +865,10 @@ export class Civ7MutationProofBoundaryInvalidError extends ORPCTaggedError(
 
 export const Civ7ProductionChoiceUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("city.production.choice.request"),
+    procedureKey: Type.Union([
+      Type.Literal("city.production.choice.check"),
+      Type.Literal("city.production.choice.request"),
+    ]),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
@@ -870,7 +883,7 @@ export class Civ7ProductionChoiceUnavailableError extends ORPCTaggedError(
   "Civ7ProductionChoiceUnavailableError",
   {
     code: "PRODUCTION_CHOICE_UNAVAILABLE",
-    message: "Direct-control production choice request failed.",
+    message: "Production choice validation failed.",
     schema: toStandardSchema(Civ7ProductionChoiceUnavailableErrorDataSchema),
     status: 503,
   }
@@ -879,7 +892,9 @@ export class Civ7ProductionChoiceUnavailableError extends ORPCTaggedError(
 export const Civ7TownFocusUnavailableErrorDataSchema = Type.Object(
   {
     procedureKey: Type.Union([
+      Type.Literal("city.townFocus.change.check"),
       Type.Literal("city.townFocus.change.request"),
+      Type.Literal("city.townFocus.review.check"),
       Type.Literal("city.townFocus.review.request"),
     ]),
     source: Type.Literal("direct-control-facade"),
@@ -896,7 +911,7 @@ export class Civ7TownFocusUnavailableError extends ORPCTaggedError(
   "Civ7TownFocusUnavailableError",
   {
     code: "TOWN_FOCUS_UNAVAILABLE",
-    message: "Direct-control town focus request failed.",
+    message: "Town focus control is unavailable.",
     schema: toStandardSchema(Civ7TownFocusUnavailableErrorDataSchema),
     status: 503,
   }
@@ -904,7 +919,10 @@ export class Civ7TownFocusUnavailableError extends ORPCTaggedError(
 
 export const Civ7PopulationPlacementUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("city.population.place.request"),
+    procedureKey: Type.Union([
+      Type.Literal("city.population.place.check"),
+      Type.Literal("city.population.place.request"),
+    ]),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,

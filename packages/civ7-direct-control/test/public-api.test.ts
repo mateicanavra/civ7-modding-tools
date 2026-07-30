@@ -40,8 +40,11 @@ import {
   Civ7PlayNotificationViewResultSchema,
   Civ7PlotSnapshotInputSchema,
   Civ7PlotSnapshotResultSchema,
-  Civ7ProductionChoiceRequestInputSchema,
-  Civ7ProductionChoiceResultSchema,
+  Civ7ProductionChoiceCheckResultSchema,
+  Civ7ProductionChoiceInputSchema,
+  Civ7ProductionChoiceSendResultSchema,
+  Civ7ProductionChoiceSnapshotSchema,
+  Civ7ProductionChoiceValidationResultSchema,
   Civ7ProgressDashboardInputSchema,
   Civ7ProgressDashboardResultSchema,
   Civ7ReadyCityViewInputSchema,
@@ -56,8 +59,11 @@ import {
   Civ7TraditionsViewResultSchema,
   Civ7TunerHealthInputSchema,
   Civ7TunerHealthResultSchema,
-  Civ7TurnCompletionStatusInputSchema,
-  Civ7TurnCompletionStatusResultSchema,
+  Civ7TurnCompletionCheckResultSchema,
+  Civ7TurnCompletionInputSchema,
+  Civ7TurnCompletionSendInputSchema,
+  Civ7TurnCompletionSendResultSchema,
+  Civ7TurnCompletionSnapshotSchema,
   Civ7UnitMovePreviewInputSchema,
   Civ7UnitMovePreviewResultSchema,
   Civ7UnitSummaryInputSchema,
@@ -538,31 +544,34 @@ describe("Civ7 direct control public API", () => {
     });
   });
 
-  test("exports turn-completion status schemas from the public facade", () => {
-    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, {})).toBe(true);
-    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { host: "127.0.0.1" })).toBe(false);
-    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { port: 4318 })).toBe(false);
-    expect(Value.Check(Civ7TurnCompletionStatusInputSchema, { state: { role: "app-ui" } })).toBe(
-      false
-    );
+  test("exports exact turn-completion atom schemas from the public facade", () => {
+    const snapshot = {
+      localPlayerId: 0,
+      turn: { ok: true, value: 12 },
+      hasSentTurnComplete: { ok: true, value: false },
+      canEndTurn: { ok: true, value: true },
+    };
+
+    expect(Value.Check(Civ7TurnCompletionInputSchema, {})).toBe(true);
+    expect(Value.Check(Civ7TurnCompletionInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(Value.Check(Civ7TurnCompletionSnapshotSchema, snapshot)).toBe(true);
+    expect(Value.Check(Civ7TurnCompletionCheckResultSchema, { snapshot })).toBe(true);
+    expect(Value.Check(Civ7TurnCompletionSendInputSchema, { expected: snapshot })).toBe(true);
     expect(
-      Value.Check(Civ7TurnCompletionStatusInputSchema, {
-        rawCommand: "GameContext.sendTurnComplete()",
+      Value.Check(Civ7TurnCompletionSendResultSchema, {
+        sent: true,
+        before: snapshot,
+        after: snapshot,
       })
-    ).toBe(false);
-    expect(Civ7TurnCompletionStatusResultSchema).toMatchObject({
+    ).toBe(true);
+    expect(Civ7TurnCompletionSnapshotSchema).toMatchObject({
       type: "object",
       additionalProperties: false,
       required: expect.arrayContaining([
-        "host",
-        "port",
-        "state",
         "localPlayerId",
         "turn",
         "hasSentTurnComplete",
         "canEndTurn",
-        "blocker",
-        "firstReadyUnitId",
       ]),
     });
   });
@@ -835,55 +844,96 @@ describe("Civ7 direct control public API", () => {
     });
   });
 
-  test("exports production-choice request schemas from the public facade", () => {
+  test("exports exact production-choice wire schemas from the public facade", () => {
     expect(
-      Value.Check(Civ7ProductionChoiceRequestInputSchema, {
+      Value.Check(Civ7ProductionChoiceInputSchema, {
         cityId: { owner: 0, id: 65536, type: 1 },
         args: { ConstructibleType: 713967338, X: 22, Y: 31 },
       })
     ).toBe(true);
     expect(
-      Value.Check(Civ7ProductionChoiceRequestInputSchema, {
+      Value.Check(Civ7ProductionChoiceInputSchema, {
         cityId: { owner: 0, id: 65536, type: 1 },
         args: { UnitType: 102, ConstructibleType: 713967338 },
       })
     ).toBe(false);
     expect(
-      Value.Check(Civ7ProductionChoiceRequestInputSchema, {
+      Value.Check(Civ7ProductionChoiceInputSchema, {
         cityId: { owner: 0, id: 65536, type: 1 },
         args: { ConstructibleType: 713967338 },
         rawCommand: "Game.CityOperations.sendRequest(...)",
       })
     ).toBe(false);
+    const cityId = { owner: 0, id: 65536, type: 1 };
+    const snapshot = {
+      cityId,
+      city: { ok: true, value: { id: cityId, observedCityId: cityId } },
+      buildQueue: {
+        ok: true,
+        value: {
+          currentProductionTypeHash: 713967338,
+          previousProductionTypeHash: null,
+          productionProgress: 12,
+          turnsLeftForRequestedItem: 4,
+          queueLength: 1,
+        },
+      },
+      blocker: { ok: true, value: 1090224621 },
+      blockingProductionNotification: {
+        ok: true,
+        value: {
+          id: { owner: 0, id: 6, type: 20 },
+          type: 1090224621,
+          typeName: "NOTIFICATION_CHOOSE_CITY_PRODUCTION",
+          target: cityId,
+        },
+      },
+    };
     expect(
-      Value.Check(Civ7ProductionChoiceResultSchema, {
-        before: {
-          host: "127.0.0.1",
-          port: 4318,
-          state: { id: "65535", name: "App UI" },
-          family: "city-operation",
-          operationType: "BUILD",
-          enumValue: "BUILD",
-          target: { cityId: { owner: 0, id: 65536, type: 1 } },
-          args: { ConstructibleType: 713967338 },
-          valid: true,
-          result: { Success: true },
-        },
-        after: {
-          host: "127.0.0.1",
-          port: 4318,
-          state: { id: "65535", name: "App UI" },
-          family: "city-operation",
-          operationType: "BUILD",
-          enumValue: "BUILD",
-          target: { cityId: { owner: 0, id: 65536, type: 1 } },
-          args: { ConstructibleType: 713967338 },
-          valid: true,
-          result: { Success: true },
-        },
+      Value.Check(Civ7ProductionChoiceCheckResultSchema, {
+        valid: true,
+        result: { Success: true },
+        snapshot,
+      })
+    ).toBe(true);
+    expect(Value.Check(Civ7ProductionChoiceSnapshotSchema, snapshot)).toBe(true);
+    expect(
+      Value.Check(Civ7ProductionChoiceValidationResultSchema, {
+        valid: true,
+        result: { Success: true },
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(Civ7ProductionChoiceSendResultSchema, {
         sent: true,
+        validation: { valid: true, result: { Success: true } },
+        before: snapshot,
+        after: snapshot,
+      })
+    ).toBe(true);
+    expect(
+      Value.Check(Civ7ProductionChoiceSendResultSchema, {
+        sent: true,
+        validation: { valid: false, result: { Success: false } },
+        before: snapshot,
+        after: snapshot,
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7ProductionChoiceSendResultSchema, {
+        sent: false,
+        validation: { valid: true, result: { Success: true } },
+        before: snapshot,
+        after: snapshot,
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(Civ7ProductionChoiceSendResultSchema, {
+        sent: true,
+        validation: { valid: true, result: { Success: true } },
+        before: snapshot,
+        after: snapshot,
         verified: true,
-        command: { output: ["{}"] },
       })
     ).toBe(false);
   });

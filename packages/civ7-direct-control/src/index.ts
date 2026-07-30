@@ -42,7 +42,10 @@ export {
   Civ7ComponentIdSchema,
   isCiv7ComponentId,
 } from "./civ7-component-id.js";
-export type { Civ7DirectControlErrorCode } from "./direct-control-error.js";
+export type {
+  Civ7CommandDispatchStatus,
+  Civ7DirectControlErrorCode,
+} from "./direct-control-error.js";
 export { Civ7DirectControlError } from "./direct-control-error.js";
 export type {
   Civ7AutoplayActionResult,
@@ -62,34 +65,113 @@ export {
   stopCiv7Autoplay,
 } from "./play/autoplay.js";
 export type {
-  Civ7TownFocusChangeInput,
-  Civ7TownFocusPostcondition,
-  Civ7TownFocusPostconditionClassification,
-  Civ7TownFocusRequestInput,
-  Civ7TownFocusRequestKind,
-  Civ7TownFocusRequestResult,
-  Civ7TownFocusReviewInput,
-} from "./play/city/town-focus-request.js";
+  Civ7CityExpansionCandidate,
+  Civ7CityExpansionCheckResult,
+  Civ7CityExpansionInput,
+  Civ7CityExpansionOwnership,
+  Civ7CityExpansionSendResult,
+  Civ7CityExpansionSnapshot,
+  Civ7CityExpansionValidationResult,
+  Civ7WorkerAssignmentCheckResult,
+  Civ7WorkerAssignmentInput,
+  Civ7WorkerAssignmentSendResult,
+  Civ7WorkerAssignmentSnapshot,
+  Civ7WorkerAssignmentValidationResult,
+} from "./play/city/population-placement.js";
 export {
-  requestCiv7TownFocus,
-  requestCiv7TownFocusChange,
-  requestCiv7TownFocusReviewCloseout,
-} from "./play/city/town-focus-request.js";
+  Civ7CityExpansionCandidateSchema,
+  Civ7CityExpansionCheckResultSchema,
+  Civ7CityExpansionInputSchema,
+  Civ7CityExpansionOwnershipSchema,
+  Civ7CityExpansionSendResultSchema,
+  Civ7CityExpansionSnapshotSchema,
+  Civ7CityExpansionValidationResultSchema,
+  Civ7WorkerAssignmentCheckResultSchema,
+  Civ7WorkerAssignmentInputSchema,
+  Civ7WorkerAssignmentSendResultSchema,
+  Civ7WorkerAssignmentSnapshotSchema,
+  Civ7WorkerAssignmentValidationResultSchema,
+  checkCiv7CityExpansion,
+  checkCiv7WorkerAssignment,
+  sendCiv7CityExpansion,
+  sendCiv7WorkerAssignment,
+} from "./play/city/population-placement.js";
 export type {
-  Civ7CelebrationChoiceInput,
-  Civ7GovernmentChoiceInput,
-  Civ7GovernmentChoiceKind,
-  Civ7GovernmentChoicePostcondition,
-  Civ7GovernmentChoicePostconditionClassification,
-  Civ7GovernmentDomainChoiceInput,
-  Civ7GovernmentDomainChoiceResult,
-} from "./play/government/choice-request";
+  Civ7ProductionChoiceCheckResult,
+  Civ7ProductionChoiceInput,
+  Civ7ProductionChoiceSendResult,
+  Civ7ProductionChoiceSnapshot,
+  Civ7ProductionChoiceValidationResult,
+} from "./play/city/production.js";
 export {
-  CIV7_GOVERNMENT_ACTIVATE_ACTION,
-  requestCiv7CelebrationChoice,
-  requestCiv7GovernmentChoice,
-  requestCiv7GovernmentDomainChoice,
-} from "./play/government/choice-request";
+  Civ7ProductionChoiceCheckResultSchema,
+  Civ7ProductionChoiceInputSchema,
+  Civ7ProductionChoiceSendResultSchema,
+  Civ7ProductionChoiceSnapshotSchema,
+  Civ7ProductionChoiceValidationResultSchema,
+  checkCiv7ProductionChoice,
+  sendCiv7ProductionChoice,
+} from "./play/city/production.js";
+export type {
+  Civ7TownFocusChangeCheckResult,
+  Civ7TownFocusChangeInput,
+  Civ7TownFocusChangeSendResult,
+  Civ7TownFocusChangeValidationResult,
+  Civ7TownFocusReviewCheckResult,
+  Civ7TownFocusReviewInput,
+  Civ7TownFocusReviewSendResult,
+  Civ7TownFocusSnapshot,
+} from "./play/city/town-focus.js";
+export {
+  Civ7TownFocusChangeCheckResultSchema,
+  Civ7TownFocusChangeInputSchema,
+  Civ7TownFocusChangeSendResultSchema,
+  Civ7TownFocusChangeValidationResultSchema,
+  Civ7TownFocusReviewCheckResultSchema,
+  Civ7TownFocusReviewInputSchema,
+  Civ7TownFocusReviewSendResultSchema,
+  Civ7TownFocusSnapshotSchema,
+  checkCiv7TownFocusChange,
+  checkCiv7TownFocusReview,
+  sendCiv7TownFocusChange,
+  sendCiv7TownFocusReview,
+} from "./play/city/town-focus.js";
+export type {
+  Civ7CelebrationChoiceCheckResult,
+  Civ7CelebrationChoiceInput,
+  Civ7CelebrationChoiceOption,
+  Civ7CelebrationChoiceSendInput,
+  Civ7CelebrationChoiceSendResult,
+  Civ7CelebrationChoiceSnapshot,
+  Civ7CelebrationChoiceValidationResult,
+  Civ7GovernmentChoiceCheckResult,
+  Civ7GovernmentChoiceInput,
+  Civ7GovernmentChoiceOption,
+  Civ7GovernmentChoiceSendInput,
+  Civ7GovernmentChoiceSendResult,
+  Civ7GovernmentChoiceSnapshot,
+  Civ7GovernmentChoiceValidationResult,
+} from "./play/government/choice.js";
+export {
+  Civ7CelebrationChoiceCheckResultSchema,
+  Civ7CelebrationChoiceInputSchema,
+  Civ7CelebrationChoiceOptionSchema,
+  Civ7CelebrationChoiceSendInputSchema,
+  Civ7CelebrationChoiceSendResultSchema,
+  Civ7CelebrationChoiceSnapshotSchema,
+  Civ7CelebrationChoiceValidationResultSchema,
+  Civ7GovernmentChoiceCheckResultSchema,
+  Civ7GovernmentChoiceInputSchema,
+  Civ7GovernmentChoiceOptionSchema,
+  Civ7GovernmentChoiceSendInputSchema,
+  Civ7GovernmentChoiceSendResultSchema,
+  Civ7GovernmentChoiceSnapshotSchema,
+  Civ7GovernmentChoiceValidationResultSchema,
+  checkCiv7CelebrationChoice,
+  checkCiv7GovernmentChoice,
+  sendCiv7CelebrationChoice,
+  sendCiv7GovernmentChoice,
+} from "./play/government/choice.js";
 export {
   DEFAULT_CIV7_GAMEINFO_LIMIT,
   DEFAULT_CIV7_GAMEINFO_TABLES,
@@ -181,6 +263,24 @@ export {
   releaseCiv7ExploreGrant,
   revealCiv7MapForPlayer,
 } from "./play/map/visibility.js";
+export type {
+  Civ7NarrativeChoiceCheckResult,
+  Civ7NarrativeChoiceInput,
+  Civ7NarrativeChoiceSendInput,
+  Civ7NarrativeChoiceSendResult,
+  Civ7NarrativeChoiceSnapshot,
+  Civ7NarrativeChoiceValidationResult,
+} from "./play/narrative/choice.js";
+export {
+  Civ7NarrativeChoiceCheckResultSchema,
+  Civ7NarrativeChoiceInputSchema,
+  Civ7NarrativeChoiceSendInputSchema,
+  Civ7NarrativeChoiceSendResultSchema,
+  Civ7NarrativeChoiceSnapshotSchema,
+  Civ7NarrativeChoiceValidationResultSchema,
+  checkCiv7NarrativeChoice,
+  sendCiv7NarrativeChoice,
+} from "./play/narrative/choice.js";
 export type {
   Civ7AdvisorWarningViewedInput,
   Civ7AdvisorWarningViewedPostcondition,
@@ -279,50 +379,6 @@ export type {
 } from "./play/operations/first-meet-request";
 export { requestCiv7FirstMeetResponse } from "./play/operations/first-meet-request";
 export type {
-  Civ7NarrativeChoicePostcondition,
-  Civ7NarrativeChoicePostconditionClassification,
-} from "./play/operations/narrative-postconditions.js";
-export type {
-  Civ7NarrativeChoiceCommandPayload,
-  Civ7NarrativeChoiceInput,
-  Civ7NarrativeChoiceResult,
-} from "./play/operations/narrative-request.js";
-export { requestCiv7NarrativeChoice } from "./play/operations/narrative-request.js";
-export type {
-  Civ7PopulationPlacementPostcondition,
-  Civ7PopulationPlacementPostconditionClassification,
-  Civ7PopulationPlacementPostconditionSnapshot,
-} from "./play/operations/population-postconditions.js";
-export type {
-  Civ7ProductionChoiceCommandPayload,
-  Civ7ProductionChoiceInput,
-  Civ7ProductionChoiceRequestInput,
-  Civ7ProductionChoiceResult,
-} from "./play/operations/production-choice.js";
-export {
-  Civ7ProductionChoiceCommandPayloadSchema,
-  Civ7ProductionChoiceInputSchema,
-  Civ7ProductionChoiceRequestInputSchema,
-  Civ7ProductionChoiceResultSchema,
-  requestCiv7ProductionChoice,
-} from "./play/operations/production-choice.js";
-export type { Civ7ProductionChoicePostconditionOutcome } from "./play/operations/production-choice-proof";
-export {
-  productionChoicePostconditionConfirmed,
-  productionChoicePostconditionOutcome,
-  productionChoiceRequestVerified,
-} from "./play/operations/production-choice-proof";
-export type {
-  Civ7ProductionPostcondition,
-  Civ7ProductionPostconditionClassification,
-  Civ7ProductionPostconditionSnapshot,
-} from "./play/operations/production-postconditions.js";
-export {
-  Civ7ProductionPostconditionClassificationSchema,
-  Civ7ProductionPostconditionSchema,
-  Civ7ProductionPostconditionSnapshotSchema,
-} from "./play/operations/production-postconditions.js";
-export type {
   Civ7OperationFamily,
   Civ7OperationInput,
   Civ7OperationTarget,
@@ -355,12 +411,10 @@ export {
   canStartCiv7CityCommand,
   canStartCiv7CityOperation,
   canStartCiv7PlayerOperation,
-  canStartCiv7UnitCommand,
   canStartCiv7UnitOperation,
   requestCiv7CityCommand,
   requestCiv7CityOperation,
   requestCiv7PlayerOperation,
-  requestCiv7UnitCommand,
   requestCiv7UnitOperation,
 } from "./play/operations/validate-request.js";
 export type {
@@ -586,21 +640,37 @@ export {
   getCiv7TargetCandidates,
 } from "./play/tactical/target-candidates.js";
 export type {
-  Civ7TurnCompletionActionResult,
-  Civ7TurnCompletionBlockedResult,
-  Civ7TurnCompletionRequestResult,
-  Civ7TurnCompletionStatusDependencies,
-  Civ7TurnCompletionStatusInput,
-  Civ7TurnCompletionStatusResult,
+  Civ7TurnCompletionCheckResult,
+  Civ7TurnCompletionInput,
+  Civ7TurnCompletionSendInput,
+  Civ7TurnCompletionSendResult,
+  Civ7TurnCompletionSnapshot,
 } from "./play/turn-completion.js";
 export {
-  Civ7TurnCompletionStatusInputSchema,
-  Civ7TurnCompletionStatusResultSchema,
-  getCiv7TurnCompletionStatus,
-  requestCiv7TurnComplete,
-  sendCiv7TurnComplete,
-  sendCiv7TurnUnready,
+  Civ7TurnCompletionCheckResultSchema,
+  Civ7TurnCompletionInputSchema,
+  Civ7TurnCompletionSendInputSchema,
+  Civ7TurnCompletionSendResultSchema,
+  Civ7TurnCompletionSnapshotSchema,
+  checkCiv7TurnCompletion,
+  sendCiv7TurnCompletion,
 } from "./play/turn-completion.js";
+export type {
+  Civ7UnitCommandCheckResult,
+  Civ7UnitCommandSendResult,
+  Civ7UnitCommandSnapshot,
+  Civ7UnitResettleInput,
+  Civ7UnitUpgradeInput,
+} from "./play/unit/commands.js";
+export {
+  Civ7UnitCommandCheckResultSchema,
+  Civ7UnitCommandSendResultSchema,
+  Civ7UnitCommandSnapshotSchema,
+  checkCiv7UnitResettle,
+  checkCiv7UnitUpgrade,
+  sendCiv7UnitResettle,
+  sendCiv7UnitUpgrade,
+} from "./play/unit/commands.js";
 export type {
   CameraFocusDependencies,
   Civ7CameraFocusInput,
@@ -660,10 +730,6 @@ export {
   firstMeetResponseProofOutcome,
   firstMeetResponseProofPostcondition,
 } from "./proof/first-meet-response-proof-policy";
-export {
-  governmentChoiceProofOutcome,
-  governmentChoiceProofPostcondition,
-} from "./proof/government-choice-proof-policy";
 export type {
   FileSnapshot,
   FreshLogMarkerProof,
@@ -675,18 +741,9 @@ export {
   waitForFreshLogMarkers,
 } from "./proof/log-markers.js";
 export {
-  narrativeChoiceProofOutcome,
-  narrativeChoiceProofPostcondition,
-} from "./proof/narrative-choice-proof-policy.js";
-export {
   notificationDismissalProofOutcome,
   notificationDismissalProofPostcondition,
 } from "./proof/notification-dismissal-proof-policy.js";
-export type { Civ7PopulationPlacementProofSource } from "./proof/population-placement-proof-policy.js";
-export {
-  populationPlacementProofOutcome,
-  populationPlacementProofPostcondition,
-} from "./proof/population-placement-proof-policy.js";
 export {
   progressionPlayerChoiceProofOutcome,
   progressionPlayerChoiceProofPostcondition,
@@ -695,20 +752,6 @@ export {
   progressionTargetProofOutcome,
   progressionTargetProofPostcondition,
 } from "./proof/progression-target-proof-policy.js";
-export type {
-  Civ7TownFocusProofOutcome,
-  Civ7TownFocusProofPostcondition,
-} from "./proof/town-focus-proof-policy.js";
-export {
-  townFocusProofOutcome,
-  townFocusProofPostcondition,
-} from "./proof/town-focus-proof-policy.js";
-export type { Civ7TurnCompletionPostconditionClassification } from "./proof/turn-completion-proof-policy";
-export {
-  turnCompletionPostconditionConfirmed,
-  turnCompletionProofOutcome,
-  turnCompletionProofPostcondition,
-} from "./proof/turn-completion-proof-policy";
 export type { Civ7UnitTargetActionVerification } from "./proof/unit-target-proof-policy";
 export {
   unitTargetProofOutcome,

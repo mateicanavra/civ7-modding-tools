@@ -26,7 +26,7 @@ export type Civ7UnitOperationPostconditionSnapshot = Readonly<{
 }>;
 
 export type Civ7UnitOperationPostcondition = Readonly<{
-  family: "unit-operation" | "unit-command";
+  family: "unit-operation";
   operationType: string;
   classification: Civ7UnitOperationPostconditionClassification;
   before?: Civ7UnitOperationPostconditionSnapshot;
@@ -43,7 +43,7 @@ export function unitOperationPostcondition(
   beforeSnapshot: Civ7UnitOperationPostconditionSnapshot | undefined,
   afterSnapshot: Civ7UnitOperationPostconditionSnapshot | undefined
 ): Civ7UnitOperationPostcondition | undefined {
-  if (family !== "unit-operation" && family !== "unit-command") return undefined;
+  if (family !== "unit-operation") return undefined;
   const classification = classifyUnitOperationPostcondition(
     sent,
     before,

@@ -7,7 +7,15 @@ import type {
   Civ7BattlefieldScanResultSchema,
   Civ7CameraFocusInput,
   Civ7CameraFocusResult,
+  Civ7CelebrationChoiceCheckResult,
   Civ7CelebrationChoiceInput,
+  Civ7CelebrationChoiceSendInput,
+  Civ7CelebrationChoiceSendResult,
+  Civ7CelebrationChoiceSnapshot,
+  Civ7CityExpansionCheckResult,
+  Civ7CityExpansionInput,
+  Civ7CityExpansionSendResult,
+  Civ7CityExpansionSnapshot,
   Civ7CleanFrameEnterInput,
   Civ7CleanFrameEnterResult,
   Civ7CleanFrameExitResult,
@@ -28,22 +36,30 @@ import type {
   Civ7ExploreReleaseResult,
   Civ7FirstMeetResponseInput,
   Civ7FirstMeetResponseResult,
+  Civ7GovernmentChoiceCheckResult,
   Civ7GovernmentChoiceInput,
-  Civ7GovernmentDomainChoiceResult,
+  Civ7GovernmentChoiceSendInput,
+  Civ7GovernmentChoiceSendResult,
+  Civ7GovernmentChoiceSnapshot,
   Civ7MapGridInput,
   Civ7MapGridResult,
+  Civ7NarrativeChoiceCheckResult,
   Civ7NarrativeChoiceInput,
-  Civ7NarrativeChoiceResult,
+  Civ7NarrativeChoiceSendInput,
+  Civ7NarrativeChoiceSendResult,
+  Civ7NarrativeChoiceSnapshot,
+  Civ7NarrativeChoiceValidationResult,
   Civ7NotificationDismissalResult,
   Civ7NotificationDismissInput,
-  Civ7OperationRequestResult,
   Civ7PlayableStatusResultSchema,
   Civ7PlayNotificationViewResult,
   Civ7PlotSnapshotInput,
   Civ7PlotSnapshotResult,
-  Civ7PopulationPlacementProofSource,
+  Civ7ProductionChoiceCheckResult,
   Civ7ProductionChoiceInput,
-  Civ7ProductionChoiceResultSchema,
+  Civ7ProductionChoiceSendResult,
+  Civ7ProductionChoiceSnapshot,
+  Civ7ProductionChoiceValidationResult,
   Civ7ProgressDashboardInput,
   Civ7ProgressDashboardResult,
   Civ7ProgressionPlayerChoiceResult,
@@ -53,61 +69,88 @@ import type {
   Civ7ReadyCityViewResultSchema,
   Civ7ReadyUnitViewInput,
   Civ7ReadyUnitViewResultSchema,
+  Civ7RuntimeProbe,
   Civ7SettlementRecommendationInput,
   Civ7SettlementRecommendationResultSchema,
   Civ7TargetCandidatesInput,
   Civ7TargetCandidatesResultSchema,
   Civ7TechnologyChoiceCloseoutInput,
   Civ7TechnologyChoiceCloseoutResult,
+  Civ7TownFocusChangeCheckResult,
   Civ7TownFocusChangeInput,
-  Civ7TownFocusRequestResult,
+  Civ7TownFocusChangeSendResult,
+  Civ7TownFocusReviewCheckResult,
   Civ7TownFocusReviewInput,
+  Civ7TownFocusReviewSendResult,
+  Civ7TownFocusSnapshot,
   Civ7TraditionChangeInput,
   Civ7TraditionReviewInput,
   Civ7TraditionsViewInput,
   Civ7TraditionsViewResult,
-  Civ7TurnCompletionRequestResult,
-  Civ7TurnCompletionStatusResultSchema,
+  Civ7TurnCompletionCheckResult,
+  Civ7TurnCompletionInput,
+  Civ7TurnCompletionSendInput,
+  Civ7TurnCompletionSendResult,
+  Civ7TurnCompletionSnapshot,
+  Civ7UnitCommandCheckResult,
+  Civ7UnitCommandSendResult,
+  Civ7UnitCommandSnapshot,
+  Civ7UnitResettleInput,
   Civ7UnitTargetActionInput,
   Civ7UnitTargetActionResultSchema,
+  Civ7UnitUpgradeInput,
   Civ7VisibilitySummaryInput,
   Civ7VisibilitySummaryResult,
   Civ7WindowShotCaptureInput,
   Civ7WindowShotCaptureResult,
+  Civ7WorkerAssignmentCheckResult,
+  Civ7WorkerAssignmentInput,
+  Civ7WorkerAssignmentSendResult,
+  Civ7WorkerAssignmentSnapshot,
   PlayNotificationViewOptions,
 } from "@civ7/direct-control";
+import type { Civ7CommandDispatchStatus } from "@civ7/direct-control/error";
 import type { Static } from "typebox";
-
-import type { Civ7ControlOrpcComponentId, Civ7ControlOrpcMapLocation } from "../dto/primitives";
 
 export type Civ7ControlOrpcNotificationDismissalResult = Civ7NotificationDismissalResult;
 export type Civ7ControlOrpcAdvisorWarningViewedResult = Civ7AdvisorWarningViewedResult;
 export type Civ7ControlOrpcDiplomacyResponseResult = Civ7DiplomacyResponseResult;
 export type Civ7ControlOrpcFirstMeetResponseResult = Civ7FirstMeetResponseResult;
-export type Civ7ControlOrpcGovernmentChoiceResult = Civ7GovernmentDomainChoiceResult;
+export type Civ7ControlOrpcGovernmentChoiceSnapshot = Civ7GovernmentChoiceSnapshot;
+export type Civ7ControlOrpcGovernmentChoiceCheckResult = Civ7GovernmentChoiceCheckResult;
+export type Civ7ControlOrpcGovernmentChoiceSendResult = Civ7GovernmentChoiceSendResult;
+export type Civ7ControlOrpcCelebrationChoiceSnapshot = Civ7CelebrationChoiceSnapshot;
+export type Civ7ControlOrpcCelebrationChoiceCheckResult = Civ7CelebrationChoiceCheckResult;
+export type Civ7ControlOrpcCelebrationChoiceSendResult = Civ7CelebrationChoiceSendResult;
 export type Civ7ControlOrpcCultureChoiceCloseoutResult = Civ7CultureChoiceCloseoutResult;
-export type Civ7ControlOrpcNarrativeChoiceResult = Civ7NarrativeChoiceResult;
+export type Civ7ControlOrpcNarrativeChoiceSnapshot = Civ7NarrativeChoiceSnapshot;
+export type Civ7ControlOrpcNarrativeChoiceValidationResult = Civ7NarrativeChoiceValidationResult;
+export type Civ7ControlOrpcNarrativeChoiceCheckResult = Civ7NarrativeChoiceCheckResult;
+export type Civ7ControlOrpcNarrativeChoiceSendResult = Civ7NarrativeChoiceSendResult;
 export type Civ7ControlOrpcTechnologyChoiceCloseoutResult = Civ7TechnologyChoiceCloseoutResult;
 export type Civ7ControlOrpcProgressionTargetResult = Civ7ProgressionTargetResult;
 export type Civ7ControlOrpcProgressionPlayerChoiceResult = Civ7ProgressionPlayerChoiceResult;
 export type Civ7ControlOrpcProgressDashboardResult = Civ7ProgressDashboardResult;
 export type Civ7ControlOrpcTraditionsViewResult = Civ7TraditionsViewResult;
-export type Civ7ControlOrpcTurnCompletionRequestResult = Civ7TurnCompletionRequestResult;
-type Civ7ControlOrpcPopulationPlacementRuntimeResult = Civ7PopulationPlacementProofSource &
-  Readonly<{
-    before: Readonly<{ valid: boolean }>;
-    after: Readonly<{ valid: boolean }>;
-  }>;
-type Civ7ControlOrpcAssignWorkerPlacementInput = Readonly<{
-  playerId: number;
-  location: number;
-}>;
-type Civ7ControlOrpcExpandCityPlacementInput = Readonly<{
-  cityId: Civ7ControlOrpcComponentId;
-  destination: Civ7ControlOrpcMapLocation;
-}>;
+export type Civ7ControlOrpcTurnCompletionSnapshot = Civ7TurnCompletionSnapshot;
+export type Civ7ControlOrpcTurnCompletionCheckResult = Civ7TurnCompletionCheckResult;
+export type Civ7ControlOrpcTurnCompletionSendResult = Civ7TurnCompletionSendResult;
 export type Civ7ControlOrpcPlayableStatusResult = Static<typeof Civ7PlayableStatusResultSchema>;
-export type Civ7ControlOrpcProductionChoiceResult = Static<typeof Civ7ProductionChoiceResultSchema>;
+export type Civ7ControlOrpcProductionChoiceValidationResult = Civ7ProductionChoiceValidationResult;
+export type Civ7ControlOrpcProductionChoiceSnapshot = Civ7ProductionChoiceSnapshot;
+export type Civ7ControlOrpcProductionChoiceCheckResult = Civ7ProductionChoiceCheckResult;
+export type Civ7ControlOrpcProductionChoiceSendResult = Civ7ProductionChoiceSendResult;
+export type Civ7ControlOrpcTownFocusSnapshot = Civ7TownFocusSnapshot;
+export type Civ7ControlOrpcTownFocusChangeCheckResult = Civ7TownFocusChangeCheckResult;
+export type Civ7ControlOrpcTownFocusChangeSendResult = Civ7TownFocusChangeSendResult;
+export type Civ7ControlOrpcTownFocusReviewCheckResult = Civ7TownFocusReviewCheckResult;
+export type Civ7ControlOrpcTownFocusReviewSendResult = Civ7TownFocusReviewSendResult;
+export type Civ7ControlOrpcWorkerAssignmentSnapshot = Civ7WorkerAssignmentSnapshot;
+export type Civ7ControlOrpcWorkerAssignmentCheckResult = Civ7WorkerAssignmentCheckResult;
+export type Civ7ControlOrpcWorkerAssignmentSendResult = Civ7WorkerAssignmentSendResult;
+export type Civ7ControlOrpcCityExpansionSnapshot = Civ7CityExpansionSnapshot;
+export type Civ7ControlOrpcCityExpansionCheckResult = Civ7CityExpansionCheckResult;
+export type Civ7ControlOrpcCityExpansionSendResult = Civ7CityExpansionSendResult;
 export type Civ7ControlOrpcPlayNotificationViewResult = Civ7PlayNotificationViewResult;
 export type Civ7ControlOrpcBattlefieldScanResult = Static<typeof Civ7BattlefieldScanResultSchema>;
 export type Civ7ControlOrpcDestinationAnalysisResult = Static<
@@ -131,17 +174,24 @@ export type Civ7ControlOrpcSettlementRecommendationsResult = Static<
   typeof Civ7SettlementRecommendationResultSchema
 >;
 export type Civ7ControlOrpcTargetCandidatesResult = Static<typeof Civ7TargetCandidatesResultSchema>;
-export type Civ7ControlOrpcTurnCompletionStatusResult = Static<
-  typeof Civ7TurnCompletionStatusResultSchema
->;
 export type Civ7ControlOrpcUnitTargetActionResult = Static<typeof Civ7UnitTargetActionResultSchema>;
-type Civ7ControlOrpcUnitCommandRuntimeResult = Civ7OperationRequestResult;
+export type Civ7ControlOrpcCommandDispatchStatus = Civ7CommandDispatchStatus;
+export type Civ7ControlOrpcRuntimeProbe<T> = Civ7RuntimeProbe<T>;
+export type Civ7ControlOrpcUnitCommandCheckResult = Civ7UnitCommandCheckResult;
+export type Civ7ControlOrpcUnitCommandSnapshot = Civ7UnitCommandSnapshot;
+export type Civ7ControlOrpcUnitCommandSendResult = Civ7UnitCommandSendResult;
+type Civ7ControlOrpcUnitUpgradeInput = Civ7UnitUpgradeInput;
+type Civ7ControlOrpcUnitResettleInput = Civ7UnitResettleInput;
 
 export type Civ7ControlOrpcDirectControlFacade = Readonly<{
-  requestCiv7ProductionChoice(
+  checkCiv7ProductionChoice(
     input: Civ7ProductionChoiceInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcProductionChoiceResult>;
+  ): Promise<Civ7ControlOrpcProductionChoiceCheckResult>;
+  sendCiv7ProductionChoice(
+    input: Civ7ProductionChoiceInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7ControlOrpcProductionChoiceSendResult>;
   requestCiv7NotificationDismissal(
     input: Civ7NotificationDismissInput,
     options: Civ7DirectControlOptions | undefined
@@ -150,10 +200,14 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Civ7AdvisorWarningViewedInput,
     options: Civ7DirectControlOptions | undefined
   ): Promise<Civ7ControlOrpcAdvisorWarningViewedResult>;
-  requestCiv7NarrativeChoice(
+  checkCiv7NarrativeChoice(
     input: Civ7NarrativeChoiceInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcNarrativeChoiceResult>;
+  ): Promise<Civ7ControlOrpcNarrativeChoiceCheckResult>;
+  sendCiv7NarrativeChoice(
+    input: Civ7NarrativeChoiceSendInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7ControlOrpcNarrativeChoiceSendResult>;
   requestCiv7DiplomacyResponse(
     input: Civ7DiplomacyResponseInput,
     options: Civ7DirectControlOptions | undefined
@@ -162,14 +216,22 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Civ7FirstMeetResponseInput,
     options: Civ7DirectControlOptions | undefined
   ): Promise<Civ7ControlOrpcFirstMeetResponseResult>;
-  requestCiv7GovernmentChoice(
-    input: Omit<Civ7GovernmentChoiceInput, "kind">,
+  checkCiv7GovernmentChoice(
+    input: Civ7GovernmentChoiceInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcGovernmentChoiceResult>;
-  requestCiv7CelebrationChoice(
-    input: Omit<Civ7CelebrationChoiceInput, "kind">,
+  ): Promise<Civ7ControlOrpcGovernmentChoiceCheckResult>;
+  sendCiv7GovernmentChoice(
+    input: Civ7GovernmentChoiceSendInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcGovernmentChoiceResult>;
+  ): Promise<Civ7ControlOrpcGovernmentChoiceSendResult>;
+  checkCiv7CelebrationChoice(
+    input: Civ7CelebrationChoiceInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7ControlOrpcCelebrationChoiceCheckResult>;
+  sendCiv7CelebrationChoice(
+    input: Civ7CelebrationChoiceSendInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7ControlOrpcCelebrationChoiceSendResult>;
   requestCiv7TechnologyChoiceCloseout(
     input: Civ7TechnologyChoiceCloseoutInput,
     options: Civ7DirectControlOptions | undefined
@@ -202,37 +264,66 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Omit<Civ7TraditionReviewInput, "kind">,
     options: Civ7DirectControlOptions | undefined
   ): Promise<Civ7ControlOrpcProgressionPlayerChoiceResult>;
-  requestCiv7TownFocusChange(
-    input: Omit<Civ7TownFocusChangeInput, "kind">,
+  checkCiv7TownFocusChange(
+    input: Civ7TownFocusChangeInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7TownFocusRequestResult>;
-  requestCiv7TownFocusReviewCloseout(
-    input: Omit<Civ7TownFocusReviewInput, "kind">,
+  ): Promise<Civ7ControlOrpcTownFocusChangeCheckResult>;
+  sendCiv7TownFocusChange(
+    input: Civ7TownFocusChangeInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7TownFocusRequestResult>;
-  requestCiv7AssignWorkerPlacement(
-    input: Civ7ControlOrpcAssignWorkerPlacementInput,
+  ): Promise<Civ7ControlOrpcTownFocusChangeSendResult>;
+  checkCiv7TownFocusReview(
+    input: Civ7TownFocusReviewInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcPopulationPlacementRuntimeResult>;
-  requestCiv7ExpandCityPlacement(
-    input: Civ7ControlOrpcExpandCityPlacementInput,
+  ): Promise<Civ7ControlOrpcTownFocusReviewCheckResult>;
+  sendCiv7TownFocusReview(
+    input: Civ7TownFocusReviewInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcPopulationPlacementRuntimeResult>;
+  ): Promise<Civ7ControlOrpcTownFocusReviewSendResult>;
+  checkCiv7WorkerAssignment(
+    input: Civ7WorkerAssignmentInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7WorkerAssignmentCheckResult>;
+  sendCiv7WorkerAssignment(
+    input: Civ7WorkerAssignmentInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7WorkerAssignmentSendResult>;
+  checkCiv7CityExpansion(
+    input: Civ7CityExpansionInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7CityExpansionCheckResult>;
+  sendCiv7CityExpansion(
+    input: Civ7CityExpansionInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7CityExpansionSendResult>;
   requestCiv7UnitTargetAction(
     input: Civ7UnitTargetActionInput,
     options: Civ7DirectControlOptions | undefined
   ): Promise<Civ7ControlOrpcUnitTargetActionResult>;
-  requestCiv7UnitCommand(
-    input: Readonly<{
-      unitId: Civ7ControlOrpcComponentId;
-      operationType: string;
-      args?: Readonly<Record<string, number>>;
-    }>,
+  checkCiv7UnitUpgrade(
+    input: Civ7ControlOrpcUnitUpgradeInput,
+    options?: Civ7DirectControlOptions
+  ): Promise<Civ7ControlOrpcUnitCommandCheckResult>;
+  sendCiv7UnitUpgrade(
+    input: Civ7ControlOrpcUnitUpgradeInput,
+    options?: Civ7DirectControlOptions
+  ): Promise<Civ7ControlOrpcUnitCommandSendResult>;
+  checkCiv7UnitResettle(
+    input: Civ7ControlOrpcUnitResettleInput,
+    options?: Civ7DirectControlOptions
+  ): Promise<Civ7ControlOrpcUnitCommandCheckResult>;
+  sendCiv7UnitResettle(
+    input: Civ7ControlOrpcUnitResettleInput,
+    options?: Civ7DirectControlOptions
+  ): Promise<Civ7ControlOrpcUnitCommandSendResult>;
+  checkCiv7TurnCompletion(
+    input: Civ7TurnCompletionInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcUnitCommandRuntimeResult>;
-  requestCiv7TurnComplete(
+  ): Promise<Civ7ControlOrpcTurnCompletionCheckResult>;
+  sendCiv7TurnCompletion(
+    input: Civ7TurnCompletionSendInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcTurnCompletionRequestResult>;
+  ): Promise<Civ7ControlOrpcTurnCompletionSendResult>;
   getCiv7PlayableStatus(
     options?: Civ7DirectControlOptions
   ): Promise<Civ7ControlOrpcPlayableStatusResult>;
@@ -279,9 +370,6 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input?: Civ7TargetCandidatesInput,
     options?: Civ7DirectControlOptions
   ): Promise<Civ7ControlOrpcTargetCandidatesResult>;
-  getCiv7TurnCompletionStatus(
-    options?: Civ7DirectControlOptions
-  ): Promise<Civ7ControlOrpcTurnCompletionStatusResult>;
   getCiv7VisibilitySummary(
     input: Civ7VisibilitySummaryInput,
     options?: Civ7DirectControlOptions

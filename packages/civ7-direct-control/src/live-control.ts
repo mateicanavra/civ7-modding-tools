@@ -6,12 +6,20 @@ import {
   beginCiv7Game,
   type Civ7ComponentId,
   type Civ7DirectControlOptions,
-  type Civ7MapLocation,
-  type Civ7OperationRequestResult,
-  type Civ7PopulationPlacementProofSource,
   type Civ7SavedGameConfigurationRef,
   captureCiv7WindowShot,
+  checkCiv7CelebrationChoice,
+  checkCiv7CityExpansion,
+  checkCiv7GovernmentChoice,
+  checkCiv7NarrativeChoice,
+  checkCiv7ProductionChoice,
+  checkCiv7TownFocusChange,
+  checkCiv7TownFocusReview,
   checkCiv7TunerHealth,
+  checkCiv7TurnCompletion,
+  checkCiv7UnitResettle,
+  checkCiv7UnitUpgrade,
+  checkCiv7WorkerAssignment,
   closeCiv7Displays,
   enterCiv7CleanFrame,
   exitCiv7CleanFrame,
@@ -32,7 +40,6 @@ import {
   getCiv7SetupSnapshot,
   getCiv7TargetCandidates,
   getCiv7TraditionsView,
-  getCiv7TurnCompletionStatus,
   getCiv7VisibilitySummary,
   hostPreparedCiv7SinglePlayerGame,
   readCiv7DisplayQueue,
@@ -42,63 +49,54 @@ import {
   requestCiv7AdvisorWarningViewed,
   requestCiv7AttributePurchase,
   requestCiv7AttributeReviewCloseout,
-  requestCiv7CelebrationChoice,
-  requestCiv7CityCommand,
   requestCiv7CultureChoiceCloseout,
   requestCiv7CultureTarget,
   requestCiv7DiplomacyResponse,
   requestCiv7FirstMeetResponse,
-  requestCiv7GovernmentChoice,
-  requestCiv7NarrativeChoice,
   requestCiv7NotificationDismissal,
-  requestCiv7PlayerOperation,
-  requestCiv7ProductionChoice,
   requestCiv7SavedGameConfigurationLoad,
   requestCiv7TechnologyChoiceCloseout,
   requestCiv7TechnologyTarget,
-  requestCiv7TownFocusChange,
-  requestCiv7TownFocusReviewCloseout,
   requestCiv7TraditionChange,
   requestCiv7TraditionReviewCloseout,
-  requestCiv7TurnComplete,
-  requestCiv7UnitCommand,
   requestCiv7UnitTargetAction,
   resumeCiv7DisplayQueue,
+  sendCiv7CelebrationChoice,
+  sendCiv7CityExpansion,
+  sendCiv7GovernmentChoice,
+  sendCiv7NarrativeChoice,
+  sendCiv7ProductionChoice,
+  sendCiv7TownFocusChange,
+  sendCiv7TownFocusReview,
+  sendCiv7TurnCompletion,
+  sendCiv7UnitResettle,
+  sendCiv7UnitUpgrade,
+  sendCiv7WorkerAssignment,
   suspendCiv7DisplayQueue,
 } from "./index.js";
 
-type Civ7AssignWorkerPlacementInput = Readonly<{
-  playerId: number;
-  location: number;
-}>;
-
-type Civ7ExpandCityPlacementInput = Readonly<{
-  cityId: Civ7ComponentId;
-  destination: Civ7MapLocation;
-}>;
-
-type Civ7PopulationPlacementResult = Civ7PopulationPlacementProofSource &
-  Readonly<{
-    before: Readonly<{ valid: boolean }>;
-    after: Readonly<{ valid: boolean }>;
-  }>;
-
-type Civ7UnitCommandInput = Readonly<{
-  unitId: Civ7ComponentId;
-  operationType: string;
-  args?: Readonly<Record<string, number>>;
-}>;
-
 /** Provider-neutral live direct-control atoms for qualified host composition. */
 export const liveCiv7DirectControl = {
-  requestCiv7ProductionChoice,
+  checkCiv7WorkerAssignment,
+  sendCiv7WorkerAssignment,
+  checkCiv7CityExpansion,
+  sendCiv7CityExpansion,
+  checkCiv7ProductionChoice,
+  sendCiv7ProductionChoice,
+  checkCiv7GovernmentChoice,
+  sendCiv7GovernmentChoice,
+  checkCiv7CelebrationChoice,
+  sendCiv7CelebrationChoice,
+  checkCiv7NarrativeChoice,
+  sendCiv7NarrativeChoice,
+  checkCiv7TownFocusChange,
+  sendCiv7TownFocusChange,
+  checkCiv7TownFocusReview,
+  sendCiv7TownFocusReview,
   requestCiv7NotificationDismissal,
   requestCiv7AdvisorWarningViewed,
-  requestCiv7NarrativeChoice,
   requestCiv7DiplomacyResponse,
   requestCiv7FirstMeetResponse,
-  requestCiv7GovernmentChoice,
-  requestCiv7CelebrationChoice,
   requestCiv7TechnologyChoiceCloseout,
   requestCiv7CultureChoiceCloseout,
   requestCiv7TechnologyTarget,
@@ -107,44 +105,13 @@ export const liveCiv7DirectControl = {
   requestCiv7AttributeReviewCloseout,
   requestCiv7TraditionChange,
   requestCiv7TraditionReviewCloseout,
-  requestCiv7TownFocusChange,
-  requestCiv7TownFocusReviewCloseout,
-  requestCiv7AssignWorkerPlacement: async (
-    input: Civ7AssignWorkerPlacementInput,
-    options: Civ7DirectControlOptions | undefined
-  ) =>
-    requestCiv7PlayerOperation(
-      {
-        playerId: input.playerId,
-        operationType: "ASSIGN_WORKER",
-        args: {
-          Location: input.location,
-          Amount: 1,
-        },
-      },
-      options
-    ) as Promise<Civ7PopulationPlacementResult>,
-  requestCiv7ExpandCityPlacement: async (
-    input: Civ7ExpandCityPlacementInput,
-    options: Civ7DirectControlOptions | undefined
-  ) =>
-    requestCiv7CityCommand(
-      {
-        cityId: input.cityId,
-        operationType: "EXPAND",
-        args: {
-          X: input.destination.x,
-          Y: input.destination.y,
-        },
-      },
-      options
-    ) as Promise<Civ7PopulationPlacementResult>,
   requestCiv7UnitTargetAction,
-  requestCiv7UnitCommand: (
-    input: Civ7UnitCommandInput,
-    options: Civ7DirectControlOptions | undefined
-  ) => requestCiv7UnitCommand(input, options) as Promise<Civ7OperationRequestResult>,
-  requestCiv7TurnComplete,
+  checkCiv7UnitUpgrade,
+  sendCiv7UnitUpgrade,
+  checkCiv7UnitResettle,
+  sendCiv7UnitResettle,
+  checkCiv7TurnCompletion,
+  sendCiv7TurnCompletion,
   getCiv7PlayableStatus,
   getCiv7PlayNotificationView,
   getCiv7ProgressDashboard,
@@ -157,7 +124,6 @@ export const liveCiv7DirectControl = {
   getCiv7ReadyCityView,
   getCiv7SettlementRecommendations,
   getCiv7TargetCandidates,
-  getCiv7TurnCompletionStatus,
   getCiv7VisibilitySummary,
   readCiv7DisplayQueue,
   closeCiv7Displays,

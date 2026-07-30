@@ -6,10 +6,10 @@ export type Civ7ControllerMutationProof = NonNullable<Civ7ControlOrpcContext["co
 type DirectControl = Civ7ControlOrpcDirectControlFacade;
 
 export type Civ7ControlOrpcComponentId = Parameters<
-  DirectControl["requestCiv7UnitCommand"]
+  DirectControl["checkCiv7UnitUpgrade"]
 >[0]["unitId"];
 export type Civ7ControlOrpcMapLocation = Parameters<
-  DirectControl["requestCiv7ExpandCityPlacement"]
+  DirectControl["checkCiv7CityExpansion"]
 >[0]["destination"];
 export type Civ7ControlOrpcAdvisorWarningViewedResult = Awaited<
   ReturnType<DirectControl["requestCiv7AdvisorWarningViewed"]>
@@ -29,12 +29,24 @@ export type Civ7ControlOrpcDiplomacyResponseResult = Awaited<
 export type Civ7ControlOrpcFirstMeetResponseResult = Awaited<
   ReturnType<DirectControl["requestCiv7FirstMeetResponse"]>
 >;
-export type Civ7ControlOrpcGovernmentChoiceResult = Awaited<
-  ReturnType<DirectControl["requestCiv7GovernmentChoice"]>
+export type Civ7ControlOrpcGovernmentChoiceCheckResult = Awaited<
+  ReturnType<DirectControl["checkCiv7GovernmentChoice"]>
+>;
+export type Civ7ControlOrpcGovernmentChoiceSendResult = Awaited<
+  ReturnType<DirectControl["sendCiv7GovernmentChoice"]>
+>;
+export type Civ7ControlOrpcCelebrationChoiceCheckResult = Awaited<
+  ReturnType<DirectControl["checkCiv7CelebrationChoice"]>
+>;
+export type Civ7ControlOrpcCelebrationChoiceSendResult = Awaited<
+  ReturnType<DirectControl["sendCiv7CelebrationChoice"]>
 >;
 export type Civ7ControlOrpcMapGridResult = Awaited<ReturnType<DirectControl["getCiv7MapGrid"]>>;
-export type Civ7ControlOrpcNarrativeChoiceResult = Awaited<
-  ReturnType<DirectControl["requestCiv7NarrativeChoice"]>
+export type Civ7ControlOrpcNarrativeChoiceCheckResult = Awaited<
+  ReturnType<DirectControl["checkCiv7NarrativeChoice"]>
+>;
+export type Civ7ControlOrpcNarrativeChoiceSendResult = Awaited<
+  ReturnType<DirectControl["sendCiv7NarrativeChoice"]>
 >;
 export type Civ7ControlOrpcNotificationDismissalResult = Awaited<
   ReturnType<DirectControl["requestCiv7NotificationDismissal"]>
@@ -48,8 +60,11 @@ export type Civ7ControlOrpcPlayNotificationViewResult = Awaited<
 export type Civ7ControlOrpcPlotSnapshotResult = Awaited<
   ReturnType<DirectControl["getCiv7PlotSnapshot"]>
 >;
-export type Civ7ControlOrpcProductionChoiceResult = Awaited<
-  ReturnType<DirectControl["requestCiv7ProductionChoice"]>
+export type Civ7ControlOrpcProductionChoiceCheckResult = Awaited<
+  ReturnType<DirectControl["checkCiv7ProductionChoice"]>
+>;
+export type Civ7ControlOrpcProductionChoiceSendResult = Awaited<
+  ReturnType<DirectControl["sendCiv7ProductionChoice"]>
 >;
 export type Civ7ControlOrpcProgressDashboardResult = Awaited<
   ReturnType<DirectControl["getCiv7ProgressDashboard"]>
@@ -75,11 +90,11 @@ export type Civ7ControlOrpcTechnologyChoiceCloseoutResult = Awaited<
 export type Civ7ControlOrpcTraditionsViewResult = Awaited<
   ReturnType<DirectControl["getCiv7TraditionsView"]>
 >;
-export type Civ7ControlOrpcTurnCompletionRequestResult = Awaited<
-  ReturnType<DirectControl["requestCiv7TurnComplete"]>
+export type Civ7ControlOrpcTurnCompletionCheckResult = Awaited<
+  ReturnType<DirectControl["checkCiv7TurnCompletion"]>
 >;
-export type Civ7ControlOrpcTurnCompletionStatusResult = Awaited<
-  ReturnType<DirectControl["getCiv7TurnCompletionStatus"]>
+export type Civ7ControlOrpcTurnCompletionSendResult = Awaited<
+  ReturnType<DirectControl["sendCiv7TurnCompletion"]>
 >;
 export type Civ7ControlOrpcUnitTargetActionResult = Awaited<
   ReturnType<DirectControl["requestCiv7UnitTargetAction"]>

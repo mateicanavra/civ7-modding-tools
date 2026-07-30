@@ -112,6 +112,11 @@ describe("getCiv7PlayNotificationView", () => {
       );
       const notificationRead =
         server.received.find((message) => message.includes("readPlayNotifications")) ?? "";
+      expect(notificationRead).toContain('document.querySelector(".action-panel")');
+      expect(notificationRead).toContain("component.canEndTurn()");
+      expect(notificationRead).not.toContain(
+        'typeof canEndTurn === "function" ? canEndTurn() : false'
+      );
       expect(notificationRead).toContain("CHOOSE_AUTO_NARRATIVE_STORY_DIRECTION");
       expect(notificationRead).toContain("getFirstPendingDiscoveryLastMetID");
       expect(notificationRead).toContain(
