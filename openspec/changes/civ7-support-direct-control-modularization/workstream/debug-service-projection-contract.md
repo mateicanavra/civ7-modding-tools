@@ -3,7 +3,7 @@
 This is a planning contract for debug/internal service output. It is not a
 source implementation, accepted schema, normal CLI semantic envelope,
 AI-ingestion contract, telemetry contract, runtime proof, or Effect/oRPC
-procedure-core contract.
+service contract.
 
 The debug/internal projection exists so support operators, future procedure
 middleware, and diagnostics can inspect raw direct-control state without
@@ -26,7 +26,7 @@ surfaces such as:
   atom owners.
 
 This contract does not authorize new command hierarchy, flags, telemetry
-persistence, transport adapters, AI-ingestion artifacts, or procedure-core
+persistence, transport adapters, AI-ingestion artifacts, or service-contract
 implementation. It defines the boundary future implementation must preserve.
 
 ## Debug/Internal Fields
@@ -34,14 +34,14 @@ implementation. It defines the boundary future implementation must preserve.
 Debug/internal service projection may include these field classes when a
 debug-owned command, flag, or procedure explicitly requests them:
 
-| Field class | Examples | Boundary |
-|---|---|---|
-| Transport/session state | host, port, selected state role/name, socket status, reconnect attempt details | Debug/internal only; normal CLI may summarize readiness without raw transport details. |
-| Raw probes | App UI snapshot, Tuner health snapshot, bounded root inspection, runtime API inspection, raw capability catalog provenance | Debug/internal only; not normal play output and not AI-ingestion input by default. |
-| Route selection | which direct-control atom, state role, or command path was used | Debug/internal only unless summarized as a player-facing action family. |
-| Closeout/postcondition internals | validator payloads, closeout traces, raw notification/postcondition evidence, stale/unknown details | Debug/internal or telemetry only; normal CLI gets semantic classification and reread guidance. |
-| Correlation/diagnostics | request ids, correlation ids, timing details, parser labels, error details, retry counts | Debug/internal or telemetry only; normal CLI may show concise failure reason. |
-| Resource/log/database proof | log markers, loaded resources, local debug DB rows, official-resource provenance | Debug/internal or explicitly source-labeled ingestion/telemetry contracts only. |
+| Field class                      | Examples                                                                                                                   | Boundary                                                                                       |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Transport/session state          | host, port, selected state role/name, socket status, reconnect attempt details                                             | Debug/internal only; normal CLI may summarize readiness without raw transport details.         |
+| Raw probes                       | App UI snapshot, Tuner health snapshot, bounded root inspection, runtime API inspection, raw capability catalog provenance | Debug/internal only; not normal play output and not AI-ingestion input by default.             |
+| Route selection                  | which direct-control atom, state role, or command path was used                                                            | Debug/internal only unless summarized as a player-facing action family.                        |
+| Closeout/postcondition internals | validator payloads, closeout traces, raw notification/postcondition evidence, stale/unknown details                        | Debug/internal or telemetry only; normal CLI gets semantic classification and reread guidance. |
+| Correlation/diagnostics          | request ids, correlation ids, timing details, parser labels, error details, retry counts                                   | Debug/internal or telemetry only; normal CLI may show concise failure reason.                  |
+| Resource/log/database proof      | log markers, loaded resources, local debug DB rows, official-resource provenance                                           | Debug/internal or explicitly source-labeled ingestion/telemetry contracts only.                |
 
 ## Normal Projection Summaries
 
@@ -67,9 +67,9 @@ wrap them in an accepted ingestion contract with source, freshness, evidence
 class, scope, and proof labels. Debug output alone is not an action diary and
 does not replace direct-control traces.
 
-## Procedure-Core Boundary
+## Service Boundary
 
-Future Effect/oRPC procedure cores may expose debug/internal diagnostics only
+The Effect/oRPC control service may expose debug/internal diagnostics only
 through typed debug/service procedures over stable direct-control atoms. They
 must not tunnel raw JavaScript commands, caller-owned socket state, or App UI
 bridge payloads as product authority. Procedure diagnostics must keep normal

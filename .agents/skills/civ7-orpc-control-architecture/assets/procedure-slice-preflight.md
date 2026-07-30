@@ -3,10 +3,12 @@
 ## Frame
 
 - Capability:
-- Owning package/module:
+- Owning service module:
 - Current CLI/Studio callers:
 - Procedure atom:
-- Router:
+- Contract leaf:
+- Router leaf:
+- Module shell:
 - Risk class:
 - Proof boundary:
 
@@ -19,27 +21,30 @@
 
 ## Context
 
-- Required direct-control dependencies:
-- Endpoint/session fields:
-- Approval fields:
-- Logger/evidence fields:
+- Required direct-control port members:
+- Required direct-lifecycle port members:
+- Endpoint defaults:
+- Procedure-admission fields:
+- Lifecycle-progress fields:
+- Correlation fields:
+- Controller capability/proof fields:
 - Test doubles:
 
 ## Middleware
 
 - Readiness:
-- Approval:
+- Admission:
 - Validator/preflight:
 - Postcondition/proof:
 - Relationship authority:
-- Error normalization:
+- Typed errors:
 
 ## Verification Gates
 
 - Direct-control:
 - CLI/Studio:
-- ORPC no-network:
-- Contract snapshot:
+- Service behavior no-network:
+- Contract/meta/error map:
 - Live read-only smoke:
 - Live mutation smoke, if explicitly authorized:
 

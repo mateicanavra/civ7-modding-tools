@@ -168,7 +168,6 @@ export type Civ7OperationTelemetryProjectionConsumer =
   | "normal-cli-player-agent"
   | "debug-internal-service"
   | "ai-ingestion-contract"
-  | "procedure-core-middleware"
   | "raw-operation-telemetry";
 
 export type Civ7OperationTelemetryProjection =
@@ -193,12 +192,6 @@ export type Civ7OperationTelemetryProjection =
   | Readonly<{
       consumer: "ai-ingestion-contract";
       surface: "blocked-until-ai-ingestion-contract";
-      allowed: false;
-      reason: string;
-    }>
-  | Readonly<{
-      consumer: "procedure-core-middleware";
-      surface: "blocked-until-procedure-middleware";
       allowed: false;
       reason: string;
     }>;
@@ -261,14 +254,6 @@ export function projectCiv7OperationProofTelemetry(
         allowed: false,
         reason:
           "AI ingestion must use its accepted machine contract, not normal CLI or raw debug telemetry output.",
-      };
-    case "procedure-core-middleware":
-      return {
-        consumer,
-        surface: "blocked-until-procedure-middleware",
-        allowed: false,
-        reason:
-          "Procedure cores may attach telemetry only after the procedure middleware contract owns schema, context, and projection policy.",
       };
   }
 }

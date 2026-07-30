@@ -3,18 +3,18 @@
 Live Civ7 play support accumulated useful fixes faster than the repo structure
 could absorb them. The support stack now needs a systematic migration from
 large CLI play tests and direct-control source concentration into stable,
-reviewable command/test owners and direct-control atoms that future Effect/oRPC
-procedures can compose.
+reviewable command/test owners and low-level direct-control atoms consumed by
+the control service.
 
 The intended order is deliberate:
 
 1. modularize CLI play command tests and ownership;
 2. extract stable direct-control atoms and public types/constants behind package
    boundaries;
-3. plan the CLI command hierarchy as a semantic player-agent surface over the
-   internal direct-control service, not as a dump of internal service JSON;
-4. compose those atoms through Effect/oRPC only after the package boundaries are
-   real.
+3. plan the CLI command hierarchy as a semantic player-agent surface over
+   `@civ7/control-orpc`, not as a dump of service or direct-control JSON;
+4. compose those atoms directly in the closed Effect/oRPC control service only
+   after the package boundaries are real.
 
 This change replaces one-off extraction cadence with a systematic OpenSpec
 workstream and parallel lanes.
@@ -22,7 +22,7 @@ workstream and parallel lanes.
 ## Target Authority Refs
 
 - `AGENTS.md`
-- `packages/cli/AGENTS.md`
+- `plugins/cli/topics/game/AGENTS.md`
 - `packages/civ7-direct-control/AGENTS.md`
 - `docs/projects/civ7-direct-control/workstream/support-dra-takeover-reference.md`
 - `docs/projects/civ7-direct-control/workstream/control-surface-expansion/phase-record.md`
@@ -49,17 +49,14 @@ workstream and parallel lanes.
   equivalent coverage from `packages/cli/test/commands/game.play.test.ts`.
 - Split direct-control runtime code only after tests and ownership boundaries
   are stable enough to prove behavior did not change.
-- Treat Effect/oRPC as a later composition lane over direct-control procedure
-  cores, not as a transport-first rewrite. The current oRPC architecture
-  authority citation is the `civ7-orpc-control-architecture` skill from
-  `codex/civ7-orpc-control-architecture-skill`, which frames oRPC as typed
-  procedure/router/context/middleware composition over repo-owned
-  direct-control atoms. The native implementation boundary is now recorded in
-  `openspec/changes/civ7-control-orpc-native-slice/`: direct-control prework
-  may separate atom policies, dependencies, schemas, proof vocabulary, and
-  middleware candidates, but it must not manually implement the router,
-  context, middleware, typed-error, correlation, or transport mechanics that
-  oRPC/effect-orpc already owns.
+- Treat Effect/oRPC as service composition directly over low-level
+  direct-control atoms, not as a transport-first rewrite and not through a
+  direct-control-local procedure layer. `services/civ7-control` owns the
+  contract, router, context, admission, typed errors, middleware, and
+  multi-step behavior. The native implementation boundary is recorded in
+  `openspec/changes/civ7-control-orpc-native-slice/`; direct-control may own
+  wire atoms, schemas for its own results, and runtime proof vocabulary, but it
+  must not rebuild service descriptors or framework mechanics.
 - Add a dedicated Effect/Bun integration planning phase before source rewrites
   depend on it: new/refactored control logic should prefer Effect resource,
   stream, concurrency, error, and layer affordances plus Bun-native APIs over
@@ -71,9 +68,9 @@ workstream and parallel lanes.
   machinery, and raw service diagnostics stay inside `@civ7/direct-control` or
   an explicit debugging command hierarchy.
 - Add a dedicated hotseat/autoplay and AI-intelligence compatibility planning
-  lane before command hierarchy rewrites, telemetry surfaces, or Effect/oRPC
-  procedure cores. Future direct-control atoms, CLI semantic envelopes, debug
-  service outputs, operation/proof telemetry, and procedure-core schemas must
+  lane before command hierarchy rewrites, telemetry surfaces, or new control
+  service contracts. Future direct-control atoms, CLI semantic envelopes,
+  debug service outputs, operation/proof telemetry, and service contracts must
   support both live player-agent hotseat control and the higher-level strategy
   data ingestion layer represented by the AI-intelligence thread
   `019e8b5a-f2ee-7ea2-96bc-8c07dc5ab6cc` on top of the hotseat/autoplay thread
@@ -132,7 +129,7 @@ lane, not proof that the full change is complete:
 - `packages/cli/test/commands/fixtures/**`
 - `packages/civ7-direct-control/src/**`
 - `packages/civ7-direct-control/test/**`
-- `packages/civ7-control-orpc/**` only through the staged native oRPC slice
+- `services/civ7-control/**` only through the staged native oRPC slice
   after direct-control atoms and policy/dependency boundaries exist
 - `openspec/changes/civ7-support-direct-control-modularization/**`
 - `docs/projects/civ7-direct-control/workstream/**` when downstream packets are

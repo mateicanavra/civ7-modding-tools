@@ -7,6 +7,10 @@ The public source root exposes only `client.ts`, `contract.ts`, `index.ts`, and
 the private `service/` implementation tree. Provider construction, transports,
 runtime hosts, platform controllers, and product-specific facades belong to
 their qualified host or niche owners; they are not optional service interiors.
+Foreign consumers under `packages/`, `plugins/`, `apps/`, and `mods/` acquire
+a service only through its deliberate public package exports. Private
+`#<owner>-service` aliases and physical `services/<owner>/src/service` paths
+remain owned by the service package.
 
 The service spine separates contract authoring, context, implementation, and
 router composition:
@@ -14,6 +18,8 @@ router composition:
 - `base.ts` owns the shared `eoc` contract-authoring base, metadata, and public
   error map.
 - `context.ts` owns the service context and its port vocabulary.
+- `context.ts` may name a module port only through a whole type import or named
+  imports whose every specifier is type-only.
 - `contract.ts` composes module contracts.
 - `impl.ts` privately creates the sole
   `implementEffect(contract, runtime).$context<Context>()` lineage and exports

@@ -263,7 +263,7 @@ adding more read-only facade shells.
     evidence source. Keep CLI command strings caller-local, keep contract
     schemas private, and avoid runtime proof, controller bridge, transport,
     broad progression catalogs, or parent Task 5.x/6.x acceptance.
-- [ ] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
+- [x] 5.5 Compose the layered behavior into native oRPC/effect-orpc routers
   only after the hierarchy and ownership boundaries are real.
   - [x] 5.5.1 Seed `attention.current` as a native service-owned procedure
     that derives semantic blockers, decisions, ready actors, and next steps
@@ -1107,8 +1107,13 @@ adding more read-only facade shells.
     Node middleware with native `RPCHandler`, add a browser `RPCLink` client,
     and route the live footer readiness member through
     `readiness.current` while preserving existing map/autoplay REST fields.
-- [ ] 7.3 Add in-game controller bridge only as serialized ingress into the
-  in-process router.
+- [ ] 7.3 Complete deployed Civ7 loading and live proof for the existing
+      serialized controller ingress owned by
+      `mods/mod-civ7-intelligence-bridge`.
+  - Checked child entries below preserve the chronological implementation
+    record. Their earlier "source implementation pending" and retired
+    `@civ7/control-orpc/game-ui` path references are historical evidence, not
+    current ownership or remaining work.
   - [x] 7.3.1 Record the in-game controller bridge preflight contract:
     `Civ7IntelligenceBridge.invoke(...)` is serialized ingress only, the
     game-scoped UIScript loads an in-process oRPC/Effect router, procedure

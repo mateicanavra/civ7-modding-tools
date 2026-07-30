@@ -181,6 +181,6 @@ Hand the labeled proof to finalization (loop step 10 → `civ7-open-spec-workstr
 - `mods/mod-swooper-maps/scripts/live/verify-studio-run-in-game-live.ts` — the gate; `waitForFreshLogMarkers` call + `REQUIRED_SWOOPER_RIVER_MATERIALIZATION_MARKERS`.
 - `mods/mod-swooper-maps/scripts/live/verify-final-surface-parity.ts` — private-diagnostics acquisition, correlated Standard replay, one coherent live observation, report composition, and atomic publication.
 - `packages/civ7-direct-control/src/proof/log-markers.ts` — `waitForFreshLogMarkers` + `snapshotFile`.
-- `packages/civ7-control-orpc/src/modules/lifecycle/procedures/single-player-start.ts` — the correlated setup/start lifecycle.
+- `services/civ7-control/src/service/modules/lifecycle/router/single-player-start.ts` — the correlated setup/start lifecycle.
 - `packages/civ7-direct-control/src/session/{constants,request-id}.ts` — tuner port/host, `createCiv7ControlRequestId`.
 - `docs/projects/placement-realignment/evidence/milestone-{a,b}-2026-06-11.md` — recorded attempt-1 failure (console.warn), attempt-2/3 success, age-intro overlay dismissal.

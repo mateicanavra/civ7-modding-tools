@@ -4,8 +4,10 @@
 
 1. **Inventory the current wrapper.** Name the direct-control function, CLI
    command, tests, docs, risk class, and live proof boundary.
-2. **Extract a procedure atom without changing callers.** Add schemas/context
-   and no-network tests around existing direct-control behavior.
+2. **Extract a procedure atom without changing callers.** Add a semantic
+   contract leaf and matching Effect router leaf under
+   `services/civ7-control/src/service/modules/<domain>/`, then add no-network
+   behavior tests around the direct-control port.
 3. **Route one caller through the procedure.** Prefer one CLI command or one
    Studio endpoint. Keep output contract stable unless the product change is
    intentional and documented.
@@ -30,14 +32,14 @@ For any CLI game/play command change:
 - broader `game.play.test.ts` gate when shared output, notification scheduling,
   postconditions, or relationship labels are affected
 
-For any `@civ7/control-orpc` contract/router/procedure change:
+For any `@civ7/control-orpc` contract/router/service change:
 
 - `nx run control-orpc:check` (includes the contract ownership guard),
   `nx run control-orpc:build`, and `nx run control-orpc:test`
-- no-network procedure tests with a fake direct-control facade (see
-  `test/display-explore-procedure.test.ts` for the lifecycle-ordering
-  pattern: assert the facade call sequence, the failure paths, and that
-  cleanup ran)
+- no-network behavior tests with a fake direct-control port (see
+  `services/civ7-control/test/behavior/modules/display/display-explore-procedure.test.ts`
+  for the lifecycle-ordering pattern: assert the port call sequence, failure
+  paths, and cleanup)
 - contract meta + error-map coverage for every new procedure key
 - dependency review for new `@orpc/*` / `effect` packages
 
@@ -54,8 +56,9 @@ For live-game claims:
 Stop and ask or nudge the owning thread if:
 
 - a caller imports a new direct-control symbol that package exports/builds do
-  not expose;
-- middleware hides mutation approval instead of requiring it;
+  not expose, or imports the deleted `@civ7/control-orpc/runtime` surface;
+- middleware invents controller capability/proof or swallows a host admission
+  refusal;
 - a router exposes broad arbitrary runtime execution;
 - a relationship/city-state label becomes hostile/enemy/opponent/threat without
   official proof;

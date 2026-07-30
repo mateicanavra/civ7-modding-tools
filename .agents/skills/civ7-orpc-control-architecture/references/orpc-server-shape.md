@@ -15,35 +15,63 @@ generic oRPC examples here.
 
 ## In-Repo Implementation (effect-orpc)
 
-`packages/civ7-control-orpc` realizes these concepts through `effect-orpc`,
-which lets procedures be Effect programs instead of plain async handlers:
+`services/civ7-control` realizes `@civ7/control-orpc` as a closed service:
 
-- **Implementer:** `src/procedure.ts` builds
-  `implementEffect(Civ7ControlOrpcContract, civ7ControlOrpcEffectRuntime)
-  .$context<...>()` over a shared `ManagedRuntime` (currently
-  `Layer.empty` — note this means a `TestClock` cannot be injected in tests
-  without restructuring the implementer; time-driven tests run on the real
-  clock at schema-minimum intervals).
-- **Procedures:** `civ7ControlOrpcImplementer.<key>.effect(function* ({
-  context, errors, input }) { ... })` — facade calls wrapped in
-  `Effect.tryPromise({ try, catch: () => errors.SOME_CODE({ data }) })`.
-- **Contracts:** contract-first TypeBox schemas bridged via
-  `toStandardSchema` (`src/typebox-standard-schema.ts`); typed error classes
-  via `ORPCTaggedError` registered in `civ7ControlOrpcErrorMap`.
-- **Lifecycles:** multi-step flows use `Effect.acquireUseRelease` /
-  `Effect.ensuring` for guaranteed cleanup and `Effect.iterate` /
-  `Schedule` for loops (reference implementation:
-  `src/modules/display/procedures/explore-request.ts`).
-- **Effect's library is in-bounds:** queues, schedules, PubSub, `Ref`,
-  fibers — prefer them over hand-rolled async coordination when orchestration
-  grows.
+- **Public root:** `src/client.ts`, `src/contract.ts`, and `src/index.ts` are the
+  only public source files; `src/service/` contains the private implementation.
+  The package exports `.` and `./contract`, not a runtime/provider subpath.
+- **Service spine:** `src/service/base.ts` owns the shared `eoc` base and error
+  map; `context.ts` aggregates context; `contract.ts` composes module
+  contracts; `impl.ts` creates the sole
+  `implementEffect(contract, ManagedRuntime.make(Layer.empty)).$context<Context>()`
+  lineage and installs root middleware; `router.ts` realizes the aggregate
+  router from that configured service.
+- **Modules:** every `src/service/modules/<domain>/` contains `contract/`,
+  `router/`, and `module.ts`. Contract leaves author the TypeBox-backed
+  protocol, `module.ts` selects `service.<domain>`, router leaves attach Effect
+  handlers through that branch, and each `index.ts` composes a plain tree.
+- **Contracts and errors:** TypeBox schemas cross the Standard Schema bridge in
+  `src/service/schema/typebox-standard-schema.ts`. Contract-declared
+  `ORPCTaggedError` values live in
+  `src/service/model/errors/control.ts`; router leaves use the provider-injected
+  `errors.*` constructors rather than a second error portal.
+- **Effect behavior:** router leaves use
+  `module.<key>.effect(function* ({ context, errors, input }) { ... })` and wrap
+  direct-control port calls in `Effect.tryPromise`. Multi-step flows use
+  `Effect.acquireUseRelease` / `Effect.ensuring` for guaranteed cleanup and
+  `Effect.iterate` / `Schedule` for loops (reference implementation:
+  `src/service/modules/display/router/explore-request.ts`).
+- **Effect's library is in-bounds:** queues, schedules, PubSub, `Ref`, and
+  fibers are preferred over hand-rolled async coordination when service
+  orchestration grows.
 
 ## Civ7 Caller Boundary
 
 Start with the shared router/procedure core, then choose the caller boundary.
 CLI and tests should normally use server-side/in-process calls
-(`createCiv7ControlOrpcServerClient`). Studio browser clients should call the
-same router through an HTTP `RPCHandler`/`RPCLink` boundary. Keep
-`OpenAPIHandler` separate for external/documented consumers where
-REST/OpenAPI compatibility matters more than native TypeScript RPC
-ergonomics.
+(`createCiv7ControlOrpcServerClient`) and provision the service's low-level
+port explicitly:
+
+```ts
+import {
+  type Civ7ControlOrpcContext,
+  createCiv7ControlOrpcServerClient,
+} from "@civ7/control-orpc";
+import { liveCiv7DirectControl } from "@civ7/direct-control/live";
+
+const client = createCiv7ControlOrpcServerClient({
+  directControl:
+    liveCiv7DirectControl as Civ7ControlOrpcContext["directControl"],
+  endpointDefaults,
+});
+```
+
+Setup lifecycles also provision `directLifecycle: liveCiv7LifecycleControl`
+from the same `@civ7/direct-control/live` entrypoint. Never import the deleted
+`@civ7/control-orpc/runtime` surface or make the service construct its host
+providers.
+
+Studio browser clients should call the same router through an HTTP
+`RPCHandler`/`RPCLink` boundary. Keep `OpenAPIHandler` separate for
+external/documented consumers where REST/OpenAPI compatibility matters more
+than native TypeScript RPC ergonomics.

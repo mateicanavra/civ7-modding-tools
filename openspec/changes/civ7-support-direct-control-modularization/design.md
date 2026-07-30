@@ -8,17 +8,16 @@ This workstream uses two coupled but separately verified migrations:
   runtime atoms out of the large direct-control `index.ts` into named package
   modules with explicit public types/constants.
 
-Effect/oRPC composition is intentionally last. It consumes direct-control atoms
-through typed procedure cores; it does not own raw socket state, raw JavaScript
-command strings, or gameplay mutation logic.
+Effect/oRPC composition is intentionally downstream of stable runtime atoms.
+The closed control service consumes those atoms directly; direct-control does
+not own an intermediate procedure, descriptor, router, context, or middleware
+plane.
 
-The CLI is a local API/view layer over the internal direct-control service. The
-direct-control package may return rich structured service data for verification,
-operation closeout, transport diagnostics, and procedure composition. The CLI
-play hierarchy should reduce that data to the semantic state a player agent
-needs: what happened, what game state matters, what decision is available, and
-what action is safe or blocked. Transport/session details belong in the
-internal service or in an explicitly debugging-oriented CLI hierarchy, not in
+The CLI is a local view over `@civ7/control-orpc`. The control service composes
+low-level direct-control runtime evidence into the semantic state a player
+agent needs: what happened, what game state matters, what decision is
+available, and what action is safe or blocked. Transport/session details belong
+to direct-control or an explicitly debugging-oriented service surface, not
 normal play-command output.
 
 The same atom and envelope work must serve two downstream control consumers:
@@ -37,17 +36,15 @@ hotseat human slots; autoplay is a debug/native-AI harness and support evidence,
 not the primary product path for external player agents. The intelligence layer
 is broader than live CLI play: it must support live hotseat control,
 strategy/playbook/cookbook generation from human play patterns, and possible
-static native-AI profile shaping. Live play remains routed through
-`@civ7/direct-control`; static native-AI shaping belongs to generated SQL/XML
-profiles. The in-game App UI companion direction is subordinate to
-direct-control: the accepted controller bridge substrate is an in-process
-oRPC/Effect callable router loaded through Civ7 native `scope="game"`
-`UIScripts`. `globalThis.Civ7IntelligenceBridge.invoke(...)` is serialized
-ingress through the existing tuner/App UI command boundary into that router, not
-a hand-maintained App UI method table or ad hoc JSON-envelope product API.
-oRPC/Effect is the shared substrate for the game controller, the external
-direct-control bridge, and future AI services. Raw `game exec` remains a
-diagnostic/probe substrate.
+static native-AI profile shaping. Live product behavior routes through
+`@civ7/control-orpc`; callers inject low-level `@civ7/direct-control` runtime
+ports, while static native-AI shaping belongs to generated SQL/XML profiles.
+The in-game controller is a runtime realization of the same service:
+`mods/mod-civ7-intelligence-bridge` loads the in-process oRPC/Effect router
+through Civ7 native `scope="game"` `UIScripts`, and
+`globalThis.Civ7IntelligenceBridge.invoke(...)` remains serialized ingress
+rather than a hand-maintained App UI method table or ad hoc JSON-envelope
+product API. Raw `game exec` remains a diagnostic/probe substrate.
 
 A fuller in-game controller can reduce repeated transport verification only by
 moving proof into lifecycle certification, method allowlists, controller proof,
@@ -106,7 +103,7 @@ The direct-control corpus includes:
 - map, visibility, GameInfo, setup/lifecycle, autoplay, turn-completion, and
   runtime root inspection surfaces;
 - component ID, schema/type ownership, constants, and public exports;
-- future procedure-core candidates for control-oRPC.
+- future control-service capability candidates.
 - CLI semantic envelope consumers and any debug-only raw diagnostic consumers.
 
 Every atom row needs:
@@ -121,7 +118,7 @@ Every atom row needs:
 - service fields classified as internal machinery, debug-output material, or
   player-agent semantic output.
 - compatibility fields before dependent CLI semantic, telemetry, AI-ingestion,
-  runtime-status, or procedure-core work: `playerScope`, `consumerClass`,
+  runtime-status, or service-contract work: `playerScope`, `consumerClass`,
   `evidenceClass`, `procedureCandidate`, `normalCliProjection`, and
   `debugServiceProjection`.
 
@@ -240,7 +237,7 @@ Responsibilities:
   code;
 - define test patterns for Effect-based logic without converting the oclif CLI
   shell to Effect CLI;
-- coordinate with the oRPC authority lane so Effect/oRPC procedure cores compose
+- coordinate with the oRPC authority lane so the Effect/oRPC service composes
   direct-control atoms rather than becoming a transport-first rewrite.
 
 ### Lane G: Hotseat/Autoplay And AI-Intelligence Compatibility Planning
@@ -248,7 +245,7 @@ Responsibilities:
 Write set:
 
 - OpenSpec design/task/corpus artifacts first
-- no package source, CLI hierarchy, telemetry, or procedure-core implementation
+- no package source, CLI hierarchy, telemetry, or service-contract implementation
   until peer reports are read and the compatibility matrix is accepted
 
 Responsibilities:
@@ -262,29 +259,29 @@ Responsibilities:
   output and machine-ingestion surfaces;
 - identify operation/proof telemetry that future AI-intelligence consumers need
   without exposing raw transport/session/proof JSON in normal play commands;
-- ensure Effect/oRPC procedure-core schemas support both local player-agent
+- ensure Effect/oRPC service contracts support both local player-agent
   hotseat control and strategy-data ingestion over stable direct-control atoms.
 
 Compatibility matrix seed:
 
-| Surface | Primary consumer | Required content | Forbidden collapse |
-| --- | --- | --- | --- |
-| Hotseat handoff state | live player-agent controller | current local player, agent-owned slot, turn handoff readiness, controller proof state, can-act evidence, and blocker summary | do not treat autoplay debug control as the product path; do not act for non-agent human turns |
-| Semantic CLI player-agent view | local player-agent API | game state, blockers, decisions, action results, safe/unsafe next steps, and postcondition classifications | do not dump raw session, closeout, command, or proof JSON as normal play output |
-| Strategy/intelligence ingestion | AI-intelligence database/model layer | stable machine-readable turn state, observations, decisions, action outcomes, playbook/cookbook signals, and proof/telemetry references | do not depend on presentation strings or one-off CLI formatting |
-| Debug/internal service output | direct-control service/debug hierarchy | transport/session state, raw probes, route selection, closeout traces, correlation, and diagnostics | do not expose as normal player-agent or strategy-ingestion output |
-| Operation/proof telemetry | support proof and future procedure middleware | evidence class, validation, send, postcondition, blocker deltas, and runtime observation links | do not claim live/runtime proof from local tests or target-thread evidence alone |
-| Effect/oRPC procedure cores | shared oRPC/Effect procedure/router substrate over stable direct-control atoms for the in-game controller router, external direct-control bridge, and future AI services | typed atoms, schemas, context, middleware, validator gates, errors, correlation IDs, and telemetry hooks | do not implement transport-first raw command tunneling |
+| Surface                         | Primary consumer                                                                                                                                 | Required content                                                                                                                        | Forbidden collapse                                                                               |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Hotseat handoff state           | live player-agent controller                                                                                                                     | current local player, agent-owned slot, turn handoff readiness, controller proof state, can-act evidence, and blocker summary           | do not treat autoplay debug control as the product path; do not act for non-agent human turns    |
+| Semantic CLI player-agent view  | local player-agent API                                                                                                                           | game state, blockers, decisions, action results, safe/unsafe next steps, and postcondition classifications                              | do not dump raw session, closeout, command, or proof JSON as normal play output                  |
+| Strategy/intelligence ingestion | AI-intelligence database/model layer                                                                                                             | stable machine-readable turn state, observations, decisions, action outcomes, playbook/cookbook signals, and proof/telemetry references | do not depend on presentation strings or one-off CLI formatting                                  |
+| Debug/internal service output   | direct-control service/debug hierarchy                                                                                                           | transport/session state, raw probes, route selection, closeout traces, correlation, and diagnostics                                     | do not expose as normal player-agent or strategy-ingestion output                                |
+| Operation/proof telemetry       | support proof and future procedure middleware                                                                                                    | evidence class, validation, send, postcondition, blocker deltas, and runtime observation links                                          | do not claim live/runtime proof from local tests or target-thread evidence alone                 |
+| Effect/oRPC control service     | shared oRPC/Effect service over stable direct-control atoms for the in-game controller ingress, external control clients, and future AI services | typed contracts, context, middleware, validator gates, errors, correlation IDs, and telemetry hooks                                     | do not implement transport-first raw command tunneling or a direct-control-local procedure plane |
 
 Future atom and envelope rows classify `playerScope`, `consumerClass`,
 `evidenceClass`, `procedureCandidate`, `normalCliProjection`, and
 `debugServiceProjection` before runtime-status extraction, CLI hierarchy work,
-telemetry, AI ingestion, or Effect/oRPC procedure cores depend on them.
+telemetry, AI ingestion, or new control-service contracts depend on them.
 
 The row-level matrix lives in `workstream/compatibility-matrix.md`. Its current
 rows materialize the gate for hotseat handoff state, semantic CLI player-agent
 view, strategy/intelligence ingestion, debug/internal service output,
-operation/proof telemetry, and Effect/oRPC procedure cores. Rows with
+operation/proof telemetry, and the Effect/oRPC control service. Rows with
 `acceptanceStatus: pending-*` remain blocking; the matrix is accepted only when
 all required fields have real source owners, proof owners, schemas/tests, and
 stop conditions recorded.
@@ -305,7 +302,7 @@ Compatibility matrix execution gate:
 - Before any slice touches command hierarchy, semantic envelopes, telemetry,
   schema/type ownership, runtime-status projection, debug/internal service
   output, AI data artifacts, Effect/Bun resource or stream handling, or oRPC
-  procedure cores, the touched atom or envelope must classify `playerScope`,
+  service contracts, the touched atom or envelope must classify `playerScope`,
   `consumerClass`, `evidenceClass`, `procedureCandidate`,
   `normalCliProjection`, and `debugServiceProjection` against both live hotseat
   player-agent control and AI-intelligence strategy ingestion.
@@ -327,8 +324,8 @@ Compatibility matrix execution gate:
   router, context, middleware, typed-error, correlation, or transport mechanics.
   The staged native implementation authority is
   `openspec/changes/civ7-control-orpc-native-slice/`.
-- Procedure-core schema work must explicitly evaluate TypeBox versus Effect
-  Schema before adding or rewriting direct-control contracts. That disposition
+- Service schema work must explicitly evaluate TypeBox versus Effect Schema
+  before replacing the accepted TypeBox contract lane. That disposition
   must consider encode/decode affordances, typed errors, oRPC compatibility,
   test ergonomics, existing TypeBox coverage, runtime validation behavior,
   duplication cost, migration blast radius, and whether one schema technology
@@ -337,7 +334,7 @@ Compatibility matrix execution gate:
   records the planning default as bounded hybrid: keep current TypeBox public
   contracts in place until a consumer-backed schema slice proves replacement
   value, and consider Effect Schema for new/refactored Effect-native
-  procedure-core, telemetry, and AI-ingestion contracts where decode/encode,
+  service, telemetry, and AI-ingestion contracts where decode/encode,
   transformations, typed parse errors, Effect integration, or
   machine-ingestion ergonomics materially help. Zod must not become a third
   durable schema authority by drift; if oRPC needs Zod as an adapter layer, the
@@ -349,8 +346,9 @@ Compatibility matrix execution gate:
   waiting during agent turns, and clean UI restoration. Autoplay/Automation is
   support/debug infrastructure because it is global/input-suppressing; it is
   not the primary external-agent executor.
-- Direct-control remains the only live action authority. Raw `game exec`,
-  companion-owned `sendRequest`, raw SQL, and runtime catalog reflection are
+- The control service owns live product action semantics; direct-control owns
+  the low-level runtime mutation ports it invokes. Raw `game exec`,
+  companion-owned `sendRequest`, raw SQL, and runtime catalog reflection remain
   debug/probe surfaces, not product APIs.
 - Corpus/model ingestion is prospective and source-labeled. Existing saves,
   logs, and debug databases may enrich and score records, but they do not
@@ -367,7 +365,7 @@ Allowed proof labels:
 - `pending-ai-ingestion-contract`
 - `pending-cli-semantic-envelope`
 - `pending-telemetry-contract`
-- `pending-procedure-core-schema`
+- `pending-control-service-contract`
 - `local-package-source-relocation-only`
 
 Compatibility stop conditions:
@@ -377,10 +375,10 @@ Compatibility stop conditions:
   thread `019e86b7-b08b-72f3-8341-6c78a1285c93` recorded as the dependency
   base.
 - Stop if dependent CLI semantic, telemetry, AI-ingestion, runtime-status,
-  schema/type, debug/internal service, Effect/Bun, or oRPC procedure-core
+  schema/type, debug/internal service, Effect/Bun, or control-service
   implementation starts before Task 2.9 matrix-row acceptance.
 - Stop if a row says "support both" without separating normal CLI,
-  debug/internal service output, AI ingestion, telemetry, and procedure-core
+  debug/internal service output, AI ingestion, telemetry, and control-service
   consumers.
 - Stop if target-thread evidence, peer reports, repo docs, local tests,
   logs/database artifacts, official resources, live runtime proof, or in-game
@@ -438,12 +436,12 @@ Responsibilities:
    - read-only tactical/progression/destination surfaces;
    - schemas/types/constants.
 6. Define hotseat/autoplay and AI-intelligence compatibility requirements over
-   direct-control atoms before command hierarchy, telemetry, or procedure-core
+   direct-control atoms before command hierarchy, telemetry, or service-contract
    implementation begins.
 7. Define CLI semantic player-agent envelopes and debug-only diagnostic
    boundaries before changing the command hierarchy.
 8. Plan the Effect/Bun implementation model for direct-control atoms,
-   procedure cores, and tests before source rewrites depend on Effect
+   service behavior, and tests before source rewrites depend on Effect
    affordances.
 9. Explicitly cite the oRPC architecture skill/source authority from the
    relevant stack branches. Current authority is
@@ -452,17 +450,18 @@ Responsibilities:
    procedure/router/context/middleware composition over repo-owned
    direct-control atoms, not raw command tunneling, caller-owned socket state,
    or transport-first architecture. This citation does not import or accept
-   tracked procedure-core source.
+   a direct-control-local service descriptor plane.
 10. Promote native control-oRPC work through
     `openspec/changes/civ7-control-orpc-native-slice/`, separating policies,
     context dependencies, read ports, middleware candidates, contracts, and
     modules before source implementation.
-11. Add Effect/oRPC procedure cores over stable atoms.
+11. Add or refine named Effect/oRPC service behaviors directly over stable
+    atoms.
 
-The oRPC lane is therefore planning-only here after authority citation, and it
-remains downstream of direct-control atoms, Task 2.9.4 matrix-row acceptance,
-schema/type ownership, telemetry/proof vocabulary, and semantic/debug consumer
-classification.
+The oRPC implementation lane is owned by
+`openspec/changes/civ7-control-orpc-native-slice/`. This change retains only
+the compatibility and consumer requirements that constrain that service; it
+does not own another composition layer in direct-control.
 
 ## Proof Boundaries
 

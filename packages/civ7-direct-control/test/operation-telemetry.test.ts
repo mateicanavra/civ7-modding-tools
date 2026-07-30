@@ -169,34 +169,20 @@ describe("Civ7 operation proof telemetry owner", () => {
     }
   });
 
-  test("blocks AI ingestion and procedure middleware until their contracts own projection", () => {
+  test("blocks AI ingestion until its contract owns projection", () => {
     const record = createCiv7OperationProofTelemetryRecord(baseTelemetryInput());
     const aiProjection = projectCiv7OperationProofTelemetry(record, "ai-ingestion-contract");
-    const procedureProjection = projectCiv7OperationProofTelemetry(
-      record,
-      "procedure-core-middleware"
-    );
 
     expect(aiProjection).toMatchObject({
       consumer: "ai-ingestion-contract",
       surface: "blocked-until-ai-ingestion-contract",
       allowed: false,
     });
-    expect(procedureProjection).toMatchObject({
-      consumer: "procedure-core-middleware",
-      surface: "blocked-until-procedure-middleware",
-      allowed: false,
-    });
     if (aiProjection.consumer !== "ai-ingestion-contract") {
       throw new Error("Expected the blocked AI telemetry projection");
     }
-    if (procedureProjection.consumer !== "procedure-core-middleware") {
-      throw new Error("Expected the blocked procedure telemetry projection");
-    }
     expect(aiProjection).not.toHaveProperty("payload");
-    expect(procedureProjection).not.toHaveProperty("payload");
     expect(aiProjection.reason).toMatch(/accepted machine contract/);
-    expect(procedureProjection.reason).toMatch(/procedure middleware contract/);
   });
 
   test("does not carry legacy verified booleans into the telemetry postcondition contract", () => {

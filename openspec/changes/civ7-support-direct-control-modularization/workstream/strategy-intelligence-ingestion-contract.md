@@ -3,7 +3,7 @@
 This is a planning contract for future AI-intelligence ingestion records. It is
 not a source implementation, accepted schema, generated corpus artifact, static
 profile generator, telemetry persistence layer, normal CLI semantic envelope,
-debug/internal service contract, runtime proof, or Effect/oRPC procedure-core
+debug/internal service contract, runtime proof, or Effect/oRPC service
 contract.
 
 The ingestion target exists because the AI-intelligence model thread is built
@@ -28,22 +28,22 @@ Future ingestion records may describe:
 
 This contract does not authorize AI corpus generation, telemetry persistence,
 profile output generation, raw database ingestion, CLI output rewrites, or
-procedure-core implementation by itself.
+control-service implementation by itself.
 
 ## Future Record Families
 
 Future implementation should converge on stable record families such as these
 or direct equivalents:
 
-| Record family | Purpose | Required labels |
-|---|---|---|
-| `StrategyPlan` | Captures source-labeled strategic intent, priorities, assumptions, and candidate lines of play. | source, freshness, player scope, evidence class, model/thread provenance. |
-| `ActionCandidate` | Represents a candidate direct-control action before send. | operation family, target, args, mutation requirement, validator evidence, stale/unknown risk. |
-| `ActionOutcome` | Represents post-read/postcondition and outcome evidence after an action attempt. | validation_pre, send_receipt, validation_post, outcome_delta, blocker_delta, evidence policy. |
-| `LoadedRowProof` | Captures source-labeled GameInfo/resource/log/debug DB rows used as evidence. | data source, load time, freshness, schema/version, row key, proof class. |
-| `RunMetric` | Captures measured-run or benchmark signals without replacing action diaries. | run id, player scope, metric source, collection window, evidence class. |
-| `PromotionDecision` | Captures promotion or build/choice decision evidence for strategy learning. | candidate options, selected option, blocker/decision source, outcome evidence when available. |
-| `ProfileRecipe` | Describes static native-AI profile shaping inputs and generated SQL/XML intent. | static-profile lane, source evidence, generation policy, non-live-action marker. |
+| Record family       | Purpose                                                                                         | Required labels                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `StrategyPlan`      | Captures source-labeled strategic intent, priorities, assumptions, and candidate lines of play. | source, freshness, player scope, evidence class, model/thread provenance.                     |
+| `ActionCandidate`   | Represents a candidate direct-control action before send.                                       | operation family, target, args, mutation requirement, validator evidence, stale/unknown risk. |
+| `ActionOutcome`     | Represents post-read/postcondition and outcome evidence after an action attempt.                | validation_pre, send_receipt, validation_post, outcome_delta, blocker_delta, evidence policy. |
+| `LoadedRowProof`    | Captures source-labeled GameInfo/resource/log/debug DB rows used as evidence.                   | data source, load time, freshness, schema/version, row key, proof class.                      |
+| `RunMetric`         | Captures measured-run or benchmark signals without replacing action diaries.                    | run id, player scope, metric source, collection window, evidence class.                       |
+| `PromotionDecision` | Captures promotion or build/choice decision evidence for strategy learning.                     | candidate options, selected option, blocker/decision source, outcome evidence when available. |
+| `ProfileRecipe`     | Describes static native-AI profile shaping inputs and generated SQL/XML intent.                 | static-profile lane, source evidence, generation policy, non-live-action marker.              |
 
 ## Required Labels
 
@@ -83,8 +83,8 @@ Normal CLI may present semantic summaries for player-agent use, but ingestion
 must use a separate machine contract. Debug/internal service output may enrich
 ingestion only when wrapped with source/freshness/evidence labels. Telemetry may
 feed ingestion only after the Operation/Proof Telemetry row is accepted.
-Procedure cores may serve ingestion only after typed schema/procedure ownership
-is accepted.
+The control service may serve ingestion only after typed machine-contract
+ownership is accepted.
 
 ## Acceptance Gaps
 
@@ -100,7 +100,7 @@ Ingestion row, but it does not accept the row. Acceptance still needs:
 - tests proving ingestion does not consume CLI strings, raw command strings,
   raw SQL, runtime reflection, unlabeled artifacts, or vague `verified: true`;
 - separation tests for normal CLI, debug/internal service, telemetry,
-  procedure-core, live external play, and static native-AI profile lanes.
+  control-service, live external play, and static native-AI profile lanes.
 
 ## Stop Conditions
 

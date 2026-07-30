@@ -1,8 +1,8 @@
 # Command Reference
 
 Exact CLI surface for playing a live Civ7 game. Source of truth is the code in
-`plugins/cli/topics/game/src/commands/game/**` and `packages/civ7-control-orpc`; if a flag
-here ever disagrees with `… --help`, trust `--help`.
+`plugins/cli/topics/game/src/commands/game/**` and `services/civ7-control`; if a
+flag here ever disagrees with `… --help`, trust `--help`.
 
 **Contents:** [Invocation](#invocation) · [Result envelope](#result-envelope) ·
 [The ID-flow](#the-id-flow-reads--actions) · [Read commands](#read-commands) ·

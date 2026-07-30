@@ -3,11 +3,11 @@
 This is a planning contract for future operation/proof telemetry records. It is
 not a source implementation, accepted schema, telemetry persistence layer,
 AI-ingestion contract, normal CLI semantic envelope, debug/internal service
-contract, runtime proof, or Effect/oRPC procedure-core contract.
+contract, runtime proof, or Effect/oRPC service contract.
 
 The telemetry target exists because mutation-facing direct-control work needs a
 stable audit vocabulary across validation, send, post-read, and
-postcondition evidence. Future AI-intelligence and procedure-core consumers
+postcondition evidence. Future AI-intelligence and control-service consumers
 need explicit outcome evidence; they must not train, act, or close product
 claims from a vague `verified: true` flag.
 
@@ -28,26 +28,26 @@ proof labels must remain visible when relevant.
 Future implementation should converge on a stable record shape with these slots
 or direct equivalents:
 
-| Slot | Purpose |
-|---|---|
-| `recordVersion` | Identifies the telemetry contract version once a schema owner exists. |
-| `correlationId` | Links validation, send, post-read, and outcome evidence without exposing it in normal CLI by default. |
-| `playerScope` | Records local-player, player, agent-slot, observer, or unknown scope. |
-| `strategyIntent` | Optional source-labeled intent from a strategy or player-agent layer. |
-| `candidateAction` | Stable action candidate identity before validation or send. |
-| `operationFamily` | Direct-control operation family such as unit operation, production, narrative, diplomacy, notification dismissal, turn completion, setup, or autoplay support. |
-| `target` | Source-labeled target identity, component id, notification id, location, city, unit, or none. |
-| `args` | Bounded, schema-owned operation arguments with sensitive/debug-only internals omitted. |
-| `riskPolicy` | Validator, postcondition, no-repeat, readiness, lifecycle, and local-player proof requirements. |
-| `validation_pre` | Validator result before send, including no-send blockers and input/evidence policy. |
-| `send_receipt` | Send attempt/result, request family, sent/not-sent status, and transport-independent receipt facts. |
-| `post_read` | Readback source used for postcondition evaluation, with source/freshness/evidence labels. |
-| `validation_post` | Post-send validator result, including stale/unknown/no-state-change classifications. |
-| `postcondition` | Explicit classification, reason, blocker state, no-repeat guidance, and confidence boundary. |
-| `outcome_delta` | Source-labeled state change, no-state-change, or unknown outcome evidence. |
-| `blocker_delta` | Blocking notification, ready-unit, ready-city, turn, or closeout state change. |
-| `evidencePolicy` | Which evidence classes were allowed and which proof classes remain pending. |
-| `runtimeObservationLinks` | Optional references to live observations, logs, or resources without treating them as equivalent proof classes. |
+| Slot                      | Purpose                                                                                                                                                        |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `recordVersion`           | Identifies the telemetry contract version once a schema owner exists.                                                                                          |
+| `correlationId`           | Links validation, send, post-read, and outcome evidence without exposing it in normal CLI by default.                                                          |
+| `playerScope`             | Records local-player, player, agent-slot, observer, or unknown scope.                                                                                          |
+| `strategyIntent`          | Optional source-labeled intent from a strategy or player-agent layer.                                                                                          |
+| `candidateAction`         | Stable action candidate identity before validation or send.                                                                                                    |
+| `operationFamily`         | Direct-control operation family such as unit operation, production, narrative, diplomacy, notification dismissal, turn completion, setup, or autoplay support. |
+| `target`                  | Source-labeled target identity, component id, notification id, location, city, unit, or none.                                                                  |
+| `args`                    | Bounded, schema-owned operation arguments with sensitive/debug-only internals omitted.                                                                         |
+| `riskPolicy`              | Validator, postcondition, no-repeat, readiness, lifecycle, and local-player proof requirements.                                                                |
+| `validation_pre`          | Validator result before send, including no-send blockers and input/evidence policy.                                                                            |
+| `send_receipt`            | Send attempt/result, request family, sent/not-sent status, and transport-independent receipt facts.                                                            |
+| `post_read`               | Readback source used for postcondition evaluation, with source/freshness/evidence labels.                                                                      |
+| `validation_post`         | Post-send validator result, including stale/unknown/no-state-change classifications.                                                                           |
+| `postcondition`           | Explicit classification, reason, blocker state, no-repeat guidance, and confidence boundary.                                                                   |
+| `outcome_delta`           | Source-labeled state change, no-state-change, or unknown outcome evidence.                                                                                     |
+| `blocker_delta`           | Blocking notification, ready-unit, ready-city, turn, or closeout state change.                                                                                 |
+| `evidencePolicy`          | Which evidence classes were allowed and which proof classes remain pending.                                                                                    |
+| `runtimeObservationLinks` | Optional references to live observations, logs, or resources without treating them as equivalent proof classes.                                                |
 
 ## Projection Boundaries
 
@@ -62,10 +62,10 @@ Normal CLI may summarize telemetry as player-agent state-machine status:
 Normal CLI must not dump the full telemetry record by default.
 
 Debug/internal service projection may expose raw telemetry details under a
-debug-owned command, flag, or future debug procedure. AI ingestion may consume
+debug-owned command, flag, or service procedure. AI ingestion may consume
 telemetry only through an accepted machine contract with source, freshness,
-evidence, and scope labels. Procedure cores may attach telemetry hooks only
-after typed schema/procedure ownership is accepted.
+evidence, and scope labels. The control service may attach telemetry hooks only
+after typed contract and behavior ownership is accepted.
 
 ## Proof Classes
 
@@ -106,7 +106,7 @@ boundaries reject `live-runtime-proof` and `in-game-observation` evidence
 labels, while `pending-runtime-proof` remains a pending proof class instead of
 a live proof claim; normal CLI/player-agent consumers receive only the summary,
 debug/internal and raw telemetry consumers may receive the raw record, and
-AI/procedure consumers stay blocked until their accepted contract or middleware
+AI/service consumers stay blocked until their accepted contract or middleware
 owner exists.
 
 `packages/civ7-direct-control/src/proof/unit-target-telemetry.ts` is the first
@@ -186,7 +186,7 @@ it does not accept the row. Acceptance still needs:
   beyond the seeded unit-target, production-choice, diplomacy-response,
   narrative-choice, and notification-dismissal result adapters;
 - final projection implementation tests at the normal CLI, debug/internal
-  service, AI-ingestion, and procedure-core owners, beyond the local telemetry
+  service, AI-ingestion, and control-service owners, beyond the local telemetry
   projection-separation owner seed;
 - proof-label guards preventing local tests, thread evidence, docs, logs, or
   resources from being labeled as live runtime proof across all future
@@ -204,4 +204,4 @@ Stop and reframe if future telemetry work:
   live runtime proof;
 - hides stale/unknown/no-repeat-after-unverified classifications;
 - turns telemetry persistence, AI ingestion, normal CLI projection, or
-  procedure-core middleware into one broad raw JSON surface.
+  control-service middleware into one broad raw JSON surface.
