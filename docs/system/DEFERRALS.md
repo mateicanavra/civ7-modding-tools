@@ -162,9 +162,36 @@ live-proof runbook in `MILESTONE-PROOFS.md`).
 
 **Deferred:** 2026-07-29
 **Trigger:** Every production mutation routes exclusively through the persistent in-game controller, and that controller has accepted listener lifecycle, request correlation, timeout, and live unit/project/constructible proof.
-**Context:** Official Civ7 production sends are fire-and-forget. `CityProductionChanged` and `CityProductionQueueChanged` are authoritative wakeups for a fresh queue/blocker read, not standalone acceptance receipts. The current control service uses one bounded readback model for both the persistent controller and the one-shot Tuner provider; adding event waiting only to the controller would create two completion models, while adding listener state to a one-shot Tuner command would recreate a second controller.
+**Context:** Official Civ7 production sends are fire-and-forget.
+`CityProductionChanged` and `CityProductionQueueChanged` are authoritative
+wakeups for a fresh queue/blocker read, not standalone acceptance receipts. The
+current control service has only the one-shot Tuner path and therefore uses
+bounded readback. Event waiting would require the persistent same-realm
+controller deferred in DEF-022; adding listener state to a one-shot Tuner
+command would recreate that controller without its lifecycle authority.
 **Scope:** Subscribe before dispatch, correlate native production events to the requested city and choice, perform one authoritative post-event queue/blocker read, preserve timeout and no-repeat behavior, prove live parity across production item kinds, then retire the one-shot production atom and polling together.
 **Impact:** Production confirmation currently performs bounded 250 ms polling rather than event-triggered readback. The result remains honest and fail-closed, with a small avoidable observation delay.
+
+## DEF-022: Persistent in-game Civ7 controller
+
+**Deferred:** 2026-07-30
+**Trigger:** A concrete same-realm consumer or proven asynchronous ingress
+requires persistent in-game state, and the proposal includes accepted
+deployment, lifecycle, request-correlation, timeout, versioning, and live
+compatibility proof.
+**Context:** The retired intelligence-bridge mod installed an unconsumed
+`globalThis` controller and duplicated native command adapters already owned by
+direct-control and the control service. App UI access to gameplay and UI roots
+is useful runtime evidence, but it does not by itself earn a second deployed
+control owner.
+**Scope:** Design the smallest qualified Civ7 mod definition and realization
+needed by the triggering consumer, preserve service-owned policy, define one
+bounded ingress and controller lifecycle, and prove the deployed path in a live
+game. Do not revive the retired bridge project or pass service contracts around
+as an implementation facade.
+**Impact:** Civ7 control remains externally hosted through the current public
+service and Tuner path. Persistent in-game event listeners and same-realm
+controller state are unavailable until a product consumer earns them.
 
 ## Project-scoped deferrals
 

@@ -1,5 +1,14 @@
 # Project: Civ7 Intelligence Layer
 
+> **Control-path rebaseline (2026-07-30):** The controller and
+> `globalThis.Civ7IntelligenceBridge` recommendations in this project packet are
+> superseded by [ADR-007](../../system/ADR.md#adr-007-civ7-intelligence-separates-live-control-from-native-policy),
+> [DEF-022](../../system/DEFERRALS.md#def-022-persistent-in-game-civ7-controller),
+> and the
+> [capability-realization frame](../civ7-capability-realization/FRAME.md).
+> Preserve the source investigation as evidence, but do not implement or treat
+> the retired bridge shape as current authority.
+
 **Status:** Framed for workstream kickoff
 **Timeline:** Begins after direct-control/live-play surface stabilization
 **Teams:** Codex workstream lead plus peer investigators for data corpus,

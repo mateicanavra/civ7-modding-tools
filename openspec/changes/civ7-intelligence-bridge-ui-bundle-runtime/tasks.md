@@ -1,3 +1,6 @@
+> **Superseded 2026-07-30:** These completed tasks document a retired bundle.
+> They do not authorize recreating the bridge project or generated artifact.
+
 ## 1. Source Graph Repair
 
 - [x] 1.1 Remove game-UI-reachable direct-control root value imports from

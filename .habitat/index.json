@@ -10,7 +10,6 @@
     "civ7-sdk": "packages/sdk",
     "mapgen-core": "packages/mapgen-core",
     "mapgen-studio": "apps/mapgen-studio",
-    "mod-intelligence-bridge": "mods/mod-civ7-intelligence-bridge",
     "swooper-physics": "plugins/mod/map/swooper-physics",
     "swooper-physics-mod": "apps/mods/map/swooper-physics"
   }

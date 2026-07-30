@@ -601,7 +601,13 @@ has one definition owner and one realization owner.
 1. Update `docs/system/ARCHITECTURE.md`, product docs, and relevant domain
    routers.
 2. Retire or archive OpenSpec packets that describe the facade or
-   `Civ7IntelligenceBridge.invoke` as current authority.
+   `Civ7IntelligenceBridge.invoke` as current authority. Archive
+   `direct-control-game-controller-bridge` and
+   `civ7-intelligence-bridge-ui-bundle-runtime` with `--skip-specs`; rebaseline
+   the mixed `civ7-control-orpc-native-slice` and
+   `civ7-support-direct-control-modularization` fronts without rewriting their
+   chronological workstream evidence, then archive them only after their
+   remaining service/atom authority is consumed.
 3. Run one Nx-owned build/check/test graph, Habitat policy and boundaries,
    generated-currentness, Knip, and focused product proofs.
 4. Run final Narsil reference, cycle, and boundary corroboration.

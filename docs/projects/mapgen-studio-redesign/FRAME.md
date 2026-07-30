@@ -1,5 +1,16 @@
 # MapGen Studio Redesign — Normative Operational Frame
 
+> **Control-path rebaseline (2026-07-30):** The
+> `Civ7IntelligenceBridge`-specific seam in this packet is superseded. Current
+> control authority is
+> [ADR-007](../../system/ADR.md#adr-007-civ7-intelligence-separates-live-control-from-native-policy),
+> [DEF-022](../../system/DEFERRALS.md#def-022-persistent-in-game-civ7-controller),
+> and the
+> [capability-realization frame](../civ7-capability-realization/FRAME.md).
+> Preserve the Studio product and interaction goals, but re-derive its control
+> projection from the accepted shared Habitat substrate; do not bind or rebuild
+> the retired global bridge.
+
 > **What this is.** The durable, compaction-surviving operating frame for this
 > workstream. It is the lens, not the task list. Read it first on every resume.
 > It names the objective, what is in/out, what may never break, what would force

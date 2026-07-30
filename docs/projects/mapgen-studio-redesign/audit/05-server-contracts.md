@@ -1,5 +1,12 @@
 # 05 — Server Boundary / API Contract Inventory
 
+> **Control-path rebaseline (2026-07-30):** The historical endpoint inventory
+> remains useful, but every `Civ7IntelligenceBridge` projection below is
+> superseded. Re-derive the live-control projection from
+> [ADR-007](../../../system/ADR.md#adr-007-civ7-intelligence-separates-live-control-from-native-policy)
+> and the
+> [capability-realization frame](../../civ7-capability-realization/FRAME.md).
+
 > **D12 STATUS (2026-06-15):** This audit is retained as historical migration
 > evidence for the pre-runtime-refactor `/api` inventory. It is not current
 > Studio server authority. Current runtime authority is the TypeBox/oRPC

@@ -1,3 +1,7 @@
+> **Superseded 2026-07-30:** The unchecked controller tasks are retired, not
+> pending implementation. Preserve their state until this packet is archived in
+> capability-realization Container 14.
+
 ## 0. Realignment
 
 - [x] 0.1 Open the `direct-control-game-controller-bridge` OpenSpec change.

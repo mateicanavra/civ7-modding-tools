@@ -65,7 +65,7 @@ import { router } from "#civ7-control-service/router";
 // @filename: apps/mods/map/swooper-physics/scripts/live/private-control.ts
 const control = await import(`#civ7-control-service/impl`);
 
-// @filename: mods/mod-civ7-intelligence-bridge/src/private-control.ts
+// @filename: mods/example-controller/src/private-control.ts
 export { router } from "#civ7-control-service/router";
 ```
 

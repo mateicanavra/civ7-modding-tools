@@ -139,10 +139,20 @@ renames that artifact.
 - Studio stage/step naming becomes more meaningful by adding explicit `stageLabel`/`stepLabel` to recipe uiMeta.
 - Any tooling that relied on the old stage ids (`morphology-pre/mid/post`) must be updated as part of the cutover (configs, docs, guardrails).
 
-## ADR-007: Civ7 intelligence uses two authority sides with a game-scoped controller
+## ADR-007: Civ7 intelligence separates live control from native policy
 
-**Status:** Accepted
+**Status:** Accepted (amended 2026-07-30)
 **Date:** 2026-06-03
+**2026-07-30 amendment:** The game-scoped controller candidate and
+`globalThis.Civ7IntelligenceBridge` ingress are superseded. The bridge was never
+consumed by a production caller and never earned deployment, lifecycle,
+correlation, timeout, or live compatibility proof. Its project and
+instance-specific enforcement are retired. The exact native operation and
+service-ownership decisions below remain authoritative until the coupled
+capability-realization cutover. A future in-game controller is a new capability
+admitted only when the trigger in DEF-022 is met; it does not inherit the
+retired bridge's shape.
+
 **Context:** The Civ7 intelligence-layer investigation found several tempting but
 unsafe ways to describe live AI influence: raw `game exec` as an agent API,
 companion UI scripts as a third control plane, Tuner-loaded mod claims, and a
@@ -151,12 +161,11 @@ implementation target: App UI game context exposed the same major gameplay roots
 checked in Tuner, plus App UI-only lifecycle/UI/storage roots. Generated static
 profiles already own the native AI policy lane.
 **Decision:** Civ7 intelligence uses a two-sided authority architecture:
-live external play through `@civ7/direct-control`, and native policy shaping
-through generated static AI profiles. A game-scoped App UI controller loaded
-through native `scope="game"` `UIScripts` is the baseline implementation
-candidate for replacing raw per-wrapper direct-control JavaScript with a stable
-in-game API. `@civ7/control-orpc` owns the public service contract, router,
-admission, and composed behavior. For production choices, that service
+live external play through the public control service, and native policy
+shaping through generated static AI profiles. `@civ7/direct-control` owns the
+currently admitted one-shot Tuner transport and exact Civ7 command atoms;
+`@civ7/control-orpc` owns the public service contract, router, admission, and
+composed behavior. For production choices, that service
 authority includes semantic check/request orchestration, dispatch uncertainty,
 bounded post-send checking, postcondition classification, and
 no-repeat-after-unverified policy. `@civ7/direct-control` owns the exact
@@ -166,10 +175,10 @@ validator/send adaptation, and raw evidence snapshots. Those atoms invoke
 closing UI, and treat a non-throwing `sendRequest` invocation as dispatch rather
 than synchronous engine acknowledgement. The generic city-operation surface
 rejects `BUILD`; it cannot form a second production path around the exact atoms
-or service policy. The game-scoped controller is a provider adapter for those
-service ports, not a second semantic policy owner. Direct-control retains the
-currently mixed low-level tuner and Civ7-side JavaScript responsibilities until
-those nodes are extracted.
+or service policy. Direct-control retains the currently mixed low-level Tuner
+and Civ7-side JavaScript responsibilities until those nodes are extracted. A
+future same-realm controller may provide those service ports only after DEF-022
+is resolved; it never becomes a second semantic policy owner.
 
 Town focus follows the same ownership. The city service owns semantic
 change/review checks, already-satisfied guards, bounded post-send observation,
@@ -221,15 +230,16 @@ call the unit service rather than bypassing it for read-only resolution.
 **Consequences:**
 - Raw `CMD:<stateId>:<javascript>` / `game exec` stays a diagnostic and probe
   transport, not the agent-facing product API.
-- oRPC/Effect is the shared control substrate. The App UI installs the selected
-  native nested router client at `globalThis.Civ7IntelligenceBridge`; it does
-  not reconstruct schemas or dispatch serialized procedure keys.
+- oRPC/Effect is the shared control substrate. No production App UI controller
+  is installed; current callers use the public control service through its
+  admitted host path. Any future same-realm ingress must be independently
+  justified and must not reconstruct service schemas or policy.
 - `UIScripts` proof is App UI game-context proof unless shell or Tuner
   availability is separately demonstrated. Shell requires its own entrypoint;
   Tuner is not a modinfo deployment target in the baseline.
-- The controller can reduce repeated raw-wrapper verification, but it does not
-  remove lifecycle, approval, action legality, hotseat, age-transition, or
-  semantic outcome proof.
+- A future same-realm controller could reduce repeated raw-wrapper verification,
+  but it would not remove lifecycle, approval, action legality, hotseat,
+  age-transition, or semantic outcome proof.
 - Controller-owned independent gameplay sends remain eliminated. Exact
   direct-control wire results are raw evidence; the control service owns
   semantic production completion and postcondition decisions.
