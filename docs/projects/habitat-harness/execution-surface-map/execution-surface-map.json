@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "generatedBy": "tools/habitat/scripts/execution-surface-map.ts",
   "summary": {
-    "totalSurfaces": 693,
+    "totalSurfaces": 695,
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
       "pattern": 80,
-      "rule-json": 121,
+      "rule-json": 122,
       "structure-spec": 22,
-      "check-script": 16,
+      "check-script": 17,
       "apply-pattern": 1,
       "generate-script": 2,
       "operation-note": 3,
@@ -22,22 +22,22 @@
     },
     "surfacesByRole": {
       "policy_pattern": 81,
-      "runner_metadata": 121,
+      "runner_metadata": 122,
       "structure_authority": 22,
-      "command_check_executor": 16,
+      "command_check_executor": 17,
       "operation_surface": 6,
       "workspace_entrypoint": 327,
       "toolkit_runner": 120
     },
     "entrypointsByInvoker": {
-      "unknown": 244,
+      "unknown": 246,
       "direct-script": 5,
       "package": 191,
       "nx": 137,
       "habitat": 120
     },
     "surfacesByBucket": {
-      "unknown_invocation": 244,
+      "unknown_invocation": 246,
       "mutation_surface": 145,
       "nx_ordering_tie": 145,
       "package_boundary_tie": 39,
@@ -50,7 +50,7 @@
   "executionAnatomy": {
     "roleCounts": {
       "policy-predicate": 103,
-      "adapter": 121,
+      "adapter": 122,
       "transient-dependency": 138,
       "fixture-support": 4,
       "entrypoint": 329,
@@ -4266,6 +4266,15 @@
       ]
     },
     {
+      "target": ".habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json",
+      "targetClass": "habitat-authority",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/global/workspace/rules/require_active_rule_authority_ledger_identity_parity/check.ts"
+      ]
+    },
+    {
       "target": ".habitat/cache/patterns/",
       "targetClass": "habitat-authority",
       "references": 1,
@@ -7989,6 +7998,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/habitat/toolkit/_blueprints/service-module/validate_habitat_service_module_file_shape/check.ts"
+      ]
+    },
+    {
+      "target": "tools/habitat/src/service/model/rules/repositories/registry.repository.ts",
+      "targetClass": "habitat-toolkit",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/global/workspace/rules/require_active_rule_authority_ledger_identity_parity/check.ts"
       ]
     },
     {
@@ -20833,6 +20851,126 @@
     {
       "id": ".habitat/global/workspace/rules/prohibit_pnpm_files_in_bun_workspace/rule.json",
       "path": ".habitat/global/workspace/rules/prohibit_pnpm_files_in_bun_workspace/rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "invokedBy": [
+        "unknown"
+      ],
+      "detectCommand": [],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/global/workspace/rules/require_active_rule_authority_ledger_identity_parity/check.ts",
+      "path": ".habitat/global/workspace/rules/require_active_rule_authority_ledger_identity_parity/check.ts",
+      "surfaceKind": "check-script",
+      "surfaceRole": "command_check_executor",
+      "invokedBy": [
+        "unknown"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [
+          "node:fs",
+          "node:path",
+          "node:url"
+        ],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "node:fs",
+          "node:path",
+          "node:url"
+        ],
+        "directHabitatPathCalls": [
+          ".habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json"
+        ],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "import",
+            "value": "node:fs",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "import",
+            "value": "node:path",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "import",
+            "value": "node:url",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "path-reference",
+            "value": ".habitat",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "path-reference",
+            "value": ".habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json",
+            "targetClass": "habitat-authority"
+          },
+          {
+            "kind": "path-reference",
+            "value": "tools/habitat/src/service/model/rules/repositories/registry.repository.ts",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:fs",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:path",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:url",
+            "targetClass": "node-builtin"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [],
+        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/global/workspace/rules/require_active_rule_authority_ledger_identity_parity/rule.json",
+      "path": ".habitat/global/workspace/rules/require_active_rule_authority_ledger_identity_parity/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [
@@ -34047,6 +34185,126 @@
     {
       "id": ".habitat/global/workspace/rules/prohibit_pnpm_files_in_bun_workspace/rule.json",
       "path": ".habitat/global/workspace/rules/prohibit_pnpm_files_in_bun_workspace/rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "invokedBy": [
+        "unknown"
+      ],
+      "detectCommand": [],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/global/workspace/rules/require_active_rule_authority_ledger_identity_parity/check.ts",
+      "path": ".habitat/global/workspace/rules/require_active_rule_authority_ledger_identity_parity/check.ts",
+      "surfaceKind": "check-script",
+      "surfaceRole": "command_check_executor",
+      "invokedBy": [
+        "unknown"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [
+          "node:fs",
+          "node:path",
+          "node:url"
+        ],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "node:fs",
+          "node:path",
+          "node:url"
+        ],
+        "directHabitatPathCalls": [
+          ".habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json"
+        ],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "import",
+            "value": "node:fs",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "import",
+            "value": "node:path",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "import",
+            "value": "node:url",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "path-reference",
+            "value": ".habitat",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "path-reference",
+            "value": ".habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json",
+            "targetClass": "habitat-authority"
+          },
+          {
+            "kind": "path-reference",
+            "value": "tools/habitat/src/service/model/rules/repositories/registry.repository.ts",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:fs",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:path",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:url",
+            "targetClass": "node-builtin"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [],
+        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/global/workspace/rules/require_active_rule_authority_ledger_identity_parity/rule.json",
+      "path": ".habitat/global/workspace/rules/require_active_rule_authority_ledger_identity_parity/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [

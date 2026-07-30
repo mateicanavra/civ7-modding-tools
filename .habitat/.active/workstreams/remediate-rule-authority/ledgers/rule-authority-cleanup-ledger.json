@@ -7,43 +7,43 @@
   "controllingFrame": ".habitat/.active/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/.active/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
   "corpus": {
-    "liveManifestCount": 121,
-    "currentRowCount": 120,
-    "retiredHistoricalRowCount": 46,
+    "liveManifestCount": 122,
+    "currentRowCount": 122,
+    "retiredHistoricalRowCount": 91,
     "duplicateLiveRows": []
   },
   "counts": {
     "actionDecision": {
-      "boundary inversion": 7,
-      "closed structure inversion": 2,
-      "consolidation/dedup": 1,
-      "context admission": 27,
-      "no action": 49,
-      "positive authority creation": 13,
+      "boundary inversion": 9,
+      "closed structure inversion": 1,
+      "context admission": 45,
+      "no action": 37,
+      "positive authority creation": 10,
       "relocate to niche self-authority": 2,
-      "retirement/garbage collection": 2,
-      "runtime/source validation": 3,
+      "runtime/source validation": 4,
       "split by owner": 14
     },
     "packetNeeded": {
-      "false": 120
+      "false": 110,
+      "true": 12
     },
     "layer2Status": {
-      "blocked-prior-source-owner-design": 1,
       "decision-packet-accepted; deletion-blocked-partial-absorber": 1,
-      "decision-packet-accepted; split-generalization-needed": 3,
+      "decision-packet-accepted; split-generalization-needed": 1,
       "excluded-native-rail-not-semantic-remediation": 1,
-      "none": 86,
-      "packet-complete": 14,
-      "transition-decision-accepted": 14
+      "needs-decision-packet": 11,
+      "none": 90,
+      "not-started": 1,
+      "packet-complete": 9,
+      "transition-decision-accepted": 8
     }
   },
   "gateState": {
-    "currentLayer": "Rule authority cleanup: live-manifest and ledger identity reconciliation.",
-    "currentGate": "Restore exact one-row-per-live-rule identity parity before selecting another rule-authority mutation.",
-    "mutationAuthorization": "Only the reviewed require_narrow_game_ui_bridge_bootstrap retirement is authorized by the controller-disposition slice. No further rule mutation is authorized until a fresh no-edit Layer 1 reconciliation classifies the 46 missing live ids and dispositions the 45 manifestless current rows.",
+    "currentLayer": "Civ7 capability realization: next positive-law container selection.",
+    "currentGate": "Select the next independently constructible container from the accepted capability-realization workstream.",
+    "mutationAuthorization": "Future Habitat rule mutation must carry its evidence-backed ledger disposition and keep require_active_rule_authority_ledger_identity_parity green in the same semantic layer.",
     "nextSliceId": null,
-    "nextLegalAction": "Land the reviewed bridge-rule retirement, then frame and run a no-edit Layer 1 corpus reconciliation before selecting any further rule-authority slice.",
+    "nextLegalAction": "Return to the capability-realization workstream, select one destination kind/container, and establish its positive law before source relocation.",
     "operationalSourceOfTruth": ".habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json"
   },
   "rules": [
@@ -310,31 +310,6 @@
       "implementationReadiness": "implemented and enforced"
     },
     {
-      "ruleId": "habitat-studio-run-runtime-authority-closure",
-      "lane": "MapGen Studio",
-      "actionDecision": "retirement/garbage collection",
-      "packetNeeded": false,
-      "expectedRemediation": "Keep only as transitional packet-train closure evidence, then retire the exact SA-01-through-SA-14 sibling-set and Markdown-matrix check once the current baseline is closed and individual rules are dispositioned.",
-      "evidenceNote": "The Habitat script manifest, check.mjs, empty baseline, structural matrix scope, studio-run-diagnostics-retention-guards OpenSpec packet, ledger sole-live-row contract, and transition decision were reviewed. The script verifies a historical packet set and exact current topology rather than a reusable architecture class.",
-      "currentPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/habitat-studio-run-runtime-authority-closure/rule.json",
-      "layer2Status": "transition-decision-accepted",
-      "wholeRuleFit": "transitional meta-closure over an exact packet corpus",
-      "ruleIdPlan": "retain through closeout only; retire without replacement after the individual durable/transitional rows have their target dispositions",
-      "semanticDecision": "Habitat remains the authority tree, but a script that freezes exactly fourteen historical packet rows and a project Markdown matrix is not permanent authority.",
-      "residualFollowUp": "Retirement must preserve ordinary manifest discovery, unique identity, ledger parity, and each surviving invariant's own rule authority.",
-      "implementationReadiness": "no mutation in Packet A.1; retirement belongs to runtime packet-train closeout"
-    },
-    {
-      "ruleId": "preserve_decomposed_foundation_contract_surfaces",
-      "lane": "domains/foundation",
-      "actionDecision": "split by owner",
-      "packetNeeded": false,
-      "expectedRemediation": "Remove the mandatory strategy ../rules/ clause after generic strategy authority lands. Rehome exact operation inventory to recipe-owned generic composition and execution authority; leave artifact and projection concerns with their existing owners.",
-      "evidenceNote": "A.2 review found mixed owners: operation topology and dependency clauses belong to generic domain-operation authority, while artifact and projection currentness remain exterior concerns.",
-      "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/preserve_decomposed_foundation_contract_surfaces/rule.json",
-      "layer2Status": "decision-packet-accepted; split-generalization-needed"
-    },
-    {
       "ruleId": "preserve_mapgen_core_runtime_neutrality",
       "lane": "MapGen SDK / mod-sdk",
       "actionDecision": "no action",
@@ -369,15 +344,6 @@
       "expectedRemediation": "Retain the event-driven Studio runtime relapse boundary while product tests own observable adoption, bounded reads, and cleanup.",
       "evidenceNote": "Replaces source-text assertions with exact operation-read, browser-storage, watcher-runtime, and EventHub owner boundaries. Product tests retain exact-once lifecycle, stream adoption, replay, staleness, and disposal behavior.",
       "currentPath": ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/rule.json"
-    },
-    {
-      "ruleId": "preserve_transport_pure_orpc_contracts",
-      "lane": "Civ7 platform/resources",
-      "actionDecision": "no action",
-      "packetNeeded": false,
-      "expectedRemediation": "Stay as control-oRPC contract source-surface guard.",
-      "evidenceNote": "Graph cannot express schema export privacy; rule matches package contract boundary.",
-      "currentPath": ".habitat/civ7/platform/control-orpc/rules/preserve_transport_pure_orpc_contracts/rule.json"
     },
     {
       "ruleId": "prefer_civ7_preset_dimensions_in_mapgen_behavior_tests",
@@ -465,24 +431,6 @@
       "implementationReadiness": "deletion-gated by positive survivor proof"
     },
     {
-      "ruleId": "prohibit_domain_entrypoint_self_reexports",
-      "lane": "blueprints/domain",
-      "actionDecision": "no action",
-      "packetNeeded": false,
-      "expectedRemediation": "Stay as entrypoint boundary guard.",
-      "evidenceNote": "Domain entrypoints use relative local exports/imports; Habitat check passed.",
-      "currentPath": ".habitat/blueprints/domain/prohibit_domain_entrypoint_self_reexports/rule.json"
-    },
-    {
-      "ruleId": "prohibit_domain_ops_projection_effect_dependencies",
-      "lane": "blueprints/domain-operation",
-      "actionDecision": "no action",
-      "packetNeeded": false,
-      "expectedRemediation": "Stay live as truth/projection boundary.",
-      "evidenceNote": "`artifact:map.*` and `effect:map.*` appear in projection contexts, not domain ops.",
-      "currentPath": ".habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies/rule.json"
-    },
-    {
       "ruleId": "prohibit_empty_object_defaults_in_contract_schemas",
       "lane": "pipeline config/contracts/runtime",
       "actionDecision": "no action",
@@ -490,262 +438,6 @@
       "expectedRemediation": "Admit in contracts child lane.",
       "evidenceNote": "No `default: {}` in contract schemas; representative contracts use property defaults.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_empty_object_defaults_in_contract_schemas/rule.json"
-    },
-    {
-      "ruleId": "prohibit_foundation_decomposed_ops_legacy_internal_imports",
-      "lane": "domains/foundation",
-      "actionDecision": "context admission",
-      "packetNeeded": false,
-      "expectedRemediation": "Retain as narrow Foundation decomposition Grit authority; revisit only if a positive foundation operation registry/import rail fully subsumes retired internal-path absence.",
-      "evidenceNote": "Boundary review found this is already honest Foundation context: current ops are decomposed and the retired `compute-tectonic-history` internals are gone.",
-      "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_decomposed_ops_legacy_internal_imports/rule.json"
-    },
-    {
-      "ruleId": "prohibit_foundation_duplicate_math_helper_redefinitions",
-      "lane": "domains/foundation",
-      "actionDecision": "positive authority creation",
-      "packetNeeded": false,
-      "expectedRemediation": "Layer 2 packet complete: absorb/delete this Foundation proxy during the helper-surface Layer 3 slice only to the extent covered by the widened survivor rail; do not absorb Foundation byte/int8/vector quantization helpers into core.",
-      "evidenceNote": "Decision packet corrects the prior Foundation-local admission. The rule is broader helper-surface pressure, but Foundation clampByte/clampInt8/normalizeToInt8 semantics differ from current core helpers and are excluded from this slice.",
-      "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_duplicate_math_helper_redefinitions/rule.json",
-      "decisionPacket": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-mapgen-helper-surface-authority-consolidation.md",
-      "nextLayer3Action": "Retire or absorb the rule after the survivor rail covers exact generic helper recurrence risk; retain exclusions for Foundation quantization helpers."
-    },
-    {
-      "ruleId": "prohibit_foundation_legacy_aggregate_tectonic_op_surface",
-      "lane": "domains/foundation",
-      "actionDecision": "context admission",
-      "packetNeeded": false,
-      "expectedRemediation": "Retain as narrow foundation operation-surface Grit authority; revisit only if a future positive domain-operation registry rail fully subsumes this aggregate-op absence predicate.",
-      "evidenceNote": "Current row is source-backed by the Foundation reference: the legacy `foundation/compute-tectonic-history` aggregate op was removed and must not be reintroduced as compatibility surface.",
-      "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonic_op_surface/rule.json"
-    },
-    {
-      "ruleId": "prohibit_foundation_legacy_aggregate_tectonics",
-      "lane": "domains/foundation",
-      "actionDecision": "context admission",
-      "packetNeeded": false,
-      "expectedRemediation": "Retain as narrow foundation tectonics contract/index Grit authority; revisit only if a future positive domain-operation registry or foundation contract rail fully subsumes this aggregate-op absence predicate.",
-      "evidenceNote": "Current row guards the standard foundation tectonics contract and domain root from reintroducing the retired aggregate `computeTectonicHistory` surface named in the Foundation reference.",
-      "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonics/rule.json"
-    },
-    {
-      "ruleId": "prohibit_foundation_legacy_plate_kinematics",
-      "lane": "domains/foundation",
-      "actionDecision": "context admission",
-      "packetNeeded": false,
-      "expectedRemediation": "Retain as narrow compute-plate-graph contract Grit authority; revisit only if a future positive operation contract schema rail proves plate graph remains kinematics-free.",
-      "evidenceNote": "Current row guards a documented Foundation split: plate graph stays metadata/partition authority while plate motion owns kinematics.",
-      "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_plate_kinematics/rule.json"
-    },
-    {
-      "ruleId": "prohibit_foundation_projection_legacy_motion_source",
-      "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "no action",
-      "packetNeeded": false,
-      "expectedRemediation": "Retain existing packet-local Grit rail; the rule already validates the concrete projection source recurrence risk against legacy plateGraph motion reads.",
-      "evidenceNote": "The current runner is Grit, scoped to `foundation-projection/steps/projection.ts`, and focused Habitat proof passes. The canonical plate-motion artifact surface is live source authority; no package-test or script migration is needed.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_projection_legacy_motion_source/rule.json"
-    },
-    {
-      "ruleId": "prohibit_foundation_rules_tectonics_shim_reexports",
-      "lane": "domains/foundation",
-      "actionDecision": "retirement/garbage collection",
-      "packetNeeded": false,
-      "expectedRemediation": "Retire after D4's generic export-only local-entrypoint survivor rejects the representative shim re-export.",
-      "evidenceNote": "D4 settles export-only, local-source nested entrypoints. Current Foundation rules do not re-export lib/tectonics; survivor proof, not absence alone, gates retirement.",
-      "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_rules_tectonics_shim_reexports/rule.json",
-      "layer2Status": "transition-decision-accepted",
-      "packetSliceId": "domain-operation-generic-surfaces",
-      "wholeRuleFit": "absorbed by generic D4 entrypoint authority",
-      "ruleIdPlan": "retire the Foundation-local id after generic survivor proof",
-      "semanticDecision": "D4 owns operation rules and strategies indices as export-only local entrypoints; the exact Foundation blacklist is not a separate authority.",
-      "residualFollowUp": "Prove the generic survivor against the shim shape before retirement.",
-      "implementationReadiness": "ready for A.2 classification after positive authority exists"
-    },
-    {
-      "ruleId": "prohibit_foundation_stage_cast_merge_hacks",
-      "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "split by owner",
-      "packetNeeded": false,
-      "expectedRemediation": "delete exact wrapper-era Foundation cast/merge blacklist after confirming no live recurrence; absorb only the generic public-compile invariant into stage authoring authority if needed",
-      "evidenceNote": "Corrective review found this mixes exact retired Foundation hack tokens with a broader no-wrapper/default-merge rule for stage public compiles. Foundation-only placement is a proxy. Layer 2 packet standard-stage-public-config-and-contract-surface: Exact advanced/overrideValues tokens are retired Foundation residue with no live source hits. The broader concern is not a Foundation blacklist; public compile must be structurally owned by createStage, strict schemas, and compile validation. Legitimate config.foo ?? {} envelope defaults must remain allowed.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_stage_cast_merge_hacks/rule.json",
-      "layer2Status": "packet-complete",
-      "packetSliceId": "standard-stage-public-config-and-contract-surface",
-      "wholeRuleFit": "retire/consolidate",
-      "ruleIdPlan": "delete exact wrapper-era Foundation cast/merge blacklist after confirming no live recurrence; absorb only the generic public-compile invariant into stage authoring authority if needed",
-      "semanticDecision": "Exact advanced/overrideValues tokens are retired Foundation residue with no live source hits. The broader concern is not a Foundation blacklist; public compile must be structurally owned by createStage, strict schemas, and compile validation. Legitimate config.foo ?? {} envelope defaults must remain allowed.",
-      "residualFollowUp": "Remove duplicate package-test junk-catcher coverage for historical literals during Layer 3. Do not preserve broad negative patterns for TypeScript casts/defaults unless source-backed recurrence risk exists.",
-      "implementationReadiness": "ready for garbage collection plus optional consolidation into existing public-authoring-surface authority; not a cascade-stopping gate"
-    },
-    {
-      "ruleId": "prohibit_foundation_stage_sentinel_passthrough",
-      "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "boundary inversion",
-      "packetNeeded": false,
-      "expectedRemediation": "delete Foundation sentinel passthrough blacklist without replacement unless a live renamed sentinel leak is found",
-      "evidenceNote": "Studio sentinel passthrough is not Foundation-specific; it is internal UI metadata leaking into public stage config. Layer 2 packet standard-stage-public-config-and-contract-surface: The rule only matches retired Foundation/Studio sentinel tokens and does not express the real authoring-surface invariant. Current createStage authoring metadata and focus paths are legitimate; broad UI metadata bans would be wrong.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_stage_sentinel_passthrough/rule.json",
-      "layer2Status": "packet-complete",
-      "packetSliceId": "standard-stage-public-config-and-contract-surface",
-      "wholeRuleFit": "retire",
-      "ruleIdPlan": "delete Foundation sentinel passthrough blacklist without replacement unless a live renamed sentinel leak is found",
-      "semanticDecision": "The rule only matches retired Foundation/Studio sentinel tokens and does not express the real authoring-surface invariant. Current createStage authoring metadata and focus paths are legitimate; broad UI metadata bans would be wrong.",
-      "residualFollowUp": "Keep public-authoring-surface verification as the positive focus-path/schema authority. Do not keep exact retired sentinel tokens as historical negative assertions.",
-      "implementationReadiness": "ready for garbage collection after source absence proof; not a cascade-stopping gate"
-    },
-    {
-      "ruleId": "prohibit_foundation_step_contract_config_bags",
-      "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "split by owner",
-      "packetNeeded": false,
-      "expectedRemediation": "split/generalize live recipe-step contract import-boundary pressure and delete retired FoundationConfigSchema token only after the new owner is proven",
-      "evidenceNote": "Post-ratchet revalidation found step contracts should depend on domain contract roots, not config facades. The retired FoundationConfigSchema literal does not need replacement, but the @mapgen/domain/config.js gap needs owner design.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_step_contract_config_bags/rule.json",
-      "layer2Status": "decision-packet-accepted; split-generalization-needed",
-      "packetSliceId": "domain-root-topology-post-ratchet-revalidation",
-      "wholeRuleFit": "split required",
-      "ruleIdPlan": "split/generalize into recipe-step authority, then delete Foundation-local id",
-      "semanticDecision": "Live import-boundary pressure belongs in recipe-step contract authority; retired literal residue should be deleted once separated.",
-      "residualFollowUp": "Define config facade/bag narrowly before mutation.",
-      "implementationReadiness": "not deletion-ready; implementation-ready only as a future split/generalization slice"
-    },
-    {
-      "ruleId": "prohibit_foundation_strategy_nonlocal_imports",
-      "lane": "domains/foundation",
-      "actionDecision": "split by owner",
-      "packetNeeded": false,
-      "expectedRemediation": "Replace the Foundation path allowlist with D2's generic capability- and owner-based dependency authority.",
-      "evidenceNote": "D2 settles legal dependency classes without a current-path inventory. The Foundation allowlist is underbroad and cannot survive as generic authority.",
-      "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_strategy_nonlocal_imports/rule.json",
-      "layer2Status": "transition-decision-accepted",
-      "packetSliceId": "domain-operation-generic-surfaces",
-      "wholeRuleFit": "replaced by generic dependency authority",
-      "ruleIdPlan": "retire the Foundation-local id after generic bad and clean proof",
-      "semanticDecision": "D2 forbids private cross-domain and sibling-operation reaches while admitting public capability classes; it does not preserve the Foundation allowlist.",
-      "residualFollowUp": "Classify live violations only after the finalized generic rule runs advisory.",
-      "implementationReadiness": "ready for A.2 classification after positive authority exists"
-    },
-    {
-      "ruleId": "prohibit_hydrology_climate_intervention_tokens",
-      "lane": "domains/nonfoundation",
-      "actionDecision": "context admission",
-      "packetNeeded": false,
-      "expectedRemediation": "Admit as Hydrology-vs-narrative boundary currentness.",
-      "evidenceNote": "No `climate.swatches` / `climate.story` hits in scoped source.",
-      "currentPath": ".habitat/civ7/mapgen/domains/hydrology/rules/prohibit_hydrology_climate_intervention_tokens/rule.json"
-    },
-    {
-      "ruleId": "prohibit_hydrology_narrative_domain_imports",
-      "lane": "domains/nonfoundation",
-      "actionDecision": "context admission",
-      "packetNeeded": false,
-      "expectedRemediation": "Admit as Hydrology contextual boundary unless broader import-law owner is admitted.",
-      "evidenceNote": "No narrative domain imports in Hydrology source/stages.",
-      "currentPath": ".habitat/civ7/mapgen/domains/hydrology/rules/prohibit_hydrology_narrative_domain_imports/rule.json"
-    },
-    {
-      "ruleId": "prohibit_legacy_compute_tectonics_token",
-      "lane": "domains/foundation",
-      "actionDecision": "context admission",
-      "packetNeeded": false,
-      "expectedRemediation": "Retain as narrow foundation source-token Grit authority; revisit only if a future positive foundation operation registry rail fully subsumes this retired monolithic token absence predicate.",
-      "evidenceNote": "Current row guards against reintroducing the retired monolithic `computeTectonics` token across foundation surfaces; this is documented recurrence pressure, not generic stale config-key clutter.",
-      "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_legacy_compute_tectonics_token/rule.json"
-    },
-    {
-      "ruleId": "prohibit_map_projection_dependencies_in_physics_contracts",
-      "lane": "standard recipe top-level",
-      "actionDecision": "split by owner",
-      "packetNeeded": false,
-      "expectedRemediation": "Reopen broad truth/projection claim for native source-owner design; do not create stage-kind sidecar or broad artifact:map ban while valid map artifacts remain source-owned.",
-      "evidenceNote": "Corrective audit: current Habitat rule duplicates literal package-test coverage and is underbroad for imported artifact objects; broad artifact:map prohibition conflicts with live mapArtifacts.foundation* and landmassRegionSlotByTile source artifacts.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_map_projection_dependencies_in_physics_contracts/rule.json",
-      "layer2Status": "blocked-prior-source-owner-design",
-      "packetSliceId": "standard-stage-kind-truth-projection-authority",
-      "wholeRuleFit": "split/consolidate into native rail",
-      "ruleIdPlan": "delete Habitat id only after native package-verify coverage is accepted; do not replace with stage-kind sidecar",
-      "semanticDecision": "Keep any live truth/projection invariant in source-native contracts or package verify. Do not encode a broad no-artifact:map rule until projection artifact subnamespaces are classified by source authority.",
-      "residualFollowUp": "If broadening beyond the existing literal package guard, first decide artifact:map subnamespace semantics in source/native contract authority.",
-      "implementationReadiness": "not implementation-ready for broad authority; possible duplicate-removal only after native package verify owner is selected"
-    },
-    {
-      "ruleId": "prohibit_migrated_consumer_effect_gating_tokens",
-      "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "boundary inversion",
-      "packetNeeded": false,
-      "expectedRemediation": "Move to standard-recipe retired dependency/effect token authority across contracts and separately assert positive map-hydrology lakes contract shape.",
-      "evidenceNote": "The fixture ignored the same bad gate in another file, proving this is local recurrence control rather than authority. Layer 2 packet dependency-effect-tag-family-authority: Retired engine effect gate clauses (landmassApplied/coastlinesApplied) can be absorbed by registered effect-family validation or retired-token GC. The morphologyArtifacts.topography clause is map-hydrology lakes contract-shape/projection-input residue, not tag-family authority.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_migrated_consumer_effect_gating_tokens/rule.json",
-      "layer2Status": "packet-complete",
-      "packetSliceId": "dependency-effect-tag-family-authority",
-      "wholeRuleFit": "split required",
-      "ruleIdPlan": "split into positive tag-family replacement plus map-hydrology contract-shape follow-up or deletion if no recurrence risk remains",
-      "semanticDecision": "Retired engine effect gate clauses (landmassApplied/coastlinesApplied) can be absorbed by registered effect-family validation or retired-token GC. The morphologyArtifacts.topography clause is map-hydrology lakes contract-shape/projection-input residue, not tag-family authority.",
-      "residualFollowUp": "Route the topography clause to a projection-input/contract-shape packet; do not bury it in tag-family validation.",
-      "implementationReadiness": "split before implementation; retired-token clauses ready after tag-family authority, topography clause belongs elsewhere"
-    },
-    {
-      "ruleId": "prohibit_milestone_prefixed_standard_recipe_tag_catalog_names",
-      "lane": "standard recipe top-level",
-      "actionDecision": "context admission",
-      "packetNeeded": false,
-      "expectedRemediation": "Admit as G1-backed tag catalog naming cleanup.",
-      "evidenceNote": "Guardrail docs explicitly back this cleanup.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names/rule.json"
-    },
-    {
-      "ruleId": "prohibit_misplaced_projection_adapter_calls",
-      "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "no action",
-      "packetNeeded": false,
-      "expectedRemediation": "implemented/admitted by projection-and-morphology-boundary-rails slice",
-      "evidenceNote": "Projection/materialization adapter callsite ownership is exact Grit authority; selected-rule proof passes after packet-local Grit execution repair.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_misplaced_projection_adapter_calls/rule.json"
-    },
-    {
-      "ruleId": "prohibit_morphology_overlay_implementation_reads",
-      "lane": "standard recipe morphology stage",
-      "actionDecision": "context admission",
-      "packetNeeded": false,
-      "expectedRemediation": "Retain as live Morphology no-overlay implementation rail. The rule belongs in the standard recipe Morphology context because canonical Morphology authority forbids narrative/story/gameplay overlays as Morphology inputs; the Grit predicate was repaired to cover current morphology* step implementation files, including morphology-shelf, without moving the assertion into package tests or an MJS script.",
-      "evidenceNote": "Decision packet closed internally: source docs define Morphology truth as tile-space Physics truth and explicitly ban overlays as physics inputs. Negative probe `import { readOverlay } from \"./overlays.js\"` in `morphology-shelf/steps/computeShelf.ts` failed the repaired Grit rule, then passed after probe removal.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_overlay_implementation_reads/rule.json"
-    },
-    {
-      "ruleId": "prohibit_morphology_runtime_continent_step_tokens",
-      "lane": "standard recipe morphology stage",
-      "actionDecision": "no action",
-      "packetNeeded": false,
-      "expectedRemediation": "Retain existing packet-local Grit rail; the rule already validates concrete morphology step source recurrence risk against runtime continent identifiers and direct landmass marking calls.",
-      "evidenceNote": "The current runner is Grit, scoped to morphology implementation source, current source scan is clean, and focused Habitat proof passes. This is a recurrence-risk source rail, not a package-test or Nx-boundary candidate.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_runtime_continent_step_tokens/rule.json"
-    },
-    {
-      "ruleId": "prohibit_morphology_stage_config_bag_imports",
-      "lane": "standard recipe morphology stage",
-      "actionDecision": "no action",
-      "packetNeeded": false,
-      "expectedRemediation": "implemented by projection-and-morphology-boundary-rails slice",
-      "evidenceNote": "Grit boundary now covers all morphology* standard-recipe stages, including morphology-shelf, while allowing @mapgen/domain/morphology/config.js and forbidding root @mapgen/domain/config.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_config_bag_imports/rule.json"
-    },
-    {
-      "ruleId": "prohibit_morphology_stage_legacy_effect_gates",
-      "lane": "standard recipe morphology stage",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": false,
-      "expectedRemediation": "Replace with source-native tag/effect registry compiler validation, then delete morphology-local retired-token guard.",
-      "evidenceNote": "Corrective audit: current morphology source has zero banned-token hits; standard tag constants and docs point to effect:map.* / registered effect owners, while legacy verifier strings are not morphology authority.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_legacy_effect_gates/rule.json",
-      "layer2Status": "packet-complete",
-      "packetSliceId": "dependency-effect-tag-family-authority",
-      "wholeRuleFit": "replace by native rail",
-      "ruleIdPlan": "delete id after closed effect-tag registry/compiler validation covers retired effect ids",
-      "semanticDecision": "Do not keep landmassApplied/coastlinesApplied as Habitat relapse tokens. Make effect-tag validity a registry/compiler property; morphology simulation stages should remain artifact-only, with map projection effects under map-* tags.",
-      "residualFollowUp": "Layer 3 should close effect tag registration so raw effect ids cannot be auto-created from step contracts, update any missing current explicit tags, and delete this morphology rule.",
-      "implementationReadiness": "implementation-ready as tag/effect registry compiler slice; not as morphology-local edit"
     },
     {
       "ruleId": "prohibit_pnpm_files_in_bun_workspace",
@@ -766,15 +458,6 @@
       "currentPath": ".habitat/habitat/toolkit/_blueprints/grit-provider/prohibit_product_scan_roots_in_grit_provider/rule.json"
     },
     {
-      "ruleId": "prohibit_realized_map_artifact_tags",
-      "lane": "mixed blueprints",
-      "actionDecision": "no action",
-      "packetNeeded": false,
-      "expectedRemediation": "Stay in artifact namespace authority.",
-      "evidenceNote": "No `artifact:map.realized.` hits; valid map artifacts use specific projection/evidence names.",
-      "currentPath": ".habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/rule.json"
-    },
-    {
       "ruleId": "prohibit_recipe_dag_runtime_source_dependencies",
       "lane": "MapGen Studio",
       "actionDecision": "context admission",
@@ -791,15 +474,6 @@
       "expectedRemediation": "Stay as reverse-dependency guard.",
       "evidenceNote": "Domain must not import recipe modules; source search clean.",
       "currentPath": ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/rule.json"
-    },
-    {
-      "ruleId": "prohibit_recipe_step_runtime_viz_sink_access",
-      "lane": "blueprints/recipe-step",
-      "actionDecision": "positive authority creation",
-      "packetNeeded": false,
-      "expectedRemediation": "Keep visualization as an optional pure createStep facet; recipe step execution must not read or invoke runtime visualization sinks.",
-      "evidenceNote": "The visualization extraction moved portable evidence projection to createStep({ viz }) and left sink transport at runtime composition boundaries. The registered Grit rule prevents a second trace-coupled emission authority from returning to step execution.",
-      "currentPath": ".habitat/blueprints/recipe-step/prohibit_recipe_step_runtime_viz_sink_access/rule.json"
     },
     {
       "ruleId": "prohibit_rng_callback_state_in_ops",
@@ -903,15 +577,6 @@
       "currentPath": ".habitat/blueprints/domain/prohibit_unknown_bag_config_usage/rule.json"
     },
     {
-      "ruleId": "prohibit_wrapper_only_advanced_config",
-      "lane": "standard recipe top-level",
-      "actionDecision": "no action",
-      "packetNeeded": false,
-      "expectedRemediation": "Implemented: admitted the G9 wrapper-only `advanced` guard into the standard recipe rules lane as live context authority.",
-      "evidenceNote": "G9 docs explicitly retain a Habitat guard for standard recipe source and map configs. The current Grit predicate is source-shape recurrence protection, passes, and does not belong in a package-test junk drawer or a generic config remainder. Corrective local-proxy review left this settled: it is broad standard-recipe persisted `advanced` recurrence protection, not a stage-specific proxy.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/rule.json"
-    },
-    {
       "ruleId": "require_artifact_file_shape",
       "lane": "blueprints/artifact",
       "actionDecision": "context admission",
@@ -941,25 +606,6 @@
       "currentPath": ".habitat/docs/_blueprints/docs-site/require_docs_site_root_inputs/rule.json"
     },
     {
-      "ruleId": "require_domain_contract_roots_in_step_contracts",
-      "lane": "Standard recipe domain-contract admission",
-      "actionDecision": "no action",
-      "packetNeeded": false,
-      "expectedRemediation": "Stay as the Standard recipe's domain-root import guard until a vendor-neutral domain-package contract exists.",
-      "evidenceNote": "The rule intentionally protects the Swooper-specific @mapgen/domain surface; it is not generic recipe-step blueprint authority.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_domain_contract_roots_in_step_contracts/rule.json"
-    },
-    {
-      "ruleId": "require_domain_model_schema_policy_owner_shape",
-      "lane": "blueprints/domain",
-      "actionDecision": "context admission",
-      "packetNeeded": false,
-      "expectedRemediation": "Keep as current positive domain model schema/policy owner-shape law pending rule-authority cleanup reusable-class proof.",
-      "evidenceNote": "Seeded from the completed domain-root topology descent and current live rule.json manifest; previous Layer 1 ledger was stale and missed this positive-law row.",
-      "currentPath": ".habitat/blueprints/domain/require_domain_model_schema_policy_owner_shape/rule.json",
-      "layer2Status": "none"
-    },
-    {
       "ruleId": "require_domain_operation_contract_file_shape",
       "lane": "blueprints/domain-operation",
       "actionDecision": "context admission",
@@ -967,26 +613,6 @@
       "expectedRemediation": "Keep as current positive operation contract file-shape law pending rule-authority cleanup reusable-class proof.",
       "evidenceNote": "Seeded from the completed domain-root topology descent and current live rule.json manifest; previous Layer 1 ledger was stale and missed this positive-law row.",
       "currentPath": ".habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/rule.json",
-      "layer2Status": "none"
-    },
-    {
-      "ruleId": "require_domain_ops_binding_surface",
-      "lane": "blueprints/domain",
-      "actionDecision": "context admission",
-      "packetNeeded": false,
-      "expectedRemediation": "Keep as current positive domain ops binding-surface law pending rule-authority cleanup reusable-class proof.",
-      "evidenceNote": "Seeded from the completed domain-root topology descent and current live rule.json manifest; previous Layer 1 ledger was stale and missed this positive-law row.",
-      "currentPath": ".habitat/blueprints/domain/require_domain_ops_binding_surface/rule.json",
-      "layer2Status": "none"
-    },
-    {
-      "ruleId": "require_domain_ops_registry_surface",
-      "lane": "blueprints/domain-operation",
-      "actionDecision": "context admission",
-      "packetNeeded": false,
-      "expectedRemediation": "Keep as current positive domain operation registry-surface law pending rule-authority cleanup reusable-class proof.",
-      "evidenceNote": "Seeded from the completed domain-root topology descent and current live rule.json manifest; previous Layer 1 ledger was stale and missed this positive-law row.",
-      "currentPath": ".habitat/blueprints/domain-operation/require_domain_ops_registry_surface/rule.json",
       "layer2Status": "none"
     },
     {
@@ -998,22 +624,6 @@
       "evidenceNote": "Seeded from the completed domain-root topology descent and current live rule.json manifest; previous Layer 1 ledger was stale and missed this positive-law row.",
       "currentPath": ".habitat/blueprints/domain/require_domain_source_topology/rule.json",
       "layer2Status": "none"
-    },
-    {
-      "ruleId": "require_ecology_canonical_op_module_topology",
-      "lane": "domains/nonfoundation",
-      "actionDecision": "closed structure inversion",
-      "packetNeeded": false,
-      "expectedRemediation": "Replace the Ecology proxy with D1/D4 generic positive operation topology, then retire it after survivor proof.",
-      "evidenceNote": "D1 and D4 settle the exact operation root and nested-container shape across every domain. The Ecology-only rule is an instance proxy.",
-      "currentPath": ".habitat/civ7/mapgen/domains/ecology/rules/require_ecology_canonical_op_module_topology/rule.json",
-      "layer2Status": "transition-decision-accepted",
-      "packetSliceId": "domain-root-topology-post-ratchet-revalidation",
-      "wholeRuleFit": "absorbed by generic D1/D4 topology authority",
-      "ruleIdPlan": "retire the Ecology id after generic survivor proof",
-      "semanticDecision": "Every operation requires contract.ts, assembly-only index.ts, rules/index.ts plus named rules as needed, and strategies/index.ts plus at least one named strategy; no types.ts, policy, or helper buckets remain.",
-      "residualFollowUp": "Implement the generic positive law, run it advisory, and classify every resulting row before source movement.",
-      "implementationReadiness": "ready for A.2 Authority implementation"
     },
     {
       "ruleId": "require_explicit_mapgen_sdk_opt_in",
@@ -1049,25 +659,7 @@
       "packetNeeded": false,
       "expectedRemediation": "Delete unused exports or add concise behavior-oriented JSDoc at the defining declaration or direct anonymous default export; re-export barrels inherit owner documentation.",
       "evidenceNote": "Grit owns the owner-site syntax rail over the current Swooper domain and recipe roots. The rule enforces a conservative authored-value superset; Knip and review own real consumption and semantic documentation quality.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/rule.json"
-    },
-    {
-      "ruleId": "require_morphology_config_facade_exports",
-      "lane": "domains/nonfoundation",
-      "actionDecision": "context admission",
-      "packetNeeded": false,
-      "expectedRemediation": "Admit as morphology config facade surface rule.",
-      "evidenceNote": "Script asserts exact exports and current source matches.",
-      "currentPath": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_config_facade_exports/rule.json"
-    },
-    {
-      "ruleId": "require_morphology_public_surface_imports",
-      "lane": "domains/nonfoundation",
-      "actionDecision": "no action",
-      "packetNeeded": false,
-      "expectedRemediation": "Stay live as morphology public-surface import boundary authority.",
-      "evidenceNote": "Domino 63 replaced the retired-path proxy with a single Grit public-surface import rule for non-domain consumers; G4 remains recipe-wide domain import authority, while this morphology row owns morphology-specific consumer relapse detection outside the domain internals.",
-      "currentPath": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/rule.json"
+      "currentPath": ".habitat/civ7/mapgen/rules/require_mapgen_exported_value_declarations_have_jsdoc/rule.json"
     },
     {
       "ruleId": "require_owner_workflow_for_host_protected_surfaces",
@@ -1104,15 +696,6 @@
       "implementationReadiness": "not implementation-ready for conversion; sealed tooling capability blocker, current script passes and should remain"
     },
     {
-      "ruleId": "require_public_ecology_surfaces_and_retired_topology_removal",
-      "lane": "domains/nonfoundation",
-      "actionDecision": "context admission",
-      "packetNeeded": false,
-      "expectedRemediation": "Admit as Ecology migration cleanup and public-surface rule.",
-      "evidenceNote": "Active Ecology stages import public surfaces; retired feature-family dirs absent.",
-      "currentPath": ".habitat/civ7/mapgen/domains/ecology/rules/require_public_ecology_surfaces_and_retired_topology_removal/rule.json"
-    },
-    {
       "ruleId": "require_recipe_dag_contract_metadata",
       "lane": "MapGen Studio",
       "actionDecision": "context admission",
@@ -1139,15 +722,6 @@
       "evidenceNote": "Seeded from the completed domain-root topology descent and current live rule.json manifest; previous Layer 1 ledger was stale and missed this positive-law row.",
       "currentPath": ".habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/rule.json",
       "layer2Status": "none"
-    },
-    {
-      "ruleId": "require_recipe_step_authoring_shape",
-      "lane": "blueprints/recipe-step",
-      "actionDecision": "positive authority creation",
-      "packetNeeded": false,
-      "expectedRemediation": "Keep as the named defineStep/createStep authoring boundary for recipe step modules.",
-      "evidenceNote": "The rule closes default-export and unnamed-authoring alternatives while leaving helper implementation placement open inside the owning step container.",
-      "currentPath": ".habitat/blueprints/recipe-step/require_recipe_step_authoring_shape/rule.json"
     },
     {
       "ruleId": "require_recipe_step_source_topology",
@@ -1177,31 +751,6 @@
       "currentPath": ".habitat/civ7/platform/direct-control/session/rules/require_sanctioned_direct_control_session_owners/rule.json"
     },
     {
-      "ruleId": "require_shared_visualization_contracts_at_stage_surfaces",
-      "lane": "mixed blueprints",
-      "actionDecision": "no action",
-      "packetNeeded": false,
-      "expectedRemediation": "Stay as recipe-stage visualization surface boundary.",
-      "evidenceNote": "Canonical visualization docs name stage `viz.ts` surfaces.",
-      "currentPath": ".habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/rule.json"
-    },
-    {
-      "ruleId": "require_standard_recipe_map_effect_name_suffixes",
-      "lane": "standard recipe top-level",
-      "actionDecision": "positive authority creation",
-      "packetNeeded": false,
-      "expectedRemediation": "Recast suffix/naming checks as dependency/effect tag definition schema validation over registered tag families, not a string scan of the current root catalog.",
-      "evidenceNote": "The suffix policy is real, but `tag-contracts.ts` is still a recipe-root catalog while target architecture says catalogs dissolve into real owners. Layer 2 packet dependency-effect-tag-family-authority: Replace tag-contracts.ts literal suffix scan with registered effect:map.* family/name validation over tag definitions. Current suffix policy is real, but the path-local Grit rule misses owner metadata and future colocated definitions.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/rule.json",
-      "layer2Status": "packet-complete",
-      "packetSliceId": "dependency-effect-tag-family-authority",
-      "wholeRuleFit": "consolidate into positive authority",
-      "ruleIdPlan": "replace by positive authority",
-      "semanticDecision": "Replace tag-contracts.ts literal suffix scan with registered effect:map.* family/name validation over tag definitions. Current suffix policy is real, but the path-local Grit rule misses owner metadata and future colocated definitions.",
-      "residualFollowUp": "Retain current Grit rail only until registered tag-family validation exists; then absorb/delete or narrow to injected source proof if needed.",
-      "implementationReadiness": "ready after positive registered tag-family authority rail is selected"
-    },
-    {
       "ruleId": "require_studio_ui_recipe_artifact_imports",
       "lane": "MapGen Studio",
       "actionDecision": "boundary inversion",
@@ -1218,24 +767,6 @@
       "implementationReadiness": "implementation-ready metadata/placement repair, not cascade-stopping"
     },
     {
-      "ruleId": "require_typed_dependency_and_effect_tag_constants",
-      "lane": "mixed blueprints",
-      "actionDecision": "no action",
-      "packetNeeded": false,
-      "expectedRemediation": "Stay in dependency-tag vocabulary authority.",
-      "evidenceNote": "Step contracts use typed constants; no top-level string tags found.",
-      "currentPath": ".habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/rule.json"
-    },
-    {
-      "ruleId": "require_typed_placement_outcomes_before_apply",
-      "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "no action",
-      "packetNeeded": false,
-      "expectedRemediation": "Resolved as an already-atomized terminal placement/apply Grit rail; no owner split required because official resource/discovery materialization lives in separate placement substeps while terminal apply consumes typed outcome artifacts.",
-      "evidenceNote": "Focused Habitat proof passes. Source shows terminal `placement/apply.ts` consumes `resourcePlacement` and `discoveryPlacement` summaries, while official generator calls live in `place-resources` / `place-discoveries` materialization steps. A temporary `generateOfficialResources()` probe in terminal apply failed the Grit rule and was removed.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/placement/rules/require_typed_placement_outcomes_before_apply/rule.json"
-    },
-    {
       "ruleId": "structure-studio-run-workspace-topology",
       "lane": "MapGen Studio",
       "actionDecision": "boundary inversion",
@@ -1249,36 +780,6 @@
       "semanticDecision": "The private generation handoff requires one owner and stable identity semantics, but packages/studio-run-workspace/src and its exact children are not permanent architecture.",
       "residualFollowUp": "Construct the future manifest/workspace contract owner before relaxing or retiring the closed package topology.",
       "implementationReadiness": "no mutation in Packet A.1; future boundary inversion requires target contract construction"
-    },
-    {
-      "ruleId": "structure-swooper-catalog-index-target-topology",
-      "lane": "MapGen Studio",
-      "actionDecision": "consolidation/dedup",
-      "packetNeeded": false,
-      "expectedRemediation": "Consolidate durable catalog source identity with its source-owned authority, leave target ordering to Nx, and retire the duplicate exact-file plus retired-temporary-rule topology check.",
-      "evidenceNote": "The structure manifest, structure.toml, empty baseline, catalog/scripts/Habitat scope, swooper-catalog-index-cutover OpenSpec packet, SA-04 source-index rule, and transition decision were reviewed. The rule duplicates source-index files and preserves a retired advisory name while target dependencies belong to Nx.",
-      "currentPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/structure-swooper-catalog-index-target-topology/rule.json",
-      "layer2Status": "transition-decision-accepted",
-      "wholeRuleFit": "mixed duplicate source topology, native task-graph concern, and retired-name garbage collection",
-      "ruleIdPlan": "retain during closeout; later absorb source identity into its owner, use Nx for target relationships, and retire this exact cutover packet",
-      "semanticDecision": "CatalogSourceIndex remains the source authority, but exact generator filenames and absence of a historical temporary rule do not warrant permanent duplicate authority.",
-      "residualFollowUp": "Prove the source-index owner and Nx target graph cover the live invariants before deleting this cutover-specific packet.",
-      "implementationReadiness": "no mutation in Packet A.1; consolidation is a later authority/native-rail slice"
-    },
-    {
-      "ruleId": "structure-swooper-catalog-source-index",
-      "lane": "MapGen Studio",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": false,
-      "expectedRemediation": "Keep explicit catalog source identity now; future authority should validate the source index contract at its source owner rather than freeze the maps/catalog directory and three exact files.",
-      "evidenceNote": "The structure manifest, structure.toml, empty baseline, maps source scope, swooper-catalog-source-index OpenSpec packet, current source index, and transition decision were reviewed. Explicit source identity is durable; exact catalog folder/file topology is a transitional implementation.",
-      "currentPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/structure-swooper-catalog-source-index/rule.json",
-      "layer2Status": "transition-decision-accepted",
-      "wholeRuleFit": "durable source-identity contract represented by exact current file topology",
-      "ruleIdPlan": "retain now; later move authority to source-schema/index validation and retire exact directory-shape assertions",
-      "semanticDecision": "Catalog membership requires one explicit source-owned index, but mods/mod-swooper-maps/src/maps/catalog and its three files are not permanent architecture merely because they merged.",
-      "residualFollowUp": "Install source-native index validation at the future catalog owner before retiring the structure packet.",
-      "implementationReadiness": "no mutation in Packet A.1; future migration requires an accepted source-owner validation rail"
     },
     {
       "ruleId": "validate_boundary_taxonomy_against_workspace_graph",
@@ -1351,6 +852,544 @@
       "expectedRemediation": "Admit as contextual manifest/source parity.",
       "evidenceNote": "`orderStandardStages` already makes manifest the runtime order constructor.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest/rule.json"
+    },
+    {
+      "ruleId": "require_domain_operation_rule_import_boundaries",
+      "lane": "blueprints/domain-operation",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep as the current positive operation-rule dependency boundary pending reusable-class review.",
+      "evidenceNote": "The operation-rules scope names this packet as executable authority; its allowed dependency surface matches the accepted domain/module/operation model, the focused current-tree check passes, and the baseline is empty.",
+      "currentPath": ".habitat/blueprints/domain-operation/require_domain_operation_rule_import_boundaries/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "prohibit_domain_ops_recipe_dependencies",
+      "lane": "blueprints/domain-operation",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain the atomic reverse-dependency guard that keeps recipe artifact and completion identities out of domain operations.",
+      "evidenceNote": "Commit d3cd35e68c introduced this focused guard with the typed step-dependency model; both matched identity classes are recipe-owned orchestration dependencies, the current-tree check passes, and the baseline is empty.",
+      "currentPath": ".habitat/blueprints/domain-operation/prohibit_domain_ops_recipe_dependencies/rule.json",
+      "implementationReadiness": "no implementation required",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_domain_operation_source_topology",
+      "lane": "blueprints/domain-operation",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep the positive module-owned operation spine with contract.ts, index.ts, strategies, and optional rules.",
+      "evidenceNote": "The domain operation scope and Packet A.2 explicitly assign this topology to the domain-operation blueprint; the structure rule passes current source with an empty baseline.",
+      "currentPath": ".habitat/blueprints/domain-operation/require_domain_operation_source_topology/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_domain_operation_implementation_artifact_boundary",
+      "lane": "blueprints/domain-operation",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep the positive boundary that leaves complete artifact payload authority with artifact owners while operation implementations use private working shapes or smaller atoms.",
+      "evidenceNote": "The rule matches the accepted operation, model-atom, and artifact ownership split introduced in f1f4b03fde; its embedded match/ignore corpus covers entrypoints, rules, and strategy leaves, and focused current-tree proof passes with an empty baseline.",
+      "currentPath": ".habitat/blueprints/domain-operation/require_domain_operation_implementation_artifact_boundary/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_domain_operation_implementation_type_boundary",
+      "lane": "blueprints/domain-operation",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep the operation-contract envelope boundary while allowing the canonical contract value only at implementation binding sites.",
+      "evidenceNote": "The operation scope assigns complete input/output envelopes to contract.ts and private working types to implementations; the rule's role-qualified fixtures preserve canonical createOp/createStrategy bindings, and the current-tree check passes with an empty baseline.",
+      "currentPath": ".habitat/blueprints/domain-operation/require_domain_operation_implementation_type_boundary/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_map_config_catalog_file_shape",
+      "lane": "blueprints/map-config-catalog",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep the accepted identity-membership, canonical-admission, and closed-facade file law for map config catalogs.",
+      "evidenceNote": "The Run in Game structural-authority matrix SA-04 explicitly registers this Grit law; current Swooper membership.ts, admission.ts, and index.ts match it, the focused check passes, and the baseline is empty.",
+      "currentPath": ".habitat/blueprints/map-config-catalog/require_map_config_catalog_file_shape/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_map_config_catalog_source_topology",
+      "lane": "blueprints/map-config-catalog",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep the closed catalog topology of membership.ts, admission.ts, index.ts, and optional public.ts.",
+      "evidenceNote": "Structural-authority row SA-04 pairs this structure law with the catalog file-shape law; the current Swooper catalog has exactly the admitted files and focused structure proof passes with an empty baseline.",
+      "currentPath": ".habitat/blueprints/map-config-catalog/require_map_config_catalog_source_topology/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_domain_module_contract_aggregate_shape",
+      "lane": "blueprints/domain-subdomain",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep one default defineDomainSubdomain aggregate over direct leaf operation contracts.",
+      "evidenceNote": "The module contract scope names this packet as executable authority and closes the same owner surface; embedded fixtures and current source pass with an empty baseline.",
+      "currentPath": ".habitat/blueprints/domain-subdomain/require_domain_module_contract_aggregate_shape/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_domain_module_router_binding_shape",
+      "lane": "blueprints/domain-subdomain",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep one default module router binding over the local contract and direct operation implementations.",
+      "evidenceNote": "The module router scope explicitly delegates to this packet; commit 79f1db5e2d admitted the semantic module router shape, and focused proof passes with an empty baseline.",
+      "currentPath": ".habitat/blueprints/domain-subdomain/require_domain_module_router_binding_shape/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_domain_module_entrypoint_shape",
+      "lane": "blueprints/domain-subdomain",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep the declaration-only module public entrypoint over its contract and intentional artifact/model surfaces.",
+      "evidenceNote": "The module index scope names this packet as executable authority and excludes operation/router interiors; its embedded fixtures and current-tree proof pass with an empty baseline.",
+      "currentPath": ".habitat/blueprints/domain-subdomain/require_domain_module_entrypoint_shape/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_domain_subdomain_source_topology",
+      "lane": "blueprints/domain-subdomain",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep the positive semantic-module root with required contract, router, index, and ops plus optional model and artifacts.",
+      "evidenceNote": "The active domain scope tree defines exactly this module spine and delegates module authority to the domain-subdomain blueprint; focused structure proof passes with an empty baseline.",
+      "currentPath": ".habitat/blueprints/domain-subdomain/require_domain_subdomain_source_topology/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_map_mod_project_root_topology",
+      "lane": "blueprints/map-mod-project",
+      "actionDecision": "split by owner",
+      "packetNeeded": true,
+      "expectedRemediation": "Replace the shared map-mod-project envelope with separate qualified mod-definition and mod-realization project laws, each with its own closed root/interiors, proof topology, and instance anchor.",
+      "evidenceNote": "The rule applies one allowed-root list to plugins/mod/map/* and apps/mods/map/*, but accepted ADR-016 assigns the former kind:mod product definition and the latter kind:app Civ7 realization with different source, output, deployment, and proof ownership. A passing current-tree check does not resolve that mixed owner.",
+      "currentPath": ".habitat/blueprints/map-mod-project/require_map_mod_project_root_topology/rule.json",
+      "implementationReadiness": "blocked until separate qualified definition and realization kind laws and instance anchors are accepted",
+      "layer2Status": "not-started",
+      "residualFollowUp": "Accepted ADR-016 requires distinct definition and realization owners; the proposed capability-realization kind matrix also records the current envelope as legacy, open-interior, and unconstructible precedent."
+    },
+    {
+      "ruleId": "require_recipe_step_config_owner_shape",
+      "lane": "blueprints/recipe-step",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep one literal local config = defineStep(...) contract whose id matches the step directory.",
+      "evidenceNote": "The generic authoring-kind ratchet in b2a0d4dc39 introduced this owner law over the bounded recipe-step config corpus; embedded fixtures cover missing, renamed, and extra authorities, and current-tree proof passes with an empty baseline.",
+      "currentPath": ".habitat/blueprints/recipe-step/require_recipe_step_config_owner_shape/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_recipe_step_runtime_owner_shape",
+      "lane": "blueprints/recipe-step",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep one semantically named createStep executable over local config, with canonical runtime config identity and optional viz attached only through the viz facet.",
+      "evidenceNote": "The b2a0d4dc39 generic recipe-step ratchet and later visualization ownership changes establish this positive owner shape; its role-specific fixtures and current-tree check pass with an empty baseline.",
+      "currentPath": ".habitat/blueprints/recipe-step/require_recipe_step_runtime_owner_shape/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_typed_recipe_step_dependencies",
+      "lane": "blueprints/recipe-step",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep exact Artifact objects and owned CompletionId constants as the only authored step dependency authorities.",
+      "evidenceNote": "Canonical DEPENDENCIES policy/reference docs and NORMALIZATION-GUARDRAILS name this exact rule and reject raw requires/provides strings; focused proof passes with an empty baseline.",
+      "currentPath": ".habitat/blueprints/recipe-step/require_typed_recipe_step_dependencies/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_domain_atom_source_topology",
+      "lane": "blueprints/domain-atom",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep the closed atom spine of index.ts plus named *.schema.ts owners at domain or module model depth.",
+      "evidenceNote": "The active atoms scope explicitly names this topology rule and defines the same complete-envelope exclusions; focused structure proof passes with an empty baseline.",
+      "currentPath": ".habitat/blueprints/domain-atom/require_domain_atom_source_topology/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_domain_atom_owner_shape",
+      "lane": "blueprints/domain-atom",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep atoms as small composable schema vocabulary without artifact, operation, recipe, stage, policy, or validation authority.",
+      "evidenceNote": "The atoms scope assigns this owner law alongside the topology law; embedded fixtures exercise both root and module atom contexts, and focused proof passes with an empty baseline.",
+      "currentPath": ".habitat/blueprints/domain-atom/require_domain_atom_owner_shape/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_artifact_catalog_index_shape",
+      "lane": "blueprints/artifact",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep one non-empty direct defineArtifactCatalog aggregate as the artifact directory's sole runtime export.",
+      "evidenceNote": "The affirmed artifact blueprint README explicitly admits this as the positive catalog-owner law and assigns sibling/catalog completeness beyond its parser to future membership capability; embedded fixtures and current-tree proof pass with an empty baseline.",
+      "currentPath": ".habitat/blueprints/artifact/require_artifact_catalog_index_shape/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_domain_operation_strategy_source_topology",
+      "lane": "blueprints/domain-operation-strategy",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep the required strategies aggregate and semantically named config.ts/index.ts leaves, excluding flat and default identities.",
+      "evidenceNote": "The affirmed domain-operation-strategy README defines this exact complete hierarchy as accepted positive law with an empty baseline; focused structure proof passes.",
+      "currentPath": ".habitat/blueprints/domain-operation-strategy/require_domain_operation_strategy_source_topology/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_domain_operation_strategy_import_boundaries",
+      "lane": "blueprints/domain-operation-strategy",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep the positive aggregate/config/implementation dependency law for semantic strategies.",
+      "evidenceNote": "The affirmed strategy blueprint README explicitly describes this packet as the kind-level positive dependency law and separates config, implementation, ancestor-model, and public-surface roles; its extensive embedded corpus and focused current-tree proof pass with an empty baseline.",
+      "currentPath": ".habitat/blueprints/domain-operation-strategy/require_domain_operation_strategy_import_boundaries/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_domain_contract_aggregate_shape",
+      "lane": "blueprints/domain",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep one default defineDomain aggregate over direct semantic-module contracts.",
+      "evidenceNote": "The active domain scope and contract-file reference explicitly name this packet as executable authority; embedded fixtures and current-tree proof pass with an empty baseline.",
+      "currentPath": ".habitat/blueprints/domain/require_domain_contract_aggregate_shape/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_domain_entrypoint_shape",
+      "lane": "blueprints/domain",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep the declaration-only domain public entrypoint over its contract and explicit model/module owner surfaces.",
+      "evidenceNote": "The active domain scope and index-file reference delegate this exact surface to the rule; embedded fixtures and current-tree proof pass with an empty baseline.",
+      "currentPath": ".habitat/blueprints/domain/require_domain_entrypoint_shape/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_domain_router_aggregate_shape",
+      "lane": "blueprints/domain",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep one default executable domain router over the local contract and direct module routers.",
+      "evidenceNote": "The active domain scope and router-file reference explicitly name this aggregate law; commit 79f1db5e2d sealed the router kind, and focused proof passes with an empty baseline.",
+      "currentPath": ".habitat/blueprints/domain/require_domain_router_aggregate_shape/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_domain_model_source_topology",
+      "lane": "blueprints/domain",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep model roots closed to atoms, policy, and flat semantically named rules at the lowest owning domain/module depth.",
+      "evidenceNote": "The active domain-model scope explicitly delegates this spine to the rule and rejects generic support/schema cabinets; focused structure proof passes with an empty baseline.",
+      "currentPath": ".habitat/blueprints/domain/require_domain_model_source_topology/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_domain_test_source_topology",
+      "lane": "blueprints/domain",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep the current local domain-test container and fixture shape while treating exact proof membership as a separate project/kind admission concern.",
+      "evidenceNote": "Commit 79f1db5e2d explicitly sealed domain test topology, the rule constrains extant domain/module/concern containers without claiming behavioral sufficiency, and focused structure proof passes with an empty baseline.",
+      "currentPath": ".habitat/blueprints/domain/require_domain_test_source_topology/rule.json",
+      "implementationReadiness": "no mutation; current local shape law may stay live",
+      "layer2Status": "none",
+      "residualFollowUp": "No current blocker; this rule does not by itself satisfy the proposed capability-realization matrix's future exact manifest-selected proof-membership law."
+    },
+    {
+      "ruleId": "require_domain_policy_source_topology",
+      "lane": "blueprints/domain-policy",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep flat named TypeScript policy concerns with no index barrel at domain or module model depth.",
+      "evidenceNote": "The active policy scope explicitly names this topology rule and defines the same flat no-barrel structure; focused structure proof passes with an empty baseline.",
+      "currentPath": ".habitat/blueprints/domain-policy/require_domain_policy_source_topology/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_domain_policy_owner_shape",
+      "lane": "blueprints/domain-policy",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep reusable semantic laws, tables, defaults, and pure resolvers in the nearest policy owner without acquiring schema, artifact, operation, recipe, or stage authority.",
+      "evidenceNote": "The active policy scope assigns this owner law alongside the topology law; embedded match/ignore fixtures exercise import and authority leakage, and current-tree proof passes with an empty baseline.",
+      "currentPath": ".habitat/blueprints/domain-policy/require_domain_policy_owner_shape/rule.json",
+      "implementationReadiness": "no mutation; current law may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_mapgen_authoring_source_topology",
+      "lane": "civ7/mapgen/sdk/core",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep the package-specific MapGen Core authoring SDK root closed to its two facades and named authoring concept directories.",
+      "evidenceNote": "Commit c7269f0138 dedicatedly reorganized MapGen Core and added this _self niche law; the current authoring root exactly matches the required concept set, focused structure proof passes, and the baseline is empty.",
+      "currentPath": ".habitat/civ7/mapgen/sdk/core/rules/require_mapgen_authoring_source_topology/rule.json",
+      "implementationReadiness": "no mutation; current package-specific self-authority may stay live",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_cli_command_module_identity",
+      "lane": "blueprints/cli-topic-plugin",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain the hook-fast named, concrete default-command rail beside the deeper TypeScript semantic check.",
+      "evidenceNote": "The pattern explicitly delegates singularity, assignability, static ids, collisions, and dependency destinations to require_cli_command_module_semantics; ADR-017 assigns path identity to oclif, and the focused check passes at 8d0d4983.",
+      "currentPath": ".habitat/blueprints/cli-topic-plugin/require_cli_command_module_identity/rule.json",
+      "implementationReadiness": "retain-current-context; no mutation selected",
+      "layer2Status": "none",
+      "residualFollowUp": "Only embedded Markdown samples were found, not executable injected-violation proof; overlap with the semantic rule is explicitly partitioned rather than proven redundant."
+    },
+    {
+      "ruleId": "require_cli_topic_plugin_project_topology",
+      "lane": "blueprints/cli-topic-plugin",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain the closed Structure-v1 project, source, command, adapter, and proof topology for the four live CLI topic plugins.",
+      "evidenceNote": "ADR-017 accepts the independently owned topic-plugin shape; structure.toml defines closed positive scopes and the focused current-tree check passes with an empty baseline.",
+      "currentPath": ".habitat/blueprints/cli-topic-plugin/require_cli_topic_plugin_project_topology/rule.json",
+      "implementationReadiness": "retain-current-context; no mutation selected",
+      "layer2Status": "none",
+      "residualFollowUp": "No executable malformed-tree fixture was found, so reusable-class proof is weaker than the current-tree pass."
+    },
+    {
+      "ruleId": "require_cli_command_module_semantics",
+      "lane": "blueprints/cli-topic-plugin",
+      "actionDecision": "split by owner",
+      "packetNeeded": true,
+      "expectedRemediation": "Separate oclif command-module identity and export semantics from TypeScript-resolved topic-local dependency boundaries and tsconfig admission.",
+      "evidenceNote": "check.ts combines default export count, Command assignability, static id and path collision checks with unresolved, command-to-command, and non-adapter dependency checks; ADR-017 assigns discovery to oclif and imports/package edges to TypeScript and Nx. The focused check passes.",
+      "currentPath": ".habitat/blueprints/cli-topic-plugin/require_cli_command_module_semantics/rule.json",
+      "implementationReadiness": "not implementation-ready; Layer 2 owner-split packet required",
+      "layer2Status": "needs-decision-packet",
+      "residualFollowUp": "The split must preserve path-collision and resolved-edge behavior; no rule-specific executable injected fixtures were found."
+    },
+    {
+      "ruleId": "require_cli_shell_project_topology",
+      "lane": "blueprints/cli-shell",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain the closed apps/cli shell, launcher, and shell-proof topology.",
+      "evidenceNote": "ADR-017 and apps/cli/AGENTS.md assign binary, startup, plugin registration, and shell proof to apps/cli; structure.toml and apps/cli/test/shell.test.ts realize that split, and the focused check passes.",
+      "currentPath": ".habitat/blueprints/cli-shell/require_cli_shell_project_topology/rule.json",
+      "implementationReadiness": "retain-current-context; no mutation selected",
+      "layer2Status": "none",
+      "residualFollowUp": "No executable malformed-shell fixture was found; current evidence proves the one live shell, not a reusable generated kind."
+    },
+    {
+      "ruleId": "require_service_module_isolation",
+      "lane": "blueprints/service",
+      "actionDecision": "boundary inversion",
+      "packetNeeded": true,
+      "expectedRemediation": "Replace the regex exception set with an allowed service-root/module relationship graph and declared contract, router, context-port, and implementation faces; retire the Grit proxy only after parity.",
+      "evidenceNote": "The pattern manually enumerates allowed root-to-module imports, module ascents, type-only context ports, and sibling-alias rejection. The focused check passes across services/civ7-control, but current Nx module inference covers Habitat service modules rather than generic services/* interiors.",
+      "currentPath": ".habitat/blueprints/service/require_service_module_isolation/rule.json",
+      "implementationReadiness": "not implementation-ready; destination boundary authority is absent",
+      "layer2Status": "needs-decision-packet",
+      "residualFollowUp": "Requires a role-aware relationship destination and injected parity; overlaps require_service_context_boundaries and require_service_public_consumer_sealing."
+    },
+    {
+      "ruleId": "require_service_context_boundaries",
+      "lane": "blueprints/service",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain the sole private Context aggregation owner and type-only owned-port boundary for the pinned service shape.",
+      "evidenceNote": "service/context.ts is the sole Context owner, the blueprint README assigns context and ports there, and the focused check passes. The rule is one coherent current-role invariant.",
+      "currentPath": ".habitat/blueprints/service/require_service_context_boundaries/rule.json",
+      "implementationReadiness": "retain-current-context; no mutation selected",
+      "layer2Status": "none",
+      "residualFollowUp": "Only one live service instance and Markdown samples support the generic claim; the pending shared provider successor may change how context is carried."
+    },
+    {
+      "ruleId": "require_service_proof_isolation",
+      "lane": "blueprints/service",
+      "actionDecision": "boundary inversion",
+      "packetNeeded": true,
+      "expectedRemediation": "Express the one-way proof-to-production relationship in the service source/proof boundary graph, then retire the literal test-path Grit rail after parity.",
+      "evidenceNote": "The pattern only rejects literal relative module-loading edges containing an exact test segment, while require_service_spine_topology already defines production and proof roles. The focused check passes.",
+      "currentPath": ".habitat/blueprints/service/require_service_proof_isolation/rule.json",
+      "implementationReadiness": "not implementation-ready; native relationship destination required",
+      "layer2Status": "needs-decision-packet",
+      "residualFollowUp": "Current boundary tooling does not model service source versus proof interiors; computed, aliased, and differently named proof edges need an explicit false-negative model and injected probes."
+    },
+    {
+      "ruleId": "require_service_spine_topology",
+      "lane": "blueprints/service",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain the closed service package, public source, spine, module, model, middleware, and proof topology for the current service kind.",
+      "evidenceNote": "The 241-line structure authority matches services/civ7-control, the focused check passes, and the 2026-07-29 service-kind closure record explicitly reports the generic service blueprint and full service graph as sealed.",
+      "currentPath": ".habitat/blueprints/service/require_service_spine_topology/rule.json",
+      "implementationReadiness": "retain-current-context; no mutation selected",
+      "layer2Status": "none",
+      "residualFollowUp": "services/civ7-control is the sole live instance and no injected malformed-service tree was found, so this is current-context admission rather than permanent reusable-class acceptance."
+    },
+    {
+      "ruleId": "require_service_effect_error_authority",
+      "lane": "blueprints/service",
+      "actionDecision": "runtime/source validation",
+      "packetNeeded": true,
+      "expectedRemediation": "Move typed Effect failure-channel enforcement to a TypeScript-native source validator that covers inferred and cross-file errors, then retire the shallow syntax rail after parity.",
+      "evidenceNote": "The pattern itself limits ownership to explicit two- and three-argument Effect.Effect applications and same-source Error subclasses while stating that TypeScript owns cross-file assignability and inferred channels. The focused check passes.",
+      "currentPath": ".habitat/blueprints/service/require_service_effect_error_authority/rule.json",
+      "implementationReadiness": "not implementation-ready; native typed-error validator required",
+      "layer2Status": "needs-decision-packet",
+      "residualFollowUp": "No native validator or executable injected corpus currently proves inferred, aliased, union, and cross-file failure channels."
+    },
+    {
+      "ruleId": "require_service_anchor_exports",
+      "lane": "blueprints/service",
+      "actionDecision": "split by owner",
+      "packetNeeded": true,
+      "expectedRemediation": "Split stable per-role anchor and closed-export laws from pinned EffectImplementerInternal, ServiceModule, and EnhancedEffectRouter declaration-portability syntax.",
+      "evidenceNote": "The pattern governs base, context, root and module contracts, impl, module branches, module routers, and the root router with exact vendor types. The focused check passes, but the root-router serialization form already changed in 0f4ed4e06f.",
+      "currentPath": ".habitat/blueprints/service/require_service_anchor_exports/rule.json",
+      "implementationReadiness": "not implementation-ready; Layer 2 role/vendor split required",
+      "layer2Status": "needs-decision-packet",
+      "residualFollowUp": "Overlaps context, contract, router-authorship, and oRPC-composition rules; vendor-specific anchors are frozen until the shared-Habitat successor is accepted."
+    },
+    {
+      "ruleId": "require_service_orpc_composition",
+      "lane": "blueprints/service",
+      "actionDecision": "runtime/source validation",
+      "packetNeeded": true,
+      "expectedRemediation": "Keep the current pin until successor authority exists, then move one-lineage, middleware-order, module-branch, and root-router guarantees to provider types and runtime behavior proof and retire exact-syntax Grit.",
+      "evidenceNote": "The README pins effect-orpc 0.5.0 and exact declaration types; the pattern matches exact implementation syntax and required amendment after TypeScript serialization overflow. Current focused proof passes, while the capability corpus reserves the official-provider cutover to a shared-Habitat successor.",
+      "currentPath": ".habitat/blueprints/service/require_service_orpc_composition/rule.json",
+      "implementationReadiness": "blocked on shared provider successor and behavior proof",
+      "layer2Status": "needs-decision-packet",
+      "residualFollowUp": "The successor must preserve one configured lineage and middleware ordering before this current-context syntax rail can change."
+    },
+    {
+      "ruleId": "require_service_contract_authority",
+      "lane": "blueprints/service",
+      "actionDecision": "split by owner",
+      "packetNeeded": true,
+      "expectedRemediation": "Separate root/module aggregate and semantic-leaf shape from Standard Schema projection, TypeBox capability admission, DTO placement, and error-map authority.",
+      "evidenceNote": "One pattern governs root base.router composition, module indexes, filename/export identity, allowed statements, input/output wrapping, local error maps, TypeBox imports, nonprojectable constructors, and bigint literals. The current service passes, but these are distinct source and protocol owners.",
+      "currentPath": ".habitat/blueprints/service/require_service_contract_authority/rule.json",
+      "implementationReadiness": "not implementation-ready; Layer 2 owner-split packet required",
+      "layer2Status": "needs-decision-packet",
+      "residualFollowUp": "Overlaps property-description and oRPC-error rules; the shared vendor successor and executable fixture corpus are unresolved."
+    },
+    {
+      "ruleId": "require_service_contract_property_descriptions",
+      "lane": "blueprints/service",
+      "actionDecision": "runtime/source validation",
+      "packetNeeded": true,
+      "expectedRemediation": "Validate required descriptions on the projected public contract/schema documentation surface, then retire canonical-TypeBox-spelling constraints after equivalent coverage exists.",
+      "evidenceNote": "The Grit pattern recognizes only directly authored module-contract Type.Object shapes, canonical Type imports, static strings, and narrowly named schema delegation. The current tree passes, but the public protocol projection is the semantic owner.",
+      "currentPath": ".habitat/blueprints/service/require_service_contract_property_descriptions/rule.json",
+      "implementationReadiness": "not implementation-ready; projected-schema validator required",
+      "layer2Status": "needs-decision-packet",
+      "residualFollowUp": "No native projected-schema or generated-documentation validation currently proves all public properties, delegated schemas, and truthful nonblank descriptions."
+    },
+    {
+      "ruleId": "require_service_public_consumer_sealing",
+      "lane": "blueprints/service",
+      "actionDecision": "boundary inversion",
+      "packetNeeded": true,
+      "expectedRemediation": "Model the deliberate service package exports as the only allowed foreign-consumer face and the service implementation tree as private in native dependency authority; retire literal-path Grit after parity.",
+      "evidenceNote": "services/civ7-control/package.json exposes only the root and contract faces while its #civ7-control-service alias is owner-private; the pattern scans literal foreign alias and physical service-tree edges, and the focused check passes.",
+      "currentPath": ".habitat/blueprints/service/require_service_public_consumer_sealing/rule.json",
+      "implementationReadiness": "not implementation-ready; public/private graph destination required",
+      "layer2Status": "needs-decision-packet",
+      "residualFollowUp": "Current kind:control Nx policy does not distinguish service public exports from private physical interiors; relative-path and alias probes are required."
+    },
+    {
+      "ruleId": "require_service_router_authorship",
+      "lane": "blueprints/service",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain direct semantic router-leaf handler authorship and plain module/root router composition for the pinned service context.",
+      "evidenceNote": "The pattern expresses one coherent leaf-versus-aggregate authorship law; services/civ7-control has direct leaves and behavior proof by module, and the focused Habitat check passes.",
+      "currentPath": ".habitat/blueprints/service/require_service_router_authorship/rule.json",
+      "implementationReadiness": "retain-current-context; no mutation selected",
+      "layer2Status": "none",
+      "residualFollowUp": "Only one service instance and Markdown samples support generic admission; a future official Effect integration may replace the exact .effect/.handler syntax."
+    },
+    {
+      "ruleId": "require_service_boundary_platform_independence",
+      "lane": "blueprints/service",
+      "actionDecision": "boundary inversion",
+      "packetNeeded": true,
+      "expectedRemediation": "Define allowed platform-neutral dependencies for service context, contract, schema, DTO, error, policy, and port roles, with concrete platform acquisition allowed only at qualified hosts.",
+      "evidenceNote": "The pattern is a selected-path node:/bun: deny list over declaration roles; the focused check passes, while the blueprint README assigns provider construction and platform hosts outside the service interior.",
+      "currentPath": ".habitat/blueprints/service/require_service_boundary_platform_independence/rule.json",
+      "implementationReadiness": "not implementation-ready; role-aware boundary destination required",
+      "layer2Status": "needs-decision-packet",
+      "residualFollowUp": "No native role-aware boundary currently covers these file classes, and the pattern does not model other platform packages or computed module specifiers."
+    },
+    {
+      "ruleId": "require_orpc_error_authority",
+      "lane": "blueprints/service",
+      "actionDecision": "split by owner",
+      "packetNeeded": true,
+      "expectedRemediation": "Separate durable contract-declared public error/provider behavior from executable error-import and middleware boundaries, and retire lexical dispatchError/errorStatusMap fossil guards unless recurrence evidence exists.",
+      "evidenceNote": "The pattern combines ORPCError and toORPCError acquisition, executable error-value imports, middleware .errors calls, ORPCTaggedError placement, and exact local identifier bans. Current source and behavior tests pass, but the clauses span contract, provider, middleware, and residue owners.",
+      "currentPath": ".habitat/blueprints/service/require_orpc_error_authority/rule.json",
+      "implementationReadiness": "not implementation-ready; Layer 2 owner split and successor qualification required",
+      "layer2Status": "needs-decision-packet",
+      "residualFollowUp": "Overlaps require_service_effect_error_authority and require_service_contract_authority; the shared official-provider successor and injected/runtime parity remain blockers."
+    },
+    {
+      "ruleId": "enforce_workspace_reachability_and_dependency_hygiene",
+      "lane": "global/workspace",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain Habitat registration and Nx scheduling of the native Knip zero-corpus invariant; repair current source/config findings rather than changing the rule.",
+      "evidenceNote": "The manifest delegates exactly to habitat:check:dead-code and tools/habitat/project.json owns knip --no-progress. A fresh uncached run at 8d0d4983 reported three unused devDependencies and two unused exports, proving the native rail is active and non-vacuous.",
+      "currentPath": ".habitat/global/workspace/rules/enforce_workspace_reachability_and_dependency_hygiene/rule.json",
+      "implementationReadiness": "rule authority ready; current source corpus remains red",
+      "layer2Status": "none",
+      "residualFollowUp": "Current-tree closure is blocked by unused devDependencies @habitat/cli, @math.gl/types, and @types/react plus unused exports packageRoot and executablePackageFiles; these are source/config remediations, not rule-authority mutations."
+    },
+    {
+      "ruleId": "require_active_rule_authority_ledger_identity_parity",
+      "lane": "global/workspace",
+      "actionDecision": "positive authority creation",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this contextual guard live only while the active rule-authority cleanup ledger remains operational authority.",
+      "evidenceNote": "The rule reuses Habitat's canonical registry discovery and fails on missing, manifestless, duplicate, or stale-count current rows; focused injected tests and current-tree proof close the previously manual parity gate.",
+      "currentPath": ".habitat/global/workspace/rules/require_active_rule_authority_ledger_identity_parity/rule.json",
+      "implementationReadiness": "implemented and current-tree proved",
+      "layer2Status": "none",
+      "residualFollowUp": "Retire this rule with the active cleanup ledger; permanent parity requires first promoting the ledger contract out of .habitat/.active."
     }
   ],
   "slices": [
@@ -2061,14 +2100,17 @@
     },
     {
       "sliceId": "mapgen-helper-surface-authority-consolidation",
-      "status": "implementation-ready",
+      "status": "superseded",
+      "supersededOn": "2026-07-30",
+      "supersededBy": "rule-authority-ledger-identity-reconciliation-2026-07-30",
+      "supersessionReason": "The Foundation-local selected identity is retired. Any future widening of the surviving generic helper rule requires fresh selection from the current corpus rather than this mixed historical packet.",
       "actionClass": "positive authority creation",
       "rules": [
         "prohibit_runtime_helper_redeclarations",
         "prohibit_foundation_duplicate_math_helper_redefinitions"
       ],
       "reason": "Existing SDK/core helper rail is the likely owner but is under-scoped; Foundation helper row should not remain a narrow local admission while other domain rules/helpers redeclare the same helper family.",
-      "queueOrder": 1,
+      "historicalQueueOrder": 1,
       "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-mapgen-helper-surface-authority-consolidation.md",
       "sourceCommit": "dba8598fd52becb4022e86b5e6a1c81a4dde094d",
       "selectedRules": [
@@ -2123,7 +2165,7 @@
           "changing unrelated helper-family rows not selected here"
         ]
       },
-      "nextLegalAction": "Enter Layer 3 for one bounded slice that widens/polishes prohibit_runtime_helper_redeclarations for exact-equivalent public MapGen core helper redeclarations, then absorbs/deletes prohibit_foundation_duplicate_math_helper_redefinitions only to the covered extent.",
+      "historicalNextLegalAction": "Enter Layer 3 for one bounded slice that widens/polishes prohibit_runtime_helper_redeclarations for exact-equivalent public MapGen core helper redeclarations, then absorbs/deletes prohibit_foundation_duplicate_math_helper_redefinitions only to the covered extent.",
       "reviewDisposition": {
         "reviewer": "fresh no-edit packet reviewer",
         "disposition": "approve-with-repairs",
@@ -2149,11 +2191,14 @@
     },
     {
       "sliceId": "standard-stage-kind-truth-projection-authority",
-      "status": "blocked-prior-source-owner-design",
+      "status": "superseded",
+      "supersededOn": "2026-07-30",
+      "supersededBy": "rule-authority-ledger-identity-reconciliation-2026-07-30",
+      "supersessionReason": "Its sole selected rule identity is retired. A future source-native projection contract decision must be selected anew from live authority rather than remain a blocker on a deleted rule.",
       "actionClass": "retirement/garbage collection / native source validation",
       "rules": ["prohibit_map_projection_dependencies_in_physics_contracts"],
       "reason": "Corrective audit rejected the stage-kind sidecar framing. Retired runtime/projection literals have been deleted; the remaining live truth/projection invariant belongs to source-native contract/package verification, not a Habitat stage-kind table.",
-      "queueOrder": 2,
+      "historicalQueueOrder": 2,
       "completedOn": "2026-07-01T22:45:00.000Z",
       "sourceCommit": "88cd1a344",
       "selectedRules": ["prohibit_map_projection_dependencies_in_physics_contracts"],
@@ -2208,7 +2253,10 @@
     },
     {
       "sliceId": "dependency-effect-tag-family-authority",
-      "status": "packet-complete",
+      "status": "superseded",
+      "supersededOn": "2026-07-30",
+      "supersededBy": "rule-authority-ledger-identity-reconciliation-2026-07-30",
+      "supersessionReason": "Every selected rule identity is retired after typed dependency/completion collapse. The packet remains historical evidence and authorizes no new tag-family mutation.",
       "actionClass": "positive authority creation / split by owner",
       "rules": [
         "require_standard_recipe_map_effect_name_suffixes",
@@ -2217,7 +2265,7 @@
         "prohibit_morphology_stage_legacy_effect_gates"
       ],
       "reason": "Current rows scan root catalogs or local retired tokens instead of asserting owner/schema validation over registered tag families.",
-      "queueOrder": 3,
+      "historicalQueueOrder": 3,
       "completedOn": "2026-07-01T20:52:05.650Z",
       "sourceCommit": "945d6b518",
       "selectedRules": [
@@ -2346,7 +2394,10 @@
     },
     {
       "sliceId": "standard-stage-public-config-and-contract-surface",
-      "status": "packet-complete",
+      "status": "superseded",
+      "supersededOn": "2026-07-30",
+      "supersededBy": "rule-authority-ledger-identity-reconciliation-2026-07-30",
+      "supersessionReason": "Every selected Foundation-local identity is retired by later generic authoring-kind authority. The packet remains historical evidence and authorizes no new mutation.",
       "actionClass": "split by owner / boundary inversion",
       "rules": [
         "prohibit_foundation_stage_cast_merge_hacks",
@@ -2354,7 +2405,7 @@
         "prohibit_foundation_step_contract_config_bags"
       ],
       "reason": "Foundation-only standard-stage rows now read as proxies for standard-stage public compile/schema metadata and step-contract config authority, with exact retired Foundation residue split only if recurrence risk remains.",
-      "queueOrder": 5,
+      "historicalQueueOrder": 5,
       "completedOn": "2026-07-01T21:06:19.611Z",
       "sourceCommit": "945d6b5181ba92af635923618a41b1dc69f5ed99",
       "selectedRules": [
@@ -2419,7 +2470,10 @@
     },
     {
       "sliceId": "generated-zone-and-resource-derived-package-authority",
-      "status": "packet-complete",
+      "status": "superseded",
+      "supersededOn": "2026-07-30",
+      "supersededBy": "rule-authority-ledger-identity-reconciliation-2026-07-30",
+      "supersessionReason": "Most selected identities are retired by generated-zone ownership normalization. Any future work on the surviving dependency-independence rule requires fresh selection from the current corpus.",
       "actionClass": "positive authority creation / retirement",
       "rules": [
         "block_hand_edits_to_generated_civ7_types",
@@ -2428,7 +2482,7 @@
         "preserve_evidence_provenance_labels"
       ],
       "reason": "Local resource lanes hold repeated generated-surface and resource-derived package authority that should be made positive and unified before retiring output-text checks.",
-      "queueOrder": 6,
+      "historicalQueueOrder": 6,
       "completedOn": "2026-07-01T21:12:31.917Z",
       "sourceCommit": "945d6b5181ba92af635923618a41b1dc69f5ed99",
       "selectedRules": [
@@ -2503,7 +2557,10 @@
     },
     {
       "sliceId": "studio-platform-mixed-owner-rails",
-      "status": "packet-complete",
+      "status": "superseded",
+      "supersededOn": "2026-07-30",
+      "supersededBy": "rule-authority-ledger-identity-reconciliation-2026-07-30",
+      "supersessionReason": "The visualization-runtime identity in this mixed packet is retired. Surviving live rows keep their individual dispositions and require fresh selection before mutation.",
       "actionClass": "split by owner / boundary inversion",
       "rules": [
         "enforce_adapter_only_base_standard_imports",
@@ -2513,7 +2570,7 @@
         "verify_visualization_runtime_build_artifacts"
       ],
       "reason": "These rows mix structural source authority with type/provenance policy, adapter capability authority, Studio UI/runtime boundary, Nx target ownership, or build-output currentness.",
-      "queueOrder": 7,
+      "historicalQueueOrder": 7,
       "completedOn": "2026-07-01T21:20:12.575Z",
       "sourceCommit": "945d6b5181ba92af635923618a41b1dc69f5ed99",
       "selectedRules": [
@@ -2609,14 +2666,17 @@
     },
     {
       "sliceId": "deterministic-authored-generation-authority",
-      "status": "packet-complete",
+      "status": "superseded",
+      "supersededOn": "2026-07-30",
+      "supersededBy": "rule-authority-ledger-identity-reconciliation-2026-07-30",
+      "supersessionReason": "The selected Ecology proxy identity is retired. The surviving ambient-RNG rule keeps its current disposition and requires fresh selection before mutation.",
       "actionClass": "positive authority creation / split by owner",
       "rules": [
         "prohibit_ambient_rng_in_authored_generation",
         "prohibit_ecology_fudge_terms_and_legacy_generator_surfaces"
       ],
       "reason": "These rows are broader deterministic authored-generation pressure; one is a positive authority candidate with exception policy, and one mixes deterministic-generation, lexical cleanup, owner-specific generator, and projection/runtime clauses.",
-      "queueOrder": 8,
+      "historicalQueueOrder": 8,
       "completedOn": "2026-07-01T21:29:35.929Z",
       "sourceCommit": "945d6b5181ba92af635923618a41b1dc69f5ed99",
       "selectedRules": [
@@ -2686,14 +2746,17 @@
     },
     {
       "sliceId": "morphology-story-overlay-ownership-gate",
-      "status": "corrected-reopened",
+      "status": "superseded",
+      "supersededOn": "2026-07-30",
+      "supersededBy": "rule-authority-ledger-identity-reconciliation-2026-07-30",
+      "supersessionReason": "Both selected story-overlay identities are retired after domain/runtime ownership collapse. A future publisher boundary requires a new live capability and fresh authority selection.",
       "actionClass": "boundary inversion",
       "rules": [
         "prohibit_morphology_hotspot_overlay_publishers",
         "prohibit_morphology_story_overlay_contract_artifact"
       ],
       "reason": "Corrective audit rejected morphology-local negative authority. Narrative burn-down then removed the current HOTSPOTS publisher source surface, so current enforcement retires with the deleted API.",
-      "queueOrder": 9,
+      "historicalQueueOrder": 9,
       "completedOn": "2026-07-01T21:36:22.057Z",
       "sourceCommit": "945d6b5181ba92af635923618a41b1dc69f5ed99",
       "selectedRules": [
@@ -2958,6 +3021,26 @@
         "exact live manifest/active ledger id parity",
         "generated execution-surface freshness"
       ]
+    },
+    {
+      "sliceId": "rule-authority-ledger-identity-reconciliation-2026-07-30",
+      "status": "complete",
+      "actionClass": "Layer 1 reconciliation and contextual positive authority",
+      "createdRowCount": 47,
+      "retiredRowCount": 45,
+      "supersededSliceCount": 8,
+      "removedRetiredIdentityBlockerCount": 2,
+      "guardRuleId": "require_active_rule_authority_ledger_identity_parity",
+      "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md",
+      "outcome": "Restored exact canonical-registry/current-ledger identity parity, preserved every evidence-backed rule disposition, and replaced manual parity memory with a lifecycle-bound contextual check.",
+      "completedOn": "2026-07-30",
+      "verification": [
+        "canonical Habitat registry discovery reports 122 unique live ids",
+        "canonical ledger reports 122 unique current ids",
+        "require_active_rule_authority_ledger_identity_parity focused injected and current-tree proof",
+        "Habitat test and hygiene proof",
+        "git diff --check"
+      ]
     }
   ],
   "blockers": [
@@ -2965,24 +3048,6 @@
       "kind": "test-file scan capability blocker",
       "rules": ["require_public_domain_surfaces_in_tests"],
       "reason": "Current Habitat/Grit execution ignores test files via .gritignore, so converting the static import predicate to Grit would false-green. Keep the script until explicit test-file scan capability or a public/internal test exception policy exists."
-    },
-    {
-      "kind": "projection artifact namespace native-owner blocker",
-      "rules": ["prohibit_map_projection_dependencies_in_physics_contracts"],
-      "reason": "Broad truth/projection enforcement cannot use a stage-kind sidecar or blanket artifact:map ban while source-owned map artifacts remain valid. Decide source-native projection artifact subnamespace/contract verification before broad mutation."
-    },
-    {
-      "kind": "retired story publisher native-boundary blocker",
-      "rules": ["prohibit_morphology_hotspot_overlay_publishers"],
-      "reason": "The current publisher surface was deleted by narrative burn-down. If a Gameplay story publisher returns, define a positive source/API boundary before adding enforcement."
-    },
-    {
-      "kind": "live-manifest-ledger-identity-parity",
-      "rules": [],
-      "missingLiveRowCount": 46,
-      "staleCurrentRowCount": 45,
-      "introducedByCurrentSlice": false,
-      "reason": "The controller-disposition slice preserves a pre-existing 46/45 live-manifest and ledger-row identity mismatch while truthfully retiring its one deleted rule. No missing or manifestless row disposition may be inferred mechanically; a fresh no-edit Layer 1 reconciliation must restore exact identity parity before further rule mutation."
     }
   ],
   "findings": [
@@ -3206,6 +3271,14 @@
       "rules": [],
       "summary": "Fresh identity comparison found 121 live rule manifests, 120 current ledger rows, 46 live ids without rows, and 45 current rows without live manifests. Reconstructing the parent commit yields the same 46/45 mismatch, so the controller-disposition slice did not introduce or enlarge the drift.",
       "handling": "Preserve the truthful bridge retirement, block further rule-authority mutation, and use the comm-based reproduction commands in rule-authority-corpus-grounding.md as the admission proof for a separately framed no-edit Layer 1 reconciliation. Do not manufacture context-admission or retirement dispositions from registry identity alone."
+    },
+    {
+      "findingId": "2026-07-30-live-manifest-ledger-parity-restored",
+      "recordedOn": "2026-07-30",
+      "kind": "operational-ledger-coverage-reconciliation",
+      "rules": ["require_active_rule_authority_ledger_identity_parity"],
+      "summary": "Fresh Layer 1 review classified all 46 omitted live rules, retired all 45 manifestless current rows with deletion evidence, and added one lifecycle-bound parity guard. Habitat now discovers 122 unique live ids and the ledger contains exactly 122 unique current rows.",
+      "handling": "The former parity blocker is closed. Future rule mutations must update this ledger and pass the canonical-registry identity guard in the same semantic layer; the guard retires when this active ledger retires."
     }
   ],
   "retiredRules": [
@@ -3828,6 +3901,955 @@
         "generatedOutput": "packages/civ7-map-policy/src/civ7-tables.gen.ts"
       },
       "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-civ7-generated-currentness-authority.md"
+    },
+    {
+      "ruleId": "habitat-studio-run-runtime-authority-closure",
+      "lane": "MapGen Studio",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The exact SA-01-through-SA-14 packet/matrix closure was transitional workstream evidence; the Swooper definition/app split landed and the sibling set was deleted.",
+      "evidenceNote": "The exact SA-01-through-SA-14 packet/matrix closure was transitional workstream evidence; the Swooper definition/app split landed and the sibling set was deleted. Evidence commits: f69af64fb67e7d8d027abe8f849f433eff615ad7.",
+      "currentPath": null,
+      "layer2Status": "retired",
+      "wholeRuleFit": "transitional meta-closure over an exact packet corpus",
+      "ruleIdPlan": "retain through closeout only; retire without replacement after the individual durable/transitional rows have their target dispositions",
+      "semanticDecision": "Habitat remains the authority tree, but a script that freezes exactly fourteen historical packet rows and a project Markdown matrix is not permanent authority.",
+      "residualFollowUp": "Retirement must preserve ordinary manifest discovery, unique identity, ledger parity, and each surviving invariant's own rule authority.",
+      "implementationReadiness": "complete; no restoration selected",
+      "previousPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/habitat-studio-run-runtime-authority-closure/rule.json",
+      "retiredOn": "2026-07-30",
+      "retiredBy": "f69af64fb67e7d8d027abe8f849f433eff615ad7",
+      "retiredReason": "The exact SA-01-through-SA-14 packet/matrix closure was transitional workstream evidence; the Swooper definition/app split landed and the sibling set was deleted.",
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "preserve_decomposed_foundation_contract_surfaces",
+      "lane": "domains/foundation",
+      "actionDecision": "split by owner",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The checker mixed operation inventory, artifact identity, strategy/rule imports, and recipe dependency claims; current generic owners split those proof shapes.",
+      "evidenceNote": "The checker mixed operation inventory, artifact identity, strategy/rule imports, and recipe dependency claims; current generic owners split those proof shapes. Evidence commits: f1f4b03fde3bfaad537fb869b3362e39b516752c.",
+      "currentPath": null,
+      "layer2Status": "retired",
+      "implementationReadiness": "complete; no restoration selected",
+      "previousPath": ".habitat/civ7/mapgen/domains/foundation/rules/preserve_decomposed_foundation_contract_surfaces/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "f1f4b03fde3bfaad537fb869b3362e39b516752c",
+      "retiredReason": "The checker mixed operation inventory, artifact identity, strategy/rule imports, and recipe dependency claims; current generic owners split those proof shapes.",
+      "authorityDestination": [
+        ".habitat/blueprints/domain-operation/require_domain_operation_source_topology/rule.json",
+        ".habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/rule.json",
+        ".habitat/blueprints/domain-operation/require_domain_operation_rule_import_boundaries/rule.json",
+        ".habitat/blueprints/domain-operation-strategy/require_domain_operation_strategy_import_boundaries/rule.json",
+        ".habitat/blueprints/artifact/require_artifact_file_shape/rule.json",
+        ".habitat/blueprints/recipe-step/require_typed_recipe_step_dependencies/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "preserve_transport_pure_orpc_contracts",
+      "lane": "Civ7 platform/resources",
+      "actionDecision": "boundary inversion",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The package-specific transport blacklist disappeared with packages/civ7-control-orpc; the closed generic service contract and boundary graph now own the invariant.",
+      "evidenceNote": "The package-specific transport blacklist disappeared with packages/civ7-control-orpc; the closed generic service contract and boundary graph now own the invariant. Evidence commits: dee89905a08e777dd268950a31a74f4af36d8435.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/platform/control-orpc/rules/preserve_transport_pure_orpc_contracts/rule.json",
+      "retiredOn": "2026-07-30",
+      "retiredBy": "dee89905a08e777dd268950a31a74f4af36d8435",
+      "retiredReason": "The package-specific transport blacklist disappeared with packages/civ7-control-orpc; the closed generic service contract and boundary graph now own the invariant.",
+      "authorityDestination": [
+        ".habitat/blueprints/service/require_service_contract_authority/rule.json",
+        ".habitat/blueprints/service/require_service_boundary_platform_independence/rule.json",
+        ".habitat/blueprints/service/require_service_module_isolation/rule.json",
+        ".habitat/blueprints/service/require_service_orpc_composition/rule.json",
+        ".habitat/blueprints/service/require_service_spine_topology/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_domain_entrypoint_self_reexports",
+      "lane": "blueprints/domain",
+      "actionDecision": "closed structure inversion",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The declaration-only closed domain entrypoint shape makes contract/router self-reexports structurally invalid.",
+      "evidenceNote": "The declaration-only closed domain entrypoint shape makes contract/router self-reexports structurally invalid. Evidence commits: b2a0d4dc39395b156f4ac29b1046b6709634ec37.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/blueprints/domain/prohibit_domain_entrypoint_self_reexports/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "b2a0d4dc39395b156f4ac29b1046b6709634ec37",
+      "retiredReason": "The declaration-only closed domain entrypoint shape makes contract/router self-reexports structurally invalid.",
+      "authorityDestination": [
+        ".habitat/blueprints/domain/require_domain_entrypoint_shape/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_domain_ops_projection_effect_dependencies",
+      "lane": "blueprints/domain-operation",
+      "actionDecision": "consolidation/dedup",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The old projection/effect wording was superseded by the same generic boundary over recipe projection artifacts and typed completion ids.",
+      "evidenceNote": "The old projection/effect wording was superseded by the same generic boundary over recipe projection artifacts and typed completion ids. Evidence commits: d3cd35e68c817621b0f6f51fde7f77c9f546b27d.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies/rule.json",
+      "retiredOn": "2026-07-30",
+      "retiredBy": "d3cd35e68c817621b0f6f51fde7f77c9f546b27d",
+      "retiredReason": "The old projection/effect wording was superseded by the same generic boundary over recipe projection artifacts and typed completion ids.",
+      "authorityDestination": [
+        ".habitat/blueprints/domain-operation/prohibit_domain_ops_recipe_dependencies/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_foundation_decomposed_ops_legacy_internal_imports",
+      "lane": "domains/foundation",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. It named only the retired compute-tectonic-history/(lib|contract) path from the flat Foundation topology; the nested operation structure has no concrete recurrence rail for that literal.",
+      "evidenceNote": "It named only the retired compute-tectonic-history/(lib|contract) path from the flat Foundation topology; the nested operation structure has no concrete recurrence rail for that literal. Evidence commits: f1f4b03fde3bfaad537fb869b3362e39b516752c.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_decomposed_ops_legacy_internal_imports/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "f1f4b03fde3bfaad537fb869b3362e39b516752c",
+      "retiredReason": "It named only the retired compute-tectonic-history/(lib|contract) path from the flat Foundation topology; the nested operation structure has no concrete recurrence rail for that literal.",
+      "authorityDestination": [
+        ".habitat/blueprints/domain-operation/require_domain_operation_source_topology/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_foundation_duplicate_math_helper_redefinitions",
+      "lane": "domains/foundation",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The named flat-Foundation helpers were migrated to canonical quantization/vector APIs and their old names and shared module were deleted; retaining the lexical blacklist would preserve migration residue.",
+      "evidenceNote": "The named flat-Foundation helpers were migrated to canonical quantization/vector APIs and their old names and shared module were deleted; retaining the lexical blacklist would preserve migration residue. Evidence commits: 5e55e418d4cf6cdb4252185d1fa1780127d22748, f1f4b03fde3bfaad537fb869b3362e39b516752c.",
+      "currentPath": null,
+      "decisionPacket": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-mapgen-helper-surface-authority-consolidation.md",
+      "nextLayer3Action": "Retire or absorb the rule after the survivor rail covers exact generic helper recurrence risk; retain exclusions for Foundation quantization helpers.",
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_duplicate_math_helper_redefinitions/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "f1f4b03fde3bfaad537fb869b3362e39b516752c",
+      "retiredReason": "The named flat-Foundation helpers were migrated to canonical quantization/vector APIs and their old names and shared module were deleted; retaining the lexical blacklist would preserve migration residue.",
+      "authorityDestination": [
+        "packages/mapgen-core/src/lib/math/quantize.ts",
+        "packages/mapgen-core/src/lib/grid/vector-field.ts"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_foundation_legacy_aggregate_tectonic_op_surface",
+      "lane": "domains/foundation",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The rule guarded the retired computeTectonicHistory aggregate and old ops contract/index files; the nested tectonics module is the current constructible surface.",
+      "evidenceNote": "The rule guarded the retired computeTectonicHistory aggregate and old ops contract/index files; the nested tectonics module is the current constructible surface. Evidence commits: f1f4b03fde3bfaad537fb869b3362e39b516752c.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonic_op_surface/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "f1f4b03fde3bfaad537fb869b3362e39b516752c",
+      "retiredReason": "The rule guarded the retired computeTectonicHistory aggregate and old ops contract/index files; the nested tectonics module is the current constructible surface.",
+      "authorityDestination": [
+        ".habitat/blueprints/domain-subdomain/require_domain_module_contract_aggregate_shape/rule.json",
+        ".habitat/blueprints/domain-subdomain/require_domain_module_router_binding_shape/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_foundation_legacy_aggregate_tectonics",
+      "lane": "domains/foundation",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The exact monolithic computeTectonicHistory surface and flat Foundation contract/index topology are gone; closed module aggregates own current shape.",
+      "evidenceNote": "The exact monolithic computeTectonicHistory surface and flat Foundation contract/index topology are gone; closed module aggregates own current shape. Evidence commits: f1f4b03fde3bfaad537fb869b3362e39b516752c.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonics/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "f1f4b03fde3bfaad537fb869b3362e39b516752c",
+      "retiredReason": "The exact monolithic computeTectonicHistory surface and flat Foundation contract/index topology are gone; closed module aggregates own current shape.",
+      "authorityDestination": [
+        ".habitat/blueprints/domain-subdomain/require_domain_module_contract_aggregate_shape/rule.json",
+        ".habitat/blueprints/domain-subdomain/require_domain_module_router_binding_shape/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_foundation_legacy_plate_kinematics",
+      "lane": "domains/foundation",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. velocityX, velocityY, and rotation were retired plate-graph properties; graph identity and motion now have separate typed artifacts, so the old literal guard should not remain law.",
+      "evidenceNote": "velocityX, velocityY, and rotation were retired plate-graph properties; graph identity and motion now have separate typed artifacts, so the old literal guard should not remain law. Evidence commits: f1f4b03fde3bfaad537fb869b3362e39b516752c.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_plate_kinematics/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "f1f4b03fde3bfaad537fb869b3362e39b516752c",
+      "retiredReason": "velocityX, velocityY, and rotation were retired plate-graph properties; graph identity and motion now have separate typed artifacts, so the old literal guard should not remain law.",
+      "authorityDestination": [
+        "plugins/mod/map/swooper-physics/src/domain/foundation/modules/lithosphere/artifacts/plate-graph.artifact.ts",
+        "plugins/mod/map/swooper-physics/src/domain/foundation/modules/tectonics/artifacts/plate-motion.artifact.ts"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_foundation_projection_legacy_motion_source",
+      "lane": "standard recipe stage foundation/hydrology/map/placement",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The predicate named retired plateGraph.plates velocity fields; projection now declares the plate-motion artifact, and recreating the obsolete property blacklist would preserve dead vocabulary.",
+      "evidenceNote": "The predicate named retired plateGraph.plates velocity fields; projection now declares the plate-motion artifact, and recreating the obsolete property blacklist would preserve dead vocabulary. Evidence commits: f1f4b03fde3bfaad537fb869b3362e39b516752c.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_projection_legacy_motion_source/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "f1f4b03fde3bfaad537fb869b3362e39b516752c",
+      "retiredReason": "The predicate named retired plateGraph.plates velocity fields; projection now declares the plate-motion artifact, and recreating the obsolete property blacklist would preserve dead vocabulary.",
+      "authorityDestination": [
+        "plugins/mod/map/swooper-physics/src/domain/foundation/modules/tectonics/artifacts/plate-motion.artifact.ts",
+        "plugins/mod/map/swooper-physics/src/recipes/standard/stages/foundation/projection/steps/projection/config.ts"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_foundation_rules_tectonics_shim_reexports",
+      "lane": "domains/foundation",
+      "actionDecision": "boundary inversion",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The Foundation-specific shared-lib shim ban is subsumed by the generic closed operation topology and allowed rule-import boundary.",
+      "evidenceNote": "The Foundation-specific shared-lib shim ban is subsumed by the generic closed operation topology and allowed rule-import boundary. Evidence commits: f1f4b03fde3bfaad537fb869b3362e39b516752c.",
+      "currentPath": null,
+      "layer2Status": "retired",
+      "packetSliceId": "domain-operation-generic-surfaces",
+      "wholeRuleFit": "absorbed by generic D4 entrypoint authority",
+      "ruleIdPlan": "retire the Foundation-local id after generic survivor proof",
+      "semanticDecision": "D4 owns operation rules and strategies indices as export-only local entrypoints; the exact Foundation blacklist is not a separate authority.",
+      "residualFollowUp": "Prove the generic survivor against the shim shape before retirement.",
+      "implementationReadiness": "complete; no restoration selected",
+      "previousPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_rules_tectonics_shim_reexports/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "f1f4b03fde3bfaad537fb869b3362e39b516752c",
+      "retiredReason": "The Foundation-specific shared-lib shim ban is subsumed by the generic closed operation topology and allowed rule-import boundary.",
+      "authorityDestination": [
+        ".habitat/blueprints/domain-operation/require_domain_operation_rule_import_boundaries/rule.json",
+        ".habitat/blueprints/domain-operation/require_domain_operation_source_topology/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_foundation_stage_cast_merge_hacks",
+      "lane": "standard recipe stage foundation/hydrology/map/placement",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The rule matched exact wrapper-era override variables, casts, and merge spreads removed by the nested stage rewrite; these are stale migration spellings, not durable authority.",
+      "evidenceNote": "The rule matched exact wrapper-era override variables, casts, and merge spreads removed by the nested stage rewrite; these are stale migration spellings, not durable authority. Evidence commits: f1f4b03fde3bfaad537fb869b3362e39b516752c.",
+      "currentPath": null,
+      "layer2Status": "retired",
+      "packetSliceId": "standard-stage-public-config-and-contract-surface",
+      "wholeRuleFit": "retire/consolidate",
+      "ruleIdPlan": "delete exact wrapper-era Foundation cast/merge blacklist after confirming no live recurrence; absorb only the generic public-compile invariant into stage authoring authority if needed",
+      "semanticDecision": "Exact advanced/overrideValues tokens are retired Foundation residue with no live source hits. The broader concern is not a Foundation blacklist; public compile must be structurally owned by createStage, strict schemas, and compile validation. Legitimate config.foo ?? {} envelope defaults must remain allowed.",
+      "residualFollowUp": "Remove duplicate package-test junk-catcher coverage for historical literals during Layer 3. Do not preserve broad negative patterns for TypeScript casts/defaults unless source-backed recurrence risk exists.",
+      "implementationReadiness": "complete; no restoration selected",
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_stage_cast_merge_hacks/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "f1f4b03fde3bfaad537fb869b3362e39b516752c",
+      "retiredReason": "The rule matched exact wrapper-era override variables, casts, and merge spreads removed by the nested stage rewrite; these are stale migration spellings, not durable authority.",
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_foundation_stage_sentinel_passthrough",
+      "lane": "standard recipe stage foundation/hydrology/map/placement",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. It guarded retired FOUNDATION_STUDIO_STEP_CONFIG_IDS-style sentinels; current composition has no live sentinel concept or recurrence evidence.",
+      "evidenceNote": "It guarded retired FOUNDATION_STUDIO_STEP_CONFIG_IDS-style sentinels; current composition has no live sentinel concept or recurrence evidence. Evidence commits: f1f4b03fde3bfaad537fb869b3362e39b516752c.",
+      "currentPath": null,
+      "layer2Status": "retired",
+      "packetSliceId": "standard-stage-public-config-and-contract-surface",
+      "wholeRuleFit": "retire",
+      "ruleIdPlan": "delete Foundation sentinel passthrough blacklist without replacement unless a live renamed sentinel leak is found",
+      "semanticDecision": "The rule only matches retired Foundation/Studio sentinel tokens and does not express the real authoring-surface invariant. Current createStage authoring metadata and focus paths are legitimate; broad UI metadata bans would be wrong.",
+      "residualFollowUp": "Keep public-authoring-surface verification as the positive focus-path/schema authority. Do not keep exact retired sentinel tokens as historical negative assertions.",
+      "implementationReadiness": "complete; no restoration selected",
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_stage_sentinel_passthrough/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "f1f4b03fde3bfaad537fb869b3362e39b516752c",
+      "retiredReason": "It guarded retired FOUNDATION_STUDIO_STEP_CONFIG_IDS-style sentinels; current composition has no live sentinel concept or recurrence evidence.",
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_foundation_step_contract_config_bags",
+      "lane": "standard recipe stage foundation/hydrology/map/placement",
+      "actionDecision": "boundary inversion",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The live clause is an allowed public-surface/config-owner boundary; the FoundationConfigSchema token itself is retired residue.",
+      "evidenceNote": "The live clause is an allowed public-surface/config-owner boundary; the FoundationConfigSchema token itself is retired residue. Evidence commits: f1f4b03fde3bfaad537fb869b3362e39b516752c.",
+      "currentPath": null,
+      "layer2Status": "retired",
+      "packetSliceId": "domain-root-topology-post-ratchet-revalidation",
+      "wholeRuleFit": "split required",
+      "ruleIdPlan": "split/generalize into recipe-step authority, then delete Foundation-local id",
+      "semanticDecision": "Live import-boundary pressure belongs in recipe-step contract authority; retired literal residue should be deleted once separated.",
+      "residualFollowUp": "Define config facade/bag narrowly before mutation.",
+      "implementationReadiness": "complete; no restoration selected",
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_step_contract_config_bags/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "f1f4b03fde3bfaad537fb869b3362e39b516752c",
+      "retiredReason": "The live clause is an allowed public-surface/config-owner boundary; the FoundationConfigSchema token itself is retired residue.",
+      "authorityDestination": [
+        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/rule.json",
+        ".habitat/blueprints/recipe-step/require_recipe_step_config_owner_shape/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_foundation_strategy_nonlocal_imports",
+      "lane": "domains/foundation",
+      "actionDecision": "boundary inversion",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The path-specific Foundation allowlist became a generic capability/owner-based strategy dependency boundary.",
+      "evidenceNote": "The path-specific Foundation allowlist became a generic capability/owner-based strategy dependency boundary. Evidence commits: f1f4b03fde3bfaad537fb869b3362e39b516752c.",
+      "currentPath": null,
+      "layer2Status": "retired",
+      "packetSliceId": "domain-operation-generic-surfaces",
+      "wholeRuleFit": "replaced by generic dependency authority",
+      "ruleIdPlan": "retire the Foundation-local id after generic bad and clean proof",
+      "semanticDecision": "D2 forbids private cross-domain and sibling-operation reaches while admitting public capability classes; it does not preserve the Foundation allowlist.",
+      "residualFollowUp": "Classify live violations only after the finalized generic rule runs advisory.",
+      "implementationReadiness": "complete; no restoration selected",
+      "previousPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_strategy_nonlocal_imports/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "f1f4b03fde3bfaad537fb869b3362e39b516752c",
+      "retiredReason": "The path-specific Foundation allowlist became a generic capability/owner-based strategy dependency boundary.",
+      "authorityDestination": [
+        ".habitat/blueprints/domain-operation-strategy/require_domain_operation_strategy_import_boundaries/rule.json",
+        ".habitat/blueprints/domain-operation-strategy/require_domain_operation_strategy_source_topology/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_hydrology_climate_intervention_tokens",
+      "lane": "domains/nonfoundation",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. climate.swatches and climate.story were migration literals from retired narrative intervention; there is no current construct or concrete recurrence evidence.",
+      "evidenceNote": "climate.swatches and climate.story were migration literals from retired narrative intervention; there is no current construct or concrete recurrence evidence. Evidence commits: 79f1db5e2d9bd6e4812975773291eba27e3ee520.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/mapgen/domains/hydrology/rules/prohibit_hydrology_climate_intervention_tokens/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "79f1db5e2d9bd6e4812975773291eba27e3ee520",
+      "retiredReason": "climate.swatches and climate.story were migration literals from retired narrative intervention; there is no current construct or concrete recurrence evidence.",
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_hydrology_narrative_domain_imports",
+      "lane": "domains/nonfoundation",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The narrative domain and story-overlay authority were already deleted, so an exact import-path blacklist would keep a dead owner alive as law.",
+      "evidenceNote": "The narrative domain and story-overlay authority were already deleted, so an exact import-path blacklist would keep a dead owner alive as law. Evidence commits: 93367671303126cb3980478ead98f94189c50316, 79f1db5e2d9bd6e4812975773291eba27e3ee520.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/mapgen/domains/hydrology/rules/prohibit_hydrology_narrative_domain_imports/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "79f1db5e2d9bd6e4812975773291eba27e3ee520",
+      "retiredReason": "The narrative domain and story-overlay authority were already deleted, so an exact import-path blacklist would keep a dead owner alive as law.",
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_legacy_compute_tectonics_token",
+      "lane": "domains/foundation",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. computeTectonics was the retired monolithic token; current named operations are different identities and the old lexical ban has no recurrence evidence.",
+      "evidenceNote": "computeTectonics was the retired monolithic token; current named operations are different identities and the old lexical ban has no recurrence evidence. Evidence commits: f1f4b03fde3bfaad537fb869b3362e39b516752c.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_legacy_compute_tectonics_token/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "f1f4b03fde3bfaad537fb869b3362e39b516752c",
+      "retiredReason": "computeTectonics was the retired monolithic token; current named operations are different identities and the old lexical ban has no recurrence evidence.",
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_map_projection_dependencies_in_physics_contracts",
+      "lane": "standard recipe top-level",
+      "actionDecision": "runtime/source validation",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The live truth/projection invariant is now expressed by typed Artifact/CompletionId dependencies and execution-plan validation, not string scans for map artifact/effect names.",
+      "evidenceNote": "The live truth/projection invariant is now expressed by typed Artifact/CompletionId dependencies and execution-plan validation, not string scans for map artifact/effect names. Evidence commits: f1f4b03fde3bfaad537fb869b3362e39b516752c, d3cd35e68c817621b0f6f51fde7f77c9f546b27d.",
+      "currentPath": null,
+      "layer2Status": "retired",
+      "packetSliceId": "standard-stage-kind-truth-projection-authority",
+      "wholeRuleFit": "split/consolidate into native rail",
+      "ruleIdPlan": "delete Habitat id only after native package-verify coverage is accepted; do not replace with stage-kind sidecar",
+      "semanticDecision": "Keep any live truth/projection invariant in source-native contracts or package verify. Do not encode a broad no-artifact:map rule until projection artifact subnamespaces are classified by source authority.",
+      "residualFollowUp": "If broadening beyond the existing literal package guard, first decide artifact:map subnamespace semantics in source/native contract authority.",
+      "implementationReadiness": "complete; no restoration selected",
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_map_projection_dependencies_in_physics_contracts/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "f1f4b03fde3bfaad537fb869b3362e39b516752c",
+      "retiredReason": "The live truth/projection invariant is now expressed by typed Artifact/CompletionId dependencies and execution-plan validation, not string scans for map artifact/effect names.",
+      "authorityDestination": [
+        ".habitat/blueprints/recipe-step/require_typed_recipe_step_dependencies/rule.json",
+        "packages/mapgen-core/src/authoring/step/contract.ts",
+        "packages/mapgen-core/src/engine/execution-plan.ts"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_migrated_consumer_effect_gating_tokens",
+      "lane": "standard recipe stage foundation/hydrology/map/placement",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The named consumer effect gates and their files were removed, then effects collapsed to typed plan completions; the exact token blacklist is obsolete residue.",
+      "evidenceNote": "The named consumer effect gates and their files were removed, then effects collapsed to typed plan completions; the exact token blacklist is obsolete residue. Evidence commits: 686b4d3cf0b320d0413e41a6ab2b4b312ffb36e1, d3cd35e68c817621b0f6f51fde7f77c9f546b27d.",
+      "currentPath": null,
+      "layer2Status": "retired",
+      "packetSliceId": "dependency-effect-tag-family-authority",
+      "wholeRuleFit": "split required",
+      "ruleIdPlan": "split into positive tag-family replacement plus map-hydrology contract-shape follow-up or deletion if no recurrence risk remains",
+      "semanticDecision": "Retired engine effect gate clauses (landmassApplied/coastlinesApplied) can be absorbed by registered effect-family validation or retired-token GC. The morphologyArtifacts.topography clause is map-hydrology lakes contract-shape/projection-input residue, not tag-family authority.",
+      "residualFollowUp": "Route the topography clause to a projection-input/contract-shape packet; do not bury it in tag-family validation.",
+      "implementationReadiness": "complete; no restoration selected",
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_migrated_consumer_effect_gating_tokens/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "686b4d3cf0b320d0413e41a6ab2b4b312ffb36e1",
+      "retiredReason": "The named consumer effect gates and their files were removed, then effects collapsed to typed plan completions; the exact token blacklist is obsolete residue.",
+      "authorityDestination": [
+        "packages/mapgen-core/src/engine/completion.ts",
+        ".habitat/blueprints/recipe-step/require_typed_recipe_step_dependencies/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_milestone_prefixed_standard_recipe_tag_catalog_names",
+      "lane": "standard recipe top-level",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The root tag catalog was deleted when dependencies became compositional; milestone-prefixed catalog names are retired vocabulary with no live owner.",
+      "evidenceNote": "The root tag catalog was deleted when dependencies became compositional; milestone-prefixed catalog names are retired vocabulary with no live owner. Evidence commits: d3cd35e68c817621b0f6f51fde7f77c9f546b27d.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names/rule.json",
+      "retiredOn": "2026-07-30",
+      "retiredBy": "d3cd35e68c817621b0f6f51fde7f77c9f546b27d",
+      "retiredReason": "The root tag catalog was deleted when dependencies became compositional; milestone-prefixed catalog names are retired vocabulary with no live owner.",
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_misplaced_projection_adapter_calls",
+      "lane": "standard recipe stage foundation/hydrology/map/placement",
+      "actionDecision": "runtime/source validation",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. Exact declared deps.engine capabilities and StepContext typing now own adapter-call admission; the old owner.adapter source blacklist is the wrong rail.",
+      "evidenceNote": "Exact declared deps.engine capabilities and StepContext typing now own adapter-call admission; the old owner.adapter source blacklist is the wrong rail. Evidence commits: 686b4d3cf0b320d0413e41a6ab2b4b312ffb36e1.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_misplaced_projection_adapter_calls/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "686b4d3cf0b320d0413e41a6ab2b4b312ffb36e1",
+      "retiredReason": "Exact declared deps.engine capabilities and StepContext typing now own adapter-call admission; the old owner.adapter source blacklist is the wrong rail.",
+      "authorityDestination": [
+        "packages/mapgen-core/src/authoring/step/engine-authority.ts",
+        "packages/mapgen-core/src/authoring/step/types.ts",
+        "packages/mapgen-core/src/authoring/step/contract.ts"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_morphology_overlay_implementation_reads",
+      "lane": "standard recipe morphology stage",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The overlays.js/readOverlay implementation owner disappeared with narrative/story overlay authority; the exact path/token guard has no live subject.",
+      "evidenceNote": "The overlays.js/readOverlay implementation owner disappeared with narrative/story overlay authority; the exact path/token guard has no live subject. Evidence commits: 93367671303126cb3980478ead98f94189c50316, 79f1db5e2d9bd6e4812975773291eba27e3ee520.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_overlay_implementation_reads/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "79f1db5e2d9bd6e4812975773291eba27e3ee520",
+      "retiredReason": "The overlays.js/readOverlay implementation owner disappeared with narrative/story overlay authority; the exact path/token guard has no live subject.",
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_morphology_runtime_continent_step_tokens",
+      "lane": "standard recipe morphology stage",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The west/eastContinent, LandmassRegionId, and markLandmassId spellings were retired before this manifest vanished; current landmass projection has a placement-owned typed engine capability.",
+      "evidenceNote": "The west/eastContinent, LandmassRegionId, and markLandmassId spellings were retired before this manifest vanished; current landmass projection has a placement-owned typed engine capability. Evidence commits: 7187d2b6ff4f31fafff27b33a49705fa9aab2a51, 79f1db5e2d9bd6e4812975773291eba27e3ee520.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_runtime_continent_step_tokens/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "79f1db5e2d9bd6e4812975773291eba27e3ee520",
+      "retiredReason": "The west/eastContinent, LandmassRegionId, and markLandmassId spellings were retired before this manifest vanished; current landmass projection has a placement-owned typed engine capability.",
+      "authorityDestination": [
+        "plugins/mod/map/swooper-physics/src/recipes/standard/stages/placement/steps/plot-landmass-regions/config.ts",
+        "plugins/mod/map/swooper-physics/src/recipes/standard/stages/placement/steps/plot-landmass-regions/step.ts"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_morphology_stage_config_bag_imports",
+      "lane": "standard recipe morphology stage",
+      "actionDecision": "boundary inversion",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The negative config-facade import scan is replaced by positive public-domain, step-config, and domain-policy owner boundaries.",
+      "evidenceNote": "The negative config-facade import scan is replaced by positive public-domain, step-config, and domain-policy owner boundaries. Evidence commits: 79f1db5e2d9bd6e4812975773291eba27e3ee520.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_config_bag_imports/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "79f1db5e2d9bd6e4812975773291eba27e3ee520",
+      "retiredReason": "The negative config-facade import scan is replaced by positive public-domain, step-config, and domain-policy owner boundaries.",
+      "authorityDestination": [
+        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/rule.json",
+        ".habitat/blueprints/recipe-step/require_recipe_step_config_owner_shape/rule.json",
+        ".habitat/blueprints/domain-policy/require_domain_policy_owner_shape/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_morphology_stage_legacy_effect_gates",
+      "lane": "standard recipe morphology stage",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. landmassApplied/coastlinesApplied and the effect framework were retired; typed completions own current ordering without preserving old token bans.",
+      "evidenceNote": "landmassApplied/coastlinesApplied and the effect framework were retired; typed completions own current ordering without preserving old token bans. Evidence commits: 79f1db5e2d9bd6e4812975773291eba27e3ee520, d3cd35e68c817621b0f6f51fde7f77c9f546b27d.",
+      "currentPath": null,
+      "layer2Status": "retired",
+      "packetSliceId": "dependency-effect-tag-family-authority",
+      "wholeRuleFit": "replace by native rail",
+      "ruleIdPlan": "delete id after closed effect-tag registry/compiler validation covers retired effect ids",
+      "semanticDecision": "Do not keep landmassApplied/coastlinesApplied as Habitat relapse tokens. Make effect-tag validity a registry/compiler property; morphology simulation stages should remain artifact-only, with map projection effects under map-* tags.",
+      "residualFollowUp": "Layer 3 should close effect tag registration so raw effect ids cannot be auto-created from step contracts, update any missing current explicit tags, and delete this morphology rule.",
+      "implementationReadiness": "complete; no restoration selected",
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_legacy_effect_gates/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "79f1db5e2d9bd6e4812975773291eba27e3ee520",
+      "retiredReason": "landmassApplied/coastlinesApplied and the effect framework were retired; typed completions own current ordering without preserving old token bans.",
+      "authorityDestination": [
+        "packages/mapgen-core/src/engine/completion.ts",
+        ".habitat/blueprints/recipe-step/require_typed_recipe_step_dependencies/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_realized_map_artifact_tags",
+      "lane": "mixed blueprints",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The deletion commit explicitly retires the obsolete realized-map namespace blacklist; defineArtifact and the closed artifact kind own current identity.",
+      "evidenceNote": "The deletion commit explicitly retires the obsolete realized-map namespace blacklist; defineArtifact and the closed artifact kind own current identity. Evidence commits: 824896bb22becb92aa05d1b07b346c1b5a354d5a.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "824896bb22becb92aa05d1b07b346c1b5a354d5a",
+      "retiredReason": "The deletion commit explicitly retires the obsolete realized-map namespace blacklist; defineArtifact and the closed artifact kind own current identity.",
+      "authorityDestination": [
+        ".habitat/blueprints/artifact/require_artifact_file_shape/rule.json",
+        ".habitat/blueprints/artifact/require_artifact_catalog_index_shape/rule.json",
+        "packages/mapgen-core/src/authoring/artifact/contract.ts"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_recipe_step_runtime_viz_sink_access",
+      "lane": "blueprints/recipe-step",
+      "actionDecision": "runtime/source validation",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. StepContext exposes no visualization sink, createStep owns the pure viz facet, and engine step facets own sink publication; source typing is stronger than a .viz lexical scan.",
+      "evidenceNote": "StepContext exposes no visualization sink, createStep owns the pure viz facet, and engine step facets own sink publication; source typing is stronger than a .viz lexical scan. Evidence commits: b2a0d4dc39395b156f4ac29b1046b6709634ec37.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/blueprints/recipe-step/prohibit_recipe_step_runtime_viz_sink_access/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "b2a0d4dc39395b156f4ac29b1046b6709634ec37",
+      "retiredReason": "StepContext exposes no visualization sink, createStep owns the pure viz facet, and engine step facets own sink publication; source typing is stronger than a .viz lexical scan.",
+      "authorityDestination": [
+        "packages/mapgen-core/src/authoring/step/types.ts",
+        "packages/mapgen-core/src/authoring/step/create.ts",
+        "packages/mapgen-core/src/engine/step-facets.ts",
+        ".habitat/blueprints/recipe-step/require_recipe_step_runtime_owner_shape/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "prohibit_wrapper_only_advanced_config",
+      "lane": "standard recipe top-level",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The exact wrapper-only advanced config bag disappeared with the old wrapper/catalog surface; closed canonical and recipe schemas reject unknown config properties without preserving the retired name.",
+      "evidenceNote": "The exact wrapper-only advanced config bag disappeared with the old wrapper/catalog surface; closed canonical and recipe schemas reject unknown config properties without preserving the retired name. Evidence commits: f1f4b03fde3bfaad537fb869b3362e39b516752c.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "f1f4b03fde3bfaad537fb869b3362e39b516752c",
+      "retiredReason": "The exact wrapper-only advanced config bag disappeared with the old wrapper/catalog surface; closed canonical and recipe schemas reject unknown config properties without preserving the retired name.",
+      "authorityDestination": [
+        "plugins/mod/map/swooper-physics/src/maps/configs/canonical.ts",
+        "packages/mapgen-core/src/authoring/recipe/config-schema.ts"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "require_domain_contract_roots_in_step_contracts",
+      "lane": "Standard recipe domain-contract admission",
+      "actionDecision": "boundary inversion",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The Standard-recipe root-import guard is absorbed by the generic allowed public domain surface matrix for recipes and maps.",
+      "evidenceNote": "The Standard-recipe root-import guard is absorbed by the generic allowed public domain surface matrix for recipes and maps. Evidence commits: f1f4b03fde3bfaad537fb869b3362e39b516752c.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_domain_contract_roots_in_step_contracts/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "f1f4b03fde3bfaad537fb869b3362e39b516752c",
+      "retiredReason": "The Standard-recipe root-import guard is absorbed by the generic allowed public domain surface matrix for recipes and maps.",
+      "authorityDestination": [
+        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "require_domain_model_schema_policy_owner_shape",
+      "lane": "blueprints/domain",
+      "actionDecision": "split by owner",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The combined schema/policy proxy now has separate constructible topology and owner laws for model atoms and policies.",
+      "evidenceNote": "The combined schema/policy proxy now has separate constructible topology and owner laws for model atoms and policies. Evidence commits: b2a0d4dc39395b156f4ac29b1046b6709634ec37, f1f4b03fde3bfaad537fb869b3362e39b516752c.",
+      "currentPath": null,
+      "layer2Status": "retired",
+      "implementationReadiness": "complete; no restoration selected",
+      "previousPath": ".habitat/blueprints/domain/require_domain_model_schema_policy_owner_shape/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "b2a0d4dc39395b156f4ac29b1046b6709634ec37",
+      "retiredReason": "The combined schema/policy proxy now has separate constructible topology and owner laws for model atoms and policies.",
+      "authorityDestination": [
+        ".habitat/blueprints/domain/require_domain_model_source_topology/rule.json",
+        ".habitat/blueprints/domain-atom/require_domain_atom_owner_shape/rule.json",
+        ".habitat/blueprints/domain-atom/require_domain_atom_source_topology/rule.json",
+        ".habitat/blueprints/domain-policy/require_domain_policy_owner_shape/rule.json",
+        ".habitat/blueprints/domain-policy/require_domain_policy_source_topology/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "require_domain_ops_binding_surface",
+      "lane": "blueprints/domain",
+      "actionDecision": "split by owner",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The old root ops.ts binding owner was replaced by a domain aggregate router plus module-owned router bindings.",
+      "evidenceNote": "The old root ops.ts binding owner was replaced by a domain aggregate router plus module-owned router bindings. Evidence commits: 79f1db5e2d9bd6e4812975773291eba27e3ee520.",
+      "currentPath": null,
+      "layer2Status": "retired",
+      "implementationReadiness": "complete; no restoration selected",
+      "previousPath": ".habitat/blueprints/domain/require_domain_ops_binding_surface/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "79f1db5e2d9bd6e4812975773291eba27e3ee520",
+      "retiredReason": "The old root ops.ts binding owner was replaced by a domain aggregate router plus module-owned router bindings.",
+      "authorityDestination": [
+        ".habitat/blueprints/domain/require_domain_router_aggregate_shape/rule.json",
+        ".habitat/blueprints/domain-subdomain/require_domain_module_router_binding_shape/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "require_domain_ops_registry_surface",
+      "lane": "blueprints/domain-operation",
+      "actionDecision": "closed structure inversion",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The ops/contract.ts plus ops/index.ts registry architecture was removed; closed leaf operation topology and module contract/router aggregates construct the replacement.",
+      "evidenceNote": "The ops/contract.ts plus ops/index.ts registry architecture was removed; closed leaf operation topology and module contract/router aggregates construct the replacement. Evidence commits: 686b4d3cf0b320d0413e41a6ab2b4b312ffb36e1.",
+      "currentPath": null,
+      "layer2Status": "retired",
+      "implementationReadiness": "complete; no restoration selected",
+      "previousPath": ".habitat/blueprints/domain-operation/require_domain_ops_registry_surface/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "686b4d3cf0b320d0413e41a6ab2b4b312ffb36e1",
+      "retiredReason": "The ops/contract.ts plus ops/index.ts registry architecture was removed; closed leaf operation topology and module contract/router aggregates construct the replacement.",
+      "authorityDestination": [
+        ".habitat/blueprints/domain-operation/require_domain_operation_source_topology/rule.json",
+        ".habitat/blueprints/domain-subdomain/require_domain_module_contract_aggregate_shape/rule.json",
+        ".habitat/blueprints/domain-subdomain/require_domain_module_router_binding_shape/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "require_ecology_canonical_op_module_topology",
+      "lane": "domains/nonfoundation",
+      "actionDecision": "closed structure inversion",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The Ecology instance topology was replaced by generic closed operation, strategy, and module aggregate shapes.",
+      "evidenceNote": "The Ecology instance topology was replaced by generic closed operation, strategy, and module aggregate shapes. Evidence commits: 79f1db5e2d9bd6e4812975773291eba27e3ee520.",
+      "currentPath": null,
+      "layer2Status": "retired",
+      "packetSliceId": "domain-root-topology-post-ratchet-revalidation",
+      "wholeRuleFit": "absorbed by generic D1/D4 topology authority",
+      "ruleIdPlan": "retire the Ecology id after generic survivor proof",
+      "semanticDecision": "Every operation requires contract.ts, assembly-only index.ts, rules/index.ts plus named rules as needed, and strategies/index.ts plus at least one named strategy; no types.ts, policy, or helper buckets remain.",
+      "residualFollowUp": "Implement the generic positive law, run it advisory, and classify every resulting row before source movement.",
+      "implementationReadiness": "complete; no restoration selected",
+      "previousPath": ".habitat/civ7/mapgen/domains/ecology/rules/require_ecology_canonical_op_module_topology/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "79f1db5e2d9bd6e4812975773291eba27e3ee520",
+      "retiredReason": "The Ecology instance topology was replaced by generic closed operation, strategy, and module aggregate shapes.",
+      "authorityDestination": [
+        ".habitat/blueprints/domain-operation/require_domain_operation_source_topology/rule.json",
+        ".habitat/blueprints/domain-operation-strategy/require_domain_operation_strategy_source_topology/rule.json",
+        ".habitat/blueprints/domain-subdomain/require_domain_module_contract_aggregate_shape/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "require_morphology_config_facade_exports",
+      "lane": "domains/nonfoundation",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. Despite its id, the manifest forbade three retired facade/knob-bucket files; current domain policy owners make valid policy constructible, so the old exact-path guard is garbage.",
+      "evidenceNote": "Despite its id, the manifest forbade three retired facade/knob-bucket files; current domain policy owners make valid policy constructible, so the old exact-path guard is garbage. Evidence commits: 79f1db5e2d9bd6e4812975773291eba27e3ee520.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_config_facade_exports/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "79f1db5e2d9bd6e4812975773291eba27e3ee520",
+      "retiredReason": "Despite its id, the manifest forbade three retired facade/knob-bucket files; current domain policy owners make valid policy constructible, so the old exact-path guard is garbage.",
+      "authorityDestination": [
+        ".habitat/blueprints/domain-policy/require_domain_policy_owner_shape/rule.json",
+        ".habitat/blueprints/domain-policy/require_domain_policy_source_topology/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "require_morphology_public_surface_imports",
+      "lane": "domains/nonfoundation",
+      "actionDecision": "boundary inversion",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The morphology-specific import allowlist is absorbed by the generic positive public domain surface boundary.",
+      "evidenceNote": "The morphology-specific import allowlist is absorbed by the generic positive public domain surface boundary. Evidence commits: 79f1db5e2d9bd6e4812975773291eba27e3ee520.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "79f1db5e2d9bd6e4812975773291eba27e3ee520",
+      "retiredReason": "The morphology-specific import allowlist is absorbed by the generic positive public domain surface boundary.",
+      "authorityDestination": [
+        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "require_public_ecology_surfaces_and_retired_topology_removal",
+      "lane": "domains/nonfoundation",
+      "actionDecision": "boundary inversion",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. Its actual predicate forbade recipe imports/exports of Ecology ops or rules internals; the generic public-surface graph and closed op topology subsume it.",
+      "evidenceNote": "Its actual predicate forbade recipe imports/exports of Ecology ops or rules internals; the generic public-surface graph and closed op topology subsume it. Evidence commits: 79f1db5e2d9bd6e4812975773291eba27e3ee520.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/mapgen/domains/ecology/rules/require_public_ecology_surfaces_and_retired_topology_removal/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "79f1db5e2d9bd6e4812975773291eba27e3ee520",
+      "retiredReason": "Its actual predicate forbade recipe imports/exports of Ecology ops or rules internals; the generic public-surface graph and closed op topology subsume it.",
+      "authorityDestination": [
+        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/rule.json",
+        ".habitat/blueprints/domain-operation/require_domain_operation_source_topology/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "require_recipe_step_authoring_shape",
+      "lane": "blueprints/recipe-step",
+      "actionDecision": "split by owner",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The single defineStep/createStep proxy was decomposed into config ownership, runtime ownership, and closed source topology.",
+      "evidenceNote": "The single defineStep/createStep proxy was decomposed into config ownership, runtime ownership, and closed source topology. Evidence commits: b2a0d4dc39395b156f4ac29b1046b6709634ec37, a171d6492f72647f9a44a100282a239aa4d9587f.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/blueprints/recipe-step/require_recipe_step_authoring_shape/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "b2a0d4dc39395b156f4ac29b1046b6709634ec37",
+      "retiredReason": "The single defineStep/createStep proxy was decomposed into config ownership, runtime ownership, and closed source topology.",
+      "authorityDestination": [
+        ".habitat/blueprints/recipe-step/require_recipe_step_config_owner_shape/rule.json",
+        ".habitat/blueprints/recipe-step/require_recipe_step_runtime_owner_shape/rule.json",
+        ".habitat/blueprints/recipe-step/require_recipe_step_source_topology/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "require_shared_visualization_contracts_at_stage_surfaces",
+      "lane": "mixed blueprints",
+      "actionDecision": "closed structure inversion",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. Closed stage/step containers allow qualified viz.ts facets and make an ambiguous shared steps/viz.ts hub structurally invalid.",
+      "evidenceNote": "Closed stage/step containers allow qualified viz.ts facets and make an ambiguous shared steps/viz.ts hub structurally invalid. Evidence commits: b2a0d4dc39395b156f4ac29b1046b6709634ec37, a171d6492f72647f9a44a100282a239aa4d9587f.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "b2a0d4dc39395b156f4ac29b1046b6709634ec37",
+      "retiredReason": "Closed stage/step containers allow qualified viz.ts facets and make an ambiguous shared steps/viz.ts hub structurally invalid.",
+      "authorityDestination": [
+        ".habitat/blueprints/recipe-stage/require_recipe_stage_source_topology/rule.json",
+        ".habitat/blueprints/recipe-step/require_recipe_step_source_topology/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "require_standard_recipe_map_effect_name_suffixes",
+      "lane": "standard recipe top-level",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The effect namespace and root effect catalog were deleted in favor of typed plan completions; suffix law would preserve a no-longer-live taxonomy.",
+      "evidenceNote": "The effect namespace and root effect catalog were deleted in favor of typed plan completions; suffix law would preserve a no-longer-live taxonomy. Evidence commits: d3cd35e68c817621b0f6f51fde7f77c9f546b27d.",
+      "currentPath": null,
+      "layer2Status": "retired",
+      "packetSliceId": "dependency-effect-tag-family-authority",
+      "wholeRuleFit": "consolidate into positive authority",
+      "ruleIdPlan": "replace by positive authority",
+      "semanticDecision": "Replace tag-contracts.ts literal suffix scan with registered effect:map.* family/name validation over tag definitions. Current suffix policy is real, but the path-local Grit rule misses owner metadata and future colocated definitions.",
+      "residualFollowUp": "Retain current Grit rail only until registered tag-family validation exists; then absorb/delete or narrow to injected source proof if needed.",
+      "implementationReadiness": "complete; no restoration selected",
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/rule.json",
+      "retiredOn": "2026-07-30",
+      "retiredBy": "d3cd35e68c817621b0f6f51fde7f77c9f546b27d",
+      "retiredReason": "The effect namespace and root effect catalog were deleted in favor of typed plan completions; suffix law would preserve a no-longer-live taxonomy.",
+      "authorityDestination": [
+        "packages/mapgen-core/src/engine/completion.ts",
+        ".habitat/blueprints/recipe-step/require_typed_recipe_step_dependencies/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "require_typed_dependency_and_effect_tag_constants",
+      "lane": "mixed blueprints",
+      "actionDecision": "consolidation/dedup",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The rule was renamed and narrowed from dependency/effect tag constants to exact Artifact or typed CompletionId dependencies at the recipe-step owner.",
+      "evidenceNote": "The rule was renamed and narrowed from dependency/effect tag constants to exact Artifact or typed CompletionId dependencies at the recipe-step owner. Evidence commits: d3cd35e68c817621b0f6f51fde7f77c9f546b27d.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/rule.json",
+      "retiredOn": "2026-07-30",
+      "retiredBy": "d3cd35e68c817621b0f6f51fde7f77c9f546b27d",
+      "retiredReason": "The rule was renamed and narrowed from dependency/effect tag constants to exact Artifact or typed CompletionId dependencies at the recipe-step owner.",
+      "authorityDestination": [
+        ".habitat/blueprints/recipe-step/require_typed_recipe_step_dependencies/rule.json",
+        "packages/mapgen-core/src/authoring/step/contract.ts",
+        "packages/mapgen-core/src/engine/completion.ts"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "require_typed_placement_outcomes_before_apply",
+      "lane": "standard recipe stage foundation/hydrology/map/placement",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The deletion commit explicitly calls this placement-specific shape rule stale after closing each recipe step and preserving focused placement behavior.",
+      "evidenceNote": "The deletion commit explicitly calls this placement-specific shape rule stale after closing each recipe step and preserving focused placement behavior. Evidence commits: a171d6492f72647f9a44a100282a239aa4d9587f.",
+      "currentPath": null,
+      "implementationReadiness": "complete; no restoration selected",
+      "layer2Status": "retired",
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/placement/rules/require_typed_placement_outcomes_before_apply/rule.json",
+      "retiredOn": "2026-07-26",
+      "retiredBy": "a171d6492f72647f9a44a100282a239aa4d9587f",
+      "retiredReason": "The deletion commit explicitly calls this placement-specific shape rule stale after closing each recipe step and preserving focused placement behavior.",
+      "authorityDestination": [
+        ".habitat/blueprints/recipe-step/require_recipe_step_source_topology/rule.json",
+        "plugins/mod/map/swooper-physics/src/recipes/standard/stages/placement/steps/place-resources/step.ts",
+        "plugins/mod/map/swooper-physics/src/recipes/standard/stages/placement/steps/place-discoveries/step.ts"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "structure-swooper-catalog-index-target-topology",
+      "lane": "MapGen Studio",
+      "actionDecision": "split by owner",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The rule mixed source catalog identity, Nx target ordering, and a temporary-rule tombstone; source shape and graph ordering now have separate owners.",
+      "evidenceNote": "The rule mixed source catalog identity, Nx target ordering, and a temporary-rule tombstone; source shape and graph ordering now have separate owners. Evidence commits: f69af64fb67e7d8d027abe8f849f433eff615ad7.",
+      "currentPath": null,
+      "layer2Status": "retired",
+      "wholeRuleFit": "mixed duplicate source topology, native task-graph concern, and retired-name garbage collection",
+      "ruleIdPlan": "retain during closeout; later absorb source identity into its owner, use Nx for target relationships, and retire this exact cutover packet",
+      "semanticDecision": "CatalogSourceIndex remains the source authority, but exact generator filenames and absence of a historical temporary rule do not warrant permanent duplicate authority.",
+      "residualFollowUp": "Prove the source-index owner and Nx target graph cover the live invariants before deleting this cutover-specific packet.",
+      "implementationReadiness": "complete; no restoration selected",
+      "previousPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/structure-swooper-catalog-index-target-topology/rule.json",
+      "retiredOn": "2026-07-30",
+      "retiredBy": "f69af64fb67e7d8d027abe8f849f433eff615ad7",
+      "retiredReason": "The rule mixed source catalog identity, Nx target ordering, and a temporary-rule tombstone; source shape and graph ordering now have separate owners.",
+      "authorityDestination": [
+        ".habitat/blueprints/map-config-catalog/require_map_config_catalog_source_topology/rule.json",
+        ".habitat/blueprints/map-config-catalog/require_map_config_catalog_file_shape/rule.json",
+        "plugins/mod/map/swooper-physics/project.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
+    },
+    {
+      "ruleId": "structure-swooper-catalog-source-index",
+      "lane": "MapGen Studio",
+      "actionDecision": "closed structure inversion",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep this manifest retired. The exact maps/catalog index/sourceIndex/sources freeze was replaced by the constructible membership/admission/index catalog kind.",
+      "evidenceNote": "The exact maps/catalog index/sourceIndex/sources freeze was replaced by the constructible membership/admission/index catalog kind. Evidence commits: f69af64fb67e7d8d027abe8f849f433eff615ad7.",
+      "currentPath": null,
+      "layer2Status": "retired",
+      "wholeRuleFit": "durable source-identity contract represented by exact current file topology",
+      "ruleIdPlan": "retain now; later move authority to source-schema/index validation and retire exact directory-shape assertions",
+      "semanticDecision": "Catalog membership requires one explicit source-owned index, but mods/mod-swooper-maps/src/maps/catalog and its three files are not permanent architecture merely because they merged.",
+      "residualFollowUp": "Install source-native index validation at the future catalog owner before retiring the structure packet.",
+      "implementationReadiness": "complete; no restoration selected",
+      "previousPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/structure-swooper-catalog-source-index/rule.json",
+      "retiredOn": "2026-07-30",
+      "retiredBy": "f69af64fb67e7d8d027abe8f849f433eff615ad7",
+      "retiredReason": "The exact maps/catalog index/sourceIndex/sources freeze was replaced by the constructible membership/admission/index catalog kind.",
+      "authorityDestination": [
+        ".habitat/blueprints/map-config-catalog/require_map_config_catalog_source_topology/rule.json",
+        ".habitat/blueprints/map-config-catalog/require_map_config_catalog_file_shape/rule.json"
+      ],
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-authority-ledger-identity-reconciliation.md"
     }
   ],
   "staleRules": [

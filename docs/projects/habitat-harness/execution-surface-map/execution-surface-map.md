@@ -4,16 +4,16 @@ Deterministic analytics for the Habitat authority execution surface. This report
 
 ## Sanity Assertions
 
-- Passed: 121 `rule.json`, 22 `structure.toml`, and `tools/habitat` `generate:schemas` were detected.
+- Passed: 122 `rule.json`, 22 `structure.toml`, and `tools/habitat` `generate:schemas` were detected.
 
 ## Surfaces By Kind
 
 | kind | count |
 | --- | --- |
 | pattern | 80 |
-| rule-json | 121 |
+| rule-json | 122 |
 | structure-spec | 22 |
-| check-script | 16 |
+| check-script | 17 |
 | apply-pattern | 1 |
 | generate-script | 2 |
 | operation-note | 3 |
@@ -29,9 +29,9 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | role | count |
 | --- | --- |
 | policy_pattern | 81 |
-| runner_metadata | 121 |
+| runner_metadata | 122 |
 | structure_authority | 22 |
-| command_check_executor | 16 |
+| command_check_executor | 17 |
 | operation_surface | 6 |
 | workspace_entrypoint | 327 |
 | toolkit_runner | 120 |
@@ -41,7 +41,7 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | anatomy role | surface count |
 | --- | --- |
 | policy-predicate | 103 |
-| adapter | 121 |
+| adapter | 122 |
 | transient-dependency | 138 |
 | fixture-support | 4 |
 | entrypoint | 329 |
@@ -58,7 +58,7 @@ Deterministic analytics for the Habitat authority execution surface. This report
 
 | invoker | count |
 | --- | --- |
-| unknown | 244 |
+| unknown | 246 |
 | direct-script | 5 |
 | package | 191 |
 | nx | 137 |
@@ -68,7 +68,7 @@ Deterministic analytics for the Habitat authority execution surface. This report
 
 | bucket | count |
 | --- | --- |
-| unknown_invocation | 244 |
+| unknown_invocation | 246 |
 | mutation_surface | 145 |
 | nx_ordering_tie | 145 |
 | package_boundary_tie | 39 |
@@ -353,6 +353,8 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | .habitat/global/workspace/rules/enforce_workspace_import_boundaries/rule.json | rule-json |  |
 | .habitat/global/workspace/rules/enforce_workspace_reachability_and_dependency_hygiene/rule.json | rule-json |  |
 | .habitat/global/workspace/rules/prohibit_pnpm_files_in_bun_workspace/rule.json | rule-json |  |
+| .habitat/global/workspace/rules/require_active_rule_authority_ledger_identity_parity/check.ts | check-script | node:fs; node:path; node:url |
+| .habitat/global/workspace/rules/require_active_rule_authority_ledger_identity_parity/rule.json | rule-json |  |
 | .habitat/global/workspace/rules/require_owner_workflow_for_host_protected_surfaces/rule.json | rule-json |  |
 | .habitat/global/workspace/rules/validate_boundary_taxonomy_against_workspace_graph/check.sh | check-script | tools/habitat/scripts/validate-boundary-taxonomy-against-workspace-graph.ts; bun tools/habitat/scripts/validate-boundary-taxonomy-against-workspace-graph.ts |
 | .habitat/global/workspace/rules/validate_boundary_taxonomy_against_workspace_graph/rule.json | rule-json |  |

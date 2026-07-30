@@ -33,9 +33,9 @@ commitment: ascent reselects from the then-current tree.
 - Current prerequisites include the stable `RuleDiagnostics` capability,
   `RuleFixPreview` authority, and Nx-owned output ordering. They are
   foundations, not part of descent 002.
-- The active rule corpus contains 121 live manifests with exact active-ledger
-  id parity. Descent closure must retire or absorb overlapping negative rules
-  after positive survivor proof, or record the distinct concern that survives.
+- The active rule corpus has enforced exact active-ledger identity parity.
+  Descent closure must retire or absorb overlapping negative rules after
+  positive survivor proof, or record the distinct concern that survives.
 - Descent 002, domain-operation interior, is selected. Its target law and D1-D4
   are settled; no A.2 authority implementation or source migration is present
   at this boundary.
