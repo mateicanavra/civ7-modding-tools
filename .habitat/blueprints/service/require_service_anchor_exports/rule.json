@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 2,
+  "id": "require_service_anchor_exports",
+  "title": "Require Generic Service Anchor Exports",
+  "placement": {
+    "niche": "global/services",
+    "blueprint": "service",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "a service spine file without its direct generic anchor and required native portable type, a public implementation anchor other than configured service, a module wiring file with a second export, or a context file with runtime authority",
+  "why": "Generic local anchors keep contract authoring, context, implementation, module descent, and router composition visible without product-qualified aliases or compatibility exports. One canonical Service alias over EffectImplementerInternal plus ServiceModule and EnhancedEffectRouter<Modules, ...> annotations keep large service declarations portable while preserving direct branch access and runtime lineage. The pinned Effect-oRPC implementation stage remains private; only its configured service stage is exported.",
+  "remediate": "Export base, Context, contract, the canonical Service-typed configured service, ServiceModule<K> = Service[K], each typed ServiceModule module branch, and the exact EnhancedEffectRouter<Modules, Context, Context, Record<never, never>> root from their owning spine files. Keep impl private in impl.ts, remove alternate runtime exports and forwarding exports from spine files, and keep module.ts limited to the module value.",
+  "message": "Each service spine file must expose only its generic local authority.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "services/*/src/service/base.ts",
+        "services/*/src/service/context.ts",
+        "services/*/src/service/contract.ts",
+        "services/*/src/service/impl.ts",
+        "services/*/src/service/router.ts",
+        "services/*/src/service/modules/*/module.ts",
+        "services/*/src/service/modules/*/contract/index.ts",
+        "services/*/src/service/modules/*/router/index.ts"
+      ]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/service/require_service_anchor_exports/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/service/require_service_anchor_exports/pattern.md"
+    },
+    "patternName": "require_service_anchor_exports",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["services"]
+    }
+  }
+}

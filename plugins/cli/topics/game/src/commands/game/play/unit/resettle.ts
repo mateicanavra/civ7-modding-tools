@@ -1,6 +1,5 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
+import { createCiv7GameControlClient } from "../../../../adapters/control/service-client";
 import {
   buildDirectControlOptions,
   emitPlayResult,
@@ -66,8 +65,7 @@ export default class GamePlayUnitResettle extends Command {
     };
     const options = buildDirectControlOptions(flags);
     const result = flags.send
-      ? await createCiv7ControlOrpcServerClient({
-          directControl: liveCiv7ControlOrpcDirectControlFacade,
+      ? await createCiv7GameControlClient({
           endpointDefaults: options,
         }).unit.resettle.request({
           unitId: input.unitId,

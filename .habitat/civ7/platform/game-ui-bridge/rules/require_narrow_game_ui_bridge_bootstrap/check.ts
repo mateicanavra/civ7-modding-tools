@@ -12,13 +12,13 @@ const source = readFileSync(
 );
 const failures: string[] = [];
 
-if (!source.includes("@civ7/control-orpc/game-ui")) {
-  failures.push("UI bootstrap must import @civ7/control-orpc/game-ui");
+if (!source.includes("../controller/game-ui")) {
+  failures.push("UI bootstrap must import the mod-owned controller/game-ui entrypoint");
 }
 if (!source.includes("installCiv7GameUiIntelligenceBridge")) {
   failures.push("UI bootstrap must install through installCiv7GameUiIntelligenceBridge");
 }
-for (const forbidden of ['@civ7/control-orpc";', "RPCHandler", "RPCLink"]) {
+for (const forbidden of ["@civ7/control-orpc", "RPCHandler", "RPCLink"]) {
   if (source.includes(forbidden))
     failures.push(`UI bootstrap contains forbidden token ${forbidden}`);
 }

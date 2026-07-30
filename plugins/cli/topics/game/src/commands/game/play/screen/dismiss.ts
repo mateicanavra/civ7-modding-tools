@@ -1,6 +1,5 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
+import { createCiv7GameControlClient } from "../../../../adapters/control/service-client";
 
 // Closes display requests through the official DisplayQueueManager.closeMatching
 // path, which runs each category handler's real teardown (e.g. the Cinematic
@@ -44,8 +43,7 @@ export default class GamePlayScreenDismiss extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayScreenDismiss);
-    const client = createCiv7ControlOrpcServerClient({
-      directControl: liveCiv7ControlOrpcDirectControlFacade,
+    const client = createCiv7GameControlClient({
       endpointDefaults: {
         host: flags.host,
         port: flags.port,

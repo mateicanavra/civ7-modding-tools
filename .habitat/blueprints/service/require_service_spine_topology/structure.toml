@@ -1,0 +1,244 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "service-packages"
+root = "services/!(*.*)"
+kind = "directory"
+mode = "closed"
+required = [
+  "package.json",
+  "project.json",
+  "src",
+  "tsconfig.json",
+]
+allowed = [
+  "AGENTS.md",
+  "scripts",
+  "test",
+  "tsup.config.ts",
+  "tsconfig.test.json",
+  "tsconfig.tools.json",
+  "vitest.config.ts",
+]
+
+[[scopes]]
+name = "service-build-scripts"
+root = "services/!(*.*)/scripts"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+required = ["build.mjs"]
+
+[[scopes]]
+name = "service-public-source"
+root = "services/!(*.*)/src"
+kind = "directory"
+mode = "closed"
+required = [
+  "client.ts",
+  "contract.ts",
+  "index.ts",
+  "service",
+]
+
+[[scopes]]
+name = "service-spines"
+root = "services/!(*.*)/src/service"
+kind = "directory"
+mode = "closed"
+required = [
+  "base.ts",
+  "context.ts",
+  "contract.ts",
+  "impl.ts",
+  "modules",
+  "router.ts",
+  "schema",
+]
+allowed = [
+  "middleware",
+  "model",
+]
+
+[[scopes]]
+name = "service-schema"
+root = "services/!(*.*)/src/service/schema"
+kind = "directory"
+mode = "closed"
+allowed = ["+([a-z0-9])*(-+([a-z0-9])).ts"]
+
+[[scopes]]
+name = "service-module-containers"
+root = "services/!(*.*)/src/service/modules"
+kind = "directory"
+mode = "closed"
+allowed = ["+([a-z0-9])*(-+([a-z0-9]))"]
+
+[[scopes]]
+name = "service-module-shells"
+root = "services/!(*.*)/src/service/modules/+([a-z0-9])*(-+([a-z0-9]))"
+kind = "directory"
+mode = "closed"
+required = [
+  "contract",
+  "module.ts",
+  "router",
+]
+allowed = [
+  "middleware",
+  "model",
+]
+
+[[scopes]]
+name = "service-module-contracts"
+root = "services/!(*.*)/src/service/modules/+([a-z0-9])*(-+([a-z0-9]))/contract"
+kind = "directory"
+mode = "closed"
+required = ["index.ts"]
+allowed = [
+  "index.ts",
+  "+([a-z0-9])*(-+([a-z0-9])).ts",
+]
+
+[[scopes]]
+name = "service-module-routers"
+root = "services/!(*.*)/src/service/modules/+([a-z0-9])*(-+([a-z0-9]))/router"
+kind = "directory"
+mode = "closed"
+required = ["index.ts"]
+allowed = [
+  "index.ts",
+  "+([a-z0-9])*(-+([a-z0-9])).ts",
+]
+
+[[scopes]]
+name = "service-root-middleware"
+root = "services/!(*.*)/src/service/middleware"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+required = ["index.ts"]
+allowed = [
+  "index.ts",
+  "+([a-z0-9])*(-+([a-z0-9])).ts",
+]
+
+[[scopes]]
+name = "service-module-middleware"
+root = "services/!(*.*)/src/service/modules/+([a-z0-9])*(-+([a-z0-9]))/middleware"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+required = ["index.ts"]
+allowed = [
+  "index.ts",
+  "+([a-z0-9])*(-+([a-z0-9])).ts",
+]
+
+[[scopes]]
+name = "service-root-model"
+root = "services/!(*.*)/src/service/model"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+allowed = [
+  "dto",
+  "errors",
+  "policy",
+  "ports",
+]
+
+[[scopes]]
+name = "service-module-model"
+root = "services/!(*.*)/src/service/modules/+([a-z0-9])*(-+([a-z0-9]))/model"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+allowed = [
+  "dto",
+  "errors",
+  "policy",
+  "ports",
+]
+
+[[scopes]]
+name = "service-root-model-kinds"
+root = "services/!(*.*)/src/service/model/@(dto|errors|policy|ports)"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+allowed = ["+([a-z0-9])*(-+([a-z0-9])).ts"]
+forbidden = ["index.ts"]
+
+[[scopes]]
+name = "service-module-model-kinds"
+root = "services/!(*.*)/src/service/modules/+([a-z0-9])*(-+([a-z0-9]))/model/@(dto|errors|policy|ports)"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+allowed = ["+([a-z0-9])*(-+([a-z0-9])).ts"]
+forbidden = ["index.ts"]
+
+[[scopes]]
+name = "service-proof-root"
+root = "services/!(*.*)/test"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+allowed = [
+  "behavior",
+  "integration",
+  "mechanics",
+  "support",
+]
+
+[[scopes]]
+name = "service-behavior-proof"
+root = "services/!(*.*)/test/behavior"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+allowed = [
+  "*.test.ts",
+  "modules",
+]
+
+[[scopes]]
+name = "service-behavior-module-containers"
+root = "services/!(*.*)/test/behavior/modules"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+allowed = ["+([a-z0-9])*(-+([a-z0-9]))"]
+
+[[scopes]]
+name = "service-behavior-module-proof"
+root = "services/!(*.*)/test/behavior/modules/+([a-z0-9])*(-+([a-z0-9]))"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+allowed = ["*.test.ts"]
+
+[[scopes]]
+name = "service-mechanics-proof"
+root = "services/!(*.*)/test/mechanics"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+allowed = ["*.test.ts"]
+
+[[scopes]]
+name = "service-integration-proof"
+root = "services/!(*.*)/test/integration"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+allowed = ["*.test.ts"]
+
+[[scopes]]
+name = "service-proof-support"
+root = "services/!(*.*)/test/support"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+allowed = ["*.ts"]

@@ -82,9 +82,6 @@ This document tracks completed work and upcoming enhancements for the CLI and XM
     reveal behind explicit mutation flags and proof output.
   - `civ7 game gameinfo` reads bounded `GameInfo` rows without arbitrary SQL.
   - `civ7 game autoplay` wraps native Autoplay status/configure/start/stop.
-  - `civ7 game operation` validates and optionally sends Unit/City/Player
-    operations and commands using package-owned `canStart` and `sendRequest`
-    contracts.
   - `civ7 game catalog` emits the TypeBox-backed capability catalog from static
     wrappers and, when live Civ is available, runtime root/method inspection.
 

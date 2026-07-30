@@ -2,19 +2,21 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Topic. Noun. Verb. Compatibility. Grammar. Closure.
+**Attractor filter:** Domain. Service. Wire. Authority. Convergence. Closure.
 
-**Frame:** an oclif topic plugin owns a public command language. Command paths
-are executable identity, topic directories express the language hierarchy, and
-command modules adapt that language to reusable capabilities. CLI-only
-translation belongs to a qualified adapter surface; reusable capability logic
-does not belong to the topic, and `utils` names no owner at all.
+**Frame:** Civ7 control has one public domain service plane. The concrete
+`services/civ7-control` service owns admitted procedures, semantic
+orchestration, and the API consumed by products; `direct-control` owns only
+bounded runtime wire atoms and diagnostic transport. The CLI projects that
+service plane into stable Civ7 nouns such as `play` and `map`; it does not
+expose operation families, alternate routers, or caller-owned workflow
+composition.
 
-**Authority order:** public command intent -> oclif path identity -> topic
-grammar -> command adapter -> reusable capability -> observable manifest and
-behavior proof. Habitat owns the generic closed project kind, oclif owns command
-discovery, TypeScript owns imports, and Nx owns orchestration and dependency
-ordering.
+**Authority order:** Civ7 domain intent -> service contract -> admitted
+procedure -> direct-control wire atom -> CLI projection -> observable behavior
+proof. Effect owns multi-step service orchestration, oRPC owns the contract and
+router projection, oclif owns command discovery, Habitat owns closed generic
+kinds, TypeScript owns imports, and Nx owns proof ordering.
 
 **Enforcement gravity:** a correct scaffold plus an advisory rule is guidance,
 not a ratchet. Every newly admitted kind must finish with its generic blueprint
@@ -27,14 +29,17 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** gather the six direct unit commands beneath one real
-operator noun. Ready-state, movement preview, target resolution, promotion
-readiness, resettlement, and upgrade all center on one selected or explicit
-unit, so they become `game:play:unit:*` while their flat paths remain hidden
-compatibility aliases. Their distinct read, preview, validation, and send
-behavior remains unchanged; the namespace does not pretend that the deferred
-preview/check/send grammar redesign has landed. Formation, route, settlement,
-and generic operation commands remain outside.
+**Current container:** admit the generic closed service kind and reshape
+`control-orpc` into `services/civ7-control` before organizing another CLI noun.
+The service keeps the exact installed oRPC 1.14.6, patched `effect-orpc` 0.5.0,
+Effect 3.21.3, and TypeBox lane; topology is not permission to smuggle an oRPC
+or Effect major migration into this cut. Then reconcile every surviving
+`play/operations` capability and every mixed CLI caller, move semantic
+validation and multi-call proof into domain procedures, and delete the generic
+`game operation` escape hatch rather than renaming it. The first convergence
+cut must leave one public path for each admitted behavior and no alternate
+operation router. Low-level tuner execution and bounded runtime probes remain
+direct-control atoms; raw execution remains explicitly diagnostic.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -51,13 +56,16 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** relocate all six unit commands without changing runtime behavior
--> preserve every flat invocation as a hidden alias -> make `unit` their single
-primary topic owner -> normalize command and behavior-test hierarchy together
--> update active operator guidance without rewriting historical evidence ->
-prove exact manifest identity, canonical and legacy resolution, unchanged
-read/preview/validate/send behavior, and exclusive family ownership -> land the
-unit family -> reassess the next smallest truthful noun.
+**Gradient:** define the generic service law from the accepted service funnel
+while adapting vendor-specific syntax to the pinned lane -> turn the current
+control service red -> relocate and simplify until the service kind is closed
+and enforced -> identify the smallest complete domain procedure cut -> move
+orchestration and proof upward without moving wire mechanics -> route every
+public caller through the service -> replace genuine generic-operation uses
+with named domain behaviors -> delete the operation command, adapter dispatch,
+duplicate topic catalog entries, and stale current guidance -> repeat by
+domain until direct-control exposes only wire atoms -> prove the one service
+plane -> resume noun normalization.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -100,6 +108,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - CLI Unit Topic Sealed
+
+Ready-state, movement preview, target resolution, promotion readiness,
+resettlement, and upgrade now share one `game:play:unit` noun. Every former flat
+path remains a hidden alias, source and manifest identities are exact, and the
+complete CLI/control graph plus generic topic laws sealed the family. The next
+city move was deliberately stopped when the surviving generic operation command
+exposed the unfinished direct-control to control-oRPC ownership migration.
 
 ### 2026-07-28 - CLI Front Topic Sealed
 

@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "id": "require_service_contract_authority",
+  "title": "Require Service Contract Authority",
+  "placement": {
+    "niche": "global/services",
+    "blueprint": "service",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "a root contract outside the shared base lineage, a module contract index without a direct semantic leaf, a module-named mega-leaf that preserves the aggregate behind another file, a contract leaf whose sole export does not match its filename, exported parallel schema authority, raw TypeBox procedure schemas, imported error-map authority, or TypeBox capabilities that cannot project through the service boundary",
+  "why": "The service contract is one aggregate over module-owned semantic leaves. Each leaf owns one procedure or coherent semantic group plus its private request, response, envelope, and helper schemas; the module name belongs only to the aggregate and cannot masquerade as a leaf. Genuinely reusable DTO schemas move to model/dto, while local declarations cross the oRPC boundary through the pinned Standard Schema bridge. TypeScript and Knip own unused private declarations without a Habitat-only schema registry.",
+  "remediate": "Compose the root with base.router, aggregate direct semantic contract leaves from contract/index.ts, split any module-named capsule along the module's procedure or coherent semantic-group boundaries, keep one filename-matched export per leaf, keep local TypeBox support private, move only reusable DTO schemas to model/dto, wrap every procedure input and output with standard(...), and keep error additions inline or in one private local map.",
+  "message": "Service contracts must preserve one aggregate, direct semantic leaves, and Standard Schema authority.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "services/*/src/service/contract.ts",
+        "services/*/src/service/modules/*/contract/*.ts",
+        "services/*/src/service/schema/*.ts",
+        "services/*/src/service/model/dto/*.ts",
+        "services/*/src/service/modules/*/model/dto/*.ts"
+      ]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/service/require_service_contract_authority/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/service/require_service_contract_authority/pattern.md"
+    },
+    "patternName": "require_service_contract_authority",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["services"]
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_service_effect_error_authority",
+  "title": "Require Typed Service Effect Error Authority",
+  "placement": {
+    "niche": "global/services",
+    "blueprint": "service",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "global Error or a same-source subclass of global Error in an explicit two- or three-argument Effect.Effect failure slot in service production source",
+  "why": "Each fallible service capability must expose a typed failure vocabulary at its owning port or error owner. The pinned effect-orpc provider then maps declared public ORPCTaggedError outcomes without an untyped Error tunnel.",
+  "remediate": "Replace Error failure slots with a port-owned Data.TaggedError, a deliberately serialized tagged error, or the pinned provider's contract-declared ORPCTaggedError. Translate foreign failures once at the owning boundary.",
+  "message": "Service Effect failure channels must use typed owned errors.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["services/*/src/**/*.ts"]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/service/require_service_effect_error_authority/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/service/require_service_effect_error_authority/pattern.md"
+    },
+    "patternName": "require_service_effect_error_authority",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["services"]
+    }
+  }
+}

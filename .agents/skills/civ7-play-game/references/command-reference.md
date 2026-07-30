@@ -57,8 +57,8 @@ action.** You never compute ids.
 | City production | `ready-city --compact --json` | `productionCandidates[].{kind,type}` (+ `placementPlots` for constructibles) | `build-production --city-id '…' --<unit\|constructible\|project>-type <type> [--x --y] --send` |
 | Border/expand | `ready-city --json` | `expansionCandidates[].{x,y}` | `expand-city --city-id '…' --x <x> --y <y> --send` |
 | Move a unit | `unit move-preview --unit-id '…' --json` | reachable movement candidate `{x,y}` | Validate `unit target --unit-id '…' --x <x> --y <y>`, then repeat with `--send` |
-| Found / fortify / skip / any op | `unit ready --json` | `legalOperations[].{family,operationType}` + `unitId` | `operation --family <family> --operation-type <opType> --unit-id '…' --send` |
-| Settle a Settler | `settlement-recommendations --json` (strategic site) → `unit move-preview` (reachable step) → found | suggestion `location{x,y}`; reachable movement candidate; then the found op from `legalOperations` | Validate and send each reachable move; send the found op only when the live unit exposes it |
+| Found / fortify / skip / unwrapped operation | `unit ready --json` | `legalOperations[].{family,operationType}` + `unitId` | No public generic command: stop and report when no named action command covers it. |
+| Settle a Settler | `settlement-recommendations --json` (strategic site) → `unit move-preview` (reachable step) | suggestion `location{x,y}` and a reachable movement candidate | Validate and send each reachable move; stop and report when founding is the remaining legal action. |
 | Diplomacy reply | `notifications list --json` | `notification.decision` inputs (`action-id`, `response-type`) | `diplomacy respond --action-id … --response-type … --send` |
 | Advisor warning | `notifications list --json` | notification ComponentID | `notifications advisor-warning --target '…' --send` |
 
@@ -118,22 +118,12 @@ passed as separate `--x N --y N` integer flags (there is no `--pair` flag).
 | `game play notifications dismiss-reviewed` | `--max 50 --max-dismissals 10` | Bulk-dismiss reviewed informational notifications. Fire-and-forget. |
 | `game play end-turn` | (none) | Validate lists blockers; `--send` issues `sendTurnComplete()`. |
 
-## Escape hatches: operation & gameinfo
+## Unsupported operations and gameinfo
 
-**Any unit/city/player operation** not covered above (FOUND_CITY, FORTIFY,
-SKIP_TURN, HEAL, …) goes through the generic validator:
-
-```bash
-bun apps/cli/bin/run.js game operation \
-  --family <unit-operation|unit-command|city-operation|city-command|player-operation> \
-  --operation-type <ENUM_KEY> \
-  --unit-id '{"owner":0,"id":65536,"type":26}'   # or --city-id / --player-id per family
-  [--args '{…}'] --send --json
-```
-
-Get the exact `family` + `operationType` for the current entity from
-`unit ready`/`ready-city` `legalOperations[]` — they list only what is legal
-right now. Validate first; `--send` only on a legal op; confirm `verified:true`.
+Unit, city, or player operations without a named action command are
+intentionally absent from the public CLI. `unit ready`/`ready-city` may still
+surface their exact `family` and `operationType` as read-only evidence. Stop and
+report that gap; do not use raw execution to bypass the service boundary.
 
 **Resolve a name → id** (e.g. you know you want a Settler but need its UnitType):
 

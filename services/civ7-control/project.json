@@ -1,0 +1,28 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "control-orpc",
+  "tags": ["kind:control"],
+  "targets": {
+    "build": {
+      "command": "bun scripts/build.mjs",
+      "dependsOn": ["^build"],
+      "outputs": ["{projectRoot}/dist/**", "{projectRoot}/tsconfig.tsbuildinfo"],
+      "options": {
+        "cwd": "services/civ7-control"
+      }
+    },
+    "typecheck": {
+      "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
+      "cache": true,
+      "outputs": [],
+      "options": {
+        "cwd": "services/civ7-control"
+      }
+    },
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    }
+  }
+}

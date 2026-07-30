@@ -890,3 +890,31 @@ index baf4096c3209b6353df0a4a3a1b81291aff9b2b7..8cd4937893edc76cb4a1367b946ed62e
    it("can implement a contract directly from a Layer", async () => {
      const CounterLive = Layer.succeed(Counter, {
        increment: (n: number) => Effect.succeed(n + 1),
+diff --git a/src/eoc.ts b/src/eoc.ts
+--- a/src/eoc.ts
++++ b/src/eoc.ts
+@@ -21,4 +21,4 @@
+-interface EffectContractMetadata<TEffectErrorMap extends EffectErrorMap> {
++export interface EffectContractMetadata<TEffectErrorMap extends EffectErrorMap> {
+   readonly [effectContractSymbol]: {
+     readonly errorMap: TEffectErrorMap;
+   };
+diff --git a/src/index.ts b/src/index.ts
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -6,6 +6,7 @@ export type {
+ } from "./contract";
+ export { eoc } from "./eoc";
+ export type {
++  EffectContractMetadata,
+   EffectContractBuilder,
+   EffectContractProcedureBuilder,
+   EffectContractProcedureBuilderWithInput,
+@@ -57,6 +59,7 @@ export type {
+   EffectProcedureBuilderWithOutput,
+   EffectProcedureDef,
+   EffectProcedureHandler,
++  EnhancedEffectRouter,
+   EffectRouterBuilder,
+   EffectSpanConfig,
+   InferBuilderCurrentContext,

@@ -10,6 +10,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@civ7/control-orpc": "workspace:*"
+    "@civ7/control-orpc": "workspace:*",
+    "@civ7/direct-control": "workspace:*",
+    "@orpc/server": "1.14.6"
   }
 }

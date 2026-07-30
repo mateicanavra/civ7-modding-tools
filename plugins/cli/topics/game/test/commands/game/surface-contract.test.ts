@@ -21,7 +21,6 @@ const PUBLIC_COMMAND_IDS = [
   "game:map:starts",
   "game:map:summary",
   "game:map:visibility",
-  "game:operation",
   "game:play:assign-worker",
   "game:play:build-production",
   "game:play:buy-attribute",

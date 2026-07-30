@@ -1,6 +1,5 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
+import { createCiv7GameControlClient } from "../../../../adapters/control/service-client";
 import { buildDirectControlOptions } from "../../../../adapters/play/direct-control";
 
 export default class GamePlayNotificationsSchedule extends Command {
@@ -39,8 +38,7 @@ export default class GamePlayNotificationsSchedule extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayNotificationsSchedule);
-    const client = createCiv7ControlOrpcServerClient({
-      directControl: liveCiv7ControlOrpcDirectControlFacade,
+    const client = createCiv7GameControlClient({
       endpointDefaults: buildDirectControlOptions(flags),
     });
     const result = await client.notifications.queue.current({

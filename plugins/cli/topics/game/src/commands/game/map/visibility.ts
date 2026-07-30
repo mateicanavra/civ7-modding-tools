@@ -1,7 +1,6 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { getCiv7VisibilitySummary, revealCiv7MapForPlayer } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
+import { createCiv7GameControlClient } from "../../../adapters/control/service-client";
 
 // Two discrete mutations, deliberately not interchangeable:
 // --explore  the whole map becomes known via the engine's tracked visibility
@@ -96,8 +95,7 @@ export default class GameMapVisibility extends Command {
       );
     }
     const result = flags.explore
-      ? await createCiv7ControlOrpcServerClient({
-          directControl: liveCiv7ControlOrpcDirectControlFacade,
+      ? await createCiv7GameControlClient({
           endpointDefaults: options,
         }).display.explore.request({
           playerId: flags["player-id"],

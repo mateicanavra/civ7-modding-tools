@@ -1,7 +1,6 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { type Civ7DirectControlOptions, executeCiv7AppUiCommand } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
+import { createCiv7GameControlClient } from "../../../../adapters/control/service-client";
 import {
   buildDirectControlOptions,
   emitPlayResult,
@@ -76,8 +75,7 @@ export default class GamePlayDiplomacyRespondFirstMeet extends Command {
         options
       ));
     if (flags.send) {
-      const result = await createCiv7ControlOrpcServerClient({
-        directControl: liveCiv7ControlOrpcDirectControlFacade,
+      const result = await createCiv7GameControlClient({
         endpointDefaults: options,
       }).diplomacy.firstMeet.response.request({
         metPlayerId: flags["met-player-id"],

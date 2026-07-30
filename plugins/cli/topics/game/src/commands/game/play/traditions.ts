@@ -1,12 +1,9 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
+import { createCiv7GameControlClient } from "../../../adapters/control/service-client";
 import { buildDirectControlOptions } from "../../../adapters/play/direct-control";
 
 type TraditionsServiceResult = Awaited<
-  ReturnType<
-    ReturnType<typeof createCiv7ControlOrpcServerClient>["progression"]["traditions"]["current"]
-  >
+  ReturnType<ReturnType<typeof createCiv7GameControlClient>["progression"]["traditions"]["current"]>
 >;
 type CompactTraditionAction = {
   kind: string;
@@ -82,8 +79,7 @@ export default class GamePlayTraditions extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayTraditions);
-    const view = await createCiv7ControlOrpcServerClient({
-      directControl: liveCiv7ControlOrpcDirectControlFacade,
+    const view = await createCiv7GameControlClient({
       endpointDefaults: buildDirectControlOptions(flags),
     }).progression.traditions.current({
       playerId: flags["player-id"],

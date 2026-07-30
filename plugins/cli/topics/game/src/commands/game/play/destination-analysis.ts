@@ -1,6 +1,5 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
+import { createCiv7GameControlClient } from "../../../adapters/control/service-client";
 import {
   buildDirectControlOptions,
   resolveCoordinateFlags,
@@ -106,8 +105,7 @@ export default class GamePlayDestinationAnalysis extends Command {
       required: true,
     });
     if (!destination) throw new Error("provide --destination or --to-x and --to-y");
-    const view = await createCiv7ControlOrpcServerClient({
-      directControl: liveCiv7ControlOrpcDirectControlFacade,
+    const view = await createCiv7GameControlClient({
       endpointDefaults: buildDirectControlOptions(flags),
     }).strategy.destinationAnalysis({
       playerId: flags["player-id"],

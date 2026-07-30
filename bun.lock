@@ -138,6 +138,8 @@
       "version": "0.1.0",
       "dependencies": {
         "@civ7/control-orpc": "workspace:*",
+        "@civ7/direct-control": "workspace:*",
+        "@orpc/server": "1.14.6",
       },
     },
     "mods/mod-swooper-civ-dacia": {
@@ -162,22 +164,6 @@
       },
       "devDependencies": {
         "esbuild": "^0.27.2",
-      },
-    },
-    "packages/civ7-control-orpc": {
-      "name": "@civ7/control-orpc",
-      "version": "0.1.0",
-      "dependencies": {
-        "@civ7/direct-control": "workspace:*",
-        "@civ7/map-policy": "workspace:*",
-        "@orpc/client": "1.14.6",
-        "@orpc/contract": "1.14.6",
-        "@orpc/server": "1.14.6",
-        "@orpc/shared": "^1.14.4",
-        "@standard-schema/spec": "^1.1.0",
-        "effect": "3.21.3",
-        "effect-orpc": "catalog:",
-        "typebox": "catalog:",
       },
     },
     "packages/civ7-direct-control": {
@@ -450,6 +436,22 @@
         "@swooper/mapgen-diagnostics": "workspace:*",
         "json-schema-to-typescript": "^15.0.4",
         "type-fest": "^5.7.0",
+      },
+    },
+    "services/civ7-control": {
+      "name": "@civ7/control-orpc",
+      "version": "0.1.0",
+      "dependencies": {
+        "@civ7/direct-control": "workspace:*",
+        "@civ7/map-policy": "workspace:*",
+        "@orpc/client": "1.14.6",
+        "@orpc/contract": "1.14.6",
+        "@orpc/server": "1.14.6",
+        "@orpc/shared": "^1.14.4",
+        "@standard-schema/spec": "^1.1.0",
+        "effect": "3.21.3",
+        "effect-orpc": "catalog:",
+        "typebox": "catalog:",
       },
     },
     "tools/habitat": {
@@ -849,7 +851,7 @@
 
     "@civ7/config": ["@civ7/config@workspace:packages/config"],
 
-    "@civ7/control-orpc": ["@civ7/control-orpc@workspace:packages/civ7-control-orpc"],
+    "@civ7/control-orpc": ["@civ7/control-orpc@workspace:services/civ7-control"],
 
     "@civ7/direct-control": ["@civ7/direct-control@workspace:packages/civ7-direct-control"],
 

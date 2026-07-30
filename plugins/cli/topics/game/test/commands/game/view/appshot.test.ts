@@ -5,12 +5,12 @@ import { type FakeTunerServer, startFakeTunerServer } from "../../../support/tun
 // that facade member is stubbed. Every App UI exec — queue suspend/purge,
 // clean-frame enter/exit, resume — runs over the wire against the fake tuner.
 const captureCalls: unknown[] = [];
-vi.mock("@civ7/control-orpc/runtime", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@civ7/control-orpc/runtime")>();
+vi.mock("@civ7/direct-control/live", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@civ7/direct-control/live")>();
   return {
     ...actual,
-    liveCiv7ControlOrpcDirectControlFacade: {
-      ...actual.liveCiv7ControlOrpcDirectControlFacade,
+    liveCiv7DirectControl: {
+      ...actual.liveCiv7DirectControl,
       captureCiv7WindowShot: async (input: unknown) => {
         captureCalls.push(input);
         return {

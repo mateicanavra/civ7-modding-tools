@@ -13,6 +13,7 @@ export default defineConfig({
   clean: true,
   noExternal: [
     "@civ7/control-orpc",
+    "@civ7/direct-control",
     "@orpc/client",
     "@orpc/contract",
     "@orpc/server",

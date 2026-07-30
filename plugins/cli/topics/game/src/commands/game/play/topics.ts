@@ -209,10 +209,8 @@ const TOPICS: ReadonlyArray<Topic> = [
   {
     family: "tactics",
     aliases: ["combat"],
-    purpose:
-      "Plan tactical priorities, formation posture, civilian routes, destinations, and generic operations.",
-    proof:
-      "live-proved for planning views and the generic operation shape; outcomes require fresh postconditions",
+    purpose: "Plan tactical priorities, formation posture, civilian routes, and destinations.",
+    proof: "live-proved for planning views; outcomes require fresh postconditions",
     references: [
       "docs/projects/civ7-live-play-support/topics/battlefield-scan.md",
       "docs/projects/civ7-live-play-support/topics/formation-snapshot.md",
@@ -239,12 +237,10 @@ const TOPICS: ReadonlyArray<Topic> = [
       "game play civilian-route-triage",
       "future: game play unit-analysis",
       "game play destination-analysis",
-      "game operation",
     ],
-    loadWhen:
-      "when comparing priorities, formation posture, civilian routes, destinations, or generic operations",
+    loadWhen: "when comparing priorities, formation posture, civilian routes, or destinations",
     boundary:
-      "planning lenses do not authorize a unit action; generic operation validation is not outcome proof",
+      "planning lenses do not authorize a unit action; use a named action command and verify its postcondition",
   },
   {
     family: "diplomacy",

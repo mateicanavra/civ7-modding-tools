@@ -1,7 +1,6 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { getCiv7TurnCompletionStatus } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
+import { createCiv7GameControlClient } from "../../../adapters/control/service-client";
 import { buildDirectControlOptions, emitPlayResult } from "../../../adapters/play/direct-control";
 
 export default class GamePlayEndTurn extends Command {
@@ -39,8 +38,7 @@ export default class GamePlayEndTurn extends Command {
     const { flags } = await this.parse(GamePlayEndTurn);
     const options = buildDirectControlOptions(flags);
     const result = flags.send
-      ? await createCiv7ControlOrpcServerClient({
-          directControl: liveCiv7ControlOrpcDirectControlFacade,
+      ? await createCiv7GameControlClient({
           endpointDefaults: options,
         }).turn.complete.request({})
       : await getCiv7TurnCompletionStatus(options);

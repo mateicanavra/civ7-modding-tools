@@ -1,7 +1,6 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { getCiv7PlayNotificationView } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
+import { createCiv7GameControlClient } from "../../../adapters/control/service-client";
 import {
   buildDirectControlOptions,
   emitPlayResult,
@@ -108,8 +107,7 @@ export default class GamePlayChooseCulture extends Command {
       throw new Error("game play choose-culture requires --node unless --options is used");
     }
     if (flags.send) {
-      const result = await createCiv7ControlOrpcServerClient({
-        directControl: liveCiv7ControlOrpcDirectControlFacade,
+      const result = await createCiv7GameControlClient({
         endpointDefaults: options,
       }).progression.culture.choice.request({
         node: flags.node,

@@ -93,16 +93,16 @@ Decide from `legalOperations` + unit role:
 | Unit situation | Do |
 |---|---|
 | Scout / military with moves, map to explore | Move toward unexplored/objective: get a plot from `unit move-preview --unit-id '…'`, then `unit target --unit-id '…' --x <x> --y <y> --send`. |
-| Settler / founder on/near a good site | [Found a city](#founding-a-city). |
-| Military on a border, nothing to do | Fortify: echo the FORTIFY/`SKIP_TURN`-adjacent op from `legalOperations` into `game operation … --send`. |
-| Unit genuinely has nothing useful | Skip: `game operation --family unit-operation --operation-type SKIP_TURN --unit-id '…' --send` (only if it appears in `legalOperations`). |
-| Commander with units to pack/move | Use the pack/move op from `legalOperations`; see `strategy.md` → Commanders. |
+| Settler / founder on/near a good site | Move it with the named `unit target` command, then stop and report when `FOUND_CITY` is the remaining legal action; founding has no public named command yet. |
+| Military on a border, nothing to do | Use a named action command if one matches the live state. Otherwise stop and report the exposed fortify/skip operation; do not bypass the public CLI. |
+| Unit genuinely has nothing useful | Stop and report the exposed legal operation when no named skip command exists. |
+| Commander with units to pack/move | Use a named commander action when available; otherwise stop and report the unsupported legal operation. See `strategy.md` → Commanders. |
 
 After each `--send`, check the postcondition (`target-reached` good;
 `path-shortfall` = multi-turn move in progress, fine). The same unit should no
 longer appear ready on the next pass — that is how you avoid infinite loops.
 
-### Founding a city
+### Preparing to found a city
 
 1. Find a site: `game play settlement-recommendations --json` → take a top
    suggestion's `location{x,y}` (or use the settler's current plot if it is
@@ -110,17 +110,10 @@ longer appear ready on the next pass — that is how you avoid infinite loops.
 2. Move the settler there: `game play unit target --unit-id '<settlerId>' --x
    <x> --y <y> --send --json`. If `path-shortfall`, the move continues next turn
    — end the turn and resume.
-3. When the settler is **on** the target plot, found it:
-   ```bash
-   $CLI game play unit ready --unit-id '<settlerId>' --json   # FOUND_CITY now in legalOperations
-   $CLI game operation --family <family-from-legalOps> \
-        --operation-type <FOUND_CITY-from-legalOps> \
-        --unit-id '<settlerId>' --send --json
-   ```
-   The exact `family`/`operationType` come from that unit's `legalOperations`
-   (founder units carry the `FoundCity` capability). Confirm `verified:true`.
-   New settlements start as **Towns** — respect the settlement cap
-   (`strategy.md`).
+3. When the settler is **on** the target plot, re-read it with `game play unit
+   ready --unit-id '<settlerId>' --json`. If `FOUND_CITY` is legal, stop and
+   report that founding is blocked on a named public command. Do not use raw
+   execution to bypass the service boundary.
 
 ## Step 5 — Cities: set production
 

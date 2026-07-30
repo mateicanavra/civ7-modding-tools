@@ -1,6 +1,5 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
+import { createCiv7GameControlClient } from "../../../adapters/control/service-client";
 import {
   buildDirectControlOptions,
   emitPlayResult,
@@ -62,8 +61,7 @@ export default class GamePlayChangeTradition extends Command {
     const { flags } = await this.parse(GamePlayChangeTradition);
     const options = buildDirectControlOptions(flags);
     if (flags.send) {
-      const client = createCiv7ControlOrpcServerClient({
-        directControl: liveCiv7ControlOrpcDirectControlFacade,
+      const client = createCiv7GameControlClient({
         endpointDefaults: options,
       });
       const change = await client.progression.tradition.change.request({

@@ -1,9 +1,5 @@
 import { createServer, type RequestListener, type Server } from "node:http";
-import {
-  type Civ7ControlOrpcContext,
-  Civ7ControlOrpcContract,
-  type Civ7ControlOrpcDirectLifecycleFacade,
-} from "@civ7/control-orpc";
+import { type Civ7ControlOrpcContext, Civ7ControlOrpcContract } from "@civ7/control-orpc";
 import {
   type Civ7AppUiSnapshotResult,
   Civ7DirectControlSession,
@@ -42,6 +38,7 @@ const openServers: Server[] = [];
 const openHandles: StudioRpcHandle[] = [];
 const RUN_ARTIFACT_ID = createRunArtifactId("one-mount-test");
 const TEST_LIVE_MAP_SIZE = getCiv7StandardMapSizePreset("MAPSIZE_STANDARD");
+type Civ7ControlOrpcDirectLifecycleFacade = NonNullable<Civ7ControlOrpcContext["directLifecycle"]>;
 
 async function rejectUnexpectedLifecycleCall(): Promise<never> {
   throw new Error("Unexpected Civ7 lifecycle call");

@@ -1,6 +1,5 @@
-import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
-import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
+import { createCiv7GameControlClient } from "../../../../adapters/control/service-client";
 import {
   buildDirectControlOptions,
   resolveCoordinateFlags,
@@ -72,8 +71,7 @@ export default class GamePlayFrontTargetCandidates extends Command {
       pairFlag: "origin",
     });
     const origins = origin ? [origin] : undefined;
-    const view = await createCiv7ControlOrpcServerClient({
-      directControl: liveCiv7ControlOrpcDirectControlFacade,
+    const view = await createCiv7GameControlClient({
       endpointDefaults: buildDirectControlOptions(flags),
     }).strategy.targetCandidates({
       playerId: flags["player-id"],

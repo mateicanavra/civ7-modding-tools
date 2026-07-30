@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_service_orpc_composition",
+  "title": "Require Native Effect-oRPC Service Composition",
+  "placement": {
+    "niche": "global/services",
+    "blueprint": "service",
+    "category": "execution"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "contract implementation outside impl.ts, multiple implementation lineages, an exported unconfigured implementation, an untyped or disconnected configured service, an untyped module disconnected from its same-named configured branch, module-level router implementation, an untyped root router or root implementation through impl, or multiple aggregate service.router calls",
+  "why": "The pinned effect-orpc 0.5.0 patch preserves one middleware lineage when the configured service implements the aggregate router. One private implementEffect stage, one canonical Service alias over EffectImplementerInternal, typed exact module descent, Effect leaf authorship, plain module routers, and one EnhancedEffectRouter over the exact named module input prevent duplicated middleware, declaration-serialization overflow, erased branch access, and parallel implementation authority.",
+  "remediate": "Create private impl = implementEffect(contract, runtime).$context<Context>() once in impl.ts, define the exact canonical Service alias over EffectImplementerInternal<typeof contract, Context, Context, never, never>, export ServiceModule<K> = Service[K], annotate the configured service with Service, derive each typed ServiceModule from service.<matching-module>, keep module router indexes plain, name the root input once as const modules and type Modules = typeof modules, then implement EnhancedEffectRouter<Modules, Context, Context, Record<never, never>> exactly once with service.router(modules).",
+  "message": "Service composition must preserve one pinned Effect-oRPC implementation lineage.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["services/*/src/service/**/*.ts"]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/service/require_service_orpc_composition/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/service/require_service_orpc_composition/pattern.md"
+    },
+    "patternName": "require_service_orpc_composition",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["services"]
+    }
+  }
+}
