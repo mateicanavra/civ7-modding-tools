@@ -2,65 +2,59 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Domain. Service. Wire. Authority. Convergence. Closure.
+**Attractor filter:** Intent. Capability. Authority. Environment. Kind.
+Boundary. Chain. Destination. Collapse. Proof. Closure.
 
-**Frame:** Civ7 control has one public domain service plane. The concrete
-`services/civ7-control` service owns admitted procedures, semantic
-orchestration, and the API consumed by products; `direct-control` owns only
-bounded runtime wire atoms and diagnostic transport. The CLI projects that
-service plane into stable Civ7 nouns such as `play` and `map`; it does not
-expose operation families, alternate routers, or caller-owned workflow
-composition.
+**Frame:** the final platform pass operates on product capability realization
+chains, not current package names. Pure packages, managed resources, semantic
+services, qualified projections, and runtime apps each own one kind of authority.
+Execution environments remain explicit: the host, App UI, Tuner, and gameplay
+ScriptSystem do not share state or lifecycle.
 
-**Authority order:** Civ7 domain intent -> service contract -> admitted
-procedure -> direct-control wire atom -> CLI projection -> observable behavior
-proof. Effect owns multi-step service orchestration, oRPC owns the contract and
-router projection, oclif owns command discovery, Habitat owns closed generic
-kinds, TypeScript owns imports, and Nx owns proof ordering.
+**Authority order:** product intent -> capability owner -> execution
+environment -> kind law -> public contract -> app composition -> behavior
+proof. Habitat owns positive closed kinds, Nx owns graph direction and proof
+ordering, TypeScript owns assignability, Knip owns dead code, and tests own
+product behavior. Admitted instances require the blueprint-defined `habitat.toml`
+anchor; path placement and Nx tags never admit them. Each accepted kind closes
+its own proof topology around disjoint confidence axes; domain-qualified kinds
+such as MapGen keep their stronger domain-shaped testing grammar.
 
-**Enforcement gravity:** a correct scaffold plus an advisory rule is guidance,
-not a ratchet. Every newly admitted kind must finish with its generic blueprint
-law enforced, its fixtures truthful, and its current corpus at zero. Mechanical
-relocation may preserve legacy interiors only as a transient red state; copied
-files do not become valid merely because their destination is correct.
-Aggregate files likewise survive only when they add authority: module
-`contract.ts` composes leaf operation contracts directly and module `router.ts`
-binds leaf implementations directly. Intermediate `ops/contract.ts` and
-`ops/index.ts` registries add no cycle break or invariant and therefore are not
-part of the nested module kind.
+**Current container:** review and accept the capability-realization authority
+packet. Before any source moves, account for every direct-control and Studio
+consumer, settle the closed kind matrix, Nx graph facts, and dependency policy,
+and prove the app-to-topic composition rail. Close each admitted test interior
+at its kind around a finite, disjoint confidence taxonomy before using that
+kind as a destination. The first coupled cutover
+container adopts the accepted corrected shared Habitat successor and closes
+the oRPC 2/Effect vendor line,
+Tuner resource, canonical runtime realization, private service ports,
+CLI/Studio projections, and mixed-package deletion as one transition rather
+than preserving either manual app wiring, an oRPC 1 compatibility service,
+facade, or adapter project.
 
-**Current container:** converge the complete progression family through exact
-Civ7-native wire atoms and one progression service authority. Technology and
-culture choices and targets, attribute purchases and review, and tradition
-changes and review currently mix UI closeout, generic player operations,
-provider-owned postcondition policy, and CLI-local validation. Replace that
-hybrid surface with exact checks, guarded sends, and focused observations in
-direct control; service-owned native sequencing, admission, bounded proof, and
-no-repeat policy; and one service projection in both CLI modes. Then delete the
-last public generic operation validator and every progression compensation it
-made necessary.
+**Stable ownership:** Swooper remains a portable mod definition realized by
+its mod app. The CLI remains a commandless `cli-shell` composed from
+`plugins/cli/topics/*`; each topic package owns its nested commands. The control
+service remains callable in process. Studio is the only current HTTP host. The
+Tuner session and narrow Civ7 window-capture helper are the earned managed
+resources. The unshipped intelligence bridge, a MapGen service, an HQ API, and
+generic catalog or desktop-control resources are not current architecture
+authority. Packages retain only pure parsing, planning, schemas, algorithms,
+and comparison over supplied values; qualified app/topic adapters own cold
+filesystem effects. MapGen run records, cancellation, retention, and events
+remain scoped MapGen-runs service state rather than a manufactured resource.
 
-**Stable ownership:** Swooper domains own their semantic modules and immutable
-data-product contracts; recipes own orchestration and publication; live Civ7
-state is adapter observation; metrics, diagnostics, trace, and visualization
-are separate capabilities. Generic surface comparison and live readback belong
-to MapGen diagnostics and Civ7 observation owners; the mod may retain only thin
-Standard replay/reporting commands. Core owns the generic authoring/execution
-and domain-composition SDK, not Swooper's domain model.
+**Gradient:** freeze current capability chains -> accept authority and selected
+depth -> write positive destination law -> close topology and source relations
+-> prove fixtures -> settle Nx metadata and manifest-backed generator ->
+promote/enforce in the exact burn-down branch -> observe live red -> apply
+qualified dispositions -> reach zero -> prove behavior -> delete the old owner
+-> seal the Graphite layer -> repeat.
+The Tuner protocol remains private to its sole provider unless another
+independent consumer earns a public package.
 
-Artifact authorship is sealed as one weighted `defineArtifact` expression in a
-closed, nonempty module artifact collection. Its inline schema refinement is
-contextually typed and receives admitted dimensions, derived cell count, and a
-Core-owned issue accumulator. The generic artifact law selects exact members
-and enforces their closed import, export, root-schema, and refinement surfaces
-without broad source scans.
-
-**Gradient:** name the exact native progression atoms -> compose the official
-choice, target, attribute, and tradition sequences in the service -> route
-every CLI check and mutation through that service -> delete UI activation,
-generic operations, provider-owned proof policy, and duplicate bridge
-orchestration -> prove the complete progression graph -> continue through
-remaining thick observation owners.
+**Detailed frame:** [Civ7 Capability Realization](../civ7-capability-realization/FRAME.md).
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -103,6 +97,18 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-30 - Capability Realization Frame
+
+The progression and control-domain convergence is complete enough to expose the
+remaining platform seam. The focus moved from one native operation family to
+the full capability realization chain. The prior service/wire ownership remains
+valid, but `direct-control` is no longer treated as a terminal wire owner: its
+protocol, managed session, and service-client composition responsibilities now
+have qualified destinations, while the controller bridge is an unshipped
+provider island rather than a product path. The new frame compares complete
+topologies, keeps MapGen portable, adopts only earned Habitat kinds, and burns
+down the facade and mixed package rather than hardening them.
 
 ### 2026-07-29 - Generic Mutation Tunnel Closed
 
