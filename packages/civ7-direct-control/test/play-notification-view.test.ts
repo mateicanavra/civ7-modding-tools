@@ -142,7 +142,8 @@ describe("getCiv7PlayNotificationView", () => {
         'action("build unit production", "city-operation", "BUILD"'
       );
       expect(notificationRead).toContain('action("build city project", "city-operation", "BUILD"');
-      expect(notificationRead).toContain(
+      expect(notificationRead).toContain('"acknowledge advisor warning"');
+      expect(notificationRead).not.toContain(
         'action("mark advisor warning viewed", "player-operation", "VIEWED_ADVISOR_WARNING"'
       );
       expect(notificationRead).not.toContain(

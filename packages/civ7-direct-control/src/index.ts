@@ -137,6 +137,42 @@ export {
   sendCiv7TownFocusReview,
 } from "./play/city/town-focus.js";
 export type {
+  Civ7FirstMeetResponseCheckResult,
+  Civ7FirstMeetResponseInput,
+  Civ7FirstMeetResponseSendInput,
+  Civ7FirstMeetResponseSendResult,
+  Civ7FirstMeetResponseSnapshot,
+  Civ7FirstMeetResponseValidationResult,
+} from "./play/diplomacy/first-meet-response.js";
+export {
+  Civ7FirstMeetResponseCheckResultSchema,
+  Civ7FirstMeetResponseInputSchema,
+  Civ7FirstMeetResponseSendInputSchema,
+  Civ7FirstMeetResponseSendResultSchema,
+  Civ7FirstMeetResponseSnapshotSchema,
+  Civ7FirstMeetResponseValidationResultSchema,
+  checkCiv7FirstMeetResponse,
+  sendCiv7FirstMeetResponse,
+} from "./play/diplomacy/first-meet-response.js";
+export type {
+  Civ7DiplomacyResponseCheckResult,
+  Civ7DiplomacyResponseInput,
+  Civ7DiplomacyResponseSendInput,
+  Civ7DiplomacyResponseSendResult,
+  Civ7DiplomacyResponseSnapshot,
+  Civ7DiplomacyResponseValidationResult,
+} from "./play/diplomacy/response.js";
+export {
+  Civ7DiplomacyResponseCheckResultSchema,
+  Civ7DiplomacyResponseInputSchema,
+  Civ7DiplomacyResponseSendInputSchema,
+  Civ7DiplomacyResponseSendResultSchema,
+  Civ7DiplomacyResponseSnapshotSchema,
+  Civ7DiplomacyResponseValidationResultSchema,
+  checkCiv7DiplomacyResponse,
+  sendCiv7DiplomacyResponse,
+} from "./play/diplomacy/response.js";
+export type {
   Civ7CelebrationChoiceCheckResult,
   Civ7CelebrationChoiceInput,
   Civ7CelebrationChoiceOption,
@@ -282,34 +318,39 @@ export {
   sendCiv7NarrativeChoice,
 } from "./play/narrative/choice.js";
 export type {
+  Civ7AdvisorWarningViewedCheckResult,
   Civ7AdvisorWarningViewedInput,
-  Civ7AdvisorWarningViewedPostcondition,
-  Civ7AdvisorWarningViewedPostconditionClassification,
-  Civ7AdvisorWarningViewedResult,
-} from "./play/notifications/advisor-warning-request.js";
-export { requestCiv7AdvisorWarningViewed } from "./play/notifications/advisor-warning-request.js";
+  Civ7AdvisorWarningViewedSendInput,
+  Civ7AdvisorWarningViewedSendResult,
+  Civ7AdvisorWarningViewedSnapshot,
+  Civ7AdvisorWarningViewedValidationResult,
+} from "./play/notifications/advisor-warning.js";
+export {
+  Civ7AdvisorWarningViewedCheckResultSchema,
+  Civ7AdvisorWarningViewedInputSchema,
+  Civ7AdvisorWarningViewedSendInputSchema,
+  Civ7AdvisorWarningViewedSendResultSchema,
+  Civ7AdvisorWarningViewedSnapshotSchema,
+  Civ7AdvisorWarningViewedValidationResultSchema,
+  checkCiv7AdvisorWarningViewed,
+  sendCiv7AdvisorWarningViewed,
+} from "./play/notifications/advisor-warning.js";
 export type {
-  Civ7NotificationDismissalResult,
-  Civ7NotificationDismissalSummary,
+  Civ7NotificationDismissalCheckResult,
+  Civ7NotificationDismissalSendInput,
+  Civ7NotificationDismissalSendResult,
+  Civ7NotificationDismissalSnapshot,
   Civ7NotificationDismissInput,
-  Civ7NotificationDismissRequestInput,
-} from "./play/notifications/dismissal-request.js";
+} from "./play/notifications/dismissal.js";
 export {
-  Civ7NotificationDismissalResultSchema,
+  Civ7NotificationDismissalCheckResultSchema,
+  Civ7NotificationDismissalSendInputSchema,
+  Civ7NotificationDismissalSendResultSchema,
+  Civ7NotificationDismissalSnapshotSchema,
   Civ7NotificationDismissInputSchema,
-  Civ7NotificationDismissRequestInputSchema,
-  getCiv7NotificationDismissal,
-  requestCiv7NotificationDismissal,
-} from "./play/notifications/dismissal-request.js";
-export type {
-  Civ7NotificationDismissalPostcondition,
-  Civ7NotificationDismissalPostconditionClassification,
-} from "./play/notifications/postconditions.js";
-export {
-  Civ7NotificationDismissalPostconditionClassificationSchema,
-  Civ7NotificationDismissalPostconditionSchema,
-  Civ7NotificationDismissalSummarySchema,
-} from "./play/notifications/postconditions.js";
+  checkCiv7NotificationDismissal,
+  sendCiv7NotificationDismissal,
+} from "./play/notifications/dismissal.js";
 export type {
   Civ7PlayDecisionAction,
   Civ7PlayDecisionActionContract,
@@ -338,16 +379,6 @@ export {
   getCiv7PlayNotificationView,
 } from "./play/notifications/view.js";
 export type {
-  Civ7DiplomacyResponsePostcondition,
-  Civ7DiplomacyResponsePostconditionClassification,
-} from "./play/operations/diplomacy-postconditions.js";
-export type {
-  Civ7DiplomacyResponseCommandPayload,
-  Civ7DiplomacyResponseInput,
-  Civ7DiplomacyResponseResult,
-} from "./play/operations/diplomacy-request.js";
-export { requestCiv7DiplomacyResponse } from "./play/operations/diplomacy-request.js";
-export type {
   Civ7CloseDisplaysInput,
   Civ7CloseDisplaysResult,
   Civ7ClosedDisplaysRow,
@@ -369,15 +400,6 @@ export {
   resumeCiv7DisplayQueue,
   suspendCiv7DisplayQueue,
 } from "./play/operations/display-queue.js";
-export type {
-  Civ7FirstMeetResponsePostcondition,
-  Civ7FirstMeetResponsePostconditionClassification,
-} from "./play/operations/first-meet-postconditions";
-export type {
-  Civ7FirstMeetResponseInput,
-  Civ7FirstMeetResponseResult,
-} from "./play/operations/first-meet-request";
-export { requestCiv7FirstMeetResponse } from "./play/operations/first-meet-request";
 export type {
   Civ7OperationFamily,
   Civ7OperationInput,
@@ -718,19 +740,6 @@ export {
   ensureCiv7WindowShotHelper,
 } from "./play/view/window-shot.js";
 export type {
-  Civ7AdvisorWarningProofOutcome,
-  Civ7AdvisorWarningProofPostcondition,
-} from "./proof/advisor-warning-proof-policy.js";
-export { advisorWarningProofPostcondition } from "./proof/advisor-warning-proof-policy.js";
-export {
-  diplomacyResponseProofOutcome,
-  diplomacyResponseProofPostcondition,
-} from "./proof/diplomacy-response-proof-policy.js";
-export {
-  firstMeetResponseProofOutcome,
-  firstMeetResponseProofPostcondition,
-} from "./proof/first-meet-response-proof-policy";
-export type {
   FileSnapshot,
   FreshLogMarkerProof,
 } from "./proof/log-markers.js";
@@ -740,10 +749,6 @@ export {
   snapshotFile,
   waitForFreshLogMarkers,
 } from "./proof/log-markers.js";
-export {
-  notificationDismissalProofOutcome,
-  notificationDismissalProofPostcondition,
-} from "./proof/notification-dismissal-proof-policy.js";
 export {
   progressionPlayerChoiceProofOutcome,
   progressionPlayerChoiceProofPostcondition,

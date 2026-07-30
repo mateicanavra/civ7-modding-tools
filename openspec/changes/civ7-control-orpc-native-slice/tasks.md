@@ -147,10 +147,11 @@ adding more read-only facade shells.
     no direct-control procedure core, generic decisions root, runtime proof,
     or parent Task 5.x/6.x acceptance.
   - [x] 5.4.6 Record `diplomacy.response.request` as a
-    service-owned diplomacy boundary over direct-control diplomacy runtime,
-    validator, and proof ports. The service owns the caller-facing semantic
-    response shape, normal proof projection, raw-output exclusion, and
-    no-repeat next steps; direct-control-only UI toggles, generic decisions
+    service-owned diplomacy boundary over exact direct-control check/send and
+    response/blocker observation ports. The service owns offered-response
+    admission, the dedicated war-workflow refusal, bounded observation,
+    semantic postconditions, dispatch uncertainty, raw-output exclusion, and
+    no-repeat next steps; direct-control UI choreography, generic decisions
     catalogs, runtime proof, and parent Task 5.x/6.x acceptance remain out of
     scope.
   - [x] 5.4.7 Burn down root public exports of direct-control runtime-port
@@ -325,11 +326,13 @@ adding more read-only facade shells.
     compare-and-send guard, keep native validation authoritative over option
     rows, retire UI closeout choreography and direct proof policy, and reject
     the narrative operation through generic player-operation paths.
-  - [x] 5.5.11 Seed `diplomacy.response.request` as a native
-    service-owned diplomacy procedure that composes playable
-    readiness, direct-control diplomacy response authority, and source-owned
-    diplomacy proof classification into semantic output without exposing raw
-    command/session/payload/UI-closeout details or claiming runtime/live proof.
+  - [x] 5.5.11 Converge `diplomacy.response.check/request` as exact
+    service-owned diplomacy procedures. Omit caller player and notification
+    authority, admit only responses currently offered for the action, refuse
+    military-presence rejection through the ordinary path, use direct-control
+    only for exact native check/send and focused blocker observation, keep
+    semantic polling/classification/uncertainty/no-repeat policy in the
+    service, and retire UI closeout choreography and direct proof policy.
   - [x] 5.5.12 Seed `progression.technology.choice.request` and
     `progression.culture.choice.request` as native service-owned progression
     procedures that compose playable readiness, before/after
@@ -431,15 +434,15 @@ adding more read-only facade shells.
     legacy `verified`, and keep runtime proof, controller bridge, transport
     expansion, broad operation catalog support, approval/reason mechanics, and
     parent Task 5.x/6.x/7.x acceptance pending.
-  - [x] 5.5.21 Seed `notifications.advisorWarning.viewed.request` as a native
-    service-owned notification mutation that composes readiness middleware,
-    fresh notification local-player evidence, and the direct-control
-    `VIEWED_ADVISOR_WARNING` runtime/proof port into semantic output. Keep the
-    caller input schema contract-local and target-only, omit raw
-    player-operation envelopes and legacy `verified`, keep sent outcomes
-    pending-runtime-proof/no-repeat guarded, and keep runtime proof,
-    controller bridge, transport expansion, approval/reason mechanics, broad
-    operation catalog support, and parent Task 5.x/6.x/7.x acceptance pending.
+  - [x] 5.5.21 Converge
+    `notifications.advisorWarning.viewed.check/request` as the native
+    service-owned advisor-warning boundary over exact direct-control check/send
+    atoms. Keep input target-only; move four-type admission, ambient
+    local-player authority, guarded mutation, bounded observation, semantic
+    completion, dispatch uncertainty, and no-repeat policy into the service;
+    reject `VIEWED_ADVISOR_WARNING` through generic player-operation dispatch;
+    omit raw operation/proof details from public output; and keep deployed
+    runtime proof pending.
   - [x] 5.5.22 Seed `progression.dashboard.current` as a native service-owned
     progression read that composes the direct-control progress dashboard
     runtime port into caller-neutral semantic output. Keep input/output schemas
@@ -517,10 +520,12 @@ adding more read-only facade shells.
     direct-control narrative request runtime port and project source-owned
     narrative proof/no-repeat semantics into normal output; keep shared
     validator/postcondition middleware pending.
-  - [x] 6.3.6 Compose `diplomacy.response.request` through the
-    direct-control diplomacy response runtime port and project source-owned
-    diplomacy proof/no-repeat semantics into normal output; keep shared
-    validator/postcondition middleware pending.
+  - [x] 6.3.6 Compose `diplomacy.response.check/request` through exact
+    direct-control diplomacy check/send and observation ports. Keep
+    offered-response admission, dedicated-war refusal, bounded polling,
+    semantic classification, dispatch uncertainty, and no-repeat policy in
+    the diplomacy service; keep shared validator/postcondition middleware
+    pending.
   - [x] 6.3.7 Extract repeated closeout-style postcondition projection into a
     shared control-oRPC mutation policy helper reused by notification,
     narrative, and diplomacy mutation procedures. Keep direct-control proof
@@ -627,15 +632,12 @@ adding more read-only facade shells.
     the semantic city production choice projection for `UnitType` sends,
     preserve the existing direct-control operation validation path for
     read-only mode, and keep live runtime proof pending.
-  - [x] 7.1.6 Route `civ7 game play respond-diplomacy --send` through the
-    in-process `diplomacy.response.request` server-side client under
-    the `diplomacy` router. Keep endpoint flags as context
-    construction, emit the semantic diplomacy response projection for send
-    output with direct-control acted/local-player evidence rather than treating
-    `--player-id` as send authority, preserve the existing direct-control
-    player-operation validation path for read-only mode, leave
-    `game play respond-first-meet` outside this slice, and keep live runtime
-    proof pending.
+  - [x] 7.1.6 Route both modes of
+    `civ7 game play diplomacy respond` through the in-process
+    `diplomacy.response.check/request` server-side clients. Keep endpoint flags
+    as context construction, omit caller player and notification identity,
+    emit only the semantic service projection, leave first-meet greetings with
+    their separate service owner, and keep live runtime proof pending.
   - [x] 7.1.6.1 Route `civ7 game play respond-first-meet --send` through the
     in-process `diplomacy.firstMeet.response.request` server-side client under
     the `diplomacy` router. Keep endpoint flags as context construction, emit
@@ -794,15 +796,12 @@ adding more read-only facade shells.
     `verified`, and raw App UI dismissal internals from normal JSON, and avoid
     controller bridge, transport, broad operation catalogs, approval/reason
     mechanics, or runtime-proof claims.
-  - [x] 7.1.9.12 Route `civ7 game play advisor-warning --send` through the
-    in-process `notifications.advisorWarning.viewed.request` server-side
-    client under the `notifications` router. Move acted-player selection to
-    fresh notification local-player evidence in the service procedure, keep
-    dry-run validation on the legacy direct-control validator path, omit raw
-    host/port/state/session/Tuner payloads, raw player-operation envelopes,
-    raw `VIEWED_ADVISOR_WARNING` operation details, legacy `verified`, and
-    approval/reason mechanics from normal send JSON, and avoid controller
-    bridge, transport, broad operation catalogs, or runtime-proof claims.
+  - [x] 7.1.9.12 Route both modes of
+    `civ7 game play notifications advisor-warning` through the in-process
+    `notifications.advisorWarning.viewed.check/request` service clients.
+    Accept only the target ComponentID, remove caller `--player-id` and legacy
+    direct validation, keep exact operation and native evidence private, and
+    avoid deployed runtime-proof claims.
   - [x] 7.1.9.13 Route `civ7 game play progress-dashboard` through the
     in-process `progression.dashboard.current` server-side client under the
     `progression` router. Move the summary-first progress projection out of
@@ -1192,10 +1191,9 @@ adding more read-only facade shells.
     controller-context proof envelope. Require
     game-controller-ready lifecycle, `GameContext.localPlayerID`, and
     single-local-player/hotseat evidence in controller context before native
-    router dispatch; validate
-    the existing semantic diplomacy response input shape, keep raw
-    player-operation/App UI closeout/notification/direct-control runtime
-    internals out of bridge output, and keep further
+    router dispatch; validate the semantic action/response input, keep raw
+    player-operation, notification, and direct-control runtime internals out
+    of bridge output, and keep further
     mutation allowlists, UIScript/modinfo packaging, runtime proof, and full
     `7.3` implementation pending.
   - [x] 7.3.12 Allowlist `progression.technology.choice.request` and
@@ -1319,19 +1317,17 @@ adding more read-only facade shells.
     command/session/state details, deployed Civ7 proof, play-thread action,
     diplomacy/unit runtime ports, and full `7.3` acceptance pending.
   - [x] 7.3.23 Add a game-resident diplomacy-response runtime dependency for
-    `diplomacy.response.request`: expose ambient
+    `diplomacy.response.check/request`: expose ambient
     `Game.PlayerOperations.canStart/sendRequest`,
-    `PlayerOperationTypes.RESPOND_DIPLOMATIC_ACTION`, diplomacy notification
-    activation/blocking/read APIs, optional `DiplomacyManager`/leader UI
-    closeout evidence, and controller-owned local-player proof through the
-    existing service-owned diplomacy procedure; advertise the mutation only
-    when those exact game UI APIs and controller proof exist; derive send
-    player from `GameContext.localPlayerID` rather than caller `playerId`;
-    preserve validator-blocked not-sent and no-repeat proof output for sticky
-    blockers, validation-only changes, failed/missing blocker evidence, and
-    missing postcondition paths; keep raw game-UI function names,
-    command/session/state details, deployed Civ7 proof, play-thread action,
-    unit runtime ports, and full `7.3` acceptance pending.
+    `PlayerOperationTypes.RESPOND_DIPLOMATIC_ACTION`, current response/event
+    reads, paired blocking-notification reads, native discriminator constants,
+    and controller-owned local-player proof through the existing service-owned
+    diplomacy procedures. Advertise check and request independently, derive
+    send player from `GameContext.localPlayerID`, preserve exact snapshot
+    guarding and dispatch uncertainty, and remove notification activation,
+    diplomacy-panel traversal, acknowledgement animation, and UI closeout from
+    gameplay control; keep deployed Civ7 proof, play-thread action, unit
+    runtime ports, and full `7.3` acceptance pending.
   - [x] 7.3.24 Add a game-resident unit-target runtime dependency for
     `unit.target.action.request`: expose ambient
     `Game.UnitOperations.canStart/sendRequest`,
@@ -2413,3 +2409,38 @@ adding more read-only facade shells.
   validation, stale wrapper/proof/UI-choreography scans, staged Habitat policy,
   and diff hygiene. These are local package proofs and do not claim deployed
   Civ7 runtime proof.
+- [x] 8.31 Run focused exact notification-dismissal atom tests, control-oRPC
+  check/request and reviewed-queue behavior tests, controller and CLI
+  notification tests, the combined direct/service/controller/CLI
+  check/test/build graph, strict OpenSpec validation, stale wrapper/proof/
+  dual-route scans, staged Habitat policy, and diff hygiene. These are local
+  package proofs and do not claim deployed Civ7 runtime proof.
+- [x] 8.32 Run focused exact advisor-warning atom tests, control-oRPC
+  check/request behavior tests, controller and CLI advisor-warning tests, the
+  combined direct/service/controller/CLI check/test graph, strict OpenSpec
+  validation, stale wrapper/proof/generic-route scans, staged Habitat policy,
+  and diff hygiene. These are local package proofs and do not claim deployed
+  Civ7 runtime proof.
+- [x] 8.33 Converge first-meet greetings on exact native check/send atoms and
+  one `diplomacy.firstMeet.response` service owner: derive ambient local-player
+  identity and named response types at runtime, guard dispatch with the full
+  admitted snapshot, move bounded polling/classification/uncertainty/no-repeat
+  policy into the service, route controller and both CLI modes through that
+  owner, and retire generic player-operation validation, UI activation, thick
+  direct request/postcondition wrappers, and duplicate proof policy. Run the
+  combined direct/service/controller/CLI check/test graph, strict OpenSpec
+  validation, stale-route scans, staged Habitat policy, and diff hygiene.
+  These are local package proofs and do not claim deployed Civ7 runtime proof.
+- [x] 8.34 Converge ordinary diplomacy responses on exact native check/send
+  atoms and one `diplomacy.response` service owner: derive ambient local-player
+  identity and current offered responses at runtime, guard dispatch with the
+  full admitted snapshot, refuse the military-presence rejection that requires
+  Civ7's dedicated war workflow, move bounded polling, classification,
+  dispatch uncertainty, and no-repeat policy into the service, route the
+  controller and both CLI modes through that owner, and retire generic
+  player-operation validation, notification activation, UI closeout, thick
+  direct wrappers, direct proof/telemetry, and caller player/notification
+  identity. Run the combined direct/service/controller/CLI check/test graph,
+  strict OpenSpec validation, stale-route scans, staged Habitat policy, and
+  diff hygiene. These are local package proofs and do not claim deployed Civ7
+  runtime proof.

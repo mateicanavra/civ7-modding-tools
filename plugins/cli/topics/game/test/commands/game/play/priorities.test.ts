@@ -208,7 +208,7 @@ describe("game play priorities command", () => {
       expect(top.nextAction).toMatchObject({ kind: "inspect-decision", readOnly: true });
       expect(top.nextAction?.parameters).toMatchObject({ category: "first-meet-diplomacy" });
       expect(payload.nextAction).toEqual(top.nextAction);
-      expect(top.reason).toContain("validator-backed player-operation");
+      expect(top.reason).toContain("exact diplomacy response check");
       expect(server.received.some((message) => message.includes("sendOperation("))).toBe(false);
     } finally {
       await server.close();
@@ -590,8 +590,6 @@ function decisionForMode(
       return priorityDecision({
         id: { owner: 0, id: 44, type: 20 },
         category: "first-meet-diplomacy",
-        operationFamily: "player-operation",
-        operationType: "RESPOND_DIPLOMATIC_FIRST_MEET",
         typeName: "NOTIFICATION_PLAYER_MET",
         summary: "You have met Ashoka, World Renouncer of Mauryan Empire.",
         details: {

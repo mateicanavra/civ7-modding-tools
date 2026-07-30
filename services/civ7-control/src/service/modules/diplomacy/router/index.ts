@@ -1,12 +1,8 @@
-import { firstMeetResponseRequest } from "./first-meet-response-request";
-import { responseRequest } from "./response-request";
+import { firstMeetResponse } from "./first-meet-response";
+import { response } from "./response";
 export const router = {
   firstMeet: {
-    response: {
-      request: firstMeetResponseRequest,
-    },
+    response: firstMeetResponse,
   },
-  response: {
-    request: responseRequest,
-  },
+  response,
 };

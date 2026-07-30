@@ -1,263 +1,344 @@
-import { probeHelperSource } from "../../runtime/probe";
+import { type Static, Type } from "typebox";
+import { Value } from "typebox/value";
 
-export function notificationDismissalSource(): string {
+import { Civ7ComponentIdSchema } from "../../civ7-component-id.js";
+import {
+  Civ7DirectControlError,
+  directControlErrorWithDispatchStatus,
+} from "../../direct-control-error.js";
+import { jsLiteral } from "../../runtime/command-serialization.js";
+import { Civ7RuntimeProbeSchema, probeHelperSource } from "../../runtime/probe.js";
+import { schemaBodyFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7AppUiCommand } from "../../session/execute.js";
+import type { Civ7DirectControlOptions } from "../../session/types.js";
+
+export const Civ7NotificationDismissInputSchema = Type.Object(
+  {
+    notificationId: Civ7ComponentIdSchema,
+  },
+  { additionalProperties: false }
+);
+export type Civ7NotificationDismissInput = Readonly<
+  Static<typeof Civ7NotificationDismissInputSchema>
+>;
+
+export const Civ7NotificationDismissalSnapshotSchema = Type.Object(
+  {
+    notificationId: Civ7ComponentIdSchema,
+    localPlayerId: Type.Integer(),
+    exists: Type.Boolean(),
+    typeName: Type.Union([Type.String(), Type.Null()]),
+    activeQueue: Civ7RuntimeProbeSchema(Type.Boolean()),
+    canUserDismiss: Civ7RuntimeProbeSchema(Type.Boolean()),
+    dismissed: Civ7RuntimeProbeSchema(Type.Boolean()),
+  },
+  { additionalProperties: false }
+);
+export type Civ7NotificationDismissalSnapshot = Readonly<
+  Static<typeof Civ7NotificationDismissalSnapshotSchema>
+>;
+
+export const Civ7NotificationDismissalCheckResultSchema = Type.Object(
+  {
+    snapshot: Civ7NotificationDismissalSnapshotSchema,
+  },
+  { additionalProperties: false }
+);
+export type Civ7NotificationDismissalCheckResult = Readonly<
+  Static<typeof Civ7NotificationDismissalCheckResultSchema>
+>;
+
+export const Civ7NotificationDismissalSendInputSchema = Type.Object(
+  {
+    expected: Civ7NotificationDismissalSnapshotSchema,
+  },
+  { additionalProperties: false }
+);
+export type Civ7NotificationDismissalSendInput = Readonly<
+  Static<typeof Civ7NotificationDismissalSendInputSchema>
+>;
+
+export const Civ7NotificationDismissalSendResultSchema = Type.Object(
+  {
+    sent: Type.Literal(true),
+    before: Civ7NotificationDismissalSnapshotSchema,
+    after: Civ7NotificationDismissalSnapshotSchema,
+  },
+  { additionalProperties: false }
+);
+export type Civ7NotificationDismissalSendResult = Readonly<
+  Static<typeof Civ7NotificationDismissalSendResultSchema>
+>;
+
+const Civ7NotificationDismissalSendEnvelopeSchema = Type.Union([
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      value: Civ7NotificationDismissalSendResultSchema,
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      ok: Type.Literal(false),
+      gameplayDispatchStatus: Type.Union([
+        Type.Literal("not-dispatched"),
+        Type.Literal("dispatched"),
+      ]),
+      error: Type.String({ maxLength: 512 }),
+    },
+    { additionalProperties: false }
+  ),
+]);
+
+/** Reads the exact native notification-dismissal evidence for one notification. */
+export async function checkCiv7NotificationDismissal(
+  input: Civ7NotificationDismissInput,
+  options: Civ7DirectControlOptions = {}
+): Promise<Civ7NotificationDismissalCheckResult> {
+  const command = await executeCiv7AppUiCommand({
+    ...options,
+    command: buildNotificationDismissalWireCommand("checkNotificationDismissal", input),
+  });
+  return schemaBodyFromCommandResult(
+    command,
+    "Civ7 notification dismissal check",
+    Civ7NotificationDismissalCheckResultSchema
+  );
+}
+
+/** Invokes the native notification dismiss once after exact admitted evidence still matches. */
+export async function sendCiv7NotificationDismissal(
+  input: Civ7NotificationDismissalSendInput,
+  options: Civ7DirectControlOptions = {}
+): Promise<Civ7NotificationDismissalSendResult> {
+  const command = await executeCiv7AppUiCommand({
+    ...options,
+    command: buildNotificationDismissalWireCommand("sendNotificationDismissal", input),
+  });
+  const envelope = schemaBodyFromCommandResult(
+    command,
+    "Civ7 notification dismissal send",
+    Civ7NotificationDismissalSendEnvelopeSchema
+  );
+  if (envelope.ok) return envelope.value;
+  throw new Civ7DirectControlError("command-failed", envelope.error, {
+    details: command,
+    dispatchStatus: envelope.gameplayDispatchStatus,
+  });
+}
+
+type NotificationDismissalAtom = "checkNotificationDismissal" | "sendNotificationDismissal";
+
+function buildNotificationDismissalWireCommand(
+  atom: "checkNotificationDismissal",
+  input: Civ7NotificationDismissInput
+): string;
+function buildNotificationDismissalWireCommand(
+  atom: "sendNotificationDismissal",
+  input: Civ7NotificationDismissalSendInput
+): string;
+function buildNotificationDismissalWireCommand(
+  atom: NotificationDismissalAtom,
+  input: Civ7NotificationDismissInput | Civ7NotificationDismissalSendInput
+): string {
+  try {
+    if (atom === "checkNotificationDismissal") {
+      if (!Value.Check(Civ7NotificationDismissInputSchema, input)) {
+        throw new TypeError(
+          "Notification dismissal check input must contain one valid notificationId."
+        );
+      }
+      return `(() => {
+    ${notificationDismissalWireSource()}
+    return JSON.stringify(checkNotificationDismissal(${jsLiteral(input)}));
+  })()`;
+    }
+    if (!Value.Check(Civ7NotificationDismissalSendInputSchema, input)) {
+      throw new TypeError(
+        "Notification dismissal send input must contain one valid expected snapshot."
+      );
+    }
+    return `(() => {
+    ${notificationDismissalWireSource()}
+    return JSON.stringify(sendNotificationDismissalEnvelope(${jsLiteral(input)}));
+  })()`;
+  } catch (cause) {
+    throw directControlErrorWithDispatchStatus(cause, "not-dispatched");
+  }
+}
+
+function notificationDismissalWireSource(): string {
   return `${probeHelperSource()}
-    const toComponentId = (value) => {
-      if (!value || typeof value !== "object") return null;
-      if (typeof value.owner !== "number" || typeof value.id !== "number") return null;
-      const out = { owner: value.owner, id: value.id };
-      if (typeof value.type === "number") out.type = value.type;
-      return out;
-    };
-    const componentKey = (value) => {
-      const id = toComponentId(value);
-      return id ? [id.owner, id.id, id.type ?? ""].join(":") : "";
-    };
-    const safeNotificationValue = (notification, key) => {
-      try {
-        const value = notification == null ? undefined : notification[key];
-        if (typeof value === "function") return value.call(notification);
-        return value === undefined ? null : value;
-      } catch (err) {
-        return { error: String(err) };
+    const requireNotificationRuntime = () => {
+      const localPlayerId = globalThis.GameContext?.localPlayerID;
+      if (!Number.isInteger(localPlayerId)) {
+        throw new Error("GameContext.localPlayerID is unavailable.");
       }
-    };
-    const notificationTrainModel = () => typeof NotificationModel !== "undefined"
-      ? NotificationModel
-      : globalThis.NotificationModel;
-    const notificationTrainManager = () => notificationTrainModel()?.manager ?? null;
-    const notificationTrainQueueIds = () => {
-      const model = notificationTrainModel();
-      const manager = model?.manager;
-      const playerEntry = manager?.findPlayer?.(GameContext.localPlayerID);
-      if (!playerEntry || typeof playerEntry.getTypesBy !== "function") return [];
-      const queryBy = model?.QueryBy?.Priority ?? 2;
-      const entries = playerEntry.getTypesBy(queryBy, true) ?? [];
-      const ids = [];
-      for (const entry of entries) {
-        const notifications = entry?.notifications ?? [];
-        for (const id of notifications) {
-          const normalized = toComponentId(id);
-          if (normalized) ids.push(normalized);
-        }
+      const notifications = globalThis.Game?.Notifications;
+      if (!notifications || typeof notifications.find !== "function") {
+        throw new Error("Game.Notifications.find is unavailable.");
       }
-      return ids;
+      return { localPlayerId, notifications };
     };
-    const summarize = (id) => {
-      const normalizedId = toComponentId(id);
-      const notification = normalizedId ? Game.Notifications.find(normalizedId) : null;
-      const type = (() => {
-        try {
-          return typeof Game.Notifications.getType === "function"
-            ? Game.Notifications.getType(normalizedId)
-            : notification?.Type ?? null;
-        } catch {
-          return notification?.Type ?? null;
+    const notificationIdsMatch = (left, right) =>
+      left != null &&
+      right != null &&
+      left.owner === right.owner &&
+      left.id === right.id &&
+      (left.type ?? null) === (right.type ?? null);
+    const readNotificationTypeName = (notifications, notificationId, exists) => {
+      if (!exists) return null;
+      if (typeof notifications.getType !== "function") {
+        throw new Error("Game.Notifications.getType is unavailable.");
+      }
+      if (typeof notifications.getTypeName !== "function") {
+        throw new Error("Game.Notifications.getTypeName is unavailable.");
+      }
+      const type = notifications.getType.call(notifications, notificationId);
+      const typeName = notifications.getTypeName.call(notifications, type);
+      if (typeName == null) return null;
+      if (typeof typeName !== "string") {
+        throw new Error("Game.Notifications.getTypeName returned a non-string value.");
+      }
+      return typeName;
+    };
+    const readNotificationActiveQueue = (notifications, localPlayerId, notificationId) =>
+      probe(() => {
+        if (typeof notifications.getIdsForPlayer !== "function") {
+          throw new Error("Game.Notifications.getIdsForPlayer is unavailable.");
         }
-      })();
-      const typeName = (() => {
-        try {
-          return typeof Game.Notifications.getTypeName === "function"
-            ? Game.Notifications.getTypeName(type)
-            : null;
-        } catch {
-          return null;
+        const ids = notifications.getIdsForPlayer.call(notifications, localPlayerId);
+        if (!Array.isArray(ids)) {
+          throw new Error("Game.Notifications.getIdsForPlayer returned a non-array value.");
         }
-      })();
-      const endTurnBlockingType = probe(() => Game.Notifications.getEndTurnBlockingType(GameContext.localPlayerID));
-      const isEndTurnBlocking = probe(() => {
-        const blockerType = endTurnBlockingType.ok ? endTurnBlockingType.value : Game.Notifications.getEndTurnBlockingType(GameContext.localPlayerID);
-        const blockerId = Game.Notifications.findEndTurnBlocking(GameContext.localPlayerID, blockerType);
-        return componentKey(blockerId) === componentKey(normalizedId);
+        return ids.some((id) => notificationIdsMatch(id, notificationId));
       });
-      const engineQueueIds = probe(() => {
-        if (typeof Game.Notifications.getIdsForPlayer !== "function") return [];
-        const ids = Game.Notifications.getIdsForPlayer(GameContext.localPlayerID);
-        return Array.isArray(ids) ? ids.map((value) => toComponentId(value)).filter(Boolean) : [];
+    const readNotificationCanUserDismiss = (notifications, notificationId) =>
+      probe(() => {
+        if (typeof notifications.canUserDismissNotification !== "function") {
+          throw new Error("Game.Notifications.canUserDismissNotification is unavailable.");
+        }
+        const value = notifications.canUserDismissNotification.call(
+          notifications,
+          notificationId
+        );
+        if (typeof value !== "boolean") {
+          throw new Error(
+            "Game.Notifications.canUserDismissNotification returned a non-boolean value."
+          );
+        }
+        return value;
       });
-      const engineIds = engineQueueIds.ok ? engineQueueIds.value : [];
-      const engineQueueFirstId = probe(() => engineIds.length > 0 ? engineIds[0] : null);
-      const engineQueueContains = probe(() => engineIds.some((value) => componentKey(value) === componentKey(normalizedId)));
-      const isEngineQueueFront = probe(() => componentKey(engineQueueFirstId.ok ? engineQueueFirstId.value : null) === componentKey(normalizedId));
-      const trainQueueIds = probe(() => notificationTrainQueueIds());
-      const trainIds = trainQueueIds.ok ? trainQueueIds.value : [];
-      const notificationTrainFirstId = probe(() => trainIds.length > 0 ? trainIds[0] : null);
-      const notificationTrainContains = probe(() => trainIds.some((value) => componentKey(value) === componentKey(normalizedId)));
-      const isNotificationTrainFront = probe(() => componentKey(notificationTrainFirstId.ok ? notificationTrainFirstId.value : null) === componentKey(normalizedId));
-      return {
-        id: normalizedId,
-        exists: notification != null,
-        type,
-        typeName,
-        summary: (() => {
-          try {
-            return typeof Game.Notifications.getSummary === "function"
-              ? Game.Notifications.getSummary(normalizedId) ?? null
-              : safeNotificationValue(notification, "Summary");
-          } catch {
-            return safeNotificationValue(notification, "Summary");
-          }
-        })(),
-        message: (() => {
-          try {
-            return typeof Game.Notifications.getMessage === "function"
-              ? Game.Notifications.getMessage(normalizedId) ?? null
-              : safeNotificationValue(notification, "Message");
-          } catch {
-            return safeNotificationValue(notification, "Message");
-          }
-        })(),
-        target: safeNotificationValue(notification, "Target"),
-        location: safeNotificationValue(notification, "Location"),
-        canUserDismiss: safeNotificationValue(notification, "CanUserDismiss"),
-        expired: safeNotificationValue(notification, "Expired"),
-        dismissed: safeNotificationValue(notification, "Dismissed"),
-        blocksTurnAdvancement: probe(() => typeof Game.Notifications.getBlocksTurnAdvancement === "function"
-          ? Game.Notifications.getBlocksTurnAdvancement(normalizedId)
-          : safeNotificationValue(notification, "BlocksTurnAdvancement")),
-        endTurnBlockingType,
-        isEndTurnBlocking,
-        engineQueueCount: probe(() => engineIds.length),
-        engineQueueContains,
-        engineQueueFirstId,
-        isEngineQueueFront,
-        notificationTrainCount: probe(() => trainIds.length),
-        notificationTrainContains,
-        notificationTrainFirstId,
-        isNotificationTrainFront,
-      };
-    };
-    const verifiedDismissed = (before, after) => {
-      if (after == null) return false;
-      if (after.exists === false) return true;
-      const engineStillFront = after.isEngineQueueFront?.ok === true && after.isEngineQueueFront.value === true;
-      if (engineStillFront) return false;
-      if (after.dismissed === true) return true;
-      const wasInEngineQueue = before?.engineQueueContains?.ok === true && before.engineQueueContains.value === true;
-      if (wasInEngineQueue && after.engineQueueContains?.ok === true && after.engineQueueContains.value === false) return true;
-      const wasInTrain = before?.notificationTrainContains?.ok === true && before.notificationTrainContains.value === true;
-      if (wasInTrain && after.notificationTrainContains?.ok === true && after.notificationTrainContains.value === false) return true;
-      const wasEngineFront = before?.isEngineQueueFront?.ok === true && before.isEngineQueueFront.value === true;
-      if (wasEngineFront && after.isEngineQueueFront?.ok === true && after.isEngineQueueFront.value === false) return true;
-      const wasTrainFront = before?.isNotificationTrainFront?.ok === true && before.isNotificationTrainFront.value === true;
-      if (wasTrainFront && after.isNotificationTrainFront?.ok === true && after.isNotificationTrainFront.value === false) return true;
-      return false;
-    };
-    const notificationTrainManagerDismiss = (notificationId) => {
-      const manager = notificationTrainManager();
-      if (!manager) return { ok: false, attempted: false, available: false, reason: "NotificationModel.manager unavailable in this App UI eval scope" };
-      if (typeof manager.dismiss === "function") {
-        try {
-          const value = manager.dismiss(notificationId);
-          return { ok: true, attempted: true, available: true, path: "NotificationModel.manager.dismiss", value };
-        } catch (err) {
-          return { ok: false, attempted: true, available: true, path: "NotificationModel.manager.dismiss", error: String(err) };
+    const readNotificationDismissed = (notification) =>
+      probe(() => {
+        if (notification == null) {
+          throw new Error("Notification is unavailable.");
         }
-      }
-      if (typeof manager.onDismiss === "function") {
-        try {
-          const value = manager.onDismiss(notificationId);
-          return { ok: true, attempted: true, available: true, path: "NotificationModel.manager.onDismiss", value };
-        } catch (err) {
-          return { ok: false, attempted: true, available: true, path: "NotificationModel.manager.onDismiss", error: String(err) };
+        const value = notification.Dismissed;
+        if (typeof value !== "boolean") {
+          throw new Error("Notification.Dismissed is unavailable.");
         }
-      }
-      return { ok: false, attempted: false, available: false, reason: "NotificationModel.manager exposes no dismiss/onDismiss function" };
-    };
-    const panelCloseControlDismiss = (notificationId, before) => {
-      if (typeof Game.Notifications.dismiss !== "function") {
-        return { ok: false, attempted: false, available: false, reason: "Game.Notifications.dismiss unavailable in this App UI eval scope" };
-      }
-      const noneBlocker = globalThis.EndTurnBlockingTypes?.NONE ?? 0;
-      const blockingType = before?.endTurnBlockingType?.ok === true ? before.endTurnBlockingType.value : null;
-      if (blockingType != null && blockingType !== noneBlocker && before?.isEndTurnBlocking?.ok === true && before.isEndTurnBlocking.value === true) {
-        return { ok: false, attempted: false, available: false, path: "Game.Notifications.dismiss", reason: "official panel close control does not dismiss the active end-turn blocker" };
-      }
-      try {
-        return { ok: true, attempted: true, available: true, path: "Game.Notifications.dismiss", value: Game.Notifications.dismiss(notificationId) };
-      } catch (err) {
-        return { ok: false, attempted: true, available: true, path: "Game.Notifications.dismiss", error: String(err) };
-      }
-    };
-    const waitForDismissalVerification = (notificationId, before, attempts) => {
-      const out = [];
-      for (let index = 0; index < attempts; index += 1) {
-        const current = summarize(notificationId);
-        out.push(current);
-        if (verifiedDismissed(before, current)) break;
-        const waitUntil = Date.now() + 25;
-        while (Date.now() < waitUntil) {}
-      }
-      return out;
-    };
-    const readNotificationDismissal = (input, options) => {
-      const notificationId = input.notificationId;
-      const before = summarize(notificationId);
-      const noneBlocker = globalThis.EndTurnBlockingTypes?.NONE ?? 0;
-      const blockerType = before.endTurnBlockingType?.ok === true ? before.endTurnBlockingType.value : null;
-      const canUseExpiredPanelCloseControl = before.exists === true
-        && before.expired === true
-        && blockerType === noneBlocker;
-      const canDismiss = before.exists === true && (before.canUserDismiss === true || canUseExpiredPanelCloseControl);
-      const notes = [
-        "This is an App UI notification action, not a gameplay operation family.",
-        "Use it only for reviewed notifications whose official handler does not require a specialized operation.",
-        "Send mode records both official actor routes: notification-train manager dismissal and the visible panel close-control dismissal when that route is available for this item.",
-        "Expired front notifications may use the desktop panel close-control route when Civ reports no typed end-turn blocker; success still requires identity-based disappearance or queue/front movement.",
-        "Verification is identity-based: disappeared, dismissed, removed from the engine queue or notification train, or moved off a front position it occupied before send. Non-blocking status alone is not proof.",
-        "The embedded App UI action records immediate route evidence. The direct-control wrapper performs final verification across separate App UI reads so frame-driven queues can advance."
-      ];
-      if (options.send !== true) {
-        return {
-          notificationId,
-          before,
-          after: null,
-          canDismiss,
-          sent: false,
-          result: null,
-          closeoutPath: null,
-          verificationAttempts: [],
-          verified: false,
-          notes,
-        };
-      }
-      if (!canDismiss) {
-        return {
-          notificationId,
-          before,
-          after: before,
-          canDismiss,
-          sent: false,
-          result: null,
-          closeoutPath: null,
-          verificationAttempts: [before],
-          verified: false,
-          notes: notes.concat(["Notification was not dismissed because canUserDismiss was not true."]),
-        };
-      }
-      const managerResult = notificationTrainManagerDismiss(notificationId);
-      const panelCloseControlResult = panelCloseControlDismiss(notificationId, before);
-      const verificationAttempts = waitForDismissalVerification(notificationId, before, options.verificationAttempts ?? 3);
-      const after = verificationAttempts[verificationAttempts.length - 1] ?? summarize(notificationId);
-      const result = {
-        notificationTrainManager: managerResult,
-        panelCloseControl: panelCloseControlResult,
-      };
-      const closeoutPath = [managerResult, panelCloseControlResult]
-        .filter((value) => value?.attempted && value?.path)
-        .map((value) => value.path)
-        .join("+") || null;
+        return value;
+      });
+    const readNotificationDismissalSnapshot = (notificationId) => {
+      const runtime = requireNotificationRuntime();
+      const notification = runtime.notifications.find.call(
+        runtime.notifications,
+        notificationId
+      );
+      const exists = notification != null;
       return {
         notificationId,
-        before,
-        after,
-        canDismiss,
-        sent: true,
-        closeoutPath,
-        result,
-        verificationAttempts,
-        verified: verifiedDismissed(before, after),
-        notes,
+        localPlayerId: runtime.localPlayerId,
+        exists,
+        typeName: readNotificationTypeName(
+          runtime.notifications,
+          notificationId,
+          exists
+        ),
+        activeQueue: readNotificationActiveQueue(
+          runtime.notifications,
+          runtime.localPlayerId,
+          notificationId
+        ),
+        canUserDismiss: readNotificationCanUserDismiss(
+          runtime.notifications,
+          notificationId
+        ),
+        dismissed: readNotificationDismissed(notification),
       };
+    };
+    const checkNotificationDismissal = (input) => ({
+      snapshot: readNotificationDismissalSnapshot(input.notificationId),
+    });
+    const matchingReadableProbe = (expected, observed) =>
+      expected?.ok === true &&
+      observed?.ok === true &&
+      Object.is(expected.value, observed.value);
+    const notificationDismissalGuardMatches = (expected, observed) =>
+      expected &&
+      notificationIdsMatch(expected.notificationId, observed.notificationId) &&
+      expected.localPlayerId === observed.localPlayerId &&
+      expected.exists === observed.exists &&
+      expected.typeName === observed.typeName &&
+      matchingReadableProbe(expected.activeQueue, observed.activeQueue) &&
+      matchingReadableProbe(expected.canUserDismiss, observed.canUserDismiss);
+    const nativeNotificationDismissalAdmissionHolds = (snapshot) =>
+      snapshot.notificationId.owner === snapshot.localPlayerId &&
+      snapshot.exists === true &&
+      snapshot.activeQueue.ok === true &&
+      snapshot.activeQueue.value === true &&
+      snapshot.canUserDismiss.ok === true &&
+      snapshot.canUserDismiss.value === true;
+    const sendNotificationDismissal = (input, markDismissInvoked) => {
+      const before = readNotificationDismissalSnapshot(input.expected.notificationId);
+      if (!notificationDismissalGuardMatches(input.expected, before)) {
+        throw new Error(
+          "Notification dismissal admission evidence changed or is unavailable."
+        );
+      }
+      if (!nativeNotificationDismissalAdmissionHolds(before)) {
+        throw new Error(
+          "Native notification dismissal admission is not currently satisfied."
+        );
+      }
+      const notifications = globalThis.Game?.Notifications;
+      if (typeof notifications?.dismiss !== "function") {
+        throw new Error("Game.Notifications.dismiss is unavailable.");
+      }
+      markDismissInvoked();
+      notifications.dismiss.call(notifications, before.notificationId);
+      return {
+        sent: true,
+        before,
+        after: readNotificationDismissalSnapshot(before.notificationId),
+      };
+    };
+    const boundedNotificationDismissalError = (error) => {
+      let message;
+      try {
+        message = typeof error?.message === "string" ? error.message : String(error);
+      } catch {
+        message = "Civ7 notification dismissal send failed.";
+      }
+      return message.slice(0, 512);
+    };
+    const sendNotificationDismissalEnvelope = (input) => {
+      let dismissInvoked = false;
+      try {
+        return {
+          ok: true,
+          value: sendNotificationDismissal(input, () => {
+            dismissInvoked = true;
+          }),
+        };
+      } catch (error) {
+        return {
+          ok: false,
+          gameplayDispatchStatus: dismissInvoked ? "dispatched" : "not-dispatched",
+          error: boundedNotificationDismissalError(error),
+        };
+      }
     };`;
 }

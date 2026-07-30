@@ -3,22 +3,17 @@ import { createCiv7GameControlClient } from "../../../../adapters/control/servic
 import {
   buildDirectControlOptions,
   emitPlayResult,
-  parseComponentId,
-  validatePlayOperation,
 } from "../../../../adapters/play/direct-control";
 
-const RESPOND_DIPLOMATIC_ACTION = "RESPOND_DIPLOMATIC_ACTION";
-
 export default class GamePlayDiplomacyRespond extends Command {
-  static summary = "Validate or send a diplomacy response";
+  static summary = "Check or send an ordinary diplomacy response";
   static description =
-    "Validates diplomacy responses as player operations, or sends them through the native control-oRPC diplomacy procedure when --send is explicit.";
+    "Uses the Civ7 control service to check or request one currently offered native diplomacy response.";
   static hiddenAliases = ["game:play:respond-diplomacy"];
 
   static examples = [
-    "<%= config.bin %> game play diplomacy respond --player-id 0 --action-id 56 --response-type -1907089594 --json",
+    "<%= config.bin %> game play diplomacy respond --action-id 56 --response-type -1907089594 --json",
     "<%= config.bin %> game play diplomacy respond --action-id 56 --response-type -1907089594 --send --json",
-    '<%= config.bin %> game play diplomacy respond --action-id 56 --response-type 926305338 --notification-id \'{"owner":0,"id":19,"type":20}\' --send --json',
   ];
 
   static flags = {
@@ -28,11 +23,6 @@ export default class GamePlayDiplomacyRespond extends Command {
     port: Flags.integer({
       description: "Civ7 tuner socket port",
     }),
-    "player-id": Flags.integer({
-      description:
-        "Player id used for dry-run validation. Send mode follows official UI behavior and uses GameContext.localPlayerID.",
-      default: 0,
-    }),
     "action-id": Flags.integer({
       description: "Diplomatic action ID from the live diplomacy notification",
       required: true,
@@ -41,12 +31,8 @@ export default class GamePlayDiplomacyRespond extends Command {
       description: "Response Type enum value from the live diplomacy UI",
       required: true,
     }),
-    "notification-id": Flags.string({
-      description:
-        "Optional diplomatic-response notification ComponentID JSON; send mode activates it before responding",
-    }),
     send: Flags.boolean({
-      description: "Send RESPOND_DIPLOMATIC_ACTION after validator success",
+      description: "Request the response after the service-owned availability check",
       default: false,
     }),
     "timeout-ms": Flags.integer({
@@ -61,30 +47,16 @@ export default class GamePlayDiplomacyRespond extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayDiplomacyRespond);
-    const options = buildDirectControlOptions(flags);
-    if (flags.send) {
-      const result = await createCiv7GameControlClient({
-        endpointDefaults: options,
-      }).diplomacy.response.request({
-        actionId: flags["action-id"],
-        responseType: flags["response-type"],
-        ...(flags["notification-id"]
-          ? { notificationId: parseComponentId(flags["notification-id"], "notification-id") }
-          : {}),
-      });
-      emitPlayResult(this.log.bind(this), flags.json, result);
-      return;
-    }
-
     const input = {
-      operationType: RESPOND_DIPLOMATIC_ACTION,
-      playerId: flags["player-id"],
-      args: {
-        ID: flags["action-id"],
-        Type: flags["response-type"],
-      },
+      actionId: flags["action-id"],
+      responseType: flags["response-type"],
     };
-    const result = await validatePlayOperation("player-operation", input, options);
+    const client = createCiv7GameControlClient({
+      endpointDefaults: buildDirectControlOptions(flags),
+    });
+    const result = flags.send
+      ? await client.diplomacy.response.request(input)
+      : await client.diplomacy.response.check(input);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }

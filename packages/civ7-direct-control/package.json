@@ -29,6 +29,18 @@
       "import": "./dist/live-control.js",
       "require": "./dist/live-control.cjs"
     },
+    "./play/diplomacy/first-meet-response": {
+      "types": "./dist/play/diplomacy/first-meet-response.d.ts",
+      "bun-source": "./src/play/diplomacy/first-meet-response.ts",
+      "import": "./dist/play/diplomacy/first-meet-response.js",
+      "require": "./dist/play/diplomacy/first-meet-response.cjs"
+    },
+    "./play/diplomacy/response": {
+      "types": "./dist/play/diplomacy/response.d.ts",
+      "bun-source": "./src/play/diplomacy/response.ts",
+      "import": "./dist/play/diplomacy/response.js",
+      "require": "./dist/play/diplomacy/response.cjs"
+    },
     "./play/city/town-focus": {
       "types": "./dist/play/city/town-focus.d.ts",
       "bun-source": "./src/play/city/town-focus.ts",
@@ -52,36 +64,6 @@
       "bun-source": "./src/play/progression/choice-postconditions.ts",
       "import": "./dist/play/progression/choice-postconditions.js",
       "require": "./dist/play/progression/choice-postconditions.cjs"
-    },
-    "./play/notifications/postconditions": {
-      "types": "./dist/play/notifications/postconditions.d.ts",
-      "bun-source": "./src/play/notifications/postconditions.ts",
-      "import": "./dist/play/notifications/postconditions.js",
-      "require": "./dist/play/notifications/postconditions.cjs"
-    },
-    "./proof/diplomacy-response-proof-policy": {
-      "types": "./dist/proof/diplomacy-response-proof-policy.d.ts",
-      "bun-source": "./src/proof/diplomacy-response-proof-policy.ts",
-      "import": "./dist/proof/diplomacy-response-proof-policy.js",
-      "require": "./dist/proof/diplomacy-response-proof-policy.cjs"
-    },
-    "./proof/first-meet-response-proof-policy": {
-      "types": "./dist/proof/first-meet-response-proof-policy.d.ts",
-      "bun-source": "./src/proof/first-meet-response-proof-policy.ts",
-      "import": "./dist/proof/first-meet-response-proof-policy.js",
-      "require": "./dist/proof/first-meet-response-proof-policy.cjs"
-    },
-    "./proof/notification-dismissal-proof-policy": {
-      "types": "./dist/proof/notification-dismissal-proof-policy.d.ts",
-      "bun-source": "./src/proof/notification-dismissal-proof-policy.ts",
-      "import": "./dist/proof/notification-dismissal-proof-policy.js",
-      "require": "./dist/proof/notification-dismissal-proof-policy.cjs"
-    },
-    "./proof/advisor-warning-proof-policy": {
-      "types": "./dist/proof/advisor-warning-proof-policy.d.ts",
-      "bun-source": "./src/proof/advisor-warning-proof-policy.ts",
-      "import": "./dist/proof/advisor-warning-proof-policy.js",
-      "require": "./dist/proof/advisor-warning-proof-policy.cjs"
     },
     "./proof/progression-player-choice-proof-policy": {
       "types": "./dist/proof/progression-player-choice-proof-policy.d.ts",

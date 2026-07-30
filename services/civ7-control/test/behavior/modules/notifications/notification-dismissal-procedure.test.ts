@@ -1,17 +1,76 @@
 import { call } from "@orpc/server";
+import { Effect, Fiber, TestClock, TestContext } from "effect";
 import { describe, expect, test } from "vitest";
+
 import {
   type Civ7ControlOrpcContext,
   Civ7ControlOrpcRouter,
   createCiv7ControlOrpcServerClient,
 } from "../../../../src/index";
-import type { Civ7ControlOrpcNotificationDismissalResult } from "../../../../src/service/model/ports/direct-control";
+import type {
+  Civ7ControlOrpcCommandDispatchStatus,
+  Civ7ControlOrpcNotificationDismissalCheckResult,
+  Civ7ControlOrpcNotificationDismissalSendResult,
+  Civ7ControlOrpcNotificationDismissalSnapshot,
+  Civ7ControlOrpcRuntimeProbe,
+} from "../../../../src/service/model/ports/direct-control";
+import { dismissCiv7Notification } from "../../../../src/service/modules/notifications/model/policy/dismissal-execution";
+import { pollNotificationDismissalPostcondition } from "../../../../src/service/modules/notifications/model/policy/dismissal-polling";
+import {
+  civ7NotificationDismissalPostcondition,
+  notificationDismissalAvailable,
+} from "../../../../src/service/modules/notifications/model/policy/dismissal-result";
+import { directControlFacadeFixture } from "../../../support/direct-control-facade";
+import { playableStatusResult } from "../../../support/playable-status";
 
 const notificationId = { owner: 0, id: 113, type: 20 };
+const endpointDefaults = {
+  host: "127.0.0.1",
+  port: 4318,
+  timeoutMs: 1_000,
+} as const;
 
-describe("notifications.dismiss.request control-oRPC procedure", () => {
-  test("calls notification dismissal through native Effect/oRPC ", async () => {
-    const fake = fakeContext(notificationDismissalResult("notification-disappeared"));
+describe("notification dismissal control-oRPC procedures", () => {
+  test("exposes the smallest exact native availability result", async () => {
+    const before = snapshot();
+    const fake = fakeContext({ checks: [dismissalCheck(before)] });
+    const client = createCiv7ControlOrpcServerClient(fake.context);
+
+    await expect(client.notifications.dismiss.check({ notificationId })).resolves.toEqual({
+      notificationId,
+      available: true,
+    });
+    expect(fake.calls.checks).toEqual([
+      {
+        input: { notificationId },
+        options: endpointDefaults,
+      },
+    ]);
+  });
+
+  test.each([
+    ["missing notification", snapshot({ exists: false })],
+    ["foreign owner", snapshot({ notificationId: { ...notificationId, owner: 1 } })],
+    ["invalid local player", snapshot({ localPlayerId: -1 })],
+    ["unknown type", snapshot({ typeName: null })],
+    ["inactive queue", snapshot({ activeQueue: probe(false) })],
+    ["unreadable active queue", snapshot({ activeQueue: failedProbe("queue unavailable") })],
+    ["not user dismissible", snapshot({ canUserDismiss: probe(false) })],
+    [
+      "unreadable user dismissal",
+      snapshot({ canUserDismiss: failedProbe("validator unavailable") }),
+    ],
+    ["science advisor warning", snapshot({ typeName: "NOTIFICATION_ADVISOR_WARNING_SCIENCE" })],
+    ["culture advisor warning", snapshot({ typeName: "NOTIFICATION_ADVISOR_WARNING_CULTURE" })],
+    ["economic advisor warning", snapshot({ typeName: "NOTIFICATION_ADVISOR_WARNING_ECONOMIC" })],
+    ["military advisor warning", snapshot({ typeName: "NOTIFICATION_ADVISOR_WARNING_MILITARY" })],
+  ] as const)("rejects %s from generic native dismissal admission", (_description, observed) => {
+    expect(notificationDismissalAvailable(dismissalCheck(observed))).toBe(false);
+  });
+
+  test("projects unavailable fresh evidence as not-sent without dispatch", async () => {
+    const before = snapshot({ canUserDismiss: probe(false) });
+    const fake = fakeContext({ checks: [dismissalCheck(before)] });
 
     const result = await call(
       Civ7ControlOrpcRouter.notifications.dismiss.request,
@@ -19,17 +78,49 @@ describe("notifications.dismiss.request control-oRPC procedure", () => {
       { context: fake.context }
     );
 
+    expect(fake.calls.sends).toEqual([]);
     expect(result).toMatchObject({
       notificationId,
-      sent: true,
-      status: "sent-confirmed",
-      validation: {
-        beforeExists: true,
-        canDismiss: true,
-        afterExists: false,
+      status: "not-sent",
+      postcondition: {
+        classification: "not-sent",
+        outcome: "not-sent",
+        confidence: "unverified",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
       },
+      nextSteps: [{ kind: "inspect-notification" }],
+    });
+    expectSemanticDismissalOmitsRuntimeDetails(result);
+  });
+
+  test("guards the send with the exact expected snapshot and confirms disappearance", async () => {
+    const before = snapshot();
+    const after = snapshot({ exists: false });
+    const fake = fakeContext({
+      checks: [dismissalCheck(before)],
+      sends: [dismissalSend(before, after)],
+    });
+
+    const result = await call(
+      Civ7ControlOrpcRouter.notifications.dismiss.request,
+      { notificationId },
+      { context: fake.context }
+    );
+
+    expect(fake.calls.sends).toEqual([
+      {
+        input: { expected: before },
+        options: endpointDefaults,
+      },
+    ]);
+    expect(fake.calls.checks).toHaveLength(1);
+    expect(result).toEqual({
+      notificationId,
+      status: "sent-confirmed",
       postcondition: {
         classification: "notification-disappeared",
+        reason: "The exact notification no longer exists in the engine notification registry.",
         outcome: "cleared",
         confidence: "confirmed",
         confirmed: true,
@@ -39,54 +130,29 @@ describe("notifications.dismiss.request control-oRPC procedure", () => {
         {
           kind: "refresh-attention",
           source: "notifications.dismiss.request",
+          label: "Refresh current attention before choosing the next player action.",
         },
       ],
     });
-    expect(JSON.stringify(result)).not.toContain("127.0.0.1");
-    expect(JSON.stringify(result)).not.toContain("65535");
-    expect(JSON.stringify(result)).not.toContain('"host"');
-    expect(JSON.stringify(result)).not.toContain('"port"');
-    expect(JSON.stringify(result)).not.toContain('"state"');
-    expect(JSON.stringify(result)).not.toContain('"result"');
-    expect(JSON.stringify(result)).not.toContain('"verified"');
-    expect(JSON.stringify(result)).not.toContain("NotificationModel.manager.dismiss");
-    expect(JSON.stringify(result)).not.toContain("Game.Notifications.dismiss");
-    expect(fake.calls).toEqual([
-      {
-        input: { notificationId },
-        options: {
-          host: "127.0.0.1",
-          port: 4318,
-          timeoutMs: 1_000,
-        },
-      },
-    ]);
+    expectSemanticDismissalOmitsRuntimeDetails(result);
   });
 
-  test("supports the in-process server-side router client", async () => {
-    const fake = fakeContext(notificationDismissalResult("notification-disappeared"));
-    const client = createCiv7ControlOrpcServerClient(fake.context);
-
-    const result = await client.notifications.dismiss.request({
-      notificationId,
+  test.each([
+    ["active queue removal", snapshot({ activeQueue: probe(false) }), "active-queue-removed"],
+    [
+      "dismissed state without affirmative active evidence",
+      snapshot({
+        activeQueue: failedProbe("active queue unavailable"),
+        dismissed: probe(true),
+      }),
+      "notification-dismissed",
+    ],
+  ] as const)("confirms %s", async (_description, after, classification) => {
+    const before = snapshot();
+    const fake = fakeContext({
+      checks: [dismissalCheck(before)],
+      sends: [dismissalSend(before, after)],
     });
-
-    expect(result.status).toBe("sent-confirmed");
-    expect(fake.calls).toHaveLength(1);
-  });
-
-  test("keeps stale notification postconditions no-repeat guarded", async () => {
-    const fake = fakeContext(
-      notificationDismissalResult("engine-front-still-live", {
-        after: notificationSummary({
-          dismissed: true,
-          isEngineQueueFront: { ok: true, value: true },
-          notificationTrainContains: { ok: true, value: false },
-          isNotificationTrainFront: { ok: true, value: false },
-        }),
-        verified: true,
-      })
-    );
 
     const result = await call(
       Civ7ControlOrpcRouter.notifications.dismiss.request,
@@ -95,33 +161,39 @@ describe("notifications.dismiss.request control-oRPC procedure", () => {
     );
 
     expect(result).toMatchObject({
-      sent: true,
-      status: "sent-unverified",
+      status: "sent-confirmed",
       postcondition: {
-        classification: "engine-front-still-live",
-        outcome: "stale",
-        confidence: "unverified",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
+        classification,
+        outcome: "cleared",
+        confirmed: true,
       },
-      nextSteps: [
-        {
-          kind: "do-not-repeat",
-          source: "notifications.dismiss.request",
-        },
-      ],
     });
   });
 
-  test("projects validator-blocked notification dismissals as not-sent", async () => {
-    const fake = fakeContext(
-      notificationDismissalResult("not-sent", {
-        after: null,
-        canDismiss: false,
-        sent: false,
-        verified: false,
-      })
-    );
+  test("does not confirm dismissed=true while the notification is still active", () => {
+    const postcondition = civ7NotificationDismissalPostcondition({
+      kind: "observed",
+      before: snapshot(),
+      after: snapshot({ activeQueue: probe(true), dismissed: probe(true) }),
+    });
+
+    expect(postcondition).toEqual({
+      classification: "notification-still-active",
+      reason: "The exact notification remains in the active engine notification queue.",
+      outcome: "still-active",
+      confidence: "unverified",
+      confirmed: false,
+      noRepeatAfterUnverified: true,
+    });
+  });
+
+  test("polls after a dispatched send failure and confirms later clearance", async () => {
+    const before = snapshot();
+    const after = snapshot({ activeQueue: probe(false) });
+    const fake = fakeContext({
+      checks: [dismissalCheck(before), dismissalCheck(after)],
+      sendError: dispatchError("dispatched", "dismiss response unavailable"),
+    });
 
     const result = await call(
       Civ7ControlOrpcRouter.notifications.dismiss.request,
@@ -130,182 +202,218 @@ describe("notifications.dismiss.request control-oRPC procedure", () => {
     );
 
     expect(result).toMatchObject({
-      sent: false,
+      status: "sent-confirmed",
+      postcondition: { classification: "active-queue-removed" },
+    });
+    expect(fake.calls.checks).toHaveLength(2);
+  });
+
+  test("projects a guarded snapshot mismatch as definitely not sent", async () => {
+    const fake = fakeContext({
+      sendError: dispatchError(
+        "not-dispatched",
+        "Notification dismissal evidence changed before dispatch."
+      ),
+    });
+
+    const result = await call(
+      Civ7ControlOrpcRouter.notifications.dismiss.request,
+      { notificationId },
+      { context: fake.context }
+    );
+
+    expect(result).toMatchObject({
       status: "not-sent",
-      validation: {
-        beforeExists: true,
-        canDismiss: false,
-        afterExists: null,
-      },
       postcondition: {
         classification: "not-sent",
-        outcome: "not-sent",
+        reason:
+          "The guarded send failed before the native notification dismissal call was invoked.",
+      },
+      nextSteps: [{ kind: "inspect-notification" }],
+    });
+    expect(fake.calls.checks).toHaveLength(1);
+  });
+
+  test("keeps unresolved indeterminate dispatch no-repeat guarded", async () => {
+    const before = snapshot();
+    const never = new Promise<Civ7ControlOrpcNotificationDismissalCheckResult>(() => undefined);
+    const fake = fakeContext({
+      checks: [dismissalCheck(before)],
+      repeatedCheck: () => never,
+      sendError: dispatchError("indeterminate", "dismiss transport outcome unavailable"),
+    });
+    const program = Effect.gen(function* () {
+      const fiber = yield* Effect.fork(dismissCiv7Notification({ notificationId }, fake.context));
+      yield* Effect.yieldNow();
+      yield* TestClock.adjust(1_000);
+      return yield* Fiber.join(fiber);
+    }).pipe(Effect.provide(TestContext.TestContext));
+
+    const result = await Effect.runPromise(program);
+
+    expect(result).toMatchObject({
+      status: "dispatch-unknown",
+      postcondition: {
+        classification: "missing-postcondition",
+        outcome: "unknown",
         noRepeatAfterUnverified: true,
       },
-      nextSteps: [
-        {
-          kind: "inspect-notification",
-          source: "notifications.dismiss.request",
-        },
-      ],
+      nextSteps: [{ kind: "do-not-repeat" }],
     });
   });
 
-  test("maps notification dismissal facade failures to a tagged error without raw details", async () => {
-    const fake = fakeContext(
-      new Error(
-        "Timed out waiting for Civ7 tuner response to CMD:65535:Game.Notifications.dismiss(...)"
-      )
+  test("bounds an unfinished postcheck by the remaining Effect deadline", async () => {
+    const timeoutMs: number[] = [];
+    const never = new Promise<Civ7ControlOrpcNotificationDismissalCheckResult>(() => undefined);
+    const effect = pollNotificationDismissalPostcondition({
+      before: snapshot(),
+      initialAfter: snapshot(),
+      check: (remainingMs) => {
+        timeoutMs.push(remainingMs);
+        return never;
+      },
+      waitMs: 1_000,
+    });
+    const program = Effect.gen(function* () {
+      const fiber = yield* Effect.fork(effect);
+      yield* Effect.yieldNow();
+      yield* TestClock.adjust(1_000);
+      return yield* Fiber.join(fiber);
+    }).pipe(Effect.provide(TestContext.TestContext));
+
+    const evidence = await Effect.runPromise(program);
+
+    expect(civ7NotificationDismissalPostcondition(evidence).classification).toBe(
+      "notification-still-active"
     );
+    expect(timeoutMs).toEqual([1_000]);
+  });
+
+  test("maps check and request precheck failures to exact tagged procedure keys", async () => {
+    const failing = fakeContext({
+      checkError: new Error("notification dismissal state unavailable"),
+    });
 
     await expect(
       call(
-        Civ7ControlOrpcRouter.notifications.dismiss.request,
-        {
-          notificationId,
-        },
-        { context: fake.context }
+        Civ7ControlOrpcRouter.notifications.dismiss.check,
+        { notificationId },
+        { context: failing.context }
       )
     ).rejects.toMatchObject({
       code: "NOTIFICATION_DISMISSAL_UNAVAILABLE",
       status: 503,
-      data: {
-        procedureKey: "notifications.dismiss.request",
-        source: "direct-control-facade",
-      },
+      data: { procedureKey: "notifications.dismiss.check" },
     });
-
-    try {
-      await call(
+    await expect(
+      call(
         Civ7ControlOrpcRouter.notifications.dismiss.request,
-        {
-          notificationId,
-        },
-        { context: fake.context }
-      );
-    } catch (err) {
-      const serialized = JSON.stringify(err);
-      expect(serialized).not.toContain("CMD");
-      expect(serialized).not.toContain("Game.Notifications");
-      expect(serialized).not.toContain("rawCommand");
-      expect(serialized).not.toContain("command-failed");
-    }
+        { notificationId },
+        { context: failing.context }
+      )
+    ).rejects.toMatchObject({
+      code: "NOTIFICATION_DISMISSAL_UNAVAILABLE",
+      status: 503,
+      data: { procedureKey: "notifications.dismiss.request" },
+    });
   });
 });
 
-function fakeContext(
-  resultOrError: Civ7ControlOrpcNotificationDismissalResult | Error,
-  options: {} = {}
-): {
-  context: Civ7ControlOrpcContext;
-  calls: Array<{
-    input: unknown;
-    options: unknown;
-  }>;
-} {
-  const calls: Array<{
-    input: unknown;
-    options: unknown;
-  }> = [];
+type FakeOptions = Readonly<{
+  checks?: Civ7ControlOrpcNotificationDismissalCheckResult[];
+  repeatedCheck?: () => Promise<Civ7ControlOrpcNotificationDismissalCheckResult>;
+  sends?: Civ7ControlOrpcNotificationDismissalSendResult[];
+  checkError?: Error;
+  sendError?: Error;
+}>;
 
-  return {
-    context: {
-      endpointDefaults: {
-        host: "127.0.0.1",
-        port: 4318,
-        timeoutMs: 1_000,
-      },
-      directControl: {
-        getCiv7PlayableStatus: async () => ({
-          playable: true,
-          readiness: "tuner-ready",
-        }),
-        requestCiv7NotificationDismissal: async (input, endpointDefaults) => {
-          calls.push({ input, options: endpointDefaults });
-          if (resultOrError instanceof Error) throw resultOrError;
-          return resultOrError;
-        },
-      } as Civ7ControlOrpcContext["directControl"],
-    },
-    calls,
+function fakeContext(options: FakeOptions = {}) {
+  const checks = [...(options.checks ?? [dismissalCheck(snapshot())])];
+  const sends = [...(options.sends ?? [])];
+  const calls = {
+    checks: [] as Array<{ input: unknown; options: unknown }>,
+    sends: [] as Array<{ input: unknown; options: unknown }>,
   };
+  const context: Civ7ControlOrpcContext = {
+    endpointDefaults,
+    directControl: directControlFacadeFixture({
+      getCiv7PlayableStatus: async () => playableStatusResult({ playable: true }),
+      checkCiv7NotificationDismissal: async (input, directOptions) => {
+        calls.checks.push({ input, options: directOptions });
+        if (options.checkError) throw options.checkError;
+        return (
+          checks.shift() ??
+          (options.repeatedCheck ? await options.repeatedCheck() : dismissalCheck(snapshot()))
+        );
+      },
+      sendCiv7NotificationDismissal: async (input, directOptions) => {
+        calls.sends.push({ input, options: directOptions });
+        if (options.sendError) throw options.sendError;
+        return sends.shift() ?? dismissalSend(snapshot(), snapshot({ exists: false }));
+      },
+    }),
+  };
+  return { calls, context };
 }
 
-function notificationDismissalResult(
-  classification: Civ7ControlOrpcNotificationDismissalResult["postcondition"]["classification"],
-  options: {
-    after?: Civ7ControlOrpcNotificationDismissalResult["after"];
-    canDismiss?: boolean;
-    sent?: boolean;
-    verified?: boolean;
-  } = {}
-): Civ7ControlOrpcNotificationDismissalResult {
-  const before = notificationSummary();
-  const after =
-    options.after === undefined ? notificationSummary({ exists: false }) : options.after;
-  const sent = options.sent ?? classification !== "not-sent";
+function dismissalCheck(
+  observed: Civ7ControlOrpcNotificationDismissalSnapshot
+): Civ7ControlOrpcNotificationDismissalCheckResult {
+  return { snapshot: observed };
+}
 
+function dismissalSend(
+  before: Civ7ControlOrpcNotificationDismissalSnapshot,
+  after: Civ7ControlOrpcNotificationDismissalSnapshot
+): Civ7ControlOrpcNotificationDismissalSendResult {
+  return { sent: true, before, after };
+}
+
+function snapshot(
+  overrides: Partial<Civ7ControlOrpcNotificationDismissalSnapshot> = {}
+): Civ7ControlOrpcNotificationDismissalSnapshot {
   return {
-    host: "127.0.0.1",
-    port: 4318,
-    state: { id: "65535", name: "App UI" },
     notificationId,
-    before,
-    after,
-    canDismiss: options.canDismiss ?? sent,
-    sent,
-    result: {
-      notificationTrainManager: {
-        ok: true,
-        attempted: true,
-        available: true,
-        path: "NotificationModel.manager.dismiss",
-      },
-    },
-    closeoutPath: "NotificationModel.manager.dismiss",
-    verificationAttempts: after == null ? [before] : [before, after],
-    verified:
-      options.verified ??
-      (classification === "notification-disappeared" ||
-        classification === "notification-dismissed" ||
-        classification === "engine-queue-cleared" ||
-        classification === "notification-train-cleared" ||
-        classification === "engine-front-moved" ||
-        classification === "notification-train-front-moved"),
-    postcondition: {
-      classification,
-      reason: `test ${classification}`,
-    },
-    notes: ["fixture"],
-  };
-}
-
-function notificationSummary(
-  overrides: Partial<Civ7ControlOrpcNotificationDismissalResult["before"]> = {}
-): Civ7ControlOrpcNotificationDismissalResult["before"] {
-  return {
-    id: notificationId,
+    localPlayerId: 0,
     exists: true,
-    type: 2_091_697_919,
     typeName: "NOTIFICATION_WONDER_COMPLETED",
-    summary: "Wonder Completed",
-    message: "Wonder Completed",
-    target: { owner: -1, id: -1, type: 0 },
-    location: { x: -9999, y: -9999 },
-    canUserDismiss: true,
-    expired: false,
-    dismissed: false,
-    blocksTurnAdvancement: { ok: true, value: true },
-    endTurnBlockingType: { ok: true, value: 2_091_697_919 },
-    isEndTurnBlocking: { ok: true, value: true },
-    engineQueueCount: { ok: true, value: 1 },
-    engineQueueContains: { ok: true, value: true },
-    engineQueueFirstId: { ok: true, value: notificationId },
-    isEngineQueueFront: { ok: true, value: true },
-    notificationTrainCount: { ok: true, value: 1 },
-    notificationTrainContains: { ok: true, value: true },
-    notificationTrainFirstId: { ok: true, value: notificationId },
-    isNotificationTrainFront: { ok: true, value: true },
+    activeQueue: probe(true),
+    canUserDismiss: probe(true),
+    dismissed: probe(false),
     ...overrides,
   };
+}
+
+function probe<T>(value: T): Civ7ControlOrpcRuntimeProbe<T> {
+  return { ok: true, value };
+}
+
+function failedProbe(error: string): Civ7ControlOrpcRuntimeProbe<boolean> {
+  return { ok: false, error };
+}
+
+function dispatchError(
+  dispatchStatus: Civ7ControlOrpcCommandDispatchStatus,
+  message: string
+): Error & { dispatchStatus: Civ7ControlOrpcCommandDispatchStatus } {
+  const error = Object.assign(new Error(message), {
+    code: "command-failed" as const,
+    dispatchStatus,
+  });
+  error.name = "Civ7DirectControlError";
+  return error;
+}
+
+function expectSemanticDismissalOmitsRuntimeDetails(result: unknown): void {
+  const serialized = JSON.stringify(result);
+  expect(serialized).not.toContain('"localPlayerId"');
+  expect(serialized).not.toContain('"exists"');
+  expect(serialized).not.toContain('"activeQueue"');
+  expect(serialized).not.toContain('"canUserDismiss"');
+  expect(serialized).not.toContain('"dismissed"');
+  expect(serialized).not.toContain('"expected"');
+  expect(serialized).not.toContain('"sent"');
+  expect(serialized).not.toContain('"host"');
+  expect(serialized).not.toContain('"port"');
+  expect(serialized).not.toContain("Game.Notifications.dismiss");
 }

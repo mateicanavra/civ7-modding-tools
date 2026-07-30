@@ -68,7 +68,7 @@ after any mutation or human input.
 | Production choice | city target, exactly one build item kind, and placement `X`/`Y` when constructible validation returns legal plots; read `game play ready-city --compact --json` when the item id/placement is not already proven | ready-city evidence, then the selected production action |
 | Resource assignment | resource allocation screen state, available resources, settlement slots | no proven assignment shortcut yet; inspect the official resource-allocation surface |
 | Diplomacy response | diplomatic action `ID` and chosen response `Type` | `game play diplomacy respond` |
-| First-meet diplomacy | local player id, met player id from `notification.Player`/`details.player2`, first-meet response `Type` | `game play diplomacy respond-first-meet` |
+| First-meet diplomacy | met player id from `notification.Player`/`details.player2`, named `friendly`, `neutral`, or `unfriendly` greeting | `game play diplomacy respond-first-meet` |
 | Informational notification | notification ComponentID; handler evidence that no specialized decision surface is required | reviewed item-scoped dismissal |
 | Narrative branch | story `Target`, option `TargetType`, activation `Action`; read `game play choose-narrative --options --json` when the story target or option key is not already proven | live option evidence, then the selected narrative action |
 | Government choice | live `GovernmentType` and activation `Action` from `game play choose-government --options --json` | `game play choose-government` |
@@ -145,8 +145,9 @@ Notable handler evidence:
   `{ Player1, Player2, Type }`, not a notification dismissal and not the
   ordinary `{ ID, Type }` diplomacy response shape. The HUD should expose a
   `details.kind == "first-meet-diplomacy"` payload when the live notification
-  carries the met player id, including validated greeting args and a neutral
-  response descriptor.
+  carries the met player id, including named greeting costs and a neutral
+  response descriptor. Ambient local-player identity and native response enums
+  remain internal to the exact runtime atom.
 - `NOTIFICATION_DIPLOMATIC_ACTION_LOW` reports a completed low-severity
   diplomatic action. The official notification handler file registers
   `NOTIFICATION_DIPLOMATIC_ACTION` and

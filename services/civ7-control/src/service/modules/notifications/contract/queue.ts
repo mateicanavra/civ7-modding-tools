@@ -3,6 +3,7 @@ import { Type } from "typebox";
 import { base } from "../../../base";
 import { Civ7ControlOrpcComponentIdSchema } from "../../../model/dto/primitives";
 import { toStandardSchema as standard } from "../../../schema/typebox-standard-schema";
+import { Civ7NotificationDismissalResultSchema } from "../model/dto/dismissal-result";
 
 const Civ7NotificationQueueInputSchema = Type.Object(
   {
@@ -211,123 +212,6 @@ const Civ7NotificationQueueResultSchema = Type.Object(
   }
 );
 
-const Civ7NotificationDismissalProofOutcomeSchema = Type.Union([
-  Type.Literal("cleared"),
-  Type.Literal("state-changed"),
-  Type.Literal("still-blocked"),
-  Type.Literal("no-state-change"),
-  Type.Literal("not-sent"),
-  Type.Literal("stale"),
-  Type.Literal("unknown"),
-]);
-
-const Civ7NotificationDismissalRequestStatusSchema = Type.Union([
-  Type.Literal("not-sent"),
-  Type.Literal("sent-confirmed"),
-  Type.Literal("sent-unverified"),
-]);
-
-const Civ7NotificationDismissalPostconditionClassificationSchema = Type.Union([
-  Type.Literal("not-sent"),
-  Type.Literal("missing-after"),
-  Type.Literal("notification-disappeared"),
-  Type.Literal("engine-front-still-live"),
-  Type.Literal("notification-dismissed"),
-  Type.Literal("engine-queue-cleared"),
-  Type.Literal("notification-train-cleared"),
-  Type.Literal("engine-front-moved"),
-  Type.Literal("notification-train-front-moved"),
-  Type.Literal("no-state-change"),
-]);
-
-const Civ7NotificationDismissalPostconditionSummarySchema = Type.Object(
-  {
-    classification: Type.Union(
-      [
-        Civ7NotificationDismissalPostconditionClassificationSchema,
-        Type.Literal("missing-postcondition"),
-      ],
-      {
-        description: "Observed notification state transition after dismissal.",
-      }
-    ),
-    reason: Type.String({
-      description: "Evidence-based explanation for the postcondition classification.",
-    }),
-    outcome: Civ7NotificationDismissalProofOutcomeSchema,
-    confidence: Type.Union(
-      [
-        Type.Literal("confirmed"),
-        Type.Literal("unverified"),
-        Type.Literal("pending-runtime-proof"),
-      ],
-      {
-        description: "Strength of the evidence supporting the reported outcome.",
-      }
-    ),
-    confirmed: Type.Boolean({
-      description: "Whether runtime evidence confirmed the dismissal.",
-    }),
-    noRepeatAfterUnverified: Type.Boolean({
-      description: "Whether callers must avoid retrying until fresh evidence is read.",
-    }),
-  },
-  { additionalProperties: false }
-);
-
-const Civ7NotificationDismissalValidationSummarySchema = Type.Object(
-  {
-    beforeExists: Type.Boolean({
-      description: "Whether the notification existed before dismissal.",
-    }),
-    canDismiss: Type.Boolean({
-      description: "Whether runtime validation allowed dismissal.",
-    }),
-    afterExists: Type.Union([Type.Boolean(), Type.Null()], {
-      description: "Whether the notification existed afterward, or null when unreadable.",
-    }),
-  },
-  { additionalProperties: false }
-);
-
-const Civ7NotificationDismissalNextStepSchema = Type.Object(
-  {
-    kind: Type.Union(
-      [
-        Type.Literal("refresh-attention"),
-        Type.Literal("do-not-repeat"),
-        Type.Literal("inspect-notification"),
-      ],
-      {
-        description: "Recommended follow-up category.",
-      }
-    ),
-    source: Type.Literal("notifications.dismiss.request", {
-      description: "Procedure that produced the dismissal recommendation.",
-    }),
-    label: Type.String({
-      description: "Human-readable dismissal recommendation.",
-    }),
-  },
-  { additionalProperties: false }
-);
-
-const Civ7NotificationDismissalResultSchema = Type.Object(
-  {
-    notificationId: Civ7ControlOrpcComponentIdSchema,
-    sent: Type.Boolean({
-      description: "Whether the dismissal was sent to the game runtime.",
-    }),
-    status: Civ7NotificationDismissalRequestStatusSchema,
-    validation: Civ7NotificationDismissalValidationSummarySchema,
-    postcondition: Civ7NotificationDismissalPostconditionSummarySchema,
-    nextSteps: Type.Array(Civ7NotificationDismissalNextStepSchema, {
-      description: "Evidence-based follow-ups after the dismissal attempt.",
-    }),
-  },
-  { additionalProperties: false }
-);
-
 const Civ7NotificationQueueExcludedSchema = Type.Object(
   {
     notificationId: Type.Union([Civ7ControlOrpcComponentIdSchema, Type.Null()], {
@@ -357,8 +241,10 @@ const Civ7NotificationQueueExcludedSchema = Type.Object(
 
 const Civ7NotificationQueueDismissStatusSchema = Type.Union([
   Type.Literal("not-sent"),
+  Type.Literal("dispatch-unknown"),
   Type.Literal("sent-confirmed"),
-  Type.Literal("sent-guarded"),
+  Type.Literal("sent-unverified"),
+  Type.Literal("partially-confirmed"),
 ]);
 
 const Civ7NotificationQueueDismissPostconditionSchema = Type.Object(
@@ -367,6 +253,7 @@ const Civ7NotificationQueueDismissPostconditionSchema = Type.Object(
       [
         Type.Literal("not-sent"),
         Type.Literal("all-selected-confirmed"),
+        Type.Literal("selection-partially-confirmed"),
         Type.Literal("selection-unverified"),
       ],
       {
@@ -377,7 +264,12 @@ const Civ7NotificationQueueDismissPostconditionSchema = Type.Object(
       description: "Evidence-based explanation for the aggregate classification.",
     }),
     outcome: Type.Union(
-      [Type.Literal("not-sent"), Type.Literal("cleared"), Type.Literal("unknown")],
+      [
+        Type.Literal("not-sent"),
+        Type.Literal("cleared"),
+        Type.Literal("partially-cleared"),
+        Type.Literal("unknown"),
+      ],
       {
         description: "Aggregate outcome of the reviewed dismissal request.",
       }
@@ -386,7 +278,7 @@ const Civ7NotificationQueueDismissPostconditionSchema = Type.Object(
       description: "Strength of evidence across all selected dismissals.",
     }),
     confirmed: Type.Boolean({
-      description: "Whether every selected dismissal was confirmed.",
+      description: "Whether the aggregate classification is supported by exact item outcomes.",
     }),
     noRepeatAfterUnverified: Type.Boolean({
       description: "Whether callers must avoid retrying until fresh evidence is read.",
@@ -422,9 +314,6 @@ const Civ7NotificationQueueDismissResultSchema = Type.Object(
       minimum: 0,
       description: "Number of notifications inspected for dismissal.",
     }),
-    sent: Type.Boolean({
-      description: "Whether any selected dismissals were sent to the game runtime.",
-    }),
     status: Civ7NotificationQueueDismissStatusSchema,
     postcondition: Civ7NotificationQueueDismissPostconditionSchema,
     maxDismissals: Type.Integer({
@@ -435,10 +324,25 @@ const Civ7NotificationQueueDismissResultSchema = Type.Object(
       minimum: 0,
       description: "Number of notifications eligible for reviewed dismissal.",
     }),
-    selectedCount: Type.Integer({
+    plannedCount: Type.Integer({
       minimum: 0,
-      description: "Number of notifications selected for dismissal.",
+      description: "Number of reviewed notifications in the initial dismissal plan.",
     }),
+    processedCount: Type.Integer({
+      minimum: 0,
+      description: "Number of planned notifications that produced an item result.",
+    }),
+    remainingCount: Type.Integer({
+      minimum: 0,
+      description: "Number of planned notifications left unprocessed.",
+    }),
+    stopReason: Type.Union(
+      [Type.Literal("source-unavailable"), Type.Literal("uncertain-result"), Type.Null()],
+      {
+        description:
+          "Why sequential processing stopped before completing the plan, or null when it did not stop early.",
+      }
+    ),
     omittedEligibleCount: Type.Integer({
       minimum: 0,
       description: "Eligible notifications omitted because of the dismissal limit.",
@@ -450,7 +354,7 @@ const Civ7NotificationQueueDismissResultSchema = Type.Object(
       description: "Notifications excluded from the reviewed dismissal set.",
     }),
     results: Type.Array(Civ7NotificationDismissalResultSchema, {
-      description: "Individual outcomes for selected dismissal candidates.",
+      description: "Individual outcomes for processed dismissal candidates.",
     }),
     noRepeatAfterUnverified: Type.Boolean({
       description: "Whether any unverified result forbids retrying without fresh evidence.",

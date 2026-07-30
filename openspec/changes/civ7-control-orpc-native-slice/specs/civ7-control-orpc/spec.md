@@ -74,16 +74,20 @@ errors, and server-side callers.
   helpers may remain direct-control-owned until a later accepted service
   contract slice separates them deliberately
 
-#### Scenario: Notification dismissal service contract is offered
-- **WHEN** `notifications.dismiss.request` exposes its caller-facing contract
-- **THEN** control-oRPC owns the input schema and normal postcondition
-  classification schema for that service procedure
+#### Scenario: Notification dismissal service contracts are offered
+- **WHEN** `notifications.dismiss.check` and
+  `notifications.dismiss.request` expose their caller-facing contracts
+- **THEN** control-oRPC owns the input schema, native availability projection,
+  and normal postcondition classification schema for those procedures
 - **AND** the input admits only the semantic notification ID request shape
 - **AND** raw command/session/tuner endpoint fields remain excluded from
   procedure input
-- **AND** direct-control remains the runtime/proof owner for notification
-  dismissal sends, validators, postcondition classification, and no-repeat
-  proof semantics consumed by the procedure
+- **AND** the notification service owns reviewed admission, specialized
+  notification exclusion, guarded mutation orchestration, bounded post-send
+  observation, postcondition classification, dispatch uncertainty, and
+  no-repeat policy
+- **AND** direct-control owns only exact native check/send atoms and immutable
+  engine notification evidence
 
 #### Scenario: Production choice service contracts are offered
 - **WHEN** `city.production.choice.check` and
@@ -423,31 +427,33 @@ errors, and server-side callers.
   allowlisting, transport expansion, broad operation catalog support, and
   parent Task 5.x/6.x/7.x acceptance remain pending
 
-#### Scenario: Advisor warning acknowledgement service is added
-- **WHEN** `notifications.advisorWarning.viewed.request` exposes a
-  caller-facing advisor-warning acknowledgement under the `notifications`
-  router
+#### Scenario: Advisor warning acknowledgement is service-owned
+- **WHEN** `notifications.advisorWarning.viewed.check` or
+  `notifications.advisorWarning.viewed.request` handles an advisor warning
+  under the `notifications` router
 - **THEN** control-oRPC owns the contract-local target-only input schema,
-  native service procedure, fresh local-player evidence read, semantic
-  validation and postcondition projection, no-repeat next steps, and normal
-  output wording
+  exact four-type admission, ambient local-player derivation, guarded
+  mutation, bounded post-send observation, semantic postconditions, dispatch
+  uncertainty, no-repeat policy, and normal output wording
 - **AND** the input is closed and admits only the target notification
   ComponentID; it does not accept caller player id, endpoint, session, state,
   host, port, command, rawCommand, transport, approval, reason, raw operation,
   or caller-supplied proof fields
-- **AND** the procedure passes native mutation readiness middleware, reads the
-  current notification view for local-player evidence, invokes only the
-  source-owned direct-control advisor-warning runtime/proof port, and keeps
-  sent outcomes pending-runtime-proof and do-not-repeat guarded until live
-  runtime proof is collected
+- **AND** the service invokes only the exact direct-control advisor-warning
+  check/send atoms, which use native `VIEWED_ADVISOR_WARNING` admission and
+  dispatch with the ambient local player and raw target snapshots
+- **AND** generic player-operation dispatch rejects
+  `VIEWED_ADVISOR_WARNING`, so it cannot form a second acknowledgement path
+- **AND** confirmed clearance requires exact target absence from the native
+  registry or readable removal from the active notification queue; sticky,
+  unreadable, incoherent, and transport-indeterminate outcomes remain
+  no-repeat guarded
 - **AND** normal output omits host, port, state, session, command, rawCommand,
   Tuner payloads, direct-control runtime envelopes, raw player-operation
   details such as `VIEWED_ADVISOR_WARNING` / `Target`, legacy `verified`,
   approval/reason mechanics, and raw transport details
-- **AND** local package tests prove only native service composition and fake
-  runtime behavior; deployed Civ7 runtime proof, controller bridge
-  allowlisting, transport expansion, broad operation catalog support, and
-  parent Task 5.x/6.x/7.x acceptance remain pending
+- **AND** local package and controller tests prove service composition and fake
+  game-runtime behavior only; deployed Civ7 runtime proof remains pending
 
 #### Scenario: Current world service view is added
 - **WHEN** `world.current` exposes a caller-facing current-world read
@@ -554,21 +560,19 @@ errors, and server-side callers.
   transport details
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI advisor warning sends use notifications service projection
-- **WHEN** `game play advisor-warning --send` acknowledges a reviewed advisor
-  warning notification
+#### Scenario: CLI advisor warning checks and sends use notifications service projection
+- **WHEN** `game play notifications advisor-warning` checks or acknowledges an
+  advisor warning notification
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send path calls the in-process
-  `notifications.advisorWarning.viewed.request` server-side client under the
-  `notifications` router
-- **AND** local-player selection, advisor-warning operation mapping,
-  validator result projection, pending-runtime-proof postcondition, and
-  no-repeat guidance come from the service procedure and source-owned
-  direct-control runtime/proof port
-- **AND** the CLI send input provides the target notification ComponentID only;
-  dry-run validation may still require a player id on the legacy validator
-  path, but send mode does not treat a caller `--player-id` as action
-  authority
+- **AND** read-only mode calls
+  `notifications.advisorWarning.viewed.check`, while `--send` calls
+  `notifications.advisorWarning.viewed.request`, through the in-process
+  server-side client under the `notifications` router
+- **AND** exact type admission, local-player selection, operation mapping,
+  postcondition classification, dispatch uncertainty, and no-repeat guidance
+  come from the service procedure and exact direct-control wire atoms
+- **AND** both modes provide only the target notification ComponentID and do
+  not accept caller `--player-id` or raw operation fields
 - **AND** the normal send JSON result omits raw host, port, state, session,
   command, rawCommand, Tuner payloads, direct-control runtime envelopes, raw
   player-operation details such as `VIEWED_ADVISOR_WARNING` / `Target`,
@@ -690,20 +694,18 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
   `verified`
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI notification dismissal send uses native notification procedure
-- **WHEN** `game play dismiss-notification --send` requests a notification dismissal
+#### Scenario: CLI notification dismissal uses native notification procedures
+- **WHEN** `game play dismiss-notification` checks or requests a notification
+  dismissal
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send path calls the in-process `notifications.dismiss.request`
-  server-side client
-- **AND** the procedure's readiness, direct-control validator,
-  postcondition projection, and no-repeat policy remain authoritative for the
-  send
+- **AND** read-only mode calls `notifications.dismiss.check`, while `--send`
+  calls `notifications.dismiss.request` through the in-process server-side
+  client
+- **AND** the procedures' native availability, guarded send, postcondition
+  projection, dispatch uncertainty, and no-repeat policy remain authoritative
 - **AND** the normal JSON result is the semantic notification dismissal
   procedure projection without raw command/session/state/Tuner details, route
   diagnostics, closeout path, verification attempts, or legacy `verified`
-- **AND** the read-only `game play dismiss-notification` inspection path
-  remains a direct-control notification dismissal read until a separate
-  accepted service read exists
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI unit target send uses native unit procedure
@@ -796,48 +798,62 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** no generic operation validation or send fallback remains
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI diplomacy response send uses native diplomacy procedure
-- **WHEN** `game play respond-diplomacy --send` requests a diplomacy response
+#### Scenario: CLI diplomacy response uses native service procedures
+- **WHEN** `game play diplomacy respond` checks or requests an ordinary
+  diplomacy response
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send path calls the in-process
-  `diplomacy.response.request` server-side client under the
-  `diplomacy` router
-- **AND** the procedure's readiness, direct-control diplomacy
-  response port, diplomacy postcondition projection, and no-repeat policy
-  remain authoritative for the send
-- **AND** send input omits caller `playerId`; the procedure reads live
-  local-player evidence before invoking the direct-control runtime port
+- **AND** read-only mode calls `diplomacy.response.check`, while `--send` calls
+  `diplomacy.response.request` through the in-process server-side client
+- **AND** caller input admits only action and response identifiers; ambient
+  local-player and blocking-notification identity come from current runtime
+  evidence
+- **AND** direct-control owns only exact native check/send adaptation, guarded
+  dispatch, and focused response/event/blocker observations
+- **AND** the diplomacy service owns offered-response admission, dedicated-war
+  refusal, bounded blocker observation, semantic postconditions, dispatch
+  uncertainty, and no-repeat policy
+- **AND** rejecting a military-presence denunciation is refused by this
+  ordinary procedure because Civ7 routes it through a separate war-confirmation
+  workflow
 - **AND** the normal JSON result is the semantic diplomacy response procedure
-  projection without raw command/session/state/Tuner details, UI closeout
-  payloads, diplomacy state internals, direct-control runtime payloads, or
-  legacy `verified`
-- **AND** the read-only `game play respond-diplomacy` validation path remains
-  direct-control player-operation validation until a separate accepted service
-  read exists
-- **AND** `game play respond-first-meet` remains outside this slice until a
-  separate first-meet service procedure exists
+  projection without raw command/session/state/Tuner details, player or
+  notification identity, validation summaries, diplomacy state internals,
+  direct-control runtime payloads, or legacy `verified`
+- **AND** first-meet greetings use their separate exact
+  `diplomacy.firstMeet.response` service owner rather than this ordinary
+  diplomacy-response path
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
-#### Scenario: CLI first-meet response send uses native diplomacy first-meet procedure
-- **WHEN** `game play respond-first-meet --send` requests a first-meet diplomacy greeting
+#### Scenario: First-meet greetings use exact native service procedures
+- **WHEN** `game play diplomacy respond-first-meet` checks or requests a
+  first-meet diplomacy greeting
 - **THEN** the CLI constructs native control-oRPC context from endpoint flags
-- **AND** the send path calls the in-process
-  `diplomacy.firstMeet.response.request` server-side client under the
-  `diplomacy` router
-- **AND** the procedure's readiness, direct-control first-meet response proof
-  port, first-meet notification postcondition projection, and no-repeat policy
-  remain authoritative for the send
-- **AND** the procedure keeps first-meet `{ Player1, Player2, Type }` behavior
-  distinct from ordinary `diplomacy.response.request` closeout semantics
+- **AND** read-only mode calls `diplomacy.firstMeet.response.check`, while
+  `--send` calls `diplomacy.firstMeet.response.request` through the in-process
+  server-side client
+- **AND** caller input admits only the encountered player and one named
+  `friendly`, `neutral`, or `unfriendly` greeting
+- **AND** ambient local-player identity and the native response type are
+  resolved inside the runtime atom rather than supplied by callers
+- **AND** direct-control owns only exact
+  `RESPOND_DIPLOMATIC_FIRST_MEET` check/send adaptation, guarded dispatch, and
+  paired immutable blocker observations
+- **AND** the diplomacy service owns availability, bounded post-send polling,
+  exact blocker-clearance classification, dispatch uncertainty, and no-repeat
+  policy
+- **AND** exact pre-send `NOTIFICATION_PLAYER_MET` evidence for the encountered
+  player must clear before completion is confirmed
+- **AND** popup activation, generic player-operation validation, raw response
+  hashes, and direct-control-owned polling or proof policy do not provide
+  alternate paths
 - **AND** the normal JSON result is the semantic first-meet response procedure
   projection without raw command/session/state/Tuner details,
   direct-control operation envelopes, before/after notification snapshots, or
   legacy `verified`
-- **AND** sticky or unmatched first-meet blocker evidence remains
-  sent-unverified and no-repeat guarded
-- **AND** the read-only `game play respond-first-meet` validation path remains
-  direct-control player-operation validation until a separate accepted service
-  read exists
+- **AND** sticky, malformed, unmatched, or otherwise non-target-specific
+  evidence remains unverified and no-repeat guarded
+- **AND** the generic player-operation surface rejects
+  `RESPOND_DIPLOMATIC_FIRST_MEET`
 - **AND** focused CLI tests do not claim live Civ7 runtime proof
 
 #### Scenario: CLI narrative choice uses native narrative procedures
@@ -1255,12 +1271,16 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **WHEN** the game-scoped controller context exposes notification dismissal
   game UI APIs
 - **THEN** the context may execute the service-owned
-  `notifications.dismiss.request` procedure through the existing in-process
-  router and native readiness and proof procedure middleware
+  `notifications.dismiss.check` and `notifications.dismiss.request`
+  procedures through the existing in-process router
 - **AND** the service-owned game UI notification-dismissal access path executes against
-  ambient `Game.Notifications`, `NotificationModel`, `GameContext`, and
-  notification queue evidence without tuner socket/session command
-  serialization
+  ambient `Game.Notifications`, `GameContext`, and notification queue evidence
+  without tuner socket/session command serialization
+- **AND** the controller calls
+  `Game.Notifications.canUserDismissNotification(id)` for native admission and
+  `Game.Notifications.dismiss(id)` exactly once for mutation
+- **AND** it does not call `NotificationModel.manager.dismiss/onDismiss` as an
+  alternate mutation or verification path
 - **AND** broad `readiness.current` mutation capability remains conservative
   until game UI mutation surfaces are actually implemented
 - **AND** native mutation readiness admits only the explicitly context-listed
@@ -1277,6 +1297,23 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 - **AND** local package and bundle tests prove source shape and local fake game
   runtime behavior only; deployed Civ7 runtime proof, other mutation runtime
   ports, and play-thread action remain pending
+
+#### Scenario: Game UI controller supports advisor-warning acknowledgement
+- **WHEN** the game-scoped controller context exposes exact advisor-warning
+  notification and player-operation APIs
+- **THEN** the context may execute
+  `notifications.advisorWarning.viewed.check` and
+  `notifications.advisorWarning.viewed.request` through the existing
+  in-process router
+- **AND** the controller checks native admission with the ambient local player,
+  `VIEWED_ADVISOR_WARNING`, `{ Target }`, and `false`, then invokes
+  `sendRequest` exactly once only after the admitted target snapshot still
+  matches
+- **AND** the controller exposes raw before/after evidence to the service but
+  does not own four-type admission, polling, semantic completion, uncertainty,
+  no-repeat policy, UI activation, or handler closeout
+- **AND** local package and bundle tests prove source shape and local fake game
+  runtime behavior only; deployed Civ7 runtime proof remains pending
 
 #### Scenario: Game UI controller supports current attention reads
 - **WHEN** the game-scoped controller context exposes notification, turn, and
@@ -1477,27 +1514,26 @@ adding HTTP, OpenAPI, WebSocket, Studio, or in-game bridge edge adapters.
 #### Scenario: Game UI controller supports diplomacy response
 - **WHEN** the game-scoped controller context exposes ambient diplomacy
   response APIs for `Game.PlayerOperations.canStart/sendRequest`,
-  `PlayerOperationTypes.RESPOND_DIPLOMATIC_ACTION`, diplomacy notification
-  activation/blocking/read APIs, optional `DiplomacyManager`/leader UI
-  closeout evidence, and controller-owned local-player proof
-- **THEN** the context may execute the service-owned
-  `diplomacy.response.request` procedure through the existing in-process
-  router and native readiness/proof middleware
-- **AND** `diplomacy.response.request` is listed as a supported game-UI
-  mutation only when controller proof and the required ambient validation,
-  send, notification, and blocker-read APIs are present
-- **AND** caller input omits `playerId`; the runtime send player is derived
-  from controller-owned `GameContext.localPlayerID`
+  `PlayerOperationTypes.RESPOND_DIPLOMATIC_ACTION`, current response/event
+  reads, paired blocking-notification reads, native discriminator constants,
+  and controller-owned local-player proof
+- **THEN** the context may execute service-owned
+  `diplomacy.response.check/request` procedures through the existing
+  in-process router and native readiness/proof middleware
+- **AND** check and request capabilities are advertised independently, with
+  request requiring native `sendRequest`
+- **AND** caller input omits player and notification identity; the runtime send
+  player and exact blocker come from current controller-owned evidence
 - **AND** validator-blocked diplomacy responses project semantic `not-sent`
   output and do not call the send API
-- **AND** sent responses preserve source-owned diplomacy proof semantics:
-  blocker-cleared, turn-unblocked, or confirmed blocking-notification change
-  evidence can confirm the request, while sticky blockers, validation-only
-  changes, failed/missing blocker evidence, no-state-change, and missing
-  postcondition paths remain no-repeat guarded
+- **AND** only disappearance or replacement of the exact pre-send diplomacy
+  blocker confirms clearance; sticky, malformed, or failed observations remain
+  no-repeat guarded
+- **AND** notification activation, diplomacy-panel traversal, acknowledgement
+  animation, and UI closeout are absent from gameplay control
 - **AND** normal bridge success output remains the semantic diplomacy-response
   result and omits host, port, state, command, rawCommand, session, tuner
-  payloads, UI closeout internals, raw game-UI function names,
+  payloads, raw game-UI function names,
   direct-control socket details, and raw `RESPOND_DIPLOMATIC_ACTION`
   operation names
 - **AND** local package and bundle tests prove source shape and local fake game
@@ -1646,9 +1682,47 @@ their accepted owners.
 - **AND** direct-control does not own production postcondition/proof policy or a
   production-choice telemetry adapter
 
+#### Scenario: Notification dismissal policy is service-owned
+- **WHEN** `notifications.dismiss.check` or
+  `notifications.dismiss.request` handles a reviewed notification
+- **THEN** the notification service orchestrates exact direct-control
+  check/send atoms and owns native admission, specialized advisor-warning
+  exclusion, postcondition classification, dispatch uncertainty, bounded
+  post-send checking, and no-repeat policy
+- **AND** direct-control calls
+  `Game.Notifications.canUserDismissNotification(id)` for admission and
+  `Game.Notifications.dismiss(id)` exactly once for mutation
+- **AND** direct-control returns raw native snapshots without owning polling,
+  semantic postconditions, proof policy, telemetry, or a thick request wrapper
+- **AND** `NotificationModel.manager.dismiss/onDismiss`, expired-notification
+  fallback, train-only removal, and queue-front movement are not alternate
+  engine mutation or confirmation authority
+- **AND** reviewed queue dismissal reuses the same service operation, preserves
+  completed item results, refreshes native evidence before each send, and stops
+  after the first uncertain result
+- **AND** the aggregate response distinguishes the initial plan from processed
+  and remaining items, preserves a source-unavailable stop reason after any
+  completed mutation, and reports fully known partial completion without
+  inventing dispatch uncertainty
+- **AND** local procedure tests do not claim deployed Civ7 runtime proof
+
+#### Scenario: Advisor-warning acknowledgement policy is service-owned
+- **WHEN** `notifications.advisorWarning.viewed.check` or
+  `notifications.advisorWarning.viewed.request` handles an advisor warning
+- **THEN** the notification service owns exact four-type admission, ambient
+  local-player authority, guarded mutation, bounded observation, semantic
+  completion, dispatch uncertainty, and no-repeat policy
+- **AND** direct-control owns only exact native check/send atoms and raw target
+  snapshots; it does not own polling, semantic postconditions, proof policy,
+  telemetry, or a thick request wrapper
+- **AND** generic player-operation dispatch rejects
+  `VIEWED_ADVISOR_WARNING`, and specialized notification-handler UI
+  bookkeeping is not an alternate mutation or confirmation path
+- **AND** local procedure tests do not claim deployed Civ7 runtime proof
+
 #### Scenario: Closeout-style mutation projection is shared
-- **WHEN** notification dismissal, narrative choice, diplomacy response, or
-  progression choice procedures receive source-owned direct-control
+- **WHEN** narrative choice, diplomacy response, or progression choice
+  procedures receive source-owned direct-control
   postcondition evidence or an explicit local pending-proof boundary
 - **THEN** the shared control-oRPC mutation projection policy derives the
   caller-facing postcondition confirmation, request status, and no-repeat next
@@ -1707,20 +1781,18 @@ their accepted owners.
   rather than preserved as a compatibility path
 - **AND** it checks playable readiness before invoking
   direct-control runtime authority
-- **AND** it consumes direct-control diplomacy validators and proof helpers as
-  runtime/proof ports rather than inferring proof from legacy `verified`
-- **AND** its normal input exposes action, response, and optional notification
-  identity rather than caller player identity or direct-control UI toggles
-- **AND** its normal output projects semantic status, validation summary,
-  postcondition summary, and next steps
-- **AND** its normal output uses direct-control source evidence for the acted
-  player rather than echoing caller validation identity when runtime sends use
-  the local player
+- **AND** it consumes exact direct-control check/send and focused observation
+  ports rather than a thick request or direct-owned proof policy
+- **AND** its normal input exposes only action and response identifiers
+- **AND** it admits only responses currently offered for the action and routes
+  the military-presence rejection to a dedicated war-confirmation workflow
+- **AND** its normal output projects semantic status, postcondition, and one
+  evidence-based next step
 - **AND** it excludes endpoint, session, state, raw command, payload,
-  notification internals, UI closeout internals, and legacy `verified` details
-  from caller-facing input and output
-- **AND** unverified, missing-postcondition, no-state-change, validation-changed,
-  and not-sent paths remain no-repeat guarded
+  player/notification identity, validation summaries, UI closeout internals,
+  and legacy `verified` details from caller-facing input and output
+- **AND** sticky, malformed, failed, or missing postcondition observations
+  remain no-repeat guarded
 
 #### Scenario: Progression choice request procedure is implemented
 - **WHEN** a technology or culture progression choice procedure requests a

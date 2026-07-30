@@ -1,4 +1,3 @@
-import { getCiv7NotificationDismissal } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
 import { createCiv7GameControlClient } from "../../../../adapters/control/service-client";
 import {
@@ -10,7 +9,7 @@ import {
 export default class GamePlayNotificationsDismiss extends Command {
   static summary = "Inspect or dismiss a reviewed notification";
   static description =
-    "Reads a notification through App UI state and optionally dismisses it through the native control-oRPC notification procedure when --send is explicit.";
+    "Checks native notification dismissal through the control service and requests it only when --send is explicit.";
   static hiddenAliases = ["game:play:dismiss-notification"];
 
   static examples = [
@@ -47,11 +46,12 @@ export default class GamePlayNotificationsDismiss extends Command {
     const { flags } = await this.parse(GamePlayNotificationsDismiss);
     const input = { notificationId: parseComponentId(flags.target, "target") };
     const options = buildDirectControlOptions(flags);
+    const client = createCiv7GameControlClient({
+      endpointDefaults: options,
+    });
     const result = flags.send
-      ? await createCiv7GameControlClient({
-          endpointDefaults: options,
-        }).notifications.dismiss.request(input)
-      : await getCiv7NotificationDismissal(input, options);
+      ? await client.notifications.dismiss.request(input)
+      : await client.notifications.dismiss.check(input);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }

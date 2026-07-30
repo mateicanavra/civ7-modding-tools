@@ -181,6 +181,31 @@ review availability is derived from native town and
 `NOTIFICATION_CHOOSE_TOWN_PROJECT` state instead. Generic operation surfaces
 reject both identities, and the CLI does not compose a second `--closeout`
 workflow.
+
+Notification dismissal follows the same split. Direct-control owns one exact
+native check/send pair around
+`Game.Notifications.canUserDismissNotification(id)` and
+`Game.Notifications.dismiss(id)`, plus raw engine notification snapshots.
+`NotificationModel.manager.dismiss/onDismiss` is downstream handler and
+presentation bookkeeping reached through the engine's `NotificationDismissed`
+event; it is not an alternate mutation path or sufficient dismissal proof. The
+notification service owns reviewed admission, specialized advisor-warning
+exclusion, guarded dispatch, bounded post-send observation, semantic
+postconditions, dispatch uncertainty, and no-repeat policy. Item and queue
+dismissal use that same service owner, and queue execution stops when an
+uncertain result makes its prior selection stale.
+
+Advisor-warning acknowledgement is a separate notification operation with the
+same ownership split. Direct-control owns exact
+`PlayerOperations.canStart(..., VIEWED_ADVISOR_WARNING, { Target }, false)` and
+`sendRequest(..., VIEWED_ADVISOR_WARNING, { Target })` atoms plus raw target
+observations. The notification service alone admits the four official
+advisor-warning identities, derives the ambient local player, guards dispatch,
+polls bounded native state, classifies clearance and uncertainty, and issues
+no-repeat guidance. Generic player-operation dispatch rejects this operation,
+and neither the controller nor the CLI emulates notification-handler UI
+bookkeeping.
+
 **Consequences:**
 - Raw `CMD:<stateId>:<javascript>` / `game exec` stays a diagnostic and probe
   transport, not the agent-facing product API.

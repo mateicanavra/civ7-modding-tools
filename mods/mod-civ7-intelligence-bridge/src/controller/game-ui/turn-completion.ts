@@ -39,6 +39,17 @@ export type Civ7GameUiTurnCompletionTarget = Civ7GameUiActionPanelTarget &
     };
   }>;
 
+/** Reports whether the action panel can expose its native end-turn admission decision. */
+export function civ7GameUiActionPanelCanEndTurnAvailable(
+  target: Civ7GameUiActionPanelTarget
+): boolean {
+  try {
+    return typeof actionPanel(target)?.canEndTurn === "function";
+  } catch {
+    return false;
+  }
+}
+
 /** Reports whether the action panel can supply an exact turn-completion check. */
 export function civ7GameUiTurnCompletionCheckAvailable(
   target: Civ7GameUiTurnCompletionTarget
@@ -48,7 +59,7 @@ export function civ7GameUiTurnCompletionCheckAvailable(
       Number.isInteger(target.GameContext?.localPlayerID) &&
       target.Game != null &&
       typeof target.GameContext?.hasSentTurnComplete === "function" &&
-      typeof actionPanel(target)?.canEndTurn === "function"
+      civ7GameUiActionPanelCanEndTurnAvailable(target)
     );
   } catch {
     return false;

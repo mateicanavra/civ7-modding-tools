@@ -381,7 +381,10 @@ export class Civ7CameraFocusUnverifiedError extends ORPCTaggedError(
 
 export const Civ7NotificationDismissalUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("notifications.dismiss.request"),
+    procedureKey: Type.Union([
+      Type.Literal("notifications.dismiss.check"),
+      Type.Literal("notifications.dismiss.request"),
+    ]),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
@@ -396,7 +399,7 @@ export class Civ7NotificationDismissalUnavailableError extends ORPCTaggedError(
   "Civ7NotificationDismissalUnavailableError",
   {
     code: "NOTIFICATION_DISMISSAL_UNAVAILABLE",
-    message: "Direct-control notification dismissal request failed.",
+    message: "Direct-control notification dismissal evidence is unavailable.",
     schema: toStandardSchema(Civ7NotificationDismissalUnavailableErrorDataSchema),
     status: 503,
   }
@@ -404,7 +407,10 @@ export class Civ7NotificationDismissalUnavailableError extends ORPCTaggedError(
 
 export const Civ7NotificationAdvisorWarningUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("notifications.advisorWarning.viewed.request"),
+    procedureKey: Type.Union([
+      Type.Literal("notifications.advisorWarning.viewed.check"),
+      Type.Literal("notifications.advisorWarning.viewed.request"),
+    ]),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
@@ -419,7 +425,7 @@ export class Civ7NotificationAdvisorWarningUnavailableError extends ORPCTaggedEr
   "Civ7NotificationAdvisorWarningUnavailableError",
   {
     code: "NOTIFICATION_ADVISOR_WARNING_UNAVAILABLE",
-    message: "Advisor warning viewed request failed.",
+    message: "Advisor warning viewed evidence is unavailable.",
     schema: toStandardSchema(Civ7NotificationAdvisorWarningUnavailableErrorDataSchema),
     status: 503,
   }
@@ -530,7 +536,10 @@ export class Civ7NarrativeChoiceUnavailableError extends ORPCTaggedError(
 
 export const Civ7DiplomacyResponseUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("diplomacy.response.request"),
+    procedureKey: Type.Union([
+      Type.Literal("diplomacy.response.check"),
+      Type.Literal("diplomacy.response.request"),
+    ]),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
@@ -545,7 +554,7 @@ export class Civ7DiplomacyResponseUnavailableError extends ORPCTaggedError(
   "Civ7DiplomacyResponseUnavailableError",
   {
     code: "DIPLOMACY_RESPONSE_UNAVAILABLE",
-    message: "Direct-control diplomacy response request failed.",
+    message: "Direct-control diplomacy response operation failed.",
     schema: toStandardSchema(Civ7DiplomacyResponseUnavailableErrorDataSchema),
     status: 503,
   }
@@ -553,7 +562,10 @@ export class Civ7DiplomacyResponseUnavailableError extends ORPCTaggedError(
 
 export const Civ7FirstMeetResponseUnavailableErrorDataSchema = Type.Object(
   {
-    procedureKey: Type.Literal("diplomacy.firstMeet.response.request"),
+    procedureKey: Type.Union([
+      Type.Literal("diplomacy.firstMeet.response.check"),
+      Type.Literal("diplomacy.firstMeet.response.request"),
+    ]),
     source: Type.Literal("direct-control-facade"),
     ...Civ7ControlOrpcErrorFailureProperties,
     ...Civ7ControlOrpcErrorCorrelationProperties,
@@ -568,7 +580,7 @@ export class Civ7FirstMeetResponseUnavailableError extends ORPCTaggedError(
   "Civ7FirstMeetResponseUnavailableError",
   {
     code: "FIRST_MEET_RESPONSE_UNAVAILABLE",
-    message: "Direct-control first-meet response request failed.",
+    message: "Direct-control first-meet response operation failed.",
     schema: toStandardSchema(Civ7FirstMeetResponseUnavailableErrorDataSchema),
     status: 503,
   }

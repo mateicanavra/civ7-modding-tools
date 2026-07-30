@@ -20,8 +20,8 @@ Use this sequence:
 1. Read `game play notifications list --json`.
 2. If the blocker is `NOTIFICATION_PLAYER_MET`, use the notification HUD's
    `details.kind == "first-meet-diplomacy"` payload when present. It should
-   expose `player1`, `player2`, the other leader/civilization labels, candidate
-   greeting `args`, validator results, and a neutral response descriptor.
+   expose `player2`, the other leader/civilization labels, named greeting
+   costs, and a neutral response descriptor.
    `game play notifications schedule` and compact `game play priorities` promote
    that response descriptor as their next semantic action when it is present.
 3. Prefer the neutral greeting when Influence cost or payoff is not proven.
@@ -31,7 +31,6 @@ Use this sequence:
 
 ```bash
 game play diplomacy respond-first-meet \
-  --player-id <local-player-id> \
   --met-player-id <other-player-id> \
   --response neutral \
   --json
@@ -41,19 +40,18 @@ game play diplomacy respond-first-meet \
 
 ```bash
 game play diplomacy respond-first-meet \
-  --player-id <local-player-id> \
   --met-player-id <other-player-id> \
   --response neutral \
   --send \
   --json
 ```
 
-The sent result includes the operation evidence, a before/after notification
-read, `verified`, and a `postcondition`. Treat `verified:true` as the
-command-level closeout proof. If the same matching `NOTIFICATION_PLAYER_MET`
-remains end-turn-blocking, the command reports
-`postcondition.classification: "first-meet-sticky-blocker"` with
-`verified:false`; do not repeat the same greeting blindly.
+The service result is semantic rather than a raw operation envelope.
+`sent-confirmed` means exact blocker readback confirmed clearance.
+`sent-unverified` means the native operation was invoked but exact clearance
+was not proven. `dispatch-unknown` means the transport could not prove whether
+dispatch occurred. Do not repeat either unverified result until fresh exact
+blocker evidence is available.
 
 Do not clear this with `game play notifications dismiss`. A first-meet notice can
 look notification-shaped in the HUD, but the official panel sends a gameplay
@@ -69,16 +67,14 @@ Live turn 80 proof for Napoleon:
 
 ```json
 {
-  "player1": 0,
   "player2": 1,
   "recommendedResponse": "neutral"
 }
 ```
 
-The same read validated all three first-meet response args and confirmed the
-neutral response type as `673478009` for the current runtime. Use the named
-`--response neutral` form unless a fresh HUD read already produced a numeric
-`Type`.
+The earlier live read confirmed the neutral response type as `673478009` for
+that runtime. The current command accepts only a named response; the runtime
+atom resolves its native type and ambient local-player identity.
 
 ## Evidence
 
@@ -117,9 +113,8 @@ neutral response type as `673478009` for the current runtime. Use the named
 
 ## Open Edges
 
-The response enum and met player id should still come from live runtime
-evidence. The CLI `--response` flag resolves `friendly`, `neutral`, or
-`unfriendly` through the live App UI enum before validation. Use
-`--response-type` only when a fresh runtime read already produced the numeric
-enum. Do not hard-code `673478009` except as evidence for the observed turn-62
-and turn-80 encounters.
+The response enum and met player id still come from live runtime evidence. The
+CLI `--response` flag resolves `friendly`, `neutral`, or `unfriendly` through
+the live App UI enum before validation. Numeric response types and local-player
+identity are not caller inputs. Do not hard-code `673478009` except as evidence
+for the observed turn-62 and turn-80 encounters.

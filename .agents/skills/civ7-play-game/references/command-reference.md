@@ -113,7 +113,7 @@ passed as separate `--x N --y N` integer flags (there is no `--pair` flag).
 | `game play choose-celebration` | `--node` | Celebration bonus choice. |
 | `game play diplomacy respond` | `--action-id`, `--response-type` | Reply to a diplomatic action; `--notification-id` if present. |
 | `game play diplomacy respond-first-meet` | `--met-player-id`, one of `--response-type N` / `--response <str>` | First-contact response (`--player-id` is the local validating player). |
-| `game play notifications advisor-warning` | `--target '…'`; `--player-id` for validation mode | Validate or acknowledge one advisor warning; echo its notification ComponentID and never substitute generic dismissal. |
+| `game play notifications advisor-warning` | `--target '…'` | Check one advisor warning; add `--send` to acknowledge it. Echo its notification ComponentID and never substitute generic dismissal. |
 | `game play notifications dismiss` | `--target '…'` | Inspect one reviewed notification; add `--send` to dismiss it. |
 | `game play notifications dismiss-reviewed` | `--max 50 --max-dismissals 10` | Bulk-dismiss reviewed informational notifications. Fire-and-forget. |
 | `game play end-turn` | (none) | Validate lists blockers; `--send` issues `sendTurnComplete()`. |

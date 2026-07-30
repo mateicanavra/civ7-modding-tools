@@ -1,146 +1,134 @@
 import { describe, expect, test, vi } from "vitest";
+
 import GamePlayNotificationsDismiss from "../../../../../src/commands/game/play/notifications/dismiss";
 import {
   type FakeTunerServer,
   startFakeTunerServer,
 } from "../../../../support/tuner-socket-server";
 
-type DismissNotificationMode =
-  | "verified"
-  | "stale-nonblocking"
-  | "engine-front-train-absent"
-  | "engine-front-dismissed";
+type DismissNotificationMode = "confirmed" | "blocked" | "stale";
+
+const notificationId = { owner: 0, id: 113, type: 20 };
+const checkCommandMarker = "return JSON.stringify(checkNotificationDismissal(";
+const sendCommandMarker = "return JSON.stringify(sendNotificationDismissalEnvelope(";
 
 describe("game play notifications dismiss command", () => {
-  test("dismisses reviewed notifications only with send enabled", async () => {
-    const { payload, server } = await runDismissNotification("verified", [
-      "--target",
-      '{"owner":0,"id":113,"type":20}',
-      "--send",
-    ]);
+  test("checks dismissal availability through the control service without dispatching", async () => {
+    const { payload, server } = await runDismissNotification("confirmed", []);
     try {
-      expect(payload.result.sent).toBe(true);
-      expect(payload.result.status).toBe("sent-confirmed");
-      expect(payload.result.validation).toMatchObject({
-        beforeExists: true,
-        canDismiss: true,
-        afterExists: false,
+      expect(payload.result).toEqual({
+        notificationId,
+        available: true,
       });
-      expect(payload.result.postcondition).toMatchObject({
-        classification: "notification-disappeared",
-        outcome: "cleared",
-        confidence: "confirmed",
-        confirmed: true,
-        noRepeatAfterUnverified: false,
+      expect(
+        server.received.filter((message) => message.includes(checkCommandMarker))
+      ).toHaveLength(1);
+      expect(server.received.some((message) => message.includes(sendCommandMarker))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("reports unavailable native dismissal evidence through the service check", async () => {
+    const { payload, server } = await runDismissNotification("blocked", []);
+    try {
+      expect(payload.result).toEqual({
+        notificationId,
+        available: false,
       });
-      expect(payload.result.nextSteps).toEqual([
-        {
-          kind: "refresh-attention",
-          source: "notifications.dismiss.request",
-          label: "Refresh current attention before choosing the next player action.",
+      expect(server.received.some((message) => message.includes(sendCommandMarker))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("requests dismissal through the service only when send is explicit", async () => {
+    const { payload, server } = await runDismissNotification("confirmed", ["--send"]);
+    try {
+      expect(payload.result).toMatchObject({
+        notificationId,
+        status: "sent-confirmed",
+        postcondition: {
+          classification: "notification-disappeared",
+          outcome: "cleared",
+          confidence: "confirmed",
+          confirmed: true,
+          noRepeatAfterUnverified: false,
         },
-      ]);
-      expectSemanticDismissalOmitsRawRuntimeDetails(payload.result);
-      expect(server.received.some((message) => message.includes("readNotificationDismissal"))).toBe(
-        true
+        nextSteps: [
+          {
+            kind: "refresh-attention",
+            source: "notifications.dismiss.request",
+          },
+        ],
+      });
+      expect(server.received.some((message) => message.includes(checkCommandMarker))).toBe(true);
+      expect(server.received.filter((message) => message.includes(sendCommandMarker))).toHaveLength(
+        1
       );
-      expect(server.received.some((message) => message.includes('"send":true'))).toBe(true);
-      expect(server.received.some((message) => message.includes("NotificationModel.manager"))).toBe(
-        true
+      expect(
+        server.received.some((message) =>
+          message.includes("notifications.dismiss.call(notifications, before.notificationId)")
+        )
+      ).toBe(true);
+      expect(server.received.some((message) => message.includes("NotificationModel"))).toBe(false);
+      expectSemanticDismissalResult(payload.result);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("keeps still-active evidence unverified and no-repeat guarded", async () => {
+    const { payload, server } = await runDismissNotification("stale", ["--send"]);
+    try {
+      expect(payload.result).toMatchObject({
+        notificationId,
+        status: "sent-unverified",
+        postcondition: {
+          classification: "notification-still-active",
+          outcome: "still-active",
+          confidence: "unverified",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [
+          {
+            kind: "do-not-repeat",
+            source: "notifications.dismiss.request",
+          },
+        ],
+      });
+      expect(server.received.filter((message) => message.includes(sendCommandMarker))).toHaveLength(
+        1
       );
+      expectSemanticDismissalResult(payload.result);
     } finally {
       await server.close();
     }
   });
 
-  test("does not verify dismissal from stale nonblocking front evidence", async () => {
-    const { payload, server } = await runDismissNotification("stale-nonblocking", [
-      "--target",
-      '{"owner":0,"id":113,"type":20}',
-      "--send",
-    ]);
+  test("keeps a blocked request not-sent without invoking the native send atom", async () => {
+    const { payload, server } = await runDismissNotification("blocked", ["--send"]);
     try {
-      expect(payload.result.sent).toBe(true);
-      expect(payload.result.status).toBe("sent-unverified");
-      expect(payload.result.validation).toMatchObject({
-        beforeExists: true,
-        canDismiss: true,
-        afterExists: true,
+      expect(payload.result).toMatchObject({
+        notificationId,
+        status: "not-sent",
+        postcondition: {
+          classification: "not-sent",
+          outcome: "not-sent",
+          confidence: "unverified",
+          confirmed: false,
+          noRepeatAfterUnverified: true,
+        },
+        nextSteps: [
+          {
+            kind: "inspect-notification",
+            source: "notifications.dismiss.request",
+          },
+        ],
       });
-      expect(payload.result.postcondition).toMatchObject({
-        classification: "engine-front-still-live",
-        outcome: "stale",
-        confidence: "unverified",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
-      });
-      expect(payload.result.nextSteps[0]).toMatchObject({
-        kind: "do-not-repeat",
-        source: "notifications.dismiss.request",
-      });
-      expectSemanticDismissalOmitsRawRuntimeDetails(payload.result);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test("does not verify dismissal from train absence while engine queue still fronts the target", async () => {
-    const { payload, server } = await runDismissNotification("engine-front-train-absent", [
-      "--target",
-      '{"owner":0,"id":113,"type":20}',
-      "--send",
-    ]);
-    try {
-      expect(payload.result.sent).toBe(true);
-      expect(payload.result.status).toBe("sent-unverified");
-      expect(payload.result.validation).toMatchObject({
-        beforeExists: true,
-        canDismiss: true,
-        afterExists: true,
-      });
-      expect(payload.result.postcondition).toMatchObject({
-        classification: "engine-front-still-live",
-        outcome: "stale",
-        confidence: "unverified",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
-      });
-      expect(payload.result.nextSteps[0]).toMatchObject({
-        kind: "do-not-repeat",
-        source: "notifications.dismiss.request",
-      });
-      expectSemanticDismissalOmitsRawRuntimeDetails(payload.result);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test("does not verify dismissal from dismissed flag while engine queue still fronts the target", async () => {
-    const { payload, server } = await runDismissNotification("engine-front-dismissed", [
-      "--target",
-      '{"owner":0,"id":113,"type":20}',
-      "--send",
-    ]);
-    try {
-      expect(payload.result.sent).toBe(true);
-      expect(payload.result.status).toBe("sent-unverified");
-      expect(payload.result.validation).toMatchObject({
-        beforeExists: true,
-        canDismiss: true,
-        afterExists: true,
-      });
-      expect(payload.result.postcondition).toMatchObject({
-        classification: "engine-front-still-live",
-        outcome: "stale",
-        confidence: "unverified",
-        confirmed: false,
-        noRepeatAfterUnverified: true,
-      });
-      expect(payload.result.nextSteps[0]).toMatchObject({
-        kind: "do-not-repeat",
-        source: "notifications.dismiss.request",
-      });
-      expectSemanticDismissalOmitsRawRuntimeDetails(payload.result);
+      expect(server.received.some((message) => message.includes(sendCommandMarker))).toBe(false);
+      expectSemanticDismissalResult(payload.result);
     } finally {
       await server.close();
     }
@@ -162,6 +150,8 @@ async function runDismissNotification(mode: DismissNotificationMode, extraArgs: 
       "127.0.0.1",
       "--port",
       String(port),
+      "--target",
+      JSON.stringify(notificationId),
       ...extraArgs,
       "--json",
     ]);
@@ -172,30 +162,13 @@ async function runDismissNotification(mode: DismissNotificationMode, extraArgs: 
   return {
     payload: JSON.parse(writes.join("")) as {
       ok: true;
-      result: {
-        notificationId: { owner: number; id: number; type: number };
-        sent: boolean;
-        status: string;
-        validation: {
-          beforeExists: boolean;
-          canDismiss: boolean;
-          afterExists: boolean | null;
-        };
-        postcondition: {
-          classification: string;
-          outcome: string;
-          confidence: string;
-          confirmed: boolean;
-          noRepeatAfterUnverified: boolean;
-        };
-        nextSteps: Array<{ kind: string; source: string; label: string }>;
-      };
+      result: Record<string, unknown>;
     },
     server,
   };
 }
 
-function expectSemanticDismissalOmitsRawRuntimeDetails(result: unknown) {
+function expectSemanticDismissalResult(result: unknown) {
   const serialized = JSON.stringify(result);
   expect(serialized).not.toContain('"host"');
   expect(serialized).not.toContain('"port"');
@@ -203,18 +176,20 @@ function expectSemanticDismissalOmitsRawRuntimeDetails(result: unknown) {
   expect(serialized).not.toContain('"session"');
   expect(serialized).not.toContain('"rawCommand"');
   expect(serialized).not.toContain('"command"');
-  expect(serialized).not.toContain('"verified"');
-  expect(serialized).not.toContain('"closeoutPath"');
-  expect(serialized).not.toContain('"verificationAttempts"');
-  expect(serialized).not.toContain('"result"');
-  expect(serialized).not.toContain("NotificationModel.manager.dismiss");
+  expect(serialized).not.toContain('"sent"');
+  expect(serialized).not.toContain('"validation"');
+  expect(serialized).not.toContain('"before"');
+  expect(serialized).not.toContain('"after"');
+  expect(serialized).not.toContain('"snapshot"');
+  expect(serialized).not.toContain('"expected"');
+  expect(serialized).not.toContain("NotificationModel");
   expect(serialized).not.toContain("Game.Notifications.dismiss");
 }
 
 async function startDismissNotificationTunerServer(
   mode: DismissNotificationMode
 ): Promise<FakeTunerServer> {
-  let notificationDismissalSent = false;
+  let sent = false;
   return startFakeTunerServer({
     handle({ message }) {
       if (message.includes("Network.isInSession")) {
@@ -223,16 +198,57 @@ async function startDismissNotificationTunerServer(
       if (message.includes("evalOk") && message.includes("GameplayMap.getGridWidth")) {
         return [JSON.stringify(tunerHealthSnapshot())];
       }
-      if (message.includes("readNotificationDismissal")) {
-        const send = message.includes('"send":true');
-        if (send) notificationDismissalSent = true;
+      if (message.includes(sendCommandMarker)) {
+        sent = true;
+        const before = notificationSnapshot(mode);
         return [
-          JSON.stringify(notificationDismissal(send, mode, notificationDismissalSent && !send)),
+          JSON.stringify({
+            ok: true,
+            value: {
+              sent: true,
+              before,
+              after: mode === "confirmed" ? dismissedNotificationSnapshot() : before,
+            },
+          }),
+        ];
+      }
+      if (message.includes(checkCommandMarker)) {
+        return [
+          JSON.stringify({
+            snapshot:
+              sent && mode === "confirmed"
+                ? dismissedNotificationSnapshot()
+                : notificationSnapshot(mode),
+          }),
         ];
       }
       return undefined;
     },
   });
+}
+
+function notificationSnapshot(mode: DismissNotificationMode) {
+  return {
+    notificationId,
+    localPlayerId: 0,
+    exists: true,
+    typeName: "NOTIFICATION_WONDER_COMPLETED",
+    activeQueue: { ok: true, value: true },
+    canUserDismiss: { ok: true, value: mode !== "blocked" },
+    dismissed: { ok: true, value: false },
+  };
+}
+
+function dismissedNotificationSnapshot() {
+  return {
+    notificationId,
+    localPlayerId: 0,
+    exists: false,
+    typeName: null,
+    activeQueue: { ok: true, value: false },
+    canUserDismiss: { ok: true, value: false },
+    dismissed: { ok: false, error: "Notification is unavailable." },
+  };
 }
 
 function appUiSnapshot() {
@@ -285,7 +301,7 @@ function appUiSnapshot() {
     map: {
       width: { ok: true, value: 84 },
       height: { ok: true, value: 54 },
-      plotCount: { ok: true, value: 4536 },
+      plotCount: { ok: true, value: 4_536 },
       mapSize: { ok: true, value: 0 },
       randomSeed: { ok: true, value: 1 },
     },
@@ -310,118 +326,5 @@ function tunerHealthSnapshot() {
     aliveIds: { ok: true, value: [0] },
     aliveHumanIds: { ok: true, value: [0] },
     autoplayActive: { ok: true, value: false },
-  };
-}
-
-function notificationDismissal(
-  send: boolean,
-  mode: DismissNotificationMode = "verified",
-  settled = false
-) {
-  const notificationId = { owner: 0, id: 113, type: 20 };
-  const isStaleNonblocking = mode === "stale-nonblocking";
-  const isEngineFrontTrainAbsent = mode === "engine-front-train-absent";
-  const before = {
-    id: notificationId,
-    exists: true,
-    type: isStaleNonblocking ? -2117069996 : 2091697919,
-    typeName: isStaleNonblocking
-      ? "NOTIFICATION_CULTURE_TREE_REVEALED"
-      : "NOTIFICATION_WONDER_COMPLETED",
-    summary: isStaleNonblocking
-      ? "A new culture tree has been revealed."
-      : "An unmet player has finished constructing the World Wonder Great Stele.",
-    message: isStaleNonblocking ? "Culture Tree Revealed" : "Wonder Completed",
-    target: { owner: -1, id: -1, type: 0 },
-    location: { x: -9999, y: -9999 },
-    canUserDismiss: true,
-    expired: false,
-    dismissed: false,
-    blocksTurnAdvancement: { ok: true, value: !isStaleNonblocking },
-    endTurnBlockingType: { ok: true, value: isStaleNonblocking ? 0 : 2091697919 },
-    isEndTurnBlocking: { ok: true, value: !isStaleNonblocking },
-    engineQueueCount: { ok: true, value: 1 },
-    engineQueueContains: { ok: true, value: true },
-    engineQueueFirstId: { ok: true, value: notificationId },
-    isEngineQueueFront: { ok: true, value: true },
-    notificationTrainCount: { ok: true, value: isEngineFrontTrainAbsent ? 0 : 1 },
-    notificationTrainContains: { ok: true, value: !isEngineFrontTrainAbsent },
-    notificationTrainFirstId: { ok: true, value: isEngineFrontTrainAbsent ? null : notificationId },
-    isNotificationTrainFront: { ok: true, value: !isEngineFrontTrainAbsent },
-  };
-  const dismissed = isStaleNonblocking
-    ? before
-    : isEngineFrontTrainAbsent
-      ? before
-      : {
-          ...before,
-          exists: false,
-          dismissed: true,
-          blocksTurnAdvancement: { ok: true, value: false },
-          endTurnBlockingType: { ok: true, value: 0 },
-          isEndTurnBlocking: { ok: true, value: false },
-          engineQueueCount: { ok: true, value: 0 },
-          engineQueueContains: { ok: true, value: false },
-          engineQueueFirstId: { ok: true, value: null },
-          isEngineQueueFront: { ok: true, value: false },
-          notificationTrainCount: { ok: true, value: 0 },
-          notificationTrainContains: { ok: true, value: false },
-          notificationTrainFirstId: { ok: true, value: null },
-          isNotificationTrainFront: { ok: true, value: false },
-        };
-  const engineFrontDismissed = {
-    ...before,
-    dismissed: true,
-  };
-  const current =
-    settled && !send
-      ? mode === "engine-front-dismissed"
-        ? engineFrontDismissed
-        : dismissed
-      : before;
-  return {
-    notificationId,
-    before: current,
-    after: send ? before : null,
-    canDismiss: true,
-    sent: send,
-    closeoutPath: send
-      ? isStaleNonblocking
-        ? "NotificationModel.manager.dismiss+Game.Notifications.dismiss"
-        : "NotificationModel.manager.dismiss"
-      : null,
-    result: send
-      ? {
-          notificationTrainManager: {
-            ok: true,
-            attempted: true,
-            available: true,
-            path: "NotificationModel.manager.dismiss",
-          },
-          panelCloseControl: isStaleNonblocking
-            ? {
-                ok: true,
-                attempted: true,
-                available: true,
-                path: "Game.Notifications.dismiss",
-                value: false,
-              }
-            : {
-                ok: false,
-                attempted: false,
-                available: false,
-                path: "Game.Notifications.dismiss",
-                reason: "official panel close control does not dismiss the active end-turn blocker",
-              },
-        }
-      : null,
-    verificationAttempts: send ? [before] : [],
-    verified: false,
-    notes: [
-      "This is an App UI notification action, not a gameplay operation family.",
-      "Send mode records both official actor routes: notification-train manager dismissal and the visible panel close-control dismissal when that route is available for this item.",
-      "Verification is identity-based: disappeared, dismissed, removed from the engine queue or notification train, or moved off a front position it occupied before send. Non-blocking status alone is not proof.",
-      "The embedded App UI action records immediate route evidence. The direct-control wrapper performs final verification across separate App UI reads so frame-driven queues can advance.",
-    ],
   };
 }

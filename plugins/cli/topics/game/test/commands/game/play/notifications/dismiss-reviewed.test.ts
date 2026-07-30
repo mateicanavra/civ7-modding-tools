@@ -7,35 +7,48 @@ import {
 
 type DismissQueueMode = "mixed-queue" | "unit-lost-report";
 
+const checkCommandMarker = "return JSON.stringify(checkNotificationDismissal(";
+const sendCommandMarker = "return JSON.stringify(sendNotificationDismissalEnvelope(";
+
 describe("game play notifications dismiss-reviewed command", () => {
   test("bulk dismisses only eligible informational queue items with send enabled", async () => {
     const dryRun = await runDismissNotificationQueue("mixed-queue");
     try {
-      expect(dryRun.payload.view.sent).toBe(false);
+      expect(dryRun.payload.view.status).toBe("not-sent");
       expect(dryRun.payload.view.eligibleCount).toBe(1);
-      expect(dryRun.payload.view.selectedCount).toBe(1);
+      expect(dryRun.payload.view.plannedCount).toBe(1);
+      expect(dryRun.payload.view.processedCount).toBe(0);
+      expect(dryRun.payload.view.remainingCount).toBe(1);
       expect(dryRun.payload.view.excluded).toHaveLength(2);
       expect(dryRun.payload.view.results).toHaveLength(0);
-      expect(
-        dryRun.server.received.some((message) => message.includes("readNotificationDismissal"))
-      ).toBe(false);
+      expect(dryRun.server.received.some((message) => message.includes(checkCommandMarker))).toBe(
+        false
+      );
+      expect(dryRun.server.received.some((message) => message.includes(sendCommandMarker))).toBe(
+        false
+      );
     } finally {
       await dryRun.server.close();
     }
 
     const sent = await runDismissNotificationQueue("mixed-queue", ["--send"]);
     try {
-      expect(sent.payload.view.sent).toBe(true);
       expect(sent.payload.view.eligibleCount).toBe(1);
-      expect(sent.payload.view.selectedCount).toBe(1);
+      expect(sent.payload.view.plannedCount).toBe(1);
+      expect(sent.payload.view.processedCount).toBe(1);
+      expect(sent.payload.view.remainingCount).toBe(0);
       expect(sent.payload.view.results).toHaveLength(1);
-      expect(sent.payload.view.results[0].sent).toBe(true);
       expect(sent.payload.view.results[0].status).toBe("sent-confirmed");
       expect(sent.payload.view.postcondition.confirmed).toBe(true);
       expect(
-        sent.server.received.filter((message) => message.includes("readNotificationDismissal"))
-          .length
-      ).toBeGreaterThan(1);
+        sent.server.received.filter((message) => message.includes(checkCommandMarker))
+      ).toHaveLength(1);
+      expect(
+        sent.server.received.filter((message) => message.includes(sendCommandMarker))
+      ).toHaveLength(1);
+      expect(sent.server.received.some((message) => message.includes("NotificationModel"))).toBe(
+        false
+      );
       expect(sent.server.received.some((message) => message.includes("sendOperation("))).toBe(
         false
       );
@@ -48,7 +61,9 @@ describe("game play notifications dismiss-reviewed command", () => {
     const { payload, server } = await runDismissNotificationQueue("unit-lost-report");
     try {
       expect(payload.view.eligibleCount).toBe(0);
-      expect(payload.view.selectedCount).toBe(0);
+      expect(payload.view.plannedCount).toBe(0);
+      expect(payload.view.processedCount).toBe(0);
+      expect(payload.view.remainingCount).toBe(0);
       expect(payload.view.results).toHaveLength(0);
       expect(payload.view.excluded).toHaveLength(1);
       expect(payload.view.excluded[0]).toMatchObject({
@@ -56,9 +71,8 @@ describe("game play notifications dismiss-reviewed command", () => {
         reason:
           "front unit-loss reports require exact reviewed dismissal proof, not bulk dismissal",
       });
-      expect(server.received.some((message) => message.includes("readNotificationDismissal"))).toBe(
-        false
-      );
+      expect(server.received.some((message) => message.includes(checkCommandMarker))).toBe(false);
+      expect(server.received.some((message) => message.includes(sendCommandMarker))).toBe(false);
     } finally {
       await server.close();
     }
@@ -94,13 +108,14 @@ async function runDismissNotificationQueue(
     payload: JSON.parse(writes.join("")) as {
       ok: true;
       view: {
-        sent: boolean;
         eligibleCount: number;
-        selectedCount: number;
+        plannedCount: number;
+        processedCount: number;
+        remainingCount: number;
         excluded: Array<{ typeName: string | null; reason: string }>;
         status: string;
         postcondition: { confirmed: boolean };
-        results: Array<{ sent: boolean; status: string }>;
+        results: Array<{ status: string }>;
       };
     },
     server,
@@ -110,7 +125,6 @@ async function runDismissNotificationQueue(
 async function startDismissNotificationQueueTunerServer(
   mode: DismissQueueMode
 ): Promise<FakeTunerServer> {
-  let notificationDismissalSent = false;
   return startFakeTunerServer({
     handle({ message }) {
       if (message.includes("readPlayNotifications")) {
@@ -122,10 +136,20 @@ async function startDismissNotificationQueueTunerServer(
       if (message.includes("evalOk") && message.includes("GameplayMap.getGridWidth")) {
         return [JSON.stringify(tunerHealthSnapshot())];
       }
-      if (message.includes("readNotificationDismissal")) {
-        const send = message.includes('"send":true');
-        if (send) notificationDismissalSent = true;
-        return [JSON.stringify(notificationDismissal(send, notificationDismissalSent && !send))];
+      if (message.includes(sendCommandMarker)) {
+        return [
+          JSON.stringify({
+            ok: true,
+            value: {
+              sent: true,
+              before: notificationDismissalSnapshot(),
+              after: dismissedNotificationSnapshot(),
+            },
+          }),
+        ];
+      }
+      if (message.includes(checkCommandMarker)) {
+        return [JSON.stringify({ snapshot: notificationDismissalSnapshot() })];
       }
       return undefined;
     },
@@ -335,75 +359,27 @@ function informationalDecision(input: {
   };
 }
 
-function notificationDismissal(send: boolean, settled = false) {
+function notificationDismissalSnapshot() {
   const notificationId = { owner: 0, id: 579, type: 20 };
-  const before = {
-    id: notificationId,
-    exists: true,
-    type: 2,
-    typeName: "NOTIFICATION_VOLCANO_ERUPTS_SEV2",
-    summary: "Laacher See has erupted.",
-    message: "Megacolossal Volcanic Eruption!",
-    target: { owner: -1, id: -1, type: 0 },
-    location: { x: 58, y: 36 },
-    canUserDismiss: true,
-    expired: false,
-    dismissed: false,
-    blocksTurnAdvancement: { ok: true, value: false },
-    endTurnBlockingType: { ok: true, value: 0 },
-    isEndTurnBlocking: { ok: true, value: false },
-    engineQueueCount: { ok: true, value: 1 },
-    engineQueueContains: { ok: true, value: true },
-    engineQueueFirstId: { ok: true, value: notificationId },
-    isEngineQueueFront: { ok: true, value: true },
-    notificationTrainCount: { ok: true, value: 1 },
-    notificationTrainContains: { ok: true, value: true },
-    notificationTrainFirstId: { ok: true, value: notificationId },
-    isNotificationTrainFront: { ok: true, value: true },
-  };
-  const dismissed = {
-    ...before,
-    exists: false,
-    dismissed: true,
-    engineQueueCount: { ok: true, value: 0 },
-    engineQueueContains: { ok: true, value: false },
-    engineQueueFirstId: { ok: true, value: null },
-    isEngineQueueFront: { ok: true, value: false },
-    notificationTrainCount: { ok: true, value: 0 },
-    notificationTrainContains: { ok: true, value: false },
-    notificationTrainFirstId: { ok: true, value: null },
-    isNotificationTrainFront: { ok: true, value: false },
-  };
-  const current = settled ? dismissed : before;
   return {
     notificationId,
-    before: current,
-    after: send ? before : null,
-    canDismiss: true,
-    sent: send,
-    closeoutPath: send ? "NotificationModel.manager.dismiss+Game.Notifications.dismiss" : null,
-    result: send
-      ? {
-          notificationTrainManager: {
-            ok: true,
-            attempted: true,
-            available: true,
-            path: "NotificationModel.manager.dismiss",
-          },
-          panelCloseControl: {
-            ok: true,
-            attempted: true,
-            available: true,
-            path: "Game.Notifications.dismiss",
-            value: false,
-          },
-        }
-      : null,
-    verificationAttempts: send ? [before] : [],
-    verified: false,
-    notes: [
-      "This is an App UI notification action, not a gameplay operation family.",
-      "Verification is identity-based: disappeared, dismissed, removed from the engine queue or notification train, or moved off a front position it occupied before send.",
-    ],
+    localPlayerId: 0,
+    exists: true,
+    typeName: "NOTIFICATION_VOLCANO_ERUPTS_SEV2",
+    activeQueue: { ok: true, value: true },
+    canUserDismiss: { ok: true, value: true },
+    dismissed: { ok: true, value: false },
+  };
+}
+
+function dismissedNotificationSnapshot() {
+  return {
+    notificationId: { owner: 0, id: 579, type: 20 },
+    localPlayerId: 0,
+    exists: false,
+    typeName: null,
+    activeQueue: { ok: true, value: false },
+    canUserDismiss: { ok: true, value: false },
+    dismissed: { ok: false, error: "Notification is unavailable." },
   };
 }

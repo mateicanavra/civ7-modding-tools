@@ -1,6 +1,9 @@
 import type {
+  Civ7AdvisorWarningViewedCheckResult,
   Civ7AdvisorWarningViewedInput,
-  Civ7AdvisorWarningViewedResult,
+  Civ7AdvisorWarningViewedSendInput,
+  Civ7AdvisorWarningViewedSendResult,
+  Civ7AdvisorWarningViewedSnapshot,
   Civ7AttributePurchaseInput,
   Civ7AttributeReviewInput,
   Civ7BattlefieldScanInput,
@@ -25,8 +28,12 @@ import type {
   Civ7CultureChoiceCloseoutResult,
   Civ7DestinationAnalysisInput,
   Civ7DestinationAnalysisResultSchema,
+  Civ7DiplomacyResponseCheckResult,
   Civ7DiplomacyResponseInput,
-  Civ7DiplomacyResponseResult,
+  Civ7DiplomacyResponseSendInput,
+  Civ7DiplomacyResponseSendResult,
+  Civ7DiplomacyResponseSnapshot,
+  Civ7DiplomacyResponseValidationResult,
   Civ7DirectControlOptions,
   Civ7DisplayQueueHoldResult,
   Civ7DisplayQueueSnapshot,
@@ -34,8 +41,12 @@ import type {
   Civ7ExploreGrantResult,
   Civ7ExploreReleaseInput,
   Civ7ExploreReleaseResult,
+  Civ7FirstMeetResponseCheckResult,
   Civ7FirstMeetResponseInput,
-  Civ7FirstMeetResponseResult,
+  Civ7FirstMeetResponseSendInput,
+  Civ7FirstMeetResponseSendResult,
+  Civ7FirstMeetResponseSnapshot,
+  Civ7FirstMeetResponseValidationResult,
   Civ7GovernmentChoiceCheckResult,
   Civ7GovernmentChoiceInput,
   Civ7GovernmentChoiceSendInput,
@@ -49,7 +60,10 @@ import type {
   Civ7NarrativeChoiceSendResult,
   Civ7NarrativeChoiceSnapshot,
   Civ7NarrativeChoiceValidationResult,
-  Civ7NotificationDismissalResult,
+  Civ7NotificationDismissalCheckResult,
+  Civ7NotificationDismissalSendInput,
+  Civ7NotificationDismissalSendResult,
+  Civ7NotificationDismissalSnapshot,
   Civ7NotificationDismissInput,
   Civ7PlayableStatusResultSchema,
   Civ7PlayNotificationViewResult,
@@ -112,10 +126,22 @@ import type {
 import type { Civ7CommandDispatchStatus } from "@civ7/direct-control/error";
 import type { Static } from "typebox";
 
-export type Civ7ControlOrpcNotificationDismissalResult = Civ7NotificationDismissalResult;
-export type Civ7ControlOrpcAdvisorWarningViewedResult = Civ7AdvisorWarningViewedResult;
-export type Civ7ControlOrpcDiplomacyResponseResult = Civ7DiplomacyResponseResult;
-export type Civ7ControlOrpcFirstMeetResponseResult = Civ7FirstMeetResponseResult;
+export type Civ7ControlOrpcNotificationDismissalSnapshot = Civ7NotificationDismissalSnapshot;
+export type Civ7ControlOrpcNotificationDismissalCheckResult = Civ7NotificationDismissalCheckResult;
+export type Civ7ControlOrpcNotificationDismissalSendResult = Civ7NotificationDismissalSendResult;
+export type Civ7ControlOrpcAdvisorWarningViewedSnapshot = Civ7AdvisorWarningViewedSnapshot;
+export type Civ7ControlOrpcAdvisorWarningViewedCheckResult = Civ7AdvisorWarningViewedCheckResult;
+export type Civ7ControlOrpcAdvisorWarningViewedSendResult = Civ7AdvisorWarningViewedSendResult;
+export type Civ7ControlOrpcDiplomacyResponseSnapshot = Civ7DiplomacyResponseSnapshot;
+export type Civ7ControlOrpcDiplomacyResponseValidationResult =
+  Civ7DiplomacyResponseValidationResult;
+export type Civ7ControlOrpcDiplomacyResponseCheckResult = Civ7DiplomacyResponseCheckResult;
+export type Civ7ControlOrpcDiplomacyResponseSendResult = Civ7DiplomacyResponseSendResult;
+export type Civ7ControlOrpcFirstMeetResponseSnapshot = Civ7FirstMeetResponseSnapshot;
+export type Civ7ControlOrpcFirstMeetResponseValidationResult =
+  Civ7FirstMeetResponseValidationResult;
+export type Civ7ControlOrpcFirstMeetResponseCheckResult = Civ7FirstMeetResponseCheckResult;
+export type Civ7ControlOrpcFirstMeetResponseSendResult = Civ7FirstMeetResponseSendResult;
 export type Civ7ControlOrpcGovernmentChoiceSnapshot = Civ7GovernmentChoiceSnapshot;
 export type Civ7ControlOrpcGovernmentChoiceCheckResult = Civ7GovernmentChoiceCheckResult;
 export type Civ7ControlOrpcGovernmentChoiceSendResult = Civ7GovernmentChoiceSendResult;
@@ -192,14 +218,22 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Civ7ProductionChoiceInput,
     options: Civ7DirectControlOptions | undefined
   ): Promise<Civ7ControlOrpcProductionChoiceSendResult>;
-  requestCiv7NotificationDismissal(
+  checkCiv7NotificationDismissal(
     input: Civ7NotificationDismissInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcNotificationDismissalResult>;
-  requestCiv7AdvisorWarningViewed(
+  ): Promise<Civ7ControlOrpcNotificationDismissalCheckResult>;
+  sendCiv7NotificationDismissal(
+    input: Civ7NotificationDismissalSendInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7ControlOrpcNotificationDismissalSendResult>;
+  checkCiv7AdvisorWarningViewed(
     input: Civ7AdvisorWarningViewedInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcAdvisorWarningViewedResult>;
+  ): Promise<Civ7ControlOrpcAdvisorWarningViewedCheckResult>;
+  sendCiv7AdvisorWarningViewed(
+    input: Civ7AdvisorWarningViewedSendInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7ControlOrpcAdvisorWarningViewedSendResult>;
   checkCiv7NarrativeChoice(
     input: Civ7NarrativeChoiceInput,
     options: Civ7DirectControlOptions | undefined
@@ -208,14 +242,22 @@ export type Civ7ControlOrpcDirectControlFacade = Readonly<{
     input: Civ7NarrativeChoiceSendInput,
     options: Civ7DirectControlOptions | undefined
   ): Promise<Civ7ControlOrpcNarrativeChoiceSendResult>;
-  requestCiv7DiplomacyResponse(
+  checkCiv7DiplomacyResponse(
     input: Civ7DiplomacyResponseInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcDiplomacyResponseResult>;
-  requestCiv7FirstMeetResponse(
+  ): Promise<Civ7ControlOrpcDiplomacyResponseCheckResult>;
+  sendCiv7DiplomacyResponse(
+    input: Civ7DiplomacyResponseSendInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7ControlOrpcDiplomacyResponseSendResult>;
+  checkCiv7FirstMeetResponse(
     input: Civ7FirstMeetResponseInput,
     options: Civ7DirectControlOptions | undefined
-  ): Promise<Civ7ControlOrpcFirstMeetResponseResult>;
+  ): Promise<Civ7ControlOrpcFirstMeetResponseCheckResult>;
+  sendCiv7FirstMeetResponse(
+    input: Civ7FirstMeetResponseSendInput,
+    options: Civ7DirectControlOptions | undefined
+  ): Promise<Civ7ControlOrpcFirstMeetResponseSendResult>;
   checkCiv7GovernmentChoice(
     input: Civ7GovernmentChoiceInput,
     options: Civ7DirectControlOptions | undefined

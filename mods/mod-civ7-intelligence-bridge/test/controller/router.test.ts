@@ -20,7 +20,9 @@ const canonicalProcedureKeys = [
   "city.townFocus.change.request",
   "city.townFocus.review.check",
   "city.townFocus.review.request",
+  "diplomacy.firstMeet.response.check",
   "diplomacy.firstMeet.response.request",
+  "diplomacy.response.check",
   "diplomacy.response.request",
   "display.explore.request",
   "display.queue.close",
@@ -32,7 +34,9 @@ const canonicalProcedureKeys = [
   "lifecycle.singlePlayer.start",
   "narrative.choice.check",
   "narrative.choice.request",
+  "notifications.advisorWarning.viewed.check",
   "notifications.advisorWarning.viewed.request",
+  "notifications.dismiss.check",
   "notifications.dismiss.request",
   "notifications.queue.current",
   "notifications.queue.dismiss.request",
@@ -196,7 +200,12 @@ describe("native controller router", () => {
       bridge.notifications.dismiss.request({
         notificationId: { owner: 0, id: 113, type: 20 },
       })
-    ).rejects.toMatchObject({ code: "NOTIFICATION_DISMISSAL_UNAVAILABLE" });
+    ).resolves.toMatchObject({
+      status: "sent-confirmed",
+      postcondition: {
+        classification: "notification-disappeared",
+      },
+    });
     expect(calls).toEqual(["notifications.dismiss.request"]);
   });
 });
@@ -230,7 +239,22 @@ function controllerContext(
   return {
     directControl: directControlFacadeFixture({
       getCiv7PlayableStatus: options.getPlayableStatus ?? (async () => playableStatusResult()),
-      requestCiv7NotificationDismissal: async () => {
+      checkCiv7NotificationDismissal: async (input) => {
+        const snapshot = notificationDismissalSnapshot(input.notificationId);
+        return {
+          snapshot: calls.includes("notifications.dismiss.request")
+            ? {
+                ...snapshot,
+                exists: false,
+                typeName: null,
+                activeQueue: { ok: true, value: false },
+                canUserDismiss: { ok: true, value: false },
+                dismissed: { ok: false, error: "Notification is unavailable." },
+              }
+            : snapshot,
+        };
+      },
+      sendCiv7NotificationDismissal: async () => {
         calls.push("notifications.dismiss.request");
         throw new Error("notification sentinel");
       },
@@ -256,5 +280,21 @@ function controllerContext(
             },
           }
         : undefined,
+  };
+}
+
+function notificationDismissalSnapshot(notificationId: {
+  owner: number;
+  id: number;
+  type?: number;
+}) {
+  return {
+    notificationId,
+    localPlayerId: notificationId.owner,
+    exists: true,
+    typeName: "NOTIFICATION_WONDER_COMPLETED",
+    activeQueue: { ok: true as const, value: true },
+    canUserDismiss: { ok: true as const, value: true },
+    dismissed: { ok: true as const, value: false },
   };
 }

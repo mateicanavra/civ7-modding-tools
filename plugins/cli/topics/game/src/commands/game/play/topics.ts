@@ -70,10 +70,8 @@ const TOPICS: ReadonlyArray<Topic> = [
     proof: "live-proved plus official UI/resource backing",
     references: [
       "docs/projects/civ7-live-play-support/topics/notification-decision-hud.md",
-      "docs/projects/civ7-live-play-support/topics/notification-queue-scheduling.md",
       "docs/projects/civ7-live-play-support/topics/play-priorities.md",
       "docs/projects/civ7-live-play-support/topics/end-turn-blockers.md",
-      "docs/projects/civ7-live-play-support/topics/informational-notification-closeout.md",
     ],
     commands: [
       "game play priorities",

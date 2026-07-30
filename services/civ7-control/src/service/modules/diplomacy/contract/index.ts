@@ -1,28 +1,30 @@
 import type { InferContractRouterInputs, InferContractRouterOutputs } from "@orpc/contract";
 
-import { firstMeetResponseRequest } from "./first-meet-response-request";
-import { responseRequest } from "./response-request";
+import { firstMeetResponse } from "./first-meet-response";
+import { response } from "./response";
 
 export const contract = {
   firstMeet: {
-    response: {
-      request: firstMeetResponseRequest,
-    },
+    response: firstMeetResponse,
   },
-  response: {
-    request: responseRequest,
-  },
+  response,
 };
 
 export type Civ7DiplomacyResponseInput = InferContractRouterInputs<
   typeof contract
 >["response"]["request"];
+export type Civ7DiplomacyResponseCheckResult = InferContractRouterOutputs<
+  typeof contract
+>["response"]["check"];
 export type Civ7DiplomacyResponseResult = InferContractRouterOutputs<
   typeof contract
 >["response"]["request"];
 export type Civ7FirstMeetResponseInput = InferContractRouterInputs<
   typeof contract
 >["firstMeet"]["response"]["request"];
+export type Civ7FirstMeetResponseCheckResult = InferContractRouterOutputs<
+  typeof contract
+>["firstMeet"]["response"]["check"];
 export type Civ7FirstMeetResponseResult = InferContractRouterOutputs<
   typeof contract
 >["firstMeet"]["response"]["request"];
