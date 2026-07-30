@@ -288,8 +288,7 @@ const mapConfig = {
                 "n": 1
               },
               "diffusion": {
-                "rate": 0.12,
-                "talus": 0.45
+                "rate": 0.12
               },
               "deposition": {
                 "rate": 0.07
@@ -322,15 +321,13 @@ const mapConfig = {
         "islands": {
           "strategy": "plate-aware-volcanic",
           "config": {
-            "islands": {
-              "fractalThresholdPercent": 96,
-              "minDistFromLandRadius": 4,
-              "baseIslandDenNearActive": 2,
-              "baseIslandDenElse": 2,
-              "hotspotSeedDenom": 6,
-              "clusterMax": 1,
-              "microcontinentChance": 0
-            }
+            "fractalThresholdPercent": 96,
+            "minDistFromLandRadius": 4,
+            "baseIslandDenNearActive": 2,
+            "baseIslandDenElse": 2,
+            "hotspotSeedDenom": 6,
+            "clusterMax": 1,
+            "microcontinentChance": 0
           }
         }
       },
@@ -1055,6 +1052,10 @@ const mapConfig = {
             "alpineElevationMaxM": 3400,
             "alpineFreezeMin01": 0.55
           }
+        },
+        "scoreFloodplains": {
+          "strategy": "alluvial-relief",
+          "config": {}
         }
       },
       "plan-floodplains": {
@@ -1345,7 +1346,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-desert-mountains",
-  configHash: "2fdba5d09c39177ae3e01bd653eb7677b29f7afd1895fe8a52bf636ea5fa9baa",
-  envelopeHash: "3ab8e974670e13452248aa3f6056409a2d22e9a89e593f8b07b640936ec2a9e6",
+  configHash: "457a5124b6fd157c3163c8124e4eca9710c5288284583c947d482a9beca97e88",
+  envelopeHash: "be0e446e0d72ed199fb2058f0849cc4195e837dded87224afc0226be61a385b2",
   config: mapConfig.config,
 });

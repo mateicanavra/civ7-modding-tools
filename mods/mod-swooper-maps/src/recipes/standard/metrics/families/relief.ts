@@ -9,6 +9,8 @@ import {
 
 import type { StandardMapCapture } from "../capture.js";
 
+type VolcanoKind = StandardMapCapture["model"]["volcanoes"][number]["kind"];
+
 /** Relief facts for authored landforms, orographic interiors, and realized Civ7 terrain. */
 export type StandardReliefMetrics = Readonly<{
   plannedMountains: CountMetric;
@@ -30,7 +32,10 @@ export type StandardReliefMetrics = Readonly<{
   plannedRoughLandComponents: ComponentMetricSummary;
   plannedRoughTerrain: CountMetric;
   plannedVolcanoes: number;
-  volcanoKindCounts: Readonly<Record<"subductionArc" | "rift" | "hotspot", number>>;
+  volcanoKindCounts: Readonly<Record<VolcanoKind, number>>;
+  plannedVolcanoMissingFeatureCount: number;
+  extraFinalVolcanoFeatureCount: number;
+  plannedVolcanoWrongTerrainCount: number;
   finalMountains: CountMetric;
   finalMountainComponents: ComponentMetricSummary;
   finalNonVolcanoMountains: CountMetric;
@@ -54,11 +59,21 @@ export function measureStandardRelief(capture: StandardMapCapture): StandardReli
   let finalFlatCount = 0;
   let volcanoFeatureCount = 0;
   let finalVolcanoMountainCount = 0;
+  let plannedVolcanoMissingFeatureCount = 0;
+  let extraFinalVolcanoFeatureCount = 0;
+  let plannedVolcanoWrongTerrainCount = 0;
 
   for (let index = 0; index < width * height; index += 1) {
-    if (capture.observation.isWater[index] === 1) continue;
     const terrain = capture.observation.terrain[index];
     const feature = capture.observation.feature[index];
+    const plannedVolcano = capture.model.volcanoMask[index] === 1;
+    const finalVolcano = feature === capture.observation.volcanoFeature;
+    if (plannedVolcano && !finalVolcano) plannedVolcanoMissingFeatureCount += 1;
+    if (!plannedVolcano && finalVolcano) extraFinalVolcanoFeatureCount += 1;
+    if (plannedVolcano && terrain !== capture.observation.mountainTerrain) {
+      plannedVolcanoWrongTerrainCount += 1;
+    }
+    if (capture.observation.isWater[index] === 1) continue;
     if (terrain === capture.observation.mountainTerrain) {
       finalMountainMask[index] = 1;
       finalMountainCount += 1;
@@ -68,7 +83,7 @@ export function measureStandardRelief(capture: StandardMapCapture): StandardReli
     } else if (terrain === capture.observation.flatTerrain) {
       finalFlatCount += 1;
     }
-    if (feature === capture.observation.volcanoFeature) {
+    if (finalVolcano) {
       volcanoFeatureCount += 1;
       if (terrain === capture.observation.mountainTerrain) finalVolcanoMountainCount += 1;
     }
@@ -81,7 +96,12 @@ export function measureStandardRelief(capture: StandardMapCapture): StandardReli
   const region = measureMountainRegion(capture);
   const finalNonVolcanoMountainCount = finalMountainCount - finalVolcanoMountainCount;
 
-  const volcanoKindCounts = { subductionArc: 0, rift: 0, hotspot: 0 };
+  const volcanoKindCounts: Record<VolcanoKind, number> = {
+    convergentMargin: 0,
+    divergentMargin: 0,
+    transformMargin: 0,
+    intraplate: 0,
+  };
   for (const volcano of capture.model.volcanoes) volcanoKindCounts[volcano.kind] += 1;
 
   return Object.freeze({
@@ -96,6 +116,9 @@ export function measureStandardRelief(capture: StandardMapCapture): StandardReli
     plannedRoughTerrain: measureMetricCount(plannedMountainCount + plannedHillCount, population),
     plannedVolcanoes: countMetricMask(capture.model.volcanoMask).count,
     volcanoKindCounts: Object.freeze(volcanoKindCounts),
+    plannedVolcanoMissingFeatureCount,
+    extraFinalVolcanoFeatureCount,
+    plannedVolcanoWrongTerrainCount,
     finalMountains: measureMetricCount(finalMountainCount, population),
     finalMountainComponents: summarizeMask(finalMountainMask, width, height),
     finalNonVolcanoMountains: measureMetricCount(finalNonVolcanoMountainCount, population),

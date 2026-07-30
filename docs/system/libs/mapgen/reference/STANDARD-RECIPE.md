@@ -83,8 +83,9 @@ stage order is:
 The five `foundation-*` stages are a sibling family decomposed from the former
 single `foundation` stage; their steps run in the same order, so output is
 byte-identical (see the FOUNDATION domain reference for the stage→step map).
-The `morphology-shelf` stage computes the continental shelf after island
-injection (post-features), so island peaks get true shelves.
+The `morphology-shelf` stage computes the continental shelf after
+`compute-island-topography` (post-features), so every newly formed island and
+microcontinent receives coherent coast and shelf evidence.
 
 Note:
 

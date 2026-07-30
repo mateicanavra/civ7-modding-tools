@@ -137,8 +137,9 @@ step-local `rules/` or helper cabinet.
 - Keep private execution in `step.ts`. Move reusable logic to the nearest
   qualified stage/domain/SDK owner, and use `viz.ts` only for substantial pure
   visualization projection attached by the step.
-- Keep step code “boring”: read inputs from `deps`/artifacts, mutate only permitted state, publish
-  only allowed artifacts, and emit structured debug events only through `context.trace`.
+- Keep step code “boring”: read admitted inputs, invoke domain operations, publish their completed
+  products through declared artifacts, and emit structured debug events only through
+  `context.trace`. A step does not finish a domain transition that its operation stopped halfway.
 - Return any completed evidence needed by optional `metrics` or `viz` projectors. Recipe algorithms
   never receive a visualization sink.
 - Read current engine state only through the step's declared `deps.engine`
@@ -163,31 +164,26 @@ export const GeomorphologyStep = createStep(config, {
     const topography = deps.artifacts.baseTopography.read(context);
     const routing = deps.artifacts.routing.read(context);
     const substrate = deps.artifacts.baseSubstrate.read(context);
-    const elevation = new Int16Array(topography.elevation);
-    const landMask = new Uint8Array(topography.landMask);
-    const sedimentDepth = new Float32Array(substrate.sedimentDepth);
 
-    const deltas = ops.geomorphology(
+    const result = ops.geomorphology(
       {
         width: context.setup.dimensions.width,
         height: context.setup.dimensions.height,
-        elevation,
-        landMask,
+        elevation: topography.elevation,
+        seaLevel: topography.seaLevel,
+        landMask: topography.landMask,
         flowDir: routing.flowDir,
         flowAccum: routing.flowAccum,
         erodibilityK: substrate.erodibilityK,
-        sedimentDepth,
+        sedimentDepth: substrate.sedimentDepth,
       },
       stepConfig.geomorphology
     );
 
-    deps.artifacts.erodedTopography.publish(context, {
-      ...topography,
-      elevation,
-      landMask,
-    });
+    deps.artifacts.erodedTopography.publish(context, result.topography);
+    deps.artifacts.substrate.publish(context, result.substrate);
     context.trace.event(() => ({ kind: "morphology.geomorphology.summary" }));
-    return { elevationDelta: deltas.elevationDelta };
+    return result;
   },
   viz: ({ result, dimensions }) => [
     {
@@ -195,7 +191,7 @@ export const GeomorphologyStep = createStep(config, {
       dataTypeKey: "morphology.geomorphology.elevationDelta",
       spaceId: "tile.hexOddQ",
       dims: dimensions,
-      field: { format: "f32", values: result.elevationDelta },
+      field: { format: "f32", values: result.deltas.elevationDelta },
       meta: defineStandardVizMeta(
         "morphology.geomorphology.elevationDelta",
         "field.signed",

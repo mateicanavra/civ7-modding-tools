@@ -28,16 +28,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** repair the project-plane identity of Civ7 map-policy
-generation, then reduce the completed cleanup stack without changing its
-certified tree. The runtime policy package remains a `kind:library`;
-package-local generation/currentness source is a distinct
-`kind:package-tool`; and `@civ7/plugin-files/generated-file-plan` remains the
-single generic filesystem admission/currentness/materialization owner. Public
-`civ7-map-policy` Nx targets remain stable aliases to the narrower execution
-owner. This is the sole inherited CI blocker admitted before the approved
-stack fold. A.2 and the remaining semantic cleanup stay outside this
-container.
+**Current container:** finish natural-wonder planner input authority after the
+aggregate `derive-placement-inputs` step was correctly deleted. The Placement
+operation owns one truthful required input contract. The Standard recipe binds
+its admitted artifacts, static Civ7 policy, and invocation-local engine
+observations to that contract; metrics observes the same contract downstream.
+Metrics must not strengthen an intentionally weakened operation type, and the
+planner must not silently replace omitted causal surfaces with neutral values.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -54,15 +51,19 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** project the package's scripts as one closed package-tool owner;
-replace its cross-project relative source reach with the existing public
-policy surface; preserve generator task UX through exact Nx dependency aliases;
-ratchet the tag taxonomy and boundary configuration together; prove the
-resolved source graph contains package-tool -> library/plugin edges and no
-library -> plugin edge. Then certify the exact stack, fold its eighteen
-semantic commits into one review family without changing the tree, submit and
-merge through Graphite, sync once without a global restack, and reopen the
-remaining cleanup on merged main.
+**Gradient:** require all six physical suitability surfaces at the
+`placement/plan-natural-wonders` operation boundary; make Civ7 policy emit one
+total, deeply frozen planner catalog; and delete hidden neutral substitution,
+catalog repair, and conflicting-identity deduplication from the strategy. Make
+the Standard step rely on the operation's inferred input rather than a
+metrics-owned strengthening, and let the natural-wonder input measurement
+consume the operation contract directly. Preserve Core's existing implicit
+width-by-height typed-array admission rather than adding manual cardinality
+checks. Make footprint parity nonempty in both TypeBox metadata and the static
+TypeFest surface, with canonical Civ7 policy construction as its runtime owner;
+delete planner tests that bypass those authorities to simulate impossible
+catalog rows. Repair focused product fixtures, prove exact compiler and product
+behavior, then seal the container as one Graphite layer.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -97,6 +98,69 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Complete Volcano Intent
+
+Volcano planning became the sole owner of deterministic candidate selection,
+periodic-hex spacing, honest tectonic setting, strength, and exact sparse-list
+plus dense-mask intent. Recipe-owned product reconstruction and impossible
+provider-corruption testing retired; Civ7 projection gained immediate exact
+readback, later lake projection preserves final volcano landforms, and the
+completed-map metrics bank now closes missing, extra, and wrong-terrain
+volcano outcomes.
+
+### 2026-07-26 - Complete Island Topography
+
+The edit-only island planner became a complete deterministic topography
+transition and immutable island mask. Terrain-kind stamping residue,
+recipe-owned application, duplicate edit arrays, and per-tile microcontinent
+probability retired; one map-level decision now admits at most one connected
+microcontinent patch. Shipped controls were recalibrated against unchanged
+benchmark authority, and focused physics plus the complete metrics bank sealed
+the transition.
+
+### 2026-07-26 - Complete Geomorphic Products
+
+Morphology's geomorphic-cycle operation became the sole owner of coherent
+post-erosion topography, substrate, and diagnostic process deltas. Recipe-owned
+application, duplicate quantization, and the inert talus knob retired; focused
+physics and reconstruction proofs plus the complete metrics bank sealed the
+transition.
+
+### 2026-07-26 - Ecology Features Test Ownership
+
+The normalized Features architecture was cashed into its test corpus. Generic
+artifact admission and impossible post-admission cases retired; family
+threshold, occupancy, arbitration, habitat, scoring, ordered recipe collision,
+projection, and product-study oracles now remain only at their causal owners.
+
+### 2026-07-26 - Floodplain Suitability Ownership
+
+Continuous floodplain scoring moved from recipe orchestration into one Ecology
+Features operation with an alluvial-relief strategy. Its output keys derive
+from the canonical feature-intent vocabulary; exact wrapped-hex adjacency,
+biome-family routing, terrain exclusions, response relationships, bounds, and
+seed participation are proved at the domain owner. The recipe step now only
+invokes scoring, publishes the shared suitability vintage, and projects
+visualization.
+
+### 2026-07-26 - Riparian Climate Influence
+
+River hierarchy now crosses the Hydrology operation boundary as raw admitted
+evidence. Precipitation interprets its authored corridor on the wrapped hex
+graph, the land-water budget owns effective moisture beside PET and aridity,
+and recipe-local square-mask expansion and moisture derivation were deleted.
+Focused domain proofs cover exact footprint, river tier, water-zero, response,
+and deterministic behavior.
+
+### 2026-07-26 - Package Tool Delivery Boundary
+
+Civ7 map-policy generation became a closed `kind:package-tool` project while
+the runtime policy package remained a leaf library and generic file-plan
+materialization remained plugin-owned. The exact eighteen-commit cleanup tree
+was certified, folded without tree change, submitted as one review family,
+merged, synced once without restack, and drained. Primary `main` and the
+retained Studio runner now execute that merged tree.
 
 ### 2026-07-26 - Resource Demand Authority
 

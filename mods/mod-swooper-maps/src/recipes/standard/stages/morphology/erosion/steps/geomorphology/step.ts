@@ -1,6 +1,6 @@
 import { MORPHOLOGY_EROSION_RATE_MULTIPLIER } from "@mapgen/domain/morphology/modules/erosion/model/policy/erosion-knob-policy.js";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
+import { clampFinite } from "@swooper/mapgen-core/lib/math";
 import { buildScalarFieldProjections } from "@swooper/mapgen-viz";
 import { defineStandardVizMeta } from "../../../../../viz.js";
 import type { MorphologyErosionKnob } from "../../index.js";
@@ -10,8 +10,7 @@ const GROUP_GEOMORPHOLOGY = "Morphology / Geomorphology";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 /**
- * Applies routing- and substrate-driven incision, diffusion, and deposition,
- * then publishes the eroded topography and final substrate vintages.
+ * Publishes the complete relief and substrate transition produced by Morphology erosion.
  */
 export const GeomorphologyStep = createStep(config, {
   normalize: (stepConfig, ctx) => {
@@ -59,48 +58,21 @@ export const GeomorphologyStep = createStep(config, {
     const routing = deps.artifacts.routing.read(context);
     const substrate = deps.artifacts.baseSubstrate.read(context);
     const { width, height } = context.setup.dimensions;
-    const elevation = new Int16Array(topography.elevation);
-    const landMask = new Uint8Array(topography.landMask);
-    const bathymetry = new Int16Array(topography.bathymetry);
-    const erodibilityK = new Float32Array(substrate.erodibilityK);
-    const sedimentDepth = new Float32Array(substrate.sedimentDepth);
 
-    const deltas = ops.geomorphology(
+    const result = ops.geomorphology(
       {
         width,
         height,
-        elevation,
-        landMask,
+        elevation: topography.elevation,
+        seaLevel: topography.seaLevel,
+        landMask: topography.landMask,
         flowDir: routing.flowDir,
         flowAccum: routing.flowAccum,
-        erodibilityK,
-        sedimentDepth,
+        erodibilityK: substrate.erodibilityK,
+        sedimentDepth: substrate.sedimentDepth,
       },
       stepConfig.geomorphology
     );
-
-    for (let i = 0; i < elevation.length; i++) {
-      const nextElevation = clampInt16(Math.round(elevation[i] + deltas.elevationDelta[i]));
-      elevation[i] = nextElevation;
-      sedimentDepth[i] = Math.max(0, sedimentDepth[i] + deltas.sedimentDelta[i]);
-    }
-
-    const seaLevel = topography.seaLevel;
-    const waterElevation = clampInt16(Math.floor(seaLevel));
-    const landElevation = clampInt16(Math.floor(seaLevel) + 1);
-    for (let i = 0; i < elevation.length; i++) {
-      const isLand = landMask[i] === 1;
-      landMask[i] = isLand ? 1 : 0;
-      if (isLand) {
-        // Erosion should sculpt; it must not silently reclassify land/water by pushing tiles across sea level.
-        if ((elevation[i] ?? 0) <= seaLevel) elevation[i] = landElevation;
-        bathymetry[i] = 0;
-      } else {
-        if ((elevation[i] ?? 0) > seaLevel) elevation[i] = waterElevation;
-        const delta = Math.min(0, elevation[i] - seaLevel);
-        bathymetry[i] = clampInt16(roundHalfAwayFromZero(delta));
-      }
-    }
 
     context.trace.event(() => {
       const size = width * height;
@@ -112,15 +84,15 @@ export const GeomorphologyStep = createStep(config, {
       let elevationMax = 0;
 
       for (let i = 0; i < size; i++) {
-        if (landMask[i] !== 1) continue;
+        if (result.topography.landMask[i] !== 1) continue;
         landTiles += 1;
 
-        const delta = deltas.elevationDelta[i] ?? 0;
+        const delta = result.deltas.elevationDelta[i] ?? 0;
         if (landTiles === 1 || delta < deltaMin) deltaMin = delta;
         if (landTiles === 1 || delta > deltaMax) deltaMax = delta;
         deltaSum += delta;
 
-        const nextElevation = elevation[i] ?? 0;
+        const nextElevation = result.topography.elevation[i] ?? 0;
         if (landTiles === 1 || nextElevation < elevationMin) elevationMin = nextElevation;
         if (landTiles === 1 || nextElevation > elevationMax) elevationMax = nextElevation;
       }
@@ -136,21 +108,9 @@ export const GeomorphologyStep = createStep(config, {
       };
     });
 
-    const erodedTopography = {
-      elevation,
-      seaLevel,
-      landMask,
-      bathymetry,
-    };
-    const finalSubstrate = { erodibilityK, sedimentDepth };
-    deps.artifacts.erodedTopography.publish(context, erodedTopography);
-    deps.artifacts.substrate.publish(context, finalSubstrate);
-    return {
-      deltas,
-      elevation,
-      landMask,
-      bathymetry,
-    };
+    deps.artifacts.erodedTopography.publish(context, result.topography);
+    deps.artifacts.substrate.publish(context, result.substrate);
+    return result;
   },
   viz: ({ result, dimensions }) => [
     {
@@ -181,7 +141,7 @@ export const GeomorphologyStep = createStep(config, {
       dataTypeKey: "morphology.topography.elevation",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "i16", values: result.elevation },
+      field: { format: "i16", values: result.topography.elevation },
       meta: defineStandardVizMeta("morphology.topography.elevation", "terrain.elevation", {
         label: "Elevation (After Geomorphology)",
         group: GROUP_GEOMORPHOLOGY,
@@ -193,7 +153,7 @@ export const GeomorphologyStep = createStep(config, {
       dataTypeKey: "morphology.topography.landMask",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.landMask },
+      field: { format: "u8", values: result.topography.landMask },
       meta: defineStandardVizMeta("morphology.topography.landMask", "category.distinct", {
         label: "Land Mask (After Geomorphology)",
         group: GROUP_GEOMORPHOLOGY,
@@ -204,7 +164,7 @@ export const GeomorphologyStep = createStep(config, {
       dataTypeKey: "morphology.topography.bathymetry",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "i16", values: result.bathymetry },
+      field: { format: "i16", values: result.topography.bathymetry },
       meta: defineStandardVizMeta("morphology.topography.bathymetry", "water.depth", {
         label: "Bathymetry (After Geomorphology)",
         group: GROUP_GEOMORPHOLOGY,

@@ -324,4 +324,33 @@ describe("plan natural wonders step", () => {
     ).toThrow("[Placement] Civ7 map metadata is unavailable for the active map size.");
     expect(plannerInvoked).toBe(false);
   });
+
+  it.each([
+    Number.NaN,
+    -1,
+    1.5,
+  ])("fails closed when Civ7 map metadata supplies invalid natural-wonder count %p", (NumNaturalWonders) => {
+    const { context } = createContext(TEST_MAP_SIZE, {
+      mapInfo: { ...TEST_MAP_SIZE.mapInfo, NumNaturalWonders },
+    });
+    let plannerInvoked = false;
+    const ops = createCapturingOps(() => {
+      plannerInvoked = true;
+    });
+
+    expect(() =>
+      withMapContextExecutionForTest(context, (stepContext) => {
+        publishPlacementInputs(stepContext);
+        PlanNaturalWondersStep.run(
+          stepContext,
+          placementConfig(),
+          ops,
+          buildStepTestDependencies(PlanNaturalWondersStep, stepContext)
+        );
+      })
+    ).toThrow(
+      "[Placement] Civ7 map metadata has no valid natural-wonder count for the active map size."
+    );
+    expect(plannerInvoked).toBe(false);
+  });
 });

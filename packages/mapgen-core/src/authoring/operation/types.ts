@@ -73,7 +73,8 @@ type DefaultStrategySelection<
  * - Ops are pure domain contracts: `run(input, config) -> output`.
  * - Op inputs/outputs should be plain values (POJOs + POJO-ish runtime values such as typed arrays),
  *   not runtime/engine “views” (e.g., adapters or callback readbacks).
- * - Steps own runtime binding (adapter reads, engine writes, producer-local copies, artifact publication).
+ * - Pure ops own complete domain transitions and allocate their result products; steps own runtime
+ *   binding, adapter reads, engine writes, and artifact publication.
  *
  * Export discipline:
  * - Only export ops that are intended to be step-callable domain contracts.

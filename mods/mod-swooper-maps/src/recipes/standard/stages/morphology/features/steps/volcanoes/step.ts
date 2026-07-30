@@ -5,19 +5,17 @@ import {
 } from "@mapgen/domain/morphology/modules/landforms/model/policy/landform-knob-policy.js";
 import { deriveStepSeed, xyFromIndex } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { clamp01, clampFinite } from "@swooper/mapgen-core/lib/math";
+import { clampFinite } from "@swooper/mapgen-core/lib/math";
 import { defineStandardVizMeta } from "../../../../../viz.js";
 import type { MorphologyVolcanismKnob } from "../../index.js";
 import { config } from "./config.js";
-
-type VolcanoKind = "subductionArc" | "rift" | "hotspot";
 
 const GROUP_VOLCANOES = "Morphology / Volcanoes";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 /**
- * Selects and classifies volcano intent from projected tectonic activity and
- * final land truth; engine volcano placement remains downstream.
+ * Invokes the complete domain-owned volcano planner, publishes its immutable
+ * intent, and leaves Civ7 materialization to the downstream projection stage.
  */
 export const VolcanoesStep = createStep(config, {
   normalize: (stepConfig, ctx) => {
@@ -59,7 +57,7 @@ export const VolcanoesStep = createStep(config, {
     const { width, height } = context.setup.dimensions;
     const rngSeed = deriveStepSeed(context.setup.mapSeed, "morphology:planVolcanoes");
 
-    const plan = ops.volcanoes(
+    const volcanoEvidence = ops.volcanoes(
       {
         width,
         height,
@@ -73,31 +71,10 @@ export const VolcanoesStep = createStep(config, {
       stepConfig.volcanoes
     );
 
-    const size = width * height;
-    const volcanoMask = new Uint8Array(size);
-    const volcanoes = plan.volcanoes
-      .map((entry) => entry.index | 0)
-      .filter(
-        (tileIndex) =>
-          tileIndex >= 0 && tileIndex < size && (topography.landMask[tileIndex] | 0) === 1
-      )
-      .sort((a, b) => a - b)
-      .map((tileIndex) => {
-        volcanoMask[tileIndex] = 1;
-        const bType = plates.boundaryType?.[tileIndex] ?? 0;
-        const kind: VolcanoKind = bType === 1 ? "subductionArc" : bType === 2 ? "rift" : "hotspot";
-        const strength01 = clamp01((plates.volcanism?.[tileIndex] ?? 0) / 255);
-        return { tileIndex, kind, strength01 };
-      });
-
     context.trace.event(() => ({
       kind: "morphology.volcanoes.summary",
-      volcanoes: volcanoes.length,
+      volcanoes: volcanoEvidence.volcanoes.length,
     }));
-    const volcanoEvidence = {
-      volcanoMask,
-      volcanoes,
-    };
     deps.artifacts.volcanoes.publish(context, volcanoEvidence);
     return volcanoEvidence;
   },

@@ -36,12 +36,6 @@ const GeomorphologyConfigSchema = Type.Object(
           minimum: 0,
           maximum: 1,
         }),
-        talus: Type.Number({
-          description: "Controls the talus threshold for terrain diffusion in normalized units.",
-          default: 0.5,
-          minimum: 0,
-          maximum: 10,
-        }),
       },
       {
         additionalProperties: false,

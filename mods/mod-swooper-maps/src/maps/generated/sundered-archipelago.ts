@@ -288,8 +288,7 @@ const mapConfig = {
                 "n": 1
               },
               "diffusion": {
-                "rate": 0.2,
-                "talus": 0.5
+                "rate": 0.2
               },
               "deposition": {
                 "rate": 0.1
@@ -322,15 +321,13 @@ const mapConfig = {
         "islands": {
           "strategy": "plate-aware-volcanic",
           "config": {
-            "islands": {
-              "fractalThresholdPercent": 82,
-              "minDistFromLandRadius": 1,
-              "baseIslandDenNearActive": 7,
-              "baseIslandDenElse": 12,
-              "hotspotSeedDenom": 1,
-              "clusterMax": 6,
-              "microcontinentChance": 0.2
-            }
+            "fractalThresholdPercent": 82,
+            "minDistFromLandRadius": 1,
+            "baseIslandDenNearActive": 7,
+            "baseIslandDenElse": 12,
+            "hotspotSeedDenom": 2,
+            "clusterMax": 2,
+            "microcontinentChance": 0.2
           }
         }
       },
@@ -1055,6 +1052,10 @@ const mapConfig = {
             "alpineElevationMaxM": 3400,
             "alpineFreezeMin01": 0.55
           }
+        },
+        "scoreFloodplains": {
+          "strategy": "alluvial-relief",
+          "config": {}
         }
       },
       "plan-floodplains": {
@@ -1344,7 +1345,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "sundered-archipelago",
-  configHash: "26e0d4101d8ffdbcaa263677f55a9cdc88591c982ed508c764f678e331f8f70b",
-  envelopeHash: "f489f7887d40564375dbb54ec5c2c9a840e7705d8cb00cedc5717e1890ee8625",
+  configHash: "451f2eb733f2d8a03dd047001ca203be829795584cee85ecb7a3c9c0e3f94426",
+  envelopeHash: "aa9269ed59443ee7ae28a8016d9e64b6e68eaaf2ce7fe54043a0d652f1a63eac",
   config: mapConfig.config,
 });

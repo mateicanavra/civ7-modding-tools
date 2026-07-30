@@ -12,7 +12,8 @@ export type MaskComponentOddQ = Readonly<{
 /**
  * Allocates a multi-source distance field through mask cells equal to `1` on the Civ7 hex grid.
  * X wraps and Y clips; invalid dimensions or mask length return an all-`-1` field, with `-1`
- * also marking cells unreachable from every admitted source.
+ * also marking cells unreachable from every admitted source. An optional maximum distance
+ * bounds expansion without changing the admitted-source semantics.
  */
 export function computeMaskDistanceFieldOddQ(
   input: Readonly<{
@@ -20,11 +21,16 @@ export function computeMaskDistanceFieldOddQ(
     width: number;
     height: number;
     sources: readonly number[];
+    maxDistance?: number;
   }>
 ): Int16Array {
   const width = input.width | 0;
   const height = input.height | 0;
   const size = Math.max(0, width * height);
+  const maxDistance =
+    input.maxDistance === undefined
+      ? Number.POSITIVE_INFINITY
+      : Math.max(0, Math.floor(input.maxDistance));
   const distance = new Int16Array(size);
   distance.fill(-1);
   if (input.mask.length !== size || width <= 0 || height <= 0) return distance;
@@ -42,7 +48,9 @@ export function computeMaskDistanceFieldOddQ(
     const current = queue[head++]!;
     const x = current % width;
     const y = (current / width) | 0;
-    const nextDistance = (distance[current] ?? 0) + 1;
+    const currentDistance = distance[current]!;
+    if (currentDistance >= maxDistance) continue;
+    const nextDistance = currentDistance + 1;
     for (const neighbor of getHexNeighborIndicesOddQ(x, y, width, height)) {
       if (input.mask[neighbor] !== 1 || distance[neighbor] >= 0) continue;
       distance[neighbor] = nextDistance;

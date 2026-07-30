@@ -288,8 +288,7 @@ const mapConfig = {
                 "n": 1
               },
               "diffusion": {
-                "rate": 0.2,
-                "talus": 0.5
+                "rate": 0.2
               },
               "deposition": {
                 "rate": 0.1
@@ -322,15 +321,13 @@ const mapConfig = {
         "islands": {
           "strategy": "plate-aware-volcanic",
           "config": {
-            "islands": {
-              "fractalThresholdPercent": 92,
-              "minDistFromLandRadius": 2,
-              "baseIslandDenNearActive": 4,
-              "baseIslandDenElse": 5,
-              "hotspotSeedDenom": 2,
-              "clusterMax": 3,
-              "microcontinentChance": 0.1
-            }
+            "fractalThresholdPercent": 92,
+            "minDistFromLandRadius": 2,
+            "baseIslandDenNearActive": 4,
+            "baseIslandDenElse": 5,
+            "hotspotSeedDenom": 2,
+            "clusterMax": 3,
+            "microcontinentChance": 0.1
           }
         }
       },
@@ -1055,6 +1052,10 @@ const mapConfig = {
             "alpineElevationMaxM": 3400,
             "alpineFreezeMin01": 0.55
           }
+        },
+        "scoreFloodplains": {
+          "strategy": "alluvial-relief",
+          "config": {}
         }
       },
       "plan-floodplains": {
@@ -1345,7 +1346,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "shattered-ring",
-  configHash: "707f907c6de1ee092ae15978bd96258849aeb11bada94fcec29c7dc5c30306f6",
-  envelopeHash: "0507bb8ba13469d7f700d3cc507c2e573f3f44f6fad1f65c0047fb848544c0d3",
+  configHash: "2e4b9011c363c6b1afb580dcfb7af47d15189b5a353d27de426c2b774c347f27",
+  envelopeHash: "5dfd84636a0eb0c8d7e228b9a2071273501025cc3351c43c81a57c47e4320c99",
   config: mapConfig.config,
 });

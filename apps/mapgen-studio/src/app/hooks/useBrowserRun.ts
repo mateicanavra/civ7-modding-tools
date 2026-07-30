@@ -160,7 +160,6 @@ export function useBrowserRun({
         dimensions: mapSize.dimensions,
         latitudeBounds: canonicalConfig.latitudeBounds,
         playerCount: worldSettings.playerCount,
-        resourcesMode: worldSettings.resources,
         pipelineConfig: canonicalConfig.config,
       });
     },

@@ -20,7 +20,8 @@ const ClimateBaselineStepConfigSchema = Type.Object(
      * Seasonality controls.
      *
      * Hydrology still exposes the broad `seasonality` knob, but these let authors override the exact internal
-     * computation posture while keeping the public outputs stable (mean + amplitude only).
+     * computation posture while keeping durable climate artifacts stable. Seasonal amplitudes remain
+     * invocation-local evidence for optional visualization.
      */
     seasonality: Type.Object(
       {
@@ -51,8 +52,9 @@ const ClimateBaselineStepConfigSchema = Type.Object(
 
 /**
  * Defines baseline circulation and moisture transport over final Morphology topography and
- * shelf evidence. It publishes wind, climate, and seasonality together so river routing and
- * refinement start from one deterministic climate vintage.
+ * shelf evidence. It publishes wind and baseline climate together so river routing and
+ * refinement start from one deterministic climate vintage; seasonal amplitudes remain
+ * invocation-local visualization evidence.
  */
 export const config = defineStep({
   id: "climate-baseline",
@@ -61,11 +63,7 @@ export const config = defineStep({
   provides: [],
   artifacts: {
     requires: [morphologyLandformsArtifacts.topography, morphologyShelfArtifacts.shelf],
-    provides: [
-      climateArtifacts.baselineClimateField,
-      climateArtifacts.climateSeasonality,
-      climateArtifacts.windField,
-    ],
+    provides: [climateArtifacts.baselineClimateField, climateArtifacts.windField],
   },
   ops: {
     computeRadiativeForcing: hydrology.climate.ops.computeRadiativeForcing,

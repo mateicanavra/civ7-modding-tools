@@ -75,6 +75,10 @@ function measurementInput(
           direction: options.catalogDirection ?? 0,
           validTerrainTypes: [4, 8],
           validBiomeTypes: [7],
+          minimumElevation: null,
+          noLake: false,
+          placeFirst: false,
+          featureTags: [],
           footprintOffsetsByParity: {
             even: [{ dx: 0, dy: 0 }],
             odd: [{ dx: 0, dy: 0 }],
@@ -87,8 +91,20 @@ function measurementInput(
       config: { minSpacingTiles: options.minSpacingTiles ?? 6 },
     },
     plan: {
+      width,
+      height,
+      wondersCount: options.wondersCount ?? 3,
+      targetCount: 1,
       plannedCount: 1,
-      placements: [{ plotIndex: 5, featureType: 30 }],
+      placements: [
+        {
+          plotIndex: 5,
+          featureType: 30,
+          direction: 0,
+          elevation: 240,
+          priority: 1,
+        },
+      ],
     },
   };
 }

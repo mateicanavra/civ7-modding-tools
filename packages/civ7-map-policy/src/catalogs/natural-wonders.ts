@@ -1,3 +1,4 @@
+import type { NonEmptyTuple } from "type-fest";
 import { CIV7_BROWSER_TABLES_V0 } from "../civ7-tables.gen.js";
 import {
   getNaturalWonderFootprintOffsetsByParity,
@@ -52,31 +53,39 @@ function freezeStrings(values: readonly string[] | undefined): readonly string[]
 }
 
 function freezeFootprint(
-  offsets: readonly NaturalWonderFootprintOffset[]
-): readonly NaturalWonderFootprintOffset[] {
-  return Object.freeze(offsets.map(({ dx, dy }) => Object.freeze({ dx, dy })));
+  offsets: NonEmptyTuple<NaturalWonderFootprintOffset>
+): NonEmptyTuple<NaturalWonderFootprintOffset> {
+  const [first, ...rest] = offsets;
+  return Object.freeze([
+    Object.freeze({ dx: first.dx, dy: first.dy }),
+    ...rest.map(({ dx, dy }) => Object.freeze({ dx, dy })),
+  ]);
 }
 
 function naturalWonderCatalogEntry(featureType: number): NaturalWonderCatalogEntry | null {
   const policy = featurePolicies[String(featureType)];
   if (!policy || !policy.naturalWonderTiles) return null;
-  if (hasUnsupportedNaturalWonderPolicyTags(featureTags[String(featureType)])) return null;
+  if (hasUnsupportedNaturalWonderPolicyTags(featureTags[String(featureType)])) {
+    throw new Error(`Natural wonder ${featureType} has unsupported placement policy tags.`);
+  }
 
   const direction = resolveNaturalWonderMaterializationDirection(
     policy,
     naturalWonderDirection(featureType)
   );
   const footprintOffsetsByParity = getNaturalWonderFootprintOffsetsByParity(policy, direction);
-  if (!footprintOffsetsByParity) return null;
+  if (!footprintOffsetsByParity) {
+    throw new Error(`Natural wonder ${featureType} has no supported footprint geometry.`);
+  }
 
   return Object.freeze({
     featureType,
     direction,
     validTerrainTypes: freezeNumbers(validTerrainTypes[String(featureType)]),
     validBiomeTypes: freezeNumbers(validBiomeTypes[String(featureType)]),
-    ...(policy.minimumElevation !== undefined ? { minimumElevation: policy.minimumElevation } : {}),
-    ...(policy.noLake ? { noLake: true as const } : {}),
-    ...(policy.naturalWonderPlaceFirst ? { placeFirst: true as const } : {}),
+    minimumElevation: policy.minimumElevation ?? null,
+    noLake: policy.noLake === true,
+    placeFirst: policy.naturalWonderPlaceFirst === true,
     featureTags: freezeStrings(featureTags[String(featureType)]),
     footprintOffsetsByParity: Object.freeze({
       even: freezeFootprint(footprintOffsetsByParity.even),
@@ -94,8 +103,6 @@ function naturalWonderCatalogEntry(featureType: number): NaturalWonderCatalogEnt
  */
 export const NATURAL_WONDER_CATALOG: readonly NaturalWonderCatalogEntry[] = Object.freeze(
   Object.values(featureTypes)
-    .map((featureType) => Math.trunc(featureType))
-    .filter((featureType) => Number.isFinite(featureType))
     .map(naturalWonderCatalogEntry)
     .filter((entry): entry is NaturalWonderCatalogEntry => entry !== null)
     .sort((a, b) => a.featureType - b.featureType)

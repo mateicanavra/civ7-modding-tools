@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import hydrologyOpsPublic from "@mapgen/domain/hydrology/router";
-import { TEST_MAP_SEED } from "../../../../../setup.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
 
 const { computePrecipitation } = hydrologyOpsPublic.climate.ops;
 function idx(x: number, y: number, width: number): number {
@@ -10,8 +10,7 @@ function idx(x: number, y: number, width: number): number {
 
 describe("hydrology/compute-precipitation (vector)", () => {
   it("produces a windward uplift signal on a ridge (noise disabled)", () => {
-    const syntheticDimensions = { width: 16, height: 10 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
 
     const latitudeByRow = new Float32Array(height);
@@ -50,7 +49,7 @@ describe("hydrology/compute-precipitation (vector)", () => {
         humidityF32,
         rainfallIn: new Uint8Array(size),
         humidityIn: new Uint8Array(size),
-        riverAdjacency: new Uint8Array(size),
+        riverClass: new Uint8Array(size),
       },
       {
         strategy: "vector",

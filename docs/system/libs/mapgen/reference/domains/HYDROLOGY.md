@@ -21,7 +21,7 @@ Hydrology produces climate and water-cycle products for downstream consumption:
 - atmospheric wind and moisture-transport state,
 - depression-conditioned drainage routing over Morphology topography,
 - discharge and hydrography evidence,
-- refined indices (aridity/freeze/etc) and optional cryosphere products,
+- refined terrestrial indices (effective moisture, aridity, and freeze) and optional cryosphere products,
   and related diagnostics.
 
 Hydrology also feeds engine-facing projection steps, which are explicitly
@@ -54,7 +54,6 @@ Hydrology provides:
 
 - `artifact:hydrology.baselineClimateField` (annual-mean rainfall/humidity used by routing and refinement)
 - `artifact:hydrology.climateField` (final-refined rainfall/humidity used by Ecology and engine projection)
-- `artifact:hydrology.climateSeasonality` (amplitude surface)
 - `artifact:hydrology.hydrography` (canonical drainage routing + discharge + river class snapshot)
 - `artifact:hydrology.riverNetwork` (upstream area, hierarchy, mouth, slope,
   and permanence fields consumed by river projection)
@@ -69,7 +68,7 @@ Hydrology provides:
 
 Hydrology's semantic products are cataloged by their owning module:
 
-- `modules/climate/artifacts`: baseline/final climate, seasonality, indices, and winds,
+- `modules/climate/artifacts`: baseline/final climate, indices, and winds,
 - `modules/cryosphere/artifacts`: snow, sea-ice, albedo, and frozen-ground state,
 - `modules/hydrography/artifacts`: drainage, river-network, projection-ready lake
   intent, and immutable Civ7-projectable river intent.
@@ -81,6 +80,9 @@ Aggregate river benchmark evidence is calculated and emitted by the Standard
 recipe's Lakes metrics projector rather than retained as pipeline state.
 Advisory terrain/wind climate diagnostics are derived by the climate module's
 pure observation operation and remain invocation-local input to visualization.
+Seasonal rainfall and humidity amplitudes likewise remain invocation-local
+evidence projected by the baseline step; no downstream pipeline consumer owns
+or reads a retained seasonality product.
 
 ## Ops surface
 
@@ -89,7 +91,7 @@ operations they execute:
 
 - `ocean`: ocean geometry, surface currents, and thermal state,
 - `climate`: radiative and thermal forcing, atmospheric circulation, moisture transport,
-  precipitation and water budget,
+  precipitation, and the river-aware terrestrial water budget,
 - `cryosphere`: cryosphere state and albedo feedback,
 - `hydrography`: drainage, discharge, causal river-network classification, and lake intent.
 
@@ -146,7 +148,8 @@ The `map-hydrology` stage:
 
 - is projection-only,
 - writes every sample from final `artifact:hydrology.climateField` to the adapter exactly once,
-- then projects static, mountain-safe `artifact:hydrology.lakePlan` intent before engine elevation,
+- then projects static `artifact:hydrology.lakePlan` intent before engine elevation while
+  preserving final Morphology mountain and volcano landforms,
 - and does not compute a second rainfall or lake model.
 
 The `map-rivers` stage consumes Hydrology hydrography after `map-elevation` has

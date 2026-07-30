@@ -19,7 +19,8 @@ const WETLAND_FEATURE_INTENT_KEYS = [
 const REEF_FEATURE_INTENT_KEYS = ["reef", "cold-reef", "atoll", "lotus"] as const;
 const ICE_FEATURE_INTENT_KEYS = ["ice"] as const;
 
-const FLOODPLAIN_FEATURE_INTENT_KEYS = [
+/** Floodplain feature intents separated by biome family and river hierarchy. */
+export const FLOODPLAIN_FEATURE_INTENT_KEYS = [
   "desert-floodplain-minor",
   "desert-floodplain-navigable",
   "grassland-floodplain-minor",

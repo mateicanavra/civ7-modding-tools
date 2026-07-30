@@ -263,8 +263,7 @@
                 "n": 1
               },
               "diffusion": {
-                "rate": 0.2,
-                "talus": 0.5
+                "rate": 0.2
               },
               "deposition": {
                 "rate": 0.1
@@ -297,15 +296,13 @@
         "islands": {
           "strategy": "plate-aware-volcanic",
           "config": {
-            "islands": {
-              "fractalThresholdPercent": 92,
-              "minDistFromLandRadius": 2,
-              "baseIslandDenNearActive": 4,
-              "baseIslandDenElse": 5,
-              "hotspotSeedDenom": 2,
-              "clusterMax": 3,
-              "microcontinentChance": 0.1
-            }
+            "fractalThresholdPercent": 92,
+            "minDistFromLandRadius": 2,
+            "baseIslandDenNearActive": 4,
+            "baseIslandDenElse": 5,
+            "hotspotSeedDenom": 2,
+            "clusterMax": 3,
+            "microcontinentChance": 0.1
           }
         }
       },
@@ -1022,6 +1019,10 @@
             "alpineElevationMaxM": 3400,
             "alpineFreezeMin01": 0.55
           }
+        },
+        "scoreFloodplains": {
+          "strategy": "alluvial-relief",
+          "config": {}
         }
       },
       "plan-floodplains": {

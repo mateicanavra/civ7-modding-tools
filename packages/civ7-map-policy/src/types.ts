@@ -1,4 +1,4 @@
-import type { NaturalWonderFootprintOffset } from "./natural-wonder-footprints.js";
+import type { NaturalWonderFootprintOffsetsByParity } from "./natural-wonder-footprints.js";
 
 /**
  * Static Civ7 policy required to rank and plan one natural wonder.
@@ -16,19 +16,16 @@ export interface NaturalWonderCatalogEntry {
   readonly validTerrainTypes: readonly number[];
   /** Official biome type indices in which the wonder may be anchored. */
   readonly validBiomeTypes: readonly number[];
-  /** Minimum engine elevation required at the anchor, when authored by Civ7. */
-  readonly minimumElevation?: number;
+  /** Minimum engine elevation required at the anchor, or `null` when Civ7 declares no floor. */
+  readonly minimumElevation: number | null;
   /** Whether Civ7 forbids lake tiles in this wonder's footprint. */
-  readonly noLake?: true;
+  readonly noLake: boolean;
   /** Whether Civ7 asks planners to prioritize this wonder before ordinary candidates. */
-  readonly placeFirst?: true;
+  readonly placeFirst: boolean;
   /** Official feature-placement tags that constrain candidate selection. */
   readonly featureTags: readonly string[];
   /** Parity-aware odd-R offsets used to reserve and inspect the planned footprint. */
-  readonly footprintOffsetsByParity: Readonly<{
-    even: readonly NaturalWonderFootprintOffset[];
-    odd: readonly NaturalWonderFootprintOffset[];
-  }>;
+  readonly footprintOffsetsByParity: NaturalWonderFootprintOffsetsByParity;
 }
 
 export type ResourcePlacementRejectionReason =

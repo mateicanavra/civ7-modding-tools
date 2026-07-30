@@ -1,7 +1,7 @@
 import { defineDomainSubdomain } from "@swooper/mapgen-core/authoring/contracts";
+import ComputeIslandTopographyContract from "./ops/compute-island-topography/contract.js";
 import ComputeLandmassesContract from "./ops/compute-landmasses/contract.js";
 import PlanFoothillsContract from "./ops/plan-foothills/contract.js";
-import PlanIslandChainsContract from "./ops/plan-island-chains/contract.js";
 import PlanRidgesContract from "./ops/plan-ridges/contract.js";
 import PlanRoughLandsContract from "./ops/plan-rough-lands/contract.js";
 import PlanVolcanoesContract from "./ops/plan-volcanoes/contract.js";
@@ -10,7 +10,7 @@ import PlanVolcanoesContract from "./ops/plan-volcanoes/contract.js";
 const landforms = defineDomainSubdomain({
   id: "landforms",
   ops: {
-    planIslandChains: PlanIslandChainsContract,
+    computeIslandTopography: ComputeIslandTopographyContract,
     computeLandmasses: ComputeLandmassesContract,
     planRidges: PlanRidgesContract,
     planFoothills: PlanFoothillsContract,

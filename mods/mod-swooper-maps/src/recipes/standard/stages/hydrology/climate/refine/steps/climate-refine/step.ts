@@ -1,9 +1,3 @@
-import {
-  isAnyRiverClass,
-  isMajorRiverClass,
-  isMinorRiverClass,
-  RIVER_CLASS_NONE,
-} from "@mapgen/domain/hydrology/modules/hydrography/model/policy/river-class.js";
 import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import {
@@ -16,52 +10,6 @@ import { buildClimateRefineVizProjections } from "./viz.js";
 type HydrologyCryosphereKnob = "off" | "on";
 type HydrologyDrynessKnob = "wet" | "mix" | "dry";
 type HydrologyTemperatureKnob = "cold" | "temperate" | "hot";
-
-const EFFECTIVE_MOISTURE_HUMIDITY_WEIGHT = 0.35;
-const EFFECTIVE_MOISTURE_RIPARIAN_RADIUS = 1;
-const EFFECTIVE_MOISTURE_MINOR_RIVER_BONUS = 4;
-const EFFECTIVE_MOISTURE_MAJOR_RIVER_BONUS = 8;
-
-/** Projects a configurable neighborhood mask from immutable Hydrology river classifications. */
-function computeRiverAdjacencyMaskFromRiverClass(options: {
-  width: number;
-  height: number;
-  riverClass: Uint8Array;
-  radius?: number;
-}): Uint8Array {
-  const width = options.width;
-  const height = options.height;
-  const radius = Math.max(0, options.radius ?? 1) | 0;
-  const size = width * height;
-
-  const mask = new Uint8Array(size);
-  if (radius <= 0) {
-    for (let i = 0; i < size; i++) mask[i] = isAnyRiverClass(options.riverClass[i]) ? 1 : 0;
-    return mask;
-  }
-
-  for (let y = 0; y < height; y++) {
-    const y0 = Math.max(0, y - radius);
-    const y1 = Math.min(height - 1, y + radius);
-    for (let x = 0; x < width; x++) {
-      const x0 = Math.max(0, x - radius);
-      const x1 = Math.min(width - 1, x + radius);
-      let adjacent = 0;
-      for (let ny = y0; ny <= y1 && !adjacent; ny++) {
-        const row = ny * width;
-        for (let nx = x0; nx <= x1; nx++) {
-          if (isAnyRiverClass(options.riverClass[row + nx])) {
-            adjacent = 1;
-            break;
-          }
-        }
-      }
-      mask[y * width + x] = adjacent;
-    }
-  }
-
-  return mask;
-}
 
 /**
  * Refines baseline climate against topography and hydrography, publishing physical products while
@@ -174,11 +122,7 @@ export const ClimateRefineStep = createStep(config, {
     const size = width * height;
     const humidityF32 = new Float32Array(size);
     for (let i = 0; i < size; i++) {
-      const humidity = baselineClimateField.humidity[i];
-      if (humidity === undefined) {
-        throw new Error(`Baseline climate humidity is missing tile index ${i}.`);
-      }
-      humidityF32[i] = humidity / 255;
+      humidityF32[i] = baselineClimateField.humidity[i]! / 255;
     }
 
     const stepId = `hydrology/${config.id}`;
@@ -187,13 +131,6 @@ export const ClimateRefineStep = createStep(config, {
       ctxRandomLabel(stepId, "hydrology/compute-precipitation/noise"),
       2_147_483_647
     );
-
-    const riverAdjacency = computeRiverAdjacencyMaskFromRiverClass({
-      width,
-      height,
-      riverClass: hydrography.riverClass,
-      radius: 1,
-    });
 
     const refined = ops.computePrecipitation(
       {
@@ -207,53 +144,11 @@ export const ClimateRefineStep = createStep(config, {
         humidityF32,
         rainfallIn: baselineClimateField.rainfall,
         humidityIn: baselineClimateField.humidity,
-        riverAdjacency,
+        riverClass: hydrography.riverClass,
         perlinSeed,
       },
       stepConfig.computePrecipitation
     );
-
-    const riparianBonusByTile = new Float32Array(size);
-    for (let y = 0; y < height; y++) {
-      const y0 = Math.max(0, y - EFFECTIVE_MOISTURE_RIPARIAN_RADIUS);
-      const y1 = Math.min(height - 1, y + EFFECTIVE_MOISTURE_RIPARIAN_RADIUS);
-      const yOffset = y * width;
-      for (let x = 0; x < width; x++) {
-        const x0 = Math.max(0, x - EFFECTIVE_MOISTURE_RIPARIAN_RADIUS);
-        const x1 = Math.min(width - 1, x + EFFECTIVE_MOISTURE_RIPARIAN_RADIUS);
-
-        let maxClass = RIVER_CLASS_NONE;
-        for (let yy = y0; yy <= y1; yy++) {
-          const yyOffset = yy * width;
-          for (let xx = x0; xx <= x1; xx++) {
-            const cls = hydrography.riverClass[yyOffset + xx] ?? RIVER_CLASS_NONE;
-            if (cls > maxClass) maxClass = cls;
-            if (isMajorRiverClass(maxClass)) break;
-          }
-          if (isMajorRiverClass(maxClass)) break;
-        }
-
-        const idx = yOffset + x;
-        if (isMajorRiverClass(maxClass)) {
-          riparianBonusByTile[idx] = EFFECTIVE_MOISTURE_MAJOR_RIVER_BONUS;
-        } else if (isMinorRiverClass(maxClass)) {
-          riparianBonusByTile[idx] = EFFECTIVE_MOISTURE_MINOR_RIVER_BONUS;
-        }
-      }
-    }
-
-    const effectiveMoisture = new Float32Array(size);
-    for (let i = 0; i < size; i++) {
-      if (topography.landMask[i] === 0) {
-        effectiveMoisture[i] = 0;
-        continue;
-      }
-      const rainfall = refined.rainfall[i] ?? 0;
-      const humidity = refined.humidity[i] ?? 0;
-      const riparianBonus = riparianBonusByTile[i] ?? 0;
-      effectiveMoisture[i] =
-        rainfall + EFFECTIVE_MOISTURE_HUMIDITY_WEIGHT * humidity + riparianBonus;
-    }
 
     const forcing = ops.computeRadiativeForcing(
       { width, height, latitudeByRow },
@@ -300,6 +195,7 @@ export const ClimateRefineStep = createStep(config, {
         rainfall: refined.rainfall,
         humidity: refined.humidity,
         surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,
+        riverClass: hydrography.riverClass,
       },
       stepConfig.computeLandWaterBudget
     );
@@ -324,7 +220,7 @@ export const ClimateRefineStep = createStep(config, {
     });
     const climateIndices = deps.artifacts.climateIndices.publish(context, {
       surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,
-      effectiveMoisture,
+      effectiveMoisture: waterBudget.effectiveMoisture,
       pet: waterBudget.pet,
       aridityIndex: waterBudget.aridityIndex,
       freezeIndex: cryosphere.freezeIndex,

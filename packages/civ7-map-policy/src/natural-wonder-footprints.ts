@@ -1,8 +1,10 @@
+import type { NonEmptyTuple } from "type-fest";
+
 export type NaturalWonderFootprintOffset = Readonly<{ dx: number; dy: number }>;
 
 export type NaturalWonderFootprintOffsetsByParity = Readonly<{
-  even: readonly NaturalWonderFootprintOffset[];
-  odd: readonly NaturalWonderFootprintOffset[];
+  even: NonEmptyTuple<NaturalWonderFootprintOffset>;
+  odd: NonEmptyTuple<NaturalWonderFootprintOffset>;
 }>;
 
 export type NaturalWonderPlacementPolicy = Readonly<{
@@ -34,7 +36,7 @@ const ANCHOR: NaturalWonderFootprintOffset = { dx: 0, dy: 0 };
  * the neighbor *set* against `policy-grid.ts` per parity so the odd-R copies
  * cannot silently drift.
  */
-const ODD_DIRECTION_OFFSETS: readonly NaturalWonderFootprintOffset[] = [
+const ODD_DIRECTION_OFFSETS: NonEmptyTuple<NaturalWonderFootprintOffset> = [
   { dx: 1, dy: 1 },
   { dx: 1, dy: 0 },
   { dx: 1, dy: -1 },
@@ -43,7 +45,7 @@ const ODD_DIRECTION_OFFSETS: readonly NaturalWonderFootprintOffset[] = [
   { dx: 0, dy: 1 },
 ];
 
-const EVEN_DIRECTION_OFFSETS: readonly NaturalWonderFootprintOffset[] = [
+const EVEN_DIRECTION_OFFSETS: NonEmptyTuple<NaturalWonderFootprintOffset> = [
   { dx: 0, dy: 1 },
   { dx: 1, dy: 0 },
   { dx: 0, dy: -1 },
@@ -150,7 +152,7 @@ function normalizeFootprintDirection(direction: number | undefined): number {
   return Math.trunc(direction as number) % 6;
 }
 
-function parityOffsets(parity: number): readonly NaturalWonderFootprintOffset[] {
+function parityOffsets(parity: number): NonEmptyTuple<NaturalWonderFootprintOffset> {
   return (parity & 1) === 1 ? ODD_DIRECTION_OFFSETS : EVEN_DIRECTION_OFFSETS;
 }
 
@@ -195,7 +197,7 @@ function footprintOffsetsForParity(
   policy: OptionalNaturalWonderPlacementPolicy,
   direction: number,
   anchorParity: number
-): readonly NaturalWonderFootprintOffset[] | null {
+): NonEmptyTuple<NaturalWonderFootprintOffset> | null {
   const placementClass = policy?.placementClass ?? "ONE";
   const tiles = Math.max(1, policy?.naturalWonderTiles ?? 1);
   if (tiles <= 1 || placementClass === "ONE") return [ANCHOR];
@@ -243,7 +245,7 @@ function footprintOffsetsForParity(
 export function getNaturalWonderFootprintOffsets(
   policy: OptionalNaturalWonderPlacementPolicy,
   direction = resolveNaturalWonderPlacementDirection(policy)
-): readonly NaturalWonderFootprintOffset[] | null {
+): NonEmptyTuple<NaturalWonderFootprintOffset> | null {
   return footprintOffsetsForParity(policy, direction, 1);
 }
 
@@ -287,20 +289,26 @@ export function getNaturalWonderFootprintIndices(args: {
   height: number;
   policy?: NaturalWonderPlacementPolicy;
   direction?: number;
-}): number[] | null {
+}): NonEmptyTuple<number> | null {
   const direction = args.direction ?? resolveNaturalWonderPlacementDirection(args.policy);
   const offsets = footprintOffsetsForParity(args.policy, direction, args.y & 1);
   if (!offsets) return null;
-  const indices: number[] = [];
-  const seen = new Set<number>();
-  for (const offset of offsets) {
+
+  const [firstOffset, ...remainingOffsets] = offsets;
+  const firstY = args.y + firstOffset.dy;
+  if (firstY < 0 || firstY >= args.height) return null;
+  const firstX = wrapX(args.x + firstOffset.dx, args.width);
+  const firstIndex = firstY * args.width + firstX;
+  const remainingIndices: number[] = [];
+  const seen = new Set<number>([firstIndex]);
+  for (const offset of remainingOffsets) {
     const y = args.y + offset.dy;
     if (y < 0 || y >= args.height) return null;
     const x = wrapX(args.x + offset.dx, args.width);
     const index = y * args.width + x;
     if (seen.has(index)) continue;
     seen.add(index);
-    indices.push(index);
+    remainingIndices.push(index);
   }
-  return indices.length > 0 ? indices : null;
+  return [firstIndex, ...remainingIndices];
 }

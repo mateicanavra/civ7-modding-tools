@@ -1,14 +1,9 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-
-const VolcanoKindSchema = Type.Union([
-  Type.Literal("subductionArc"),
-  Type.Literal("rift"),
-  Type.Literal("hotspot"),
-]);
+import { VolcanoIntentSchema } from "../model/atoms/volcano-intent.schema.js";
 
 /**
- * Registers immutable volcano intent and its map-sized Uint8 tile mask for
- * later Civ7 projection.
+ * Registers complete immutable volcano intent for downstream product decisions and Civ7
+ * projection. Admission keeps the sparse ordered list and map-sized membership mask exact.
  */
 export const artifact = defineArtifact({
   name: "volcanoes",
@@ -20,28 +15,51 @@ export const artifact = defineArtifact({
         description: "Mask (1/0): tiles containing a volcano vent.",
       }),
       volcanoes: Type.Immutable(
-        Type.Array(
-          Type.Object(
-            {
-              tileIndex: Type.Integer({
-                minimum: 0,
-                description: "Tile index in row-major order.",
-              }),
-              kind: VolcanoKindSchema,
-              strength01: Type.Number({
-                minimum: 0,
-                maximum: 1,
-                description: "Normalized intensity (0..1) derived from volcanism driver strength.",
-              }),
-            },
-            { additionalProperties: false }
-          )
-        )
+        Type.Array(VolcanoIntentSchema, {
+          description: "Strictly tile-ordered volcano intents represented by volcanoMask.",
+        })
       ),
     },
     {
       additionalProperties: false,
-      description: "Volcano intent snapshot (Phase 2 schema; immutable at F2).",
+      description:
+        "Complete Morphology volcano intent with an exact map membership mask and sparse ordered records.",
     }
   ),
+  refine: (value, { cellCount, issues }) => {
+    let maskCount = 0;
+    for (let tileIndex = 0; tileIndex < value.volcanoMask.length; tileIndex += 1) {
+      const membership = value.volcanoMask[tileIndex];
+      if (membership !== 0 && membership !== 1) {
+        issues.add(`volcanoMask[${tileIndex}] must be binary; received ${membership}.`);
+      }
+      if (membership === 1) maskCount += 1;
+    }
+
+    let previousTileIndex = -1;
+    for (const [entryIndex, intent] of value.volcanoes.entries()) {
+      if (intent.tileIndex >= cellCount) {
+        issues.add(
+          `volcanoes[${entryIndex}].tileIndex ${intent.tileIndex} is outside the ${cellCount}-tile map.`
+        );
+      } else if (value.volcanoMask[intent.tileIndex] !== 1) {
+        issues.add(
+          `volcanoes[${entryIndex}] claims tile ${intent.tileIndex} without matching volcanoMask membership.`
+        );
+      }
+
+      if (intent.tileIndex <= previousTileIndex) {
+        issues.add(
+          `volcanoes must use strictly ascending unique tile indices; ${intent.tileIndex} follows ${previousTileIndex}.`
+        );
+      }
+      previousTileIndex = intent.tileIndex;
+    }
+
+    if (maskCount !== value.volcanoes.length) {
+      issues.add(
+        `volcanoMask contains ${maskCount} planned tiles but volcanoes contains ${value.volcanoes.length} records.`
+      );
+    }
+  },
 });

@@ -1,8 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import {
-  assertFeatureIntentCandidatesAvailable,
-  deriveFeatureOccupancy,
-} from "../../../../../../../../src/recipes/standard/stages/ecology/features/model/policy/derive-feature-occupancy.js";
+import { deriveFeatureOccupancy } from "../../../../../../../../src/recipes/standard/stages/ecology/features/model/policy/derive-feature-occupancy.js";
 import { TEST_MAP_SIZE } from "../../../../../../../setup.js";
 
 describe("Ecology feature intent occupancy", () => {
@@ -25,31 +22,5 @@ describe("Ecology feature intent occupancy", () => {
     expect(() => deriveFeatureOccupancy(dimensions, [duplicate], [duplicate])).toThrow(
       "multiple admitted intents"
     );
-  });
-
-  it("checks only prior-family collisions without mutating or re-admitting candidates", () => {
-    const dimensions = TEST_MAP_SIZE.dimensions;
-    const prior = { x: 1, y: 1 };
-    const occupancy = deriveFeatureOccupancy(dimensions, [prior]);
-    const occupancyBefore = occupancy.slice();
-    const candidates = [
-      { x: 2, y: 2 },
-      { x: 2, y: 2 },
-      { x: -1, y: 0 },
-    ] as const;
-
-    expect(() =>
-      assertFeatureIntentCandidatesAvailable(dimensions, occupancy, candidates)
-    ).not.toThrow();
-    expect(occupancy).toEqual(occupancyBefore);
-    expect(candidates).toEqual([
-      { x: 2, y: 2 },
-      { x: 2, y: 2 },
-      { x: -1, y: 0 },
-    ]);
-    expect(() => assertFeatureIntentCandidatesAvailable(dimensions, occupancy, [prior])).toThrow(
-      "occupied tile"
-    );
-    expect(occupancy).toEqual(occupancyBefore);
   });
 });

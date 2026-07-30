@@ -596,7 +596,7 @@ export const ClimateBaselineStep = createStep(config, {
             humidityF32: moisture.humidity,
             rainfallIn: zeros,
             humidityIn: zeros,
-            riverAdjacency: zeros,
+            riverClass: zeros,
             perlinSeed,
           },
           stepConfig.computePrecipitation
@@ -669,7 +669,7 @@ export const ClimateBaselineStep = createStep(config, {
             humidityF32: moisture.humidity,
             rainfallIn: zeros,
             humidityIn: zeros,
-            riverAdjacency: zeros,
+            riverClass: zeros,
             perlinSeed,
           },
           stepConfig.computePrecipitation
@@ -710,12 +710,10 @@ export const ClimateBaselineStep = createStep(config, {
       rainfall: meanRainfall,
       humidity: meanHumidity,
     });
-    const climateSeasonality = deps.artifacts.climateSeasonality.publish(context, {
-      modeCount,
-      axialTiltDeg,
+    const seasonalAmplitudes = {
       rainfallAmplitude,
       humidityAmplitude,
-    });
+    };
     const windField = deps.artifacts.windField.publish(context, {
       windU: meanWindU,
       windV: meanWindV,
@@ -726,7 +724,7 @@ export const ClimateBaselineStep = createStep(config, {
     };
     return {
       baselineClimateField,
-      climateSeasonality,
+      seasonalAmplitudes,
       windField,
       currentField,
       seasonalRainfall,

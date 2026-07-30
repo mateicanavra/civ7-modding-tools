@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import placementDomain from "@mapgen/domain/placement/router";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
+import type { NonEmptyTuple } from "type-fest";
 import { TEST_MAP_SIZE } from "../../../setup.js";
 
 const { planNaturalWonders } = placementDomain.wonders.ops;
@@ -12,53 +13,46 @@ function naturalWonderSelection(minSpacingTiles: number) {
   return selection;
 }
 
+function baselineSuitabilitySurfaces(size: number) {
+  return {
+    vegetationDensity: new Float32Array(size),
+    effectiveMoisture: new Float32Array(size),
+    surfaceTemperature: new Float32Array(size).fill(15),
+    fertility: new Float32Array(size),
+    discharge: new Float32Array(size),
+    slopeClass: new Uint8Array(size),
+  };
+}
+
+type FootprintOffsetsByParity = Readonly<{
+  even: NonEmptyTuple<Readonly<{ dx: number; dy: number }>>;
+  odd: NonEmptyTuple<Readonly<{ dx: number; dy: number }>>;
+}>;
+
+function plannerCatalogEntry(
+  featureType: number,
+  footprintOffsetsByParity: FootprintOffsetsByParity
+) {
+  return {
+    featureType,
+    direction: 0,
+    validTerrainTypes: [],
+    validBiomeTypes: [],
+    minimumElevation: null,
+    noLake: false,
+    placeFirst: false,
+    featureTags: [],
+    footprintOffsetsByParity,
+  };
+}
+
 describe("natural wonder planning", () => {
-  it("drops explicit empty natural-wonder footprints from placement candidates", () => {
-    const { width, height } = TEST_MAP_SIZE.dimensions;
-    const size = width * height;
-    const result = runAdmittedOperationForTest(
-      planNaturalWonders,
-      {
-        width,
-        height,
-        wondersCount: 2,
-        landMask: new Uint8Array(size).fill(1),
-        elevation: Int16Array.from({ length: size }, (_, index) => (index * 37) % 120),
-        aridityIndex: new Float32Array(size).fill(0.3),
-        riverClass: new Uint8Array(size),
-        lakeMask: new Uint8Array(size),
-        coastTerrainType: 2,
-        mountainTerrainType: 3,
-        iceFeatureType: 4,
-        terrainType: new Int32Array(size).fill(1),
-        biomeType: new Int32Array(size).fill(1),
-        featureType: new Int32Array(size).fill(-1),
-        noFeatureType: -1,
-        naturalWonderBlockedMask: new Uint8Array(size),
-        featureCatalog: [
-          { featureType: 35, direction: 0 },
-          { featureType: 37, direction: 0, footprintOffsetsByParity: { even: [], odd: [] } },
-          {
-            featureType: 41,
-            direction: 1,
-            footprintOffsetsByParity: { even: [{ dx: 0, dy: 0 }], odd: [{ dx: 0, dy: 0 }] },
-          },
-        ],
-      },
-      naturalWonderSelection(1)
-    );
-
-    expect(result.targetCount).toBe(1);
-    expect(result.plannedCount).toBe(1);
-    expect(result.placements).toEqual([expect.objectContaining({ featureType: 41 })]);
-  });
-
   it("produces identical natural-wonder placements on repeated runs (deterministic, no RNG)", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const f32 = (fn: (i: number) => number) =>
       Float32Array.from(Array.from({ length: size }, (_, i) => fn(i)));
-    const anchorOnly = {
+    const anchorOnly: FootprintOffsetsByParity = {
       even: [{ dx: 0, dy: 0 }],
       odd: [{ dx: 0, dy: 0 }],
     };
@@ -88,9 +82,9 @@ describe("natural wonder planning", () => {
       // Distinct requirement groups (Redwood=I, Kilimanjaro=A, Uluru=H) so the
       // per-wonder suitability — and hence the cross-wonder ranking — differs.
       featureCatalog: [
-        { featureType: 30, direction: 0, footprintOffsetsByParity: anchorOnly },
-        { featureType: 35, direction: 0, footprintOffsetsByParity: anchorOnly },
-        { featureType: 39, direction: 0, footprintOffsetsByParity: anchorOnly },
+        plannerCatalogEntry(30, anchorOnly),
+        plannerCatalogEntry(35, anchorOnly),
+        plannerCatalogEntry(39, anchorOnly),
       ],
     };
     const cfg = naturalWonderSelection(1);
@@ -112,7 +106,7 @@ describe("natural wonder planning", () => {
     // TWO-tile footprint so fallbacks must avoid MULTI-tile overlaps, not just
     // the single anchor plot. Two wonders in distinct groups so both place and
     // the second wonder's fallbacks must also avoid the first wonder's footprint.
-    const twoTile = {
+    const twoTile: FootprintOffsetsByParity = {
       even: [
         { dx: 0, dy: 0 },
         { dx: 1, dy: 0 },
@@ -133,6 +127,7 @@ describe("natural wonder planning", () => {
         aridityIndex: new Float32Array(size).fill(0.3),
         riverClass: new Uint8Array(size),
         lakeMask: new Uint8Array(size),
+        ...baselineSuitabilitySurfaces(size),
         coastTerrainType: 2,
         mountainTerrainType: 3,
         iceFeatureType: 4,
@@ -142,8 +137,8 @@ describe("natural wonder planning", () => {
         noFeatureType: -1,
         naturalWonderBlockedMask: new Uint8Array(size),
         featureCatalog: [
-          { featureType: 35, direction: 0, footprintOffsetsByParity: twoTile }, // group A
-          { featureType: 30, direction: 0, footprintOffsetsByParity: twoTile }, // group I
+          plannerCatalogEntry(35, twoTile), // group A
+          plannerCatalogEntry(30, twoTile), // group I
         ],
       },
       naturalWonderSelection(0)
@@ -186,7 +181,10 @@ describe("natural wonder planning", () => {
   it("diminishing-returns decay flips the second pick to a fresh group (variety)", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
-    const anchorOnly = { even: [{ dx: 0, dy: 0 }], odd: [{ dx: 0, dy: 0 }] };
+    const anchorOnly: FootprintOffsetsByParity = {
+      even: [{ dx: 0, dy: 0 }],
+      odd: [{ dx: 0, dy: 0 }],
+    };
     // Uniform map tuned so two arid wonders (group H) each score ~0.8 and one
     // forest wonder (group I) scores ~0.48. WITHOUT the per-group decay the two
     // highest scores are both group H -> {31,39}. WITH decay the 2nd H drops to
@@ -202,6 +200,7 @@ describe("natural wonder planning", () => {
         aridityIndex: new Float32Array(size).fill(1), // group H: 0.5*1 + 0.3*elevN(1) = 0.8
         riverClass: new Uint8Array(size),
         lakeMask: new Uint8Array(size),
+        ...baselineSuitabilitySurfaces(size),
         vegetationDensity: new Float32Array(size).fill(0.6), // group I: 0.55*0.6 = 0.33
         effectiveMoisture: new Float32Array(size).fill(0.5), //          + 0.3*0.5 = 0.15
         surfaceTemperature: new Float32Array(size).fill(35), // temperate term -> 0
@@ -214,9 +213,9 @@ describe("natural wonder planning", () => {
         noFeatureType: -1,
         naturalWonderBlockedMask: new Uint8Array(size),
         featureCatalog: [
-          { featureType: 31, direction: 0, footprintOffsetsByParity: anchorOnly }, // Grand Canyon (H)
-          { featureType: 39, direction: 0, footprintOffsetsByParity: anchorOnly }, // Uluru (H)
-          { featureType: 30, direction: 0, footprintOffsetsByParity: anchorOnly }, // Redwood (I)
+          plannerCatalogEntry(31, anchorOnly), // Grand Canyon (H)
+          plannerCatalogEntry(39, anchorOnly), // Uluru (H)
+          plannerCatalogEntry(30, anchorOnly), // Redwood (I)
         ],
       },
       naturalWonderSelection(0)

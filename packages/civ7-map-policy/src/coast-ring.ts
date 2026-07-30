@@ -33,7 +33,7 @@ export type CoastRingPolicyResult = Readonly<{
  * one-tile shoreline ring, never a distance band.
  *
  * Source coast (shelf ∪ shoreline metrics) normally already covers the ring; this
- * heals the residue, e.g. ocean around island peaks injected after coastline metrics.
+ * heals any residue around island land formed after the base coastline was measured.
  */
 export function applyCiv7CoastRingPolicy(params: {
   width: number;

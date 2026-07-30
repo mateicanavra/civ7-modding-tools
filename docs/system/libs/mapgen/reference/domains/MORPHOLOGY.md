@@ -246,9 +246,9 @@ Fields:
 ### `artifact:morphology.baseCoastline` (pre-island evidence; tile space)
 
 Adjacency and distance-to-coast evidence derived from base topography before
-island injection. Mountain planning consumes this vintage. It contains no
-shelf evidence; post-island coastline and shelf truth live in
-`artifact:morphology.shelf`.
+island topography computation. Island formation and mountain planning consume
+this vintage. It contains no shelf evidence; post-island coastline and shelf
+truth live in `artifact:morphology.shelf`.
 
 Fields:
 
@@ -260,6 +260,7 @@ Fields:
 
 - `mods/mod-swooper-maps/src/domain/morphology/modules/coasts/artifacts/base-coastline.artifact.ts` (`artifact.schema`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/coastline-evidence/step.ts` (publishing `baseCoastline`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/islands/config.ts` (`config.artifacts.requires`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/mountains/config.ts` (`config.artifacts.requires`)
 
 ### `artifact:morphology.shelf` (post-island evidence; tile space)
@@ -286,21 +287,25 @@ artifact and therefore are not downstream domain authority.
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/step.ts` (recomputing post-island coastline metrics and publishing `shelf`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-coasts/config.ts` (`config.artifacts.requires`)
 
-### `artifact:morphology.volcanoes` (truth-only intent; tile space; immutable-at-F2)
+### `artifact:morphology.volcanoes` (complete immutable intent; tile space)
 
-Planned volcano placements, represented as both:
+The complete product of `morphology/plan-volcanoes`, represented as both:
 
 - a dense `volcanoMask` (for map overlays / fast membership tests)
-- a sparse list of volcano entries (`tileIndex`, `kind`, `strength01`)
+- a strictly tile-ordered sparse list of volcano entries (`tileIndex`, tectonic
+  setting `kind`, `strength01`)
 
-This artifact is an **intent snapshot**: it is not a promise that a particular engine terrain/feature application strategy is stable.
+Artifact admission proves binary mask membership, in-bounds unique ordering,
+and exact sparse-list/dense-mask coherence. The product expresses domain
+intent; the separate projection step owns Civ7 terrain and feature mutation and
+verifies immediate engine readback.
 
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/artifacts/volcanoes.artifact.ts` (`artifact.schema`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/config.ts` (docstring: “truth-only intent”)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/step.ts` (publishing `{ volcanoMask, volcanoes }`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-volcanoes/step.ts` (projection into engine terrain + feature)
+- `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/ops/plan-volcanoes/contract.ts` (complete operation output)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/step.ts` (publishing the operation-owned product)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-volcanoes/step.ts` (Civ7 projection and immediate readback)
 
 ### `artifact:morphology.landmasses` (derived snapshot; tile space; immutable-at-F2)
 
@@ -392,14 +397,30 @@ depression-conditioned drainage routing from Morphology topography.
 - `packages/mapgen-core/src/lib/grid/flow-routing.ts` (`selectFlowReceiver` generic hex-grid primitive)
 - `mods/mod-swooper-maps/src/domain/morphology/modules/routing/ops/compute-flow-routing/strategies/steepest-descent/index.ts` (receiver selection, Morphology accumulation, and `basinId.fill(-1)`)
 
-#### `morphology/compute-geomorphic-cycle` → `{ elevationDelta, sedimentDelta }`
+#### `morphology/compute-geomorphic-cycle` → `{ topography, substrate, deltas }`
 
-Computes elevation and sediment deltas for a geomorphic relaxation pass.
+Evolves base relief and substrate through the configured geomorphic cycle,
+preserves the admitted land-water identity, and returns coherent post-erosion
+products plus diagnostic elevation and sediment deltas.
 
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/domain/morphology/modules/erosion/ops/compute-geomorphic-cycle/contract.ts` (`ComputeGeomorphicCycleContract`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/step.ts` (copying base topography and substrate, then publishing eroded topography and final substrate)
+- `mods/mod-swooper-maps/src/domain/morphology/modules/erosion/ops/compute-geomorphic-cycle/rules/index.ts` (constructing coherent eroded topography and substrate)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/step.ts` (publishing the operation-owned products)
+
+#### `morphology/compute-island-topography` → `{ topography, islandClass }`
+
+Computes the complete post-island topography from post-erosion terrain,
+pre-island coast distance, and tectonic evidence. The operation applies
+connected island-chain and microcontinent formation to coherent elevation,
+land-mask, and bathymetry fields, then returns exact per-tile formation classes:
+`0` unchanged, `1` island-chain land, and `2` microcontinent land.
+
+**Ground truth anchors**
+
+- `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/ops/compute-island-topography/contract.ts` (`ComputeIslandTopographyContract`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/islands/step.ts` (publishing operation-owned topography and projecting formation-class evidence)
 
 #### `morphology/compute-landmasses` → `{ landmasses, landmassIdByTile }`
 
@@ -412,23 +433,21 @@ Decomposes the final land mask into connected landmasses.
 
 ### Planning ops (plan)
 
-#### `morphology/plan-island-chains` → `{ edits[] }`
+#### `morphology/plan-volcanoes` → `{ volcanoMask, volcanoes[] }`
 
-Plans island-chain terrain edits (coast/peak) driven by boundary + volcanism signals.
-
-**Ground truth anchors**
-
-- `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/ops/plan-island-chains/contract.ts` (`PlanIslandChainsContract`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/islands/step.ts` (applying island edits to the post-erosion topography vintage)
-
-#### `morphology/plan-volcanoes` → `{ volcanoes[] }`
-
-Plans volcano placements driven by boundary and hotspot signals.
+Plans the complete immutable volcano-intent product from admitted land,
+boundary-regime, shield-stability, and volcanism evidence. The planner owns
+candidate ranking, periodic-hex spacing, honest boundary-regime
+classification, normalized strength, the ordered sparse intent list, and its
+exact dense mask. Civ7 terrain and feature mutation remains downstream
+projection behavior.
 
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/ops/plan-volcanoes/contract.ts` (`PlanVolcanoesContract`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/step.ts` (building `volcanoMask` and `volcanoes[]` from the plan)
+- `mods/mod-swooper-maps/src/domain/morphology/modules/landforms/artifacts/volcanoes.artifact.ts` (admitting exact sparse-list/dense-mask coherence)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/step.ts` (publishing the operation-owned product)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/projection/steps/plot-volcanoes/step.ts` (projecting intent and verifying immediate Civ7 terrain/feature readback)
 
 #### `morphology/plan-ridges` → `{ mountainMask, orogenyPotential, fracturePotential }`
 
@@ -574,8 +593,8 @@ Derives and publishes flow-routing evidence from base topography.
 
 ### `morphology-erosion` (`geomorphology`)
 
-Applies geomorphic relaxation to base topography and substrate, then
-publishes distinct post-erosion identities consumed downstream.
+Invokes Morphology's complete geomorphic transition over base topography and
+substrate, then publishes its distinct post-erosion identities downstream.
 
 **Requires**
 
@@ -592,16 +611,17 @@ publishes distinct post-erosion identities consumed downstream.
 
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/index.ts` (`steps: [geomorphology]`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/config.ts` (`config.artifacts`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/step.ts` (producing the post-erosion topography/substrate vintage)
+- `mods/mod-swooper-maps/src/domain/morphology/modules/erosion/ops/compute-geomorphic-cycle/contract.ts` (owning the complete post-erosion product)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/step.ts` (publishing the post-erosion topography/substrate vintage)
 
 ### `morphology-features` (`islands` → `mountains` → `volcanoes` → `landmasses`)
 
-Applies landform accents (islands), publishes mountain/foothill intent,
+Computes complete post-island topography, publishes mountain/foothill intent,
 publishes volcano intent, and publishes the landmass decomposition snapshot.
 
 **Requires / Provides**
 
-- `islands`: requires `foundation.plates` + `morphology.topography.eroded`; provides terminal `morphology.topography`
+- `islands`: requires `foundation.plates` + `morphology.topography.eroded` + `morphology.baseCoastline`; provides terminal `morphology.topography`
 - `mountains`: requires `morphology.beltDrivers` + `morphology.topography`; provides `morphology.mountains`
 - `volcanoes`: requires `foundation.plates` + `morphology.topography`; provides `morphology.volcanoes`
 - `landmasses`: requires `morphology.topography`; provides `morphology.landmasses`

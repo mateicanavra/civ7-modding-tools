@@ -143,8 +143,8 @@ export type MorphologyMountainRangesKnob = Exclude<
 >;
 
 /**
- * Orders post-erosion island, mountain, and volcano intent before decomposing
- * the final landmask, keeping landform planning ahead of shelf and projection.
+ * Orders complete island formation, mountain intent, and volcano intent before decomposing
+ * the final landmask, keeping landform production ahead of shelf and projection.
  */
 export default createStage({
   id: "morphology-features",

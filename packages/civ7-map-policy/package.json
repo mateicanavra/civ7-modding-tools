@@ -31,6 +31,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
   },
   "dependencies": {
+    "type-fest": "^5.7.0",
     "typebox": "catalog:"
   }
 }

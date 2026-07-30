@@ -11,13 +11,13 @@ function broadWetlandHabitatFields(size: number) {
 }
 
 describe("planWetlands (joint resolver)", () => {
-  it("selects the highest-scoring wet feature per tile and respects occupancy", () => {
+  it("selects wetland families above the configured threshold on unoccupied tiles", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
-    const selection = normalizeOperationSelectionForTest(
-      ecology.features.ops.planWetlands,
-      ecology.features.ops.planWetlands.defaultConfig
-    );
+    const selection = normalizeOperationSelectionForTest(ecology.features.ops.planWetlands, {
+      strategy: "habitat-confidence",
+      config: { minConfidence01: 0.5 },
+    });
 
     const scoreMarsh01 = new Float32Array(size);
     const scoreTundraBog01 = new Float32Array(size);
@@ -33,8 +33,11 @@ describe("planWetlands (joint resolver)", () => {
     scoreTundraBog01[2] = 1;
     // tileIndex 3 -> mangrove
     scoreMangrove01[3] = 1;
+    // tileIndex 4 -> watering hole below the configured confidence floor
+    scoreWateringHole01[4] = 0.49;
 
     const featureOccupancyMask = new Uint8Array(size);
+    featureOccupancyMask[3] = 1;
     const habitat = broadWetlandHabitatFields(size);
 
     const result = ecology.features.ops.planWetlands.run(
@@ -53,12 +56,7 @@ describe("planWetlands (joint resolver)", () => {
       selection
     );
 
-    expect(result.placements.map((p) => p.feature)).toEqual([
-      "marsh",
-      "oasis",
-      "tundra-bog",
-      "mangrove",
-    ]);
+    expect(result.placements.map((p) => p.feature)).toEqual(["marsh", "oasis", "tundra-bog"]);
   });
 
   it("is deterministic and seed-independent for exact ties", () => {

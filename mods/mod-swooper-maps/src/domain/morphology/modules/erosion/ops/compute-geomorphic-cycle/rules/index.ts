@@ -1,5 +1,5 @@
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
-import { clamp } from "@swooper/mapgen-core/lib/math";
+import { clamp, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
 
 type WorldAge = "young" | "mature" | "old";
 
@@ -7,7 +7,7 @@ type GeomorphicCycleConfig = Readonly<{
   worldAge: WorldAge;
   geomorphology: Readonly<{
     fluvial: Readonly<{ rate: number; m: number; n: number }>;
-    diffusion: Readonly<{ rate: number; talus: number }>;
+    diffusion: Readonly<{ rate: number }>;
     deposition: Readonly<{ rate: number }>;
     eras: number;
   }>;
@@ -27,23 +27,28 @@ function resolveWorldAgeScale(worldAge: WorldAge): number {
 }
 
 /**
- * Computes geomorphic elevation + sediment deltas for the configured eras.
+ * Evolves elevation and sediment through the configured eras while preserving land-water identity.
+ *
+ * The transition never mutates or aliases admitted inputs. It accumulates floating-point process
+ * deltas across every era, then quantizes and clamps complete product buffers exactly once.
  */
-export function computeGeomorphicDeltas(params: {
+export function evolveGeomorphicSurface(params: {
   width: number;
   height: number;
   elevation: Int16Array;
+  seaLevel: number;
   flowDir: Int32Array;
   flowAccum: Float32Array;
   erodibility: Float32Array;
   sedimentDepth: Float32Array;
   landMask: Uint8Array;
   config: GeomorphicCycleConfig;
-}): { elevationDelta: Float32Array; sedimentDelta: Float32Array } {
+}) {
   const {
     width,
     height,
     elevation,
+    seaLevel,
     flowDir,
     flowAccum,
     erodibility,
@@ -148,5 +153,44 @@ export function computeGeomorphicDeltas(params: {
     }
   }
 
-  return { elevationDelta, sedimentDelta };
+  const nextElevation = new Int16Array(size);
+  const nextLandMask = new Uint8Array(size);
+  const bathymetry = new Int16Array(size);
+  const nextSedimentDepth = new Float32Array(size);
+
+  for (let i = 0; i < size; i++) {
+    nextElevation[i] = clampInt16(Math.round((elevation[i] ?? 0) + (elevationDelta[i] ?? 0)));
+    nextSedimentDepth[i] = Math.max(0, (sedimentDepth[i] ?? 0) + (sedimentDelta[i] ?? 0));
+  }
+
+  const waterElevation = clampInt16(Math.floor(seaLevel));
+  const landElevation = clampInt16(Math.floor(seaLevel) + 1);
+  for (let i = 0; i < size; i++) {
+    const isLand = landMask[i] === 1;
+    nextLandMask[i] = isLand ? 1 : 0;
+    if (isLand) {
+      if ((nextElevation[i] ?? 0) <= seaLevel) nextElevation[i] = landElevation;
+      bathymetry[i] = 0;
+      continue;
+    }
+
+    if ((nextElevation[i] ?? 0) > seaLevel) nextElevation[i] = waterElevation;
+    bathymetry[i] = clampInt16(
+      roundHalfAwayFromZero(Math.min(0, (nextElevation[i] ?? 0) - seaLevel))
+    );
+  }
+
+  return {
+    topography: {
+      elevation: nextElevation,
+      seaLevel,
+      landMask: nextLandMask,
+      bathymetry,
+    },
+    substrate: {
+      erodibilityK: new Float32Array(erodibility),
+      sedimentDepth: nextSedimentDepth,
+    },
+    deltas: { elevationDelta, sedimentDelta },
+  };
 }

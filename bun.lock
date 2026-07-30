@@ -180,6 +180,7 @@
       "name": "@civ7/map-policy",
       "version": "0.1.0",
       "dependencies": {
+        "type-fest": "^5.7.0",
         "typebox": "catalog:",
       },
     },

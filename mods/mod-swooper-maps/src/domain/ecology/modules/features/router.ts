@@ -9,6 +9,7 @@ import planIce from "./ops/features-plan-ice/index.js";
 import planReefs from "./ops/features-plan-reefs/index.js";
 import planVegetation from "./ops/features-plan-vegetation/index.js";
 import planWetlands from "./ops/features-plan-wetlands/index.js";
+import scoreFloodplains from "./ops/floodplain-score/index.js";
 import scoreIce from "./ops/ice-score-ice/index.js";
 import scoreReefAtoll from "./ops/reef-score-atoll/index.js";
 import scoreColdReef from "./ops/reef-score-cold-reef/index.js";
@@ -48,6 +49,7 @@ const features = createDomainSubdomainRouter(contract, {
   scoreReefAtoll,
   scoreReefLotus,
   scoreIce,
+  scoreFloodplains,
   planFloodplains,
   planWetlands,
   planReefs,
