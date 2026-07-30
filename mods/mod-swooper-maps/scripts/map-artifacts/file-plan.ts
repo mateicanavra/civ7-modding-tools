@@ -1,7 +1,4 @@
-import type {
-  GeneratedFilePlanExclusiveSet,
-  GeneratedFilePlanFile,
-} from "@civ7/plugin-files/generated-file-plan";
+import type { GeneratedFilePlan } from "@civ7/plugin-files/generated-file-plan";
 import {
   type RunCorrelation,
   STUDIO_RUN_MAP_ROW_ID,
@@ -11,7 +8,6 @@ import {
 import {
   canonicalMapConfigContentDigest,
   canonicalMapConfigDigest,
-  mapLocalizationTag,
   type StandardMapConfigEnvelope,
   type ValidatedMapConfig,
 } from "../../src/maps/configs/canonical.js";
@@ -23,99 +19,8 @@ export type SwooperRunGeneratedModPlanInput = Readonly<{
   seed: number;
 }>;
 
-type SwooperMapArtifactFileKind =
-  | "generated-map-entry"
-  | "mod-config"
-  | "mod-info"
-  | "mod-data"
-  | "mod-text"
-  | "recipe-schema"
-  | "studio-catalog-module"
-  | "studio-catalog-types";
-
-type SwooperCatalogArtifactMarkerMetadata = Readonly<{
-  configId: string;
-  configHash: string;
-  envelopeHash: string;
-  launchEnvelopeDigest?: never;
-  requestId?: never;
-}>;
-
-type SwooperRunArtifactMarkerMetadata = Readonly<{
-  configId: string;
-  configHash: string;
-  envelopeHash?: never;
-  launchEnvelopeDigest: string;
-  requestId: string;
-}>;
-
-type SwooperMapArtifactMarkerMetadata =
-  | SwooperCatalogArtifactMarkerMetadata
-  | SwooperRunArtifactMarkerMetadata;
-
-type SwooperMapArtifactNonGeneratedFileKind = Exclude<
-  SwooperMapArtifactFileKind,
-  "generated-map-entry"
->;
-
-type SwooperMapArtifactPlannedFile =
-  | Readonly<
-      GeneratedFilePlanFile & {
-        relativePath: string;
-        kind: "generated-map-entry";
-        markerMetadata: SwooperMapArtifactMarkerMetadata;
-      }
-    >
-  | Readonly<
-      GeneratedFilePlanFile & {
-        relativePath: string;
-        kind: SwooperMapArtifactNonGeneratedFileKind;
-      }
-    >;
-
-type SwooperMapArtifactExclusiveSet = Readonly<
-  GeneratedFilePlanExclusiveSet & {
-    id: "generated-map-entrypoints";
-    relativeDir: string;
-    fileExtension: ".ts";
-    artifactKind: "generated-map-entry";
-  }
->;
-
-type SwooperMapArtifactConfigProjection =
-  | Readonly<{
-      sourceKind: "catalog";
-      sourcePath: string;
-      canonicalConfig: StandardMapConfigEnvelope;
-    }>
-  | Readonly<{
-      sourceKind: "generated-run";
-      canonicalConfig: StandardMapConfigEnvelope;
-    }>;
-
-/**
- * Pure artifact intent for Swooper map generation. The renderer owns relative
- * paths, content, and marker metadata; `@civ7/plugin-files` owns generic
- * output-root admission, currentness inspection, cleanup, and writes.
- */
-export type SwooperMapArtifactFilePlan = Readonly<{
-  metadata: Readonly<{
-    configProjections: readonly SwooperMapArtifactConfigProjection[];
-  }>;
-  exclusiveSets: readonly SwooperMapArtifactExclusiveSet[];
-  files: readonly SwooperMapArtifactPlannedFile[];
-}>;
-
 function stableJson(value: unknown): string {
   return `${JSON.stringify(value, null, 2)}\n`;
-}
-
-function configHashFor(config: StandardMapConfigEnvelope): string {
-  return canonicalMapConfigContentDigest(config);
-}
-
-function envelopeHashFor(config: StandardMapConfigEnvelope): string {
-  return canonicalMapConfigDigest(config);
 }
 
 function xmlEscape(value: string): string {
@@ -127,22 +32,16 @@ function xmlEscape(value: string): string {
     .replace(/'/g, "&apos;");
 }
 
-function renderMapEntryArtifact(
-  config: ValidatedMapConfig
-): Pick<
-  Extract<SwooperMapArtifactPlannedFile, { kind: "generated-map-entry" }>,
-  "content" | "markerMetadata"
-> {
+function mapLocalizationTag(id: string, field: "name" | "description"): string {
+  const suffix = field === "name" ? "NAME" : "DESCRIPTION";
+  return `LOC_MAP_${id.toUpperCase().replace(/[^A-Z0-9]+/g, "_")}_${suffix}`;
+}
+
+function renderMapEntryArtifact(config: ValidatedMapConfig): string {
   const canonicalConfig = config.canonicalConfig;
-  const configHash = configHashFor(canonicalConfig);
-  const envelopeHash = envelopeHashFor(canonicalConfig);
-  return {
-    markerMetadata: {
-      configId: canonicalConfig.id,
-      configHash,
-      envelopeHash,
-    },
-    content: `/**
+  const configHash = canonicalMapConfigContentDigest(canonicalConfig);
+  const envelopeHash = canonicalMapConfigDigest(canonicalConfig);
+  return `/**
  * Generated from ../configs/${config.fileName}.
  * Do not edit by hand; re-run \`nx run mod-swooper-maps:gen:maps\`.
  */
@@ -176,26 +75,16 @@ export default createMap({
     project: projectStandardInitialSetup,
   },
 });
-`,
-  };
+`;
 }
 
-function renderRunMapEntryArtifact(
-  input: SwooperRunGeneratedModPlanInput
-): Pick<
-  Extract<SwooperMapArtifactPlannedFile, { kind: "generated-map-entry" }>,
-  "content" | "markerMetadata"
-> {
+/**
+ * Renders the virtual TypeScript entrypoint compiled into one request-local Studio run mod.
+ * The generator bundles this source in memory; it is not part of the generated mod tree.
+ */
+export function renderSwooperRunMapSource(input: SwooperRunGeneratedModPlanInput): string {
   const config = input.config;
-  const configHash = configHashFor(config);
-  return {
-    markerMetadata: {
-      configId: config.id,
-      configHash,
-      launchEnvelopeDigest: input.correlation.launchEnvelopeDigest,
-      requestId: input.correlation.requestId,
-    },
-    content: `/**
+  return `/**
  * Generated from a Studio Run in Game generation manifest.
  * Do not edit by hand; re-run the manifest generator.
  */
@@ -229,8 +118,7 @@ export default createMap({
     project: projectStandardInitialSetup,
   },
 });
-`,
-  };
+`;
 }
 
 function renderConfigXml(
@@ -460,52 +348,34 @@ export function buildSwooperCatalogModFilePlan(
   options: Readonly<{
     configs: readonly ValidatedMapConfig[];
   }>
-): SwooperMapArtifactFilePlan {
-  const generatedMapFiles = options.configs.map((config) => {
-    const entry = renderMapEntryArtifact(config);
-    return {
-      relativePath: `src/maps/generated/${config.canonicalConfig.id}.ts`,
-      kind: "generated-map-entry",
-      content: entry.content,
-      markerMetadata: entry.markerMetadata,
-    } as const satisfies SwooperMapArtifactPlannedFile;
-  });
+): GeneratedFilePlan {
+  const generatedMapFiles = options.configs.map((config) => ({
+    relativePath: `src/maps/generated/${config.canonicalConfig.id}.ts`,
+    content: renderMapEntryArtifact(config),
+  }));
   return {
-    metadata: {
-      configProjections: options.configs.map((config) => ({
-        sourceKind: "catalog",
-        sourcePath: `mods/mod-swooper-maps/src/maps/configs/${config.fileName}`,
-        canonicalConfig: config.canonicalConfig,
-      })),
-    },
     exclusiveSets: [
       {
-        id: "generated-map-entrypoints",
         relativeDir: "src/maps/generated",
         fileExtension: ".ts",
-        artifactKind: "generated-map-entry",
       },
     ],
     files: [
       ...generatedMapFiles,
       {
         relativePath: "mod/config/config.xml",
-        kind: "mod-config",
         content: renderConfigXml(options.configs.map((config) => config.canonicalConfig)),
       },
       {
         relativePath: "mod/swooper-maps.modinfo",
-        kind: "mod-info",
         content: renderModInfo(options.configs.map((config) => config.canonicalConfig)),
       },
       {
         relativePath: "mod/data/biome-hazards.xml",
-        kind: "mod-data",
         content: renderBiomeHazardData(),
       },
       {
         relativePath: "mod/text/en_us/MapText.xml",
-        kind: "mod-text",
         content: renderMapText(options.configs.map((config) => config.canonicalConfig)),
       },
     ],
@@ -523,30 +393,20 @@ export function buildSwooperCatalogMetadataFilePlan(
     configs: readonly ValidatedMapConfig[];
     envelopeSchema: unknown;
   }>
-): SwooperMapArtifactFilePlan {
+): GeneratedFilePlan {
   return {
-    metadata: {
-      configProjections: options.configs.map((config) => ({
-        sourceKind: "catalog",
-        sourcePath: `mods/mod-swooper-maps/src/maps/configs/${config.fileName}`,
-        canonicalConfig: config.canonicalConfig,
-      })),
-    },
     exclusiveSets: [],
     files: [
       {
         relativePath: "dist/recipes/standard-map-config.schema.json",
-        kind: "recipe-schema",
         content: stableJson(options.envelopeSchema),
       },
       {
         relativePath: "dist/recipes/standard-map-configs.js",
-        kind: "studio-catalog-module",
         content: renderMapConfigsArtifact(options.configs),
       },
       {
         relativePath: "dist/recipes/standard-map-configs.d.ts",
-        kind: "studio-catalog-types",
         content: renderMapConfigsDts(),
       },
     ],
@@ -557,15 +417,17 @@ export function buildSwooperCatalogMetadataFilePlan(
  * Builds the request-local generated mod tree from a Studio generation
  * manifest. The run mod owns only the generated map row, map script, and
  * request correlation; shared gameplay data stays owned by the durable
- * Swooper mod that this run depends on.
+ * Swooper mod that this run depends on. The caller supplies the already-bundled
+ * map script so compiler input never enters the product files; the replacement
+ * set removes any interrupted predecessor source from a retried request root.
  */
 export function buildSwooperRunGeneratedModFilePlan(
-  input: SwooperRunGeneratedModPlanInput
-): SwooperMapArtifactFilePlan {
+  input: SwooperRunGeneratedModPlanInput,
+  bundledMapScript: string
+): GeneratedFilePlan {
   if (canonicalMapConfigDigest(input.config) !== input.correlation.canonicalConfigDigest) {
     throw new Error("Studio run canonical config digest does not match the launch config.");
   }
-  const entry = renderRunMapEntryArtifact(input);
   const config = input.config;
   const renderMode = {
     kind: "studio-run",
@@ -574,27 +436,19 @@ export function buildSwooperRunGeneratedModFilePlan(
     moduleId: STUDIO_RUN_MOD_ID,
   } satisfies SwooperModRenderMode;
   return {
-    metadata: {
-      configProjections: [{ sourceKind: "generated-run", canonicalConfig: config }],
-    },
     exclusiveSets: [
       {
-        id: "generated-map-entrypoints",
         relativeDir: ".source/maps",
         fileExtension: ".ts",
-        artifactKind: "generated-map-entry",
       },
     ],
     files: [
       {
-        relativePath: `.source/maps/${input.correlation.runArtifactId}.ts`,
-        kind: "generated-map-entry",
-        content: entry.content,
-        markerMetadata: entry.markerMetadata,
+        relativePath: STUDIO_RUN_MAP_SCRIPT_PATH,
+        content: bundledMapScript,
       },
       {
         relativePath: "config/config.xml",
-        kind: "mod-config",
         content: renderConfigXml([config], {
           moduleId: STUDIO_RUN_MOD_ID,
           outputFile: STUDIO_RUN_MAP_SCRIPT_PATH,
@@ -603,12 +457,10 @@ export function buildSwooperRunGeneratedModFilePlan(
       },
       {
         relativePath: `${STUDIO_RUN_MOD_ID}.modinfo`,
-        kind: "mod-info",
         content: renderModInfo([config], renderMode),
       },
       {
         relativePath: "text/en_us/MapText.xml",
-        kind: "mod-text",
         content: renderMapText([config], renderMode),
       },
     ],

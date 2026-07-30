@@ -127,8 +127,6 @@ export const materializationStatus = Type.Object(
     generatedModFileCount: Type.Optional(Type.Number()),
     generatedModDigest: Type.Optional(Type.String()),
     mapRowId: Type.Optional(Type.String()),
-    sourceConfig: Type.Optional(fileIdentity),
-    generatedSourceScript: Type.Optional(fileIdentity),
     localModScript: Type.Optional(fileIdentity),
     deployedModScript: Type.Optional(fileIdentity),
     localModScriptContent: Type.Optional(fileContentEvidence),

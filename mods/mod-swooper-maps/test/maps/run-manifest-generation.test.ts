@@ -44,17 +44,22 @@ describe("Swooper run manifest generator", () => {
           workspaceRoot,
         });
         const manifest = await readStudioRunGenerationManifest(manifestRef.path);
-        const generated = await generateSwooperRunGeneratedModFromManifestPath(manifestRef.path);
         const runArtifactId = createRunArtifactId(manifest.payload.requestId);
         const mapRowId = STUDIO_RUN_MAP_ROW_ID;
+        const staleSourceDirectory = resolve(
+          workspaceRoot,
+          manifest.payload.requestId,
+          manifest.payload.workspace.generatedModRoot,
+          ".source/maps"
+        );
+        await mkdir(staleSourceDirectory, { recursive: true });
+        await writeFile(resolve(staleSourceDirectory, `${runArtifactId}.ts`), "stale source\n");
+
+        const generated = await generateSwooperRunGeneratedModFromManifestPath(manifestRef.path);
 
         expect(generated).toMatchObject({
-          requestId: manifest.payload.requestId,
           runArtifactId,
           generatedModRoot: resolve(workspaceRoot, manifest.payload.requestId, "generated-mod"),
-          mapRowId: STUDIO_RUN_MAP_ROW_ID,
-          mapScriptPath: STUDIO_RUN_MAP_SCRIPT_PATH,
-          fileCount: 5,
         });
         expect(
           await readFile(

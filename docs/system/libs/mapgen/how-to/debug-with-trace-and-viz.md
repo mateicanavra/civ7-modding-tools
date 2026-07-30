@@ -41,20 +41,23 @@ This workflow produces a replayable folder containing:
 From the repo root:
 
 ```bash
-nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --seed 1337
+nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7
 ```
 
 Notes:
 - Canonical deploy-equivalent builds use Nx from repo root (see `nx run mapgen-studio:dev` / `nx run mapgen-studio:build`).
 - Nx owns the runner's workspace dependency build through `diag:dump`.
-- `--map-size` accepts an official Civ7 map-size id; `--seed` accepts an integer map seed.
+- `--map-size` accepts an official Civ7 map-size id and defaults to
+  `MAPSIZE_STANDARD`; `--map-seed`, `--game-seed`, and the ordered `--players`
+  list are required. For a negative signed seed, use `--map-seed=-1337` or
+  `--game-seed=-7331`.
 
 ### 2) Find the output folder
 
-The harness prints the run folder:
+The harness prints the run identity and folder:
 
-```
-[viz] wrote dump under: <repo>/mods/mod-swooper-maps/dist/visualization/<runId>
+```json
+{"runId":"...","outputDir":"<repo>/mods/mod-swooper-maps/dist/visualization/<label>/<runId>"}
 ```
 
 Notes:
@@ -83,7 +86,7 @@ Use the Swooper commands, backed by `@swooper/mapgen-diagnostics`, against the r
 
 ```bash
 nx run mod-swooper-maps:diag:list -- <runDir> --prefix hydrology.
-nx run mod-swooper-maps:diag:trace -- <runDir> --eventPrefix hydrology.
+nx run mod-swooper-maps:diag:trace -- <runDir> --event-prefix hydrology.
 ```
 
 Studio's Explore panel is the live deck.gl viewer. It consumes worker emissions and does not load

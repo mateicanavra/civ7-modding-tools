@@ -280,7 +280,7 @@ categorical layers declare transparent zero categories. Coverage is pinned by
   evidence remains historical. Static facts and fallback admission belong to
 `@civ7/map-policy`; roster-dependent policy flows through `EngineAdapter`, and
   resulting placement behavior is proved through bounded product verification.
-- Live full-grid parity: `nx run mod-swooper-maps:verify:operational -- --mode final-surface-parity` (milestone-boundary proof class; see `docs/projects/placement-realignment/MILESTONE-PROOFS.md`).
+- Live full-grid parity: `nx run mod-swooper-maps:verify:final-surface-parity` (milestone-boundary proof class; see `docs/projects/placement-realignment/MILESTONE-PROOFS.md`).
 
 ## Ground truth anchors
 

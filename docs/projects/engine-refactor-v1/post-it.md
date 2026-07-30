@@ -2,8 +2,7 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Artifact. Authority. Analysis. Projection. Exactness.
-Directness. Closure.
+**Attractor filter:** Plan. Output. Admission. Completeness. Simplicity.
 
 **Frame:** kind before instance, intent before ownership, authority before
 relocation. A closed file shape is the start of semantic review, not proof that
@@ -31,13 +30,11 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** authored artifact dependency analysis has two owners.
-Recipe admission retains exact `Artifact` identity and fails malformed graphs;
-the Studio DAG rebuilds providers after reducing artifacts to `{ id, name }`.
-The two already disagree on same-id/different-authority edges and unconsumed
-duplicate providers. One pure exact-authority analysis must own providers,
-edges, and issues; admission and JSON-safe visualization become projections of
-that result rather than parallel interpretations.
+**Current container:** the Studio recipe-type generator owns five related build
+outputs but mutates them through independent writes plus bespoke cleanup for a
+retired ignored output. Its source derivation and catalog admission are
+coherent; its materialization is not yet expressed as one complete product
+plan.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -54,13 +51,13 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** extract one internal exact artifact-dependency analyzer; delete
-the recipe validator and DAG provider-map reconstruction; retain missing,
-duplicate, unused, resolved, internal, and forward-reference behavior; add an
-explicit authority-mismatch diagnostic and forbid false edges. Keep execution-
-plan ordering admission separate. Freeze with Core DAG/recipe behavior, Studio
-contract and service proof, typecheck, authoring boundaries, and fresh
-TypeScript/architecture review.
+**Gradient:** derive every Studio recipe type/schema/default artifact in memory,
+validate the shipped catalog before mutation, and apply one canonical generated
+file plan. Replace the direct writes and bespoke retired-output deletion with a
+narrow plan-owned replacement set, and keep that mutation target uncached so
+ignored stale output cannot bypass cleanup. Freeze through the real Nx-owned
+generation/build path, output identity, dead-code proof, and focused
+architecture and quality review.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -103,6 +100,89 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Studio Exact Authorship Source Evidence Sealed
+
+Studio exact authorship now follows one request-generated mod evidence chain.
+The unreachable source-config identity, deleted compiler-source probe, alternate
+legacy predicate, and duplicate script-evidence override channel retired.
+Complete evidence positively requires the generation manifest, artifact/root,
+generated tree count and digest, map row, bundled local/deployed scripts,
+content markers, setup/runtime readback, and parsed log evidence. Focused
+behavior, the complete Studio Nx graph, Habitat, dead-code proof, and fresh
+architecture and quality review sealed the cut.
+
+### 2026-07-28 - Run Compiler Source Sealed
+
+Studio run generation now renders its TypeScript entrypoint in memory, feeds it
+to esbuild through `stdin`, and applies one final four-file product plan. No
+compiler input is materialized or reported; the final plan alone retains narrow
+replacement intent for stale predecessor source on a supported retry. Focused
+generator behavior, the affected Nx graph, dead-code proof, the staged Habitat
+hook, and fresh architecture and quality review sealed the cut.
+
+### 2026-07-28 - Validated Map Config Identity Sealed
+
+Canonical map-config admission now retains only the immutable Standard
+envelope and its source filename after proving the filename stem equals the
+canonical map id. Four unused cached output/localization names and the one-use
+stem helper retired; localization-key rendering moved to its truthful Swooper
+file-plan owner. Focused config and renderer behavior, the Nx-owned Swooper
+graph, generated currentness, dead-code proof, the staged Habitat hook, and
+fresh architecture/testing review sealed the cut.
+
+### 2026-07-28 - Generated File Plan State Sealed
+
+All three Swooper renderers now return the canonical `GeneratedFilePlan`
+directly. The second plan schema, phantom file kinds, marker metadata,
+exclusive-set identity, config-projection ledger, unused plan-builder API, and
+meaningless file count retired. Catalog identity and full run correlation
+remain in emitted product bytes. Focused rendering and real generated-module
+behavior, one Nx-owned Swooper graph, dead-code and boundary proof, and fresh
+architecture/testing review sealed the cut.
+
+### 2026-07-28 - Live Verifier Targets Sealed
+
+The false `scripts/verify.ts` command graph retired. Each live proof now has one
+direct uncached Nx target with build ordering and native argument forwarding;
+the duplicate mode registry, alias, parser, spawn hop, and old command
+vocabulary are gone. Both real Nx help paths, focused verifier behavior, the
+Swooper tools graph, boundaries, dead-code proof, deterministic execution-surface
+inventory, and fresh architecture/testing reviews sealed the cut.
+
+### 2026-07-28 - Diagnostic Command Input Authority Sealed
+
+Each Swooper diagnostic command now owns one closed native `parseArgs` grammar.
+The mixed `command-input.ts` cabinet, camel-case compatibility flags, and
+one-consumer Standard overlay helpers retired. The dump command requires an
+official map size plus independent map seed, game seed, and ordered players;
+current docs name its real full-recipe output path and native negative-seed
+syntax. Focused command behavior, a real Tiny dump, the full Swooper graph,
+Habitat boundaries and JSDoc authority, Knip, and fresh architecture/testing
+reviews sealed the cut.
+
+### 2026-07-28 - Live Diagnostic Command Ownership Sealed
+
+The live Studio verifier now consumes the canonical Civ7 plugin-files Mods
+resolver and retains only Swooper map-script identity, deployment markers,
+product completion acceptance, and command/report composition. Its one-consumer
+error cabinet collapsed into one JSON-safe command-local projection that
+preserves admitted oRPC evidence without stacks, causes, or provider payloads.
+The diagnostic guide now names the real Civ7 preset plus independent map seed,
+game seed, and player inputs. Focused command behavior, the full Swooper/Core
+graph, Habitat boundaries and JSDoc authority, and fresh architecture/testing
+reviews sealed the cut.
+
+### 2026-07-28 - Exact Artifact Dependency Analysis Sealed
+
+One internal exact-authority analysis now owns authored artifact provider and
+consumer discovery, causal edges, and malformed relationships. Recipe
+admission and the Studio DAG are projections of that evidence: unconsumed
+duplicates fail, same-id foreign authorities produce a mismatch without a
+false edge, and duplicate diagnostics require at least two providers from Core
+through the Studio wire contract. Execution-plan ordering remains a distinct
+runtime authority. Core, Studio contract/UI, Nx, Habitat boundaries, and fresh
+architecture/product reviews sealed the cut.
 
 ### 2026-07-28 - Canonical Step Identity Sealed
 

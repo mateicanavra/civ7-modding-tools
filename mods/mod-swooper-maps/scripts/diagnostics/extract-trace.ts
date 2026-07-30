@@ -1,27 +1,46 @@
+import { parseArgs } from "node:util";
 import { isTraceDataRecordEvent, readTraceEvents } from "@swooper/mapgen-diagnostics";
-import { parseDiagnosticArgs } from "./command-input.js";
 
-function asString(value: unknown): string | null {
-  return typeof value === "string" ? value : null;
+type ExtractTraceCommandInput = Readonly<{
+  runDir: string;
+  eventKind?: string;
+  eventPrefix?: string;
+}>;
+
+const USAGE =
+  "Usage: bun ./scripts/diagnostics/extract-trace.ts -- <runDir> [--event-kind ...] [--event-prefix ...]";
+
+/** Parses one dump run and the optional event filters understood by the trace command. */
+export function parseExtractTraceArgs(argv: readonly string[]): ExtractTraceCommandInput {
+  const { positionals, values } = parseArgs({
+    args: argv,
+    allowPositionals: true,
+    options: {
+      "event-kind": { type: "string" },
+      "event-prefix": { type: "string" },
+    },
+    strict: true,
+  });
+
+  const [runDir] = positionals;
+  if (!runDir || positionals.length !== 1) throw new Error(USAGE);
+  return {
+    runDir,
+    eventKind: values["event-kind"],
+    eventPrefix: values["event-prefix"],
+  };
 }
 
 /**
  * Extract selected trace events from a dump run.
  *
  * Usage:
- *   bun ./scripts/diagnostics/extract-trace.ts -- <runDir> [--eventKind morphology.landmassPlates.summary]
+ *   bun ./scripts/diagnostics/extract-trace.ts -- <runDir> [--event-kind morphology.landmassPlates.summary]
  */
 function main(): void {
-  const { positionals, flags } = parseDiagnosticArgs(process.argv.slice(2));
-  const runDir = positionals[0];
-  if (!runDir)
-    throw new Error(
-      "Usage: bun ./scripts/diagnostics/extract-trace.ts -- <runDir> [--eventKind ...]"
-    );
+  const { runDir, eventKind, eventPrefix } = parseExtractTraceArgs(process.argv.slice(2));
 
   const trace = readTraceEvents(runDir);
-  const kindFlag = asString(flags.eventKind);
-  const prefixFlag = asString(flags.eventPrefix);
 
   const events = trace
     .filter(isTraceDataRecordEvent)
@@ -33,18 +52,21 @@ function main(): void {
       data: event.data,
     }))
     .filter((e) => {
-      if (kindFlag && e.kind !== kindFlag) return false;
-      if (prefixFlag && typeof e.kind === "string" && !e.kind.startsWith(prefixFlag)) return false;
-      if (prefixFlag && typeof e.kind !== "string") return false;
+      if (eventKind && e.kind !== eventKind) return false;
+      if (eventPrefix && typeof e.kind === "string" && !e.kind.startsWith(eventPrefix))
+        return false;
+      if (eventPrefix && typeof e.kind !== "string") return false;
       return true;
     });
 
   console.log(JSON.stringify({ runDir, count: events.length, events }, null, 2));
 }
 
-try {
-  main();
-} catch (err) {
-  console.error(err);
-  process.exitCode = 1;
+if (import.meta.main) {
+  try {
+    main();
+  } catch (err) {
+    console.error(err);
+    process.exitCode = 1;
+  }
 }

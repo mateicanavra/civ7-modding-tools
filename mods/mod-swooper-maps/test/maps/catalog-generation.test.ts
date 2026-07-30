@@ -2,11 +2,9 @@ import { describe, expect, it } from "bun:test";
 import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { loadSwooperStudioDeployConfigRegistry } from "../../scripts/generate-map-artifacts";
-import {
-  buildSwooperStudioCatalogMetadataPlan,
-  generateSwooperStudioCatalogMetadata,
-} from "../../scripts/generate-studio-map-catalog";
+import { generateSwooperStudioCatalogMetadata } from "../../scripts/generate-studio-map-catalog";
 import { CatalogSourceIndex } from "../../src/maps/catalog/sourceIndex";
 import { CATALOG_CONFIG_PATH_PREFIX } from "../../src/maps/catalog/sources";
 
@@ -21,6 +19,18 @@ async function outputPaths(root: string): Promise<string[]> {
   } catch {
     return [];
   }
+}
+
+async function importCatalogEntries(root: string) {
+  const module = (await import(
+    pathToFileURL(resolve(root, "dist/recipes/standard-map-configs.js")).href
+  )) as Readonly<{
+    standardMapConfigs: readonly Readonly<{
+      sourcePath: string;
+      canonicalConfig: Readonly<{ id: string }>;
+    }>[];
+  }>;
+  return module.standardMapConfigs;
 }
 
 async function fakeRepoWithConfig(args: {
@@ -55,29 +65,25 @@ describe("Swooper catalog generation index cutover", () => {
     const outputRoot = await mkdtemp(resolve(tmpdir(), "swooper-catalog-index-cutover-"));
     try {
       const selected = [indexedSource(1), indexedSource(0)];
-      const plan = await buildSwooperStudioCatalogMetadataPlan({ catalogSourceIndex: selected });
 
       const result = await generateSwooperStudioCatalogMetadata({
         catalogSourceIndex: selected,
         outputRoot,
       });
 
-      expect(result).toEqual({ configCount: 2, fileCount: 3 });
+      expect(result).toEqual({ configCount: 2 });
       expect(await outputPaths(outputRoot)).toEqual([
         "standard-map-config.schema.json",
         "standard-map-configs.d.ts",
         "standard-map-configs.js",
       ]);
 
-      expect(plan.metadata.configProjections.map((entry) => entry.canonicalConfig.id)).toEqual([
+      const entries = await importCatalogEntries(outputRoot);
+      expect(entries.map((entry) => entry.canonicalConfig.id)).toEqual([
         "swooper-earthlike",
         "swooper-desert-mountains",
       ]);
-      expect(
-        plan.metadata.configProjections.map((entry) =>
-          entry.sourceKind === "catalog" ? entry.sourcePath : undefined
-        )
-      ).toEqual([selected[0], selected[1]]);
+      expect(entries.map((entry) => entry.sourcePath)).toEqual([selected[0], selected[1]]);
     } finally {
       await rm(outputRoot, { recursive: true, force: true });
     }

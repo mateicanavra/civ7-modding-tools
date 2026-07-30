@@ -2,7 +2,7 @@
 
 > Open at loop step 7 (in-game verification) to run the mutating live gate end-to-end: build → deploy → cold-boot → run-in-game → log-marker proof → parity → proof labels. This is the **closure test** of the workstream — Studio is where you *see*, the live engine is where you *know*. A map-gen change is **not done** on Studio/diagnostic evidence alone (FRAMING hard core 2).
 
-This is a runnable checklist, not a concept doc. The display-vs-generation branch and benchmark overlay live in `references/facet-verification.md`; the generic benchmark contract lives in `docs/system/libs/mapgen/benchmarks/BENCHMARKS.md`; tuner discipline lives in `civ7-operational-debugging` → `references/firetuner-runtime.md`; closure labels live in its `references/proof-boundaries.md`. This file does **not** restate those — it sequences the commands that exercise them. Re-derive any exact flag or path from live source (`mods/mod-swooper-maps/scripts/verify.ts` and `scripts/live/*`) if a detail here looks stale.
+This is a runnable checklist, not a concept doc. The display-vs-generation branch and benchmark overlay live in `references/facet-verification.md`; the generic benchmark contract lives in `docs/system/libs/mapgen/benchmarks/BENCHMARKS.md`; tuner discipline lives in `civ7-operational-debugging` → `references/firetuner-runtime.md`; closure labels live in its `references/proof-boundaries.md`. This file does **not** restate those — it sequences the commands that exercise them. Re-derive any exact flag or path from the direct Nx targets in `mods/mod-swooper-maps/project.json` and their `scripts/live/*` entrypoints if a detail here looks stale.
 
 ---
 
@@ -33,7 +33,7 @@ Direct-control has **no** cold-boot automation — it assumes Civ7 is already at
 2. **Launch from setup**: use the `@civ7/control-orpc` `lifecycle.singlePlayer.start` capability through `verify-studio-run-in-game-live.ts`. It owns shell admission, setup application, Begin Game, and post-start tuner/readback evidence as one correlated lifecycle. The `Tuner` scripting state is command-ready only *after* Begin Game and remains the canary for gameplay globals (`Game`, `GameplayMap`, `Players`).
 3. **SIGSEGV guard (do not skip).** Maps that pass local headless `MockAdapter` validation can still SIGSEGV the live engine (null-deref at 0x20) when the deployed map recipe skips standard `write`/`prep` operations. Never hand-roll a minimal recipe or launch bypass. A clean MockAdapter run does **not** prove live-engine safety.
 
-The mutating `studio-run-in-game-live` verify mode owns this launch, so invoke the verifier rather than calling lifecycle atoms by hand.
+The `verify:studio-run-in-game-live` target owns this launch, so invoke the verifier rather than calling lifecycle atoms by hand.
 
 ---
 
@@ -56,18 +56,19 @@ This is the primary in-game gate. Ordered internals (from `scripts/live/verify-s
 Invocation (mutating):
 
 ```bash
-nx run mod-swooper-maps:verify:operational -- --mode studio-run-in-game-live \
+nx run mod-swooper-maps:verify:studio-run-in-game-live -- \
   --mutate \
   --map-script "{swooper-maps}/maps/swooper-earthlike.js" \
   --map-size MAPSIZE_HUGE \
   --seed 1337 \
+  --game-seed 7331 \
   --player-count 10 \
   --wait-timeout-ms 120000
 ```
 
 - `--wait-timeout-ms`: Huge maps take 60–90 s on the live engine; set this to match expected gen duration (default 90 s, propagated to `waitForFreshLogMarkers`).
 - Map-script must match `SWOOPER_MAP_SCRIPT_PATTERN` = `/^\{swooper-maps\}\/maps\/([a-z0-9]+(?:-[a-z0-9]+)*\.js)$/`.
-- Alt invocation: `bun ./scripts/verify.ts --mode studio-run-in-game-live ...` (same flags; nx is preferred so deploy/cache stay coherent).
+- Invoke the Nx target rather than the script directly so upstream build evidence stays inside the repository task graph; deployment remains the explicit prerequisite in §0.
 
 ---
 
@@ -94,7 +95,7 @@ workflow. Capture that operation's `requestId` or retained private
 `diagnosticsId`, leave the resulting Civ7 game running, and invoke:
 
 ```bash
-nx run mod-swooper-maps:verify:operational -- --mode final-surface-parity \
+nx run mod-swooper-maps:verify:final-surface-parity -- \
   --request-id studio-run-in-game-live-proof-<id> \
   --studio-url http://127.0.0.1:5174 \
   --output /tmp/parity-proof.json
@@ -125,16 +126,14 @@ not promoted into substitute identity.
 
 ---
 
-## 5. The 2 Swooper operational verify modes
+## 5. The two Swooper operational verify targets
 
-`nx run mod-swooper-maps:verify:operational -- --mode <mode> [flags]` (or `bun ./scripts/verify.ts --mode <mode>`). From `scripts/verify.ts`:
+Nx exposes each live proof as its own target; there is no secondary mode router:
 
-| Mode | Live? | Use |
+| Target | Live? | Use |
 |---|---|---|
-| `studio-run-in-game-live` | **yes** | the mutating gate (§2) |
-| `final-surface-parity` | **yes** | local-vs-live grid parity (§4) |
-
-Alias: `studio-run-in-game:live`→`studio-run-in-game-live`.
+| `verify:studio-run-in-game-live` | **yes** | the mutating gate (§2) |
+| `verify:final-surface-parity` | **yes** | local-vs-live grid parity (§4) |
 
 The former output-parity, delta-feasibility, terrain-edge, placement-legality, and
 required-for-age probes were milestone-scoped characterization scripts, not durable
@@ -178,7 +177,7 @@ Hand the labeled proof to finalization (loop step 10 → `civ7-open-spec-workstr
 
 ## Evidence anchors (live source — re-derive, don't trust this snapshot)
 
-- `mods/mod-swooper-maps/scripts/verify.ts` — dispatcher for the current operational modes.
+- `mods/mod-swooper-maps/project.json` — direct Nx ownership for the two live verification commands.
 - `mods/mod-swooper-maps/scripts/live/verify-studio-run-in-game-live.ts` — the gate; `waitForFreshLogMarkers` call + `REQUIRED_SWOOPER_RIVER_MATERIALIZATION_MARKERS`.
 - `mods/mod-swooper-maps/scripts/live/verify-final-surface-parity.ts` — private-diagnostics acquisition, correlated Standard replay, one coherent live observation, report composition, and atomic publication.
 - `packages/civ7-direct-control/src/proof/log-markers.ts` — `waitForFreshLogMarkers` + `snapshotFile`.

@@ -320,17 +320,11 @@ async function optionalFileContentMarkerEvidence(
   return await fileContentMarkerEvidence(args).catch(() => undefined);
 }
 
-function generatedSourceScriptPath(generatedModRoot: string, runArtifactId: string): string {
-  return resolve(generatedModRoot, ".source/maps", `${runArtifactId}.ts`);
-}
-
-function localModScriptPath(generatedModRoot: string, runArtifactId: string): string {
-  void runArtifactId;
+function localModScriptPath(generatedModRoot: string): string {
   return resolve(generatedModRoot, STUDIO_RUN_MAP_SCRIPT_PATH);
 }
 
-function deployedModScriptPath(targetDir: string, runArtifactId: string): string {
-  void runArtifactId;
+function deployedModScriptPath(targetDir: string): string {
   return resolve(targetDir, STUDIO_RUN_MAP_SCRIPT_PATH);
 }
 
@@ -510,11 +504,6 @@ export function createStudioOperationRuntimePorts(
         "Run in Game generated mod root",
         requestId
       );
-      const runArtifactId = requireContextValue(
-        materialization.runArtifactId,
-        "Run in Game run artifact id",
-        requestId
-      );
       const deploymentStartedAt = new Date().toISOString();
       throwIfRunDeployAborted(signal);
       const deploy = await deployGeneratedSwooperRunMod({ generatedModRoot });
@@ -558,21 +547,15 @@ export function createStudioOperationRuntimePorts(
         completedAt: deployedSnapshot.observedAt,
         filesCopied: deploy.filesCopied,
       };
-      const generatedSourceScript = await optionalFileIdentity({
-        repoRoot,
-        path: generatedSourceScriptPath(generatedModRoot, runArtifactId),
-        exposeAs: "absolute",
-      });
-      throwIfRunDeployAborted(signal);
       const localModScript = await optionalFileIdentity({
         repoRoot,
-        path: localModScriptPath(generatedModRoot, runArtifactId),
+        path: localModScriptPath(generatedModRoot),
         exposeAs: "absolute",
       });
       throwIfRunDeployAborted(signal);
       const deployedModScript = await optionalFileIdentity({
         repoRoot,
-        path: deployedModScriptPath(deploy.targetDir, runArtifactId),
+        path: deployedModScriptPath(deploy.targetDir),
         exposeAs: "absolute",
       });
       throwIfRunDeployAborted(signal);
@@ -583,21 +566,20 @@ export function createStudioOperationRuntimePorts(
       });
       const localModScriptContent = await optionalFileContentMarkerEvidence({
         repoRoot,
-        path: localModScriptPath(generatedModRoot, runArtifactId),
+        path: localModScriptPath(generatedModRoot),
         exposeAs: "absolute",
         markers: requiredMaterializationMarkers,
       });
       throwIfRunDeployAborted(signal);
       const deployedModScriptContent = await optionalFileContentMarkerEvidence({
         repoRoot,
-        path: deployedModScriptPath(deploy.targetDir, runArtifactId),
+        path: deployedModScriptPath(deploy.targetDir),
         exposeAs: "absolute",
         markers: requiredMaterializationMarkers,
       });
       throwIfRunDeployAborted(signal);
       context.materialization = {
         ...materialization,
-        ...(generatedSourceScript ? { generatedSourceScript } : {}),
         ...(localModScript ? { localModScript } : {}),
         ...(deployedModScript ? { deployedModScript } : {}),
         ...(localModScriptContent ? { localModScriptContent } : {}),
@@ -605,8 +587,6 @@ export function createStudioOperationRuntimePorts(
       };
       const unresolved = runInGameMaterializationScriptUnresolvedLinks({
         materialization: context.materialization,
-        localModScript,
-        deployedModScript,
         requiredMarkers: requiredMaterializationMarkers,
       });
       if (unresolved.length > 0) {
@@ -621,7 +601,7 @@ export function createStudioOperationRuntimePorts(
         });
       }
 
-      const localBundlePath = localModScriptPath(generatedModRoot, runArtifactId);
+      const localBundlePath = localModScriptPath(generatedModRoot);
       const localBundleText = await readFile(localBundlePath, "utf8").catch(() => "");
       if (!mapScriptEmbedsRequestId(localBundleText, requestId)) {
         throw materializationFailed({
@@ -773,10 +753,6 @@ export function createStudioOperationRuntimePorts(
         requestId,
         request: context.requestStatus,
         materialization,
-        sourceConfig: materialization.sourceConfig,
-        generatedSourceScript: materialization.generatedSourceScript,
-        localModScript: materialization.localModScript,
-        deployedModScript: materialization.deployedModScript,
         lifecycleSetup: started.evidence.setup,
         lifecycleRuntime: started.evidence.runtime,
         logEvidence: log.logEvidence as RunInGameDetailedEvidenceLog | undefined,

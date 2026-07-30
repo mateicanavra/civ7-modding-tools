@@ -1,24 +1,46 @@
+import { parseArgs } from "node:util";
 import { diffPathVizRuns } from "@swooper/mapgen-diagnostics";
-import { parseDiagnosticArgs } from "./command-input.js";
+
+type DiffLayersCommandInput = Readonly<{
+  runDirA: string;
+  runDirB: string;
+  prefix?: string;
+  dataTypeKey?: string;
+}>;
+
+const USAGE =
+  "Usage: bun ./scripts/diagnostics/diff-layers.ts -- <runDirA> <runDirB> [--prefix ...] [--data-type-key ...]";
+
+/** Parses the two dump runs and optional layer filter understood by the diff command. */
+export function parseDiffLayersArgs(argv: readonly string[]): DiffLayersCommandInput {
+  const { positionals, values } = parseArgs({
+    args: argv,
+    allowPositionals: true,
+    options: {
+      prefix: { type: "string" },
+      "data-type-key": { type: "string" },
+    },
+    strict: true,
+  });
+
+  const [runDirA, runDirB] = positionals;
+  if (!runDirA || !runDirB || positionals.length !== 2) throw new Error(USAGE);
+  return {
+    runDirA,
+    runDirB,
+    prefix: values.prefix,
+    dataTypeKey: values["data-type-key"],
+  };
+}
 
 /**
  * Diff layer binaries between two runs for u8/i16/f32 grids.
  *
  * Usage:
- *   bun ./scripts/diagnostics/diff-layers.ts -- <runDirA> <runDirB> [--prefix morphology.topography] [--dataTypeKey morphology.topography.landMask]
+ *   bun ./scripts/diagnostics/diff-layers.ts -- <runDirA> <runDirB> [--prefix morphology.topography] [--data-type-key morphology.topography.landMask]
  */
 function main(): void {
-  const { positionals, flags } = parseDiagnosticArgs(process.argv.slice(2));
-  const runDirA = positionals[0];
-  const runDirB = positionals[1];
-  if (!runDirA || !runDirB) {
-    throw new Error(
-      "Usage: bun ./scripts/diagnostics/diff-layers.ts -- <runDirA> <runDirB> [--prefix ...]"
-    );
-  }
-
-  const prefix = typeof flags.prefix === "string" ? flags.prefix : undefined;
-  const dataTypeKey = typeof flags.dataTypeKey === "string" ? flags.dataTypeKey : undefined;
+  const { runDirA, runDirB, prefix, dataTypeKey } = parseDiffLayersArgs(process.argv.slice(2));
   console.log(JSON.stringify(diffPathVizRuns({ runDirA, runDirB, prefix, dataTypeKey }), null, 2));
 }
 

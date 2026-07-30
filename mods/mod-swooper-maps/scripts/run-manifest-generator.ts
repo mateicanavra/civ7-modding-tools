@@ -5,20 +5,16 @@ import {
   civ7TypeBoxCompatibilityPlugin,
 } from "@civ7/adapter/map-script-build";
 import { assessCiv7SignedIntSeed } from "@civ7/map-policy/setup";
-import {
-  applyGeneratedFilePlan,
-  type GeneratedFilePlan,
-} from "@civ7/plugin-files/generated-file-plan";
+import { applyGeneratedFilePlan } from "@civ7/plugin-files/generated-file-plan";
 import {
   readStudioRunGenerationManifest,
   runCorrelationForManifest,
-  STUDIO_RUN_MAP_ROW_ID,
-  STUDIO_RUN_MAP_SCRIPT_PATH,
 } from "@civ7/studio-run-workspace";
 import { build } from "esbuild";
 import { admitStandardMapConfig } from "../src/maps/configs/canonical.js";
 import {
   buildSwooperRunGeneratedModFilePlan,
+  renderSwooperRunMapSource,
   type SwooperRunGeneratedModPlanInput,
 } from "./map-artifacts/file-plan.js";
 
@@ -26,12 +22,8 @@ const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SWOOPER_STANDARD_RECIPE_ID = "standard";
 
 type SwooperRunGeneratedMod = Readonly<{
-  requestId: string;
   runArtifactId: string;
   generatedModRoot: string;
-  mapRowId: string;
-  mapScriptPath: string;
-  fileCount: number;
 }>;
 
 type StudioRunGenerationManifest = Awaited<ReturnType<typeof readStudioRunGenerationManifest>>;
@@ -50,8 +42,8 @@ type VerifiedSwooperStandardRun = Readonly<{
 
 /**
  * Materializes and bundles the request-local Swooper mod authenticated by one
- * Studio generation manifest. The source plan is consumed before its
- * exclusive set is replaced by the final bundled map script.
+ * Studio generation manifest. The virtual map source is bundled in memory so
+ * the one materialized file plan describes only the final mod tree.
  */
 export async function generateSwooperRunGeneratedModFromManifestPath(
   manifestPath: string
@@ -60,24 +52,16 @@ export async function generateSwooperRunGeneratedModFromManifestPath(
   const verifiedRun = verifySwooperStandardRunManifest(manifest);
   const { manifest: verifiedManifest, renderInput } = verifiedRun;
   const generatedModRoot = resolveSwooperRunGeneratedModRoot(manifestPath, verifiedManifest);
-  const mapRowId = STUDIO_RUN_MAP_ROW_ID;
-  const plan = buildSwooperRunGeneratedModFilePlan(renderInput);
+  const bundledMapScript = await bundleRunMapScript({
+    source: renderSwooperRunMapSource(renderInput),
+    sourceName: `${renderInput.correlation.runArtifactId}.ts`,
+  });
+  const plan = buildSwooperRunGeneratedModFilePlan(renderInput, bundledMapScript);
   await applyGeneratedFilePlan(plan, { outputRoot: generatedModRoot });
 
-  const mapScriptPath = STUDIO_RUN_MAP_SCRIPT_PATH;
-  const bundledMap = await bundleRunMapScript({
-    generatedModRoot,
-    correlation: renderInput.correlation,
-  });
-  await applyGeneratedFilePlan(bundledMap, { outputRoot: generatedModRoot });
-
   return {
-    requestId: verifiedManifest.payload.requestId,
     runArtifactId: verifiedManifest.payload.runArtifactId,
     generatedModRoot,
-    mapRowId,
-    mapScriptPath,
-    fileCount: plan.files.length + bundledMap.files.length,
   };
 }
 
@@ -122,17 +106,17 @@ function numericLaunchSeed(value: number | string): number {
 
 async function bundleRunMapScript(
   args: Readonly<{
-    generatedModRoot: string;
-    correlation: ReturnType<typeof runCorrelationForManifest>;
+    source: string;
+    sourceName: string;
   }>
-): Promise<GeneratedFilePlan> {
-  const entryPoint = resolve(
-    args.generatedModRoot,
-    ".source/maps",
-    `${args.correlation.runArtifactId}.ts`
-  );
+): Promise<string> {
   const result = await build({
-    entryPoints: [entryPoint],
+    stdin: {
+      contents: args.source,
+      loader: "ts",
+      resolveDir: pkgRoot,
+      sourcefile: args.sourceName,
+    },
     bundle: true,
     write: false,
     format: "esm",
@@ -156,19 +140,5 @@ async function bundleRunMapScript(
   });
   const output = result.outputFiles[0];
   if (!output) throw new Error("Swooper run manifest bundler produced no map script.");
-
-  return {
-    exclusiveSets: [
-      {
-        relativeDir: ".source/maps",
-        fileExtension: ".ts",
-      },
-    ],
-    files: [
-      {
-        relativePath: STUDIO_RUN_MAP_SCRIPT_PATH,
-        content: output.text,
-      },
-    ],
-  };
+  return output.text;
 }

@@ -1,29 +1,55 @@
+import { parseArgs } from "node:util";
 import { inventoryPathVizLayers, readPathVizManifest } from "@swooper/mapgen-diagnostics";
-import { parseDiagnosticArgs } from "./command-input.js";
+
+type ListLayersCommandInput = Readonly<{
+  runDir: string;
+  prefix?: string;
+  dataTypeKey?: string;
+}>;
+
+const USAGE =
+  "Usage: bun ./scripts/diagnostics/list-layers.ts -- <runDir> [--prefix ...] [--data-type-key ...]";
+
+/** Parses one dump run and the optional layer filter understood by the inventory command. */
+export function parseListLayersArgs(argv: readonly string[]): ListLayersCommandInput {
+  const { positionals, values } = parseArgs({
+    args: argv,
+    allowPositionals: true,
+    options: {
+      prefix: { type: "string" },
+      "data-type-key": { type: "string" },
+    },
+    strict: true,
+  });
+
+  const [runDir] = positionals;
+  if (!runDir || positionals.length !== 1) throw new Error(USAGE);
+  return {
+    runDir,
+    prefix: values.prefix,
+    dataTypeKey: values["data-type-key"],
+  };
+}
 
 /**
  * List layers in a viz dump manifest.
  *
  * Usage:
- *   bun ./scripts/diagnostics/list-layers.ts -- <runDir> [--prefix foundation.] [--dataTypeKey morphology.topography.landMask]
+ *   bun ./scripts/diagnostics/list-layers.ts -- <runDir> [--prefix foundation.] [--data-type-key morphology.topography.landMask]
  */
 function main(): void {
-  const { positionals, flags } = parseDiagnosticArgs(process.argv.slice(2));
-  const runDir = positionals[0];
-  if (!runDir)
-    throw new Error("Usage: bun ./scripts/diagnostics/list-layers.ts -- <runDir> [--prefix ...]");
+  const { runDir, prefix, dataTypeKey } = parseListLayersArgs(process.argv.slice(2));
 
   const manifest = readPathVizManifest(runDir);
-  const prefix = typeof flags.prefix === "string" ? flags.prefix : undefined;
-  const dataTypeKey = typeof flags.dataTypeKey === "string" ? flags.dataTypeKey : undefined;
-
   const rows = inventoryPathVizLayers(manifest, { prefix, dataTypeKey });
   console.log(JSON.stringify({ runId: manifest.runId, runDir, layers: rows }, null, 2));
 }
 
-try {
-  main();
-} catch (err) {
-  console.error(err);
-  process.exitCode = 1;
+if (import.meta.main) {
+  try {
+    main();
+  } catch (err) {
+    console.error(err);
+    process.exitCode = 1;
+  }
 }
