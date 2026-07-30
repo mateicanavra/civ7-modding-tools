@@ -228,6 +228,7 @@ Current vocabulary:
 - `kind:control`
 - `kind:library`
 - `kind:plugin`
+- `kind:cli-topic-plugin`
 - `kind:mod`
 - `kind:tooling`
 

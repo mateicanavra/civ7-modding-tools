@@ -44,15 +44,6 @@
         "cwd": "packages/cli"
       }
     },
-    "test:play": {
-      "command": "vitest run --project cli game.play.end-turn.test.ts game.play.population-placement.test.ts game.play.attribute-tradition.test.ts game.play.town-focus.test.ts game.play.unit-target.test.ts game.play.progression-read.test.ts game.play.tactical-read.test.ts game.play.watch.test.ts game.play.topics.test.ts game.play.promotion-readiness.test.ts game.play.rehydrate.test.ts game.play.settlement-recommendations.test.ts game/play/ready-city.test.ts game/play/unit-move-preview.test.ts game/play/ready-unit.test.ts game/play/notification/queue.test.ts game/play/notification/dismiss-queue.test.ts game/play/notification/dismiss.test.ts game/play/notification/hud.test.ts game/play/priorities.test.ts game/play/semantic-envelope.test.ts game.play.first-meet.test.ts game.play.operation-wrappers.test.ts game.play.technology.test.ts game.play.culture.test.ts game.play.narrative.test.ts game.play.diplomacy-response.test.ts game.play.production.test.ts game.play.celebration-government.test.ts",
-      "dependsOn": ["build"],
-      "cache": true,
-      "outputs": [],
-      "options": {
-        "cwd": "packages/cli"
-      }
-    },
     "link:global": {
       "command": "bun link",
       "dependsOn": ["build"],
@@ -108,15 +99,6 @@
     },
     "data:unzip:default": {
       "command": "node bin/run.js data unzip default",
-      "dependsOn": ["build"],
-      "cache": false,
-      "outputs": [],
-      "options": {
-        "cwd": "packages/cli"
-      }
-    },
-    "mod:git:import": {
-      "command": "node bin/run.js mod git import",
       "dependsOn": ["build"],
       "cache": false,
       "outputs": [],

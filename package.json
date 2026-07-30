@@ -31,6 +31,7 @@
     "packages/*",
     "packages/civ7-map-policy/scripts",
     "packages/plugins/*",
+    "plugins/cli/topics/*",
     "plugins/mod/map/*",
     "mods/*",
     "tools/*"

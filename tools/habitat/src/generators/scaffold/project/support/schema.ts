@@ -21,6 +21,7 @@ const DirectoryOptionSchema = Type.String({
 const ProjectKindNxInputSchema = Type.Union(
   [
     Type.Literal("plugin"),
+    Type.Literal("cli-topic-plugin"),
     Type.Literal("app"),
     Type.Literal("adapter"),
     Type.Literal("control"),
@@ -36,6 +37,7 @@ const ProjectKindNxInputSchema = Type.Union(
     Type.Literal("kind:library"),
     Type.Literal("kind:mod"),
     Type.Literal("kind:plugin"),
+    Type.Literal("kind:cli-topic-plugin"),
     Type.Literal("kind:sdk"),
     Type.Literal("kind:tooling"),
   ],

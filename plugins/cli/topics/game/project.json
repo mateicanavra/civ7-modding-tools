@@ -1,0 +1,39 @@
+{
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "name": "cli-game",
+  "tags": ["kind:cli-topic-plugin"],
+  "targets": {
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    },
+    "build:tsc": {
+      "command": "tsc -b --force",
+      "dependsOn": ["clean:dist", "^build"],
+      "cache": true,
+      "outputs": ["{projectRoot}/dist/**", "{projectRoot}/tsconfig.tsbuildinfo"],
+      "options": {
+        "cwd": "plugins/cli/topics/game"
+      }
+    },
+    "build:manifest": {
+      "command": "oclif manifest",
+      "dependsOn": ["build:tsc"],
+      "cache": true,
+      "outputs": ["{projectRoot}/oclif.manifest.json"],
+      "options": {
+        "cwd": "plugins/cli/topics/game"
+      }
+    },
+    "build": {
+      "command": "node -e \"\"",
+      "dependsOn": ["build:manifest"],
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "cwd": "plugins/cli/topics/game"
+      }
+    }
+  }
+}

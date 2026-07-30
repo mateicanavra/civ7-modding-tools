@@ -23,6 +23,47 @@ export default defineConfig({
       },
       {
         extends: true,
+        root: r("plugins/cli/topics/data"),
+        test: {
+          name: "cli-data",
+          env: {
+            NODE_ENV: "production",
+          },
+        },
+      },
+      {
+        extends: true,
+        root: r("plugins/cli/topics/docs"),
+        test: {
+          name: "cli-docs",
+          env: {
+            NODE_ENV: "production",
+          },
+        },
+      },
+      {
+        extends: true,
+        root: r("plugins/cli/topics/git-mod"),
+        test: {
+          name: "cli-git-mod",
+          env: {
+            NODE_ENV: "production",
+          },
+        },
+      },
+      {
+        extends: true,
+        root: r("plugins/cli/topics/game"),
+        test: {
+          name: "cli-game",
+          testTimeout: 30_000,
+          env: {
+            NODE_ENV: "production",
+          },
+        },
+      },
+      {
+        extends: true,
         root: r("packages/config"),
         test: { name: "config" },
       },

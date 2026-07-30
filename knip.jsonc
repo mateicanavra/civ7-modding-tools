@@ -17,14 +17,14 @@
         "config": ["biome.json", "biome.effect.json"]
       },
       "nx": {
-        "config": ["nx.json", "{apps,mods,packages,tools}/**/project.json", "package.json"]
+        "config": ["nx.json", "{apps,mods,packages,plugins,tools}/**/project.json", "package.json"]
       },
       // Restrict Vitest's otherwise workspace-global defaults so the source-only Effect
       // reference under .repos is never misclassified as authored workspace code.
       "vitest": {
         "config": ["vitest.config.ts"],
         "entry": [
-          "{apps,mods,packages,tools}/**/*.{bench,test,test-d,spec,spec-d}.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"
+          "{apps,mods,packages,plugins,tools}/**/*.{bench,test,test-d,spec,spec-d}.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"
         ]
       }
     },
@@ -44,7 +44,6 @@
       // Closed Habitat kinds make these declaration-only gateways intentional public
       // entrypoints even when the current recipe graph does not import every owner.
       "entry": [
-        "scripts/tsup.studio-recipes.config.ts",
         "src/maps/catalog/index.ts",
         "src/domain/*/index.ts",
         "src/domain/*/modules/*/index.ts",
@@ -67,8 +66,20 @@
       "ignore": ["src/setup-parameters.gen.ts"]
     },
     "packages/cli": {
-      "entry": ["bin/dev.ts", "src/hooks/prerun/promptMissingArgs.ts"],
-      // Civ7 data discovery invokes the host's POSIX `which` command to locate sqlite3.
+      "entry": ["bin/dev.ts"]
+    },
+    "plugins/cli/topics/data": {
+      "entry": ["src/commands/**/*.ts"]
+    },
+    "plugins/cli/topics/docs": {
+      "entry": ["src/commands/**/*.ts"]
+    },
+    "plugins/cli/topics/git-mod": {
+      "entry": ["src/commands/**/*.ts"]
+    },
+    "plugins/cli/topics/game": {
+      "entry": ["src/commands/**/*.ts"],
+      // Local-data inspection invokes the host's POSIX `which` command to locate sqlite3.
       "ignoreBinaries": ["which"]
     },
     "packages/mapgen-core": {

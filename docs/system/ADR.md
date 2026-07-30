@@ -473,3 +473,35 @@ remain product behavior and do not change with repository paths.
   build/deploy targets but does not import app source.
 - CLI topic plugins under `plugins/cli/topics` are a separate normalization;
   this decision does not broaden `kind:plugin` or its dependency allowances.
+
+## ADR-017: The Civ7 CLI shell registers independently owned topic plugins
+
+**Status:** Accepted
+**Date:** 2026-07-28
+**Context:** `packages/cli` owned the executable shell, global hooks, and every
+command implementation. That mixed application startup with cohesive oclif
+topic surfaces and made reusable capability packages look CLI-owned merely
+because commands consumed them.
+**Decision:** The CLI shell remains the `kind:app` owner of the binary, startup,
+global hooks, plugin registration, and shell-wide operational targets. A
+cohesive command topic may live at `plugins/cli/topics/<topic>` as one
+`kind:cli-topic-plugin` project with its own source, behavior tests, build, and
+oclif manifest. The shell registers that package exactly once and retains no
+forwarding commands. Topic plugins adapt `kind:plugin`, `kind:library`, and
+`kind:control` capabilities; reusable capabilities never move into a topic
+solely because its commands are their current consumer. The control allowance
+exists so the `game` topic can adapt the canonical live-control contracts and
+runtimes into CLI UX; it does not permit topic-owned transports or control
+services.
+**Consequences:**
+- `kind:app -> kind:cli-topic-plugin` and
+  `kind:cli-topic-plugin -> {kind:plugin, kind:library, kind:control}` are the
+  complete new project-plane edges.
+- Each topic keeps its topic-prefixed directory under `src/commands`, because
+  oclif derives canonical command ids from paths rather than package names.
+- The generic CLI-topic blueprint closes project, source, command, and test
+  spines. oclif owns native command discovery and manifests; Nx and TypeScript
+  own package edges and imports.
+- The `data`, `docs`, `git-mod`, and `game` topics are independent instances.
+  Graph, archive, configuration, file, Git, mod, and live-control mechanics
+  remain in their existing reusable package owners.
