@@ -459,9 +459,11 @@ imports the app, and Studio imports definition contracts while invoking app Nx
 targets for materialization. Existing Civ7 mod ids and serialized recipe ids
 remain product behavior and do not change with repository paths.
 **Consequences:**
-- `kind:app -> kind:mod` is the project-plane dependency law; directory naming
-  does not weaken the existing kind taxonomy or turn the definition into a
-  leaf CLI plugin.
+- `kind:app -> kind:mod` is the definition dependency. The app may also consume
+  a product-neutral `kind:mapgen-tool` for application-owned generation,
+  diagnostics, or live-proof workflows; tools never import apps or product
+  definitions. Directory naming does not weaken the existing kind taxonomy or
+  turn the definition into a leaf CLI plugin.
 - Canonical map configs remain authored Swooper product identity beside the
   metrics and studies that evaluate them. The app consumes their admitted
   catalog rather than maintaining a second shipped-map registry.

@@ -72,6 +72,7 @@ const depConstraints = [
     onlyDependOnLibsWithTags: [
       "kind:sdk",
       "kind:engine",
+      "kind:mapgen-tool",
       "kind:adapter",
       "kind:library",
       "kind:plugin",
