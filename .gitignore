@@ -26,6 +26,7 @@ out/**
 apps/cli/oclif.manifest.json
 plugins/cli/topics/*/oclif.manifest.json
 tools/habitat/oclif.manifest.json
+tools/habitat/artifacts/
 
 # Docs build output (declared as Nx outputs)
 apps/docs/dist/

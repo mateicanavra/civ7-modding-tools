@@ -69,7 +69,7 @@
       "outputs": []
     },
     "build:tsc": {
-      "command": "tsc -p tsconfig.json",
+      "command": "node ../../node_modules/typescript/bin/tsc -p tsconfig.json",
       "dependsOn": ["clean:dist"],
       "cache": true,
       "outputs": ["{projectRoot}/dist/**"],
@@ -86,20 +86,26 @@
         "cwd": "tools/habitat"
       }
     },
-    "build:bin-mode": {
-      "command": "chmod +x bin/run.js",
-      "dependsOn": ["build:manifest"],
+    "build": {
+      "executor": "nx:noop",
       "cache": false,
       "outputs": [],
+      "dependsOn": ["build:manifest"]
+    },
+    "pack": {
+      "command": "bun run scripts/pack-portable-package.ts",
+      "dependsOn": ["build"],
+      "cache": false,
+      "outputs": ["{projectRoot}/artifacts/**"],
       "options": {
         "cwd": "tools/habitat"
       }
     },
-    "build": {
-      "command": "node -e \"\"",
+    "verify:package": {
+      "command": "bun run scripts/verify-portable-package.ts",
+      "dependsOn": ["pack"],
       "cache": false,
       "outputs": [],
-      "dependsOn": ["build:bin-mode"],
       "options": {
         "cwd": "tools/habitat"
       }

@@ -51,3 +51,6 @@ jobs:
 
       - name: CI graph
         run: bun run ci
+
+      - name: Verify portable Habitat package
+        run: bunx nx run habitat:verify:package --skipNxCache --outputStyle=static

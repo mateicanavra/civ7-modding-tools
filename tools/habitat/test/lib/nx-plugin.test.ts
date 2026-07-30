@@ -40,15 +40,14 @@ describe("Habitat Nx plugin inputs", () => {
       "habitatRuntime"
     );
     expect(habitatTargets["habitat:rule:sample-rule"]).toMatchObject({
-      command: "bun tools/habitat/bin/dev.ts check --rule sample-rule",
+      command: "habitat check --rule sample-rule",
       options: {
         cwd: "{workspaceRoot}",
-        env: { HABITAT_REPO_ROOT: repoRoot },
       },
       dependsOn: [{ projects: ["mapgen-core"], target: "build" }],
     });
     expect(habitatTargets["check:policy:local"]).toMatchObject({
-      command: "bun tools/habitat/bin/dev.ts check --rule alpha-rule --rule sample-rule",
+      command: "habitat check --rule alpha-rule --rule sample-rule",
       inputs: expect.arrayContaining(["{workspaceRoot}/.habitat/**", manifestInput]),
       dependsOn: [{ projects: ["mapgen-core"], target: "build" }],
     });
@@ -69,11 +68,10 @@ describe("Habitat Nx plugin inputs", () => {
     );
     expect(appTargets["check:policy:local"]).toEqual(
       expect.objectContaining({
-        command: "bun tools/habitat/bin/dev.ts check --rule sample-app-local",
+        command: "habitat check --rule sample-app-local",
         inputs: expect.arrayContaining(["habitatRuntime"]),
         options: {
           cwd: "{workspaceRoot}",
-          env: { HABITAT_REPO_ROOT: repoRoot },
         },
       })
     );
@@ -107,6 +105,26 @@ describe("Habitat Nx plugin inputs", () => {
       )
     );
     expect(commands.filter((command) => command.includes("nx "))).toEqual([]);
+  });
+
+  test("keeps emitted target definitions independent of consumer location", () => {
+    const firstWorkspaceRoot = "/tmp/habitat-external-consumer-fixture-a";
+    const secondWorkspaceRoot = "/tmp/habitat-external-consumer-fixture-b";
+    const projects = inferredProjects(firstWorkspaceRoot);
+    const relocatedProjects = inferredProjects(secondWorkspaceRoot);
+    const habitatTargets = projects["tools/habitat"]?.targets ?? {};
+
+    expect(habitatTargets["habitat:rule:sample-rule"]).toMatchObject({
+      command: "habitat check --rule sample-rule",
+      options: {
+        cwd: "{workspaceRoot}",
+      },
+    });
+    expect(relocatedProjects).toEqual(projects);
+    expect(JSON.stringify(projects)).not.toContain(firstWorkspaceRoot);
+    expect(JSON.stringify(projects)).not.toContain(secondWorkspaceRoot);
+    expect(projects["tools/habitat/src/cli"]).toBeUndefined();
+    expect(projects["tools/habitat/src/service"]).toBeUndefined();
   });
 
   test("models command and noop targets as closed alternatives", () => {
@@ -196,10 +214,14 @@ describe("Habitat Nx plugin inputs", () => {
   });
 });
 
-function inferredProjects() {
+function inferredProjects(workspaceRoot = repoRoot) {
   const handler = createNodes[1];
   if (typeof handler !== "function") throw new Error("Expected a createNodes handler.");
-  const [[, result]] = handler([".habitat/index.json"], {});
+  const [[, result]] = handler(
+    [".habitat/index.json"],
+    {},
+    { workspaceRoot, nxJsonConfiguration: {} }
+  );
   return result.projects;
 }
 

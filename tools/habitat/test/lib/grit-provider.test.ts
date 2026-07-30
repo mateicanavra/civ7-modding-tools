@@ -1774,7 +1774,7 @@ describe("Grit generic acquisition and public disposition", () => {
       )
     );
     expect(outcomes.get("alpha")?.kind).toBe("findings");
-    expect(observedRequest?.executable).toBe(pinnedGritNativePath(repoRoot));
+    expect(observedRequest?.executable).toBe(pinnedGritNativePath());
     expect(observedRequest?.argv).toContain("--no-cache");
     expect(observedRequest?.argv).toContain("--grit-dir");
     expect(observedRequest?.env).toMatchObject({
@@ -1969,7 +1969,7 @@ describe("Grit generic acquisition and public disposition", () => {
         command: {
           kind: fixture.expectedCommand,
           commandId: "grit-pinned-native-preflight",
-          executable: pinnedGritNativePath(repoRoot),
+          executable: pinnedGritNativePath(),
           argv: ["--version"],
           scanRoots: [],
         },
@@ -3122,7 +3122,7 @@ function baseRequest(): HabitatProcessRequest {
   return {
     commandId: "grit-test",
     kind: "pattern-check",
-    executable: pinnedGritNativePath(repoRoot),
+    executable: pinnedGritNativePath(),
     argv: ["--json", "check"],
     cwd: repoRoot,
     scanRoots: [providerRoot],
@@ -3282,7 +3282,7 @@ function nativeRequestFixture() {
   return {
     commandFamily: "selected-rules-json-check",
     commandInvocationId: "grit-test",
-    executable: pinnedGritNativePath(repoRoot),
+    executable: pinnedGritNativePath(),
     argv: ["--json", "check"],
     cwd: repoRoot,
     scanRoots: [providerRoot],
@@ -3297,7 +3297,7 @@ function completedCommandFixture() {
   return {
     kind: "completed" as const,
     commandId: "grit-test",
-    executable: pinnedGritNativePath(repoRoot),
+    executable: pinnedGritNativePath(),
     argv: ["--json", "check"],
     cwd: repoRoot,
     scanRoots: [providerRoot],
@@ -3310,7 +3310,7 @@ function failedCommandFixture(exitCode: number) {
   return {
     kind: "failed" as const,
     commandId: "grit-test",
-    executable: pinnedGritNativePath(repoRoot),
+    executable: pinnedGritNativePath(),
     argv: ["--json", "check"],
     cwd: repoRoot,
     scanRoots: [providerRoot],
@@ -3323,7 +3323,7 @@ function interruptedCommandFixture() {
   return {
     kind: "interrupted" as const,
     commandId: "grit-test",
-    executable: pinnedGritNativePath(repoRoot),
+    executable: pinnedGritNativePath(),
     argv: ["--json", "check"],
     cwd: repoRoot,
     scanRoots: [providerRoot],
@@ -3336,7 +3336,7 @@ function toolUnavailableCommandFixture() {
   return {
     kind: "tool-unavailable" as const,
     commandId: "grit-test",
-    executable: pinnedGritNativePath(repoRoot),
+    executable: pinnedGritNativePath(),
     argv: ["--json", "check"],
     cwd: repoRoot,
     scanRoots: [providerRoot],

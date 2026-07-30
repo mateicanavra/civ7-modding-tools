@@ -24,13 +24,12 @@ export function aliasRuleTarget(
 export function directRuleTarget(
   ruleId: string,
   ownerProject: string,
-  repoRoot: string,
   inputs = habitatInputs(),
   graphDependencies: readonly NxTargetDependency[] = []
 ): NxTargetDefinition {
   return {
-    command: `bun tools/habitat/bin/dev.ts check --rule ${ruleId}`,
-    options: habitatCommandOptions(repoRoot),
+    command: `habitat check --rule ${ruleId}`,
+    options: habitatCommandOptions(),
     cache: true,
     inputs: withHabitatRuntime(inputs),
     outputs: [],
@@ -61,15 +60,14 @@ export function ownerCheckTarget(input: {
 
 export function ownerLocalCheckTarget(input: {
   owner: string;
-  repoRoot: string;
   ruleIds: readonly [string, ...string[]];
   inputs: string[];
   graphDependencies?: readonly NxTargetDependency[];
 }): NxTargetDefinition {
   const selectors = input.ruleIds.map((ruleId) => `--rule ${ruleId}`).join(" ");
   return {
-    command: `bun tools/habitat/bin/dev.ts check ${selectors}`,
-    options: habitatCommandOptions(input.repoRoot),
+    command: `habitat check ${selectors}`,
+    options: habitatCommandOptions(),
     cache: true,
     inputs: withHabitatRuntime(input.inputs),
     outputs: [],
@@ -86,13 +84,11 @@ function withHabitatRuntime(inputs: readonly string[]): string[] {
   return [...new Set([habitatRuntimeInput, ...inputs])];
 }
 
-function habitatCommandOptions(repoRoot: string): {
+function habitatCommandOptions(): {
   cwd: string;
-  env: { HABITAT_REPO_ROOT: string };
 } {
   return {
     cwd: "{workspaceRoot}",
-    env: { HABITAT_REPO_ROOT: repoRoot },
   };
 }
 

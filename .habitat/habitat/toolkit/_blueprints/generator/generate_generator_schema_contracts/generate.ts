@@ -17,14 +17,24 @@ const { PatternGeneratorOptionsSchema } = await import(
   pathToFileURL(join(repoRoot, "tools/habitat/src/generators/scaffold/pattern/support/schema.ts"))
     .href
 );
-const schemaPaths = [
-  ".habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/scaffold-project.schema.json",
-  ".habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/scaffold-pattern.schema.json",
+const schemaPathGroups = [
+  [
+    ".habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/scaffold-project.schema.json",
+    "tools/habitat/schemas/scaffold-project.schema.json",
+  ],
+  [
+    ".habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/scaffold-pattern.schema.json",
+    "tools/habitat/schemas/scaffold-pattern.schema.json",
+  ],
 ] as const;
 
-writeSchema(schemaPaths[0], HabitatProjectGeneratorNxSchema);
-writeSchema(schemaPaths[1], PatternGeneratorOptionsSchema);
-execFileSync("bunx", ["biome", "format", "--write", ...schemaPaths], {
+for (const schemaPath of schemaPathGroups[0]) {
+  writeSchema(schemaPath, HabitatProjectGeneratorNxSchema);
+}
+for (const schemaPath of schemaPathGroups[1]) {
+  writeSchema(schemaPath, PatternGeneratorOptionsSchema);
+}
+execFileSync("bunx", ["biome", "format", "--write", ...schemaPathGroups.flat()], {
   cwd: repoRoot,
   stdio: "inherit",
 });

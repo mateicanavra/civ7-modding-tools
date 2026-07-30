@@ -8,7 +8,6 @@ import {
   type NxRuleRegistryRecord,
 } from "./nx-rule-registry-loader.ts";
 import { habitatAuthorityProjectName, habitatAuthorityRoot } from "./resources/authority-paths.ts";
-import { repoRoot } from "./resources/paths.ts";
 import { ruleGraphFactsForNxPlugin } from "./service/model/graph/dto/rule-graph-facts.dto.ts";
 import {
   type InferredProjects,
@@ -28,8 +27,6 @@ import {
   WorkspaceGraphTargetNamesSchema,
 } from "./service/model/workspace/dto/workspace.schema.ts";
 import { workspaceGraphTargetNames } from "./service/model/workspace/policy/workspace-targets.policy.ts";
-
-const rulesPath = path.join(repoRoot, habitatAuthorityRoot);
 
 const harnessInternalBoundaryProjects = [
   {
@@ -66,11 +63,15 @@ const harnessInternalBoundaryProjects = [
 
 export const createNodes = [
   `${habitatAuthorityRoot}/**/*.json`,
-  (configFiles: readonly string[], options: unknown) => {
-    const registry = loadRuleRegistryDocumentForNxPlugin(rulesPath);
+  (configFiles: readonly string[], options: unknown, context) => {
+    const workspaceRoot = path.resolve(context.workspaceRoot);
+    const registry = loadRuleRegistryDocumentForNxPlugin(
+      path.join(workspaceRoot, habitatAuthorityRoot)
+    );
     const projects = buildInferredProjects({
       registry,
       options,
+      workspaceRoot,
     });
     const anchorConfigFile =
       configFiles.find((configFile) => configFile.endsWith("index.json")) ?? configFiles[0];
@@ -81,6 +82,7 @@ export const createNodes = [
 function buildInferredProjects(input: {
   registry: NxRuleRegistryDocument;
   options: unknown;
+  workspaceRoot: string;
 }): InferredProjects {
   const targetNames = Value.Parse(
     WorkspaceGraphTargetNamesSchema,
@@ -96,7 +98,7 @@ function buildInferredProjects(input: {
     tags: ["kind:tooling"],
     targets: {},
   };
-  addHarnessInternalBoundaryProjects(projects);
+  addHarnessInternalBoundaryProjects(projects, input.workspaceRoot);
   const addTarget = (
     root: string,
     _project: string,
@@ -114,7 +116,12 @@ function buildInferredProjects(input: {
       throw new Error(`Habitat graph metadata contract failure: missing rule record '${rule.id}'.`);
     }
     assertRuleTargetsLeafWork(rule, targetNames);
-    addRuleTarget({ addTarget, record, rule, targetNames });
+    addRuleTarget({
+      addTarget,
+      record,
+      rule,
+      targetNames,
+    });
   }
   const ownerEntries = [...ownerRootsForRules(graphFacts)].sort(([left], [right]) =>
     left.localeCompare(right)
@@ -143,7 +150,6 @@ function buildInferredProjects(input: {
         localTarget,
         ownerLocalCheckTarget({
           owner,
-          repoRoot,
           ruleIds: [firstLocalRuleId, ...remainingLocalRuleIds],
           inputs: inputsForOwner(localRecords, root),
           graphDependencies: ownerFacts.flatMap((rule) =>
@@ -204,8 +210,15 @@ function assertRuleTargetsLeafWork(
   }
 }
 
-function addHarnessInternalBoundaryProjects(projects: InferredProjects): void {
-  for (const project of [...harnessInternalBoundaryProjects, ...harnessServiceModuleProjects()]) {
+function addHarnessInternalBoundaryProjects(
+  projects: InferredProjects,
+  workspaceRoot: string
+): void {
+  for (const project of [
+    ...harnessInternalBoundaryProjects,
+    ...harnessServiceModuleProjects(workspaceRoot),
+  ]) {
+    if (!fs.existsSync(path.join(workspaceRoot, project.root))) continue;
     projects[project.root] = {
       name: project.name,
       tags: [...project.tags],
@@ -214,13 +227,13 @@ function addHarnessInternalBoundaryProjects(projects: InferredProjects): void {
   }
 }
 
-function harnessServiceModuleProjects(): Array<{
+function harnessServiceModuleProjects(workspaceRoot: string): Array<{
   name: string;
   root: string;
   tags: readonly string[];
 }> {
   const modulesRoot = "tools/habitat/src/service/modules";
-  const absoluteModulesRoot = path.join(repoRoot, modulesRoot);
+  const absoluteModulesRoot = path.join(workspaceRoot, modulesRoot);
   if (!fs.existsSync(absoluteModulesRoot)) return [];
   return fs
     .readdirSync(absoluteModulesRoot, { withFileTypes: true })
@@ -252,7 +265,6 @@ function addRuleTarget(input: {
       directRuleTarget(
         input.rule.id,
         input.rule.ownerProject,
-        repoRoot,
         inputsForRuleTarget(input.record, input.rule.ownerRoot),
         input.rule.graphDependencies.map((target) => ({
           projects: [target.project],

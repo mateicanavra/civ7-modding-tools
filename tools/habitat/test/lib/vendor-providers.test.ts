@@ -32,6 +32,7 @@ import {
   type GritCheckProviderRequest,
   makeFakeGritCommandService,
   makeGritCommandService,
+  pinnedGritNativePath,
 } from "@habitat/cli/resources/rule-diagnostics/providers/grit/index";
 import { Effect, Layer } from "effect";
 import { describe, expect, test } from "vitest";
@@ -439,9 +440,7 @@ describe("vendor providers", () => {
       "/tmp/habitat-grit-catalog-parent/.grit",
       "/tmp/habitat-grit-target",
     ]);
-    expect(result.request.executable).toBe(
-      `${repoRoot}/node_modules/@getgrit/cli/node_modules/.bin_real/grit`
-    );
+    expect(result.request.executable).toBe(pinnedGritNativePath());
     expect(result.request.cwd).toBe("/tmp/habitat-grit-catalog-parent");
     expect(result.request.env).toMatchObject({
       GRIT_DOWNLOADS_DISABLED: "true",

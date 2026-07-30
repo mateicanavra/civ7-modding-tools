@@ -17,16 +17,12 @@ import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import { defaultGritCommandTimeoutMs } from "./constants.js";
 import { gritHermeticEnv } from "./env.js";
+import { pinnedGritIdentity, pinnedGritNativePath, pinnedGritPackagePath } from "./grit-package.js";
 import {
   nativeIdentityMismatchBeforeSpawn,
   nativeIdentityMismatchFromCompleted,
 } from "./request.js";
 import { parseGritJsonText } from "./types.js";
-
-const pinnedGritIdentity = {
-  packageVersion: "0.1.0-alpha.1743007075",
-  nativeVersion: "grit 0.1.1",
-} as const;
 
 /** Provider-local request for one hermetic native check over an ordered rule catalog. */
 export interface GritCheckProviderRequest {
@@ -114,17 +110,7 @@ export function makeFakeGritCommandService(
   };
 }
 
-export function pinnedGritNativePath(repoRoot: string): string {
-  return path.join(
-    repoRoot,
-    "node_modules",
-    "@getgrit",
-    "cli",
-    "node_modules",
-    ".bin_real",
-    "grit"
-  );
-}
+export { pinnedGritNativePath, pinnedGritPackagePath };
 
 export function gritCheckRequest(
   repoRoot: string,
@@ -133,7 +119,7 @@ export function gritCheckRequest(
   return {
     commandId: "grit-selected-rules-json-check",
     kind: "pattern-check",
-    executable: pinnedGritNativePath(repoRoot),
+    executable: pinnedGritNativePath(),
     argv: [
       "--json",
       "check",
@@ -185,7 +171,7 @@ export function gritApplyDryRunRequest(
   return {
     commandId: request.commandId,
     kind: "pattern-apply",
-    executable: pinnedGritNativePath(repoRoot),
+    executable: pinnedGritNativePath(),
     argv: [
       ...Match.value(request.serialization).pipe(
         Match.when("jsonl", () => ["--jsonl"]),
@@ -225,8 +211,8 @@ type GritPackage = Static<typeof GritPackageSchema>;
 const preflightPinnedGritEffect = Effect.fn("grit.native.preflight")(function* <
   Run extends CommandRunnerService["run"],
 >(repoRoot: string, run: Run, timeoutMs: number, fs: FileSystem.FileSystem) {
-  const executable = pinnedGritNativePath(repoRoot);
-  const packagePath = path.join(repoRoot, "node_modules", "@getgrit", "cli", "package.json");
+  const executable = pinnedGritNativePath();
+  const packagePath = pinnedGritPackagePath();
   const preflightRequest: HabitatProcessRequest = {
     commandId: "grit-pinned-native-preflight",
     kind: "pattern-check",
