@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 2,
+  "id": "require_active_rule_authority_ledger_identity_parity",
+  "title": "Require Active Rule Authority Ledger Identity Parity",
+  "placement": {
+    "niche": "global/workspace",
+    "blueprint": "_self",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "identity drift between live Habitat rule manifests and the active rule-authority cleanup ledger",
+  "why": "The active cleanup ledger gates rule mutation and must contain exactly one current row for every identity discovered by Habitat's canonical registry. This contextual check retires with that active ledger.",
+  "remediate": "Classify every new or removed rule through the rule-authority workstream, update the canonical ledger and receipt in the same semantic layer, and do not infer a disposition from identity alone.",
+  "message": "The active rule-authority cleanup ledger must remain in exact identity parity with Habitat's live registry.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        ".habitat/**/rule.json",
+        ".habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/global/workspace/rules/require_active_rule_authority_ledger_identity_parity/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bun",
+    "files": {
+      "script": ".habitat/global/workspace/rules/require_active_rule_authority_ledger_identity_parity/check.ts"
+    }
+  }
+}

@@ -20,13 +20,16 @@ anchor; path placement and Nx tags never admit them. Each accepted kind closes
 its own proof topology around disjoint confidence axes; domain-qualified kinds
 such as MapGen keep their stronger domain-shaped testing grammar.
 
-**Current container:** retire the unshipped Civ7 intelligence bridge as an
-unconsumed provider island. Preserve only unique native App UI facts in the
-engine-reference sieve, prove zero production consumers, delete the bridge
-project and its instance-specific Habitat authority, supersede ADR-007's
-controller-candidate language, and record the exact same-realm-consumer or
-proven-async-ingress admission trigger. This container introduces no new kind,
-vendor, destination package, compatibility surface, or deployment path.
+**Current container:** restore exact identity parity between the live Habitat
+rule-manifest corpus and the canonical rule-authority ledger before authorizing
+another kind-law mutation. Run a fresh no-edit Layer 1 classification by stable
+tree lane for all 46 live rules without rows and all 45 manifestless current
+rows, reconcile only evidence-backed admissions, absorptions, relocations, and
+retirements, and seal the ledger at one row per live rule. Add only the
+lifecycle-bound self-check that keeps this active cleanup ledger in exact
+identity parity with Habitat's canonical registry discovery; retire that check
+when the cleanup ledger retires. This container does not redesign, weaken, or
+otherwise mutate any governed rule.
 
 **Stable ownership:** Swooper remains a portable mod definition realized by
 its mod app. The CLI remains a commandless `cli-shell` composed from
@@ -92,6 +95,19 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-30 - Unconsumed Controller Provider Retired
+
+The intelligence bridge had no production consumer, deploy target, installed
+mod proof, or distinct native capability beyond the direct-control atoms and
+semantic control service. Its project, generated bundle, duplicate facade,
+tests, and instance-specific Habitat rule retired together. Unique App UI facts
+remain in the pinned engine-reference sieve; ADR-007 owns current control
+authority, and DEF-022 requires a qualified same-realm consumer or proven async
+ingress plus deployment and lifecycle proof before a persistent in-game
+controller can return. The deletion exposed pre-existing 46/45
+live-manifest/ledger drift, so rule mutation is now explicitly gated on a fresh
+corpus reconciliation.
 
 ### 2026-07-30 - Capability Realization Authority Frozen
 

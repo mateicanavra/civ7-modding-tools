@@ -1,6 +1,6 @@
 # Rule Authority Corpus Grounding
 
-Status: active grounding note; counts refreshed after domain-source topology closure.
+Status: active grounding note; identity counts reconciled 2026-07-30.
 
 Purpose:
 establish where the live rule corpus and operational ledger live before the
@@ -34,20 +34,30 @@ active rule rows or current queue state.
 
 ## Fresh Coverage Check
 
-Fresh disk evidence on 2026-07-06 after
-`domain-root-topology-delete-absorbed-root-shape-rules-001`:
+Fresh canonical-registry evidence on 2026-07-30 after
+`rule-authority-ledger-identity-reconciliation-2026-07-30`:
 
 | Measure | Count |
 | --- | ---: |
-| Current live `rule.json` manifests | 112 |
-| Current live ledger rows | 112 |
+| Current live `rule.json` manifests | 122 |
+| Current live ledger rows | 122 |
 | Missing live rows | 0 |
-| Extra live rows | 0 |
-| Retired historical rows retained in ledger | 24 |
-| Stale/superseded references retained in ledger | 16 |
+| Manifestless current rows | 0 |
+| Retired historical rows retained in ledger | 91 |
+| Duplicate live/current ids | 0 / 0 |
 
-The previous ledger had 106 active rows and missed the eight positive-law rules
-created or ratcheted by the completed domain-root topology descent:
+The reconciliation classified 46 live rules omitted from the ledger and proved
+that all 45 manifestless current rows were already-deleted rule identities.
+Those 45 rows moved to retired history with deletion evidence; none was
+restored. The lifecycle-bound
+`require_active_rule_authority_ledger_identity_parity` rule now keeps the
+active identities and summary counts exact. Its receipt is
+`receipts/rule-authority-ledger-identity-reconciliation.md`.
+
+### Prior 2026-07-06 Grounding
+
+The earlier domain-root closure had corrected eight then-omitted positive-law
+rows:
 
 - `require_artifact_file_shape`
 - `require_artifact_index_aggregate_shape`
@@ -58,10 +68,8 @@ created or ratcheted by the completed domain-root topology descent:
 - `require_domain_source_topology`
 - `require_recipe_stage_authoring_file_shape`
 
-Those rows are now `context admission` entries: live authority in their current
-context, not omission gaps. The Rule Authority Cleanup pass must still review
-each row with current evidence before keep, retire, replace, or split decisions
-are authorized.
+Those rows entered as `context admission`: live authority in their then-current
+context, not permanent reusable-class acceptance.
 
 The two absorbed post-ratchet duplicate rules have been removed from the live
 corpus and retained as retired history:
@@ -75,18 +83,17 @@ Current live manifest distribution:
 
 | Axis | High-signal counts |
 | --- | --- |
-| Top areas | `.habitat/blueprints`: 32; `.habitat/civ7/mapgen/pipeline`: 29; `.habitat/civ7/mapgen/domains`: 17; Studio: 7; workspace/global: 5; docs: 7; platform/resources/toolkit remainder: 17 |
-| Owner projects | `mod-swooper-maps`: 79; `habitat`: 18; `mapgen-studio`: 7; everything else: 10 |
-| Runners | `grit`: 71; `habitat:script`: 31; `habitat:structure`: 6; `habitat:file-layer`: 5; `nx`: 1 |
-| Categories | boundary: 39; contract: 28; structure: 14; execution: 13; output: 9; quality: 8; policy: 3 |
-| ID verbs | `prohibit`: 49; `require`: 32; `validate`: 7; `verify`: 6; `preserve`: 6; `block`: 5; `enforce`: 5; `ensure`: 3; `protect`: 1 |
-| Rough assertion polarity | positive-ish verbs: 60; `prohibit`/`block` guards: 54 |
+| Top areas | `.habitat/blueprints`: 66; Studio: 18; platform/resources/toolkit remainder: 14; pipeline: 10; docs: 7; workspace/global: 7 |
+| Owner projects | `swooper-physics`: 58; `habitat`: 37; `mapgen-studio`: 16; all others: 11 |
+| Runners | `grit`: 78; `habitat:structure`: 22; `habitat:script`: 17; `nx`: 3; `habitat:file-layer`: 2 |
+| Categories | boundary: 42; structure: 27; contract: 26; execution: 14; quality: 9; output: 2; policy: 2 |
+| Primary ID verbs | `require`: 65; `prohibit`: 23; `enforce`: 6; `validate`: 5; `block`: 3; `ensure`: 3; `preserve`: 3; `verify`: 3 |
 
 Interpretation:
-this is not a pure garbage-collection pass. Roughly half the corpus is already
-positive or preserving authority. The cleanup needs to separate durable positive
-law, durable boundary rails, transitional negative guards, split-owner rules,
-native-tool proof rails, and fossils.
+this is not a pure garbage-collection pass. Positive `require` authority now
+substantially outweighs `prohibit` residue. Cleanup still separates durable
+positive law, durable boundary rails, transitional negative guards, split-owner
+rules, native-tool proof rails, and fossils.
 
 ## First Revalidation Pair
 
@@ -125,8 +132,9 @@ frame or this grounding note.
 ## Reproduction Commands
 
 ```bash
-find .habitat -path '*/rule.json' -print | sort
-jq -r '.rules[]?.ruleId' .habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json | sort
-comm -23 <(find .habitat -path '*/rule.json' -print | while read p; do jq -r '.id' "$p"; done | sort) <(jq -r '.rules[]?.ruleId' .habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json | sort)
-comm -13 <(find .habitat -path '*/rule.json' -print | while read p; do jq -r '.id' "$p"; done | sort) <(jq -r '.rules[]?.ruleId' .habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json | sort)
+bun habitat check --json --rule require_active_rule_authority_ledger_identity_parity
+jq '.corpus' .habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json
 ```
+
+The selected rule uses Habitat's canonical registry loader. Do not replace it
+with a second `find`-based definition of live membership.
