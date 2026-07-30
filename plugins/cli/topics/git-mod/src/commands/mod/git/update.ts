@@ -1,5 +1,5 @@
 import { Args } from '@oclif/core';
-import SubtreeConfigRemoteBase from '../../../utils/subtree/SubtreeConfigRemoteBase.js';
+import SubtreeConfigRemoteBase from '../../../adapters/subtree/subtree-config-remote-base.js';
 
 export default class ModGitUpdate extends SubtreeConfigRemoteBase {
   static summary = 'Create or update the remote configuration for a mod subtree';

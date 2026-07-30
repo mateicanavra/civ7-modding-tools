@@ -1,13 +1,13 @@
 import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
 import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
+import { parsePlotFlag, parseZoomFlag } from "../../../adapters/view/camera-flags.js";
 
 // Moves the live Civ7 camera to a plot through the engine Camera API and
 // reports the VERIFIED outcome: the viewport-center plot is read back and
 // compared against the target. The camera stays where it was moved — this is
 // navigation, nothing is restored afterwards.
 export default class GameViewCamera extends Command {
-  static id = "game view camera";
   static summary = "Move the live Civ7 camera to a plot (verified by readback)";
   static description =
     "Focuses the in-game camera on a plot via Camera.lookAtPlot, syncs the plot cursor, and reads " +
@@ -91,23 +91,4 @@ export default class GameViewCamera extends Command {
     this.log(`zoom: ${result.after.zoomLevel ?? "unknown"}`);
     this.log(`verified: centerMatchesTarget=${result.centerMatchesTarget}`);
   }
-}
-
-export function parsePlotFlag(
-  raw: string,
-  fail: (message: string) => never
-): { x: number; y: number } {
-  const match = /^\s*(\d+)\s*,\s*(\d+)\s*$/.exec(raw);
-  if (!match) {
-    fail(`--plot must be x,y with non-negative integers (got "${raw}")`);
-  }
-  return { x: Number(match![1]), y: Number(match![2]) };
-}
-
-export function parseZoomFlag(raw: string, fail: (message: string) => never): number {
-  const zoom = Number(raw);
-  if (!Number.isFinite(zoom) || zoom < 0 || zoom > 1) {
-    fail(`--zoom must be a number between 0 (closest) and 1 (fully zoomed out) (got "${raw}")`);
-  }
-  return zoom;
 }

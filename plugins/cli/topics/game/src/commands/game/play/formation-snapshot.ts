@@ -1,7 +1,7 @@
 import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
 import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
-import { buildDirectControlOptions } from "../../../utils/game-play-shared";
+import { buildDirectControlOptions } from "../../../adapters/play/direct-control";
 
 type FormationSnapshotServiceResult = Awaited<
   ReturnType<ReturnType<typeof createCiv7ControlOrpcServerClient>["strategy"]["formationSnapshot"]>
@@ -15,7 +15,6 @@ type FormationSnapshotCliView = Omit<FormationSnapshotServiceResult, "formation"
 };
 
 export default class GamePlayFormationSnapshot extends Command {
-  static id = "game play formation-snapshot";
   static summary = "Read ready-unit formation, escort, and civilian-screen context";
   static description =
     "Composes the current ready unit and a bounded battlefield scan into a read-only formation snapshot for escort, screen, and tactical movement decisions.";

@@ -1,10 +1,9 @@
 import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
 import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
-import { buildDirectControlOptions } from "../../../utils/game-play-shared";
+import { buildDirectControlOptions } from "../../../adapters/play/direct-control";
 
 export default class GamePlayNotificationQueue extends Command {
-  static id = "game play notification-queue";
   static summary = "Read and schedule the current notification decision queue";
   static description =
     "Builds a read-only queue plan for current Civ7 notifications, including guarded informational-dismissal candidates and operation/inspection steps.";

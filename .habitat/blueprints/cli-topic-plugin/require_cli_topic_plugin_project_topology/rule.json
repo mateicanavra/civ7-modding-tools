@@ -12,10 +12,10 @@
   },
   "ownerProject": "habitat",
   "lane": "enforced",
-  "forbids": "oclif topic plugins without one package, Nx project, source entrypoint, topic-prefixed command tree, and mirrored behavior-test spine or with loose children outside that finite project topology",
-  "why": "A CLI topic plugin is one independently buildable oclif command owner registered by the shell. Closing its project, source, command, and test spines prevents shell forwarding modules, duplicate command owners, global hooks, and reusable capability code from accumulating inside a topic surface.",
-  "remediate": "Keep package.json, project.json, tsconfig.json, src/index.ts, one topic-prefixed src/commands tree, and the mirrored test/commands tree. Put command-local helpers under src/utils, keep startup and global hooks in the CLI shell, and keep reusable capabilities in their library owners.",
-  "message": "CLI topic plugins must match the closed topic-project topology.",
+  "forbids": "CLI topic plugin project, source, command, adapter, and test trees that omit required spine members or contain undeclared direct children",
+  "why": "A CLI topic plugin has one closed project root, a required source and command spine, optional closed source and test adapter trees, and a required closed test spine with optional closed support.",
+  "remediate": "Keep only the declared project-root members; require src/index.ts and src/commands; use lower-kebab TypeScript modules and directories under optional src/adapters and test/adapters trees; require test/commands and test/tsconfig.json; and use lower-kebab TypeScript modules and directories under the optional closed test/support tree.",
+  "message": "CLI topic plugins must match the closed project, source, command, adapter, and test topology.",
   "pathCoverage": [
     {
       "kind": "exact-path",

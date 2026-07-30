@@ -2,19 +2,19 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Realization. Delegation. Opacity. Target. Exit.
+**Attractor filter:** Command. Topic. Identity. Adapter. Grammar. Closure.
 
-**Frame:** the Swooper definition and its Civ7 realization are separate owners
-all the way through execution. Studio may select authored product identity and
-invoke an application capability, but it does not know the realization's
-physical output path, deployed mod id, or file-copy procedure. The app target
-owns the complete build/deploy transaction; its exit is the orchestration
-contract and its bounded output is diagnostic evidence, not a parsed protocol.
+**Frame:** an oclif topic plugin owns a public command language. Command paths
+are executable identity, topic directories express the language hierarchy, and
+command modules adapt that language to reusable capabilities. CLI-only
+translation belongs to a qualified adapter surface; reusable capability logic
+does not belong to the topic, and `utils` names no owner at all.
 
-**Authority order:** product identity -> Civ7 realization -> application target
--> Studio invocation -> bounded diagnostics. Filesystem and deployment facts
-remain below the realization boundary; Studio coordinates without reconstructing
-the app's implementation.
+**Authority order:** public command intent -> oclif path identity -> topic
+grammar -> command adapter -> reusable capability -> observable manifest and
+behavior proof. Habitat owns the generic closed project kind, oclif owns command
+discovery, TypeScript owns imports, and Nx owns orchestration and dependency
+ordering.
 
 **Enforcement gravity:** a correct scaffold plus an advisory rule is guidance,
 not a ratchet. Every newly admitted kind must finish with its generic blueprint
@@ -27,11 +27,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** seal the realization deployment boundary. Add one
-Studio-specific deployment target to the Swooper Civ7 app, make its existing
-Studio build target the target-owned dependency, and reduce Studio to invoking
-that one capability with the selected config identity. Remove the last stale
-generated-path ignore while this physical owner is in view.
+**Current container:** make command path the sole canonical identity inside the
+closed CLI-topic kind. Every admitted command module owns one default runtime
+command, exports no reusable behavior, declares no redundant static id, and
+depends on capabilities through the qualified adapter interior rather than
+another command module. Prove the source-path ID multiset is collision-free and
+exactly matches each generated oclif manifest without changing command
+behavior, aliases, or public paths.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -48,9 +50,10 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** remove Studio's app path and mod-id knowledge, prove the exact
-target plan and environment isolation, verify the app/Studio graph and boundary
-law, then land the cut before returning to SDK and Habitat residuals.
+**Gradient:** encode the generic command-module law -> expose the exact red
+corpus -> delete redundant identity and relocate shared helpers -> prove source
+path/manifest bijection and behavior -> land the identity cut -> migrate one
+earned `game` noun family at a time -> return to the aggregate-only Domain SDK.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -93,6 +96,52 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - CLI Topic Adapter Kind Sealed
+
+Every CLI topic plugin now has one closed optional adapter interior instead of
+an ownerless `utils` bucket. Command paths and behavior remained unchanged,
+game topic help metadata and all sixty-five public IDs gained exact manifest
+proof, and the full topic/application graph, boundaries, dead-code proof, and
+staged Habitat law sealed the mechanical plane for command identity and grammar
+normalization.
+
+### 2026-07-28 - CLI Application Realization Sealed
+
+The private oclif shell moved from a reusable package to the closed `apps/cli`
+application owner. One Bun development composition and one Bun production
+launcher now assemble independently owned topic plugins without changing the
+`civ7-cli` project identity or command behavior. The full app/topic graph,
+boundaries, dead-code proof, fresh reviews, and regenerated Habitat execution
+surface sealed the application and currentness cuts.
+
+### 2026-07-28 - CLI Bun Runtime And Currentness Sealed
+
+The private CLI shell now executes under one Bun contract from source
+development through its production launcher, linked binary, Nx-owned callers,
+and application deployment. oclif remains command-dispatch authority; external
+publication remains explicitly deferred. The complete CLI/app graph,
+boundaries, dead-code proof, fresh reviews, and regenerated execution-surface
+currentness sealed the runtime cut and exposed the remaining physical owner
+error: the executable shell was still stored as a package.
+
+### 2026-07-28 - CLI Shell Kind Sealed
+
+The singleton CLI shell now has one closed positive topology and derives its
+topic plugin membership dynamically. Every admitted topic must be registered
+exactly once and backed by its workspace dependency; unrelated shell plugins
+and capabilities remain possible. Adapter and direct-control laws cover the
+generic topic source root, and the full CLI graph, boundaries, Knip, staged
+policy, injected-red proof, and fresh design review sealed the kind.
+
+### 2026-07-28 - Swooper Realization Deployment Sealed
+
+Studio now invokes one complete `swooper-physics-mod:deploy:studio` capability
+with the selected config identity. The Civ7 app owns its build dependency,
+physical mod output, runtime mod id, and copy procedure; Studio retains only
+opaque bounded diagnostics and relies on target exit for orchestration truth.
+The full app/Studio graph, resolved Nx target, boundaries, Knip, staged policy,
+and fresh architecture review sealed the last definition/realization leak.
 
 ### 2026-07-28 - CLI Shell Ownership Sealed
 

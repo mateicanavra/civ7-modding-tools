@@ -1,6 +1,6 @@
 import { getCiv7ReadyCityView } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
-import { buildDirectControlOptions, parseComponentId } from "../../../utils/game-play-shared";
+import { buildDirectControlOptions, parseComponentId } from "../../../adapters/play/direct-control";
 
 type Probe<T = unknown> = { ok: true; value: T } | { ok: false; error: string };
 type ReadyCityView = Awaited<ReturnType<typeof getCiv7ReadyCityView>>;
@@ -13,7 +13,6 @@ type ReadyCityActionDescriptor = {
 };
 
 export default class GamePlayReadyCity extends Command {
-  static id = "game play ready-city";
   static summary = "Read the selected or blocking city with legal closeout operations";
   static description =
     "Returns a read-only live-play view of the selected, requested, or blocker-target city, plus valid no-argument city operations and commands.";

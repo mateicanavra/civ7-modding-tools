@@ -2,58 +2,58 @@
   "schemaVersion": 1,
   "generatedBy": "tools/habitat/scripts/execution-surface-map.ts",
   "summary": {
-    "totalSurfaces": 678,
+    "totalSurfaces": 672,
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
       "pattern": 68,
-      "rule-json": 107,
-      "structure-spec": 20,
+      "rule-json": 108,
+      "structure-spec": 21,
       "check-script": 16,
       "apply-pattern": 1,
       "generate-script": 2,
       "operation-note": 3,
       "fix-script": 1,
-      "package-script": 199,
-      "nx-target": 129,
+      "package-script": 193,
+      "nx-target": 127,
       "nx-plugin": 2,
       "nx-target-default": 11,
       "habitat-cli-source": 119
     },
     "surfacesByRole": {
       "policy_pattern": 69,
-      "runner_metadata": 107,
-      "structure_authority": 20,
+      "runner_metadata": 108,
+      "structure_authority": 21,
       "command_check_executor": 16,
       "operation_surface": 6,
-      "workspace_entrypoint": 341,
+      "workspace_entrypoint": 333,
       "toolkit_runner": 119
     },
     "entrypointsByInvoker": {
-      "unknown": 216,
+      "unknown": 218,
       "direct-script": 5,
-      "package": 200,
-      "nx": 142,
+      "package": 194,
+      "nx": 140,
       "habitat": 119
     },
     "surfacesByBucket": {
-      "unknown_invocation": 216,
-      "mutation_surface": 138,
-      "nx_ordering_tie": 152,
+      "unknown_invocation": 218,
+      "mutation_surface": 137,
+      "nx_ordering_tie": 149,
       "package_boundary_tie": 40,
       "direct_script_invoked": 5,
-      "package_invoked": 342,
+      "package_invoked": 334,
       "habitat_invoked": 119
     },
     "sanityAssertions": []
   },
   "executionAnatomy": {
     "roleCounts": {
-      "policy-predicate": 89,
-      "adapter": 107,
-      "transient-dependency": 145,
+      "policy-predicate": 90,
+      "adapter": 108,
+      "transient-dependency": 142,
       "fixture-support": 3,
-      "entrypoint": 343,
+      "entrypoint": 335,
       "runner-runtime": 119
     }
   },
@@ -64,6 +64,7 @@
       "references": 38,
       "sourceCount": 38,
       "sampleSources": [
+        "apps/cli/project.json#targets.check",
         "apps/docs/project.json#targets.check",
         "apps/mapgen-studio/project.json#targets.check",
         "apps/mods/map/swooper-physics/project.json#targets.check",
@@ -72,8 +73,7 @@
         "mods/mod-civ7-intelligence-bridge/project.json#targets.check",
         "mods/mod-swooper-civ-dacia/project.json#targets.check",
         "packages/civ7-adapter/project.json#targets.check",
-        "packages/civ7-control-orpc/project.json#targets.check",
-        "packages/civ7-direct-control/project.json#targets.build"
+        "packages/civ7-control-orpc/project.json#targets.check"
       ]
     },
     {
@@ -82,13 +82,13 @@
       "references": 24,
       "sourceCount": 24,
       "sampleSources": [
+        "apps/cli/package.json#scripts.check:test",
         "apps/docs/package.json#scripts.check:test",
         "apps/mods/map/swooper-physics/package.json#scripts.check:test",
         "apps/mods/map/swooper-physics/project.json#targets.check:test",
         "apps/playground/package.json#scripts.check:test",
         "packages/civ7-adapter/package.json#scripts.check:test",
         "packages/civ7-map-policy/package.json#scripts.check:test",
-        "packages/cli/package.json#scripts.check:test",
         "packages/config/package.json#scripts.check:test",
         "packages/mapgen-core/package.json#scripts.check:test",
         "packages/mapgen-diagnostics/package.json#scripts.check:test"
@@ -203,24 +203,6 @@
       ]
     },
     {
-      "target": "node -e \"\"",
-      "targetClass": "workspace-tool",
-      "references": 15,
-      "sourceCount": 15,
-      "sampleSources": [
-        "apps/docs/project.json#targets.build",
-        "apps/mapgen-studio/project.json#targets.build",
-        "mods/mod-civ7-intelligence-bridge/project.json#targets.build",
-        "mods/mod-swooper-civ-dacia/project.json#targets.build:deploy",
-        "packages/cli/package.json#scripts.prepack",
-        "packages/cli/package.json#scripts.prepublishOnly",
-        "packages/cli/package.json#scripts.version",
-        "packages/cli/project.json#targets.build",
-        "packages/cli/project.json#targets.pack:prepare",
-        "packages/sdk/package.json#scripts.prepublishOnly"
-      ]
-    },
-    {
       "target": "./types.js",
       "targetClass": "relative",
       "references": 25,
@@ -241,19 +223,19 @@
     {
       "target": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
       "targetClass": "workspace-tool",
-      "references": 14,
-      "sourceCount": 14,
+      "references": 13,
+      "sourceCount": 13,
       "sampleSources": [
         "apps/docs/package.json#scripts.typecheck",
         "apps/playground/package.json#scripts.typecheck",
         "packages/civ7-control-orpc/project.json#targets.typecheck",
         "packages/civ7-direct-control/package.json#scripts.typecheck",
         "packages/civ7-map-policy/package.json#scripts.typecheck",
-        "packages/cli/package.json#scripts.typecheck",
         "packages/config/package.json#scripts.typecheck",
         "packages/plugins/plugin-files/package.json#scripts.typecheck",
         "packages/plugins/plugin-git/package.json#scripts.typecheck",
-        "packages/plugins/plugin-mods/package.json#scripts.typecheck"
+        "packages/plugins/plugin-mods/package.json#scripts.typecheck",
+        "plugins/cli/topics/data/package.json#scripts.typecheck"
       ]
     },
     {
@@ -512,6 +494,20 @@
       ]
     },
     {
+      "target": "bun -e \"void 0\"",
+      "targetClass": "workspace-tool",
+      "references": 6,
+      "sourceCount": 6,
+      "sampleSources": [
+        "apps/cli/project.json#targets.build",
+        "mods/mod-swooper-civ-dacia/project.json#targets.build:deploy",
+        "plugins/cli/topics/data/project.json#targets.build",
+        "plugins/cli/topics/docs/project.json#targets.build",
+        "plugins/cli/topics/game/project.json#targets.build",
+        "plugins/cli/topics/git-mod/project.json#targets.build"
+      ]
+    },
+    {
       "target": "tsc -p tsconfig.test.json --noEmit",
       "targetClass": "workspace-tool",
       "references": 6,
@@ -630,16 +626,29 @@
       ]
     },
     {
-      "target": "tsc -b --force",
+      "target": "bun run --bun oclif manifest",
       "targetClass": "workspace-tool",
       "references": 5,
       "sourceCount": 5,
       "sampleSources": [
-        "packages/cli/project.json#targets.build:tsc",
-        "plugins/cli/topics/data/project.json#targets.build:tsc",
-        "plugins/cli/topics/docs/project.json#targets.build:tsc",
-        "plugins/cli/topics/game/project.json#targets.build:tsc",
-        "plugins/cli/topics/git-mod/project.json#targets.build:tsc"
+        "apps/cli/project.json#targets.build:manifest",
+        "plugins/cli/topics/data/project.json#targets.build:manifest",
+        "plugins/cli/topics/docs/project.json#targets.build:manifest",
+        "plugins/cli/topics/game/project.json#targets.build:manifest",
+        "plugins/cli/topics/git-mod/project.json#targets.build:manifest"
+      ]
+    },
+    {
+      "target": "node -e \"\"",
+      "targetClass": "workspace-tool",
+      "references": 5,
+      "sourceCount": 5,
+      "sampleSources": [
+        "apps/docs/project.json#targets.build",
+        "apps/mapgen-studio/project.json#targets.build",
+        "mods/mod-civ7-intelligence-bridge/project.json#targets.build",
+        "packages/sdk/package.json#scripts.prepublishOnly",
+        "tools/habitat/project.json#targets.build"
       ]
     },
     {
@@ -892,6 +901,18 @@
         ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-copy-deploy-boundary/pattern.md",
         ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-operation-identity-owner/pattern.md",
         ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-public-contract-closed/pattern.md"
+      ]
+    },
+    {
+      "target": "tsc -b --force",
+      "targetClass": "workspace-tool",
+      "references": 4,
+      "sourceCount": 4,
+      "sampleSources": [
+        "plugins/cli/topics/data/project.json#targets.build:tsc",
+        "plugins/cli/topics/docs/project.json#targets.build:tsc",
+        "plugins/cli/topics/game/project.json#targets.build:tsc",
+        "plugins/cli/topics/git-mod/project.json#targets.build:tsc"
       ]
     },
     {
@@ -1394,6 +1415,16 @@
       ]
     },
     {
+      "target": "../../../cli/bin/run.js",
+      "targetClass": "relative",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        "apps/mods/map/swooper-physics/project.json#targets.deploy",
+        "apps/mods/map/swooper-physics/project.json#targets.deploy:studio"
+      ]
+    },
+    {
       "target": "../../contract.js",
       "targetClass": "relative",
       "references": 2,
@@ -1684,13 +1715,33 @@
       ]
     },
     {
-      "target": "bun publish --access public",
+      "target": "bun ../../../cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps",
       "targetClass": "workspace-tool",
       "references": 2,
       "sourceCount": 2,
       "sampleSources": [
-        "packages/cli/project.json#targets.publish:npm",
-        "packages/sdk/project.json#targets.publish:npm"
+        "apps/mods/map/swooper-physics/project.json#targets.deploy",
+        "apps/mods/map/swooper-physics/project.json#targets.deploy:studio"
+      ]
+    },
+    {
+      "target": "bun pm pack",
+      "targetClass": "workspace-tool",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        "apps/cli/package.json#scripts.pack",
+        "apps/cli/project.json#targets.pack"
+      ]
+    },
+    {
+      "target": "bun run civ7.ts",
+      "targetClass": "workspace-tool",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        "apps/cli/package.json#scripts.run",
+        "apps/cli/project.json#targets.run"
       ]
     },
     {
@@ -1941,6 +1992,16 @@
       "sampleSources": [
         ".habitat/habitat/toolkit/_blueprints/grit-provider/prohibit_product_scan_roots_in_grit_provider/pattern.md",
         ".habitat/habitat/toolkit/_blueprints/rule-diagnostics/prohibit_rule_diagnostics_provider_imports/pattern.md"
+      ]
+    },
+    {
+      "target": "tsc -p tsconfig.json",
+      "targetClass": "workspace-tool",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        "apps/cli/package.json#scripts.typecheck",
+        "tools/habitat/project.json#targets.build:tsc"
       ]
     },
     {
@@ -2765,15 +2826,6 @@
       ]
     },
     {
-      "target": "../../../../packages/cli/bin/run.js",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "apps/mods/map/swooper-physics/project.json#targets.deploy"
-      ]
-    },
-    {
       "target": "../../../../private/helper.js",
       "targetClass": "relative",
       "references": 1,
@@ -2981,6 +3033,15 @@
       ]
     },
     {
+      "target": "../../apps/cli/bin/run.js",
+      "targetClass": "relative",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "mods/mod-swooper-civ-dacia/project.json#targets.deploy"
+      ]
+    },
+    {
       "target": "../../artifacts/index.js",
       "targetClass": "relative",
       "references": 1,
@@ -3095,15 +3156,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/pattern.md"
-      ]
-    },
-    {
-      "target": "../../packages/cli/bin/run.js",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "mods/mod-swooper-civ-dacia/project.json#targets.deploy"
       ]
     },
     {
@@ -3683,42 +3735,6 @@
       ]
     },
     {
-      "target": "./packages/cli/scripts/resources-submodule/init-submodule.sh",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "package.json#scripts.resources:init"
-      ]
-    },
-    {
-      "target": "./packages/cli/scripts/resources-submodule/publish-submodule.sh",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "package.json#scripts.resources:publish"
-      ]
-    },
-    {
-      "target": "./packages/cli/scripts/resources-submodule/status.sh",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "package.json#scripts.resources:status"
-      ]
-    },
-    {
-      "target": "./packages/cli/scripts/resources-submodule/unlock-submodule.py",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "package.json#scripts.resources:unlock"
-      ]
-    },
-    {
       "target": "./plate-driven/index.js",
       "targetClass": "relative",
       "references": 1,
@@ -3788,6 +3804,42 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/platform/control-orpc/rules/preserve_transport_pure_orpc_contracts/pattern.md"
+      ]
+    },
+    {
+      "target": "./scripts/civ7-resources/init-submodule.sh",
+      "targetClass": "relative",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "package.json#scripts.resources:init"
+      ]
+    },
+    {
+      "target": "./scripts/civ7-resources/publish-submodule.sh",
+      "targetClass": "relative",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "package.json#scripts.resources:publish"
+      ]
+    },
+    {
+      "target": "./scripts/civ7-resources/status.sh",
+      "targetClass": "relative",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "package.json#scripts.resources:status"
+      ]
+    },
+    {
+      "target": "./scripts/civ7-resources/unlock-submodule.py",
+      "targetClass": "relative",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "package.json#scripts.resources:unlock"
       ]
     },
     {
@@ -4265,6 +4317,15 @@
       "sourceCount": 1,
       "sampleSources": [
         "tools/habitat/src/cli/base/HabitatCommand.ts"
+      ]
+    },
+    {
+      "target": "apps/cli/civ7.ts",
+      "targetClass": "app",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/platform/direct-control/session/rules/require_sanctioned_direct_control_session_owners/pattern.md"
       ]
     },
     {
@@ -4799,7 +4860,7 @@
       ]
     },
     {
-      "target": "bash ./packages/cli/scripts/resources-submodule/init-submodule.sh",
+      "target": "bash ./scripts/civ7-resources/init-submodule.sh",
       "targetClass": "workspace-tool",
       "references": 1,
       "sourceCount": 1,
@@ -4808,7 +4869,7 @@
       ]
     },
     {
-      "target": "bash ./packages/cli/scripts/resources-submodule/publish-submodule.sh",
+      "target": "bash ./scripts/civ7-resources/publish-submodule.sh",
       "targetClass": "workspace-tool",
       "references": 1,
       "sourceCount": 1,
@@ -4817,7 +4878,7 @@
       ]
     },
     {
-      "target": "bash ./packages/cli/scripts/resources-submodule/status.sh",
+      "target": "bash ./scripts/civ7-resources/status.sh",
       "targetClass": "workspace-tool",
       "references": 1,
       "sourceCount": 1,
@@ -4904,6 +4965,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts"
+      ]
+    },
+    {
+      "target": "bun ../../apps/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-civ-dacia",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "mods/mod-swooper-civ-dacia/project.json#targets.deploy"
       ]
     },
     {
@@ -5042,30 +5112,39 @@
       ]
     },
     {
+      "target": "bun bin/run.js data unzip default",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "apps/cli/project.json#targets.data:unzip:default"
+      ]
+    },
+    {
+      "target": "bun bin/run.js data zip default",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "apps/cli/project.json#targets.data:zip:default"
+      ]
+    },
+    {
       "target": "bun link",
       "targetClass": "workspace-tool",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        "packages/cli/project.json#targets.link:global"
+        "apps/cli/project.json#targets.link:global"
       ]
     },
     {
-      "target": "bun pm pack",
+      "target": "bun publish --access public",
       "targetClass": "workspace-tool",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        "packages/cli/package.json#scripts.pack"
-      ]
-    },
-    {
-      "target": "bun publish",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "packages/cli/package.json#scripts.publish"
+        "packages/sdk/project.json#targets.publish:npm"
       ]
     },
     {
@@ -5075,15 +5154,6 @@
       "sourceCount": 1,
       "sampleSources": [
         "tools/habitat/package.json#scripts.generate:schemas"
-      ]
-    },
-    {
-      "target": "bun run bin/dev.ts",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "packages/cli/package.json#scripts.run"
       ]
     },
     {
@@ -5200,7 +5270,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        "packages/cli/project.json#targets.unlink:global"
+        "apps/cli/project.json#targets.unlink:global"
       ]
     },
     {
@@ -5228,15 +5298,6 @@
       "sourceCount": 1,
       "sampleSources": [
         "tools/habitat/src/resources/command/materialize.ts"
-      ]
-    },
-    {
-      "target": "git add README.md",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "packages/cli/project.json#targets.version:readme"
       ]
     },
     {
@@ -6122,48 +6183,12 @@
       ]
     },
     {
-      "target": "node ../../../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "apps/mods/map/swooper-physics/project.json#targets.deploy"
-      ]
-    },
-    {
       "target": "node ../../.habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/lint-react-compiler.mjs",
       "targetClass": "habitat-authority",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
         "apps/mapgen-studio/package.json#scripts.lint:react-compiler"
-      ]
-    },
-    {
-      "target": "node ../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-civ-dacia",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "mods/mod-swooper-civ-dacia/project.json#targets.deploy"
-      ]
-    },
-    {
-      "target": "node bin/run.js data unzip default",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "packages/cli/project.json#targets.data:unzip:default"
-      ]
-    },
-    {
-      "target": "node bin/run.js data zip default",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "packages/cli/project.json#targets.data:zip:default"
       ]
     },
     {
@@ -6533,15 +6558,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/pattern.md"
-      ]
-    },
-    {
-      "target": "packages/cli/src/commands/game/session.ts",
-      "targetClass": "package",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/platform/direct-control/session/rules/require_sanctioned_direct_control_session_owners/pattern.md"
       ]
     },
     {
@@ -7481,7 +7497,7 @@
       ]
     },
     {
-      "target": "python3 ./packages/cli/scripts/resources-submodule/unlock-submodule.py",
+      "target": "python3 ./scripts/civ7-resources/unlock-submodule.py",
       "targetClass": "workspace-tool",
       "references": 1,
       "sourceCount": 1,
@@ -7787,15 +7803,6 @@
       ]
     },
     {
-      "target": "tsc -p bin/tsconfig.json --noEmit",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "packages/cli/package.json#scripts.check:tools"
-      ]
-    },
-    {
       "target": "tsc -p bin/tsconfig.json --noEmit && tsc -p scripts/tsconfig.json --noEmit && tsc -p ../../.habitat/tsconfig.json --noEmit",
       "targetClass": "habitat-authority",
       "references": 1,
@@ -7811,15 +7818,6 @@
       "sourceCount": 1,
       "sampleSources": [
         "packages/civ7-adapter/package.json#scripts.check:tools"
-      ]
-    },
-    {
-      "target": "tsc -p tsconfig.json",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "tools/habitat/project.json#targets.build:tsc"
       ]
     },
     {
@@ -7873,7 +7871,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        "packages/cli/package.json#scripts.test"
+        "apps/cli/package.json#scripts.test"
       ]
     },
     {
@@ -7973,6 +7971,15 @@
       "sourceCount": 1,
       "sampleSources": [
         "packages/sdk/package.json#scripts.test"
+      ]
+    },
+    {
+      "target": "vitest run --project workspace-resources",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "package.json#scripts.resources:test"
       ]
     }
   ],
@@ -8573,6 +8580,72 @@
     {
       "id": ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/structure.toml",
       "path": ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/structure.toml",
+      "surfaceKind": "structure-spec",
+      "surfaceRole": "structure_authority",
+      "invokedBy": [
+        "unknown"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate"
+        ],
+        "summary": "Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/blueprints/cli-shell/require_cli_shell_project_topology/rule.json",
+      "path": ".habitat/blueprints/cli-shell/require_cli_shell_project_topology/rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "invokedBy": [
+        "unknown"
+      ],
+      "detectCommand": [],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/blueprints/cli-shell/require_cli_shell_project_topology/structure.toml",
+      "path": ".habitat/blueprints/cli-shell/require_cli_shell_project_topology/structure.toml",
       "surfaceKind": "structure-spec",
       "surfaceRole": "structure_authority",
       "invokedBy": [
@@ -17857,6 +17930,7 @@
         "imports": [],
         "relativeHabitatImports": [],
         "packageAppModImports": [
+          "apps/cli/civ7.ts",
           "apps/mapgen-studio/src/features/liveRuntime/session.ts",
           "apps/mapgen-studio/src/features/liveRuntime/session.tsx",
           "apps/mapgen-studio/src/server/runInGame/session.ts",
@@ -17864,7 +17938,6 @@
           "packages/civ7-direct-control/src/session/session.ts",
           "packages/civ7-direct-control/test/shared-session.test.ts",
           "packages/civ7-direct-control/tests/shared-session.ts",
-          "packages/cli/src/commands/game/session.ts",
           "packages/studio-server/src/routes/session.ts",
           "packages/studio-server/src/services/Civ7TunerSession.ts"
         ],
@@ -17880,6 +17953,11 @@
             "kind": "path-reference",
             "value": "apps",
             "targetClass": "external"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/cli/civ7.ts",
+            "targetClass": "app"
           },
           {
             "kind": "path-reference",
@@ -17919,11 +17997,6 @@
           {
             "kind": "path-reference",
             "value": "packages/civ7-direct-control/tests/shared-session.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/cli/src/commands/game/session.ts",
             "targetClass": "package"
           },
           {
@@ -20435,6 +20508,72 @@
       ]
     },
     {
+      "id": ".habitat/blueprints/cli-shell/require_cli_shell_project_topology/rule.json",
+      "path": ".habitat/blueprints/cli-shell/require_cli_shell_project_topology/rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "invokedBy": [
+        "unknown"
+      ],
+      "detectCommand": [],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/blueprints/cli-shell/require_cli_shell_project_topology/structure.toml",
+      "path": ".habitat/blueprints/cli-shell/require_cli_shell_project_topology/structure.toml",
+      "surfaceKind": "structure-spec",
+      "surfaceRole": "structure_authority",
+      "invokedBy": [
+        "unknown"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate"
+        ],
+        "summary": "Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
       "id": ".habitat/blueprints/cli-topic-plugin/require_cli_topic_plugin_project_topology/rule.json",
       "path": ".habitat/blueprints/cli-topic-plugin/require_cli_topic_plugin_project_topology/rule.json",
       "surfaceKind": "rule-json",
@@ -29689,6 +29828,7 @@
         "imports": [],
         "relativeHabitatImports": [],
         "packageAppModImports": [
+          "apps/cli/civ7.ts",
           "apps/mapgen-studio/src/features/liveRuntime/session.ts",
           "apps/mapgen-studio/src/features/liveRuntime/session.tsx",
           "apps/mapgen-studio/src/server/runInGame/session.ts",
@@ -29696,7 +29836,6 @@
           "packages/civ7-direct-control/src/session/session.ts",
           "packages/civ7-direct-control/test/shared-session.test.ts",
           "packages/civ7-direct-control/tests/shared-session.ts",
-          "packages/cli/src/commands/game/session.ts",
           "packages/studio-server/src/routes/session.ts",
           "packages/studio-server/src/services/Civ7TunerSession.ts"
         ],
@@ -29712,6 +29851,11 @@
             "kind": "path-reference",
             "value": "apps",
             "targetClass": "external"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/cli/civ7.ts",
+            "targetClass": "app"
           },
           {
             "kind": "path-reference",
@@ -29751,11 +29895,6 @@
           {
             "kind": "path-reference",
             "value": "packages/civ7-direct-control/tests/shared-session.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/cli/src/commands/game/session.ts",
             "targetClass": "package"
           },
           {
@@ -32190,6 +32329,803 @@
       ]
     },
     {
+      "id": "apps/cli/package.json#scripts.check:test",
+      "path": "apps/cli/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "apps/cli/package.json",
+        "packageName": "@mateicanavra/civ7-cli",
+        "name": "check:test",
+        "command": "tsc -p test/tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p test/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p test/tsconfig.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "apps/cli/package.json#scripts.pack",
+      "path": "apps/cli/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "apps/cli/package.json",
+        "packageName": "@mateicanavra/civ7-cli",
+        "name": "pack",
+        "command": "bun pm pack"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "bun pm pack"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "bun pm pack",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "apps/cli/package.json#scripts.run",
+      "path": "apps/cli/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "apps/cli/package.json",
+        "packageName": "@mateicanavra/civ7-cli",
+        "name": "run",
+        "command": "bun run civ7.ts"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "bun run civ7.ts"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "bun run civ7.ts",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "apps/cli/package.json#scripts.test",
+      "path": "apps/cli/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "apps/cli/package.json",
+        "packageName": "@mateicanavra/civ7-cli",
+        "name": "test",
+        "command": "vitest run --project cli"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "vitest run --project cli"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "vitest run --project cli",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "apps/cli/package.json#scripts.typecheck",
+      "path": "apps/cli/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "apps/cli/package.json",
+        "packageName": "@mateicanavra/civ7-cli",
+        "name": "typecheck",
+        "command": "tsc -p tsconfig.json"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p tsconfig.json"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p tsconfig.json",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "apps/cli/project.json#targets.build",
+      "path": "apps/cli/project.json",
+      "surfaceKind": "nx-target",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "nx"
+      ],
+      "nxTarget": {
+        "projectPath": "apps/cli/project.json",
+        "projectName": "civ7-cli",
+        "name": "build",
+        "command": "bun -e \"void 0\"",
+        "dependsOn": [
+          "\"build:bin-mode\""
+        ]
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "bun -e \"void 0\""
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "nx-depends-on",
+            "value": "\"build:bin-mode\"",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bun -e \"void 0\"",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint",
+          "transient-dependency"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
+      },
+      "buckets": [
+        "nx_ordering_tie",
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "apps/cli/project.json#targets.build:bin-mode",
+      "path": "apps/cli/project.json",
+      "surfaceKind": "nx-target",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "nx"
+      ],
+      "nxTarget": {
+        "projectPath": "apps/cli/project.json",
+        "projectName": "civ7-cli",
+        "name": "build:bin-mode",
+        "command": "chmod +x bin/run.js",
+        "dependsOn": [
+          "\"build:manifest\""
+        ]
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [
+          "chmod"
+        ],
+        "all": [
+          {
+            "kind": "mutation-verb",
+            "value": "chmod",
+            "targetClass": "external"
+          },
+          {
+            "kind": "nx-depends-on",
+            "value": "\"build:manifest\"",
+            "targetClass": "unknown"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint",
+          "transient-dependency"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
+      },
+      "buckets": [
+        "mutation_surface",
+        "nx_ordering_tie",
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "apps/cli/project.json#targets.build:manifest",
+      "path": "apps/cli/project.json",
+      "surfaceKind": "nx-target",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "nx"
+      ],
+      "nxTarget": {
+        "projectPath": "apps/cli/project.json",
+        "projectName": "civ7-cli",
+        "name": "build:manifest",
+        "command": "bun run --bun oclif manifest",
+        "dependsOn": [
+          "\"^build\""
+        ]
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "bun run --bun oclif manifest"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "nx-depends-on",
+            "value": "\"^build\"",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bun run --bun oclif manifest",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint",
+          "transient-dependency"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
+      },
+      "buckets": [
+        "nx_ordering_tie",
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "apps/cli/project.json#targets.check",
+      "path": "apps/cli/project.json",
+      "surfaceKind": "nx-target",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "nx"
+      ],
+      "nxTarget": {
+        "projectPath": "apps/cli/project.json",
+        "projectName": "civ7-cli",
+        "name": "check",
+        "executor": "nx:noop",
+        "dependsOn": []
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "nx:noop"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "nx:noop",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "apps/cli/project.json#targets.data:unzip:default",
+      "path": "apps/cli/project.json",
+      "surfaceKind": "nx-target",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "nx"
+      ],
+      "nxTarget": {
+        "projectPath": "apps/cli/project.json",
+        "projectName": "civ7-cli",
+        "name": "data:unzip:default",
+        "command": "bun bin/run.js data unzip default",
+        "dependsOn": [
+          "\"build\""
+        ]
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "bun bin/run.js data unzip default"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "nx-depends-on",
+            "value": "\"build\"",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bun bin/run.js data unzip default",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint",
+          "transient-dependency"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
+      },
+      "buckets": [
+        "nx_ordering_tie",
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "apps/cli/project.json#targets.data:zip:default",
+      "path": "apps/cli/project.json",
+      "surfaceKind": "nx-target",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "nx"
+      ],
+      "nxTarget": {
+        "projectPath": "apps/cli/project.json",
+        "projectName": "civ7-cli",
+        "name": "data:zip:default",
+        "command": "bun bin/run.js data zip default",
+        "dependsOn": [
+          "\"build\""
+        ]
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "bun bin/run.js data zip default"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "nx-depends-on",
+            "value": "\"build\"",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bun bin/run.js data zip default",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint",
+          "transient-dependency"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
+      },
+      "buckets": [
+        "nx_ordering_tie",
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "apps/cli/project.json#targets.link:global",
+      "path": "apps/cli/project.json",
+      "surfaceKind": "nx-target",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "nx"
+      ],
+      "nxTarget": {
+        "projectPath": "apps/cli/project.json",
+        "projectName": "civ7-cli",
+        "name": "link:global",
+        "command": "bun link",
+        "dependsOn": [
+          "\"build\""
+        ]
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "bun link"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "nx-depends-on",
+            "value": "\"build\"",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bun link",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint",
+          "transient-dependency"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
+      },
+      "buckets": [
+        "nx_ordering_tie",
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "apps/cli/project.json#targets.pack",
+      "path": "apps/cli/project.json",
+      "surfaceKind": "nx-target",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "nx"
+      ],
+      "nxTarget": {
+        "projectPath": "apps/cli/project.json",
+        "projectName": "civ7-cli",
+        "name": "pack",
+        "command": "bun pm pack",
+        "dependsOn": [
+          "\"build\""
+        ]
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "bun pm pack"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "nx-depends-on",
+            "value": "\"build\"",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bun pm pack",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint",
+          "transient-dependency"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
+      },
+      "buckets": [
+        "nx_ordering_tie",
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "apps/cli/project.json#targets.run",
+      "path": "apps/cli/project.json",
+      "surfaceKind": "nx-target",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "nx"
+      ],
+      "nxTarget": {
+        "projectPath": "apps/cli/project.json",
+        "projectName": "civ7-cli",
+        "name": "run",
+        "command": "bun run civ7.ts",
+        "dependsOn": [
+          "\"^build\""
+        ]
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "bun run civ7.ts"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "nx-depends-on",
+            "value": "\"^build\"",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bun run civ7.ts",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint",
+          "transient-dependency"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
+      },
+      "buckets": [
+        "nx_ordering_tie",
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "apps/cli/project.json#targets.unlink:global",
+      "path": "apps/cli/project.json",
+      "surfaceKind": "nx-target",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "nx"
+      ],
+      "nxTarget": {
+        "projectPath": "apps/cli/project.json",
+        "projectName": "civ7-cli",
+        "name": "unlink:global",
+        "command": "bun unlink",
+        "dependsOn": []
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "bun unlink"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [
+          "unlink"
+        ],
+        "all": [
+          {
+            "kind": "mutation-verb",
+            "value": "unlink",
+            "targetClass": "external"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bun unlink",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "mutation_surface",
+        "package_invoked"
+      ]
+    },
+    {
       "id": "apps/docs/package.json#scripts.check:test",
       "path": "apps/docs/package.json",
       "surfaceKind": "package-script",
@@ -33870,7 +34806,7 @@
         "projectPath": "apps/mods/map/swooper-physics/project.json",
         "projectName": "swooper-physics-mod",
         "name": "deploy",
-        "command": "node ../../../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps",
+        "command": "bun ../../../cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps",
         "dependsOn": [
           "\"build\"",
           "{\"projects\":[\"civ7-cli\"],\"target\":\"build\"}"
@@ -33883,7 +34819,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "node ../../../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps"
+          "bun ../../../cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -33901,12 +34837,81 @@
           },
           {
             "kind": "path-reference",
-            "value": "../../../../packages/cli/bin/run.js",
+            "value": "../../../cli/bin/run.js",
             "targetClass": "relative"
           },
           {
             "kind": "shell-command",
-            "value": "node ../../../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps",
+            "value": "bun ../../../cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint",
+          "transient-dependency"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
+      },
+      "buckets": [
+        "nx_ordering_tie",
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "apps/mods/map/swooper-physics/project.json#targets.deploy:studio",
+      "path": "apps/mods/map/swooper-physics/project.json",
+      "surfaceKind": "nx-target",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "nx"
+      ],
+      "nxTarget": {
+        "projectPath": "apps/mods/map/swooper-physics/project.json",
+        "projectName": "swooper-physics-mod",
+        "name": "deploy:studio",
+        "command": "bun ../../../cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps",
+        "dependsOn": [
+          "\"build:studio-deploy\"",
+          "{\"projects\":[\"civ7-cli\"],\"target\":\"build\"}"
+        ]
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "bun ../../../cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "nx-depends-on",
+            "value": "\"build:studio-deploy\"",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "nx-depends-on",
+            "value": "{\"projects\":[\"civ7-cli\"],\"target\":\"build\"}",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "path-reference",
+            "value": "../../../cli/bin/run.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bun ../../../cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps",
             "targetClass": "workspace-tool"
           }
         ]
@@ -35454,7 +36459,7 @@
         "projectPath": "mods/mod-swooper-civ-dacia/project.json",
         "projectName": "mod-dacia",
         "name": "build:deploy",
-        "command": "node -e \"\"",
+        "command": "bun -e \"void 0\"",
         "dependsOn": [
           "\"deploy\""
         ]
@@ -35466,7 +36471,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "node -e \"\""
+          "bun -e \"void 0\""
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -35479,7 +36484,7 @@
           },
           {
             "kind": "shell-command",
-            "value": "node -e \"\"",
+            "value": "bun -e \"void 0\"",
             "targetClass": "workspace-tool"
           }
         ]
@@ -35559,7 +36564,7 @@
         "projectPath": "mods/mod-swooper-civ-dacia/project.json",
         "projectName": "mod-dacia",
         "name": "deploy",
-        "command": "node ../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-civ-dacia",
+        "command": "bun ../../apps/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-civ-dacia",
         "dependsOn": [
           "\"build\"",
           "{\"projects\":[\"civ7-cli\"],\"target\":\"build\"}"
@@ -35572,7 +36577,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "node ../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-civ-dacia"
+          "bun ../../apps/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-civ-dacia"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -35590,12 +36595,12 @@
           },
           {
             "kind": "path-reference",
-            "value": "../../packages/cli/bin/run.js",
+            "value": "../../apps/cli/bin/run.js",
             "targetClass": "relative"
           },
           {
             "kind": "shell-command",
-            "value": "node ../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-civ-dacia",
+            "value": "bun ../../apps/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-civ-dacia",
             "targetClass": "workspace-tool"
           }
         ]
@@ -37142,7 +38147,7 @@
         "packagePath": "package.json",
         "packageName": "civ7-modding-tools",
         "name": "resources:init",
-        "command": "bash ./packages/cli/scripts/resources-submodule/init-submodule.sh"
+        "command": "bash ./scripts/civ7-resources/init-submodule.sh"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -37151,7 +38156,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "bash ./packages/cli/scripts/resources-submodule/init-submodule.sh"
+          "bash ./scripts/civ7-resources/init-submodule.sh"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -37159,12 +38164,12 @@
         "all": [
           {
             "kind": "path-reference",
-            "value": "./packages/cli/scripts/resources-submodule/init-submodule.sh",
+            "value": "./scripts/civ7-resources/init-submodule.sh",
             "targetClass": "relative"
           },
           {
             "kind": "shell-command",
-            "value": "bash ./packages/cli/scripts/resources-submodule/init-submodule.sh",
+            "value": "bash ./scripts/civ7-resources/init-submodule.sh",
             "targetClass": "workspace-tool"
           }
         ]
@@ -37193,7 +38198,7 @@
         "packagePath": "package.json",
         "packageName": "civ7-modding-tools",
         "name": "resources:publish",
-        "command": "bash ./packages/cli/scripts/resources-submodule/publish-submodule.sh"
+        "command": "bash ./scripts/civ7-resources/publish-submodule.sh"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -37202,7 +38207,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "bash ./packages/cli/scripts/resources-submodule/publish-submodule.sh"
+          "bash ./scripts/civ7-resources/publish-submodule.sh"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -37210,12 +38215,12 @@
         "all": [
           {
             "kind": "path-reference",
-            "value": "./packages/cli/scripts/resources-submodule/publish-submodule.sh",
+            "value": "./scripts/civ7-resources/publish-submodule.sh",
             "targetClass": "relative"
           },
           {
             "kind": "shell-command",
-            "value": "bash ./packages/cli/scripts/resources-submodule/publish-submodule.sh",
+            "value": "bash ./scripts/civ7-resources/publish-submodule.sh",
             "targetClass": "workspace-tool"
           }
         ]
@@ -37244,7 +38249,7 @@
         "packagePath": "package.json",
         "packageName": "civ7-modding-tools",
         "name": "resources:status",
-        "command": "bash ./packages/cli/scripts/resources-submodule/status.sh"
+        "command": "bash ./scripts/civ7-resources/status.sh"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -37253,7 +38258,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "bash ./packages/cli/scripts/resources-submodule/status.sh"
+          "bash ./scripts/civ7-resources/status.sh"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -37261,12 +38266,58 @@
         "all": [
           {
             "kind": "path-reference",
-            "value": "./packages/cli/scripts/resources-submodule/status.sh",
+            "value": "./scripts/civ7-resources/status.sh",
             "targetClass": "relative"
           },
           {
             "kind": "shell-command",
-            "value": "bash ./packages/cli/scripts/resources-submodule/status.sh",
+            "value": "bash ./scripts/civ7-resources/status.sh",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "package.json#scripts.resources:test",
+      "path": "package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "package.json",
+        "packageName": "civ7-modding-tools",
+        "name": "resources:test",
+        "command": "vitest run --project workspace-resources"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "vitest run --project workspace-resources"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "vitest run --project workspace-resources",
             "targetClass": "workspace-tool"
           }
         ]
@@ -37295,7 +38346,7 @@
         "packagePath": "package.json",
         "packageName": "civ7-modding-tools",
         "name": "resources:unlock",
-        "command": "python3 ./packages/cli/scripts/resources-submodule/unlock-submodule.py"
+        "command": "python3 ./scripts/civ7-resources/unlock-submodule.py"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -37304,7 +38355,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "python3 ./packages/cli/scripts/resources-submodule/unlock-submodule.py"
+          "python3 ./scripts/civ7-resources/unlock-submodule.py"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -37312,12 +38363,12 @@
         "all": [
           {
             "kind": "path-reference",
-            "value": "./packages/cli/scripts/resources-submodule/unlock-submodule.py",
+            "value": "./scripts/civ7-resources/unlock-submodule.py",
             "targetClass": "relative"
           },
           {
             "kind": "shell-command",
-            "value": "python3 ./packages/cli/scripts/resources-submodule/unlock-submodule.py",
+            "value": "python3 ./scripts/civ7-resources/unlock-submodule.py",
             "targetClass": "workspace-tool"
           }
         ]
@@ -39332,1317 +40383,6 @@
           {
             "kind": "shell-command",
             "value": "nx:noop",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint",
-          "transient-dependency"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "nx_ordering_tie",
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/package.json#scripts.check:test",
-      "path": "packages/cli/package.json",
-      "surfaceKind": "package-script",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "package"
-      ],
-      "packageScript": {
-        "packagePath": "packages/cli/package.json",
-        "packageName": "@mateicanavra/civ7-cli",
-        "name": "check:test",
-        "command": "tsc -p test/tsconfig.json --noEmit"
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "tsc -p test/tsconfig.json --noEmit"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "shell-command",
-            "value": "tsc -p test/tsconfig.json --noEmit",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/package.json#scripts.check:tools",
-      "path": "packages/cli/package.json",
-      "surfaceKind": "package-script",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "package"
-      ],
-      "packageScript": {
-        "packagePath": "packages/cli/package.json",
-        "packageName": "@mateicanavra/civ7-cli",
-        "name": "check:tools",
-        "command": "tsc -p bin/tsconfig.json --noEmit"
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "tsc -p bin/tsconfig.json --noEmit"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "shell-command",
-            "value": "tsc -p bin/tsconfig.json --noEmit",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/package.json#scripts.clean:dist",
-      "path": "packages/cli/package.json",
-      "surfaceKind": "package-script",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "package"
-      ],
-      "packageScript": {
-        "packagePath": "packages/cli/package.json",
-        "packageName": "@mateicanavra/civ7-cli",
-        "name": "clean:dist",
-        "command": "rimraf dist tsconfig.tsbuildinfo"
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          "build"
-        ],
-        "all": [
-          {
-            "kind": "mutation-verb",
-            "value": "build",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "dist",
-            "targetClass": "external"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint",
-          "transient-dependency"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "mutation_surface",
-        "nx_ordering_tie",
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/package.json#scripts.pack",
-      "path": "packages/cli/package.json",
-      "surfaceKind": "package-script",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "package"
-      ],
-      "packageScript": {
-        "packagePath": "packages/cli/package.json",
-        "packageName": "@mateicanavra/civ7-cli",
-        "name": "pack",
-        "command": "bun pm pack"
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "bun pm pack"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "shell-command",
-            "value": "bun pm pack",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/package.json#scripts.postpack",
-      "path": "packages/cli/package.json",
-      "surfaceKind": "package-script",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "package"
-      ],
-      "packageScript": {
-        "packagePath": "packages/cli/package.json",
-        "packageName": "@mateicanavra/civ7-cli",
-        "name": "postpack",
-        "command": "rimraf oclif.manifest.json"
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/package.json#scripts.prepack",
-      "path": "packages/cli/package.json",
-      "surfaceKind": "package-script",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "package"
-      ],
-      "packageScript": {
-        "packagePath": "packages/cli/package.json",
-        "packageName": "@mateicanavra/civ7-cli",
-        "name": "prepack",
-        "command": "node -e \"\""
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "node -e \"\""
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "shell-command",
-            "value": "node -e \"\"",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/package.json#scripts.prepublishOnly",
-      "path": "packages/cli/package.json",
-      "surfaceKind": "package-script",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "package"
-      ],
-      "packageScript": {
-        "packagePath": "packages/cli/package.json",
-        "packageName": "@mateicanavra/civ7-cli",
-        "name": "prepublishOnly",
-        "command": "node -e \"\""
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "node -e \"\""
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "shell-command",
-            "value": "node -e \"\"",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/package.json#scripts.publish",
-      "path": "packages/cli/package.json",
-      "surfaceKind": "package-script",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "package"
-      ],
-      "packageScript": {
-        "packagePath": "packages/cli/package.json",
-        "packageName": "@mateicanavra/civ7-cli",
-        "name": "publish",
-        "command": "bun publish"
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "bun publish"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "shell-command",
-            "value": "bun publish",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/package.json#scripts.run",
-      "path": "packages/cli/package.json",
-      "surfaceKind": "package-script",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "package"
-      ],
-      "packageScript": {
-        "packagePath": "packages/cli/package.json",
-        "packageName": "@mateicanavra/civ7-cli",
-        "name": "run",
-        "command": "bun run bin/dev.ts"
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "bun run bin/dev.ts"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "shell-command",
-            "value": "bun run bin/dev.ts",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/package.json#scripts.test",
-      "path": "packages/cli/package.json",
-      "surfaceKind": "package-script",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "package"
-      ],
-      "packageScript": {
-        "packagePath": "packages/cli/package.json",
-        "packageName": "@mateicanavra/civ7-cli",
-        "name": "test",
-        "command": "vitest run --project cli"
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "vitest run --project cli"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "shell-command",
-            "value": "vitest run --project cli",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/package.json#scripts.typecheck",
-      "path": "packages/cli/package.json",
-      "surfaceKind": "package-script",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "package"
-      ],
-      "packageScript": {
-        "packagePath": "packages/cli/package.json",
-        "packageName": "@mateicanavra/civ7-cli",
-        "name": "typecheck",
-        "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "tsc -p tsconfig.json --noEmit --composite false --incremental false"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "shell-command",
-            "value": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/package.json#scripts.version",
-      "path": "packages/cli/package.json",
-      "surfaceKind": "package-script",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "package"
-      ],
-      "packageScript": {
-        "packagePath": "packages/cli/package.json",
-        "packageName": "@mateicanavra/civ7-cli",
-        "name": "version",
-        "command": "node -e \"\""
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "node -e \"\""
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "shell-command",
-            "value": "node -e \"\"",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/project.json#targets.build",
-      "path": "packages/cli/project.json",
-      "surfaceKind": "nx-target",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "nx"
-      ],
-      "nxTarget": {
-        "projectPath": "packages/cli/project.json",
-        "projectName": "civ7-cli",
-        "name": "build",
-        "command": "node -e \"\"",
-        "dependsOn": [
-          "\"build:bin-mode\""
-        ]
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "node -e \"\""
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "nx-depends-on",
-            "value": "\"build:bin-mode\"",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node -e \"\"",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint",
-          "transient-dependency"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "nx_ordering_tie",
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/project.json#targets.build:bin-mode",
-      "path": "packages/cli/project.json",
-      "surfaceKind": "nx-target",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "nx"
-      ],
-      "nxTarget": {
-        "projectPath": "packages/cli/project.json",
-        "projectName": "civ7-cli",
-        "name": "build:bin-mode",
-        "command": "chmod +x bin/run.js",
-        "dependsOn": [
-          "\"build:manifest\""
-        ]
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          "chmod"
-        ],
-        "all": [
-          {
-            "kind": "mutation-verb",
-            "value": "chmod",
-            "targetClass": "external"
-          },
-          {
-            "kind": "nx-depends-on",
-            "value": "\"build:manifest\"",
-            "targetClass": "unknown"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint",
-          "transient-dependency"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "mutation_surface",
-        "nx_ordering_tie",
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/project.json#targets.build:manifest",
-      "path": "packages/cli/project.json",
-      "surfaceKind": "nx-target",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "nx"
-      ],
-      "nxTarget": {
-        "projectPath": "packages/cli/project.json",
-        "projectName": "civ7-cli",
-        "name": "build:manifest",
-        "command": "oclif manifest",
-        "dependsOn": [
-          "\"build:tsc\""
-        ]
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "nx-depends-on",
-            "value": "\"build:tsc\"",
-            "targetClass": "unknown"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint",
-          "transient-dependency"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "nx_ordering_tie",
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/project.json#targets.build:tsc",
-      "path": "packages/cli/project.json",
-      "surfaceKind": "nx-target",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "nx"
-      ],
-      "nxTarget": {
-        "projectPath": "packages/cli/project.json",
-        "projectName": "civ7-cli",
-        "name": "build:tsc",
-        "command": "tsc -b --force",
-        "dependsOn": [
-          "\"clean:dist\"",
-          "\"^build\""
-        ]
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "tsc -b --force"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "nx-depends-on",
-            "value": "\"^build\"",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "nx-depends-on",
-            "value": "\"clean:dist\"",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "shell-command",
-            "value": "tsc -b --force",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint",
-          "transient-dependency"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "nx_ordering_tie",
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/project.json#targets.check",
-      "path": "packages/cli/project.json",
-      "surfaceKind": "nx-target",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "nx"
-      ],
-      "nxTarget": {
-        "projectPath": "packages/cli/project.json",
-        "projectName": "civ7-cli",
-        "name": "check",
-        "executor": "nx:noop",
-        "dependsOn": []
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "nx:noop"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "shell-command",
-            "value": "nx:noop",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/project.json#targets.data:unzip:default",
-      "path": "packages/cli/project.json",
-      "surfaceKind": "nx-target",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "nx"
-      ],
-      "nxTarget": {
-        "projectPath": "packages/cli/project.json",
-        "projectName": "civ7-cli",
-        "name": "data:unzip:default",
-        "command": "node bin/run.js data unzip default",
-        "dependsOn": [
-          "\"build\""
-        ]
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "node bin/run.js data unzip default"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "nx-depends-on",
-            "value": "\"build\"",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node bin/run.js data unzip default",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint",
-          "transient-dependency"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "nx_ordering_tie",
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/project.json#targets.data:zip:default",
-      "path": "packages/cli/project.json",
-      "surfaceKind": "nx-target",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "nx"
-      ],
-      "nxTarget": {
-        "projectPath": "packages/cli/project.json",
-        "projectName": "civ7-cli",
-        "name": "data:zip:default",
-        "command": "node bin/run.js data zip default",
-        "dependsOn": [
-          "\"build\""
-        ]
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "node bin/run.js data zip default"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "nx-depends-on",
-            "value": "\"build\"",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node bin/run.js data zip default",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint",
-          "transient-dependency"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "nx_ordering_tie",
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/project.json#targets.link:global",
-      "path": "packages/cli/project.json",
-      "surfaceKind": "nx-target",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "nx"
-      ],
-      "nxTarget": {
-        "projectPath": "packages/cli/project.json",
-        "projectName": "civ7-cli",
-        "name": "link:global",
-        "command": "bun link",
-        "dependsOn": [
-          "\"build\""
-        ]
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "bun link"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "nx-depends-on",
-            "value": "\"build\"",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "shell-command",
-            "value": "bun link",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint",
-          "transient-dependency"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "nx_ordering_tie",
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/project.json#targets.pack:prepare",
-      "path": "packages/cli/project.json",
-      "surfaceKind": "nx-target",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "nx"
-      ],
-      "nxTarget": {
-        "projectPath": "packages/cli/project.json",
-        "projectName": "civ7-cli",
-        "name": "pack:prepare",
-        "command": "node -e \"\"",
-        "dependsOn": [
-          "\"build\"",
-          "\"readme\""
-        ]
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "node -e \"\""
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "nx-depends-on",
-            "value": "\"build\"",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "nx-depends-on",
-            "value": "\"readme\"",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node -e \"\"",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint",
-          "transient-dependency"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "nx_ordering_tie",
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/project.json#targets.publish:npm",
-      "path": "packages/cli/project.json",
-      "surfaceKind": "nx-target",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "nx"
-      ],
-      "nxTarget": {
-        "projectPath": "packages/cli/project.json",
-        "projectName": "civ7-cli",
-        "name": "publish:npm",
-        "command": "bun publish --access public",
-        "dependsOn": [
-          "\"build\"",
-          "\"test\"",
-          "\"check\"",
-          "{\"projects\":[\"habitat\"],\"target\":\"check:hygiene\"}"
-        ]
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "bun publish --access public"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "nx-depends-on",
-            "value": "\"build\"",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "nx-depends-on",
-            "value": "\"check\"",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "nx-depends-on",
-            "value": "\"test\"",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "nx-depends-on",
-            "value": "{\"projects\":[\"habitat\"],\"target\":\"check:hygiene\"}",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "shell-command",
-            "value": "bun publish --access public",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint",
-          "transient-dependency"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "nx_ordering_tie",
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/project.json#targets.readme",
-      "path": "packages/cli/project.json",
-      "surfaceKind": "nx-target",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "nx"
-      ],
-      "nxTarget": {
-        "projectPath": "packages/cli/project.json",
-        "projectName": "civ7-cli",
-        "name": "readme",
-        "command": "oclif readme",
-        "dependsOn": [
-          "\"build\""
-        ]
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "nx-depends-on",
-            "value": "\"build\"",
-            "targetClass": "unknown"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint",
-          "transient-dependency"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "nx_ordering_tie",
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/project.json#targets.unlink:global",
-      "path": "packages/cli/project.json",
-      "surfaceKind": "nx-target",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "nx"
-      ],
-      "nxTarget": {
-        "projectPath": "packages/cli/project.json",
-        "projectName": "civ7-cli",
-        "name": "unlink:global",
-        "command": "bun unlink",
-        "dependsOn": []
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "bun unlink"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          "unlink"
-        ],
-        "all": [
-          {
-            "kind": "mutation-verb",
-            "value": "unlink",
-            "targetClass": "external"
-          },
-          {
-            "kind": "shell-command",
-            "value": "bun unlink",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "mutation_surface",
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "packages/cli/project.json#targets.version:readme",
-      "path": "packages/cli/project.json",
-      "surfaceKind": "nx-target",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "nx"
-      ],
-      "nxTarget": {
-        "projectPath": "packages/cli/project.json",
-        "projectName": "civ7-cli",
-        "name": "version:readme",
-        "command": "git add README.md",
-        "dependsOn": [
-          "\"readme\""
-        ]
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "git add README.md"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "nx-depends-on",
-            "value": "\"readme\"",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "shell-command",
-            "value": "git add README.md",
             "targetClass": "workspace-tool"
           }
         ]
@@ -46077,7 +45817,7 @@
         "projectPath": "plugins/cli/topics/data/project.json",
         "projectName": "cli-data",
         "name": "build",
-        "command": "node -e \"\"",
+        "command": "bun -e \"void 0\"",
         "dependsOn": [
           "\"build:manifest\""
         ]
@@ -46089,7 +45829,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "node -e \"\""
+          "bun -e \"void 0\""
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -46102,7 +45842,7 @@
           },
           {
             "kind": "shell-command",
-            "value": "node -e \"\"",
+            "value": "bun -e \"void 0\"",
             "targetClass": "workspace-tool"
           }
         ]
@@ -46135,7 +45875,7 @@
         "projectPath": "plugins/cli/topics/data/project.json",
         "projectName": "cli-data",
         "name": "build:manifest",
-        "command": "oclif manifest",
+        "command": "bun run --bun oclif manifest",
         "dependsOn": [
           "\"build:tsc\""
         ]
@@ -46146,7 +45886,9 @@
         "relativeHabitatImports": [],
         "packageAppModImports": [],
         "childProcessCalls": [],
-        "shellCommandCalls": [],
+        "shellCommandCalls": [
+          "bun run --bun oclif manifest"
+        ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
@@ -46155,6 +45897,11 @@
             "kind": "nx-depends-on",
             "value": "\"build:tsc\"",
             "targetClass": "unknown"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bun run --bun oclif manifest",
+            "targetClass": "workspace-tool"
           }
         ]
       },
@@ -46491,7 +46238,7 @@
         "projectPath": "plugins/cli/topics/docs/project.json",
         "projectName": "cli-docs",
         "name": "build",
-        "command": "node -e \"\"",
+        "command": "bun -e \"void 0\"",
         "dependsOn": [
           "\"build:manifest\""
         ]
@@ -46503,7 +46250,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "node -e \"\""
+          "bun -e \"void 0\""
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -46516,7 +46263,7 @@
           },
           {
             "kind": "shell-command",
-            "value": "node -e \"\"",
+            "value": "bun -e \"void 0\"",
             "targetClass": "workspace-tool"
           }
         ]
@@ -46549,7 +46296,7 @@
         "projectPath": "plugins/cli/topics/docs/project.json",
         "projectName": "cli-docs",
         "name": "build:manifest",
-        "command": "oclif manifest",
+        "command": "bun run --bun oclif manifest",
         "dependsOn": [
           "\"build:tsc\""
         ]
@@ -46560,7 +46307,9 @@
         "relativeHabitatImports": [],
         "packageAppModImports": [],
         "childProcessCalls": [],
-        "shellCommandCalls": [],
+        "shellCommandCalls": [
+          "bun run --bun oclif manifest"
+        ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
@@ -46569,6 +46318,11 @@
             "kind": "nx-depends-on",
             "value": "\"build:tsc\"",
             "targetClass": "unknown"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bun run --bun oclif manifest",
+            "targetClass": "workspace-tool"
           }
         ]
       },
@@ -46905,7 +46659,7 @@
         "projectPath": "plugins/cli/topics/game/project.json",
         "projectName": "cli-game",
         "name": "build",
-        "command": "node -e \"\"",
+        "command": "bun -e \"void 0\"",
         "dependsOn": [
           "\"build:manifest\""
         ]
@@ -46917,7 +46671,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "node -e \"\""
+          "bun -e \"void 0\""
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -46930,7 +46684,7 @@
           },
           {
             "kind": "shell-command",
-            "value": "node -e \"\"",
+            "value": "bun -e \"void 0\"",
             "targetClass": "workspace-tool"
           }
         ]
@@ -46963,7 +46717,7 @@
         "projectPath": "plugins/cli/topics/game/project.json",
         "projectName": "cli-game",
         "name": "build:manifest",
-        "command": "oclif manifest",
+        "command": "bun run --bun oclif manifest",
         "dependsOn": [
           "\"build:tsc\""
         ]
@@ -46974,7 +46728,9 @@
         "relativeHabitatImports": [],
         "packageAppModImports": [],
         "childProcessCalls": [],
-        "shellCommandCalls": [],
+        "shellCommandCalls": [
+          "bun run --bun oclif manifest"
+        ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
@@ -46983,6 +46739,11 @@
             "kind": "nx-depends-on",
             "value": "\"build:tsc\"",
             "targetClass": "unknown"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bun run --bun oclif manifest",
+            "targetClass": "workspace-tool"
           }
         ]
       },
@@ -47319,7 +47080,7 @@
         "projectPath": "plugins/cli/topics/git-mod/project.json",
         "projectName": "cli-git-mod",
         "name": "build",
-        "command": "node -e \"\"",
+        "command": "bun -e \"void 0\"",
         "dependsOn": [
           "\"build:manifest\""
         ]
@@ -47331,7 +47092,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "node -e \"\""
+          "bun -e \"void 0\""
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -47344,7 +47105,7 @@
           },
           {
             "kind": "shell-command",
-            "value": "node -e \"\"",
+            "value": "bun -e \"void 0\"",
             "targetClass": "workspace-tool"
           }
         ]
@@ -47377,7 +47138,7 @@
         "projectPath": "plugins/cli/topics/git-mod/project.json",
         "projectName": "cli-git-mod",
         "name": "build:manifest",
-        "command": "oclif manifest",
+        "command": "bun run --bun oclif manifest",
         "dependsOn": [
           "\"build:tsc\""
         ]
@@ -47388,7 +47149,9 @@
         "relativeHabitatImports": [],
         "packageAppModImports": [],
         "childProcessCalls": [],
-        "shellCommandCalls": [],
+        "shellCommandCalls": [
+          "bun run --bun oclif manifest"
+        ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
@@ -47397,6 +47160,11 @@
             "kind": "nx-depends-on",
             "value": "\"build:tsc\"",
             "targetClass": "unknown"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bun run --bun oclif manifest",
+            "targetClass": "workspace-tool"
           }
         ]
       },

@@ -1,5 +1,5 @@
 import { Args } from '@oclif/core';
-import SubtreeImportBase from '../../../utils/subtree/SubtreeImportBase.js';
+import SubtreeImportBase from '../../../adapters/subtree/subtree-import-base.js';
 
 export default class ModGitImport extends SubtreeImportBase {
   static summary = 'Import a remote mod repository under mods/<slug>';

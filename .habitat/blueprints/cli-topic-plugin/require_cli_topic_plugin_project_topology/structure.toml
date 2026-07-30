@@ -32,7 +32,7 @@ required = [
   "commands",
   "index.ts",
 ]
-allowed = ["utils"]
+allowed = ["adapters"]
 
 [[scopes]]
 name = "cli-topic-plugin-command-collections"
@@ -49,28 +49,31 @@ kind = "directory"
 mode = "closed"
 allowEmpty = true
 allowed = [
-  "*.ts",
+  "+([a-z0-9])*(-+([a-z0-9])).ts",
   "+([a-z0-9])*(-+([a-z0-9]))",
 ]
 
 [[scopes]]
-name = "cli-topic-plugin-utils"
-root = "plugins/cli/topics/*/src/utils"
+name = "cli-topic-plugin-source-adapters"
+root = "plugins/cli/topics/*/src/adapters"
 kind = "directory"
 mode = "closed"
 allowEmpty = true
 allowed = [
-  "*.ts",
+  "+([a-z0-9])*(-+([a-z0-9])).ts",
   "+([a-z0-9])*(-+([a-z0-9]))",
 ]
 
 [[scopes]]
-name = "cli-topic-plugin-nested-utility-directories"
-root = "plugins/cli/topics/*/src/utils/+([a-z0-9])*(-+([a-z0-9]))"
+name = "cli-topic-plugin-nested-source-adapter-directories"
+root = "plugins/cli/topics/*/src/adapters/**/!(*.*)"
 kind = "directory"
 mode = "closed"
 allowEmpty = true
-allowed = ["*.ts"]
+allowed = [
+  "+([a-z0-9])*(-+([a-z0-9])).ts",
+  "+([a-z0-9])*(-+([a-z0-9]))",
+]
 
 [[scopes]]
 name = "cli-topic-plugin-test-roots"
@@ -83,8 +86,8 @@ required = [
   "tsconfig.json",
 ]
 allowed = [
+  "adapters",
   "support",
-  "utils",
 ]
 
 [[scopes]]
@@ -102,17 +105,31 @@ kind = "directory"
 mode = "closed"
 allowEmpty = true
 allowed = [
-  "*.test.ts",
+  "+([a-z0-9])*(-+([a-z0-9])).test.ts",
   "+([a-z0-9])*(-+([a-z0-9]))",
 ]
 
 [[scopes]]
-name = "cli-topic-plugin-util-tests"
-root = "plugins/cli/topics/*/test/utils"
+name = "cli-topic-plugin-test-adapters"
+root = "plugins/cli/topics/*/test/adapters"
 kind = "directory"
 mode = "closed"
 allowEmpty = true
-allowed = ["*.test.ts"]
+allowed = [
+  "+([a-z0-9])*(-+([a-z0-9])).test.ts",
+  "+([a-z0-9])*(-+([a-z0-9]))",
+]
+
+[[scopes]]
+name = "cli-topic-plugin-nested-test-adapter-directories"
+root = "plugins/cli/topics/*/test/adapters/**/!(*.*)"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+allowed = [
+  "+([a-z0-9])*(-+([a-z0-9])).test.ts",
+  "+([a-z0-9])*(-+([a-z0-9]))",
+]
 
 [[scopes]]
 name = "cli-topic-plugin-test-support"
@@ -121,7 +138,8 @@ kind = "directory"
 mode = "closed"
 allowEmpty = true
 allowed = [
-  "*.ts",
+  "+([a-z0-9])*(-+([a-z0-9])).ts",
+  "+([a-z0-9])*(-+([a-z0-9])).test.ts",
   "+([a-z0-9])*(-+([a-z0-9]))",
 ]
 
@@ -132,6 +150,7 @@ kind = "directory"
 mode = "closed"
 allowEmpty = true
 allowed = [
-  "*.ts",
+  "+([a-z0-9])*(-+([a-z0-9])).ts",
+  "+([a-z0-9])*(-+([a-z0-9])).test.ts",
   "+([a-z0-9])*(-+([a-z0-9]))",
 ]

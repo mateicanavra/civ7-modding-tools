@@ -1,5 +1,5 @@
 import { Args } from '@oclif/core';
-import SubtreeStatusBase from '../../../utils/subtree/SubtreeStatusBase.js';
+import SubtreeStatusBase from '../../../adapters/subtree/subtree-status-base.js';
 import { getModStatus } from '@civ7/plugin-mods';
 import { getRemotePushConfig } from '@civ7/plugin-git';
 import type { RemotePushConfig } from '@civ7/plugin-git';

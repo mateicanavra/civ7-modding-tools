@@ -6,12 +6,11 @@ import {
   emitPlayResult,
   parseComponentId,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const RESETTLE = "UNITCOMMAND_RESETTLE";
 
 export default class GamePlayResettleUnit extends Command {
-  static id = "game play resettle-unit";
   static summary = "Validate or send a population resettle command";
   static description =
     "Validates unit-command UNITCOMMAND_RESETTLE, or sends population resettlement through the native unit resettle procedure when --send is explicit.";

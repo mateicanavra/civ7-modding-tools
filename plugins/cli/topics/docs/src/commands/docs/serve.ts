@@ -6,7 +6,6 @@ import { unzipResources } from "@civ7/plugin-files";
 import { Command, Flags } from "@oclif/core";
 
 export default class DocsServe extends Command {
-  static id = "docs serve";
   static summary = "Serve the Mintlify documentation (apps/docs) with synced resources.";
   static description = `
   Synchronizes documentation resources from central outputs (if available) and serves the Mintlify site.

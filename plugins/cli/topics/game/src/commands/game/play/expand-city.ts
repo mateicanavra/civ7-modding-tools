@@ -6,12 +6,11 @@ import {
   emitPlayResult,
   parseComponentId,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const EXPAND = "EXPAND";
 
 export default class GamePlayExpandCity extends Command {
-  static id = "game play expand-city";
   static summary = "Validate or send a city expansion placement";
   static description =
     "Validates city-command EXPAND choices, or sends city expansion through the native control-oRPC city population procedure when --send is explicit.";

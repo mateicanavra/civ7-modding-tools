@@ -6,7 +6,6 @@ import {
 import { Command, Flags } from "@oclif/core";
 
 export default class GameHealth extends Command {
-  static id = "game health";
   static summary = "Check direct Civ7 tuner-socket readiness";
   static description =
     "Queries the Civ7 tuner socket and reports available scripting states through @civ7/direct-control.";

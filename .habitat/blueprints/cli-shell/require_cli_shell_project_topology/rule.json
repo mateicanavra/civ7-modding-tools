@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "require_cli_shell_project_topology",
+  "title": "Require CLI Application Shell Topology",
+  "placement": {
+    "niche": "global/workspace",
+    "blueprint": "cli-shell",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "a CLI application shell without its package, Nx project, role-named development composition, production launcher, and shell behavior-test spine or with loose children outside that finite topology",
+  "why": "A CLI shell is an application realization: it composes independently owned command plugins into one executable process. Closing its root, binary, and test spines prevents topic commands, reusable capabilities, fake library surfaces, and duplicate shell registries from accumulating in the application container.",
+  "remediate": "Keep the CLI application package at apps/cli, role-named TypeScript application compositions at its root, production launchers under bin, and shell-wide behavior proof under test. Move cohesive command topics to plugins/cli/topics and reusable capabilities to their library owners; define another closed kind before admitting any new shell-owned file category.",
+  "message": "The CLI application shell must match the closed positive shell topology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["apps/cli", "apps/cli/**"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/cli-shell/require_cli_shell_project_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/cli-shell/require_cli_shell_project_topology/structure.toml"
+    }
+  }
+}

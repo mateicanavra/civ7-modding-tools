@@ -1,7 +1,7 @@
 # Turn Playbook
 
 The detailed, deterministic version of the loop in SKILL.md. Commands assume
-`CLI="node packages/cli/bin/run.js"` run from the repo root, and `--json` on
+`CLI="bun apps/cli/bin/run.js"` run from the repo root, and `--json` on
 everything. Resolve *what to choose* with `strategy.md`; resolve *exact flags*
 with `command-reference.md`.
 

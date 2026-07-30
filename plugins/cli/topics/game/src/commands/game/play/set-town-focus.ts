@@ -7,13 +7,12 @@ import {
   executePlayOperationSequence,
   parseComponentId,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const CHANGE_GROWTH_MODE = "CHANGE_GROWTH_MODE";
 const CONSIDER_TOWN_PROJECT = "CONSIDER_TOWN_PROJECT";
 
 export default class GamePlaySetTownFocus extends Command {
-  static id = "game play set-town-focus";
   static summary = "Validate or change a town focus project";
   static description =
     "Wraps city-command CHANGE_GROWTH_MODE for town focus choices, which are growth-mode commands rather than production BUILD requests.";

@@ -6,12 +6,11 @@ import {
   emitPlayResult,
   parseComponentId,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const ADVISOR_WARNING_OPERATION = "VIEWED_ADVISOR_WARNING";
 
 export default class GamePlayAdvisorWarning extends Command {
-  static id = "game play advisor-warning";
   static summary = "Validate or acknowledge an advisor warning blocker";
   static description =
     "Validates or sends a semantic advisor-warning acknowledgement for a target notification ComponentID.";

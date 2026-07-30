@@ -1,0 +1,44 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "cli-shell-project-root"
+root = "apps/cli"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "bin",
+  "*.ts",
+  "package.json",
+  "project.json",
+  "test",
+  "tsconfig.json",
+]
+allowed = [
+  "AGENTS.md",
+  "CHANGELOG.md",
+  "README.md",
+  "TESTING.md",
+  "node_modules",
+  "oclif.manifest.json",
+  "tsconfig.tsbuildinfo",
+]
+
+[[scopes]]
+name = "cli-shell-binary-root"
+root = "apps/cli/bin"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["run.js"]
+
+[[scopes]]
+name = "cli-shell-test-root"
+root = "apps/cli/test"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "shell.test.ts",
+  "tsconfig.json",
+]

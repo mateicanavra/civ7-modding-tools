@@ -5,12 +5,11 @@ import {
   buildDirectControlOptions,
   emitPlayResult,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const ASSIGN_WORKER = "ASSIGN_WORKER";
 
 export default class GamePlayAssignWorker extends Command {
-  static id = "game play assign-worker";
   static summary = "Validate or assign a city growth worker";
   static description =
     "Validates player-operation ASSIGN_WORKER choices, or sends worker placement through the native control-oRPC city population procedure when --send is explicit.";

@@ -1,9 +1,8 @@
 import { getCiv7ReadyUnitView } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
-import { buildDirectControlOptions, parseComponentId } from "../../../utils/game-play-shared";
+import { buildDirectControlOptions, parseComponentId } from "../../../adapters/play/direct-control";
 
 export default class GamePlayPromotionReadiness extends Command {
-  static id = "game play promotion-readiness";
   static summary = "Read promotion spend readiness for the selected or first ready unit";
   static description =
     "Returns the read-only promotion readiness slice from the live ready-unit view, including spendable points and validator-backed promotion args when present.";

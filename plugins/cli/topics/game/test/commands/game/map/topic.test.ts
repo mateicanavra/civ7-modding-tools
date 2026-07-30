@@ -13,8 +13,7 @@ import { type FakeTunerServer, startFakeTunerServer } from "../../../support/tun
 // world.* service calls; the legacy `game visibility` id is fully migrated away (D5).
 
 describe("game map noun topic", () => {
-  test("topic index keeps the original flag-multiplexed id and behavior", async () => {
-    expect(GameMap.id).toBe("game map");
+  test("topic index keeps the original flag-multiplexed behavior", async () => {
     const server = await startWorldTunerServer();
     try {
       const indexWrites = await runCommand(GameMap, server, [
@@ -95,7 +94,6 @@ describe("game map noun topic", () => {
   });
 
   test("game map visibility carries no legacy alias (D5 full migration)", () => {
-    expect(GameMapVisibility.id).toBe("game map visibility");
     expect(GameMapVisibility.aliases ?? []).toEqual([]);
   });
 

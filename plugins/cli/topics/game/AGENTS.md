@@ -5,7 +5,7 @@ Scope: `plugins/cli/topics/game/**`
 - This `kind:cli-topic-plugin` project owns the `game` oclif command surface,
   command-local game adapters, and its behavior tests.
 - Keep the Civ7 CLI binary, startup, global hooks, and plugin registration in
-  `packages/cli`.
+  `apps/cli`.
 - Route live Civ7 control through `@civ7/control-orpc` and
   `@civ7/direct-control`; do not add a topic-local transport.
 - Preserve topic-prefixed discovery under `src/commands/game` and do not add

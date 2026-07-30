@@ -3,10 +3,9 @@ import { promises as fs } from "node:fs";
 import * as path from "node:path";
 import { expandPath, findProjectRoot } from "@civ7/config";
 import { Args, Command, Flags } from "@oclif/core";
-import { resolveRootFromConfigOrFlag } from "../../utils/resolver";
+import { resolveRootFromConfigOrFlag } from "../../adapters/resource-root";
 
 export default class Slice extends Command {
-  static id = "slice";
   static summary = "Copy files from manifest.txt into a destination folder (preserving paths).";
   static description = `
 Reads a manifest.txt (one absolute path per line) and copies those files from a given root into a destination folder,

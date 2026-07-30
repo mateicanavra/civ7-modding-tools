@@ -5,12 +5,11 @@ import {
   buildDirectControlOptions,
   emitPlayResult,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const SET_TECH_TREE_TARGET_NODE = "SET_TECH_TREE_TARGET_NODE";
 
 export default class GamePlaySetTechTarget extends Command {
-  static id = "game play set-tech-target";
   static summary = "Validate or set a technology tree target node";
   static description =
     "Wraps player-operation SET_TECH_TREE_TARGET_NODE with the official ProgressionTreeNodeType argument.";

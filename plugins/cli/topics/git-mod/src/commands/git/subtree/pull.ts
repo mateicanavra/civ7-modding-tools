@@ -1,4 +1,4 @@
-import SubtreePullBase from "../../../utils/subtree/SubtreePullBase.js";
+import SubtreePullBase from "../../../adapters/subtree/subtree-pull-base.js";
 
 export default class GitPull extends SubtreePullBase {
   static summary = "Pull remote changes into a subtree";

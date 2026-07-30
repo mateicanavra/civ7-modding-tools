@@ -177,7 +177,7 @@
       }
     },
     "deploy": {
-      "command": "node ../../../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps",
+      "command": "bun ../../../cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps",
       "dependsOn": [
         "build",
         {
@@ -191,7 +191,7 @@
       }
     },
     "deploy:studio": {
-      "command": "node ../../../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps",
+      "command": "bun ../../../cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps",
       "dependsOn": [
         "build:studio-deploy",
         {

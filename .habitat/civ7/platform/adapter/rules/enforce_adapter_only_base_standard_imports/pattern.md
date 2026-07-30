@@ -10,12 +10,12 @@ language js(typescript)
 
 or {
   `import $imports from $source` where {
-    $filename <: r".*packages/.*\.ts$",
+    $filename <: r".*(?:packages/.*|plugins/cli/topics/[^/]+/src/.*)\.ts$",
     ! $filename <: includes "packages/civ7-adapter/",
     $source <: r".*/base-standard/.+"
   },
   `import $source` where {
-    $filename <: r".*packages/.*\.ts$",
+    $filename <: r".*(?:packages/.*|plugins/cli/topics/[^/]+/src/.*)\.ts$",
     ! $filename <: includes "packages/civ7-adapter/",
     $source <: r".*/base-standard/.+"
   }
@@ -39,6 +39,9 @@ import { GameplayMap } from "/base-standard/maps/map-globals.js";
 
 // @filename: packages/example/src/source-prefix.ts
 import { TerrainBuilder } from "Base/modules/base-standard/maps/map-globals.js";
+
+// @filename: plugins/cli/topics/example/src/commands/example/runtime.ts
+import { GameplayMap } from "/base-standard/maps/map-globals.js";
 ```
 
 ## Ignores fixture
@@ -51,6 +54,12 @@ import "/base-standard/maps/map-globals.js";
 import "/base-standard/maps/map-globals.js";
 
 // @filename: apps/example/src/demo.ts
+import "/base-standard/maps/map-globals.js";
+
+// @filename: plugins/cli/topics/example/test/commands/example/runtime.test.ts
+import "/base-standard/maps/map-globals.js";
+
+// @filename: plugins/cli/topics/example/src/commands/example/runtime.tsx
 import "/base-standard/maps/map-globals.js";
 
 // @filename: packages/example/src/source-lookalike.ts

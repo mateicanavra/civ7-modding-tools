@@ -153,10 +153,10 @@ live-proof runbook in `MILESTONE-PROOFS.md`).
 ## DEF-020: Publishable Civ7 CLI dependency closure
 
 **Deferred:** 2026-07-28
-**Trigger:** Before the first external npm or GitHub package publication of `@civ7/cli`, or before treating `civ7-cli:publish:npm` as a supported distribution path.
+**Trigger:** Before making `@mateicanavra/civ7-cli` non-private or adding any external publish target or workflow.
 **Context:** The CLI shell already consumes multiple private workspace packages for configuration, control, mod operations, and reusable file/Git capabilities. Extracting the `data` topic into a private oclif plugin preserves that existing repo-local dependency model but makes the unresolved publication boundary easier to see. Publishing only the topic plugin would not close the shell's other private runtime dependencies.
 **Scope:** Choose one complete distribution model: publish every runtime workspace dependency as a compatible package set, or bundle/vendor the private runtime graph into the CLI artifact. Prove the selected model by installing and executing the packed CLI outside this workspace, including plugin discovery and representative commands.
-**Impact:** Workspace and linked-development execution are supported and verified; a standalone externally published CLI package is not yet a supported product artifact.
+**Impact:** Workspace and linked-development execution are supported and verified; the package is private and no CLI publication target or workflow is admitted until this deferral is resolved.
 
 ## Project-scoped deferrals
 

@@ -7,7 +7,6 @@ import {
 import { Command, Flags } from "@oclif/core";
 
 export default class GameAutoplay extends Command {
-  static id = "game autoplay";
   static summary = "Inspect or control Civ7 autoplay";
   static description = "Reads and changes native Civ7 Autoplay state through @civ7/direct-control.";
 

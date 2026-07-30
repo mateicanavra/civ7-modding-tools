@@ -6,7 +6,7 @@ import {
   buildDirectControlOptions,
   emitPlayResult,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const CHANGE_GOVERNMENT = "CHANGE_GOVERNMENT";
 
@@ -19,7 +19,6 @@ type GovernmentOptionAction = {
 };
 
 export default class GamePlayChooseGovernment extends Command {
-  static id = "game play choose-government";
   static summary = "Validate or choose a government";
   static description =
     "Wraps player-operation CHANGE_GOVERNMENT with the official GovernmentType and Activate action from the live government picker.";

@@ -82,11 +82,13 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
   `nx g @habitat/cli:pattern <rule-id>` only to create a
   non-enforcing candidate draft. Candidate output is not a registered Habitat
   rule, baseline, hook scope, or current-tree proof. Registered enforcement
-  requires the accepted Pattern Authority Manifest, baseline contract,
-  current-tree proof, fixture strategy, false-positive model, and hook-scope
-  decision. Unsupported kinds are intentionally refused until their owning
-  domain defines a uniform generator shape. After authoring, run the targets
-  reported by `habitat classify` plus the nearest package-local checks.
+  is authored separately through the location-independent `rule.json`
+  authority and requires a baseline contract, current-tree proof, executable
+  injected-fixture strategy, false-positive model, and explicit hook-scope
+  decision. Embedded Markdown examples are documentation, not fixture proof.
+  Unsupported kinds are intentionally refused until their owning domain
+  defines a uniform generator shape. After authoring, run the targets reported
+  by `habitat classify` plus the nearest package-local checks.
 - Use package scripts (`bun run --cwd <path> <script>`) for leaf-local debugging
   when dependency freshness is already established. Use root Nx-orchestrated
   scripts for proof.
@@ -112,7 +114,7 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
   Civ7 realization: `apps/mods/map/swooper-physics/AGENTS.md`; canonical docs:
   `docs/system/mods/swooper-maps/` and `docs/system/libs/mapgen/`.
 - MapGen / Swooper Maps architecture normalization: `docs/projects/engine-refactor-v1/architecture-normalization-packet.md` is the active project baseline; `openspec/changes/README.md` owns the downstream change train.
-- CLI & plugins: `packages/cli/AGENTS.md`, `packages/plugins/*/AGENTS.md`, `docs/system/cli/`.
+- CLI & plugins: `apps/cli/AGENTS.md`, `packages/plugins/*/AGENTS.md`, `docs/system/cli/`.
 - SDK: `packages/sdk/AGENTS.md`, `docs/system/sdk/`.
 
 ## Repo Policy

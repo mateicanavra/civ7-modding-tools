@@ -1,10 +1,10 @@
 import type { Civ7BattlefieldScanResult } from "@civ7/direct-control";
 import { describe, expect, test, vi } from "vitest";
-import GamePlayPriorities from "../../../../src/commands/game/play/priorities";
 import {
   SEMANTIC_CLI_ENVELOPE_SLOTS,
   SEMANTIC_CLI_ENVELOPE_VERSION,
-} from "../../../../src/utils/game-play/semantic-envelope";
+} from "../../../../src/adapters/play/semantic-envelope";
+import GamePlayPriorities from "../../../../src/commands/game/play/priorities";
 import { expectNormalPlayPayloadToOmitDebugInternals } from "../../../support/normal-output-boundary";
 import { type FakeTunerServer, startFakeTunerServer } from "../../../support/tuner-socket-server";
 

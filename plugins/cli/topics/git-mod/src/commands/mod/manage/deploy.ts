@@ -5,7 +5,6 @@ import * as fs from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
 export default class ModManageDeploy extends Command {
-    static id = 'mod manage deploy';
     static summary = 'Deploy a mod folder into the Civ7 Mods directory';
     static description = 'Copies files from an input directory into Mods/[mod-id].';
 

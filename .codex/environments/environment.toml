@@ -66,5 +66,5 @@ platform = "darwin"
 [[actions]]
 name = "Probe Civ7 Tuner"
 icon = "test"
-command = "nx run civ7-cli:build && node packages/cli/bin/run.js game health --tuner --json"
+command = "nx run civ7-cli:build && bun apps/cli/bin/run.js game health --tuner --json"
 platform = "darwin"

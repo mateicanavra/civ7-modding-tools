@@ -9,7 +9,6 @@ import { Command, Flags } from "@oclif/core";
 // queue, not the DOM, is the truth source for "dismissed".
 // Consumed through the typed control-oRPC display.queue.close procedure.
 export default class GamePlayScreenDismiss extends Command {
-  static id = "game play screen dismiss";
   static summary = "Close queued Civ7 display requests via the official queue";
   static description =
     "Closes active, pending, and suspended display requests (cinematics, unlock/triumph popups, " +

@@ -18,7 +18,7 @@
       }
     },
     "build:manifest": {
-      "command": "oclif manifest",
+      "command": "bun run --bun oclif manifest",
       "dependsOn": ["build:tsc"],
       "cache": true,
       "outputs": ["{projectRoot}/oclif.manifest.json"],
@@ -27,7 +27,7 @@
       }
     },
     "build": {
-      "command": "node -e \"\"",
+      "command": "bun -e \"void 0\"",
       "dependsOn": ["build:manifest"],
       "cache": false,
       "outputs": [],

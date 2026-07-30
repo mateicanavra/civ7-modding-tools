@@ -1,7 +1,7 @@
 import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
 import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
-import { buildDirectControlOptions } from "../../../utils/game-play-shared";
+import { buildDirectControlOptions } from "../../../adapters/play/direct-control";
 
 type CivilianRouteTriageServiceResult = Awaited<
   ReturnType<
@@ -16,7 +16,6 @@ type CivilianRouteTriageCliView = Omit<CivilianRouteTriageServiceResult, "triage
 };
 
 export default class GamePlayCivilianRouteTriage extends Command {
-  static id = "game play civilian-route-triage";
   static summary = "Read civilian route risk from settlement, battlefield, and destination lenses";
   static description =
     "Composes ready-unit, settlement recommendation, battlefield, and destination/corridor reads into a read-only triage for Settler or civilian movement.";

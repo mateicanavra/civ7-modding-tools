@@ -4,13 +4,12 @@ import {
   buildDirectControlOptions,
   parseComponentId,
   resolveCoordinateFlags,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 type Probe<T = unknown> = { ok: true; value: T } | { ok: false; error: string };
 type UnitMovePreviewView = Awaited<ReturnType<typeof getCiv7UnitMovePreview>>;
 
 export default class GamePlayUnitMovePreview extends Command {
-  static id = "game play unit-move-preview";
   static summary = "Read official unit movement, target, path, and queued-destination preview";
   static description =
     "Returns a read-only movement preview using the same Units movement/path APIs the Civ7 UI uses for reachable movement, targets, queued destinations, and hover paths.";

@@ -1,0 +1,43 @@
+{
+  "name": "@mateicanavra/civ7-cli",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CLI for managing Civilization VII modding resources.",
+  "license": "MIT",
+  "author": "Matei Canavra",
+  "type": "module",
+  "bin": {
+    "civ7": "./bin/run.js"
+  },
+  "files": [
+    "bin",
+    "oclif.manifest.json"
+  ],
+  "scripts": {
+    "check:test": "tsc -p test/tsconfig.json --noEmit",
+    "pack": "bun pm pack",
+    "run": "bun run civ7.ts",
+    "test": "vitest run --project cli",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "oclif": {
+    "bin": "civ7",
+    "dirname": "cli",
+    "plugins": [
+      "@oclif/plugin-help",
+      "@civ7/cli-data",
+      "@civ7/cli-docs",
+      "@civ7/cli-game",
+      "@civ7/cli-git-mod"
+    ],
+    "topicSeparator": " "
+  },
+  "dependencies": {
+    "@civ7/cli-data": "workspace:*",
+    "@civ7/cli-docs": "workspace:*",
+    "@civ7/cli-game": "workspace:*",
+    "@civ7/cli-git-mod": "workspace:*",
+    "@oclif/core": "^4.11.4",
+    "@oclif/plugin-help": "^6.2.50"
+  }
+}

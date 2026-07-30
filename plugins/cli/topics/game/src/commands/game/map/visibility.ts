@@ -15,7 +15,6 @@ import { Command, Flags } from "@oclif/core";
 //            rare-use per-player command whose discovery side effects display
 //            normally.
 export default class GameMapVisibility extends Command {
-  static id = "game map visibility";
   static summary = "Read, explore, or reveal Civ7 player visibility";
   static description =
     "Reads bounded visibility state, explores the whole map (popups suppressed; stays fully " +

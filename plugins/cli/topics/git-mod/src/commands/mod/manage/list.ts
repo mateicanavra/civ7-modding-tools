@@ -2,7 +2,6 @@ import { Command, Flags } from '@oclif/core';
 import { listMods, resolveModsDir } from '@civ7/plugin-mods';
 
 export default class ModManageList extends Command {
-    static id = 'mod manage list';
     static summary = 'List locally installed Civ7 mods in the Mods directory';
     static description = 'Finds the Mods directory on this machine and lists subdirectories.';
 

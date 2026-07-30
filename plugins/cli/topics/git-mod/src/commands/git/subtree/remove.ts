@@ -1,4 +1,4 @@
-import SubtreeRemoveConfigBase from "../../../utils/subtree/SubtreeRemoveConfigBase.js";
+import SubtreeRemoveConfigBase from "../../../adapters/subtree/subtree-remove-config-base.js";
 
 export default class GitSubtreeRemove extends SubtreeRemoveConfigBase {
   static summary = "Remove a stored git subtree configuration";

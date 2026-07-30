@@ -6,12 +6,11 @@ import {
   emitPlayResult,
   parseComponentId,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const CONSIDER_TOWN_PROJECT = "CONSIDER_TOWN_PROJECT";
 
 export default class GamePlayConsiderTownProject extends Command {
-  static id = "game play consider-town-project";
   static summary = "Validate or close out town project review";
   static description =
     "Wraps city-operation CONSIDER_TOWN_PROJECT, the production panel closeout used after town focus project review.";

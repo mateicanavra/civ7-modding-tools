@@ -23,7 +23,7 @@ out/**
 !.civ7/
 !.civ7/outputs/
 !.civ7/outputs/resources/
-packages/cli/oclif.manifest.json
+apps/cli/oclif.manifest.json
 plugins/cli/topics/*/oclif.manifest.json
 tools/habitat/oclif.manifest.json
 

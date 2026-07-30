@@ -3,14 +3,13 @@ import {
   parseWorldBounds,
   parseWorldPlotFields,
   readCiv7World,
-} from "../../../utils/game-map-shared";
+} from "../../../adapters/map/world-read";
 
 // Thin delegation over the same world.grid service call as the
 // `game map` topic index (`game map --bounds x,y,w,h`); D2 in
 // docs/projects/cli-command-taxonomy/workstream-record.md.
 
 export default class GameMapGrid extends Command {
-  static id = "game map grid";
   static summary = "Read a bounded Civ7 plot grid";
   static description =
     "Reads a service-owned bounded grid view through control-oRPC. " +

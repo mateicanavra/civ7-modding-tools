@@ -1,10 +1,12 @@
 import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
 import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
-import { buildDirectControlOptions, resolveCoordinateFlags } from "../../../utils/game-play-shared";
+import {
+  buildDirectControlOptions,
+  resolveCoordinateFlags,
+} from "../../../adapters/play/direct-control";
 
 export default class GamePlayTargetCandidates extends Command {
-  static id = "game play target-candidates";
   static summary = "Read strategic target candidates from live city and unit summaries";
   static description =
     "Returns a read-only shortlist of other-owner contacts ranked from a supplied siege/formation origin. It is planning support, not relationship, movement, diplomacy, or action authority.";

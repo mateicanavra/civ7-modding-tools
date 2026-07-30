@@ -4,7 +4,7 @@ import {
   parseWorldLocation,
   parseWorldPlotFields,
   readCiv7World,
-} from "../../../utils/game-map-shared";
+} from "../../../adapters/map/world-read";
 
 // Topic index for the `game map` noun (D2 in
 // docs/projects/cli-command-taxonomy/workstream-record.md): the original
@@ -14,7 +14,6 @@ import {
 // same readCiv7World service-call helper.
 
 export default class GameMap extends Command {
-  static id = "game map";
   static summary = "Read Civ7 current world and bounded map state";
   static description =
     "Reads service-owned current world, plot, or bounded grid views through control-oRPC.";

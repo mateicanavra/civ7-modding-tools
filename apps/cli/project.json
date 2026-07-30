@@ -1,0 +1,92 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "civ7-cli",
+  "tags": ["kind:app"],
+  "targets": {
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    },
+    "build:manifest": {
+      "command": "bun run --bun oclif manifest",
+      "dependsOn": ["^build"],
+      "cache": true,
+      "outputs": ["{projectRoot}/oclif.manifest.json"],
+      "options": {
+        "cwd": "apps/cli"
+      }
+    },
+    "build:bin-mode": {
+      "command": "chmod +x bin/run.js",
+      "dependsOn": ["build:manifest"],
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "cwd": "apps/cli"
+      }
+    },
+    "build": {
+      "command": "bun -e \"void 0\"",
+      "cache": false,
+      "outputs": [],
+      "dependsOn": ["build:bin-mode"],
+      "options": {
+        "cwd": "apps/cli"
+      }
+    },
+    "link:global": {
+      "command": "bun link",
+      "dependsOn": ["build"],
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "cwd": "apps/cli"
+      }
+    },
+    "unlink:global": {
+      "command": "bun unlink",
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "cwd": "apps/cli"
+      }
+    },
+    "pack": {
+      "command": "bun pm pack",
+      "dependsOn": ["build"],
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "cwd": "apps/cli"
+      }
+    },
+    "run": {
+      "command": "bun run civ7.ts",
+      "dependsOn": ["^build"],
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "cwd": "apps/cli"
+      }
+    },
+    "data:zip:default": {
+      "command": "bun bin/run.js data zip default",
+      "dependsOn": ["build"],
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "cwd": "apps/cli"
+      }
+    },
+    "data:unzip:default": {
+      "command": "bun bin/run.js data unzip default",
+      "dependsOn": ["build"],
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "cwd": "apps/cli"
+      }
+    }
+  }
+}

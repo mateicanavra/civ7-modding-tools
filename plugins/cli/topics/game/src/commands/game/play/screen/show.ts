@@ -10,7 +10,6 @@ import { Command, Flags } from "@oclif/core";
 // selectors (DOM emptiness was live-proven to be a false truth source).
 // Consumed through the typed control-oRPC display.queue.current procedure.
 export default class GamePlayScreenShow extends Command {
-  static id = "game play screen show";
   static summary = "Show queued Civ7 display requests (read-only)";
   static description =
     "Reads the official App UI DisplayQueueManager: active display requests (the screen currently " +

@@ -6,13 +6,12 @@ import {
   emitPlayResult,
   executePlayOperationSequence,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const CHANGE_TRADITION = "CHANGE_TRADITION";
 const CONSIDER_ASSIGN_TRADITIONS = "CONSIDER_ASSIGN_TRADITIONS";
 
 export default class GamePlayChangeTradition extends Command {
-  static id = "game play change-tradition";
   static summary = "Validate or change an active tradition";
   static description =
     "Wraps player-operation CHANGE_TRADITION with a live TraditionType and action enum value.";

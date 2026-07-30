@@ -76,7 +76,7 @@ On macOS, live proof may use `CIV7_SCRIPTING_LOG` to override the default game s
 
 ## Release and Repository Changes
 
-Use Graphite stacks rather than ad hoc branches. Keep deploy, package publication, and resource publication explicit and separately reviewed. For package release, follow `docs/process/CONTRIBUTING.md`; local `nx run civ7-sdk:publish:npm` and `nx run civ7-cli:publish:npm` are intentionally absent from the toolbar.
+Use Graphite stacks rather than ad hoc branches. Keep deploy, package publication, and resource publication explicit and separately reviewed. For package release, follow `docs/process/CONTRIBUTING.md`; the SDK publish target is intentionally absent from the toolbar, and the private CLI has no publication target until DEF-020 is resolved.
 
 Routine `bun run lint`, `bun run test`, `bun run check`, `bun run format`, broad `bun run clean`, Graphite mutation, and direct game control remain terminal commands. They are valuable but not frequent owner controls, and some write broadly enough to deserve a deliberate terminal invocation.
 

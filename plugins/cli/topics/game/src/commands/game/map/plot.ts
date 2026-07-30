@@ -3,14 +3,13 @@ import {
   parseWorldLocation,
   parseWorldPlotFields,
   readCiv7World,
-} from "../../../utils/game-map-shared";
+} from "../../../adapters/map/world-read";
 
 // Thin delegation over the same world.plot service call as the
 // `game map` topic index (`game map --plot x,y`); D2 in
 // docs/projects/cli-command-taxonomy/workstream-record.md.
 
 export default class GameMapPlot extends Command {
-  static id = "game map plot";
   static summary = "Read one Civ7 plot";
   static description =
     "Reads a service-owned single-plot view through control-oRPC. " +

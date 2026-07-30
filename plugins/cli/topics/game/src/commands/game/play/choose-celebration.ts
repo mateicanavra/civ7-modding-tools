@@ -6,7 +6,7 @@ import {
   buildDirectControlOptions,
   emitPlayResult,
   validatePlayOperation,
-} from "../../../utils/game-play-shared";
+} from "../../../adapters/play/direct-control";
 
 const CHOOSE_GOLDEN_AGE = "CHOOSE_GOLDEN_AGE";
 
@@ -19,7 +19,6 @@ type CelebrationOptionAction = {
 };
 
 export default class GamePlayChooseCelebration extends Command {
-  static id = "game play choose-celebration";
   static summary = "Validate or choose a celebration bonus";
   static description =
     "Wraps player-operation CHOOSE_GOLDEN_AGE with the GoldenAgeType hash from the live celebration chooser.";

@@ -7,7 +7,7 @@ import {
   getCiv7ReadyUnitView,
 } from "@civ7/direct-control";
 import { Command, Flags } from "@oclif/core";
-import { buildDirectControlOptions, parseComponentId } from "../../../utils/game-play-shared";
+import { buildDirectControlOptions, parseComponentId } from "../../../adapters/play/direct-control";
 
 type ContinuityStatus = "unchecked" | "matches" | "mismatch";
 
@@ -43,7 +43,6 @@ type RehydrateSnapshot = Readonly<{
 type RehydrateCommonAction = RehydrateSnapshot["commonActions"][number];
 
 export default class GamePlayRehydrate extends Command {
-  static id = "game play rehydrate";
   static summary = "Read the live session after restart or reconnect";
   static description =
     "Composes the live notification HUD with the current ready-unit view and optional continuity checks so agents can discard stale pre-restart assumptions.";

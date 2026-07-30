@@ -21,6 +21,9 @@
       "game": {
         "description": "Operate a running Civilization VII session through local tooling"
       },
+      "game:ai": {
+        "description": "Read loaded Civ7 AI policy levers from runtime GameInfo"
+      },
       "game:local-data": {
         "description": "Inspect local Civ7 SQLite, save, and log evidence"
       },
@@ -32,6 +35,9 @@
       },
       "game:play:screen": {
         "description": "Inspect and dismiss App UI display-queue screens (cinematic moments)"
+      },
+      "game:view": {
+        "description": "Capture a clean, window-scoped screenshot of the live Civ7 session"
       }
     }
   },

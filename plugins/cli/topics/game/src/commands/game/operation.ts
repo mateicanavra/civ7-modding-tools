@@ -16,7 +16,6 @@ import {
 import { Command, Flags } from "@oclif/core";
 
 export default class GameOperation extends Command {
-  static id = "game operation";
   static summary = "Validate or send Civ7 gameplay operations";
   static description =
     "Runs validator-first Unit/City/Player operation and command wrappers through @civ7/direct-control.";

@@ -1,10 +1,12 @@
 import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
 import { liveCiv7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
 import { Command, Flags } from "@oclif/core";
-import { buildDirectControlOptions, resolveCoordinateFlags } from "../../../utils/game-play-shared";
+import {
+  buildDirectControlOptions,
+  resolveCoordinateFlags,
+} from "../../../adapters/play/direct-control";
 
 export default class GamePlayDestinationAnalysis extends Command {
-  static id = "game play destination-analysis";
   static summary = "Read tactical pressure around an intended destination";
   static description =
     "Returns a read-only destination and corridor lens for movement planning. It reports nearby units, cities, plot samples, and points of interest, but it is not pathfinding, movement authority, or attack authority.";
