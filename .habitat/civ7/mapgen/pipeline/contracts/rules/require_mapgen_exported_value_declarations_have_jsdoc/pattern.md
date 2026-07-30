@@ -103,9 +103,9 @@ export const DEFAULT_CLIMATE_OPTIONS = {};
 /** Documentation pending. */
 export class StandardRuntimeState {}
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/tags.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/completions.ts
 /** */
-export const STANDARD_TAGS = {};
+export const STANDARD_COMPLETIONS = {};
 
 // @filename: mods/mod-swooper-maps/src/domain/ecology/model/policy/climate-band.ts
 export enum ClimateBand {

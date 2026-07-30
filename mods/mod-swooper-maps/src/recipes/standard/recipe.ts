@@ -6,7 +6,7 @@ import placementDomain from "@mapgen/domain/placement/router";
 import resourcesDomain from "@mapgen/domain/resources/router";
 import {
   type CompiledRecipeConfigOf,
-  collectCompileOps,
+  collectOperations,
   createRecipe,
   type RecipePublicConfigOf,
 } from "@swooper/mapgen-core/authoring";
@@ -34,7 +34,6 @@ import mapMorphology from "./stages/morphology/projection/index.js";
 import morphologyRouting from "./stages/morphology/routing/index.js";
 import morphologyShelf from "./stages/morphology/shelf/index.js";
 import placement from "./stages/placement/index.js";
-import { STANDARD_TAG_DEFINITIONS } from "./tags.js";
 
 const NAMESPACE = "mod-swooper-maps";
 const stages = orderStandardStages({
@@ -71,7 +70,7 @@ export const STANDARD_STAGES = stages;
 export type StandardRecipeConfig = RecipePublicConfigOf<typeof stages>;
 export type StandardRecipeCompiledConfig = CompiledRecipeConfigOf<typeof stages>;
 
-const compileOpsById = collectCompileOps(
+const operations = collectOperations(
   foundationDomain,
   morphologyDomain,
   hydrologyDomain,
@@ -88,9 +87,8 @@ const standardRecipe = createRecipe({
   id: "standard",
   namespace: NAMESPACE,
   initialSetup: STANDARD_INITIAL_SETUP,
-  tagDefinitions: STANDARD_TAG_DEFINITIONS,
   stages,
-  compileOpsById,
+  operations,
 } as const);
 
 export {

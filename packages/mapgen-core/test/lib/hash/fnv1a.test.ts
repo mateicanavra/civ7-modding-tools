@@ -50,6 +50,21 @@ describe("lib/hash FNV-1a", () => {
     expect(fnv1a32BytesHex(backing.subarray(1, 4))).toBe("a9f37ed7");
   });
 
+  it("accepts DataView while rejecting structural values without ArrayBuffer storage", () => {
+    expect(fnv1a32BytesHex(new DataView(new Uint8Array([0x66, 0x6f, 0x6f]).buffer))).toBe(
+      "a9f37ed7"
+    );
+    expect(() =>
+      fnv1a32BytesHex({
+        0: 1,
+        BYTES_PER_ELEMENT: 1,
+        byteLength: 1,
+        byteOffset: 0,
+        length: 1,
+      })
+    ).toThrow("requires an ArrayBuffer view");
+  });
+
   it("preserves fractional Float32 representations", () => {
     const backing = new Float32Array([99.5, 0.25, 0.75, 88.5]);
     const subview = new Float32Array(backing.buffer, Float32Array.BYTES_PER_ELEMENT, 2);

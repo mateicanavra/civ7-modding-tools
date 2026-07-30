@@ -2,26 +2,26 @@ import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 import { findNearestMeshCell, meanMeshEdgeLength } from "@swooper/mapgen-core/lib/mesh";
 import type { Plate } from "../../../../lithosphere/model/atoms/plate.schema.js";
 
-type EraPlateMembershipMesh = Readonly<{
-  cellCount: number;
-  wrapWidth: number;
-  siteX: Float32Array;
-  siteY: Float32Array;
-  neighborsOffsets: Int32Array;
-  neighbors: Int32Array;
-}>;
+type EraPlateMembershipMesh = {
+  readonly cellCount: number;
+  readonly wrapWidth: number;
+  readonly siteX: ArrayLike<number>;
+  readonly siteY: ArrayLike<number>;
+  readonly neighborsOffsets: ArrayLike<number>;
+  readonly neighbors: ArrayLike<number>;
+};
 
 type EraPlateMembershipPlate = Pick<Plate, "id" | "seedX" | "seedY">;
 
-type EraPlateMembershipParams = Readonly<{
-  mesh: EraPlateMembershipMesh;
-  plates: ReadonlyArray<EraPlateMembershipPlate>;
-  currentCellToPlate: Int16Array;
-  plateVelocityX: Float32Array;
-  plateVelocityY: Float32Array;
-  driftStepsByEra: ReadonlyArray<number>;
-  eraCount: number;
-}>;
+type EraPlateMembershipParams = {
+  readonly mesh: Readonly<EraPlateMembershipMesh>;
+  readonly plates: readonly Readonly<EraPlateMembershipPlate>[];
+  readonly currentCellToPlate: ArrayLike<number>;
+  readonly plateVelocityX: ArrayLike<number>;
+  readonly plateVelocityY: ArrayLike<number>;
+  readonly driftStepsByEra: readonly number[];
+  readonly eraCount: number;
+};
 
 type MinHeapItem = Readonly<{ cost: number; plateId: number; cellId: number; seq: number }>;
 
@@ -99,9 +99,9 @@ class MinHeap {
  * The returned arrays are aligned by cell index and feed all later era-event and provenance operations.
  */
 export function computePlateIdByEra(params: EraPlateMembershipParams): ReadonlyArray<Int16Array> {
-  const cellCount = params.mesh.cellCount | 0;
-  const plateCount = params.plates.length | 0;
-  const eraCount = Math.max(0, params.eraCount | 0);
+  const cellCount = params.mesh.cellCount;
+  const plateCount = params.plates.length;
+  const eraCount = params.eraCount;
   const driftStepsByEra = params.driftStepsByEra;
 
   const meanEdgeLen = meanMeshEdgeLength(params.mesh);
@@ -118,8 +118,8 @@ export function computePlateIdByEra(params: EraPlateMembershipParams): ReadonlyA
   const result: Int16Array[] = [];
 
   for (let era = 0; era < eraCount; era++) {
-    if (era === eraCount - 1 && params.currentCellToPlate.length === cellCount) {
-      result.push(params.currentCellToPlate.slice());
+    if (era === eraCount - 1) {
+      result.push(Int16Array.from(params.currentCellToPlate));
       continue;
     }
 

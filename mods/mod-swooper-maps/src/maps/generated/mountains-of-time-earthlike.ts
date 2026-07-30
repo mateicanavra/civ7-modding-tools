@@ -754,8 +754,8 @@ const mapConfig = {
         "cryosphere": "on"
       },
       "climate-refine": {
-        "computePrecipitation": {
-          "strategy": "refine",
+        "refinePrecipitation": {
+          "strategy": "riparian-basin-wetness",
           "config": {
             "riverCorridor": {
               "adjacencyRadius": 2,
@@ -1349,8 +1349,8 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountains-of-time-earthlike",
-  configHash: "c7af5ad247388a823cdf197848c51b4f17b80708e911f0bfecb2971c6c9717d6",
-  envelopeHash: "91e0b7eecaab02a983d65fb81afd6a217d1ca897c292a9a946441623c6ef4a17",
+  configHash: "98887c5b657894238279c5f2257ef6a449b175cef7fc5b87689a7c872987db36",
+  envelopeHash: "e1f68de82cdfe1b5577b75c0c061697e82e4e5e74fb48d36f32034a26aabe074",
   config: mapConfig.config,
   initialSetup: {
     requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,

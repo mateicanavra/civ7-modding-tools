@@ -61,13 +61,12 @@ Placement runtime now uses:
 
 - deterministic stamping for natural wonders,
 - deterministic resource plans materialized through typed adapter intent APIs,
-- typed per-placement outcome artifacts for resource reconciliation,
-- Civ7's official discovery generator, with completion and observed counts
-  retained as effect, metric, and log evidence rather than a second
-  Swooper-authored discovery product.
+- typed per-placement outcomes for resource reconciliation,
+- Civ7's official discovery generator, with observed counts retained as metric
+  and log evidence rather than a second Swooper-authored discovery product.
 
 The adapter, not a downstream mod-specific generator path, owns Civ7 feasibility
-checks and effect materialization. Resource rejections are accepted only when
+checks and engine materialization calls. Resource rejections are accepted only when
 typed by the adapter; resource readback mismatches are fail-hard drift evidence.
 Discovery materialization delegates to Civ7 because no independent Swooper
 discovery policy exists. Swooper supplies the already-assigned major starts and

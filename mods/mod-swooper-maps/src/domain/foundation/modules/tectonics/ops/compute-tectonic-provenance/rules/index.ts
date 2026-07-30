@@ -2,7 +2,6 @@ import { quantizeU8 } from "@swooper/mapgen-core/lib/math";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import { EVENT_TYPE } from "../../../model/atoms/tectonic-event.schema.js";
 import type { TectonicProvenanceFields } from "../../../model/atoms/tectonic-provenance-fields.schema.js";
-import type { TracerIndex } from "../../../model/atoms/tracer-index.schema.js";
 import {
   ARC_RESET_THRESHOLD_FRAC_OF_MAX,
   ARC_RESET_THRESHOLD_MIN,
@@ -17,20 +16,20 @@ type TectonicProvenanceResult = Readonly<{
   version: number;
   eraCount: number;
   cellCount: number;
-  tracerIndex: ReadonlyArray<TracerIndex>;
+  tracerIndex: ReadonlyArray<Uint32Array>;
   provenance: TectonicProvenanceFields;
 }>;
 
-type ProvenanceEraFields = Readonly<{
-  boundaryType: Uint8Array;
-  boundaryPolarity: Int8Array;
-  boundaryIntensity: Uint8Array;
-  riftPotential: Uint8Array;
-  volcanism: Uint8Array;
-  riftOriginPlate: Int16Array;
-  volcanismOriginPlate: Int16Array;
-  volcanismEventType: Uint8Array;
-}>;
+type ProvenanceEraFields = {
+  readonly boundaryType: ArrayLike<number>;
+  readonly boundaryPolarity: ArrayLike<number>;
+  readonly boundaryIntensity: ArrayLike<number>;
+  readonly riftPotential: ArrayLike<number>;
+  readonly volcanism: ArrayLike<number>;
+  readonly riftOriginPlate: ArrayLike<number>;
+  readonly volcanismOriginPlate: ArrayLike<number>;
+  readonly volcanismEventType: ArrayLike<number>;
+};
 
 /**
  * Resolves dominant lineage, last-reset era, and accumulated tectonic causes for every mesh cell.
@@ -38,12 +37,14 @@ type ProvenanceEraFields = Readonly<{
  */
 export function computeTectonicProvenance(params: {
   mesh: Readonly<{ cellCount: number }>;
-  plateGraph: Readonly<{ cellToPlate: Int16Array }>;
-  eras: ReadonlyArray<ProvenanceEraFields>;
-  tracerIndex: ReadonlyArray<TracerIndex>;
+  plateGraph: {
+    readonly cellToPlate: ArrayLike<number>;
+  };
+  eras: readonly Readonly<ProvenanceEraFields>[];
+  tracerIndex: readonly ArrayLike<number>[];
   eraCount: number;
 }): TectonicProvenanceResult {
-  const cellCount = params.mesh.cellCount | 0;
+  const cellCount = params.mesh.cellCount;
 
   const riftResetThresholdByEra = new Uint8Array(params.eraCount);
   const arcResetThresholdByEra = new Uint8Array(params.eraCount);
@@ -191,7 +192,7 @@ export function computeTectonicProvenance(params: {
     version: 1,
     eraCount: params.eraCount,
     cellCount,
-    tracerIndex: params.tracerIndex,
+    tracerIndex: params.tracerIndex.map((trace) => Uint32Array.from(trace)),
     provenance: {
       originEra,
       originPlateId,

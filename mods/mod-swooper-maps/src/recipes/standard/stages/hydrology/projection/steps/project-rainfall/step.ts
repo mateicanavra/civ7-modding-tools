@@ -8,7 +8,7 @@ import { config } from "./config.js";
 export const ProjectRainfallStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
     const { width, height } = context.setup.dimensions;
-    const { rainfall } = deps.artifacts.climateField.read(context);
+    const { rainfall } = deps.artifacts.climateField.read();
 
     for (let y = 0; y < height; y++) {
       const rowOffset = y * width;

@@ -20,8 +20,8 @@ export function growIslandPatch(params: {
   targetTiles: number;
   width: number;
   height: number;
-  baseLandMask: Uint8Array;
-  distanceToCoast: Uint16Array;
+  baseLandMask: ArrayLike<number>;
+  distanceToCoast: ArrayLike<number>;
   minimumCoastDistance: number;
   islandClass: Uint8Array;
   rng: LabelRng;

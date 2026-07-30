@@ -1,22 +1,22 @@
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import { EVENT_TYPE, type TectonicEvent } from "../../../model/atoms/tectonic-event.schema.js";
 
-type BoundarySegments = Readonly<{
-  segmentCount: number;
-  aCell: Int32Array;
-  bCell: Int32Array;
-  plateA: Int16Array;
-  plateB: Int16Array;
-  regime: Uint8Array;
-  polarity: Int8Array;
-  compression: Uint8Array;
-  extension: Uint8Array;
-  shear: Uint8Array;
-  volcanism: Uint8Array;
-  fracture: Uint8Array;
-  driftU: Int8Array;
-  driftV: Int8Array;
-}>;
+type BoundarySegments = {
+  readonly segmentCount: number;
+  readonly aCell: ArrayLike<number>;
+  readonly bCell: ArrayLike<number>;
+  readonly plateA: ArrayLike<number>;
+  readonly plateB: ArrayLike<number>;
+  readonly regime: ArrayLike<number>;
+  readonly polarity: ArrayLike<number>;
+  readonly compression: ArrayLike<number>;
+  readonly extension: ArrayLike<number>;
+  readonly shear: ArrayLike<number>;
+  readonly volcanism: ArrayLike<number>;
+  readonly fracture: ArrayLike<number>;
+  readonly driftU: ArrayLike<number>;
+  readonly driftV: ArrayLike<number>;
+};
 
 /**
  * Projects canonical boundary segments into polarity-aware tectonic event records.
@@ -24,7 +24,9 @@ type BoundarySegments = Readonly<{
  */
 export function buildBoundaryEventsFromSegments(params: {
   mesh: Readonly<{ cellCount: number }>;
-  crust: Readonly<{ type: Uint8Array }>;
+  crust: {
+    readonly type: ArrayLike<number>;
+  };
   segments: BoundarySegments;
 }): TectonicEvent[] {
   const { mesh, crust, segments } = params;

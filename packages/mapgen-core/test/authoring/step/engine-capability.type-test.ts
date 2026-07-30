@@ -46,14 +46,6 @@ defineStep({
 });
 
 defineStep({
-  id: "private-effect-method",
-  requires: [],
-  provides: [],
-  // @ts-expect-error Effect verification is executor-private.
-  engine: ["verifyEffect"],
-});
-
-defineStep({
   id: "private-random-method",
   requires: [],
   provides: [],

@@ -2,7 +2,7 @@ import ecology from "@mapgen/domain/ecology";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
-import { STANDARD_ENGINE_EFFECT_TAGS } from "../../../../../tag-contracts.js";
+import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
 
 /**
  * Defines the sole map-ecology boundary that applies all planned feature-family intents to
@@ -22,18 +22,17 @@ export const config = defineStep({
     "readCurrentMapWaterMask",
     "recalculateAreas",
   ] as const,
-  requires: [],
-  provides: [STANDARD_ENGINE_EFFECT_TAGS.engine.featuresApplied],
-  artifacts: {
-    requires: [
-      featureArtifacts.vegetationIntents,
-      featureArtifacts.wetlandIntents,
-      featureArtifacts.floodplainIntents,
-      featureArtifacts.reefIntents,
-      featureArtifacts.iceIntents,
-      morphologyLandformsArtifacts.topography,
-    ],
-  },
+  requires: [
+    STANDARD_COMPLETIONS.biomesApplied,
+    featureArtifacts.vegetationIntents,
+    featureArtifacts.wetlandIntents,
+    featureArtifacts.floodplainIntents,
+    featureArtifacts.reefIntents,
+    featureArtifacts.iceIntents,
+    morphologyLandformsArtifacts.topography,
+  ],
+  provides: [STANDARD_COMPLETIONS.featuresApplied],
+
   ops: {
     apply: ecology.features.ops.applyFeatures,
   },

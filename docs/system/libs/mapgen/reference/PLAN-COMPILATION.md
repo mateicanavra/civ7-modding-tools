@@ -21,6 +21,10 @@ Plan compilation must:
 
 - respect recipe enablement (`enabled: false` removes the node),
 - reject unknown step ids (registry is authoritative),
+- require every selected dependency consumer to follow exactly one earlier selected provider,
+- require artifact consumers to select the provider's exact `Artifact` authority rather than an
+  id-compatible substitute,
+- reject duplicate providers,
 - and build a deterministic node list from the recipe + registry.
 
 ## Algorithm (current)
@@ -32,6 +36,10 @@ Plan compilation must:
 - applies enablement (`enabled ?? true`),
 - validates step ids are unique,
 - validates steps exist in the StepRegistry,
+- validates the complete selected dependency graph after enablement:
+  - every requirement has one earlier selected provider,
+  - each artifact requirement retains exact provider identity,
+  - and no dependency has competing providers,
 - emits `ExecutionPlanNode` for each enabled step:
   - `stageId` is assigned by the recipe composition that owns the step occurrence
   - `requires`/`provides` are taken from the registered step

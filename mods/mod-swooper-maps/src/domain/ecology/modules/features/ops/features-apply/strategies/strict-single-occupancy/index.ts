@@ -21,7 +21,7 @@ const strictSingleOccupancyStrategy = createStrategy(Contract, StrategyDefinitio
     // Weight semantics are forbidden: allow only unset/1 so legacy fudging can't leak through.
     const seen = new Map<string, TileBucket>();
 
-    const merge = (placements: Placement[]) => {
+    const merge = (placements: readonly Readonly<Placement>[]) => {
       for (const placement of placements) {
         const x = placement.x | 0;
         const y = placement.y | 0;

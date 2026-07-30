@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import foundation from "@mapgen/domain/foundation/router";
+import { OperationInputAdmissionError } from "@swooper/mapgen-core/authoring";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 
 const { computeTectonicSegments } = foundation.tectonics.ops;
@@ -40,7 +41,6 @@ function twoCellBoundary(params?: {
       ] as const,
     },
     plateMotion: {
-      cellCount: 2,
       plateCount: 2,
       plateCenterX: new Float32Array([0, 1]),
       plateCenterY: new Float32Array([0, 0]),
@@ -56,6 +56,31 @@ function computeSegments(input: ReturnType<typeof twoCellBoundary>) {
 }
 
 describe("foundation/compute-tectonic-segments", () => {
+  it("refuses motion for a different plate graph before classification", () => {
+    const input = twoCellBoundary();
+    const mismatched = {
+      ...input,
+      plateMotion: { ...input.plateMotion, plateCount: 1 },
+    } as const;
+
+    let refusal: unknown;
+    try {
+      computeTectonicSegments.run(mismatched, selection);
+    } catch (error) {
+      refusal = error;
+    }
+
+    expect(refusal).toBeInstanceOf(OperationInputAdmissionError);
+    expect(refusal).toMatchObject({
+      issues: [
+        expect.objectContaining({
+          keyword: "~refine",
+          message: "Plate-motion plate count must match the admitted plate graph.",
+        }),
+      ],
+    });
+  });
+
   it("includes rigid plate rotation when classifying shear", () => {
     const withoutRotation = computeSegments(twoCellBoundary());
     const withRotation = computeSegments(twoCellBoundary({ velocityB: { omega: 1 } }));

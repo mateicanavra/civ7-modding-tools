@@ -33,8 +33,8 @@ const step = (
   orderInStage,
   artifactRequires: requires.map(ref),
   artifactProvides: provides.map(ref),
-  tagRequires: [],
-  tagProvides: [],
+  completionRequires: [],
+  completionProvides: [],
 });
 
 const edge = (

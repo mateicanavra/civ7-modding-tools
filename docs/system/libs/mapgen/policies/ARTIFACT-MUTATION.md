@@ -27,15 +27,19 @@ This enables reproducibility, caching, and reliable inspection.
 - Producers publish an artifact once.
 - Consumers read artifacts as immutable (treat the returned value as read-only).
 - Authored steps use only artifact readers and publishers derived from their declared contract.
-- Post-run observers query through an exact `Artifact`, which reapplies its complete validator
-  before exposing evidence.
+- Post-run observers query through an exact `Artifact` after execution completes. Publication has
+  already admitted present evidence; observation does not rerun validation or claim to detect
+  mutation.
 - If a consumer needs to mutate, it must copy first (caller-owned copy).
 
 Publication and reads are zero-copy: Core stores and returns the producer's admitted reference. It
 does not recursively freeze payload memory or defend against a retained hostile JavaScript
-reference. Immutability is therefore a pipeline ownership contract. Consumer signatures express
-readonly intent for ordinary structures, but do not yet make every typed-array mutation
-unrepresentable.
+reference. Immutability is therefore a pipeline ownership contract. Consumer signatures expose a
+deep readonly TypeScript projection that removes direct mutation affordances, including typed-array
+mutators and mutable backing-storage capabilities. That projection guides authors; structural
+widening, an explicit cast, or a producer-retained raw alias can still violate the runtime contract.
+Consumers must copy before taking mutable ownership. Callable members remain outside the artifact
+data universe.
 
 ### Disallowed
 
@@ -46,4 +50,5 @@ unrepresentable.
 ## Ground truth anchors
 
 - Write-once enforcement and zero-copy ownership contract: `packages/mapgen-core/src/authoring/artifact/runtime.ts`
+- Post-run exact-identity observation: `packages/mapgen-core/src/authoring/artifact/observation.ts`
 - Runtime context and artifact store: `packages/mapgen-core/src/core/map-context.ts`

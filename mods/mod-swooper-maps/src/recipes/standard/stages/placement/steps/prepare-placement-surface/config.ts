@@ -1,7 +1,7 @@
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
-import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
+import { STANDARD_COMPLETIONS } from "../../../../completions.js";
 
 /**
  * Defines the one engine-maintenance transaction after wonder stamping. The
@@ -21,9 +21,10 @@ export const config = defineStep({
     "storeWaterData",
     "recalculateAreas",
   ] as const,
-  requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.naturalWondersPlaced],
-  provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.surfacePrepared],
-  artifacts: {
-    requires: [morphologyShelfArtifacts.shelf, morphologyLandformsArtifacts.topography],
-  },
+  requires: [
+    STANDARD_COMPLETIONS.naturalWondersPlaced,
+    morphologyShelfArtifacts.shelf,
+    morphologyLandformsArtifacts.topography,
+  ],
+  provides: [STANDARD_COMPLETIONS.surfacePrepared],
 });

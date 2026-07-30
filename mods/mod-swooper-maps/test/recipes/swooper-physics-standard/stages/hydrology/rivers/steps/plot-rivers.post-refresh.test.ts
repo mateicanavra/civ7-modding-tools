@@ -9,7 +9,7 @@ import {
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
-import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
+import { readArtifact } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import {
   buildStepTestDependencies,
@@ -180,7 +180,7 @@ describe("map-rivers/plot-rivers", () => {
     expect(adapter.getTerrainType(width - 1, 0)).toBe(navigableRiverTerrain);
     expect(adapter.getTerrainType(0, 1)).toBe(flatTerrain);
 
-    const projected = readValidatedArtifact(context, hydrographyArtifacts.projectedNavigableRivers);
+    const projected = readArtifact(context, hydrographyArtifacts.projectedNavigableRivers);
     const readback = adapter.readRiverProjection(width, height, projected.riverMask);
     expect(projected.riverMask[0]).toBe(1);
     expect(projected.riverMask[width]).toBe(0);

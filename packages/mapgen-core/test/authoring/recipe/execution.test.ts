@@ -47,9 +47,8 @@ describe("authoring: hello recipe compile/execute", () => {
     const recipe = createRecipe({
       id: "hello",
       namespace: "test",
-      tagDefinitions: [],
       stages: [helloStage],
-      compileOpsById: {},
+      operations: {},
     });
 
     const adapter = createMockAdapter({ width: 8, height: 6, mapSizeId: 1 });
@@ -89,9 +88,8 @@ describe("authoring: hello recipe compile/execute", () => {
     const recipe = createRecipe({
       id: "setup-authority",
       namespace: "test",
-      tagDefinitions: [],
       stages: [stage],
-      compileOpsById: {},
+      operations: {},
     });
     const setup = admitMapSetup({ ...baseSetup, mapSeed: 444 });
     const adapter = createMockAdapter({ width: 8, height: 6, mapSizeId: 1 });
@@ -192,9 +190,8 @@ describe("authoring: hello recipe compile/execute", () => {
     const recipe = createRecipe({
       id: "ops",
       namespace: "test",
-      tagDefinitions: [],
       stages: [stage],
-      compileOpsById: { [treePlan.id]: treePlan },
+      operations: { [treePlan.id]: treePlan },
     });
 
     const adapter = createMockAdapter({ width: 8, height: 6, mapSizeId: 1 });
@@ -238,7 +235,7 @@ describe("authoring: hello recipe compile/execute", () => {
     });
     const facetStep = createStep(facetContract, {
       run: (_context, config) => ({ score: config.score }),
-      metrics: ({ result }) => ({ score: result.score }),
+      metrics: ({ observation }) => ({ score: observation.score }),
       viz: () => [],
     });
     const stage = createStage({
@@ -249,9 +246,8 @@ describe("authoring: hello recipe compile/execute", () => {
     const recipe = createRecipe({
       id: "facets",
       namespace: "test",
-      tagDefinitions: [],
       stages: [stage],
-      compileOpsById: {},
+      operations: {},
     });
     const adapter = createMockAdapter({ width: 8, height: 6, mapSizeId: 1 });
     const syncContext = createMapContext({ setup: baseSetup, adapter });

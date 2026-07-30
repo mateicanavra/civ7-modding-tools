@@ -8,8 +8,11 @@ import {
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 
 import { computeDistanceToWater } from "../../../../model/rules/coastal-distance.js";
+import {
+  clampRainfall,
+  rainfallToHumidityU8,
+} from "../../../../model/rules/precipitation-scale.js";
 import ComputePrecipitationContract from "../../contract.js";
-import { clampRainfall, rainfallToHumidityU8 } from "../../rules/index.js";
 import VectorDefinition from "./config.js";
 
 type Vec2 = Readonly<{ x: number; y: number }>;
@@ -25,7 +28,7 @@ function elevationGradientOddQ(
   y: number,
   width: number,
   height: number,
-  elevation: Int16Array
+  elevation: ArrayLike<number>
 ): Vec2 {
   const i = y * width + x;
   const e0 = elevation[i] ?? 0;
@@ -57,7 +60,7 @@ const vectorStrategy = createStrategy(ComputePrecipitationContract, VectorDefini
     const width = input.width;
     const height = input.height;
     const size = width * height;
-    const perlinSeed = input.perlinSeed | 0;
+    const perlinSeed = input.perlinSeed;
 
     const rainfall = new Uint8Array(size);
     const humidity = new Uint8Array(size);
@@ -124,7 +127,7 @@ const vectorStrategy = createStrategy(ComputePrecipitationContract, VectorDefini
         rf += noise * noiseAmplitude;
 
         const clamped = clampRainfall(rf);
-        rainfall[i] = (clamped | 0) & 0xff;
+        rainfall[i] = clamped;
         humidity[i] = rainfallToHumidityU8(clamped);
       }
     }

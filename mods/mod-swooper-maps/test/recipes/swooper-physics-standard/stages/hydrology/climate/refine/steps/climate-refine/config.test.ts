@@ -11,8 +11,8 @@ const setup = createStandardRecipeTestInitialSetup();
 function normalizeDryness(dryness: "wet" | "mix") {
   const recipeConfig = createStandardRecipeTestConfig();
   const stageConfig = recipeConfig["hydrology-climate-refine"];
-  const precipitation = stageConfig["climate-refine"].computePrecipitation;
-  if (precipitation.strategy !== "refine") {
+  const precipitation = stageConfig["climate-refine"].refinePrecipitation;
+  if (precipitation.strategy !== "riparian-basin-wetness") {
     throw new Error("Climate refine must author refined precipitation.");
   }
   precipitation.config.riverCorridor.lowlandAdjacencyBonus = 20;
@@ -28,14 +28,14 @@ describe("hydrology climate-refine authoring", () => {
   it("scales authored river-corridor moisture upward for the wet posture", () => {
     const neutral = normalizeDryness("mix");
     const wet = normalizeDryness("wet");
-    if (neutral.computePrecipitation.strategy !== "refine") {
+    if (neutral.refinePrecipitation.strategy !== "riparian-basin-wetness") {
       throw new Error("Climate refine must retain refined precipitation.");
     }
-    if (wet.computePrecipitation.strategy !== "refine") {
+    if (wet.refinePrecipitation.strategy !== "riparian-basin-wetness") {
       throw new Error("Climate refine must retain refined precipitation.");
     }
 
-    expect(neutral.computePrecipitation.config.riverCorridor.lowlandAdjacencyBonus).toBe(20);
-    expect(wet.computePrecipitation.config.riverCorridor.lowlandAdjacencyBonus).toBe(23);
+    expect(neutral.refinePrecipitation.config.riverCorridor.lowlandAdjacencyBonus).toBe(20);
+    expect(wet.refinePrecipitation.config.riverCorridor.lowlandAdjacencyBonus).toBe(23);
   });
 });

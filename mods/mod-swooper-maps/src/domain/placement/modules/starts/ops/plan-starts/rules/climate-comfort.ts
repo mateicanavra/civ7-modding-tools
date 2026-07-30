@@ -39,9 +39,9 @@ function quantileSorted(sorted: readonly number[], q: number): number {
  * deterministic quantiles over land tiles only.
  */
 export function computeClimateComfortThresholds(args: {
-  landMask: Uint8Array;
-  aridityIndex?: Float32Array;
-  surfaceTemperature?: Float32Array;
+  landMask: ArrayLike<number>;
+  aridityIndex?: ArrayLike<number>;
+  surfaceTemperature?: ArrayLike<number>;
 }): ClimateComfortThresholds | null {
   if (!args.aridityIndex || !args.surfaceTemperature) return null;
   const aridity: number[] = [];

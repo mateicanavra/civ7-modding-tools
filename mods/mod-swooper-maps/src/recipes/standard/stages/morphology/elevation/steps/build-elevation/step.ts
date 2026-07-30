@@ -16,19 +16,30 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  */
 export const BuildElevationStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
-    const topography = deps.artifacts.topography.read(context);
+    const topography = deps.artifacts.topography.read();
+    const projectedLakes = deps.artifacts.projectedLakes.read();
     const { width, height } = context.setup.dimensions;
 
+    const expectedLandMask = Uint8Array.from(topography.landMask);
+    for (let index = 0; index < expectedLandMask.length; index += 1) {
+      if (projectedLakes.lakeMask[index] === 1) expectedLandMask[index] = 0;
+    }
     const projectedWaterMask = deps.engine.readCurrentMapWaterMask(context);
-    const expectedLandMask = landMaskFromWaterMask(projectedWaterMask);
+    assertWaterDriftWithinPolicy(
+      context.setup.dimensions,
+      context.trace,
+      projectedWaterMask,
+      expectedLandMask,
+      "map-elevation/build-elevation/pre-build"
+    );
 
     /**
      * Civ7 builds visual elevation from the terrain surface already in the engine.
      * We therefore run after static lake projection, matching Firaxis' map-script
      * lifecycle: coasts/continents/mountains/volcanoes, accepted lakes, elevation, rivers.
-     * The expected water surface is observed immediately before elevation, after
-     * lake projection has completed. Rejected lake intent therefore cannot become
-     * false water expectation, and no stale engine snapshot crosses the step boundary.
+     * The expected water surface composes immutable Morphology land truth with the
+     * exact lake mask accepted by Civ7. Rejected lake intent therefore cannot become
+     * false water expectation, while any later engine drift remains observable.
      * If the engine no longer matches that projected land/water surface, this step
      * fails instead of restoring terrain after the fact; terrain restoration cannot
      * repair engine-owned cliff/elevation state.
@@ -44,7 +55,7 @@ export const BuildElevationStep = createStep(config, {
       context.trace,
       engineWaterMask,
       expectedLandMask,
-      "map-elevation/build-elevation"
+      "map-elevation/build-elevation/post-build"
     );
     const driftMask = new Uint8Array(width * height);
     let mismatchCount = 0;
@@ -74,14 +85,14 @@ export const BuildElevationStep = createStep(config, {
       driftMask,
     };
   },
-  viz: ({ result, dimensions }) => {
+  viz: ({ observation, dimensions }) => {
     const projections: VizProjection[] = [
       {
         kind: "grid",
         dataTypeKey: "map.elevation.elevation",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "i16", values: result.physicsElevation },
+        field: { format: "i16", values: observation.physicsElevation },
         meta: defineStandardVizMeta("map.elevation.elevation", "terrain.elevation", {
           label: "Elevation (Physics Truth)",
           group: GROUP_MAP_ELEVATION,
@@ -94,7 +105,7 @@ export const BuildElevationStep = createStep(config, {
         dataTypeKey: "map.elevation.landMask",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "u8", values: result.expectedLandMask },
+        field: { format: "u8", values: observation.expectedLandMask },
         meta: defineStandardVizMeta("map.elevation.landMask", "category.distinct", {
           label: "Land Mask (Projected Surface)",
           group: GROUP_MAP_ELEVATION,
@@ -109,7 +120,7 @@ export const BuildElevationStep = createStep(config, {
         dataTypeKey: "map.elevation.elevation",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "i16", values: result.engine.elevation },
+        field: { format: "i16", values: observation.engine.elevation },
         meta: defineStandardVizMeta("map.elevation.elevation", "terrain.elevation", {
           label: "Elevation (Engine)",
           group: GROUP_MAP_ELEVATION,
@@ -121,7 +132,7 @@ export const BuildElevationStep = createStep(config, {
         dataTypeKey: "map.elevation.landMask",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "u8", values: result.engine.landMask },
+        field: { format: "u8", values: observation.engine.landMask },
         meta: defineStandardVizMeta("map.elevation.landMask", "category.distinct", {
           label: "Land Mask (Engine)",
           group: GROUP_MAP_ELEVATION,
@@ -134,7 +145,7 @@ export const BuildElevationStep = createStep(config, {
         dataTypeKey: "map.elevation.driftMask",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "u8", values: result.driftMask },
+        field: { format: "u8", values: observation.driftMask },
         meta: defineStandardVizMeta("map.elevation.driftMask", "category.distinct", {
           label: "Land/Water Drift Mask",
           group: GROUP_MAP_ELEVATION,

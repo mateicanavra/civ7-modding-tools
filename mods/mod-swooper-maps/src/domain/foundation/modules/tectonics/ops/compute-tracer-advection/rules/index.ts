@@ -2,24 +2,24 @@ import { quantizeUnitVec2I8 } from "@swooper/mapgen-core/lib/grid";
 import { selectMeshNeighborByVectorProjection } from "@swooper/mapgen-core/lib/mesh";
 import { ADVECTION_STEPS_PER_ERA } from "./constants.js";
 
-type TracerMesh = Readonly<{
-  cellCount: number;
-  wrapWidth: number;
-  siteX: Float32Array;
-  siteY: Float32Array;
-  neighborsOffsets: Int32Array;
-  neighbors: Int32Array;
-}>;
+type TracerMesh = {
+  readonly cellCount: number;
+  readonly wrapWidth: number;
+  readonly siteX: ArrayLike<number>;
+  readonly siteY: ArrayLike<number>;
+  readonly neighborsOffsets: ArrayLike<number>;
+  readonly neighbors: ArrayLike<number>;
+};
 
 function advectTracerIndex(params: {
   mesh: TracerMesh;
-  boundaryDriftU: Int8Array;
-  boundaryDriftV: Int8Array;
-  mantleDriftU: Int8Array;
-  mantleDriftV: Int8Array;
+  boundaryDriftU: ArrayLike<number>;
+  boundaryDriftV: ArrayLike<number>;
+  mantleDriftU: ArrayLike<number>;
+  mantleDriftV: ArrayLike<number>;
   steps: number;
 }): Uint32Array {
-  const cellCount = params.mesh.cellCount | 0;
+  const cellCount = params.mesh.cellCount;
   const steps = Math.max(0, params.steps | 0);
   const out = new Uint32Array(cellCount);
   if (steps <= 0) {
@@ -60,11 +60,17 @@ function advectTracerIndex(params: {
  */
 export function computeTracerIndexByEra(params: {
   mesh: TracerMesh;
-  mantleForcing: Readonly<{ forcingU: Float32Array; forcingV: Float32Array }>;
-  eras: ReadonlyArray<Readonly<{ boundaryDriftU: Int8Array; boundaryDriftV: Int8Array }>>;
+  mantleForcing: {
+    readonly forcingU: ArrayLike<number>;
+    readonly forcingV: ArrayLike<number>;
+  };
+  eras: readonly {
+    readonly boundaryDriftU: ArrayLike<number>;
+    readonly boundaryDriftV: ArrayLike<number>;
+  }[];
   eraCount: number;
 }): Uint32Array[] {
-  const cellCount = params.mesh.cellCount | 0;
+  const cellCount = params.mesh.cellCount;
   const mantleDriftU = new Int8Array(cellCount);
   const mantleDriftV = new Int8Array(cellCount);
   for (let i = 0; i < cellCount; i++) {

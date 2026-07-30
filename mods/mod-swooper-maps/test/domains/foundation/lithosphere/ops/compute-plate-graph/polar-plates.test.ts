@@ -6,6 +6,20 @@ import { deriveTestOperationSeed, TEST_MAP_SIZE } from "../../../../../setup.js"
 const { computeMesh } = foundation.mesh.ops;
 const { computePlateGraph } = foundation.lithosphere.ops;
 
+function projectPlateGraphMesh(
+  generatedMesh: Readonly<{
+    cellCount: number;
+    wrapWidth: number;
+    siteX: Float32Array;
+    siteY: Float32Array;
+    neighborsOffsets: Int32Array;
+    neighbors: Int32Array;
+  }>
+) {
+  const { cellCount, wrapWidth, siteX, siteY, neighborsOffsets, neighbors } = generatedMesh;
+  return { cellCount, wrapWidth, siteX, siteY, neighborsOffsets, neighbors };
+}
+
 function collectPlateCells(cellToPlate: Int16Array, plateId: number): number[] {
   const cells: number[] = [];
   for (let cellId = 0; cellId < cellToPlate.length; cellId++) {
@@ -67,6 +81,7 @@ function generatePlateInput(params: {
 
   return {
     generatedMesh,
+    mesh: projectPlateGraphMesh(generatedMesh),
     crust: {
       maturity: new Float32Array(generatedMesh.cellCount),
       strength,
@@ -84,7 +99,7 @@ describe("foundation/compute-plate-graph polar policy", () => {
     });
     const plateGraph = computePlateGraph.run(
       {
-        mesh: input.generatedMesh,
+        mesh: input.mesh,
         crust: input.crust,
         rngSeed: input.rngSeed,
       },
@@ -127,7 +142,7 @@ describe("foundation/compute-plate-graph polar policy", () => {
     const microplateMinAreaCells = 6;
     const plateGraph = computePlateGraph.run(
       {
-        mesh: input.generatedMesh,
+        mesh: input.mesh,
         crust: input.crust,
         rngSeed: input.rngSeed,
       },

@@ -1,7 +1,12 @@
 import { applyPlateActivityOrogenyGain } from "@mapgen/domain/foundation/modules/tectonics/model/policy/plate-activity.js";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
-import { interleaveXY, type VizProjection, type VizVariantKey } from "@swooper/mapgen-viz";
+import {
+  interleaveXY,
+  type VizProjection,
+  type VizScalarSource,
+  type VizVariantKey,
+} from "@swooper/mapgen-viz";
 import {
   defineStandardVizCategoryMeta,
   defineStandardVizMeta,
@@ -9,6 +14,8 @@ import {
 } from "../../../../../viz.js";
 import { segmentsFromCellPairs } from "../../../viz.js";
 import { config } from "./config.js";
+
+type Uint8VizValues = Extract<VizScalarSource, { format: "u8" }>["values"];
 
 const GROUP_PLATE_MOTION = "Foundation / Plate Motion";
 const GROUP_TECTONICS = "Foundation / Tectonics";
@@ -20,11 +27,11 @@ const OROGENY_ERA_GAIN_MAX = 1.15;
 function velocityAtPoint(params: {
   plateId: number;
   plateMotion: {
-    plateCenterX: Float32Array;
-    plateCenterY: Float32Array;
-    plateVelocityX: Float32Array;
-    plateVelocityY: Float32Array;
-    plateOmega: Float32Array;
+    plateCenterX: ArrayLike<number>;
+    plateCenterY: ArrayLike<number>;
+    plateVelocityX: ArrayLike<number>;
+    plateVelocityY: ArrayLike<number>;
+    plateOmega: ArrayLike<number>;
   };
   x: number;
   y: number;
@@ -44,15 +51,15 @@ function velocityAtPoint(params: {
 }
 
 function buildVectorSegments(params: {
-  siteX: Float32Array;
-  siteY: Float32Array;
-  plateIdByCell: Int16Array;
+  siteX: ArrayLike<number>;
+  siteY: ArrayLike<number>;
+  plateIdByCell: ArrayLike<number>;
   plateMotion: {
-    plateCenterX: Float32Array;
-    plateCenterY: Float32Array;
-    plateVelocityX: Float32Array;
-    plateVelocityY: Float32Array;
-    plateOmega: Float32Array;
+    plateCenterX: ArrayLike<number>;
+    plateCenterY: ArrayLike<number>;
+    plateVelocityX: ArrayLike<number>;
+    plateVelocityY: ArrayLike<number>;
+    plateOmega: ArrayLike<number>;
   };
   wrapWidth: number;
 }): { segments: Float32Array; values: Float32Array } {
@@ -123,11 +130,11 @@ export const TectonicsStep = createStep(config, {
       },
     };
   },
-  run: (context, stepConfig, ops, deps) => {
-    const mesh = deps.artifacts.foundationMesh.read(context);
-    const mantleForcing = deps.artifacts.foundationMantleForcing.read(context);
-    const crust = deps.artifacts.foundationInitialCrust.read(context);
-    const plateGraph = deps.artifacts.foundationPlateGraph.read(context);
+  run: (_context, stepConfig, ops, deps) => {
+    const mesh = deps.artifacts.mesh.read();
+    const mantleForcing = deps.artifacts.mantleForcing.read();
+    const crust = deps.artifacts.initialCrust.read();
+    const plateGraph = deps.artifacts.plateGraph.read();
     const topologyMesh = {
       cellCount: mesh.cellCount,
       wrapWidth: mesh.wrapWidth,
@@ -138,7 +145,6 @@ export const TectonicsStep = createStep(config, {
     } as const;
     const motionMesh = { ...topologyMesh, areas: mesh.areas } as const;
     const motionForcing = {
-      cellCount: mantleForcing.cellCount,
       forcingU: mantleForcing.forcingU,
       forcingV: mantleForcing.forcingV,
     } as const;
@@ -154,10 +160,9 @@ export const TectonicsStep = createStep(config, {
       },
       stepConfig.computePlateMotion
     ).plateMotion;
-    deps.artifacts.foundationPlateMotion.publish(context, plateMotion);
+    deps.artifacts.plateMotion.publish(plateMotion);
     const segmentCrust = { strength: crust.strength, type: crust.type } as const;
     const plateMotionInput = {
-      cellCount: plateMotion.cellCount,
       plateCount: plateMotion.plateCount,
       plateCenterX: plateMotion.plateCenterX,
       plateCenterY: plateMotion.plateCenterY,
@@ -175,7 +180,7 @@ export const TectonicsStep = createStep(config, {
       },
       stepConfig.computeTectonicSegments
     );
-    deps.artifacts.foundationTectonicSegments.publish(context, segmentsResult.segments);
+    deps.artifacts.tectonicSegments.publish(segmentsResult.segments);
 
     const eraPlateMembership = ops.computeEraPlateMembership(
       {
@@ -215,7 +220,6 @@ export const TectonicsStep = createStep(config, {
           crust: segmentCrust,
           plateGraph: eraPlateGraph,
           plateMotion: {
-            cellCount: eraPlateMotion.cellCount,
             plateCount: eraPlateMotion.plateCount,
             plateCenterX: eraPlateMotion.plateCenterX,
             plateCenterY: eraPlateMotion.plateCenterY,
@@ -334,12 +338,9 @@ export const TectonicsStep = createStep(config, {
       stepConfig.computeTectonicProvenance
     );
 
-    deps.artifacts.foundationTectonicHistory.publish(context, historyResult.tectonicHistory);
-    deps.artifacts.foundationTectonicProvenance.publish(
-      context,
-      provenanceResult.tectonicProvenance
-    );
-    deps.artifacts.foundationTectonics.publish(context, tectonicsResult.tectonics);
+    deps.artifacts.tectonicHistory.publish(historyResult.tectonicHistory);
+    deps.artifacts.tectonicProvenance.publish(provenanceResult.tectonicProvenance);
+    deps.artifacts.currentTectonics.publish(tectonicsResult.tectonics);
     return {
       mesh,
       plateGraph,
@@ -349,7 +350,7 @@ export const TectonicsStep = createStep(config, {
       history: historyResult.tectonicHistory,
     };
   },
-  viz: ({ result: { mesh, plateGraph, plateMotion, segments, tectonics, history } }) => {
+  viz: ({ observation: { mesh, plateGraph, plateMotion, segments, tectonics, history } }) => {
     const projections: VizProjection[] = [];
     const positions = interleaveXY(mesh.siteX, mesh.siteY);
     const motionVectors = buildVectorSegments({
@@ -380,7 +381,7 @@ export const TectonicsStep = createStep(config, {
     );
     const addPoints = (
       dataTypeKey: string,
-      values: Uint8Array,
+      values: Uint8VizValues,
       label: string,
       group: string,
       visibility: "default" | "debug" = "default",
@@ -402,7 +403,7 @@ export const TectonicsStep = createStep(config, {
     };
     const addSegments = (
       dataTypeKey: string,
-      values: Uint8Array,
+      values: Uint8VizValues,
       label: string,
       visibility: "default" | "debug" = "debug"
     ) => {

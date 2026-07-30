@@ -26,10 +26,10 @@ export function pointsFromPlateSeeds(
  * list and using zero coordinates for missing sites.
  */
 export function segmentsFromCellPairs(
-  aCell: Int32Array,
-  bCell: Int32Array,
-  siteX: Float32Array,
-  siteY: Float32Array
+  aCell: ArrayLike<number>,
+  bCell: ArrayLike<number>,
+  siteX: ArrayLike<number>,
+  siteY: ArrayLike<number>
 ): Float32Array {
   const n = Math.min(aCell.length, bCell.length);
   const out = new Float32Array(n * 4);

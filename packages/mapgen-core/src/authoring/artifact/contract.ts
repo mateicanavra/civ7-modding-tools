@@ -1,6 +1,6 @@
-import type { ReadonlyDeep } from "type-fest";
 import type { Static, TSchema } from "typebox";
 
+import type { ReadonlyData } from "../data/readonly-data.js";
 import { applySchemaConventions } from "../schema/conventions.js";
 import {
   type ArtifactRefinement,
@@ -50,7 +50,7 @@ export type Artifact<
 export type ArtifactValueOf<A extends Artifact<any, any, any>> = Static<A["schema"]>;
 
 /** Deep readonly projection used for values after immutable artifact publication. */
-export type DeepReadonly<T> = ReadonlyDeep<T>;
+export type DeepReadonly<T> = ReadonlyData<T>;
 
 export type ArtifactReadValueOf<A extends Artifact<any, any, any>> = DeepReadonly<
   ArtifactValueOf<A>

@@ -7,7 +7,7 @@ import ecology from "@mapgen/domain/ecology/router";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
-import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
+import { readArtifact } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
   normalizeOperationSelectionForTest,
@@ -108,11 +108,16 @@ describe("ecology-features plan-wetlands step", () => {
           ecology.features.ops.planWetlands.defaultConfig
         ),
       };
-      const ops = ecology.features.ops.bind(planWetlandsStep.contract.ops!).runtime;
-      planWetlandsStep.run(stepContext, config, ops, buildStepTestDependencies(planWetlandsStep));
+      const ops = ecology.features.ops.bind(planWetlandsStep.contract.ops!);
+      planWetlandsStep.run(
+        stepContext,
+        config,
+        ops,
+        buildStepTestDependencies(planWetlandsStep, stepContext)
+      );
     });
 
-    const intents = readValidatedArtifact(ctx, featureArtifacts.wetlandIntents);
+    const intents = readArtifact(ctx, featureArtifacts.wetlandIntents);
     expect(intents.length).toBeGreaterThan(0);
     expect(intents.every(({ feature }) => feature === "marsh")).toBe(true);
   });

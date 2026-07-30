@@ -21,7 +21,7 @@ import { clamp01 } from "@swooper/mapgen-core/lib/math";
 export function computeWinds(
   width: number,
   height: number,
-  latitudeByRow: Float32Array,
+  latitudeByRow: ArrayLike<number>,
   options: { seed: number; jetStreaks: number; jetStrength: number; variance: number }
 ): { windU: Int8Array; windV: Int8Array } {
   const size = width * height;
@@ -199,23 +199,23 @@ function smoothFieldOddQ(
 export function computeWindsEarthlike(
   width: number,
   height: number,
-  latitudeByRow: Float32Array,
-  options: Readonly<{
-    seed: number;
-    landMask?: Uint8Array;
-    elevation?: Int16Array;
-    seasonPhase01: number;
-    maxSpeed: number;
-    zonalStrength: number;
-    meridionalStrength: number;
-    geostrophicStrength: number;
-    pressureNoiseScale: number;
-    pressureNoiseAmp: number;
-    waveStrength: number;
-    landHeatStrength: number;
-    mountainDeflectStrength: number;
-    smoothIters: number;
-  }>
+  latitudeByRow: ArrayLike<number>,
+  options: {
+    readonly seed: number;
+    readonly landMask?: ArrayLike<number>;
+    readonly elevation?: ArrayLike<number>;
+    readonly seasonPhase01: number;
+    readonly maxSpeed: number;
+    readonly zonalStrength: number;
+    readonly meridionalStrength: number;
+    readonly geostrophicStrength: number;
+    readonly pressureNoiseScale: number;
+    readonly pressureNoiseAmp: number;
+    readonly waveStrength: number;
+    readonly landHeatStrength: number;
+    readonly mountainDeflectStrength: number;
+    readonly smoothIters: number;
+  }
 ): { windU: Int8Array; windV: Int8Array } {
   const size = width * height;
   const windU = new Int8Array(size);

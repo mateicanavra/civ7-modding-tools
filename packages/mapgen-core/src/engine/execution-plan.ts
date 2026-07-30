@@ -1,3 +1,4 @@
+import { isArtifact } from "@mapgen/authoring/artifact/contract.js";
 import { initialSetupFingerprintInputInternal } from "@mapgen/core/initial-setup-binding.js";
 import {
   admitMapSetup,
@@ -6,8 +7,7 @@ import {
   MapSetupSchema,
 } from "@mapgen/core/map-setup.js";
 import type { StepRegistry } from "@mapgen/engine/StepRegistry.js";
-import { TagRegistry } from "@mapgen/engine/tags.js";
-import type { MapGenStep } from "@mapgen/engine/types.js";
+import type { MapGenStep, PipelineDependency } from "@mapgen/engine/types.js";
 import { createPortableJsonSnapshot } from "@mapgen/lib/json/portable-snapshot.js";
 import { sha256Hex, stableStringify } from "@mapgen/trace/index.js";
 import { type Static, Type } from "typebox";
@@ -22,7 +22,6 @@ type ExecutionPlanBinding = Readonly<{
     step: MapGenStep<unknown, unknown>;
     config: Readonly<Record<string, unknown>>;
   }>[];
-  tagRegistry: TagRegistry;
   fingerprint: string;
 }>;
 const executionPlanBindings = new WeakMap<object, ExecutionPlanBinding>();
@@ -64,16 +63,57 @@ function hashExecutionPlan(plan: ExecutionPlan): string {
   return sha256Hex(stableStringify(fingerprintInput));
 }
 
-function snapshotDependencyTags(
-  nodes: readonly Readonly<{ step: MapGenStep<unknown, unknown> }>[],
-  source: TagRegistry
-): TagRegistry {
-  const selected = new Set<string>();
-  for (const { step } of nodes) {
-    for (const tag of step.requires) selected.add(tag);
-    for (const tag of step.provides) selected.add(tag);
-  }
-  return source.snapshot([...selected]);
+function dependencyId(dependency: PipelineDependency): string {
+  return typeof dependency === "string" ? dependency : dependency.id;
+}
+
+function validateSelectedDependencies(
+  nodes: readonly Readonly<{
+    step: MapGenStep<unknown, unknown>;
+    sourceIndex: number;
+  }>[],
+  errors: ExecutionPlanCompileErrorItem[]
+): void {
+  const providers = new Map<string, Readonly<{ dependency: PipelineDependency; stepId: string }>>();
+
+  nodes.forEach(({ step, sourceIndex }) => {
+    for (const dependency of step.requires) {
+      const id = dependencyId(dependency);
+      const provider = providers.get(id);
+      if (!provider) {
+        errors.push({
+          code: "runRequest.invalid",
+          path: `/recipe/steps/${sourceIndex}/id`,
+          message: `Step "${step.id}" requires "${id}" from an earlier selected step`,
+          stepId: step.id,
+        });
+        continue;
+      }
+      if (isArtifact(dependency) && provider.dependency !== dependency) {
+        errors.push({
+          code: "runRequest.invalid",
+          path: `/recipe/steps/${sourceIndex}/id`,
+          message: `Step "${step.id}" requires a different authority for artifact "${id}" than provider "${provider.stepId}"`,
+          stepId: step.id,
+        });
+      }
+    }
+
+    for (const dependency of step.provides) {
+      const id = dependencyId(dependency);
+      const provider = providers.get(id);
+      if (provider) {
+        errors.push({
+          code: "runRequest.invalid",
+          path: `/recipe/steps/${sourceIndex}/id`,
+          message: `Dependency "${id}" is provided by both "${provider.stepId}" and "${step.id}"`,
+          stepId: step.id,
+        });
+        continue;
+      }
+      providers.set(id, { dependency, stepId: step.id });
+    }
+  });
 }
 
 function invalidRunRequest(path: string, message: string): ExecutionPlanCompileError {
@@ -225,7 +265,6 @@ export function getExecutionPlanBindingInternal(
     step: MapGenStep<unknown, unknown>;
     config: Readonly<Record<string, unknown>>;
   }>[];
-  tagRegistry: TagRegistry;
   fingerprint: string;
 }> {
   const binding = executionPlanBindings.get(plan);
@@ -242,7 +281,6 @@ export function getExecutionPlanBindingInternal(
       step: MapGenStep<unknown, unknown>;
       config: Readonly<Record<string, unknown>>;
     }>[];
-    tagRegistry: TagRegistry;
     fingerprint: string;
   }>;
 }
@@ -288,6 +326,12 @@ export function compileExecutionPlan(
     Readonly<{
       step: MapGenStep<unknown, unknown>;
       config: Readonly<Record<string, unknown>>;
+    }>
+  > = [];
+  const selectedDependencyNodes: Array<
+    Readonly<{
+      step: MapGenStep<unknown, unknown>;
+      sourceIndex: number;
     }>
   > = [];
   const seenStepIds = new Set<string>();
@@ -336,14 +380,19 @@ export function compileExecutionPlan(
       Object.freeze({
         stepId,
         stageId: registryStep.stageId,
-        requires: Object.freeze([...registryStep.requires]),
-        provides: Object.freeze([...registryStep.provides]),
+        requires: Object.freeze(registryStep.requires.map(dependencyId)),
+        provides: Object.freeze(registryStep.provides.map(dependencyId)),
         config,
       })
     );
     runtimeNodes.push(Object.freeze({ step: registryStep, config }));
+    selectedDependencyNodes.push(Object.freeze({ step: registryStep, sourceIndex: index }));
   });
 
+  if (errors.length > 0) {
+    throw new ExecutionPlanCompileError(errors);
+  }
+  validateSelectedDependencies(selectedDependencyNodes, errors);
   if (errors.length > 0) {
     throw new ExecutionPlanCompileError(errors);
   }
@@ -354,13 +403,11 @@ export function compileExecutionPlan(
     setup,
     nodes: Object.freeze(nodes),
   }) as ExecutionPlan;
-  const tagRegistry = snapshotDependencyTags(runtimeNodes, registry.getTagRegistry());
   executionPlanBindings.set(
     plan,
     Object.freeze({
       registry,
       nodes: Object.freeze(runtimeNodes),
-      tagRegistry,
       fingerprint: hashExecutionPlan(plan),
     }) as ExecutionPlanBinding
   );

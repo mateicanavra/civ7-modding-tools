@@ -49,6 +49,7 @@ domain alias namespace must stay on a named domain surface.
 | Standard recipe assembly                | domain root alias for the target domain                                        | Policy only         |
 | Standard recipe operation binding       | public contract surface for the target domain or direct module                 | Habitat `pattern-check` |
 | Standard recipe artifact dependency     | producing module's public artifact catalog                                     | Habitat `pattern-check` |
+| Standard recipe model vocabulary        | exact nearest-owner domain or module model atom/policy surface                  | Habitat `pattern-check` |
 | Leaf operation contract                 | exact nearest-owner primitive/subentity atom files; exact sibling-module atom files when required | Habitat `pattern-check` |
 | Rules, strategies, implementations      | private algorithm `Params`/`Result` types plus smaller atom types when shared | Habitat `pattern-check` |
 | Cross-domain source code                | Domain-root contracts first; domain-internal imports only with a named owner   | Policy only         |
@@ -89,9 +90,9 @@ Do not import:
 
 ### 3) Recipe deep imports into domain internals
 
-Do not import domain internals from recipe files, such as:
+Do not import private domain internals from recipe files, such as:
 
-- domain or module model internals through a workspace alias
+- domain or module model files outside the intentional `model/atoms` and `model/policy` surfaces
 - operation internals through a workspace alias
 - domain rule internals through a workspace alias
 - domain type modules through a workspace alias
@@ -101,9 +102,10 @@ Do not import domain internals from recipe files, such as:
 - value types derived from `artifact.schema` in rules, strategies, or
   implementations
 
-If recipe assembly needs those symbols, expose them through the domain root or
-the direct module's intentional gateway. Do not add a broad domain-wide barrel
-to bypass module ownership.
+Recipe assembly may consume a cohesive subentity or policy directly from its exact
+nearest-owner `model/atoms` or `model/policy` surface. Other symbols must be exposed through the
+domain root or direct module's intentional gateway. Do not add a broad domain-wide barrel to bypass
+module ownership.
 
 ## Why
 

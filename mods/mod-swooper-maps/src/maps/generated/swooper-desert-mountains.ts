@@ -754,8 +754,8 @@ const mapConfig = {
         "cryosphere": "on"
       },
       "climate-refine": {
-        "computePrecipitation": {
-          "strategy": "refine",
+        "refinePrecipitation": {
+          "strategy": "riparian-basin-wetness",
           "config": {
             "riverCorridor": {
               "adjacencyRadius": 1,
@@ -1350,8 +1350,8 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-desert-mountains",
-  configHash: "cdcecf5a49d29663a5a87b6549ebe2c1f7afcc657cb9f954b19a02f4264ff558",
-  envelopeHash: "a030959a5931b6f8abf42b066f826a7b4cf71c6ad6442400ce13b12df93043f7",
+  configHash: "fd2b720b13413511a4b41943e6e73bdba2f89c036409988116bd6a7b6764f437",
+  envelopeHash: "0b07979789e49bf2d9d145424569440637422fd6b9450c4536d671fe99faf679",
   config: mapConfig.config,
   initialSetup: {
     requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,

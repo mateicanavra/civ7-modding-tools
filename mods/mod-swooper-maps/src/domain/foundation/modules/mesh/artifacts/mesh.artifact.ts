@@ -7,7 +7,7 @@ import { MeshBoundingBoxSchema } from "../model/atoms/bounding-box.schema.js";
  * invalid periodic span before downstream physical passes run.
  */
 export const artifact = defineArtifact({
-  name: "foundationMesh",
+  name: "mesh",
   id: "artifact:foundation.mesh",
   schema: Type.Object(
     {

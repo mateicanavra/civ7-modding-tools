@@ -35,7 +35,6 @@ describe("compute-crust-evolution abyssal subsidence", () => {
         shearStress: new Uint8Array(syntheticCellCount),
       },
       tectonicHistory: {
-        eraCount: 5,
         eras: Array.from({ length: 5 }, () => tectonicEra(syntheticCellCount)),
         upliftTotal: new Uint8Array([255, 0, 0, 0, 0]),
         fractureTotal: new Uint8Array(syntheticCellCount),

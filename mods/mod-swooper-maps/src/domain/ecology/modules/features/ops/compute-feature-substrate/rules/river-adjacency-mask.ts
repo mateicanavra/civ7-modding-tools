@@ -4,10 +4,10 @@ import { clampInt } from "@swooper/mapgen-core/lib/math";
  * Marks tiles that are within the configured radius of any river class.
  */
 export function computeRiverAdjacencyMask(args: {
-  width: number;
-  height: number;
-  riverMask: Uint8Array;
-  radius: number;
+  readonly width: number;
+  readonly height: number;
+  readonly riverMask: ArrayLike<number>;
+  readonly radius: number;
 }): Uint8Array {
   const width = args.width;
   const height = args.height;

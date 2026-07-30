@@ -14,9 +14,9 @@ const GROUP_MANTLE = "Foundation / Mantle";
  * vintage shared by lithosphere and tectonic consumers.
  */
 export const MantleForcingStep = createStep(config, {
-  run: (context, stepConfig, ops, deps) => {
-    const mesh = deps.artifacts.foundationMesh.read(context);
-    const mantlePotential = deps.artifacts.foundationMantlePotential.read(context);
+  run: (_context, stepConfig, ops, deps) => {
+    const mesh = deps.artifacts.mesh.read();
+    const mantlePotential = deps.artifacts.mantlePotential.read();
 
     const mantleResult = ops.computeMantleForcing(
       {
@@ -29,17 +29,16 @@ export const MantleForcingStep = createStep(config, {
           neighbors: mesh.neighbors,
         },
         mantlePotential: {
-          cellCount: mantlePotential.cellCount,
           potential: mantlePotential.potential,
         },
       },
       stepConfig.computeMantleForcing
     );
 
-    deps.artifacts.foundationMantleForcing.publish(context, mantleResult.mantleForcing);
+    deps.artifacts.mantleForcing.publish(mantleResult.mantleForcing);
     return { mesh, mantleForcing: mantleResult.mantleForcing };
   },
-  viz: ({ result: { mesh, mantleForcing } }) => {
+  viz: ({ observation: { mesh, mantleForcing } }) => {
     const positions = interleaveXY(mesh.siteX, mesh.siteY);
     const { segments, values } = buildSampledVectorSegments({
       x: mesh.siteX,

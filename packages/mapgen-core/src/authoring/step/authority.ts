@@ -27,8 +27,3 @@ export function registerCanonicalStepInternal(step: object): void {
 export function isCanonicalStepInternal(step: object): boolean {
   return canonicalSteps.has(step);
 }
-
-/** @internal Carries canonical step authority across the recipe's immutable snapshot. */
-export function copyCanonicalStepAuthorityInternal(source: object, target: object): void {
-  if (canonicalSteps.has(source)) canonicalSteps.add(target);
-}

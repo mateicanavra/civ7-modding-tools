@@ -13,8 +13,8 @@ const GROUP_PLATE_GRAPH = "Foundation / Plate Graph";
  */
 export const PlateGraphStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const mesh = deps.artifacts.foundationMesh.read(context);
-    const crust = deps.artifacts.foundationInitialCrust.read(context);
+    const mesh = deps.artifacts.mesh.read();
+    const crust = deps.artifacts.initialCrust.read();
     const stepId = `foundation/${config.id}`;
     const rngSeed = ctxRandom(
       context,
@@ -38,10 +38,10 @@ export const PlateGraphStep = createStep(config, {
       stepConfig.computePlateGraph
     );
 
-    deps.artifacts.foundationPlateGraph.publish(context, plateGraphResult.plateGraph);
+    deps.artifacts.plateGraph.publish(plateGraphResult.plateGraph);
     return { mesh, plateGraph: plateGraphResult.plateGraph };
   },
-  viz: ({ result: { mesh, plateGraph } }) => {
+  viz: ({ observation: { mesh, plateGraph } }) => {
     const seeds = pointsFromPlateSeeds(plateGraph.plates);
     return [
       {

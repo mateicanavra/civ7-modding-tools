@@ -10,11 +10,11 @@ import { projectResourceSiteSelectionViz } from "./viz.js";
 export const SelectResourceSitesStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
-    const demandPlan = deps.artifacts.resourceDemandPlan.read(context);
-    const topography = deps.artifacts.topography.read(context);
-    const landmasses = deps.artifacts.landmasses.read(context);
-    const lakePlan = deps.artifacts.lakePlan.read(context);
-    const regionSlots = deps.artifacts.landmassRegionSlotByTile.read(context);
+    const demandPlan = deps.artifacts.resourceDemandPlan.read();
+    const topography = deps.artifacts.topography.read();
+    const landmasses = deps.artifacts.landmasses.read();
+    const lakePlan = deps.artifacts.lakePlan.read();
+    const regionSlots = deps.artifacts.landmassRegionSlotByTile.read();
     const demands = demandPlan.candidates.admitted.map((candidate) => ({
       resourceType: candidate.source.resourceType,
       family: candidate.source.family,
@@ -32,7 +32,7 @@ export const SelectResourceSitesStep = createStep(config, {
       {
         width,
         height,
-        seed: deriveStepSeed(deps.initialSetup.gameSeed, "resources:selectResourceSites"),
+        seed: deriveStepSeed(context.initialSetup.gameSeed, "resources:selectResourceSites"),
         landMask: topography.landMask,
         lakeMask: lakePlan.lakeMask,
         landmassIdByTile: landmasses.landmassIdByTile,
@@ -44,7 +44,7 @@ export const SelectResourceSitesStep = createStep(config, {
       stepConfig.selectSites
     );
 
-    deps.artifacts.resourcePlan.publish(context, plan);
+    deps.artifacts.resourcePlan.publish(plan);
 
     const excludedCount =
       demandPlan.candidates.excluded.expectationBlocked.length +
@@ -63,5 +63,6 @@ export const SelectResourceSitesStep = createStep(config, {
 
     return { intents: plan.intents, demands };
   },
-  viz: ({ result, dimensions }) => projectResourceSiteSelectionViz({ ...result, dimensions }),
+  viz: ({ observation, dimensions }) =>
+    projectResourceSiteSelectionViz({ ...observation, dimensions }),
 });

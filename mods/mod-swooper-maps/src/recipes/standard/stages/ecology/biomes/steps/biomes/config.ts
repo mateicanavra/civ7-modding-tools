@@ -14,17 +14,14 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 export const config = defineStep({
   id: "biomes",
   description: "Classifies biome and vegetation fields from admitted physical evidence.",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [
-      cryosphereArtifacts.cryosphere,
-      climateArtifacts.climateIndices,
-      morphologyLandformsArtifacts.topography,
-      pedologyArtifacts.pedology,
-    ],
-    provides: [biomeArtifacts.biomeClassification],
-  },
+  requires: [
+    cryosphereArtifacts.cryosphere,
+    climateArtifacts.climateIndices,
+    morphologyLandformsArtifacts.topography,
+    pedologyArtifacts.pedology,
+  ],
+  provides: [biomeArtifacts.biomeClassification],
+
   ops: {
     classify: ecology.biomes.ops.classifyBiomes,
   },

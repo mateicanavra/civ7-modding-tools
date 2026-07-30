@@ -7,20 +7,16 @@ import StrategyDefinition from "./config.js";
 const GAUSSIAN_SIGMA_CLAMP_MIN = 1;
 
 function refineBiomeIndexGaussian(args: {
-  width: number;
-  height: number;
-  biomeIndex: Uint8Array;
-  landMask: Uint8Array;
-  radius: number;
-  iterations: number;
+  readonly width: number;
+  readonly height: number;
+  readonly biomeIndex: ArrayLike<number>;
+  readonly landMask: ArrayLike<number>;
+  readonly radius: number;
+  readonly iterations: number;
 }): Uint8Array {
   const { width, height } = args;
   const size = width * height;
-  if (args.biomeIndex.length !== size || args.landMask.length !== size) {
-    throw new Error("Biome edge refinement (gaussian): invalid input size.");
-  }
-
-  const radius = args.radius | 0;
+  const radius = args.radius;
   const sigma = Math.max(GAUSSIAN_SIGMA_CLAMP_MIN, radius);
   const kernel: number[] = [];
   let kernelSum = 0;
@@ -138,10 +134,10 @@ const biophysicalGaussianStrategy = createStrategy(Contract, StrategyDefinition,
     return {
       biomeIndex: refinedBiomeIndex,
       vegetationDensity,
-      effectiveMoisture: effectiveMoistureIn,
-      surfaceTemperature: surfaceTemperatureC,
-      aridityIndex: aridityIndexIn,
-      freezeIndex,
+      effectiveMoisture: new Float32Array(effectiveMoistureIn),
+      surfaceTemperature: new Float32Array(surfaceTemperatureC),
+      aridityIndex: new Float32Array(aridityIndexIn),
+      freezeIndex: new Float32Array(freezeIndex),
     };
   },
 });

@@ -1,3 +1,5 @@
+import { assertStepInitialSetupContextInternal } from "@mapgen/authoring/step/context.js";
+import type { StepContext } from "@mapgen/authoring/step/types.js";
 import {
   beginMapContextExecutionInternal,
   enterMapContextStepInternal,
@@ -8,12 +10,13 @@ import {
 import { classifyThenable, containThenable } from "@mapgen/lib/async/thenable.js";
 import type { StepTrace } from "@mapgen/trace/index.js";
 import { DIRECT_TEST_STEP_ID } from "./authority.js";
+import type { StepInitialSetupOf, TestableStep } from "./step.js";
 
 const TEST_STEP_TRACE: StepTrace = Object.freeze({ event: () => undefined });
 
 type TestAction = (context: MapContext) => unknown;
 
-type SynchronousAction<Action extends TestAction> = Action &
+type SynchronousAction<Action extends (...args: never[]) => unknown> = Action &
   (Extract<ReturnType<Action>, PromiseLike<unknown>> extends never ? unknown : never);
 
 /**
@@ -28,9 +31,22 @@ export function withMapContextExecutionForTest<Action extends TestAction>(
   context: MapContext,
   action: SynchronousAction<Action>
 ): ReturnType<Action> {
+  return runTestExecution(context, false, action);
+}
+
+function runTestExecution<Action extends TestAction>(
+  context: MapContext,
+  projectsInitialSetup: boolean,
+  action: SynchronousAction<Action>
+): ReturnType<Action> {
   beginMapContextExecutionInternal(context);
   try {
-    const stepContext = enterMapContextStepInternal(context, DIRECT_TEST_STEP_ID, TEST_STEP_TRACE);
+    const stepContext = enterMapContextStepInternal(
+      context,
+      DIRECT_TEST_STEP_ID,
+      TEST_STEP_TRACE,
+      projectsInitialSetup
+    );
     try {
       const result = action(stepContext);
       const completion = classifyThenable(result);
@@ -45,4 +61,29 @@ export function withMapContextExecutionForTest<Action extends TestAction>(
   } finally {
     finishMapContextExecutionInternal(context);
   }
+}
+
+type StepTestAction<TStep extends TestableStep> = (
+  context: StepContext<StepInitialSetupOf<TStep>>
+) => unknown;
+
+/**
+ * Runs one direct step test with the same exact initial-setup context selected by its contract.
+ * The helper proves the existing admitted binding; it does not parse or construct setup state.
+ */
+export function withStepExecutionForTest<
+  TStep extends TestableStep,
+  Action extends StepTestAction<TStep>,
+>(context: MapContext, step: TStep, action: SynchronousAction<Action>): ReturnType<Action>;
+export function withStepExecutionForTest(
+  context: MapContext,
+  step: TestableStep,
+  action: TestAction
+): unknown {
+  return runTestExecution(context, step.contract.initialSetup !== undefined, (stepContext) => {
+    if (step.contract.initialSetup !== undefined) {
+      assertStepInitialSetupContextInternal(stepContext, step.contract.initialSetup);
+    }
+    return action(stepContext);
+  });
 }

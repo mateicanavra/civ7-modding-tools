@@ -52,7 +52,7 @@ Ecology provides (truth artifacts):
 
 Projection posture:
 - `map-ecology` is projection-only: it projects biome, feature-intent, and plot-effect-plan
-  artifacts into engine state, declares effect tags for completed mutations, and emits
+  artifacts into engine state, declares only the earned completions consumed downstream, and emits
   invocation-local projection and engine-observation evidence through trace, metrics, and
   visualization facets.
 
@@ -123,7 +123,8 @@ The `map-ecology` stage:
 - consumes Ecology truth artifacts (biome classification, feature intents, and plot effects) plus
   Morphology topography,
 - emits biome-binding and post-Ecology feature-surface evidence through trace, metrics, and visualization facets,
-- and publishes engine effect tags (e.g., `effect:engine.biomesApplied`).
+- and provides `completion:engine.biomes-applied` before feature viability reads current biomes,
+  then `completion:engine.features-applied` for downstream wonder planning.
 
 ## Ground truth anchors
 
@@ -150,7 +151,7 @@ The `map-ecology` stage:
   - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/projection/steps/features-apply/config.ts`
 - Stage-owned biome projection policy:
   - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/projection/model/policy/biome-projection.ts`
-- Effect tag registry: `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
+- Completion catalog: `mods/mod-swooper-maps/src/recipes/standard/completions.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
 - Architecture guardrails (import bans and parity gates):
   - `.habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/rule.json`

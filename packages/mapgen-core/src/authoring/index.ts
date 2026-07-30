@@ -1,3 +1,4 @@
+export type { CompletionId } from "@mapgen/engine/completion.js";
 export type {
   StepFacetFailure,
   StepFacetInput,
@@ -5,18 +6,15 @@ export type {
   StepFacetSinks,
   StepFacets,
 } from "@mapgen/engine/step-facets.js";
-export type { DependencyEvidence, DependencyTagDefinition } from "@mapgen/engine/tags.js";
 export type { Static, TSchema } from "typebox";
 export { Type } from "typebox";
 export type {
   Artifact,
   ArtifactCatalog,
+  ArtifactObservation,
   ArtifactReadValueOf,
   ArtifactValueOf,
   DeepReadonly,
-  ProvidedArtifactRuntime,
-  RequiredArtifactRuntime,
-  ValidatedArtifactObservation,
 } from "./artifact/index.js";
 export {
   ArtifactDoublePublishError,
@@ -24,8 +22,8 @@ export {
   ArtifactValidationError,
   defineArtifact,
   defineArtifactCatalog,
-  observeValidatedArtifact,
-  readValidatedArtifact,
+  observeArtifact,
+  readArtifact,
 } from "./artifact/index.js";
 export type {
   DomainAggregateContract,
@@ -58,17 +56,7 @@ export {
   basePhysicalInitialSetupDefinition,
   defineInitialSetup,
 } from "./initial-setup/index.js";
-export type {
-  DomainCompileRoot,
-  DomainOpCompileAny,
-  DomainOpRuntime,
-  DomainOpRuntimeAny,
-  DomainOpsRouter,
-  DomainOpsSurface,
-  OpId,
-  OpsById,
-} from "./operation/bindings.js";
-export { collectCompileOps, runtimeOp } from "./operation/bindings.js";
+export { collectOperations } from "./operation/bindings.js";
 export type {
   AdmittedBuffer,
   AdmittedOperationInput,
@@ -77,6 +65,7 @@ export type {
   GridBuffer,
   OpContract,
   OpContractLike,
+  OperationInput,
   OperationInputAdmissionIssue,
   OpStrategyId,
   OpTypeBag,
@@ -150,7 +139,10 @@ export {
 } from "./stage/index.js";
 export type {
   OpContractAny,
+  StepContext,
   StepContract,
+  StepDependency,
+  StepDependencyList,
   StepEngineDecl,
   StepOpsDecl,
   StepRuntimeOps,

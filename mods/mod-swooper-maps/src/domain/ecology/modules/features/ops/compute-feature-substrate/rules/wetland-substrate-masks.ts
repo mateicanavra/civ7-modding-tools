@@ -15,25 +15,23 @@ export type WetlandSubstrateMasks = Readonly<{
  * substrate owner so marsh, bog, mangrove, oasis, and watering-hole scoring do
  * not each invent a different hydrology/topography proxy.
  */
-export function computeWetlandSubstrateMasks(
-  args: Readonly<{
-    width: number;
-    height: number;
-    landMask: Uint8Array;
-    elevation: Int16Array;
-    seaLevel: number;
-    riverMask: Uint8Array;
-    discharge: Float32Array;
-    sinkMask: Uint8Array;
-    nearRiverMask: Uint8Array;
-    isolatedRiverMask: Uint8Array;
-    coastalLandMask: Uint8Array;
-    nearRiverRadius: number;
-    lowlandMaxElevationAboveSeaM: number;
-    intertidalMaxElevationAboveSeaM: number;
-    floodplainDischargeMin: number;
-  }>
-): WetlandSubstrateMasks {
+export function computeWetlandSubstrateMasks(args: {
+  readonly width: number;
+  readonly height: number;
+  readonly landMask: ArrayLike<number>;
+  readonly elevation: ArrayLike<number>;
+  readonly seaLevel: number;
+  readonly riverMask: ArrayLike<number>;
+  readonly discharge: ArrayLike<number>;
+  readonly sinkMask: ArrayLike<number>;
+  readonly nearRiverMask: ArrayLike<number>;
+  readonly isolatedRiverMask: ArrayLike<number>;
+  readonly coastalLandMask: ArrayLike<number>;
+  readonly nearRiverRadius: number;
+  readonly lowlandMaxElevationAboveSeaM: number;
+  readonly intertidalMaxElevationAboveSeaM: number;
+  readonly floodplainDischargeMin: number;
+}): WetlandSubstrateMasks {
   const width = args.width;
   const height = args.height;
   const size = width * height;
@@ -105,20 +103,18 @@ export function computeWetlandSubstrateMasks(
   };
 }
 
-function hasRiverFlowNear(
-  args: Readonly<{
-    x: number;
-    y: number;
-    width: number;
-    x0: number;
-    x1: number;
-    y0: number;
-    y1: number;
-    riverMask: Uint8Array;
-    discharge: Float32Array;
-    dischargeMin: number;
-  }>
-): boolean {
+function hasRiverFlowNear(args: {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly x0: number;
+  readonly x1: number;
+  readonly y0: number;
+  readonly y1: number;
+  readonly riverMask: ArrayLike<number>;
+  readonly discharge: ArrayLike<number>;
+  readonly dischargeMin: number;
+}): boolean {
   for (let ny = args.y0; ny <= args.y1; ny++) {
     const row = ny * args.width;
     for (let nx = args.x0; nx <= args.x1; nx++) {

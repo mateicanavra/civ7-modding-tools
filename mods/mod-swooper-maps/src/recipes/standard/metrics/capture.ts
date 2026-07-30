@@ -24,7 +24,7 @@ import {
   assertInt32Array,
   assertUint8Array,
   assertUint16Array,
-  readValidatedArtifact,
+  readArtifact,
 } from "@swooper/mapgen-core/authoring";
 import { Value } from "typebox/value";
 import { canonicalRecipeConfig } from "../../../maps/configs/canonical.js";
@@ -435,39 +435,30 @@ function copyCompletedRun(
   const { selection } = initialSetup.map;
   const { width, height } = selection.dimensions;
   const gridSize = width * height;
-  const topographyValue = readValidatedArtifact(context, morphologyLandformsArtifacts.topography);
-  const landmassesValue = readValidatedArtifact(context, morphologyLandformsArtifacts.landmasses);
-  const mountainsValue = readValidatedArtifact(context, morphologyLandformsArtifacts.mountains);
-  const shelfValue = readValidatedArtifact(context, morphologyShelfArtifacts.shelf);
-  const volcanoesValue = readValidatedArtifact(context, morphologyLandformsArtifacts.volcanoes);
-  const lakePlanValue = readValidatedArtifact(context, hydrographyArtifacts.lakePlan);
-  const hydrographyValue = readValidatedArtifact(context, hydrographyArtifacts.hydrography);
-  const climateIndicesValue = readValidatedArtifact(context, climateArtifacts.climateIndices);
-  const navigableRiverValue = readValidatedArtifact(
-    context,
-    hydrographyArtifacts.projectedNavigableRivers
-  );
+  const topographyValue = readArtifact(context, morphologyLandformsArtifacts.topography);
+  const landmassesValue = readArtifact(context, morphologyLandformsArtifacts.landmasses);
+  const mountainsValue = readArtifact(context, morphologyLandformsArtifacts.mountains);
+  const shelfValue = readArtifact(context, morphologyShelfArtifacts.shelf);
+  const volcanoesValue = readArtifact(context, morphologyLandformsArtifacts.volcanoes);
+  const lakePlanValue = readArtifact(context, hydrographyArtifacts.lakePlan);
+  const hydrographyValue = readArtifact(context, hydrographyArtifacts.hydrography);
+  const climateIndicesValue = readArtifact(context, climateArtifacts.climateIndices);
+  const navigableRiverValue = readArtifact(context, hydrographyArtifacts.projectedNavigableRivers);
   const riverReadbackValue = adapter.readRiverProjection(
     width,
     height,
     navigableRiverValue.riverMask
   );
-  const biomeValue = readValidatedArtifact(context, biomeArtifacts.biomeClassification);
-  const pedologyValue = readValidatedArtifact(context, pedologyArtifacts.pedology);
-  const regionSlotsValue = readValidatedArtifact(
-    context,
-    placementRegionArtifacts.landmassRegionSlotByTile
-  );
-  const resourceDemandPlanValue = readValidatedArtifact(
-    context,
-    resourceDemandArtifacts.resourceDemandPlan
-  );
-  const resourcePlanValue = readValidatedArtifact(context, resourceSiteArtifacts.resourcePlan);
-  const adjustedResourcePlanValue = readValidatedArtifact(
+  const biomeValue = readArtifact(context, biomeArtifacts.biomeClassification);
+  const pedologyValue = readArtifact(context, pedologyArtifacts.pedology);
+  const regionSlotsValue = readArtifact(context, placementRegionArtifacts.landmassRegionSlotByTile);
+  const resourceDemandPlanValue = readArtifact(context, resourceDemandArtifacts.resourceDemandPlan);
+  const resourcePlanValue = readArtifact(context, resourceSiteArtifacts.resourcePlan);
+  const adjustedResourcePlanValue = readArtifact(
     context,
     resourceSupportArtifacts.resourcePlanAdjusted
   );
-  const startValue = readValidatedArtifact(context, placementStartArtifacts.startAssignment);
+  const startValue = readArtifact(context, placementStartArtifacts.startAssignment);
   const landMask = copyUint8Grid(
     "morphology.topography.landMask",
     topographyValue.landMask,

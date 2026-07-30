@@ -119,7 +119,6 @@ Affirmed blueprint examples include:
 - `blueprints/domain-operation`
 - `blueprints/domain-operation-strategy`
 - `blueprints/mod-map`
-- `blueprints/dependency-tag`
 - `blueprints/artifact`
 
 Candidate blueprint-shaped examples include:
@@ -243,8 +242,8 @@ buffer exception.
 
 It is not a generic Habitat term. Do not use `artifact` for rule categories,
 operation kinds, support files, generated build output, or Habitat packet role
-files. `artifact:*` remains dependency-tag vocabulary when a rule governs
-dependency edge IDs rather than artifact values.
+files. Recipe-step dependency law selects the exact `Artifact` authority; a raw
+`artifact:*` string is not an authoring substitute.
 
 ### Domain Operation Strategy Blueprint
 

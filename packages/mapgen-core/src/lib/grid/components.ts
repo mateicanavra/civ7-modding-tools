@@ -17,7 +17,7 @@ export type MaskComponentOddQ = Readonly<{
  */
 export function computeMaskDistanceFieldOddQ(
   input: Readonly<{
-    mask: Uint8Array;
+    mask: ArrayLike<number>;
     width: number;
     height: number;
     sources: readonly number[];
@@ -84,7 +84,7 @@ function farthestReachable(
  */
 export function collectMaskComponentsOddQ(
   input: Readonly<{
-    mask: Uint8Array;
+    mask: ArrayLike<number>;
     width: number;
     height: number;
   }>

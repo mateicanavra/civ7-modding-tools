@@ -16,7 +16,6 @@ const ComputeCrustContract = defineOp({
       ),
       mantleForcing: Type.Object(
         {
-          cellCount: Type.Integer({ minimum: 1 }),
           divergence: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
           forcingMag: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
           stress: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),

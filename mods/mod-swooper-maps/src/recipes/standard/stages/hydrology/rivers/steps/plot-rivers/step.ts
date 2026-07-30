@@ -120,11 +120,11 @@ export const PlotRiversStep = createStep(config, {
         };
   },
   run: (context, stepConfig, _ops, deps) => {
-    const hydrography = deps.artifacts.hydrography.read(context);
-    const lakePlan = deps.artifacts.lakePlan.read(context);
-    const riverNetwork = deps.artifacts.riverNetwork.read(context);
-    const shelf = deps.artifacts.shelf.read(context);
-    const topography = deps.artifacts.topography.read(context);
+    const hydrography = deps.artifacts.hydrography.read();
+    const lakePlan = deps.artifacts.lakePlan.read();
+    const riverNetwork = deps.artifacts.riverNetwork.read();
+    const shelf = deps.artifacts.shelf.read();
+    const topography = deps.artifacts.topography.read();
     const { width, height } = context.setup.dimensions;
     const terrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
     const coastProjection = deriveCiv7CoastProjection({
@@ -230,7 +230,7 @@ export const PlotRiversStep = createStep(config, {
       nonProjectableMajorTileCount: materialized.nonProjectableMajorTileCount,
     });
 
-    deps.artifacts.projectedNavigableRivers.publish(context, {
+    deps.artifacts.projectedNavigableRivers.publish({
       width,
       height,
       riverMask: materialized.riverMask,
@@ -372,5 +372,5 @@ export const PlotRiversStep = createStep(config, {
       engineEvidence,
     } satisfies PlotRiversVizEvidence;
   },
-  viz: ({ result, dimensions }) => buildPlotRiversVizProjections(result, dimensions),
+  viz: ({ observation, dimensions }) => buildPlotRiversVizProjections(observation, dimensions),
 });

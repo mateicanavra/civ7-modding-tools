@@ -24,7 +24,8 @@ of arbitrary operation folders.
 ## Contract
 
 - Ops are defined by an op contract id (stable string id).
-- Ops implementations are bound by id at compile time.
+- Executable ops are collected once by canonical id into the recipe's `operations` registry.
+- Compilation and step execution bind against that same registry; there is no parallel runtime registry.
 - Op variability is encoded via a `strategy` envelope rather than ad-hoc branching.
 - Each leaf operation's `contract.ts` is the only owner of its input/output
   envelopes, authors both roots directly inside `defineOp`, and exports its
@@ -83,8 +84,25 @@ export default createDomainSubdomainRouter(contract, { shapeRelief });
 
 ## Operation input admission
 
-Operation inputs are the canonical compilation boundary for typed-array
-cardinality metadata. Select the mode by the exact relation the input owns:
+Operation inputs are observational data by definition. The public invocation surface, step-bound
+runtime surface, and strategy boundary therefore share one canonical deeply readonly
+`OperationInput<Schema>` projection. Ordinary mutable schema-shaped values remain assignable by
+callers, and immutable artifact reads can be forwarded without casts or defensive copies.
+
+Core admits that caller-provided value once at the executable operation boundary. It first checks
+the complete TypeBox shape, then exact typed-array constructors and cardinalities, without applying
+defaults, cleaning, cloning, freezing, or wrapping. The strategy receives the same reference under
+`AdmittedOperationInput<Schema>`; that type preserves the readonly input surface and adds genuine
+typed-array admission brands. Operation outputs remain ordinary newly owned values.
+
+This is a zero-copy readonly authoring constraint, not runtime isolation. TypeScript's structural
+assignability can widen a readonly object into a compatible writable structural type, and explicit
+casts can bypass any compile-time projection. Strategy and helper code must not widen or cast input
+data into mutable APIs. Code that needs to retain or mutate input-derived state copies it into newly
+owned storage. Hard runtime immutability would require an explicit snapshot or storage boundary and
+is not implied by operation admission.
+
+Select typed-array cardinality by the exact relation the input owns:
 
 - omitted `cardinality` means the conventional grid product `width * height`;
 - a path tuple means the exact product of the referenced numeric input paths;
@@ -112,10 +130,10 @@ input: Type.Object({
 }),
 ```
 
-The schema-owned typed-array compiler is shared, but each boundary selects its
-capabilities. Operation inputs compile input-relative metadata and refuse
-contextual `"map-grid"`; artifacts compile the same exact-constructor walker
-with admitted dimensions.
+The structural and typed-array programs are compiled once when `createOp` constructs the operation.
+The schema-owned typed-array compiler is shared, but each boundary selects its capabilities.
+Operation inputs compile input-relative metadata and refuse contextual `"map-grid"`; artifacts
+compile the same exact-constructor walker with admitted dimensions.
 
 ## Type authority
 
@@ -187,7 +205,7 @@ export default createOp(ComputePlateTopologyContract, {
 - Strategy definition factory: `packages/mapgen-core/src/authoring/operation/strategy-definition.ts`
 - Op creation and strategy enforcement: `packages/mapgen-core/src/authoring/operation/create.ts`
 - Strategy schema/envelope: `packages/mapgen-core/src/authoring/operation/envelope.ts`
-- Binding compile/runtime ops by canonical identity: `packages/mapgen-core/src/authoring/operation/bindings.ts`
+- Collecting and binding canonical executable ops: `packages/mapgen-core/src/authoring/operation/bindings.ts`
 - Current operation-authoring guide: `docs/system/libs/mapgen/how-to/add-an-op.md`
 - Example module contract and router:
   `mods/mod-swooper-maps/src/domain/foundation/modules/mesh/contract.ts`,

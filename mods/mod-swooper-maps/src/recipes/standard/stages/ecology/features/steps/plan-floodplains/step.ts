@@ -13,7 +13,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  */
 export const PlanFloodplainsStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const suitability = deps.artifacts.featureSuitability.read(context);
+    const suitability = deps.artifacts.featureSuitability.read();
     const { width, height } = context.setup.dimensions;
 
     const seed = ctxStepSeed(context, config.id, "ecology/plan-floodplains");
@@ -38,10 +38,10 @@ export const PlanFloodplainsStep = createStep(config, {
     ).placements;
 
     placements.sort((a, b) => a.y * width + a.x - (b.y * width + b.x));
-    const admittedIntents = deps.artifacts.floodplainIntents.publish(context, placements);
+    const admittedIntents = deps.artifacts.floodplainIntents.publish(placements);
     return deriveFeatureOccupancy(context.setup.dimensions, admittedIntents);
   },
-  viz: ({ result: floodplainIntentMask, dimensions }) => [
+  viz: ({ observation: floodplainIntentMask, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "ecology.features.floodplainIntentMask",

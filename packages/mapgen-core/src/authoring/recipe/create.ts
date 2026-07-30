@@ -2,9 +2,6 @@ import type { MapContext } from "@mapgen/core/map-context.js";
 import {
   compileExecutionPlan,
   computePlanFingerprint,
-  type DependencyTagDefinition,
-  type DependencyTagKind,
-  DuplicateDependencyTagError,
   type ExecutionPlan,
   type MapGenStep,
   type MapSetup,
@@ -12,16 +9,11 @@ import {
   type RecipeV2,
   type RunRequest,
   StepRegistry,
-  TagRegistry,
 } from "@mapgen/engine/index.js";
 import type { ReadonlyDeep } from "type-fest";
 import { compileRecipeConfig } from "../../compiler/recipe-compile.js";
 import { assertExecutionPlanRegistryInternal } from "../../engine/execution-plan.js";
-import {
-  type InternalDependencyTagDefinition,
-  registerDependencyTagsInternal,
-} from "../../engine/tags.js";
-import { type Artifact, isArtifact } from "../artifact/contract.js";
+import { isArtifact } from "../artifact/contract.js";
 import {
   admitInitialSetupInternal,
   assertInitialSetupDefinitionInternal,
@@ -31,20 +23,14 @@ import {
   isInitialSetupDefinitionInternal,
   readInitialSetupValueInternal,
 } from "../initial-setup/definition.js";
-import { bindRuntimeOps, type DomainOpRuntimeAny, runtimeOp } from "../operation/bindings.js";
+import { bindOperationRuns, type OperationRegistry } from "../operation/bindings.js";
 import { isCanonicalDomainOp } from "../operation/create.js";
 import { assertStageIds } from "../stage/identity.js";
 import type { StageObservation } from "../stage/types.js";
-import {
-  copyCanonicalStepAuthorityInternal,
-  isCanonicalStepContractInternal,
-  isCanonicalStepInternal,
-} from "../step/authority.js";
-import {
-  buildDeclaredStepDependencies,
-  resolveProvidedArtifactRuntimeInternal,
-} from "../step/dependencies.js";
-import { copyStepProviderRuntimesInternal } from "../step/provider-runtimes.js";
+import { isCanonicalStepContractInternal, isCanonicalStepInternal } from "../step/authority.js";
+import { assertStepInitialSetupContextInternal } from "../step/context.js";
+import { buildDeclaredStepDependencies } from "../step/dependencies.js";
+import { analyzeRecipeArtifactDependencies, formatRecipeStepId } from "./artifact-analysis.js";
 import type {
   CompiledRecipeConfigOf,
   RecipeAsyncExecutionOptions,
@@ -56,6 +42,7 @@ import type {
 } from "./types.js";
 
 type AnyStage = StageObservation;
+type RecipeArtifactAnalysis = ReturnType<typeof analyzeRecipeArtifactDependencies>;
 
 type StepOccurrence = {
   stageId: string;
@@ -69,6 +56,7 @@ function snapshotAuthorship<T>(value: T, seen = new WeakMap<object, unknown>()):
   if (isArtifact(value)) return value;
   if (isCanonicalDomainOp(value)) return value;
   if (isCanonicalStepContractInternal(value)) return value;
+  if (isCanonicalStepInternal(value)) return value;
   if (isInitialSetupDefinitionInternal(value)) return value;
 
   const existing = seen.get(value);
@@ -125,35 +113,7 @@ function snapshotAuthorship<T>(value: T, seen = new WeakMap<object, unknown>()):
       value: snapshotAuthorship(descriptor.value, seen),
     });
   }
-  copyStepProviderRuntimesInternal(value, snapshot);
-  copyCanonicalStepAuthorityInternal(value, snapshot);
   return Object.freeze(snapshot) as T;
-}
-
-function assertTagDefinitions(value: unknown): void {
-  Array.isArray(value) || rejectMissingTagDefinitions();
-}
-
-function rejectMissingTagDefinitions(): never {
-  throw new Error("createRecipe requires tagDefinitions (may be an empty array)");
-}
-
-function inferTagKind(id: string): DependencyTagKind {
-  if (id.startsWith("artifact:")) return "artifact";
-  if (id.startsWith("effect:")) return "effect";
-  throw new Error(`Invalid dependency tag "${id}" (expected artifact:/effect:)`);
-}
-
-function computeFullStepId(input: {
-  namespace?: string;
-  recipeId: string;
-  stageId: string;
-  stepId: string;
-}): string {
-  const base = [input.namespace, input.recipeId]
-    .filter((segment): segment is string => Boolean(segment))
-    .join(".");
-  return `${base}.${input.stageId}.${input.stepId}`;
 }
 
 function assertCanonicalRecipeSteps(recipeId: string, stages: readonly AnyStage[]): void {
@@ -182,37 +142,6 @@ function assertExactInitialSetupAuthorities(
         );
       }
     }
-  }
-}
-
-function artifactTagIds(tags: readonly string[]): readonly string[] {
-  return tags.filter((tag) => tag.startsWith("artifact:"));
-}
-
-function assertExactArtifactEdges(
-  recipeId: string,
-  stepId: string,
-  authored: AnyStage["steps"][number]
-): void {
-  const required = authored.contract.artifacts?.requires?.map((artifact) => artifact.id) ?? [];
-  const provided = authored.contract.artifacts?.provides?.map((artifact) => artifact.id) ?? [];
-  const declaredRequired = artifactTagIds(authored.contract.requires);
-  const declaredProvided = artifactTagIds(authored.contract.provides);
-  if (
-    declaredRequired.length !== required.length ||
-    declaredRequired.some((id, index) => id !== required[index])
-  ) {
-    throw new Error(
-      `[recipe:${recipeId}] step "${stepId}" artifact requirements must derive exactly from contract.artifacts.requires`
-    );
-  }
-  if (
-    declaredProvided.length !== provided.length ||
-    declaredProvided.some((id, index) => id !== provided[index])
-  ) {
-    throw new Error(
-      `[recipe:${recipeId}] step "${stepId}" artifact provisions must derive exactly from contract.artifacts.provides`
-    );
   }
 }
 
@@ -254,112 +183,27 @@ function requireCompiledConfigRecord(
   return (isRecord(value) && value) || rejectInvalidCompiledConfig(recipeId, detail);
 }
 
-function collectArtifactTagDefinitions(input: {
-  namespace?: string;
-  recipeId: string;
-  stages: readonly AnyStage[];
-}): InternalDependencyTagDefinition[] {
-  const defs = new Map<string, InternalDependencyTagDefinition>();
-  const providers = new Map<string, Readonly<{ artifact: Artifact; stepId: string }>>();
-
-  for (const stage of input.stages) {
-    for (const authored of stage.steps) {
-      const stepId = authored.contract.id;
-      const fullId = computeFullStepId({
-        namespace: input.namespace,
-        recipeId: input.recipeId,
-        stageId: stage.id,
-        stepId,
-      });
-      assertExactArtifactEdges(input.recipeId, fullId, authored);
-
-      const provides = authored.contract.artifacts?.provides ?? [];
-      for (const artifact of provides) {
-        const existing = providers.get(artifact.id);
-        existing === undefined ||
-          rejectDuplicateArtifactProvider(input.recipeId, artifact.id, existing.stepId, fullId);
-        resolveProvidedArtifactRuntimeInternal(
-          authored,
-          artifact,
-          fullId,
-          `recipe:${input.recipeId}`
-        );
-        defs.set(artifact.id, {
-          id: artifact.id,
-          kind: "artifact",
-          satisfies: (evidence) => evidence.observeArtifact(artifact).found,
-        });
-        providers.set(artifact.id, { artifact, stepId: fullId });
-      }
-    }
+function assertArtifactDependencies(recipeId: string, analysis: RecipeArtifactAnalysis): void {
+  const duplicate = analysis.issues.find((issue) => issue.kind === "artifact-provider-duplicate");
+  if (duplicate) {
+    const [existing, repeated] = duplicate.providers;
+    throw new Error(
+      `[recipe:${recipeId}] artifact "${duplicate.artifactId}" provided by multiple steps: ${existing.endpoint.fullStepId}, ${repeated.endpoint.fullStepId}`
+    );
   }
 
-  for (const stage of input.stages) {
-    for (const authored of stage.steps) {
-      const required = authored.contract.artifacts?.requires ?? [];
-      for (const artifact of required) {
-        const provider = providers.get(artifact.id);
-        if (!provider) {
-          rejectMissingArtifactProvider(
-            input.recipeId,
-            artifact.id,
-            computeFullStepId({
-              namespace: input.namespace,
-              recipeId: input.recipeId,
-              stageId: stage.id,
-              stepId: authored.contract.id,
-            })
-          );
-        }
-        if (provider.artifact !== artifact) {
-          rejectMismatchedArtifactAuthority(
-            input.recipeId,
-            artifact.id,
-            provider.stepId,
-            computeFullStepId({
-              namespace: input.namespace,
-              recipeId: input.recipeId,
-              stageId: stage.id,
-              stepId: authored.contract.id,
-            })
-          );
-        }
-      }
-    }
+  const invalid = analysis.issues.find(
+    (issue) =>
+      issue.kind === "artifact-provider-missing" || issue.kind === "artifact-authority-mismatch"
+  );
+  if (!invalid) return;
+  if (invalid.kind === "artifact-provider-missing") {
+    throw new Error(
+      `[recipe:${recipeId}] artifact "${invalid.consumer.artifact.id}" required by ${invalid.consumer.endpoint.fullStepId} has no recipe provider`
+    );
   }
-
-  return Array.from(defs.values());
-}
-
-function rejectMissingArtifactProvider(
-  recipeId: string,
-  artifactId: string,
-  consumerStepId: string
-): never {
   throw new Error(
-    `[recipe:${recipeId}] artifact "${artifactId}" required by ${consumerStepId} has no recipe provider`
-  );
-}
-
-function rejectMismatchedArtifactAuthority(
-  recipeId: string,
-  artifactId: string,
-  providerStepId: string,
-  consumerStepId: string
-): never {
-  throw new Error(
-    `[recipe:${recipeId}] artifact "${artifactId}" must use one exact authority identity; provider ${providerStepId}, consumer ${consumerStepId}`
-  );
-}
-
-function rejectDuplicateArtifactProvider(
-  recipeId: string,
-  artifactId: string,
-  existingStepId: string,
-  duplicateStepId: string
-): never {
-  throw new Error(
-    `[recipe:${recipeId}] artifact "${artifactId}" provided by multiple steps: ${existingStepId}, ${duplicateStepId}`
+    `[recipe:${recipeId}] artifact "${invalid.consumer.artifact.id}" must use one exact authority identity; provider ${invalid.provider.endpoint.fullStepId}, consumer ${invalid.consumer.endpoint.fullStepId}`
   );
 }
 
@@ -367,14 +211,14 @@ function finalizeOccurrences(input: {
   namespace?: string;
   recipeId: string;
   stages: readonly AnyStage[];
-  runtimeOpsById: Readonly<Record<string, DomainOpRuntimeAny>>;
+  operations: OperationRegistry;
 }): StepOccurrence[] {
   const out: StepOccurrence[] = [];
 
   for (const stage of input.stages) {
     for (const authored of stage.steps) {
       const stepId = authored.contract.id;
-      const fullId = computeFullStepId({
+      const fullId = formatRecipeStepId({
         namespace: input.namespace,
         recipeId: input.recipeId,
         stageId: stage.id,
@@ -386,8 +230,7 @@ function finalizeOccurrences(input: {
       }) as MapGenStep<unknown>["facets"] | undefined;
 
       const boundOps =
-        authored.contract.ops &&
-        bindRuntimeOps(authored.contract.ops as any, input.runtimeOpsById as any);
+        authored.contract.ops && bindOperationRuns(authored.contract.ops, input.operations);
 
       out.push({
         stageId: stage.id,
@@ -397,9 +240,13 @@ function finalizeOccurrences(input: {
           stageId: stage.id,
           requires: authored.contract.requires,
           provides: authored.contract.provides,
+          ...(authored.contract.initialSetup === undefined ? {} : { projectsInitialSetup: true }),
           configSchema: authored.contract.schema,
           normalize: authored.normalize as MapGenStep<unknown>["normalize"] | undefined,
           run: ((context: MapContext, config: unknown) => {
+            if (authored.contract.initialSetup !== undefined) {
+              assertStepInitialSetupContextInternal(context, authored.contract.initialSetup);
+            }
             const dependencies = buildDeclaredStepDependencies(authored, {
               consumerStepId: fullId,
               owner: `recipe:${input.recipeId}`,
@@ -416,61 +263,8 @@ function finalizeOccurrences(input: {
   return out;
 }
 
-function collectTagDefinitions(
-  occurrences: readonly StepOccurrence[],
-  explicit: readonly DependencyTagDefinition[],
-  artifactTagDefinitions: readonly InternalDependencyTagDefinition[]
-): InternalDependencyTagDefinition[] {
-  const defs = new Map<string, InternalDependencyTagDefinition>();
-  const generatedArtifactTagIds = new Set(
-    artifactTagDefinitions.map((definition) => definition.id)
-  );
-  const explicitTagIds = new Set<string>();
-
-  const tagIds = new Set<string>();
-  for (const occ of occurrences) {
-    for (const tag of occ.step.requires) tagIds.add(tag);
-    for (const tag of occ.step.provides) tagIds.add(tag);
-  }
-  for (const id of tagIds) {
-    defs.set(id, { id, kind: inferTagKind(id) });
-  }
-
-  for (const def of artifactTagDefinitions) {
-    defs.set(def.id, def);
-  }
-
-  for (const def of explicit) {
-    if (generatedArtifactTagIds.has(def.id) || explicitTagIds.has(def.id)) {
-      throw new DuplicateDependencyTagError(def.id);
-    }
-    if (
-      (def as InternalDependencyTagDefinition).kind === "artifact" ||
-      def.id.startsWith("artifact:")
-    ) {
-      throw new Error(
-        `Explicit artifact dependency tag "${def.id}" is not admitted; declare the canonical contract or module through step artifacts.*`
-      );
-    }
-    explicitTagIds.add(def.id);
-    defs.set(def.id, def);
-  }
-
-  return Array.from(defs.values());
-}
-
-function buildRegistry(
-  occurrences: readonly StepOccurrence[],
-  tagDefinitions: readonly DependencyTagDefinition[],
-  artifactTagDefinitions: readonly InternalDependencyTagDefinition[]
-): StepRegistry {
-  const tags = new TagRegistry();
-  registerDependencyTagsInternal(
-    tags,
-    collectTagDefinitions(occurrences, tagDefinitions, artifactTagDefinitions)
-  );
-
-  const registry = new StepRegistry({ tags });
+function buildRegistry(occurrences: readonly StepOccurrence[]): StepRegistry {
+  const registry = new StepRegistry();
   for (const occ of occurrences) registry.register(occ.step);
   return registry;
 }
@@ -489,8 +283,9 @@ function toStructuralRecipeV2(
 /**
  * Compiles one authored recipe definition into its config, frozen plan, and execution surface.
  *
- * Authorship is deeply snapshotted once, so later mutation of caller aliases or the public
- * structural recipe cannot change future compilation or execution.
+ * Caller-owned authorship containers are deeply snapshotted once, so later alias or public
+ * structural mutation cannot change future compilation or execution. Values already admitted by
+ * canonical authoring constructors retain their exact identity inside that detached structure.
  *
  * A compiled plan retains one admitted setup identity. Direct execution consumes that exact plan;
  * convenience run methods compile once from `context.setup` and delegate without a second pass.
@@ -511,29 +306,25 @@ export function createRecipe<
   const initialSetup = (authorship.initialSetup ??
     basePhysicalInitialSetupDefinition) as TInitialSetup;
   assertInitialSetupDefinitionInternal(initialSetup);
-  assertTagDefinitions(authorship.tagDefinitions);
   assertStageIds(authorship.stages.map((stage) => stage.id));
   assertCanonicalRecipeSteps(authorship.id, authorship.stages);
   assertExactInitialSetupAuthorities(authorship.id, authorship.stages, initialSetup);
-
-  const runtimeOpsById =
-    authorship.runtimeOpsById ??
-    (Object.fromEntries(
-      Object.entries(authorship.compileOpsById).map(([id, op]) => [id, runtimeOp(op)])
-    ) as Readonly<Record<string, DomainOpRuntimeAny>>);
 
   const occurrences = finalizeOccurrences({
     namespace: authorship.namespace,
     recipeId: authorship.id,
     stages: authorship.stages,
-    runtimeOpsById,
+    operations: authorship.operations,
   });
-  const artifactTagDefinitions = collectArtifactTagDefinitions({
-    namespace: authorship.namespace,
-    recipeId: authorship.id,
-    stages: authorship.stages,
-  });
-  const registry = buildRegistry(occurrences, authorship.tagDefinitions, artifactTagDefinitions);
+  assertArtifactDependencies(
+    authorship.id,
+    analyzeRecipeArtifactDependencies({
+      namespace: authorship.namespace,
+      recipeId: authorship.id,
+      stages: authorship.stages,
+    })
+  );
+  const registry = buildRegistry(occurrences);
   const recipe = toStructuralRecipeV2(authorship.id, occurrences);
 
   function requireCompiledConfig(
@@ -568,7 +359,7 @@ export function createRecipe<
       setup,
       recipe: { stages: authorship.stages },
       config,
-      compileOpsById: authorship.compileOpsById,
+      operations: authorship.operations,
     }) as CompiledRecipeConfigOf<TStages>;
   }
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import {
-  collectCompileOps,
+  collectOperations,
   createDomain,
   createDomainRouter,
   createDomainSubdomainRouter,
@@ -63,34 +63,29 @@ describe("domain composition", () => {
     expect(router.ocean.ops.measure).toBe(oceanMeasurement.implementation);
     expect(router.climate.ops.measure).toBe(climateMeasurement.implementation);
     expect("contract" in router).toBe(false);
-    expect("_compileRegistry" in router).toBe(false);
-    expect("_runtimeRegistry" in router).toBe(false);
-    expect("_compileRegistry" in router.ocean.ops).toBe(false);
-    expect("_runtimeRegistry" in router.ocean.ops).toBe(false);
 
     const bound = router.bind({
       ocean: contract.ocean.ops.measure,
       climate: contract.climate.ops.measure,
     });
-    expect(bound.compile.ocean).toBe(oceanMeasurement.implementation);
-    expect(bound.compile.climate).toBe(climateMeasurement.implementation);
-    expect(bound.runtime.ocean({}, oceanMeasurement.implementation.defaultConfig)).toBe("ocean");
-    expect(bound.runtime.climate({}, climateMeasurement.implementation.defaultConfig)).toBe(
-      "climate"
-    );
+    expect(bound.ocean).toBe(oceanMeasurement.implementation.run);
+    expect(bound.climate).toBe(climateMeasurement.implementation.run);
+    expect(bound.ocean({}, oceanMeasurement.implementation.defaultConfig)).toBe("ocean");
+    expect(bound.climate({}, climateMeasurement.implementation.defaultConfig)).toBe("climate");
+    expect(Object.isFrozen(bound)).toBe(true);
 
-    const compileOps = collectCompileOps(router);
-    expect(compileOps[oceanMeasurement.contract.id]).toBe(oceanMeasurement.implementation);
-    expect(compileOps[climateMeasurement.contract.id]).toBe(climateMeasurement.implementation);
-    expect(Object.isFrozen(compileOps)).toBe(true);
-    expect(() => collectCompileOps(router.ocean as never)).toThrow(
-      "collectCompileOps requires a root"
+    const operations = collectOperations(router);
+    expect(operations[oceanMeasurement.contract.id]).toBe(oceanMeasurement.implementation);
+    expect(operations[climateMeasurement.contract.id]).toBe(climateMeasurement.implementation);
+    expect(Object.isFrozen(operations)).toBe(true);
+    expect(() => collectOperations(router.ocean as never)).toThrow(
+      "collectOperations requires a root"
     );
-    expect(() => collectCompileOps(router.ocean.ops as never)).toThrow(
-      "collectCompileOps requires a root"
+    expect(() => collectOperations(router.ocean.ops as never)).toThrow(
+      "collectOperations requires a root"
     );
-    expect(() => collectCompileOps({ ...router } as never)).toThrow(
-      "collectCompileOps requires a root"
+    expect(() => collectOperations({ ...router } as never)).toThrow(
+      "collectOperations requires a root"
     );
   });
 
@@ -225,7 +220,7 @@ describe("domain composition", () => {
       second: createDomainSubdomainRouter(secondBranch, { measure: second.implementation }),
     });
 
-    expect(() => collectCompileOps(firstRouter, secondRouter)).toThrow(
+    expect(() => collectOperations(firstRouter, secondRouter)).toThrow(
       'duplicate operation id "shared/measure" across domains'
     );
   });
@@ -251,7 +246,7 @@ describe("domain composition", () => {
         sample: second.implementation,
       }),
     });
-    expect(() => collectCompileOps(firstAggregate, secondAggregate)).toThrow(
+    expect(() => collectOperations(firstAggregate, secondAggregate)).toThrow(
       'duplicate domain id "alpha" across domain roots'
     );
 
@@ -260,7 +255,7 @@ describe("domain composition", () => {
       ops: { sample: second.contract },
     });
     const flat = createDomain(flatContract, { sample: second.implementation });
-    expect(() => collectCompileOps(firstAggregate, flat)).toThrow(
+    expect(() => collectOperations(firstAggregate, flat)).toThrow(
       'duplicate domain id "alpha" across domain roots'
     );
   });
@@ -310,10 +305,7 @@ describe("domain composition", () => {
       requires: [],
       provides: [],
       ops: {
-        scale: {
-          contract: hydrology.ocean.ops.scale,
-          defaultStrategy: "accelerated",
-        },
+        scale: hydrology.ocean.ops.scale,
       },
     });
     const step = createStep(stepContract, {
@@ -325,9 +317,8 @@ describe("domain composition", () => {
     const recipe = createRecipe({
       id: "aggregate-authority",
       namespace: "test",
-      tagDefinitions: [],
       stages: [stage],
-      compileOpsById: collectCompileOps(router),
+      operations: collectOperations(router),
     });
     const setup = admitMapSetup({
       mapSeed: 1,
@@ -350,7 +341,7 @@ describe("domain composition", () => {
     );
 
     expect(contract.defaultStrategy).toBe("measured");
-    expect(stepContract.ops?.scale.defaultStrategy).toBe("accelerated");
+    expect(stepContract.ops?.scale).toBe(contract);
     expect(observed).toEqual([12]);
   });
 
@@ -364,9 +355,7 @@ describe("domain composition", () => {
 
     expect(domain.contract).toBe(contract);
     expect(domain.ops.measure).toBe(measured.implementation);
-    expect("_compileRegistry" in domain.ops).toBe(false);
-    expect("_runtimeRegistry" in domain.ops).toBe(false);
-    expect(collectCompileOps(domain)[measured.contract.id]).toBe(measured.implementation);
+    expect(collectOperations(domain)[measured.contract.id]).toBe(measured.implementation);
   });
 
   it("refuses forged and same-id implementations from a different operation contract", () => {

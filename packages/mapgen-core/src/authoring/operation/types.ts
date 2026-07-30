@@ -1,15 +1,29 @@
 import type { Static, TSchema, TUnsafe } from "typebox";
+import type { ReadonlyData } from "../data/readonly-data.js";
 import type { StrategyDefinition } from "./strategy-definition.js";
-
-// Allow ops with specific input/config types to flow through generic registries.
-type BivariantCallback<Args extends unknown[], Return> = {
-  bivarianceHack(...args: Args): Return;
-}["bivarianceHack"];
 
 type StrategyDefinitionsLike = Readonly<Record<string, StrategyDefinition<string, TSchema>>>;
 type RuntimeStrategiesLike = Readonly<Record<string, { config: TSchema }>>;
 
 type StrategyConfigSchemaOf<T> = T extends { config: infer C extends TSchema } ? C : never;
+
+/**
+ * Canonical zero-copy observation surface for an operation's caller-provided input.
+ *
+ * Mutable schema-shaped values remain assignable at invocation. The readonly projection guides
+ * authors but does not provide runtime isolation against structural widening or explicit casts.
+ */
+export type OperationInput<InputSchema extends TSchema> = ReadonlyData<Static<InputSchema>>;
+
+/** Canonical callable signature shared by executable operations and exact step capabilities. */
+export type OperationRun<
+  InputSchema extends TSchema,
+  OutputSchema extends TSchema,
+  Strategies extends RuntimeStrategiesLike,
+> = (
+  input: OperationInput<InputSchema>,
+  config: StrategySelection<Strategies>
+) => Static<OutputSchema>;
 
 export type StrategySelection<Strategies extends RuntimeStrategiesLike> = {
   [K in keyof Strategies & string]: Readonly<{
@@ -32,7 +46,7 @@ export type OpTypeBag<
   OutputSchema extends TSchema,
   Strategies extends StrategyDefinitionsLike,
 > = Readonly<{
-  input: Static<InputSchema>;
+  input: OperationInput<InputSchema>;
   output: Static<OutputSchema>;
   strategyId: OpStrategyId<Strategies>;
   config: Readonly<{
@@ -88,8 +102,9 @@ export type DomainOp<
   Strategies extends RuntimeStrategiesLike,
   Id extends string = string,
   DefaultStrategy extends keyof Strategies & string = keyof Strategies & string,
+  Kind extends DomainOpKind = DomainOpKind,
 > = Readonly<{
-  kind: DomainOpKind;
+  kind: Kind;
   id: Id;
   input: InputSchema;
   output: OutputSchema;
@@ -97,15 +112,12 @@ export type DomainOp<
   defaultStrategy: DefaultStrategy;
   defaultConfig: DefaultStrategySelection<Strategies, DefaultStrategy>;
   strategies: Strategies;
-  run: BivariantCallback<
-    [Static<InputSchema>, StrategySelection<Strategies>],
-    Static<OutputSchema>
-  >;
+  run: OperationRun<InputSchema, OutputSchema, Strategies>;
   /**
    * Normalizes one selected operation configuration during compilation.
    *
    * Physical map setup is already admitted by the pipeline boundary and is intentionally absent;
    * operation normalization owns only the operation's authored configuration values.
    */
-  normalize: BivariantCallback<[StrategySelection<Strategies>], StrategySelection<Strategies>>;
+  normalize: (config: StrategySelection<Strategies>) => StrategySelection<Strategies>;
 }>;

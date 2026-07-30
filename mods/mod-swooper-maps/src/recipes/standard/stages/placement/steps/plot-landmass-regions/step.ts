@@ -14,8 +14,8 @@ type RegionSlot = 0 | 1 | 2;
  */
 export const PlotLandmassRegionsStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const topography = deps.artifacts.topography.read(context);
-    const landmasses = deps.artifacts.landmasses.read(context);
+    const topography = deps.artifacts.topography.read();
+    const landmasses = deps.artifacts.landmasses.read();
     const { width, height } = context.setup.dimensions;
     const { slotByTile } = ops.regions(
       {
@@ -45,10 +45,10 @@ export const PlotLandmassRegionsStep = createStep(config, {
       deps.engine.setLandmassRegionId(context, x, y, regionId);
     }
 
-    deps.artifacts.landmassRegionSlotByTile.publish(context, { slotByTile });
+    deps.artifacts.landmassRegionSlotByTile.publish({ slotByTile });
     return slotByTile;
   },
-  viz: ({ result: slotByTile, dimensions }) => [
+  viz: ({ observation: slotByTile, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "placement.landmassRegions.regionSlot",

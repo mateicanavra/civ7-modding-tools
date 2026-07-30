@@ -5,7 +5,7 @@ import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/au
  * rollups after projection from mesh cells into tile space.
  */
 export const artifact = defineArtifact({
-  name: "foundationTectonicHistoryTiles",
+  name: "tectonicHistoryTiles",
   id: "artifact:foundation.tectonicHistoryTiles",
   schema: Type.Object(
     {

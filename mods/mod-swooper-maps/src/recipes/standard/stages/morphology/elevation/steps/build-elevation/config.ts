@@ -1,12 +1,13 @@
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
-import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
+import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
 
 /**
  * Defines elevation materialization after mountains, volcanoes, and lakes are projected.
- * It consumes Morphology height truth while deriving its expected water surface from
- * a fresh engine observation; readback remains invocation-local parity evidence.
+ * It composes Morphology land truth with the exact accepted-lake projection, while
+ * current engine readback remains invocation-local continuity evidence.
  */
 export const config = defineStep({
   id: "build-elevation",
@@ -18,12 +19,10 @@ export const config = defineStep({
     "readCurrentMapWaterMask",
   ] as const,
   requires: [
-    MAP_PROJECTION_EFFECT_TAGS.map.mountainsPlotted,
-    MAP_PROJECTION_EFFECT_TAGS.map.volcanoesPlotted,
-    MAP_PROJECTION_EFFECT_TAGS.map.lakesPlotted,
+    STANDARD_COMPLETIONS.mountainsPlotted,
+    STANDARD_COMPLETIONS.volcanoesPlotted,
+    hydrographyArtifacts.projectedLakes,
+    morphologyLandformsArtifacts.topography,
   ],
-  provides: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
-  artifacts: {
-    requires: [morphologyLandformsArtifacts.topography],
-  },
+  provides: [STANDARD_COMPLETIONS.elevationBuilt],
 });

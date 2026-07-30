@@ -13,16 +13,13 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 export const config = defineStep({
   id: "pedology",
   description: "Classifies soil and fertility from admitted topography, substrate, and climate.",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [
-      morphologyLandformsArtifacts.topography,
-      morphologyErosionArtifacts.substrate,
-      climateArtifacts.climateField,
-    ],
-    provides: [pedologyArtifacts.pedology],
-  },
+  requires: [
+    morphologyLandformsArtifacts.topography,
+    morphologyErosionArtifacts.substrate,
+    climateArtifacts.climateField,
+  ],
+  provides: [pedologyArtifacts.pedology],
+
   ops: {
     classify: ecology.pedology.ops.classifyPedology,
   },

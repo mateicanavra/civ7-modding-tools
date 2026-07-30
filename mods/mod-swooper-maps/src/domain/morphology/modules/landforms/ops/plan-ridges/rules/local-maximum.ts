@@ -12,7 +12,7 @@ export function isStrictLocalMaximumHexWithTies(params: {
   width: number;
   height: number;
   values: ArrayLike<number>;
-  mask?: Uint8Array;
+  mask?: ArrayLike<number>;
 }): boolean {
   const { i, width, height, values, mask } = params;
   if (mask && mask[i] === 0) return false;

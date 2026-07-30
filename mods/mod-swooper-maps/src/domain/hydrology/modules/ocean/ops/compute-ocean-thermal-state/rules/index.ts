@@ -10,7 +10,7 @@ function selectUpcurrent(
   y: number,
   width: number,
   height: number,
-  isWaterMask: Uint8Array,
+  isWaterMask: ArrayLike<number>,
   flowX: number,
   flowY: number,
   secondaryWeightMin: number
@@ -98,11 +98,11 @@ function clampFinite(value: number, min: number, max: number): number {
 export function computeOceanThermalState(
   width: number,
   height: number,
-  latitudeByRow: Float32Array,
-  isWaterMask: Uint8Array,
-  shelfMask: Uint8Array,
-  currentU: Int8Array,
-  currentV: Int8Array,
+  latitudeByRow: ArrayLike<number>,
+  isWaterMask: ArrayLike<number>,
+  shelfMask: ArrayLike<number>,
+  currentU: ArrayLike<number>,
+  currentV: ArrayLike<number>,
   options: Readonly<{
     equatorTempC: number;
     poleTempC: number;

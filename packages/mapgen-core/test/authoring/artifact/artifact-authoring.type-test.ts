@@ -14,19 +14,20 @@ const outputArtifact = defineArtifact({
 const providerContract = defineStep({
   id: "artifact-provider",
   requires: [],
-  provides: [],
-  artifacts: { provides: [outputArtifact] },
+  provides: [outputArtifact],
 });
 const consumerContract = defineStep({
   id: "artifact-consumer",
-  requires: [],
+  requires: [inputArtifact],
   provides: [],
-  artifacts: { requires: [inputArtifact] },
 });
 
 const provider = createStep(providerContract, {
   run: (_context, _config, _ops, deps) => {
     const output = deps.artifacts.outputArtifact;
+    const published = output.publish({ value: 1 });
+    const publishedValue: number = published.value;
+    void publishedValue;
     // @ts-expect-error Declared artifact capabilities are immutable.
     deps.artifacts.outputArtifact = output;
     // @ts-expect-error Providers publish their own artifact; they do not read it.
@@ -35,6 +36,8 @@ const provider = createStep(providerContract, {
     output.satisfies;
     // @ts-expect-error Artifact identity remains on the contract declaration.
     output.artifact;
+    // @ts-expect-error Publication is already bound to the active step occurrence.
+    output.publish(_context, { value: 1 });
   },
 });
 // @ts-expect-error Provider storage is not part of the public step module.
@@ -43,8 +46,12 @@ provider.artifacts;
 createStep(consumerContract, {
   run: (_context, _config, _ops, deps) => {
     const input = deps.artifacts.inputArtifact;
+    const value: number = input.read().value;
+    void value;
     // @ts-expect-error Consumers read their artifact; they do not publish it.
     input.publish;
+    // @ts-expect-error Reads are already bound to the active step occurrence.
+    input.read(_context);
   },
 });
 

@@ -1,6 +1,13 @@
 const FNV1A_32_OFFSET_BASIS = 0x811c9dc5;
 const FNV1A_32_PRIME = 0x01000193;
 
+type ByteViewSource = ArrayLike<number> &
+  Readonly<{
+    BYTES_PER_ELEMENT: number;
+    byteLength: number;
+    byteOffset: number;
+  }>;
+
 /**
  * Hashes a JavaScript string with the 32-bit FNV-1a recurrence.
  *
@@ -65,7 +72,10 @@ export function fnv1a32Int32ValuesHex(values: Iterable<number>): string {
  * this function deliberately preserves the view's stored representation so
  * fractional typed-array values and other bit-level evidence cannot collapse.
  */
-export function fnv1a32Bytes(view: ArrayBufferView): number {
+export function fnv1a32Bytes(view: ArrayBufferView | ByteViewSource): number {
+  if (!ArrayBuffer.isView(view)) {
+    throw new TypeError("FNV-1a byte hashing requires an ArrayBuffer view.");
+  }
   const bytes = new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
   let hash = FNV1A_32_OFFSET_BASIS;
   for (const byte of bytes) {
@@ -76,6 +86,6 @@ export function fnv1a32Bytes(view: ArrayBufferView): number {
 }
 
 /** Formats {@link fnv1a32Bytes} as a stable eight-character lowercase hex digest. */
-export function fnv1a32BytesHex(view: ArrayBufferView): string {
+export function fnv1a32BytesHex(view: ArrayBufferView | ByteViewSource): string {
   return fnv1a32Bytes(view).toString(16).padStart(8, "0");
 }

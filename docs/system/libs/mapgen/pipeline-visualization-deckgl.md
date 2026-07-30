@@ -78,10 +78,10 @@ Key goals:
 
 Visualization is optional evidence projected after a step succeeds:
 
-- A step authors `viz: ({ result, config, dimensions }) => VizProjection[]` beside its `run`.
+- A step authors `viz: ({ observation, config, dimensions }) => VizProjection[]` beside its `run`.
 - Core invokes the projector only after declared providers are admitted and only when the execution
   environment supplies a visualization sink.
-- Projectors are synchronous and pure. They may borrow completed typed arrays but cannot observe a
+- Projectors are synchronous and pure. They may observe completed typed arrays but cannot access a
   runtime context, trace scope, adapter, store, sink, or execution identity.
 - The environment sink attaches Core-owned run and step identity, materializes binary references,
   and streams or persists the result.
@@ -127,11 +127,11 @@ are meaningful only to one stage or step remain local to that owner.
 Implemented sinks:
 
 - **Studio worker sink**: `apps/mapgen-studio/src/browser-runner/worker-viz-facet-sink.ts`
-  - copies each exact typed-array view into an inline buffer,
+  - requests one host-owned byte copy from each Viz kernel snapshot,
   - materializes `VizLayerEmissionV2`,
   - posts `viz.layer.upsert` with Transferables.
 - **Node diagnostic dump sink**: `packages/mapgen-diagnostics/src/dump.ts`
-  - writes exact binary views under `data/`,
+  - requests one host-owned byte copy and writes it under `data/`,
   - materializes path-backed layers and updates `manifest.json`.
 
 Trace sinks independently record progress and structured events. They do not transport
@@ -166,9 +166,10 @@ Each emitted entry in `manifest.layers[]` is still a **layer** (concrete emissio
 - **Point layers** (samples): craton seeds, hotspots, volcanoes.
 - **Polygon layers** (regions): landmasses, plates.
 
-**Sources:** completed step results and the admitted artifact/effect evidence used to produce those
-results. A projector may derive presentation-only geometry or scalar variants, but it cannot mutate
-generation state or synthesize missing product evidence.
+**Sources:** invocation-local step observations after every declared artifact provision has passed
+admission. A projector may derive presentation-only geometry or scalar variants, but the observation
+is discarded after projection and cannot mutate generation state or synthesize missing product
+evidence.
 
 ---
 

@@ -6,7 +6,7 @@ import {
   createStep,
   defineArtifact,
   defineStep,
-  readValidatedArtifact,
+  readArtifact,
 } from "@mapgen/authoring/index.js";
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
@@ -42,14 +42,13 @@ const outputArtifact = defineArtifact({
 const doubleStep = createStep(
   defineStep({
     id: "double-value",
-    requires: [],
-    provides: [],
-    artifacts: { requires: [inputArtifact], provides: [outputArtifact] },
+    requires: [inputArtifact],
+    provides: [outputArtifact],
   }),
   {
-    run: (context, _config, _ops, deps) => {
-      const input = deps.artifacts.inputValue.read(context);
-      deps.artifacts.outputValue.publish(context, { value: input.value * 2 });
+    run: (_context, _config, _ops, deps) => {
+      const input = deps.artifacts.inputValue.read();
+      deps.artifacts.outputValue.publish({ value: input.value * 2 });
       return input.value * 2;
     },
   }
@@ -84,7 +83,6 @@ describe("step testing surface", () => {
     withMapContextExecutionForTest(firstRoot, (stepContext) => {
       const dependencies = buildStepTestDependencies(engineStep, stepContext);
       expect(Object.keys(dependencies.engine)).toEqual(["readCurrentMapWaterMask"]);
-      expect(Reflect.get(dependencies.engine, "verifyEffect")).toBeUndefined();
       expect(Reflect.get(dependencies.engine, "getRandomNumber")).toBeUndefined();
       expect(Reflect.get(stepContext, "adapter")).toBeUndefined();
       expect(Array.from(dependencies.engine.readCurrentMapWaterMask(stepContext))).toEqual([
@@ -115,9 +113,6 @@ describe("step testing surface", () => {
         engine: ["readCurrentMapWaterMask", "readCurrentMapWaterMask"] as const,
       })
     ).toThrow("multiple times");
-    expect(() => defineUncheckedStep({ ...base, engine: ["verifyEffect"] })).toThrow(
-      "unavailable authored engine method"
-    );
     expect(() => defineUncheckedStep({ ...base, engine: ["getRandomNumber"] })).toThrow(
       "unavailable authored engine method"
     );
@@ -149,14 +144,19 @@ describe("step testing surface", () => {
     let result: number | Promise<number> | undefined;
     withMapContextExecutionForTest(context, (stepContext) => {
       publishTestArtifact(stepContext, inputArtifact, { value: 3 });
-      result = doubleStep.run(stepContext, {}, {}, buildStepTestDependencies(doubleStep));
+      result = doubleStep.run(
+        stepContext,
+        {},
+        {},
+        buildStepTestDependencies(doubleStep, stepContext)
+      );
     });
 
     expect(result).toBe(6);
-    expect(readValidatedArtifact(context, outputArtifact)).toEqual({ value: 6 });
+    expect(readArtifact(context, outputArtifact)).toEqual({ value: 6 });
     expect(() =>
       withMapContextExecutionForTest(context, (stepContext) => {
-        doubleStep.run(stepContext, {}, {}, buildStepTestDependencies(doubleStep));
+        doubleStep.run(stepContext, {}, {}, buildStepTestDependencies(doubleStep, stepContext));
       })
     ).toThrow("MapGen context has already completed an execution.");
   });
@@ -165,27 +165,8 @@ describe("step testing surface", () => {
     const context = createSyntheticContext();
     expect(() =>
       withMapContextExecutionForTest(context, (stepContext) => {
-        doubleStep.run(stepContext, {}, {}, buildStepTestDependencies(doubleStep));
+        doubleStep.run(stepContext, {}, {}, buildStepTestDependencies(doubleStep, stepContext));
       })
     ).toThrow(ArtifactMissingError);
-  });
-
-  it("rejects structural steps that lack private provider authority", () => {
-    const forgedStep = {
-      contract: doubleStep.contract,
-      artifacts: {
-        outputValue: {
-          contract: inputArtifact,
-          read: () => ({ value: 1 }),
-          publish: () => ({ value: 1 }),
-          satisfies: () => true,
-        },
-      },
-      run: () => {},
-    };
-
-    expect(() => buildStepTestDependencies(forgedStep as never, undefined as never)).toThrow(
-      'missing artifact runtime for "outputValue"'
-    );
   });
 });

@@ -9,12 +9,9 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 export const config = defineStep({
   id: "plan-floodplains",
   description: "Plans deterministic floodplain-family intent from shared suitability evidence.",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [featureArtifacts.featureSuitability],
-    provides: [featureArtifacts.floodplainIntents],
-  },
+  requires: [featureArtifacts.featureSuitability],
+  provides: [featureArtifacts.floodplainIntents],
+
   ops: {
     planFloodplains: ecology.features.ops.planFloodplains,
   },

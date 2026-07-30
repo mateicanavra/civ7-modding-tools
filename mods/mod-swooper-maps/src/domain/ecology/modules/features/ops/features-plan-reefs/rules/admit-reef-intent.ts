@@ -6,13 +6,13 @@ import {
   stressFromConfidence01,
 } from "../../../model/policy/feature-score-selection.js";
 
-type ReefScoreInput = Readonly<{
-  scoreReef01: Float32Array;
-  scoreColdReef01: Float32Array;
-  scoreAtoll01: Float32Array;
-  scoreLotus01: Float32Array;
-  lakeMask: Uint8Array;
-}>;
+type ReefScoreInput = {
+  readonly scoreReef01: ArrayLike<number>;
+  readonly scoreColdReef01: ArrayLike<number>;
+  readonly scoreAtoll01: ArrayLike<number>;
+  readonly scoreLotus01: ArrayLike<number>;
+  readonly lakeMask: ArrayLike<number>;
+};
 
 /**
  * Reef planning scores describe broad ocean suitability; they are not placement

@@ -9,12 +9,9 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "plate-graph",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [meshArtifacts.mesh, lithosphereArtifacts.initialCrust],
-    provides: [lithosphereArtifacts.plateGraph],
-  },
+  requires: [meshArtifacts.mesh, lithosphereArtifacts.initialCrust],
+  provides: [lithosphereArtifacts.plateGraph],
+
   ops: {
     computePlateGraph: foundation.lithosphere.ops.computePlateGraph,
   },

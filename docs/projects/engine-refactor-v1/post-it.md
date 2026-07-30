@@ -2,6 +2,9 @@
 
 ## Rolling Focus
 
+**Attractor filter:** Artifact. Authority. Analysis. Projection. Exactness.
+Directness. Closure.
+
 **Frame:** kind before instance, intent before ownership, authority before
 relocation. A closed file shape is the start of semantic review, not proof that
 the responsibilities retained inside its allowed files are earned. Recipe
@@ -28,15 +31,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** untangle the complete Placement stage on one normalized
-plane. A real Placement step must add recipe-level orchestration: select exact
-declared inputs, call domain operations or adapter capabilities, publish
-immutable products, or reconcile an engine mutation. Pseudo-steps that merely
-reshape setup, collect several operation configs, duplicate a domain decision,
-or preserve a retired coordination model are deleted at their root rather than
-made prettier inside the closed `config.ts`/`step.ts` shape. Finish the whole
-Placement stage before reopening its test corpus so semantic review occurs
-against one topology, not another hybrid.
+**Current container:** authored artifact dependency analysis has two owners.
+Recipe admission retains exact `Artifact` identity and fails malformed graphs;
+the Studio DAG rebuilds providers after reducing artifacts to `{ id, name }`.
+The two already disagree on same-id/different-authority edges and unconsumed
+duplicate providers. One pure exact-authority analysis must own providers,
+edges, and issues; admission and JSON-safe visualization become projections of
+that result rather than parallel interpretations.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -53,13 +54,13 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** read the Placement stage in causal order and classify every step
-by intent before ownership or file shape. Collapse obsolete setup-derivation,
-coordination, and alternate planning paths; push reusable decisions into their
-existing domain operation or Civ7 adapter owner; leave thin materialization and
-observation steps explicit. Regenerate the stage/config consumers, prove the
-complete Placement behavior surface, then audit tests against the normalized
-production plane and delete provider-guarantee or corruption-theater cases.
+**Gradient:** extract one internal exact artifact-dependency analyzer; delete
+the recipe validator and DAG provider-map reconstruction; retain missing,
+duplicate, unused, resolved, internal, and forward-reference behavior; add an
+explicit authority-mismatch diagnostic and forbid false edges. Keep execution-
+plan ordering admission separate. Freeze with Core DAG/recipe behavior, Studio
+contract and service proof, typecheck, authoring boundaries, and fresh
+TypeScript/architecture review.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -76,6 +77,14 @@ unrelated worktrees stay outside semantic cuts; ownership is verified rather
 than inferred indefinitely from an inherited dirty-state ledger. Temporary
 NOTE packets have been classified into this frame or their canonical owner and
 should not survive as ambient repository state.
+
+Automatic Civ7 layer observation is a subsequent execution/diagnostics
+container, not a reason to publish engine snapshots as domain artifacts or to
+change completion authority. The adapter already owns direct live-layer reads;
+the open design question is whether execution-owned diagnostics should capture
+selected layers after each step, once at termination, or both. Engine plotting
+steps remain when they perform real mutations or parity checks; visualization
+alone never earns a step.
 
 **Generic primitive boundary:** Core may own only mechanically generic
 primitives such as clamps, hashes, interpolation/mixes, vectors, and grid/index
@@ -94,6 +103,120 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Canonical Step Identity Sealed
+
+Recipe admission now snapshots caller-owned recipe, stage, and ordered-step
+containers while preserving the exact frozen executable authority created by
+`createStep`. The cloned step shape and `WeakSet` authority transfer retired;
+forged steps still fail closed, and later mutation of stage identities or step
+lists cannot change compilation. Focused Core behavior, typecheck, authoring
+topology, JSDoc authority, and fresh TypeScript/state review sealed the cut.
+
+### 2026-07-28 - Precipitation Operation Authority Sealed
+
+River-corridor and closed-basin wetness now form the exact
+`hydrology/refine-precipitation` transition rather than a narrower-input
+strategy smuggled into precipitation synthesis. Core steps bind canonical
+operation contracts directly; the scoped-default wrapper, cloned contract,
+hidden source map, and reverse binding projection retired. Nine shipped
+configs, generated artifacts, the canonical Hydrology authority, focused
+product behavior, the full Core/Swooper graph, Habitat kind laws, and fresh
+architecture/product review sealed the cut.
+
+### 2026-07-28 - Invocation Observation Vocabulary Sealed
+
+A step's return is now named as invocation-local observation throughout Core,
+Standard metrics/visualization facets, direct tests, canonical docs, and the
+generic recipe-step blueprint. The executor retains the exact value only
+through synchronous non-fatal projection and then discards it; artifact
+publication remains the sole durable admission transition and completion
+remains plan-only causal authority. The full Core/Swooper graph and fresh
+type/architecture/product review sealed the vocabulary without adding state.
+
+### 2026-07-27 - Initial Setup Invocation Context Sealed
+
+Initial setup is immutable invocation context rather than a dependency edge or
+occurrence-scoped read capability. Core's physical `MapContext.setup` remains
+universal, while only a step declaring the exact recipe authority receives the
+already-admitted full value as `context.initialSetup`. No provider, registry,
+fallback, reparsing, or second admission transition survives; Placement's five
+consumers, direct-step fixtures, Core/Swooper behavior, the native Nx graph,
+and fresh type/architecture/product reviews sealed the cut.
+
+### 2026-07-27 - Plan-Only Completion Authority Sealed
+
+Completion is now a payload-free compile-time plan edge used only when no
+artifact can express the required causal predecessor. Effects, event tags,
+runtime completion registries, ledgers, emission, and postcondition theater are
+gone. Thirteen irreducible Standard edges remain; lake materialization and
+start assignment use exact artifacts instead. Generic Habitat law, current
+docs, Core/Swooper behavior, the native Nx graph, and independent
+type/architecture/product reviews seal the cut.
+
+### 2026-07-27 - Unified Step Dependency Authority
+
+Each step now owns one ordered dependency list per direction. Exact `Artifact`
+authorities and typed completion ids share that list; recipe compilation
+projects their runtime ids once, while typed artifact capabilities derive from
+the exact same selected values. The nested artifact selector, concatenation,
+reconciliation checks, private witness temptation, and compatibility surface
+retired across all 53 Standard steps. Generic exact-path Habitat law, current
+docs, Core/Swooper tests, boundaries, and independent type/architecture reviews
+seal the cut.
+
+### 2026-07-27 - Artifact Admission And Observation Sealed
+
+Artifact publication is now the sole structural and semantic admission
+transition. Exact artifact authority, causal edge commitment, and write-once
+storage remain distinct runtime facts without a second validator; terminal
+consumers honestly observe already-admitted values. Reentrant publication is
+refused before validation, forged dependency discriminants are rejected, and
+partial start-assignment evidence no longer commits a false completion edge.
+The surviving nested artifact authoring selector is now exposed as the next
+duplicated state rather than being mistaken for runtime authority.
+
+### 2026-07-27 - Occurrence-Bound Artifact Capability Sealed
+
+One `defineArtifact` authority now flows directly into each declared step
+occurrence. Core projects exact contextless `read()` and `publish(value)`
+capabilities from the active step and artifact declaration; the provider
+WeakMap, runtime wrappers, recipe snapshot propagation, graph rechecks, and
+wrapper-over-wrapper construction retired. Catalog keys and artifact names are
+one lookup identity, while global artifact ids remain unchanged. Exact
+identity, active-occurrence ownership, admission, write-once publication, and
+terminal observation remain behaviorally intact across all 53 migrated steps.
+
+### 2026-07-27 - Executable Operation Binding Sealed
+
+One canonical operation now carries its contract, strategy identity, admission,
+and executable transition from domain composition through recipe compilation to
+step invocation. The parallel `DomainOpRuntime` authority, compile/runtime
+bundle, reverse WeakMap, marker, and duplicated registry retired. Steps receive
+only the exact frozen run callables admitted by their contracts; mismatch,
+strategy selection, and observable failure behavior remain intact.
+
+### 2026-07-27 - Observational Operation Input Sealed
+
+Core now exposes one deeply read-only operation input authoring view and one
+real admission transition into strategy execution. Mutable caller values and
+immutable artifact reads share the same zero-copy call surface; structural and
+grid-cardinality evidence is added once; outputs remain ordinary newly owned
+values. `BorrowedValue` and `OwnedValue` are gone, typed-array callback aliases
+cannot smuggle mutability, and visualization materialization retains only one
+owned binary snapshot. The adjacent SDK audit then exposed executable binding
+as the next false state rather than extending this completed cut.
+
+### 2026-07-27 - Borrowed Operation Input Rejected
+
+Artifact forwarding exposed a legitimate mutable-input mismatch, but the first
+repair elevated `BorrowedValue` into a public third state between caller input
+and admitted strategy input. Nothing was acquired, wrapped, released, cloned,
+or frozen, and TypeScript structural widening could bypass its strongest
+ownership claim. The direction therefore changed from propagating a Borrow
+capability to deleting it: operation inputs are observational by definition,
+admission is the only real transition, and hard runtime immutability remains a
+future storage/snapshot concern rather than type-level theater.
 
 ### 2026-07-27 - Exact Standard Initial Setup Authority
 

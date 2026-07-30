@@ -29,10 +29,10 @@ type DemandState = {
   readonly effectiveTargetCount: number;
   readonly minCount: number;
   readonly maxCount: number;
-  readonly regionMinimumRequirement: ResourceRegionMinimumRequirement;
-  readonly habitatMask: Uint8Array;
-  readonly legalMask: Uint8Array;
-  readonly intensity: Float32Array;
+  readonly regionMinimumRequirement: Readonly<ResourceRegionMinimumRequirement>;
+  readonly habitatMask: ArrayLike<number>;
+  readonly legalMask: ArrayLike<number>;
+  readonly intensity: ArrayLike<number>;
   readonly spacingFloorTiles: number;
   readonly habitatTileCount: number;
   readonly legalTileCount: number;
@@ -73,7 +73,7 @@ function hash01(seed: number, a: number, b: number): number {
   return hash32(seed, a, b) / 0x100000000;
 }
 
-function countMask(mask: Uint8Array): number {
+function countMask(mask: ArrayLike<number>): number {
   let count = 0;
   for (let i = 0; i < mask.length; i++) if (mask[i] !== 0) count += 1;
   return count;
@@ -94,7 +94,7 @@ const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
     const width = input.width;
     const height = input.height;
     const size = width * height;
-    const seed = input.seed | 0;
+    const seed = input.seed;
     const landmassIdByTile = input.landmassIdByTile;
     const regionSlotByTile = input.regionSlotByTile;
 

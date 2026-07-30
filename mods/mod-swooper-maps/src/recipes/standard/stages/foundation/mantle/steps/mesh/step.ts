@@ -29,10 +29,10 @@ export const MeshStep = createStep(config, {
       stepConfig.computeMesh
     );
 
-    deps.artifacts.foundationMesh.publish(context, meshResult.mesh);
+    deps.artifacts.mesh.publish(meshResult.mesh);
     return meshResult.mesh;
   },
-  viz: ({ result: mesh }) => [
+  viz: ({ observation: mesh }) => [
     {
       kind: "points",
       dataTypeKey: "foundation.mesh.sites",

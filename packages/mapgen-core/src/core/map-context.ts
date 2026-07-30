@@ -1,5 +1,6 @@
 import type { EngineAdapter } from "@civ7/adapter";
 import type { AuthoredEngineAdapterKey } from "@mapgen/authoring/step/engine-authority.js";
+import { findInitialSetupBindingInternal } from "@mapgen/core/initial-setup-binding.js";
 import { assertMapSetupInternal, type MapSetup } from "@mapgen/core/map-setup.js";
 import { createLabelRng, type LabelRng } from "@mapgen/lib/rng/label.js";
 import type { StepTrace } from "@mapgen/trace/index.js";
@@ -83,11 +84,10 @@ function contextRootForRead(context: MapContext): MapContext {
  * `createMapContext` returns the executor-owned root. The executor supplies each authored step a
  * distinct facade with a fixed trace port; artifact, engine, and randomness capabilities accept only the
  * currently active facade. Retaining one step's context therefore cannot borrow a later step's
- * artifact, random, or trace authority; dependency evidence is separately scoped to one effect
- * satisfaction call. The adapter remains private executor state; authored code can invoke only the
- * methods named by its frozen step contract through occurrence-scoped dependency wrappers. Artifacts
- * remain behind artifact-bound readers and publishers, while the root remains available to the executor
- * and post-run validated observers.
+ * artifact, random, or trace authority. The adapter remains private executor state; authored code can
+ * invoke only the methods named by its frozen step contract through occurrence-scoped dependency
+ * wrappers. Artifacts remain behind artifact-bound readers and publishers, while the root remains
+ * available to the executor and post-run terminal observers.
  */
 export interface MapContext {
   readonly [mapContextBrand]: true;
@@ -205,7 +205,7 @@ export function assertTerminalMapContextObservationInternal(context: MapContext)
   const state = mapContextExecutionStates.get(authority.root);
   if (authority.kind !== "root" || authority.root !== context || state?.status !== "terminal") {
     throw new Error(
-      "Validated artifact observation requires the root MapContext after execution has completed."
+      "Terminal artifact observation requires the root MapContext after execution has completed."
     );
   }
 }
@@ -214,7 +214,8 @@ export function assertTerminalMapContextObservationInternal(context: MapContext)
 export function enterMapContextStepInternal(
   context: MapContext,
   stepId: string,
-  trace: StepTrace
+  trace: StepTrace,
+  projectsInitialSetup = false
 ): MapContext {
   assertRootMapContextInternal(context);
   const state = mapContextExecutionStates.get(context);
@@ -227,6 +228,9 @@ export function enterMapContextStepInternal(
     );
   }
   const stepContext = {} as MapContext;
+  const initialSetup = projectsInitialSetup
+    ? findInitialSetupBindingInternal(context.setup)?.value
+    : undefined;
   Object.defineProperties(stepContext, {
     [mapContextBrand]: {
       value: true,
@@ -246,6 +250,16 @@ export function enterMapContextStepInternal(
       writable: false,
       configurable: false,
     },
+    ...(initialSetup === undefined
+      ? {}
+      : {
+          initialSetup: {
+            value: initialSetup,
+            enumerable: true,
+            writable: false,
+            configurable: false,
+          },
+        }),
   });
   Object.freeze(stepContext);
   mapContextAuthorities.set(stepContext, Object.freeze({ kind: "step", root: context, stepId }));
@@ -315,20 +329,9 @@ export function invokeMapContextAdapterMethodInternal(
   return Reflect.apply(method, adapter, args);
 }
 
-/** @internal Verifies one executor-owned effect without exposing adapter authority to authored code. */
-export function verifyMapContextEffectInternal(context: MapContext, effectId: string): boolean {
-  assertRootMapContextInternal(context);
-  const adapter = mapContextAdapters.get(context);
-  if (!adapter) {
-    throw new Error("MapGen effect verification requires a context returned by createMapContext.");
-  }
-  return Reflect.apply(adapter.verifyEffect, adapter, [effectId]);
-}
-
 /**
  * @internal Observes raw artifact storage by exact artifact identity for Core-owned capabilities.
- * capabilities. Artifact ids remain diagnostic and dependency evidence; they never authorize a
- * stored value.
+ * Artifact ids remain diagnostic and dependency evidence; they never authorize a stored value.
  */
 export function readMapContextArtifactInternal(
   context: MapContext,
@@ -341,7 +344,7 @@ export function readMapContextArtifactInternal(
 }
 
 /**
- * @internal Publishes through the exact canonical contract retained by an artifact runtime;
+ * @internal Publishes through the exact canonical artifact selected by an occurrence capability;
  * callers never receive the mutable store.
  */
 export function publishMapContextArtifactInternal(

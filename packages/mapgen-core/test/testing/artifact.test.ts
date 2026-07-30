@@ -5,7 +5,7 @@ import {
   ArtifactDoublePublishError,
   ArtifactValidationError,
   defineArtifact,
-  readValidatedArtifact,
+  readArtifact,
   TypedArraySchemas,
 } from "@mapgen/authoring/index.js";
 import { createMapContext } from "@mapgen/core/map-context.js";
@@ -59,7 +59,7 @@ describe("artifact testing surface", () => {
         })
       ).toThrow(ArtifactDoublePublishError);
     });
-    expect(readValidatedArtifact(context, gridArtifact)).toBe(admitted);
+    expect(readArtifact(context, gridArtifact)).toBe(admitted);
 
     const invalidContext = createSyntheticContext();
     expect(() =>

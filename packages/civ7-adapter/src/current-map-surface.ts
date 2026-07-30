@@ -99,7 +99,7 @@ export function captureCurrentRiverSurface(reader: CurrentRiverSurfaceReader): C
 /** @internal Projects deterministic river-plan parity from one detached current-map observation. */
 export function deriveRiverProjectionFromCurrentSurface(
   surface: CurrentRiverSurface,
-  plannedNavigableRiverMask: Uint8Array,
+  plannedNavigableRiverMask: ArrayLike<number>,
   owner: string
 ): RiverProjectionResult {
   const { width, height } = surface;
@@ -109,6 +109,7 @@ export function deriveRiverProjectionFromCurrentSurface(
       `[${owner}] Invalid river mask length for readRiverProjection (expected ${size}, got ${plannedNavigableRiverMask.length}).`
     );
   }
+  const plannedNavigableRiverSnapshot = Uint8Array.from(plannedNavigableRiverMask);
 
   const stampedNavigableRiverMask = new Uint8Array(size);
   const rejectedNavigableRiverMask = new Uint8Array(size);
@@ -125,7 +126,7 @@ export function deriveRiverProjectionFromCurrentSurface(
   let terrainNavigableRiverTileCount = 0;
 
   for (let index = 0; index < size; index++) {
-    const planned = plannedNavigableRiverMask[index] === 1;
+    const planned = plannedNavigableRiverSnapshot[index] === 1;
     const hasNavigableTerrain =
       surface.terrainType[index] === surface.sentinels.navigableRiverTerrainType;
     const isRiver = surface.riverMask[index] === 1;
@@ -158,7 +159,7 @@ export function deriveRiverProjectionFromCurrentSurface(
   return {
     width,
     height,
-    plannedNavigableRiverMask,
+    plannedNavigableRiverMask: plannedNavigableRiverSnapshot,
     stampedNavigableRiverMask,
     rejectedNavigableRiverMask,
     engineTerrain: surface.terrainType,

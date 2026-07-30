@@ -38,8 +38,8 @@ export const LakesStep = createStep(config, {
   },
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
-    const topography = deps.artifacts.topography.read(context);
-    const hydrography = deps.artifacts.hydrography.read(context);
+    const topography = deps.artifacts.topography.read();
+    const hydrography = deps.artifacts.hydrography.read();
     // Hydrology publishes lake intent before the map stage touches engine terrain.
     // Placement and diagnostics read this truth artifact instead of engine readback.
     const lakePlan = ops.planLakes(
@@ -54,7 +54,7 @@ export const LakesStep = createStep(config, {
       stepConfig.planLakes
     );
 
-    const publishedLakePlan = deps.artifacts.lakePlan.publish(context, {
+    const publishedLakePlan = deps.artifacts.lakePlan.publish({
       width,
       height,
       lakeMask: lakePlan.lakeMask,
@@ -79,7 +79,7 @@ export const LakesStep = createStep(config, {
       stepConfig.classifyRiverNetwork
     );
 
-    const publishedRiverNetwork = deps.artifacts.riverNetwork.publish(context, {
+    const publishedRiverNetwork = deps.artifacts.riverNetwork.publish({
       upstreamArea: riverNetwork.upstreamArea,
       streamOrderProxy: riverNetwork.streamOrderProxy,
       mouthType: riverNetwork.mouthType,
@@ -105,10 +105,10 @@ export const LakesStep = createStep(config, {
       },
     };
   },
-  metrics: ({ result }) => ({
-    "hydrology.riverNetwork": measureStandardRiverNetwork(result.riverNetworkMeasurementInput),
+  metrics: ({ observation }) => ({
+    "hydrology.riverNetwork": measureStandardRiverNetwork(observation.riverNetworkMeasurementInput),
   }),
-  viz: ({ result: { lakePlan, riverNetwork }, dimensions }) => [
+  viz: ({ observation: { lakePlan, riverNetwork }, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "hydrology.lakes.lakePlan",

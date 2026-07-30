@@ -1,111 +1,40 @@
 import type { MapContext } from "@mapgen/core/map-context.js";
-import {
-  getActiveMapContextStepIdInternal,
-  invokeMapContextAdapterMethodInternal,
-  readMapContextArtifactInternal,
-} from "@mapgen/core/map-context.js";
+import { invokeMapContextAdapterMethodInternal } from "@mapgen/core/map-context.js";
 
-import type { Artifact, ArtifactReadValueOf } from "../artifact/contract.js";
-import {
-  ArtifactMissingError,
-  type ImplementedArtifactRuntime,
-  type ProvidedArtifactRuntime,
-  type RequiredArtifactRuntime,
-} from "../artifact/runtime.js";
-import {
-  type InitialSetupDefinition,
-  readInitialSetupValueInternal,
-} from "../initial-setup/definition.js";
-import type { StepArtifactsDeclAny, StepEngineDecl } from "./contract.js";
-import { readStepProviderRuntimesInternal } from "./provider-runtimes.js";
-import type { StepDeps } from "./types.js";
+import type { Artifact } from "../artifact/contract.js";
+import { publishArtifactValueInternal, readArtifactValueInternal } from "../artifact/runtime.js";
+import type { StepDependencyList, StepEngineDecl } from "./contract.js";
+import type { ArtifactPublisher, ArtifactReader, StepDeps } from "./types.js";
 
 type DeclaredStep<
-  Artifacts extends StepArtifactsDeclAny | undefined,
+  Requires extends StepDependencyList,
+  Provides extends StepDependencyList,
   Engine extends StepEngineDecl | undefined,
-  InitialSetup extends InitialSetupDefinition | undefined = InitialSetupDefinition | undefined,
 > = Readonly<{
   contract: Readonly<{
-    artifacts?: Artifacts;
+    requires: Requires;
+    provides: Provides;
     engine?: Engine;
-    initialSetup?: InitialSetup;
   }>;
 }>;
 
-function assertArtifactCapabilityOwner(
-  context: MapContext,
-  consumerStepId: string,
-  boundContext?: MapContext
-): void {
-  if (
-    (boundContext !== undefined && context !== boundContext) ||
-    getActiveMapContextStepIdInternal(context) !== consumerStepId
-  ) {
-    throw new Error(
-      `Artifact capability for step "${consumerStepId}" requires that step's exact active context.`
-    );
-  }
-}
-
-function createRequiredArtifactRuntime<A extends Artifact>(
+function createArtifactReader<A extends Artifact>(
   artifact: A,
   consumerStepId: string,
-  boundContext?: MapContext
-): RequiredArtifactRuntime<A> {
+  context: MapContext
+): ArtifactReader<A> {
   return Object.freeze({
-    read: (context: MapContext) => {
-      assertArtifactCapabilityOwner(context, consumerStepId, boundContext);
-      const observation = readMapContextArtifactInternal(context, artifact);
-      if (!observation.found) {
-        throw new ArtifactMissingError({
-          artifactId: artifact.id,
-          artifactName: artifact.name,
-          consumerStepId,
-        });
-      }
-      return observation.value as ArtifactReadValueOf<A>;
-    },
+    read: () => readArtifactValueInternal(context, artifact, consumerStepId),
   });
 }
 
-/** @internal Resolves the complete provider binding retained by one admitted step module. */
-export function resolveProvidedArtifactRuntimeInternal(
-  authored: DeclaredStep<StepArtifactsDeclAny | undefined, StepEngineDecl | undefined>,
-  artifact: Artifact,
+function createArtifactPublisher<A extends Artifact>(
+  artifact: A,
   consumerStepId: string,
-  owner: string
-): ImplementedArtifactRuntime<any> {
-  const runtimes = readStepProviderRuntimesInternal(authored);
-  if (!runtimes || !Object.hasOwn(runtimes, artifact.name)) {
-    throw new Error(
-      `[${owner}] step "${consumerStepId}" missing artifact runtime for "${artifact.name}"`
-    );
-  }
-  const runtime = runtimes[artifact.name];
-  if (
-    typeof runtime !== "object" ||
-    runtime === null ||
-    (runtime as { artifact?: unknown }).artifact !== artifact ||
-    typeof (runtime as { read?: unknown }).read !== "function" ||
-    typeof (runtime as { publish?: unknown }).publish !== "function"
-  ) {
-    throw new Error(
-      `[${owner}] step "${consumerStepId}" has invalid artifact runtime for "${artifact.name}"`
-    );
-  }
-  return runtime as unknown as ImplementedArtifactRuntime<any>;
-}
-
-function authorProvidedArtifactRuntime(
-  runtime: ImplementedArtifactRuntime<any>,
-  consumerStepId: string,
-  boundContext?: MapContext
-): ProvidedArtifactRuntime<any> {
+  context: MapContext
+): ArtifactPublisher<A> {
   return Object.freeze({
-    publish: (context, value) => {
-      assertArtifactCapabilityOwner(context, consumerStepId, boundContext);
-      return runtime.publish(context, value);
-    },
+    publish: (value) => publishArtifactValueInternal(context, artifact, value, consumerStepId),
   });
 }
 
@@ -129,9 +58,9 @@ function bindEngineDependencies(
 }
 
 function bindArtifactDependency(
-  bound: Record<string, RequiredArtifactRuntime<any> | ProvidedArtifactRuntime<any>>,
+  bound: Record<string, ArtifactReader<any> | ArtifactPublisher<any>>,
   name: string,
-  runtime: RequiredArtifactRuntime<any> | ProvidedArtifactRuntime<any>,
+  capability: ArtifactReader<any> | ArtifactPublisher<any>,
   input: Readonly<{ consumerStepId: string; owner: string }>
 ): void {
   if (Object.hasOwn(bound, name)) {
@@ -139,7 +68,17 @@ function bindArtifactDependency(
       `[${input.owner}] step "${input.consumerStepId}" declares duplicate artifact binding "${name}"`
     );
   }
-  bound[name] = runtime;
+  bound[name] = capability;
+}
+
+function requireArtifactContext(
+  context: MapContext | undefined,
+  consumerStepId: string
+): MapContext {
+  if (context !== undefined) return context;
+  throw new Error(
+    `Artifact dependencies for step "${consumerStepId}" require the exact active step context.`
+  );
 }
 
 /**
@@ -147,61 +86,46 @@ function bindArtifactDependency(
  * Production recipe execution and focused step tests share this exact dependency authority.
  */
 export function buildDeclaredStepDependencies<
-  Artifacts extends StepArtifactsDeclAny | undefined,
+  Requires extends StepDependencyList,
+  Provides extends StepDependencyList,
   Engine extends StepEngineDecl | undefined,
-  InitialSetup extends InitialSetupDefinition | undefined,
 >(
-  authored: DeclaredStep<Artifacts, Engine, InitialSetup>,
+  authored: DeclaredStep<Requires, Provides, Engine>,
   input: Readonly<{ consumerStepId: string; owner: string; context?: MapContext }>
-): StepDeps<Artifacts, Engine, InitialSetup> {
-  const artifacts = authored.contract.artifacts;
+): StepDeps<Requires, Provides, Engine> {
   const engine = bindEngineDependencies(
     authored.contract.engine,
     input.context,
     input.consumerStepId
   );
-  const initialSetup =
-    authored.contract.initialSetup === undefined
-      ? Object.freeze({})
-      : input.context === undefined
-        ? rejectMissingInitialSetupContext(input.consumerStepId)
-        : Object.freeze({
-            initialSetup: readInitialSetupValueInternal(
-              input.context.setup,
-              authored.contract.initialSetup
-            ),
-          });
-  if (!artifacts) {
+  const requires = authored.contract.requires.filter(
+    (dependency): dependency is Artifact => typeof dependency !== "string"
+  );
+  const provides = authored.contract.provides.filter(
+    (dependency): dependency is Artifact => typeof dependency !== "string"
+  );
+  if (requires.length === 0 && provides.length === 0) {
     return Object.freeze({
       artifacts: Object.freeze({}),
       engine,
-      ...initialSetup,
-    }) as StepDeps<Artifacts, Engine, InitialSetup>;
+    }) as StepDeps<Requires, Provides, Engine>;
   }
 
-  const bound: Record<string, RequiredArtifactRuntime<any> | ProvidedArtifactRuntime<any>> = {};
-  for (const artifact of artifacts.requires ?? []) {
+  const context = requireArtifactContext(input.context, input.consumerStepId);
+  const bound: Record<string, ArtifactReader<any> | ArtifactPublisher<any>> = {};
+  for (const artifact of requires) {
     bindArtifactDependency(
       bound,
       artifact.name,
-      createRequiredArtifactRuntime(artifact, input.consumerStepId, input.context),
+      createArtifactReader(artifact, input.consumerStepId, context),
       input
     );
   }
-  for (const artifact of artifacts.provides ?? []) {
+  for (const artifact of provides) {
     bindArtifactDependency(
       bound,
       artifact.name,
-      authorProvidedArtifactRuntime(
-        resolveProvidedArtifactRuntimeInternal(
-          authored,
-          artifact,
-          input.consumerStepId,
-          input.owner
-        ),
-        input.consumerStepId,
-        input.context
-      ),
+      createArtifactPublisher(artifact, input.consumerStepId, context),
       input
     );
   }
@@ -209,12 +133,5 @@ export function buildDeclaredStepDependencies<
   return Object.freeze({
     artifacts: Object.freeze(bound),
     engine,
-    ...initialSetup,
-  }) as StepDeps<Artifacts, Engine, InitialSetup>;
-}
-
-function rejectMissingInitialSetupContext(stepId: string): never {
-  throw new Error(
-    `Initial setup dependency for step "${stepId}" requires an admitted map context.`
-  );
+  }) as StepDeps<Requires, Provides, Engine>;
 }

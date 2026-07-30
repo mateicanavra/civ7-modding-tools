@@ -4,11 +4,11 @@ import { clampInt16 } from "@swooper/mapgen-core/lib/math";
  * Applies admitted island formation to fresh coherent topography fields.
  */
 export function materializeIslandTopography(params: {
-  elevation: Int16Array;
+  elevation: ArrayLike<number>;
   seaLevel: number;
-  landMask: Uint8Array;
-  bathymetry: Int16Array;
-  islandClass: Uint8Array;
+  landMask: ArrayLike<number>;
+  bathymetry: ArrayLike<number>;
+  islandClass: ArrayLike<number>;
 }): {
   elevation: Int16Array;
   seaLevel: number;

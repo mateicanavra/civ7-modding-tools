@@ -21,8 +21,8 @@ function maxAdjacentNavigableDischarge(
   tileIndex: number,
   width: number,
   height: number,
-  navigableRiverMask: Uint8Array,
-  discharge: Float32Array
+  navigableRiverMask: ArrayLike<number>,
+  discharge: ArrayLike<number>
 ): number {
   const y = (tileIndex / width) | 0;
   const x = tileIndex - y * width;
@@ -38,8 +38,8 @@ function localReliefM(
   tileIndex: number,
   width: number,
   height: number,
-  landMask: Uint8Array,
-  elevation: Int16Array
+  landMask: ArrayLike<number>,
+  elevation: ArrayLike<number>
 ): number {
   if (landMask[tileIndex] !== 1) return Number.POSITIVE_INFINITY;
   const y = (tileIndex / width) | 0;

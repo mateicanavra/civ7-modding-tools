@@ -27,11 +27,6 @@ const potentialGradient = createStrategy(
       const mesh = input.mesh;
       const mantlePotential = input.mantlePotential;
       const cellCount = mesh.cellCount | 0;
-      if ((mantlePotential.cellCount | 0) !== cellCount) {
-        throw new Error(
-          "[Foundation] Invalid mantlePotential.cellCount for compute-mantle-forcing."
-        );
-      }
 
       const velocityScale = config.velocityScale;
       const rotationScale = config.rotationScale;

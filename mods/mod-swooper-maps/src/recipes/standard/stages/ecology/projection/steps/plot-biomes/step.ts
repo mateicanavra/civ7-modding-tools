@@ -21,9 +21,9 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
 export const PlotBiomesStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
     const { width, height } = context.setup.dimensions;
-    const classification = deps.artifacts.biomeClassification.read(context);
-    const climateIndices = deps.artifacts.climateIndices.read(context);
-    const topography = deps.artifacts.topography.read(context);
+    const classification = deps.artifacts.biomeClassification.read();
+    const climateIndices = deps.artifacts.climateIndices.read();
+    const topography = deps.artifacts.topography.read();
     const engineBiomeIds = resolveEngineBiomeIds({
       getBiomeGlobal: (key) => deps.engine.getBiomeGlobal(context, key),
     });
@@ -104,18 +104,20 @@ export const PlotBiomesStep = createStep(config, {
       },
     };
   },
-  metrics: ({ result }) => ({
-    "ecology.biomeProjection": measureStandardBiomeProjection(result.projectionMeasurementInput),
+  metrics: ({ observation }) => ({
+    "ecology.biomeProjection": measureStandardBiomeProjection(
+      observation.projectionMeasurementInput
+    ),
   }),
-  viz: ({ result, dimensions }) => {
-    const biomeIdCategories = buildEngineBiomeIdVizCategories(result.engineBiomeIds);
+  viz: ({ observation, dimensions }) => {
+    const biomeIdCategories = buildEngineBiomeIdVizCategories(observation.engineBiomeIds);
     return [
       {
         kind: "grid",
         dataTypeKey: "map.ecology.biomeId",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "i32", values: result.projectedBiomeId },
+        field: { format: "i32", values: observation.projectedBiomeId },
         meta: defineStandardVizCategoryMeta("map.ecology.biomeId", biomeIdCategories, {
           label: "Biome Id (Engine)",
           group: GROUP_MAP_ECOLOGY,
@@ -126,7 +128,7 @@ export const PlotBiomesStep = createStep(config, {
         dataTypeKey: "map.ecology.temperature",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "u8", values: result.projectedTemperature },
+        field: { format: "u8", values: observation.projectedTemperature },
         meta: defineStandardVizMeta("map.ecology.temperature", "climate.temperature", {
           label: "Temperature (Engine)",
           group: GROUP_MAP_ECOLOGY,
@@ -137,7 +139,7 @@ export const PlotBiomesStep = createStep(config, {
         dataTypeKey: "map.ecology.biome.bindingClass",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "u8", values: result.bindingClass },
+        field: { format: "u8", values: observation.bindingClass },
         meta: defineStandardVizCategoryMeta(
           "map.ecology.biome.bindingClass",
           [

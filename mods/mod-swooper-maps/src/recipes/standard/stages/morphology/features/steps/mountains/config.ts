@@ -16,18 +16,15 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 export const config = defineStep({
   id: "mountains",
   description: "Plans Morphology mountain intent from admitted physical evidence.",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [
-      morphologyTerrainArtifacts.beltDrivers,
-      morphologyLandformsArtifacts.topography,
-      morphologyErosionArtifacts.substrate,
-      morphologyRoutingArtifacts.routing,
-      morphologyCoastsArtifacts.baseCoastline,
-    ],
-    provides: [morphologyLandformsArtifacts.mountains],
-  },
+  requires: [
+    morphologyTerrainArtifacts.beltDrivers,
+    morphologyLandformsArtifacts.topography,
+    morphologyErosionArtifacts.substrate,
+    morphologyRoutingArtifacts.routing,
+    morphologyCoastsArtifacts.baseCoastline,
+  ],
+  provides: [morphologyLandformsArtifacts.mountains],
+
   ops: {
     ridges: morphology.landforms.ops.planRidges,
     foothills: morphology.landforms.ops.planFoothills,

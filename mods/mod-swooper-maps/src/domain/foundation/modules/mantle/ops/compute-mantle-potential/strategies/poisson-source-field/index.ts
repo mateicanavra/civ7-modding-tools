@@ -37,14 +37,19 @@ function normalizeSigned(values: Float32Array): void {
 }
 
 function pickPoissonSeed(params: {
-  mesh: { cellCount: number; wrapWidth: number; siteX: Float32Array; siteY: Float32Array };
+  mesh: {
+    readonly cellCount: number;
+    readonly wrapWidth: number;
+    readonly siteX: ArrayLike<number>;
+    readonly siteY: ArrayLike<number>;
+  };
   rng: (max: number, label?: string) => number;
   used: Uint8Array;
   existingSeeds: number[];
   minDistSq: number;
   label: string;
 }): number {
-  const cellCount = params.mesh.cellCount | 0;
+  const cellCount = params.mesh.cellCount;
   let bestCandidate = -1;
   let bestScore = -Infinity;
 
@@ -108,9 +113,9 @@ const poissonSourceField = createStrategy(
   {
     run: (input, config) => {
       const mesh = input.mesh;
-      const rngSeed = input.rngSeed | 0;
+      const rngSeed = input.rngSeed;
       const rng = createLabelRng(rngSeed);
-      const cellCount = mesh.cellCount | 0;
+      const cellCount = mesh.cellCount;
 
       const plumeCount = clampInt(config.plumeCount, 0, PLUME_COUNT_CLAMP_MAX);
       const downwellingCount = clampInt(config.downwellingCount, 0, DOWNWELLING_COUNT_CLAMP_MAX);

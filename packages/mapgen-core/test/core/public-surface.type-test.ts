@@ -8,15 +8,16 @@ import * as MapGenTrace from "@mapgen/trace/index.js";
 
 void MapGenCore.admitMapSetup;
 void MapGenCore.MapSetupSchema;
-void MapGenAuthoring.readValidatedArtifact;
-void MapGenAuthoring.observeValidatedArtifact;
-void MapGenEngine.TagRegistry;
+void MapGenAuthoring.readArtifact;
+void MapGenAuthoring.observeArtifact;
 void MapGenTesting.createTraceSessionForTest;
 void MapGenTrace.TraceEventSchema;
 void MapGenPublic.VERSION;
 
 type PublicStepFacetSinks = MapGenPublic.StepFacetSinks;
 type PublicStepFacetFailure = MapGenPublic.StepFacetFailure;
+type PublicArtifactObservation = MapGenAuthoring.ArtifactObservation<MapGenAuthoring.Artifact>;
+type EngineCompletionId = MapGenEngine.CompletionId;
 
 // @ts-expect-error Internal setup-authenticity assertions are not part of the public Core surface.
 MapGenCore.assertMapSetupInternal;
@@ -24,14 +25,14 @@ MapGenCore.assertMapSetupInternal;
 MapGenCore.readMapContextArtifactInternal;
 // @ts-expect-error Artifact-observation lifecycle admission is private to MapGen Core.
 MapGenCore.assertTerminalMapContextObservationInternal;
-// @ts-expect-error Runtime artifact construction is private to recipe composition.
+// @ts-expect-error Artifact capabilities derive directly from declared authorities per occurrence.
 MapGenAuthoring.implementArtifacts;
-// @ts-expect-error In-run artifact observation is private to executor dependency predicates.
-MapGenAuthoring.observeValidatedArtifactInternal;
+// @ts-expect-error Terminal artifact observation has no separate internal public capability.
+MapGenAuthoring.observeArtifactInternal;
 // @ts-expect-error Contract-only modules cannot acquire runtime observation authority.
-MapGenContracts.readValidatedArtifact;
+MapGenContracts.readArtifact;
 // @ts-expect-error Contract-only modules cannot acquire runtime observation authority.
-MapGenContracts.observeValidatedArtifact;
+MapGenContracts.observeArtifact;
 // @ts-expect-error Artifact authors declare exact typed arrays in schemas instead of plumbing helper arrays.
 MapGenAuthoring.appendArtifactTypedArrayIssues;
 // @ts-expect-error Grid-coordinate semantic issues are emitted through the contextual issue sink.
@@ -40,10 +41,6 @@ MapGenAuthoring.appendArtifactGridCoordinateIssues;
 MapGenAuthoring.artifactCellCount;
 // @ts-expect-error Contract-only authoring has no legacy artifact validation helpers.
 MapGenContracts.appendArtifactTypedArrayIssues;
-// @ts-expect-error Tag satisfaction is executor-owned rather than a public engine command.
-MapGenEngine.isDependencyTagSatisfied;
-// @ts-expect-error Satisfaction-state construction is executor-owned.
-MapGenEngine.computeInitialSatisfiedTags;
 // @ts-expect-error Production trace-session construction is not a public trace capability.
 MapGenTrace.createTraceSession;
 // @ts-expect-error Plan compilation is private to the recipe execution boundary.
@@ -52,8 +49,6 @@ MapGenPublic.compileExecutionPlan;
 MapGenPublic.PipelineExecutor;
 // @ts-expect-error Mutable step registration is private to recipe composition.
 MapGenPublic.StepRegistry;
-// @ts-expect-error Mutable dependency-tag registration is private to recipe composition.
-MapGenPublic.TagRegistry;
 // @ts-expect-error Steps bind operation contracts directly; the retired op-reference wrapper is absent.
 MapGenAuthoring.opRef;
 
@@ -81,3 +76,5 @@ void (undefined as unknown as PublicArtifactValidator);
 void (undefined as unknown as PublicArtifactValidationContext);
 void (undefined as unknown as PublicStepFacetSinks);
 void (undefined as unknown as PublicStepFacetFailure);
+void (undefined as unknown as PublicArtifactObservation);
+void (undefined as unknown as EngineCompletionId);

@@ -46,22 +46,27 @@ typed VizProjection
   policy.
 - Scalar format and typed-array representation are one closed union. Dimensions, cardinality,
   geometry, vector references, bounds, counts, and scalar statistics are validated centrally.
-- Binary materialization is the only environment boundary. The Studio worker copies each exact
-  typed-array view into an inline transferable buffer; `@swooper/mapgen-diagnostics` persists
-  that view and returns a relative path.
+- Binary materialization is the only environment boundary. The Viz kernel privately snapshots each
+  exact typed-array view, then derives bounds and scalar statistics from those snapshots before
+  invoking an environment adapter. Each binary slot transfers that single owned snapshot to its
+  synchronous materializer. Studio transfers its buffer inline; `@swooper/mapgen-diagnostics`
+  persists the same bytes and returns a relative path. No second copy capability or intermediate
+  ownership state exists, and caller-owned source storage never crosses the boundary.
 - `admitPathVizManifest` is the single runtime admission boundary for untrusted path-backed v2
   manifests. Viz owns the closed TypeBox schema and exact stage/step execution relation; the
   diagnostics package owns filesystem reads and supplies the parsed JSON value.
 - Materialization does not render, persist, emit trace events, or synthesize evidence; it serializes
   the projection it receives. Explicitly selected projection helpers may derive visualization-only
-  evidence such as vector magnitude from borrowed semantic sources before materialization.
+  evidence such as vector magnitude from completed semantic sources before materialization.
 - Steps author optional `viz` and `metrics` projectors inline on the same
-  `createStep(config, { run, viz, metrics })` implementation that owns their result. Here
+  `createStep(config, { run, viz, metrics })` implementation that owns their invocation-local
+  observation. Here
   `config` is the owner-local binding for the step contract, not a different
   kind of value. After `run`
   completes and declared artifact providers are admitted, the executor invokes each matching
   projector/sink pair at most once. Without both halves, no projection or execution identity is
-  computed. These facets observe completed evidence; they never change generation behavior.
+  computed. The observation is discarded after projection and never becomes artifact or pipeline
+  state. These facets observe completed evidence; they never change generation behavior.
 - Recipe algorithms cannot access a visualization sink. Imperative `context.viz` calls and trace
   event envelopes are not visualization authoring surfaces.
 

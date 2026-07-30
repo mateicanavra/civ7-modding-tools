@@ -64,7 +64,7 @@ export type StandardLakeProjectionMeasurements = Static<
 /** Causal evidence needed to measure one completed lake projection. */
 export type StandardLakeProjectionMeasurementInput = Readonly<{
   dimensions: Readonly<{ width: number; height: number }>;
-  projectedLakeMask: Uint8Array;
+  projectedLakeMask: ArrayLike<number>;
   plannedLakeTileCount: number;
   morphologyProtectedLakeTileCount: number;
   stampedLakeTileCount: number;

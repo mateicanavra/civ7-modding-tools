@@ -5,7 +5,7 @@ import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morpho
 import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/modules/regions/artifacts/index.js";
 import placement from "@mapgen/domain/placement/router";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
-import { readValidatedArtifact, type StepRuntimeOps } from "@swooper/mapgen-core/authoring";
+import { readArtifact, type StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
   normalizeOperationSelectionForTest,
@@ -19,8 +19,6 @@ import { TEST_MAP_LATITUDE_BOUNDS, TEST_MAP_SEED, TEST_MAP_SIZE } from "../../..
 type PlotLandmassRegionsOps = StepRuntimeOps<
   NonNullable<(typeof PlotLandmassRegionsStep.contract)["ops"]>
 >;
-
-const REGION_OP_CONTRACT = PlotLandmassRegionsStep.contract.ops!.regions;
 
 describe("landmass-region materialization", () => {
   it("writes every region slot to its exact Civ7 identity and publishes the same slot field", () => {
@@ -51,10 +49,7 @@ describe("landmass-region materialization", () => {
       writeCounts[index]++;
       setLandmassRegionId(x, y, regionId);
     };
-    const regions = Object.assign(
-      (): ReturnType<PlotLandmassRegionsOps["regions"]> => ({ slotByTile }),
-      { id: REGION_OP_CONTRACT.id, kind: REGION_OP_CONTRACT.kind }
-    );
+    const regions: PlotLandmassRegionsOps["regions"] = () => ({ slotByTile });
     const ops: PlotLandmassRegionsOps = { regions };
 
     withMapContextExecutionForTest(context, (stepContext) => {
@@ -92,7 +87,7 @@ describe("landmass-region materialization", () => {
     expect(writeCounts.every((count) => count === 1)).toBe(true);
     expect(writes).toEqual(expected);
     expect(
-      readValidatedArtifact(context, placementRegionArtifacts.landmassRegionSlotByTile).slotByTile
+      readArtifact(context, placementRegionArtifacts.landmassRegionSlotByTile).slotByTile
     ).toEqual(slotByTile);
   });
 });

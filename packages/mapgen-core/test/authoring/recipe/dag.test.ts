@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import {
   buildRecipeDag,
+  type CompletionId,
   createStage,
   createStep,
   defineArtifact,
@@ -10,6 +11,7 @@ import {
 import { Type } from "typebox";
 
 const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false, default: {} });
+const EXTERNAL_READY = "completion:test.external-ready" as const satisfies CompletionId;
 
 const sourceArtifact = defineArtifact({
   name: "sourceArtifact",
@@ -39,31 +41,15 @@ function step(input: {
   id: string;
   requires?: readonly ReturnType<typeof defineArtifact>[];
   provides?: readonly ReturnType<typeof defineArtifact>[];
+  completionRequires?: readonly CompletionId[];
+  completionProvides?: readonly CompletionId[];
 }) {
   const requires = input.requires ?? [];
   const provides = input.provides ?? [];
-  if (provides.length === 0) {
-    const contract = defineStep({
-      id: input.id,
-      requires: requires.length ? ["effect:test.externalReady"] : [],
-      provides: [],
-      artifacts: { requires },
-    });
-    return createStep(contract, { run: () => {} });
-  }
-
-  const providedArtifacts = provides as readonly [
-    ReturnType<typeof defineArtifact>,
-    ...ReturnType<typeof defineArtifact>[],
-  ];
   const contract = defineStep({
     id: input.id,
-    requires: requires.length ? ["effect:test.externalReady"] : [],
-    provides: [],
-    artifacts: {
-      requires,
-      provides: providedArtifacts,
-    },
+    requires: [...(input.completionRequires ?? []), ...requires],
+    provides: [...(input.completionProvides ?? []), ...provides],
   });
   return createStep(contract, { run: () => {} });
 }
@@ -91,10 +77,12 @@ describe("recipe DAG authoring model", () => {
         step({
           id: "produce-source",
           provides: [sourceArtifact],
+          completionProvides: [EXTERNAL_READY],
         }),
         step({
           id: "consume-internal",
           requires: [internalArtifact],
+          completionRequires: [EXTERNAL_READY],
         }),
       ]),
       stage("target-stage", [
@@ -118,6 +106,26 @@ describe("recipe DAG authoring model", () => {
 
     expect(dag.recipeKey).toBe("test-mod/standard");
     expect(dag.stages.map((node) => node.stageId)).toEqual(["source-stage", "target-stage"]);
+    const completionMetadata = dag.stages
+      .flatMap((stage) => stage.steps)
+      .filter((step) => step.completionRequires.length > 0 || step.completionProvides.length > 0)
+      .map((step) => ({
+        stepId: step.stepId,
+        completionRequires: step.completionRequires,
+        completionProvides: step.completionProvides,
+      }));
+    expect(completionMetadata).toEqual([
+      {
+        stepId: "produce-source",
+        completionRequires: [],
+        completionProvides: [EXTERNAL_READY],
+      },
+      {
+        stepId: "consume-internal",
+        completionRequires: [EXTERNAL_READY],
+        completionProvides: [],
+      },
+    ]);
     expect(
       dag.edges.map((edge) => ({
         artifact: edge.artifact.id,
@@ -224,6 +232,77 @@ describe("recipe DAG authoring model", () => {
     expect(dag.stages.map((node) => [node.stageId, node.diagnosticCount])).toEqual([
       ["alpha", 1],
       ["beta", 3],
+    ]);
+  });
+
+  it("reports duplicate providers even when no step consumes the artifact", () => {
+    const stages = [
+      stage("alpha", [step({ id: "produce-a", provides: [sourceArtifact] })]),
+      stage("beta", [step({ id: "produce-b", provides: [sourceArtifact] })]),
+    ];
+
+    const dag = buildRecipeDag({ recipeId: "unconsumed-duplicate", stages });
+
+    expect(dag.edges).toEqual([]);
+    expect(dag.diagnostics).toEqual([
+      {
+        kind: "artifact-provider-duplicate",
+        artifact: { id: sourceArtifact.id, name: sourceArtifact.name },
+        providers: [
+          {
+            stageId: "alpha",
+            stepId: "produce-a",
+            fullStepId: "unconsumed-duplicate.alpha.produce-a",
+          },
+          {
+            stageId: "beta",
+            stepId: "produce-b",
+            fullStepId: "unconsumed-duplicate.beta.produce-b",
+          },
+        ],
+        consumers: [],
+      },
+    ]);
+    expect(dag.stages.map((node) => [node.stageId, node.diagnosticCount])).toEqual([
+      ["alpha", 1],
+      ["beta", 1],
+    ]);
+  });
+
+  it("reports same-id artifact authority mismatches instead of drawing false edges", () => {
+    const requiredArtifact = defineArtifact({
+      name: "requiredSourceArtifact",
+      id: sourceArtifact.id,
+      schema: Type.Object({}, { additionalProperties: false }),
+    });
+    const stages = [
+      stage("alpha", [step({ id: "produce", provides: [sourceArtifact] })]),
+      stage("beta", [step({ id: "consume", requires: [requiredArtifact] })]),
+    ];
+
+    const dag = buildRecipeDag({ recipeId: "authority-mismatch", stages });
+
+    expect(dag.edges).toEqual([]);
+    expect(dag.diagnostics).toEqual([
+      {
+        kind: "artifact-authority-mismatch",
+        artifact: { id: requiredArtifact.id, name: requiredArtifact.name },
+        providedArtifact: { id: sourceArtifact.id, name: sourceArtifact.name },
+        provider: {
+          stageId: "alpha",
+          stepId: "produce",
+          fullStepId: "authority-mismatch.alpha.produce",
+        },
+        consumer: {
+          stageId: "beta",
+          stepId: "consume",
+          fullStepId: "authority-mismatch.beta.consume",
+        },
+      },
+    ]);
+    expect(dag.stages.map((node) => [node.stageId, node.diagnosticCount])).toEqual([
+      ["alpha", 1],
+      ["beta", 1],
     ]);
   });
 });

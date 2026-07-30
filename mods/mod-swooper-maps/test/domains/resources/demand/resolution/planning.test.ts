@@ -8,6 +8,7 @@ import {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   getInitialMapResourcePolicyForType,
   HABITAT_MASK_FIELD_NAMES,
+  type HabitatMaskFieldName,
   INITIAL_MAP_RESOURCE_AUTHORING_AGE,
   RESOURCE_HABITAT_SIGNALS,
 } from "@mapgen/domain/resources";
@@ -22,6 +23,7 @@ type TerminalCandidate =
   | ResolveOutput["candidates"]["excluded"]["expectationBlocked"][number]
   | ResolveOutput["candidates"]["excluded"]["ageDeferred"][number]
   | ResolveOutput["candidates"]["excluded"]["noLegalSites"][number];
+type HabitatMaskFields = Partial<Record<HabitatMaskFieldName, Uint8Array>>;
 
 const BLOCKED_RESOURCE_TYPES = [
   "RESOURCE_CLOVES",
@@ -111,6 +113,183 @@ describe("resource demand resolution", () => {
     expect(excluded?.reason.kind).toBe("no-legal-sites");
   });
 
+  it("resolves the canonical aquatic and cultivated habitat lanes through the public operation", () => {
+    const cases = [
+      {
+        resourceType: "RESOURCE_CRABS",
+        field: "navigableRiverMouthMask",
+        laneId: "aquatic",
+        laneKind: "water",
+        plotIndex: 4,
+      },
+      {
+        resourceType: "RESOURCE_DYES",
+        field: "coastalMarineMask",
+        laneId: "marine-dye",
+        laneKind: "water",
+        plotIndex: 3,
+      },
+      {
+        resourceType: "RESOURCE_DATES",
+        field: "oasisOrDesertWaterMask",
+        laneId: "arid-oasis-resin",
+        laneKind: "land",
+        plotIndex: 5,
+      },
+      {
+        resourceType: "RESOURCE_RICE",
+        field: "wetlandPaddyMask",
+        laneId: "wetland-paddy",
+        laneKind: "land",
+        plotIndex: 7,
+      },
+    ] as const satisfies readonly {
+      resourceType: OfficialResourceType;
+      field: HabitatMaskFieldName;
+      laneId: string;
+      laneKind: "land" | "water";
+      plotIndex: number;
+    }[];
+
+    for (const row of cases) {
+      const signal = requireSignal(row.resourceType);
+      const source = resolveHabitatSource(
+        row.resourceType,
+        fieldsWith(row.field, oneAt(row.plotIndex))
+      );
+
+      expect(signal.primary, row.resourceType).toContain(row.field);
+      expect(source.laneId, row.resourceType).toBe(row.laneId);
+      expect(source.laneKind, row.resourceType).toBe(row.laneKind);
+      expect(source.habitatTileCount, row.resourceType).toBe(1);
+      expect(source.habitatMask[row.plotIndex], row.resourceType).toBe(1);
+    }
+
+    expect(requireSignal("RESOURCE_CRABS").primary).toContain("navigableRiverMouthMask");
+    expect(requireSignal("RESOURCE_TEA")).toMatchObject({
+      laneId: "highland-medicinal",
+      laneKind: "land",
+    });
+    expect(requireSignal("RESOURCE_TEA").primary).toContain("highlandOrReliefMask");
+    expect(
+      run(buildFixture()).candidates.excluded.ageDeferred.some(
+        (candidate) => candidate.source.resourceType === "RESOURCE_TEA"
+      )
+    ).toBe(true);
+  });
+
+  it("keeps narrow geological proxies from broadening into adjacent signal fields", () => {
+    const cases = [
+      {
+        resourceType: "RESOURCE_JADE",
+        admittedField: "ultramaficMask",
+        unrelatedField: "alluvialPlacerMask",
+      },
+      {
+        resourceType: "RESOURCE_LIMESTONE",
+        admittedField: "carbonateBeltMask",
+        unrelatedField: "tundraDesertHillMask",
+      },
+      {
+        resourceType: "RESOURCE_RUBIES",
+        admittedField: "metamorphicBeltMask",
+        unrelatedField: "carbonateBeltMask",
+      },
+    ] as const satisfies readonly {
+      resourceType: OfficialResourceType;
+      admittedField: HabitatMaskFieldName;
+      unrelatedField: HabitatMaskFieldName;
+    }[];
+
+    for (const row of cases) {
+      const signal = requireSignal(row.resourceType);
+      const admitted = resolveHabitatSource(
+        row.resourceType,
+        fieldsWith(row.admittedField, oneAt(1))
+      );
+      const unrelated = resolveHabitatSource(
+        row.resourceType,
+        fieldsWith(row.unrelatedField, oneAt(1))
+      );
+
+      expect(signal.primary, row.resourceType).toContain(row.admittedField);
+      expect(signal.primary, row.resourceType).not.toContain(row.unrelatedField);
+      expect(admitted.habitatTileCount, row.resourceType).toBe(1);
+      expect(unrelated.habitatTileCount, row.resourceType).toBe(0);
+    }
+
+    expect(requireSignal("RESOURCE_COAL").primary).toEqual([
+      "sedimentaryBasinMask",
+      "forestWetlandBasinMask",
+    ]);
+    expect(requireSignal("RESOURCE_NITER").primary).toContain("aridSoilMask");
+    expect(requireSignal("RESOURCE_NITER").primary).not.toContain("wetAlluvialMask");
+    expect(
+      run(buildFixture()).candidates.excluded.ageDeferred.some(
+        (candidate) => candidate.source.resourceType === "RESOURCE_NITER"
+      )
+    ).toBe(true);
+  });
+
+  it("applies terrestrial and geological suppressors after primary admission", () => {
+    const cases = [
+      {
+        resourceType: "RESOURCE_HORSES",
+        primaryField: "openGrassPlainsMask",
+        suppressionField: "denseForestMask",
+        suppressedPlot: 0,
+      },
+      {
+        resourceType: "RESOURCE_WILD_GAME",
+        primaryField: "diverseWildHabitatMask",
+        suppressionField: "cultivatedPressureMask",
+        suppressedPlot: 1,
+      },
+      {
+        resourceType: "RESOURCE_GOLD",
+        primaryField: "orogenyMask",
+        suppressionField: "flatNonGeologicMask",
+        suppressedPlot: 2,
+      },
+      {
+        resourceType: "RESOURCE_LIMESTONE",
+        primaryField: "carbonateBeltMask",
+        suppressionField: "igneousTerrainMask",
+        suppressedPlot: 4,
+      },
+    ] as const satisfies readonly {
+      resourceType: OfficialResourceType;
+      primaryField: HabitatMaskFieldName;
+      suppressionField: HabitatMaskFieldName;
+      suppressedPlot: number;
+    }[];
+
+    for (const row of cases) {
+      const signal = requireSignal(row.resourceType);
+      const source = resolveHabitatSource(
+        row.resourceType,
+        fieldsWith(
+          row.primaryField,
+          new Uint8Array(size).fill(1),
+          row.suppressionField,
+          oneAt(row.suppressedPlot)
+        )
+      );
+
+      expect(signal.suppress, row.resourceType).toContain(row.suppressionField);
+      expect(source.habitatTileCount, row.resourceType).toBe(size - 1);
+      expect(source.habitatMask[row.suppressedPlot], row.resourceType).toBe(0);
+    }
+
+    expect(requireSignal("RESOURCE_OIL").primary).toContain("hydrocarbonBasinMask");
+    expect(requireSignal("RESOURCE_OIL").suppress).toContain("offshoreMask");
+    expect(
+      run(buildFixture()).candidates.excluded.ageDeferred.some(
+        (candidate) => candidate.source.resourceType === "RESOURCE_OIL"
+      )
+    ).toBe(true);
+  });
+
   it("records the source-matched future-age disposition without weakening the corpus ledger", () => {
     const result = run(buildFixture());
     const withheld = EARTHLIKE_RESOURCE_EXPECTATIONS.find(
@@ -147,11 +326,7 @@ describe("resource demand resolution", () => {
   });
 
   it("preserves the legal-only regional-minimum pass when habitat has no overlap", () => {
-    const input = buildFixture("RESOURCE_GOLD");
-    const signal = RESOURCE_HABITAT_SIGNALS.get("RESOURCE_GOLD");
-    if (!signal) throw new Error("Missing RESOURCE_GOLD habitat signal.");
-    const habitatFields = input as ResolveInput & Record<string, Uint8Array>;
-    for (const field of signal.primary) habitatFields[field].fill(0);
+    const input = buildFixture("RESOURCE_GOLD", [], undefined, "empty-primary-habitat");
 
     const resolved = run(input);
     const candidate = resolved.candidates.admitted.find(
@@ -208,10 +383,56 @@ describe("resource demand resolution", () => {
     );
   }
 
+  function resolveHabitatSource(
+    resourceType: OfficialResourceType,
+    fields: HabitatMaskFields
+  ): ResolveOutput["candidates"]["admitted"][number]["source"] {
+    const habitatMasks = Object.fromEntries(
+      HABITAT_MASK_FIELD_NAMES.map((field) => [
+        field,
+        fields[field]?.slice() ?? new Uint8Array(size),
+      ])
+    ) as Record<HabitatMaskFieldName, Uint8Array>;
+
+    const result = run({ ...buildFixture(resourceType), ...habitatMasks });
+    const candidate = [
+      ...result.candidates.admitted,
+      ...result.candidates.excluded.noLegalSites,
+    ].find((row) => row.source.resourceType === resourceType);
+    if (!candidate) {
+      throw new Error(`${resourceType} did not reach habitat resolution.`);
+    }
+    return candidate.source;
+  }
+
+  function requireSignal(resourceType: OfficialResourceType) {
+    const signal = RESOURCE_HABITAT_SIGNALS.get(resourceType);
+    if (!signal) throw new Error(`Missing habitat signal for ${resourceType}.`);
+    return signal;
+  }
+
+  function fieldsWith(
+    field: HabitatMaskFieldName,
+    mask: Uint8Array,
+    secondField?: HabitatMaskFieldName,
+    secondMask?: Uint8Array
+  ): HabitatMaskFields {
+    const fields: HabitatMaskFields = { [field]: mask };
+    if (secondField !== undefined && secondMask !== undefined) fields[secondField] = secondMask;
+    return fields;
+  }
+
+  function oneAt(plotIndex: number): Uint8Array {
+    const mask = new Uint8Array(size);
+    mask[plotIndex] = 1;
+    return mask;
+  }
+
   function buildFixture(
     requestedType: OfficialResourceType = selectedResourceFixture().resourceType,
     riverMasks: Uint8Array[] = [],
-    omitRequiredObservation?: OfficialResourceType
+    omitRequiredObservation?: OfficialResourceType,
+    habitatMode: "admitted" | "empty-primary-habitat" = "admitted"
   ): ResolveInput {
     const selected = selectedResourceFixture(requestedType);
     const primaryFields = new Set(
@@ -223,6 +444,11 @@ describe("resource demand resolution", () => {
         new Uint8Array(size).fill(primaryFields.has(field) ? 1 : 0),
       ])
     ) as Record<(typeof HABITAT_MASK_FIELD_NAMES)[number], Uint8Array>;
+    if (habitatMode === "empty-primary-habitat") {
+      const signal = RESOURCE_HABITAT_SIGNALS.get(requestedType);
+      if (!signal) throw new Error(`Missing ${requestedType} habitat signal.`);
+      for (const field of signal.primary) habitatMasks[field].fill(0);
+    }
     const requiredForAge = Object.fromEntries(
       [...resolveResourceRuntimeIds().byType.entries()]
         .filter(
@@ -269,19 +495,18 @@ function selectedResourceFixture(requestedType?: OfficialResourceType): {
     return (
       row.status === "expected" &&
       signal !== undefined &&
-      signal.laneKind === "land" &&
+      (requestedType !== undefined || signal.laneKind === "land") &&
       resolved !== undefined &&
       (requestedType !== undefined || resolved.minimumPerHemisphere === 0) &&
       getInitialMapResourcePolicyForType(row.resourceType, INITIAL_MAP_RESOURCE_AUTHORING_AGE)
         ?.status === "eligible" &&
-      (validRows[String(resolved.resourceTypeId)]?.length ?? 0) > 0
+      (requestedType !== undefined || (validRows[String(resolved.resourceTypeId)]?.length ?? 0) > 0)
     );
   });
   if (!expectation) throw new Error("Missing an age-eligible resource demand fixture.");
   const resolved = resolution.byType.get(expectation.resourceType);
   if (!resolved) throw new Error(`Missing runtime id for ${expectation.resourceType}.`);
-  const placementRow = validRows[String(resolved.resourceTypeId)]?.[0];
-  if (!placementRow) throw new Error(`Missing placement row for ${expectation.resourceType}.`);
+  const placementRow = validRows[String(resolved.resourceTypeId)]?.[0] ?? ([0, 0, 0] as const);
   return { resourceType: expectation.resourceType, placementRow };
 }
 

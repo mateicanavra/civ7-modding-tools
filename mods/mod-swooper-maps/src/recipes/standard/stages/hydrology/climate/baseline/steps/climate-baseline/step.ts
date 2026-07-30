@@ -368,8 +368,8 @@ export const ClimateBaselineStep = createStep(config, {
       }
     }
 
-    const topography = deps.artifacts.topography.read(context);
-    const shelf = deps.artifacts.shelf.read(context);
+    const topography = deps.artifacts.topography.read();
+    const shelf = deps.artifacts.shelf.read();
     const elevation = topography.elevation;
     const landMask = topography.landMask;
     const isWaterMask = new Uint8Array(width * height);
@@ -390,7 +390,6 @@ export const ClimateBaselineStep = createStep(config, {
     );
 
     const size = width * height;
-    const zeros = new Uint8Array(size);
 
     const modeCount = stepConfig.seasonality.modeCount;
     const axialTiltDeg = stepConfig.seasonality.axialTiltDeg;
@@ -594,9 +593,6 @@ export const ClimateBaselineStep = createStep(config, {
             windU,
             windV,
             humidityF32: moisture.humidity,
-            rainfallIn: zeros,
-            humidityIn: zeros,
-            riverClass: zeros,
             perlinSeed,
           },
           stepConfig.computePrecipitation
@@ -667,9 +663,6 @@ export const ClimateBaselineStep = createStep(config, {
             windU,
             windV,
             humidityF32: moisture.humidity,
-            rainfallIn: zeros,
-            humidityIn: zeros,
-            riverClass: zeros,
             perlinSeed,
           },
           stepConfig.computePrecipitation
@@ -706,7 +699,7 @@ export const ClimateBaselineStep = createStep(config, {
       humidityAmplitude[i] = Math.max(0, Math.min(255, Math.round((humidMax - humidMin) / 2)));
     }
 
-    const baselineClimateField = deps.artifacts.baselineClimateField.publish(context, {
+    const baselineClimateField = deps.artifacts.baselineClimateField.publish({
       rainfall: meanRainfall,
       humidity: meanHumidity,
     });
@@ -714,7 +707,7 @@ export const ClimateBaselineStep = createStep(config, {
       rainfallAmplitude,
       humidityAmplitude,
     };
-    const windField = deps.artifacts.windField.publish(context, {
+    const windField = deps.artifacts.windField.publish({
       windU: meanWindU,
       windV: meanWindV,
     });
@@ -737,5 +730,5 @@ export const ClimateBaselineStep = createStep(config, {
       oceanThermal,
     };
   },
-  viz: ({ result, dimensions }) => buildClimateBaselineVizProjections(result, dimensions),
+  viz: ({ observation, dimensions }) => buildClimateBaselineVizProjections(observation, dimensions),
 });

@@ -1,4 +1,10 @@
-import type { DomainOp, Static, StrategySelection, TSchema } from "@mapgen/authoring/index.js";
+import type {
+  DomainOp,
+  OperationInput,
+  Static,
+  StrategySelection,
+  TSchema,
+} from "@mapgen/authoring/index.js";
 import {
   type CompileErrorItem,
   validateSchemaValue,
@@ -79,7 +85,7 @@ export function runAdmittedOperationForTest<
   Strategies extends Record<string, { config: TSchema }>,
 >(
   operation: DomainOp<InputSchema, OutputSchema, Strategies>,
-  input: Static<InputSchema>,
+  input: OperationInput<InputSchema>,
   selection: StrategySelection<Strategies>,
   options?: Readonly<{ path?: string }>
 ): Static<OutputSchema> {

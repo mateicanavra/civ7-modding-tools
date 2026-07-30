@@ -12,8 +12,8 @@ function computeLocalRelief(params: {
   index: number;
   width: number;
   height: number;
-  elevation: Int16Array;
-  landMask: Uint8Array;
+  elevation: ArrayLike<number>;
+  landMask: ArrayLike<number>;
 }): number {
   const { index, width, height, elevation, landMask } = params;
   const base = elevation[index] ?? 0;

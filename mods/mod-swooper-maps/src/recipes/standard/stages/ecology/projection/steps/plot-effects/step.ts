@@ -20,11 +20,11 @@ const PLOT_EFFECT_KEY_BY_INTENT: Readonly<Record<PlotEffectIntentKey, PlotEffect
   "jungle-fever": "PLOTEFFECT_JUNGLE_FEVER",
 };
 
-type PlotEffectPlacement = {
+type PlotEffectPlacement = Readonly<{
   x: number;
   y: number;
   plotEffect: PlotEffectIntentKey;
-};
+}>;
 
 type PlotEffectEngine = Readonly<{
   getPlotEffectTypeIndex: (key: PlotEffectKey) => number;
@@ -48,7 +48,7 @@ const resolvePlotEffectIndex = (engine: PlotEffectEngine, key: PlotEffectKey): n
  */
 function applyPlotEffectPlacements(
   engine: PlotEffectEngine,
-  placements: ReadonlyArray<PlotEffectPlacement>
+  placements: readonly PlotEffectPlacement[]
 ): void {
   const resolved = new Map<PlotEffectKey, number>();
 
@@ -71,7 +71,7 @@ const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
  */
 export const PlotEffectsStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
-    const placements = deps.artifacts.plotEffectPlan.read(context);
+    const placements = deps.artifacts.plotEffectPlan.read();
 
     if (placements.length > 0) {
       applyPlotEffectPlacements(
@@ -85,7 +85,7 @@ export const PlotEffectsStep = createStep(config, {
     }
     return placements;
   },
-  viz: ({ result: placements }) => {
+  viz: ({ observation: placements }) => {
     if (placements.length === 0) return [];
 
     const positions = new Float32Array(placements.length * 2);

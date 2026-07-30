@@ -8,7 +8,8 @@ Scope: `packages/mapgen-viz/**`
 - Projections describe inspectable spatial evidence; they do not carry trace/run identity,
   filesystem paths, browser buffers, rendered views, recipes, or domain policy.
 - `materializeVizProjection` validates a complete projection before delegating each binary slot
-  exactly once to an injected synchronous materializer.
+  exactly once to an injected synchronous materializer. Each slot transfers the one owned snapshot
+  created from its source; materializers do not recopy or retain access to the caller's storage.
 - Viz owns runtime admission of its portable v2 representations; host packages own transport and
   persistence around those admitted values.
 - MapGen Studio owns inline-buffer transport. Swooper diagnostic tooling owns path persistence.

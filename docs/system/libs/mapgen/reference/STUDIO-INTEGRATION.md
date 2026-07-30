@@ -185,11 +185,12 @@ Studio surfaces two observability channels from the worker:
 Key posture:
 - A step's optional `viz` projector runs after successful execution and provider admission, and only
   when the worker supplies a visualization facet sink.
-- The projector sees only `{ result, config, dimensions }`; it cannot observe browser state, trace,
+- The projector sees only `{ observation, config, dimensions }`; it cannot observe browser state, trace,
   or the sink.
 - Visualization is independent of trace verbosity. Trace owns progress; the visualization facet
   owns portable layer projections.
-- The worker copies each exact typed-array view, then transfers the copy across the worker boundary.
+- The Viz kernel snapshots each exact typed-array view; the worker requests one host-owned byte copy
+  from that snapshot and transfers it across the worker boundary.
 - Standard recipe style choices have already resolved to portable colors before Studio receives a
   layer. Studio does not maintain a recipe palette registry.
 

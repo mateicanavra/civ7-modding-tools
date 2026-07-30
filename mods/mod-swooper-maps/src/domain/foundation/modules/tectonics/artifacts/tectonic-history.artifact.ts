@@ -33,7 +33,7 @@ const TECTONIC_HISTORY_ERA_KEYS = [
  * `eraCount` and every field to one mesh-cell cardinality.
  */
 export const artifact = defineArtifact({
-  name: "foundationTectonicHistory",
+  name: "tectonicHistory",
   id: "artifact:foundation.tectonicHistory",
   schema: Type.Object(
     {

@@ -5,7 +5,7 @@ import hydrologyDomain from "@mapgen/domain/hydrology/router";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
-import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
+import { readArtifact } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
   publishTestArtifact,
@@ -79,12 +79,12 @@ function captureSeasonalEvidence(axialTiltDeg: number) {
     setup,
     adapter: createMockAdapter({ width, height }),
   });
-  const dependencies = buildStepTestDependencies(ClimateBaselineStep);
   const seasonPhases: number[] = [];
-  let rainfallAmplitude: Uint8Array | undefined;
-  let humidityAmplitude: Uint8Array | undefined;
+  let rainfallAmplitude: ArrayLike<number> | undefined;
+  let humidityAmplitude: ArrayLike<number> | undefined;
 
   withMapContextExecutionForTest(context, (stepContext) => {
+    const dependencies = buildStepTestDependencies(ClimateBaselineStep, stepContext);
     publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
       elevation: new Int16Array(size),
       seaLevel: 0,
@@ -168,7 +168,6 @@ describe("hydrology climate-baseline composition", () => {
       setup,
       adapter: createMockAdapter({ width, height }),
     });
-    const dependencies = buildStepTestDependencies(ClimateBaselineStep);
     const windU = new Int8Array(size).fill(7);
     const windV = new Int8Array(size).fill(-3);
     const currentValuesU = Array.from(
@@ -189,14 +188,23 @@ describe("hydrology climate-baseline composition", () => {
     );
     const sstC = new Float32Array(size).fill(22.5);
     const seaIceMask = new Uint8Array(size);
-    const currentInputs: Array<{ windU: Int8Array; windV: Int8Array }> = [];
+    const currentInputs: Array<{
+      windU: ArrayLike<number>;
+      windV: ArrayLike<number>;
+    }> = [];
     let currentCall = 0;
-    let thermalCurrentU: Int8Array | undefined;
-    let thermalCurrentV: Int8Array | undefined;
-    let currentField: Readonly<{ currentU: Int8Array; currentV: Int8Array }> | undefined;
-    const thermalSstInputs: Array<Float32Array | undefined> = [];
+    let thermalCurrentU: ArrayLike<number> | undefined;
+    let thermalCurrentV: ArrayLike<number> | undefined;
+    let currentField:
+      | Readonly<{
+          currentU: ArrayLike<number>;
+          currentV: ArrayLike<number>;
+        }>
+      | undefined;
+    const thermalSstInputs: Array<ArrayLike<number> | undefined> = [];
 
     withMapContextExecutionForTest(context, (stepContext) => {
+      const dependencies = buildStepTestDependencies(ClimateBaselineStep, stepContext);
       publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
@@ -271,7 +279,7 @@ describe("hydrology climate-baseline composition", () => {
     expect(thermalSstInputs).toHaveLength(config.seasonality.modeCount);
     for (const observedSst of thermalSstInputs) expect(observedSst).toBe(sstC);
 
-    const windField = readValidatedArtifact(context, climateArtifacts.windField);
+    const windField = readArtifact(context, climateArtifacts.windField);
     expect(Array.from(windField.windU)).toEqual(Array.from(windU));
     expect(Array.from(windField.windV)).toEqual(Array.from(windV));
     expect(Array.from(currentField?.currentU ?? [])).toEqual(
@@ -287,8 +295,8 @@ describe("hydrology climate-baseline composition", () => {
 
     expect(evidence.axialTiltDeg).toBe(0);
     expect(evidence.seasonPhases).toEqual(new Array(evidence.modeCount).fill(0));
-    expect(evidence.rainfallAmplitude.every((value) => value === 0)).toBeTrue();
-    expect(evidence.humidityAmplitude.every((value) => value === 0)).toBeTrue();
+    expect(Array.from(evidence.rainfallAmplitude).every((value) => value === 0)).toBeTrue();
+    expect(Array.from(evidence.humidityAmplitude).every((value) => value === 0)).toBeTrue();
   });
 
   it("returns nonzero seasonal amplitude when axial tilt enables seasonal forcing", () => {
@@ -296,7 +304,7 @@ describe("hydrology climate-baseline composition", () => {
 
     expect(evidence.axialTiltDeg).toBe(18);
     expect(new Set(evidence.seasonPhases).size).toBeGreaterThan(1);
-    expect(evidence.rainfallAmplitude.some((value) => value > 0)).toBeTrue();
-    expect(evidence.humidityAmplitude.some((value) => value > 0)).toBeTrue();
+    expect(Array.from(evidence.rainfallAmplitude).some((value) => value > 0)).toBeTrue();
+    expect(Array.from(evidence.humidityAmplitude).some((value) => value > 0)).toBeTrue();
   });
 });

@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import { MockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
+import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
@@ -21,7 +22,8 @@ function publishBuildElevationInputs(
   context: ReturnType<typeof createMapContext>,
   width: number,
   height: number,
-  landMask: Uint8Array
+  landMask: Uint8Array,
+  projectedLakeMask: Uint8Array
 ): void {
   const size = width * height;
   publishTestArtifact(context, morphologyLandformsArtifacts.topography, {
@@ -30,16 +32,20 @@ function publishBuildElevationInputs(
     landMask,
     bathymetry: new Int16Array(size),
   });
+  publishTestArtifact(context, hydrographyArtifacts.projectedLakes, {
+    lakeMask: projectedLakeMask,
+  });
 }
 
 function executeBuildElevation(
   context: ReturnType<typeof createMapContext>,
   width: number,
   height: number,
-  landMask: Uint8Array
+  landMask: Uint8Array,
+  projectedLakeMask = new Uint8Array(width * height)
 ): void {
   withMapContextExecutionForTest(context, (stepContext) => {
-    publishBuildElevationInputs(stepContext, width, height, landMask);
+    publishBuildElevationInputs(stepContext, width, height, landMask, projectedLakeMask);
     BuildElevationStep.run(
       stepContext,
       {},
@@ -216,6 +222,41 @@ describe("map-elevation/build-elevation", () => {
     expect(adapter.storeWaterDataCalls).toBe(0);
   });
 
+  it("rejects unexplained engine water before elevation mutates the surface", () => {
+    const { width, height } = SYNTHETIC_READBACK_DIMENSIONS;
+    const mapInfo = { GridWidth: width, GridHeight: height };
+    const setup = admitMapSetup({
+      mapSeed: TEST_MAP_SEED,
+      dimensions: SYNTHETIC_READBACK_DIMENSIONS,
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    });
+    const adapter = new ReliefAfterBuildElevationAdapter({
+      width,
+      height,
+      mapInfo,
+      mapSizeId: 1,
+      rng: createLabelRng(TEST_MAP_SEED),
+    });
+    const context = createMapContext({ setup, adapter });
+    const flatTerrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_FLAT;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) adapter.setTerrainType(x, y, flatTerrain);
+    }
+    adapter.setWater(0, 0, true);
+
+    const originalLog = console.log;
+    console.log = () => {};
+    try {
+      expect(() =>
+        executeBuildElevation(context, width, height, new Uint8Array(width * height).fill(1))
+      ).toThrow(/map-elevation\/build-elevation\/pre-build.*exceeds policy max/);
+    } finally {
+      console.log = originalLog;
+    }
+
+    expect(adapter.buildElevationCalls).toBe(0);
+  });
+
   it("treats engine-accepted lakes as expected water during elevation readback", () => {
     const { width, height } = SYNTHETIC_READBACK_DIMENSIONS;
     const mapInfo = { GridWidth: width, GridHeight: height };
@@ -245,7 +286,7 @@ describe("map-elevation/build-elevation", () => {
         adapter.setWater(x, y, lakeMask[idx] === 1);
       }
     }
-    executeBuildElevation(context, width, height, new Uint8Array(width * height).fill(1));
+    executeBuildElevation(context, width, height, new Uint8Array(width * height).fill(1), lakeMask);
 
     expect(adapter.buildElevationCalls).toBe(1);
     expect(adapter.isWater(0, 0)).toBe(true);

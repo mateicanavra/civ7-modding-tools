@@ -1,13 +1,13 @@
 import type {
-  DomainCompileRoot,
-  DomainOpCompileAny,
+  DomainOpAny,
+  DomainOperationRoot,
   DomainOpsRouter,
   DomainOpsSurface,
 } from "../operation/bindings.js";
 import {
   composeDomainOpsRouter,
   createDomainOpsSurfaceFromEntries,
-  createFlatDomainCompileRoot,
+  createFlatDomainRoot,
 } from "../operation/bindings.js";
 import { readCanonicalDomainOpContract } from "../operation/create.js";
 import {
@@ -26,25 +26,27 @@ type NoExtraKeys<Expected, Actual> =
   Exclude<keyof Actual, keyof Expected> extends never ? unknown : never;
 
 /** Executable operations required by each key in one pure operation-contract map. */
-export type DomainOpImplementationsForContracts<TContracts extends Record<string, { id: string }>> =
-  Readonly<{
-    [K in keyof TContracts]: DomainOpCompileAny & Readonly<{ id: TContracts[K]["id"] }>;
-  }>;
+export type DomainOpImplementationsForContracts<
+  TContracts extends Record<string, { id: string; kind: DomainOpAny["kind"] }>,
+> = Readonly<{
+  [K in keyof TContracts]: DomainOpAny &
+    Readonly<{ id: TContracts[K]["id"]; kind: TContracts[K]["kind"] }>;
+}>;
 
 /** Temporary flat domain module retained while existing domains adopt semantic branches. */
 export type DomainModule<
   C extends DomainContractAny,
-  Implementations extends Readonly<Record<string, DomainOpCompileAny>>,
+  Implementations extends Readonly<Record<string, DomainOpAny>>,
 > = Readonly<{
   contract: C;
   ops: DomainOpsSurface<Implementations>;
 }> &
-  DomainCompileRoot<Implementations[keyof Implementations]>;
+  DomainOperationRoot;
 
 /** One implemented semantic subdomain with its operation surface kept under `ops`. */
 export type DomainSubdomainRouter<
   Contract extends DomainSubdomainContractAny,
-  Implementations extends Readonly<Record<string, DomainOpCompileAny>>,
+  Implementations extends Readonly<Record<string, DomainOpAny>>,
 > = Readonly<{
   id: Contract["id"];
   ops: DomainOpsSurface<Implementations>;
@@ -63,15 +65,13 @@ type DomainRoutersForContract<Contract extends DomainAggregateContractAny> = Rea
       >
     : never;
 }>;
-type CompileOpOfRouter<Router> =
-  Router extends Readonly<{ ops: DomainOpsRouter<infer Op extends DomainOpCompileAny> }>
-    ? Op
-    : never;
+type OperationOfRouter<Router> =
+  Router extends Readonly<{ ops: DomainOpsRouter<infer Op extends DomainOpAny> }> ? Op : never;
 
 /** A root implementation router with direct subdomain branches and one aggregate bind. */
 export type DomainRouter<Routers extends Readonly<Record<string, DomainSubdomainRouterAny>>> =
-  Readonly<Routers & DomainOpsRouter<CompileOpOfRouter<Routers[keyof Routers]>>> &
-    DomainCompileRoot<CompileOpOfRouter<Routers[keyof Routers]>>;
+  Readonly<Routers & DomainOpsRouter<OperationOfRouter<Routers[keyof Routers]>>> &
+    DomainOperationRoot;
 
 const contractBySubdomainRouter = new WeakMap<object, DomainSubdomainContractAny>();
 
@@ -79,10 +79,10 @@ function alignImplementations(
   authority: OwnDataRecord,
   implementations: unknown,
   label: string
-): OwnDataRecord<DomainOpCompileAny> {
+): OwnDataRecord<DomainOpAny> {
   const aligned = alignOwnDataRecords(
     authority,
-    captureOwnDataRecord<DomainOpCompileAny>(implementations, label),
+    captureOwnDataRecord<DomainOpAny>(implementations, label),
     label
   );
   return Object.freeze(
@@ -95,7 +95,7 @@ function alignImplementations(
   );
 }
 
-/** Creates one temporary flat domain module and registers it as a compiler root. */
+/** Creates one temporary flat domain module and registers it as an operation root. */
 export function createDomain<
   C extends DomainContractAny,
   const Implementations extends DomainOpImplementationsForContracts<C["ops"]>,
@@ -112,11 +112,11 @@ export function createDomain<
     `domain "${authority.id}" implementations`
   );
   const ops = createDomainOpsSurfaceFromEntries<Implementations>(entries);
-  return createFlatDomainCompileRoot<
-    C,
-    DomainOpsSurface<Implementations>,
-    Implementations[keyof Implementations]
-  >(authority.id, contract, ops) as DomainModule<C, Implementations>;
+  return createFlatDomainRoot<C, DomainOpsSurface<Implementations>>(
+    authority.id,
+    contract,
+    ops
+  ) as DomainModule<C, Implementations>;
 }
 
 /** Binds one subdomain's exact implementation contracts beneath its operation surface. */
@@ -170,5 +170,5 @@ export function createDomainRouter<
       return Object.freeze({ key, value: candidate });
     })
   );
-  return composeDomainOpsRouter<Routers>(authority.id, contract, branches) as DomainRouter<Routers>;
+  return composeDomainOpsRouter<Routers>(authority.id, branches) as DomainRouter<Routers>;
 }

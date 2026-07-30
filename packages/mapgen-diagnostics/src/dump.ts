@@ -318,10 +318,8 @@ function createStagedPathMaterializer(
   stagedBinaries: StagedVizBinary[]
 ): VizBinaryMaterializer<VizPathRef> {
   return (slot) => {
-    const bytes = new Uint8Array(slot.source.byteLength);
-    bytes.set(new Uint8Array(slot.source.buffer, slot.source.byteOffset, slot.source.byteLength));
-    const path = binaryPath(slot, bytes);
-    stagedBinaries.push({ path, bytes });
+    const path = binaryPath(slot, slot.bytes);
+    stagedBinaries.push({ path, bytes: slot.bytes });
     return { kind: "path", path };
   };
 }

@@ -3,9 +3,9 @@ import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/
 import resources from "@mapgen/domain/resources/router";
 import { getHexRadiusIndicesOddQ, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../setup.js";
 
-const syntheticDimensions = { width: 24, height: 14 } as const;
-const { width, height } = syntheticDimensions;
+const { width, height } = TEST_MAP_SIZE.dimensions;
 const size = width * height;
 
 type AdjustInput = Parameters<typeof resources.support.ops.adjustResourceSupport.run>[0];
@@ -81,18 +81,16 @@ function buildInput(args: {
   habitatMaskByType?: Partial<Record<PlanIntent["resourceType"], Uint8Array>>;
   legalMaskByType?: Partial<Record<PlanIntent["resourceType"], Uint8Array>>;
 }): AdjustInput {
-  const allOnes = new Uint8Array(size).fill(1);
-  const intensity = new Float32Array(size).fill(1);
   const regionSlotByTile = new Uint8Array(size);
   for (let i = 0; i < size; i++) {
     regionSlotByTile[i] = i % width < width / 2 ? 1 : 2;
   }
   return {
-    seed: 1337,
+    seed: TEST_MAP_SEED,
     plan: {
       width: width,
       height: height,
-      seed: 1337,
+      seed: TEST_MAP_SEED,
       plannedCount: args.intents.length,
       rotationCount: args.intents.length,
       rangeFloorCount: 0,
@@ -114,9 +112,10 @@ function buildInput(args: {
     },
     eligibility: args.perType.map((row) => ({
       resourceType: row.resourceType,
-      habitatMask: args.habitatMaskByType?.[row.resourceType] ?? allOnes,
-      legalMask: args.legalMaskByType?.[row.resourceType] ?? allOnes,
-      intensity,
+      habitatMask:
+        args.habitatMaskByType?.[row.resourceType]?.slice() ?? new Uint8Array(size).fill(1),
+      legalMask: args.legalMaskByType?.[row.resourceType]?.slice() ?? new Uint8Array(size).fill(1),
+      intensity: new Float32Array(size).fill(1),
     })),
     starts: args.starts,
     landmassIdByTile: new Int32Array(size),
@@ -140,19 +139,23 @@ function run(
   );
   expect(
     resourceSupportArtifacts.resourcePlanAdjusted.validate(result, {
-      dimensions: syntheticDimensions,
+      dimensions: TEST_MAP_SIZE.dimensions,
     })
   ).toEqual([]);
   return result;
 }
 
-function supportCount(intents: AdjustResult["intents"], seatPlot: number, radius: number): number {
+function supportCount(
+  intents: readonly Readonly<{ plotIndex: number }>[],
+  seatPlot: number,
+  radius: number
+): number {
   const zone = new Set(getHexRadiusIndicesOddQ(seatPlot, width, height, radius));
   return intents.filter((intent) => zone.has(intent.plotIndex)).length;
 }
 
-/** Two seats: one inside a NW site cluster, one in the empty SE corner. */
-function clusterScenario(args?: { maxCountA?: number }) {
+/** Two seats: one inside a site cluster and one on an empty part of the preset map. */
+function clusterScenario(args?: { maxCountA?: number; habitatMaskA?: Uint8Array }) {
   const intents = [
     intentAt({ x: 1, y: 1, resourceType: "RESOURCE_A", order: 0 }),
     intentAt({ x: 5, y: 1, resourceType: "RESOURCE_A", order: 1 }),
@@ -175,6 +178,7 @@ function clusterScenario(args?: { maxCountA?: number }) {
       { seatIndex: 0, playerId: 0, plotIndex: plotAt(3, 3) },
       { seatIndex: 1, playerId: 1, plotIndex: plotAt(20, 11) },
     ],
+    habitatMaskByType: args?.habitatMaskA ? { RESOURCE_A: args.habitatMaskA } : undefined,
   });
 }
 
@@ -211,12 +215,11 @@ describe("adjust-resource-support operation contract", () => {
   });
 
   it("records a shortfall instead of moving or adding outside habitat admission", () => {
-    const input = clusterScenario();
-    input.eligibility[0]!.habitatMask.fill(0);
+    const input = clusterScenario({ habitatMaskA: new Uint8Array(size) });
 
     const result = run(input);
     expect(result.adjustments).toEqual([]);
-    expect(result.intents).toEqual(input.plan.intents);
+    expect(result.intents).toEqual([...input.plan.intents]);
     expect(result.shortfalls.some((row) => row.reason === "no-admitted-adjustment")).toBe(true);
   });
 
@@ -714,7 +717,7 @@ describe("adjust-resource-support operation contract", () => {
       expect(result.moveCount).toBe(0);
       expect(result.addCount).toBe(0);
       expect(result.adjustments).toEqual([]);
-      expect(result.intents).toEqual(input.plan.intents);
+      expect(result.intents).toEqual([...input.plan.intents]);
       const disabled = result.shortfalls.filter((row) => row.reason === "adjustment-disabled");
       expect(disabled.length).toBeGreaterThan(0);
       expect(disabled[0]?.seatIndex).toBe(1);

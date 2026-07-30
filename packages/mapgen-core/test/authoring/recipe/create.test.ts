@@ -4,12 +4,13 @@ import {
   createStage,
   createStep,
   defineArtifact,
+  defineOp,
   defineStep,
+  defineStrategy,
   deriveRecipeConfigSchema,
 } from "@mapgen/authoring/index.js";
 import { RecipeCompileError } from "@mapgen/compiler/recipe-compile.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
-import type { DependencyTagDefinition } from "@mapgen/engine/index.js";
 import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
 import { Type } from "typebox";
 import { Value } from "typebox/value";
@@ -24,18 +25,6 @@ const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 const makeContract = (id: string) => defineStep({ id, requires: [], provides: [] });
 
 describe("recipe authoring", () => {
-  it("createRecipe rejects missing tagDefinitions", () => {
-    const step = createStep(makeContract("alpha"), { run: () => {} });
-    const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
-    const recipeWithoutTags = {
-      id: "core.base",
-      stages: [stage],
-      compileOpsById: {},
-    } as unknown as Parameters<typeof createRecipe>[0];
-
-    expect(() => createRecipe(recipeWithoutTags)).toThrow(/tagDefinitions/);
-  });
-
   it("createRecipe produces Recipe schema v2 (no instance ids)", () => {
     const stepA = createStep(makeContract("alpha"), { run: () => {} });
     const stepB = createStep(makeContract("beta"), { run: () => {} });
@@ -46,9 +35,8 @@ describe("recipe authoring", () => {
     });
     const recipe = createRecipe({
       id: "core.base",
-      tagDefinitions: [],
       stages: [stage],
-      compileOpsById: {},
+      operations: {},
     });
 
     expect(recipe.recipe.schemaVersion).toBe(2);
@@ -61,12 +49,48 @@ describe("recipe authoring", () => {
     const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
     const recipe = createRecipe({
       id: "core.base",
-      tagDefinitions: [],
       stages: [stage],
-      compileOpsById: {},
+      operations: {},
     });
 
     expect(recipe.recipe.steps[0]?.id).toBe("core.base.foundation.alpha");
+  });
+
+  it("rejects a step whose declared operation has no implementation", () => {
+    const operation = defineOp({
+      kind: "compute",
+      id: "test/recipe/missing-operation",
+      input: Type.Object({}, { additionalProperties: false }),
+      output: Type.Object({}, { additionalProperties: false }),
+      strategies: [
+        defineStrategy({
+          id: "measured",
+          config: Type.Object({}, { additionalProperties: false }),
+        }),
+      ],
+    });
+    const step = createStep(
+      defineStep({
+        id: "alpha",
+        requires: [],
+        provides: [],
+        ops: { measurement: operation },
+      }),
+      { run: () => undefined }
+    );
+    const stage = createStage({
+      id: "foundation",
+      knobsSchema: EmptyKnobsSchema,
+      steps: [step],
+    });
+
+    expect(() =>
+      createRecipe({
+        id: "core.base",
+        stages: [stage],
+        operations: {},
+      })
+    ).toThrow(/Missing op implementation/i);
   });
 
   it("createRecipe rejects duplicate stage identities before compiling indexed surfaces", () => {
@@ -76,60 +100,20 @@ describe("recipe authoring", () => {
     expect(() =>
       createRecipe({
         id: "core.base",
-        tagDefinitions: [],
         stages: [stage, stage],
-        compileOpsById: {},
+        operations: {},
       })
     ).toThrow('duplicate stage id "foundation"');
   });
 
-  it("createRecipe rejects invalid tag prefixes", () => {
-    const step = createStep(
+  it("rejects noncanonical completion identities at the step contract boundary", () => {
+    expect(() =>
       defineStep({
         id: "alpha",
         requires: ["bad:tag"],
         provides: [],
-      }),
-      { run: () => {} }
-    );
-    const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
-
-    expect(() =>
-      createRecipe({ id: "core.base", tagDefinitions: [], stages: [stage], compileOpsById: {} })
-    ).toThrow(/Invalid dependency tag/);
-  });
-
-  it("reserves generated artifact postconditions for their artifact authorities", () => {
-    const artifact = defineArtifact({
-      name: "recipeOutput",
-      id: "artifact:test.recipe-output",
-      schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
-    });
-    const step = createStep(
-      defineStep({
-        id: "alpha",
-        requires: [],
-        provides: [],
-        artifacts: { provides: [artifact] },
-      }),
-      { run: () => {} }
-    );
-    const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
-
-    expect(() =>
-      createRecipe({
-        id: "core.base",
-        tagDefinitions: [
-          {
-            id: artifact.id,
-            kind: "artifact",
-            satisfies: () => true,
-          },
-        ] as never,
-        stages: [stage],
-        compileOpsById: {},
-      })
-    ).toThrow(`Dependency tag "${artifact.id}" is already registered.`);
+      } as never)
+    ).toThrow(/must match completion:/);
   });
 
   it("rejects same-id provider and consumer artifacts with different contract identities", () => {
@@ -147,19 +131,15 @@ describe("recipe authoring", () => {
       defineStep({
         id: "provider",
         requires: [],
-        provides: [],
-        artifacts: {
-          provides: [providedArtifact],
-        },
+        provides: [providedArtifact],
       }),
       { run: () => undefined }
     );
     const consumer = createStep(
       defineStep({
         id: "consumer",
-        requires: [],
+        requires: [requiredArtifact],
         provides: [],
-        artifacts: { requires: [requiredArtifact] },
       }),
       { run: () => undefined }
     );
@@ -172,9 +152,8 @@ describe("recipe authoring", () => {
     expect(() =>
       createRecipe({
         id: "core.base",
-        tagDefinitions: [],
         stages: [stage],
-        compileOpsById: {},
+        operations: {},
       })
     ).toThrow(
       'artifact "artifact:test.recipe-exact-identity" must use one exact authority identity'
@@ -190,9 +169,8 @@ describe("recipe authoring", () => {
     const consumer = createStep(
       defineStep({
         id: "consumer",
-        requires: [],
+        requires: [externalArtifact],
         provides: [],
-        artifacts: { requires: [externalArtifact] },
       }),
       { run: () => undefined }
     );
@@ -205,12 +183,42 @@ describe("recipe authoring", () => {
     expect(() =>
       createRecipe({
         id: "core.base",
-        tagDefinitions: [],
         stages: [stage],
-        compileOpsById: {},
+        operations: {},
       })
     ).toThrow(
       'artifact "artifact:test.recipe-external" required by core.base.foundation.consumer has no recipe provider'
+    );
+  });
+
+  it("rejects duplicate artifact providers even when the artifact is not consumed", () => {
+    const duplicateArtifact = defineArtifact({
+      name: "duplicateArtifact",
+      id: "artifact:test.recipe-duplicate",
+      schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
+    });
+    const first = createStep(
+      defineStep({ id: "first-provider", requires: [], provides: [duplicateArtifact] }),
+      { run: () => undefined }
+    );
+    const second = createStep(
+      defineStep({ id: "second-provider", requires: [], provides: [duplicateArtifact] }),
+      { run: () => undefined }
+    );
+    const stage = createStage({
+      id: "foundation",
+      knobsSchema: EmptyKnobsSchema,
+      steps: [first, second],
+    });
+
+    expect(() =>
+      createRecipe({
+        id: "core.base",
+        stages: [stage],
+        operations: {},
+      })
+    ).toThrow(
+      'artifact "artifact:test.recipe-duplicate" provided by multiple steps: core.base.foundation.first-provider, core.base.foundation.second-provider'
     );
   });
 
@@ -233,45 +241,12 @@ describe("recipe authoring", () => {
     expect(() =>
       createRecipe({
         id: "core.base",
-        tagDefinitions: [],
         stages: [stage],
-        compileOpsById: {},
+        operations: {},
       })
     ).toThrow(
       'stage "foundation" contains noncanonical step "forged-provider"; author steps through createStep'
     );
-  });
-
-  it("rejects duplicate explicit dependency-tag definitions", () => {
-    const step = createStep(makeContract("alpha"), { run: () => {} });
-    const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
-    const definition: DependencyTagDefinition = {
-      id: "effect:test.ready",
-      kind: "effect",
-    };
-
-    expect(() =>
-      createRecipe({
-        id: "core.base",
-        tagDefinitions: [definition, { ...definition, satisfies: () => true }],
-        stages: [stage],
-        compileOpsById: {},
-      })
-    ).toThrow(`Dependency tag "${definition.id}" is already registered.`);
-  });
-
-  it("reserves all artifact dependency tags for canonical authorities", () => {
-    const step = createStep(makeContract("alpha"), { run: () => {} });
-    const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
-
-    expect(() =>
-      createRecipe({
-        id: "core.base",
-        tagDefinitions: [{ id: "artifact:test.unbound", kind: "artifact" }] as never,
-        stages: [stage],
-        compileOpsById: {},
-      })
-    ).toThrow(/Explicit artifact dependency tag.*not admitted/);
   });
 
   it("compiles recipe-created complete config and rejects unknown keys", () => {
@@ -285,9 +260,8 @@ describe("recipe authoring", () => {
     const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
     const recipe = createRecipe({
       id: "core.base",
-      tagDefinitions: [],
       stages: [stage],
-      compileOpsById: {},
+      operations: {},
     });
 
     const configSchema = Type.Object(
@@ -332,9 +306,8 @@ describe("recipe authoring", () => {
     const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
     const recipe = createRecipe({
       id: "core.base",
-      tagDefinitions: [],
       stages: [stage],
-      compileOpsById: {},
+      operations: {},
     });
     const config = { foundation: { knobs: {} } };
     const admittedSetup = admitMapSetup({
@@ -358,17 +331,24 @@ describe("recipe authoring", () => {
     const step = createStep(defineStep({ id: "alpha", requires: [], provides: [], schema }), {
       run: () => {},
     });
-    const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
+    const stageSteps = [step];
+    const stage = createStage({
+      id: "foundation",
+      knobsSchema: EmptyKnobsSchema,
+      steps: stageSteps,
+    });
     const stages = [stage];
     const recipe = createRecipe({
       id: "core.base",
-      tagDefinitions: [],
       stages,
-      compileOpsById: {},
+      operations: {},
     });
 
     Reflect.set(schema.properties.count, "minimum", 100);
     stages.length = 0;
+    stageSteps.length = 0;
+    Reflect.set(stage, "id", "mutated-stage");
+    Reflect.set(stage, "steps", []);
 
     expect(Reflect.set(recipe.recipe.steps[0]!, "id", "forged")).toBe(false);
     expect(() => (recipe.recipe.steps as unknown[]).push({ id: "forged" })).toThrow();
@@ -400,9 +380,8 @@ describe("recipe authoring", () => {
 
     const recipe = createRecipe({
       id: "core.descriptor-length",
-      tagDefinitions: [],
       stages,
-      compileOpsById: {},
+      operations: {},
     });
 
     expect(recipe.recipe.steps).toHaveLength(1);
@@ -423,9 +402,8 @@ describe("recipe authoring", () => {
     expect(() =>
       createRecipe({
         id: "core.opaque-length",
-        tagDefinitions: [],
         stages,
-        compileOpsById: {},
+        operations: {},
       })
     ).toThrow("Recipe authorship array length must be inspectable");
   });

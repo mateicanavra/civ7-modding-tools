@@ -18,12 +18,9 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 export const config = defineStep({
   id: "lakes",
   description: "Plans deterministic lake intent from admitted hydrography and topography.",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [morphologyLandformsArtifacts.topography, hydrographyArtifacts.hydrography],
-    provides: [hydrographyArtifacts.lakePlan, hydrographyArtifacts.riverNetwork],
-  },
+  requires: [morphologyLandformsArtifacts.topography, hydrographyArtifacts.hydrography],
+  provides: [hydrographyArtifacts.lakePlan, hydrographyArtifacts.riverNetwork],
+
   ops: {
     planLakes: hydrology.hydrography.ops.planLakes,
     classifyRiverNetwork: hydrology.hydrography.ops.classifyRiverNetwork,

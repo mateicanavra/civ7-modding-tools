@@ -165,26 +165,6 @@ const tectonicDifferentiation = createStrategy(
       const initialCrust = input.initialCrust;
       const tectonics = input.tectonics;
       const tectonicHistory = input.tectonicHistory;
-      if (
-        initialCrust.thickness.length !== cellCount ||
-        initialCrust.strength.length !== cellCount
-      ) {
-        throw new Error("[Foundation] Invalid initialCrust.cellCount for compute-crust-evolution.");
-      }
-      if (
-        tectonics.boundaryType.length !== cellCount ||
-        tectonics.cumulativeUplift.length !== cellCount
-      ) {
-        throw new Error("[Foundation] Invalid tectonics.cellCount for compute-crust-evolution.");
-      }
-      if (
-        tectonicHistory.upliftTotal.length !== cellCount ||
-        tectonicHistory.fractureTotal.length !== cellCount
-      ) {
-        throw new Error(
-          "[Foundation] Invalid tectonicHistory.cellCount for compute-crust-evolution."
-        );
-      }
 
       const maturity = new Float32Array(cellCount);
       const thickness = new Float32Array(cellCount);
@@ -197,9 +177,9 @@ const tectonicDifferentiation = createStrategy(
       const baseElevation = new Float32Array(cellCount);
       const strength = new Float32Array(cellCount);
 
-      const eraCount = tectonicHistory.eraCount | 0;
       const eras = tectonicHistory.eras;
-      const thermalAgeStep = eraCount > 0 ? 1 / eraCount : 0;
+      const eraCount = eras.length;
+      const thermalAgeStep = 1 / eraCount;
 
       for (let i = 0; i < cellCount; i++) {
         const initThickness = initialCrust.thickness[i] ?? 0.25;

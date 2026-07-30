@@ -55,13 +55,13 @@ function gridProjection(
 export const ProjectionStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
-    const mesh = deps.artifacts.foundationMesh.read(context);
-    const crust = deps.artifacts.foundationCrust.read(context);
-    const plateGraph = deps.artifacts.foundationPlateGraph.read(context);
-    const plateMotion = deps.artifacts.foundationPlateMotion.read(context);
-    const tectonics = deps.artifacts.foundationTectonics.read(context);
-    const tectonicHistory = deps.artifacts.foundationTectonicHistory.read(context);
-    const tectonicProvenance = deps.artifacts.foundationTectonicProvenance.read(context);
+    const mesh = deps.artifacts.mesh.read();
+    const crust = deps.artifacts.crust.read();
+    const plateGraph = deps.artifacts.plateGraph.read();
+    const plateMotion = deps.artifacts.plateMotion.read();
+    const tectonics = deps.artifacts.currentTectonics.read();
+    const tectonicHistory = deps.artifacts.tectonicHistory.read();
+    const tectonicProvenance = deps.artifacts.tectonicProvenance.read();
 
     const platesResult = ops.computePlates(
       {
@@ -128,20 +128,14 @@ export const ProjectionStep = createStep(config, {
       stepConfig.computePlates
     );
 
-    deps.artifacts.foundationPlates.publish(context, platesResult.plates);
-    deps.artifacts.foundationCrustTiles.publish(context, platesResult.crustTiles);
-    deps.artifacts.foundationTectonicHistoryTiles.publish(
-      context,
-      platesResult.tectonicHistoryTiles
-    );
-    deps.artifacts.foundationTectonicProvenanceTiles.publish(
-      context,
-      platesResult.tectonicProvenanceTiles
-    );
+    deps.artifacts.plates.publish(platesResult.plates);
+    deps.artifacts.crustTiles.publish(platesResult.crustTiles);
+    deps.artifacts.tectonicHistoryTiles.publish(platesResult.tectonicHistoryTiles);
+    deps.artifacts.tectonicProvenanceTiles.publish(platesResult.tectonicProvenanceTiles);
 
     return platesResult;
   },
-  viz: ({ result, dimensions }) => {
+  viz: ({ observation, dimensions }) => {
     const projections: VizGridProjection[] = [];
     const addGrid = (
       dataTypeKey: string,
@@ -153,7 +147,7 @@ export const ProjectionStep = createStep(config, {
 
     addGrid(
       "foundation.plates.tilePlateId",
-      { format: "i16", values: result.plates.id },
+      { format: "i16", values: observation.plates.id },
       defineStandardVizMeta("foundation.plates.tilePlateId", "category.distinct", {
         label: "Plate Id",
         group: GROUP_PLATES,
@@ -161,7 +155,7 @@ export const ProjectionStep = createStep(config, {
     );
     addGrid(
       "foundation.plates.tileBoundaryType",
-      { format: "u8", values: result.plates.boundaryType },
+      { format: "u8", values: observation.plates.boundaryType },
       defineStandardVizCategoryMeta(
         "foundation.plates.tileBoundaryType",
         BOUNDARY_TYPE_CATEGORIES,
@@ -172,25 +166,29 @@ export const ProjectionStep = createStep(config, {
       [
         "foundation.plates.tileBoundaryCloseness",
         "Plate Boundary Closeness",
-        result.plates.boundaryCloseness,
+        observation.plates.boundaryCloseness,
       ],
       [
         "foundation.plates.tileTectonicStress",
         "Plate Tectonic Stress",
-        result.plates.tectonicStress,
+        observation.plates.tectonicStress,
       ],
       [
         "foundation.plates.tileUpliftPotential",
         "Plate Uplift Potential",
-        result.plates.upliftPotential,
+        observation.plates.upliftPotential,
       ],
-      ["foundation.plates.tileRiftPotential", "Plate Rift Potential", result.plates.riftPotential],
+      [
+        "foundation.plates.tileRiftPotential",
+        "Plate Rift Potential",
+        observation.plates.riftPotential,
+      ],
       [
         "foundation.plates.tileShieldStability",
         "Plate Shield Stability",
-        result.plates.shieldStability,
+        observation.plates.shieldStability,
       ],
-      ["foundation.plates.tileVolcanism", "Plate Volcanism", result.plates.volcanism],
+      ["foundation.plates.tileVolcanism", "Plate Volcanism", observation.plates.volcanism],
     ] as const) {
       addGrid(
         dataTypeKey,
@@ -203,9 +201,9 @@ export const ProjectionStep = createStep(config, {
       );
     }
     for (const [dataTypeKey, label, values] of [
-      ["foundation.plates.tileMovementU", "Plate Movement U", result.plates.movementU],
-      ["foundation.plates.tileMovementV", "Plate Movement V", result.plates.movementV],
-      ["foundation.plates.tileRotation", "Plate Rotation", result.plates.rotation],
+      ["foundation.plates.tileMovementU", "Plate Movement U", observation.plates.movementU],
+      ["foundation.plates.tileMovementV", "Plate Movement V", observation.plates.movementV],
+      ["foundation.plates.tileRotation", "Plate Rotation", observation.plates.rotation],
     ] as const) {
       addGrid(
         dataTypeKey,
@@ -222,8 +220,8 @@ export const ProjectionStep = createStep(config, {
       dataTypeKey: "foundation.plates.tileMovement",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      u: { format: "i8", values: result.plates.movementU },
-      v: { format: "i8", values: result.plates.movementV },
+      u: { format: "i8", values: observation.plates.movementU },
+      v: { format: "i8", values: observation.plates.movementV },
       magnitude: { debugOnly: true },
       arrows: { maxArrowLengthTiles: 1.25 },
       points: { debugOnly: true },
@@ -235,7 +233,7 @@ export const ProjectionStep = createStep(config, {
 
     addGrid(
       "foundation.crustTiles.type",
-      { format: "u8", values: result.crustTiles.type },
+      { format: "u8", values: observation.crustTiles.type },
       defineStandardVizCategoryMeta(
         "foundation.crustTiles.type",
         [
@@ -250,7 +248,7 @@ export const ProjectionStep = createStep(config, {
     );
     addGrid(
       "foundation.crustTiles.age",
-      { format: "u8", values: result.crustTiles.age },
+      { format: "u8", values: observation.crustTiles.age },
       defineStandardVizMeta("foundation.crustTiles.age", "field.intensity", {
         label: "Crust Age",
         group: GROUP_CRUST_TILES,
@@ -261,19 +259,19 @@ export const ProjectionStep = createStep(config, {
       [
         "foundation.crustTiles.buoyancy",
         "Crust Buoyancy",
-        result.crustTiles.buoyancy,
+        observation.crustTiles.buoyancy,
         "field.signed",
       ],
       [
         "foundation.crustTiles.baseElevation",
         "Crust Base Elevation",
-        result.crustTiles.baseElevation,
+        observation.crustTiles.baseElevation,
         "terrain.elevation",
       ],
       [
         "foundation.crustTiles.strength",
         "Crust Strength",
-        result.crustTiles.strength,
+        observation.crustTiles.strength,
         "field.intensity",
       ],
     ] as const) {
@@ -289,7 +287,7 @@ export const ProjectionStep = createStep(config, {
     }
     addGrid(
       "foundation.history.upliftTotal",
-      { format: "u8", values: result.tectonicHistoryTiles.rollups.upliftTotal },
+      { format: "u8", values: observation.tectonicHistoryTiles.rollups.upliftTotal },
       defineStandardVizMeta("foundation.history.upliftTotal", "field.intensity", {
         label: "History Uplift Total",
         group: GROUP_TECTONIC_HISTORY_TILES,
@@ -298,7 +296,7 @@ export const ProjectionStep = createStep(config, {
     );
     addGrid(
       "foundation.history.lastActiveEra",
-      { format: "u8", values: result.tectonicHistoryTiles.rollups.lastActiveEra },
+      { format: "u8", values: observation.tectonicHistoryTiles.rollups.lastActiveEra },
       defineStandardVizMeta("foundation.history.lastActiveEra", "category.distinct", {
         label: "History Last Active Era",
         group: GROUP_TECTONIC_HISTORY_TILES,
@@ -306,8 +304,8 @@ export const ProjectionStep = createStep(config, {
       })
     );
 
-    for (let eraIndex = 0; eraIndex < result.tectonicHistoryTiles.perEra.length; eraIndex++) {
-      const era = result.tectonicHistoryTiles.perEra[eraIndex];
+    for (let eraIndex = 0; eraIndex < observation.tectonicHistoryTiles.perEra.length; eraIndex++) {
+      const era = observation.tectonicHistoryTiles.perEra[eraIndex];
       if (!era) continue;
       const variantKey = `era:${eraIndex + 1}`;
       addGrid(
@@ -345,7 +343,7 @@ export const ProjectionStep = createStep(config, {
     }
     addGrid(
       "foundation.provenance.originEra",
-      { format: "u8", values: result.tectonicProvenanceTiles.originEra },
+      { format: "u8", values: observation.tectonicProvenanceTiles.originEra },
       defineStandardVizMeta("foundation.provenance.originEra", "category.distinct", {
         label: "Provenance Origin Era",
         group: GROUP_TECTONIC_PROVENANCE_TILES,
@@ -354,7 +352,7 @@ export const ProjectionStep = createStep(config, {
     );
     addGrid(
       "foundation.provenance.lastBoundaryType",
-      { format: "u8", values: result.tectonicProvenanceTiles.lastBoundaryType },
+      { format: "u8", values: observation.tectonicProvenanceTiles.lastBoundaryType },
       defineStandardVizCategoryMeta(
         "foundation.provenance.lastBoundaryType",
         BOUNDARY_TYPE_CATEGORIES,
@@ -367,7 +365,7 @@ export const ProjectionStep = createStep(config, {
     );
     addGrid(
       "foundation.tileToCellIndex",
-      { format: "i32", values: result.tileToCellIndex },
+      { format: "i32", values: observation.tileToCellIndex },
       defineStandardVizMeta("foundation.tileToCellIndex", "category.distinct", {
         label: "Tile To Cell Index",
         group: GROUP_TILE_MAP,

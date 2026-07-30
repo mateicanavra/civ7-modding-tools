@@ -26,7 +26,6 @@ function singlePlateInput(params: {
       plates: [{ id: 0, role: "tectonic", kind: "major", seedX: 0, seedY: 0 }] as const,
     },
     mantleForcing: {
-      cellCount,
       forcingU: Float32Array.from(params.forcingU),
       forcingV: Float32Array.from(params.forcingV),
     },

@@ -9,7 +9,7 @@ export default createStrategy(ComputeCoastalAdjacencyContract, StrategyDefinitio
   run: (input) => {
     const { width, height } = input;
     const size = width * height;
-    const landMask = input.landMask as Uint8Array;
+    const landMask = input.landMask;
 
     const coastalLand = new Uint8Array(size);
     const coastalWater = new Uint8Array(size);

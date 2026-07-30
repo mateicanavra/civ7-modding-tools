@@ -2,9 +2,9 @@
  * Computes flow accumulation with a high-to-low elevation pass.
  */
 export function computeFlowAccumulation(
-  elevation: Int16Array,
-  landMask: Uint8Array,
-  flowDir: Int32Array
+  elevation: ArrayLike<number>,
+  landMask: ArrayLike<number>,
+  flowDir: ArrayLike<number>
 ): Float32Array {
   const size = elevation.length;
   const indices: number[] = [];

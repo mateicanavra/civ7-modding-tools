@@ -16,7 +16,7 @@ for the truth-vs-projection stage split and the vocabulary.
 |---|---|---|
 | `@swooper/mapgen-core/authoring/schema` | `Type`, `TypedArraySchemas` — schema construction without runtime authoring dependencies | schema declarations in domain models, ops, steps, and artifacts |
 | `@swooper/mapgen-core/authoring/contracts` | `defineOp`, `defineStrategy`, `defineStep`, `defineArtifact`, `defineArtifactCatalog`, `defineDomain`, `defineDomainSubdomain` — contracts, strategy definitions, artifact admission, and aggregate assembly | op and domain-module `contract.ts`, domain `contract.ts`, strategy and recipe-step `config.ts`, `*.artifact.ts`, artifact catalogs |
-| `@swooper/mapgen-core/authoring` | `createOp`, `createStrategy`, `createStep`, `createStage`, `createRecipe`, `createDomainSubdomainRouter`, `createDomainRouter`, `collectCompileOps` — attach runtime implementations and compose executable routers | op runtime `index.ts`, module and domain `router.ts`, recipe-step `step.ts`, strategy, stage, and recipe files |
+| `@swooper/mapgen-core/authoring` | `createOp`, `createStrategy`, `createStep`, `createStage`, `createRecipe`, `createDomainSubdomainRouter`, `createDomainRouter`, `collectOperations` — attach executable implementations and compose canonical operation routers | operation implementation `index.ts`, module and domain `router.ts`, recipe-step `step.ts`, strategy, stage, and recipe files |
 
 `@mapgen/domain/<domain>` is the contract-only domain root. Recipe wiring imports
 the executable domain from `@mapgen/domain/<domain>/router`. Artifacts and model
@@ -33,7 +33,7 @@ files are `.ts`.
 
 An op lives in
 `src/domain/<domain>/modules/<module>/ops/<op-name>/` as a five-file minimum:
-the operation `contract.ts` and runtime `index.ts`, the runtime tuple at
+the operation `contract.ts` and implementation `index.ts`, the executable tuple at
 `strategies/index.ts`, and one `config.ts` + `index.ts` pair under
 `strategies/<semantic-id>/`. Choose the direct semantic module that owns the
 operation's policy and outputs; never add a flat domain-wide op cabinet. The
@@ -95,7 +95,7 @@ export default MyOpContract;
 ```
 
 **`strategies/measured-response/index.ts`** — `createStrategy` seals the exact
-operation contract + leaf definition pair around the runtime implementation.
+operation contract + leaf definition pair around the implementation.
 ```ts
 // src/domain/<domain>/modules/<module>/ops/<op-name>/strategies/measured-response/index.ts
 import { createStrategy } from "@swooper/mapgen-core/authoring";
@@ -120,7 +120,7 @@ import measuredResponse from "./measured-response/index.js";
 export default [measuredResponse] as const;
 ```
 
-**`index.ts`** — `createOp` checks the definition and runtime tuples for exact semantic
+**`index.ts`** — `createOp` checks the definition and executable tuples for exact semantic
 and identity symmetry at construction.
 ```ts
 // src/domain/<domain>/modules/<module>/ops/<op-name>/index.ts
@@ -163,8 +163,8 @@ export default moduleRouter;
 > aggregate authorities.
 
 The op is now part of its direct semantic module. It is not yet *run* by anything —
-wire it into a step (section 3) and ensure the module's runtime router reaches the
-domain router collected by `compileOpsById` (section 4).
+wire it into a step (section 3) and ensure the module's executable router reaches the
+domain router collected into the recipe's `operations` registry (section 4).
 
 ---
 
@@ -172,8 +172,14 @@ domain router collected by `compileOpsById` (section 4).
 
 The op contract already composes at least one semantic leaf definition. A strategy is a
 behavioral variant selected at config/compile time — see the multi-strategy op ids
-`hydrology/compute-precipitation` (`vector` default, `baseline`, `refine`) and
+`hydrology/compute-precipitation` (`vector` default, `baseline`) and
 `ecology/pedology/classify` for live examples.
+
+Every strategy must satisfy the operation's exact shared input/output transition. If the
+candidate needs materially different inputs, produces a different output vintage, or represents
+a later semantic transition, define another operation instead. For example,
+`hydrology/refine-precipitation` consumes admitted baseline rainfall plus river evidence; it is
+not another `compute-precipitation` strategy.
 
 **Step A — define the leaf** in `strategies/my-variant/config.ts`.
 ```ts
@@ -213,7 +219,7 @@ export default createStrategy(MyOpContract, StrategyDefinition, {
 });
 ```
 
-**Step D — extend the runtime tuple** in `strategies/index.ts`:
+**Step D — extend the executable tuple** in `strategies/index.ts`:
 ```ts
 import measuredResponse from "./measured-response/index.js";
 import myVariant from "./my-variant/index.js";
@@ -227,24 +233,14 @@ sealed descriptor supplies its semantic identity.
 
 **Step E — ACTIVATE (the strategy is inert until selected).** The op envelope is
 `{ strategy: "<id>", config: {...} }` (a TypeBox discriminated union on `strategy`).
-There are exactly three selection paths:
+There are exactly two authoring paths:
 
 1. **Authored operation envelope** (ordinary stages) - select the strategy
    directly in the step config:
    ```ts
    { myOp: { strategy: "my-variant", config: { /* variant-specific props */ } } }
    ```
-2. **`defaultStrategy` on the step contract `StepOpUse`** — changes the *schema default*
-   so an omitted envelope starts on the named strategy (the author can still override):
-   ```ts
-   ops: {
-     myOp: {
-       contract: someDomain.<module>.ops.myOpName,
-       defaultStrategy: "my-variant",
-     },
-   },
-   ```
-3. **Rare inline semantic public override** - only when a concrete stage
+2. **Rare inline semantic public override** - only when a concrete stage
    intentionally hides and meaningfully translates the complete internal
    surface:
    ```ts
@@ -261,12 +257,12 @@ There are exactly three selection paths:
 Runtime dispatch (`createOp.run`) reads `cfg.strategy`, looks up
 `runtimeStrategies[cfg.strategy]`, and throws on an unknown id.
 
-> Gotchas: `contract.defaultStrategy` is the resolved runtime authority; no strategy is
-> renamed to `default`. A full `public` override is not a convenience alias for
-> operation config. It stays inline in the stage definition; external
-> `public.config.ts` files are forbidden. Shipped map configs and stage knobs
-> provide ordinary product-level convenience without hiding operation
-> envelopes.
+> Gotchas: the operation contract owns its inferred or explicit default; a step selects that
+> canonical contract directly and cannot redefine its default. An authored envelope selects an
+> alternate strategy. No strategy is renamed to `default`. A full `public` override is not a
+> convenience alias for operation config. It stays inline in the stage definition; external
+> `public.config.ts` files are forbidden. Shipped map configs and stage knobs provide ordinary
+> product-level convenience without hiding operation envelopes.
 
 ---
 
@@ -286,31 +282,26 @@ import someDomain from "@mapgen/domain/<domain>";
 import { artifacts as myModuleArtifacts } from "@mapgen/domain/<domain>/modules/<module>/artifacts/index.js";
 import { artifacts as otherModuleArtifacts } from "@mapgen/domain/<other-domain>/modules/<other-module>/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
-import { Type } from "@swooper/mapgen-core/authoring/schema";
 
 /** Contract and compiled configuration boundary for the example recipe step. */
 export const config = defineStep({
   id: "my-step-name",
-  requires: [] as const,
-  provides: [] as const,
-  artifacts: {
-    requires: [otherModuleArtifacts.someInput],
-    provides: [myModuleArtifacts.surfaceMask],
-  },
+  requires: [otherModuleArtifacts.someInput],
+  provides: [myModuleArtifacts.surfaceMask],
   ops: {
     myOp: someDomain.<module>.ops.myOpName,
-    // or: myOp: { contract: someDomain.<module>.ops.myOpName, defaultStrategy: "my-variant" }
   },
-  schema: Type.Object({ /* step-level knobs not covered by ops; omit/empty if none */ }),
 });
 ```
 
-Keep those effect arrays empty unless the step truly needs execution ordering.
-When it does, import an existing typed member of
-`MAP_PROJECTION_EFFECT_TAGS`, `PLACEMENT_PRODUCT_EFFECT_TAGS`, or
-`STANDARD_ENGINE_EFFECT_TAGS` from `../../../../tag-contracts.js`; never author
-a raw `effect:*` string. Add a new effect to that registry first when no current
-constant expresses the contract.
+Add `schema: Type.Object({ ... })` only when the step owns genuine local
+configuration beyond its operation envelopes; omit the property otherwise.
+
+Add a completion to those same arrays only when a downstream step must observe
+invisible mutable engine state produced by the completed transaction. Import an
+owned typed `CompletionId` constant; never author a raw `completion:*` string.
+Do not add a completion for ordinary ordering, trace events, or a provider that
+an exact artifact dependency already selects.
 
 **`step.ts`** — `createStep`. `run(context, config, ops, deps)`; `config.<opKey>` is the
 auto-typed op envelope; artifacts are read/published via `deps.artifacts.<name>`.
@@ -324,9 +315,9 @@ export const MyStep = createStep(config, {
   // optional: normalize: (stepConfig, ctx) => stepConfig,
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
-    const input = deps.artifacts.someInput.read(context);
+    const input = deps.artifacts.someInput.read();
     const output = ops.myOp({ width, height, myInput: input.myData }, stepConfig.myOp);
-    deps.artifacts.surfaceMask.publish(context, { width, height, landMask: output.myOutput });
+    deps.artifacts.surfaceMask.publish({ width, height, landMask: output.myOutput });
   },
 });
 ```
@@ -346,11 +337,12 @@ legacy direct `context.viz` calls live in
    (position = within-stage execution order).
 2. The stage's `index.ts` — add the runtime step to `orderStandardStageSteps(...)`.
 
-> Gotchas: `artifacts.requires` selects artifact contracts, while `artifacts.provides`
-> selects artifact modules so the contract and semantic validator have one authoring owner.
-> `createStep` binds behavior only and derives publication runtimes from the contract. Do
-> NOT add `artifact:` ids to the top-level `requires`/`provides` arrays — `defineStep`
-> merges them automatically and throws if you double-list. Op keys in `ops:` must NOT
+> Gotchas: `requires` and `provides` are the sole dependency lists. Exact artifact
+> authorities retain identity, schema, admission, and typed `deps.artifacts`
+> capabilities; typed completion constants express engine-transaction ordering. `createStep` binds behavior
+> only; Core derives exact occurrence-bound `read()` and `publish(value)` capabilities directly
+> from the step contract at invocation. Do not replace an artifact authority with
+> its raw `artifact:` id. Op keys in `ops:` must NOT
 > collide with any key in `schema:` — `defineStep` throws on collision.
 > `orderStandardStageSteps` throws if a runtime step id is absent from the manifest.
 
@@ -391,9 +383,16 @@ stage("my-stage-id", [myStepConfig /* , ...in execution order */ ]),
 import myStage from "./stages/my-family/my-stage/index.js";
 const stages = orderStandardStages({ /* ...existing..., */ "my-stage-id": myStage } as const);
 
-// 3. recipe.ts — if the stage introduces a NEW domain, add its runtime router to collectCompileOps:
+// 3. recipe.ts — if the stage introduces a NEW domain, add its executable router to collectOperations:
 import myDomain from "@mapgen/domain/<my-domain>/router";
-export const compileOpsById = collectCompileOps(foundationDomain, morphologyDomain, myDomain);
+import { collectOperations, createRecipe } from "@swooper/mapgen-core/authoring";
+
+const operations = collectOperations(foundationDomain, morphologyDomain, myDomain);
+
+const recipe = createRecipe({
+  /* ...existing authorship..., */
+  operations,
+});
 ```
 
 > Decide the lane before authoring. Manifest stages 1–15 are adapter-free
@@ -426,26 +425,18 @@ consumers. Current examples are Ecology pedology at
 
 An id MUST start with `artifact:` and MUST NOT carry a `@vN` suffix
 (`defineArtifact` throws on both). The runtime `name` is camelCase
-(`/^[a-z][a-zA-Z0-9]*$/`). Catalog keys are consumer-facing lookup names and may
-differ from runtime artifact names.
+(`/^[a-z][a-zA-Z0-9]*$/`). Its catalog key must be that exact name, giving contracts
+and step dependencies one property identity. The `artifact:` id remains the globally
+unique semantic identity used by the pipeline.
 
 **`modules/<module>/artifacts/surface-mask.artifact.ts` — the single complete
 artifact authority:**
 ```ts
 import {
-  type ArtifactValidationContext,
-  type ArtifactValidationIssue,
-  appendArtifactTypedArrayIssues,
   defineArtifact,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
-
-type SurfaceMask = Readonly<{
-  width: number;
-  height: number;
-  landMask: Uint8Array;
-}>;
 
 /** Registers the write-once surface classification consumed by downstream map stages. */
 export const artifact = defineArtifact({
@@ -456,6 +447,7 @@ export const artifact = defineArtifact({
       width: Type.Integer({ minimum: 1, description: "Map width represented by the mask." }),
       height: Type.Integer({ minimum: 1, description: "Map height represented by the mask." }),
       landMask: TypedArraySchemas.u8({
+        cardinality: "map-grid",
         description: "One byte per tile in row-major order: 1 for land and 0 for water.",
       }),
     },
@@ -464,30 +456,17 @@ export const artifact = defineArtifact({
       description: "Authoritative land/water classification for one complete map surface.",
     }
   ),
-  refine: (
-    input: unknown,
-    context?: ArtifactValidationContext
-  ): readonly ArtifactValidationIssue[] => {
-    const value = input as SurfaceMask;
-    const issues: ArtifactValidationIssue[] = [];
-    const expectedSize = value.width * value.height;
-    const isMask = appendArtifactTypedArrayIssues(
-      issues,
-      "surfaceMask.landMask",
-      value.landMask,
-      Uint8Array,
-      expectedSize
-    );
-    if (
-      context?.dimensions &&
-      (value.width !== context.dimensions.width || value.height !== context.dimensions.height)
-    ) {
-      issues.push({ message: "surfaceMask dimensions must match the active map." });
+  refine: (value, { dimensions, cellCount, issues }) => {
+    if (value.width !== dimensions.width || value.height !== dimensions.height) {
+      issues.add("surfaceMask dimensions must match the admitted map.");
     }
-    if (isMask && value.landMask.some((cell) => cell !== 0 && cell !== 1)) {
-      issues.push({ message: "surfaceMask.landMask accepts only 0 (water) or 1 (land)." });
+    for (let index = 0; index < cellCount; index += 1) {
+      const cell = value.landMask[index];
+      if (cell !== 0 && cell !== 1) {
+        issues.add(`surfaceMask.landMask[${index}] must be 0 (water) or 1 (land).`);
+      }
     }
-    return issues;
+    return undefined;
   },
 });
 ```
@@ -506,24 +485,31 @@ consumers):**
 ```ts
 import { artifacts as myModuleArtifacts } from "@mapgen/domain/<domain>/modules/<module>/artifacts/index.js";
 
-// producing step contract: artifacts: { provides: [myModuleArtifacts.surfaceMask] }
-deps.artifacts.surfaceMask.publish(context, { width, height, landMask });
+// producing step contract: provides: [myModuleArtifacts.surfaceMask]
+deps.artifacts.surfaceMask.publish({ width, height, landMask });
 
-// consuming step contract: artifacts: { requires: [myModuleArtifacts.surfaceMask] }
-const value = deps.artifacts.surfaceMask.read(context);
+// consuming step contract: requires: [myModuleArtifacts.surfaceMask]
+const value = deps.artifacts.surfaceMask.read();
 ```
 
 `defineArtifact` always performs structural schema admission first and invokes
-the optional inline `refine` only after structure succeeds. Refinement owns exact
-typed-array constructors, cardinality, cross-field relations, and domain laws the
-schema cannot express; a schema-complete artifact omits it. `defineStep` snapshots
-the selected artifact authorities, and `createStep` derives the validated
-publish/read runtime from that contract while binding behavior only.
+the optional inline `refine` only after structure and typed-array metadata admission
+succeed. Refinement owns cross-field relations and domain laws the schema cannot
+express; a schema-complete artifact omits it. Its inferred facilities expose admitted
+`dimensions`, derived `cellCount`, and the Core-owned `issues` sink. Use
+`issues.add(...)` for semantic findings and `issues.addGridCoordinates(...)` for generic
+coordinate bounds/duplication checks; do not import validation framework types or allocate
+an issue array. Put exact artifact authorities directly in the step's `requires`
+and `provides` arrays; `defineStep` snapshots them. At each invocation,
+Core derives frozen `read()` and `publish(value)` capabilities directly from that contract;
+there is no authored provider runtime, map, or cache.
 
 > Artifact ids use `artifact:<domain>.<name>` (for example,
-> `artifact:morphology.topography`). `effect:<name>` tags express execution guarantees in
-> `requires`/`provides`, distinct from `artifact:*` data. Those are the only two dependency
-> kinds. Publish is write-once: a second publish of the same artifact in one run is an error.
+> `artifact:morphology.topography`), but authored step dependencies use the exact
+> `Artifact` value rather than that raw string. Typed `CompletionId` constants
+> express payload-free external-state transaction edges in the same `requires`/`provides`
+> lists. Those are the only two dependency kinds. Publish is write-once: a second publish
+> of the same artifact in one run is an error.
 
 ---
 
@@ -532,10 +518,10 @@ publish/read runtime from that contract while binding behavior only.
 | Forget to... | Failure surface |
 |---|---|
 | add an op contract or implementation to the module `contract.ts` / `router.ts` | `createDomainSubdomainRouter` exact-key or canonical-contract mismatch |
-| add executable strategy to `strategies/index.ts` | `createOp` construction throws: contract definition has no matching runtime descriptor |
+| add executable strategy to `strategies/index.ts` | `createOp` construction throws: contract definition has no matching executable strategy |
 | add step to `standardStageContractManifest` | `orderStandardStageSteps` throws (unknown step id) |
 | add stage to `recipe.ts` `orderStandardStages` | stage silently absent from the pipeline (no error) — verify the run |
-| pass a new domain to `collectCompileOps` | compile-time op resolution fails for that domain's ops |
+| pass a new domain to `collectOperations` | recipe construction or compilation cannot resolve that domain's operations |
 | keep `default` strategy key | `defineOp`/`buildOpEnvelopeSchema` throws at module load |
 
 After authoring, the technical arm is only half done: a recipe that *compiles* is not a

@@ -15,17 +15,30 @@ type VizScalarSourceBase = Readonly<{
   valueSpec?: VizValueSpec;
 }>;
 
+/** Exact typed arrays accepted after the visualization kernel admits a binary source. */
+export type VizBinarySource =
+  | Uint8Array
+  | Int8Array
+  | Uint16Array
+  | Int16Array
+  | Int32Array
+  | Float32Array;
+
+/**
+ * Observation surface accepted while a visualization projection is being described.
+ * The copy-producing `slice` method preserves the concrete typed-array identity without
+ * exposing mutation or backing storage to projection authors.
+ */
+type VizTypedArraySource<T extends VizBinarySource> = ArrayLike<number> & Pick<T, "slice">;
+
 /** Scalar source whose declared format is coupled to its concrete typed-array representation. */
 export type VizScalarSource =
-  | (VizScalarSourceBase & { format: "u8"; values: Uint8Array })
-  | (VizScalarSourceBase & { format: "i8"; values: Int8Array })
-  | (VizScalarSourceBase & { format: "u16"; values: Uint16Array })
-  | (VizScalarSourceBase & { format: "i16"; values: Int16Array })
-  | (VizScalarSourceBase & { format: "i32"; values: Int32Array })
-  | (VizScalarSourceBase & { format: "f32"; values: Float32Array });
-
-/** Typed-array values admitted by the visualization projection kernel. */
-export type VizBinarySource = VizScalarSource["values"] | Float32Array;
+  | (VizScalarSourceBase & { format: "u8"; values: VizTypedArraySource<Uint8Array> })
+  | (VizScalarSourceBase & { format: "i8"; values: VizTypedArraySource<Int8Array> })
+  | (VizScalarSourceBase & { format: "u16"; values: VizTypedArraySource<Uint16Array> })
+  | (VizScalarSourceBase & { format: "i16"; values: VizTypedArraySource<Int16Array> })
+  | (VizScalarSourceBase & { format: "i32"; values: VizTypedArraySource<Int32Array> })
+  | (VizScalarSourceBase & { format: "f32"; values: VizTypedArraySource<Float32Array> });
 
 type VizProjectionIdentity = Readonly<{
   dataTypeKey: VizDataTypeKey;
@@ -46,7 +59,7 @@ export type VizGridProjection = VizProjectionIdentity &
 export type VizPointsProjection = VizProjectionIdentity &
   Readonly<{
     kind: "points";
-    positions: Float32Array;
+    positions: VizTypedArraySource<Float32Array>;
     values?: VizScalarSource;
   }>;
 
@@ -54,7 +67,7 @@ export type VizPointsProjection = VizProjectionIdentity &
 export type VizSegmentsProjection = VizProjectionIdentity &
   Readonly<{
     kind: "segments";
-    segments: Float32Array;
+    segments: VizTypedArraySource<Float32Array>;
     values?: VizScalarSource;
   }>;
 

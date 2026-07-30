@@ -1,9 +1,8 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import baselineDefinition from "./strategies/baseline/config.js";
-import refineDefinition from "./strategies/refine/config.js";
 import vectorDefinition from "./strategies/vector/config.js";
 
-/** Precipitation contract with vector transport as the product default plus baseline and refinement passes. */
+/** Precipitation-generation contract with vector transport as the product default. */
 const ComputePrecipitationContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-precipitation",
@@ -31,15 +30,6 @@ const ComputePrecipitationContract = defineOp({
       windV: TypedArraySchemas.i8({ description: "Wind V component per tile (-127..127)." }),
       /** Humidity proxy (0..1) per tile. */
       humidityF32: TypedArraySchemas.f32({ description: "Humidity proxy (0..1) per tile." }),
-      /** Input rainfall (0..200) per tile (optional seed/feedback from prior passes). */
-      rainfallIn: TypedArraySchemas.u8({ description: "Input rainfall (0..200) per tile." }),
-      /** Input humidity (0..255) per tile (optional seed/feedback from prior passes). */
-      humidityIn: TypedArraySchemas.u8({ description: "Input humidity (0..255) per tile." }),
-      /** Hydrology river hierarchy used by strategies that model corridor moisture. */
-      riverClass: TypedArraySchemas.u8({
-        description:
-          "Hydrology river class per tile (0=none, 1=minor, 2+=major) for corridor moisture.",
-      }),
       /** Deterministic Perlin seed (derived in the step; pure data). */
       perlinSeed: Type.Integer({
         minimum: 0,
@@ -69,7 +59,7 @@ const ComputePrecipitationContract = defineOp({
     }
   ),
   defaultStrategy: "vector",
-  strategies: [vectorDefinition, baselineDefinition, refineDefinition],
+  strategies: [vectorDefinition, baselineDefinition],
 });
 
 export default ComputePrecipitationContract;

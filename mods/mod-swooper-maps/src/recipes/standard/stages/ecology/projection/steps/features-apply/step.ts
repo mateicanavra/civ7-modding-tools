@@ -85,13 +85,13 @@ function isFloodplainFeatureKey(feature: string): boolean {
  */
 export const FeaturesApplyStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const topography = deps.artifacts.topography.read(context);
+    const topography = deps.artifacts.topography.read();
     const placements = {
-      vegetation: Array.from(deps.artifacts.vegetationIntents.read(context)),
-      wetlands: Array.from(deps.artifacts.wetlandIntents.read(context)),
-      floodplains: Array.from(deps.artifacts.floodplainIntents.read(context)),
-      reefs: Array.from(deps.artifacts.reefIntents.read(context)),
-      ice: Array.from(deps.artifacts.iceIntents.read(context)),
+      vegetation: Array.from(deps.artifacts.vegetationIntents.read()),
+      wetlands: Array.from(deps.artifacts.wetlandIntents.read()),
+      floodplains: Array.from(deps.artifacts.floodplainIntents.read()),
+      reefs: Array.from(deps.artifacts.reefIntents.read()),
+      ice: Array.from(deps.artifacts.iceIntents.read()),
     };
 
     const merged = ops.apply(placements, stepConfig.apply);
@@ -263,10 +263,10 @@ export const FeaturesApplyStep = createStep(config, {
       engine,
     };
   },
-  metrics: ({ result }) => ({
+  metrics: ({ observation }) => ({
     "ecology.featureProjection": measureStandardFeatureProjection(
-      result.projectionMeasurementInput
+      observation.projectionMeasurementInput
     ),
   }),
-  viz: ({ result, dimensions }) => buildFeaturesApplyVizProjections(result, dimensions),
+  viz: ({ observation, dimensions }) => buildFeaturesApplyVizProjections(observation, dimensions),
 });

@@ -17,7 +17,7 @@ function forcePotential(potential: Float32Array) {
   return computeMantleForcing.run(
     {
       mesh: SYNTHETIC_LINE_MESH,
-      mantlePotential: { cellCount: SYNTHETIC_LINE_MESH.cellCount, potential },
+      mantlePotential: { potential },
     },
     {
       ...computeMantleForcing.defaultConfig,

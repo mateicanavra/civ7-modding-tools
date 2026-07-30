@@ -33,16 +33,16 @@ function resolveWorldAgeScale(worldAge: WorldAge): number {
  * deltas across every era, then quantizes and clamps complete product buffers exactly once.
  */
 export function evolveGeomorphicSurface(params: {
-  width: number;
-  height: number;
-  elevation: Int16Array;
-  seaLevel: number;
-  flowDir: Int32Array;
-  flowAccum: Float32Array;
-  erodibility: Float32Array;
-  sedimentDepth: Float32Array;
-  landMask: Uint8Array;
-  config: GeomorphicCycleConfig;
+  readonly width: number;
+  readonly height: number;
+  readonly elevation: ArrayLike<number>;
+  readonly seaLevel: number;
+  readonly flowDir: ArrayLike<number>;
+  readonly flowAccum: ArrayLike<number>;
+  readonly erodibility: ArrayLike<number>;
+  readonly sedimentDepth: ArrayLike<number>;
+  readonly landMask: ArrayLike<number>;
+  readonly config: Readonly<GeomorphicCycleConfig>;
 }) {
   const {
     width,

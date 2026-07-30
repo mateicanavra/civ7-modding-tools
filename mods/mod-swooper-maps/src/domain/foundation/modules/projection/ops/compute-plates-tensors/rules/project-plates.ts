@@ -6,74 +6,95 @@ import {
 } from "@swooper/mapgen-core/lib/math";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import type { Plate } from "../../../../lithosphere/model/atoms/plate.schema.js";
-import type { TectonicHistoryEra } from "../../../../tectonics/model/atoms/tectonic-history-era.schema.js";
 
-type ProjectionMesh = Readonly<{
-  cellCount: number;
-  wrapWidth: number;
-  siteX: Float32Array;
-  siteY: Float32Array;
-}>;
+type ProjectionMesh = {
+  readonly cellCount: number;
+  readonly wrapWidth: number;
+  readonly siteX: ArrayLike<number>;
+  readonly siteY: ArrayLike<number>;
+};
 
-type ProjectionCrust = Readonly<{
-  type: Uint8Array;
-  maturity: Float32Array;
-  thickness: Float32Array;
-  damage: Uint8Array;
-  age: Uint8Array;
-  buoyancy: Float32Array;
-  baseElevation: Float32Array;
-  strength: Float32Array;
-}>;
+type ProjectionCrustInput = {
+  readonly type: ArrayLike<number>;
+  readonly maturity: ArrayLike<number>;
+  readonly thickness: ArrayLike<number>;
+  readonly damage: ArrayLike<number>;
+  readonly age: ArrayLike<number>;
+  readonly buoyancy: ArrayLike<number>;
+  readonly baseElevation: ArrayLike<number>;
+  readonly strength: ArrayLike<number>;
+};
 
-type ProjectionPlateGraph = Readonly<{
-  cellToPlate: Int16Array;
-  plates: ReadonlyArray<Plate>;
-}>;
+type ProjectedCrust = {
+  readonly type: Uint8Array;
+  readonly maturity: Float32Array;
+  readonly thickness: Float32Array;
+  readonly damage: Uint8Array;
+  readonly age: Uint8Array;
+  readonly buoyancy: Float32Array;
+  readonly baseElevation: Float32Array;
+  readonly strength: Float32Array;
+};
 
-type ProjectionPlateMotion = Readonly<{
-  plateVelocityX: Float32Array;
-  plateVelocityY: Float32Array;
-  plateOmega: Float32Array;
-}>;
+type ProjectionHistoryEra = {
+  readonly boundaryType: ArrayLike<number>;
+  readonly upliftPotential: ArrayLike<number>;
+  readonly collisionPotential: ArrayLike<number>;
+  readonly subductionPotential: ArrayLike<number>;
+  readonly riftPotential: ArrayLike<number>;
+  readonly shearStress: ArrayLike<number>;
+  readonly volcanism: ArrayLike<number>;
+  readonly fracture: ArrayLike<number>;
+};
 
-type ProjectionTectonics = Readonly<{
-  boundaryType: Uint8Array;
-  upliftPotential: Uint8Array;
-  riftPotential: Uint8Array;
-  shearStress: Uint8Array;
-  volcanism: Uint8Array;
-  cumulativeUplift: Uint8Array;
-}>;
+type ProjectionPlateGraph = {
+  readonly cellToPlate: ArrayLike<number>;
+  readonly plates: readonly Readonly<Plate>[];
+};
 
-type ProjectionHistory = Readonly<{
-  eraCount: number;
-  eras: ReadonlyArray<TectonicHistoryEra>;
-  upliftTotal: Uint8Array;
-  collisionTotal: Uint8Array;
-  subductionTotal: Uint8Array;
-  fractureTotal: Uint8Array;
-  volcanismTotal: Uint8Array;
-  upliftRecentFraction: Uint8Array;
-  collisionRecentFraction: Uint8Array;
-  subductionRecentFraction: Uint8Array;
-  lastActiveEra: Uint8Array;
-  lastCollisionEra: Uint8Array;
-  lastSubductionEra: Uint8Array;
-}>;
+type ProjectionPlateMotion = {
+  readonly plateVelocityX: ArrayLike<number>;
+  readonly plateVelocityY: ArrayLike<number>;
+  readonly plateOmega: ArrayLike<number>;
+};
 
-type ProjectionProvenance = Readonly<{
-  provenance: Readonly<{
-    originEra: Uint8Array;
-    originPlateId: Int16Array;
-    lastBoundaryEra: Uint8Array;
-    lastBoundaryType: Uint8Array;
+type ProjectionTectonics = {
+  readonly boundaryType: ArrayLike<number>;
+  readonly upliftPotential: ArrayLike<number>;
+  readonly riftPotential: ArrayLike<number>;
+  readonly shearStress: ArrayLike<number>;
+  readonly volcanism: ArrayLike<number>;
+  readonly cumulativeUplift: ArrayLike<number>;
+};
+
+type ProjectionHistory = {
+  readonly eraCount: number;
+  readonly eras: readonly ProjectionHistoryEra[];
+  readonly upliftTotal: ArrayLike<number>;
+  readonly collisionTotal: ArrayLike<number>;
+  readonly subductionTotal: ArrayLike<number>;
+  readonly fractureTotal: ArrayLike<number>;
+  readonly volcanismTotal: ArrayLike<number>;
+  readonly upliftRecentFraction: ArrayLike<number>;
+  readonly collisionRecentFraction: ArrayLike<number>;
+  readonly subductionRecentFraction: ArrayLike<number>;
+  readonly lastActiveEra: ArrayLike<number>;
+  readonly lastCollisionEra: ArrayLike<number>;
+  readonly lastSubductionEra: ArrayLike<number>;
+};
+
+type ProjectionProvenance = {
+  readonly provenance: Readonly<{
+    readonly originEra: ArrayLike<number>;
+    readonly originPlateId: ArrayLike<number>;
+    readonly lastBoundaryEra: ArrayLike<number>;
+    readonly lastBoundaryType: ArrayLike<number>;
   }>;
-}>;
+};
 
 type ProjectionResult = Readonly<{
   tileToCellIndex: Int32Array;
-  crustTiles: ProjectionCrust;
+  crustTiles: ProjectedCrust;
   plates: Readonly<{
     id: Int16Array;
     boundaryCloseness: Uint8Array;
@@ -188,7 +209,7 @@ export function projectPlatesFromModel(input: {
   width: number;
   height: number;
   mesh: ProjectionMesh;
-  crust: ProjectionCrust;
+  crust: ProjectionCrustInput;
   plateGraph: ProjectionPlateGraph;
   plateMotion: ProjectionPlateMotion;
   tectonics: ProjectionTectonics;
@@ -209,7 +230,7 @@ export function projectPlatesFromModel(input: {
   const tectonicHistory = input.tectonicHistory;
   const tectonicProvenance = input.tectonicProvenance ?? null;
 
-  const cellCount = mesh.cellCount | 0;
+  const cellCount = mesh.cellCount;
   const wrapWidth = mesh.wrapWidth;
   const meshHexX = mesh.siteX;
   const meshHexY = mesh.siteY;

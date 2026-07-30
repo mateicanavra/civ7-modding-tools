@@ -54,7 +54,7 @@ describe("compileRecipeConfig", () => {
         setup: TEST_SETUP,
         recipe: { stages: [stage] },
         config: { fixed: {} },
-        compileOpsById: {},
+        operations: {},
       })
     ).toEqual({ fixed: { alpha: { value: TEST_SETUP.mapSeed } } });
   });
@@ -86,7 +86,7 @@ describe("compileRecipeConfig", () => {
         setup: TEST_SETUP,
         recipe: { stages: [stage] },
         config: { internal: { alpha: { value: 2 } } },
-        compileOpsById: {},
+        operations: {},
       })
     ).toEqual({ internal: { alpha: { value: 2 } } });
     expect(observedKnobs).toEqual({});
@@ -121,7 +121,7 @@ describe("compileRecipeConfig", () => {
         setup: TEST_SETUP,
         recipe: { stages: [stage] },
         config: { public: { amount: 3 } },
-        compileOpsById: {},
+        operations: {},
       })
     ).toEqual({ public: { alpha: { value: 3 } } });
   });
@@ -152,7 +152,7 @@ describe("compileRecipeConfig", () => {
       setup,
       recipe: { stages: [stage] },
       config: { stage: { knobs: {} } },
-      compileOpsById: {},
+      operations: {},
     });
 
     expect(observedSetup).toBe(setup);
@@ -172,7 +172,7 @@ describe("compileRecipeConfig", () => {
         } as unknown as MapSetup,
         recipe: { stages: [] },
         config: {},
-        compileOpsById: {},
+        operations: {},
       })
     ).toThrow("Map setup topLatitude must be greater than bottomLatitude.");
   });
@@ -223,7 +223,7 @@ describe("compileRecipeConfig", () => {
       compile: ({ config }) => ({ alpha: { value: config.publicValue } }),
       steps: [step],
     });
-    const compileOp = createOp(op, {
+    const operation = createOp(op, {
       strategies: [
         createStrategy(op, op.strategies.compiled, {
           normalize: (config) => {
@@ -239,7 +239,7 @@ describe("compileRecipeConfig", () => {
       setup: TEST_SETUP,
       recipe: { stages: [stage] },
       config: { stage: { knobs: {}, publicValue: "base" } },
-      compileOpsById: { [compileOp.id]: compileOp },
+      operations: { [operation.id]: operation },
     });
 
     expect(calls).toEqual(["step.normalize", "op.normalize"]);
@@ -274,7 +274,7 @@ describe("compileRecipeConfig", () => {
         setup: TEST_SETUP,
         recipe: { stages: [stage] },
         config: incomplete,
-        compileOpsById: {},
+        operations: {},
       })
     );
 
@@ -311,7 +311,7 @@ describe("compileRecipeConfig", () => {
         setup: TEST_SETUP,
         recipe: { stages: [stage] },
         config: { stage: { knobs: {} } },
-        compileOpsById: {},
+        operations: {},
       })
     );
 
@@ -356,7 +356,7 @@ describe("compileRecipeConfig", () => {
         },
       ],
     });
-    const compileOp = createOp(op, {
+    const operation = createOp(op, {
       strategies: [
         createStrategy(op, op.strategies.compiled, {
           normalize: () => ({}) as never,
@@ -370,8 +370,8 @@ describe("compileRecipeConfig", () => {
         setup: TEST_SETUP,
         recipe: { stages: [stage] },
         config: { stage: { knobs: {} } },
-        compileOpsById: {
-          [compileOp.id]: compileOp,
+        operations: {
+          [operation.id]: operation,
         },
       })
     );
@@ -403,7 +403,7 @@ describe("compileRecipeConfig", () => {
         setup: TEST_SETUP,
         recipe: { stages: [stage] },
         config: { stage: { knobs: {} } },
-        compileOpsById: {},
+        operations: {},
       })
     );
 
@@ -436,7 +436,7 @@ describe("compileRecipeConfig", () => {
         setup: TEST_SETUP,
         recipe: { stages },
         config,
-        compileOpsById: {},
+        operations: {},
       })
     );
 

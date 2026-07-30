@@ -28,11 +28,11 @@ export function upwindBarrierDistance(
   y: number,
   width: number,
   height: number,
-  elevation: Int16Array,
-  landMask: Uint8Array,
-  windU: Int8Array,
-  windV: Int8Array,
-  latitudeByRow: Float32Array,
+  elevation: ArrayLike<number>,
+  landMask: ArrayLike<number>,
+  windU: ArrayLike<number>,
+  windV: ArrayLike<number>,
+  latitudeByRow: ArrayLike<number>,
   steps: number,
   options: Readonly<{ barrierElevationM: number }>
 ): number {

@@ -5,7 +5,7 @@ import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/au
  * deterministic thermal-source population that explains it.
  */
 export const artifact = defineArtifact({
-  name: "foundationMantlePotential",
+  name: "mantlePotential",
   id: "artifact:foundation.mantlePotential",
   schema: Type.Object(
     {

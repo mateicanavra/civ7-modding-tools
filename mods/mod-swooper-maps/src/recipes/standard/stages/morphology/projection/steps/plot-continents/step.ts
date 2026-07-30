@@ -13,12 +13,13 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 /**
  * Validates continent terrain only after coast projection, preserving that
- * ordering through effect tags and checking the resulting engine surface.
+ * transaction boundary through completion dependencies and checking the
+ * resulting engine surface.
  */
 export const PlotContinentsStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
-    const topography = deps.artifacts.topography.read(context);
-    const shelf = deps.artifacts.shelf.read(context);
+    const topography = deps.artifacts.topography.read();
+    const shelf = deps.artifacts.shelf.read();
     const { width, height } = context.setup.dimensions;
     const coastProjection = deriveCiv7CoastProjection({
       width,
@@ -55,13 +56,13 @@ export const PlotContinentsStep = createStep(config, {
     );
     return { physicsLandMask: topography.landMask, engineLandMask };
   },
-  viz: ({ result, dimensions }) => [
+  viz: ({ observation, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "map.morphology.continents.landMask",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.physicsLandMask },
+      field: { format: "u8", values: observation.physicsLandMask },
       meta: defineStandardVizMeta("map.morphology.continents.landMask", "category.distinct", {
         label: "Land Mask (Physics Truth)",
         group: GROUP_MAP_MORPHOLOGY,
@@ -73,7 +74,7 @@ export const PlotContinentsStep = createStep(config, {
       dataTypeKey: "map.morphology.continents.landMask",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.engineLandMask },
+      field: { format: "u8", values: observation.engineLandMask },
       meta: defineStandardVizMeta("map.morphology.continents.landMask", "category.distinct", {
         label: "Land Mask (Engine After Stamp Continents)",
         group: GROUP_MAP_MORPHOLOGY,

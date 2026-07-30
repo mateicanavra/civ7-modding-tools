@@ -11,12 +11,9 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "crust",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [meshArtifacts.mesh, mantleArtifacts.mantleForcing],
-    provides: [lithosphereArtifacts.initialCrust],
-  },
+  requires: [meshArtifacts.mesh, mantleArtifacts.mantleForcing],
+  provides: [lithosphereArtifacts.initialCrust],
+
   ops: {
     computeCrust: foundation.lithosphere.ops.computeCrust,
   },

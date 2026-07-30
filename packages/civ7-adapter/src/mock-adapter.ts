@@ -22,7 +22,6 @@ import {
   captureCurrentRiverSurface,
   deriveRiverProjectionFromCurrentSurface,
 } from "./current-map-surface.js";
-import { ENGINE_EFFECT_TAGS } from "./effects.js";
 import { getCiv7RowLatitude } from "./map-metadata.js";
 import type {
   CurrentRiverSurface,
@@ -419,7 +418,6 @@ export class MockAdapter implements EngineAdapter {
   private noResourceSentinel: number;
   private plotEffectTypes: Array<{ id: number; name: string; tags: Set<string> }>;
   private plotEffectsByIndex: Map<number, Set<number>>;
-  private readonly effectEvidence = new Set<string>();
   private officialDiscoveriesPlacedCount: number;
   private officialResourcesPlacedCount: number;
   private coastTerrainId: number;
@@ -560,50 +558,9 @@ export class MockAdapter implements EngineAdapter {
     };
   }
 
-  private recordEffect(effectId: string): void {
-    this.effectEvidence.add(effectId);
-  }
-
   /** Records human-facing warnings without coupling tests to a process console. */
   emitRuntimeWarning(message: string): void {
     this.calls.emitRuntimeWarning.push(message);
-  }
-
-  verifyEffect(effectId: string): boolean {
-    if (effectId === "effect:engine.landmassApplied") {
-      // Best-effort: landmass should create at least some land and some water.
-      let hasLand = false;
-      let hasWater = false;
-      const size = this.width * this.height;
-      for (let i = 0; i < size; i++) {
-        const isWater =
-          this.waterMask[i] === 1 ||
-          this.terrainTypes[i] === this.coastTerrainId ||
-          this.terrainTypes[i] === this.oceanTerrainId;
-        if (isWater) hasWater = true;
-        else hasLand = true;
-        if (hasLand && hasWater) return true;
-      }
-      return false;
-    }
-
-    if (effectId === "effect:engine.coastlinesApplied") {
-      const size = this.width * this.height;
-      for (let i = 0; i < size; i++) {
-        if (this.terrainTypes[i] === this.coastTerrainId) return true;
-      }
-      return false;
-    }
-
-    if (effectId === "effect:engine.riversModeled") {
-      const size = this.width * this.height;
-      for (let i = 0; i < size; i++) {
-        if (this.riverMask[i] === 1) return true;
-      }
-      return false;
-    }
-
-    return this.effectEvidence.has(effectId);
   }
 
   private idx(x: number, y: number): number {
@@ -748,7 +705,6 @@ export class MockAdapter implements EngineAdapter {
 
   setFeatureType(x: number, y: number, featureData: FeatureData): void {
     this.features[this.idx(x, y)] = featureData.Feature;
-    this.recordEffect(ENGINE_EFFECT_TAGS.featuresApplied);
   }
 
   canHaveFeature(_x: number, _y: number, _featureType: number): boolean {
@@ -1127,7 +1083,7 @@ export class MockAdapter implements EngineAdapter {
   readRiverProjection(
     width: number,
     height: number,
-    plannedNavigableRiverMask: Uint8Array
+    plannedNavigableRiverMask: ArrayLike<number>
   ): RiverProjectionResult {
     if (width !== this.width || height !== this.height) {
       throw new Error(
@@ -1345,7 +1301,6 @@ export class MockAdapter implements EngineAdapter {
     // Track call for testing
     this.calls.designateBiomes.push({ width, height });
     // Mock: no-op (biomes already initialized to default)
-    this.recordEffect(ENGINE_EFFECT_TAGS.biomesApplied);
   }
 
   getBiomeGlobal(name: string): number {
@@ -1357,7 +1312,6 @@ export class MockAdapter implements EngineAdapter {
 
   setBiomeType(x: number, y: number, biomeId: number): void {
     this.biomes[this.idx(x, y)] = biomeId;
-    this.recordEffect(ENGINE_EFFECT_TAGS.biomesApplied);
   }
 
   getBiomeType(x: number, y: number): number {
@@ -1370,7 +1324,6 @@ export class MockAdapter implements EngineAdapter {
     // Track call for testing
     this.calls.addFeatures.push({ width, height });
     // Mock: no-op (features already initialized to NO_FEATURE)
-    this.recordEffect(ENGINE_EFFECT_TAGS.featuresApplied);
   }
 
   getFeatureTypeIndex(name: string): number {
@@ -1694,7 +1647,6 @@ export class MockAdapter implements EngineAdapter {
     this.calls.recalculateFertility = 0;
     this.calls.addPlotEffect.length = 0;
     this.resourcesPlaced = 0;
-    this.effectEvidence.clear();
     this.terrainTypeIndices = config.terrainTypeIndices ?? { ...DEFAULT_TERRAIN_TYPE_INDICES };
     this.plotTags = { ...DEFAULT_PLOT_TAGS, ...(config.plotTags ?? {}) };
     this.landmassIds = { ...DEFAULT_LANDMASS_IDS, ...(config.landmassIds ?? {}) };

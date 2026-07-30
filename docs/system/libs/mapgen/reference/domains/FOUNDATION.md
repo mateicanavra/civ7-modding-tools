@@ -81,9 +81,10 @@ Foundation keeps vocabulary at its lowest common semantic owner:
 - `mods/mod-swooper-maps/src/domain/foundation/model/policy/crust-buoyancy.ts`
 - `mods/mod-swooper-maps/src/domain/foundation/modules/tectonics/model/atoms/tectonic-event.schema.ts`
 
-### Provides (artifacts + tags)
+### Provides (artifacts)
 
-FOUNDATION provides the following artifact dependency tags (all `artifact:*`).
+Foundation steps provide the following exact artifact authorities. Their stable
+runtime and diagnostic ids use the `artifact:*` namespace.
 
 **Truth artifacts (mesh space)**
 - `artifact:foundation.mesh`
@@ -107,12 +108,12 @@ FOUNDATION provides the following artifact dependency tags (all `artifact:*`).
 
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/foundation/modules/*/artifacts/index.ts` (the six producing-module artifact catalogs)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/mantle/steps/mesh/config.ts` (`config.artifacts.provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/lithosphere/steps/crust/config.ts` (`config.artifacts.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/lithosphere/steps/plate-graph/config.ts` (`config.artifacts.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/tectonics/steps/tectonics/config.ts` (`config.artifacts.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/projection/steps/projection/config.ts` (`config.artifacts.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/projection/steps/plate-topology/config.ts` (`config.artifacts.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/mantle/steps/mesh/config.ts` (`config.provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/lithosphere/steps/crust/config.ts` (`config.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/lithosphere/steps/plate-graph/config.ts` (`config.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/tectonics/steps/tectonics/config.ts` (`config.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/projection/steps/projection/config.ts` (`config.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/projection/steps/plate-topology/config.ts` (`config.requires/provides`)
 
 ### Value domains (enums / ranges)
 
@@ -489,7 +490,7 @@ Downstream domains in the standard recipe primarily consume **tile projections**
 
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/step.ts` (reading projected Foundation crust, history, and provenance evidence)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/step.ts` (`deps.artifacts.foundationPlates.read`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/volcanoes/step.ts` (`deps.artifacts.plates.read`)
 
 ### Drift notes (target vs current)
 

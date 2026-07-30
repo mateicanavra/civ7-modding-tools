@@ -34,9 +34,9 @@ export function resolveTargetPercent(config: HypsometryConfig, rng: LabelRng): n
 export function resolveSeaLevel(params: {
   values: number[];
   targetPct: number;
-  elevation: Int16Array;
-  crustType: Uint8Array;
-  boundaryCloseness: Uint8Array;
+  elevation: ArrayLike<number>;
+  crustType: ArrayLike<number>;
+  boundaryCloseness: ArrayLike<number>;
   boundaryTarget: number | null;
   continentalTarget: number | null;
   boundaryThreshold?: number;

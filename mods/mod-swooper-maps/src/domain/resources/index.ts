@@ -18,14 +18,11 @@ export {
   ResourceSymbolSchema,
 } from "./model/atoms/index.js";
 export {
-  buildHabitatEligibility,
   buildInitialMapResourceAuthoringPolicy,
   DEFERRED_INITIAL_MAP_RESOURCE_TYPES,
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   type EarthlikeResourceExpectation,
   getInitialMapResourcePolicyForType,
-  type HabitatEligibility,
-  type HabitatMaskFields,
   INITIAL_MAP_RESOURCE_AUTHORING_AGE,
   INITIAL_MAP_RESOURCE_AUTHORING_POLICY,
   INITIAL_MAP_RESOURCE_POLICY_BY_TYPE,

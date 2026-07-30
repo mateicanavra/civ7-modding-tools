@@ -94,8 +94,8 @@ function cloneSeat(seat: DeepReadonly<StartSeatRecord>): StartSeatRecord {
 
 /**
  * Stamps the operation's typed seat intents and builds the immutable assignment
- * product. Unfillable maps remain degraded data; only a map with no settleable
- * candidate at all is rejected.
+ * product. Unfillable maps remain degraded data so the provider can publish
+ * exact failure evidence before refusing to publish the placement result.
  */
 function materializeStartAssignment(args: {
   context: MapContext;
@@ -111,13 +111,6 @@ function materializeStartAssignment(args: {
     );
   }
   const seats = plan.seats;
-  if (seats.length > 0 && plan.settleableTileCount === 0) {
-    throw new Error(
-      `[Placement] No settleable land candidates exist for ${seats.length} requested start seat(s) ` +
-        `(candidates=${plan.candidateCount}, settleable=0).`
-    );
-  }
-
   let assigned = 0;
   const rungCounts = { regional: 0, openPool: 0, qualityRelaxed: 0, spacingRelaxed: 0 };
   const tierAssignments = { primary: 0, islandCluster: 0, marginal: 0, none: 0 };
@@ -164,30 +157,41 @@ function materializeStartAssignment(args: {
   };
 }
 
+function requireCompleteStartAssignment(assignment: DeepReadonly<StartAssignmentArtifact>): void {
+  const seatCount = assignment.seats.length;
+  if (seatCount > 0 && assignment.assigned === seatCount && assignment.unseatedCount === 0) {
+    return;
+  }
+  throw new Error(
+    `[Placement] Start assignment incomplete: assigned ${assignment.assigned} of ${seatCount} ` +
+      `seat(s), with ${assignment.unseatedCount} unseated.`
+  );
+}
+
 /**
  * Assigns player seats against the resource plan and final physical truth,
  * before the support pass adjusts resources and stamping makes them immutable.
  */
 export const AssignStartsStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const resourcePlan = deps.artifacts.resourcePlan.read(context);
-    const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
-    const topography = deps.artifacts.topography.read(context);
-    const landmasses = deps.artifacts.landmasses.read(context);
-    const mountains = deps.artifacts.mountains.read(context);
-    const volcanoes = deps.artifacts.volcanoes.read(context);
-    const shelf = deps.artifacts.shelf.read(context);
-    const hydrography = deps.artifacts.hydrography.read(context);
-    const lakePlan = deps.artifacts.lakePlan.read(context);
-    const climateIndices = deps.artifacts.climateIndices.read(context);
-    const pedology = deps.artifacts.pedology.read(context);
+    const resourcePlan = deps.artifacts.resourcePlan.read();
+    const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read();
+    const topography = deps.artifacts.topography.read();
+    const landmasses = deps.artifacts.landmasses.read();
+    const mountains = deps.artifacts.mountains.read();
+    const volcanoes = deps.artifacts.volcanoes.read();
+    const shelf = deps.artifacts.shelf.read();
+    const hydrography = deps.artifacts.hydrography.read();
+    const lakePlan = deps.artifacts.lakePlan.read();
+    const climateIndices = deps.artifacts.climateIndices.read();
+    const pedology = deps.artifacts.pedology.read();
     const currentFeatureTypes = deps.engine.readCurrentMapFeatureTypes(context);
     const slotByTile = landmassRegionSlotByTile.slotByTile as Uint8Array;
     const { width, height } = context.setup.dimensions;
     const plan = ops.starts(
       {
-        playerIds: deps.initialSetup.aliveMajorPlayerIds,
-        gameSeed: deps.initialSetup.gameSeed,
+        playerIds: context.initialSetup.aliveMajorPlayerIds,
+        gameSeed: context.initialSetup.gameSeed,
         width,
         height,
         landMask: topography.landMask as Uint8Array,
@@ -220,8 +224,9 @@ export const AssignStartsStep = createStep(config, {
       setStartPosition: (plotIndex, playerId) =>
         deps.engine.setStartPosition(context, plotIndex, playerId),
     });
-    deps.artifacts.startAssignment.publish(context, assignment);
+    deps.artifacts.startAssignment.publish(assignment);
+    requireCompleteStartAssignment(assignment);
     return { plan, assignment };
   },
-  viz: ({ result, dimensions }) => projectStartAssignmentViz({ ...result, dimensions }),
+  viz: ({ observation, dimensions }) => projectStartAssignmentViz({ ...observation, dimensions }),
 });

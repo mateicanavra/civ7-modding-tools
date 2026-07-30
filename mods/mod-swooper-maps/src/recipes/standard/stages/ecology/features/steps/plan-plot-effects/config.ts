@@ -16,16 +16,13 @@ export const config = defineStep({
   id: "plan-plot-effects",
   description:
     "Computes climate-driven plot-effect intent before the later engine-projection boundary.",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [
-      morphologyLandformsArtifacts.topography,
-      climateArtifacts.climateIndices,
-      biomeArtifacts.biomeClassification,
-    ],
-    provides: [plotEffectArtifacts.plotEffectPlan],
-  },
+  requires: [
+    morphologyLandformsArtifacts.topography,
+    climateArtifacts.climateIndices,
+    biomeArtifacts.biomeClassification,
+  ],
+  provides: [plotEffectArtifacts.plotEffectPlan],
+
   ops: {
     scoreSnow: ecology.plotEffects.ops.scorePlotEffectsSnow,
     scoreSand: ecology.plotEffects.ops.scorePlotEffectsSand,

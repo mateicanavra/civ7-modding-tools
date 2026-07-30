@@ -1,16 +1,16 @@
 import { clamp01 } from "@swooper/mapgen-core";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 
-type PedologyInput = Readonly<{
-  width: number;
-  height: number;
-  landMask: Uint8Array;
-  elevation: Int16Array;
-  rainfall: Uint8Array;
-  humidity: Uint8Array;
-  sedimentDepth?: Float32Array;
-  bedrockAge?: Int16Array;
-}>;
+type PedologyInput = {
+  readonly width: number;
+  readonly height: number;
+  readonly landMask: ArrayLike<number>;
+  readonly elevation: ArrayLike<number>;
+  readonly rainfall: ArrayLike<number>;
+  readonly humidity: ArrayLike<number>;
+  readonly sedimentDepth?: ArrayLike<number>;
+  readonly bedrockAge?: ArrayLike<number>;
+};
 
 type PedologyWeights = Readonly<{
   climateWeight: number;

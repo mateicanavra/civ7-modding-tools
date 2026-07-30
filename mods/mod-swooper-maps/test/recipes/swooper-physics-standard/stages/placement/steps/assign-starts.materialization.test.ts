@@ -12,16 +12,12 @@ import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/m
 import placement from "@mapgen/domain/placement/router";
 import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import { createMapContext, type MapContext } from "@swooper/mapgen-core";
-import {
-  readValidatedArtifact,
-  type Static,
-  type StepRuntimeOps,
-} from "@swooper/mapgen-core/authoring";
+import { readArtifact, type Static, type StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
   normalizeOperationSelectionForTest,
   publishTestArtifact,
-  withMapContextExecutionForTest,
+  withStepExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 
 import standardRecipe from "../../../../../../src/recipes/standard/recipe.js";
@@ -37,17 +33,9 @@ type AssignStartsOps = StepRuntimeOps<NonNullable<(typeof AssignStartsStep.contr
 type LandTile = readonly [x: number, y: number];
 
 const ASSIGN_STARTS_OP_CONTRACTS = AssignStartsStep.contract.ops!;
-const STARTS_RUNTIME_OP = Object.assign(
-  (
-    input: Parameters<AssignStartsOps["starts"]>[0],
-    config: Parameters<AssignStartsOps["starts"]>[1]
-  ): ReturnType<AssignStartsOps["starts"]> => placement.starts.ops.planStarts.run(input, config),
-  {
-    id: ASSIGN_STARTS_OP_CONTRACTS.starts.id,
-    kind: ASSIGN_STARTS_OP_CONTRACTS.starts.kind,
-  }
-);
-const ASSIGN_STARTS_OPS = { starts: STARTS_RUNTIME_OP } satisfies AssignStartsOps;
+const ASSIGN_STARTS_OPS = placement.starts.ops.bind(
+  ASSIGN_STARTS_OP_CONTRACTS
+) satisfies AssignStartsOps;
 
 function assignStartsConfig(
   configure?: (config: (typeof placement.starts.ops.planStarts.defaultConfig)["config"]) => void
@@ -215,14 +203,15 @@ function publishAssignStartsInputs(context: MapContext, landTiles: readonly Land
 function runAssignStartsStep(
   context: MapContext,
   landTiles: readonly LandTile[],
-  config: AssignStartsConfig = assignStartsConfig()
+  config: AssignStartsConfig = assignStartsConfig(),
+  ops: AssignStartsOps = ASSIGN_STARTS_OPS
 ): void {
-  withMapContextExecutionForTest(context, (stepContext) => {
+  withStepExecutionForTest(context, AssignStartsStep, (stepContext) => {
     publishAssignStartsInputs(stepContext, landTiles);
     AssignStartsStep.run(
       stepContext,
       config,
-      ASSIGN_STARTS_OPS,
+      ops,
       buildStepTestDependencies(AssignStartsStep, stepContext)
     );
   });
@@ -237,9 +226,14 @@ describe("assign starts step", () => {
     const { adapter, context } = createAssignStartsContext([4, 9]);
 
     runAssignStartsStep(context, landTiles);
-    const assignment = readValidatedArtifact(context, placementStartArtifacts.startAssignment);
+    const assignment = readArtifact(context, placementStartArtifacts.startAssignment);
 
-    expect(assignment.assigned).toBe(2);
+    expect(assignment).toMatchObject({
+      assigned: 2,
+      unseatedCount: 0,
+      status: "full",
+    });
+    expect(assignment.seats).toHaveLength(2);
     expect(adapter.calls.setStartPosition.map(({ playerId }) => playerId).sort()).toEqual([4, 9]);
     expect(
       adapter.calls.setStartPosition.map(({ plotIndex }) => plotIndex).sort((a, b) => a - b)
@@ -254,7 +248,7 @@ describe("assign starts step", () => {
     const { context: baselineContext } = createAssignStartsContext([4]);
 
     runAssignStartsStep(baselineContext, landTiles);
-    const baselineAssignment = readValidatedArtifact(
+    const baselineAssignment = readArtifact(
       baselineContext,
       placementStartArtifacts.startAssignment
     );
@@ -273,7 +267,7 @@ describe("assign starts step", () => {
     });
 
     runAssignStartsStep(observedContext, landTiles);
-    const observedAssignment = readValidatedArtifact(
+    const observedAssignment = readArtifact(
       observedContext,
       placementStartArtifacts.startAssignment
     );
@@ -285,28 +279,38 @@ describe("assign starts step", () => {
     );
   });
 
-  it("hard-fails only when requested seats have no settleable land candidate", () => {
+  it("publishes zero-assignment evidence before refusing to complete", () => {
     const { context } = createAssignStartsContext([4]);
 
-    expect(() => runAssignStartsStep(context, [])).toThrow(/No settleable land candidates/);
+    expect(() => runAssignStartsStep(context, [])).toThrow(
+      /Start assignment incomplete: assigned 0 of 1 seat\(s\), with 1 unseated/
+    );
+    const assignment = readArtifact(context, placementStartArtifacts.startAssignment);
+    expect(assignment).toMatchObject({
+      assigned: 0,
+      unseatedCount: 1,
+      status: "degraded",
+    });
   });
 
-  it("publishes unseated players as degraded assignment data", () => {
+  it("publishes partial assignment evidence before refusing to complete", () => {
     const { adapter, context } = createAssignStartsContext([4, 9, 11]);
     const config = assignStartsConfig((selection) => {
       selection.spacingFloorTiles = 1;
       selection.desiredSpacingTiles = 2;
     });
 
-    runAssignStartsStep(
-      context,
-      [
-        [2, 2],
-        [5, 4],
-      ],
-      config
-    );
-    const assignment = readValidatedArtifact(context, placementStartArtifacts.startAssignment);
+    expect(() =>
+      runAssignStartsStep(
+        context,
+        [
+          [2, 2],
+          [5, 4],
+        ],
+        config
+      )
+    ).toThrow(/Start assignment incomplete: assigned 2 of 3 seat\(s\), with 1 unseated/);
+    const assignment = readArtifact(context, placementStartArtifacts.startAssignment);
 
     expect(assignment).toMatchObject({
       assigned: 2,
@@ -314,5 +318,33 @@ describe("assign starts step", () => {
       status: "degraded",
     });
     expect(adapter.calls.setStartPosition).toHaveLength(2);
+  });
+
+  it("publishes empty assignment evidence before rejecting a run with no player seats", () => {
+    const { context } = createAssignStartsContext([4]);
+    const emptySeatOps: AssignStartsOps = {
+      starts: (input, selection) => {
+        const plan = ASSIGN_STARTS_OPS.starts(input, selection);
+        return {
+          ...plan,
+          seats: [],
+          fairnessReport: {
+            ...plan.fairnessReport,
+            parity: [],
+          },
+          status: "full",
+        };
+      },
+    };
+
+    expect(() =>
+      runAssignStartsStep(context, [[2, 2]], assignStartsConfig(), emptySeatOps)
+    ).toThrow(/Start assignment incomplete: assigned 0 of 0 seat\(s\), with 0 unseated/);
+    const assignment = readArtifact(context, placementStartArtifacts.startAssignment);
+    expect(assignment).toMatchObject({
+      seats: [],
+      assigned: 0,
+      unseatedCount: 0,
+    });
   });
 });

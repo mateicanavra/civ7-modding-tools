@@ -13,9 +13,9 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
 export const IslandsStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
-    const plates = deps.artifacts.foundationPlates.read(context);
-    const topography = deps.artifacts.erodedTopography.read(context);
-    const coastline = deps.artifacts.baseCoastline.read(context);
+    const plates = deps.artifacts.plates.read();
+    const topography = deps.artifacts.erodedTopography.read();
+    const coastline = deps.artifacts.baseCoastline.read();
     const result = ops.islands(
       {
         width,
@@ -46,10 +46,10 @@ export const IslandsStep = createStep(config, {
         microcontinentTiles,
       };
     });
-    deps.artifacts.topography.publish(context, result.topography);
+    deps.artifacts.topography.publish(result.topography);
     return result.islandClass;
   },
-  viz: ({ result: islandClass, dimensions }) => [
+  viz: ({ observation: islandClass, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "morphology.islands.formationClass",

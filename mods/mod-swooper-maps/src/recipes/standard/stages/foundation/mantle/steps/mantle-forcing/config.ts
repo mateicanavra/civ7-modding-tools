@@ -10,12 +10,9 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "mantle-forcing",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [meshArtifacts.mesh, mantleArtifacts.mantlePotential],
-    provides: [mantleArtifacts.mantleForcing],
-  },
+  requires: [meshArtifacts.mesh, mantleArtifacts.mantlePotential],
+  provides: [mantleArtifacts.mantleForcing],
+
   ops: {
     computeMantleForcing: foundation.mantle.ops.computeMantleForcing,
   },

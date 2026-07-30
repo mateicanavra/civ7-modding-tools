@@ -127,7 +127,7 @@ const supportEquityStrategy = createStrategy(Contract, StrategyDefinition, {
     const width = plan.width;
     const height = plan.height;
     const size = width * height;
-    const seed = input.seed | 0;
+    const seed = input.seed;
     const landmassIdByTile = input.landmassIdByTile;
     const regionSlotByTile = input.regionSlotByTile;
 
@@ -148,9 +148,9 @@ const supportEquityStrategy = createStrategy(Contract, StrategyDefinition, {
     // --- eligibility / per-type metadata -----------------------------------------------------
     type Eligibility = {
       resourceType: OfficialResourceType;
-      habitatMask: Uint8Array;
-      legalMask: Uint8Array;
-      intensity: Float32Array;
+      habitatMask: ArrayLike<number>;
+      legalMask: ArrayLike<number>;
+      intensity: ArrayLike<number>;
     };
     const eligibilityByType = new Map<OfficialResourceType, Eligibility>();
     for (const row of input.eligibility) {

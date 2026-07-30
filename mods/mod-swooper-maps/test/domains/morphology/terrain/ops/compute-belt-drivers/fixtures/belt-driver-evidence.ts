@@ -33,7 +33,7 @@ export function createBeltDriverEvidence(width: number, height: number, eraCount
   provenanceTiles.originPlateId.fill(-1);
 
   return {
-    historyTiles: { eraCount, perEra, rollups },
+    historyTiles: { perEra, rollups },
     provenanceTiles,
   };
 }

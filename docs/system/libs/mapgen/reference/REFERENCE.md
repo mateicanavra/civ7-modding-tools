@@ -27,7 +27,7 @@ Core contract references:
 - Stage and step authoring: [`docs/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md`](/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md)
 - Config compilation: [`docs/system/libs/mapgen/reference/CONFIG-COMPILATION.md`](/system/libs/mapgen/reference/CONFIG-COMPILATION.md)
 - Plan compilation: [`docs/system/libs/mapgen/reference/PLAN-COMPILATION.md`](/system/libs/mapgen/reference/PLAN-COMPILATION.md)
-- Tags and registries: [`docs/system/libs/mapgen/reference/TAGS.md`](/system/libs/mapgen/reference/TAGS.md)
+- Step dependencies: [`docs/system/libs/mapgen/reference/DEPENDENCIES.md`](/system/libs/mapgen/reference/DEPENDENCIES.md)
 - Artifacts: [`docs/system/libs/mapgen/reference/ARTIFACTS.md`](/system/libs/mapgen/reference/ARTIFACTS.md)
 - Ops module contract: [`docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`](/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md)
 - Observability: [`docs/system/libs/mapgen/reference/OBSERVABILITY.md`](/system/libs/mapgen/reference/OBSERVABILITY.md)

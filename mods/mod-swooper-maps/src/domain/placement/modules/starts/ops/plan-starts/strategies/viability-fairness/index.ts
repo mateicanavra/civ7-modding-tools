@@ -74,7 +74,7 @@ function addRejection(counts: Map<RejectionReason, number>, reason: RejectionRea
 }
 
 function getLandmassTiles(
-  landmassIdByTile: Int32Array,
+  landmassIdByTile: ArrayLike<number>,
   landmassTileCounts: readonly number[] | undefined,
   plotIndex: number
 ): number {
@@ -89,8 +89,8 @@ function countSameLandWithinRadius(args: {
   width: number;
   height: number;
   radius: number;
-  landMask: Uint8Array;
-  landmassIdByTile: Int32Array;
+  landMask: ArrayLike<number>;
+  landmassIdByTile: ArrayLike<number>;
 }): number {
   const targetLandmass = args.landmassIdByTile[args.center] ?? -1;
   if (targetLandmass < 0) return 0;
@@ -108,7 +108,7 @@ function countLandWithinRadius(args: {
   width: number;
   height: number;
   radius: number;
-  landMask: Uint8Array;
+  landMask: ArrayLike<number>;
 }): number {
   let count = 0;
   for (const idx of getHexRadiusIndicesOddQ(args.center, args.width, args.height, args.radius)) {
@@ -122,10 +122,10 @@ function averageFloatWithinRadius(args: {
   width: number;
   height: number;
   radius: number;
-  values?: Float32Array;
+  values?: ArrayLike<number>;
   fallback: number;
   /** When provided, only tiles with mask==1 contribute (e.g. land-only fertility, the E1.4 frame). */
-  mask?: Uint8Array;
+  mask?: ArrayLike<number>;
 }): number {
   if (!args.values) return args.fallback;
   let sum = 0;
@@ -142,8 +142,8 @@ function freshwaterScore(args: {
   plotIndex: number;
   width: number;
   height: number;
-  riverClass?: Uint8Array;
-  lakeMask?: Uint8Array;
+  riverClass?: ArrayLike<number>;
+  lakeMask?: ArrayLike<number>;
 }): number {
   const riverHere = clamp01(
     (args.riverClass?.[args.plotIndex] ?? RIVER_CLASS_NONE) / RIVER_CLASS_MAJOR
@@ -162,7 +162,7 @@ function roughnessPenalty(args: {
   plotIndex: number;
   width: number;
   height: number;
-  elevation?: Int16Array;
+  elevation?: ArrayLike<number>;
   roughnessDivisor: number;
 }): number {
   if (!args.elevation) return 0;

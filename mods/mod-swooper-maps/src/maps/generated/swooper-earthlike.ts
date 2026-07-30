@@ -768,8 +768,8 @@ const mapConfig = {
         "cryosphere": "on"
       },
       "climate-refine": {
-        "computePrecipitation": {
-          "strategy": "refine",
+        "refinePrecipitation": {
+          "strategy": "riparian-basin-wetness",
           "config": {
             "riverCorridor": {
               "adjacencyRadius": 2,
@@ -1349,8 +1349,8 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-earthlike",
-  configHash: "a26098738f8320c3da0f2b7148e4f2e6470568c565db555e9ab290bd4c1a20b8",
-  envelopeHash: "b592aa8acac156f8fc15f588558f51f17e7ac3f2784ed2d6ac45c834461a26e3",
+  configHash: "b883c333a65e668ea3db94bb27d4478ddce7944b928d2dfc347691a4b618d8ca",
+  envelopeHash: "c1da3ad9c9e56d65d6bba463c18cf27987408c64d83b35a94ff2e6e116a21d01",
   config: mapConfig.config,
   initialSetup: {
     requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,

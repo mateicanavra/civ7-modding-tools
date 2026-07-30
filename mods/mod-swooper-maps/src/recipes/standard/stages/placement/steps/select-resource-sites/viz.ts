@@ -1,4 +1,4 @@
-import type { VizLayerCategory, VizProjection } from "@swooper/mapgen-viz";
+import type { VizLayerCategory, VizProjection, VizScalarSource } from "@swooper/mapgen-viz";
 import {
   buildPlacementPointBuffers,
   definePlacementVizCategoryMeta,
@@ -15,19 +15,22 @@ type ResourcePlanIntentRow = Readonly<{
   phase: "rotation" | "range-floor" | "region-minimum";
 }>;
 
+type Uint8VizValues = Extract<VizScalarSource, { format: "u8" }>["values"];
+type Float32VizValues = Extract<VizScalarSource, { format: "f32" }>["values"];
+
 type ResourceDemandVizRow = Readonly<{
   resourceType: string;
   family: "aquatic" | "cultivated" | "terrestrial" | "geological";
-  habitatMask: Uint8Array;
-  legalMask: Uint8Array;
-  intensity: Float32Array;
+  habitatMask: Uint8VizValues;
+  legalMask: Uint8VizValues;
+  intensity: Float32VizValues;
 }>;
 
 const RESOURCE_FAMILIES = ["aquatic", "cultivated", "terrestrial", "geological"] as const;
 
 /**
  * Projects selected resource intents and the admitted demand surface that constrained them.
- * Demand fields are borrowed directly from the published ledger rather than recomputed for Studio.
+ * Demand fields are observed directly from the published ledger rather than recomputed for Studio.
  */
 export function projectResourceSiteSelectionViz(input: {
   dimensions: Readonly<{ width: number; height: number }>;

@@ -12,16 +12,16 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  */
 export const ScoreLayersStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const classification = deps.artifacts.biomeClassification.read(context);
-    const climateIndices = deps.artifacts.climateIndices.read(context);
-    const pedology = deps.artifacts.pedology.read(context);
-    const topography = deps.artifacts.topography.read(context);
-    const coastline = deps.artifacts.shelf.read(context);
-    const hydrography = deps.artifacts.hydrography.read(context);
-    const lakePlan = deps.artifacts.lakePlan.read(context);
-    const riverProjection = deps.artifacts.projectedNavigableRivers.read(context);
-    const mountains = deps.artifacts.mountains.read(context);
-    const volcanoes = deps.artifacts.volcanoes.read(context);
+    const classification = deps.artifacts.biomeClassification.read();
+    const climateIndices = deps.artifacts.climateIndices.read();
+    const pedology = deps.artifacts.pedology.read();
+    const topography = deps.artifacts.topography.read();
+    const coastline = deps.artifacts.shelf.read();
+    const hydrography = deps.artifacts.hydrography.read();
+    const lakePlan = deps.artifacts.lakePlan.read();
+    const riverProjection = deps.artifacts.projectedNavigableRivers.read();
+    const mountains = deps.artifacts.mountains.read();
+    const volcanoes = deps.artifacts.volcanoes.read();
 
     const { width, height } = context.setup.dimensions;
     const size = width * height;
@@ -272,7 +272,7 @@ export const ScoreLayersStep = createStep(config, {
       ice: iceScore,
     } as const;
 
-    deps.artifacts.featureSuitability.publish(context, {
+    deps.artifacts.featureSuitability.publish({
       width,
       height,
       layers,
@@ -280,7 +280,7 @@ export const ScoreLayersStep = createStep(config, {
 
     return { layers };
   },
-  viz: ({ result: { layers }, dimensions }) => [
+  viz: ({ observation: { layers }, dimensions }) => [
     ...Object.entries(layers).map(([featureKey, values]) => ({
       kind: "grid" as const,
       dataTypeKey: `ecology.featureSuitability.${featureKey}`,

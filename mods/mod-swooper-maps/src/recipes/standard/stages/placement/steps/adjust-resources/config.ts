@@ -7,7 +7,6 @@ import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/mod
 import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import { STANDARD_INITIAL_SETUP } from "../../../../initial-setup.js";
-import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 
 /**
  * Defines the post-start resource support boundary. It publishes the only
@@ -17,18 +16,15 @@ export const config = defineStep({
   id: "adjust-resources",
   initialSetup: STANDARD_INITIAL_SETUP,
   engine: ["emitRuntimeWarning"] as const,
-  requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned],
-  provides: [],
-  artifacts: {
-    requires: [
-      resourceSiteArtifacts.resourcePlan,
-      resourceDemandArtifacts.resourceDemandPlan,
-      placementStartArtifacts.startAssignment,
-      placementRegionArtifacts.landmassRegionSlotByTile,
-      morphologyLandformsArtifacts.landmasses,
-    ],
-    provides: [resourceSupportArtifacts.resourcePlanAdjusted],
-  },
+  requires: [
+    resourceSiteArtifacts.resourcePlan,
+    resourceDemandArtifacts.resourceDemandPlan,
+    placementStartArtifacts.startAssignment,
+    placementRegionArtifacts.landmassRegionSlotByTile,
+    morphologyLandformsArtifacts.landmasses,
+  ],
+  provides: [resourceSupportArtifacts.resourcePlanAdjusted],
+
   ops: {
     support: resources.support.ops.adjustResourceSupport,
   },

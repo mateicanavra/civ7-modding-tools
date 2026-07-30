@@ -4,6 +4,12 @@ type Artifacts = Readonly<Record<string, Artifact>>;
 
 type StringKeyedArtifacts<Entries> = Exclude<keyof Entries, string> extends never ? unknown : never;
 
+type ArtifactNamesMatchKeys<Entries extends Artifacts> = {
+  [Key in keyof Entries]: Entries[Key] extends Artifact<Extract<Key, string>, string>
+    ? Entries[Key]
+    : never;
+};
+
 const RESERVED_CATALOG_KEYS = new Set(["__proto__", "constructor", "prototype"]);
 
 /** One frozen consumer-facing map of canonical artifact authorities. */
@@ -14,11 +20,12 @@ export type ArtifactCatalog<Entries extends Artifacts> = Readonly<{
 /**
  * Defines one direct artifact catalog.
  *
- * Keys are consumer-facing lookup names while each artifact retains its own semantic name and id.
- * Duplicate names or ids are refused because either would make runtime publication ambiguous.
+ * Each key must equal its artifact's authoring name, giving catalogs and step dependencies one
+ * property identity. Duplicate names or ids are refused because either would make publication
+ * ambiguous.
  */
 export function defineArtifactCatalog<const Entries extends Artifacts>(
-  entries: Entries & StringKeyedArtifacts<Entries>
+  entries: Entries & StringKeyedArtifacts<Entries> & ArtifactNamesMatchKeys<Entries>
 ): ArtifactCatalog<Entries> {
   const prototype = Object.getPrototypeOf(entries);
   if (prototype !== Object.prototype && prototype !== null) {
@@ -26,7 +33,6 @@ export function defineArtifactCatalog<const Entries extends Artifacts>(
   }
 
   const admitted: Array<readonly [string, Artifact]> = [];
-  const names = new Set<string>();
   const ids = new Set<string>();
 
   for (const key of Reflect.ownKeys(entries)) {
@@ -43,13 +49,12 @@ export function defineArtifactCatalog<const Entries extends Artifacts>(
 
     const artifact: unknown = descriptor.value;
     assertArtifact(artifact);
-    if (names.has(artifact.name)) {
-      throw new Error(`duplicate artifact name "${artifact.name}" in artifact catalog`);
+    if (key !== artifact.name) {
+      throw new Error(`artifact catalog key "${key}" must match artifact name "${artifact.name}"`);
     }
     if (ids.has(artifact.id)) {
       throw new Error(`duplicate artifact id "${artifact.id}" in artifact catalog`);
     }
-    names.add(artifact.name);
     ids.add(artifact.id);
     admitted.push([key, artifact]);
   }

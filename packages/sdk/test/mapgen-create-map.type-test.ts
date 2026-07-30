@@ -98,9 +98,8 @@ declare const collidingPhysicalRecipe: RecipeModule<
 const concreteProductRecipe = createRecipe({
   id: "concrete-product",
   initialSetup: ProductInitialSetup,
-  tagDefinitions: [],
   stages: [],
-  compileOpsById: {},
+  operations: {},
 });
 
 function mapDefinitionTypeAssertions(): void {

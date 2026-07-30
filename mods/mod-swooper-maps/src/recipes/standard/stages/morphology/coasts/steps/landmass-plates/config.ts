@@ -8,20 +8,17 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "landmass-plates",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [
-      foundationProjectionArtifacts.crustTiles,
-      foundationProjectionArtifacts.tectonicHistoryTiles,
-      foundationProjectionArtifacts.tectonicProvenanceTiles,
-    ],
-    provides: [
-      morphologyTerrainArtifacts.baseTopography,
-      morphologyTerrainArtifacts.baseSubstrate,
-      morphologyTerrainArtifacts.beltDrivers,
-    ],
-  },
+  requires: [
+    foundationProjectionArtifacts.crustTiles,
+    foundationProjectionArtifacts.tectonicHistoryTiles,
+    foundationProjectionArtifacts.tectonicProvenanceTiles,
+  ],
+  provides: [
+    morphologyTerrainArtifacts.baseTopography,
+    morphologyTerrainArtifacts.baseSubstrate,
+    morphologyTerrainArtifacts.beltDrivers,
+  ],
+
   ops: {
     beltDrivers: morphology.terrain.ops.computeBeltDrivers,
     substrate: morphology.terrain.ops.computeSubstrate,

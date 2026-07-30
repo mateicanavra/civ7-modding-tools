@@ -32,15 +32,16 @@ export type ResourceLegalitySurface = {
   readonly width: number;
   readonly height: number;
   /** Engine-format biome index per tile. */
-  readonly biomeType: Int32Array;
+  readonly biomeType: ArrayLike<number>;
   /** Engine-format terrain index per tile. */
-  readonly terrainType: Int32Array;
+  readonly terrainType: ArrayLike<number>;
   /** Engine-format feature index per tile (-1 = none). */
-  readonly featureType: Int32Array;
+  readonly featureType: ArrayLike<number>;
   /** Engine water reading per tile (1 = water), used for adjacent-to-land flags. */
-  readonly engineWaterMask: Uint8Array;
+  readonly engineWaterMask: ArrayLike<number>;
 };
 
+/** Projects generated Civ7 placement policy onto one observed map surface for a resource type. */
 export function buildResourceLegalityMask(
   surface: ResourceLegalitySurface,
   resourceTypeId: number

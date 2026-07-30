@@ -121,7 +121,7 @@ function sampledScalarPoints(
 
 /**
  * Projects one scalar grid into portable render variants without observing a sink or run context.
- * Returned projections borrow the source grid; only the optional sampled point view allocates.
+ * Returned projections observe the source grid; only the optional sampled point view allocates.
  */
 export function buildScalarFieldProjections(
   options: BuildScalarFieldProjectionsOptions
@@ -202,7 +202,7 @@ function magnitudeSource(
 
 /**
  * Projects one vector grid into portable field, magnitude, arrow, and point variants.
- * Component and provided-magnitude views are borrowed; derived magnitude and sampled geometry are
+ * Component and provided-magnitude views reuse their sources; derived magnitude and sampled geometry are
  * allocated once so every sink observes the same completed evidence.
  */
 export function buildVectorFieldProjections(

@@ -88,14 +88,15 @@ describe("compute-island-topography microcontinent admission", () => {
   });
 
   it("rejects a fragmented candidate whose connected capacity cannot satisfy the floor", () => {
-    const input = createIslandTopographyInput();
-    input.distanceToCoast.fill(0);
-    const pocketY = 10;
-    const pocketStartX = 12;
-    const pocketTileCount = MINIMUM_MICROCONTINENT_TILES - 1;
-    for (let offset = 0; offset < pocketTileCount; offset += 1) {
-      input.distanceToCoast[pocketY * input.width + pocketStartX + offset] = 1;
-    }
+    const input = createIslandTopographyInput(({ width, distanceToCoast }) => {
+      distanceToCoast.fill(0);
+      const pocketY = 10;
+      const pocketStartX = 12;
+      const pocketTileCount = MINIMUM_MICROCONTINENT_TILES - 1;
+      for (let offset = 0; offset < pocketTileCount; offset += 1) {
+        distanceToCoast[pocketY * width + pocketStartX + offset] = 1;
+      }
+    });
     const baseSelection = createIslandTopographySelection(1);
     const selection = {
       ...baseSelection,

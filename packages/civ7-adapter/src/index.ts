@@ -25,8 +25,6 @@ export {
   CIV7_MAP_OPTION_DESCRIPTORS,
   CIV7_PLAYER_OPTION_DESCRIPTORS,
 } from "@civ7/map-policy/setup";
-export type { EngineEffectTagId } from "./effects.js";
-export { ENGINE_EFFECT_TAGS } from "./effects.js";
 export type {
   Civ7MapGenerationLatitudeBounds,
   Civ7MapGenerationSetupCapture,

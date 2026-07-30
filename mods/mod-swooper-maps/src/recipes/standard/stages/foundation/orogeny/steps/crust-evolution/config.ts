@@ -12,17 +12,14 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "crust-evolution",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [
-      meshArtifacts.mesh,
-      lithosphereArtifacts.initialCrust,
-      tectonicsArtifacts.currentTectonics,
-      tectonicsArtifacts.tectonicHistory,
-    ],
-    provides: [orogenyArtifacts.crust],
-  },
+  requires: [
+    meshArtifacts.mesh,
+    lithosphereArtifacts.initialCrust,
+    tectonicsArtifacts.currentTectonics,
+    tectonicsArtifacts.tectonicHistory,
+  ],
+  provides: [orogenyArtifacts.crust],
+
   ops: {
     computeCrustEvolution: foundation.orogeny.ops.computeCrustEvolution,
   },

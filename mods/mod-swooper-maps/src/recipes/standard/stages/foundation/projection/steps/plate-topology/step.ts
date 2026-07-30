@@ -16,7 +16,7 @@ export const PlateTopologyStep = createStep(config, {
     // compute-plate-topology op (tile-derived; see the op contract for the
     // mesh-native follow-on note).
     const { width, height } = context.setup.dimensions;
-    const plates = deps.artifacts.foundationPlates.read(context);
+    const plates = deps.artifacts.plates.read();
 
     const { plateTopology } = ops.computePlateTopology(
       { plateIds: plates.id, width, height },
@@ -24,10 +24,10 @@ export const PlateTopologyStep = createStep(config, {
     );
     const topologyPlates = plateTopology.plates;
 
-    deps.artifacts.foundationPlateTopology.publish(context, plateTopology);
+    deps.artifacts.plateTopology.publish(plateTopology);
     return topologyPlates;
   },
-  viz: ({ result: topologyPlates }) => {
+  viz: ({ observation: topologyPlates }) => {
     const centroidPoints = pointsFromTileCentroids(topologyPlates);
     return [
       {

@@ -24,26 +24,20 @@ export const config = defineStep({
   id: "climate-refine",
   description:
     "Refines precipitation, thermal, cryosphere, water-budget, and climate diagnostic evidence.",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [
-      morphologyLandformsArtifacts.topography,
-      climateArtifacts.baselineClimateField,
-      climateArtifacts.windField,
-      hydrographyArtifacts.hydrography,
-    ],
-    provides: [
-      climateArtifacts.climateField,
-      climateArtifacts.climateIndices,
-      cryosphereArtifacts.cryosphere,
-    ],
-  },
+  requires: [
+    morphologyLandformsArtifacts.topography,
+    climateArtifacts.baselineClimateField,
+    climateArtifacts.windField,
+    hydrographyArtifacts.hydrography,
+  ],
+  provides: [
+    climateArtifacts.climateField,
+    climateArtifacts.climateIndices,
+    cryosphereArtifacts.cryosphere,
+  ],
+
   ops: {
-    computePrecipitation: {
-      contract: hydrology.climate.ops.computePrecipitation,
-      defaultStrategy: "refine",
-    },
+    refinePrecipitation: hydrology.climate.ops.refinePrecipitation,
     computeRadiativeForcing: hydrology.climate.ops.computeRadiativeForcing,
     computeThermalState: hydrology.climate.ops.computeThermalState,
     applyAlbedoFeedback: hydrology.cryosphere.ops.applyAlbedoFeedback,

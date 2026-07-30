@@ -38,8 +38,8 @@ function popIndex(queue: number[], head: number): number {
 export function computeOceanGeometry(
   width: number,
   height: number,
-  isWaterMask: Uint8Array,
-  coastalWaterMask: Uint8Array,
+  isWaterMask: ArrayLike<number>,
+  coastalWaterMask: ArrayLike<number>,
   options: OceanGeometryOptions
 ): OceanGeometryResult {
   const size = width * height;

@@ -1,4 +1,5 @@
 export { MapSetupSchema } from "@mapgen/core/map-setup.js";
+export type { CompletionId } from "@mapgen/engine/completion.js";
 export type { Static, TObject, TSchema } from "typebox";
 export { Type } from "typebox";
 export type { ArtifactCatalog } from "./artifact/catalog.js";
@@ -34,6 +35,7 @@ export {
 export { defineOp } from "./operation/contract.js";
 export type { StrategyDefinition } from "./operation/strategy-definition.js";
 export { defineStrategy } from "./operation/strategy-definition.js";
-export type { OpTypeBagOf } from "./operation/types.js";
+export type { OperationInput, OpTypeBagOf } from "./operation/types.js";
 export { TypedArraySchemas } from "./schema/typed-array.js";
 export { defineStep } from "./step/contract.js";
+export type { StepContext } from "./step/types.js";

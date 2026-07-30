@@ -9,12 +9,9 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 export const config = defineStep({
   id: "plan-ice",
   description: "Plans deterministic ice intent after admitted floodplain intent.",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [featureArtifacts.featureSuitability, featureArtifacts.floodplainIntents],
-    provides: [featureArtifacts.iceIntents],
-  },
+  requires: [featureArtifacts.featureSuitability, featureArtifacts.floodplainIntents],
+  provides: [featureArtifacts.iceIntents],
+
   ops: {
     planIce: ecology.features.ops.planIce,
   },

@@ -51,7 +51,7 @@ One stage, `placement`, with 12 steps split at real product/effect contracts (en
 8. `adjust-resources` — bounded resource↔start support pass over the plan (floor + equity), count-preserving moves with typed provenance; publishes `resourcePlanAdjusted`.
 9. `place-resources` — thin stamp of the ADJUSTED intents + typed reconcile;
    emits one terminal resource-placement measurement and completes
-   `effect:placement.resourcesPlaced`.
+   `completion:placement.resources-placed`.
 10. `place-discoveries` — delegates discovery placement to Civ7 and emits observed runtime evidence.
 11. `assign-advanced-starts` — engine advanced-start regions + fertility recalculation (engine effects only; no per-plot readback surface exists).
 12. `observe-placement-parity` — the single terminal Civ7
@@ -79,7 +79,12 @@ adapter-owned mutation/readback boundaries:
   placement is delegated to Civ7 as a recipe effect rather than modeled as a
   Placement operation.
 - `@civ7/map-policy` owns static resource facts (`Weight`, `MinimumPerHemisphere`, age validity, and roster-independent `Staple`/`UnlocksCiv` basis). `EngineAdapter` owns the exact active-roster `isResourceRequiredForAge` query used by planning.
-- Selection strategies never throw on degraded inputs: every degradation is recorded as typed data (seat `status`/`rung`/`imputedFlags`, per-type shortfalls) instead of being silently rescued. The only hard-fail is zero settleable land with seats requested.
+- Start selection preserves degradation as typed planning data (seat
+  `status`/`rung`/`imputedFlags`, per-type shortfalls) instead of silently
+  rescuing it. After materialization, the step publishes the exact assignment
+  evidence but returns successfully only when every admitted seat was assigned;
+  zero-seat, zero-settleable, and partial assignments therefore
+  fail at the provider boundary.
 - Player identity: Standard initial setup admits the exact ordered alive-major IDs once at
   GenerateMap time. The `plan-starts` operation seats those identities without padding or
   synthesizing players; its game-seed input only breaks otherwise-equal gameplay choices.
@@ -89,33 +94,30 @@ adapter-owned mutation/readback boundaries:
 
 ## Contract (requires/provides)
 
-Placement requires (dependency tags):
+Placement requires:
 
-- `effect:map.riversPlotted` (from `map-rivers`)
-- `effect:engine.featuresApplied` (from `map-ecology`)
+- `completion:map.rivers-plotted` (final Civ7 river materialization; the
+  projected-river artifact is pre-materialization intent)
+- `completion:engine.features-applied` (from Ecology feature projection)
 - topography/morphology/hydrology artifacts for authored planning surfaces (including elevation, mountains, volcanoes, hydrography, pedology, and climate inputs)
 - current Civ7 terrain, biome, and feature classifications through the step's
   declared engine capabilities; those mutable surfaces are invocation-local
   adapter observations rather than placement artifacts
 
-Placement provides (product/effect chain, in pipeline order):
+Placement provides these payload-free external-state completions:
 
-- `effect:placement.naturalWondersPlaced`
-- `effect:placement.surfacePrepared`
-- `effect:placement.startsAssigned`
-- `effect:placement.resourcesPlaced`
-- `effect:placement.discoveriesPlaced`
-- `effect:placement.advancedStartsAssigned`
+- `completion:placement.natural-wonders-placed`
+- `completion:placement.surface-prepared`
+- `completion:placement.resources-placed`
+- `completion:placement.discoveries-placed`
 
-Immutable plan and adjustment artifacts carry their own causal edges. Effect
-tags remain only for engine or lifecycle transitions with no immutable data
-product, except `startsAssigned`: its artifact deliberately admits typed
-degraded assignments, while the effect predicate is the stricter continuation
-gate requiring every admitted seat to be assigned. There are no parallel
-`resourcesPlanned` or `resourcesAdjusted` ordering authorities and no
-read-and-discard artifact requirements. Terminal parity evidence is the
-successful observer result plus its trace and visualization projections, not
-another effect tag.
+Immutable plans and assignments carry their own artifact edges. Start
+assignment therefore has no parallel completion: both discovery generation and
+advanced-start assignment depend on the exact admitted assignment. Discovery
+placement does earn a completion because Civ7's following fertility
+recalculation consumes invisible engine-only discovery outcomes. Advanced-start
+assignment and terminal observation add no provider-only completion; no selected
+consumer reads their results.
 
 Runtime semantics (ADR-009 regime):
 
@@ -175,8 +177,8 @@ Runtime semantics (ADR-009 regime):
 Artifacts are immutable domain products, not recipe-stage state. Placement and
 Resources module catalogs own their artifacts beside the operations that
 produce them; the Standard recipe imports those exact catalogs. Every artifact
-owns the complete structural and semantic validator used by publication and
-validated reads. Inventory:
+owns the complete structural and semantic validator used once at publication;
+later dependency gates and terminal reads observe the admitted store. Inventory:
 
 | Artifact | Published by | Substance |
 | --- | --- | --- |
@@ -199,7 +201,7 @@ measurement whose enriched outcome rows and derived summaries feed benchmarks,
 deterministic replay, and the exact log; no later recipe step consumes either
 terminal measurement.
 Discovery and resource counts flow through typed metric facets and live logs.
-Terminal parity remains a terminal observation without a redundant effect tag.
+Terminal parity remains a terminal observation without a redundant completion.
 Other observation evidence uses the capability appropriate to its consumer. No
 ordering-only, current-engine-snapshot, or aggregate-output pseudo artifact is
 published.
@@ -290,4 +292,4 @@ categorical layers declare transparent zero categories. Coverage is pinned by
 - Resource artifact catalogs: `mods/mod-swooper-maps/src/domain/resources/modules/{demand,sites,support}/artifacts/`
 - Domain ops: `mods/mod-swooper-maps/src/domain/placement/modules/starts/ops/`, `mods/mod-swooper-maps/src/domain/placement/modules/wonders/ops/`, `mods/mod-swooper-maps/src/domain/resources/modules/*/ops/`
 - Policy tables: `packages/civ7-map-policy/src/civ7-tables.gen.ts` (generator-only writes)
-- Tag registry: `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
+- Completion catalog: `mods/mod-swooper-maps/src/recipes/standard/completions.ts`

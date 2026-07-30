@@ -64,7 +64,7 @@ describe("map-ecology features-apply step", () => {
             ecology.features.ops.applyFeatures.defaultConfig
           ),
         };
-        const ops = ecology.features.ops.bind(featuresApplyStep.contract.ops!).runtime;
+        const ops = ecology.features.ops.bind(featuresApplyStep.contract.ops!);
 
         const stepResult = featuresApplyStep.run(
           stepContext,
@@ -153,7 +153,7 @@ describe("map-ecology features-apply step", () => {
           ecology.features.ops.applyFeatures.defaultConfig
         ),
       };
-      const ops = ecology.features.ops.bind(featuresApplyStep.contract.ops!).runtime;
+      const ops = ecology.features.ops.bind(featuresApplyStep.contract.ops!);
 
       const stepResult = featuresApplyStep.run(
         stepContext,

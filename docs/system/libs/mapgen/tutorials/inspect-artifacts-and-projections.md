@@ -80,8 +80,8 @@ Then jump to the step code and confirm:
 
 ### 6) Concrete example: a step projecting visualization evidence
 
-The Foundation projection step returns its completed domain result from `run`, then its optional
-`viz` facet maps that result into multiple portable tile-space projections.
+The Foundation projection step returns completed invocation-local evidence from `run`, then its
+optional `viz` facet maps that observation into multiple portable tile-space projections.
 
 Example (one projection):
 
@@ -91,16 +91,16 @@ import { config } from "./config.js";
 export const ProjectionStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const result = ops.computePlates(/* admitted inputs */, stepConfig.computePlates);
-    deps.artifacts.foundationPlates.publish(context, result.plates);
+    deps.artifacts.plates.publish(result.plates);
     return result;
   },
-  viz: ({ result, dimensions }) => [
+  viz: ({ observation, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "foundation.plates.tilePlateId",
       spaceId: "tile.hexOddQ",
       dims: dimensions,
-      field: { format: "i16", values: result.plates.id },
+      field: { format: "i16", values: observation.plates.id },
       meta: defineStandardVizMeta(
         "foundation.plates.tilePlateId",
         "category.distinct",
@@ -111,7 +111,7 @@ export const ProjectionStep = createStep(config, {
 });
 ```
 
-The projector receives only `{ result, config, dimensions }`. Studio and the Node dump harness each
+The projector receives only `{ observation, config, dimensions }`. Studio and the Node dump harness each
 supply their own facet sink; trace verbosity is unrelated to whether the projection is materialized.
 
 ## Verification

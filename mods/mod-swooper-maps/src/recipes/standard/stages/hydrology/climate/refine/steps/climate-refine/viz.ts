@@ -1,7 +1,12 @@
 import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as cryosphereArtifacts } from "@mapgen/domain/hydrology/modules/cryosphere/artifacts/index.js";
 import type { ArtifactReadValueOf } from "@swooper/mapgen-core/authoring";
-import { buildScalarFieldProjections, type VizDims, type VizProjection } from "@swooper/mapgen-viz";
+import {
+  buildScalarFieldProjections,
+  type VizDims,
+  type VizProjection,
+  type VizScalarSource,
+} from "@swooper/mapgen-viz";
 import { defineStandardVizMeta } from "../../../../../../viz.js";
 
 const GROUP_CLIMATE = "Hydrology / Climate";
@@ -13,6 +18,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
 type ClimateField = ArtifactReadValueOf<typeof climateArtifacts.climateField>;
 type ClimateIndices = ArtifactReadValueOf<typeof climateArtifacts.climateIndices>;
 type Cryosphere = ArtifactReadValueOf<typeof cryosphereArtifacts.cryosphere>;
+type Float32VizValues = Extract<VizScalarSource, { format: "f32" }>["values"];
 
 /** Refined physical products and admitted inputs observed by the visualization facet. */
 type ClimateRefineVizEvidence = Readonly<{
@@ -20,9 +26,9 @@ type ClimateRefineVizEvidence = Readonly<{
   climateIndices: ClimateIndices;
   cryosphere: Cryosphere;
   diagnostics: Readonly<{
-    rainShadowIndex: Float32Array;
-    continentalityIndex: Float32Array;
-    convergenceIndex: Float32Array;
+    rainShadowIndex: Float32VizValues;
+    continentalityIndex: Float32VizValues;
+    convergenceIndex: Float32VizValues;
   }>;
 }>;
 
@@ -31,16 +37,16 @@ type ClimateRefineVizEvidence = Readonly<{
  * No projector path can rerun climate operations or promote advisory evidence into pipeline state.
  */
 export function buildClimateRefineVizProjections(
-  result: ClimateRefineVizEvidence,
+  observation: ClimateRefineVizEvidence,
   dimensions: VizDims
 ): readonly VizProjection[] {
-  const diagnostics = result.diagnostics;
+  const diagnostics = observation.diagnostics;
   return [
     ...buildScalarFieldProjections({
       dataTypeKey: "hydrology.climate.rainfall",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.climateField.rainfall },
+      field: { format: "u8", values: observation.climateField.rainfall },
       meta: defineStandardVizMeta("hydrology.climate.rainfall", "climate.moisture", {
         label: "Rainfall",
         group: GROUP_CLIMATE,
@@ -52,7 +58,7 @@ export function buildClimateRefineVizProjections(
       dataTypeKey: "hydrology.climate.humidity",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.climateField.humidity },
+      field: { format: "u8", values: observation.climateField.humidity },
       meta: defineStandardVizMeta("hydrology.climate.humidity", "climate.moisture", {
         label: "Humidity",
         group: GROUP_CLIMATE,
@@ -63,7 +69,7 @@ export function buildClimateRefineVizProjections(
       dataTypeKey: "hydrology.climate.indices.surfaceTemperatureC",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "f32", values: result.climateIndices.surfaceTemperatureC },
+      field: { format: "f32", values: observation.climateIndices.surfaceTemperatureC },
       meta: defineStandardVizMeta(
         "hydrology.climate.indices.surfaceTemperatureC",
         "climate.temperature",
@@ -76,7 +82,7 @@ export function buildClimateRefineVizProjections(
       dataTypeKey: "hydrology.climate.indices.pet",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "f32", values: result.climateIndices.pet },
+      field: { format: "f32", values: observation.climateIndices.pet },
       meta: defineStandardVizMeta("hydrology.climate.indices.pet", "field.intensity", {
         label: "Potential Evapotranspiration",
         group: GROUP_INDICES,
@@ -88,7 +94,7 @@ export function buildClimateRefineVizProjections(
       dataTypeKey: "hydrology.climate.indices.effectiveMoisture",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "f32", values: result.climateIndices.effectiveMoisture },
+      field: { format: "f32", values: observation.climateIndices.effectiveMoisture },
       meta: defineStandardVizMeta(
         "hydrology.climate.indices.effectiveMoisture",
         "climate.moisture",
@@ -100,7 +106,7 @@ export function buildClimateRefineVizProjections(
       dataTypeKey: "hydrology.climate.indices.aridityIndex",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "f32", values: result.climateIndices.aridityIndex },
+      field: { format: "f32", values: observation.climateIndices.aridityIndex },
       meta: defineStandardVizMeta("hydrology.climate.indices.aridityIndex", "field.intensity", {
         label: "Aridity Index",
         group: GROUP_INDICES,
@@ -112,7 +118,7 @@ export function buildClimateRefineVizProjections(
       dataTypeKey: "hydrology.climate.indices.freezeIndex",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "f32", values: result.climateIndices.freezeIndex },
+      field: { format: "f32", values: observation.climateIndices.freezeIndex },
       meta: defineStandardVizMeta("hydrology.climate.indices.freezeIndex", "field.intensity", {
         label: "Freeze Index",
         group: GROUP_INDICES,
@@ -124,7 +130,7 @@ export function buildClimateRefineVizProjections(
       dataTypeKey: "hydrology.cryosphere.snowCover",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.cryosphere.snowCover },
+      field: { format: "u8", values: observation.cryosphere.snowCover },
       meta: defineStandardVizMeta("hydrology.cryosphere.snowCover", "field.intensity", {
         label: "Snow Cover",
         group: GROUP_CRYOSPHERE,
@@ -135,7 +141,7 @@ export function buildClimateRefineVizProjections(
       dataTypeKey: "hydrology.cryosphere.seaIceCover",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.cryosphere.seaIceCover },
+      field: { format: "u8", values: observation.cryosphere.seaIceCover },
       meta: defineStandardVizMeta("hydrology.cryosphere.seaIceCover", "water.depth", {
         label: "Sea Ice Cover",
         group: GROUP_CRYOSPHERE,
@@ -146,7 +152,7 @@ export function buildClimateRefineVizProjections(
       dataTypeKey: "hydrology.cryosphere.albedo",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.cryosphere.albedo },
+      field: { format: "u8", values: observation.cryosphere.albedo },
       meta: defineStandardVizMeta("hydrology.cryosphere.albedo", "field.intensity", {
         label: "Albedo",
         group: GROUP_CRYOSPHERE,
@@ -158,7 +164,7 @@ export function buildClimateRefineVizProjections(
       dataTypeKey: "hydrology.cryosphere.groundIce01",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "f32", values: result.cryosphere.groundIce01 },
+      field: { format: "f32", values: observation.cryosphere.groundIce01 },
       meta: defineStandardVizMeta("hydrology.cryosphere.groundIce01", "field.intensity", {
         label: "Ground Ice (0-1)",
         group: GROUP_CRYOSPHERE,
@@ -170,7 +176,7 @@ export function buildClimateRefineVizProjections(
       dataTypeKey: "hydrology.cryosphere.permafrost01",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "f32", values: result.cryosphere.permafrost01 },
+      field: { format: "f32", values: observation.cryosphere.permafrost01 },
       meta: defineStandardVizMeta("hydrology.cryosphere.permafrost01", "field.intensity", {
         label: "Permafrost (0-1)",
         group: GROUP_CRYOSPHERE,
@@ -182,7 +188,7 @@ export function buildClimateRefineVizProjections(
       dataTypeKey: "hydrology.cryosphere.meltPotential01",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "f32", values: result.cryosphere.meltPotential01 },
+      field: { format: "f32", values: observation.cryosphere.meltPotential01 },
       meta: defineStandardVizMeta("hydrology.cryosphere.meltPotential01", "field.intensity", {
         label: "Melt Potential (0-1)",
         group: GROUP_CRYOSPHERE,

@@ -2,12 +2,10 @@ import { describe, expect, it } from "bun:test";
 import { Value } from "typebox/value";
 import {
   measureStandardNaturalWonderPlanInput,
-  type StandardNaturalWonderPlanInputMeasurementInput,
   StandardNaturalWonderPlanInputMeasurementsSchema,
 } from "../../../../../../src/recipes/standard/metrics/families/placement/natural-wonder-plan-input.js";
 import { TEST_MAP_SIZE } from "../../../../../setup.js";
 
-type MeasurementInput = StandardNaturalWonderPlanInputMeasurementInput;
 type SurfaceDigestKey = Exclude<
   keyof ReturnType<typeof measureStandardNaturalWonderPlanInput>["plannerInput"]["surfaceDigests"],
   "version" | "plotCount"
@@ -23,7 +21,7 @@ function measurementInput(
     catalogDirection?: number;
     minSpacingTiles?: number;
   }> = {}
-): MeasurementInput {
+) {
   const { width, height } = TEST_MAP_SIZE.dimensions;
   const plotCount = width * height;
   const landMask = new Uint8Array(plotCount).fill(1);
@@ -80,8 +78,8 @@ function measurementInput(
           placeFirst: false,
           featureTags: [],
           footprintOffsetsByParity: {
-            even: [{ dx: 0, dy: 0 }],
-            odd: [{ dx: 0, dy: 0 }],
+            even: [{ dx: 0, dy: 0 }] as const,
+            odd: [{ dx: 0, dy: 0 }] as const,
           },
         },
       ],
@@ -108,6 +106,8 @@ function measurementInput(
     },
   };
 }
+
+type MeasurementInput = ReturnType<typeof measurementInput>;
 
 const SURFACE_PERTURBATIONS: Array<{
   channel: string;
@@ -370,16 +370,15 @@ describe("Standard natural-wonder planning-input measurements", () => {
     );
   });
 
-  it("retains immutable evidence while later source mutation produces a new raw-byte digest", () => {
-    const input = measurementInput();
-    const first = measureStandardNaturalWonderPlanInput(input);
-    input.plannerInput.landMask[9] = 0;
-    const second = measureStandardNaturalWonderPlanInput(input);
+  it("retains immutable evidence after its source planner surfaces change", () => {
+    const source = measurementInput();
+    const measured = measureStandardNaturalWonderPlanInput(source);
+    const retainedHash = measured.plannerInput.surfaceDigests.landMaskHash32;
 
-    expect(second.plannerInput.surfaceDigests.landMaskHash32).not.toBe(
-      first.plannerInput.surfaceDigests.landMaskHash32
-    );
-    expect(first.rows[0]?.landMask).toBe(1);
-    expect(second.rows[0]?.landMask).toBe(1);
+    source.plannerInput.landMask[5] = 0;
+    source.plannerInput.landMask[9] = 0;
+
+    expect(measured.plannerInput.surfaceDigests.landMaskHash32).toBe(retainedHash);
+    expect(measured.rows[0]?.landMask).toBe(1);
   });
 });

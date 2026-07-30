@@ -4,7 +4,7 @@ import type { EmptyObject } from "type-fest";
 import type { Static, TObject, TSchema } from "typebox";
 
 import type { InitialSetupDefinition } from "../initial-setup/definition.js";
-import type { StepArtifactsDeclAny } from "../step/contract.js";
+import type { StepDependencyList } from "../step/contract.js";
 import type { StepOpsDecl } from "../step/ops.js";
 import type { ReservedStageKey } from "./reserved-key.js";
 
@@ -165,9 +165,8 @@ type RecipeStepObservation = Readonly<{
   contract: Readonly<{
     id: string;
     schema: TSchema;
-    requires: readonly string[];
-    provides: readonly string[];
-    artifacts?: StepArtifactsDeclAny;
+    requires: StepDependencyList;
+    provides: StepDependencyList;
     initialSetup?: InitialSetupDefinition;
     ops?: StepOpsDecl;
   }>;

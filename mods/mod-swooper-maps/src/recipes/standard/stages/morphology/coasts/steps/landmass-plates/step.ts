@@ -74,9 +74,9 @@ export const LandmassPlatesStep = createStep(config, {
     return { ...stepConfig, seaLevel: seaLevelSelection };
   },
   run: (context, stepConfig, ops, deps) => {
-    const crustTiles = deps.artifacts.foundationCrustTiles.read(context);
-    const historyTiles = deps.artifacts.foundationTectonicHistoryTiles.read(context);
-    const provenanceTiles = deps.artifacts.foundationTectonicProvenanceTiles.read(context);
+    const crustTiles = deps.artifacts.crustTiles.read();
+    const historyTiles = deps.artifacts.tectonicHistoryTiles.read();
+    const provenanceTiles = deps.artifacts.tectonicProvenanceTiles.read();
     const { width, height } = context.setup.dimensions;
     const stepId = `morphology/${config.id}`;
 
@@ -84,8 +84,30 @@ export const LandmassPlatesStep = createStep(config, {
       {
         width,
         height,
-        historyTiles,
-        provenanceTiles,
+        historyTiles: {
+          perEra: historyTiles.perEra.map((era) => ({
+            boundaryType: era.boundaryType,
+            upliftPotential: era.upliftPotential,
+            collisionPotential: era.collisionPotential,
+            subductionPotential: era.subductionPotential,
+            riftPotential: era.riftPotential,
+            shearStress: era.shearStress,
+          })),
+          rollups: {
+            upliftTotal: historyTiles.rollups.upliftTotal,
+            collisionTotal: historyTiles.rollups.collisionTotal,
+            subductionTotal: historyTiles.rollups.subductionTotal,
+            upliftRecentFraction: historyTiles.rollups.upliftRecentFraction,
+            collisionRecentFraction: historyTiles.rollups.collisionRecentFraction,
+            subductionRecentFraction: historyTiles.rollups.subductionRecentFraction,
+            lastActiveEra: historyTiles.rollups.lastActiveEra,
+          },
+        },
+        provenanceTiles: {
+          originEra: provenanceTiles.originEra,
+          originPlateId: provenanceTiles.originPlateId,
+          lastBoundaryType: provenanceTiles.lastBoundaryType,
+        },
       },
       stepConfig.beltDrivers
     );
@@ -231,12 +253,12 @@ export const LandmassPlatesStep = createStep(config, {
       beltDistance: beltDrivers.beltDistance,
       beltNearestSeed: beltDrivers.beltNearestSeed,
     };
-    deps.artifacts.baseTopography.publish(context, topography);
-    deps.artifacts.baseSubstrate.publish(context, substrate);
-    deps.artifacts.beltDrivers.publish(context, beltDriverFields);
+    deps.artifacts.baseTopography.publish(topography);
+    deps.artifacts.baseSubstrate.publish(substrate);
+    deps.artifacts.beltDrivers.publish(beltDriverFields);
     return { topography, substrate, beltDrivers: beltDriverFields };
   },
-  viz: ({ result: { topography, substrate, beltDrivers }, dimensions }) => [
+  viz: ({ observation: { topography, substrate, beltDrivers }, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "morphology.topography.elevation",

@@ -14,12 +14,12 @@ import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morpho
 import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
 import placement from "@mapgen/domain/placement/router";
 import { createMapContext, type MapContext } from "@swooper/mapgen-core";
-import { readValidatedArtifact, type StepRuntimeOps } from "@swooper/mapgen-core/authoring";
+import { readArtifact, type StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
   normalizeOperationSelectionForTest,
   publishTestArtifact,
-  withMapContextExecutionForTest,
+  withStepExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 
 import { STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY } from "../../../../../../src/recipes/standard/metrics/families/placement/natural-wonder-plan-input.js";
@@ -51,8 +51,6 @@ type PlanNaturalWondersOps = StepRuntimeOps<
 >;
 type NaturalWonderPlannerInput = Parameters<PlanNaturalWondersOps["naturalWonders"]>[0];
 type NaturalWonderPlannerOutput = ReturnType<PlanNaturalWondersOps["naturalWonders"]>;
-const PLAN_NATURAL_WONDERS_OP_CONTRACTS = PlanNaturalWondersStep.contract.ops!;
-
 function placementConfig() {
   return {
     naturalWonders: normalizeOperationSelectionForTest(
@@ -148,26 +146,17 @@ function createCapturingOps(
   captureNaturalWonderInput: (input: NaturalWonderPlannerInput) => void,
   placements: NaturalWonderPlannerOutput["placements"] = []
 ): PlanNaturalWondersOps {
-  const naturalWonders = Object.assign(
-    (
-      input: NaturalWonderPlannerInput,
-      _config: Parameters<PlanNaturalWondersOps["naturalWonders"]>[1]
-    ): ReturnType<PlanNaturalWondersOps["naturalWonders"]> => {
-      captureNaturalWonderInput(input);
-      return {
-        width: input.width,
-        height: input.height,
-        wondersCount: input.wondersCount,
-        targetCount: placements.length,
-        plannedCount: placements.length,
-        placements,
-      };
-    },
-    {
-      id: PLAN_NATURAL_WONDERS_OP_CONTRACTS.naturalWonders.id,
-      kind: PLAN_NATURAL_WONDERS_OP_CONTRACTS.naturalWonders.kind,
-    }
-  );
+  const naturalWonders: PlanNaturalWondersOps["naturalWonders"] = (input) => {
+    captureNaturalWonderInput(input);
+    return {
+      width: input.width,
+      height: input.height,
+      wondersCount: input.wondersCount,
+      targetCount: placements.length,
+      plannedCount: placements.length,
+      placements,
+    };
+  };
   return { naturalWonders };
 }
 
@@ -189,9 +178,9 @@ describe("plan natural wonders step", () => {
       plannerInput = input;
     }, placements);
     const stepConfig = placementConfig();
-    let result: Awaited<ReturnType<typeof PlanNaturalWondersStep.run>> | undefined;
+    let observation: Awaited<ReturnType<typeof PlanNaturalWondersStep.run>> | undefined;
 
-    withMapContextExecutionForTest(context, (stepContext) => {
+    withStepExecutionForTest(context, PlanNaturalWondersStep, (stepContext) => {
       publishPlacementInputs(stepContext);
       const candidate = PlanNaturalWondersStep.run(
         stepContext,
@@ -202,9 +191,9 @@ describe("plan natural wonders step", () => {
       if (candidate instanceof Promise) {
         throw new Error("The plan-natural-wonders step must remain synchronous.");
       }
-      result = candidate;
+      observation = candidate;
     });
-    if (!result) throw new Error("The plan-natural-wonders step did not return evidence.");
+    if (!observation) throw new Error("The plan-natural-wonders step did not return evidence.");
     if (!plannerInput) throw new Error("The natural-wonder planner did not receive its input.");
 
     expect(plannerInput).toMatchObject({
@@ -212,17 +201,15 @@ describe("plan natural wonders step", () => {
       height: preset.dimensions.height,
       wondersCount: expectedWondersCount,
     });
-    expect(result.placements).toHaveLength(expectedWondersCount);
-    expect(result.naturalWonderPlanInput).toMatchObject({
+    expect(observation.placements).toHaveLength(expectedWondersCount);
+    expect(observation.naturalWonderPlanInput).toMatchObject({
       plannerInput: {
         dimensions: preset.dimensions,
         wondersCount: expectedWondersCount,
       },
       plannedCount: expectedWondersCount,
     });
-    expect(
-      readValidatedArtifact(context, placementWonderArtifacts.naturalWonderPlan)
-    ).toMatchObject({
+    expect(readArtifact(context, placementWonderArtifacts.naturalWonderPlan)).toMatchObject({
       width: preset.dimensions.width,
       height: preset.dimensions.height,
       wondersCount: expectedWondersCount,
@@ -230,12 +217,12 @@ describe("plan natural wonders step", () => {
       plannedCount: expectedWondersCount,
     });
     const metrics = PlanNaturalWondersStep.metrics?.({
-      result,
+      observation,
       config: stepConfig,
       dimensions: preset.dimensions,
     });
     expect(metrics?.[STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY]).toBe(
-      result.naturalWonderPlanInput
+      observation.naturalWonderPlanInput
     );
   });
 
@@ -269,7 +256,7 @@ describe("plan natural wonders step", () => {
       ]
     );
 
-    withMapContextExecutionForTest(context, (stepContext) => {
+    withStepExecutionForTest(context, PlanNaturalWondersStep, (stepContext) => {
       publishPlacementInputs(stepContext);
       PlanNaturalWondersStep.run(
         stepContext,

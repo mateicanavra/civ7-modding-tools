@@ -8,7 +8,7 @@ import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
-import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
+import { readArtifact } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
   normalizeOperationSelectionForTest,
@@ -117,16 +117,16 @@ describe("ecology-features plan-vegetation step", () => {
           ecology.features.ops.planVegetation.defaultConfig
         ),
       };
-      const ops = ecology.features.ops.bind(planVegetationStep.contract.ops!).runtime;
+      const ops = ecology.features.ops.bind(planVegetationStep.contract.ops!);
       planVegetationStep.run(
         stepContext,
         config,
         ops,
-        buildStepTestDependencies(planVegetationStep)
+        buildStepTestDependencies(planVegetationStep, stepContext)
       );
     });
 
-    const intents = readValidatedArtifact(ctx, featureArtifacts.vegetationIntents);
+    const intents = readArtifact(ctx, featureArtifacts.vegetationIntents);
     expect(intents.length).toBeGreaterThan(0);
     expect(intents.every(({ feature }) => feature === "forest")).toBe(true);
   });

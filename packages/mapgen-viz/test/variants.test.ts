@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { buildScalarFieldProjections, buildVectorFieldProjections } from "../src/index.js";
 
 describe("visualization variant projectors", () => {
-  it("borrows one scalar grid and derives a deterministic sampled-point view", () => {
+  it("reuses one scalar grid and derives a deterministic sampled-point view", () => {
     const values = new Uint8Array([1, 2, 3, 4, 5, 6]);
     const projections = buildScalarFieldProjections({
       dataTypeKey: "ecology.biome.index",

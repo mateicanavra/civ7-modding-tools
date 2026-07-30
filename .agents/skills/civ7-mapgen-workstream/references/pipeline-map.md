@@ -33,13 +33,13 @@
   Before naming a local helper, search MapGen Core's public libraries and import an existing
   primitive when semantics match. A deliberate divergence needs a distinct domain name and visible
   rationale; silently redefining a Core helper such as `clamp01` is not domain logic.
-- **step** — executable contract boundary. Owner-local `config.ts` exports the contract as `config = defineStep({ id, requires, provides, artifacts:{requires,provides}, ops, schema })`; `createStep(config, { normalize?, run, viz?, metrics? })` binds behavior plus optional post-run observation facets. Recipe composition may alias imported configs but never renames the leaf export. Recipe composition assigns the exact `stageId`; steps do not author a duplicate phase. `run(context, stepConfig, ops, deps)` receives admitted runtime configuration and publishes or reads through `deps.artifacts.<name>`, whose runtimes derive from the contract's provider modules.
+- **step** — executable contract boundary. Owner-local `config.ts` exports the contract as `config = defineStep({ id, requires, provides, ops, schema })`; those two ordered lists are the sole dependency surface and contain exact `Artifact` authorities alongside typed completion ids for payload-free engine transactions. `createStep(config, { normalize?, run, viz?, metrics? })` binds behavior plus optional post-run observation facets. Recipe composition may alias imported configs but never renames the leaf export. Recipe composition assigns the exact `stageId`; steps do not author a duplicate phase. `run(context, stepConfig, ops, deps)` receives admitted runtime configuration and publishes or reads through the typed `deps.artifacts.<name>` capabilities derived from the exact artifact selections.
 - **stage** — recipe-level authoring + ownership surface. `createStage({ id, steps, ... })`
   owns step composition; its ordinary config surface is derived from those
   steps and their bound operations. A rare semantic override stays inline at
   the concrete stage and must translate the complete external surface rather
   than forwarding or manufacturing empty step objects.
-- **recipe** — global stage/step order. `createRecipe({ id, namespace, tagDefinitions, stages, compileOpsById })`. Standard recipe id `mod-swooper-maps/standard`. Ordering is enforced by `contract-manifest.ts`, not by key order in `recipe.ts`.
+- **recipe** — global stage/step order. `createRecipe({ id, namespace, stages, operations })`, where `operations` is the one canonical executable registry returned by `collectOperations(...)`. Standard recipe id `mod-swooper-maps/standard`. Ordering is enforced by `contract-manifest.ts`, not by key order in `recipe.ts`.
 - **artifact** — named, typed, write-once causal data owned by the domain module that defines the immutable product. One `*.artifact.ts` file owns one weighted `defineArtifact({ name, id, schema, refine? })` definition with its schema inline. `defineArtifactCatalog` closes the module catalog. Engine observation and metrics/viz/trace evidence remain those capabilities rather than becoming causal artifacts.
 - **knob** — an optional stage-wide semantic authoring control, applied through compilation only when it adds real authoring value.
 
@@ -121,14 +121,14 @@ implementations. Counts below are verified from those module authorities:
 |---|---|---|
 | `foundation` | 17 | mesh, mantle potential/forcing, crust + evolution, plate graph/motion, tectonic segments, era membership, segment/hotspot events, era tectonic fields, history rollups, tectonics current, tracer advection, provenance, plate tensors |
 | `morphology` | 17 | belt drivers, base topography, continental margins, sea level, landmask, base coastline adjacency/distance evidence, flow routing, geomorphic cycle, substrate, complete island topography with formation classes, foothills, ridges, rough lands, volcanoes, landmasses, and the final shelf mask |
-| `hydrology` | 18 | Baseline climate composes radiative/thermal forcing, circulation, ocean coupling, evaporation, moisture transport, and precipitation; hydrography then solves drainage, discharge, river projection, lake intent, and causal classification; climate refinement closes with cryosphere/albedo, land-water budget, and advisory diagnostics. Navigable-river selection is a map-rivers rule. |
+| `hydrology` | 19 | Baseline climate composes radiative/thermal forcing, circulation, ocean coupling, evaporation, moisture transport, and precipitation; hydrography then solves drainage, discharge, river projection, lake intent, and causal classification; climate refinement closes with precipitation refinement, cryosphere/albedo, land-water budget, and advisory diagnostics. Navigable-river selection is a map-rivers rule. |
 | `ecology` | 32 | biome classify, pedology classify/aggregate, edge refine, feature/vegetation substrate, 5 vegetation + 5 wetland + 4 reef score ops, ice score, 4 plot-effects score ops, plan plot-effects, plan floodplains/wetlands/reefs/ice/vegetation, features apply. The most granular domain. |
 | `placement` | 3 | `wonders.planNaturalWonders`, `regions.projectLandmassRegions`, `starts.planStarts` |
 | `resources` | 8 | adjust resource support, derive habitat fields, plan aquatic/cultivated/geological/terrestrial resources, plan resource groups, select resource sites |
 | `narrative` | 0 | no ops, no stage (see above) |
 
 > Op counts = the operation contracts directly composed by module
-> `contract.ts` files. Confirm runtime symmetry in the matching module
+> `contract.ts` files. Confirm executable symmetry in the matching module
 > `router.ts`; there is no intermediate operation registry.
 
 ---
@@ -156,7 +156,7 @@ domain/<domain>/
         contract.ts         shared input/output contract plus strategy definitions
         index.ts            createOp(contract, strategy tuple)
         strategies/
-          index.ts          runtime implementation tuple
+          index.ts          executable implementation tuple
           <semantic-id>/
             config.ts       semantic id plus strategy configuration
             index.ts        implementation of the shared operation contract
@@ -164,7 +164,7 @@ domain/<domain>/
 ```
 
 The `@mapgen/domain/*` alias exposes two deliberate faces: the root contract for
-step authoring and `/router` for recipe runtime collection. Consumers import
+step authoring and `/router` for recipe operation collection. Consumers import
 artifacts or model facts from the exact owning module; module indexes do not
 re-export those secondary surfaces.
 
@@ -187,34 +187,36 @@ would promote to `stages/morphology/shelf/viz.ts`, not the residual
   directly in the module `contract.ts` and bind its implementation directly in
   the module `router.ts`.
 - New **step** → add the step contract to `standardStageContractManifest` (sets order) and the runtime step to the stage's `orderStandardStageSteps({...})`.
-- New **stage** → add to `standardStageContractManifest` (position = pipeline order), add to `orderStandardStages({...})` in `recipe.ts`; if it brings a new domain, add that domain to `collectCompileOps(...)`.
-- New **artifact** → add one `domain/<domain>/modules/<owner>/artifacts/<name>.artifact.ts` file with one inline `defineArtifact({ name, id, schema, refine? })`; register it once in that module's `artifacts/index.ts` using `defineArtifactCatalog`. Step contracts select exact artifact definitions in `artifacts.requires` and `artifacts.provides`; `createStep` derives read/publish runtimes from that contract.
+- New **stage** → add to `standardStageContractManifest` (position = pipeline order), add to `orderStandardStages({...})` in `recipe.ts`; if it brings a new domain, add that domain to `collectOperations(...)`.
+- New **artifact** → add one `domain/<domain>/modules/<owner>/artifacts/<name>.artifact.ts` file with one inline `defineArtifact({ name, id, schema, refine? })`; register it once in that module's `artifacts/index.ts` using `defineArtifactCatalog`. Step contracts place exact artifact definitions directly in `requires` and `provides`; `createStep` derives read/publish runtimes from those selections. Raw `artifact:*` strings are not an authoring substitute.
 
 ---
 
 ## Strategy selection
 
-The op envelope `{ strategy, config }` selects the algorithm. There are three control points; runtime dispatch is `runtimeStrategies[cfg.strategy].run(input, cfg.config)` in `packages/mapgen-core/src/authoring/operation/create.ts`:
+The op envelope `{ strategy, config }` selects the algorithm. There are two authoring control points; runtime dispatch is `runtimeStrategies[cfg.strategy].run(input, cfg.config)` in `packages/mapgen-core/src/authoring/operation/create.ts`:
 
 1. **Direct step config (ordinary stages)** - the op envelope is authored
    directly as a step-config key:
    `{ "computeAtmosphericCirculation": { "strategy": "latitude", "config": {...} } }`.
-2. **`defaultStrategy` on a `StepOpUse`** - a step contract can declare
-   `myOp: { contract, defaultStrategy: "refine" }`; this changes the schema
-   default when the author omits the envelope. It does not forbid an explicit
-   override.
-3. **Rare inline stage compiler** - a concrete stage may define an inline
+2. **Rare inline stage compiler** - a concrete stage may define an inline
    `public: Type.Object(...)` and compile it only when the external shape
    intentionally hides and semantically translates the complete internal
    surface. External `public.config.ts` assemblies and wrapper-only compilers
    are forbidden.
 
-Multi-strategy ops in live source (every other op has one inferred semantic default):
+The operation contract owns its sole inferred or multi-strategy explicit default. Steps select
+canonical operation contracts directly and cannot replace that authority. Authors select an
+alternate through the envelope. A candidate with different inputs, outputs, or transition timing
+becomes a separate operation rather than a step-local default or incompatible strategy.
+
+Selected strategy-bearing ops in live source (every other op has one inferred semantic default):
 
 | Op | Strategy keys (default → impl) |
 |---|---|
 | `hydrology/compute-atmospheric-circulation` | `geostrophic-proxy` (default), `latitude` |
-| `hydrology/compute-precipitation` | `vector` (default), `baseline`, `refine` |
+| `hydrology/compute-precipitation` | `vector` (default), `baseline` |
+| `hydrology/refine-precipitation` | `riparian-basin-wetness` (sole inferred default) |
 | `hydrology/transport-moisture` | `vector-advection` (default), `cardinal` |
 | `hydrology/compute-ocean-surface-currents` | `wind-gyre-projection` (default), `latitude` |
 | `ecology/pedology/classify` | `balanced` (default), `coastal-shelf`, `orogeny-boosted` |
@@ -298,7 +300,7 @@ To find who produces/consumes a given key, grep its `artifact:` id across
 
 | `@swooper/mapgen-core` (engine substrate) owns | The mod (`mods/mod-swooper-maps`) authors |
 |---|---|
-| The authoring API (`defineOp/defineStep/defineArtifact/defineArtifactCatalog/defineDomain`, `createOp/createStep/createStage/createRecipe/createDomainRouter/collectCompileOps`) | All domain algorithms (modules, ops, strategies, rules) |
+| The authoring API (`defineOp/defineStep/defineArtifact/defineArtifactCatalog/defineDomain`, `createOp/createStep/createStage/createRecipe/createDomainRouter/collectOperations`) | All domain algorithms (modules, ops, strategies, rules) |
 | Execution infra: PipelineExecutor, StepRegistry, write-once artifact runtime, reusable TypeBox schema validation, trace/viz | Domain artifact schemas + ids + relational validators; stage orchestration; recipe ordering; real authoring schemas |
 | Strategy dispatch (`runtimeStrategies[cfg.strategy]`) | Game-facing entrypoints, map configs, presets |
 | Zero Civ7 knowledge | Civ7 enters only at map entrypoints + `map-*`/`placement` adapter calls |

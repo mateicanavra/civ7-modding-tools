@@ -58,7 +58,7 @@ function colorForStartPosition(index: number): VizRgbaColor {
 
 /**
  * Projects completed start-plan and stamped-assignment evidence as one coherent facet.
- * Component grids are visualization-only derivations; plan and assignment arrays remain borrowed.
+ * Component grids are visualization-only derivations; plan and assignment arrays remain authoritative.
  */
 export function projectStartAssignmentViz(input: {
   plan: Readonly<PlanStartsOutput>;

@@ -14,20 +14,20 @@ import {
   ResourceSupportShortfallSchema,
 } from "../model/atoms/resource-support-evidence.schema.js";
 
-type ResourcePlanAdjusted = Readonly<{
-  width: number;
-  height: number;
-  seed: number;
-  plannedCount: number;
-  moveCount: number;
-  addCount: number;
-  intents: readonly AdjustedResourceIntent[];
-  adjustments: readonly ResourceSupportAdjustment[];
-  shortfalls: readonly ResourceSupportShortfall[];
-  perStart: readonly Static<typeof ResourceSupportPerStartSchema>[];
-  equity: Static<typeof ResourceSupportEquitySchema>;
-  settings: Static<typeof ResourceSupportSettingsSchema>;
-}>;
+type ResourcePlanAdjusted = {
+  readonly width: number;
+  readonly height: number;
+  readonly seed: number;
+  readonly plannedCount: number;
+  readonly moveCount: number;
+  readonly addCount: number;
+  readonly intents: readonly Readonly<AdjustedResourceIntent>[];
+  readonly adjustments: readonly Readonly<ResourceSupportAdjustment>[];
+  readonly shortfalls: readonly Readonly<ResourceSupportShortfall>[];
+  readonly perStart: readonly Readonly<Static<typeof ResourceSupportPerStartSchema>>[];
+  readonly equity: Readonly<Static<typeof ResourceSupportEquitySchema>>;
+  readonly settings: Readonly<Static<typeof ResourceSupportSettingsSchema>>;
+};
 type Shortfall = ResourceSupportShortfall;
 
 const FLOOR_SHORTFALL_REASONS = new Set<Shortfall["reason"]>([
@@ -134,7 +134,7 @@ function validateDimensions(
 }
 
 function validateIntentGeometry(
-  intents: readonly AdjustedResourceIntent[],
+  intents: readonly Readonly<AdjustedResourceIntent>[],
   width: number,
   height: number,
   size: number,

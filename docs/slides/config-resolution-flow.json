@@ -223,20 +223,20 @@
           "codeBlock": {
             "file": "packages/mapgen-core/src/engine/types.ts",
             "language": "typescript",
-            "startLine": 23,
-            "endLine": 31,
-            "code": "export interface MapGenStep<TContext = EngineContext, TConfig = unknown> {\n  id: string;\n  phase: GenerationPhase;\n  requires: readonly DependencyTag[];\n  provides: readonly DependencyTag[];\n  configSchema?: TSchema;\n  normalize?: (config: TConfig, ctx: NormalizeContext) => TConfig;\n  run: (context: TContext, config: TConfig) => void | Promise<void>;\n}",
-            "highlight": [28, 29]
+            "startLine": 18,
+            "endLine": 29,
+            "code": "export interface MapGenStep<TConfig = unknown, TResult = unknown> {\n  readonly id: string;\n  readonly stageId: string;\n  readonly requires: readonly PipelineDependency[];\n  readonly provides: readonly PipelineDependency[];\n  readonly configSchema?: TSchema;\n  readonly normalize?: (config: TConfig, ctx: NormalizeContext) => TConfig;\n  readonly run: (context: MapContext, config: TConfig) => TResult | Promise<TResult>;\n  readonly facets?: StepFacets<TConfig, TResult>;\n}",
+            "highlight": [24, 25]
           }
         },
         {
           "codeBlock": {
-            "file": "packages/mapgen-core/src/authoring/recipe.ts",
+            "file": "packages/mapgen-core/src/authoring/recipe/create.ts",
             "language": "typescript",
-            "startLine": 225,
-            "endLine": 237,
-            "code": "        step: {\n          id: fullId,\n          phase: authored.contract.phase,\n          requires: authored.contract.requires,\n          provides: authored.contract.provides,\n          configSchema: authored.contract.schema,\n          normalize: authored.normalize as\n            | MapGenStep<TContext, unknown>[\"normalize\"]\n            | undefined,\n          run: ((context: TContext, config: unknown) => {\n            return (authored.run as any)(context, config, ops, deps);\n          }) as unknown as MapGenStep<TContext, unknown>[\"run\"],\n        },",
-            "highlight": [230, 231, 232, 233]
+            "startLine": 327,
+            "endLine": 343,
+            "code": "        step: {\n          id: fullId,\n          stageId: stage.id,\n          requires: authored.contract.requires,\n          provides: authored.contract.provides,\n          configSchema: authored.contract.schema,\n          normalize: authored.normalize as MapGenStep<unknown>[\"normalize\"] | undefined,\n          run: ((context: MapContext, config: unknown) => {\n            const dependencies = buildDeclaredStepDependencies(authored, {\n              consumerStepId: fullId,\n              owner: `recipe:${input.recipeId}`,\n              context,\n            });\n            return (authored.run as any)(context, config, boundOps ?? {}, dependencies);\n          }) as MapGenStep<unknown>[\"run\"],\n          facets,\n        },",
+            "highlight": [332, 333]
           }
         },
         {

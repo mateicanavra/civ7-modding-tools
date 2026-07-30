@@ -5,7 +5,7 @@ import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/au
  * fields projected from Foundation mesh truth.
  */
 export const artifact = defineArtifact({
-  name: "foundationPlates",
+  name: "plates",
   id: "artifact:foundation.plates",
   schema: Type.Object(
     {

@@ -20,8 +20,8 @@ type TerrainValidationBoundaryReadback = Readonly<{
  */
 export const PreparePlacementSurfaceStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
-    const shelf = deps.artifacts.shelf.read(context);
-    const topography = deps.artifacts.topography.read(context);
+    const shelf = deps.artifacts.shelf.read();
+    const topography = deps.artifacts.topography.read();
     const { width, height } = context.setup.dimensions;
     const dimensions = context.setup.dimensions;
     const coastProjection = deriveCiv7CoastProjection({
@@ -67,5 +67,5 @@ export const PreparePlacementSurfaceStep = createStep(config, {
       afterMaintenance,
     };
   },
-  viz: ({ result, dimensions }) => projectPlacementSurfaceViz({ ...result, dimensions }),
+  viz: ({ observation, dimensions }) => projectPlacementSurfaceViz({ ...observation, dimensions }),
 });

@@ -1,10 +1,4 @@
-import type { RecipeInitialSetupInputOf } from "@swooper/mapgen-core/authoring";
-
-import {
-  STANDARD_INITIAL_SETUP,
-  type StandardInitialSetupInput,
-} from "../../../src/recipes/standard/initial-setup.js";
-import standardRecipe from "../../../src/recipes/standard/recipe.js";
+import { type StandardInitialSetupInput } from "../../../src/recipes/standard/initial-setup.js";
 
 type IsEqual<Left, Right> =
   (<Type>() => Type extends Left ? 1 : 2) extends <Type>() => Type extends Right ? 1 : 2
@@ -12,12 +6,6 @@ type IsEqual<Left, Right> =
     : false;
 type Expect<Condition extends true> = Condition;
 
-type RecipeSetupIsStandard = Expect<
-  IsEqual<RecipeInitialSetupInputOf<typeof standardRecipe>, StandardInitialSetupInput>
->;
-type RecipeRetainsExactAuthority = Expect<
-  IsEqual<typeof standardRecipe.initialSetup, typeof STANDARD_INITIAL_SETUP>
->;
 type MapOptionEvidence = StandardInitialSetupInput["options"]["map"][number];
 type GameOptionEvidence = StandardInitialSetupInput["options"]["game"][number];
 type PlayerOptionEvidence =
@@ -64,8 +52,6 @@ const rejectedMaxTurns: GameOptionEvidence = {
   value: "unbounded",
 };
 
-void (0 as unknown as RecipeSetupIsStandard);
-void (0 as unknown as RecipeRetainsExactAuthority);
 void (0 as unknown as MapSeaLevelUsesOfficialString);
 void (0 as unknown as MaxTurnsUsesOfficialInteger);
 void (0 as unknown as CrisesUsesOfficialStringArray);

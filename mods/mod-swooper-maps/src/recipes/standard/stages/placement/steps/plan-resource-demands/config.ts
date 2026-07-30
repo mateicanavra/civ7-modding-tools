@@ -9,8 +9,8 @@ import { artifacts as morphologyTerrainArtifacts } from "@mapgen/domain/morpholo
 import resources from "@mapgen/domain/resources";
 import { artifacts as resourceDemandArtifacts } from "@mapgen/domain/resources/modules/demand/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
+import { STANDARD_COMPLETIONS } from "../../../../completions.js";
 import { STANDARD_INITIAL_SETUP } from "../../../../initial-setup.js";
-import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 
 /**
  * Defines complete resource demand from final physics truth and the current Civ7 legality surface.
@@ -26,24 +26,22 @@ export const config = defineStep({
     "readCurrentMapWaterMask",
     "isResourceRequiredForAge",
   ] as const,
-  requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.surfacePrepared],
-  provides: [],
-  artifacts: {
-    requires: [
-      morphologyLandformsArtifacts.topography,
-      morphologyShelfArtifacts.shelf,
-      morphologyLandformsArtifacts.mountains,
-      morphologyTerrainArtifacts.beltDrivers,
-      hydrographyArtifacts.hydrography,
-      hydrographyArtifacts.lakePlan,
-      hydrographyArtifacts.projectedNavigableRivers,
-      climateArtifacts.climateIndices,
-      cryosphereArtifacts.cryosphere,
-      biomeArtifacts.biomeClassification,
-      pedologyArtifacts.pedology,
-    ],
-    provides: [resourceDemandArtifacts.resourceDemandPlan],
-  },
+  requires: [
+    STANDARD_COMPLETIONS.surfacePrepared,
+    morphologyLandformsArtifacts.topography,
+    morphologyShelfArtifacts.shelf,
+    morphologyLandformsArtifacts.mountains,
+    morphologyTerrainArtifacts.beltDrivers,
+    hydrographyArtifacts.hydrography,
+    hydrographyArtifacts.lakePlan,
+    hydrographyArtifacts.projectedNavigableRivers,
+    climateArtifacts.climateIndices,
+    cryosphereArtifacts.cryosphere,
+    biomeArtifacts.biomeClassification,
+    pedologyArtifacts.pedology,
+  ],
+  provides: [resourceDemandArtifacts.resourceDemandPlan],
+
   ops: {
     habitat: resources.habitat.ops.deriveHabitatFields,
     demands: resources.demand.ops.resolveResourceDemands,

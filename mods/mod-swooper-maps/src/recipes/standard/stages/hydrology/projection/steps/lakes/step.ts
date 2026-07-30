@@ -14,9 +14,9 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  */
 export const LakesStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
-    const lakePlan = deps.artifacts.lakePlan.read(context);
-    const mountains = deps.artifacts.mountains.read(context);
-    const volcanoes = deps.artifacts.volcanoes.read(context);
+    const lakePlan = deps.artifacts.lakePlan.read();
+    const mountains = deps.artifacts.mountains.read();
+    const volcanoes = deps.artifacts.volcanoes.read();
     const { width, height } = context.setup.dimensions;
     const size = width * height;
 
@@ -42,7 +42,7 @@ export const LakesStep = createStep(config, {
     // The adapter is the only engine boundary. Stamping plus readback stays there
     // so later steps observe current Civ7 state instead of consuming stale snapshots.
     const projection = deps.engine.stampLakes(context, width, height, projectionLakeMask);
-    deps.artifacts.projectedLakes.publish(context, {
+    deps.artifacts.projectedLakes.publish({
       lakeMask: Uint8Array.from(projection.stampedLakeMask),
     });
     const engineLandMask = landMaskFromWaterMask(projection.engineWaterMask);
@@ -69,26 +69,26 @@ export const LakesStep = createStep(config, {
       morphologyProtectedLakeTileCount,
     };
   },
-  metrics: ({ result, dimensions }) => ({
+  metrics: ({ observation, dimensions }) => ({
     "map.hydrology.lakeProjection": measureStandardLakeProjection({
       dimensions,
-      projectedLakeMask: result.projection.stampedLakeMask,
-      plannedLakeTileCount: result.projection.plannedLakeTileCount,
-      morphologyProtectedLakeTileCount: result.morphologyProtectedLakeTileCount,
-      stampedLakeTileCount: result.projection.stampedLakeTileCount,
-      rejectedLakeTileCount: result.projection.rejectedLakeTileCount,
-      nonLakeTileCount: result.projection.nonLakeTileCount,
-      terrainMismatchTileCount: result.projection.terrainMismatchTileCount,
+      projectedLakeMask: observation.projection.stampedLakeMask,
+      plannedLakeTileCount: observation.projection.plannedLakeTileCount,
+      morphologyProtectedLakeTileCount: observation.morphologyProtectedLakeTileCount,
+      stampedLakeTileCount: observation.projection.stampedLakeTileCount,
+      rejectedLakeTileCount: observation.projection.rejectedLakeTileCount,
+      nonLakeTileCount: observation.projection.nonLakeTileCount,
+      terrainMismatchTileCount: observation.projection.terrainMismatchTileCount,
     }),
   }),
-  viz: ({ result, dimensions }) => {
+  viz: ({ observation, dimensions }) => {
     const projections: VizProjection[] = [
       {
         kind: "grid",
         dataTypeKey: "map.hydrology.lakes.plannedLakeMask",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "u8", values: result.plannedLakeMask },
+        field: { format: "u8", values: observation.plannedLakeMask },
         meta: defineStandardVizMeta("map.hydrology.lakes.plannedLakeMask", "category.distinct", {
           label: "Lake Mask (Planned)",
           group: GROUP_MAP_HYDROLOGY,
@@ -102,7 +102,7 @@ export const LakesStep = createStep(config, {
         dataTypeKey: "map.hydrology.lakes.engineLakeMask",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "u8", values: result.projection.stampedLakeMask },
+        field: { format: "u8", values: observation.projection.stampedLakeMask },
         meta: defineStandardVizMeta("map.hydrology.lakes.engineLakeMask", "category.distinct", {
           label: "Lake Mask (Engine)",
           group: GROUP_MAP_HYDROLOGY,
@@ -114,7 +114,7 @@ export const LakesStep = createStep(config, {
         dataTypeKey: "map.hydrology.lakes.rejectedLakeMask",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "u8", values: result.projection.rejectedLakeMask },
+        field: { format: "u8", values: observation.projection.rejectedLakeMask },
         meta: defineStandardVizMeta("map.hydrology.lakes.rejectedLakeMask", "category.distinct", {
           label: "Rejected Lake Mask",
           group: GROUP_MAP_HYDROLOGY,
@@ -127,7 +127,7 @@ export const LakesStep = createStep(config, {
       dataTypeKey: "map.hydrology.lakes.engineLandMask",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.engineLandMask },
+      field: { format: "u8", values: observation.engineLandMask },
       meta: defineStandardVizMeta("map.hydrology.lakes.engineLandMask", "category.distinct", {
         label: "Land Mask (Engine After Lakes)",
         group: GROUP_MAP_HYDROLOGY,

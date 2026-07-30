@@ -23,11 +23,10 @@ import { TEST_GAME_SEED, TEST_MAP_SEED, TEST_MAP_SIZE } from "../../setup.js";
 const standardMapConfig: StandardMapConfigEnvelope = admitStandardMapConfig(swooperEarthlikeRaw);
 
 describe("Standard recipe initial setup", () => {
-  it("projects one immutable setup and binds its exact authority to the recipe", () => {
+  it("projects one immutable Standard launch setup", () => {
     const capture = captureFixture();
     const setup = projectStandardInitialSetup(capture);
 
-    expect(standardRecipe.initialSetup).toBe(STANDARD_INITIAL_SETUP);
     expect(setup).toEqual({
       map: {
         mapSeed: TEST_MAP_SEED,

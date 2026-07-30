@@ -5,14 +5,14 @@ import { assertNoWaterDrift } from "../../../../../water-surface-parity.js";
 import { config } from "./config.js";
 
 /**
- * Stamps the upstream volcano plan after continent terrain is stable and marks
- * projection completion only after exact engine readback closes every planned
- * terrain and feature mutation.
+ * Stamps the upstream volcano plan after continent terrain is stable. Exact
+ * engine readback must close every planned terrain and feature mutation before
+ * successful return makes the projection's completion edge reachable.
  */
 export const PlotVolcanoesStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
-    const topography = deps.artifacts.topography.read(context);
-    const plan = deps.artifacts.volcanoes.read(context);
+    const topography = deps.artifacts.topography.read();
+    const plan = deps.artifacts.volcanoes.read();
     const { width } = context.setup.dimensions;
 
     for (const entry of plan.volcanoes) {

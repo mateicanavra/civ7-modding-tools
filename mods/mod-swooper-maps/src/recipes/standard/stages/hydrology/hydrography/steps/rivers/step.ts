@@ -46,8 +46,8 @@ export const RiversStep = createStep(config, {
   },
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
-    const topography = deps.artifacts.topography.read(context);
-    const baselineClimateField = deps.artifacts.baselineClimateField.read(context);
+    const topography = deps.artifacts.topography.read();
+    const baselineClimateField = deps.artifacts.baselineClimateField.read();
     const routing = ops.drainageRouting(
       {
         width,
@@ -81,7 +81,7 @@ export const RiversStep = createStep(config, {
       stepConfig.projectRiverNetwork
     );
 
-    return deps.artifacts.hydrography.publish(context, {
+    return deps.artifacts.hydrography.publish({
       runoff: discharge.runoff,
       discharge: discharge.discharge,
       riverClass: projected.riverClass,
@@ -94,7 +94,7 @@ export const RiversStep = createStep(config, {
       terminalType: routing.terminalType,
     });
   },
-  viz: ({ result: hydrography, dimensions }) => [
+  viz: ({ observation: hydrography, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "hydrology.hydrography.runoff",

@@ -17,16 +17,20 @@ import wrappedHexAdjacencyDefinition from "./strategies/wrapped-hex-adjacency/co
 const ComputePlateTopologyContract = defineOp({
   kind: "compute",
   id: "foundation/compute-plate-topology",
-  input: Type.Object(
-    {
-      plateIds: TypedArraySchemas.i16({
-        cardinality: ["width", "height"],
-        description: "Plate id per tile (tile order).",
-      }),
-      width: Type.Integer({ minimum: 1, description: "Map width in tiles." }),
-      height: Type.Integer({ minimum: 1, description: "Map height in tiles." }),
-    },
-    { additionalProperties: false }
+  input: Type.Refine(
+    Type.Object(
+      {
+        plateIds: TypedArraySchemas.i16({
+          cardinality: ["width", "height"],
+          description: "Plate id per tile (tile order).",
+        }),
+        width: Type.Integer({ minimum: 1, description: "Map width in tiles." }),
+        height: Type.Integer({ minimum: 1, description: "Map height in tiles." }),
+      },
+      { additionalProperties: false }
+    ),
+    ({ plateIds }) => plateIds.some((plateId) => plateId >= 0),
+    () => "Plate topology requires at least one nonnegative plate id."
   ),
   output: Type.Object(
     {

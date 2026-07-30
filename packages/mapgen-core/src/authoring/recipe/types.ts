@@ -2,7 +2,6 @@ import type { MapContext } from "@mapgen/core/map-context.js";
 import type { ExecutionPlan, RecipeV2 } from "@mapgen/engine/execution-plan.js";
 import type { PlanTraceOptions } from "@mapgen/engine/observability.js";
 import type { StepFacetSinks } from "@mapgen/engine/step-facets.js";
-import type { DependencyTagDefinition } from "@mapgen/engine/tags.js";
 import type { ReadonlyDeep } from "type-fest";
 import type { Static, TObject, TSchema } from "typebox";
 import type {
@@ -11,7 +10,7 @@ import type {
   InitialSetupInputOf,
   InitialSetupValueOf,
 } from "../initial-setup/definition.js";
-import type { CompileOpsById, DomainOpRuntimeAny, OpsById } from "../operation/bindings.js";
+import type { OperationRegistry } from "../operation/bindings.js";
 import type { ReservedStageKey } from "../stage/reserved-key.js";
 import type { EmptyStageConfig, StageObservation, StageStepList } from "../stage/types.js";
 
@@ -111,7 +110,7 @@ export type CompiledRecipeConfigOf<TStages extends readonly unknown[]> = Readonl
 
 type StageList = readonly StageObservation[];
 
-/** Authorship input joining ordered stages with their compile and runtime operation registries. */
+/** Authorship input joining ordered stages with their canonical executable operation registry. */
 export type RecipeDefinition<
   TStages extends StageList = StageList,
   TInitialSetup extends InitialSetupDefinition = BasePhysicalInitialSetupDefinition,
@@ -119,10 +118,8 @@ export type RecipeDefinition<
 > = Readonly<{
   id: TRecipeId;
   namespace?: string;
-  tagDefinitions: readonly DependencyTagDefinition[];
   stages: TStages;
-  compileOpsById: CompileOpsById;
-  runtimeOpsById?: OpsById<DomainOpRuntimeAny>;
+  operations: OperationRegistry;
 }> &
   (TInitialSetup extends BasePhysicalInitialSetupDefinition
     ? Readonly<{ initialSetup?: TInitialSetup }>

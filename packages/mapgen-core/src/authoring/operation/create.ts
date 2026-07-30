@@ -9,6 +9,7 @@ import {
 import {
   assertCanonicalOpContract,
   type OpContractAny,
+  readCanonicalOpInputAdmissionSchema,
   readCanonicalOpStrategyDefinitions,
 } from "./contract.js";
 import { admitOperationInput, compileOperationInputAdmissionPlan } from "./input-admission.js";
@@ -101,7 +102,8 @@ export function createOp<
   C["output"],
   RuntimeStrategiesForContract<C>,
   C["id"],
-  C["defaultStrategy"]
+  C["defaultStrategy"],
+  C["kind"]
 >;
 
 export function createOp(contract: any, implementationInput: any): any {
@@ -137,7 +139,10 @@ export function createOp(contract: any, implementationInput: any): any {
     strategyImpls.set(id, candidate.implementation);
   }
 
-  const inputAdmission = compileOperationInputAdmissionPlan(contract.id, contract.input);
+  const inputAdmission = compileOperationInputAdmissionPlan(
+    contract.id,
+    readCanonicalOpInputAdmissionSchema(contract)
+  );
 
   const normalize = (cfg: StrategySelection<typeof runtimeStrategies>) => {
     if (!cfg || typeof cfg.strategy !== "string") {

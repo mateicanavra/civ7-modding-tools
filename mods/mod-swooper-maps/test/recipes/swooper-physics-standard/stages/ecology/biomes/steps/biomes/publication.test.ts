@@ -7,7 +7,7 @@ import { artifacts as climateArtifacts } from "@mapgen/domain/hydrology/modules/
 import { artifacts as cryosphereArtifacts } from "@mapgen/domain/hydrology/modules/cryosphere/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
-import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
+import { readArtifact } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
   normalizeOperationSelectionForTest,
@@ -93,16 +93,16 @@ describe("biomes step", () => {
         ecology.biomes.ops.classifyBiomes.defaultConfig
       );
 
-      const ops = ecology.biomes.ops.bind(biomesStep.contract.ops!).runtime;
+      const ops = ecology.biomes.ops.bind(biomesStep.contract.ops!);
       biomesStep.run(
         stepContext,
         { classify: classifyConfig },
         ops,
-        buildStepTestDependencies(biomesStep)
+        buildStepTestDependencies(biomesStep, stepContext)
       );
     });
 
-    const classification = readValidatedArtifact(ctx, biomeArtifacts.biomeClassification);
+    const classification = readArtifact(ctx, biomeArtifacts.biomeClassification);
     expect(Array.from(classification.biomeIndex)).not.toContain(255);
     expect(new Set(classification.biomeIndex).size).toBeGreaterThan(1);
     expect(new Set(classification.vegetationDensity).size).toBeGreaterThan(1);
@@ -122,7 +122,7 @@ describe("biomes step", () => {
       ecology.biomes.ops.classifyBiomes.defaultConfig
     );
 
-    const run = (effectiveMoistureIn: Float32Array): Float32Array => {
+    const run = (effectiveMoistureIn: Float32Array): ArrayLike<number> => {
       const adapter = createMockAdapter({
         ...TEST_MAP_SIZE.dimensions,
         mapInfo: TEST_MAP_SIZE.mapInfo,
@@ -164,15 +164,15 @@ describe("biomes step", () => {
           fertility: new Float32Array(size).fill(0.5),
         });
 
-        const ops = ecology.biomes.ops.bind(biomesStep.contract.ops!).runtime;
+        const ops = ecology.biomes.ops.bind(biomesStep.contract.ops!);
         biomesStep.run(
           stepContext,
           { classify: classifyConfig },
           ops,
-          buildStepTestDependencies(biomesStep)
+          buildStepTestDependencies(biomesStep, stepContext)
         );
       });
-      return readValidatedArtifact(ctx, biomeArtifacts.biomeClassification).vegetationDensity;
+      return readArtifact(ctx, biomeArtifacts.biomeClassification).vegetationDensity;
     };
 
     const baseline = new Float32Array(size).fill(120);

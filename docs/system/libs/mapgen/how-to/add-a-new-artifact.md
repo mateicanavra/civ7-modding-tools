@@ -17,7 +17,7 @@ authority for identity, schema, and complete admission.
 Routes to:
 - Artifact reference: [`docs/system/libs/mapgen/reference/ARTIFACTS.md`](/system/libs/mapgen/reference/ARTIFACTS.md)
 - Artifact mutation policy: [`docs/system/libs/mapgen/policies/ARTIFACT-MUTATION.md`](/system/libs/mapgen/policies/ARTIFACT-MUTATION.md)
-- Dependency id policy: [`docs/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md`](/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md)
+- Dependency policy: [`docs/system/libs/mapgen/policies/DEPENDENCIES.md`](/system/libs/mapgen/policies/DEPENDENCIES.md)
 
 ## Prereqs
 
@@ -111,30 +111,29 @@ import morphology from "@mapgen/domain/morphology";
 import { artifacts as morphologyRoutingArtifacts } from "@mapgen/domain/morphology/modules/routing/artifacts/index.js";
 
 export const config = defineStep({
-  // ...id, tags, ops, and schema...
-  artifacts: {
-    provides: [morphologyRoutingArtifacts.routing],
-  },
+  // ...id, dependencies, ops, and schema...
+  requires: [],
+  provides: [morphologyRoutingArtifacts.routing],
   ops: {
     routing: morphology.routing.ops.computeFlowRouting,
   },
 });
 ```
 
-Downstream steps put the same value in `artifacts.requires`. Artifact
-dependencies already participate in dependency satisfaction; do not duplicate
-artifact ids as hand-authored tags.
+Downstream steps put the same value directly in `requires`. Artifact authorities
+already participate in selected-plan validation and runtime publication proof; do not replace them with raw
+`artifact:*` ids.
 
-### 4) Publish through the derived runtime
+### 4) Publish through the occurrence capability
 
-The SDK derives validated publication and read capabilities from the declared
-artifact authorities.
+At each step invocation, the SDK derives validated publication and read capabilities directly
+from the declared artifact authorities.
 
 ```ts
 export const RoutingStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const routing = ops.routing({ /* admitted inputs */ }, stepConfig.routing);
-    deps.artifacts.routing.publish(context, routing);
+    deps.artifacts.routing.publish(routing);
   },
 });
 ```
@@ -143,8 +142,9 @@ The domain root import above is a declaration contract. Recipe runtime
 composition separately imports `@mapgen/domain/morphology/router`; artifact and
 step modules must not pull executable routers into their contract surface.
 
-Consumers read through `deps.artifacts.<name>.read(context)`. Authored code
-never reaches into MapContext storage.
+Consumers read through `deps.artifacts.<name>.read()`. These capabilities are bound to the exact
+active step occurrence; authored code never supplies context, constructs provider runtimes, or
+reaches into MapContext storage.
 
 ## Verification
 
@@ -174,6 +174,6 @@ never reaches into MapContext storage.
 - Artifact authority: `packages/mapgen-core/src/authoring/artifact/contract.ts`
 - Artifact catalog: `packages/mapgen-core/src/authoring/artifact/catalog.ts`
 - Artifact runtime: `packages/mapgen-core/src/authoring/artifact/runtime.ts`
-- Step producer binding: `packages/mapgen-core/src/authoring/step/create.ts`
+- Step occurrence binding: `packages/mapgen-core/src/authoring/step/dependencies.ts`
 - Example artifact owner: `mods/mod-swooper-maps/src/domain/foundation/modules/lithosphere/artifacts/plate-graph.artifact.ts`
 - Example catalog: `mods/mod-swooper-maps/src/domain/foundation/modules/lithosphere/artifacts/index.ts`

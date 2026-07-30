@@ -1,15 +1,6 @@
 import { clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
 
 /**
- * Preserves the domain requirement that craton growth has at least one tectonic era.
- */
-export function assertRiftPotentialEraPresent(riftPotentialByEra: readonly Uint8Array[]): void {
-  if (riftPotentialByEra.length <= 0) {
-    throw new Error("[Landmask] Expected riftPotentialByEra to be a non-empty array.");
-  }
-}
-
-/**
  * Reconciles the computed land mask with elevation and bathymetry at one sea-level datum.
  *
  * The admitted land mask is authoritative: submerged land is lifted to the first
@@ -21,11 +12,11 @@ export function reconcileTopography({
   landMask: inputLandMask,
   elevation: inputElevation,
   seaLevel,
-}: Readonly<{
-  landMask: Uint8Array;
-  elevation: Int16Array;
-  seaLevel: number;
-}>): {
+}: {
+  readonly landMask: ArrayLike<number>;
+  readonly elevation: ArrayLike<number>;
+  readonly seaLevel: number;
+}): {
   landMask: Uint8Array;
   elevation: Int16Array;
   seaLevel: number;

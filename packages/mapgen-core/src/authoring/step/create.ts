@@ -1,48 +1,52 @@
-import type { MapContext } from "@mapgen/core/map-context.js";
-
 import type { NormalizeContext } from "@mapgen/engine/index.js";
 import type { StepFacets } from "@mapgen/engine/step-facets.js";
 import type { Static } from "typebox";
-import { implementArtifacts } from "../artifact/runtime.js";
 import type { InitialSetupDefinition } from "../initial-setup/definition.js";
 import { assertCanonicalStepContractInternal, registerCanonicalStepInternal } from "./authority.js";
 import type { StepContract } from "./contract.js";
 import { assertNoStepStageIdentityAliases } from "./identity.js";
 import type { StepRuntimeOps } from "./ops.js";
-import { registerStepProviderRuntimesInternal } from "./provider-runtimes.js";
-import type { StepDeps, StepModule } from "./types.js";
+import type { StepContext, StepDeps, StepModule } from "./types.js";
 
-type StepConfigOf<C extends StepContract<any, any, any, any, any, any>> = Static<C["schema"]>;
-type StepOpsOf<C extends StepContract<any, any, any, any, any, any>> = StepRuntimeOps<
+type StepConfigOf<C extends StepContract<any, any, any, any, any, any, any>> = Static<C["schema"]>;
+type StepOpsOf<C extends StepContract<any, any, any, any, any, any, any>> = StepRuntimeOps<
   NonNullable<C["ops"]>
 >;
 
-type ArtifactsOf<C extends StepContract<any, any, any, any, any, any>> =
-  C extends StepContract<any, any, any, infer A, any, any> ? A : undefined;
+type RequiresOf<C extends StepContract<any, any, any, any, any, any, any>> =
+  C extends StepContract<any, any, any, infer Requires, any, any, any> ? Requires : readonly [];
 
-type EngineOf<C extends StepContract<any, any, any, any, any, any>> =
-  C extends StepContract<any, any, any, any, infer Engine, any> ? Engine : undefined;
+type ProvidesOf<C extends StepContract<any, any, any, any, any, any, any>> =
+  C extends StepContract<any, any, any, any, infer Provides, any, any> ? Provides : readonly [];
 
-type InitialSetupOf<C extends StepContract<any, any, any, any, any, any>> =
-  C extends StepContract<any, any, any, any, any, infer InitialSetup>
+type EngineOf<C extends StepContract<any, any, any, any, any, any, any>> =
+  C extends StepContract<any, any, any, any, any, infer Engine, any> ? Engine : undefined;
+
+type InitialSetupOf<C extends StepContract<any, any, any, any, any, any, any>> =
+  C extends StepContract<any, any, any, any, any, any, infer InitialSetup>
     ? InitialSetup extends InitialSetupDefinition
       ? InitialSetup
       : undefined
     : undefined;
 
-type StepImplBase<TContext, TConfig, TOps, TDeps, TResult> = Readonly<{
+type StepImplBase<TContext, TConfig, TOps, TDeps, TObservation> = Readonly<{
   normalize?: (config: TConfig, ctx: NormalizeContext) => TConfig;
-  run: (context: TContext, config: TConfig, ops: TOps, deps: TDeps) => TResult | Promise<TResult>;
+  run: (
+    context: TContext,
+    config: TConfig,
+    ops: TOps,
+    deps: TDeps
+  ) => TObservation | Promise<TObservation>;
 }> &
-  StepFacets<TConfig, TResult>;
+  StepFacets<TConfig, TObservation>;
 
 type StepImpl<
-  C extends StepContract<any, any, any, any, any, any>,
+  C extends StepContract<any, any, any, any, any, any, any>,
   TConfig,
   TOps,
   TDeps,
-  TResult,
-> = StepImplBase<MapContext, TConfig, TOps, TDeps, TResult>;
+  TObservation,
+> = StepImplBase<StepContext<InitialSetupOf<C>>, TConfig, TOps, TDeps, TObservation>;
 
 type CapturedImplementationFunction = (...args: never[]) => unknown;
 
@@ -93,33 +97,29 @@ function captureStepImplementation(stepId: string, impl: unknown): CapturedStepI
 }
 
 /**
- * Binds executable step behavior to its admitted contract. Provider runtimes derive from the
- * contract's artifact authorities, so an implementation cannot install a second validator.
- * The run result is inferred once and becomes the typed input to optional post-provides projectors.
+ * Binds executable step behavior to its admitted contract. Artifact capabilities derive directly
+ * from the contract during each occurrence, so implementations cannot install another authority.
+ * The invocation-local observation is inferred once and becomes the typed input to optional
+ * post-provides projectors; it is discarded after projection and never becomes pipeline state.
  */
 export function createStep<
-  const C extends StepContract<any, any, any, any, any, any>,
-  TResult = void,
+  const C extends StepContract<any, any, any, any, any, any, any>,
+  TObservation = void,
 >(
   contract: C,
   impl: StepImpl<
     C,
     StepConfigOf<C>,
     StepOpsOf<C>,
-    StepDeps<ArtifactsOf<C>, EngineOf<C>, InitialSetupOf<C>>,
-    TResult
+    StepDeps<RequiresOf<C>, ProvidesOf<C>, EngineOf<C>>,
+    TObservation
   >
-): StepModule<C, TResult> {
+): StepModule<C, TObservation> {
   if ((typeof contract !== "object" && typeof contract !== "function") || contract === null) {
     throw new TypeError("createStep requires a contract created by defineStep");
   }
   assertCanonicalStepContractInternal(contract);
   const captured = captureStepImplementation(contract.id, impl);
-  const providedArtifacts = contract.artifacts?.provides;
-  const artifacts =
-    providedArtifacts === undefined || providedArtifacts.length === 0
-      ? undefined
-      : implementArtifacts(providedArtifacts);
 
   const step = Object.freeze({
     contract,
@@ -127,8 +127,7 @@ export function createStep<
     ...(captured.normalize === undefined ? {} : { normalize: captured.normalize }),
     ...(captured.metrics === undefined ? {} : { metrics: captured.metrics }),
     ...(captured.viz === undefined ? {} : { viz: captured.viz }),
-  }) as unknown as StepModule<C, TResult>;
-  if (artifacts !== undefined) registerStepProviderRuntimesInternal(step, artifacts);
+  }) as unknown as StepModule<C, TObservation>;
   registerCanonicalStepInternal(step);
   return step;
 }

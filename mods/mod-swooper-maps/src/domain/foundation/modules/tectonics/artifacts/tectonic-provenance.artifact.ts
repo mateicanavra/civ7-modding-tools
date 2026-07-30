@@ -18,7 +18,7 @@ const TECTONIC_PROVENANCE_FIELD_KEYS = [
  * field to `cellCount`.
  */
 export const artifact = defineArtifact({
-  name: "foundationTectonicProvenance",
+  name: "tectonicProvenance",
   id: "artifact:foundation.tectonicProvenance",
   schema: Type.Object(
     {

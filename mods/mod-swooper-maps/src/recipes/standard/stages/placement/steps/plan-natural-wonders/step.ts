@@ -5,9 +5,11 @@ import {
   NO_FEATURE_TYPE,
 } from "@civ7/map-policy";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import type { IsEqual } from "type-fest";
 import {
   measureStandardNaturalWonderPlanInput,
   STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY,
+  type StandardNaturalWonderPlannerMeasurementSurface,
 } from "../../../../metrics/families/placement/natural-wonder-plan-input.js";
 import {
   emitStandardNaturalWonderPlanExactLog,
@@ -27,14 +29,14 @@ import { config } from "./config.js";
 export const PlanNaturalWondersStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
-    const topography = deps.artifacts.topography.read(context);
-    const hydrography = deps.artifacts.hydrography.read(context);
-    const riverNetwork = deps.artifacts.riverNetwork.read(context);
-    const lakePlan = deps.artifacts.lakePlan.read(context);
-    const climateIndices = deps.artifacts.climateIndices.read(context);
-    const biomeClassification = deps.artifacts.biomeClassification.read(context);
-    const pedology = deps.artifacts.pedology.read(context);
-    const wondersCount = deps.initialSetup.map.selection.mapInfo.NumNaturalWonders;
+    const topography = deps.artifacts.topography.read();
+    const hydrography = deps.artifacts.hydrography.read();
+    const riverNetwork = deps.artifacts.riverNetwork.read();
+    const lakePlan = deps.artifacts.lakePlan.read();
+    const climateIndices = deps.artifacts.climateIndices.read();
+    const biomeClassification = deps.artifacts.biomeClassification.read();
+    const pedology = deps.artifacts.pedology.read();
+    const wondersCount = context.initialSetup.map.selection.mapInfo.NumNaturalWonders;
     const terrainType = deps.engine.readCurrentMapTerrainTypes(context);
     const biomeType = deps.engine.readCurrentMapBiomeTypes(context);
     const featureType = deps.engine.readCurrentMapFeatureTypes(context);
@@ -62,10 +64,16 @@ export const PlanNaturalWondersStep = createStep(config, {
       noFeatureType: NO_FEATURE_TYPE,
       naturalWonderBlockedMask: buildNaturalWonderBlockedMask(width, height),
       featureCatalog: NATURAL_WONDER_CATALOG,
-    };
+    } satisfies StandardNaturalWonderPlannerMeasurementSurface &
+      Parameters<typeof ops.naturalWonders>[0];
+    const plannerInputEvidenceIsExhaustive: IsEqual<
+      keyof StandardNaturalWonderPlannerMeasurementSurface,
+      keyof Parameters<typeof ops.naturalWonders>[0]
+    > = true;
+    void plannerInputEvidenceIsExhaustive;
     const strategySelection = stepConfig.naturalWonders;
     const naturalWonderPlan = ops.naturalWonders(plannerInput, strategySelection);
-    deps.artifacts.naturalWonderPlan.publish(context, naturalWonderPlan);
+    deps.artifacts.naturalWonderPlan.publish(naturalWonderPlan);
     const naturalWonderPlanInput = measureStandardNaturalWonderPlanInput({
       plannerInput,
       strategySelection,
@@ -79,11 +87,11 @@ export const PlanNaturalWondersStep = createStep(config, {
       naturalWonderPlanInput,
     };
   },
-  metrics: ({ result }) => ({
-    [STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY]: result.naturalWonderPlanInput,
+  metrics: ({ observation }) => ({
+    [STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY]: observation.naturalWonderPlanInput,
   }),
-  viz: ({ result, dimensions }) => {
-    const { placements } = result;
+  viz: ({ observation, dimensions }) => {
+    const { placements } = observation;
     const positions = new Float32Array(placements.length * 2);
     const values = new Float32Array(placements.length);
     for (let i = 0; i < placements.length; i++) {

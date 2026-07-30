@@ -18,8 +18,9 @@ One `Artifact` owns a data product's identity, schema, and complete admission va
 `refine` callback for relational or domain laws. Typed-array constructor and cardinality admission
 is compiled from the schema at definition time. Catalogs directly collect these
 authorities with `defineArtifactCatalog(...)`; there is no parallel contract, validator, or module
-registry. Catalog keys are local lookup names and need not equal an artifact's runtime `name`,
-while duplicate artifact ids or names are always refused.
+registry. A catalog key must equal its artifact's `name`, so contracts and step dependencies retain
+one property identity. The `artifact:` id remains the globally unique semantic identity; duplicate
+ids or names are always refused.
 
 Artifacts live with the direct domain module that produces them. Each module's
 `artifacts/index.ts` is its single catalog; aggregate domains do not recreate a
@@ -33,16 +34,19 @@ public catalog, preserving the product's semantic owner.
 - Republishing is an error.
 - Publication and reads retain the admitted value reference. Core does not deep-freeze or snapshot
   artifact payload memory; immutability is enforced by pipeline ownership rather than hostile
-  JavaScript memory protection. Typed-array mutators are not yet excluded from every consumer type
-  signature.
+  JavaScript memory protection. The consumer type is a deep readonly authoring projection that
+  removes direct typed-array mutators and mutable backing-storage capabilities. TypeScript
+  structural widening or an explicit cast can bypass that constraint, and a producer-retained raw
+  alias remains a runtime trust caveat. Take an explicit copy before producing mutable output;
+  arbitrary callable members are not artifact data.
 - Artifact storage is private to MapGen Core. `MapContext` exposes no raw store or query facade.
 - Authored steps read and publish only through their declared `deps.artifacts` capabilities.
-- Metrics, diagnostics, and other post-run observers use `readValidatedArtifact` or
-  `observeValidatedArtifact` with the exact artifact whose validator owns admission.
+- Metrics, diagnostics, and other post-run observers use `readArtifact` or `observeArtifact` with
+  the exact artifact authority that selected the value at publication.
 
 The artifact owner owns its complete payload schema. Smaller reusable pieces,
 such as one `PlateSchema` subentity, may come from exact model-atom files, but a
-complete artifact container never moves into atoms or gets borrowed wholesale
+complete artifact container never moves into atoms or gets reused wholesale
 by an operation contract (`plate-graph.artifact.ts`; excerpt):
 
 ```ts
@@ -54,7 +58,7 @@ import {
 import { PlateSchema } from "../model/atoms/plate.schema.js";
 
 export const artifact = defineArtifact({
-  name: "foundationPlateGraph",
+  name: "plateGraph",
   id: "artifact:foundation.plateGraph",
   schema: Type.Object({
     plates: Type.Array(PlateSchema),
@@ -86,8 +90,8 @@ to fields in the artifact value, and `"constructor-only"` deliberately declares 
 relation. The default `["width", "height"]` remains an input-relative path product rather than an
 alias for `"map-grid"`.
 
-Artifact validation context is mandatory. Production publication and validated reads supply it
-from the admitted map setup; direct validator tests pass
+Artifact validation context is mandatory. Production publication supplies it from the admitted map
+setup; direct validator tests pass
 `{ dimensions: { width, height } }` explicitly. Missing dimensions never disable cardinality
 checks.
 
@@ -120,29 +124,42 @@ behavior only:
 
 ```ts
 export const config = defineStep({
-  // ...id, tags, ops, and schema...
-  artifacts: {
-    provides: [artifacts.plateGraph],
-  },
+  // ...id, dependencies, ops, and schema...
+  requires: [],
+  provides: [artifacts.plateGraph],
 });
 
 createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const plateGraph = buildPlateGraph(context, stepConfig, ops);
-    deps.artifacts.plateGraph.publish(context, plateGraph);
+    deps.artifacts.plateGraph.publish(plateGraph);
   },
 });
 ```
 
-`defineStep` snapshots the selected artifacts, and `createStep` derives the frozen
-artifact-name-keyed runtime from that contract authority. Each artifact's validator is the sole
-admission authority for publication, satisfaction checks, and validated reads. Runtime
-construction and satisfaction callbacks remain private to recipe composition; neither is an
-authored step capability.
+`requires` and `provides` are the sole authored dependency lists. Put the exact
+`Artifact` authority directly in the appropriate list; engine-transaction completions
+remain typed string constants in the same list. Raw `artifact:*` strings are invalid
+because they discard the schema, validator, and semantic owner that make the
+dependency exact.
+
+`defineStep` snapshots the selected artifacts, while `createStep` binds behavior only. At each
+step invocation, Core derives exact occurrence-bound `read()` and `publish(value)` capabilities
+directly from those contract authorities. There is no provider runtime registry, map, or cache.
+The compiled `MapGenStep` retains exact artifact authorities and typed completion ids in each
+ordered direction. Its JSON-safe plan projection uses ids, while Core retains the exact artifact
+authorities needed to type and bind `deps.artifacts`. The DAG projects artifact references as
+causal edges and completion ids as metadata; it does not infer one kind from the other or build a
+second dependency graph.
+Each artifact's validator remains the sole admission authority at publication. Artifact dependency
+gates and terminal observers subsequently ask only whether that exact authority is present in the
+write-once store; they do not create a second admission transition or treat validation as mutation
+detection. Storage remains private to recipe execution and is not an authored step capability.
 
 ## Ground truth anchors
 
 - Artifact runtime (write-once enforcement, zero-copy ownership contract): `packages/mapgen-core/src/authoring/artifact/runtime.ts`
+- Terminal artifact observation: `packages/mapgen-core/src/authoring/artifact/observation.ts`
 - Artifact definition and value types: `packages/mapgen-core/src/authoring/artifact/contract.ts`
 - Schema-owned typed-array admission compiler: `packages/mapgen-core/src/authoring/schema/typed-array-admission.ts`
 - Artifact catalog: `packages/mapgen-core/src/authoring/artifact/catalog.ts`

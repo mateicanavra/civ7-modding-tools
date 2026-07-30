@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createStep, defineOp, defineStep, defineStrategy, Type } from "@mapgen/authoring/index.js";
+import type { CompletionId } from "@mapgen/engine/index.js";
 import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
 import { Value } from "typebox/value";
 
@@ -174,7 +175,7 @@ describe("step authoring", () => {
     ).toThrow("recipe composition owns stage identity");
   });
 
-  it("composes operation config over an omitted step schema without mutating the operation", () => {
+  it("composes canonical operation config over an omitted step schema", () => {
     const operation = defineOp({
       kind: "compute",
       id: "test/step-default-authority",
@@ -199,19 +200,20 @@ describe("step authoring", () => {
       ],
     });
     const step = defineStep({
-      id: "fast-step",
+      id: "balanced-step",
       requires: [],
       provides: [],
-      ops: { calculation: { contract: operation, defaultStrategy: "fast" } },
+      ops: { calculation: operation },
     });
 
-    expect(step.ops?.calculation.defaultStrategy).toBe("fast");
+    expect(step.ops?.calculation).toBe(operation);
+    expect(step.ops?.calculation.defaultStrategy).toBe("balanced");
     expect(step.ops?.calculation.defaultConfig).toEqual({
-      strategy: "fast",
-      config: { turbo: true },
+      strategy: "balanced",
+      config: { plateauCount: 3 },
     });
     expect(Value.Create(step.schema)).toEqual({
-      calculation: { strategy: "fast", config: { turbo: true } },
+      calculation: { strategy: "balanced", config: { plateauCount: 3 } },
     });
     expect(operation.defaultStrategy).toBe("balanced");
     expect(operation.defaultConfig).toEqual({
@@ -221,28 +223,17 @@ describe("step authoring", () => {
 
     expect(() =>
       defineStep({
-        id: "invalid-empty-default-step",
+        id: "invalid-scoped-default-step",
         requires: [],
         provides: [],
         ops: {
           calculation: {
             contract: operation,
-            defaultStrategy: "" as "fast",
+            defaultStrategy: "fast",
           },
-        },
+        } as never,
       })
-    ).toThrow("requires an explicit default strategy");
-
-    expect(() =>
-      defineStep({
-        id: "missing-default-override-step",
-        requires: [],
-        provides: [],
-        ops: {
-          calculation: { contract: operation } as never,
-        },
-      })
-    ).toThrow("requires an explicit default strategy");
+    ).toThrow("requires a canonical contract");
   });
 
   it("detaches schema authority while preserving native TypeBox composition", () => {
@@ -572,7 +563,34 @@ describe("step authoring", () => {
     ).toThrow(/BadId/);
   });
 
+  it("rejects duplicate and self-dependent completion edges", () => {
+    const completion = "completion:test.ready" as const;
+    expect(() =>
+      defineStep({
+        id: "duplicate-requirement",
+        requires: [completion, completion],
+        provides: [],
+      })
+    ).toThrow(`declares dependency "${completion}" multiple times in requires`);
+    expect(() =>
+      defineStep({
+        id: "self-dependent",
+        requires: [completion],
+        provides: [completion],
+      })
+    ).toThrow(`declares dependency "${completion}" in both requires and provides`);
+  });
+
   it("snapshots step authority once from own data properties without evaluating accessors", () => {
+    expect(() =>
+      defineStep({
+        id: "retired-artifact-selector",
+        requires: [],
+        provides: [],
+        artifacts: { requires: [], provides: [] },
+      } as never)
+    ).toThrow('step contract cannot own unsupported property "artifacts"');
+
     let accessorReads = 0;
     const accessorDefinition = {
       id: "accessor-step",
@@ -588,14 +606,13 @@ describe("step authoring", () => {
     );
     expect(accessorReads).toBe(0);
 
-    const requires = ["effect:test.initial"] as string[];
-    const provides = ["effect:test.complete"] as string[];
+    const requires: CompletionId[] = ["completion:test.initial"];
+    const provides: CompletionId[] = ["completion:test.complete"];
     const descriptorReads = new Map<PropertyKey, number>();
     const values = {
       id: "single-read-step",
       requires,
       provides,
-      artifacts: undefined,
       ops: undefined,
     } as const;
     const definition = new Proxy(
@@ -612,7 +629,7 @@ describe("step authoring", () => {
               descriptorReads.get(key) === 1
                 ? values[key as keyof typeof values]
                 : key === "requires" || key === "provides"
-                  ? ["effect:test.changed"]
+                  ? ["completion:test.changed"]
                   : "changed-between-reads",
           };
         },
@@ -620,15 +637,14 @@ describe("step authoring", () => {
     ) as typeof values;
 
     const contract = defineStep(definition);
-    requires[0] = "effect:test.mutated";
+    requires[0] = "completion:test.mutated";
     provides.length = 0;
 
     expect(contract.id).toBe("single-read-step");
-    expect(contract.requires).toEqual(["effect:test.initial"]);
-    expect(contract.provides).toEqual(["effect:test.complete"]);
+    expect(contract.requires).toEqual(["completion:test.initial"]);
+    expect(contract.provides).toEqual(["completion:test.complete"]);
     expect(descriptorReads).toEqual(
       new Map<PropertyKey, number>([
-        ["artifacts", 1],
         ["ops", 1],
         ["id", 1],
         ["requires", 1],
@@ -638,21 +654,23 @@ describe("step authoring", () => {
   });
 
   it("refuses sparse, symbol-extended, and accessor-backed dependency arrays", () => {
-    const sparse = new Array<string>(1);
-    const symbolExtended: string[] = [];
-    Object.defineProperty(symbolExtended, Symbol("hidden"), { value: "effect:test.hidden" });
+    const sparse = new Array<CompletionId>(1);
+    const symbolExtended: CompletionId[] = [];
+    Object.defineProperty(symbolExtended, Symbol("hidden"), {
+      value: "completion:test.hidden",
+    });
     let entryReads = 0;
-    const accessorBacked = ["effect:test.initial"];
+    const accessorBacked: CompletionId[] = ["completion:test.initial"];
     Object.defineProperty(accessorBacked, "0", {
       configurable: true,
       enumerable: true,
       get: () => {
         entryReads += 1;
-        return "effect:test.accessor";
+        return "completion:test.accessor";
       },
     });
 
-    const definition = (requires: readonly string[]) => ({
+    const definition = (requires: readonly CompletionId[]) => ({
       id: "hostile-dependencies",
       requires,
       provides: [],

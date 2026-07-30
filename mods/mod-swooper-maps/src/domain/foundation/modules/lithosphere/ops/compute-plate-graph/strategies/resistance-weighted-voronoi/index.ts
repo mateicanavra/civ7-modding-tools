@@ -114,11 +114,14 @@ function computeCellResistance(strength: number): number {
 }
 
 function pickExtremeYCell(params: {
-  mesh: { cellCount: number; siteY: Float32Array };
+  mesh: {
+    readonly cellCount: number;
+    readonly siteY: ArrayLike<number>;
+  };
   eligible: Uint8Array;
   mode: "min" | "max";
 }): number {
-  const cellCount = params.mesh.cellCount | 0;
+  const cellCount = params.mesh.cellCount;
   let best = -1;
   let bestY = params.mode === "min" ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
   for (let i = 0; i < cellCount; i++) {
@@ -141,12 +144,15 @@ function pickExtremeYCell(params: {
 
 function pickSeedCell(params: {
   mesh: {
-    cellCount: number;
-    wrapWidth: number;
-    siteX: Float32Array;
-    siteY: Float32Array;
+    readonly cellCount: number;
+    readonly wrapWidth: number;
+    readonly siteX: ArrayLike<number>;
+    readonly siteY: ArrayLike<number>;
   };
-  crust: { strength: Float32Array; maturity: Float32Array };
+  crust: {
+    readonly strength: ArrayLike<number>;
+    readonly maturity: ArrayLike<number>;
+  };
   rng: (max: number, label?: string) => number;
   used: Uint8Array;
   existingSeeds: number[];
@@ -154,7 +160,7 @@ function pickSeedCell(params: {
   allowed: Uint8Array;
   minSepSq: number;
 }): number {
-  const cellCount = params.mesh.cellCount | 0;
+  const cellCount = params.mesh.cellCount;
   const wrapWidth = params.mesh.wrapWidth;
 
   let bestCandidate = -1;
@@ -215,14 +221,18 @@ function pickSeedCell(params: {
 }
 
 function lockContiguousRegion(params: {
-  mesh: { cellCount: number; neighborsOffsets: Int32Array; neighbors: Int32Array };
+  mesh: {
+    readonly cellCount: number;
+    readonly neighborsOffsets: ArrayLike<number>;
+    readonly neighbors: ArrayLike<number>;
+  };
   lockedPlateId: Int16Array;
   allowed: Uint8Array;
   plateId: number;
   seedCell: number;
   targetCells: number;
 }): number {
-  const cellCount = params.mesh.cellCount | 0;
+  const cellCount = params.mesh.cellCount;
   const plateId = params.plateId | 0;
   const seedCell = params.seedCell | 0;
   const targetCells = Math.max(0, params.targetCells | 0);
@@ -267,11 +277,15 @@ function lockContiguousRegion(params: {
 }
 
 function filterByMinComponentSize(params: {
-  mesh: { cellCount: number; neighborsOffsets: Int32Array; neighbors: Int32Array };
+  mesh: {
+    readonly cellCount: number;
+    readonly neighborsOffsets: ArrayLike<number>;
+    readonly neighbors: ArrayLike<number>;
+  };
   allowed: Uint8Array;
   minSize: number;
 }): Uint8Array {
-  const cellCount = params.mesh.cellCount | 0;
+  const cellCount = params.mesh.cellCount;
   const minSize = Math.max(COMPONENT_SIZE_CLAMP_MIN, params.minSize | 0);
 
   const out = new Uint8Array(cellCount);
@@ -336,13 +350,10 @@ const resistanceWeightedVoronoi = createStrategy(
       const mesh = input.mesh;
       const crust = input.crust;
 
-      const rngSeed = input.rngSeed | 0;
+      const rngSeed = input.rngSeed;
       const rng = createLabelRng(rngSeed);
 
-      const cellCount = mesh.cellCount | 0;
-      if (crust.strength.length !== cellCount || crust.maturity.length !== cellCount) {
-        throw new Error("[Foundation] Invalid crust.cellCount for compute-plate-graph.");
-      }
+      const cellCount = mesh.cellCount;
 
       const platesCount = config.plateCount;
       if (platesCount > cellCount) {

@@ -18,36 +18,38 @@ const FacetedStep = createStep(
       samples: new Float32Array([1, 2]),
     }),
     metrics: (input) => {
-      const { result, config, dimensions } = input;
-      type ResultScoreIsInferred = Expect<IsEqual<typeof result.score, number>>;
-      type ResultNestedStateIsInferred = Expect<IsEqual<typeof result.nested.ready, boolean>>;
-      type ResultSamplesAreInferred = Expect<
-        typeof result.samples extends Float32Array ? true : false
+      const { observation, config, dimensions } = input;
+      type ObservationScoreIsInferred = Expect<IsEqual<typeof observation.score, number>>;
+      type ObservationNestedStateIsInferred = Expect<
+        IsEqual<typeof observation.nested.ready, boolean>
+      >;
+      type ObservationSamplesAreInferred = Expect<
+        typeof observation.samples extends Float32Array ? true : false
       >;
 
-      // @ts-expect-error The borrowed result binding cannot be replaced.
-      input.result = result;
-      // @ts-expect-error The borrowed config binding cannot be replaced.
+      // @ts-expect-error The invocation observation binding cannot be replaced.
+      input.observation = observation;
+      // @ts-expect-error The observed config binding cannot be replaced.
       input.config = config;
       // @ts-expect-error Execution dimensions are immutable author input.
       dimensions.width = 0;
 
-      return { score: result.score, scale: config.scale, width: dimensions.width };
+      return { score: observation.score, scale: config.scale, width: dimensions.width };
     },
-    viz: ({ result }) => {
-      type VizResultMatchesRun = Expect<IsEqual<typeof result.score, number>>;
+    viz: ({ observation }) => {
+      type VizObservationMatchesRun = Expect<IsEqual<typeof observation.score, number>>;
       return [];
     },
   }
 );
 
-type InferredResult = Awaited<ReturnType<(typeof FacetedStep)["run"]>>;
-export type StepRunScoreIsPreserved = Expect<IsEqual<InferredResult["score"], number>>;
+type InferredObservation = Awaited<ReturnType<(typeof FacetedStep)["run"]>>;
+export type StepRunScoreIsPreserved = Expect<IsEqual<InferredObservation["score"], number>>;
 export type StepRunNestedStateIsPreserved = Expect<
-  IsEqual<InferredResult["nested"]["ready"], boolean>
+  IsEqual<InferredObservation["nested"]["ready"], boolean>
 >;
 export type StepRunSamplesArePreserved = Expect<
-  InferredResult["samples"] extends Float32Array ? true : false
+  InferredObservation["samples"] extends Float32Array ? true : false
 >;
 
 const AsyncFacetedStep = createStep(
@@ -58,14 +60,14 @@ const AsyncFacetedStep = createStep(
   }),
   {
     run: async () => ({ score: 3 }),
-    metrics: ({ result }) => {
-      type AsyncResultIsAwaited = Expect<IsEqual<typeof result.score, number>>;
-      return { score: result.score };
+    metrics: ({ observation }) => {
+      type AsyncObservationIsAwaited = Expect<IsEqual<typeof observation.score, number>>;
+      return { score: observation.score };
     },
   }
 );
 
-export type AsyncStepRunResultIsPreserved = Expect<
+export type AsyncStepRunObservationIsPreserved = Expect<
   IsEqual<Awaited<ReturnType<(typeof AsyncFacetedStep)["run"]>>, { score: number }>
 >;
 

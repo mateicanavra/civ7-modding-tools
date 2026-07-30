@@ -21,7 +21,6 @@ import {
   captureCurrentRiverSurface,
   deriveRiverProjectionFromCurrentSurface,
 } from "./current-map-surface.js";
-import { ENGINE_EFFECT_TAGS } from "./effects.js";
 import {
   type Civ7ResourceAgePolicyRuntime,
   queryCiv7ResourceRequirementForAge,
@@ -98,7 +97,6 @@ import { VoronoiUtils as CivVoronoiUtils } from "/base-standard/scripts/voronoi-
 export class Civ7Adapter implements EngineAdapter {
   readonly width: number;
   readonly height: number;
-  private readonly effectEvidence = new Set<string>();
 
   constructor(width: number, height: number) {
     this.width = width;
@@ -122,10 +120,6 @@ export class Civ7Adapter implements EngineAdapter {
     sink.log(`[warn] ${message}`);
   }
 
-  private recordEffect(effectId: string): void {
-    this.effectEvidence.add(effectId);
-  }
-
   private countPlacedResources(): number {
     const noResource = this.NO_RESOURCE | 0;
     let count = 0;
@@ -136,46 +130,6 @@ export class Civ7Adapter implements EngineAdapter {
       }
     }
     return count;
-  }
-
-  verifyEffect(effectId: string): boolean {
-    if (effectId === "effect:engine.landmassApplied") {
-      let hasLand = false;
-      let hasWater = false;
-      const { width, height } = this;
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          if (this.isWater(x, y)) hasWater = true;
-          else hasLand = true;
-          if (hasLand && hasWater) return true;
-        }
-      }
-      return false;
-    }
-
-    if (effectId === "effect:engine.coastlinesApplied") {
-      const coastTerrain = this.getTerrainTypeIndex("TERRAIN_COAST");
-      if (coastTerrain < 0) return false;
-      const { width, height } = this;
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          if (this.getTerrainType(x, y) === coastTerrain) return true;
-        }
-      }
-      return false;
-    }
-
-    if (effectId === "effect:engine.riversModeled") {
-      const { width, height } = this;
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          if (this.isAdjacentToRivers(x, y, 1)) return true;
-        }
-      }
-      return false;
-    }
-
-    return this.effectEvidence.has(effectId);
   }
 
   // === MAP INIT / MAP INFO ===
@@ -361,7 +315,6 @@ export class Civ7Adapter implements EngineAdapter {
 
   setFeatureType(x: number, y: number, featureData: FeatureData): void {
     TerrainBuilder.setFeatureType(x, y, featureData);
-    this.recordEffect(ENGINE_EFFECT_TAGS.featuresApplied);
   }
 
   canHaveFeature(x: number, y: number, featureType: number): boolean {
@@ -728,7 +681,7 @@ export class Civ7Adapter implements EngineAdapter {
   readRiverProjection(
     width: number,
     height: number,
-    plannedNavigableRiverMask: Uint8Array
+    plannedNavigableRiverMask: ArrayLike<number>
   ): RiverProjectionResult {
     if (width !== this.width || height !== this.height) {
       throw new Error(
@@ -876,7 +829,6 @@ export class Civ7Adapter implements EngineAdapter {
 
   designateBiomes(width: number, height: number): void {
     civ7DesignateBiomes(width, height);
-    this.recordEffect(ENGINE_EFFECT_TAGS.biomesApplied);
   }
 
   getBiomeGlobal(name: string): number {
@@ -898,7 +850,6 @@ export class Civ7Adapter implements EngineAdapter {
 
   setBiomeType(x: number, y: number, biomeId: number): void {
     TerrainBuilder.setBiomeType(x, y, biomeId);
-    this.recordEffect(ENGINE_EFFECT_TAGS.biomesApplied);
   }
 
   getBiomeType(x: number, y: number): number {
@@ -909,7 +860,6 @@ export class Civ7Adapter implements EngineAdapter {
 
   addFeatures(width: number, height: number): void {
     civ7AddFeatures(width, height);
-    this.recordEffect(ENGINE_EFFECT_TAGS.featuresApplied);
   }
 
   getFeatureTypeIndex(name: string): number {

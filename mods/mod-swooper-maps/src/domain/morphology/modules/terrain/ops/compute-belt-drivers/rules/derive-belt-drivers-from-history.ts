@@ -2,34 +2,35 @@ import { collectMaskComponentsOddQ, forEachHexNeighborOddQ } from "@swooper/mapg
 import { quantizeU8 } from "@swooper/mapgen-core/lib/math";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 
-type TectonicHistorySourceTiles = Readonly<{
-  eraCount: number;
-  perEra: ReadonlyArray<
-    Readonly<{
-      boundaryType: Uint8Array;
-      upliftPotential: Uint8Array;
-      collisionPotential: Uint8Array;
-      subductionPotential: Uint8Array;
-      riftPotential: Uint8Array;
-      shearStress: Uint8Array;
-    }>
+type TectonicHistorySourceTiles = {
+  readonly perEra: Readonly<
+    ReadonlyArray<
+      Readonly<{
+        readonly boundaryType: ArrayLike<number>;
+        readonly upliftPotential: ArrayLike<number>;
+        readonly collisionPotential: ArrayLike<number>;
+        readonly subductionPotential: ArrayLike<number>;
+        readonly riftPotential: ArrayLike<number>;
+        readonly shearStress: ArrayLike<number>;
+      }>
+    >
   >;
-  rollups: Readonly<{
-    upliftTotal: Uint8Array;
-    collisionTotal: Uint8Array;
-    subductionTotal: Uint8Array;
-    upliftRecentFraction: Uint8Array;
-    collisionRecentFraction: Uint8Array;
-    subductionRecentFraction: Uint8Array;
-    lastActiveEra: Uint8Array;
+  readonly rollups: Readonly<{
+    readonly upliftTotal: ArrayLike<number>;
+    readonly collisionTotal: ArrayLike<number>;
+    readonly subductionTotal: ArrayLike<number>;
+    readonly upliftRecentFraction: ArrayLike<number>;
+    readonly collisionRecentFraction: ArrayLike<number>;
+    readonly subductionRecentFraction: ArrayLike<number>;
+    readonly lastActiveEra: ArrayLike<number>;
   }>;
-}>;
+};
 
-type TectonicProvenanceSourceTiles = Readonly<{
-  originEra: Uint8Array;
-  originPlateId: Int16Array;
-  lastBoundaryType: Uint8Array;
-}>;
+type TectonicProvenanceSourceTiles = {
+  readonly originEra: ArrayLike<number>;
+  readonly originPlateId: ArrayLike<number>;
+  readonly lastBoundaryType: ArrayLike<number>;
+};
 
 type BeltComponentSummary = {
   id: number;
@@ -95,20 +96,6 @@ const GAUSSIAN_EXP_COEFF = -0.5;
 // Plateau seeding: allow a small, deterministic number of additional seeds for flat maxima
 // so large constant-intensity belts do not collapse to a single source.
 const PLATEAU_EXTRA_SEED_STRIDE = 32;
-
-function requireU8(label: string, value: unknown, size: number): Uint8Array {
-  if (!(value instanceof Uint8Array) || value.length !== size) {
-    throw new Error(`[compute-belt-drivers] ${label} must be a Uint8Array(${size}).`);
-  }
-  return value;
-}
-
-function requireI16(label: string, value: unknown, size: number): Int16Array {
-  if (!(value instanceof Int16Array) || value.length !== size) {
-    throw new Error(`[compute-belt-drivers] ${label} must be an Int16Array(${size}).`);
-  }
-  return value;
-}
 
 function selectQuantileThreshold(values: number[], targetCount: number): number {
   if (values.length === 0) return Infinity;
@@ -210,8 +197,8 @@ function filterShortComponents(input: {
   upliftBlend: Float32Array;
   widthScale: Float32Array;
   seedAge: Uint8Array;
-  originEra: Uint8Array;
-  originPlateId: Int16Array;
+  originEra: ArrayLike<number>;
+  originPlateId: ArrayLike<number>;
   maxAge: number;
   nextComponentId: number;
 }): { mask: Uint8Array; components: BeltComponentSummary[]; nextComponentId: number } {
@@ -265,18 +252,17 @@ function filterShortComponents(input: {
  *
  * Recent activity selects deterministic boundary spines; provenance supplies regime and age;
  * Gaussian diffusion then carries influence outward without turning stable interiors into belts.
- * Every source field must be a grid-sized typed array, and malformed history is rejected before
- * any output is derived.
+ * Source fields arrive admitted by the operation boundary, so this rule can focus solely on the
+ * causal history-to-belt projection.
  *
  * @param input - Map dimensions plus per-era tectonic history and tile provenance.
  * @returns Grid-aligned belt signals, distances, nearest seeds, and component summaries.
- * @throws When required history or provenance fields are absent or have the wrong typed-array shape.
  */
 export function deriveBeltDriversFromHistory(input: {
-  width: number;
-  height: number;
-  historyTiles: TectonicHistorySourceTiles;
-  provenanceTiles: TectonicProvenanceSourceTiles;
+  readonly width: number;
+  readonly height: number;
+  readonly historyTiles: Readonly<TectonicHistorySourceTiles>;
+  readonly provenanceTiles: Readonly<TectonicProvenanceSourceTiles>;
 }): BeltDriverOutputs {
   const width = input.width;
   const height = input.height;
@@ -284,89 +270,19 @@ export function deriveBeltDriversFromHistory(input: {
   const historyTiles = input.historyTiles;
   const provenanceTiles = input.provenanceTiles;
 
-  const eraCount = Math.max(1, historyTiles.eraCount | 0);
-  if (!Array.isArray(historyTiles.perEra) || historyTiles.perEra.length < eraCount) {
-    throw new Error(
-      `[compute-belt-drivers] historyTiles.perEra must contain ${eraCount} era rows.`
-    );
-  }
-  const perEra = historyTiles.perEra.map((era, eraIndex) => ({
-    boundaryType: requireU8(
-      `historyTiles.perEra[${eraIndex}].boundaryType`,
-      era.boundaryType,
-      size
-    ),
-    upliftPotential: requireU8(
-      `historyTiles.perEra[${eraIndex}].upliftPotential`,
-      era.upliftPotential,
-      size
-    ),
-    collisionPotential: requireU8(
-      `historyTiles.perEra[${eraIndex}].collisionPotential`,
-      era.collisionPotential,
-      size
-    ),
-    subductionPotential: requireU8(
-      `historyTiles.perEra[${eraIndex}].subductionPotential`,
-      era.subductionPotential,
-      size
-    ),
-    riftPotential: requireU8(
-      `historyTiles.perEra[${eraIndex}].riftPotential`,
-      era.riftPotential,
-      size
-    ),
-    shearStress: requireU8(`historyTiles.perEra[${eraIndex}].shearStress`, era.shearStress, size),
-  }));
+  const perEra = historyTiles.perEra;
+  const eraCount = perEra.length;
   const rollups = historyTiles.rollups;
-  if (!rollups) {
-    throw new Error("[compute-belt-drivers] historyTiles.rollups is required.");
-  }
-  if (!provenanceTiles) {
-    throw new Error("[compute-belt-drivers] provenanceTiles is required.");
-  }
-  const upliftTotal = requireU8("historyTiles.rollups.upliftTotal", rollups.upliftTotal, size);
-  const collisionTotal = requireU8(
-    "historyTiles.rollups.collisionTotal",
-    rollups.collisionTotal,
-    size
-  );
-  const subductionTotal = requireU8(
-    "historyTiles.rollups.subductionTotal",
-    rollups.subductionTotal,
-    size
-  );
-  const upliftRecentFraction = requireU8(
-    "historyTiles.rollups.upliftRecentFraction",
-    rollups.upliftRecentFraction,
-    size
-  );
-  const collisionRecentFraction = requireU8(
-    "historyTiles.rollups.collisionRecentFraction",
-    rollups.collisionRecentFraction,
-    size
-  );
-  const subductionRecentFraction = requireU8(
-    "historyTiles.rollups.subductionRecentFraction",
-    rollups.subductionRecentFraction,
-    size
-  );
-  const lastActiveEra = requireU8(
-    "historyTiles.rollups.lastActiveEra",
-    rollups.lastActiveEra,
-    size
-  );
-  const originEra = requireU8("provenanceTiles.originEra", provenanceTiles.originEra, size);
-  const originPlateId = requireI16(
-    "provenanceTiles.originPlateId",
-    provenanceTiles.originPlateId,
-    size
-  );
-  const lastBoundaryType = requireU8(
-    "provenanceTiles.lastBoundaryType",
-    provenanceTiles.lastBoundaryType,
-    size
-  );
+  const upliftTotal = rollups.upliftTotal;
+  const collisionTotal = rollups.collisionTotal;
+  const subductionTotal = rollups.subductionTotal;
+  const upliftRecentFraction = rollups.upliftRecentFraction;
+  const collisionRecentFraction = rollups.collisionRecentFraction;
+  const subductionRecentFraction = rollups.subductionRecentFraction;
+  const lastActiveEra = rollups.lastActiveEra;
+  const originEra = provenanceTiles.originEra;
+  const originPlateId = provenanceTiles.originPlateId;
+  const lastBoundaryType = provenanceTiles.lastBoundaryType;
 
   const baseWeights = new Float32Array(eraCount);
   for (let e = 0; e < eraCount; e++) {

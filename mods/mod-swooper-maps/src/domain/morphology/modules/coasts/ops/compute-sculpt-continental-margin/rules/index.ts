@@ -49,20 +49,6 @@ export type Relief = {
   elevationScale: number;
 };
 
-/** Ensures the single-sourced relief datums remain finite before profile evaluation. */
-export function assertFiniteReliefDatums(relief: Relief): void {
-  const { oceanicHeight, continentalHeight, elevationScale } = relief;
-  if (
-    !Number.isFinite(oceanicHeight) ||
-    !Number.isFinite(continentalHeight) ||
-    !Number.isFinite(elevationScale)
-  ) {
-    throw new Error(
-      "[SculptContinentalMargin] Relief datums (oceanicHeight/continentalHeight/elevationScale) must be finite numbers."
-    );
-  }
-}
-
 /**
  * Computes the physical apron LENGTH SCALE (tiles) for a margin seed tile, as a multiplicative
  * posture on the base length:

@@ -20,7 +20,10 @@ const hydromorphicStrategy = createStrategy(Contract, StrategyDefinition, {
     const elevation = input.elevation;
     const discharge = input.discharge;
     const sinkMask = input.sinkMask;
-    const riverMask = Uint8Array.from(riverClass, (value) => (isAnyRiverClass(value) ? 1 : 0));
+    const riverMask = new Uint8Array(riverClass.length);
+    for (let index = 0; index < riverClass.length; index++) {
+      riverMask[index] = isAnyRiverClass(riverClass[index]) ? 1 : 0;
+    }
 
     const nearRiverMask = computeRiverAdjacencyMask({
       width,
@@ -62,7 +65,7 @@ const hydromorphicStrategy = createStrategy(Contract, StrategyDefinition, {
     });
 
     return {
-      navigableRiverMask,
+      navigableRiverMask: new Uint8Array(navigableRiverMask),
       nearRiverMask,
       isolatedRiverMask,
       coastalLandMask,

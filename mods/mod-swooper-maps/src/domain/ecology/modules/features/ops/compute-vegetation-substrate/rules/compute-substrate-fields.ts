@@ -4,17 +4,17 @@ import { clamp01 } from "@swooper/mapgen-core";
  * Computes normalized energy, water, stress, biomass, and fertility fields.
  */
 export function computeVegetationSubstrateFields(args: {
-  size: number;
-  landMask: Uint8Array;
-  effectiveMoisture: Float32Array;
-  surfaceTemperature: Float32Array;
-  aridityIndex: Float32Array;
-  freezeIndex: Float32Array;
-  vegetationDensity: Float32Array;
-  fertility: Float32Array;
-  moistureNormalization: number;
-  temperatureMinC: number;
-  temperatureMaxC: number;
+  readonly size: number;
+  readonly landMask: ArrayLike<number>;
+  readonly effectiveMoisture: ArrayLike<number>;
+  readonly surfaceTemperature: ArrayLike<number>;
+  readonly aridityIndex: ArrayLike<number>;
+  readonly freezeIndex: ArrayLike<number>;
+  readonly vegetationDensity: ArrayLike<number>;
+  readonly fertility: ArrayLike<number>;
+  readonly moistureNormalization: number;
+  readonly temperatureMinC: number;
+  readonly temperatureMaxC: number;
 }): Readonly<{
   energy01: Float32Array;
   water01: Float32Array;

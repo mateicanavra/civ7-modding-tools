@@ -9,49 +9,52 @@ import relativeMotionRegimesDefinition from "./strategies/relative-motion-regime
 const ComputeTectonicSegmentsContract = defineOp({
   kind: "compute",
   id: "foundation/compute-tectonic-segments",
-  input: Type.Object(
-    {
-      mesh: Type.Object(
-        {
-          cellCount: Type.Integer({ minimum: 1 }),
-          wrapWidth: Type.Number(),
-          siteX: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
-          siteY: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
-          neighborsOffsets: TypedArraySchemas.i32({
-            cardinality: { factors: ["mesh.cellCount"], addend: 1 },
-          }),
-          neighbors: TypedArraySchemas.i32({ cardinality: "constructor-only" }),
-        },
-        { additionalProperties: false }
-      ),
-      crust: Type.Object(
-        {
-          strength: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
-          type: TypedArraySchemas.u8({ cardinality: ["mesh.cellCount"] }),
-        },
-        { additionalProperties: false }
-      ),
-      plateGraph: Type.Object(
-        {
-          cellToPlate: TypedArraySchemas.i16({ cardinality: ["mesh.cellCount"] }),
-          plates: Type.Immutable(Type.Array(PlateSchema)),
-        },
-        { additionalProperties: false }
-      ),
-      plateMotion: Type.Object(
-        {
-          cellCount: Type.Integer({ minimum: 1 }),
-          plateCount: Type.Integer({ minimum: 1 }),
-          plateCenterX: TypedArraySchemas.f32({ cardinality: ["plateMotion.plateCount"] }),
-          plateCenterY: TypedArraySchemas.f32({ cardinality: ["plateMotion.plateCount"] }),
-          plateVelocityX: TypedArraySchemas.f32({ cardinality: ["plateMotion.plateCount"] }),
-          plateVelocityY: TypedArraySchemas.f32({ cardinality: ["plateMotion.plateCount"] }),
-          plateOmega: TypedArraySchemas.f32({ cardinality: ["plateMotion.plateCount"] }),
-        },
-        { additionalProperties: false }
-      ),
-    },
-    { additionalProperties: false }
+  input: Type.Refine(
+    Type.Object(
+      {
+        mesh: Type.Object(
+          {
+            cellCount: Type.Integer({ minimum: 1 }),
+            wrapWidth: Type.Number(),
+            siteX: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
+            siteY: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
+            neighborsOffsets: TypedArraySchemas.i32({
+              cardinality: { factors: ["mesh.cellCount"], addend: 1 },
+            }),
+            neighbors: TypedArraySchemas.i32({ cardinality: "constructor-only" }),
+          },
+          { additionalProperties: false }
+        ),
+        crust: Type.Object(
+          {
+            strength: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
+            type: TypedArraySchemas.u8({ cardinality: ["mesh.cellCount"] }),
+          },
+          { additionalProperties: false }
+        ),
+        plateGraph: Type.Object(
+          {
+            cellToPlate: TypedArraySchemas.i16({ cardinality: ["mesh.cellCount"] }),
+            plates: Type.Immutable(Type.Array(PlateSchema)),
+          },
+          { additionalProperties: false }
+        ),
+        plateMotion: Type.Object(
+          {
+            plateCount: Type.Integer({ minimum: 1 }),
+            plateCenterX: TypedArraySchemas.f32({ cardinality: ["plateMotion.plateCount"] }),
+            plateCenterY: TypedArraySchemas.f32({ cardinality: ["plateMotion.plateCount"] }),
+            plateVelocityX: TypedArraySchemas.f32({ cardinality: ["plateMotion.plateCount"] }),
+            plateVelocityY: TypedArraySchemas.f32({ cardinality: ["plateMotion.plateCount"] }),
+            plateOmega: TypedArraySchemas.f32({ cardinality: ["plateMotion.plateCount"] }),
+          },
+          { additionalProperties: false }
+        ),
+      },
+      { additionalProperties: false }
+    ),
+    (input) => input.plateMotion.plateCount === input.plateGraph.plates.length,
+    () => "Plate-motion plate count must match the admitted plate graph."
   ),
   output: Type.Object(
     {

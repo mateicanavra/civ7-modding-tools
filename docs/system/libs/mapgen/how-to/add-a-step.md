@@ -11,12 +11,12 @@
 
 ## Purpose
 
-Add a new **step** to a recipe stage (target posture: step contracts + dependency tags + artifacts; no hidden coupling).
+Add a new **step** to a recipe stage using exact artifacts and only the completion edges it earns.
 
 This how-to is **recipe-level** (steps are authored/registered in a recipe). It routes to:
 
 - Step authoring contract reference: [`docs/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md`](/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md)
-- Tag registry reference: [`docs/system/libs/mapgen/reference/TAGS.md`](/system/libs/mapgen/reference/TAGS.md)
+- Dependency reference: [`docs/system/libs/mapgen/reference/DEPENDENCIES.md`](/system/libs/mapgen/reference/DEPENDENCIES.md)
 - Artifact reference: [`docs/system/libs/mapgen/reference/ARTIFACTS.md`](/system/libs/mapgen/reference/ARTIFACTS.md)
 - Import policy: [`docs/system/libs/mapgen/policies/IMPORTS.md`](/system/libs/mapgen/policies/IMPORTS.md)
 
@@ -30,11 +30,11 @@ This how-to is **recipe-level** (steps are authored/registered in a recipe). It 
 ### 1) Decide the contract surface (before writing code)
 
 - Pick a stable step id. Recipe composition assigns the exact `stageId`; the step must not duplicate a coarse phase label.
-- Identify required dependency tags (what must exist before your step can run).
-- Identify provided dependency tags (what your step guarantees after it runs).
+- Identify required dependencies (what must exist before your step can run).
+- Identify provided dependencies (what your step guarantees after it runs).
 - Identify the exact immutable domain-module artifacts the step reads and the
   new product vintages it publishes once. Current engine state and completion
-  effects are not artifacts.
+  plan edges are not artifacts.
 
 ### 2) Define the step contract (`defineStep`)
 
@@ -43,8 +43,9 @@ This how-to is **recipe-level** (steps are authored/registered in a recipe). It 
   `viz.ts` only when the step attaches that visualization.
 - Export that leaf-owned step contract as `config`. Composition code may alias
   imported configs to avoid collisions; the leaf export itself is never renamed.
-- Use `defineStep({ id, description, requires, provides, artifacts, ops })`.
-- Wire **artifact requirements** (and any required ops) explicitly into the contract.
+- Use `defineStep({ id, description, requires, provides, ops })`.
+- Put exact artifact authorities and typed completion constants directly
+  in the sole `requires` and `provides` lists. Raw `artifact:*` strings are invalid.
 - Put the step's causal, reader-facing purpose in the optional first-class
   `description`. Core projects that one authority onto the final composed
   TypeBox schema for Stage and Studio consumers.
@@ -68,16 +69,15 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 export const config = defineStep({
   id: "geomorphology",
   description: "Evolves admitted terrain through the configured geomorphic cycle.",
-  requires: [],
-  provides: [],
-  artifacts: {
-    requires: [
-      morphologyTerrainArtifacts.baseTopography,
-      morphologyRoutingArtifacts.routing,
-      morphologyTerrainArtifacts.baseSubstrate,
-    ],
-    provides: [morphologyErosionArtifacts.erodedTopography, morphologyErosionArtifacts.substrate],
-  },
+  requires: [
+    morphologyTerrainArtifacts.baseTopography,
+    morphologyRoutingArtifacts.routing,
+    morphologyTerrainArtifacts.baseSubstrate,
+  ],
+  provides: [
+    morphologyErosionArtifacts.erodedTopography,
+    morphologyErosionArtifacts.substrate,
+  ],
   ops: {
     geomorphology: morphology.erosion.ops.computeGeomorphicCycle,
   },
@@ -97,25 +97,28 @@ Notes:
   that the step can actually execute, read, or publish.
 - Artifact definitions and catalogs live with the direct producing domain
   module. Do not add an `artifacts/` catalog to a recipe stage; a stable
-  artifact runtime namespace does not transfer catalog ownership to that stage.
+  artifact dependency name does not transfer catalog ownership to that stage.
 
-Representative example (dependency tags; excerpt; see full file in anchors):
+Representative example (artifact and completion dependencies; excerpt; see full file in anchors):
 
 ```ts
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import { artifacts as hydrologyHydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 
-import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
+import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
 
 /** Contract and compiled configuration boundary for Civ7 river projection. */
 export const config = defineStep({
   id: "plot-rivers",
-  requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
-  provides: [MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted],
-  artifacts: {
-    requires: [hydrologyHydrographyArtifacts.hydrography],
-    provides: [hydrologyHydrographyArtifacts.projectedNavigableRivers],
-  },
+  requires: [
+    STANDARD_COMPLETIONS.elevationBuilt,
+    STANDARD_COMPLETIONS.rainfallProjected,
+    hydrologyHydrographyArtifacts.hydrography,
+  ],
+  provides: [
+    STANDARD_COMPLETIONS.riversPlotted,
+    hydrologyHydrographyArtifacts.projectedNavigableRivers,
+  ],
   schema: Type.Object({
     endpointDischargePercentileMin: Type.Number({ minimum: 0, maximum: 1 }),
     targetMajorTileFraction: Type.Number({ minimum: 0, maximum: 1 }),
@@ -161,9 +164,9 @@ export const GeomorphologyStep = createStep(config, {
     return stepConfig;
   },
   run: (context, stepConfig, ops, deps) => {
-    const topography = deps.artifacts.baseTopography.read(context);
-    const routing = deps.artifacts.routing.read(context);
-    const substrate = deps.artifacts.baseSubstrate.read(context);
+    const topography = deps.artifacts.baseTopography.read();
+    const routing = deps.artifacts.routing.read();
+    const substrate = deps.artifacts.baseSubstrate.read();
 
     const result = ops.geomorphology(
       {
@@ -180,18 +183,18 @@ export const GeomorphologyStep = createStep(config, {
       stepConfig.geomorphology
     );
 
-    deps.artifacts.erodedTopography.publish(context, result.topography);
-    deps.artifacts.substrate.publish(context, result.substrate);
+    deps.artifacts.erodedTopography.publish(result.topography);
+    deps.artifacts.substrate.publish(result.substrate);
     context.trace.event(() => ({ kind: "morphology.geomorphology.summary" }));
     return result;
   },
-  viz: ({ result, dimensions }) => [
+  viz: ({ observation, dimensions }) => [
     {
       kind: "grid",
       dataTypeKey: "morphology.geomorphology.elevationDelta",
       spaceId: "tile.hexOddQ",
       dims: dimensions,
-      field: { format: "f32", values: result.deltas.elevationDelta },
+      field: { format: "f32", values: observation.deltas.elevationDelta },
       meta: defineStandardVizMeta(
         "morphology.geomorphology.elevationDelta",
         "field.signed",
@@ -241,11 +244,11 @@ export default createStage({
 } as const);
 ```
 
-### 5) Update dependency tags if needed
+### 5) Add a completion only when needed
 
-If your step introduces a new required/provided dependency tag:
+If a later step consumes a payload-free external-state transaction:
 
-- Define it and register it in the tag registry (see: [`docs/system/libs/mapgen/how-to/add-a-new-tag.md`](/system/libs/mapgen/how-to/add-a-new-tag.md)).
+- Add one typed completion constant and select it directly (see: [`docs/system/libs/mapgen/how-to/add-a-completion.md`](/system/libs/mapgen/how-to/add-a-completion.md)).
 
 ## Verification
 
@@ -262,7 +265,7 @@ If your step introduces a new required/provided dependency tag:
 ## Footguns
 
 - **Forgetting to register the step**: writing a contract and implementation does nothing unless the stage/recipe composes it.
-- **Missing dependency tags**: the executor will fail early with `MissingDependencyError`; fix by adding tags/provides or adjusting ordering.
+- **Missing dependencies**: selected-plan compilation rejects a consumer without one earlier provider.
 - **Mutating consumed artifacts**: consumers must copy before mutation and publish a new, explicitly named vintage.
 - **Creating a stage artifact catalog**: artifacts are immutable products of
   their direct domain module; recipe stages only select and publish those
@@ -277,6 +280,6 @@ If your step introduces a new required/provided dependency tag:
 - Step implementation wrapper: `packages/mapgen-core/src/authoring/step/create.ts`
 - Example step config: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/config.ts`
 - Example step implementation: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/step.ts`
-- Example step config (dependency tags): `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/rivers/steps/plot-rivers/config.ts`
+- Example step config (completion): `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/rivers/steps/plot-rivers/config.ts`
 - Example stage wiring: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/index.ts`
 - Pipeline executor dependency gating: `packages/mapgen-core/src/engine/PipelineExecutor.ts`

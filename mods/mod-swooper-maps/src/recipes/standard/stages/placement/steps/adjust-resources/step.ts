@@ -9,27 +9,15 @@ import { projectResourceSupportViz } from "./viz.js";
  */
 export const AdjustResourcesStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const plan = deps.artifacts.resourcePlan.read(context);
-    const demandPlan = deps.artifacts.resourceDemandPlan.read(context);
-    const startAssignment = deps.artifacts.startAssignment.read(context);
-    const regionSlots = deps.artifacts.landmassRegionSlotByTile.read(context);
-    const landmasses = deps.artifacts.landmasses.read(context);
+    const plan = deps.artifacts.resourcePlan.read();
+    const demandPlan = deps.artifacts.resourceDemandPlan.read();
+    const startAssignment = deps.artifacts.startAssignment.read();
+    const regionSlots = deps.artifacts.landmassRegionSlotByTile.read();
+    const landmasses = deps.artifacts.landmasses.read();
 
     const supportInput: Parameters<typeof ops.support>[0] = {
-      seed: deriveStepSeed(deps.initialSetup.gameSeed, "resources:adjustResourceSupport"),
-      plan: {
-        ...plan,
-        intents: plan.intents.map((intent) => ({ ...intent })),
-        perType: plan.perType.map((row) => ({
-          ...row,
-          shortfalls: row.shortfalls.map((shortfall) => ({ ...shortfall })),
-        })),
-        regionMinimums: plan.regionMinimums.map((row) => ({ ...row })),
-        settings: {
-          ...plan.settings,
-          affinityRules: plan.settings.affinityRules.map((rule) => ({ ...rule })),
-        },
-      },
+      seed: deriveStepSeed(context.initialSetup.gameSeed, "resources:adjustResourceSupport"),
+      plan,
       eligibility: demandPlan.candidates.admitted.map((candidate) => ({
         resourceType: candidate.source.resourceType,
         habitatMask: candidate.source.habitatMask,
@@ -41,9 +29,9 @@ export const AdjustResourcesStep = createStep(config, {
         playerId: seat.playerId,
         plotIndex: seat.plotIndex,
       })),
-      landmassIdByTile: landmasses.landmassIdByTile as Int32Array,
+      landmassIdByTile: landmasses.landmassIdByTile,
       landmassTileCounts: landmasses.landmasses.map((landmass) => landmass.tileCount),
-      regionSlotByTile: regionSlots.slotByTile as Uint8Array,
+      regionSlotByTile: regionSlots.slotByTile,
     };
     const adjusted = ops.support(supportInput, stepConfig.support);
 
@@ -64,7 +52,7 @@ export const AdjustResourcesStep = createStep(config, {
       }));
     }
 
-    deps.artifacts.resourcePlanAdjusted.publish(context, adjusted);
+    deps.artifacts.resourcePlanAdjusted.publish(adjusted);
 
     context.trace.event(() => ({
       type: "placement.resources.supportAdjust",
@@ -82,5 +70,5 @@ export const AdjustResourcesStep = createStep(config, {
       supportRadiusTiles: adjusted.settings.supportRadiusTiles,
     };
   },
-  viz: ({ result, dimensions }) => projectResourceSupportViz({ ...result, dimensions }),
+  viz: ({ observation, dimensions }) => projectResourceSupportViz({ ...observation, dimensions }),
 });

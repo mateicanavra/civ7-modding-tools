@@ -13,7 +13,7 @@ Do not start structural implementation until these are explicit:
 | Owner | Owning package/mod/app/doc boundary |
 | Forbidden owners | Boundaries that must not receive the concern |
 | Target shape | Files, exports, imports, generated outputs, and docs to change |
-| Normalization role | Whether each changed surface is authoring, truth, projection, product/effect, presentation, or OpenSpec change management |
+| Normalization role | Whether each changed surface is authoring, truth, projection, gameplay product, presentation, or OpenSpec change management |
 | Write set | Paths this slice may touch |
 | Consumer impact | SDK/API/CLI/mod/docs consumers affected |
 | Verification | Focused commands and evidence labels matching the claim |

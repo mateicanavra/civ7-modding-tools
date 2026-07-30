@@ -1,8 +1,8 @@
 import { createPortableJsonSnapshot } from "@mapgen/lib/json/portable-snapshot.js";
 import type { TSchema } from "typebox";
 import { Value } from "typebox/value";
-import type { DomainOpCompileAny, OpsById } from "../authoring/operation/bindings.js";
-import { bindCompileOps, OpBindingError } from "../authoring/operation/bindings.js";
+import type { OperationRegistry } from "../authoring/operation/bindings.js";
+import { bindOperations, OpBindingError } from "../authoring/operation/bindings.js";
 import type { StepOpsDecl } from "../authoring/step/ops.js";
 import type { CompileErrorItem } from "./errors.js";
 
@@ -10,6 +10,10 @@ export { createPortableJsonSnapshot } from "@mapgen/lib/json/portable-snapshot.j
 export type { CompileErrorItem } from "./errors.js";
 
 export type StepModuleAny = Readonly<{ contract?: Readonly<{ ops?: StepOpsDecl }> }>;
+
+type ErasedOperationNormalizer = (
+  selection: Readonly<{ strategy: string; config: unknown }>
+) => unknown;
 
 function joinPath(basePath: string, rawPath: string): string {
   if (!rawPath) return basePath || "/";
@@ -105,14 +109,14 @@ export function validateSchemaValue<T>(
  *
  * @param step - Step contract whose operation declarations define the expected envelopes.
  * @param stepConfig - Strictly validated step configuration to normalize.
- * @param compileOpsById - Canonical executable operations available to recipe compilation.
+ * @param operations - Canonical executable operations available to recipe compilation.
  * @param path - JSON-pointer root used for operation-specific diagnostics.
  * @returns The normalized step configuration and any binding or normalization failures.
  */
 export function normalizeOpsTopLevel(
   step: StepModuleAny,
   stepConfig: Record<string, unknown>,
-  compileOpsById: OpsById<DomainOpCompileAny>,
+  operations: OperationRegistry,
   path: string
 ): { value: Record<string, unknown>; errors: CompileErrorItem[] } {
   const errors: CompileErrorItem[] = [];
@@ -120,9 +124,9 @@ export function normalizeOpsTopLevel(
   const opsDecl = step.contract?.ops;
   if (!opsDecl) return { value: stepConfig, errors };
 
-  let compileOps: Record<string, DomainOpCompileAny>;
+  let boundOperations: OperationRegistry;
   try {
-    compileOps = bindCompileOps(opsDecl, compileOpsById) as Record<string, DomainOpCompileAny>;
+    boundOperations = bindOperations(opsDecl, operations);
   } catch (err) {
     if (err instanceof OpBindingError) {
       errors.push({
@@ -136,43 +140,32 @@ export function normalizeOpsTopLevel(
       errors.push({
         code: "op.missing",
         path,
-        message: err instanceof Error ? err.message : "bindCompileOps failed",
+        message: err instanceof Error ? err.message : "bindOperations failed",
       });
     }
     return { value: stepConfig, errors };
   }
 
   let value: Record<string, unknown> = stepConfig;
-  for (const opKey of Object.keys(opsDecl)) {
-    const contract = opsDecl[opKey]!;
-    const op = compileOps[opKey];
-    if (!op) {
-      errors.push({
-        code: "op.missing",
-        path: `${path}/${opKey}`,
-        message: `Missing op implementation for key "${opKey}"`,
-        opKey,
-        opId: contract.id,
-      });
-      continue;
-    }
-
+  for (const [opKey, op] of Object.entries(boundOperations)) {
     const envelope = value[opKey];
     if (envelope === undefined) continue;
 
-    if (typeof op.normalize === "function") {
-      try {
-        const next = op.normalize(envelope as Readonly<{ strategy: string; config: unknown }>);
-        value = { ...value, [opKey]: next };
-      } catch (err) {
-        errors.push({
-          code: "op.normalize.failed",
-          path: `${path}/${opKey}`,
-          message: err instanceof Error ? err.message : "op.normalize failed",
-          opKey,
-          opId: op.id,
-        });
-      }
+    try {
+      // The operation envelope has already passed its exact contract schema. Generic compiler
+      // storage keeps erased callbacks non-invocable; this is the one boundary that restores the
+      // admitted normalizer shape.
+      const normalize = op.normalize as ErasedOperationNormalizer;
+      const next = normalize(envelope as Readonly<{ strategy: string; config: unknown }>);
+      value = { ...value, [opKey]: next };
+    } catch (err) {
+      errors.push({
+        code: "op.normalize.failed",
+        path: `${path}/${opKey}`,
+        message: err instanceof Error ? err.message : "op.normalize failed",
+        opKey,
+        opId: op.id,
+      });
     }
   }
 

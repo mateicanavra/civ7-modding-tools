@@ -12,7 +12,7 @@ export const PlaceDiscoveriesStep = createStep(config, {
     // Civ7's official generator gates discoveries away from major starts; feed it
     // the seated start plots (drop unseated -1 sentinels) exactly as the base
     // maps pass `startPositions` from assignStartPositions.
-    const startAssignment = deps.artifacts.startAssignment.read(context);
+    const startAssignment = deps.artifacts.startAssignment.read();
     const startPositions = startAssignment.positions.filter((plotIndex) => plotIndex >= 0);
     const polarMargin = Math.max(0, CIV7_BROWSER_TABLES_V0.mapGlobals.polarWaterRows | 0);
 
@@ -40,7 +40,7 @@ export const PlaceDiscoveriesStep = createStep(config, {
 
     return outcomes;
   },
-  metrics: ({ result }) => ({
-    "placement.discoveryGeneration": measureStandardDiscoveryPlacement(result.summary),
+  metrics: ({ observation }) => ({
+    "placement.discoveryGeneration": measureStandardDiscoveryPlacement(observation.summary),
   }),
 });

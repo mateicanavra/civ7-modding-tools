@@ -12,7 +12,7 @@
 Define the canonical, target-architecture-first documentation surface for MapGen’s **domain model**:
 - what each domain owns,
 - where it runs in the standard recipe,
-- what artifacts/tags it requires and provides,
+- what exact artifacts and earned completions it requires and provides,
 - and what is considered truth vs projection.
 
 This section is the intended “source of truth” for domain boundaries and contracts.
@@ -40,7 +40,7 @@ Legacy domain naming (mapping only; not target-canonical domains):
 Each domain page is structured as:
 
 - **Stages**: which standard recipe stages correspond to the domain boundary.
-- **Contract**: required/provided artifact vintages and execution-effect tags.
+- **Contract**: required/provided artifact vintages and earned transaction completions.
 - **Truth vs projection**: how to interpret outputs (simulation truth vs engine-facing projections).
 - **Ops surface**: which op contracts the domain exposes (used by steps and by config compilation).
 - **Ground truth anchors**: file paths + symbols you can use to verify the doc against code.

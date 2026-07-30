@@ -4,7 +4,7 @@ import { createMockAdapter } from "@civ7/adapter";
 import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
 import ecology from "@mapgen/domain/ecology/router";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
-import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
+import { readArtifact } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
   normalizeOperationSelectionForTest,
@@ -45,7 +45,7 @@ describe("ecology-features plan-floodplains step", () => {
         ...TEST_MAP_SIZE.dimensions,
         layers,
       });
-      const dependencies = buildStepTestDependencies(PlanFloodplainsStep);
+      const dependencies = buildStepTestDependencies(PlanFloodplainsStep, stepContext);
       PlanFloodplainsStep.run(
         stepContext,
         {
@@ -60,11 +60,11 @@ describe("ecology-features plan-floodplains step", () => {
             }
           ),
         },
-        ecology.features.ops.bind(PlanFloodplainsStep.contract.ops!).runtime,
+        ecology.features.ops.bind(PlanFloodplainsStep.contract.ops!),
         dependencies
       );
     });
-    const intents = readValidatedArtifact(context, featureArtifacts.floodplainIntents);
+    const intents = readArtifact(context, featureArtifacts.floodplainIntents);
 
     expect(intents).toEqual([
       {

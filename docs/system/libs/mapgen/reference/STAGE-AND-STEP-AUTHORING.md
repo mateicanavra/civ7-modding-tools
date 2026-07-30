@@ -23,11 +23,13 @@ A step contract defines:
 
 - `id` (kebab-case, stable)
 - optional `description` (the sole semantic description authority for the step)
-- `requires` / `provides` tags (validated)
-- optional `artifacts` requires/provides (preferred over mixing artifact tags into requires/provides)
+- `requires` / `provides`, the sole ordered dependency lists. Exact `Artifact`
+  authorities and typed completion id constants appear together; raw
+  `artifact:*` strings are invalid.
 - optional `engine` method keys (an exact occurrence-scoped adapter capability set)
-- optional recipe-owned `initialSetup` authority (grants immutable `deps.initialSetup` only to that
-  step and must match the recipe's exact authority)
+- optional recipe-owned `initialSetup` authority (types immutable
+  `context.initialSetup` for that step and must match the recipe's exact
+  authority; it is invocation context, not a dependency edge)
 - optional `ops` decl (op contracts used by the step, with schema-enveloped strategies)
 - optional additive `schema` for genuine step-local authored fields
 
@@ -46,7 +48,7 @@ restate bound operation config. Root-schema `description` is refused: author
 the step's purpose once through `description`, which Core projects onto the
 final composed schema consumed by Stage and Studio.
 
-Representative example (dependency tags + artifact requirements; excerpt; see full file in anchors):
+Representative example (completion + artifact requirements; excerpt; see full file in anchors):
 
 The `@mapgen/domain/*` alias is the current mod-local domain surface. Contract
 authors consume the pure root contract and the exact producing module's
@@ -60,7 +62,7 @@ import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morpho
 import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
+import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
 
 /** Contract and compiled configuration boundary for Civ7 river projection. */
 export const config = defineStep({
@@ -76,18 +78,19 @@ export const config = defineStep({
     "recalculateAreas",
     "readRiverProjection",
   ] as const,
-  requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
-  provides: [MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted],
-  artifacts: {
-    requires: [
-      hydrologyHydrographyArtifacts.hydrography,
-      hydrologyHydrographyArtifacts.lakePlan,
-      hydrologyHydrographyArtifacts.riverNetwork,
-      morphologyShelfArtifacts.shelf,
-      morphologyLandformsArtifacts.topography,
-    ],
-    provides: [hydrologyHydrographyArtifacts.projectedNavigableRivers],
-  },
+  requires: [
+    STANDARD_COMPLETIONS.elevationBuilt,
+    STANDARD_COMPLETIONS.rainfallProjected,
+    hydrologyHydrographyArtifacts.hydrography,
+    hydrologyHydrographyArtifacts.lakePlan,
+    hydrologyHydrographyArtifacts.riverNetwork,
+    morphologyShelfArtifacts.shelf,
+    morphologyLandformsArtifacts.topography,
+  ],
+  provides: [
+    STANDARD_COMPLETIONS.riversPlotted,
+    hydrologyHydrographyArtifacts.projectedNavigableRivers,
+  ],
   schema: Type.Object({
     endpointDischargePercentileMin: Type.Number({ minimum: 0, maximum: 1 }),
     targetMajorTileFraction: Type.Number({ minimum: 0, maximum: 1 }),
@@ -111,10 +114,16 @@ A step module pairs a step contract with an implementation:
 - optional `normalize(config, ctx)` hook (must be shape-preserving)
 - `run(context, config, ops, deps)` implementation
 
-`createStep` derives the provider runtime map from the artifacts already admitted by the step
-contract. Requirements and provisions select the same canonical artifact objects; implementations
-cannot declare a second provider or validator surface. Steps with no provided artifacts, an empty
-provides tuple, or requires-only artifact dependencies have no provider runtime map.
+`createStep` binds behavior only. `requires` and `provides` select the same canonical artifact
+objects used by their owning catalogs, so implementations cannot declare a second provider or validator surface. At each
+invocation, Core derives only the exact occurrence-bound `read()` and `publish(value)` capabilities
+declared by that step contract; there is no provider runtime registry, map, or cache.
+
+`context.setup` always exposes Core's physical `MapSetup`. A step declaring a
+recipe-owned `initialSetup` authority also receives the exact already-admitted
+recipe value as `context.initialSetup`. That declaration selects the invocation
+context type and preserves exact recipe compatibility; it does not add a
+provider, reader, or second admission transition to `deps`.
 
 The same contract binds `deps.engine` to only the declared adapter methods. Calls are
 context-first (`deps.engine.method(context, ...)`) and valid only during that exact step
@@ -130,7 +139,7 @@ import { config } from "./config.js";
 /** Projects admitted river evidence into Civ7 and captures engine readback. */
 export const PlotRiversStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const hydrography = deps.artifacts.hydrography.read(context);
+    const hydrography = deps.artifacts.hydrography.read();
     const projected = selectNavigableRiverTerrain(
       {
         width: context.setup.dimensions.width,
@@ -178,10 +187,10 @@ returns a JSON-safe DTO for tools such as MapGen Studio.
 Projection rules:
 
 - Stages are graph nodes.
-- Explicit `step.contract.artifacts.requires/provides` entries create artifact
+- Exact `Artifact` references in step `requires` and `provides` create artifact
   edges.
-- Step `requires/provides` tags remain metadata; they are not converted into
-  artifact edges.
+- Typed string completion dependencies in those same lists remain metadata;
+  they are not converted into artifact edges.
 - Same-stage artifact dependencies are retained as internal edges.
 - Recipe order remains the source of truth for stage and step order.
 

@@ -1,25 +1,27 @@
-import type { VizDims, VizProjection } from "@swooper/mapgen-viz";
+import type { VizDims, VizProjection, VizScalarSource } from "@swooper/mapgen-viz";
 import { defineStandardVizMeta } from "../../../../../viz.js";
 
 const GROUP_MAP_RIVERS = "Map / Rivers (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
+type Uint8VizValues = Extract<VizScalarSource, { format: "u8" }>["values"];
+type Float32VizValues = Extract<VizScalarSource, { format: "f32" }>["values"];
 
 /** Completed Hydrology intent and Civ7 river readback observed by the visualization facet. */
 export type PlotRiversVizEvidence = Readonly<{
-  riverClass: Uint8Array;
-  discharge: Float32Array;
+  riverClass: Uint8VizValues;
+  discharge: Float32VizValues;
   materialized: Readonly<{
-    riverMask: Uint8Array;
-    plannedMinorRiverMask: Uint8Array;
-    plannedMajorRiverMask: Uint8Array;
+    riverMask: Uint8VizValues;
+    plannedMinorRiverMask: Uint8VizValues;
+    plannedMajorRiverMask: Uint8VizValues;
   }>;
-  topographyLandMask: Uint8Array;
+  topographyLandMask: Uint8VizValues;
   engineEvidence: Readonly<{
     riverReadback: Readonly<{
-      terrainNavigableRiverMask: Uint8Array;
-      engineNavigableRiverMask: Uint8Array;
-      navigableRiverMismatchMask: Uint8Array;
-      engineMinorRiverMask: Uint8Array;
+      terrainNavigableRiverMask: Uint8VizValues;
+      engineNavigableRiverMask: Uint8VizValues;
+      navigableRiverMismatchMask: Uint8VizValues;
+      engineMinorRiverMask: Uint8VizValues;
     }>;
   }>;
 }>;
@@ -28,7 +30,7 @@ export type PlotRiversVizEvidence = Readonly<{
  * Projects completed river intent and readback evidence without touching Civ7.
  */
 export function buildPlotRiversVizProjections(
-  result: PlotRiversVizEvidence,
+  observation: PlotRiversVizEvidence,
   dimensions: VizDims
 ): readonly VizProjection[] {
   const projections: VizProjection[] = [
@@ -37,7 +39,7 @@ export function buildPlotRiversVizProjections(
       dataTypeKey: "map.rivers.riverClass",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.riverClass },
+      field: { format: "u8", values: observation.riverClass },
       meta: defineStandardVizMeta("map.rivers.riverClass", "category.distinct", {
         label: "River Class (Hydrology)",
         group: GROUP_MAP_RIVERS,
@@ -48,7 +50,7 @@ export function buildPlotRiversVizProjections(
       dataTypeKey: "map.rivers.discharge",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "f32", values: result.discharge },
+      field: { format: "f32", values: observation.discharge },
       meta: defineStandardVizMeta("map.rivers.discharge", "field.intensity", {
         label: "River Discharge (Hydrology)",
         group: GROUP_MAP_RIVERS,
@@ -56,14 +58,14 @@ export function buildPlotRiversVizProjections(
       }),
     },
   ];
-  const { riverReadback } = result.engineEvidence;
+  const { riverReadback } = observation.engineEvidence;
   projections.push(
     {
       kind: "grid",
       dataTypeKey: "map.rivers.projectedRiverMask",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.materialized.riverMask },
+      field: { format: "u8", values: observation.materialized.riverMask },
       meta: defineStandardVizMeta("map.rivers.projectedRiverMask", "category.distinct", {
         label: "Navigable River Mask (Projected)",
         group: GROUP_MAP_RIVERS,
@@ -75,7 +77,7 @@ export function buildPlotRiversVizProjections(
       dataTypeKey: "map.rivers.plannedMinorRiverMask",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.materialized.plannedMinorRiverMask },
+      field: { format: "u8", values: observation.materialized.plannedMinorRiverMask },
       meta: defineStandardVizMeta("map.rivers.plannedMinorRiverMask", "category.distinct", {
         label: "Minor River Mask (Hydrology Intent)",
         group: GROUP_MAP_RIVERS,
@@ -87,7 +89,7 @@ export function buildPlotRiversVizProjections(
       dataTypeKey: "map.rivers.plannedMajorRiverMask",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.materialized.plannedMajorRiverMask },
+      field: { format: "u8", values: observation.materialized.plannedMajorRiverMask },
       meta: defineStandardVizMeta("map.rivers.plannedMajorRiverMask", "category.distinct", {
         label: "Major River Mask (Hydrology Intent)",
         group: GROUP_MAP_RIVERS,
@@ -153,7 +155,7 @@ export function buildPlotRiversVizProjections(
       dataTypeKey: "morphology.topography.landMask",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.topographyLandMask },
+      field: { format: "u8", values: observation.topographyLandMask },
       meta: defineStandardVizMeta("morphology.topography.landMask", "category.distinct", {
         label: "Land Mask (Final Morphology)",
         group: GROUP_MAP_RIVERS,
