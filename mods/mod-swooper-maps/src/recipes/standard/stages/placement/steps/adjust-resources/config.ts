@@ -14,6 +14,7 @@ import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
  */
 export const config = defineStep({
   id: "adjust-resources",
+  engine: ["emitRuntimeWarning"] as const,
   requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned],
   provides: [],
   artifacts: {

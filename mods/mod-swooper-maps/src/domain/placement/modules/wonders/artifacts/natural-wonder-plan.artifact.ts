@@ -60,20 +60,20 @@ export const artifact = defineArtifact({
       seenPlots.add(placement.plotIndex);
 
       const seenAnchors = new Set<number>([placement.plotIndex]);
-      for (const fallbackPlotIndex of placement.fallbackPlotIndices ?? []) {
-        if (fallbackPlotIndex >= size) {
+      for (const fallback of placement.fallbacks ?? []) {
+        if (fallback.plotIndex >= size) {
           issues.add(
-            `naturalWonderPlan fallback anchor ${fallbackPlotIndex} for primary ${placement.plotIndex} is out of bounds.`
+            `naturalWonderPlan fallback anchor ${fallback.plotIndex} for primary ${placement.plotIndex} is out of bounds.`
           );
           continue;
         }
-        if (seenAnchors.has(fallbackPlotIndex)) {
+        if (seenAnchors.has(fallback.plotIndex)) {
           issues.add(
-            `naturalWonderPlan anchor ${fallbackPlotIndex} is repeated for primary ${placement.plotIndex}.`
+            `naturalWonderPlan anchor ${fallback.plotIndex} is repeated for primary ${placement.plotIndex}.`
           );
           continue;
         }
-        seenAnchors.add(fallbackPlotIndex);
+        seenAnchors.add(fallback.plotIndex);
       }
     }
   },

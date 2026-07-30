@@ -40,13 +40,10 @@ export const STANDARD_INTEGRITY_TARGET = {
     ),
     equalTo<StandardMapProductSample>(
       "resource-outcome-total",
-      "Placed, rejected, and mismatch outcomes exactly close the resource plan.",
+      "Placed and rejected outcomes exactly close the resource plan.",
       (sample) => {
         const metrics = sample.metrics.resources;
-        return (
-          metrics.placedCount + metrics.rejectedCount + metrics.mismatchCount ===
-          metrics.plannedCount
-        );
+        return metrics.placedCount + metrics.rejectedCount === metrics.plannedCount;
       },
       true
     ),
@@ -60,9 +57,8 @@ export const STANDARD_INTEGRITY_TARGET = {
             metrics.plannedCount &&
           metrics.outcomeCountsByResource.every(
             (row) =>
-              row.placedCount + row.rejectedCount + row.mismatchCount === row.plannedCount &&
-              row.reasons.reduce((sum, reason) => sum + reason.count, 0) ===
-                row.rejectedCount + row.mismatchCount
+              row.placedCount + row.rejectedCount === row.plannedCount &&
+              row.reasons.reduce((sum, reason) => sum + reason.count, 0) === row.rejectedCount
           )
         );
       },
@@ -70,10 +66,10 @@ export const STANDARD_INTEGRITY_TARGET = {
     ),
     equalTo<StandardMapProductSample>(
       "resource-by-reason-total",
-      "Typed refusal reasons close rejected and mismatch outcomes.",
+      "Typed refusal reasons close rejected outcomes.",
       (sample) =>
         sample.metrics.resources.outcomeCountsByReason.reduce((sum, row) => sum + row.count, 0) ===
-        sample.metrics.resources.rejectedCount + sample.metrics.resources.mismatchCount,
+        sample.metrics.resources.rejectedCount,
       true
     ),
     equalTo<StandardMapProductSample>(
@@ -247,6 +243,12 @@ export const STANDARD_INTEGRITY_TARGET = {
       "Projected lakes remain an occasional inland surface.",
       (sample) => requiredShare(sample.metrics.geography.projectedLakes, "Projected lake share"),
       0.08
+    ),
+    equalTo<StandardMapProductSample>(
+      "final-water-surface-drift",
+      "The final engine water surface exactly preserves modeled land, modeled water, and every admitted lake.",
+      (sample) => sample.metrics.geography.waterDriftCount,
+      0
     ),
     equalTo<StandardMapProductSample>(
       "final-lake-water-drift",

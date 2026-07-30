@@ -23,6 +23,7 @@ export type StandardGeographyMetrics = Readonly<{
   projectedLakeComponents: ComponentMetricSummary;
   singleTileLakeTiles: CountMetric;
   lakeProjectionRejectedCount: number;
+  waterDriftCount: number;
   finalLakeWaterDriftCount: number;
   finalLakeClassificationDriftCount: number;
 }>;
@@ -32,7 +33,7 @@ export function measureStandardGeography(capture: StandardMapCapture): StandardG
   const { width, height } = capture.provenance;
   const tileCount = width * height;
   const plannedLand = countMetricMask(capture.model.landMask);
-  const projectedLakeCount = capture.projection.lakes.stampedLakeTileCount;
+  const projectedLakeCount = capture.projection.placementParity.acceptedLakeTileCount;
   let realizedWaterCount = 0;
   let coastWaterCount = 0;
   let deepOceanCount = 0;
@@ -78,8 +79,9 @@ export function measureStandardGeography(capture: StandardMapCapture): StandardG
       projectedLakeCount
     ),
     lakeProjectionRejectedCount: capture.projection.lakes.rejectedLakeTileCount,
-    finalLakeWaterDriftCount: capture.projection.placementSurface.finalLakeWaterDriftCount,
+    waterDriftCount: capture.projection.placementParity.waterDriftCount,
+    finalLakeWaterDriftCount: capture.projection.placementParity.finalLakeWaterDriftCount,
     finalLakeClassificationDriftCount:
-      capture.projection.placementSurface.finalLakeClassificationDriftCount,
+      capture.projection.placementParity.finalLakeClassificationDriftCount,
   });
 }

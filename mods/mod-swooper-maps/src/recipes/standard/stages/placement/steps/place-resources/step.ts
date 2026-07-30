@@ -1,250 +1,19 @@
-import type {
-  ResourcePlacementIntent,
-  ResourcePlacementMismatchReason,
-  ResourcePlacementOutcome,
-  ResourcePlacementRejectionReason,
-} from "@civ7/adapter";
-import { type OfficialResourceType, requireResourceRuntimeId } from "@civ7/map-policy";
-import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
-import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
-import type { TraceJsonObject } from "@swooper/mapgen-core";
-import {
-  type ArtifactReadValueOf,
-  type ArtifactValueOf,
-  createStep,
-  type DeepReadonly,
-} from "@swooper/mapgen-core/authoring";
-import { fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
+import type { ResourcePlacementOutcome } from "@civ7/adapter";
+import { requireResourceRuntimeId } from "@civ7/map-policy";
+import { type ArtifactReadValueOf, createStep } from "@swooper/mapgen-core/authoring";
 
 import {
-  logResourcePlacementRuntimeTelemetry,
-  runPlacementProductStep,
-  warnLog,
-} from "../../log.js";
+  measureStandardResourcePlacement,
+  STANDARD_RESOURCE_PLACEMENT_METRIC_KEY,
+  type StandardResourcePlacementMeasurements,
+} from "../../../../metrics/families/placement/resource-placement.js";
+import { emitStandardResourcePlacementExactLog } from "../../../../parity/placement-exact-log.js";
 import {
   buildPlacementPointBuffers,
   definePlacementVizCategoryMeta,
   PLACEMENT_TILE_SPACE_ID,
 } from "../../viz.js";
 import { config } from "./config.js";
-
-type ResourcePlanOutput = ArtifactReadValueOf<typeof resourceSupportArtifacts.resourcePlanAdjusted>;
-type ResourcePlacementOutcomes = ArtifactValueOf<
-  typeof resourceSiteArtifacts.resourcePlacementOutcomes
->;
-type ResourcePlacementReason = ResourcePlacementRejectionReason | ResourcePlacementMismatchReason;
-type ResourcePlacementCoordinateDigest =
-  ResourcePlacementOutcomes["summary"]["coordinateEvidence"]["placed"];
-
-type PlaceResourcesWithTypedOutcomesArgs = {
-  placeResourceIntent: (intent: ResourcePlacementIntent) => ResourcePlacementOutcome;
-  plan: DeepReadonly<ResourcePlanOutput>;
-};
-
-function buildResourcePlacementCoordinateDigest(
-  outcomes: readonly ResourcePlacementOutcome[],
-  status: ResourcePlacementOutcome["status"]
-): ResourcePlacementCoordinateDigest {
-  const rows = outcomes
-    .filter((outcome) => outcome.status === status)
-    .slice()
-    .sort((a, b) => {
-      if (a.plotIndex !== b.plotIndex) return a.plotIndex - b.plotIndex;
-      if (a.resourceType !== b.resourceType) return a.resourceType - b.resourceType;
-      return (a.observedResourceType ?? -1) - (b.observedResourceType ?? -1);
-    })
-    .map((outcome) =>
-      [
-        outcome.status,
-        outcome.plotIndex,
-        outcome.x,
-        outcome.y,
-        outcome.resourceType,
-        outcome.observedResourceType ?? -1,
-        outcome.status === "placed" ? "placed" : outcome.reason,
-      ].join(":")
-    );
-  return { count: rows.length, hash32: fnv1a32StringHex(rows.join("|")) };
-}
-
-function summarizeResourceOutcomes(
-  outcomes: readonly ResourcePlacementOutcome[]
-): ResourcePlacementOutcomes["summary"] {
-  let placedCount = 0;
-  let rejectedCount = 0;
-  let mismatchCount = 0;
-  const byResource = new Map<
-    number,
-    {
-      plannedCount: number;
-      placedCount: number;
-      rejectedCount: number;
-      mismatchCount: number;
-      reasons: Map<ResourcePlacementReason, number>;
-    }
-  >();
-  const byReason = new Map<ResourcePlacementReason, number>();
-
-  for (const outcome of outcomes) {
-    const resourceType = outcome.resourceType;
-    let resourceSummary = byResource.get(resourceType);
-    if (!resourceSummary) {
-      resourceSummary = {
-        plannedCount: 0,
-        placedCount: 0,
-        rejectedCount: 0,
-        mismatchCount: 0,
-        reasons: new Map(),
-      };
-      byResource.set(resourceType, resourceSummary);
-    }
-    resourceSummary.plannedCount += 1;
-
-    if (outcome.status === "placed") {
-      placedCount += 1;
-      resourceSummary.placedCount += 1;
-    } else if (outcome.status === "rejected") {
-      rejectedCount += 1;
-      resourceSummary.rejectedCount += 1;
-    } else {
-      mismatchCount += 1;
-      resourceSummary.mismatchCount += 1;
-    }
-
-    if (outcome.status !== "placed") {
-      const reason = outcome.reason;
-      resourceSummary.reasons.set(reason, (resourceSummary.reasons.get(reason) ?? 0) + 1);
-      byReason.set(reason, (byReason.get(reason) ?? 0) + 1);
-    }
-  }
-  return {
-    plannedCount: outcomes.length,
-    placedCount,
-    rejectedCount,
-    mismatchCount,
-    coordinateEvidence: {
-      version: 1,
-      placed: buildResourcePlacementCoordinateDigest(outcomes, "placed"),
-      rejected: buildResourcePlacementCoordinateDigest(outcomes, "rejected"),
-      mismatch: buildResourcePlacementCoordinateDigest(outcomes, "mismatch"),
-    },
-    byResource: Array.from(byResource.entries())
-      .sort(([a], [b]) => a - b)
-      .map(([resourceType, summary]) => ({
-        resourceType,
-        plannedCount: summary.plannedCount,
-        placedCount: summary.placedCount,
-        rejectedCount: summary.rejectedCount,
-        mismatchCount: summary.mismatchCount,
-        reasons: Array.from(summary.reasons.entries())
-          .sort(([a], [b]) => a.localeCompare(b))
-          .map(([reason, count]) => ({ reason, count })),
-      })),
-    byReason: Array.from(byReason.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([reason, count]) => ({ reason, count })),
-  };
-}
-
-/**
- * Thin materializer (placement-realignment S3 / D4, reordered by S5 / D3):
- * stamps the typed plot intents from the ADJUSTED resource plan (site
- * selection + post-starts support pass) and reconciles engine legality with
- * typed outcomes.
- *
- * The adjusted plan is authority for type-at-plot. Engine rejections are
- * recorded as typed shortfalls per resource type; there is NO type
- * re-decision, NO relocation, and NO whole-map fallback here. Wrong-type
- * readback (mismatch) remains fail-hard. Support-pass provenance is carried
- * into the outcomes (byPhase.support + supportAdjustedPlacedCount).
- */
-function placeResourcesWithTypedOutcomes({
-  placeResourceIntent,
-  plan,
-}: PlaceResourcesWithTypedOutcomesArgs): ResourcePlacementOutcomes {
-  const outcomes: ResourcePlacementOutcome[] = [];
-  const byPhase = { rotation: 0, rangeFloor: 0, regionMinimum: 0, support: 0 };
-  let supportAdjustedPlacedCount = 0;
-  const shortfallCounts = new Map<string, number>();
-
-  for (const planned of plan.intents) {
-    const resourceTypeId = requireResourceRuntimeId(
-      planned.resourceType as OfficialResourceType
-    ).resourceTypeId;
-    const intent = {
-      plotIndex: planned.plotIndex,
-      resourceType: resourceTypeId,
-    };
-    const outcome = placeResourceIntent(intent);
-    outcomes.push(outcome);
-    if (outcome.status === "placed") {
-      const phase = planned.phase;
-      switch (phase) {
-        case "rotation":
-          byPhase.rotation += 1;
-          break;
-        case "range-floor":
-          byPhase.rangeFloor += 1;
-          break;
-        case "region-minimum":
-          byPhase.regionMinimum += 1;
-          break;
-        case "support":
-          byPhase.support += 1;
-          break;
-        default:
-          assertNever(phase);
-      }
-      if (planned.support) supportAdjustedPlacedCount += 1;
-    } else if (outcome.status === "rejected") {
-      const key = `${resourceTypeId}:${outcome.reason}`;
-      shortfallCounts.set(key, (shortfallCounts.get(key) ?? 0) + 1);
-    }
-  }
-
-  const mismatches = outcomes.filter((outcome) => outcome.status === "mismatch");
-  if (mismatches.length > 0) {
-    const sample = mismatches
-      .slice(0, 3)
-      .map(
-        (outcome) =>
-          `${outcome.plotIndex}:${outcome.resourceType}->${outcome.observedResourceType} (${outcome.reason})`
-      )
-      .join(", ");
-    throw new Error(
-      `[Placement] Resource placement produced wrong-type readback for ${mismatches.length}/${outcomes.length} planned intents; sample: ${sample}.`
-    );
-  }
-
-  const placedCount = outcomes.filter((outcome) => outcome.status === "placed").length;
-  const shortfalls = Array.from(shortfallCounts.entries())
-    .map(([key, count]) => {
-      const [resourceType, reason] = key.split(":") as [string, string];
-      return {
-        resourceType: Number(resourceType),
-        reason: reason as "out-of-bounds" | "invalid-resource-type" | "cannot-have-resource",
-        count,
-      };
-    })
-    .sort((a, b) => a.resourceType - b.resourceType || a.reason.localeCompare(b.reason));
-
-  return {
-    summary: summarizeResourceOutcomes(outcomes),
-    reconciliation: {
-      plannedCount: plan.intents.length,
-      placedCount,
-      rejectedCount: plan.intents.length - placedCount,
-      shortfalls,
-      byPhase,
-      supportAdjustedPlacedCount,
-    },
-    outcomes,
-  };
-}
-
-function assertNever(value: never): never {
-  throw new Error(`[Placement] Unknown resource plan phase ${String(value)}.`);
-}
 
 const RESOURCE_OUTCOME_CATEGORIES = [
   { value: 1, label: "Placed", color: [34, 197, 94, 235] as [number, number, number, number] },
@@ -263,22 +32,12 @@ const RESOURCE_OUTCOME_CATEGORIES = [
     label: "Rejected: Invalid Type",
     color: [217, 70, 239, 235] as [number, number, number, number],
   },
-  {
-    value: 5,
-    label: "Rejected: Wrong Type Readback",
-    color: [234, 179, 8, 235] as [number, number, number, number],
-  },
 ] as const;
 
-type ResourceOutcomeRow = Readonly<{
-  status: "placed" | "rejected" | "mismatch";
-  plotIndex: number;
-  reason?:
-    | "out-of-bounds"
-    | "invalid-resource-type"
-    | "cannot-have-resource"
-    | "wrong-resource-type";
-}>;
+type ResourceOutcomeRow = StandardResourcePlacementMeasurements["outcomes"][number];
+type ResourcePlanIntent = ArtifactReadValueOf<
+  NonNullable<NonNullable<(typeof config)["artifacts"]>["requires"]>[number]
+>["intents"][number];
 
 function resourceOutcomeCategoryValue(outcome: ResourceOutcomeRow): number {
   if (outcome.status === "placed") return 1;
@@ -289,50 +48,109 @@ function resourceOutcomeCategoryValue(outcome: ResourceOutcomeRow): number {
       return 3;
     case "invalid-resource-type":
       return 4;
-    default:
-      return 5;
   }
 }
 
+function admitResourcePlacementOutcome(
+  planned: ResourcePlanIntent,
+  expectedResourceType: number,
+  outcome: ResourcePlacementOutcome
+): ResourceOutcomeRow {
+  if (
+    outcome.plotIndex !== planned.plotIndex ||
+    outcome.x !== planned.x ||
+    outcome.y !== planned.y ||
+    outcome.resourceType !== expectedResourceType
+  ) {
+    throw new Error(
+      `[Placement] Resource placement outcome drifted from adjusted-plan identity: ` +
+        `expected plot ${planned.plotIndex} at ${planned.x},${planned.y} with requested runtime type ${expectedResourceType}; ` +
+        `received plot ${outcome.plotIndex} at ${outcome.x},${outcome.y} with requested runtime type ${outcome.resourceType}.`
+    );
+  }
+
+  if (
+    outcome.status === "mismatch" ||
+    (outcome.status === "placed" && outcome.observedResourceType !== expectedResourceType)
+  ) {
+    const observedResourceType = outcome.observedResourceType;
+    throw new Error(
+      `[Placement] Resource placement produced wrong-type readback at plot ${planned.plotIndex}: ` +
+        `expected runtime type ${expectedResourceType}, observed ${observedResourceType}.`
+    );
+  }
+
+  if (outcome.status === "placed") {
+    return Object.freeze({
+      status: "placed",
+      plotIndex: outcome.plotIndex,
+      x: outcome.x,
+      y: outcome.y,
+      resourceType: outcome.resourceType,
+      phase: planned.phase,
+    });
+  }
+
+  return Object.freeze({
+    status: "rejected",
+    plotIndex: outcome.plotIndex,
+    x: outcome.x,
+    y: outcome.y,
+    resourceType: outcome.resourceType,
+    phase: planned.phase,
+    reason: outcome.reason,
+    ...(outcome.observedResourceType === undefined
+      ? {}
+      : { observedResourceType: outcome.observedResourceType }),
+  });
+}
+
 /**
- * Materializes the adjusted resource plan without relocation or type
- * re-decision and publishes typed placed/rejected outcomes. Resource policy
- * authority remains in the upstream plan.
+ * Materializes the adjusted resource plan exactly once per intent, then emits
+ * one terminal measurement of Civ7 acceptance without relocation or type
+ * re-decision. The adjusted plan remains authority for type-at-plot; normal
+ * engine rejections become typed shortfalls while identity drift fails before
+ * any warning, metric, visualization, or exact-log evidence can escape.
  */
 export const PlaceResourcesStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
     const plan = deps.artifacts.resourcePlanAdjusted.read(context);
-    const emit = (payload: TraceJsonObject): void => {
-      context.trace.event(() => payload);
-    };
+    const outcomes: ResourceOutcomeRow[] = [];
 
-    const outcomes = runPlacementProductStep("placement.resources", emit, () =>
-      placeResourcesWithTypedOutcomes({
-        placeResourceIntent: (intent) => deps.engine.placeResourceIntent(context, intent),
-        plan,
-      })
-    );
-    if (outcomes.reconciliation.rejectedCount > 0) {
-      // Typed reconcile (D4): engine-legality rejections are recorded as
-      // shortfalls with reasons; the plan's type-at-plot is never re-decided.
-      warnLog(
-        `[Placement] Resource reconciliation recorded ${outcomes.reconciliation.rejectedCount}/` +
-          `${outcomes.reconciliation.plannedCount} typed rejections (no relocation, no type re-decision).`
+    for (const planned of plan.intents) {
+      const resourceType = requireResourceRuntimeId(planned.resourceType).resourceTypeId;
+      const outcome = deps.engine.placeResourceIntent(context, {
+        plotIndex: planned.plotIndex,
+        resourceType,
+      });
+      outcomes.push(admitResourcePlacementOutcome(planned, resourceType, outcome));
+    }
+
+    const measurements = measureStandardResourcePlacement(outcomes);
+
+    if (measurements.summary.rejectedCount > 0) {
+      deps.engine.emitRuntimeWarning(
+        context,
+        `[Placement] Resource reconciliation recorded ${measurements.summary.rejectedCount}/` +
+          `${measurements.summary.plannedCount} typed rejections (no relocation, no type re-decision).`
       );
       context.trace.event(() => ({
         type: "placement.resources.reconciliationShortfall",
         level: "warn",
-        rejectedCount: outcomes.reconciliation.rejectedCount,
-        plannedCount: outcomes.reconciliation.plannedCount,
-        shortfalls: outcomes.reconciliation.shortfalls,
+        rejectedCount: measurements.summary.rejectedCount,
+        plannedCount: measurements.summary.plannedCount,
+        shortfalls: measurements.summary.shortfalls,
       }));
     }
-    logResourcePlacementRuntimeTelemetry(deps.engine.getResourceCatalog(context), outcomes);
-    deps.artifacts.resourcePlacementOutcomes.publish(context, outcomes);
-    return outcomes.outcomes;
+
+    emitStandardResourcePlacementExactLog(deps.engine.getResourceCatalog(context), measurements);
+    return measurements;
   },
-  viz: ({ result: outcomes, dimensions }) => {
-    const rows = outcomes.map((outcome) => ({
+  metrics: ({ result }) => ({
+    [STANDARD_RESOURCE_PLACEMENT_METRIC_KEY]: result,
+  }),
+  viz: ({ result, dimensions }) => {
+    const rows = result.outcomes.map((outcome) => ({
       plotIndex: outcome.plotIndex,
       value: resourceOutcomeCategoryValue(outcome),
     }));

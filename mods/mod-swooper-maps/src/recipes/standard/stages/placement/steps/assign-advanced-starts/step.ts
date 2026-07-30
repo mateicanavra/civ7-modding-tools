@@ -1,6 +1,4 @@
-import type { TraceJsonObject } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { runPlacementProductStep } from "../../log.js";
 import { config } from "./config.js";
 
 /**
@@ -9,16 +7,7 @@ import { config } from "./config.js";
  */
 export const AssignAdvancedStartsStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
-    const emit = (payload: TraceJsonObject): void => {
-      context.trace.event(() => payload);
-    };
-
-    runPlacementProductStep("placement.fertility.recalculate", emit, () => {
-      deps.engine.recalculateFertility(context);
-      emit({ type: "placement.fertility.recalculated" });
-    });
-    runPlacementProductStep("placement.advancedStart.assign", emit, () => {
-      deps.engine.assignAdvancedStartRegions(context);
-    });
+    deps.engine.recalculateFertility(context);
+    deps.engine.assignAdvancedStartRegions(context);
   },
 });

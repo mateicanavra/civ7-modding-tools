@@ -18,7 +18,7 @@ evidence. It is not a separate scenario or cohort.
 | Resource identity and legality | `resource-intent-outcome-alignment`, `resource-placed-readback-alignment`, `resource-headless-policy-legality`, and `resource-hard-phase-habitat` all `true`. |
 | Regional resource minimums | `resource-region-minimum-evidence`, `resource-final-region-minimums` both `true`; final shortfalls may exist only when already recorded by planning. |
 | Starts | Exact alive-major seating; zero illegal surfaces; every pair at least six tiles apart; zero unsurfaced degradation; every start classified to a landmass and homeland. |
-| Lakes | Lake share `<= 0.08`; mountains and volcanoes are withheld from projection; water and classification drift `= 0`; projection mismatches `<= 2`; one-tile lake share `<= 0.20`; components `<= 24`. |
+| Surface and lakes | Lake share `<= 0.08`; mountains and volcanoes are withheld from projection; whole-map water drift, final lake-water drift, and final lake-classification drift `= 0`; projection mismatches `<= 2`; one-tile lake share `<= 0.20`; components `<= 24`. |
 | Ecology | Feature-surface violations `= 0`; broad vegetation habitat fidelity `= true`; unclassified modeled land `= 0`; cold-reef coast share `<= 0.15`. |
 | Volcanoes | Planned features missing from final Civ7 readback `= 0`; extra final volcano features `= 0`; planned volcanoes on non-mountain terrain `= 0`. |
 | Rivers | Minor and major model populations, outlets, ocean terminals, navigable selection, eligibility, chains, and durable support each exist; source, bounds, readback, mismatch, and terminal evidence close exactly. |

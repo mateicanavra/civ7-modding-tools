@@ -391,6 +391,7 @@ export class MockAdapter implements EngineAdapter {
 
   /** Track calls for testing */
   readonly calls: {
+    emitRuntimeWarning: string[];
     setMapInitData: Array<MapInitParams>;
     designateBiomes: Array<{ width: number; height: number }>;
     addFeatures: Array<{ width: number; height: number }>;
@@ -484,6 +485,7 @@ export class MockAdapter implements EngineAdapter {
     this.oceanTerrainId = this.getTerrainTypeIndex("TERRAIN_OCEAN");
     this.mountainTerrainId = this.getTerrainTypeIndex("TERRAIN_MOUNTAIN");
     this.calls = {
+      emitRuntimeWarning: [],
       setMapInitData: [],
       designateBiomes: [],
       addFeatures: [],
@@ -506,6 +508,11 @@ export class MockAdapter implements EngineAdapter {
 
   private recordEffect(effectId: string): void {
     this.effectEvidence.add(effectId);
+  }
+
+  /** Records human-facing warnings without coupling tests to a process console. */
+  emitRuntimeWarning(message: string): void {
+    this.calls.emitRuntimeWarning.push(message);
   }
 
   verifyEffect(effectId: string): boolean {
@@ -1614,6 +1621,7 @@ export class MockAdapter implements EngineAdapter {
     this.landmassRegionIds.fill(0);
     this.mapSizeId = config.mapSizeId ?? 0;
     this.mapInfo = config.mapInfo ?? null;
+    this.calls.emitRuntimeWarning.length = 0;
     this.calls.setMapInitData.length = 0;
     this.calls.designateBiomes.length = 0;
     this.calls.addFeatures.length = 0;

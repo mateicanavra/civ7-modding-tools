@@ -30,11 +30,6 @@ describe("recipe DAG artifact presentation", () => {
       domainId: "hydrology",
       label: "projectedNavigableRivers",
     });
-    expect(parseArtifactPresentation("artifact:placement.naturalWonderPlacement")).toEqual({
-      id: "artifact:placement.naturalWonderPlacement",
-      domainId: "placement",
-      label: "naturalWonderPlacement",
-    });
     expect(parseArtifactPresentation("artifact:foundation.plates")).toEqual({
       id: "artifact:foundation.plates",
       domainId: "foundation",

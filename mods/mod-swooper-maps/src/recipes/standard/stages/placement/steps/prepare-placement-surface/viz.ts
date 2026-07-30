@@ -15,13 +15,11 @@ type TerrainValidationBoundaryReadback = Readonly<{
 }>;
 
 /**
- * Projects exact maintenance-boundary readbacks plus the derived drift behind
- * placement parity counters. The projections preserve diagnostic evidence for
- * Studio and live-parity consumers without turning mutable engine state into a
- * causal artifact.
+ * Projects exact engine-maintenance boundary readbacks and their local terrain
+ * drift. Terminal product parity is observed only after every placement
+ * product has completed.
  */
 export function projectPlacementSurfaceViz(input: {
-  acceptedLakeMask: Uint8Array;
   beforeValidate: TerrainValidationBoundaryReadback;
   afterValidate: TerrainValidationBoundaryReadback;
   afterMaintenance: TerrainValidationBoundaryReadback;
@@ -29,14 +27,6 @@ export function projectPlacementSurfaceViz(input: {
 }): readonly VizProjection[] {
   const { width, height } = input.dimensions;
   const size = width * height;
-
-  const lakeDrift = new Uint8Array(size);
-  for (let i = 0; i < size; i++) {
-    if (input.acceptedLakeMask[i] !== 1) continue;
-    if (input.afterMaintenance.waterMask[i] !== 1) lakeDrift[i] = 2;
-    else if (input.afterMaintenance.lakeMask[i] !== 1) lakeDrift[i] = 3;
-    else lakeDrift[i] = 1;
-  }
 
   const terrainDrift = new Uint8Array(size);
   for (let i = 0; i < size; i++) {
@@ -48,28 +38,6 @@ export function projectPlacementSurfaceViz(input: {
 
   return [
     ...projectMaintenanceBoundaries(input),
-    {
-      kind: "grid",
-      dataTypeKey: "map.placement.surface.lakeDrift",
-      spaceId: PLACEMENT_TILE_SPACE_ID,
-      dims: input.dimensions,
-      field: { format: "u8", values: lakeDrift },
-      meta: definePlacementVizCategoryMeta(
-        "map.placement.surface.lakeDrift",
-        [
-          transparentNoneCategory("Not Accepted Lake"),
-          { value: 1, label: "Lake Stable", color: [59, 130, 246, 200] },
-          { value: 2, label: "Dried (Water Drift)", color: [239, 68, 68, 235] },
-          { value: 3, label: "Declassified", color: [245, 158, 11, 235] },
-        ],
-        {
-          label: "Lake Drift (Surface Maintenance)",
-          visibility: "debug",
-          description:
-            "Accepted lake tiles after final engine surface maintenance: stable, dried (no longer water), or declassified (water but not a Civ7 lake).",
-        }
-      ),
-    },
     {
       kind: "grid",
       dataTypeKey: "map.placement.surface.terrainValidationDrift",
@@ -88,7 +56,7 @@ export function projectPlacementSurfaceViz(input: {
           label: "Terrain Validation Drift",
           visibility: "debug",
           description:
-            "Tiles the engine's validateAndFixTerrain/maintenance pass changed between the before-validate and after-maintenance readbacks (terrain type and/or water classification).",
+            "Tiles changed by the engine's placement-surface maintenance transaction between its before-validation and after-maintenance readbacks.",
         }
       ),
     },

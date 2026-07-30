@@ -6,7 +6,6 @@ import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology
 import placement from "@mapgen/domain/placement";
 import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/modules/regions/artifacts/index.js";
 import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
-import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
 import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
@@ -18,13 +17,19 @@ import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
  */
 export const config = defineStep({
   id: "assign-starts",
-  engine: ["getMapSizeId", "lookupMapInfo", "getAliveMajorIds", "setStartPosition"] as const,
+  engine: [
+    "emitRuntimeWarning",
+    "getMapSizeId",
+    "lookupMapInfo",
+    "getAliveMajorIds",
+    "readCurrentMapFeatureTypes",
+    "setStartPosition",
+  ] as const,
   requires: [],
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned],
   artifacts: {
     requires: [
       resourceSiteArtifacts.resourcePlan,
-      placementWonderArtifacts.naturalWonderPlacement,
       placementRegionArtifacts.landmassRegionSlotByTile,
       morphologyLandformsArtifacts.topography,
       morphologyLandformsArtifacts.landmasses,

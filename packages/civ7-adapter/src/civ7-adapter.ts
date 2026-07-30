@@ -100,6 +100,23 @@ export class Civ7Adapter implements EngineAdapter {
     this.height = height;
   }
 
+  /**
+   * Emits a warning through the richest console surface supported by the
+   * active Civ7 host. Map-generation isolates expose `console.log` without
+   * necessarily exposing `console.warn`.
+   */
+  emitRuntimeWarning(message: string): void {
+    const sink = console as unknown as {
+      warn?: (runtimeMessage: string) => void;
+      log: (runtimeMessage: string) => void;
+    };
+    if (typeof sink.warn === "function") {
+      sink.warn(message);
+      return;
+    }
+    sink.log(`[warn] ${message}`);
+  }
+
   private recordEffect(effectId: string): void {
     this.effectEvidence.add(effectId);
   }

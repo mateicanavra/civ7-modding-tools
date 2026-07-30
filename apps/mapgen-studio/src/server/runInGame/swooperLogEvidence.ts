@@ -54,7 +54,7 @@ export function parseSwooperMapgenLogEvidence(args: {
     evidenceLine.index,
     completionLine.index
   );
-  const placementSurfacePreparation = parsePlacementSurfacePreparationTelemetryBetween(
+  const placementParity = parsePlacementParityTelemetryBetween(
     lines,
     evidenceLine.index,
     completionLine.index
@@ -71,7 +71,7 @@ export function parseSwooperMapgenLogEvidence(args: {
     evidencePayload,
     completionPayload,
     ...(featureApply ? { featureApply } : {}),
-    ...(placementSurfacePreparation ? { placementSurfacePreparation } : {}),
+    ...(placementParity ? { placementParity } : {}),
     ...(resourcePlacement ? { resourcePlacement } : {}),
     ...(naturalWonderPlan ? { naturalWonderPlan } : {}),
     ...(naturalWonderPlanInput ? { naturalWonderPlanInput } : {}),
@@ -150,26 +150,28 @@ function parseResourcePlacementTelemetryBetween(
   return undefined;
 }
 
-function parsePlacementSurfacePreparationTelemetryBetween(
+function parsePlacementParityTelemetryBetween(
   lines: readonly string[],
   evidenceIndex: number,
   completionIndex: number
 ):
-  | NonNullable<
-      NonNullable<RunInGameDetailedExactAuthorshipEvidence["log"]>["placementSurfacePreparation"]
-    >
+  | NonNullable<NonNullable<RunInGameDetailedExactAuthorshipEvidence["log"]>["placementParity"]>
   | undefined {
   for (let index = completionIndex - 1; index > evidenceIndex; index -= 1) {
     const line = lines[index] ?? "";
-    if (!line.includes("PLACEMENT_SURFACE_PREPARATION_V1")) continue;
-    const payload = parsePayloadAfterMarker(line, "PLACEMENT_SURFACE_PREPARATION_V1");
+    if (!line.includes("PLACEMENT_PARITY_V1")) continue;
+    const payload = parsePayloadAfterMarker(line, "PLACEMENT_PARITY_V1");
     if (!payload) continue;
+    const version = numberValue(payload.version);
+    const waterDriftCount = numberValue(payload.waterDriftCount);
     const acceptedLakeTileCount = numberValue(payload.acceptedLakeTileCount);
     const finalLakeWaterDriftCount = numberValue(payload.finalLakeWaterDriftCount);
     const finalLakeClassificationDriftCount = numberValue(
       payload.finalLakeClassificationDriftCount
     );
     if (
+      version !== 1 ||
+      waterDriftCount === undefined ||
       acceptedLakeTileCount === undefined ||
       finalLakeWaterDriftCount === undefined ||
       finalLakeClassificationDriftCount === undefined
@@ -177,8 +179,10 @@ function parsePlacementSurfacePreparationTelemetryBetween(
       continue;
     }
     return {
-      marker: "PLACEMENT_SURFACE_PREPARATION_V1",
+      marker: "PLACEMENT_PARITY_V1",
       payload,
+      version,
+      waterDriftCount,
       acceptedLakeTileCount,
       finalLakeWaterDriftCount,
       finalLakeClassificationDriftCount,

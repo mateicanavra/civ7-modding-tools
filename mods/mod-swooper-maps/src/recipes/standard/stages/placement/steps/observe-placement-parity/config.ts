@@ -15,6 +15,7 @@ export const config = defineStep({
     "readCurrentMapTerrainTypes",
     "readCurrentMapElevations",
     "readCurrentMapWaterMask",
+    "readCurrentMapLakeMask",
   ] as const,
   requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.advancedStartsAssigned],
   provides: [],

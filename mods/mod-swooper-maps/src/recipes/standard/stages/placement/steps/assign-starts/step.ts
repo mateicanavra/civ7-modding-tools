@@ -1,13 +1,13 @@
+import { collectNaturalWonderPlotIndices } from "@civ7/map-policy";
 import placement from "@mapgen/domain/placement";
 import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
-import type { MapContext, TraceJsonObject } from "@swooper/mapgen-core";
+import type { MapContext } from "@swooper/mapgen-core";
 import {
   type ArtifactValueOf,
   createStep,
   type DeepReadonly,
   type Static,
 } from "@swooper/mapgen-core/authoring";
-import { runPlacementProductStep, warnLog } from "../../log.js";
 import { config } from "./config.js";
 import { projectStartAssignmentViz } from "./viz.js";
 
@@ -22,7 +22,8 @@ type StartSeatRecord = PlanStartsOutput["seats"][number];
  */
 function warnStartDegradations(
   context: MapContext,
-  seats: DeepReadonly<PlanStartsOutput["seats"]>
+  seats: DeepReadonly<PlanStartsOutput["seats"]>,
+  emitRuntimeWarning: (message: string) => void
 ): void {
   const byRung = new Map<string, number[]>();
   for (const seat of seats) {
@@ -33,7 +34,7 @@ function warnStartDegradations(
     byRung.set(key, list);
   }
   for (const [path, seatIndices] of byRung) {
-    warnLog(
+    emitRuntimeWarning(
       `[Placement] Start assignment degraded to ${path} for ${seatIndices.length} seat(s) ` +
         `(seat indices: ${seatIndices.join(", ")}); regional viability guarantees were relaxed for those seats.`
     );
@@ -47,7 +48,7 @@ function warnStartDegradations(
   }
   for (const seat of seats) {
     if (seat.plotIndex < 0 || !seat.imputedFlags.includes("spacing-below-floor")) continue;
-    warnLog(
+    emitRuntimeWarning(
       `[Placement] Seat ${seat.seatIndex} seated below the hard spacing floor ` +
         `(achievedSpacing=${seat.achievedSpacing}); the alternative was an unseated player.`
     );
@@ -61,7 +62,7 @@ function warnStartDegradations(
   const reassigned = seats.filter((seat) => seat.imputedFlags.includes("region-reassigned"));
   if (reassigned.length) {
     const seatIndices = reassigned.map((seat) => seat.seatIndex);
-    warnLog(
+    emitRuntimeWarning(
       `[Placement] ${reassigned.length} seat(s) region-reassigned (seat indices: ` +
         `${seatIndices.join(", ")}); their configured landmass region has zero start candidates on this map.`
     );
@@ -100,9 +101,10 @@ function cloneSeat(seat: DeepReadonly<StartSeatRecord>): StartSeatRecord {
 function materializeStartAssignment(args: {
   context: MapContext;
   plan: DeepReadonly<PlanStartsOutput>;
+  emitRuntimeWarning: (message: string) => void;
   setStartPosition: (plotIndex: number, playerId: number) => void;
 }): StartAssignmentArtifact {
-  const { context, plan, setStartPosition } = args;
+  const { context, emitRuntimeWarning, plan, setStartPosition } = args;
   const { width, height } = context.setup.dimensions;
   if (plan.width !== width || plan.height !== height) {
     throw new Error(
@@ -130,7 +132,7 @@ function materializeStartAssignment(args: {
     else rungCounts.spacingRelaxed++;
     tierAssignments[seat.tier] += 1;
   }
-  warnStartDegradations(context, seats);
+  warnStartDegradations(context, seats, emitRuntimeWarning);
 
   return {
     width,
@@ -170,7 +172,6 @@ function materializeStartAssignment(args: {
 export const AssignStartsStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const resourcePlan = deps.artifacts.resourcePlan.read(context);
-    const naturalWonderPlacement = deps.artifacts.naturalWonderPlacement.read(context);
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
     const topography = deps.artifacts.topography.read(context);
     const landmasses = deps.artifacts.landmasses.read(context);
@@ -181,6 +182,7 @@ export const AssignStartsStep = createStep(config, {
     const lakePlan = deps.artifacts.lakePlan.read(context);
     const climateIndices = deps.artifacts.climateIndices.read(context);
     const pedology = deps.artifacts.pedology.read(context);
+    const currentFeatureTypes = deps.engine.readCurrentMapFeatureTypes(context);
     const mapSizeId = deps.engine.getMapSizeId(context);
     const mapInfo = deps.engine.lookupMapInfo(context, mapSizeId);
     if (!mapInfo) {
@@ -215,24 +217,20 @@ export const AssignStartsStep = createStep(config, {
         lakeMask: lakePlan.lakeMask as Uint8Array,
         mountainMask: mountains.mountainMask as Uint8Array,
         volcanoMask: volcanoes.volcanoMask as Uint8Array,
-        naturalWonderPlotIndices: [...naturalWonderPlacement.observedNaturalWonderPlotIndices],
+        naturalWonderPlotIndices: collectNaturalWonderPlotIndices(currentFeatureTypes),
         // Starts consume planned sites because resource stamping follows the
         // support-adjustment pass.
         plannedResourcePlotIndices: resourcePlan.intents.map((intent) => intent.plotIndex),
       },
       stepConfig.starts
     );
-    const emit = (payload: TraceJsonObject): void => {
-      context.trace.event(() => payload);
-    };
-    const assignment = runPlacementProductStep("placement.starts", emit, () =>
-      materializeStartAssignment({
-        context,
-        plan,
-        setStartPosition: (plotIndex, playerId) =>
-          deps.engine.setStartPosition(context, plotIndex, playerId),
-      })
-    );
+    const assignment = materializeStartAssignment({
+      context,
+      plan,
+      emitRuntimeWarning: (message) => deps.engine.emitRuntimeWarning(context, message),
+      setStartPosition: (plotIndex, playerId) =>
+        deps.engine.setStartPosition(context, plotIndex, playerId),
+    });
     deps.artifacts.startAssignment.publish(context, assignment);
     return { plan, assignment };
   },

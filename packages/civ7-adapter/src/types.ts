@@ -381,6 +381,12 @@ export interface EngineAdapter {
   readonly height: number;
 
   /**
+   * Emits a human-facing runtime warning without assuming that Civ7 exposes
+   * the host's optional `console.warn` method.
+   */
+  emitRuntimeWarning(message: string): void;
+
+  /**
    * Reads current terrain ids into fresh row-major storage.
    * Full-width integers preserve Civ7 ids without narrowing them to byte enums.
    */

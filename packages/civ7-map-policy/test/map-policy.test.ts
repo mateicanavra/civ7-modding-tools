@@ -9,6 +9,7 @@ import {
   CIV7_RIVER_MODELING_POLICY_V0,
   CIV7_RIVER_TYPE_METADATA_SOURCE,
   CIV7_RIVER_TYPES_V0,
+  collectNaturalWonderPlotIndices,
   deriveCiv7CoastProjection,
   getNaturalWonderFootprintIndices,
   getNaturalWonderFootprintOffsetsByParity,
@@ -261,6 +262,22 @@ describe("@civ7/map-policy", () => {
         direction: -1,
       })
     ).toEqual([34]);
+  });
+
+  it("classifies official natural-wonder identities on a current feature layer", () => {
+    const { featureTypes } = CIV7_BROWSER_TABLES_V0;
+    const featureLayer = new Int32Array([
+      -1,
+      featureTypes.FEATURE_KILIMANJARO,
+      featureTypes.FEATURE_FOREST,
+      featureTypes.FEATURE_REDWOOD_FOREST,
+      -1,
+    ]);
+
+    expect(collectNaturalWonderPlotIndices(featureLayer)).toEqual([1, 3]);
+    expect(collectNaturalWonderPlotIndices([Number.NaN, Number.POSITIVE_INFINITY, 0, 1])).toEqual([
+      2, 3,
+    ]);
   });
 
   it("resolves natural-wonder footprints per row parity and matches the odd-R neighbor set", () => {

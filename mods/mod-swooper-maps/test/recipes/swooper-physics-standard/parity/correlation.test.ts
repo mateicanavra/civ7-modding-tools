@@ -53,6 +53,16 @@ describe("Standard parity correlation", () => {
         rejectedFloodplainFeatureCount: 1,
       },
     });
+    expect(resolution.exact.placementParity).toEqual({
+      status: "present",
+      value: {
+        version: 1,
+        waterDriftCount: 0,
+        acceptedLakeTileCount: 2,
+        finalLakeWaterDriftCount: 0,
+        finalLakeClassificationDriftCount: 0,
+      },
+    });
     expect(resolution.exact.naturalWonderPlanInput).toMatchObject({
       status: "present",
       value: { version: 2 },
@@ -345,7 +355,17 @@ function exactFixture(
       evidencePayload: {},
       completionPayload: {},
       matched: [],
-      placementSurfacePreparation: {
+      placementParity: {
+        marker: "PLACEMENT_PARITY_V1",
+        payload: {
+          version: 1,
+          waterDriftCount: 0,
+          acceptedLakeTileCount: 2,
+          finalLakeWaterDriftCount: 0,
+          finalLakeClassificationDriftCount: 0,
+        },
+        version: 1,
+        waterDriftCount: 0,
         acceptedLakeTileCount: 2,
         finalLakeWaterDriftCount: 0,
         finalLakeClassificationDriftCount: 0,

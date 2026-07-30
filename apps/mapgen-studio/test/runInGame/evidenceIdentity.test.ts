@@ -171,7 +171,9 @@ describe("Run in Game exact authorship evidence identity", () => {
           appliedByFeature: { FEATURE_TAIGA: 301, FEATURE_REEF: 11 },
           rejectedCanHaveFeatureByFeature: { FEATURE_TAIGA: 4 },
         })}`,
-        `[SWOOPER_MOD] PLACEMENT_SURFACE_PREPARATION_V1 ${JSON.stringify({
+        `[SWOOPER_MOD] PLACEMENT_PARITY_V1 ${JSON.stringify({
+          version: 1,
+          waterDriftCount: 0,
           acceptedLakeTileCount: 63,
           finalLakeWaterDriftCount: 0,
           finalLakeClassificationDriftCount: 0,
@@ -300,8 +302,10 @@ describe("Run in Game exact authorship evidence identity", () => {
         rejectedCanHaveFeatureByFeature: { FEATURE_TAIGA: 4 },
       },
     });
-    expect(logEvidence?.placementSurfacePreparation).toMatchObject({
-      marker: "PLACEMENT_SURFACE_PREPARATION_V1",
+    expect(logEvidence?.placementParity).toMatchObject({
+      marker: "PLACEMENT_PARITY_V1",
+      version: 1,
+      waterDriftCount: 0,
       acceptedLakeTileCount: 63,
       finalLakeWaterDriftCount: 0,
       finalLakeClassificationDriftCount: 0,
@@ -465,7 +469,9 @@ describe("Run in Game exact authorship evidence identity", () => {
   it("ignores placement telemetry outside the matching evidence section", () => {
     const logEvidence = parseSwooperMapgenLogEvidence({
       text: [
-        `[SWOOPER_MOD] PLACEMENT_SURFACE_PREPARATION_V1 ${JSON.stringify({
+        `[SWOOPER_MOD] PLACEMENT_PARITY_V1 ${JSON.stringify({
+          version: 1,
+          waterDriftCount: 0,
           acceptedLakeTileCount: 63,
           finalLakeWaterDriftCount: 0,
           finalLakeClassificationDriftCount: 0,
@@ -508,7 +514,7 @@ describe("Run in Game exact authorship evidence identity", () => {
     });
 
     expect(logEvidence?.featureApply).toBeUndefined();
-    expect(logEvidence?.placementSurfacePreparation).toBeUndefined();
+    expect(logEvidence?.placementParity).toBeUndefined();
     expect(logEvidence?.resourcePlacement).toBeUndefined();
     expect(logEvidence?.naturalWonderPlan).toBeUndefined();
     expect(logEvidence?.naturalWonderPlacement).toBeUndefined();

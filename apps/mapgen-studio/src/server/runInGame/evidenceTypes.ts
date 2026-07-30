@@ -77,9 +77,11 @@ export type RunInGameDetailedEvidenceLog = Readonly<{
       rejectedCanHaveFeatureByFeature?: Readonly<Record<string, number>>;
     }>;
   }>;
-  placementSurfacePreparation?: Readonly<{
-    marker: "PLACEMENT_SURFACE_PREPARATION_V1";
+  placementParity?: Readonly<{
+    marker: "PLACEMENT_PARITY_V1";
     payload: unknown;
+    version: 1;
+    waterDriftCount: number;
     acceptedLakeTileCount: number;
     finalLakeWaterDriftCount: number;
     finalLakeClassificationDriftCount: number;

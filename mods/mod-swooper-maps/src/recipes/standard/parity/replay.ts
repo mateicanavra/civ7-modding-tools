@@ -8,7 +8,6 @@ import {
 } from "@civ7/adapter";
 import { artifacts as hydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
-import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
 import { createLabelRng, createMapContext } from "@swooper/mapgen-core";
 import {
@@ -36,14 +35,19 @@ import {
   StandardNaturalWonderPlanInputMeasurementsSchema,
 } from "../metrics/families/placement/natural-wonder-plan-input.js";
 import {
-  type StandardPlacementSurfaceMeasurements,
-  StandardPlacementSurfaceMeasurementsSchema,
-} from "../metrics/families/placement-surface.js";
+  STANDARD_RESOURCE_PLACEMENT_METRIC_KEY,
+  type StandardResourcePlacementMeasurements,
+  StandardResourcePlacementMeasurementsSchema,
+} from "../metrics/families/placement/resource-placement.js";
+import {
+  type StandardPlacementParityMeasurements,
+  StandardPlacementParityMeasurementsSchema,
+} from "../metrics/families/placement-parity.js";
 import standardRecipe from "../recipe.js";
+import { projectStandardNaturalWonderPlanEvidence } from "./placement-exact-log.js";
 import type {
   StandardFinalSurfaceCapture,
   StandardLocalParityCapture,
-  StandardNaturalWonderPlanEvidence,
   StandardParityGrid,
   StandardRiverProjectionCapture,
 } from "./types.js";
@@ -67,6 +71,11 @@ type StandardParityReplayInput = Readonly<{
 }>;
 
 declare const STANDARD_PARITY_REPLAY_AUTHORITY: unique symbol;
+
+const EMPTY_RESOURCE_PLACEMENT_COORDINATE_DIGEST = Object.freeze({
+  count: 0,
+  hash32: fnv1a32StringHex(""),
+});
 
 /**
  * Opaque authority issued only after exact authorship and the generation
@@ -136,7 +145,8 @@ function runStandardParityReplay(input: StandardParityReplayInput): StandardLoca
   let featureProjection: StandardFeatureProjectionMeasurements | undefined;
   let lakeProjection: StandardLakeProjectionMeasurements | undefined;
   let naturalWonderPlanInput: StandardNaturalWonderPlanInputMeasurements | undefined;
-  let placementSurface: StandardPlacementSurfaceMeasurements | undefined;
+  let placementParity: StandardPlacementParityMeasurements | undefined;
+  let resourcePlacement: StandardResourcePlacementMeasurements | undefined;
   let metricFailure: unknown;
 
   standardRecipe.execute(context, plan, {
@@ -162,11 +172,18 @@ function runStandardParityReplay(input: StandardParityReplayInput): StandardLoca
             naturalWonderInputCandidate
           );
         }
-        const placementCandidate = projection["placement.surfacePreparation"];
+        const placementCandidate = projection["placement.parity"];
         if (placementCandidate !== undefined) {
-          placementSurface = Value.Parse(
-            StandardPlacementSurfaceMeasurementsSchema,
+          placementParity = Value.Parse(
+            StandardPlacementParityMeasurementsSchema,
             placementCandidate
+          );
+        }
+        const resourcePlacementCandidate = projection[STANDARD_RESOURCE_PLACEMENT_METRIC_KEY];
+        if (resourcePlacementCandidate !== undefined) {
+          resourcePlacement = Value.Parse(
+            StandardResourcePlacementMeasurementsSchema,
+            resourcePlacementCandidate
           );
         }
       },
@@ -187,16 +204,15 @@ function runStandardParityReplay(input: StandardParityReplayInput): StandardLoca
       "Standard parity replay requires typed natural-wonder planning-input measurements."
     );
   }
-  if (placementSurface === undefined) {
-    throw new Error("Standard parity replay requires Placement surface-preparation measurements.");
+  if (placementParity === undefined) {
+    throw new Error("Standard parity replay requires terminal Placement parity measurements.");
+  }
+  if (resourcePlacement === undefined) {
+    throw new Error("Standard parity replay requires terminal resource-placement measurements.");
   }
 
   const naturalWonderPlan = observeArtifact(context, placementWonderArtifacts.naturalWonderPlan);
   const resourcePlan = observeArtifact(context, resourceSupportArtifacts.resourcePlanAdjusted);
-  const resourcePlacement = observeArtifact(
-    context,
-    resourceSiteArtifacts.resourcePlacementOutcomes
-  );
 
   return {
     source: "standard-replay",
@@ -212,19 +228,18 @@ function runStandardParityReplay(input: StandardParityReplayInput): StandardLoca
     hydrology: {
       rivers: captureRiverProjection(context, adapter, metadata.dimensions),
       lakeProjection,
-      finalLakes: {
-        acceptedLakeTileCount: placementSurface.acceptedLakeTileCount,
-        finalLakeWaterDriftCount: placementSurface.finalLakeWaterDriftCount,
-        finalLakeClassificationDriftCount: placementSurface.finalLakeClassificationDriftCount,
-      },
       featureProjection,
     },
     placement: {
-      naturalWonderPlanEvidence: naturalWonderPlanEvidence(naturalWonderPlan),
+      terminalParity: placementParity,
+      naturalWonderPlanEvidence: projectStandardNaturalWonderPlanEvidence(naturalWonderPlan),
       naturalWonderPlanInput: { status: "present", value: naturalWonderPlanInput },
       resourcePlanIntents: resourcePlan.intents,
       resourcePlacement: {
-        coordinateEvidence: resourcePlacement.summary.coordinateEvidence,
+        coordinateEvidence: {
+          ...resourcePlacement.summary.coordinateEvidence,
+          mismatch: EMPTY_RESOURCE_PLACEMENT_COORDINATE_DIGEST,
+        },
         outcomes: resourcePlacement.outcomes,
       },
     },
@@ -332,59 +347,6 @@ function captureRiverProjection(
   };
 }
 
-function naturalWonderPlanEvidence(
-  plan: ArtifactReadValueOf<typeof placementWonderArtifacts.naturalWonderPlan>
-): StandardNaturalWonderPlanEvidence {
-  const rows = plan.placements.slice(0, 16).map((placement) => {
-    const plotIndex = placement.plotIndex | 0;
-    const y = (plotIndex / plan.width) | 0;
-    const x = plotIndex - y * plan.width;
-    return {
-      plotIndex,
-      x,
-      y,
-      featureType: placement.featureType | 0,
-      direction: placement.direction | 0,
-      elevation: normalizeInteger(placement.elevation),
-      priorityPpm: normalizeOptionalPpm(placement.priority),
-    };
-  });
-  return {
-    version: 1,
-    plannedCount: Math.max(0, plan.plannedCount | 0),
-    coordinateDigest: {
-      count: rows.length,
-      hash32: fnv1a32StringHex(
-        rows
-          .slice()
-          .sort((left, right) => {
-            if (left.plotIndex !== right.plotIndex) {
-              return left.plotIndex - right.plotIndex;
-            }
-            if (left.featureType !== right.featureType) {
-              return left.featureType - right.featureType;
-            }
-            return left.direction - right.direction;
-          })
-          .map((row) =>
-            [
-              "p",
-              row.plotIndex,
-              row.x,
-              row.y,
-              row.featureType,
-              row.direction,
-              row.elevation,
-              row.priorityPpm,
-            ].join(":")
-          )
-          .join("|")
-      ),
-    },
-    rows,
-  };
-}
-
 function requiredGrid(
   width: number,
   height: number,
@@ -408,13 +370,4 @@ function nonEmptyString(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
   const trimmed = value.trim();
   return trimmed.length === 0 ? undefined : trimmed;
-}
-
-function normalizeInteger(value: unknown): number | null {
-  return Number.isFinite(value) ? Math.trunc(value as number) : null;
-}
-
-function normalizeOptionalPpm(value: unknown): number | null {
-  if (!Number.isFinite(value)) return null;
-  return Math.max(0, Math.min(1_000_000, Math.round((value as number) * 1_000_000)));
 }

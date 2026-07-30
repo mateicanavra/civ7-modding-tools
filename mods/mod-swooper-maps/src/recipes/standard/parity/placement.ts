@@ -12,6 +12,7 @@ import type {
   StandardNaturalWonderPlanRow,
   StandardOptionalCoordinateDigest,
   StandardParityComparison,
+  StandardPlacementParityCounters,
   StandardResourcePlacementEvidence,
   StandardResourcePlacementRejectionRow,
 } from "./types.js";
@@ -92,6 +93,14 @@ type StandardResourcePlacementComparison = Readonly<{
   rejectionContexts: ReadonlyArray<StandardResourcePlacementRejectionContext>;
 }>;
 
+/** Exact-versus-replay comparison of the single terminal placement observation. */
+type StandardTerminalPlacementParityComparison = Readonly<{
+  claim: StandardParityComparison;
+  local: StandardPlacementParityCounters;
+  exact?: StandardPlacementParityCounters;
+  mismatchedFields: ReadonlyArray<keyof StandardPlacementParityCounters>;
+}>;
+
 /** Replayed plan and outcome context for one exact resource rejection witness. */
 type StandardResourcePlacementRejectionContext = Readonly<{
   exact: StandardResourcePlacementRejectionRow;
@@ -114,22 +123,88 @@ type StandardResourcePlacementRejectionContext = Readonly<{
   }>;
 }>;
 
-/** Standard Placement parity result across wonders, their inputs, and resources. */
+/** Standard Placement parity across terminal surfaces, wonders, their inputs, and resources. */
 export type StandardPlacementParityComparison = Readonly<{
+  terminalParity: StandardTerminalPlacementParityComparison;
   naturalWonderPlan: StandardNaturalWonderPlanComparison;
   naturalWonderPlanInput: StandardNaturalWonderPlanInputComparison;
   resourcePlacement: StandardResourcePlacementComparison;
 }>;
 
-/** Compares exact and replayed Standard Placement plans, inputs, and outcomes. */
+/** Compares exact and replayed Standard Placement terminal state, plans, inputs, and outcomes. */
 export function compareStandardPlacement(
   exact: StandardExactParityCapture,
   local: StandardLocalParityCapture
 ): StandardPlacementParityComparison {
   return {
+    terminalParity: compareTerminalPlacementParity(exact, local),
     naturalWonderPlan: compareNaturalWonderPlan(exact, local),
     naturalWonderPlanInput: compareNaturalWonderPlanInput(exact, local),
     resourcePlacement: compareResourcePlacement(exact, local),
+  };
+}
+
+function compareTerminalPlacementParity(
+  exact: StandardExactParityCapture,
+  local: StandardLocalParityCapture
+): StandardTerminalPlacementParityComparison {
+  const localCounters = local.placement.terminalParity;
+  if (exact.placementParity.status === "missing") {
+    return {
+      claim: {
+        status: "unresolved",
+        reason: "Exact-authorship evidence lacks terminal placement-parity counters.",
+        evidenceLinks: [exact.placementParity.evidenceLink],
+      },
+      local: localCounters,
+      mismatchedFields: [],
+    };
+  }
+  const exactCounters = exact.placementParity.value;
+  const fields = [
+    "waterDriftCount",
+    "acceptedLakeTileCount",
+    "finalLakeWaterDriftCount",
+    "finalLakeClassificationDriftCount",
+  ] as const satisfies readonly (keyof StandardPlacementParityCounters)[];
+  const mismatchedFields = fields.filter((field) => localCounters[field] !== exactCounters[field]);
+  if (mismatchedFields.length > 0) {
+    return {
+      claim: {
+        status: "fail",
+        reason: "Exact and local terminal placement-parity counters diverge.",
+        evidenceLinks: mismatchedFields.map((field) => `placement-parity.${field}`),
+      },
+      local: localCounters,
+      exact: exactCounters,
+      mismatchedFields,
+    };
+  }
+  if (
+    localCounters.waterDriftCount !== 0 ||
+    localCounters.finalLakeWaterDriftCount !== 0 ||
+    localCounters.finalLakeClassificationDriftCount !== 0
+  ) {
+    return {
+      claim: {
+        status: "fail",
+        reason: "Terminal counters agree, but the final water surface or accepted lakes drifted.",
+        evidenceLinks: ["placement-parity.drift"],
+      },
+      local: localCounters,
+      exact: exactCounters,
+      mismatchedFields: [],
+    };
+  }
+  return {
+    claim: {
+      status: "pass",
+      reason: "Exact and local terminal placement counters match with zero final water drift.",
+      evidenceLinks: ["placement-parity"],
+    },
+    local: localCounters,
+    exact: exactCounters,
+    mismatchedFields: [],
   };
 }
 
@@ -505,7 +580,8 @@ function resourceRejectionContexts(
               outcome: {
                 status: outcome.status,
                 resourceType: outcome.resourceType,
-                ...(outcome.observedResourceType === undefined
+                ...(!("observedResourceType" in outcome) ||
+                outcome.observedResourceType === undefined
                   ? {}
                   : { observedResourceType: outcome.observedResourceType }),
                 ...(outcome.status === "placed" ? {} : { reason: outcome.reason }),

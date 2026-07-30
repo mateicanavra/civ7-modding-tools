@@ -1,12 +1,12 @@
 import type { Civ7StandardMapSizeId } from "@civ7/adapter";
 import type { DeepReadonly, RunInGameExactAuthorshipEvidence } from "@civ7/studio-contract";
-import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
 import type { ArtifactReadValueOf } from "@swooper/mapgen-core/authoring";
 import type { StandardFeatureProjectionMeasurements } from "../metrics/families/ecology-projection.js";
 import type { StandardLakeProjectionMeasurements } from "../metrics/families/hydrology/lake-projection.js";
 import type { StandardNaturalWonderPlanInputMeasurements } from "../metrics/families/placement/natural-wonder-plan-input.js";
-import type { StandardPlacementSurfaceMeasurements } from "../metrics/families/placement-surface.js";
+import type { StandardResourcePlacementMeasurements } from "../metrics/families/placement/resource-placement.js";
+import type { StandardPlacementParityMeasurements } from "../metrics/families/placement-parity.js";
 
 /** Final Civ7 map surfaces whose exact values define Standard product parity. */
 export const STANDARD_PARITY_SURFACE_KEYS = ["terrain", "biome", "feature", "resource"] as const;
@@ -52,9 +52,6 @@ type StandardLiveRiverCapture = Readonly<{
 
 type ResourcePlanAdjusted = ArtifactReadValueOf<
   typeof resourceSupportArtifacts.resourcePlanAdjusted
->;
-type ResourcePlacementOutcomes = ArtifactReadValueOf<
-  typeof resourceSiteArtifacts.resourcePlacementOutcomes
 >;
 
 /** Bounded, JSON-safe natural-wonder anchor evidence emitted by the shipped recipe. */
@@ -125,11 +122,8 @@ export type StandardResourcePlacementRejectionRow = Readonly<{
   targetMinPerType?: number;
 }>;
 
-/** Final lake counters that distinguish accepted placement from post-placement drift. */
-export type StandardLakeFinalCounters = Pick<
-  StandardPlacementSurfaceMeasurements,
-  "acceptedLakeTileCount" | "finalLakeWaterDriftCount" | "finalLakeClassificationDriftCount"
->;
+/** Terminal surface counters derived from one post-placement engine observation. */
+export type StandardPlacementParityCounters = DeepReadonly<StandardPlacementParityMeasurements>;
 
 /** Floodplain application counters projected from the shared feature measurement. */
 export type StandardFloodplainApplyCounters = Readonly<{
@@ -164,7 +158,7 @@ export type CompleteExactAuthorshipEvidence = Extract<
 /** Complete exact authorship plus Standard-specific product evidence admitted from its log. */
 export type StandardExactParityCapture = Readonly<{
   authorship: CompleteExactAuthorshipEvidence;
-  lakes: StandardExactProductEvidence<StandardLakeFinalCounters>;
+  placementParity: StandardExactProductEvidence<StandardPlacementParityCounters>;
   floodplains: StandardExactProductEvidence<StandardFloodplainApplyCounters>;
   naturalWonderPlan: StandardExactProductEvidence<StandardNaturalWonderPlanEvidence>;
   naturalWonderPlanInput: StandardExactProductEvidence<StandardNaturalWonderPlanInputEvidence>;
@@ -186,16 +180,19 @@ export type StandardLocalParityCapture = Readonly<{
   hydrology: Readonly<{
     rivers: StandardRiverProjectionCapture;
     lakeProjection: StandardLakeProjectionMeasurements;
-    finalLakes: StandardLakeFinalCounters;
     featureProjection: StandardFeatureProjectionMeasurements;
   }>;
   placement: Readonly<{
+    terminalParity: StandardPlacementParityCounters;
     naturalWonderPlanEvidence: StandardNaturalWonderPlanEvidence;
     naturalWonderPlanInput: StandardExactProductEvidence<StandardNaturalWonderPlanInputEvidence>;
     resourcePlanIntents: DeepReadonly<ResourcePlanAdjusted["intents"]>;
     resourcePlacement: Readonly<{
-      coordinateEvidence: DeepReadonly<ResourcePlacementOutcomes["summary"]["coordinateEvidence"]>;
-      outcomes: DeepReadonly<ResourcePlacementOutcomes["outcomes"]>;
+      coordinateEvidence: DeepReadonly<
+        StandardResourcePlacementMeasurements["summary"]["coordinateEvidence"]
+      > &
+        Readonly<{ mismatch: StandardCoordinateDigest }>;
+      outcomes: DeepReadonly<StandardResourcePlacementMeasurements["outcomes"]>;
     }>;
   }>;
 }>;

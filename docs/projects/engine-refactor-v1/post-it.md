@@ -28,13 +28,13 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** finish natural-wonder planner input authority after the
-aggregate `derive-placement-inputs` step was correctly deleted. The Placement
-operation owns one truthful required input contract. The Standard recipe binds
-its admitted artifacts, static Civ7 policy, and invocation-local engine
-observations to that contract; metrics observes the same contract downstream.
-Metrics must not strengthen an intentionally weakened operation type, and the
-planner must not silently replace omitted causal surfaces with neutral values.
+**Current container:** finish Placement's operation-test ownership on the
+normalized domain plane. A suite that invokes exactly one domain operation
+belongs beneath that operation, even when its behavior spans many cases; module
+roots remain available only for behavior that genuinely composes multiple
+operations or module capabilities. Moving a suite does not change its oracle:
+controlled synthetic geometry remains valid where geometry itself is the
+subject, while ordinary product runs continue to use Civ7 preset dimensions.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -51,19 +51,11 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** require all six physical suitability surfaces at the
-`placement/plan-natural-wonders` operation boundary; make Civ7 policy emit one
-total, deeply frozen planner catalog; and delete hidden neutral substitution,
-catalog repair, and conflicting-identity deduplication from the strategy. Make
-the Standard step rely on the operation's inferred input rather than a
-metrics-owned strengthening, and let the natural-wonder input measurement
-consume the operation contract directly. Preserve Core's existing implicit
-width-by-height typed-array admission rather than adding manual cardinality
-checks. Make footprint parity nonempty in both TypeBox metadata and the static
-TypeFest surface, with canonical Civ7 policy construction as its runtime owner;
-delete planner tests that bypass those authorities to simulate impossible
-catalog rows. Repair focused product fixtures, prove exact compiler and product
-behavior, then seal the container as one Graphite layer.
+**Gradient:** relocate start viability beneath
+`starts/ops/plan-starts` and natural-wonder planning beneath
+`wonders/ops/plan-natural-wonders`; preserve their behavior and imports, run the
+two exact suites plus domain-test topology, then seal the layer before opening
+the distinct initial-seat-authority design.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -98,6 +90,66 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-26 - Natural Wonder Terminal Evidence
+
+Natural-wonder materialization now admits ordered primary/fallback outcomes
+without publishing mutable engine state as a domain artifact. The causal plan
+retains per-candidate elevation; Standard metrics owns terminal placed/rejected
+evidence and final rejection identity; exact V1 parity preserves its explicit
+first-rejection compatibility projection. Start assignment and completed
+metrics read current feature occupancy through the adapter and classify static
+wonder identities through Civ7 policy.
+
+### 2026-07-26 - Resource Placement Terminal Evidence
+
+Resource materialization now admits each Civ7 outcome against adjusted-plan
+identity before emitting one immutable Standard measurement. Counts, rejection
+summaries, shortfalls, phase totals, and exact coordinate digests have one
+owner; the live wire projection remains byte-compatible. The duplicate terminal
+domain artifact, reconstruction validator, publication contract, and
+artifact-admission tests retired.
+
+### 2026-07-26 - Placement Exact-Log Authority
+
+Five stable Placement live markers now share one Standard parity projection
+owner. Deterministic replay reuses its natural-wonder plan identity, producer
+tests own the actual wire contract and Civ7 byte budget, and the stage-root
+logging cabinet, ASCII map, ad hoc terrain summaries, duplicate normalizers,
+and serialization-only tests retired.
+
+### 2026-07-26 - Civ7 Runtime Warning Authority
+
+The Civ7 adapter now owns the demonstrated host distinction between
+`console.warn` and engine-safe tagged `console.log`. Only the three Placement
+steps with human-facing degradation messages request that capability; their
+conditions, wording, structured trace, and artifact evidence remain
+product-owned.
+
+### 2026-07-26 - Placement Lifecycle Authority
+
+Placement's recipe-local pseudo-lifecycle wrapper retired. Engine transactions
+now execute directly inside their admitted steps while `PipelineExecutor` alone
+owns start, finish, duration, failure attribution, abort behavior, and causal
+error preservation. Product metrics, artifacts, telemetry, and visualization
+remain unchanged.
+
+### 2026-07-26 - Terminal Placement Parity
+
+Surface maintenance relinquished its premature final-product claims. One
+post-advanced-start observer now acquires the terminal terrain, elevation,
+water, and lake snapshot and owns all whole-surface and accepted-lake parity
+counters. Metrics, replay, Studio exact evidence, and product proof consume the
+same closed measurement without aliases or reconstruction.
+
+### 2026-07-26 - Natural-Wonder Planner Input Authority
+
+Natural-wonder planning now admits all six physical suitability surfaces at
+one operation boundary. Civ7 policy owns one total, deeply frozen catalog with
+statically nonempty footprints; the strategy no longer repairs catalogs,
+deduplicates identities, or substitutes neutral grids. The Standard step and
+metrics consume the exact operation contract, and focused policy plus product
+proofs sealed the transition.
 
 ### 2026-07-26 - Complete Volcano Intent
 

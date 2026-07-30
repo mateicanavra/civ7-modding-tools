@@ -1,5 +1,6 @@
 import { createMockAdapter } from "@civ7/adapter";
 import {
+  collectNaturalWonderPlotIndices,
   FEATURE_PLACEMENT_KEYS,
   type FeatureKey,
   getEngineFeatureLegality,
@@ -13,7 +14,6 @@ import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morpho
 import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
 import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/modules/regions/artifacts/index.js";
 import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
-import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
 import { artifacts as resourceDemandArtifacts } from "@mapgen/domain/resources/modules/demand/artifacts/index.js";
 import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
@@ -46,9 +46,20 @@ import {
   StandardRiverNetworkMeasurementsSchema,
 } from "./families/hydrology/river-network.js";
 import {
-  type StandardPlacementSurfaceMeasurements,
-  StandardPlacementSurfaceMeasurementsSchema,
-} from "./families/placement-surface.js";
+  measureStandardNaturalWonderPlacement,
+  STANDARD_NATURAL_WONDER_PLACEMENT_METRIC_KEY,
+  type StandardNaturalWonderPlacementMeasurements,
+  StandardNaturalWonderPlacementMeasurementsSchema,
+} from "./families/placement/natural-wonder-placement.js";
+import {
+  STANDARD_RESOURCE_PLACEMENT_METRIC_KEY,
+  type StandardResourcePlacementMeasurements,
+  StandardResourcePlacementMeasurementsSchema,
+} from "./families/placement/resource-placement.js";
+import {
+  type StandardPlacementParityMeasurements,
+  StandardPlacementParityMeasurementsSchema,
+} from "./families/placement-parity.js";
 import { defineStandardMapMetricScenario, type StandardMapMetricScenario } from "./scenario.js";
 
 type Volcanoes = ArtifactReadValueOf<typeof morphologyLandformsArtifacts.volcanoes>;
@@ -61,9 +72,6 @@ type ResourceDemandPlan = ArtifactReadValueOf<typeof resourceDemandArtifacts.res
 type ResourcePlan = ArtifactReadValueOf<typeof resourceSiteArtifacts.resourcePlan>;
 type ResourcePlanAdjusted = ArtifactReadValueOf<
   typeof resourceSupportArtifacts.resourcePlanAdjusted
->;
-type ResourcePlacementOutcomes = ArtifactReadValueOf<
-  typeof resourceSiteArtifacts.resourcePlacementOutcomes
 >;
 type StartAssignment = ArtifactReadValueOf<typeof placementStartArtifacts.startAssignment>;
 
@@ -174,7 +182,7 @@ export type StandardMapCapture = Readonly<{
   projection: Readonly<{
     discoveryGeneration: StandardDiscoveryPlacementMeasurements;
     lakes: StandardLakeProjectionMeasurements;
-    placementSurface: StandardPlacementSurfaceMeasurements;
+    placementParity: StandardPlacementParityMeasurements;
     navigableRivers: Pick<
       ProjectedNavigableRivers,
       | "selectedTileCount"
@@ -215,12 +223,9 @@ export type StandardMapCapture = Readonly<{
       | "shortfalls"
     >[];
     regionMinimums: readonly ResourcePlan["regionMinimums"][number][];
-    summary: ResourcePlacementOutcomes["summary"];
+    summary: StandardResourcePlacementMeasurements["summary"];
     outcomes: readonly Readonly<
-      Pick<
-        ResourcePlacementOutcomes["outcomes"][number],
-        "status" | "plotIndex" | "x" | "y" | "resourceType" | "observedResourceType" | "reason"
-      > & {
+      StandardResourcePlacementMeasurements["outcomes"][number] & {
         headlessPolicyLegal: boolean;
       }
     >[];
@@ -251,6 +256,7 @@ export type StandardMapCapture = Readonly<{
         worstPairGap: StartAssignment["fairnessReport"]["worstPairGap"];
         relaxations: readonly StartAssignment["fairnessReport"]["relaxations"][number][];
       }>;
+      naturalWonderPlacement: StandardNaturalWonderPlacementMeasurements;
       naturalWonderPlotIndices: readonly number[];
     }
   >;
@@ -303,7 +309,9 @@ export function captureStandardMapScenario(
   let discoveryGeneration: StandardDiscoveryPlacementMeasurements | undefined;
   let featureProjection: StandardFeatureProjectionMeasurements | undefined;
   let lakeProjection: StandardLakeProjectionMeasurements | undefined;
-  let placementSurface: StandardPlacementSurfaceMeasurements | undefined;
+  let placementParity: StandardPlacementParityMeasurements | undefined;
+  let naturalWonderPlacement: StandardNaturalWonderPlacementMeasurements | undefined;
+  let resourcePlacement: StandardResourcePlacementMeasurements | undefined;
   let metricFailure: unknown;
   standardRecipe.run(context, canonicalRecipeConfig(admittedScenario.config), {
     log: () => {},
@@ -331,11 +339,26 @@ export function captureStandardMapScenario(
         if (lakeCandidate !== undefined) {
           lakeProjection = Value.Parse(StandardLakeProjectionMeasurementsSchema, lakeCandidate);
         }
-        const placementCandidate = projection["placement.surfacePreparation"];
+        const placementCandidate = projection["placement.parity"];
         if (placementCandidate !== undefined) {
-          placementSurface = Value.Parse(
-            StandardPlacementSurfaceMeasurementsSchema,
+          placementParity = Value.Parse(
+            StandardPlacementParityMeasurementsSchema,
             placementCandidate
+          );
+        }
+        const naturalWonderPlacementCandidate =
+          projection[STANDARD_NATURAL_WONDER_PLACEMENT_METRIC_KEY];
+        if (naturalWonderPlacementCandidate !== undefined) {
+          naturalWonderPlacement = Value.Parse(
+            StandardNaturalWonderPlacementMeasurementsSchema,
+            naturalWonderPlacementCandidate
+          );
+        }
+        const resourcePlacementCandidate = projection[STANDARD_RESOURCE_PLACEMENT_METRIC_KEY];
+        if (resourcePlacementCandidate !== undefined) {
+          resourcePlacement = Value.Parse(
+            StandardResourcePlacementMeasurementsSchema,
+            resourcePlacementCandidate
           );
         }
       },
@@ -357,8 +380,14 @@ export function captureStandardMapScenario(
   if (!lakeProjection) {
     throw new Error("Standard metric capture requires Hydrology lake-projection evidence.");
   }
-  if (!placementSurface) {
-    throw new Error("Standard metric capture requires Placement surface-preparation evidence.");
+  if (!placementParity) {
+    throw new Error("Standard metric capture requires terminal Placement parity evidence.");
+  }
+  if (!naturalWonderPlacement) {
+    throw new Error("Standard metric capture requires terminal natural-wonder placement evidence.");
+  }
+  if (!resourcePlacement) {
+    throw new Error("Standard metric capture requires terminal resource-placement evidence.");
   }
 
   return copyCompletedRun(
@@ -369,7 +398,9 @@ export function captureStandardMapScenario(
     discoveryGeneration,
     featureProjection,
     lakeProjection,
-    placementSurface
+    placementParity,
+    naturalWonderPlacement,
+    resourcePlacement
   );
 }
 
@@ -381,7 +412,9 @@ function copyCompletedRun(
   discoveryGeneration: StandardDiscoveryPlacementMeasurements,
   featureProjection: StandardFeatureProjectionMeasurements,
   lakeProjection: StandardLakeProjectionMeasurements,
-  placementSurface: StandardPlacementSurfaceMeasurements
+  placementParity: StandardPlacementParityMeasurements,
+  naturalWonderPlacement: StandardNaturalWonderPlacementMeasurements,
+  resourcePlacement: StandardResourcePlacementMeasurements
 ): StandardMapCapture {
   const selection = resolveMapSelection(scenario);
   const { width, height } = selection.dimensions;
@@ -417,14 +450,6 @@ function copyCompletedRun(
   const adjustedResourcePlanValue = readValidatedArtifact(
     context,
     resourceSupportArtifacts.resourcePlanAdjusted
-  );
-  const resourceOutcomesValue = readValidatedArtifact(
-    context,
-    resourceSiteArtifacts.resourcePlacementOutcomes
-  );
-  const naturalWonderPlacementValue = readValidatedArtifact(
-    context,
-    placementWonderArtifacts.naturalWonderPlacement
   );
   const startValue = readValidatedArtifact(context, placementStartArtifacts.startAssignment);
   const landMask = copyUint8Grid(
@@ -576,7 +601,7 @@ function copyCompletedRun(
         ...lakeProjection,
         components: Object.freeze({ ...lakeProjection.components }),
       }),
-      placementSurface: Object.freeze({ ...placementSurface }),
+      placementParity: Object.freeze({ ...placementParity }),
       navigableRivers: Object.freeze({
         selectedTileCount: navigableRiverValue.selectedTileCount,
         targetTileCount: navigableRiverValue.targetTileCount,
@@ -632,19 +657,16 @@ function copyCompletedRun(
         resourcePlanValue.regionMinimums.map((row) => Object.freeze({ ...row }))
       ),
       summary: Object.freeze({
-        ...resourceOutcomesValue.summary,
+        ...resourcePlacement.summary,
         coordinateEvidence: Object.freeze({
-          ...resourceOutcomesValue.summary.coordinateEvidence,
-          placed: Object.freeze({ ...resourceOutcomesValue.summary.coordinateEvidence.placed }),
+          ...resourcePlacement.summary.coordinateEvidence,
+          placed: Object.freeze({ ...resourcePlacement.summary.coordinateEvidence.placed }),
           rejected: Object.freeze({
-            ...resourceOutcomesValue.summary.coordinateEvidence.rejected,
-          }),
-          mismatch: Object.freeze({
-            ...resourceOutcomesValue.summary.coordinateEvidence.mismatch,
+            ...resourcePlacement.summary.coordinateEvidence.rejected,
           }),
         }),
         byResource: Object.freeze(
-          resourceOutcomesValue.summary.byResource.map((row) =>
+          resourcePlacement.summary.byResource.map((row) =>
             Object.freeze({
               ...row,
               reasons: Object.freeze(row.reasons.map((reason) => Object.freeze({ ...reason }))),
@@ -652,19 +674,17 @@ function copyCompletedRun(
           )
         ),
         byReason: Object.freeze(
-          resourceOutcomesValue.summary.byReason.map((row) => Object.freeze({ ...row }))
+          resourcePlacement.summary.byReason.map((row) => Object.freeze({ ...row }))
         ),
+        shortfalls: Object.freeze(
+          resourcePlacement.summary.shortfalls.map((row) => Object.freeze({ ...row }))
+        ),
+        byPhase: Object.freeze({ ...resourcePlacement.summary.byPhase }),
       }),
       outcomes: Object.freeze(
-        resourceOutcomesValue.outcomes.map((outcome) =>
+        resourcePlacement.outcomes.map((outcome) =>
           Object.freeze({
-            status: outcome.status,
-            plotIndex: outcome.plotIndex,
-            x: outcome.x,
-            y: outcome.y,
-            resourceType: outcome.resourceType,
-            observedResourceType: outcome.observedResourceType,
-            reason: outcome.reason,
+            ...outcome,
             headlessPolicyLegal:
               outcome.x >= 0 &&
               outcome.y >= 0 &&
@@ -704,9 +724,11 @@ function copyCompletedRun(
           startValue.fairnessReport.relaxations.map((row) => Object.freeze({ ...row }))
         ),
       }),
-      naturalWonderPlotIndices: Object.freeze([
-        ...naturalWonderPlacementValue.observedNaturalWonderPlotIndices,
-      ]),
+      naturalWonderPlacement: measureStandardNaturalWonderPlacement({
+        requestedCount: naturalWonderPlacement.summary.requestedCount,
+        outcomes: naturalWonderPlacement.outcomes,
+      }),
+      naturalWonderPlotIndices: Object.freeze(collectNaturalWonderPlotIndices(realized.feature)),
       assigned: startValue.assigned,
       unseatedCount: startValue.unseatedCount,
     }),
