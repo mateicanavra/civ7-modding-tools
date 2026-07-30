@@ -10,8 +10,25 @@ describe("game play topics command", () => {
     try {
       await GamePlayTopics.run(["--family", "rhq-ai", "--json"]);
       await GamePlayTopics.run(["--family", "pubsub", "--json"]);
+      await GamePlayTopics.run(["--family", "blockers", "--json"]);
+      await GamePlayTopics.run(["--family", "surface-design", "--json"]);
+      await GamePlayTopics.run(["--family", "diplomacy", "--json"]);
+      await GamePlayTopics.run(["--family", "front", "--json"]);
+      await GamePlayTopics.run(["--family", "unit", "--json"]);
+      await GamePlayTopics.run(["--family", "tactics", "--json"]);
+      await GamePlayTopics.run(["--json"]);
 
-      const [rhqPayload, eventPayload] = writes.map(
+      const [
+        rhqPayload,
+        eventPayload,
+        blockersPayload,
+        surfacePayload,
+        diplomacyPayload,
+        frontPayload,
+        unitPayload,
+        tacticsPayload,
+        allTopicsPayload,
+      ] = writes.map(
         (write) =>
           JSON.parse(write) as {
             ok: true;
@@ -26,6 +43,77 @@ describe("game play topics command", () => {
       expect(eventPayload.topics[0].family).toBe("evented-stream");
       expect(eventPayload.topics[0].commands).toContain("future: game play stream");
       expect(eventPayload.topics[0].boundary).toMatch(/direct-control snapshots/);
+      expect(blockersPayload.topics[0].commands).toEqual(
+        expect.arrayContaining([
+          "game play notifications list",
+          "game play notifications schedule",
+          "game play notifications dismiss",
+          "game play notifications dismiss-reviewed",
+          "game play notifications advisor-warning",
+        ])
+      );
+      expect(blockersPayload.topics[0].commands).not.toContain("game play advisor-warning");
+      expect(surfacePayload.topics[0].commands).toContain("game play notifications schedule");
+      expect(surfacePayload.topics[0].commands).not.toContain(
+        "future: game play notifications schedule"
+      );
+      expect(diplomacyPayload.topics[0].commands).toEqual(
+        expect.arrayContaining([
+          "game play diplomacy respond",
+          "game play diplomacy respond-first-meet",
+        ])
+      );
+      expect(diplomacyPayload.topics[0].commands).not.toContain("game play respond-diplomacy");
+      expect(diplomacyPayload.topics[0].commands).not.toContain("game play respond-first-meet");
+      expect(frontPayload.topics).toHaveLength(1);
+      expect(frontPayload.topics[0].family).toBe("front");
+      expect(frontPayload.topics[0].commands).toEqual([
+        "game play front summary",
+        "game play front scan",
+        "game play front target-candidates",
+      ]);
+      for (const command of frontPayload.topics[0].commands) {
+        expect(
+          allTopicsPayload.topics
+            .filter((topic) => topic.commands.includes(command))
+            .map((topic) => topic.family)
+        ).toEqual(["front"]);
+      }
+      expect(unitPayload.topics).toHaveLength(1);
+      expect(unitPayload.topics[0].family).toBe("unit");
+      expect(unitPayload.topics[0].commands).toEqual([
+        "game play unit ready",
+        "game play unit move-preview",
+        "game play unit target",
+        "game play unit promotion-readiness",
+        "game play unit resettle",
+        "game play unit upgrade",
+      ]);
+      for (const command of unitPayload.topics[0].commands) {
+        expect(
+          allTopicsPayload.topics
+            .filter((topic) => topic.commands.includes(command))
+            .map((topic) => topic.family)
+        ).toEqual(["unit"]);
+      }
+      expect(tacticsPayload.topics).toHaveLength(1);
+      expect(tacticsPayload.topics[0].family).toBe("tactics");
+      expect(tacticsPayload.topics[0].commands).toContain("game operation");
+      expect(tacticsPayload.topics[0].commands).not.toContain("game play operation");
+      const indexedCommands = allTopicsPayload.topics.flatMap((topic) => topic.commands);
+      for (const legacyCommand of [
+        "game play battlefield-scan",
+        "game play front-summary",
+        "game play target-candidates",
+        "game play ready-unit",
+        "game play unit-move-preview",
+        "game play unit-target",
+        "game play promotion-readiness",
+        "game play resettle-unit",
+        "game play upgrade-unit",
+      ]) {
+        expect(indexedCommands).not.toContain(legacyCommand);
+      }
     } finally {
       log.mockRestore();
     }

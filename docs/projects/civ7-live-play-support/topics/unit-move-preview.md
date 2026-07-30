@@ -77,7 +77,7 @@ only records intent and lets Civ7 continue movement later.
 ## CLI Surface
 
 ```bash
-civ7 game play unit-move-preview \
+civ7 game play unit move-preview \
   --unit-id '{"owner":0,"id":65536,"type":26}' \
   --destination 30,24 \
   --compact \
@@ -85,17 +85,9 @@ civ7 game play unit-move-preview \
 ```
 
 Defaults should select the current head-selected unit, then first ready unit.
-The command-surface design may later expose the same lens as:
-
-```bash
-civ7 game play unit preview move \
-  --unit unit:next \
-  --to 30,24 \
-  --json
-```
-
-Keep the current flat command compatible until aliases and tests prove the
-nested grammar.
+This noun migration preserves the command's existing flags and payload; it does
+not introduce a preview/check/send phase split. The prior flat path remains a
+hidden compatibility alias, not the caller-facing spelling.
 
 This command is read-only. It exposes official preview facts:
 
@@ -117,7 +109,7 @@ zone-of-control / target counts, up to 12 coordinate candidate rows for each
 official overlay, compact requested and queued path summaries, the next
 validation command, warnings, omitted raw sections, `hiddenInfoPolicy`, and
 `relationshipProof`. Candidate rows include `x`, `y`, approximate distance from
-the unit, whether the row is the current location, and a ready `unit-target`
+the unit, whether the row is the current location, and a ready `unit target`
 validation command. Plain `--json` remains the full official preview payload
 for debugging path plots and overlay details.
 

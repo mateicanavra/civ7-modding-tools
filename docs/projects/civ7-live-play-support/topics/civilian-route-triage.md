@@ -37,14 +37,14 @@ The command composes the same underlying reads that were previously run by
 hand:
 
 ```bash
-civ7 game play ready-unit --json
+civ7 game play unit ready --json
 
 civ7 game play settlement-recommendations \
   --x <civilian-x> \
   --y <civilian-y> \
   --json
 
-civ7 game play battlefield-scan \
+civ7 game play front scan \
   --x <civilian-x> \
   --y <civilian-y> \
   --radius 5 \
@@ -60,11 +60,11 @@ civ7 game play destination-analysis \
 
 Each read has a different job:
 
-- `ready-unit` proves the current unit, location, and legal operation surface.
+- `unit ready` proves the current unit, location, and legal operation surface.
 - `settlement-recommendations` ranks candidate sites from the official
   settlement lens, but does not prove movement, escort quality, or founding
   legality.
-- `battlefield-scan` identifies local civilian exposure and nearby pressure.
+- `front scan` identifies local civilian exposure and nearby pressure.
 - `destination-analysis` checks endpoint and corridor pressure for one
   candidate route, but still does not prove reachability.
 - `civilian-route-triage` ranks those facts into one proof label:
@@ -99,14 +99,14 @@ near `(13,14)`, and the independent city front at `(13,17)`.
 That combination means the recommendation is useful for planning, but weak as a
 movement order. The next useful step is either to inspect/resolve escort units
 or run `destination-analysis` for a specific near-term endpoint, then re-read
-`ready-unit` before mutation.
+`unit ready` before mutation.
 
 On turn 121 / 1200 BCE, the live priority read showed a ready Settler
 `{"owner":0,"id":1441800,"type":26}` at `(18,16)`, with nearby other-owner
 pressure around `(17,18)` and `(17,14)` and the La Venta city front still around
 `(13,17)`. That is exactly the `hold-or-screen` case: a legal move is not the
 same as a good route, and the next inspection should be battlefield pressure,
-settlement recommendations, and destination analysis before `unit-target`.
+settlement recommendations, and destination analysis before `unit target`.
 
 ## Proof Boundary
 

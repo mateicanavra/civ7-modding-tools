@@ -13,8 +13,9 @@ the watcher support surface:
 - `UNITCOMMAND_UPGRADE`: an eligible unit upgrade command that spends the
   required cost and changes the unit tier/type.
 
-The important operational distinction is family selection. The friendlier
-`--family unit` alias normalizes to `unit-operation`; these commands require
+The important operational distinction is family selection. The generic
+operation command accepts only explicit runtime families: ordinary unit
+operations use `--family unit-operation`, while these commands require
 `--family unit-command` or a named wrapper that hard-codes the family.
 
 ## CLI Surface
@@ -23,31 +24,31 @@ For resettling a population unit after the live acquire-tile view has identified
 the owned district target:
 
 ```bash
-civ7 game play resettle-unit \
+civ7 game play unit resettle \
   --unit-id '{"owner":0,"id":1703951,"type":26}' \
   --x 17 \
   --y 25 \
   --json
 ```
 
-For upgrading an eligible unit after the live ready-unit/action-panel read shows
+For upgrading an eligible unit after the live `unit ready`/action-panel read shows
 `UNITCOMMAND_UPGRADE` as valid:
 
 ```bash
-civ7 game play upgrade-unit \
+civ7 game play unit upgrade \
   --unit-id '{"owner":0,"id":1769488,"type":26}' \
   --json
 ```
 
 Both commands validate by default. Add `--send` only after the
-ready-unit/acquire-tile evidence still matches.
+`unit ready`/acquire-tile evidence still matches.
 
 The generic fallback remains:
 
 ```bash
-civ7 game play operation \
+civ7 game operation \
   --family unit-command \
-  --type UNITCOMMAND_UPGRADE \
+  --operation-type UNITCOMMAND_UPGRADE \
   --unit-id '{"owner":0,"id":1769488,"type":26}' \
   --args '{}' \
   --json
@@ -99,11 +100,11 @@ postcondition polling in the CLI result itself.
 
 ## Norms
 
-- Start with `game play notifications --json` and `game play ready-unit --json`.
-- Use `resettle-unit` only for a population/Migrant unit whose live command list
+- Start with `game play notifications list --json` and `game play unit ready --json`.
+- Use `unit resettle` only for a population/Migrant unit whose live command list
   exposes resettle and whose target plot is a current owned district/acquire-tile
   candidate.
-- Use `upgrade-unit` only when the live unit command validator reports upgrade as
+- Use `unit upgrade` only when the live unit command validator reports upgrade as
   valid. Failure reasons such as insufficient gold, missing resource access, or
   friendly-territory requirements are authoritative for the current unit.
 - Use `--family unit-command`, not `--family unit`, when falling back to the

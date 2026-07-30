@@ -88,7 +88,7 @@ Good next CLI surfaces:
 - `game local-catalog lookup <table> <key> --json`: bounded local catalog lookup
   for common tables such as `Types`, `Units`, `Constructibles`, `Notifications`,
   `Traditions`, and localization text.
-- `game play notifications --json` enrichment: keep the existing live HUD as
+- `game play notifications list --json` enrichment: keep the existing live HUD as
   the agent-facing surface, but attach local labels and explanations when the
   live blocker exposes ids or hashes.
 

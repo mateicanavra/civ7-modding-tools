@@ -77,7 +77,7 @@ agent decisions.
 
 For live play:
 
-1. Use `game play notifications`, `game play ready-unit`, and targeted
+1. Use `game play notifications list`, `game play unit ready`, and targeted
    direct-control reads for current blockers and required inputs.
    After restart or reconnect, use `game play rehydrate` first to compose the
    live HUD with ready-unit state and compare any expected turn/date/unit.

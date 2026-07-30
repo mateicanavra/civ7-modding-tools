@@ -10,13 +10,13 @@ the operation family.
 Use the read-only ready-unit view before mutating a unit blocker:
 
 ```bash
-civ7 game play ready-unit --json
+civ7 game play unit ready --json
 ```
 
 For an explicit unit:
 
 ```bash
-civ7 game play ready-unit \
+civ7 game play unit ready \
   --unit-id '{"owner":0,"id":458752,"type":26}' \
   --radius 2 \
   --json
@@ -29,20 +29,20 @@ The view returns:
 - valid no-target `unit-operation` and `unit-command` candidates
 - promotion readiness from the unit `Experience` component when present
 - occupied plots near the unit
-- reminders to use `game play unit-target` for plot-target moves and attacks
+- reminders to use `game play unit target` for plot-target moves and attacks
 
 It does not send operations.
 
 `game watch --include-ready-unit` summarizes this same surface. Its
 `readyUnit.legalNoTargetOperationCount` is intentionally scoped to no-target
 operations. A count of zero does not prove that the unit cannot move or attack;
-plot-target actions still need `game play unit-target` with `{ X, Y }` target
+plot-target actions still need `game play unit target` with `{ X, Y }` target
 args.
 
 For promotion-only checks, use:
 
 ```bash
-civ7 game play promotion-readiness --json
+civ7 game play unit promotion-readiness --json
 ```
 
 That shortcut extracts the unit summary, `promotionReadiness`, and whether a
@@ -90,7 +90,7 @@ Local official-resource anchors:
 
 When the first ready unit is an Army Commander:
 
-1. Run `game play ready-unit --json`.
+1. Run `game play unit ready --json`.
 2. Confirm `unit.value.typeName` is `UNIT_ARMY_COMMANDER`; ComponentID
    `type:26` alone only says it is a unit component.
 3. Inspect legal `unit-command` candidates before falling back to
@@ -102,7 +102,7 @@ When the first ready unit is an Army Commander:
    defenders in command radius.
 6. Move the commander only when the move preserves the main fight inside command
    radius or prevents the commander from being sniped.
-7. Use `game play unit-target` for concrete plot attacks/moves by combat units,
+7. Use `game play unit target` for concrete plot attacks/moves by combat units,
    then verify postconditions.
 
 Under capital pressure, the default commander bias is defensive anchoring:

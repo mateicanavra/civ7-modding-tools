@@ -43,13 +43,14 @@ is waiting. Work `priorities[]` top-down. Map each `kind` to the handler:
 | government / tradition / attribute available | Step 3 → `choose-government` / `change-tradition` / `buy-attribute` |
 | narrative / era event | Step 3 → `choose-narrative` |
 | celebration available | Step 3 → `choose-celebration` |
-| diplomacy / first-meet request | Step 3 → `respond-diplomacy` / `respond-first-meet` |
+| diplomacy / first-meet request | Step 3 → `diplomacy respond` / `diplomacy respond-first-meet` |
+| advisor warning | Read `notifications list`, then `notifications advisor-warning --target '<notification-id>' --send` |
 | ready unit needs orders | Step 4 |
 | city needs production / population to place | Step 5 |
-| informational notifications piling up | `dismiss-notification-queue --send` (after reading) |
+| informational notifications piling up | `notifications dismiss-reviewed --send` (after reading) |
 | `canEndTurn:true`, nothing pending | Step 6 |
 
-If `priorities` is sparse, cross-check with `game play notifications --json`
+If `priorities` is sparse, cross-check with `game play notifications list --json`
 (its `hud.decisionQueue[]` enumerates pending decisions with `requiredInputs`).
 
 ## Step 3 — Choice decisions
@@ -70,11 +71,11 @@ $CLI game play choose-tech --node <nodeType> --send --json   # confirm result.ve
   path; avoid options with a `cost` you cannot afford.
 - **Government / tradition / attribute / celebration:** read options, choose per
   strategy, send. Spend attribute points into the tree matching your path.
-- **Diplomacy / first-meet:** read `notifications`; the decision item carries the
-  ids to echo into `respond-diplomacy` (`--action-id`, `--response-type`) or
-  `respond-first-meet` (`--met-player-id`, `--response-type`/`--response`) — see
-  `command-reference.md`. Default: accept friendly/neutral first-meets; do not
-  declare war unless told to.
+- **Diplomacy / first-meet:** read `notifications list`; the decision item
+  carries the ids to echo into `diplomacy respond` (`--action-id`,
+  `--response-type`) or `diplomacy respond-first-meet` (`--met-player-id`,
+  `--response-type`/`--response`) — see `command-reference.md`. Default: accept
+  friendly/neutral first-meets; do not declare war unless told to.
 
 Re-run `priorities` after clearing choices to see what surfaced next.
 
@@ -84,14 +85,14 @@ Repeat until no unit is "ready" (idle). Each pass handles the
 selected/first-ready unit:
 
 ```bash
-$CLI game play ready-unit --json     # -> unitId, unit (type/pos/moves), legalOperations[]
+$CLI game play unit ready --json     # -> unitId, unit (type/pos/moves), legalOperations[]
 ```
 
 Decide from `legalOperations` + unit role:
 
 | Unit situation | Do |
 |---|---|
-| Scout / military with moves, map to explore | Move toward unexplored/objective: get a plot from `unit-move-preview --unit-id '…'`, then `unit-target --unit-id '…' --x <x> --y <y> --send`. |
+| Scout / military with moves, map to explore | Move toward unexplored/objective: get a plot from `unit move-preview --unit-id '…'`, then `unit target --unit-id '…' --x <x> --y <y> --send`. |
 | Settler / founder on/near a good site | [Found a city](#founding-a-city). |
 | Military on a border, nothing to do | Fortify: echo the FORTIFY/`SKIP_TURN`-adjacent op from `legalOperations` into `game operation … --send`. |
 | Unit genuinely has nothing useful | Skip: `game operation --family unit-operation --operation-type SKIP_TURN --unit-id '…' --send` (only if it appears in `legalOperations`). |
@@ -106,12 +107,12 @@ longer appear ready on the next pass — that is how you avoid infinite loops.
 1. Find a site: `game play settlement-recommendations --json` → take a top
    suggestion's `location{x,y}` (or use the settler's current plot if it is
    already a recommended spot).
-2. Move the settler there: `game play unit-target --unit-id '<settlerId>' --x
+2. Move the settler there: `game play unit target --unit-id '<settlerId>' --x
    <x> --y <y> --send --json`. If `path-shortfall`, the move continues next turn
    — end the turn and resume.
 3. When the settler is **on** the target plot, found it:
    ```bash
-   $CLI game play ready-unit --unit-id '<settlerId>' --json   # FOUND_CITY now in legalOperations
+   $CLI game play unit ready --unit-id '<settlerId>' --json   # FOUND_CITY now in legalOperations
    $CLI game operation --family <family-from-legalOps> \
         --operation-type <FOUND_CITY-from-legalOps> \
         --unit-id '<settlerId>' --send --json
@@ -173,7 +174,7 @@ Poll every few seconds; if nothing changes for a long time, check `game status`
 | After | Good signal | Bad signal → do |
 |---|---|---|
 | any `--send` | `result.sent:true` + `verified:true` | `verified:false`/error → read validation, fix inputs, retry once |
-| `unit-target --send` | `target-reached` or `path-shortfall` | `no-state-change` → unit blocked; pick another plot or skip |
+| `unit target --send` | `target-reached` or `path-shortfall` | `no-state-change` → unit blocked; pick another plot or skip |
 | `build-production --send` | `verified:true` | invalid candidate → re-read `ready-city`, pick a `valid:true` candidate |
 | `choose-tech/culture --send` | `verified:true` | re-read `--options`; node may be disabled now |
 | `end-turn --send` | `turn-advanced` | `turn-completion-blocked` → handle blockers, re-validate |

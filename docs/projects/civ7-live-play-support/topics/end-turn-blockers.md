@@ -17,7 +17,7 @@ choice surface.
 The useful control pattern is:
 
 1. Read current turn status through `@civ7/direct-control`.
-2. Read `game play notifications` to materialize the active notification,
+2. Read `game play notifications list` to materialize the active notification,
    selected entity ids, and likely operation families.
 3. Prefer the official operation path over raw notification dismissal.
 4. Validate with `canStart` before any mutating request.
@@ -130,15 +130,15 @@ fallback to culture, production, town focus, diplomacy, narrative, advisor, or
 population blockers: the turn-58 culture bug showed that an expired
 notification can still mean the wrong enum or missing target operation was sent.
 
-Before relying on that fallback, read `game play notifications --json`. For
+Before relying on that fallback, read `game play notifications list --json`. For
 `COMMAND_UNITS`, the HUD may include
 `details.kind: "unit-command-reconciliation"` with
 `enabledCloseoutCandidates`. Those candidates scan local-player units for a
 validator-backed no-target `SKIP_TURN` closeout, which is safer and more
 specific than ending the turn through a stale ready-unit pointer. Use those
 templates only as unit-command reconciliation; movement, attack, promotion,
-fortify, and automation still require their own ready-unit/unit-target or
-movement-preview evidence.
+fortify, and automation still require their own `unit ready`, `unit target`, or
+`unit move-preview` evidence.
 
 If `COMMAND_UNITS` is expired, `selectedUnitId` and `firstReadyUnitId` are null,
 the blocker enum is `0`, and every scanned `SKIP_TURN` validator is disabled,
@@ -173,7 +173,7 @@ remaining gameplay choice once blocker enum and readiness are clean.
 
 `NOTIFICATION_UNIT_LOST` is also a reviewed default-handler report, but it is
 not raw end-turn fallback eligible while the exact notification remains
-engine-queue front. Dismiss it through `game play dismiss-notification` and
+engine-queue front. Dismiss it through `game play notifications dismiss` and
 trust only identity-based proof that the target disappeared, was dismissed, or
 moved off the engine queue front.
 
@@ -182,15 +182,15 @@ moved off the engine queue front.
 The first CLI shortcut family lives under `civ7 game play`:
 
 - `game play end-turn`
-- `game play notifications`
-- `game play operation`
-- `game play advisor-warning`
+- `game play notifications list`
+- `game operation`
+- `game play notifications advisor-warning`
 - `game play choose-tech`
 - `game play set-tech-target`
 - `game play choose-culture`
 - `game play set-culture-target`
-- `game play respond-diplomacy`
-- `game play respond-first-meet`
+- `game play diplomacy respond`
+- `game play diplomacy respond-first-meet`
 - `game play choose-narrative` (`--options --json` reads the official
   story-model option surface before selecting a branch or `CLOSE` closeout; if
   no pending story id exists, inspect the surfaced dismissal diagnostic instead
@@ -206,24 +206,24 @@ The first CLI shortcut family lives under `civ7 game play`:
 - `game play expand-city`
 - `game play build-production`
 - `game play build-unit`
-- `game play ready-unit`
-- `game play unit-target`
+- `game play unit ready`
+- `game play unit target`
 
 Every mutating shortcut requires `--send`. Without `--send`, the shortcut
 validates or reads only. After any send, re-read before further action and do
 not repeat uncertain results.
 
-`game play notifications` is read-only. It is the materialized view for live
+`game play notifications list` is read-only. It is the materialized view for live
 play: blocker state, selected unit/city, first ready unit, active notification
 summaries, and decision hints such as operation family, operation type, args
 shape, confidence, and matching shortcut when one is known.
 
-`game play ready-unit` is read-only. Use it when `COMMAND_UNITS` is the blocker
+`game play unit ready` is read-only. Use it when `COMMAND_UNITS` is the blocker
 to resolve the selected/first-ready unit, materialize legal no-target unit
 operations/commands, and inspect nearby occupied plots before deciding whether
 to hold, move, pack, unpack, promote, or target an attack.
 
-`game play unit-target` is the tactical plot-target resolver. It follows the
+`game play unit target` is the tactical plot-target resolver. It follows the
 official right-click unit action order and returns candidate operations plus
 before/after probes when sent. Use it when the play question is "what does this
 unit do to that plot?" rather than "send this known operation type."

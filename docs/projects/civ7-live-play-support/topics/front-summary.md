@@ -4,7 +4,7 @@ Status: `live-proved-read-surface`.
 
 ## Frame
 
-`game play front-summary` is a composed, read-only tactical lens for a current
+`game play front summary` is a composed, read-only tactical lens for a current
 military front. It exists because the agent needs a wider formation view before
 choosing individual Ballista, Archer, Spearman, Settler, or commander actions.
 
@@ -12,9 +12,9 @@ The command does not predefine strategy. It composes existing read surfaces:
 
 - the current HUD/notification view, for turn and blocker context;
 - the ready-unit view when no explicit origin is supplied;
-- `target-candidates`, to identify the leading owner/city target from the
-  origin;
-- `battlefield-scan`, to surface nearby pressure and points of interest;
+- `front target-candidates`, to identify the leading owner/city candidate from
+  the origin;
+- `front scan`, to surface nearby pressure and points of interest;
 - `destination-analysis`, when a target point can be inferred or supplied.
 
 The output is a front headline, posture label, risk list, pressure list, and
@@ -24,18 +24,18 @@ should I inspect next?", not "what action should I send?"
 ## CLI
 
 ```bash
-civ7 game play front-summary --json
+civ7 game play front summary --json
 ```
 
 Useful explicit-front variants:
 
 ```bash
-civ7 game play front-summary \
+civ7 game play front summary \
   --x 15 \
   --y 21 \
   --json
 
-civ7 game play front-summary \
+civ7 game play front summary \
   --x 15 \
   --y 21 \
   --to-x 13 \
@@ -46,7 +46,7 @@ civ7 game play front-summary \
 The same read can use compact coordinate aliases:
 
 ```bash
-civ7 game play front-summary \
+civ7 game play front summary \
   --origin 15,21 \
   --destination 13,17 \
   --json
@@ -61,9 +61,9 @@ the first ready unit.
 
 ## What It Adds Over The Point Lenses
 
-`battlefield-scan` is local pressure around an origin. `target-candidates` is a
+`front scan` is local pressure around an origin. `front target-candidates` is a
 target owner/city shortlist. `destination-analysis` is one endpoint and a cheap
-corridor. `front-summary` is the first lens that composes those facts into a
+corridor. `front summary` is the first lens that composes those facts into a
 single military-planning read:
 
 1. What is the active front origin?
@@ -94,11 +94,11 @@ The front around `(15,21)` was not merely a one-unit question:
 
 The practical support frame was: screen or settle the exposed civilian, stabilize
 the contact line around the Ballista, then validate any concrete plot target
-with `unit-target` before moving or firing.
+with `unit target` before moving or firing.
 
 ## Proof Boundary
 
-`game play front-summary` is stronger than reading one ready unit because it
+`game play front summary` is stronger than reading one ready unit because it
 connects the ready-unit or supplied origin to nearby pressure, target
 candidates, and endpoint/corridor context.
 
@@ -111,8 +111,8 @@ It is weaker than an action validator:
 - it may include debug-visible unit/city facts until paired with visibility
   reads.
 
-Use it to decide the next inspection. Do not use it to skip `ready-unit`,
-`unit-target`, generic operation validation, or postcondition re-reads.
+Use it to decide the next inspection. Do not use it to skip `unit ready`,
+`unit target`, generic operation validation, or postcondition re-reads.
 
 ## Relationship To Other Lenses
 
@@ -126,11 +126,11 @@ Use it to decide the next inspection. Do not use it to skip `ready-unit`,
 The practical turn loop is:
 
 1. `game play priorities --json`
-2. `game play front-summary --x <front-x> --y <front-y> --json`
-3. `game play battlefield-scan` or `destination-analysis` for the top pressure
+2. `game play front summary --x <front-x> --y <front-y> --json`
+3. `game play front scan` or `destination-analysis` for the top pressure
    point
-4. `game play ready-unit --json`
-5. `game play unit-target --unit-id '<unit-id>' --x <x> --y <y> --json`
+4. `game play unit ready --json`
+5. `game play unit target --unit-id '<unit-id>' --x <x> --y <y> --json`
 
 ## Remaining Gaps
 

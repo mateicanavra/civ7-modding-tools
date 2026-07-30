@@ -51,7 +51,7 @@ The `formation` object has:
 - `otherOwnerContacts`: all other-owner units in scan scope;
 - `nearbyContacts`: other-owner units within `--contact-radius` of a civilian;
 - `nextInspections`: commands to re-read priorities, battlefield, civilian
-  route triage, and concrete `unit-target` validators.
+  route triage, and concrete `unit target` validators.
 
 ## Norm
 
@@ -59,7 +59,7 @@ Treat `screen-civilian` as a hold/screen prompt, not as an automatic move. The
 next action should be a concrete validator read:
 
 ```bash
-civ7 game play unit-target \
+civ7 game play unit target \
   --unit-id '<ready-unit-id>' \
   --x <screen-or-contact-x> \
   --y <screen-or-contact-y> \
@@ -79,8 +79,8 @@ not answer "which exact attack or movement path will succeed?"
 
 This command proves only a bounded runtime scan and derived local geometry.
 Distances are cheap grid heuristics. Hidden-info policy follows
-`battlefield-scan`. Operation legality and effect still require `unit-target`,
-operation validation, and postcondition reads.
+`game play front scan`. Operation legality and effect still require
+`unit target`, operation validation, and postcondition reads.
 
 Other-owner contact is not relationship proof. The command exposes
 `relationshipLabelPolicy.relationshipSource: "not-classified"`,

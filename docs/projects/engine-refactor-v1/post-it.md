@@ -2,7 +2,7 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Command. Topic. Identity. Adapter. Grammar. Closure.
+**Attractor filter:** Topic. Noun. Verb. Compatibility. Grammar. Closure.
 
 **Frame:** an oclif topic plugin owns a public command language. Command paths
 are executable identity, topic directories express the language hierarchy, and
@@ -27,13 +27,14 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** make command path the sole canonical identity inside the
-closed CLI-topic kind. Every admitted command module owns one default runtime
-command, exports no reusable behavior, declares no redundant static id, and
-depends on capabilities through the qualified adapter interior rather than
-another command module. Prove the source-path ID multiset is collision-free and
-exactly matches each generated oclif manifest without changing command
-behavior, aliases, or public paths.
+**Current container:** gather the six direct unit commands beneath one real
+operator noun. Ready-state, movement preview, target resolution, promotion
+readiness, resettlement, and upgrade all center on one selected or explicit
+unit, so they become `game:play:unit:*` while their flat paths remain hidden
+compatibility aliases. Their distinct read, preview, validation, and send
+behavior remains unchanged; the namespace does not pretend that the deferred
+preview/check/send grammar redesign has landed. Formation, route, settlement,
+and generic operation commands remain outside.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -50,10 +51,13 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** encode the generic command-module law -> expose the exact red
-corpus -> delete redundant identity and relocate shared helpers -> prove source
-path/manifest bijection and behavior -> land the identity cut -> migrate one
-earned `game` noun family at a time -> return to the aggregate-only Domain SDK.
+**Gradient:** relocate all six unit commands without changing runtime behavior
+-> preserve every flat invocation as a hidden alias -> make `unit` their single
+primary topic owner -> normalize command and behavior-test hierarchy together
+-> update active operator guidance without rewriting historical evidence ->
+prove exact manifest identity, canonical and legacy resolution, unchanged
+read/preview/validate/send behavior, and exclusive family ownership -> land the
+unit family -> reassess the next smallest truthful noun.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -96,6 +100,55 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - CLI Front Topic Sealed
+
+Front summary, battlefield scan, and strategic target candidates now share one
+`game:play:front` noun. Every former flat path remains a hidden alias, front is
+the commands' sole primary family, and active guidance no longer mistakes
+strategic target candidates for immediate action coordinates. Exact manifest
+identity, canonical and legacy shell resolution, the full CLI graph, generic
+topic laws, boundaries, dead-code proof, staged hook, and fresh architecture
+and product reviews sealed the family.
+
+### 2026-07-28 - CLI Advisor Notification Sealed
+
+Advisor-warning acknowledgement now lives with the notification service it
+uses at `game:play:notifications:advisor-warning`. The former flat path remains
+a hidden alias, validation and send behavior are unchanged, and focused proof
+now covers both no-send validation and specialized acknowledgement. The
+complete CLI/control graph, generic topic laws, boundaries, dead-code proof,
+staged hook, shell resolution, and fresh architecture and product reviews
+sealed the notification family in full.
+
+### 2026-07-28 - CLI Diplomacy Topic Sealed
+
+Ordinary diplomatic responses and first-meet greetings now share one
+`game:play:diplomacy` noun. Both former flat paths remain hidden aliases, source
+and manifest identities are exact, and canonical plus legacy invocations
+resolve to the same unchanged runtime owners. The complete CLI graph, generic
+topic laws, boundaries, dead-code proof, staged hook, and fresh architecture
+and product reviews sealed the second capability-shaped grammar migration.
+
+### 2026-07-28 - CLI Notification Topic Sealed
+
+Notification inventory, scheduling, single-item dismissal, and reviewed bulk
+dismissal now share one `game:play:notifications` noun. Every prior flat path
+remains a hidden alias, source and manifest identities are exact, and canonical
+plus legacy invocations resolve to the same implementation owner. The complete
+CLI graph, generic topic laws, boundaries, dead-code proof, staged hook, and
+fresh architecture and product reviews sealed the first capability-shaped
+grammar migration.
+
+### 2026-07-28 - CLI Command Identity Sealed
+
+Every CLI command module now derives its canonical identity exclusively from
+its source path, owns one concrete default oclif command, exports no reusable
+runtime behavior, and reaches local capabilities only through its topic's
+qualified adapter interior. Source paths and generated manifests are bijective,
+the assembled shell rejects canonical and alias collisions, and the full
+application/topic graph plus generic Habitat law sealed the plane on which
+product command grammar can now move safely.
 
 ### 2026-07-28 - CLI Topic Adapter Kind Sealed
 

@@ -420,8 +420,8 @@ describe("game play priorities command", () => {
       });
       expect(payload.nextAction).toEqual(top.nextAction);
       expect(top.reason).toContain("live ComponentID");
-      expect(JSON.stringify(top.nextAction)).not.toContain("respond-diplomacy");
-      expect(JSON.stringify(payload.nextAction)).not.toContain("respond-diplomacy");
+      expect(JSON.stringify(top.nextAction)).not.toContain("diplomacy respond");
+      expect(JSON.stringify(payload.nextAction)).not.toContain("diplomacy respond");
       expect(server.received.some((message) => message.includes("sendOperation("))).toBe(false);
     } finally {
       await server.close();
@@ -867,7 +867,7 @@ function basePriorityHudView(input: {
 }
 
 function commandForCategory(category: string) {
-  if (category === "first-meet-diplomacy") return "game play respond-first-meet";
+  if (category === "first-meet-diplomacy") return "game play diplomacy respond-first-meet";
   if (category === "technology-choice") return "game play choose-tech";
   if (category === "culture-choice") return "game play choose-culture";
   if (category === "celebration-choice") return "game play choose-celebration";

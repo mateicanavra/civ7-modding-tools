@@ -10,12 +10,12 @@ what the selected Archer or Ballista can do now; it cannot explain whether the
 army should stage toward an independent city, a nearby major civ, or a naval
 front.
 
-`game play target-candidates` is the first read-only materialization for that
-question. It ranks other-owner contacts from a supplied formation origin using
-live runtime city/unit summaries:
+`game play front target-candidates` is the first read-only materialization for
+that question. It ranks other-owner contacts from a supplied formation origin
+using live runtime city/unit summaries:
 
 ```bash
-civ7 game play target-candidates \
+civ7 game play front target-candidates \
   --x 18 \
   --y 20 \
   --json
@@ -24,7 +24,7 @@ civ7 game play target-candidates \
 The compact coordinate form is:
 
 ```bash
-civ7 game play target-candidates \
+civ7 game play front target-candidates \
   --origin 18,20 \
   --json
 ```
@@ -36,7 +36,7 @@ active front decision.
 
 ## What It Reads
 
-The target-candidates view returns:
+The front target-candidates view returns:
 
 - supplied or inferred origins;
 - candidate owner id, leader/civilization probes, city count, and unit count;
@@ -89,8 +89,8 @@ team, diplomacy, independent-power, war-state, or operation-validator evidence
 proves more.
 
 After choosing a target, the agent still needs normal live-play discipline:
-`game play ready-unit`, `game map` or `game map visibility`, `game play
-unit-target`, operation validation, and postcondition checks.
+`game play unit ready`, `game map` or `game map visibility`, `game play
+unit target`, operation validation, and postcondition checks.
 
 ## Live Context
 
@@ -111,8 +111,8 @@ read.
 
 ## Norms
 
-- Run target-candidates before committing a multi-turn siege direction, not
-  before every single unit action.
+- Run `game play front target-candidates` before committing a multi-turn siege
+  direction, not before every single unit action.
 - Pass an explicit origin from the live front when possible.
 - Treat independent or low-density nearby cities as staging targets, not
   automatically as final strategic goals.

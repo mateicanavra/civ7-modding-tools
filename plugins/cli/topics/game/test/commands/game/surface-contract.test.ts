@@ -22,9 +22,7 @@ const PUBLIC_COMMAND_IDS = [
   "game:map:summary",
   "game:map:visibility",
   "game:operation",
-  "game:play:advisor-warning",
   "game:play:assign-worker",
-  "game:play:battlefield-scan",
   "game:play:build-production",
   "game:play:buy-attribute",
   "game:play:change-tradition",
@@ -38,41 +36,64 @@ const PUBLIC_COMMAND_IDS = [
   "game:play:consider-town-project",
   "game:play:consider-traditions",
   "game:play:destination-analysis",
-  "game:play:dismiss-notification",
-  "game:play:dismiss-notification-queue",
+  "game:play:diplomacy:respond",
+  "game:play:diplomacy:respond-first-meet",
   "game:play:end-turn",
   "game:play:expand-city",
   "game:play:formation-snapshot",
-  "game:play:front-summary",
-  "game:play:notification-queue",
-  "game:play:notifications",
+  "game:play:front:scan",
+  "game:play:front:summary",
+  "game:play:front:target-candidates",
+  "game:play:notifications:advisor-warning",
+  "game:play:notifications:dismiss",
+  "game:play:notifications:dismiss-reviewed",
+  "game:play:notifications:list",
+  "game:play:notifications:schedule",
   "game:play:priorities",
   "game:play:progress-dashboard",
-  "game:play:promotion-readiness",
   "game:play:ready-city",
-  "game:play:ready-unit",
   "game:play:rehydrate",
-  "game:play:resettle-unit",
-  "game:play:respond-diplomacy",
-  "game:play:respond-first-meet",
   "game:play:screen:dismiss",
   "game:play:screen:show",
   "game:play:set-culture-target",
   "game:play:set-tech-target",
   "game:play:set-town-focus",
   "game:play:settlement-recommendations",
-  "game:play:target-candidates",
   "game:play:topics",
   "game:play:traditions",
-  "game:play:unit-move-preview",
-  "game:play:unit-target",
-  "game:play:upgrade-unit",
+  "game:play:unit:move-preview",
+  "game:play:unit:promotion-readiness",
+  "game:play:unit:ready",
+  "game:play:unit:resettle",
+  "game:play:unit:target",
+  "game:play:unit:upgrade",
   "game:restart",
   "game:status",
   "game:view:appshot",
   "game:view:camera",
   "game:watch",
 ] as const;
+
+const PUBLIC_HIDDEN_ALIASES: Partial<
+  Record<(typeof PUBLIC_COMMAND_IDS)[number], readonly string[]>
+> = {
+  "game:play:diplomacy:respond": ["game:play:respond-diplomacy"],
+  "game:play:diplomacy:respond-first-meet": ["game:play:respond-first-meet"],
+  "game:play:front:scan": ["game:play:battlefield-scan"],
+  "game:play:front:summary": ["game:play:front-summary"],
+  "game:play:front:target-candidates": ["game:play:target-candidates"],
+  "game:play:notifications:advisor-warning": ["game:play:advisor-warning"],
+  "game:play:notifications:dismiss": ["game:play:dismiss-notification"],
+  "game:play:notifications:dismiss-reviewed": ["game:play:dismiss-notification-queue"],
+  "game:play:notifications:list": ["game:play:notifications"],
+  "game:play:notifications:schedule": ["game:play:notification-queue"],
+  "game:play:unit:move-preview": ["game:play:unit-move-preview"],
+  "game:play:unit:promotion-readiness": ["game:play:promotion-readiness"],
+  "game:play:unit:ready": ["game:play:ready-unit"],
+  "game:play:unit:resettle": ["game:play:resettle-unit"],
+  "game:play:unit:target": ["game:play:unit-target"],
+  "game:play:unit:upgrade": ["game:play:upgrade-unit"],
+};
 
 const PUBLIC_TOPICS = {
   game: {
@@ -90,6 +111,21 @@ const PUBLIC_TOPICS = {
   "game:play": {
     description: "Turn-by-turn live-play shortcuts over direct-control",
   },
+  "game:play:front": {
+    description:
+      "Read battlefield pressure, target candidates, and composed military front summaries",
+  },
+  "game:play:unit": {
+    description:
+      "Read unit readiness, movement, and promotion state; validate or send target, resettle, and upgrade actions",
+  },
+  "game:play:diplomacy": {
+    description: "Validate and send diplomatic action responses and first-meet greetings",
+  },
+  "game:play:notifications": {
+    description:
+      "Read and schedule live Civ7 notifications; dismiss reviewed items and acknowledge advisor warnings",
+  },
   "game:play:screen": {
     description: "Inspect and dismiss App UI display-queue screens (cinematic moments)",
   },
@@ -105,7 +141,7 @@ type PackageManifest = Readonly<{
 }>;
 
 type OclifManifest = Readonly<{
-  commands?: Record<string, { aliases?: unknown; id?: unknown }>;
+  commands?: Record<string, { aliases?: unknown; hiddenAliases?: unknown; id?: unknown }>;
 }>;
 
 describe("game command surface", () => {
@@ -119,6 +155,7 @@ describe("game command surface", () => {
     for (const id of PUBLIC_COMMAND_IDS) {
       expect(commands[id]?.id).toBe(id);
       expect(commands[id]?.aliases).toEqual([]);
+      expect(commands[id]?.hiddenAliases).toEqual(PUBLIC_HIDDEN_ALIASES[id] ?? []);
     }
 
     const packageManifest = readJson<PackageManifest>(join(packageRoot, "package.json"));

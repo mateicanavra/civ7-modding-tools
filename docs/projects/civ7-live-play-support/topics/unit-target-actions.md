@@ -88,12 +88,12 @@ Two live caveats matter for interpretation:
 
 ## CLI Shortcut
 
-`game play unit-target` is the play-facing shortcut for this family. It is
+`game play unit target` is the play-facing shortcut for this family. It is
 read-only by default and resolves the target through the official right-click
 order:
 
 ```bash
-civ7 game play unit-target \
+civ7 game play unit target \
   --unit-id '{"owner":0,"id":65536,"type":26}' \
   --x 23 \
   --y 33 \
@@ -112,7 +112,7 @@ repeating the same target blindly.
 The resolver also normalizes official enum spellings before validation. Civ7 UI
 code uses both string operation names such as `UNITOPERATION_RANGE_ATTACK` and
 enum keys such as `UnitOperationTypes.RANGE_ATTACK` for the same action family.
-If `game play ready-unit` exposes `RANGE_ATTACK` or `NAVAL_ATTACK`, `unit-target`
+If `game play unit ready` exposes `RANGE_ATTACK` or `NAVAL_ATTACK`, `unit target`
 should now resolve through the same enum value instead of falling through to
 `MOVE_TO` merely because the operation spelling differed.
 

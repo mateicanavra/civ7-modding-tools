@@ -77,12 +77,12 @@ const TOPICS: ReadonlyArray<Topic> = [
     ],
     commands: [
       "game play priorities",
-      "game play notifications",
-      "game play notification-queue",
-      "game play dismiss-notification-queue",
+      "game play notifications list",
+      "game play notifications schedule",
+      "game play notifications dismiss-reviewed",
       "game play end-turn",
-      "game play dismiss-notification",
-      "game play advisor-warning",
+      "game play notifications dismiss",
+      "game play notifications advisor-warning",
     ],
     loadWhen:
       "before any blocker closeout, end-turn, report dismissal, advisor warning, or stale notification decision",
@@ -157,12 +157,62 @@ const TOPICS: ReadonlyArray<Topic> = [
       "settlement recommendations inform movement/founding; they do not replace live movement and operation validators",
   },
   {
-    family: "tactics",
-    aliases: ["units", "combat", "commanders", "promotion", "upgrade", "resettle"],
+    family: "front",
+    aliases: ["battlefield", "siege"],
     purpose:
-      "Control ready units with stale-state guards, validator-backed target actions, and commander/promotion caution.",
+      "Orient one military front through local battlefield pressure, strategic target candidates, and a composed posture summary.",
+    proof: "read-only heuristic planning views; concrete actions still require live validators",
+    references: [
+      "docs/projects/civ7-live-play-support/topics/front-summary.md",
+      "docs/projects/civ7-live-play-support/topics/battlefield-scan.md",
+      "docs/projects/civ7-live-play-support/topics/target-candidates.md",
+      "docs/projects/civ7-live-play-support/topics/assyria-siege-posture.md",
+      "docs/projects/civ7-live-play-support/topics/tactical-lens-api-roadmap.md",
+    ],
+    commands: [
+      "game play front summary",
+      "game play front scan",
+      "game play front target-candidates",
+    ],
+    loadWhen:
+      "when orienting a military front, comparing nearby pressure, or choosing the next strategic target inspection",
+    boundary:
+      "front reads rank posture and inspections; they do not prove relationships or authorize movement, attacks, diplomacy, or other mutations",
+  },
+  {
+    family: "unit",
+    aliases: ["units", "commanders", "promotion", "upgrade", "resettle"],
+    purpose:
+      "Inspect unit state and validate or send unit actions with stale-state and postcondition guards.",
     proof:
-      "live-proved for read views and several command shapes; combat outcomes require fresh postconditions",
+      "live-proved for read views and several command shapes; outcomes require fresh postconditions",
+    references: [
+      "docs/projects/civ7-live-play-support/topics/unit-move-preview.md",
+      "docs/projects/civ7-live-play-support/topics/ready-unit-commander-actions.md",
+      "docs/projects/civ7-live-play-support/topics/unit-target-actions.md",
+      "docs/projects/civ7-live-play-support/topics/unit-operation-postconditions.md",
+      "docs/projects/civ7-live-play-support/topics/unit-command-resettle-upgrade.md",
+    ],
+    commands: [
+      "game play unit ready",
+      "game play unit move-preview",
+      "game play unit target",
+      "game play unit promotion-readiness",
+      "game play unit resettle",
+      "game play unit upgrade",
+    ],
+    loadWhen:
+      "before moving, attacking, skipping, alerting, promoting, upgrading, or resettling a unit",
+    boundary:
+      "validator success is not tactical success; no-state-change requires a fresh read before repeating",
+  },
+  {
+    family: "tactics",
+    aliases: ["combat"],
+    purpose:
+      "Plan tactical priorities, formation posture, civilian routes, destinations, and generic operations.",
+    proof:
+      "live-proved for planning views and the generic operation shape; outcomes require fresh postconditions",
     references: [
       "docs/projects/civ7-live-play-support/topics/battlefield-scan.md",
       "docs/projects/civ7-live-play-support/topics/formation-snapshot.md",
@@ -186,23 +236,15 @@ const TOPICS: ReadonlyArray<Topic> = [
     commands: [
       "game play priorities",
       "game play formation-snapshot",
-      "game play front-summary",
       "game play civilian-route-triage",
-      "game play ready-unit",
-      "game play unit-move-preview",
       "future: game play unit-analysis",
-      "game play battlefield-scan",
       "game play destination-analysis",
-      "game play promotion-readiness",
-      "game play unit-target",
-      "game play operation",
-      "game play resettle-unit",
-      "game play upgrade-unit",
+      "game operation",
     ],
     loadWhen:
-      "before moving, attacking, skipping, alerting, promoting, upgrading, or resettling a unit",
+      "when comparing priorities, formation posture, civilian routes, destinations, or generic operations",
     boundary:
-      "validator success is not tactical success; no-state-change requires a fresh read before repeating",
+      "planning lenses do not authorize a unit action; generic operation validation is not outcome proof",
   },
   {
     family: "diplomacy",
@@ -216,11 +258,11 @@ const TOPICS: ReadonlyArray<Topic> = [
       "docs/projects/civ7-live-play-support/topics/early-war-tactical-stale-state-guard.md",
     ],
     commands: [
-      "game play respond-diplomacy",
-      "game play respond-first-meet",
-      "game play notifications",
-      "game play notification-queue",
-      "game play dismiss-notification-queue",
+      "game play diplomacy respond",
+      "game play diplomacy respond-first-meet",
+      "game play notifications list",
+      "game play notifications schedule",
+      "game play notifications dismiss-reviewed",
     ],
     loadWhen:
       "when the HUD reports diplomatic action, diplomatic response, first meet, grievance, or relationship pressure",
@@ -238,7 +280,7 @@ const TOPICS: ReadonlyArray<Topic> = [
       "docs/projects/civ7-live-play-support/topics/local-catalog-enrichment.md",
       "docs/projects/civ7-live-play-support/evidence-packs/local-on-disk-read-surfaces.md",
     ],
-    commands: ["game local-data inspect", "game play notifications", "game watch"],
+    commands: ["game local-data inspect", "game play notifications list", "game watch"],
     loadWhen: "when deciding whether to poll the game UI/runtime or read local SQLite/resources",
     boundary:
       "SQLite/resource rows enrich decisions; they are not current legality, validator, or postcondition proof",
@@ -254,7 +296,7 @@ const TOPICS: ReadonlyArray<Topic> = [
       "docs/projects/civ7-live-play-support/evidence-packs/watcher-latency-observer-mode.md",
       "docs/projects/civ7-live-play-support/topics/runtime-state-sources.md",
     ],
-    commands: ["game play rehydrate", "game watch", "game play ready-unit"],
+    commands: ["game play rehydrate", "game watch"],
     loadWhen:
       "after restart, compacted context, tuner failure, human input, slow reads, or passive watcher handoff",
     boundary:
@@ -277,7 +319,7 @@ const TOPICS: ReadonlyArray<Topic> = [
       "future: game play todo",
       "future: game play unit targets",
       "future: game play unit preview move",
-      "future: game play notifications schedule",
+      "game play notifications schedule",
       "future: game play city production preview",
       "future: game play progress tech send",
     ],
@@ -333,13 +375,10 @@ const TOPICS: ReadonlyArray<Topic> = [
     commands: [
       "game play priorities",
       "game play progress-dashboard",
-      "game play front-summary",
       "game play rehydrate",
       "game watch",
       "game autoplay",
       "game play settlement-recommendations",
-      "game play target-candidates",
-      "game play battlefield-scan",
       "game play destination-analysis",
     ],
     loadWhen:

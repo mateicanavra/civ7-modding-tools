@@ -22,14 +22,18 @@ fresh in that worktree.
 
 ## Domain Grammar
 
-Use domain nouns first, then phase verbs:
+Use domain nouns first. Where a command family has a proven phase split, follow
+the noun with a phase verb. The landed unit family only gathers existing
+behavior under one noun; it does not introduce a phase split:
 
 ```text
 game play status
 game play todo
-game play unit <show|targets|preview|check|send|operation>
+game play unit <ready|move-preview|target|promotion-readiness|resettle|upgrade>
 game play city <show|production|growth|workers|check|send>
-game play notifications <list|show|schedule|dismiss-reviewed>
+game play diplomacy <respond|respond-first-meet>
+game play notifications <list|show|schedule|advisor-warning|dismiss|dismiss-reviewed>
+game play front <summary|scan|target-candidates>
 game play progress <show|tech|culture|tradition|attribute|narrative>
 game play trade <routes|preview|check|send>
 game play objective <show|next|ledger>
@@ -37,7 +41,7 @@ game play map <summary|plot|grid|overlay>
 game play turn <status|end>
 ```
 
-The stable phase vocabulary is:
+The phase vocabulary for phase-oriented surfaces is:
 
 - `show`: compact current state;
 - `targets` or `preview`: read-only choices and projected effects;
@@ -46,10 +50,10 @@ The stable phase vocabulary is:
 - `operation`: generic escape hatch for raw Civ7 operation families;
 - `debug`/`raw`: expansion modes, not default play surfaces.
 
-This keeps `unit target`, `unit move`, `city production`, `progress tech`, and
-`notifications schedule` in the agent's vocabulary while still allowing the
-underlying direct-control layer to preserve `unit-operation`, `city-command`,
-and `player-operation` contracts.
+This keeps `unit target`, `unit move-preview`, `city production`, `progress
+tech`, and `notifications schedule` in the agent's vocabulary while still
+allowing the underlying direct-control layer to preserve `unit-operation`,
+`city-command`, and `player-operation` contracts.
 
 ## Compatibility Path
 
@@ -71,12 +75,23 @@ compact play-agent output is introduced.
 | Existing command | New play-agent path | Notes |
 | --- | --- | --- |
 | `game play priorities` | `game play todo` | Keep `priorities` as alias; `todo` should emphasize next actionable decision. |
-| `game play ready-unit` | `game play unit show unit:next` | Also support structured IDs for exact units. |
-| `game play unit-target` | `game play unit targets` and `game play unit send target` | Split read-only target enumeration from mutation. |
-| `game play operation` | `game play unit operation`, `city operation`, `player operation` | Keep generic command as the escape hatch. |
-| `game play notifications` | `game play notifications list` | Preserve raw notification read with `--raw`. |
+| `game play ready-unit` | `game play unit ready` | Noun gathering only; structured IDs for exact units remain supported. |
+| `game play unit-move-preview` | `game play unit move-preview` | Preserve the read-only preview flags and payload. |
+| `game play unit-target` | `game play unit target` | Preserve validation by default and the existing explicit `--send` mutation. |
+| `game play promotion-readiness` | `game play unit promotion-readiness` | Preserve the read-only promotion evidence. |
+| `game play resettle-unit` | `game play unit resettle` | Preserve validation by default and the existing explicit `--send` mutation. |
+| `game play upgrade-unit` | `game play unit upgrade` | Preserve validation by default and the existing explicit `--send` mutation. |
+| `game operation` | `game play unit operation`, `city operation`, `player operation` | Keep the current generic command as the escape hatch. |
+| `game play respond-diplomacy` | `game play diplomacy respond` | Preserve the ordinary diplomatic-response operation and its guarded send path. |
+| `game play respond-first-meet` | `game play diplomacy respond-first-meet` | Preserve named or numeric first-meet responses and postcondition proof. |
+| `game play notifications` | `game play notifications list` | Preserve the existing composite blocker, decision-HUD, and notification view. |
 | `game play notification-queue` | `game play notifications schedule` | Make scheduling a notifications subcommand. |
+| `game play advisor-warning` | `game play notifications advisor-warning` | Keep the specialized acknowledgement distinct from generic notification dismissal. |
+| `game play dismiss-notification` | `game play notifications dismiss` | Keep explicit single-item review and `--send` mutation. |
 | `game play dismiss-notification-queue` | `game play notifications dismiss-reviewed` | Keep item-level review context and conservative categories. |
+| `game play front-summary` | `game play front summary` | Compose strategic target candidates, local pressure, and optional endpoint context without sending operations. |
+| `game play battlefield-scan` | `game play front scan` | Keep the bounded local-pressure lens distinct from movement and action authority. |
+| `game play target-candidates` | `game play front target-candidates` | Rank strategic other-owner contacts and city fronts from an origin; this is not immediate action-plot enumeration. |
 | `game play ready-city` | `game play city show city:ready` | City-specific grammar should own production/growth/worker decisions. |
 | `game play build-production` | `game play city production send` | Add `preview` and `check` before mutation. |
 | `game play choose-tech` / `choose-culture` | `game play progress tech send` / `progress culture send` | Technology already owns the complete chooser workflow; culture still needs the same default mutation contract. |
@@ -86,8 +101,8 @@ compact play-agent output is introduced.
 
 - Add aliases only when they are part of a domain-command migration, then teach
   `game play topics` to prefer the new grammar.
-- Keep old commands for live-play continuity until the active play thread and
-  tests use the new names.
+- Keep old paths as hidden aliases for live-play continuity until active callers
+  and references use the canonical names.
 - Soft-deprecate only overloaded forms, not proven command behavior.
 - Every new wrapper should call the existing direct-control package; do not add
   caller-local runtime control.
@@ -99,21 +114,33 @@ compact play-agent output is introduced.
 
 ## Priority Refactors
 
-1. **Unit namespace.** Add `game play unit targets`, `unit preview move`,
-   `unit check move`, and `unit send move`. This removes the current mix of
-   `ready-unit`, `unit-target`, and generic `operation` from the main tactical
-   loop. Risk: high until queued destination and movement postconditions are
+1. **Unit namespace (landed 2026-07-28).** `ready`, `move-preview`, `target`,
+   `promotion-readiness`, `resettle`, and `upgrade` now share one noun; prior
+   flat paths remain hidden aliases. This is noun gathering only. The existing
+   validation-by-default and explicit `--send` behavior of `target`, `resettle`,
+   and `upgrade` is unchanged. A future preview/check/send phase split remains
+   deferred until queued destination and movement postconditions are
    live-smoked.
-2. **Notification namespace.** Move `notifications`, `notification-queue`, and
-   dismiss queue behavior under one noun. Risk: medium because bulk dismissal
-   must stay conservative and item-review gated.
-3. **City namespace.** Group `ready-city`, `build-production`, `build-unit`,
+2. **Notification namespace (landed 2026-07-28).** `list`, `schedule`,
+   `advisor-warning`, `dismiss`, and `dismiss-reviewed` now share one noun;
+   prior flat paths remain hidden aliases. Advisor acknowledgement remains
+   specialized, while bulk dismissal stays conservative and item-review gated.
+3. **Diplomacy namespace (landed 2026-07-28).** `respond` and
+   `respond-first-meet` now share the diplomacy noun; their prior flat paths
+   remain hidden aliases. Notification inventory remains a separate input
+   surface rather than becoming diplomacy-owned.
+4. **Front namespace (landed 2026-07-28).** `summary`, `scan`, and
+   `target-candidates` now share the front noun; prior flat paths remain hidden
+   aliases. These are read-only orientation lenses. `target-candidates` ranks
+   strategic other-owner/city candidates and does not enumerate validator-backed
+   unit action plots.
+5. **City namespace.** Group `ready-city`, `build-production`, `build-unit`,
    `assign-worker`, `expand-city`, and town focus workflows. Risk: medium; city
    operations have different arg shapes and placement requirements.
-4. **Progress namespace.** Group tech, culture, traditions, attributes,
+6. **Progress namespace.** Group tech, culture, traditions, attributes,
    narrative, and celebration. Risk: medium; node hashes and closeout behavior
    must stay visible.
-5. **Summary-first output.** Apply the play-agent response contract to one read
+7. **Summary-first output.** Apply the play-agent response contract to one read
    command and one mutation before flipping any defaults. Risk: medium because
    hidden raw fields can remove tactical evidence if expansion flags are weak.
 

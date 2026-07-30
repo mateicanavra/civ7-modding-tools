@@ -46,7 +46,7 @@ The priority list intentionally favors short-lived live authority:
    proven clean.
 2. HUD decisions and blockers, especially end-turn-blocking notifications.
 3. Ready units, because they block turn flow and plot-target actions require
-   `unit-target` validation.
+   `unit target` validation.
 4. Ready cities, because city blockers branch between production, town focus,
    population placement, expansion, and project closeout.
 5. Battlefield points of interest near the ready-unit origin, such as civilian
@@ -84,12 +84,12 @@ a validator-backed mutation because it does not prove a chosen action.
 
 Use it to decide the next inspection:
 
-- exact `game play dismiss-notification --target ... --send ...` templates for
+- exact `game play notifications dismiss --target ... --send ...` templates for
   reviewed informational closeouts when the HUD includes the notification
   ComponentID;
-- `game play ready-unit` and `game play unit-target` for unit actions;
+- `game play unit ready` and `game play unit target` for unit actions;
 - `game play ready-city` for city blockers;
-- `game play battlefield-scan` or `game play destination-analysis` for tactical
+- `game play front scan` or `game play destination-analysis` for tactical
   context.
 
 Do not use it to skip validators, postcondition checks, or fresh re-reads after

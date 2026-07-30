@@ -94,7 +94,7 @@ with limited context.
 The long session has been an iterative live-play support workstream:
 
 1. Build compact surfaces for current blockers: notifications, priority queue,
-   ready-city, ready-unit, unit-target, narrative/government/culture/tech
+   ready-city, `unit ready`, `unit target`, narrative/government/culture/tech
    option readers, production candidates, and end-turn guards.
 2. Convert repeated player friction into caller-level operations that send the
    official underlying action and then verify a meaningful postcondition.

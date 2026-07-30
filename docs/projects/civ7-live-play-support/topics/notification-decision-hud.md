@@ -26,7 +26,7 @@ The HUD has two layers:
 
 The full `notifications` array remains available for debugging raw facts such
 as notification id, type name, target, location, dismissal state, and message.
-`game play notification-queue` builds on the same HUD queue when the agent needs
+`game play notifications schedule` builds on the same HUD queue when the agent needs
 an ordered bulk read and guarded action schedule rather than a raw notification
 dump.
 
@@ -67,22 +67,22 @@ after any mutation or human input.
 | Town focus | city target, growth `Type`, paired `ProjectType` | `game play set-town-focus`; then `game play consider-town-project` if closeout is still needed |
 | Production choice | city target, exactly one build item kind, and placement `X`/`Y` when constructible validation returns legal plots; read `game play ready-city --compact --json` when the item id/placement is not already proven | ready-city evidence, then the selected production action |
 | Resource assignment | resource allocation screen state, available resources, settlement slots | no proven assignment shortcut yet; inspect the official resource-allocation surface |
-| Diplomacy response | diplomatic action `ID` and chosen response `Type` | `game play respond-diplomacy` |
-| First-meet diplomacy | local player id, met player id from `notification.Player`/`details.player2`, first-meet response `Type` | `game play respond-first-meet` |
+| Diplomacy response | diplomatic action `ID` and chosen response `Type` | `game play diplomacy respond` |
+| First-meet diplomacy | local player id, met player id from `notification.Player`/`details.player2`, first-meet response `Type` | `game play diplomacy respond-first-meet` |
 | Informational notification | notification ComponentID; handler evidence that no specialized decision surface is required | reviewed item-scoped dismissal |
 | Narrative branch | story `Target`, option `TargetType`, activation `Action`; read `game play choose-narrative --options --json` when the story target or option key is not already proven | live option evidence, then the selected narrative action |
 | Government choice | live `GovernmentType` and activation `Action` from `game play choose-government --options --json` | `game play choose-government` |
 | Celebration choice | live `GoldenAgeType` hash from `game play choose-celebration --options --json` | `game play choose-celebration` |
 | Tradition review | active/unlocked tradition ids from `game play traditions --compact --json`; chosen `TraditionType` and activate/deactivate `Action` | tradition slot evidence, then the selected change or review closeout |
 | Attribute review | attribute `ProgressionTreeNodeType` | `game play buy-attribute`; then `game play consider-attributes` |
-| Advisor warning | notification ComponentID as `Target` | `game play advisor-warning` |
-| Unit command | selected or first ready unit; sometimes target plot | `game play ready-unit`, then `game play unit-target` for plot actions or generic unit operation validation |
+| Advisor warning | notification ComponentID as `Target` | `game play notifications advisor-warning` |
+| Unit command | selected or first ready unit; sometimes target plot | `game play unit ready`, then `game play unit target` for plot actions or generic unit operation validation |
 
-For queue management, use `game play notification-queue --json` before manually
+For queue management, use `game play notifications schedule --json` before manually
 walking several notifications. It can schedule reviewed informational closeout
 candidates, known operation-family items, and ready-unit inspections, but it
 does not bulk-dismiss or send operations. Use
-`game play dismiss-notification-queue --send` when the queue
+`game play notifications dismiss-reviewed --send` when the queue
 contains eligible informational App UI closeout candidates that have been
 reviewed at the needed tactical/strategic level.
 
@@ -161,8 +161,8 @@ Notable handler evidence:
   `Game.Diplomacy.getDiplomaticEventData(actionId)` and
   `Game.Diplomacy.getResponseDataForUI(actionId)` proof. If the response list
   is empty or no response option validates, compact priorities should route to
-  reviewed `game play dismiss-notification --target ... --send ...` closeout,
-  not `respond-diplomacy`.
+  reviewed `game play notifications dismiss --target ... --send ...` closeout,
+  not `diplomacy respond`.
 - `NOTIFICATION_WONDER_COMPLETED`, `NOTIFICATION_WONDER_FAILED`,
   `NOTIFICATION_LEGACY_COMPLETED`,
   `NOTIFICATION_UNIT_ATTACKED`, `NOTIFICATION_UNIT_LOST`,
@@ -241,7 +241,7 @@ Lafayette as an end-turn blocker. The official handler evidence above makes the
 correct closeout path narrow:
 
 ```bash
-civ7 game play dismiss-notification \
+civ7 game play notifications dismiss \
   --target '{"owner":0,"id":522,"type":20}' \
   --send
 ```

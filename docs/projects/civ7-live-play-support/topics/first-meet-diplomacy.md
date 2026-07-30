@@ -17,12 +17,12 @@ enum.
 
 Use this sequence:
 
-1. Read `game play notifications --json`.
+1. Read `game play notifications list --json`.
 2. If the blocker is `NOTIFICATION_PLAYER_MET`, use the notification HUD's
    `details.kind == "first-meet-diplomacy"` payload when present. It should
    expose `player1`, `player2`, the other leader/civilization labels, candidate
    greeting `args`, validator results, and a neutral response descriptor.
-   `game play notification-queue` and compact `game play priorities` promote
+   `game play notifications schedule` and compact `game play priorities` promote
    that response descriptor as their next semantic action when it is present.
 3. Prefer the neutral greeting when Influence cost or payoff is not proven.
    Static official data gives neutral `Amount="0"` and `InfCost="0"`; friendly
@@ -30,7 +30,7 @@ Use this sequence:
 4. Validate with:
 
 ```bash
-game play respond-first-meet \
+game play diplomacy respond-first-meet \
   --player-id <local-player-id> \
   --met-player-id <other-player-id> \
   --response neutral \
@@ -40,7 +40,7 @@ game play respond-first-meet \
 5. Send only after validation:
 
 ```bash
-game play respond-first-meet \
+game play diplomacy respond-first-meet \
   --player-id <local-player-id> \
   --met-player-id <other-player-id> \
   --response neutral \
@@ -55,7 +55,7 @@ remains end-turn-blocking, the command reports
 `postcondition.classification: "first-meet-sticky-blocker"` with
 `verified:false`; do not repeat the same greeting blindly.
 
-Do not clear this with `game play dismiss-notification`. A first-meet notice can
+Do not clear this with `game play notifications dismiss`. A first-meet notice can
 look notification-shaped in the HUD, but the official panel sends a gameplay
 operation.
 
@@ -63,7 +63,7 @@ operation.
 
 The materialized notification HUD now reads `notification.Player` for
 `NOTIFICATION_PLAYER_MET`. When the runtime exposes it, `details.player2` is the
-exact `--met-player-id` for `game play respond-first-meet`.
+exact `--met-player-id` for `game play diplomacy respond-first-meet`.
 
 Live turn 80 proof for Napoleon:
 

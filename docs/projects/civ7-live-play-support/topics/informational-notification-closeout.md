@@ -181,7 +181,7 @@ Official handler evidence:
 
 ## Norm
 
-Use `game play dismiss-notification` only after confirming the notification is
+Use `game play notifications dismiss` only after confirming the notification is
 informational or proven stale-expired, and any reported location has been
 reviewed for tactical implications. For ordinary report closeouts,
 `canUserDismiss` should be true; the narrow exception is an expired front
@@ -189,7 +189,7 @@ notification with blocker enum `NONE` where the official desktop panel
 close-control path is the route under test:
 
 ```bash
-civ7 game play dismiss-notification \
+civ7 game play notifications dismiss \
   --target '{"owner":0,"id":337,"type":20}' \
   --send \
   --json

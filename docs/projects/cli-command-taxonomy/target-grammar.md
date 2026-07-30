@@ -3,8 +3,8 @@
 The full target tree for the `game` mount after this workstream's slices.
 Decisions D1–D7 in `workstream-record.md`; grammar authority is
 `docs/projects/civ7-live-play-support/topics/command-surface-design.md`
-(noun-first, phase verbs `show|targets|preview|check|send`; native control
-first; no casual breaking renames).
+(noun-first, with phase verbs `show|targets|preview|check|send` only where that
+split is proven; native control first; no casual breaking renames).
 
 ## Tree
 
@@ -37,11 +37,29 @@ game                                  # the mount itself is the session noun (D1
 │   ├── screen                        # NEW play noun (D4)
 │   │   ├── show                      # read-only: mounted display-queue screens
 │   │   └── dismiss                   # drain cinematic moments (DisplayQueueManager)
-│   ├── <43 existing flat commands>   # unchanged here; migration owned by
-│   │                                 #   command-surface-design.md (D7):
-│   │                                 #   unit/city/progress/notifications/trade/turn
-│   └── (designed nouns, future)      # unit, city, notifications, progress,
-│                                     #   trade, objective, map, turn — see design doc
+│   ├── diplomacy                     # diplomatic response operations
+│   │   ├── respond                   # validate or send an ordinary response
+│   │   └── respond-first-meet        # validate or send a first-meet greeting
+│   ├── notifications                 # live notification decision surface
+│   │   ├── list                      # composite blocker, HUD, and notification read
+│   │   ├── schedule                  # read-only prioritized decision schedule
+│   │   ├── advisor-warning           # validate or acknowledge one advisor warning
+│   │   ├── dismiss                   # inspect or explicitly dismiss one reviewed item
+│   │   └── dismiss-reviewed          # guarded bulk closeout for eligible information
+│   ├── front                         # read-only military-front orientation
+│   │   ├── summary                   # composed target, pressure, and endpoint context
+│   │   ├── scan                      # bounded local battlefield pressure and POIs
+│   │   └── target-candidates         # strategic other-owner/city shortlist
+│   ├── unit                          # unit decision and action surface
+│   │   ├── ready                     # selected/first-ready unit and legal operations
+│   │   ├── move-preview              # read-only movement and path preview
+│   │   ├── target                    # validate by default; send only with --send
+│   │   ├── promotion-readiness       # read-only promotion evidence
+│   │   ├── resettle                  # validate by default; send only with --send
+│   │   └── upgrade                   # validate by default; send only with --send
+│   ├── <remaining flat commands>     # migration owned by command-surface-design.md
+│   └── (designed nouns, future)      # city, progress, trade, objective, map,
+│                                     #   turn — see design doc
 └── view                              # RESERVED presentation/capture noun (D6)
     ├── camera                        # rivers-branch arrival (not on main)
     ├── screenshot                    # rivers-branch arrival (not on main)
@@ -59,11 +77,20 @@ game                                  # the mount itself is the session noun (D1
   thin delegations over the same control-oRPC/direct-control calls with
   focused flags. The only mutation under `map` is `visibility --reveal`,
   which keeps its `--disposable` gate verbatim.
-- **`game play` (D4/D7).** The play-agent grammar. `screen` is the first
-  noun landed in the designed shape: `show` (read) / `dismiss` (mutation by
-  official close handler). All further noun gathering (unit, city, progress,
-  notifications, trade, turn) follows the design doc's Priority Refactors —
-  out of scope here, cross-linked as the D7 boundary.
+- **`game play` (D4/D7).** The play-agent grammar. `screen` owns display-queue
+  inspection and close handling. `diplomacy` owns ordinary diplomatic responses
+  and first-meet greetings. `notifications` owns notification inventory,
+  scheduling, specialized advisor-warning acknowledgement, single-item
+  dismissal, and guarded reviewed closeout. `front` owns the read-only composed
+  summary, bounded battlefield scan, and strategic target-candidate shortlist.
+  Its candidate view does not enumerate immediate action plots or authorize a
+  unit mutation. `unit` gathers ready unit inspection, move preview, target
+  resolution, promotion readiness, resettling, and upgrading without changing
+  their flags or behavior. In particular, `unit target`, `unit resettle`, and
+  `unit upgrade` still validate by default and mutate only with `--send`; no
+  preview/check/send phase split landed with this noun move. Hidden aliases
+  preserve all former flat paths. Further noun gathering follows the design
+  doc's Priority Refactors.
 - **`game view` (D6).** Reserved for presentation/capture commands arriving
   from the rivers branch (`camera`, `screenshot`, `appshot`). Nothing may
   squat on `view` in the meantime.
@@ -78,6 +105,8 @@ game                                  # the mount itself is the session noun (D1
 2. Pre-merge commands may be renamed in place (D3/D4); merged commands move
    only with an explicit decision-logged migration that retargets every
    in-repo reference (D5) — removal is never silent.
+   Noun migrations may retain former paths as hidden aliases when live-play
+   continuity is required.
 3. New wrappers call `@civ7/direct-control` / `@civ7/control-orpc`; no
    caller-local runtime control. Read-only commands may compose one exec
    from exported selector/constant primitives (e.g. `game play screen
