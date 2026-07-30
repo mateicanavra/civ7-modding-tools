@@ -16,6 +16,7 @@ import { writeRunAttributionReport } from "./attributionReport.js";
 import type { RunInGameInternalOperation } from "./model.js";
 import { privateJson } from "./privateJson.js";
 
+/** Resolves an opaque diagnostics id through its durable index without exposing storage paths. */
 export function lookupRunDiagnostics(
   diagnosticsId: string,
   options: Readonly<{ workspaceRoot?: string }> = {}
@@ -37,6 +38,7 @@ export function lookupRunDiagnostics(
   });
 }
 
+/** Persists private operation and attribution evidence, then publishes its opaque index. */
 export function writeRunDiagnostics(
   operation: RunInGameInternalOperation,
   options: Readonly<{ workspaceRoot?: string }> = {}
@@ -125,6 +127,7 @@ async function ensureDiagnosticsIndex(root: string, record: DiagnosticsIndexReco
   }
 }
 
+/** Removes an index only when it still belongs to the expected request identity. */
 export async function removeRunDiagnosticsIndex(
   args: Readonly<{
     root: string;
@@ -138,6 +141,7 @@ export async function removeRunDiagnosticsIndex(
   await rm(runDiagnosticsIndexPath(args.root, args.diagnosticsId), { force: true });
 }
 
+/** Maps a validated opaque diagnostics id to its private lookup index path. */
 export function runDiagnosticsIndexPath(root: string, diagnosticsId: string): string {
   if (!SAFE_RUN_DIAGNOSTICS_ID.test(diagnosticsId)) {
     throw new TypeError("Unsafe Run diagnostics id.");

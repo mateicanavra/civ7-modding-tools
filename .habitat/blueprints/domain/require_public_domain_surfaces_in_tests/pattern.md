@@ -27,7 +27,8 @@ or {
     `export * from $source`,
     `import($source)`
   } where {
-    $source <: r"^[\"']?(?:(?:\.\./)+(?:src/)?domain/|(?:\.\./)+mods/[^/]+/src/domain/).+[\"']?$"
+    $source <: r"^[\"']?(?:(?:\.\./)+(?:src/)?domain/|(?:\.\./)+plugins/mod/map/[^/]+/src/domain/)[a-z0-9]+(?:-[a-z0-9]+)*/.+[\"']?$",
+    ! $source <: r"^[\"']?(?:(?:\.\./)+(?:src/)?domain/|(?:\.\./)+plugins/mod/map/[^/]+/src/domain/)[a-z0-9]+(?:-[a-z0-9]+)*/(?:(?:index|router)(?:\.js)?|model/(?:atoms(?:/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)\.js)?|policy/[a-z0-9]+(?:-[a-z0-9]+)*\.js)|modules/[a-z0-9]+(?:-[a-z0-9]+)*/(?:artifacts(?:/index\.js)?|model/(?:atoms(?:/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)\.js)?|policy/[a-z0-9]+(?:-[a-z0-9]+)*\.js)))[\"']?$"
   }
 }
 ```
@@ -35,27 +36,39 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/test/domains/geology/private.test.ts
+// @filename: plugins/mod/map/example-mod/test/domains/geology/private.test.ts
 import privateRule from "@mapgen/domain/geology/modules/lithosphere/ops/compute-crust/rules/private.js";
 
-// @filename: mods/another-mod/test/recipes/example.test.ts
+// @filename: plugins/mod/map/another-mod/test/recipes/example.test.ts
 export * from "@mapgen/domain/biosphere/model/private.js";
 
 // @filename: packages/example-package/test/domain-reach.test.ts
-import operation from "../../../mods/example-mod/src/domain/geology/modules/lithosphere/ops/compute-crust/index.js";
+import operation from "../../../plugins/mod/map/example-mod/src/domain/geology/modules/lithosphere/ops/compute-crust/index.js";
 
-// @filename: mods/example-mod/test/domains/geology/ops-index.test.ts
+// @filename: plugins/mod/map/example-mod/test/domains/geology/ops-index.test.ts
 import implementations from "@mapgen/domain/geology/modules/lithosphere/ops/index.js";
 ```
 
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/example-mod/test/domains/geology/public.test.ts
+// @filename: plugins/mod/map/example-mod/test/domains/geology/public.test.ts
 import geology from "@mapgen/domain/geology/router";
 import policy from "@mapgen/domain/geology/model/policy/plate-activity.js";
 import { artifacts } from "@mapgen/domain/geology/modules/tectonics/artifacts";
+import relativeGeology from "../../../src/domain/geology/index.js";
+import relativeRouter from "../../../src/domain/geology/router.js";
+import { artifacts as relativeArtifacts } from "../../../src/domain/geology/modules/tectonics/artifacts/index.js";
+import { CRUST_POLICY } from "../../../src/domain/geology/model/policy/crust.js";
 
-export const values = [geology, policy, artifacts];
+export const values = [
+  geology,
+  policy,
+  artifacts,
+  relativeGeology,
+  relativeRouter,
+  relativeArtifacts,
+  CRUST_POLICY,
+];
 
 ```

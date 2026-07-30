@@ -15,6 +15,7 @@ function firstMatchingLine(text: string, patterns: ReadonlyArray<RegExp>): strin
   return undefined;
 }
 
+/** Recognizes bounded map-generation failure signatures from only the fresh Civ7 log segment. */
 export function classifyCiv7MapgenLogFailure(
   freshLogText: string,
   options: { mapScript?: string } = {}
@@ -58,6 +59,7 @@ export function classifyCiv7MapgenLogFailure(
   return undefined;
 }
 
+/** Polls fresh log evidence until a known failure appears or the observation window expires. */
 export async function waitForCiv7MapgenLogFailure(options: {
   readFreshLogText: () => Promise<string>;
   sleep: (ms: number) => Promise<void>;

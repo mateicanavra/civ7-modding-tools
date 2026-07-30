@@ -10,7 +10,7 @@ export function registryDocument(rules: unknown[]): unknown {
     schemaVersion: 2,
     ownerRoots: {
       habitat: "tools/habitat",
-      "mod-swooper-maps": "mods/mod-swooper-maps",
+      "swooper-physics": "plugins/mod/map/swooper-physics",
     },
     rules,
   };

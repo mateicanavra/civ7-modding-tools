@@ -23,6 +23,7 @@ import { BaseBuilder } from "./BaseBuilder";
 
 type TLeaderUnlockBuilder = TClassProperties<LeaderUnlockBuilder>;
 
+/** Emits the database and localized tooltip records that gate a leader-to-civilization unlock. */
 export class LeaderUnlockBuilder extends BaseBuilder<TLeaderUnlockBuilder> {
   _always: DatabaseNode = new DatabaseNode();
   _localizations: DatabaseNode = new DatabaseNode();

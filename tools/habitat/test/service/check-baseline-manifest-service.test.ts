@@ -312,7 +312,7 @@ function fakePlatform(
 }
 
 function fakeGitProvider() {
-  const existingRulePath = `.habitat/global/workspace/_blueprints/project-boundary-model/${fixture.existingRuleId}/rule.json`;
+  const existingRulePath = `.habitat/global/workspace/rules/${fixture.existingRuleId}/rule.json`;
   return makeGitProviderFromCommandHandler(
     (argv, options) =>
       Match.value(argv).pipe(

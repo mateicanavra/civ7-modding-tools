@@ -8,6 +8,7 @@ export type TVisArtCivilizationUnitCultureNode = Pick<
   "civilizationType" | "unitCulture"
 >;
 
+/** Selects the unit visual culture used by a civilization. */
 export class VisArtCivilizationUnitCultureNode extends BaseNode<TVisArtCivilizationUnitCultureNode> {
   civilizationType: string | null = "CIVILIZATION_";
   unitCulture: TObjectValues<typeof UNIT_CULTURE> | null = UNIT_CULTURE.MED;

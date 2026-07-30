@@ -18,6 +18,7 @@ import { ProgressionTreeNodeBuilder } from "./ProgressionTreeNodeBuilder";
 
 type TProgressionTreeBuilder = TClassProperties<ProgressionTreeBuilder>;
 
+/** Defines an age-specific progression tree and routes its gameplay, effects, and text records. */
 export class ProgressionTreeBuilder extends BaseBuilder<TProgressionTreeBuilder> {
   _current: DatabaseNode = new DatabaseNode();
   _gameEffects: GameEffectNode = new GameEffectNode();

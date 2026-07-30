@@ -47,6 +47,7 @@ export type UseSaveDeployResult = {
   canSaveToCurrent: boolean;
 };
 
+/** Owns the Save & Deploy dialog lifecycle and admission against competing Studio operations. */
 export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
   const {
     saveDeployOperation,

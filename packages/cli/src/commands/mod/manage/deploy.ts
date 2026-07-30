@@ -11,7 +11,7 @@ export default class ModManageDeploy extends Command {
 
     static examples = [
         '<%= config.bin %> mod manage deploy --input ./dist --id my_mod',
-        '<%= config.bin %> mod manage deploy -i mods/mod-swooper-maps/mod -m swooper-maps',
+        '<%= config.bin %> mod manage deploy -i apps/mods/map/swooper-physics/mod -m swooper-maps',
     ];
 
     static flags = {
@@ -31,4 +31,3 @@ export default class ModManageDeploy extends Command {
         this.log(`Open: ${pathToFileURL(res.targetDir).toString()}`);
     }
 }
-

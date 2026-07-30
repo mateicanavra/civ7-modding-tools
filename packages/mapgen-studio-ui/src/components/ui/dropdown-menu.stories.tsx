@@ -23,6 +23,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Keeps the config action menu open so its grouping, separator, and portal placement are visible. */
 export const ConfigActions: Story = {
   render: () => (
     <DropdownMenu open>

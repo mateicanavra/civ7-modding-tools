@@ -7,6 +7,7 @@ export function habitatInputs(): string[] {
     habitatRuntimeInput,
     "{workspaceRoot}/.habitat/**",
     "{workspaceRoot}/packages/**",
+    "{workspaceRoot}/plugins/**",
     "{workspaceRoot}/apps/**",
     "{workspaceRoot}/mods/**",
     "{workspaceRoot}/docs/**",

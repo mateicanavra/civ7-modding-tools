@@ -7,6 +7,7 @@ export type TConstructibleYieldChangeNode = Pick<
   "constructibleType" | "yieldType" | "yieldChange"
 >;
 
+/** Assigns a flat yield change to a constructible. */
 export class ConstructibleYieldChangeNode extends BaseNode<TConstructibleYieldChangeNode> {
   constructibleType: string | null = "BUILDING_";
   yieldType: TObjectValues<typeof YIELD> | null = YIELD.GOLD;

@@ -50,16 +50,16 @@ final composed schema consumed by Stage and Studio.
 
 Representative example (completion + artifact requirements; excerpt; see full file in anchors):
 
-The `@mapgen/domain/*` alias is the current mod-local domain surface. Contract
-authors consume the pure root contract and the exact producing module's
-artifact catalog; recipe runtime composition consumes `/router`. Do not
-recreate flat `/ops`, domain-root artifact catalogs, or stage-local artifact
-catalogs as compatibility surfaces.
+Definition-internal imports are ordinary relative imports. Contract authors
+consume the pure root contract and the exact producing module's artifact
+catalog; recipe runtime composition alone consumes each domain `router.ts`.
+Do not recreate private aliases, flat `/ops`, domain-root artifact catalogs, or
+stage-local artifact catalogs as compatibility surfaces.
 
 ```ts
-import { artifacts as hydrologyHydrographyArtifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
-import { artifacts as morphologyLandformsArtifacts } from "@mapgen/domain/morphology/modules/landforms/artifacts/index.js";
-import { artifacts as morphologyShelfArtifacts } from "@mapgen/domain/morphology/modules/shelf/artifacts/index.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../../../../../../../domain/hydrology/modules/hydrography/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyShelfArtifacts } from "../../../../../../../domain/morphology/modules/shelf/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
@@ -102,10 +102,10 @@ Every leaf `config.ts` exports its step contract through the owner-local binding
 `config`. Step contracts import the domain root contract when selecting operations and
 the exact producing module's catalog when selecting artifacts. A stage-local
 catalog is not an alternate owner. Step contracts never import a domain router.
-The runtime-only `@mapgen/domain/<domain>/router` surface is composed once by
-the recipe root to register executable implementations. Composition code may
-alias imported configs when multiple leaves would otherwise collide; it does
-not rename the leaf export.
+Each runtime-only domain `router.ts` is imported once by the recipe root to
+register executable implementations. Composition code may alias imported
+configs when multiple leaves would otherwise collide; it does not rename the
+leaf export.
 
 ## Step module (createStep)
 
@@ -206,5 +206,5 @@ topology by sorting or repairing the authored recipe.
 - Config compilation uses StageContractAny/StepModuleAny: `packages/mapgen-core/src/compiler/recipe-compile.ts`
 - Recipe DAG projection: `packages/mapgen-core/src/authoring/recipe/dag.ts`
 - Policy: schemas and validation: `docs/system/libs/mapgen/policies/SCHEMAS-AND-VALIDATION.md`
-- Example step config (contract + artifacts): `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/rivers/steps/plot-rivers/config.ts`
-- Example step module (createStep boundary): `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/rivers/steps/plot-rivers/step.ts`
+- Example step config (contract + artifacts): `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/rivers/steps/plot-rivers/config.ts`
+- Example step module (createStep boundary): `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/rivers/steps/plot-rivers/step.ts`

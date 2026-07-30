@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "authored generation source calling ambient engine RNG, Math.random, undeclared official generators, or internal mapgen-core RNG",
   "why": "Swooper authored generation owns deterministic RNG policy. Runtime steps may invoke only the engine capabilities selected by their step contract and exposed through the narrowed deps.engine surface.",
@@ -20,8 +20,8 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/mod-swooper-maps/src/domain/**/*.ts",
-        "mods/mod-swooper-maps/src/recipes/standard/**/*.ts"
+        "plugins/mod/map/swooper-physics/src/domain/**/*.ts",
+        "plugins/mod/map/swooper-physics/src/recipes/standard/**/*.ts"
       ]
     }
   ],

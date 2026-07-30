@@ -42,5 +42,5 @@ Target posture:
 
 - Target posture (absorption plan): `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/gameplay/APPENDIX-SCOPE-AND-ABSORPTION.md`
 - Standard recipe stage list: `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`
-- Standard recipe composition: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
-- Current placement stage contracts: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/**`
+- Standard recipe composition: `plugins/mod/map/swooper-physics/src/recipes/standard/recipe.ts`
+- Current placement stage contracts: `plugins/mod/map/swooper-physics/src/recipes/standard/stages/placement/**`

@@ -263,7 +263,7 @@ exceptions because neither has a meaningful per-plot readback. Plan-side
 scoring layers emit before materialization, so they survive degraded selection.
 Score layers carry explicit unit-domain value specs; zero-means-none
 categorical layers declare transparent zero categories. Coverage is pinned by
-`mods/mod-swooper-maps/test/recipes/swooper-physics-standard/viz/placement.test.ts`.
+`plugins/mod/map/swooper-physics/test/recipes/swooper-physics-standard/viz/placement.test.ts`.
 
 ## Verification surfaces
 
@@ -271,8 +271,8 @@ categorical layers declare transparent zero categories. Coverage is pinned by
   [`docs/system/libs/mapgen/benchmarks/BENCHMARKS.md`](/system/libs/mapgen/benchmarks/BENCHMARKS.md).
   The Standard recipe's executable twenty-seed placement/resource study, exact
   targets, dimensions, expectations, and measurement-family links live in its
-  [Earthlike placement study sheet](../../../../../../mods/mod-swooper-maps/src/recipes/standard/metrics/studies/benchmarks/earthlike-placement.md).
-  Run it through `nx run mod-swooper-maps:metrics:report`; the ordinary mod test
+  [Earthlike placement study sheet](../../../../../../plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/earthlike-placement.md).
+  Run it through `nx run swooper-physics:metrics:report`; the ordinary mod test
   target is the behavioral gate. This is completed headless evidence, not a
   live-engine claim.
 - The old live legality and required-for-age scripts were milestone-scoped
@@ -280,16 +280,16 @@ categorical layers declare transparent zero categories. Coverage is pinned by
   evidence remains historical. Static facts and fallback admission belong to
 `@civ7/map-policy`; roster-dependent policy flows through `EngineAdapter`, and
   resulting placement behavior is proved through bounded product verification.
-- Live full-grid parity: `nx run mod-swooper-maps:verify:final-surface-parity` (milestone-boundary proof class; see `docs/projects/placement-realignment/MILESTONE-PROOFS.md`).
+- Live full-grid parity: `nx run swooper-physics-mod:verify:final-surface-parity` (milestone-boundary proof class; see `docs/projects/placement-realignment/MILESTONE-PROOFS.md`).
 
 ## Ground truth anchors
 
 - Realignment project (diagnosis, expectations, refactor plan, per-slice evidence): `docs/projects/placement-realignment/`
 - ADR-008 (domain/resources owns resource planning; landmass-region divergence), ADR-009 (deterministic typed reconciliation; readbacks evidence-only), ADR-010 (knob taxonomy): `docs/system/ADR.md`
-- Stage definition: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/index.ts`
-- Stage composition and operation-derived surface: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/index.ts` plus the configuration module owned by each child step
-- Placement artifact catalogs: `mods/mod-swooper-maps/src/domain/placement/modules/{regions,starts,wonders}/artifacts/`
-- Resource artifact catalogs: `mods/mod-swooper-maps/src/domain/resources/modules/{demand,sites,support}/artifacts/`
-- Domain ops: `mods/mod-swooper-maps/src/domain/placement/modules/starts/ops/`, `mods/mod-swooper-maps/src/domain/placement/modules/wonders/ops/`, `mods/mod-swooper-maps/src/domain/resources/modules/*/ops/`
+- Stage definition: `plugins/mod/map/swooper-physics/src/recipes/standard/stages/placement/index.ts`
+- Stage composition and operation-derived surface: `plugins/mod/map/swooper-physics/src/recipes/standard/stages/placement/index.ts` plus the configuration module owned by each child step
+- Placement artifact catalogs: `plugins/mod/map/swooper-physics/src/domain/placement/modules/{regions,starts,wonders}/artifacts/`
+- Resource artifact catalogs: `plugins/mod/map/swooper-physics/src/domain/resources/modules/{demand,sites,support}/artifacts/`
+- Domain ops: `plugins/mod/map/swooper-physics/src/domain/placement/modules/starts/ops/`, `plugins/mod/map/swooper-physics/src/domain/placement/modules/wonders/ops/`, `plugins/mod/map/swooper-physics/src/domain/resources/modules/*/ops/`
 - Policy tables: `packages/civ7-map-policy/src/civ7-tables.gen.ts` (generator-only writes)
-- Completion catalog: `mods/mod-swooper-maps/src/recipes/standard/completions.ts`
+- Completion catalog: `plugins/mod/map/swooper-physics/src/recipes/standard/completions.ts`

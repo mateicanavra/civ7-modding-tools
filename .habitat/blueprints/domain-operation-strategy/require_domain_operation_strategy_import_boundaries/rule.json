@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "domain operation strategy implementation aggregates or leaves outside their singular default-export and role-specific positive dependency surfaces",
   "why": "A semantic module is a router, while each operation strategy is one swappable definition-and-implementation leaf under one local operation. The leaf config owns the semantic id and authored configuration schema without depending on the operation contract; the leaf implementation alone binds that definition to the shared operation contract. Dependencies follow owner axes: same-operation rules, exact ancestor or cross-domain model owners, and public computation packages. Closing each admitted file to one default authority keeps strategy choice modular and transparent without hidden registries, contract cycles, whole-domain imports, operation-local policy bags, recipes, adapters, engines, private sibling operations, or unrelated implementations.",
@@ -20,9 +20,9 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/domain/*/modules/*/ops/*/strategies/index.ts",
-        "mods/*/src/domain/*/modules/*/ops/*/strategies/*/config.ts",
-        "mods/*/src/domain/*/modules/*/ops/*/strategies/*/index.ts"
+        "plugins/mod/map/*/src/domain/*/modules/*/ops/*/strategies/index.ts",
+        "plugins/mod/map/*/src/domain/*/modules/*/ops/*/strategies/*/config.ts",
+        "plugins/mod/map/*/src/domain/*/modules/*/ops/*/strategies/*/index.ts"
       ]
     }
   ],
@@ -38,7 +38,7 @@
     "patternName": "require_domain_operation_strategy_import_boundaries",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

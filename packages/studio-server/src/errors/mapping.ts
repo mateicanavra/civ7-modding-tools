@@ -23,6 +23,7 @@ import {
   publicSaveDeployFailureMessage,
 } from "../saveDeployPublic.js";
 
+/** Procedure identities whose runtime failures are projected through the Studio error protocol. */
 export const STUDIO_OPERATION_PROCEDURES = [
   "autoplay.command",
   "runInGame.start",
@@ -141,6 +142,7 @@ function codeStatusFor(
   return { code: namespaceCodes[namespace].failed, status: 500 };
 }
 
+/** Projects a known branded runtime failure to the defined code for its procedure. */
 export function mapStudioFailureToDefinedError(args: {
   failure: StudioRuntimeFailure;
   procedure: StudioOperationProcedure;
@@ -166,6 +168,7 @@ export function mapStudioFailureToDefinedError(args: {
   };
 }
 
+/** Contains an unknown exception as a bounded internal-defect error for the client. */
 export function mapUnexpectedDefectToDefinedError(args: {
   err: unknown;
   procedure: StudioOperationProcedure;
@@ -215,6 +218,7 @@ export function mapUnexpectedDefectToDefinedError(args: {
   };
 }
 
+/** Selects known-failure projection or defect containment without leaking raw causes. */
 export function mapUnknownToStudioDefinedError(args: {
   err: unknown;
   procedure: StudioOperationProcedure;
@@ -240,6 +244,7 @@ export function mapUnknownToStudioDefinedError(args: {
   return mapUnexpectedDefectToDefinedError(args);
 }
 
+/** Converts a projection into the oRPC error object declared by the contract procedure. */
 export function toStudioDefinedOrpcError(args: {
   err: unknown;
   procedure: StudioOperationProcedure;

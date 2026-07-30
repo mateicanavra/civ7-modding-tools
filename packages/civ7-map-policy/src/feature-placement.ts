@@ -77,8 +77,9 @@ function buildEngineFeatureLegality(): Readonly<
   return out;
 }
 
-export const ENGINE_FEATURE_LEGALITY_BY_KEY = buildEngineFeatureLegality();
+const ENGINE_FEATURE_LEGALITY_BY_KEY = buildEngineFeatureLegality();
 
+/** Resolves the official terrain and biome surfaces on which Civ7 admits a feature key. */
 export function getEngineFeatureLegality(feature: string): EngineFeatureLegality | undefined {
   return ENGINE_FEATURE_LEGALITY_BY_KEY[feature as FeatureKey];
 }
@@ -95,17 +96,9 @@ function isEcologyPlacedOfficialFeature(featureKey: string): featureKey is Featu
   return hasOfficialFeatureLegality(featureKey);
 }
 
+/** Official feature keys that Ecology may place after excluding engine-owned volcanoes and wonders. */
 export const FEATURE_PLACEMENT_KEYS: readonly FeatureKey[] = Object.keys(
   CIV7_BROWSER_TABLES_V0.featureTypes
 )
   .filter(isEcologyPlacedOfficialFeature)
   .sort((a, b) => CIV7_BROWSER_TABLES_V0.featureTypes[a] - CIV7_BROWSER_TABLES_V0.featureTypes[b]);
-
-export const FEATURE_KEY_INDEX: Readonly<Record<FeatureKey, number>> =
-  FEATURE_PLACEMENT_KEYS.reduce(
-    (acc, key, index) => {
-      acc[key] = index;
-      return acc;
-    },
-    {} as Record<FeatureKey, number>
-  );

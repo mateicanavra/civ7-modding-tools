@@ -24,6 +24,7 @@ export type RecipeDagQueryView = Readonly<{
   error: string | null;
 }>;
 
+/** Loads the selected recipe DAG while retaining the last successful graph during refetch. */
 export function useRecipeDagQuery(
   recipeId: string,
   options: Readonly<{ enabled: boolean }>

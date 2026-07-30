@@ -28,6 +28,7 @@ function Stage({ children }: { children: ReactNode }) {
   );
 }
 
+/** Shows a long generation failure at the same top offset used by stage chrome. */
 export const GenerationFailed: Story = {
   args: {
     message:

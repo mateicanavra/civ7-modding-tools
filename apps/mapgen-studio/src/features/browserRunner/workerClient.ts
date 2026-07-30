@@ -10,6 +10,7 @@ export type WorkerClient = {
   terminate(): void;
 };
 
+/** Lazily owns one pipeline worker and terminates any prior generation before restarting. */
 export function createWorkerClient(): WorkerClient {
   let worker: Worker | null = null;
 

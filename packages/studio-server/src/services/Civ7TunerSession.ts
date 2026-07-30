@@ -41,7 +41,9 @@ export type Civ7TunerSessionOptions = Civ7DirectControlOptions & {
   readonly gate?: Civ7TunerSessionGateOptions;
 };
 
+/** Consecutive classified failures required before the shared tuner gate opens. */
 export const CIV7_TUNER_GATE_THRESHOLD = 4;
+/** Cooldown before an open tuner gate permits a single recovery probe. */
 export const CIV7_TUNER_GATE_COOLDOWN_MS = 15_000;
 
 type TunerGateLeaseEvidence = Readonly<{
@@ -202,6 +204,7 @@ function makeCiv7TunerSessionService(options: Civ7TunerSessionOptions = {}) {
 export interface Civ7TunerSessionApi
   extends Effect.Effect.Success<ReturnType<typeof makeCiv7TunerSessionService>> {}
 
+/** Process-scoped tuner session service coordinating admission, health, and lifecycle. */
 export class Civ7TunerSession extends Context.Tag("@civ7/studio-server/Civ7TunerSession")<
   Civ7TunerSession,
   Civ7TunerSessionApi

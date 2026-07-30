@@ -5,6 +5,7 @@ export type TUnlockConfigurationValueNode = Pick<
   "unlockType" | "configurationValue"
 >;
 
+/** Associates an unlock with the configuration value that selects its destination content. */
 export class UnlockConfigurationValueNode extends BaseNode<TUnlockConfigurationValueNode> {
   unlockType: string | null = "UNLOCK_";
   configurationValue: string | null = null;

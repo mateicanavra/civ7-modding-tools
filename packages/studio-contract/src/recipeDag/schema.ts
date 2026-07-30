@@ -96,6 +96,7 @@ const DiagnosticSchema = Type.Union([
   ),
 ]);
 
+/** Closed request identifying the recipe whose dependency graph should be loaded. */
 export const RecipeDagGetInputSchema = Type.Object(
   {
     recipeId: Type.String({ minLength: 1 }),
@@ -104,6 +105,7 @@ export const RecipeDagGetInputSchema = Type.Object(
 );
 export type RecipeDagGetInput = Static<typeof RecipeDagGetInputSchema>;
 
+/** Serializable recipe graph with ordered stages and dependency edges. */
 export const RecipeDagResultSchema = Type.Object(
   {
     recipeId: Type.String(),

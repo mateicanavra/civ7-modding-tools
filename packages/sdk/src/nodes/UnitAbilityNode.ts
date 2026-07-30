@@ -6,6 +6,7 @@ export type TUnitAbilityNode = {
   description: string;
 };
 
+/** Declares a unit ability and its localized name and description references. */
 export class UnitAbilityNode extends BaseNode<TUnitAbilityNode> {
   unitAbilityType: string;
   name: string;

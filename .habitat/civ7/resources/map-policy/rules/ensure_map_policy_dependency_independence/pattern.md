@@ -12,23 +12,23 @@ language js(typescript)
 or {
   `import $imports from $source` where {
     $filename <: r".*packages/civ7-map-policy/src/.*\.ts$",
-    $source <: r".*(?:@civ7/adapter(?:/|[\"'])|@swooper/mapgen-core(?:/|[\"'])|mod-swooper-maps(?:/|[\"'])|mapgen-studio(?:/|[\"'])|/base-standard/).*"
+    $source <: r".*(?:@civ7/adapter(?:/|[\"'])|@swooper/mapgen-core(?:/|[\"'])|@swooper/swooper-physics(?:/|[\"'])|mapgen-studio(?:/|[\"'])|/base-standard/).*"
   },
   `import $source` where {
     $filename <: r".*packages/civ7-map-policy/src/.*\.ts$",
-    $source <: r".*(?:@civ7/adapter(?:/|[\"'])|@swooper/mapgen-core(?:/|[\"'])|mod-swooper-maps(?:/|[\"'])|mapgen-studio(?:/|[\"'])|/base-standard/).*"
+    $source <: r".*(?:@civ7/adapter(?:/|[\"'])|@swooper/mapgen-core(?:/|[\"'])|@swooper/swooper-physics(?:/|[\"'])|mapgen-studio(?:/|[\"'])|/base-standard/).*"
   },
   `export { $exports } from $source` where {
     $filename <: r".*packages/civ7-map-policy/src/.*\.ts$",
-    $source <: r".*(?:@civ7/adapter(?:/|[\"'])|@swooper/mapgen-core(?:/|[\"'])|mod-swooper-maps(?:/|[\"'])|mapgen-studio(?:/|[\"'])|/base-standard/).*"
+    $source <: r".*(?:@civ7/adapter(?:/|[\"'])|@swooper/mapgen-core(?:/|[\"'])|@swooper/swooper-physics(?:/|[\"'])|mapgen-studio(?:/|[\"'])|/base-standard/).*"
   },
   `export * from $source` where {
     $filename <: r".*packages/civ7-map-policy/src/.*\.ts$",
-    $source <: r".*(?:@civ7/adapter(?:/|[\"'])|@swooper/mapgen-core(?:/|[\"'])|mod-swooper-maps(?:/|[\"'])|mapgen-studio(?:/|[\"'])|/base-standard/).*"
+    $source <: r".*(?:@civ7/adapter(?:/|[\"'])|@swooper/mapgen-core(?:/|[\"'])|@swooper/swooper-physics(?:/|[\"'])|mapgen-studio(?:/|[\"'])|/base-standard/).*"
   },
   `import($source)` where {
     $filename <: r".*packages/civ7-map-policy/src/.*\.ts$",
-    $source <: r".*(?:@civ7/adapter(?:/|[\"'])|@swooper/mapgen-core(?:/|[\"'])|mod-swooper-maps(?:/|[\"'])|mapgen-studio(?:/|[\"'])|/base-standard/).*"
+    $source <: r".*(?:@civ7/adapter(?:/|[\"'])|@swooper/mapgen-core(?:/|[\"'])|@swooper/swooper-physics(?:/|[\"'])|mapgen-studio(?:/|[\"'])|/base-standard/).*"
   }
 }
 ```
@@ -43,7 +43,7 @@ import { adapter } from "@civ7/adapter/civ7";
 import type { Recipe } from "@swooper/mapgen-core";
 
 // @filename: packages/civ7-map-policy/src/demo.ts
-import "mod-swooper-maps/recipes/standard";
+import "@swooper/swooper-physics/standard";
 
 // @filename: packages/civ7-map-policy/src/demo.ts
 export { studio } from "mapgen-studio/server";

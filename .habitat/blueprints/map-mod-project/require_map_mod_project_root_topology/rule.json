@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_map_mod_project_root_topology",
+  "title": "Require Map Mod Project Root Topology",
+  "placement": {
+    "niche": "global/workspace",
+    "blueprint": "map-mod-project",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "workspace map-mod projects without the package, Nx project, and source spine or with loose project-root children outside the finite project topology",
+  "why": "A workspace map-mod project is one constructible package and Nx project with authored source. Closing both the reusable definition and deployable realization project families prevents loose root cabinets and compatibility surfaces from becoming accidental peers of that spine.",
+  "remediate": "Keep package.json, project.json, and src at every map-mod project root. Place tools under scripts, behavior proof under test, generated or materialized outputs under dist or mod, and remove or relocate every other root child unless it is one of the admitted project configuration or documentation files.",
+  "message": "Workspace map-mod projects must match the closed project-root topology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "plugins/mod/map/*",
+        "plugins/mod/map/*/**",
+        "apps/mods/map/*",
+        "apps/mods/map/*/**"
+      ]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/map-mod-project/require_map_mod_project_root_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/map-mod-project/require_map_mod_project_root_topology/structure.toml"
+    }
+  }
+}

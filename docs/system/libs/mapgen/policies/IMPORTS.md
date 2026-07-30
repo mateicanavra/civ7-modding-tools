@@ -41,7 +41,7 @@ Inside `packages/mapgen-core/**`, use relative imports as needed.
 
 ### 3) Standard recipe imports use named domain surfaces
 
-Inside `mods/mod-swooper-maps/src/recipes/**`, imports from the workspace
+Inside `plugins/mod/map/swooper-physics/src/recipes/**`, imports from the workspace
 domain alias namespace must stay on a named domain surface.
 
 | Importing code                          | Allowed domain surface                                                         | Enforcement         |

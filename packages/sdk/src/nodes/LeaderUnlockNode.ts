@@ -15,6 +15,7 @@ export type TLeaderUnlockNode = Pick<
   | "icon"
 >;
 
+/** Declares a civilization option unlocked for a leader in a specific age. */
 export class LeaderUnlockNode extends BaseNode<TLeaderUnlockNode> {
   leaderDomain: string | null = "StandardLeaders";
   leaderType: string | null = null;

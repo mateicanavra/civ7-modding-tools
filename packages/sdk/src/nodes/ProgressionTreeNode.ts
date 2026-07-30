@@ -8,6 +8,7 @@ export type TProgressionTreeNode = Pick<
   "progressionTreeType" | "ageType" | "systemType" | "name"
 >;
 
+/** Represents the root database record for an age-specific progression tree. */
 export class ProgressionTreeNode extends BaseNode<TProgressionTreeNode> {
   progressionTreeType: `TREE_${string}` | null = "TREE_";
   ageType: TObjectValues<typeof AGE> | null = AGE.ANTIQUITY;

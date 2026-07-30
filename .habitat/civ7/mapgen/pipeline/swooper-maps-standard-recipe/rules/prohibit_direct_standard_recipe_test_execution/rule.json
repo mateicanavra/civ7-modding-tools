@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "test files invoking the Standard recipe outside its canonical product-test fixture",
   "why": "Whole-recipe tests must share the same admitted Civ7 preset, complete map configuration, runtime initialization, and single execution boundary so synthetic grids cannot masquerade as product evidence.",
@@ -19,7 +19,10 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/test/**/*.ts", "mods/mod-swooper-maps/test/**/*.tsx"]
+      "patterns": [
+        "plugins/mod/map/swooper-physics/test/**/*.ts",
+        "plugins/mod/map/swooper-physics/test/**/*.tsx"
+      ]
     }
   ],
   "hookCheck": true,
@@ -34,7 +37,7 @@
     "patternName": "prohibit_direct_standard_recipe_test_execution",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods/mod-swooper-maps/test"]
+      "roots": ["plugins/mod/map/swooper-physics/test"]
     }
   }
 }

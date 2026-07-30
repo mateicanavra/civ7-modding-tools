@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "empty object defaults in schema definitions",
   "why": "Object-level empty defaults hide absent user configuration; property defaults are explicit.",
@@ -20,9 +20,9 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/domain/**/ops/**/contract.ts",
-        "mods/*/src/domain/**/ops/**/*.contract.ts",
-        "mods/*/src/recipes/*/stages/**/steps/*/config.ts"
+        "plugins/mod/map/*/src/domain/**/ops/**/contract.ts",
+        "plugins/mod/map/*/src/domain/**/ops/**/*.contract.ts",
+        "plugins/mod/map/*/src/recipes/*/stages/**/steps/*/config.ts"
       ]
     }
   ],
@@ -38,7 +38,7 @@
     "patternName": "prohibit_empty_object_defaults_in_contract_schemas",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

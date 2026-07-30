@@ -8,6 +8,7 @@ export type TConstructibleValidBiomeNode = Pick<
   "constructibleType" | "biomeType"
 >;
 
+/** Allows a constructible to be placed in a specific biome. */
 export class ConstructibleValidBiomeNode extends BaseNode<TConstructibleValidBiomeNode> {
   constructibleType: string | null = "BUILDING_";
   biomeType: TObjectValues<typeof BIOME> | null = BIOME.GRASSLAND;

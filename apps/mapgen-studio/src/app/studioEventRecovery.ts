@@ -12,10 +12,12 @@ export type StudioBusyGateSubject =
   | "Game controls"
   | "World controls";
 
+/** Reduces an unknown stream failure to a user-safe recovery message. */
 export function formatStudioEventStreamError(error: unknown): string {
   return error instanceof Error ? error.message : "Studio event stream unavailable";
 }
 
+/** Extracts the daemon identity that scopes an operations-current snapshot. */
 export function identityFromStudioOperationsCurrent(
   current: StudioOperationsCurrent
 ): StudioDaemonIdentity {
@@ -25,6 +27,7 @@ export function identityFromStudioOperationsCurrent(
   };
 }
 
+/** Requires both instance identity and start time to match before state may be reconciled. */
 export function sameStudioDaemonIdentity(
   left: StudioDaemonIdentity | null | undefined,
   right: StudioDaemonIdentity | null | undefined
@@ -37,6 +40,7 @@ export function sameStudioDaemonIdentity(
   );
 }
 
+/** Refuses stale recovery state with a diagnostic when the daemon identity changed. */
 export function formatStudioDaemonIdentityMismatch(
   expected: StudioDaemonIdentity,
   observed: StudioDaemonIdentity
@@ -45,6 +49,7 @@ export function formatStudioDaemonIdentityMismatch(
   return `Studio daemon restarted while recovering operations; refused mismatched daemon state (${observed.serverInstanceId}).`;
 }
 
+/** Returns the first active-operation reason that pauses the requested Studio subject. */
 export function studioBusyGateMessage(args: {
   subject: StudioBusyGateSubject;
   browserRunning?: boolean;

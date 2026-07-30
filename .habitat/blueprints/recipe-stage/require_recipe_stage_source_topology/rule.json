@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "recipe stage collections or semantic containers outside the closed recipe-stage blueprint topology, including recipe-owned artifact directories",
   "why": "Physical stage source may nest by semantic hierarchy independently of runtime stage IDs. Every semantic container admits only nested kebab-case containers or canonical stage support surfaces. An index.ts marks that container as an authored stage; containers without one remain non-stage family containers. Ordinary public configuration is inferred from step schemas, bound operation configuration, and stage knobs. A rare intentional full public override is defined inline by the concrete stage and compiled there, so external public-config assemblies cannot become a parallel authoring authority. Steps are a reserved subtree owned by the recipe-step blueprint, while immutable pipeline data-product contracts remain with their domain owner. Stable live-log wire projections belong to a recipe parity or evidence owner rather than a stage-local log cabinet.",
@@ -19,7 +19,10 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/recipes/*/stages", "mods/*/src/recipes/*/stages/**"]
+      "patterns": [
+        "plugins/mod/map/*/src/recipes/*/stages",
+        "plugins/mod/map/*/src/recipes/*/stages/**"
+      ]
     }
   ],
   "supportFiles": {

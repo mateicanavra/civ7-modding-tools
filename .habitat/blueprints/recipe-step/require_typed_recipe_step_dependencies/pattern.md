@@ -32,7 +32,7 @@ or {
 ## Matches fixture
 
 ```typescript
-// @filename: mods/example-mod/src/recipes/sample/stages/water/rivers/steps/plot-rivers/config.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample/stages/water/rivers/steps/plot-rivers/config.ts
 import { defineStep } from "@swooper/mapgen-core/authoring";
 
 export const config = defineStep({
@@ -45,7 +45,7 @@ export const config = defineStep({
 ## Ignores fixture
 
 ```typescript
-// @filename: mods/example-mod/src/recipes/sample/stages/water/rivers/steps/plot-rivers/config.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample/stages/water/rivers/steps/plot-rivers/config.ts
 import { defineStep } from "@swooper/mapgen-core/authoring";
 import { artifacts } from "@mapgen/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
@@ -56,6 +56,6 @@ export const config = defineStep({
   provides: [STANDARD_COMPLETIONS.riversPlotted, artifacts.projectedNavigableRivers],
 });
 
-// @filename: mods/example-mod/src/recipes/sample/stages/water/rivers/steps/plot-rivers/step.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample/stages/water/rivers/steps/plot-rivers/step.ts
 const diagnostic = "completion:map.elevation-built";
 ```

@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "runtime standard stages and the Studio recipe-DAG contract manifest drifting apart",
   "why": "The contract manifest is the structural order source shared by runtime stages and Studio recipe-DAG metadata.",
@@ -20,8 +20,8 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/mod-swooper-maps/src/recipes/standard/recipe.ts",
-        "mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts"
+        "plugins/mod/map/swooper-physics/src/recipes/standard/recipe.ts",
+        "plugins/mod/map/swooper-physics/src/recipes/standard/contract-manifest.ts"
       ]
     },
     {

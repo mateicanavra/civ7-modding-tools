@@ -6,6 +6,7 @@ import { BaseNode } from "./BaseNode";
 
 export type TCriteriaNode = Pick<CriteriaNode, "id" | "any" | "ages">;
 
+/** Defines the mod-info criterion that gates an action group by age or other load condition. */
 export class CriteriaNode extends BaseNode<TCriteriaNode> {
   _name = "Criteria";
 

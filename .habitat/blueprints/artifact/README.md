@@ -26,8 +26,8 @@ Current source-backed anchors:
 - `docs/system/libs/mapgen/how-to/add-a-new-artifact.md`
 - `packages/mapgen-core/src/authoring/artifact/**`
 - `packages/mapgen-core/src/core/map-context.ts`
-- `mods/*/src/domain/*/modules/*/artifacts/index.ts`
-- `mods/*/src/domain/*/modules/*/artifacts/*.artifact.ts`
+- `plugins/mod/map/*/src/domain/*/modules/*/artifacts/index.ts`
+- `plugins/mod/map/*/src/domain/*/modules/*/artifacts/*.artifact.ts`
 
 Future artifact rules should be admitted here only when the whole rule applies
 to every valid artifact value or contract.
@@ -35,7 +35,7 @@ to every valid artifact value or contract.
 ## Admitted Rules
 
 - `require_artifact_file_shape`: source-shape contract for artifact owner files.
-  Every `mods/*/src/domain/*/modules/*/artifacts/*.artifact.ts` file exports one
+  Every `plugins/mod/map/*/src/domain/*/modules/*/artifacts/*.artifact.ts` file exports one
   `artifact = defineArtifact({ schema, ... })` authority. The artifact owns its
   complete payload schema as a direct inline `Type.*(...)` expression. Exact
   imported atoms may supply smaller primitives and cohesive subentities inside
@@ -47,7 +47,7 @@ to every valid artifact value or contract.
   and nearest module/domain model owners. Core owns artifact-id admission; the
   source-shape rule does not rename durable product identities.
 - `require_artifact_index_aggregate_shape`: positive source topology for every
-  `mods/*/src/domain/*/modules/*/artifacts` directory. Each directory owns
+  `plugins/mod/map/*/src/domain/*/modules/*/artifacts` directory. Each directory owns
   `index.ts`, one or more `*.artifact.ts` modules, and no other direct file
   kind. This law asserts only the selected positive directory shape; it does
   not search unrelated source trees for artifact-like names.

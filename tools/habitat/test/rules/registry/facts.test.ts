@@ -253,7 +253,7 @@ describe("rule registry facts", () => {
   test("projects graph facts from owner roots and structured targets", () => {
     const ownerRoots = new Map([
       ["habitat", "tools/habitat"],
-      ["mod-swooper-maps", "mods/mod-swooper-maps"],
+      ["swooper-physics", "plugins/mod/map/swooper-physics"],
     ]);
 
     expect(
@@ -266,10 +266,10 @@ describe("rule registry facts", () => {
           }),
           baseRule({
             id: "nx-rule",
-            ownerProject: "mod-swooper-maps",
-            runner: nxRunner("mod-swooper-maps", "build"),
+            ownerProject: "swooper-physics",
+            runner: nxRunner("swooper-physics", "build"),
             graphTarget: {
-              project: "mod-swooper-maps",
+              project: "swooper-physics",
               target: "build",
             },
           }),
@@ -295,14 +295,14 @@ describe("rule registry facts", () => {
       },
       {
         id: "nx-rule",
-        ownerProject: "mod-swooper-maps",
-        ownerRoot: "mods/mod-swooper-maps",
+        ownerProject: "swooper-physics",
+        ownerRoot: "plugins/mod/map/swooper-physics",
         lane: "enforced",
         message: "Fix the structural issue.",
         graphDependencies: [],
         alias: {
           kind: "depends-on",
-          target: { project: "mod-swooper-maps", target: "build" },
+          target: { project: "swooper-physics", target: "build" },
         },
       },
       {

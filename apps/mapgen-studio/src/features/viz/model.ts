@@ -6,4 +6,5 @@ export type VizAssetResolver = {
   readArrayBuffer(path: string): Promise<ArrayBuffer>;
 };
 
+/** Centers an uninitialized orthographic map view at world origin with neutral zoom. */
 export const DEFAULT_VIEW_STATE = { target: [0, 0, 0], zoom: 0 } as const;

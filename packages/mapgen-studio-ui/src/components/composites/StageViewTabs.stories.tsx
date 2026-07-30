@@ -30,6 +30,7 @@ function Stage({ children }: { children: ReactNode }) {
   );
 }
 
+/** Shows the stage switcher with the rendered map selected. */
 export const MapActive: Story = {
   args: { value: "map", onValueChange: noop, top: 12 },
   render: (args) => (
@@ -39,6 +40,7 @@ export const MapActive: Story = {
   ),
 };
 
+/** Shows the stage switcher with the recipe dependency graph selected. */
 export const PipelineActive: Story = {
   args: { value: "pipeline", onValueChange: noop, top: 12 },
   render: (args) => (

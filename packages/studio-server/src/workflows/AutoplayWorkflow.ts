@@ -10,11 +10,13 @@ export interface AutoplayWorkflowApi {
   ) => Effect.Effect<StudioOutputs["civ7"]["autoplay"], StudioRuntimeFailure>;
 }
 
+/** Effect service owning the admitted autoplay start/stop command sequence. */
 export class AutoplayWorkflow extends Context.Tag("@civ7/studio-server/AutoplayWorkflow")<
   AutoplayWorkflow,
   AutoplayWorkflowApi
 >() {}
 
+/** Builds autoplay orchestration from the shared Civ7 workflow-control port. */
 export function makeAutoplayWorkflowLayer(): Layer.Layer<
   AutoplayWorkflow,
   never,

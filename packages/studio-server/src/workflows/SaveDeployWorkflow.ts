@@ -24,11 +24,13 @@ export interface SaveDeployWorkflowApi {
   readonly start: (args: SaveDeployWorkflowStart) => Effect.Effect<void, never>;
 }
 
+/** Effect service owning the save, deploy, rollback, and verification sequence. */
 export class SaveDeployWorkflow extends Context.Tag("@civ7/studio-server/SaveDeployWorkflow")<
   SaveDeployWorkflow,
   SaveDeployWorkflowApi
 >() {}
 
+/** Builds save/deploy orchestration from host ports and shared Civ7 control. */
 export function makeSaveDeployWorkflowLayer(
   args: Readonly<{
     ports: StudioWorkflowPorts;

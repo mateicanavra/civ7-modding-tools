@@ -44,6 +44,7 @@ function Demo({ children }: { children: ReactNode }) {
   );
 }
 
+/** Exercises the compact selector with canonical Civ7 map-size identifiers. */
 export const MapSize: Story = {
   args: {
     value: "MAPSIZE_STANDARD",
@@ -59,6 +60,7 @@ export const MapSize: Story = {
   ),
 };
 
+/** Shows the same selector with human-scale recipe options rather than game identifiers. */
 export const ResourceMode: Story = {
   args: {
     value: "strategic",
@@ -74,6 +76,7 @@ export const ResourceMode: Story = {
   ),
 };
 
+/** Pins the non-interactive selector treatment while preserving the current selection. */
 export const Disabled: Story = {
   args: {
     value: "MAPSIZE_STANDARD",

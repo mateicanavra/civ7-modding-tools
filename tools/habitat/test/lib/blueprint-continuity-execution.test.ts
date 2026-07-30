@@ -236,13 +236,13 @@ describe("affirmed blueprint continuity execution", () => {
           headManifests: {
             [nichePath]: manifest({
               id: "niche-owner",
-              ownerProject: "mod-swooper-maps",
+              ownerProject: "swooper-physics",
               placementBlueprint: "domain",
             }),
           },
           headIndex: registryIndex({
             habitat: "tools/habitat",
-            "mod-swooper-maps": "mods/mod-swooper-maps",
+            "swooper-physics": "plugins/mod/map/swooper-physics",
           }),
           stagedActions: `M\0${registryIndexPath}\0`,
           stagedIndex: registryIndex({ habitat: "tools/habitat" }),
@@ -253,7 +253,7 @@ describe("affirmed blueprint continuity execution", () => {
 
     expect(report.status).toBe("fail");
     expect(report.diagnostics[0]?.message).toContain(
-      'declares unknown ownerProject "mod-swooper-maps"'
+      'declares unknown ownerProject "swooper-physics"'
     );
   });
 
@@ -268,18 +268,18 @@ describe("affirmed blueprint continuity execution", () => {
           headManifests: {
             [nichePath]: manifest({
               id: "shared-id",
-              ownerProject: "mod-swooper-maps",
+              ownerProject: "swooper-physics",
               placementBlueprint: "domain",
             }),
           },
           headIndex: registryIndex({
             habitat: "tools/habitat",
-            "mod-swooper-maps": "mods/mod-swooper-maps",
+            "swooper-physics": "plugins/mod/map/swooper-physics",
           }),
           stagedActions: `A\0${addedPath}\0`,
           stagedIndex: registryIndex({
             habitat: "tools/habitat",
-            "mod-swooper-maps": "mods/mod-swooper-maps",
+            "swooper-physics": "plugins/mod/map/swooper-physics",
           }),
           stagedManifest: null,
           stagedManifests: {

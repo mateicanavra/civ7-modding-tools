@@ -3,6 +3,7 @@ import * as lodash from "lodash-es";
 
 import { fill } from "../utils";
 
+/** Base serializer that turns public node fields into Civ7 XML attributes while omitting empty values. */
 export class BaseNode<T extends Object = object> {
   _name: string = "Row";
 

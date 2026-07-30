@@ -7,6 +7,7 @@ import { BaseFile } from "./BaseFile";
 
 type TXmlFile = TClassProperties<XmlFile>;
 
+/** Serializes an XML element tree with the SDK's standard header and generation marker. */
 export class XmlFile extends BaseFile<XmlFile> implements TXmlFile {
   content: XmlElement | XmlElement[] | null | undefined = null;
 

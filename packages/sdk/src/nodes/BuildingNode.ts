@@ -25,6 +25,7 @@ export type TBuildingNode = Pick<
   | "workable"
 >;
 
+/** Represents the building-specific database row paired with a constructible definition. */
 export class BuildingNode extends BaseNode<TBuildingNode> {
   constructibleType: string | null = "BUILDING_";
   movable: boolean | null = false;

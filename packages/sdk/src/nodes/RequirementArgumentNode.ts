@@ -5,6 +5,7 @@ export type TRequirementArgumentNode = Pick<
   "requirementId" | "name" | "value"
 >;
 
+/** Supplies one named argument to a gameplay requirement. */
 export class RequirementArgumentNode extends BaseNode<TRequirementArgumentNode> {
   requirementId: string | null = "REQ_";
   name: string | null = null;

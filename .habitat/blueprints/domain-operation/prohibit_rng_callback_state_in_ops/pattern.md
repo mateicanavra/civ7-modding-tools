@@ -14,6 +14,6 @@ or {
   contains "options.rng",
   contains r"\bctx\.rng\b"
 } where {
-  $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.+\.ts$"
+  $filename <: r".*plugins/mod/map/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/.+\.ts$"
 }
 ```

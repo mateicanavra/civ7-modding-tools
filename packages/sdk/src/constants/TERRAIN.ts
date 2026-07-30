@@ -1,3 +1,4 @@
+/** Terrain identifiers accepted by constructible placement and start-bias records. */
 export const TERRAIN = {
   MOUNTAIN: "TERRAIN_MOUNTAIN",
   OCEAN: "TERRAIN_OCEAN",

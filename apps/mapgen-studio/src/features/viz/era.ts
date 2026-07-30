@@ -9,6 +9,7 @@ export type EraVariantSummary = Readonly<{
 
 const ERA_VARIANT_PATTERN = /^era:(\d+)$/;
 
+/** Admits positive numeric eras from the exact `era:<n>` variant-key convention. */
 export function parseEraVariantKey(variantKey: string | null | undefined): number | null {
   if (!variantKey) return null;
   const match = ERA_VARIANT_PATTERN.exec(variantKey.trim());
@@ -18,6 +19,7 @@ export function parseEraVariantKey(variantKey: string | null | undefined): numbe
   return era;
 }
 
+/** Projects era-keyed variants into ascending summaries, excluding unrelated dimensions. */
 export function listEraVariants(variants: readonly LayerVariant[]): EraVariantSummary[] {
   const out: EraVariantSummary[] = [];
   for (const variant of variants) {
@@ -33,6 +35,7 @@ export function listEraVariants(variants: readonly LayerVariant[]): EraVariantSu
   return out.sort((a, b) => a.era - b.era);
 }
 
+/** Resolves the nearest available era, preferring the earlier era when distances tie. */
 export function snapEraToAvailable(
   variants: readonly LayerVariant[],
   requestedEra: number
@@ -54,6 +57,7 @@ export function snapEraToAvailable(
   return bestEra;
 }
 
+/** Resolves the variant identity for the nearest available era. */
 export function findVariantIdForEra(variants: readonly LayerVariant[], era: number): string | null {
   const snappedEra = snapEraToAvailable(variants, era);
   if (snappedEra == null) return null;
@@ -64,6 +68,7 @@ export function findVariantIdForEra(variants: readonly LayerVariant[], era: numb
   return null;
 }
 
+/** Resolves the canonical variant key for the nearest available era. */
 export function findVariantKeyForEra(
   variants: readonly LayerVariant[],
   era: number
@@ -78,6 +83,7 @@ export function findVariantKeyForEra(
   return null;
 }
 
+/** Keeps an explicit selected era stable, otherwise snapping the requested control value. */
 export function resolveFixedEraUiValue(args: {
   variants: readonly LayerVariant[];
   selectedVariantKey: string | null | undefined;

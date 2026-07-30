@@ -5,6 +5,7 @@ export type TUnitStatNode = Pick<
   "unitType" | "bombard" | "combat" | "range" | "rangedCombat"
 >;
 
+/** Supplies combat and range statistics for a unit independently of its core definition. */
 export class UnitStatNode extends BaseNode<TUnitStatNode> {
   unitType: string | null = "UNIT_TYPE";
   bombard: number | null = null;

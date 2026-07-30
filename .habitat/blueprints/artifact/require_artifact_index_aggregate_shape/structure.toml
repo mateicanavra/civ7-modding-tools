@@ -2,7 +2,7 @@ schemaVersion = 1
 
 [[scopes]]
 name = "mapgen-domain-module-artifact-collections"
-root = "mods/*/src/domain/*/modules/*/artifacts"
+root = "plugins/mod/map/*/src/domain/*/modules/*/artifacts"
 kind = "directory"
 mode = "closed"
 required = [
@@ -12,12 +12,12 @@ required = [
 
 [[scopes]]
 name = "mapgen-domain-module-artifact-catalog-files"
-root = "mods/*/src/domain/*/modules/*/artifacts/index.ts"
+root = "plugins/mod/map/*/src/domain/*/modules/*/artifacts/index.ts"
 kind = "file"
 mode = "closed"
 
 [[scopes]]
 name = "mapgen-domain-module-artifact-owner-files"
-root = "mods/*/src/domain/*/modules/*/artifacts/*.artifact.ts"
+root = "plugins/mod/map/*/src/domain/*/modules/*/artifacts/*.artifact.ts"
 kind = "file"
 mode = "closed"

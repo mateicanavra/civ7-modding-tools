@@ -1,0 +1,34 @@
+{
+  "name": "@swooper/swooper-physics-mod",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Deployable Civilization VII realization of Swooper Physics maps",
+  "type": "module",
+  "scripts": {
+    "build": "tsup --config scripts/tsup.config.ts",
+    "check:test": "tsc -p test/tsconfig.json --noEmit",
+    "check:tools": "tsc -p scripts/tsconfig.json --noEmit",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@civ7/adapter": "workspace:*",
+    "@civ7/control-orpc": "workspace:*",
+    "@civ7/direct-control": "workspace:*",
+    "@civ7/map-policy": "workspace:*",
+    "@civ7/plugin-files": "workspace:*",
+    "@civ7/studio-contract": "workspace:*",
+    "@civ7/studio-run-workspace": "workspace:*",
+    "@mateicanavra/civ7-sdk": "workspace:*",
+    "@orpc/client": "1.14.6",
+    "@orpc/contract": "1.14.6",
+    "@swooper/mapgen-core": "workspace:*",
+    "@swooper/mapgen-diagnostics": "workspace:*",
+    "@swooper/swooper-physics": "workspace:*",
+    "esbuild": "^0.27.2",
+    "typebox": "catalog:"
+  },
+  "devDependencies": {
+    "@civ7/types": "workspace:*"
+  }
+}

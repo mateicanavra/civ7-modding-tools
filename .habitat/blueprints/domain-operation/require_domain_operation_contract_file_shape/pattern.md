@@ -58,19 +58,19 @@ or {
     ! $export <: `export default $value`
   },
   import_statement(source=$source) where {
-    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/contract\.ts$",
+    $filename <: r".*plugins/mod/map/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/contract\.ts$",
     disallowed_operation_contract_dependency($source)
   },
   `export { $exports } from $source` where {
-    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/contract\.ts$",
+    $filename <: r".*plugins/mod/map/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/contract\.ts$",
     disallowed_operation_contract_dependency($source)
   },
   `export * from $source` where {
-    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/contract\.ts$",
+    $filename <: r".*plugins/mod/map/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/contract\.ts$",
     disallowed_operation_contract_dependency($source)
   },
   `import($source)` where {
-    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/contract\.ts$",
+    $filename <: r".*plugins/mod/map/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/contract\.ts$",
     disallowed_operation_contract_dependency($source)
   },
   `createOp($args)`,
@@ -81,7 +81,7 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/foundation/modules/geology/ops/detached-envelope/contract.ts
+// @filename: plugins/mod/map/example-mod/src/domain/foundation/modules/geology/ops/detached-envelope/contract.ts
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 const InputSchema = Type.Object({ sampleCount: Type.Integer({ minimum: 1 }) });
@@ -95,7 +95,7 @@ export default defineOp({
   strategies: { measured: Type.Object({}) },
 });
 
-// @filename: mods/example-mod/src/domain/foundation/modules/geology/ops/demo/contract.ts
+// @filename: plugins/mod/map/example-mod/src/domain/foundation/modules/geology/ops/demo/contract.ts
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { DemoConfigSchema } from "../demo-shared/config.js";
 
@@ -107,7 +107,7 @@ export default defineOp({
   strategies: { measured: DemoConfigSchema },
 });
 
-// @filename: mods/example-mod/src/domain/terrain/modules/relief/ops/plan-ridges/contract.ts
+// @filename: plugins/mod/map/example-mod/src/domain/terrain/modules/relief/ops/plan-ridges/contract.ts
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 import type { SelectResourceSitesInput } from "../select-resource-sites/contract.js";
 
@@ -119,7 +119,7 @@ export default defineOp({
   strategies: { "orogenic-range-growth": MountainsConfigSchema },
 });
 
-// @filename: mods/example-mod/src/domain/foundation/modules/geology/ops/demo/contract.ts
+// @filename: plugins/mod/map/example-mod/src/domain/foundation/modules/geology/ops/demo/contract.ts
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { artifacts } from "../../artifacts/index.js";
 
@@ -133,7 +133,7 @@ const Contract = defineOp({
 
 export default Contract;
 
-// @filename: mods/example-mod/src/domain/foundation/modules/geology/ops/demo/contract.ts
+// @filename: plugins/mod/map/example-mod/src/domain/foundation/modules/geology/ops/demo/contract.ts
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 const Contract = defineOp({
@@ -147,7 +147,7 @@ const Contract = defineOp({
 export type DemoInput = Static<typeof Contract.input>;
 export default Contract;
 
-// @filename: mods/example-mod/src/domain/climate/modules/thermal/ops/demo/contract.ts
+// @filename: plugins/mod/map/example-mod/src/domain/climate/modules/thermal/ops/demo/contract.ts
 import { HydrologyConfigSchema } from "../../model/config.js";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 
@@ -159,7 +159,7 @@ export default defineOp({
   strategies: { "water-budget": HydrologyConfigSchema },
 });
 
-// @filename: mods/example-mod/src/domain/climate/modules/thermal/ops/demo/contract.ts
+// @filename: plugins/mod/map/example-mod/src/domain/climate/modules/thermal/ops/demo/contract.ts
 import type { PlotEffectKey } from "@mapgen/domain/biosphere/types.js";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 
@@ -171,7 +171,7 @@ export default defineOp({
   strategies: { "water-budget": HydrologyConfigSchema },
 });
 
-// @filename: mods/example-mod/src/domain/economy/modules/resources/ops/adjust-resource-support/contract.ts
+// @filename: plugins/mod/map/example-mod/src/domain/economy/modules/resources/ops/adjust-resource-support/contract.ts
 import { TerrainContract } from "@mapgen/domain/terrain/modules/relief/ops/compute-surface/contract.js";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 
@@ -183,12 +183,12 @@ export default defineOp({
   strategies: { "support-equity": Type.Object({}) },
 });
 
-// @filename: mods/example-mod/src/domain/biosphere/modules/vegetation/ops/demo/contract.ts
+// @filename: plugins/mod/map/example-mod/src/domain/biosphere/modules/vegetation/ops/demo/contract.ts
 import { Type } from "@swooper/mapgen-core/authoring/contracts";
 
 export const InputSchema = Type.Object({});
 
-// @filename: mods/example-mod/src/domain/biosphere/modules/vegetation/ops/demo/contract.ts
+// @filename: plugins/mod/map/example-mod/src/domain/biosphere/modules/vegetation/ops/demo/contract.ts
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 import DemoDefinition from "./config.js";
 
@@ -201,7 +201,7 @@ const sentinel = defineOp({
 const DemoContract = defineOp(DemoDefinition);
 export default DemoContract;
 
-// @filename: mods/example-mod/src/domain/biosphere/modules/vegetation/ops/demo/contract.ts
+// @filename: plugins/mod/map/example-mod/src/domain/biosphere/modules/vegetation/ops/demo/contract.ts
 import { createOp } from "@swooper/mapgen-core/authoring";
 import DemoContract from "./contract.js";
 
@@ -211,7 +211,7 @@ export const demo = createOp(DemoContract, {});
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/foundation/modules/geology/ops/demo/contract.ts
+// @filename: plugins/mod/map/example-mod/src/domain/foundation/modules/geology/ops/demo/contract.ts
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 import type { NonEmptyTuple } from "type-fest";
 import measuredDefinition from "./strategies/measured/config.js";
@@ -230,7 +230,7 @@ const DemoContract = defineOp({
 
 export default DemoContract;
 
-// @filename: mods/example-mod/src/domain/geology/modules/tectonics/ops/measure-drift/contract.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/tectonics/ops/measure-drift/contract.ts
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { PlateEventSchema } from "../../model/atoms/plate-event.schema.js";
 import { GridBoundsSchema } from "../../../mesh/model/atoms/grid-bounds.schema.js";

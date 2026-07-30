@@ -41,6 +41,7 @@ export type Civ7StudioSetupConfig = RunInGameSetupConfig;
 /** One filesystem-backed Civ7Cfg projected into the same grouped setup model used at launch. */
 export type Civ7SavedSetupConfigFile = Civ7SavedSetupConfiguration;
 
+/** Creates the admitted baseline setup shared by Studio authoring and Run in Game. */
 export function createDefaultCiv7StudioSetupConfig(): Civ7StudioSetupConfig {
   return createDefaultRunInGameSetupConfig();
 }
@@ -256,6 +257,7 @@ export function updateStudioSetupPlayerOption<Key extends keyof Civ7PlayerOption
   );
 }
 
+/** Replaces or clears the authored map script while re-admitting the complete grouped setup. */
 export function updateStudioSetupMapScript(
   config: Civ7StudioSetupConfig,
   mapScript: string | undefined
@@ -390,6 +392,7 @@ export function studioSavedWorldSettingsFromConfigFile(
   };
 }
 
+/** Converts Civ7 localization-style identifiers into compact labels for authored controls. */
 export function labelForCiv7SetupValue(value: unknown): string {
   if (typeof value !== "string") return String(value ?? "");
   const stripped = value
@@ -403,6 +406,7 @@ export function labelForCiv7SetupValue(value: unknown): string {
   return stripped.replace(/\b\w/g, (match) => match.toUpperCase());
 }
 
+/** Admits selectable string values from an authorable setup parameter in catalog order. */
 export function optionRowsFromParameter(
   parameter: Civ7SetupParameter | undefined
 ): ReadonlyArray<{ value: string; label: string }> {

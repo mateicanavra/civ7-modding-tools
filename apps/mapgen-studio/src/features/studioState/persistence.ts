@@ -106,6 +106,7 @@ function parseStudioAuthoringData(
   };
 }
 
+/** Admits persisted authoring data across supported schema versions into the current snapshot. */
 export function parseStudioAuthoringState(
   value: string | null
 ): StudioAuthoringStateSnapshot | null {
@@ -183,6 +184,7 @@ function parseLegacyStudioAuthoringState(
   }
 }
 
+/** Reads persisted authoring state and retires storage that cannot be safely migrated. */
 export function loadStudioAuthoringState(
   storage: KeyValueStorage | null = browserStorage()
 ): StudioAuthoringStateSnapshot | null {
@@ -220,6 +222,7 @@ export function retireStudioAuthoringState(
   }
 }
 
+/** Persists an immutable current-schema snapshot of the user-authored launch state. */
 export function saveStudioAuthoringState(
   args: Omit<StudioAuthoringStateSnapshot, "schemaVersion" | "savedAt">,
   storage: KeyValueStorage | null = browserStorage()

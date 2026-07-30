@@ -10,16 +10,16 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "recipe compilation importing domain contract roots instead of executable routers",
   "why": "Compiled recipes compose executable domain routers; declaration contracts are reserved for domain and step authoring boundaries.",
-  "remediate": "Import @mapgen/domain/<domain>/router from recipe runtime roots, and import the domain contract only from declaration or step-authoring code.",
+  "remediate": "Import the executable domain router from the domain's router.js surface in recipe runtime roots, and import the domain contract only from declaration or step-authoring code.",
   "message": "Recipe runtime files must import the domain's executable router surface.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/recipes/**/recipe.ts"]
+      "patterns": ["plugins/mod/map/*/src/recipes/**/recipe.ts"]
     }
   ],
   "hookCheck": true,
@@ -34,7 +34,7 @@
     "patternName": "require_runtime_domain_op_bundle_imports",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods/mod-swooper-maps/src/recipes"]
+      "roots": ["plugins/mod/map/swooper-physics/src/recipes"]
     }
   }
 }

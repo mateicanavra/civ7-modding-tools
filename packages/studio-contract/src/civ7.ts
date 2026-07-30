@@ -137,6 +137,7 @@ export type Civ7SetupSnapshot = Static<typeof civ7SetupSnapshotSchema>;
 // ---------------------------------------------------------------------------
 // Request: none. Success 200: { ok: status.playable, status: PlayableStatus }.
 // Error 500: { ok:false, error }. Reads FireTuner socket (getCiv7PlayableStatus).
+/** Reads the current playable-status observation from Civ7 without mutating game state. */
 export const status = oc
   .errors(civ7StatusErrors)
   .input(emptyInputSchema)
@@ -158,6 +159,7 @@ export const status = oc
 // ---------------------------------------------------------------------------
 // Request: none (server calls with { includeAreaRegionCounts: true }).
 // Success 200: { ok:true, summary: MapSummary }. Error 500: { ok:false, error }.
+/** Reads the current map summary, including area and region counts, as an opaque payload. */
 export const mapSummary = oc
   .errors(civ7MapSummaryErrors)
   .input(emptyInputSchema)
@@ -188,6 +190,7 @@ export const mapSummary = oc
 // `array(gameInfoRow)`, which does not match the retired REST payload. Refined
 // to the opaque result record to preserve parity (the deep payload is internal,
 // per shared.ts).
+/** Reads one named GameInfo table while preserving the direct-control result envelope. */
 export const gameInfo = oc
   .errors(civ7GameInfoErrors)
   .input(
@@ -226,6 +229,7 @@ export const gameInfo = oc
 // Dual-store 409 mutex + approval object land A3.
 const autoplayActionSchema = Type.Union([Type.Literal("start"), Type.Literal("stop")]);
 
+/** Starts or stops Civ7 autoplay under the Studio operation mutex. */
 export const autoplay = oc
   .errors(autoplayErrors)
   .input(
@@ -261,6 +265,7 @@ export const autoplay = oc
 // ---------------------------------------------------------------------------
 // Request: none. Success 200: { ok:true, observedAt, setup }.
 // Error 503 (UNIQUE): { ok:false, error, observedAt }. Reads FireTuner socket.
+/** Reads the provider-neutral setup state currently observed through FireTuner. */
 export const setupConfig = oc
   .errors(setupConfigErrors)
   .input(emptyInputSchema)
@@ -325,6 +330,7 @@ export const savedConfigsOutputSchema = Type.Object(
 /** Closed response carrying the saved configurations admitted from local Civ7Cfg files. */
 export type Civ7SavedConfigsOutput = Static<typeof savedConfigsOutputSchema>;
 
+/** Lists saved Civ7 setup files after projecting them into the public grouped model. */
 export const savedConfigs = oc
   .errors(savedConfigsErrors)
   .input(emptyInputSchema)
@@ -370,6 +376,7 @@ const setupCatalogSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/** Lists authoring choices discovered from official resources and installed game data. */
 export const setupCatalog = oc
   .errors(setupCatalogErrors)
   .input(emptyInputSchema)

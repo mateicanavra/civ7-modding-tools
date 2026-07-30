@@ -8,6 +8,7 @@ export type TConstructibleValidFeatureNode = Pick<
   "constructibleType" | "featureType"
 >;
 
+/** Allows a constructible to be placed on a specific map feature. */
 export class ConstructibleValidFeatureNode extends BaseNode<TConstructibleValidFeatureNode> {
   constructibleType: string | null = "BUILDING_";
   featureType: TObjectValues<typeof FEATURE> | null = FEATURE.ICE;

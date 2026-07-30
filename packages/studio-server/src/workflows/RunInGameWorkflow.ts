@@ -28,11 +28,13 @@ export interface RunInGameWorkflowApi {
   readonly start: (args: RunInGameWorkflowStart) => Effect.Effect<void, never>;
 }
 
+/** Effect service owning the multi-step Run in Game mutation and evidence sequence. */
 export class RunInGameWorkflow extends Context.Tag("@civ7/studio-server/RunInGameWorkflow")<
   RunInGameWorkflow,
   RunInGameWorkflowApi
 >() {}
 
+/** Builds Run in Game orchestration from host ports and shared Civ7 control. */
 export function makeRunInGameWorkflowLayer(
   args: Readonly<{
     ports: StudioWorkflowPorts;

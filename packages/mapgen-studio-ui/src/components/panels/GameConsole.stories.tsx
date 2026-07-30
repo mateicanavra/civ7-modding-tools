@@ -47,6 +47,7 @@ function Bar({ children }: { children: ReactNode }) {
   );
 }
 
+/** Shows live Civ7 readiness and provenance alongside the enabled game command cluster. */
 export const LiveReady: Story = {
   args: {
     ...base,
@@ -67,6 +68,7 @@ export const LiveReady: Story = {
   ),
 };
 
+/** Exercises the command cluster's unavailable state before a live Civ7 runtime is observed. */
 export const NoLiveGame: Story = {
   args: { ...base, liveRuntime: undefined },
   render: (args) => (

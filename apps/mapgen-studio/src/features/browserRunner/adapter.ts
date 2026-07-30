@@ -1,6 +1,7 @@
 import type { BrowserRunEvent } from "../../browser-runner/protocol";
 import type { VizEvent } from "../../shared/vizEvents";
 
+/** Translates browser-runner protocol events into the visualization event contract. */
 export function toVizEvent(event: BrowserRunEvent): VizEvent {
   switch (event.type) {
     case "run.started":

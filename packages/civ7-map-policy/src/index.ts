@@ -1,6 +1,5 @@
 export {
   CIV7_BIOME_GLOBAL,
-  CIV7_BIOME_GLOBALS,
   CIV7_MARINE_BIOME_GLOBAL,
   type Civ7BiomeGlobal,
 } from "./biome-globals.js";
@@ -32,9 +31,7 @@ export type { CoastRingPolicyResult } from "./coast-ring.js";
 export { applyCiv7CoastRingPolicy, CIV7_COAST_RING_POLICY_V0 } from "./coast-ring.js";
 export { NO_FEATURE_TYPE } from "./feature-constants.js";
 export {
-  ENGINE_FEATURE_LEGALITY_BY_KEY,
   type EngineFeatureLegality,
-  FEATURE_KEY_INDEX,
   FEATURE_PLACEMENT_KEYS,
   type FeatureKey,
   getEngineFeatureLegality,

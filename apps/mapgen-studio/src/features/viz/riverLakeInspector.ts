@@ -606,6 +606,7 @@ function countByVisibility(refs: readonly RiverLakeInspectorLayerRef[]): Record<
   return counts;
 }
 
+/** Summarizes ordered layer evidence without claiming lanes whose required artifacts are absent. */
 export function buildRiverLakeFloodplainInspectorSummary(
   manifest: Pick<VizManifestV2, "layers"> | null
 ): RiverLakeFloodplainInspectorSummary | null {

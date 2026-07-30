@@ -48,6 +48,6 @@ Each domain page is structured as:
 ## Ground truth anchors
 
 - Standard recipe stage order: `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`
-- Standard recipe composition: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
+- Standard recipe composition: `plugins/mod/map/swooper-physics/src/recipes/standard/recipe.ts`
 - Step contract model: `docs/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`

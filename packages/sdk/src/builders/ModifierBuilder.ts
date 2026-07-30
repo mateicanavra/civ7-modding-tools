@@ -11,6 +11,7 @@ import { BaseBuilder } from "./BaseBuilder";
 
 type TModifierBuilder = TClassProperties<ModifierBuilder>;
 
+/** Builds a game modifier, its arguments and requirements, and any localized description. */
 export class ModifierBuilder extends BaseBuilder<TModifierBuilder> {
   _gameEffects: GameEffectNode = new GameEffectNode();
   _localizations: DatabaseNode = new DatabaseNode();

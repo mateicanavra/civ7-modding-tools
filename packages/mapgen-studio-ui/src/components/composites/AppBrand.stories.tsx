@@ -29,6 +29,7 @@ function Demo({ children }: { children: ReactNode }) {
   );
 }
 
+/** Captures the resting brand pill before its hover-only identity card mounts. */
 export const Default: Story = {
   render: () => (
     <Demo>

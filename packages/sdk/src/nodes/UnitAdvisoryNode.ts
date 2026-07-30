@@ -5,6 +5,7 @@ import { BaseNode } from "./BaseNode";
 
 export type TUnitAdvisoryNode = Pick<UnitAdvisoryNode, "unitType" | "advisoryClassType">;
 
+/** Associates a unit with an advisory category used by player guidance. */
 export class UnitAdvisoryNode extends BaseNode<TUnitAdvisoryNode> {
   unitType: string | null = "UNIT_TYPE";
   advisoryClassType: TObjectValues<typeof ADVISORY> | null = ADVISORY.CLASS_FOOD;

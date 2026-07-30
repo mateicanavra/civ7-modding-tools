@@ -5,6 +5,7 @@ export type TLegacyCivilizationNode = Pick<
   "adjective" | "civilizationType" | "age" | "fullName" | "name"
 >;
 
+/** Registers a civilization in the legacy metadata consumed across age transitions. */
 export class LegacyCivilizationNode extends BaseNode<TLegacyCivilizationNode> {
   civilizationType: string | null = "CIVILIZATION_";
   adjective: string | null = "adjective";

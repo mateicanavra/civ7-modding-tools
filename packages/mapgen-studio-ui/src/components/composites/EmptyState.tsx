@@ -31,6 +31,11 @@ const CARD_SHELL =
 const ICON_BADGE =
   "flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground";
 
+/**
+ * Renders the shared status surface used when a map or pipeline view has no primary content.
+ * Centering remains the host's responsibility so the same surface can sit in canvas and DAG
+ * layouts without introducing another positioning layer.
+ */
 export function EmptyState({ title, message, icon, className }: EmptyStateProps) {
   return (
     <div className={cn(CARD_SHELL, className)}>

@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "missing canonical morphology belt-driver contract references or direct mountain dependencies on retired Foundation driver products",
   "why": "Morphology coasts derive belt drivers from canonical Standard foundation tile artifacts; mountain planning consumes the Morphology-owned belt-driver artifact.",
@@ -20,8 +20,8 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts",
-        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps/mountains/config.ts"
+        "plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts",
+        "plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/features/steps/mountains/config.ts"
       ]
     }
   ],
@@ -38,8 +38,8 @@
     "acquisition": {
       "kind": "check",
       "roots": [
-        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology/coasts/steps",
-        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology/features/steps"
+        "plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/coasts/steps",
+        "plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/features/steps"
       ]
     }
   }

@@ -89,6 +89,7 @@ function Dock({ children }: { children: ReactNode }) {
   );
 }
 
+/** Presents the populated inspector dock with its representative selectable map layers. */
 export const Inspector: Story = {
   args: props,
   render: (args) => (

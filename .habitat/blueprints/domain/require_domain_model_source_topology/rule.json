@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "domain or module model roots outside the positive atom, policy, and shared-rule owner topology",
   "why": "The model source kind owns vocabulary and neutral shared domain logic at the nearest semantic domain or module level. Keeping this topology separate prevents router structure from mixing with atoms, policy, or rules and prevents shared logic from becoming another nested registry or helper cabinet.",
@@ -20,10 +20,10 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/domain/*/model",
-        "mods/*/src/domain/*/model/**",
-        "mods/*/src/domain/*/modules/*/model",
-        "mods/*/src/domain/*/modules/*/model/**"
+        "plugins/mod/map/*/src/domain/*/model",
+        "plugins/mod/map/*/src/domain/*/model/**",
+        "plugins/mod/map/*/src/domain/*/modules/*/model",
+        "plugins/mod/map/*/src/domain/*/modules/*/model/**"
       ]
     }
   ],

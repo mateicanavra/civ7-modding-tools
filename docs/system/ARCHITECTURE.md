@@ -28,10 +28,13 @@ packages/           # Core libraries
 
 apps/               # Applications
 ├── docs/           # Documentation site (Mintlify)
-└── playground/     # Examples and experiments
+├── playground/     # Examples and experiments
+└── mods/map/swooper-physics/ # Civ7 realization (@swooper/swooper-physics-mod)
+
+plugins/            # Reusable product and workflow definitions
+└── mod/map/swooper-physics/ # Swooper domains, Standard recipe, configs, and catalog
 
 mods/               # Colocated mods
-├── mod-swooper-maps/      # Map generation mod
 └── mod-swooper-civ-dacia/ # Dacia civilization mod
 ```
 

@@ -2,7 +2,7 @@ schemaVersion = 1
 
 [[scopes]]
 name = "mapgen-domain-roots"
-root = "mods/*/src/domain/!(*.*)"
+root = "plugins/mod/map/*/src/domain/!(*.*)"
 kind = "directory"
 mode = "closed"
 required = [
@@ -17,7 +17,7 @@ allowed = [
 
 [[scopes]]
 name = "mapgen-domain-module-containers"
-root = "mods/*/src/domain/!(*.*)/modules"
+root = "plugins/mod/map/*/src/domain/!(*.*)/modules"
 kind = "directory"
 mode = "closed"
 allowed = [

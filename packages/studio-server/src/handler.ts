@@ -85,6 +85,7 @@ export interface StudioRpcHandlerOptions {
   liveGameWatch?: LiveGameWatcherOptions;
 }
 
+/** Builds the transport handler that runs Studio procedures on the managed Effect runtime. */
 export function createStudioRpcHandler(
   context: StudioServerContext,
   options: StudioRpcHandlerOptions = {}

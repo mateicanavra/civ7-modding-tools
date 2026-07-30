@@ -2,7 +2,7 @@ schemaVersion = 1
 
 [[scopes]]
 name = "recipe-stage-collections"
-root = "mods/*/src/recipes/*/stages"
+root = "plugins/mod/map/*/src/recipes/*/stages"
 kind = "directory"
 mode = "closed"
 allowed = ["+([a-z0-9])*(-+([a-z0-9]))"]
@@ -10,7 +10,7 @@ forbidden = ["artifacts"]
 
 [[scopes]]
 name = "recipe-stage-semantic-containers"
-root = "mods/*/src/recipes/*/stages/*(!(*.*|steps|artifacts|model)/)!(*.*|steps|artifacts|model)"
+root = "plugins/mod/map/*/src/recipes/*/stages/*(!(*.*|steps|artifacts|model)/)!(*.*|steps|artifacts|model)"
 kind = "directory"
 mode = "closed"
 allowed = [
@@ -24,14 +24,14 @@ forbidden = ["artifacts"]
 
 [[scopes]]
 name = "recipe-stage-models"
-root = "mods/*/src/recipes/*/stages/*(!(*.*|steps|artifacts|model)/)!(*.*|steps|artifacts|model)/model"
+root = "plugins/mod/map/*/src/recipes/*/stages/*(!(*.*|steps|artifacts|model)/)!(*.*|steps|artifacts|model)/model"
 kind = "directory"
 mode = "closed"
 required = ["policy"]
 
 [[scopes]]
 name = "recipe-stage-policies"
-root = "mods/*/src/recipes/*/stages/*(!(*.*|steps|artifacts|model)/)!(*.*|steps|artifacts|model)/model/policy"
+root = "plugins/mod/map/*/src/recipes/*/stages/*(!(*.*|steps|artifacts|model)/)!(*.*|steps|artifacts|model)/model/policy"
 kind = "directory"
 mode = "closed"
 allowEmpty = true

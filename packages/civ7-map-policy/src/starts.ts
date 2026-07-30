@@ -20,6 +20,7 @@
  */
 
 export const HOMELAND_REGION_WEST = 1;
+/** Civ7 landmass-region id assigned to the eastern homeland partition. */
 export const HOMELAND_REGION_EAST = 2;
 export type HomelandRegionSlot = typeof HOMELAND_REGION_WEST | typeof HOMELAND_REGION_EAST;
 

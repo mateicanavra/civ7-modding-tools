@@ -18,6 +18,7 @@ export type TypeBoxStandardSchemaOptions = Readonly<{
   precheck?: (value: unknown) => string | undefined;
 }>;
 
+/** Adapts a TypeBox schema to Standard Schema without mutating caller-owned input. */
 export function toStandardSchema<TypeSchema extends TSchema>(
   schema: TypeSchema,
   options: TypeBoxStandardSchemaOptions = {}
@@ -77,6 +78,7 @@ export function toStandardSchema<TypeSchema extends TSchema>(
   return standardSchema;
 }
 
+/** Recovers the TypeBox schema retained by this package's Standard Schema adapter. */
 export function typeboxSchemaFromStandardSchema(value: unknown, label = "schema"): TSchema {
   const schema = (value as { [TYPEBOX_SCHEMA]?: TSchema } | null)?.[TYPEBOX_SCHEMA];
   if (schema == null) {
@@ -85,12 +87,14 @@ export function typeboxSchemaFromStandardSchema(value: unknown, label = "schema"
   return schema;
 }
 
+/** Extracts the TypeBox input schema from an oRPC procedure built by this contract. */
 export function typeboxInputSchemaFromContractProcedure<
   const Procedure extends OrpcContractProcedureWithSchemas,
 >(procedure: Procedure): TSchema {
   return typeboxSchemaFromStandardSchema(procedure["~orpc"].inputSchema, "input schema");
 }
 
+/** Extracts the TypeBox output schema from an oRPC procedure built by this contract. */
 export function typeboxOutputSchemaFromContractProcedure<
   const Procedure extends OrpcContractProcedureWithSchemas,
 >(procedure: Procedure): TSchema {

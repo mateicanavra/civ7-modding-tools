@@ -1,3 +1,4 @@
+/** Yield identifiers used by costs, adjacency bonuses, warehouses, and other economy records. */
 export const YIELD = {
   SCIENCE: "YIELD_SCIENCE",
   GOLD: "YIELD_GOLD",

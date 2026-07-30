@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "stage code importing another stage's steps implementation",
   "why": "Stages compose through recipe/domain contracts, not sibling step internals.",
@@ -19,7 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/recipes/*/stages/**/*.ts"]
+      "patterns": ["plugins/mod/map/*/src/recipes/*/stages/**/*.ts"]
     }
   ],
   "hookCheck": true,
@@ -34,7 +34,7 @@
     "patternName": "prohibit_sibling_stage_private_step_imports",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

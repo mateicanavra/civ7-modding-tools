@@ -64,6 +64,7 @@ function randomRunToken(): string {
     : `run_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 }
 
+/** Owns a browser worker generation and ignores stale events after cancellation or replacement. */
 export function useBrowserRunner(args: UseBrowserRunnerArgs): UseBrowserRunnerResult {
   const { enabled, onVizEvent } = args;
   const runTokenRef = useRef<string>(randomRunToken());

@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "nested cabinets or non-TypeScript members inside domain policy roots",
   "why": "Domain policy is a flat set of named static laws owned by its nearest semantic container.",
@@ -20,10 +20,10 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/domain/*/model/policy",
-        "mods/*/src/domain/*/model/policy/**",
-        "mods/*/src/domain/*/modules/*/model/policy",
-        "mods/*/src/domain/*/modules/*/model/policy/**"
+        "plugins/mod/map/*/src/domain/*/model/policy",
+        "plugins/mod/map/*/src/domain/*/model/policy/**",
+        "plugins/mod/map/*/src/domain/*/modules/*/model/policy",
+        "plugins/mod/map/*/src/domain/*/modules/*/model/policy/**"
       ]
     }
   ],

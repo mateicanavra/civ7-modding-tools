@@ -9,9 +9,7 @@
 
     "moduleResolution": "bundler",
     "paths": {
-      "@/*": ["./src/*"],
-      "@mapgen/domain/config": ["../../mods/mod-swooper-maps/src/domain/config.ts"],
-      "@mapgen/domain/*": ["../../mods/mod-swooper-maps/src/domain/*"]
+      "@/*": ["./src/*"]
     },
     "allowImportingTsExtensions": true,
     "isolatedModules": true,

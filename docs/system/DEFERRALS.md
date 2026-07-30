@@ -54,7 +54,7 @@ live-proof runbook in `MILESTONE-PROOFS.md`).
 
 **Deferred:** 2026-06-10
 **Trigger:** A second stage needs emitted-key coverage guarding, or a new placement step is added (the coverage test's step table is manual and a new step would otherwise rely on review to be noticed).
-**Context:** S7's stretch goal — a `packages/mapgen-viz` registry asserting that emitted dataTypeKeys are declared — is cross-package API design beyond a slice; the shipped guard is `mods/mod-swooper-maps/test/recipes/swooper-physics-standard/stages/placement/viz-coverage.test.ts` (per-step expected key sets). Owner: placement-realignment (S7 decision log).
+**Context:** S7's stretch goal — a `packages/mapgen-viz` registry asserting that emitted dataTypeKeys are declared — is cross-package API design beyond a slice; the shipped guard is `plugins/mod/map/swooper-physics/test/recipes/swooper-physics-standard/viz/placement.test.ts` (per-step expected key sets). Owner: placement-realignment (S7 decision log).
 **Scope:** Design a declaration surface for dataTypeKeys in `@swooper/mapgen-viz`; wire emit sites + studio overlay suggestions to it; generalize the coverage check across stages.
 **Impact:** Viz coverage for stages other than placement can silently drift; placement itself is pinned by test.
 

@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "domain atom roots outside their closed schema and index surface",
   "why": "Domain atoms are small composable schema vocabularies shared across real consumers. Closing the kind prevents atoms from becoming a general helper, policy, data, or validation cabinet.",
@@ -20,10 +20,10 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/domain/*/model/atoms",
-        "mods/*/src/domain/*/model/atoms/**",
-        "mods/*/src/domain/*/modules/*/model/atoms",
-        "mods/*/src/domain/*/modules/*/model/atoms/**"
+        "plugins/mod/map/*/src/domain/*/model/atoms",
+        "plugins/mod/map/*/src/domain/*/model/atoms/**",
+        "plugins/mod/map/*/src/domain/*/modules/*/model/atoms",
+        "plugins/mod/map/*/src/domain/*/modules/*/model/atoms/**"
       ]
     }
   ],

@@ -1,5 +1,6 @@
 import { Type } from "typebox";
 
+/** Stable, redacted categories suitable for the public Run in Game lifecycle. */
 export const RUN_IN_GAME_SAFE_FAILURE_CATEGORIES = [
   "request-validation",
   "artifact-generation",
@@ -16,6 +17,7 @@ export const RUN_IN_GAME_SAFE_FAILURE_CATEGORIES = [
 
 export type RunInGameSafeFailureCategory = (typeof RUN_IN_GAME_SAFE_FAILURE_CATEGORIES)[number];
 
+/** Wire schema for the public failure categories, kept in lockstep with the tuple. */
 export const runInGameSafeFailureCategory = Type.Union([
   Type.Literal("request-validation"),
   Type.Literal("artifact-generation"),

@@ -5,6 +5,7 @@ export type TUnitAbilityModifierNode = {
   modifierId: string;
 };
 
+/** Binds a gameplay modifier to the unit ability that activates it. */
 export class UnitAbilityModifierNode extends BaseNode<TUnitAbilityModifierNode> {
   unitAbilityType: string;
   modifierId: string;

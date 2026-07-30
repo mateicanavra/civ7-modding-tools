@@ -16,6 +16,7 @@ import { alwaysExpandedCollapse, noop } from "../../storybook/mockWidgetProps.js
 // every (otherwise-required) prop as optional — letting these render-only
 // stories omit an `args` block. The value is never read: each story drives the
 // component entirely through its own `render` body.
+/** Registers full-schema stories while their render bodies provide the coherent schema/value pair. */
 const meta = {
   title: "forms/SchemaConfigForm",
   component: SchemaConfigForm,

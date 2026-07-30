@@ -9,6 +9,7 @@ import { fill } from "../utils";
 
 type TMod = TClassProperties<Mod>;
 
+/** Owns a mod build, collecting builders and files before writing the mod-info manifest and payload. */
 export class Mod {
   id: string = "test";
   name: string = "test";

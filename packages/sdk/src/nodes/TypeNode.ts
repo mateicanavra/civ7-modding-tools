@@ -5,6 +5,7 @@ import { BaseNode } from "./BaseNode";
 
 export type TTypeNode = Pick<TypeNode, "type" | "kind">;
 
+/** Declares a concrete database type and the kind it inherits from. */
 export class TypeNode extends BaseNode<TTypeNode> {
   type: string | null = "TYPE";
   kind: TObjectValues<typeof KIND> | null = KIND.CONSTRUCTIBLE;

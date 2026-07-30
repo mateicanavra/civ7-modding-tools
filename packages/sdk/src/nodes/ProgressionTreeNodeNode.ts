@@ -5,6 +5,7 @@ export type TProgressionTreeNodeNode = Pick<
   "progressionTreeNodeType" | "progressionTree" | "cost" | "iconString" | "name"
 >;
 
+/** Represents one researchable node within a progression tree. */
 export class ProgressionTreeNodeNode extends BaseNode<TProgressionTreeNodeNode> {
   progressionTreeNodeType: `NODE_${string}` | null = "NODE_";
   progressionTree: `TREE_${string}` | null = "TREE_";

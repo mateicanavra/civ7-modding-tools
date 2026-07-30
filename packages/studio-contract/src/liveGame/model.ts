@@ -1,11 +1,13 @@
 import { type Static, Type } from "typebox";
 
+/** Top-level health states emitted by the live-game watcher. */
 export const liveGameStatusKindSchema = Type.Union([
   Type.Literal("idle"),
   Type.Literal("ok"),
   Type.Literal("error"),
 ]);
 
+/** Lifecycle states for the optional detailed map snapshot. */
 export const liveGameSnapshotStatusSchema = Type.Union([
   Type.Literal("idle"),
   Type.Literal("loading"),
@@ -14,6 +16,7 @@ export const liveGameSnapshotStatusSchema = Type.Union([
   Type.Literal("error"),
 ]);
 
+/** Evidence states relating the observed game to a Studio-authored run. */
 export const liveGameBindingStatusSchema = Type.Union([
   Type.Literal("unbound-runtime"),
   Type.Literal("proven-studio-run"),
@@ -22,6 +25,7 @@ export const liveGameBindingStatusSchema = Type.Union([
   Type.Literal("failed"),
 ]);
 
+/** Closed event payload combining live health, snapshot identity, and binding evidence. */
 export const liveGameStateSchema = Type.Object(
   {
     status: liveGameStatusKindSchema,
@@ -74,10 +78,12 @@ export type LiveGameStatusBody = Readonly<{
   };
 }>;
 
+/** Canonically serializes observation data so property order cannot alter identity. */
 export function stableLiveGameStringify(value: unknown): string {
   return JSON.stringify(canonicalize(value));
 }
 
+/** Produces the compact deterministic hash used in live snapshot identities. */
 export function hashLiveGameValue(value: unknown): string {
   const input = stableLiveGameStringify(value);
   let hash = 0x811c9dc5;
@@ -88,6 +94,7 @@ export function hashLiveGameValue(value: unknown): string {
   return (hash >>> 0).toString(16).padStart(8, "0");
 }
 
+/** Projects a successful tuner observation into the state broadcast to Studio clients. */
 export function buildLiveGameState(args: {
   body: LiveGameStatusBody;
   observedAtFallback: string;
@@ -134,6 +141,7 @@ export function buildLiveGameState(args: {
   };
 }
 
+/** Projects watcher failure into a bounded state while retaining the failure count. */
 export function buildLiveGameErrorState(args: {
   error: unknown;
   observedAt: string;
@@ -149,6 +157,7 @@ export function buildLiveGameErrorState(args: {
   };
 }
 
+/** Computes the deduplication key used to suppress equivalent watcher broadcasts. */
 export function liveGameStateKey(state: LiveGameState): string {
   if (state.status === "ok" && state.snapshotId) return `ok:${state.snapshotId}`;
   return stableLiveGameStringify({

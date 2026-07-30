@@ -60,6 +60,7 @@ function errorMessage(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
 }
 
+/** Projects saved-config and setup-catalog queries into stable loading, error, and ready views. */
 export function useSetupDataQueries(): {
   savedSetupConfigs: SavedSetupConfigsView;
   setupCatalog: SetupCatalogView;

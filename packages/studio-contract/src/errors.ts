@@ -67,6 +67,7 @@ const saveDeployPublicFailureData: StandardSchemaV1<
 // civ7.* reads — per-procedure codes (legacy statuses preserved exactly)
 // ---------------------------------------------------------------------------
 
+/** Declares the legacy-compatible failure surface for playable-status reads. */
 export const civ7StatusErrors = {
   CIV7_STATUS_UNAVAILABLE: {
     status: 500,
@@ -74,6 +75,7 @@ export const civ7StatusErrors = {
   },
 } as const;
 
+/** Declares the legacy-compatible failure surface for map-summary reads. */
 export const civ7MapSummaryErrors = {
   CIV7_MAP_SUMMARY_UNAVAILABLE: {
     status: 500,
@@ -81,6 +83,7 @@ export const civ7MapSummaryErrors = {
   },
 } as const;
 
+/** Declares the client-error classification used by GameInfo table reads. */
 export const civ7GameInfoErrors = {
   CIV7_GAMEINFO_FAILED: {
     status: 400,
@@ -88,6 +91,7 @@ export const civ7GameInfoErrors = {
   },
 } as const;
 
+/** Declares bounded snapshot read failures without exposing provider details. */
 export const liveSnapshotErrors = {
   CIV7_LIVE_SNAPSHOT_FAILED: {
     status: 400,
@@ -95,6 +99,7 @@ export const liveSnapshotErrors = {
   },
 } as const;
 
+/** Declares aggregate entity-read failures as one public error code. */
 export const liveEntitiesErrors = {
   CIV7_LIVE_ENTITIES_FAILED: {
     status: 400,
@@ -102,6 +107,7 @@ export const liveEntitiesErrors = {
   },
 } as const;
 
+/** Declares aggregate live GameInfo failures as one public error code. */
 export const liveGameInfoErrors = {
   CIV7_LIVE_GAMEINFO_FAILED: {
     status: 400,
@@ -109,6 +115,7 @@ export const liveGameInfoErrors = {
   },
 } as const;
 
+/** Preserves the setup read's unavailable status and optional observation time. */
 export const setupConfigErrors = {
   SETUP_CONFIG_UNAVAILABLE: {
     status: 503,
@@ -117,6 +124,7 @@ export const setupConfigErrors = {
   },
 } as const;
 
+/** Preserves the saved-config listing failure status and optional observation time. */
 export const savedConfigsErrors = {
   SAVED_CONFIGS_UNAVAILABLE: {
     status: 500,
@@ -125,6 +133,7 @@ export const savedConfigsErrors = {
   },
 } as const;
 
+/** Preserves catalog discovery failures and any available observation time. */
 export const setupCatalogErrors = {
   SETUP_CATALOG_UNAVAILABLE: {
     status: 500,
@@ -137,6 +146,7 @@ export const setupCatalogErrors = {
 // civ7.autoplay — package runtime command (409 runtime gate / 400 invalid / 503 unavailable / 500 unexpected)
 // ---------------------------------------------------------------------------
 
+/** Defines the closed autoplay failure protocol across admission, control, and defects. */
 export const autoplayErrors = {
   AUTOPLAY_BLOCKED: {
     status: 409,
@@ -164,6 +174,7 @@ export const autoplayErrors = {
 // runInGame.* — package operation runtime (409/400/500/503; 404 without daemon identity)
 // ---------------------------------------------------------------------------
 
+/** Defines the public Run in Game lifecycle errors and their sealed safe data. */
 export const runInGameErrors = {
   RUN_IN_GAME_BLOCKED: {
     status: 409,
@@ -196,6 +207,7 @@ export const runInGameErrors = {
 // mapConfigs.* — package operation runtime (409 runtime gate / 400 validation / 503 unavailable; 404 with identity echo)
 // ---------------------------------------------------------------------------
 
+/** Defines the public save/deploy lifecycle errors and their sealed safe data. */
 export const mapConfigsErrors = {
   SAVE_DEPLOY_BLOCKED: {
     status: 409,

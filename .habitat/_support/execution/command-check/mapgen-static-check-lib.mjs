@@ -6,7 +6,7 @@ import path from "node:path";
 const repoRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], {
   encoding: "utf8",
 }).trim();
-export const modRoot = path.join(repoRoot, "mods/mod-swooper-maps");
+export const modRoot = path.join(repoRoot, "plugins/mod/map/swooper-physics");
 
 export function read(absFile) {
   return readFileSync(absFile, "utf8");

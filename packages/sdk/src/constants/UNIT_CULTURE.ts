@@ -1,3 +1,4 @@
+/** Visual-culture identifiers that select civilization unit art sets. */
 export const UNIT_CULTURE = {
   AFRICA: "Afr",
   EGYPT: "CIVILIZATION_EGYPT",

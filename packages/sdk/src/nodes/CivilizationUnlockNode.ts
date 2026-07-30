@@ -15,6 +15,7 @@ export type TCivilizationUnlockNode = Pick<
   | "icon"
 >;
 
+/** Declares an age transition from one civilization to another through a named unlock. */
 export class CivilizationUnlockNode extends BaseNode<TCivilizationUnlockNode> {
   civilizationDomain: string | null = "";
   civilizationType: string | null = "CIVILIZATION_";

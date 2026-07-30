@@ -19,6 +19,7 @@ import { UnitBuilder } from "./UnitBuilder";
 
 type TTraditionBuilder = TClassProperties<TraditionBuilder>;
 
+/** Packages a tradition's database row, modifier bindings, effects, and localized text. */
 export class TraditionBuilder extends BaseBuilder<TTraditionBuilder> {
   _current: DatabaseNode = new DatabaseNode();
   _gameEffects: GameEffectNode = new GameEffectNode();

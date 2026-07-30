@@ -111,7 +111,7 @@ When you need deeper grounding:
 - Studio mode selector (Browser/Dump): `packages/mapgen-studio-ui/src/components/composites/AppHeader.tsx`
 - Studio complete-config form + JSON view: `packages/mapgen-studio-ui/src/components/panels/RecipePanel.tsx`
 - Studio canonical config admission: `apps/mapgen-studio/src/features/configAuthoring/canonicalConfig.ts`
-- Recipe-owned complete default artifact: `mods/mod-swooper-maps/src/recipes/standard/artifacts.ts`
+- Recipe-owned complete default artifact: `plugins/mod/map/swooper-physics/src/recipes/standard/artifacts.ts`
 - Studio worker client (worker creation): `apps/mapgen-studio/src/features/browserRunner/workerClient.ts`
 - Studio worker entrypoint (plan compile + run): `apps/mapgen-studio/src/browser-runner/pipeline.worker.ts`
-- Standard recipe module: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
+- Standard recipe module: `plugins/mod/map/swooper-physics/src/recipes/standard/recipe.ts`

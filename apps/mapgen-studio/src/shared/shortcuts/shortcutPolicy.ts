@@ -1,3 +1,4 @@
+/** Protects ordinary text editing while still allowing modifier-based application commands. */
 export function shouldIgnoreGlobalShortcutsInEditableTarget(args: {
   isEditableTarget: boolean;
   metaKey: boolean;

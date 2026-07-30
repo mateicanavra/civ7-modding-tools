@@ -51,7 +51,7 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/geology/router.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/router.ts
 import { createDomainRouter } from "@swooper/mapgen-core/authoring";
 import contract from "./contract.js";
 import tectonics from "./modules/tectonics/router.js";
@@ -60,7 +60,7 @@ const geology = createDomainRouter(contract, { tectonics });
 export default geology;
 export { tectonics };
 
-// @filename: mods/example-mod/src/domain/weather/router.ts
+// @filename: plugins/mod/map/example-mod/src/domain/weather/router.ts
 import { createDomainRouter } from "@swooper/mapgen-core/authoring";
 import contract from "./contract.js";
 import climate from "./climate/router.js";
@@ -72,7 +72,7 @@ export default weather;
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/geology/router.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/router.ts
 import { createDomainRouter } from "@swooper/mapgen-core/authoring";
 import contract from "./contract.js";
 import tectonics from "./modules/tectonics/router.js";

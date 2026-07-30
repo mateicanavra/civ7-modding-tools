@@ -113,10 +113,12 @@ export type SaveDeployTransition =
       deploy?: unknown;
     }>;
 
+/** Creates the synchronized in-memory registry for one immutable daemon identity. */
 export function makeRegistry(identity: StudioDaemonIdentity): Effect.Effect<RuntimeRegistry> {
   return SynchronizedRef.make(emptyRegistry(identity));
 }
 
+/** Adds restart-recovered Run in Game operations without reopening their mutation authority. */
 export function adoptRunInGameOperations(
   registry: RuntimeRegistry,
   operations: ReadonlyArray<RunInGameInternalOperation>
@@ -130,6 +132,7 @@ export function adoptRunInGameOperations(
   });
 }
 
+/** Closes future admission while preserving retained state for final observation. */
 export function markDisposed(
   registry: RuntimeRegistry,
   nowIso: string,
@@ -173,6 +176,7 @@ export function markDisposed(
   });
 }
 
+/** Atomically admits a Run in Game request when no conflicting operation owns the runtime. */
 export function admitRunInGame(
   args: Readonly<{
     registry: RuntimeRegistry;
@@ -237,6 +241,7 @@ export function admitRunInGame(
   });
 }
 
+/** Applies a legal Run in Game phase transition and publishes the resulting event. */
 export function transitionRunInGame(
   args: Readonly<{
     registry: RuntimeRegistry;
@@ -248,6 +253,7 @@ export function transitionRunInGame(
   return transitionRunInGameMutation(args).pipe(Effect.map((mutation) => mutation.operation));
 }
 
+/** Records a mutation-owning transition with evidence and a monotonic revision. */
 export function transitionRunInGameMutation(
   args: Readonly<{
     registry: RuntimeRegistry;
@@ -323,6 +329,7 @@ function snapshotRetainedRunTransition(transition: RunInGameTransition): RunInGa
     : { ...transition, exactAuthorshipEvidence: snapshot };
 }
 
+/** Terminalizes a mutation-stage failure while preserving uncertainty when replay is unsafe. */
 export function failRunInGameMutation(
   args: Readonly<{
     registry: RuntimeRegistry;
@@ -373,6 +380,7 @@ export function failRunInGameMutation(
   });
 }
 
+/** Retains the primary cancellation outcome while recording failed cleanup evidence. */
 export function markRunInGameCancellationCleanupFailure(
   args: Readonly<{
     registry: RuntimeRegistry;
@@ -414,6 +422,7 @@ export function markRunInGameCancellationCleanupFailure(
   });
 }
 
+/** Cancels only pre-mutation work; mutation-owning phases remain observable until settled. */
 export function cancelRunInGame(
   args: Readonly<{
     registry: RuntimeRegistry;
@@ -490,6 +499,7 @@ export function cancelRunInGame(
   });
 }
 
+/** Resolves live, retained, expired, or missing Run in Game state by request identity. */
 export function getRunInGame(
   args: Readonly<{
     registry: RuntimeRegistry;
@@ -523,6 +533,7 @@ export function getRunInGame(
   });
 }
 
+/** Atomically admits or deduplicates save/deploy while respecting the shared runtime mutex. */
 export function admitSaveDeploy(
   args: Readonly<{
     registry: RuntimeRegistry;
@@ -577,6 +588,7 @@ export function admitSaveDeploy(
   });
 }
 
+/** Looks up idempotent save/deploy admission without creating a new operation. */
 export function lookupSaveDeployAdmission(
   args: Readonly<{
     registry: RuntimeRegistry;
@@ -610,6 +622,7 @@ export function lookupSaveDeployAdmission(
   });
 }
 
+/** Attaches an opaque diagnostics id after private evidence has been persisted. */
 export function markRunInGameDiagnosticsAvailable(
   registry: RuntimeRegistry,
   requestId: string,
@@ -633,6 +646,7 @@ export function markRunInGameDiagnosticsAvailable(
   });
 }
 
+/** Applies a legal save/deploy transition and publishes its public projection. */
 export function transitionSaveDeploy(
   args: Readonly<{
     registry: RuntimeRegistry;
@@ -679,6 +693,7 @@ export function transitionSaveDeploy(
   });
 }
 
+/** Terminalizes save/deploy with stage evidence and a safe public failure category. */
 export function failSaveDeploy(
   args: Readonly<{
     registry: RuntimeRegistry;
@@ -725,6 +740,7 @@ export function failSaveDeploy(
   });
 }
 
+/** Resolves live, retained, expired, or missing save/deploy state by request identity. */
 export function getSaveDeploy(
   args: Readonly<{
     registry: RuntimeRegistry;
@@ -758,6 +774,7 @@ export function getSaveDeploy(
   });
 }
 
+/** Reads the complete registry snapshot under the synchronization gate. */
 export function getState(
   registry: RuntimeRegistry,
   nowMs: number,
@@ -770,6 +787,7 @@ export function getState(
   });
 }
 
+/** Rejects new work once the runtime has begun process-lifetime disposal. */
 export function ensureAdmissionOpen(
   args: Readonly<{
     registry: RuntimeRegistry;

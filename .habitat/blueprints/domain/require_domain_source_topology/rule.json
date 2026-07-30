@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "domain roots outside the positive contract, router, model, and semantic module spine",
   "why": "A domain root is one public aggregate over semantic modules. Keeping modules under modules/ and shared vocabulary under model/ prevents routers, atoms, and policy from appearing as equivalent direct children while leaving each child kind to its own blueprint.",
@@ -19,7 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/domain", "mods/*/src/domain/**"]
+      "patterns": ["plugins/mod/map/*/src/domain", "plugins/mod/map/*/src/domain/**"]
     }
   ],
   "supportFiles": {

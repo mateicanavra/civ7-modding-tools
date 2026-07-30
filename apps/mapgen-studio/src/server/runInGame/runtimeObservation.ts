@@ -33,6 +33,7 @@ type LiveStatusReadiness =
 const LIVE_STATUS_READY_TIMEOUT_MS = 30_000;
 const LIVE_STATUS_READY_POLL_INTERVAL_MS = 1_000;
 
+/** Correlates live-reader evidence with one launched request to prove the observed runtime. */
 export async function observeRunInGameRuntimeThroughStudioLiveReader(
   args: Readonly<{
     requestId: string;
@@ -283,6 +284,7 @@ function classifyLiveStatusReadiness(status: Civ7LiveStatusOutput): LiveStatusRe
   return { kind: "loading", status };
 }
 
+/** Projects a successful control observation into the shared live-runtime client model. */
 export function liveRuntimeStatusFromObservation(
   value: Civ7LiveStatusOutput
 ): ReturnType<typeof buildLiveRuntimeStatusState> | undefined {

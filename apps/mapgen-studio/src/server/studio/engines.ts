@@ -32,8 +32,8 @@ import {
   materializationFailed,
   verificationFailed,
 } from "@civ7/studio-server";
-import { validateStandardMapConfigSnapshotForSchema } from "mod-swooper-maps/maps/configs/standard-admission";
-import { STANDARD_RECIPE_CONFIG_SCHEMA as swooperStandardConfigSchema } from "mod-swooper-maps/recipes/standard-artifacts";
+import { STANDARD_RECIPE_CONFIG_SCHEMA as swooperStandardConfigSchema } from "@swooper/swooper-physics/standard/artifacts";
+import { validateStandardMapConfigSnapshotForSchema } from "@swooper/swooper-physics/standard/map-config";
 import { buildSwooperMapsStudioDeployPlan } from "../mapConfigs/deploy";
 import { parseMapConfigSaveRequest } from "../mapConfigs/requestValidation";
 import {
@@ -132,7 +132,7 @@ function unavailableEngineDependency(
 // script so post-deploy evidence can be tied back to one resolved source.
 async function deploySwooperMaps(
   repoRoot: string,
-  launchConfig: Readonly<{ id: string; path: string }>
+  launchConfigId: string
 ): Promise<{
   build: {
     task: string;
@@ -143,7 +143,7 @@ async function deploySwooperMaps(
   modsDir: string;
   filesCopied: number;
 }> {
-  const plan = buildSwooperMapsStudioDeployPlan({ launchConfig });
+  const plan = buildSwooperMapsStudioDeployPlan({ launchConfigId });
   const { stdout, stderr } = await execFileAsync("bun", [...plan.buildArgs], {
     cwd: repoRoot,
     timeout: DEPLOY_TIMEOUT_MS,
@@ -152,7 +152,7 @@ async function deploySwooperMaps(
   });
   const modsDir = resolveModsDir().modsDir;
   const deployed = deployMod({
-    inputDir: resolve(repoRoot, "mods/mod-swooper-maps/mod"),
+    inputDir: resolve(repoRoot, "apps/mods/map/swooper-physics/mod"),
     modId: "mod-swooper-maps",
     modsDir,
   });
@@ -184,7 +184,7 @@ async function generateSwooperRunMod(
 }> {
   await execFileAsync(
     "bun",
-    ["nx", "run", "mod-swooper-maps:gen:run-manifest", "--", options.manifestPath],
+    ["nx", "run", "swooper-physics-mod:gen:run-manifest", "--", options.manifestPath],
     {
       cwd: options.repoRoot,
       timeout: RUN_MANIFEST_GENERATION_TIMEOUT_MS,
@@ -448,6 +448,7 @@ type SaveDeployLeafContext = SaveDeployPrepared &
     previous: string | null;
   }>;
 
+/** Creates request-scoped runtime ports while keeping Run in Game and Save & Deploy contexts isolated. */
 export function createStudioOperationRuntimePorts(
   options: Readonly<{
     repoRoot: string;
@@ -794,11 +795,11 @@ export function createStudioOperationRuntimePorts(
         ...request,
         canonicalConfig: validateRepoMapConfigSnapshot(request.canonicalConfig),
       };
-      const configRoot = resolve(repoRoot, "mods/mod-swooper-maps/src/maps/configs");
+      const configRoot = resolve(repoRoot, "plugins/mod/map/swooper-physics/src/maps/configs");
       const target = resolve(configRoot, `${parsedRequest.canonicalConfig.id}.config.json`);
       if (!target.startsWith(`${configRoot}/`) || !target.endsWith(".config.json")) {
         throw invalidEngineRequest(
-          "Map config writes must stay in mods/mod-swooper-maps/src/maps/configs",
+          "Map config writes must stay in plugins/mod/map/swooper-physics/src/maps/configs",
           "map-config-path-outside-config-root",
           { path: target }
         );
@@ -834,11 +835,8 @@ export function createStudioOperationRuntimePorts(
     deploySavedMapConfig: async ({ requestId }) => {
       const context = requireSaveContext(saveContexts, requestId);
       const path = requireContextValue(context.path, "Save/Deploy config path", requestId);
-      const deploy = await deploySwooperMaps(repoRoot, {
-        id: context.parsedRequest.canonicalConfig.id,
-        path,
-      });
-      return { path: context.path, saved: true, deployed: true, deploy };
+      const deploy = await deploySwooperMaps(repoRoot, context.parsedRequest.canonicalConfig.id);
+      return { path, saved: true, deployed: true, deploy };
     },
     rollbackSaveDeploy: async ({ requestId }) => {
       const context = requireSaveContext(saveContexts, requestId);

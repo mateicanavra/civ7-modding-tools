@@ -1,7 +1,7 @@
 import { createMockAdapter } from "@civ7/adapter";
 import { createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import { standardMapConfigs } from "mod-swooper-maps/recipes/standard-map-configs";
+import { standardMapConfigs } from "@swooper/swooper-physics/catalog";
 import { describe, expect, it } from "vitest";
 import type { BrowserRunEvent } from "../../src/browser-runner/protocol";
 import { getRuntimeRecipe } from "../../src/browser-runner/recipeRuntime";
@@ -318,11 +318,11 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const mapInfo = TEST_MAP_SIZE.mapInfo;
     const earthlikeArtifact = standardMapConfigs.find(
-      ({ canonicalConfig }) => canonicalConfig.id === "swooper-earthlike"
+      (canonicalConfig) => canonicalConfig.id === "swooper-earthlike"
     );
     if (!earthlikeArtifact)
       throw new Error("swooper-earthlike config missing from standard map config catalog");
-    const standardConfig = studioStandardRecipeConfig(earthlikeArtifact.canonicalConfig);
+    const standardConfig = studioStandardRecipeConfig(earthlikeArtifact);
     const runtimeRecipe = getRuntimeRecipe("standard");
     const plan = runtimeRecipe.recipe.compile(TEST_BROWSER_RUN_INITIAL_SETUP, standardConfig);
     const verboseSteps = Object.fromEntries(

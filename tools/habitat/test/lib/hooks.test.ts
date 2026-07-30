@@ -462,7 +462,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
         status: "fail",
         diagnosticMessage: "generated zone",
       }),
-      stagedPaths: ["mods/mod-swooper-maps/mod/maps/studio-current.js"],
+      stagedPaths: ["apps/mods/map/swooper-physics/mod/maps/studio-current.js"],
     });
 
     const result = await runPreCommitInTest(fake);

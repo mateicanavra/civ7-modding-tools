@@ -33,6 +33,7 @@ export type TImprovementNode = Pick<
   | "workable"
 >;
 
+/** Represents the improvement-specific database row paired with a constructible definition. */
 export class ImprovementNode extends BaseNode<TImprovementNode> {
   constructibleType: string | null = `IMPROVEMENT_`;
   adjacentSeaResource: boolean | null = null;

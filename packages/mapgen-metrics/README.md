@@ -10,5 +10,5 @@ persist reports, or perform test assertions. A recipe adapter captures and
 measures one product; any number of targets may evaluate it without rerunning.
 
 Concrete Swooper measurements and targets live beside the Standard recipe at
-`mods/mod-swooper-maps/src/recipes/standard/metrics`. Tests prove those targets
+`plugins/mod/map/swooper-physics/src/recipes/standard/metrics`. Tests prove those targets
 and reporting commands serialize their results.

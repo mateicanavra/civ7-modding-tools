@@ -58,22 +58,6 @@ export default defineConfig({
               find: /^\/mods\/(.+)$/,
               replacement: `${r("mods")}/$1`,
             },
-            {
-              find: /^@mapgen\/domain\/config(?:\.js)?$/,
-              replacement: r("mods/mod-swooper-maps/src/domain/config.ts"),
-            },
-            {
-              find: /^@mapgen\/domain$/,
-              replacement: r("mods/mod-swooper-maps/src/domain/index.ts"),
-            },
-            {
-              find: /^@mapgen\/domain\/(.+)\.js$/,
-              replacement: `${r("mods/mod-swooper-maps/src/domain")}/$1.ts`,
-            },
-            {
-              find: /^@mapgen\/domain\/(.+)$/,
-              replacement: `${r("mods/mod-swooper-maps/src/domain")}/$1`,
-            },
           ],
         },
         test: {

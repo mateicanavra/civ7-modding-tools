@@ -123,9 +123,13 @@ Affirmed blueprint examples include:
 
 Candidate blueprint-shaped examples include:
 
-- `global/workspace/_blueprints/project-boundary-model`
 - `docs/_blueprints/docs-site`
 - `habitat/toolkit/_blueprints/service-module`
+
+Workspace import-boundary and taxonomy checks live under
+`global/workspace/rules`. They govern the repository graph but do not define a
+constructible project kind, so they are niche self-authority rather than a
+blueprint.
 
 Known transitional misfits, not blueprint exemplars:
 

@@ -42,6 +42,23 @@ function field(value: unknown, name: PropertyKey): unknown {
   return Reflect.get(value, name);
 }
 
+function hasProjectTargetDependency(
+  dependsOn: unknown[] | undefined,
+  project: string,
+  targetName: string
+): boolean {
+  return (
+    dependsOn?.some((dependency) => {
+      const projects = field(dependency, "projects");
+      return (
+        Array.isArray(projects) &&
+        projects.includes(project) &&
+        field(dependency, "target") === targetName
+      );
+    }) ?? false
+  );
+}
+
 function aliasMatches(alias: unknown, importId: string): boolean {
   const find = field(alias, "find");
   if (typeof find === "string") {
@@ -96,8 +113,8 @@ if (dev) {
   if (!JSON.stringify(dev.dependsOn).includes("serve-daemon")) {
     failures.push("dev.dependsOn must include serve-daemon");
   }
-  if (JSON.stringify(dev.dependsOn).includes("build:studio-recipes")) {
-    failures.push("dev.dependsOn must not include build:studio-recipes directly");
+  if (hasProjectTargetDependency(dev.dependsOn, "swooper-physics", "build")) {
+    failures.push("dev.dependsOn must not build swooper-physics directly");
   }
 }
 if (serveDaemon) {
@@ -110,8 +127,8 @@ if (serveDaemon) {
   if (serveDaemon.options?.script !== undefined)
     failures.push("serve-daemon.options.script must be undefined");
   if (serveDaemon.continuous !== true) failures.push("serve-daemon.continuous must be true");
-  if (!JSON.stringify(serveDaemon.dependsOn).includes("build:studio-recipes")) {
-    failures.push("serve-daemon.dependsOn must include build:studio-recipes");
+  if (!hasProjectTargetDependency(serveDaemon.dependsOn, "swooper-physics", "build")) {
+    failures.push("serve-daemon.dependsOn must build swooper-physics");
   }
 }
 
@@ -205,10 +222,10 @@ if (buildContractAliases.length > 0) {
 
 const ignored = field(field(serveServer, "watch"), "ignored");
 const requiredIgnores = [
-  "**/mods/mod-swooper-maps/dist/**",
-  "**/mods/mod-swooper-maps/mod/**",
-  "**/mods/mod-swooper-maps/src/maps/generated/**",
-  "**/mods/mod-swooper-maps/src/maps/configs/*.config.json",
+  "**/plugins/mod/map/swooper-physics/dist/**",
+  "**/apps/mods/map/swooper-physics/mod/**",
+  "**/apps/mods/map/swooper-physics/src/maps/generated/**",
+  "**/plugins/mod/map/swooper-physics/src/maps/configs/*.config.json",
 ];
 if (!Array.isArray(ignored)) {
   failures.push("vite server.watch.ignored must be an array");

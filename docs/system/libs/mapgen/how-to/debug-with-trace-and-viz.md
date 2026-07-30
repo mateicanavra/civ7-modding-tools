@@ -41,7 +41,7 @@ This workflow produces a replayable folder containing:
 From the repo root:
 
 ```bash
-nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7
+nx run swooper-physics:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7
 ```
 
 Notes:
@@ -57,7 +57,7 @@ Notes:
 The harness prints the run identity and folder:
 
 ```json
-{"runId":"...","outputDir":"<repo>/mods/mod-swooper-maps/dist/visualization/<label>/<runId>"}
+{"runId":"...","outputDir":"<repo>/plugins/mod/map/swooper-physics/dist/visualization/<label>/<runId>"}
 ```
 
 Notes:
@@ -85,8 +85,8 @@ both the trace sink and visualization facet sink and reports facet failures on s
 Use the Swooper commands, backed by `@swooper/mapgen-diagnostics`, against the run directory:
 
 ```bash
-nx run mod-swooper-maps:diag:list -- <runDir> --prefix hydrology.
-nx run mod-swooper-maps:diag:trace -- <runDir> --event-prefix hydrology.
+nx run swooper-physics:diag:list -- <runDir> --prefix hydrology.
+nx run swooper-physics:diag:trace -- <runDir> --event-prefix hydrology.
 ```
 
 Studio's Explore panel is the live deck.gl viewer. It consumes worker emissions and does not load
@@ -123,5 +123,5 @@ Routing:
 - Step facet dispatch: `packages/mapgen-core/src/engine/step-facets.ts`
 - Portable visualization contracts: `packages/mapgen-viz/src/index.ts`
 - Local trace+viz dump capability (writes `trace.jsonl` + `manifest.json`): `packages/mapgen-diagnostics/src/dump.ts`
-- Standard capture runner: `mods/mod-swooper-maps/scripts/diagnostics/run-standard-dump.ts`
+- Standard capture runner: `plugins/mod/map/swooper-physics/scripts/diagnostics/run-standard-dump.ts`
 - Studio live visualization entrypoint: `apps/mapgen-studio/src/App.tsx`

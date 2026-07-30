@@ -1,3 +1,4 @@
+/** Game biome identifiers accepted by constructible placement and start-bias tables. */
 export const BIOME = {
   GRASSLAND: "BIOME_GRASSLAND",
   PLAINS: "BIOME_PLAINS",

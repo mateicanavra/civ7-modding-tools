@@ -2,12 +2,15 @@ import { randomUUID } from "node:crypto";
 import type { RunInGameSafeFailureCategory, StudioRuntimeFailure } from "@civ7/studio-contract";
 
 const RUN_DIAGNOSTICS_ID_PREFIX = "run-diagnostics-";
+/** Grammar for opaque diagnostics handles that are safe to use as private index keys. */
 export const SAFE_RUN_DIAGNOSTICS_ID = /^run-diagnostics-[A-Za-z0-9._-]{1,191}$/;
 
+/** Creates an opaque diagnostics handle without revealing request or storage identity. */
 export function createRunDiagnosticsId(): string {
   return `${RUN_DIAGNOSTICS_ID_PREFIX}${randomUUID()}`;
 }
 
+/** Redacts an internal runtime failure to the stable category exposed in public status. */
 export function publicRunInGameFailureCategory(
   failure: StudioRuntimeFailure
 ): RunInGameSafeFailureCategory {
@@ -40,6 +43,7 @@ export function publicRunInGameFailureCategory(
   }
 }
 
+/** Returns the fixed client-safe message for a redacted Run in Game failure category. */
 export function publicRunInGameFailureMessage(category: RunInGameSafeFailureCategory): string {
   switch (category) {
     case "request-validation":

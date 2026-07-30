@@ -8,6 +8,7 @@ import { BaseBuilder } from "./BaseBuilder";
 
 type TImportFileBuilder = TClassProperties<ImportFileBuilder>;
 
+/** Registers an existing asset for copying and links it to the selected mod-info actions. */
 export class ImportFileBuilder extends BaseBuilder<TImportFileBuilder> {
   content: string = "";
   name: string = "";

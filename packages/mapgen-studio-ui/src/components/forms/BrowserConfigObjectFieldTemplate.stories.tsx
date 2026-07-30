@@ -25,6 +25,7 @@ import {
 // inference treats every (otherwise-required) rjsf prop as optional — letting
 // these render-only stories omit an `args` block. The value is never read: each
 // story drives the component entirely through its own `render` body.
+/** Registers render-driven object-template stories without weakening the component's prop type. */
 const meta = {
   title: "forms/BrowserConfigObjectFieldTemplate",
   component: BrowserConfigObjectFieldTemplate,
@@ -70,6 +71,7 @@ function Demo({ children }: { children: ReactNode }) {
   );
 }
 
+/** Shows a stage group with collapse plumbing present and its nested fields expanded. */
 export const ExpandedStage: Story = {
   render: () => (
     <Demo>
@@ -88,6 +90,7 @@ export const ExpandedStage: Story = {
   ),
 };
 
+/** Exercises the disclosure template's always-open fallback when no collapse engine is supplied. */
 export const WithoutCollapse: Story = {
   render: () => (
     <Demo>

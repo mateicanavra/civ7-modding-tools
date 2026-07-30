@@ -279,7 +279,7 @@ Replay and comparison:
 - Execution identity and plan fingerprint: `packages/mapgen-core/src/engine/observability.ts`
 - Step facet contracts and dispatch: `packages/mapgen-core/src/engine/step-facets.ts`
 - Portable projections and materialization: `packages/mapgen-viz/src/index.ts`
-- Standard recipe semantic styles: `mods/mod-swooper-maps/src/recipes/standard/viz.ts`
+- Standard recipe semantic styles: `plugins/mod/map/swooper-physics/src/recipes/standard/viz.ts`
 - Studio visualization facet sink: `apps/mapgen-studio/src/browser-runner/worker-viz-facet-sink.ts`
 - Studio progress trace sink: `apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts`
 - Studio worker protocol: `apps/mapgen-studio/src/browser-runner/protocol.ts`

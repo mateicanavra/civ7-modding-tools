@@ -5,6 +5,7 @@ export type TCivilizationTagNode = Pick<
   "civilizationDomain" | "civilizationType" | "tagType"
 >;
 
+/** Associates a civilization with a tag consumed by game classification and selection logic. */
 export class CivilizationTagNode extends BaseNode<TCivilizationTagNode> {
   civilizationDomain: string | null = "CIVILIZATION_";
   civilizationType: string | null = "CIVILIZATION_";

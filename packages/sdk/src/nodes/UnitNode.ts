@@ -64,6 +64,7 @@ export type TUnitNode = Pick<
   | "zoneOfControl"
 >;
 
+/** Represents the primary database definition for a unit's roles, movement, presentation, and rules. */
 export class UnitNode extends BaseNode<TUnitNode> {
   unitType: `UNIT_${string}` | null = "UNIT_TYPE";
   baseMoves: number | null = 1;

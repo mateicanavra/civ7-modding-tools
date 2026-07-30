@@ -5,6 +5,7 @@ export type MapConfigParseResult =
   | Readonly<{ ok: true; value: MapConfigEnvelope }>
   | Readonly<{ ok: false; message: string }>;
 
+/** Serializes one canonical envelope with the stable filename derived from its identity. */
 export function serializeMapConfigFile(canonicalConfig: MapConfigEnvelope): Readonly<{
   filename: string;
   json: string;
@@ -15,6 +16,7 @@ export function serializeMapConfigFile(canonicalConfig: MapConfigEnvelope): Read
   };
 }
 
+/** Parses imported JSON and admits it through the canonical recipe-aware config boundary. */
 export function parseMapConfigFile(text: string): MapConfigParseResult {
   try {
     const canonicalConfig = admitCanonicalConfig(JSON.parse(text));
@@ -29,6 +31,7 @@ export function parseMapConfigFile(text: string): MapConfigParseResult {
   }
 }
 
+/** Triggers a browser download and releases its temporary object URL immediately afterward. */
 export function downloadMapConfigFile(filename: string, text: string): void {
   const blob = new Blob([text], { type: "application/json" });
   const url = URL.createObjectURL(blob);

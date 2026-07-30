@@ -19,7 +19,7 @@ test roots. Scope or oracle labels do not create ownership. Structural and
 import topology belongs to Habitat.
 
 Concrete Swooper domain, stage, step, recipe, map, or runtime behavior belongs
-in `mods/mod-swooper-maps/test`, not here. Compile-time type laws require
+in `plugins/mod/map/swooper-physics/test`, not here. Compile-time type laws require
 TypeScript authority; runtime assertions are not substitutes for a TypeScript
 check that includes the relevant type cases.
 

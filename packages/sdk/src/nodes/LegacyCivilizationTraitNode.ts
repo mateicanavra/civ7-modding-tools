@@ -5,6 +5,7 @@ export type TLegacyCivilizationTraitNode = Pick<
   "traitType" | "civilizationType"
 >;
 
+/** Associates a civilization trait with its legacy transition metadata. */
 export class LegacyCivilizationTraitNode extends BaseNode<TLegacyCivilizationTraitNode> {
   traitType: string | null = "TRAIT_";
   civilizationType: string | null = "CIVILIZATION_";

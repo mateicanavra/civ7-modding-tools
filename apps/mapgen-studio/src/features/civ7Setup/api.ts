@@ -34,6 +34,7 @@ export type Civ7SetupCatalog = Readonly<{
   gameSpeeds: ReadonlyArray<Civ7SetupCatalogOption>;
 }>;
 
+/** Reads the live Civ7 setup snapshot and projects transport failures into explicit result data. */
 export async function fetchCiv7SetupConfig(options: { signal?: AbortSignal } = {}): Promise<
   | { ok: true; observedAt: string; setup: Civ7SetupSnapshot }
   | {
@@ -67,6 +68,7 @@ export async function fetchCiv7SetupConfig(options: { signal?: AbortSignal } = {
 // `Civ7SetupCatalogOption` TYPES above are kept (consumed by the query view +
 // `setupOptions`).
 
+/** Requests an autoplay transition without leaking oRPC failures across the UI boundary. */
 export async function requestCiv7Autoplay(action: "start" | "stop"): Promise<{
   ok: boolean;
   action?: "start" | "stop";

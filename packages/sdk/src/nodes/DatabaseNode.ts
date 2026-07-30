@@ -149,6 +149,7 @@ export type TDatabase = Pick<
   | "visualRemaps"
 >;
 
+/** Aggregates typed database rows and serializes only populated Civ7 table sections. */
 export class DatabaseNode extends BaseNode<TDatabase> {
   _name = "Database";
 

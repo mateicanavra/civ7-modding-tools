@@ -31,13 +31,13 @@ or {
 ## Matches fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/test/domains/morphology/topography.test.ts
+// @filename: plugins/mod/map/swooper-physics/test/domains/morphology/topography.test.ts
 const dimensions = { width: 80, height: 54 } as const;
 
-// @filename: mods/mod-swooper-maps/test/domains/foundation/mesh.test.ts
+// @filename: plugins/mod/map/swooper-physics/test/domains/foundation/mesh.test.ts
 const reversedDimensions = { height: 3, width: 4 };
 
-// @filename: mods/mod-swooper-maps/test/recipes/swooper-physics-standard/wrap.test.ts
+// @filename: plugins/mod/map/swooper-physics/test/recipes/swooper-physics-standard/wrap.test.ts
 const setup = { dimensions: { width: 1, height: 1 }, seed: 11 };
 ```
 

@@ -2,7 +2,7 @@ schemaVersion = 1
 
 [[scopes]]
 name = "mapgen-prohibit-direct-domain-operation-root-sources"
-root = "mods/*/src/domain/!(*.*)/ops"
+root = "plugins/mod/map/*/src/domain/!(*.*)/ops"
 kind = "directory"
 mode = "open"
 allowEmpty = true
@@ -19,7 +19,7 @@ forbidden = [
 
 [[scopes]]
 name = "mapgen-prohibit-direct-domain-operation-descendant-sources"
-root = "mods/*/src/domain/!(*.*)/ops/**/!(*.*)"
+root = "plugins/mod/map/*/src/domain/!(*.*)/ops/**/!(*.*)"
 kind = "directory"
 mode = "open"
 allowEmpty = true
@@ -36,7 +36,7 @@ forbidden = [
 
 [[scopes]]
 name = "mapgen-domain-module-operation-collections"
-root = "mods/*/src/domain/!(*.*)/modules/!(*.*)/ops"
+root = "plugins/mod/map/*/src/domain/!(*.*)/modules/!(*.*)/ops"
 kind = "directory"
 mode = "closed"
 required = [
@@ -45,7 +45,7 @@ required = [
 
 [[scopes]]
 name = "mapgen-domain-module-operation-roots"
-root = "mods/*/src/domain/!(*.*)/modules/!(*.*)/ops/!(*.*)"
+root = "plugins/mod/map/*/src/domain/!(*.*)/modules/!(*.*)/ops/!(*.*)"
 kind = "directory"
 mode = "closed"
 required = [

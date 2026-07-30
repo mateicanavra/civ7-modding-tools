@@ -83,6 +83,7 @@ function hashLiveRuntimeValue(value: unknown): string {
   return hashLiveGameValue(value);
 }
 
+/** Normalizes a live-status body through the shared Studio contract state model. */
 export function buildLiveRuntimeStatusState(args: {
   body: LiveStatusBody;
   observedAtFallback: string;
@@ -92,6 +93,7 @@ export function buildLiveRuntimeStatusState(args: {
   return buildLiveGameState(args);
 }
 
+/** Builds a bounded snapshot request only when live status identifies a readable snapshot. */
 export function buildLiveRuntimeSnapshotRequest(args: {
   status: LiveRuntimeStatusState;
   bounds?: LiveRuntimeSnapshotBounds;
@@ -122,6 +124,7 @@ export function buildLiveRuntimeSnapshotRequest(args: {
   };
 }
 
+/** Admits a snapshot result only while its request remains active and unaborted. */
 export function shouldCommitLiveRuntimeSnapshot(args: {
   activeRequestKey: string | null;
   resultRequestKey: string;
@@ -130,6 +133,7 @@ export function shouldCommitLiveRuntimeSnapshot(args: {
   return !args.aborted && args.activeRequestKey === args.resultRequestKey;
 }
 
+/** Fingerprints the live evidence that can change a setup refresh result. */
 export function buildLiveRuntimeSetupRequestKey(status: LiveRuntimeStatusState): string {
   return stableLiveRuntimeStringify({
     snapshotId: status.snapshotId,
@@ -141,6 +145,7 @@ export function buildLiveRuntimeSetupRequestKey(status: LiveRuntimeStatusState):
   });
 }
 
+/** Admits a setup refresh only while its evidence key remains current and unaborted. */
 export function shouldCommitLiveRuntimeSetup(args: {
   activeRequestKey: string | null;
   resultRequestKey: string;
@@ -149,6 +154,7 @@ export function shouldCommitLiveRuntimeSetup(args: {
   return !args.aborted && args.activeRequestKey === args.resultRequestKey;
 }
 
+/** Encodes the admitted snapshot bounds and fields for the Studio live-reader endpoint. */
 export function buildLiveRuntimeSnapshotQuery(request: LiveRuntimeSnapshotRequest): string {
   const params = new URLSearchParams({
     x: String(request.bounds.x),
@@ -162,6 +168,7 @@ export function buildLiveRuntimeSnapshotQuery(request: LiveRuntimeSnapshotReques
   return params.toString();
 }
 
+/** Projects a snapshot response into terminal client state with a content-derived identity. */
 export function buildLiveRuntimeSnapshotState(args: {
   request: LiveRuntimeSnapshotRequest;
   body: unknown;
@@ -192,6 +199,7 @@ export function buildLiveRuntimeSnapshotState(args: {
   };
 }
 
+/** Emits visible-control suggestions only for runtime values backed by the supplied evidence. */
 export function buildLiveRuntimeSuggestionRecords(args: {
   sourceSnapshotId?: string;
   seed?: number;

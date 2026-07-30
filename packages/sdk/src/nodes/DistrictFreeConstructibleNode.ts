@@ -15,6 +15,7 @@ export type TDistrictFreeConstructibleNode = Pick<
   | "tier"
 >;
 
+/** Grants a constructible automatically when the associated district is created. */
 export class DistrictFreeConstructibleNode extends BaseNode<TDistrictFreeConstructibleNode> {
   constructibleType: string | null = "CONSTRUCTIBLE_";
   districtType: `DISTRICT_${string}` | null = "DISTRICT_";

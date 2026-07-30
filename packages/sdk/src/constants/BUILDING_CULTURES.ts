@@ -1,3 +1,4 @@
+/** Visual-culture identifiers that select civilization building art sets. */
 export const BUILDING_CULTURES = {
   ANT_STONE: "ANT_STONE",
   EXP_STONE: "EXP_STONE",

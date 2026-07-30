@@ -2,6 +2,7 @@ import { BaseNode } from "./BaseNode";
 
 export type TStringNode = Pick<StringNode, "context" | "value">;
 
+/** Serializes a scalar string value as a named XML child element. */
 export class StringNode extends BaseNode<TStringNode> {
   _name = "String";
 

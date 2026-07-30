@@ -1,3 +1,4 @@
+/** Requirement collection identifiers that select the game object set evaluated by a requirement. */
 export const COLLECTION = {
   ALL_CAPITAL_CITIES: "COLLECTION_ALL_CAPITAL_CITIES",
   ALL_CAPTURED_CITIES: "COLLECTION_ALL_CAPTURED_CITIES",

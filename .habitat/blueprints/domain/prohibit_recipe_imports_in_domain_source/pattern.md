@@ -23,15 +23,15 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/classify/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/ecology/modules/biomes/ops/classify/index.ts
 import recipe from "../../../../../../recipes/example/recipe.js";
 
 export const value = recipe;
 
-// @filename: mods/another-mod/src/domain/hydrology/index.ts
+// @filename: plugins/mod/map/another-mod/src/domain/hydrology/index.ts
 export * from "@mapgen/recipes/alternate";
 
-// @filename: mods/example-mod/src/domain/morphology/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/morphology/index.ts
 export async function loadRecipe() {
   return import("../../../recipes/example/recipe.js");
 }
@@ -40,12 +40,12 @@ export async function loadRecipe() {
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/classify/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/ecology/modules/biomes/ops/classify/index.ts
 import { publicDomain } from "@mapgen/domain/ecology";
 
 export const value = publicDomain;
 
-// @filename: mods/example-mod/src/domain/ecology/modules/biomes/ops/classify/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/ecology/modules/biomes/ops/classify/index.ts
 import { lookalike } from "@mapgen/recipes-extra/example";
 
 export const lookalikeValue = lookalike;

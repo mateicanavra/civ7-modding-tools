@@ -31,7 +31,7 @@ function Demo({ children }: { children: ReactNode }) {
   );
 }
 
-// A small config panel: label/control pairs stacked as FieldRows.
+/** Shows the repeated label/control rhythm used by compact configuration panels. */
 export const ConfigRows: Story = {
   render: () => (
     <Demo>
@@ -51,7 +51,7 @@ export const ConfigRows: Story = {
   ),
 };
 
-// A single row in isolation — the label/control split at its simplest.
+/** Isolates the row's label/control alignment without neighboring separators or fields. */
 export const SingleRow: Story = {
   render: () => (
     <Demo>

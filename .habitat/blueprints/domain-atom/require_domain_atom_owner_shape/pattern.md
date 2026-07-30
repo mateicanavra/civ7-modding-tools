@@ -27,11 +27,11 @@ predicate disallowed_module_atom_dependency($source) {
 
 or {
   import_statement(source=$source) where {
-    $filename <: r".*mods/[^/]+/src/domain/[^/]+/model/atoms/[^/]+\.ts$",
+    $filename <: r".*plugins/mod/map/[^/]+/src/domain/[^/]+/model/atoms/[^/]+\.ts$",
     disallowed_root_atom_dependency($source)
   },
   import_statement(source=$source) where {
-    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/model/atoms/[^/]+\.ts$",
+    $filename <: r".*plugins/mod/map/[^/]+/src/domain/[^/]+/modules/[^/]+/model/atoms/[^/]+\.ts$",
     disallowed_module_atom_dependency($source)
   },
   or {
@@ -90,7 +90,7 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/geology/model/atoms/crust.schema.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/model/atoms/crust.schema.ts
 import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 export const CrustSchema = Type.Object({});
@@ -100,7 +100,7 @@ export const artifact = defineArtifact({
   schema: CrustSchema,
 });
 
-// @filename: mods/example-mod/src/domain/geology/model/atoms/crust.schema.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/model/atoms/crust.schema.ts
 import { Type } from "@swooper/mapgen-core/authoring/schema";
 
 export const CrustSchema = Type.Object({});
@@ -108,17 +108,17 @@ export function validateCrust(value: unknown): boolean {
   return value !== null;
 }
 
-// @filename: mods/example-mod/src/domain/geology/model/atoms/compute-crust.schema.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/model/atoms/compute-crust.schema.ts
 import { Type } from "@swooper/mapgen-core/authoring/schema";
 
 export const ComputeCrustInputSchema = Type.Object({});
 
-// @filename: mods/example-mod/src/domain/geology/model/atoms/direct-typebox.schema.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/model/atoms/direct-typebox.schema.ts
 import { Type as SchemaBuilder } from "typebox";
 
 export const DirectSchema = SchemaBuilder.Object({});
 
-// @filename: mods/example-mod/src/domain/geology/model/atoms/artifact-contract.schema.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/model/atoms/artifact-contract.schema.ts
 import { Type as SchemaBuilder } from "@swooper/mapgen-core/authoring/contracts";
 
 export const ArtifactContractSchema = SchemaBuilder.Object({});

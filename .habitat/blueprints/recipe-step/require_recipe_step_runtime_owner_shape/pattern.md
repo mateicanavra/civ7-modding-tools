@@ -77,26 +77,26 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/missing-step/step.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/missing-step/step.ts
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { config } from "./config.js";
 
 const SimulateWeatherStep = createStep(config, { run: () => undefined });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/generic-step-name/step.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/generic-step-name/step.ts
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { config } from "./config.js";
 
 export const step = createStep(config, { run: () => undefined });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/reexported-type/step.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/reexported-type/step.ts
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { config } from "./config.js";
 
 export const ReexportedTypeStep = createStep(config, { run: () => undefined });
 export type { ExternalEvidence } from "./evidence.js";
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/shadowed-config/step.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/shadowed-config/step.ts
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { config } from "./config.js";
 
@@ -104,7 +104,7 @@ export const ShadowedConfigStep = createStep(config, {
   run: (context, config, ops, deps) => undefined,
 });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/mixed-config-identity/step.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/mixed-config-identity/step.ts
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { config } from "./config.js";
 
@@ -113,7 +113,7 @@ export const MixedConfigIdentityStep = createStep(config, {
   run: (context, options, ops, deps) => undefined,
 });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/detached-viz/step.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/detached-viz/step.ts
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { config } from "./config.js";
 import { projectWeather } from "./viz.js";
@@ -126,7 +126,7 @@ export const DetachedVizStep = createStep(config, {
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/simulate-weather/step.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/simulate-weather/step.ts
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { config } from "./config.js";
 
@@ -142,7 +142,7 @@ export const SimulateWeatherStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => undefined,
 });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/observe-weather/step.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/observe-weather/step.ts
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { config } from "./config.js";
 
@@ -151,7 +151,7 @@ export const ObserveWeatherStep = createStep(config, {
   run: (context, _stepConfig, ops, deps) => undefined,
 });
 
-// @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/visualize-weather/step.ts
+// @filename: plugins/mod/map/example-mod/src/recipes/sample-recipe/stages/atmosphere/climate/steps/visualize-weather/step.ts
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { config } from "./config.js";
 import { projectWeather } from "./viz.js";

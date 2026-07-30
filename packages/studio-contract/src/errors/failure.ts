@@ -1,7 +1,9 @@
+/** Runtime domains whose failures may cross the Studio error-mapping boundary. */
 export const STUDIO_OPERATION_NAMESPACES = ["autoplay", "runInGame", "saveDeploy"] as const;
 
 export type StudioOperationNamespace = (typeof STUDIO_OPERATION_NAMESPACES)[number];
 
+/** Client actions that remain valid after private runtime evidence is redacted. */
 export const STUDIO_RECOVERY_ACTIONS = [
   "check-dev-server",
   "copy-diagnostics",
@@ -16,6 +18,7 @@ export const STUDIO_RECOVERY_ACTIONS = [
 
 export type StudioRecoveryAction = (typeof STUDIO_RECOVERY_ACTIONS)[number];
 
+/** Discriminants for the closed internal failure algebra. */
 export const STUDIO_FAILURE_TAGS = [
   "OperationBlocked",
   "InvalidRequest",
@@ -34,6 +37,7 @@ export const STUDIO_FAILURE_TAGS = [
 
 export type StudioFailureTag = (typeof STUDIO_FAILURE_TAGS)[number];
 
+/** Stable machine-readable reasons paired with the failure discriminants. */
 export const STUDIO_FAILURE_REASON_CODES = [
   "active-operation-conflict",
   "daemon-identity-mismatch",
@@ -61,6 +65,7 @@ export const STUDIO_FAILURE_REASON_CODES = [
 
 export type StudioFailureReasonCode = (typeof STUDIO_FAILURE_REASON_CODES)[number];
 
+/** External or process-local dependencies whose availability can block an operation. */
 export const STUDIO_DEPENDENCY_KINDS = [
   "civ7-process",
   "direct-control",
@@ -93,6 +98,7 @@ export type StudioRuntimeFailure = Readonly<{
   diagnostics?: StudioBoundedDiagnostics;
 }>;
 
+/** Recognizes branded runtime failures and rejects invalid tag/reason combinations. */
 export function isStudioRuntimeFailure(value: unknown): value is StudioRuntimeFailure {
   if (
     !value ||
@@ -197,6 +203,7 @@ function tagAllowsReason(tag: StudioFailureTag, reason: StudioFailureReasonCode)
   }
 }
 
+/** Builds a terminal ownership failure for an operation evicted after its retention window. */
 export function operationExpired(args: {
   message: string;
   requestId?: string;
@@ -212,6 +219,7 @@ export function operationExpired(args: {
   });
 }
 
+/** Builds a lookup failure when durable state belongs to a different daemon lifetime. */
 export function daemonIdentityMismatch(args: {
   message: string;
   requestId?: string;
@@ -227,6 +235,7 @@ export function daemonIdentityMismatch(args: {
   });
 }
 
+/** Marks requests rejected after the process-local operation runtime has begun disposal. */
 export function runtimeDisposed(args: {
   message: string;
   causeSummary?: string;
@@ -243,6 +252,7 @@ export function runtimeDisposed(args: {
   });
 }
 
+/** Captures durable records whose operation discriminator this runtime cannot adopt. */
 export function unsupportedOperationType(args: {
   message: string;
   operationType: string;
@@ -258,6 +268,7 @@ export function unsupportedOperationType(args: {
   });
 }
 
+/** Describes admission denied by an already active mutually exclusive operation. */
 export function operationBlocked(args: {
   message: string;
   activeRequestId?: string;
@@ -275,6 +286,7 @@ export function operationBlocked(args: {
   });
 }
 
+/** Describes structural or path-jail admission rejection before mutation starts. */
 export function invalidRequest(args: {
   message: string;
   reason?: Extract<StudioFailureReasonCode, "invalid-request" | "path-jail-rejection">;
@@ -291,6 +303,7 @@ export function invalidRequest(args: {
   });
 }
 
+/** Describes a request identity absent from both live and durable operation state. */
 export function operationNotFound(args: {
   message: string;
   requestId: string;
@@ -306,6 +319,7 @@ export function operationNotFound(args: {
   });
 }
 
+/** Captures an unavailable dependency while preserving bounded provider diagnostics. */
 export function dependencyUnavailable(args: {
   message: string;
   reason?: Extract<
@@ -330,6 +344,7 @@ export function dependencyUnavailable(args: {
   });
 }
 
+/** Marks artifact generation incomplete when required materialization evidence is missing. */
 export function materializationFailed(args: {
   message: string;
   reason?: Extract<StudioFailureReasonCode, "materialization-evidence-missing">;
@@ -344,6 +359,7 @@ export function materializationFailed(args: {
   });
 }
 
+/** Marks save, deploy, or rollback failure with recovery appropriate to the failed stage. */
 export function deployFailed(args: {
   message: string;
   reason?: Extract<StudioFailureReasonCode, "deploy-failed" | "save-failed" | "rollback-failed">;
@@ -359,6 +375,7 @@ export function deployFailed(args: {
   });
 }
 
+/** Marks a mutation outcome that could not be proven from runtime or authorship evidence. */
 export function verificationFailed(args: {
   message: string;
   reason: Extract<
@@ -377,6 +394,7 @@ export function verificationFailed(args: {
   });
 }
 
+/** Captures a failed autoplay control command before its requested state is established. */
 export function autoplayStartStopFailed(args: {
   message: string;
   reason: Extract<StudioFailureReasonCode, "start-failed" | "stop-failed">;
@@ -391,6 +409,7 @@ export function autoplayStartStopFailed(args: {
   });
 }
 
+/** Captures autoplay commands whose resulting state could not be verified. */
 export function autoplayVerificationFailed(args: {
   message: string;
   diagnostics?: StudioBoundedDiagnostics;

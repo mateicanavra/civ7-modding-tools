@@ -61,19 +61,19 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/rules/project.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/rules/project.ts
 import type Contract from "../contract.js";
 
 export type ShapeReliefInput = Contract["input"];
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/index.ts
 import Contract from "./contract.js";
 import strategies from "./strategies/index.js";
 
 type ShapeReliefOutput = Contract["output"];
 export default createOp(Contract, { strategies });
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
 import OperationContract from "../../contract.js";
 
 type ShapeReliefOutput = OperationContract["output"];
@@ -85,7 +85,7 @@ export default createStrategy(OperationContract, strategyContract, {
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/rules/project.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/rules/project.ts
 import type { GridBounds } from "../../../model/atoms/grid-bounds.schema.js";
 
 type ReliefWorkQueue = Readonly<{
@@ -98,14 +98,14 @@ export function projectRelief(queue: ReliefWorkQueue): Float32Array {
   return queue.values;
 }
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/index.ts
 import { createOp } from "@swooper/mapgen-core/authoring";
 import Contract from "./contract.js";
 import strategies from "./strategies/index.js";
 
 export default createOp(Contract, { strategies });
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import OperationContract from "../../contract.js";
 import definition from "./config.js";

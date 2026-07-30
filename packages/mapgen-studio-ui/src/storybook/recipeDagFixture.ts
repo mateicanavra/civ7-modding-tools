@@ -51,6 +51,11 @@ const edge = (
   internal: false,
 });
 
+/**
+ * Deterministic five-stage recipe graph shared by DAG stories and layout tests.
+ * Stage ids, artifact counts, and edge endpoints intentionally agree so the fixture exercises
+ * expansion, cross-domain routing, and one missing-consumer diagnostic without a server response.
+ */
 export const recipeDagFixture: RecipeDagResult = {
   recipeId: "mod-swooper-maps/standard",
   recipeKey: "standard",

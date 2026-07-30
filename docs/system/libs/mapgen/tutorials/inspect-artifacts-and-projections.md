@@ -39,7 +39,7 @@ This harness runs the complete Standard recipe and writes a dump under
 Preferred (package script):
 
 ```bash
-nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7
+nx run swooper-physics:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7
 ```
 
 Inputs:
@@ -129,8 +129,8 @@ supply their own facet sink; trace verbosity is unrelated to whether the project
 
 ## Ground truth anchors
 
-- Standard recipe wiring: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
-- Foundation projection step (source of many viz layer dumps): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/projection/steps/projection/step.ts`
+- Standard recipe wiring: `plugins/mod/map/swooper-physics/src/recipes/standard/recipe.ts`
+- Foundation projection step (source of many viz layer dumps): `plugins/mod/map/swooper-physics/src/recipes/standard/stages/foundation/projection/steps/projection/step.ts`
 - Trace+viz dump capability (writes `trace.jsonl`, `manifest.json`, and `data/*`): `packages/mapgen-diagnostics/src/dump.ts`
-- Standard capture runner: `mods/mod-swooper-maps/scripts/diagnostics/run-standard-dump.ts`
+- Standard capture runner: `plugins/mod/map/swooper-physics/scripts/diagnostics/run-standard-dump.ts`
 - Trace core contract: `packages/mapgen-core/src/trace/index.ts`

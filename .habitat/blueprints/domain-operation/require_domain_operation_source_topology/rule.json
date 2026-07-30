@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "domain operation collections or operation roots outside the positive leaf contract, implementation, rules, and strategy spine",
   "why": "A module's ops directory contains semantic operation leaves only; the module contract and router already own declarative and executable aggregation. Complete input and output types remain contract-only, private implementation shapes stay with their sole owner, and shared semantic vocabulary moves to the nearest model atoms.",
@@ -19,7 +19,10 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/domain/*/modules/*/ops", "mods/*/src/domain/*/modules/*/ops/**"]
+      "patterns": [
+        "plugins/mod/map/*/src/domain/*/modules/*/ops",
+        "plugins/mod/map/*/src/domain/*/modules/*/ops/**"
+      ]
     }
   ],
   "supportFiles": {

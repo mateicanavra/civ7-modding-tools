@@ -13,22 +13,31 @@ Canonical MapGen docs:
 
 ## Overview
 
-This mod uses **canonical JSON map configs + recipe selection** so shipped
-variants share one codebase while keeping each selectable world's identity and
-full recipe config in one source file.
+Swooper Maps has two repository owners with one stable runtime identity. The
+reusable `@swooper/swooper-physics` definition owns domains, the Standard
+recipe, authored configs/catalog, metrics, visualization authorship, and
+product diagnostics. The `@swooper/swooper-physics-mod` application owns Civ7
+entry generation, mod files, bundling, deployment, request-local Studio
+materialization, and live proof. The application depends on the definition;
+the definition never imports the application. Both preserve the existing
+`mod-swooper-maps` runtime namespace and Civ7 mod identity.
+
+Canonical JSON map configs plus recipe selection let shipped variants share
+one product definition while keeping each selectable world's identity and full
+recipe config in one source file.
 
 Shipped map variants are authored only as
-`mods/mod-swooper-maps/src/maps/configs/*.config.json`. Each file contains the
+`plugins/mod/map/swooper-physics/src/maps/configs/*.config.json`. Each file contains the
 map id, display name, description, recipe id, sort order, optional latitude
 bounds, and the full flat standard-recipe config payload.
-`nx run mod-swooper-maps:gen:maps` validates that directory and generates the
+`nx run swooper-physics-mod:gen:maps` consumes and validates that directory and generates the
 tracked per-map entry modules plus Civ7 map rows, modinfo imports, and
-localization rows. `gen:studio-map-catalog` separately projects the same source
-index into Studio's built-in catalog. Do not hand-author shipped map wrappers
-or shipped `.config.ts` files. The native `mod-swooper-maps:build` graph depends
-on `generated:check`, which compares the complete tracked map and mod output
-plan with the canonical inputs and is the currentness authority for those
-files.
+localization rows. `nx run swooper-physics:gen:studio-map-catalog` separately
+projects the same source index into Studio's built-in catalog. Do not
+hand-author shipped map wrappers or shipped `.config.ts` files. The native
+`swooper-physics-mod:build` graph depends on `generated:check`, which compares
+the complete tracked map and mod output plan with the canonical inputs and is
+the currentness authority for those files.
 
 ## Physics-Truth Cutover (Ecology + Placement)
 
@@ -73,11 +82,14 @@ discovery policy exists. Swooper supplies the already-assigned major starts and
 polar exclusion margin, then retains attempted, placed, and rejected totals
 without claiming per-tile reconciliation that Civ7 does not expose.
 
-## Current mod code pointers
+## Current code pointers
 
-- Map config authority: `mods/mod-swooper-maps/src/maps/configs/*.config.json`
-- Generated map entry sources: `mods/mod-swooper-maps/src/maps/generated/*`
-- Recipes: `mods/mod-swooper-maps/src/recipes/*`
+- Definition owner: `plugins/mod/map/swooper-physics/`
+- Map config authority: `plugins/mod/map/swooper-physics/src/maps/configs/*.config.json`
+- Recipes and domains: `plugins/mod/map/swooper-physics/src/{recipes,domain}/*`
+- Civ7 realization owner: `apps/mods/map/swooper-physics/`
+- Generated map entry sources: `apps/mods/map/swooper-physics/src/maps/generated/*`
+- Generated Civ7 mod tree: `apps/mods/map/swooper-physics/mod/*`
 
 ## Legacy TypeScript Architecture (M6)
 
@@ -86,7 +98,7 @@ without claiming per-tile reconciliation that Civ7 does not expose.
 - Entry scripts select a recipe (e.g., `standardRecipe`) and execute via `runStandardRecipe` (or `recipe.run` directly).
 - Steps read per-step config from the recipe config; run-global overrides live in `RunRequest.settings` and surface as `context.settings`.
 
-This section is retained as historical context and is not used by the current mod code pointers above.
+This section is retained as historical context and is not used by the current code pointers above.
 
 Example (minimal runnable pipeline):
 

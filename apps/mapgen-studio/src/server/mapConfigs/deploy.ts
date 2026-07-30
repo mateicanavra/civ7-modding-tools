@@ -1,23 +1,17 @@
 export type SwooperMapsStudioDeployPlan = Readonly<{
-  buildTask: "mod-swooper-maps:build:studio-deploy";
+  buildTask: "swooper-physics-mod:build:studio-deploy";
   buildArgs: readonly string[];
   env: NodeJS.ProcessEnv;
 }>;
 
-type SwooperMapsStudioDeployConfig = Readonly<{
-  id: string;
-  path: string;
-}>;
-
 export type SwooperMapsStudioDeployOptions = Readonly<{
-  launchConfig?: SwooperMapsStudioDeployConfig;
+  launchConfigId?: string;
   env?: NodeJS.ProcessEnv;
 }>;
 
 function withoutStudioDeployEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   const {
     SWOOPER_STUDIO_DEPLOY_CONFIG_ID: _deployConfigId,
-    SWOOPER_STUDIO_DEPLOY_CONFIG_PATH: _deployConfigPath,
     SWOOPER_INCLUDE_STUDIO_CURRENT: _includeStudioCurrent,
     SWOOPER_STUDIO_LAUNCH_CONFIG_ID: _launchConfigId,
     SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST: _launchEnvelopeDigest,
@@ -27,21 +21,27 @@ function withoutStudioDeployEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   return cleanEnv;
 }
 
+/** Builds the Nx deployment invocation while isolating Studio-only environment overrides. */
 export function buildSwooperMapsStudioDeployPlan(
   options: SwooperMapsStudioDeployOptions = {}
 ): SwooperMapsStudioDeployPlan {
   const cleanEnv = withoutStudioDeployEnv(options.env ?? process.env);
   const env =
-    options.launchConfig === undefined
+    options.launchConfigId === undefined
       ? cleanEnv
       : {
           ...cleanEnv,
-          SWOOPER_STUDIO_DEPLOY_CONFIG_ID: options.launchConfig.id,
-          SWOOPER_STUDIO_DEPLOY_CONFIG_PATH: options.launchConfig.path,
+          SWOOPER_STUDIO_DEPLOY_CONFIG_ID: options.launchConfigId,
         };
   return {
-    buildTask: "mod-swooper-maps:build:studio-deploy",
-    buildArgs: ["run", "nx", "run", "mod-swooper-maps:build:studio-deploy", "--outputStyle=static"],
+    buildTask: "swooper-physics-mod:build:studio-deploy",
+    buildArgs: [
+      "run",
+      "nx",
+      "run",
+      "swooper-physics-mod:build:studio-deploy",
+      "--outputStyle=static",
+    ],
     env,
   };
 }

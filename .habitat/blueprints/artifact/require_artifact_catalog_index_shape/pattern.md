@@ -45,20 +45,20 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/weather/modules/forecasting/artifacts/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/weather/modules/forecasting/artifacts/index.ts
 import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
 import { artifact as forecast } from "./forecast.artifact.js";
 
 export const artifacts = defineArtifactCatalog({ forecast });
 export const forecastArtifact = artifacts.forecast;
 
-// @filename: mods/alternate-mod/src/domain/terrain/modules/surface/artifacts/index.ts
+// @filename: plugins/mod/map/alternate-mod/src/domain/terrain/modules/surface/artifacts/index.ts
 import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
 import * as surface from "./surface.artifact.js";
 
 export const artifacts = defineArtifactCatalog({ surface });
 
-// @filename: mods/example-mod/src/domain/geology/modules/strata/artifacts/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/strata/artifacts/index.ts
 import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
 import { artifact as strata } from "./strata.artifact.js";
 
@@ -68,7 +68,7 @@ export const artifacts = defineArtifactCatalog({});
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/domain/weather/modules/forecasting/artifacts/index.ts
+// @filename: plugins/mod/map/example-mod/src/domain/weather/modules/forecasting/artifacts/index.ts
 import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
 import { artifact as forecast } from "./forecast.artifact.js";
 import { artifact as precipitation } from "./precipitation.artifact.js";

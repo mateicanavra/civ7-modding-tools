@@ -102,6 +102,7 @@ function buildRunAttributionReport(operation: RunInGameInternalOperation): RunAt
   };
 }
 
+/** Writes the complete or explicitly incomplete authorship evidence for one request. */
 export async function writeRunAttributionReport(
   operation: RunInGameInternalOperation,
   options: Readonly<{ workspaceRoot: string }>

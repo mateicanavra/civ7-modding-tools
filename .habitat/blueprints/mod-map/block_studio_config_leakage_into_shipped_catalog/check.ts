@@ -7,9 +7,9 @@ const repoRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], {
   encoding: "utf8",
 }).trim();
 const files = [
-  "mods/mod-swooper-maps/mod/config/config.xml",
-  "mods/mod-swooper-maps/mod/swooper-maps.modinfo",
-  "mods/mod-swooper-maps/mod/text/en_us/MapText.xml",
+  "apps/mods/map/swooper-physics/mod/config/config.xml",
+  "apps/mods/map/swooper-physics/mod/swooper-maps.modinfo",
+  "apps/mods/map/swooper-physics/mod/text/en_us/MapText.xml",
 ];
 const failures: string[] = [];
 

@@ -38,6 +38,14 @@ async function collectRenderRootProblems(page, selector) {
   return problems;
 }
 
+/**
+ * Captures the rendered Storybook selection and its resolved design-token values.
+ * A successful observation proves the requested story finished rendering into the sole preview root.
+ *
+ * @param {import("playwright").Page} page Storybook preview page to inspect.
+ * @param {{ expectedStoryId: string, expectedTokens: readonly string[] }} expectation Requested story and token names.
+ * @returns {Promise<Record<string, unknown>>} Admitted Storybook marker, root class, and token sample.
+ */
 export async function collectStorybookObservation(page, { expectedStoryId, expectedTokens }) {
   const observation = await page.evaluate(
     ({ storyId, tokens }) => {
@@ -79,6 +87,14 @@ export async function collectStorybookObservation(page, { expectedStoryId, expec
   return observation;
 }
 
+/**
+ * Captures one generated design-sync export and its resolved design-token values.
+ * The explicit export marker prevents a default-card render from masquerading as the requested cell.
+ *
+ * @param {import("playwright").Page} page Design-sync preview page to inspect.
+ * @param {{ expectedExport: string, expectedTokens: readonly string[] }} expectation Requested export and token names.
+ * @returns {Promise<Record<string, unknown>>} Admitted export marker and token sample.
+ */
 export async function collectDesignSyncObservation(page, { expectedExport, expectedTokens }) {
   const observation = await page.evaluate(
     ({ exportName, tokens }) => {
@@ -119,6 +135,14 @@ export async function collectDesignSyncObservation(page, { expectedExport, expec
   return observation;
 }
 
+/**
+ * Compares complete Storybook and design-sync observations for the same selected surfaces.
+ * Malformed or partial observations fail before drift comparison so equal missing values cannot pass.
+ *
+ * @param {unknown} result Collected observations keyed by expected pick name.
+ * @param {object} options Expected selections, token names, normalization, and acquisition failures.
+ * @returns {{ result: unknown, failures: string[], aggregateDrift: string[] }} Evaluation evidence for finalization.
+ */
 export function evaluateLightCanary(
   result,
   { expectedPicks, expectedTokens, normalize = (value) => value, collectionFailures = [] }
@@ -193,6 +217,15 @@ export function evaluateLightCanary(
   return { result: evaluatedResult, failures, aggregateDrift };
 }
 
+/**
+ * Finalizes a light-canary run after closing every acquired runtime resource.
+ * Invalid evidence or cleanup failure marks the process unsuccessful; persistence occurs only after both pass.
+ *
+ * @param {{ failures: string[], aggregateDrift: string[] }} outcome Evaluated canary evidence.
+ * @param {() => Promise<void>} cleanup Runtime cleanup transaction.
+ * @param {object} services Injectable process, reporting, and persistence services.
+ * @returns {Promise<void>} Completion after cleanup and optional persistence.
+ */
 export async function finalizeLightCanary(
   outcome,
   cleanup,
@@ -237,6 +270,15 @@ export async function finalizeLightCanary(
   }
 }
 
+/**
+ * Replaces a light-canary result through a private sibling temporary directory.
+ * The final rename prevents readers from observing a partially written result.
+ *
+ * @param {string} path Final result path.
+ * @param {unknown} result JSON-serializable canary evidence.
+ * @param {object} filesystem Injectable filesystem operations used by focused tests.
+ * @returns {void}
+ */
 export function writeLightCanaryResultAtomically(
   path,
   result,

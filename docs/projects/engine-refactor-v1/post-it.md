@@ -2,7 +2,7 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Plan. Output. Admission. Completeness. Simplicity.
+**Attractor filter:** Identity. Ownership. Realization. Direction. Closure.
 
 **Frame:** kind before instance, intent before ownership, authority before
 relocation. A closed file shape is the start of semantic review, not proof that
@@ -30,11 +30,22 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** the Studio recipe-type generator owns five related build
-outputs but mutates them through independent writes plus bespoke cleanup for a
-retired ignored output. Its source derivation and catalog admission are
-coherent; its materialization is not yet expressed as one complete product
-plan.
+**Current container:** the mixed Swooper project is now two causal owners. The
+reusable authored product moves as one `kind:mod` project to
+`plugins/mod/map/swooper-physics`: domains, Standard recipe, shipped map
+configs/catalog, metrics, visualization authorship, and product diagnostics.
+The deployable realization moves as one `kind:app` project to
+`apps/mods/map/swooper-physics`: generated map entrypoints, Civ7 metadata and
+files, bundling, deployment, Studio run-mod materialization, and live proof.
+The app consumes the definition's finite public surface; the definition never
+imports the app. Observable Civ7 mod and recipe identities remain stable.
+
+This is a coordinated hard cut with no forwarding package, proxy Nx target,
+second generated-output root, or app-source import. Existing `kind:app ->
+kind:mod` project law carries the one-way dependency; new workspace roots,
+Habitat acquisition, owner projects, and closed project shapes must become
+truthful before the old `mods/mod-swooper-maps` owner disappears. CLI plugin
+topics normalize under `plugins/cli/topics` only in a later complete cut.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -51,13 +62,14 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** derive every Studio recipe type/schema/default artifact in memory,
-validate the shipped catalog before mutation, and apply one canonical generated
-file plan. Replace the direct writes and bespoke retired-output deletion with a
-narrow plan-owned replacement set, and keep that mutation target uncached so
-ignored stale output cannot bypass cleanup. Freeze through the real Nx-owned
-generation/build path, output identity, dead-code proof, and focused
-architecture and quality review.
+**Gradient:** establish both Nx/package identities and generic acquisition law;
+move the reusable definition intact; expose only Standard runtime, generated
+authoring artifacts, DAG, map-config admission/catalog, product metadata, and
+projection policy required by real consumers; move file materialization and
+live execution to the app; regenerate every tracked product at its new owner;
+rewire Studio by public package entrypoint and app target; reassign Habitat
+rules by behavior; then delete the old owner and prove an exact one-way graph,
+generated currentness, product behavior, dead-code absence, and closed policy.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -100,6 +112,48 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-28 - Export Documentation Authority Sealed
+
+Consumed exported values across supported MapGen and Studio source surfaces now
+require adjacent semantic JSDoc under one niche-wide relationship law. Dead
+exports retired before documentation, weak Hydrology schema descriptions were
+rewritten around behavior and invariants, and the rule closed with an empty
+baseline. The complete affected type/test graph, Knip, changed-file formatting,
+the staged hook, and fresh Habitat and semantic quality review sealed the cut.
+
+### 2026-07-28 - Biome Hazard Projection Policy Sealed
+
+One immutable Standard Ecology policy now owns every semantic plot-effect
+intent's Civ7 projection and the ordered custom hazard gameplay/localization
+catalog. Runtime application, durable XML, localization, and Standard mock
+registration derive from it; the generic Civ7 adapter no longer carries
+Swooper hazard identities. Studio run mods continue to depend on the durable
+module without duplicating its hazard data. Exact product output, all 521
+Swooper tests, adapter behavior, the affected type graph, generated currentness,
+boundaries, JSDoc, Knip, and fresh architecture/quality review sealed the cut.
+
+### 2026-07-28 - Catalog Identity Membership Sealed
+
+Shipped Swooper catalog membership now owns an ordered list of canonical map
+config ids rather than repository paths. Generators alone derive local config
+paths, Studio consumes direct canonical envelopes, and Save/Deploy selects a
+transient config by id without a second path authority. The path-index parser,
+wrapper projection, deploy-path environment variable, and three brittle niche
+rules retired in favor of one closed generic catalog blueprint. Focused
+behavior, the Studio/Swooper type graph, generated currentness, dead-code proof,
+and fresh architecture and quality review sealed the cut.
+
+### 2026-07-28 - Studio Recipe Output Plan Sealed
+
+The Standard recipe generator now derives its executable bundle metadata,
+schema, defaults, TypeScript declarations, and artifact catalog in memory,
+admits the complete shipped catalog before mutation, and applies one canonical
+five-file product plan. The retired ignored presets output is owned by a narrow
+replacement set, and the uncached Nx generation target prevents stale ignored
+output from surviving a cache hit. Direct idempotence, stale-output removal,
+the full Studio/Swooper graph, Knip, Habitat, and fresh architecture review
+sealed the cut.
 
 ### 2026-07-28 - Studio Exact Authorship Source Evidence Sealed
 

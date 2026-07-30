@@ -26,7 +26,7 @@ const SUGGESTIONS_BY_RECIPE: Readonly<Record<string, readonly OverlaySuggestion[
     // dataTypeModel), so every pair below is emitted by a single step:
     // assign-starts, select-resource-sites, or adjust-resources. The emitted-key
     // coverage guard lives in
-    // mods/mod-swooper-maps/test/recipes/swooper-physics-standard/viz/placement.test.ts.
+    // plugins/mod/map/swooper-physics/test/recipes/swooper-physics-standard/viz/placement.test.ts.
     {
       id: "placement.starts.viabilityScore::placement.starts.startPosition",
       primaryDataTypeKey: "placement.starts.viabilityScore",
@@ -84,6 +84,7 @@ const SUGGESTIONS_BY_RECIPE: Readonly<Record<string, readonly OverlaySuggestion[
   ],
 };
 
+/** Returns only overlay pairings explicitly curated by the owning recipe. */
 export function getOverlaySuggestions(recipeId: StudioRecipeId): readonly OverlaySuggestion[] {
   return SUGGESTIONS_BY_RECIPE[recipeId] ?? [];
 }

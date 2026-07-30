@@ -1,3 +1,4 @@
+/** Gameplay effect identifiers consumed by modifier definitions. */
 export const EFFECT = {
   ADD_BELIEF: "EFFECT_ADD_BELIEF",
   ADD_EVENT_FREQUENCY_OVERRIDE: "EFFECT_ADD_EVENT_FREQUENCY_OVERRIDE",

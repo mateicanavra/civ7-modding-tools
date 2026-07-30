@@ -68,6 +68,7 @@ const GAME_SPEED_ORDER = [
   "GAMESPEED_ONLINE",
 ] as const;
 
+/** Loads and joins official setup resources into the catalog consumed by Studio selectors. */
 export async function loadCiv7SetupCatalog(input: CatalogInput): Promise<Civ7SetupCatalog> {
   const roots = [
     {

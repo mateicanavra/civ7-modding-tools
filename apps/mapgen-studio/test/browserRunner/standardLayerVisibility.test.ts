@@ -1,4 +1,4 @@
-import { STANDARD_RECIPE_CONFIG } from "mod-swooper-maps/recipes/standard-artifacts";
+import { STANDARD_RECIPE_CONFIG } from "@swooper/swooper-physics/standard/artifacts";
 import { describe, expect, it, vi } from "vitest";
 import type { BrowserRunEvent, BrowserRunRequest } from "../../src/browser-runner/protocol";
 import { TEST_BROWSER_RUN_INITIAL_SETUP } from "../setup";

@@ -5,6 +5,7 @@ export type TUniqueQuarterNode = Pick<
   "uniqueQuarterType" | "buildingType1" | "buildingType2" | "name" | "description" | "traitType"
 >;
 
+/** Defines a unique quarter as the combination of two civilization-specific buildings. */
 export class UniqueQuarterNode extends BaseNode<TUniqueQuarterNode> {
   uniqueQuarterType: `QUARTER_${string}` | null = "QUARTER_";
   buildingType1: string | null = null;

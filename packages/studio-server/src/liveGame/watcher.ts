@@ -10,13 +10,16 @@ import { Civ7TunerClient } from "../services/Civ7TunerClient.js";
 import { StudioEventHub, type StudioEventHubApi } from "../services/StudioEventHub.js";
 import { readLiveGameStatusBody } from "./statusRead.js";
 
+/** Startup grace period before the watcher performs its first tuner read. */
 export const LIVE_GAME_WATCH_INITIAL_DELAY_MS = 250;
+/** Poll cadence balancing live feedback against tuner and event-stream load. */
 export const LIVE_GAME_WATCH_INTERVAL_MS = 3_000;
 
 export interface LiveGameWatcher {
   tick: Effect.Effect<void>;
 }
 
+/** Effect service exposing serialized manual ticks for the process live-game watcher. */
 export class StudioLiveGameWatcher extends Context.Tag("@civ7/studio-server/StudioLiveGameWatcher")<
   StudioLiveGameWatcher,
   LiveGameWatcher
@@ -34,6 +37,7 @@ export interface LiveGameWatcherDeps {
   options?: LiveGameWatcherOptions;
 }
 
+/** Wires the production watcher to the tuner client and daemon event hub. */
 export function makeStudioLiveGameWatcherLayer(args: {
   options?: LiveGameWatcherOptions;
 }): Layer.Layer<StudioLiveGameWatcher, never, Civ7TunerClient | StudioEventHub> {
@@ -53,6 +57,7 @@ export function makeStudioLiveGameWatcherLayer(args: {
   );
 }
 
+/** Builds a watcher layer with injected read and publish ports for deterministic tests. */
 export function makeLiveGameWatcherLayer(
   args: LiveGameWatcherDeps
 ): Layer.Layer<StudioLiveGameWatcher, never> {

@@ -60,6 +60,7 @@ function Dock({ children }: { children: ReactNode }) {
   );
 }
 
+/** Shows the settled footer state in which the authored settings match the last completed run. */
 export const Ready: Story = {
   args: {
     status: "ready",
@@ -88,6 +89,7 @@ export const Ready: Story = {
   ),
 };
 
+/** Exercises the busy footer while edited settings make the displayed run provenance stale. */
 export const RunningDirty: Story = {
   args: {
     status: "running",

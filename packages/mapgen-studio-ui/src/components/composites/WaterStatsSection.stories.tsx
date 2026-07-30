@@ -155,6 +155,7 @@ function Dock({ children }: { children: ReactNode }) {
   );
 }
 
+/** Exposes every hydrology metric and layer-selection affordance in the inspector section. */
 export const Expanded: Story = {
   args: { summary, onLayerSelect: noop, expanded: true, onExpandedChange: noop },
   render: (args) => (
@@ -164,6 +165,7 @@ export const Expanded: Story = {
   ),
 };
 
+/** Pins the summary-only disclosure state used to reclaim vertical inspector space. */
 export const Collapsed: Story = {
   args: { summary, onLayerSelect: noop, expanded: false, onExpandedChange: noop },
   render: (args) => (

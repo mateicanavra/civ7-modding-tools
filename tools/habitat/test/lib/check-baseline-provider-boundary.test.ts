@@ -40,13 +40,12 @@ describe("check and baseline provider boundaries", () => {
         return commandResult(
           argv,
           options.cwd,
-          ".habitat/global/workspace/_blueprints/project-boundary-model/existing-rule/rule.json\n"
+          ".habitat/global/workspace/rules/existing-rule/rule.json\n"
         );
       }
       if (
         argv[0] === "show" &&
-        argv[1] ===
-          "merge-base-sha:.habitat/global/workspace/_blueprints/project-boundary-model/existing-rule/rule.json"
+        argv[1] === "merge-base-sha:.habitat/global/workspace/rules/existing-rule/rule.json"
       ) {
         return commandResult(
           argv,
@@ -58,7 +57,7 @@ describe("check and baseline provider boundaries", () => {
               title: "Existing Rule",
               placement: {
                 niche: "global/workspace",
-                blueprint: "project-boundary-model",
+                blueprint: "_self",
                 category: "structure",
               },
               operation: { kind: "check" },
@@ -67,8 +66,7 @@ describe("check and baseline provider boundaries", () => {
               runner: {
                 name: "grit",
                 files: {
-                  pattern:
-                    ".habitat/global/workspace/_blueprints/project-boundary-model/existing-rule/pattern.md",
+                  pattern: ".habitat/global/workspace/rules/existing-rule/pattern.md",
                 },
               },
             },
@@ -119,10 +117,7 @@ describe("check and baseline provider boundaries", () => {
         "merge-base-sha:tools/habitat/src/service/model/check/policy/rule-runtime/rules.json",
       ],
       ["ls-tree", "-r", "--name-only", "merge-base-sha", ".habitat"],
-      [
-        "show",
-        "merge-base-sha:.habitat/global/workspace/_blueprints/project-boundary-model/existing-rule/rule.json",
-      ],
+      ["show", "merge-base-sha:.habitat/global/workspace/rules/existing-rule/rule.json"],
       ["show", "merge-base-sha:.habitat/baselines/existing-rule.json"],
     ]);
   });

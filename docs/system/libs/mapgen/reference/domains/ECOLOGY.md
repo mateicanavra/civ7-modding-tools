@@ -59,10 +59,10 @@ Projection posture:
 ## Key artifacts
 
 Ecology's semantic data products are owned by the module that produces them:
-- Pedology: `mods/mod-swooper-maps/src/domain/ecology/modules/pedology/artifacts/index.ts`
-- Biomes: `mods/mod-swooper-maps/src/domain/ecology/modules/biomes/artifacts/index.ts`
-- Features: `mods/mod-swooper-maps/src/domain/ecology/modules/features/artifacts/index.ts`
-- Plot effects: `mods/mod-swooper-maps/src/domain/ecology/modules/plot-effects/artifacts/index.ts`
+- Pedology: `plugins/mod/map/swooper-physics/src/domain/ecology/modules/pedology/artifacts/index.ts`
+- Biomes: `plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/artifacts/index.ts`
+- Features: `plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/artifacts/index.ts`
+- Plot effects: `plugins/mod/map/swooper-physics/src/domain/ecology/modules/plot-effects/artifacts/index.ts`
 
 There is deliberately no root Ecology artifact aggregate. Steps import the exact producing module's
 catalog, keeping artifact ownership visible and preventing the root domain from becoming a second
@@ -129,33 +129,33 @@ The `map-ecology` stage:
 ## Ground truth anchors
 
 - Stage definitions (compile mapping, step list):
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/pedology/index.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/biomes/index.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/features/index.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/projection/index.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/pedology/index.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/biomes/index.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/index.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/recipe.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/projection/index.ts`
 - Ecology domain composition:
-  - `mods/mod-swooper-maps/src/domain/ecology/contract.ts`
-  - `mods/mod-swooper-maps/src/domain/ecology/router.ts`
+  - `plugins/mod/map/swooper-physics/src/domain/ecology/contract.ts`
+  - `plugins/mod/map/swooper-physics/src/domain/ecology/router.ts`
 - Ecology module contracts, routers, operations, and artifact catalogs:
-  - `mods/mod-swooper-maps/src/domain/ecology/modules/pedology/`
-  - `mods/mod-swooper-maps/src/domain/ecology/modules/biomes/`
-  - `mods/mod-swooper-maps/src/domain/ecology/modules/features/`
-  - `mods/mod-swooper-maps/src/domain/ecology/modules/plot-effects/`
+  - `plugins/mod/map/swooper-physics/src/domain/ecology/modules/pedology/`
+  - `plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/`
+  - `plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/`
+  - `plugins/mod/map/swooper-physics/src/domain/ecology/modules/plot-effects/`
 - Example step contracts (truth stage):
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/pedology/steps/pedology/config.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/biomes/steps/biomes/config.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/features/steps/plan-vegetation/config.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/pedology/steps/pedology/config.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/biomes/steps/biomes/config.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/steps/plan-vegetation/config.ts`
 - Example step contracts (projection stage):
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/projection/steps/plot-biomes/config.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/projection/steps/features-apply/config.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/projection/steps/plot-biomes/config.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/projection/steps/features-apply/config.ts`
 - Stage-owned biome projection policy:
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/projection/model/policy/biome-projection.ts`
-- Completion catalog: `mods/mod-swooper-maps/src/recipes/standard/completions.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/projection/model/policy/biome-projection.ts`
+- Completion catalog: `plugins/mod/map/swooper-physics/src/recipes/standard/completions.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
 - Architecture guardrails (import bans and parity gates):
   - `.habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/rule.json`
   - `.habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/rule.json`
   - `.habitat/blueprints/recipe-stage/require_recipe_stage_source_topology/rule.json`
-  - `mods/mod-swooper-maps/src/recipes/standard/metrics/studies/benchmarks/earthlike-ecology.study.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/metrics/targets/ecology.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/earthlike-ecology.study.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts`

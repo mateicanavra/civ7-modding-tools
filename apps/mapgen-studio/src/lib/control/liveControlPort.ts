@@ -45,4 +45,5 @@ function createBoundLiveControlPort(
   };
 }
 
+/** Binds Studio's live controls to the canonical unified oRPC client exactly once. */
 export const liveControlPort = createBoundLiveControlPort();

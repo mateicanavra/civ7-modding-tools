@@ -26,6 +26,7 @@ export const RESOURCE_ADJACENT_TO_LAND_RUNTIME_OPTIONAL_TYPE_IDS = [
   53, // RESOURCE_TURTLES
 ] as const;
 
+/** Identifies official resources whose live runtime placement waives authored land adjacency. */
 export function isResourceAdjacentToLandRuntimeOptional(resourceType: number): boolean {
   return RESOURCE_ADJACENT_TO_LAND_RUNTIME_OPTIONAL_TYPE_IDS.includes(
     resourceType as (typeof RESOURCE_ADJACENT_TO_LAND_RUNTIME_OPTIONAL_TYPE_IDS)[number]

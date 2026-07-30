@@ -1,3 +1,4 @@
+/** Feature-class identifiers used when a bias or rule applies to a category rather than one feature. */
 export const FEATURE_CLASS = {
   VEGETATED: "FEATURE_CLASS_VEGETATED",
   FLOODPLAIN: "FEATURE_CLASS_FLOODPLAIN",

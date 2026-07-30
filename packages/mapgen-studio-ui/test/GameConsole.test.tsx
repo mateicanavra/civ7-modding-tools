@@ -85,7 +85,7 @@ function terminalStatusWithPrivateSentinels(
     workspaceRoot: "/private-sentinel/user/run-workspace",
     materialization: {
       generatedModRoot: "/private-sentinel/user/generated-mod",
-      sourcePath: "mods/mod-swooper-maps/src/maps/configs/private.config.json",
+      sourcePath: "plugins/mod/map/swooper-physics/src/maps/configs/private.config.json",
     },
     attribution: {
       sourceDeploymentPath: "/private-sentinel/user/Civ7/Mods/Swooper.lua",
@@ -233,7 +233,7 @@ describe("GameConsole Run in Game status", () => {
       "/private-sentinel/user",
       "/tmp/private-deploy",
       "/private/workspace",
-      "mods/mod-swooper-maps/src/maps/configs/private.config.json",
+      "plugins/mod/map/swooper-physics/src/maps/configs/private.config.json",
       "Swooper.lua",
       "Traceback",
       "Error: hidden",

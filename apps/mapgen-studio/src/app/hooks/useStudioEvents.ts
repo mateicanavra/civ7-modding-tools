@@ -25,6 +25,7 @@ import {
 } from "../studioEventRecovery";
 import { useLatestRef } from "./useLatestRef";
 
+/** Keeps transport recovery active until the subscription owner explicitly cancels it. */
 export const STUDIO_RECOVERY_RETRY_ATTEMPTS = Number.POSITIVE_INFINITY;
 const STUDIO_EVENT_STREAM_REOPEN_DELAY_MS = 2_000;
 

@@ -181,7 +181,7 @@ tuner and Civ7-side JavaScript responsibilities until those nodes are extracted.
 **Status:** Accepted
 **Date:** 2026-06-09
 **Context:** Two recorded authorities for resource placement were never reconciled: the engine-refactor Gameplay-absorption appendix (`docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/gameplay/APPENDIX-SCOPE-AND-ABSORPTION.md`, which planned to absorb the legacy `domain/placement` into a Gameplay domain that "oversees" resources by invoking the engine generator), and the newer `domain/resources` (official corpus, earthlike expectations, family demand planners) introduced by the resource-distribution-policy project. The placement-realignment workstream (D2, S3 entry gate) requires deciding ownership BEFORE wiring, so the decision lands in code and in this record at the same time instead of being retrofitted (the RC1 anti-pattern diagnosed in `docs/projects/placement-realignment/diagnosis.md`).
-**Decision:** `mods/mod-swooper-maps/src/domain/resources` is the owning domain for resource planning: one terminal demand resolver binds the exact canonical expectation corpus to habitat lanes and current legality, then site selection emits typed per-plot intents. Recipe-layer placement steps are thin observation, orchestration, publication, and stamp/reconcile shells. The Gameplay-absorption appendix now points at `domain/resources` for resource planning; a future Gameplay domain consolidation may absorb starts/discoveries/wonders orchestration but does not re-own resource planning logic.
+**Decision:** `plugins/mod/map/swooper-physics/src/domain/resources` is the owning domain for resource planning: one terminal demand resolver binds the exact canonical expectation corpus to habitat lanes and current legality, then site selection emits typed per-plot intents. Recipe-layer placement steps are thin observation, orchestration, publication, and stamp/reconcile shells. The Gameplay-absorption appendix now points at `domain/resources` for resource planning; a future Gameplay domain consolidation may absorb starts/discoveries/wonders orchestration but does not re-own resource planning logic.
 **Consequences:**
 - `domain/placement/ops/plan-resources` (generic scalar scorer) is superseded and deleted in the S3 slice; no dual path remains.
 - Dependency-free static resource facts (`Weight`, `MinimumPerHemisphere`, age validity, and the roster-independent `Staple`/`UnlocksCiv` fallback basis) flow from `@civ7/map-policy` into `domain/resources` planning. `MinimumPerHemisphere` is an amount, not proof that the minimum applies.
@@ -433,3 +433,43 @@ emitting or storing completion state.
   concrete downstream dependency on otherwise invisible mutable state.
 - Initial setup remains immutable invocation context, while trace events remain
   observation; neither is a dependency kind.
+
+## ADR-016: Swooper Physics definition and Civ7 realization are separate projects
+
+**Status:** Accepted
+**Date:** 2026-07-28
+**Context:** `mods/mod-swooper-maps` combined the reusable Swooper domain and
+Standard recipe product with Civ7 file rendering, generated map entrypoints,
+bundling, deployment, Studio run-mod materialization, and live verification.
+That made the product definition appear to own filesystem mutation and made
+Studio depend on a deployable mod package merely to consume recipe contracts.
+The mixed owner also obscured which outputs were authored product identity and
+which were one runtime realization of that identity.
+**Decision:** The reusable Swooper product definition lives at
+`plugins/mod/map/swooper-physics` as package `@swooper/swooper-physics`, Nx
+project `swooper-physics`, and `kind:mod`. It owns the six domain models, the
+Standard recipe and its authored configuration, shipped map configs/catalog,
+metrics and visualization authorship, and product-specific diagnostic
+commands. The Civ7 realization lives at `apps/mods/map/swooper-physics` as
+package `@swooper/swooper-physics-mod`, Nx project `swooper-physics-mod`, and
+`kind:app`. It owns generated map entrypoints, Civ7 metadata and output files,
+bundling, deployment, request-local Studio mod generation, and live proof.
+The app imports only finite public definition entrypoints. The definition never
+imports the app, and Studio imports definition contracts while invoking app Nx
+targets for materialization. Existing Civ7 mod ids and serialized recipe ids
+remain product behavior and do not change with repository paths.
+**Consequences:**
+- `kind:app -> kind:mod` is the project-plane dependency law; directory naming
+  does not weaken the existing kind taxonomy or turn the definition into a
+  leaf CLI plugin.
+- Canonical map configs remain authored Swooper product identity beside the
+  metrics and studies that evaluate them. The app consumes their admitted
+  catalog rather than maintaining a second shipped-map registry.
+- Generated entry modules and mod output have one application owner and are
+  regenerated at the new root. No compatibility package, proxy target, or
+  second output location remains under `mods/`.
+- MapGen Studio consumes recipe runtime, authoring artifacts, DAG, map-config,
+  and catalog entrypoints from the definition. It may orchestrate the app's
+  build/deploy targets but does not import app source.
+- CLI topic plugins under `plugins/cli/topics` are a separate normalization;
+  this decision does not broaden `kind:plugin` or its dependency allowances.

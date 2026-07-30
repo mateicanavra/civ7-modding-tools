@@ -42,7 +42,9 @@ the topic slice that changes the underlying source.
 
 The standard recipe is **content-owned** (not SDK-owned):
 
-- Recipe implementation lives in the standard content package: `mods/mod-swooper-maps/**`.
+- Recipe implementation lives in the reusable Standard content package:
+  `plugins/mod/map/swooper-physics/**`. Civ7 file generation and deployment live
+  separately under `apps/mods/map/swooper-physics/**`.
 - The core SDK (`@swooper/mapgen-core`) provides the authoring/runtime mechanism.
 
 ## Contract (what is guaranteed)
@@ -175,8 +177,8 @@ Domain contract references:
 
 ## Ground truth anchors
 
-- Standard recipe composition: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
-- Standard completion catalog: `mods/mod-swooper-maps/src/recipes/standard/completions.ts`
-- Example stage schema/knobs posture: `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/mantle/index.ts`
+- Standard recipe composition: `plugins/mod/map/swooper-physics/src/recipes/standard/recipe.ts`
+- Standard completion catalog: `plugins/mod/map/swooper-physics/src/recipes/standard/completions.ts`
+- Example stage schema/knobs posture: `plugins/mod/map/swooper-physics/src/recipes/standard/stages/foundation/mantle/index.ts`
 - Stage authoring contract: `packages/mapgen-core/src/authoring/stage/create.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`

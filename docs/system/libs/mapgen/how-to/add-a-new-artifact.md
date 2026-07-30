@@ -107,8 +107,8 @@ already carries its schema and complete admission function.
 Producer and consumer contracts select the same catalog value.
 
 ```ts
-import morphology from "@mapgen/domain/morphology";
-import { artifacts as morphologyRoutingArtifacts } from "@mapgen/domain/morphology/modules/routing/artifacts/index.js";
+import morphology from "../../../../../../../domain/morphology/index.js";
+import { artifacts as morphologyRoutingArtifacts } from "../../../../../../../domain/morphology/modules/routing/artifacts/index.js";
 
 export const config = defineStep({
   // ...id, dependencies, ops, and schema...
@@ -139,8 +139,8 @@ export const RoutingStep = createStep(config, {
 ```
 
 The domain root import above is a declaration contract. Recipe runtime
-composition separately imports `@mapgen/domain/morphology/router`; artifact and
-step modules must not pull executable routers into their contract surface.
+composition separately imports `domain/morphology/router.ts`; artifact and step
+modules must not pull executable routers into their contract surface.
 
 Consumers read through `deps.artifacts.<name>.read()`. These capabilities are bound to the exact
 active step occurrence; authored code never supplies context, constructs provider runtimes, or
@@ -175,5 +175,5 @@ reaches into MapContext storage.
 - Artifact catalog: `packages/mapgen-core/src/authoring/artifact/catalog.ts`
 - Artifact runtime: `packages/mapgen-core/src/authoring/artifact/runtime.ts`
 - Step occurrence binding: `packages/mapgen-core/src/authoring/step/dependencies.ts`
-- Example artifact owner: `mods/mod-swooper-maps/src/domain/foundation/modules/lithosphere/artifacts/plate-graph.artifact.ts`
-- Example catalog: `mods/mod-swooper-maps/src/domain/foundation/modules/lithosphere/artifacts/index.ts`
+- Example artifact owner: `plugins/mod/map/swooper-physics/src/domain/foundation/modules/lithosphere/artifacts/plate-graph.artifact.ts`
+- Example catalog: `plugins/mod/map/swooper-physics/src/domain/foundation/modules/lithosphere/artifacts/index.ts`

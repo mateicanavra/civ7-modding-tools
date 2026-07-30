@@ -1,0 +1,107 @@
+{
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "name": "swooper-physics",
+  "tags": ["kind:mod"],
+  "targets": {
+    "build": {
+      "executor": "nx:noop",
+      "dependsOn": ["gen:studio-recipes-types", "gen:studio-map-catalog"],
+      "outputs": []
+    },
+    "build:standard": {
+      "command": "tsup --config scripts/tsup.studio-recipes.config.ts",
+      "dependsOn": ["^build"],
+      "inputs": ["default", "^default"],
+      "outputs": ["{projectRoot}/dist/recipes/standard.js"],
+      "options": {
+        "cwd": "plugins/mod/map/swooper-physics"
+      }
+    },
+    "gen:studio-recipes-types": {
+      "command": "bun ./scripts/generate-studio-recipe-types.ts",
+      "dependsOn": ["build:standard"],
+      "inputs": ["default", "^default"],
+      "outputs": [
+        "{projectRoot}/dist/recipes/standard.schema.json",
+        "{projectRoot}/dist/recipes/standard.defaults.json",
+        "{projectRoot}/dist/recipes/standard.d.ts",
+        "{projectRoot}/dist/recipes/standard-artifacts.js",
+        "{projectRoot}/dist/recipes/standard-artifacts.d.ts"
+      ],
+      "options": {
+        "cwd": "plugins/mod/map/swooper-physics"
+      }
+    },
+    "gen:studio-map-catalog": {
+      "command": "bun ./scripts/generate-studio-map-catalog.ts",
+      "dependsOn": ["gen:studio-recipes-types"],
+      "inputs": ["default", "^default"],
+      "outputs": [
+        "{projectRoot}/dist/recipes/standard-map-config.schema.json",
+        "{projectRoot}/dist/recipes/standard-map-configs.js",
+        "{projectRoot}/dist/recipes/standard-map-configs.d.ts"
+      ],
+      "options": {
+        "cwd": "plugins/mod/map/swooper-physics"
+      }
+    },
+    "typecheck": {
+      "command": "tsc --noEmit",
+      "dependsOn": ["build", "check:test", "check:tools"],
+      "options": {
+        "cwd": "plugins/mod/map/swooper-physics"
+      }
+    },
+    "check:test": {
+      "command": "tsc -p test/tsconfig.json --noEmit",
+      "dependsOn": ["build"],
+      "options": {
+        "cwd": "plugins/mod/map/swooper-physics"
+      }
+    },
+    "check:tools": {
+      "command": "tsc -p scripts/tsconfig.json --noEmit",
+      "dependsOn": ["build"],
+      "options": {
+        "cwd": "plugins/mod/map/swooper-physics"
+      }
+    },
+    "check": {
+      "executor": "nx:noop",
+      "dependsOn": ["typecheck"],
+      "outputs": []
+    },
+    "test": {
+      "command": "bun test",
+      "dependsOn": ["build"],
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/vitest.config.ts",
+        { "env": "SWOOPER_TEST_MAP_SIZE" },
+        { "env": "SWOOPER_TEST_MAP_SEED" },
+        { "env": "SWOOPER_TEST_GAME_SEED" }
+      ],
+      "options": {
+        "cwd": "plugins/mod/map/swooper-physics"
+      }
+    },
+    "diag:dump": {
+      "command": "bun ./scripts/diagnostics/run-standard-dump.ts",
+      "dependsOn": ["^build"],
+      "cache": false,
+      "options": {
+        "cwd": "plugins/mod/map/swooper-physics"
+      }
+    },
+    "diag:diff": {
+      "dependsOn": [{ "projects": ["mapgen-diagnostics"], "target": "build" }]
+    },
+    "diag:list": {
+      "dependsOn": [{ "projects": ["mapgen-diagnostics"], "target": "build" }]
+    },
+    "diag:trace": {
+      "dependsOn": [{ "projects": ["mapgen-diagnostics"], "target": "build" }]
+    }
+  }
+}

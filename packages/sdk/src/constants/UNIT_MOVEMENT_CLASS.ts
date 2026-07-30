@@ -1,3 +1,4 @@
+/** Movement-class identifiers that select pathing behavior for unit definitions. */
 export const UNIT_MOVEMENT_CLASS = {
   MOUNTED: "UNIT_MOVEMENT_CLASS_MOUNTED",
   FOOT: "UNIT_MOVEMENT_CLASS_FOOT",

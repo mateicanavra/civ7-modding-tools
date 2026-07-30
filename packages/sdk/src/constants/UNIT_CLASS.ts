@@ -1,3 +1,4 @@
+/** Unit class identifiers used by requirements, abilities, and gameplay categorization. */
 export const UNIT_CLASS = {
   RECON: "UNIT_CLASS_RECON",
   RECON_ABILITIES: "UNIT_CLASS_RECON_ABILITIES",

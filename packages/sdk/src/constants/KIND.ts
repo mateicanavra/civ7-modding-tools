@@ -1,3 +1,4 @@
+/** Database kind identifiers used when declaring new moddable types. */
 export const KIND = {
   UNIT: "KIND_UNIT",
   TRAIT: "KIND_TRAIT",

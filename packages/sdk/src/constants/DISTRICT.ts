@@ -1,3 +1,4 @@
+/** District identifiers accepted by constructible placement constraints. */
 export const DISTRICT = {
   CITY_CENTER: "DISTRICT_CITY_CENTER",
   URBAN: "DISTRICT_URBAN",

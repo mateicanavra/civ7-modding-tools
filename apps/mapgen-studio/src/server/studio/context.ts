@@ -37,6 +37,7 @@ function directControlDependencyFailure(err: unknown): StudioRuntimeFailure | un
   return undefined;
 }
 
+/** Adds procedure and daemon identity context before exposing a defined oRPC failure. */
 export function toStudioRuntimeOrpcError(
   args: Readonly<{
     err: unknown;
@@ -76,7 +77,7 @@ export function createStudioServerContext(
   return {
     viteCommand: hostCommand,
     // Recipe-DAG projection: the implementation stays app-side (it imports
-    // mod-swooper-maps recipe stages); the package reads it via StudioConfig.
+    // the finite Swooper Physics DAG entrypoint); the package reads it via StudioConfig.
     recipeDagService: defaultRecipeDagService,
     // Civ7 control surface dependencies: the unified handler builds the
     // control procedures' per-request context from these plus the runtime's

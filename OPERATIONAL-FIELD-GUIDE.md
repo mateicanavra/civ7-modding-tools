@@ -30,7 +30,7 @@ The Effect checkout at `.repos/effect` is reference source, not a build input. `
 | Serve Docs | Built workspace | Starts the Docs dev server in the action terminal. Its pre-dev code-fence normalizer can write documentation files; the printed local URL is proof. | Stop the terminal process, review any normalization diff, and use `nx run civ7-docs:fix:mdx-links` only when link repair is intended. |
 | Build Playground | Built workspace | Builds the Playground's generated example output; the emitted artifact list is proof. This project has no long-lived local server target. | Inspect the build output and rerun after rebuilding its reported dependency. |
 | Start MapGen Studio | Bun and Nx | Runs the one Nx-owned continuous graph for the daemon and Vite frontend. Their startup output and URLs are the proof surface. | Stop the action terminal; Nx terminates the composed process graph. Inspect the reported target output if either process exits early. |
-| Build MapGen diagnostic dump | MapGen runtime dependencies | Writes a deterministic diagnostic dump beneath the Swooper Maps visualization output. | Use `nx run mod-swooper-maps:diag:list`, `:diag:diff`, or `:diag:trace` on the generated evidence; product expectations run through `metrics:report`. |
+| Build MapGen diagnostic dump | MapGen runtime dependencies | Writes a deterministic diagnostic dump beneath the Swooper Maps visualization output. | Use `nx run swooper-physics:diag:list`, `:diag:diff`, or `:diag:trace` on the generated evidence; product expectations run through `metrics:report`. |
 | Deploy Swooper Maps (macOS) | Reviewed mod build and local Civ7 mod destination | Copies the built mod using the canonical CLI. A deploy is a local game mutation. | Rebuild and redeploy deliberately; do not edit `mod/` output by hand. |
 | Probe Civ7 Tuner (macOS) | Running game with Tuner reachable | Builds the CLI and asks `@civ7/direct-control` for JSON Tuner health. Successful JSON health is proof. | Check game/Tuner state and `CIV7_TUNER_HOSTS`, `CIV7_TUNER_HOST`, or `CIV7_TUNER_PORT`; default is `127.0.0.1:4318`. |
 
@@ -66,7 +66,7 @@ The command remains attached to its terminal. Stop that terminal or send
 Use `STUDIO_DAEMON_PORT`, `STUDIO_DEV_PORT`, and `STUDIO_DEV_RPC_TARGET` when a
 nondefault port pair is required.
 
-For a browser run, use Studio's `mod-swooper-maps/standard` recipe with an explicit seed and dimensions, then inspect progress and visualization in the browser. For deterministic headless evidence, use `nx run mod-swooper-maps:diag:dump` and the `diag:*` readback commands above. Treat `nx run mod-swooper-maps:test`, `:check`, and `:build` as the normal architecture proof when changing MapGen code, not as toolbar defaults.
+For a browser run, use Studio's `mod-swooper-maps/standard` recipe with an explicit seed and dimensions, then inspect progress and visualization in the browser. For deterministic headless evidence, use `nx run swooper-physics:diag:dump` and the `diag:*` readback commands above. Treat `nx run swooper-physics:test`, `:check`, and `:build` as the normal definition proof, and `nx run swooper-physics-mod:build` as the deployable Civ7 realization proof, not as toolbar defaults.
 
 ## Civ7 Runtime Control
 

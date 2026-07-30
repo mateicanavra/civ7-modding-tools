@@ -6,6 +6,7 @@ export type JsonValue =
   | readonly JsonValue[]
   | { readonly [key: string]: JsonValue };
 
+/** Converts private diagnostics to JSON while bounding unsupported values to strings. */
 export function privateJson(value: unknown): JsonValue {
   const ancestors: object[] = [];
   const encoded = JSON.stringify(value, function (this: unknown, _key, current) {

@@ -42,6 +42,7 @@ export const studioCiv7Contract = {
   },
 } as const;
 
+/** Composes the complete client-facing Studio procedure tree from its domain contracts. */
 export const studioEffectContract = oc.router({
   civ7: studioCiv7Contract,
   runInGame: {

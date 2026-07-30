@@ -42,6 +42,16 @@ export type SchemaConfigFormProps<TConfig> = Readonly<{
   collapse?: ConfigCollapseContext;
 }>;
 
+/**
+ * Adapts an authored TypeBox config schema into the Studio's rjsf presentation contract.
+ *
+ * The adapter normalizes union/const shapes, selects Studio widgets, and optionally projects a
+ * focused subtree while immutably merging edits back into the full config. Invalid root schemas
+ * render the regeneration prompt rather than mounting rjsf with a partial contract.
+ *
+ * @param props - Authored schema, current config, edit sink, and optional focus/collapse state.
+ * @returns The configured Studio form, or the schema-unavailable recovery surface.
+ */
 export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>) {
   const { schema, value, onChange, disabled, focusPath, collapse } = props;
 

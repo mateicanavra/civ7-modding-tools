@@ -11,6 +11,7 @@ import {
   runInGameRequiredMaterializationMarkers,
 } from "./fileEvidence";
 
+/** Builds exact-authorship evidence only from the supplied materialization and runtime proofs. */
 export function buildRunInGameExactAuthorshipEvidence(args: {
   requestId: string;
   request?: RunInGameRequestStatus;
@@ -322,6 +323,7 @@ function isDetailedExactAuthorshipEvidence(
   return snapshotRunInGameExactAuthorshipEvidence(value) !== undefined;
 }
 
+/** Lists precise materialization proof links that fail to match across local and deployed scripts. */
 export function runInGameMaterializationScriptUnresolvedLinks(args: {
   materialization: RunInGameMaterializationStatus;
   requiredMarkers?: ReadonlyArray<RunInGameRequiredContentMarker>;

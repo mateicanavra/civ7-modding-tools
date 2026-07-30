@@ -17,7 +17,7 @@ Relying on fragile upstream utilities risks recurrent breakage as the SDK evolve
 
 ## Decision
 
-1. **Maintain our own stable `addPlotTags` implementation** (`mods/mod-swooper-maps/mod/maps/core/plot_tags.js`) and stop depending on the missing Civ7 helper.
+1. **Maintain our own stable `addPlotTags` implementation** and stop depending on the missing Civ7 helper. Civ7-bound realization code belongs under `apps/mods/map/swooper-physics`; reusable engine adaptation belongs in `@civ7/adapter`.
 
 2. **Keep Civ7 resource/discovery materialization behind the adapter**, so updates require changing only one surface and map recipes reconcile typed outcomes instead of consuming aggregate generator output as truth.
 

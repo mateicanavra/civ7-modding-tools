@@ -5,10 +5,12 @@ import type { RunInGameOperationKind, RunInGamePhase } from "@civ7/studio-contra
 
 const TERMINAL_PHASES = new Set<RunInGamePhase>(["completed", "failed", "cancelled"]);
 
+/** Reports when a Run in Game phase can no longer advance. */
 export function isRunInGameTerminalPhase(phase: RunInGamePhase): boolean {
   return TERMINAL_PHASES.has(phase);
 }
 
+/** Collapses lifecycle detail into the operation kind consumed by Studio presentation. */
 export function kindForRunInGamePhase(phase: RunInGamePhase): RunInGameOperationKind {
   if (phase === "completed") return "completed";
   if (phase === "failed") return "failed";

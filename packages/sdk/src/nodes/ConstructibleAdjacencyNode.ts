@@ -5,6 +5,7 @@ export type TConstructibleAdjacencyNode = Pick<
   "constructibleType" | "requiresActivation" | "yieldChangeId"
 >;
 
+/** Binds a constructible to an adjacency-yield definition. */
 export class ConstructibleAdjacencyNode extends BaseNode<TConstructibleAdjacencyNode> {
   constructibleType = "BUILDING_";
   requiresActivation: boolean | null = null;

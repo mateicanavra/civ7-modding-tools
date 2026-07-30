@@ -1,0 +1,13 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "map-config-catalog-roots"
+root = "plugins/mod/map/*/src/maps/catalog"
+kind = "directory"
+mode = "closed"
+required = [
+  "index.ts",
+  "membership.ts",
+  "admission.ts",
+]
+allowed = ["public.ts"]

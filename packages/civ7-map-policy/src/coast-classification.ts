@@ -11,5 +11,7 @@
  * applyCiv7CoastRingPolicy (./coast-ring.ts).
  */
 export const WATER_CLASS_LAND = 0;
+/** Civ7 water-class value for shallow shelf and shoreline-ring tiles. */
 export const WATER_CLASS_COAST = 1;
+/** Civ7 water-class value for water outside the projected coastal shelf. */
 export const WATER_CLASS_OCEAN = 2;

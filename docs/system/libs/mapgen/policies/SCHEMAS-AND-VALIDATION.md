@@ -108,7 +108,7 @@ cannot know a field, define a separate observation or sparse-input contract.
 ## Ground truth anchors
 
 - Exact validation implementation: `packages/mapgen-core/src/compiler/normalize.ts`
-- Recipe-owned default construction: `mods/mod-swooper-maps/src/recipes/standard/artifacts.ts`
+- Recipe-owned default construction: `plugins/mod/map/swooper-physics/src/recipes/standard/artifacts.ts`
 - Stage-to-step materialization: `packages/mapgen-core/src/compiler/recipe-compile.ts`
 - Recipe and run request schemas: `packages/mapgen-core/src/engine/execution-plan.ts`
 - Civ7/V8 final-bundle compatibility: `@civ7/adapter/map-script-build` and

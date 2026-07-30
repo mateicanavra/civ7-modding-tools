@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "recipe stage index modules without exactly one canonical default createStage authority, with additional runtime exports, with deep operation-member access, with a detached full public override, with a compiler that has no inline public boundary to translate, or with an obvious empty, identity, or spread-only compiler wrapper",
   "why": "A recipe stage index.ts owns one public runtime stage identity, step selection, and any exceptional semantic public override. Ordinary authoring configuration flows from step schemas, bound operation configuration, and stage knobs. Requiring an intentional full override to be visibly authored inline with the stage prevents inherited or detached configuration authorities. Cheap syntax checks reject only unmistakable no-op compiler wrappers; review determines whether a nontrivial public-to-internal transform is semantically justified.",
@@ -20,7 +20,7 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/recipes/*/stages/*(!(*.*|steps|artifacts|model)/)!(*.*|steps|artifacts|model)/index.ts"
+        "plugins/mod/map/*/src/recipes/*/stages/*(!(*.*|steps|artifacts|model)/)!(*.*|steps|artifacts|model)/index.ts"
       ]
     }
   ],
@@ -36,7 +36,7 @@
     "patternName": "require_recipe_stage_authoring_file_shape",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

@@ -165,5 +165,5 @@ detection. Storage remains private to recipe execution and is not an authored st
 - Artifact catalog: `packages/mapgen-core/src/authoring/artifact/catalog.ts`
 - Artifact-store ownership: `packages/mapgen-core/src/core/map-context.ts`
 - Policy: artifact mutation: `docs/system/libs/mapgen/policies/ARTIFACT-MUTATION.md`
-- Example artifact owner: `mods/mod-swooper-maps/src/domain/foundation/modules/lithosphere/artifacts/plate-graph.artifact.ts`
-- Example module artifact catalog: `mods/mod-swooper-maps/src/domain/foundation/modules/lithosphere/artifacts/index.ts`
+- Example artifact owner: `plugins/mod/map/swooper-physics/src/domain/foundation/modules/lithosphere/artifacts/plate-graph.artifact.ts`
+- Example module artifact catalog: `plugins/mod/map/swooper-physics/src/domain/foundation/modules/lithosphere/artifacts/index.ts`

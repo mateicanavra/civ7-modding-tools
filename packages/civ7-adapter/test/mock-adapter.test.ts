@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { NO_RIVER_TYPE, RIVER_TYPE_NAVIGABLE } from "@civ7/map-policy";
 
-import { createMockAdapter, MockAdapter } from "../src/mock-adapter.js";
+import { createMockAdapter, DEFAULT_PLOT_EFFECT_TYPES, MockAdapter } from "../src/mock-adapter.js";
 
 describe("MockAdapter", () => {
   it("uses the default map dimensions", () => {
@@ -16,6 +16,30 @@ describe("MockAdapter", () => {
 
     expect(adapter.width).toBe(64);
     expect(adapter.height).toBe(40);
+  });
+
+  it("keeps generic plot-effect defaults free of product-specific registrations", () => {
+    expect(DEFAULT_PLOT_EFFECT_TYPES).toEqual([
+      {
+        id: 0,
+        name: "PLOTEFFECT_SNOW_LIGHT_PERMANENT",
+        tags: ["SNOW", "LIGHT", "PERMANENT"],
+      },
+      {
+        id: 1,
+        name: "PLOTEFFECT_SNOW_MEDIUM_PERMANENT",
+        tags: ["SNOW", "MEDIUM", "PERMANENT"],
+      },
+      {
+        id: 2,
+        name: "PLOTEFFECT_SNOW_HEAVY_PERMANENT",
+        tags: ["SNOW", "HEAVY", "PERMANENT"],
+      },
+      { id: 3, name: "PLOTEFFECT_SAND", tags: ["SAND"] },
+      { id: 4, name: "PLOTEFFECT_BURNED", tags: ["BURNED"] },
+    ]);
+    expect(Object.isFrozen(DEFAULT_PLOT_EFFECT_TYPES)).toBe(true);
+    expect(DEFAULT_PLOT_EFFECT_TYPES.every(Object.isFrozen)).toBe(true);
   });
 
   it("preserves exact ordered alive-major identities", () => {

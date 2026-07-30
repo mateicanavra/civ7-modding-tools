@@ -2,6 +2,7 @@ import { ActionGroupBundle } from "../core/ActionGroupBundle";
 import { ACTION_GROUP } from "./ACTION_GROUP";
 import { AGE } from "./AGE";
 
+/** Age-indexed loading bundles that keep shell, always, current-age, and existence criteria aligned. */
 export const ACTION_GROUP_BUNDLE = {
   [AGE.ANTIQUITY]: new ActionGroupBundle({
     shell: ACTION_GROUP.SHELL,

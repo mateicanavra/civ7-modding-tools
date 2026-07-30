@@ -31,6 +31,7 @@ function Demo({ children }: { children: ReactNode }) {
   );
 }
 
+/** Shows the dark-theme control cluster with the map grid enabled. */
 export const GridOn: Story = {
   args: { themePreference: "dark", onThemeCycle: noop, showGrid: true, onShowGridChange: noop },
   render: (args) => (
@@ -40,6 +41,7 @@ export const GridOn: Story = {
   ),
 };
 
+/** Exercises the system-theme icon and the unselected grid toggle together. */
 export const GridOff: Story = {
   args: { themePreference: "system", onThemeCycle: noop, showGrid: false, onShowGridChange: noop },
   render: (args) => (

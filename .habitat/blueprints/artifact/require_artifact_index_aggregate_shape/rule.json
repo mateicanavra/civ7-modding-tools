@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "semantic-module artifact collections outside the positive index plus artifact-module topology",
   "why": "Every artifact-producing semantic module owns one index and immutable data-product modules. Closing that positive physical directory shape makes direct membership auditable while the typed defineArtifactCatalog API owns registered module compatibility without a second source parser.",
@@ -20,8 +20,8 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/domain/*/modules/*/artifacts",
-        "mods/*/src/domain/*/modules/*/artifacts/**"
+        "plugins/mod/map/*/src/domain/*/modules/*/artifacts",
+        "plugins/mod/map/*/src/domain/*/modules/*/artifacts/**"
       ]
     }
   ],

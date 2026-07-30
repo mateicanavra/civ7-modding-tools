@@ -77,4 +77,4 @@ Keep MapGen code and docs aligned to a stable module boundary model:
 - Domain and module model: `docs/system/libs/mapgen/explanation/DOMAIN-MODELING.md`
 - Operation contract and strategy model: `docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`
 - Artifact ownership and admission: `docs/system/libs/mapgen/reference/ARTIFACTS.md`
-- Current implemented example: `mods/mod-swooper-maps/src/domain/foundation/`
+- Current implemented example: `plugins/mod/map/swooper-physics/src/domain/foundation/`

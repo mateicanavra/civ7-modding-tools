@@ -245,11 +245,12 @@ Worker seam + protocol:
 Recipe selection + artifacts boundary:
 - Runtime recipes (worker-side): `apps/mapgen-studio/src/browser-runner/recipeRuntime.ts`
 - Bundled recipe artifacts (UI schema + defaults + ui meta): `apps/mapgen-studio/src/recipes/catalog.ts`
-- Recipe artifacts source: `mod-swooper-maps` recipe source is compiled by
-  `nx run mod-swooper-maps:build:studio-recipes` into package
-  artifact entrypoints (`mod-swooper-maps/recipes/*-artifacts`). Studio imports
-  those first-class package artifacts; generated `dist/` files are build
-  outputs, not editable product policy.
+- Recipe artifacts source: `@swooper/swooper-physics` recipe source is compiled
+  by `nx run swooper-physics:build` into finite package artifact entrypoints
+  such as `@swooper/swooper-physics/standard/artifacts`. Studio imports those
+  first-class package artifacts; generated `dist/` files are build outputs,
+  not editable product policy. The serialized recipe identity remains
+  `mod-swooper-maps/standard`.
 - Worker creation boundary: `apps/mapgen-studio/src/features/browserRunner/workerClient.ts`
 
 Core SDK contracts this seam depends on:

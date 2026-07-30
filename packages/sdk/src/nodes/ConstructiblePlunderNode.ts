@@ -8,6 +8,7 @@ export type TConstructiblePlunderNode = Pick<
   "constructibleType" | "plunderType" | "amount"
 >;
 
+/** Associates a constructible with the effect granted when it is plundered. */
 export class ConstructiblePlunderNode extends BaseNode<TConstructiblePlunderNode> {
   constructibleType: string | null = "BUILDING_";
   plunderType: TObjectValues<typeof PLUNDER> | null = PLUNDER.HEAL;

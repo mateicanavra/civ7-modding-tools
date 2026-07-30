@@ -38,6 +38,7 @@ function ToastDemo() {
   );
 }
 
+/** Fires success, informational, and failure notices through the decorator-owned singleton toaster. */
 export const Notifications: Story = {
   render: () => <ToastDemo />,
 };

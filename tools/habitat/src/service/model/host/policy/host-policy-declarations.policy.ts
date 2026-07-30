@@ -17,7 +17,7 @@ export const defaultHostPolicyDocument: HostPolicyDocument = Value.Parse(HostPol
     {
       ownerId: "swooper-maps-workflow",
       displayName: "Swooper Maps workflow",
-      owningPackageOrWorkflow: "mods/mod-swooper-maps",
+      owningPackageOrWorkflow: "apps/mods/map/swooper-physics",
       recoveryContact: "docs/system/mods/swooper-maps/",
       aliases: ["Swooper Maps", "MapGen maps"],
     },
@@ -38,7 +38,7 @@ export const defaultHostPolicyDocument: HostPolicyDocument = Value.Parse(HostPol
     {
       ownerId: "mapgen-domain-workflow",
       displayName: "MapGen domain workflow",
-      owningPackageOrWorkflow: "mods/mod-swooper-maps/src/domain",
+      owningPackageOrWorkflow: "plugins/mod/map/swooper-physics/src/domain",
       recoveryContact: "docs/system/libs/mapgen/",
       aliases: ["MapGen public ops"],
     },
@@ -49,9 +49,9 @@ export const defaultHostPolicyDocument: HostPolicyDocument = Value.Parse(HostPol
       "swooper-maps-workflow",
       {
         kind: "prefix",
-        value: "mods/mod-swooper-maps/src/maps/generated/",
+        value: "apps/mods/map/swooper-physics/src/maps/generated/",
       },
-      commandRecovery("swooper-maps-workflow", "nx run mod-swooper-maps:gen:maps")
+      commandRecovery("swooper-maps-workflow", "nx run swooper-physics-mod:gen:maps")
     ),
     generatedSurface(
       "civ7-types-generated",
@@ -87,7 +87,7 @@ export const defaultHostPolicyDocument: HostPolicyDocument = Value.Parse(HostPol
       kind: "apply-gate",
       gateId: "mapgen-public-ops",
       triggerClass: "import-pattern",
-      gateContract: "@mapgen/domain public ops validation",
+      gateContract: "Swooper definition domain contract validation",
       recovery: documentedRecovery("mapgen-domain-workflow", "docs/system/libs/mapgen/"),
     },
     unsupportedHostShape(

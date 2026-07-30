@@ -8,6 +8,14 @@ export type ArtifactPresentation = Readonly<{
   label: string;
 }>;
 
+/**
+ * Derives the domain color key and compact visible label for an authored artifact identifier.
+ * The parser strips the `artifact:` tag, hides internal path segments, and applies semantic domain
+ * aliases so graph edges and diagnostics share one presentation policy.
+ *
+ * @param id - Fully qualified or legacy artifact identifier.
+ * @returns The original id with its normalized domain, when known, and local display label.
+ */
 export function parseArtifactPresentation(id: string): ArtifactPresentation {
   const withoutTag = id.replace(ARTIFACT_TAG_PREFIX, "");
   const segments = withoutTag.split(".").filter((segment) => segment.length > 0);
@@ -32,16 +40,34 @@ export function parseArtifactPresentation(id: string): ArtifactPresentation {
   };
 }
 
+/**
+ * Formats one artifact identifier using the DAG's shared semantic presentation policy.
+ *
+ * @param id - Fully qualified or legacy artifact identifier.
+ * @returns The compact local label shown on edges and diagnostic chips.
+ */
 export function formatArtifactLabel(id: string): string {
   return parseArtifactPresentation(id).label;
 }
 
+/**
+ * Summarizes a bundled edge label as its first artifact plus the remaining artifact count.
+ *
+ * @param artifacts - Artifact identifiers carried by one grouped stage edge.
+ * @returns `dependency` for an empty group, otherwise a compact first-label summary.
+ */
 export function formatArtifactGroupLabel(artifacts: readonly string[]): string {
   if (artifacts.length === 0) return "dependency";
   const first = formatArtifactLabel(artifacts[0] ?? "artifact");
   return artifacts.length === 1 ? first : `${first} +${artifacts.length - 1}`;
 }
 
+/**
+ * Selects a domain color only when every recognized artifact in a group resolves to one domain.
+ *
+ * @param artifacts - Artifact identifiers sharing a grouped edge or diagnostic marker.
+ * @returns The common recognized domain, or `null` when none resolve or recognized domains differ.
+ */
 export function resolveArtifactGroupDomainId(artifacts: readonly string[]): string | null {
   const domains = artifacts
     .map((artifact) => parseArtifactPresentation(artifact).domainId)

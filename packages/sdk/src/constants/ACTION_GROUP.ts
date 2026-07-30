@@ -4,6 +4,7 @@ import { CriteriaNode } from "../nodes/CriteriaNode";
 
 import { AGE } from "./AGE";
 
+/** Reusable action-group nodes for shell, global game, and age-specific loading phases. */
 export const ACTION_GROUP = {
   SHELL: new ActionGroupNode({
     scope: "shell",

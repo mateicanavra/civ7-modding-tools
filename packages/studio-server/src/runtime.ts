@@ -54,6 +54,7 @@ export interface StudioRuntimeOptions {
   liveGameWatch?: LiveGameWatcherOptions;
 }
 
+/** Assembles the scoped daemon runtime and all Studio service layers for one process lifetime. */
 export function makeStudioRuntime(
   context: StudioServerContext,
   options: StudioRuntimeOptions = {}

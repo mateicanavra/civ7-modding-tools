@@ -11,6 +11,12 @@ import type {
 /** How a recorded Run in Game operation relates to the current authored Studio state. */
 export type RunInGameRelation = "current" | "stale" | "unknown";
 
+/**
+ * Maps save/deploy transport phases to the compact labels used by Studio action surfaces.
+ *
+ * @param phase - Current save/deploy workflow phase from the Studio contract.
+ * @returns The stable user-facing phase label shared by the recipe panel and game console.
+ */
 export function formatMapConfigSaveDeployPhaseLabel(phase: MapConfigSaveDeployPhase): string {
   switch (phase) {
     case "idle":
@@ -28,6 +34,12 @@ export function formatMapConfigSaveDeployPhaseLabel(phase: MapConfigSaveDeployPh
   }
 }
 
+/**
+ * Maps Run in Game workflow phases to the compact labels shown while an operation is active.
+ *
+ * @param phase - Current public Run in Game workflow phase.
+ * @returns The user-facing progress label used by status and primary-action projections.
+ */
 export function formatRunInGamePhaseLabel(phase: RunInGamePhase): string {
   switch (phase) {
     case "admitting-config":
@@ -49,6 +61,15 @@ export function formatRunInGamePhaseLabel(phase: RunInGamePhase): string {
   }
 }
 
+/**
+ * Resolves the Run in Game button copy from operation state, recovery policy, and authorship drift.
+ * Stale terminal operations invite a fresh current-state run rather than retrying old authorship;
+ * current failures expose retry only when the server advertises that recovery action.
+ *
+ * @param status - Latest operation status, when one has been observed.
+ * @param relation - Whether that operation belongs to the currently authored Studio state.
+ * @returns The primary-action label that communicates progress or the admitted recovery path.
+ */
 export function runInGamePrimaryActionLabel(
   status?: RunInGameOperationStatus | null,
   relation: RunInGameRelation = "unknown"

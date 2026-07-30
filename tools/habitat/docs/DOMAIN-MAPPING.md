@@ -272,8 +272,8 @@ inputs:
 - Hook behavior and side-effect inventory.
 - Workspace graph integration and classify target truth.
 - MapGen topology references needed only for the future authoring scenarios:
-  `docs/system/libs/mapgen/`, `mods/mod-swooper-maps/src/domain/`,
-  `mods/mod-swooper-maps/src/recipes/standard/`,
+  `docs/system/libs/mapgen/`, `plugins/mod/map/swooper-physics/src/domain/`,
+  `plugins/mod/map/swooper-physics/src/recipes/standard/`,
   `packages/mapgen-core/src/`, and relevant tests.
 
 ## Scenario-Driven Approach

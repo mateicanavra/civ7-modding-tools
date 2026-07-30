@@ -8,6 +8,7 @@ export type TStartBiasBiomeNode = Pick<
   "civilizationType" | "leaderType" | "biomeType" | "score"
 >;
 
+/** Assigns a weighted civilization start preference for a biome. */
 export class StartBiasBiomeNode extends BaseNode<TStartBiasBiomeNode> {
   civilizationType: string | null = null;
   leaderType: `LEADER_${string}` | null = null;

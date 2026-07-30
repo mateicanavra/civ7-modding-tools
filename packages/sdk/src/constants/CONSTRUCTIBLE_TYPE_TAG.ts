@@ -1,3 +1,4 @@
+/** Type-tag identifiers used to attach gameplay categories to constructibles. */
 export const CONSTRUCTIBLE_TYPE_TAG = {
   FORTIFICATION: "FORTIFICATION",
   IGNORE_DISTRICT_PLACEMENT_CAP: "IGNORE_DISTRICT_PLACEMENT_CAP",

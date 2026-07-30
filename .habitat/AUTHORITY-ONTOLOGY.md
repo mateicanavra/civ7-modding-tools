@@ -287,8 +287,8 @@ provider = "clerk"
 authorityRoots = ["apps/mapgen-studio/src/auth"]
 
 [capability.generated-artifact-consumer]
-artifactRoots = ["mods/mod-swooper-maps/generated/studio-recipes"]
-producerTarget = "mod-swooper-maps:build:studio-recipes"
+artifactRoots = ["plugins/mod/map/swooper-physics/dist/recipes"]
+producerTarget = "swooper-physics:build:standard"
 ```
 
 ## Capability
@@ -577,19 +577,24 @@ apps/mapgen-studio/
 ### Multi-Root Example
 
 ```text
-mods/mod-swooper-maps/
+plugins/mod/map/swooper-physics/
   habitat.toml
   package.json
   src/
-  generated/
+
+apps/mods/map/swooper-physics/
+  package.json
+  src/
+  mod/
 
 docs/system/mods/swooper-maps/
   OVERVIEW.md
   AUTHORING.md
 ```
 
-The docs root is part of the instance, but the instance identity lives at the
-blueprint-defined anchor under `mods/mod-swooper-maps/`.
+The realization and docs roots are part of the instance, but the reusable
+definition identity lives at the blueprint-defined anchor under
+`plugins/mod/map/swooper-physics/`.
 
 ### Composite Anchor Example
 

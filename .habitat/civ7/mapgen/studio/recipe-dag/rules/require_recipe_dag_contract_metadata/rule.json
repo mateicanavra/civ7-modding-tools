@@ -21,8 +21,8 @@
       "kind": "exact-path",
       "patterns": [
         "apps/mapgen-studio/src/server/recipeDag/service.ts",
-        "mods/mod-swooper-maps/src/recipes/studio-contracts/**",
-        "mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts"
+        "plugins/mod/map/swooper-physics/src/recipes/studio-contracts/**",
+        "plugins/mod/map/swooper-physics/src/recipes/standard/contract-manifest.ts"
       ]
     },
     {

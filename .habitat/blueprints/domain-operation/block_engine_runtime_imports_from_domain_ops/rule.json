@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "mod-swooper-maps",
+  "ownerProject": "swooper-physics",
   "lane": "enforced",
   "forbids": "domain ops importing engine runtime entrypoints as values",
   "why": "Domain ops stay portable domain logic; engine runtime entrypoints belong behind approved domain/runtime surfaces.",
@@ -19,7 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/domain/*/modules/*/ops/**/*.ts"]
+      "patterns": ["plugins/mod/map/*/src/domain/*/modules/*/ops/**/*.ts"]
     }
   ],
   "hookCheck": true,
@@ -34,7 +34,7 @@
     "patternName": "block_engine_runtime_imports_from_domain_ops",
     "acquisition": {
       "kind": "check",
-      "roots": ["mods"]
+      "roots": ["plugins/mod/map"]
     }
   }
 }

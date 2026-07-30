@@ -9,41 +9,38 @@ The Studio recipe-DAG service and its studio contract source consume contract me
 language js(typescript)
 
 or {
-  `import $imports from "mod-swooper-maps/recipes/standard"` where {
+  `import $imports from "@swooper/swooper-physics/standard"` where {
     $filename <: r".*apps/mapgen-studio/src/server/recipeDag/service\.ts$"
   },
-  `import $imports from "mod-swooper-maps/recipes/standard-artifacts"` where {
+  `import $imports from "@swooper/swooper-physics/standard/artifacts"` where {
     $filename <: r".*apps/mapgen-studio/src/server/recipeDag/service\.ts$"
   },
-  `import $imports from "mod-swooper-maps/recipes/standard-map-configs"` where {
+  `import $imports from "@swooper/swooper-physics/standard/map-config"` where {
     $filename <: r".*apps/mapgen-studio/src/server/recipeDag/service\.ts$"
   },
-  `import $imports from "mod-swooper-maps/recipes/browser-test"` where {
+  `import $imports from "@swooper/swooper-physics/catalog"` where {
     $filename <: r".*apps/mapgen-studio/src/server/recipeDag/service\.ts$"
   },
   `"src/recipes/standard/recipe.js"` where {
     $filename <: r".*apps/mapgen-studio/src/server/recipeDag/service\.ts$"
   },
   `"recipe.js"` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/studio-contracts/.*\.ts$"
-  },
-  `"browser-test"` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/studio-contracts/.*\.ts$"
+    $filename <: r".*plugins/mod/map/swooper-physics/src/recipes/studio-contracts/.*\.ts$"
   },
   `createRecipe` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/studio-contracts/.*\.ts$"
+    $filename <: r".*plugins/mod/map/swooper-physics/src/recipes/studio-contracts/.*\.ts$"
   },
   `createStage` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/studio-contracts/.*\.ts$"
+    $filename <: r".*plugins/mod/map/swooper-physics/src/recipes/studio-contracts/.*\.ts$"
   },
   `createStep` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/studio-contracts/.*\.ts$"
+    $filename <: r".*plugins/mod/map/swooper-physics/src/recipes/studio-contracts/.*\.ts$"
   },
   `collectOperations` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/studio-contracts/.*\.ts$"
+    $filename <: r".*plugins/mod/map/swooper-physics/src/recipes/studio-contracts/.*\.ts$"
   },
   `implementArtifactModules` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/studio-contracts/.*\.ts$"
+    $filename <: r".*plugins/mod/map/swooper-physics/src/recipes/studio-contracts/.*\.ts$"
   }
 }
 ```
@@ -52,27 +49,24 @@ or {
 
 ```typescript
 // @filename: apps/mapgen-studio/src/server/recipeDag/service.ts
-import standardRecipe from "mod-swooper-maps/recipes/standard";
+import standardRecipe from "@swooper/swooper-physics/standard";
 
 // @filename: apps/mapgen-studio/src/server/recipeDag/service.ts
-import configs from "mod-swooper-maps/recipes/standard-map-configs";
+import configs from "@swooper/swooper-physics/standard/map-config";
 
 // @filename: apps/mapgen-studio/src/server/recipeDag/service.ts
 const sourcePath = "src/recipes/standard/recipe.js";
 
-// @filename: mods/mod-swooper-maps/src/recipes/studio-contracts/index.ts
+// @filename: plugins/mod/map/swooper-physics/src/recipes/studio-contracts/index.ts
 const runtime = "recipe.js";
 
-// @filename: mods/mod-swooper-maps/src/recipes/studio-contracts/index.ts
-const browser = "browser-test";
-
-// @filename: mods/mod-swooper-maps/src/recipes/studio-contracts/index.ts
+// @filename: plugins/mod/map/swooper-physics/src/recipes/studio-contracts/index.ts
 const helper = createStep;
 
-// @filename: mods/mod-swooper-maps/src/recipes/studio-contracts/index.ts
+// @filename: plugins/mod/map/swooper-physics/src/recipes/studio-contracts/index.ts
 const operations = collectOperations(domain);
 
-// @filename: mods/mod-swooper-maps/src/recipes/studio-contracts/index.ts
+// @filename: plugins/mod/map/swooper-physics/src/recipes/studio-contracts/index.ts
 const helper = implementArtifactModules;
 ```
 
@@ -80,7 +74,7 @@ const helper = implementArtifactModules;
 
 ```typescript
 // @filename: apps/mapgen-studio/src/server/recipeDag/service.ts
-import { sources } from "mod-swooper-maps/recipes/studio-contracts";
+import { sources } from "@swooper/swooper-physics/standard/dag";
 
 // @filename: apps/mapgen-studio/src/server/recipeDag/service.ts
 import { buildRecipeDag } from "@swooper/mapgen-core/authoring/recipe-dag";
@@ -88,15 +82,15 @@ import { buildRecipeDag } from "@swooper/mapgen-core/authoring/recipe-dag";
 // @filename: apps/mapgen-studio/src/server/recipeDag/service.ts
 const contract = "../standard/contract-manifest.js";
 
-// @filename: mods/mod-swooper-maps/src/recipes/studio-contracts/index.ts
+// @filename: plugins/mod/map/swooper-physics/src/recipes/studio-contracts/index.ts
 import { standardStageContractManifest } from "../standard/contract-manifest.js";
 
-// @filename: mods/mod-swooper-maps/src/recipes/studio-contracts/index.ts
+// @filename: plugins/mod/map/swooper-physics/src/recipes/studio-contracts/index.ts
 const helper = "createRecipe";
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/recipe.ts
+// @filename: plugins/mod/map/swooper-physics/src/recipes/standard/recipe.ts
 createRecipe(definition);
 
 // @filename: apps/mapgen-studio/src/server/recipeDag/service.tsx
-import standardRecipe from "mod-swooper-maps/recipes/standard";
+import standardRecipe from "@swooper/swooper-physics/standard";
 ```

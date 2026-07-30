@@ -92,4 +92,4 @@ Think of MapGen as these layers:
 - Config compilation: `packages/mapgen-core/src/compiler/recipe-compile.ts`
 - Execution plan schema + compilation hooks: `packages/mapgen-core/src/engine/execution-plan.ts`
 - Pipeline executor (artifact publication + trace scoping): `packages/mapgen-core/src/engine/PipelineExecutor.ts`
-- Standard recipe (canonical consumer-facing pipeline): `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
+- Standard recipe (canonical consumer-facing pipeline): `plugins/mod/map/swooper-physics/src/recipes/standard/recipe.ts`

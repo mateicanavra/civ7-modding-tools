@@ -31,7 +31,8 @@ A dump run directory contains:
 - `trace.jsonl` — step trace events (including summary events emitted by steps)
 - `data/*.bin` — raw grid binaries referenced from `manifest.json`
 
-In this repo, dumps are written under `mods/mod-swooper-maps/dist/visualization/...`.
+In this repo, definition-owned dumps are written under
+`plugins/mod/map/swooper-physics/dist/visualization/...`.
 
 ## Quickstart (deterministic probes)
 
@@ -43,10 +44,10 @@ From repo root:
 
 ```bash
 # baseline
-nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7 --label probe-baseline
+nx run swooper-physics:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7 --label probe-baseline
 
 # variant (example: change plateCount)
-nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7 --label probe-platecount6 --override '{"foundation-lithosphere":{"plate-graph":{"computePlateGraph":{"config":{"plateCount":6}}}}}'
+nx run swooper-physics:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7 --label probe-platecount6 --override '{"foundation-lithosphere":{"plate-graph":{"computePlateGraph":{"config":{"plateCount":6}}}}}'
 ```
 
 Each run prints:
@@ -62,7 +63,7 @@ expectations belong to the Standard recipe metric study bank so tests and report
 authority:
 
 ```bash
-nx run mod-swooper-maps:metrics:report
+nx run swooper-physics:metrics:report
 ```
 
 ## A/B diff workflow
@@ -71,18 +72,18 @@ Use diffs to localize where the causal chain breaks:
 
 1) Confirm the upstream layers changed (Foundation)
 ```bash
-nx run mod-swooper-maps:diag:diff -- <runDirA> <runDirB> --prefix foundation.
+nx run swooper-physics:diag:diff -- <runDirA> <runDirB> --prefix foundation.
 ```
 
 2) Confirm Morphology fields changed (elevation, landmask)
 ```bash
-nx run mod-swooper-maps:diag:diff -- <runDirA> <runDirB> --data-type-key morphology.topography.elevation
-nx run mod-swooper-maps:diag:diff -- <runDirA> <runDirB> --data-type-key morphology.topography.landMask
+nx run swooper-physics:diag:diff -- <runDirA> <runDirB> --data-type-key morphology.topography.elevation
+nx run swooper-physics:diag:diff -- <runDirA> <runDirB> --data-type-key morphology.topography.landMask
 ```
 
 3) Extract step summaries from trace (landmask, sea level, etc.)
 ```bash
-nx run mod-swooper-maps:diag:trace -- <runDirA> --event-prefix morphology.
+nx run swooper-physics:diag:trace -- <runDirA> --event-prefix morphology.
 ```
 
 If Foundation layers change but landmask doesn’t, the problem is usually one of:
@@ -93,19 +94,19 @@ If Foundation layers change but landmask doesn’t, the problem is usually one o
 ## Ground truth anchors
 
 - Dump writer / pipeline entry:
-  - `mods/mod-swooper-maps/scripts/diagnostics/run-standard-dump.ts`
+  - `plugins/mod/map/swooper-physics/scripts/diagnostics/run-standard-dump.ts`
 - Dump readers:
-  - `mods/mod-swooper-maps/scripts/diagnostics/diff-layers.ts`
-  - `mods/mod-swooper-maps/scripts/diagnostics/list-layers.ts`
-  - `mods/mod-swooper-maps/scripts/diagnostics/extract-trace.ts`
+  - `plugins/mod/map/swooper-physics/scripts/diagnostics/diff-layers.ts`
+  - `plugins/mod/map/swooper-physics/scripts/diagnostics/list-layers.ts`
+  - `plugins/mod/map/swooper-physics/scripts/diagnostics/extract-trace.ts`
 - Reusable evidence admission, exact binary reads, inventory, and neutral diffing:
   - `packages/mapgen-diagnostics/src/index.ts`
 - Swooper product metric studies:
-  - `mods/mod-swooper-maps/src/recipes/standard/metrics/studies/index.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/index.ts`
 - Trace + visualization sink wiring:
   - `packages/mapgen-diagnostics/src/dump.ts`
 - Standard recipe styles:
-  - `mods/mod-swooper-maps/src/recipes/standard/viz.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/viz.ts`
 
 ## Notes + footguns
 
@@ -113,7 +114,7 @@ If Foundation layers change but landmask doesn’t, the problem is usually one o
 - Use `diag:list` to enumerate layers for a run:
 
 ```bash
-nx run mod-swooper-maps:diag:list -- <runDirA> --prefix foundation.
+nx run swooper-physics:diag:list -- <runDirA> --prefix foundation.
 ```
 
 - Keep comparisons deterministic: select one canonical Civ7 map-size preset,
